@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -164,10 +165,8 @@ Procedure OnUpdateUserSettingSetAtServer(StandardProcessing)
 	If SettingsUpdateRequired Then
 		SettingsUpdateRequired = False;
 		
-		FillParameters = New Structure;
-		FillParameters.Insert("EventName", "OnCreateAtServer");
-		FillParameters.Insert("UpdateOptionSettings", Not SettingsStructureItemChangeMode And ExtendedMode = 1);
-		
+		FillParameters = ReportsClientServer.ReportFormUpdateParameters("OnCreateAtServer");
+		FillParameters.UpdateOptionSettings = Not SettingsStructureItemChangeMode And ExtendedMode = 1;
 		UpdateForm(FillParameters);
 	EndIf;
 EndProcedure
@@ -210,12 +209,10 @@ Procedure ExtendedModeOnChange(Item)
 		
 	EndIf;
 	
-	ParametersOfUpdate = New Structure;
-	ParametersOfUpdate.Insert("EventName", "ExtendedModeOnChange");
-	ParametersOfUpdate.Insert("DCSettingsComposer", Report.SettingsComposer);
-	ParametersOfUpdate.Insert("UpdateOptionSettings", ExtendedMode = 1);
-	ParametersOfUpdate.Insert("ResetCustomSettings", ExtendedMode <> 1);
-	
+	ParametersOfUpdate = ReportsClientServer.ReportFormUpdateParameters("ExtendedModeOnChange");
+	ParametersOfUpdate.DCSettingsComposer = Report.SettingsComposer;
+	ParametersOfUpdate.UpdateOptionSettings = (ExtendedMode = 1);
+	ParametersOfUpdate.ResetCustomSettings = (ExtendedMode <> 1);
 	UpdateForm(ParametersOfUpdate);
 EndProcedure
 
@@ -273,7 +270,7 @@ Procedure OutputFiltersOnChange(Item)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure Attachable_Period_OnChange(Item)
@@ -299,9 +296,8 @@ Procedure Attachable_SettingItem_OnChange(Item)
 	If TypeOf(SettingItem) = Type("DataCompositionSettingsParameterValue")
 		And ReportSettings.ImportSettingsOnChangeParameters.Find(SettingItem.Parameter) <> Undefined Then 
 		
-		ParametersOfUpdate = New Structure;
-		ParametersOfUpdate.Insert("DCSettingsComposer", SettingsComposer);
-		
+		ParametersOfUpdate = ReportsClientServer.ReportFormUpdateParameters();
+		ParametersOfUpdate.DCSettingsComposer = SettingsComposer;
 		UpdateForm(ParametersOfUpdate);
 	Else
 		RegisterList(Item, SettingItem);
@@ -652,10 +648,10 @@ Procedure SelectedFieldsSelection(Item, RowID, Field, StandardProcessing)
 	EndIf;
 	
 	If Field = Items.SelectedFieldsField Then // Change the order.
-		If TypeOf(String.Field) = Type("DataCompositionField") Then
-			SelectedFieldsSelectField(RowID, String);
-		ElsIf String.IsFolder Then
+		If String.IsFolder Then
 			SelectedFieldsSelectGroup(RowID, String);
+		ElsIf TypeOf(String.Field) = Type("DataCompositionField") Then
+			SelectedFieldsSelectField(RowID, String);
 		EndIf;
 	EndIf;
 EndProcedure
@@ -773,6 +769,10 @@ EndProcedure
 &AtClient
 Procedure SelectedFieldsDragCheck(Item, DragParameters, StandardProcessing, CurrentRow, Field)
 	
+	If DragSourceAtClient <> Item.Name Then
+		Return;
+	EndIf;
+	
 	CurrentData = SelectedFields.FindByID(CurrentRow);
 	If CurrentData.IsSection Or CurrentData.IsFolder Then
 		DestinationRow = CurrentData;
@@ -807,6 +807,8 @@ Procedure SelectedFieldsDrag(Item, DragParameters, StandardProcessing, CurrentRo
 	
 	If DragSourceAtClient = Item.Name Then 
 		DragSelectedFieldsWithinCollection(DragParameters, CurrentRow);
+	Else
+		DragSortingFieldsToSelectedFields(DragParameters.Value);
 	EndIf;
 EndProcedure
 
@@ -1160,12 +1162,11 @@ Procedure FiltersValueOnChange(Item)
 		Report.SettingsComposer.Settings.AdditionalProperties.Insert("ReportInitialized", False);
 		VariantModified = WasOptionModified;
 		
-		ParametersOfUpdate = New Structure;
-		ParametersOfUpdate.Insert("DCSettingsComposer", Report.SettingsComposer);
-		ParametersOfUpdate.Insert("VariantModified", VariantModified);
-		ParametersOfUpdate.Insert("UserSettingsModified", UserSettingsModified);
-		ParametersOfUpdate.Insert("ResetCustomSettings", True);
-		
+		ParametersOfUpdate = ReportsClientServer.ReportFormUpdateParameters();
+		ParametersOfUpdate.DCSettingsComposer = Report.SettingsComposer;
+		UpdateParametersOptionModified = VariantModified;
+		ParametersOfUpdate.UserSettingsModified = UserSettingsModified;
+		ParametersOfUpdate.ResetCustomSettings = True;
 		UpdateForm(ParametersOfUpdate);
 	EndIf;
 EndProcedure
@@ -1245,9 +1246,9 @@ Procedure FiltersUserSettingPresentationOnChange(Item)
 	
 	If Not String.IsParameter Then
 		If String.DisplayModePicture = 1 Or String.DisplayModePicture = 3 Then
-			
-			
-			
+			// 
+			// 
+			// 
 			SettingItem.Presentation = String.UserSettingPresentation;
 		Else
 			SettingItem.Presentation = "";
@@ -2040,12 +2041,10 @@ Procedure EditFiltersConditionsCompletion(FiltersConditions, Context) Export
 		Return;
 	EndIf;
 	
-	ParametersOfUpdate = New Structure;
-	ParametersOfUpdate.Insert("EventName", "EditFiltersConditions");
-	ParametersOfUpdate.Insert("DCSettingsComposer", Report.SettingsComposer);
-	ParametersOfUpdate.Insert("UserSettingsModified", True);
-	ParametersOfUpdate.Insert("FiltersConditions", FiltersConditions);
-	
+	ParametersOfUpdate = ReportsClientServer.ReportFormUpdateParameters("EditFiltersConditions");
+	ParametersOfUpdate.DCSettingsComposer = Report.SettingsComposer;
+	ParametersOfUpdate.UserSettingsModified = True;
+	ParametersOfUpdate.FiltersConditions =FiltersConditions;
 	UpdateForm(ParametersOfUpdate);
 EndProcedure
 
@@ -2053,9 +2052,8 @@ EndProcedure
 Procedure RemoveNonexistentFieldsFromSettings(Command)
 	DeleteFiedsMarkedForDeletion();
 	
-	ParametersOfUpdate = New Structure;
-	ParametersOfUpdate.Insert("DCSettingsComposer", Report.SettingsComposer);
-	
+	ParametersOfUpdate = ReportsClientServer.ReportFormUpdateParameters();
+	ParametersOfUpdate.DCSettingsComposer = Report.SettingsComposer;
 	UpdateForm(ParametersOfUpdate);
 EndProcedure
 
@@ -2067,7 +2065,7 @@ Procedure GoToSettingsForTechnician(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure Attachable_SelectPeriod(Command)
@@ -2143,7 +2141,7 @@ EndFunction
 
 #Region GroupFields
 
-
+// 
 
 &AtServer
 Procedure UpdateGroupFields()
@@ -2186,7 +2184,7 @@ Procedure UpdateGroupFields()
 	EndDo;
 EndProcedure
 
-
+// 
 
 &AtClient
 Procedure GroupContentSelectField(RowID, String)
@@ -2245,7 +2243,7 @@ Procedure GroupCompositionAfterFieldChoice(SettingDetails, RowID) Export
 	DetermineIfModified();
 EndProcedure
 
-
+// 
 
 &AtClient
 Procedure ShiftGroupField(ToBeginning = True)
@@ -2293,7 +2291,7 @@ EndProcedure
 
 #Region DataParametersAndFilters
 
-
+// 
 
 &AtServer
 Procedure UpdateDataParameters()
@@ -2455,7 +2453,7 @@ Function SetFiltersRowData(String, StructureItemProperty, SettingItem, SettingDe
 	Return InstalledSuccessfully1;
 EndFunction
 
-
+// 
 
 &AtClient
 Procedure FiltersSelectGroup(RowID)
@@ -2728,7 +2726,7 @@ Procedure List_AtStartChanges()
 	
 EndProcedure
 
-
+// 
 
 // Returns:
 //  Structure:
@@ -2834,7 +2832,7 @@ Procedure DeleteBasicFiltersGroupingItems(SettingsNodeFilters, GroupingParameter
 	EndDo;
 EndProcedure
 
-
+// 
 
 &AtClient
 Procedure CheckDraggableRowsFromSelections(RowsIDs)
@@ -2949,7 +2947,7 @@ Procedure DragAndDropFilters(SelectedSettingsNodeFields, IndexOf, Rows, Settings
 	EndDo;
 EndProcedure
 
-
+// 
 
 &AtClient
 Procedure ShiftFilters(ToBeginning = True)
@@ -3032,7 +3030,7 @@ EndFunction
 
 #Region SelectedFields
 
-
+// 
 
 &AtServer
 Procedure UpdateSelectedFields(Rows = Undefined, SettingsItems = Undefined)
@@ -3070,7 +3068,7 @@ Procedure UpdateSelectedFields(Rows = Undefined, SettingsItems = Undefined)
 		If TypeOf(SettingItem) = Type("DataCompositionSelectedFieldGroup") Then 
 			String.IsFolder = True;
 			String.Picture = ReportsOptionsInternalClientServer.IndexOfTheFieldImage(Undefined, True);
-			String.Title = SelectedFieldsGroupTitle(SettingItem);
+			String.Title = SelectedFieldsGroupTitle(SettingItem, StructureItemProperty);
 			
 			UpdateSelectedFields(String.GetItems(), SettingItem.Items);
 		Else
@@ -3087,7 +3085,7 @@ Procedure UpdateSelectedFields(Rows = Undefined, SettingsItems = Undefined)
 	EndDo;
 EndProcedure
 
-
+// 
 
 &AtClient
 Procedure SelectedFieldsSelectGroup(RowID, String)
@@ -3097,7 +3095,7 @@ Procedure SelectedFieldsSelectGroup(RowID, String)
 	SettingItem = SettingItem(StructureItemProperty, String);
 	
 	FormParameters = New Structure;
-	FormParameters.Insert("GroupTitle", SettingItem.Title);
+	FormParameters.Insert("GroupTitle", String.Title);
 	FormParameters.Insert("Placement", SettingItem.Placement);
 	
 	Handler = New NotifyDescription("SelectedFieldsAfterGroupChoice", ThisObject, RowID);
@@ -3227,7 +3225,7 @@ Procedure SelectedFieldsBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group, Para
 	SelectField("SelectedFields", Handler);
 EndProcedure
 
-
+// 
 
 // Returns:
 //  - Structure:
@@ -3383,8 +3381,16 @@ Procedure DeleteBasicGroupingItemsOfSelectedFields(SelectedSettingsNodeFields, G
 EndProcedure
 
 &AtClientAtServerNoContext
-Function SelectedFieldsGroupTitle(SettingItem)
+Function SelectedFieldsGroupTitle(SettingItem, StructureItemProperty = Undefined)
 	GroupTitle = SettingItem.Title;
+
+	If Not ValueIsFilled(GroupTitle) And StructureItemProperty <> Undefined
+	   And SettingItem.Field <> Undefined Then
+		SettingDetails = StructureItemProperty.SelectionAvailableFields.FindField(SettingItem.Field);
+		If SettingDetails <> Undefined Then 
+			GroupTitle = SettingDetails.Title;
+		EndIf;
+	EndIf;
 	
 	If Not ValueIsFilled(GroupTitle) Then 
 		GroupTitle = "(" + SettingItem.Placement + ")";
@@ -3395,7 +3401,7 @@ Function SelectedFieldsGroupTitle(SettingItem)
 	Return GroupTitle;
 EndFunction
 
-
+// 
 
 &AtClient
 Procedure CheckRowsToDragFromSelectedFields(RowsIDs)
@@ -3519,7 +3525,7 @@ Procedure DragSelectedFields(SelectedSettingsNodeFields, IndexOf, Rows, Settings
 	EndDo;
 EndProcedure
 
-
+// 
 
 &AtClient
 Procedure ShiftSelectedFields(ToBeginning = True)
@@ -3728,25 +3734,45 @@ Procedure ShowChoiceList(String, StandardProcessing, Item)
 	EndIf;
 	
 	Handler = New NotifyDescription("CompleteChoiceFromList", ThisObject, String.GetID());
+	AvailableTypes = SelectableTypes(String.ValueType);
 	
-	If ReportsClient.IsSelectMetadataObjects(String.ValueType, CurrentValue, Handler)
-		Or ReportsClient.IsSelectUsers(ThisObject, Item, String.ValueType, CurrentValue, ValueField.ChoiceParameters, Handler) Then 
+	If ReportsClient.IsSelectMetadataObjects(AvailableTypes, CurrentValue, Handler) Then
 		Return;
 	EndIf;
 	
 	ValuesForSelection = ValuesForSelection(String);
+	RestrictSelectionBySpecifiedValues = String.AvailableValues <> Undefined;
 	
 	OpeningParameters = New Structure;
 	OpeningParameters.Insert("Marked", ReportsClientServer.ValuesByList(CurrentValue));
 	OpeningParameters.Insert("TypeDescription", String.ValueType);
 	OpeningParameters.Insert("ValuesForSelection", ValuesForSelection);
 	OpeningParameters.Insert("ValuesForSelectionFilled", ValuesForSelection.Count() > 0);
-	OpeningParameters.Insert("RestrictSelectionBySpecifiedValues", String.AvailableValues <> Undefined);
+	OpeningParameters.Insert("RestrictSelectionBySpecifiedValues", RestrictSelectionBySpecifiedValues);
 	OpeningParameters.Insert("Presentation", String.UserSettingPresentation);
 	OpeningParameters.Insert("ChoiceParameters", New Array(ValueField.ChoiceParameters));
 	OpeningParameters.Insert("ChoiceFoldersAndItems", ValueField.ChoiceFoldersAndItems);
 	
-	OpenForm("CommonForm.InputValuesInListWithCheckBoxes", OpeningParameters, ThisObject,,,, Handler);
+	Context = New Structure;
+	Context.Insert("OpeningParameters", OpeningParameters);
+	Context.Insert("Handler", Handler);
+	
+	If RestrictSelectionBySpecifiedValues Then
+		ShowChoiceListFollowUp(Undefined, Context);
+	Else
+		ReportsClient.StartSelectUsers(ThisObject,
+			Item, AvailableTypes, CurrentValue, ValueField.ChoiceParameters, Handler,
+			New NotifyDescription("ShowChoiceListFollowUp", ThisObject, Context));
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure ShowChoiceListFollowUp(Result, Context) Export
+	
+	OpenForm("CommonForm.InputValuesInListWithCheckBoxes",
+		Context.OpeningParameters, ThisObject,,,, Context.Handler);
+	
 EndProcedure
 
 &AtClient
@@ -3775,6 +3801,13 @@ Function ValuesForSelection(String)
 	ReportsClient.UpdateListViews(ValuesForSelection, String.AvailableValues);
 	
 	Return ValuesForSelection;
+EndFunction
+
+&AtServerNoContext
+Function SelectableTypes(Val ValueType)
+	
+	Return ReportsServer.ExtendedTypesDetails(ValueType, True).TypesDetailsForForm;
+	
 EndFunction
 
 &AtClient
@@ -3822,7 +3855,7 @@ EndProcedure
 
 #Region Order
 
-
+// 
 
 &AtServer
 Procedure UpdateSorting()
@@ -3863,7 +3896,7 @@ Procedure UpdateSorting()
 	EndDo;
 EndProcedure
 
-
+// 
 
 &AtClient
 Procedure SortingSelectField(RowID, String)
@@ -3958,7 +3991,7 @@ Procedure ChangeOrderType(String)
 	DetermineIfModified();
 EndProcedure
 
-
+// 
 
 // Parameters:
 //  Rows - Array of FormDataTreeItem:
@@ -4109,7 +4142,7 @@ Function FindSelectedField(SelectedSettingsNodeFields, Field)
 	Return FoundField;
 EndFunction
 
-
+// 
 
 &AtClient
 Procedure ShiftSorting(ToBeginning = True)
@@ -4164,7 +4197,7 @@ EndProcedure
 
 #Region Appearance
 
-
+// 
 
 &AtServer
 Procedure UpdateAppearance()
@@ -4256,7 +4289,7 @@ Procedure ReadPredefinedAppearanceParameters()
 	String.IsOutputParameter = True;
 EndProcedure
 
-
+// 
 
 &AtClient
 Procedure AppearanceChangeItem(RowID = Undefined, String = Undefined)
@@ -4389,7 +4422,7 @@ Procedure AppearanceTitleInputCompletion(Value, Id) Export
 	DetermineIfModified();
 EndProcedure
 
-
+// 
 
 &AtClient
 Procedure ShiftAppearance(ToBeginning = True)
@@ -4451,7 +4484,7 @@ Procedure ShiftAppearance(ToBeginning = True)
 	DetermineIfModified();
 EndProcedure
 
-
+// 
 
 &AtClient
 Procedure ChangePredefinedOutputParametersUsage(Use = True)
@@ -4473,8 +4506,8 @@ Procedure ChangePredefinedOutputParametersUsage(Use = True)
 	EndDo;
 EndProcedure
 
-// 
-//  
+// A close handler of the HeaderAndFooterSettings form.
+//  See OpenForm > OnCloseNotifyDescription in Syntax Assistant.
 //
 &AtClient
 Procedure RememberHeaderFooterSettings(Settings, AdditionalParameters) Export 
@@ -4492,7 +4525,7 @@ EndProcedure
 
 #Region Structure
 
-
+// 
 
 &AtServer
 Procedure UpdateStructure()
@@ -4739,7 +4772,7 @@ Procedure SetFlagsOfNestedSettingsItems(StructureItem, StructureItemProperties)
 	EndIf;
 EndProcedure
 
-
+// 
 
 &AtClient
 Procedure AddOptionStructureGrouping(NextLevel = True)
@@ -5240,8 +5273,8 @@ Function ListFillingParameters(Var_CloseOnChoice = False, MultipleChoice = True,
 EndFunction
 
 &AtClient
-Procedure StartListFilling(Item, FillParameters, ChoiceOverride = Undefined)
-	List = ThisObject[FillParameters.ListPath];
+Procedure StartListFilling(Item, FillParameters, ChoiceOverride = Undefined, IsPick = False)
+	ValueType = ThisObject[FillParameters.ListPath].ValueType;
 	ListBox = Items[FillParameters.ListPath]; // FormTable
 	ValueField = Items[FillParameters.ListPath + "Value"];
 	
@@ -5265,17 +5298,19 @@ Procedure StartListFilling(Item, FillParameters, ChoiceOverride = Undefined)
 	
 	ExtendedTypeDetails = ExtendedTypesDetails[FillParameters.IndexOf];
 	If ExtendedTypeDetails <> Undefined Then 
-		List.ValueType = ExtendedTypeDetails.TypesDetailsForForm;
+		ValueType = ExtendedTypeDetails.TypesDetailsForForm;
 	EndIf;
-	List.ValueType = TypesDetailsWithoutPrimitiveOnes(List.ValueType);
+	If CommonClientServer.StructureProperty(FillParameters, "IsPick", False) Then
+		ValueType = TypesDetailsWithoutPrimitiveOnes(ValueType);
+	EndIf;
 	
 	UserSettings = Report.SettingsComposer.UserSettings.Items;
 	
 	ChoiceParameters = ReportsClientServer.ChoiceParameters(InformationRecords.Settings, UserSettings, InformationRecords.Item);
 	FillParameters.Insert("ChoiceParameters", ChoiceParameters);
 	
-	List.ValueType = ReportsClient.ValueTypeRestrictedByLinkByType(
-		InformationRecords.Settings, UserSettings, InformationRecords.Item, InformationRecords.LongDesc, List.ValueType);
+	ValueType = ReportsClient.ValueTypeRestrictedByLinkByType(
+		InformationRecords.Settings, UserSettings, InformationRecords.Item, InformationRecords.LongDesc, ValueType);
 	
 	If TypeOf(UserSettingItem) = Type("DataCompositionFilterItem") Then
 		CurrentValue = UserSettingItem.RightValue;
@@ -5292,7 +5327,7 @@ Procedure StartListFilling(Item, FillParameters, ChoiceOverride = Undefined)
 	Handler = New NotifyDescription("CompleteListFilling", ThisObject, FillParameters);
 	
 	If ReportsClient.ChoiceOverride(ThisObject, Handler, InformationRecords.LongDesc,
-			List.ValueType, MarkedValues, ChoiceParameters) Then
+			ValueType, MarkedValues, ChoiceParameters) Then
 		ChoiceOverride = True;
 		Return;
 	EndIf;
@@ -5301,13 +5336,7 @@ Procedure StartListFilling(Item, FillParameters, ChoiceOverride = Undefined)
 		Return;
 	EndIf;
 	
-	If CommonClientServer.StructureProperty(FillParameters, "IsPick", False)
-		And (ReportsClient.IsSelectMetadataObjects(List.ValueType, MarkedValues, Handler)
-		Or ReportsClient.IsSelectUsers(ThisObject, Item, List.ValueType, MarkedValues, ChoiceParameters, Handler)) Then 
-		Return;
-	EndIf;
-	
-	Types = List.ValueType.Types();
+	Types = ValueType.Types();
 	If Types.Count() = 0 Then
 		If FillParameters.AddRow1 Then 
 			ListBox.AddRow();
@@ -5315,17 +5344,45 @@ Procedure StartListFilling(Item, FillParameters, ChoiceOverride = Undefined)
 		Return;
 	EndIf;
 	
-	If Types.Count() = 1 Then
-		FillParameters.SelectedType = Types[0];
-		ContinueFillingList(-1, FillParameters);
+	If CommonClientServer.StructureProperty(FillParameters, "IsPick", False)
+		And ReportsClient.IsSelectMetadataObjects(ValueType, MarkedValues, Handler) Then
+		Return;
+	EndIf;
+	
+	Context = New Structure;
+	Context.Insert("Types", Types);
+	Context.Insert("FillParameters", FillParameters);
+	Context.Insert("Item", Item);
+	
+	If CommonClientServer.StructureProperty(FillParameters, "IsPick", False) Then
+		ReportsClient.StartSelectUsers(ThisObject,
+			Item, ValueType, MarkedValues, ChoiceParameters, Handler,
+			New NotifyDescription("StartListPopulationFollowUp", ThisObject, Context));
+	Else
+		StartListPopulationFollowUp(Undefined, Context);
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure StartListPopulationFollowUp(SelectedElement, Context) Export
+	
+	If SelectedElement <> Undefined Then
+		ContinueFillingList(SelectedElement, Context.FillParameters);
+		Return;
+	EndIf;
+	
+	If Context.Types.Count() = 1 Then
+		Context.FillParameters.SelectedType = Context.Types[0];
+		ContinueFillingList(-1, Context.FillParameters);
 		Return;
 	EndIf;
 	
 	AvailableTypes = New ValueList;
-	AvailableTypes.LoadValues(Types);
+	AvailableTypes.LoadValues(Context.Types);
 	
-	Handler = New NotifyDescription("ContinueFillingList", ThisObject, FillParameters);
-	ShowChooseFromMenu(Handler, AvailableTypes, Item);
+	Handler = New NotifyDescription("ContinueFillingList", ThisObject, Context.FillParameters);
+	ShowChooseFromMenu(Handler, AvailableTypes, Context.Item);
 EndProcedure
 
 &AtClient
@@ -5344,6 +5401,19 @@ Procedure ContinueFillingList(SelectedElement, FillParameters) Export
 	FormPath = PickingParameters[FillParameters.IndexOf];
 	If Not ValueIsFilled(FormPath) Then 
 		FormPath = PickingParameters[FillParameters.SelectedType];
+	EndIf;
+	If Not ValueIsFilled(FormPath) Then 
+		List = ThisObject[FillParameters.ListPath];
+		If TypeOf(List) = Type("ValueList")
+		   And ValueIsFilled(List) Then
+			LastItem = List[List.Count()-1];
+			If LastItem.Value = Undefined Then
+				TypeDetails = New TypeDescription(
+					CommonClientServer.ValueInArray(SelectedElement.Value));
+				LastItem.Value = TypeDetails.AdjustValue(Undefined);
+			EndIf;
+		EndIf;
+		Return;
 	EndIf;
 	
 	For Each Parameter In FillParameters.ChoiceParameters Do 
@@ -5501,21 +5571,13 @@ Function SettingsStructureItemPropertyKey(CollectionName, String)
 	If CollectionName = "GroupingComposition" Then 
 		Var_Key = "GroupFields";
 	ElsIf CollectionName = "Parameters" Or CollectionName = "Filters" Then 
-		If String.Property("IsParameter") And String.IsParameter Then 
-			Var_Key = "DataParameters";
-		Else
-			Var_Key = "Filter";
-		EndIf;
+		Var_Key = ?(String.IsParameter, "DataParameters", "Filter");
 	ElsIf CollectionName = "SelectedFields" Then 
 		Var_Key = "Selection";
 	ElsIf CollectionName = "Sort" Then 
 		Var_Key = "Order";
 	ElsIf CollectionName = "Appearance" Then 
-		If String.Property("IsOutputParameter") And String.IsOutputParameter Then 
-			Var_Key = "OutputParameters";
-		Else
-			Var_Key = "ConditionalAppearance";
-		EndIf;
+		Var_Key = ?(String.IsOutputParameter, "OutputParameters", "ConditionalAppearance");
 	ElsIf CollectionName = "OptionStructure" Then 
 		Var_Key = "Structure";
 	EndIf;
@@ -5535,9 +5597,8 @@ Procedure DeleteRows(Item, Cancel)
 		IndexOf = IndexOf - 1;
 		
 		If TypeOf(String.Id) <> Type("DataCompositionID")
-			Or (String.Property("IsSection") And String.IsSection)
-			Or (String.Property("IsParameter") And String.IsParameter)
-			Or (String.Property("IsOutputParameter") And String.IsOutputParameter) Then 
+			Or (Item.Name = "Filters" And (String.IsSection Or String.IsParameter)) 
+			Or (Item.Name = "Appearance" And String.IsOutputParameter) Then 
 			Continue;
 		EndIf;
 		
@@ -5663,8 +5724,7 @@ Procedure ChangeSettingItemUsage(CollectionName)
 	
 	SettingItem.Use = String.Use;
 	
-	If String.Property("IsOutputParameter")
-		And String.IsOutputParameter
+	If CollectionName = "Appearance" And  String.IsOutputParameter 
 		And String(String.Id) = "DATAPARAMETERSOUTPUT" Then 
 		
 		SettingItem.Use = True;
@@ -5763,17 +5823,15 @@ Function SelectionResult(Regenerate)
 		Return Undefined;
 	EndIf;
 	
-	SelectionResult = New Structure;
-	SelectionResult.Insert("EventName", ReportsOptionsInternalClientServer.NameEventFormSettings());
-	SelectionResult.Insert("Regenerate", Regenerate);
-	SelectionResult.Insert("ResetCustomSettings", ExtendedMode = 1);
-	SelectionResult.Insert("SettingsFormAdvancedMode", ExtendedMode);
-	SelectionResult.Insert("SettingsFormPageName", Items.SettingsPages.CurrentPage.Name);
-	SelectionResult.Insert("DCSettingsComposer", Report.SettingsComposer);
-	SelectionResult.Insert("VariantModified", OptionChanged);
-	SelectionResult.Insert(
-		"UserSettingsModified",
-		OptionChanged Or UserSettingsModified);
+	SelectionResult = ReportsClientServer.ReportFormUpdateParameters(ReportsOptionsInternalClientServer.NameEventFormSettings());
+	SelectionResult.Regenerate = Regenerate;
+	SelectionResult.ResetCustomSettings = (ExtendedMode = 1);
+	SelectionResult.SettingsFormAdvancedMode = ExtendedMode;
+	SelectionResult.SettingsFormPageName = Items.SettingsPages.CurrentPage.Name;
+	SelectionResult.DCSettingsComposer = Report.SettingsComposer;
+	SelectionResult.VariantModified = OptionChanged;
+	SelectionResult.UserSettingsModified =
+		OptionChanged Or UserSettingsModified;
 	
 	Return SelectionResult;
 EndFunction
@@ -5978,9 +6036,9 @@ Procedure ShiftRows(Context)
 	UpperRowsBound = ParentRows.Count() - 1;
 	RowsSelectedCount = Context.TreeRows.Count();
 	
-	
-	
-	
+	// 
+	// 
+	// 
 	MoveAsc = (Context.Direction < 0);
 	
 	For Number = 1 To RowsSelectedCount Do
@@ -6069,7 +6127,7 @@ Function TheseAreSubordinateElements(ParentElementOfTree, TreeItem)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure SelectTheDisplayModeForRows(PropertiesOfSettingsElements, CollectionName, ShowCheckBoxesModes = False, CurrentDisplayMode = Undefined)
@@ -6157,7 +6215,7 @@ Function AvailableDisplayModes(ShowCheckBoxesModes)
 		AvailableDisplayModes.Add("ShowOnlyCheckBoxInReportSettings", NStr("en = 'Only check box in report settings';"), , PictureLib.NormalAccessWithCheckBox);
 	EndIf;
 	
-	AvailableDisplayModes.Add("NotShow", NStr("en = 'Hide';"), , PictureLib.GreyCross);
+	AvailableDisplayModes.Add("NotShow", NStr("en = 'Hide';"), , PictureLib.GrayCross);
 	
 	Return AvailableDisplayModes;
 	
@@ -6202,9 +6260,9 @@ Procedure SetDisplayMode(CollectionName, String, SettingItem, DisplayModePicture
 	
 	If CollectionName = "Filters" And Not String.IsParameter Then
 		If DisplayModePicture = 1 Or DisplayModePicture = 3 Then
-			
-			
-			
+			// 
+			// 
+			// 
 			SettingItem.Presentation = String.Title;
 		Else
 			SettingItem.Presentation = "";
@@ -6217,17 +6275,17 @@ Procedure SetDisplayMode(CollectionName, String, SettingItem, DisplayModePicture
 		// CA feature: UserSettingPresentation can be cleared after GetSettings().
 		If String.IsPredefinedTitle Then
 			If DisplayModePicture = 1 Or DisplayModePicture = 3 Then
-				
-				
-				
+				// 
+				// 
+				// 
 				SettingItem.Presentation = String.Title;
 			Else
 				SettingItem.Presentation = "";
 			EndIf;
 		Else
-			
-			
-			
+			// 
+			// 
+			// 
 			SettingItem.Presentation = String.Title;
 		EndIf;
 	EndIf;
@@ -6265,7 +6323,7 @@ Function SettingItemDisplayModePicture(SettingItem)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 // Parameters:
 //  SettingsNode - DataCompositionSettings
@@ -6508,7 +6566,7 @@ Procedure UpdateOptionStructureItemTitle(String)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClientAtServerNoContext
 Function ArraySort(SourceArray, Direction = Undefined)
@@ -6524,10 +6582,10 @@ Function ArraySort(SourceArray, Direction = Undefined)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
-Procedure UpdateForm(ParametersOfUpdate = Undefined)
+Procedure UpdateForm(ParametersOfUpdate)
 	ContainsNestedReports = False;
 	ContainsNestedFilters = False;
 	ContainsNestedFieldsOrSorting = False;
@@ -6538,7 +6596,6 @@ Procedure UpdateForm(ParametersOfUpdate = Undefined)
 	
 	If ExtendedMode = 0 Then 
 		ReportsServer.UpdateSettingsFormItems(ThisObject, Items.IsMain, ParametersOfUpdate);
-		ReportsServer.RestoreFiltersValues(ThisObject);
 	EndIf;
 	
 	UpdateSettingsFormCollections();
@@ -6784,7 +6841,7 @@ Procedure UpdateFormItemsProperties()
 	
 	#Region CommonItemsProperties
 	
-	If Parameters.Property("DisplayPages") Then 
+	If TypeOf(CommonClientServer.StructureProperty(Parameters, "DisplayPages", Undefined)) = Type("Boolean") Then
 		DisplayPages = (Parameters.DisplayPages <> False);
 	ElsIf Not IsExtendedMode Then 
 		DisplayPages = False;
@@ -7439,7 +7496,14 @@ EndProcedure
 
 &AtServer
 Procedure ImportSettingsToComposer(ImportParameters)
-	CheckImportParameters(ImportParameters);
+
+	If Not ImportParameters.VariantModified Then
+		ImportParameters.VariantModified = VariantModified;
+	EndIf;
+	If Not ImportParameters.UserSettingsModified Then
+		ImportParameters.UserSettingsModified = UserSettingsModified;
+	EndIf;
+	ImportParameters.ReportObjectOrFullName = ReportSettings.FullName;
 	
 	ReportObject = FormAttributeToValue("Report");
 	If ReportSettings.Events.BeforeFillQuickSettingsBar Then
@@ -7477,8 +7541,8 @@ Procedure ImportSettingsToComposer(ImportParameters)
 		AvailableSettings.UserSettings,
 		AvailableSettings.FixedSettings);
 	
-	
-	
+	// 
+	// 
 	If SettingsImported
 	   And ReportsOptions.ItIsAcceptableToSetContext(ThisObject)
 	   And TypeOf(ParametersForm.Filter) = Type("Structure") Then
@@ -7498,10 +7562,9 @@ Procedure ImportSettingsToComposer(ImportParameters)
 	ReportsServer.SetAvailableValues(ReportObject, ThisObject);
 	ReportsServer.InitializePredefinedOutputParameters(ReportSettings, AvailableSettings.Settings);
 	
-	FiltersConditions = CommonClientServer.StructureProperty(ImportParameters, "FiltersConditions");
-	If FiltersConditions <> Undefined Then
+	If ImportParameters.FiltersConditions <> Undefined Then
 		UserSettings = Report.SettingsComposer.UserSettings;
-		For Each Condition In FiltersConditions Do
+		For Each Condition In ImportParameters.FiltersConditions Do
 			UserSettingItem = UserSettings.GetObjectByID(Condition.Key);
 			If UserSettingItem <> Undefined Then 
 				UserSettingItem.ComparisonType = Condition.Value;
@@ -7521,37 +7584,6 @@ Procedure ImportSettingsToComposer(ImportParameters)
 	If ImportParameters.UserSettingsModified Then
 		UserSettingsModified = True;
 	EndIf;
-EndProcedure
-
-&AtServer
-Procedure CheckImportParameters(ImportParameters)
-	If TypeOf(ImportParameters) <> Type("Structure") Then 
-		ImportParameters = New Structure;
-	EndIf;
-	
-	If Not ImportParameters.Property("EventName") Then
-		ImportParameters.Insert("EventName", "");
-	EndIf;
-	
-	If Not ImportParameters.Property("VariantModified") Then
-		ImportParameters.Insert("VariantModified", VariantModified);
-	EndIf;
-	
-	If Not ImportParameters.Property("UserSettingsModified") Then
-		ImportParameters.Insert("UserSettingsModified", UserSettingsModified);
-	EndIf;
-	
-	If Not ImportParameters.Property("Result") Then
-		ImportParameters.Insert("Result", New Structure);
-	EndIf;
-	
-	If Not ImportParameters.Property("Result") Then
-		ImportParameters.Insert("Result", New Structure);
-		ImportParameters.Result.Insert("ExpandTreesNodes", New Array);
-	EndIf;
-	
-	ImportParameters.Insert("Abort", False);
-	ImportParameters.Insert("ReportObjectOrFullName", ReportSettings.FullName);
 EndProcedure
 
 &AtServer
@@ -7666,7 +7698,7 @@ EndProcedure
 
 #Region ProcessFieldsMarkedForDeletion
 
-
+// 
 
 &AtServer
 Procedure FindFieldsMarkedForDeletion(Val StructureItems = Undefined)
@@ -7906,7 +7938,7 @@ Function RepresentationOfACollectionOfAStructureElement(CollectionName)
 	
 EndFunction
 
-
+// 
 
 &AtClient
 Procedure DeleteFiedsMarkedForDeletion()
@@ -7957,7 +7989,7 @@ EndProcedure
 
 #EndRegion
 
-
+// 
 
 // Parameters:
 //  Collection - FormDataTree
@@ -8153,14 +8185,14 @@ Procedure OpenSettingsFormForTechnician(PageName, CompletionHandler = Undefined)
 		OptionChanged Or UserSettingsModified);
 	
 	If CompletionHandler <> Undefined Then
-		WindowMode = FormWindowOpeningMode.LockOwnerWindow;
-	EndIf;
-	
-	OpenForm(ReportSettings.FullName + ".VariantForm", FormParameters, FormOwner, , , , CompletionHandler, WindowMode);
-	
-	If CompletionHandler = Undefined Then
-		SelectionResultGenerated = True;
-		Close();
+		OpenForm(ReportSettings.FullName + ".VariantForm", FormParameters, FormOwner, , , , 
+			CompletionHandler, FormWindowOpeningMode.LockOwnerWindow);
+	Else
+		OpenForm(ReportSettings.FullName + ".VariantForm", FormParameters, FormOwner);
+		If CompletionHandler = Undefined Then
+			SelectionResultGenerated = True;
+			Close();
+		EndIf;
 	EndIf;
 	
 EndProcedure

@@ -34,7 +34,7 @@
 			<Group>AlwaysHorizontal</Group>
 			<Behavior>Usual</Behavior>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="SecurityWarningExtendedTooltip1" id="473"/>
+			<ExtendedTooltip name="WarningAboutUnsentEmailsExtendedTooltip" id="473"/>
 			<ChildItems>
 				<PictureDecoration name="WarningAboutUnsentEmailsPicture" id="474">
 					<Title formatted="false">
@@ -47,8 +47,8 @@
 						<xr:Ref>CommonPicture.Warning</xr:Ref>
 						<xr:LoadTransparent>false</xr:LoadTransparent>
 					</Picture>
-					<ContextMenu name="WarningPictureContextMenu1" id="475"/>
-					<ExtendedTooltip name="WarningPictureExtendedTooltip1" id="476"/>
+					<ContextMenu name="WarningAboutUnsentEmailsPictureContextMenu" id="475"/>
+					<ExtendedTooltip name="WarningAboutUnsentEmailsPictureExtendedTooltip" id="476"/>
 				</PictureDecoration>
 				<LabelDecoration name="WarningAboutUnsentEmailsLabel" id="477">
 					<Width>33</Width>
@@ -61,8 +61,8 @@
 						</v8:item>
 					</Title>
 					<ToolTipRepresentation>Button</ToolTipRepresentation>
-					<ContextMenu name="WarningAboutUnsafeContentContextMenu1" id="478"/>
-					<ExtendedTooltip name="WarningAboutUnsafeContentExtendedTooltip1" id="479"/>
+					<ContextMenu name="WarningAboutUnsentEmailsLabelContextMenu" id="478"/>
+					<ExtendedTooltip name="WarningAboutUnsentEmailsLabelExtendedTooltip" id="479"/>
 					<Events>
 						<Event name="URLProcessing">WarningAboutUnsentEmailsLabelURLProcessing</Event>
 					</Events>
@@ -76,13 +76,19 @@
 					<v8:content>Command bar</v8:content>
 				</v8:item>
 			</Title>
-			<ExtendedTooltip name="Group2ExtendedTooltip" id="483"/>
+			<ExtendedTooltip name="CommandBarExtendedTooltip" id="483"/>
 			<ChildItems>
 				<Button name="Send" id="135">
 					<Type>CommandBarButton</Type>
 					<DefaultButton>true</DefaultButton>
 					<SkipOnInput>false</SkipOnInput>
 					<CommandName>Form.Command.Send</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Send</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="SendExtendedTooltip" id="288"/>
 				</Button>
 				<Button name="FormWriteAndClose" id="272">
@@ -130,7 +136,7 @@
 				</Button>
 				<Button name="FormInteractionDocumentsLogSaveEmailToHardDrive" id="395">
 					<Type>CommandBarButton</Type>
-					<CommandName>DocumentJournal.Interactions.Command.SaveEmailToHardDrive</CommandName>
+					<CommandName>DocumentJournal.Interactions.Command.SaveEmail</CommandName>
 					<DataPath>Object.Ref</DataPath>
 					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 					<ExtendedTooltip name="FormInteractionDocumentsLogSaveEmailToHardDriveExtendedTooltip" id="396"/>
@@ -157,17 +163,35 @@
 					<Type>CommandBarButton</Type>
 					<SkipOnInput>false</SkipOnInput>
 					<CommandName>Form.Command.EmailParameters</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Mail properties…</v8:content>
+						</v8:item>
+					</Title>
 					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-					<ExtendedTooltip name="AdditionalExtendedTooltip" id="295"/>
+					<ExtendedTooltip name="MoreExtendedTooltip" id="295"/>
 				</Button>
 				<Button name="FormGenerateFromTemplate" id="421">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.GenerateFromTemplate</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Create from template…</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="FormGenerateFromTemplateExtendedTooltip" id="422"/>
 				</Button>
 				<Button name="DisplayBaseEmailText" id="253">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.DisplayBaseEmailText</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Include original message text</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="DisplayBaseEmailTextExtendedTooltip" id="297"/>
 				</Button>
 				<Popup name="MessageFormat" id="233">
@@ -183,12 +207,24 @@
 						<Button name="HTMLFormat" id="234">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.HTMLFormat</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>HTML</v8:content>
+								</v8:item>
+							</Title>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 							<ExtendedTooltip name="HTMLFormatExtendedTooltip" id="299"/>
 						</Button>
 						<Button name="FormatPlainText" id="235">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.FormatPlainText</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Plain text</v8:content>
+								</v8:item>
+							</Title>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 							<ExtendedTooltip name="FormatPlainTextExtendedTooltip" id="300"/>
 						</Button>
@@ -309,6 +345,12 @@
 							<ChildItems>
 								<InputField name="RecipientsListSendingOption" id="412">
 									<DataPath>RecipientsList.SendingOption</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Recipient type</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<Width>3</Width>
 									<ListChoiceMode>true</ListChoiceMode>
@@ -375,6 +417,12 @@
 								<InputField name="RecipientsListPresentation" id="418">
 									<DataPath>RecipientsList.Presentation</DataPath>
 									<DefaultItem>true</DefaultItem>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Presentation</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ChoiceButton>true</ChoiceButton>
 									<ContextMenu name="RecipientsListPresentationContextMenu" id="419"/>
@@ -425,27 +473,18 @@
 									<Group>HorizontalIfPossible</Group>
 									<ExtendedTooltip name="ContactsNotFilledPageExtendedTooltip" id="317"/>
 									<ChildItems>
-										<UsualGroup name="ContactsNotFilledInGroup" id="262">
+										<Button name="SpecifyContacts" id="263">
+											<Type>Hyperlink</Type>
+											<Representation>PictureAndText</Representation>
+											<CommandName>Form.Command.SpecifyContacts</CommandName>
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Group contacts unfilled</v8:content>
+													<v8:content>Save emails to Address Book</v8:content>
 												</v8:item>
 											</Title>
-											<Group>Vertical</Group>
-											<Behavior>Usual</Behavior>
-											<Representation>None</Representation>
-											<ShowTitle>false</ShowTitle>
-											<ExtendedTooltip name="ContactsNotFilledInGroupExtendedTooltip" id="318"/>
-											<ChildItems>
-												<Button name="SpecifyContacts" id="263">
-													<Type>Hyperlink</Type>
-													<Representation>PictureAndText</Representation>
-													<CommandName>Form.Command.SpecifyContacts</CommandName>
-													<ExtendedTooltip name="SpecifyContactsExtendedTooltip" id="319"/>
-												</Button>
-											</ChildItems>
-										</UsualGroup>
+											<ExtendedTooltip name="SpecifyContactsExtendedTooltip" id="319"/>
+										</Button>
 									</ChildItems>
 								</Page>
 							</ChildItems>
@@ -454,7 +493,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Group email subject</v8:content>
+									<v8:content>Subject</v8:content>
 								</v8:item>
 							</Title>
 							<Group>AlwaysHorizontal</Group>
@@ -523,16 +562,34 @@
 												<Button name="ImportanceHigh" id="490">
 													<Type>CommandBarButton</Type>
 													<CommandName>Form.Command.ImportanceHigh</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>High importance</v8:content>
+														</v8:item>
+													</Title>
 													<ExtendedTooltip name="ImportanceHighExtendedTooltip" id="491"/>
 												</Button>
 												<Button name="ImportanceNormal" id="492">
 													<Type>CommandBarButton</Type>
 													<CommandName>Form.Command.ImportanceNormal</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Normal importance</v8:content>
+														</v8:item>
+													</Title>
 													<ExtendedTooltip name="ImportanceNormalExtendedTooltip" id="493"/>
 												</Button>
 												<Button name="ImportanceLow" id="494">
 													<Type>CommandBarButton</Type>
 													<CommandName>Form.Command.ImportanceLow</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Low importance</v8:content>
+														</v8:item>
+													</Title>
 													<ExtendedTooltip name="ImportanceLowExtendedTooltip" id="495"/>
 												</Button>
 											</ChildItems>
@@ -610,6 +667,12 @@
 																			<Button name="EmailTextContextMenuInsertExternalRefToInfobaseObject" id="385">
 																				<Type>CommandBarButton</Type>
 																				<CommandName>Form.Command.InsertExternalRefToInfobaseObject</CommandName>
+																				<Title>
+																					<v8:item>
+																						<v8:lang>en</v8:lang>
+																						<v8:content>Insert external link</v8:content>
+																					</v8:item>
+																				</Title>
 																				<ExtendedTooltip name="EmailTextContextMenuInsertExternalRefToInfobaseObjectExtendedTooltip" id="386"/>
 																			</Button>
 																			<Popup name="EmailTextContextMenuGroup" id="470">
@@ -624,11 +687,23 @@
 																					<Button name="FormHTMLContextMenu" id="435">
 																						<Type>CommandBarButton</Type>
 																						<CommandName>Form.Command.HTMLFormat</CommandName>
+																						<Title>
+																							<v8:item>
+																								<v8:lang>en</v8:lang>
+																								<v8:content>HTML</v8:content>
+																							</v8:item>
+																						</Title>
 																						<ExtendedTooltip name="FormHTMLContextMenuExtendedTooltip" id="436"/>
 																					</Button>
 																					<Button name="FormPlainTextContextMenu" id="437">
 																						<Type>CommandBarButton</Type>
 																						<CommandName>Form.Command.FormatPlainText</CommandName>
+																						<Title>
+																							<v8:item>
+																								<v8:lang>en</v8:lang>
+																								<v8:content>Plain text</v8:content>
+																							</v8:item>
+																						</Title>
 																						<ExtendedTooltip name="FormPlainTextContextMenuExtendedTooltip" id="438"/>
 																					</Button>
 																				</ChildItems>
@@ -677,6 +752,12 @@
 																			<Button name="InsertExternalRefToInfobaseObject" id="387">
 																				<Type>CommandBarButton</Type>
 																				<CommandName>Form.Command.InsertExternalRefToInfobaseObject</CommandName>
+																				<Title>
+																					<v8:item>
+																						<v8:lang>en</v8:lang>
+																						<v8:content>Insert external link</v8:content>
+																					</v8:item>
+																				</Title>
 																				<ExtendedTooltip name="InsertExternalRefToInfobaseObjectExtendedTooltip" id="388"/>
 																			</Button>
 																			<Popup name="MessageFormatContextMenuGroup" id="468">
@@ -691,11 +772,23 @@
 																					<Button name="FormPlainTextContextMenu1" id="443">
 																						<Type>CommandBarButton</Type>
 																						<CommandName>Form.Command.FormatPlainText</CommandName>
+																						<Title>
+																							<v8:item>
+																								<v8:lang>en</v8:lang>
+																								<v8:content>Plain text</v8:content>
+																							</v8:item>
+																						</Title>
 																						<ExtendedTooltip name="FormPlainTextContextMenu1ExtendedTooltip" id="444"/>
 																					</Button>
 																					<Button name="FormHTMLContextMenu1" id="441">
 																						<Type>CommandBarButton</Type>
 																						<CommandName>Form.Command.HTMLFormat</CommandName>
+																						<Title>
+																							<v8:item>
+																								<v8:lang>en</v8:lang>
+																								<v8:content>HTML</v8:content>
+																							</v8:item>
+																						</Title>
 																						<ExtendedTooltip name="FormHTMLContextMenu1ExtendedTooltip" id="442"/>
 																					</Button>
 																				</ChildItems>
@@ -894,23 +987,47 @@
 										<Type>CommandBarButton</Type>
 										<SkipOnInput>false</SkipOnInput>
 										<CommandName>Form.Command.AddAttachment</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Add attachment…</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="AddAttachmentExtendedTooltip" id="331"/>
 									</Button>
 									<Button name="AddEmail" id="397">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.AddEmail</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Add mail as attachment…</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="AddEmailExtendedTooltip" id="398"/>
 									</Button>
 									<Button name="OpenAttachment" id="152">
 										<Type>CommandBarButton</Type>
 										<SkipOnInput>false</SkipOnInput>
 										<CommandName>Form.Command.OpenAttachment</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Open attachment…</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="OpenAttachmentExtendedTooltip" id="332"/>
 									</Button>
 									<Button name="SaveAttachment" id="153">
 										<Type>CommandBarButton</Type>
 										<SkipOnInput>false</SkipOnInput>
 										<CommandName>Form.Command.SaveAttachment</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Save attachment...</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="SaveAttachmentExtendedTooltip" id="333"/>
 									</Button>
 									<ButtonGroup name="AttachmentsContextMenuGroup" id="466">
@@ -939,6 +1056,12 @@
 									<Button name="AttachmentsContextMenuAttachmentProperties" id="280">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.AttachmentProperties</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Attachment properties…</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="AttachmentsContextMenuAttachmentPropertiesExtendedTooltip" id="335"/>
 									</Button>
 								</ChildItems>
@@ -991,6 +1114,12 @@
 									<ChildItems>
 										<PictureField name="PictureIndex" id="145">
 											<DataPath>Attachments.PictureIndex</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Picture index</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<ShowInHeader>false</ShowInHeader>
 											<Width>2</Width>
@@ -1008,6 +1137,12 @@
 										</PictureField>
 										<InputField name="FileName" id="143">
 											<DataPath>Attachments.FileName</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Filename</v8:content>
+												</v8:item>
+											</Title>
 											<ShowInHeader>false</ShowInHeader>
 											<Wrap>false</Wrap>
 											<TextEdit>false</TextEdit>
@@ -1017,6 +1152,12 @@
 										<InputField name="SizePresentation" id="236">
 											<DataPath>Attachments.SizePresentation</DataPath>
 											<ReadOnly>true</ReadOnly>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Size and presentation</v8:content>
+												</v8:item>
+											</Title>
 											<EditMode>EnterOnInput</EditMode>
 											<ShowInHeader>false</ShowInHeader>
 											<Width>5</Width>
@@ -1043,23 +1184,47 @@
 									<Type>CommandBarButton</Type>
 									<SkipOnInput>false</SkipOnInput>
 									<CommandName>Form.Command.AddAttachment</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Add attachment…</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="AddAttachmentCommandExtendedTooltip" id="453"/>
 								</Button>
 								<Button name="AddEmailCommand" id="454">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.AddEmail</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Add mail as attachment…</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="AddEmailCommandExtendedTooltip" id="455"/>
 								</Button>
 								<Button name="OpenAttachmentCommand" id="456">
 									<Type>CommandBarButton</Type>
 									<SkipOnInput>false</SkipOnInput>
 									<CommandName>Form.Command.OpenAttachment</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Open attachment…</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="OpenAttachmentCommandExtendedTooltip" id="457"/>
 								</Button>
 								<Button name="SaveAttachmentCommand" id="458">
 									<Type>CommandBarButton</Type>
 									<SkipOnInput>false</SkipOnInput>
 									<CommandName>Form.Command.SaveAttachment</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Save attachment...</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="SaveAttachmentCommandExtendedTooltip" id="459"/>
 								</Button>
 								<ButtonGroup name="GroupDelete" id="464">
@@ -1088,12 +1253,24 @@
 								<Button name="AttachmentProperties" id="462">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.AttachmentProperties</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Attachment properties…</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="AttachmentPropertiesExtendedTooltip" id="463"/>
 								</Button>
 							</ChildItems>
 						</CommandBar>
 						<InputField name="SubjectOf" id="160">
 							<DataPath>SubjectOf</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Topic</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Top</TitleLocation>
 							<Width>32</Width>
 							<AutoMaxWidth>false</AutoMaxWidth>
@@ -1159,6 +1336,12 @@
 						</CheckBoxField>
 						<InputField name="ReviewAfter" id="167">
 							<DataPath>ReviewAfter</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Snooze till</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Top</TitleLocation>
 							<HorizontalStretch>false</HorizontalStretch>
 							<Wrap>false</Wrap>
@@ -2077,41 +2260,8 @@
 				</Visible>
 			</Item>
 			<Item>
-				<Command>0</Command>
-				<Type>Auto</Type>
-				<DefaultVisible>false</DefaultVisible>
-				<Visible>
-					<xr:Common>false</xr:Common>
-				</Visible>
-			</Item>
-			<Item>
-				<Command>0</Command>
-				<Type>Auto</Type>
-				<DefaultVisible>false</DefaultVisible>
-				<Visible>
-					<xr:Common>false</xr:Common>
-				</Visible>
-			</Item>
-			<Item>
 				<Command>Document.PhoneCall.StandardCommand.CreateBasedOn</Command>
 				<Type>Auto</Type>
-				<DefaultVisible>false</DefaultVisible>
-				<Visible>
-					<xr:Common>false</xr:Common>
-				</Visible>
-			</Item>
-			<Item>
-				<Command>0</Command>
-				<Type>Auto</Type>
-				<DefaultVisible>false</DefaultVisible>
-				<Visible>
-					<xr:Common>false</xr:Common>
-				</Visible>
-			</Item>
-			<Item>
-				<Command>0</Command>
-				<Type>Auto</Type>
-				<CommandGroup>CommandGroup.Interactions</CommandGroup>
 				<DefaultVisible>false</DefaultVisible>
 				<Visible>
 					<xr:Common>false</xr:Common>

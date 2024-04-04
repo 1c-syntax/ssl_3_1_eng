@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -28,13 +29,29 @@ Procedure BeforeAddReportCommands(ReportsCommands, Parameters, StandardProcessin
 	CommandParameterType = New TypeDescription(CommandParameterType, ChartsOfCalculationTypes.AllRefsType().Types());
 	CommandParameterType = New TypeDescription(CommandParameterType, ExchangePlans.AllRefsType().Types());
 	
+	UsersTypes = New Array;
+	UsersTypes.Add(Type("CatalogRef.Users"));
+	UsersTypes.Add(Type("CatalogRef.ExternalUsers"));
+	
+	CommandParameterType = New TypeDescription(CommandParameterType,, UsersTypes);
+	
 	Command                       = ReportsCommands.Add();
 	Command.Presentation         = NStr("en = 'Event log';");
-	Command.MultipleChoice    = False;
+	Command.MultipleChoice    = True;
 	Command.FormParameterName     = "Data";
 	Command.FormParameters        = New Structure("StartDate", BegOfDay(CurrentSessionDate()) - 30 * 60 * 60 * 24);
 	Command.Importance              = "SeeAlso";
 	Command.ParameterType          = CommandParameterType;
+	Command.Manager              = "DataProcessor.EventLog";
+	Command.OnlyInAllActions = True;
+	
+	Command                       = ReportsCommands.Add();
+	Command.Presentation         = NStr("en = 'Event log';");
+	Command.MultipleChoice    = True;
+	Command.FormParameterName     = "User";
+	Command.FormParameters        = New Structure("StartDate", BegOfDay(CurrentSessionDate()) - 30 * 60 * 60 * 24);
+	Command.Importance              = "SeeAlso";
+	Command.ParameterType          = New TypeDescription(UsersTypes);
 	Command.Manager              = "DataProcessor.EventLog";
 	Command.OnlyInAllActions = True;
 	

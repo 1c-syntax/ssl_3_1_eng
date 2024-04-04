@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -109,8 +110,8 @@ EndProcedure
 // Creates form items based on questions passed to a user.
 //
 // Parameters:
-//     
-//                        
+//     Questions - Array - Structures containing the question value parameters.
+//                        See StandardSubsystems.Core\BeforeExit.
 //
 &AtServer
 Procedure InitializeItemsInForm(Val Warnings)
@@ -135,7 +136,7 @@ Procedure InitializeItemsInForm(Val Warnings)
 	EndDo;
 	
 	// Footer.
-	LabelText = NStr("en = 'Do you want to exit the application?';");
+	LabelText = NStr("en = 'Exit the app?';");
 	
 	LabelName    = FindLabelNameInForm("QuestionLabel1");
 	LabelGroup = GenerateFormItemGroup();
@@ -171,7 +172,7 @@ Function WarningTable(Val Warnings)
 		EndIf;
 	EndDo;
 	
-	
+	// Clear all warnings if at least one warning needs to be cleared (OutputSingleWarning = True).
 	If SingleWarnings.Count() > 0 Then
 		Result = Result.Copy(SingleWarnings);
 	EndIf;

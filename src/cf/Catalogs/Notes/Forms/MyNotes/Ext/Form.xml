@@ -221,7 +221,7 @@
 							<DataPath>List.SubjectPresentation</DataPath>
 							<Width>5</Width>
 							<ContextMenu name="PresentationOfSubjectContextMenu" id="10"/>
-							<ExtendedTooltip name="PresentationOfSubjectExtendedTooltip" id="14"/>
+							<ExtendedTooltip name="SubjectPresentationExtendedTooltip" id="14"/>
 						</LabelField>
 					</ChildItems>
 				</ColumnGroup>

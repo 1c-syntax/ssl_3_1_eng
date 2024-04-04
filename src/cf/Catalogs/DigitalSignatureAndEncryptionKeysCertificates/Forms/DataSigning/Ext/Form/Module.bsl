@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -91,7 +92,10 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 			EndIf;
 		Else
 			Items.Sign.Visible = True;
+			Items.Sign.Enabled = True;
 			Items.Sign.DefaultButton = True;
+			HandleError(New NotifyDescription("SignCompletion", ThisObject),
+				New Structure("ErrorDescription", Parameter.Error), New Structure);
 		EndIf;
 		
 	ElsIf Upper(EventName) = Upper("ConfirmationAuthorization") And Source = UUID Then
@@ -99,6 +103,14 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 			New NotifyDescription("CertificateChoiceProcessingCompletion", ThisObject));
 	
 	ElsIf Upper(EventName) = Upper("ConfirmationPrepareData") And Source = UUID Then
+		SelectedCertificate = New Structure;
+		SelectedCertificate.Insert("Ref",    Certificate);
+		SelectedCertificate.Insert("Thumbprint", ThumbprintOfCertificate);
+		SelectedCertificate.Insert("Data",    AddressOfCertificate);
+		Parameter.DataDetails.Insert("SelectedCertificate",   SelectedCertificate);
+		Parameter.DataDetails.Insert("SelectedLetterOfAuthority", MachineReadableLetterOfAuthority);
+		Parameter.DataDetails.Insert("MachineReadableSigningLOACheckResult", MachineReadableSigningLOACheckResult);
+
 		DigitalSignatureInternalClient.GetDataForACloudSignature(
 			Parameter.HandlerNext, Parameter.TheFormContext, 
 			Parameter.DataDetails, Parameter.Data, True);
@@ -112,6 +124,12 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 &AtClient
+Procedure PasswordStartChoice(Item, ChoiceData, StandardProcessing)
+	DigitalSignatureInternalClient.PasswordFieldStartChoice(ThisObject,
+		InternalData, PasswordProperties, StandardProcessing);
+EndProcedure
+
+&AtClient
 Procedure SelectLetterOfAuthorityOnChange(Item)
 	
 	Items.GroupPages.CurrentPage = ?(ByLetterOfAuthority, Items.PageSelectLetterOfAuthority,
@@ -119,7 +137,7 @@ Procedure SelectLetterOfAuthorityOnChange(Item)
 	
 	If Not ByLetterOfAuthority Then
 		MachineReadableLetterOfAuthority = Undefined;
-		MRLOAVerificationResultForSigning = Undefined;
+		MachineReadableSigningLOACheckResult = Undefined;
 	Else
 		AttachIdleHandler("Attachable_PickLetterOfAuthority", 0.1, True);
 	EndIf;
@@ -303,6 +321,7 @@ Procedure Sign(Command)
 		ModuleCryptographyServiceDSSConfirmationClient = CommonClient.CommonModule("DSSCryptographyServiceClient");
 		If ModuleCryptographyServiceDSSConfirmationClient.CheckingBeforePerformingOperation(ThisObject, PasswordProperties.Value) Then 
 			ModuleCryptographyServiceDSSConfirmationClient.PerformInitialServiceOperation(ThisObject, DataDetails, PasswordProperties.Value);
+			Items.Sign.Enabled = False;
 		EndIf;
 	Else
 		If Not Items.Sign.Enabled Then
@@ -644,16 +663,16 @@ Procedure SignData(Notification)
 	
 	If CertificateExpiresOn < CommonClient.SessionDate() Then
 		
-		AdditionalCertificateProperties = DigitalSignatureInternalClientServer.AdditionalCertificateProperties(AddressOfCertificate);
-		If ValueIsFilled(AdditionalCertificateProperties.EndDateOfPrivateKey)
-			And AdditionalCertificateProperties.EndDateOfPrivateKey < CommonClient.SessionDate() Then
+		CertificateAdditionalProperties = DigitalSignatureInternalClientServer.CertificateAdditionalProperties(AddressOfCertificate);
+		If ValueIsFilled(CertificateAdditionalProperties.PrivateKeyExpirationDate)
+			And CertificateAdditionalProperties.PrivateKeyExpirationDate < CommonClient.SessionDate() Then
 				Context.ErrorAtClient.Insert("ErrorDescription",
-				NStr("en = 'У выбранного сертификата истек срок действия закрытого ключа.
-				           |Выберите другой сертификат.';"));
+				NStr("en = 'The selected certificate''s private key has expired.
+				           |Select another certificate.';"));
 		Else
 			Context.ErrorAtClient.Insert("ErrorDescription",
 				NStr("en = 'The selected certificate has expired.
-				           |Select a different certificate.';"));
+				           |Select another certificate.';"));
 		EndIf;
 		HandleError(Context.Notification, Context.ErrorAtClient, Context.ErrorAtServer);
 		Return;
@@ -661,8 +680,8 @@ Procedure SignData(Notification)
 
 	If CertificateRevoked Then
 		Context.ErrorAtClient.Insert("ErrorDescription",
-			NStr("en = 'The certificate is marked in the application as revoked.
-			|Please select another certificate.';"));
+			NStr("en = 'The certificate is marked as revoked.
+			|Select another certificate.';"));
 		AdditionalErrorData = New Structure("AdditionalDataChecksOnClient", ErrorCertificateMarkedAsRevoked());
 		HandleError(Context.Notification, Context.ErrorAtClient, Context.ErrorAtServer,,AdditionalErrorData);
 		Return;
@@ -679,7 +698,7 @@ Procedure SignData(Notification)
 			Notification = New NotifyDescription("SignDataAfterCAQuestionAnswered", ThisObject, Context);
 			
 			QuestionParameters = StandardSubsystemsClient.QuestionToUserParameters();
-			QuestionParameters.Picture = PictureLib.Warning32;
+			QuestionParameters.Picture = PictureLib.DialogExclamation;
 			QuestionParameters.Title = NStr("en = 'Request for permission to sign';");
 			QuestionParameters.CheckBoxText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Remember my choice for certificate ""%1""';"), Certificate);
@@ -761,7 +780,7 @@ Procedure SignDataAfterSelectedCertificateVerified(Result, Context) Export
 			New Structure("Context, CertificateVerificationResult", Context, Result));
 		
 		QuestionParameters = StandardSubsystemsClient.QuestionToUserParameters();
-		QuestionParameters.Picture = PictureLib.Warning32;
+		QuestionParameters.Picture = PictureLib.DialogExclamation;
 		QuestionParameters.Title = NStr("en = 'The signature will be invalid';");
 		QuestionParameters.PromptDontAskAgain = False;
 		
@@ -814,7 +833,7 @@ Procedure SignDataAfterInvalidSignatureWarning(Result, AdditionalParameters) Exp
 	SelectedCertificate.Insert("Data",    AddressOfCertificate);
 	DataDetails.Insert("SelectedCertificate",   SelectedCertificate);
 	DataDetails.Insert("SelectedLetterOfAuthority", MachineReadableLetterOfAuthority);
-	DataDetails.Insert("MRLOAVerificationResultForSigning", MRLOAVerificationResultForSigning);
+	DataDetails.Insert("MachineReadableSigningLOACheckResult", MachineReadableSigningLOACheckResult);
 	
 	If DataDetails.Property("BeforeExecute")
 	   And TypeOf(DataDetails.BeforeExecute) = Type("NotifyDescription") Then
@@ -961,7 +980,7 @@ Procedure SignDataAfterExecutionAtClientSide(Result, Context) Export
 		
 		ShowUserNotification(
 			NStr("en = 'You need to reissue the certificate';"), ActionOnClick, Certificate,
-			PictureLib.Warning32, UserNotificationStatus.Important,
+			PictureLib.DialogExclamation, UserNotificationStatus.Important,
 			Certificate);
 	EndIf;
 	
@@ -979,8 +998,8 @@ Procedure SignDataAfterExecute(Result)
 	EndIf;
 	
 	If Result.Property("HasProcessedDataItems") Then
-		
-		
+		// 
+		// 
 		Items.Certificate.ReadOnly = True;
 		Items.Comment.ReadOnly = True;
 	EndIf;

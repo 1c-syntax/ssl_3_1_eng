@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -126,7 +127,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure SynchronizeAndContinueWithoutIBUpdate()
@@ -148,12 +149,12 @@ EndProcedure
 &AtServer
 Procedure SynchronizeAndContinueWithoutIBUpdateCompletion()
 	
-	
-	
-	
 	// 
-	
-	
+	// 
+	// 
+	// 
+	// 
+	// 
 	//   
 	// 
 	//   
@@ -173,8 +174,8 @@ Procedure SynchronizeAndContinueWithoutIBUpdateCompletion()
 		Try
 			ExportMessageAfterInfobaseUpdate();
 		Except
-			
-			
+			// 
+			// 
 			EventLogMessageKey = DataExchangeServer.DataExchangeEventLogEvent();
 			WriteLogEvent(EventLogMessageKey,
 				EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
@@ -336,7 +337,7 @@ Procedure ImportMessageBeforeInfobaseUpdate()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure SynchronizeAndContinueWithIBUpdate()
@@ -485,7 +486,7 @@ Procedure ImportPriorityDataToSubordinateDIBNode()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
 Procedure DoNotSyncAndContinueAtServer()
@@ -505,7 +506,7 @@ Procedure DoNotSyncAndContinueAtServer()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
 Procedure CheckUpdateRequired()

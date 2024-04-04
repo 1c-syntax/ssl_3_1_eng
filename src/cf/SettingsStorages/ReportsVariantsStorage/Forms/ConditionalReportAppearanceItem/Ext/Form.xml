@@ -59,6 +59,12 @@
 						</CheckBoxField>
 						<RadioButtonField name="FormattedFieldsSelectionOption" id="356">
 							<DataPath>FormattedFieldsSelectionOption</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Formatted field selection option</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<GroupVerticalAlign>Center</GroupVerticalAlign>
 							<RadioButtonType>Auto</RadioButtonType>
@@ -130,6 +136,12 @@
 									<ChildItems>
 										<InputField name="FormattedField" id="359">
 											<DataPath>FormattedField</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Formatted field</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<AutoMaxWidth>false</AutoMaxWidth>
 											<MaxWidth>30</MaxWidth>
@@ -496,7 +508,7 @@
 								</v8:item>
 							</Title>
 							<ContextMenu name="FilterTitleContextMenu" id="348"/>
-							<ExtendedTooltip name="SelectionOfTitleExtendedTooltip" id="349"/>
+							<ExtendedTooltip name="FilterTitleExtendedTooltip" id="349"/>
 						</LabelDecoration>
 						<CommandBar name="FilterCommandsBasic" id="350">
 							<Title>
@@ -643,7 +655,7 @@
 									<Button name="FilterCopy" id="313">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Item.Filter.StandardCommand.Copy</CommandName>
-										<ExtendedTooltip name="FilterCopy1ExtendedTooltip" id="314"/>
+										<ExtendedTooltip name="FilterCopyExtendedTooltip" id="314"/>
 									</Button>
 									<Button name="FilterChange" id="315">
 										<Type>CommandBarButton</Type>
@@ -809,7 +821,7 @@
 											<EditMode>EnterOnInput</EditMode>
 											<Width>10</Width>
 											<ContextMenu name="FilterDateContextMenu" id="249"/>
-											<ExtendedTooltip name="FilterDate1ExtendedTooltip" id="250"/>
+											<ExtendedTooltip name="FilterDateExtendedTooltip" id="250"/>
 										</InputField>
 									</ChildItems>
 								</ColumnGroup>
@@ -869,6 +881,12 @@
 		</UsualGroup>
 		<InputField name="Description" id="93">
 			<DataPath>Description</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Title</v8:content>
+				</v8:item>
+			</Title>
 			<AutoMaxWidth>false</AutoMaxWidth>
 			<ClearButton>true</ClearButton>
 			<InputHint>
@@ -882,6 +900,12 @@
 					<Button name="InsertDefaultDescriptionContextMenu" id="331">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.InsertDefaultDescription</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Enter default name</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="InsertDefaultDescriptionContextMenuExtendedTooltip" id="332"/>
 					</Button>
 				</ChildItems>
@@ -935,7 +959,7 @@
 									<Title formatted="false">
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Show:</v8:content>
+											<v8:content>Show in:                 </v8:content>
 										</v8:item>
 									</Title>
 									<VerticalAlign>Center</VerticalAlign>
@@ -965,11 +989,23 @@
 												<Button name="Show_SelectCheckBoxes" id="190">
 													<Type>CommandBarButton</Type>
 													<CommandName>Form.Command.Show_SelectCheckBoxes</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Select all</v8:content>
+														</v8:item>
+													</Title>
 													<ExtendedTooltip name="ShowSelectCheckBoxesExtendedTooltip" id="191"/>
 												</Button>
 												<Button name="Show_ClearCheckBoxes" id="188">
 													<Type>CommandBarButton</Type>
 													<CommandName>Form.Command.Show_ClearCheckBoxes</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Clear all</v8:content>
+														</v8:item>
+													</Title>
 													<ExtendedTooltip name="ShowClearCheckBoxesExtendedTooltip" id="189"/>
 												</Button>
 											</ChildItems>
@@ -993,6 +1029,12 @@
 							<ChildItems>
 								<CheckBoxField name="UseInGroup" id="185">
 									<DataPath>UseInGroup</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Grouping</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>Right</TitleLocation>
 									<CheckBoxType>Auto</CheckBoxType>
 									<ContextMenu name="UseInGroupContextMenu" id="186"/>
@@ -1003,6 +1045,12 @@
 								</CheckBoxField>
 								<CheckBoxField name="UseInHierarchicalGroup" id="176">
 									<DataPath>UseInHierarchicalGroup</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Hierarchy grouping</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>Right</TitleLocation>
 									<CheckBoxType>Auto</CheckBoxType>
 									<ContextMenu name="UseInHierarchicalGroupContextMenu" id="177"/>
@@ -1013,6 +1061,12 @@
 								</CheckBoxField>
 								<CheckBoxField name="UseInOverall" id="173">
 									<DataPath>UseInOverall</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Grand total</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>Right</TitleLocation>
 									<CheckBoxType>Auto</CheckBoxType>
 									<ContextMenu name="UseInOverallContextMenu" id="174"/>
@@ -1023,6 +1077,12 @@
 								</CheckBoxField>
 								<CheckBoxField name="UseInFieldsHeader" id="179">
 									<DataPath>UseInFieldsHeader</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Field title</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>Right</TitleLocation>
 									<CheckBoxType>Auto</CheckBoxType>
 									<ContextMenu name="UseInFieldsHeaderContextMenu" id="180"/>
@@ -1033,6 +1093,12 @@
 								</CheckBoxField>
 								<CheckBoxField name="UseInHeader" id="182">
 									<DataPath>UseInHeader</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Title</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>Right</TitleLocation>
 									<CheckBoxType>Auto</CheckBoxType>
 									<ContextMenu name="UseInHeaderContextMenu" id="183"/>
@@ -1043,6 +1109,12 @@
 								</CheckBoxField>
 								<CheckBoxField name="UseInParameters" id="167">
 									<DataPath>UseInParameters</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Parameters</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>Right</TitleLocation>
 									<CheckBoxType>Auto</CheckBoxType>
 									<ContextMenu name="UseInParametersContextMenu" id="168"/>
@@ -1053,6 +1125,12 @@
 								</CheckBoxField>
 								<CheckBoxField name="UseInFilter" id="170">
 									<DataPath>UseInFilter</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Filters</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>Right</TitleLocation>
 									<CheckBoxType>Auto</CheckBoxType>
 									<ContextMenu name="UseInFilterContextMenu" id="171"/>
@@ -1079,6 +1157,12 @@
 							<Type>CommandBarButton</Type>
 							<DefaultButton>true</DefaultButton>
 							<CommandName>Form.Command.Select</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>OK</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="FormChooseExtendedTooltip" id="27"/>
 						</Button>
 						<Button name="Cancel" id="325">
@@ -1387,6 +1471,9 @@
 			<Type/>
 		</Parameter>
 		<Parameter name="DCID">
+			<Type/>
+		</Parameter>
+		<Parameter name="Field">
 			<Type/>
 		</Parameter>
 	</Parameters>

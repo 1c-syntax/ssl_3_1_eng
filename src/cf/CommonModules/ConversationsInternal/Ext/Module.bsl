@@ -1,21 +1,22 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #Region Internal
 
 Function Connected2() Export
 	
-	
-	 
-	
+	// 
+	//  
+	// 
 	//
-	
+	// 
 	CanUse = CollaborationSystem.CanUse();
 	
 	Return CanUse And Not Locked2();
@@ -99,7 +100,7 @@ Procedure OnCreateAtUserServer(Cancel, Form, Object) Export
 			NStr("en = 'You can also enable conversations later from the %1 section.';"),
 			AdministrationSubsystem.Synonym);
 	Else
-		EnableLater = NStr("en = 'You can also enable conversations later from the application settings.';");
+		EnableLater = NStr("en = 'You can also enable conversations later from the app settings.';");
 	EndIf;
 	
 	Form.SuggestConversationsText = 
@@ -118,7 +119,7 @@ Procedure OnFillPermissionsToAccessExternalResources(PermissionsRequests) Export
 	Permissions = New Array;
 	ModuleSafeModeManager = Common.CommonModule("SafeModeManager");
 	Resolution = ModuleSafeModeManager.PermissionToUseInternetResource("WSS", "1cdialog.com", 443, 
-		NStr("en = '1C:Dialog service for Collaboration System (themed conversations, correspondence, and video calls for application users).';"));
+		NStr("en = '1C:Dialog service for Collaboration System (provides chat rooms, messaging, and video calls).';"));
 	Permissions.Add(Resolution);
 	Resolution = ModuleSafeModeManager.PermissionToUseInternetResource("HTTPS", "*.s3storage.ru", 443, 
 		NStr("en = '1C:Dialog service for Collaboration System (Service file storage).';"));
@@ -169,7 +170,7 @@ Function BlockAnInteractionSystemUser(User) Export
 		UserIDCollaborationSystem = CollaborationSystem.GetUserID(
 			IBUserID);
 	Except
-		
+		// ACC:280 - A thrown exception means the Collaboration System user was not found.
 	EndTry;
 	
 	If UserIDCollaborationSystem = Undefined Then
@@ -311,20 +312,20 @@ Procedure CreateChangeIntegration(Parameters) Export
 	NewIntegration.Use = True;
 	ExternalSystemDetails = CollaborationSystem.GetExternalSystemDescription(Parameters.Type);
 	
-	NotSpecifiedParameters = New Array;
+	NotGivenParameters = New Array;
 	For Each IntegrationParameter In ExternalSystemDetails.ParametersDescriptions Do
 		If Not Parameters.Property(IntegrationParameter.Name) Then
 			If IntegrationParameter.Required Then
-				NotSpecifiedParameters.Add(IntegrationParameter.Name);
+				NotGivenParameters.Add(IntegrationParameter.Name);
 			EndIf;
 		Else
 			NewIntegration.ExternalSystemParameters.Insert(IntegrationParameter.Name, Parameters[IntegrationParameter.Name]);
 		EndIf;
 	EndDo;
 	
-	If NotSpecifiedParameters.Count() > 0 Then
+	If NotGivenParameters.Count() > 0 Then
 		Raise NStr("en = 'Integration parameters are not specified:
-			|%1';", StrConcat(NotSpecifiedParameters, Chars.LF + "- "));
+			|%1';", StrConcat(NotGivenParameters, Chars.LF + "- "));
 	EndIf;
 	
 	NewIntegration.Members.Clear();

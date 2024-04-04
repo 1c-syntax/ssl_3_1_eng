@@ -27,6 +27,7 @@
 		<Event name="OnOpen">OnOpen</Event>
 		<Event name="BeforeClose">BeforeClose</Event>
 		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
+		<Event name="OnClose">OnClose</Event>
 	</Events>
 	<ChildItems>
 		<Pages name="WizardSteps" id="70">
@@ -103,17 +104,35 @@ Searching for occurrences…</v8:content>
 								<Button name="MarkAsOriginal" id="27">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.MarkAsOriginal</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Mark as original item</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="MarkAsOriginalExtendedTooltip" id="28"/>
 								</Button>
 								<Button name="OpenItem" id="152">
 									<Type>CommandBarButton</Type>
 									<Representation>Text</Representation>
 									<CommandName>Form.Command.OpenUsageInstancesItem</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Open</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="OpenItemExtendedTooltip" id="153"/>
 								</Button>
 								<Button name="UsageInstances1" id="226">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.UsageInstances</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Occurrences…</v8:content>
+										</v8:item>
+									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="UsageInstances1ExtendedTooltip" id="227"/>
 								</Button>
@@ -225,28 +244,46 @@ Searching for occurrences…</v8:content>
 							<ContextMenu name="UsageInstancesContextMenu" id="2">
 								<Autofill>false</Autofill>
 								<ChildItems>
-									<ButtonGroup name="PlacesOfUseContextMenuGroupMain" id="158">
+									<ButtonGroup name="UsageInstancesContextMenuGroupMain" id="158">
 										<Title>
 											<v8:item>
 												<v8:lang>en</v8:lang>
 												<v8:content>Main</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="PlacesOfUseContextMenuGroupMainExtendedTooltip" id="159"/>
+										<ExtendedTooltip name="UsageInstancesContextMenuGroupMainExtendedTooltip" id="159"/>
 										<ChildItems>
 											<Button name="UsageInstancesContextMenuSetAsMain" id="154">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.MarkAsOriginal</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Mark as original item</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="UsageInstancesContextMenuSetAsMainExtendedTooltip" id="155"/>
 											</Button>
 											<Button name="UsageInstancesContextMenuOpenItem" id="156">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.OpenUsageInstancesItem</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Open</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="UsageInstancesContextMenuOpenItemExtendedTooltip" id="157"/>
 											</Button>
 											<Button name="UsageInstancesContextMenuUsageInstances" id="220">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.UsageInstances</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Occurrences…</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="UsageInstancesContextMenuUsageInstancesExtendedTooltip" id="221"/>
 											</Button>
 										</ChildItems>
@@ -266,14 +303,14 @@ Searching for occurrences…</v8:content>
 										<CommandName>Form.Item.UsageInstances.StandardCommand.CopyToClipboard</CommandName>
 										<ExtendedTooltip name="UsageInstancesContextMenuCopyToClipboardExtendedTooltip" id="188"/>
 									</Button>
-									<ButtonGroup name="PlacesOfUseContextMenuGroupSort" id="222">
+									<ButtonGroup name="UsageInstancesContextMenuGroupSort" id="222">
 										<Title>
 											<v8:item>
 												<v8:lang>en</v8:lang>
 												<v8:content>Sort</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="PlacesOfUseContextMenuGroupSortExtendedTooltip" id="223"/>
+										<ExtendedTooltip name="UsageInstancesContextMenuGroupSortExtendedTooltip" id="223"/>
 										<ChildItems>
 											<Button name="UsageInstancesContextMenuSortListAsc" id="198">
 												<Type>CommandBarButton</Type>
@@ -336,6 +373,12 @@ Searching for occurrences…</v8:content>
 									<ChildItems>
 										<PictureField name="UsageInstancesMain" id="109">
 											<DataPath>UsageInstances.Pictogram</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Icon</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<EditMode>EnterOnInput</EditMode>
 											<Width>20</Width>
@@ -350,6 +393,12 @@ Searching for occurrences…</v8:content>
 										<InputField name="UsageInstancesRef" id="5">
 											<DataPath>UsageInstances.Ref</DataPath>
 											<ReadOnly>true</ReadOnly>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Description</v8:content>
+												</v8:item>
+											</Title>
 											<EditMode>EnterOnInput</EditMode>
 											<ContextMenu name="UsageInstancesRefContextMenu" id="6"/>
 											<ExtendedTooltip name="UsageInstancesRefExtendedTooltip" id="7"/>
@@ -359,6 +408,12 @@ Searching for occurrences…</v8:content>
 								<InputField name="UsageInstancesCode" id="22">
 									<DataPath>UsageInstances.Code</DataPath>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Code</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<Width>10</Width>
 									<HorizontalStretch>false</HorizontalStretch>
@@ -381,6 +436,12 @@ Searching for occurrences…</v8:content>
 										<InputField name="UsageInstancesUsageInstancesCount" id="11">
 											<DataPath>UsageInstances.UsageInstancesCount</DataPath>
 											<ReadOnly>true</ReadOnly>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Occurrences</v8:content>
+												</v8:item>
+											</Title>
 											<ToolTip>
 												<v8:item>
 													<v8:lang>en</v8:lang>
@@ -398,6 +459,12 @@ Searching for occurrences…</v8:content>
 										</InputField>
 										<InputField name="UsageInstancesNotUsed" id="191">
 											<DataPath>UsageInstances.NotUsed</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Occurrences</v8:content>
+												</v8:item>
+											</Title>
 											<EditMode>EnterOnInput</EditMode>
 											<Width>7</Width>
 											<HorizontalStretch>false</HorizontalStretch>
@@ -441,6 +508,12 @@ Searching for occurrences…</v8:content>
 								<Button name="AllUsageInstances" id="31">
 									<Type>Hyperlink</Type>
 									<CommandName>Form.Command.AllUsageInstances</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>All occurrences</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="AllUsageInstancesExtendedTooltip" id="32"/>
 								</Button>
 							</ChildItems>
@@ -532,7 +605,7 @@ Merging items…</v8:content>
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Unsuccessful replacements result</v8:content>
+									<v8:content>Unsuccessful replacements:</v8:content>
 								</v8:item>
 							</Title>
 							<ContextMenu name="UnsuccessfulReplacementsResultContextMenu" id="134"/>
@@ -551,18 +624,48 @@ Merging items…</v8:content>
 									<Type>CommandBarButton</Type>
 									<Representation>PictureAndText</Representation>
 									<CommandName>Form.Command.OpenUnsuccessfulReplacementItem</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Change</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="OpenUnsuccessfulReplacementItemExtendedTooltip" id="165"/>
 								</Button>
-								<Button name="ExpandAllUnsuccessfulReplacements" id="129">
-									<Type>CommandBarButton</Type>
-									<CommandName>Form.Command.ExpandAllUnsuccessfulReplacements</CommandName>
-									<ExtendedTooltip name="ExpandAllUnsuccessfulReplacementsExtendedTooltip" id="130"/>
-								</Button>
-								<Button name="CollapseAllUnsuccessfulReplacements" id="131">
-									<Type>CommandBarButton</Type>
-									<CommandName>Form.Command.CollapseAllUnsuccessfulReplacements</CommandName>
-									<ExtendedTooltip name="CollapseAllUnsuccessfulReplacementsExtendedTooltip" id="132"/>
-								</Button>
+								<ButtonGroup name="CollapseExpandGroup" id="249">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Collapse expand</v8:content>
+										</v8:item>
+									</Title>
+									<Representation>Compact</Representation>
+									<ExtendedTooltip name="CollapseExpandGroupExtendedTooltip" id="250"/>
+									<ChildItems>
+										<Button name="CollapseAllUnsuccessfulReplacements" id="131">
+											<Type>CommandBarButton</Type>
+											<CommandName>Form.Command.CollapseAllUnsuccessfulReplacements</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Collapse all</v8:content>
+												</v8:item>
+											</Title>
+											<ExtendedTooltip name="CollapseAllUnsuccessfulReplacementsExtendedTooltip" id="132"/>
+										</Button>
+										<Button name="ExpandAllUnsuccessfulReplacements" id="129">
+											<Type>CommandBarButton</Type>
+											<CommandName>Form.Command.ExpandAllUnsuccessfulReplacements</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Expand all</v8:content>
+												</v8:item>
+											</Title>
+											<ExtendedTooltip name="ExpandAllUnsuccessfulReplacementsExtendedTooltip" id="130"/>
+										</Button>
+									</ChildItems>
+								</ButtonGroup>
 								<ButtonGroup name="AllActions2" id="136">
 									<Title>
 										<v8:item>
@@ -688,6 +791,12 @@ Merging items…</v8:content>
 											<ChildItems>
 												<PictureField name="UnsuccessfulReplacementsIcon1" id="175">
 													<DataPath>UnsuccessfulReplacements.Pictogram</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Icon</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>None</TitleLocation>
 													<EditMode>EnterOnInput</EditMode>
 													<ValuesPicture>
@@ -700,6 +809,12 @@ Merging items…</v8:content>
 												</PictureField>
 												<InputField name="UnsuccessfulReplacementsData" id="144">
 													<DataPath>UnsuccessfulReplacements.Data</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Description / Occurrence</v8:content>
+														</v8:item>
+													</Title>
 													<EditMode>EnterOnInput</EditMode>
 													<ContextMenu name="UnsuccessfulReplacementsDataContextMenu" id="145"/>
 													<ExtendedTooltip name="UnsuccessfulReplacementsDataExtendedTooltip" id="146"/>
@@ -708,6 +823,12 @@ Merging items…</v8:content>
 										</ColumnGroup>
 										<InputField name="UnsuccessfulReplacementsCode" id="147">
 											<DataPath>UnsuccessfulReplacements.Code</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Code</v8:content>
+												</v8:item>
+											</Title>
 											<EditMode>EnterOnInput</EditMode>
 											<Width>10</Width>
 											<HorizontalStretch>false</HorizontalStretch>
@@ -718,6 +839,12 @@ Merging items…</v8:content>
 								</ColumnGroup>
 								<InputField name="UnsuccessfulReplacementsCause" id="122">
 									<DataPath>UnsuccessfulReplacements.Cause</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Reason</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<Height>1</Height>
 									<ContextMenu name="UnsuccessfulReplacementsCauseContextMenu" id="123"/>
@@ -725,10 +852,61 @@ Merging items…</v8:content>
 								</InputField>
 							</ChildItems>
 						</Table>
+						<UsualGroup name="GroupErrorReport" id="251">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Error report</v8:content>
+								</v8:item>
+							</Title>
+							<HorizontalStretch>true</HorizontalStretch>
+							<Group>AlwaysHorizontal</Group>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="GroupErrorReportExtendedTooltip" id="252"/>
+							<ChildItems>
+								<LabelDecoration name="DecorationMoreDetails" id="253">
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Details:</v8:content>
+										</v8:item>
+									</Title>
+									<ContextMenu name="DecorationMoreDetailsContextMenu" id="254"/>
+									<ExtendedTooltip name="DecorationMoreDetailsExtendedTooltip" id="255"/>
+								</LabelDecoration>
+								<LabelDecoration name="DecorationSendErrorReport" id="256">
+									<Height>1</Height>
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Send error report</v8:content>
+										</v8:item>
+									</Title>
+									<GroupHorizontalAlign>Right</GroupHorizontalAlign>
+									<Hyperlink>true</Hyperlink>
+									<ContextMenu name="DecorationSendErrorReportContextMenu" id="257"/>
+									<ExtendedTooltip name="DecorationSendErrorReportExtendedTooltip" id="258"/>
+									<Events>
+										<Event name="Click">DecorationSendErrorReportClick</Event>
+									</Events>
+								</LabelDecoration>
+							</ChildItems>
+						</UsualGroup>
 						<InputField name="FailureReasonDetails" id="172">
 							<DataPath>FailureReasonDetails</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Reason details</v8:content>
+								</v8:item>
+							</Title>
+							<TitleLocation>None</TitleLocation>
 							<AutoMaxWidth>false</AutoMaxWidth>
+							<Height>2</Height>
+							<AutoMaxHeight>false</AutoMaxHeight>
+							<MaxHeight>3</MaxHeight>
 							<VerticalStretch>false</VerticalStretch>
 							<MultiLine>true</MultiLine>
 							<ContextMenu name="FailureReasonDetailsContextMenu" id="173"/>
@@ -755,8 +933,8 @@ Merging items…</v8:content>
 							</Title>
 							<GroupVerticalAlign>Center</GroupVerticalAlign>
 							<Picture>
-								<xr:Ref>CommonPicture.Warning32</xr:Ref>
-								<xr:LoadTransparent>false</xr:LoadTransparent>
+								<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+								<xr:LoadTransparent>true</xr:LoadTransparent>
 							</Picture>
 							<FileDragMode>AsFile</FileDragMode>
 							<ContextMenu name="WarningPicture32ContextMenu" id="233"/>
@@ -822,6 +1000,12 @@ Merging items…</v8:content>
 						<Button name="WizardStepBack" id="43">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.WizardStepBack</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>&lt; Back</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="WizardStepBackExtendedTooltip" id="44"/>
 						</Button>
 					</ChildItems>
@@ -839,11 +1023,23 @@ Merging items…</v8:content>
 						<Button name="WizardStepNext" id="48">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.WizardStepNext</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Next &gt;</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="WizardStepNextExtendedTooltip" id="49"/>
 						</Button>
 						<Button name="WizardStepCancel" id="50">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.WizardStepCancel</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Cancel</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="WizardStepCancelExtendedTooltip" id="51"/>
 						</Button>
 						<Button name="Help" id="58">
@@ -1035,6 +1231,9 @@ Merging items…</v8:content>
 							<v8:AllowedSign>Any</v8:AllowedSign>
 						</v8:NumberQualifiers>
 					</Type>
+				</Column>
+				<Column name="ErrorInfo" id="7">
+					<Type/>
 				</Column>
 			</Columns>
 		</Attribute>

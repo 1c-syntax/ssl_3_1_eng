@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -41,7 +42,7 @@ Function ClusterAdministrationParameters() Export
 	
 	Result = New Structure();
 	
-	Result.Insert("AttachmentType", "COM"); 
+	Result.Insert("AttachmentType", "COM"); // 
 	
 	// For "COM" only
 	Result.Insert("ServerAgentAddress", "");
@@ -286,8 +287,8 @@ EndProcedure
 //   * UserName - String - Infobase user's name,
 //   * ClientComputerName - String - name or network address of the computer that established
 //     the session with the infobase,
-//   * ClientApplicationID - String - 
-//     
+//   * ClientApplicationID - String - ID of the application that established the session.
+//     See the description of the "ApplicationPresentation" global function.
 //   * LanguageID - String - Interface language ID,
 //   * SessionCreationTime - Date - Date and time the session was created,
 //   * LatestSessionActivityTime - Date - Date and time of the session last activity,
@@ -379,8 +380,8 @@ EndFunction
 //                        - Array
 //                        - Structure - the value
 //               the matching session property value is compared with.
-//         - Structure - 
-//           
+//         - Structure - Structure. Key - the name of the session property (mentioned above). Value - the value to compare with.
+//           When you use this filter description, the comparison type is "equal to".
 //           
 //
 // Returns:
@@ -418,8 +419,8 @@ EndFunction
 //                        - Array
 //                        - Structure - the value
 //               the matching session property value is compared with,
-//         - Structure - 
-//           
+//         - Structure - Structure. Key - the name of the session property (mentioned above). Value - the value to compare with.
+//           When you use this filter description, the comparison type is "equal to".
 //
 Procedure DeleteInfobaseSessions(Val ClusterAdministrationParameters, Val IBAdministrationParameters = Undefined, Val Filter = Undefined) Export
 	
@@ -528,8 +529,8 @@ EndFunction
 //                        - Array
 //                        - Structure - the value the matching connection property value
 //               is compared with,
-//         - Structure - 
-//           
+//         - Structure - Structure. Key - Name of the connection property (mentioned above). Value - Value to compare with.
+//           When you use this filter description, the comparison type is "equal to".
 //
 // Returns: 
 //   Array of See ClusterAdministrationClientServer.ConnectionProperties.
@@ -567,8 +568,8 @@ EndFunction
 //                         - Array
 //                         - Structure - the value the matching connection property value
 //                is compared with,
-//         - Structure - 
-//           
+//         - Structure - Structure. Key - Name of the connection property (mentioned above). Value - Value to compare with.
+//           When you use this filter description, the comparison type is "equal to".
 //
 Procedure TerminateInfobaseConnections(Val ClusterAdministrationParameters, Val IBAdministrationParameters = Undefined, Val Filter = Undefined) Export
 	
@@ -845,7 +846,7 @@ Function AddInProperties() Export
 	Result = New Structure();
 	Result.Insert("Name");
 	Result.Insert("LongDesc");
-	Result.Insert("HashSum"); 
+	Result.Insert("HashSum"); // 
 	Return Result;
 	
 EndFunction
@@ -865,7 +866,7 @@ Function ExternalModuleProperties() Export
 	Result = New Structure();
 	Result.Insert("Name");
 	Result.Insert("LongDesc");
-	Result.Insert("HashSum"); 
+	Result.Insert("HashSum"); // 
 	Return Result;
 	
 EndFunction
@@ -1152,8 +1153,8 @@ EndFunction
 //                        - Array
 //                        - Structure - the value
 //               the matching session property value is compared with.
-//         - Structure - 
-//           
+//         - Structure - Structure. Key - the name of the session property (mentioned above). Value - the value to compare with.
+//           When you use this filter description, the comparison type is "equal to".
 //           
 //  UseDictionary - Boolean - If True, the return value is generated using a dictionary. Otherwise, the dictionary is not
 //    used.
@@ -1194,8 +1195,8 @@ EndFunction
 //                        - Array
 //                        - Structure - the value the matching connection property value
 //               is compared with.
-//         - Structure - 
-//           
+//         - Structure - Structure. Key - Name of the connection property (mentioned above). Value - Value to compare with.
+//           When you use this filter description, the comparison type is "equal to".
 //           
 //  UseDictionary - Boolean - If True, the return value is generated using a dictionary.
 //

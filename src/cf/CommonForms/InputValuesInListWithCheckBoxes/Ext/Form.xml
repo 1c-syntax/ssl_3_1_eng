@@ -35,6 +35,12 @@
 					<Button name="ListPasteFromClipboard" id="33">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.PasteFromClipboard</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Paste the clipboard…</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="ListPasteFromClipboardExtendedTooltip" id="34"/>
 					</Button>
 					<Button name="ListDelete" id="60">
@@ -189,6 +195,12 @@
 							<Button name="ListPasteFromClipboardMenu" id="76">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.PasteFromClipboard</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Paste the clipboard…</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="ListPasteFromClipboardMenuExtendedTooltip" id="77"/>
 							</Button>
 							<Button name="ListDeleteMenu" id="88">
@@ -377,6 +389,12 @@
 							<Type>CommandBarButton</Type>
 							<DefaultButton>true</DefaultButton>
 							<CommandName>Form.Command.CompleteEditing</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>OK</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="OkCommandExtendedTooltip" id="27"/>
 						</Button>
 						<Button name="FormCancel" id="28">
@@ -446,4 +464,60 @@
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 	</Commands>
+	<Parameters>
+		<Parameter name="TypeDescription">
+			<Type/>
+		</Parameter>
+		<Parameter name="ValuesForSelectionFilled">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="RestrictSelectionBySpecifiedValues">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="QuickChoice">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="ValuesForSelection">
+			<Type>
+				<v8:Type>v8:ValueListType</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="Marked">
+			<Type>
+				<v8:Type>v8:ValueListType</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="Presentation">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Parameter>
+		<Parameter name="ChoiceFoldersAndItems">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="ChoiceParameters">
+			<Type/>
+		</Parameter>
+		<Parameter name="UniqueKey">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Parameter>
+	</Parameters>
 </Form>

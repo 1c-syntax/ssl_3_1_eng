@@ -3,7 +3,7 @@
 	<Title>
 		<v8:item>
 			<v8:lang>en</v8:lang>
-			<v8:content>Install 1C:Enterprise extension</v8:content>
+			<v8:content>Install 1C:Enterprise Extension</v8:content>
 		</v8:item>
 	</Title>
 	<WindowOpeningMode>LockOwnerWindow</WindowOpeningMode>
@@ -31,12 +31,24 @@
 				<DefaultButton>true</DefaultButton>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.InstallAndContinue</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Install and continue</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="InstallAndContinueExtendedTooltip" id="11"/>
 			</Button>
 			<Button name="ContinueWithoutInstalling" id="9">
 				<Type>CommandBarButton</Type>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.ContinueWithoutInstalling</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Not now</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="ContinueWithoutInstallingExtendedTooltip" id="12"/>
 			</Button>
 		</ChildItems>
@@ -57,7 +69,7 @@ Do you want to install it?</v8:content>
 			</Title>
 			<VerticalAlign>Top</VerticalAlign>
 			<ContextMenu name="NoteDecorationContextMenu" id="7"/>
-			<ExtendedTooltip name="DecorationNoteExtendedTooltip" id="14"/>
+			<ExtendedTooltip name="NoteDecorationExtendedTooltip" id="14"/>
 		</LabelDecoration>
 	</ChildItems>
 	<Attributes>
@@ -92,7 +104,7 @@ Do you want to install it?</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Do not install</v8:content>
+					<v8:content>Not now</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>

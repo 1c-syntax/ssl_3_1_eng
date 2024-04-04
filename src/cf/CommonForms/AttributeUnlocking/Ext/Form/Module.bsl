@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 
 #Region FormEventHandlers
 
@@ -89,8 +88,8 @@ Procedure Validate(Command)
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
 	
-	CompletionNotification2 = New NotifyDescription("ValidateCompletion", ThisObject);
-	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CompletionNotification2, IdleParameters);
+	CallbackOnCompletion = New NotifyDescription("ValidateCompletion", ThisObject);
+	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
 	
 EndProcedure
 
@@ -320,8 +319,8 @@ Function AreObjectsUsed()
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Unlock attributes: Check the object reference usage';");
-	
-	
+	// 
+	// 
 	ExecutionParameters.RunInBackground = True;
 	ExecutionParameters.WaitCompletion = 0;
 	
@@ -330,8 +329,12 @@ Function AreObjectsUsed()
 	
 EndFunction
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
-Procedure ValidateCompletion(Result, Context) Export
+Procedure ValidateCompletion(Result, AdditionalParameters) Export
 	
 	Items.Pages.CurrentPage = Items.Main_Page;
 	If Result = Undefined Then
@@ -339,7 +342,8 @@ Procedure ValidateCompletion(Result, Context) Export
 	EndIf;
 	
 	If Result.Status = "Error" Then
-		ShowMessageBox(, Result.BriefErrorDescription);
+		StandardSubsystemsClient.OutputErrorInfo(
+			Result.ErrorInfo);
 		Return;
 	EndIf;
 	
@@ -352,22 +356,22 @@ Procedure ValidateCompletion(Result, Context) Export
 	If AreObjectsUsed Then
 		If RefsCount = 1 Then
 			MessageText =
-				NStr("en = 'The object is used elsewhere in the application.
+				NStr("en = 'The object is used elsewhere in the app.
 				           |Editing this object might lead to data inconsistency.';");
 		Else
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '%1 selected objects are used elsewhere in the application.
+				NStr("en = '%1 selected objects are used elsewhere in the app.
 				           |Editing these objects might lead to data inconsistency.';"),
 				RefsCount);
 		EndIf;
 	Else
 		If RefsCount = 1 Then
 			MessageText =
-				NStr("en = 'The object is not used in other places in the application.
+				NStr("en = 'The object is not used in other places in the app.
 				           |You can allow editing it without the risk of data inconsistency.';");
 		Else
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The selected objects (%1) are used in other places in the application.
+				NStr("en = 'The selected objects (%1) are used in other places in the app.
 				           |You can allow editing them without the risk of data inconsistency.';"),
 				RefsCount);
 		EndIf;

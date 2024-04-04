@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -78,7 +79,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Version = "3.1.9.6";
 	Handler.Id = New UUID("a1581723-c1f5-4b90-b716-a180a4d5a4ad");
 	Handler.Procedure = "ChartsOfCharacteristicTypes.QuestionsForSurvey.ProcessDataForMigrationToNewVersion";
-	Handler.Comment = NStr("en = 'Fill the new ""Display format"", ""Use minimum value'''', and ""Use maximum value'''' attributes in survey questions.
+	Handler.Comment = NStr("en = 'Fill the new ""Display format"", ""Use minimum value"", and ""Use maximum value"" attributes in survey questions.
 								  |Until the processing is completed, the questions will be displayed incorrectly.';");
 	Handler.ExecutionMode = "Deferred";
 	Handler.UpdateDataFillingProcedure = "ChartsOfCharacteristicTypes.QuestionsForSurvey.RegisterDataToProcessForMigrationToNewVersion";
@@ -303,7 +304,7 @@ Procedure UpdateTabularQuestionPreview(Questions, Replies, TabularQuestionType, 
 
 EndProcedure
 
-// 
+// Sets the root item to the questionnaire template tree upon a form creation.
 //
 Procedure SetQuestionnaireTreeRootItem(QuestionnaireTree) Export
 
@@ -781,7 +782,7 @@ EndProcedure
 Procedure AddAttributesComplexQuestion(TreeRow, AttributesToBeAdded, Form)
 
 	QuestionName = SurveysClientServer.QuestionName(TreeRow.Composite);
-	For Each ComplexQuestionRow In TreeRow.ComplexQuestionComposition Do // LineOfATabularSection of See СправочникТабличнаяЧасть.ВопросыШаблонаАнкеты.CatalogTabularSection.ВопросыШаблонаАнкеты.СоставКомплексногоВопроса
+	For Each ComplexQuestionRow In TreeRow.ComplexQuestionComposition Do 
 
 		FoundRows = Form.QuestionsPresentationTypes.FindRows(New Structure("DoQueryBox",
 			ComplexQuestionRow.ElementaryQuestion));
@@ -1326,8 +1327,8 @@ Procedure AddTabularQuestionItems(TableRow, GroupItem1, Form)
 		Else
 			Item.Type = FormFieldType.InputField;
 			
-			
-			
+			// 
+			// 
 			If TableRow.TabularQuestionType = Enums.TabularQuestionTypes.Composite Or TableRow.TabularQuestionType
 				= Enums.TabularQuestionTypes.PredefinedAnswersInRows Then
 
@@ -1441,7 +1442,7 @@ EndProcedure
 Procedure AddComplexQuestionItems(TableRow, GroupItem1, Form)
 
 	QuestionName = SurveysClientServer.QuestionName(TableRow.Composite);
-	For Each ComplexQuestionRow In TableRow.ComplexQuestionComposition Do // LineOfATabularSection of See СправочникТабличнаяЧасть.ВопросыШаблонаАнкеты.CatalogTabularSection.ВопросыШаблонаАнкеты.СоставКомплексногоВопроса
+	For Each ComplexQuestionRow In TableRow.ComplexQuestionComposition Do 
 
 		FoundRows = Form.QuestionsPresentationTypes.FindRows(New Structure("DoQueryBox",
 			ComplexQuestionRow.ElementaryQuestion));
@@ -2311,7 +2312,7 @@ EndFunction
 //  Respondent  - CatalogRef - a respondent, for whom the list of questionnaires is obtained.
 //
 // Returns:
-//   ValueTable   - :
+//   ValueTable   - a table containing information on questionnaires available to the respondent. Columns:
 //      * Status        - String
 //      * QuestionnaireSurvey   - DocumentRef.Questionnaire
 //                      - DocumentRef.PollPurpose

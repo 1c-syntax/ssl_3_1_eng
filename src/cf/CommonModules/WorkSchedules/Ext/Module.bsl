@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -46,7 +47,7 @@ Function DatesBySchedule(Val WorkScheduleCalendar, Val DateFrom, Val DaysArray,
 		|ORDER BY
 		|	Date";
 
-	
+	// Limit the selection by the maximum shift value to avoid oversized day selection.
 	QuerySchema = New QuerySchema();
 	QuerySchema.SetQueryText(Query.Text);
 	QuerySchema.QueryBatch[0].Operators[0].RetrievedRecordsCount = ShiftDays.Maximum;
@@ -118,15 +119,15 @@ Function DateAccordingToSchedule(Val WorkScheduleCalendar, Val DateFrom, Val Day
 	
 EndFunction
 
-// 
-//  
+// The constructor of parameters for getting dates nearest to the dates included in the schedule.
+//  See NearestWorkDates.
 // 
 // Returns:
 //  Structure:
-//   * GetPrevious - Boolean - :
-//       
-//       
-//       
+//   * GetPrevious - Boolean - Method that gets the closest date::
+//       If True, workdays preceding the ones passed in the InitialDates parameter are defined.
+//       If False, the nearest workdays following the start dates are defined.
+//       By default, False:
 //   * IgnoreUnfilledSchedule - Boolean - if True, a map returns in any way.
 //       Initial dates whose values are missing because of unfilled schedule will not be included.
 //       False - a default value:
@@ -455,14 +456,14 @@ Procedure CreateTTWorkSchedulesForPeriod(TempTablesManager, Schedules, StartDate
 	|	DaysIncludedInSchedule.WorkScheduleCalendar,
 	|	DaysIncludedInSchedule.ScheduleDate";
 	
+	// 
+	// 
 	
+	// 
+	// 
 	
-	
-	
-	
-	
-	
-	
+	// 
+	// 
 	
 	Query = New Query(QueryText);
 	Query.TempTablesManager = TempTablesManager;
@@ -517,14 +518,14 @@ EndProcedure
 // Defines the number of days included in the schedule for the specified period.
 //
 // Parameters:
-//   WorkScheduleCalendar	- CatalogRef.Calendars - 
+//   WorkScheduleCalendar	- CatalogRef.Calendars - Schedule to be used for day calculation.
 //   StartDate		- Date - a period start date.
 //   EndDate	- Date - a period end date.
 //   RaiseException1 - Boolean - if True, throw an exception if the schedule is not filled in.
 //
 // Returns:
-//   Number		- 
-//	              
+//   Number		- Days between the start date and end date.
+//	              If schedule WorkSchedule is not specified and RaiseException = False, returns Undefined.
 //
 Function DateDiffByCalendar(Val WorkScheduleCalendar, Val StartDate, Val EndDate, RaiseException1 = True) Export
 	
@@ -565,7 +566,7 @@ Function DateDiffByCalendar(Val WorkScheduleCalendar, Val StartDate, Val EndDate
 			|	DATETIME(2020,01,01)";
 		EndIf;
 		QueryText = QueryText + StrReplace(
-			UnionTemplate, "2020,01,01", Format(ScheduleDate, """DF='yyyy,MM,d'")); 
+			UnionTemplate, "2020,01,01", Format(ScheduleDate, """DF='yyyy,MM,d'")); // 
 	EndDo;
 	
 	TempTablesManager = New TempTablesManager;
@@ -651,13 +652,13 @@ Function DateDiffByCalendar(Val WorkScheduleCalendar, Val StartDate, Val EndDate
 	
 	Selection = Result.Select();
 	
-	 
-	
-	 
-	
-	 
-	 
-	
+	//  
+	// 
+	//  
+	// 
+	//  
+	//  
+	// 
 	
 	DaysCountInSchedule = Undefined;
 	AddFirstDay = False;

@@ -47,6 +47,12 @@
 					<ChildItems>
 						<HTMLDocumentField name="InstructionDocumentField" id="48">
 							<DataPath>InstructionDocumentField</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Instruction document field</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<ContextMenu name="InstructionDocumentFieldContextMenu" id="49"/>
 							<ExtendedTooltip name="InstructionDocumentFieldExtendedTooltip" id="50"/>
@@ -107,11 +113,23 @@
 											<Type>CommandBarButton</Type>
 											<Representation>Text</Representation>
 											<CommandName>Form.Command.WriteAndClose</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Save and close</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="WriteAndCloseExtendedTooltip" id="26"/>
 										</Button>
 										<Button name="Write" id="130">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.Write</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Save</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="WriteExtendedTooltip" id="131"/>
 										</Button>
 										<Button name="OpenEditor" id="23">
@@ -119,6 +137,12 @@
 											<Representation>Text</Representation>
 											<DefaultButton>true</DefaultButton>
 											<CommandName>Form.Command.OpenEditor</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Open editor</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="OpenEditorExtendedTooltip" id="24"/>
 										</Button>
 									</ChildItems>
@@ -156,6 +180,12 @@
 										<Button name="Translate" id="112">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.Translate</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Translate</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="TranslateExtendedTooltip" id="113"/>
 										</Button>
 										<Button name="ButtonShowOriginal" id="110">
@@ -165,6 +195,12 @@
 												<xr:Ref>StdPicture.Document</xr:Ref>
 												<xr:LoadTransparent>true</xr:LoadTransparent>
 											</Picture>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Show built-in template</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="ButtonShowOriginalExtendedTooltip" id="111"/>
 										</Button>
 									</ChildItems>
@@ -173,6 +209,12 @@
 									<Type>UsualButton</Type>
 									<Representation>Picture</Representation>
 									<CommandName>Form.Command.ViewPrintableForm</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>View print form</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="ViewPrintableFormExtendedTooltip" id="133"/>
 								</Button>
 								<CommandBar name="EditingCommands" id="17">
@@ -188,17 +230,35 @@
 										<Button name="Rename" id="19">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.Rename</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Rename template…</v8:content>
+												</v8:item>
+											</Title>
 											<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 											<ExtendedTooltip name="RenameExtendedTooltip" id="20"/>
 										</Button>
 										<Button name="PutToClipboard" id="94">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.PutToClipboard</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Copy</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="PutToClipboardExtendedTooltip" id="95"/>
 										</Button>
 										<Button name="DeleteLayoutLanguage" id="114">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.DeleteLayoutLanguage</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Delete template language</v8:content>
+												</v8:item>
+											</Title>
 											<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 											<ExtendedTooltip name="DeleteLayoutLanguageExtendedTooltip" id="115"/>
 										</Button>
@@ -214,14 +274,63 @@
 												<Button name="SaveToFile" id="122">
 													<Type>CommandBarButton</Type>
 													<CommandName>Form.Command.SaveToFile</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Save to file…</v8:content>
+														</v8:item>
+													</Title>
 													<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 													<ExtendedTooltip name="SaveToFileExtendedTooltip" id="123"/>
 												</Button>
 												<Button name="LoadFromFile" id="98">
 													<Type>CommandBarButton</Type>
 													<CommandName>Form.Command.LoadFromFile</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Import from file…</v8:content>
+														</v8:item>
+													</Title>
 													<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 													<ExtendedTooltip name="LoadFromFileExtendedTooltip" id="99"/>
+												</Button>
+											</ChildItems>
+										</ButtonGroup>
+										<ButtonGroup name="TranslationOfAllActions" id="144">
+											<HorizontalStretch>false</HorizontalStretch>
+											<ExtendedTooltip name="TranslationOfAllActionsExtendedTooltip" id="145"/>
+											<ChildItems>
+												<Popup name="LanguageAllActions" id="146">
+													<ExtendedTooltip name="LanguageAllActionsExtendedTooltip" id="147"/>
+													<ChildItems>
+														<ButtonGroup name="LanguagesToAddAllActions" id="148">
+															<ExtendedTooltip name="LanguagesToAddAllActionsExtendedTooltip" id="149"/>
+														</ButtonGroup>
+													</ChildItems>
+												</Popup>
+												<Button name="TranslateAllActions" id="150">
+													<Type>CommandBarButton</Type>
+													<CommandName>Form.Command.Translate</CommandName>
+													<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+													<ExtendedTooltip name="TranslateAllActionsExtendedTooltip" id="151"/>
+												</Button>
+												<Button name="ShowOriginalAllActionsButton" id="152">
+													<Type>CommandBarButton</Type>
+													<CommandName>Form.Command.ShowOriginal</CommandName>
+													<Picture>
+														<xr:Ref>StdPicture.Document</xr:Ref>
+														<xr:LoadTransparent>true</xr:LoadTransparent>
+													</Picture>
+													<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+													<ExtendedTooltip name="ShowOriginalAllActionsButtonExtendedTooltip" id="153"/>
+												</Button>
+												<Button name="ViewPrintedFormOfAllActions" id="154">
+													<Type>CommandBarButton</Type>
+													<Representation>Picture</Representation>
+													<CommandName>Form.Command.ViewPrintableForm</CommandName>
+													<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+													<ExtendedTooltip name="ViewPrintedFormOfAllActionsExtendedTooltip" id="155"/>
 												</Button>
 											</ChildItems>
 										</ButtonGroup>
@@ -243,6 +352,12 @@
 											<Type>CommandBarButton</Type>
 											<Representation>Picture</Representation>
 											<CommandName>Form.Command.DisplayInstruction</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Display instruction</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="DisplayInstructionExtendedTooltip" id="52"/>
 										</Button>
 									</ChildItems>
@@ -476,6 +591,12 @@
 										<InputField name="TextToCopy" id="14">
 											<DataPath>TextToCopy</DataPath>
 											<Visible>false</Visible>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Text to be copied</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<AutoMaxWidth>false</AutoMaxWidth>
 											<InputHint>

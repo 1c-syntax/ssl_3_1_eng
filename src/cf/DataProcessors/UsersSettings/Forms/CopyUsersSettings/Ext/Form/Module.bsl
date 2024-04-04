@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -180,6 +181,9 @@ Procedure SelectUsers(Item)
 	
 	SelectedUsers = Undefined;
 	SettingsRecipientsUsers.Property("UsersArray", SelectedUsers);
+	If SelectedUsers = Undefined Then
+		SelectedUsers = New Array;
+	EndIf;
 	
 	FormParameters = New Structure;
 	FormParameters.Insert("User",          UserRef);
@@ -240,8 +244,8 @@ Procedure Copy(Command)
 		Return;
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	OpenFormsToCopy = OpenFormsToCopy();
 	CheckActiveUsers();
 	If CheckResult = "HasActiveUsersRecipients"
@@ -373,7 +377,7 @@ Procedure CopySettings(CommandName)
 	EndIf;
 	
 	NotificationText1    = NStr("en = 'Copy settings';");
-	NotificationPicture = PictureLib.Information32;
+	NotificationPicture = PictureLib.DialogInformation;
 	
 	If SettingsToCopyRadioButton = "CopySelectedSettings1" Then
 		Report = Undefined;

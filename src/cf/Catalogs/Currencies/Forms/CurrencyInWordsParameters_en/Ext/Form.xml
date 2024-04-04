@@ -20,11 +20,23 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.WriteAndClose</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save and close</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormWriteAndCloseExtendedTooltip" id="117"/>
 			</Button>
 			<Button name="FormWrite" id="118">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.Write</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormWriteExtendedTooltip" id="119"/>
 			</Button>
 		</ChildItems>
@@ -137,6 +149,12 @@
 			<ChildItems>
 				<InputField name="FractionalPartLength" id="20">
 					<DataPath>FractionalPartLength</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Decimals</v8:content>
+						</v8:item>
+					</Title>
 					<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 					<Width>15</Width>
 					<HorizontalStretch>false</HorizontalStretch>
@@ -222,6 +240,12 @@
 				<InputField name="AmountInWords" id="62">
 					<DataPath>AmountInWords</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Amount in words</v8:content>
+						</v8:item>
+					</Title>
 					<TextEdit>false</TextEdit>
 					<ContextMenu name="AmountInWordsContextMenu" id="63"/>
 					<ExtendedTooltip name="AmountInWordsExtendedTooltip" id="99"/>

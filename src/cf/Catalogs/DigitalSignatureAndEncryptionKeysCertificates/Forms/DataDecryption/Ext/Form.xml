@@ -80,6 +80,12 @@
 					<ChildItems>
 						<InputField name="Certificate" id="313">
 							<DataPath>Certificate</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Certificate</v8:content>
+								</v8:item>
+							</Title>
 							<DropListButton>false</DropListButton>
 							<ChoiceButton>true</ChoiceButton>
 							<ChoiceButtonRepresentation>ShowInInputField</ChoiceButtonRepresentation>
@@ -113,13 +119,26 @@
 							<ChildItems>
 								<InputField name="Password" id="316">
 									<DataPath>Password</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Password</v8:content>
+										</v8:item>
+									</Title>
 									<HorizontalStretch>false</HorizontalStretch>
 									<Wrap>false</Wrap>
 									<PasswordMode>true</PasswordMode>
+									<ChoiceButton>true</ChoiceButton>
+									<EditTextUpdate>OnValueChange</EditTextUpdate>
+									<ChoiceButtonPicture>
+										<xr:Ref>CommonPicture.CharsBeingTypedShown</xr:Ref>
+										<xr:LoadTransparent>false</xr:LoadTransparent>
+									</ChoiceButtonPicture>
 									<ContextMenu name="PasswordContextMenu" id="317"/>
 									<ExtendedTooltip name="PasswordExtendedTooltip" id="318"/>
 									<Events>
 										<Event name="OnChange">PasswordOnChange</Event>
+										<Event name="StartChoice">PasswordStartChoice</Event>
 									</Events>
 								</InputField>
 								<CheckBoxField name="RememberPassword" id="324">
@@ -134,7 +153,7 @@
 									<ToolTip>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Remember certificate password before closing the application. When the check box is cleared, the password is erased from memory if it was remembered earlier.</v8:content>
+											<v8:content>Remember the certificate password before closing the app. When the check box is cleared, the stored password will be forgotten.</v8:content>
 										</v8:item>
 									</ToolTip>
 									<ToolTipRepresentation>Button</ToolTipRepresentation>
@@ -266,6 +285,12 @@
 							<Type>CommandBarButton</Type>
 							<DefaultButton>true</DefaultButton>
 							<CommandName>Form.Command.Decrypt</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Decrypt</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="FormDecryptExtendedTooltip" id="466"/>
 						</Button>
 						<Button name="FormClose" id="467">

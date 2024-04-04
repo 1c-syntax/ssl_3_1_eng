@@ -15,18 +15,18 @@
 		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
 	</Events>
 	<ChildItems>
-		<UsualGroup name="MailingGroupsCanWorkFaster" id="176">
+		<UsualGroup name="GroupDistributionsCanBeAccelerated" id="176">
 			<Visible>false</Visible>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Group reports can be sent faster</v8:content>
+					<v8:content>Reports can be sent faster</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTipRepresentation>ShowLeft</ToolTipRepresentation>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="MailingGroupsCanWorkFasterExtendedTooltip" id="177"/>
+			<ExtendedTooltip name="GroupDistributionsCanBeAcceleratedExtendedTooltip" id="177"/>
 			<ChildItems>
 				<PictureDecoration name="WarningPicture" id="178">
 					<Title formatted="false">
@@ -42,7 +42,7 @@
 					<ContextMenu name="WarningPictureContextMenu" id="179"/>
 					<ExtendedTooltip name="WarningPictureExtendedTooltip" id="180"/>
 				</PictureDecoration>
-				<LabelDecoration name="TitleAccelerationOfMailings" id="181">
+				<LabelDecoration name="TitleDistributionAcceleration" id="181">
 					<AutoMaxWidth>false</AutoMaxWidth>
 					<AutoMaxHeight>false</AutoMaxHeight>
 					<Title formatted="false">
@@ -59,8 +59,8 @@
 					</ToolTip>
 					<ToolTipRepresentation>ShowRight</ToolTipRepresentation>
 					<TitleHeight>1</TitleHeight>
-					<ContextMenu name="TitleAccelerationOfMailingsContextMenu" id="182"/>
-					<ExtendedTooltip name="TitleAccelerationOfMailingsExtendedTooltip" id="183"/>
+					<ContextMenu name="TitleDistributionAccelerationContextMenu" id="182"/>
+					<ExtendedTooltip name="TitleDistributionAccelerationExtendedTooltip" id="183"/>
 				</LabelDecoration>
 			</ChildItems>
 		</UsualGroup>
@@ -78,6 +78,12 @@
 			<ChildItems>
 				<InputField name="StateFilter" id="165">
 					<DataPath>StateFilter</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Status</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<Width>12</Width>
 					<MaxWidth>15</MaxWidth>
@@ -137,6 +143,12 @@
 				</InputField>
 				<InputField name="EmployeeResponsibleFilter" id="159">
 					<DataPath>EmployeeResponsibleFilter</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Assigned to</v8:content>
+						</v8:item>
+					</Title>
 					<Width>25</Width>
 					<ClearButton>true</ClearButton>
 					<OpenButton>false</OpenButton>
@@ -154,6 +166,12 @@
 				</InputField>
 				<InputField name="ReportFilter" id="162">
 					<DataPath>ReportFilter</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Report</v8:content>
+						</v8:item>
+					</Title>
 					<Width>25</Width>
 					<ClearButton>true</ClearButton>
 					<OpenButton>false</OpenButton>
@@ -269,6 +287,12 @@
 						<Button name="ChangeSelectedItems" id="79">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.ChangeSelectedItems</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Edit selected…</v8:content>
+								</v8:item>
+							</Title>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 							<ExtendedTooltip name="ChangeSelectedItemsExtendedTooltip" id="80"/>
 						</Button>
@@ -496,6 +520,12 @@
 					<Button name="ChangeSelectedItemsList" id="81">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.ChangeSelectedItems</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Edit selected…</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="ChangeSelectedItemsListExtendedTooltip" id="82"/>
 					</Button>
 				</ChildItems>
@@ -905,6 +935,31 @@ ON (State.BulkEmail = BulkEmails.Ref)
 				<v8:Type>cfg:CatalogRef.ReportsOptions</v8:Type>
 			</Type>
 			<KeyParameter>true</KeyParameter>
+		</Parameter>
+		<Parameter name="Representation">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Parameter>
+		<Parameter name="MultipleChoice">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="ChoiceFoldersAndItems">
+			<Type/>
+		</Parameter>
+		<Parameter name="CurrentRow">
+			<Type/>
+		</Parameter>
+		<Parameter name="ChoiceMode">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
 		</Parameter>
 	</Parameters>
 </Form>

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -159,15 +160,15 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If ValueIsFilled(ReplyToAddress) Then
 		FillReplyToAddressAutomatically = False;
 	Else
-		AccountAttributes = Common.ObjectAttributesValues(Account,
+		UserAccountAttributes = Common.ObjectAttributesValues(Account,
 			"UseForReceiving,UserName,Email");
 		
-		If AccountAttributes.UseForReceiving Then
+		If UserAccountAttributes.UseForReceiving Then
 			// Setting default email address
-			If ValueIsFilled(AccountAttributes.UserName) Then 
-				ReplyToAddress = AccountAttributes.UserName + " <" + AccountAttributes.Email + ">";
+			If ValueIsFilled(UserAccountAttributes.UserName) Then 
+				ReplyToAddress = UserAccountAttributes.UserName + " <" + UserAccountAttributes.Email + ">";
 			Else
-				ReplyToAddress = AccountAttributes.Email;
+				ReplyToAddress = UserAccountAttributes.Email;
 			EndIf;
 		EndIf;
 		
@@ -460,6 +461,11 @@ Procedure SendMail()
 	ClearMessages();
 	HasWrongRecipients = False;
 	MessageSent = False;
+	
+	If Not FieldsFilledCorrectly() Then
+		Return;
+	EndIf;
+	
 	Try
 		MessageSent = SendEmailMessage(HasWrongRecipients);
 	Except
@@ -469,12 +475,12 @@ Procedure SendMail()
 		Return;
 	EndTry;
 	
-	If FieldsFilledCorrectly() And MessageSent Then
+	If MessageSent Then
 		SaveReplyTo(ReplyToAddress);
 		FormClosingConfirmationRequired = False;
 		
 		ShowUserNotification(NStr("en = 'Message sent:';"), ,
-			?(IsBlankString(EmailSubject), NStr("en = '<No subject>';"), EmailSubject), PictureLib.Information32);
+			?(IsBlankString(EmailSubject), NStr("en = '<No subject>';"), EmailSubject), PictureLib.DialogInformation);
 		
 		If HasWrongRecipients Then
 			ShowMessageBox(, NStr("en = 'The message is not sent to some recipients.';"));
@@ -520,7 +526,7 @@ EndProcedure
 
 &AtClient
 Procedure ImportanceHigh(Command)
-	EmailImportance = EmailOperationsInternalClientServer.HighImportanceOfInternetMailCommunication();
+	EmailImportance = EmailOperationsInternalClientServer.InternetMailMessageImportanceHigh();
 	Items.SeverityGroup.Picture = PictureLib.ImportanceHigh;
 	Items.SeverityGroup.ToolTip = NStr("en = 'High importance';");
 	Modified = True;
@@ -528,7 +534,7 @@ EndProcedure
 
 &AtClient
 Procedure ImportanceNormal(Command)
-	EmailImportance = EmailOperationsInternalClientServer.UsualImportanceOfInternetMail();
+	EmailImportance = EmailOperationsInternalClientServer.InternetMailMessageImportanceStandard();
 	Items.SeverityGroup.Picture = PictureLib.ImportanceNotSpecified;
 	Items.SeverityGroup.ToolTip = NStr("en = 'Normal importance';");
 	Modified = True;
@@ -536,13 +542,13 @@ EndProcedure
 
 &AtClient
 Procedure ImportanceLow(Command)
-	EmailImportance = EmailOperationsInternalClientServer.LowImportanceOfInternetMail();
+	EmailImportance = EmailOperationsInternalClientServer.InternetMailMessageImportanceLow();
 	Items.SeverityGroup.Picture = PictureLib.ImportanceLow;
 	Items.SeverityGroup.ToolTip = NStr("en = 'Low importance';");
 	Modified = True;
 EndProcedure
 
-
+// 
 
 &AtClient
 Procedure GenerateFromTemplate(Command)
@@ -814,7 +820,7 @@ Function GenerateEmailParameters()
 	EmailParameters.Insert("Body", EmailBody);
 	EmailParameters.Insert("Attachments", Attachments());
 	EmailParameters.Insert("Importance", ?(ValueIsFilled(EmailImportance),
-		EmailOperationsInternal.ImportanceOfInternetMailMessageFromString(EmailImportance), InternetMailMessageImportance.Normal));
+		EmailOperationsInternal.InternetMailMessageImportanceFromString(EmailImportance), InternetMailMessageImportance.Normal));
 	
 	Return EmailParameters;
 	

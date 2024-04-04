@@ -54,8 +54,8 @@
 						</v8:item>
 					</Title>
 					<Picture>
-						<xr:Ref>CommonPicture.Warning32</xr:Ref>
-						<xr:LoadTransparent>false</xr:LoadTransparent>
+						<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</Picture>
 					<FileDragMode>AsFile</FileDragMode>
 					<ContextMenu name="PictureContextMenu" id="4"/>
@@ -121,6 +121,12 @@ go to &lt;b&gt;Administration&lt;/&gt; — &lt;b&gt;Support and service&lt;/&gt;
 							<AutoMaxWidth>false</AutoMaxWidth>
 							<AutoMaxHeight>false</AutoMaxHeight>
 							<CommandName>Form.Command.ExitApp</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Exit</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="FormCloseExtendedTooltip" id="12"/>
 						</Button>
 						<Button name="FormContinue" id="9">
@@ -128,6 +134,12 @@ go to &lt;b&gt;Administration&lt;/&gt; — &lt;b&gt;Support and service&lt;/&gt;
 							<AutoMaxWidth>false</AutoMaxWidth>
 							<AutoMaxHeight>false</AutoMaxHeight>
 							<CommandName>Form.Command.ContinueUpdate</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Continue</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="FormContinueExtendedTooltip" id="10"/>
 						</Button>
 					</ChildItems>

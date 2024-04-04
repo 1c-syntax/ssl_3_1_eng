@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -547,7 +548,6 @@ Function ConflictsDataUpdateQueryText()
 	|INTO HandlersIntersections
 	|FROM 
 	|(
-	|	// Изменяемые объекты читаются другими обработчиками
 	|	SELECT
 	|		ObjectsToChange.Ref AS HandlerWriter,
 	|		ObjectsToReadByOtherHandlers.Ref AS ReadOrWriteHandler2,
@@ -571,7 +571,6 @@ Function ConflictsDataUpdateQueryText()
 	|		
 	|	UNION ALL
 	|
-	|	// Изменяемые объекты изменяются другими обработчиками
 	|	SELECT
 	|		ObjectsToChange.Ref AS HandlerWriter,
 	|		ObjectsChangedByOtherHandlers.Ref AS ReadOrWriteHandler2,
@@ -891,10 +890,10 @@ Function ConflictsDataUpdateQueryText()
 	|	Priorities.Order AS PrioritiesOrder,
 	|	LowPriorityReading.Writer AS Writer,
 	|	HandlersReaders.ObjectName AS ReaderObject,
-	|	WriteHandlers.ObjectName AS ObjectWriter,
+	|	WriteHandlers.ObjectName AS WriterObject,
 	|	LowPriorityReading.ReaderProcedure AS ReaderProcedure,
 	|	LowPriorityReading.WriteProcedure AS WriteProcedure
-	|INTO TTTTLowOrderReadingWithPriorityFilter
+	|INTO ttTTLowOrderReadingWithFilterByPriority
 	|FROM 
 	|	TTLowPriorityReading AS LowPriorityReading
 	|	LEFT JOIN NewPriorities AS Priorities
@@ -942,7 +941,7 @@ Function ConflictsDataUpdateQueryText()
 	|		TRUE AS ExecutionOrderSpecified,
 	|		TRUE AS LowPriorityReading
 	|	FROM 
-	|		TTTTLowOrderReadingWithPriorityFilter AS LowPriorityReading) AS Issues
+	|		ttTTLowOrderReadingWithFilterByPriority AS LowPriorityReading) AS Issues
 	|
 	|GROUP BY
 	|	Issues.Handler
@@ -963,12 +962,12 @@ Function ConflictsDataUpdateQueryText()
 	|	LowPriorityReading.PrioritiesOrder AS PrioritiesOrder,
 	|	LowPriorityReading.Writer AS Writer,
 	|	LowPriorityReading.ReaderObject AS ReaderObject,
-	|	LowPriorityReading.ObjectWriter AS ObjectWriter,
+	|	LowPriorityReading.WriterObject AS WriterObject,
 	|	LowPriorityReading.ReaderProcedure AS ReaderProcedure,
 	|	LowPriorityReading.WriteProcedure AS WriteProcedure
 	|	
 	|FROM 
-	|	TTTTLowOrderReadingWithPriorityFilter AS LowPriorityReading
+	|	ttTTLowOrderReadingWithFilterByPriority AS LowPriorityReading
 	|";
 	#EndRegion
 	
@@ -2191,9 +2190,9 @@ Procedure SetQueueNumber(UpdateIterations)
 			For Each LongDesc In FoundADescriptionOf Do
 				Handler.DeferredProcessingQueue = LongDesc.NewQueue;
 			EndDo;
-		EndDo;
+		EndDo;// 
 		
-	EndDo;
+	EndDo;// 
 	
 EndProcedure
 
@@ -2202,8 +2201,8 @@ EndProcedure
 // if StartTime = 0, transforms the date to the time format and returns the TimeStructure parameter if required.
 //
 // Parameters:
-//   EndTime - Date -  end time.
-//   BeginTime - Date -  start time.
+//   EndTime - Date - End time.
+//   BeginTime - Date - Start time.
 //   TimeStructure - Structure - separate components:
 //    * Hours1 - Number
 //    * Minutes1 - Number
@@ -2232,7 +2231,6 @@ EndFunction
 // Returns a number presentation of a version.
 //
 // Parameters:
-//   Version - String - a version number in the Х.Х.ХХ.ХХХ format 
 //
 // Returns:
 //   Number - a version number converted into an integer

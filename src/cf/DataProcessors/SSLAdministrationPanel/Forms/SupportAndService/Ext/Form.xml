@@ -34,14 +34,14 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="GroupHeaderExtendedTooltip" id="1632"/>
+			<ExtendedTooltip name="TitleGroup1ExtendedTooltip" id="1632"/>
 			<ChildItems>
 				<LabelDecoration name="SectionDetails" id="1575">
 					<AutoMaxWidth>false</AutoMaxWidth>
 					<Title formatted="false">
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Monitor application state, back up and restore data, and optimize application performance.</v8:content>
+							<v8:content>Monitor application state, back up and restore data, and optimize application performance</v8:content>
 						</v8:item>
 					</Title>
 					<VerticalAlign>Top</VerticalAlign>
@@ -304,6 +304,12 @@
 								<Button name="UnlockOperationsWithExternalResources" id="2025">
 									<Type>UsualButton</Type>
 									<CommandName>Form.Command.UnlockOperationsWithExternalResources</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Allow operations with external resources</v8:content>
+										</v8:item>
+									</Title>
 									<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 									<ExtendedTooltip name="UnlockOperationsWithExternalResourcesExtendedTooltip" id="2026">
 										<AutoMaxWidth>false</AutoMaxWidth>
@@ -384,6 +390,12 @@ Rebuild, populate, and optimize aggregates.</v8:content>
 						<InputField name="BackupRetention" id="2247">
 							<DataPath>BackupRetention</DataPath>
 							<Visible>false</Visible>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Backup retention</v8:content>
+								</v8:item>
+							</Title>
 							<ListChoiceMode>true</ListChoiceMode>
 							<ContextMenu name="BackupRetentionContextMenu" id="2248"/>
 							<ExtendedTooltip name="BackupRetentionExtendedTooltip" id="2249"/>
@@ -707,6 +719,12 @@ Rebuild, populate, and optimize aggregates.</v8:content>
 														<Button name="CloudArchiveBackupSettings" id="2291">
 															<Type>Hyperlink</Type>
 															<CommandName>Form.Command.CloudArchiveBackupSettings</CommandName>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Backup setup</v8:content>
+																</v8:item>
+															</Title>
 															<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 															<ExtendedTooltip name="CloudArchiveBackupSettingsExtendedTooltip" id="2292">
 																<Title formatted="false">
@@ -978,7 +996,7 @@ Rebuild, populate, and optimize aggregates.</v8:content>
 										<Title formatted="false">
 											<v8:item>
 												<v8:lang>en</v8:lang>
-												<v8:content>View the list of patches installed in the application.</v8:content>
+												<v8:content>Log of installed changes.</v8:content>
 											</v8:item>
 										</Title>
 									</ExtendedTooltip>
@@ -1017,6 +1035,12 @@ Rebuild, populate, and optimize aggregates.</v8:content>
 								<Button name="UpdateResultsAndAdditionalDataProcessing" id="2054">
 									<Type>Hyperlink</Type>
 									<CommandName>Form.Command.UpdateResultsAndAdditionalDataProcessing</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Update results and additional data processing</v8:content>
+										</v8:item>
+									</Title>
 									<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 									<ExtendedTooltip name="UpdateResultsAndAdditionalDataProcessingExtendedTooltip" id="2055">
 										<AutoMaxWidth>false</AutoMaxWidth>
@@ -1099,6 +1123,12 @@ Rebuild, populate, and optimize aggregates.</v8:content>
 							<ChildItems>
 								<RadioButtonField name="UserExperiencePriority" id="2242">
 									<DataPath>DataProcessingPriority</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Data processing priority</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>Top</TitleLocation>
 									<RadioButtonType>Auto</RadioButtonType>
 									<ChoiceList>
@@ -1137,6 +1167,12 @@ Rebuild, populate, and optimize aggregates.</v8:content>
 									<ChildItems>
 										<RadioButtonField name="DataProcessPriority" id="2239">
 											<DataPath>DataProcessingPriority</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Data processing priority</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<GroupVerticalAlign>Center</GroupVerticalAlign>
 											<RadioButtonType>Auto</RadioButtonType>
@@ -1224,6 +1260,12 @@ Rebuild, populate, and optimize aggregates.</v8:content>
 								<Button name="ClearObsoleteData" id="2297">
 									<Type>Hyperlink</Type>
 									<CommandName>Form.Command.ClearObsoleteData</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Clear obsolete data</v8:content>
+										</v8:item>
+									</Title>
 									<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 									<ExtendedTooltip name="ClearObsoleteDataExtendedTooltip" id="2298">
 										<AutoMaxWidth>false</AutoMaxWidth>

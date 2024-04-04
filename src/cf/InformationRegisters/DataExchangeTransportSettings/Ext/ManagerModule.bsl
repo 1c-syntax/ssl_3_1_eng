@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -100,7 +101,7 @@ Function TransportSettingsWS(Peer, AuthenticationParameters = Undefined) Export
 		Password = Undefined;
 		
 		If AuthenticationParameters.Property("Password", Password)
-			And Password <> Undefined Then 
+			And Password <> Undefined Then // 
 			
 			Result.WSPassword = Password;
 			
@@ -478,8 +479,8 @@ Function GetRegisterDataByStructure(Peer, SettingsStructure)
 		Return SettingsStructure;
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	SelectedFields = "";
 	For Each SettingItem In SettingsStructure Do
 		
@@ -524,7 +525,7 @@ Function ExchangeTransportSettingsContent(SearchSubstring)
 	TransportSettingsStructure = New Structure;
 	
 	RecordSet = CreateRecordSet();
-	Record = RecordSet.Add(); 
+	Record = RecordSet.Add(); // For default values.
 	
 	For Each Resource In RecordSet.Metadata().Resources Do
 		

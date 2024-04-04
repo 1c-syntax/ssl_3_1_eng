@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -13,29 +14,9 @@
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 
 	If Object.Ref.IsEmpty() Then
-
-		If Parameters.Property("CurrencyCode_") Then
-			Object.Code = Parameters.CurrencyCode_;
-		EndIf;
-
-		If Parameters.Property("ShortDescription1") Then
-			Object.Description = Parameters.ShortDescription1;
-		EndIf;
-
-		If Parameters.Property("DescriptionFull") Then
-			Object.DescriptionFull = Parameters.DescriptionFull;
-		EndIf;
-
-		If Parameters.Property("Downloading") And Parameters.Downloading Then
-			Object.RateSource = Enums.RateSources.DownloadFromInternet;
-		Else
+		If Not (Parameters.Property("CopyingValue") And ValueIsFilled(Parameters.CopyingValue)) Then
 			Object.RateSource = Enums.RateSources.ManualInput;
 		EndIf;
-
-		If Parameters.Property("AmountInWordsParameters") Then
-			Object.AmountInWordsParameters = Parameters.AmountInWordsParameters;
-		EndIf;
-
 	EndIf;
 
 	ProcessingExchangeRatesImport = Metadata.DataProcessors.Find("CurrenciesRatesImport");
@@ -93,7 +74,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure MainCurrencyStartChoice(Item, ChoiceData, StandardProcessing)
@@ -138,8 +119,8 @@ EndProcedure
 &AtServerNoContext
 Procedure PrepareSubordinateCurrencyChoiceData(ChoiceData, Ref)
 	
-	
-	
+	// 
+	// 
 
 	ChoiceData = New ValueList;
 

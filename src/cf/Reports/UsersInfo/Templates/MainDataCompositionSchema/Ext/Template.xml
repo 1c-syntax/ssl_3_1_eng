@@ -42,7 +42,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Sign-in allowed</v8:content>
+					<v8:content>Login allowed</v8:content>
 				</v8:item>
 			</title>
 			<valueType>
@@ -503,7 +503,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>User must change password at next logon</v8:content>
+					<v8:content>Demand password change on next login</v8:content>
 				</v8:item>
 			</title>
 			<valueType>
@@ -541,7 +541,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Inactivity period before sign-in is denied</v8:content>
+					<v8:content>User inactivity timeout</v8:content>
 				</v8:item>
 			</title>
 		</field>
@@ -551,7 +551,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Sign-in allowed on</v8:content>
+					<v8:content>Login allowed on</v8:content>
 				</v8:item>
 			</title>
 		</field>
@@ -991,9 +991,6 @@ WHERE
 				<dcsset:viewMode>Normal</dcsset:viewMode>
 				<dcsset:userSettingID>93bb09e7-08be-4ee5-8849-07ad558cb266</dcsset:userSettingID>
 			</dcsset:order>
-			<dcsset:conditionalAppearance>
-				<dcsset:viewMode>Normal</dcsset:viewMode>
-			</dcsset:conditionalAppearance>
 			<dcsset:outputParameters>
 				<dcscor:item xsi:type="dcsset:SettingsParameterValue">
 					<dcscor:parameter>Заголовок</dcscor:parameter>
@@ -1246,9 +1243,6 @@ WHERE
 				<dcsset:viewMode>Normal</dcsset:viewMode>
 				<dcsset:userSettingID>93bb09e7-08be-4ee5-8849-07ad558cb266</dcsset:userSettingID>
 			</dcsset:order>
-			<dcsset:conditionalAppearance>
-				<dcsset:viewMode>Normal</dcsset:viewMode>
-			</dcsset:conditionalAppearance>
 			<dcsset:outputParameters>
 				<dcscor:item xsi:type="dcsset:SettingsParameterValue">
 					<dcscor:parameter>Заголовок</dcscor:parameter>
@@ -1464,9 +1458,6 @@ WHERE
 				<dcsset:viewMode>Normal</dcsset:viewMode>
 				<dcsset:userSettingID>93bb09e7-08be-4ee5-8849-07ad558cb266</dcsset:userSettingID>
 			</dcsset:order>
-			<dcsset:conditionalAppearance>
-				<dcsset:viewMode>Normal</dcsset:viewMode>
-			</dcsset:conditionalAppearance>
 			<dcsset:outputParameters>
 				<dcscor:item xsi:type="dcsset:SettingsParameterValue">
 					<dcscor:parameter>Заголовок</dcscor:parameter>

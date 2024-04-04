@@ -40,19 +40,43 @@
 				<Button name="FormBack" id="1">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.Back</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Back</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="FormBackExtendedTooltip" id="10"/>
 				</Button>
 				<Button name="FormGoForward" id="2">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.GoForward</CommandName>
-					<ExtendedTooltip name="NextFormExtendedTooltip" id="11"/>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Forward</v8:content>
+						</v8:item>
+					</Title>
+					<ExtendedTooltip name="FormGoForwardExtendedTooltip" id="11"/>
 				</Button>
 				<ButtonGroup name="NoSubmenu" id="8">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>No submenu</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="NoSubmenuExtendedTooltip" id="12"/>
 					<ChildItems>
 						<Button name="MainPage" id="17">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.MainPage</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Home</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="MainPageExtendedTooltip" id="18"/>
 						</Button>
 					</ChildItems>
@@ -106,6 +130,12 @@
 		</CommandBar>
 		<HTMLDocumentField name="WebContent" id="3">
 			<DataPath>WebContent</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Web content</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>None</TitleLocation>
 			<Width>95</Width>
 			<Height>25</Height>
@@ -117,6 +147,12 @@
 		</HTMLDocumentField>
 		<CheckBoxField name="ShowAtStartup" id="5">
 			<DataPath>ShowAtStartup</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Show on startup</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>Right</TitleLocation>
 			<ToolTip>
 				<v8:item>

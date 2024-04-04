@@ -35,6 +35,12 @@
 			<Button name="FormEnableEditing" id="29">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.EnableEditing</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Allow editing</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormEnableEditingExtendedTooltip" id="32"/>
 			</Button>
@@ -201,6 +207,12 @@
 					</UserVisible>
 					<ReadOnly>true</ReadOnly>
 					<SkipOnInput>true</SkipOnInput>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Empty reference value</v8:content>
+						</v8:item>
+					</Title>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -261,7 +273,7 @@ of the value type of an empty reference).</v8:content>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Allow editing for troubleshooting purposes. Recommended for advanced users only.</v8:content>
+					<v8:content>Allow editing for troubleshooting. Recommended for advanced users only.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>EnableEditing</Action>
@@ -288,14 +300,6 @@ of the value type of an empty reference).</v8:content>
 			</Item>
 			<Item>
 				<Command>InformationRegister.AdditionalDataProcessorsPurposes.StandardCommand.OpenByValue.RelatedObject</Command>
-				<Type>Auto</Type>
-				<DefaultVisible>false</DefaultVisible>
-				<Visible>
-					<xr:Common>false</xr:Common>
-				</Visible>
-			</Item>
-			<Item>
-				<Command>0</Command>
 				<Type>Auto</Type>
 				<DefaultVisible>false</DefaultVisible>
 				<Visible>
@@ -337,22 +341,6 @@ of the value type of an empty reference).</v8:content>
 				</Visible>
 			</Item>
 			<Item>
-				<Command>0</Command>
-				<Type>Auto</Type>
-				<DefaultVisible>false</DefaultVisible>
-				<Visible>
-					<xr:Common>false</xr:Common>
-				</Visible>
-			</Item>
-			<Item>
-				<Command>0</Command>
-				<Type>Auto</Type>
-				<DefaultVisible>false</DefaultVisible>
-				<Visible>
-					<xr:Common>false</xr:Common>
-				</Visible>
-			</Item>
-			<Item>
 				<Command>CommonCommand.RelatedObjectsCreation</Command>
 				<Type>Auto</Type>
 				<DefaultVisible>false</DefaultVisible>
@@ -386,14 +374,6 @@ of the value type of an empty reference).</v8:content>
 			</Item>
 			<Item>
 				<Command>CommonCommand.Remind</Command>
-				<Type>Auto</Type>
-				<DefaultVisible>false</DefaultVisible>
-				<Visible>
-					<xr:Common>false</xr:Common>
-				</Visible>
-			</Item>
-			<Item>
-				<Command>0</Command>
 				<Type>Auto</Type>
 				<DefaultVisible>false</DefaultVisible>
 				<Visible>

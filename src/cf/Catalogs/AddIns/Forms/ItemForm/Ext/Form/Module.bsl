@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -206,11 +207,11 @@ Procedure ImportAddInFromFile()
 	
 EndProcedure
 
-// ImportAComponentFromAFile procedure continuation.
+// Continues the ImportAddInFromFile procedure.
 &AtClient
 Procedure ImportAddInAfterSecurityWarning(Response, Context) Export
 	
-	 
+	//  
 	// 
 	// 
 	// 
@@ -230,7 +231,7 @@ Procedure ImportAddInAfterSecurityWarning(Response, Context) Export
 
 EndProcedure
 
-// ImportAComponentFromAFile procedure continuation.
+// Continues the ImportAddInFromFile procedure.
 &AtClient
 Procedure ImportAddInAfterPutFile(FileThatWasPut, Context) Export
 	
@@ -253,7 +254,7 @@ Procedure ImportAddInAfterPutFile(FileThatWasPut, Context) Export
 	
 EndProcedure
 
-// ImportAComponentFromAFile procedure continuation.
+// Continues the ImportAddInFromFile procedure.
 &AtClient
 Procedure ImportAddInOnErrorDisplay(ErrorDescription = "", ErrorInfo = Undefined)
 	
@@ -276,7 +277,7 @@ Procedure ImportAddInOnErrorDisplay(ErrorDescription = "", ErrorInfo = Undefined
 	
 EndProcedure
 
-// ImportAComponentFromAFile procedure continuation.
+// Continues the ImportAddInFromFile procedure.
 &AtClient
 Procedure ImportAddInAfterErrorDisplay(AdditionalParameters) Export
 	
@@ -331,7 +332,7 @@ EndProcedure
 Function ImportAddInFromFileOnServer(Val ImportParameters)
 	
 	If Not Users.IsFullUser(,, False) Then
-		Raise NStr("en = 'Insufficient rights to import an add-in.';");
+		Raise(NStr("en = 'Insufficient rights to import an add-in.';"), ErrorCategory.AccessViolation);
 	EndIf;
 	
 	ObjectOfCatalog = FormAttributeToValue("Object");
@@ -367,12 +368,12 @@ Function ImportAddInFromFileOnServer(Val ImportParameters)
 	If Not ValueIsFilled(ObjectOfCatalog.Id) Then 
 		ObjectOfCatalog.Id = Information.Attributes.Id;
 	EndIf;
-	ObjectOfCatalog.FileName =  ImportParameters.FileName;          
+	ObjectOfCatalog.FileName =  ImportParameters.FileName;          // 
 	ComponentBinaryDataAddress = PutToTempStorage(Information.BinaryData,
 		UUID);
 	
 	ObjectOfCatalog.ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Imported from file %1.%2.';"),
+		NStr("en = 'Imported from file %1. %2.';"),
 		ObjectOfCatalog.FileName,
 		CurrentSessionDate());
 	

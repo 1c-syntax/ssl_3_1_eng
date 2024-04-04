@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -218,7 +219,7 @@ EndProcedure
 
 Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
-	CountryOfWorldToProcess = InfobaseUpdate.SelectRefsToProcess(Parameters.Queue, "Catalog.WorldCountries");
+	WorldCountryForProcessing = InfobaseUpdate.SelectRefsToProcess(Parameters.Queue, "Catalog.WorldCountries");
 	SettingsOfUpdate = Undefined;
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
@@ -228,9 +229,9 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	ObjectsWithIssuesCount = 0;
 	ObjectsProcessed = 0;
 	
-	While CountryOfWorldToProcess.Next() Do
+	While WorldCountryForProcessing.Next() Do
 		
-		WorldCountryRef = CountryOfWorldToProcess.Ref; // CatalogRef.WorldCountries
+		WorldCountryRef = WorldCountryForProcessing.Ref; // CatalogRef.WorldCountries
 		RepresentationOfTheReference = String(WorldCountryRef);
 		
 		Try
@@ -278,12 +279,10 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			// If you cannot process a world country, try again.
 			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
 			
-			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Couldn''t process country: %1. Reason:
-					|%2';"),
-				RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-			WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Warning,
-				Metadata.Catalogs.WorldCountries, WorldCountryRef, MessageText);
+			InfobaseUpdate.WriteErrorToEventLog(
+				WorldCountryRef,
+				RepresentationOfTheReference,
+				ErrorInfo());
 		EndTry;
 	EndDo;
 	

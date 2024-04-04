@@ -14,6 +14,12 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.Import</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Import</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormImportExtendedTooltip" id="5"/>
 			</Button>
 		</ChildItems>
@@ -24,6 +30,12 @@
 	<ChildItems>
 		<InputField name="ImportFile3" id="1">
 			<DataPath>ImportFile3</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Import file</v8:content>
+				</v8:item>
+			</Title>
 			<Width>30</Width>
 			<AutoMaxWidth>false</AutoMaxWidth>
 			<ChoiceButton>true</ChoiceButton>

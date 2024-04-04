@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -53,7 +54,7 @@ Function NodeInQueue(Queue, Temporary = False) Export
 	
 	If TypeOf(Queue) <> Type("Number") Or Queue = 0 Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot get the node of exchange plan %1because the position in queue is not provided.';"),
+			NStr("en = 'Cannot get the node of exchange plan %1 because the position in queue is not provided.';"),
 			"InfobaseUpdate");
 	EndIf;
 	

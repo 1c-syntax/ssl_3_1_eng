@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -186,10 +187,10 @@ EndProcedure
 //                                                in the report form. It's used if Enabled is False.
 //       * Location           - Map of KeyAndValue - Settings that specify the report option location in sections, where::
 //           ** Key     - MetadataObject - Subsystem that contains the report or report option.
-//           ** Value - String           - :
-//               
-//               
-//               
+//           ** Value - String           - The settings of placing the report in a subsystem or a group. Valid values are:
+//               "" - Display the name as normal text in the subsystem.
+//               "Important" - Display the name as bold text in the subsystem.
+//               "SeeAlso" - Display the name in the "See also" group.
 //       * FunctionalOptions - Array of String - Names of the report option's functional options.
 //       * SearchSettings  - Structure - Additional settings for searching this report option, where::
 //             ** FieldDescriptions - String - Names of report option fields.
@@ -206,7 +207,7 @@ EndProcedure
 //           If True and the report is attached to the general ReportForm form,
 //           then the procedure must be defined in the report object module according to the following template::
 //               
-//               Set the report form settings.
+//               Set report form settings.
 //               //
 //               
 //               Parameters:
@@ -271,10 +272,10 @@ EndFunction
 //       * LongDesc             - String - Report option tooltip.
 //       * Location           - Map of KeyAndValue - Settings that define the report option location in sections, where::
 //           ** Key     - MetadataObject - Subsystem where the report or report option is located.
-//           ** Value - String           - :
-//               
-//               
-//               
+//           ** Value - String           - The settings of placing the report option in a subsystem or a group. Valid values are:
+//               "" - Display the name as normal text in the subsystem.
+//               "Important" - Display the name as bold text in the subsystem.
+//               "SeeAlso" - Display the name in the "See also" group.
 //       * FunctionalOptions - Array of String - Names of the report option's functional options.
 //       * SearchSettings  - Structure - Additional settings for searching this report option, where::
 //           ** FieldDescriptions              - String - Names of report option fields.
@@ -291,7 +292,7 @@ EndFunction
 //           If True and the report is attached to the general ReportForm form,
 //           then the procedure must be defined in the report object module according to the following template::
 //               
-//               Set the report form settings.
+//               Set report form settings.
 //               //
 //               
 //               Parameters:
@@ -473,9 +474,9 @@ Procedure OnSaveUserSettingsAtServer(Form, Settings) Export
 			SettingObject = Setting.Ref.GetObject(); // CatalogObject.UserReportSettings
 			SettingObject.Description = ListItem.Presentation;
 			
-			
-			
-			SettingObject.Write(); 
+			// 
+			// 
+			SettingObject.Write(); // 
 		EndIf;
 		
 		SettingsList.Delete(ListItem);
@@ -489,9 +490,9 @@ Procedure OnSaveUserSettingsAtServer(Form, Settings) Export
 		SettingObject.Variant                       = FormAttributes.OptionRef;
 		SettingObject.User                  = UserRef;
 		
-		
-		
-		SettingObject.Write(); 
+		// 
+		// 
+		SettingObject.Write(); // 
 	EndDo;
 	
 EndProcedure
@@ -625,7 +626,7 @@ Procedure ResetCustomSettings(Var_Key, SettingsTypes1 = Undefined) Export
 		Var_Key,
 		New TypeDescription("String, MetadataObject, CatalogRef.ReportsOptions"));
 	
-	ObjectsKeys = New Array; 
+	ObjectsKeys = New Array; // The final list of keys to be cleared.
 	
 	// The list of keys can be filled from the query or you can pass one specific key from the outside.
 	Query = New Query(
@@ -849,8 +850,8 @@ Procedure MoveUsersOptionsFromStandardStorage(ReportsNames = "") Export
 			EndIf;
 		EndIf;
 		
-		
-		
+		// 
+		// 
 		ArrayOfObjectsKeysToDelete.Add(StorageSelection.ObjectKey);
 		
 		IBUser = InfoBaseUsers.FindByName(StorageSelection.User);
@@ -1011,8 +1012,8 @@ Procedure ImportUserOptions(UserOptions1 = Undefined) Export
 			OptionStorage.Settings = New ValueStorage(OptionDetails.Settings);
 		EndIf;
 		
-		
-		
+		// 
+		// 
 		FoundSubsystems = ReportsSubsystems.FindRows(New Structure("ReportFullName", OptionDetails.ReportFullName));
 		For Each SubsystemDetails In FoundSubsystems Do
 			Subsystem = Common.MetadataObjectID(SubsystemDetails.SubsystemMetadata1);
@@ -1114,7 +1115,7 @@ Function AttachReportAndImportSettings(Val Parameters) Export
 			EndIf;
 		EndIf;
 		PropertiesNames = "VariantKey,Custom,Parent,Parent.VariantKey" + ?(MustReadReportRef, ",Report", "")
-			+ ?(MustReadSettings, ",Settings", "");  
+			+ ?(MustReadSettings, ",Settings", "");  // ACC:1297 - These are attribute names. They do not require NStr.
 		OptionProperties = Common.ObjectAttributesValues(Result.OptionRef1, PropertiesNames);
 		Result.VariantKey = OptionProperties.VariantKey;
 		If OptionProperties.Custom And ValueIsFilled(OptionProperties.Parent) Then
@@ -1279,8 +1280,8 @@ Procedure OnWriteAdditionalReport(CurrentObject, Cancel, ExternalObject) Export
 		EndIf;
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	QueryText =
 	"SELECT ALLOWED
 	|	ReportsOptions.Ref AS Ref,
@@ -1377,7 +1378,7 @@ EndProcedure
 // Gets options of the passed report and their presentations.
 //
 // Parameters:
-//  FullReportName - 
+//  FullReportName - See MetadataObjectReport.FullName()
 //  InfoBaseUser - String - Name of the infobase user.
 //  ReportOptionTable - ValueTable - Table that stores report option data:
 //       * ObjectKey - String - Report key in format "Report.ReportName".
@@ -1467,11 +1468,10 @@ Function OpeningParameters(OptionRef) Export
 			Selection = Query.Execute().Select();
 			SetPrivilegedMode(False);
 			If Selection.Next() Then
-				ErrorText = NStr("en = 'Insufficient rights to view the report.';");
+				Raise(NStr("en = 'Insufficient rights to view the report.';"), ErrorCategory.AccessViolation);
 			Else
-				ErrorText = NStr("en = 'The report option does not exist.';");
+				Raise NStr("en = 'The report option does not exist.';");
 			EndIf;
-			Raise ErrorText;
 		EndIf;
 		
 		FillPropertyValues(OpeningParameters, Selection);
@@ -2061,7 +2061,7 @@ Function ReportInformation(Val ReportFullName, Val RaiseException1 = False) Expo
 			Result.ReportFullName = "ExternalReport." + Result.ReportShortName;
 			WriteToLog(EventLogLevel.Warning,
 				StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'The ""%1"" report is not a part of the application. It is registered as an external report.';"),
+					NStr("en = 'The report %1 was added as an external report.';"),
 					ReportFullName));
 		ElsIf Not AccessRight("View", Result.ReportMetadata) Then
 			Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -2255,10 +2255,11 @@ Function PredefinedReportsOptions(ReportsType = "BuiltIn", ConnectedToTheStorage
 				For Each DCSettingsOption In SettingVariants Do
 					OptionDetails = Result.Add();
 					OptionDetails.Report        = DescriptionOfReport.Report;
+					OptionDetails.ReportFullName = DescriptionOfReport.ReportFullName;
 					OptionDetails.VariantKey = DCSettingsOption.Name;
 					OptionDetails.Description = DCSettingsOption.Presentation;
 					If IsBlankString(OptionDetails.Description) Then // if configuration is partly localized
-						OptionDetails.Description = ?(OptionDetails.VariantKey <> "Main", OptionDetails.VariantKey,  
+						OptionDetails.Description = ?(OptionDetails.VariantKey <> "Main", OptionDetails.VariantKey,  // 
 							DescriptionOfReport.Description + "." + OptionDetails.VariantKey);
 					EndIf;	
 					OptionDetails.Type          = ReportType;
@@ -2283,7 +2284,7 @@ Function PredefinedReportsOptions(ReportsType = "BuiltIn", ConnectedToTheStorage
 		
 		If IsBlankString(DescriptionOfReport.MainOption) Then
 			OptionDetails = Result.Add();
-			FillPropertyValues(OptionDetails, DescriptionOfReport, "Report, Description, Purpose");
+			FillPropertyValues(OptionDetails, DescriptionOfReport, "Report, Description, Purpose, ReportFullName");
 			OptionDetails.VariantKey = "";
 			OptionDetails.IsOption   = True;
 			DescriptionOfReport.MainOption = OptionDetails.VariantKey;
@@ -2831,7 +2832,7 @@ Function AttachReportObject(RefOfReport, GetMetadata)
 	
 	If TypeOf(Result.Ref) = Type("String") Then
 		Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot attach report %1 from the application. Reason: the report is saved as external report.';"),
+			NStr("en = 'Cannot attach report %1 from the app. Reason: The report was added as an external report.';"),
 			Result.Ref);
 		Return Result;
 	EndIf;
@@ -2844,7 +2845,7 @@ Function AttachReportObject(RefOfReport, GetMetadata)
 		
 		If TypeOf(Result.Metadata) <> Type("MetadataObject") Then
 			Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The ""%1"" report is not a part of the application.';"),
+				NStr("en = 'The report %1 is not a part of the app.';"),
 				Result.Name);
 			Return Result;
 		EndIf;
@@ -3724,7 +3725,7 @@ Function UpdateSearchIndex(Mode, IndexSchema)
 			
 			FillPropertyValues(PreviousInfo, FieldsForSearch(OptionObject));
 			PreviousInfo.SettingsHash = OptionObject.SettingsHash;
-			ReportInfo.IndexSchema = IndexSchema; 
+			ReportInfo.IndexSchema = IndexSchema; // 
 			
 			Try
 				SchemaIndexed = FillFieldsForSearch(OptionObject, ReportInfo);
@@ -3748,7 +3749,7 @@ Function UpdateSearchIndex(Mode, IndexSchema)
 			EndIf;
 			
 			If ReportInfo.ReportObject = Undefined Then
-				ReportsWithIssues[Selection.Report] = True; 
+				ReportsWithIssues[Selection.Report] = True; // 
 			EndIf;
 			
 			CommitTransaction();
@@ -3775,10 +3776,10 @@ Procedure UpdateKeysOfPredefinedItems(Mode, Result)
 	// Generate a table of replacements of old option keys for relevant ones.
 	Changes = KeysChanges();
 	
-	
-	
-	
-	
+	// 
+	// 
+	// 
+	// 
 	QueryText =
 	"SELECT
 	|	Changes.Report,
@@ -3952,7 +3953,7 @@ Procedure GenerateOptionsFunctionalityTable(Mode, Result)
 		DescriptionOfReport = Result.ReportsOptions.FindRows(New Structure("Report, IsOption", OptionDetails.Report, False))[0];
 		FillOptionRowDetails(OptionDetails, DescriptionOfReport);
 		If IsBlankString(DescriptionOfReport.MainOption) Or OptionDetails.VariantKey = DescriptionOfReport.MainOption Then
-			MainOptionKey = OptionDetails.Report.FullName + "." + OptionDetails.VariantKey;
+			MainOptionKey = OptionDetails.ReportFullName + "." + OptionDetails.VariantKey;
 			OptionRef = MainOptions[MainOptionKey];
 			If OptionRef = Undefined Then
 				OptionDetails.ParentOption = EmptyRef;
@@ -3962,7 +3963,7 @@ Procedure GenerateOptionsFunctionalityTable(Mode, Result)
 		Else
 			MainOption = Result.ReportsOptions.FindRows(
 				New Structure("Report, VariantKey", OptionDetails.Report, DescriptionOfReport.MainOption))[0];
-			MainOptionKey = MainOption.Report.FullName + "." + MainOption.VariantKey;
+			MainOptionKey = MainOption.ReportFullName + "." + MainOption.VariantKey;
 			MainOptionRef = MainOptions[MainOptionKey];
 			If MainOptionRef = Undefined Then
 				MainOption.ParentOption = EmptyRef;
@@ -4693,7 +4694,7 @@ Procedure RegisterOptionMeasurementsForUpdate(Val OldKey, Val UpdatedKey, Val Up
 		NStr("en = 'Report %1 (settings)';"), UpdatedDescription);
 EndProcedure
 
-// Write report option parameters (metadata cache for application speed).
+// 
 //
 // Parameters:
 //   Mode - String - Update mode: ConfigurationCommonData or ExtensionsCommonData.
@@ -4783,7 +4784,7 @@ EndProcedure
 ////////////////////////////////////////////////////////////////////////////////
 // Update of presentations in other languages.
 
-// The FillPredefinedReportsOptionsPresentations scheduled job handler.
+// Handler of the "PredefinedReportOptionsUpdate" scheduled job.
 Procedure FillPredefinedReportsOptionsPresentations(Languages, CurrentLanguageIndex) Export
 	
 	Common.OnStartExecuteScheduledJob(
@@ -5168,7 +5169,7 @@ Procedure SubsystemsTreeWrite(OptionObject, ChangedSubsystems) Export
 	For Each Subsystem In ChangedSubsystems Do 
 		LineOfATabularSection = OptionObject.Location.Find(Subsystem.Ref, "Subsystem");
 		If LineOfATabularSection = Undefined Then
-			
+			// 
 			// 
 			LineOfATabularSection = OptionObject.Location.Add();
 			LineOfATabularSection.Subsystem = Subsystem.Ref;
@@ -5462,7 +5463,7 @@ Function FillFieldsForSearch(OptionObject, ReportInfo = Undefined) Export
 		EndIf;
 		If Not FillFields And Not FillParametersAndFilters Then
 			SetFieldsForSearch(OptionObject, FieldsForSearch);
-			Return WritingRequired; 
+			Return WritingRequired; // 
 		EndIf;
 	EndIf;
 	
@@ -5559,8 +5560,7 @@ Function FillFieldsForSearch(OptionObject, ReportInfo = Undefined) Export
 	ReportsClientServer.LoadSettings(ReportObject.SettingsComposer, DCSettings);
 	
 	If FillFields Then
-		
-		//   См. "АвтоВыбранноеПолеКомпоновкиДанных
+		// 
 		//   
 		ReportObject.SettingsComposer.ExpandAutoFields();
 		FieldsForSearch.FieldDescriptions = GenerateFiledsPresentations(ReportObject.SettingsComposer);
@@ -5767,7 +5767,7 @@ EndFunction
 // Presentations of parameters and filters from DCS.
 //
 // Parameters:
-//   SettingsComposer - DataCompositionSettingsComposer - 
+//   SettingsComposer - DataCompositionSettingsComposer - See Syntax Assistant
 //
 Function GenerateParametersAndFiltersPresentations(SettingsComposer)
 	Result = New Array;
@@ -6067,15 +6067,8 @@ EndFunction
 //
 Function ItIsAcceptableToSetContext(Form) Export
 	
-	If Form.ParametersForm.InitialKeyOfPredefinedOption
-	   = Form.ReportSettings.PredefinedOptionKey
-	 Or Form.ParametersForm.InitialOptionKey
-	   = Form.CurrentVariantKey Then
-		
-		Return True;
-	EndIf;
-	
-	Return False;
+	Return (Form.ParametersForm.InitialKeyOfPredefinedOption = Form.ReportSettings.PredefinedOptionKey)
+		Or (Form.ParametersForm.InitialOptionKey = Form.CurrentVariantKey);
 	
 EndFunction
 
@@ -6403,7 +6396,7 @@ Function PrepareSearchConditionByRow(Val Query, QueryText, Val HasSearchString, 
 			SearchTemplate = StrReplace("&NameOfTheSearchField LIKE &ParameterName ESCAPE ""~""", "ParameterName", WordName); // @query-part-1
 			SearchTemplates.Add(SearchTemplate);
 		EndDo;
-		SearchTemplate = StrConcat(SearchTemplates, " OR "); 
+		SearchTemplate = StrConcat(SearchTemplates, " OR "); // Do not localize. This is a query fragment.
 		
 		SearchFields = New Array;
 		SearchFields.Add("ReportsOptions.CurrentOptionName"); 
@@ -6419,7 +6412,7 @@ Function PrepareSearchConditionByRow(Val Query, QueryText, Val HasSearchString, 
 		For IndexOf = 0 To SearchFields.Count() - 1 Do
 			SearchFields[IndexOf] = StrReplace(SearchTemplate, "&NameOfTheSearchField", SearchFields[IndexOf]);
 		EndDo;
-		OptionsAndSubsystemsBySearchString = "(" + StrConcat(SearchFields, " OR ") + ")"; 
+		OptionsAndSubsystemsBySearchString = "(" + StrConcat(SearchFields, " OR ") + ")"; // Do not localize. This is a query fragment.
 		QueryText = StrReplace(QueryText, "&OptionsAndSubsystemsBySearchString", OptionsAndSubsystemsBySearchString);
 		
 		UserSettingsBySearchString = "(" + StrReplace(SearchTemplate, "&NameOfTheSearchField", "UserSettings2.Description") + ")";
@@ -7507,8 +7500,7 @@ EndFunction
 //
 // Parameters:
 //   FillParameters - Structure
-//   ResultAddress - UUID
-//                   - String
+//   ResultAddress - String
 //
 Procedure FindReportOptionsForOutput(FillParameters, ResultAddress) Export
 	
@@ -8342,7 +8334,7 @@ EndProcedure
 
 // Returns a message text that the report data is still being updated.
 Function DataIsBeingUpdatedMessage() Export
-	Return NStr("en = 'The report might contain incorrect data since migration to the new version is not completed. If the report is not available for a while, contact the administrator.';");
+	Return NStr("en = 'The report might contain incorrect data since the migration to the new version is not completed. If the report is not available for a while, contact the administrator.';");
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -8397,7 +8389,7 @@ Procedure OnDefineReportsAvailability(ReportsReferences, Result)
 				TableRow.Presentation = NStr("en = '<Insufficient rights to access the report option>';");
 			ElsIf Not FoundInApplication Then
 				TableRow.Presentation = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = '<The ""%1"" report is not a part of the application>';"),
+					NStr("en = '<Report %1 doesn''t exist in app>';"),
 					ReportName);
 			ElsIf Not AvailableByRights Then
 				TableRow.Presentation = StringFunctionsClientServer.SubstituteParametersToString(
@@ -8405,7 +8397,7 @@ Procedure OnDefineReportsAvailability(ReportsReferences, Result)
 					ReportName);
 			ElsIf Not AvailableByOptions Then
 				TableRow.Presentation = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = '<Report %1 is disabled in settings>';"),
+					NStr("en = '<Report %1 disabled in settings>';"),
 					ReportName);
 			Else
 				TableRow.Available = True;
@@ -8540,7 +8532,7 @@ Function UpdateReportOptionsFromFiles(FilesDetails) Export
 	For Each FileDetails In FilesDetails Do 
 		
 		ReportOptionDetails = ReportOptionDetails(FileDetails);
-		Ref = UpdateReportOptionByDetails(ReportOptionDetails); 
+		Ref = UpdateReportOptionByDetails(ReportOptionDetails); // @skip-check query-in-loop - Save data object-by-object.
 		ReportOptionDetails.Insert("Ref", Ref);
 		
 		ReportsOptionsDetails.Add(ReportOptionDetails);
@@ -8594,7 +8586,7 @@ EndFunction
 Function ReportOptionDetails(FileDetails)
 	
 	DirectoryName = CommonClientServer.AddLastPathSeparator(FileSystem.CreateTemporaryDirectory());
-	ArchiveFileName = GetTempFileName("zip"); 
+	ArchiveFileName = GetTempFileName("zip"); // ACC:441 - The DeleteReportOptionDetailsFiles procedure deletes temporary files
 	
 	BinaryData = GetFromTempStorage(FileDetails.Location); // BinaryData
 	BinaryData.Write(ArchiveFileName);
@@ -8844,7 +8836,7 @@ EndFunction
 Function UpdateReportOptionByDetails(Val ReportOptionDetails, Val ReportOptionBase = Undefined)
 	
 	If Not ReportsOptionsCached.InsertRight1() Then 
-		Raise NStr("en = 'Insufficient rights to perform the operation.';");
+		Raise(NStr("en = 'Insufficient rights to perform the operation.';"), ErrorCategory.AccessViolation);
 	EndIf;
 	
 	ReportInformation = ReportInformation(ReportOptionDetails.ReportName, True);
@@ -9429,7 +9421,7 @@ Procedure UpdateInternalUserSettingsInformation(User, SettingsDescription, Setti
 		Object.UserSettingKey = SettingsDescription.SettingsKey;
 		Object.Variant = SettingsDescription.ReportVariant;
 		Object.User = User;
-		Object.Write(); 
+		Object.Write(); // 
 		Return;
 		
 	EndIf;
@@ -9442,7 +9434,7 @@ Procedure UpdateInternalUserSettingsInformation(User, SettingsDescription, Setti
 		Return;
 	EndIf;
 	
-	Object = Item.Ref.GetObject(); // CatalogObject.
+	Object = Item.Ref.GetObject(); // CatalogObject.UserReportSettings
 	Object.Description = SettingsDescription.Presentation;
 	Object.DeletionMark = False;
 	Object.Write(); // ACC:1327
@@ -9547,6 +9539,7 @@ Function PredefinedReportsOptionsCollection()
 	Result = New ValueTable;
 	
 	Result.Columns.Add("Report", CatalogAttributes.Report.Type);
+	Result.Columns.Add("ReportFullName", TypesDetailsString());
 	Result.Columns.Add("Metadata", MetadataObjectDetails);
 	Result.Columns.Add("UsesDCS", FlagDetails);
 	Result.Columns.Add("VariantKey", CatalogAttributes.VariantKey.Type);
@@ -9571,7 +9564,7 @@ Function PredefinedReportsOptionsCollection()
 	
 	// Auxiliary information records for the UpdateSettingsOfPredefinedItems procedure.
 	Result.Columns.Add("FoundInDatabase", FlagDetails);
-	Result.Columns.Add("OptionFromBase"); 
+	Result.Columns.Add("OptionFromBase"); // 
 	Result.Columns.Add("ParentOption", ReportOptionDetails);
 	
 	Result.Indexes.Add("Report");
@@ -9628,6 +9621,7 @@ Function DefaultReportDetails(ReportsDetails, MetadataOfReport, RefOfReport,
 	DescriptionOfReport.DCSSettingsFormat = DCSSettingsFormat;
 	DescriptionOfReport.SearchSettings = SearchSettings;
 	DescriptionOfReport.Purpose = ReportsOptionsInternal.AssigningDefaultReportOption();
+	DescriptionOfReport.ReportFullName = MetadataOfReport.FullName();
 	
 	Return DescriptionOfReport;
 
@@ -9817,7 +9811,6 @@ EndFunction
 //        ** Parent - CatalogRef.ReportsOptions
 //        ** TopLevel - Boolean
 //        ** MeasurementsKey - String
-//    * SectionOptions - See ReportOptionsToShow.Варианты
 //    * UseHighlighting - Boolean
 //    * SearchResult - See FindReportsOptions
 //    * WordArray - Array

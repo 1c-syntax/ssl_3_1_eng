@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -107,7 +108,20 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.MarkedObjectsDeletionGroup.Visible = False;
 	EndIf;
 	
-	Items.RegionalSettings.Visible = Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport");
+	FillInTimeZones();
+	
+	If Common.SeparatedDataUsageAvailable() Then
+		AppTimeZone = GetInfoBaseTimeZone();
+		If IsBlankString(AppTimeZone) Then
+			AppTimeZone = TimeZone();
+		EndIf;
+	Else
+		AppTimeZone = SessionTimeZone();
+	EndIf;
+	
+	Items.AccountingLanguages.Visible = 
+		Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport")
+		And Metadata.Languages.Count() > 1;
 	
 	SettingsSectionPerformance();
 	
@@ -404,6 +418,13 @@ Procedure UseCloudSignatureServiceOnChange(Item)
 
 EndProcedure
 
+&AtClient
+Procedure ApplicationTimeZoneOnChange(Item)
+	
+	AppTimeZoneOnChangeAtServer();
+	
+EndProcedure
+
 #EndRegion
 
 #Region FormCommandsEventHandlers
@@ -622,7 +643,7 @@ Procedure CheckIfDSSUsageEnabled(SelectionResult, CycleParameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
 Function OnChangeAttributeServer(TagName)
@@ -647,15 +668,15 @@ Function SaveAttributeValue(DataPathAttribute)
 		Return "";
 	EndIf;
 	
-	TermConstant = "Constant";
+	ConstantTerm = "Constant";
 	NameParts      = StrSplit(DataPathAttribute, ".");
 	
 	If NameParts.Count() = 2 Then
 		ConstantName = NameParts[1];
 		ConstantValue = ConstantsSet[ConstantName];
 	ElsIf NameParts.Count() = 1
-			And StrCompare(Left(DataPathAttribute, StrLen(TermConstant)), TermConstant) = 0 Then
-				ConstantName = Mid(DataPathAttribute, StrLen(TermConstant) + 1);
+			And StrCompare(Left(DataPathAttribute, StrLen(ConstantTerm)), ConstantTerm) = 0 Then
+				ConstantName = Mid(DataPathAttribute, StrLen(ConstantTerm) + 1);
 				ConstantValue = ThisObject[DataPathAttribute];
 	Else
 		Return "";
@@ -796,5 +817,48 @@ Procedure SettingsSectionPerformance()
 	
 EndProcedure
 
+
+// 
+
+&AtServer
+Procedure FillInTimeZones()
+
+	For Each DescriptionOfTheTimeZone In GetAvailableTimeZones() Do
+	
+		OffsetByDate = Date(1, 1, 1) + StandardTimeOffset(DescriptionOfTheTimeZone); 
+		OffsetPresentation = StringFunctionsClientServer.SubstituteParametersToString("(UTC+%1)",
+			Format(OffsetByDate, "DF=HH:mm; DE=00:00;"));
+
+		TimeZonePresentation = OffsetPresentation + " " + DescriptionOfTheTimeZone;
+		Items.AppTimeZone.ChoiceList.Add(DescriptionOfTheTimeZone, TimeZonePresentation);
+			
+	EndDo;
+	
+EndProcedure
+
+&AtServer
+Procedure AppTimeZoneOnChangeAtServer()
+	
+	If Common.SeparatedDataUsageAvailable() Then
+		
+		If AppTimeZone <> GetInfoBaseTimeZone() Then
+			SetPrivilegedMode(True);
+			Try
+				SetExclusiveMode(True);
+				SetInfoBaseTimeZone(AppTimeZone);
+				SetExclusiveMode(False);
+			Except
+				SetExclusiveMode(False);
+				Raise;
+			EndTry;
+			SetPrivilegedMode(False);
+			SetSessionTimeZone(AppTimeZone);
+		EndIf;
+		
+	Else
+		SetSessionTimeZone(AppTimeZone);
+	EndIf;
+	
+EndProcedure
 
 #EndRegion

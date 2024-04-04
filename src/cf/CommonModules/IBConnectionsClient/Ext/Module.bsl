@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -134,8 +135,8 @@ Procedure AfterStart() Export
 	If LockMode.Use 
 		 And (Not ValueIsFilled(LockMode.Begin) Or CurrentTime >= LockMode.Begin) 
 		 And (Not ValueIsFilled(LockMode.End) Or CurrentTime <= LockMode.End) Then
-		
-		
+		// 
+		// 
 		Return;
 	EndIf;
 	
@@ -186,6 +187,31 @@ Procedure OnOpenExclusiveModeSetErrorForm(Notification = Undefined, FormParamete
 		, , , , Notification);
 	
 EndProcedure
+
+// Returns:
+//  Structure:
+//   * Title - String
+//   * ErrorMessageText - String - 
+//   * ErrorTextExitFailed - String - 
+//   * ShouldCloseDesignerSession - Boolean - 
+//   * ShouldCloseAllSessionsButCurrent - Boolean
+//   * LoginMessage - String
+//   * BlockingPeriod - Number - 
+//
+Function ExclusiveModeSetErrorFormOpenParameters() Export
+	
+	FormOpenParameters = New Structure;
+	FormOpenParameters.Insert("Title", "");
+	FormOpenParameters.Insert("ErrorMessageText", "");
+	FormOpenParameters.Insert("ErrorTextExitFailed", "");
+	FormOpenParameters.Insert("ShouldCloseDesignerSession", False);
+	FormOpenParameters.Insert("ShouldCloseAllSessionsButCurrent", False);
+	FormOpenParameters.Insert("LoginMessage", "");
+	FormOpenParameters.Insert("BlockingPeriod", 300);
+	
+	Return FormOpenParameters;
+	
+EndFunction
 
 // Opens the user activity lock form.
 //
@@ -241,9 +267,8 @@ Procedure OnReceiptServerNotification(NameOfAlert, Result) Export
 EndProcedure
 
 // Parameters:
-//  Parameters - See CommonOverridable.ПередПериодическойОтправкойДанныхКлиентаНаСервер.Параметры
-//  AreNotificationsReceived - Boolean - 
-//                                
+//  AreNotificationsReceived - Boolean - Indicates that all notifications are received for the given period of time
+//                                (via either the Collaboration System or the common server call).
 //
 Procedure BeforeRecurringClientDataSendToServer(Parameters, AreNotificationsReceived) Export
 	
@@ -305,7 +330,7 @@ EndProcedure
 
 Function IsSubsystemUsed()
 	
-	//  
+	// See also: IBConnections.IsSubsystemUsed
 	Return Not CommonClient.DataSeparationEnabled();
 	
 EndFunction
@@ -366,8 +391,8 @@ Function IsProcedureEndUserSessionsRunning()
 	
 EndFunction
 
-// Terminate the current session if connections 
-// to the database are blocked.
+// Terminate active sessions if infobase connection lock is set. 
+// 
 //
 Procedure SessionTerminationModeManagement(CurrentMode)
 
@@ -382,13 +407,13 @@ Procedure SessionTerminationModeManagement(CurrentMode)
 	LockBeginTime = CurrentMode.Begin;
 	LockEndTime = CurrentMode.End;
 	
-	
-	
-	
+	// 
+	// 
+	// 
 	WaitTimeout    = CurrentMode.SessionTerminationTimeout;
 	ExitWithConfirmationTimeout = WaitTimeout / 3;
-	StopTimeoutSaaS = 60; 
-	StopTimeout        = 0; 
+	StopTimeoutSaaS = 60; // One minute before the lock is set.
+	StopTimeout        = 0; // One minute before the lock is set.
 	CurrentMoment             = CurrentMode.CurrentSessionDate;
 	
 	If LockEndTime <> '00010101' And CurrentMoment > LockEndTime Then
@@ -399,7 +424,7 @@ Procedure SessionTerminationModeManagement(CurrentMode)
 	LockBeginTimeTime = Format(LockBeginTime, "DLF=T");
 	
 	MessageText = IBConnectionsClientServer.ExtractLockMessage(CurrentMode.Message);
-	Template = NStr("en = 'Please save your data. The application will be temporarily unavailable since %1, %2.
+	Template = NStr("en = 'Please save your data. The app will be temporarily unavailable starting %1, %2.
 		|%3';");
 	MessageText = StringFunctionsClientServer.SubstituteParametersToString(Template, LockBeginTimeDate, LockBeginTimeTime, MessageText);
 	
@@ -428,8 +453,8 @@ Procedure SessionTerminationModeManagement(CurrentMode)
 	
 EndProcedure
 
-// Terminate active sessions if the timeout is exceeded, and then
-// terminate the current session.
+// Terminate active sessions when timeout.
+// Then terminate the current session.
 //
 Procedure EndUserSessions(CurrentMode)
 
@@ -440,19 +465,19 @@ Procedure EndUserSessions(CurrentMode)
 	ClickNotification = New NotifyDescription("OpeningHandlerOfAppWorkBlockForm", ThisObject);
 	
 	If CurrentMoment < LockBeginTime Then
+		Notify("UsersSessions",
+			New Structure("Status, SessionCount", "RefreshEnabled", SessionCount));
 		MessageText = NStr("en = 'The application will be temporarily unavailable since %1.';");
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText, LockBeginTime);
 		ShowUserNotification(NStr("en = 'Closing user sessions';"), 
-			ClickNotification, MessageText, PictureLib.Information32);
-		Notify("UsersSessions",
-			New Structure("Status, SessionCount", "RefreshEnabled", SessionCount));
+			ClickNotification, MessageText, PictureLib.DialogInformation);
 		Return;
 	EndIf;
 	
 	If SessionCount <= 1 Then
-		
-		
-		
+		// 
+		// 
+		// 
 		SetUserTerminationInProgressFlag(False);
 		Notify("UsersSessions",
 			New Structure("Status, SessionCount", "Done", SessionCount));
@@ -465,15 +490,15 @@ Procedure EndUserSessions(CurrentMode)
 		Return;
 	EndIf;
 	
-	
+	// For file infobases, some connections might not be force-closed.
 	If CommonClient.FileInfobase() Then
 		Notify("UsersSessions",
 			New Structure("Status, SessionCount", "RefreshEnabled", SessionCount));
 		Return;
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	
 	Try
 		AdministrationParameters = SavedAdministrationParameters();
@@ -485,25 +510,25 @@ Procedure EndUserSessions(CurrentMode)
 		SaveAdministrationParameters(Undefined);
 	Except
 		SetUserTerminationInProgressFlag(False);
-			ShowUserNotification(NStr("en = 'Closing user sessions';"),
-			ClickNotification,
-			NStr("en = 'Cannot close sessions. For more information, see the event log.';"),
-			PictureLib.Warning32);
 		EventLogClient.AddMessageForEventLog(EventLogEvent(),
 			"Error", ErrorProcessing.DetailErrorDescription(ErrorInfo()),, True);
 		Notify("UsersSessions",
 			New Structure("Status,SessionCount", "Error", SessionCount));
+		ShowUserNotification(NStr("en = 'Closing user sessions';"),
+			ClickNotification,
+			NStr("en = 'Cannot close sessions. For more information, see the event log.';"),
+			PictureLib.DialogExclamation);	
 		Return;
 	EndTry;
 	
 	SetUserTerminationInProgressFlag(False);
-	ShowUserNotification(NStr("en = 'Closing user sessions';"),
-		ClickNotification,
-		NStr("en = 'All user sessions are closed.';"),
-		PictureLib.Information32);
 	Notify("UsersSessions",
 		New Structure("Status,SessionCount", "Done", SessionCount));
 	TerminateThisSession();
+	ShowUserNotification(NStr("en = 'Closing user sessions';"),
+		ClickNotification,
+		NStr("en = 'All user sessions are closed.';"),
+		PictureLib.DialogInformation);
 	
 EndProcedure
 
@@ -525,7 +550,7 @@ Procedure TerminateThisSession(OutputQuestion1 = True)
 	SetIsProcedureEndUserSessionsRunning(True);
 	
 	Notification = New NotifyDescription("TerminateThisSessionCompletion", ThisObject);
-	MessageText = NStr("en = 'User access to the application is denied. Do you want to close your session?';");
+	MessageText = NStr("en = 'User access is restricted. Exit the app?';");
 	Title = NStr("en = 'Close current session';");
 	ShowQueryBox(Notification, MessageText, QuestionDialogMode.YesNo, 60, DialogReturnCode.Yes, Title, DialogReturnCode.Yes);
 	
@@ -647,7 +672,7 @@ Procedure ShowWarningOnExit(MessageText, LockBeginTime)
 	
 	InformParameters = InformParameters(LockBeginTime);
 	If Not InformParameters.IsNotificationDisplayed Then
-		ShowUserNotification(NStr("en = 'The application will be closed';"),, MessageText,, 
+		ShowUserNotification(NStr("en = 'App will be closed';"),, MessageText,, 
 			UserNotificationStatus.Important, "UserSessionsEndControl");
 		InformParameters.IsNotificationDisplayed = True;
 	EndIf;
@@ -709,7 +734,7 @@ Procedure AskOnTermination(MessageText, LockBeginTime)
 	
 	InformParameters = InformParameters(LockBeginTime);
 	If Not InformParameters.IsNotificationDisplayed Then
-		ShowUserNotification(NStr("en = 'The application will be closed';"),, MessageText,,
+		ShowUserNotification(NStr("en = 'App will be closed';"),, MessageText,,
 			UserNotificationStatus.Important, "UserSessionsEndControl");
 		InformParameters.IsNotificationDisplayed = True;
 	EndIf;
@@ -750,7 +775,7 @@ EndProcedure
 //
 // Parameters:
 //  LaunchParameterValue - String - main launch parameter.
-//  StartupParameters          - Array of String - 
+//  StartupParameters          - Array of String - Semicolon-delimited additional startup parameters.
 //
 // Returns:
 //   Boolean   - True if system start must be canceled.
@@ -776,11 +801,13 @@ Function ProcessStartParameters(Val StartupParameters)
 		
 		EventLogClient.AddMessageForEventLog(EventLogEvent(),,
 			StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The application is started with parameter %1. The application will be closed.';"),
+				NStr("en = 'App was started with parameter %1. App will be closed.';"),
 					ParameterNameAllowUsers), ,True);
 		Exit(False);
 		Return True;
 		
+	//  
+	// 
 	ElsIf TheKeyIsContainedInTheStartupParameters(StartupParameters, ParameterNameShutdownUsers) Then
 		
 		AdditionalParameters = AdditionalParametersForUserShutdown();

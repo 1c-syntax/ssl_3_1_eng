@@ -1,17 +1,18 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #Region Variables
 
 &AtClient
 Var ResultAddress, StoredDataAddress, ProgressUpdateJobID,
-		AccessUpdateErrorText, ProgressUpdateErrorText;
+		AccessUpdateErrorText;
 
 #EndRegion
 
@@ -746,19 +747,21 @@ Procedure UpdateProgressIdleHandler()
 		Status = StartProgressUpdateAtServer(Context, ResultAddress, StoredDataAddress,
 			UUID, ProgressUpdateJobID);
 	Except
-		Items.CancelRefreshingProgressBar.Enabled = True;
-		Raise;
+		ProgressAutoUpdate = False;
+		Items.ProgressBarRefresh.CurrentPage = Items.RefreshingProgressBarCompleted;
+		Items.CancelRefreshingProgressBar.Enabled = False;
+		StandardSubsystemsClient.OutputErrorInfo(ErrorInfo());
+		Return;
 	EndTry;
 	Items.CancelRefreshingProgressBar.Enabled = True;
 	
-	If Status = "Completed2" Then
+	If Status = "Completed2" Or Status = "Error" Then
 		UpdateProgressAfterReceiveData(Context);
 		
 	ElsIf Status = "Running" Then
 		RefreshingProgressBar = False;
 		AttachIdleHandler("CompleteProgressUpdateIdleHandler", 1, True);
 		UpdateAccessUpdateJobStateInThreeSeconds();
-		Return;
 	EndIf;
 	
 EndProcedure
@@ -794,11 +797,14 @@ EndProcedure
 &AtClient
 Procedure UpdateProgressAfterReceiveData(Context)
 	
-	If Context.Property("ErrorText") Then
+	If Context.Property("ErrorInfo") Then
 		ProgressAutoUpdate = False;
 		CompleteProgressUpdateAtClient(Context);
-		ProgressUpdateErrorText = Context.ErrorText;
-		AttachIdleHandler("ShowProgressUpdateErrorIdleHandler", 0.1, True);
+		If TypeOf(Context.ErrorInfo) = Type("String") Then
+			ShowMessageBox(, Context.ErrorInfo);
+		Else
+			StandardSubsystemsClient.OutputErrorInfo(Context.ErrorInfo);
+		EndIf;
 		Return;
 	EndIf;
 	
@@ -849,18 +855,6 @@ Procedure UpdateProgressAfterReceiveData(Context)
 EndProcedure
 
 &AtClient
-Procedure ShowProgressUpdateErrorIdleHandler()
-	
-	ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Cannot update the progress bar. Reason:
-		           |
-		           |%1';"), ProgressUpdateErrorText);
-	
-	Raise ErrorText;
-	
-EndProcedure
-
-&AtClient
 Procedure CompleteProgressUpdateAtClient(Context)
 	
 	If ProgressAutoUpdate Then
@@ -870,7 +864,7 @@ Procedure CompleteProgressUpdateAtClient(Context)
 	
 	Items.ProgressBarRefresh.CurrentPage = Items.RefreshingProgressBarCompleted;
 	
-	If Not Context.Property("ErrorText") Then
+	If Not Context.Property("ErrorInfo") Then
 		IsRepeatedProgressUpdate = True;
 	EndIf;
 	
@@ -929,7 +923,9 @@ Function StartProgressUpdateAtServer(Context, ResultAddress, StoredDataAddress,
 	ExecutionParameters.ResultAddress = ResultAddress;
 	ExecutionParameters.BackgroundJobDescription =
 		NStr("en = 'Access management: Get access update progress';");
-	
+	ExecutionParameters.RefinementErrors =
+		NStr("en = 'Couldn''t refresh the progress bar due to:';");
+
 	RunResult = TimeConsumingOperations.ExecuteInBackground("AccessManagementInternal.UpdateProgressInBackground",
 		ProcedureParameters, ExecutionParameters);
 	
@@ -943,7 +939,8 @@ Function StartProgressUpdateAtServer(Context, ResultAddress, StoredDataAddress,
 		ProgressUpdateJobID = RunResult.JobID;
 		
 	ElsIf RunResult.Status = "Error" Then
-		Raise RunResult.DetailErrorDescription;
+		Context.Insert("ErrorInfo", RunResult.ErrorInfo);
+		Context.Insert("AccessUpdateJobState", AccessUpdateJobState());
 	EndIf;
 	
 	Return RunResult.Status;
@@ -963,25 +960,23 @@ Function EndProgressUpdateAtServer(Context, Val ResultAddress, Val StoredDataAdd
 			ProgressUpdateJobID)
 	
 	If ProgressUpdateJobID <> Undefined Then
-		Try
-			JobCompleted = TimeConsumingOperations.JobCompleted(ProgressUpdateJobID);
-		Except
-			ProgressUpdateJobID = Undefined;
-			Context = New Structure("AccessUpdateJobState", AccessUpdateJobState());
-			Context.Insert("ErrorText", ErrorProcessing.BriefErrorDescription(ErrorInfo()));
-			Return True;
-		EndTry;
-		If Not JobCompleted Then
+		Result = TimeConsumingOperations.JobCompleted(ProgressUpdateJobID, True);
+		If Result.Status = "Running" Then
 			Context = New Structure("AccessUpdateJobState", AccessUpdateJobState());
 			Context.Insert("RefreshingProgressBar",
 				TimeConsumingOperations.ReadProgress(ProgressUpdateJobID) <> Undefined);
 			Return False;
+		ElsIf Result.Status <> "Completed2" Then
+			ProgressUpdateJobID = Undefined;
+			Context = New Structure("AccessUpdateJobState", AccessUpdateJobState());
+			Context.Insert("ErrorInfo", Result.ErrorInfo);
+			Return True;
 		EndIf;
 	EndIf;
 	ProgressUpdateJobID = Undefined;
 	
 	Context = GetFromTempStorage(ResultAddress);
-	If Not Context.Property("ErrorText") Then
+	If Not Context.Property("ErrorInfo") Then
 		PutToTempStorage(Context.StoredData, StoredDataAddress);
 		Context.Delete("StoredData");
 	EndIf;

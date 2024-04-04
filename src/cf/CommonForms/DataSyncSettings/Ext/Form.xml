@@ -177,6 +177,12 @@ They can configure scheduled synchronization or synchronize data manually at any
 								<Button name="InstallUpdate" id="752">
 									<Type>Hyperlink</Type>
 									<CommandName>Form.Command.InstallUpdate</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Install update</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="InstallUpdateExtendedTooltip" id="753"/>
 								</Button>
 							</ChildItems>
@@ -453,17 +459,35 @@ To switch to exchange using a web service, use the switch to Internet connection
 											<DefaultButton>true</DefaultButton>
 											<SkipOnInput>false</SkipOnInput>
 											<CommandName>Form.Command.RunSync</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Start sync</v8:content>
+												</v8:item>
+											</Title>
 											<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 											<ExtendedTooltip name="ApplicationsListRunSyncExtendedTooltip" id="467"/>
 										</Button>
 										<Button name="ApplicationsListRunSyncWithAdditionalFilters" id="713">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.RunSyncWithAdditionalFilters</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Map data manually</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="ApplicationsListRunSyncWithAdditionalFiltersExtendedTooltip" id="714"/>
 										</Button>
 										<Button name="ApplicationsListInitialDataExport" id="681">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.InitialDataExport</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Export data for mapping</v8:content>
+												</v8:item>
+											</Title>
 											<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 											<ExtendedTooltip name="ApplicationsListInitialDataExportExtendedTooltip" id="682"/>
 										</Button>
@@ -483,22 +507,46 @@ To switch to exchange using a web service, use the switch to Internet connection
 											<Type>CommandBarButton</Type>
 											<SkipOnInput>false</SkipOnInput>
 											<CommandName>Form.Command.ChangeSynchronizationSettings</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Edit settings</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="ApplicationsListChangeSyncSettingExtendedTooltip" id="470"/>
 										</Button>
 										<Button name="ApplicationsListDataToSendComposition" id="360">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.DataToSendComposition</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Scope of send data</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="ApplicationsListDataToSendCompositionExtendedTooltip" id="471"/>
 										</Button>
 										<Button name="ApplicationsListImportDataSyncRules" id="535">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.ImportDataSyncRules</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Import rules…</v8:content>
+												</v8:item>
+											</Title>
 											<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 											<ExtendedTooltip name="ApplicationsListImportDataSyncRulesExtendedTooltip" id="536"/>
 										</Button>
 										<Button name="ApplicationsListDeleteSyncSetting" id="364">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.DeleteSynchronizationSetting</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Delete setting</v8:content>
+												</v8:item>
+											</Title>
 											<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 											<ExtendedTooltip name="ApplicationsListDeleteSyncSettingExtendedTooltip" id="486"/>
 										</Button>
@@ -507,12 +555,24 @@ To switch to exchange using a web service, use the switch to Internet connection
 								<Button name="ApplicationsListCreateSyncSetting" id="634">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.CreateSyncSetting</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Create</v8:content>
+										</v8:item>
+									</Title>
 									<ToolTipRepresentation>Balloon</ToolTipRepresentation>
 									<ExtendedTooltip name="ApplicationsListCreateSyncSettingExtendedTooltip" id="635"/>
 								</Button>
 								<Button name="ApplicationsListRefreshScreen" id="671">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.RefreshScreen</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Refresh</v8:content>
+										</v8:item>
+									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="ApplicationsListRefreshScreenExtendedTooltip" id="672"/>
 								</Button>
@@ -528,12 +588,24 @@ To switch to exchange using a web service, use the switch to Internet connection
 										<Button name="ApplicationsListGoToDataExportEventLog" id="98">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.GoToDataExportEventLog</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Data send events…</v8:content>
+												</v8:item>
+											</Title>
 											<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 											<ExtendedTooltip name="ApplicationsListGoToDataExportEventLogExtendedTooltip" id="473"/>
 										</Button>
 										<Button name="ApplicationsListGoToDataImportEventLog" id="99">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.GoToDataImportEventLog</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Data receipt events…</v8:content>
+												</v8:item>
+											</Title>
 											<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 											<ExtendedTooltip name="ApplicationsListGoToDataImportEventLogExtendedTooltip" id="474"/>
 										</Button>
@@ -542,6 +614,12 @@ To switch to exchange using a web service, use the switch to Internet connection
 								<Button name="ApplicationsListPreviousWarningsForm" id="738">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.PreviousWarningsForm</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Previous warnings form</v8:content>
+										</v8:item>
+									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="ApplicationListPreviousWarningFormExtendedTooltip" id="739"/>
 								</Button>
@@ -588,7 +666,7 @@ To switch to exchange using a web service, use the switch to Internet connection
 								<Button name="FormCustomizeForm" id="134">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.StandardCommand.CustomizeForm</CommandName>
-									<ExtendedTooltip name="FormChangeFormExtendedTooltip" id="483"/>
+									<ExtendedTooltip name="FormCustomizeFormExtendedTooltip" id="483"/>
 								</Button>
 								<Button name="FormHelp" id="133">
 									<Type>CommandBarButton</Type>
@@ -646,6 +724,12 @@ To switch to exchange using a web service, use the switch to Internet connection
 											<Button name="ApplicationsListContextMenuRunSync" id="673">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.RunSync</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Start sync</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ApplicationsListContextMenuRunSyncExtendedTooltip" id="674"/>
 											</Button>
 										</ChildItems>
@@ -662,16 +746,34 @@ To switch to exchange using a web service, use the switch to Internet connection
 											<Button name="ApplicationsListContextMenuChangeSyncSetting" id="679">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.ChangeSynchronizationSettings</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Edit settings</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ApplicationsListContextMenuChangeSyncSettingExtendedTooltip" id="680"/>
 											</Button>
 											<Button name="ApplicationsListContextMenuCompositionOfDataToSend" id="687">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.DataToSendComposition</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Scope of send data</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ApplicationsListContextMenuExtendedTooltip" id="688"/>
 											</Button>
 											<Button name="ApplicationsListContextMenuDeleteSynchronizationSetting" id="683">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.DeleteSynchronizationSetting</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Delete setting</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ApplicationsListContextMenuDeleteSyncSettingExtendedTooltip" id="684"/>
 											</Button>
 										</ChildItems>
@@ -688,11 +790,23 @@ To switch to exchange using a web service, use the switch to Internet connection
 											<Button name="ApplicationsListContextMenuGoToDataExportEventLog" id="675">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.GoToDataExportEventLog</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Data send events…</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ApplicationsListContextMenuGoToDataExportEventLogExtendedTooltip" id="676"/>
 											</Button>
 											<Button name="ApplicationsListContextMenuGoToDataImportEventLog" id="677">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.GoToDataImportEventLog</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Data receipt events…</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ApplicationsListContextMenuGoToDataImportEventLogExtendedTooltip" id="678"/>
 											</Button>
 										</ChildItems>
@@ -700,6 +814,12 @@ To switch to exchange using a web service, use the switch to Internet connection
 									<Button name="ApplicationsListContextMenuRefreshScreen" id="669">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.RefreshScreen</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Refresh</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ApplicationsListContextMenuRefreshScreenExtendedTooltip" id="670"/>
 									</Button>
 								</ChildItems>
@@ -736,12 +856,24 @@ To switch to exchange using a web service, use the switch to Internet connection
 							<ChildItems>
 								<LabelField name="ApplicationsListApplication" id="588">
 									<DataPath>ApplicationsList.CorrespondentDescription</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>App</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ContextMenu name="ApplicationsListApplicationContextMenu" id="589"/>
 									<ExtendedTooltip name="ApplicationsListApplicationExtendedTooltip" id="590"/>
 								</LabelField>
 								<LabelField name="ApplicationsListCorrespondentPrefix" id="591">
 									<DataPath>ApplicationsList.CorrespondentPrefix</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Prefix</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<HorizontalStretch>false</HorizontalStretch>
 									<ContextMenu name="ApplicationsListCorrespondentPrefixContextMenu" id="592"/>
@@ -759,6 +891,12 @@ To switch to exchange using a web service, use the switch to Internet connection
 									<ChildItems>
 										<PictureField name="ApplicationsListStatePicture1" id="568">
 											<DataPath>ApplicationsList.StatePicture</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>State picture</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<EditMode>EnterOnInput</EditMode>
 											<ValuesPicture>
@@ -811,6 +949,12 @@ To switch to exchange using a web service, use the switch to Internet connection
 											<ChildItems>
 												<PictureField name="ApplicationsListExportStatePicture" id="654">
 													<DataPath>ApplicationsList.ExportStatePicture</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Picture of export state</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>None</TitleLocation>
 													<EditMode>EnterOnInput</EditMode>
 													<Hyperlink>true</Hyperlink>
@@ -824,6 +968,12 @@ To switch to exchange using a web service, use the switch to Internet connection
 												</PictureField>
 												<LabelField name="ApplicationsListLastSuccessfulExportDatePresentation" id="666">
 													<DataPath>ApplicationsList.LastSuccessfulExportDatePresentation</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Data sent</v8:content>
+														</v8:item>
+													</Title>
 													<EditMode>EnterOnInput</EditMode>
 													<CellHyperlink>true</CellHyperlink>
 													<Hiperlink>true</Hiperlink>
@@ -832,6 +982,12 @@ To switch to exchange using a web service, use the switch to Internet connection
 												</LabelField>
 												<InputField name="ApplicationsListSendingAWarning" id="732">
 													<DataPath>ApplicationsList.SendWarning</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Warnings</v8:content>
+														</v8:item>
+													</Title>
 													<EditMode>EnterOnInput</EditMode>
 													<CellHyperlink>true</CellHyperlink>
 													<ShowInHeader>false</ShowInHeader>
@@ -869,6 +1025,12 @@ To switch to exchange using a web service, use the switch to Internet connection
 											<ChildItems>
 												<PictureField name="ApplicationsListImportStatePicture" id="657">
 													<DataPath>ApplicationsList.ImportStatePicture</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Picture of import state</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>None</TitleLocation>
 													<EditMode>EnterOnInput</EditMode>
 													<ValuesPicture>
@@ -882,6 +1044,12 @@ To switch to exchange using a web service, use the switch to Internet connection
 												<LabelField name="ApplicationsListLastSuccessfulImportDatePresentation" id="663">
 													<DataPath>ApplicationsList.LastSuccessfulImportDatePresentation</DataPath>
 													<ReadOnly>true</ReadOnly>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Data received</v8:content>
+														</v8:item>
+													</Title>
 													<EditMode>EnterOnInput</EditMode>
 													<CellHyperlink>true</CellHyperlink>
 													<ContextMenu name="ApplicationsListLastSuccessfulImportDatePresentationContextMenu" id="664"/>
@@ -889,6 +1057,12 @@ To switch to exchange using a web service, use the switch to Internet connection
 												</LabelField>
 												<InputField name="ApplicationsListGettingAWarning" id="735">
 													<DataPath>ApplicationsList.GetWarning</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Warnings</v8:content>
+														</v8:item>
+													</Title>
 													<EditMode>EnterOnInput</EditMode>
 													<CellHyperlink>true</CellHyperlink>
 													<ShowInHeader>false</ShowInHeader>
@@ -901,6 +1075,12 @@ To switch to exchange using a web service, use the switch to Internet connection
 								</ColumnGroup>
 								<PictureField name="ApplicationsListCanMigrateToWS" id="785">
 									<DataPath>ApplicationsList.CanMigrateToWS</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Switch to WS is available</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<EditMode>EnterOnInput</EditMode>
 									<HeaderPicture>
@@ -916,6 +1096,12 @@ To switch to exchange using a web service, use the switch to Internet connection
 								</PictureField>
 								<CheckBoxField name="ApplicationsListScheduleConfigured" id="641">
 									<DataPath>ApplicationsList.ScheduleConfigured</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Scheduled</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<ToolTip>
 										<v8:item>
@@ -1050,6 +1236,12 @@ Please wait…</v8:content>
 						<Button name="ApplicationsListSetExchangeSchedule" id="102">
 							<Type>Hyperlink</Type>
 							<CommandName>Form.Command.ConfigureDataExchangeScenarios</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Sync schedule</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="ApplicationsListSetExchangeScheduleExtendedTooltip" id="475"/>
 						</Button>
 					</ChildItems>
@@ -1603,13 +1795,13 @@ Please wait…</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Synchronize</v8:content>
+					<v8:content>Start sync</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Synchronize data automatically</v8:content>
+					<v8:content>Start sync</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>
@@ -1685,7 +1877,7 @@ Please wait…</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Synchronization schedule</v8:content>
+					<v8:content>Sync schedule</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
@@ -1706,13 +1898,13 @@ Please wait…</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Data to be sent</v8:content>
+					<v8:content>Scope of send data</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Data to be sent</v8:content>
+					<v8:content>Scope of send data</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>
@@ -1806,13 +1998,13 @@ Please wait…</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Synchronize with additional parameters</v8:content>
+					<v8:content>Map data manually</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Synchronize data with additional filters</v8:content>
+					<v8:content>Map data manually</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -24,8 +25,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	ElsIf ValueIsFilled(Parameters.FullTabularSectionName) Then
 		ImportType = "TabularSection";
 	ElsIf Not Users.IsFullUser() Then
-		Raise(NStr("en = 'Insufficient rights to import data from spreadsheets';"));
-	EndIf;
+		Raise(NStr("en = 'Insufficient rights to import data from spreadsheets';"),
+			ErrorCategory.AccessViolation);
+	EndIf;	
 	
 	CreateIfUnmapped = 1;
 	UpdateExistingItems = 0;
@@ -37,15 +39,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If ImportType = "PastingFromClipboard" Then
 		InsertFromClipboardInitialization();
 	ElsIf ImportType = "TabularSection" Then
-		MappingObjectName = DataProcessors.ImportDataFromFile.FullTabularSectionObjectName(Parameters.FullTabularSectionName);
 		
-		TableColumnsInformation = Common.CommonSettingsStorageLoad("ImportDataFromFile", MappingObjectName,, UserName()); // ValueTable
-		If TableColumnsInformation = Undefined Then
-			TableColumnsInformation = FormAttributeToValue("ColumnsInformation");
-		Else
-			If TableColumnsInformation.Columns.Find("Parent") = Undefined Then
-				TableColumnsInformation = FormAttributeToValue("ColumnsInformation");
-			EndIf;
+		MappingObjectName = DataProcessors.ImportDataFromFile.FullTabularSectionObjectName(Parameters.FullTabularSectionName);
+		InfoOnImportDataColumns = FormAttributeToValue("ColumnsInformation");
+
+		SavedColumnWiseInfo  = Common.CommonSettingsStorageLoad("ImportDataFromFile", MappingObjectName,, UserName()); // ValueTable
+		
+		If TypeOf(SavedColumnWiseInfo) = Type("ValueTable") Then
+			CommonClientServer.SupplementTable(SavedColumnWiseInfo, InfoOnImportDataColumns);
 		EndIf;
 		
 		DataImportParameters = ImportParameters();
@@ -54,20 +55,20 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		DataImportParameters.Template = ?(ValueIsFilled(Parameters.DataStructureTemplateName), Parameters.DataStructureTemplateName, "LoadingFromFile");
 		DataImportParameters.AdditionalParameters = AdditionalParameters;
 		
-		If Parameters.Property("TemplateColumns") And Parameters.TemplateColumns <> Undefined Then
-			DefineDynamicTemplate(TableColumnsInformation, Parameters.TemplateColumns);
+		If Parameters.TemplateColumns <> Undefined Then
+			DefineDynamicTemplate(InfoOnImportDataColumns, Parameters.TemplateColumns);
 			Items.ChooseAnotherTemplate.Visible = False;
 			Items.ChangeTemplateFillTable.Visible = False;
 			ImportDataFromFile.AddStatisticalInformation("RunMode.ImportToTabularSection.DynamicTemplate",, Parameters.FullTabularSectionName);
 		Else
-			DataProcessors.ImportDataFromFile.DetermineColumnsInformation(DataImportParameters, TableColumnsInformation);
+			DataProcessors.ImportDataFromFile.DetermineColumnsInformation(DataImportParameters, InfoOnImportDataColumns);
 			ChangeTemplateByColumnsInformation();
 			ImportDataFromFile.AddStatisticalInformation("RunMode.ImportToTabularSection.StaticTemplate",, Parameters.FullTabularSectionName);
 			If Cancel Then
 				Return;
 			EndIf;
 		EndIf;
-		ValueToFormAttribute(TableColumnsInformation, "ColumnsInformation");
+		ValueToFormAttribute(InfoOnImportDataColumns, "ColumnsInformation");
 		
 		ShowInfoBarAboutRequiredColumns();
 		ChangeTemplateByColumnsInformation();
@@ -151,10 +152,10 @@ Procedure SetMappingTableFiltering()
 	
 	If Filter = "Mapped1" Then
 		Items.DataMappingTable.RowFilter = New FixedStructure("RowMappingResult", 
-			ImportDataFromFileClientServer.StatusMatched());
+			ImportDataFromFileClientServer.StatusMapped());
 	ElsIf Filter = "Unmapped" Then 
 		Items.DataMappingTable.RowFilter = New FixedStructure("RowMappingResult", 
-			ImportDataFromFileClientServer.PrefixOfNonMatchedStrings());
+			ImportDataFromFileClientServer.UnmappedRowsPrefix());
 	ElsIf Filter = "Ambiguous" Then 
 		Items.DataMappingTable.RowFilter = New FixedStructure("RowMappingResult", 
 			ImportDataFromFileClientServer.StatusAmbiguity());
@@ -268,20 +269,20 @@ Procedure DataMappingTableOnEditEnd(Item, NewRow, CancelEdit)
 	
 	If ImportType <> "TabularSection" Then
 		If ValueIsFilled(Item.CurrentData.MappingObject) Then 
-			Item.CurrentData.RowMappingResult = ImportDataFromFileClientServer.StatusMatched();
+			Item.CurrentData.RowMappingResult = ImportDataFromFileClientServer.StatusMapped();
 		Else
-			Item.CurrentData.RowMappingResult = ImportDataFromFileClientServer.StatusIsNotMatched();
+			Item.CurrentData.RowMappingResult = ImportDataFromFileClientServer.StatusUnmapped();
 		EndIf;
 	Else
 		Filter = New Structure("IsRequiredInfo", True);
 		RequiredColumns = ColumnsInformation.FindRows(Filter);
-		RowMappingResult    = ImportDataFromFileClientServer.StatusMatched();
+		RowMappingResult    = ImportDataFromFileClientServer.StatusMapped();
 		TablePartPrefix           = ImportDataFromFileClientServer.TablePartPrefix() + "_";
 		
 		For Each TableColumn2 In RequiredColumns Do
 			If Not ValueIsFilled(Item.CurrentData[TablePartPrefix + TableColumn2.Parent]) Then
 				RowMappingResult = ?(ValueIsFilled(Item.CurrentData.ErrorDescription), 
-					ImportDataFromFileClientServer.StatusAmbiguity(), ImportDataFromFileClientServer.StatusIsNotMatched());
+					ImportDataFromFileClientServer.StatusAmbiguity(), ImportDataFromFileClientServer.StatusUnmapped());
 				Break;
 			EndIf;
 		EndDo;
@@ -473,9 +474,14 @@ EndProcedure
 Procedure ProceedToNextStepOfDataImport()
 	
 	If Items.WizardPages.CurrentPage = Items.SelectCatalogToImport Then
+		If Items.DataImportKind.CurrentData = Undefined Then
+			Return;
+		EndIf;
+		
 		SelectionRowDetails = Items.DataImportKind.CurrentData.Value;
 		ExecuteStepFillTableWithDataAtServer(SelectionRowDetails);
 		ExecuteStepFillTableWithDataAtClient();
+	
 	ElsIf Items.WizardPages.CurrentPage = Items.FillTableWithData Then
 		MapDataToImport();
 	ElsIf Items.WizardPages.CurrentPage = Items.MappingResults Then
@@ -488,7 +494,7 @@ Procedure ProceedToNextStepOfDataImport()
 		Items.AddToList.Visible = False;
 		FormClosingConfirmation = True;
 		If ImportType = "TabularSection" Then
-			Filter = New Structure("RowMappingResult", ImportDataFromFileClientServer.StatusIsNotMatched());
+			Filter = New Structure("RowMappingResult", ImportDataFromFileClientServer.StatusUnmapped());
 			Rows = DataMappingTable.FindRows(Filter);
 			If Rows.Count() > 0 Then
 				Notification = New NotifyDescription("AfterAddToTabularSectionPrompt", ThisObject);
@@ -525,17 +531,17 @@ Procedure AfterMappingConflicts(Result, Parameter) Export
 			String[TablePartPrefix + Parameter.Name] = Result;
 			String.ErrorDescription = StrReplace(String.ErrorDescription, Parameter.Name + ";", "");
 			String.RowMappingResult = ?(StrLen(String.ErrorDescription) = 0, 
-				ImportDataFromFileClientServer.StatusMatched(), ImportDataFromFileClientServer.StatusIsNotMatched());
+				ImportDataFromFileClientServer.StatusMapped(), ImportDataFromFileClientServer.StatusUnmapped());
 		EndIf;
 	Else
 		String = DataMappingTable.FindByID(Parameter.Id);
 		String.MappingObject = Result;
 		If Result <> Undefined Then
-			String.RowMappingResult = ImportDataFromFileClientServer.StatusMatched();
+			String.RowMappingResult = ImportDataFromFileClientServer.StatusMapped();
 			String.ConflictsList = Undefined;
 		Else 
 			If String.RowMappingResult <> ImportDataFromFileClientServer.StatusAmbiguity() Then 
-				String.RowMappingResult = ImportDataFromFileClientServer.StatusIsNotMatched();
+				String.RowMappingResult = ImportDataFromFileClientServer.StatusUnmapped();
 				String.ConflictsList = Undefined;
 			EndIf;
 		EndIf;
@@ -556,7 +562,7 @@ EndProcedure
 
 &AtClient
 Function AllDataMapped()
-	Filter = New Structure("RowMappingResult", ImportDataFromFileClientServer.StatusMatched());
+	Filter = New Structure("RowMappingResult", ImportDataFromFileClientServer.StatusMapped());
 	Result = DataMappingTable.FindRows(Filter);
 	MappedItemsCount = Result.Count();
 	
@@ -571,12 +577,12 @@ EndFunction
 &AtClient
 Function MappingStatistics()
 	
-	Filter                    = New Structure("RowMappingResult", ImportDataFromFileClientServer.StatusMatched());
+	Filter                    = New Structure("RowMappingResult", ImportDataFromFileClientServer.StatusMapped());
 	Result                = DataMappingTable.FindRows(Filter);
 	MappedItemsCount = Result.Count();
 	
 	If ImportType = "PastingFromClipboard" Then
-		Filter                   = New Structure("RowMappingResult", ImportDataFromFileClientServer.StatusIsNotMatched());
+		Filter                   = New Structure("RowMappingResult", ImportDataFromFileClientServer.StatusUnmapped());
 		Result               = DataMappingTable.FindRows(Filter);
 		ConflictingItemsCount = DataMappingTable.Count() - MappedItemsCount - Result.Count();
 	Else
@@ -663,7 +669,7 @@ EndProcedure
 Procedure InsertFromClipboardInitialization()
 	MappingTableFilter = "Unmapped";
 	
-	If Parameters.Property("FieldPresentation") Then
+	If ValueIsFilled("FieldPresentation") Then
 		Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Paste (%1)';"), Parameters.FieldPresentation);
 	Else
 		Title = NStr("en = 'Paste';");
@@ -779,7 +785,7 @@ Function GetFullMetadataObjectName(Name)
 EndFunction
 
 // Parameters:
-//  SelectionRowDetails - CatalogRef
+//  SelectionRowDetails - See DataProcessors.ImportDataFromFile.NewInfoOnImportType
 //
 &AtServer
 Procedure ExecuteStepFillTableWithDataAtServer(SelectionRowDetails)
@@ -801,7 +807,7 @@ Procedure ExecuteStepFillTableWithDataAtServer(SelectionRowDetails)
 	CreateMappingTableByColumnsInformation();
 	ShowInfoBarAboutRequiredColumns();
 	
-	If TypeOf(SelectionRowDetails) = Type("Structure") And SelectionRowDetails.Property("Presentation") Then
+	If TypeOf(SelectionRowDetails) = Type("Structure") Then
 		WindowTitle = SelectionRowDetails.Presentation;
 	Else
 		WindowTitle = LoadingParametersOnTheForm().Title;
@@ -922,7 +928,7 @@ Procedure ExecuteDataToImportMappingStepAfterMapAtServer(ResultAddress)
 		MapDataExternalDataProcessor(MappingTable);
 	EndIf;
 	
-	Filter                    = New Structure("RowMappingResult", ImportDataFromFileClientServer.StatusMatched());
+	Filter                    = New Structure("RowMappingResult", ImportDataFromFileClientServer.StatusMapped());
 	Result                = MappingTable.FindRows(Filter);
 	
 	If Result.Count() = MappingTable.Count() Then
@@ -1015,8 +1021,8 @@ Procedure ExecuteDataToImportMappingStepAfterCheck()
 		EndIf;
 	Else
 		ExecutionProgressNotification = New NotifyDescription("ExecutionProgress", ThisObject);
-		BackgroundJob = MapDataToImportAtServerUniversalImport();
-		If BackgroundJob.Status = "Running" Then
+		TimeConsumingOperation = MapDataToImportAtServerUniversalImport();
+		If TimeConsumingOperation.Status = "Running" Then
 			Items.WizardPages.CurrentPage = Items.TimeConsumingOperations;
 		EndIf;
 	
@@ -1025,7 +1031,7 @@ Procedure ExecuteDataToImportMappingStepAfterCheck()
 		WaitSettings.ExecutionProgressNotification = ExecutionProgressNotification;
 		
 		Handler = New NotifyDescription("AfterMapImportedData", ThisObject);
-		TimeConsumingOperationsClient.WaitCompletion(BackgroundJob, Handler, WaitSettings);
+		TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, Handler, WaitSettings);
 	EndIf;
 	
 EndProcedure
@@ -1068,8 +1074,8 @@ Procedure WriteDataToImportClient()
 		ReportAtClientBackgroundJob();
 	Else
 		BackgroundJobPercentage = 0;
-		BackgroundJob = RecordDataToImportReportUniversalImport();
-		If BackgroundJob.Status = "Running" Then
+		TimeConsumingOperation = RecordDataToImportReportUniversalImport();
+		If TimeConsumingOperation.Status = "Running" Then
 			Items.WizardPages.CurrentPage = Items.TimeConsumingOperations;
 		EndIf;
 		
@@ -1079,7 +1085,7 @@ Procedure WriteDataToImportClient()
 		WaitSettings.ExecutionProgressNotification = ExecutionProgressNotification;
 		
 		Handler = New NotifyDescription("AfterSaveDataToImportReport", ThisObject);
-		TimeConsumingOperationsClient.WaitCompletion(BackgroundJob, Handler, WaitSettings);
+		TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, Handler, WaitSettings);
 		
 	EndIf;
 	
@@ -1088,13 +1094,13 @@ EndProcedure
 &AtClient
 Procedure ReportAtClientBackgroundJob(NotOutputIdleWindow = True)
 	
-	BackgroundJob = GenerateReportOnImport(FilterReport, NotOutputIdleWindow);
+	TimeConsumingOperation = GenerateReportOnImport(FilterReport, NotOutputIdleWindow);
 	
 	WaitSettings = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	WaitSettings.OutputIdleWindow = Not NotOutputIdleWindow;
-		
+	
 	Handler = New NotifyDescription("AfterCreateReport", ThisObject);
-	TimeConsumingOperationsClient.WaitCompletion(BackgroundJob, Handler, WaitSettings);
+	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, Handler, WaitSettings);
 	
 EndProcedure
 
@@ -1121,15 +1127,6 @@ Procedure ShowReport(ResultAddress)
 
 	TableReport = Report.TableReport;
 	
-EndProcedure
-
-&AtClient
-Procedure OutputErrorMessage1(ErrorTextForUser, TechnicalInformation)
-	ErrorMessageText = ErrorTextForUser + Chars.LF
-		+ NStr("en = 'The imported data might be corrupted.
-					|Details: %1';");
-	ErrorMessageText = StringFunctionsClientServer.SubstituteParametersToString(ErrorMessageText, TechnicalInformation);
-	CommonClient.MessageToUser(ErrorMessageText);
 EndProcedure
 
 #EndRegion
@@ -1187,7 +1184,7 @@ Procedure ExecuteDataToImportMappingStepClient()
 		If ImportType = "UniversalImport" Then
 			SetAppearanceForMappingPage(True, Items.DataMappingNote, True, NStr("en = 'Import data >';"));
 		ElsIf ImportType = "TabularSection" Then
-			FilterNotMapped = New Structure("RowMappingResult", ImportDataFromFileClientServer.StatusIsNotMatched());
+			FilterNotMapped = New Structure("RowMappingResult", ImportDataFromFileClientServer.StatusUnmapped());
 			FilterConflict1 = New Structure("RowMappingResult", ImportDataFromFileClientServer.StatusAmbiguity());
 			If DataMappingTable.FindRows(FilterNotMapped).Count() = 0
 				And DataMappingTable.FindRows(FilterConflict1).Count() = 0 Then
@@ -1235,11 +1232,11 @@ Procedure OpenResolveConflictForm(RowSelected, NameField1, StandardProcessing)
 	If ImportType = "TabularSection" Then
 		If String.RowMappingResult = ImportDataFromFileClientServer.StatusAmbiguity()
 		   And StrLen(String.ErrorDescription) > 0 Then
-			PrefixOfBeginningOfTablePart = StringFunctionsClientServer.SubstituteParametersToString("%1_%2_", 
-				ImportDataFromFileClientServer.PrefixOfMappingTable(), 
+			TabularSectionStartPrefix = StringFunctionsClientServer.SubstituteParametersToString("%1_%2_", 
+				ImportDataFromFileClientServer.MappingTablePrefix(), 
 				ImportDataFromFileClientServer.TablePartPrefix());
-			If StrLen(NameField1) > 3 And StrStartsWith(NameField1, PrefixOfBeginningOfTablePart) Then
-				Name = Mid(NameField1, StrLen(PrefixOfBeginningOfTablePart) + 1);
+			If StrLen(NameField1) > 3 And StrStartsWith(NameField1, TabularSectionStartPrefix) Then
+				Name = Mid(NameField1, StrLen(TabularSectionStartPrefix) + 1);
 				If StrFind(String.ErrorDescription, Name) Then
 					StandardProcessing = False;
 					TableRow = New Array;
@@ -1333,7 +1330,7 @@ Procedure MapDataAppliedImport(DataMappingTableServer)
 	ManagerObject.MatchUploadedDataFromFile(DataMappingTableServer);
 	For Each String In DataMappingTableServer Do 
 		If ValueIsFilled(String.MappingObject) Then 
-			String.RowMappingResult = ImportDataFromFileClientServer.StatusMatched();
+			String.RowMappingResult = ImportDataFromFileClientServer.StatusMapped();
 		EndIf;
 	EndDo;
 	
@@ -1523,7 +1520,7 @@ Procedure SetDataAppearance(ColumnsList = Undefined)
 	ConditionalAppearanceItem.Appearance.SetParameterValue("TextColor", ColorObjectNotFound);
 	ConditionalAppearanceItem.Appearance.SetParameterValue("Text", TextObjectNotFound);
 	
-	PrefixOfMappingTable = ImportDataFromFileClientServer.PrefixOfMappingTable();
+	MappingTablePrefix = ImportDataFromFileClientServer.MappingTablePrefix();
 	
 	If ValueIsFilled(ColumnsList) Then
 		TablePartPrefix = ImportDataFromFileClientServer.TablePartPrefix();
@@ -1532,7 +1529,7 @@ Procedure SetDataAppearance(ColumnsList = Undefined)
 			ConditionalAppearanceItem = ConditionalAppearance.Items.Add();
 			AppearanceField = ConditionalAppearanceItem.Fields.Items.Add();
 			AppearanceField.Field = New DataCompositionField(StringFunctionsClientServer.SubstituteParametersToString("%1_%2_%3",
-				PrefixOfMappingTable, TablePartPrefix, ColumnName));
+				MappingTablePrefix, TablePartPrefix, ColumnName));
 			AppearanceField.Use = True;
 			FilterElement = ConditionalAppearanceItem.Filter.Items.Add(Type("DataCompositionFilterItem"));
 			FilterElement.LeftValue = New DataCompositionField("DataMappingTable.RowMappingResult");
@@ -1547,7 +1544,7 @@ Procedure SetDataAppearance(ColumnsList = Undefined)
 		ConditionalAppearanceItem = ConditionalAppearance.Items.Add();
 		AppearanceField = ConditionalAppearanceItem.Fields.Items.Add();
 		AppearanceField.Field = New DataCompositionField(StringFunctionsClientServer.SubstituteParametersToString("%1_%2",
-			PrefixOfMappingTable, "MappingObject"));
+			MappingTablePrefix, "MappingObject"));
 		AppearanceField.Use = True;
 		FilterElement = ConditionalAppearanceItem.Filter.Items.Add(Type("DataCompositionFilterItem"));
 		FilterElement.LeftValue = New DataCompositionField("DataMappingTable.RowMappingResult");
@@ -1677,11 +1674,11 @@ Function ConditionsBySelectedColumns(CatalogName)
 					For Each InputString In Catalog.InputByString Do 
 						If InputString.Name = "Code" And Not Catalog.Autonumbering Then 
 							InputByStringConditionText = StringFunctionsClientServer.SubstituteParametersToString(
-								"MappingCatalog.%1.Code %2 MappingTable.%3", 
+								"MappingCatalog.%1.Code %2 MappingTable.%3", // ACC:1297 - The query fragment is not localizable.
 								CatalogColumnName, ComparisonTypeSSL, Column.ColumnName);
 						Else
 							InputByStringConditionText = StringFunctionsClientServer.SubstituteParametersToString(
-								"MappingCatalog.%1.%2 %3 MappingTable.%4", 
+								"MappingCatalog.%1.%2 %3 MappingTable.%4", // ACC:1297 - The query fragment is not localizable.
 								CatalogColumnName, InputString.Name, ComparisonTypeSSL, Column.ColumnName);
 						EndIf;
 						ConditionTextCatalog.Add(InputByStringConditionText);
@@ -1784,7 +1781,7 @@ Procedure ExecuteMappingBySelectedAttribute(MappedItemsCount = 0, MappingColumns
 		Else
 			DetailedRecordsSelectionGroup.Next();
 			MappedItemsCount = MappedItemsCount + 1;
-			String.RowMappingResult = ImportDataFromFileClientServer.StatusMatched();
+			String.RowMappingResult = ImportDataFromFileClientServer.StatusMapped();
 			String.ErrorDescription = "";
 			String.MappingObject = DetailedRecordsSelectionGroup.Ref;
 		EndIf;
@@ -1849,7 +1846,7 @@ Procedure PutDataInMappingTable(ImportedDataAddress, TabularSectionCopyAddress, 
 		EndDo;
 		
 		NewRow["RowMappingResult"] = ?(AllRequiredColumnsFilled, 
-			ImportDataFromFileClientServer.StatusMatched(), ImportDataFromFileClientServer.StatusIsNotMatched());
+			ImportDataFromFileClientServer.StatusMapped(), ImportDataFromFileClientServer.StatusUnmapped());
 		
 		Filter = New Structure("Id", String.Id); 
 		
@@ -2012,7 +2009,7 @@ Procedure MapDataExternalDataProcessor(DataMappingTableServer )
 		
 		For Each String In DataMappingTableServer Do
 			If ValueIsFilled(String.MappingObject) Then
-				String.RowMappingResult = ImportDataFromFileClientServer.StatusMatched();
+				String.RowMappingResult = ImportDataFromFileClientServer.StatusMapped();
 			EndIf;
 		EndDo;
 	EndIf;
@@ -2115,12 +2112,12 @@ EndFunction
 Procedure ShowInfoBarAboutRequiredColumns()
 	
 	If Items.FillWithDataPages.CurrentPage = Items.ImportFromFileOptionPage Then
-		ToolTipText = NStr("en = 'To import data, save the template to a file and populate it in a third-party application. 
-		|Then import the populated table in one of the following formats:
-		|• Microsoft Excel 97 Workbook (.xls) or Microsoft Excel 2007 Workbook (.xlsx)
-		|• LibreOffice Calc Spreadsheet (.ods)
-		|• Comma-separated text (.csv)
-		|• Spreadsheet document (.mxl)';") + Chars.LF;
+		ToolTipText = NStr("en = 'Save the template to a file, open it in a spreadsheet editor, and enter the data.
+		|Then import the spreadsheet to the application. The application supports the following formats:
+		| • Microsoft Excel 97 Workbook (.xls) or Microsoft Excel 2007 Workbook (.xlsx)
+		| • LibreOffice Calc Spreadsheet (.ods)
+		| • Comma-separated values file (.csv)
+		| • Spreadsheet document (.mxl)';") + Chars.LF;
 	Else
 		ToolTipText = NStr("en = 'To fill in the table, copy and paste data to the table from an external file.';") + Chars.LF;
 	EndIf;
@@ -2244,8 +2241,8 @@ Procedure CreateMappingTableByColumnsInformationAuto(MappingObjectTypeDetails)
 	Picture = PictureLib.Change;
 	For Each Column In TemporarySpecification.Columns Do
 		NewItem = Items.Add(StringFunctionsClientServer.SubstituteParametersToString("%1_%2",
-			ImportDataFromFileClientServer.PrefixOfMappingTable(), Column.Name),
-			Type("FormField"), Items.DataMappingTable); // FormFieldExtensionForATextBox
+			ImportDataFromFileClientServer.MappingTablePrefix(), Column.Name),
+			Type("FormField"), Items.DataMappingTable); // FormFieldExtensionForInputField
 		NewItem.Type = FormFieldType.InputField;
 		NewItem.DataPath = "DataMappingTable." + Column.Name;
 		NewItem.Title = Column.Title;
@@ -2325,8 +2322,8 @@ Procedure CreateMappingTableByColumnsInformation()
 	Picture = PictureLib.Change;
 	For Each Column In TemporarySpecification.Columns Do
 		NewItem = Items.Add(StringFunctionsClientServer.SubstituteParametersToString("%1_%2",
-			ImportDataFromFileClientServer.PrefixOfMappingTable(), Column.Name),
-			Type("FormField"), Items.DataMappingTable); // FormFieldExtensionForATextBox
+			ImportDataFromFileClientServer.MappingTablePrefix(), Column.Name),
+			Type("FormField"), Items.DataMappingTable); // FormFieldExtensionForInputField
 		NewItem.Type = FormFieldType.InputField;
 		NewItem.DataPath = "DataMappingTable." + Column.Name;
 		NewItem.Title = Column.Title;
@@ -2426,7 +2423,7 @@ Procedure CreateMappingTableByColumnsInformationForTS()
 		EndIf;
 		
 		NewItem = Items.Add(StringFunctionsClientServer.SubstituteParametersToString("%1_%2",
-			ImportDataFromFileClientServer.PrefixOfMappingTable(), Column.Name), Type("FormField"), Parent);
+			ImportDataFromFileClientServer.MappingTablePrefix(), Column.Name), Type("FormField"), Parent);
 		
 		NewItem.Type = FormFieldType.InputField;
 		NewItem.DataPath = "DataMappingTable." + Column.Name;
@@ -2612,12 +2609,12 @@ Procedure ImportDataFromFileToTemplate(Result, AdditionalParameters) Export
 		TempStorageAddress = Result.Location;
 		Extension = CommonClientServer.ExtensionWithoutPoint(CommonClientServer.GetFileNameExtension(FileName));
 	
-		BackgroundJob = ImportFileWithDataToSpreadsheetDocumentAtServer(TempStorageAddress, Extension);
-		WaitSettings                                = TimeConsumingOperationsClient.IdleParameters(ThisObject);
-		WaitSettings.OutputIdleWindow           = False;
+		TimeConsumingOperation = ImportFileWithDataToSpreadsheetDocumentAtServer(TempStorageAddress, Extension);
+		WaitSettings = TimeConsumingOperationsClient.IdleParameters(ThisObject);
+		WaitSettings.OutputIdleWindow = False;
 		WaitSettings.ExecutionProgressNotification = New NotifyDescription("ExecutionProgress", ThisObject);
 		Handler = New NotifyDescription("AfterImportDataFileToSpreadsheetDocument", ThisObject);
-		TimeConsumingOperationsClient.WaitCompletion(BackgroundJob, Handler, WaitSettings);
+		TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, Handler, WaitSettings);
 	EndIf;
 	
 EndProcedure
@@ -2688,7 +2685,7 @@ Procedure AfterCancelMappingPrompt(Result, Parameter) Export
 	If Result = DialogReturnCode.Yes Then
 		For Each TableRow In DataMappingTable Do
 			TableRow.MappingObject = Undefined;
-			TableRow.RowMappingResult = ImportDataFromFileClientServer.StatusIsNotMatched();
+			TableRow.RowMappingResult = ImportDataFromFileClientServer.StatusUnmapped();
 			TableRow.ConflictsList = Undefined;
 			TableRow.ErrorDescription = "";
 		EndDo;
@@ -2762,7 +2759,7 @@ EndProcedure
 
 #Region BackgroundJobs
 
-
+// 
 
 &AtServer
 Function ImportFileWithDataToSpreadsheetDocumentAtServer(TempStorageAddress, Extension)
@@ -2777,40 +2774,49 @@ Function ImportFileWithDataToSpreadsheetDocumentAtServer(TempStorageAddress, Ext
 	
 	ClearTemplateWithData();
 	
-	ServerCallParameters = New Structure();
-	ServerCallParameters.Insert("Extension", Extension);
-	ServerCallParameters.Insert("TemplateWithData", TemplateWithData);
-	ServerCallParameters.Insert("TempFileName", TempFileName);
-	ServerCallParameters.Insert("ColumnsInformation", FormAttributeToValue("ColumnsInformation"));
+	ProcedureParameters = New Structure;
+	ProcedureParameters.Insert("Extension", Extension);
+	ProcedureParameters.Insert("TemplateWithData", TemplateWithData);
+	ProcedureParameters.Insert("TempFileName", TempFileName);
+	ProcedureParameters.Insert("ColumnsInformation", FormAttributeToValue("ColumnsInformation"));
 	
-	BackgroundExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	BackgroundExecutionParameters.BackgroundJobDescription =  StringFunctionsClientServer.SubstituteParametersToString(
+	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
+	ExecutionParameters.BackgroundJobDescription = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = '%1 subsystem: import data from file using the server method';"), "ImportDataFromFile");
+	ExecutionParameters.RefinementErrors =
+		NStr("en = 'Could not import data due to:';");
 	
-	BackgroundJob = TimeConsumingOperations.ExecuteInBackground("DataProcessors.ImportDataFromFile.ImportFileToTable",
-		ServerCallParameters, BackgroundExecutionParameters);
-	
-	Return BackgroundJob;
+	Return TimeConsumingOperations.ExecuteInBackground("DataProcessors.ImportDataFromFile.ImportFileToTable",
+		ProcedureParameters, ExecutionParameters);
 	
 EndFunction
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
-Procedure AfterImportDataFileToSpreadsheetDocument(BackgroundJob, AdditionalParameters) Export
+Procedure AfterImportDataFileToSpreadsheetDocument(Result, AdditionalParameters) Export
 
-	If BackgroundJob = Undefined Then
+	If Result = Undefined Then
 		Return;
 	EndIf;
 	
-	If BackgroundJob.Status = "Completed2" Then
-		TemplateWithData = GetFromTempStorage(BackgroundJob.ResultAddress);
-		MapDataToImport();
-	Else
-		OutputErrorMessage1(NStr("en = 'Cannot import data.';"), BackgroundJob.BriefErrorDescription);
+	If Result.Status = "Error" Then
+		StandardSubsystemsClient.OutputErrorInfo(
+			Result.ErrorInfo);
+		
+		Items.WizardPages.CurrentPage = Items.FillTableWithData;
+		CommandBarButtonsAvailability(True);
+		Return;
 	EndIf;
-
+	
+	TemplateWithData = GetFromTempStorage(Result.ResultAddress);
+	MapDataToImport();
+	
 EndProcedure
 
-
+// 
 
 &AtServer
 Function MapDataToImportAtServerUniversalImport()
@@ -2818,39 +2824,47 @@ Function MapDataToImportAtServerUniversalImport()
 	ImportDataFromFile.AddStatisticalInformation(?(ImportOption = 0,
 		"ImportOption.FillTable", "ImportOption.FromExternalFile"));
 	
-	ServerCallParameters = New Structure();
-	ServerCallParameters.Insert("TemplateWithData", TemplateWithData);
-	ServerCallParameters.Insert("MappingTable", FormAttributeToValue("DataMappingTable"));
-	ServerCallParameters.Insert("ColumnsInformation", FormAttributeToValue("ColumnsInformation"));
+	ProcedureParameters = New Structure;
+	ProcedureParameters.Insert("TemplateWithData", TemplateWithData);
+	ProcedureParameters.Insert("MappingTable", FormAttributeToValue("DataMappingTable"));
+	ProcedureParameters.Insert("ColumnsInformation", FormAttributeToValue("ColumnsInformation"));
 	
-	BackgroundExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	BackgroundExecutionParameters.BackgroundJobDescription = NStr("en = 'Populate mapping table with data imported from file.';");
+	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
+	ExecutionParameters.BackgroundJobDescription =
+		NStr("en = 'Populate mapping table with data imported from file.';");
+	ExecutionParameters.RefinementErrors =
+		NStr("en = 'Could not map data due to:';");
 	
-	BackgroundJob = TimeConsumingOperations.ExecuteInBackground("DataProcessors.ImportDataFromFile.FillMappingTableWithDataFromTemplateBackground", 
-		ServerCallParameters, BackgroundExecutionParameters);
+	Return TimeConsumingOperations.ExecuteInBackground(
+		"DataProcessors.ImportDataFromFile.FillMappingTableWithDataFromTemplateBackground", 
+		ProcedureParameters,
+		ExecutionParameters);
 	
-	
-	Return BackgroundJob;
 EndFunction
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
-Procedure AfterMapImportedData(BackgroundJob, AdditionalParameters) Export
+Procedure AfterMapImportedData(Result, AdditionalParameters) Export
 
-	If BackgroundJob = Undefined Then
+	If Result = Undefined Then
 		Return;
 	EndIf;
 	
-	If BackgroundJob.Status = "Completed2" Then
-		ExecuteDataToImportMappingStepAfterMapAtServer(BackgroundJob.ResultAddress);
-		ExecuteDataToImportMappingStepClient();
-	ElsIf BackgroundJob.Status = "Error" Then
-		OutputErrorMessage1(NStr("en = 'Cannot map data.';"),
-			BackgroundJob.BriefErrorDescription);
+	If Result.Status = "Error" Then
+		StandardSubsystemsClient.OutputErrorInfo(
+			Result.ErrorInfo);
+		Return;
 	EndIf;
-
+	
+	ExecuteDataToImportMappingStepAfterMapAtServer(Result.ResultAddress);
+	ExecuteDataToImportMappingStepClient();
+	
 EndProcedure
 
-
+// 
 
 &AtServer
 Function RecordDataToImportReportUniversalImport()
@@ -2859,36 +2873,43 @@ Function RecordDataToImportReportUniversalImport()
 	ImportParameters.Insert("CreateIfUnmapped", CreateIfUnmapped);
 	ImportParameters.Insert("UpdateExistingItems", UpdateExistingItems);
 
-	ServerCallParameters = New Structure();
-	ServerCallParameters.Insert("MappedData", FormAttributeToValue("DataMappingTable"));
-	ServerCallParameters.Insert("ImportParameters", ImportParameters);
-	ServerCallParameters.Insert("MappingObjectName", MappingObjectName);
-	ServerCallParameters.Insert("ColumnsInformation", FormAttributeToValue("ColumnsInformation"));
+	ProcedureParameters = New Structure;
+	ProcedureParameters.Insert("MappedData", FormAttributeToValue("DataMappingTable"));
+	ProcedureParameters.Insert("ImportParameters", ImportParameters);
+	ProcedureParameters.Insert("MappingObjectName", MappingObjectName);
+	ProcedureParameters.Insert("ColumnsInformation", FormAttributeToValue("ColumnsInformation"));
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Save data imported from file';");
+	ExecutionParameters.RefinementErrors = NStr("en = 'Could not save data due to:';");
 	
 	Return TimeConsumingOperations.ExecuteInBackground("DataProcessors.ImportDataFromFile.WriteMappedData", 
-		ServerCallParameters, ExecutionParameters);
+		ProcedureParameters, ExecutionParameters);
 	
 EndFunction
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
-Procedure AfterSaveDataToImportReport(BackgroundJob, AdditionalParameters) Export
+Procedure AfterSaveDataToImportReport(Result, AdditionalParameters) Export
 	
-	If BackgroundJob = Undefined Then
+	If Result = Undefined Then
 		Return;
 	EndIf;
 	
-	If BackgroundJob.Status = "Error" Then
-		OutputErrorMessage1(NStr("en = 'Couldn''t save data.';"), BackgroundJob.BriefErrorDescription);
-	ElsIf BackgroundJob.Status = "Completed2" Then
-		RefsToNotificationObjects = New Array;
-		FillMappingTableFromTempStorage(BackgroundJob.ResultAddress, RefsToNotificationObjects);
-		NotifyFormsAboutChange(RefsToNotificationObjects);
-		ReportAtClientBackgroundJob();
+	If Result.Status = "Error" Then
+		StandardSubsystemsClient.OutputErrorInfo(
+			Result.ErrorInfo);
+		Return;
 	EndIf;
-
+	
+	RefsToNotificationObjects = New Array;
+	FillMappingTableFromTempStorage(Result.ResultAddress, RefsToNotificationObjects);
+	NotifyFormsAboutChange(RefsToNotificationObjects);
+	ReportAtClientBackgroundJob();
+	
 EndProcedure
 
 &AtServer
@@ -2900,7 +2921,7 @@ Procedure FillMappingTableFromTempStorage(AddressInTempStorage, RefsToNotificati
 	
 EndProcedure
 
-
+// 
 
 &AtServer
 Function GenerateReportOnImport(ReportType = "AllItems",  CalculateProgressPercent = False)
@@ -2908,59 +2929,60 @@ Function GenerateReportOnImport(ReportType = "AllItems",  CalculateProgressPerce
 	MappedData        = FormAttributeToValue("DataMappingTable");
 	TableColumnsInformation = FormAttributeToValue("ColumnsInformation");
 	
-	ServerCallParameters = New Structure();
-	ServerCallParameters.Insert("TableReport", TableReport);
-	ServerCallParameters.Insert("ReportType", ReportType);
-	ServerCallParameters.Insert("MappedData", MappedData);
-	ServerCallParameters.Insert("TemplateWithData", TemplateWithData);
-	ServerCallParameters.Insert("MappingObjectName", MappingObjectName);
-	ServerCallParameters.Insert("CalculateProgressPercent", CalculateProgressPercent);
-	ServerCallParameters.Insert("ColumnsInformation", TableColumnsInformation);
+	ProcedureParameters = New Structure();
+	ProcedureParameters.Insert("TableReport", TableReport);
+	ProcedureParameters.Insert("ReportType", ReportType);
+	ProcedureParameters.Insert("MappedData", MappedData);
+	ProcedureParameters.Insert("TemplateWithData", TemplateWithData);
+	ProcedureParameters.Insert("MappingObjectName", MappingObjectName);
+	ProcedureParameters.Insert("CalculateProgressPercent", CalculateProgressPercent);
+	ProcedureParameters.Insert("ColumnsInformation", TableColumnsInformation);
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Create report on data import from file';");
 	
 	Return TimeConsumingOperations.ExecuteInBackground("DataProcessors.ImportDataFromFile.GenerateReportOnBackgroundImport",
-		ServerCallParameters, ExecutionParameters);
+		ProcedureParameters, ExecutionParameters);
 		
 EndFunction
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  
+//
 &AtClient
-Procedure AfterCreateReport(Job, AdditionalResults) Export
+Procedure AfterCreateReport(Result, AdditionalResults) Export
 
-	If Job = Undefined Then
+	If Result = Undefined Then
 		Return;
 	EndIf;
 	
-	If Job.Status = "Completed2" Then
-		ShowReport(Job.ResultAddress);
-		FormClosingConfirmation = True;
-	ElsIf Job.Status = "Error" Then
-		CommonClient.MessageToUser(Job.BriefErrorDescription);
+	If Result.Status = "Error" Then
 		GoToPage(Items.DataToImportMapping);
-	Else
-		GoToPage(Items.DataToImportMapping);
+		StandardSubsystemsClient.OutputErrorInfo(
+			Result.ErrorInfo);
+		Return;
 	EndIf;
+	
+	ShowReport(Result.ResultAddress);
+	FormClosingConfirmation = True;
 	
 EndProcedure
 
-
-
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.LongRunningOperationNewState
+//  AdditionalParameters - Undefined
+//
 &AtClient
 Procedure ExecutionProgress(Result, AdditionalParameters) Export
 	
-	If Result.Status = "Running" Then
-		Progress = ReadProgress(Result.JobID);
-		If Progress <> Undefined Then
-			BackgroundJobPercentage = Progress.Percent;
-		EndIf;
+	If Result.Status = "Running"
+	   And Result.Progress <> Undefined Then
+		
+		BackgroundJobPercentage = Result.Progress.Percent;
 	EndIf;
+	
 EndProcedure
-
-&AtServerNoContext
-Function ReadProgress(JobID)
-	Return TimeConsumingOperations.ReadProgress(JobID);
-EndFunction
 
 #EndRegion
 

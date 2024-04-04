@@ -22,6 +22,12 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.ResolveIssue</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Fix issue</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="ResolveIssueExtendedTooltip" id="4"/>
 			</Button>
 			<Button name="Close" id="1">
@@ -209,11 +215,22 @@ For technical specialists:
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Fix the issue</v8:content>
+					<v8:content>Fix issue</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>ResolveIssue</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 	</Commands>
+	<Parameters>
+		<Parameter name="CheckID">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>255</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Parameter>
+	</Parameters>
 </Form>

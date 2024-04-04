@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -244,7 +245,7 @@ EndProcedure
 //  Structure:
 //   * ContactInformationKind - See ContactsManager.ContactInformationKindParameters
 //   * ReadOnly          - Boolean - if True, the form will be opened in view-only mode.
-//   * Value                - String - 
+//   * Value                - String - A contact information field value in JSON or XML format.
 //   * Presentation           - String - a contact information presentation.
 //   * ContactInformationType - EnumRef.ContactInformationTypes - a contact information type if it was specified
 //                                                                            in the parameters.
@@ -317,37 +318,45 @@ EndFunction
 // Creates a contact information email.
 //
 // Parameters:
-//  FieldValues - String
-//                - Structure
-//                - Map
-//                - ValueList - a contact information value.
-//  Presentation - String - a contact information presentation. Used if it is impossible to determine 
-//                              a presentation based on a parameter. FieldValues (the Presentation field is not available).
-//  ExpectedKind  - CatalogRef.ContactInformationKinds
-//                - EnumRef.ContactInformationTypes
-//                - Structure - used to determine a type if it is impossible to determine it by the FieldsValues field.
-//  ContactInformationSource - Arbitrary - an owner object of contact information.
-//  AttributeName  - String
+//  FieldValues   - String
+//                  - Structure
+//                  - Map
+//                  - ValueList - a contact information value.
+//  EmailParameters - See SMSAndEmailParameters
+//  DeleteExpectedKind  - CatalogRef.ContactInformationKinds
+//                       - EnumRef.ContactInformationTypes
+//                       - Structure - Obsolete. Instead, use "EmailParameters".
+//  ObsoleteContactInformationSource - AnyRef - Obsolete. Instead, use "EmailParameters".
+//  ObsoleteAttributeName  - String - Obsolete. Instead, use "EmailParameters".
 //
-Procedure CreateEmailMessage(Val FieldValues, Val Presentation = "", ExpectedKind = Undefined, ContactInformationSource = Undefined, AttributeName = "") Export
+Procedure CreateEmailMessage(Val FieldValues, Val EmailParameters = Undefined,
+	DeleteExpectedKind = Undefined, ObsoleteContactInformationSource = Undefined, 
+	ObsoleteAttributeName = "") Export
+	
+	If TypeOf(EmailParameters) = Type("String") Then
+		Presentation = EmailParameters;
+		EmailParameters = SMSAndEmailParameters();
+		EmailParameters.Presentation = Presentation;
+		EmailParameters.ExpectedKind = DeleteExpectedKind;
+		EmailParameters.ContactInformationSource = ObsoleteContactInformationSource;
+		EmailParameters.AttributeName = ObsoleteAttributeName;
+	ElsIf EmailParameters = Undefined Then
+		EmailParameters = SMSAndEmailParameters();
+	EndIf;
 	
 	MailAddr = "";
-	If ValueIsFilled(Presentation) Then
-		
-		If CommonClientServer.EmailAddressMeetsRequirements(Presentation, True) Then
+	If ValueIsFilled(EmailParameters.Presentation) 
+		And CommonClientServer.EmailAddressMeetsRequirements(EmailParameters.Presentation, True) Then
 			MailAddr = Presentation;
-		EndIf;
-		
 	EndIf;
 	
 	If IsBlankString(MailAddr) Then
 		
 		ContactInformationDetails = ContactsManagerClientServer.ContactInformationDetails(
-			FieldValues, Presentation, ExpectedKind);
+			FieldValues, EmailParameters.Presentation, EmailParameters.ExpectedKind);
 		
 		ContactInformation = ContactsManagerInternalServerCall.TransformContactInformationXML(ContactInformationDetails);
-		
-		If ValueIsFilled( ContactInformation.Presentation) Then
+		If ValueIsFilled(ContactInformation.Presentation) Then
 			MailAddr = ContactInformation.Presentation;
 		Else
 			MailAddr = ContactsManagerInternalServerCall.ContactInformationCompositionString(ContactInformation.XMLData1);
@@ -355,19 +364,28 @@ Procedure CreateEmailMessage(Val FieldValues, Val Presentation = "", ExpectedKin
 		
 		ErrorText = "";
 		InformationType = ContactInformation.ContactInformationType;
-		If IsBlankString(MailAddr) 
-		  Or Not CommonClientServer.EmailAddressMeetsRequirements(Presentation, True) Then
+		
+		If IsBlankString(MailAddr) Then
 			ErrorText= NStr("en = 'To send an email, enter an email address.';");
 		ElsIf TypeOf(MailAddr) <> Type("String") Or InformationType = Undefined Then
-			ErrorText =  NStr("en = 'Error getting email address. Invalid contact information type.';");
+			ErrorText =  NStr("en = 'Cannot send an email as the value is not an email address.';");
 		ElsIf InformationType <> PredefinedValue("Enum.ContactInformationTypes.Email") Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot create an email from contact information of the ""%1"" type.';"), InformationType);
+		Else
+			MailAddresses = CommonClientServer.EmailsFromString(MailAddr);
+			ErrorsTexts = New Array;
+			For Each MailAddress In MailAddresses Do  
+				If ValueIsFilled(MailAddress.ErrorDescription) Then
+					ErrorsTexts.Add(MailAddress.ErrorDescription);
+				EndIf;
+			EndDo;
+			ErrorText = StrConcat(ErrorsTexts, Chars.LF);
 		EndIf;
 		
 		If ValueIsFilled(ErrorText) Then
-			If ValueIsFilled(AttributeName) Then
-				CommonClient.MessageToUser(ErrorText,, AttributeName);
+			If ValueIsFilled(EmailParameters.AttributeName) Then
+				CommonClient.MessageToUser(ErrorText,, EmailParameters.AttributeName);
 			Else
 				ShowMessageBox(, ErrorText );
 			EndIf;
@@ -381,7 +399,8 @@ Procedure CreateEmailMessage(Val FieldValues, Val Presentation = "", ExpectedKin
 		
 		Recipient = New Array;
 		Recipient.Add(New Structure("Address, Presentation, ContactInformationSource", 
-			MailAddr, StrReplace(String(ContactInformationSource), ",", ""), ContactInformationSource));
+			MailAddr, StrReplace(String(EmailParameters.ContactInformationSource), ",", ""), 
+				EmailParameters.ContactInformationSource));
 		SendOptions = New Structure("Recipient", Recipient);
 		ModuleEmailOperationsClient.CreateNewEmailMessage(SendOptions);
 	Else
@@ -390,42 +409,60 @@ Procedure CreateEmailMessage(Val FieldValues, Val Presentation = "", ExpectedKin
 	
 EndProcedure
 
-// Creates a contact information email.
+// Creates a text message based on the contact information.
 //
 // Parameters:
-//  FieldValues                - String
-//                               - Structure
-//                               - Map
-//                               - ValueList - contact information.
-//  Presentation                - String - presentation. Used if it is impossible to determine a presentation based on a parameter.
-//                                           FieldValues (the Presentation field is not available).
-//  ExpectedKind                 - CatalogRef.ContactInformationKinds
-//                               - EnumRef.ContactInformationTypes
-//                               - Structure - used to determine a type if it is impossible to determine it by
-//                                             the FieldsValues field.
-//  ContactInformationSource - AnyRef - an object that is a contact information source.
+//  FieldValues - String
+//                - Structure
+//                - Map
+//                - ValueList - contact information.
+//  SMSParameters  - See SMSAndEmailParameters
+//  DeleteExpectedKind  - CatalogRef.ContactInformationKinds
+//                       - EnumRef.ContactInformationTypes
+//                       - Structure - Obsolete. Instead, use "SMSParameters".
+//  ObsoleteContactInformationSource - AnyRef - Obsolete. Instead, use "SMSParameters".
 //
-Procedure CreateSMSMessage(Val FieldValues, Val Presentation = "", ExpectedKind = Undefined, ContactInformationSource = "") Export
+Procedure CreateSMSMessage(Val FieldValues, Val SMSParameters = Undefined,
+	Val DeleteExpectedKind = Undefined, ObsoleteContactInformationSource = "") Export
 	
 	If Not CommonClient.SubsystemExists("StandardSubsystems.SendSMSMessage") Then
 		Raise NStr("en = 'Text messaging is not available.';");
 	EndIf;
 	
-	RecipientNumber = "";
+	If TypeOf(SMSParameters) = Type("String") Then
+		Presentation = SMSParameters;
+		SMSParameters = SMSAndEmailParameters();
+		SMSParameters.Presentation = Presentation;
+		SMSParameters.ExpectedKind = DeleteExpectedKind;
+		SMSParameters.ContactInformationSource = ObsoleteContactInformationSource;
+	ElsIf SMSParameters = Undefined Then
+		SMSParameters = SMSAndEmailParameters();
+	EndIf;
 	
-	If IsBlankString(Presentation) Then
+	RecipientNumber = "";
+	If IsBlankString(SMSParameters.Presentation) Then
 		
 		ContactInformation = ContactsManagerInternalServerCall.TransformContactInformationXML(
-			New Structure("FieldValues, Presentation, ContactInformationKind", FieldValues, Presentation, ExpectedKind));
+			New Structure("FieldValues, Presentation, ContactInformationKind", 
+				FieldValues, SMSParameters.Presentation, SMSParameters.ExpectedKind));
 		
+		ErrorText = "";
 		InformationType = ContactInformation.ContactInformationType;
 		If InformationType <> PredefinedValue("Enum.ContactInformationTypes.Phone") Then
-			Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Cannot send a text message from contact information of the ""%1"" type.';"), InformationType);
+			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Cannot send the text message as the phone number you provided is invalid: %1.';"), 
+				InformationType);
+		ElsIf FieldValues = "" And IsBlankString(SMSParameters.Presentation) Then
+			ErrorText = NStr("en = 'To send a text message, enter a phone number.';");
 		EndIf;
 		
-		If FieldValues = "" And IsBlankString(Presentation) Then
-			ShowMessageBox(, NStr("en = 'To send a text message, enter a phone number.';"));
-			Return;
+		If ValueIsFilled(ErrorText) Then
+			If ValueIsFilled(SMSParameters.AttributeName) Then
+				CommonClient.MessageToUser(ErrorText,, SMSParameters.AttributeName);
+			Else
+				ShowMessageBox(, ErrorText );
+			EndIf;
+			Return
 		EndIf;
 		
 		XMLData = ContactInformation.XMLData1;
@@ -436,21 +473,21 @@ Procedure CreateSMSMessage(Val FieldValues, Val Presentation = "", ExpectedKind 
 	EndIf;
 	
 	If IsBlankString(RecipientNumber) Then
-		RecipientNumber = TrimAll(Presentation);
+		RecipientNumber = TrimAll(SMSParameters.Presentation);
 	EndIf;
 	
-	#If MobileClient Then
-		Message = New SMSMessage();
-		Message.To.Add(RecipientNumber);
-		TelephonyTools.SendSMS(Message, True);
-		Return;
-	#EndIf
+#If MobileClient Then
+	Message = New SMSMessage();
+	Message.To.Add(RecipientNumber);
+	TelephonyTools.SendSMS(Message, True);
+	Return;
+#EndIf
 	
 	InformationOnRecipient = New Structure();
 	InformationOnRecipient.Insert("Phone",                      RecipientNumber);
-	InformationOnRecipient.Insert("Presentation",                String(ContactInformationSource));
-	InformationOnRecipient.Insert("ContactInformationSource", ContactInformationSource);
-	
+	InformationOnRecipient.Insert("Presentation",                String(SMSParameters.ContactInformationSource));
+	InformationOnRecipient.Insert("ContactInformationSource", SMSParameters.ContactInformationSource);
+
 	RecipientsNumbers = New Array;
 	RecipientsNumbers.Add(InformationOnRecipient);
 	
@@ -458,6 +495,28 @@ Procedure CreateSMSMessage(Val FieldValues, Val Presentation = "", ExpectedKind 
 	ModuleSMSClient.SendSMS(RecipientsNumbers, "", New Structure("Transliterate", False));
 	
 EndProcedure
+
+// A parameter constructor for procedures "CreateEmailMessage" and "CreateSMS".
+// 
+// Returns:
+//  Structure:
+//    * Presentation - String - The contact information presentation. 
+//                                Used in cases when the "FieldValues" parameter is missing the "Presentation" field.
+//    * ExpectedKind  - CatalogRef.ContactInformationKinds
+//                    - EnumRef.ContactInformationTypes
+//                    - Structure - Intended for identifying contact information type in cases where it cannot be done using the "FieldsValues" field.
+//    * ContactInformationSource - AnyRef - an owner object of contact information.
+//    * AttributeName  - String - The name of the attribute of the calling form that should be associated with the error message.
+//                               If not provided, the message will be shown as a warning dialog.
+//
+Function SMSAndEmailParameters() Export
+	Result = New Structure;
+	Result.Insert("Presentation", ""); 
+	Result.Insert("ExpectedKind", Undefined); 
+	Result.Insert("ContactInformationSource", Undefined); 
+	Result.Insert("AttributeName", "");
+	Return Result;
+EndFunction	
 
 // Makes a call to the passed phone number via SIP telephony
 // or via Skype if SIP telephony is not available.
@@ -469,7 +528,7 @@ Procedure Telephone(PhoneNumber) Export
 	
 	PhoneNumber = StringFunctionsClientServer.ReplaceCharsWithOther("()_- ", PhoneNumber, "");
 	
-	ProtocolName = "tel"; 
+	ProtocolName = "tel"; // By default, "tel".
 	
 	#If MobileClient Then
 		TelephonyTools.DialNumber(PhoneNumber, True);
@@ -480,7 +539,7 @@ Procedure Telephone(PhoneNumber) Export
 		AvailableProtocolName = TelephonyApplicationInstalled();
 		If AvailableProtocolName = Undefined Then
 			StringWithWarning = New FormattedString(
-					NStr("en = 'To make a call, install a telecommunication application. For example,';"),
+					NStr("en = 'To make a call, install a telecom app. For example,';"),
 					 " ", New FormattedString("Skype",,,, "http://www.skype.com"), ".");
 			ShowMessageBox(Undefined, StringWithWarning);
 			Return;
@@ -525,12 +584,12 @@ EndProcedure
 //                - Structure
 //                - Map
 //                - ValueList - contact information.
-//  Presentation - String - presentation. Used if it is impossible to determine a presentation based on a parameter.
-//                            FieldValues (the Presentation field is not available).
+//  Presentation - String - A presentation.
+//                            Used in cases when the "FieldValues" parameter is missing the "Presentation" field.
 //  ExpectedKind  - CatalogRef.ContactInformationKinds
 //                - EnumRef.ContactInformationTypes
 //                - Structure -
-//                      
+//                      Intended for identifying contact information type in cases where it cannot be done using the "FieldsValues" field.
 //
 Procedure GoToWebLink(Val FieldValues, Val Presentation = "", ExpectedKind = Undefined) Export
 	
@@ -685,7 +744,7 @@ Procedure AutoComplete(Val Text, ChoiceData, StandardProcessing = False) Export
 	
 EndProcedure
 
-// Deprecated. Obsolete. Use OnChange instead.
+// Deprecated. Instead, use OnChange.
 //
 // Parameters:
 //     Form             - ClientApplicationForm - a form of a contact information owner.
@@ -696,7 +755,7 @@ Procedure PresentationOnChange(Form, Item, IsTabularSection = False) Export
 	OnChange(Form, Item, IsTabularSection);
 EndProcedure
 
-// Deprecated. Obsolete. Use StartChoice instead.
+// Deprecated. Instead, use StartChoice.
 //
 // Parameters:
 //     Form                - ClientApplicationForm - a form of a contact information owner.
@@ -712,7 +771,7 @@ Function PresentationStartChoice(Form, Item, Modified = True, StandardProcessing
 	Return Undefined;
 EndFunction
 
-// Deprecated. Obsolete. Use Clearing instead.
+// Deprecated. Instead, use Clearing.
 //
 // Parameters:
 //     Form        - ClientApplicationForm - a form of a contact information owner.
@@ -726,7 +785,7 @@ Function ClearingPresentation(Form, AttributeName) Export
 	Return Undefined;
 EndFunction
 
-// Deprecated. Obsolete. Use ExecuteCommand instead.
+// Deprecated. Instead, use ExecuteCommand.
 //
 // Parameters:
 //     Form      - ClientApplicationForm - a form of a contact information owner.
@@ -803,7 +862,7 @@ Procedure AfterClosingHistoryForm(Result, AdditionalParameters) Export
 	EndIf;
 EndProcedure
 
-// 
+// A handler of closing a list form of the "ContactInformationKinds" catalog with the applied contact information owner filter.
 // 
 // Parameters:
 //   Result - Structure
@@ -995,7 +1054,7 @@ Procedure AfterStartApplication(ApplicationStarted, Parameters) Export
 	
 	If Not ApplicationStarted Then 
 		StringWithWarning = New FormattedString(
-			NStr("en = 'To make a call, install a telecommunication application. For example,';"),
+			NStr("en = 'To make a call, install a telecom app. For example,';"),
 			 " ", New FormattedString("Skype",,,, "http://www.skype.com"), ".");
 		ShowMessageBox(Undefined, StringWithWarning);
 	EndIf;
@@ -1203,7 +1262,7 @@ Procedure OnExecuteCommand(Val Form, Val CommandName, AsynchronousCall)
 		EndIf;
 	
 		ConsumerRow = FoundRows[0];
-		Comment = ConsumerRow.Comment; 
+		Comment = ConsumerRow.Comment; // Save the old comment.
 		If ConsumerRow.Property("InternationalAddressFormat") And ConsumerRow.InternationalAddressFormat Then
 
 			FillPropertyValues(ConsumerRow, FoundRow, "Comment");
@@ -1211,7 +1270,7 @@ Procedure OnExecuteCommand(Val Form, Val CommandName, AsynchronousCall)
 			ConsumerRow.Presentation        = AddressPresentation;
 			Form[ConsumerRow.AttributeName]  = AddressPresentation;
 			ConsumerRow.Value = ContactsManagerInternalServerCall.ContactsByPresentation(
-				AddressPresentation, ContactInformationType);
+				AddressPresentation, ContactInformationType, Comment);
 
 		Else
 
@@ -1414,7 +1473,7 @@ Procedure OnContactInformationChange(Form, Item, IsTabularSection, UpdateForm, A
 		RowData.ValidFrom = BegOfDay(CommonClient.SessionDate());
 	EndIf;
 	
-	RowData.Value = ContactsManagerInternalServerCall.ContactsByPresentation(Text, RowData.Kind);
+	RowData.Value = ContactsManagerInternalServerCall.ContactsByPresentation(Text, RowData.Kind, RowData.Comment);
 	RowData.Presentation = Text;
 	
 	If IsTabularSection Then
@@ -1517,8 +1576,8 @@ EndFunction
 //                          If the parameter is not specified, all protocols are checked. 
 // 
 // Returns:
-//  String - a name of an available URI protocol is registered in the registry. Blank string - if a protocol is unavailable.
-//    Undefined if check is impossible.
+//  String - The name of the available URI protocol is saved to the register. If empty, the protocol is unavailable.
+//    If "Undefined", the check cannot be run.
 //
 Function TelephonyApplicationInstalled(ProtocolName = Undefined)
 	
@@ -1539,8 +1598,8 @@ Function TelephonyApplicationInstalled(ProtocolName = Undefined)
 		EndIf;
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	Return ProtocolName;
 EndFunction
 
@@ -1646,10 +1705,10 @@ Function PresentationStartChoiceCompletionAdditionalParameters()
 EndFunction 
 
 ////////////////////////////////////////////////////////////////////////////////
-
-
-
-
+// 
+// 
+// 
+// 
 
 Function StringDecoding(String)
 	Result = "";
@@ -1763,7 +1822,7 @@ EndFunction
 
 Procedure UpdateConextMenu(Form, ItemForPlacementName)
 	
-	ContactInformationParameters = Form.ContactInformationParameters[ItemForPlacementName]; 
+	ContactInformationParameters = Form.ContactInformationParameters[ItemForPlacementName]; // FormDataCollection
 	AllRows = ContactsManagerClientServer.DescriptionOfTheContactInformationOnTheForm(Form);
 	FoundRows = AllRows.FindRows( 
 		New Structure("Type, IsTabularSectionAttribute", PredefinedValue("Enum.ContactInformationTypes.Address"), False));
@@ -1818,7 +1877,7 @@ Procedure UpdateConextMenu(Form, ItemForPlacementName)
 				AddressData = New Structure("Presentation, Address", AddressPresentation, Address.Value);
 				If CIRow.InternationalAddressFormat Then
 					AddressData.Address = ContactsManagerInternalServerCall.ContactsByPresentation(
-						AddressPresentation, Address.Type);
+						AddressPresentation, Address.Type, Address.Comment);
 				EndIf;
 				AddressesListInSubmenu.Insert(Upper(Address.Presentation), AddressData);
 			EndIf;
@@ -1859,18 +1918,18 @@ Procedure AddButtonCopyAddress(Form, CommandName, ItemTitle, ContactInformationP
 
 EndProcedure
 
-// 
+// "ContactInformation" parameter constructor required for running contact information commands
 // 
 // Parameters:
 //   Presentation - String - a contact information presentation.
-//   Value      - String - 
+//   Value      - String - A contact information field value in JSON or XML format.
 //   Type           - EnumRef.ContactInformationTypes
 //   Kind           - CatalogRef.ContactInformationKinds
 //
 // Returns:
 //   Structure:
 //     * Presentation - String - a contact information presentation.
-//     * Value      - String - 
+//     * Value      - String - A contact information field value in JSON or XML format.
 //     * Type           - EnumRef.ContactInformationTypes
 //     * Kind           - CatalogRef.ContactInformationKinds
 //
@@ -1886,7 +1945,7 @@ Function ParameterContactInfoForCommandExecution(Presentation, Value, Type, Kind
 	
 EndFunction
 
-// 
+// Additional parameters constructor required for running contact information commands
 // 
 // Parameters:
 //   ContactInformationOwner - DefinedType.ContactInformationOwner
@@ -1897,15 +1956,15 @@ EndFunction
 //   Structure:
 //   * ContactInformationOwner - DefinedType.ContactInformationOwner
 //   * Form - ClientApplicationForm
-//   * AttributeName     - String - 
-//   * AsynchronousCall - Boolean - 
+//   * AttributeName     - String - For internal use only.
+//   * AsynchronousCall - Boolean - For internal use only.
 //
 Function CommandRuntimeAdditionalParameters(ContactInformationOwner, Form, AttributeName = "", AsynchronousCall = False)
 	
 	AdditionalParameters = New Structure;
 	AdditionalParameters.Insert("ContactInformationOwner", ContactInformationOwner);
 	AdditionalParameters.Insert("Form", Form);
-	
+	// For internal use.
 	AdditionalParameters.Insert("AttributeName", AttributeName);
 	AdditionalParameters.Insert("AsynchronousCall", AsynchronousCall);
 
@@ -1914,8 +1973,8 @@ Function CommandRuntimeAdditionalParameters(ContactInformationOwner, Form, Attri
 EndFunction
 
 // Parameters:
-//   HandlerName - String - 
-//                             
+//   HandlerName - String - The full path to the function to be executed.
+//                             For example, "_DemoStandardSubsystemsClient.OpenMeetingDocForm".
 //   Parameters - Structure:
 //     * ContactInformation    - See ParameterContactInfoForCommandExecution
 //     * AdditionalParameters - See CommandRuntimeAdditionalParameters
@@ -1941,9 +2000,9 @@ Procedure BeforePhoneCall(ContactInformation, AdditionalParameters) Export
 	If IsBlankString(ContactInformation.Presentation) Then
 		CommonClient.MessageToUser(
 			NStr("en = 'To start a call, enter a phone number.';"), , AdditionalParameters.AttributeName);
-	Else
-		Telephone(ContactInformation.Presentation);
+		Return;
 	EndIf;
+	Telephone(ContactInformation.Presentation);
 	
 EndProcedure
 
@@ -1952,10 +2011,13 @@ Procedure BeforeCreateSMS(ContactInformation, AdditionalParameters) Export
 	If IsBlankString(ContactInformation.Presentation) Then
 		CommonClient.MessageToUser(
 			NStr("en = 'To send a text message, enter a phone number.';"), , AdditionalParameters.AttributeName);
-	Else
-		CreateSMSMessage("", ContactInformation.Presentation, ContactInformation.Type,
-			AdditionalParameters.ContactInformationOwner);
+		Return;
 	EndIf;
+	SMSParameters = SMSAndEmailParameters();
+	SMSParameters.Presentation = ContactInformation.Presentation;
+	SMSParameters.ExpectedKind = ContactInformation.Type;
+	SMSParameters.ContactInformationSource = AdditionalParameters.ContactInformationOwner;
+	CreateSMSMessage("", SMSParameters);
 
 EndProcedure
 
@@ -1979,8 +2041,12 @@ EndProcedure
 
 Procedure BeforeCreateEmailMessage(ContactInformation, AdditionalParameters) Export
 
-	CreateEmailMessage("", ContactInformation.Presentation, ContactInformation.Type,
-		AdditionalParameters.ContactInformationOwner, AdditionalParameters.AttributeName);
+	EmailParameters = SMSAndEmailParameters();
+	EmailParameters.Presentation = ContactInformation.Presentation;
+	EmailParameters.ExpectedKind = ContactInformation.Type;
+	EmailParameters.ContactInformationSource = AdditionalParameters.ContactInformationOwner;
+	EmailParameters.AttributeName = AdditionalParameters.AttributeName;
+	CreateEmailMessage("", EmailParameters);
 
 EndProcedure
 
@@ -2074,7 +2140,7 @@ Procedure BeforeRunCommandFromAddressExtendedTooltip(Form, Item, AttributeName, 
 
 EndProcedure
 
-//  
+// Deletes the prefix from a string. 
 //
 // Parameters:
 //  InitialString - String
@@ -2096,7 +2162,7 @@ Function DeleteStringPrefix(InitialString, Prefix)
 
 EndFunction
 
-//  
+// Deletes the postfix from a string. 
 //
 // Parameters:
 //  InitialString - String

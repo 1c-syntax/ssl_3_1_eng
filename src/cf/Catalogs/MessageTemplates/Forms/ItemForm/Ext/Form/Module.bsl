@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -168,8 +169,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	If CurrentObject.ForSMSMessages Then
 		CurrentObject.SMSTemplateText = CheckInformation.NormalText;
 		CurrentObject.AttachmentFormat = Undefined;
-	Else
-		
+	ElsIf CurrentObject.ForEmails Then
 		CurrentObject.HTMLEmailTemplateText = CheckInformation.HTMLText;
 		CurrentObject.MessageTemplateText     = CheckInformation.NormalText;
 		CurrentObject.EmailSubject             = CheckInformation.EmailSubject;
@@ -185,7 +185,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 		AttachmentsNamesToIDsMapsTable = New ValueList;
 		AttachmentsStructure = New Structure;
 		
-		HTMLTemplateText = ""; 
+		HTMLTemplateText = ""; // Extract the attachments
 		EmailBodyInHTML.GetHTML(HTMLTemplateText, AttachmentsStructure);
 		For Each Attachment In AttachmentsStructure Do
 			AttachmentsNamesToIDsMapsTable.Add(Attachment.Key, New UUID,, Attachment.Value);
@@ -209,6 +209,9 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 				NewRow.Name = Attachment.ParameterName;
 			EndIf;
 		EndDo;
+	Else
+		CurrentObject.TemplateTextArbitrary = CheckInformation.NormalText;
+		CurrentObject.AttachmentFormat = Undefined;
 	EndIf;
 	
 	CurrentObject.Parameters.Clear();
@@ -236,11 +239,7 @@ Function ProcessTemplateText()
 	TextToCheck = "";
 	TransformationOption = "PresentationInParameters";
 	
-	If Object.ForSMSMessages Then
-		Result.NormalText = 
-			MessageTemplatesInternal.ConvertTemplateText(Result.NormalText, TemplateParametersTree, TransformationOption);
-		TextToCheck = Result.NormalText;
-	Else
+	If Object.ForEmails Then
 		If Result.EmailTextType = Enums.EmailEditingMethods.HTML Then
 			
 			HTMLAttachments1 = New Structure();
@@ -265,11 +264,14 @@ Function ProcessTemplateText()
 		
 		Result.EmailSubject = MessageTemplatesInternal.ConvertTemplateText(Result.EmailSubject, TemplateParametersTree, TransformationOption);
 		TextToCheck = TextToCheck + Result.EmailSubject;
-		
+	Else
+		Result.NormalText = 
+			MessageTemplatesInternal.ConvertTemplateText(Result.NormalText, TemplateParametersTree, TransformationOption);
+		TextToCheck = Result.NormalText;
 	EndIf;
 	
 	If Object.TemplateByExternalDataProcessor Then
-		Return Result; 
+		Return Result; // 
 	EndIf;
 	
 	// Check.
@@ -305,7 +307,7 @@ EndFunction
 &AtServer
 Procedure OnWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	
-	If CurrentObject.ForSMSMessages Then
+	If Not CurrentObject.ForEmails Then
 		Return;
 	EndIf;
 	// Adding to the list of deleted attachments previously saved pictures displayed in the body of a formatted document.
@@ -436,7 +438,13 @@ EndProcedure
 
 &AtClient
 Procedure MessageBodyPlainTextOnChange(Item)
-	Object.MessageTemplateText = MessageBodyPlainText.GetText();
+	
+	If Object.ForEmails Then
+		Object.MessageTemplateText = MessageBodyPlainText.GetText();
+	Else
+		Object.TemplateTextArbitrary = MessageBodyPlainText.GetText();
+	EndIf;
+	
 EndProcedure
 
 &AtClient
@@ -659,7 +667,6 @@ Procedure CheckTemplateFilling(Command)
 	
 EndProcedure
 
-
 &AtClient
 Procedure ByExternalDataProcessor(Command)
 	
@@ -863,7 +870,7 @@ EndFunction
 &AtClient
 Procedure SetFormatSelection(Val SaveFormats = Undefined)
 	
-	If Object.ForSMSMessages Then
+	If Not Object.ForEmails Then
 		Return;
 	EndIf;
 	
@@ -980,10 +987,12 @@ Procedure InitializeNewMessagesTemplate(Val MessageTemplatesSettings)
 		
 		If Parameters.ChoiceParameters.Property("ForEmails") 
 			And Parameters.ChoiceParameters.ForEmails Then
-			MessageKind = "MailMessage"
+			MessageKind = "MailMessage";
 		ElsIf Parameters.ChoiceParameters.Property("ForSMSMessages")
 			And Parameters.ChoiceParameters.ForSMSMessages Then
-			MessageKind = "SMSMessage"
+			MessageKind = "SMSMessage";
+		Else
+			MessageKind = "Arbitrary";
 		EndIf;
 		
 	ElsIf Parameters.Basis = Undefined Then
@@ -998,7 +1007,7 @@ Procedure InitializeNewMessagesTemplate(Val MessageTemplatesSettings)
 		If MessageKind = "SMSMessage" Then
 			Object.ForSMSMessages = True;
 			Object.ForEmails = False;
-		Else
+		ElsIf MessageKind = "MailMessage" Then
 			Object.ForSMSMessages = False;
 			Object.ForEmails = True;
 			Object.EmailTextType = Enums.EmailEditingMethods.HTML;
@@ -1113,7 +1122,7 @@ Procedure SetTemplateText(CurrentObject, ListOfFiles = Undefined)
 		MessageBodyPlainText.SetText(
 			MessageTemplatesInternal.ConvertTemplateText(CurrentObject.SMSTemplateText, ListOfAllParameters, "ParametersInPresentation"));
 		
-	Else
+	ElsIf CurrentObject.ForEmails Then
 		If CurrentObject.EmailTextType = Enums.EmailEditingMethods.HTML Then
 			SetHTMLForFormattedDocument(
 				MessageTemplatesInternal.ConvertTemplateText(CurrentObject.HTMLEmailTemplateText, ListOfAllParameters, "ParametersInPresentation"), CurrentObject.Ref, ListOfFiles);
@@ -1124,10 +1133,12 @@ Procedure SetTemplateText(CurrentObject, ListOfFiles = Undefined)
 		
 		Object.EmailSubject = MessageTemplatesInternal.ConvertTemplateText(CurrentObject.EmailSubject, ListOfAllParameters, "ParametersInPresentation");
 		
+	Else
+		MessageBodyPlainText.SetText(
+			MessageTemplatesInternal.ConvertTemplateText(CurrentObject.TemplateTextArbitrary, ListOfAllParameters, "ParametersInPresentation"));
 	EndIf;
 	
 EndProcedure
-
 
 &AtServer
 Procedure ShowFormItems(EmailFormat = "")
@@ -1144,7 +1155,7 @@ Procedure ShowFormItems(EmailFormat = "")
 		Items.AttributesContextMenuAddParameterToSMSMessageText.Visible = True;
 		Items.AttributesMenuAddParameterToSMSMessageText.Visible = True;
 		Items.HiddenTilteSMSMessage.Visible = True;
-	Else
+	ElsIf Object.ForEmails Then
 		TitleSuffix = NStr("en = 'Email message template';");
 		Items.AttachmentsGroup.Visible = True;
 		Items.AttributesContextMenuAddMailParameter.Visible = True;
@@ -1160,6 +1171,17 @@ Procedure ShowFormItems(EmailFormat = "")
 			EndIf;
 		EndIf;
 		
+	Else
+		TitleSuffix = NStr("en = 'Message template';");
+		Items.FormEmailTextKind.Visible = False;
+		Items.Pages.CurrentPage = Items.MessageEmail;
+		Items.EmailSubject.Visible = False;
+		Items.HiddenTitleParameters.Visible = False;
+		Items.AttachmentsGroup.Visible = False;
+		Items.AttributesContextMenuAddMailParameter.Visible = True;
+		Items.AttributesMenuAddMailParameter.Visible = True;
+		Items.AttributesContextMenuAddParameterToSMSMessageText.Visible = False;
+		Items.AttributesMenuAddParameterToSMSMessageText.Visible = False;
 	EndIf;
 	
 	If ValueIsFilled(Object.Ref) Then
@@ -1269,7 +1291,7 @@ Procedure SetHTMLForFormattedDocument(HTMLEmailTemplateText, CurrentObjectRef, L
 	
 EndProcedure
 
-
+// 
 
 &AtServer
 Procedure GenerateAttributesAndPrintFormsList()
@@ -1430,7 +1452,7 @@ Procedure FIllAttributeTree(Receiver, Source, AreCommonOrArbitraryAttributes = U
 	
 EndProcedure
 
-
+// 
 
 &AtServer
 Procedure SetHTMLEmail(TextWrappingRequired = False)
@@ -1739,7 +1761,7 @@ EndProcedure
 // Saves formatted document pictures as attached object files.
 //
 // Parameters:
-//  Ref  - DocumentRef - ссылка на владельца присоединенных файлов.
+//  Ref  - DocumentRef - Reference to the file owner.
 //  EmailTextType  - EnumRef.EmailEditingMethods - to define whether
 //                                                                                transformations are necessary.
 //  AttachmentsNamesToIDsMapsTable  - ValueTable - it allows to determine, which picture
@@ -1891,7 +1913,7 @@ Procedure FillArbitraryParametersFromObject(Val CurrentObject)
 
 EndProcedure
 
-
+// 
 
 &AtServer
 Procedure FillTemplateByExternalDataProcessor()
@@ -1937,7 +1959,7 @@ Procedure FillTemplateByExternalDataProcessor()
 			Object.ForSMSMessages              = True;
 			Object.ForEmails = False;
 			
-		Else
+		ElsIf ExternalDataProcessorDataStructure.ForEmails Then
 			
 			Object.EmailSubject = ExternalDataProcessorDataStructure.EmailSubject;
 			Object.HTMLEmailTemplateText = ExternalDataProcessorDataStructure.HTMLEmailTemplateText;
@@ -1953,7 +1975,9 @@ Procedure FillTemplateByExternalDataProcessor()
 			
 			Object.ForEmails = True;
 			Object.ForSMSMessages              = False;
-			
+		
+		Else
+			MessageBodyPlainText.SetText(ExternalDataProcessorDataStructure.TemplateTextArbitrary);
 		EndIf
 		
 	EndIf

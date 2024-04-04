@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -95,7 +96,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not ValueIsFilled(Object.Ref) Then
 		// Creating an item.
-		If Parameters.NewUserGroup <> Catalogs.UserGroups.AllUsers Then
+		If Parameters.NewUserGroup <> Users.AllUsersGroup() Then
 			NewUserGroup = Parameters.NewUserGroup;
 		EndIf;
 		
@@ -178,6 +179,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndIf;
 		
 		OverrideContactInformationEditingSaaS();
+	Else
+		Items.GroupContactInformationFieldUserEmail.Visible = False;
+		Items.GroupContactInformationFieldUserPhone.Visible = False;
 	EndIf;
 	
 	CustomizeForm(Object, True);
@@ -252,6 +256,12 @@ Procedure OnOpen(Cancel)
 		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
 	EndIf;
 	// End StandardSubsystems.AttachableCommands
+	
+	If ServiceOperationError <> Undefined Then
+		CurrentServiceOperationError = ServiceOperationError;
+		ServiceOperationError = Undefined;
+		StandardSubsystemsClient.OutputErrorInfo(CurrentServiceOperationError);
+	EndIf;
 	
 EndProcedure
 
@@ -391,7 +401,7 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 		Return;
 	EndIf;
 	
-	
+	// Password request should be the last step to ensure the try/except statement works properly.
 	If CommonClient.DataSeparationEnabled()
 		And SynchronizationWithServiceRequired
 		And Not WriteParameters.Property("AfterAuthenticationPasswordRequestInService") Then
@@ -411,6 +421,7 @@ EndProcedure
 Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	
 	CurrentObject.AdditionalProperties.Insert("CopyingValue", CopyingValue);
+	CurrentObject.AdditionalProperties.Insert("IsRecoveryEmailSetOnForm");
 	
 	CurrentObject.AdditionalProperties.Insert("ServiceUserPassword", ServiceUserPassword);
 	CurrentObject.AdditionalProperties.Insert("SynchronizeWithService", SynchronizationWithServiceRequired);
@@ -751,7 +762,7 @@ Procedure CanSignIn1OnChange(Item)
 		CanSignIn = False;
 		ShowMessageBox(,
 			NStr("en = 'To allow signing in to the application, clear the
-			           |deletion mark from the user.';"));
+				|deletion mark from the user.';"));
 		Return;
 	EndIf;
 	
@@ -976,7 +987,7 @@ Procedure PhotoClickCompletion(Result, AdditionalParameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure Attachable_EMailOnChange(Item)
@@ -1156,7 +1167,7 @@ EndProcedure
 #Region FormTableItemsEventHandlersRoles
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure RolesCheckOnChange(Item)
@@ -1228,7 +1239,7 @@ Procedure ClearPhoto(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure ShowSelectedRolesOnly(Command)
@@ -1397,7 +1408,7 @@ Procedure CustomizeForm(CurrentObject, OnCreateAtServer = False, WriteParameters
 	EndIf;
 	
 	If Not OnCreateAtServer Then
-		ReadIBUser();
+		ReadIBUser(, False);
 	EndIf;
 	
 	SetPrivilegedMode(True);
@@ -1420,8 +1431,12 @@ Procedure CustomizeForm(CurrentObject, OnCreateAtServer = False, WriteParameters
 	   And Common.SubsystemExists("StandardSubsystems.SaaSOperations.UsersSaaS") Then
 		
 		ModuleUsersInternalSaaS = Common.CommonModule("UsersInternalSaaS");
-		ActionsWithSaaSUser = ModuleUsersInternalSaaS.GetActionsWithSaaSUser(
-			CurrentObject.Ref);
+		Try
+			ActionsWithSaaSUser = ModuleUsersInternalSaaS.GetActionsWithSaaSUser(
+				CurrentObject.Ref, ActionsWithSaaSUser);
+		Except
+			ServiceOperationError = ErrorInfo();
+		EndTry;
 	EndIf;
 	
 	// Viewability settings.
@@ -1747,8 +1762,8 @@ Procedure DefineActionsOnForm()
 		EndIf;
 		
 		If AccessLevel.ListManagement Then
-			
-			
+			// 
+			// 
 			//  
 			ActionsOnForm.IBUserProperies = "Edit";
 			ActionsOnForm.ContactInformation   = "Edit";
@@ -2017,7 +2032,7 @@ Procedure CloseForm()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
 Procedure UpdateContactInformation(Result)
@@ -2087,7 +2102,7 @@ Function ContactInformationKindUserEmail()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
 Procedure PropertiesExecuteDeferredInitialization()
@@ -2130,7 +2145,7 @@ Procedure UpdateAdditionalAttributesItems()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
 Function InitialIBUserDetails()
@@ -2159,7 +2174,7 @@ Function InitialIBUserDetails()
 EndFunction
 
 &AtServer
-Procedure ReadIBUser(OnCopyItem = False)
+Procedure ReadIBUser(OnCopyItem = False, OnCreateAtServer = True)
 	
 	SetPrivilegedMode(True);
 	
@@ -2170,7 +2185,7 @@ Procedure ReadIBUser(OnCopyItem = False)
 	CanSignIn   = False;
 	CanSignInDirectChangeValue = False;
 	
-	If OnCopyItem Then
+	If OnCreateAtServer And OnCopyItem Then
 		
 		ReadProperties = Users.IBUserProperies(Parameters.CopyingValue.IBUserID);
 		If ReadProperties <> Undefined Then
@@ -2202,8 +2217,7 @@ Procedure ReadIBUser(OnCopyItem = False)
 			IBUserExists = True;
 			IBUserMain = True;
 		
-		ElsIf Parameters.Property("IBUserID")
-		        And ValueIsFilled(Parameters.IBUserID) Then
+		ElsIf OnCreateAtServer And ValueIsFilled(Parameters.IBUserID) Then
 			
 			If Object.IBUserID <> Parameters.IBUserID Then
 				Object.IBUserID = Parameters.IBUserID;
@@ -2290,8 +2304,8 @@ EndProcedure
 &AtServer
 Procedure FindUserAndIBUserDifferences(WriteParameters = Undefined)
 	
-	
-	
+	// 
+	// 
 	
 	ShowDifference = True;
 	ShowDifferenceResolvingCommands = False;
@@ -2322,7 +2336,7 @@ Procedure FindUserAndIBUserDifferences(WriteParameters = Undefined)
 				    ShowDifferenceResolvingCommands
 				Or ActionsOnForm.ItemProperties = "Edit";
 			
-			PropertiesToResolve.Insert(0, NStr("en = 'Sign-in allowed';"));
+			PropertiesToResolve.Insert(0, NStr("en = 'Login allowed';"));
 		EndIf;
 		
 		// Validate the email.
@@ -2495,7 +2509,7 @@ Procedure FillInTheMailFieldForPasswordRecoveryFromTheInformationSecuritySystem(
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClientAtServerNoContext
 Procedure SetPropertiesAvailability(Form)
@@ -2505,7 +2519,7 @@ Procedure SetPropertiesAvailability(Form)
 	AccessLevel = Form.AccessLevel;
 	ActionsWithSaaSUser = Form.ActionsWithSaaSUser;
 	
-	
+	// Note to the "Sign-in blocked" state.
 	If Form.CanSignIn Then
 		Items.GroupNoRights.Visible         = Form.WhetherRightsAreAssigned.HasNoRights;
 		Items.GroupNoStartupRights.Visible = Not Form.WhetherRightsAreAssigned.HasNoRights
@@ -2684,7 +2698,7 @@ EndProcedure
 // End StandardSubsystems.AttachableCommands
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
 Procedure ProcessRolesInterface(Action, MainParameter = Undefined)

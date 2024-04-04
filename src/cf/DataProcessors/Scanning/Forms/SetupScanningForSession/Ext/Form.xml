@@ -18,6 +18,12 @@
 				<DefaultButton>true</DefaultButton>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.OK</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>OK</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="OKExtendedTooltip" id="48"/>
 			</Button>
 			<Button name="Cancel" id="8">
@@ -43,7 +49,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Dialog box group</v8:content>
+					<v8:content>Dialog box</v8:content>
 				</v8:item>
 			</Title>
 			<Representation>None</Representation>
@@ -52,6 +58,12 @@
 			<ChildItems>
 				<InputField name="ShowScannerDialog" id="92">
 					<DataPath>ShowScannerDialog</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Configure settings</v8:content>
+						</v8:item>
+					</Title>
 					<ToolTipRepresentation>Button</ToolTipRepresentation>
 					<AutoMaxWidth>false</AutoMaxWidth>
 					<MaxWidth>37</MaxWidth>
@@ -127,6 +139,12 @@
 					<ChildItems>
 						<InputField name="Resolution" id="14">
 							<DataPath>Resolution</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Resolution</v8:content>
+								</v8:item>
+							</Title>
 							<ToolTipRepresentation>Button</ToolTipRepresentation>
 							<Width>13</Width>
 							<HorizontalStretch>false</HorizontalStretch>
@@ -146,6 +164,12 @@
 						</InputField>
 						<InputField name="Chromaticity" id="16">
 							<DataPath>Chromaticity</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Color scale</v8:content>
+								</v8:item>
+							</Title>
 							<Width>13</Width>
 							<HorizontalStretch>false</HorizontalStretch>
 							<ContextMenu name="ChromaticityContextMenu" id="17"/>
@@ -166,6 +190,12 @@
 						</InputField>
 						<InputField name="PaperSize" id="22">
 							<DataPath>PaperSize</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Paper size</v8:content>
+								</v8:item>
+							</Title>
 							<Width>13</Width>
 							<HorizontalStretch>false</HorizontalStretch>
 							<ContextMenu name="PaperSizeContextMenu" id="23"/>
@@ -173,6 +203,12 @@
 						</InputField>
 						<CheckBoxField name="DuplexScanning" id="28">
 							<DataPath>DuplexScanning</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Scan both sides</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<CheckBoxType>Auto</CheckBoxType>
 							<ContextMenu name="DuplexScanningContextMenu" id="29"/>
@@ -218,6 +254,12 @@
 									<ChildItems>
 										<InputField name="ScannedImageFormat" id="37">
 											<DataPath>ScannedImageFormat</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Save as</v8:content>
+												</v8:item>
+											</Title>
 											<Width>9</Width>
 											<HorizontalStretch>false</HorizontalStretch>
 											<DropListWidth>9</DropListWidth>
@@ -282,6 +324,12 @@ compression</v8:content>
 										</LabelDecoration>
 										<TrackBarField name="JPGQuality" id="78">
 											<DataPath>JPGQuality</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Quality</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>Top</TitleLocation>
 											<Width>9</Width>
 											<ContextMenu name="JPGQualityContextMenu" id="79"/>
@@ -305,6 +353,12 @@ quality</v8:content>
 								</UsualGroup>
 								<InputField name="TIFFDeflation" id="43">
 									<DataPath>TIFFDeflation</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Compression</v8:content>
+										</v8:item>
+									</Title>
 									<Width>9</Width>
 									<HorizontalStretch>false</HorizontalStretch>
 									<DropListWidth>9</DropListWidth>
@@ -339,6 +393,12 @@ quality</v8:content>
 							<ChildItems>
 								<InputField name="MultipageStorageFormat" id="46">
 									<DataPath>MultipageStorageFormat</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Format</v8:content>
+										</v8:item>
+									</Title>
 									<Width>9</Width>
 									<HorizontalStretch>false</HorizontalStretch>
 									<DropListWidth>9</DropListWidth>

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -42,8 +43,8 @@ Function ExtensionParameter(ParameterName, IgnoreExtensionsVersion = False, IsAl
 	Try
 		Content = Selection.ParameterStorage.Get();
 	Except
-		
-		
+		// 
+		// 
 		ErrorInfo = ErrorInfo();
 		Comment = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'When getting extension version parameter
@@ -433,9 +434,9 @@ Procedure UponSuccessfulStartoftheExecutionoftheScheduledTask() Export
 	
 EndProcedure
 
+// Can be called only from StandardSubsystemsServer.FillExtensionsOperationParameters.
 // 
-// 
-// 
+// Handles the FillExtensionsOperationParameters scheduled job.
 // 
 Procedure FillinAllJobParametersLatestVersionExtensions() Export
 	
@@ -576,9 +577,9 @@ Procedure FillinAllJobParametersLatestVersionExtensions() Export
 	
 EndProcedure
 
-// 
-// 
-// 
+// Intended for procedure "UpdateParametersOfExtensionVersionsTakingIntoAccountExecutionMode"
+// of the manager module of the "ApplicationParameters" information register
+// and procedure "FillAllExtensionParametersBackgroundJob".
 //
 Procedure MarkFillingOptionsExtensionsWork() Export
 	
@@ -614,9 +615,9 @@ Procedure LockForChangeInFileIB() Export
 	If TransactionActive() And Common.FileInfobase() Then
 		Block = New DataLock;
 		Block.Add("InformationRegister.ExtensionVersionParameters");
-		
-		
-		
+		// 
+		// 
+		// 
 		Block.Lock();
 		// ACC:1320-on
 	EndIf;
@@ -635,7 +636,9 @@ EndProcedure
 //   * AttachableCommands - Structure:
 //      ** ConnectableExtensionCommands - See UpdateParameterProperties.
 //   * Users - Structure:
+//      ** UserGroupsHierarchy - See UpdateParameterProperties.
 //      ** UserGroupCompositions - See UpdateParameterProperties.
+//      ** UsersInfo - See UpdateParameterProperties.
 //   * AccessManagement - Structure:
 //      ** SuppliedAccessGroupProfiles     - See UpdateParameterProperties.
 //      ** UnsuppliedAccessGroupProfiles   - See UpdateParameterProperties.
@@ -671,7 +674,9 @@ Function ParametersOfUpdate(ShouldUpdate = False) Export
 	
 	// StandardSubsystems Users
 	ParametersSubsystems = New Structure;
+	ParametersSubsystems.Insert("UserGroupsHierarchy", NewUpdateParameterProperties(ShouldUpdate));
 	ParametersSubsystems.Insert("UserGroupCompositions", NewUpdateParameterProperties(ShouldUpdate));
+	ParametersSubsystems.Insert("UsersInfo", NewUpdateParameterProperties(ShouldUpdate));
 	Parameters.Insert("Users", ParametersSubsystems);
 	
 	// StandardSubsystems AccessManagement
@@ -774,9 +779,17 @@ Procedure LongOperationHandlerPerformUpdateSplitData(Parameters, ResultAddress) 
 	EndIf;
 	
 	// StandardSubsystems Users
+	If Parameters.Users.UserGroupsHierarchy.ShouldUpdate Then
+		InformationRegisters.UserGroupsHierarchy.UpdateRegisterData(
+			Parameters.Users.UserGroupsHierarchy.HasChanges);
+	EndIf;
 	If Parameters.Users.UserGroupCompositions.ShouldUpdate Then
 		InformationRegisters.UserGroupCompositions.UpdateRegisterData(
 			Parameters.Users.UserGroupCompositions.HasChanges);
+	EndIf;
+	If Parameters.Users.UsersInfo.ShouldUpdate Then
+		InformationRegisters.UsersInfo.UpdateRegisterData(,
+			Parameters.Users.UsersInfo.HasChanges);
 	EndIf;
 	
 	// StandardSubsystems AccessManagement
@@ -867,7 +880,7 @@ Procedure LongOperationHandlerPerformUpdateSplitData(Parameters, ResultAddress) 
 		EndIf;
 		
 		Settings = ModuleReportsOptions.SettingsUpdateParameters();
-		Settings.SharedData = True; 
+		Settings.SharedData = True; // 
 		Settings.SeparatedData = True;
 		Settings.Configuration = False;
 		Settings.Extensions = True;
@@ -905,8 +918,8 @@ EndProcedure
 
 #Region Private
 
-// 
-// 
+// Intended for the procedures OnFirstServerCall, OnStartScheduledJobSucceed,
+// and DisableExtensionParametersPopulation.
 //
 Function RequiredEnableFillingExtensionsWorkParameters()
 	
@@ -955,8 +968,8 @@ Function DataAreaIsActivelyUsed()
 	
 EndFunction
 
-// 
-// 
+// Intended for the procedures OnFirstServerCall, OnStartScheduledJobSucceed,
+// of the Extensions common form and StandardSubsystemsServer.AfterImportData.
 //
 // Parameters:
 //  Run - Boolean
@@ -997,7 +1010,7 @@ Procedure EnableFillingExtensionsWorkParameters(Run = True, EnableDefinitely = F
 	
 	If Run Then
 		StartFillingWorkParametersExtensions(
-			NStr("en = 'Start when filling application parameters is enabled';"));
+			NStr("en = 'Startup with app parameter setup enabled';"));
 	EndIf;
 	
 EndProcedure
@@ -1015,8 +1028,8 @@ Procedure FillActiveBackgroundQuest(ActiveBackgroundJob, JobID)
 	
 EndProcedure
 
-// 
-// 
+// Intended for the PopulateAllLastExtensionsVersionsParameters
+// and MarkExtensionsParametersAsPopulated procedures.
 //
 // Parameters:
 //  VersionOnStartup - See Catalogs.ExtensionsVersions.LastExtensionsVersion
@@ -1066,12 +1079,12 @@ Procedure DisableFillingExtensionsWorkParameters(VersionOnStartup, Restart = Fal
 	
 EndProcedure
 
-// 
-// 
-// 
+// Intended for the procedures EnableFillingExtensionsRuntimeParameters
+// PopulateAllLastExtensionsVersionsParameters and
+// StandardSubsystemsServer.AfterImportData.
 // 
 // Parameters:
-//  WaitForCompletion - Boolean - 
+//  WaitForCompletion - Boolean - Ignored in file infobases.
 //
 Procedure StartFillingWorkParametersExtensions(Comment, WaitForCompletion = False) Export
 	
@@ -1080,8 +1093,8 @@ Procedure StartFillingWorkParametersExtensions(Comment, WaitForCompletion = Fals
 	   And Not WaitForCompletion
 	 Or DataBaseConfigurationChangedDynamically()
 	   And Common.FileInfobase() Then
-		
-		
+		// 
+		// 
 		Return;
 	EndIf;
 	

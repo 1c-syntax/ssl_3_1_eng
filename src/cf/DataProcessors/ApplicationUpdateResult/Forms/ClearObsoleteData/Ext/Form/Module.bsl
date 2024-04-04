@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -166,11 +167,11 @@ Procedure Refresh(Command)
 		New NotifyDescription("UpdateOnGettingProgress",
 			ThisObject, LongRunningUpdateOperation);
 	
-	CompletionNotification2 = New NotifyDescription("RefreshCompletion",
+	CallbackOnCompletion = New NotifyDescription("RefreshCompletion",
 		ThisObject, LongRunningUpdateOperation);
 	
 	TimeConsumingOperationsClient.WaitCompletion(LongRunningUpdateOperation,
-		CompletionNotification2, IdleParameters);
+		CallbackOnCompletion, IdleParameters);
 	
 EndProcedure
 
@@ -349,6 +350,10 @@ Function StartUpdateAtServer()
 	
 EndFunction
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.LongRunningOperationNewState
+//  AdditionalParameters - Undefined
+//
 &AtClient
 Procedure UpdateOnGettingProgress(Result, AdditionalParameters) Export
 	
@@ -362,6 +367,10 @@ Procedure UpdateOnGettingProgress(Result, AdditionalParameters) Export
 	
 EndProcedure
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
 Procedure RefreshCompletion(Result, AdditionalParameters) Export
 	
@@ -369,8 +378,17 @@ Procedure RefreshCompletion(Result, AdditionalParameters) Export
 		Return;
 	EndIf;
 	
+	ErrorInfo = Undefined;
 	HasError = False;
 	FinishUpdateAtServer(Result, HasError);
+	
+	If ErrorInfo <> Undefined Then
+		StandardSubsystemsClient.OutputErrorInfo(ErrorInfo);
+	EndIf;
+	
+	If ValueIsFilled(ErrorText) Then
+		ShowMessageBox(, ErrorText);
+	EndIf;
 	
 	If Not ClearAndClose Then
 		UpdateVisibilityAvailability(ThisObject);
@@ -410,20 +428,20 @@ Procedure FinishUpdateAtServer(Val Result, HasError)
 	ErrorText = "";
 	
 	If Result.Status = "Error" Then
-		ErrorText = Result.DetailErrorDescription;
-	ElsIf TypeOf(Data) = Type("String") Then
-		ErrorText = Data;
+		ErrorInfo = Result.ErrorInfo;
+	ElsIf TypeOf(Data) = Type("ErrorInfo") Then
+		ErrorInfo = Data;
 	ElsIf Data = Undefined Then
-		ErrorText = NStr("en = 'The background job did not return a result';");
+		ErrorText = NStr("en = 'Background job returned nothing.
+			|Click ""Refresh"" to try again.';");
 	EndIf;
 	
-	If ValueIsFilled(ErrorText) Then
-		Items.Pages.CurrentPage = Items.ErrorPage;
+	If ErrorInfo <> Undefined Then
 		HasError = True;
 		Return;
 	EndIf;
 	
-	If Result.Status <> "Completed2" Then
+	If ValueIsFilled(ErrorText) Then
 		HasError = True;
 		Return;
 	EndIf;
@@ -460,11 +478,11 @@ Procedure CearAfterConfirmation(Response, Command) Export
 		New NotifyDescription("ClearUpOnGetProgress",
 			ThisObject, LongRunningCleaningOperation);
 	
-	CompletionNotification2 = New NotifyDescription("ClearCompletion",
+	CallbackOnCompletion = New NotifyDescription("ClearCompletion",
 		ThisObject, LongRunningCleaningOperation);
 	
 	TimeConsumingOperationsClient.WaitCompletion(LongRunningCleaningOperation,
-		CompletionNotification2, IdleParameters);
+		CallbackOnCompletion, IdleParameters);
 	
 EndProcedure
 
@@ -511,6 +529,10 @@ Function StartCleanUpAtServer()
 	
 EndFunction
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.LongRunningOperationNewState
+//  AdditionalParameters - Undefined
+//
 &AtClient
 Procedure ClearUpOnGetProgress(Result, AdditionalParameters) Export
 	
@@ -524,6 +546,10 @@ Procedure ClearUpOnGetProgress(Result, AdditionalParameters) Export
 	
 EndProcedure
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
 Procedure ClearCompletion(Result, AdditionalParameters) Export
 	
@@ -531,8 +557,17 @@ Procedure ClearCompletion(Result, AdditionalParameters) Export
 		Return;
 	EndIf;
 	
+	ErrorInfo = Undefined;
 	HasError = False;
 	FinishCleanUpAtServer(Result, HasError);
+	
+	If ErrorInfo <> Undefined Then
+		StandardSubsystemsClient.OutputErrorInfo(ErrorInfo);
+	EndIf;
+	
+	If ValueIsFilled(ErrorText) Then
+		ShowMessageBox(, ErrorText);
+	EndIf;
 	
 	If HasError Then
 		Return;
@@ -564,14 +599,21 @@ Procedure FinishCleanUpAtServer(Val Result, HasError)
 		Return;
 	EndIf;
 	
+	If TypeOf(Results) = Type("ErrorInfo") Then
+		ErrorInfo = Results;
+		HasError = True;
+		Return;
+	EndIf;
+	
+	ErrorText = "";
+	
 	If Result.Status = "Error" Then
-		ErrorText = Result.DetailErrorDescription;
+		ErrorInfo = Result.ErrorInfo;
 	Else
 		ErrorText = InfobaseUpdateInternal.ObsoleteDataPurgeJobErrorText(Results);
 	EndIf;
 	
-	If ValueIsFilled(ErrorText) Then
-		Items.Pages.CurrentPage = Items.ErrorPage;
+	If ErrorInfo <> Undefined Or ValueIsFilled(ErrorText) Then
 		HasError = True;
 		Return;
 	EndIf;

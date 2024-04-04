@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -106,7 +107,7 @@ EndProcedure
 // Parameters:
 //  DataElement - InformationRegisterRecordSet.UsedAccessKinds
 //
-Procedure RegisterAChangeWhenUploading(DataElement) Export
+Procedure RegisterChangeUponDataImport(DataElement) Export
 	
 	PreviousValues1 = CreateRecordSet();
 	If DataElement.Filter.AccessValuesType.Use Then
@@ -138,26 +139,28 @@ Procedure RegisterAChangeWhenUploading(DataElement) Export
 		Return;
 	EndIf;
 	
-	Catalogs.AccessGroups.RegisterRefs("UsedAccessKinds", Changes);
+	SetPrivilegedMode(True);
+	
+	UsersInternal.RegisterRefs("UsedAccessKinds", Changes);
 	
 EndProcedure
 
 // For internal use only.
-Procedure ProcessTheChangeRegisteredDuringTheUpload() Export
+Procedure ProcessChangeRegisteredUponDataImport() Export
 	
 	If Common.DataSeparationEnabled() Then
-		// SWP right settings are locked for editing. Cannot import them into the data area.
+		// 
 		Return;
 	EndIf;
 	
-	Changes = Catalogs.AccessGroups.RegisteredRefs("UsedAccessKinds");
+	Changes = UsersInternal.RegisteredRefs("UsedAccessKinds");
 	If Changes.Count() = 0 Then
 		Return;
 	EndIf;
 	
 	WhenChangingTheUseOfAccessTypes(True);
 	
-	Catalogs.AccessGroups.RegisterRefs("UsedAccessKinds", Null);
+	UsersInternal.RegisterRefs("UsedAccessKinds", Null);
 	
 EndProcedure
 

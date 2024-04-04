@@ -68,6 +68,12 @@
 					<ChildItems>
 						<LabelField name="SignedObject" id="9">
 							<DataPath>SignedObject</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Signed object</v8:content>
+								</v8:item>
+							</Title>
 							<AutoMaxWidth>false</AutoMaxWidth>
 							<ContextMenu name="SignedObjectContextMenu" id="10"/>
 							<ExtendedTooltip name="SignedObjectExtendedTooltip" id="11"/>
@@ -91,6 +97,12 @@
 					<ChildItems>
 						<RadioButtonField name="SignatureType" id="6">
 							<DataPath>SignatureType</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Enhance to</v8:content>
+								</v8:item>
+							</Title>
 							<RadioButtonType>Auto</RadioButtonType>
 							<ColumnsCount>1</ColumnsCount>
 							<ContextMenu name="SignatureTypeContextMenu" id="7"/>
@@ -110,6 +122,12 @@
 						</LabelDecoration>
 						<CheckBoxField name="AddArchiveTimestamp" id="22">
 							<DataPath>AddArchiveTimestamp</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Add archive timestamps to archival signatures</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<TitleHeight>1</TitleHeight>
 							<CheckBoxType>Auto</CheckBoxType>
@@ -149,6 +167,12 @@
 					<AutoMaxWidth>false</AutoMaxWidth>
 					<GroupHorizontalAlign>Right</GroupHorizontalAlign>
 					<CommandName>Form.Command.ExecuteActions</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Apply</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="ExecuteActionsExtendedTooltip" id="13"/>
 				</Button>
 				<Button name="Cancel" id="18">
@@ -229,6 +253,12 @@
 				<InputField name="ErrorsSignedObject" id="53">
 					<DataPath>Errors.SignedObject</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Signed object</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ContextMenu name="ErrorsSignedObjectContextMenu" id="54"/>
 					<ExtendedTooltip name="ErrorsSignedObjectExtendedTooltip" id="55"/>
@@ -249,6 +279,12 @@
 				<InputField name="ErrorsError" id="56">
 					<DataPath>Errors.Error</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Error</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<MultiLine>true</MultiLine>
 					<OpenButton>true</OpenButton>
@@ -381,13 +417,13 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Execute</v8:content>
+					<v8:content>Apply</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Execute actions</v8:content>
+					<v8:content>Apply</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>ExecuteActions</Action>

@@ -1,13 +1,49 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
+
+#Region Internal
+
+// Update register data upon changes in properties of an infobase user associated with
+// a member of either the "Users" or "ExternalUsers" catalog.
+//
+// Parameters:
+//  User - CatalogRef.Users
+//               - CatalogRef.ExternalUsers
+//               - Undefined - For all users.
+//
+//  HasChanges - Boolean - (return value) - if recorded,
+//                  True is set, otherwise, it does not change.
+//
+Procedure UpdateRegisterData(User = Undefined, HasChanges = Undefined) Export
+	
+	If User = Undefined Then
+		DeleteInfoRecordsOnDeletedUsers(User, HasChanges);
+	EndIf;
+	
+	Query = PropertiesQuery(User);
+	Selection = Query.Execute().Select();
+	
+	While Selection.Next() Do
+		Properties = UserNewProperties(Selection.Ref, Selection);
+		If Properties = Undefined Then
+			Continue;
+		EndIf;
+		// @skip-check query-in-loop - Batch-wise data processing within a transaction
+		UpdateUserInfoRecords(Selection.Ref, Undefined,,, HasChanges);
+	EndDo;
+	
+EndProcedure
+
+#EndRegion
 
 #Region Private
 
@@ -130,7 +166,7 @@ EndFunction
 
 // Parameters:
 //  UserObject - CatalogObject.Users
-//                     - CatalogObject.ExternalUsers - 
+//                     - CatalogObject.ExternalUsers - Or the "FormDataStructure" of these objects.
 //
 Function AreSavedInfobaseUserPropertiesMismatch(UserObject) Export
 	
@@ -173,37 +209,6 @@ Procedure ProcessAnswerOnDisconnectingOpenIDConnect(Disconnect) Export
 	
 EndProcedure
 
-// 
-// 
-//
-// Parameters:
-//  User - CatalogRef.Users
-//               - CatalogRef.ExternalUsers
-//               - Undefined - 
-//
-//  HasChanges - Boolean - (return value) - if recorded,
-//                  True is set, otherwise, it does not change.
-//
-Procedure UpdateRegisterData(User = Undefined, HasChanges = Undefined) Export
-	
-	If User = Undefined Then
-		DeleteInfoRecordsOnDeletedUsers(User, HasChanges);
-	EndIf;
-	
-	Query = PropertiesQuery(User);
-	Selection = Query.Execute().Select();
-	
-	While Selection.Next() Do
-		Properties = UserNewProperties(Selection.Ref, Selection);
-		If Properties = Undefined Then
-			Continue;
-		EndIf;
-		
-		UpdateUserInfoRecords(Selection.Ref,,, HasChanges);
-	EndDo;
-	
-EndProcedure
-
 // Parameters:
 //  User - CatalogRef.Users
 //               - CatalogRef.ExternalUsers
@@ -219,16 +224,19 @@ EndProcedure
 //  IBUser - InfoBaseUser
 //                 - Undefined
 //
-Function UserNewProperties(User, Selection,
-			UserObject = Undefined, IBUser = Undefined) Export
+//  CurrentProperties - Undefined
+//                  - Structure - Return value
+//
+Function UserNewProperties(User, Selection, UserObject = Undefined,
+			IBUser = Undefined, CurrentProperties = Undefined) Export
 	
-	CurrentProperties = New Structure;
+	CurrentProperties = ?(CurrentProperties = Undefined, New Structure, CurrentProperties);
 	CurrentProperties.Insert("DeletionMark", False);
+	CurrentProperties.Insert("Invalid", False);
 	CurrentProperties.Insert("IBUserID",
 		CommonClientServer.BlankUUID());
 	
-	IsExternalUser = TypeOf(User) = Type("CatalogRef.ExternalUsers");
-	Properties = NewProperties(IsExternalUser);
+	Properties = NewProperties();
 	
 	If Selection <> Undefined And Selection.ValidityPeriod <> Null Then
 		FillPropertyValues(Properties, Selection,
@@ -250,19 +258,23 @@ Function UserNewProperties(User, Selection,
 		   And UserObject.AdditionalProperties.Property("InfobaseUserExtendedProperties")
 		   And TypeOf(UserObject.AdditionalProperties.InfobaseUserExtendedProperties) = Type("Structure") Then
 			
-			Extensions = UserObject.AdditionalProperties.InfobaseUserExtendedProperties;
 			AccessLevel = UsersInternal.UserPropertiesAccessLevel(UserObject);
 			If AccessLevel.AuthorizationSettings2 Then
-				FillPropertyValues(Properties, Extensions,
+				ValidExtendedProperties = New Structure(
 					"UserMustChangePasswordOnAuthorization,
 					|UnlimitedValidityPeriod,
 					|ValidityPeriod,
 					|InactivityPeriodBeforeDenyingAuthorization");
 			Else
-				Properties.UserMustChangePasswordOnAuthorization =
-					Extensions.UserMustChangePasswordOnAuthorization;
+				ValidExtendedProperties = New Structure(
+					"UserMustChangePasswordOnAuthorization");
 			EndIf;
+			FillPropertyValues(ValidExtendedProperties, Properties);
+			FillPropertyValues(ValidExtendedProperties,
+				UserObject.AdditionalProperties.InfobaseUserExtendedProperties);
+			FillPropertyValues(Properties, ValidExtendedProperties);
 		EndIf;
+		
 		If TypeOf(UserObject) <> Type("FormDataStructure")
 		   And UserObject.AdditionalProperties.Property("StoredIBUserProperties")
 		   And TypeOf(UserObject.AdditionalProperties.StoredIBUserProperties) = Type("Structure") Then
@@ -282,6 +294,8 @@ Function UserNewProperties(User, Selection,
 	If IBUser = Undefined Then
 		IBUser = InfoBaseUsers.FindByUUID(
 			CurrentProperties.IBUserID);
+	Else
+		CurrentProperties.IBUserID = IBUser.UUID;
 	EndIf;
 	
 	Properties.IsAppLogonRestricted = ValueIsFilled(Properties.ValidityPeriod)
@@ -313,7 +327,12 @@ Function UserNewProperties(User, Selection,
 		FillPropertyValues(Properties, WhetherRightsAreAssigned);
 	EndIf;
 	
-	If CurrentProperties.DeletionMark Then
+	IsExternalUser = TypeOf(User) = Type("CatalogRef.ExternalUsers");
+	
+	If CurrentProperties.DeletionMark And IBUser = Undefined Then
+		Properties.NumberOfStatePicture = 19 + ?(IsExternalUser, 1, 0);
+	
+	ElsIf CurrentProperties.DeletionMark Then
 		Properties.NumberOfStatePicture = 1 + ?(IsExternalUser, 6, 0);
 		
 	ElsIf IBUser = Undefined Then
@@ -331,7 +350,8 @@ Function UserNewProperties(User, Selection,
 		Properties.NumberOfStatePicture = 2 + ?(IsExternalUser, 6, 0);
 	EndIf;
 	
-	If Selection = Undefined Then
+	If Selection = Undefined
+	 Or CurrentProperties.Property("ShouldLogChanges") Then
 		Return Properties;
 	EndIf;
 	
@@ -356,10 +376,13 @@ EndFunction
 //  IBUser - InfoBaseUser
 //                 - Undefined
 //
+//  ShouldLogChanges - Boolean - Write Event log changes as one of the following properties were modified:
+//    "DeletionMark", "Invalid", "IBUserID".
+//
 //  HasChanges - Boolean - a return value.
 //
-Procedure UpdateUserInfoRecords(User, UserObject = Undefined,
-			IBUser = Undefined, HasChanges = False) Export
+Procedure UpdateUserInfoRecords(User, UserObject,
+			IBUser = Undefined, ShouldLogChanges = False, HasChanges = False) Export
 	
 	Block = New DataLock;
 	If TypeOf(User) = Type("CatalogRef.ExternalUsers") Then
@@ -380,7 +403,11 @@ Procedure UpdateUserInfoRecords(User, UserObject = Undefined,
 		If Not Selection.Next() Then
 			Selection = Undefined;
 		EndIf;
-		Properties = UserNewProperties(User, Selection, UserObject, IBUser);
+		CurrentProperties = ?(ShouldLogChanges,
+			New Structure("ShouldLogChanges"), Undefined);
+		Properties = UserNewProperties(User,
+			Selection, UserObject, IBUser, CurrentProperties);
+		
 		If Properties <> Undefined Then
 			RecordSet = ServiceRecordSet(InformationRegisters.UsersInfo);
 			RecordSet.Filter.User.Set(User);
@@ -392,6 +419,7 @@ Procedure UpdateUserInfoRecords(User, UserObject = Undefined,
 				Record = RecordSet[0];
 			EndIf;
 			FillPropertyValues(Record, Properties);
+			RecordSet.AdditionalProperties.Insert("UserProperties", CurrentProperties);
 			RecordSet.Write();
 			HasChanges = True;
 		EndIf;
@@ -403,7 +431,41 @@ Procedure UpdateUserInfoRecords(User, UserObject = Undefined,
 	
 EndProcedure
 
-Function NewProperties(IsExternalUser)
+// Parameters:
+//  User - CatalogRef.Users
+//               - CatalogRef.ExternalUsers
+//
+Procedure DeleteUserInfo(User) Export
+	
+	Block = New DataLock;
+	If TypeOf(User) = Type("CatalogRef.ExternalUsers") Then
+		LockItem = Block.Add("Catalog.ExternalUsers");
+	Else
+		LockItem = Block.Add("Catalog.Users");
+	EndIf;
+	LockItem.SetValue("Ref", User);
+	LockItem = Block.Add("InformationRegister.UsersInfo");
+	LockItem.SetValue("User", User);
+	
+	BeginTransaction();
+	Try
+		Block.Lock();
+		RecordSet = ServiceRecordSet(InformationRegisters.UsersInfo);
+		RecordSet.Filter.User.Set(User);
+		RecordSet.Read();
+		If RecordSet.Count() > 0 Then
+			RecordSet.Clear();
+			RecordSet.Write();
+		EndIf;
+		CommitTransaction();
+	Except
+		RollbackTransaction();
+		Raise;
+	EndTry;
+	
+EndProcedure
+
+Function NewProperties()
 	
 	Properties = New Structure;
 	Properties.Insert("NumberOfStatePicture", 0);
@@ -442,6 +504,7 @@ Function PropertiesQuery(User) Export
 	|	ISNULL(Users.Ref, UsersInfo.User) AS Ref,
 	|	Users.IBUserID AS IBUserID,
 	|	Users.DeletionMark AS DeletionMark,
+	|	Users.Invalid AS Invalid,
 	|	UsersInfo.UserMustChangePasswordOnAuthorization AS UserMustChangePasswordOnAuthorization,
 	|	UsersInfo.UnlimitedValidityPeriod AS UnlimitedValidityPeriod,
 	|	UsersInfo.ValidityPeriod AS ValidityPeriod,
@@ -517,7 +580,7 @@ Procedure DeleteInfoRecordsOnDeletedUsers(User, HasChanges = False)
 		Query.SetParameter("User", User);
 	EndIf;
 	
-	
+	// ACC:1328-off - No.648.1.1 Data lock is not required during a redundant record cleanup.
 	Selection = Query.Execute().Select();
 	// ACC:1328-on
 	While Selection.Next() Do
@@ -612,7 +675,7 @@ Procedure UpdateUsersInfoAndDisableAuthentication() Export
 		Try
 			Block.Lock();
 			HasChanges = False;
-			
+			// @skip-check query-in-loop - Batch-wise data processing within a transaction
 			DeleteInfoRecordsOnDeletedUsers(User, HasChanges);
 			If Not HasChanges Then
 				UserObject = ServiceItem(User);
@@ -627,10 +690,10 @@ Procedure UpdateUsersInfoAndDisableAuthentication() Export
 								UsersInternal.StoredIBUserProperties(PreviousProperties));
 						EndIf;
 					EndIf;
-					
+					// @skip-check query-in-loop - Batch-wise data processing within a transaction
 					UpdateUserInfoRecords(User, UserObject);
 					If UserObject.Modified() Then
-						
+						// ACC:1363-off - Cleanup of stored authentication properties that do not participate in data exchange.
 						UserObject.Write();
 						// ACC:1363-on
 					EndIf;
@@ -763,8 +826,8 @@ Procedure ResetOpenIDConnectAuthenticationForAllUsers()
 		Try
 			IBUser.Write();
 			If String <> Undefined Then
-				
-				UpdateUserInfoRecords(String.Ref);
+				// @skip-check query-in-loop - Batch-wise data processing within a transaction
+				UpdateUserInfoRecords(String.Ref, Undefined);
 			EndIf;
 			CommitTransaction();
 		Except

@@ -17,12 +17,24 @@
 				<Type>CommandBarButton</Type>
 				<Visible>false</Visible>
 				<CommandName>Form.Command.Disconnect</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Disable</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="DisconnectExtendedTooltip" id="38"/>
 			</Button>
 			<Button name="Close" id="35">
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.Activate</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Activate</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="CloseExtendedTooltip" id="36"/>
 			</Button>
 		</ChildItems>
@@ -97,6 +109,12 @@ Remember to specify bot details and picture as described at: &lt;link https://tl
 			<ChildItems>
 				<InputField name="BotName" id="11">
 					<DataPath>Description</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Description</v8:content>
+						</v8:item>
+					</Title>
 					<InputHint>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -108,6 +126,12 @@ Remember to specify bot details and picture as described at: &lt;link https://tl
 				</InputField>
 				<InputField name="Token" id="14">
 					<DataPath>Token</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Token</v8:content>
+						</v8:item>
+					</Title>
 					<ToolTipRepresentation>Button</ToolTipRepresentation>
 					<InputHint>
 						<v8:item>
@@ -140,6 +164,12 @@ Remember to specify bot details and picture as described at: &lt;link https://tl
 					<Button name="PersonsResponsiblePick" id="33">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.Pick</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Pick</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="PersonsResponsiblePickExtendedTooltip" id="34"/>
 					</Button>
 				</ChildItems>
@@ -175,6 +205,12 @@ Remember to specify bot details and picture as described at: &lt;link https://tl
 			<ChildItems>
 				<InputField name="AttendeesUser" id="30">
 					<DataPath>Attendees.User</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Conversation members</v8:content>
+						</v8:item>
+					</Title>
 					<ContextMenu name="AttendeesUserContextMenu" id="31"/>
 					<ExtendedTooltip name="AttendeesUserExtendedTooltip" id="32"/>
 				</InputField>

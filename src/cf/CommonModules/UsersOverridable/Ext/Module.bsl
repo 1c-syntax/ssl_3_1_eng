@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -23,11 +24,11 @@
 //          in profiles of users, external users, and groups of external users.
 //          This affects both regular users and administrators. Default value is True.
 //
-//   * IndividualUsed - Boolean - 
-//          
+//   * IndividualUsed - Boolean - If set to "True", then it is used in the
+//          "Users" subsystem. For example, in the user card. By default, "True".
 //
-//   * IsDepartmentUsed  - Boolean - 
-//          
+//   * IsDepartmentUsed  - Boolean - If set to "True", then it is used in the
+//          "Users" subsystem. For example, in the user card. By default, "True".
 //
 Procedure OnDefineSettings(Settings) Export
 	
@@ -39,29 +40,29 @@ EndProcedure
 //
 // Parameters:
 //  RolesAssignment - Structure:
-//   * ForSystemAdministratorsOnly - Array - 
-//     
-//     :
-//       
-//     
-//       
-//       
-//       
-//     
+//   * ForSystemAdministratorsOnly - Array - Role names that, when separation is disabled,
+//     are intended for any users other than external users, and in separated mode,
+//     are intended only for service administrators, for example:
+//       Administration, UpdateDatabaseConfiguration, SystemAdministrator,
+//     and also all roles with the rights:
+//       Administration,
+//       Administration of configuration extensions,
+//       Update database configuration.
+//     Such roles are usually available in SSL and not available in applications.
 //
-//   * ForSystemUsersOnly - Array - 
-//     
-//     
-//     :
-//       
-//     
-//       
-//       
-//       
-//       
-//       
-//       
-//     
+//   * ForSystemUsersOnly - Array - role names that, when separation is disabled,
+//     are intended for any users other than external users, and in separated mode,
+//     are intended only for non-separated users (technical support stuff
+//     and service administrators), for example:
+//       AddEditAddressInfo, AddEditBanks,
+//     and all roles with rights to change non-separated data and those that have the following rules:
+//       Thick client,
+//       External connection,
+//       Automation,
+//       Mode "All functions",
+//       Interactive open external data processors,
+//       Interactive open external reports.
+//     Such roles are mainly available in SSL. However, they might be available in applications.
 //
 //   * ForExternalUsersOnly - Array - role names that are intended
 //     only for external users (roles with a specially developed set of rights), for example:
@@ -155,12 +156,13 @@ Procedure OnSetInitialSettings(InitialSettings1) Export
 	
 EndProcedure
 
-// 
-// 
-//  (See OnSaveOtherSetings)
-//  (See OnDeleteOtherSettings)
+// Allows you to add an arbitrary setting on the Others tab to the UsersSettings
+// handler interface so that other users can delete or copy it.
+// To be able to manage the setting, write a code for its copying  (See OnSaveOtherSetings)
+// and deleting  (See OnDeleteOtherSettings)
 //
-// 
+// that will be called upon performing interactive actions involving the setting.
+// For example, a flag that indicates whether to show a warning when closing the application.
 //
 // Parameters:
 //  UserInfo - Structure - string and referential user presentation:
@@ -182,8 +184,8 @@ Procedure OnGetOtherSettings(UserInfo, Settings) Export
 	
 EndProcedure
 
-// 
-// 
+// Saves an arbitrary setting for the given user.
+// See also "OnGetOtherSettings".
 //
 // Parameters:
 //  Settings - Structure:
@@ -201,8 +203,8 @@ Procedure OnSaveOtherSetings(UserInfo, Settings) Export
 	
 EndProcedure
 
-// 
-// 
+// Clears an arbitrary setting for the given user.
+// See also "OnGetOtherSettings".
 //
 // Parameters:
 //  Settings - Structure:
@@ -254,19 +256,34 @@ EndProcedure
 //   * UsersGroupsSelection - Boolean - allows you to select user groups.
 // 										 If user groups are used and the parameter is not supported,
 // 										 you cannot assign rights to a user group via the choice form.
+//   * UsersToHide - ValueList -  users who are not displayed in the selection form.
+//                            - Undefined
+//   * CurrentRow - CatalogRef.UserGroups - 
+//                       
+//                   - Undefined - 
+//
 //   * AdvancedPick - Boolean - If True, viewing user groups is available.
 //   * ExtendedPickFormParameters - String - temporary storage address with the structure:
-//   ** UsersToHide - Array - users that are not displayed in the pick form.
-//   ** SelectExternalUsersGroups - Boolean - allows you to select external user groups.
-//   ** CannotPickGroups - Boolean
-//   ** PickFormHeader - String - allows you to override the pick form header.
-//   ** SelectedUsers - Array - users that must be displayed in the list of selected users.
-//   ** CurrentRow - CatalogRef.UserGroups - a row that will be used for positioning 
-// 															 of user groups
-// 															 in the dynamic list when opening the form.
+//   ** SelectedUsers - Array of CatalogRef.Users - 
+//                                
+//   ** PickFormHeader - String - 
+//   ** PickingCompletionButtonTitle - String - 
 //
 Procedure OnDefineUsersSelectionForm(SelectedForm, FormParameters) Export
 
+EndProcedure
+
+// Allows to add custom access event registration settings to the data
+// when either getting them using the "Users.RegistrationSettingsForDataAccessEvents" function
+// or setting them using the "Users.UpdateRegistrationSettingsForDataAccessEvents" procedure.
+// 
+// 
+//
+// Parameters:
+//  Settings - Array of EventLogAccessEventUseDescription
+//
+Procedure OnDefineRegistrationSettingsForDataAccessEvents(Settings) Export
+	
 EndProcedure
 
 #EndRegion

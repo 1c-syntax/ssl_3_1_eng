@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -121,13 +122,29 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 		
 		InfobaseUpdate.MarkForProcessing(Parameters, Query.Execute().Unload().UnloadColumn("Ref"));
 
+	ElsIf UpdateScanComponentSettings(Parameters.SubsystemVersionAtStartUpdates) Then
+	
+		QueryText ="SELECT
+		|	AddIns.Ref AS Ref
+		|FROM
+		|	Catalog.AddIns AS AddIns
+		|WHERE
+		|	AddIns.Id = &Id
+		|	OR AddIns.Version = &Version";
+		
+		Query = New Query(QueryText);
+		Query.SetParameter("Id", "AddInNativeExtension");
+		Query.SetParameter("Version", "3.1.0.1013");
+		
+		InfobaseUpdate.MarkForProcessing(Parameters, Query.Execute().Unload().UnloadColumn("Ref"));
+		
 	EndIf;
 	
 EndProcedure
 
-// 
-// 
-// 
+// Update handler of the "Add-ins" catalog:
+// - Populates the TargetPlatforms attribute.
+// - To ensure auto-update, adds the ExtraCryptoAPI and barcode scan and print add-ins.
 //
 Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	Parameters.ProcessingCompleted = True;
@@ -137,7 +154,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 		And Common.SubsystemExists("OnlineUserSupport.GetAddIns")
 		And Not Common.DataSeparationEnabled() Then
 		
-		ComponentsToUse = AddInsServer.ComponentsToUse("ForImport");
+		ComponentsToUse = AddInsServer.ComponentsToUse("ForImport"); //See GetAddIns.AddInsDetails
 		
 		If ComponentsToUse.Find("ExtraCryptoAPI", "Id") = Undefined Then 
 		
@@ -150,7 +167,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			
 			LayoutLocationSplit = StrSplit(TheComponentOfTheLatestVersionFromTheLayout.Location, ".");
 			
-			BinaryData = ModuleDigitalSignatureInternal.GetTheseComponents(
+			BinaryData = ModuleDigitalSignatureInternal.GetAddInData(
 				LayoutLocationSplit.Get(LayoutLocationSplit.UBound()));
 				
 			AddInParameters = AddInsInternal.ImportParameters();
@@ -173,7 +190,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 		And Common.SubsystemExists("OnlineUserSupport.GetAddIns")
 		And Not Common.DataSeparationEnabled() Then
 		
-		ComponentsToUse = AddInsServer.ComponentsToUse("ForImport");
+		ComponentsToUse = AddInsServer.ComponentsToUse("ForImport"); // See GetAddIns.AddInsDetails
 		ModuleFilesOperationsInternalClientServer = Common.CommonModule("FilesOperationsInternalClientServer");
 			
 		ComponentDetails = ModuleFilesOperationsInternalClientServer.ComponentDetails();
@@ -199,51 +216,15 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 		EndIf;
 		
 	EndIf;
-	
-	If CommonClientServer.CompareVersions(Parameters.SubsystemVersionAtStartUpdates, "3.1.9.221") < 0 Then
-		
-		Selection = InfobaseUpdate.SelectRefsToProcess(Parameters.Queue, "Catalog.AddIns");
-		If Selection.Count() > 0 Then
-			ProcessExternalComponents(Selection);
-		EndIf;
 
-		ProcessingCompleted = InfobaseUpdate.DataProcessingCompleted(Parameters.Queue,
-			"Catalog.AddIns");
-		Parameters.ProcessingCompleted = ProcessingCompleted;
-	
+	Selection = InfobaseUpdate.SelectRefsToProcess(Parameters.Queue, "Catalog.AddIns");
+	If Selection.Count() > 0 Then
+		ProcessExternalComponents(Selection, Parameters.SubsystemVersionAtStartUpdates);
 	EndIf;
-	
-	If CommonClientServer.CompareVersions(Parameters.SubsystemVersionAtStartUpdates, "3.1.9.224") < 0
-		And Common.SubsystemExists("StandardSubsystems.BarcodeGeneration")
-		And Common.SubsystemExists("OnlineUserSupport.GetAddIns")
-		And Not Common.DataSeparationEnabled() Then
-		
-		ComponentsToUse = AddInsServer.ComponentsToUse("ForImport");
-		BarcodeGenerationModule = Common.CommonModule("BarcodeGeneration");
-			
-		ComponentDetails = BarcodeGenerationModule.ComponentDetails();
-		
-		If ComponentsToUse.Find(ComponentDetails.ObjectName, "Id") = Undefined Then 
-		
-			TheComponentOfTheLatestVersionFromTheLayout = StandardSubsystemsServer.TheComponentOfTheLatestVersion(
-				ComponentDetails.ObjectName, ComponentDetails.FullTemplateName);
-			
-			LayoutLocationSplit = StrSplit(TheComponentOfTheLatestVersionFromTheLayout.Location, ".");
-			BinaryData = GetCommonTemplate(LayoutLocationSplit.Get(LayoutLocationSplit.UBound()));
-				
-			AddInParameters = AddInsInternal.ImportParameters();
-			AddInParameters.Id = ComponentDetails.ObjectName;
-			AddInParameters.Description = NStr("en = 'Add-in to generate barcodes';");
-			AddInParameters.Version = TheComponentOfTheLatestVersionFromTheLayout.Version;
-			AddInParameters.ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Added automatically on %1.';"), CurrentSessionDate());
-			AddInParameters.UpdateFrom1CITSPortal = True;
-			AddInParameters.Data = BinaryData;
-			
-			AddInsInternal.LoadAComponentFromBinaryData(AddInParameters, False);
-		EndIf;
-		
-	EndIf;
+
+	ProcessingCompleted = InfobaseUpdate.DataProcessingCompleted(Parameters.Queue,
+		"Catalog.AddIns");
+	Parameters.ProcessingCompleted = ProcessingCompleted;
 	
 EndProcedure
 
@@ -251,39 +232,72 @@ EndProcedure
 //   Selection - QueryResultSelection:
 //     * Ref - CatalogRef.AddIns
 //
-Procedure ProcessExternalComponents(Selection)
+Procedure ProcessExternalComponents(Selection, SubsystemVersionAtStartUpdates)
 	
 	ObjectsProcessed = 0;
 	ObjectsWithIssuesCount = 0;
+	
+	ShouldUpdateSupportedPlatforms = CommonClientServer.CompareVersions(SubsystemVersionAtStartUpdates, "3.1.9.221") < 0;
+	UpdateScanComponentSettings = UpdateScanComponentSettings(SubsystemVersionAtStartUpdates);
+		
+	If UpdateScanComponentSettings Then
+		ModuleFilesOperationsInternalClientServer = Common.CommonModule("FilesOperationsInternalClientServer");
+		ComponentDetails = ModuleFilesOperationsInternalClientServer.ComponentDetails();
+		ScanAddInID = ComponentDetails.ObjectName;
+	EndIf;
 
 	While Selection.Next() Do
+		
+		ReceivedDetails = New Array;
+		
+		If ShouldUpdateSupportedPlatforms Then
+			ReceivedDetails.Add("AddInStorage");
+			ReceivedDetails.Add("TargetPlatforms");
+		EndIf;
+		
+		If UpdateScanComponentSettings Then
+			ReceivedDetails.Add("Id");
+			ReceivedDetails.Add("Version");
+		EndIf;
+		
+		AddInAttributes = Common.ObjectAttributesValues(Selection.Ref, ReceivedDetails);
 
-		AddInAttributes = Common.ObjectAttributesValues(Selection.Ref,
-			"AddInStorage, TargetPlatforms");
-		
-		TargetPlatforms = AddInAttributes.TargetPlatforms.Get();
-		
-		ComponentBinaryData = AddInAttributes.AddInStorage.Get();
-		
-		If TypeOf(ComponentBinaryData) <> Type("BinaryData") Then
-			InfobaseUpdate.MarkProcessingCompletion(Selection.Ref);
-			ObjectsProcessed = ObjectsProcessed + 1;
-			Continue;
+		If ShouldUpdateSupportedPlatforms Then
+			
+			ShouldUpdateAddInSupportedPlatforms = True;
+			
+			TargetPlatforms = AddInAttributes.TargetPlatforms.Get();
+			
+			ComponentBinaryData = AddInAttributes.AddInStorage.Get();
+			
+			If TypeOf(ComponentBinaryData) <> Type("BinaryData") Then
+				InfobaseUpdate.MarkProcessingCompletion(Selection.Ref);
+				ObjectsProcessed = ObjectsProcessed + 1;
+				ShouldUpdateAddInSupportedPlatforms = False;
+			EndIf;
+			
+			InformationOnAddInFromFile = AddInsInternal.InformationOnAddInFromFile(
+				ComponentBinaryData, False);
+			If Not InformationOnAddInFromFile.Disassembled Then
+				InfobaseUpdate.MarkProcessingCompletion(Selection.Ref);
+				ObjectsProcessed = ObjectsProcessed + 1;
+				ShouldUpdateAddInSupportedPlatforms = False;
+			EndIf;
+			
+			Attributes = InformationOnAddInFromFile.Attributes;
+			
+			If TargetPlatforms <> Undefined And Common.IdenticalCollections(TargetPlatforms, Attributes.TargetPlatforms) Then
+				InfobaseUpdate.MarkProcessingCompletion(Selection.Ref);
+				ObjectsProcessed = ObjectsProcessed + 1;
+				ShouldUpdateAddInSupportedPlatforms = False;
+			EndIf;
+		Else
+			ShouldUpdateAddInSupportedPlatforms = False;
 		EndIf;
 		
-		InformationOnAddInFromFile = AddInsInternal.InformationOnAddInFromFile(
-			ComponentBinaryData, False);
-		If Not InformationOnAddInFromFile.Disassembled Then
-			InfobaseUpdate.MarkProcessingCompletion(Selection.Ref);
-			ObjectsProcessed = ObjectsProcessed + 1;
-			Continue;
-		EndIf;
-		
-		Attributes = InformationOnAddInFromFile.Attributes;
-		
-		If TargetPlatforms <> Undefined And Common.IdenticalCollections(TargetPlatforms, Attributes.TargetPlatforms) Then
-			InfobaseUpdate.MarkProcessingCompletion(Selection.Ref);
-			ObjectsProcessed = ObjectsProcessed + 1;
+		If Not ShouldUpdateAddInSupportedPlatforms 
+			And Not (UpdateScanComponentSettings And (AddInAttributes.Id = "AddInNativeExtension")
+			Or AddInAttributes.Version = "3.1.0.1013") Then
 			Continue;
 		EndIf;
 		
@@ -298,7 +312,18 @@ Procedure ProcessExternalComponents(Selection)
 			Block.Lock();
 
 			ComponentObject_SSLs = Selection.Ref.GetObject(); // CatalogObject.AddIns
-			ComponentObject_SSLs.TargetPlatforms = New ValueStorage(Attributes.TargetPlatforms);
+			If ShouldUpdateAddInSupportedPlatforms Then
+				ComponentObject_SSLs.TargetPlatforms = New ValueStorage(Attributes.TargetPlatforms);
+			EndIf;
+			
+			If UpdateScanComponentSettings And AddInAttributes.Id = "AddInNativeExtension" Then
+				ComponentObject_SSLs.Id = ScanAddInID;
+			EndIf;
+			
+			If UpdateScanComponentSettings And AddInAttributes.Version = "3.1.0.1013" Then
+				ComponentObject_SSLs.Version = "3.0.1.1013";
+			EndIf;
+			
 			InfobaseUpdate.WriteObject(ComponentObject_SSLs);
 
 			ObjectsProcessed = ObjectsProcessed + 1;
@@ -337,6 +362,11 @@ Procedure ProcessExternalComponents(Selection)
 EndProcedure
 
 #EndRegion
+
+Function UpdateScanComponentSettings(SubsystemVersionAtStartUpdates)
+	Return CommonClientServer.CompareVersions(SubsystemVersionAtStartUpdates, "3.1.9.230") < 0
+		And Common.SubsystemExists("StandardSubsystems.FilesOperations")
+EndFunction
 
 #EndRegion
 

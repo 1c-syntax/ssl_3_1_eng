@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -188,18 +189,18 @@ Procedure EnableObjectsVersioning(Objects) Export
 	
 EndProcedure
 
-// 
+// Returns the history retainment flag for the object versioning settings form.
 //
 // Returns: 
 //   Boolean
 //
 // Example:
-//	
-//		
-//		
-//	 
-//		
-//	
+//	If Common.SubsystemExists("StandardSubsystems.ObjectsVersioning") Then
+//		ModuleObjectVersioning = Common.CommonModule("ObjectsVersioning");
+//		UseObjectVersioning = ModuleObjectVersioning.StoreHistoryCheckBoxValue();
+//	Else 
+//		Items.ObjectsVersioningControlGroup.Visibility = False;
+//	EndIf;
 //
 Function StoreHistoryCheckBoxValue() Export
 	
@@ -219,8 +220,8 @@ EndFunction
 //
 Procedure WriteObjectVersion(Val Source, WriteMode = Undefined) Export
 	
-	
-	
+	// 
+	// 
 	If Not GetFunctionalOption("UseObjectsVersioning") Then
 		Return;
 	EndIf;
@@ -388,7 +389,7 @@ Procedure ChangeTheSyncWarning(RegisterEntryParameters, CheckForAnEntry) Export
 		RecordManager.Object = Ref;
 		RecordManager.VersionNumber = VersionNumber;
 		
-		RecordManager.Read(); 
+		RecordManager.Read(); // 
 		If Not RecordManager.Selected() Then
 			
 			// Use case: A user opened the warning dialog and fixed the issue.
@@ -975,8 +976,8 @@ Procedure OnReceiveDataFromMaster(DataElement, ItemReceive, SendBack, Sender) Ex
 		
 		// Writing the resulting version and changing its number taking into account versions that will not be synchronized.
 		If Not HasConflict Then
-			
-			
+			// 
+			// 
 			If RecordSet.Count() = 0 Then
 				Record = RecordSet.Add();
 				Record.Object = Object;
@@ -1113,11 +1114,28 @@ Procedure OnAddSessionParameterSettingHandlers(Handlers) Export
 	
 EndProcedure
 
+// See JobsQueueOverridable.OnGetTemplateList.
+Procedure OnGetTemplateList(JobTemplates) Export
+	
+	JobTemplates.Add(Metadata.ScheduledJobs.ClearingObsoleteObjectVersions.Name);
+	
+EndProcedure
+
 // See ScheduledJobsOverridable.OnDefineScheduledJobSettings
 Procedure OnDefineScheduledJobSettings(Settings) Export
+	
 	Setting = Settings.Add();
 	Setting.ScheduledJob = Metadata.ScheduledJobs.ClearingObsoleteObjectVersions;
 	Setting.FunctionalOption = Metadata.FunctionalOptions.UseObjectsVersioning;
+	
+	If Common.SubsystemExists("StandardSubsystems.DataExchange") Then
+		FunctionalOptionName = "UseDataSynchronization";
+		
+		Setting = Settings.Add();
+		Setting.ScheduledJob = Metadata.ScheduledJobs.ClearingObsoleteObjectVersions;
+		Setting.FunctionalOption = Metadata.FunctionalOptions[FunctionalOptionName];
+	EndIf;
+	
 EndProcedure
 
 // Handler of transition to the object version
@@ -1190,8 +1208,8 @@ Procedure OnFillToDoList(ToDoList) Export
 		Return;
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	Sections = ModuleToDoListServer.SectionsForObject(Metadata.InformationRegisters.ObjectVersioningSettings.FullName());
 	
 	ObsoleteVersionsInformation = ObsoleteVersionsInformation();
@@ -1210,13 +1228,6 @@ Procedure OnFillToDoList(ToDoList) Export
 		ToDoItem.ToolTip     = StringFunctionsClientServer.SubstituteParametersToString(ToolTip, ObsoleteVersionsInformation.VersionsCount, ObsoleteDataSize);
 		ToDoItem.Owner      = Section;
 	EndDo;
-	
-EndProcedure
-
-// See JobsQueueOverridable.OnDefineHandlerAliases.
-Procedure OnDefineHandlerAliases(NamesAndAliasesMap) Export
-	
-	NamesAndAliasesMap.Insert("ObjectsVersioning.ClearObsoleteObjectVersions");
 	
 EndProcedure
 
@@ -1294,6 +1305,29 @@ Procedure AfterDeletingAGroupOfObjects(Context, Success) Export
 			InformationRegisters.ObjectsVersions.DeleteVersionAuthorInfo(Ref);
 		EndIf;
 	EndDo;
+	
+EndProcedure
+
+// See InfobaseUpdateSSL.OnAddUpdateHandlers.
+Procedure OnAddUpdateHandlers(Handlers) Export
+	
+	If Not Common.DataSeparationEnabled() Then
+		Handler = Handlers.Add();
+		Handler.Version = "3.1.10.55";
+		Handler.Procedure = "ObjectsVersioning.SetSettingsForObsoleteObjectVersionsCleanupScheduledJob";
+		Handler.ExecutionMode = "Seamless";
+	EndIf;
+	
+EndProcedure
+
+Procedure SetSettingsForObsoleteObjectVersionsCleanupScheduledJob() Export
+	
+	FunctionalOptionName = "UseDataSynchronization";
+	
+	If Common.SubsystemExists("StandardSubsystems.DataExchange") 
+		And GetFunctionalOption(FunctionalOptionName) Then
+		EnableAutoPurgeOfObsoleteObjectVersions();
+	EndIf;
 	
 EndProcedure
 
@@ -1379,8 +1413,8 @@ Procedure CreateObjectVersion(Object, ObjectVersionInfo, NormalVersionRecord = T
 		ObjectVersionInfo.Property("SynchronizationWarning", RecordManager.SynchronizationWarning);
 		
 		If Not Object.IsNew() Then
-			
-			
+			// 
+			// 
 			If PostingChanged Then
 				Object.Posted = Not Object.Posted;
 			EndIf;
@@ -1678,9 +1712,9 @@ Function RestoreObjectByXML(ObjectData, ErrorMessageText = "")
 	Except
 		WriteLogEvent(NStr("en = 'Versioning';", Common.DefaultLanguageCode()),
 			EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-		ErrorMessageText = NStr("en = 'Cannot switch to the selected version.
-											|Possible causes: the object version was saved in another application version.
-											|Error technical information: %1';");
+		ErrorMessageText = NStr("en = 'Couldn''t migrate to the selected version.
+											|Possible causes: The object version was saved in the app with a different version.
+											|Error details: %1';");
 		ErrorMessageText = StringFunctionsClientServer.SubstituteParametersToString(ErrorMessageText, ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 		Return Undefined;
 	EndTry;
@@ -1748,7 +1782,7 @@ Function ObjectVersionInfo(Val Ref, Val VersionNumber) Export
 	EndIf;
 	
 	If Result.ObjectVersion = Undefined Then
-		Raise NStr("en = 'Selected object version is not available in the application.';");
+		Raise NStr("en = 'Selected object version is not available in the app.';");
 	EndIf;
 	
 	Return Result;
@@ -1883,26 +1917,44 @@ Procedure ClearObsoleteObjectVersions() Export
 	
 	SetPrivilegedMode(True);
 	
-	QueryText =
-	"SELECT
+	QueryTemplate =
+	"SELECT TOP 1000
 	|	ObjectsVersions.Object,
 	|	ObjectsVersions.VersionNumber
 	|FROM
 	|	InformationRegister.ObjectsVersions AS ObjectsVersions
 	|WHERE
 	|	ObjectsVersions.HasVersionData
-	|	AND &AdditionalConditions";
+	|	AND ObjectsVersions.VersionDate < &DeletionBoundary
+	|	AND VALUETYPE(ObjectsVersions.Object) IN (&TypesList)";
+
+	Query = New Query;
+	ObjectDeletionBoundaries = ObjectDeletionBoundaries();
+	QueriesTexts = New Array;
 	
-	Query = QueryOnObsoleteVersions(QueryText);
-	Selection = Query.Execute().Select();
+	PrepareRequestParameters(Query, QueryTemplate, QueriesTexts);
 	
-	While Selection.Next() Do
-		RecordManager = InformationRegisters.ObjectsVersions.CreateRecordManager();
-		RecordManager.Object = Selection.Object;
-		RecordManager.VersionNumber = Selection.VersionNumber;
-		RecordManager.Read();
-		RecordManager.ObjectVersion = Undefined;
-		RecordManager.Write();
+	If Not ValueIsFilled(QueriesTexts) Then
+		Return;
+	EndIf;
+	
+	Query.Text = StrConcat(QueriesTexts, Chars.LF + Chars.LF + "UNION ALL" + Chars.LF + Chars.LF); // @Query-part-1
+	QueryResult = Query.Execute();
+	
+	While Not QueryResult.IsEmpty() Do
+		Selection = QueryResult.Select();
+	
+		While Selection.Next() Do
+			RecordManager = InformationRegisters.ObjectsVersions.CreateRecordManager();
+			RecordManager.Object = Selection.Object;
+			RecordManager.VersionNumber = Selection.VersionNumber;
+			RecordManager.Read();
+			RecordManager.ObjectVersion = Undefined;
+			RecordManager.Write();
+		EndDo;
+		
+		//@skip-check query-in-loop - batch selection of a large amount of data
+		QueryResult = Query.Execute();
 	EndDo;
 	
 EndProcedure
@@ -1912,10 +1964,11 @@ Function ObjectDeletionBoundaries()
 	Result = New ValueTable;
 	Result.Columns.Add("TypesList", New TypeDescription("Array"));
 	Result.Columns.Add("DeletionBoundary", New TypeDescription("Date"));
+	Result.Columns.Add("VersionTypesDataExchange", New TypeDescription("Boolean"));
 	
 	QueryText =
 	"SELECT
-	|	MetadataObjectIDs.FullName AS ObjectType,
+	|	MetadataObjectIDs.EmptyRefValue AS EmptyRefValue,
 	|	ObjectVersioningSettings.VersionLifetime AS VersionLifetime
 	|FROM
 	|	InformationRegister.ObjectVersioningSettings AS ObjectVersioningSettings
@@ -1936,12 +1989,43 @@ Function ObjectDeletionBoundaries()
 		ObjectSelection = LifetimeSelection.Select();
 		TypesList = New Array;
 		While ObjectSelection.Next() Do
-			TypesList.Add(ObjectSelection.ObjectType);
+			TypesList.Add(TypeOf(ObjectSelection.EmptyRefValue));
 		EndDo;
 		BoundaryAndObjectTypesMap = Result.Add();
 		BoundaryAndObjectTypesMap.DeletionBoundary = DeletionBoundary(LifetimeSelection.VersionLifetime);
 		BoundaryAndObjectTypesMap.TypesList = TypesList;
 	EndDo;
+	
+	AllTypes = Metadata.InformationRegisters.ObjectsVersions.Dimensions.Object.Type.Types();
+	VersionedTypes = Metadata.DefinedTypes.VersionedData.Type.Types();
+	
+	// 
+	// 
+	
+	NonVersionableTypes = CommonClientServer.ArraysDifference(
+		AllTypes, VersionedTypes);
+	
+	TypesList = New Array;
+	For Each Type In NonVersionableTypes Do
+		TypesList.Add(Type);
+	EndDo;
+
+	BoundaryAndObjectTypesMap = Result.Add();
+	BoundaryAndObjectTypesMap.DeletionBoundary = DeletionBoundary(Enums.VersionsLifetimes.LastMonth);
+	BoundaryAndObjectTypesMap.TypesList = TypesList;
+	
+	// 
+	// 
+	
+	TypesList = New Array;
+	For Each Type In VersionedTypes Do
+		TypesList.Add(Type);
+	EndDo;
+	
+	BoundaryAndObjectTypesMap = Result.Add();
+	BoundaryAndObjectTypesMap.DeletionBoundary = DeletionBoundary(Enums.VersionsLifetimes.LastMonth);
+	BoundaryAndObjectTypesMap.TypesList = TypesList;
+	BoundaryAndObjectTypesMap.VersionTypesDataExchange = True;
 	
 	Return Result;
 	
@@ -2051,83 +2135,105 @@ Function ObsoleteVersionsInformation() Export
 	
 	SetPrivilegedMode(True);
 	
-	QueryText =
+	QueryTemplate =
 	"SELECT
 	|	ISNULL(SUM(ObjectsVersions.DataSize), 0) AS DataSize,
 	|	COUNT(ObjectsVersions.DataSize) AS VersionsCount
+	|INTO ResultsByPeriod
 	|FROM
 	|	InformationRegister.ObjectsVersions AS ObjectsVersions
 	|WHERE
 	|	ObjectsVersions.HasVersionData
-	|	AND &AdditionalConditions";
+	|	AND ObjectsVersions.VersionDate < &DeletionBoundary
+	|	AND VALUETYPE(ObjectsVersions.Object) IN (&TypesList)
+	|;
+	|
+	|////////////////////////////////////////////////////////////////////////////////
+	|SELECT
+	|	SUM(ResultsByPeriod.DataSize) AS DataSize,
+	|	SUM(ResultsByPeriod.VersionsCount) AS VersionsCount
+	|FROM
+	|	ResultsByPeriod";
 	
-	Query = QueryOnObsoleteVersions(QueryText);
-	Selection = Query.Execute().Select();
+	Query = New Query;
+	ObjectDeletionBoundaries = ObjectDeletionBoundaries();
+	QueriesTexts = New Array;
 	
-	VersionsCount = 0;
-	DataSize = 0;
-	If Selection.Next() Then
-		DataSize = Selection.DataSize;
-		VersionsCount = Selection.VersionsCount;
-	EndIf;
+	QueriesTexts = StrSplit(QueryTemplate, ";", False);
+	QueryTextByPeriod = QueriesTexts[0];
+	TextOfFinalRequest = QueriesTexts[1];
+	QueriesTexts.Clear();
+	
+	PrepareRequestParameters(Query, QueryTextByPeriod, QueriesTexts);
 	
 	Result = New Structure;
-	Result.Insert("VersionsCount", VersionsCount);
-	Result.Insert("DataSize", DataSize);
+	Result.Insert("VersionsCount", 0);
+	Result.Insert("DataSize", 0);
 	Result.Insert("DataSizeString", DataSizeString(Result.DataSize));
+	
+	If Not ValueIsFilled(QueriesTexts) Then
+		Return Result;
+	EndIf;
+	
+	Query.Text = StrConcat(QueriesTexts, Chars.LF + Chars.LF + "UNION ALL" + Chars.LF + Chars.LF) // @Query-part-1
+		+ Chars.LF + ";" + TextOfFinalRequest;
+	
+	Selection = Query.Execute().Select();
+	If Selection.Next() Then
+		Result.VersionsCount = Selection.VersionsCount;
+		Result.DataSize = Selection.DataSize;
+		Result.Insert("DataSizeString", DataSizeString(Result.DataSize));
+	EndIf;
 	
 	Return Result;
 	
 EndFunction
 
-// See ObsoleteVersionsInformation.
-Function QueryOnObsoleteVersions(QueryText)
+Procedure PrepareRequestParameters(Query, QueryTemplate, QueriesTexts)
 	
-	Query = New Query;
 	ObjectDeletionBoundaries = ObjectDeletionBoundaries();
-	AdditionalConditions = "";
 	
 	For IndexOf = 0 To ObjectDeletionBoundaries.Count() - 1 Do
-		If Not IsBlankString(AdditionalConditions) Then
-			AdditionalConditions = AdditionalConditions + "
-			|	OR";
-		EndIf;
 		IndexAsString = Format(IndexOf, "NZ=0; NG=0");
-		Condition = "";
-		For Each Type In ObjectDeletionBoundaries[IndexOf].TypesList Do
-			If Not IsBlankString(Condition) Then
-				Condition = Condition + "
-				|	OR";
-			EndIf;
-			Condition = Condition + "
-			|		ObjectsVersions.Object REFS  " + Type;
-		EndDo;
-		If IsBlankString(Condition) Then
+		
+		If Not ValueIsFilled(ObjectDeletionBoundaries[IndexOf].TypesList)
+			Or Not ValueIsFilled(ObjectDeletionBoundaries[IndexOf].DeletionBoundary) Then
 			Continue;
 		EndIf;
-		Condition = "(" + Condition + ")";
-		AdditionalConditions = AdditionalConditions + StringFunctionsClientServer.SubstituteParametersToString(
-		"
-		|	%1
-		|	AND ObjectsVersions.VersionDate < &DeletionBoundary%2",
-		Condition,
-		IndexAsString);
-		Query.SetParameter("TypesList" + IndexAsString, ObjectDeletionBoundaries[IndexOf].TypesList);
+		
+		QueryText = TrimR(QueryTemplate);
+		
+		If QueriesTexts.Count() > 0 Then
+			QueryText = StrReplace(QueryText, "INTO ResultsByPeriod", ""); // @Query-part-1
+		EndIf;
+		
+		QueryText = StrReplace(QueryText, "&DeletionBoundary", "&DeletionBoundary" + IndexAsString);
+		QueryText = StrReplace(QueryText, "&TypesList", "&TypesList" + IndexAsString);
+		
 		Query.SetParameter("DeletionBoundary" + IndexAsString, ObjectDeletionBoundaries[IndexOf].DeletionBoundary);
+		Query.SetParameter("TypesList" + IndexAsString, ObjectDeletionBoundaries[IndexOf].TypesList);
+		
+		If ObjectDeletionBoundaries[IndexOf].VersionTypesDataExchange Then
+			QueryStrings = StrSplit(QueryText, Chars.LF);
+			QueryStrings[QueryStrings.UBound()] = Chars.Tab + "AND ObjectsVersions.ObjectVersionType IN(&VersionTypes)"; // @Query-part-1
+			QueryText = StrConcat(QueryStrings, Chars.LF);
+			
+			VersionTypes = New Array;
+			VersionTypes.Add(Enums.ObjectVersionTypes.RejectedConflictData);
+			VersionTypes.Add(Enums.ObjectVersionTypes.RejectedDueToPeriodEndClosingDateObjectDoesNotExistInInfobase);
+			VersionTypes.Add(Enums.ObjectVersionTypes.RejectedDueToPeriodEndClosingDateObjectExistsInInfobase);
+			VersionTypes.Add(Enums.ObjectVersionTypes.ConflictDataAccepted);
+			
+			Query.SetParameter("VersionTypes", VersionTypes);
+		Else
+			QueryText = QueryText + Chars.LF + Chars.Tab 
+				+ "AND ObjectsVersions.ObjectVersionType = VALUE(Enum.ObjectVersionTypes.ChangedByUser)"; // @Query-part-1
+		EndIf;
+		
+		QueriesTexts.Add(QueryText);
 	EndDo;
 	
-	If IsBlankString(AdditionalConditions) Then
-		AdditionalConditions = "FALSE";
-	Else
-		AdditionalConditions = "(" + AdditionalConditions + ")";
-	EndIf;
-	
-	QueryText = StrReplace(QueryText, "&AdditionalConditions", AdditionalConditions);
-	Query.Text = QueryText;
-	
-	Return Query;
-	
-EndFunction
+EndProcedure
 
 // String presentation of data volumes. For example: "1.23 GB".
 Function DataSizeString(Val DataSize)
@@ -2226,12 +2332,12 @@ Function XMLObjectPresentationParsing(VersionData, Ref) Export
 	XMLReader = New FastInfosetReader;
 	XMLReader.SetBinaryData(BinaryData);
 	
-	
-	
-	
-	
-	
-	
+	// 
+	// 
+	// 
+	// 
+	// 
+	// 
 	ReadingLevel = 0;
 	
 	ObjectMetadata = Ref.Metadata();
@@ -2241,8 +2347,8 @@ Function XMLObjectPresentationParsing(VersionData, Ref) Export
 	While XMLReader.Read() Do
 		If XMLReader.NodeType = XMLNodeType.StartElement Then
 			ReadingLevel = ReadingLevel + 1;
-			If ReadingLevel = 1 Then 
-				
+			If ReadingLevel = 1 Then // 
+				// 
 			ElsIf ReadingLevel = 2 Then // Level-two pointer is an attribute or a tabular section name.
 				AttributeName = XMLReader.Name;
 				
@@ -2653,7 +2759,7 @@ Function OutputParsedObjectAttributes(Result, ObjectVersion, ObjectReference)
 	
 	Section3 = Result.GetArea("R6");
 	OutputTextToReport(Result, Section3, "R1C1:R1C3", " ");
-	OutputTextToReport(Result, Section3, "R1C2", "Attributes", StyleFonts.LargeTextFont);
+	OutputTextToReport(Result, Section3, "R1C2", NStr("en = 'Attributes';"), StyleFonts.LargeTextFont);
 	Result.StartRowGroup("AttributeGroup");
 	OutputTextToReport(Result, Section3, "R1C1:R1C3", " ");
 	
@@ -2993,6 +3099,7 @@ Function DataToStore(Val Object)
 	If Common.RefTypeValue(Object) Then
 		Object = Object.GetObject();
 	Else
+		//@skip-check reading-attribute-from-database - Data is being read from an object.
 		ObjectReference = Object.Ref;
 	EndIf;
 	
@@ -3487,10 +3594,32 @@ Procedure WriteVersionWithNumberChange(DataElement, ItemReceive, Sender, Version
 		Record = RecordSet[0];
 	EndIf;
 	FillPropertyValues(Record, DataElement[0], , "Object,VersionNumber");
-	RecordSet.Write(); 
+	RecordSet.Write(); // 
 	
 	ExchangePlans.DeleteChangeRecords(Sender.Ref, RecordSet);
 	ItemReceive = DataItemReceive.Ignore;
+	
+EndProcedure
+
+Procedure SetScheduledJobParameter(ParameterName, ParameterValue)
+	
+	JobParameters = New Structure;
+	JobParameters.Insert("Metadata", Metadata.ScheduledJobs.ClearingObsoleteObjectVersions);
+	
+	SetPrivilegedMode(True);
+	
+	JobsList = ScheduledJobsServer.FindJobs(JobParameters);
+
+	JobParameters = New Structure(ParameterName, ParameterValue);
+	For Each Job In JobsList Do
+		ScheduledJobsServer.ChangeJob(Job, JobParameters);
+	EndDo;
+	
+EndProcedure
+
+Procedure EnableAutoPurgeOfObsoleteObjectVersions()
+	
+	SetScheduledJobParameter("Use", True);
 	
 EndProcedure
 

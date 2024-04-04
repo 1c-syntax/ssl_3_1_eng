@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -32,10 +33,10 @@ Procedure BeforeWrite(Cancel)
 		UpdateFrom1CITSPortal = False;
 	EndIf;
 	
-	// Uniqueness control of component ID and version.
+	// Uniqueness control of the add-in ID and version.
 	If Not ThisIsTheUniqueComponent() Then 
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The add-in with such ID ""%1"" and date ""%2"" is already imported to the application.';"),
+			NStr("en = 'The add-in with ID ""%1"" and date ""%2"" is already attached to the app.';"),
 			Id,
 			VersionDate);
 	EndIf;
@@ -54,8 +55,8 @@ Procedure OnWrite(Cancel)
 		Return;
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	If ThisIsTheLatestVersionComponent() Then
 		RewriteComponentsOfEarlierVersions();
 	EndIf;

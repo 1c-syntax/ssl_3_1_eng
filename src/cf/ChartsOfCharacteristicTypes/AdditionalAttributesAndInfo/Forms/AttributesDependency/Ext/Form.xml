@@ -11,11 +11,23 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.OkCommand</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>OK</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormOkCommandExtendedTooltip" id="4"/>
 			</Button>
 			<Button name="FormCancelCommand" id="1">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.CancelCommand</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Cancel</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormCancelCommandExtendedTooltip" id="2"/>
 			</Button>
 		</ChildItems>
@@ -61,6 +73,12 @@
 					<Button name="AttributesDependenciesAddCondition" id="34">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.AddCondition</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Add condition</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="AttributesDependenciesAddConditionExtendedTooltip" id="35"/>
 					</Button>
 					<Button name="AttributesDependenciesDeleteCondition" id="29">
@@ -109,6 +127,12 @@
 			<ChildItems>
 				<InputField name="AttributesDependenciesAttribute" id="18">
 					<DataPath>AttributesDependencies.Presentation</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Attribute</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ChoiceButton>true</ChoiceButton>
 					<ClearButton>true</ClearButton>
@@ -120,6 +144,12 @@
 				</InputField>
 				<InputField name="AttributesDependenciesComparisonKind" id="21">
 					<DataPath>AttributesDependencies.Condition</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Comparison type</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<DropListButton>true</DropListButton>
 					<ListChoiceMode>true</ListChoiceMode>
@@ -212,6 +242,12 @@
 				</InputField>
 				<InputField name="AttributesDependenciesRightValue" id="24">
 					<DataPath>AttributesDependencies.Value</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Value</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ContextMenu name="AttributesDependenciesRightValueContextMenu" id="25"/>
 					<ExtendedTooltip name="AttributesDependenciesRightValueExtendedTooltip" id="26"/>

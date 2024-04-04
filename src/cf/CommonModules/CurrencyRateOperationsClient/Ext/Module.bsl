@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -67,7 +68,7 @@ Procedure NotifyRatesObsolete(Val ShouldCheckValidity = False) Export
 		NStr("en = 'Outdated exchange rates';"),
 		DataProcessorURL(),
 		NStr("en = 'Update exchange rates';"),
-		PictureLib.Warning32,
+		PictureLib.DialogExclamation,
 		UserNotificationStatus.Important,
 		"ExchangeRatesAreOutdated");
 	
@@ -81,7 +82,7 @@ Procedure NotifyRatesAreUpdated() Export
 		NStr("en = 'Exchange rates updated';"),
 		,
 		NStr("en = 'The exchange rates are updated.';"),
-		PictureLib.Information32);
+		PictureLib.DialogInformation);
 	
 EndProcedure
 

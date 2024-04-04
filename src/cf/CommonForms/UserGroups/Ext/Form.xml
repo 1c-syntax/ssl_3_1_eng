@@ -56,12 +56,24 @@
 									<Type>CommandBarButton</Type>
 									<DefaultButton>true</DefaultButton>
 									<CommandName>Form.Command.WriteAndClose</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Save and close</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="FormWriteAndCloseExtendedTooltip" id="30"/>
 								</Button>
 								<Button name="FormExcludeFromAllGroups" id="11">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.ExcludeFromAllGroups</CommandName>
-									<ExtendedTooltip name="FormRemoveFromAllGroupsExtendedTooltip" id="31"/>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Remove from all groups</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="FormExcludeFromAllGroupsExtendedTooltip" id="31"/>
 								</Button>
 								<Button name="OutputList" id="20">
 									<Type>CommandBarButton</Type>
@@ -162,6 +174,12 @@
 									<ChildItems>
 										<CheckBoxField name="GroupsTreeCheck" id="6">
 											<DataPath>GroupsTree.Check</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Checkmark</v8:content>
+												</v8:item>
+											</Title>
 											<HorizontalAlign>Left</HorizontalAlign>
 											<EditMode>EnterOnInput</EditMode>
 											<CheckBoxType>Auto</CheckBoxType>
@@ -173,6 +191,12 @@
 										</CheckBoxField>
 										<PictureField name="GroupsTreePicture" id="12">
 											<DataPath>GroupsTree.Picture</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Picture</v8:content>
+												</v8:item>
+											</Title>
 											<HorizontalAlign>Left</HorizontalAlign>
 											<EditMode>EnterOnInput</EditMode>
 											<ValuesPicture>
@@ -186,6 +210,12 @@
 										<InputField name="GroupsTreeGroup" id="4">
 											<DataPath>GroupsTree.Group</DataPath>
 											<ReadOnly>true</ReadOnly>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Group</v8:content>
+												</v8:item>
+											</Title>
 											<HorizontalAlign>Left</HorizontalAlign>
 											<EditMode>EnterOnInput</EditMode>
 											<TextEdit>false</TextEdit>
@@ -217,12 +247,12 @@
 								</v8:item>
 							</Title>
 							<Picture>
-								<xr:Ref>CommonPicture.Information32</xr:Ref>
-								<xr:LoadTransparent>false</xr:LoadTransparent>
+								<xr:Ref>StdPicture.DialogInformation</xr:Ref>
+								<xr:LoadTransparent>true</xr:LoadTransparent>
 							</Picture>
 							<FileDragMode>AsFile</FileDragMode>
 							<ContextMenu name="WarningPicture1ContextMenu" id="22"/>
-							<ExtendedTooltip name="WarningPicture1ExtendedTooltip" id="41"/>
+							<ExtendedTooltip name="WarningPicExtendedTooltip" id="41"/>
 						</PictureDecoration>
 						<LabelDecoration name="WarningText" id="23">
 							<AutoMaxWidth>false</AutoMaxWidth>

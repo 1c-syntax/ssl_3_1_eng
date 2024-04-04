@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -15,12 +16,12 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	SetConditionalAppearance();
 	
 	If Object.Ref = Catalogs.UserGroups.EmptyRef()
-	   And Object.Parent = Catalogs.UserGroups.AllUsers Then
+	   And Object.Parent = Users.AllUsersGroup() Then
 		
 		Object.Parent = Catalogs.UserGroups.EmptyRef();
 	EndIf;
 	
-	If Object.Ref = Catalogs.UserGroups.AllUsers Then
+	If Object.Ref = Users.AllUsersGroup() Then
 		ReadOnly = True;
 	EndIf;
 	
@@ -100,7 +101,7 @@ Procedure ContentDrag(Item, DragParameters, StandardProcessing, String, Field)
 	UserMessage = MoveUserToGroup(DragParameters.Value, Object.Ref);
 	If UserMessage <> Undefined Then
 		ShowUserNotification(
-			NStr("en = 'Move users';"), , UserMessage, PictureLib.Information32);
+			NStr("en = 'Move users';"), , UserMessage, PictureLib.DialogInformation);
 	EndIf;
 		
 EndProcedure
@@ -238,25 +239,13 @@ EndFunction
 &AtServer
 Function ExtendedPickFormParameters()
 	
-	SelectedUsers = New ValueTable;
-	SelectedUsers.Columns.Add("User");
-	SelectedUsers.Columns.Add("PictureNumber");
+	PickingParameters = UsersInternal.NewParametersOfExtendedPickForm();
+	PickingParameters.PickFormHeader = NStr("en = 'Pick group members';");
 	
-	GroupMembers = Object.Content.Unload(, "User");
+	PickingParameters.SelectedUsers =
+		Object.Content.Unload(, "User").UnloadColumn("User");
 	
-	For Each Item In GroupMembers Do
-		
-		SelectedUsersRow = SelectedUsers.Add();
-		SelectedUsersRow.User = Item.User;
-		
-	EndDo;
-	
-	PickFormHeader = NStr("en = 'Pick group members';");
-	ExtendedPickFormParameters = 
-		New Structure("PickFormHeader, SelectedUsers, CannotPickGroups",
-		                 PickFormHeader, SelectedUsers, True);
-	StorageAddress = PutToTempStorage(ExtendedPickFormParameters);
-	Return StorageAddress;
+	Return PutToTempStorage(PickingParameters, UUID);
 	
 EndFunction
 

@@ -29,12 +29,24 @@
 				<Button name="SortAsc" id="1">
 					<Type>UsualButton</Type>
 					<CommandName>Form.Command.SortAsc</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Sort ascending</v8:content>
+						</v8:item>
+					</Title>
 					<ShapeRepresentation>None</ShapeRepresentation>
 					<ExtendedTooltip name="SortAscExtendedTooltip" id="2"/>
 				</Button>
 				<Button name="SortDesc" id="3">
 					<Type>UsualButton</Type>
 					<CommandName>Form.Command.SortDesc</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Sort descending</v8:content>
+						</v8:item>
+					</Title>
 					<ShapeRepresentation>None</ShapeRepresentation>
 					<ExtendedTooltip name="SortDescExtendedTooltip" id="4"/>
 				</Button>
@@ -442,8 +454,8 @@
 														</v8:item>
 													</Title>
 													<Picture>
-														<xr:Ref>CommonPicture.Warning32</xr:Ref>
-														<xr:LoadTransparent>false</xr:LoadTransparent>
+														<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+														<xr:LoadTransparent>true</xr:LoadTransparent>
 													</Picture>
 													<ContextMenu name="ErrorIndicatorContextMenu" id="431"/>
 													<ExtendedTooltip name="ErrorIndicatorExtendedTooltip" id="432"/>
@@ -493,6 +505,12 @@
 					<ChildItems>
 						<CheckBoxField name="Use" id="373">
 							<DataPath>Use</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Use</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<CheckBoxType>Auto</CheckBoxType>
 							<ContextMenu name="UseContextMenu" id="374"/>
@@ -518,6 +536,12 @@
 					<ChildItems>
 						<InputField name="ComparisonType" id="10">
 							<DataPath>ComparisonType</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Comparison type</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<HorizontalStretch>true</HorizontalStretch>
 							<ChoiceButton>false</ChoiceButton>
@@ -536,6 +560,12 @@
 						</InputField>
 						<InputField name="RightValue" id="13">
 							<DataPath>RightValue</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Right value</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<HorizontalStretch>true</HorizontalStretch>
 							<InputHint>
@@ -601,6 +631,12 @@
 								<Button name="GroupBySelectedField" id="440">
 									<Type>UsualButton</Type>
 									<CommandName>Form.Command.GroupBySelectedField</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Group by field</v8:content>
+										</v8:item>
+									</Title>
 									<ShapeRepresentation>None</ShapeRepresentation>
 									<ExtendedTooltip name="GroupByTheSelectedFieldExtendedTooltip" id="441"/>
 								</Button>
@@ -669,12 +705,24 @@
 																<Button name="InsertFieldLeft" id="156">
 																	<Type>UsualButton</Type>
 																	<CommandName>Form.Command.InsertFieldLeft</CommandName>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Insert field to the left</v8:content>
+																		</v8:item>
+																	</Title>
 																	<ShapeRepresentation>None</ShapeRepresentation>
 																	<ExtendedTooltip name="InsertAFieldOnTheLeftExtendedTooltip" id="157"/>
 																</Button>
 																<Button name="InsertGroupAbove" id="160">
 																	<Type>UsualButton</Type>
 																	<CommandName>Form.Command.InsertGroupAbove</CommandName>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Insert grouping above</v8:content>
+																		</v8:item>
+																	</Title>
 																	<ShapeRepresentation>None</ShapeRepresentation>
 																	<ExtendedTooltip name="InsertTheGroupingAboveExtendedTooltip" id="161"/>
 																</Button>
@@ -696,12 +744,24 @@
 																<Button name="InsertFieldRight" id="158">
 																	<Type>UsualButton</Type>
 																	<CommandName>Form.Command.InsertFieldRight</CommandName>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Insert field to the right</v8:content>
+																		</v8:item>
+																	</Title>
 																	<ShapeRepresentation>None</ShapeRepresentation>
 																	<ExtendedTooltip name="InsertAFieldOnTheRightExtendedTooltip" id="159"/>
 																</Button>
 																<Button name="InsertGroupBelow" id="162">
 																	<Type>UsualButton</Type>
 																	<CommandName>Form.Command.InsertGroupBelow</CommandName>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Insert grouping below</v8:content>
+																		</v8:item>
+																	</Title>
 																	<ShapeRepresentation>None</ShapeRepresentation>
 																	<ExtendedTooltip name="InsertTheGroupingBelowExtendedTooltip" id="163"/>
 																</Button>
@@ -762,12 +822,24 @@
 																<Button name="MoveFieldLeft" id="186">
 																	<Type>UsualButton</Type>
 																	<CommandName>Form.Command.MoveFieldLeft</CommandName>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Move left</v8:content>
+																		</v8:item>
+																	</Title>
 																	<ShapeRepresentation>None</ShapeRepresentation>
 																	<ExtendedTooltip name="MoveTheFieldToTheLeftExtendedTooltip" id="187"/>
 																</Button>
 																<Button name="MoveFieldUp" id="190">
 																	<Type>UsualButton</Type>
 																	<CommandName>Form.Command.MoveFieldUp</CommandName>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Move up</v8:content>
+																		</v8:item>
+																	</Title>
 																	<ShapeRepresentation>None</ShapeRepresentation>
 																	<ExtendedTooltip name="MoveTheFieldAboveExtendedTooltip" id="191"/>
 																</Button>
@@ -789,12 +861,24 @@
 																<Button name="MoveFieldRight" id="188">
 																	<Type>UsualButton</Type>
 																	<CommandName>Form.Command.MoveFieldRight</CommandName>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Move right</v8:content>
+																		</v8:item>
+																	</Title>
 																	<ShapeRepresentation>None</ShapeRepresentation>
 																	<ExtendedTooltip name="MoveTheFieldToTheRightExtendedTooltip" id="189"/>
 																</Button>
 																<Button name="MoveFieldDown" id="192">
 																	<Type>UsualButton</Type>
 																	<CommandName>Form.Command.MoveFieldDown</CommandName>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Move down</v8:content>
+																		</v8:item>
+																	</Title>
 																	<ShapeRepresentation>None</ShapeRepresentation>
 																	<ExtendedTooltip name="MoveTheFieldBelowExtendedTooltip" id="193"/>
 																</Button>
@@ -829,6 +913,12 @@
 												<Button name="HideField" id="164">
 													<Type>UsualButton</Type>
 													<CommandName>Form.Command.HideField</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Hide</v8:content>
+														</v8:item>
+													</Title>
 													<ShapeRepresentation>None</ShapeRepresentation>
 													<ExtendedTooltip name="HideTheFieldExtendedTooltip" id="165"/>
 												</Button>
@@ -853,11 +943,23 @@
 																<xr:Ref>CommonPicture.IsEmpty</xr:Ref>
 																<xr:LoadTransparent>false</xr:LoadTransparent>
 															</Picture>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Rename</v8:content>
+																</v8:item>
+															</Title>
 															<ShapeRepresentation>None</ShapeRepresentation>
 															<ExtendedTooltip name="RenameAFieldExtendedTooltip" id="167"/>
 														</Button>
 														<InputField name="FieldPresentation" id="305">
 															<DataPath>FieldPresentation</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Field presentation</v8:content>
+																</v8:item>
+															</Title>
 															<TitleLocation>None</TitleLocation>
 															<ClearButton>true</ClearButton>
 															<ContextMenu name="FieldPresentationContextMenu" id="306"/>
@@ -870,6 +972,12 @@
 															<Type>UsualButton</Type>
 															<Representation>Picture</Representation>
 															<CommandName>Form.Command.RenameField</CommandName>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Rename</v8:content>
+																</v8:item>
+															</Title>
 															<ShapeRepresentation>WhenActive</ShapeRepresentation>
 															<ExtendedTooltip name="RenameTheFieldMoreExtendedTooltip" id="394"/>
 														</Button>
@@ -943,6 +1051,12 @@
 																<Button name="FormatNegativeValues" id="172">
 																	<Type>UsualButton</Type>
 																	<CommandName>Form.Command.FormatNegativeValues</CommandName>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Negative in red</v8:content>
+																		</v8:item>
+																	</Title>
 																	<ShapeRepresentation>None</ShapeRepresentation>
 																	<ExtendedTooltip name="MakeNegativeCommentsExtendedTooltip" id="173"/>
 																</Button>
@@ -964,6 +1078,12 @@
 																<Button name="FormatPositiveValues" id="174">
 																	<Type>UsualButton</Type>
 																	<CommandName>Form.Command.FormatPositiveValues</CommandName>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Positive in green</v8:content>
+																		</v8:item>
+																	</Title>
 																	<ShapeRepresentation>None</ShapeRepresentation>
 																	<ExtendedTooltip name="ToMakeAPositiveExtendedTooltip" id="175"/>
 																</Button>
@@ -1034,11 +1154,23 @@
 																		<xr:Ref>CommonPicture.RowHeight</xr:Ref>
 																		<xr:LoadTransparent>false</xr:LoadTransparent>
 																	</Picture>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Row height</v8:content>
+																		</v8:item>
+																	</Title>
 																	<ShapeRepresentation>None</ShapeRepresentation>
 																	<ExtendedTooltip name="SetTheLineHeightExtendedTooltip" id="381"/>
 																</Button>
 																<InputField name="RowHeight" id="310">
 																	<DataPath>RowHeight</DataPath>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Row height</v8:content>
+																		</v8:item>
+																	</Title>
 																	<TitleLocation>None</TitleLocation>
 																	<SpinButton>true</SpinButton>
 																	<ContextMenu name="RowHeightContextMenu" id="311"/>
@@ -1048,6 +1180,12 @@
 																	<Type>UsualButton</Type>
 																	<Representation>Picture</Representation>
 																	<CommandName>Form.Command.SetRowHeight</CommandName>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Row height</v8:content>
+																		</v8:item>
+																	</Title>
 																	<ShapeRepresentation>WhenActive</ShapeRepresentation>
 																	<ExtendedTooltip name="SetTheRowHeightMoreExtendedTooltip" id="390"/>
 																</Button>
@@ -1078,11 +1216,23 @@
 																		<xr:Ref>CommonPicture.ColumnWidth</xr:Ref>
 																		<xr:LoadTransparent>false</xr:LoadTransparent>
 																	</Picture>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Column width</v8:content>
+																		</v8:item>
+																	</Title>
 																	<ShapeRepresentation>None</ShapeRepresentation>
 																	<ExtendedTooltip name="SetTheColumnWidthExtendedTooltip" id="383"/>
 																</Button>
 																<InputField name="ColumnWidth" id="315">
 																	<DataPath>ColumnWidth</DataPath>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Column width</v8:content>
+																		</v8:item>
+																	</Title>
 																	<TitleLocation>None</TitleLocation>
 																	<SpinButton>true</SpinButton>
 																	<ContextMenu name="ColumnWidthContextMenu" id="316"/>
@@ -1092,6 +1242,12 @@
 																	<Type>UsualButton</Type>
 																	<Representation>Picture</Representation>
 																	<CommandName>Form.Command.SetColumnWidth</CommandName>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Column width</v8:content>
+																		</v8:item>
+																	</Title>
 																	<ShapeRepresentation>WhenActive</ShapeRepresentation>
 																	<ExtendedTooltip name="SetTheColumnWidthMoreExtendedTooltip" id="392"/>
 																</Button>
@@ -1118,6 +1274,12 @@
 										<Button name="ApplyAppearanceMore" id="182">
 											<Type>UsualButton</Type>
 											<CommandName>Form.Command.ApplyAppearanceMore</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Appearance…</v8:content>
+												</v8:item>
+											</Title>
 											<ShapeRepresentation>None</ShapeRepresentation>
 											<ExtendedTooltip name="ApplyForMoreExtendedTooltip" id="183"/>
 										</Button>
@@ -1142,11 +1304,23 @@
 							<Representation>Text</Representation>
 							<DefaultButton>true</DefaultButton>
 							<CommandName>Form.Command.ApplyISform</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Apply and run</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="ApplyISformExtendedTooltip" id="319"/>
 						</Button>
 						<Button name="Apply" id="320">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.Apply</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Apply</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="ApplyExtendedTooltip" id="321"/>
 						</Button>
 						<Button name="Cancel" id="284">
@@ -1586,7 +1760,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Apply and generate</v8:content>
+					<v8:content>Apply and run</v8:content>
 				</v8:item>
 			</Title>
 			<Picture>

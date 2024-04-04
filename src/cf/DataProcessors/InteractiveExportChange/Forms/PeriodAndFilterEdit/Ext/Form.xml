@@ -17,7 +17,13 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.OkCommand</CommandName>
-				<ExtendedTooltip name="FormOKCommandExtendedTooltip" id="17"/>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>OK</v8:content>
+					</v8:item>
+				</Title>
+				<ExtendedTooltip name="FormOkCommandExtendedTooltip" id="17"/>
 			</Button>
 			<Button name="FormHelp" id="4">
 				<Type>CommandBarButton</Type>

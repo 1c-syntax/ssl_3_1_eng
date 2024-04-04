@@ -45,6 +45,12 @@
 						<Type>CommandBarButton</Type>
 						<SkipOnInput>false</SkipOnInput>
 						<CommandName>Form.Command.EnableEdit</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Allow editing</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="EnableEditExtendedTooltip" id="44"/>
 					</Button>
 					<Button name="Cancel" id="11">
@@ -89,7 +95,7 @@
 								</v8:item>
 							</Title>
 							<PagesRepresentation>None</PagesRepresentation>
-							<ExtendedTooltip name="Notes1ExtendedTooltip" id="30"/>
+							<ExtendedTooltip name="NotesTextExtendedTooltip" id="30"/>
 							<ChildItems>
 								<Page name="AdditionalAttributeNote" id="22">
 									<Title>
@@ -169,7 +175,7 @@ You can edit its name and value type.</v8:content>
 								</v8:item>
 							</Title>
 							<PagesRepresentation>None</PagesRepresentation>
-							<ExtendedTooltip name="Warnings1ExtendedTooltip" id="38"/>
+							<ExtendedTooltip name="WarningsExtendedTooltip" id="38"/>
 							<ChildItems>
 								<Page name="AdditionalAttributeWarning" id="18">
 									<Title>

@@ -31,6 +31,7 @@
 			<Form>InternetSupportAndServices</Form>
 			<Form>UsersAndRightsSettings</Form>
 			<Form>FilesOperationSettings</Form>
+			<Form>FileManagementSettingsSaaS</Form>
 			<Form>SupportAndService</Form>
 			<Form>CommonSettings</Form>
 			<Form>Organizer</Form>
@@ -186,7 +187,7 @@ collaboration in a distributed infobase</v8:content>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Configure file import, storage, and processing parameters</v8:content>
+							<v8:content>Configure how to handle, store, and import files.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Picture/>

@@ -11,6 +11,12 @@
 					<xr:Ref>StdPicture.RestoreValues</xr:Ref>
 					<xr:LoadTransparent>true</xr:LoadTransparent>
 				</Picture>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Import details</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="ImportHandlersExtendedTooltip" id="99"/>
 			</Button>
@@ -18,22 +24,46 @@
 				<Type>CommandBarButton</Type>
 				<Visible>false</Visible>
 				<CommandName>Form.Command.CheckConflicts</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Check conflicts</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="CheckConflictsExtendedTooltip" id="87"/>
 			</Button>
 			<Button name="BuildQueue" id="88">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.BuildQueue</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Queue building control</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="BuildQueueExtendedTooltip" id="89"/>
 			</Button>
 			<Button name="SaveToRepository" id="80">
 				<Type>CommandBarButton</Type>
 				<Representation>PictureAndText</Representation>
 				<CommandName>Form.Command.SaveToRepository</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save to repository</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="SaveToRepositoryExtendedTooltip" id="81"/>
 			</Button>
 			<Button name="ShowERPSettings" id="177">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.ShowSettingsTemplate</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Show template file for code generator customization</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="ShowERPSettingsExtendedTooltip" id="178"/>
 			</Button>
@@ -42,6 +72,12 @@
 				<GroupHorizontalAlign>Right</GroupHorizontalAlign>
 				<CommandName>Form.Command.SwitchFormMode</CommandName>
 				<TextColor>style:AccentColor</TextColor>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Go to simplified mode</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="SwitchFormModeExtendedTooltip" id="247"/>
 			</Button>
 			<Button name="WriteTechnicalDesignHandlersList" id="226">
@@ -50,36 +86,72 @@
 					<xr:Common>false</xr:Common>
 				</UserVisible>
 				<CommandName>Form.Command.WriteTechnicalDesignHandlersList</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save list of handlers of technical design</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="WriteTechnicalDesignHandlersListExtendedTooltip" id="227"/>
 			</Button>
 			<Button name="SaveAllHandlersToRepository" id="207">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.SaveAllHandlersToRepository</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save all handlers to repository</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="SaveAllHandlersToRepositoryExtendedTooltip" id="208"/>
 			</Button>
 			<Button name="SaveToFile" id="253">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.SaveToFile</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save to file</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="SaveToFileExtendedTooltip" id="254"/>
 			</Button>
 			<Button name="LoadFromFile" id="255">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.LoadFromFile</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Import from file</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="LoadFromFileExtendedTooltip" id="256"/>
 			</Button>
 			<Button name="ShowSelectedHandlersCode" id="230">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.ShowModulesText</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Show code of selected handlers</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="ShowSelectedHandlersCodeExtendedTooltip" id="231"/>
 			</Button>
 			<Button name="ShowUpdateHandlersDetailsCode" id="242">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.ShowUpdateHandlersDetailsCode</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Show update handler details code</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="ShowUpdateHandlersDetailsCodeExtendedTooltip" id="243"/>
 			</Button>
@@ -95,30 +167,60 @@
 					<Button name="ShowPrioritiesHandlerConflicts" id="218">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.ShowPrioritiesHandlerConflicts</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Show handler priorities and conflicts</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="ShowPrioritiesHandlerConflictsExtendedTooltip" id="219"/>
 					</Button>
 					<Button name="ShowHandlerObjects" id="251">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.ShowHandlerObjects</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Show handler objects</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="ShowHandlerObjectsExtendedTooltip" id="252"/>
 					</Button>
 					<Button name="ShowTabularSections" id="192">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.ShowTabularSections</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Show all handler details tables</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="ShowTabularSectionsExtendedTooltip" id="193"/>
 					</Button>
 					<Button name="ShowAllHandlersCalls" id="203">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.ShowAllHandlersCalls</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Show all handler calls</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="ShowAllHandlersCallsExtendedTooltip" id="204"/>
 					</Button>
 					<Button name="ShowAllHandlersDetails" id="90">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.ShowAllHandlersDetails</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Show all handler details</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="ShowAllHandlersDetailsExtendedTooltip" id="91"/>
 					</Button>
@@ -126,6 +228,12 @@
 						<Type>CommandBarButton</Type>
 						<Visible>false</Visible>
 						<CommandName>Form.Command.ExecuteQueueBuildingTest</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Test queue building</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="ExecuteQueueBuildingTestExtendedTooltip" id="173"/>
 					</Button>
@@ -133,18 +241,36 @@
 						<Type>CommandBarButton</Type>
 						<Visible>false</Visible>
 						<CommandName>Form.Command.CalculateQueue</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Calculate queue</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="CalculateQueueExtendedTooltip" id="202"/>
 					</Button>
 					<Button name="SetAutoOrder" id="257">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.SetAutoOrder</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Set auto order</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="SetAutoOrderExtendedTooltip" id="258"/>
 					</Button>
 					<Button name="ShowAllModulesTexts" id="209">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.ShowAllModulesTexts</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Show texts of all modules</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="ShowAllModulesTextsExtendedTooltip" id="210"/>
 					</Button>
@@ -229,6 +355,12 @@
 						<InputField name="ErrorFileDirectory" id="174">
 							<DataPath>ErrorFileDirectory</DataPath>
 							<Visible>false</Visible>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Error files directory</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Left</TitleLocation>
 							<AutoMaxWidth>false</AutoMaxWidth>
 							<MaxWidth>41</MaxWidth>
@@ -277,6 +409,12 @@
 				</InputField>
 				<InputField name="ObjectToChange" id="134">
 					<DataPath>ObjectToChange</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Object to change</v8:content>
+						</v8:item>
+					</Title>
 					<ClearButton>true</ClearButton>
 					<ContextMenu name="ObjectToChangeContextMenu" id="135"/>
 					<ExtendedTooltip name="ObjectToChangeExtendedTooltip" id="136"/>
@@ -287,6 +425,12 @@
 				</InputField>
 				<InputField name="ObjectToRead" id="131">
 					<DataPath>ObjectToRead</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Object to read</v8:content>
+						</v8:item>
+					</Title>
 					<ClearButton>true</ClearButton>
 					<ContextMenu name="ObjectToReadContextMenu" id="132"/>
 					<ExtendedTooltip name="ObjectToReadExtendedTooltip" id="133"/>
@@ -379,6 +523,12 @@
 					<Button name="UpdateHandlersSelectedHandlersCode" id="244">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.ShowModulesText</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Show code of selected handlers</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="UpdateHandlersSelectedHandlersCodeExtendedTooltip" id="245"/>
 					</Button>

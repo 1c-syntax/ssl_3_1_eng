@@ -31,6 +31,9 @@
 				<xr:Item xsi:type="xr:MDObjectRef">DefinedType.NotesSubjectObject</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">EventSubscription.SetClearNotesDeletionMark</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">EventSubscription.SetUserDeletionNoteChangeStatus</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.UserNotesInternalClient</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">Constant.UseNotesCommand</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">FunctionalOption.UseNotesCommand</xr:Item>
 			</Content>
 		</Properties>
 		<ChildObjects/>

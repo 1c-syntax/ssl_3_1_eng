@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -108,6 +109,10 @@ Procedure ShowSecurityWarning() Export
 	
 EndProcedure
 
+Procedure WhenMonitoringRestartsWithReducedAccessRights() Export
+	InformAboutRestartOfApplication();
+EndProcedure
+
 ////////////////////////////////////////////////////////////////////////////////
 // Configuration subsystems event handlers.
 
@@ -169,7 +174,7 @@ Procedure AfterStart() Export
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Disable %1 authentication if it is not used.';"), "OpenID-Connect");
 		ShowUserNotification(MessageTitle, ClickNotification,
-			MessageText, PictureLib.Warning32, UserNotificationStatus.Important);
+			MessageText, PictureLib.DialogExclamation, UserNotificationStatus.Important);
 	EndIf;
 	
 EndProcedure
@@ -178,16 +183,36 @@ EndProcedure
 Procedure OnReceiptServerNotification(NameOfAlert, Result) Export
 	
 	If Result = "AuthorizationDenied" Then
+		StopRestartingApp();
 		OpenForm("CommonForm.AuthorizationDenied");
 		
-	ElsIf Result = "RolesAreModified" Then
+	ElsIf Result = "RolesAreReduced" Then
+		StartRestartingApp();
+		
+	ElsIf Result = "RolesExpanded" Then
+		StopRestartingApp();
 		ShowUserNotification(
 			NStr("en = 'Access rights updated';"),
 			"e1cib/app/CommonForm.InfobaseUserRoleChangeControl",
 			NStr("en = 'Restart the application so that they come into force.';"),
-			PictureLib.Warning32,
+			PictureLib.DialogExclamation,
 			UserNotificationStatus.Important,
 			"InfobaseUserRoleChangeControl");
+		
+	ElsIf TypeOf(Result) = Type("Number") Then
+		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Your access will expire in %1.
+			           |To extend access, contact your administrator.';"),
+			Format(Result, "NG=") + " "
+				+ UsersInternalClientServer.IntegerSubject(Result,
+					"", NStr("en = 'day,days,,,0';")));
+		
+		ShowUserNotification(
+			NStr("en = 'Access about to expire';"),,
+			MessageText,
+			PictureLib.DialogExclamation,
+			UserNotificationStatus.Important,
+			"UserExpirationInApp");
 	EndIf;
 	
 EndProcedure
@@ -238,7 +263,7 @@ Procedure InteractiveHandlerOnChangePasswordOnStartCompletion(Result, Parameters
 	
 EndProcedure
 
-// 
+// Prompts to disable OpenID-Connect authentication on startup.
 Procedure AskAboutDisablingOpenIDConnect(Context) Export
 	
 	CompletionProcessing = New NotifyDescription(
@@ -263,7 +288,7 @@ Procedure AskAboutDisablingOpenIDConnect(Context) Export
 	
 EndProcedure
 
-// 
+// Continues the "AskAboutDisablingOpenIDConnect" procedure.
 Procedure AskAboutDisablingOpenIDConnectCompletion(Result, Parameters) Export
 	
 	Response = ?(Result <> Undefined, Result.Value, "RemindLater");
@@ -393,8 +418,7 @@ Procedure OpenReportOrForm(CurrentItem, User, CurrentUser, PersonalSettingsFormN
 				
 				If ValueTreeItem.CurrentData.RowType = "DesktopSettings" Then
 					ShowMessageBox(,
-						NStr("en = 'To view the desktop settings, go to ""Desktop"" section
-						           | in the application command interface.';"));
+						NStr("en = 'Navigate to ""Home page"" to view its settings.';"));
 					Return;
 				EndIf;
 				
@@ -499,5 +523,199 @@ Function UsersNote(UsersCount, User) Export
 	Return SettingsCopiedToNote;
 	
 EndFunction
+
+///////////////////////////////////////////////////////////////////////////////
+// 
+
+Procedure StartRestartingApp()
+	
+	Parameters = RestartNotificationParameters();
+	If ValueIsFilled(Parameters.RestartDate) Then
+		Return;
+	EndIf;
+	
+	Parameters.RestartDate = CommonClient.SessionDate() + 15*60; // 
+	
+	AttachIdleHandler("RestartControlWhenAccessRightsAreReduced", 60);
+	InformAboutRestartOfApplication();
+	
+EndProcedure
+
+Procedure StopRestartingApp()
+	
+	DetachIdleHandler("RestartControlWhenAccessRightsAreReduced");
+	ClearRestartAlert();
+	RestartNotificationParameters().RestartDate = '00010101';
+	
+EndProcedure
+
+Procedure InformAboutRestartOfApplication()
+	
+	Parameters = RestartNotificationParameters();
+	If Not ValueIsFilled(Parameters.RestartDate) Then
+		Return;
+	EndIf;
+	
+	If Not StandardSubsystemsServerCall.CurUserSRolesHaveBeenReduced() Then
+		StopRestartingApp();
+		Return;
+	EndIf;
+	
+	WaitTimeout = 10; // 
+	ExitWithConfirmationTimeout = 5; // 
+	CurrentMoment = CommonClient.SessionDate();
+	
+	If Parameters.RestartDate - CurrentMoment < 5 Then
+		RestartNow();
+		Return;
+	EndIf;
+	
+	MinutesLeft = ThereAreMinutesLeftBeforeRestart(Parameters.RestartDate, CurrentMoment);
+	PresentationIsMinutesAway = PresentationIsMinutesAwayFromRestart(MinutesLeft);
+	
+	ShowRestartNotification(StringFunctionsClientServer.SubstituteParametersToString(
+		NStr("en = 'App will restart in %1. Save the changes.';"),
+		PresentationIsMinutesAway));
+	
+	If MinutesLeft <= ExitWithConfirmationTimeout Then
+		AskOnTermination(StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'App will restart in %1. Save the changes.
+			           |Restart now?';"),
+			PresentationIsMinutesAway));
+		
+	ElsIf MinutesLeft <= WaitTimeout Then
+		ShowWarningOnExit(StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'App will restart in %1. Save the changes.';"),
+			PresentationIsMinutesAway));
+	EndIf;
+	
+EndProcedure
+
+Function ThereAreMinutesLeftBeforeRestart(RestartDate, CurrentMoment = Undefined) Export
+	
+	If CurrentMoment = Undefined Then
+		CurrentMoment = CommonClient.SessionDate();
+	EndIf;
+	
+	MinutesLeft = Int((RestartDate - CurrentMoment) / 60);
+	
+	Return ?(MinutesLeft > 0, MinutesLeft, 1);
+	
+EndFunction
+
+Function PresentationIsMinutesAwayFromRestart(MinutesLeft) Export
+	
+	Return StringFunctionsClientServer.StringWithNumberForAnyLanguage(
+		NStr("en = ';%1 minute;;;;%1 minutes';"),
+		MinutesLeft);
+	
+EndFunction
+
+// Parameters:
+//  UpdateDateOfLastWarningOrQuestion - Boolean
+//
+// Returns:
+//  Structure:
+//   * IsNotificationDisplayed - Boolean
+//   * ShowWarningOrQuestion - Boolean
+//   * LastQuestionOrWarningDate - Date
+//   * RestartDate - Date
+//
+Function RestartNotificationParameters(UpdateDateOfLastWarningOrQuestion = False) Export
+	
+	ParameterName = "StandardSubsystems.Users.RestartNotificationParameters";
+	Properties = ApplicationParameters[ParameterName];
+	If Properties = Undefined Or Not ValueIsFilled(Properties.RestartDate) Then
+		Properties = New Structure;
+		Properties.Insert("IsNotificationDisplayed", False);
+		Properties.Insert("ShowWarningOrQuestion", False);
+		Properties.Insert("LastQuestionOrWarningDate", '00010101');
+		Properties.Insert("RestartDate", '00010101');
+		ApplicationParameters.Insert(ParameterName, Properties);
+	EndIf;
+	
+	If UpdateDateOfLastWarningOrQuestion Then
+		SessionDate = CommonClient.SessionDate();
+		If Properties.LastQuestionOrWarningDate + 50 < SessionDate Then
+			Properties.LastQuestionOrWarningDate = SessionDate;
+			Properties.ShowWarningOrQuestion = True;
+		Else
+			Properties.ShowWarningOrQuestion = False;
+		EndIf;
+	EndIf;
+	
+	Return Properties;
+	
+EndFunction
+
+Procedure ShowRestartNotification(MessageText)
+	
+	Parameters = RestartNotificationParameters();
+	If Parameters.IsNotificationDisplayed Then
+		Return;
+	EndIf;
+	
+	ShowUserNotification(
+		NStr("en = 'App will restart';"),
+		"e1cib/app/CommonForm.InfobaseUserRoleChangeControl",
+		MessageText,
+		PictureLib.DialogExclamation,
+		UserNotificationStatus.Important,
+		"RestartControlWhenAccessRightsAreReduced");
+	
+	Parameters.IsNotificationDisplayed = True;
+	
+EndProcedure
+
+Procedure ClearRestartAlert()
+	
+	Parameters = RestartNotificationParameters();
+	If Not Parameters.IsNotificationDisplayed Then
+		Return;
+	EndIf;
+	Parameters.IsNotificationDisplayed = False;
+	
+	ShowUserNotification(NStr("en = 'Restart canceled';"),,,,
+		UserNotificationStatus.Important, "RestartControlWhenAccessRightsAreReduced");
+	
+EndProcedure
+
+Procedure ShowWarningOnExit(WarningText)
+	
+	Parameters = RestartNotificationParameters(True);
+	If Not Parameters.ShowWarningOrQuestion Then
+		Return;
+	EndIf;
+	
+	ShowMessageBox(, WarningText, 30);
+	
+EndProcedure
+
+Procedure AskOnTermination(QueryText)
+	
+	Parameters = RestartNotificationParameters(True);
+	If Not Parameters.ShowWarningOrQuestion Then
+		Return;
+	EndIf;
+	
+	NotifyDescription = New NotifyDescription("AskOnTerminationCompletion", ThisObject);
+	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo, 30, DialogReturnCode.Yes);
+	
+EndProcedure
+
+Procedure AskOnTerminationCompletion(Response, AdditionalParameters) Export
+	
+	If Response = DialogReturnCode.Yes Then
+		RestartNow();
+	EndIf;
+	
+EndProcedure
+
+Procedure RestartNow()
+	
+	StandardSubsystemsClient.SkipExitConfirmation();
+	Exit(True, True);
+	
+EndProcedure
 
 #EndRegion

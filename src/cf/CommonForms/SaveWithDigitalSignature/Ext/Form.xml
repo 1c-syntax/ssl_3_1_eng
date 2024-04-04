@@ -10,7 +10,13 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.Save</CommandName>
-				<ExtendedTooltip name="FormOK1ExtendedTooltip" id="64"/>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save</v8:content>
+					</v8:item>
+				</Title>
+				<ExtendedTooltip name="FormOKExtendedTooltip" id="64"/>
 			</Button>
 			<Button name="FormCancel" id="61">
 				<Type>CommandBarButton</Type>
@@ -123,6 +129,12 @@
 					<ChildItems>
 						<CheckBoxField name="SignatureTableCheck" id="59">
 							<DataPath>SignatureTable.Check</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Mark</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<EditMode>EnterOnInput</EditMode>
 							<CheckBoxType>Auto</CheckBoxType>
@@ -147,6 +159,12 @@
 						<InputField name="SignatureTableSignatureDate" id="39">
 							<DataPath>SignatureTable.SignatureDate</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Date signed</v8:content>
+								</v8:item>
+							</Title>
 							<EditMode>EnterOnInput</EditMode>
 							<TextEdit>false</TextEdit>
 							<ContextMenu name="SignatureTableSignatureDateContextMenu" id="40"/>
@@ -155,6 +173,12 @@
 						<InputField name="SignatureTableComment" id="41">
 							<DataPath>SignatureTable.Comment</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Comment</v8:content>
+								</v8:item>
+							</Title>
 							<EditMode>EnterOnInput</EditMode>
 							<Width>10</Width>
 							<TextEdit>false</TextEdit>

@@ -60,11 +60,23 @@
 					<Button name="AddFileByTemplate" id="328">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.AddFileByTemplate</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>From template…</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="AddFileByTemplateExtendedTooltip" id="329"/>
 					</Button>
 					<Button name="AddFileFromScanner" id="259">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.AddFileFromScanner</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>From scanner…</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="AddFileFromScannerExtendedTooltip" id="260"/>
 					</Button>
 				</ChildItems>
@@ -81,12 +93,24 @@
 					<Button name="ImportFiles" id="300">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.ImportFiles</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Upload files…</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="ImportFilesExtendedTooltip" id="301"/>
 					</Button>
 					<Button name="ImportFolder" id="321">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.ImportFolder</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Upload folder…</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="ImportFolderExtendedTooltip" id="322"/>
 					</Button>
@@ -95,11 +119,23 @@
 			<Button name="CreateFolder" id="298">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.CreateFolder</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Create group</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="CreateFolderExtendedTooltip" id="299"/>
 			</Button>
 			<Button name="FormChange" id="102">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.OpenFileProperties</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Open card</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormChangeExtendedTooltip" id="122"/>
 			</Button>
@@ -116,11 +152,23 @@
 						<Type>CommandBarButton</Type>
 						<Representation>Text</Representation>
 						<CommandName>Form.Command.OpenFileForViewing</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>View</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="FormOpenExtendedTooltip" id="105"/>
 					</Button>
 					<Button name="Lock" id="332">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.Lock</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Lock</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="LockExtendedTooltip" id="333"/>
 					</Button>
@@ -128,11 +176,23 @@
 						<Type>CommandBarButton</Type>
 						<Representation>Text</Representation>
 						<CommandName>Form.Command.Edit</CommandName>
-						<ExtendedTooltip name="FormEditExtendedTooltip_SSLs" id="107"/>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Edit</v8:content>
+							</v8:item>
+						</Title>
+						<ExtendedTooltip name="FormEditExtendedTooltip" id="107"/>
 					</Button>
 					<Button name="FormEndEdit" id="43">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.EndEdit</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Commit</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="FormEndEditExtendedTooltip" id="108"/>
 					</Button>
 					<Popup name="PrintSubmenu" id="334">
@@ -147,11 +207,23 @@
 							<Button name="Print" id="265">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.Print</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Quick print</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="PrintExtendedTooltip" id="266"/>
 							</Button>
 							<Button name="PrintWithStamp" id="336">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.PrintWithStamp</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>With digital signature stamp…</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="PrintWithStampExtendedTooltip" id="337"/>
 							</Button>
 						</ChildItems>
@@ -159,11 +231,23 @@
 					<Button name="Send" id="263">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.Send</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Send</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="SendExtendedTooltip" id="264"/>
 					</Button>
 					<Button name="CompareFiles" id="323">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.CompareFiles</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Compare files…</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="CompareFilesExtendedTooltip" id="324"/>
 					</Button>
@@ -206,16 +290,34 @@
 							<Button name="FormSign" id="75">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.Sign</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Sign…</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="FormSignExtendedTooltip" id="111"/>
 							</Button>
 							<Button name="FormAddSignatureFromFile" id="74">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.AddDSFromFile</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Add digital signature from file…</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="FormAddSignatureFromFileExtendedTooltip" id="113"/>
 							</Button>
 							<Button name="FormSaveWithSignature" id="73">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.SaveWithDigitalSignature</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Save with digital signature…</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="FormSaveWithSignatureExtendedTooltip" id="112"/>
 							</Button>
 						</ChildItems>
@@ -232,11 +334,23 @@
 							<Button name="FormEncrypt" id="76">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.Encrypt</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Encrypt…</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="FormEncryptExtendedTooltip" id="115"/>
 							</Button>
 							<Button name="FormDecrypt" id="77">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.Decrypt</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Decrypt…</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="FormDecryptExtendedTooltip" id="116"/>
 							</Button>
 						</ChildItems>
@@ -255,6 +369,12 @@
 			<Button name="SyncSettings" id="283">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.SyncSettings</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Sync with cloud drive…</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="SyncSettingsExtendedTooltip" id="284"/>
 			</Button>
@@ -271,12 +391,24 @@
 					<Button name="FormCopy" id="19">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.Copy</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Copy</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="FormCopyExtendedTooltip" id="118"/>
 					</Button>
 					<Button name="FormSaveAs" id="4">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.SaveAs</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Save as…</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="FormSaveAsExtendedTooltip" id="120"/>
 					</Button>
@@ -313,6 +445,12 @@
 					<Button name="MoveToGroupCommand" id="338">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.MoveToGroup</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Move to group</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="MoveToGroup1ExtendedTooltip" id="339"/>
 					</Button>
@@ -320,8 +458,14 @@
 						<Type>CommandBarButton</Type>
 						<Representation>Text</Representation>
 						<CommandName>Form.Command.Release</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Undo edits</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-						<ExtendedTooltip name="FormUnlockExtendedTooltip" id="109"/>
+						<ExtendedTooltip name="FormReleaseExtendedTooltip" id="109"/>
 					</Button>
 					<Button name="FormUpdateFromFileOnHardDrive" id="51">
 						<Type>CommandBarButton</Type>
@@ -330,12 +474,24 @@
 							<xr:Ref>CommonPicture.UpdateFileFromFileOnHardDrive</xr:Ref>
 							<xr:LoadTransparent>false</xr:LoadTransparent>
 						</Picture>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Update from local file…</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="FormUpdateFromFileOnHardDriveExtendedTooltip" id="121"/>
 					</Button>
 					<Button name="FormOpenFileDirectory" id="2">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.OpenFileDirectory</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Open file directory</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="FormOpenFileDirectoryExtendedTooltip" id="123"/>
 					</Button>
@@ -351,12 +507,24 @@
 							<Button name="SetDeletionMark" id="21">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.SetDeletionMark</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Toggle deletion mark</v8:content>
+									</v8:item>
+								</Title>
 								<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 								<ExtendedTooltip name="SetDeletionMarkExtendedTooltip" id="119"/>
 							</Button>
 							<Button name="FormDelete" id="356">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.Delete</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Delete</v8:content>
+									</v8:item>
+								</Title>
 								<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 								<ExtendedTooltip name="FormDeleteExtendedTooltip" id="357"/>
 							</Button>
@@ -376,6 +544,12 @@
 					<Button name="FormRefresh" id="222">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.Refresh</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Refresh</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="FormRefreshExtendedTooltip" id="223"/>
 					</Button>
@@ -425,24 +599,48 @@
 			<Button name="SaveFolder" id="319">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.SaveFolder</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save folder</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="SaveFolderExtendedTooltip" id="320"/>
 			</Button>
 			<Button name="Preview" id="272">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.Preview</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Preview</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="PreviewExtendedTooltip" id="273"/>
 			</Button>
 			<Button name="ShowMarkedFiles" id="358">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.ShowMarkedFiles</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Show marked files</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="ShowMarkedFilesExtendedTooltip" id="359"/>
 			</Button>
 			<Button name="ShowServiceFiles" id="350">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.ShowServiceFiles</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Show program files</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="ShowServiceFilesExtendedTooltip" id="351"/>
 			</Button>
@@ -558,6 +756,12 @@
 		</LabelDecoration>
 		<LabelField name="FileOwner" id="280">
 			<DataPath>FileOwner</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Owner</v8:content>
+				</v8:item>
+			</Title>
 			<TitleFont ref="style:FilesOwnerFont" kind="StyleItem"/>
 			<Hiperlink>true</Hiperlink>
 			<Font ref="style:FilesOwnerFont" kind="StyleItem"/>
@@ -760,6 +964,12 @@
 								<Type>CommandBarButton</Type>
 								<Visible>false</Visible>
 								<CommandName>Form.Command.Add</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Add</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="ListContextMenuAddExtendedTooltip" id="132"/>
 							</Button>
 							<Popup name="ListContextMenuCommandsGroupAdd" id="274">
@@ -789,16 +999,34 @@
 									<Button name="ListContextMenuAddFileByTemplate" id="330">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.AddFileByTemplate</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>From template…</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ListContextMenuAddFileFromTemplateExtendedTooltip" id="331"/>
 									</Button>
 									<Button name="ListContextMenuAddFileFromScanner" id="278">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.AddFileFromScanner</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>From scanner…</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ListContextMenuAddFileFromScannerExtendedTooltip" id="279"/>
 									</Button>
 									<Button name="ListContextMenuCreateFolder" id="309">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.CreateFolder</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Create group</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ListContextMenuCreateFolderExtendedTooltip" id="310"/>
 									</Button>
 								</ChildItems>
@@ -806,6 +1034,12 @@
 							<Button name="ListContextMenuChange" id="202">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.OpenFileProperties</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Open card</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="ListContextMenuChangeExtendedTooltip" id="203"/>
 							</Button>
 							<ButtonGroup name="ListContextMenuMainCommandsGroup" id="55">
@@ -820,11 +1054,23 @@
 									<Button name="ListContextMenuOpen" id="56">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.OpenFileForViewing</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>View</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ListContextMenuOpenExtendedTooltip" id="134"/>
 									</Button>
 									<Button name="ListContextMenuEdit" id="58">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.Edit</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Edit</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ListContextMenuEditExtendedTooltip" id="136"/>
 									</Button>
 									<Button name="ListContextMenuEndEdit" id="59">
@@ -836,7 +1082,7 @@
 												<v8:content>Commit</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="ListContextMenuEndEditExtendedTooltip" id="137"/>
+										<ExtendedTooltip name="ListContextMenuFinishEditingExtendedTooltip" id="137"/>
 									</Button>
 								</ChildItems>
 							</ButtonGroup>
@@ -865,16 +1111,34 @@
 											<Button name="ListContextMenuSign" id="80">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.Sign</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Sign…</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ListContextMenuSignExtendedTooltip" id="150"/>
 											</Button>
 											<Button name="ListContextMenuAddSignatureFromFile" id="81">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.AddDSFromFile</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Add digital signature from file…</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ListContextMenuAddSignatureFromFileExtendedTooltip" id="151"/>
 											</Button>
 											<Button name="ListContextMenuSaveWithSignature" id="82">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.SaveWithDigitalSignature</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Save with digital signature…</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ListContextMenuSaveWithSignatureExtendedTooltip" id="152"/>
 											</Button>
 										</ChildItems>
@@ -891,11 +1155,23 @@
 											<Button name="ListContextMenuEncrypt" id="84">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.Encrypt</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Encrypt…</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ListContextMenuEncryptExtendedTooltip" id="154"/>
 											</Button>
 											<Button name="ListContextMenuDecrypt" id="85">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.Decrypt</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Decrypt…</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ListContextMenuDecryptExtendedTooltip" id="155"/>
 											</Button>
 										</ChildItems>
@@ -914,41 +1190,89 @@
 									<Button name="ListContextMenuCopy" id="63">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.Copy</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Copy</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ListContextMenuCopyExtendedTooltip" id="140"/>
 									</Button>
 									<Button name="ContextMenuMarkForDeletion" id="64">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.SetDeletionMark</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Toggle deletion mark</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ContextMenuMarkForDeletionExtendedTooltip" id="141"/>
 									</Button>
 									<Button name="ListContextMenuDelete" id="360">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.Delete</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Delete</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ListContextMenuDeleteExtendedTooltip" id="361"/>
 									</Button>
 									<Button name="ListContextMenuSaveAs" id="65">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.SaveAs</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Save as…</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ListContextMenuSaveAsExtendedTooltip" id="142"/>
 									</Button>
 									<Button name="ListContextMenuMoveToGroup" id="340">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.MoveToGroup</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Move to group</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ListContextMenuMoveToGroupExtendedTooltip" id="341"/>
 									</Button>
 									<Button name="ListContextMenuUnlock" id="60">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.Release</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Undo edits</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ListContextMenuUnlockExtendedTooltip" id="138"/>
 									</Button>
 									<Button name="ListContextMenuUpdateFromFileOnHardDrive" id="66">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.UpdateFromFileOnHardDrive</CommandName>
-										<ExtendedTooltip name="ListContextMenuUpdateFromFileOnHardDriveExtendedTooltip" id="143"/>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Update from local file…</v8:content>
+											</v8:item>
+										</Title>
+										<ExtendedTooltip name="ListContextMenuUpdateFromFileOnDiskExtendedTooltip" id="143"/>
 									</Button>
 									<Button name="ListContextMenuOpenFileDirectory" id="68">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.OpenFileDirectory</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Open file directory</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ListContextMenuOpenFileDirectoryExtendedTooltip" id="145"/>
 									</Button>
 								</ChildItems>
@@ -1598,7 +1922,7 @@ FROM
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Cancel editing</v8:content>
+					<v8:content>Undo edits</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
@@ -1620,7 +1944,7 @@ FROM
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Update from local file...</v8:content>
+					<v8:content>Update from local file…</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
@@ -1869,7 +2193,7 @@ FROM
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Synchronize with cloud…</v8:content>
+					<v8:content>Sync with cloud drive…</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
@@ -2074,13 +2398,13 @@ FROM
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Show internal files</v8:content>
+					<v8:content>Show program files</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Show internal files</v8:content>
+					<v8:content>Show program files</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>ShowServiceFiles</Action>

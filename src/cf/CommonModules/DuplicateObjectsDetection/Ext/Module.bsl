@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -15,7 +16,7 @@
 //     SearchArea - String - Data table name (full metadata name) of the search location.
 //                              For example, "Catalog.Products". 
 //                              Supports search in catalogs, charts of characteristic types, calculation types, and charts of accounts.
-//     SampleObject - AnyRef, CatalogObject - 
+//     SampleObject - AnyRef, CatalogObject - Item whose duplicates are to be found.
 //     AdditionalParameters - Arbitrary - Parameter to pass to event handlers.
 //
 // Returns:
@@ -132,7 +133,7 @@ Procedure SupplementDuplicatesWithLinkedSubordinateObjects(ReplacementPairs, Rep
 		SubordinateObjectLinks = SubordinateObjectsLinks.FindRows(Filter);
 		PackageParts.Add(ObjectsForReplacementQueryText( SubordinateObjectDetails, SubordinateObjectLinks));
 		
-		FoundDuplicatesTables.Insert(SubordinateObjectDetails.Key, PackageParts.Count() * 3 - 1);  
+		FoundDuplicatesTables.Insert(SubordinateObjectDetails.Key, PackageParts.Count() * 3 - 1); //  
 		Position = Position + SubordinateObjectLinks.Count();
 	
 	EndDo;
@@ -160,24 +161,24 @@ Procedure SupplementDuplicatesWithLinkedSubordinateObjects(ReplacementPairs, Rep
 	
 EndProcedure
 
-// 
+// Searches for all instances of the given string in the passed string array.
 //
 // Parameters:
-//  InitialString - String - 
-//                            
-//  SearchString   - String - 
-//  Separator    - String - 
-//                            
+//  InitialString - String - A list of strings beings searched, which are separated by the character
+//                            passed in the "Separator" parameter.
+//  SearchString   - String - String to be found.
+//  Separator    - String - A character that delimits the string into substrings.
+//                            It is required if the passed strings is an array of strings.
 //  SearchParameters - See ParametersOfSearchForSimilarStrings.
 //
 // Example:
-//  
-//  
-//  
+//  SourceString = "Turning lathe~Desk lamp~Food container~Wood container";
+//  IndexesOfFuzzyMatches = DuplicateObjectsDetection.FindSimilarStrings(SourceString, "Food container");
+//  The function will return "2,3", which are the indexes of the items "Food container" and "Wood container".
 //  
 //
 // Returns:
-//  String - 
+//  String - Comma-delimited list of duplicate indexes (indexing starts with "0").
 //
 Function FindSimilarStrings(InitialString, SearchString, Separator = "~", SearchParameters = Undefined) Export
 	
@@ -186,13 +187,11 @@ Function FindSimilarStrings(InitialString, SearchString, Separator = "~", Search
 		Or SearchParameters.SearchAddIn = Undefined;
 	
 	StringsComparisonForSimilarity = ParametersOfSearchForSimilarStrings(CreateAddIn);
-	
 	If TypeOf(SearchParameters) = Type("Structure") Then
 		FillPropertyValues(StringsComparisonForSimilarity, SearchParameters, , ?(CreateAddIn, "SearchAddIn", ""));
 	EndIf;
 	
 	SearchAddIn = StringsComparisonForSimilarity.SearchAddIn;
-	
 	ExceptionWords = Lower(StrConcat(StringsComparisonForSimilarity.ExceptionWords, Separator));
 	
 	RowIndexes = SearchAddIn.StringSearch(Lower(SearchString), Lower(InitialString), "~", 
@@ -203,7 +202,7 @@ Function FindSimilarStrings(InitialString, SearchString, Separator = "~", Search
 	
 EndFunction
 
-// 
+// Returns parameters for the "FindSimilarStrings" function.
 // 
 // Parameters:
 //  AttachAddInSSL - Boolean - 
@@ -215,27 +214,29 @@ EndFunction
 //     * StringsMatchPercentage          - Number - 
 //     * SmallStringsMatchPercentage - Number - 
 //     * SmallStringsLength             - Number - 
-//     * ExceptionWords - Array
+//     * ExceptionWords - Array of String
 //     * SearchAddIn - AddInObject
 //
 Function ParametersOfSearchForSimilarStrings(AttachAddInSSL = True) Export
 	
-	StringsComparisonForSimilarity = New Structure;
-	StringsComparisonForSimilarity.Insert("StringsMatchPercentage", 90);
-	StringsComparisonForSimilarity.Insert("SmallStringsMatchPercentage", 80);
-	StringsComparisonForSimilarity.Insert("SmallStringsLength", 30);
-	StringsComparisonForSimilarity.Insert("ExceptionWords", New Array);
+	Result = New Structure;
+	Result.Insert("StringsMatchPercentage", 90);
+	Result.Insert("SmallStringsMatchPercentage", 80);
+	Result.Insert("SmallStringsLength", 30);
+	Result.Insert("ExceptionWords", New Array);
 	If AttachAddInSSL Then
-		FuzzySearch1 = Common.AttachAddInFromTemplate("FuzzyStringMatchExtension", "CommonTemplate.StringSearchAddIn");
+		SetSafeModeDisabled(True);
+		FuzzySearch1 = Common.AttachAddInFromTemplate("FuzzyStringMatchExtension", 
+			"CommonTemplate.StringSearchAddIn");
 		If FuzzySearch1 = Undefined Then
 			Raise NStr("en = 'Cannot attach the fuzzy search add-in. See the Event log for details.';");
 		EndIf;
-		StringsComparisonForSimilarity.Insert("SearchAddIn", FuzzySearch1);
+		Result.Insert("SearchAddIn", FuzzySearch1);
 	Else
-		StringsComparisonForSimilarity.Insert("SearchAddIn", Undefined);
+		Result.Insert("SearchAddIn", Undefined);
 	EndIf;
 	
-	Return StringsComparisonForSimilarity;
+	Return Result;
 	
 EndFunction
 

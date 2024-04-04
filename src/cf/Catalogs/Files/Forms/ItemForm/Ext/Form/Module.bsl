@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -31,8 +32,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	SetButtonsAvailability(ThisObject, Items);
 	
-	PrintWithStampAvailable =
-		  Common.SubsystemExists("StandardSubsystems.DigitalSignature")
+	PrintWithStampAvailable = Common.SubsystemExists("StandardSubsystems.DigitalSignature")
 		And (Lower(Object.Extension) = "mxl" Or Lower(Object.Extension) = "docx")
 		And Object.SignedWithDS;
 	
@@ -42,8 +42,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.Print.Title = NStr("en = 'Print';");
 	EndIf;
 	
-	Items.FormDelete.Visible =
-		Object.Author = Users.AuthorizedUser();
+	Items.FormDelete.Visible = (Object.Author = Users.AuthorizedUser());
 	
 	RefreshTitle();
 	RefreshFullPath();
@@ -326,7 +325,7 @@ EndProcedure
 #Region FormCommandsEventHandlers
 
 ///////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure ShowInList(Command)
@@ -421,7 +420,7 @@ Procedure StandardSetDeletionMarkAnswerReceived(QuestionResult, AdditionalParame
 	
 EndProcedure
 
-
+// 
 
 &AtClient
 Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined, StandardProcessing = Undefined)
@@ -436,7 +435,7 @@ EndProcedure
 // End StandardSubsystems.Properties
 
 ///////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure Sign(Command)
@@ -542,8 +541,8 @@ Procedure EncryptAfterEncryptAtClient(Result, ExecutionParameters) Export
 		Object.Ref);
 		
 	NotifyChanged(Object.Ref);
-	FileRecordingNotificationParameters = FilesOperationsInternalClient.FileRecordingNotificationParameters();
-	Notify("Write_File", FileRecordingNotificationParameters, Object.Ref);
+	FileWriteNotificationParameters = FilesOperationsInternalClient.FileWriteNotificationParameters();
+	Notify("Write_File", FileWriteNotificationParameters, Object.Ref);
 	
 	SetAvaliabilityOfEncryptionList();
 	
@@ -664,6 +663,25 @@ Procedure ExtendActionSignatures(Command)
 EndProcedure
 
 &AtClient
+Procedure MarkAsManuallyVerified(Command)
+	
+	If Items.DigitalSignatures.SelectedRows.Count() = 0 Then
+		Return;
+	EndIf;
+	
+	If Not CommonClient.SubsystemExists("StandardSubsystems.DigitalSignature") Then
+		Return;
+	EndIf;
+	
+	ClosingNotification1 = New NotifyDescription("AfterSignatureAuthenticityJustificationEntered",
+		ThisObject);
+		
+	ModuleDigitalSignatureClient = CommonClient.CommonModule("DigitalSignatureClient");
+	ModuleDigitalSignatureClient.EnterSignatureAuthenticityJustification(ThisObject, ClosingNotification1);
+	
+EndProcedure
+
+&AtClient
 Procedure SaveSignature(Command)
 	
 	If Items.DigitalSignatures.CurrentData = Undefined Then
@@ -707,8 +725,8 @@ Procedure DeleteDigitalSignatureAnswerReceived(QuestionResult, AdditionalParamet
 	Write();
 	DeleteFromSignatureListAndWriteFile();
 	NotifyChanged(Object.Ref);
-	FileRecordingNotificationParameters = FilesOperationsInternalClient.FileRecordingNotificationParameters();
-	Notify("Write_File", FileRecordingNotificationParameters, Object.Ref);
+	FileWriteNotificationParameters = FilesOperationsInternalClient.FileWriteNotificationParameters();
+	Notify("Write_File", FileWriteNotificationParameters, Object.Ref);
 	SetAvaliabilityOfDSCommandsList();
 	
 EndProcedure
@@ -750,7 +768,7 @@ Procedure SetAvaliabilityOfEncryptionList()
 EndProcedure
 
 ///////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure Lock(Command)
@@ -786,8 +804,8 @@ Procedure Edit(Command)
 	If Not FileBeingEdited Then
 		UpdateObject();
 		NotifyChanged(Object.Ref);
-		FileRecordingNotificationParameters = FilesOperationsInternalClient.FileRecordingNotificationParameters();
-		Notify("Write_File", FileRecordingNotificationParameters, Object.Ref);
+		FileWriteNotificationParameters = FilesOperationsInternalClient.FileWriteNotificationParameters();
+		Notify("Write_File", FileWriteNotificationParameters, Object.Ref);
 	EndIf;
 	
 EndProcedure
@@ -820,8 +838,8 @@ Procedure EndEditingPuttingCompleted(FileInfo, AdditionalParameters) Export
 	UpdateObject();
 	
 	NotifyChanged(Object.Ref);
-	FileRecordingNotificationParameters = FilesOperationsInternalClient.FileRecordingNotificationParameters();
-	Notify("Write_File", FileRecordingNotificationParameters, Object.Ref);
+	FileWriteNotificationParameters = FilesOperationsInternalClient.FileWriteNotificationParameters();
+	Notify("Write_File", FileWriteNotificationParameters, Object.Ref);
 	
 EndProcedure
 
@@ -854,8 +872,8 @@ Procedure ReleaseCompletion(QuestionResult, AdditionalParameters) Export
 		
 	UnlockFile();
 	NotifyChanged(Object.Ref);
-	FileRecordingNotificationParameters = FilesOperationsInternalClient.FileRecordingNotificationParameters("EditCanceled");
-	Notify("Write_File", FileRecordingNotificationParameters, Object.Ref);
+	FileWriteNotificationParameters = FilesOperationsInternalClient.FileWriteNotificationParameters("EditCanceled");
+	Notify("Write_File", FileWriteNotificationParameters, Object.Ref);
 	FilesOperationsInternalClient.ChangeLockedFilesCount();
 	
 EndProcedure
@@ -873,7 +891,7 @@ Procedure SaveChanges(Command)
 	
 EndProcedure
 
-
+// 
 
 &AtServer
 Procedure UpdateAdditionalAttributesItems()
@@ -1115,6 +1133,12 @@ Procedure SetButtonsAvailability(Form, Items)
 			FormItem.Enabled = True;
 		EndIf;
 	EndDo;
+	
+	If AvailableCommandsNames.Find("Edit") <> Undefined Then
+		Items.LongDesc.InputHint = NStr("en = 'A brief description. To edit the file, click Edit.';");
+	Else
+		Items.LongDesc.InputHint = NStr("en = 'A brief description. To edit the file, click Edit.';");
+	EndIf;
 	
 EndProcedure
 
@@ -1373,9 +1397,9 @@ Function HandleFileRecordCommand()
 	RepresentDataChange(Object.Ref, DataChangeType.Update);
 	NotifyChanged(Object.Ref);
 	NotifyChanged(Object.FileOwner);
-	FileRecordingNotificationParameters = FilesOperationsInternalClient.FileRecordingNotificationParameters();
-	FileRecordingNotificationParameters.IsNew = FileCreated;
-	Notify("Write_File", FileRecordingNotificationParameters, Object.Ref);
+	FileWriteNotificationParameters = FilesOperationsInternalClient.FileWriteNotificationParameters();
+	FileWriteNotificationParameters.IsNew = FileCreated;
+	Notify("Write_File", FileWriteNotificationParameters, Object.Ref);
 	
 	SetAvaliabilityOfDSCommandsList();
 	SetAvaliabilityOfEncryptionList();
@@ -1467,8 +1491,8 @@ Procedure UpdateFromFileOnHardDriveCompletion(Result, ExecutionParameters) Expor
 	
 	UpdateObject();
 	NotifyChanged(Object.Ref);
-	FileRecordingNotificationParameters = FilesOperationsInternalClient.FileRecordingNotificationParameters();
-	Notify("Write_File", FileRecordingNotificationParameters, Object.Ref);
+	FileWriteNotificationParameters = FilesOperationsInternalClient.FileWriteNotificationParameters();
+	Notify("Write_File", FileWriteNotificationParameters, Object.Ref);
 	
 EndProcedure
 
@@ -1609,6 +1633,32 @@ EndProcedure
 Function EventLogFilterData(Account)
 	Return FilesOperationsInternal.EventLogFilterData(Account);
 EndFunction
+
+&AtClient
+Procedure AfterSignatureAuthenticityJustificationEntered(Result, AdditionalParameters) Export
+	
+	If Result = Undefined Then
+		Return;
+	EndIf;
+	
+	ModuleDigitalSignatureClientServer = CommonClient.CommonModule("DigitalSignatureClientServer");
+	
+	For Each String In Items.DigitalSignatures.SelectedRows Do
+		
+		CurrentRow = DigitalSignatures.FindByID(String);
+		If CurrentRow.SignatureCorrect And CurrentRow.CheckResult.IsAdditionalAttributesCheckedManually <> True
+			Or ValueIsFilled(CurrentRow.CheckResult.SignatureMathValidationError) Then
+			Continue;
+		EndIf;
+
+		FillPropertyValues(CurrentRow, Result);
+		FillPropertyValues(CurrentRow.CheckResult, Result);
+		ModuleDigitalSignatureClientServer.FillSignatureStatus(CurrentRow, CommonClient.SessionDate());
+		
+	EndDo;
+	
+	DetermineIfModified();
+EndProcedure
 
 // Standard subsystems.Pluggable commands
 

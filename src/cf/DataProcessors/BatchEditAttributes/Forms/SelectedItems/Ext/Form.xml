@@ -27,6 +27,12 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.OK</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>OK</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormSelectAndCloseExtendedTooltip" id="22"/>
 			</Button>
 			<Button name="FormCancel" id="31">
@@ -238,6 +244,12 @@
 							<Button name="ListContextMenuOpenValue" id="98">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.OpenItem</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Open</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="ListContextMenuOpenValueExtendedTooltip" id="99"/>
 							</Button>
 							<Button name="ListContextMenuRefresh" id="90">

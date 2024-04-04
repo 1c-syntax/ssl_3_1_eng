@@ -30,6 +30,12 @@
 				<DefaultButton>true</DefaultButton>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.OK</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>OK</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="OKExtendedTooltip" id="17"/>
 			</Button>
 			<Button name="Cancel" id="4">
@@ -51,6 +57,12 @@
 	</Events>
 	<ChildItems>
 		<UsualGroup name="Group" id="8">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Group</v8:content>
+				</v8:item>
+			</Title>
 			<Group>Vertical</Group>
 			<Behavior>Usual</Behavior>
 			<Representation>NormalSeparation</Representation>
@@ -103,6 +115,12 @@
 		</UsualGroup>
 		<CheckBoxField name="DontAskAgain" id="6">
 			<DataPath>DontAskAgain</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Do not ask again</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>Right</TitleLocation>
 			<CheckBoxType>Auto</CheckBoxType>
 			<ContextMenu name="DontAskAgainContextMenu" id="7"/>

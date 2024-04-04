@@ -99,6 +99,12 @@
 																		<Button name="SaaSApplicationsRefreshAvailableApplicationsList" id="133">
 																			<Type>CommandBarButton</Type>
 																			<CommandName>Form.Command.RefreshAvailableApplicationsList</CommandName>
+																			<Title>
+																				<v8:item>
+																					<v8:lang>en</v8:lang>
+																					<v8:content>Refresh</v8:content>
+																				</v8:item>
+																			</Title>
 																			<ExtendedTooltip name="SaaSApplicationsRefreshAvailableApplicationsListExtendedTooltip" id="134"/>
 																		</Button>
 																	</ChildItems>
@@ -258,6 +264,12 @@
 															<ChildItems>
 																<InputField name="ApplicationsSaaSApplicationDescription" id="79">
 																	<DataPath>ApplicationsSaaS.ApplicationDescription</DataPath>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Description</v8:content>
+																		</v8:item>
+																	</Title>
 																	<EditMode>EnterOnInput</EditMode>
 																	<ContextMenu name="ApplicationsSaaSApplicationDescriptionContextMenu" id="80"/>
 																	<ExtendedTooltip name="ApplicationsSaaSApplicationDescriptionExtendedTooltip" id="81"/>
@@ -265,12 +277,24 @@
 																<InputField name="ApplicationsSaaSPrefix" id="82">
 																	<DataPath>ApplicationsSaaS.Prefix</DataPath>
 																	<Visible>false</Visible>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Prefix</v8:content>
+																		</v8:item>
+																	</Title>
 																	<EditMode>EnterOnInput</EditMode>
 																	<ContextMenu name="ApplicationsSaaSPrefixContextMenu" id="83"/>
 																	<ExtendedTooltip name="ApplicationsSaaSPrefixExtendedTooltip" id="84"/>
 																</InputField>
 																<InputField name="ApplicationsSaaSDataArea" id="584">
 																	<DataPath>ApplicationsSaaS.DataArea</DataPath>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Data area</v8:content>
+																		</v8:item>
+																	</Title>
 																	<EditMode>EnterOnInput</EditMode>
 																	<ContextMenu name="ApplicationsSaaSDataAreaContextMenu" id="585"/>
 																	<ExtendedTooltip name="ApplicationsSaaSDataAreaExtendedTooltip" id="586"/>
@@ -292,6 +316,12 @@
 															<ChildItems>
 																<RadioButtonField name="ConnectionSetupOptionInternet" id="740">
 																	<DataPath>ConnectionSetupOptionInService</DataPath>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Connection setup method in service</v8:content>
+																		</v8:item>
+																	</Title>
 																	<TitleLocation>None</TitleLocation>
 																	<ToolTipRepresentation>Button</ToolTipRepresentation>
 																	<RadioButtonType>RadioButtons</RadioButtonType>
@@ -328,6 +358,12 @@ It is the fastest method in the list.</v8:content>
 																</RadioButtonField>
 																<RadioButtonField name="ConnectionSetupOptionMS" id="843">
 																	<DataPath>ConnectionSetupOptionInService</DataPath>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Connection setup method in service</v8:content>
+																		</v8:item>
+																	</Title>
 																	<TitleLocation>None</TitleLocation>
 																	<ToolTipRepresentation>Button</ToolTipRepresentation>
 																	<RadioButtonType>RadioButtons</RadioButtonType>
@@ -363,6 +399,12 @@ It is the fastest method in the list.</v8:content>
 																</RadioButtonField>
 																<RadioButtonField name="ConnectionSetupOptionManually" id="846">
 																	<DataPath>ConnectionSetupOptionInService</DataPath>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Connection setup method in service</v8:content>
+																		</v8:item>
+																	</Title>
 																	<TitleLocation>None</TitleLocation>
 																	<ToolTipRepresentation>Button</ToolTipRepresentation>
 																	<RadioButtonType>RadioButtons</RadioButtonType>
@@ -420,11 +462,23 @@ It is the fastest method in the list.</v8:content>
 																<Button name="ConfigureManually" id="854">
 																	<Type>Hyperlink</Type>
 																	<CommandName>Form.Command.ConfigureManually</CommandName>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Set up manually...</v8:content>
+																		</v8:item>
+																	</Title>
 																	<ExtendedTooltip name="ConfigureManuallyExtendedTooltip" id="855"/>
 																</Button>
 																<Button name="MoreSettings" id="836">
 																	<Type>Hyperlink</Type>
 																	<CommandName>Form.Command.MoreSettings</CommandName>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>More settings...</v8:content>
+																		</v8:item>
+																	</Title>
 																	<ExtendedTooltip name="MoreSettingsExtendedTooltip" id="837"/>
 																</Button>
 															</ChildItems>
@@ -457,6 +511,12 @@ It is the fastest method in the list.</v8:content>
 													<ChildItems>
 														<RadioButtonField name="ExternalConnectionConnectionKind" id="106">
 															<DataPath>ConnectionKind</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Connection type</v8:content>
+																</v8:item>
+															</Title>
 															<TitleLocation>None</TitleLocation>
 															<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 															<RadioButtonType>Auto</RadioButtonType>
@@ -493,6 +553,12 @@ on the same computer or in the local network (in the same office).</v8:content>
 														</RadioButtonField>
 														<RadioButtonField name="InternetConnectionKind" id="103">
 															<DataPath>ConnectionKind</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Connection type</v8:content>
+																</v8:item>
+															</Title>
 															<TitleLocation>None</TitleLocation>
 															<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 															<RadioButtonType>Auto</RadioButtonType>
@@ -528,6 +594,12 @@ and Internet connection can be established.</v8:content>
 														</RadioButtonField>
 														<RadioButtonField name="PassiveModeConnectionKind" id="112">
 															<DataPath>ConnectionKind</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Connection type</v8:content>
+																</v8:item>
+															</Title>
 															<TitleLocation>None</TitleLocation>
 															<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 															<RadioButtonType>Auto</RadioButtonType>
@@ -585,7 +657,7 @@ from the peer application.</v8:content>
 																	<Title>
 																		<v8:item>
 																			<v8:lang>en</v8:lang>
-																			<v8:content>Group1</v8:content>
+																			<v8:content>Group</v8:content>
 																		</v8:item>
 																	</Title>
 																	<Group>Vertical</Group>
@@ -631,6 +703,12 @@ created in the peer application.</v8:content>
 														</UsualGroup>
 														<RadioButtonField name="RegularCommunicationChannelsConnectionKind" id="109">
 															<DataPath>ConnectionKind</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Connection type</v8:content>
+																</v8:item>
+															</Title>
 															<TitleLocation>None</TitleLocation>
 															<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 															<RadioButtonType>Auto</RadioButtonType>
@@ -691,7 +769,7 @@ and in the same network.</v8:content>
 																	<Title>
 																		<v8:item>
 																			<v8:lang>en</v8:lang>
-																			<v8:content>Group2</v8:content>
+																			<v8:content>Group</v8:content>
 																		</v8:item>
 																	</Title>
 																	<Group>Vertical</Group>
@@ -715,6 +793,12 @@ and in the same network.</v8:content>
 																			<ChildItems>
 																				<CheckBoxField name="ImportConnectionParametersFromFile" id="666">
 																					<DataPath>ImportConnectionParametersFromFile</DataPath>
+																					<Title>
+																						<v8:item>
+																							<v8:lang>en</v8:lang>
+																							<v8:content>Import connection parameters from file</v8:content>
+																						</v8:item>
+																					</Title>
 																					<TitleLocation>Right</TitleLocation>
 																					<CheckBoxType>Auto</CheckBoxType>
 																					<ContextMenu name="ImportConnectionParametersFromFileContextMenu" id="667"/>
@@ -725,6 +809,12 @@ and in the same network.</v8:content>
 																				</CheckBoxField>
 																				<InputField name="ConnectionSettingsFileNameToImport" id="617">
 																					<DataPath>ConnectionSettingsFileNameToImport</DataPath>
+																					<Title>
+																						<v8:item>
+																							<v8:lang>en</v8:lang>
+																							<v8:content>Name of connection settings file for import</v8:content>
+																						</v8:item>
+																					</Title>
 																					<TitleLocation>None</TitleLocation>
 																					<ToolTipRepresentation>Button</ToolTipRepresentation>
 																					<AutoMaxWidth>false</AutoMaxWidth>
@@ -816,6 +906,12 @@ during data synchronization setup.</v8:content>
 									<ChildItems>
 										<InputField name="InternetWebAddress" id="184">
 											<DataPath>InternetWebAddress</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Application URL</v8:content>
+												</v8:item>
+											</Title>
 											<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 											<AutoMarkIncomplete>true</AutoMarkIncomplete>
 											<ContextMenu name="InternetWebAddressContextMenu" id="185"/>
@@ -833,6 +929,12 @@ Example: https://website.domain/database/123.
 										</InputField>
 										<InputField name="InternetUsername" id="187">
 											<DataPath>InternetUsername</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>User</v8:content>
+												</v8:item>
+											</Title>
 											<Width>20</Width>
 											<AutoMaxWidth>false</AutoMaxWidth>
 											<HorizontalStretch>false</HorizontalStretch>
@@ -854,6 +956,12 @@ Example: https://website.domain/database/123.
 											<ChildItems>
 												<InputField name="InternetPassword" id="190">
 													<DataPath>InternetPassword</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Password</v8:content>
+														</v8:item>
+													</Title>
 													<Width>20</Width>
 													<AutoMaxWidth>false</AutoMaxWidth>
 													<HorizontalStretch>false</HorizontalStretch>
@@ -863,6 +971,12 @@ Example: https://website.domain/database/123.
 												</InputField>
 												<CheckBoxField name="InternetRememberPassword" id="193">
 													<DataPath>InternetRememberPassword</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Remember password</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>Right</TitleLocation>
 													<CheckBoxType>Auto</CheckBoxType>
 													<ContextMenu name="InternetRememberPasswordContextMenu" id="194"/>
@@ -873,6 +987,12 @@ Example: https://website.domain/database/123.
 										<Button name="InternetAccessParameters1" id="353">
 											<Type>Hyperlink</Type>
 											<CommandName>Form.Command.InternetAccessParameters</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Internet access parameters</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="InternetAccessParameters1ExtendedTooltip" id="354"/>
 										</Button>
 									</ChildItems>
@@ -950,6 +1070,12 @@ Example: https://website.domain/database/123.
 													<ChildItems>
 														<RadioButtonField name="ExternalConnectionInfobaseOperationModeFile" id="157">
 															<DataPath>ExternalConnectionInfobaseOperationMode</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Infobase run mode</v8:content>
+																</v8:item>
+															</Title>
 															<TitleLocation>None</TitleLocation>
 															<RadioButtonType>Auto</RadioButtonType>
 															<ChoiceList>
@@ -975,6 +1101,12 @@ Example: https://website.domain/database/123.
 														</RadioButtonField>
 														<InputField name="ExternalConnectionInfobaseDirectory" id="163">
 															<DataPath>ExternalConnectionInfobaseDirectory</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Directory</v8:content>
+																</v8:item>
+															</Title>
 															<ChoiceButton>true</ChoiceButton>
 															<AutoMarkIncomplete>true</AutoMarkIncomplete>
 															<ContextMenu name="ExternalConnectionInfobaseDirectoryContextMenu" id="164"/>
@@ -985,6 +1117,12 @@ Example: https://website.domain/database/123.
 														</InputField>
 														<RadioButtonField name="ExternalConnectionInfobaseOperationModeClientServer" id="160">
 															<DataPath>ExternalConnectionInfobaseOperationMode</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Infobase run mode</v8:content>
+																</v8:item>
+															</Title>
 															<TitleLocation>None</TitleLocation>
 															<RadioButtonType>Auto</RadioButtonType>
 															<ChoiceList>
@@ -1010,12 +1148,24 @@ Example: https://website.domain/database/123.
 														</RadioButtonField>
 														<InputField name="ExternalConnectionServerCluster" id="166">
 															<DataPath>ExternalConnectionServerCluster</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Server</v8:content>
+																</v8:item>
+															</Title>
 															<AutoMarkIncomplete>true</AutoMarkIncomplete>
 															<ContextMenu name="ExternalConnectionServerClusterContextMenu" id="167"/>
 															<ExtendedTooltip name="ExternalConnectionServerClusterExtendedTooltip" id="168"/>
 														</InputField>
 														<InputField name="ExternalConnectionInfobaseName" id="169">
 															<DataPath>ExternalConnectionInfobaseName</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Infobase name</v8:content>
+																</v8:item>
+															</Title>
 															<AutoMarkIncomplete>true</AutoMarkIncomplete>
 															<ContextMenu name="ExternalConnectionInfobaseNameContextMenu" id="170"/>
 															<ExtendedTooltip name="ExternalConnectionInfobaseNameExtendedTooltip" id="171"/>
@@ -1056,6 +1206,12 @@ Example: https://website.domain/database/123.
 													<ChildItems>
 														<RadioButtonField name="ExternalConnectionOperatingSystemAuthenticationKind" id="175">
 															<DataPath>ExternalConnectionAuthenticationKind</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Authentication type</v8:content>
+																</v8:item>
+															</Title>
 															<TitleLocation>None</TitleLocation>
 															<RadioButtonType>Auto</RadioButtonType>
 															<ChoiceList>
@@ -1081,6 +1237,12 @@ Example: https://website.domain/database/123.
 														</RadioButtonField>
 														<RadioButtonField name="ExternalConnection1CEnterpriseAuthenticationKind" id="172">
 															<DataPath>ExternalConnectionAuthenticationKind</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Authentication type</v8:content>
+																</v8:item>
+															</Title>
 															<TitleLocation>None</TitleLocation>
 															<RadioButtonType>Auto</RadioButtonType>
 															<ChoiceList>
@@ -1106,6 +1268,12 @@ Example: https://website.domain/database/123.
 														</RadioButtonField>
 														<InputField name="ExternalConnectionUsername" id="178">
 															<DataPath>ExternalConnectionUsername</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>User</v8:content>
+																</v8:item>
+															</Title>
 															<Width>20</Width>
 															<AutoMaxWidth>false</AutoMaxWidth>
 															<HorizontalStretch>false</HorizontalStretch>
@@ -1114,6 +1282,12 @@ Example: https://website.domain/database/123.
 														</InputField>
 														<InputField name="ExternalConnectionPassword" id="181">
 															<DataPath>ExternalConnectionPassword</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Password</v8:content>
+																</v8:item>
+															</Title>
 															<Width>20</Width>
 															<AutoMaxWidth>false</AutoMaxWidth>
 															<HorizontalStretch>false</HorizontalStretch>
@@ -1154,6 +1328,12 @@ Example: https://website.domain/database/123.
 							<ChildItems>
 								<CheckBoxField name="RegularCommunicationChannelsFILEUsage" id="268">
 									<DataPath>RegularCommunicationChannelsFILEUsage</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Use local or network directory to synchronize data</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>Right</TitleLocation>
 									<CheckBoxType>Auto</CheckBoxType>
 									<ContextMenu name="RegularCommunicationChannelsFILEUsageContextMenu" id="269"/>
@@ -1177,6 +1357,12 @@ Example: https://website.domain/database/123.
 									<ChildItems>
 										<InputField name="RegularCommunicationChannelsFILEDirectory" id="211">
 											<DataPath>RegularCommunicationChannelsFILEDirectory</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Directory</v8:content>
+												</v8:item>
+											</Title>
 											<ChoiceButton>true</ChoiceButton>
 											<AutoMarkIncomplete>true</AutoMarkIncomplete>
 											<ContextMenu name="RegularCommunicationChannelsFILEDirectoryContextMenu" id="212"/>
@@ -1204,6 +1390,12 @@ Example: https://website.domain/database/123.
 							<ChildItems>
 								<CheckBoxField name="RegularCommunicationChannelsFTPUsage" id="271">
 									<DataPath>RegularCommunicationChannelsFTPUsage</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Use FTP server directory to synchronize data</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>Right</TitleLocation>
 									<CheckBoxType>Auto</CheckBoxType>
 									<ContextMenu name="RegularCommunicationChannelsFTPUsageContextMenu" id="272"/>
@@ -1240,12 +1432,24 @@ Example: https://website.domain/database/123.
 											<ChildItems>
 												<InputField name="RegularCommunicationChannelsFTPDirectory" id="246">
 													<DataPath>RegularCommunicationChannelsFTPPath</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Directory</v8:content>
+														</v8:item>
+													</Title>
 													<AutoMarkIncomplete>true</AutoMarkIncomplete>
 													<ContextMenu name="RegularCommunicationChannelsFTPDirectoryContextMenu" id="247"/>
 													<ExtendedTooltip name="RegularCommunicationChannelsFTPDirectoryExtendedTooltip" id="248"/>
 												</InputField>
 												<InputField name="RegularCommunicationChannelsFTPPort" id="254">
 													<DataPath>RegularCommunicationChannelsFTPPort</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Port</v8:content>
+														</v8:item>
+													</Title>
 													<ContextMenu name="RegularCommunicationChannelsFTPPortContextMenu" id="255"/>
 													<ExtendedTooltip name="RegularCommunicationChannelsFTPPortExtendedTooltip" id="256"/>
 												</InputField>
@@ -1266,6 +1470,12 @@ Example: https://website.domain/database/123.
 											<ChildItems>
 												<InputField name="RegularCommunicationChannelsFTPUser" id="257">
 													<DataPath>RegularCommunicationChannelsFTPUser</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>User</v8:content>
+														</v8:item>
+													</Title>
 													<Width>20</Width>
 													<HorizontalStretch>false</HorizontalStretch>
 													<ContextMenu name="RegularCommunicationChannelsFTPUserContextMenu" id="258"/>
@@ -1273,6 +1483,12 @@ Example: https://website.domain/database/123.
 												</InputField>
 												<InputField name="RegularCommunicationChannelsFTPPassword" id="260">
 													<DataPath>RegularCommunicationChannelsFTPPassword</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Password</v8:content>
+														</v8:item>
+													</Title>
 													<Width>20</Width>
 													<AutoMaxWidth>false</AutoMaxWidth>
 													<HorizontalStretch>false</HorizontalStretch>
@@ -1297,6 +1513,12 @@ Example: https://website.domain/database/123.
 											<ChildItems>
 												<CheckBoxField name="RegularCommunicationChannelsFTPEnableFileSizeLimit" id="344">
 													<DataPath>RegularCommunicationChannelsFTPEnableFileSizeLimit</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>File size limit</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>Right</TitleLocation>
 													<CheckBoxType>Auto</CheckBoxType>
 													<ContextMenu name="RegularCommunicationChannelsFTPEnableFileSizeLimitContextMenu" id="345"/>
@@ -1307,6 +1529,12 @@ Example: https://website.domain/database/123.
 												</CheckBoxField>
 												<InputField name="RegularCommunicationChannelsFTPMaxFileSize" id="347">
 													<DataPath>RegularCommunicationChannelsFTPMaxFileSize</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>File size limit</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>None</TitleLocation>
 													<Width>9</Width>
 													<AutoMarkIncomplete>true</AutoMarkIncomplete>
@@ -1327,6 +1555,12 @@ Example: https://website.domain/database/123.
 										</UsualGroup>
 										<CheckBoxField name="RegularCommunicationChannelsFTPPassiveMode" id="334">
 											<DataPath>RegularCommunicationChannelsFTPPassiveMode</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Passive mode</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>Right</TitleLocation>
 											<CheckBoxType>Auto</CheckBoxType>
 											<ContextMenu name="RegularCommunicationChannelsFTPPassiveModeContextMenu" id="335"/>
@@ -1335,6 +1569,12 @@ Example: https://website.domain/database/123.
 										<Button name="InternetAccessParameters" id="337">
 											<Type>Hyperlink</Type>
 											<CommandName>Form.Command.InternetAccessParameters</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Internet access parameters</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="InternetAccessParametersExtendedTooltip" id="338"/>
 										</Button>
 									</ChildItems>
@@ -1356,6 +1596,12 @@ Example: https://website.domain/database/123.
 							<ChildItems>
 								<CheckBoxField name="RegularCommunicationChannelsEMAILUsage" id="279">
 									<DataPath>RegularCommunicationChannelsEMAILUsage</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Use email to synchronize data</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>Right</TitleLocation>
 									<CheckBoxType>Auto</CheckBoxType>
 									<ContextMenu name="RegularCommunicationChannelsEMAILUsageContextMenu" id="280"/>
@@ -1379,6 +1625,12 @@ Example: https://website.domain/database/123.
 									<ChildItems>
 										<InputField name="RegularCommunicationChannelsMAILUserAccount" id="282">
 											<DataPath>RegularCommunicationChannelsMAILUserAccount</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Account</v8:content>
+												</v8:item>
+											</Title>
 											<AutoMarkIncomplete>true</AutoMarkIncomplete>
 											<ContextMenu name="RegularCommunicationChannelsMAILUserAccountContextMenu" id="283"/>
 											<ExtendedTooltip name="RegularCommunicationChannelsMAILUserAccountExtendedTooltip" id="284"/>
@@ -1398,6 +1650,12 @@ Example: https://website.domain/database/123.
 											<ChildItems>
 												<CheckBoxField name="RegularCommunicationChannelsEMAILEnableAttachmentSizeLimit" id="306">
 													<DataPath>RegularCommunicationChannelsEMAILEnableAttachmentSizeLimit</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Attachment size limit</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>Right</TitleLocation>
 													<CheckBoxType>Auto</CheckBoxType>
 													<ContextMenu name="RegularCommunicationChannelsEMAILEnableAttachmentSizeLimitContextMenu" id="307"/>
@@ -1408,6 +1666,12 @@ Example: https://website.domain/database/123.
 												</CheckBoxField>
 												<InputField name="RegularCommunicationChannelsMAILMaxAttachmentSize" id="309">
 													<DataPath>RegularCommunicationChannelsMAILMaxAttachmentSize</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Attachment size limit</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>None</TitleLocation>
 													<AutoMarkIncomplete>true</AutoMarkIncomplete>
 													<ContextMenu name="RegularCommunicationChannelsMAILMaxAttachmentSizeContextMenu" id="310"/>
@@ -1443,6 +1707,12 @@ Example: https://website.domain/database/123.
 							<ChildItems>
 								<CheckBoxField name="RegularCommunicationChannelsTransliterateFileNames" id="243">
 									<DataPath>RegularCommunicationChannelsTransliterateFileNames</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Transliterate exchange file names</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>Right</TitleLocation>
 									<ToolTipRepresentation>Button</ToolTipRepresentation>
 									<CheckBoxType>Auto</CheckBoxType>
@@ -1459,6 +1729,12 @@ If you select the check box, also select it in the peer application.</v8:content
 								</CheckBoxField>
 								<CheckBoxField name="RegularCommunicationChannelsArchiveFiles" id="214">
 									<DataPath>RegularCommunicationChannelsArchiveFiles</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Archive exchange files</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>Right</TitleLocation>
 									<CheckBoxType>Auto</CheckBoxType>
 									<ContextMenu name="RegularCommunicationChannelsArchiveFilesContextMenu" id="215"/>
@@ -1486,6 +1762,12 @@ If you select the check box, also select it in the peer application.</v8:content
 										</LabelDecoration>
 										<CheckBoxField name="RegularCommunicationChannelsProtectArchivesWithPassword" id="263">
 											<DataPath>RegularCommunicationChannelsProtectArchiveWithPassword</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Archive password</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>Right</TitleLocation>
 											<CheckBoxType>Auto</CheckBoxType>
 											<ContextMenu name="RegularCommunicationChannelsProtectArchiveWithPasswordContextMenu" id="264"/>
@@ -1496,6 +1778,12 @@ If you select the check box, also select it in the peer application.</v8:content
 										</CheckBoxField>
 										<InputField name="RegularCommunicationChannelsArchivePassword" id="217">
 											<DataPath>RegularCommunicationChannelsArchivePassword</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Archive password</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<Width>20</Width>
 											<AutoMaxWidth>false</AutoMaxWidth>
@@ -1672,6 +1960,12 @@ Please wait…</v8:content>
 									<ChildItems>
 										<InputField name="Description" id="482">
 											<DataPath>Description</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Description</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>Top</TitleLocation>
 											<AutoMaxWidth>false</AutoMaxWidth>
 											<AutoMarkIncomplete>true</AutoMarkIncomplete>
@@ -1680,6 +1974,12 @@ Please wait…</v8:content>
 										</InputField>
 										<InputField name="Prefix" id="485">
 											<DataPath>Prefix</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Prefix</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>Top</TitleLocation>
 											<Width>5</Width>
 											<AutoMarkIncomplete>true</AutoMarkIncomplete>
@@ -1703,6 +2003,12 @@ Please wait…</v8:content>
 									<ChildItems>
 										<InputField name="CorrespondentDescription" id="488">
 											<DataPath>CorrespondentDescription</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Description</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>Top</TitleLocation>
 											<AutoMaxWidth>false</AutoMaxWidth>
 											<AutoMarkIncomplete>true</AutoMarkIncomplete>
@@ -1711,6 +2017,12 @@ Please wait…</v8:content>
 										</InputField>
 										<InputField name="CorrespondentPrefix" id="491">
 											<DataPath>CorrespondentPrefix</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Prefix</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>Top</TitleLocation>
 											<Width>5</Width>
 											<AutoMarkIncomplete>true</AutoMarkIncomplete>
@@ -1734,6 +2046,12 @@ Please wait…</v8:content>
 									<ChildItems>
 										<InputField name="RegularCommunicationChannelsDefaultTransportKind" id="636">
 											<DataPath>RegularCommunicationChannelsDefaultTransportKind</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Default connection type</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>Top</TitleLocation>
 											<ListChoiceMode>true</ListChoiceMode>
 											<AutoMarkIncomplete>true</AutoMarkIncomplete>
@@ -1742,6 +2060,12 @@ Please wait…</v8:content>
 										</InputField>
 										<InputField name="ConnectionSettingsFileNameToExport" id="633">
 											<DataPath>ConnectionSettingsFileNameToExport</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Connection settings file name</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>Top</TitleLocation>
 											<AutoMaxWidth>false</AutoMaxWidth>
 											<ChoiceButton>true</ChoiceButton>
@@ -1770,7 +2094,7 @@ Please wait…</v8:content>
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Group4</v8:content>
+													<v8:content>Group</v8:content>
 												</v8:item>
 											</Title>
 											<Group>AlwaysHorizontal</Group>
@@ -1790,7 +2114,7 @@ Please wait…</v8:content>
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Group5</v8:content>
+															<v8:content>Group</v8:content>
 														</v8:item>
 													</Title>
 													<Group>Vertical</Group>
@@ -1827,6 +2151,12 @@ Please wait…</v8:content>
 															</Events>
 														</CheckBoxField>
 														<UsualGroup name="Group6" id="826">
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Group</v8:content>
+																</v8:item>
+															</Title>
 															<Behavior>Usual</Behavior>
 															<Representation>None</Representation>
 															<ShowTitle>false</ShowTitle>
@@ -1882,6 +2212,12 @@ This operation is not recommended for running synchronizations.</v8:content>
 									<ExtendedTooltip name="GroupRestoreExchangeSettingsExtendedTooltip" id="857"/>
 									<ChildItems>
 										<UsualGroup name="Group7" id="858">
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Group</v8:content>
+												</v8:item>
+											</Title>
 											<Behavior>Usual</Behavior>
 											<Representation>None</Representation>
 											<ShowTitle>false</ShowTitle>
@@ -2066,11 +2402,23 @@ Please wait…</v8:content>
 									<Type>CommandBarButton</Type>
 									<DefaultButton>true</DefaultButton>
 									<CommandName>Form.Command.NextCommand</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Next &gt;</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="StartNavigationNextCommandExtendedTooltip" id="45"/>
 								</Button>
 								<Button name="StartNavigationCancelCommand" id="46">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.CancelCommand</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Cancel</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="StartNavigationCancelCommandExtendedTooltip" id="47"/>
 								</Button>
 							</ChildItems>
@@ -2099,6 +2447,12 @@ Please wait…</v8:content>
 								<Button name="ContinueNavigationBackCommand" id="52">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.BackCommand</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>&lt; Back</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="ContinueNavigationBackCommandExtendedTooltip" id="53"/>
 								</Button>
 							</ChildItems>
@@ -2116,11 +2470,23 @@ Please wait…</v8:content>
 								<Button name="ContinueNavigationNextCommand" id="54">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.NextCommand</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Next &gt;</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="ContinueNavigationNextCommandExtendedTooltip" id="55"/>
 								</Button>
 								<Button name="ContinueNavigationCancelCommand" id="56">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.CancelCommand</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Cancel</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="ContinueNavigationCancelCommandExtendedTooltip" id="57"/>
 								</Button>
 							</ChildItems>
@@ -2149,6 +2515,12 @@ Please wait…</v8:content>
 								<Button name="EndNavigationBackCommand" id="62">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.BackCommand</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>&lt; Back</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="EndNavigationBackCommandExtendedTooltip" id="63"/>
 								</Button>
 							</ChildItems>
@@ -2166,6 +2538,12 @@ Please wait…</v8:content>
 								<Button name="EndNavigationDoneCommand" id="64">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.DoneCommand</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Done</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="EndNavigationDoneCommandExtendedTooltip" id="65"/>
 								</Button>
 							</ChildItems>
@@ -2194,6 +2572,12 @@ Please wait…</v8:content>
 								<Button name="BackCommandIsConnectionSetupMethod" id="880">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.BackCommandIsConnectionSetupMethod</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>&lt; Back</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="BackCommandIsConnectionSetupMethodExtendedTooltip" id="881"/>
 								</Button>
 							</ChildItems>
@@ -2211,11 +2595,23 @@ Please wait…</v8:content>
 								<Button name="NextConnectionSetupMethodCommand" id="878">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.NextConnectionSetupMethodCommand</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Next &gt;</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="NextConnectionSetupMethodCommandExtendedTooltip" id="879"/>
 								</Button>
 								<Button name="ContinueNavigationCancelCommand1" id="876">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.CancelCommand</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Cancel</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="ContinueNavigationCancelCommand1ExtendedTooltip" id="877"/>
 								</Button>
 							</ChildItems>

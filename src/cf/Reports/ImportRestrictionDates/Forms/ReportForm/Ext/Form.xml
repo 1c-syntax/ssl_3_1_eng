@@ -43,11 +43,23 @@
 						<Button name="FormFirstOption" id="10">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.FirstOption</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>First option</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="FormFirstOptionExtendedTooltip" id="11"/>
 						</Button>
 						<Button name="FormSecondOption" id="12">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.SecondOption</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Second option</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="FormSecondOptionExtendedTooltip" id="13"/>
 						</Button>
 					</ChildItems>
@@ -69,6 +81,12 @@
 		<SpreadSheetDocumentField name="Result" id="5">
 			<DataPath>Result</DataPath>
 			<DefaultItem>true</DefaultItem>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Result</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>None</TitleLocation>
 			<Width>40</Width>
 			<VerticalScrollBar>true</VerticalScrollBar>

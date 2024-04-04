@@ -33,7 +33,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="GroupHeaderExtendedTooltip" id="1638"/>
+			<ExtendedTooltip name="TitleGroup1ExtendedTooltip" id="1638"/>
 			<ChildItems>
 				<LabelDecoration name="SectionDetails" id="1563">
 					<AutoMaxWidth>false</AutoMaxWidth>
@@ -79,6 +79,12 @@
 			<ExtendedTooltip name="MailGroupExtendedTooltip" id="1789"/>
 			<ChildItems>
 				<UsualGroup name="Group1" id="1709">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Group</v8:content>
+						</v8:item>
+					</Title>
 					<Group>Vertical</Group>
 					<Behavior>Usual</Behavior>
 					<Representation>NormalSeparation</Representation>
@@ -86,6 +92,12 @@
 					<ExtendedTooltip name="Group1ExtendedTooltip" id="1710"/>
 					<ChildItems>
 						<UsualGroup name="Group8" id="1592">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group</v8:content>
+								</v8:item>
+							</Title>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ChildItemsWidth>Equal</ChildItemsWidth>
@@ -179,6 +191,12 @@
 							</ChildItems>
 						</UsualGroup>
 						<UsualGroup name="Group7" id="1608">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group</v8:content>
+								</v8:item>
+							</Title>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ChildItemsWidth>Equal</ChildItemsWidth>
@@ -306,6 +324,12 @@
 					</ChildItems>
 				</UsualGroup>
 				<UsualGroup name="Group6" id="1591">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Group</v8:content>
+						</v8:item>
+					</Title>
 					<Behavior>Usual</Behavior>
 					<Representation>NormalSeparation</Representation>
 					<ChildItemsWidth>Equal</ChildItemsWidth>
@@ -659,6 +683,12 @@
 			<ExtendedTooltip name="BusinessProcessesAndTasksGroupExtendedTooltip" id="1698"/>
 			<ChildItems>
 				<UsualGroup name="Group2" id="1786">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Group</v8:content>
+						</v8:item>
+					</Title>
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
@@ -724,6 +754,12 @@
 								<Button name="OpenRolesAndPerformersForBusinessProcesses" id="1792">
 									<Type>Hyperlink</Type>
 									<CommandName>Form.Command.RolesAndTaskPerformers</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Business roles and assignees</v8:content>
+										</v8:item>
+									</Title>
 									<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 									<ExtendedTooltip name="OpenRolesAndPerformersForBusinessProcessesExtendedTooltip" id="1793">
 										<AutoMaxWidth>false</AutoMaxWidth>
@@ -740,6 +776,12 @@
 					</ChildItems>
 				</UsualGroup>
 				<UsualGroup name="Group12" id="1769">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Group</v8:content>
+						</v8:item>
+					</Title>
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
@@ -834,6 +876,12 @@
 					</ChildItems>
 				</UsualGroup>
 				<UsualGroup name="Group4" id="1598">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Group</v8:content>
+						</v8:item>
+					</Title>
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ChildItemsWidth>Equal</ChildItemsWidth>
@@ -961,6 +1009,12 @@ and sort the task list by this field.</v8:content>
 									<ExtendedTooltip name="Indent2ExtendedTooltip" id="1782"/>
 								</LabelDecoration>
 								<UsualGroup name="Group10" id="1778">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Group</v8:content>
+										</v8:item>
+									</Title>
 									<Group>Vertical</Group>
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
@@ -969,6 +1023,12 @@ and sort the task list by this field.</v8:content>
 									<ChildItems>
 										<CheckBoxField name="TasksMonitoringUsage" id="1729">
 											<DataPath>TasksMonitoringUsage</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Notify users about overdue tasks by email</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>Right</TitleLocation>
 											<CheckBoxType>Auto</CheckBoxType>
 											<ContextMenu name="TasksMonitoringUsageContextMenu" id="1730"/>
@@ -990,6 +1050,12 @@ and sort the task list by this field.</v8:content>
 						<Button name="TasksMonitoringConfigureSchedule" id="1732">
 							<Type>Hyperlink</Type>
 							<CommandName>Form.Command.TasksMonitoringConfigureSchedule</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Set schedule</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="TasksMonitoringConfigureScheduleExtendedTooltip" id="1733"/>
 						</Button>
 					</ChildItems>
@@ -1027,6 +1093,12 @@ and sort the task list by this field.</v8:content>
 									<ExtendedTooltip name="Indent3ExtendedTooltip" id="1785"/>
 								</LabelDecoration>
 								<UsualGroup name="Group9" id="1763">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Group</v8:content>
+										</v8:item>
+									</Title>
 									<Group>Vertical</Group>
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
@@ -1035,6 +1107,12 @@ and sort the task list by this field.</v8:content>
 									<ChildItems>
 										<CheckBoxField name="NotifyPerformersAboutNewTasksUsage" id="1742">
 											<DataPath>NotifyPerformersAboutNewTasksUsage</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Notify users about new tasks by email</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>Right</TitleLocation>
 											<CheckBoxType>Auto</CheckBoxType>
 											<ContextMenu name="NotifyPerformersAboutNewTasksUsageContextMenu" id="1743"/>
@@ -1056,6 +1134,12 @@ and sort the task list by this field.</v8:content>
 						<Button name="NotifyPerformersAboutNewTasksConfigureSchedule" id="1745">
 							<Type>Hyperlink</Type>
 							<CommandName>Form.Command.NotifyPerformersAboutNewTasksConfigureSchedule</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Set schedule</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="NotifyPerformersAboutNewTasksConfigureScheduleExtendedTooltip" id="1746"/>
 						</Button>
 					</ChildItems>

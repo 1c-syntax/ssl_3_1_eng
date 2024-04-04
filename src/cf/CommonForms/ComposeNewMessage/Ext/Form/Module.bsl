@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -35,6 +36,20 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Common.IsMobileClient() Then
 		CommandBarLocation = FormCommandBarLabelLocation.Top;
 		Items.Sign.Visible = False;
+	EndIf;
+	
+	Items.GroupAdditionalParameters.Visible = Not Parameters.ShouldSkipAttachmentFormatSelection;
+	
+	FilledAddressCount = 0;
+	StringWithAddress = Undefined;
+	For Each Recipient In Recipients Do
+		If Not IsBlankString(Recipient.AddressPresentation) Then
+			StringWithAddress = Recipient;
+			FilledAddressCount = FilledAddressCount + 1;
+		EndIf;
+	EndDo;
+	If FilledAddressCount = 1 Then
+		StringWithAddress.Selected = True;
 	EndIf;
 	
 EndProcedure
@@ -165,8 +180,8 @@ Procedure FillRecipientsTableFromStructuresArray(RecipientsList)
 		NewRecipient = Recipients.Add();
 		FillPropertyValues(NewRecipient, Recipient);
 		NewRecipient.AddressPresentation = NewRecipient.Address;
-		If Not IsBlankString(Recipient.EmailAddressKind) Then
-			NewRecipient.AddressPresentation = NewRecipient.AddressPresentation + " (" + Recipient.EmailAddressKind + ")";
+		If Not IsBlankString(NewRecipient.EmailAddressKind) Then
+			NewRecipient.AddressPresentation = NewRecipient.AddressPresentation + " (" + NewRecipient.EmailAddressKind + ")";
 		EndIf;
 	EndDo;
 	

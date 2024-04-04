@@ -30,6 +30,12 @@
 				<Button name="FormEnableDisableScheduledJob" id="12">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.EnableDisableScheduledJob</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Toggle scheduling</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="FormEnableDisableScheduledJobExtendedTooltip" id="14"/>
 				</Button>
 			</ChildItems>
@@ -69,6 +75,12 @@
 					<Button name="ListContextMenuEnableDisableScheduledJob" id="13">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.EnableDisableScheduledJob</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Toggle scheduling</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="ListContextMenuEnableDisableScheduledJobExtendedTooltip" id="15"/>
 					</Button>
 				</ChildItems>

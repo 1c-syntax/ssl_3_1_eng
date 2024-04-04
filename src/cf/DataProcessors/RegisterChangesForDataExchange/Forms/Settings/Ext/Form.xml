@@ -30,7 +30,7 @@
 						<v8:content>Save</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="FormOK1ExtendedTooltip" id="33"/>
+				<ExtendedTooltip name="FormOKExtendedTooltip" id="33"/>
 			</Button>
 			<Button name="FormCancel" id="19">
 				<Type>CommandBarButton</Type>

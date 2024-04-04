@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -116,7 +117,7 @@ Procedure RefreshItemsData()
 	ListObject.Sort("Role");
 	For Each ListLine In ListObject Do
 		If ListLine.Assignees = 0 Then
-			ListLine.PerformersString = ?(ListLine.ExternalRole, NStr("en = 'specified in another application';"), NStr("en = 'not specified';"));
+			ListLine.PerformersString = ?(ListLine.ExternalRole, NStr("en = 'specified in another app';"), NStr("en = 'not specified';"));
 			ListLine.Picture = ?(ListLine.ExternalRole, -1, 1);
 		ElsIf ListLine.Assignees = 1 Then
 			ListLine.PerformersString = String(BusinessProcessesAndTasksServer.SelectPerformer(MainAddressingObject, ListLine.RoleRef));

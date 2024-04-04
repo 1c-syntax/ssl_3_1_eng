@@ -5,12 +5,24 @@
 			<Button name="FormEnableEditing" id="28">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.EnableEditing</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Allow editing</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormEnableEditingExtendedTooltip" id="29"/>
 			</Button>
 			<Button name="FormRelaunchDeferredUpdate" id="30">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.RelaunchDeferredUpdate</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Restart deferred update…</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormRelaunchDeferredUpdateExtendedTooltip" id="31"/>
 			</Button>

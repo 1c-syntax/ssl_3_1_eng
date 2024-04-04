@@ -61,6 +61,12 @@
 							<ChildItems>
 								<RadioButtonField name="StorageLocation" id="16">
 									<DataPath>StorageLocation</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Storage location</v8:content>
+										</v8:item>
+									</Title>
 									<ToolTip>
 										<v8:item>
 											<v8:lang>en</v8:lang>
@@ -167,6 +173,12 @@
 							<EnableStartDrag>true</EnableStartDrag>
 							<DataPath>ArchiveOfExchangeMessages</DataPath>
 							<RowPictureDataPath>ArchiveOfExchangeMessages.DefaultPicture</RowPictureDataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Exchange message archive</v8:content>
+								</v8:item>
+							</Title>
 							<CommandSet>
 								<ExcludedCommand>CancelSearch</ExcludedCommand>
 								<ExcludedCommand>Change</ExcludedCommand>
@@ -205,6 +217,12 @@
 									<Button name="ArchiveOfExchangeMessagesSave" id="75">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.Save</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Save</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ArchiveOfExchangeMessagesSaveExtendedTooltip" id="76"/>
 									</Button>
 								</ChildItems>

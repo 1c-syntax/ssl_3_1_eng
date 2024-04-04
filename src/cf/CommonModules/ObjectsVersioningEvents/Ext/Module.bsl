@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -17,8 +18,8 @@
 //
 Procedure WriteObjectVersion(Source, Cancel) Export
 	
-	
-	
+	// 
+	// 
 	If Source.DataExchange.Load And Source.DataExchange.Sender = Undefined Then
 		Return;
 	EndIf;
@@ -39,8 +40,8 @@ EndProcedure
 //
 Procedure WriteDocumentVersion(Source, Cancel, WriteMode, PostingMode) Export
 	
-	
-	
+	// 
+	// 
 	If Source.DataExchange.Load And Source.DataExchange.Sender = Undefined Then
 		Return;
 	EndIf;

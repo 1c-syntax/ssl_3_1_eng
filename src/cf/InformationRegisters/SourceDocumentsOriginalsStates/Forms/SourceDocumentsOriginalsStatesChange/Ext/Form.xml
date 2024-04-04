@@ -40,8 +40,8 @@
 					<GroupVerticalAlign>Center</GroupVerticalAlign>
 					<PictureSize>AutoSize</PictureSize>
 					<Picture>
-						<xr:Ref>CommonPicture.Information32</xr:Ref>
-						<xr:LoadTransparent>false</xr:LoadTransparent>
+						<xr:Ref>StdPicture.DialogInformation</xr:Ref>
+						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</Picture>
 					<ContextMenu name="PictureInfoContextMenu" id="94"/>
 					<ExtendedTooltip name="PictureInfoExtendedTooltip" id="95"/>
@@ -427,6 +427,12 @@
 						<PictureField name="PrintFormsSetPicture" id="112">
 							<DataPath>PrintFormsSet.Picture</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Picture</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<EditMode>EnterOnInput</EditMode>
 							<Width>7</Width>
@@ -450,7 +456,7 @@
 						</InputField>
 					</ChildItems>
 				</ColumnGroup>
-				<ColumnGroup name="KitOfPrintedFormsGroupState" id="166">
+				<ColumnGroup name="PrintFormsSetGroupState" id="166">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -458,10 +464,16 @@
 						</v8:item>
 					</Title>
 					<Group>InCell</Group>
-					<ExtendedTooltip name="KitOfPrintedFormsGroupStateExtendedTooltip" id="167"/>
+					<ExtendedTooltip name="PrintFormsSetGroupStateExtendedTooltip" id="167"/>
 					<ChildItems>
 						<PictureField name="OriginalReceivedPicture" id="138">
 							<DataPath>PrintFormsSet.OriginalReceivedPicture</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Original received picture</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<EditMode>EnterOnInput</EditMode>
 							<HeaderPicture>
@@ -501,12 +513,24 @@
 				<InputField name="PrintFormsSetLastChangeDate" id="157">
 					<DataPath>PrintFormsSet.LastChangeDate</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Last change date</v8:content>
+						</v8:item>
+					</Title>
 					<ContextMenu name="PrintFormsSetLastChangeDateContextMenu" id="158"/>
 					<ExtendedTooltip name="PrintFormsSetLastChangeDateExtendedTooltip" id="159"/>
 				</InputField>
 				<InputField name="PrintFormsSetChangeAuthor" id="160">
 					<DataPath>PrintFormsSet.ChangeAuthor</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Changed by</v8:content>
+						</v8:item>
+					</Title>
 					<ContextMenu name="PrintFormsSetChangeAuthorContextMenu" id="161"/>
 					<ExtendedTooltip name="PrintFormsSetChangeAuthorExtendedTooltip" id="162"/>
 				</InputField>
@@ -530,6 +554,12 @@
 			<ChildItems>
 				<LabelField name="DocumentReference" id="117">
 					<DataPath>DocumentReference</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Document reference</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<GroupVerticalAlign>Bottom</GroupVerticalAlign>
 					<Hiperlink>true</Hiperlink>
@@ -544,6 +574,12 @@
 					<DefaultButton>true</DefaultButton>
 					<GroupHorizontalAlign>Right</GroupHorizontalAlign>
 					<CommandName>Form.Command.OK</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>OK</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="OKExtendedTooltip" id="156"/>
 				</Button>
 			</ChildItems>

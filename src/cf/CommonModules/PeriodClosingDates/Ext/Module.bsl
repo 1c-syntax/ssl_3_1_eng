@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -264,7 +265,7 @@ EndProcedure
 //
 //  ErrorDescription    - Null      - the default value. Period-end closing data is not required.
 //                    - String    - a return value. Return a text description of available period-end closing dates.
-//                    - Structure - :
+//                    - Structure - Return value. Return structural details of the detected period-end closing:
 //                        * DataPresentation - String - a data presentation used in the error title.
 //                        * ErrorTitle     - String - a string similar to the following one:
 //                                                "Order 10 dated 01/01/2017 cannot be changed in the closed period."

@@ -42,6 +42,12 @@
 				<Button name="FormImportClassifier" id="16">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.ImportClassifier</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Import classifier…</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="FormImportClassifierExtendedTooltip" id="17"/>
 				</Button>
 			</ChildItems>

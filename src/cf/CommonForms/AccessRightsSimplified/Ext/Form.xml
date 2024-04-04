@@ -6,22 +6,46 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.Write</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormWriteExtendedTooltip" id="75"/>
 			</Button>
 			<Button name="FormReportUserRights" id="142">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.ReportUserRights</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>User rights report</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormReportUserRightsExtendedTooltip" id="143"/>
 			</Button>
 			<Button name="SnowUnusedAccessKinds" id="110">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.SnowUnusedAccessKinds</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Show unused access kinds</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="SnowUnusedAccessKindsExtendedTooltip" id="111"/>
 			</Button>
 			<Button name="FormAccessRightsReport" id="68">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.AccessRightsReport</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Access rights report (the old one)</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormAccessRightsReportExtendedTooltip" id="76"/>
 			</Button>
@@ -46,6 +70,18 @@
 			<ContextMenu name="InsufficientViewRightsContextMenu" id="74"/>
 			<ExtendedTooltip name="InsufficientViewRightsExtendedTooltip" id="77"/>
 		</LabelDecoration>
+		<LabelDecoration name="UtilityUserRights" id="156">
+			<Visible>false</Visible>
+			<AutoMaxWidth>false</AutoMaxWidth>
+			<Title formatted="false">
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Rights (roles) of utility users cannot be changed interactively.</v8:content>
+				</v8:item>
+			</Title>
+			<ContextMenu name="UtilityUserRightsContextMenu" id="157"/>
+			<ExtendedTooltip name="UtilityUserRightsExtendedTooltip" id="158"/>
+		</LabelDecoration>
 		<UsualGroup name="RightsAndRestrictions" id="1">
 			<Title>
 				<v8:item>
@@ -63,7 +99,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Group profiles</v8:content>
+							<v8:content>Profiles</v8:content>
 						</v8:item>
 					</Title>
 					<Group>Vertical</Group>
@@ -188,6 +224,12 @@
 							<ChildItems>
 								<CheckBoxField name="ProfilesCheck" id="5">
 									<DataPath>Profiles.Check</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Checkmark</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<EditMode>Directly</EditMode>
 									<CheckBoxType>Auto</CheckBoxType>
@@ -200,6 +242,12 @@
 								<InputField name="ProfilesProfilePresentation1" id="9">
 									<DataPath>Profiles.ProfilePresentation</DataPath>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Profile</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ContextMenu name="ProfilesProfilePresentation1ContextMenu" id="10"/>
 									<ExtendedTooltip name="ProfilesProfilePresentation1ExtendedTooltip" id="81"/>
@@ -312,6 +360,12 @@
 								<InputField name="AccessKindsAccessTypePresentation" id="56">
 									<DataPath>AccessKinds.AccessKindPresentation</DataPath>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Access kind</v8:content>
+										</v8:item>
+									</Title>
 									<ToolTip>
 										<v8:item>
 											<v8:lang>en</v8:lang>
@@ -326,6 +380,12 @@
 								</InputField>
 								<InputField name="AccessKindsAllAllowedPresentation" id="58">
 									<DataPath>AccessKinds.AllAllowedPresentation</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Access values</v8:content>
+										</v8:item>
+									</Title>
 									<ToolTip>
 										<v8:item>
 											<v8:lang>en</v8:lang>
@@ -442,6 +502,12 @@
 										</LabelField>
 										<InputField name="AccessValuesAccessValue" id="64">
 											<DataPath>AccessValues.AccessValue</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Access value</v8:content>
+												</v8:item>
+											</Title>
 											<EditMode>EnterOnInput</EditMode>
 											<ChooseType>false</ChooseType>
 											<ContextMenu name="AccessValuesAccessValueContextMenu" id="65"/>
@@ -456,6 +522,12 @@
 										</InputField>
 										<CheckBoxField name="AccessValuesIncludeSubordinateAccessValues" id="139">
 											<DataPath>AccessValues.IncludeSubordinateAccessValues</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Include subordinate items</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<ToolTip>
 												<v8:item>
@@ -703,6 +775,14 @@
 			</Type>
 		</Attribute>
 		<Attribute name="CurrentRestrictionsAvailability" id="25">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="ServiceOperationError" id="8">
+			<Type/>
+		</Attribute>
+		<Attribute name="IsInternalUser" id="9">
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -436,7 +437,7 @@ Procedure SetConditionalAppearance()
 
 	Item.Appearance.SetParameterValue("MarkIncomplete", True);
 
-	
+	// Hint range text.
 
 	ConditionalAppearanceItem = ConditionalAppearance.Items.Add();
 	
@@ -459,7 +460,7 @@ Procedure SetConditionalAppearance()
 	FormattedField.Field = New DataCompositionField("HintsRangeValueUpTo");
 	FormattedField.Use = True;
 	
-	
+	// Availability of the upper value range.
 	
 	ConditionalAppearanceItem = ConditionalAppearance.Items.Add();
 	
@@ -684,7 +685,7 @@ Procedure SetDefaultRangeSliderStep()
 		Return;
 	EndIf;
 	
-	
+	// If the step does not evenly divide the range between the maximum and minimum values, set the step to 1.
 	SliderLength = (Object.MaxValue - Object.MinValue) / Object.RangeSliderStep;
 	If SliderLength <> Int(SliderLength) Then
 		Object.RangeSliderStep = 1;
@@ -713,30 +714,30 @@ Procedure SetHintRangePresentationForNumericalQuestion()
 		CurrentIndex = Object.NumericalQuestionHintsRange.IndexOf(CurrentRow);
 		If CurrentRow.ValueUpTo = NumericalQuestionHintsRangeCapValue() Then
 			If CurrentIndex = 0 Then
-				ValuePresentation = NStr("en = 'any value';");
-				CurrentRow.ValuePresentation = ValuePresentation;
+				CurrentRow.ValuePresentation = NStr("en = 'any value';");
+				Continue;
+			EndIf;
+			PreviousString = TableOfRanges[CurrentIndex - 1];
+			If PreviousString.ValueUpTo = NumericalQuestionHintsRangeCapValue() Then
+				CurrentRow.ValuePresentation = PreviousString.ValuePresentation;
 			Else
-				PreviousString = TableOfRanges[CurrentIndex - 1];
-				If PreviousString.ValueUpTo = NumericalQuestionHintsRangeCapValue() Then
-					CurrentRow.ValuePresentation = PreviousString.ValuePresentation;
-				Else
-					StringPattern = NStr("en = 'greater than %1';");
-					CurrentRow.ValuePresentation = StrTemplate(StringPattern, String(PreviousString.ValueUpTo));
-				EndIf;
+				CurrentRow.ValuePresentation = StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'greater than %1';"), String(PreviousString.ValueUpTo));
 			EndIf;
 		Else
 			If CurrentIndex = 0 Then
-				StringPattern = NStr("en = '%1 or less';");
-				CurrentRow.ValuePresentation = StrTemplate(StringPattern, String(CurrentRow.ValueUpTo));
+				CurrentRow.ValuePresentation = StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = '%1 or less';"), String(CurrentRow.ValueUpTo));
+					Continue;
+			EndIf;
+			PreviousString = TableOfRanges[CurrentIndex - 1];
+			If PreviousString.ValueUpTo = CurrentRow.ValueUpTo Then
+				CurrentRow.ValuePresentation = PreviousString.ValuePresentation;
 			Else
-				PreviousString = TableOfRanges[CurrentIndex - 1];
-				If PreviousString.ValueUpTo = CurrentRow.ValueUpTo Then
-					CurrentRow.ValuePresentation = PreviousString.ValuePresentation;
-				Else
-					CurrentRow.ValuePresentation = StrTemplate(NStr("en = 'from %1 to %2';"),
-						String(PreviousString.ValueUpTo), 
-						String(CurrentRow.ValueUpTo));
-				EndIf;
+				CurrentRow.ValuePresentation = StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'from %1 to %2';"), 
+					String(PreviousString.ValueUpTo), 
+					String(CurrentRow.ValueUpTo));
 			EndIf;
 		EndIf;
 	EndDo;

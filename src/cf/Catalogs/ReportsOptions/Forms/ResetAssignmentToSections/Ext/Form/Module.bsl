@@ -1,24 +1,24 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
-	Variants = CommonClientServer.StructureProperty(Parameters, "Variants"); // Array of CatalogRef.ReportsOptions
-	If TypeOf(Variants) <> Type("Array") Then
+	If TypeOf(Parameters.Variants) <> Type("Array") Then
 		ErrorText = NStr("en = 'No report options provided.';");
 		Return;
 	EndIf;
 
 	DefineBehaviorInMobileClient();
-	OptionsToAssign.LoadValues(Variants);
+	OptionsToAssign.LoadValues(Parameters.Variants);
 	Filter();
 EndProcedure
 
@@ -65,7 +65,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServerNoContext
 Function ResetAssignmentSettingsServer(Val OptionsToAssign)

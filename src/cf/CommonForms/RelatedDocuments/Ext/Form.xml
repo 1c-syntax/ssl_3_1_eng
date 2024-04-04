@@ -16,12 +16,24 @@
 				<Representation>PictureAndText</Representation>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.Refresh</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Refresh</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="RefreshExtendedTooltip" id="17"/>
 			</Button>
 			<Button name="OutputForCurrentDocument" id="11">
 				<Type>CommandBarButton</Type>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.OutputForCurrentDocument</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Build from selected item</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="OutputForCurrentDocumentExtendedTooltip" id="18"/>
 			</Button>
 			<ButtonGroup name="Search" id="31">
@@ -72,11 +84,23 @@
 							<Button name="Post" id="25">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.Post</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Post</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="PostExtendedTooltip" id="26"/>
 							</Button>
 							<Button name="CancelPosting" id="27">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.CancelPosting</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Cancel posting</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="UndoPostingExtendedTooltip" id="28"/>
 							</Button>
 						</ChildItems>
@@ -84,6 +108,12 @@
 					<Button name="ChangeDeletionMark" id="23">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.ChangeDeletionMark</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Toggle deletion mark</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="ChangeDeletionMarkExtendedTooltip" id="24"/>
 					</Button>
 				</ChildItems>
@@ -109,13 +139,19 @@
 			<ChildItems>
 				<SpreadSheetDocumentField name="ReportTable" id="15">
 					<DataPath>ReportTable</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Report table</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<VerticalScrollBar>true</VerticalScrollBar>
 					<HorizontalScrollBar>true</HorizontalScrollBar>
 					<EnableStartDrag>false</EnableStartDrag>
 					<EnableDrag>false</EnableDrag>
 					<ContextMenu name="ReportTable1ContextMenu" id="16"/>
-					<ExtendedTooltip name="ReportTable1ExtendedTooltip" id="20"/>
+					<ExtendedTooltip name="ReportTableExtendedTooltip" id="20"/>
 				</SpreadSheetDocumentField>
 			</ChildItems>
 		</UsualGroup>

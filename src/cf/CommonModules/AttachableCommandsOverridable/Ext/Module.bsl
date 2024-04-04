@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -101,8 +102,8 @@ EndProcedure
 //         See column content in AttachableCommandsOverridable.OnDefineAttachableObjectsSettingsComposition.
 //   
 //   Commands - ValueTable - write the generated commands to this parameter for output in submenu: 
-//       * Kind - String -  type of team.
-//           More detailed  See AttachableCommandsOverridable.OnDefineAttachableCommandsKinds.
+//       * Kind - String - Command kind.
+//           Details See AttachableCommandsOverridable.OnDefineAttachableCommandsKinds.
 //       * Id - String - a command ID.
 //       
 //       1) Appearance settings.
@@ -163,14 +164,14 @@ EndProcedure
 //       * FormParameterName - String - Name of the form parameter to pass a reference or a reference array to.
 //       * FormParameters - Undefined
 //                        - Structure - form parameters specified in formName. Optional.
-//       * Handler - String - :
-//           
-//           
-//             
-//             
-//           
-//           
-//            See AttachableCommandsClient.CommandExecuteParameters
+//       * Handler - String - Describes the procedure that handles the main command action.:
+//           The format is "<CommonModuleName>.<ProcedureName>" if the procedure is located in a common module.
+//           The format is "<ProcedureName>" in the following cases:
+//             • If "FormName" is passed, the client procedure is expected in the object's module manager.
+//             • If "FormName" is not passed, the server procedure is expected in the object's module manager.
+//           The handler takes two parameters:
+//           ## CommandParameter - Array of AnyRef - A list of objects for which the command is executed.
+//           ## CommandExecutionParameters - See AttachableCommandsClient.CommandExecuteParameters
 //       * AdditionalParameters - Structure - parameters of the handler specified in Handler. Optional.
 //
 Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReportsAndDataProcessors, Commands) Export

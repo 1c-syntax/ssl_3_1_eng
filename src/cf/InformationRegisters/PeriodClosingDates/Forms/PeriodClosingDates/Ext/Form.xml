@@ -36,6 +36,12 @@
 			<ChildItems>
 				<RadioButtonField name="SetPeriodEndClosingDates" id="439">
 					<DataPath>SetPeriodEndClosingDateNew</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Specify period-end closing date new</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<RadioButtonType>Tumbler</RadioButtonType>
 					<ColumnsCount>3</ColumnsCount>
@@ -87,12 +93,24 @@
 						<Button name="Refresh" id="200">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.Refresh</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Refresh</v8:content>
+								</v8:item>
+							</Title>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 							<ExtendedTooltip name="RefreshExtendedTooltip" id="321"/>
 						</Button>
 						<Button name="ShowReport" id="429">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.ShowReport</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Report</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="ShowReportExtendedTooltip" id="430"/>
 						</Button>
 					</ChildItems>
@@ -164,7 +182,7 @@
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Entry and edition of data from previous periods is disabled.</v8:content>
+									<v8:content>Dates of restriction of entering and editing previous period data are disabled in the application settings.</v8:content>
 								</v8:item>
 							</Title>
 							<ContextMenu name="ClosingDatesUsageDisabledLabelContextMenu" id="437"/>
@@ -241,6 +259,12 @@
 									<Button name="UsersPick" id="176">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.PickUsers</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Pick</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="UsersPickExtendedTooltip" id="325"/>
 									</Button>
 									<Button name="UsersAdd" id="397">
@@ -250,6 +274,12 @@
 										<ExtendedTooltip name="UsersAddExtendedTooltip" id="398"/>
 									</Button>
 									<ButtonGroup name="UsersStandardCommands" id="177">
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Users standard commands</v8:content>
+											</v8:item>
+										</Title>
 										<CommandSource>Item.Users</CommandSource>
 										<ExtendedTooltip name="UsersStandardCommandsExtendedTooltip" id="326"/>
 									</ButtonGroup>
@@ -307,6 +337,12 @@
 							<ChildItems>
 								<InputField name="UsersFullPresentation" id="127">
 									<DataPath>ClosingDatesUsers.FullPresentation</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>User, user group</v8:content>
+										</v8:item>
+									</Title>
 									<ToolTip>
 										<v8:item>
 											<v8:lang>en</v8:lang>
@@ -332,6 +368,12 @@
 								</InputField>
 								<InputField name="UsersComment" id="129">
 									<DataPath>ClosingDatesUsers.Comment</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Comment</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<Width>31</Width>
 									<ExtendedEdit>true</ExtendedEdit>
@@ -441,6 +483,12 @@
 																		<RadioButtonField name="PeriodEndClosingNotSet" id="467">
 																			<DataPath>PeriodEndClosingDateDetails</DataPath>
 																			<Visible>false</Visible>
+																			<Title>
+																				<v8:item>
+																					<v8:lang>en</v8:lang>
+																					<v8:content>Period-end closing date details</v8:content>
+																				</v8:item>
+																			</Title>
 																			<TitleLocation>None</TitleLocation>
 																			<RadioButtonType>Auto</RadioButtonType>
 																			<ChoiceList>
@@ -476,6 +524,12 @@
 																				<RadioButtonField name="CustomPeriodEndClosingDate" id="472">
 																					<DataPath>PeriodEndClosingDateDetails</DataPath>
 																					<Visible>false</Visible>
+																					<Title>
+																						<v8:item>
+																							<v8:lang>en</v8:lang>
+																							<v8:content>Period-end closing date details</v8:content>
+																						</v8:item>
+																					</Title>
 																					<TitleLocation>None</TitleLocation>
 																					<RadioButtonType>Auto</RadioButtonType>
 																					<ChoiceList>
@@ -498,6 +552,12 @@
 																				</RadioButtonField>
 																				<InputField name="PeriodEndClosingDateSimpleMode" id="475">
 																					<DataPath>PeriodEndClosingDate</DataPath>
+																					<Title>
+																						<v8:item>
+																							<v8:lang>en</v8:lang>
+																							<v8:content>Period-end closing date</v8:content>
+																						</v8:item>
+																					</Title>
 																					<ClearButton>true</ClearButton>
 																					<ContextMenu name="PeriodEndClosingDateSimpleModeContextMenu" id="476"/>
 																					<ExtendedTooltip name="PeriodEndClosingDateSimpleModeExtendedTooltip" id="477"/>
@@ -700,6 +760,12 @@
 																							<ChildItems>
 																								<InputField name="PeriodEndClosingDate" id="227">
 																									<DataPath>PeriodEndClosingDate</DataPath>
+																									<Title>
+																										<v8:item>
+																											<v8:lang>en</v8:lang>
+																											<v8:content>Period-end closing date</v8:content>
+																										</v8:item>
+																									</Title>
 																									<TitleLocation>None</TitleLocation>
 																									<ClearButton>true</ClearButton>
 																									<EditFormat>
@@ -723,7 +789,7 @@
 																									<v8:content>Custom date is not used</v8:content>
 																								</v8:item>
 																							</Title>
-																							<ExtendedTooltip name="CustomDateNotUsedExtendedTooltip" id="344"/>
+																							<ExtendedTooltip name="CustomNotUsedExtendedTooltip" id="344"/>
 																							<ChildItems>
 																								<LabelDecoration name="EmptyLabelToDisplayPage1" id="230">
 																									<ContextMenu name="EmptyLabelToDisplayPage1ContextMenu" id="231"/>
@@ -769,6 +835,12 @@
 																							<ChildItems>
 																								<CheckBoxField name="EnableDataChangeBeforePeriodEndClosingDate" id="487">
 																									<DataPath>EnableDataChangeBeforePeriodEndClosingDate</DataPath>
+																									<Title>
+																										<v8:item>
+																											<v8:lang>en</v8:lang>
+																											<v8:content>Effect delayed for</v8:content>
+																										</v8:item>
+																									</Title>
 																									<TitleLocation>Right</TitleLocation>
 																									<CheckBoxType>Auto</CheckBoxType>
 																									<ContextMenu name="EnableDataChangeBeforePeriodEndClosingDateContextMenu" id="488"/>
@@ -906,6 +978,12 @@
 																		<ExtendedTooltip name="ClosingDatesContextMenuDeleteExtendedTooltip" id="391"/>
 																	</Button>
 																	<ButtonGroup name="ClosingDatesContextMenuStandardCommands" id="275">
+																		<Title>
+																			<v8:item>
+																				<v8:lang>en</v8:lang>
+																				<v8:content>Standard commands context menu period-end closing dates</v8:content>
+																			</v8:item>
+																		</Title>
 																		<CommandSource>Item.ClosingDates</CommandSource>
 																		<ExtendedTooltip name="ClosingDatesContextMenuStandardCommandsExtendedTooltip" id="392"/>
 																	</ButtonGroup>
@@ -917,6 +995,12 @@
 																	<Button name="ClosingDatesPick" id="401">
 																		<Type>CommandBarButton</Type>
 																		<CommandName>Form.Command.PickObjects</CommandName>
+																		<Title>
+																			<v8:item>
+																				<v8:lang>en</v8:lang>
+																				<v8:content>Pick</v8:content>
+																			</v8:item>
+																		</Title>
 																		<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 																		<ExtendedTooltip name="ClosingDatesPickExtendedTooltip" id="402"/>
 																	</Button>
@@ -945,6 +1029,12 @@
 																		<ExtendedTooltip name="ClosingDatesDeleteExtendedTooltip" id="458"/>
 																	</Button>
 																	<ButtonGroup name="ClosingDatesStandardCommands" id="403">
+																		<Title>
+																			<v8:item>
+																				<v8:lang>en</v8:lang>
+																				<v8:content>Standard commands period-end closing dates</v8:content>
+																			</v8:item>
+																		</Title>
 																		<CommandSource>Item.ClosingDates</CommandSource>
 																		<ExtendedTooltip name="ClosingDatesStandardCommandsExtendedTooltip" id="404"/>
 																	</ButtonGroup>
@@ -1002,6 +1092,12 @@
 															<ChildItems>
 																<InputField name="ClosingDatesFullPresentation" id="143">
 																	<DataPath>ClosingDates.FullPresentation</DataPath>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Section, object</v8:content>
+																		</v8:item>
+																	</Title>
 																	<ToolTip>
 																		<v8:item>
 																			<v8:lang>en</v8:lang>

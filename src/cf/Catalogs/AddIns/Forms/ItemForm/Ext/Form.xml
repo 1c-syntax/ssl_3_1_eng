@@ -34,16 +34,34 @@
 					<Button name="FormUpdateFromFile" id="77">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.UpdateFromFile</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Update from file…</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="FormUpdateFromFileExtendedTooltip" id="78"/>
 					</Button>
 					<Button name="PerformUpdateFrom1CITSPortal" id="83">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.PerformUpdateFrom1CITSPortal</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Update from 1C:ITS Portal</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="PerformUpdateFrom1CITSPortalExtendedTooltip" id="84"/>
 					</Button>
 					<Button name="FormSaveAs" id="87">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.SaveAs</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Save as…</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="FormSaveAsExtendedTooltip" id="88"/>
 					</Button>
@@ -276,6 +294,12 @@
 		<Button name="SupportedClientApplications" id="174">
 			<Type>Hyperlink</Type>
 			<CommandName>Form.Command.SupportedClientApplications</CommandName>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Supported client apps</v8:content>
+				</v8:item>
+			</Title>
 			<ExtendedTooltip name="SupportedClientApplicationsExtendedTooltip" id="175"/>
 		</Button>
 		<InputField name="VersionDate" id="159">

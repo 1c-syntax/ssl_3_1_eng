@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -156,7 +157,7 @@ Procedure SetApplicationNameForTemplateOpening()
 	
 	FileType = Lower(TemplateType);
 	If FileType = "mxl" Then
-		ApplicationNameForTemplateOpening = NStr("en = '1C:Enterprise - Работа с файлами';");
+		ApplicationNameForTemplateOpening = NStr("en = '1C:Enterprise. File management';");
 		TemplateOpeningApplicationAddress = "http://v8.1c.ru/metod/fileworkshop.htm";
 	ElsIf FileType = "doc" Then
 		ApplicationNameForTemplateOpening = NStr("en = 'Microsoft Word';");
@@ -169,7 +170,7 @@ Procedure SetApplicationNameForTemplateOpening()
 		TemplateOpeningApplicationAddress = "";
 	EndIf;
 	
-	NavigateToAppPage = NStr("en = 'Перейти на веб-страницу %1 для установки';");
+	NavigateToAppPage = NStr("en = 'Open %1 installation web page';");
 	NavigateToAppPage = StringFunctionsClientServer.SubstituteParametersToString(NavigateToAppPage, ApplicationNameForTemplateOpening);
 	Items.LinkToApplicationPageBeforeDownloadWebClient.Title = NavigateToAppPage;
 	Items.LinkToApplicationPageBeforeDownloadNotWebClient.Title = NavigateToAppPage;
@@ -179,39 +180,39 @@ Procedure SetApplicationNameForTemplateOpening()
 	Items.BeforeDownloadTemplateInstructionWebClientLabel.Title = 
 		NStr("en = 'Click Continue to import.';");
 	Items.BeforeDownloadTemplateInstructionNotWebClientLabel.Title = 
-		NStr("en = 'Click Continue to open the template in another application. Modify the template, close it, and follow further instructions.';");
+		NStr("en = 'Click Continue to open the template in another app. Modify the template, close it, and follow further instructions.';");
 	
 	If Parameters.OpenOnly Then
 		Items.BeforeDownloadTemplateApplicationWebClientLabel.Title = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Файл макета ""%1"" подготовлен для загрузки на компьютер и открытия с помощью другой программы.
+			NStr("en = 'Template file ""%1"" is ready to be imported and %3 with an external app on your computer.
 				 |
-				 |Если программа для редактирования еще не установлена, рекомендуется установить %2.';"), TemplatePresentation,
+				 |If you haven''t installed the editor yet, we recommend installing %2.';"), TemplatePresentation,
 				ApplicationNameForTemplateOpening);
 	Else
 		Items.BeforeDownloadTemplateApplicationWebClientLabel.Title = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Файл макета ""%1"" подготовлен для загрузки на компьютер и внесения изменений с помощью другой программы.
+			NStr("en = 'Template file ""%1"" is ready to be imported and %3 with an external app on your computer.
 				 |
-				 |Если программа для редактирования еще не установлена, рекомендуется установить %2.';"), TemplatePresentation,
+				 |If you haven''t installed the editor yet, we recommend installing %2.';"), TemplatePresentation,
 				ApplicationNameForTemplateOpening);
 	EndIf;
 	
 	Items.BeforeDownloadTemplateApplicationNotWebClientLabel.Title = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Файл макета ""%1"" подготовлен для внесения изменений с помощью другой программы. Если программа для редактирования еще не установлена, рекомендуется установить %2.';"), 
+		NStr("en = 'Template file ""%1"" is ready to be edited with an external app. If you haven''t installed the editor yet, we recommend installing %2.';"), 
 		TemplatePresentation, ApplicationNameForTemplateOpening);
 	
 	Items.ApplyChangesLabelWebClient.Title = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Дождитесь окончания загрузки файла макета, затем откройте и отредактируйте его.
+		NStr("en = 'Please wait for the template file to be imported, then open and edit it.
 			 |
-			 |После завершения редактирования, закройте файл макета, подтвердив изменения. Затем нажмите на кнопку ""Завершить изменение"" и выберите этот файл в следующем диалоге.
+			 |After editing, confirm the changes and close the template file. Then click ""Apply changes"" and select this file in the next dialog box.
 			 |
-			 |Если программа для редактирования еще не установлена, рекомендуется установить %1.';"), ApplicationNameForTemplateOpening);
+			 |If you haven''t installed the editor yet, we recommend installing %1.';"), ApplicationNameForTemplateOpening);
 	
 	Items.ApplyChangesLabelNotWebClient.Title = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Дождитесь открытия макета в программе для редактирования.
+		NStr("en = 'Please wait for the template to be opened in the editor.
 	    	 |
-			 |После завершения редактирования, закройте макет, подтвердив изменения. Затем нажмите на кнопку ""Завершить изменение"".
+			 |After editing, confirm the changes and close the template. Then click ""Apply changes"".
 			 |
-			 |Если программа для редактирования еще не установлена, рекомендуется установить %1.';"), ApplicationNameForTemplateOpening);
+			 |If you haven''t installed the editor yet, we recommend installing %1.';"), ApplicationNameForTemplateOpening);
 		
 	LinkToAplicationPageVisibility = (Common.IsWebClient() Or FileType <> "mxl") And FileType <> "docx";
 	Items.LinkToApplicationPageBeforeDownloadWebClient.Visible = LinkToAplicationPageVisibility;

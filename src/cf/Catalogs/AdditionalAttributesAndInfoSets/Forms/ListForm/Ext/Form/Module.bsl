@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -12,7 +13,7 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	If Parameters.Property("PropertyKind") Then
+	If ValueIsFilled(Parameters.PropertyKind) Then
 		PropertyKind = Parameters.PropertyKind;
 		Items.PropertyKind.Visible = False;
 		If PropertyKind = Enums.PropertiesKinds.AdditionalAttributes Then
@@ -82,13 +83,13 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 	 Or EventName = "Write_ObjectsPropertiesValues"
 	 Or EventName = "Write_ObjectPropertyValueHierarchy" Then
 		
-		
-		
+		// 
+		// 
 		OnChangeCurrentSetAtServer();
 		
 	ElsIf EventName = "GoAdditionalDataAndAttributeSets" Then
-		
-		
+		// 
+		// 
 		If TypeOf(Parameter) = Type("Structure") Then
 			SelectSpecifiedRows(Parameter);
 		EndIf;
@@ -294,8 +295,8 @@ EndProcedure
 
 &AtClient
 Procedure PropertiesDragStart(Item, DragParameters, Perform)
-	
-	
+	// 
+	// 
 	DragParameters.AllowedActions = DragAllowedActions.Copy;
 	DragParameters.Action           = DragAction.Copy;
 EndProcedure
@@ -607,6 +608,8 @@ EndProcedure
 &AtServer
 Procedure ConfigureSetsDisplay()
 	
+	CreateButton            = Items.PropertiesCreate;
+	ButtonCreateContext = Items.PropertiesContextMenuCreate;
 	CreateCommand                      = Commands.Find("Create");
 	CopyCommand                  = Commands.Find("Copy");
 	ChangeCommand                     = Commands.Find("Change");
@@ -617,9 +620,9 @@ Procedure ConfigureSetsDisplay()
 	If PropertyKind = Enums.PropertiesKinds.AdditionalInfo Then
 		Title = NStr("en = 'Additional information records';");
 		
-		CreateCommand.ToolTip          = NStr("en = 'Create a unique information record.';");
-		CreateCommand.Title          = NStr("en = 'New';");
-		CreateCommand.ToolTip          = NStr("en = 'Create a unique information record.';");
+		CreateButton.Title          = NStr("en = 'New item';");
+		ButtonCreateContext.Title = NStr("en = 'New item';");
+		CreateCommand.ToolTip         = NStr("en = 'Create a unique information record.';");
 		
 		CopyCommand.ToolTip        = NStr("en = 'Create an information record by copying the current one.';");
 		ChangeCommand.ToolTip           = NStr("en = 'Change or open the information record.';");
@@ -647,7 +650,8 @@ Procedure ConfigureSetsDisplay()
 		                                              |It belongs to multiple sets.';");
 	ElsIf PropertyKind = Enums.PropertiesKinds.Labels Then
 		Title = NStr("en = 'Labels';");
-		CreateCommand.Title          = NStr("en = 'New label';");
+		CreateButton.Title            = NStr("en = 'New item';");
+		ButtonCreateContext.Title = NStr("en = 'New item';");
 		CreateCommand.ToolTip          = NStr("en = 'Create a unique label';");
 		
 		CopyCommand.ToolTip        = NStr("en = 'Create a new label by copying the current label';");
@@ -680,7 +684,8 @@ Procedure ConfigureSetsDisplay()
 		Items.PropertiesValueType.Visible = False;
 	Else
 		Title = NStr("en = 'Additional attributes';");
-		CreateCommand.Title          = NStr("en = 'New';");
+		CreateButton.Title            = NStr("en = 'New item';");
+		ButtonCreateContext.Title = NStr("en = 'New item';");
 		CreateCommand.ToolTip          = NStr("en = 'Create a unique attribute.';");
 		
 		CopyCommand.ToolTip        = NStr("en = 'Create an attribute by copying the current one.';");
@@ -1133,7 +1138,7 @@ Procedure ChangeDeletionMarkAndValuesOwner(CurrentProperty, PropertyDeletionMark
 	EndIf;
 	
 	If PropertyDeletionMark Then
-		
+		// 
 		// 
 		// 
 		//   
@@ -1176,7 +1181,7 @@ Procedure ChangeDeletionMarkAndValuesOwner(CurrentProperty, PropertyDeletionMark
 			ObjectProperty.DeletionMark = False;
 			ObjectProperty.Write();
 		EndIf;
-		
+		// 
 		// 
 		// 
 		//   

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -57,7 +58,7 @@ Procedure CloseForm(Command)
 	
 EndProcedure
 
-
+// 
 
 &AtClient
 Procedure TimeConsumingOperationIdleHandler()
@@ -94,7 +95,7 @@ EndProcedure
 
 #Region Private
 
-
+// 
 
 &AtClient
 Procedure ChangeNavigationNumber(Iterator_SSLy)
@@ -395,7 +396,7 @@ Procedure GoBack()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
 Procedure DeleteStandaloneWorkstation1(Cancel, ErrorMessage = "")
@@ -435,7 +436,7 @@ Procedure WriteErrorToEventLog(ErrorMessageString, Event)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Function Attachable_WaitTimeConsumingOperationProcessing(Cancel, GoToNext)
@@ -494,7 +495,7 @@ Function JobCompleted(JobID)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
 Procedure SetMainScenario()

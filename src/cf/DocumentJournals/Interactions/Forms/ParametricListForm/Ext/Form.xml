@@ -46,13 +46,19 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="FiltersGroup3ExtendedTooltip" id="147"/>
+			<ExtendedTooltip name="FiltersGroupExtendedTooltip" id="147"/>
 			<ChildItems>
 				<Button name="SwitchViewMode" id="102">
 					<Type>UsualButton</Type>
 					<Representation>Picture</Representation>
 					<Check>true</Check>
 					<CommandName>Form.Command.SwitchViewMode</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Toggle view</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="SwitchViewModeExtendedTooltip" id="148"/>
 				</Button>
 				<InputField name="InteractionType" id="136">
@@ -60,6 +66,12 @@
 					<UserVisible>
 						<xr:Common>false</xr:Common>
 					</UserVisible>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Interaction type</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<Width>25</Width>
 					<HorizontalStretch>false</HorizontalStretch>
@@ -245,6 +257,12 @@
 				</InputField>
 				<InputField name="Status" id="50">
 					<DataPath>Status</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Status</v8:content>
+						</v8:item>
+					</Title>
 					<Width>12</Width>
 					<HorizontalStretch>false</HorizontalStretch>
 					<Wrap>false</Wrap>
@@ -305,7 +323,7 @@
 						</xr:Item>
 					</ChoiceList>
 					<ContextMenu name="StatusContextMenu" id="51"/>
-					<ExtendedTooltip name="StatusExtendedTooltip_SSLs" id="150"/>
+					<ExtendedTooltip name="StatusExtendedTooltip" id="150"/>
 					<Events>
 						<Event name="OnChange">StatusOnChange</Event>
 						<Event name="Clearing">InteractionTypeStatusClearing</Event>
@@ -389,24 +407,48 @@
 										<Type>CommandBarButton</Type>
 										<SkipOnInput>false</SkipOnInput>
 										<CommandName>Form.Command.DeferReview</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Snooze till…</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="SnoozeExtendedTooltip" id="154"/>
 									</Button>
 									<Button name="SetReviewed" id="48">
 										<Type>CommandBarButton</Type>
 										<SkipOnInput>false</SkipOnInput>
 										<CommandName>Form.Command.Reviewed</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Mark as Reviewed</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="SetReviewedExtendedTooltip" id="155"/>
 									</Button>
 									<Button name="SetEmployeeResponsible" id="49">
 										<Type>CommandBarButton</Type>
 										<SkipOnInput>false</SkipOnInput>
 										<CommandName>Form.Command.EmployeeResponsible</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Assign to…</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="SetEmployeeResponsibleExtendedTooltip" id="156"/>
 									</Button>
 									<Button name="SetSubject" id="73">
 										<Type>CommandBarButton</Type>
 										<SkipOnInput>false</SkipOnInput>
 										<CommandName>Form.Command.SubjectOf</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Select topic…</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="SetSubjectExtendedTooltip" id="157"/>
 									</Button>
 								</ChildItems>
@@ -437,32 +479,62 @@
 												<v8:content>Create</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="CreateGroup1ExtendedTooltip" id="159"/>
+										<ExtendedTooltip name="GroupCreateExtendedTooltip" id="159"/>
 										<ChildItems>
 											<Button name="ListCreateMeeting" id="81">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.CreateMeeting</CommandName>
-												<ExtendedTooltip name="CreateMeetingListExtendedTooltip" id="160"/>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Appointment</v8:content>
+													</v8:item>
+												</Title>
+												<ExtendedTooltip name="ListCreateMeetingExtendedTooltip" id="160"/>
 											</Button>
 											<Button name="ListCreateScheduledInteraction" id="93">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.CreateScheduledInteraction</CommandName>
-												<ExtendedTooltip name="CreateScheduledInteractionListExtendedTooltip" id="161"/>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Scheduled interaction</v8:content>
+													</v8:item>
+												</Title>
+												<ExtendedTooltip name="ListCreateScheduledInteractionExtendedTooltip" id="161"/>
 											</Button>
 											<Button name="ListCreateSMSMessage" id="146">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.CreateSMSMessage</CommandName>
-												<ExtendedTooltip name="CreateSMSMessageListExtendedTooltip" id="162"/>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Text message</v8:content>
+													</v8:item>
+												</Title>
+												<ExtendedTooltip name="ListCreateSMSMessageExtendedTooltip" id="162"/>
 											</Button>
 											<Button name="ListCreatePhoneCall" id="94">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.CreatePhoneCall</CommandName>
-												<ExtendedTooltip name="CreatePhoneCallListExtendedTooltip" id="163"/>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Phone call</v8:content>
+													</v8:item>
+												</Title>
+												<ExtendedTooltip name="ListCreatePhoneCallExtendedTooltip" id="163"/>
 											</Button>
 											<Button name="ListCreateEmailMessage" id="95">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.CreateEmailMessage</CommandName>
-												<ExtendedTooltip name="CreateEmailListExtendedTooltip" id="164"/>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Mail message</v8:content>
+													</v8:item>
+												</Title>
+												<ExtendedTooltip name="ListCreateEmailMessageExtendedTooltip" id="164"/>
 											</Button>
 										</ChildItems>
 									</Popup>
@@ -481,30 +553,60 @@
 												<Representation>Picture</Representation>
 												<SkipOnInput>false</SkipOnInput>
 												<CommandName>Form.Command.Reviewed</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Mark as Reviewed</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="CommandReviewedExtendedTooltip" id="166"/>
 											</Button>
 											<Button name="ListNotReviewed" id="138">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.NotReviewed</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Mark as Unreviewed</v8:content>
+													</v8:item>
+												</Title>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-												<ExtendedTooltip name="NotReviewedListExtendedTooltip" id="167"/>
+												<ExtendedTooltip name="ListNotReviewedExtendedTooltip" id="167"/>
 											</Button>
 											<Button name="DeferReview" id="75">
 												<Type>CommandBarButton</Type>
 												<SkipOnInput>false</SkipOnInput>
 												<CommandName>Form.Command.DeferReview</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Snooze till…</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="DeferReviewExtendedTooltip" id="168"/>
 											</Button>
 											<Button name="CommandEmployeeResponsible" id="70">
 												<Type>CommandBarButton</Type>
 												<SkipOnInput>false</SkipOnInput>
 												<CommandName>Form.Command.EmployeeResponsible</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Assign to…</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="CommandEmployeeResponsibleExtendedTooltip" id="169"/>
 											</Button>
 											<Button name="CommandSubject" id="74">
 												<Type>CommandBarButton</Type>
 												<SkipOnInput>false</SkipOnInput>
 												<CommandName>Form.Command.SubjectOf</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Select topic…</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="CommandSubjectExtendedTooltip" id="170"/>
 											</Button>
 										</ChildItems>
@@ -525,7 +627,7 @@
 												<v8:content>List commands</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="GroupListCommandsExtendedTooltip" id="171"/>
+										<ExtendedTooltip name="ListCommandsGroup1ExtendedTooltip" id="171"/>
 										<ChildItems>
 											<ButtonGroup name="FindGroup" id="89">
 												<Title>
@@ -586,18 +688,24 @@
 									<Button name="ListRefresh" id="96">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Item.List.StandardCommand.Refresh</CommandName>
-										<ExtendedTooltip name="RefreshList1ExtendedTooltip" id="180"/>
+										<ExtendedTooltip name="ListRefreshExtendedTooltip" id="180"/>
 									</Button>
 									<Button name="ListSwitchViewMode" id="144">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.SwitchViewMode</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Toggle view</v8:content>
+											</v8:item>
+										</Title>
 										<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 										<ExtendedTooltip name="ListSwitchViewModeExtendedTooltip" id="181"/>
 									</Button>
 									<Button name="ListListSettings" id="97">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Item.List.StandardCommand.ListSettings</CommandName>
-										<ExtendedTooltip name="ListSettingsListExtendedTooltip" id="182"/>
+										<ExtendedTooltip name="ListListSettingsExtendedTooltip" id="182"/>
 									</Button>
 									<Button name="ListOutputList" id="98">
 										<Type>CommandBarButton</Type>
@@ -612,7 +720,7 @@
 									<Button name="ListCustomizeForm" id="99">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.StandardCommand.CustomizeForm</CommandName>
-										<ExtendedTooltip name="ListChangeFormExtendedTooltip" id="185"/>
+										<ExtendedTooltip name="ListCustomizeFormExtendedTooltip" id="185"/>
 									</Button>
 								</ChildItems>
 							</AutoCommandBar>
@@ -831,26 +939,56 @@
 											<Button name="CreateMeetingTreeList" id="121">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.CreateMeeting</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Appointment</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="CreateMeetingTreeListExtendedTooltip" id="193"/>
 											</Button>
 											<Button name="CreateScheduledInteractionTreeList" id="122">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.CreateScheduledInteraction</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Scheduled interaction</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="CreateScheduledInteractionTreeListExtendedTooltip" id="194"/>
 											</Button>
 											<Button name="InteractionsTreeCreateSMSMessage1" id="219">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.CreateSMSMessage</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Text message</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="InteractionsTreeCreateSMSMessageExtendedTooltip" id="220"/>
 											</Button>
 											<Button name="CreatePhoneCallTreeList" id="123">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.CreatePhoneCall</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Phone call</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="CreatePhoneCallTreeListExtendedTooltip" id="195"/>
 											</Button>
 											<Button name="CreateEmailTreeList" id="124">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.CreateEmailMessage</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Mail message</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="CreateEmailTreeListExtendedTooltip" id="196"/>
 											</Button>
 										</ChildItems>
@@ -869,11 +1007,23 @@
 												<Representation>Picture</Representation>
 												<SkipOnInput>false</SkipOnInput>
 												<CommandName>Form.Command.Reviewed</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Mark as Reviewed</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="CommandReviewedTreeExtendedTooltip" id="198"/>
 											</Button>
 											<Button name="InteractionsTreeNotReviewed" id="139">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.NotReviewed</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Mark as Unreviewed</v8:content>
+													</v8:item>
+												</Title>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 												<ExtendedTooltip name="InteractionsTreeNotReviewedExtendedTooltip" id="199"/>
 											</Button>
@@ -881,18 +1031,36 @@
 												<Type>CommandBarButton</Type>
 												<SkipOnInput>false</SkipOnInput>
 												<CommandName>Form.Command.DeferReview</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Snooze till…</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="DeferReviewTreeExtendedTooltip" id="200"/>
 											</Button>
 											<Button name="CommandEmployeeResponsibleTree" id="129">
 												<Type>CommandBarButton</Type>
 												<SkipOnInput>false</SkipOnInput>
 												<CommandName>Form.Command.EmployeeResponsible</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Assign to…</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="CommandEmployeeResponsibleTreeExtendedTooltip" id="201"/>
 											</Button>
 											<Button name="CommandSubjectTree" id="130">
 												<Type>CommandBarButton</Type>
 												<SkipOnInput>false</SkipOnInput>
 												<CommandName>Form.Command.SubjectOf</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Select topic…</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="CommandSubjectTreeExtendedTooltip" id="202"/>
 											</Button>
 										</ChildItems>
@@ -909,6 +1077,12 @@
 									<Button name="InteractionsTreeSetDateInterval" id="132">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.SetDateInterval</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Period…</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="InteractionsTreeSetDateIntervalExtendedTooltip" id="203"/>
 									</Button>
 									<ButtonGroup name="StandardCommandsTreeGroup" id="125">
@@ -952,6 +1126,12 @@
 									<Button name="InteractionsTreeSwitchViewMode" id="145">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.SwitchViewMode</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Toggle view</v8:content>
+											</v8:item>
+										</Title>
 										<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 										<ExtendedTooltip name="InteractionsTreeSwitchViewModeExtendedTooltip" id="208"/>
 									</Button>
@@ -1026,6 +1206,12 @@
 											<ChildItems>
 												<PictureField name="InteractionsTreePictureNumber" id="113">
 													<DataPath>InteractionsTree.PictureNumber</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Picture index</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>None</TitleLocation>
 													<EditMode>EnterOnInput</EditMode>
 													<HeaderPicture>
@@ -1044,6 +1230,12 @@
 												</PictureField>
 												<InputField name="InteractionsTreeAttendees" id="118">
 													<DataPath>InteractionsTree.Attendees</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Members</v8:content>
+														</v8:item>
+													</Title>
 													<EditMode>EnterOnInput</EditMode>
 													<Width>20</Width>
 													<HorizontalStretch>false</HorizontalStretch>
@@ -1056,6 +1248,12 @@
 												</InputField>
 												<InputField name="InteractionsTreeDate" id="111">
 													<DataPath>InteractionsTree.Date</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Date</v8:content>
+														</v8:item>
+													</Title>
 													<EditMode>EnterOnInput</EditMode>
 													<Width>9</Width>
 													<ChoiceButton>false</ChoiceButton>
@@ -1067,6 +1265,12 @@
 										</ColumnGroup>
 										<InputField name="InteractionsTreeSubject" id="116">
 											<DataPath>InteractionsTree.Subject</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Subject</v8:content>
+												</v8:item>
+											</Title>
 											<EditMode>EnterOnInput</EditMode>
 											<ChoiceButton>false</ChoiceButton>
 											<ClearButton>false</ClearButton>

@@ -35,12 +35,24 @@
 				<Button name="FormUpdateRegisterData" id="35">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.UpdateRegisterData</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Update register data</v8:content>
+						</v8:item>
+					</Title>
 					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 					<ExtendedTooltip name="FormUpdateRegisterDataExtendedTooltip" id="36"/>
 				</Button>
 				<Button name="FormEnableEditing" id="28">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.EnableEditing</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Allow editing</v8:content>
+						</v8:item>
+					</Title>
 					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 					<ExtendedTooltip name="FormEnableEditingExtendedTooltip" id="37"/>
 				</Button>
@@ -337,7 +349,7 @@ WHERE
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Allow editing for troubleshooting. The feature is for advanced users only.</v8:content>
+					<v8:content>Allow editing for troubleshooting. Recommended for advanced users only.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>EnableEditing</Action>

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -178,11 +179,11 @@ Procedure OnPrepareObjectData(Object, AdditionalAttributes) Export
 	
 	If Object.Metadata().TabularSections.Find("ContactInformation") <> Undefined Then
 		ObjectContactInformation = ContactsManager.ObjectContactInformation(Object.Ref,, CurrentSessionDate(), False);
-		TypesOfCIName = Common.ObjectsAttributeValue(ObjectContactInformation.UnloadColumn("Kind"), "Description");
+		ContactInfoKindsDescription = Common.ObjectsAttributeValue(ObjectContactInformation.UnloadColumn("Kind"), "Description");
 		For Each Contact In ObjectContactInformation Do
 			If ValueIsFilled(Contact.Kind) Then
 				Attribute = AdditionalAttributes.Add();
-				Attribute.Description = TypesOfCIName.Get(Contact.Kind);
+				Attribute.Description = ContactInfoKindsDescription.Get(Contact.Kind);
 				Attribute.Value = Contact.Presentation;
 			EndIf;
 		EndDo;
@@ -237,26 +238,6 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.InitialFilling = True;
 	
 	Handler = Handlers.Add();
-	Handler.Version          = "3.1.8.270";
-	Handler.Id   = New UUID("22f43dca-ac4f-3289-81a9-e110cd56f8b2");
-	Handler.Procedure       = "Catalogs.ContactInformationKinds.ProcessDataForMigrationToNewVersion";
-	Handler.ExecutionMode = "Deferred";
-	Handler.UpdateDataFillingProcedure = "Catalogs.ContactInformationKinds.RegisterDataToProcessForMigrationToNewVersion";
-	Handler.ObjectsToRead    = "Catalog.ContactInformationKinds";
-	Handler.ObjectsToChange  = "Catalog.ContactInformationKinds";
-	Handler.ObjectsToLock = "Catalog.ContactInformationKinds";
-	Handler.CheckProcedure  = "InfobaseUpdate.DataUpdatedForNewApplicationVersion";
-	Handler.Comment = NStr("en = 'Updates contact information kinds.
-		|While the update is in progress, names of contact information kinds in documents might be displayed incorrectly.';");
-	
-	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		Handler.ExecutionPriorities = InfobaseUpdate.HandlerExecutionPriorities();
-		NewRow = Handler.ExecutionPriorities.Add();
-		NewRow.Procedure = "NationalLanguageSupportServer.ProcessDataForMigrationToNewVersion";
-		NewRow.Order = "Before";
-	EndIf;
-	
-	Handler = Handlers.Add();
 	Handler.Version          = "3.1.3.148";
 	Handler.Id   = New UUID("dfc6a0fa-7c7b-4096-9d04-2c67d5eb17a4");
 	Handler.Procedure       = "Catalogs.WorldCountries.ProcessDataForMigrationToNewVersion";
@@ -269,6 +250,26 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Comment = NStr("en = 'Updates Countries details against the Country classifier.
 		|Until it is complete, some country names might not be shown correctly.';");
 
+	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
+		Handler.ExecutionPriorities = InfobaseUpdate.HandlerExecutionPriorities();
+		NewRow = Handler.ExecutionPriorities.Add();
+		NewRow.Procedure = "NationalLanguageSupportServer.ProcessDataForMigrationToNewVersion";
+		NewRow.Order = "Before";
+	EndIf;
+
+	Handler = Handlers.Add();
+	Handler.Version          = "3.1.10.117";
+	Handler.Id   = New UUID("22f43dca-ac4f-3289-81a9-e110cd56f8b2");
+	Handler.Procedure       = "Catalogs.ContactInformationKinds.ProcessDataForMigrationToNewVersion";
+	Handler.ExecutionMode = "Deferred";
+	Handler.UpdateDataFillingProcedure = "Catalogs.ContactInformationKinds.RegisterDataToProcessForMigrationToNewVersion";
+	Handler.ObjectsToRead    = "Catalog.ContactInformationKinds";
+	Handler.ObjectsToChange  = "Catalog.ContactInformationKinds";
+	Handler.ObjectsToLock = "Catalog.ContactInformationKinds";
+	Handler.CheckProcedure  = "InfobaseUpdate.DataUpdatedForNewApplicationVersion";
+	Handler.Comment = NStr("en = 'Updates contact information kinds.
+		|While the update is in progress, names of contact information kinds in documents might be displayed incorrectly.';");
+	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 		Handler.ExecutionPriorities = InfobaseUpdate.HandlerExecutionPriorities();
 		NewRow = Handler.ExecutionPriorities.Add();
@@ -343,7 +344,6 @@ Procedure OnDefineHandlerAliases(NamesAndAliasesMap) Export
 	NamesAndAliasesMap.Insert("ContactsManagerInternal.ObsoleteAddressesCorrection");
 EndProcedure
 
-// See NationalLanguageSupportServer.ОбъектыСТЧПредставления
 Procedure OnDefineObjectsWithTablePresentation(Objects) Export
 	Objects.Add("Catalog.ContactInformationKinds");
 EndProcedure
@@ -541,7 +541,8 @@ Function CheckResult()
 EndFunction
 
 Function IsAddressType(TypeValue)
-	Return StrCompare(TypeValue, String(PredefinedValue("Enum.ContactInformationTypes.Address"))) = 0;
+	Return Metadata.Enums.ContactInformationTypes.EnumValues.Find(TypeValue) = 
+		Metadata.Enums.ContactInformationTypes.EnumValues.Address;
 EndFunction
 
 Function CorrectContactInformationKindsBatch(Val ObjectsWithIssues, Validation)
@@ -863,7 +864,7 @@ EndProcedure
 
 Procedure UpdatePhoneExtensionSettings() Export
 	
-	
+	// Sets the PhoneWithExtensionNumber flag for backward compatibility.
 	Query = New Query;
 	Query.Text = 
 		"SELECT
@@ -1197,9 +1198,9 @@ Function GenerateAddressByPresentation(Presentation, SplitByFields = False)
 				
 				FillPropertyValues(Address, AddressOptions);
 				If HasAddressManagerClientServer Then
-					ModuleAddressManagerClientServer = Common.CommonModule("AddressManagerClientServer");
-					If ModuleAddressManagerClientServer <> Undefined Then
-						ModuleAddressManagerClientServer.UpdateAddressPresentation(Address, False);
+					ModuleAddressManager = Common.CommonModule("AddressManager");
+					If ModuleAddressManager <> Undefined Then
+						ModuleAddressManager.UpdateAddressPresentation(Address, False);
 					EndIf;
 				Else
 					UpdateAddressPresentation(Address, False);
@@ -1268,7 +1269,6 @@ Procedure UpdateAddressPresentation(Address, IncludeCountryInPresentation)
 EndProcedure
 
 Procedure DistributeAddressToFieldsWithoutClassifier(Address, AnalysisData)
-	
 	PresentationByAnalysisData = New Array;
 	
 	For Each AddressPart In AnalysisData Do
@@ -1294,7 +1294,12 @@ Procedure DistributeAddressToFieldsWithoutClassifier(Address, AnalysisData)
 	
 EndProcedure
 
-Function AddressPartsAsTable(Val Text)
+// 
+//
+// Returns:
+//   See AddressParts
+//
+Function AddressPartsAsTable(Val Text) Export
 	
 	BusinessObjectsTypes = BusinessObjectsTypes();
 	Result            = AddressParts();
@@ -1472,7 +1477,7 @@ Function FragmentsTables()
 	
 EndFunction
 
-Procedure DefineCountryAndPostalCode(AddressData)
+Procedure DefineCountryAndPostalCode(AddressData) Export
 	
 	If Not ContactsManagerInternalCached.AreAddressManagementModulesAvailable() Then
 		Return;
@@ -1495,8 +1500,7 @@ Procedure DefineCountryAndPostalCode(AddressData)
 	
 EndProcedure
 
-
-Function ContactInformationPresentation(Val ContactInformation) Export
+Function ContactInformationPresentation(Val ContactInformation, Transliterate = False) Export
 	
 	If IsBlankString(ContactInformation) Then
 		Return "";
@@ -1509,9 +1513,9 @@ Function ContactInformationPresentation(Val ContactInformation) Export
 	ElsIf TypeOf(ContactInformation) = Type("Structure") Then
 		
 		If ContactInformation.Property("PhoneNumber") Then
-			ContactInformationType =Enums.ContactInformationTypes.Phone;
+			ContactInformationType = Enums.ContactInformationTypes.Phone;
 		Else
-			ContactInformationType =Enums.ContactInformationTypes.Address;
+			ContactInformationType = Enums.ContactInformationTypes.Address;
 		EndIf;
 		
 		ContactInformation = ContactInformationToJSONStructure(ContactInformation, ContactInformationType);
@@ -1526,7 +1530,11 @@ Function ContactInformationPresentation(Val ContactInformation) Export
 		GenerateContactInformationPresentation(ContactInformation, Undefined);
 	EndIf;
 	
-	Return ContactInformation.value
+	If TypeOf(Transliterate) = Type("Boolean") And Transliterate Then
+		Return StringFunctions.LatinString(ContactInformation.value);
+	EndIf;
+	
+	Return ContactInformation.value;
 	
 EndFunction
 
@@ -1610,8 +1618,8 @@ Function AddressPresentation(Val Address, Val InformationKind)
 	If TypeOf(Address) = Type("Structure") Then
 		
 		If ContactsManagerInternalCached.AreAddressManagementModulesAvailable() Then
-			ModuleAddressManagerClientServer = Common.CommonModule("AddressManagerClientServer");
-			ModuleAddressManagerClientServer.UpdateAddressPresentation(Address, IncludeCountryInPresentation);
+			ModuleAddressManager = Common.CommonModule("AddressManager");
+			ModuleAddressManager.UpdateAddressPresentation(Address, IncludeCountryInPresentation);
 		Else
 			UpdateAddressPresentation(Address, IncludeCountryInPresentation);
 		EndIf;
@@ -1626,7 +1634,7 @@ Function AddressPresentation(Val Address, Val InformationKind)
 				For IndexOf = 0 To PresentationAsArray.UBound() Do
 					PresentationAsArray[IndexOf] = TrimAll(PresentationAsArray[IndexOf]);
 				EndDo;
-				PresentationAsArray.Delete(0); 
+				PresentationAsArray.Delete(0); // 
 				Presentation = StrConcat(PresentationAsArray, ", ");
 			EndIf;
 		EndIf;
@@ -1891,7 +1899,7 @@ Procedure UpdateContactInformationForLists() Export
 				|	ContactInformation.Presentation TOTALS BY Kind";
 			
 			Query.SetParameter("ContactInformation", ContactInformation);
-			QueryResult = Query.Execute(); 
+			QueryResult = Query.Execute(); // @skip-check query-in-loop - Multi-table queries.
 			SelectionKind = QueryResult.Select(QueryResultIteration.ByGroups);
 			
 			While SelectionKind.Next() Do
@@ -2527,7 +2535,7 @@ Procedure FillTabularSectionAttributesForWebPage(LineOfATabularSection, Source)
 		
 	EndIf;
 	
-	
+	// Delete the protocol.
 	Position = StrFind(AddressAsString, "://");
 	ServerAddress = ?(Position = 0, AddressAsString, Mid(AddressAsString, Position + 3));
 	
@@ -2582,16 +2590,13 @@ Function HasFilledContactInformationProperties(Val Owner)
 		Return False;
 	EndIf;
 	
-	If IsAddressType(Owner.Type) Then
+	If IsAddressType(Owner.Type) 
+	   And ContactsManagerInternalCached.AreAddressManagementModulesAvailable() Then
 		FieldsListToCheck = New Array();
 		FieldsListToCheck.Add("Country");
 	
-		If ContactsManagerInternalCached.AreAddressManagementModulesAvailable() Then
-			
-			ModuleAddressManagerClientServer = Common.CommonModule("AddressManagerClientServer");
-			CommonClientServer.SupplementArray(FieldsListToCheck, ModuleAddressManagerClientServer.AddressLevelNames(Owner, True));
-			
-		EndIf;
+		ModuleAddressManagerClientServer = Common.CommonModule("AddressManagerClientServer");
+		CommonClientServer.SupplementArray(FieldsListToCheck, ModuleAddressManagerClientServer.AddressLevelNames(Owner, True));
 		
 		For Each FieldName In FieldsListToCheck Do
 			If Owner.Property(FieldName) And ValueIsFilled(Owner[FieldName]) Then
@@ -2745,8 +2750,8 @@ Function PhoneFaxDeserializationInJSON(FieldValues, Presentation = "", ExpectedT
 	
 	// Parsing from the presentation.
 	
-	 
-	
+	//  
+	// 
 	Position = 1;
 	Data.CountryCode  = FindDigitSubstring(Presentation, Position);
 	CityBeginning = Position;
@@ -3005,7 +3010,7 @@ EndFunction
 //                          - EnumRef.ContactInformationTypes
 //
 // Returns:
-//   
+//   See AddressManagerClientServer.NewContactInformationDetails
 //
 Function JSONToContactInformationByFields(Val Value, ContactInformationType) Export
 	

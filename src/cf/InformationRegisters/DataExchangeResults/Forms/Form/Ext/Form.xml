@@ -29,10 +29,16 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="FiltersGroupExtendedTooltip" id="364"/>
+			<ExtendedTooltip name="GroupOfFiltersExtendedTooltip" id="364"/>
 			<ChildItems>
 				<InputField name="Period" id="34">
 					<DataPath>Period</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Period</v8:content>
+						</v8:item>
+					</Title>
 					<HorizontalStretch>false</HorizontalStretch>
 					<ClearButton>true</ClearButton>
 					<ContextMenu name="PeriodContextMenu" id="35">
@@ -45,6 +51,12 @@
 				</InputField>
 				<InputField name="InfobaseNode" id="36">
 					<DataPath>InfobaseNode</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Sender</v8:content>
+						</v8:item>
+					</Title>
 					<HorizontalStretch>false</HorizontalStretch>
 					<ClearButton>true</ClearButton>
 					<OpenButton>false</OpenButton>
@@ -170,11 +182,23 @@
 									<Button name="XDTOObjectErrorsContextMenuEditSelectedObjects" id="705">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.EditSelectedXDTOErrors</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Edit selected items</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="XDTOObjectErrorsContextMenuEditSelectedObjectsExtendedTooltip" id="706"/>
 									</Button>
 									<Button name="XDTOObjectErrorsContextMenuChange" id="707">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.Change</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Edit</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="XDTOObjectErrorsContextMenuChangeExtendedTooltip" id="708"/>
 									</Button>
 									<ButtonGroup name="XDTOObjectErrorsContextMenuIgnoreObjectGroup" id="709">
@@ -189,11 +213,23 @@
 											<Button name="XDTOObjectErrorsContextMenuIgnoreError" id="711">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.IgnoreError</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Ignore error</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="XDTOObjectErrorsContextMenuIgnoreErrorExtendedTooltip" id="712"/>
 											</Button>
 											<Button name="XDTOObjectErrorsContextMenuDontIgnoreError" id="713">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.NotIgnoreError</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Do not ignore error</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="XDTOObjectErrorsContextMenuDontIgnoreErrorExtendedTooltip" id="714"/>
 											</Button>
 										</ChildItems>
@@ -211,11 +247,23 @@
 									<Button name="XDTOObjectErrorsEditSelectedObjects" id="717">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.EditSelectedXDTOErrors</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Edit selected items</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="XDTOObjectErrorsEditSelectedObjectsExtendedTooltip" id="718"/>
 									</Button>
 									<Button name="XDTOObjectErrorsChange" id="719">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.Change</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Change</v8:content>
+											</v8:item>
+										</Title>
 										<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 										<ExtendedTooltip name="XDTOObjectErrorsChangeExtendedTooltip" id="720"/>
 									</Button>
@@ -231,17 +279,35 @@
 											<Button name="XDTOObjectErrorsIgnoreError" id="723">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.IgnoreError</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Ignore error</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="XDTOObjectErrorsIgnoreErrorExtendedTooltip" id="724"/>
 											</Button>
 											<Button name="XDTOObjectErrorsDontIgnoreError" id="725">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.NotIgnoreError</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Do not ignore error</v8:content>
+													</v8:item>
+												</Title>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 												<ExtendedTooltip name="XDTOObjectErrorsDontIgnoreErrorExtendedTooltip" id="726"/>
 											</Button>
 											<Button name="XDTOObjectErrorsShowIgnored" id="727">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.ShowIgnoredBlankItems</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Show ignored items</v8:content>
+													</v8:item>
+												</Title>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 												<ExtendedTooltip name="XDTOObjectErrorsShowIgnoredExtendedTooltip" id="728"/>
 											</Button>
@@ -250,6 +316,12 @@
 									<Button name="XDTOObjectErrorsRefresh" id="729">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.Refresh</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Refresh</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="XDTOObjectErrorsRefreshExtendedTooltip" id="730"/>
 									</Button>
 									<Button name="XDTOObjectErrorsFind" id="731">
@@ -439,16 +511,34 @@ It is recommended that you open each document and eliminate the issues preventin
 									<Button name="UnpostedDocumentsContextMenuEditSelectedDocuments" id="62">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.EditSelectedDocuments</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Edit selected…</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="UnpostedDocumentsContextMenuEditSelectedDocumentsExtendedTooltip" id="371"/>
 									</Button>
 									<Button name="UnpostedDocumentsContextMenuPostDocument" id="63">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.PostDocument</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Post</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="UnpostedDocumentsContextMenuPostDocumentExtendedTooltip" id="372"/>
 									</Button>
 									<Button name="UnpostedDocumentsContextMenuChange" id="324">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.Change</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Edit</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="UnpostedDocumentsContextMenuChangeExtendedTooltip" id="373"/>
 									</Button>
 									<ButtonGroup name="UnpostedDocumentsContextMenuIgnoredGroup" id="64">
@@ -463,11 +553,23 @@ It is recommended that you open each document and eliminate the issues preventin
 											<Button name="UnpostedDocumentsContextMenuIgnoreDocument" id="65">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.IgnoreDocument</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Ignore</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="UnpostedDocumentsContextMenuIgnoreDocumentExtendedTooltip" id="375"/>
 											</Button>
 											<Button name="UnpostedDocumentsContextMenuDontIgnoreDocument" id="66">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.NotIgnoreDocument</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Do not ignore</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="UnpostedDocumentsContextMenuDontIgnoreDocumentExtendedTooltip" id="376"/>
 											</Button>
 										</ChildItems>
@@ -485,16 +587,34 @@ It is recommended that you open each document and eliminate the issues preventin
 									<Button name="UnpostedDocumentsEditSelectedDocuments" id="26">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.EditSelectedDocuments</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Edit selected…</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="UnpostedDocumentsEditSelectedDocumentsExtendedTooltip" id="378"/>
 									</Button>
 									<Button name="UnpostedDocumentsPostDocument" id="30">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.PostDocument</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Post</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="UnpostedDocumentsPostDocumentExtendedTooltip" id="379"/>
 									</Button>
 									<Button name="UnpostedDocumentsChange" id="180">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.Change</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Edit</v8:content>
+											</v8:item>
+										</Title>
 										<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 										<ExtendedTooltip name="UnpostedDocumentsChangeExtendedTooltip" id="380"/>
 									</Button>
@@ -510,17 +630,35 @@ It is recommended that you open each document and eliminate the issues preventin
 											<Button name="UnpostedDocumentsIgnoreDocument" id="21">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.IgnoreDocument</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Ignore</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="UnpostedDocumentsIgnoreDocumentExtendedTooltip" id="382"/>
 											</Button>
 											<Button name="UnpostedDocumentsDontIgnoreDocument" id="22">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.NotIgnoreDocument</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Do not ignore</v8:content>
+													</v8:item>
+												</Title>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-												<ExtendedTooltip name="UnpostedDocumentsDoNotIgnoreDocumentExtendedTooltip" id="383"/>
+												<ExtendedTooltip name="UnpostedDocumentsDontIgnoreDocumentExtendedTooltip" id="383"/>
 											</Button>
 											<Button name="UnpostedDocumentsShowIgnoredUnpostedItems" id="340">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.ShowIgnoredUnpostedItems</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Show ignored items</v8:content>
+													</v8:item>
+												</Title>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 												<ExtendedTooltip name="UnpostedDocumentsShowIgnoredUnpostedItemsExtendedTooltip" id="384"/>
 											</Button>
@@ -529,6 +667,12 @@ It is recommended that you open each document and eliminate the issues preventin
 									<Button name="UnpostedDocumentsRefresh" id="357">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.Refresh</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Refresh</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="UnpostedDocumentsRefreshExtendedTooltip" id="385"/>
 									</Button>
 									<Button name="UnpostedDocumentsFind" id="228">
@@ -810,11 +954,23 @@ It is recommended that you open the catalog item and fill in the attributes.</v8
 									<Button name="BlankAttributesContextMenuEditSelectedObjects" id="100">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.EditSelectedObjects</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Edit selected…</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="BlankAttributesContextMenuEditSelectedObjectsExtendedTooltip" id="405"/>
 									</Button>
 									<Button name="BlankAttributesContextMenuChange" id="276">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.Change</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Edit</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="BlankAttributesContextMenuChangeExtendedTooltip" id="406"/>
 									</Button>
 									<ButtonGroup name="BlankAttributesContextMenuIgnoredGroup" id="101">
@@ -829,11 +985,23 @@ It is recommended that you open the catalog item and fill in the attributes.</v8
 											<Button name="BlankAttributesContextMenuIgnoreObject" id="97">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.IgnoreObject</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Ignore</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="BlankAttributesContextMenuIgnoreObjectExtendedTooltip" id="408"/>
 											</Button>
 											<Button name="BlankAttributesContextMenuDontIgnoreObject" id="99">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.NotIgnoreObject</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Do not ignore</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="BlankAttributesContextMenuDontIgnoreObjectExtendedTooltip" id="409"/>
 											</Button>
 										</ChildItems>
@@ -851,11 +1019,23 @@ It is recommended that you open the catalog item and fill in the attributes.</v8
 									<Button name="BlankAttributesEditSelectedObjects" id="91">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.EditSelectedObjects</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Edit selected…</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="BlankAttributesEditSelectedObjectsExtendedTooltip" id="411"/>
 									</Button>
 									<Button name="BlankAttributesChange" id="181">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.Change</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Edit</v8:content>
+											</v8:item>
+										</Title>
 										<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 										<ExtendedTooltip name="BlankAttributesChangeExtendedTooltip" id="412"/>
 									</Button>
@@ -871,17 +1051,35 @@ It is recommended that you open the catalog item and fill in the attributes.</v8
 											<Button name="BlankAttributesIgnoreObject" id="89">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.IgnoreObject</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Ignore</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="BlankAttributesIgnoreObjectExtendedTooltip" id="414"/>
 											</Button>
 											<Button name="BlankAttributesDontIgnoreObject" id="167">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.NotIgnoreObject</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Do not ignore</v8:content>
+													</v8:item>
+												</Title>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-												<ExtendedTooltip name="BlankAttributesDoNotIgnoreObjectExtendedTooltip" id="415"/>
+												<ExtendedTooltip name="BlankAttributesDontIgnoreObjectExtendedTooltip" id="415"/>
 											</Button>
 											<Button name="BlankAttributesShowIgnoredBlankItems" id="341">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.ShowIgnoredBlankItems</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Show ignored items</v8:content>
+													</v8:item>
+												</Title>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 												<ExtendedTooltip name="BlankAttributesShowIgnoredBlankItemsExtendedTooltip" id="416"/>
 											</Button>
@@ -890,6 +1088,12 @@ It is recommended that you open the catalog item and fill in the attributes.</v8
 									<Button name="BlankAttributesRefresh" id="358">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.Refresh</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Refresh</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="BlankAttributesRefreshExtendedTooltip" id="417"/>
 									</Button>
 									<Button name="BlankAttributesFind" id="234">
@@ -1128,21 +1332,45 @@ This caused synchronization conflicts, which were resolved automatically.</v8:co
 									<Button name="ConflictsContextMenuCompareWithCurrentConflictVersion" id="161">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.ShowDifferencesConflicts</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Show differences</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ConflictsContextMenuCompareWithCurrentConflictVersionExtendedTooltip" id="435"/>
 									</Button>
 									<Button name="ConflictsContextMenuOpenPreConflictVersion" id="162">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.OpenPreConflictVersion</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Show version created in this infobase</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ConflictsContextMenuOpenPreConflictVersionExtendedTooltip" id="436"/>
 									</Button>
 									<Button name="ConflictsContextMenuOpenConflictVersion" id="338">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.OpenConflictVersion</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Show version received from another infobase</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ConflictsContextMenuOpenConflictVersionExtendedTooltip" id="437"/>
 									</Button>
 									<Button name="ConflictsContextMenuChange" id="277">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.Change</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Edit</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ConflictsContextMenuChangeExtendedTooltip" id="438"/>
 									</Button>
 									<ButtonGroup name="ConflictsContextMenuSeparatorGroup" id="349">
@@ -1157,6 +1385,12 @@ This caused synchronization conflicts, which were resolved automatically.</v8:co
 											<Button name="ConflictsContextMenuDoNotIgnoreConflict" id="317">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.NotIgnoreConflict</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Mark as Unreviewed</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ConflictsContextMenuDoNotIgnoreConflictExtendedTooltip" id="440"/>
 											</Button>
 										</ChildItems>
@@ -1174,17 +1408,35 @@ This caused synchronization conflicts, which were resolved automatically.</v8:co
 									<Button name="ConflictsCompareWithCurrentConflictVersion" id="158">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.ShowDifferencesConflicts</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Show diff</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ConflictsCompareWithCurrentConflictVersionExtendedTooltip" id="442"/>
 									</Button>
 									<Button name="ConflictsOpenCollisionVersion" id="157">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.OpenPreConflictVersion</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Show version created in this infobase</v8:content>
+											</v8:item>
+										</Title>
 										<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 										<ExtendedTooltip name="ConflictsOpenCollisionVersionExtendedTooltip" id="443"/>
 									</Button>
 									<Button name="ConflictsOpenConflictVersion" id="356">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.OpenConflictVersion</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Show version received from another infobase</v8:content>
+											</v8:item>
+										</Title>
 										<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 										<ExtendedTooltip name="ConflictsOpenConflictVersionExtendedTooltip" id="444"/>
 									</Button>
@@ -1212,11 +1464,23 @@ This caused synchronization conflicts, which were resolved automatically.</v8:co
 											<Button name="ConflictsIgnoreConflict" id="272">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.IgnoreConflict</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Confirm</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ConflictsIgnoreConflictExtendedTooltip" id="447"/>
 											</Button>
 											<Button name="ConflictsDoNotIgnoreConflict" id="312">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.NotIgnoreConflict</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Mark as Unreviewed</v8:content>
+													</v8:item>
+												</Title>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 												<ExtendedTooltip name="ConflictsDoNotIgnoreConflictExtendedTooltip" id="448"/>
 											</Button>
@@ -1241,6 +1505,12 @@ This caused synchronization conflicts, which were resolved automatically.</v8:co
 									<Button name="ConflictsShowIgnoredConflicts" id="342">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.ShowIgnoredConflicts</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Show resolved conflicts</v8:content>
+											</v8:item>
+										</Title>
 										<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 										<ExtendedTooltip name="ConflictsShowIgnoredConflictsExtendedTooltip" id="450"/>
 									</Button>
@@ -1256,6 +1526,12 @@ This caused synchronization conflicts, which were resolved automatically.</v8:co
 											<Button name="FormRefresh" id="28">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.Refresh</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Refresh</v8:content>
+													</v8:item>
+												</Title>
 												<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 												<ExtendedTooltip name="FormRefreshExtendedTooltip" id="452"/>
 											</Button>
@@ -1479,26 +1755,56 @@ This caused synchronization conflicts, which were resolved automatically.</v8:co
 									<Button name="DeclinedByDateContextMenuCompareWithInfobaseData" id="150">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.ShowDifferencesRejectedItems</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Show diff</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="DeclinedByDateContextMenuCompareWithInfobaseDataExtendedTooltip" id="468"/>
 									</Button>
 									<Button name="DeclinedByDateContextMenuAcceptVersion" id="323">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.AcceptVersionDeclined</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Accept version</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="DeclinedByDateContextMenuAcceptVersionExtendedTooltip" id="469"/>
 									</Button>
 									<Button name="RejectedDueToDateContextMenuChange" id="279">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.Change</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Edit</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="RejectedDueToDateContextMenuChangeExtendedTooltip" id="470"/>
 									</Button>
 									<Button name="RejectedDueToDateContextMenuOpenVersionDeclinedInThisApplication" id="339">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.OpenVersionDeclinedInThisApplication</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Show version from this app</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="RejectedDueToDateContextMenuOpenVersionDeclinedInThisApplicationExtendedTooltip" id="471"/>
 									</Button>
 									<Button name="DeclinedByDateContextMenuOpenVersion" id="151">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.OpenVersionDeclined</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Show rejected version</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="DeclinedByDateContextMenuOpenVersionExtendedTooltip" id="472"/>
 									</Button>
 									<ButtonGroup name="DeclinedByDateContextMenuIgnoredGroup" id="322">
@@ -1513,12 +1819,24 @@ This caused synchronization conflicts, which were resolved automatically.</v8:co
 											<Button name="RejectedDueToDateContextMenuIgnoreDeclined" id="319">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.IgnoreDeclined</CommandName>
-												<ExtendedTooltip name="DeclinedByDateContextMenuIgnoreDeclinedExtendedTooltip" id="474"/>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Ignore</v8:content>
+													</v8:item>
+												</Title>
+												<ExtendedTooltip name="RejectedDueToDateContextMenuIgnoreDeclinedExtendedTooltip" id="474"/>
 											</Button>
 											<Button name="RejectedDueToDateContextMenuDoNotIgnoreDeclined" id="318">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.NotIgnoreDeclined</CommandName>
-												<ExtendedTooltip name="DeclinedByDateContextMenuDoNotIgnoreDeclinedExtendedTooltip" id="475"/>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Do not ignore</v8:content>
+													</v8:item>
+												</Title>
+												<ExtendedTooltip name="RejectedDueToDateContextMenuDoNotIgnoreDeclinedExtendedTooltip" id="475"/>
 											</Button>
 										</ChildItems>
 									</ButtonGroup>
@@ -1535,23 +1853,47 @@ This caused synchronization conflicts, which were resolved automatically.</v8:co
 									<Button name="DeclinedByDateCompareWithInfobaseData" id="144">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.ShowDifferencesRejectedItems</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Show diff</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="DeclinedByDateCompareWithInfobaseDataExtendedTooltip" id="477"/>
 									</Button>
 									<Button name="DeclinedByDateAcceptVersion" id="320">
 										<Type>CommandBarButton</Type>
 										<Enabled>false</Enabled>
 										<CommandName>Form.Command.AcceptVersionDeclined</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Accept version</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="DeclinedByDateAcceptVersionExtendedTooltip" id="478"/>
 									</Button>
 									<Button name="RejectedDueToDateChange" id="227">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.Change</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Edit</v8:content>
+											</v8:item>
+										</Title>
 										<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 										<ExtendedTooltip name="RejectedDueToDateChangeExtendedTooltip" id="479"/>
 									</Button>
 									<Button name="DeclinedByDateOpenVersion" id="143">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.OpenVersionDeclined</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Show rejected version</v8:content>
+											</v8:item>
+										</Title>
 										<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 										<ExtendedTooltip name="DeclinedByDateOpenVersionExtendedTooltip" id="480"/>
 									</Button>
@@ -1567,19 +1909,37 @@ This caused synchronization conflicts, which were resolved automatically.</v8:co
 											<Button name="RejectedDueToDateIgnoreDeclined" id="311">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.IgnoreDeclined</CommandName>
-												<ExtendedTooltip name="DeclinedByDateIgnoreDeclinedExtendedTooltip" id="482"/>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Ignore</v8:content>
+													</v8:item>
+												</Title>
+												<ExtendedTooltip name="RejectedDueToDateIgnoreDeclinedExtendedTooltip" id="482"/>
 											</Button>
 											<Button name="RejectedDueToDateDoNotIgnoreDeclined" id="313">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.NotIgnoreDeclined</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Do not ignore</v8:content>
+													</v8:item>
+												</Title>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-												<ExtendedTooltip name="DeclinedByDateDoNotIgnoreDeclinedExtendedTooltip" id="483"/>
+												<ExtendedTooltip name="RejectedDueToDateDoNotIgnoreDeclinedExtendedTooltip" id="483"/>
 											</Button>
 											<Button name="RejectedDueToDateShowIgnoredRejectedItems" id="343">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.ShowIgnoredRejectedItems</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Show ignored items</v8:content>
+													</v8:item>
+												</Title>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-												<ExtendedTooltip name="DeclinedByDateShowIgnoredDeclinedItemsExtendedTooltip" id="484"/>
+												<ExtendedTooltip name="RejectedDueToDateShowIgnoredRejectedItemsExtendedTooltip" id="484"/>
 											</Button>
 										</ChildItems>
 									</ButtonGroup>
@@ -1595,27 +1955,33 @@ This caused synchronization conflicts, which were resolved automatically.</v8:co
 											<Button name="RejectedDueToDateRefresh" id="359">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.Refresh</CommandName>
-												<ExtendedTooltip name="DeclinedByDateRefreshExtendedTooltip" id="486"/>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Refresh</v8:content>
+													</v8:item>
+												</Title>
+												<ExtendedTooltip name="RejectedDueToDateRefreshExtendedTooltip" id="486"/>
 											</Button>
 											<Button name="RejectedDueToDateFind" id="241">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Item.RejectedDueToDate.StandardCommand.Find</CommandName>
-												<ExtendedTooltip name="DeclinedByDateFindExtendedTooltip" id="487"/>
+												<ExtendedTooltip name="RejectedDueToDateFindExtendedTooltip" id="487"/>
 											</Button>
 											<Button name="RejectedDueToDateCancelSearch" id="242">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Item.RejectedDueToDate.StandardCommand.CancelSearch</CommandName>
-												<ExtendedTooltip name="DeclinedByDateCancelSearchExtendedTooltip" id="488"/>
+												<ExtendedTooltip name="RejectedDueToDateCancelSearchExtendedTooltip" id="488"/>
 											</Button>
 											<Button name="RejectedDueToDateOutputList" id="243">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Item.RejectedDueToDate.StandardCommand.OutputList</CommandName>
-												<ExtendedTooltip name="DeclinedByDateOutputListExtendedTooltip" id="489"/>
+												<ExtendedTooltip name="RejectedDueToDateOutputListExtendedTooltip" id="489"/>
 											</Button>
 											<Button name="RejectedDueToDateListSettings" id="152">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Item.RejectedDueToDate.StandardCommand.ListSettings</CommandName>
-												<ExtendedTooltip name="DeclinedByDateListSettingsExtendedTooltip" id="490"/>
+												<ExtendedTooltip name="RejectedDueToDateListSettingsExtendedTooltip" id="490"/>
 											</Button>
 										</ChildItems>
 									</ButtonGroup>
@@ -2085,6 +2451,12 @@ This caused synchronization conflicts, which were resolved automatically.</v8:co
 						<InputField name="ConflictReason" id="353">
 							<DataPath>ConflictReason</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Conflict resolution result</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Top</TitleLocation>
 							<AutoMaxWidth>false</AutoMaxWidth>
 							<MultiLine>true</MultiLine>
@@ -3013,7 +3385,7 @@ WHERE
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Show version received from the other infobase</v8:content>
+					<v8:content>Show version received from another infobase</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
@@ -3029,7 +3401,7 @@ WHERE
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Show version from this application.</v8:content>
+					<v8:content>Show version from this app</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>

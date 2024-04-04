@@ -579,10 +579,9 @@ It is recommended that you use signature key qualified certificates (SKQS) that 
 										<Title formatted="false">
 											<v8:item>
 												<v8:lang>en</v8:lang>
-												<v8:content>Shows the result of certificate data check using the application of digital signature and encryption.
+												<v8:content>Shows the result of the certificate data check using a digital signing and encryption app.
 
-Certificate data imported from a certificate file or using another method
-might be incorrect due to several reasons. These are the most frequent ones:
+Certificate data imported from a certificate file or using another method might be incorrect due to several reasons. These are the most frequent ones:
 - The certificate has expired.
 - The certificate is in the list of revoked certificates.
 </v8:content>
@@ -713,7 +712,7 @@ might be incorrect due to several reasons. These are the most frequent ones:
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Certificate application availability</v8:content>
+							<v8:content>App certificate presence</v8:content>
 						</v8:item>
 					</Title>
 					<Group>AlwaysHorizontal</Group>
@@ -728,7 +727,7 @@ might be incorrect due to several reasons. These are the most frequent ones:
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Existence of application on the client picture</v8:content>
+									<v8:content>Picture "App present on client"</v8:content>
 								</v8:item>
 							</Title>
 							<ToolTip>
@@ -749,7 +748,7 @@ might be incorrect due to several reasons. These are the most frequent ones:
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Existence of application on the server picture</v8:content>
+									<v8:content>Picture "App present on server"</v8:content>
 								</v8:item>
 							</Title>
 							<ToolTip>
@@ -768,7 +767,7 @@ might be incorrect due to several reasons. These are the most frequent ones:
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Application availability result and solution</v8:content>
+									<v8:content>App presence result and solution</v8:content>
 								</v8:item>
 							</Title>
 							<Group>Vertical</Group>
@@ -782,7 +781,7 @@ might be incorrect due to several reasons. These are the most frequent ones:
 									<Title formatted="false">
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Existence of application for signing and decryption</v8:content>
+											<v8:content>Presence of a signing and decryption app</v8:content>
 										</v8:item>
 									</Title>
 									<ContextMenu name="ProgramExistsLabelContextMenu" id="22"/>
@@ -790,7 +789,7 @@ might be incorrect due to several reasons. These are the most frequent ones:
 										<Title formatted="false">
 											<v8:item>
 												<v8:lang>en</v8:lang>
-												<v8:content>Shows whether the application specified in the certificate for the private key is installed on the computer. The application allows to sign and decrypt data.</v8:content>
+												<v8:content>Shows whether the app specified in the certificate for the private key is installed on the computer. The app allows you to sign and decrypt data.</v8:content>
 											</v8:item>
 										</Title>
 									</ExtendedTooltip>
@@ -815,7 +814,7 @@ might be incorrect due to several reasons. These are the most frequent ones:
 											<Title formatted="false">
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Application availability error client picture</v8:content>
+													<v8:content>App presence error client picture</v8:content>
 												</v8:item>
 											</Title>
 											<Picture>
@@ -831,7 +830,7 @@ might be incorrect due to several reasons. These are the most frequent ones:
 											<Title formatted="false">
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Application availability - error text (client)</v8:content>
+													<v8:content>App presence - error text (client)</v8:content>
 												</v8:item>
 											</Title>
 											<ContextMenu name="ProgramExistsErrorClientLabelContextMenu" id="407"/>
@@ -845,7 +844,7 @@ might be incorrect due to several reasons. These are the most frequent ones:
 									<Title formatted="false">
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Application availability (client)</v8:content>
+											<v8:content>App presence (client)</v8:content>
 										</v8:item>
 									</Title>
 									<ContextMenu name="ProgramExistsDecisionClientLabelContextMenu" id="232"/>
@@ -871,7 +870,7 @@ might be incorrect due to several reasons. These are the most frequent ones:
 											<Title formatted="false">
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Application availability error server picture</v8:content>
+													<v8:content>App presence error server picture</v8:content>
 												</v8:item>
 											</Title>
 											<Picture>
@@ -887,7 +886,7 @@ might be incorrect due to several reasons. These are the most frequent ones:
 											<Title formatted="false">
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Application availability - error text (server)</v8:content>
+													<v8:content>App presence - error text (server)</v8:content>
 												</v8:item>
 											</Title>
 											<ContextMenu name="ProgramExistsErrorServerLabelContextMenu" id="410"/>
@@ -901,7 +900,7 @@ might be incorrect due to several reasons. These are the most frequent ones:
 									<Title formatted="false">
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Application availability (server)</v8:content>
+											<v8:content>App presence (server)</v8:content>
 										</v8:item>
 									</Title>
 									<ContextMenu name="ProgramExistsDecisionServerLabelContextMenu" id="237"/>
@@ -1010,7 +1009,7 @@ might be incorrect due to several reasons. These are the most frequent ones:
 										<Title formatted="false">
 											<v8:item>
 												<v8:lang>en</v8:lang>
-												<v8:content>Shows whether it is possible to sign data with the certificate private key using the application of digital signature and encryption. Password required.</v8:content>
+												<v8:content>Shows whether it is possible to sign data with the certificate private key using a digital signing and encryption app. Password required.</v8:content>
 											</v8:item>
 										</Title>
 									</ExtendedTooltip>
@@ -1215,7 +1214,7 @@ might be incorrect due to several reasons. These are the most frequent ones:
 										<Title formatted="false">
 											<v8:item>
 												<v8:lang>en</v8:lang>
-												<v8:content>Shows whether the signature can be checked with the certificate public key using the application of digital signature and encryption.
+												<v8:content>Shows whether the signature can be checked with the certificate public key using a digital signing and encryption app.
 </v8:content>
 											</v8:item>
 										</Title>
@@ -1421,7 +1420,7 @@ might be incorrect due to several reasons. These are the most frequent ones:
 										<Title formatted="false">
 											<v8:item>
 												<v8:lang>en</v8:lang>
-												<v8:content>Shows whether data can be encrypted with the certificate public key using the application of digital signature and encryption.
+												<v8:content>Shows whether data can be encrypted with the certificate public key using a digital signing and encryption app.
 </v8:content>
 											</v8:item>
 										</Title>
@@ -1627,7 +1626,7 @@ might be incorrect due to several reasons. These are the most frequent ones:
 										<Title formatted="false">
 											<v8:item>
 												<v8:lang>en</v8:lang>
-												<v8:content>Shows whether data can be decrypted with the certificate public key using the application of digital signature and encryption. Password required.</v8:content>
+												<v8:content>Shows whether it is possible to sign data with the certificate private key using a digital signing and encryption app. Password required.</v8:content>
 											</v8:item>
 										</Title>
 									</ExtendedTooltip>
@@ -1811,13 +1810,26 @@ might be incorrect due to several reasons. These are the most frequent ones:
 								<InputField name="Password" id="107">
 									<DataPath>Password</DataPath>
 									<DefaultItem>true</DefaultItem>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Password</v8:content>
+										</v8:item>
+									</Title>
 									<HorizontalStretch>false</HorizontalStretch>
 									<Wrap>false</Wrap>
 									<PasswordMode>true</PasswordMode>
+									<ChoiceButton>true</ChoiceButton>
+									<EditTextUpdate>OnValueChange</EditTextUpdate>
+									<ChoiceButtonPicture>
+										<xr:Ref>CommonPicture.CharsBeingTypedShown</xr:Ref>
+										<xr:LoadTransparent>false</xr:LoadTransparent>
+									</ChoiceButtonPicture>
 									<ContextMenu name="PasswordContextMenu" id="108"/>
 									<ExtendedTooltip name="PasswordExtendedTooltip" id="109"/>
 									<Events>
 										<Event name="OnChange">PasswordOnChange</Event>
+										<Event name="StartChoice">PasswordStartChoice</Event>
 									</Events>
 								</InputField>
 								<CheckBoxField name="RememberPassword" id="114">
@@ -1832,7 +1844,7 @@ might be incorrect due to several reasons. These are the most frequent ones:
 									<ToolTip>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Remember certificate password before closing the application. When the check box is cleared, the password is erased from memory if it was remembered earlier.</v8:content>
+											<v8:content>Remember the certificate password before closing the app. When the check box is cleared, the stored password will be forgotten.</v8:content>
 										</v8:item>
 									</ToolTip>
 									<ToolTipRepresentation>None</ToolTipRepresentation>
@@ -1950,9 +1962,9 @@ might be incorrect due to several reasons. These are the most frequent ones:
 							<Title formatted="true">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>If there are any difficulties, learn &lt;link %1&gt;how to troubleshoot common issues with digital signature applications&lt;/&gt; (in Russian).
+									<v8:content>Facing issues? Learn to &lt;link %1&gt;troubleshoot digital signing apps&lt;/&gt; (in Russian).
 
-If you cannot find a solution, contact 1C support team and provide &lt;link %2&gt;technical information about the issue&lt;/&gt;.</v8:content>
+If you didn't find a solution, contact the 1C support team and provide &lt;link %2&gt;technical information&lt;/&gt; about the issue.</v8:content>
 								</v8:item>
 							</Title>
 							<ContextMenu name="SupportInformationContextMenu" id="440"/>
@@ -1982,6 +1994,12 @@ If you cannot find a solution, contact 1C support team and provide &lt;link %2&g
 								<xr:Ref>CommonPicture.TimeConsumingOperation16</xr:Ref>
 								<xr:LoadTransparent>false</xr:LoadTransparent>
 							</Picture>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Verify</v8:content>
+								</v8:item>
+							</Title>
 							<ToolTipRepresentation>None</ToolTipRepresentation>
 							<ExtendedTooltip name="FormCheckExtendedTooltip" id="10"/>
 						</Button>

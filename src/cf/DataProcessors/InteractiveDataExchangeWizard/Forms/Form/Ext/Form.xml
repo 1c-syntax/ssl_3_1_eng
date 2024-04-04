@@ -42,7 +42,7 @@
 				</v8:item>
 			</Title>
 			<PagesRepresentation>None</PagesRepresentation>
-			<ExtendedTooltip name="MainPanel1ExtendedTooltip" id="728"/>
+			<ExtendedTooltip name="PanelMainExtendedTooltip" id="728"/>
 			<ChildItems>
 				<Page name="PageCheckExchangeTasks" id="1019">
 					<Title>
@@ -54,6 +54,12 @@
 					<ExtendedTooltip name="PageCheckExchangeTasksExtendedTooltip" id="1020"/>
 					<ChildItems>
 						<UsualGroup name="Group3" id="1021">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group</v8:content>
+								</v8:item>
+							</Title>
 							<VerticalStretch>true</VerticalStretch>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
@@ -99,7 +105,7 @@
 							<v8:content>Start page</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="StartPageExtendedTooltip" id="729"/>
+					<ExtendedTooltip name="StartingPageExtendedTooltip" id="729"/>
 					<ChildItems>
 						<UsualGroup name="PageHeader" id="725">
 							<Title>
@@ -245,6 +251,12 @@
 											<ChildItems>
 												<InputField name="WSPassword" id="520">
 													<DataPath>WSPassword</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Password</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>None</TitleLocation>
 													<Width>20</Width>
 													<Height>1</Height>
@@ -398,7 +410,7 @@
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
 									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="PictureGroup42ExtendedTooltip" id="875"/>
+									<ExtendedTooltip name="PicturesGroup2ExtendedTooltip" id="875"/>
 									<ChildItems>
 										<PictureDecoration name="Decoration27" id="700">
 											<Width>6</Width>
@@ -537,7 +549,7 @@ data mapping was performed correctly.</v8:content>
 													</Title>
 													<VerticalAlign>Center</VerticalAlign>
 													<ContextMenu name="AllDataMapped1ContextMenu" id="724"/>
-													<ExtendedTooltip name="AllDataMapped1ExtendedTooltip" id="756"/>
+													<ExtendedTooltip name="DataMappedNotificationExtendedTooltip" id="756"/>
 												</LabelDecoration>
 											</ChildItems>
 										</Page>
@@ -558,20 +570,44 @@ data mapping was performed correctly.</v8:content>
 									<Type>CommandBarButton</Type>
 									<SkipOnInput>false</SkipOnInput>
 									<CommandName>Form.Command.OpenMappingForm</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Map</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="OpenMappingFormExtendedTooltip" id="758"/>
 								</Button>
 								<ButtonGroup name="ImportCommandGroup1" id="727">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Import command</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="ImportCommandGroup1ExtendedTooltip" id="759"/>
 									<ChildItems>
 										<Button name="RunDataImportForRow" id="726">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.RunDataImportForRow</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Receive data</v8:content>
+												</v8:item>
+											</Title>
 											<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 											<ExtendedTooltip name="RunDataImportForRowExtendedTooltip" id="760"/>
 										</Button>
 									</ChildItems>
 								</ButtonGroup>
 								<ButtonGroup name="GroupListCommands" id="711">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>List commands</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="ListCommandsGroup1ExtendedTooltip" id="761"/>
 									<ChildItems>
 										<Button name="OutputList" id="712">
@@ -589,12 +625,24 @@ data mapping was performed correctly.</v8:content>
 									</ChildItems>
 								</ButtonGroup>
 								<ButtonGroup name="RefreshCommandGroup" id="714">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>"Update" command</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="RefreshCommandGroupExtendedTooltip" id="764"/>
 									<ChildItems>
 										<Button name="RefreshAllMappingInformation" id="255">
 											<Type>CommandBarButton</Type>
 											<SkipOnInput>false</SkipOnInput>
 											<CommandName>Form.Command.RefreshAllMappingInformation</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Update</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="RefreshAllMappingInformationExtendedTooltip" id="765"/>
 										</Button>
 									</ChildItems>
@@ -639,31 +687,55 @@ data mapping was performed correctly.</v8:content>
 										<Type>CommandBarButton</Type>
 										<SkipOnInput>false</SkipOnInput>
 										<CommandName>Form.Command.OpenMappingForm</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Map</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="StatisticsContextMenuOpenMappingFormExtendedTooltip" id="766"/>
 									</Button>
 									<ButtonGroup name="StatisticsTreeContextMenuGroup1" id="715">
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Statistics inforation tree context menu group 1</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="StatisticsTreeContextMenuGroup1ExtendedTooltip" id="767"/>
 										<ChildItems>
 											<Button name="StatisticsContextMenuExecuteDataImportForRow" id="365">
 												<Type>CommandBarButton</Type>
 												<SkipOnInput>false</SkipOnInput>
 												<CommandName>Form.Command.RunDataImportForRow</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Receive data</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="StatisticsContextMenuExecuteDataImportForRowExtendedTooltip" id="768"/>
 											</Button>
 										</ChildItems>
 									</ButtonGroup>
 									<ButtonGroup name="StatisticsGroup2" id="708">
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Statistics information group 2</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="StatisticsGroup2ExtendedTooltip" id="769"/>
 										<ChildItems>
 											<Button name="StatisticsInformationTreeContextMenuOutputList" id="709">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Item.StatisticsInformationTree.StandardCommand.OutputList</CommandName>
-												<ExtendedTooltip name="StatisticsTreeContextMenuOutputListExtendedTooltip" id="770"/>
+												<ExtendedTooltip name="StatisticsInformationTreeContextMenuOutputListExtendedTooltip" id="770"/>
 											</Button>
 											<Button name="StatisticsInformationTreeContextMenuCopyToClipboard" id="710">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Item.StatisticsInformationTree.StandardCommand.CopyToClipboard</CommandName>
-												<ExtendedTooltip name="StatisticsTreeContextMenuCopyToClipboardExtendedTooltip" id="771"/>
+												<ExtendedTooltip name="StatisticsInformationTreeContextMenuCopyToClipboardExtendedTooltip" id="771"/>
 											</Button>
 										</ChildItems>
 									</ButtonGroup>
@@ -711,6 +783,12 @@ data mapping was performed correctly.</v8:content>
 									<ChildItems>
 										<PictureField name="StatisticsInformationTreePicture" id="414">
 											<DataPath>StatisticsInformationTree.Picture</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Picture</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<EditMode>EnterOnInput</EditMode>
 											<FileDragMode>AsFile</FileDragMode>
@@ -719,12 +797,24 @@ data mapping was performed correctly.</v8:content>
 										</PictureField>
 										<InputField name="StatisticsInformationTreeSynonym" id="412">
 											<DataPath>StatisticsInformationTree.Synonym</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Data</v8:content>
+												</v8:item>
+											</Title>
 											<EditMode>EnterOnInput</EditMode>
 											<ContextMenu name="StatisticsInformationTreeSynonymContextMenu" id="413"/>
 											<ExtendedTooltip name="StatisticsInformationTreeSynonymExtendedTooltip" id="775"/>
 										</InputField>
 										<InputField name="StatisticsInformationTreeObjectCountInSource" id="425">
 											<DataPath>StatisticsInformationTree.ObjectCountInSource</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Objects received</v8:content>
+												</v8:item>
+											</Title>
 											<EditMode>EnterOnInput</EditMode>
 											<ContextMenu name="StatisticsInformationTreeObjectCountInSourceContextMenu" id="426"/>
 											<ExtendedTooltip name="StatisticsInformationTreeObjectCountInSourceExtendedTooltip" id="776"/>
@@ -844,6 +934,12 @@ data mapping was performed correctly.</v8:content>
 							<ChildItems>
 								<CheckBoxField name="EndDataMapping" id="988">
 									<DataPath>EndDataMapping</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Mapping completed</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>Right</TitleLocation>
 									<CheckBoxType>Auto</CheckBoxType>
 									<ContextMenu name="EndDataMappingContextMenu" id="989"/>
@@ -854,6 +950,12 @@ data mapping was performed correctly.</v8:content>
 								</CheckBoxField>
 								<CheckBoxField name="LoadMessageAfterMapping" id="993">
 									<DataPath>LoadMessageAfterMapping</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Import exchange message</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>Right</TitleLocation>
 									<CheckBoxType>Auto</CheckBoxType>
 									<ContextMenu name="LoadMessageAfterMappingContextMenu" id="994"/>
@@ -1133,6 +1235,12 @@ data mapping was performed correctly.</v8:content>
 																			<Width>2</Width>
 																			<Height>1</Height>
 																			<CommandName>Form.Command.ExportAdditionClearGeneralFilter</CommandName>
+																			<Title>
+																				<v8:item>
+																					<v8:lang>en</v8:lang>
+																					<v8:content>Clear common filter</v8:content>
+																				</v8:item>
+																			</Title>
 																			<ExtendedTooltip name="ExportAdditionClearGeneralFilterExtendedTooltip" id="840"/>
 																		</Button>
 																	</ChildItems>
@@ -1257,6 +1365,12 @@ data mapping was performed correctly.</v8:content>
 																<Button name="ExportAdditionDetailedFilter" id="650">
 																	<Type>Hyperlink</Type>
 																	<CommandName>Form.Command.ExportAdditionDetailedFilter</CommandName>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Export addition detailed filter</v8:content>
+																		</v8:item>
+																	</Title>
 																	<ExtendedTooltip name="ExportAdditionDetailedFilterExtendedTooltip" id="850"/>
 																</Button>
 																<Button name="ExportAdditionClearDetailedFilter" id="561">
@@ -1265,6 +1379,12 @@ data mapping was performed correctly.</v8:content>
 																	<Width>2</Width>
 																	<Height>1</Height>
 																	<CommandName>Form.Command.ExportAdditionClearDetailedFilter</CommandName>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Clear detailed filter</v8:content>
+																		</v8:item>
+																	</Title>
 																	<ExtendedTooltip name="ExportAdditionClearDetailedFilterExtendedTooltip" id="851"/>
 																</Button>
 															</ChildItems>
@@ -1402,6 +1522,12 @@ data mapping was performed correctly.</v8:content>
 																		<Button name="ExportAdditionFilterByNodeScenario" id="642">
 																			<Type>Hyperlink</Type>
 																			<CommandName>Form.Command.ExportAdditionFilterByNodeScenario</CommandName>
+																			<Title>
+																				<v8:item>
+																					<v8:lang>en</v8:lang>
+																					<v8:content>Change filter parameters</v8:content>
+																				</v8:item>
+																			</Title>
 																			<ExtendedTooltip name="ExportAdditionFilterByNodeScenarioExtendedTooltip" id="863"/>
 																		</Button>
 																		<InputField name="ExportAdditionNodeScenarioFilterPresentation" id="655">
@@ -1469,6 +1595,12 @@ data mapping was performed correctly.</v8:content>
 											<Type>UsualButton</Type>
 											<Representation>PictureAndText</Representation>
 											<CommandName>Form.Command.ExportAdditionFiltersHistory</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Settings</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="ExportAdditionFiltersHistoryExtendedTooltip" id="869"/>
 										</Button>
 										<LabelDecoration name="Decoration2" id="568">
@@ -1569,7 +1701,7 @@ Please wait...</v8:content>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Synchronizing data</v8:content>
+									<v8:content>Data synchronization</v8:content>
 								</v8:item>
 							</Title>
 							<ToolTip>
@@ -1593,7 +1725,7 @@ Please wait...</v8:content>
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
 									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="PictureGroup43ExtendedTooltip" id="882"/>
+									<ExtendedTooltip name="PicturesGroup3ExtendedTooltip" id="882"/>
 									<ChildItems>
 										<PictureDecoration name="Decoration29" id="691">
 											<Width>6</Width>
@@ -1645,7 +1777,7 @@ Please wait…</v8:content>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Group Warning upon exchange via internal publication</v8:content>
+									<v8:content>Warning on exchange via internal publication</v8:content>
 								</v8:item>
 							</Title>
 							<Group>Vertical</Group>
@@ -1654,6 +1786,12 @@ Please wait…</v8:content>
 							<ExtendedTooltip name="GroupWarningWhenSharingViaInternalPublishingExtendedTooltip" id="1030"/>
 							<ChildItems>
 								<UsualGroup name="Group6" id="1031">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Group</v8:content>
+										</v8:item>
+									</Title>
 									<Representation>None</Representation>
 									<ShowTitle>false</ShowTitle>
 									<ExtendedTooltip name="Group6ExtendedTooltip" id="1032"/>
@@ -1688,8 +1826,8 @@ Please wait…</v8:content>
 											<Title formatted="false">
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>When you close the window, synchronization will occur in the background. 
-To stop, click Finish synchronization</v8:content>
+													<v8:content>Once you close the window, synchronization will run in the background. 
+To stop it, click "Finish synchronization".</v8:content>
 												</v8:item>
 											</Title>
 											<VerticalAlign>Center</VerticalAlign>
@@ -1699,6 +1837,12 @@ To stop, click Finish synchronization</v8:content>
 									</ChildItems>
 								</UsualGroup>
 								<UsualGroup name="Group7" id="1042">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Group</v8:content>
+										</v8:item>
+									</Title>
 									<Representation>None</Representation>
 									<ShowTitle>false</ShowTitle>
 									<ExtendedTooltip name="Group7ExtendedTooltip" id="1043"/>
@@ -1711,6 +1855,12 @@ To stop, click Finish synchronization</v8:content>
 										<Button name="EndSyncing" id="1047">
 											<Type>UsualButton</Type>
 											<CommandName>Form.Command.EndSyncing</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Finish synchronization</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="EndSyncingExtendedTooltip" id="1048"/>
 										</Button>
 									</ChildItems>
@@ -1738,7 +1888,7 @@ To stop, click Finish synchronization</v8:content>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Synchronizing data</v8:content>
+									<v8:content>Data synchronization</v8:content>
 								</v8:item>
 							</Title>
 							<ToolTip>
@@ -1766,6 +1916,12 @@ To stop, click Finish synchronization</v8:content>
 								</LabelDecoration>
 								<ProgressBarField name="ProgressPercent" id="949">
 									<DataPath>ProgressPercent</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Progress percentage</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<ShowPercent>true</ShowPercent>
 									<ContextMenu name="ProgressPercentContextMenu" id="950"/>
@@ -1773,6 +1929,12 @@ To stop, click Finish synchronization</v8:content>
 								</ProgressBarField>
 								<LabelField name="ImportProgressAdditionalInformation" id="952">
 									<DataPath>ProgressAdditionalInformation</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Additional progress details</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<AutoMaxWidth>false</AutoMaxWidth>
 									<ContextMenu name="ProgressAdditionalInformation1ContextMenu" id="953"/>
@@ -1801,7 +1963,7 @@ To stop, click Finish synchronization</v8:content>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Synchronizing data</v8:content>
+									<v8:content>Data synchronization</v8:content>
 								</v8:item>
 							</Title>
 							<ToolTip>
@@ -1829,6 +1991,12 @@ To stop, click Finish synchronization</v8:content>
 								</LabelDecoration>
 								<ProgressBarField name="ExportProgressPercent" id="962">
 									<DataPath>ProgressPercent</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Progress percentage</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<ShowPercent>true</ShowPercent>
 									<ContextMenu name="ExportProgressPercentContextMenu" id="963"/>
@@ -1836,6 +2004,12 @@ To stop, click Finish synchronization</v8:content>
 								</ProgressBarField>
 								<LabelField name="AdditionalInformationExportProgress" id="965">
 									<DataPath>ProgressAdditionalInformation</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Additional progress details</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<AutoMaxWidth>false</AutoMaxWidth>
 									<ContextMenu name="AdditionalInformationExportProgressContextMenu" id="966"/>
@@ -1914,7 +2088,7 @@ To stop, click Finish synchronization</v8:content>
 											<Behavior>Usual</Behavior>
 											<Representation>None</Representation>
 											<ShowTitle>false</ShowTitle>
-											<ExtendedTooltip name="DataImportGroup1ExtendedTooltip" id="787"/>
+											<ExtendedTooltip name="DataImportGroupExtendedTooltip" id="787"/>
 											<ChildItems>
 												<Pages name="DataImportStatusPages" id="376">
 													<Title>
@@ -2060,7 +2234,7 @@ To stop, click Finish synchronization</v8:content>
 																	</Picture>
 																	<FileDragMode>AsFile</FileDragMode>
 																	<ContextMenu name="StatusWarningPicture1ContextMenu" id="388"/>
-																	<ExtendedTooltip name="StatusWarningPicture1ExtendedTooltip" id="796"/>
+																	<ExtendedTooltip name="WarningPicture1ExtendedTooltip" id="796"/>
 																</PictureDecoration>
 															</ChildItems>
 														</Page>
@@ -2306,6 +2480,12 @@ To stop, click Finish synchronization</v8:content>
 									<ExtendedTooltip name="Decoration5ExtendedTooltip" id="1018"/>
 								</PictureDecoration>
 								<UsualGroup name="Group1" id="1014">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Group</v8:content>
+										</v8:item>
+									</Title>
 									<Group>Vertical</Group>
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
@@ -2328,6 +2508,12 @@ You can also delete the message for mapping. In this case, synchronization runs 
 										</LabelDecoration>
 										<CheckBoxField name="DeleteMessageForMapping" id="1008">
 											<DataPath>DeleteMessageForMapping</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Delete message for mapping</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>Right</TitleLocation>
 											<CheckBoxType>Auto</CheckBoxType>
 											<ContextMenu name="DeleteMessageForMappingContextMenu" id="1009"/>
@@ -2439,6 +2625,12 @@ data synchronization.</v8:content>
 													<Type>UsualButton</Type>
 													<Representation>PictureAndText</Representation>
 													<CommandName>Form.Command.OpenScheduleSettings</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Configure…</v8:content>
+														</v8:item>
+													</Title>
 													<ExtendedTooltip name="OpenScheduleSettingsExtendedTooltip" id="817"/>
 												</Button>
 											</ChildItems>
@@ -2515,11 +2707,23 @@ data synchronization.</v8:content>
 											<DefaultButton>true</DefaultButton>
 											<DefaultItem>true</DefaultItem>
 											<CommandName>Form.Command.NextCommand</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Next &gt;</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="NextCommandExtendedTooltip" id="890"/>
 										</Button>
 										<Button name="CancelCommand1" id="434">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.CancelCommand</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Cancel</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="CancelCommand1ExtendedTooltip" id="891"/>
 										</Button>
 										<Button name="Help" id="435">
@@ -2556,11 +2760,23 @@ data synchronization.</v8:content>
 											<Type>CommandBarButton</Type>
 											<DefaultItem>true</DefaultItem>
 											<CommandName>Form.Command.NextCommand</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Next &gt;</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="NextCommand4ExtendedTooltip" id="895"/>
 										</Button>
 										<Button name="CancelCommand5" id="440">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.CancelCommand</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Cancel</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="CancelCommand5ExtendedTooltip" id="896"/>
 										</Button>
 										<Button name="Help1" id="441">
@@ -2596,6 +2812,12 @@ data synchronization.</v8:content>
 										<Button name="DoneCommand1" id="445">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.DoneCommand</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Finish</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="DoneCommand1ExtendedTooltip" id="900"/>
 										</Button>
 										<Button name="Help2" id="447">
@@ -2632,6 +2854,12 @@ data synchronization.</v8:content>
 											<Type>CommandBarButton</Type>
 											<Enabled>false</Enabled>
 											<CommandName>Form.Command.CancelCommand</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Cancel</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="CancelCommand7ExtendedTooltip" id="904"/>
 										</Button>
 										<Button name="Help3" id="453">
@@ -2667,11 +2895,23 @@ data synchronization.</v8:content>
 										<Button name="ContinueSync" id="929">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.ContinueSync</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Continue</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="ContinueSyncExtendedTooltip" id="930"/>
 										</Button>
 										<Button name="CancelCommand" id="931">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.CancelCommand</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Cancel</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="CancelCommandExtendedTooltip" id="932"/>
 										</Button>
 									</ChildItems>
@@ -2712,11 +2952,23 @@ data synchronization.</v8:content>
 										<Button name="StatisticsInformationNextCommand" id="982">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.NextCommand</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Next &gt;</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="StatisticsInformationNextCommandExtendedTooltip" id="983"/>
 										</Button>
 										<Button name="CancelCommand2" id="984">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.CancelCommand</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Cancel</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="CancelCommand2ExtendedTooltip" id="985"/>
 										</Button>
 									</ChildItems>

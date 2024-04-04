@@ -22,7 +22,7 @@
 						<v8:content>Search</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="GroupSearchExtendedTooltip" id="69"/>
+				<ExtendedTooltip name="SearchGroupExtendedTooltip" id="69"/>
 				<ChildItems>
 					<Button name="FormFind" id="58">
 						<Type>CommandBarButton</Type>
@@ -42,6 +42,12 @@
 				<Type>CommandBarButton</Type>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.Refresh</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Refresh</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="RefreshExtendedTooltip" id="72"/>
 			</Button>
@@ -64,12 +70,24 @@
 						<Representation>PictureAndText</Representation>
 						<SkipOnInput>false</SkipOnInput>
 						<CommandName>Form.Command.AllAssignments</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>List of all assignments</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="AllAssignmentsExtendedTooltip" id="75"/>
 					</Button>
 					<Button name="FormRolesList" id="66">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.RolesList</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Business roles</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="FormRolesListExtendedTooltip" id="76"/>
 					</Button>
@@ -139,6 +157,12 @@
 					<Button name="ListContextMenuRoleInfo" id="88">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.OpenRoleInfo</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Open role information</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="ListContextMenuRoleInfoExtendedTooltip" id="89"/>
 					</Button>
 					<ButtonGroup name="ListContextMenuGroup" id="63">
@@ -215,6 +239,12 @@
 			<ChildItems>
 				<InputField name="Role" id="48">
 					<DataPath>List.Role</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Role</v8:content>
+						</v8:item>
+					</Title>
 					<Wrap>false</Wrap>
 					<ContextMenu name="RoleContextMenu" id="49"/>
 					<ExtendedTooltip name="RoleExtendedTooltip" id="86"/>
@@ -235,6 +265,12 @@
 				<InputField name="ListIndent" id="99">
 					<DataPath>List.Indent</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Indent</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<EditMode>EnterOnInput</EditMode>
 					<Width>1</Width>

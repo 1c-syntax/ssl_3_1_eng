@@ -37,11 +37,17 @@
 						<v8:content>Close</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="FormCloseExtendedTooltip" id="127"/>
+				<ExtendedTooltip name="FormClose3ExtendedTooltip" id="127"/>
 			</Button>
 			<Button name="FormRelaunchDeferredUpdate" id="291">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.RelaunchDeferredUpdate</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Restart deferred update…</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormRelaunchDeferredUpdateExtendedTooltip" id="292"/>
 			</Button>
@@ -67,10 +73,10 @@
 			<ExtendedTooltip name="PatchesDeletionInformationGroupExtendedTooltip" id="256"/>
 			<ChildItems>
 				<PictureDecoration name="PatchesDeletionPicture" id="257">
-					<Width>5</Width>
+					<Width>7</Width>
 					<Picture>
-						<xr:Ref>CommonPicture.Warning32</xr:Ref>
-						<xr:LoadTransparent>false</xr:LoadTransparent>
+						<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</Picture>
 					<ContextMenu name="PatchesDeletionPictureContextMenu" id="258"/>
 					<ExtendedTooltip name="PatchesDeletionPictureExtendedTooltip" id="259"/>
@@ -95,6 +101,12 @@ Such actions can lead to various errors when the application is running and when
 			</ChildItems>
 		</UsualGroup>
 		<UsualGroup name="Group1" id="230">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Group</v8:content>
+				</v8:item>
+			</Title>
 			<Group>Vertical</Group>
 			<Behavior>Usual</Behavior>
 			<Representation>NormalSeparation</Representation>
@@ -123,7 +135,7 @@ Such actions can lead to various errors when the application is running and when
 							<ExtendedTooltip name="UpdateCompletedGroupExtendedTooltip" id="128"/>
 							<ChildItems>
 								<PictureDecoration name="PictureInformation" id="83">
-									<Width>5</Width>
+									<Width>7</Width>
 									<Title formatted="false">
 										<v8:item>
 											<v8:lang>en</v8:lang>
@@ -136,7 +148,7 @@ Such actions can lead to various errors when the application is running and when
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
 									<ContextMenu name="InformationPicture8ContextMenu" id="84"/>
-									<ExtendedTooltip name="PictureInformationExtendedTooltip" id="129"/>
+									<ExtendedTooltip name="InformationPicture8ExtendedTooltip" id="129"/>
 								</PictureDecoration>
 								<LabelDecoration name="UpdateCompletedInformation" id="86">
 									<AutoMaxWidth>false</AutoMaxWidth>
@@ -164,7 +176,7 @@ on %2 at %3 (update duration: %4).</v8:content>
 							<ExtendedTooltip name="UpdateErrorGroupExtendedTooltip" id="187"/>
 							<ChildItems>
 								<PictureDecoration name="StatusErrorPicture" id="188">
-									<Width>5</Width>
+									<Width>7</Width>
 									<Title formatted="false">
 										<v8:item>
 											<v8:lang>en</v8:lang>
@@ -172,8 +184,8 @@ on %2 at %3 (update duration: %4).</v8:content>
 										</v8:item>
 									</Title>
 									<Picture>
-										<xr:Ref>CommonPicture.Error32</xr:Ref>
-										<xr:LoadTransparent>false</xr:LoadTransparent>
+										<xr:Ref>StdPicture.DialogStop</xr:Ref>
+										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
 									<ContextMenu name="StatusErrorPictureContextMenu" id="189"/>
@@ -209,6 +221,12 @@ on %2 at %3 (update duration: %4).</v8:content>
 										<Button name="InformationForTechnicalSupport" id="238">
 											<Type>Hyperlink</Type>
 											<CommandName>Form.Command.InformationForTechnicalSupport</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Information for technical support</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="InformationForTechnicalSupportExtendedTooltip" id="239"/>
 										</Button>
 									</ChildItems>
@@ -238,7 +256,7 @@ on %2 at %3 (update duration: %4).</v8:content>
 							<ExtendedTooltip name="PatchesInstalledGroupExtendedTooltip" id="205"/>
 							<ChildItems>
 								<LabelDecoration name="PatchesInstalledIndent" id="232">
-									<Width>5</Width>
+									<Width>7</Width>
 									<ContextMenu name="PatchesInstalledIndentContextMenu" id="233"/>
 									<ExtendedTooltip name="PatchesInstalledIndentExtendedTooltip" id="234"/>
 								</LabelDecoration>
@@ -283,7 +301,7 @@ on %2 at %3 (update duration: %4).</v8:content>
 							<ExtendedTooltip name="PatchesInstallationErrorGroupExtendedTooltip" id="218"/>
 							<ChildItems>
 								<LabelDecoration name="PatchesErrorIndent" id="235">
-									<Width>3</Width>
+									<Width>7</Width>
 									<ContextMenu name="PatchesErrorIndentContextMenu" id="236"/>
 									<ExtendedTooltip name="PatchesErrorIndentExtendedTooltip" id="237"/>
 								</LabelDecoration>
@@ -354,7 +372,7 @@ on %2 at %3 (update duration: %4).</v8:content>
 							<ExtendedTooltip name="FileInfobaseHeaderGroupExtendedTooltip" id="248"/>
 							<ChildItems>
 								<PictureDecoration name="FileInfobaseInformationPicture" id="32">
-									<Width>5</Width>
+									<Width>7</Width>
 									<Title formatted="false">
 										<v8:item>
 											<v8:lang>en</v8:lang>
@@ -362,8 +380,8 @@ on %2 at %3 (update duration: %4).</v8:content>
 										</v8:item>
 									</Title>
 									<Picture>
-										<xr:Ref>CommonPicture.Warning32</xr:Ref>
-										<xr:LoadTransparent>false</xr:LoadTransparent>
+										<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
 									<ContextMenu name="FileInfobaseInformationPictureContextMenu" id="33"/>
@@ -425,6 +443,12 @@ Access to this data is temporarily restricted.</v8:content>
 											<Type>UsualButton</Type>
 											<Representation>PictureAndText</Representation>
 											<CommandName>Form.Command.RunUpdate</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Run data processing procedures</v8:content>
+												</v8:item>
+											</Title>
 											<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 											<ExtendedTooltip name="ExecuteExtendedTooltip" id="141">
 												<AutoMaxWidth>false</AutoMaxWidth>
@@ -468,7 +492,7 @@ Therefore, it is recommended that you schedule it to the lowest user activity pe
 							<ExtendedTooltip name="SaaSHeaderGroupExtendedTooltip" id="250"/>
 							<ChildItems>
 								<PictureDecoration name="InformationForUserPicture" id="121">
-									<Width>5</Width>
+									<Width>7</Width>
 									<Title formatted="false">
 										<v8:item>
 											<v8:lang>en</v8:lang>
@@ -476,8 +500,8 @@ Therefore, it is recommended that you schedule it to the lowest user activity pe
 										</v8:item>
 									</Title>
 									<Picture>
-										<xr:Ref>CommonPicture.Warning32</xr:Ref>
-										<xr:LoadTransparent>false</xr:LoadTransparent>
+										<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
 									<ContextMenu name="InformationForUserPictureContextMenu" id="122"/>
@@ -548,6 +572,7 @@ Please wait till the processing is completed.</v8:content>
 									<ExtendedTooltip name="HeaderGroupClientServerExtendedTooltip" id="252"/>
 									<ChildItems>
 										<PictureDecoration name="ActionInProgressPicture" id="3">
+											<Width>7</Width>
 											<Title formatted="false">
 												<v8:item>
 													<v8:lang>en</v8:lang>
@@ -667,7 +692,7 @@ Access to this data is temporary restricted.</v8:content>
 															<ExtendedTooltip name="GroupAlignmentExtendedTooltip" id="321"/>
 															<ChildItems>
 																<LabelDecoration name="LabelAlignment" id="324">
-																	<Width>5</Width>
+																	<Width>7</Width>
 																	<ContextMenu name="LabelAlignmentContextMenu" id="325"/>
 																	<ExtendedTooltip name="LabelAlignmentExtendedTooltip" id="326"/>
 																</LabelDecoration>
@@ -867,6 +892,12 @@ Access to this data is temporary restricted.</v8:content>
 											<ChildItems>
 												<RadioButtonField name="UpdatePriority" id="177">
 													<DataPath>UpdatePriority</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Priority</v8:content>
+														</v8:item>
+													</Title>
 													<ToolTipRepresentation>None</ToolTipRepresentation>
 													<RadioButtonType>Auto</RadioButtonType>
 													<ChoiceList>
@@ -932,7 +963,7 @@ Access to this data is temporary restricted.</v8:content>
 &lt;b&gt;● &lt;/&gt;&lt;b&gt;&lt;fontsize 8&gt;Number&lt;/&gt;&lt;/&gt;&lt;b&gt; of threads&lt;/&gt;. The number of concurrent update handlers. The default value is 8. Recommended value:
 &lt;b&gt;    •&lt;/&gt;For regular operations, up to 50-75% of the number of server cluster processor cores. 
 &lt;b&gt;    •&lt;/&gt;For the forced update within a period of minimum activity, as many cores as available to the server cluster.
-See also &lt;link http://1c.ru/news/info.jsp?id=25491&gt;restriction of 12 cores per server for 1C:Enterprise PROF version (in Russian)&lt;/&gt; and &lt;link https://v8.1c.ru/priobretenie-i-vnedrenie/otvety-na-tipovye-voprosy-po-litsenzirovaniyu-1s-predpriyatiya-8/&gt;Which processor cores to count - real or virtual? (in Russian)&lt;/&gt;
+See also restriction of 12 cores per server for 1C:Enterprise PROF version (in Russian)&lt;/&gt; and Which processor cores to count - real or virtual? (in Russian)&lt;/&gt;
 </v8:content>
 															</v8:item>
 														</Title>
@@ -1006,7 +1037,7 @@ Applications users might experience lags during the data processing.</v8:content
 																	<v8:content>Set schedule</v8:content>
 																</v8:item>
 															</Title>
-															<ExtendedTooltip name="EditScheduleExtendedTooltip" id="159"/>
+															<ExtendedTooltip name="ModifyScheduleExtendedTooltip" id="159"/>
 														</Button>
 													</ChildItems>
 												</UsualGroup>
@@ -1055,10 +1086,10 @@ Applications users might experience lags during the data processing.</v8:content
 									<ExtendedTooltip name="CompletedHeaderGroupExtendedTooltip" id="254"/>
 									<ChildItems>
 										<PictureDecoration name="CompletedPicture" id="43">
-											<Width>5</Width>
+											<Width>7</Width>
 											<Picture>
-												<xr:Ref>CommonPicture.Error32</xr:Ref>
-												<xr:LoadTransparent>false</xr:LoadTransparent>
+												<xr:Ref>StdPicture.DialogStop</xr:Ref>
+												<xr:LoadTransparent>true</xr:LoadTransparent>
 											</Picture>
 											<FileDragMode>AsFile</FileDragMode>
 											<ContextMenu name="CompletedPictureContextMenu" id="44"/>
@@ -1104,19 +1135,31 @@ Applications users might experience lags during the data processing.</v8:content
 									<ExtendedTooltip name="SwitchToDeferredHandlersListGroupExtendedTooltip" id="166"/>
 									<ChildItems>
 										<UsualGroup name="Group2" id="335">
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Group</v8:content>
+												</v8:item>
+											</Title>
 											<Behavior>Usual</Behavior>
 											<Representation>None</Representation>
 											<ShowTitle>false</ShowTitle>
 											<ExtendedTooltip name="Group2ExtendedTooltip" id="336"/>
 											<ChildItems>
 												<LabelDecoration name="GotoListAlign" id="339">
-													<Width>5</Width>
+													<Width>7</Width>
 													<ContextMenu name="GotoListAlignContextMenu" id="340"/>
 													<ExtendedTooltip name="GotoListAlignExtendedTooltip" id="341"/>
 												</LabelDecoration>
 											</ChildItems>
 										</UsualGroup>
 										<UsualGroup name="Group3" id="337">
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Group</v8:content>
+												</v8:item>
+											</Title>
 											<Group>Vertical</Group>
 											<Behavior>Usual</Behavior>
 											<Representation>None</Representation>

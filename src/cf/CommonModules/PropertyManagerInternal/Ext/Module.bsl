@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -465,7 +466,6 @@ Procedure OnDefineSubordinateObjects(SubordinateObjects) Export
 
 EndProcedure
 
-// See NationalLanguageSupportServer.ОбъектыСТЧПредставления
 Procedure OnDefineObjectsWithTablePresentation(Objects) Export
 	Objects.Add("Catalog.ObjectsPropertiesValues");
 	Objects.Add("Catalog.ObjectPropertyValueHierarchy");
@@ -1571,7 +1571,7 @@ Function AdditionalPropertyUsed(Property) Export
 	
 	For Each Table In ObjectTables1 Do
 		Query.Text = StrReplace(QueryText, "TableName", Table + ".AdditionalAttributes");
-		If Not Query.Execute().IsEmpty() Then // @skip-check query-in-loop. Query to multiple tables.
+		If Not Query.Execute().IsEmpty() Then // @skip-check query-in-loop - A multi-table query.
 			Return True;
 		EndIf;
 	EndDo;
@@ -2545,15 +2545,6 @@ Procedure UpdateCurrentSetPropertiesList(Form, Set, PropertyKind, CurrentEnable 
 		|	ObjectsPropertiesValues.Owner IN(&Owner)
 		|	AND NOT ObjectsPropertiesValues.IsFolder
 		|	AND NOT ObjectsPropertiesValues.DeletionMark
-		|	AND ObjectsPropertiesValues.Ref IN
-		|			(SELECT TOP 4
-		|				PropertyValuesOfObjectsToCheck.Ref
-		|			FROM
-		|				Catalog.ObjectsPropertiesValues AS PropertyValuesOfObjectsToCheck
-		|			WHERE
-		|				PropertyValuesOfObjectsToCheck.Owner = ObjectsPropertiesValues.Owner
-		|				AND NOT PropertyValuesOfObjectsToCheck.IsFolder
-		|				AND NOT PropertyValuesOfObjectsToCheck.DeletionMark)
 		|
 		|UNION ALL
 		|
@@ -2565,14 +2556,6 @@ Procedure UpdateCurrentSetPropertiesList(Form, Set, PropertyKind, CurrentEnable 
 		|WHERE
 		|	ObjectPropertyValueHierarchy.Owner IN(&Owner)
 		|	AND NOT ObjectPropertyValueHierarchy.DeletionMark
-		|	AND ObjectPropertyValueHierarchy.Ref IN
-		|			(SELECT TOP 4
-		|				ObjectsPropertiesValuesHierarchyToCheck.Ref
-		|			FROM
-		|				Catalog.ObjectPropertyValueHierarchy AS ObjectsPropertiesValuesHierarchyToCheck
-		|			WHERE
-		|				ObjectsPropertiesValuesHierarchyToCheck.Owner = ObjectPropertyValueHierarchy.Owner
-		|				AND NOT ObjectsPropertiesValuesHierarchyToCheck.DeletionMark)
 		|
 		|;
 		|
@@ -2604,7 +2587,9 @@ Procedure UpdateCurrentSetPropertiesList(Form, Set, PropertyKind, CurrentEnable 
 			MapOfAttributesValues.Insert(String.Owner, String.Description);
 		Else
 			IndexOf = IndexOf + 1;
-			If IndexOf = 4 Then
+			If IndexOf > 4 Then
+				Continue;
+			ElsIf IndexOf = 4 Then
 				CurrentListOfVals = CurrentListOfVals + ",...";
 			Else
 				CurrentListOfVals = CurrentListOfVals + ", " + String.Description;

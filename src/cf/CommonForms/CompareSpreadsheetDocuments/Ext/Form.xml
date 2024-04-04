@@ -46,6 +46,12 @@
 										<xr:Ref>StdPicture.MoveUp</xr:Ref>
 										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Previous change</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="PreviousChangeLeftExtendedTooltip" id="115"/>
 								</Button>
 								<Button name="NextChangeLeft" id="116">
@@ -55,6 +61,12 @@
 										<xr:Ref>StdPicture.MoveDown</xr:Ref>
 										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Next change</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="NextChangeLeftExtendedTooltip" id="117"/>
 								</Button>
 							</ChildItems>
@@ -62,6 +74,12 @@
 						<SpreadSheetDocumentField name="SpreadsheetDocumentLeft" id="77">
 							<DataPath>SpreadsheetDocumentLeft</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Spreadsheet document left</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<VerticalScrollBar>true</VerticalScrollBar>
 							<HorizontalScrollBar>true</HorizontalScrollBar>
@@ -101,6 +119,12 @@
 										<xr:Ref>StdPicture.MoveUp</xr:Ref>
 										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Previous change</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="PreviousChangeRightExtendedTooltip" id="129"/>
 								</Button>
 								<Button name="NextChangeRight" id="130">
@@ -110,6 +134,12 @@
 										<xr:Ref>StdPicture.MoveDown</xr:Ref>
 										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Next change</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="NextChangeRightExtendedTooltip" id="131"/>
 								</Button>
 							</ChildItems>
@@ -117,6 +147,12 @@
 						<SpreadSheetDocumentField name="SpreadsheetDocumentRight" id="80">
 							<DataPath>SpreadsheetDocumentRight</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Spreadsheet document right</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<VerticalScrollBar>true</VerticalScrollBar>
 							<HorizontalScrollBar>true</HorizontalScrollBar>

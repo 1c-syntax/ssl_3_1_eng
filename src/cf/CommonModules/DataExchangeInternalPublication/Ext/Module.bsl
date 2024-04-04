@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -48,7 +49,7 @@ Procedure RunDataExchangeByScenario(ExchangeScenarioCode) Export
 		Return;
 	EndIf;
 	
-	
+	// Jobs from the last runtime scenario must be completed.
 	If Not IsTaskQueueCompleted(Scenario) Then
 		Return;
 	EndIf;
@@ -120,7 +121,7 @@ Procedure RunTaskQueue(Task, JobPrev = "") Export
 	
 	EndIf;
 	
-	
+	// Actions running in the source infobase. The next task can start after their completion.
 	ActionsInSource = New Array;
 	ActionsInSource.Add(Enums.ActionsAtCancelInternalPublication.DataExport);
 	ActionsInSource.Add(Enums.ActionsAtCancelInternalPublication.DataImport);
@@ -145,7 +146,7 @@ Procedure RunTaskQueue(Task, JobPrev = "") Export
 			
 		EndIf;
 		
-		
+		// No more tasks left.
 		If CurrTask = Undefined Then
 			Break;
 		EndIf;
@@ -601,7 +602,7 @@ EndFunction
 
 Procedure DeleteObsoleteTasks(Scenario = Undefined, ManualExchange = False)
 	
-	
+	// Keep N newest records.
 	Query = New Query;
 	Query.Text = 
 		"SELECT DISTINCT TOP 5
@@ -795,7 +796,7 @@ EndProcedure
 
 Function IsTaskQueueCompleted(Scenario = "", ExchangeID = "", Error = "")
 	
-	 
+	// Assume that the scenario (or manual exchange) is completed if "CompletedSuccessfully" is set to "True" for all tasks, or an error occurred. 
 	
 	Query = New Query;
 	Query.Text = 
@@ -860,20 +861,20 @@ Function IsTaskQueueCompleted(Scenario = "", ExchangeID = "", Error = "")
 	
 	Result = Query.ExecuteBatch();
 	
-	
+	// Completed with errors
 	Selection = Result[1].Select();
 	If Selection.Next() Then
 		Error = Selection.Error;
 		Return True;
 	EndIf;
 	
-	
+	// All tasks completed
 	Selection = Result[2].Select();
 	If Selection.Next() Then
 		Return True;
 	EndIf;
 	
-	
+	// Current task
 	Selection = Result[3].Select();
 	
 	If Selection.Next() Then
@@ -919,7 +920,7 @@ Procedure RunTaskByScenario(Scenario, FirstTask = Undefined)
 	
 	Query.SetParameter("Ref", Scenario);
 	
-	Selection = Query.Execute().Select(); 
+	Selection = Query.Execute().Select(); // ACC:1328 - Lock not required.
 	
 	TaskNumber = 1;
 	
@@ -1009,7 +1010,7 @@ Procedure PopulatesTasksForManualExchange(InfobaseNode, ExchangeID, FirstTask, E
 	
 	TaskNumber = 1;
 			
-	
+	// Receive data (UploadDataInt)
 	Record.Action = Enums.ActionsAtCancelInternalPublication.DataExportPeer;
 	Record.TaskID__ = String(New UUID);
 	Record.TaskNumber = TaskNumber;
@@ -1020,7 +1021,7 @@ Procedure PopulatesTasksForManualExchange(InfobaseNode, ExchangeID, FirstTask, E
 			
 	FirstTask = Common.CopyRecursive(Record, False);
 	
-	
+	// Receive data (Load)
 	Record.Action = Enums.ActionsAtCancelInternalPublication.DataImport;
 	Record.TaskID__ = String(New UUID);
 	Record.TaskNumber = TaskNumber;
@@ -1043,7 +1044,7 @@ Procedure PopulatesTasksForManualExchange(InfobaseNode, ExchangeID, FirstTask, E
 	
 	EndIf;
 		
-	
+	// Send data (Upload0)
 	Record.Action = Enums.ActionsAtCancelInternalPublication.DataExport;
 	Record.TaskID__ = String(New UUID);
 	Record.TaskNumber = TaskNumber;
@@ -1052,7 +1053,7 @@ Procedure PopulatesTasksForManualExchange(InfobaseNode, ExchangeID, FirstTask, E
 	
 	TaskNumber = TaskNumber + 1;
 		
-	
+	// Send data (DownloadDataInt)
 	Record.Action = Enums.ActionsAtCancelInternalPublication.DataImportPeer;
 	Record.TaskID__ = String(New UUID);
 	Record.TaskNumber = TaskNumber;	
@@ -1077,7 +1078,7 @@ EndProcedure
 
 Procedure ExecuteTask(Task, ExchangeParameters, Cancel) Export
 	
-	
+	// Syncing might be canceled by user.
 	If Task.OperationFailed Then
 		Cancel = True;
 		Return;

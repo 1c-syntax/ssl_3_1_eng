@@ -28,11 +28,23 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.ExitApp</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Exit</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormYesExtendedTooltip" id="31"/>
 			</Button>
 			<Button name="FormCancel" id="28">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.Cancel</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Cancel</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormCancelExtendedTooltip" id="32"/>
 			</Button>
 		</ChildItems>
@@ -61,12 +73,12 @@
 						</v8:item>
 					</Title>
 					<Picture>
-						<xr:Ref>CommonPicture.DoQueryBox32</xr:Ref>
-						<xr:LoadTransparent>false</xr:LoadTransparent>
+						<xr:Ref>StdPicture.DialogQuestion</xr:Ref>
+						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</Picture>
 					<FileDragMode>AsFile</FileDragMode>
 					<ContextMenu name="WarningPicture1ContextMenu" id="19"/>
-					<ExtendedTooltip name="WarningPicture1ExtendedTooltip" id="34"/>
+					<ExtendedTooltip name="WarningPicExtendedTooltip" id="34"/>
 				</PictureDecoration>
 				<UsualGroup name="MainGroup" id="3">
 					<Title>

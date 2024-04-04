@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -60,7 +61,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndDo;
 	EndIf;
 	
-	
+	// 
 	//
 	//     
 	//          
@@ -186,8 +187,8 @@ EndProcedure
 
 &AtClient
 Procedure BeforeCloseCompletion(Val QuestionResult = Undefined, Val AdditionalParameters = Undefined) Export
-	
-	
+	// 
+	// 
 	WriteAndClose(Undefined);
 EndProcedure
 
@@ -505,7 +506,7 @@ Procedure WriteAndClose(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure ChangeNavigationNumber(Iterator_SSLy)
@@ -885,10 +886,10 @@ Procedure CancelDataMapping(CurrentData, IsUnapprovedMapping)
 	NewDestinationRow.PictureIndex  = CurrentData.DestinationPictureIndex;
 	
 	NewSourceRow.MappingStatus = -1;
-	NewSourceRow.MappingStatusAdditional = 1; 
+	NewSourceRow.MappingStatusAdditional = 1; // 
 	
 	NewDestinationRow.MappingStatus = 1;
-	NewDestinationRow.MappingStatusAdditional = 1; 
+	NewDestinationRow.MappingStatusAdditional = 1; // 
 	
 	// Deleting the current mapping table row.
 	MappingTable.Delete(CurrentData);
@@ -983,7 +984,7 @@ Procedure UpdateMappingTable()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure FillSortTable(SourceValueList)
@@ -997,7 +998,7 @@ Procedure FillSortTable(SourceValueList)
 		TableRow = Object.SortTable.Add();
 		
 		TableRow.FieldName               = Item.Value;
-		TableRow.Use         = IsFirstField; 
+		TableRow.Use         = IsFirstField; // 
 		TableRow.SortDirection = True; // Ascending.
 		
 	EndDo;
@@ -1081,11 +1082,11 @@ Procedure SetTableFieldVisible(FormTableName)
 		ItemSourceField = Items[SourceField]; // FormField
 		ItemDestinationField = Items[DestinationField]; // FormField
 		
-		
+		// Set the field visibility.
 		ItemSourceField.Visible = Item.Check;
 		ItemDestinationField.Visible = Item.Check;
 		
-		
+		// Set field titles.
 		ItemSourceField.Title = Item.Presentation;
 		ItemDestinationField.Title = Item.Presentation;
 		
@@ -1101,8 +1102,8 @@ Procedure SetMappingInteractively()
 		Return;
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	If Not (CurrentData.MappingStatus=-1 Or CurrentData.MappingStatus=+1) Then
 		
 		ShowMessageBox(, NStr("en = 'Objects are already mapped.';"), 2);
@@ -1126,8 +1127,8 @@ Procedure SetMappingInteractively()
 		String2 = MappingTable.FindByID(Id2);
 		
 		If Not (( String1.MappingStatus = -1 // Unmapped source object.
-				And String2.MappingStatus = +1 ) 
-			Or ( String1.MappingStatus = +1 
+				And String2.MappingStatus = +1 ) // 
+			Or ( String1.MappingStatus = +1 // 
 				And String2.MappingStatus = -1 )) Then // Unmapped source object.
 			CannotCreateMappingFast = True;
 		EndIf;
@@ -1207,10 +1208,10 @@ EndFunction
 &AtClient
 Procedure AddUnapprovedMappingAtClient(Val BeginningRowID, Val EndingRowID)
 	
-	
-	
-	
-	
+	// 
+	// 
+	// 
+	// 
 	
 	BeginningRow    = MappingTable.FindByID(BeginningRowID);
 	EndingRow = MappingTable.FindByID(EndingRowID);
@@ -1244,7 +1245,7 @@ Procedure AddUnapprovedMappingAtClient(Val BeginningRowID, Val EndingRowID)
 	FillPropertyValues(NewRowUnapproved, SourceRow1, "SourcePictureIndex, SourceField1, SourceField2, SourceField3, SourceField4, SourceField5, SourceUUID, SourceType");
 	FillPropertyValues(NewRowUnapproved, DestinationRow1, "DestinationPictureIndex, DestinationField1, DestinationField2, DestinationField3, DestinationField4, DestinationField5, DestinationUUID, DestinationType, SortField1, SortField2, SortField3, SortField4, SortField5, PictureIndex");
 	
-	NewRowUnapproved.MappingStatus               = 3; 
+	NewRowUnapproved.MappingStatus               = 3; // 
 	NewRowUnapproved.MappingStatusAdditional = 0;
 	
 	// Delete mapped rows.
@@ -1287,7 +1288,7 @@ Function GetSortingFields()
 	// Function return value.
 	SortFields = "";
 	
-	FieldPattern = "SortFieldNN #SortDirection"; 
+	FieldPattern = "SortFieldNN #SortDirection"; // Do not localize.
 	
 	For Each TableRow In Object.SortTable Do
 		
@@ -1325,7 +1326,7 @@ Function MaxUserFields()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 // Page 1: Object mapping error.
 //
@@ -1377,8 +1378,8 @@ Function Attachable_ObjectMappingWaitingTimeConsumingOperationProcessing(Cancel,
 		IdleParameters.OutputIdleWindow = False;
 		IdleParameters.OutputMessages    = True;
 		
-		CompletionNotification2 = New NotifyDescription("BackgroundJobCompletion", ThisObject);
-		TimeConsumingOperationsClient.WaitCompletion(Result, CompletionNotification2, IdleParameters);
+		CallbackOnCompletion = New NotifyDescription("BackgroundJobCompletion", ThisObject);
+		TimeConsumingOperationsClient.WaitCompletion(Result, CallbackOnCompletion, IdleParameters);
 		
 	EndIf;
 	
@@ -1549,7 +1550,7 @@ Function AreObjectsMappedByRef(String)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
 Procedure ObjectMappingScenario()

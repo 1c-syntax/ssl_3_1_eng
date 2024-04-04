@@ -1,33 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Variables
 
-Var PreviousParent; 
-                      
-
-Var ExternalUserGroupPreviousComposition; 
-                                              
-                                              
-
-Var ExternalUserGroupPreviousRolesComposition; 
-                                                   
-                                                   
-
-Var AllAuthorizationObjectsPreviousValue; 
-                                           
-                                           
-
-Var IsNew; 
-                
+// 
+Var IsNew, PreviousParent, PreviousAllAuthorizationObjects, PreviousRolesSet;
 
 #EndRegion
 
@@ -95,14 +81,16 @@ EndProcedure
 
 Procedure BeforeWrite(Cancel)
 	
-	
-	
-	
-	
-	
-	Block = New DataLock;
-	Block.Add("InformationRegister.UserGroupCompositions");
-	Block.Lock();
+	// 
+	If Common.FileInfobase() Then
+		// 
+		// 
+		// 
+		Block = New DataLock;
+		Block.Add("InformationRegister.UserGroupsHierarchy");
+		Block.Add("InformationRegister.UserGroupCompositions");
+		Block.Lock();
+	EndIf;
 	// ACC:75-on
 	
 	If DataExchange.Load Then
@@ -112,51 +100,24 @@ Procedure BeforeWrite(Cancel)
 	If Not UsersInternal.CannotEditRoles() Then
 		QueryResult = Common.ObjectAttributeValue(Ref, "Roles");
 		If TypeOf(QueryResult) = Type("QueryResult") Then
-			ExternalUserGroupPreviousRolesComposition = QueryResult.Unload();
+			PreviousRolesSet = QueryResult.Unload();
 		Else
-			ExternalUserGroupPreviousRolesComposition = Roles.Unload(New Array);
+			PreviousRolesSet = Roles.Unload(New Array);
 		EndIf;
 	EndIf;
 	
 	IsNew = IsNew();
 	
-	If Ref = Catalogs.ExternalUsersGroups.AllExternalUsers Then
+	If Ref = ExternalUsers.AllExternalUsersGroup() Then
 		FillPurposeWithAllExternalUsersTypes();
-		AllAuthorizationObjects  = False;
+		AllAuthorizationObjects = False;
 	EndIf;
 	
-	ErrorText = ParentCheckErrorText();
-	If ValueIsFilled(ErrorText) Then
-		Raise ErrorText;
-	EndIf;
-	
-	If Ref = Catalogs.ExternalUsersGroups.AllExternalUsers Then
-		If Content.Count() > 0 Then
-			Raise
-				NStr("en = 'Cannot add members to the predefined group ""All external users.""';");
-		EndIf;
-	Else
-		ErrorText = PurposeCheckErrorText();
-		If ValueIsFilled(ErrorText) Then
-			Raise ErrorText;
-		EndIf;
-		
-		PreviousValues1 = Common.ObjectAttributesValues(
-			Ref, "AllAuthorizationObjects, Parent");
-		
-		PreviousParent                      = PreviousValues1.Parent;
-		AllAuthorizationObjectsPreviousValue = PreviousValues1.AllAuthorizationObjects;
-		
-		If ValueIsFilled(Ref)
-		   And Ref <> Catalogs.ExternalUsersGroups.AllExternalUsers Then
-			
-			QueryResult = Common.ObjectAttributeValue(Ref, "Content");
-			If TypeOf(QueryResult) = Type("QueryResult") Then
-				ExternalUserGroupPreviousComposition = QueryResult.Unload();
-			Else
-				ExternalUserGroupPreviousComposition = Content.Unload(New Array);
-			EndIf;
-		EndIf;
+	If Not IsNew Then
+		PreviousValues1 = Common.ObjectAttributesValues(Ref,
+			"Parent, AllAuthorizationObjects");
+		PreviousAllAuthorizationObjects = PreviousValues1.AllAuthorizationObjects;
+		PreviousParent              = PreviousValues1.Parent;
 	EndIf;
 	
 EndProcedure
@@ -169,60 +130,75 @@ Procedure OnWrite(Cancel)
 	
 	If UsersInternal.CannotEditRoles() Then
 		IsExternalUserGroupRoleCompositionChanged = False;
-		
 	Else
 		IsExternalUserGroupRoleCompositionChanged =
-			UsersInternal.ColumnValueDifferences(
-				"Role",
-				Roles.Unload(),
-				ExternalUserGroupPreviousRolesComposition).Count() <> 0;
+			UsersInternal.ColumnValueDifferences("Role",
+				Roles.Unload(), PreviousRolesSet).Count() <> 0;
 	EndIf;
 	
-	ItemsToChange = New Map;
-	ModifiedGroups   = New Map;
+	AllExternalUsersGroup = ExternalUsers.AllExternalUsersGroup();
 	
-	If Ref <> Catalogs.ExternalUsersGroups.AllExternalUsers Then
+	ErrorText = ParentCheckErrorText(AllExternalUsersGroup);
+	If ValueIsFilled(ErrorText) Then
+		Raise ErrorText;
+	EndIf;
+	
+	If Ref = AllExternalUsersGroup Then
+		If Not Parent.IsEmpty() Then
+			ErrorText = NStr("en = 'The position of the ""All external users"" group cannot be changed. It is the root of the group tree.';");
+			Raise ErrorText;
+		EndIf;
+		If Content.Count() > 0 Then
+			ErrorText = NStr("en = 'Cannot add members to the ""All external users"" group. ';");
+			Raise ErrorText;
+		EndIf;
+	Else
+		ErrorText = PurposeCheckErrorText();
+		If ValueIsFilled(ErrorText) Then
+			Raise ErrorText;
+		EndIf;
+	EndIf;
+	
+	ChangesInComposition = UsersInternal.GroupsCompositionNewChanges();
+	
+	If Ref = AllExternalUsersGroup Then
+		UsersInternal.UpdateAllUsersGroupComposition(
+			Catalogs.ExternalUsers.EmptyRef(), ChangesInComposition);
 		
-		If AllAuthorizationObjects
-		 Or AllAuthorizationObjectsPreviousValue = True Then
+	ElsIf AllAuthorizationObjects Then
+		UsersInternal.UpdateGroupCompositionsByAuthorizationObjectType(Ref,
+			Undefined, ChangesInComposition);
+	Else
+		If PreviousParent <> Parent Then
+			UsersInternal.UpdateGroupsHierarchy(Ref, ChangesInComposition, False);
 			
-			UsersInternal.UpdateExternalUserGroupCompositions(
-				Ref, , ItemsToChange, ModifiedGroups);
-		Else
-			CompositionChanges = UsersInternal.ColumnValueDifferences(
-				"ExternalUser",
-				Content.Unload(),
-				ExternalUserGroupPreviousComposition);
-			
-			UsersInternal.UpdateExternalUserGroupCompositions(
-				Ref, CompositionChanges, ItemsToChange, ModifiedGroups);
-			
-			If PreviousParent <> Parent Then
-				
-				If ValueIsFilled(Parent) Then
-					UsersInternal.UpdateExternalUserGroupCompositions(
-						Parent, , ItemsToChange, ModifiedGroups);
-				EndIf;
-				
-				If ValueIsFilled(PreviousParent) Then
-					UsersInternal.UpdateExternalUserGroupCompositions(
-						PreviousParent, , ItemsToChange, ModifiedGroups);
-				EndIf;
+			If ValueIsFilled(PreviousParent) Then
+				UsersInternal.UpdateHierarchicalUserGroupCompositions(PreviousParent,
+					ChangesInComposition);
 			EndIf;
 		EndIf;
 		
-		UsersInternal.UpdateUserGroupCompositionUsage(
-			Ref, ItemsToChange, ModifiedGroups);
+		UsersInternal.UpdateHierarchicalUserGroupCompositions(Ref,
+			ChangesInComposition);
 	EndIf;
+	
+	UsersInternal.AfterUserGroupsUpdate(ChangesInComposition);
 	
 	If IsExternalUserGroupRoleCompositionChanged Then
 		UsersInternal.UpdateExternalUsersRoles(Ref);
 	EndIf;
 	
-	UsersInternal.AfterUpdateExternalUserGroupCompositions(
-		ItemsToChange, ModifiedGroups);
-	
 	SSLSubsystemsIntegration.AfterAddChangeUserOrGroup(Ref, IsNew);
+	
+EndProcedure
+
+Procedure BeforeDelete(Cancel)
+	
+	If DataExchange.Load Then
+		Return;
+	EndIf;
+	
+	UsersInternal.UpdateGroupsCompositionBeforeDeleteUserOrGroup(Ref);
 	
 EndProcedure
 
@@ -242,32 +218,34 @@ Procedure FillPurposeWithAllExternalUsersTypes()
 	
 EndProcedure
 
-Function ParentCheckErrorText()
+Function ParentCheckErrorText(AllExternalUsersGroup = Undefined)
 	
-	If Parent = Catalogs.ExternalUsersGroups.AllExternalUsers Then
-		Return
-			NStr("en = 'Cannot set the predefined group ""All external users"" as a parent.';");
+	If AllExternalUsersGroup = Undefined Then
+		AllExternalUsersGroup = ExternalUsers.AllExternalUsersGroup();
 	EndIf;
 	
-	If Ref = Catalogs.ExternalUsersGroups.AllExternalUsers Then
+	If Parent = AllExternalUsersGroup Then
+		Return NStr("en = 'Cannot set the ""All external users"" group as a parent.';");
+	EndIf;
+	
+	If Ref = AllExternalUsersGroup Then
 		If Not Parent.IsEmpty() Then
-			Return
-				NStr("en = 'Cannot move the predefined group ""All external users.""';");
+			Return NStr("en = 'Cannot move the ""All external users"" group.';");
 		EndIf;
 	Else
-		If Parent = Catalogs.ExternalUsersGroups.AllExternalUsers Then
-			Return
-				NStr("en = 'Cannot add a subgroup to the predefined group ""All external users.""';");
+		If Parent = AllExternalUsersGroup Then
+			Return NStr("en = 'Cannot add a subgroup to the ""All external users"" group. ';");
 			
 		ElsIf Common.ObjectAttributeValue(Parent, "AllAuthorizationObjects") = True Then
 			Return StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot add a subgroup to the group ""%1""
-				           |because it includes all users.';"), Parent);
+				NStr("en = 'Cannot add a subgroup to group ""%1"" as
+				           |it contains all external users of the specified types.';"), Parent);
 		EndIf;
 		
 		If AllAuthorizationObjects And ValueIsFilled(Parent) Then
-			Return
-				NStr("en = 'Cannot move a group that includes all users.';");
+			Return StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Cannot move group ""%1"" as
+				           |it contains all external users of the specified types.';"), Ref);
 		EndIf;
 	EndIf;
 	
@@ -286,7 +264,7 @@ Function PurposeCheckErrorText()
 	If AllAuthorizationObjects Then
 		
 		// Checking whether the purpose matches the "All external users" group.
-		AllExternalUsersGroup = Catalogs.ExternalUsersGroups.AllExternalUsers;
+		AllExternalUsersGroup = ExternalUsers.AllExternalUsersGroup();
 		AllExternalUsersPurpose = Common.ObjectAttributeValue(
 			AllExternalUsersGroup, "Purpose").Unload().UnloadColumn("UsersType");
 		PurposesArray = Purpose.UnloadColumn("UsersType");
@@ -338,8 +316,8 @@ Function PurposeCheckErrorText()
 		EndIf;
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	If ValueIsFilled(Parent) Then
 		
 		ParentUsersType = Common.ObjectAttributeValue(
@@ -355,8 +333,8 @@ Function PurposeCheckErrorText()
 		EndDo;
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	If AllAuthorizationObjects
 		And ValueIsFilled(Ref) Then
 		Query = New Query;
@@ -377,8 +355,8 @@ Function PurposeCheckErrorText()
 		EndIf;
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	If ValueIsFilled(Ref) Then
 		
 		Query = New Query;
@@ -386,7 +364,7 @@ Function PurposeCheckErrorText()
 		Query.SetParameter("UsersTypes", Purpose);
 		Query.Text =
 		"SELECT
-		|	UsersTypes.UsersType
+		|	UsersTypes.UsersType AS UsersType
 		|INTO UsersTypes
 		|FROM
 		|	&UsersTypes AS UsersTypes
@@ -398,14 +376,14 @@ Function PurposeCheckErrorText()
 		|FROM
 		|	Catalog.ExternalUsersGroups.Purpose AS ExternalUserGroupsAssignment
 		|WHERE
-		|	TRUE IN
-		|			(SELECT TOP 1
-		|				TRUE
-		|			FROM
-		|				UsersTypes AS UsersTypes
-		|			WHERE
-		|				ExternalUserGroupsAssignment.Ref.Parent = &Ref
-		|				AND VALUETYPE(ExternalUserGroupsAssignment.UsersType) <> VALUETYPE(UsersTypes.UsersType))";
+		|	ExternalUserGroupsAssignment.Ref.Parent = &Ref
+		|	AND NOT TRUE IN
+		|				(SELECT TOP 1
+		|					TRUE
+		|				FROM
+		|					UsersTypes AS UsersTypes
+		|				WHERE
+		|					VALUETYPE(ExternalUserGroupsAssignment.UsersType) = VALUETYPE(UsersTypes.UsersType))";
 		
 		QueryResult = Query.Execute();
 		If Not QueryResult.IsEmpty() Then

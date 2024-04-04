@@ -219,14 +219,32 @@ WHERE
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>SurveyDescription</dcssch:dataPath>
 					<dcssch:field>SurveyDescription</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Survey description</v8:content>
+						</v8:item>
+					</dcssch:title>
 				</Field>
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>FillingDate</dcssch:dataPath>
 					<dcssch:field>FillingDate</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Date of completion</v8:content>
+						</v8:item>
+					</dcssch:title>
 				</Field>
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>PictureCode</dcssch:dataPath>
 					<dcssch:field>PictureCode</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Picture code</v8:content>
+						</v8:item>
+					</dcssch:title>
 				</Field>
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>Number</dcssch:dataPath>
@@ -286,6 +304,12 @@ WHERE
 				</Field>
 				<Parameter>
 					<dcssch:name>Respondent</dcssch:name>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Respondent</v8:content>
+						</v8:item>
+					</dcssch:title>
 					<dcssch:valueType>
 						<v8:TypeId>f0d7bb9f-e04b-4261-bbbf-0fe067eb2095</v8:TypeId>
 					</dcssch:valueType>
@@ -324,4 +348,11 @@ WHERE
 			</Settings>
 		</Attribute>
 	</Attributes>
+	<Parameters>
+		<Parameter name="Respondent">
+			<Type>
+				<v8:TypeSet>cfg:AnyRef</v8:TypeSet>
+			</Type>
+		</Parameter>
+	</Parameters>
 </Form>

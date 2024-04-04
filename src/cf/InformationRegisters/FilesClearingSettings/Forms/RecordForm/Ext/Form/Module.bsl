@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -101,18 +102,18 @@ Function QueryText()
 		|FROM
 		|	#FullNameFileOwner";
 	
-	InformationAboutObjectType = Common.ObjectAttributesValues(ObjectType, "Name,FullName,EmptyRefValue");
-	FileOwnerFields = InformationAboutObjectType.Name + ".Ref";
-	If AllCatalogs.ContainsType(TypeOf(InformationAboutObjectType.EmptyRefValue)) Then
-		Catalog = Metadata.Catalogs[InformationAboutObjectType.Name];
+	ObjectTypeInfoRecords = Common.ObjectAttributesValues(ObjectType, "Name,FullName,EmptyRefValue");
+	FileOwnerFields = ObjectTypeInfoRecords.Name + ".Ref";
+	If AllCatalogs.ContainsType(TypeOf(ObjectTypeInfoRecords.EmptyRefValue)) Then
+		Catalog = Metadata.Catalogs[ObjectTypeInfoRecords.Name];
 		For Each Attribute In Catalog.Attributes Do
-			FileOwnerFields = FileOwnerFields + "," + Chars.LF + InformationAboutObjectType.Name + "." + Attribute.Name;
+			FileOwnerFields = FileOwnerFields + "," + Chars.LF + ObjectTypeInfoRecords.Name + "." + Attribute.Name;
 		EndDo;
 	ElsIf
-		AllDocuments.ContainsType(TypeOf(InformationAboutObjectType.EmptyRefValue)) Then
-		Document = Metadata.Documents[InformationAboutObjectType.Name];
+		AllDocuments.ContainsType(TypeOf(ObjectTypeInfoRecords.EmptyRefValue)) Then
+		Document = Metadata.Documents[ObjectTypeInfoRecords.Name];
 		For Each Attribute In Document.Attributes Do
-			FileOwnerFields = FileOwnerFields + "," + Chars.LF + InformationAboutObjectType.Name + "." + Attribute.Name;
+			FileOwnerFields = FileOwnerFields + "," + Chars.LF + ObjectTypeInfoRecords.Name + "." + Attribute.Name;
 			If Attribute.Type.ContainsType(Type("Date")) Then
 				AttributesArrayWithDateType.Add(Attribute.Name, Attribute.Synonym);
 				FileOwnerFields = FileOwnerFields + "," + Chars.LF 
@@ -124,7 +125,7 @@ Function QueryText()
 	
 	QueryText = StrReplace(QueryText, "&FileOwnerFields", FileOwnerFields);
 	QueryText = StrReplace(QueryText, "#FullNameFileOwner", 
-		InformationAboutObjectType.FullName + " AS " + InformationAboutObjectType.Name);
+		ObjectTypeInfoRecords.FullName + " AS " + ObjectTypeInfoRecords.Name);
 	Return QueryText;
 	
 EndFunction
@@ -133,7 +134,7 @@ EndFunction
 Procedure AddConditionByDate(Command)
 	
 	FormParameters = New Structure;
-	FormParameters.Insert("ArrayOfValues", AttributesArrayWithDateType);
+	FormParameters.Insert("AttributesOfDateType", AttributesArrayWithDateType);
 	OpenForm("InformationRegister.FilesClearingSettings.Form.AddConditionsByDate", FormParameters, ThisObject);
 	
 EndProcedure

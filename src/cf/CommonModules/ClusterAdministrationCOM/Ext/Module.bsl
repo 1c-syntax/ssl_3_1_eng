@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -266,7 +267,7 @@ EndProcedure
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
 //   Filter - See ClusterAdministration.SessionsFilter
-//           See ClusterAdministration.SessionsFilter
+//          - Array of See ClusterAdministration.SessionsFilter
 //
 // Returns: 
 //   Array of See ClusterAdministration.SessionProperties
@@ -301,7 +302,7 @@ EndFunction
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
 //   Filter - See ClusterAdministration.SessionsFilter
-//           See ClusterAdministration.SessionsFilter
+//          - Array of See ClusterAdministration.SessionsFilter
 //
 Procedure DeleteInfobaseSessions(Val ClusterAdministrationParameters, Val IBAdministrationParameters, Val Filter = Undefined) Export
 	
@@ -376,7 +377,7 @@ EndProcedure
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
 //   Filter - See ClusterAdministration.JoinsFilters
-//           See ClusterAdministration.JoinsFilters
+//          - Array of See ClusterAdministration.JoinsFilters
 //
 // Returns: 
 //   Array of See ClusterAdministration.ConnectionProperties
@@ -413,7 +414,7 @@ EndFunction
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
 //   Filter - See ClusterAdministration.JoinsFilters
-//           See ClusterAdministration.JoinsFilters
+//          - Array of See ClusterAdministration.JoinsFilters
 //
 Procedure TerminateInfobaseConnections(Val ClusterAdministrationParameters, Val IBAdministrationParameters, 
 	Val Filter = Undefined) Export
@@ -432,7 +433,7 @@ Procedure TerminateInfobaseConnections(Val ClusterAdministrationParameters, Val 
 		ClusterAdministrationParameters.ClusterAdministratorPassword);
 		
 	Value = New Array;
-	Value.Add("1CV8");               
+	Value.Add("1CV8");               // 
 	Value.Add("1CV8C");              // ID of 1C:Enterprise application running in thin client mode.
 	Value.Add("WebClient");          // ID of 1C:Enterprise application running in web client mode.
 	Value.Add("Designer");           // Designer ID.

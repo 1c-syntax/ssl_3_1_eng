@@ -117,6 +117,12 @@
 							<ChildItems>
 								<CheckBoxField name="FilesTreeCheck" id="41">
 									<DataPath>FilesTree.Check</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Checkmark</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<CheckBoxType>Auto</CheckBoxType>
 									<ContextMenu name="FilesTreeCheckContextMenu" id="42"/>
@@ -127,6 +133,12 @@
 								</CheckBoxField>
 								<PictureField name="FilesTreePictureIndex" id="38">
 									<DataPath>FilesTree.PictureIndex</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Picture index</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ValuesPicture>
 										<xr:Ref>CommonPicture.FileIconCollection</xr:Ref>
@@ -139,6 +151,12 @@
 								<InputField name="FilesTreeFileName" id="34">
 									<DataPath>FilesTree.FileName</DataPath>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>File name</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<TextEdit>false</TextEdit>
 									<ContextMenu name="FilesTreeFileNameContextMenu" id="35"/>
@@ -166,6 +184,12 @@
 		</InputField>
 		<CheckBoxField name="DeleteAfterAdd" id="3">
 			<DataPath>ShouldDeleteAddedFiles</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Delete uploaded files</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>Right</TitleLocation>
 			<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 			<CheckBoxType>Auto</CheckBoxType>
@@ -183,7 +207,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>NormalSeparation</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="FileAttributes1ExtendedTooltip" id="57"/>
+			<ExtendedTooltip name="FilesAttributesExtendedTooltip" id="57"/>
 			<ChildItems>
 				<InputField name="LongDesc" id="2">
 					<DataPath>Comment</DataPath>
@@ -203,6 +227,12 @@
 				</InputField>
 				<CheckBoxField name="StoreVersions" id="21">
 					<DataPath>StoreVersions</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Track versions</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Right</TitleLocation>
 					<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 					<CheckBoxType>Auto</CheckBoxType>
@@ -237,7 +267,13 @@
 				<Button name="SelectEncoding" id="46">
 					<Type>Hyperlink</Type>
 					<CommandName>Form.Command.SelectEncoding</CommandName>
-					<ExtendedTooltip name="SelectEncoding1ExtendedTooltip" id="62"/>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Select encoding</v8:content>
+						</v8:item>
+					</Title>
+					<ExtendedTooltip name="SelectEncodingExtendedTooltip" id="62"/>
 				</Button>
 			</ChildItems>
 		</UsualGroup>
@@ -260,6 +296,12 @@
 					<TextColor>style:ButtonTextColor</TextColor>
 					<BackColor>style:ButtonBackColor</BackColor>
 					<BorderColor>style:BorderColor</BorderColor>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Upload files</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="AddExtendedTooltip" id="64"/>
 				</Button>
 				<Button name="Cancel" id="20">
@@ -294,7 +336,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Delete files after adding</v8:content>
+					<v8:content>Delete uploaded files</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -466,4 +508,14 @@
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 	</Commands>
+	<Parameters>
+		<Parameter name="FolderForAdding">
+			<Type>
+				<v8:Type>cfg:CatalogRef.FilesFolders</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="FileNamesArray">
+			<Type/>
+		</Parameter>
+	</Parameters>
 </Form>

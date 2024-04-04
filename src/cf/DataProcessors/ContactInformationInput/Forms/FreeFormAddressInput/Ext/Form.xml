@@ -77,6 +77,12 @@
 										<Button name="AddComment" id="386">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.AddComment</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Comment</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="AddCommentExtendedTooltip" id="387"/>
 										</Button>
 									</ChildItems>
@@ -93,7 +99,7 @@
 						</v8:item>
 					</Title>
 					<HorizontalLocation>Right</HorizontalLocation>
-					<ExtendedTooltip name="FormCommandBar3ExtendedTooltip" id="139"/>
+					<ExtendedTooltip name="FormCommandsBarExtendedTooltip" id="139"/>
 					<ChildItems>
 						<ButtonGroup name="FormAddressOnMaps" id="101">
 							<Title>
@@ -107,6 +113,12 @@
 								<Button name="ChangeHistory" id="326">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.ChangeHistory</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Change history…</v8:content>
+										</v8:item>
+									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="ChangeHistoryExtendedTooltip" id="327"/>
 								</Button>
@@ -133,6 +145,12 @@
 										<Button name="FormClearAddress" id="90">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.ClearAddress</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Clear address</v8:content>
+												</v8:item>
+											</Title>
 											<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 											<ExtendedTooltip name="FormClearAddressExtendedTooltip" id="143"/>
 										</Button>
@@ -182,6 +200,12 @@
 				</LabelDecoration>
 				<InputField name="AddressOnDate" id="363">
 					<DataPath>AddressOnDate</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Address registration date</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<Width>10</Width>
 					<ContextMenu name="AddressOnDateContextMenu" id="364"/>
@@ -343,6 +367,12 @@
 										</UsualGroup>
 										<InputField name="ForeignAddressPresentation" id="21">
 											<DataPath>AddressPresentation</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Address presentation</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<AutoMaxWidth>false</AutoMaxWidth>
 											<MultiLine>true</MultiLine>
@@ -370,6 +400,12 @@
 					<ChildItems>
 						<InputField name="Comment" id="373">
 							<DataPath>Comment</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Comment</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<AutoMaxWidth>false</AutoMaxWidth>
 							<AutoMaxHeight>false</AutoMaxHeight>
@@ -400,6 +436,12 @@
 				<LabelField name="AddressType" id="496">
 					<DataPath>AddressFormat</DataPath>
 					<Visible>false</Visible>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Address format</v8:content>
+						</v8:item>
+					</Title>
 					<TitleTextColor>style:NoteText</TitleTextColor>
 					<TitleLocation>None</TitleLocation>
 					<ToolTipRepresentation>Button</ToolTipRepresentation>
@@ -432,11 +474,23 @@
 							<Type>CommandBarButton</Type>
 							<DefaultButton>true</DefaultButton>
 							<CommandName>Form.Command.OkCommand</CommandName>
-							<ExtendedTooltip name="FormOKCommandExtendedTooltip" id="140"/>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>OK</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="FormOkCommandExtendedTooltip" id="140"/>
 						</Button>
 						<Button name="FormCancel" id="57">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.CancelCommand</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Cancel</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="FormCancelExtendedTooltip" id="141"/>
 						</Button>
 					</ChildItems>
@@ -1026,7 +1080,13 @@
 			<Type/>
 		</Parameter>
 		<Parameter name="FieldValues">
-			<Type/>
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
 			<KeyParameter>true</KeyParameter>
 		</Parameter>
 		<Parameter name="Presentation">
@@ -1067,6 +1127,32 @@
 		<Parameter name="ReadOnly">
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="IndexOf">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Parameter>
+		<Parameter name="ContactInformationAdditionalAttributesDetails">
+			<Type/>
+		</Parameter>
+		<Parameter name="EnterNewAddress">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="Value">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
 			</Type>
 		</Parameter>
 	</Parameters>

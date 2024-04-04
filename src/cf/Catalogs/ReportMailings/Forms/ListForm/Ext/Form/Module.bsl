@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -14,7 +15,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	SetConditionalAppearance();
 	
-	If Parameters.Property("Representation") Then
+	If ValueIsFilled(Parameters.Representation) Then
 		Items.List.Representation = TableRepresentation[Parameters.Representation];
 	EndIf;
 	
@@ -58,10 +59,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		DataCompositionComparisonType.Equal, , False,
 		DataCompositionSettingsItemViewMode.Normal);
 	
-	FillListParameter("ChoiceMode");
-	FillListParameter("ChoiceFoldersAndItems");
-	FillListParameter("MultipleChoice");
-	FillListParameter("CurrentRow");
+	Items.List.ChoiceMode = Parameters.ChoiceMode;
+	Items.List.ChoiceFoldersAndItems = ?(Parameters.ChoiceFoldersAndItems <> Undefined, Parameters.ChoiceFoldersAndItems, Items.List.ChoiceFoldersAndItems);
+	Items.List.MultipleChoice = Parameters.MultipleChoice;
+	Items.List.CurrentRow = ?(Parameters.CurrentRow <> Undefined, Parameters.CurrentRow, Items.List.CurrentRow);
 	
 	If Not AccessRight("Update", Metadata.Catalogs.ReportMailings) Then
 		// Show only personal mailing. Groups and excess columns are hidden.
@@ -89,7 +90,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.MailingEvents.Visible = False;
 	EndIf;
 	
-	ShowHintReportMailoutsCanWorkFaster();
+	ShowHintReportDistributionsCanBeAccelerated();
 	
 EndProcedure
 
@@ -183,13 +184,6 @@ Procedure SetConditionalAppearance()
 EndProcedure
 
 &AtServer
-Procedure FillListParameter(Var_Key)
-	If Parameters.Property(Var_Key) And ValueIsFilled(Parameters[Var_Key]) Then
-		Items.List[Var_Key] = Parameters[Var_Key];
-	EndIf;
-EndProcedure
-
-&AtServer
 Procedure SetFilter(ClearFixedFilters = True)
 	
 	If ClearFixedFilters Then
@@ -215,30 +209,30 @@ Procedure SetListFilter(FilterParameters)
 EndProcedure
 
 &AtServer
-Procedure ShowHintReportMailoutsCanWorkFaster()
+Procedure ShowHintReportDistributionsCanBeAccelerated()
 	
 	If Common.FileInfobase() Or Common.DataSeparationEnabled() Then
-		Items.MailingGroupsCanWorkFaster.Visible = False;
+		Items.GroupDistributionsCanBeAccelerated.Visible = False;
 	Else
 		If FileSystem.SharedDirectoryOfTemporaryFiles() = TempFilesDir() Then
-			Items.MailingGroupsCanWorkFaster.Visible = True;
+			Items.GroupDistributionsCanBeAccelerated.Visible = True;
 			If Users.IsFullUser() 
 			   And Common.SubsystemExists("StandardSubsystems.ApplicationSettings") Then
-				Items.TitleAccelerationOfMailings.Hyperlink = True;
-				Items.TitleAccelerationOfMailings.SetAction("Click", "Attachable_HeaderAcceleratingMailingsByClicking");
+				Items.TitleDistributionAcceleration.Hyperlink = True;
+				Items.TitleDistributionAcceleration.SetAction("Click", "Attachable_TitleDistributionAccelerationClick");
 			EndIf;
 		Else
-			Items.MailingGroupsCanWorkFaster.Visible = False;
+			Items.GroupDistributionsCanBeAccelerated.Visible = False;
 		EndIf;
 	EndIf;
 	
 EndProcedure
 
 &AtClient
-Procedure Attachable_HeaderAcceleratingMailingsByClicking(Item)
+Procedure Attachable_TitleDistributionAccelerationClick(Item)
 	If CommonClient.SubsystemExists("StandardSubsystems.ApplicationSettings") Then
 		AppSettingsModuleClient = CommonClient.CommonModule("ApplicationSettingsClient");
-		AppSettingsModuleClient.OpenGeneralSettings();
+		AppSettingsModuleClient.OpenCommonSettings();
 	EndIf;
 EndProcedure
 

@@ -10,7 +10,13 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.OK</CommandName>
-				<ExtendedTooltip name="FormOK1ExtendedTooltip" id="12"/>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>OK</v8:content>
+					</v8:item>
+				</Title>
+				<ExtendedTooltip name="FormOKExtendedTooltip" id="12"/>
 			</Button>
 			<Button name="FormCancel" id="11">
 				<Type>CommandBarButton</Type>
@@ -130,6 +136,12 @@
 			<ChildItems>
 				<InputField name="SignaturesPathToFile" id="4">
 					<DataPath>Signatures.PathToFile</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Digital signature file</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<AutoCellHeight>true</AutoCellHeight>
 					<Width>40</Width>
@@ -142,6 +154,12 @@
 				</InputField>
 				<InputField name="SignaturesComment" id="9">
 					<DataPath>Signatures.Comment</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Comment</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<AutoCellHeight>true</AutoCellHeight>
 					<Width>20</Width>

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -15,8 +16,8 @@
 //  ExchangePlanName - String - a name of the exchange plan, for which the registration is carried out.
 //  Source       - DocumentObject - an event source.
 //  Cancel          - Boolean - a flag of canceling the handler.
-//  WriteMode - DocumentWriteMode - see the Syntax Assistant for DocumentWriteMode.
-//  PostingMode - DocumentPostingMode - see the Syntax Assistant for DocumentPostingMode.
+//  WriteMode - DocumentWriteMode - See "DocumentWriteMode" in Syntax Assistant.
+//  PostingMode - DocumentPostingMode - See "DocumentPostingMode" in Syntax Assistant.
 // 
 Procedure ObjectsRegistrationMechanismBeforeWriteDocument(ExchangePlanName, Source, Cancel, WriteMode, PostingMode) Export
 	
@@ -72,7 +73,6 @@ EndProcedure
 //
 // Parameters:
 //  ExchangePlanName - String - a name of the exchange plan, for which the registration is carried out.
-//  Source       - НаборЗаписейРегистра - an event source.
 //  Cancel          - Boolean - a flag of canceling the handler.
 //  Replacing      - Boolean - a flag showing whether the existing record set is replaced.
 // 
@@ -147,7 +147,7 @@ Procedure ObjectsRegistrationMechanismBeforeDelete(ExchangePlanName, Source, Can
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// Procedures and functions used by registration event handlers
 
 // The procedure complements the list of recipient nodes of the object with the values passed.
 //
@@ -281,10 +281,10 @@ EndFunction
 //                          metadata object.
 //
 // Returns:
-//   Boolean - :
+//   Boolean - Indicates whether automatic object registration is enabled in the given exchange plan:
 //           * True - True if metadata object automatic registration is allowed in the exchange plan;
-//           * False   - 
-//                      
+//           * False   - Object's auto-registration is set to "Prohibited", or the object is missing from
+//                      the exchange plan.
 //
 Function AutoRegistrationAllowed(MetadataObject, ExchangePlanName) Export
 	
@@ -311,7 +311,6 @@ EndFunction
 //                        AccountingRegisterRecordSet.<Name>,
 //                        CalculationRegisterRecordSet.<Name> - a record set.
 //
-//  ExchangePlanNode     - ПланыОбменаОбъект - a node
 //                        to be checked.
 //
 // Returns:
@@ -334,7 +333,7 @@ Function ImportRestricted(Data, Val ExchangePlanNode) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// Procedures and functions for external library calls
 
 // See ExportImportDataOverridable.OnRegisterDataImportHandlers.
 Procedure OnRegisterDataImportHandlers(HandlersTable) Export
@@ -387,7 +386,6 @@ EndProcedure
 //                 - CatalogObject
 //                 - DocumentObject
 //                 - InformationRegisterRecordSet
-//                 - и т.п. -
 //                   a data item.
 //   ItemSend - DataItemSend - see the "ItemSend" parameter description in Syntax Assistant
 //                      for methods OnSendDataToMaster() and OnSendDataToSubordinate().
@@ -450,7 +448,7 @@ EndProcedure
 // infobase.
 //
 // Parameters:
-//   see the OnReceiveDataFromMaster() event handler details in the syntax assistant.
+//   See the "OnReceiveDataFromMaster" event handler in Syntax Assistant.
 // 
 Procedure OnReceiveDataFromMasterInBeginning(DataElement, ItemReceive, SendBack, Sender) Export
 	
@@ -475,7 +473,7 @@ EndProcedure
 // The procedure is called from the OnReceiveDataFromMaster exchange plan handler.
 //
 // Parameters:
-//   see the OnReceiveDataFromMaster() event handler details in the syntax assistant.
+//   See the "OnReceiveDataFromMaster' event handler in Syntax Assistant.
 // 
 Procedure OnReceiveDataFromMasterInEnd(DataElement, ItemReceive, Val Sender) Export
 	
@@ -495,7 +493,7 @@ EndProcedure
 // The procedure is called from the OnReceiveDataFromSlave exchange plan handler.
 //
 // Parameters:
-//   see the OnReceiveDataFromSlave() event handler details in the Syntax Assistant.
+//   See the "OnReceiveDataFromSlave" event handler in Syntax Assistant.
 // 
 Procedure OnReceiveDataFromSlaveInEnd(DataElement, ItemReceive, Val Sender) Export
 	
@@ -553,8 +551,8 @@ Procedure RecordDataChanges(Val Recipient, Val Data, Val CheckExportPermission=T
 				// Registering data for the destination node.
 				ExchangePlans.RecordChanges(Recipient, Data);
 				
-				
-				
+				// 
+				// 
 				If DataExchangeServer.IsXDTOExchangePlan(Recipient) Then
 					DataExchangeXDTOServer.AddObjectToAllowedObjectsFilter(Data.Ref, Recipient);
 				Else
@@ -598,7 +596,6 @@ EndProcedure
 //  Object - an infobase object to be written.
 //  RefExists - Boolean - indicates whether the referenced object exists in the infobase.
 //  ObjectVersionInfo - Structure:
-//    * VersionAuthor - Пользователь, УзелПланаОбмена - a version source.
 //        Optional, the default value is Undefined.
 //    * ObjectVersionType - String - a type of a version to be created.
 //        Optional, the default value is ChangedByUser.
@@ -754,9 +751,9 @@ EndProcedure
 
 Procedure EnableExchangePlanUsage(Source, Cancel) Export
 	
-	
-	
-	
+	// 
+	// 
+	// 
 	
 	If Source.IsNew() And DataExchangeCached.IsSeparatedSSLDataExchangeNode(Source.Ref) Then
 		
@@ -773,9 +770,9 @@ EndProcedure
 //
 Procedure DisableExchangePlanUsage(Source, Cancel) Export
 	
-	
-	
-	
+	// 
+	// 
+	// 
 	
 	If DataExchangeCached.IsSeparatedSSLDataExchangeNode(Source.Ref) Then
 		
@@ -869,7 +866,7 @@ EndProcedure
 //   FullMetadataObjectName - String
 //   
 // Returns:
-//   ValueTable - :
+//   ValueTable - Dataset exported from an object's modification table:
 //     * Ref - AnyRef - reference to object.
 //     * Node - ExchangePlanRef - an exchange plan node.
 //     * Recorder - DocumentRef - a record set recorder (optional).
@@ -973,7 +970,7 @@ Procedure SaveObjectsAvailableForExport(ObjectNode)
 			
 			DataSet = RegisteredDataOfSingleType(ObjectNode.Ref, FullMetadataObjectName);
 			
-			RecordSet = ObjectManager.CreateRecordSet(); 
+			RecordSet = ObjectManager.CreateRecordSet(); // InformationRegisterRecordSet, etc.
 			For Each FilterElement In RecordSet.Filter Do
 				If DataSet.Columns.Find(FilterElement.Name) <> Undefined Then
 					FiltersTable1.Columns.Add(FilterElement.Name);
@@ -982,7 +979,7 @@ Procedure SaveObjectsAvailableForExport(ObjectNode)
 			
 			For Each DataString In DataSet Do
 				
-				RecordSet = ObjectManager.CreateRecordSet(); 
+				RecordSet = ObjectManager.CreateRecordSet(); // InformationRegisterRecordSet, etc.
 				For Each FilterElement In FiltersTable1.Columns Do
 					DataExchangeInternal.SetFilterItemValue(
 						RecordSet.Filter, FilterElement.Name, DataString[FilterElement.Name]);
@@ -1026,9 +1023,9 @@ Procedure CancelSendNodeDataInDistributedInfobase(Source, DataElement, Ignore) E
 	
 	If Not DataElement.ThisNode Then
 		If Common.DataSeparationEnabled() Then
-			
-			
-			
+			// 
+			// 
+			// 
 			ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 			If ModuleSaaSOperations.IsSeparatedMetadataObject(Source.Metadata().FullName(),
 				ModuleSaaSOperations.MainDataSeparator()) Then
@@ -1083,9 +1080,9 @@ EndProcedure
 
 Procedure ClearRefsToInfobaseNode(Source, Cancel) Export
 	
-	
-	
-	
+	// 
+	// 
+	// 
 	
 	If Not DataExchangeCached.IsSSLDataExchangeNode(Source.Ref) Then
 		Return;
@@ -1163,16 +1160,15 @@ EndProcedure
 //        Optional, the default value is False.
 //    * IsConstant - Boolean - True means that the constant is being processed.
 //        Optional, the default value is False.
-//    * WriteMode - см. в синтакс-Assistant for DocumentWriteMode - a document write mode (for documents only).
 //        Optional, the default value is Undefined.
 //    * Replacing - Boolean - a register write mode (for registers only).
 //        Optional, the default value is Undefined.
 //
 Procedure RegisterObjectChange(ExchangePlanName, Object, Cancel, AdditionalParameters = Undefined)
 	
-	
-	
-	
+	// 
+	// 
+	// 
 	
 	OptionalParameters = New Structure;
 	OptionalParameters.Insert("IsRegister", False);
@@ -1202,16 +1198,16 @@ Procedure RegisterObjectChange(ExchangePlanName, Object, Cancel, AdditionalParam
 			// The RegisterAtExchangePlanNodesOnUpdateIB parameter shows whether infobase data update is in progress.
 			DisableRegistration = True;
 			If Object.AdditionalProperties.RegisterAtExchangePlanNodesOnUpdateIB = Undefined Then
-				
-				
+				// 
+				// 
 				If Not (IsRegister Or IsObjectDeletion Or IsConstant) And Object.IsNew() Then
 					// New reference objects must always be registered prior to exchange.
 					DisableRegistration = False;
 				ElsIf ValueIsFilled(SessionParameters.UpdateHandlerParameters) Then
 					ExchangePlanPurpose = DataExchangeCached.ExchangePlanPurpose(ExchangePlanName);
 					If ExchangePlanPurpose = "DIBWithFilter" Then
-						
-						
+						// 
+						// 
 						UpdateHandlerParameters = SessionParameters.UpdateHandlerParameters;
 						If UpdateHandlerParameters.DeferredHandlersExecutionMode = "Parallel" Then
 							DisableRegistration = UpdateHandlerParameters.RunAlsoInSubordinateDIBNodeWithFilters;
@@ -1273,9 +1269,9 @@ Procedure RegisterObjectChange(ExchangePlanName, Object, Cancel, AdditionalParam
 					Raise NStr("en = 'Register changes of separated data in shared mode.';");
 				EndIf;
 					
-				
-				
-				
+				// 
+				// 
+				// 
 				RegisterChangesForAllSeparatedExchangePlanNodes(ExchangePlanName, Object);
 				Return;
 				
@@ -1304,14 +1300,14 @@ Procedure RegisterObjectChange(ExchangePlanName, Object, Cancel, AdditionalParam
 			
 			If DataExchangeCached.AutoRegistrationAllowed(ExchangePlanName, MetadataObject.FullName()) Then
 				
-				
-				
+				// 
+				// 
 				ReduceRecipients(Object, AllExchangePlanNodes(ExchangePlanName));
 				
 			EndIf;
 			
-			
-			
+			// 
+			// 
 			Return;
 			
 		EndIf;
@@ -1402,7 +1398,6 @@ EndProcedure
 //        Optional, the default value is False.
 //    * IsObjectDeletion - Boolean - True means that the object deletion is being processed.
 //        Optional, the default value is False.
-//    * WriteMode - см. в синтакс-Assistant for DocumentWriteMode - a document write mode (for documents only).
 //        Optional, the default value is Undefined.
 //    * Replacing - Boolean - a register write mode (for registers only).
 //        Optional, the default value is Undefined.
@@ -1454,7 +1449,6 @@ EndProcedure
 //    * MetadataObject - MetadataObject - a metadata object that matches the data being changed. IsRequired.
 //    * IsRegister - Boolean - True means that the register is being processed. IsRequired.
 //    * IsObjectDeletion - Boolean - True means that the object deletion is being processed. IsRequired.
-//    * WriteMode - см. в синтакс-Assistant for DocumentWriteMode - a document write mode (for documents only).
 //                    IsRequired.
 //    * Replacing - Boolean - a register write mode (for registers only). IsRequired.
 //    * CheckRef1 - Boolean - a flag showing whether it is necessary to consider a data version before this data change.
@@ -1487,8 +1481,8 @@ Procedure ExecuteObjectsRegistrationRulesForExchangePlanAttemptException(NodesAr
 	
 	If ObjectRegistrationRules.Count() = 0 Then // Registration rules are not set.
 		
-		
-		
+		// 
+		// 
 		Recipients = AllExchangePlanNodes(ExchangePlanName);
 		
 		CommonClientServer.SupplementArray(NodesArrayResult, Recipients, True);
@@ -1513,8 +1507,8 @@ Procedure ExecuteObjectsRegistrationRulesForExchangePlanAttemptException(NodesAr
 					
 					CommonClientServer.SupplementArray(NodesArrayResult, Recipients, True);
 					
-					
-					
+					// 
+					// 
 					
 				EndIf;
 				
@@ -1524,9 +1518,9 @@ Procedure ExecuteObjectsRegistrationRulesForExchangePlanAttemptException(NodesAr
 			
 			For Each ORR In ObjectRegistrationRules Do
 					
-				
-				
-				
+				// 
+				// 
+				// 
 				If ORR.BatchExecutionOfHandlers 
 					And Object.AdditionalProperties.Property("CheckRegistrationBeforeUploading")
 					And Not Object.AdditionalProperties.Property("InteractiveExportAddition") Then
@@ -1690,7 +1684,6 @@ EndProcedure
 //  ExchangePlanName - String - a name of the exchange plan, for which the registration is carried out.
 //  AdditionalParameters - Structure - additional information on data to change:
 //    * IsObjectDeletion - Boolean - True means that the object deletion is being processed. IsRequired.
-//    * WriteMode - см. в синтакс-Assistant for DocumentWriteMode - a document write mode (for documents only).
 //                    IsRequired.
 //    * CheckRef1 - Boolean - a flag showing whether it is necessary to consider a data version before this data change.
 //                                 IsRequired.
@@ -1709,9 +1702,9 @@ Procedure ExecuteObjectRegistrationRuleForReferenceType(NodesArrayResult,
 	CheckRef1 = AdditionalParameters.CheckRef1;
 	Upload0 = AdditionalParameters.Upload0;
 	
-	
-	
-	
+	// 
+	// 
+	// 
 	
 	GetConstantsAlgorithmsValues(ORR, ORR.FilterByObjectProperties);
 	
@@ -1723,8 +1716,8 @@ Procedure ExecuteObjectRegistrationRuleForReferenceType(NodesArrayResult,
 		
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	DefineNodesArrayForObject(NodesArrayResult, Object, ExchangePlanName, ORR, IsObjectDeletion, CheckRef1, Upload0);
 	
 EndProcedure
@@ -1741,7 +1734,6 @@ EndProcedure
 //  AdditionalParameters - Structure - additional information on data to change:
 //    * MetadataObject - MetadataObject - a metadata object that matches the data being changed. IsRequired.
 //    * IsObjectDeletion - Boolean - True means that the object deletion is being processed. IsRequired.
-//    * WriteMode - см. в синтакс-Assistant for DocumentWriteMode - a document write mode (for documents only).
 //                    IsRequired.
 //    * CheckRef1 - Boolean - a flag showing whether it is necessary to consider a data version before this data change.
 //                                 IsRequired.
@@ -1936,7 +1928,7 @@ Function PropertiesValuesForRef(Ref, ObjectProperties, Val ObjectPropertiesAsStr
 	
 	If PropertiesValues.Count() = 0 Then
 		
-		Return PropertiesValues; 
+		Return PropertiesValues; // 
 		
 	EndIf;
 	
@@ -2053,7 +2045,7 @@ Function NodesArrayByPropertiesValues(PropertiesValues, Val QueryText, Val Excha
 	// Function return value.
 	NodesArrayResult = New Array;
 	
-	
+	// Intended for backward compatibility with the "FilterCriterionByFlagAttribute" parameter
 	QueryText = StrReplace(QueryText, "[FilterCriterionByFlagAttribute]", "AND &FilterCriterionByFlagAttribute");
 	
 	// Preparing a query for getting exchange plan nodes.
@@ -2213,7 +2205,6 @@ EndFunction
 //  MetadataObject MetadataObject - to get a record set.
 //
 // Returns:
-//  НаборЗаписей - If a record set cannot be created for the metadata object,
 //    an exception is raised.
 //
 Function RecordSetByType(MetadataObject)
@@ -3383,8 +3374,8 @@ EndFunction
 //
 Procedure SetValueOnNode(ExchangePlanNode, Settings)
 	
-	
-	
+	// 
+	// 
 	ExchangePlanName = DataExchangeCached.GetExchangePlanName(ExchangePlanNode.Ref);
 	
 	For Each Item In Settings Do
@@ -3476,9 +3467,9 @@ EndFunction
 
 Procedure CheckTroubleshootingOfDocumentProcessingOfEvent(Source, Cancel, PostingMode) Export
 	
-	
-	
-	
+	// 
+	// 
+	// 
 	
 	InformationRegisters.DataExchangeResults.RecordIssueResolved(Source, Enums.DataExchangeIssuesTypes.UnpostedDocument);
 	
@@ -3486,9 +3477,9 @@ EndProcedure
 
 Procedure CheckObjectIssueResolvedOnWrite(Source, Cancel) Export
 	
-	
-	
-	
+	// 
+	// 
+	// 
 	
 	InformationRegisters.DataExchangeResults.RecordIssueResolved(Source, Enums.DataExchangeIssuesTypes.BlankAttributes);
 	
@@ -3500,7 +3491,6 @@ EndProcedure
 //  Data - a register record set.
 //
 // Returns:
-//  НаборЗаписей - containing the current value in the infobase.
 //
 Function RecordSet(Val Data)
 	
@@ -3544,9 +3534,9 @@ Procedure ExecuteHandlerInPrivilegedMode(Value, Val HandlerRow)
 	
 EndProcedure
 
-// 
-// 
-// 
+// Checks an exchange plan node to find out whether its reference attributes were modified.
+// The collected information will be used to apply filters to the node's registered data.
+// It's important to understand what data will be filtered by the newly applied node filters.
 // 
 //
 Procedure ExchangePlanNodeModifiedByRefAttributes(ExchangePlanNodeObject, NodeCheckParameters)
@@ -3557,8 +3547,8 @@ Procedure ExchangePlanNodeModifiedByRefAttributes(ExchangePlanNodeObject, NodeCh
 		
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	NodeCheckParameters.AttributesOfExchangePlanNodeRefType = AttributesOfExchangePlanNodeRefType(ExchangePlanNodeObject);
 	
 	For Each TableRow In NodeCheckParameters.AttributesOfExchangePlanNodeRefType Do
@@ -3685,9 +3675,9 @@ Procedure CheckDataChangesConflict(DataElement, ItemReceive, Val Sender, Val IsG
 	
 	HasConflict = ExchangePlans.IsChangeRecorded(Sender, DataElement);
 	
-	
-	
-	
+	// 
+	// 
+	// 
 	If HasConflict Then
 		
 		If IsReferenceType And Not DataElement.Ref.IsEmpty() Then
@@ -3770,7 +3760,7 @@ EndProcedure
 //   DataElement - CatalogObject
 //                 - DocumentObject
 //                 - InformationRegisterRecordSet -
-//                   
+//                   Data read from the exchange message and not yet written to the infobase.
 //   ItemReceive - DataItemReceive
 //   Sender   - ExchangePlanObject
 //
@@ -3884,7 +3874,6 @@ Procedure RegisterDataImportRestrictionByDate(DataElement, Sender, ErrorMessage)
 EndProcedure
 
 // Parameters:
-//   Object - CatalogObject, DocumentObject, и т.п - a data item.
 //   ObjectMetadata - MetadataObject - data item metadata.
 //   WriteObject - Boolean - True if this infobase object is replaced by the received object.
 //   IsReferenceType - Boolean - True if the object is a reference type object.

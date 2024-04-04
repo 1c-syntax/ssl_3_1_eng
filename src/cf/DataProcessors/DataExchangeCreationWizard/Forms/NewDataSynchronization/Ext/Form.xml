@@ -5,6 +5,12 @@
 			<Button name="FormUpdateSettingsList" id="21">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.UpdateSettingsList</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Refresh</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormUpdateSettingsListExtendedTooltip" id="22"/>
 			</Button>
 		</ChildItems>
@@ -38,7 +44,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Group1</v8:content>
+									<v8:content>Group</v8:content>
 								</v8:item>
 							</Title>
 							<Group>AlwaysHorizontal</Group>
@@ -150,7 +156,7 @@ Please wait…</v8:content>
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Group3</v8:content>
+															<v8:content>Group</v8:content>
 														</v8:item>
 													</Title>
 													<Behavior>Usual</Behavior>
@@ -185,7 +191,7 @@ Please wait…</v8:content>
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Group4</v8:content>
+															<v8:content>Group</v8:content>
 														</v8:item>
 													</Title>
 													<Group>Vertical</Group>
@@ -208,6 +214,12 @@ Please wait…</v8:content>
 														<Button name="EnableOnlineSupport" id="65">
 															<Type>UsualButton</Type>
 															<CommandName>Form.Command.EnableOnlineSupport</CommandName>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Enable</v8:content>
+																</v8:item>
+															</Title>
 															<ExtendedTooltip name="EnableOnlineSupport1ExtendedTooltip" id="66"/>
 														</Button>
 													</ChildItems>
@@ -273,7 +285,7 @@ Please wait…</v8:content>
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Group2</v8:content>
+															<v8:content>Group</v8:content>
 														</v8:item>
 													</Title>
 													<Group>AlwaysHorizontal</Group>

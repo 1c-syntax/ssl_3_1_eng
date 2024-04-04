@@ -19,6 +19,12 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.ConfirmSelection</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>OK</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormConfirmSelectionExtendedTooltip" id="52"/>
 			</Button>
 			<Button name="FormCancel" id="37">
@@ -48,7 +54,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="AdditionalRegistrationCommandBarExtendedTooltip" id="55"/>
+			<ExtendedTooltip name="AddlRegistrationCommandBarExtendedTooltip" id="55"/>
 			<ChildItems>
 				<CommandBar name="AdditionalRegistrationActions" id="40">
 					<Title>
@@ -101,6 +107,12 @@
 							<Representation>PictureAndText</Representation>
 							<Height>1</Height>
 							<CommandName>Form.Command.FiltersSettings</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Settings</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="FiltersSettingsExtendedTooltip" id="60"/>
 						</Button>
 					</ChildItems>
@@ -255,6 +267,12 @@
 					<Type>Hyperlink</Type>
 					<SkipOnInput>true</SkipOnInput>
 					<CommandName>Form.Command.UpdateCount</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Number of cells</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="UpdateCountExtendedTooltip" id="68"/>
 				</Button>
 				<PictureDecoration name="CountCalculationPicture" id="50">
@@ -277,6 +295,12 @@
 				</PictureDecoration>
 				<LabelField name="TotalRegistrationObjectsCount" id="42">
 					<DataPath>TotalRegistrationObjectsCount</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Total number of registered objects</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<HorizontalStretch>true</HorizontalStretch>
 					<ContextMenu name="TotalRegistrationObjectsCountContextMenu" id="43"/>

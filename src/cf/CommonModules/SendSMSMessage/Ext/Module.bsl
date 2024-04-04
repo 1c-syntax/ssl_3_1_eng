@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -12,7 +13,7 @@
 // It sends a text message via a configured service provider and returns message ID.
 //
 // Parameters:
-//  RecipientsNumbers  - Array of String - Recipient numbers in the format +ХХХХХХХХХХ.
+//  RecipientsNumbers  - Array of String - Recipient numbers in the format +XXXXXXXXXX.
 //  Text              - String - Message text. The max length varies depending on the SMS provider.
 //  SenderName     - String - Sender's name that recipients will see instead of the phone number.
 //  Transliterate - Boolean - If True, transliterate the outgoing message.
@@ -116,15 +117,15 @@ EndFunction
 //  MessageID - String - ID assigned to the outgoing text message.
 //
 // Returns:
-//  String - :
-//           
-//           
-//           
-//           
-//           
-//           
-//                              
-//           
+//  String - The delivery status returned by the service provider:
+//           Pending - Message is not yet processed.
+//           BeingSent - Message is pending in the send-out queue.
+//           Sent - Message is sent, a delivery confirmation is awaited.
+//           NotSent - Message is not sent due to insufficient account balance or operator network congestion.
+//           Delivered - Message is delivered to the addressee.
+//           NotDelivered - Message cannot be delivered as the subscriber is not available or
+//                              delivery confirmation from the subscriber is timed out.
+//           Error - Failed to get a status from the service provider or the status is unknown.
 //
 Function DeliveryStatus(Val MessageID) Export
 	
@@ -266,9 +267,7 @@ Function AdditionalPermissions()
 EndFunction
 
 Procedure CheckRights() Export
-	If Not AccessRight("View", Metadata.CommonForms.SendSMSMessage) Then
-		Raise NStr("en = 'Insufficient rights to perform the operation.';");
-	EndIf;
+	VerifyAccessRights("View", Metadata.CommonForms.SendSMSMessage);
 EndProcedure
 
 Function ModuleSMSMessageSendingViaProvider(Provider) Export

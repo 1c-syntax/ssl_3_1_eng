@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -46,7 +47,7 @@ Procedure SendMessage(Val Author, Val Recipients, Message, ConversationContext =
 	
 	If TypeOf(Recipients[0]) = Type("CatalogRef.Users") Then
 		AddresseesByRef = CollaborationSystemUsers(Recipients);
-		Recipients = New Array; 
+		Recipients = New Array; // Array Of CollaborationSystemUser
 		For Each KeyAndValue In AddresseesByRef Do
 			Recipient = KeyAndValue.Value;
 			If TypeOf(Recipient) = Type("CollaborationSystemUser") Then
@@ -185,8 +186,8 @@ Procedure SendNotification(Val Author, Message, ConversationContext) Export
 
 EndProcedure
 
-// 
-// 
+// Returns True if "CollaborationSystem.InfoBaseRegistered" returned True and
+// the usage is not restricted by the administrator.
 // 
 //
 // Returns:
@@ -194,15 +195,15 @@ EndProcedure
 //
 Function CollaborationSystemConnected() Export
 	
-	
+	// Executes quick, without requesting the Collaboration server.
 	Registered1 = CollaborationSystem.InfoBaseRegistered();
 	
 	Return Registered1 And Not ConversationsInternal.Locked2();
 	
 EndFunction
 
-// 
-// 
+// Returns True if "CollaborationSystem.CanUse" returned True and
+// the usage is not restricted by the administrator.
 // 
 // 
 // Returns:
@@ -341,12 +342,12 @@ EndFunction
 //  User - CatalogRef.Users
 //               - CatalogObject.Users
 //
-//  IDOnly - Boolean - 
+//  IDOnly - Boolean - If set to True, returns a user id (not the user itself), which is takes less time.
 //                                 
 //
 // Returns:
-//   CollaborationSystemUser - 
-//   
+//   CollaborationSystemUser - If "IDOnly" is set to False.
+//   If "CollaborationSystemUserID" is set to True.
 //
 Function CollaborationSystemUser(User, IDOnly = False) Export
 	
@@ -492,8 +493,8 @@ EndProcedure
 //   Structure:
 //   * Text - FormattedString
 //   * Attachments - Array of See AttachmentDetails
-//   * Data - Undefined - 
-//   * Actions - ValueList - 
+//   * Data - Undefined - See Syntax Assistant for "CollaborationSystemMessage".
+//   * Actions - ValueList - See Syntax Assistant for "CollaborationSystemMessage".
 //
 Function MessageDetails(Val Text) Export
 	LongDesc = New Structure;
@@ -516,7 +517,7 @@ EndFunction
 //   Stream - Stream - a stream from which a Collaboration system attachment will be created.
 //         - MemoryStream
 //         - FileStream
-//   Description - String - 
+//   Description - String - Attachment name.
 // 
 // Returns:
 //   Structure:
@@ -542,8 +543,8 @@ EndFunction
 
 #Region Internal
 
-// 
-// 
+// Intended solely for performance enhancement. The function must not impact functionality,
+// as it is non-deterministic.
 // 
 // Parameters:
 //  ErrorInfo - ErrorInfo
@@ -555,7 +556,7 @@ Function IsInteractionSystemConnectError(ErrorInfo) Export
 	
 	MultiLangStrings = New Array;
 	
-	
+	// ACC:1036-off, ACC:1297-off, ACC:1405-off - Not localizable (strings in all locales are hard-coded).
 	
 	MultiLangStrings.Add(
 	"az = 'Qarşılıqlı fəaliyyət sistmei qeydə alınmayıb';
@@ -603,7 +604,7 @@ Function IsInteractionSystemConnectError(ErrorInfo) Export
 	|uk = 'Невозможно установить соединение с сервером системы взаимодействия';
 	|fr = 'Невозможно установить соединение с сервером системы взаимодействия'"); // @Non-NLS
 	
-	
+	// ACC:1036-on, ACC:1297-on, ACC:1405-on
 	
 	BriefErrorDescription = ErrorProcessing.BriefErrorDescription(ErrorInfo);
 	

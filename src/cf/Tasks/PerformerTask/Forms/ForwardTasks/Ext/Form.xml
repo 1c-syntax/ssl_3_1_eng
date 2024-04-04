@@ -19,6 +19,12 @@
 				<DefaultButton>true</DefaultButton>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.Forward</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Forward</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="ForwardExtendedTooltip" id="43"/>
 			</Button>
 			<Button name="Cancel" id="4">
@@ -28,6 +34,12 @@
 				<ExtendedTooltip name="CancelExtendedTooltip" id="44"/>
 			</Button>
 			<ButtonGroup name="HelpGroup" id="28">
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Help</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="HelpGroupExtendedTooltip" id="45"/>
 				<ChildItems>
 					<Button name="Help" id="27">
@@ -83,7 +95,7 @@
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="AddressingGroup1ExtendedTooltip" id="48"/>
+					<ExtendedTooltip name="GroupAddressingExtendedTooltip" id="48"/>
 					<ChildItems>
 						<UsualGroup name="GroupAdressingPerformer" id="12">
 							<Title>
@@ -100,6 +112,12 @@
 							<ChildItems>
 								<RadioButtonField name="AdressingTypePerformer" id="9">
 									<DataPath>AddressingType</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Addressing type</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<RadioButtonType>Auto</RadioButtonType>
 									<ColumnsCount>1</ColumnsCount>
@@ -127,6 +145,12 @@
 								<InputField name="Performer" id="1">
 									<DataPath>Performer</DataPath>
 									<DefaultItem>true</DefaultItem>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Assignee</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<Width>35</Width>
 									<OpenButton>false</OpenButton>
@@ -154,6 +178,12 @@
 							<ChildItems>
 								<RadioButtonField name="AddressingTypeRole" id="69">
 									<DataPath>AddressingType</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Addressing type</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<RadioButtonType>Auto</RadioButtonType>
 									<ChoiceList>
@@ -179,6 +209,12 @@
 								</RadioButtonField>
 								<InputField name="Role" id="13">
 									<DataPath>Role</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Role</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<DropListButton>false</DropListButton>
 									<ChoiceButton>true</ChoiceButton>
@@ -239,6 +275,12 @@
 									<ChildItems>
 										<InputField name="OneMainAddressingObject" id="34">
 											<DataPath>MainAddressingObject</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Main business object</v8:content>
+												</v8:item>
+											</Title>
 											<Wrap>false</Wrap>
 											<ContextMenu name="OneMainAddressingObjectContextMenu" id="35"/>
 											<ExtendedTooltip name="OneMainAddressingObjectExtendedTooltip" id="54"/>
@@ -260,12 +302,24 @@
 									<ChildItems>
 										<InputField name="MainAddressingObject" id="37">
 											<DataPath>MainAddressingObject</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Main business object</v8:content>
+												</v8:item>
+											</Title>
 											<Wrap>false</Wrap>
 											<ContextMenu name="MainAddressingObjectContextMenu" id="38"/>
 											<ExtendedTooltip name="MainAddressingObjectExtendedTooltip" id="56"/>
 										</InputField>
 										<InputField name="AdditionalAddressingObject" id="39">
 											<DataPath>AdditionalAddressingObject</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Additional business object</v8:content>
+												</v8:item>
+											</Title>
 											<Wrap>false</Wrap>
 											<ContextMenu name="AdditionalAddressingObjectContextMenu" id="40"/>
 											<ExtendedTooltip name="AdditionalAddressingObjectExtendedTooltip" id="57"/>
@@ -278,6 +332,12 @@
 				</UsualGroup>
 				<InputField name="Comment" id="7">
 					<DataPath>Comment</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Comment</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Left</TitleLocation>
 					<AutoMaxWidth>false</AutoMaxWidth>
 					<Height>2</Height>
@@ -288,6 +348,12 @@
 				<CheckBoxField name="IgnoreWarnings" id="41">
 					<DataPath>IgnoreWarnings</DataPath>
 					<Visible>false</Visible>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Ignore warnings</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Right</TitleLocation>
 					<CheckBoxType>Auto</CheckBoxType>
 					<ContextMenu name="IgnoreWarningsContextMenu" id="42"/>

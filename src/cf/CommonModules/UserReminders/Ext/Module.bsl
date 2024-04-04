@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -105,10 +106,10 @@ Function UsedUserReminders() Export
 	
 EndFunction
 
-// 
+// A handler of the form's same-name event. Places reminder settings elements on the form.
 //
 // Parameters:
-//  Form - ClientApplicationForm - 
+//  Form - ClientApplicationForm - The form the reminder settings elements should be placed in.
 //  PlacementParameters - See PlacementParameters
 //
 Procedure OnCreateAtServer(Form, PlacementParameters) Export
@@ -117,16 +118,16 @@ Procedure OnCreateAtServer(Form, PlacementParameters) Export
 	
 EndProcedure
 
-// 
+// Determines the location parameters of placing reminder settings on form.
 // 
 // Returns:
 //  Structure:
-//   * Group - FormGroup - 
-//   * NameOfAttributeWithEventDate - String - 
-//   * ReminderInterval - Number - 
-//   * ShouldAddFlag - Boolean -  
-//                                
-//                                
+//   * Group - FormGroup - The location of the reminder settings items.
+//   * NameOfAttributeWithEventDate - String - The attribute associated with the event reminder.
+//   * ReminderInterval - Number - The default reminder interval. By default, "0".
+//   * ShouldAddFlag - Boolean - If set to True, a checkbox for toggling the reminder is displayed next to the interval field. 
+//                                If set to False, users can toggle the reminder in the interval choice list.
+//                                By default, False.
 //                                
 //
 Function PlacementParameters() Export
@@ -135,10 +136,10 @@ Function PlacementParameters() Export
 	
 EndFunction
 
-// 
+// A handler of the form's same-name event. Updates the form elements associated with the reminder setting.
 //
 // Parameters:
-//  Form - ClientApplicationForm - 
+//  Form - ClientApplicationForm - The form the reminder settings elements should be placed in.
 //  CurrentObject       - CatalogObject
 //                      - DocumentObject
 //                      - ChartOfCharacteristicTypesObject
@@ -154,10 +155,10 @@ Procedure OnReadAtServer(Form, CurrentObject) Export
 	
 EndProcedure
 
-// 
+// A handler of the form's same-name even. Sets a topic reminder when the object is written on the form.
 //
 // Parameters:
-//   Form - ClientApplicationForm - 
+//   Form - ClientApplicationForm - The form containing the reminder settings elements.
 //   Cancel - Boolean - shows whether writing is canceled.
 //   CurrentObject  - CatalogObject
 //                  - DocumentObject
@@ -168,7 +169,7 @@ EndProcedure
 //                  - TaskObject
 //                  - ExchangePlanObject - Reminder's subject.
 //   WriteParameters - Structure
-//   ReminderText - String - 
+//   ReminderText - String - The reminder text. If empty, the reminder's topic is displayed.
 //                               
 //  
 Procedure OnWriteAtServer(Form, Cancel, CurrentObject, WriteParameters, ReminderText = "") Export

@@ -10,11 +10,23 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.OK</CommandName>
-				<ExtendedTooltip name="FormOK1ExtendedTooltip" id="12"/>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>OK</v8:content>
+					</v8:item>
+				</Title>
+				<ExtendedTooltip name="FormOKExtendedTooltip" id="12"/>
 			</Button>
 			<Button name="FormCancel" id="11">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.Cancel</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Cancel</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormCancelExtendedTooltip" id="13"/>
 			</Button>
 		</ChildItems>
@@ -81,7 +93,7 @@
 					<EditMode>EnterOnInput</EditMode>
 					<Width>10</Width>
 					<ContextMenu name="WorkSchedule1BeginTimeContextMenu" id="7"/>
-					<ExtendedTooltip name="WorkSchedule1BeginTimeExtendedTooltip" id="15"/>
+					<ExtendedTooltip name="WorkScheduleBeginTimeExtendedTooltip" id="15"/>
 				</InputField>
 				<InputField name="WorkScheduleEndTime" id="8">
 					<DataPath>WorkSchedule.EndTime</DataPath>
@@ -93,7 +105,7 @@
 					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ContextMenu name="WorkSchedule1EndTime1ContextMenu" id="9"/>
-					<ExtendedTooltip name="WorkSchedule1EndTime1ExtendedTooltip" id="16"/>
+					<ExtendedTooltip name="WorkScheduleEndTimeExtendedTooltip" id="16"/>
 				</InputField>
 			</ChildItems>
 		</Table>
@@ -181,4 +193,9 @@
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 	</Commands>
+	<Parameters>
+		<Parameter name="WorkSchedule">
+			<Type/>
+		</Parameter>
+	</Parameters>
 </Form>

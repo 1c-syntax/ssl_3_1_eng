@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -36,8 +37,7 @@ EndProcedure
 &AtServer
 Procedure SetHeader()
 	
-	TitleText = CommonClientServer.StructureProperty(Parameters, "Title");
-	
+	TitleText = Parameters.Title;
 	If ValueIsFilled(TitleText) Then 
 		Title = TitleText;
 	EndIf;
@@ -47,31 +47,25 @@ EndProcedure
 &AtServer
 Procedure SetDescription()
 	
-	LongDesc = New Structure("Text, More, Ref");
-	FillPropertyValues(LongDesc, Parameters);
-	
 	Items.GoToDocumentation.Visible =
 		Common.SubsystemExists("StandardSubsystems.EmailOperations")
-		And ValueIsFilled(LongDesc.More)
+		And ValueIsFilled(Parameters.More)
 		And CommonClientServer.StructureProperty(Parameters, "UseEmail", False);
 	
-	If Not ValueIsFilled(LongDesc.Text) Then 
+	If Not ValueIsFilled(Parameters.Text) Then 
 		Return;
 	EndIf;
 	
-	Text.Add(LongDesc.Text, Type("FormattedDocumentText"));
-	
-	If ValueIsFilled(LongDesc.More) Then 
-		
+	Text.Add(Parameters.Text, Type("FormattedDocumentText"));
+
+	If ValueIsFilled(Parameters.More) Then 
 		Text.Add(, Type("FormattedDocumentLinefeed"));
 		Text.Add(, Type("FormattedDocumentLinefeed"));
-		Text.Add(LongDesc.More, Type("FormattedDocumentText"));
-		
-		Items.Indicator.Picture = PictureLib.Warning32;
-		
+		Text.Add(Parameters.More, Type("FormattedDocumentText"));
+		Items.Indicator.Picture = PictureLib.DialogExclamation;
 	EndIf;
 	
-	SetAuthenticationErrorDescription(LongDesc);
+	SetAuthenticationErrorDescription(Parameters);
 	
 EndProcedure
 
@@ -85,19 +79,12 @@ Procedure SetAuthenticationErrorDescription(LongDesc)
 	Text.Add(, Type("FormattedDocumentLinefeed"));
 	Text.Add(, Type("FormattedDocumentLinefeed"));
 	
-	Ref = CommonClientServer.StructureProperty(Parameters, "Ref");
-	
-	If ValueIsFilled(Ref) Then 
-		
+	If ValueIsFilled(LongDesc.Ref) Then 
 		StringPattern = NStr("en = 'Go to <a href = ""%1"">email account settings</a> to correct the username and password.';");
-		URL = GetURL(Ref);
-		
+		URL = GetURL(LongDesc.Ref);
 		String = StringFunctions.FormattedString(StringPattern, URL);
-		
 	Else
-		
 		String = NStr("en = 'Go to email account settings to correct the username and password.';");
-		
 	EndIf;
 	
 	Rows = New Array;

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -59,7 +60,7 @@ EndProcedure
 
 // End StandardSubsystems.AccessManagement
 
-// SaaSTechnology.ExportImportData
+// CloudTechnology.ExportImportData
 
 // Attached in ExportImportDataOverridable.OnRegisterDataExportHandlers.
 //
@@ -91,7 +92,7 @@ Procedure BeforeExportObject(Container, ObjectExportManager, Serializer, Object,
 	
 EndProcedure
 
-// End SaaSTechnology.ExportImportData
+// End CloudTechnology.ExportImportData
 
 #EndRegion
 
@@ -255,12 +256,12 @@ Procedure UpdateNonSuppliedProfilesOnConfigurationChanges() Export
 	
 EndProcedure
 
-// 
-// 
-// 
+// Updates 1C-supplied profiles and profile folders.
+// Updates the access groups of the updated profiles if necessary.
+// If any 1C-supplied profile folders or access group profiles are not found, they are created.
 //
-// 
-// 
+// Update details are configured in the OnFillSuppliedAccessGroupProfiles procedure of
+// the AccessManagementOverridable common module (see the comment to the procedure).
 //
 // Parameters:
 //  HasChanges - Boolean - a return value. If recorded,
@@ -271,8 +272,8 @@ EndProcedure
 //
 Procedure UpdateSuppliedProfiles(HasChanges = Undefined, Trash = Undefined) Export
 	
-	
-	
+	// 
+	// 
 	AllRoles = New Array;
 	For Each Role In Metadata.Roles Do
 		AllRoles.Add(Role);
@@ -368,8 +369,8 @@ Procedure OnFillToDoList(ToDoList) Export
 		Return;
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	Sections = ModuleToDoListServer.SectionsForObject(Metadata.Catalogs.AccessGroupProfiles.FullName());
 	IncompatibleAccessGroupsProfilesCount = IncompatibleAccessGroupsProfiles().Count();
 	
@@ -656,7 +657,7 @@ Function SuppliedProfileByID(Id, RaiseExceptionIfMissingInDatabase = False, With
 	
 	If RaiseExceptionIfMissingInDatabase Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The built-in profile with this ID does not exist:
+			NStr("en = 'Built-in profile with this id does not exist:
 			           |%1';"),
 			String(Id));
 		Raise ErrorText;
@@ -803,10 +804,10 @@ Function SuppliedProfileChanged(Profile) Export
 	
 EndFunction
 
-// 
+// Compares a part of an object in the infobase with the same part in the memory.
 //
 // Parameters:
-//  
+//  Profile - CatalogObject.AccessGroupProfiles - Object in the memory.
 //
 //  PreviousValues1 - Structure:
 //    * Description    - String
@@ -1272,14 +1273,14 @@ Procedure RestoreNonexistentViewsFromAccessValue(PreviousValues1, NewValues) Exp
 	EndDo;
 	
 	If HaveRefurbished Then
-		
-		
+		// 
+		// 
 		NewValues.AccessKinds.Add();
 	EndIf;
 	
 EndProcedure
 
-// 
+// Intended for procedure "UpdateStandardExtensionsRoles".
 Function StandardProfileRoles(ProfileRoles)
 	
 	Result = New Structure;
@@ -1299,7 +1300,7 @@ Function StandardProfileRoles(ProfileRoles)
 	
 EndFunction
 
-// 
+// Intended for procedure "UpdateStandardExtensionsRoles".
 Function HasRoleInProfile(ProfileRoles, Role)
 	
 	Result = False;
@@ -1325,7 +1326,7 @@ Function HasRoleInProfile(ProfileRoles, Role)
 	
 EndFunction
 
-// 
+// Intended for procedure "UpdateStandardExtensionsRoles".
 Procedure SetRolesInProfile(ProfileRoles, RolesNames, Set)
 	
 	If Not ValueIsFilled(RolesNames) Then
@@ -1478,7 +1479,7 @@ EndFunction
 // Intended to be called from AccessManagementInternalCached.
 // 
 // Parameters:
-//  HashSum - String -  the return value.
+//  HashSum - String - Returns value.
 //
 // Returns:
 //   See AccessManagementInternal.StandardExtensionRoles
@@ -1692,11 +1693,16 @@ EndProcedure
 // 
 // Parameters:
 //  DataElement - CatalogObject.AccessGroupProfiles
+//                - ObjectDeletion
 //
-Procedure RegisterProfileChangedOnImport(DataElement) Export
+Procedure RegisterChangeUponDataImport(DataElement) Export
 	
+	If TypeOf(DataElement) = Type("CatalogObject.AccessGroupProfiles") Then
+		FillStandardExtensionRoles(DataElement.Roles);
+	EndIf;
 	
-	
+	// 
+	// 
 	
 	PreviousValues1 = Common.ObjectAttributesValues(DataElement.Ref,
 		"Ref, DeletionMark, Roles, Purpose, AccessKinds, AccessValues");
@@ -1754,23 +1760,25 @@ Procedure RegisterProfileChangedOnImport(DataElement) Export
 		Return;
 	EndIf;
 	
-	Catalogs.AccessGroups.RegisterRefs("Profiles", Profile);
+	SetPrivilegedMode(True);
+	
+	UsersInternal.RegisterRefs("AccessGroupProfiles", Profile);
 	
 	If AccessManagementInternal.LimitAccessAtRecordLevelUniversally() Then
-		Catalogs.AccessGroups.RegisterRefs("Roles", ModifiedRoles);
+		UsersInternal.RegisterRefs("AccessGroupProfilesRoles", ModifiedRoles);
 	EndIf;
 	
 EndProcedure
 
 // For internal use only.
-Procedure UpdateAuxiliaryProfilesDataChangedOnImport() Export
+Procedure ProcessChangeRegisteredUponDataImport() Export
 	
 	If Common.DataSeparationEnabled() Then
-		// Changes to profiles in SWP are blocked and are not imported into the data area.
+		// 
 		Return;
 	EndIf;
 	
-	ChangedProfiles = Catalogs.AccessGroups.RegisteredRefs("Profiles");
+	ChangedProfiles = UsersInternal.RegisteredRefs("AccessGroupProfiles");
 	
 	If ChangedProfiles.Count() = 0 Then
 		Return;
@@ -1784,13 +1792,13 @@ Procedure UpdateAuxiliaryProfilesDataChangedOnImport() Export
 		UpdateAuxiliaryProfilesData(ChangedProfiles);
 	EndIf;
 	
-	Catalogs.AccessGroups.RegisterRefs("Profiles", Null);
+	UsersInternal.RegisterRefs("AccessGroupProfiles", Null);
 	
 	If Not AccessManagementInternal.LimitAccessAtRecordLevelUniversally() Then
 		Return;
 	EndIf;
 	
-	ModifiedRoles = Catalogs.AccessGroups.RegisteredRefs("Roles");
+	ModifiedRoles = UsersInternal.RegisteredRefs("AccessGroupProfilesRoles");
 	If ModifiedRoles.Count() = 0 Then
 		Return;
 	EndIf;
@@ -1804,7 +1812,7 @@ Procedure UpdateAuxiliaryProfilesDataChangedOnImport() Export
 	AccessManagementInternal.ScheduleAccessUpdatesWhenProfileRolesChange(
 		"UpdateAuxiliaryProfilesDataChangedOnImport", ModifiedRoles);
 	
-	Catalogs.AccessGroups.RegisterRefs("Roles", Null);
+	UsersInternal.RegisterRefs("AccessGroupProfilesRoles", Null);
 	
 EndProcedure
 
@@ -1919,7 +1927,7 @@ EndProcedure
 // For the FilledSuppliedProfiles function.
 //
 // Parameters:
-//    Descriptionprofile Administrator -  See AccessManagement.NewDescriptionOfTheAccessGroupProfilesFolder
+//    AdministratorProfileDetails - See AccessManagement.NewDescriptionOfTheAccessGroupProfilesFolder
 //
 Procedure FillInTheProfilesFolderAdditionalProfiles(FolderDescription_)
 	
@@ -1930,13 +1938,13 @@ Procedure FillInTheProfilesFolderAdditionalProfiles(FolderDescription_)
 	
 EndProcedure
 
-// For procedure AccessManagementInternalCached.
-// 
+// Intended for procedure "AccessManagementInternalCached.Session1CSuppliedProfilesDetails".
+// See also "AccessManagementOverridable.OnFillSuppliedAccessGroupProfiles".
 //
 // Parameters:
 //  AccessKindsProperties - See AccessManagementInternal.AccessKindsProperties
 //                       - Undefined.
-//  HashSum - String -  the return value.
+//  HashSum - String - Return value.
 //
 // Returns:
 //   See AccessManagementInternal.SuppliedProfiles
@@ -1974,8 +1982,8 @@ Function VerifiedSuppliedSessionProfiles(AccessKindsProperties = Undefined, Hash
 		AccessKindsProperties = AccessManagementInternal.AccessKindsProperties();
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	AllNames           = New Map;
 	AllIDs  = New Map;
 	ProfileFolderNames = New Map;
@@ -2293,8 +2301,8 @@ Procedure PrepareTheRolesOfTheSuppliedProfile(ProfileProperties, ProfileDetails,
 		New FixedArray(RolesList.UnloadValues()));
 	
 	If Common.DataSeparationEnabled() Then
-		
-		
+		// 
+		// 
 		ProfileProperties.Insert("RolesUnavailableInService",
 			ProfileRolesUnavailableInService(ProfileDetails, ProfileAssignment));
 	EndIf;
@@ -2585,11 +2593,11 @@ Procedure UpdateTheSuppliedProfileFolders(Parent, CurrentProfileFolders, Supplie
 		If LineOfTheCurrentFolder <> Undefined Then
 			LineOfTheCurrentFolder.Found = True;
 		EndIf;
-		
+		// @skip-check query-in-loop - Batch-wise data processing within a transaction
 		If UpdateTheProfileOrProfileFolder(ProfileProperties, Trash, True) Then
 			HasChanges = True;
 		EndIf;
-		
+		// @skip-check query-in-loop - Batch-wise data processing within a transaction
 		UpdateTheSuppliedProfileFolders(KeyAndValue.Key,
 			CurrentProfileFolders, SuppliedProfiles, Trash, HasChanges);
 	EndDo;
@@ -2655,12 +2663,12 @@ Procedure UpdateTheSuppliedProfilesWithoutFolders(UpdatedProfiles, CurrentProfil
 		ProfileUpdated = False;
 		
 		If CurrentProfileRow = Undefined Then
-			
-			
+			// 
+			// 
 			If UpdateTheProfileOrProfileFolder(ProfileProperties, Trash, True) Then
 				HasChanges = True;
 			EndIf;
-			
+			// @skip-check query-in-loop - Batch-wise data processing within a transaction
 			Profile = SuppliedProfileByID(ProfileProperties.Id);
 			
 		Else
@@ -2669,8 +2677,8 @@ Procedure UpdateTheSuppliedProfilesWithoutFolders(UpdatedProfiles, CurrentProfil
 			Profile = CurrentProfileRow.Ref;
 			If Not CurrentProfileRow.SuppliedProfileChanged
 			 Or ParametersOfUpdate.UpdateModifiedProfiles Then
-				
-				
+				// 
+				// 
 				ProfileUpdated = UpdateTheProfileOrProfileFolder(ProfileProperties, Trash, True);
 			EndIf;
 		EndIf;
@@ -2702,7 +2710,7 @@ EndProcedure
 //  DoNotUpdateUsersRoles - Boolean
 //
 // Returns:
-//  Boolean -  
+//  Boolean -  "True" if the profile was modified.
 //
 Function UpdateTheProfileOrProfileFolder(ProfileProperties, Trash = Undefined, DoNotUpdateUsersRoles = False)
 	

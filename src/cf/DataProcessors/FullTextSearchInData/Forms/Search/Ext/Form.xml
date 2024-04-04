@@ -17,6 +17,12 @@
 	<ChildItems>
 		<InputField name="SearchString" id="3">
 			<DataPath>SearchString</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Search bar</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>None</TitleLocation>
 			<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 			<Width>25</Width>
@@ -49,6 +55,12 @@
 			<TextColor>style:ButtonTextColor</TextColor>
 			<BackColor>style:ButtonBackColor</BackColor>
 			<BorderColor>style:BorderColor</BorderColor>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Find</v8:content>
+				</v8:item>
+			</Title>
 			<ExtendedTooltip name="FindExtendedTooltip" id="8"/>
 		</Button>
 	</ChildItems>

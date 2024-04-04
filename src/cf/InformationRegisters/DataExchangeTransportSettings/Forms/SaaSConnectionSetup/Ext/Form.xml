@@ -46,7 +46,7 @@
 				<Type>CommandBarButton</Type>
 				<Representation>Text</Representation>
 				<CommandName>Form.StandardCommand.Close</CommandName>
-				<ExtendedTooltip name="FormCloseExtendedTooltip" id="24"/>
+				<ExtendedTooltip name="FormClose3ExtendedTooltip" id="24"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
@@ -70,6 +70,12 @@
 			<ChildItems>
 				<InputField name="User" id="20">
 					<DataPath>User</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>App user</v8:content>
+						</v8:item>
+					</Title>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -97,6 +103,12 @@
 					<ChildItems>
 						<InputField name="WSPassword" id="7">
 							<DataPath>WSPassword</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Password</v8:content>
+								</v8:item>
+							</Title>
 							<ToolTip>
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -115,6 +127,12 @@
 						<Button name="ForgotPassword" id="12">
 							<Type>Hyperlink</Type>
 							<CommandName>Form.Command.ForgotPassword</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Forgot password?</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="ForgotPasswordExtendedTooltip" id="29"/>
 						</Button>
 					</ChildItems>
@@ -168,6 +186,12 @@ and grant them only the data synchronization privilege.
 		<Button name="InternetAccessParameters" id="13">
 			<Type>Hyperlink</Type>
 			<CommandName>Form.Command.InternetAccessParameters</CommandName>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Internet access parameters</v8:content>
+				</v8:item>
+			</Title>
 			<ExtendedTooltip name="InternetAccessParametersExtendedTooltip" id="33"/>
 		</Button>
 	</ChildItems>

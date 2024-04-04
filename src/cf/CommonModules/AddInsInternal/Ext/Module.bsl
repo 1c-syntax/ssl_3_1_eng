@@ -1,18 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #Region Internal
 
-// 
+// 1C-supplied add-ins.
 // 
 // Returns:
-//  Array - 
+//  Array - IDs of 1C-supplied add-ins
 //
 Function SuppliedAddIns() Export
 
@@ -66,8 +67,8 @@ EndFunction
 //      * BinaryData - BinaryData - add-in file export.
 //      * AdditionalInformation - Map - information received by passed search parameters.
 //      * ErrorDescription - String - an error text if Disassembled = False.
-//      * ErrorInfo - ErrorInfo, Undefined - 
-//      * IsFileOfService - Boolean - 
+//      * ErrorInfo - ErrorInfo, Undefined - In case of exception if Disassembled = False.
+//      * IsFileOfService - Boolean - Flag indicating whether the add-in file was downloaded from the 1C:ITS Portal interactively.
 //
 Function InformationOnAddInFromFile(BinaryData, ParseInfoFile = True,
 	Val AdditionalInformationSearchParameters = Undefined) Export
@@ -202,8 +203,8 @@ Procedure CheckTheLocationOfTheComponent(Id, Location) Export
 		EndIf;
 	EndIf;
 
-	 
-	
+	//  
+	// 
 	If Not (Common.DataSeparationEnabled()
 			And Common.SeparatedDataUsageAvailable()) Then
 		If Not StrStartsWith(Location, "e1cib/data/Catalog.AddIns.AddInStorage") Then
@@ -226,6 +227,19 @@ Procedure CheckTheLocationOfTheComponent(Id, Location) Export
 		|Invalid %2 add-in location.';"), Id, Location);
 
 EndProcedure
+
+Function TemplateAddInCompatibilityError(Location) Export
+	
+	AddInInfo = TemplateAddInInfo(Location);
+		 
+	If AddInInfo <> Undefined 
+		And Not OperatingSystemSupportedByAddInn(AddInInfo.Attributes.TargetPlatforms) Then
+		Return CompatibilityErrorDetails();
+	EndIf;
+	
+	Return "";
+	
+EndFunction
 
 // Import parameters.
 // 
@@ -318,7 +332,7 @@ Procedure LoadAComponentFromBinaryData(Parameters, ParseInfoFile = True, UsedAdd
 			Try
 				TheResultOfComparingVersions = CommonClientServer.CompareVersions(Object.Version, Parameters.Version);
 			Except
-				// Overwrite components if failed to compare the versions.
+				// Overwrite the add-in if version comparison has failed.
 				TheResultOfComparingVersions = -1;
 			EndTry;
 			If TheResultOfComparingVersions >= 0 Then
@@ -328,7 +342,7 @@ Procedure LoadAComponentFromBinaryData(Parameters, ParseInfoFile = True, UsedAdd
 		Else
 			Object = Catalogs.AddIns.CreateItem();
 			// Create an add-in instance.
-			Object.Fill(Undefined); 
+			Object.Fill(Undefined); // 
 		EndIf;
 		
 		 // According to manifest data.
@@ -473,11 +487,11 @@ EndProcedure
 Procedure OnAddUpdateHandlers(Handlers) Export
 	
 	Handler = Handlers.Add();
-	Handler.Version = "3.1.9.226";
-	Handler.Id = New UUID("664e552f-4552-4eb2-970b-d63f66cc1c71");
+	Handler.Version = "3.1.10.107";
+	Handler.Id = New UUID("25e8efe8-37d5-47b4-a3c6-7e5277161b95");
 	Handler.Procedure = "Catalogs.AddIns.ProcessDataForMigrationToNewVersion";
 	Handler.InitialFilling = True;
-	Handler.Comment = NStr("en = 'Fill the add-in compatibility attributes and add standard add-ins to the Add-ins catalog.';");
+	Handler.Comment = NStr("en = 'Fill in the add-in compatibility attributes and add standard add-ins to the Add-ins catalog.';");
 	Handler.ExecutionMode = "Deferred";
 	Handler.UpdateDataFillingProcedure = "Catalogs.AddIns.RegisterDataToProcessForMigrationToNewVersion";
 	Handler.ObjectsToRead      = "Catalog.AddIns";
@@ -489,7 +503,7 @@ EndProcedure
 
 #Region Private
 
-// 
+// Add-ins used in the configuration.
 // 
 // Returns:
 //  ValueTable:
@@ -508,7 +522,7 @@ Function UsedAddIns() Export
 	
 EndFunction
 
-// 
+// Checks whether add-ins can be imported from the portal interactively.
 //
 // Returns:
 //  Boolean - flag of availability.
@@ -529,12 +543,12 @@ Function CanImportFromPortalInteractively() Export
 
 EndFunction
 
-// 
+// Returns a table of add-in details.
 //
 // Parameters:
-//  Variant - String - :
-//    
-//    
+//  Variant - String - Valid values::
+//    ForUpdate - Add-ins from a catalog with the UpdateFrom1CITSPortal flag set.
+//    ForImport - Add-ins used in the configuration.
 //
 // Returns:
 //   ValueTable:
@@ -799,9 +813,8 @@ Function CheckAddInAttachmentAbility(Val Id,
 	ElsIf Information.State = "NotFound1" Then
 		Result.ErrorDescription = NStr("en = 'The add-in is missing from the list of allowed add-ins.';");
 		Return Result;
-	ElsIf Information.TargetPlatformsAreFull And Not OperatingSystemSupportedByAddInn(Information.Attributes.TargetPlatforms) Then
-		SystemInfo = New SystemInfo;
-		Result.ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The add-in does not work in the %1 operating system.';"), String(SystemInfo.PlatformType));
+	ElsIf Information.IsTargetPlatformsFilled And Not OperatingSystemSupportedByAddInn(Information.Attributes.TargetPlatforms) Then
+		Result.ErrorDescription = CompatibilityErrorDetails();
 		Return Result;
 	EndIf;
 	
@@ -809,6 +822,43 @@ Function CheckAddInAttachmentAbility(Val Id,
 	Result.Location = Information.Location;
 	Return Result;
 
+EndFunction
+
+Function CompatibilityErrorDetails()
+	
+	SystemInfo = New SystemInfo;
+	NameOfThePlatformType = CommonClientServer.NameOfThePlatformType(SystemInfo.PlatformType);
+	Return StringFunctionsClientServer.SubstituteParametersToString(
+		NStr("en = 'The add-in does not work in the %1 operating system.';"), NameOfThePlatformType);
+	
+EndFunction
+
+Function TemplateAddInInfo(Location) Export
+	
+	If Not Common.TemplateExists(Location) Then
+		Return Undefined;
+	EndIf;
+	
+	LayoutLocationSplit = StrSplit(Location, ".");
+	TemplateName = LayoutLocationSplit.Get(LayoutLocationSplit.UBound());
+	
+	If LayoutLocationSplit.Count() = 2 Then
+		ComponentBinaryData = GetCommonTemplate(Location);
+	Else
+		LayoutLocationSplit.Delete(LayoutLocationSplit.UBound());
+		LayoutLocationSplit.Delete(LayoutLocationSplit.UBound());
+		ObjectManagerByFullName =  Common.ObjectManagerByFullName(StrConcat(LayoutLocationSplit, "."));
+		ComponentBinaryData = ObjectManagerByFullName.GetTemplate(TemplateName);
+	EndIf;
+	
+	InformationOnAddInFromFile = InformationOnAddInFromFile(ComponentBinaryData);
+	
+	If Not InformationOnAddInFromFile.Disassembled Then
+		Return Undefined;
+	EndIf;
+	
+	Return InformationOnAddInFromFile;
+	
 EndFunction
 
 #Region SavedAddInInformation
@@ -881,7 +931,7 @@ EndFunction
 //    * Location - String
 //    * Ref - AnyRef
 //    * Attributes - See AddInAttributes
-//    * TargetPlatformsAreFull - Boolean
+//    * IsTargetPlatformsFilled - Boolean
 //    * TheLatestVersionOfComponentsFromTheLayout 
 //    		- See StandardSubsystemsCached.TheLatestVersionOfComponentsFromTheLayout
 //    		- Undefined
@@ -896,7 +946,7 @@ Function SavedAddInInformation(Id, Version = Undefined, ThePathToTheLayoutToSear
 	Result.Insert("ImportFromFileIsAvailable", ImportFromFileIsAvailable());
 	Result.Insert("CanImportFromPortal", CanImportFromPortal());
 	Result.Insert("TheLatestVersionOfComponentsFromTheLayout");
-	Result.Insert("TargetPlatformsAreFull", False);
+	Result.Insert("IsTargetPlatformsFilled", False);
 
 	If Common.DataSeparationEnabled()
 		And Common.SubsystemExists("StandardSubsystems.SaaSOperations.AddInsSaaS") Then
@@ -937,13 +987,13 @@ Function SavedAddInInformation(Id, Version = Undefined, ThePathToTheLayoutToSear
 	If ObjectAttributes.TargetPlatforms = Undefined Then
 		
 		WarningText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The %1 add-in compatibility information is not filled.';"), Id);
+			NStr("en = 'Compatibility information for the %1 add-in is not filled in.';"), Id);
 		WriteLogEvent(NStr("en = 'Add-in compatibility check';",
 			Common.DefaultLanguageCode()), EventLogLevel.Warning, , Result.Ref, WarningText);
 		
 		ObjectAttributes.TargetPlatforms = TargetPlatforms();
 	Else
-		Result.TargetPlatformsAreFull = True;
+		Result.IsTargetPlatformsFilled = True;
 	EndIf;
 
 	FillPropertyValues(Result.Attributes, ObjectAttributes);
@@ -1471,7 +1521,7 @@ Procedure NewAddInsFromPortal(ProcedureParameters, ResultAddress) Export
 		Try
 			// Create an add-in instance.
 			Object = Catalogs.AddIns.CreateItem();
-			Object.Fill(Undefined); 
+			Object.Fill(Undefined); // 
 			FillPropertyValues(Object, Information.Attributes); // According to manifest data.
 			FillPropertyValues(Object, ResultString1); // By data from the website.
 			Object.ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(

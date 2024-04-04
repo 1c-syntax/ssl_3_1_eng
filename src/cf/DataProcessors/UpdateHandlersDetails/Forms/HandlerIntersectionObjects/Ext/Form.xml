@@ -84,6 +84,12 @@
 								<CheckBoxField name="IntersectionsDataToReadWriter" id="23">
 									<DataPath>Intersections.DataToReadWriter</DataPath>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Writing of readable objects</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<ToolTip>
 										<v8:item>
@@ -104,6 +110,12 @@ or other handlers modify objects readable by this handler.</v8:content>
 								<CheckBoxField name="IntersectionsWriteAgain" id="26">
 									<DataPath>Intersections.WriteAgain</DataPath>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Write again</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<ToolTip>
 										<v8:item>
@@ -123,6 +135,12 @@ or other handlers modify objects readable by this handler.</v8:content>
 								<InputField name="IntersectionsMetadataObject" id="20">
 									<DataPath>Intersections.MetadataObject</DataPath>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Metadata object</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ContextMenu name="IntersectionsMetadataObjectContextMenu" id="21"/>
 									<ExtendedTooltip name="IntersectionsMetadataObjectExtendedTooltip" id="22"/>
@@ -216,6 +234,12 @@ or other handlers modify objects readable by this handler.</v8:content>
 										<xr:Common>false</xr:Common>
 									</UserVisible>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Metadata object</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ContextMenu name="LowPriorityHandlersMetadataObjectContextMenu" id="52"/>
 									<ExtendedTooltip name="LowPriorityHandlersMetadataObjectExtendedTooltip" id="53"/>
@@ -223,6 +247,12 @@ or other handlers modify objects readable by this handler.</v8:content>
 								<InputField name="LowPriorityHandlersWriteProcedure" id="48">
 									<DataPath>LowPriorityHandlers.WriteProcedure</DataPath>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Handler</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ContextMenu name="LowPriorityHandlersWriteProcedureContextMenu" id="49"/>
 									<ExtendedTooltip name="LowPriorityHandlersWriteProcedureExtendedTooltip" id="50"/>
@@ -230,6 +260,12 @@ or other handlers modify objects readable by this handler.</v8:content>
 								<InputField name="LowPriorityHandlersOrderWriter" id="54">
 									<DataPath>LowPriorityHandlers.OrderWriter</DataPath>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Execution priority</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ContextMenu name="LowPriorityHandlersOrderWriterContextMenu" id="55"/>
 									<ExtendedTooltip name="LowPriorityHandlersOrderWriterExtendedTooltip" id="56"/>

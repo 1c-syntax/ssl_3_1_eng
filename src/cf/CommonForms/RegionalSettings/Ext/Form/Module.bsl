@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -21,7 +22,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	Source = Parameters.Source;
 	If Source = "SSLAdministrationPanel" Then
-		Items.OK.Title = NStr("en = 'OK';")
+		Items.OK.Title = NStr("en = 'OK';");
+		Items.ApplicationTimeZoneGroup.Visible = False;
+		Title = NStr("en = 'Accounting languages';");
+		AutoTitle = False;
 	EndIf;
 	 
 	FillInTimeZones();
@@ -78,15 +82,21 @@ Procedure OnOpen(Cancel)
 	
 	If ContinueChangingMultilingualDetails Then
 		RefillData();
+		Return;
 	EndIf;
 	
 	If FileInfobase
 		And StrFind(LaunchParameter, "UpdateAndExit") > 0 Then
-			AttachIdleHandler("SetDefaultValues", 0.1, True);
+			AttachIdleHandler("WriteConstantsValuesAndClose", 0.1, True);
 	EndIf;
 	 
 	TimeZoneOffset = CommonClient.SessionDate() - CurrentTimeOnTheClient();
 	SetTime();
+	
+	If StrCompare(Source, "InitialFilling") = 0 Then
+		FormClosingTime = CurrentTimeOnTheClient() + 180;
+		AttachIdleHandler("AutoCloseInactiveForm", 1, True);
+	EndIf;
 	
 EndProcedure
 
@@ -249,8 +259,7 @@ Procedure OK(Command)
 		If Source = "SSLAdministrationPanel" And ConstantsValuesChanged() Then
 			RefillData();
 		Else
-			WriteConstantsValues();
-			Close(New Structure("Cancel", False));
+			WriteConstantsValuesAndClose();
 		EndIf;
 		
 	Else
@@ -264,7 +273,35 @@ EndProcedure
 #Region Private
 
 &AtClient
-Procedure SetDefaultValues()
+Procedure AutoCloseInactiveForm()
+	
+	If Modified Then
+		Items.OK.Title = NStr("en = 'OK';");
+		Return;
+	EndIf;
+	
+	If FormClosingTime < CurrentTimeOnTheClient() Then
+		
+		WriteConstantsValuesAndClose();
+		Items.OK.Title = NStr("en = 'OK';");
+		Return;
+		
+	EndIf;
+	
+	SecondsBeforeCloseForm = FormClosingTime - CurrentTimeOnTheClient();
+	Seconds = SecondsBeforeCloseForm % 60;
+	Minutes1 = (SecondsBeforeCloseForm - Seconds) / 60;
+	MinutesAndSeconds = ?(Minutes1 > 1, String(Minutes1) + ":" + String(Seconds), String(Seconds));
+
+	Items.OK.Title = StringFunctionsClientServer.SubstituteParametersToString(
+		NStr("en = 'OK (%1)';"), MinutesAndSeconds);
+		
+	AttachIdleHandler("AutoCloseInactiveForm", 1, True);
+	
+EndProcedure
+
+&AtClient
+Procedure WriteConstantsValuesAndClose()
 	
 	WriteConstantsValues();
 	Close(New Structure("Cancel", False));
@@ -279,13 +316,16 @@ Procedure RefillData()
 	Items.Pages.CurrentPage = Items.Waiting;
 	Items.OK.Enabled = False;
 	
-	Job = StartBackgroundRefillingAtServer(UUID);
+	ExecutionProgressNotification = New NotifyDescription("ExecutionProgress", ThisObject);
+	
+	TimeConsumingOperation = StartBackgroundRefillingAtServer(UUID);
 	
 	WaitSettings = TimeConsumingOperationsClient.IdleParameters(ThisObject);
-	WaitSettings.OutputIdleWindow = False;
+	WaitSettings.OutputIdleWindow           = False;
+	WaitSettings.ExecutionProgressNotification = ExecutionProgressNotification;
 	
 	Handler = New NotifyDescription("AfterRefillInBackground", ThisObject);
-	TimeConsumingOperationsClient.WaitCompletion(Job, Handler, WaitSettings);
+	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, Handler, WaitSettings);
 	
 EndProcedure
 
@@ -298,14 +338,32 @@ Function StartBackgroundRefillingAtServer(Val Var_UUID)
 	EndIf;
 
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(Var_UUID);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Refill predefined items and classifiers.';");
+	ExecutionParameters.BackgroundJobDescription =
+		NStr("en = 'Refill predefined items and classifiers.';");
+	ExecutionParameters.RefinementErrors =
+		NStr("en = 'Cannot refill predefined items and classifiers due to:';");
 	
-	BackgroundJob = TimeConsumingOperations.ExecuteInBackground("NationalLanguageSupportServer.ChangeLanguageinMultilingualDetailsConfig",
+	Return TimeConsumingOperations.ExecuteInBackground("NationalLanguageSupportServer.ChangeLanguageinMultilingualDetailsConfig",
 		New Structure, ExecutionParameters);
-		
-	Return BackgroundJob;
 	
 EndFunction
+
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.LongRunningOperationNewState
+//  AdditionalParameters - Undefined
+//
+&AtClient
+Procedure ExecutionProgress(Result, AdditionalParameters) Export
+	
+	If Result.Status = "Running"
+	   And Result.Progress <> Undefined Then
+	
+		Progress = Result.Progress.Percent;
+		Items.Progress.ToolTip = Result.Progress.Text;
+		
+	EndIf;
+	
+EndProcedure
 
 &AtServer
 Function PrepareListMetadataForProcessing(OldAndNewValuesOfConstants)
@@ -333,27 +391,32 @@ Function PrepareListMetadataForProcessing(OldAndNewValuesOfConstants)
 	
 EndFunction
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
-Procedure AfterRefillInBackground(Job, AdditionalParameters) Export
+Procedure AfterRefillInBackground(Result, AdditionalParameters) Export
 	
-	If Job = Undefined Then
+	Items.Pages.CurrentPage = Items.RegionalSettings;
+	
+	If Result = Undefined Then
 		Return;
 	EndIf;
 	
-	If Job.Status = "Completed2" Then
-	Items.Pages.CurrentPage = Items.CompletedSuccessfullyText;
-		RefreshReusableValues();
-		
-		Items.OK.Visible              = False;
-		Items.Close.Visible         = True;
-		Items.Close.DefaultButton = True;
-		CurrentItem = Items.Close;
-	ElsIf Job.Status = "Error" Then
-		Items.Pages.CurrentPage = Items.RegionalSettings;
-		ErrorText = NStr("en = 'Cannot refill predefined items and classifiers.';");
-		ErrorText = ErrorText + Chars.LF + NStr("en = 'Technical details:';") + Job.DetailErrorDescription;
-		CommonClient.MessageToUser(ErrorText);
+	If Result.Status = "Error" Then
+		StandardSubsystemsClient.OutputErrorInfo(
+			Result.ErrorInfo);
+		Return;
 	EndIf;
+	
+	Items.Pages.CurrentPage = Items.CompletedSuccessfullyText;
+	RefreshReusableValues();
+	
+	Items.OK.Visible              = False;
+	Items.Close.Visible         = True;
+	Items.Close.DefaultButton = True;
+	CurrentItem = Items.Close;
 	
 EndProcedure
 
@@ -513,7 +576,7 @@ Function OldAndNewValuesOfConstants()
 	
 EndFunction
 
-
+// 
 
 &AtServer
 Procedure FillInTimeZones()

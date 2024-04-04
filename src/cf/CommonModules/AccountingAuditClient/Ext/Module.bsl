@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -13,8 +14,8 @@
 //
 // Parameters:
 //   ChecksKind - CatalogRef.ChecksKinds - a reference to a check kind.
-//               - String - 
-//               - Array of String - 
+//               - String - The string id of the check kind.
+//               - Array of String - The string ids of the check kind.
 //   ExactMap - Boolean - If True, filter only by the given check kind.
 //                 If False, select all check kinds related to the passed kind.
 //
@@ -23,8 +24,8 @@
 //
 Procedure OpenIssuesReport(ChecksKind, ExactMap = True) Export
 	
-	
-	
+	// 
+	// 
 	
 	AccountingAuditInternalClient.OpenIssuesReport(ChecksKind, ExactMap);
 	
@@ -43,8 +44,8 @@ EndProcedure
 //
 Procedure OpenObjectIssuesReport(Form, ObjectWithIssue, StandardProcessing) Export
 	
-	
-	
+	// 
+	// 
 	
 	StandardProcessing = False;
 	

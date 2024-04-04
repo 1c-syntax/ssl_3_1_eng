@@ -8,7 +8,7 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Item.List.StandardCommand.Choose</CommandName>
-				<ExtendedTooltip name="FormSelectExtendedTooltip" id="9"/>
+				<ExtendedTooltip name="FormChooseExtendedTooltip" id="9"/>
 			</Button>
 			<Button name="FormChange" id="7">
 				<Type>CommandBarButton</Type>
@@ -136,6 +136,12 @@
 		</Table>
 		<CheckBoxField name="ShowPersonalUsersAccounts" id="29">
 			<DataPath>ShowPersonalUsersAccounts</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Show private accounts</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>Right</TitleLocation>
 			<CheckBoxType>Auto</CheckBoxType>
 			<ContextMenu name="ShowPersonalUsersAccountsContextMenu" id="30"/>

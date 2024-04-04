@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -72,18 +73,6 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			UsersList, "IsInternal", False, , , True);
 	EndIf;
 	
-	// Hiding the user passed from the user selection form.
-	If TypeOf(Parameters.UsersToHide) = Type("ValueList") Then
-		
-		DCComparisonType = DataCompositionComparisonType.NotInList;
-		CommonClientServer.SetDynamicListFilterItem(
-			UsersList,
-			"Ref",
-			Parameters.UsersToHide,
-			DCComparisonType);
-		
-	EndIf;
-	
 	ApplyConditionalAppearanceAndHideInvalidUsers();
 	SetUpUserListParametersForSetPasswordCommand();
 	SetAllUsersGroupOrder(UserGroups);
@@ -99,16 +88,26 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	If Parameters.ChoiceMode Then
-	
+		
 		If Items.Find("IBUsers") <> Undefined Then
 			Items.IBUsers.Visible = False;
 		EndIf;
 		Items.UsersInfo.Visible = False;
 		Items.UserGroups.ChoiceMode = StoredParameters.UsersGroupsSelection;
+		
+		// Hiding the user passed from the user selection form.
+		If TypeOf(Parameters.UsersToHide) = Type("ValueList") Then
+			CommonClientServer.SetDynamicListFilterItem(
+				UsersList,
+				"Ref",
+				Parameters.UsersToHide,
+				DataCompositionComparisonType.NotInList);
+		EndIf;
+		
 		// Disabling dragging users in the "select users" and "pick users" forms.
 		Items.UsersList.EnableStartDrag = False;
 		
-		If Parameters.Property("NonExistingIBUsersIDs") Then
+		If ValueIsFilled(Parameters.NonExistingIBUsersIDs) Then
 			CommonClientServer.SetDynamicListFilterItem(
 				UsersList, "IBUserID",
 				Parameters.NonExistingIBUsersIDs,
@@ -148,8 +147,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			"SelectUsersGroup", "Visible", False);
 	EndIf;
 	
-	ConfigureUserGroupsUsageForm();
-	StoredParameters.Delete("CurrentRow");
+	ConfigureUserGroupsUsageForm(False, True);
 	
 	If Not Common.SubsystemExists("StandardSubsystems.BatchEditObjects")
 	 Or Not Users.IsFullUser()
@@ -362,6 +360,22 @@ Procedure UsersGroupsOnChange(Item)
 EndProcedure
 
 &AtClient
+Procedure UsersGroupsSelection(Item, RowSelected, Field, StandardProcessing)
+	
+	If Not Parameters.ChoiceMode
+	 Or Items.UserGroups.ChoiceMode Then
+		Return;
+	EndIf;
+	
+	StandardProcessing = False;
+	If StoredParameters.AdvancedPick Then
+		GetPicturesAndFillSelectedItemsList(
+			CommonClientServer.ValueInArray(RowSelected));
+	EndIf;
+	
+EndProcedure
+
+&AtClient
 Procedure UsersGroupsOnActivateRow(Item)
 	
 	AttachIdleHandler("UserGroupsAfterActivateRow", 0.1, True);
@@ -546,13 +560,11 @@ Procedure UsersListOnActivateRow(Item)
 	Items.UsersListContextMenuSetPassword.Enabled = CanChangePassword;
 	
 	// StandardSubsystems.AttachableCommands
-	If Not StoredParameters.AdvancedPick Then
-	
-		If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
-			ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
-			ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
-		EndIf;
-	
+	If Not StoredParameters.AdvancedPick
+	   And CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		
+		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
+		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
 	EndIf;
 	
 	// End StandardSubsystems.AttachableCommands
@@ -764,7 +776,7 @@ Procedure UsersInfo(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure ChangeSelectedItems(Command)
@@ -966,8 +978,7 @@ Function StoredParameters()
 	Result.Insert("UsersGroupsSelection", Parameters.UsersGroupsSelection);
 	Result.Insert("AdvancedPick", Parameters.AdvancedPick);
 	Result.Insert("UseGroups", GetFunctionalOption("UseUserGroups"));
-	Result.Insert("AllUsersGroup", Catalogs.UserGroups.AllUsers);
-	Result.Insert("CurrentRow", Parameters.CurrentRow);
+	Result.Insert("AllUsersGroup", Users.AllUsersGroup());
 	Result.Insert("PickFormHeader", "");
 	Result.Insert("PickingCompletionButtonTitle", "");
 	Return Result;
@@ -1084,8 +1095,11 @@ Procedure GetPicturesAndFillSelectedItemsList(SelectedItemsArray)
 		
 		If TypeOf(SelectedElement) = Type("CatalogRef.Users") Then
 			PictureNumber = Items.UsersList.RowData(SelectedElement).PictureNumber;
-		Else
+			
+		ElsIf TypeOf(SelectedElement) = Type("CatalogRef.UserGroups") Then
 			PictureNumber = Items.UserGroups.RowData(SelectedElement).PictureNumber;
+		Else
+			Continue;
 		EndIf;
 		
 		SelectedItemsAndPictures.Add(
@@ -1122,30 +1136,30 @@ EndFunction
 Procedure ChangeExtendedPickFormParameters()
 	
 	// Loading the list of selected users.
+	PickingParameters = UsersInternal.NewParametersOfExtendedPickForm();
 	If ValueIsFilled(Parameters.ExtendedPickFormParameters) Then
-		ExtendedPickFormParameters = GetFromTempStorage(Parameters.ExtendedPickFormParameters);
+		GivenParameters = GetFromTempStorage(Parameters.ExtendedPickFormParameters);
+		If TypeOf(GivenParameters) = Type("Structure") Then
+			FillPropertyValues(PickingParameters, GivenParameters);
+		EndIf;
 	Else
-		ExtendedPickFormParameters = Parameters;
+		FillPropertyValues(PickingParameters, Parameters);
 	EndIf;
-	If TypeOf(ExtendedPickFormParameters.SelectedUsers) = Type("ValueTable") Then
-		SelectedUsersAndGroups.Load(ExtendedPickFormParameters.SelectedUsers);
-	Else
-		For Each SelectedUser In ExtendedPickFormParameters.SelectedUsers Do
+	If TypeOf(PickingParameters.SelectedUsers) = Type("Array") Then
+		For Each SelectedUser In PickingParameters.SelectedUsers Do
 			SelectedUsersAndGroups.Add().User = SelectedUser;
 		EndDo;
+		Users.FillUserPictureNumbers(SelectedUsersAndGroups,
+			"User", "PictureNumber");
 	EndIf;
-	Users.FillUserPictureNumbers(SelectedUsersAndGroups, "User", "PictureNumber");
-	StoredParameters.PickFormHeader = ExtendedPickFormParameters.PickFormHeader;
-	
-	If ExtendedPickFormParameters.Property("PickingCompletionButtonTitle") Then 
-		StoredParameters.PickingCompletionButtonTitle = ExtendedPickFormParameters.PickingCompletionButtonTitle;
-	EndIf;
+	StoredParameters.PickFormHeader = PickingParameters.PickFormHeader;
+	StoredParameters.PickingCompletionButtonTitle = PickingParameters.PickingCompletionButtonTitle;
 	
 	// Setting parameters of the extended pick form.
 	Items.EndAndClose.Visible         = True;
 	Items.SelectUserGroup.Visible = True;
 	// Making the list of selected users visible.
-	Items.SelectedUsersAndGroups.Visible     = True;
+	Items.SelectedUsersAndGroups.Visible = True;
 	
 	If Common.IsMobileClient() Then
 		Items.GroupsAndUsers.Group                 = ChildFormItemsGroup.Vertical;
@@ -1164,9 +1178,7 @@ Procedure ChangeExtendedPickFormParameters()
 		Items.UserGroups.TitleLocation          = FormItemTitleLocation.Top;
 		Items.UsersList.TitleLocation           = FormItemTitleLocation.Top;
 		Items.UsersList.Title                    = NStr("en = 'Users in group';");
-		If ExtendedPickFormParameters.Property("CannotPickGroups") Then
-			Items.SelectGroup.Visible                     = False;
-		EndIf;
+		Items.SelectGroup.Visible                         = StoredParameters.UsersGroupsSelection;
 	Else
 		Items.CancelUserSelection.Visible             = True;
 		Items.ClearSelectedItemsList.Visible               = True;
@@ -1221,34 +1233,29 @@ Procedure UserGroupsUsageOnChange()
 EndProcedure
 
 &AtServer
-Procedure ConfigureUserGroupsUsageForm(GroupUsageChanged = False)
+Procedure ConfigureUserGroupsUsageForm(GroupUsageChanged = False, 
+		SetCurrentRow = False)
 	
 	If GroupUsageChanged Then
 		StoredParameters.UseGroups = GetFunctionalOption("UseUserGroups");
 	EndIf;
 	
-	CurrentStoredParameters = StoredParameters; // See StoredParameters
-	If CurrentStoredParameters.Property("CurrentRow") Then
+	AllUsersGroup = Users.AllUsersGroup();
+	
+	If SetCurrentRow Then
+		CurrentRow = Parameters.CurrentRow;
 		
-		If TypeOf(CurrentStoredParameters.CurrentRow) = Type("CatalogRef.UserGroups") Then
+		If TypeOf(CurrentRow) = Type("CatalogRef.UserGroups") 
+		   And StoredParameters.UseGroups Then
 			
-			If StoredParameters.UseGroups Then
-				Items.UserGroups.CurrentRow = CurrentStoredParameters.CurrentRow;
-			Else
-				Parameters.CurrentRow = Undefined;
-			EndIf;
-		ElsIf Not StoredParameters.AdvancedPick
-		     Or TypeOf(CurrentStoredParameters.CurrentRow) = Type("CatalogRef.Users") Then
-			
+			Items.UserGroups.CurrentRow = CurrentRow;
+		Else
 			CurrentItem = Items.UsersList;
-			Items.UserGroups.CurrentRow = Catalogs.UserGroups.AllUsers;
+			Items.UserGroups.CurrentRow = AllUsersGroup;
 		EndIf;
-	Else
-		If Not StoredParameters.UseGroups
-		   And Items.UserGroups.CurrentRow
-		     <> Catalogs.UserGroups.AllUsers Then
-			
-			Items.UserGroups.CurrentRow = Catalogs.UserGroups.AllUsers;
+	ElsIf Not StoredParameters.UseGroups Then
+		If Items.UserGroups.CurrentRow <> AllUsersGroup Then
+			Items.UserGroups.CurrentRow = AllUsersGroup;
 		EndIf;
 	EndIf;
 	
@@ -1267,7 +1274,7 @@ Procedure ConfigureUserGroupsUsageForm(GroupUsageChanged = False)
 	EndIf;
 	
 	Items.CreateUsersGroup.Visible =
-		AccessRight("Insert", Metadata.Catalogs.UserGroups)
+		AccessRight("InteractiveInsert", Metadata.Catalogs.UserGroups)
 		And StoredParameters.UseGroups
 		And Not Common.IsStandaloneWorkplace();
 	
@@ -1292,36 +1299,24 @@ Procedure ConfigureUserGroupsUsageForm(GroupUsageChanged = False)
 		
 		If Parameters.CloseOnChoice = False Then
 			// Pick mode.
-			
 			If UsersGroupsSelection Then
-				
-				If StoredParameters.AdvancedPick Then
-					Title = StoredParameters.PickFormHeader;
-				Else
-					Title = NStr("en = 'Pick users and groups';");
-				EndIf;
-				
+				Title = ?(StoredParameters.AdvancedPick, StoredParameters.PickFormHeader,
+					NStr("en = 'Pick users and groups';"));
 				CommonClientServer.SetFormItemProperty(Items,
 					"SelectUser", "Title", NStr("en = 'Select users';"));
-				
 				CommonClientServer.SetFormItemProperty(Items,
 					"SelectUsersGroup", "Title", NStr("en = 'Select groups';"));
 			Else
+				Title = ?(StoredParameters.AdvancedPick, StoredParameters.PickFormHeader,
+					NStr("en = 'Pick users';"));
 				
-				If StoredParameters.AdvancedPick Then
-					Title = StoredParameters.PickFormHeader;
+				If StoredParameters.AdvancedPick
+				   And ValueIsFilled(StoredParameters.PickingCompletionButtonTitle) Then
 					
-					If Not IsBlankString(StoredParameters.PickingCompletionButtonTitle) Then
-						CommonClientServer.SetFormItemProperty(Items,
-							"EndAndCloseChoice", "Title", StoredParameters.PickingCompletionButtonTitle);
-					EndIf;
-					
-				Else
-					Title = NStr("en = 'Pick users';");
+					CommonClientServer.SetFormItemProperty(Items,
+						"EndAndCloseChoice", "Title", StoredParameters.PickingCompletionButtonTitle);
 				EndIf;
-				
 			EndIf;
-			
 		Else
 			// Selection mode.
 			If UsersGroupsSelection Then
@@ -1337,8 +1332,8 @@ Procedure ConfigureUserGroupsUsageForm(GroupUsageChanged = False)
 	
 	RefreshFormContentOnGroupChange(ThisObject);
 	
-	
-	
+	// 
+	// 
 	Items.UserGroups.Visible = False;
 	Items.UserGroups.Visible = True;
 	
@@ -1410,7 +1405,7 @@ Procedure UsersGroupsDragCompletion(Response, AdditionalParameters) Export
 	
 	If UserMessage.HasErrors = False Then
 		ShowUserNotification(
-			NStr("en = 'Move users';"), , UserMessage.Message, PictureLib.Information32);
+			NStr("en = 'Move users';"), , UserMessage.Message, PictureLib.DialogInformation);
 	Else
 		ShowMessageBox(,UserMessage.Message);
 	EndIf;

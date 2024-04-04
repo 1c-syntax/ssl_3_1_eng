@@ -10,6 +10,12 @@
 				<Representation>PictureAndText</Representation>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.RedoDistribution</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Resend the reports</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="ExecuteNowExtendedTooltip" id="21"/>
 			</Button>
 			<Button name="Cancel" id="22">
@@ -84,6 +90,12 @@
 			<EnableStartDrag>true</EnableStartDrag>
 			<EnableDrag>true</EnableDrag>
 			<DataPath>Recipients</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Recipients</v8:content>
+				</v8:item>
+			</Title>
 			<RowFilter xsi:nil="true"/>
 			<ContextMenu name="RecipientsContextMenu" id="2"/>
 			<AutoCommandBar name="RecipientsCommandBar" id="3">
@@ -118,6 +130,12 @@
 				<InputField name="RecipientsRecipient" id="14">
 					<DataPath>Recipients.Recipient</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Recipient</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ContextMenu name="RecipientsRecipientContextMenu" id="15"/>
 					<ExtendedTooltip name="RecipientsRecipientExtendedTooltip" id="16"/>
@@ -125,6 +143,12 @@
 				<InputField name="RecipientsEmail" id="17">
 					<DataPath>Recipients.Email</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Email address</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ContextMenu name="RecipientsEmailContextMenu" id="18"/>
 					<ExtendedTooltip name="RecipientsEmailExtendedTooltip" id="19"/>

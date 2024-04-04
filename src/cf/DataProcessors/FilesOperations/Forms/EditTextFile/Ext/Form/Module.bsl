@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -140,7 +141,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	Buttons.Add("NotPreserve", NStr("en = 'Do not save';"));
 	Buttons.Add("Cancel",  NStr("en = 'Cancel';"));
 	ReminderParameters = New Structure;
-	ReminderParameters.Insert("Picture", PictureLib.Information32);
+	ReminderParameters.Insert("Picture", PictureLib.DialogInformation);
 	ReminderParameters.Insert("Title", NStr("en = 'Warning';"));
 	ReminderParameters.Insert("PromptDontAskAgain", False);
 	StandardSubsystemsClient.ShowQuestionToUser(
@@ -415,9 +416,9 @@ Procedure ExecuteCompareFiles(Result, ExecutionParameters) Export
 		ExecutionParameters.FileVersionsComparisonMethod = PersonalSettings.FileVersionsComparisonMethod;
 		// First call means that the setting has not been initialized yet.
 		If ExecutionParameters.FileVersionsComparisonMethod = Undefined Then
+			ExecutionParameters.CurrentStep = 1.1;
 			Handler = New NotifyDescription("ExecuteCompareFiles", ThisObject, ExecutionParameters);
 			OpenForm("DataProcessor.FilesOperations.Form.SelectVersionCompareMethod", , ThisObject, , , , Handler);
-			ExecutionParameters.CurrentStep = 1.1;
 			Return;
 		EndIf;
 		ExecutionParameters.CurrentStep = 2;

@@ -28,11 +28,23 @@
 					<Button name="TableOfCorrectionObjectsContextMenuOpenAVersionOfAnotherProgram" id="53">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.OpenOtherApplicationVersion</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Show version received from another infobase</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="TableOfCorrectionObjectsContextMenuOpenAVersionOfAnotherProgramExtendedTooltip" id="54"/>
 					</Button>
 					<Button name="TableOfCorrectionObjectsContextMenuOpenVersionOfThisProgram" id="55">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.OpenThisApplicationVersion</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Show version created in this infobase</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="TableOfCorrectionObjectsContextMenuOpenVersionOfThisProgramExtendedTooltip" id="56"/>
 					</Button>
 				</ChildItems>
@@ -43,22 +55,46 @@
 					<Button name="PatchObjectsTableChangeResult" id="47">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.ReviseResult</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Revise</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="CorrectionObjectTableChangeResultExtendedTooltip" id="48"/>
 					</Button>
 					<Button name="TableOfCorrectionObjectsShowDifferences" id="45">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.ShowDifferences</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Show diff</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="TableOfCorrectionObjectsShowDifferencesExtendedTooltip" id="46"/>
 					</Button>
 					<Button name="PatchObjectsTableOpenPreConflictVersion" id="49">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.OpenThisApplicationVersion</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Show version created in this infobase</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="TableOfCorrectionObjectsOpenVersionBeforeConflictExtendedTooltip" id="50"/>
 					</Button>
 					<Button name="PatchObjectsTableOpenConflictVersion" id="51">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.OpenOtherApplicationVersion</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Show version received from another infobase</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="TableOfCorrectionObjectsOpenConflictVersionExtendedTooltip" id="52"/>
 					</Button>
@@ -75,11 +111,23 @@
 							<Button name="TableOfCorrectionObjectsSelectAll1" id="22">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.SelectAllCommand</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Select all</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="CorrectionObjectTableMarkAllExtendedTooltip" id="23"/>
 							</Button>
 							<Button name="TableOfCorrectionObjectsDeselectSelection" id="20">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.RemoveSelection</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Clear all</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="TableOfCorrectionObjectsDeselectExtendedTooltip" id="21"/>
 							</Button>
 						</ChildItems>
@@ -114,6 +162,12 @@
 			<ChildItems>
 				<CheckBoxField name="TableOfCorrectionObjectsProcessAString" id="14">
 					<DataPath>PatchObjectsTable.ProcessString</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>...</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<CheckBoxType>Auto</CheckBoxType>
 					<ContextMenu name="TableOfCorrectionObjectsProcessAStringContextMenu" id="15"/>
@@ -122,6 +176,12 @@
 				<InputField name="TableOfCorrectionObjectsObjectWithIssue" id="17">
 					<DataPath>PatchObjectsTable.ObjectWithIssue</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Object with issues</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ContextMenu name="TheTableOfObjectsFixesTheProblemObjectContextMenu" id="18"/>
 					<ExtendedTooltip name="TheTableOfObjectsFixesTheProblemObjectExtendedTooltip" id="19"/>
@@ -131,6 +191,12 @@
 					<UserVisible>
 						<xr:Common>false</xr:Common>
 					</UserVisible>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Version from another app</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ContextMenu name="TableOfCorrectionObjectsVersionFromAnotherProgramContextMenu" id="40"/>
 					<ExtendedTooltip name="TableOfCorrectionObjectsVersionFromAnotherProgramExtendedTooltip" id="41"/>
@@ -140,6 +206,12 @@
 					<UserVisible>
 						<xr:Common>false</xr:Common>
 					</UserVisible>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Version from this app</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ContextMenu name="TableOfCorrectionObjectsVersionOfThisProgramContextMenu" id="43"/>
 					<ExtendedTooltip name="TableOfCorrectionObjectsVersionOfThisProgramExtendedTooltip" id="44"/>
@@ -150,6 +222,12 @@
 						<xr:Common>false</xr:Common>
 					</UserVisible>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Error details</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ContextMenu name="TableOfCorrectionObjectsErrorDescriptionContextMenu" id="31"/>
 					<ExtendedTooltip name="TableOfCorrectionObjectsErrorDescriptionExtendedTooltip" id="32"/>
@@ -160,6 +238,12 @@
 						<xr:Common>false</xr:Common>
 					</UserVisible>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Failed attempt</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<EditMode>EnterOnInput</EditMode>
 					<CheckBoxType>Auto</CheckBoxType>
@@ -264,7 +348,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Version of this application</v8:content>
+							<v8:content>Version from this app</v8:content>
 						</v8:item>
 					</Title>
 					<Type>
@@ -380,7 +464,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Show version received from the other infobase</v8:content>
+					<v8:content>Show version received from another infobase</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -18,14 +19,14 @@
 //
 Procedure CreateNewEmailMessage(EmailSendOptions = Undefined, FormClosingNotification = Undefined) Export
 	
-	SendOptions = EmailSendOptions();
+	SendOptions = EmailMessageCompositionParameters();
 	If EmailSendOptions <> Undefined Then
 		CommonClientServer.SupplementStructure(SendOptions, EmailSendOptions, True);
 	EndIf;
 	
 	InfoForSending = EmailServerCall.InfoForSending(SendOptions);
-	SendOptions.Insert("ShowAttachmentSaveFormatSelectionDialog", InfoForSending.ShowAttachmentSaveFormatSelectionDialog);
-	SendOptions.Insert("FormClosingNotification", FormClosingNotification);
+	SendOptions.ShowAttachmentSaveFormatSelectionDialog = InfoForSending.ShowAttachmentSaveFormatSelectionDialog;
+	SendOptions.FormClosingNotification = FormClosingNotification;
 	
 	If TypeOf(SendOptions.Recipient) = Type("String") Then
 		SendOptions.Recipient = ListOfRecipientsFromString(SendOptions.Recipient);
@@ -83,6 +84,7 @@ EndProcedure
 //   
 //   * DeleteFilesAfterSending - Boolean - delete temporary files after sending the message.
 //   * SubjectOf - AnyRef - an email subject.
+//   * IsInteractiveRecipientSelection - Boolean -  False by default.
 //
 Function EmailSendOptions() Export
 	EmailParameters = New Structure;
@@ -96,6 +98,7 @@ Function EmailSendOptions() Export
 	EmailParameters.Insert("Attachments", Undefined);
 	EmailParameters.Insert("DeleteFilesAfterSending", Undefined);
 	EmailParameters.Insert("SubjectOf", Undefined);
+	EmailParameters.Insert("IsInteractiveRecipientSelection", False);
 	
 	Return EmailParameters;
 EndFunction
@@ -196,7 +199,7 @@ Procedure CreateNewEmailMessagePrepareAttachments(SettingsForSaving, SendOptions
 EndProcedure
 
 // Continues the CreateNewEmailMessage procedure.
-Procedure CreateNewEmailMessageAttachmentsPrepared(AttachmentsPrepared, SendOptions)
+Procedure CreateNewEmailMessageAttachmentsPrepared(AttachmentsPrepared, SendOptions, IsRecipientsSelected = False)
 
 	If AttachmentsPrepared <> True Then
 		Return;
@@ -212,12 +215,43 @@ Procedure CreateNewEmailMessageAttachmentsPrepared(AttachmentsPrepared, SendOpti
 		Return;
 	EndIf;
 	
+	SendOptions.Insert("FormClosingNotification", FormClosingNotification);
+	
+	FormParameters = New Structure;
+	FormParameters.Insert("Recipients", SendOptions.Recipient);
+	
+	If SendOptions.Recipient = Undefined Or (SendOptions.Recipient <> Undefined 
+		And (SendOptions.Recipient.Count() <= 1 Or Not SendOptions.IsInteractiveRecipientSelection)) Then
+		AfterRecipientsSelected(FormParameters, SendOptions);
+	ElsIf CommonClient.SubsystemExists("StandardSubsystems.Print") Then
+		FormParameters.Insert("ShouldSkipAttachmentFormatSelection", True);
+		
+		NotifyDescription = New NotifyDescription("AfterRecipientsSelected", ThisObject, SendOptions);
+		ModulePrintManagerInternalClient = CommonClient.CommonModule("PrintManagementInternalClient");
+		
+		ModulePrintManagerInternalClient.OpenNewMailPreparationForm(ThisObject, 
+			FormParameters, NotifyDescription);
+
+	Else
+		AfterRecipientsSelected(FormParameters, SendOptions);
+	EndIf;
+	
+EndProcedure
+
+Procedure AfterRecipientsSelected(Result, SendOptions) Export
+	
+	If TypeOf(Result) <> Type("Structure") Then
+		Return;
+	EndIf;
+	
+	SendOptions.Recipient = Result.Recipients;
+		
 	If CommonClient.SubsystemExists("StandardSubsystems.Interactions") 
 		And StandardSubsystemsClient.ClientRunParameters().OutgoingEmailsCreationAvailable Then
 		ModuleInteractionsClient = CommonClient.CommonModule("InteractionsClient");
-		ModuleInteractionsClient.OpenEmailSendingForm(SendOptions, FormClosingNotification);
+		ModuleInteractionsClient.OpenEmailSendingForm(SendOptions, SendOptions.FormClosingNotification);
 	Else
-		OpenSimpleSendEmailMessageForm(SendOptions, FormClosingNotification);
+		OpenSimpleSendEmailMessageForm(SendOptions, SendOptions.FormClosingNotification);
 	EndIf;
 	
 EndProcedure
@@ -256,6 +290,13 @@ Function ListOfRecipientsFromString(Val Recipients)
 	
 	Return Result;
 	
+EndFunction
+
+Function EmailMessageCompositionParameters()
+	EmailParameters = EmailSendOptions();
+	EmailParameters.Insert("ShowAttachmentSaveFormatSelectionDialog", False);
+	EmailParameters.Insert("FormClosingNotification", Undefined);
+	Return EmailParameters;
 EndFunction
 
 #EndRegion

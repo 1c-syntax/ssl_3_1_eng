@@ -16,7 +16,6 @@
 				<xr:Object>Subsystem.StandardSubsystems.Subsystem.UserNotes</xr:Object>
 				<xr:Object>Catalog.Notes</xr:Object>
 				<xr:Object>Enum.NoteColors</xr:Object>
-				<xr:Object>CommonCommand.CreateSubjectNote</xr:Object>
 				<xr:Object>CommonCommand.MyNotesOnSubject</xr:Object>
 			</Content>
 		</Properties>

@@ -8,6 +8,12 @@
 			<Button name="FormOpenLink" id="328">
 				<Type>CommandBarHyperlink</Type>
 				<CommandName>Form.Command.OpenLink</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>How to start a client app?</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormOpenLinkExtendedTooltip" id="329"/>
 			</Button>
 		</ChildItems>
@@ -142,7 +148,7 @@
 							<ChildItems>
 								<PictureDecoration name="Windows_x86_1CEnterprise" id="90">
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -151,7 +157,7 @@
 								</PictureDecoration>
 								<PictureDecoration name="Windows_x86_Chrome" id="106">
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -160,7 +166,7 @@
 								</PictureDecoration>
 								<PictureDecoration name="Windows_x86_Firefox" id="112">
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -169,7 +175,7 @@
 								</PictureDecoration>
 								<PictureDecoration name="Windows_x86_MSIE" id="118">
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -184,7 +190,7 @@
 										</v8:item>
 									</Title>
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -208,7 +214,7 @@
 							<ChildItems>
 								<PictureDecoration name="Windows_x86_64_1CEnterprise" id="93">
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -217,7 +223,7 @@
 								</PictureDecoration>
 								<PictureDecoration name="Windows_x86_64_Chrome" id="109">
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -226,7 +232,7 @@
 								</PictureDecoration>
 								<PictureDecoration name="Windows_x86_64_Firefox" id="115">
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -235,7 +241,7 @@
 								</PictureDecoration>
 								<PictureDecoration name="Windows_x86_64_MSIE" id="121">
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -250,7 +256,7 @@
 										</v8:item>
 									</Title>
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -347,7 +353,7 @@
 							<ChildItems>
 								<PictureDecoration name="Linux_x86_1CEnterprise" id="128">
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -356,7 +362,7 @@
 								</PictureDecoration>
 								<PictureDecoration name="Linux_x86_Chrome" id="138">
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -365,7 +371,7 @@
 								</PictureDecoration>
 								<PictureDecoration name="Linux_x86_Firefox" id="144">
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -374,7 +380,7 @@
 								</PictureDecoration>
 								<PictureDecoration name="Linux_x86_YandexBrowser" id="196">
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -398,7 +404,7 @@
 							<ChildItems>
 								<PictureDecoration name="Linux_x86_64_1CEnterprise" id="135">
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -407,7 +413,7 @@
 								</PictureDecoration>
 								<PictureDecoration name="Linux_x86_64_Chrome" id="141">
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -416,7 +422,7 @@
 								</PictureDecoration>
 								<PictureDecoration name="Linux_x86_64_Firefox" id="147">
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -425,7 +431,7 @@
 								</PictureDecoration>
 								<PictureDecoration name="Linux_x86_64_YandexBrowser" id="199">
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -449,7 +455,7 @@
 							<ChildItems>
 								<PictureDecoration name="Linux_E2K_1CEnterprise" id="215">
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -458,7 +464,7 @@
 								</PictureDecoration>
 								<PictureDecoration name="Linux_E2K_Chrome" id="218">
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -467,7 +473,7 @@
 								</PictureDecoration>
 								<PictureDecoration name="Linux_E2K_Firefox" id="221">
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -476,7 +482,7 @@
 								</PictureDecoration>
 								<PictureDecoration name="Linux_E2K_YandexBrowser" id="224">
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -500,7 +506,7 @@
 							<ChildItems>
 								<PictureDecoration name="Linux_ARM64_1CEnterprise" id="316">
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -509,7 +515,7 @@
 								</PictureDecoration>
 								<PictureDecoration name="Linux_ARM64_Chrome" id="319">
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -518,7 +524,7 @@
 								</PictureDecoration>
 								<PictureDecoration name="Linux_ARM64_Firefox" id="322">
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -529,11 +535,11 @@
 									<Title formatted="false">
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Linux ARM64 Yandex browser</v8:content>
+											<v8:content>Linux ARM64 Yandex Browser</v8:content>
 										</v8:item>
 									</Title>
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -638,7 +644,7 @@
 							<ChildItems>
 								<PictureDecoration name="MacOS_x86_64_1CEnterprise" id="166">
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -647,7 +653,7 @@
 								</PictureDecoration>
 								<PictureDecoration name="MacOS_x86_64_Chrome" id="181">
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -656,7 +662,7 @@
 								</PictureDecoration>
 								<PictureDecoration name="MacOS_x86_64_Firefox" id="175">
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -665,7 +671,7 @@
 								</PictureDecoration>
 								<PictureDecoration name="MacOS_x86_64_Safari" id="150">
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -674,7 +680,7 @@
 								</PictureDecoration>
 								<PictureDecoration name="MacOS_x86_64_YandexBrowser" id="205">
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -685,7 +691,7 @@
 						</UsualGroup>
 					</ChildItems>
 				</UsualGroup>
-				<UsualGroup name="MobilePlatformsGroup" id="227">
+				<UsualGroup name="GroupMobilePlatforms" id="227">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -697,7 +703,7 @@
 					<Behavior>Usual</Behavior>
 					<Representation>StrongSeparation</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="MobilePlatformsGroupExtendedTooltip" id="228"/>
+					<ExtendedTooltip name="GroupMobilePlatformsExtendedTooltip" id="228"/>
 					<ChildItems>
 						<UsualGroup name="MobilePlatforms" id="229">
 							<Title>
@@ -761,7 +767,7 @@
 							<ChildItems>
 								<PictureDecoration name="Android_ARM" id="273">
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -770,7 +776,7 @@
 								</PictureDecoration>
 								<PictureDecoration name="iOS_ARM" id="276">
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -779,7 +785,7 @@
 								</PictureDecoration>
 								<PictureDecoration name="WindowsRT_ARM" id="279">
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -803,7 +809,7 @@
 							<ChildItems>
 								<PictureDecoration name="Android_ARM64" id="287">
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -812,7 +818,7 @@
 								</PictureDecoration>
 								<PictureDecoration name="iOS_ARM64" id="290">
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -821,7 +827,7 @@
 								</PictureDecoration>
 								<PictureDecoration name="WindowsRT_ARM64" id="293">
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -844,7 +850,7 @@
 							<ChildItems>
 								<PictureDecoration name="Android_x86" id="245">
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -853,7 +859,7 @@
 								</PictureDecoration>
 								<PictureDecoration name="iOS_x86" id="248">
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -862,7 +868,7 @@
 								</PictureDecoration>
 								<PictureDecoration name="WindowsRT_x86" id="251">
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -871,7 +877,7 @@
 								</PictureDecoration>
 							</ChildItems>
 						</UsualGroup>
-						<UsualGroup name="MobilePlatforms_x86_64" id="257">
+						<UsualGroup name="MobilePlatforms_x86_x64" id="257">
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -882,11 +888,11 @@
 							<HorizontalAlign>Center</HorizontalAlign>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
-							<ExtendedTooltip name="MobilePlatforms_x86_64ExtendedTooltip" id="258"/>
+							<ExtendedTooltip name="MobilePlatforms_x86_x64ExtendedTooltip" id="258"/>
 							<ChildItems>
 								<PictureDecoration name="Android_x86_64" id="259">
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -895,7 +901,7 @@
 								</PictureDecoration>
 								<PictureDecoration name="iOS_x86_64" id="262">
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -904,7 +910,7 @@
 								</PictureDecoration>
 								<PictureDecoration name="WindowsRT_x86_64" id="265">
 									<Picture>
-										<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+										<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
@@ -1115,7 +1121,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>How to start a certain client application?</v8:content>
+					<v8:content>How to start a client application?</v8:content>
 				</v8:item>
 			</Title>
 			<Action>OpenLink</Action>

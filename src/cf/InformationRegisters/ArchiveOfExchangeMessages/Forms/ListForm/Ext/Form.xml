@@ -9,6 +9,12 @@
 			<Button name="FormSave" id="40">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.Save</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormSaveExtendedTooltip" id="41"/>
 			</Button>
 		</ChildItems>

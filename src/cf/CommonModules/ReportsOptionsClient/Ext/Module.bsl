@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -106,12 +107,11 @@ EndProcedure
 //
 // Parameters:
 //  SubsystemPath - String - Section name or a path to the subsystem for which the report panel is opened.
-//                    Conforms to the following format: "[.ИмяВложеннойПодсистемы1][.ИмяВложеннойПодсистемы2][...]".
 //                    Section must be described in ReportsOptionsOverridable.DefineSectionsWithReportsOptions.
 //  CommandExecuteParameters - CommandExecuteParameters - Parameters of the common command handler.
 //
 Procedure ShowReportBar(SubsystemPath, CommandExecuteParameters) Export
-	ParametersForm = New Structure("SubsystemPath", SubsystemPath);
+	ParametersForm = New Structure("SubsystemPath, SearchInAllSections", SubsystemPath, True);
 	
 	WindowForm = ?(CommandExecuteParameters = Undefined, Undefined, CommandExecuteParameters.Window);
 	RefForm = ?(CommandExecuteParameters = Undefined, Undefined, CommandExecuteParameters.URL);
@@ -134,15 +134,17 @@ Procedure ShowReportBar(SubsystemPath, CommandExecuteParameters) Export
 	EndIf;
 EndProcedure
 
-// Notifies open report panels and lists of forms and items about changes.
+// Notifies opened report panels, list forms, and item forms about report option changes.
 //
 // Parameters:
-//  Parameter - Arbitrary - Takes any data.
-//  Source - Arbitrary - Event source. For example, another form can be passed.
+//  VariantKey - String - 
+//  Source - CatalogRef.ReportsOptions
 //
-Procedure UpdateOpenForms(Parameter = Undefined, Source = Undefined) Export
+Procedure UpdateOpenForms(Val VariantKey = "", Val Source = Undefined) Export
 	
-	Notify(EventNameChangingOption(), Parameter, Source);
+	FormUpdateParameters = New Structure("VariantKey");
+	FormUpdateParameters.VariantKey = VariantKey;
+	Notify(EventNameChangingOption(), FormUpdateParameters, Source);
 	
 EndProcedure
 
@@ -173,7 +175,7 @@ Procedure OnStart(Parameters) Export
 	
 EndProcedure
 
-// Opens a report option card where you can set up its location in the application.
+// 
 //
 // Parameters:
 //  Variant - CatalogRef.ReportsOptions - Report option reference.
@@ -230,7 +232,7 @@ EndProcedure
 //
 // Parameters:
 //   Form - ClientApplicationForm - Subsystem tree edit form, where::
-//       * Items - FormAllItems - 
+//       * Items - FormAllItems - See Syntax Assistant
 //   Item - FormField - Field that indicates usage.
 //
 Procedure SubsystemsTreeUseOnChange(Form, Item) Export
@@ -259,7 +261,7 @@ EndProcedure
 //     * Items - FormAllItems - Collection of form items, where::
 //         ** SubsystemsTree - FormTable - Hierarchical collection of subsystems where the report is displayed, where::
 //              *** CurrentData - FormDataTreeItem - Data in the current subsystem tree row, where::
-//                    **** Importance - String - 
+//                    **** Importance - String - The importance level. Valid values are: "", "Important", "See also".
 //                    **** Priority - String - Code counter.
 //                    **** Use - Number - Flag indicating whether the subsystem contains the report.
 //   Item - FormField - Field to edit the importance flag.
@@ -575,7 +577,7 @@ Procedure CheckTheUsersOfTheReportOption(Form) Export
 	OptionUsers.Clear();
 	OptionUsers.Add(
 		Object.Author,
-		"[IsReportOptionAuthor]",,
+		"[IsReportOptionAuthor]", True,
 		ReportOptionUserPicture(Object.Author));
 	
 EndProcedure
@@ -696,10 +698,7 @@ Procedure UpdateReportOptionFromFile(FileDetails, BaseReportOptionProperties)
 		BaseReportOptionProperties.Ref);
 	If BaseReportOptionProperties.ReportName = ReportOptionProperties.ReportName Then 
 		
-		FormUpdateParameters = New Structure("VariantKey");
-		FillPropertyValues(FormUpdateParameters, ReportOptionProperties);
-		
-		UpdateOpenForms(FormUpdateParameters);
+		UpdateOpenForms(ReportOptionProperties.VariantKey);
 		ShowUserNotification(NStr("en = 'The report is updated from the file';"), 
 			GetURL(ReportOptionProperties.Ref),
 			ReportOptionProperties.VariantPresentation);

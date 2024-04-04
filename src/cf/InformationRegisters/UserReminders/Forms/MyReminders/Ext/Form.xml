@@ -51,16 +51,34 @@
 				<Button name="CreateButton" id="12">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.Create</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Create</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="CreateButtonExtendedTooltip" id="17"/>
 				</Button>
 				<Button name="ChangeButton" id="13">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.Change</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Edit</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="ChangeButtonExtendedTooltip" id="18"/>
 				</Button>
 				<Button name="DeleteButton" id="16">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.Delete</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Delete</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="DeleteButtonExtendedTooltip" id="19"/>
 				</Button>
 				<ButtonGroup name="StandardCommands" id="14">
@@ -72,6 +90,17 @@
 					</Title>
 					<CommandSource>Form</CommandSource>
 					<ExtendedTooltip name="StandardCommandsExtendedTooltip" id="20"/>
+				</ButtonGroup>
+				<ButtonGroup name="AdditionalCommands" id="48">
+					<ExtendedTooltip name="AdditionalCommandsExtendedTooltip" id="49"/>
+					<ChildItems>
+						<Button name="AllReminders" id="46">
+							<Type>CommandBarButton</Type>
+							<CommandName>Form.Command.AllReminders</CommandName>
+							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+							<ExtendedTooltip name="AllRemindersExtendedTooltip" id="47"/>
+						</Button>
+					</ChildItems>
 				</ButtonGroup>
 				<Button name="FormHelp" id="15">
 					<Type>CommandBarButton</Type>
@@ -112,9 +141,6 @@
 					<v8:content>List</v8:content>
 				</v8:item>
 			</Title>
-			<CommandSet>
-				<ExcludedCommand>Copy</ExcludedCommand>
-			</CommandSet>
 			<AutoRefresh>false</AutoRefresh>
 			<AutoRefreshPeriod>60</AutoRefreshPeriod>
 			<Period>
@@ -317,6 +343,9 @@ WHERE
 			<Action>Delete</Action>
 			<Representation>Text</Representation>
 			<CurrentRowUse>DontUse</CurrentRowUse>
+		</Command>
+		<Command name="AllReminders" id="4">
+			<Action>AllReminders</Action>
 		</Command>
 	</Commands>
 </Form>

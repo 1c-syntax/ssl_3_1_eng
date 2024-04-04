@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -60,10 +61,10 @@ Function UniqueNameByWay(Val DirectoryName, Val FileName) Export
 			EndIf;
 		EndDo;
 		
-		Subdirectory = ""; 
+		Subdirectory = ""; // A partial path.
 		
-		
-		
+		// 
+		// 
 		If  Counter = 0 Then
 			Subdirectory = "";
 		Else
@@ -492,7 +493,7 @@ Function ExtractTextFromXMLContent(XMLReader)
 			
 			If XMLReader.Name = "text:s" Then
 				
-				AdditionString = " "; // Whitespace
+				AdditionString = " "; // A whitespace.
 				
 				If XMLReader.AttributeCount() > 0 Then
 					While XMLReader.ReadAttribute() Do
@@ -500,7 +501,7 @@ Function ExtractTextFromXMLContent(XMLReader)
 							SpaceCount = Number(XMLReader.Value);
 							AdditionString = "";
 							For IndexOf = 0 To SpaceCount - 1 Do
-								AdditionString = AdditionString + " "; // Whitespace
+								AdditionString = AdditionString + " "; // A whitespace.
 							EndDo;
 						EndIf;
 					EndDo
@@ -566,7 +567,7 @@ Function IsReservedDirectoryName(SubDirectoryName)
 EndFunction
 
 // Initializes parameter structure to add the file.
-// Use this function in StoredFiles.AddToFile and FilesOperationsInternalServerCall.AddFile.
+// Use this function in FilesOperations.AppendFile and FilesOperationsInternalServerCall.AppendFile.
 //
 Function FileAddingOptions(AdditionalAttributes = Undefined) Export
 	

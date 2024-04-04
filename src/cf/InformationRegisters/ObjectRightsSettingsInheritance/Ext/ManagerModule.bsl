@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -41,11 +42,11 @@ Procedure UpdateRegisterData(Val RightsSettingsOwners = Undefined, HasChanges = 
 		For Each KeyAndValue In AvailableRights.ByFullNames Do
 			
 			Query.Text = StrReplace(QueryText, "&CurrentTable", KeyAndValue.Key);
-			
+			// @skip-check query-in-loop - A minor loop (1 or 2 iterations)
 			Selection = Query.Execute().Select();
 			
 			While Selection.Next() Do
-				
+				// @skip-check query-in-loop - Iterate through an item hierarchy with batch updates.
 				UpdateOwnerParents(Selection.Ref, HasChanges);
 			EndDo;
 		EndDo;
@@ -53,7 +54,7 @@ Procedure UpdateRegisterData(Val RightsSettingsOwners = Undefined, HasChanges = 
 	ElsIf TypeOf(RightsSettingsOwners) = Type("Array") Then
 		
 		For Each RightsSettingsOwner In RightsSettingsOwners Do
-			
+			// @skip-check query-in-loop - Iterate through an item hierarchy with batch updates.
 			UpdateOwnerParents(RightsSettingsOwner, HasChanges);
 		EndDo;
 	Else
@@ -256,7 +257,7 @@ Function ObjectParents(Ref, ObjectRef2 = Undefined, ObjectParentProperties = "",
 			Break;
 		EndIf;
 		
-		
+		// @skip-check query-in-loop - Iterate through an item hierarchy with batch updates.
 		CurrentParentProperties = ParentProperties(CurrentParentProperties.Ref);
 	EndDo;
 	
@@ -304,7 +305,7 @@ Procedure UpdateOwnerHierarchy(Ref, HasChanges, ObjectsWithChanges)
 	
 	Selection = Query.Execute().Select();
 	While Selection.Next() Do
-		
+		// @skip-check query-in-loop - Iterate through an item hierarchy with batch updates.
 		NewRecords = ObjectParents(Selection.SubordinateRef, Ref);
 		
 		RecordSet = CreateRecordSet();

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -50,11 +51,14 @@ Function GenerateMessage(SendOptions) Export
 			TemplateParameters.TemplateType = SendOptions.AdditionalParameters.MessageKind;
 		EndIf;
 	Else
-		ForSMSMessages = Common.ObjectAttributeValue(SendOptions.Template, "ForSMSMessages");
-		If ForSMSMessages <> True Then
+		TemplatePurposes = Common.ObjectAttributesValues(
+			SendOptions.Template, "ForSMSMessages, ForEmails");
+		If TemplatePurposes.ForSMSMessages Then
+			SendOptions.AdditionalParameters.Insert("MessageKind", "SMSMessage");
+		ElsIf TemplatePurposes.ForEmails Then
 			SendOptions.AdditionalParameters.Insert("MessageKind", "Email");
 		Else
-			SendOptions.AdditionalParameters.Insert("MessageKind", "SMSMessage");
+			SendOptions.AdditionalParameters.Insert("MessageKind", "Arbitrary");
 		EndIf;
 	EndIf;
 	
@@ -142,7 +146,10 @@ Function GenerateMessage(SendOptions) Export
 		ProcessHTMLForFormattedDocument(SendOptions, GeneratedMessage, SendOptions.AdditionalParameters.ConvertHTMLForFormattedDocument);
 	EndIf;
 	
-	FillMessageRecipients(SendOptions, TemplateParameters, GeneratedMessage, ObjectManager);
+	If TemplateParameters.TemplateType <> "Arbitrary" Then
+		FillMessageRecipients(SendOptions, TemplateParameters, GeneratedMessage, ObjectManager);
+	EndIf;
+	
 	GeneratedMessage.UserMessages = GetUserMessages(True);
 	
 	Return GeneratedMessage;
@@ -209,7 +216,7 @@ Function GenerateMessageAndSend(SendOptions) Export
 			
 		EndIf;
 		
-	Else
+	ElsIf SendOptions.Template.ForEmails Then
 		If Message.Recipient.Count() = 0 Then
 			Result.ErrorDescription  = NStr("en = 'Enter an email address to send the message right away.';");
 			Return Result;
@@ -388,7 +395,13 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 		Priority = Handler.ExecutionPriorities.Add();
 		Priority.Procedure = "NationalLanguageSupportServer.ProcessDataForMigrationToNewVersion";
 		Priority.Order = "Before";
-	EndIf;
+	EndIf; 
+	
+	Handler = Handlers.Add();
+	Handler.Procedure = "MessageTemplatesInternal.ProcessDataForMigrationToAttachableCommands";
+	Handler.Version = "3.1.10.99";
+	Handler.ExecutionMode = "Seamless";
+	Handler.InitialFilling = True;
 	
 EndProcedure
 
@@ -426,6 +439,37 @@ Procedure OnDefineObjectsWithInitialFilling(Objects) Export
 	
 	Objects.Add(Metadata.Catalogs.MessageTemplates);
 	
+EndProcedure
+
+// See AttachableCommandsOverridable.OnDefineCommandsAttachedToObject.
+Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReportsAndDataProcessors, Commands) Export
+	
+	Command = Commands.Add();
+	Command.Kind = "Send";
+	Command.Presentation = NStr("en = 'Email account';");
+	Command.Picture = PictureLib.SendEmail;
+	Command.WriteMode = "NotWrite";
+	Command.Order = 40;
+	Command.ParameterType = Metadata.DefinedTypes.MessageTemplateSubject.Type;
+	Command.Handler = "MessageTemplatesClient.SendMail";
+	Command.MultipleChoice = False;
+	
+	Command = Commands.Add();
+	Command.Kind = "Send";
+	Command.Presentation = NStr("en = 'SMS';");
+	Command.WriteMode = "NotWrite";
+	Command.Order = 50;
+	Command.ParameterType = Metadata.DefinedTypes.MessageTemplateSubject.Type;
+	Command.Handler = "MessageTemplatesClient.SendSMS";
+	Command.MultipleChoice = False;
+		
+EndProcedure
+
+// See AttachableCommandsOverridable.OnDefineAttachableObjectsSettingsComposition
+Procedure OnDefineAttachableObjectsSettingsComposition(InterfaceSettings4) Export
+	Setting = InterfaceSettings4.Add();
+	Setting.Key          = "AddSendingCommands";
+	Setting.TypeDescription = New TypeDescription("Boolean");
 EndProcedure
 
 #EndRegion
@@ -630,7 +674,8 @@ Procedure DefineAttributesAndAttachmentsList(TemplateInfo, TemplateParameters)
 		
 		// Attributes.
 		MetadataObject3 = Common.MetadataObjectByFullName(TemplateParameters.FullAssignmentTypeName);
-		RelatedObjectAttributes = RelatedObjectAttributes(TemplateInfo.Attributes, TemplateParameters.FullAssignmentTypeName, TemplateParameters.Purpose);
+		RelatedObjectAttributes = RelatedObjectAttributes(TemplateInfo.Attributes, 
+			TemplateParameters.FullAssignmentTypeName, TemplateParameters.Purpose);
 		ExpandRefAttributes = TemplateParameters.ExpandRefAttributes;
 		
 		If MetadataObject3 <> Undefined Then
@@ -659,7 +704,8 @@ Procedure DefineAttributesAndAttachmentsList(TemplateInfo, TemplateParameters)
 			Presentation = TemplateParameters.Purpose;
 		EndIf;
 		
-		MessageTemplatesOverridable.OnPrepareMessageTemplate(RelatedObjectAttributes, TemplateInfo.Attachments, TemplateParameters.FullAssignmentTypeName, TemplateParameters);
+		MessageTemplatesOverridable.OnPrepareMessageTemplate(RelatedObjectAttributes, TemplateInfo.Attachments, 
+			TemplateParameters.FullAssignmentTypeName, TemplateParameters);
 		
 		If MetadataObject3 <> Undefined Then
 			ObjectManager.OnPrepareMessageTemplate(RelatedObjectAttributes, TemplateInfo.Attachments, TemplateParameters);
@@ -831,6 +877,10 @@ Function GenerateMesageByExternalDataProcessor(TemplateParameters, TemplateInfo,
 			
 			GeneratedMessage.Text = Message.SMSMessageText;
 			
+		ElsIf TypeOf(Message) = Type("Structure") And SendOptions.AdditionalParameters.MessageKind = "Arbitrary" Then
+			
+			GeneratedMessage.Text = Message.ArbitraryMessageText;
+			
 		ElsIf TypeOf(Message) = Type("Structure") And Message.Property("AttachmentsStructure") Then
 			
 			GeneratedMessage.Text = Message.HTMLEmailText;
@@ -877,8 +927,8 @@ Function MessageWithoutTemplate(SendOptions)
 	
 	ObjectManager = Undefined;
 	If SendOptions.Property("SubjectOf") And ValueIsFilled(SendOptions.SubjectOf) Then
-	ObjectMetadata = Metadata.FindByType(TypeOf(SendOptions.SubjectOf));
-	If ObjectMetadata <> Undefined Then
+		ObjectMetadata = Metadata.FindByType(TypeOf(SendOptions.SubjectOf));
+		If ObjectMetadata <> Undefined Then
 			ObjectManager = Common.ObjectManagerByFullName(ObjectMetadata.FullName());
 		EndIf;
 	EndIf;
@@ -989,21 +1039,19 @@ Function DefineTemplatesSubjects() Export
 EndFunction
 
 Function TemplatesKinds() Export
+	
 	TemplatesTypes = New ValueList;
 	TemplatesTypes.Add(MessageTemplatesClientServer.EmailTemplateName(), NStr("en = 'Mail template';"));
 	TemplatesTypes.Add(MessageTemplatesClientServer.SMSTemplateName(), NStr("en = 'Text template';"));
+	
 	Return TemplatesTypes;
+	
 EndFunction
 
 Function PrepareQueryToGetTemplatesList(TemplateType, SubjectOf = Undefined, TemplateOwner = Undefined, OutputCommonTemplates = True) Export
 	
-	If TemplateType = "SMS" Then
-		ForSMSMessages = True;
-		ForEmails = False;
-	Else
-		ForSMSMessages = False;
-		ForEmails = True;
-	EndIf;
+	ForSMSMessages = TemplateType = "SMS";
+	ForEmails = TemplateType = "MailMessage";
 	
 	Query = New Query;
 	Query.Text = "SELECT ALLOWED
@@ -1019,7 +1067,9 @@ Function PrepareQueryToGetTemplatesList(TemplateType, SubjectOf = Undefined, Tem
 	|						THEN MessageTemplates.HTMLEmailTemplateText
 	|					ELSE MessageTemplates.MessageTemplateText
 	|				END
-	|		ELSE MessageTemplates.SMSTemplateText
+	|		WHEN MessageTemplates.ForSMSMessages
+	|			THEN MessageTemplates.SMSTemplateText
+	|		ELSE MessageTemplates.TemplateTextArbitrary
 	|	END AS TemplateText,
 	|	MessageTemplates.EmailTextType,
 	|	MessageTemplates.EmailSubject,
@@ -1075,7 +1125,7 @@ EndFunction
 //  Presentation - String
 // 
 // Returns:
-//  ValueTree:
+//  ValueTreeRowCollection:
 //    * Name - String
 //    * Presentation - String
 //
@@ -1231,8 +1281,8 @@ Procedure AddSelectedPrintFormsToAttachments(SendOptions, TemplateInfo, Attachme
 			PrintParameters    = AttachmentPrintForm.PrintParameters;
 			ObjectsArray     = New Array;
 			
-			
-			
+			// 
+			// 
 			SubjectOf = SendOptions.AdditionalParameters.ArbitraryParameters[NameOfParameterWithPrintFormInTemplate];
 			If SubjectOf = Undefined Then
 				ObjectsArray.Add(SendOptions.SubjectOf);
@@ -1373,7 +1423,9 @@ Function TemplateParameters(Template) Export
 		|						THEN MessageTemplates.HTMLEmailTemplateText
 		|					ELSE MessageTemplates.MessageTemplateText
 		|				END
-		|		ELSE MessageTemplates.SMSTemplateText
+		|		WHEN MessageTemplates.ForSMSMessages
+		|			THEN MessageTemplates.SMSTemplateText
+		|		ELSE MessageTemplates.TemplateTextArbitrary
 		|	END AS TemplateText,
 		|	MessageTemplates.EmailSubject,
 		|	MessageTemplates.PackToArchive,
@@ -1425,7 +1477,7 @@ Function TemplateParameters(Template) Export
 				Result.SelectedAttachments.Insert(SelectedPrintForm.Id, SelectedPrintForm.Name);
 			EndDo;
 			Result.Text                      = TemplateInfoString.TemplateText;
-			Result.TemplateType                 = ?(TemplateInfoString.ForSMSMessages, "SMS", "MailMessage");
+			Result.TemplateType                 = TemplateType(TemplateInfoString);
 			
 			If TemplateInfoString.ForInputOnBasis Then
 				Result.Purpose              = TemplateInfoString.Purpose;
@@ -1435,7 +1487,7 @@ Function TemplateParameters(Template) Export
 			
 			If Result.TemplateType = "SMS" Then
 				Result.Transliterate      = TemplateInfoString.SendInTransliteration;
-			Else
+			ElsIf Result.TemplateType = "MailMessage" Then
 				Result.Subject                    = TemplateInfoString.EmailSubject;
 				Result.PackToArchive         = TemplateInfoString.PackToArchive;
 				Result.EmailFormat1            = TemplateInfoString.EmailTextType;
@@ -1516,8 +1568,10 @@ EndFunction
 //   * TemplateType - String
 //
 Procedure SetTemplateParameters(Template, Result)
+	
 	Var PrintFormsAndAttachments;
-	Result.TemplateType                  = ?(Template.ForSMSMessages, "SMS", "MailMessage");
+	
+	Result.TemplateType                  = TemplateType(Template);
 	Result.Subject                        = Template.EmailSubject;
 	
 	If Template.ForInputOnBasis Then
@@ -1528,20 +1582,25 @@ Procedure SetTemplateParameters(Template, Result)
 	Result.PackToArchive              = Template.PackToArchive;
 	Result.Transliterate           = Template.SendInTransliteration;
 	Result.Sender                  = Template.Sender;
+	
 	If Result.TemplateType = "SMS" Then
-		Result.Text                    = Template.SMSTemplateText;
-	ElsIf Template.EmailTextType = Enums.EmailEditingMethods.HTML Then
-		Result.Text                    = Template.HTMLEmailTemplateText;
+		Result.Text = Template.SMSTemplateText;
+	ElsIf Result.TemplateType = "MailMessage" Then
+		If Template.EmailTextType = Enums.EmailEditingMethods.HTML Then
+			Result.Text = Template.HTMLEmailTemplateText;
+		Else
+			Result.Text = Template.MessageTemplateText;
+		EndIf;
 	Else
-		Result.Text                    = Template.MessageTemplateText;
+		Result.Text = Template.TemplateTextArbitrary;
 	EndIf;
+	
 	Result.TransliterateFileNames = Template.TransliterateFileNames;
 	Result.SignatureAndSeal               = Template.SignatureAndSeal;
 	
 	FillPropertyValues(Result, Template,, "Parameters");
 	
 	For Each PrintFormsAndAttachments In Template.PrintFormsAndAttachments Do
-		
 		Result.SelectedAttachments.Insert(PrintFormsAndAttachments.Id, PrintFormsAndAttachments.Name);
 	EndDo;
 	
@@ -1550,6 +1609,20 @@ Procedure SetTemplateParameters(Template, Result)
 	EndDo;
 	
 EndProcedure
+
+Function TemplateType(Template)
+	
+	Result = "Arbitrary";
+	
+	If Template.ForSMSMessages Then
+		Result = "SMS";
+	ElsIf Template.ForEmails Then
+		Result = "MailMessage";
+	EndIf;
+	
+	Return Result;
+	
+EndFunction
 
 // Returns mapping of template message text parameters.
 //
@@ -1563,7 +1636,8 @@ Function ParametersFromMessageText(TemplateParameters) Export
 	
 	If TemplateParameters.TemplateType = "MailMessage" Then
 		Return DefineMessageTextParameters(TemplateParameters.Text + " " + TemplateParameters.Subject);
-	ElsIf TemplateParameters.TemplateType = "SMS" Then
+	ElsIf TemplateParameters.TemplateType = "SMS" 
+	      Or TemplateParameters.TemplateType = "Arbitrary" Then
 		Return DefineMessageTextParameters(TemplateParameters.Text);
 	Else
 		Return New Map;
@@ -2717,7 +2791,7 @@ Procedure FillMessageRecipients(SendOptions, TemplateParameters, Result, ObjectM
 		Recipients = GenerateRecipientsByDefault(SendOptions.SubjectOf, TemplateParameters.TemplateType);
 		MessageTemplatesOverridable.OnFillRecipientsEmailsInMessage(Recipients, TemplateParameters.FullAssignmentTypeName, MessageSubject);
 		If ObjectManager <> Undefined Then
-				ObjectManager.OnFillRecipientsEmailsInMessage(Recipients, MessageSubject);
+			ObjectManager.OnFillRecipientsEmailsInMessage(Recipients, MessageSubject);
 		EndIf;
 		
 		If TemplateParameters.Property("ExtendedRecipientsList")
@@ -2965,5 +3039,34 @@ Function IsStandardAttribute(ObjectMetadata, AttributeName) Export
 	Return False;
 	
 EndFunction
+
+Procedure ProcessDataForMigrationToAttachableCommands() Export
+		
+	HasAttachableCommands = Common.SubsystemExists("StandardSubsystems.AttachableCommands");
+
+	Block = New DataLock;
+	Block.Add("Constant.UseSMSMessagesSendingInMessageTemplates");
+	Block.Add("Constant.UseEmailInMessageTemplates");
+	
+	BeginTransaction();
+	Try
+		Block.Lock();
+		
+		Object = Metadata.Constants.UseSMSMessagesSendingInMessageTemplates;
+		ObjectPresentation = Object.Presentation();
+		Constants.UseSMSMessagesSendingInMessageTemplates.Set(Not HasAttachableCommands);
+		
+		Object = Metadata.Constants.UseEmailInMessageTemplates;
+		ObjectPresentation = Object.Presentation();
+		Constants.UseEmailInMessageTemplates.Set(Not HasAttachableCommands);
+		
+		CommitTransaction();
+	Except
+		RollbackTransaction();
+				
+		InfobaseUpdate.WriteErrorToEventLog(Object, ObjectPresentation, ErrorInfo());
+	EndTry;
+
+EndProcedure
 
 #EndRegion

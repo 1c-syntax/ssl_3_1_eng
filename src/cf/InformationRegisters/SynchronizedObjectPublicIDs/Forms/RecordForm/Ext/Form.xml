@@ -19,6 +19,12 @@
 		</InputField>
 		<InputField name="Id" id="7">
 			<DataPath>IDAsString</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>ID as a string</v8:content>
+				</v8:item>
+			</Title>
 			<ContextMenu name="IdContextMenu" id="8"/>
 			<ExtendedTooltip name="IdExtendedTooltip" id="9"/>
 		</InputField>

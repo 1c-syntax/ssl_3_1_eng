@@ -1,16 +1,32 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
+	
+	If Not ValueIsFilled(Parameters.User) Then
+		Cancel = True;
+		Return;
+	EndIf;
+	
+	If TypeOf(Parameters.User) = Type("CatalogRef.Users")
+	   And Common.ObjectAttributeValue(Parameters.User, "IsInternal") = True Then
+		
+		IsInternalUser = True;
+		Items.UtilityUserRights.Visible = True;
+		CommandBar.Visible = False;
+		Items.AccessGroupsAndRoles.Visible = False;
+		Return;
+	EndIf;
 	
 	IBUserFull = Users.IsFullUser();
 	OwnAccess = Parameters.User = Users.AuthorizedUser();
@@ -88,6 +104,10 @@ EndProcedure
 &AtClient
 Procedure NotificationProcessing(EventName, Parameter, Source)
 	
+	If IsInternalUser Then
+		Return;
+	EndIf;
+	
 	If Upper(EventName) = Upper("Write_AccessGroups")
 	 Or Upper(EventName) = Upper("Write_AccessGroupProfiles")
 	 Or Upper(EventName) = Upper("Write_UserGroups")
@@ -101,6 +121,10 @@ EndProcedure
 
 &AtServer
 Procedure OnLoadDataFromSettingsAtServer(Settings)
+	
+	If IsInternalUser Then
+		Return;
+	EndIf;
 	
 	ProcessRolesInterface("SetUpRoleInterfaceOnLoadSettings", Settings);
 	
@@ -191,10 +215,9 @@ Procedure ChangeGroup(Command)
 		FormParameters.Insert("Key", CurrentAccessGroup);
 		OpenForm("Catalog.AccessGroups.ObjectForm", FormParameters);
 	Else
-		ShowMessageBox(,
-			NStr("en = 'Insufficient rights to edit the access group.
-			           |Only employees responsible for access group members and administrators can edit the access group.';"));
-		Return;
+		Raise(NStr("en = 'Insufficient rights to edit the access group.
+			|Only employees responsible for access group members and administrators can edit the access group.';"),
+			ErrorCategory.AccessViolation);
 	EndIf;
 	
 EndProcedure
@@ -225,7 +248,7 @@ Procedure AccessRightsReport(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure RolesBySubsystemsGroup(Command)
@@ -359,8 +382,8 @@ Procedure OutputAccessGroups()
 	
 	AllAccessGroups = Query.Execute().Unload();
 	
-	
-	
+	// 
+	// 
 	HasProhibitedGroups = False;
 	IndexOf = AllAccessGroups.Count()-1;
 	
@@ -429,8 +452,8 @@ Procedure ChangeGroupContent(Val AccessGroup, Val Add, ErrorDescription = "")
 		ActionsWithSaaSUser = ModuleUsersInternalSaaS.GetActionsWithSaaSUser();
 		
 		If Not ActionsWithSaaSUser.ChangeAdministrativeAccess Then
-			Raise
-				NStr("en = 'Insufficient access rights to edit administrators.';");
+			Raise(NStr("en = 'Insufficient access rights to edit administrators.';"),
+				ErrorCategory.AccessViolation);
 		EndIf;
 	EndIf;
 	
@@ -597,7 +620,7 @@ Procedure FillRoles()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
 Procedure ProcessRolesInterface(Action, MainParameter = Undefined)

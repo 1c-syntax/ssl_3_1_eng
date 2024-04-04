@@ -1,21 +1,22 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #Region Public
 
 #Region SelectiveDataRegistration
 
-// 
-// 
+// Returns the id of the selective registration mode that does not use selectiveness.
+// (In this mode, all objects are considered modified.)
 //
 // Returns:
-//  String - 
+//  String - The id of the "Disabled" selective registration mode.
 //
 Function SelectiveRegistrationModeDisabled() Export
 	
@@ -23,11 +24,11 @@ Function SelectiveRegistrationModeDisabled() Export
 	
 EndFunction
 
-// 
+// Returns the id of the selective registration mode that checks if an object is modified by its "Modified" property.
 // 
 //
 // Returns:
-//  String - 
+//  String - The id of the "Modified" selective registration mode.
 //
 Function SelectiveRegistrationModeModification() Export
 	
@@ -35,13 +36,13 @@ Function SelectiveRegistrationModeModification() Export
 	
 EndFunction
 
-// 
-// 
-// 
+// Returns the id of the selective registration mode that checks the object's attribute state before writing and after writing.
+// The list of checked attributes is generated according to object properties specified in the conversion rules.
+// This mode supports only CRDE exchange plans.
 // 
 //
 // Returns:
-//  String - 
+//  String - The id of the "AccordingToXMLRules" selective registration mode.
 //
 Function SelectiveRegistrationModeByXMLRules() Export
 	
@@ -157,7 +158,7 @@ Function ModificationFlagFromPCR(Source, ExchangePlanName, MetadataObject, Regis
 	
 	If TypeOf(RegistrationAttributesTable) <> Type("ValueTable") Then
 		
-		
+		// If no selective object registration table is found, it is assumed that no filters are applied
 		Return True;
 		
 	EndIf;
@@ -167,8 +168,8 @@ Function ModificationFlagFromPCR(Source, ExchangePlanName, MetadataObject, Regis
 	ObjectSelectiveRegistrationAttributes = ObjectSelectiveRegistrationAttributes(RegistrationAttributesTable, ObjectName, ExchangePlanName);
 	If ObjectSelectiveRegistrationAttributes.Count() = 0 Then
 		
-		
-		
+		// 
+		// 
 		Return True;
 		
 	EndIf;
@@ -256,7 +257,7 @@ Function ObjectIsModified(Source, MetadataObject, ExchangePlanName, WriteMode, R
 		Or Source.IsNew()
 		Or Source.DataExchange.Load Then
 		
-		
+		// 
 		// 
 		// 
 		// 
@@ -274,7 +275,7 @@ Function ObjectIsModified(Source, MetadataObject, ExchangePlanName, WriteMode, R
 	SelectiveRegistrationMode = DataExchangeRegistrationCached.ExchangePlanDataSelectiveRegistrationMode(ExchangePlanName);
 	If SelectiveRegistrationMode = SelectiveRegistrationModeDisabled() Then
 		
-		
+		// This exchange plan does not use selective registration
 		Return True;
 		
 	ElsIf SelectiveRegistrationMode = SelectiveRegistrationModeModification() Then
@@ -290,15 +291,15 @@ Function ObjectIsModified(Source, MetadataObject, ExchangePlanName, WriteMode, R
 			
 		Else
 			
-			
+			// Generate new selective registration parameters and write them to the information register.
 			
 			
 		EndIf;
 		
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	Return True;
 	
 EndFunction
@@ -316,14 +317,14 @@ Function AttributeIsFoundInTabularSectionOfObjectRegistrationAttributes(Metadata
 	Correspondence = False;
 	If TypeOf(MetadataTables) = Type("MetadataObject") And Common.IsAccountingRegister(MetadataTables) Then
 		Correspondence = MetadataTables.Correspondence;
-		
-		
+		// 
+		// 
 		If CandidateName = "EXTDIMENSIONDR" Or CandidateName = "EXTDIMENSIONCR"
 			Or CandidateName = "ACCOUNTDR" Or CandidateName = "ACCOUNTCR" Then
 			Return True;
 		EndIf;
 		
-		
+		// Take into account exchange plans without "Correspondences", "ExtDimension", and "Account"
 		If Correspondence = False Then
 			
 			If CandidateName = "EXTDIMENSION"
@@ -703,7 +704,7 @@ Procedure PopulateAttributesOfSelectiveRegistrationByOCRCollection(SelectiveRegi
 	DeleteChangeRecordAttributeTableRowsWithErrors(RegistrationAttributesTable);
 	CheckObjectChangeRecordAttributes(RegistrationAttributesTable);
 	
-	
+	// Column "ExchangePlanName" is saved for backward compatibility
 	RegistrationAttributesTable.FillValues(ExchangePlanName, "ExchangePlanName");
 	
 	SelectiveRegistrationParameters.RegistrationAttributesTable = RegistrationAttributesTable;
@@ -800,8 +801,8 @@ Procedure BeforeGenerateNewParametersOfExchangePlanDataSelectiveRegistration(Sel
 		
 		SelectiveRegistrationMode = DataExchangeRegistrationCached.ExchangePlanDataSelectiveRegistrationMode(ExchangePlanName);
 		
-		
-		
+		// 
+		// 
 		If SelectiveRegistrationMode = SelectiveRegistrationModeByXMLRules() Then
 			
 			RulesAreRead = InformationRegisters.DataExchangeRules.ParsedRulesOfObjectConversion(ExchangePlanName);

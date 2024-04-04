@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -30,7 +31,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	OperatorsTree = GetStandardOperatorsTree();
 	ValueToFormAttribute(OperatorsTree, "Operators");
 	
-	If Parameters.Property("OperandsTitle") Then
+	If ValueIsFilled(Parameters.OperandsTitle) Then
 		Items.OperandsGroup.Title = Parameters.OperandsTitle;
 		Items.OperandsGroup.ToolTip = Parameters.OperandsTitle;
 	EndIf;
@@ -103,14 +104,15 @@ Procedure OperandsSelection(Item, RowSelected, Field, StandardProcessing)
 	EndIf;
 	
 	If Item.CurrentData.DeletionMark Then
+		StandardProcessing = False;
 		
 		ShowQueryBox(
 			New NotifyDescription("OperandsSelectionCompletion", ThisObject), 
 			NStr("en = 'Selected item is marked for deletion.
 				|Continue?';"), 
 			QuestionDialogMode.YesNo);
-		StandardProcessing = False;
 		Return;
+		
 	EndIf;
 	
 	StandardProcessing = False;

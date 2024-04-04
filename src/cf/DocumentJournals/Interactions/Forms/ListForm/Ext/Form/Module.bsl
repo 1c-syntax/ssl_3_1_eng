@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -489,8 +490,7 @@ Procedure FoldersBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group)
 	EndIf;
 	
 	If CurrentData.HasEditPermission = 0 Then
-		ShowMessageBox(, NStr("en = 'Insufficient rights to create a folder.';"));
-		Return;
+		Raise(NStr("en = 'Insufficient rights to create a folder.';"), ErrorCategory.AccessViolation);
 	EndIf;
 		
 	ParametersStructure1 = New Structure;
@@ -676,7 +676,7 @@ EndProcedure
 
 
 ////////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure SubjectsDragCheck(Item, DragParameters, StandardProcessing, String, Field)
@@ -1163,7 +1163,7 @@ Procedure AddToTabs(Command)
 		Return;
 	EndIf;
 	ShowUserNotification(NStr("en = 'Items added to bookmarks:';"),
-		Result.ItemURL, Result.ItemPresentation, PictureLib.Information32);
+		Result.ItemURL, Result.ItemPresentation, PictureLib.DialogInformation);
 	
 EndProcedure
 
@@ -1284,8 +1284,7 @@ Procedure MoveToFolder(Command)
 			ShowMessageBox(, NStr("en = 'Cannot execute the command on this object';"));
 			Return;
 		ElsIf FoldersCurrentData.HasEditPermission = 0 Then
-			ShowMessageBox(, NStr("en = 'Insufficient rights to edit folders.';"));
-			Return;
+			Raise(NStr("en = 'Insufficient rights to edit folders.';"), ErrorCategory.AccessViolation);
 		EndIf;
 	EndIf;
 	
@@ -1559,7 +1558,7 @@ Procedure SetConditionalAppearance()
 EndProcedure
 
 /////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
 Procedure ChangeFilterInteractionTypeServer(Val CommandName)
@@ -3403,7 +3402,7 @@ Procedure PositionOnRowAccordingToSavedValue(CurrentRowValue,
 EndProcedure
 
 ///////////////////////////////////////////////////////////////////////////////
-
+// 
 
 // Set a responsible person for selected interactions - the server part.
 // Parameters:
@@ -3562,14 +3561,14 @@ Function AddToTabsServer(Val DataForProcessing, FormItemName)
 			
 		ElsIf FormItemName = "Properties" Then
 			
-			NameOfCurrentProperty = Common.ObjectAttributeValue(CurrentPropertyOfNavigationPanel, "Description");
+			CurrentPropertyDescription = Common.ObjectAttributeValue(CurrentPropertyOfNavigationPanel, "Description");
 			
 			If TypeOf(DataForProcessing.Value) = Type("String") 
 				And DataForProcessing.Value = "NotSpecified" Then
-				TabDescription       = NameOfCurrentProperty + " " + NStr("en = 'not specified';");
+				TabDescription       = CurrentPropertyDescription + " " + NStr("en = 'not specified';");
 				Result.ItemPresentation = ?(OnlyEmail, NStr("en = 'Mail messages';"), NStr("en = 'Interactions';"));
 			Else
-				TabDescription       = NameOfCurrentProperty + " = " + String(DataForProcessing.Value);
+				TabDescription       = CurrentPropertyDescription + " = " + String(DataForProcessing.Value);
 				Result.ItemPresentation = ?(OnlyEmail, 
 				                                   NStr("en = 'Mail messages with the property: %1';"), 
 				                                   NStr("en = 'Interactions with the property: %1';"));
@@ -3803,7 +3802,7 @@ Procedure ExecuteTransferToEmailsArrayFolder(Val EmailsArray, Val Folder)
 EndProcedure
 
 /////////////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
 Procedure DetermineAvailabilityFullTextSearch() 

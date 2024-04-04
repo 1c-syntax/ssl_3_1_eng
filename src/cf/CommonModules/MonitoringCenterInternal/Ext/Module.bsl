@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -40,8 +41,8 @@ EndProcedure
 // Sets a value of the Monitoring center parameter.
 //
 // Parameters:
-//  Parameter - String - 
-//                      
+//  Parameter - String - Monitoring center parameter key.
+//                      See possible key values in the GetDefaultParameters procedure of the MonitoringCenterInternal module.
 //  Value - Arbitrary - a monitoring center parameter value.
 //
 Function SetMonitoringCenterParameterExternalCall(Parameter, Value) Export
@@ -115,7 +116,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 		Handler = Handlers.Add();
 		Handler.ExecutionMode = "Deferred";
 		Handler.Version          = "2.4.4.79";
-		Handler.Comment     = NStr("en = 'Enables sending application usage data to 1C company. You can disable this option in Administration — Online support and services — Monitoring center.';");
+		Handler.Comment     = NStr("en = 'Enables sending usage data to 1C company. You can disable this option in Administration > Online support and services > Monitoring center.';");
 		Handler.Id   = New UUID("68c8c60c-5b23-436a-9555-a6f24a6b1ffd");
 		Handler.Procedure       = "MonitoringCenterInternal.EnableSendingInfo";
 		Handler.UpdateDataFillingProcedure = "MonitoringCenterInternal.EnableSendingInfoFilling";
@@ -231,7 +232,7 @@ Procedure OnReceiptRecurringClientDataOnServer(Parameters, Results) Export
 	MonitoringCenterParameters = GetMonitoringCenterParameters(MonitoringCenterParameters);
 	
 	If Not MonitoringCenterParameters.TestPackageSent And Not SeparationByDataAreasEnabled() Then
-		
+		// No need to send a test package as the data is already being sent.
 		If MonitoringCenterParameters.EnableMonitoringCenter Or MonitoringCenterParameters.ApplicationInformationProcessingCenter Then
 			SetPrivilegedMode(True);
 			SetMonitoringCenterParameter("TestPackageSent", True);
@@ -262,6 +263,7 @@ Procedure OnReceiptRecurringClientDataOnServer(Parameters, Results) Export
 			
 		StartErrorReportsCollectionAndSending = Not MonitoringCenterParameters.SendDumpsFiles = 0
 												And Not IsBlankString(MonitoringCenterParameters.DumpOption)
+												And Common.IsWindowsServer()												
 												And CurrentUniversalDate() < MonitoringCenterParameters.DumpCollectingEnd;
 												
 		If StartErrorReportsCollectionAndSending Then
@@ -335,7 +337,7 @@ Procedure OnFillToDoList(ToDoList) Export
 		ToDoItem.Owner       = Section;
 		ToDoItem.Presentation  = NStr("en = 'Provide error reports';");
 		ToDoItem.Count     = 0;
-		ToDoItem.ToolTip      = NStr("en = 'Abnormal application terminations were registered. Please contact us on this issue.';");
+		ToDoItem.ToolTip      = NStr("en = 'Abnormal terminations of the app were detected. Please contact us on this issue.';");
 		ToDoItem.FormParameters = New Structure("Variant", "Query");
 		ToDoItem.Form          = "DataProcessor.MonitoringCenterSettings.Form.RequestForErrorReportsCollectionAndSending";
 	EndDo;
@@ -562,8 +564,8 @@ Procedure MonitoringCenterScheduledJob() Export
 			InstallAdditionalErrorHandlingInformation();
 		EndIf;
 		
-		
-		
+		// 
+		// 
 		MonitoringCenterParameters.Delete("RegisterDumps");
 		MonitoringCenterParameters.Delete("RegisterBusinessStatistics");
 		MonitoringCenterParameters.Delete("RegisterConfigurationStatistics");
@@ -584,6 +586,7 @@ Procedure MonitoringCenterScheduledJob() Export
 	
 	StartErrorReportsCollectionAndSending = Not MonitoringCenterParameters.SendDumpsFiles = 0
 											And Not IsBlankString(MonitoringCenterParameters.DumpOption)
+											And Common.IsWindowsServer()
 											And StartDate2 < MonitoringCenterParameters.DumpCollectingEnd;
 	If StartErrorReportsCollectionAndSending Then
 		
@@ -598,7 +601,7 @@ Procedure MonitoringCenterScheduledJob() Export
 		EndIf;
 		
 		If Common.FileInfobase() Then
-			
+			// For file infobases, data is collected and sent in "OnReceiptRecurringClientDataOnServer".
 		Else    			
 			// Check if the background job exists.			
 			SchedJob = GetScheduledJob("ErrorReportCollectionAndSending", False);
@@ -1502,9 +1505,9 @@ Procedure CollectConfigurationStatistics1(MonitoringCenterParameters = Undefined
 		MonitoringCenterParameters = GetMonitoringCenterParameters(MonitoringCenterParameters);
 	EndIf;
 	
-	
-	
-	
+	// 
+	// 
+	// 
 	//
 	#Region BaseConfigurationStatistics
 	
@@ -1538,9 +1541,9 @@ Procedure CollectConfigurationStatistics1(MonitoringCenterParameters = Undefined
 	
 	#EndRegion
 	
-	
-	
-	
+	// 
+	// 
+	// 
 	//
 	#Region ConfigurationStatisticsStandardSubsystems
 	
@@ -1729,8 +1732,8 @@ Function GetDefaultParameters()
 	//
 	ConstantParameters.Insert("EnableMonitoringCenter", False);
 	
-	
-	
+	// 
+	// 
 	//
 	ConstantParameters.Insert("ApplicationInformationProcessingCenter", False);
 	
@@ -1771,7 +1774,7 @@ Function GetDefaultParameters()
 	ConstantParameters.Insert("RegisterConfigurationStatistics", False);
 	ConstantParameters.Insert("RegisterConfigurationSettings", False);
 	
-	
+	// 
 	// 	
 	// 	
 	// 	
@@ -1800,20 +1803,20 @@ Function GetDefaultParameters()
 	ConstantParameters.Insert("Port", 443);
 	ConstantParameters.Insert("SecureConnection", True);
 	
-	
+	// 
 	//
-	
+	// 
 	//	
 	//  
 	//  
 	ConstantParameters.Insert("SendDumpsFiles", 2);
 	ConstantParameters.Insert("DumpOption", "");
-	
-	
+	// 
+	// 
 	ConstantParameters.Insert("BasicChecksPassed", False); 
 	ConstantParameters.Insert("RequestConfirmationBeforeSending", True);
 	ConstantParameters.Insert("SendingResult", "");
-	ConstantParameters.Insert("DumpsInformation", ""); 
+	ConstantParameters.Insert("DumpsInformation", ""); // 
 	ConstantParameters.Insert("SpaceReserveDisabled", 40);
 	ConstantParameters.Insert("SpaceReserveEnabled", 20);
 	ConstantParameters.Insert("DumpCollectingEnd", Date(2017,1,1));
@@ -1853,9 +1856,9 @@ Function GetDefaultParameters()
 	ConstantParameters.Insert("IncludeDetailErrorDescriptionInReport", "Auto"); // IncludeDetailedErrorTextInReport.
 	ConstantParameters.Insert("IncludeInfobaseInformationInReport", "Auto"); // IncludeInfobaseInformationInReport.
 	
-	
+	// 
 	//
-	
+	// 
 	//	
 	//  
 	//  
@@ -1919,7 +1922,7 @@ Function SetSendingParameters(Parameters)
 	SendOptions.Insert("RegisterConfigurationSettings", False);
 	SendOptions.Insert("RegisterPerformance", False);
 	SendOptions.Insert("RegisterTechnologicalPerformance", False);
-	SendOptions.Insert("SendingResult", ""); 
+	SendOptions.Insert("SendingResult", ""); // 
 	SendOptions.Insert("DiscoveryPackageSent", True); // If a response from the service is received, always True.
 	SendOptions.Insert("ContactInformationChanged", False);  // Always clear the contacts change flag upon successful sending.
 	
@@ -2628,7 +2631,7 @@ EndFunction
 
 Procedure AddExtensionsInformation(ObjectClass, ObjectArchitecture, ExtensionsMetadata)
 	For Each MetadataObject In Metadata[ObjectClass] Do
-		
+		// 
 		For Each StructureItem In ObjectArchitecture Do
 			If StructureItem.Value = "Recursively" Then
 				AddExtensionsInformationRecursively(MetadataObject, StructureItem.Key, ObjectArchitecture, ExtensionsMetadata);
@@ -2991,7 +2994,7 @@ EndProcedure
 Procedure DisableEventLoggingOnUpdate() Export
 	MonitoringCenterParameters = GetMonitoringCenterParameters(New Structure("EnableMonitoringCenter, ApplicationInformationProcessingCenter"));	
 	If Not MonitoringCenterParameters.EnableMonitoringCenter And Not MonitoringCenterParameters.ApplicationInformationProcessingCenter Then
-		
+		// Disable parameters to prevent collecting excessive data.
 		DisableEventLogging();
 	EndIf;
 EndProcedure
@@ -3073,8 +3076,10 @@ EndFunction
 
 #Region DumpsCollectionAndSending
 
-// In client/server mode, the function is called by scheduled job DumpsCollectionAndSending.
-// From it, two background jobs are started: DumpsCollection and DumpsSending.
+// 
+// 
+// 
+// 
 //
 Procedure CollectAndSendDumps(FromClientAtServer = False, JobID = "") Export
 	
@@ -3119,8 +3124,8 @@ Procedure CollectAndSendDumps(FromClientAtServer = False, JobID = "") Export
 		StopFullDumpsCollection();
 		Return;
 	Else  		
-		
-		
+		// 
+		// 
 		If DumpRequirement.DumpType <> DumpsCollectionAndSendingParameters.DumpType 
 			And (DumpRequirement.DumpType = "0" 
 				Or DumpsCollectionAndSendingParameters.SendDumpsFiles = 1 
@@ -3133,8 +3138,8 @@ Procedure CollectAndSendDumps(FromClientAtServer = False, JobID = "") Export
 		EndIf;   		
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	DumpType = DumpsCollectionAndSendingParameters.DumpType;
 	DumpsDirectory = GetDumpsDirectory(DumpType);
 	DumpsCollectionAndSendingParameters.Insert("DumpsDirectory", DumpsDirectory.Path);
@@ -3190,8 +3195,8 @@ Procedure CollectAndSendDumps(FromClientAtServer = False, JobID = "") Export
 			Return;
 		EndIf;
 		
-		
-		
+		// 
+		// 
 		If MeasurementResult.Value/1024 < DumpsCollectionAndSendingParameters.SpaceReserveEnabled
 			And DumpType = "3" Then
 			SetPrivilegedMode(True);
@@ -3283,7 +3288,7 @@ Procedure CollectDumps(Parameters)
 			ZipFileWriter.Write();
 			
 			ArchiveFile1 = New File(ArchiveName);
-			Size = Round(ArchiveFile1.Size()/1024/1024,3); 
+			Size = Round(ArchiveFile1.Size()/1024/1024,3); // File size, MB.
 			
 			DumpData = New Structure;
 			DumpData.Insert("FullName", ArchiveName);
@@ -3520,8 +3525,8 @@ Function DumpIsRequired(DumpOption, RequestedDump, DumpType = "")
 	Result = New Structure("Required2, DumpType", False, DumpType);
 	RequiredDumps = RequiredDumps(DumpOption);
 	
-	
-	
+	// 
+	// 
 	If Not RequiredDumps.RequestSuccessful Then
 		If DumpOption = RequestedDump Then
 			Result.Required2 = True;
@@ -3630,9 +3635,9 @@ Function DumpSending(DumpOption, Data, RequiredDump, DumpType)
 	
 	SendingResult = False;
 	
-	
-	
-	
+	// 
+	// 
+	// 
 	File = New File(Data.FullName);
 	If Not File.Exists() Then
 		Return True;
@@ -3937,8 +3942,8 @@ Procedure InstallAdditionalErrorHandlingInformation() Export
 	Parameters = New Structure("TheCodeIsExecuted,ErrorProcessing", False, Undefined);
 	CodeToExecute = "Parameters.ErrorProcessing = ErrorProcessing;					   
 						|Parameters.TheCodeIsExecuted = True;";	
-	
-	
+	// 
+	// 
 	Try
 		Common.ExecuteInSafeMode(CodeToExecute, Parameters);
 	Except
@@ -3990,8 +3995,8 @@ Function SettingErrorHandlingSettings(SavedParameters1, ReceivedParameters)
 						|Parameters.TheCodeIsExecuted = True;
 						|Parameters.ErrorReportingMode = ErrorReportingMode;
 						|Parameters.ErrorMessageDisplayVariant = ErrorMessageDisplayVariant;";	   				
-	
-	
+	// 
+	// 
 	Try
 		Common.ExecuteInSafeMode(CodeToExecute, Parameters);
 	Except

@@ -21,6 +21,12 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.WriteAndClose</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save and close</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormWriteAndCloseExtendedTooltip" id="83"/>
 			</Button>
 			<Button name="FormReread" id="50">
@@ -37,12 +43,24 @@
 			<Button name="FormWriteRules" id="116">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.WriteRules</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormWriteRulesExtendedTooltip" id="117"/>
 			</Button>
 			<Button name="SaveRulesToFile" id="20">
 				<Type>CommandBarButton</Type>
 				<SkipOnInput>true</SkipOnInput>
 				<CommandName>Form.Command.SaveConversionRulesToFile</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save conversion rules to file</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="SaveRulesToFileExtendedTooltip" id="62"/>
 			</Button>
 		</ChildItems>
@@ -110,6 +128,12 @@
 					<ChildItems>
 						<RadioButtonField name="RulesSourceStandardRules" id="29">
 							<DataPath>RulesSource</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Rule source</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<RadioButtonType>Auto</RadioButtonType>
 							<ColumnsCount>1</ColumnsCount>
@@ -209,6 +233,12 @@
 					<ChildItems>
 						<RadioButtonField name="RulesSourceRulesFromFile" id="113">
 							<DataPath>RulesSource</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Rule source</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<RadioButtonType>Auto</RadioButtonType>
 							<ChoiceList>
@@ -256,6 +286,12 @@
 									<SkipOnInput>true</SkipOnInput>
 									<Height>1</Height>
 									<CommandName>Form.Command.ImportRules</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Import</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="ImportStandardRulesExtendedTooltip" id="61"/>
 								</Button>
 							</ChildItems>
@@ -267,6 +303,12 @@
 		<InputField name="RulesInformation" id="11">
 			<DataPath>RulesInformation</DataPath>
 			<ReadOnly>true</ReadOnly>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Rules</v8:content>
+				</v8:item>
+			</Title>
 			<AutoMaxWidth>false</AutoMaxWidth>
 			<Height>6</Height>
 			<MultiLine>true</MultiLine>
@@ -468,7 +510,7 @@
 									<TitleLocation>Right</TitleLocation>
 									<CheckBoxType>Auto</CheckBoxType>
 									<ContextMenu name="DoNotStopOnErrorContextMenu" id="48"/>
-									<ExtendedTooltip name="DoNotStopOnErrorExtendedTooltip" id="78"/>
+									<ExtendedTooltip name="NotStopByMistakeExtendedTooltip" id="78"/>
 								</CheckBoxField>
 							</ChildItems>
 						</UsualGroup>

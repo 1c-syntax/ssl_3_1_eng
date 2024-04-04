@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -45,7 +46,7 @@ EndFunction
 //
 Function ReminderDetails(DataToFill = Undefined, AllAttributes = False) Export
 	
-	Result = New Structure("User,EventTime,Source,ReminderTime,LongDesc,Id");
+	Result = New Structure("User,EventTime,Source,ReminderTime,LongDesc,Id,URL");
 	
 	If AllAttributes Then 
 		Result.Insert("ReminderTimeSettingMethod");
@@ -81,15 +82,15 @@ EndFunction
 //
 //  Time - Number - Time interval in seconds.
 //
-//  FullPresentation	- Boolean - 
-//		:
-//		
-//		
+//  FullPresentation	- Boolean - The brief or full presentation of a time interval.
+//		For example, if the interval is 1,000,000 seconds::
+//		1. Its full presentation is "11 days 13 hours 46 minutes 40 seconds".
+//		2. Its brief presentation is "11 days 13 hours".
 //  
 //  OutputSeconds - Boolean - False if seconds are not required.
 //  
 // Returns:
-//   String - 
+//   String - A time interval presentation.
 //
 Function TimePresentation(Val Time, FullPresentation = True, OutputSeconds = True) Export
 	Result = "";
@@ -252,14 +253,14 @@ EndFunction
 //  Unit - String - Word being analyzed.
 //
 // Returns:
-//  Number - 
+//  Number - The number of seconds in the unit. If the unit is unidentified or empty, returns "0".
 //
 Function ReplaceUnitOfMeasureByMultiplier(Val Unit)
 	
 	Result = 0;
 	Unit = Lower(Unit);
 	
-	AllowedChars = NStr("en = 'abcdefghijklmnopqrstuvwxyz';"); 
+	AllowedChars = NStr("en = 'abcdefghijklmnopqrstuvwxyz';"); // 
 	ProhibitedChars = StrConcat(StrSplit(Unit, AllowedChars, False), "");
 	If ProhibitedChars <> "" Then
 		Unit = StrConcat(StrSplit(Unit, ProhibitedChars, False), "");
@@ -326,6 +327,10 @@ Function ReminderTimePresentation(Reminder) Export
 		Return EnumPresentationOnSchedule();
 	EndIf;
 	
+EndFunction
+
+Function IsMessageURL(URL) Export
+	Return StrStartsWith(URL, "e1ccs/data/msg?id=");
 EndFunction
 
 #EndRegion

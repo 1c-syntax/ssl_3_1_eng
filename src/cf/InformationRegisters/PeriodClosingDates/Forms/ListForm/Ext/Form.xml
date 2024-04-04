@@ -32,16 +32,34 @@
 				<Button name="FormPeriodEndClosingDates" id="16">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.PeriodEndClosingDates</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Period-end closing dates</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="FormPeriodEndClosingDatesExtendedTooltip" id="20"/>
 				</Button>
 				<Button name="FormDataImportRestrictionDates" id="17">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.DataImportRestrictionDates</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Data import restriction dates</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="FormDataImportRestrictionDatesExtendedTooltip" id="21"/>
 				</Button>
 				<Button name="FormEnableEditing" id="43">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.EnableEditing</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Allow editing</v8:content>
+						</v8:item>
+					</Title>
 					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 					<ExtendedTooltip name="FormEnableEditingExtendedTooltip" id="44"/>
 				</Button>
@@ -239,7 +257,7 @@
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Allow editing for troubleshooting purposes. Recommended for advanced users only.</v8:content>
+					<v8:content>Allow editing for troubleshooting. Recommended for advanced users only.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>EnableEditing</Action>

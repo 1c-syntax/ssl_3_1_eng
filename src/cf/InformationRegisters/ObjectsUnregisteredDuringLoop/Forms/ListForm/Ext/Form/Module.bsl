@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -28,8 +29,8 @@ Procedure RegisterEverything(Command)
 		
 	TimeConsumingOperation = StartRegistering();
 	
-	CompletionNotification2 = New NotifyDescription("ProcessResult", ThisObject);
-	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CompletionNotification2, IdleParameters());
+	CallbackOnCompletion = New NotifyDescription("ProcessResult", ThisObject);
+	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters());
 
 EndProcedure
 
@@ -51,8 +52,8 @@ Procedure RegisterSelected(Command)
 	
 	TimeConsumingOperation = StartRegisteringSelectedOne();
 	
-	CompletionNotification2 = New NotifyDescription("ProcessResult", ThisObject);
-	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CompletionNotification2, IdleParameters());
+	CallbackOnCompletion = New NotifyDescription("ProcessResult", ThisObject);
+	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters());
 	
 EndProcedure
 
@@ -99,6 +100,10 @@ Function StartRegistering()
 		
 EndFunction
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
 Procedure ProcessResult(Result, AdditionalParameters) Export
 	
@@ -107,7 +112,8 @@ Procedure ProcessResult(Result, AdditionalParameters) Export
 	EndIf;
 		
 	If Result.Status = "Error" Then
-		ShowMessageBox(,Result.BriefErrorDescription);
+		StandardSubsystemsClient.OutputErrorInfo(
+			Result.ErrorInfo);
 	EndIf;
 	
 	Items.List.Refresh();

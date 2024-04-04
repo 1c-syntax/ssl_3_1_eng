@@ -18,6 +18,12 @@
 				<DefaultButton>true</DefaultButton>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.SaveFile</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save file</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="SaveFileExtendedTooltip" id="21"/>
 			</Button>
 			<Button name="Cancel" id="11">
@@ -54,8 +60,8 @@
 						</v8:item>
 					</Title>
 					<Picture>
-						<xr:Ref>CommonPicture.Warning32</xr:Ref>
-						<xr:LoadTransparent>false</xr:LoadTransparent>
+						<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</Picture>
 					<FileDragMode>AsFile</FileDragMode>
 					<ContextMenu name="IconDecoration1ContextMenu" id="20"/>
@@ -63,6 +69,12 @@
 				</PictureDecoration>
 				<LabelField name="Message" id="3">
 					<DataPath>Message</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Message</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<Width>65</Width>
 					<Height>3</Height>
@@ -101,6 +113,12 @@
 						<InputField name="File" id="8">
 							<DataPath>FileCopy</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Local copy</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Top</TitleLocation>
 							<Width>60</Width>
 							<ContextMenu name="FileContextMenu" id="9"/>
@@ -110,6 +128,12 @@
 							<Type>UsualButton</Type>
 							<SkipOnInput>false</SkipOnInput>
 							<CommandName>Form.Command.OpenDirectory</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Open directory</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="OpenDirectoryExtendedTooltip" id="30"/>
 						</Button>
 					</ChildItems>
@@ -118,6 +142,12 @@
 		</UsualGroup>
 		<RadioButtonField name="FileCreationMode" id="5">
 			<DataPath>FileCreationMode</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Select a file copy to save</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>Top</TitleLocation>
 			<RadioButtonType>Auto</RadioButtonType>
 			<ColumnsCount>1</ColumnsCount>
@@ -142,7 +172,7 @@
 						<Presentation>
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>Get and save file copy stored in the application</v8:content>
+								<v8:content>Get and save file copy stored in the app</v8:content>
 							</v8:item>
 						</Presentation>
 						<Value xsi:type="xs:decimal">0</Value>
@@ -240,4 +270,24 @@
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 	</Commands>
+	<Parameters>
+		<Parameter name="File">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Parameter>
+		<Parameter name="Message">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Parameter>
+	</Parameters>
 </Form>

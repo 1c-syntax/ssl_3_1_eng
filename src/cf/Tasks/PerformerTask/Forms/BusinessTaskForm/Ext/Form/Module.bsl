@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -12,8 +13,15 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
+	// StandardSubsystems.AttachableCommands
+	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
+		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
+	EndIf;
+	// End StandardSubsystems.AttachableCommands
 	
-	
+	// 
+	// 
 	If Object.Ref.IsEmpty() Then
 		InitializeTheForm();
 	EndIf;
@@ -33,7 +41,14 @@ Procedure OnReadAtServer(CurrentObject)
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.OnReadAtServer(ThisObject, CurrentObject);
 	EndIf;
-	// End StandardSubsystems.AccessManagement
+	// End StandardSubsystems.AccessManagement 
+	
+	// StandardSubsystems.AttachableCommands
+	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommandsClientServer = Common.CommonModule("AttachableCommandsClientServer");
+		ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, Object);
+	EndIf;
+	// End StandardSubsystems.AttachableCommands
 
 EndProcedure
 
@@ -52,6 +67,18 @@ Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 	EndIf;
 	// End StandardSubsystems.AccessManagement
 
+EndProcedure
+
+&AtClient
+Procedure AfterWrite(WriteParameters)
+	
+	// StandardSubsystems.AttachableCommands
+	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
+		ModuleAttachableCommandsClient.AfterWrite(ThisObject, Object, WriteParameters);
+	EndIf;
+	// End StandardSubsystems.AttachableCommands
+	
 EndProcedure
 
 #EndRegion
@@ -108,6 +135,33 @@ Procedure More(Command)
 	BusinessProcessesAndTasksClient.OpenAdditionalTaskInfo(Object.Ref);
 	
 EndProcedure
+
+// Standard subsystems.Pluggable commands
+
+&AtClient
+Procedure Attachable_ExecuteCommand(Command)
+	ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
+	ModuleAttachableCommandsClient.StartCommandExecution(ThisObject, Command, Object);
+EndProcedure
+
+&AtClient
+Procedure Attachable_ContinueCommandExecutionAtServer(ExecutionParameters, AdditionalParameters) Export
+	ExecuteCommandAtServer(ExecutionParameters);
+EndProcedure
+
+&AtServer
+Procedure ExecuteCommandAtServer(ExecutionParameters)
+	ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
+	ModuleAttachableCommands.ExecuteCommand(ThisObject, ExecutionParameters, Object);
+EndProcedure
+
+&AtClient
+Procedure Attachable_UpdateCommands()
+	ModuleAttachableCommandsClientServer = CommonClient.CommonModule("AttachableCommandsClientServer");
+	ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, Object);
+EndProcedure
+
+// End StandardSubsystems.AttachableCommands
 
 #EndRegion
 

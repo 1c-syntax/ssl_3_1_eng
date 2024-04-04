@@ -16,6 +16,12 @@
 					<xr:Ref>StdPicture.WriteAndClose</xr:Ref>
 					<xr:LoadTransparent>true</xr:LoadTransparent>
 				</Picture>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Continue</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormContinueExtendedTooltip" id="8"/>
 			</Button>
 		</ChildItems>
@@ -28,6 +34,12 @@
 	<ChildItems>
 		<HTMLDocumentField name="WarningText" id="1">
 			<DataPath>WarningText</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Warning text</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>None</TitleLocation>
 			<Width>1</Width>
 			<ContextMenu name="WarningTextContextMenu" id="2"/>

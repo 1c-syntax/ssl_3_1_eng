@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -15,9 +16,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	ProxySettingAtClient = Parameters.ProxySettingAtClient;
 	If Not Parameters.ProxySettingAtClient
 		And Not Users.IsFullUser(, True) Then
-		Raise NStr("en = 'Insufficient access rights.
-			|
-			|Only administrators can configure proxy servers.';");
+		Raise(NStr("en = 'Insufficient access rights.
+			|Only administrators can configure proxy servers.';"),
+			ErrorCategory.AccessViolation);
 	EndIf;
 	
 	If ProxySettingAtClient Then
@@ -56,8 +57,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 				AllProtocolsThroughSingleProxy = True;
 			Else
 			
-				
-								
+				// 
+				// 				
 				ParameterValue = AdditionalProxy.Get("http");
 				If TypeOf(ParameterValue) = Type("Structure") Then
 					HTTPServer = ParameterValue.Address;
@@ -82,11 +83,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 	EndIf;
 	
-	
-	
-	
-	
-	
+	// 
+	// 
+	// 
+	// 
+	// 
 	ProxyServerUseCase = ?(UseProxy, ?(UseSystemSettings = True, 1, 2), 0);
 	If ProxyServerUseCase = 0 Then
 		InitializeFormItems(ThisObject, EmptyProxyServerSettings());
@@ -162,11 +163,11 @@ Procedure ProxyServerUseCasesOnChange(Item)
 	UseSystemSettings = (ProxyServerUseCase = 1);
 	
 	ProxySettings = Undefined;
-	
-	
-	
-	
-	
+	// 
+	// 
+	// 
+	// 
+	// 
 	If ProxyServerUseCase = 0 Then
 		ProxySettings = EmptyProxyServerSettings();
 	ElsIf ProxyServerUseCase = 1 Then
@@ -210,8 +211,8 @@ EndProcedure
 &AtClient
 Procedure OKButton(Command)
 	
-	
-	
+	// 
+	// 
 	SaveProxyServerSettings();
 	
 EndProcedure
@@ -247,8 +248,8 @@ Procedure InitializeFormItems(Form, ProxySettings)
 		Form.ExceptionServers.LoadValues(ProxySettings.BypassProxyOnAddresses);
 		Form.UseOSAuthentication = ?(ProxySettings.UseOSAuthentication, 1, 0);
 		
-		
-		
+		// 
+		// 
 		Form.AllProtocolsThroughSingleProxy = (Form.Server = Form.HTTPServer
 			And Form.HTTPServer = Form.HTTPSServer
 			And Form.HTTPSServer = Form.FTPServer
@@ -265,8 +266,8 @@ EndProcedure
 &AtClientAtServerNoContext
 Procedure SetVisibilityAvailability(Form)
 	
-	
-	
+	// 
+	// 
 	Form.EditingAvailable = (Form.ProxyServerUseCase = 2);
 	
 	Form.Items.ServerAddressGroup.Enabled = Form.EditingAvailable;
@@ -436,8 +437,8 @@ Function NormalizedProxyServerAddress(Val ProxyServerAddress)
 	ProxyServerAddress = TrimAll(ProxyServerAddress);
 	SpacePosition = StrFind(ProxyServerAddress, " ");
 	If SpacePosition > 0 Then
-		
-		
+		// 
+		// 
 		ProxyServerAddress = Left(ProxyServerAddress, SpacePosition - 1);
 	EndIf;
 	

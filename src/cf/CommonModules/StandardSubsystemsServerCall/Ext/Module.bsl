@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -101,18 +102,23 @@ EndFunction
 // See InformationRegisters.UsersInfo.ProcessAnswerOnDisconnectingOpenIDConnect
 Procedure ProcessAnswerOnDisconnectingOpenIDConnect(Disconnect) Export
 	
-	
-	
+	// 
+	// 
 	InformationRegisters.UsersInfo.ProcessAnswerOnDisconnectingOpenIDConnect(Disconnect);
 	// ACC:277-on
 	
 EndProcedure
 
+// See UsersInternal.CurUserSRolesHaveBeenReduced
+Function CurUserSRolesHaveBeenReduced() Export
+	Return UsersInternal.CurUserSRolesHaveBeenReduced();
+EndFunction
+
 #EndRegion
 
 #Region Private
 
-// Returns the structure of parameters required for the operation of the client code configuration,
+// Returns the structure of parameters required for the operation of client-side code configuration,
 // that is in the BeforeStart, OnStart event handlers.
 //
 // To be called only from StandardSubsystemsClientCached.ClientParametersOnStart.
@@ -128,8 +134,8 @@ Function ClientParametersOnStart(Parameters) Export
 	
 	If Parameters.RetrievedClientParameters <> Undefined Then
 		If Not Parameters.Property("SkipClearingDesktopHiding") Then
-			
-			
+			// 
+			// 
 			HideDesktopOnStart(Undefined);
 		EndIf;
 	EndIf;
@@ -156,7 +162,7 @@ Function ClientParametersOnStart(Parameters) Export
 	
 EndFunction
 
-// Returns the structure of parameters required for the operation of the client code configuration. 
+// Returns the structure of parameters required for the operation of client-side code configuration. 
 // To be called only from StandardSubsystemsClientCached.ClientRunParameters.
 //
 Function ClientRunParameters(ClientProperties) Export
@@ -199,12 +205,10 @@ Procedure CheckDisableStartupLogicRight(ClientProperties) Export
 	LoginDataArea = Common.DataSeparationEnabled()
 		And Common.SeparatedDataUsageAvailable();
 	
-	If Not LoginDataArea
-	   And Not AccessRight("Administration", Metadata)
-	 Or LoginDataArea
-	   And Not AccessRight("DataAdministration", Metadata) Then
+	If Not LoginDataArea And Not AccessRight("Administration", Metadata)
+		Or LoginDataArea And Not AccessRight("DataAdministration", Metadata) Then
 		
-		ErrorText = NStr("en = 'Insufficient rights to disable startup logic.';");
+		ErrorText = NStr("en = 'Insufficient rights to perform the operation.';");
 	Else
 		ErrorText = UsersInternal.ErrorCheckingTheRightsOfTheCurrentUserWhenLoggingIn();
 	EndIf;
@@ -219,15 +223,15 @@ EndProcedure
 Procedure WriteErrorToEventLogOnStartOrExit(Shutdown, Val Event, Val ErrorText) Export
 	
 	If Event = "Run" Then
-		EventName = NStr("en = 'Application startup';", Common.DefaultLanguageCode());
+		EventName = NStr("en = 'Startup';", Common.DefaultLanguageCode());
 		If Shutdown Then
-			ErrorDescriptionBeginning = NStr("en = 'Cannot start the application due to:';");
+			ErrorDescriptionBeginning = NStr("en = 'Startup failed due to:';");
 		Else
-			ErrorDescriptionBeginning = NStr("en = 'An exception occurred during the application startup:';");
+			ErrorDescriptionBeginning = NStr("en = 'Exception occurred during startup:';");
 		EndIf;
 	Else
-		EventName = NStr("en = 'Exit from application';", Common.DefaultLanguageCode());
-		ErrorDescriptionBeginning = NStr("en = 'An exception occurred while exiting the application:';");
+		EventName = NStr("en = 'Exit';", Common.DefaultLanguageCode());
+		ErrorDescriptionBeginning = NStr("en = 'Exception occurred while exiting the app:';");
 	EndIf;
 	
 	ErrorDescription = ErrorDescriptionBeginning + Chars.LF + Chars.LF + ErrorText;
@@ -364,7 +368,7 @@ Procedure HandleClientParametersAtServer(Val Parameters)
 		If Not Common.DataSeparationEnabled() Then
 			If ExchangePlans.MasterNode() <> Undefined
 				Or ValueIsFilled(Constants.MasterNode.Get()) Then
-				
+				// 
 				// 
 				// 
 				If GetInfoBasePredefinedData()
@@ -412,11 +416,11 @@ Function TheComponentOfTheLatestVersion(Id, Location, AddIn) Export
 	
 EndFunction
 
-Function TimeToRestartApplicationToApplyFixes() Export
+Function AppRestartTimeForApplyPatches() Export
 	
 	Return Common.CommonSettingsStorageLoad(
 		"UserCommonSettings", 
-		"TimeToRestartApplicationToApplyFixes",,,
+		"AppRestartTimeForApplyPatches",,,
 		UserName());
 	
 EndFunction

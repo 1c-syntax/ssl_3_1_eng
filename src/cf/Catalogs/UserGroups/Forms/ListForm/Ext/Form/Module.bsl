@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -20,7 +21,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 		// Excluding "All external users" group from the list of available parents.
 		CommonClientServer.SetDynamicListFilterItem(
-			List, "Ref", Catalogs.UserGroups.AllUsers,
+			List, "Ref", Users.AllUsersGroup(),
 			DataCompositionComparisonType.NotEqual, , Parameters.Property("SelectParent"));
 		
 		If Parameters.CloseOnChoice = False Then

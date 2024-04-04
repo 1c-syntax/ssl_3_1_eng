@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -49,11 +50,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		HasOpportunityToAttach = False;
 	EndIf;
 	
-	AttachmentElement = Items.SavingOption.ChoiceList.FindByValue("Join");
+	AttachableItem = Items.SavingOption.ChoiceList.FindByValue("Join");
 	
 	If Not HasOpportunityToAttach Then
-		Items.SavingOption.ChoiceList.Delete(AttachmentElement);
-		AttachmentElement = Undefined;
+		Items.SavingOption.ChoiceList.Delete(AttachableItem);
+		AttachableItem = Undefined;
 		SavingOption = "SaveToFolder";
 		Items.SavingOption.ReadOnly = True;
 	EndIf;
@@ -66,8 +67,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	Items.FolderToSaveFiles.Visible = Parameters.FileOperationsExtensionAttached;
 	
-	If Parameters.PrintObjects.Count() > 1 And AttachmentElement <> Undefined Then
-		AttachmentElement.Presentation = NStr("en = 'Attach to documents';")
+	If Parameters.PrintObjects.Count() > 1 And AttachableItem <> Undefined Then
+		AttachableItem.Presentation = NStr("en = 'Attach to documents';")
 				+ " (" + Format(Parameters.PrintObjects.Count(), "NFD=0;") + ")";
 	EndIf;
 	
@@ -137,8 +138,8 @@ Procedure FolderToSaveFilesStartChoice(Item, ChoiceData, StandardProcessing)
 	
 EndProcedure
 
-// 
-//  
+// Completion handler that handles selection of the destination directory.
+//  See "FileDialog.Show" in Syntax Assistant.
 //
 &AtClient
 Procedure FolderToSaveFilesSelectionCompletion(Folder, AdditionalParameters) Export 

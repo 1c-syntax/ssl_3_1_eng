@@ -28,6 +28,12 @@
 			<Button name="FormNo" id="6">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.None</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>No</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormNoExtendedTooltip" id="7"/>
 			</Button>
 		</ChildItems>
@@ -38,6 +44,12 @@
 	<ChildItems>
 		<LabelField name="DumpsInformation" id="11">
 			<DataPath>DumpsInformation</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Information on dumps</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>None</TitleLocation>
 			<Width>40</Width>
 			<Height>5</Height>
@@ -46,6 +58,12 @@
 		</LabelField>
 		<CheckBoxField name="DoNotAskMeAgain" id="8">
 			<DataPath>DoNotAskAgain</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Do not ask again</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>Right</TitleLocation>
 			<CheckBoxType>Auto</CheckBoxType>
 			<ContextMenu name="DoNotAskMeAgainContextMenu" id="9"/>

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 
 #Region FormEventHandlers
 
@@ -25,7 +24,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	WarningText = DocumentTemplate.GetText();
 	FileInfobase = Common.FileInfobase();
 	
-	// StandardSubsystems.MonitoringCenter
+	// 
 	MonitoringCenterExists = Common.SubsystemExists("StandardSubsystems.MonitoringCenter");
 	If MonitoringCenterExists Then
 		ModuleMonitoringCenterInternal = Common.CommonModule("MonitoringCenterInternal");
@@ -96,8 +95,6 @@ Procedure OnClose(Exit)
 		If Parameters.ShowRestartWarning And Not SkipRestart Then
 			Terminate();
 		EndIf;
-	Else
-		WriteLegalityAndStatisticsSendingConfirmation(AllowSendStatistics);
 	EndIf;
 	
 	Notify("LegitimateSoftware", Result);
@@ -132,8 +129,8 @@ Procedure WriteLegalityAndStatisticsSendingConfirmation(AllowSendStatistics)
 		SendStatisticsParameters = ModuleMonitoringCenterInternal.GetMonitoringCenterParametersExternalCall(SendStatisticsParameters);
 		
 		If (Not SendStatisticsParameters.EnableMonitoringCenter And SendStatisticsParameters.ApplicationInformationProcessingCenter) Then
-			
-			
+			// 
+			// 
 			//
 		Else
 			If AllowSendStatistics Then

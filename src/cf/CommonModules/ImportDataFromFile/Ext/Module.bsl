@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -147,9 +148,9 @@ Function ANewListOfAmbiguities() Export
 	Return ConflictsList;
 EndFunction
 
-// Returns a table from the temporary storage to map imported and application data.
-// The dynamic list of table columns is generated based on the imported data template.
-// The return value describes only the internal column that is always present.
+// 
+// 
+// 
 // 
 // Parameters:
 //  ResultAddress - String - address in temporary storage 
@@ -165,12 +166,12 @@ Function MappingTable(ResultAddress) Export
 	
 EndFunction
 
-// 
-// 
-// 
+// Saves the values of additional attributes and properties from a data table row to the owner.
+// The function automatically finds the columns containing the required values.
+// The function is called from the LoadFromFile procedure upon an applicable data import in the object manager module.
 //
 // Parameters:
-//  ObjectReference - AnyRef - 
+//  ObjectReference - AnyRef - Reference to the property owner where the data is imported to.
 //  TableRow - ValueTableRow of See ImportDataFromFile.DescriptionOfTheUploadedDataForReferenceBooks
 //
 Procedure WritePropertiesOfObject(ObjectReference, TableRow) Export
@@ -235,6 +236,10 @@ Function ImportFromFileParameters(MappingObjectName) Export
 	
 	Return DefaultParameters;
 	
+EndFunction
+
+Function PresentationOfTextYesForBoolean() Export
+	Return NStr("en = 'Yes';");
 EndFunction
 
 #EndRegion

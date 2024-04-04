@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -29,11 +30,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If MessageKind = "SMSMessage" Then
 		ForSMSMessages = True;
-		ForEmails = False;
 		Title = NStr("en = 'Text templates';");
-	Else
-		ForSMSMessages = False;
+	ElsIf MessageKind = "MailMessage" Then
 		ForEmails = True;
+	Else
+		Title = NStr("en = 'Message templates';");
 	EndIf;
 	
 	If Not AccessRight("Update", Metadata.Catalogs.MessageTemplates) Then
@@ -44,7 +45,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		HasUpdateRight = True;
 	EndIf;
 	
-	If ChoiceMode Then
+	If ChoiceMode Or MessageKind = "Arbitrary" Then
 		Items.FormGenerateAndSend.Visible = False;
 		Items.FormFormulate.Title = NStr("en = 'Select';");
 	ElsIf PrepareTemplate Then
@@ -228,7 +229,7 @@ Procedure GenerateMessageFromSelectedTemplate()
 		Return;
 	EndIf;
 	
-	If ChoiceMode Then
+	If ChoiceMode Or MessageKind = "Arbitrary" Then
 		Close(CurrentData.Ref);
 		Return;
 	EndIf;
@@ -275,10 +276,8 @@ Procedure GenerateMessageToSend(SendOptions)
 	Else
 		GenerateMessageToSendEnding(Result, SendOptions)
 	EndIf;
+	
 EndProcedure
-
-
-
 
 &AtClient
 Procedure GenerateMessageToSendEnding(Result, SendOptions)
@@ -295,8 +294,6 @@ Procedure GenerateMessageToSendEnding(Result, SendOptions)
 	EndIf;
 	
 EndProcedure
-
-
 
 &AtServer
 Function GenerateMessageAtServer(TempStorageAddress, SendOptions, MessageKind)
@@ -340,7 +337,7 @@ Procedure SendMessage1(Val MessageSendOptions)
 			ModuleEmailOperationsClient = CommonClient.CommonModule("EmailOperationsClient");
 			ModuleEmailOperationsClient.CheckAccountForSendingEmailExists(NotifyDescription);
 		EndIf;
-	Else
+	ElsIf MessageKind = "SMSMessage" Then
 		GenerateMessageToSend(MessageSendOptions);
 	EndIf;
 	
@@ -412,7 +409,7 @@ Procedure ShowMessageForm(Message)
 			
 			ModuleSMSClient.SendSMS(Recipient, Text, AdditionalParameters);
 		EndIf;
-	Else
+	ElsIf MessageKind = "MailMessage" Then
 		If CommonClient.SubsystemExists("StandardSubsystems.EmailOperations") Then
 			ModuleEmailOperationsClient = CommonClient.CommonModule("EmailOperationsClient");
 			ModuleEmailOperationsClient.CreateNewEmailMessage(Message);
@@ -486,7 +483,14 @@ EndProcedure
 Procedure FillAvailableTemplatesList()
 	
 	Templates.Clear();
-	TemplateType = ?(ForSMSMessages, "SMS", "MailMessage");
+	
+	TemplateType = "Arbitrary";
+	If ForSMSMessages Then
+		TemplateType = "SMS";
+	ElsIf ForEmails Then
+		TemplateType = "MailMessage";
+	EndIf;
+	
 	Query = MessageTemplatesInternal.PrepareQueryToGetTemplatesList(TemplateType, SubjectOf, TemplateOwner);
 	
 	QueryResult = Query.Execute().Select();
@@ -646,7 +650,7 @@ EndProcedure
 &AtServer
 Procedure FillPrintFormsList()
 	
-	If MessageKind = "SMSMessage" Or ChoiceMode Or PrepareTemplate
+	If MessageKind = "Arbitrary" Or MessageKind = "SMSMessage" Or ChoiceMode Or PrepareTemplate
 		Or TypeOf(SubjectOf) = Type("String") Or Not ValueIsFilled(SubjectOf) Then
 		Items.SelectPrintForms.Visible = False;
 		Return;

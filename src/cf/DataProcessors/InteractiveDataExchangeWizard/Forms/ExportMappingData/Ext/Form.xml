@@ -82,6 +82,12 @@ If you cancel the operation, you can run it again from the list of configured da
 										</LabelDecoration>
 										<RadioButtonField name="DataExportMode" id="233">
 											<DataPath>DataExportMode</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Data to export</v8:content>
+												</v8:item>
+											</Title>
 											<RadioButtonType>Auto</RadioButtonType>
 											<ColumnsCount>1</ColumnsCount>
 											<ChoiceList>
@@ -180,6 +186,12 @@ Data export is canceled.</v8:content>
 										</LabelDecoration>
 										<InputField name="ErrorMessage3" id="258">
 											<DataPath>ErrorMessage</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Error message</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<Width>50</Width>
 											<MultiLine>true</MultiLine>
@@ -189,6 +201,12 @@ Data export is canceled.</v8:content>
 										<Button name="ConnectionSettings" id="261">
 											<Type>Hyperlink</Type>
 											<CommandName>Form.Command.ConnectionSettings</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Connection settings</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="ConnectionSettingsExtendedTooltip" id="262"/>
 										</Button>
 									</ChildItems>
@@ -251,6 +269,12 @@ Data export is canceled.</v8:content>
 										</LabelDecoration>
 										<InputField name="WSPassword" id="144">
 											<DataPath>WSPassword</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Password</v8:content>
+												</v8:item>
+											</Title>
 											<Width>20</Width>
 											<AutoMaxWidth>false</AutoMaxWidth>
 											<HorizontalStretch>false</HorizontalStretch>
@@ -464,6 +488,12 @@ Please wait…</v8:content>
 										</LabelDecoration>
 										<ProgressBarField name="DataExportProgressBar" id="131">
 											<DataPath>ProgressPercent</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Progress percentage</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<ShowPercent>true</ShowPercent>
 											<ContextMenu name="ExportProgressPercent1ContextMenu" id="132"/>
@@ -604,6 +634,12 @@ Data export is canceled.</v8:content>
 														</LabelDecoration>
 														<InputField name="ErrorMessage" id="275">
 															<DataPath>ErrorMessage</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Error message</v8:content>
+																</v8:item>
+															</Title>
 															<TitleLocation>None</TitleLocation>
 															<Width>50</Width>
 															<MultiLine>true</MultiLine>
@@ -675,6 +711,12 @@ Data export is canceled.</v8:content>
 														</LabelDecoration>
 														<InputField name="ErrorMessage1" id="212">
 															<DataPath>ErrorMessage</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Error message</v8:content>
+																</v8:item>
+															</Title>
 															<TitleLocation>None</TitleLocation>
 															<Width>50</Width>
 															<MultiLine>true</MultiLine>
@@ -745,6 +787,12 @@ Data export is canceled.</v8:content>
 														</LabelDecoration>
 														<InputField name="ErrorMessage2" id="225">
 															<DataPath>ErrorMessage</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Error message</v8:content>
+																</v8:item>
+															</Title>
 															<TitleLocation>None</TitleLocation>
 															<Width>50</Width>
 															<AutoMaxWidth>false</AutoMaxWidth>
@@ -799,11 +847,23 @@ Data export is canceled.</v8:content>
 									<Type>CommandBarButton</Type>
 									<DefaultButton>true</DefaultButton>
 									<CommandName>Form.Command.NextCommand</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Next &gt;</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="NextCommandExtendedTooltip" id="118"/>
 								</Button>
 								<Button name="CancelCommand1" id="119">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.CancelCommand</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Cancel</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="CancelCommand1ExtendedTooltip" id="120"/>
 								</Button>
 							</ChildItems>
@@ -832,6 +892,12 @@ Data export is canceled.</v8:content>
 								<Button name="BackCommand" id="177">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.BackCommand</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>&lt; Back</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="BackCommandExtendedTooltip" id="178"/>
 								</Button>
 							</ChildItems>
@@ -849,11 +915,23 @@ Data export is canceled.</v8:content>
 								<Button name="NextCommand1" id="173">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.NextCommand</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Next &gt;</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="NextCommand1ExtendedTooltip" id="174"/>
 								</Button>
 								<Button name="CancelCommand2" id="175">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.CancelCommand</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Cancel</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="CancelCommand2ExtendedTooltip" id="176"/>
 								</Button>
 							</ChildItems>
@@ -883,6 +961,12 @@ Data export is canceled.</v8:content>
 								<Button name="CancelCommand" id="15">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.CancelCommand</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Cancel</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="CancelCommandExtendedTooltip" id="16"/>
 								</Button>
 							</ChildItems>
@@ -912,6 +996,12 @@ Data export is canceled.</v8:content>
 								<Button name="DoneCommand" id="19">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.DoneCommand</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Finish</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="DoneCommandExtendedTooltip" id="20"/>
 								</Button>
 							</ChildItems>

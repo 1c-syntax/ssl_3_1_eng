@@ -16,7 +16,6 @@
 				<xr:Object>Subsystem.StandardSubsystems.Subsystem.UserReminders</xr:Object>
 				<xr:Object>InformationRegister.UserReminders</xr:Object>
 				<xr:Object>Enum.ReminderTimeSettingMethods</xr:Object>
-				<xr:Object>CommonCommand.Remind</xr:Object>
 			</Content>
 		</Properties>
 	</FunctionalOption>

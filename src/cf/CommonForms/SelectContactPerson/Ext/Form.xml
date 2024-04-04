@@ -58,6 +58,12 @@
 							<ChildItems>
 								<InputField name="SearchOptions" id="79">
 									<DataPath>SearchOptions</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Search options</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<Width>15</Width>
 									<HorizontalStretch>false</HorizontalStretch>
@@ -74,6 +80,12 @@
 								<InputField name="SearchString" id="17">
 									<DataPath>SearchString</DataPath>
 									<DefaultItem>true</DefaultItem>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Search bar</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<Width>28</Width>
 									<Wrap>false</Wrap>
@@ -90,6 +102,12 @@
 									<Type>UsualButton</Type>
 									<SkipOnInput>false</SkipOnInput>
 									<CommandName>Form.Command.FindCommand</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Find</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="FindCommandExtendedTooltip" id="111"/>
 								</Button>
 							</ChildItems>
@@ -120,12 +138,24 @@
 									<Button name="FoundContactsContextMenuView" id="170">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.View</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>View</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="FoundContactsContextMenuBrowseExtendedTooltip" id="171"/>
 									</Button>
 									<Button name="FindInListFromFoundItemsList" id="90">
 										<Type>CommandBarButton</Type>
 										<SkipOnInput>false</SkipOnInput>
 										<CommandName>Form.Command.FindInListFromFoundItemsList</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Find in list</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="FindInListFromFoundItemsListExtendedTooltip" id="112"/>
 									</Button>
 								</ChildItems>
@@ -176,6 +206,12 @@
 								</InputField>
 								<InputField name="Presentation" id="23">
 									<DataPath>FoundContacts.Presentation</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Found in</v8:content>
+										</v8:item>
+									</Title>
 									<AutoCellHeight>true</AutoCellHeight>
 									<Height>3</Height>
 									<Wrap>false</Wrap>
@@ -222,6 +258,12 @@
 										<Type>CommandBarButton</Type>
 										<SkipOnInput>false</SkipOnInput>
 										<CommandName>Form.Command.FindInListFromSubjectsList</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Find in list</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="FindInListFromSubjectsListExtendedTooltip" id="120"/>
 									</Button>
 								</ChildItems>
@@ -260,6 +302,12 @@
 							<ChildItems>
 								<InputField name="DescriptionPresentation" id="91">
 									<DataPath>ContactsBySubject.DescriptionPresentation</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Contact</v8:content>
+										</v8:item>
+									</Title>
 									<Wrap>false</Wrap>
 									<ContextMenu name="DescriptionPresentationContextMenu" id="92"/>
 									<ExtendedTooltip name="DescriptionPresentationExtendedTooltip" id="122"/>
@@ -333,7 +381,7 @@
 							<AllowGettingCurrentRowURL>true</AllowGettingCurrentRowURL>
 							<ContextMenu name="UsersGroupsContextMenu" id="101"/>
 							<AutoCommandBar name="UserGroupsCommandBar" id="102"/>
-							<ExtendedTooltip name="UsersGroupsExtendedTooltip" id="124"/>
+							<ExtendedTooltip name="UserGroupsExtendedTooltip" id="124"/>
 							<SearchStringAddition name="UsersGroupsSearchString" id="146">
 								<AdditionSource>
 									<Item>UserGroups</Item>
@@ -416,7 +464,7 @@
 							<AllowGettingCurrentRowURL>true</AllowGettingCurrentRowURL>
 							<ContextMenu name="UsersList1ContextMenu" id="85"/>
 							<AutoCommandBar name="UsersListCommandBar" id="86"/>
-							<ExtendedTooltip name="UsersList1ExtendedTooltip" id="126"/>
+							<ExtendedTooltip name="UsersListExtendedTooltip" id="126"/>
 							<SearchStringAddition name="UsersList1SearchString" id="155">
 								<AdditionSource>
 									<Item>UsersList</Item>

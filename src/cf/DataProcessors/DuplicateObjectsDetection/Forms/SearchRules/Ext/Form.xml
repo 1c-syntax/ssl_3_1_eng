@@ -21,6 +21,12 @@
 						<Type>CommandBarButton</Type>
 						<DefaultButton>true</DefaultButton>
 						<CommandName>Form.Command.CompleteEditing</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>OK</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="CompleteEditingExtendedTooltip" id="13"/>
 					</Button>
 					<Button name="FormCancel" id="16">
@@ -106,7 +112,7 @@
 				<Event name="Selection">SearchRulesSelection</Event>
 			</Events>
 			<ChildItems>
-				<ColumnGroup name="SearchRulesBasicGroup" id="46">
+				<ColumnGroup name="SearchRulesGroupMain" id="46">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -114,10 +120,16 @@
 						</v8:item>
 					</Title>
 					<Group>InCell</Group>
-					<ExtendedTooltip name="SearchRulesBasicGroupExtendedTooltip" id="47"/>
+					<ExtendedTooltip name="SearchRulesGroupMainExtendedTooltip" id="47"/>
 					<ChildItems>
 						<CheckBoxField name="SearchRulesUse" id="30">
 							<DataPath>SearchRules.Use</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Use</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<EditMode>EnterOnInput</EditMode>
 							<CheckBoxType>Auto</CheckBoxType>
@@ -130,6 +142,12 @@
 						<InputField name="SearchRulesAttributePresentation" id="24">
 							<DataPath>SearchRules.AttributeRepresentation</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Field</v8:content>
+								</v8:item>
+							</Title>
 							<EditMode>EnterOnInput</EditMode>
 							<TextEdit>false</TextEdit>
 							<ContextMenu name="SearchRulesAttributePresentationContextMenu" id="25"/>
@@ -140,6 +158,12 @@
 				<InputField name="SearchRulesComparisonType" id="27">
 					<DataPath>SearchRules.Rule</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Rule</v8:content>
+						</v8:item>
+					</Title>
 					<Width>21</Width>
 					<HorizontalStretch>false</HorizontalStretch>
 					<ChoiceButton>false</ChoiceButton>
@@ -163,6 +187,12 @@
 		</Table>
 		<CheckBoxField name="HideInsignificantDuplicates" id="48">
 			<DataPath>HideInsignificantDuplicates</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Hide duplicates that are marked for deletion and never referred</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>Right</TitleLocation>
 			<CheckBoxType>Auto</CheckBoxType>
 			<ContextMenu name="HideInsignificantDuplicatesContextMenu" id="49"/>
@@ -183,6 +213,12 @@
 			<ChildItems>
 				<CheckBoxField name="TakeAppliedRulesIntoAccount" id="1">
 					<DataPath>TakeAppliedRulesIntoAccount</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Default restrictions:</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Right</TitleLocation>
 					<CheckBoxType>Auto</CheckBoxType>
 					<ContextMenu name="TakeAppliedRulesIntoAccountContextMenu" id="2"/>
@@ -193,6 +229,12 @@
 				</CheckBoxField>
 				<LabelField name="AppliedRuleDetails" id="7">
 					<DataPath>AppliedRuleDetails</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Default restrictions</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<VerticalAlign>Top</VerticalAlign>
 					<AutoMaxWidth>false</AutoMaxWidth>
@@ -359,4 +401,33 @@
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 	</Commands>
+	<Parameters>
+		<Parameter name="DuplicatesSearchArea">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Parameter>
+		<Parameter name="FilterAreaPresentation">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Parameter>
+		<Parameter name="SettingsAddress">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Parameter>
+	</Parameters>
 </Form>

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -37,7 +38,7 @@ EndFunction
 //   Boolean   - True if the lock is set successfully.
 //              False if the lock cannot be set due to insufficient rights.
 //
-Function SetConnectionLock(MessageText = "", KeyCode = "KeyCode", 
+Function SetConnectionLock(MessageText = "", KeyCode = "KeyCode", // ACC:142 - Intended for backward compatibility.
 	WaitingForTheStartOfBlocking = 0, LockDuration = 0) Export 
 	
 	Return IBConnections.SetConnectionLock(
@@ -86,7 +87,7 @@ EndFunction
 // Sets the data area session lock.
 // 
 // Parameters:
-//   Parameters         - 
+//   Parameters         - See NewConnectionLockParameters.
 //   LocalTime - Boolean - lock beginning time and lock end time are specified in the local session time.
 //                                If the parameter is False, they are specified in universal time.
 //

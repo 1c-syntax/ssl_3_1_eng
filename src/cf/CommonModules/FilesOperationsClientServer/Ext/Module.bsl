@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -35,7 +36,7 @@ Function FileDataParameters() Export
 	
 EndFunction
 
-// Handler of the subscription to FormGetProcessing event for overriding file form.
+// FormGetProcessing event subscription handler for overriding the file form.
 //
 // Parameters:
 //  Source                 - CatalogManager - the *AttachedFiles catalog manager.
@@ -63,7 +64,7 @@ EndProcedure
 // Returns:
 //  Structure - user scanning settings:
 //   * ShowScannerDialog - Boolean
-//   * DeviceName - String - ScannerDescription
+//   * DeviceName - String - NameOfScanner
 //   * ScannedImageFormat - EnumRef.ScannedImageFormats
 //   * ShouldSaveAsPDF - Boolean
 //   * MultipageStorageFormat - EnumRef.MultipageFileStorageFormats 
@@ -95,7 +96,7 @@ Function UserScanSettings() Export
 	UserScanSettings.Insert("TIFFDeflation");
 	UserScanSettings.Insert("PathToConverterApplication", "");
 	UserScanSettings.Insert("SinglePageStorageFormat");
-	UserScanSettings.Insert("ScanLogDirectory");
+	UserScanSettings.Insert("ScanLogCatalog");
 	UserScanSettings.Insert("UseScanLogDirectory", False);
 	Return UserScanSettings;
 EndFunction
@@ -170,10 +171,6 @@ Function FileInfo1(Val Mode, Val SourceFile = Undefined) Export
 	EndIf;
 	Return Result;
 	
-EndFunction
-
-Function CatalogSuffixAttachedFiles() Export
-	Return "AttachedFiles";
 EndFunction
 
 #EndRegion
@@ -282,10 +279,6 @@ EndFunction
 
 Function NameOfAdditionalCommandFromContextMenu() Export
 	Return "FromContextMenu";
-EndFunction
-
-Function NameOfAdditionalCommandFromSubmenu() Export
-	Return "FromSubmenu";
 EndFunction
 
 #EndRegion

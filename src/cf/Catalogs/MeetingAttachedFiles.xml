@@ -1755,7 +1755,7 @@
 							<ToolTip>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Flag that indicates whether the signature has passed the validation.</v8:content>
+									<v8:content>Most recent validation result.</v8:content>
 								</v8:item>
 							</ToolTip>
 							<MarkNegatives>false</MarkNegatives>

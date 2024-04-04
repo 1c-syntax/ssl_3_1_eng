@@ -269,12 +269,12 @@
 								<PictureDecoration name="TimeConsumingProcessPicture" id="82">
 									<SkipOnInput>false</SkipOnInput>
 									<Picture>
-										<xr:Ref>CommonPicture.Information32</xr:Ref>
-										<xr:LoadTransparent>false</xr:LoadTransparent>
+										<xr:Ref>StdPicture.DialogInformation</xr:Ref>
+										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
 									<ContextMenu name="TimeConsumingOperationPicture4ContextMenu" id="83"/>
-									<ExtendedTooltip name="TimeConsumingOperationPicture4ExtendedTooltip" id="116"/>
+									<ExtendedTooltip name="TimeConsumingProcessPictureExtendedTooltip" id="116"/>
 								</PictureDecoration>
 								<LabelDecoration name="WaitLabel" id="84">
 									<AutoMaxWidth>false</AutoMaxWidth>
@@ -632,7 +632,7 @@ Opening the section…</v8:content>
 						<Title>
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>Response</v8:content>
+								<v8:content>Answer</v8:content>
 							</v8:item>
 						</Title>
 						<Type>
@@ -1133,4 +1133,11 @@ Opening the section…</v8:content>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 	</Commands>
+	<Parameters>
+		<Parameter name="QuestionnaireTemplate">
+			<Type>
+				<v8:Type>cfg:CatalogRef.QuestionnaireTemplates</v8:Type>
+			</Type>
+		</Parameter>
+	</Parameters>
 </Form>

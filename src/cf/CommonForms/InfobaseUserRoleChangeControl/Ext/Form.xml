@@ -6,7 +6,7 @@
 			<v8:content>Access rights updated</v8:content>
 		</v8:item>
 	</Title>
-	<WindowOpeningMode>LockOwnerWindow</WindowOpeningMode>
+	<WindowOpeningMode>LockWholeInterface</WindowOpeningMode>
 	<AutoTitle>false</AutoTitle>
 	<CommandBarLocation>Bottom</CommandBarLocation>
 	<AutoCommandBar name="FormCommandBar" id="-1">
@@ -17,15 +17,30 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.Restart</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Restart</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormRestartExtendedTooltip" id="10"/>
 			</Button>
 			<Button name="FormRemindMeTomorrow" id="11">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.RemindMeTomorrow</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Remind me tomorrow</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormRemindMeTomorrowExtendedTooltip" id="12"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
+	<Events>
+		<Event name="OnOpen">OnOpen</Event>
+	</Events>
 	<ChildItems>
 		<UsualGroup name="PictureAndLabel" id="1">
 			<Title>
@@ -43,8 +58,8 @@
 			<ChildItems>
 				<PictureDecoration name="Picture" id="3">
 					<Picture>
-						<xr:Ref>CommonPicture.Information32</xr:Ref>
-						<xr:LoadTransparent>false</xr:LoadTransparent>
+						<xr:Ref>StdPicture.DialogInformation</xr:Ref>
+						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</Picture>
 					<ContextMenu name="PictureContextMenu" id="4"/>
 					<ExtendedTooltip name="PictureExtendedTooltip" id="5"/>

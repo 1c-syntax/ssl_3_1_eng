@@ -27,7 +27,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="Filters1ExtendedTooltip" id="34"/>
+			<ExtendedTooltip name="DisplayFiltersExtendedTooltip" id="34"/>
 			<ChildItems>
 				<InputField name="FilterByColor" id="28">
 					<DataPath>SelectedColor</DataPath>
@@ -132,13 +132,19 @@
 					<ClearButton>true</ClearButton>
 					<ChooseType>false</ChooseType>
 					<ContextMenu name="FilterBySubject1ContextMenu" id="27"/>
-					<ExtendedTooltip name="FilterBySubject1ExtendedTooltip" id="36"/>
+					<ExtendedTooltip name="FilterBySubjectExtendedTooltip" id="36"/>
 					<Events>
 						<Event name="OnChange">FilterBySubject1OnChange</Event>
 					</Events>
 				</InputField>
 				<CheckBoxField name="ShowDeleted" id="31">
 					<DataPath>ShowDeleted</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Show deleted ones</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Right</TitleLocation>
 					<ToolTip>
 						<v8:item>

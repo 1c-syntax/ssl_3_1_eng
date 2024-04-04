@@ -1,18 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #Region Variables
 
 &AtClient
-Var PerformerChoiceFormOpened;  
+Var PerformerChoiceFormOpened;  // Flag showing that the assignee is selected in a form (without using quick input).
 &AtClient
-Var SupervisorChoiceFormOpened; 
+Var SupervisorChoiceFormOpened; // Flag showing that the supervisor is selected in a form (without using quick input).
 &AtClient
 Var ChoiceContext;
 
@@ -25,20 +26,20 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 
 	SetConditionalAppearance();
 	
-	
-	
+	// 
+	// 
 	If Object.Ref.IsEmpty() Then
 		InitializeTheForm();
 	EndIf;
 	
-	// StandardSubsystems.StoredFiles
+	// StandardSubsystems.FilesOperations
 	If Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperations = Common.CommonModule("FilesOperations");
 		FilesHyperlink = ModuleFilesOperations.FilesHyperlink();
 		FilesHyperlink.Location = "CommandBar";
 		ModuleFilesOperations.OnCreateAtServer(ThisObject, FilesHyperlink);
 	EndIf;
-	// End StandardSubsystems.StoredFiles
+	// End StandardSubsystems.FilesOperations
 
 EndProcedure
 
@@ -47,12 +48,12 @@ Procedure OnOpen(Cancel)
 
 	RefreshStopCommandsAvailability();
 	
-	// StandardSubsystems.StoredFiles
+	// StandardSubsystems.FilesOperations
 	If CommonClient.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperationsClient = CommonClient.CommonModule("FilesOperationsClient");
 		ModuleFilesOperationsClient.OnOpen(ThisObject, Cancel);
 	EndIf;
-	// End StandardSubsystems.StoredFiles
+	// End StandardSubsystems.FilesOperations
 
 EndProcedure
 
@@ -109,12 +110,12 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 		EndIf;
 	EndIf;
 	
-	// StandardSubsystems.StoredFiles
+	// StandardSubsystems.FilesOperations
 	If CommonClient.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperationsClient = CommonClient.CommonModule("FilesOperationsClient");
 		ModuleFilesOperationsClient.NotificationProcessing(ThisObject, EventName);
 	EndIf;
-	// End StandardSubsystems.StoredFiles
+	// End StandardSubsystems.FilesOperations
 
 EndProcedure
 
@@ -358,7 +359,7 @@ Procedure VerificationDueDateOnChange(Item)
 	EndIf;
 EndProcedure
 
-// StandardSubsystems.StoredFiles
+// StandardSubsystems.FilesOperations
 &AtClient
 Procedure Attachable_PreviewFieldClick(Item, StandardProcessing)
 
@@ -390,7 +391,7 @@ Procedure Attachable_PreviewFieldDrag(Item, DragParameters, StandardProcessing)
 	EndIf;
 
 EndProcedure
-// End StandardSubsystems.StoredFiles
+// End StandardSubsystems.FilesOperations
 
 #EndRegion
 
@@ -430,7 +431,7 @@ Procedure SetUpDeferredStart(Command)
 	OpenDeferredStartSetup();
 EndProcedure
 
-// StandardSubsystems.StoredFiles
+// StandardSubsystems.FilesOperations
 &AtClient
 Procedure Attachable_AttachedFilesPanelCommand(Command)
 
@@ -440,7 +441,7 @@ Procedure Attachable_AttachedFilesPanelCommand(Command)
 	EndIf;
 
 EndProcedure
-// End StandardSubsystems.StoredFiles
+// End StandardSubsystems.FilesOperations
 
 #EndRegion
 

@@ -279,7 +279,7 @@ By default, all access values are allowed.</v8:content>
 						<v8:item>
 							<v8:lang>en</v8:lang>
 							<v8:content>No access kind is specified in the profile or in the access group,
-or the application does not apply restrictions by access kind.</v8:content>
+or the app does not apply restrictions by access kind.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>

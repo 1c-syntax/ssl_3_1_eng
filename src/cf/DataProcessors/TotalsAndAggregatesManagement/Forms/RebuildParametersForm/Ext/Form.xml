@@ -18,6 +18,12 @@
 				<DefaultButton>true</DefaultButton>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.OK</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>OK</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="OKExtendedTooltip" id="7"/>
 			</Button>
 			<Button name="Cancel" id="6">
@@ -34,6 +40,12 @@
 	<ChildItems>
 		<InputField name="RelativeSize" id="1">
 			<DataPath>RelativeSize</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Max relative size, %</v8:content>
+				</v8:item>
+			</Title>
 			<Wrap>false</Wrap>
 			<SpinButton>true</SpinButton>
 			<ContextMenu name="RelativeSizeContextMenu" id="2"/>
@@ -41,6 +53,12 @@
 		</InputField>
 		<InputField name="MinimumEffect" id="3">
 			<DataPath>MinimumEffect</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Min rebuilding effect, %</v8:content>
+				</v8:item>
+			</Title>
 			<Wrap>false</Wrap>
 			<SpinButton>true</SpinButton>
 			<ContextMenu name="MinimumEffectContextMenu" id="4"/>

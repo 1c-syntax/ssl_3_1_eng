@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -26,7 +27,7 @@
 //
 // Example:
 //  Saving file data on the server:
-//	FileData = StoredFiles.FileBinaryData(File, False);
+//	FileData = FilesOperations.FileBinaryData(File, False);
 //	If FileData <> Undefined Then
 //		FileData.Write(PathToFile);
 //	EndIf
@@ -75,6 +76,197 @@ Function FileBinaryData(Val AttachedFile, Val RaiseException1 = True) Export
 	Else
 		Return FilesOperationsInVolumesInternal.FileData(AttachedFile, RaiseException1);
 	EndIf;
+	
+EndFunction
+
+// Returns file binary data.
+//
+// Parameters:
+//  AttachedFiles - Array of DefinedType.AttachedFile - An array of items from the file catalog.
+//                                                                       All items must be of the same type.
+//
+//  RaiseException1 - Boolean - If set to "False", the function will return "Undefined" instead of throwing exceptions,
+//                     			  and the logging level will be lowered to "Warning".
+//                                By default, "True".
+//
+// Returns:
+//  Map of KeyAndValue:
+//   * Key - DefinedType.AttachedFile - A file from the "AttachedFiles" parameter. 
+//   * Value - BinaryData - Attachment binary data. If the file binary data is not found in the infobase or volumes, an exception is raised.
+//                               If binary data is not found and "RaiseException" is set to "False", it returns "Undefined".
+//                               
+//                               
+//
+Function BinaryFilesData(Val AttachedFiles, Val RaiseException1 = True) Export
+	
+	If AttachedFiles.Count() = 0 Then
+		Return New Map;
+	EndIf;
+	
+	CommonClientServer.CheckParameter("FilesOperations.FileBinaryData", "AttachedFile", 
+		AttachedFiles[0], Metadata.DefinedTypes.AttachedFile.Type);
+		
+	FileType = TypeOf(AttachedFiles[0]);
+	For IndexOf = 1 To AttachedFiles.Count() - 1 Do
+		If TypeOf(AttachedFiles[IndexOf]) <> FileType Then
+			Raise NStr("en = 'All attachments must be of the same type.';");
+		EndIf;
+	EndDo;
+	
+	AllowedAttachments = New Array;
+	HasRightsToObjects = Common.ObjectsAttributesValues(AttachedFiles, "Ref", True);
+	For Each HasRightsToObject In HasRightsToObjects Do
+		AllowedAttachments.Add(HasRightsToObject.Key); 
+	EndDo; 
+	
+	FileObjectMetadata = Metadata.FindByType(FileType);
+	
+	HasCurrentVersionAttribute = Common.HasObjectAttribute("FileOwner", FileObjectMetadata)
+		And Common.HasObjectAttribute("CurrentVersion", FileObjectMetadata);
+		
+	SetSafeModeDisabled(True);
+	SetPrivilegedMode(True);
+		
+	If HasCurrentVersionAttribute Then
+		If FilesOperationsInternalCached.IsDeduplicationCompleted() Then
+			QueryText =
+			"SELECT
+			|	AttachedFiles.Ref AS Ref,
+			|	AttachedFiles.FileStorageType AS FileStorageType,
+			|	AttachedFiles.Volume AS Volume,
+			|	AttachedFiles.DeletionMark AS DeletionMark,
+			|	FileRepository.BinaryDataStorage.BinaryData AS FileStorage1
+			|FROM
+			|	&TableAttachedFiles AS AttachedFiles
+			|		LEFT JOIN InformationRegister.FileRepository AS FileRepository
+			|		ON AttachedFiles.Ref = FileRepository.File
+			|WHERE
+			|	AttachedFiles.Ref IN (&AttachedFiles)
+			|	AND AttachedFiles.CurrentVersion = VALUE(Catalog.FilesVersions.EmptyRef)
+			|
+			|UNION ALL
+			|
+			|SELECT
+			|	AttachedFiles.Ref,
+			|	AttachedFiles.FileStorageType,
+			|	AttachedFiles.Volume,
+			|	AttachedFiles.DeletionMark,
+			|	FileRepository.BinaryDataStorage.BinaryData
+			|FROM
+			|	&TableAttachedFiles AS AttachedFiles
+			|		LEFT JOIN InformationRegister.FileRepository AS FileRepository
+			|		ON AttachedFiles.CurrentVersion = FileRepository.File
+			|WHERE
+			|	AttachedFiles.Ref IN (&AttachedFiles)
+			|	AND AttachedFiles.CurrentVersion <> VALUE(Catalog.FilesVersions.EmptyRef)";
+		Else
+			QueryText =
+			"SELECT
+			|	AttachedFiles.Ref AS Ref,
+			|	AttachedFiles.FileStorageType AS FileStorageType,
+			|	AttachedFiles.Volume AS Volume,
+			|	AttachedFiles.DeletionMark AS DeletionMark,
+			|	CASE
+			|		WHEN FileRepository.File IS NULL
+			|			THEN DeleteFilesBinaryData.FileBinaryData
+			|		ELSE FileRepository.BinaryDataStorage.BinaryData
+			|	END AS FileStorage1
+			|FROM
+			|	&TableAttachedFiles AS AttachedFiles
+			|		LEFT JOIN InformationRegister.FileRepository AS FileRepository
+			|		ON AttachedFiles.Ref = FileRepository.File
+			|		LEFT JOIN InformationRegister.DeleteFilesBinaryData AS DeleteFilesBinaryData
+			|		ON AttachedFiles.Ref = DeleteFilesBinaryData.File
+			|WHERE
+			|	AttachedFiles.Ref IN (&AttachedFiles)
+			|	AND AttachedFiles.CurrentVersion = VALUE(Catalog.FilesVersions.EmptyRef)
+			|
+			|UNION ALL
+			|
+			|SELECT
+			|	AttachedFiles.Ref,
+			|	AttachedFiles.FileStorageType,
+			|	AttachedFiles.Volume,
+			|	AttachedFiles.DeletionMark,
+			|	CASE
+			|		WHEN FileRepository.File IS NULL
+			|			THEN DeleteFilesBinaryData.FileBinaryData
+			|		ELSE FileRepository.BinaryDataStorage.BinaryData
+			|	END
+			|FROM
+			|	&TableAttachedFiles AS AttachedFiles
+			|		LEFT JOIN InformationRegister.FileRepository AS FileRepository
+			|		ON AttachedFiles.CurrentVersion = FileRepository.File
+			|		LEFT JOIN InformationRegister.DeleteFilesBinaryData AS DeleteFilesBinaryData
+			|		ON AttachedFiles.CurrentVersion = DeleteFilesBinaryData.File
+			|WHERE
+			|	AttachedFiles.Ref IN (&AttachedFiles)
+			|	AND AttachedFiles.CurrentVersion <> VALUE(Catalog.FilesVersions.EmptyRef)";
+		EndIf;
+	Else
+		If FilesOperationsInternalCached.IsDeduplicationCompleted() Then
+			QueryText =
+			"SELECT
+			|	AttachedFiles.Ref AS Ref,
+			|	AttachedFiles.FileStorageType AS FileStorageType,
+			|	AttachedFiles.Volume AS Volume,
+			|	AttachedFiles.DeletionMark AS DeletionMark,
+			|	FileRepository.BinaryDataStorage.BinaryData AS FileStorage1
+			|FROM
+			|	&TableAttachedFiles AS AttachedFiles
+			|		LEFT JOIN InformationRegister.FileRepository AS FileRepository
+			|		ON AttachedFiles.Ref = FileRepository.File
+			|WHERE
+			|	AttachedFiles.Ref IN (&AttachedFiles)";
+		Else
+			QueryText =
+			"SELECT
+			|	AttachedFiles.Ref AS Ref,
+			|	AttachedFiles.FileStorageType AS FileStorageType,
+			|	AttachedFiles.Volume AS Volume,
+			|	AttachedFiles.DeletionMark AS DeletionMark,
+			|	CASE
+			|		WHEN FileRepository.File IS NULL
+			|			THEN DeleteFilesBinaryData.FileBinaryData
+			|		ELSE FileRepository.BinaryDataStorage.BinaryData
+			|	END AS FileStorage1
+			|FROM
+			|	&TableAttachedFiles AS AttachedFiles
+			|		LEFT JOIN InformationRegister.FileRepository AS FileRepository
+			|		ON AttachedFiles.Ref = FileRepository.File
+			|		LEFT JOIN InformationRegister.DeleteFilesBinaryData AS DeleteFilesBinaryData
+			|		ON AttachedFiles.Ref = DeleteFilesBinaryData.File
+			|WHERE
+			|	AttachedFiles.Ref IN (&AttachedFiles)";
+		EndIf;
+	EndIf;
+	
+	Query = New Query;
+	Query.Text = StrReplace(QueryText, "&TableAttachedFiles", FileObjectMetadata.FullName());
+	Query.SetParameter("AttachedFiles", AllowedAttachments);
+	Selection = Query.Execute().Select();
+	
+	BinaryFilesData = New Map;
+	While Selection.Next() Do
+		If Selection.FileStorageType = Enums.FileStorageTypes.InInfobase Then
+			BinaryData = Undefined;
+			If Selection.FileStorage1 <> Null Then
+				BinaryData = Selection.FileStorage1.Get();
+			EndIf;
+			If BinaryData = Undefined Then
+				FilesOperationsInternal.ReportErrorFileNotFound(Selection.Ref, RaiseException1);
+			Else
+				BinaryFilesData.Insert(Selection.Ref, BinaryData);
+			EndIf;
+		Else
+			BinaryData = FilesOperationsInVolumesInternal.FileData(Selection.Ref, RaiseException1);
+			If BinaryData <> Undefined Then
+				BinaryFilesData.Insert(Selection.Ref, BinaryData);
+			EndIf;
+		EndIf;
+	EndDo;
+	
+	Return BinaryFilesData;
 	
 EndFunction
 
@@ -147,10 +339,10 @@ EndFunction
 // This might happen if the file is encrypted or when 1C:Enterprise opens a text or table editor.
 // 
 // Opening multiple files.
-//	FileDataParameters = StoredFilesClientServer.FileDataParameters();
-//	FileDataParameters.FormID = UUID;
+//	FileDataParameters = FilesOperationsClientServer.FileDataParameters();
+//	FileDataParameters.FormIdentifier = UUID;
 //	While Selection.Next() Do
-//		FileDataArray.Add(StoredFiles.FileData(Selection.File, FileDataParameters));
+//		FilesDataArray.Add(FilesOperations.FileData(Selection.File, FileDataParameters));
 //	EndDo;
 //
 Function FileData(Val AttachedFile, Val AdditionalParameters = Undefined,
@@ -286,8 +478,8 @@ Procedure FillFilesAttachedToObject(Val FileOwner, Val Files) Export
 	
 EndProcedure
 
-// Returns a new reference to a file for the specified file owner.
-// In particular, the reference is used when adding a file to the AddFile function.
+// Returns a new file reference for the given file owner.
+// In particular, the reference is used when adding a file with the AppendFile function.
 //
 // Parameters:
 //  FilesOwner - DefinedType.AttachedFilesOwner - an object, to which
@@ -485,7 +677,7 @@ Procedure SetFilesDeletionMarkBeforeWrite(Source, Cancel) Export
 EndProcedure
 
 // Initializes parameter structure to add the file.
-// Use this function in StoredFiles.AddToFile.
+// Use this function in FilesOperations.AppendFile.
 // 
 // Parameters:
 //   AdditionalAttributes - String
@@ -729,7 +921,7 @@ Function AppendFile(FileParameters,
 	
 EndFunction
 
-// Returns personal settings of operations with files.
+// Returns personal file management settings.
 //
 // Returns:
 //  Structure:
@@ -783,7 +975,7 @@ Function MaxFileSize() Export
 	MaxFileSize = Constants[ConstantName].Get();
 	
 	If Not ValueIsFilled(MaxFileSize) Then
-		MaxFileSize = 52428800; 
+		MaxFileSize = 52428800; // 
 	EndIf;
 	
 	If SeparationEnabledAndAvailableUsage Then
@@ -812,17 +1004,17 @@ Function MaxFileSizeCommon() Export
 	If MaxFileSize = Undefined
 	 Or MaxFileSize = 0 Then
 		
-		MaxFileSize = 50*1024*1024; 
+		MaxFileSize = 50*1024*1024; // 
 	EndIf;
 	
 	Return MaxFileSize;
 	
 EndFunction
 
-// Saves settings of operations with files.
+// Saves file management settings.
 //
 // Parameters:
-//  FilesOperationSettings - Structure - settings of operations with files and their values.:
+//  FilesOperationSettings - Structure - File management settings and their values.:
 //     * ShowFileNotModifiedFlag        - Boolean - optional. Show message if the file has
 //                                                      not been modified.
 //     * ShowLockedFilesOnExit      - Boolean - optional. Show files on exit.
@@ -880,24 +1072,32 @@ Function AttributesToEditInBatchProcessing() Export
 	
 EndFunction
 
-// Transfers files from the Files catalog to the attachments with the file owner object and marks 
-// the transferred files for deletion.
+// Transfers files between storage catalogs of the file owner and marks the transferred files for deletion. 
+// Intended for infobase update procedures in cases where attachments are transferred between file storing tables.
 //
-// For use in infobase update procedures if a transition is made from using
-// file storage in the Files catalog to store files as attached to the file owner object.
-// The procedure is executed sequentially for each item of the file owner object
-// (catalog, CCT, document item etc.).
+// For example, you can transfer attachments from "Catalog.<Owner catalog name>Attachments" to "Catalog.Files" or vice versa. 
+// It runs iteratively for each of the file owner objects (a catalog member, CCT, document, etc.) 
+//  
+//  
+//  
+// 
+// 
 //
 // Parameters:
 //   FilesOwner - DefinedType.AttachedFilesOwner - an object that is owner and file destination.
-//   CatalogName - String - if a conversion to the specified storage is required.
+//   Source - String - If a conversion from the given storage is required.
+//                       If not specified, it uses the first secondary storage catalog.
+//   Receiver - String - If a conversion to the given storage is required.
+//                       If not specified, it uses the primary storage catalog.
 //
 // Returns:
 //  Map of KeyAndValue:
-//   * Key     - CatalogRef.Files - a transferred file that is marked for deletion after transferring it.
-//   * Value - DefinedType.AttachedFile - a created file.
+//   * Key     - DefinedType.AttachedFile - A transferred file marked for deletion.
+//                                                     
+//   * Value - DefinedType.AttachedFile - The created file.
 //
-Function ConvertFilesToAttachedFiles(Val FilesOwner, CatalogName = Undefined) Export
+Function MoveFilesBetweenStorageCatalogs(Val FilesOwner, Val Source = Undefined,
+	Val Receiver = Undefined) Export
 	
 	If Not ValueIsFilled(FilesOwner) Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
@@ -905,54 +1105,89 @@ Function ConvertFilesToAttachedFiles(Val FilesOwner, CatalogName = Undefined) Ex
 			"FilesOwner","FilesOperations.ConvertFilesToAttachedFiles");
 	EndIf;
 	
-	Result = New Map;
+	If Source = Undefined Or Receiver = Undefined Then
+		CatalogNames = FilesOperationsInternal.FileStorageCatalogNames(FilesOwner, True);
+		For Each CatalogName In CatalogNames Do
+			If Source = Undefined And Not CatalogName.Value Then
+				Source = Metadata.Catalogs[CatalogName.Key].FullName();
+			EndIf;
+			
+			If Receiver = Undefined And CatalogName.Value Then
+				Receiver = Metadata.Catalogs[CatalogName.Key].FullName();
+			EndIf;
+		EndDo;
+	EndIf;
+
 	ErrorTitle = NStr("en = 'Error converting attachments.';");
-	CatalogName = FilesOperationsInternal.FileStoringCatalogName(
-	FilesOwner, CatalogName, ErrorTitle);
 	
-	SourceFiles = FilesOperationsInternal.GetAllSubordinateFiles(FilesOwner);
+	If Source = Receiver Then
+		Raise StringFunctionsClientServer.SubstituteParametersToString(
+			ErrorTitle + Chars.LF
+			+ NStr("en = 'Destination catalog is same as source catalog (%1).';"),
+			Source);
+	EndIf;
+	
+	DestinationName = Metadata.FindByFullName(Receiver).Name;
+	
+	Result = New Map;
+	CatalogName = FilesOperationsInternal.FileStoringCatalogName(
+	FilesOwner, DestinationName, ErrorTitle);
+	
+	SourceFiles = FilesOperationsInternal.GetAllSubordinateFiles(FilesOwner, Source);
 	
 	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
 	AttachedFilesManager = Catalogs[CatalogName];
+	
+	HasObjectVersioning = Metadata.Catalogs.Files.FullName() = Source;
 	
 	For Each SourceFile1 In SourceFiles Do
 		BeginTransaction();
 		Try
 			
 			DataLock = New DataLock;
-			DataLockItem = DataLock.Add(Metadata.Catalogs.Files.FullName());
+			DataLockItem = DataLock.Add(Source);
 			DataLockItem.SetValue("Ref", SourceFile1);
 			DataLock.Lock();
 			
 			SourceFileObject = SourceFile1.GetObject();
 			If SourceFileObject <> Undefined And Not SourceFileObject.DeletionMark Then
-				CorrectRef = True;
 				
-				If ValueIsFilled(SourceFileObject.CurrentVersion) Then
-					CurrentVersionObject = SourceFileObject.CurrentVersion.GetObject();
-					If CurrentVersionObject <> Undefined Then
-						DataLock = New DataLock;
-						DataLockItem = DataLock.Add(Metadata.Catalogs.FilesVersions.FullName());
-						DataLockItem.SetValue("Ref", SourceFileObject.CurrentVersion);
-						DataLock.Lock();
+				If HasObjectVersioning Then
+					CorrectRef = True;
+					If ValueIsFilled(SourceFileObject.CurrentVersion) Then
+						CurrentVersionObject = SourceFileObject.CurrentVersion.GetObject();
+						If CurrentVersionObject <> Undefined Then
+							DataLock = New DataLock;
+							DataLockItem = DataLock.Add(Metadata.Catalogs.FilesVersions.FullName());
+							DataLockItem.SetValue("Ref", SourceFileObject.CurrentVersion);
+							DataLock.Lock();
+						Else
+							CorrectRef = False;
+						EndIf;
+						
 					Else
-						CorrectRef = False;
+						CurrentVersionObject = SourceFileObject;
 					EndIf;
 					
+					If CorrectRef Then
+						// @skip-check query-in-loop - save files in a transaction object-by-object
+						RefToAttachedFile = CreateAttachedFileBasedOnFile(FilesOwner, 
+							AttachedFilesManager, SourceFileObject, CurrentVersionObject);
+						
+						If ValueIsFilled(SourceFileObject.CurrentVersion) Then
+							CurrentVersionObject.AdditionalProperties.Insert("FileConversion", True);
+							CurrentVersionObject.Write();
+						EndIf;
+						
+						SourceFileObject.AdditionalProperties.Insert("FileConversion", True);
+						SourceFileObject.Write();
+						Result.Insert(SourceFileObject.Ref, RefToAttachedFile);
+					EndIf;
 				Else
-					CurrentVersionObject = SourceFileObject;
-				EndIf;
-				
-				If CorrectRef Then
 					// @skip-check query-in-loop - save files in a transaction object-by-object
 					RefToAttachedFile = CreateAttachedFileBasedOnFile(FilesOwner, 
-						AttachedFilesManager, CurrentVersionObject, SourceFileObject);
-					
-					If ValueIsFilled(SourceFileObject.CurrentVersion) Then
-						CurrentVersionObject.AdditionalProperties.Insert("FileConversion", True);
-						CurrentVersionObject.Write();
-					EndIf;
+						AttachedFilesManager, SourceFileObject);
 					
 					SourceFileObject.AdditionalProperties.Insert("FileConversion", True);
 					SourceFileObject.Write();
@@ -1010,27 +1245,27 @@ EndProcedure
 //                      - Array - Parameters of items that manage
 //                      attachments to be placed on the form or an array of such structures.
 //                      Properties: See FilesOperations.FilesHyperlink
-//                      and StoredFiles.FileField.
+//                      and FilesOperations.FileField.
 //  SettingsOfFileManagementInForm - See FilesOperations.SettingsOfFileManagementInForm.
 //                      
 //
 // Example:
 //  1. Adding hyperlink of attachments:
-//   HyperlinkParameters = StoredFiles.FilesHyperlink();
+//   HyperlinkParameters = FilesOperations.FilesHyperlink();
 //   HyperlinkParameters.Placement = "CommandBar";
-//   StoredFiles.OnCreateAtServer(ThisObject, HyperlinkParameters);
+//   FilesOperations.OnCreateAtServer(ThisObject, HyperlinkParameters);
 //
 //  2. Adding a picture field:
-//   FieldParameters = StoredFiles.FileField();
+//   FieldParameters = FilesOperations.FileField();
 //   FieldParameters.PathToData = "Object.PicturesFile";
 //   FieldParameters.ImageDataPath = "PictureAddress";
-//   StoredFiles.OnCreateAtServer(ThisObject, FieldParameters);
+//   FilesOperations.OnCreateAtServer(ThisObject, FieldParameters);
 //
 //  3. Adding several controls:
 //   ItemsToAdd = New Array;
 //   ItemsToAdd.Add(HyperlinkParameters);
 //   ItemsToAdd.Add(FieldParameters);
-//   StoredFiles.OnCreateAtServer(ThisObject, ItemsToAdd);
+//   FilesOperations.OnCreateAtServer(ThisObject, ItemsToAdd);
 //
 Procedure OnCreateAtServer(Form, ItemsToAdd1 = Undefined, SettingsOfFileManagementInForm = Undefined) Export
 	
@@ -1146,9 +1381,6 @@ Procedure OnCreateAtServer(Form, ItemsToAdd1 = Undefined, SettingsOfFileManageme
 	FormElementsDetails = New Array;
 	For IndexOf = 0 To ItemsToAdd1.UBound() Do
 		
-		ItemNumber = Format(IndexOf, "NZ=0; NG=");
-		GroupName = "AttachedFilesManagementGroup" + ItemNumber;
-		
 		ItemToAdd = ItemsToAdd1[IndexOf];
 		FullOwnerDataPath = StringFunctionsClientServer.SplitStringIntoSubstringsArray(
 			ItemToAdd.Owner, ".", True, True);
@@ -1204,8 +1436,13 @@ Procedure OnCreateAtServer(Form, ItemsToAdd1 = Undefined, SettingsOfFileManageme
 		ItemParameters.Insert("NonselectedPictureText", "");
 		FillPropertyValues(ItemParameters, ItemToAdd);
 		
+		ItemNumber = Format(IndexOf, "NZ=0; NG=");
+		GroupName = "AttachedFilesManagementGroup" + ItemNumber;
+		GroupTitle = NStr("en = 'Управление присоединенными файлами';") + " "+ ItemNumber;
+		
 		FormItemParameters = New Structure;
 		FormItemParameters.Insert("GroupName",          GroupName);
+		FormItemParameters.Insert("GroupTitle",    GroupTitle);
 		FormItemParameters.Insert("ItemNumber",      ItemNumber);
 		FormItemParameters.Insert("AvailableUpdate",  AvailableUpdate);
 		FormItemParameters.Insert("AdditionAvailable", AdditionAvailable);
@@ -1378,22 +1615,6 @@ Function HasFileStorageVolumes() Export
 	
 EndFunction
 
-// Returns references to objects that have at least one attachment.
-// It is used with the ConvertFilesToAttachedFiles function.
-//
-// Parameters:
-//  FilesOwnersTableName - String - a full name of the metadata object
-//                            that can own attached files.
-//
-// Returns:
-//  Array of DefinedType.FilesOwner
-//
-Function ReferencesToObjectsWithFiles(Val FilesOwnersTableName) Export
-	
-	Return FilesOperationsInternal.ReferencesToObjectsWithFiles(FilesOwnersTableName);
-	
-EndFunction
-
 // Adds a digital signature to file.
 //
 // Parameters:
@@ -1434,9 +1655,9 @@ Procedure AddSignatureToFile(AttachedFile, SignatureProperties, FormIdentifier =
 	
 EndProcedure
 
-// When copying the Source programmatically, it creates at the Recipient copies of all
-// attachments. For interactive copying,
-// use the StoredFiles.OnWriteAtServer procedure.
+// When the Source is copied programmatically, all Source attachments are copied
+// to the Recipient. For interactive copying,
+// use the FilesOperations.OnWriteAtServer procedure.
 // Source and Recipient must be objects of the same type.
 //
 // Parameters:
@@ -1533,8 +1754,8 @@ Function GetUserScanSettings(ClientID) Export
 		"ScanningSettings1/PathToConverterApplication", 
 		ClientID, ""); // ImageMagick
 		
-	UserScanSettings.ScanLogDirectory = Common.CommonSettingsStorageLoad(
-		"ScanningSettings1/ScanLogDirectory", 
+	UserScanSettings.ScanLogCatalog = Common.CommonSettingsStorageLoad(
+		"ScanningSettings1/ScanLogCatalog", 
 		ClientID, ""); 
 		
 	UserScanSettings.UseScanLogDirectory = Common.CommonSettingsStorageLoad(
@@ -1551,39 +1772,39 @@ EndFunction
 //
 Procedure SaveUserScanSettings(UserScanSettings, ClientID) Export
 
-	StructuresArray = New Array;
+	ScanningSettings1 = New Array;
 	
-	StructuresArray.Add(GenerateSetting("ShowScannerDialog",
+	ScanningSettings1.Add(FilesOperationsInternal.GenerateScanSetting("ShowScannerDialog",
 		UserScanSettings.ShowScannerDialog, ClientID));
-	StructuresArray.Add(GenerateSetting("DeviceName",
+	ScanningSettings1.Add(FilesOperationsInternal.GenerateScanSetting("DeviceName",
 		UserScanSettings.DeviceName, ClientID));
-	StructuresArray.Add(GenerateSetting("ScannedImageFormat",
+	ScanningSettings1.Add(FilesOperationsInternal.GenerateScanSetting("ScannedImageFormat",
 		UserScanSettings.ScannedImageFormat, ClientID));
-	StructuresArray.Add(GenerateSetting("ShouldSaveAsPDF",
+	ScanningSettings1.Add(FilesOperationsInternal.GenerateScanSetting("ShouldSaveAsPDF",
 		UserScanSettings.ShouldSaveAsPDF, ClientID));
-	StructuresArray.Add(GenerateSetting("MultipageStorageFormat",
+	ScanningSettings1.Add(FilesOperationsInternal.GenerateScanSetting("MultipageStorageFormat",
 		UserScanSettings.MultipageStorageFormat, ClientID));
-	StructuresArray.Add(GenerateSetting("Resolution",
+	ScanningSettings1.Add(FilesOperationsInternal.GenerateScanSetting("Resolution",
 		UserScanSettings.Resolution, ClientID));
-	StructuresArray.Add(GenerateSetting("Chromaticity",
+	ScanningSettings1.Add(FilesOperationsInternal.GenerateScanSetting("Chromaticity",
 		UserScanSettings.Chromaticity, ClientID));
-	StructuresArray.Add(GenerateSetting("Rotation",
+	ScanningSettings1.Add(FilesOperationsInternal.GenerateScanSetting("Rotation",
 		UserScanSettings.Rotation, ClientID));
-	StructuresArray.Add(GenerateSetting("PaperSize",
+	ScanningSettings1.Add(FilesOperationsInternal.GenerateScanSetting("PaperSize",
 		UserScanSettings.PaperSize, ClientID));
-	StructuresArray.Add(GenerateSetting("DuplexScanning",
+	ScanningSettings1.Add(FilesOperationsInternal.GenerateScanSetting("DuplexScanning",
 		UserScanSettings.DuplexScanning, ClientID));
-	StructuresArray.Add(GenerateSetting("UseImageMagickToConvertToPDF",
+	ScanningSettings1.Add(FilesOperationsInternal.GenerateScanSetting("UseImageMagickToConvertToPDF",
 		UserScanSettings.UseImageMagickToConvertToPDF, ClientID));
-	StructuresArray.Add(GenerateSetting("JPGQuality",
+	ScanningSettings1.Add(FilesOperationsInternal.GenerateScanSetting("JPGQuality",
 		UserScanSettings.JPGQuality, ClientID));
-	StructuresArray.Add(GenerateSetting("TIFFDeflation",
+	ScanningSettings1.Add(FilesOperationsInternal.GenerateScanSetting("TIFFDeflation",
 		UserScanSettings.TIFFDeflation, ClientID));
-	StructuresArray.Add(GenerateSetting("PathToConverterApplication",
+	ScanningSettings1.Add(FilesOperationsInternal.GenerateScanSetting("PathToConverterApplication",
 		UserScanSettings.PathToConverterApplication, ClientID));
-	StructuresArray.Add(GenerateSetting("ScanLogDirectory",
-		UserScanSettings.ScanLogDirectory, ClientID));
-	StructuresArray.Add(GenerateSetting("UseScanLogDirectory",
+	ScanningSettings1.Add(FilesOperationsInternal.GenerateScanSetting("ScanLogCatalog",
+		UserScanSettings.ScanLogCatalog, ClientID));
+	ScanningSettings1.Add(FilesOperationsInternal.GenerateScanSetting("UseScanLogDirectory",
 		UserScanSettings.UseScanLogDirectory, ClientID));
 	
 	If ValueIsFilled(UserScanSettings.SinglePageStorageFormat) Then
@@ -1593,16 +1814,16 @@ Procedure SaveUserScanSettings(UserScanSettings, ClientID) Export
 			UserScanSettings.ShouldSaveAsPDF);
 	EndIf;
 	
-	StructuresArray.Add(GenerateSetting("SinglePageStorageFormat", SinglePageStorageFormat, ClientID));
+	ScanningSettings1.Add(FilesOperationsInternal.GenerateScanSetting("SinglePageStorageFormat", SinglePageStorageFormat, ClientID));
 	
-	CommonServerCall.CommonSettingsStorageSaveArray(StructuresArray, True);
+	CommonServerCall.CommonSettingsStorageSaveArray(ScanningSettings1, True);
 EndProcedure
 
 #Region ForCallsFromOtherSubsystems
 
 // OnlineInteraction
 
-// These procedures and functions are intended for integration with 1C:Electronic document library.
+// These procedures and functions are intended for integration with 1C:Electronic Document Library.
 
 // Transfers information about digital file signatures from the tabular file section to the information register.
 //
@@ -1621,7 +1842,7 @@ EndProcedure
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. Obsolete. Use StoredFiles.AddFileFromHardDrive
+// Deprecated. Instead, use FilesOperations.AddFileFromHardDrive
 // Adds a new file to the specified file owner based on the file from the file system.
 // If the file owner supports version storage, the first file version will be created.
 // 
@@ -1640,8 +1861,8 @@ Function CreateFileBasedOnFileOnHardDrive(FilesOwner, FilePathOnHardDrive) Expor
 	
 EndFunction
 
-// Deprecated. Obsolete. Use StoredFilesClientServer.DetermineAttachedFileForm instead.
-// Handler of the subscription to FormGetProcessing event for overriding file form.
+// Deprecated. Instead, use FilesOperationsClientServer.DetermineAttachedFileForm.
+// FormGetProcessing event subscription handler for overriding the file form.
 //
 // Parameters:
 //  Source                 - CatalogManager - the *AttachedFiles catalog manager.
@@ -1760,12 +1981,7 @@ Procedure ChangeFilesStoragecatalog(Val FilesOwner, CatalogName = Undefined) Exp
 				// @skip-check query-in-loop - save data object-by-object 
 				FileStorage1 = FileFromInfobaseStorage(CurrentVersionObject.Ref);
 				
-				RecordManager = InformationRegisters.BinaryFilesData.CreateRecordManager();
-				RecordManager.File = RefToNew;
-				RecordManager.Read();
-				RecordManager.File = RefToNew;
-				RecordManager.FileBinaryData = New ValueStorage(FileStorage1.Get(), New Deflation(9));
-				RecordManager.Write();
+				InformationRegisters.FileRepository.WriteBinaryData(RefToNew, FileStorage1.Get());
 			EndIf;
 			
 			CurrentVersionObject.DeletionMark = True;
@@ -1800,6 +2016,30 @@ Procedure ChangeFilesStoragecatalog(Val FilesOwner, CatalogName = Undefined) Exp
 	
 EndProcedure
 
+// Deprecated. Instead, use "FilesOperations.MoveFilesBetweenStorageCatalogs". 
+// Transfers files from the Files catalog to the attachments with the file owner object and marks 
+// the transferred files for deletion.
+//
+// For use in infobase update procedures if a transition is made from using
+// file storage in the Files catalog to store files as attached to the file owner object.
+// The procedure is executed sequentially for each item of the file owner object
+// (catalog, CCT, document item etc.).
+//
+// Parameters:
+//   FilesOwner - DefinedType.AttachedFilesOwner - an object that is owner and file destination.
+//   CatalogName - String - if a conversion to the specified storage is required.
+//
+// Returns:
+//  Map of KeyAndValue:
+//   * Key     - CatalogRef.Files - a transferred file that is marked for deletion after transferring it.
+//   * Value - DefinedType.AttachedFile - a created file.
+//
+Function ConvertFilesToAttachedFiles(Val FilesOwner, CatalogName = Undefined) Export
+	
+	Return MoveFilesBetweenStorageCatalogs(FilesOwner, Metadata.Catalogs.Files.FullName(), CatalogName);
+	
+EndFunction
+
 #EndRegion
 
 #EndRegion
@@ -1808,11 +2048,31 @@ EndProcedure
 
 // Internal function for the ConvertFilesToAttachedFiles
 //
-Function CreateAttachedFileBasedOnFile(FilesOwner, AttachedFilesManager, CurrentVersionObject, SourceFileObject)
+Function CreateAttachedFileBasedOnFile(Val FilesOwner, Val AttachedFilesManager, 
+	Val SourceFileObject, Val CurrentVersionObject = Undefined)
 	
 	RefToNew = AttachedFilesManager.GetRef(); // DefinedType.AttachedFile
 	AttachedFile = AttachedFilesManager.CreateItem(); // DefinedType.AttachedFileObject
 	AttachedFile.SetNewObjectRef(RefToNew);
+	
+	VersioningUsed = True;
+	
+	If CurrentVersionObject = Undefined Then
+		VersioningUsed = False;
+		CurrentVersionObject = New Structure;
+		CurrentVersionObject.Insert("UniversalModificationDate", SourceFileObject.UniversalModificationDate);
+		CurrentVersionObject.Insert("Description", SourceFileObject.Description);
+		CurrentVersionObject.Insert("Author", SourceFileObject.Author);
+		CurrentVersionObject.Insert("CreationDate", SourceFileObject.CreationDate);
+		CurrentVersionObject.Insert("Size", SourceFileObject.Size);
+		CurrentVersionObject.Insert("Extension", SourceFileObject.Extension);
+		CurrentVersionObject.Insert("FileStorageType", SourceFileObject.FileStorageType);
+		CurrentVersionObject.Insert("Volume", SourceFileObject.Volume);
+		CurrentVersionObject.Insert("PathToFile", SourceFileObject.PathToFile);
+		CurrentVersionObject.Insert("CurrentVersion", Undefined);
+		CurrentVersionObject.Insert("DeleteDigitalSignatures", SourceFileObject.DeleteDigitalSignatures.Unload());
+		CurrentVersionObject.Insert("Ref", SourceFileObject.Ref);
+	EndIf;
 	
 	AttachedFile.FileOwner                = FilesOwner;
 	AttachedFile.Description                 = SourceFileObject.Description;
@@ -1841,7 +2101,7 @@ Function CreateAttachedFileBasedOnFile(FilesOwner, AttachedFilesManager, Current
 		FillPropertyValues(NewRow, EncryptionCertificateRow);
 	EndDo;
 	
-	If ValueIsFilled(SourceFileObject.CurrentVersion) Then
+	If Not VersioningUsed Or ValueIsFilled(SourceFileObject.CurrentVersion) Then
 		For Each DigitalSignatureString In CurrentVersionObject.DeleteDigitalSignatures Do
 			NewRow = AttachedFile.DeleteDigitalSignatures.Add();
 			FillPropertyValues(NewRow, DigitalSignatureString);
@@ -1854,19 +2114,19 @@ Function CreateAttachedFileBasedOnFile(FilesOwner, AttachedFilesManager, Current
 	If AttachedFile.FileStorageType = Enums.FileStorageTypes.InInfobase Then
 		FileStorage1 = FileFromInfobaseStorage(CurrentVersionObject.Ref);
 		
-		
-		
+		// 
+		// 
 		If FileStorage1 <> Undefined Then
-			RecordManager = InformationRegisters.BinaryFilesData.CreateRecordManager();
-			RecordManager.File = RefToNew;
-			RecordManager.Read();
-			RecordManager.File = RefToNew;
-			RecordManager.FileBinaryData = New ValueStorage(FileStorage1.Get(), New Deflation(9));
-			RecordManager.Write();
+			SetPrivilegedMode(True);
+			InformationRegisters.FileRepository.WriteBinaryData(RefToNew, FileStorage1.Get());
+			SetPrivilegedMode(False);
 		EndIf;
 	EndIf;
 	
-	CurrentVersionObject.DeletionMark = True;
+	If VersioningUsed Then
+		CurrentVersionObject.DeletionMark = True;
+	EndIf;
+	
 	SourceFileObject.DeletionMark  = True;
 	
 	// Delete references to volume in the old file, to prevent file deleting.
@@ -1888,7 +2148,7 @@ EndFunction
 ////////////////////////////////////////////////////////////////////////////////
 // Auxiliary procedures and functions.
 
-// Returns keys of file operation setting objects.
+// Returns keys of file management setting objects.
 // 
 Function FilesOperationSettingsObjectsKeys()
 	
@@ -2032,14 +2292,30 @@ Function FileFromInfobaseStorage(FileRef) Export
 	Query = New Query;
 	Query.Text = 
 	"SELECT
-	|	BinaryFilesData.File,
-	|	BinaryFilesData.FileBinaryData
+	|	FileRepository.BinaryDataStorage.BinaryData AS FileBinaryData
 	|FROM
-	|	InformationRegister.BinaryFilesData AS BinaryFilesData
+	|	InformationRegister.FileRepository AS FileRepository
 	|WHERE
-	|	BinaryFilesData.File = &FileRef";
+	|	FileRepository.File = &FileRef";
 	
 	Query.SetParameter("FileRef", FileRef);
+	Selection = Query.Execute().Select();
+	
+	If Selection.Next() Then
+		Return Selection.FileBinaryData;
+	EndIf;
+	
+	If FilesOperationsInternalCached.IsDeduplicationCompleted() Then
+		Return Undefined;
+	EndIf;
+	
+	Query.Text = 
+	"SELECT
+	|	DeleteFilesBinaryData.FileBinaryData AS FileBinaryData
+	|FROM
+	|	InformationRegister.DeleteFilesBinaryData AS DeleteFilesBinaryData
+	|WHERE
+	|	DeleteFilesBinaryData.File = &FileRef";
 	Selection = Query.Execute().Select();
 	
 	Return ?(Selection.Next(), Selection.FileBinaryData, Undefined);
@@ -2076,40 +2352,44 @@ Procedure ExecuteActionsBeforeWriteAttachedFile(Source, Cancel) Export
 	If Source.IsNew() Then
 		// Check the Add right.
 		If Not FilesOperationsInternal.HasRight("AddFilesAllowed", Source.FileOwner) Then
-			Raise StringFunctionsClientServer.SubstituteParametersToString(
+			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Insufficient rights to add files to folder ""%1.""';"),
 				String(Source.FileOwner));
+			Raise(MessageText, ErrorCategory.AccessViolation);
 		EndIf;
 	Else
 		
 		If Users.IsFullUser() Then
 			FormerValue = Common.ObjectAttributesValues(Source.Ref, "DeletionMark");
 		Else	
-			FormerValue = Common.ObjectAttributesValues(Source.Ref, "DeletionMark, Author, BeingEditedBy, ChangedBy");
+			FormerValue = Common.ObjectAttributesValues(Source.Ref, 
+				"DeletionMark, Author, BeingEditedBy, ChangedBy");
 			CheckIfTheFileAuthorHasChanged(FormerValue, Source);
 		EndIf;
 		
 		DeletionMarkChanged = Source.DeletionMark <> FormerValue.DeletionMark;
 		If DeletionMarkChanged Then
-			// Checking the "Deletion mark" right.
 			If Not FilesOperationsInternal.HasRight("FilesDeletionMark", Source.FileOwner) Then
-				Raise StringFunctionsClientServer.SubstituteParametersToString(
+				MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Insufficient rights to mark files in folder ""%1"" for deletion.';"),
 					String(Source.FileOwner));
+				Raise(MessageText, ErrorCategory.AccessViolation);
 			EndIf;
 		EndIf;
 		
 		If DeletionMarkChanged And ValueIsFilled(Source.BeingEditedBy) Then
 				
 			If Source.BeingEditedBy = Users.AuthorizedUser() Then
-				ErrorText = NStr("en = 'Cannot perform the operation because file ""%1"" file is locked for editing.';");
-				Raise StringFunctionsClientServer.SubstituteParametersToString(ErrorText, Source.Description);
+				MessageText = StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'Cannot perform the operation because file ""%1"" file is locked for editing.';"),
+					Source.Description);
 			Else
-				ErrorText = NStr("en = 'Cannot perform the operation because user %2
-					|is editing file ""%1"".';");
-				Raise StringFunctionsClientServer.SubstituteParametersToString(ErrorText,
+				MessageText = StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'Cannot perform the operation because user %2
+						|is editing file ""%1"".';"),
 					Source.Description, String(Source.BeingEditedBy));
 			EndIf;
+			Raise MessageText;
 			
 		EndIf;
 		
@@ -2144,8 +2424,8 @@ Procedure ExecuteActionsBeforeWriteAttachedFile(Source, Cancel) Export
 			
 			CurrentVersionAttributes = Common.ObjectAttributesValues(Source.CurrentVersion, "Description");
 			
-			
-			
+			// 
+			// 
 			If CurrentVersionAttributes.Description <> Source.Description
 			   And ValueIsFilled(Source.CurrentVersion) Then
 				
@@ -2254,16 +2534,9 @@ Procedure WriteFileDataToRegisterDuringExchange(Val Source)
 	Var FileBinaryData;
 	
 	If Source.AdditionalProperties.Property("FileBinaryData", FileBinaryData) Then
-		RecordSet = InformationRegisters.BinaryFilesData.CreateRecordSet();
-		RecordSet.Filter.File.Use = True;
-		RecordSet.Filter.File.Value = Source.Ref;
-		
-		Record = RecordSet.Add();
-		Record.File = Source.Ref;
-		Record.FileBinaryData = New ValueStorage(FileBinaryData, New Deflation(9));
-		
-		RecordSet.DataExchange.Load = True;
-		RecordSet.Write();
+		SetPrivilegedMode(True);
+		InformationRegisters.FileRepository.WriteBinaryData(Source.Ref, FileBinaryData);
+		SetPrivilegedMode(False);
 		
 		Source.AdditionalProperties.Delete("FileBinaryData");
 	EndIf;
@@ -2314,7 +2587,7 @@ Procedure CheckIfTheFileAuthorHasChanged(Val FormerValue, Val Source)
 	
 	ChangedTheAuthorOf = Source.Author <> FormerValue.Author;
 	If ChangedTheAuthorOf Then
-		Raise NStr("en = 'Insufficient rights to change the file author.';");
+		Raise(NStr("en = 'Insufficient rights to change the file author.';"), ErrorCategory.AccessViolation);
 	EndIf;
 	
 	If TypeOf(Source) = Type("CatalogObject.FilesVersions") Then
@@ -2325,13 +2598,13 @@ Procedure CheckIfTheFileAuthorHasChanged(Val FormerValue, Val Source)
 	If Source.BeingEditedBy <> FormerValue.BeingEditedBy
 		And (InvalidAuthor(Source.BeingEditedBy, CurrentUser) 
 			Or InvalidAuthor(FormerValue.BeingEditedBy, CurrentUser)) Then
-		Raise NStr("en = 'Insufficient rights to edit the file.';");
+		Raise(NStr("en = 'Insufficient rights to edit the file.';"), ErrorCategory.AccessViolation);
 	EndIf;
 	
 	If Source.ChangedBy <> FormerValue.ChangedBy
 		And (InvalidAuthor(Source.ChangedBy, CurrentUser) 
 			Or InvalidAuthor(FormerValue.ChangedBy, CurrentUser)) Then
-		Raise NStr("en = 'Insufficient rights to edit the file.';");
+		Raise(NStr("en = 'Insufficient rights to edit the file.';"), ErrorCategory.AccessViolation);
 	EndIf;
 
 EndProcedure
@@ -2389,7 +2662,8 @@ Procedure CreateFilesHyperlink(Form, ItemToAdd, AttachedFilesOwner, HyperlinkPar
 	EndIf;
 	
 	PlacementOnFormGroup = Form.Items.Insert(GroupName, Type("FormGroup"), 
-		ParentElement, PlacementItem);
+		ParentElement, PlacementItem); // FormGroup
+	PlacementOnFormGroup.Title = HyperlinkParameters.GroupTitle;
 	PlacementOnFormGroup.Type = Compositor;
 	
 	SubmenuAdd = Undefined;
@@ -2397,7 +2671,7 @@ Procedure CreateFilesHyperlink(Form, ItemToAdd, AttachedFilesOwner, HyperlinkPar
 		And AdditionAvailable Then
 		
 		SubmenuAdd = Form.Items.Add("AddingFileSubmenu" + ItemNumber, Type("FormGroup"),
-			PlacementOnFormGroup);
+			PlacementOnFormGroup); // FormGroup
 		
 		SubmenuAdd.Type         = FormGroupType.Popup;
 		SubmenuAdd.Picture    = PictureLib.Clip;
@@ -2422,7 +2696,7 @@ Procedure CreateFilesHyperlink(Form, ItemToAdd, AttachedFilesOwner, HyperlinkPar
 		EndIf;
 		
 		LoadButtonFromSubmenu = AddButtonOnForm(Form, 
-			ImportFileCommandName + FilesOperationsClientServer.NameOfAdditionalCommandFromSubmenu() + ItemNumber, SubmenuAdd, ImportFile_.Name);
+			ImportFileCommandName + NameOfAdditionalCommandFromSubmenu() + ItemNumber, SubmenuAdd, ImportFile_.Name);
 		LoadButtonFromSubmenu.Representation = ButtonRepresentation.Text;
 		
 		CreateByTemplate = Form.Commands.Add(CommandPrefix + CreateFromTemplateCommandName + "_" + ItemNumber);
@@ -2494,7 +2768,6 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 	
 	GroupPropertiesWithoutDisplay = New Structure;
 	GroupPropertiesWithoutDisplay.Insert("Type",                 FormGroupType.UsualGroup);
-	GroupPropertiesWithoutDisplay.Insert("Title",           "");
 	GroupPropertiesWithoutDisplay.Insert("ToolTip",           "");
 	GroupPropertiesWithoutDisplay.Insert("Group",         ChildFormItemsGroup.Vertical);
 	GroupPropertiesWithoutDisplay.Insert("ShowTitle", False);
@@ -2526,14 +2799,15 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 	EndIf;
 	
 	PlacementOnFormGroup = Form.Items.Insert(GroupName, Type("FormGroup"), 
-		ParentElement, PlacementItem);
+		ParentElement, PlacementItem); // FormGroup
+	PlacementOnFormGroup.Title = FileFieldParameters.GroupTitle;
 	
 	OneFileOnlyText = ?(ItemToAdd.OneFileOnly, FilesOperationsClientServer.OneFileOnlyText(), "");
 	FillPropertyValues(PlacementOnFormGroup, GroupPropertiesWithoutDisplay);
 	
-	HeaderGroup = Form.Items.Add(
-		"AttachedFilesManagementGroupHeader" + ItemNumber,
-		Type("FormGroup"), PlacementOnFormGroup);
+	HeaderGroup = Form.Items.Add("AttachedFilesManagementGroupHeader" + ItemNumber,
+		Type("FormGroup"), PlacementOnFormGroup); // FormGroup
+	HeaderGroup.Title = NStr("en = 'Управление присоединенными файлами';") + " " + ItemNumber;
 	
 	FillPropertyValues(HeaderGroup, GroupPropertiesWithoutDisplay);
 	HeaderGroup.Group = ChildFormItemsGroup.AlwaysHorizontal;
@@ -2543,6 +2817,7 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 		PreviewItem = Form.Items.Add("AttachedFilePictureField" + ItemNumber,
 			Type("FormField"), PlacementOnFormGroup); // FormFieldExtensionForInputField
 		
+		PreviewItem.Title                  = NStr("en = 'Картинка присоединенного файла';") + " " + ItemNumber;
 		PreviewItem.Type                        = FormFieldType.PictureField;
 		PreviewItem.TextColor                 = StyleColors.NotSelectedPictureTextColor;
 		PreviewItem.DataPath                = ItemToAdd.PathToPictureData;
@@ -2561,8 +2836,8 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 		PreviewContextMenu.EnableContentChange = False;
 		
 		ContextMenuAddGroup = Form.Items.Add("FileAddingGroupContextMenu" + ItemNumber,
-			Type("FormGroup"), PreviewContextMenu);
-		
+			Type("FormGroup"), PreviewContextMenu); // FormGroup
+		ContextMenuAddGroup.Title = NStr("en = 'Контекстное меню добавления файла';") + " " + ItemNumber;
 		ContextMenuAddGroup.Type = FormGroupType.ButtonGroup;
 		
 		If ValueIsFilled(PlacementAttribute)
@@ -2591,8 +2866,7 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 		EndIf;
 		
 		PreviewItem.SetAction("Click", "Attachable_PreviewFieldClick");
-		PreviewItem.SetAction("Drag",
-			"Attachable_PreviewFieldDrag");
+		PreviewItem.SetAction("Drag", "Attachable_PreviewFieldDrag");
 		PreviewItem.SetAction("DragCheck",
 			"Attachable_PreviewFieldCheckDragging");
 		
@@ -2602,7 +2876,6 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 		
 		TitleDecoration = Form.Items.Add("AttachedFilesManagementTitle" + ItemNumber,
 			Type("FormDecoration"), HeaderGroup);
-		
 		TitleDecoration.Type                      = FormDecorationType.Label;
 		TitleDecoration.Title                = ItemToAdd.Title + ":";
 		TitleDecoration.VerticalStretch   = False;
@@ -2640,7 +2913,7 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 	If ItemToAdd.ShowCommandBar Then
 		
 		GroupCommandBar = Form.Items.Find("GroupCommandBar" + ItemToAdd.Location);
-		GroupOfSuppliedItems = Undefined;
+		SuppliedItemsGroup = Undefined;
 		If GroupCommandBar = Undefined Then
 			GroupCommandBar = Form.Items.Add("AttachedFilesManagementCommandBar" + ItemNumber,
 				Type("FormGroup"), HeaderGroup);
@@ -2649,11 +2922,13 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 			GroupCommandBar.HorizontalStretch = True;
 		Else
 			Form.Items.Move(GroupCommandBar, HeaderGroup);
-			GroupOfSuppliedItems = Form.Items.Add("GroupOfSuppliedCommandsForManagingAttachedFiles" + ItemNumber,
-				Type("FormGroup"), GroupCommandBar);
-			GroupOfSuppliedItems.Type = FormGroupType.ButtonGroup;
+			SuppliedItemsGroup = Form.Items.Add("AttachmentsManagement1CSuppliedCommandsGroup" + ItemNumber,
+				Type("FormGroup"), GroupCommandBar); // FormGroup
+			SuppliedItemsGroup.Title = NStr("en = 'Команды управления присоединенными файлами';") 
+				+ " " + ItemNumber;
+			SuppliedItemsGroup.Type = FormGroupType.ButtonGroup;
 			For Each SuppliedItem In GroupCommandBar.ChildItems Do
-				Form.Items.Move(SuppliedItem, GroupOfSuppliedItems);
+				Form.Items.Move(SuppliedItem, SuppliedItemsGroup);
 			EndDo;
 		EndIf;
 		
@@ -2666,8 +2941,8 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 		SubmenuAdd.Representation = ButtonRepresentation.Picture;
 		
 		SubmenuGroup = Form.Items.Add("FileAddingGroup" + ItemNumber,
-			Type("FormGroup"), SubmenuAdd);
-			
+			Type("FormGroup"), SubmenuAdd); // FormGroup
+		ContextMenuAddGroup.Title = NStr("en = 'Добавление файла';") + " " + ItemNumber;
 		SubmenuGroup.Type = FormGroupType.ButtonGroup;
 		
 	EndIf;
@@ -2692,7 +2967,7 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 			LoadButton.Representation = ButtonRepresentation.Picture;
 			
 			LoadButtonFromSubmenu = AddButtonOnForm(Form, 
-				CommandNameWithPrefix + FilesOperationsClientServer.NameOfAdditionalCommandFromSubmenu() + ItemNumber,
+				CommandNameWithPrefix + NameOfAdditionalCommandFromSubmenu() + ItemNumber,
 				SubmenuGroup, ImportFile_.Name);
 			
 			FillPropertyValues(LoadButtonFromSubmenu, LoadButtonProperties);
@@ -2912,8 +3187,8 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 		
 	EndIf;
 	
-	If ItemToAdd.ShowCommandBar And GroupOfSuppliedItems <> Undefined Then
-		 Form.Items.Move(GroupOfSuppliedItems, GroupCommandBar);
+	If ItemToAdd.ShowCommandBar And SuppliedItemsGroup <> Undefined Then
+		 Form.Items.Move(SuppliedItemsGroup, GroupCommandBar);
 	EndIf;
 	
 EndProcedure
@@ -2921,30 +3196,21 @@ EndProcedure
 Procedure SetEditingAvailability(FileData, EditButton1, CancelButton1, PlaceButton)
 	
 	If FileData <> Undefined Then
-		
 		EditButton1.Enabled = Not FileData.FileBeingEdited;
-		CancelButton1.Enabled = FileData.FileBeingEdited
-			And FileData.CurrentUserEditsFile;
-		PlaceButton.Enabled = FileData.FileBeingEdited
-			And FileData.CurrentUserEditsFile;
-		
+		CancelButton1.Enabled = FileData.FileBeingEdited And FileData.CurrentUserEditsFile;
+		PlaceButton.Enabled = FileData.FileBeingEdited And FileData.CurrentUserEditsFile;
 	Else
-		
 		CancelButton1.Enabled = False;
 		PlaceButton.Enabled = False;
 		EditButton1.Enabled = False;
-		
 	EndIf;
 
 EndProcedure
 
 Function AddButtonOnForm(Form, ButtonName, Parent, CommandName)
 	
-	FormButton = Form.Items.Add(ButtonName,
-		Type("FormButton"), Parent);
-
+	FormButton = Form.Items.Add(ButtonName, Type("FormButton"), Parent);
 	FormButton.CommandName = CommandName;
-	
 	Return FormButton;
 	
 EndFunction
@@ -2961,14 +3227,8 @@ Function FormAttributeByName(FormAttributes, AttributeName)
 	
 EndFunction
 
-Function GenerateSetting(Name, Value, ClientID)
-	
-	Item = New Structure;
-	Item.Insert("Object", "ScanningSettings1/" + Name);
-	Item.Insert("Setting", ClientID);
-	Item.Insert("Value", Value);
-	Return Item;
-	
+Function NameOfAdditionalCommandFromSubmenu()
+	Return "FromSubmenu";
 EndFunction
-	
+
 #EndRegion

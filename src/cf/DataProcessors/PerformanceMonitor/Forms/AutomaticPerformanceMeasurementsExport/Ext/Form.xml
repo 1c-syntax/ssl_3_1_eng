@@ -23,7 +23,7 @@
 						<v8:content>Save</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="FormShouldSaveSettingsExtendedTooltip" id="26"/>
+				<ExtendedTooltip name="FormSaveSettingsExtendedTooltip" id="26"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
@@ -66,6 +66,12 @@
 						</CheckBoxField>
 						<CheckBoxField name="DoExport" id="14">
 							<DataPath>DoExport</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Export</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<CheckBoxType>Auto</CheckBoxType>
 							<ContextMenu name="DoExportContextMenu" id="15"/>
@@ -215,6 +221,12 @@
 			<ChildItems>
 				<CheckBoxField name="DoExportToLocalDirectory" id="20">
 					<DataPath>DoExportToLocalDirectory</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Export to local directory</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Right</TitleLocation>
 					<CheckBoxType>Auto</CheckBoxType>
 					<ContextMenu name="DoExportToLocalDirectoryContextMenu" id="21"/>
@@ -255,6 +267,12 @@
 			<ChildItems>
 				<CheckBoxField name="DoExportToFTPDirectory" id="18">
 					<DataPath>DoExportToFTPDirectory</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Export to FTP</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Right</TitleLocation>
 					<CheckBoxType>Auto</CheckBoxType>
 					<ContextMenu name="DoExportToFTPDirectoryContextMenu" id="19"/>
@@ -282,6 +300,12 @@
 		<Button name="SetExportSchedule" id="11">
 			<Type>Hyperlink</Type>
 			<CommandName>Form.Command.SetExportSchedule</CommandName>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Configure schedule</v8:content>
+				</v8:item>
+			</Title>
 			<ExtendedTooltip name="SetExportScheduleExtendedTooltip" id="36"/>
 		</Button>
 	</ChildItems>

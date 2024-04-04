@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -20,7 +21,19 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EventsToDisplay = Events.Copy();
 	EndIf;
 	
-	Items.SessionDataSeparation.Visible = Not Common.SeparatedDataUsageAvailable();
+	SeparationVisibility = Not Common.SeparatedDataUsageAvailable();
+	StandardSeparatorsOnly = EventLog.StandardSeparatorsOnly();
+	Items.SessionDataSeparation.Visible = SeparationVisibility And Not StandardSeparatorsOnly;
+	Items.DataAreas.Visible = SeparationVisibility And StandardSeparatorsOnly;
+	If Items.DataAreas.Visible Then
+		For Each ListItem In SessionDataSeparation Do
+			If StrStartsWith(ListItem.Value, "DataAreaMainData") Then
+				StringParts1 = StrSplit(ListItem.Value, "=");
+				DataAreas = EventLog.StringDelimitersList(StringParts1[1]);
+				Break;
+			EndIf;
+		EndDo;
+	EndIf;
 	
 EndProcedure
 
@@ -45,6 +58,9 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 			PrimaryIPPorts = Parameter;
 		ElsIf PropertyCompositionEditorItemName = Items.SecondaryIPPorts.Name Then
 			SecondaryIPPorts = Parameter;
+		ElsIf PropertyCompositionEditorItemName = Items.DataAreas.Name Then
+			DataAreas = Parameter;
+			SessionDataSeparation = CompleteListOfSeparators(Parameter);
 		ElsIf PropertyCompositionEditorItemName = Items.SessionDataSeparation.Name Then
 			SessionDataSeparation = Parameter;
 		EndIf;
@@ -99,7 +115,11 @@ Procedure ChoiceCompletion(Item, ChoiceData, StandardProcessing)
 	ElsIf PropertyCompositionEditorItemName = Items.SecondaryIPPorts.Name Then
 		ListToEdit = SecondaryIPPorts;
 		ParametersToSelect = "SyncPort";
+	ElsIf PropertyCompositionEditorItemName = Items.DataAreas.Name Then
+		ListToEdit = DataAreas;
+		ParametersToSelect = "SessionDataSeparationValues" + "." + "DataAreaMainData";
 	ElsIf PropertyCompositionEditorItemName = Items.SessionDataSeparation.Name Then
+		StandardProcessing = False;
 		FormParameters = New Structure;
 		FormParameters.Insert("ActiveFilter", SessionDataSeparation);
 		OpenForm("DataProcessor.EventLog.Form.SessionDataSeparation", FormParameters, ThisObject);
@@ -122,6 +142,13 @@ Procedure ChoiceCompletion(Item, ChoiceData, StandardProcessing)
 	OpenForm("DataProcessor.EventLog.Form.PropertyCompositionEditor",
 	             FormParameters,
 	             ThisObject);
+	
+EndProcedure
+
+&AtClient
+Procedure DataAreasClearing(Item, StandardProcessing)
+	
+	SessionDataSeparation.Clear();
 	
 EndProcedure
 
@@ -162,6 +189,47 @@ Procedure FilterPeriodDateOnChange(Item)
 	FilterDateRange.Variant       = StandardPeriodVariant.Custom;
 	FilterDateRange.StartDate    = FilterPeriodStartDate;
 	FilterDateRange.EndDate = FilterPeriodEndDate;
+	
+EndProcedure
+
+&AtClient
+Procedure MultipleValuesOnChange(Item)
+	
+	DataName = Items.Data.Name;
+	DataListName = Items.Data_List.Name;
+	SingleValue = Not DataMultipleValues;
+	
+	Items[DataName].Visible = SingleValue;
+	Items[DataListName].Visible = Not SingleValue;
+	CurrentData = ThisObject[DataName];
+	CurrentList = ThisObject[DataListName];
+	
+	If SingleValue Then
+		ThisObject[DataName] = ?(CurrentList.Count() = 0,
+			Undefined, CurrentList[0].Value);
+		
+	ElsIf ValueIsFilled(CurrentData)
+	      Or CurrentList.Count() > 0 Then
+		
+		If CurrentList.Count() = 0 Then
+			CurrentList.Add();
+		EndIf;
+		CurrentList[0].Value = CurrentData;
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure CommentOnChange(Item)
+	
+	UpdateCommentField(ThisObject);
+	
+EndProcedure
+
+&AtClient
+Procedure CommentEditTextChange(Item, Text, StandardProcessing)
+	
+	UpdateCommentField(ThisObject, Text);
 	
 EndProcedure
 
@@ -267,14 +335,22 @@ Procedure FillFilterParameters()
 		ElsIf Upper(ParameterName) = Upper("Comment") Then
 			// Comment.
 			Comment = Value;
-		 	
+			UpdateCommentField(ThisObject);
+			
 		ElsIf Upper(ParameterName) = Upper("Metadata") Then
 			// Metadata.
 			Metadata = Value;
 			
 		ElsIf Upper(ParameterName) = Upper("Data") Then
 			// Data. 
-			Data = Value;
+			If TypeOf(Value) = Type("ValueList") Then
+				DataMultipleValues = True;
+				Items.Data.Visible = False;
+				Items.Data_List.Visible = True;
+				Data_List = Value;
+			Else
+				Data = Value;
+			EndIf;
 			
 		ElsIf Upper(ParameterName) = Upper("DataPresentation") Then
 			// DataPresentation.
@@ -348,9 +424,7 @@ Procedure FillFilterParameters()
 	
 	If ValueIsFilled(WorkingServers)
 		Or ValueIsFilled(PrimaryIPPorts)
-		Or ValueIsFilled(SecondaryIPPorts)
-		Or ValueIsFilled(SessionDataSeparation)
-		Or ValueIsFilled(Comment) Then
+		Or ValueIsFilled(SecondaryIPPorts) Then
 		Items.OthersGroup.Title = Items.OthersGroup.Title + " *";
 	EndIf;
 	
@@ -423,8 +497,9 @@ Function GetEventLogFilter()
 	EndIf;
 	
 	// Data. 
-	If (Data <> Undefined) And (Not Data.IsEmpty()) Then
-		Filter.Add(Data, "Data");
+	FilterValue = ?(DataMultipleValues, Data_List, Data);
+	If ValueIsFilled(FilterValue) Then
+		Filter.Add(FilterValue, "Data");
 	EndIf;
 	
 	// DataPresentation.
@@ -485,6 +560,75 @@ Function GetEventLogFilter()
 	EndIf;
 	
 	Return Filter;
+	
+EndFunction
+
+&AtClientAtServerNoContext
+Procedure UpdateCommentField(Form, Text = Undefined)
+	
+	If Text = Undefined Then
+		Text = Form.Comment;
+	EndIf;
+	
+	Rows = StrSplit(Text, Chars.LF);
+	If Rows.Count() > 1 Then
+		NewHeight = 2;
+	Else
+		NewHeight = 1;
+	EndIf;
+	
+	If Form.Items.Comment.Height <> NewHeight Then
+		Form.Comment = Text;
+		Form.Items.Comment.Height = NewHeight;
+	EndIf;
+	
+	MaxLength = 1;
+	For Each String In Rows Do
+		If StrLen(String) > MaxLength Then
+			MaxLength = StrLen(String);
+		EndIf;
+	EndDo;
+	
+	If MaxLength > 70 Then
+		NewStretch = True;
+	Else
+		NewStretch = False;
+	EndIf;
+	
+	If Form.Items.Comment.HorizontalStretch <> NewStretch Then
+		Form.Comment = Text;
+		Form.Items.Comment.HorizontalStretch = NewStretch;
+	EndIf;
+	
+EndProcedure
+
+&AtServerNoContext
+Function CompleteListOfSeparators(Parameter)
+	
+	Presentations = New Array;
+	For Each ListItem In Parameter Do
+		If ValueIsFilled(ListItem.Presentation) Then
+			Presentations.Add(ListItem.Presentation);
+		Else
+			Presentations.Add(ListItem.Value);
+		EndIf;
+	EndDo;
+	
+	ValuesPresentation = StrConcat(Presentations, ", ");
+	StringValues = StrConcat(Parameter.UnloadValues(), ",");
+	
+	List = New ValueList;
+	
+	For Each CommonAttribute In Metadata.CommonAttributes Do
+		If CommonAttribute.DataSeparation = Metadata.ObjectProperties.CommonAttributeDataSeparation.DontUse Then
+			Continue;
+		EndIf;
+		SeparatorPresentation = CommonAttribute.Presentation() + " = " + ValuesPresentation;
+		SeparatorValue = CommonAttribute.Name + "=" + StringValues;
+		List.Add(SeparatorValue, SeparatorPresentation);
+	EndDo;
+	
+	Return List;
 	
 EndFunction
 

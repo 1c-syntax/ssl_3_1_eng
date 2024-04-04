@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -109,9 +110,9 @@ Function InstalledExtensions(OnStart = False) Export
 		ModuleConfigurationUpdate = Undefined;
 	EndIf;
 	
-	
-	
-	
+	// 
+	// 
+	// 
 	SharedMode = Common.DataSeparationEnabled()
 		And Not Common.SeparatedDataUsageAvailable();
 
@@ -218,8 +219,8 @@ EndFunction
 // Parameters:
 //  InstalledExtensionsOnStartup - See InstalledExtensionsOnStartup
 //                                    - Undefined - Get for the current session.
-//  IsCheckInCurrentSession - Boolean - 
-//                                    
+//  IsCheckInCurrentSession - Boolean - Set to True if InstalledExtensionsOnStartup
+//                                    are obtained in the current session.
 //
 // Returns:
 //  Structure:
@@ -314,8 +315,8 @@ Procedure RegisterExtensionsVersionUsage(OnFirstSetSessionParameters = False) Ex
 	|	AND ExtensionsVersions.Ref = &ExtensionsVersion
 	|	AND ExtensionsVersions.DateOfLastUse < &DateOfLastUse";
 	
-	
-	
+	// 
+	// 
 	Block = New DataLock;
 	LockItem = Block.Add("Catalog.ExtensionsVersions");
 	LockItem.SetValue("Ref", ExtensionsVersion);
@@ -364,23 +365,31 @@ EndProcedure
 //    * UpdateID - UUID
 //
 Function LastExtensionsVersion() Export
-
+	
 	ParameterName = "StandardSubsystems.Core.LastExtensionsVersion";
 	StoredProperties = StandardSubsystemsServer.ExtensionParameter(ParameterName, True);
-
-	If StoredProperties = Undefined Or TypeOf(StoredProperties) <> Type("Structure")
-		Or Not StoredProperties.Property("ExtensionsVersion") Or Not StoredProperties.Property("UpdateDate")
-		Or Not StoredProperties.Property("UpdateID") Then
-
-		StoredProperties = New Structure;
-		StoredProperties.Insert("ExtensionsVersion");
-		StoredProperties.Insert("UpdateDate", '00010101');
-		StoredProperties.Insert("UpdateID",
-			CommonClientServer.BlankUUID());
+	
+	NewStoredProperties = NewStoredPropertiesOfExtensionsVersion();
+	
+	If TypeOf(StoredProperties) = Type("Structure") Then
+		For Each KeyAndValue In NewStoredProperties Do
+			If StoredProperties.Property(KeyAndValue.Key)
+			   And TypeOf(StoredProperties[KeyAndValue.Key]) = TypeOf(KeyAndValue.Value) Then
+				Continue;
+			EndIf;
+			StoredProperties = Undefined;
+			Break;
+		EndDo;
 	EndIf;
-
-	Return StoredProperties;
-
+	
+	If TypeOf(StoredProperties) = Type("Structure") Then
+		Return StoredProperties;
+	EndIf;
+	
+	NewStoredProperties.ExtensionsVersion = Undefined;
+	
+	Return NewStoredProperties;
+	
 EndFunction
 
 // Deletes obsolete metadata versions.
@@ -794,8 +803,8 @@ Function ExtensionsVersion()
 	|WHERE
 	|	NOT ExtensionsVersions.DeletionMark";
 	
-	
-	
+	// 
+	// 
 	Block = New DataLock;
 	LockItem = Block.Add("Catalog.ExtensionsVersions");
 	LockItem.SetValue("Ref", FlagOfAddingNewVersion());
@@ -821,8 +830,8 @@ Function ExtensionsVersion()
 		BeginTransaction();
 		Try
 			Block.Lock();
-			
-			
+			// 
+			// 
 			QueryResult = Query.Execute();
 			Selection = QueryResult.Select();
 			If VersionFound(Selection, ExtensionsDetails) Then
@@ -930,8 +939,8 @@ Function OtherExtensionsVersion(MinSessionStartDate = '39991231')
 	|	AND ExtensionsVersions.DateOfLastUse < &MinSessionStartDate
 	|	AND NOT ExtensionsVersions.DeletionMark";
 	
-	
-	
+	// 
+	// 
 	Block = New DataLock;
 	LockItem = Block.Add("Catalog.ExtensionsVersions");
 	LockItem.Mode = DataLockMode.Shared;
@@ -987,6 +996,26 @@ Procedure DisableScheduledJobIfRequired()
 	EndTry;
 
 EndProcedure
+
+// Intended for function "LastExtensionsVersion".
+//
+// Returns:
+//  Structure:
+//   * ExtensionsVersion - CatalogRef.ExtensionsVersions
+//   * UpdateDate - Date
+//   * UpdateID - UUID
+//
+Function NewStoredPropertiesOfExtensionsVersion()
+	
+	Result = New Structure;
+	Result.Insert("ExtensionsVersion", EmptyRef());
+	Result.Insert("UpdateDate", '00010101');
+	Result.Insert("UpdateID",
+		CommonClientServer.BlankUUID());
+	
+	Return Result;
+	
+EndFunction
 
 // This method is required by RegisterExtensionsVersionUsage procedure.
 Procedure UpdateLatestExtensionsVersion(ExtensionsVersion)

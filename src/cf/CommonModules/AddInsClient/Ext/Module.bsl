@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -13,21 +14,21 @@
 //
 // Returns:
 //  Structure:
-//      * Cached - Boolean - use component caching on the client (the default value is True).
+//      * Cached - Boolean - Client add-in cache usage flag. By default, True.
 //      * SuggestInstall - Boolean - (default value is True) prompt to install the add-in.
 //      * SuggestToImport - Boolean - (default value is True) prompt to import the add-in from the ITS website.
 //      * ExplanationText - String - a text that describes the add-in purpose and which functionality requires the add-in.
 //      * ObjectsCreationIDs - Array - string array of object module instance.
 //                Use it only for add-ins with several object creation IDs.
 //                On specify, the ID parameter is used only to determine add-in.
-//      * Isolated - Boolean, Undefined - 
-//                
-//                
-//                :
-//                
-//                See https://its.1c.eu/db/v83doc
-//      * AutoUpdate - Boolean - 
-//                
+//      * Isolated - Boolean, Undefined - If True, the add-in is attached isolatedly (it is uploaded to a separate OS process).
+//                If False, the add-in is executed in the same OS process that runs the 1C:Enterprise code.
+//                If Undefined, the add-in is executed according to the default 1C:Enterprise settings
+//                Isolatedly if the add-in supports only isolated execution; otherwise, non-isolatedly.:
+//                By default, Undefined.
+//                See https://its.1c.eu/db/v83doc#bookmark:dev:TI000001866
+//      * AutoUpdate - Boolean - Flag indicating whether to set the UpdateFrom1CITSPortal flag for the uploaded add-in.
+//                By default, True.
 //
 // Example:
 //
@@ -60,8 +61,8 @@ EndFunction
 //      * Result - Structure - add-in attachment result:
 //          ** Attached - Boolean - attachment flag;
 //          ** Attachable_Module - AddInObject - an instance of the add-in;
-//                                - FixedMap of KeyAndValue - 
-//                                      :
+//                                - FixedMap of KeyAndValue - Add-in object instances stored in
+//                                      AttachmentParameters.ObjectsCreationIDs:
 //                                    *** Key - String - the add-in ID;
 //                                    *** Value - AddInObject - an instance of the add-in.
 //          ** ErrorDescription - String - brief error message. Empty string on cancel by user.
@@ -125,7 +126,7 @@ EndProcedure
 // Parameters:
 //  Notification - NotifyDescription - connection notification details with the following parameters:
 //      * Result - Structure - add-in attachment result:
-//          ** Attached - Boolean - attachment flag.
+//          ** Attached - Boolean - Attachment flag.
 //          ** Attachable_Module - AddInObject  - an instance of the add-in.
 //          ** ErrorDescription - String - brief error message.
 //      * AdditionalParameters - Structure - a value that was specified on creating the NotifyDescription object.
@@ -169,7 +170,7 @@ Procedure AttachAddInFromWindowsRegistry(Notification, Id,
 	
 EndProcedure
 
-// 
+// Structure of parameters for the AddInClient.InstallAddInSSL procedure.
 //
 // Returns:
 //  Structure:
@@ -200,7 +201,7 @@ EndFunction
 //
 // Parameters:
 //  Notification - NotifyDescription - notification details of add-in installation:
-//      * Result - Structure - install component result:
+//      * Result - Structure - Add-in installation result:
 //          ** IsSet - Boolean - installation flag.
 //          ** ErrorDescription - String - brief error message. Empty string on cancel by user.
 //      * AdditionalParameters - Structure - a value that was specified on creating the NotifyDescription object.
@@ -248,8 +249,8 @@ Procedure InstallAddInSSL(Notification, Id, Version = Undefined,
 EndProcedure
 
 
-// 
-// 
+// Returns a parameter structure to describe search rules of additional information within an add-in.
+// See the ImportAddInFromFile procedure.
 //
 // Returns:
 //  Structure:
@@ -272,12 +273,12 @@ Function AdditionalInformationSearchParameters() Export
 	
 EndFunction
 
-// 
+// Structure of parameters for the AddInClient.ImportAddInFromFile procedure.
 //
 // Returns:
 //  Structure:
 //      * Id - String -(optional) add-in object ID.
-//      * Version - String - (optional) a component version.
+//      * Version - String - (Optional) Add-in version.
 //      * AdditionalInformationSearchParameters - Map of KeyAndValue - (optional) parameters:
 //          ** Key - String - requested additional information ID.
 //          ** Value - See AdditionalInformationSearchParameters.
@@ -322,7 +323,7 @@ EndFunction
 //
 //  Notification = New NotifyDescription("LoadAddInFromFileAfterAddInImport", ThisObject);
 //
-//  AddInClient.ImportAddInsFromFile(Notification, ImportParameters);
+//  AddInClient.ImportAddInFromFile(Notification, ImportParameters);
 //
 //  &AtClient
 //  Procedure LoadAddInFromFileAfterAddInImport(Result, AdditionalParameters) Export
@@ -352,10 +353,10 @@ EndProcedure
 
 #Region ForCallsFromOtherSubsystems
 
+// EquipmentSupport
 // 
-// 
-// 
-// 
+// Attaches an add-in powered by Native API and COM technology on the client machine.
+// Checks whether the add-in can be executed on the current client.
 //
 // Parameters:
 //  Id - String - the add-in identification code.
@@ -363,16 +364,16 @@ EndProcedure
 //  ConnectionParameters - See AddInsClient.ConnectionParameters.
 //
 //  Returns:  
-//  	Structure - :
+//  	Structure - Add-in attachment result:
 //          * Attached - Boolean - attachment flag.
 //          * Attachable_Module - AddInObject - an instance of the add-in;
-//                                - FixedMap of KeyAndValue - 
-//                                      :
-//                                    *** 
-//                                    *** 
+//                                - FixedMap of KeyAndValue - Add-in object instances stored in
+//                                      AttachmentParameters.ObjectsCreationIDs:
+//                                    *** Key - String - Add-in ID.
+//                                    *** Key - String - Add-in ID.
 //          * ErrorDescription - String - brief error message. Empty string on cancel by user.
 //
-Async Function AttachExtAddInAsync(Id, Version = Undefined,
+Async Function AttachAddInSSLAsync(Id, Version = Undefined,
 	ConnectionParameters = Undefined) Export
 	
 	If ConnectionParameters = Undefined Then
@@ -384,7 +385,7 @@ Async Function AttachExtAddInAsync(Id, Version = Undefined,
 	Context.Id = Id;
 	Context.Version = Version;
 	
-	Return Await AddInsInternalClient.AttachExtAddInAsync(Context);
+	Return Await AddInsInternalClient.AttachAddInSSLAsync(Context);
 	
 EndFunction
 
@@ -397,11 +398,11 @@ EndFunction
 //  InstallationParameters - See InstallationParameters.
 //
 //  Returns:
-//    Structure - :
+//    Structure - Add-in installation result:
 //          * IsSet - Boolean - Installation flag.
 //          * ErrorDescription - String - brief error message. Empty string on cancel by user.
 //
-Async Function InstallExtAddInAsync(Id, Version = Undefined, 
+Async Function InstallAddInSSLAsync(Id, Version = Undefined, 
 	InstallationParameters = Undefined) Export
 	
 	If InstallationParameters = Undefined Then
@@ -415,7 +416,7 @@ Async Function InstallExtAddInAsync(Id, Version = Undefined,
 	Context.SuggestToImport = InstallationParameters.SuggestToImport;
 	Context.SuggestInstall = InstallationParameters.SuggestInstall;
 		
-	Return Await AddInsInternalClient.InstallExtAddInAsync(Context);
+	Return Await AddInsInternalClient.InstallAddInSSLAsync(Context);
 	
 EndFunction
 
@@ -428,23 +429,23 @@ EndFunction
 //          (only for add-ins with object creation ID different from ProgID).
 //
 //  Returns:
-//  	Structure - :
+//  	Structure - Add-in attachment result:
 //          * Attached - Boolean - attachment flag.
 //          * Attachable_Module - AddInObject - an instance of the add-in;
-//                                - FixedMap of KeyAndValue - 
-//                                      :
-//                                    *** 
-//                                    *** 
+//                                - FixedMap of KeyAndValue - Add-in object instances stored in
+//                                      AttachmentParameters.ObjectsCreationIDs:
+//                                    *** Value - AddInObject - Instance of the add-in object.
+//                                    *** Value - AddInObject - Instance of the add-in object.
 //          * ErrorDescription - String - brief error message. Empty string on cancel by user.
 //
-Async Function AttachAddInFromWindowsRegisterAsync(Id,
+Async Function AttachAddInFromWindowsRegistryAsync(Id,
 	ObjectCreationID = Undefined) Export 
 	
 	Context = AddInsInternalClient.ConnectionContextComponentsFromTheWindowsRegistry();
 	Context.Id = Id;
 	Context.ObjectCreationID = ObjectCreationID;
 	
-	Return Await AddInsInternalClient.AttachAddInFromWindowsRegisterAsync(Context);
+	Return Await AddInsInternalClient.AttachAddInFromWindowsRegistryAsync(Context);
 	
 EndFunction
 

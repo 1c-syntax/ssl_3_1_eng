@@ -1,16 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #Region Internal
 
-// 
-// 
+// Handles mouse double-click, "Enter" key, and hyperlink activation in report spreadsheets.
+// See "Form field extension for a spreadsheet document field.Choice" in Syntax Assistant.
 //
 // Parameters:
 //   ReportForm          - ClientApplicationForm - a report form.
@@ -117,10 +118,21 @@ Function AddFilter(StructureItem, FilterParameters, AdditionalParameters = Undef
 		NewField = FilterParameters.Field;
 	EndIf;
 	
+	ExistingUserSettingID = Undefined;
+	
 	If TypeOf(StructureItem) = Type("DataCompositionSettingsComposer") Then
 		Filter = StructureItem.Settings.Filter;
 		
 		If AdditionalParameters.ToUserSettings Then
+			
+			For Each Item In Filter.Items Do
+				If Item.LeftValue = NewField Then
+					ExistingUserSettingID = Item.UserSettingID;
+					ExistingFilter = Item;
+					Break;
+				EndIf;
+			EndDo;
+			
 			For Each SettingItem In StructureItem.UserSettings.Items Do
 				If SettingItem.UserSettingID =
 					StructureItem.Settings.Filter.UserSettingID Then
@@ -148,6 +160,20 @@ Function AddFilter(StructureItem, FilterParameters, AdditionalParameters = Undef
 			EndIf;
 	
 		EndDo;
+		
+		If ExistingUserSettingID <> Undefined Then
+			FilterElement = ExistingFilter;
+			For Each Item In StructureItem.UserSettings.Items Do
+				If Item.UserSettingID = ExistingUserSettingID Then
+					Item.Use  = FilterParameters.Use;
+					Item.ComparisonType   = ?(FilterParameters.ComparisonType = Undefined, DataCompositionComparisonType.Equal,
+						FilterParameters.ComparisonType);
+					Item.RightValue = FilterParameters.Value;
+					Break;
+				EndIf;
+			EndDo;
+		EndIf;
+		
 	EndIf;
 	
 	If FilterElement = Undefined Then

@@ -101,7 +101,7 @@ only if you use third-party backup tools.</v8:content>
 													<ShowTitle>false</ShowTitle>
 													<ExtendedTooltip name="GroupSelectAutomaticBackupOptionExtendedTooltip" id="425"/>
 													<ChildItems>
-														<UsualGroup name="GroupIsScheduledOption" id="432">
+														<UsualGroup name="GroupOptionBySchedule" id="432">
 															<Title>
 																<v8:item>
 																	<v8:lang>en</v8:lang>
@@ -111,7 +111,7 @@ only if you use third-party backup tools.</v8:content>
 															<Behavior>Usual</Behavior>
 															<Representation>None</Representation>
 															<ShowTitle>false</ShowTitle>
-															<ExtendedTooltip name="GroupIsScheduledOptionExtendedTooltip" id="433"/>
+															<ExtendedTooltip name="GroupOptionByScheduleExtendedTooltip" id="433"/>
 															<ChildItems>
 																<RadioButtonField name="OptionScheduled" id="421">
 																	<DataPath>Object.ExecutionOption</DataPath>
@@ -148,22 +148,21 @@ only if you use third-party backup tools.</v8:content>
 																			<v8:content>Schedule not set</v8:content>
 																		</v8:item>
 																	</Title>
-																	<ExtendedTooltip name="EditScheduleExtendedTooltip" id="289"/>
+																	<ExtendedTooltip name="ModifyScheduleExtendedTooltip" id="289"/>
 																</Button>
 															</ChildItems>
 														</UsualGroup>
 														<LabelDecoration name="ScheduleOptionDecoration" id="426">
 															<AutoMaxWidth>false</AutoMaxWidth>
+															<MaxWidth>60</MaxWidth>
 															<TextColor>style:NoteText</TextColor>
 															<Title formatted="false">
 																<v8:item>
 																	<v8:lang>en</v8:lang>
-																	<v8:content>When you schedule a backup, ensure that the application will be running at the backup
-start. Otherwise, the backup fails. All user sessions are terminated during
-backup.</v8:content>
+																	<v8:content>Note: If the app is not running at the time of scheduled backup, the backup will not be performed.</v8:content>
 																</v8:item>
 															</Title>
-															<TitleHeight>3</TitleHeight>
+															<TitleHeight>1</TitleHeight>
 															<ContextMenu name="ScheduleOptionDecorationContextMenu" id="427"/>
 															<ExtendedTooltip name="ScheduleOptionDecorationExtendedTooltip" id="428"/>
 														</LabelDecoration>
@@ -195,14 +194,15 @@ backup.</v8:content>
 														</RadioButtonField>
 														<LabelDecoration name="OnExitOptionDecoration" id="429">
 															<AutoMaxWidth>false</AutoMaxWidth>
+															<MaxWidth>60</MaxWidth>
 															<TextColor>style:NoteText</TextColor>
 															<Title formatted="false">
 																<v8:item>
 																	<v8:lang>en</v8:lang>
-																	<v8:content>On exit, the administrator is prompted to back up data. All user sessions are terminated during backup.</v8:content>
+																	<v8:content>Whenever the administrator closes the application, prompt to perform a backup.</v8:content>
 																</v8:item>
 															</Title>
-															<TitleHeight>2</TitleHeight>
+															<TitleHeight>1</TitleHeight>
 															<ContextMenu name="OnExitOptionDecorationContextMenu" id="430"/>
 															<ExtendedTooltip name="OnExitOptionDecorationExtendedTooltip" id="431"/>
 														</LabelDecoration>
@@ -282,7 +282,7 @@ only if you use third-party backup tools.</v8:content>
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Folder to store backups</v8:content>
+													<v8:content>Save backups to</v8:content>
 												</v8:item>
 											</Title>
 											<TitleLocation>Top</TitleLocation>
@@ -295,7 +295,7 @@ only if you use third-party backup tools.</v8:content>
 												<Title formatted="false">
 													<v8:item>
 														<v8:lang>en</v8:lang>
-														<v8:content>It is recommended that you back up to another computer or an external storage media.</v8:content>
+														<v8:content>We recommend that you save backups to another machine or an external device. All user sessions will be terminated when a backup starts.</v8:content>
 													</v8:item>
 												</Title>
 											</ExtendedTooltip>
@@ -321,6 +321,12 @@ only if you use third-party backup tools.</v8:content>
 										<InputField name="IBAdministrator1" id="255">
 											<DataPath>IBAdministrator</DataPath>
 											<Enabled>false</Enabled>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Administrator</v8:content>
+												</v8:item>
+											</Title>
 											<HorizontalStretch>false</HorizontalStretch>
 											<ContextMenu name="IBAdministrator1ContextMenu" id="256"/>
 											<ExtendedTooltip name="IBAdministrator1ExtendedTooltip" id="295"/>
@@ -339,6 +345,12 @@ only if you use third-party backup tools.</v8:content>
 											<ChildItems>
 												<InputField name="IBAdministratorPassword1" id="257">
 													<DataPath>IBAdministratorPassword</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Password</v8:content>
+														</v8:item>
+													</Title>
 													<HorizontalStretch>false</HorizontalStretch>
 													<PasswordMode>true</PasswordMode>
 													<ContextMenu name="IBAdministratorPassword1ContextMenu" id="258"/>
@@ -364,7 +376,7 @@ only if you use third-party backup tools.</v8:content>
 											<ContextMenu name="Decoration3ContextMenu" id="419"/>
 											<ExtendedTooltip name="Decoration3ExtendedTooltip" id="420"/>
 										</LabelDecoration>
-										<UsualGroup name="GroupTypeOfFolderRestrictionWithBackups" id="416">
+										<UsualGroup name="GroupBackupDirectoryRestrictionType" id="416">
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
@@ -375,7 +387,7 @@ only if you use third-party backup tools.</v8:content>
 											<Behavior>Usual</Behavior>
 											<Representation>None</Representation>
 											<ShowTitle>false</ShowTitle>
-											<ExtendedTooltip name="GroupTypeOfFolderRestrictionWithBackupsExtendedTooltip" id="417"/>
+											<ExtendedTooltip name="GroupBackupDirectoryRestrictionTypeExtendedTooltip" id="417"/>
 											<ChildItems>
 												<RadioButtonField name="BackupDirectoryRestrictionType" id="66">
 													<DataPath>Object.RestrictionType</DataPath>
@@ -404,7 +416,7 @@ only if you use third-party backup tools.</v8:content>
 														<Event name="OnChange">BackupDirectoryRestrictionTypeOnChange</Event>
 													</Events>
 												</RadioButtonField>
-												<UsualGroup name="FolderRestrictionsGroupWithBackups" id="448">
+												<UsualGroup name="GroupBackupDirectoryRestrictions" id="448">
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
@@ -415,7 +427,7 @@ only if you use third-party backup tools.</v8:content>
 													<Representation>None</Representation>
 													<United>false</United>
 													<ShowTitle>false</ShowTitle>
-													<ExtendedTooltip name="FolderRestrictionsGroupWithBackupsExtendedTooltip" id="449"/>
+													<ExtendedTooltip name="GroupBackupDirectoryRestrictionsExtendedTooltip" id="449"/>
 													<ChildItems>
 														<RadioButtonField name="BackupDirectoryRestrictionType1" id="443">
 															<DataPath>Object.RestrictionType</DataPath>
@@ -475,6 +487,7 @@ only if you use third-party backup tools.</v8:content>
 																	<DataPath>Object.PeriodUOM</DataPath>
 																	<TitleLocation>None</TitleLocation>
 																	<Width>7</Width>
+																	<HorizontalStretch>false</HorizontalStretch>
 																	<ExtendedEdit>false</ExtendedEdit>
 																	<ListChoiceMode>true</ListChoiceMode>
 																	<ChooseType>false</ChooseType>
@@ -544,7 +557,7 @@ only if you use third-party backup tools.</v8:content>
 														</UsualGroup>
 													</ChildItems>
 												</UsualGroup>
-												<UsualGroup name="GroupMoreFolderRestrictionsWithBackups" id="450">
+												<UsualGroup name="GroupMoreBackupDirectoryRestrictions" id="450">
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
@@ -555,7 +568,7 @@ only if you use third-party backup tools.</v8:content>
 													<Representation>None</Representation>
 													<United>false</United>
 													<ShowTitle>false</ShowTitle>
-													<ExtendedTooltip name="GroupMoreFolderRestrictionsWithBackupsExtendedTooltip" id="451"/>
+													<ExtendedTooltip name="GroupMoreBackupDirectoryRestrictionsExtendedTooltip" id="451"/>
 													<ChildItems>
 														<RadioButtonField name="BackupDirectoryRestrictionType2" id="452">
 															<DataPath>Object.RestrictionType</DataPath>
@@ -658,8 +671,8 @@ only if you use third-party backup tools.</v8:content>
 								<PictureDecoration name="Picture12" id="208">
 									<SkipOnInput>false</SkipOnInput>
 									<Picture>
-										<xr:Ref>CommonPicture.Warning32</xr:Ref>
-										<xr:LoadTransparent>false</xr:LoadTransparent>
+										<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
 									<ContextMenu name="Picture12ContextMenu" id="209"/>

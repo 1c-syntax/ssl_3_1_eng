@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -519,6 +520,14 @@ Procedure AddProperty(Owner, Parameters, IsInfoRecord = False) Export
 	Else
 		PropertiesSet = PropertiesSetByName(PredefinedItemName);
 		If PropertiesSet = Undefined Then
+			Try
+				PropertiesSet = Catalogs.AdditionalAttributesAndInfoSets[PredefinedItemName];
+			Except
+				// Such predefined item does not exist.
+				PropertiesSet = Undefined;
+			EndTry;
+		EndIf;
+		If PropertiesSet = Undefined Then
 			ExceptionText = NStr("en = 'The passed ""%1"" object is not connected to the Properties subsystem.';");
 			Raise StringFunctionsClientServer.SubstituteParametersToString(ExceptionText, Owner);
 		EndIf;
@@ -867,8 +876,8 @@ Procedure FillAdditionalAttributesInForm(Form, Object = Undefined, LabelsFields 
 			PropertyValueType1 = New TypeDescription("String");
 		ElsIf PropertyValueType1.ContainsType(Type("String"))
 			And PropertyValueType1.StringQualifiers.Length = 0 Then
-			
-			
+			// 
+			// 
 			PropertyValueType1 = New TypeDescription(PropertyDetails.ValueType,
 				,,, New StringQualifiers(1024));
 		EndIf;
@@ -1588,12 +1597,12 @@ Procedure WriteObjectProperties(PropertiesOwner, PropertyAndValueTable) Export
 	AddlAttributesTable.Columns.Add("TextString");
 	
 	Properties = PropertyAndValueTable.UnloadColumn("Property");
-	PropertyTypeMixing = Common.ObjectsAttributeValue(Properties, "IsAdditionalInfo");
+	PropertyTypeInfoRecord = Common.ObjectsAttributeValue(Properties, "IsAdditionalInfo");
 	
 	AdditionalInfoTable1 = AddlAttributesTable.CopyColumns();
 	
 	For Each PropertyTableRow In PropertyAndValueTable Do
-		If PropertyTypeMixing[PropertyTableRow.Property] = True Then
+		If PropertyTypeInfoRecord[PropertyTableRow.Property] = True Then
 			NewRow = AdditionalInfoTable1.Add();
 		Else
 			NewRow = AddlAttributesTable.Add();
@@ -1995,15 +2004,15 @@ Function LabelsDisplayParameters() Export
 	
 EndFunction
 
-// Returns properties of a specific kind.
+// Returns properties of a specific type.
 //
 // Parameters:
-//  Properties   - ValueTable - a property table.
+//  Properties   - ValueTable - A property table.
 //
-//  PropertyKind - EnumRef.PropertiesKinds - a property kind, additional attributes, or labels.
+//  PropertyKind - EnumRef.PropertiesKinds - A property type (additional attributes or labels).
 //
 // Returns:
-//  Array     - an array of properties of a certain kind.
+//  Array     - An array of properties of a specific type.
 //
 Function PropertiesByAdditionalAttributesKind(Properties, PropertyKind) Export
 	
@@ -2543,8 +2552,8 @@ Procedure NewMainFormObjects(Form, Context, CreateAdditionalAttributesDetails)
 				EndIf;
 			EndIf;
 			
-			
-			
+			// 
+			// 
 			If AccessRight("Update", Metadata.Catalogs.AdditionalAttributesAndInfoSets) Then
 				// Add a command.
 				Command = Form.Commands.Add("EditAdditionalAttributesComposition");
@@ -2579,8 +2588,8 @@ Procedure NewMainFormObjects(Form, Context, CreateAdditionalAttributesDetails)
 	
 	Form.PropertiesParameters = New Structure;
 	If DeferredInitialization Then
-		
-		
+		// 
+		// 
 		Value = ?(OptionUseProperties, False, True);
 		Form.PropertiesParameters.Insert("DeferredInitializationExecuted", Value);
 	EndIf;
@@ -2609,10 +2618,10 @@ Procedure NewMainFormObjects(Form, Context, CreateAdditionalAttributesDetails)
 		EndIf;
 	EndIf;
 	
-	
-	
-	
-	
+	// 
+	// 
+	// 
+	// 
 	If OptionUseProperties
 		And DeferredInitialization
 		And ItemForPlacementName <> "" Then

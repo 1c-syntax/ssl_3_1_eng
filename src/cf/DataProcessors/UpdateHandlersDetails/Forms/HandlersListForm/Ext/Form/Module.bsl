@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -414,13 +415,14 @@ Procedure SaveAllHandlersToRepository(Command)
 		Return;
 	EndIf;
 	
+	Items.ImportExportSettingsGroup.Hide();
+	Modified = False;
+	
 	SavingParameters = New Structure("AllHandlers", True);
 	ResponseHandler1 = New NotifyDescription("RepositorySaveCompletion", ThisObject, SavingParameters);
 	QueryText = NStr("en = 'Warning. All update handler details procedures will be overwritten.
 						|Continue?';");
 	ShowQueryBox(ResponseHandler1, QueryText, QuestionDialogMode.YesNo);
-	Items.ImportExportSettingsGroup.Hide();
-	Modified = False;
 	
 EndProcedure
 
@@ -934,8 +936,8 @@ Function AddModuleProcedure(Code)
 		Return ProcedureAdded;
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	IndexOf = ModuleStrings.Find("#Area InfobaseUpdate");
 	If IndexOf <> Undefined Then
 		IndexOf = IndexOf + 1;
@@ -3271,7 +3273,7 @@ EndProcedure
 // Parameters:
 //   Settings - Arbitrary
 // Returns:
-//   KeyAndValue - LongDesc:
+//   KeyAndValue - Details:
 //   * Key - String - tag description
 //   * Value - See TagDetails
 //
@@ -3653,7 +3655,7 @@ Function RussianClassesNames()
 	Result.Insert("ChartOfCalculationTypes", "ChartOfCalculationTypes");
 	Result.Insert("ChartOfCharacteristicTypes", "ChartOfCharacteristicTypes");
 	Result.Insert("Constant", "Constant");
-	Result.Insert("CommonModule", "CommonModule");
+	Result.Insert("CommonModule", "CommonModule");// 
 	Result.Insert("Document", "Document");
 	Result.Insert("ExchangePlan", "ExchangePlan");
 	Result.Insert("InformationRegister", "InformationRegister");
@@ -3880,7 +3882,7 @@ Function CreateErrorDescription()
 	Error.Insert("PlaybackOrder", "");
 	Error.Insert("ExpectedBehavior", "");
 	Error.Insert("EmployeeResponsible", "");
-	Error.Insert("DetectionCredibility", "Low"); 
+	Error.Insert("DetectionCredibility", "Low"); // 
 	Error.Insert("RepositoryAddress", "");
 	
 	#If Client Or ThickClientManagedApplication Or ThinClient Or WebClient  Then
@@ -3897,8 +3899,8 @@ Function CreateErrorDescription()
 	#EndIf
 	
 	Error.Insert("DetectionDate",   Date(1,1,1));
-	Error.Insert("MetadataObjects", New Array); 
-	
+	Error.Insert("MetadataObjects", New Array); // 
+	// 
 	Error.Insert("MetadataObject", "");
 	Error.Insert("LocationClarification", "");
 	Error.Insert("ScenarioCode", "");
@@ -4635,7 +4637,7 @@ EndFunction
 &AtServer
 Procedure CalculateQueueAtServer()
 	
-	UpdateIterations = Undefined; 
+	UpdateIterations = Undefined; // InfobaseUpdateInternal.UpdateIteration();
 	If UpdateIterations <> Undefined Then
 		DataProcessor = DataProcessorObject2();
 		DataProcessor.FillQueueNumber(UpdateIterations);

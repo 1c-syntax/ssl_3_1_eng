@@ -92,12 +92,24 @@
 				<InputField name="FiltersUserSettingPresentation" id="41">
 					<DataPath>Filters.UserSettingPresentation</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Field</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ContextMenu name="FiltersUserSettingPresentationContextMenu" id="42"/>
 					<ExtendedTooltip name="FiltersUserSettingPresentationExtendedTooltip" id="43"/>
 				</InputField>
 				<InputField name="FiltersComparisonType" id="44">
 					<DataPath>Filters.ComparisonType</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Condition</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ListChoiceMode>true</ListChoiceMode>
 					<ChooseType>false</ChooseType>
@@ -120,6 +132,12 @@
 					<Type>CommandBarButton</Type>
 					<DefaultButton>true</DefaultButton>
 					<CommandName>Form.Command.Select</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>OK</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="FormChooseExtendedTooltip" id="27"/>
 				</Button>
 				<Button name="Cancel" id="49">

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -316,9 +317,7 @@ EndProcedure
 &AtServer
 Procedure SetHeader()
 	
-	If Parameters.Property("Title") Then
-		Title = Parameters.Title;
-	EndIf;
+	Title = Parameters.Title;
 	
 	If Not ValueIsFilled(Title) Then 
 		Title = NStr("en = 'Appearance';");
@@ -408,9 +407,7 @@ EndFunction
 &AtServer
 Procedure CheckTheDesignField(AppearanceItem)
 	
-	If Not Parameters.Property("Field")
-		Or TypeOf(Parameters.Field) <> Type("DataCompositionField") Then 
-		
+	If TypeOf(Parameters.Field) <> Type("DataCompositionField") Then
 		Return;
 	EndIf;
 	

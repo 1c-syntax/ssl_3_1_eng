@@ -16,6 +16,12 @@
 			<Button name="FormWriteAndClose" id="141">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.WriteAndClose</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save and close</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormWriteAndCloseExtendedTooltip" id="142"/>
 			</Button>
 			<Button name="FormWrite" id="135">
@@ -31,16 +37,34 @@
 			<Button name="FormSetUpDeferredStart" id="153">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.SetUpDeferredStart</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Schedule start</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormSetUpDeferredStartExtendedTooltip" id="154"/>
 			</Button>
 			<Button name="FormStop" id="101">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.Stop</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Suspend</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormStopExtendedTooltip" id="105"/>
 			</Button>
 			<Button name="FormContinue" id="102">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.Continue</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Resume</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormContinueExtendedTooltip" id="106"/>
 			</Button>
 			<ButtonGroup name="GlobalCommands" id="143">
@@ -98,6 +122,12 @@
 			<ChildItems>
 				<LabelField name="MainTask" id="99">
 					<DataPath>MainTaskString</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Master task</v8:content>
+						</v8:item>
+					</Title>
 					<Hiperlink>true</Hiperlink>
 					<ContextMenu name="MainTaskContextMenu" id="100"/>
 					<ExtendedTooltip name="MainTaskExtendedTooltip" id="110"/>
@@ -130,6 +160,12 @@
 						</PictureDecoration>
 						<LabelField name="HelpTextTitle" id="155">
 							<DataPath>HelpTextTitle</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Info and label and title</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<AutoMaxWidth>false</AutoMaxWidth>
 							<AutoMaxHeight>false</AutoMaxHeight>
@@ -205,7 +241,7 @@
 							<Representation>None</Representation>
 							<United>false</United>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="CompletionGroup1ExtendedTooltip" id="115"/>
+							<ExtendedTooltip name="GroupAssignedToExtendedTooltip" id="115"/>
 							<ChildItems>
 								<InputField name="Performer" id="69">
 									<DataPath>Object.Performer</DataPath>
@@ -259,7 +295,7 @@
 												</v8:item>
 											</EditFormat>
 											<ContextMenu name="DueDateContextMenu" id="22"/>
-											<ExtendedTooltip name="DueDateExtendedTooltip" id="117"/>
+											<ExtendedTooltip name="TaskDueDateExtendedTooltip" id="117"/>
 											<Events>
 												<Event name="OnChange">DueDateOnChange</Event>
 											</Events>
@@ -309,10 +345,16 @@
 					<Behavior>Usual</Behavior>
 					<Representation>NormalSeparation</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="ContentGroupExtendedTooltip" id="119"/>
+					<ExtendedTooltip name="ContentsGroupExtendedTooltip" id="119"/>
 					<ChildItems>
 						<LabelField name="SubjectOf" id="86">
 							<DataPath>SubjectString</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Topic</v8:content>
+								</v8:item>
+							</Title>
 							<Width>60</Width>
 							<AutoMaxWidth>false</AutoMaxWidth>
 							<HorizontalStretch>true</HorizontalStretch>

@@ -9,17 +9,35 @@
 				<Representation>Text</Representation>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.StandardSaveAndClose</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save and close</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="StandardWriteAndCloseExtendedTooltip" id="90"/>
 			</Button>
 			<Button name="StandardWrite" id="87">
 				<Type>CommandBarButton</Type>
 				<Representation>Text</Representation>
 				<CommandName>Form.Command.StandardWrite</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="StandardWriteExtendedTooltip" id="88"/>
 			</Button>
 			<Button name="StandardReread" id="91">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.StandardReread</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Reread</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="StandardRereadExtendedTooltip" id="92"/>
 			</Button>
@@ -30,16 +48,34 @@
 				<TextColor>style:ButtonTextColor</TextColor>
 				<BackColor>style:ButtonBackColor</BackColor>
 				<BorderColor>style:BorderColor</BorderColor>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>View</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="OpenExtendedTooltip" id="57"/>
 			</Button>
 			<Button name="FormSaveAs" id="50">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.SaveAs</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save as…</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormSaveAsExtendedTooltip" id="58"/>
 			</Button>
 			<Button name="FormDelete" id="95">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.Delete</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Delete</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormDeleteExtendedTooltip" id="96"/>
 			</Button>
@@ -246,6 +282,12 @@
 		</InputField>
 		<LabelField name="Encoding" id="55">
 			<DataPath>Encoding</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Encoding</v8:content>
+				</v8:item>
+			</Title>
 			<HorizontalStretch>false</HorizontalStretch>
 			<ContextMenu name="EncodingContextMenu" id="56"/>
 			<ExtendedTooltip name="EncodingExtendedTooltip" id="74"/>
@@ -295,6 +337,12 @@
 						<InputField name="VolumeFullPath" id="53">
 							<DataPath>VolumeFullPath</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Full volume path</v8:content>
+								</v8:item>
+							</Title>
 							<ContextMenu name="VolumeFullPathContextMenu" id="54"/>
 							<ExtendedTooltip name="VolumeFullPathExtendedTooltip" id="79"/>
 						</InputField>
@@ -568,7 +616,7 @@
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Save the file version to a hard drive or another device.</v8:content>
+					<v8:content>Save the file version to a storage device.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>
@@ -667,16 +715,4 @@
 			<KeyParameter>true</KeyParameter>
 		</Parameter>
 	</Parameters>
-	<CommandInterface>
-		<NavigationPanel>
-			<Item>
-				<Command>0</Command>
-				<Type>Auto</Type>
-				<DefaultVisible>false</DefaultVisible>
-				<Visible>
-					<xr:Common>false</xr:Common>
-				</Visible>
-			</Item>
-		</NavigationPanel>
-	</CommandInterface>
 </Form>

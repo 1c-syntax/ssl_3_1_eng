@@ -13,7 +13,13 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.OK</CommandName>
-				<ExtendedTooltip name="FormOK1ExtendedTooltip" id="44"/>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>OK</v8:content>
+					</v8:item>
+				</Title>
+				<ExtendedTooltip name="FormOKExtendedTooltip" id="44"/>
 			</Button>
 			<Button name="FormClose" id="30">
 				<Type>CommandBarButton</Type>
@@ -25,7 +31,7 @@
 						<v8:content>Cancel</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="FormCloseExtendedTooltip" id="45"/>
+				<ExtendedTooltip name="FormClose3ExtendedTooltip" id="45"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
@@ -55,6 +61,12 @@
 					<ChildItems>
 						<RadioButtonField name="PeriodEndClosingNotSet" id="85">
 							<DataPath>PeriodEndClosingDateDetails</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Period-end closing date details</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<RadioButtonType>Auto</RadioButtonType>
 							<ChoiceList>
@@ -92,6 +104,12 @@
 							<ChildItems>
 								<RadioButtonField name="CustomPeriodEndClosingDate" id="90">
 									<DataPath>PeriodEndClosingDateDetails</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Period-end closing date details</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<RadioButtonType>Auto</RadioButtonType>
 									<ChoiceList>
@@ -117,6 +135,12 @@
 								</RadioButtonField>
 								<InputField name="PeriodEndClosingDateSimpleMode" id="93">
 									<DataPath>PeriodEndClosingDate</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Period-end closing date</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<ContextMenu name="PeriodEndClosingDateSimpleModeContextMenu" id="94"/>
 									<ExtendedTooltip name="PeriodEndClosingDateSimpleModeExtendedTooltip" id="95"/>
@@ -318,6 +342,12 @@
 											<ChildItems>
 												<InputField name="PeriodEndClosingDate" id="24">
 													<DataPath>PeriodEndClosingDate</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Period-end closing date</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>None</TitleLocation>
 													<ClearButton>true</ClearButton>
 													<EditFormat>
@@ -341,7 +371,7 @@
 													<v8:content>Custom date is not used</v8:content>
 												</v8:item>
 											</Title>
-											<ExtendedTooltip name="CustomDateNotUsedExtendedTooltip" id="55"/>
+											<ExtendedTooltip name="CustomNotUsedExtendedTooltip" id="55"/>
 											<ChildItems>
 												<LabelDecoration name="EmptyLabelToDisplayPage1" id="27">
 													<ContextMenu name="EmptyLabelToDisplayPage1ContextMenu" id="28"/>
@@ -387,6 +417,12 @@
 											<ChildItems>
 												<CheckBoxField name="EnableDataChangeBeforePeriodEndClosingDate" id="3">
 													<DataPath>EnableDataChangeBeforePeriodEndClosingDate</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Effect delayed for</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>Right</TitleLocation>
 													<CheckBoxType>Auto</CheckBoxType>
 													<ContextMenu name="EnableDataChangeBeforePeriodEndClosingDateContextMenu" id="4"/>
@@ -482,6 +518,12 @@
 				<LabelField name="UserPresentation" id="31">
 					<DataPath>UserPresentation</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Applied to</v8:content>
+						</v8:item>
+					</Title>
 					<TitleTextColor>style:NoteText</TitleTextColor>
 					<TextColor>style:NoteText</TextColor>
 					<ContextMenu name="UserPresentationContextMenu" id="32"/>
@@ -490,14 +532,26 @@
 				<LabelField name="SectionPresentation" id="35">
 					<DataPath>SectionPresentation</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Section</v8:content>
+						</v8:item>
+					</Title>
 					<TitleTextColor>style:NoteText</TitleTextColor>
 					<TextColor>style:NoteText</TextColor>
 					<ContextMenu name="SectionPresentation1ContextMenu" id="36"/>
-					<ExtendedTooltip name="SectionPresentation1ExtendedTooltip" id="47"/>
+					<ExtendedTooltip name="SectionPresentationExtendedTooltip" id="47"/>
 				</LabelField>
 				<LabelField name="ObjectPresentation" id="33">
 					<DataPath>Object</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Object</v8:content>
+						</v8:item>
+					</Title>
 					<TitleTextColor>style:NoteText</TitleTextColor>
 					<Hiperlink>true</Hiperlink>
 					<ContextMenu name="ObjectPresentationContextMenu" id="34"/>

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -68,8 +69,8 @@ Procedure OnCreateAtServer(Form, Val PlacementParameters = Undefined) Export
 	If HasListParameters <> HasObjectParameters Then
 		IsObjectForm = HasObjectParameters;
 	EndIf;
-	
-	
+	// 
+	// 
 	If SourcesCommaSeparated = "" And SpecifyCommandsSources(FormName) Then
 		If HasObjectParameters Then
 			MetadataObject = Metadata.FindByType(TypeOf(Parameters.Key));
@@ -104,7 +105,7 @@ EndProcedure
 // Constructor of the matching parameter of the AttachableCommands.OnCreateAtServer procedure.
 //
 // Returns:
-//   Structure - :
+//   Structure - Parameter for placing attachable commands:
 //       * Sources - TypeDescription
 //                   - Array of MetadataObject - Command sources.
 //           Used for secondary lists and in object forms that don't provide commands (data processors, common forms).
@@ -117,7 +118,7 @@ EndProcedure
 //           For the prefix use the form table name, for which commands are output.
 //           For example, if GroupsPrefix = WarehouseDocuments (secondary form table name),
 //           submenus named WarehouseDocumentsSubmenuPrint, WarehouseDocuments SubmenuReports, and so on are used.
-//       * CommandsOwner - FormDataStructure, FormTable - 
+//       * CommandsOwner - FormDataStructure, FormTable - Object or form element to add commands to.
 //
 Function PlacementParameters() Export
 	
@@ -293,7 +294,7 @@ EndFunction
 //   InterfaceSettings4 - See AttachableCommands.AttachableObjectsInterfaceSettings.
 //
 // Returns:
-//  Structure - :
+//  Structure - Object integration settings:
 //   * Location - Array of MetadataObject - objects to which an object is attached.
 //   * AddPrintCommands     - Boolean - the AddPrintCommands function is defined in the object manager module. 
 //   * AddFillCommands - Boolean - the AddFillCommands function is defined in the object manager module. 
@@ -341,12 +342,22 @@ Function AttachableObjectSettings(FullName, InterfaceSettings4 = Undefined) Expo
 			NStr("en = 'Cannot read %1 object settings from the manager module:';"), FullName);
 		ErrorText = ErrorText + Chars.LF + ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		
-		WriteLogEvent(
-			NStr("en = 'Attachable commands';", Common.DefaultLanguageCode()),
-			EventLogLevel.Error,
-			Common.MetadataObjectByFullName(FullName),
-			FullName,
-			ErrorText);
+		WriteError1 = False;
+		MetadataObject = Metadata.FindByType(TypeOf(Manager));
+		
+		If MetadataObject <> Undefined And Metadata.Subsystems.AttachableReportsAndDataProcessors.Content.Contains(MetadataObject) Then
+			WriteError1 = True;
+		EndIf;
+	
+		If WriteError1 Then
+			WriteLogEvent(
+				NStr("en = 'Attachable commands';", Common.DefaultLanguageCode()),
+				EventLogLevel.Error,
+				Common.MetadataObjectByFullName(FullName),
+				FullName,
+				ErrorText);
+		EndIf;
+			
 		Return Undefined;
 	EndTry;
 	
@@ -443,7 +454,7 @@ EndFunction
 // Information template of reports and data processors attached to command sources.
 //
 // Returns:
-//   ValueTable - :
+//   ValueTable - Secondary parameters:
 //       * FullName  - String           - a full object name. For example: "Document.DocumentName".
 //       * Manager   - Arbitrary     - an object manager module.
 //       * Location - Array           - a list of objects, to which a report or data processor is attached.
@@ -471,7 +482,7 @@ Function AttachableObjectsTable(InterfaceSettings4 = Undefined) Export
 				Setting.Key,
 				String(Setting.TypeDescription),
 				ErrorProcessing.BriefErrorDescription(ErrorInfo()));
-			Raise ErrorText;
+			Raise(ErrorText, ErrorCategory.ConfigurationError);
 		EndTry;
 	EndDo;
 	
@@ -483,8 +494,8 @@ EndFunction
 // Information template of reports and data processors attached to command sources.
 //
 // Returns:
-//   ValueTable - 
-//       :
+//   ValueTable - Describes the "Settings" parameter of the "OnDefineSettings" procedure
+//       for the objects included into the subsystem "AttachableReportsAndDataProcessors".:
 //       * Key             - String        - a setting name.
 //       * TypeDescription    - TypeDescription - setting type.
 //       * AttachableObjectsKinds - String - a metadata object kind in uppercase.
@@ -781,9 +792,10 @@ Procedure OutputCommands(Form, Commands, PlacementParameters)
 	Commands.Sort("Kind, ImportanceOrder Asc, Order Asc, Presentation Asc");
 	CommandsCounterWithAutonaming = 0;
 	CommandsKinds = AttachableCommandsCached.CommandsKinds();
+	InfoOnGenerateSubmenu = Undefined;
 	
 	For Each CommandsKind In CommandsKinds Do
-		KindCommands = Commands.FindRows(New Structure("Kind", CommandsKind.Name)); // Array of ValueTableRow: см. ТаблицаКоманд
+		KindCommands = Commands.FindRows(New Structure("Kind", CommandsKind.Name)); 
 		
 		If KindCommands.Count() = 0 And CommandsKind.Name <> "GenerateFrom" Then
 			Continue;
@@ -801,6 +813,10 @@ Procedure OutputCommands(Form, Commands, PlacementParameters)
 			SubmenuInfoQuickSearch.Insert(Lower(SubmenuNameByDefault), SubmenuInfoByDefault);
 		EndIf;
 		
+		If CommandsKind.Name = "GenerateFrom" Then
+			InfoOnGenerateSubmenu = SubmenuInfoByDefault;
+		EndIf;
+		
 		For Each Command In KindCommands Do 
 			If IsBlankString(Command.Popup) Then
 				CommandSubmenuInfo = SubmenuInfoByDefault;
@@ -813,6 +829,16 @@ Procedure OutputCommands(Form, Commands, PlacementParameters)
 					SubmenuInfoQuickSearch.Insert(Lower(SubmenuName), CommandSubmenuInfo);
 				EndIf;
 			EndIf;
+			CommandSubmenuInfo.CommandsCount = CommandSubmenuInfo.CommandsCount + 1;
+			CommandSubmenuInfo.Commands.Add(Commands.IndexOf(Command));
+		EndDo;
+	EndDo;
+	
+	BusyNames = New Map;
+	
+	For Each CommandSubmenuInfo In InfoOnAllSubmenus Do
+		For Each CommandIndex In CommandSubmenuInfo.Commands Do
+			Command = Commands[CommandIndex];
 			
 			FormGroup = Undefined; // FormGroup
 			If Not ValueIsFilled(Command.Importance)
@@ -821,13 +847,15 @@ Procedure OutputCommands(Form, Commands, PlacementParameters)
 			EndIf;
 			
 			Command.NameOnForm = DefineCommandName(Form, FormGroup.Name, Command.Id, 
-				CommandsCounterWithAutonaming, CommandsPrefix);
+				CommandsCounterWithAutonaming, CommandsPrefix, BusyNames);
 			Command.PlacementParametersKey = PlacementParametersKey;
 			
 			Popup = CommandSubmenuInfo.Popup; // FormGroup
-			RootItemName = ?(CommandsKind.Name = "CommandBar", Command.NameOnForm, Popup.Name);
+			CommandOfCommandPanelType = Command.Kind = "CommandBar";
+			RootItemName = ?(CommandOfCommandPanelType, Command.NameOnForm, Popup.Name);
 					
 			FormCommand = Form.Commands.Add(Command.NameOnForm);
+			BusyNames.Insert(Command.NameOnForm, True);
 			FormCommand.Action = "Attachable_ExecuteCommand";
 			FormCommand.Title = Command.Presentation;
 			FormCommand.ToolTip   = FormCommand.Title;
@@ -846,8 +874,15 @@ Procedure OutputCommands(Form, Commands, PlacementParameters)
 			EndIf;
 			FormCommand.ModifiesStoredData = Command.ChangesSelectedObjects 
 				And PlacementParameters.IsObjectForm And Form.ReadOnly;
+				
+			If CommandSubmenuInfo.CommandsCount = 1 And TypeOf(FormGroup.Parent) <> Type("ClientApplicationForm") 
+				And Not CommandOfCommandPanelType Then
+				FormButton = Items.Insert(Command.NameOnForm, Type("FormButton"), CommandSubmenuInfo.Popup.Parent, FormGroup.Parent);
+			Else
+				FormButton = Items.Add(Command.NameOnForm, Type("FormButton"), FormGroup);
+			EndIf;
+			BusyNames.Insert(Command.NameOnForm, True);
 			
-			FormButton = Items.Add(Command.NameOnForm, Type("FormButton"), FormGroup);
 			FormButton.Type = FormButtonType.CommandBarButton;
 			FormButton.CommandName = Command.NameOnForm;
 			If Command.OnlyInAllActions = True Then
@@ -873,7 +908,6 @@ Procedure OutputCommands(Form, Commands, PlacementParameters)
 				RootSubmenuAndCommands.Insert(RootItemName, CommandRootSubmenuProperties);
 			EndIf;
 			
-			CommandSubmenuInfo.CommandsShown = CommandSubmenuInfo.CommandsShown + 1;
 			CommandSubmenuInfo.LastCommand = FormCommand;
 			If Command.HasVisibilityConditions Then
 				CommandSubmenuInfo.HasCommandsWithVisibilityConditions = True;
@@ -892,9 +926,9 @@ Procedure OutputCommands(Form, Commands, PlacementParameters)
 				CommandSubmenuInfo.HasCommandsWithoutVisibilityConditions = True;
 			EndIf;
 		EndDo;
-		
-		GenerateFrom.OnOutputCommands(Form, CommandsKind, SubmenuInfoByDefault, PlacementParameters);
 	EndDo;
+	
+	GenerateFrom.OnOutputCommands(Form, InfoOnGenerateSubmenu, PlacementParameters);
 	
 	// A stub command is always required.
 	CapCommand = Form.Commands.Find("OutputToEmptySubmenuCommand");
@@ -905,7 +939,7 @@ Procedure OutputCommands(Form, Commands, PlacementParameters)
 	
 	// Selected submenu post-processing.
 	For Each SubmenuInfo In InfoOnAllSubmenus Do
-		If SubmenuInfo.CommandsShown = 0 Then
+		If SubmenuInfo.CommandsCount = 0 Then
 			Continue;
 		EndIf;
 		IsCommandBar = (SubmenuInfo.Popup = CommandBar);
@@ -913,24 +947,7 @@ Procedure OutputCommands(Form, Commands, PlacementParameters)
 		Popup = SubmenuInfo.Popup; // FormGroup
 		
 		If Not IsCommandBar Then
-			If SubmenuInfo.CommandsShown = 1 And FormCommand <> Undefined Then
-				// Submenu turns to button when 1 command with a short title is displayed.
-				If Not ValueIsFilled(FormCommand.Picture) And Popup.Type = FormGroupType.Popup Then
-					FormCommand.Picture = Popup.Picture;
-				EndIf;
-				
-				If Not ValueIsFilled(FormCommand.Picture) Then
-					FormCommand.Picture = SubmenuInfo.SubmenuImage;
-				EndIf;			
-				
-				If StrLen(FormCommand.Title) <= 35 And Popup.Representation <> ButtonRepresentation.Picture Then
-					FormCommand.Representation = ButtonRepresentation.PictureAndText;
-				Else
-					FormCommand.Representation = ButtonRepresentation.Picture;
-				EndIf;
-				Popup.Type = FormGroupType.ButtonGroup;
-				FormCommand.ToolTip = FormCommand.Title;
-			Else
+			If Not (SubmenuInfo.CommandsCount = 1 And FormCommand <> Undefined) Then
 				// Adding cap buttons that are shown when all commands are hidden in the submenu.
 				CapCommandName = Popup.Name + "Stub";
 				If Items.Find(CapCommandName) = Undefined Then
@@ -971,7 +988,7 @@ EndProcedure
 // Returns:
 //  ValueTable:
 //   * Popup - FormGroup 
-//   * CommandsShown - Number
+//   * CommandsCount - Number
 //   * HasCommandsWithVisibilityConditions - Boolean
 //   * HasCommandsWithoutVisibilityConditions - Boolean
 //   * Groups - Structure:
@@ -982,12 +999,13 @@ EndProcedure
 //   * LastCommand - FormCommand
 //   * CommandsWithVisibilityConditions - Array
 //   * SubmenuImage - Picture
+//   * Commands - Array
 //
 Function InfoOnAllSubmenus()
 	
 	InfoOnAllSubmenus = New ValueTable;
 	InfoOnAllSubmenus.Columns.Add("Popup");
-	InfoOnAllSubmenus.Columns.Add("CommandsShown", New TypeDescription("Number"));
+	InfoOnAllSubmenus.Columns.Add("CommandsCount", New TypeDescription("Number"));
 	InfoOnAllSubmenus.Columns.Add("HasCommandsWithVisibilityConditions", New TypeDescription("Boolean"));
 	InfoOnAllSubmenus.Columns.Add("HasCommandsWithoutVisibilityConditions", New TypeDescription("Boolean"));
 	InfoOnAllSubmenus.Columns.Add("Groups", New TypeDescription("Structure"));
@@ -995,6 +1013,7 @@ Function InfoOnAllSubmenus()
 	InfoOnAllSubmenus.Columns.Add("LastCommand");
 	InfoOnAllSubmenus.Columns.Add("CommandsWithVisibilityConditions", New TypeDescription("Array"));
 	InfoOnAllSubmenus.Columns.Add("SubmenuImage");
+	InfoOnAllSubmenus.Columns.Add("Commands", New TypeDescription("Array"));
 	
 	Return InfoOnAllSubmenus;
 	
@@ -1147,7 +1166,7 @@ EndFunction
 Function RegisterSubmenu(Items, InfoOnAllSubmenus, SubmenuName, NewSubmenuTemplate = Undefined, 
 	CommandBar = Undefined, SubmenuByDefault = Undefined)
 	
-	CommandsShown = 0;
+	CommandsCount = 0;
 	Groups = New Structure;
 	SubmenuImage = Undefined;
 	If ValueIsFilled(SubmenuName) Then
@@ -1176,7 +1195,7 @@ Function RegisterSubmenu(Items, InfoOnAllSubmenus, SubmenuName, NewSubmenuTempla
 			ElsIf SubmenuByDefault <> Undefined Then
 				SubmenuImage 	= SubmenuByDefault.SubmenuImage;
 			EndIf;
-			CommandsShown = GroupCommandsCount(DefaultGroup);
+			CommandsCount = GroupCommandsCount(DefaultGroup);
 			For Each Group In Popup.ChildItems Do
 				If TypeOf(Group) <> Type("FormGroup") Then
 					Continue;
@@ -1227,7 +1246,7 @@ Function RegisterSubmenu(Items, InfoOnAllSubmenus, SubmenuName, NewSubmenuTempla
 	Result.Popup = Popup;
 	Result.DefaultGroup = DefaultGroup;
 	Result.Groups = Groups;
-	Result.CommandsShown = CommandsShown;
+	Result.CommandsCount = CommandsCount;
 	Result.SubmenuImage = SubmenuImage;
 	
 	Return Result;
@@ -1245,15 +1264,15 @@ Function GroupCommandsCount(Group)
 	Return Result;
 EndFunction
 
-Function DefineCommandName(Form, GroupName, CommandID, CommandsCounterWithAutonaming, CommandsPrefix)
+Function DefineCommandName(Form, GroupName, CommandID, CommandsCounterWithAutonaming, CommandsPrefix, BusyNames)
 	If CommonClientServer.NameMeetPropertyNamingRequirements(CommandID) Then
 		CommandName = GroupName + "_" + CommandsPrefix + "_" +  CommandID;
 	Else
 		CommandsCounterWithAutonaming = CommandsCounterWithAutonaming + 1;
 		CommandName = GroupName + "_" + CommandsPrefix + "_" + Format(CommandsCounterWithAutonaming, "NZ=; NG=");
 	EndIf;
-	While Form.Items.Find(CommandName) <> Undefined
-		Or Form.Commands.Find(CommandName) <> Undefined Do
+		
+	While BusyNames[CommandName] = True Do
 		CommandsCounterWithAutonaming = CommandsCounterWithAutonaming + 1;
 		CommandName = GroupName + "_" + CommandsPrefix + "_" + Format(CommandsCounterWithAutonaming, "NZ=; NG=");
 	EndDo;
@@ -1546,8 +1565,8 @@ Function CommandsTable()
 	Table.Columns.Add("Purpose", New TypeDescription("String"));
 	Table.Columns.Add("FunctionalOptions", New TypeDescription("String"));
 	Table.Columns.Add("VisibilityConditions", New TypeDescription("Array"));
-	Table.Columns.Add("ChangesSelectedObjects"); 
-	
+	Table.Columns.Add("ChangesSelectedObjects"); // 
+	// 
 	Table.Columns.Add("MultipleChoice"); // Boolean or Undefined.
 	Table.Columns.Add("WriteMode", New TypeDescription("String"));
 	Table.Columns.Add("FilesOperationsRequired", New TypeDescription("Boolean"));
@@ -1634,5 +1653,25 @@ Function TheExpressionCalculationNotes(Val TagExpression)
 	Return Result;
 EndFunction
 
+// See AttachableCommandsOverridable.OnDefineAttachableCommandsKinds
+Procedure OnDefineAttachableCommandsKinds(AttachableCommandsKinds) Export
+
+	Kind = AttachableCommandsKinds.Add();
+	Kind.Name         = "Send";
+	Kind.SubmenuName  = "SubmenuSend";
+	Kind.Title   = NStr("en = 'Send';");
+	Kind.Order     = 45;
+	Kind.Picture    = PictureLib.SendMessage;
+	Kind.Representation = ButtonRepresentation.PictureAndText;
+	
+	Kind = AttachableCommandsKinds.Add();
+	Kind.Name         = "Organizer";
+	Kind.SubmenuName  = "SubmenuOrganizer";
+	Kind.Title   = NStr("en = 'Organizer';");
+	Kind.Order     = 50;
+	Kind.Picture    = PictureLib.Organizer;
+	Kind.Representation = ButtonRepresentation.Picture;	
+
+EndProcedure
 
 #EndRegion

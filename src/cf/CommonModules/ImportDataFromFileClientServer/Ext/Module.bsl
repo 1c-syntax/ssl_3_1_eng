@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -19,7 +20,7 @@
 //  ToolTip - String - a tooltip displayed in the column header.
 // 
 // Returns:
-//  Structure - :
+//  Structure - Structure containing column details:
 //    * Name                       - String - Column name.
 //    * Title                 - String - Column header displayed in the template for import.
 //    * Type                       - TypeDescription - column type.
@@ -92,11 +93,7 @@ Function ColumnsHaveGroup(Val ColumnsInformation) Export
 	Return ?(ColumnsGroups.Count() > 1, True, False);
 EndFunction
 
-Function PresentationOfTextYesForBoolean() Export
-	Return NStr("en = 'Yes';");
-EndFunction
-
-Function PrefixOfMappingTable() Export
+Function MappingTablePrefix() Export
 	Return "DataMappingTable";
 EndFunction
 
@@ -105,18 +102,18 @@ Function TablePartPrefix() Export
 EndFunction
 
 Function StatusAmbiguity() Export
-	Return PrefixOfNonMatchedStrings() + "Conflict1";
+	Return UnmappedRowsPrefix() + "Conflict1";
 EndFunction
 
-Function StatusIsNotMatched() Export
-	Return PrefixOfNonMatchedStrings() + "NotMapped";
+Function StatusUnmapped() Export
+	Return UnmappedRowsPrefix() + "NotMapped";
 EndFunction
 
-Function StatusMatched() Export
+Function StatusMapped() Export
 	Return "RowMapped";
 EndFunction
 
-Function PrefixOfNonMatchedStrings() Export
+Function UnmappedRowsPrefix() Export
 	Return "Fix";
 EndFunction
 

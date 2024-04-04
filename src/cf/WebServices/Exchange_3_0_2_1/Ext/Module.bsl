@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Private
@@ -12,7 +13,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Web service operation handlers.
 
-// Matches the Upload web service operation.
+// An analog of the "Upload" operation.
 Function ExecuteExport(ExchangePlanName, InfobaseNodeCode, ExchangeMessageStorage, DataArea)
 	
 	SignInToDataArea(DataArea);
@@ -35,7 +36,7 @@ Function ExecuteExport(ExchangePlanName, InfobaseNodeCode, ExchangeMessageStorag
 	
 EndFunction
 
-// Matches the UploadData web service operation.
+// An analog of the "UploadData" operation.
 Function RunDataExport(ExchangePlanName,
 								InfobaseNodeCode,
 								FileIDAsString,
@@ -61,7 +62,7 @@ Function RunDataExport(ExchangePlanName,
 	
 EndFunction
 
-// 
+// An analog of the "UploadDataInt" operation.
 Function RunDataExportInternalPublication(ExchangePlanName,
 													InfobaseNodeCode,
 													TaskID__,
@@ -80,7 +81,7 @@ Function RunDataExportInternalPublication(ExchangePlanName,
 	
 EndFunction
 
-// Matches the Download web service operation.
+// An analog of the "Download" operation.
 Function ExecuteImport(ExchangePlanName, InfobaseNodeCode, ExchangeMessageStorage, DataArea)
 	
 	SignInToDataArea(DataArea);
@@ -99,7 +100,7 @@ Function ExecuteImport(ExchangePlanName, InfobaseNodeCode, ExchangeMessageStorag
 	
 EndFunction
 
-// Matches the DownloadData web service operation.
+// An analog of the "DownloadData" operation.
 Function RunDataImport(ExchangePlanName,
 								InfobaseNodeCode,
 								FileIDAsString,
@@ -124,7 +125,7 @@ Function RunDataImport(ExchangePlanName,
 	
 EndFunction
 
-// 
+// An analog of the "DownloadDataInt" operation.
 Function RunDataImportInternalPublication(ExchangePlanName,
 													InfobaseNodeCode,
 													TaskID__,
@@ -146,7 +147,7 @@ Function RunDataImportInternalPublication(ExchangePlanName,
 	
 EndFunction
 
-// Matches the GetIBParameters web service operation.
+// An analog of the "GetIBParameters" operation.
 Function GetInfobaseParameters(ExchangePlanName, NodeCode, ErrorMessage, DataArea)
 	
 	SignInToDataArea(DataArea);
@@ -159,7 +160,7 @@ Function GetInfobaseParameters(ExchangePlanName, NodeCode, ErrorMessage, DataAre
 	
 EndFunction
 
-// Matches the CreateExchangeNode web service operation.
+// An analog of the "CreateExchangeNode" operation.
 Function CreateDataExchangeNode(XDTOParameters, DataArea)
 	
 	SignInToDataArea(DataArea);
@@ -202,7 +203,7 @@ Function CreateDataExchangeNode(XDTOParameters, DataArea)
 	
 EndFunction
 
-// Matches the RemoveExchangeNode web service operation.
+// An analog of the "RemoveExchangeNode" operation.
 Function DeleteDataExchangeNode(ExchangePlanName, NodeID, DataArea)
 	
 	SignInToDataArea(DataArea);
@@ -228,7 +229,7 @@ Function DeleteDataExchangeNode(ExchangePlanName, NodeID, DataArea)
 	
 EndFunction
 
-// Matches the GetContinuousOperationStatus web service operation.
+// An analog of the "GetContinuousOperationStatus" operation.
 Function GetTimeConsumingOperationState(OperationID, ErrorMessageString, DataArea)
 	
 	SignInToDataArea(DataArea);
@@ -267,7 +268,7 @@ Function GetTimeConsumingOperationState(OperationID, ErrorMessageString, DataAre
 	
 EndFunction
 
-// Matches the PrepareGetFile web service operation.
+// An analog of the "PrepareGetFile" operation.
 Function PrepareGetFile(FileId, BlockSize, TransferId, PartQuantity, Zone)
 	
 	SignInToDataArea(Zone);
@@ -303,7 +304,7 @@ Function PrepareGetFile(FileId, BlockSize, TransferId, PartQuantity, Zone)
 	
 EndFunction
 
-// Matches the GetFilePart web service operation.
+// An analog of the "GetFilePart" operation.
 Function GetFilePart(TransferId, PartNumber, PartData, Zone)
 	
 	SignInToDataArea(Zone);
@@ -333,7 +334,7 @@ Function GetFilePart(TransferId, PartNumber, PartData, Zone)
 	
 EndFunction
 
-// Matches the ReleaseFile web service operation.
+// An analog of the "ReleaseFile" operation.
 Function ReleaseFile(TransferId)
 	
 	Try
@@ -347,7 +348,7 @@ Function ReleaseFile(TransferId)
 	
 EndFunction
 
-// Matches the PutFilePart web service operation.
+// An analog of the "PutFilePart" operation.
 //
 // Parameters:
 //   TransferId - UUID - data transfer session UUID.
@@ -376,7 +377,7 @@ Function PutFilePart(TransferId, PartNumber, PartData, Zone)
 	
 EndFunction
 
-// Matches the SaveFileFromParts web service operation.
+// An analog of the "SaveFileFromParts" operation.
 Function SaveFileFromParts(TransferId, PartQuantity, FileId, Zone)
 	
 	SignInToDataArea(Zone);
@@ -446,7 +447,7 @@ Function SaveFileFromParts(TransferId, PartQuantity, FileId, Zone)
 	
 EndFunction
 
-// Matches the PutMessageForDataMatching web service operation.
+// An analog of the "PutMessageForDataMatching" operation.
 Function PutMessageForDataMatching(ExchangePlanName, NodeID, FileID, DataArea)
 	
 	SignInToDataArea(DataArea);
@@ -474,10 +475,10 @@ Function PutMessageForDataMatching(ExchangePlanName, NodeID, FileID, DataArea)
 	
 	DataExchangeInternal.PutMessageForDataMapping(ExchangeNode, FileID);
 	
-	 
-	
-	
-	
+	//  
+	// 
+	// 
+	// 
 	MoveTheMessageFileForTheFileIB(FileID);
 	
 	SignOutOfDataArea(DataArea);
@@ -486,13 +487,13 @@ Function PutMessageForDataMatching(ExchangePlanName, NodeID, FileID, DataArea)
 	
 EndFunction
 
-// Matches the Ping web service operation.
+// An analog of the "Ping" operation.
 Function Ping()
 	// Test connection.
 	Return "";
 EndFunction
 
-// Matches the TestConnection web service operation.
+// An analog of the "TestConnection" operation.
 Function TestConnection(ExchangePlanName, NodeCode, Result, DataArea)
 	
 	SignInToDataArea(DataArea);
@@ -538,7 +539,7 @@ Function TestConnection(ExchangePlanName, NodeCode, Result, DataArea)
 	Return True;
 EndFunction
 
-// 
+// An analog of the "ChangeNodeTransportToWSPass" operation.
 Function ChangeNodeTransportToWSInt(XDTOParameters, DataArea)
 	
 	SignInToDataArea(DataArea);
@@ -585,7 +586,7 @@ Function ChangeNodeTransportToWSInt(XDTOParameters, DataArea)
 	
 EndFunction
 
-// 
+// An analog of the "Callback" operation.
 Function Callback(TaskID, Error, Zone)
 	
 	SignInToDataArea(Zone);
@@ -641,7 +642,7 @@ Function Callback(TaskID, Error, Zone)
 	
 EndFunction
 
-// 
+// An analog of the "ChekTask" operation.
 Function TaskStatus(TaskID)
 	
 	SetPrivilegedMode(True);
@@ -669,7 +670,7 @@ Function TaskStatus(TaskID)
 	
 EndFunction
 
-// 
+// An analog of the "StopTasks" operation.
 Function StopTasks(TasksID, Zone)
 	
 	SignInToDataArea(Zone);

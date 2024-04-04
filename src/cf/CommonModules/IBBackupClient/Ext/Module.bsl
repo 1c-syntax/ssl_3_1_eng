@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -94,7 +95,7 @@ Procedure BeforeExit(Cancel, Warnings) Export
 	WarningParameters = StandardSubsystemsClient.WarningOnExit();
 	WarningParameters.CheckBoxText = NStr("en = 'Back up';");
 	WarningParameters.Priority = 50;
-	WarningParameters.WarningText = NStr("en = 'Back up on exit has not been done.';");
+	WarningParameters.WarningText = NStr("en = 'Backup scheduled at exit.';");
 	
 	ActionIfFlagSet = WarningParameters.ActionIfFlagSet;
 	ActionIfFlagSet.Form = "DataProcessor.IBBackup.Form.DataBackup";
@@ -256,7 +257,7 @@ Procedure CheckIBBackup(Parameters)
 		
 		ShowUserNotification(NStr("en = 'Backup';"),
 			"e1cib/command/CommonCommand.ShowBackupResult",
-			NStr("en = 'Backup successful';"), PictureLib.Information32);
+			NStr("en = 'Backup successful';"), PictureLib.DialogInformation);
 		IBBackupServerCall.SetSettingValue("BackupCreated1", False);
 		
 	EndIf;
@@ -275,14 +276,14 @@ Procedure NotifyUserOfBackup(NotificationOption)
 		
 		ExplanationText = NStr("en = 'Automatic backup has not been done.';"); 
 		ShowUserNotification(NStr("en = 'Backup';"),
-			"e1cib/app/DataProcessor.IBBackup", ExplanationText, PictureLib.Warning32);
+			"e1cib/app/DataProcessor.IBBackup", ExplanationText, PictureLib.DialogExclamation);
 		
 	ElsIf NotificationOption = "NotConfiguredYet" Then
 		
 		SettingsFormName = "e1cib/app/DataProcessor.IBBackupSetup/";
 		ExplanationText = NStr("en = 'It is recommended that you set up infobase backup.';"); 
 		ShowUserNotification(NStr("en = 'Backup';"),
-			SettingsFormName, ExplanationText, PictureLib.Warning32);
+			SettingsFormName, ExplanationText, PictureLib.DialogExclamation);
 			
 	EndIf;
 	
@@ -380,7 +381,7 @@ Procedure CheckAccessToInfobaseAfterCOMRegistration(IsRegistered, Context) Expor
 		
 		FillPropertyValues(ConnectionResult, Result);
 		
-		Result.Join = Undefined; 
+		Result.Join = Undefined; // 
 		
 	EndIf;
 	
@@ -516,8 +517,8 @@ Function ClientBackupParameters() Export
 	ParametersStructure.Insert("ApplicationFileName", StandardSubsystemsClient.ApplicationExecutableFileName());
 	ParametersStructure.Insert("EventLogEvent", NStr("en = 'Infobase backup';"));
 	
-	 
-	
+	//  
+	// 
 	TempFilesDirForUpdate = TempFilesDir() + "1Cv8Backup." + Format(CommonClient.SessionDate(), "DF=yyMMddHHmmss") + "\";
 	ParametersStructure.Insert("TempFilesDirForUpdate", TempFilesDirForUpdate);
 	

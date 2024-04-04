@@ -10,11 +10,23 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.CommandSaveAndClose</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save and close</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="CommandWriteAndCloseExtendedTooltip" id="241"/>
 			</Button>
 			<Button name="CommandWrite" id="242">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.CommandWrite</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="CommandWriteExtendedTooltip" id="243"/>
 			</Button>
 			<ButtonGroup name="ExportImportCommands" id="333">
@@ -31,6 +43,12 @@
 						<Representation>PictureAndText</Representation>
 						<SkipOnInput>false</SkipOnInput>
 						<CommandName>Form.Command.LoadFromFile</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Update from file…</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="LoadFromFileExtendedTooltip" id="176"/>
 					</Button>
 					<Button name="ExportToFile" id="11">
@@ -38,6 +56,12 @@
 						<Representation>PictureAndText</Representation>
 						<SkipOnInput>false</SkipOnInput>
 						<CommandName>Form.Command.ExportToFile</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Save as…</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="ExportToFileExtendedTooltip" id="177"/>
 					</Button>
 				</ChildItems>
@@ -293,6 +317,12 @@ and set the Availability to "Available."</v8:content>
 											<Type>UsualButton</Type>
 											<Representation>PictureAndText</Representation>
 											<CommandName>Form.Command.CommandWrite</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Save</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="WriteForReportOptionsCommandExtendedTooltip" id="249"/>
 										</Button>
 									</ChildItems>
@@ -341,6 +371,12 @@ and set the Availability to "Available."</v8:content>
 													<Button name="AdditionalReportOptionsOpen1" id="114">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.AdditionalReportOptionsOpen</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Open…</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="AdditionalReportOptionsOpen1ExtendedTooltip" id="195"/>
 													</Button>
 													<Button name="AdditionalReportOptionsChange1" id="115">
@@ -358,6 +394,12 @@ and set the Availability to "Available."</v8:content>
 													<Button name="AdditionalReportOptionsPlaceInSections1" id="116">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.PlaceInSections</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Add to sections…</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="AdditionalReportOptionsPlaceInSections1ExtendedTooltip" id="197"/>
 													</Button>
 													<Button name="AdditionalReportOptionsDelete1" id="117">
@@ -404,6 +446,12 @@ and set the Availability to "Available."</v8:content>
 													<Button name="AdditionalReportOptionsOpen" id="94">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.AdditionalReportOptionsOpen</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Open…</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="AdditionalReportOptionsOpenExtendedTooltip" id="203"/>
 													</Button>
 													<Button name="AdditionalReportOptionsChange" id="111">
@@ -422,6 +470,12 @@ and set the Availability to "Available."</v8:content>
 													<Button name="AdditionalReportOptionsPlaceInSections" id="103">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.PlaceInSections</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Add to sections…</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="AdditionalReportOptionsPlaceInSectionsExtendedTooltip" id="205"/>
 													</Button>
 													<Button name="AdditionalReportOptionsDelete" id="104">
@@ -468,6 +522,12 @@ and set the Availability to "Available."</v8:content>
 											<ChildItems>
 												<LabelField name="AdditionalReportOptionsDescription" id="98">
 													<DataPath>AdditionalReportOptions.Description</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Description</v8:content>
+														</v8:item>
+													</Title>
 													<ContextMenu name="AdditionalReportOptionsDescriptionContextMenu" id="99"/>
 													<ExtendedTooltip name="AdditionalReportOptionsDescriptionExtendedTooltip" id="208"/>
 												</LabelField>
@@ -486,7 +546,7 @@ and set the Availability to "Available."</v8:content>
 							<v8:content>Commands</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="CommandsPage1ExtendedTooltip" id="209"/>
+					<ExtendedTooltip name="CommandPageExtendedTooltip" id="209"/>
 					<ChildItems>
 						<UsualGroup name="LocationGroup1" id="389">
 							<Title>
@@ -519,6 +579,12 @@ and set the Availability to "Available."</v8:content>
 								<Button name="SetPrintCommandVisibility" id="400">
 									<Type>UsualButton</Type>
 									<CommandName>Form.Command.SetPrintCommandVisibility</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Customize visibility…</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="SetVisibilityExtendedTooltip" id="401"/>
 								</Button>
 							</ChildItems>
@@ -593,6 +659,12 @@ and set the Availability to "Available."</v8:content>
 								<Button name="ExecuteCommand" id="407">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.ExecuteCommand</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Run</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="ExecuteCommandExtendedTooltip" id="408"/>
 								</Button>
 							</ChildItems>
@@ -635,11 +707,23 @@ and set the Availability to "Available."</v8:content>
 									<Button name="ObjectCommandsSetQuickAccess" id="165">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.ObjectCommandsSetQuickAccess</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Configure quick access…</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ObjectCommandsSetQuickAccessExtendedTooltip" id="211"/>
 									</Button>
 									<Button name="ObjectCommandsSetSchedule" id="166">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.ObjectCommandsSetSchedule</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Set schedule...</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ObjectCommandsSetScheduleExtendedTooltip" id="212"/>
 									</Button>
 								</ChildItems>
@@ -904,6 +988,12 @@ with additional permissions:</v8:content>
 									<ChildItems>
 										<SpreadSheetDocumentField name="PermissionsPresentation_2_2_2" id="252">
 											<DataPath>PermissionsPresentation_2_2_2</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Permission presentation 2 2 2</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<Width>20</Width>
 											<Height>1</Height>
@@ -1657,32 +1747,4 @@ application without setting the safe mode.</v8:content>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 	</Commands>
-	<CommandInterface>
-		<CommandBar>
-			<Item>
-				<Command>0</Command>
-				<Type>Auto</Type>
-				<DefaultVisible>false</DefaultVisible>
-				<Visible>
-					<xr:Common>false</xr:Common>
-				</Visible>
-			</Item>
-			<Item>
-				<Command>0</Command>
-				<Type>Auto</Type>
-				<DefaultVisible>false</DefaultVisible>
-				<Visible>
-					<xr:Common>false</xr:Common>
-				</Visible>
-			</Item>
-			<Item>
-				<Command>0</Command>
-				<Type>Auto</Type>
-				<DefaultVisible>false</DefaultVisible>
-				<Visible>
-					<xr:Common>false</xr:Common>
-				</Visible>
-			</Item>
-		</CommandBar>
-	</CommandInterface>
 </Form>

@@ -19,7 +19,7 @@
 			</Title>
 			<Group>Vertical</Group>
 			<Behavior>Usual</Behavior>
-			<ExtendedTooltip name="Step1GroupExtendedTooltip" id="29"/>
+			<ExtendedTooltip name="Step_1_GroupExtendedTooltip" id="29"/>
 			<ChildItems>
 				<UsualGroup name="AlgorithmsDebugGroup" id="7">
 					<Title>
@@ -178,7 +178,7 @@
 			</Title>
 			<Group>Vertical</Group>
 			<Behavior>Usual</Behavior>
-			<ExtendedTooltip name="GroupStep2ExtendedTooltip" id="39"/>
+			<ExtendedTooltip name="Group_Step_2ExtendedTooltip" id="39"/>
 			<ChildItems>
 				<UsualGroup name="HandlersExportGroup" id="11">
 					<Title>
@@ -207,6 +207,12 @@
 							<Type>UsualButton</Type>
 							<Width>3</Width>
 							<CommandName>Form.Command.OpenFile</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Open file</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="OpenFileExtendedTooltip" id="42"/>
 						</Button>
 					</ChildItems>
@@ -222,7 +228,7 @@
 			</Title>
 			<Group>Vertical</Group>
 			<Behavior>Usual</Behavior>
-			<ExtendedTooltip name="GroupStep3ExtendedTooltip" id="43"/>
+			<ExtendedTooltip name="Group_Step_3ExtendedTooltip" id="43"/>
 			<ChildItems>
 				<LabelDecoration name="NoteDecoration" id="13">
 					<Width>67</Width>
@@ -238,7 +244,7 @@
 					</Title>
 					<TitleHeight>6</TitleHeight>
 					<ContextMenu name="NoteDecoration1ContextMenu" id="14"/>
-					<ExtendedTooltip name="NoteDecoration1ExtendedTooltip" id="44"/>
+					<ExtendedTooltip name="NoteDecorationExtendedTooltip" id="44"/>
 				</LabelDecoration>
 			</ChildItems>
 		</UsualGroup>
@@ -251,9 +257,15 @@
 			</Title>
 			<Group>Vertical</Group>
 			<Behavior>Usual</Behavior>
-			<ExtendedTooltip name="GroupStep4ExtendedTooltip" id="45"/>
+			<ExtendedTooltip name="Group_Step_4ExtendedTooltip" id="45"/>
 			<ChildItems>
 				<UsualGroup name="Group1" id="62">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Group</v8:content>
+						</v8:item>
+					</Title>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
 					<ExtendedTooltip name="Group1ExtendedTooltip" id="63"/>
@@ -282,7 +294,7 @@
 								<Title formatted="false">
 									<v8:item>
 										<v8:lang>en</v8:lang>
-										<v8:content>Path to the external data processor with the debug module on the server or on a shared network folder. Or a name of the configuration data processor with the debug module</v8:content>
+										<v8:content>The path to the external data processor with the debug module on the server or in a shared network folder, or the name of the configuration data processor with the debug module.</v8:content>
 									</v8:item>
 								</Title>
 							</ExtendedTooltip>
@@ -294,6 +306,12 @@
 						<Button name="CheckAvailability" id="64">
 							<Type>UsualButton</Type>
 							<CommandName>Form.Command.CheckAvailability</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Check availability</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="CheckAvailabilityExtendedTooltip" id="65"/>
 						</Button>
 					</ChildItems>
@@ -314,6 +332,12 @@
 					<Type>CommandBarButton</Type>
 					<DefaultButton>true</DefaultButton>
 					<CommandName>Form.Command.Done</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Finish</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="DoneExtendedTooltip" id="48"/>
 				</Button>
 				<Button name="Cancel" id="28">

@@ -29,6 +29,12 @@
 		<field xsi:type="DataSetFieldField">
 			<dataPath>SenderEmailAddress</dataPath>
 			<field>SenderEmailAddress</field>
+			<title xsi:type="v8:LocalStringType">
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Sender email address</v8:content>
+				</v8:item>
+			</title>
 		</field>
 		<field xsi:type="DataSetFieldField">
 			<dataPath>SenderContact</dataPath>

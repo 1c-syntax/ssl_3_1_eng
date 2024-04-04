@@ -9,11 +9,23 @@
 				<DefaultButton>true</DefaultButton>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.SendMail</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Send</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="SendMailExtendedTooltip" id="49"/>
 			</Button>
 			<Button name="FormGenerateFromTemplate" id="106">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.GenerateFromTemplate</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Create from template</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormGenerateFromTemplateExtendedTooltip" id="107"/>
 			</Button>
 			<Button name="Help" id="27">
@@ -25,6 +37,12 @@
 			<Button name="FormSaveAsTemplate" id="108">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.SaveAsTemplate</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save as template…</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormSaveAsTemplateExtendedTooltip" id="109"/>
 			</Button>
@@ -39,6 +57,12 @@
 	<ChildItems>
 		<InputField name="Account" id="76">
 			<DataPath>Account</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>From</v8:content>
+				</v8:item>
+			</Title>
 			<ChoiceParameters>
 				<app:item name="Filter.UseForSending">
 					<app:value xsi:type="FormChoiceListDesTimeValue">
@@ -125,6 +149,12 @@
 					<ChildItems>
 						<InputField name="RecipientsEmailAddressSendingOption" id="100">
 							<DataPath>RecipientsMailAddresses.SendingOption</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Recipient type</v8:content>
+								</v8:item>
+							</Title>
 							<EditMode>Directly</EditMode>
 							<Width>12</Width>
 							<HorizontalStretch>false</HorizontalStretch>
@@ -179,6 +209,12 @@
 						</InputField>
 						<InputField name="RecipientsEmailAddressPresentation" id="110">
 							<DataPath>RecipientsMailAddresses.Presentation</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Presentation</v8:content>
+								</v8:item>
+							</Title>
 							<EditMode>EnterOnInput</EditMode>
 							<Width>40</Width>
 							<ChooseType>false</ChooseType>
@@ -194,7 +230,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Group email subject</v8:content>
+							<v8:content>Email subject</v8:content>
 						</v8:item>
 					</Title>
 					<Representation>None</Representation>
@@ -203,6 +239,12 @@
 					<ChildItems>
 						<InputField name="EmailSubject" id="11">
 							<DataPath>EmailSubject</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Subject</v8:content>
+								</v8:item>
+							</Title>
 							<ToolTip>
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -246,16 +288,34 @@
 										<Button name="ImportanceHigh" id="119">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.ImportanceHigh</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>High importance</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="ImportanceHighExtendedTooltip" id="120"/>
 										</Button>
 										<Button name="ImportanceNormal" id="121">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.ImportanceNormal</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Normal importance</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="ImportanceNormalExtendedTooltip" id="122"/>
 										</Button>
 										<Button name="ImportanceLow" id="123">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.ImportanceLow</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Low importance</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="ImportanceLowExtendedTooltip" id="124"/>
 										</Button>
 									</ChildItems>
@@ -345,6 +405,12 @@
 												<Type>CommandBarButton</Type>
 												<SkipOnInput>false</SkipOnInput>
 												<CommandName>Form.Command.AttachFile</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Attach file…</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ContextMenuAttachmentsAttachFileExtendedTooltip" id="57"/>
 											</Button>
 											<Button name="ContextMenuAttachmentsDelete" id="43">
@@ -359,6 +425,12 @@
 										<Type>CommandBarButton</Type>
 										<SkipOnInput>false</SkipOnInput>
 										<CommandName>Form.Command.OpenFile</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Open file</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ContextMenuAttachmentsOpenFileExtendedTooltip" id="59"/>
 									</Button>
 								</ChildItems>
@@ -370,6 +442,12 @@
 										<Type>CommandBarButton</Type>
 										<SkipOnInput>false</SkipOnInput>
 										<CommandName>Form.Command.AttachFile</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Attach file…</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="AttachFileExtendedTooltip" id="60"/>
 									</Button>
 								</ChildItems>
@@ -411,6 +489,12 @@
 								<InputField name="Attachment1" id="34">
 									<DataPath>AttachmentsPresentation.Attachment1</DataPath>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Attachment1</v8:content>
+										</v8:item>
+									</Title>
 									<Wrap>false</Wrap>
 									<ContextMenu name="Attachment1ContextMenu" id="35">
 										<Autofill>false</Autofill>
@@ -420,6 +504,12 @@
 								<InputField name="Attachment2" id="36">
 									<DataPath>AttachmentsPresentation.Attachment2</DataPath>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Attachment2</v8:content>
+										</v8:item>
+									</Title>
 									<Wrap>false</Wrap>
 									<ContextMenu name="Attachment2ContextMenu" id="37">
 										<Autofill>false</Autofill>
@@ -432,6 +522,12 @@
 				</UsualGroup>
 				<InputField name="ReplyToAddress" id="47">
 					<DataPath>ReplyToAddress</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Reply-to address</v8:content>
+						</v8:item>
+					</Title>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>

@@ -79,6 +79,12 @@
 							<Type>Hyperlink</Type>
 							<Visible>false</Visible>
 							<CommandName>Form.Command.ShowAccessToObject</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>View access…</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="ShowAccessToObjectExtendedTooltip" id="47"/>
 						</Button>
 					</ChildItems>
@@ -226,6 +232,12 @@
 				</Table>
 				<CheckBoxField name="UpdateDataItemsAccessKeys" id="58">
 					<DataPath>UpdateDataItemsAccessKeys</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Update data item access keys</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Right</TitleLocation>
 					<ToolTip>
 						<v8:item>
@@ -242,6 +254,12 @@ with obsolete access keys, and replace their access keys with new ones.</v8:cont
 				</CheckBoxField>
 				<CheckBoxField name="UpdateAccessKeysRights" id="61">
 					<DataPath>UpdateAccessKeysRights</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Update rights to access keys</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Right</TitleLocation>
 					<ToolTip>
 						<v8:item>
@@ -259,6 +277,12 @@ update rights in registers that differ from the calculated rights.</v8:content>
 				</CheckBoxField>
 				<CheckBoxField name="DeleteObsoleteInternalData" id="64">
 					<DataPath>DeleteObsoleteInternalData</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Remove obsolete internal data</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Right</TitleLocation>
 					<ToolTipRepresentation>Button</ToolTipRepresentation>
 					<CheckBoxType>Auto</CheckBoxType>

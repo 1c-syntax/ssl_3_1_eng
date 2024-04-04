@@ -32,10 +32,22 @@
 					<DefaultButton>true</DefaultButton>
 					<SkipOnInput>false</SkipOnInput>
 					<CommandName>Form.Command.Select</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Select</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="SelectExtendedTooltip" id="16"/>
 				</Button>
 				<RadioButtonField name="ObjectsGroupMethod" id="33">
 					<DataPath>ObjectsGroupMethod</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Object grouping method</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<RadioButtonType>Auto</RadioButtonType>
 					<ChoiceList>
@@ -140,6 +152,12 @@
 			</Events>
 			<ChildItems>
 				<ColumnGroup name="Group" id="12">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Group</v8:content>
+						</v8:item>
+					</Title>
 					<Group>InCell</Group>
 					<ExtendedTooltip name="GroupExtendedTooltip" id="20"/>
 					<ChildItems>
@@ -161,6 +179,12 @@
 						</CheckBoxField>
 						<PictureField name="Picture" id="10">
 							<DataPath>MetadataObjectsTree.Picture</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Picture</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<Width>2</Width>
 							<Height>1</Height>
@@ -416,6 +440,11 @@
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
+		<Attribute name="ShouldSelectExternalDataSourceTables" id="19">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
 	</Attributes>
 	<Commands>
 		<Command name="Select" id="1">
@@ -503,6 +532,35 @@
 		<Parameter name="SelectCollectionsWhenAllObjectsSelected">
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="ShouldSelectExternalDataSourceTables">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="SubsystemsWithCIOnly">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="ChooseRefs">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="SelectSingle">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="ChoiceInitialValue">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
 			</Type>
 		</Parameter>
 	</Parameters>

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -193,7 +194,7 @@ Procedure ScheduledJobsDisabled1URLProcessing(Item, FormattedStringURL, Standard
 	StandardProcessing = False;
 	
 	Notification = New NotifyDescription("ScheduledJobsDisabled1URLProcessingCompletion", ThisObject);
-	QueryText = NStr("en = 'Restart the application?';");
+	QueryText = NStr("en = 'Restart the app?';");
 	ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo,, DialogReturnCode.No);
 EndProcedure
 

@@ -129,7 +129,7 @@
 					<Behavior>Usual</Behavior>
 					<Representation>NormalSeparation</Representation>
 					<ThroughAlign>Use</ThroughAlign>
-					<ExtendedTooltip name="AddressingGroup1ExtendedTooltip" id="81"/>
+					<ExtendedTooltip name="GroupAddressingExtendedTooltip" id="81"/>
 					<ChildItems>
 						<InputField name="Performer" id="27">
 							<DataPath>Object.Performer</DataPath>
@@ -212,7 +212,7 @@
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
 					<ThroughAlign>DontUse</ThroughAlign>
-					<ExtendedTooltip name="IncomingGroup1ExtendedTooltip" id="78"/>
+					<ExtendedTooltip name="GroupIncomingExtendedTooltip" id="78"/>
 					<ChildItems>
 						<InputField name="Date" id="57">
 							<DataPath>Object.Date</DataPath>
@@ -223,7 +223,7 @@
 						<InputField name="TaskDueDate" id="71">
 							<DataPath>Object.TaskDueDate</DataPath>
 							<ContextMenu name="DueDateContextMenu" id="72"/>
-							<ExtendedTooltip name="DueDateExtendedTooltip" id="80"/>
+							<ExtendedTooltip name="TaskDueDateExtendedTooltip" id="80"/>
 						</InputField>
 					</ChildItems>
 				</UsualGroup>

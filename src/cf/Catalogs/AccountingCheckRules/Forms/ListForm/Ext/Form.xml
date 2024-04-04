@@ -44,11 +44,23 @@
 				<Button name="FormExecuteCheck" id="125">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.ExecuteCheck</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Scan for issue</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="FormExecuteCheckExtendedTooltip" id="126"/>
 				</Button>
 				<Button name="FormExecuteAllChecks" id="154">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.ExecuteAllChecks</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Full scan</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="FormExecuteAllChecksExtendedTooltip" id="155"/>
 				</Button>
 				<ButtonGroup name="FormActionsGroup" id="123">
@@ -63,6 +75,12 @@
 						<Button name="FormRestoreByInitialFilling" id="145">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.RestoreByInitialFilling</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Restore default profile</v8:content>
+								</v8:item>
+							</Title>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 							<ExtendedTooltip name="FormRestoreByInitialFillingExtendedTooltip" id="146"/>
 						</Button>
@@ -113,6 +131,12 @@
 					<Button name="ListContextMenuExecuteCheck" id="17">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.ExecuteCheck</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Scan for issue</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="ListContextMenuExecuteCheckExtendedTooltip" id="18"/>
 					</Button>
 				</ChildItems>
@@ -197,7 +221,7 @@
 									<AutoCellHeight>true</AutoCellHeight>
 									<Width>15</Width>
 									<ContextMenu name="ScheduledJobPresentation1ContextMenu" id="9"/>
-									<ExtendedTooltip name="ScheduledJobPresentation1ExtendedTooltip" id="14"/>
+									<ExtendedTooltip name="ScheduledJobPresentationExtendedTooltip" id="14"/>
 								</LabelField>
 							</ChildItems>
 						</ColumnGroup>
@@ -225,7 +249,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Schedule group</v8:content>
+					<v8:content>Schedule</v8:content>
 				</v8:item>
 			</Title>
 			<Representation>None</Representation>
@@ -362,7 +386,7 @@ FROM
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Restore to default</v8:content>
+					<v8:content>Restore default profile</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>

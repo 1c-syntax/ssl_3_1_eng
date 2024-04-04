@@ -34,7 +34,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="GroupHeaderExtendedTooltip" id="135"/>
+			<ExtendedTooltip name="TitleGroup1ExtendedTooltip" id="135"/>
 			<ChildItems>
 				<LabelDecoration name="SectionDetails" id="136">
 					<AutoMaxWidth>false</AutoMaxWidth>
@@ -80,6 +80,12 @@
 			<ChildItems>
 				<CheckBoxField name="UseFullTextSearch" id="214">
 					<DataPath>UseFullTextSearch</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Use full-text search</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Right</TitleLocation>
 					<CheckBoxType>Auto</CheckBoxType>
 					<ContextMenu name="UseFullTextSearchContextMenu" id="215"/>
@@ -166,6 +172,12 @@
 								</CheckBoxField>
 								<InputField name="IndexedDataMaxSize" id="197">
 									<DataPath>IndexedDataMaxSize</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Limit maximum index size</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<ContextMenu name="IndexedDataMaxSizeContextMenu" id="198"/>
 									<ExtendedTooltip name="IndexedDataMaxSizeExtendedTooltip" id="199"/>
@@ -221,12 +233,24 @@
 						<LabelField name="IndexUpdateDate" id="5">
 							<DataPath>IndexUpdateDate</DataPath>
 							<SkipOnInput>true</SkipOnInput>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Index date</v8:content>
+								</v8:item>
+							</Title>
 							<ContextMenu name="IndexUpdateDateContextMenu" id="6"/>
 							<ExtendedTooltip name="IndexUpdateDateExtendedTooltip" id="118"/>
 						</LabelField>
 						<LabelField name="IndexStatus" id="3">
 							<DataPath>IndexStatus</DataPath>
 							<SkipOnInput>true</SkipOnInput>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Index status</v8:content>
+								</v8:item>
+							</Title>
 							<ContextMenu name="IndexStatusContextMenu" id="4"/>
 							<ExtendedTooltip name="IndexStatusExtendedTooltip" id="119"/>
 						</LabelField>
@@ -245,16 +269,34 @@
 								<Button name="UpdateIndex" id="11">
 									<Type>UsualButton</Type>
 									<CommandName>Form.Command.UpdateIndex</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Update index</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="UpdateIndexExtendedTooltip" id="121"/>
 								</Button>
 								<Button name="ClearIndex" id="12">
 									<Type>UsualButton</Type>
 									<CommandName>Form.Command.ClearIndex</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Delete index</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="ClearIndexExtendedTooltip" id="122"/>
 								</Button>
 								<Button name="CheckIndex" id="155">
 									<Type>UsualButton</Type>
 									<CommandName>Form.Command.CheckIndex</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Index status</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="CheckIndexExtendedTooltip" id="156"/>
 								</Button>
 							</ChildItems>
@@ -289,7 +331,7 @@
 					<ContextMenu name="NoteExtractFilesTextsAtServer4ContextMenu" id="104"/>
 					<ExtendedTooltip name="NoteExtractFilesTextsAtServer4ExtendedTooltip" id="124"/>
 				</LabelDecoration>
-				<UsualGroup name="GroupAutomaticTextExtractionMain" id="189">
+				<UsualGroup name="GroupAutoTextsExtractionMain" id="189">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -300,7 +342,7 @@
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="GroupAutomaticTextExtractionMainExtendedTooltip" id="190"/>
+					<ExtendedTooltip name="GroupAutoTextsExtractionMainExtendedTooltip" id="190"/>
 					<ChildItems>
 						<UsualGroup name="ColumnsGroup" id="157">
 							<Title>
@@ -317,6 +359,12 @@
 							<ChildItems>
 								<RadioButtonField name="ExtractFilesTextsAtWindowsServer" id="159">
 									<DataPath>ExtractTextFilesOnServer</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Extract texts</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<RadioButtonType>Auto</RadioButtonType>
 									<ItemTitleHeight>2</ItemTitleHeight>
@@ -363,7 +411,7 @@
 								</Button>
 							</ChildItems>
 						</UsualGroup>
-						<UsualGroup name="TextExtractionGroup" id="171">
+						<UsualGroup name="GroupTextsExtraction" id="171">
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -374,10 +422,16 @@
 							<Representation>None</Representation>
 							<United>false</United>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="TextExtractionGroupExtendedTooltip" id="172"/>
+							<ExtendedTooltip name="GroupTextsExtractionExtendedTooltip" id="172"/>
 							<ChildItems>
 								<RadioButtonField name="ExtractFilesTextsAtLinuxServer" id="175">
 									<DataPath>ExtractTextFilesOnServer</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Extract texts</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<RadioButtonType>Auto</RadioButtonType>
 									<ItemTitleHeight>2</ItemTitleHeight>

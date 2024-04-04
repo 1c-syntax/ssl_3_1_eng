@@ -12,6 +12,12 @@
 			<Button name="FormResetCommand" id="6">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.ResetCommand</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Reset</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormResetCommandExtendedTooltip" id="7"/>
 			</Button>
 			<Button name="FormCancel" id="4">
@@ -83,4 +89,9 @@ for the selected report options?</v8:content>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 	</Commands>
+	<Parameters>
+		<Parameter name="Variants">
+			<Type/>
+		</Parameter>
+	</Parameters>
 </Form>

@@ -22,6 +22,12 @@
 			<Button name="FormCreateAnotherOne" id="11">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.CreateAnotherOne</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Re-generate password</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormCreateAnotherOneExtendedTooltip" id="12"/>
 			</Button>
 			<Button name="FormClose" id="3">
@@ -80,7 +86,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Generate another</v8:content>
+					<v8:content>Re-generate password</v8:content>
 				</v8:item>
 			</Title>
 			<Action>CreateAnotherOne</Action>

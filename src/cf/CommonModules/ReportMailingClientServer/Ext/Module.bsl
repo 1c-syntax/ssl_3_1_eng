@@ -1,179 +1,14 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #Region Private
-
-// Inserts the passed parameters into the template.
-//
-// Parameters:
-//   Template - String - an initial template. For example, "Welcome, [ФИО]".
-//   Parameters - Structure:
-//      * Key - String - a parameter name. For example, Full name.
-//      * Value - Arbitrary - a substitution string. For example, John Smith.
-//
-// Returns: 
-//   String
-//
-Function FillTemplate(Template, Parameters) Export
-	ParameterStart = "["; 
-	ParameterEnd = "]";
-	StartOfFormat = "("; 
-	EndOfFormat = ")"; 
-	CutBorders = True; 
-	
-	Result = Template;
-	For Each KeyAndValue In Parameters Do
-		// Replace a "[ключ]" with a "value".
-		Result = StrReplace(
-			Result,
-			ParameterStart + KeyAndValue.Key + ParameterEnd, 
-			?(CutBorders, "", ParameterStart) + KeyAndValue.Value + ?(CutBorders, "", ParameterEnd));
-		LengthLeftFormat = StrLen(ParameterStart + KeyAndValue.Key + StartOfFormat);
-		// Replace [key(format)] to value in the format.
-		Position1 = StrFind(Result, ParameterStart + KeyAndValue.Key + StartOfFormat);
-		While Position1 > 0 Do
-			Position2 = StrFind(Result, EndOfFormat + ParameterEnd);
-			If Position2 = 0 Then
-				Break;
-			EndIf;
-			FormatString = Mid(Result, Position1 + LengthLeftFormat, Position2 - Position1 - LengthLeftFormat);
-			Try
-				If TypeOf(KeyAndValue.Value) = Type("StandardPeriod") Then
-					ValueWithFormat = NStr("en = '%StartDate% - %EndDate%';");
-					ValueWithFormat = StrReplace(ValueWithFormat, "%StartDate%", Format(
-						KeyAndValue.Value.StartDate, FormatString));
-					ValueWithFormat = StrReplace(ValueWithFormat, "%EndDate%", Format(
-						KeyAndValue.Value.EndDate, FormatString));
-				Else
-					ValueWithFormat = Format(KeyAndValue.Value, FormatString);
-				EndIf;
-				ReplacedWith = ?(CutBorders, "", ParameterStart) + ValueWithFormat + ?(CutBorders, "", ParameterEnd);
-			Except
-				ReplacedWith = ?(CutBorders, "", ParameterStart) + KeyAndValue.Value + ?(CutBorders, "", ParameterEnd);
-			EndTry;
-			Result = StrReplace(
-				Result,
-				ParameterStart + KeyAndValue.Key + StartOfFormat + FormatString + EndOfFormat + ParameterEnd, 
-				ReplacedWith);
-			Position1 = StrFind(Result, ParameterStart + KeyAndValue.Key + StartOfFormat);
-		EndDo;
-	EndDo;
-	Return Result;
-EndFunction
-
-// Generates the delivery methods presentation according to delivery parameters.
-//
-// Parameters:
-//   DeliveryParameters - See ExecuteMailing.DeliveryParameters.
-//
-// Returns:
-//   String
-//
-Function DeliveryMethodsPresentation(DeliveryParameters) Export
-	Prefix = NStr("en = 'Result';");
-	PresentationText = "";
-	Suffix = "";
-	
-	If Not DeliveryParameters.NotifyOnly Then
-		
-		PresentationText = PresentationText 
-		+ ?(PresentationText = "", Prefix, " " + NStr("en = 'and';")) 
-		+ " "
-		+ NStr("en = 'sent by email (see attachments)';");
-		
-	EndIf;
-	
-	If DeliveryParameters.ExecutedToFolder Then
-		
-		PresentationText = PresentationText 
-		+ ?(PresentationText = "", Prefix, " " + NStr("en = 'and';")) 
-		+ " "
-		+ NStr("en = 'delivered to folder';")
-		+ " ";
-		
-		Ref = GetInfoBaseURL() +"#"+ GetURL(DeliveryParameters.Folder);
-		
-		If DeliveryParameters.HTMLFormatEmail Then
-			PresentationText = PresentationText 
-			+ "<a href = '"
-			+ Ref
-			+ "'>" 
-			+ String(DeliveryParameters.Folder)
-			+ "</a>";
-		Else
-			PresentationText = PresentationText 
-			+ """"
-			+ String(DeliveryParameters.Folder)
-			+ """";
-			Suffix = Suffix + ":" + Chars.LF + "<" + Ref + ">";
-		EndIf;
-		
-	EndIf;
-	
-	If DeliveryParameters.ExecutedToNetworkDirectory Then
-		
-		PresentationText = PresentationText 
-		+ ?(PresentationText = "", Prefix, " " + NStr("en = 'and';")) 
-		+ " "
-		+ NStr("en = 'delivered to network directory';")
-		+ " ";
-		
-		If DeliveryParameters.HTMLFormatEmail Then
-			PresentationText = PresentationText 
-			+ "<a href = '"
-			+ DeliveryParameters.NetworkDirectoryWindows
-			+ "'>" 
-			+ DeliveryParameters.NetworkDirectoryWindows
-			+ "</a>";
-		Else
-			PresentationText = PresentationText 
-			+ "<"
-			+ DeliveryParameters.NetworkDirectoryWindows
-			+ ">";
-		EndIf;
-		
-	EndIf;
-	
-	If DeliveryParameters.ExecutedAtFTP Then
-		
-		PresentationText = PresentationText 
-		+ ?(PresentationText = "", Prefix, " " + NStr("en = 'and';")) 
-		+ " "
-		+ NStr("en = 'delivered to FTP resource';")
-		+ " ";
-		
-		Ref = "ftp://"
-		+ DeliveryParameters.Server 
-		+ ":"
-		+ Format(DeliveryParameters.Port, "NZ=0; NG=0") 
-		+ DeliveryParameters.Directory;
-		
-		If DeliveryParameters.HTMLFormatEmail Then
-			PresentationText = PresentationText 
-			+ "<a href = '"
-			+ Ref
-			+ "'>" 
-			+ Ref
-			+ "</a>";
-		Else
-			PresentationText = PresentationText 
-			+ "<"
-			+ Ref
-			+ ">";
-		EndIf;
-		
-	EndIf;
-	
-	PresentationText = PresentationText + ?(Suffix = "", ".", Suffix);
-	
-	Return PresentationText;
-EndFunction
 
 Function ListPresentation(Collection, ColumnName = "", MaxChars = 60) Export
 	Result = New Structure;
@@ -214,11 +49,11 @@ Function ListPresentation(Collection, ColumnName = "", MaxChars = 60) Export
 EndFunction
 
 // Returns the default subject template for delivery by email.
-Function SubjectTemplate(AllParametersOfMessageTextAndFiles = Undefined) Export
-	If AllParametersOfMessageTextAndFiles <> Undefined Then 
+Function SubjectTemplate(AllParametersOfFilesAndEmailText = Undefined) Export
+	If AllParametersOfFilesAndEmailText <> Undefined Then 
 		Return StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 dated %2';"), "[" + AllParametersOfMessageTextAndFiles.MailingDescription + "]",
-			"[" + AllParametersOfMessageTextAndFiles.ExecutionDate + "(DLF='D')]");
+			NStr("en = '%1 dated %2';"), "[" + AllParametersOfFilesAndEmailText.MailingDescription + "]",
+			"[" + AllParametersOfFilesAndEmailText.ExecutionDate + "(DLF='D')]");
 	Else
 		Return StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = '%1 dated %2';"), "[MailingDescription]", "[ExecutionDate(DLF='D')]");
@@ -226,11 +61,11 @@ Function SubjectTemplate(AllParametersOfMessageTextAndFiles = Undefined) Export
 EndFunction
 
 // Returns the default archive description template.
-Function ArchivePatternName(AllParametersOfMessageTextAndFiles = Undefined) Export
-	If AllParametersOfMessageTextAndFiles <> Undefined Then
+Function ArchivePatternName(AllParametersOfFilesAndEmailText = Undefined) Export
+	If AllParametersOfFilesAndEmailText <> Undefined Then
 		Return StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 dated %2';"), "[" + AllParametersOfMessageTextAndFiles.MailingDescription + "]",
-			"[" + AllParametersOfMessageTextAndFiles.ExecutionDate + "(DF='yyyy-MM-dd')]");
+			NStr("en = '%1 dated %2';"), "[" + AllParametersOfFilesAndEmailText.MailingDescription + "]",
+			"[" + AllParametersOfFilesAndEmailText.ExecutionDate + "(DF='yyyy-MM-dd')]");
 	Else
 		Return StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = '%1 dated %2';"), "[MailingDescription]", "[ExecutionDate(DF='yyyy-MM-dd')]");
@@ -285,7 +120,6 @@ EndFunction
 //       * Personalized - Boolean - a mailing personalized by recipients.
 //           The default value is False.
 //           If True value is set, each recipient will receive a report with a filter by it.
-//           To do this, in reports, set the "[Получатель]" filter by the attribute that match the recipient type.
 //           Applies only to delivery by mail,
 //           so when setting to the True, other delivery methods are disabled.
 //       * NotifyOnly - Boolean - False - send notifications only (do not attach generated reports).

@@ -16,6 +16,12 @@
 					<xr:Ref>StdPicture.WriteAndClose</xr:Ref>
 					<xr:LoadTransparent>true</xr:LoadTransparent>
 				</Picture>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save and close</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormWriteAndCloseExtendedTooltip" id="37"/>
 			</Button>
 			<ButtonGroup name="StandardCommands" id="38">
@@ -36,11 +42,23 @@
 			<Button name="FormCheckVolumeIntegrity" id="48">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.CheckVolumeIntegrity</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Check integrity</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormCheckVolumeIntegrityExtendedTooltip" id="49"/>
 			</Button>
 			<Button name="FormDeleteUnnecessaryFiles" id="50">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.DeleteUnnecessaryFiles</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Delete unreferenced files</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormDeleteUnnecessaryFilesExtendedTooltip" id="51"/>
 			</Button>
 		</ChildItems>
@@ -188,6 +206,12 @@
 								<InputField name="ActualSize" id="20">
 									<DataPath>ActualSize</DataPath>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Current size (MB)</v8:content>
+										</v8:item>
+									</Title>
 									<ToolTip>
 										<v8:item>
 											<v8:lang>en</v8:lang>
@@ -297,26 +321,17 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Delete extraneous files</v8:content>
+					<v8:content>Delete unreferenced files</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Delete extraneous files</v8:content>
+					<v8:content>Delete unreferenced files</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>DeleteUnnecessaryFiles</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 	</Commands>
-	<CommandInterface>
-		<NavigationPanel>
-			<Item>
-				<Command>0</Command>
-				<Type>Auto</Type>
-				<DefaultVisible>false</DefaultVisible>
-			</Item>
-		</NavigationPanel>
-	</CommandInterface>
 </Form>

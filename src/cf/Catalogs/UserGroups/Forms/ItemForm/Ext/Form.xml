@@ -94,6 +94,12 @@
 										<Type>CommandBarButton</Type>
 										<SkipOnInput>false</SkipOnInput>
 										<CommandName>Form.Command.PickUsers</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Pick</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ContentContextMenuPickUsersExtendedTooltip" id="56"/>
 									</Button>
 									<Button name="ContentContextMenuAdd" id="45">
@@ -116,11 +122,23 @@
 									<Button name="ContentContextMenuMoveUp" id="100">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.MoveUp</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Move up</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ContentContextMenuMoveUpExtendedTooltip" id="101"/>
 									</Button>
 									<Button name="ContentContextMenuMoveDown" id="102">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.MoveDown</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Move down</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ContentContextMenuMoveDownExtendedTooltip" id="103"/>
 									</Button>
 									<ButtonGroup name="CompositionContextMenuStandardCommands" id="74">
@@ -142,6 +160,12 @@
 										<Type>CommandBarButton</Type>
 										<SkipOnInput>false</SkipOnInput>
 										<CommandName>Form.Command.PickUsers</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Pick</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="CompositionPickExtendedTooltip" id="60"/>
 									</Button>
 									<Button name="ContentAdd" id="32">
@@ -166,12 +190,24 @@
 									<Button name="ContentMoveUp" id="96">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.MoveUp</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Move up</v8:content>
+											</v8:item>
+										</Title>
 										<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 										<ExtendedTooltip name="ContentMoveUpExtendedTooltip" id="97"/>
 									</Button>
 									<Button name="ContentMoveDown" id="98">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.MoveDown</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Move down</v8:content>
+											</v8:item>
+										</Title>
 										<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 										<ExtendedTooltip name="ContentMoveDownExtendedTooltip" id="99"/>
 									</Button>
@@ -188,11 +224,23 @@
 											<Button name="ContentSortAsc" id="84">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.SortAsc</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Sort ascending</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ContentSortAscExtendedTooltip" id="85"/>
 											</Button>
 											<Button name="ContentSortDesc" id="86">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.SortDesc</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Sort descending</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ContentSortDescExtendedTooltip" id="87"/>
 											</Button>
 										</ChildItems>
@@ -200,8 +248,14 @@
 									<Button name="ShowInvalidUsers" id="51">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.ShowInvalidUsers</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Show inactive users</v8:content>
+											</v8:item>
+										</Title>
 										<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-										<ExtendedTooltip name="ShowInvalidUsersExtendedTooltip" id="54"/>
+										<ExtendedTooltip name="ShowInvalidUsers1ExtendedTooltip" id="54"/>
 									</Button>
 									<ButtonGroup name="CompositionStandardCommands" id="76">
 										<Title>

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 
 #Region Private
 
@@ -62,13 +61,13 @@ Procedure CheckObjectReferenceAfterValidationConfirm(Response, Parameters) Expor
 		
 		If Parameters.ReferencesArrray.Count() = 1 Then
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '%1 is used elsewhere in the application.
+				NStr("en = '%1 is used elsewhere in the app.
 				           |Editing this object might lead to data inconsistency.';"),
 				Parameters.ReferencesArrray[0]);
 		Else
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '%1 selected objects are used elsewhere in the application.
-				           |Editing these objects might lead to data inconsistency.';"),
+				NStr("en = '%1 selected items are used elsewhere in the app.
+				           |Editing these items might lead to data inconsistency.';"),
 				Parameters.ReferencesArrray.Count());
 		EndIf;
 		

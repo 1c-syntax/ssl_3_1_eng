@@ -6,11 +6,23 @@
 			<Button name="FormImportClassifier" id="20">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.ImportClassifier</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Import classifier</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormImportClassifierExtendedTooltip" id="21"/>
 			</Button>
 			<Button name="FormShowInactiveBanks" id="19">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.ShowInactiveBanks</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Show inactive banks</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormShowInactiveBanksExtendedTooltip" id="22"/>
 			</Button>

@@ -126,17 +126,35 @@
 						<Button name="ResumeWithoutCleaning" id="104">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.ResumeWithoutCleaning</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Do not clear</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="ResumeWithoutCleaningExtendedTooltip" id="105"/>
 						</Button>
 						<Button name="CancelConfigurationUpdate" id="106">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.CancelConfigurationUpdate</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Cancel configuration update</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="CancelConfigurationUpdateExtendedTooltip" id="107"/>
 						</Button>
 					</ChildItems>
 				</CommandBar>
 				<CheckBoxField name="ShouldProcessDataAreas" id="80">
 					<DataPath>ShouldProcessDataAreas</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Process data areas</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Right</TitleLocation>
 					<ToolTipRepresentation>Button</ToolTipRepresentation>
 					<CheckBoxType>Auto</CheckBoxType>
@@ -171,15 +189,33 @@
 							<Enabled>false</Enabled>
 							<DefaultItem>true</DefaultItem>
 							<CommandName>Form.Command.Clear</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Clear</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="FormClearExtendedTooltip" id="23"/>
 						</Button>
 						<Button name="FormRefresh" id="24">
 							<Type>UsualButton</Type>
 							<CommandName>Form.Command.Refresh</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Refresh</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="FormRefreshExtendedTooltip" id="25"/>
 						</Button>
 						<CheckBoxField name="DisplayQuantity" id="26">
 							<DataPath>DisplayQuantity</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Display quantity</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<ToolTipRepresentation>Button</ToolTipRepresentation>
 							<CheckBoxType>Auto</CheckBoxType>
@@ -201,6 +237,12 @@
 						</CheckBoxField>
 						<CheckBoxField name="CleanUpDeleteable" id="47">
 							<DataPath>CleanUpDeleteable</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Clear data to be deleted</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<ToolTipRepresentation>Button</ToolTipRepresentation>
 							<CheckBoxType>Auto</CheckBoxType>
@@ -210,7 +252,7 @@
 									<v8:item>
 										<v8:lang>en</v8:lang>
 										<v8:content>Clear all obsolete data, not just data that might cause a restructuring error.
-It allows reducing the database size before you migrate to an application version
+It allows reducing the database size before you migrate to a new application version
 where all obsolete tables will be deleted along with the remaining data.</v8:content>
 									</v8:item>
 								</Title>
@@ -232,6 +274,12 @@ where all obsolete tables will be deleted along with the remaining data.</v8:con
 								<Button name="FormCleanUpPlan" id="86">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.CleanUpPlan</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Cleanup plan</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="FormCleanUpPlanExtendedTooltip" id="87"/>
 								</Button>
 								<ButtonGroup name="TableCommands" id="20">
@@ -278,6 +326,12 @@ where all obsolete tables will be deleted along with the remaining data.</v8:con
 							<EnableStartDrag>true</EnableStartDrag>
 							<EnableDrag>true</EnableDrag>
 							<DataPath>ObsoleteData</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Obsolete data</v8:content>
+								</v8:item>
+							</Title>
 							<CommandSet>
 								<ExcludedCommand>Add</ExcludedCommand>
 								<ExcludedCommand>Change</ExcludedCommand>
@@ -321,6 +375,12 @@ where all obsolete tables will be deleted along with the remaining data.</v8:con
 							<ChildItems>
 								<InputField name="ObsoleteDataDataArea" id="83">
 									<DataPath>ObsoleteData.DataArea</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Data area</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ContextMenu name="ObsoleteDataDataAreaContextMenu" id="84"/>
 									<ExtendedTooltip name="ObsoleteDataDataAreaExtendedTooltip" id="85"/>
@@ -344,6 +404,12 @@ where all obsolete tables will be deleted along with the remaining data.</v8:con
 										<xr:Common>false</xr:Common>
 									</UserVisible>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Full table name</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ContextMenu name="ObsoleteDataFullTableNameContextMenu" id="15"/>
 									<ExtendedTooltip name="ObsoleteDataFullTableNameExtendedTooltip" id="16"/>
@@ -407,42 +473,6 @@ data</v8:content>
 							<ContextMenu name="LongRunningOperationTextContextMenu" id="71"/>
 							<ExtendedTooltip name="LongRunningOperationTextExtendedTooltip" id="72"/>
 						</LabelDecoration>
-					</ChildItems>
-				</Page>
-				<Page name="ErrorPage" id="55">
-					<Title>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Page Error</v8:content>
-						</v8:item>
-					</Title>
-					<Group>HorizontalIfPossible</Group>
-					<ExtendedTooltip name="ErrorPageExtendedTooltip" id="56"/>
-					<ChildItems>
-						<PictureDecoration name="ErrorDecoration" id="57">
-							<Title formatted="false">
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Decoration Error</v8:content>
-								</v8:item>
-							</Title>
-							<Picture>
-								<xr:Ref>CommonPicture.Error32</xr:Ref>
-								<xr:LoadTransparent>false</xr:LoadTransparent>
-							</Picture>
-							<ContextMenu name="ErrorDecorationContextMenu" id="58"/>
-							<ExtendedTooltip name="ErrorDecorationExtendedTooltip" id="59"/>
-						</PictureDecoration>
-						<InputField name="ErrorText" id="60">
-							<DataPath>ErrorText</DataPath>
-							<TitleLocation>None</TitleLocation>
-							<AutoMaxWidth>false</AutoMaxWidth>
-							<MultiLine>true</MultiLine>
-							<ExtendedEdit>true</ExtendedEdit>
-							<BorderColor>style:FormBackColor</BorderColor>
-							<ContextMenu name="ErrorTextContextMenu" id="61"/>
-							<ExtendedTooltip name="ErrorTextExtendedTooltip" id="62"/>
-						</InputField>
 					</ChildItems>
 				</Page>
 			</ChildItems>
@@ -557,12 +587,6 @@ data</v8:content>
 			</Type>
 		</Attribute>
 		<Attribute name="ErrorText" id="5">
-			<Title>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Error text</v8:content>
-				</v8:item>
-			</Title>
 			<Type>
 				<v8:Type>xs:string</v8:Type>
 				<v8:StringQualifiers>
@@ -629,6 +653,9 @@ data</v8:content>
 					<v8:AllowedLength>Variable</v8:AllowedLength>
 				</v8:StringQualifiers>
 			</Type>
+		</Attribute>
+		<Attribute name="ErrorInfo" id="15">
+			<Type/>
 		</Attribute>
 	</Attributes>
 	<Commands>

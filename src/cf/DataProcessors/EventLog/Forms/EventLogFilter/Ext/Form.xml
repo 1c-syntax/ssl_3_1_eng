@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
+	<AutoURL>false</AutoURL>
 	<AutoCommandBar name="FormCommandBar" id="-1">
 		<Autofill>false</Autofill>
 		<ChildItems>
@@ -107,6 +108,12 @@
 							<Type>UsualButton</Type>
 							<Width>4</Width>
 							<CommandName>Form.Command.SelectPeriod</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>...</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="SelectPeriod3ExtendedTooltip" id="321"/>
 						</Button>
 					</ChildItems>
@@ -125,6 +132,40 @@
 				</UsualGroup>
 			</ChildItems>
 		</UsualGroup>
+		<InputField name="DataAreas" id="349">
+			<DataPath>DataAreas</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Data areas</v8:content>
+				</v8:item>
+			</Title>
+			<Width>45</Width>
+			<ClearButton>true</ClearButton>
+			<ContextMenu name="DataAreasContextMenu" id="350"/>
+			<ExtendedTooltip name="DataAreasExtendedTooltip" id="351"/>
+			<Events>
+				<Event name="StartChoice">ChoiceCompletion</Event>
+				<Event name="Clearing">DataAreasClearing</Event>
+			</Events>
+		</InputField>
+		<InputField name="SessionDataSeparation" id="249">
+			<DataPath>SessionDataSeparation</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Separate session data</v8:content>
+				</v8:item>
+			</Title>
+			<TitleHeight>2</TitleHeight>
+			<Width>45</Width>
+			<ClearButton>true</ClearButton>
+			<ContextMenu name="SessionDataSeparationContextMenu" id="250"/>
+			<ExtendedTooltip name="SessionDataSeparationExtendedTooltip" id="251"/>
+			<Events>
+				<Event name="StartChoice">ChoiceCompletion</Event>
+			</Events>
+		</InputField>
 		<UsualGroup name="MainGroup3" id="322">
 			<Title>
 				<v8:item>
@@ -189,11 +230,23 @@
 										<Button name="CheckAll" id="243">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.SelectSeverityCheckBoxes</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Select all</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="CheckAllExtendedTooltip" id="244"/>
 										</Button>
 										<Button name="UncheckAll" id="245">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.ClearSeverityCheckBoxes</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Clear all</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="UncheckAllExtendedTooltip" id="246"/>
 										</Button>
 									</ChildItems>
@@ -313,6 +366,12 @@
 					<ChildItems>
 						<InputField name="Events" id="171">
 							<DataPath>EventsToDisplay</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Events</v8:content>
+								</v8:item>
+							</Title>
 							<Wrap>false</Wrap>
 							<ClearButton>true</ClearButton>
 							<BorderColor>style:BorderColor</BorderColor>
@@ -325,6 +384,12 @@
 						</InputField>
 						<InputField name="Users" id="150">
 							<DataPath>UsersList</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Users</v8:content>
+								</v8:item>
+							</Title>
 							<Wrap>false</Wrap>
 							<ClearButton>true</ClearButton>
 							<BorderColor>style:BorderColor</BorderColor>
@@ -336,6 +401,12 @@
 						</InputField>
 						<InputField name="Applications" id="154">
 							<DataPath>Applications</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Apps</v8:content>
+								</v8:item>
+							</Title>
 							<Wrap>false</Wrap>
 							<ClearButton>true</ClearButton>
 							<BorderColor>style:BorderColor</BorderColor>
@@ -347,6 +418,12 @@
 						</InputField>
 						<InputField name="Computers" id="152">
 							<DataPath>Computers</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Computers</v8:content>
+								</v8:item>
+							</Title>
 							<Wrap>false</Wrap>
 							<ClearButton>true</ClearButton>
 							<BorderColor>style:BorderColor</BorderColor>
@@ -358,6 +435,12 @@
 						</InputField>
 						<InputField name="Sessions" id="78">
 							<DataPath>SessionsString</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Sessions</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Left</TitleLocation>
 							<ToolTip>
 								<v8:item>
@@ -383,6 +466,7 @@
 					<v8:content>Data</v8:content>
 				</v8:item>
 			</Title>
+			<HorizontalStretch>true</HorizontalStretch>
 			<Group>Vertical</Group>
 			<Behavior>Collapsible</Behavior>
 			<Collapsed>true</Collapsed>
@@ -414,6 +498,12 @@
 					<ChildItems>
 						<InputField name="Metadata" id="162">
 							<DataPath>Metadata</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Metadata</v8:content>
+								</v8:item>
+							</Title>
 							<Wrap>false</Wrap>
 							<ClearButton>true</ClearButton>
 							<BorderColor>style:BorderColor</BorderColor>
@@ -423,17 +513,78 @@
 								<Event name="StartChoice">ChoiceCompletion</Event>
 							</Events>
 						</InputField>
-						<InputField name="Data" id="51">
-							<DataPath>Data</DataPath>
-							<FooterHorizontalAlign>Left</FooterHorizontalAlign>
-							<Wrap>false</Wrap>
-							<ClearButton>true</ClearButton>
-							<BorderColor>style:BorderColor</BorderColor>
-							<ContextMenu name="DataContextMenu" id="52"/>
-							<ExtendedTooltip name="DataExtendedTooltip" id="218"/>
-						</InputField>
+						<UsualGroup name="GroupDataSelection" id="333">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Filter</v8:content>
+								</v8:item>
+							</Title>
+							<Group>AlwaysHorizontal</Group>
+							<VerticalAlign>Center</VerticalAlign>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="GroupDataSelectionExtendedTooltip" id="334"/>
+							<ChildItems>
+								<InputField name="Data" id="51">
+									<DataPath>Data</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Data</v8:content>
+										</v8:item>
+									</Title>
+									<FooterHorizontalAlign>Left</FooterHorizontalAlign>
+									<Height>1</Height>
+									<Wrap>false</Wrap>
+									<MultiLine>true</MultiLine>
+									<ClearButton>true</ClearButton>
+									<BorderColor>style:BorderColor</BorderColor>
+									<ContextMenu name="DataContextMenu" id="52"/>
+									<ExtendedTooltip name="DataExtendedTooltip" id="218"/>
+								</InputField>
+								<InputField name="Data_List" id="346">
+									<DataPath>Data_List</DataPath>
+									<Visible>false</Visible>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Data</v8:content>
+										</v8:item>
+									</Title>
+									<Height>1</Height>
+									<MultiLine>true</MultiLine>
+									<ClearButton>true</ClearButton>
+									<ContextMenu name="Data_ListContextMenu" id="347"/>
+									<ExtendedTooltip name="Data_ListExtendedTooltip" id="348"/>
+								</InputField>
+								<CheckBoxField name="DataMultipleValues" id="335">
+									<DataPath>DataMultipleValues</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Multiple values</v8:content>
+										</v8:item>
+									</Title>
+									<TitleLocation>Right</TitleLocation>
+									<CheckBoxType>Auto</CheckBoxType>
+									<ContextMenu name="DataMultipleValuesContextMenu" id="336"/>
+									<ExtendedTooltip name="DataMultipleValuesExtendedTooltip" id="337"/>
+									<Events>
+										<Event name="OnChange">MultipleValuesOnChange</Event>
+									</Events>
+								</CheckBoxField>
+							</ChildItems>
+						</UsualGroup>
 						<InputField name="DataPresentation" id="53">
 							<DataPath>DataPresentation</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Data
+presentation</v8:content>
+								</v8:item>
+							</Title>
 							<TitleHeight>2</TitleHeight>
 							<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 							<Wrap>false</Wrap>
@@ -446,6 +597,33 @@
 				</UsualGroup>
 			</ChildItems>
 		</UsualGroup>
+		<InputField name="Comment" id="43">
+			<DataPath>Comment</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Comment</v8:content>
+				</v8:item>
+			</Title>
+			<TitleLocation>Left</TitleLocation>
+			<FooterHorizontalAlign>Left</FooterHorizontalAlign>
+			<Width>45</Width>
+			<AutoMaxWidth>false</AutoMaxWidth>
+			<Height>1</Height>
+			<HorizontalStretch>false</HorizontalStretch>
+			<VerticalStretch>false</VerticalStretch>
+			<Wrap>false</Wrap>
+			<MultiLine>true</MultiLine>
+			<ClearButton>true</ClearButton>
+			<OpenButton>true</OpenButton>
+			<BorderColor>style:BorderColor</BorderColor>
+			<ContextMenu name="CommentContextMenu" id="44"/>
+			<ExtendedTooltip name="CommentExtendedTooltip" id="223"/>
+			<Events>
+				<Event name="OnChange">CommentOnChange</Event>
+				<Event name="EditTextChange">CommentEditTextChange</Event>
+			</Events>
+		</InputField>
 		<UsualGroup name="TransactionsGroup" id="331">
 			<Title>
 				<v8:item>
@@ -512,11 +690,23 @@
 										<Button name="SetStatuses" id="257">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.SelectTransactionStatusesCheckBoxes</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Select all</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="SetStatusesExtendedTooltip" id="258"/>
 										</Button>
 										<Button name="ClearStatuses" id="259">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.ClearTransactionStatuses</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Clear all</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="ClearStatusesExtendedTooltip" id="260"/>
 										</Button>
 									</ChildItems>
@@ -658,6 +848,12 @@
 			<ChildItems>
 				<InputField name="WorkingServers" id="165">
 					<DataPath>WorkingServers</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Production servers</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Left</TitleLocation>
 					<TitleHeight>2</TitleHeight>
 					<Wrap>false</Wrap>
@@ -671,48 +867,39 @@
 				</InputField>
 				<InputField name="PrimaryIPPorts" id="167">
 					<DataPath>PrimaryIPPorts</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Primary IP ports</v8:content>
+						</v8:item>
+					</Title>
 					<TitleHeight>2</TitleHeight>
 					<Wrap>false</Wrap>
 					<ClearButton>true</ClearButton>
 					<BorderColor>style:BorderColor</BorderColor>
 					<ContextMenu name="MainIPPortsContextMenu" id="168"/>
-					<ExtendedTooltip name="MainIPPortsExtendedTooltip" id="228"/>
+					<ExtendedTooltip name="PrimaryIPPortsExtendedTooltip" id="228"/>
 					<Events>
 						<Event name="StartChoice">ChoiceCompletion</Event>
 					</Events>
 				</InputField>
 				<InputField name="SecondaryIPPorts" id="169">
 					<DataPath>SecondaryIPPorts</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Secondary IP ports</v8:content>
+						</v8:item>
+					</Title>
 					<TitleHeight>2</TitleHeight>
 					<Wrap>false</Wrap>
 					<ClearButton>true</ClearButton>
 					<BorderColor>style:BorderColor</BorderColor>
 					<ContextMenu name="AdditionalIPPortsContextMenu" id="170"/>
-					<ExtendedTooltip name="AdditionalIPPortsExtendedTooltip" id="229"/>
+					<ExtendedTooltip name="SecondaryIPPortsExtendedTooltip" id="229"/>
 					<Events>
 						<Event name="StartChoice">ChoiceCompletion</Event>
 					</Events>
-				</InputField>
-				<InputField name="SessionDataSeparation" id="249">
-					<DataPath>SessionDataSeparation</DataPath>
-					<TitleHeight>2</TitleHeight>
-					<ClearButton>true</ClearButton>
-					<ContextMenu name="SessionDataSeparationContextMenu" id="250"/>
-					<ExtendedTooltip name="SessionDataSeparationExtendedTooltip" id="251"/>
-					<Events>
-						<Event name="StartChoice">ChoiceCompletion</Event>
-					</Events>
-				</InputField>
-				<InputField name="Comment" id="43">
-					<DataPath>Comment</DataPath>
-					<TitleLocation>Left</TitleLocation>
-					<FooterHorizontalAlign>Left</FooterHorizontalAlign>
-					<VerticalStretch>false</VerticalStretch>
-					<Wrap>false</Wrap>
-					<MultiLine>true</MultiLine>
-					<BorderColor>style:BorderColor</BorderColor>
-					<ContextMenu name="CommentContextMenu" id="44"/>
-					<ExtendedTooltip name="CommentExtendedTooltip" id="223"/>
 				</InputField>
 			</ChildItems>
 		</UsualGroup>
@@ -860,14 +1047,31 @@
 				</v8:item>
 			</Title>
 			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:Type>xs:dateTime</v8:Type>
+				<v8:Type>xs:decimal</v8:Type>
 				<v8:TypeSet>cfg:AnyRef</v8:TypeSet>
+				<v8:NumberQualifiers>
+					<v8:Digits>10</v8:Digits>
+					<v8:FractionDigits>0</v8:FractionDigits>
+					<v8:AllowedSign>Any</v8:AllowedSign>
+				</v8:NumberQualifiers>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+				<v8:DateQualifiers>
+					<v8:DateFractions>DateTime</v8:DateFractions>
+				</v8:DateQualifiers>
 			</Type>
 		</Attribute>
 		<Attribute name="DataPresentation" id="12">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Data presentation</v8:content>
+					<v8:content>Data
+presentation</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -1098,6 +1302,59 @@
 				<v8:item>
 					<v8:lang>en</v8:lang>
 					<v8:content>Session data separation</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>v8:ValueListType</v8:Type>
+			</Type>
+			<Settings xsi:type="v8:TypeDescription"/>
+		</Attribute>
+		<Attribute name="DataMultipleValues" id="26">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Data multiple values</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="Data_List" id="28">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Data</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>v8:ValueListType</v8:Type>
+			</Type>
+			<Settings xsi:type="v8:TypeDescription">
+				<v8:Type>xs:boolean</v8:Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:Type>xs:dateTime</v8:Type>
+				<v8:Type>xs:decimal</v8:Type>
+				<v8:TypeSet>cfg:AnyRef</v8:TypeSet>
+				<v8:NumberQualifiers>
+					<v8:Digits>10</v8:Digits>
+					<v8:FractionDigits>0</v8:FractionDigits>
+					<v8:AllowedSign>Any</v8:AllowedSign>
+				</v8:NumberQualifiers>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+				<v8:DateQualifiers>
+					<v8:DateFractions>DateTime</v8:DateFractions>
+				</v8:DateQualifiers>
+			</Settings>
+		</Attribute>
+		<Attribute name="DataAreas" id="27">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Data areas</v8:content>
 				</v8:item>
 			</Title>
 			<Type>

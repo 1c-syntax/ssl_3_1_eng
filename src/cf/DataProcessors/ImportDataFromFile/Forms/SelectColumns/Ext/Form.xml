@@ -51,13 +51,19 @@
 						<Type>CommandBarButton</Type>
 						<DefaultButton>true</DefaultButton>
 						<CommandName>Form.Command.Select</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Map</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="FormSelectExtendedTooltip" id="12"/>
 					</Button>
 					<ButtonGroup name="ColumnsList1Group1" id="28">
 						<Title>
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>Column list group1</v8:content>
+								<v8:content>Column group 1</v8:content>
 							</v8:item>
 						</Title>
 						<Representation>Compact</Representation>

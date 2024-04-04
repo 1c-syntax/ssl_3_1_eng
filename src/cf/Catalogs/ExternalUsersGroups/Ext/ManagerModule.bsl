@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -88,6 +89,18 @@ Procedure OnInitialItemsFilling(LanguagesCodes, Items, TabularSections) Export
 	Item.Purpose = TabularSections.Purpose;
 	
 EndProcedure
+
+// 
+// 
+//
+// Returns:
+//  String - 
+//
+Function AllExternalUsersGroupID() Export
+	
+	Return "dce2cab1-46b8-45b8-844b-d10b62597e14";
+	
+EndFunction
 
 #EndRegion
 

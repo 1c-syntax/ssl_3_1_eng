@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -185,7 +186,7 @@ EndFunction
 //        * ShouldExitApp - Boolean - shows that an update is installed when the application is closed.
 //        * FilesOfUpdate - Array of Structure:
 //           ** UpdateFileFullName - String
-//           ** RunUpdateHandlers - Boolean - 
+//           ** RunUpdateHandlers - Boolean - Indicates whether to run the update handlers after migrating to the given version.
 //        * Corrections - Structure:
 //           ** Set - Array - paths to the patch files in a temporary storage
 //                                    .
@@ -347,12 +348,12 @@ EndProcedure
 //
 Procedure BeforeExit(Cancel, Warnings) Export
 	
-	
-	
+	// 
+	// 
 	If ApplicationParameters["StandardSubsystems.SuggestInfobaseUpdateOnExitSession"] = True Then
 		WarningParameters = StandardSubsystemsClient.WarningOnExit();
 		WarningParameters.CheckBoxText  = NStr("en = 'Install configuration update';");
-		WarningParameters.WarningText  = NStr("en = 'Update installation is scheduled';");
+		WarningParameters.WarningText  = NStr("en = 'Update installation is scheduled.';");
 		WarningParameters.Priority = 50;
 		WarningParameters.OutputSingleWarning = True;
 		
@@ -369,6 +370,18 @@ EndProcedure
 #EndRegion
 
 #Region Private
+
+Function VersionsThatRequireSuccessfulUpdate(TransmittedUpdateFiles)
+	FilesOfUpdate = New Array;
+	For Each UpdateFile In TransmittedUpdateFiles Do
+		InformationRecords = New Structure;
+		InformationRecords.Insert("BinaryData", New BinaryData(UpdateFile.UpdateFileFullName));
+		InformationRecords.Insert("Required", UpdateFile.RunUpdateHandlers);
+		FilesOfUpdate.Add(InformationRecords);
+	EndDo;
+	
+	Return ConfigurationUpdateServerCall.VersionsThatRequireSuccessfulUpdate(FilesOfUpdate);
+EndFunction
 
 Function UpdateInstallationPossible(Parameters, AdministrationParameters)
 	
@@ -460,6 +473,9 @@ Function UpdateFilesNames(Parameters, FirstFileOnly = False)
 		If FirstFileOnly = True Then
 			Return ApplicationParameters[ParameterName].NameOfFirstFile;
 		ElsIf FirstFileOnly = False Then
+			If ApplicationParameters[ParameterName].Property("FilesOfUpdate") Then
+				Parameters.Insert("FilesOfUpdate", ApplicationParameters[ParameterName].FilesOfUpdate);
+			EndIf;
 			Return ApplicationParameters[ParameterName].FilesNames;
 		EndIf;
 		Return ApplicationParameters[ParameterName];
@@ -495,8 +511,14 @@ Function UpdateFilesNames(Parameters, FirstFileOnly = False)
 		Return UpdateFilesNames;
 	EndIf;
 	
-	Return New Structure("NameOfFirstFile, FilesNames",
-		NameOfFirstFile, UpdateFilesNames);
+	Result = New Structure;
+	Result.Insert("NameOfFirstFile", NameOfFirstFile);
+	Result.Insert("FilesNames", UpdateFilesNames);
+	If Parameters.Property("FilesOfUpdate") Then
+		Result.Insert("FilesOfUpdate", Parameters.FilesOfUpdate);
+	EndIf;
+	
+	Return Result;
 	
 EndFunction
 
@@ -641,7 +663,7 @@ Procedure CheckForConfigurationUpdate()
 		ShowUserNotification(NStr("en = 'Configuration update';"),
 			"e1cib/app/DataProcessor.InstallUpdates",
 			NStr("en = 'The configuration is different from the main infobase configuration.';"), 
-			PictureLib.Information32);
+			PictureLib.DialogInformation);
 	EndIf;
 	
 #EndIf
@@ -667,22 +689,6 @@ Function JobSchedulerSupported()
 	Return VersionLaterThanVista;
 	
 EndFunction
-
-Procedure WriteEventsToEventLog() Export
-	
-	EventsForEventLog = ApplicationParameters["StandardSubsystems.MessagesForEventLog"];
-	
-	If TypeOf(EventsForEventLog) <> Type("ValueList") Then
-		Return;
-	EndIf;
-	
-	If EventsForEventLog.Count() = 0 Then
-		Return;
-	EndIf;
-	
-	EventLogServerCall.WriteEventsToEventLog(EventsForEventLog);
-	
-EndProcedure
 
 #If Not WebClient And Not MobileClient Then
 
@@ -722,7 +728,7 @@ Procedure ReadDataToEventLog(UpdateResult, ScriptDirectory)
 			
 			Comment = TrimAll(Mid(CurrentRow, StrFind(CurrentRow, "}") + 2));
 			If StrStartsWith(Comment, "UpdateSuccessful") 
-				Or Comment = "RefreshEnabled completed2" Then 
+				Or Comment = "RefreshEnabled completed2" Then // 
 				UpdateResult = True;
 				Continue;
 			ElsIf StrStartsWith(Comment, "UpdateNotExecuted")  
@@ -749,15 +755,15 @@ Procedure ReadDataToEventLog(UpdateResult, ScriptDirectory)
 		
 	EndDo;
 	
-	
 	// 
 	// 
-	
+	// 
+	// 
 	If UpdateResult = Undefined Then 
 		UpdateResult = Not ErrorOccurredDuringUpdate;
 	EndIf;
 	
-	WriteEventsToEventLog();
+	EventLogClient.WriteEventsToEventLog();
 
 EndProcedure
 
@@ -864,9 +870,9 @@ Function GenerateUpdateScriptFiles(Val InteractiveMode, Parameters, Administrati
 	
 	Email = ?(Parameters.UpdateMode = 2 And Parameters.EmailReport, Parameters.Email, "");
 	
-	 
-	
-	
+	//  
+	// 
+	// 
 	TempFilesDirForUpdate = TempFilesDir() + "1Cv8Update." + Format(CommonClient.SessionDate(), "DF=yyMMddHHmmss") + "\";
 	
 	If Parameters.CreateDataBackup = 1 Then 
@@ -927,6 +933,12 @@ Function GenerateUpdateScriptFiles(Val InteractiveMode, Parameters, Administrati
 	ParametersArea = StrReplace(ParametersArea, "[UpdateFilesNames]", UpdateFilesNames(Parameters));
 	ParametersArea = StrReplace(ParametersArea, "[PatchesFilesNames]", PatchesInformation.Set);
 	ParametersArea = StrReplace(ParametersArea, "[DeletedChangesNames]", PatchesInformation.Delete);
+	
+	If Parameters.Property("FilesOfUpdate") Then
+		Parameters.Insert("VersionsThatRequireSuccessfulUpdate", VersionsThatRequireSuccessfulUpdate(Parameters.FilesOfUpdate));
+	Else
+		Parameters.Insert("VersionsThatRequireSuccessfulUpdate", New Array);
+	EndIf;
 	
 	TemplatesTexts.ConfigurationUpdateFileTemplate = ParametersArea + TemplatesTexts.ConfigurationUpdateFileTemplate;
 	TemplatesTexts.Delete("ParametersArea");
@@ -1031,7 +1043,7 @@ EndProcedure
 //  Context - Structure:
 //   * Parameters - See InstallUpdate.Parameters
 //   * AdministrationParameters - See StandardSubsystemsServer.AdministrationParameters.
-//  
+//  Result - Boolean, Undefined
 //
 Procedure RunUpdateScriptAfterUpdateFileChecked(Result, Context) Export
 	
@@ -1096,9 +1108,22 @@ Procedure RunUpdateScriptCompletion(Parameters, AdministrationParameters)
 	MainScriptFileName = GenerateUpdateScriptFiles(True, Parameters, AdministrationParameters);
 	EventLogClient.AddMessageForEventLog(EventLogEvent(), "Information",
 		NStr("en = 'Updating the configuration:';") + " " + MainScriptFileName);
-	ConfigurationUpdateServerCall.WriteUpdateStatus(UserName(), True, False, False,
-		MainScriptFileName, ApplicationParameters["StandardSubsystems.MessagesForEventLog"]);
-		
+	
+	VersionsThatRequireSuccessfulUpdate = New Array;
+	If Parameters.Property("VersionsThatRequireSuccessfulUpdate") Then
+		VersionsThatRequireSuccessfulUpdate = Parameters.VersionsThatRequireSuccessfulUpdate;
+	EndIf;
+	
+	ParametersOfUpdate = ConfigurationUpdateServerCall.ParametersOfUpdate();
+	ParametersOfUpdate.UpdateAdministratorName = UserName();
+	ParametersOfUpdate.UpdateScheduled = True;
+	ParametersOfUpdate.UpdateComplete = False;
+	ParametersOfUpdate.ConfigurationUpdateResult = False;
+	ParametersOfUpdate.MainScriptFileName = MainScriptFileName;
+	ParametersOfUpdate.VersionsThatRequireSuccessfulUpdate = VersionsThatRequireSuccessfulUpdate;
+	ConfigurationUpdateServerCall.WriteUpdateStatus(ParametersOfUpdate,
+		ApplicationParameters["StandardSubsystems.MessagesForEventLog"]);
+	
 	DontStopScenariosExecution();
 	
 	PathToLauncher = StandardSubsystemsClient.SystemApplicationsDirectory() + "mshta.exe";
@@ -1140,7 +1165,12 @@ Procedure ScheduleConfigurationUpdate(Parameters, AdministrationParameters)
 	
 	FileSystemClient.StartApplication(StartupCommand, ApplicationStartupParameters);
 	
-	ConfigurationUpdateServerCall.WriteUpdateStatus(UserName(), True, False, False);
+	ParametersOfUpdate = ConfigurationUpdateServerCall.ParametersOfUpdate();
+	ParametersOfUpdate.UpdateAdministratorName = UserName();
+	ParametersOfUpdate.UpdateScheduled = True;
+	ParametersOfUpdate.UpdateComplete = False;
+	ParametersOfUpdate.ConfigurationUpdateResult = False;
+	ConfigurationUpdateServerCall.WriteUpdateStatus(ParametersOfUpdate);
 	
 EndProcedure
 
@@ -1160,7 +1190,7 @@ Function DesignerBatchModeSupported()
 #Else
 	Designer1 = BinDir() + StandardSubsystemsClient.ApplicationExecutableFileName(True);
 	DesignerFile = New File(Designer1);
-	Return DesignerFile.Exists(); 
+	Return DesignerFile.Exists(); // 
 #EndIf
 	
 EndFunction

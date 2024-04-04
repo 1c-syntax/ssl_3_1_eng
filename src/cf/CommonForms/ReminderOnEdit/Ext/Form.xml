@@ -17,6 +17,12 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.Continue</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Continue</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormContinueExtendedTooltip" id="19"/>
 			</Button>
 			<Button name="FormCancel" id="28">
@@ -114,6 +120,12 @@
 			<ChildItems>
 				<CheckBoxField name="ShowReminderOnEdit" id="2">
 					<DataPath>DontShowAgain</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Do not show again</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Right</TitleLocation>
 					<TitleHeight>1</TitleHeight>
 					<CheckBoxType>Auto</CheckBoxType>
@@ -128,7 +140,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Do not show this message again</v8:content>
+					<v8:content>Do not show again</v8:content>
 				</v8:item>
 			</Title>
 			<Type>

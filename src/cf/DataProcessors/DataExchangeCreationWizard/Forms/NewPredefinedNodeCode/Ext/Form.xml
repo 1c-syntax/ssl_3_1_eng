@@ -14,6 +14,12 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.SetNewCode</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Set new code</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormSetNewCodeExtendedTooltip" id="12"/>
 			</Button>
 		</ChildItems>

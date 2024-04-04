@@ -1,13 +1,23 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #Region Internal
+
+// See ScheduledJobsOverridable.OnDefineScheduledJobSettings
+Procedure OnDefineScheduledJobSettings(Settings) Export
+
+	Setting = Settings.Add();
+	Setting.ScheduledJob = Metadata.ScheduledJobs.PredefinedReportOptionsUpdate;
+	Setting.IsParameterized = True;
+
+EndProcedure
 
 // Properties of the report (spreadsheet document and settings) result for context setup.
 //
@@ -18,7 +28,7 @@
 //     * FieldRoles - See ReportFieldRoles
 //     * FieldsIndex - See IndexOfFieldsInTheReportStructure
 //     * MainField - Array of See MainReportFields
-//     * FinalSettings - DataCompositionSettings - 
+//     * FinalSettings - DataCompositionSettings - See "DataCompositionSettingsComposer" in Syntax Assistant.
 //     * SettingsComposer - DataCompositionSettingsComposer - Without executing the ExpandAutoFields method.
 //     * SettingsComposerWithoutAutoFields - DataCompositionSettingsComposer - After executing the ExpandAutoFields method.
 //     * LayoutsAreDescribed - Boolean
@@ -119,13 +129,11 @@ Procedure InitializeReportHeaders(Form) Export
 	
 EndProcedure
 
-// See NationalLanguageSupportServer.ОбъектыСТЧПредставления
 Procedure OnDefineObjectsWithTablePresentation(Objects) Export
 	Objects.Add("Catalog.ReportsOptions");
 	Objects.Add("Catalog.PredefinedExtensionsReportsOptions");
 EndProcedure
 
-// See NationalLanguageSupportServer.ОбъектыСТЧПредставления
 Procedure OnDefineObjectsWithTablePresentationCommonData(Objects) Export
 	Objects.Add("Catalog.PredefinedReportsOptions");
 EndProcedure
@@ -1324,7 +1332,7 @@ Function MainReportFields(Form)
 	
 	ReportsOverridable.WhenDefiningTheMainFields(Form, MainField);
 	
-	// Local override for a report.
+	// A local report overriding.
 	If Form.ReportSettings.Events.WhenDefiningTheMainFields Then 
 		
 		Report = ReportsServer.ReportObject(Form.ReportSettings.FullName);

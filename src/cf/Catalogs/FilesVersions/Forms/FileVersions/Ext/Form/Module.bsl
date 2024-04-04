@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -71,8 +72,8 @@ Procedure MakeActiveExecute()
 		ShowMessageBox(, NStr("en = 'Cannot change the active version because the file is signed.';"));
 	Else
 		ChangeActiveFileVersion(NewActiveVersion);
-		FileRecordingNotificationParameters = FilesOperationsInternalClient.FileRecordingNotificationParameters("ActiveVersionChanged");
-		Notify("Write_File", FileRecordingNotificationParameters, Parameters.File);
+		FileWriteNotificationParameters = FilesOperationsInternalClient.FileWriteNotificationParameters("ActiveVersionChanged");
+		Notify("Write_File", FileWriteNotificationParameters, Parameters.File);
 	EndIf;
 	
 EndProcedure
@@ -265,24 +266,24 @@ Procedure ChangeActiveFileVersion(Version)
 		
 		VersionLock.Lock();
 		
-		AttributesOfNewVersion = Common.ObjectAttributesValues(Version, "Owner, TextStorage");
+		NewVersionAttributes = Common.ObjectAttributesValues(Version, "Owner, TextStorage");
 		
 		Block = New DataLock;
 		
-		DataLockItem = Block.Add(Metadata.FindByType(TypeOf(AttributesOfNewVersion.Owner)).FullName());
-		DataLockItem.SetValue("Ref", AttributesOfNewVersion.Owner);
+		DataLockItem = Block.Add(Metadata.FindByType(TypeOf(NewVersionAttributes.Owner)).FullName());
+		DataLockItem.SetValue("Ref", NewVersionAttributes.Owner);
 		
 		Block.Lock();
 		
-		LockDataForEdit(AttributesOfNewVersion.Owner, , FileCardUUID);
+		LockDataForEdit(NewVersionAttributes.Owner, , FileCardUUID);
 		LockDataForEdit(Version, , FileCardUUID);
 		
-		FileObject1 = AttributesOfNewVersion.Owner.GetObject();
+		FileObject1 = NewVersionAttributes.Owner.GetObject();
 		If FileObject1.SignedWithDS Then
 			Raise NStr("en = 'Cannot change the active version because the file is signed.';");
 		EndIf;
 		FileObject1.CurrentVersion = Version;
-		FileObject1.TextStorage = AttributesOfNewVersion.TextStorage;
+		FileObject1.TextStorage = NewVersionAttributes.TextStorage;
 		FileObject1.Write();
 		
 		VersionObject = Version.GetObject();

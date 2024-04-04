@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -575,7 +576,7 @@ Procedure AddDeferredHandler(HandlerRow, HandlersNotExecuted, AllHandlersExecute
 	
 	MaximumProductionDurationDays = 0;
 	If ValueIsFilled(DataProcessingCompletion) And ValueIsFilled(DataProcessingStart) Then
-		MaximumProductionDurationDays = DataProcessingCompletion - DataProcessingStart;
+		MaximumProductionDurationDays = (DataProcessingCompletion - DataProcessingStart) * 1000;
 	EndIf;
 	
 	Progress = Undefined;
@@ -780,7 +781,7 @@ Function HandlersToChange(Handler, ProcessedDataTable, Queue, SpeedPriority, Lis
 			CurrentHandler = String.Handler;
 			Continue;
 		EndIf;
-		NewArrayOfHandlersToChange = HandlersToChange(String.Handler, 
+		NewArrayOfHandlersToChange = HandlersToChange(String.Handler, // 
 			ProcessedDataTable,
 			String.Queue,
 			SpeedPriority,

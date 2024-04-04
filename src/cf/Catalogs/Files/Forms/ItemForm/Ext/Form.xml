@@ -56,12 +56,24 @@
 					<Type>CommandBarButton</Type>
 					<DefaultButton>true</DefaultButton>
 					<CommandName>Form.Command.StandardSaveAndClose</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Save and close</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="FormWriteAndCloseExtendedTooltip" id="179"/>
 				</Button>
 				<Button name="FormWrite" id="180" DisplayImportance="Usual">
 					<Type>CommandBarButton</Type>
 					<Representation>Text</Representation>
 					<CommandName>Form.Command.StandardWrite</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Save</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="FormWriteExtendedTooltip" id="181"/>
 				</Button>
 				<Button name="FormCopy" id="219" DisplayImportance="Usual">
@@ -72,6 +84,12 @@
 				<Button name="FormShowInList" id="149" DisplayImportance="Usual">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.ShowInList</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Show in list</v8:content>
+						</v8:item>
+					</Title>
 					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 					<ExtendedTooltip name="FormShowInListExtendedTooltip" id="150"/>
 				</Button>
@@ -92,11 +110,23 @@
 						<Button name="Print" id="215">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.Print</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Quick print</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="PrintExtendedTooltip" id="216"/>
 						</Button>
 						<Button name="PrintWithStamp" id="217">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.PrintWithStamp</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>With digital signature stamp…</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="PrintWithStampExtendedTooltip" id="218"/>
 						</Button>
 					</ChildItems>
@@ -121,6 +151,12 @@
 				<Button name="FormSend" id="211" DisplayImportance="Usual">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.Send</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Send</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="FormSendExtendedTooltip" id="212"/>
 				</Button>
 				<Popup name="FormDigitalSignatureAndEncryptionCommandsGroup" id="17" DisplayImportance="VeryLow">
@@ -155,16 +191,34 @@
 								<Button name="FormSign" id="19">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.Sign</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Sign…</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="FormSignExtendedTooltip" id="71"/>
 								</Button>
 								<Button name="FormAddSignatureFromFile" id="20">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.AddDSFromFile</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Add digital signature from file…</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="FormAddSignatureFromFileExtendedTooltip" id="72"/>
 								</Button>
 								<Button name="FormSaveWithSignature" id="21">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.SaveWithDigitalSignature</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Save with digital signature…</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="FormSaveWithSignatureExtendedTooltip" id="73"/>
 								</Button>
 							</ChildItems>
@@ -181,11 +235,23 @@
 								<Button name="FormEncrypt" id="22">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.Encrypt</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Encrypt…</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="FormEncryptExtendedTooltip" id="75"/>
 								</Button>
 								<Button name="FormDecrypt" id="23">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.Decrypt</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Decrypt…</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="FormDecryptExtendedTooltip" id="76"/>
 								</Button>
 							</ChildItems>
@@ -204,12 +270,24 @@
 						<Button name="FormStandardSetDeletionMark" id="5" DisplayImportance="High">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.StandardSetDeletionMark</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Toggle deletion mark</v8:content>
+								</v8:item>
+							</Title>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-							<ExtendedTooltip name="FormStandardCommandsSetDeletionMarkExtendedTooltip" id="61"/>
+							<ExtendedTooltip name="FormStandardSetDeletionMarkExtendedTooltip" id="61"/>
 						</Button>
 						<Button name="FormDelete" id="287">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.Delete</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Delete</v8:content>
+								</v8:item>
+							</Title>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 							<ExtendedTooltip name="FormDeleteExtendedTooltip" id="288"/>
 						</Button>
@@ -234,30 +312,60 @@
 						<Button name="FormSaveAs" id="12">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.SaveAs</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Save as…</v8:content>
+								</v8:item>
+							</Title>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 							<ExtendedTooltip name="FormSaveAsExtendedTooltip" id="67"/>
 						</Button>
 						<Button name="FormLock" id="237">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.Lock</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Lock</v8:content>
+								</v8:item>
+							</Title>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 							<ExtendedTooltip name="FormLockExtendedTooltip" id="238"/>
 						</Button>
 						<Button name="FormUnlock" id="16">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.Release</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Undo edits</v8:content>
+								</v8:item>
+							</Title>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-							<ExtendedTooltip name="FormUnlockExtendedTooltip" id="66"/>
+							<ExtendedTooltip name="FormReleaseExtendedTooltip" id="66"/>
 						</Button>
 						<Button name="FormUpdateFromFileOnHardDrive" id="24">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.UpdateFromFileOnHardDrive</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Update from local file…</v8:content>
+								</v8:item>
+							</Title>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 							<ExtendedTooltip name="FormUpdateFromFileOnHardDriveExtendedTooltip" id="68"/>
 						</Button>
 						<Button name="FormOpenFileDirectory" id="13">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.OpenFileDirectory</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Open file directory</v8:content>
+								</v8:item>
+							</Title>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 							<ExtendedTooltip name="FormOpenFileDirectoryExtendedTooltip" id="69"/>
 						</Button>
@@ -399,26 +507,56 @@
 							<Type>UsualButton</Type>
 							<Representation>PictureAndText</Representation>
 							<CommandName>Form.Command.OpenFileForViewing</CommandName>
-							<ExtendedTooltip name="FormOpenFileToViewExtendedTooltip" id="63"/>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>View</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="FormOpenFileForViewingExtendedTooltip" id="63"/>
 						</Button>
 						<Button name="Edit" id="160">
 							<Type>UsualButton</Type>
 							<CommandName>Form.Command.Edit</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Edit</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="EditExtendedTooltip" id="161"/>
 						</Button>
 						<Button name="EndEdit" id="162">
 							<Type>UsualButton</Type>
 							<CommandName>Form.Command.EndEdit</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Commit</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="EndEditExtendedTooltip" id="163"/>
 						</Button>
 						<Button name="SaveChanges" id="164">
 							<Type>UsualButton</Type>
 							<CommandName>Form.Command.SaveChanges</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Save changes</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="SaveChangesExtendedTooltip" id="165"/>
 						</Button>
 						<Button name="SaveAs" id="166">
 							<Type>UsualButton</Type>
 							<CommandName>Form.Command.SaveAs</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Save as…</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="SaveAsExtendedTooltip" id="167"/>
 						</Button>
 					</ChildItems>
@@ -596,6 +734,12 @@
 								</UsualGroup>
 								<LabelField name="FileEncoding" id="278">
 									<DataPath>Encoding</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Encoding</v8:content>
+										</v8:item>
+									</Title>
 									<ContextMenu name="FileEncodingContextMenu" id="279"/>
 									<ExtendedTooltip name="FileEncodingExtendedTooltip" id="280"/>
 								</LabelField>
@@ -628,13 +772,13 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>File properties</v8:content>
+							<v8:content>File info</v8:content>
 						</v8:item>
 					</Title>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>File properties</v8:content>
+							<v8:content>File info</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Group>HorizontalIfPossible</Group>
@@ -881,6 +1025,12 @@
 								</UsualGroup>
 								<LabelField name="Encoding" id="187">
 									<DataPath>Encoding</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Encoding</v8:content>
+										</v8:item>
+									</Title>
 									<ContextMenu name="EncodingContextMenu" id="188"/>
 									<ExtendedTooltip name="EncodingExtendedTooltip" id="189"/>
 								</LabelField>
@@ -936,36 +1086,89 @@
 									<Button name="DigitalSignaturesSign" id="43" DisplayImportance="VeryHigh">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.Sign</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Sign…</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="DigitalSignaturesSignExtendedTooltip" id="83"/>
 									</Button>
 									<Button name="DigitalSignaturesOpen" id="44" DisplayImportance="VeryLow">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.OpenSignature</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Open</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="DigitalSignaturesOpenExtendedTooltip" id="84"/>
 									</Button>
 									<Button name="DigitalSignaturesCheck" id="46" DisplayImportance="VeryLow">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.VerifyDigitalSignature</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Verify</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="DigitalSignaturesCheckExtendedTooltip" id="85"/>
 									</Button>
 									<Button name="DigitalSignaturesCheckAll" id="47" DisplayImportance="VeryLow">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.CheckEverything</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Verify all</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="DigitalSignaturesCheckAllExtendedTooltip" id="86"/>
 									</Button>
 									<Button name="DigitalSignaturesDelete" id="45" DisplayImportance="VeryLow">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.DeleteDS</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Delete</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="DigitalSignaturesDeleteExtendedTooltip" id="88"/>
 									</Button>
 									<Button name="DigitalSignaturesSave" id="48" DisplayImportance="VeryLow">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.SaveSignature</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Save…</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="DigitalSignaturesSaveExtendedTooltip" id="87"/>
+									</Button>
+									<Button name="DigitalSignaturesMarkAsManuallyVerified" id="326">
+										<Type>CommandBarButton</Type>
+										<CommandName>Form.Command.MarkAsManuallyVerified</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Verified manually…</v8:content>
+											</v8:item>
+										</Title>
+										<ExtendedTooltip name="DigitalSignaturesMarkAsManuallyVerifiedExtendedTooltip" id="327"/>
 									</Button>
 									<Button name="DigitalSignaturesExtendActionSignatures" id="298">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.ExtendActionSignatures</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Renew signature…</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="DigitalSignaturesExtendActionSignaturesExtendedTooltip" id="299"/>
 									</Button>
 									<SearchStringAddition name="SearchStringDigitalSignatures" id="300">
@@ -1015,6 +1218,12 @@
 							<ChildItems>
 								<InputField name="DigitalSignaturesCertificateOwner" id="35">
 									<DataPath>DigitalSignatures.CertificateOwner</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Signed by</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<Height>2</Height>
 									<ContextMenu name="DigitalSignaturesCertificateOwner1ContextMenu" id="36"/>
@@ -1022,12 +1231,24 @@
 								</InputField>
 								<InputField name="DigitalSignaturesSignatureDate" id="37">
 									<DataPath>DigitalSignatures.SignatureDate</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Date signed</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ContextMenu name="DigitalSignaturesSignatureDateContextMenu" id="38"/>
 									<ExtendedTooltip name="DigitalSignaturesSignatureDateExtendedTooltip" id="91"/>
 								</InputField>
 								<InputField name="DigitalSignaturesSignatureType" id="295">
 									<DataPath>DigitalSignatures.SignatureType</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Signature type</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ContextMenu name="DigitalSignaturesSignatureTypeContextMenu" id="296"/>
 									<ExtendedTooltip name="DigitalSignaturesSignatureTypeExtendedTooltip" id="297"/>
@@ -1042,24 +1263,25 @@
 									<Group>InCell</Group>
 									<ExtendedTooltip name="DigitalSignaturesCheck1ExtendedTooltip" id="155"/>
 									<ChildItems>
-										<InputField name="DigitalSignaturesStatus" id="41">
-											<DataPath>DigitalSignatures.Status</DataPath>
-											<EditMode>EnterOnInput</EditMode>
-											<Width>10</Width>
-											<Height>2</Height>
-											<ContextMenu name="DigitalSignaturesStatusContextMenu" id="42"/>
-											<ExtendedTooltip name="DigitalSignaturesStatusExtendedTooltip" id="93"/>
-										</InputField>
-										<InputField name="DigitalSignaturesErrorDescription" id="193">
-											<DataPath>DigitalSignatures.ErrorDescription</DataPath>
-											<TitleLocation>None</TitleLocation>
-											<EditMode>EnterOnInput</EditMode>
-											<AutoMaxHeight>false</AutoMaxHeight>
-											<ContextMenu name="DigitalSignaturesErrorDescriptionContextMenu" id="194"/>
-											<ExtendedTooltip name="DigitalSignaturesErrorDescriptionExtendedTooltip" id="195"/>
+										<InputField name="DigitalSignaturesBriefCheckResult" id="323">
+											<DataPath>DigitalSignatures.BriefCheckResult</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Status</v8:content>
+												</v8:item>
+											</Title>
+											<ContextMenu name="DigitalSignaturesBriefCheckResultContextMenu" id="324"/>
+											<ExtendedTooltip name="DigitalSignaturesBriefCheckResultExtendedTooltip" id="325"/>
 										</InputField>
 										<InputField name="DigitalSignaturesSignatureValidationDate" id="151">
 											<DataPath>DigitalSignatures.SignatureValidationDate</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Date verified</v8:content>
+												</v8:item>
+											</Title>
 											<EditMode>EnterOnInput</EditMode>
 											<AutoCellHeight>true</AutoCellHeight>
 											<Width>10</Width>
@@ -1068,6 +1290,12 @@
 										</InputField>
 										<InputField name="DigitalSignaturesMachineReadableLetterOfAuthority" id="315">
 											<DataPath>DigitalSignatures.MachineReadableLetterOfAuthority</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Machine-readable letter of authority</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<ShowInHeader>false</ShowInHeader>
 											<AutoMaxHeight>false</AutoMaxHeight>
@@ -1078,6 +1306,12 @@
 								</ColumnGroup>
 								<InputField name="DigitalSignaturesComment" id="39">
 									<DataPath>DigitalSignatures.Comment</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Comment</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<Height>2</Height>
 									<ContextMenu name="DigitalSignaturesCommentContextMenu" id="40"/>
@@ -1086,6 +1320,12 @@
 								<CheckBoxField name="DigitalSignaturesIsVerificationRequired" id="306">
 									<DataPath>DigitalSignatures.IsVerificationRequired</DataPath>
 									<Visible>false</Visible>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Verification required</v8:content>
+										</v8:item>
+									</Title>
 									<CheckBoxType>Auto</CheckBoxType>
 									<ContextMenu name="DigitalSignaturesIsVerificationRequiredContextMenu" id="307"/>
 									<ExtendedTooltip name="DigitalSignaturesIsVerificationRequiredExtendedTooltip" id="308"/>
@@ -1097,7 +1337,7 @@
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>How to troubleshoot common issues with digital signature applications</v8:content>
+									<v8:content>Troubleshooting issues with digital signing apps</v8:content>
 								</v8:item>
 							</Title>
 							<Hyperlink>true</Hyperlink>
@@ -1159,6 +1399,12 @@
 									<Button name="EncryptionCertificatesOpen" id="54">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.OpenEncryptionCertificate</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Open certificate</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="EncryptionCertificatesOpenExtendedTooltip" id="95"/>
 									</Button>
 									<SearchStringAddition name="SearchStringEncryptionCertificates" id="303">
@@ -1208,6 +1454,12 @@
 							<ChildItems>
 								<InputField name="EncryptionCertificatesPresentation" id="55">
 									<DataPath>EncryptionCertificates.Presentation</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Presentation</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ContextMenu name="EncryptionCertificatesPresentationContextMenu" id="56"/>
 									<ExtendedTooltip name="EncryptionCertificatesPresentationExtendedTooltip" id="97"/>
@@ -1319,21 +1571,6 @@
 						</v8:StringQualifiers>
 					</Type>
 				</Column>
-				<Column name="Status" id="4">
-					<Title>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Status</v8:content>
-						</v8:item>
-					</Title>
-					<Type>
-						<v8:Type>xs:string</v8:Type>
-						<v8:StringQualifiers>
-							<v8:Length>0</v8:Length>
-							<v8:AllowedLength>Variable</v8:AllowedLength>
-						</v8:StringQualifiers>
-					</Type>
-				</Column>
 				<Column name="Object" id="5">
 					<Type>
 						<v8:TypeSet>cfg:AnyRef</v8:TypeSet>
@@ -1400,21 +1637,6 @@
 						</v8:NumberQualifiers>
 					</Type>
 				</Column>
-				<Column name="ErrorDescription" id="13">
-					<Title>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Error details</v8:content>
-						</v8:item>
-					</Title>
-					<Type>
-						<v8:Type>xs:string</v8:Type>
-						<v8:StringQualifiers>
-							<v8:Length>0</v8:Length>
-							<v8:AllowedLength>Variable</v8:AllowedLength>
-						</v8:StringQualifiers>
-					</Type>
-				</Column>
 				<Column name="SignatureType" id="14">
 					<Title>
 						<v8:item>
@@ -1463,9 +1685,27 @@
 					</Title>
 					<Type/>
 				</Column>
-				<Column name="MachineReadableAuthorizationLetterIsCorrect" id="25">
+				<Column name="MachineReadableLOAValid" id="25">
 					<Type>
 						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Column>
+				<Column name="CheckResult" id="35">
+					<Type/>
+				</Column>
+				<Column name="BriefCheckResult" id="37">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Brief check result</v8:content>
+						</v8:item>
+					</Title>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
 					</Type>
 				</Column>
 			</Columns>
@@ -1777,7 +2017,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Cancel editing</v8:content>
+					<v8:content>Undo edits</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
@@ -1866,7 +2106,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Update from local file...</v8:content>
+					<v8:content>Update from local file…</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
@@ -2131,6 +2371,15 @@
 			</ToolTip>
 			<Action>ExtendActionSignatures</Action>
 		</Command>
+		<Command name="MarkAsManuallyVerified" id="30">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Verified manually…</v8:content>
+				</v8:item>
+			</Title>
+			<Action>MarkAsManuallyVerified</Action>
+		</Command>
 	</Commands>
 	<Parameters>
 		<Parameter name="Key">
@@ -2186,20 +2435,7 @@
 	<CommandInterface>
 		<NavigationPanel>
 			<Item>
-				<Command>0</Command>
-				<Type>Added</Type>
-				<CommandGroup>FormNavigationPanelGoTo</CommandGroup>
-				<DefaultVisible>false</DefaultVisible>
-			</Item>
-			<Item>
-				<Command>0</Command>
-				<Type>Added</Type>
-				<CommandGroup>FormNavigationPanelGoTo</CommandGroup>
-				<Index>1</Index>
-				<DefaultVisible>false</DefaultVisible>
-			</Item>
-			<Item>
-				<Command>InformationRegister.BinaryFilesData.StandardCommand.OpenByValue.File</Command>
+				<Command>InformationRegister.DeleteFilesBinaryData.StandardCommand.OpenByValue.File</Command>
 				<Type>Auto</Type>
 				<CommandGroup>FormNavigationPanelGoTo</CommandGroup>
 				<Index>2</Index>
@@ -2207,13 +2443,6 @@
 				<Visible>
 					<xr:Common>false</xr:Common>
 				</Visible>
-			</Item>
-			<Item>
-				<Command>0</Command>
-				<Type>Added</Type>
-				<CommandGroup>FormNavigationPanelGoTo</CommandGroup>
-				<Index>3</Index>
-				<DefaultVisible>false</DefaultVisible>
 			</Item>
 		</NavigationPanel>
 	</CommandInterface>

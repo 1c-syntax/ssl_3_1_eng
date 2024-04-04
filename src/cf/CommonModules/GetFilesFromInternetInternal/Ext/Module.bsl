@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -38,8 +39,8 @@ Procedure OnFillPermissionsToAccessExternalResources(PermissionsRequests) Export
 	
 	Permissions = New Array();
 	
-	
-	
+	// 
+	// 
 	If Common.IsWindowsServer() Then
 		Permissions.Add(ModuleSafeModeManager.PermissionToUseOperatingSystemApplications("cmd /S /C ""%(ping %)%""",
 			NStr("en = 'Permission for ping';", Common.DefaultLanguageCode())));
@@ -69,7 +70,7 @@ EndProcedure
 Procedure SaveServerProxySettings(Val Settings) Export
 	
 	If Not Users.IsFullUser(, True) Then
-		Raise(NStr("en = 'Insufficient rights to perform the operation.';"));
+		Raise(NStr("en = 'Insufficient rights to perform the operation.';"), ErrorCategory.AccessViolation);
 	EndIf;
 	
 	SetPrivilegedMode(True);
@@ -99,6 +100,8 @@ EndProcedure
 //                                             that the connection must be passive (or active).
 //    * Headers                    - Map - see the details of the Headers parameter of the HTTPRequest object.
 //    * UseOSAuthentication - Boolean - see the details of the UseOSAuthentication parameter of the HTTPConnection object.
+//    * IsPackageDeliveryCheckOnErrorEnabled - See GetFilesFromInternet.ConnectionDiagnostics.IsPackageDeliveryCheckEnabled.
+//    
 //
 //   SavingSetting - Map - contains parameters to save the downloaded file. Keys:
 //                 StorageLocation - String - can include
@@ -141,34 +144,36 @@ EndFunction
 //
 // Parameters:
 //   URL - String - file URL in the following format: [Protocol://]<Server>/<Path to the file on the server>.
+//   
+// SavingSetting - Map - contains parameters to save the downloaded file.
+//		StorageLocation - String - Valid values are
+//			"Server" - A server.
+//			"TemporaryStorage" - A temporary storage.
+//		Path - String - (Optional) Either the path to a folder at the client or at the server
+//			or the address in a temporary storage. If not specified, it will be generated automatically.
 //
 // ConnectionSetting - Map -
-//		SecureConnection* — boolean — secure connection.
-//		PassiveConnection* — boolean — secure connection.
-//		User — string — a user that established the connection.
-//		Password — string — a password of the user that established the connection.
-//		Port — number — a port used for connecting to the server.
-//		* — mutually exclusive keys.
+//		SecureConnection* - Boolean - Secure connection.
+//		PassiveConnection* - Boolean - Secure connection.
+//		User - String - User that established the connection.
+//		Password - String - Password of the user that established the connection.
+//		Port - Number - Port used for connecting to the server.
+//		... - See GetFilesFromInternet.ConnectionDiagnostics.IsPackageDeliveryCheckEnabled
+//		* - Mutually exclusive keys.
 //
 // ProxySettings - Map of KeyAndValue:
 //     * Key - String
 //     * Value - Arbitrary
-//    Keys:
-//		# UseProxy - Boolean - indicates whether to use the proxy server.
-//		# BypassProxyOnLocal - indicates whether to use the proxy server for local addresses.
-//		# UseSystemSettings - Boolean - indicates whether to use system settings of the proxy server.
+//    Keys are:
+//		# UseProxy - Boolean - Indicates whether to use the proxy server.
+//		# BypassProxyOnLocal - Boolean - Indicates whether to use the proxy server for local addresses.
+//		# UseSystemSettings - Boolean - Indicates whether to use the system settings of the proxy server.
 //		# Server - String - a proxy server address.
-//		# Port - String - a proxy server port.
-//		# User - String - a username to authorize on the proxy server.
-//		# Password - String - a user password.
-//		# UseOSAuthentication - Boolean - indicates that authentication by operating system is used.
+//		# Port - Number - Proxy server port.
+//		# User - String - Username for authorization on the proxy server.
+//		# Password - String - User password.
+//		
 //
-// SavingSetting - Map - contains parameters to save the downloaded file.
-//		StorageLocation - String - can include
-//			"Server" - server,
-//			"TemporaryStorage" - a temporary storage.
-//		Path - String (optional parameter) - a path to a directory on the client or on the server,
-//			or an address in the temporary storage, will be automatically generated if not set.
 //
 // Returns:
 //   Structure:
@@ -196,6 +201,7 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 	UserPassword   = ConnectionSetting.Password;
 	Port                 = ConnectionSetting.Port;
 	Timeout              = ConnectionSetting.Timeout;
+	IsPackageDeliveryCheckOnErrorEnabled = ConnectionSetting.IsPackageDeliveryCheckOnErrorEnabled;
 	
 	If (Protocol = "https" Or Protocol = "ftps") And SecureConnection = Undefined Then
 		SecureConnection = True;
@@ -221,7 +227,7 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 	If SavingSetting["Path"] <> Undefined Then
 		PathForSaving = SavingSetting["Path"];
 	Else
-		PathForSaving = GetTempFileName(); 
+		PathForSaving = GetTempFileName(); // 
 	EndIf;
 	
 	If Timeout = Undefined Then 
@@ -251,7 +257,7 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 					SecureConnectionUsageLevel);
 				
 				FileSize = FTPFileSize1(Join, PathAtServer);
-				Timeout = TimeoutByFileSize(FileSize);
+				Timeout = GetFilesFromInternet.FileImportTimeout(FileSize);
 				
 			EndIf;
 			
@@ -273,7 +279,8 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 			
 		Except
 			
-			DiagnosticsResult = GetFilesFromInternet.ConnectionDiagnostics(URL, WriteError1);
+			DiagnosticsResult = GetFilesFromInternet.ConnectionDiagnostics(URL, WriteError1, 
+				IsPackageDeliveryCheckOnErrorEnabled);
 			
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot get file %1 from server %2:%3.
@@ -323,7 +330,7 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 					UseOSAuthentication);
 				
 				FileSize = HTTPFileSize(Join, PathAtServer, Headers);
-				Timeout = TimeoutByFileSize(FileSize);
+				Timeout = GetFilesFromInternet.FileImportTimeout(FileSize);
 				
 			EndIf;
 			
@@ -347,7 +354,8 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 			
 		Except
 			
-			DiagnosticsResult = GetFilesFromInternet.ConnectionDiagnostics(URL, WriteError1);
+			DiagnosticsResult = GetFilesFromInternet.ConnectionDiagnostics(URL, WriteError1,
+				IsPackageDeliveryCheckOnErrorEnabled);
 			
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot establish HTTP connection to server %1:%2.
@@ -593,19 +601,6 @@ Function FTPFileSize1(FTPConnection, Val PathAtServer)
 	
 EndFunction
 
-Function TimeoutByFileSize(Size)
-	
-	BytesInMegabyte = 1048576;
-	
-	If Size > BytesInMegabyte Then
-		SecondsCount = Round(Size / BytesInMegabyte * 128);
-		Return ?(SecondsCount > 43200, 43200, SecondsCount);
-	EndIf;
-	
-	Return 128;
-	
-EndFunction
-
 Function HTTPConnectionCodeDetails(StatusCode)
 	
 	If StatusCode = 304 Then // Not Modified
@@ -656,7 +651,7 @@ Function HTTPConnectionCodeDetails(StatusCode)
 		Details = NStr("en = 'The server received an invalid response from the upstream server
 		                         |while acting as a gateway or proxy server.';");
 	ElsIf StatusCode = 503 Then // Server Unavailable
-		Details = NStr("en = 'The server is temporarily unavailable.';");
+		Details = NStr("en = 'Server is temporarily unavailable.';");
 	ElsIf StatusCode = 504 Then // Gateway Timeout
 		Details = NStr("en = 'The server did not receive a timely response from the upstream server
 		                         |while acting as a gateway or proxy server.';");
@@ -1034,13 +1029,13 @@ Function CheckServerAvailability(ServerAddress) Export
 		Return Result; 
 	EndTry;	
 	
-	
+	// 
 	// 
 	// 
 	AvailabilityLog = RunResult.OutputStream + RunResult.ErrorStream;
 	
 	If Common.IsWindowsServer() Then
-		Available = StrFind(AvailabilityLog, "Destination host unreachable") = 0 
+		Available = StrFind(AvailabilityLog, "Destination host unreachable") = 0 // Do not localize.
 			And (StrFind(AvailabilityLog, "(0% loss)") > 0 // Do not localize.
 			Or StrFind(AvailabilityLog, "(25% loss)") > 0); // Do not localize.
 	Else 
@@ -1080,9 +1075,9 @@ Function ServerRouteTraceLog(ServerAddress) Export
 	If Common.IsWindowsServer() Then
 		CommandTemplate = "tracert -w 100 -h 15 %1";
 	Else 
-		
-		
-		
+		// 
+		// 
+		// 
 		CommandTemplate = "traceroute -w 100 -m 100 %1";
 	EndIf;
 	

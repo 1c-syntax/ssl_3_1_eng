@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -114,8 +115,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	Items.Language.Enabled = (IsPrintForm Or AvailableTranslationLayout) And ValueIsFilled(IdentifierOfTemplate);
+	Items.LanguageAllActions.Enabled = Items.Language.Enabled;
 	
 	Items.Translate.Visible = AutomaticTranslationAvailable;
+	Items.TranslateAllActions.Visible = Items.Translate.Visible;
 	
 	If Common.IsMobileClient() Then
 		CommonClientServer.SetFormItemProperty(Items, "CommandBar", "Visible", False);
@@ -296,7 +299,7 @@ EndProcedure
 
 #Region FormCommandsEventHandlers
 
-
+// 
 
 &AtClient
 Procedure WriteAndClose(Command)
@@ -369,7 +372,7 @@ Procedure ChangeFont(Command)
 	
 EndProcedure
 
-
+// 
 
 &AtClient
 Procedure IncreaseFontSize(Command)
@@ -377,7 +380,7 @@ Procedure IncreaseFontSize(Command)
 	For Each Area In AreaListForChangingFont() Do
 		Size = Area.Font.Size;
 		Size = Size + IncreaseFontSizeChangeStep(Size);
-		Area.Font = New Font(Area.Font,,Size); 
+		Area.Font = New Font(Area.Font,,Size); // 
 	EndDo;
 	
 EndProcedure
@@ -391,7 +394,7 @@ Procedure DecreaseFontSize(Command)
 		If Size < 1 Then
 			Size = 1;
 		EndIf;
-		Area.Font = New Font(Area.Font,,Size); 
+		Area.Font = New Font(Area.Font,,Size); // 
 	EndDo;
 	
 EndProcedure
@@ -404,7 +407,7 @@ Procedure Strikeout(Command)
 		If ValueToSet = Undefined Then
 			ValueToSet = Not Area.Font.Strikeout = True;
 		EndIf;
-		Area.Font = New Font(Area.Font,,,,,,ValueToSet); 
+		Area.Font = New Font(Area.Font,,,,,,ValueToSet); // 
 	EndDo;
 	
 	UpdateCommandBarButtonMarks();
@@ -1311,7 +1314,7 @@ Procedure SpreadsheetDocumentDrag(Item, DragParameters, StandardProcessing, Area
 		
 		If StandardProcessing Then
 			StandardProcessing = False;
-			Area = SpreadsheetDocument.Area(Area.Top, Area.Left); 
+			Area = SpreadsheetDocument.Area(Area.Top, Area.Left); // Get the area of the merged cells.
 			Area.Text = ?(ValueIsFilled(Area.Text), TrimR(Area.Text) + " ", "") + DragParameters.Value;
 		EndIf;
 	EndIf;
@@ -1947,7 +1950,7 @@ Procedure Attachable_SearchStringClearing(Item, StandardProcessing)
 EndProcedure
 
 &AtServer
-Procedure Attachable_FormulaEditorHandlerServer(Parameter, AdditionalParameters)
+Procedure Attachable_FormulaEditorHandlerServer(Val Parameter, Val AdditionalParameters)
 	If Common.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
 		ModuleConstructorFormula = Common.CommonModule("FormulasConstructor");
 		ModuleConstructorFormula.FormulaEditorHandler(ThisObject, Parameter, AdditionalParameters);
@@ -1960,7 +1963,7 @@ Procedure Attachable_FormulaEditorHandlerServer(Parameter, AdditionalParameters)
 EndProcedure
 
 &AtClient
-Procedure Attachable_FormulaEditorHandlerClient(Parameter, AdditionalParameters = Undefined) Export 
+Procedure Attachable_FormulaEditorHandlerClient(Parameter, AdditionalParameters = Undefined) Export // ACC:78 - Procedure is called from FormulaConstructorClient.StartSearchInFieldsList.
 	If CommonClient.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
 		ModuleConstructorFormulaClient = CommonClient.CommonModule("FormulasConstructorClient");
 		ModuleConstructorFormulaClient.FormulaEditorHandler(ThisObject, Parameter, AdditionalParameters);
@@ -2050,9 +2053,9 @@ Procedure Attachable_OperatorsDragStart(Item, DragParameters, Perform)
 		Operator = ModuleConstructorFormulaClient.TheSelectedFieldInTheFieldList(ThisObject, NameOfTheListOfOperators());
 		DragParameters.Value = ModuleConstructorFormulaClient.ExpressionToInsert(Operator);
 		If Operator.DataPath = "PrintControl_NumberofLines" Then
-			PresentationOfCurrentTable = PresentationOfCurrentTable();
-			Perform = PresentationOfCurrentTable <> Undefined;
-			DragParameters.Value = StrReplace(DragParameters.Value, "()", "(["+PresentationOfCurrentTable+"])");
+			CurrentTablePresentation = CurrentTablePresentation();
+			Perform = CurrentTablePresentation <> Undefined;
+			DragParameters.Value = StrReplace(DragParameters.Value, "()", "(["+CurrentTablePresentation+"])");
 		EndIf;
 	EndIf;
 	
@@ -2126,7 +2129,7 @@ Procedure SetValAfterDragging()
 EndProcedure
 
 &AtClient
-Function PresentationOfCurrentTable()
+Function CurrentTablePresentation()
 	For Each AttachedFieldList In ThisObject["ConnectedFieldLists"] Do
 		If AttachedFieldList.NameOfTheFieldList <> NameOfTheListOfOperators() Then
 			If Items[AttachedFieldList.NameOfTheFieldList].CurrentData <> Undefined
@@ -2204,7 +2207,7 @@ Function PrepareLayoutForRecording(SetLanguageCode = True, Cancel = False)
 	For Each Area In Template.Areas Do
 		If TypeOf(Area) = Type("SpreadsheetDocumentRange")
 			And Area.AreaType = SpreadsheetDocumentCellAreaType.Rows Then
-			ReplaceViewParameters(Area.DetailsParameter, , Cancel, Area.Name);
+			Area.DetailsParameter = TheFormulaFromTheView(Area.DetailsParameter);
 		EndIf;
 	EndDo;
 	
@@ -2300,6 +2303,18 @@ Function FormulasFromText(Val Text)
 EndFunction
 
 &AtServer
+Function TheFormulaFromTheView(Presentation)
+	
+	If Common.SubsystemExists("StandardSubsystems.Print") Then
+		ModulePrintManager = Common.CommonModule("PrintManagement");
+		Return ModulePrintManager.TheFormulaFromTheView(ThisObject, Presentation);
+	EndIf;
+	
+	Return Presentation;
+	
+EndFunction
+
+&AtServer
 Function RepresentationTextParameters(Val Text)
 	
 	Result = New Map();
@@ -2360,7 +2375,7 @@ Function ReadLayout(BinaryData = Undefined)
 	For Each Area In Template.Areas Do
 		If TypeOf(Area) = Type("SpreadsheetDocumentRange")
 			And Area.AreaType = SpreadsheetDocumentCellAreaType.Rows Then
-			ReplaceParametersWithViews(Area.DetailsParameter);
+			Area.DetailsParameter = FormulaPresentation(Area.DetailsParameter);
 		EndIf;
 	EndDo;
 	
@@ -2381,6 +2396,18 @@ Procedure ReplaceParametersWithViews(String)
 	
 EndProcedure
 
+&AtServer
+Function FormulaPresentation(Val Formula)
+	
+	If Common.SubsystemExists("StandardSubsystems.Print") Then
+		ModulePrintManager = Common.CommonModule("PrintManagement");
+		Return ModulePrintManager.FormulaPresentation(ThisObject, Formula);
+	EndIf;
+	
+	Return Formula;
+	
+EndFunction
+
 // Returns:
 //  SpreadsheetDocument
 //
@@ -2391,7 +2418,10 @@ Function CopySpreadsheetDocument(SpreadsheetDocument, LanguageCode)
 	Result.Template = SpreadsheetDocument.Template;
 	Result.LanguageCode = LanguageCode;
 	Result.Put(SpreadsheetDocument);
-
+	
+	SystemInfo = New SystemInfo;
+	HasRowsFormat = CommonClientServer.CompareVersions(SystemInfo.AppVersion, "8.3.22.1923") >= 0;
+	
 	ProcessedCells = New Map;
 	For LineNumber = 1 To SpreadsheetDocument.TableHeight Do
 		For ColumnNumber = 1 To SpreadsheetDocument.TableWidth Do
@@ -2411,7 +2441,7 @@ Function CopySpreadsheetDocument(SpreadsheetDocument, LanguageCode)
 			EndIf;
 			
 			Cell = Result.Area(LineNumber, ColumnNumber, LineNumber, ColumnNumber);
-			FillPropertyValues(Cell, CellToCopy);
+			FillPropertyValues(Cell, CellToCopy, , ?(HasRowsFormat, "RowsFormat", Undefined));
 			
 			If CellToCopy.FillType = SpreadsheetDocumentAreaFillType.Template Then
 				Cell.Text = CellToCopy.Text;
@@ -2596,7 +2626,7 @@ Procedure ExpandFieldList()
 		EndDo;
 	EndDo;
 	
-	
+	// Color of the fields that are not common for the selected objects.
 	
 	AppearanceItem = ConditionalAppearance.Items.Add();
 	
@@ -2780,7 +2810,7 @@ Procedure ViewPrintableForm(Command)
 	
 	Items.ViewPrintableForm.Check = Not Items.ViewPrintableForm.Check;
 	Items.SettingsCurrentRegion.Visible = Not Items.ViewPrintableForm.Check;
-	Items.SecondCommandPanel.Enabled = Not Items.ViewPrintableForm.Check;
+	Items.SecondCommandBar.Enabled = Not Items.ViewPrintableForm.Check;
 	Items.ShowHeadersAndFooters.Enabled = Not Items.ViewPrintableForm.Check;
 	Items.ActionsWithDocument.Enabled = Not Items.ViewPrintableForm.Check;
 	Items.Language.Enabled = Not Items.ViewPrintableForm.Check;
@@ -2809,7 +2839,7 @@ Procedure DeleteStampEP(Command)
 		If StrStartsWith(Area.Name, "DSStamp") Then
 			Area.Name = "";
 			#If WebClient Then
-				
+				// It is required for the display update
 				Area.Protection = Area.Protection;
 			#EndIf
 		EndIf;
@@ -2857,7 +2887,31 @@ Procedure DeleteLayoutInCurrentLanguage()
 		EndIf;
 	EndDo;
 	
+	MenuLanguageAllActions = Items.LanguageAllActions;
+	LanguagesToAddAllActions = Items.LanguagesToAddAllActions;
+	For Each LangButton In MenuLanguageAllActions.ChildItems Do
+		If TypeOf(LangButton) = Type("FormButton") Then
+			If StrEndsWith(LangButton.CommandName, LangOfFormToDelete) Then
+				LangButton.Check = False;
+				LangButton.Visible = False;
+			EndIf;
+			
+			If StrEndsWith(LangButton.CommandName, CurrentLanguage) Then
+				LangButton.Check = True;
+			EndIf;
+		EndIf;
+	EndDo;
+	
+	For Each ButtonForAddedLang In LanguagesToAddAllActions.ChildItems Do
+		If TypeOf(ButtonForAddedLang) = Type("FormButton") Then
+			If StrEndsWith(ButtonForAddedLang.CommandName, LangOfFormToDelete) Then
+				ButtonForAddedLang.Visible = True;
+			EndIf;
+		EndIf;
+	EndDo;
+	
 	Items.Language.Title = Items["Language_"+CurrentLanguage].Title;
+	Items.LanguageAllActions.Title = Items["Language_"+CurrentLanguage].Title;
 	
 EndProcedure
 

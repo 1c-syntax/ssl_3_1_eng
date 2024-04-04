@@ -28,6 +28,12 @@
 				</Button>
 				<InputField name="TableName" id="17">
 					<DataPath>TableName</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Table name</v8:content>
+						</v8:item>
+					</Title>
 					<ListChoiceMode>true</ListChoiceMode>
 					<ContextMenu name="TableNameContextMenu" id="18"/>
 					<ExtendedTooltip name="TableNameExtendedTooltip" id="19"/>
@@ -64,6 +70,12 @@
 			<EnableStartDrag>true</EnableStartDrag>
 			<DataPath>List</DataPath>
 			<RowPictureDataPath>~List.DefaultPicture</RowPictureDataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>List</v8:content>
+				</v8:item>
+			</Title>
 			<AutoRefresh>false</AutoRefresh>
 			<AutoRefreshPeriod>60</AutoRefreshPeriod>
 			<Period>

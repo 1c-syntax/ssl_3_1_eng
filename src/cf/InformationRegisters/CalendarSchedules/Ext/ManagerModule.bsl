@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -96,24 +97,25 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	Selection.Reset();
 	While Selection.Next() Do
 		RowFilter.Ref = Selection.Calendar;
+		RepresentationOfTheReference = String(Selection.Calendar);
 		ScheduleAttributes = SchedulesAttributes.FindRows(RowFilter)[0];
 		Try
 			FillWorkScheduleForYear(Selection.Calendar, Selection.Year, ScheduleAttributes);
 			Processed = Processed + 1;
 		Except
 			RecordsWithIssuesCount = RecordsWithIssuesCount + 1;
+			
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Couldn''t process the record set of the ""%1"" register with filter %2. Reason:
-                      |%3';"), 
-				RegisterPresentation, 
+				NStr("en = 'Error processing register records with the filter ""%1"" applied due to:
+					|%2';"),
 				StringFunctionsClientServer.SubstituteParametersToString(
-					FilterPresentation, 
-					Selection.Calendar),
+					FilterPresentation,
+					RepresentationOfTheReference),
 				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-			WriteLogEvent(
-				InfobaseUpdate.EventLogEvent(), 
-				EventLogLevel.Warning,
-				RegisterMetadata, , 
+			
+			InfobaseUpdate.WriteErrorToEventLog(
+				RegisterMetadata,
+				RegisterPresentation,
 				MessageText);
 		EndTry;
 	EndDo;
@@ -174,9 +176,9 @@ EndProcedure
 //
 Procedure UpdateWorkSchedulesAccordingToBusinessCalendars(UpdateConditions) Export
 	
-	
-	
-	
+	// 
+	// 
+	// 
 	
 	QueryText = 
 		"SELECT
@@ -333,7 +335,7 @@ Procedure UpdateWorkSchedulesAccordingToBusinessCalendars(UpdateConditions) Expo
 			FillParameters.StartingDate = SelectionBySchedule.StartingDate;
 			DaysIncludedInSchedule = InformationRegisters.CalendarSchedules.DaysIncludedInSchedule(
 				SelectionBySchedule.StartDate, SelectionBySchedule.EndDate, FillParameters);
-			
+			// @skip-check query-in-loop - Read data by datasets with reading within a loop.
 			WriteScheduleDataToRegister(SelectionBySchedule.WorkScheduleCalendar, DaysIncludedInSchedule, 
 				SelectionBySchedule.StartDate, SelectionBySchedule.EndDate);
 		EndDo;
@@ -341,7 +343,7 @@ Procedure UpdateWorkSchedulesAccordingToBusinessCalendars(UpdateConditions) Expo
 	
 EndProcedure
 
-// 
+// Reads a work schedule data from the register.
 //
 // Parameters:
 //  WorkScheduleCalendar	- a reference to the current catalog item.
@@ -396,9 +398,9 @@ Procedure WriteScheduleDataToRegister(WorkScheduleCalendar, DaysIncludedInSchedu
 	SetDays = InformationRegisters.CalendarSchedules.CreateRecordSet();
 	SetDays.Filter.Calendar.Set(WorkScheduleCalendar);
 	
-	
-	
-	 
+	// 
+	// 
+	//  
 	//  
 	// 
 	// 

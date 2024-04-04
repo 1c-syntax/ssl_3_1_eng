@@ -33,6 +33,12 @@
 					<ChildItems>
 						<HTMLDocumentField name="HTMLText" id="1">
 							<DataPath>Text</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Text</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<ContextMenu name="HTMLTextContextMenu" id="2"/>
 							<ExtendedTooltip name="HTMLTextExtendedTooltip" id="3"/>
@@ -51,6 +57,12 @@
 					<ChildItems>
 						<TextDocumentField name="NormalText" id="4">
 							<DataPath>Text</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Text</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<ContextMenu name="NormalTextContextMenu" id="5"/>
 							<ExtendedTooltip name="NormalTextExtendedTooltip" id="6"/>

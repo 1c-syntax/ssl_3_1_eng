@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -26,6 +27,20 @@ EndFunction
 #EndRegion
 
 #Region Private
+
+// See AccessManagement.ProfileAdministrator
+Function ProfileAdministrator() Export
+	
+	Return Catalogs.AccessGroupProfiles.ProfileAdministrator();
+	
+EndFunction
+
+// See AccessManagement.AdministratorsAccessGroup
+Function AdministratorsAccessGroup() Export
+	
+	Return Catalogs.AccessGroups.AdministratorsAccessGroup();
+	
+EndFunction
 
 // For internal use only.
 //
@@ -283,7 +298,7 @@ EndFunction
 // For internal use only.
 //
 // Returns:
-//   ValueStorage - 
+//   ValueStorage - Contains the "ValueTable" type
 //
 Function BlankSpecifiedTypesRefsTable(FullAttributeName) Export
 	
@@ -419,6 +434,24 @@ Function DetailsOfAccessValuesTypesAndRightsSettingsOwners() Export
 	
 EndFunction
 
+// 
+// 
+// Returns:
+//  TypeDescription
+//
+Function RefsTypesFromAccessValueObject() Export
+	
+	Types = New Array;
+	For Each Type In Metadata.DefinedTypes.AccessValueObject.Type.Types() Do
+		FullName = Metadata.FindByType(Type).FullName();
+		RefType = Type(StrReplace(FullName, ".", "Ref."));
+		Types.Add(RefType);
+	EndDo;
+	
+	Return New TypeDescription(Types);
+	
+EndFunction
+
 // See also AccessManagementInternal.ValuesTypesOfAccessKindsAndRightsSettingsOwners()
 //
 // Returns:
@@ -473,7 +506,7 @@ EndFunction
 // Parameters:
 //  User - CatalogRef.Users
 //               - CatalogRef.ExternalUsers
-//               - Undefined - 
+//               - Undefined - Check for the current user.
 //
 // Returns:
 //  Boolean
@@ -887,6 +920,55 @@ Function BlankBasicFieldsValues(Count) Export
 EndFunction
 
 // Returns:
+//  FixedStructure of KeyAndValue:
+//    * Key - String - Field name
+//    * Value - TypeDescription - Field type
+//
+Function RegisterBasicFieldsTypes(Val RegisterName = "") Export
+	
+	Count = AccessManagementInternalCached.BasicRegisterFieldsCount(RegisterName);
+	
+	If RegisterName = "" Or RegisterName = "AccessKeysForRegisters" Then
+		RegisterName = "AccessKeysForRegisters";
+	EndIf;
+	Dimensions = Metadata.InformationRegisters[RegisterName].Dimensions;
+	
+	Result = New Structure;
+	For Number = 1 To Count Do
+		FieldName = "Field" + Number;
+		Result.Insert(FieldName, Dimensions[FieldName].Type);
+	EndDo;
+	
+	Return New FixedStructure(Result);
+	
+EndFunction
+
+// Returns:
+//  FixedMap of KeyAndValue:
+//    * Key - String - Table's full name.
+//    * Value - Boolean - True
+//
+Function TablesInSubscriptionsCheckAccess() Export
+	
+	Result = New Map;
+	
+	AddTablesFromTypesDetails(Result,
+		Metadata.DefinedTypes.AccessKeysValuesOwnerObject.Type);
+	
+	AddTablesFromTypesDetails(Result,
+		Metadata.DefinedTypes.AccessKeysValuesOwnerDocument.Type);
+	
+	AddTablesFromTypesDetails(Result,
+		Metadata.DefinedTypes.AccessKeysValuesOwnerRecordSet.Type);
+	
+	AddTablesFromTypesDetails(Result,
+		Metadata.DefinedTypes.AccessKeysValuesOwnerCalculationRegisterRecordSet.Type);
+	
+	Return New FixedMap(Result);
+	
+EndFunction
+
+// Returns:
 //   See AccessManagementInternal.LanguageSyntax
 //
 Function LanguageSyntax() Export
@@ -1143,6 +1225,19 @@ Procedure AddTypes(Types, AddedTypes)
 	
 	For Each Type In AddedTypes Do
 		Types.Insert(Type, True);
+	EndDo;
+	
+EndProcedure
+
+// Intended for function "TablesInSubscriptionsCheckAccess".
+Procedure AddTablesFromTypesDetails(Tables, TypeDescription)
+	
+	For Each Type In TypeDescription.Types() Do
+		MetadataObject = Metadata.FindByType(Type);
+		If MetadataObject = Undefined Then
+			Continue;
+		EndIf;
+		Tables.Insert(MetadataObject.FullName(), True);
 	EndDo;
 	
 EndProcedure

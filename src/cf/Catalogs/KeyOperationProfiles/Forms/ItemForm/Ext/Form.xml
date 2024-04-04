@@ -6,11 +6,23 @@
 			<Button name="FormSaveKeyOperationsProfile" id="49">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.SaveKeyOperationsProfile</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save profile</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormSaveKeyOperationsProfileExtendedTooltip" id="50"/>
 			</Button>
 			<Button name="FormLoadKeyOperationsProfile" id="4">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.LoadKeyOperationsProfile</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Import profile</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormLoadKeyOperationsProfileExtendedTooltip" id="5"/>
 			</Button>
 		</ChildItems>
@@ -57,6 +69,12 @@
 					<Button name="ProfileKeyOperationsFill" id="62">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.Fill</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Fill</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="ProfileKeyOperationsFillExtendedTooltip" id="63"/>
 					</Button>
 				</ChildItems>

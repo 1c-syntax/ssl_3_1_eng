@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -43,14 +44,14 @@ EndFunction
 // The function is called when opening the task execution form.
 //
 // Parameters:
-//   TaskRef                - TaskRef.PerformerTask - 
-//   BusinessProcessRoutePoint - BusinessProcessRoutePointRef.Job - 
+//   TaskRef                - TaskRef.PerformerTask - Task to be open.
+//   BusinessProcessRoutePoint - BusinessProcessRoutePointRef.Job - Current route point.
 //
 // Returns:
 //   Structure:
 //    * FormParameters - Structure:
 //      ** Key - TaskRef.PerformerTask
-//    * FormName - String - 
+//    * FormName - String - Form name to pass to the "OpenForm" context method
 //
 Function TaskExecutionForm(TaskRef, BusinessProcessRoutePoint) Export
 
@@ -74,13 +75,13 @@ EndFunction
 //
 Procedure OnForwardTask(TaskRef, NewTaskRef) Export
 	
-	
-	
-	TaskInformation = Common.ObjectAttributesValues(TaskRef, 
+	// 
+	// 
+	TaskInfo = Common.ObjectAttributesValues(TaskRef, 
 		"Ref,BusinessProcess,ExecutionResult,CompletionDate,Performer");
-	BusinessProcessObject = TaskInformation.BusinessProcess.GetObject();
+	BusinessProcessObject = TaskInfo.BusinessProcess.GetObject();
 	LockDataForEdit(BusinessProcessObject.Ref);
-	BusinessProcessObject.ExecutionResult = ExecutionResultOnForward(TaskInformation)
+	BusinessProcessObject.ExecutionResult = ExecutionResultOnForward(TaskInfo)
 		+ BusinessProcessObject.ExecutionResult;
 	SetPrivilegedMode(True);
 	BusinessProcessObject.Write();
@@ -118,7 +119,7 @@ Procedure DefaultCompletionHandler(TaskRef, BusinessProcessRef, BusinessProcessR
 			JobObject.Completed2 = True;
 			JobObject.Accepted = True;
 		EndIf;
-		JobObject.Write(); 
+		JobObject.Write(); // 
 
 		CommitTransaction();
 	Except
@@ -241,16 +242,16 @@ Procedure SetTaskFormItemsState(Form) Export
 
 EndProcedure
 
-Function ExecutionResultOnForward(Val TaskInformation)
+Function ExecutionResultOnForward(Val TaskInfo)
 
 	StringFormat = "%1, %2 " + NStr("en = 'redirected the task';") + ":
 																	   |%3
 																	   |";
 
-	Comment = TrimAll(TaskInformation.ExecutionResult);
+	Comment = TrimAll(TaskInfo.ExecutionResult);
 	Comment = ?(IsBlankString(Comment), "", Comment + Chars.LF);
-	Result = StringFunctionsClientServer.SubstituteParametersToString(StringFormat, TaskInformation.CompletionDate,
-		TaskInformation.Performer, Comment);
+	Result = StringFunctionsClientServer.SubstituteParametersToString(StringFormat, TaskInfo.CompletionDate,
+		TaskInfo.Performer, Comment);
 	Return Result;
 
 EndFunction

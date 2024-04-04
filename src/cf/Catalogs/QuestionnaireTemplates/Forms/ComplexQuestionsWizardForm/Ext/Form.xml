@@ -29,6 +29,12 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.OKButton</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Done</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="OKButton1ExtendedTooltip" id="238"/>
 			</Button>
 			<Button name="CancelButton" id="239">
@@ -51,6 +57,12 @@
 	<ChildItems>
 		<InputField name="Wording" id="141">
 			<DataPath>Wording</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Text</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>Top</TitleLocation>
 			<Width>50</Width>
 			<AutoMaxWidth>false</AutoMaxWidth>
@@ -134,7 +146,7 @@
 							<ChoiceButton>true</ChoiceButton>
 							<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>
 							<ContextMenu name="QuestionsQuestionContextMenu" id="140"/>
-							<ExtendedTooltip name="QuestionsQuestionExtendedTooltip" id="178"/>
+							<ExtendedTooltip name="QuestionsDoQueryBoxExtendedTooltip" id="178"/>
 							<Events>
 								<Event name="ChoiceProcessing">QuestionsQuestionChoiceProcessing</Event>
 							</Events>
@@ -158,12 +170,24 @@
 			<ChildItems>
 				<InputField name="HintPlacement" id="243">
 					<DataPath>HintPlacement</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Hint placement</v8:content>
+						</v8:item>
+					</Title>
 					<HorizontalStretch>false</HorizontalStretch>
 					<ContextMenu name="HintPlacementContextMenu" id="244"/>
 					<ExtendedTooltip name="HintPlacementExtendedTooltip" id="245"/>
 				</InputField>
 				<InputField name="ToolTip" id="246">
 					<DataPath>ToolTip</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Hint</v8:content>
+						</v8:item>
+					</Title>
 					<AutoMaxWidth>false</AutoMaxWidth>
 					<MultiLine>true</MultiLine>
 					<ExtendedEdit>true</ExtendedEdit>

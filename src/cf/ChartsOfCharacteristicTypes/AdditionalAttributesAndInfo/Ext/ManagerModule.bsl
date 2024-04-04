@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -518,14 +519,14 @@ Procedure ChangePropertySetting(Parameters, StorageAddress) Export
 			LockItem = Block.Add("InformationRegister.AdditionalInfo");
 			LockItem.SetValue("Property", ObjectProperty.Ref);
 			
-			
-			
-			
+			// 
+			// 
+			// 
 			//
-			
-			
-			
-			
+			// 
+			// 
+			// 
+			// 
 			
 			OwnerWithAdditionalAttributes = False;
 			
@@ -574,8 +575,8 @@ Procedure ChangePropertySetting(Parameters, StorageAddress) Export
 			Query = New Query;
 			
 			If Property = ObjectProperty.Ref Then
-				
-				
+				// 
+				// 
 				Query.TempTablesManager = New TempTablesManager;
 				
 				ValueTable = New ValueTable;
@@ -608,8 +609,8 @@ Procedure ChangePropertySetting(Parameters, StorageAddress) Export
 			// Replace additional information records.
 			
 			If Property = ObjectProperty.Ref Then
-				
-				
+				// 
+				// 
 				Query.Text =
 				"SELECT TOP 1000
 				|	AdditionalInfo.Object
@@ -621,8 +622,8 @@ Procedure ChangePropertySetting(Parameters, StorageAddress) Export
 				|			AND (AdditionalInfo.Property = &Property)
 				|			AND AdditionalInfo.Value = PreviousValues1.Value";
 			Else
-				
-				
+				// 
+				// 
 				Query.Text =
 				"SELECT TOP 1000
 				|	AdditionalInfo.Object
@@ -704,8 +705,8 @@ Procedure ChangePropertySetting(Parameters, StorageAddress) Export
 				EndIf;
 				
 				If Property = ObjectProperty.Ref Then
-					
-					
+					// 
+					// 
 					Query.Text =
 					"SELECT TOP 1000
 					|	CurrentTable.Ref AS Ref
@@ -716,8 +717,8 @@ Procedure ChangePropertySetting(Parameters, StorageAddress) Export
 					|			AND (CurrentTable.Property = &Property)
 					|			AND CurrentTable.Value = PreviousValues1.Value";
 				Else
-					
-					
+					// 
+					// 
 					Query.Text =
 					"SELECT TOP 1000
 					|	CurrentTable.Ref AS Ref
@@ -936,12 +937,10 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			RollbackTransaction();
 			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
 			
-			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Couldn''t process additional attribute or information record: ""%1"". Reason:
-					|%2';"), 
-				RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-			WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Warning,
-				Metadata.ChartsOfCharacteristicTypes.AdditionalAttributesAndInfo, Selection.Ref, MessageText);
+			InfobaseUpdate.WriteErrorToEventLog(
+				Selection.Ref,
+				RepresentationOfTheReference,
+				ErrorInfo());
 		EndTry;
 		
 	EndDo;

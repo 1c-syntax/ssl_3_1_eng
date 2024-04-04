@@ -20,7 +20,6 @@
 		<ExcludedCommand>Cancel</ExcludedCommand>
 		<ExcludedCommand>Close</ExcludedCommand>
 		<ExcludedCommand>CustomizeForm</ExcludedCommand>
-		<ExcludedCommand>Help</ExcludedCommand>
 		<ExcludedCommand>Ignore</ExcludedCommand>
 		<ExcludedCommand>No</ExcludedCommand>
 		<ExcludedCommand>OK</ExcludedCommand>
@@ -40,164 +39,243 @@
 		<Event name="OnClose">OnClose</Event>
 	</Events>
 	<ChildItems>
-		<UsualGroup name="ButtonsPanel" id="15">
+		<UsualGroup name="GroupCommandBar" id="55">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Buttons panel</v8:content>
+					<v8:content>Command bar</v8:content>
 				</v8:item>
 			</Title>
-			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="ButtonsPanelExtendedTooltip" id="30"/>
+			<ExtendedTooltip name="CommandBarGroupExtendedTooltip" id="56"/>
 			<ChildItems>
-				<Button name="OpenButton" id="11" DisplayImportance="VeryLow">
-					<Type>UsualButton</Type>
-					<CommandName>Form.Command.Open</CommandName>
-					<ExtendedTooltip name="OpenButtonExtendedTooltip" id="31"/>
-				</Button>
-				<Button name="StopButton" id="9" DisplayImportance="VeryLow">
-					<Type>UsualButton</Type>
-					<CommandName>Form.Command.Dismiss</CommandName>
-					<ExtendedTooltip name="StopButtonExtendedTooltip" id="32"/>
-				</Button>
-				<InputField name="RepeatedNotificationPeriod" id="12">
-					<DataPath>RepeatedNotificationPeriod</DataPath>
+				<UsualGroup name="ButtonsPanel" id="15">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Remind me in</v8:content>
+							<v8:content>Buttons panel</v8:content>
 						</v8:item>
 					</Title>
-					<ToolTip>
+					<Behavior>Usual</Behavior>
+					<Representation>None</Representation>
+					<ShowTitle>false</ShowTitle>
+					<ExtendedTooltip name="ButtonsPanelExtendedTooltip" id="30"/>
+					<ChildItems>
+						<Button name="OpenButton" id="11" DisplayImportance="VeryLow">
+							<Type>UsualButton</Type>
+							<CommandName>Form.Command.Open</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Open</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="OpenButtonExtendedTooltip" id="31"/>
+						</Button>
+						<Button name="StopButton" id="9" DisplayImportance="VeryLow">
+							<Type>UsualButton</Type>
+							<CommandName>Form.Command.Dismiss</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Dismiss</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="StopButtonExtendedTooltip" id="32"/>
+						</Button>
+						<InputField name="RepeatedNotificationPeriod" id="12">
+							<DataPath>RepeatedNotificationPeriod</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Remind me in</v8:content>
+								</v8:item>
+							</Title>
+							<ToolTip>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>The snooze interval.</v8:content>
+								</v8:item>
+							</ToolTip>
+							<Width>15</Width>
+							<DropListButton>true</DropListButton>
+							<ClearButton>false</ClearButton>
+							<EditTextUpdate>OnValueChange</EditTextUpdate>
+							<ChoiceList>
+								<xr:Item>
+									<xr:Presentation/>
+									<xr:CheckState>0</xr:CheckState>
+									<xr:Value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation/>
+										<Value xsi:type="xs:string">5M</Value>
+									</xr:Value>
+								</xr:Item>
+								<xr:Item>
+									<xr:Presentation/>
+									<xr:CheckState>0</xr:CheckState>
+									<xr:Value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation/>
+										<Value xsi:type="xs:string">10M</Value>
+									</xr:Value>
+								</xr:Item>
+								<xr:Item>
+									<xr:Presentation/>
+									<xr:CheckState>0</xr:CheckState>
+									<xr:Value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation/>
+										<Value xsi:type="xs:string">15M</Value>
+									</xr:Value>
+								</xr:Item>
+								<xr:Item>
+									<xr:Presentation/>
+									<xr:CheckState>0</xr:CheckState>
+									<xr:Value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation/>
+										<Value xsi:type="xs:string">30M</Value>
+									</xr:Value>
+								</xr:Item>
+								<xr:Item>
+									<xr:Presentation/>
+									<xr:CheckState>0</xr:CheckState>
+									<xr:Value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation/>
+										<Value xsi:type="xs:string">1Ch</Value>
+									</xr:Value>
+								</xr:Item>
+								<xr:Item>
+									<xr:Presentation/>
+									<xr:CheckState>0</xr:CheckState>
+									<xr:Value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation/>
+										<Value xsi:type="xs:string">2Ch</Value>
+									</xr:Value>
+								</xr:Item>
+								<xr:Item>
+									<xr:Presentation/>
+									<xr:CheckState>0</xr:CheckState>
+									<xr:Value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation/>
+										<Value xsi:type="xs:string">4Ch</Value>
+									</xr:Value>
+								</xr:Item>
+								<xr:Item>
+									<xr:Presentation/>
+									<xr:CheckState>0</xr:CheckState>
+									<xr:Value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation/>
+										<Value xsi:type="xs:string">8Ch</Value>
+									</xr:Value>
+								</xr:Item>
+								<xr:Item>
+									<xr:Presentation/>
+									<xr:CheckState>0</xr:CheckState>
+									<xr:Value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation/>
+										<Value xsi:type="xs:string">1D</Value>
+									</xr:Value>
+								</xr:Item>
+								<xr:Item>
+									<xr:Presentation/>
+									<xr:CheckState>0</xr:CheckState>
+									<xr:Value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation/>
+										<Value xsi:type="xs:string">2D</Value>
+									</xr:Value>
+								</xr:Item>
+								<xr:Item>
+									<xr:Presentation/>
+									<xr:CheckState>0</xr:CheckState>
+									<xr:Value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation/>
+										<Value xsi:type="xs:string">3D</Value>
+									</xr:Value>
+								</xr:Item>
+								<xr:Item>
+									<xr:Presentation/>
+									<xr:CheckState>0</xr:CheckState>
+									<xr:Value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation/>
+										<Value xsi:type="xs:string">1N1</Value>
+									</xr:Value>
+								</xr:Item>
+								<xr:Item>
+									<xr:Presentation/>
+									<xr:CheckState>0</xr:CheckState>
+									<xr:Value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation/>
+										<Value xsi:type="xs:string">2N1</Value>
+									</xr:Value>
+								</xr:Item>
+							</ChoiceList>
+							<ContextMenu name="RepeatedNotificationPeriodContextMenu" id="13"/>
+							<ExtendedTooltip name="RepeatedNotificationPeriodExtendedTooltip" id="34"/>
+							<Events>
+								<Event name="OnChange">RepeatedNotificationPeriodOnChange</Event>
+							</Events>
+						</InputField>
+						<Button name="SnoozeButton" id="8" DisplayImportance="VeryHigh">
+							<Type>UsualButton</Type>
+							<SkipOnInput>false</SkipOnInput>
+							<CommandName>Form.Command.DeferAll</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Snooze all</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="SnoozeButtonExtendedTooltip" id="35"/>
+						</Button>
+					</ChildItems>
+				</UsualGroup>
+				<CommandBar name="StandardCommands" id="68">
+					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>The snooze interval.</v8:content>
+							<v8:content>Standard commands</v8:content>
 						</v8:item>
-					</ToolTip>
-					<Width>15</Width>
-					<DropListButton>true</DropListButton>
-					<ClearButton>false</ClearButton>
-					<EditTextUpdate>OnValueChange</EditTextUpdate>
-					<ChoiceList>
-						<xr:Item>
-							<xr:Presentation/>
-							<xr:CheckState>0</xr:CheckState>
-							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation/>
-								<Value xsi:type="xs:string">5M</Value>
-							</xr:Value>
-						</xr:Item>
-						<xr:Item>
-							<xr:Presentation/>
-							<xr:CheckState>0</xr:CheckState>
-							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation/>
-								<Value xsi:type="xs:string">10M</Value>
-							</xr:Value>
-						</xr:Item>
-						<xr:Item>
-							<xr:Presentation/>
-							<xr:CheckState>0</xr:CheckState>
-							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation/>
-								<Value xsi:type="xs:string">15M</Value>
-							</xr:Value>
-						</xr:Item>
-						<xr:Item>
-							<xr:Presentation/>
-							<xr:CheckState>0</xr:CheckState>
-							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation/>
-								<Value xsi:type="xs:string">30M</Value>
-							</xr:Value>
-						</xr:Item>
-						<xr:Item>
-							<xr:Presentation/>
-							<xr:CheckState>0</xr:CheckState>
-							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation/>
-								<Value xsi:type="xs:string">1Ch</Value>
-							</xr:Value>
-						</xr:Item>
-						<xr:Item>
-							<xr:Presentation/>
-							<xr:CheckState>0</xr:CheckState>
-							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation/>
-								<Value xsi:type="xs:string">2Ch</Value>
-							</xr:Value>
-						</xr:Item>
-						<xr:Item>
-							<xr:Presentation/>
-							<xr:CheckState>0</xr:CheckState>
-							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation/>
-								<Value xsi:type="xs:string">4Ch</Value>
-							</xr:Value>
-						</xr:Item>
-						<xr:Item>
-							<xr:Presentation/>
-							<xr:CheckState>0</xr:CheckState>
-							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation/>
-								<Value xsi:type="xs:string">8Ch</Value>
-							</xr:Value>
-						</xr:Item>
-						<xr:Item>
-							<xr:Presentation/>
-							<xr:CheckState>0</xr:CheckState>
-							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation/>
-								<Value xsi:type="xs:string">1D</Value>
-							</xr:Value>
-						</xr:Item>
-						<xr:Item>
-							<xr:Presentation/>
-							<xr:CheckState>0</xr:CheckState>
-							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation/>
-								<Value xsi:type="xs:string">2D</Value>
-							</xr:Value>
-						</xr:Item>
-						<xr:Item>
-							<xr:Presentation/>
-							<xr:CheckState>0</xr:CheckState>
-							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation/>
-								<Value xsi:type="xs:string">3D</Value>
-							</xr:Value>
-						</xr:Item>
-						<xr:Item>
-							<xr:Presentation/>
-							<xr:CheckState>0</xr:CheckState>
-							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation/>
-								<Value xsi:type="xs:string">1N1</Value>
-							</xr:Value>
-						</xr:Item>
-						<xr:Item>
-							<xr:Presentation/>
-							<xr:CheckState>0</xr:CheckState>
-							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation/>
-								<Value xsi:type="xs:string">2N1</Value>
-							</xr:Value>
-						</xr:Item>
-					</ChoiceList>
-					<ContextMenu name="RepeatedNotificationPeriodContextMenu" id="13"/>
-					<ExtendedTooltip name="RepeatedNotificationPeriodExtendedTooltip" id="34"/>
-					<Events>
-						<Event name="OnChange">RepeatedNotificationPeriodOnChange</Event>
-					</Events>
-				</InputField>
-				<Button name="SnoozeButton" id="8" DisplayImportance="VeryHigh">
-					<Type>UsualButton</Type>
-					<SkipOnInput>false</SkipOnInput>
-					<CommandName>Form.Command.DeferAll</CommandName>
-					<ExtendedTooltip name="SnoozeButtonExtendedTooltip" id="35"/>
-				</Button>
+					</Title>
+					<CommandSource>Form</CommandSource>
+					<ExtendedTooltip name="StandardCommandsExtendedTooltip" id="69"/>
+					<ChildItems>
+						<Button name="ButtonOpenMore" id="70">
+							<Type>CommandBarButton</Type>
+							<CommandName>Form.Command.Open</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Open</v8:content>
+								</v8:item>
+							</Title>
+							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+							<ExtendedTooltip name="ButtonOpenMoreExtendedTooltip" id="71"/>
+						</Button>
+						<Button name="ButtonStopMore" id="72">
+							<Type>CommandBarButton</Type>
+							<CommandName>Form.Command.Dismiss</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Dismiss</v8:content>
+								</v8:item>
+							</Title>
+							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+							<ExtendedTooltip name="ButtonStopMoreExtendedTooltip" id="73"/>
+						</Button>
+						<Button name="FormOpenSettings" id="74">
+							<Type>CommandBarButton</Type>
+							<CommandName>Form.Command.Settings</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Settings…</v8:content>
+								</v8:item>
+							</Title>
+							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+							<ExtendedTooltip name="FormOpenSettingsExtendedTooltip" id="75"/>
+						</Button>
+					</ChildItems>
+				</CommandBar>
 			</ChildItems>
 		</UsualGroup>
 		<Table name="Reminders" id="1">
@@ -249,6 +327,12 @@
 				<ChildItems>
 					<ButtonGroup name="RemindersManagement" id="26">
 						<EnableContentChange>true</EnableContentChange>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Actions with reminders</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="RemindersManagementExtendedTooltip" id="36"/>
 						<ChildItems>
 							<Button name="RemindersContextMenuOpen" id="20">
@@ -271,12 +355,18 @@
 										<v8:content>Change reminder…</v8:content>
 									</v8:item>
 								</Title>
-								<ExtendedTooltip name="RemindersContextMenuEditExtendedTooltip" id="38"/>
+								<ExtendedTooltip name="RemindersContextMenuChangeExtendedTooltip" id="38"/>
 							</Button>
 						</ChildItems>
 					</ButtonGroup>
 					<ButtonGroup name="ListOperations" id="25">
 						<EnableContentChange>true</EnableContentChange>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Actions with list</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="ListOperationsExtendedTooltip" id="39"/>
 						<ChildItems>
 							<Button name="RemindersContextMenuOutputList" id="27">
@@ -333,6 +423,12 @@
 			<ChildItems>
 				<InputField name="LongDesc" id="4">
 					<DataPath>Reminders.LongDesc</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Notification text</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<AutoCellHeight>true</AutoCellHeight>
 					<ContextMenu name="LongDescContextMenu" id="5"/>
@@ -340,6 +436,12 @@
 				</InputField>
 				<InputField name="EventTime" id="6">
 					<DataPath>Reminders.EventTimeString</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Event time</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ContextMenu name="EventTimeContextMenu" id="7"/>
 					<ExtendedTooltip name="EventTimeExtendedTooltip" id="45"/>
@@ -443,6 +545,24 @@
 						</v8:StringQualifiers>
 					</Type>
 				</Column>
+				<Column name="URL" id="9">
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+				<Column name="Id" id="5">
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
 			</Columns>
 		</Attribute>
 		<Attribute name="RepeatedNotificationPeriod" id="1">
@@ -530,6 +650,21 @@
 			</Picture>
 			<Action>Change</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
+		</Command>
+		<Command name="Settings" id="3">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Settings…</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Settings</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>OpenSettings</Action>
 		</Command>
 	</Commands>
 </Form>

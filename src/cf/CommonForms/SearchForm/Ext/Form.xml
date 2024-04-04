@@ -3,7 +3,7 @@
 	<Title>
 		<v8:item>
 			<v8:lang>en</v8:lang>
-			<v8:content>Document, file, or report search</v8:content>
+			<v8:content>Search for documents, files, or reports</v8:content>
 		</v8:item>
 	</Title>
 	<AutoTitle>false</AutoTitle>
@@ -49,6 +49,12 @@
 				</PictureDecoration>
 				<LabelField name="SearchStatePresentation" id="80">
 					<DataPath>SearchStatePresentation</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Search state presentation</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<VerticalAlign>Center</VerticalAlign>
 					<AutoMaxWidth>false</AutoMaxWidth>
@@ -72,6 +78,12 @@
 			<ChildItems>
 				<InputField name="SearchString" id="3">
 					<DataPath>SearchString</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Search bar</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<ToolTip>
 						<v8:item>
@@ -114,6 +126,12 @@
 					<CommandName>Form.Command.ExecuteSearch</CommandName>
 					<BackColor>style:ButtonBackColor</BackColor>
 					<BorderColor>style:BorderColor</BorderColor>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Find</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="FindExtendedTooltip" id="54"/>
 				</Button>
 				<Button name="Help" id="44">
@@ -187,6 +205,12 @@
 							<CommandName>Form.Command.PreviousPages</CommandName>
 							<BackColor>style:ButtonBackColor</BackColor>
 							<BorderColor>style:BorderColor</BorderColor>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Previous</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="PreviousExtendedTooltip" id="58"/>
 						</Button>
 						<Button name="NextPages" id="9">
@@ -196,6 +220,12 @@
 							<CommandName>Form.Command.NextPages</CommandName>
 							<BackColor>style:ButtonBackColor</BackColor>
 							<BorderColor>style:BorderColor</BorderColor>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Next</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="NextPagesExtendedTooltip" id="59"/>
 						</Button>
 					</ChildItems>
@@ -212,6 +242,12 @@
 		</UsualGroup>
 		<HTMLDocumentField name="SearchResults" id="39" DisplayImportance="VeryHigh">
 			<DataPath>SearchResultsPresentation</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Search results presentation</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>None</TitleLocation>
 			<ContextMenu name="SearchResultsContextMenu" id="40"/>
 			<ExtendedTooltip name="SearchResultsExtendedTooltip" id="61"/>

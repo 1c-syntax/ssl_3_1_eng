@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -18,7 +19,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.BulkAdd.Visible = False;
 		Items.FormUpdateFromFile.Visible = False;
 		Items.FormSaveAs.Visible = False;
-		Items.UpdateFromSite_.Visible = False;
+		Items.UpdateFromWebsite.Visible = False;
 		Items.ListContextMenuUpdateFromFile.Visible = False;
 		Items.ListContextMenuSaveAs.Visible = False;
 	Else
@@ -27,8 +28,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not AddInsInternal.CanImportFromPortal() Then
 		Items.AddFromService.Visible = False;
-		Items.UpdateFromSite.Visible = False;
-		Items.UpdateFromSite_.Visible = False;
+		Items.ShouldUpdateFromWebsite.Visible = False;
+		Items.UpdateFromWebsite.Visible = False;
 	Else
 		Items.AddFromService.Visible = AddInsInternal.CanImportFromPortalInteractively();
 	EndIf;
@@ -141,7 +142,7 @@ Procedure AddFromDirectory(Command)
 	
 	Notification = New NotifyDescription("AddAddInsFromDirectoryAfterExtensionsAttached", ThisObject);
 		
-	SuggestionText =  NStr("en = 'To import add-ins from the directory, install the 1C:Enterprise extension.';");
+	SuggestionText =  NStr("en = 'To import add-ins from the directory, install 1C:Enterprise Extension.';");
 	FileSystemClient.AttachFileOperationsExtension(Notification, SuggestionText, False);
 		
 EndProcedure
@@ -185,7 +186,7 @@ EndProcedure
 
 #Region Private
 
-
+// 
 
 &AtClient
 Procedure AddAddInsFromDirectoryAfterExtensionsAttached(Result, CreationParameters) Export
@@ -200,7 +201,7 @@ Procedure AddAddInsFromDirectoryAfterExtensionsAttached(Result, CreationParamete
 	
 EndProcedure
 
-
+// 
 
 &AtClient
 Async Procedure AddAddInsAfterDirectorySelected(SelectedDirectory, AdditionalParameters) Export
@@ -329,7 +330,7 @@ Procedure AfterUpdateAddInFromPortal(Result, AdditionalParameters) Export
 EndProcedure
 
 /////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
 Procedure SetFilter()

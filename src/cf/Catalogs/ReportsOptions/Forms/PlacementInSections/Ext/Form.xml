@@ -3,19 +3,42 @@
 	<WindowOpeningMode>LockOwnerWindow</WindowOpeningMode>
 	<AutoCommandBar name="FormCommandBar" id="-1">
 		<ChildItems>
-			<Button name="Place" id="58">
-				<Type>CommandBarButton</Type>
-				<Representation>Text</Representation>
-				<DefaultButton>true</DefaultButton>
-				<CommandName>Form.Command.Place</CommandName>
-				<ExtendedTooltip name="PlaceExtendedTooltip" id="79"/>
-			</Button>
-			<Button name="SubsystemsTreeClearCheckBoxes" id="76">
-				<Type>CommandBarButton</Type>
-				<CommandName>Form.Command.UncheckAll</CommandName>
-				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-				<ExtendedTooltip name="SubsystemsTreeClearCheckBoxesExtendedTooltip" id="80"/>
-			</Button>
+			<ButtonGroup name="FormGroupCheckboxes" id="102">
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Form group "Checkboxes"</v8:content>
+					</v8:item>
+				</Title>
+				<ExtendedTooltip name="FormGroupCheckboxesExtendedTooltip" id="103"/>
+				<ChildItems>
+					<Button name="Place" id="58">
+						<Type>CommandBarButton</Type>
+						<Representation>Text</Representation>
+						<DefaultButton>true</DefaultButton>
+						<CommandName>Form.Command.Place</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Add report</v8:content>
+							</v8:item>
+						</Title>
+						<ExtendedTooltip name="PlaceExtendedTooltip" id="79"/>
+					</Button>
+					<Button name="SubsystemsTreeClearCheckBoxes" id="76">
+						<Type>CommandBarButton</Type>
+						<CommandName>Form.Command.UncheckAll</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Clear all</v8:content>
+							</v8:item>
+						</Title>
+						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+						<ExtendedTooltip name="SubsystemsTreeClearCheckBoxesExtendedTooltip" id="80"/>
+					</Button>
+				</ChildItems>
+			</ButtonGroup>
 			<SearchStringAddition name="SearchString" id="99">
 				<AdditionSource>
 					<Item>SubsystemsTree</Item>
@@ -66,6 +89,12 @@
 					<Button name="SubsystemsTreeContextMenuUncheckAll" id="78">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.UncheckAll</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Clear all</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="SubsystemsTreeContextMenuUncheckAllExtendedTooltip" id="83"/>
 					</Button>
 				</ChildItems>
@@ -111,6 +140,12 @@
 					<ChildItems>
 						<CheckBoxField name="SubsystemsTreeUse" id="69" DisplayImportance="VeryHigh">
 							<DataPath>SubsystemsTree.Use</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Use</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<HorizontalAlign>Left</HorizontalAlign>
 							<EditMode>EnterOnInput</EditMode>
@@ -124,6 +159,12 @@
 						<InputField name="SubsystemsTreePresentation" id="61" DisplayImportance="VeryHigh">
 							<DataPath>SubsystemsTree.Presentation</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Section, Group</v8:content>
+								</v8:item>
+							</Title>
 							<HorizontalAlign>Left</HorizontalAlign>
 							<EditMode>EnterOnInput</EditMode>
 							<TextEdit>false</TextEdit>
@@ -134,6 +175,12 @@
 				</ColumnGroup>
 				<InputField name="SubsystemsTreeImportance" id="71">
 					<DataPath>SubsystemsTree.Importance</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Importance</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<Width>8</Width>
 					<ChoiceButton>true</ChoiceButton>

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -328,9 +329,9 @@ Procedure UseInternalMessageDirectory(Command)
 EndProcedure
 
 &AtClient
-Procedure LogObjectUploads(Command)
+Procedure LogObjectsExport(Command)
 	
-	Items.FormLogObjectUploads.Check = Not Items.FormLogObjectUploads.Check;
+	Items.FormLogObjectsExport.Check = Not Items.FormLogObjectsExport.Check;
 	
 EndProcedure
 
@@ -539,7 +540,7 @@ Function ExportDataAtServer()
 	ParametersStructure.Insert("ExchangeNode", DataProcessorObject.ExchangeNode);
 	ParametersStructure.Insert("AllDocumentsFilterPeriod", DataProcessorObject.AllDocumentsFilterPeriod);
 	ParametersStructure.Insert("AdditionalRegistration", DataProcessorObject.AdditionalRegistration);
-	ParametersStructure.Insert("LogObjectUploads", Items.FormLogObjectUploads.Check);
+	ParametersStructure.Insert("LogObjectsExport", Items.FormLogObjectsExport.Check);
 	
 	JobParameters = New Structure;
 	JobParameters.Insert("DataProcessorName", DataProcessorName);
@@ -577,8 +578,8 @@ Function ImportDataAtServer()
 		Else
 			
 			AddressOnServer = GetTempFileName("xml");
-			
-			
+			// 
+			// 
 			
 		EndIf;
 		

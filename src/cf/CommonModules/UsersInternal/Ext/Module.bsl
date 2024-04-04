@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -181,6 +182,13 @@ Function AuthenticateCurrentUser(OnStart = False, RegisterInLog = False) Export
 	
 	SSLSubsystemsIntegration.AfterWriteAdministratorOnAuthorization(Comment);
 	
+	If Common.ObjectAttributeValue(User, "IsInternal") = True Then
+		Comment =
+			NStr("en = 'Session started on behalf of the user with ""Full access"" role
+			           |that was not in the user list.
+			           |The user is added to the list.';");
+	EndIf;
+	
 	WriteLogEvent(
 		NStr("en = 'Users.Administrator registered in Users catalog';",
 		     Common.DefaultLanguageCode()),
@@ -194,9 +202,9 @@ Function AuthenticateCurrentUser(OnStart = False, RegisterInLog = False) Export
 EndFunction
 
 // Parameters:
-//  ShouldCheckAdministratorRolesAvailable - Boolean - 
-//    
-//  Disconnect - Boolean - 
+//  ShouldCheckAdministratorRolesAvailable - Boolean - If set to "True", return the result considering
+//    the outcome of "AdministratorRolesAvailable" for the current user.
+//  Disconnect - Boolean - Disables the state and returns "False".
 // 
 // Returns:
 //  Boolean
@@ -310,7 +318,7 @@ EndProcedure
 //
 Function ErrorInsufficientRightsForAuthorization(RegisterInLog = True) Export
 	
-	
+	// 
 	If IsInRole(Metadata.Roles.FullAccess) Then
 		Return "";
 	EndIf;
@@ -322,7 +330,7 @@ Function ErrorInsufficientRightsForAuthorization(RegisterInLog = True) Export
 		BasicAccessRoleName = Metadata.Roles.BasicSSLRights.Name;
 	EndIf;
 	
-	
+	// 
 	If IsInRole(BasicAccessRoleName) Then
 		Return "";
 	EndIf;
@@ -374,6 +382,26 @@ Function CreateUnspecifiedUser() Export
 		Return NewUser.Ref;
 		
 	EndIf;
+	
+EndFunction
+
+// 
+//
+// Returns:
+//  Structure:
+//   * SelectedUsers - Array of CatalogRef.Users - 
+//                               
+//   * PickFormHeader - String - 
+//   * PickingCompletionButtonTitle - String - 
+//
+Function NewParametersOfExtendedPickForm() Export
+	
+	Result = New Structure;
+	Result.Insert("PickFormHeader", "");
+	Result.Insert("SelectedUsers", New Array);
+	Result.Insert("PickingCompletionButtonTitle", "");
+	
+	Return Result;
 	
 EndFunction
 
@@ -481,16 +509,16 @@ Function AllRoles() Export
 	
 EndFunction
 
-// Returns unavailable roles for separated users or external users
-// based on the current user's rights and operating mode (local or service model).
+// Returns unavailable roles for shared users or external users based on the rights of the current
+// user and the operation mode (local or SaaS mode).
 //
 // Parameters:
-//  ForExternalUsers - Boolean -  if true, it means for external users.
+//  ForExternalUsers - Boolean - If set to "True", the function will run for external users.
 //
 // Returns:
 //  Map of KeyAndValue:
 //   * Key     - String - a role name.
-//   * Value - Boolean -  Truth.
+//   * Value - Boolean - True.
 //
 Function UnavailableRolesByUserType(ForExternalUsers) Export
 	
@@ -500,8 +528,8 @@ Function UnavailableRolesByUserType(ForExternalUsers) Export
 	ElsIf Not Common.DataSeparationEnabled()
 	        And Users.IsFullUser(, True) Then
 		
-		
-		
+		// 
+		// 
 		UserRolesAssignment = "ForAdministrators";
 	Else
 		UserRolesAssignment = "ForUsers";
@@ -659,7 +687,7 @@ EndFunction
 // Parameters:
 //  IBUserID - UUID
 //
-Function InformationSecurityUserById(IBUserID) Export
+Function InfobaseUserByID(IBUserID) Export
 	
 	If TypeOf(IBUserID) <> Type("UUID") Then
 		Return Undefined;
@@ -741,7 +769,7 @@ EndProcedure
 //  IBUser  - InfoBaseUser - an object to be written.
 //  IsExternalUser - Boolean - specify True if the infobase user corresponds to an external user
 //                                    (the ExternalUsers item in the directory).
-//  User - Undefined - 
+//  User - Undefined - Search for an infobase user by a UUID (if required).
 //               - CatalogRef.Users
 //               - CatalogRef.ExternalUsers
 //
@@ -756,11 +784,11 @@ Procedure WriteInfobaseUser(IBUser, IsExternalUser = False,
 		And Common.DataSeparationEnabled()
 		And Common.SubsystemExists("StandardSubsystems.SaaSOperations.UsersSaaS");
 	
-	ThisIsUpdateOfUserCatalogs = IBUser.UUID
+	IsUsersCatalogsUpdate = IBUser.UUID
 		= SessionParameters.UsersCatalogsUpdate.Get("IBUserID");
 	
-	If ShouldNotifyServiceManager And Not ThisIsUpdateOfUserCatalogs Then
-		OldInformationSecurityUser = InfoBaseUsers.FindByUUID(
+	If ShouldNotifyServiceManager And Not IsUsersCatalogsUpdate Then
+		InfobaseOldUser = InfoBaseUsers.FindByUUID(
 			IBUser.UUID);
 	EndIf;
 	
@@ -768,7 +796,7 @@ Procedure WriteInfobaseUser(IBUser, IsExternalUser = False,
 	InfobaseUpdateInternal.SetShowDetailsToNewUserFlag(IBUser.Name);
 	IBUser.Write();
 	
-	If Not ThisIsUpdateOfUserCatalogs Then
+	If Not IsUsersCatalogsUpdate Then
 		
 		UpdatedInfobaseUser = InfoBaseUsers.FindByUUID(
 			IBUser.UUID);
@@ -780,11 +808,12 @@ Procedure WriteInfobaseUser(IBUser, IsExternalUser = False,
 			User = Users.FindByID(IBUser.UUID);
 		EndIf;
 		If User <> Undefined Then
-			InformationRegisters.UsersInfo.UpdateUserInfoRecords(User,, IBUser);
+			InformationRegisters.UsersInfo.UpdateUserInfoRecords(User,
+				Undefined, IBUser);
 			If ShouldNotifyServiceManager Then
 				ModuleUsersInternalSaaS = Common.CommonModule("UsersInternalSaaS");
-				ModuleUsersInternalSaaS.ReportAppLaunchChanged(User,
-					IBUser, OldInformationSecurityUser);
+				ModuleUsersInternalSaaS.NotifyAppStartupModified(User,
+					IBUser, InfobaseOldUser);
 			EndIf;
 		EndIf;
 	EndIf;
@@ -797,7 +826,7 @@ EndProcedure
 //  RolesAssignment - Undefined
 //  CheckEverything - Boolean
 //  ErrorList - Undefined
-//               - ValueList - :
+//               - ValueList - Found errors are added to the list without throwing an exception:
 //                   * Value      - String - a role name.
 //                                   - Undefined - the role specified in the procedure does not exist in the metadata.
 //                   * Presentation - String - error text.
@@ -948,14 +977,20 @@ Procedure CopyUserGroups(Source, Receiver) Export
 	EndIf;
 	Query.SetParameter("User", Source);
 	Query.SetParameter("Receiver", Receiver);
+	
 	QueryResult = Query.Execute();
-	Selection = QueryResult.Select();
+	If QueryResult.IsEmpty() Then
+		Return;
+	EndIf;
 	
 	LockItem.DataSource = QueryResult;
+	LockItem.UseFromDataSource("Ref", "UsersGroup");
 	
 	BeginTransaction();
 	Try
 		Block.Lock();
+		QueryResult = Query.Execute();
+		Selection = QueryResult.Select();
 		
 		While Selection.Next() Do
 			UsersGroupObject = Selection.UsersGroup.GetObject(); // CatalogObject.UserGroups, CatalogObject.ExternalUsersGroups
@@ -1058,6 +1093,25 @@ Function UserDetails(User) Export
 
 EndFunction
 
+// Returns:
+//  Boolean
+//
+Function CurUserSRolesHaveBeenReduced() Export
+	
+	SetPrivilegedMode(True);
+	
+	InfobaseOldUser = InfoBaseUsers.CurrentUser();
+	InfobaseNewUser = InfoBaseUsers.FindByUUID(
+		InfobaseOldUser.UUID);
+	
+	If InfobaseNewUser = Undefined Then
+		Return True;
+	EndIf;
+	
+	Return RolesAreReduced(InfobaseOldUser, InfobaseNewUser);
+	
+EndFunction
+
 // Parameters:
 //  List - DynamicList
 //
@@ -1109,6 +1163,188 @@ Procedure DynamicListOnGetDataAtServer(TagName, Settings, Rows) Export
 	
 EndProcedure
 
+// Parameters:
+//  Settings - Array of EventLogAccessEventUseDescription
+//  UnfoundFields - Array - A return value containing unfound fields.
+//
+Procedure DeleteNonExistentFieldsFromAccessAccessEventSetting(Settings, UnfoundFields) Export
+	
+	Result = New Array;
+	UnfoundFields = New Array;
+	AddedFields = New Map;
+	
+	For Each Setting In Settings Do
+		TableFields = UsersInternalCached.TableFields(Setting.Object);
+		AvailableFields = ?(TableFields = Undefined, Undefined, TableFields.AllFields);
+		
+		AccessFields = New Array;
+		For Each Field In Setting.AccessFields Do
+			If TypeOf(Field) = Type("Array") Then
+				NestedFields = New Array;
+				For Each NestedField In Field Do
+					AddFieldWithCheck(NestedFields,
+						NestedField, AvailableFields, UnfoundFields, AddedFields, Setting.Object);
+				EndDo;
+				If ValueIsFilled(NestedFields) Then
+					AccessFields.Add(NestedFields);
+				EndIf;
+			Else
+				AddFieldWithCheck(AccessFields,
+					Field, AvailableFields, UnfoundFields, AddedFields, Setting.Object);
+			EndIf;
+		EndDo;
+		
+		RegistrationFields = New Array;
+		For Each Field In Setting.RegistrationFields Do
+			AddFieldWithCheck(RegistrationFields,
+				Field, AvailableFields, UnfoundFields, AddedFields, Setting.Object);
+		EndDo;
+		
+		If ValueIsFilled(AccessFields)
+		 Or ValueIsFilled(RegistrationFields) Then
+			
+			NewSetting = New EventLogAccessEventUseDescription;
+			NewSetting.Object = Setting.Object;
+			NewSetting.AccessFields = AccessFields;
+			NewSetting.RegistrationFields = RegistrationFields;
+			Result.Add(NewSetting);
+		EndIf;
+	EndDo;
+	
+	Settings = Result;
+	
+EndProcedure
+
+// Adds the names of the fields specified in the setting in the format of the "TableFields" function
+// that are missing from the result returned by the "TableFields" function.
+// If a new collection is being added, the "Name" property is empty.
+// The presentation value is copied from the name value.
+// These fields are not added to the "AllFields" presentation.
+// 
+// Parameters:
+//  EventSetting - EventLogAccessEventUseDescription
+//
+// Returns:
+//   See TableFields
+//
+Function TableFieldsConsideringAccessEventSettings(EventSetting) Export
+	
+	TableFields = UsersInternalCached.TableFields(EventSetting.Object);
+	
+	UnfoundFields = New Array;
+	DeleteNonExistentFieldsFromAccessAccessEventSetting(
+		CommonClientServer.ValueInArray(EventSetting), UnfoundFields);
+	
+	If Not ValueIsFilled(UnfoundFields) Then
+		Return TableFields;
+	EndIf;
+	
+	If TableFields = Undefined Then
+		TableFields = New Structure;
+		TableFields.Insert("Collections", New Array);
+		TableFields.Insert("AllFields", New Map);
+	Else
+		TableFields = TableFields(EventSetting.Object);
+	EndIf;
+	
+	Tables = New Map;
+	
+	IndexOfFirstTableCollection = 0;
+	For Each Collection In TableFields.Collections Do
+		If Collection.Tables = Undefined Then
+			Continue;
+		EndIf;
+		For Each TableDetails In Collection.Tables Do
+			If Not ValueIsFilled(Tables) Then
+				IndexOfFirstTableCollection = TableFields.Collections.Find(Collection);
+			EndIf;
+			Tables.Insert(Lower(TableDetails.Name),
+				New Structure("TableDetails, FieldIndex", TableDetails, 0));
+		EndDo;
+	EndDo;
+	
+	FieldsCollection = New Structure;
+	FieldsCollection.Insert("Name", "");
+	FieldsCollection.Insert("Fields", New Array);
+	FieldsCollection.Insert("Tables");
+	
+	TablesCollection = New Structure;
+	TablesCollection.Insert("Name", "");
+	TablesCollection.Insert("Fields");
+	TablesCollection.Insert("Tables", New Array);
+	
+	BeginningOfFieldName = StrLen(EventSetting.Object) + 1;
+	For Each UnfoundField In UnfoundFields Do
+		UnfoundField = StrReplace(UnfoundField, "<<?>>", "");
+		UnfoundField = Mid(UnfoundField, BeginningOfFieldName);
+		NameParts = StrSplit(UnfoundField, ".", False);
+		If NameParts.Count() > 1 Then
+			TableName = NameParts[0];
+			FieldName = NameParts[1];
+			TableProperties = Tables.Get(Lower(TableName));
+			If TableProperties = Undefined Then
+				TableDetails = TableNewDetails();
+				TableDetails.Name = TableName;
+				TableDetails.Presentation = TableName;
+				TablesCollection.Tables.Add(TableDetails);
+				TableProperties = New Structure("TableDetails, FieldIndex", TableDetails, 0);
+				Tables.Insert(Lower(TableName), TableProperties);
+			EndIf;
+			Fields = TableProperties.TableDetails.Fields;
+			FieldIndex = TableProperties.FieldIndex;
+		Else
+			FieldName = NameParts[0];
+			Fields = FieldsCollection.Fields;
+			FieldIndex = Fields.Count();
+		EndIf;
+		FieldDetails = NewFieldDescription();
+		FieldDetails.Name = FieldName;
+		FieldDetails.Presentation = FieldName;
+		Fields.Insert(FieldIndex, FieldDetails);
+	EndDo;
+	
+	If ValueIsFilled(TablesCollection.Tables) Then
+		TableFields.Collections.Insert(IndexOfFirstTableCollection, TablesCollection);
+	EndIf;
+	
+	If ValueIsFilled(FieldsCollection.Fields) Then
+		TableFields.Collections.Insert(0, FieldsCollection);
+	EndIf;
+	
+	Return TableFields;
+	
+EndFunction
+
+// Returns:
+//  String
+//
+Function EventNameChangeAdditionalForLogging() Export
+	
+	Return NStr("en = 'Users.Update (additional)';",
+		Common.DefaultLanguageCode());
+	
+EndFunction
+
+// Returns:
+//  String
+//
+Function EventNameChangeMembersChangeInUserGroupsForEventLog() Export
+	
+	Return NStr("en = 'Users.Change user group membership';",
+		Common.DefaultLanguageCode());
+	
+EndFunction
+
+// Returns:
+//  String
+//
+Function EventNameChangeMembersChangeInExternalUserGroupsForEventLog() Export
+	
+	Return NStr("en = 'Users.Change external user group membership';",
+		Common.DefaultLanguageCode());
+	
+EndFunction
+
 ////////////////////////////////////////////////////////////////////////////////
 // Universal procedures and functions.
 
@@ -1141,6 +1377,252 @@ Function ObjectRef2(Val Object, IsNew = Undefined) Export
 	EndIf;
 	
 	Return Ref;
+	
+EndFunction
+
+// Returns:
+//  Boolean
+//
+Function IsSettings8_3_26Available() Export
+	
+	Properties = New Structure("PasswordHashAlgorithmType", Null);
+	FillPropertyValues(Properties, InfoBaseUsers.CurrentUser());
+	
+	Return Properties.PasswordHashAlgorithmType <> Null;
+	
+EndFunction
+
+////////////////////////////////////////////////////////////////////////////////
+// 
+
+// 
+// 
+// 
+//
+// Parameters:
+//  ParameterName - String
+//  Value - 
+//  DCSettings - DataCompositionSettings
+//  UserSettings - DataCompositionUserSettings
+//
+Procedure SetFilterOnParameter(ParameterName, Value, DCSettings, UserSettings) Export
+	
+	DataParameter = DCSettings.DataParameters.Items.Find(ParameterName);
+	If DataParameter = Undefined Then
+		Return;
+	EndIf;
+	
+	If ValueIsFilled(DataParameter.UserSettingID) Then
+		For Each CurrentItem In UserSettings.Items Do
+			If CurrentItem.UserSettingID
+					= DataParameter.UserSettingID Then
+				DataParameter = CurrentItem;
+				Break;
+			EndIf;
+		EndDo;
+	EndIf;
+	
+	NewValue = Value;
+	
+	If TypeOf(Value) = Type("ValueList")
+	   And Value.Count() = 1 Then
+		
+		NewValue = Value[0].Value;
+	EndIf;
+	
+	DataParameter.Value = NewValue;
+	DataParameter.Use = True;
+	
+EndProcedure
+
+// 
+// 
+//
+// Parameters:
+//  FieldName - String
+//  Value - 
+//  DCSettings - DataCompositionSettings
+//  UserSettings - DataCompositionUserSettings
+//  InHierarchy - Boolean - 
+//                
+//
+Procedure SetFilterOnField(FieldName, Value, DCSettings, UserSettings, InHierarchy = False) Export
+	
+	Field = New DataCompositionField(FieldName);
+	SettingID = Undefined;
+	
+	For Each FilterElement In DCSettings.Filter.Items Do
+		If FilterElement.LeftValue = Field Then
+			SettingID = FilterElement.UserSettingID;
+			Break;
+		EndIf;
+	EndDo;
+	
+	If SettingID = Undefined Then
+		Return;
+	EndIf;
+	
+	Item = Undefined;
+	For Each CurrentItem In UserSettings.Items Do
+		If CurrentItem.UserSettingID = SettingID Then
+			Item = CurrentItem;
+			Break;
+		EndIf;
+	EndDo;
+	
+	If Item = Undefined Then
+		Return;
+	EndIf;
+	
+	NewValue = Value;
+	NewComparisonType = ?(InHierarchy,
+		DataCompositionComparisonType.InHierarchy,
+		DataCompositionComparisonType.Equal);
+	
+	If TypeOf(Value) = Type("ValueList") Then
+		If Value.Count() = 1 Then
+			NewValue = Value[0].Value;
+		Else
+			NewComparisonType = ?(InHierarchy,
+				DataCompositionComparisonType.InListByHierarchy,
+				DataCompositionComparisonType.InList);
+		EndIf;
+	EndIf;
+	
+	Item.ComparisonType = NewComparisonType;
+	Item.RightValue = NewValue;
+	Item.Use = True;
+	
+EndProcedure
+
+////////////////////////////////////////////////////////////////////////////////
+// 
+
+// 
+// 
+//
+// 
+//
+// 
+// 
+// 
+//
+// Parameters:
+//  RefsKind - String - 
+//               
+// 
+//  RefsToAdd - Arbitrary - 
+//                    - Array of Arbitrary
+//                    - Null - 
+//
+Procedure RegisterRefs(RefsKind, Val RefsToAdd) Export
+	
+	If Common.DataSeparationEnabled() Then
+		Return;
+	EndIf;
+	
+	RefsKindProperties = UsersInternalCached.RefKindsProperties().Get(RefsKind);
+	If RefsKindProperties = Undefined Then
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'In procedure ""%3"", parameter ""%2"" has invalid value: %1.';"),
+			RefsKind, "RefsKind", "RegisterRefs");
+		Raise ErrorText;
+	EndIf;
+	
+	References = StandardSubsystemsServer.ExtensionParameter(
+		RefsKindProperties.ParameterNameExtensionsOperation, True);
+	
+	If TypeOf(References) <> Type("Array") Then
+		References = New Array;
+	EndIf;
+	
+	HasChanges = False;
+	If RefsToAdd = Null Then
+		If References.Count() > 0 Then
+			References = New Array;
+			HasChanges = True;
+		EndIf;
+		
+	ElsIf References.Count() = 1
+	        And References[0] = Undefined Then
+		
+		Return; // 
+	Else
+		If TypeOf(RefsToAdd) <> Type("Array") Then
+			RefsToAdd = CommonClientServer.ValueInArray(RefsToAdd);
+		EndIf;
+		For Each RefToAdd In RefsToAdd Do
+			If References.Find(RefToAdd) <> Undefined Then
+				Continue;
+			EndIf;
+			References.Add(RefToAdd);
+			HasChanges = True;
+		EndDo;
+		If References.Count() > 300 Then
+			References = New Array;
+			References.Add(Undefined);
+			HasChanges = True;
+		EndIf;
+	EndIf;
+	
+	If Not HasChanges Then
+		Return;
+	EndIf;
+	
+	StandardSubsystemsServer.SetExtensionParameter(
+		RefsKindProperties.ParameterNameExtensionsOperation, References, True);
+	
+EndProcedure
+
+// 
+// 
+//
+// 
+//
+// Parameters:
+//  RefsKind - String - 
+//               
+//
+// Returns:
+//  Array of Arbitrary - 
+//                           
+//                           
+//
+Function RegisteredRefs(RefsKind) Export
+	
+	If Common.DataSeparationEnabled() Then
+		Return New Array;
+	EndIf;
+	
+	RefsKindProperties = UsersInternalCached.RefKindsProperties().Get(RefsKind);
+	If RefsKindProperties = Undefined Then
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'In function ""%3"", parameter ""%2"" has invalid value: %1.';"),
+			RefsKind, "RefsKind", "RegisteredRefs");
+		Raise ErrorText;
+	EndIf;
+	
+	References = StandardSubsystemsServer.ExtensionParameter(
+		RefsKindProperties.ParameterNameExtensionsOperation, True);
+	
+	If TypeOf(References) <> Type("Array") Then
+		References = New Array;
+	EndIf;
+	
+	If References.Count() = 1
+	   And References[0] = Undefined Then
+		
+		Return References;
+	EndIf;
+	
+	CheckedRefs = New Array;
+	For Each Ref In References Do
+		If RefsKindProperties.AllowedTypes.ContainsType(TypeOf(Ref)) Then
+			CheckedRefs.Add(Ref);
+		EndIf;
+	EndDo;
+	
+	Return CheckedRefs;
 	
 EndFunction
 
@@ -1179,6 +1661,25 @@ Procedure OnAddClientParametersOnStart(Parameters, Cancel, IsCallBeforeStart) Ex
 			   And InformationRegisters.UsersInfo.AskAboutDisablingOpenIDConnect() Then
 			
 				AuthorizationResult.Insert("AskAboutDisablingOpenIDConnect");
+			EndIf;
+			
+			If Common.SeparatedDataUsageAvailable() Then
+				IBUser = InfoBaseUsers.CurrentUser();
+				IBUserID = IBUser.UUID;
+				BegOfDay = BegOfDay(CurrentSessionDate());
+				IBUsersIDs = CommonClientServer.ValueInArray(IBUserID);
+				SetPrivilegedMode(True);
+				Balance = UsersRemainingValidityPeriods(IBUsersIDs, BegOfDay);
+				RemainingValidityPeriod = Balance.Get(IBUserID);
+				If ValueIsFilled(RemainingValidityPeriod)
+				   And IsNotificationRequired(IBUser.Name, RemainingValidityPeriod, BegOfDay) Then
+				
+					SMSMessageRecipients = New Map;
+					SMSMessageRecipients.Insert(IBUserID, CommonClientServer.ValueInArray("*"));
+					ServerNotifications.SendServerNotification(ServerNotificationName(),
+						RemainingValidityPeriod, SMSMessageRecipients);
+				EndIf;
+				SetPrivilegedMode(False);
 			EndIf;
 		EndIf;
 		
@@ -1223,7 +1724,7 @@ Procedure OnFillAccessKinds(AccessKinds) Export
 	AccessKind.Presentation          = NStr("en = 'Users';");
 	AccessKind.ValuesType            = Type("CatalogRef.Users");
 	AccessKind.ValuesGroupsType       = Type("CatalogRef.UserGroups");
-	AccessKind.MultipleValuesGroups = True; 
+	AccessKind.MultipleValuesGroups = True; // 
 	
 	AccessKind = AccessKinds.Add();
 	AccessKind.Name                    = "ExternalUsers";
@@ -1255,26 +1756,50 @@ Procedure OnAddServerNotifications(Notifications) Export
 		EndIf;
 	EndIf;
 	
-	Notification = ServerNotifications.NewServerNotification(
-		"StandardSubsystems.Users.LockOrUserRolesChange");
+	Notification = ServerNotifications.NewServerNotification(ServerNotificationName());
 	
 	Notification.NotificationSendModuleName  = "UsersInternal";
 	Notification.NotificationReceiptModuleName = "UsersInternalClient";
-	Notification.Parameters = InfobaseUserRolesChecksum(
-		InfoBaseUsers.CurrentUser());
+	If Common.FileInfobase() Then
+		Notification.Parameters = IBUserRoleKeys(
+			InfoBaseUsers.CurrentUser());
+	EndIf;
 	
 	Notifications.Insert(Notification.Name, Notification);
 	
 EndProcedure
 
-// See StandardSubsystemsServer.OnSendServerNotification
-Procedure OnSendServerNotification(NameOfAlert, ParametersVariants) Export
+// 
+//
+// Parameters:
+//  NameOfAlert - See StandardSubsystemsServer.OnSendServerNotification.NameOfAlert
+//  ProcedureParameters - Structure:
+//   * ParametersVariants - See StandardSubsystemsServer.OnSendServerNotification.ParametersVariants
+//   * ActiveSessionsByKey - Map of KeyAndValue:
+//      ** Key - See ServerNotifications.SessionKey
+//      ** Value - InfoBaseSession
+//
+Procedure OnSendServerNotification(NameOfAlert, ProcedureParameters) Export
 	
-	UpdateLastUserActivityDate(ParametersVariants);
+	ParametersVariants     = ProcedureParameters.ParametersVariants;
+	ActiveSessionsByKey = ProcedureParameters.ActiveSessionsByKey;
+	
+	FileInfobase = Common.FileInfobase();
+	BegOfDay = BegOfDay(CurrentSessionDate());
+	IBUsersIDs = New Array;
+	UpdateLastUserActivityDate(ParametersVariants, IBUsersIDs);
 	DisableInactiveAndOverdueUsers();
+	RemainingValidityPeriods = UsersRemainingValidityPeriods(IBUsersIDs, BegOfDay);
+	
+	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
+		AccessGroupModule = Common.CommonModule("Catalogs.AccessGroups");
+		AccessGroupModule.ExcludeExpiredMembers();
+	EndIf;
 	
 	LockAddressees = New Map;
-	RoleChangeAddressees = New Map;
+	ValidityPeriodRecipients = New Map;
+	RecipientsOfRoleExtensions = New Map;
+	RecipientsOfRoleAbbreviations = New Map;
 	
 	For Each ParametersVariant In ParametersVariants Do
 		For Each Addressee In ParametersVariant.SMSMessageRecipients Do
@@ -1286,27 +1811,77 @@ Procedure OnSendServerNotification(NameOfAlert, ParametersVariants) Export
 			   And IBUser.AccessTokenAuthentication = False
 			   And IBUser.OSAuthentication             = False Then
 			
-				LockAddressees.Insert(Addressee.Key, Addressee.Value);
+				AddAddresseeSessions(LockAddressees, Addressee);
 				Continue;
 			EndIf;
-			NewHash = InfobaseUserRolesChecksum(IBUser);
-			If ParametersVariant.Parameters <> NewHash Then
-				DateRemindTomorrow = Common.SystemSettingsStorageLoad(
-					"InfobaseUserRoleChangeControl", "DateRemindTomorrow",,, IBUser.Name);
-				If TypeOf(DateRemindTomorrow) = Type("Date")
-				   And CurrentSessionDate() < DateRemindTomorrow Then
+			
+			RemainingValidityPeriod = RemainingValidityPeriods.Get(IBUser.UUID);
+			If ValueIsFilled(RemainingValidityPeriod)
+			   And IsNotificationRequired(IBUser.Name, RemainingValidityPeriod, BegOfDay) Then
+				
+				CurrentPeriodRecipients = ValidityPeriodRecipients.Get(RemainingValidityPeriod);
+				If CurrentPeriodRecipients = Undefined Then
+					CurrentPeriodRecipients = New Map;
+					ValidityPeriodRecipients.Insert(RemainingValidityPeriod, CurrentPeriodRecipients);
+				EndIf;
+				AddAddresseeSessions(CurrentPeriodRecipients, Addressee);
+			EndIf;
+			
+			IsFullUser = Users.IsFullUser(IBUser);
+			DateRemindTomorrow = Common.SystemSettingsStorageLoad(
+				"InfobaseUserRoleChangeControl", "DateRemindTomorrow",,, IBUser.Name);
+			RemindMeTomorrow = TypeOf(DateRemindTomorrow) = Type("Date")
+				And CurrentSessionDate() < DateRemindTomorrow;
+			
+			If FileInfobase Then
+				NewRoleKeys = IBUserRoleKeys(IBUser);
+				If ParametersVariant.Parameters <> NewRoleKeys Then
+					If Not IsFullUser
+					   And RoleKeysAreReduced(ParametersVariant.Parameters, NewRoleKeys) Then
+						AddAddresseeSessions(RecipientsOfRoleAbbreviations, Addressee);
+					ElsIf Not RemindMeTomorrow Then
+						AddAddresseeSessions(RecipientsOfRoleExtensions, Addressee);
+					EndIf;
+				EndIf;
+				Continue;
+			EndIf;
+			
+			RolesAsString = ValueToStringInternal(IBUser.Roles);
+			For Each SessionKey In Addressee.Value Do
+				CurrentSession = ActiveSessionsByKey.Get(SessionKey);
+				If CurrentSession = Undefined Then
 					Continue;
 				EndIf;
-				RoleChangeAddressees.Insert(Addressee.Key, Addressee.Value);
-			EndIf;
+				InfobaseOldUser = CurrentSession.User;
+				If InfobaseOldUser = Undefined Then
+					Continue;
+				EndIf;
+				If RolesAsString = ValueToStringInternal(InfobaseOldUser.Roles) Then
+					Continue;
+				EndIf;
+				If Not IsFullUser
+				   And RolesAreReduced(InfobaseOldUser, IBUser) Then
+					AddAddresseeSessions(RecipientsOfRoleAbbreviations, Addressee, SessionKey);
+				ElsIf Not RemindMeTomorrow Then
+					AddAddresseeSessions(RecipientsOfRoleExtensions, Addressee, SessionKey);
+				EndIf;
+			EndDo;
 		EndDo;
 	EndDo;
 	
 	If ValueIsFilled(LockAddressees) Then
 		ServerNotifications.SendServerNotification(NameOfAlert, "AuthorizationDenied", LockAddressees);
 	EndIf;
-	If ValueIsFilled(RoleChangeAddressees) Then
-		ServerNotifications.SendServerNotification(NameOfAlert, "RolesAreModified", RoleChangeAddressees);
+	If ValueIsFilled(ValidityPeriodRecipients) Then
+		For Each LongDesc In ValidityPeriodRecipients Do
+			ServerNotifications.SendServerNotification(NameOfAlert, LongDesc.Key, LongDesc.Value);
+		EndDo;
+	EndIf;
+	If ValueIsFilled(RecipientsOfRoleAbbreviations) Then
+		ServerNotifications.SendServerNotification(NameOfAlert, "RolesAreReduced", RecipientsOfRoleAbbreviations);
+	EndIf;
+	If ValueIsFilled(RecipientsOfRoleExtensions) Then
+		ServerNotifications.SendServerNotification(NameOfAlert, "RolesExpanded", RecipientsOfRoleExtensions);
 	EndIf;
 	
 EndProcedure
@@ -1418,7 +1993,7 @@ Procedure OnCollectConfigurationStatisticsParameters() Export
 	|	UsersInfo.LastActivityDate >= &SliceDate";
 	
 	Query = New Query(QueryText);
-	Query.SetParameter("SliceDate", BegOfDay(CurrentSessionDate() - 30 *60*60*24)); 
+	Query.SetParameter("SliceDate", BegOfDay(CurrentSessionDate() - 30 *60*60*24)); // 
 	Selection = Query.Execute().Select();
 	Selection.Next();
 	
@@ -1482,11 +2057,6 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 		Handler.Priority = 1;
 	EndIf;
 	
-	Handler = Handlers.Add();
-	Handler.InitialFilling = True;
-	Handler.ExecutionMode = "Seamless";
-	Handler.Procedure = "UsersInternal.FillPredefinedUserGroupsDescription";
-	
 	If Not Common.DataSeparationEnabled() Then
 		
 		// Users
@@ -1507,7 +2077,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 			
 			ExecutionPriorities = Handler.ExecutionPriorities; // ValueTable
 			NewRow = ExecutionPriorities.Add();
-			NewRow.Procedure = "ConversationsInternal.LockInvalidUsersInCollaborationSystem"; 
+			NewRow.Procedure = "ConversationsInternal.LockInvalidUsersInCollaborationSystem"; // 
 			NewRow.Order = "After";
 		EndIf;
 		
@@ -1573,6 +2143,12 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Procedure = "UsersInternal.MoveDesignerPasswordLengthAndComplexitySettings";
 	Handler.Comment = NStr("en = 'Specify and transfer user authorization settings';");
 	
+	Handler = Handlers.Add();
+	Handler.Version = "3.1.10.65";
+	Handler.ExecutionMode = "Seamless";
+	Handler.Procedure = "UsersInternal.FillUserGroupsHierarchy";
+	Handler.Comment = NStr("en = 'Filling ""User group hierarchy"" information register';");
+	
 EndProcedure
 
 // See also InfobaseUpdateOverridable.OnDefineSettings
@@ -1587,10 +2163,22 @@ Procedure OnDefineObjectsWithInitialFilling(Objects) Export
 	
 EndProcedure
 
+// See InfobaseUpdateSSL.AfterUpdateInfobase.
+Procedure AfterUpdateInfobase(Val PreviousVersion, Val CurrentVersion,
+			Val CompletedHandlers, OutputUpdatesDetails, ExclusiveMode) Export
+	
+	If Not Common.SeparatedDataUsageAvailable() Then
+		Return;
+	EndIf;
+	
+	UpdateAuxiliaryDataOfItemsModifiedUponDataImport();
+	
+EndProcedure
+
 // See CommonOverridable.OnAddClientParameters.
 Procedure OnAddClientParameters(Parameters) Export
 	
-	
+	// Obsolete. Kept for backward compatibility. Use "UsersClient.IsFullUser" instead.
 	Parameters.Insert("IsFullUser", Users.IsFullUser());
 	Parameters.Insert("IsSystemAdministrator", Users.IsFullUser(, True));
 	
@@ -1604,24 +2192,17 @@ Procedure OnAddReferenceSearchExceptions(RefSearchExclusions) Export
 	
 EndProcedure
 
-// See StandardSubsystemsServer.OnSendDataToSlave.
-Procedure OnSendDataToSlave(DataElement, ItemSend, InitialImageCreating, Recipient) Export
-	
-	OnSendData(DataElement, ItemSend, True);
-	
-EndProcedure
-
 // See StandardSubsystems.OnSendDataToMaster.
 Procedure OnSendDataToMaster(DataElement, ItemSend, Recipient) Export
 	
-	OnSendData(DataElement, ItemSend, False);
+	OnSendData(DataElement, ItemSend, False, False);
 	
 EndProcedure
 
-// See StandardSubsystemsServer.OnReceiveDataFromSlave.
-Procedure OnReceiveDataFromSlave(DataElement, ItemReceive, SendBack, Sender) Export
+// See StandardSubsystemsServer.OnSendDataToSlave.
+Procedure OnSendDataToSlave(DataElement, ItemSend, InitialImageCreating, Recipient) Export
 	
-	OnDataGet(DataElement, ItemReceive, SendBack, True);
+	OnSendData(DataElement, ItemSend, True, InitialImageCreating);
 	
 EndProcedure
 
@@ -1632,20 +2213,43 @@ Procedure OnReceiveDataFromMaster(DataElement, ItemReceive, SendBack, Sender) Ex
 	
 EndProcedure
 
-// See StandardSubsystemsServer.AfterGetData.
-Procedure AfterGetData(Sender, Cancel, GetFromMasterNode) Export
+// See StandardSubsystemsServer.OnReceiveDataFromSlave.
+Procedure OnReceiveDataFromSlave(DataElement, ItemReceive, SendBack, Sender) Export
 	
-	UpdateExternalUsersRoles();
+	OnDataGet(DataElement, ItemReceive, SendBack, True);
 	
 EndProcedure
 
-// Parameters:
-//   ToDoList - See ToDoListServer.ToDoList.
+// See StandardSubsystemsServer.AfterGetData.
+Procedure AfterGetData(Sender, Cancel, GetFromMasterNode) Export
+	
+	If InfobaseUpdate.InfobaseUpdateInProgress() Then
+		Return;
+	EndIf;
+	
+	UpdateAuxiliaryDataOfItemsModifiedUponDataImport();
+	
+EndProcedure
+
+// See the description in the procedure
+// to fill in the Extension Work Parameters of the Information Register Manager module Extension Work Parameters.
 //
+Procedure OnFillAllExtensionParameters() Export
+	
+	SetSafeModeDisabled(True);
+	SetPrivilegedMode(True);
+	
+	// 
+	UpdateAuxiliaryDataOfItemsModifiedUponDataImport();
+	
+EndProcedure
+
+
+// See SSLSubsystemsIntegration.OnFillToDoList.
 Procedure OnFillToDoList(ToDoList) Export
 	
-	
-	
+	// 
+	// 
 	ModuleToDoListServer = Common.CommonModule("ToDoListServer");
 	
 	AddCaseInvalidUsersInfo = Not Common.DataSeparationEnabled()
@@ -1672,6 +2276,145 @@ Procedure OnFillToDoList(ToDoList) Export
 		EndIf;
 		
 	EndDo;
+	
+EndProcedure
+
+// Parameters:
+//  KindsOfObjectsToChange - Array of String - Full names of the metadata objects
+//  ExternalAttributes - Array of See NewExternalAttribute
+//
+Procedure OnFillExternalAttributes(KindsOfObjectsToChange, ExternalAttributes) Export
+	
+	If KindsOfObjectsToChange.Count() > 2
+	 Or KindsOfObjectsToChange.Count() = 1
+	   And KindsOfObjectsToChange[0] <> "Catalog.Users"
+	   And KindsOfObjectsToChange[0] <> "Catalog.ExternalUsers"
+	 Or KindsOfObjectsToChange.Count() = 2
+	   And (KindsOfObjectsToChange.Find("Catalog.Users") = Undefined
+	      Or KindsOfObjectsToChange.Find("Catalog.ExternalUsers") = Undefined)
+	 Or Not Users.IsFullUser() Then
+		Return;
+	EndIf;
+	
+	Prefix = ExternalAttributePrefix();
+	BooleanType = New TypeDescription("Boolean");
+	RegisterMetadata = Metadata.InformationRegisters.UsersInfo;
+	
+	ExternalAttributes.Add(NewExternalAttribute(Prefix + "CanSignIn",
+		RegisterMetadata.Attributes.CanSignIn.Presentation(), BooleanType));
+	
+	If Common.DataSeparationEnabled() Then
+		Return;
+	EndIf;
+	
+	ExternalAttributes.Add(NewExternalAttribute(Prefix + "StandardAuthentication",
+		NStr("en = '1C:Enterprise authentication';"), BooleanType));
+	
+	ExternalAttributes.Add(NewExternalAttribute(Prefix + "OpenIDAuthentication",
+		StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = '%1 authentication';"), "OpenID"), BooleanType));
+	
+	ExternalAttributes.Add(NewExternalAttribute(Prefix + "OpenIDConnectAuthentication",
+		StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = '%1 authentication';"), "OpenID-Connect"), BooleanType));
+	
+	ExternalAttributes.Add(NewExternalAttribute(Prefix + "AccessTokenAuthentication",
+		RegisterMetadata.Attributes.AccessTokenAuthentication.Presentation(), BooleanType));
+	
+	If KindsOfObjectsToChange.Count() = 1
+	   And KindsOfObjectsToChange[0] = "Catalog.Users" Then
+		
+		ExternalAttributes.Add(NewExternalAttribute(Prefix + "OSAuthentication",
+			RegisterMetadata.Attributes.OSAuthentication.Presentation(), BooleanType));
+		
+		ExternalAttributes.Add(NewExternalAttribute(Prefix + "OSUser",
+			RegisterMetadata.Attributes.OSUser.Presentation(),
+			RegisterMetadata.Attributes.OSUser.Type, True));
+	EndIf;
+	
+	ExternalAttributes.Add(NewExternalAttribute(Prefix + "ShowInList",
+		RegisterMetadata.Attributes.ShowInList.Presentation(), BooleanType));
+	
+	ExternalAttributes.Add(NewExternalAttribute(Prefix + "CannotChangePassword",
+		RegisterMetadata.Attributes.CannotChangePassword.Presentation(), BooleanType));
+	
+	ExternalAttributes.Add(NewExternalAttribute(Prefix + "CannotRecoveryPassword",
+		RegisterMetadata.Attributes.CannotRecoveryPassword.Presentation(), BooleanType));
+	
+	ExternalAttributes.Add(NewExternalAttribute(Prefix + "Email",
+		RegisterMetadata.Attributes.Email.Presentation(),
+		RegisterMetadata.Attributes.Email.Type, True));
+	
+	ExternalAttributes.Add(NewExternalAttribute(Prefix + "UserMustChangePasswordOnAuthorization",
+		RegisterMetadata.Resources.UserMustChangePasswordOnAuthorization.Presentation(), BooleanType));
+	
+	ExternalAttributes.Add(NewExternalAttribute(Prefix + "UnlimitedValidityPeriod",
+		NStr("en = 'Non-expiring access';"), BooleanType));
+	
+	ExternalAttributes.Add(NewExternalAttribute(Prefix + "ValidityPeriod",
+		NStr("en = 'Access will expire';"),
+		RegisterMetadata.Resources.ValidityPeriod.Type));
+	
+	ExternalAttributes.Add(NewExternalAttribute(Prefix + "InactivityPeriodBeforeDenyingAuthorization",
+		NStr("en = 'Deny sign-in after inactivity (days)';"),
+		RegisterMetadata.Resources.InactivityPeriodBeforeDenyingAuthorization.Type));
+	
+EndProcedure
+
+// Parameters:
+//  ObjectToChange - CatalogObject.Users
+//                   - CatalogObject.ExternalUsers
+//
+//  ExternalAttributesToChange - Map of KeyAndValue:
+//   * Key - See NewExternalAttribute.Name
+//   * Value - Arbitrary
+//
+Procedure OnChangeExternalAttributes(ObjectToChange, ExternalAttributesToChange) Export
+	
+	IBUserDetails = New Structure;
+	Extensions    = New Structure;
+	
+	AllExtendedProperties = New Structure(
+		"UserMustChangePasswordOnAuthorization,
+		|UnlimitedValidityPeriod,
+		|ValidityPeriod,
+		|InactivityPeriodBeforeDenyingAuthorization");
+	
+	Prefix = ExternalAttributePrefix();
+	PositionAfterPrefix = StrLen(Prefix) + 1;
+	
+	For Each ExternalAttributeToChange In ExternalAttributesToChange Do
+		If Not StrStartsWith(ExternalAttributeToChange.Key, Prefix) Then
+			Continue;
+		EndIf;
+		PropertyName = Mid(ExternalAttributeToChange.Key, PositionAfterPrefix);
+		If AllExtendedProperties.Property(PropertyName) Then
+			Extensions.Insert(PropertyName, ExternalAttributeToChange.Value);
+		Else
+			IBUserDetails.Insert(PropertyName, ExternalAttributeToChange.Value);
+		EndIf;
+	EndDo;
+	
+	Write = False;
+	If ValueIsFilled(IBUserDetails) Then
+		IBUserDetails.Insert("Action", "Write");
+		IBUserDetails.Insert("UpdateInfobaseUserOnly");
+		If Not IBUserDetails.Property("CanSignIn") Then
+			// Do not change "CanLogon" when changing authentication.
+			IBUserDetails.Insert("CanSignIn");
+		EndIf;
+		ObjectToChange.AdditionalProperties.Insert("IBUserDetails", IBUserDetails);
+		Write = True;
+	EndIf;
+	
+	If ValueIsFilled(Extensions) Then
+		ObjectToChange.AdditionalProperties.Insert("InfobaseUserExtendedProperties", Extensions);
+		Write = True;
+	EndIf;
+	
+	If Write Then
+		ObjectToChange.Description = ObjectToChange.Description; // Set the modification flag.
+	EndIf;
 	
 EndProcedure
 
@@ -1722,14 +2465,28 @@ Procedure OnSetUpSubordinateDIBNode() Export
 	
 	ClearNonExistingIBUsersIDs();
 	
+	InformationRegisters.UsersInfo.UpdateRegisterData();
+	
 EndProcedure
 
 // StandardSubsystems.ReportsOptions subsystem event handlers.
 
 // See ReportsOptionsOverridable.CustomizeReportsOptions.
 Procedure OnSetUpReportsOptions(Settings) Export
+	
 	ModuleReportsOptions = Common.CommonModule("ReportsOptions");
 	ModuleReportsOptions.CustomizeReportInManagerModule(Settings, Metadata.Reports.UsersInfo);
+	ModuleReportsOptions.CustomizeReportInManagerModule(Settings, Metadata.Reports.UserGroupsMembers);
+	ModuleReportsOptions.CustomizeReportInManagerModule(Settings, Metadata.Reports.UsersByDepartments);
+	
+EndProcedure
+
+// See ReportsOptionsOverridable.BeforeAddReportCommands.
+Procedure BeforeAddReportCommands(ReportsCommands, Parameters, StandardProcessing) Export
+	
+	Reports.UserGroupsMembers.BeforeAddReportCommands(ReportsCommands, Parameters, StandardProcessing);
+	Reports.UsersByDepartments.BeforeAddReportCommands(ReportsCommands, Parameters, StandardProcessing);
+	
 EndProcedure
 
 // StandardSubsystems.AttachableCommands subsystem event handlers.
@@ -1743,7 +2500,7 @@ EndProcedure
 
 // StandardSubsystems.Users subsystem event handlers.
 
-// See the ChangeActionsOnForm procedure in the UsersOverridable common module.
+// See UsersOverridable.ChangeActionsOnForm
 Procedure OnDefineActionsInForm(Ref, ActionsOnForm) Export
 	
 	SSLSubsystemsIntegration.OnDefineActionsInForm(Ref, ActionsOnForm);
@@ -1892,19 +2649,43 @@ Function LogonSettings() Export
 			Users.CommonAuthorizationSettingsNewDetails().ShowInList;
 	EndIf;
 	
+	If Settings.Overall.NotificationLeadTimeBeforeTerminateInactiveSession
+	   > Settings.Overall.InactivityTimeoutBeforeTerminateSession Then
+		
+		Settings.Overall.NotificationLeadTimeBeforeTerminateInactiveSession =
+			Settings.Overall.InactivityTimeoutBeforeTerminateSession;
+	EndIf;
+	
+	If Settings.Overall.PasswordLockoutDuration <= 0 Then
+		Settings.Overall.PasswordLockoutDuration = 1;
+	ElsIf Settings.Overall.PasswordLockoutDuration > 16666666 Then
+		Settings.Overall.PasswordLockoutDuration = 16666666;
+	EndIf;
+	
+	If Settings.Overall.PasswordRemembranceDuration <= 0 Then
+		Settings.Overall.PasswordRemembranceDuration = 1;
+	ElsIf Settings.Overall.PasswordRemembranceDuration > 16666666 Then
+		Settings.Overall.PasswordRemembranceDuration = 16666666;
+	EndIf;
+	
+	If Settings.Overall.ShouldUseBannedPasswordService
+	   And Not ValueIsFilled(Settings.Overall.BannedPasswordServiceAddress) Then
+		Settings.Overall.ShouldUseBannedPasswordService = False;
+	EndIf;
+	
 	// Populate common settings.
 	FillCommonSettingsFromCommonPasswordPolicy(Settings.Overall);
 	If RoundPasswordPolicy Then
 		UpdateCommonPasswordPolicy(Settings.Overall);
 	EndIf;
 	
-	
+	// Fill internal user settings.
 	FillSettingsFromUsersPasswordPolicy(Settings.Users);
 	If RoundPasswordPolicy Then
 		UpdateUsersPasswordPolicy(Settings.Users);
 	EndIf;
 	
-	
+	// Fill external user settings.
 	If Settings.Overall.AreSeparateSettingsForExternalUsers Then
 		FillSettingsFromExternalUsersPasswordPolicy(Settings.ExternalUsers);
 	EndIf;
@@ -1937,6 +2718,46 @@ Procedure FillCommonSettingsFromCommonPasswordPolicy(Settings)
 	Settings.PasswordAttemptsCountBeforeLockout =
 		LockSettings.MaxUnsuccessfulAttemptsCount;
 	
+	If Not IsSettings8_3_26Available() Then
+		Return;
+	EndIf;
+	
+	// ACC:488-off - Support of new 1C:Enterprise methods (the executable code is safe)
+	Settings.InactivityTimeoutBeforeTerminateSession =
+		Round(Eval("GetInactivityTimeForTerminateSession()") / 60);
+	
+	Settings.NotificationLeadTimeBeforeTerminateInactiveSession =
+		Round(Eval("GetInactivityTimeForTerminateSessionNotification()") / 60);
+	
+	SettingsForSaving =
+		Eval("AdditionalAuthenticationSettings.GetCredentialsAutoSaveSettings()");
+	
+	Settings.PasswordSaveOptionUponLogin = CurrentPasswordSaveOptionUponLogin(SettingsForSaving);
+	Settings.PasswordRemembranceDuration =
+		Round(SettingsForSaving.SavedCredentialsLifetime / 60);
+	
+	ValidationSettings =
+		Eval("AdditionalAuthenticationSettings.GetCompromisedPasswordsCheckSettings()");
+	// ACC:488-on
+	
+	Settings.ShouldUseStandardBannedPasswordList =
+		ValidationSettings.UseStandardPasswordCompromiseCheckList;
+	
+	Settings.ShouldUseAdditionalBannedPasswordList =
+		ValidationSettings.UseSetPasswordCompromiseCheckList;
+	
+	Settings.ShouldUseBannedPasswordService =
+		ValidationSettings.UsePasswordCompromiseCheckService;
+	
+	Settings.BannedPasswordServiceAddress =
+		ValidationSettings.PasswordCompromiseCheckServiceURL;
+	
+	Settings.BannedPasswordServiceMaxTimeout =
+		ValidationSettings.PasswordCompromiseCheckServiceRequestTimeout;
+	
+	Settings.ShouldSkipValidationIfBannedPasswordServiceOffline =
+		ValidationSettings.IgnorePasswordCompromiseCheckServiceErrors;
+	
 EndProcedure
 
 // Parameters:
@@ -1967,6 +2788,121 @@ Procedure UpdateCommonPasswordPolicy(Settings) Export
 		AuthenticationLock.SetSettings(LockSettings);
 	EndIf;
 	
+	If Not IsSettings8_3_26Available() Then
+		Return;
+	EndIf;
+	
+	// 
+	// 
+	If Eval("GetInactivityTimeForTerminateSession()")
+	  <> Settings.InactivityTimeoutBeforeTerminateSession * 60
+	   And Eval("GetInactivityTimeForTerminateSessionNotification()")
+	  <> Settings.NotificationLeadTimeBeforeTerminateInactiveSession * 60 Then
+		
+		Execute("SetInactivityTimeForTerminateSessionNotification(0)");
+	EndIf;
+	
+	If Eval("GetInactivityTimeForTerminateSession()")
+	  <> Settings.InactivityTimeoutBeforeTerminateSession * 60 Then
+		
+		Execute("SetInactivityTimeForTerminateSession(
+			|Settings.InactivityTimeoutBeforeTerminateSession * 60)");
+	EndIf;
+	
+	If Eval("GetInactivityTimeForTerminateSessionNotification()")
+	  <> Settings.NotificationLeadTimeBeforeTerminateInactiveSession * 60 Then
+		
+		Execute("SetInactivityTimeForTerminateSessionNotification(
+			|Settings.NotificationLeadTimeBeforeTerminateInactiveSession * 60)");
+	EndIf;
+	
+	Write = False;
+	SettingsForSaving =
+		Eval("AdditionalAuthenticationSettings.GetCredentialsAutoSaveSettings()");
+
+	If CurrentPasswordSaveOptionUponLogin(SettingsForSaving)
+	  <> Settings.PasswordSaveOptionUponLogin Then
+		
+		Write = True;
+		SettingsForSaving.AllowSave =
+			    Settings.PasswordSaveOptionUponLogin = "AllowedAndDisabled"
+			Or Settings.PasswordSaveOptionUponLogin = "AllowedAndEnabled";
+		SettingsForSaving.SaveByDefault =
+			Settings.PasswordSaveOptionUponLogin = "AllowedAndEnabled";
+	EndIf;
+	
+	If SettingsForSaving.SavedCredentialsLifetime
+	  <> Settings.PasswordRemembranceDuration * 60 Then
+		
+		Write = True;
+		SettingsForSaving.SavedCredentialsLifetime =
+			Settings.PasswordRemembranceDuration * 60;
+	EndIf;
+	
+	If Write Then
+		Execute("AdditionalAuthenticationSettings.SetAuthenticationAutoSaveSettings(
+			|SettingsForSaving)");
+	EndIf;
+	
+	Write = False;
+	ValidationSettings =
+		Eval("AdditionalAuthenticationSettings.GetCompromisedPasswordsCheckSettings()");
+	
+	If ValidationSettings.UseStandardPasswordCompromiseCheckList
+	  <> Settings.ShouldUseStandardBannedPasswordList Then
+		
+		Write = True;
+		ValidationSettings.UseStandardPasswordCompromiseCheckList =
+			Settings.ShouldUseStandardBannedPasswordList;
+	EndIf;
+	
+	If ValidationSettings.UseSetPasswordCompromiseCheckList
+	  <> Settings.ShouldUseAdditionalBannedPasswordList Then
+		
+		Write = True;
+		ValidationSettings.UseSetPasswordCompromiseCheckList =
+			Settings.ShouldUseAdditionalBannedPasswordList;
+	EndIf;
+	
+	If ValidationSettings.UsePasswordCompromiseCheckService
+	  <> Settings.ShouldUseBannedPasswordService Then
+		
+		Write = True;
+		ValidationSettings.UsePasswordCompromiseCheckService =
+			Settings.ShouldUseBannedPasswordService;
+	EndIf;
+	
+	If ValidationSettings.PasswordCompromiseCheckServiceURL
+	  <> Settings.BannedPasswordServiceAddress Then
+		
+		Write = True;
+		ValidationSettings.PasswordCompromiseCheckServiceURL =
+			Settings.BannedPasswordServiceAddress;
+	EndIf;
+	
+	If ValidationSettings.PasswordCompromiseCheckServiceRequestTimeout
+	  <> Settings.BannedPasswordServiceMaxTimeout Then
+		
+		Write = True;
+		ValidationSettings.PasswordCompromiseCheckServiceRequestTimeout =
+			Settings.BannedPasswordServiceMaxTimeout;
+	EndIf;
+	
+	If ValidationSettings.IgnorePasswordCompromiseCheckServiceErrors
+	  <> Settings.ShouldSkipValidationIfBannedPasswordServiceOffline Then
+		
+		Write = True;
+		ValidationSettings.IgnorePasswordCompromiseCheckServiceErrors =
+			Settings.ShouldSkipValidationIfBannedPasswordServiceOffline;
+	EndIf;
+	
+	If Write Then
+		Execute("AdditionalAuthenticationSettings.SetPasswordCompromiseCheckSettings(
+			|ValidationSettings)");
+	EndIf;
+	// 
+	// 
+	
 EndProcedure
 
 // Parameters:
@@ -1982,6 +2918,16 @@ Procedure FillSettingsFromUsersPasswordPolicy(Settings)
 	
 	Settings.MinPasswordLength =
 		GetUserPasswordMinLength();
+	
+	// ACC:488-off - Support of new 1C:Enterprise methods (the executable code is safe)
+	If IsSettings8_3_26Available() Then
+		Settings.ShouldBeExcludedFromBannedPasswordList
+			= Eval("GetUserPasswordCompromiseCheck()");
+			
+		Settings.ActionUponLoginIfRequirementNotMet =
+			CurrentActionUponLoginIfRequirementNotMet();
+	EndIf;
+	// ACC:488-on
 	
 	If Not DataSeparationEnabled Then
 		Settings.MaxPasswordLifetime =
@@ -2022,6 +2968,28 @@ Procedure UpdateUsersPasswordPolicy(Settings) Export
 		SetUserPasswordMinLength(
 			Settings.MinPasswordLength);
 	EndIf;
+	
+	// 
+	// 
+	If IsSettings8_3_26Available() Then
+		If Eval("GetUserPasswordCompromiseCheck()")
+		  <> Settings.ShouldBeExcludedFromBannedPasswordList Then
+			
+			Execute("SetUserPasswordCompromiseCheck(
+				|Settings.ShouldBeExcludedFromBannedPasswordList)");
+		EndIf;
+		
+		NewAction = ValueOfActionUponLoginIfRequirementNotMet(
+			Settings.ActionUponLoginIfRequirementNotMet);
+		
+		If Eval("GetActionOnUserPasswordRequirementsViolationOnAuthentication()")
+		  <> NewAction Then
+			
+			Execute("SetActionOnUserPasswordRequirementsViolationOnAuthentication(NewAction)");
+		EndIf;
+	EndIf;
+	// 
+	// 
 	
 	MaxPasswordLifetime = ?(DataSeparationEnabled,
 		0, Settings.MaxPasswordLifetime);
@@ -2080,6 +3048,14 @@ Procedure FillSettingsFromExternalUsersPasswordPolicy(Settings)
 	Settings.MinPasswordLength =
 		PasswordPolicy.PasswordMinLength;
 	
+	If IsSettings8_3_26Available() Then
+		Settings.ShouldBeExcludedFromBannedPasswordList
+			= PasswordPolicy.PasswordCompromiseCheck;
+			
+		Settings.ActionUponLoginIfRequirementNotMet =
+			CurrentActionUponLoginIfRequirementNotMet(PasswordPolicy);
+	EndIf;
+	
 	If Not DataSeparationEnabled Then
 		Settings.MaxPasswordLifetime =
 			Round(PasswordPolicy.PasswordMaxEffectivePeriod / SecondsPerDay);
@@ -2128,6 +3104,17 @@ Procedure UpdateExternalUsersPasswordPolicy(Settings) Export
 	
 	UpdatePolicyProperty(PasswordPolicy.PasswordMinLength,
 		Settings.MinPasswordLength, Write);
+	
+	If IsSettings8_3_26Available() Then
+		UpdatePolicyProperty(PasswordPolicy.PasswordCompromiseCheck,
+			Settings.ShouldBeExcludedFromBannedPasswordList, Write);
+	
+		NewAction = ValueOfActionUponLoginIfRequirementNotMet(
+			Settings.ActionUponLoginIfRequirementNotMet);
+		
+		UpdatePolicyProperty(PasswordPolicy.ActionUponAuthenticationIfPasswordsNonCompliant,
+			NewAction, Write);
+	EndIf;
 	
 	UpdatePolicyProperty(PasswordPolicy.PasswordMaxEffectivePeriod,
 		?(DataSeparationEnabled, 0, Settings.MaxPasswordLifetime * SecondsPerDay), Write);
@@ -2190,7 +3177,56 @@ Function ExternalUsersPasswordPolicyName()
 	
 EndFunction
 
-// 
+Function CurrentPasswordSaveOptionUponLogin(SettingsForSaving)
+	
+	If Not SettingsForSaving.AllowSave Then
+		Return "";
+	EndIf;
+	
+	If SettingsForSaving.SaveByDefault Then
+		Return "AllowedAndEnabled";
+	EndIf;
+	
+	Return "AllowedAndDisabled";
+	
+EndFunction
+
+Function CurrentActionUponLoginIfRequirementNotMet(PasswordPolicy = Undefined)
+	
+	// ACC:488-off - Support of new 1C:Enterprise methods (the executable code is safe)
+	CurrentAction1 = ?(PasswordPolicy = Undefined,
+		Eval("GetActionOnUserPasswordRequirementsViolationOnAuthentication()"),
+		PasswordPolicy.ActionUponAuthenticationIfPasswordsNonCompliant);
+	
+	If CurrentAction1 = Eval("ActionOnPasswordRequirementsViolationOnAuthentication.RequirePasswordChange") Then
+		Return "RequirePasswordChange";
+		
+	ElsIf CurrentAction1 = Eval("ActionOnPasswordRequirementsViolationOnAuthentication.SuggestPasswordChange") Then
+		Return "SuggestPasswordChange";
+		
+	EndIf;
+	// ACC:488-on
+	
+	Return "";
+	
+EndFunction
+
+Function ValueOfActionUponLoginIfRequirementNotMet(ActionName)
+	
+	// ACC:488-off - Support of new 1C:Enterprise methods (the executable code is safe)
+	If ActionName = "RequirePasswordChange" Then
+		Return Eval("ActionOnPasswordRequirementsViolationOnAuthentication.RequirePasswordChange");
+		
+	ElsIf ActionName = "SuggestPasswordChange" Then
+		Return Eval("ActionOnPasswordRequirementsViolationOnAuthentication.SuggestPasswordChange");
+	EndIf;
+	
+	Return Eval("ActionOnPasswordRequirementsViolationOnAuthentication.None");
+	// ACC:488-on
+	
+EndFunction
+
+// Sets "ShowInChoiceList" flag for all infobase users.
 // Parameters:
 //  Show - Boolean
 //
@@ -2228,6 +3264,8 @@ Procedure SetShowInListAttributeForAllInfobaseUsers(Show) Export
 			IBUser.Write();
 		EndIf;
 	EndDo;
+	
+	InformationRegisters.UsersInfo.UpdateRegisterData();
 	
 EndProcedure
 
@@ -2571,9 +3609,9 @@ Function CanChangePassword(User, AdditionalParameters = Undefined) Export
 	
 EndFunction
 
-// 
-// 
-// 
+// Intended for "PasswordChange" form and before saving an infobase user.
+// Verifies the current and new passwords, and if verification is passed,
+// replaces the password with the new one if the call is made by "PasswordChange" form.
 // 
 // Parameters:
 //  Parameters - Structure:
@@ -2713,8 +3751,11 @@ Function ProcessNewPassword(Parameters) Export
 				Write = True;
 			EndIf;
 			If Common.DataSeparationEnabled() Then
-				UserInfo.DeletePasswordUsageStartDate = BegOfDay(CurrentSessionDate());
-				Write = True;
+				NewStartDate = BegOfDay(CurrentSessionDate());
+				If UserInfo.DeletePasswordUsageStartDate <> NewStartDate Then
+					UserInfo.DeletePasswordUsageStartDate = NewStartDate;
+					Write = True;
+				EndIf;
 			EndIf;
 			If Write Then
 				RecordSet.Write();
@@ -2789,24 +3830,24 @@ Function HintUserMustChangePasswordOnAuthorization(ForExternalUsers) Export
 	If ForExternalUsers Then
 		If HasAdministrationSection Then
 			ToolTip =
-				NStr("en = 'You can specify password length and complexity requirements.
-				           |To do it, go to <b>Administration</b> – <b>Users and rights settings</b>. On the <b>For external users</b> tab,
-				           |click <a href = ""%1"">Authorization settings</a>.';");
+				NStr("en = 'You can set password length and complexity requirements.
+				           |To do this, go to <b>Administration</b> > <b>Users and rights settings</b>.
+				           |Click <a href = ""%1"">Login settings</a> and select <b>For external users</b>.';");
 		Else
 			ToolTip =
-				NStr("en = 'You can specify password length and complexity requirements.
-				           |To do it, click <a href = ""%1"">Authorization settings</a> on the <b>For external users</b> tab.';");
+				NStr("en = 'You can set password length and complexity requirements.
+				           |To do this, go to <a href = ""%1"">Login settings</a> and select <b>For external users</b>.';");
 		EndIf;
 	Else
 		If HasAdministrationSection Then
 			ToolTip =
-				NStr("en = 'You can specify password length and complexity requirements.
-				           |To do it, go to <b>Administration</b> – <b>Users and rights settings</b>. On the <b>For users</b> tab,
-				           |click <a href = ""%1"">Authorization settings</a>.';");
+				NStr("en = 'You can set password length and complexity requirements.
+				           |To do this, go to <b>Administration</b> > <b>Users and rights settings</b>.
+				           |Click <a href = ""%1"">Login settings</a> and select <b>For users</b>.';");
 		Else
 			ToolTip =
-				NStr("en = 'You can specify password length and complexity requirements.
-				           |To do it, click <a href = ""%1"">Authorization settings</a> on the <b>For users</b> tab.';");
+				NStr("en = 'You can set password length and complexity requirements.
+				           |To do this, go to <a href = ""%1"">Login settings</a> and select <b>For users</b>.';");
 		EndIf;
 	EndIf;
 	
@@ -2839,7 +3880,7 @@ Function AuthorizedUser() Export
 	
 EndFunction
 
-// Returns a password hash.
+// 
 //
 // Parameters:
 //  Password    - String - a password for which it is required to get a password hash.
@@ -2895,8 +3936,16 @@ Function PreviousPasswordMatchSaved(Password, IBUserID) Export
 		Return False;
 	EndIf;
 	
-	Return PasswordHashSumMatches(PasswordHashString(Password),
-		IBUser.StoredPasswordValue);
+	If IsSettings8_3_26Available() Then
+		// 
+		Result = Eval("CheckUserPasswordComplianceWithStoredValue(Password, IBUser)");
+		// 
+	Else
+		Result = PasswordHashSumMatches(PasswordHashString(Password),
+			IBUser.StoredPasswordValue);
+	EndIf;
+	
+	Return Result;
 	
 EndFunction
 
@@ -2944,17 +3993,17 @@ EndFunction
 //  Structure:
 //   * SystemAdministrator       - Boolean - any action on any user or its infobase user.
 //   * FullAccess                - Boolean - Same as the SystemAdministrator role but for non-administrator users.
-//   * ListManagement          - Boolean - :
-//                                  
-//                                     
-//                                  
-//                                     
-//                                     
-//   * ChangeAuthorizationPermission  - Boolean - Change the "Sign-in allowed" check box state.
-//   * DisableAuthorizationApproval - Boolean - Clear the "Sign-in allowed" check box.
-//   * AuthorizationSettings2          - Boolean - 
-//                                    
-//                                    
+//   * ListManagement          - Boolean - adding and changing users:
+//                                  a) For new users without the right to sign in to the application,
+//                                     any property can be edited except for granting the right to sign in.
+//                                  b) For users with the right to sign in to the application,
+//                                     any property can be edited, except for granting the right to sign in
+//                                     and the authentication settings (see below).
+//   * ChangeAuthorizationPermission  - Boolean - 
+//   * DisableAuthorizationApproval - Boolean - 
+//   * AuthorizationSettings2          - Boolean - Changes the infobase user properties: Name, OSUser,
+//                                    and the properties of OpenIDAuthentication, StandardAuthentication,
+//                                    OSAuthentication, AuthenticationWithAccessToken, and Roles catalog items (if role editing is not prohibited at the development stage).
 //                                    
 //   * ChangeCurrent          - Boolean - changing Password and Language properties of the current user.
 //   * NoAccess                 - Boolean - the access levels listed above are not available.
@@ -3072,6 +4121,72 @@ Function UserAccessLevelAbove(UserDetails, CurrentAccessLevel) Export
 	
 EndFunction
 
+// Starts processing the given infobase user if required.
+// Updates infobase user information record if required.
+//
+// Parameters:
+//  Object - CatalogObject.Users
+//         - CatalogObject.ExternalUsers
+//  ProcessingParameters - Structure - Return value.
+//
+Procedure UserObjectBeforeWrite(Object, ProcessingParameters) Export
+	
+	Properties = Common.ObjectAttributesValues(Object.Ref,
+		"DeletionMark, Invalid, IBUserID");
+	ShouldLogChanges = Properties.DeletionMark <> Object.DeletionMark
+		Or Properties.Invalid <> Object.Invalid
+		Or Properties.IBUserID <> Object.IBUserID;
+	
+	If Not Object.DataExchange.Load
+	 Or Object.AdditionalProperties.Property("WriteDuringDataExchange")
+	 Or Object.AdditionalProperties.Property("IBUserDetails") Then
+		
+		StartIBUserProcessing(Object, ProcessingParameters);
+	EndIf;
+	
+	If Not Object.DataExchange.Load
+	 Or Object.AdditionalProperties.Property("WriteDuringDataExchange")
+	 Or Object.AdditionalProperties.Property("IBUserDetails")
+	 Or Object.AdditionalProperties.Property("InfobaseUserExtendedProperties")
+	 Or ShouldLogChanges Then
+		
+		SetPrivilegedMode(True);
+		InformationRegisters.UsersInfo.UpdateUserInfoRecords(
+			ObjectRef2(Object), Object,, ShouldLogChanges);
+		SetPrivilegedMode(False);
+	EndIf;
+	
+EndProcedure
+
+// Deletes the given infobase user if required.
+// Deletes infobase user information records if required.
+//
+// Parameters:
+//  Object - CatalogObject.Users
+//         - CatalogObject.ExternalUsers
+//
+Procedure UserObjectBeforeDelete(Object, IsDeletionDuringExchange = False) Export
+	
+	If Not Object.DataExchange.Load
+	 Or IsDeletionDuringExchange
+	 Or Object.AdditionalProperties.Property("IBUserDetails") Then
+	
+		// 
+		// 
+		
+		IBUserDetails = New Structure;
+		IBUserDetails.Insert("Action", "Delete");
+		Object.AdditionalProperties.Insert("IBUserDetails", IBUserDetails);
+		
+		IBUserProcessingParameters = Undefined;
+		StartIBUserProcessing(Object, IBUserProcessingParameters, True);
+		EndIBUserProcessing(Object, IBUserProcessingParameters);
+	EndIf;
+	
+	InformationRegisters.UsersInfo.DeleteUserInfo(Object.Ref);
+	
+EndProcedure
+
 // The procedure is called in BeforeWrite handler of User or ExternalUser catalog.
 //
 // Parameters:
@@ -3106,7 +4221,7 @@ Procedure StartIBUserProcessing(UserObject,
 	
 	// Catalog attributes that cannot be changed in event subscriptions (checking initial values)
 	AttributesToLock = New Structure;
-	AttributesToLock.Insert("IsInternal", False); 
+	AttributesToLock.Insert("IsInternal", False); // 
 	AttributesToLock.Insert("DeletionMark");
 	AttributesToLock.Insert("Invalid");
 	AttributesToLock.Insert("Prepared");
@@ -3274,7 +4389,7 @@ Procedure StartIBUserProcessing(UserObject,
 		// Checking if unavailable properties can be changed
 		If Not AccessLevel.FullAccess Then
 			ValidProperties = New Structure;
-			ValidProperties.Insert("UUID"); 
+			ValidProperties.Insert("UUID"); // 
 			
 			If AccessLevel.ChangeCurrent Then
 				ValidProperties.Insert("Email");
@@ -3327,8 +4442,8 @@ Procedure StartIBUserProcessing(UserObject,
 	
 	NewIBUserDetails1 = Users.IBUserProperies(UserObject.IBUserID);
 	ProcessingParameters.Insert("NewIBUserExists", NewIBUserDetails1 <> Undefined);
-	ProcessingParameters.Insert("NewIBUser",
-		InformationSecurityUserById(UserObject.IBUserID));
+	ProcessingParameters.Insert("InfobaseNewUser",
+		InfobaseUserByID(UserObject.IBUserID));
 	
 	If NewIBUserDetails1 <> Undefined Then
 		ProcessingParameters.Insert("NewIBUserDetails1", NewIBUserDetails1);
@@ -3347,11 +4462,27 @@ Procedure StartIBUserProcessing(UserObject,
 		ModuleUsersInternalSaaS.AfterStartIBUserProcessing(UserObject, ProcessingParameters);
 	EndIf;
 	
-	If ProcessingParameters.Property("CreateAdministrator") Then
+	If ProcessingParameters.Property("CreateAdministrator")
+	   And ProcessingParameters.NewIBUserExists Then
+		
 		SetPrivilegedMode(True);
 		SSLSubsystemsIntegration.OnCreateAdministrator(ObjectRef2(UserObject),
 			ProcessingParameters.CreateAdministrator);
 		SetPrivilegedMode(False);
+	EndIf;
+	
+	If IBUserDetails.Property("Email")
+	   And IBUserDetails.Email <> Undefined
+	   And Not AdditionalProperties.Property("IsRecoveryEmailSetOnForm")
+	   And Common.SubsystemExists("StandardSubsystems.ContactInformation") Then
+		
+		OldEmailAddress = ?(ProcessingParameters.OldIBUserExists,
+			ProcessingParameters.PreviousIBUserDetails.Email, Undefined);
+		
+		If IBUserDetails.Email <> OldEmailAddress Then
+			ChangePasswordRecoveryEmail(UserObject,
+				IBUserDetails.Email, OldEmailAddress);
+		EndIf;
 	EndIf;
 	
 EndProcedure
@@ -3374,6 +4505,7 @@ Procedure EndIBUserProcessing(UserObject, ProcessingParameters) Export
 	EndIf;
 	
 	If Not ProcessingParameters.Property("Action") Then
+		ProcessingParameters = Undefined;
 		Return;
 	EndIf;
 	
@@ -3396,7 +4528,7 @@ Procedure EndIBUserProcessing(UserObject, ProcessingParameters) Export
 			ServiceUserPassword);
 	EndIf;
 	
-	If ProcessingParameters.Action = "Write"
+	If ProcessingParameters.NewIBUserExists
 	   And Users.CanSignIn(ProcessingParameters.NewIBUserDetails1) Then
 		
 		SetPrivilegedMode(True);
@@ -3407,6 +4539,7 @@ Procedure EndIBUserProcessing(UserObject, ProcessingParameters) Export
 	EndIf;
 	
 	CopyIBUserSettings(UserObject, ProcessingParameters);
+	ProcessingParameters = Undefined;
 	
 EndProcedure
 
@@ -3567,7 +4700,7 @@ Function AdministratorRolesAvailable(IBUser = Undefined) Export
 	If IBUser = Undefined
 	 Or IBUser = InfoBaseUsers.CurrentUser() Then
 	
-		
+		// 
 		Return IsInRole(Metadata.Roles.FullAccess)
 		     //@skip-check using-isinrole
 		     And (IsInRole(Metadata.Roles.SystemAdministrator)
@@ -3609,8 +4742,8 @@ Function CheckIBUserDetails(Val IBUserDetails, Cancel, IsExternalUser) Export
 				NStr("en = 'The username is required.';"),, "Name",,Cancel);
 			
 		ElsIf StrLen(Name) > 64 Then
-			
-			
+			// 
+			// 
 			Common.MessageToUser(
 				NStr("en = 'The username exceeds 64 characters.';"),,"Name",,Cancel);
 			
@@ -3733,77 +4866,274 @@ Function CheckIBUserDetails(Val IBUserDetails, Cancel, IsExternalUser) Export
 	
 EndFunction
 
-// Updates the content of user groups based on the hierarchy
-// from the "User group content" information register.
-//  The register data is used in the user list form and in the user selection form.
-//  Register data can be used to improve query performance,
-// because work with the hierarchy is not required.
+// Returns:
+//  Structure:
+//   
+//                         * Key - CatalogRef.Users
+//                                - CatalogRef.ExternalUsers -  fills in the match
+//                                  with users for whom there are changes.
+//                         * Value - Undefined
+//
+//   :
+//                         * Key - CatalogRef.UserGroups
+//                                - CatalogRef.ExternalUsersGroups -  fills in the correspondence
+//                                  with the user groups for which there are changes.
+//                         * Value - Undefined
+//
+//   
+//                  - ValueTable:
+//                      * UsersGroup - CatalogRef.UserGroups
+//                                            - CatalogRef.ExternalUsersGroups
+//                      * User        - CatalogRef.Users
+//                                            - CatalogRef.ExternalUsers
+//                      * Used        - Boolean
+//                      * ChangeType        - String - 
+//
+Function GroupsCompositionNewChanges() Export
+	
+	Result = New Structure;
+	Result.Insert("ItemsToChange", New Map);
+	Result.Insert("ModifiedGroups", New Map);
+	Result.Insert("ForRegistration", Undefined);
+	
+	If UsersInternalCached.ShouldRegisterChangesInAccessRights() Then
+		Dimensions = Metadata.InformationRegisters.UserGroupCompositions.Dimensions;
+		ForRegistration = New ValueTable;
+		ForRegistration.Columns.Add("UsersGroup", Dimensions.UsersGroup.Type);
+		ForRegistration.Columns.Add("User",        Dimensions.User.Type);
+		ForRegistration.Columns.Add("Used",        New TypeDescription("Boolean"));
+		ForRegistration.Columns.Add("ChangeType",        New TypeDescription("String"));
+		ForRegistration.Indexes.Add("User, UsersGroup");
+		Result.ForRegistration = ForRegistration;
+	EndIf;
+	
+	Return Result;
+	
+EndFunction
+
+// 
+// 
+// 
 //
 // Parameters:
-//  UsersGroup - CatalogRef.UserGroups
+//  Group - CatalogRef.UserGroups
+//         - CatalogRef.ExternalUsersGroups - 
+//             
 //
-//  User - Undefined                            - for all users.
-//               - Array of CatalogRef.Users - for the specified users.
-//               - CatalogRef.Users           - for the specified user.
+//  ChangesInComposition - See GroupsCompositionNewChanges
 //
-//  ItemsToChange - Undefined - no actions.
-//                     - Map of KeyAndValue:
-//                         * Key - CatalogRef.Users - fills in a mapping
-//                                  with users for which changes exist.
-//                         * Value - Undefined
+//  Check - Boolean - 
 //
-//  ModifiedGroups   - Undefined - no actions.
-//                     - Map of KeyAndValue:
-//                         * Key - CatalogRef.UserGroups - fills in the array
-//                                  with groups of users, for which there are changes.
-//                         * Value - Undefined
-//
-Procedure UpdateUserGroupComposition(Val UsersGroup,
-                                            Val User       = Undefined,
-                                            Val ItemsToChange = Undefined,
-                                            Val ModifiedGroups   = Undefined) Export
+Procedure UpdateGroupsHierarchy(Group, ChangesInComposition, Check = True) Export
 	
-	If Not ValueIsFilled(UsersGroup) Then
+	// 
+	// 
+	// 
+	//    
+	// 
+	
+	SetPrivilegedMode(True);
+	
+	Query = New Query;
+	Query.SetParameter("Group", Group);
+	Query.Text =
+	"SELECT
+	|	CurrentTable.Ref AS Ref
+	|FROM
+	|	Catalog.UserGroups AS CurrentTable
+	|WHERE
+	|	CurrentTable.Ref IN HIERARCHY(&Group)
+	|TOTALS BY
+	|	Ref HIERARCHY";
+	
+	If TypeOf(Group) = Type("CatalogRef.ExternalUsersGroups") Then
+		Query.Text = StrReplace(Query.Text,
+			"Catalog.UserGroups", "Catalog.ExternalUsersGroups");
+	EndIf;
+	
+	If ValueIsFilled(Group) Then
+		Parent = Common.ObjectAttributeValue(Group, "Parent");
+	Else
+		Parent = Group;
+	EndIf;
+	
+	Block = New DataLock;
+	// 
+	LockItem = Block.Add("InformationRegister.UserGroupsHierarchy");
+	LockItem.DataSource = Query.Execute();
+	LockItem.UseFromDataSource("UsersGroup", "Ref");
+	
+	Updated3 = False;
+	BeginTransaction();
+	Try
+		Block.Lock();
+		
+		RecordSet = InformationRegisters.UserGroupsHierarchy.CreateRecordSet();
+		If ValueIsFilled(Parent) Then
+			RecordSet.Filter.UsersGroup.Set(Parent);
+			RecordSet.Read();
+		EndIf;
+		NewParents = RecordSet.Unload();
+		NewParents.Sort("LevelOfParent Asc");
+		NewParents.Indexes.Add("UsersGroup, Parent, LevelOfParent, GroupLevel");
+		If NewParents.Count() > 0 Or Not ValueIsFilled(Parent) Then
+			LevelOfParent = ?(ValueIsFilled(Parent),
+				NewParents.Get(NewParents.Count() - 1).LevelOfParent, 0);
+			Tree = Query.Execute().Unload(QueryResultIteration.ByGroupsWithHierarchy);
+			
+			TreeRows = Tree.Rows;
+			If ValueIsFilled(Group) Then
+				While True Do
+					If TreeRows.Count() <> 1 Then
+						TreeRows = Undefined;
+						Break;
+					ElsIf TreeRows[0].Ref = Group Then
+						Break;
+					Else
+						TreeRows = TreeRows[0].Rows;
+					EndIf;
+				EndDo;
+			EndIf;
+			
+			If TreeRows <> Undefined Then
+				WriteNewGroupParents(TreeRows,
+					NewParents, LevelOfParent, ChangesInComposition, Check);
+				Updated3 = True;
+			EndIf;
+		EndIf;
+		CommitTransaction();
+	Except
+		RollbackTransaction();
+		Raise;
+	EndTry;
+	
+	If Not Updated3 Then
+		EmptyGroup1 = ?(TypeOf(Group) = Type("CatalogRef.ExternalUsersGroups"),
+			Catalogs.UserGroups.EmptyRef(),
+			Catalogs.ExternalUsersGroups.EmptyRef());
+		UpdateGroupsHierarchy(EmptyGroup1, ChangesInComposition);
+	EndIf;
+	
+EndProcedure
+
+// 
+// 
+//
+//  
+//               
+//                   
+//               
+//               
+//
+//   See GroupsCompositionNewChanges
+//
+Procedure UpdateAllUsersGroupComposition(User, ChangesInComposition) Export
+	
+	If TypeOf(User) = Type("Array")
+	   And Not ValueIsFilled(User) Then
 		Return;
 	EndIf;
 	
-	If TypeOf(User) = Type("Array") And User.Count() = 0 Then
-		Return;
+	Query = New Query;
+	Query.Text =
+	"SELECT
+	|	&AllUsersGroup AS UsersGroup,
+	|	Users.Ref AS User,
+	|	NOT Users.DeletionMark
+	|		AND NOT Users.Invalid AS Used,
+	|	UserGroupCompositions.Used AS UsedFlagPreviousState
+	|FROM
+	|	Catalog.Users AS Users
+	|		LEFT JOIN InformationRegister.UserGroupCompositions AS UserGroupCompositions
+	|		ON (UserGroupCompositions.UsersGroup = &AllUsersGroup)
+	|			AND (UserGroupCompositions.User = Users.Ref)
+	|WHERE
+	|	&FilterUser
+	|	AND (UserGroupCompositions.User IS NULL
+	|			OR ISNULL(UserGroupCompositions.Used, FALSE) <> (NOT Users.DeletionMark
+	|				AND NOT Users.Invalid))
+	|
+	|UNION ALL
+	|
+	|SELECT
+	|	Users.Ref,
+	|	Users.Ref,
+	|	NOT Users.DeletionMark
+	|		AND NOT Users.Invalid,
+	|	UserGroupCompositions.Used
+	|FROM
+	|	Catalog.Users AS Users
+	|		LEFT JOIN InformationRegister.UserGroupCompositions AS UserGroupCompositions
+	|		ON (UserGroupCompositions.UsersGroup = Users.Ref)
+	|			AND (UserGroupCompositions.User = Users.Ref)
+	|WHERE
+	|	&FilterUser
+	|	AND (UserGroupCompositions.User IS NULL
+	|			OR ISNULL(UserGroupCompositions.Used, FALSE) <> (NOT Users.DeletionMark
+	|				AND NOT Users.Invalid))";
+	
+	ForExternalUsers = Type("CatalogRef.ExternalUsers")
+		= TypeOf(?(TypeOf(User) = Type("Array"), User[0], User));
+	
+	If ForExternalUsers Then
+		Query.Text = StrReplace(Query.Text, "Catalog.Users", "Catalog.ExternalUsers");
+		AllUsersGroup = ExternalUsers.AllExternalUsersGroup();
+		FullCatalogName = "Catalog.ExternalUsers";
+	Else
+		AllUsersGroup = Users.AllUsersGroup();
+		FullCatalogName = "Catalog.Users";
 	EndIf;
 	
-	If ItemsToChange = Undefined Then
-		CurrentItemsToChange = New Map;
-	Else
-		CurrentItemsToChange = ItemsToChange;
-	EndIf;
+	Query.SetParameter("AllUsersGroup", AllUsersGroup);
 	
-	If ModifiedGroups = Undefined Then
-		CurrentModifiedGroups = New Map;
+	If Not ValueIsFilled(User) Then
+		Query.Text = StrReplace(Query.Text, "&FilterUser", "TRUE");
 	Else
-		CurrentModifiedGroups = ModifiedGroups;
+		Query.SetParameter("User", User);
+		Query.Text = StrReplace(Query.Text,
+			"&FilterUser", "Users.Ref IN (&User)");
 	EndIf;
 	
 	SetPrivilegedMode(True);
 	
+	QueryResult = Query.Execute();
+	If QueryResult.IsEmpty() Then
+		Return;
+	EndIf;
+	
+	Block = New DataLock;
+	LockItem = Block.Add("InformationRegister.UserGroupCompositions");
+	LockItem.DataSource = QueryResult;
+	LockItem.UseFromDataSource("UsersGroup", "UsersGroup");
+	LockItem.UseFromDataSource("User", "User");
+	
+	ItemsToChange = ChangesInComposition.ItemsToChange;
+	ModifiedGroups   = ChangesInComposition.ModifiedGroups;
+	ForRegistration     = ChangesInComposition.ForRegistration;
+	
 	BeginTransaction();
 	Try
-		If UsersGroup = Catalogs.UserGroups.AllUsers Then
-			
-			UpdateAllUsersGroupComposition(
-				User, , CurrentItemsToChange, CurrentModifiedGroups);
-		Else
-			UpdateHierarchicalUserGroupCompositions(
-				UsersGroup,
-				User,
-				CurrentItemsToChange,
-				CurrentModifiedGroups);
-		EndIf;
+		Block.Lock();
+		QueryResult = Query.Execute();
 		
-		If ItemsToChange = Undefined
-		   And ModifiedGroups   = Undefined Then
+		If Not QueryResult.IsEmpty() Then
+			RecordSet = InformationRegisters.UserGroupCompositions.CreateRecordSet();
+			Record = RecordSet.Add();
+			Selection = QueryResult.Select();
 			
-			AfterUserGroupsUpdate(
-				CurrentItemsToChange, CurrentModifiedGroups);
+			While Selection.Next() Do
+				RecordSet.Filter.UsersGroup.Set(Selection.UsersGroup);
+				RecordSet.Filter.User.Set(Selection.User);
+				FillPropertyValues(Record, Selection);
+				RecordSet.Write(); // 
+				
+				ItemsToChange.Insert(Selection.User);
+				If ForRegistration <> Undefined Then
+					AddCompositionChange(ForRegistration, Selection);
+				EndIf;
+			EndDo;
+			
+			ModifiedGroups.Insert(AllUsersGroup);
 		EndIf;
 		
 		CommitTransaction();
@@ -3814,83 +5144,365 @@ Procedure UpdateUserGroupComposition(Val UsersGroup,
 	
 EndProcedure
 
-// Updates the Used resource when DeletionMark or Invalid attribute is changed
+// 
+// 
+// 
+// 
+// 
 //
 // Parameters:
-//  UserOrGroup - CatalogRef.Users,
-//                        - CatalogRef.ExternalUsers,
-//                        - CatalogRef.UserGroups,
-//                        - CatalogRef.ExternalUsersGroups
+//  UsersGroup - CatalogRef.UserGroups
+//                      - CatalogRef.ExternalUsersGroups - 
+//                          
+//                      - Array of CatalogRef.UserGroups
+//                      - Array of CatalogRef.ExternalUsersGroups
 //
-//  ItemsToChange - Undefined - no actions.
-//                     - Map of KeyAndValue:
-//                         * Key - CatalogRef.Users
-//                                - CatalogRef.ExternalUsers - fills in a mapping
-//                                  with users for which changes exist.
-//                         * Value - Undefined
+//  ChangesInComposition - See GroupsCompositionNewChanges
+//  IsGroupDeletion    - Boolean - 
 //
-//  ModifiedGroups   - Undefined - no actions.
-//                     - Map of KeyAndValue:
-//                         * Key - CatalogRef.UserGroups
-//                                - CatalogRef.ExternalUsersGroups - fills in the array
-//                                  with groups of users, for which there are changes.
-//                         * Value - Undefined
-//
-Procedure UpdateUserGroupCompositionUsage(Val UserOrGroup,
-                                                           Val ItemsToChange,
-                                                           Val ModifiedGroups) Export
+Procedure UpdateHierarchicalUserGroupCompositions(UsersGroup, ChangesInComposition,
+			IsGroupDeletion = False) Export
+	
+	If TypeOf(UsersGroup) = Type("Array")
+	   And Not ValueIsFilled(UsersGroup) Then
+		Return;
+	EndIf;
+	
+	If IsGroupDeletion Then
+		QueryText =
+		"SELECT DISTINCT
+		|	UserGroupCompositions.UsersGroup AS UsersGroup,
+		|	UserGroupCompositions.User AS User
+		|FROM
+		|	InformationRegister.UserGroupsHierarchy AS GroupsToUpdate1
+		|		INNER JOIN InformationRegister.UserGroupCompositions AS UserGroupCompositions
+		|		ON (UserGroupCompositions.UsersGroup = GroupsToUpdate1.Parent)
+		|			AND (GroupsToUpdate1.UsersGroup = &UsersGroup)
+		|		LEFT JOIN InformationRegister.UserGroupsHierarchy AS GroupsToUpdate2
+		|			INNER JOIN InformationRegister.UserGroupsHierarchy AS LowerLevelGroups
+		|			ON (LowerLevelGroups.Parent = GroupsToUpdate2.Parent)
+		|				AND (GroupsToUpdate2.UsersGroup = &UsersGroup)
+		|			INNER JOIN Catalog.UserGroups.Content AS UserGroupsComposition
+		|			ON (UserGroupsComposition.Ref = LowerLevelGroups.UsersGroup)
+		|				AND (NOT UserGroupsComposition.Ref IN
+		|						(SELECT
+		|							CAST(LowerLevelGroups.UsersGroup AS Catalog.UserGroups) AS UsersGroup
+		|						FROM
+		|							InformationRegister.UserGroupsHierarchy AS LowerLevelGroups
+		|						WHERE
+		|							LowerLevelGroups.Parent = &UsersGroup))
+		|		ON (GroupsToUpdate2.Parent = UserGroupCompositions.UsersGroup)
+		|			AND (UserGroupsComposition.User = UserGroupCompositions.User)
+		|WHERE
+		|	UserGroupsComposition.User IS NULL
+		|;
+		|
+		|////////////////////////////////////////////////////////////////////////////////
+		|SELECT
+		|	UNDEFINED AS UsersGroup,
+		|	UNDEFINED AS User,
+		|	FALSE AS Used
+		|WHERE
+		|	FALSE";
+		
+	ElsIf ValueIsFilled(UsersGroup) Then
+		QueryText =
+		"SELECT DISTINCT
+		|	UserGroupCompositions.UsersGroup AS UsersGroup,
+		|	UserGroupCompositions.User AS User
+		|FROM
+		|	InformationRegister.UserGroupsHierarchy AS GroupsToUpdate1
+		|		INNER JOIN InformationRegister.UserGroupCompositions AS UserGroupCompositions
+		|		ON (UserGroupCompositions.UsersGroup = GroupsToUpdate1.Parent)
+		|			AND (GroupsToUpdate1.UsersGroup IN (&UsersGroup))
+		|		LEFT JOIN InformationRegister.UserGroupsHierarchy AS GroupsToUpdate2
+		|			INNER JOIN InformationRegister.UserGroupsHierarchy AS LowerLevelGroups
+		|			ON (LowerLevelGroups.Parent = GroupsToUpdate2.Parent)
+		|				AND (GroupsToUpdate2.UsersGroup IN (&UsersGroup))
+		|			INNER JOIN Catalog.UserGroups.Content AS UserGroupsComposition
+		|			ON (UserGroupsComposition.Ref = LowerLevelGroups.UsersGroup)
+		|		ON (GroupsToUpdate2.Parent = UserGroupCompositions.UsersGroup)
+		|			AND (UserGroupsComposition.User = UserGroupCompositions.User)
+		|WHERE
+		|	UserGroupsComposition.User IS NULL
+		|;
+		|
+		|////////////////////////////////////////////////////////////////////////////////
+		|SELECT DISTINCT
+		|	GroupsToUpdate.Parent AS UsersGroup,
+		|	UserGroupsComposition.User AS User,
+		|	NOT GroupsToUpdate.Parent.DeletionMark
+		|		AND NOT UserGroupsComposition.User.DeletionMark
+		|		AND NOT UserGroupsComposition.User.Invalid AS Used,
+		|	UserGroupCompositions.Used AS UsedFlagPreviousState
+		|FROM
+		|	InformationRegister.UserGroupsHierarchy AS GroupsToUpdate
+		|		INNER JOIN InformationRegister.UserGroupsHierarchy AS LowerLevelGroups
+		|		ON (LowerLevelGroups.Parent = GroupsToUpdate.Parent)
+		|			AND (GroupsToUpdate.UsersGroup IN (&UsersGroup))
+		|		INNER JOIN Catalog.UserGroups.Content AS UserGroupsComposition
+		|		ON (UserGroupsComposition.Ref = LowerLevelGroups.UsersGroup)
+		|		LEFT JOIN InformationRegister.UserGroupCompositions AS UserGroupCompositions
+		|		ON (UserGroupCompositions.UsersGroup = GroupsToUpdate.Parent)
+		|			AND (UserGroupCompositions.User = UserGroupsComposition.User)
+		|WHERE
+		|	(UserGroupCompositions.User IS NULL
+		|			OR ISNULL(UserGroupCompositions.Used, FALSE) <> (NOT GroupsToUpdate.Parent.DeletionMark
+		|				AND NOT UserGroupsComposition.User.DeletionMark
+		|				AND NOT UserGroupsComposition.User.Invalid))";
+	Else
+		QueryText =
+		"SELECT DISTINCT
+		|	UserGroupCompositions.UsersGroup AS UsersGroup,
+		|	UserGroupCompositions.User AS User
+		|FROM
+		|	Catalog.UserGroups AS GroupsToUpdate1
+		|		INNER JOIN InformationRegister.UserGroupCompositions AS UserGroupCompositions
+		|		ON (UserGroupCompositions.UsersGroup = GroupsToUpdate1.Ref)
+		|			AND (GroupsToUpdate1.Ref <> &AllUsersGroup)
+		|			AND (&FilterForExternalUserGroups1)
+		|		LEFT JOIN Catalog.UserGroups AS GroupsToUpdate2
+		|			INNER JOIN InformationRegister.UserGroupsHierarchy AS LowerLevelGroups
+		|			ON (LowerLevelGroups.Parent = GroupsToUpdate2.Ref)
+		|				AND (GroupsToUpdate2.Ref <> &AllUsersGroup)
+		|				AND (&FilterForExternalUserGroups2)
+		|			INNER JOIN Catalog.UserGroups.Content AS UserGroupsComposition
+		|			ON (UserGroupsComposition.Ref = LowerLevelGroups.UsersGroup)
+		|		ON (GroupsToUpdate2.Ref = UserGroupCompositions.UsersGroup)
+		|			AND (UserGroupsComposition.User = UserGroupCompositions.User)
+		|WHERE
+		|	UserGroupsComposition.User IS NULL
+		|;
+		|
+		|////////////////////////////////////////////////////////////////////////////////
+		|SELECT DISTINCT
+		|	GroupsToUpdate.Ref AS UsersGroup,
+		|	UserGroupsComposition.User AS User,
+		|	NOT GroupsToUpdate.DeletionMark
+		|		AND NOT UserGroupsComposition.User.DeletionMark
+		|		AND NOT UserGroupsComposition.User.Invalid AS Used,
+		|	UserGroupCompositions.Used AS UsedFlagPreviousState
+		|FROM
+		|	Catalog.UserGroups AS GroupsToUpdate
+		|		INNER JOIN InformationRegister.UserGroupsHierarchy AS LowerLevelGroups
+		|		ON (LowerLevelGroups.Parent = GroupsToUpdate.Ref)
+		|			AND (GroupsToUpdate.Ref <> &AllUsersGroup)
+		|			AND (&FilterForExternalUserGroups0)
+		|		INNER JOIN Catalog.UserGroups.Content AS UserGroupsComposition
+		|		ON (UserGroupsComposition.Ref = LowerLevelGroups.UsersGroup)
+		|		LEFT JOIN InformationRegister.UserGroupCompositions AS UserGroupCompositions
+		|		ON (UserGroupCompositions.UsersGroup = GroupsToUpdate.Ref)
+		|			AND (UserGroupCompositions.User = UserGroupsComposition.User)
+		|WHERE
+		|	(UserGroupCompositions.User IS NULL
+		|			OR ISNULL(UserGroupCompositions.Used, FALSE) <> (NOT GroupsToUpdate.DeletionMark
+		|				AND NOT UserGroupsComposition.User.DeletionMark
+		|				AND NOT UserGroupsComposition.User.Invalid))";
+	EndIf;
+	
+	Query = New Query;
+	Query.Text = QueryText;
+	Query.SetParameter("UsersGroup", UsersGroup);
+	
+	ForExternalUsers = Type("CatalogRef.ExternalUsersGroups")
+		= TypeOf(?(TypeOf(UsersGroup) = Type("Array"), UsersGroup[0], UsersGroup));
+	
+	If ForExternalUsers Then
+		Query.SetParameter("AllUsersGroup", ExternalUsers.AllExternalUsersGroup());
+		Query.Text = StrReplace(Query.Text, "Catalog.UserGroups",
+			"Catalog.ExternalUsersGroups");
+		Query.Text = StrReplace(Query.Text, "UserGroupsComposition.User",
+			"UserGroupsComposition.ExternalUser");
+	EndIf;
+	
+	If Not ValueIsFilled(UsersGroup) Then
+		If ForExternalUsers Then
+			Query.SetParameter("AllUsersGroup", ExternalUsers.AllExternalUsersGroup());
+			Query.Text = StrReplace(Query.Text, "&FilterForExternalUserGroups0",
+				"NOT GroupsToUpdate.AllAuthorizationObjects");
+			Query.Text = StrReplace(Query.Text, "&FilterForExternalUserGroups1",
+				"NOT GroupsToUpdate1.AllAuthorizationObjects");
+			Query.Text = StrReplace(Query.Text, "&FilterForExternalUserGroups2",
+				"NOT GroupsToUpdate2.AllAuthorizationObjects");
+		Else
+			Query.SetParameter("AllUsersGroup", Users.AllUsersGroup());
+			Query.Text = StrReplace(Query.Text, "&FilterForExternalUserGroups0", "TRUE");
+			Query.Text = StrReplace(Query.Text, "&FilterForExternalUserGroups1", "TRUE");
+			Query.Text = StrReplace(Query.Text, "&FilterForExternalUserGroups2", "TRUE");
+		EndIf;
+	EndIf;
 	
 	SetPrivilegedMode(True);
 	
+	QueryResults = Query.ExecuteBatch();
+	If QueryResults[0].IsEmpty() And QueryResults[1].IsEmpty() Then
+		Return;
+	EndIf;
+	
+	Block = New DataLock;
+	
+	LockItem = Block.Add("InformationRegister.UserGroupCompositions");
+	LockItem.DataSource = QueryResults[0];
+	LockItem.UseFromDataSource("UsersGroup", "UsersGroup");
+	LockItem.UseFromDataSource("User", "User");
+	
+	LockItem = Block.Add("InformationRegister.UserGroupCompositions");
+	LockItem.DataSource = QueryResults[1];
+	LockItem.UseFromDataSource("UsersGroup", "UsersGroup");
+	LockItem.UseFromDataSource("User", "User");
+	
+	ItemsToChange = ChangesInComposition.ItemsToChange;
+	ModifiedGroups   = ChangesInComposition.ModifiedGroups;
+	ForRegistration     = ChangesInComposition.ForRegistration;
+	
+	BeginTransaction();
+	Try
+		Block.Lock();
+		QueryResults = Query.ExecuteBatch();
+		
+		If Not QueryResults[0].IsEmpty() Then
+			RecordSet = InformationRegisters.UserGroupCompositions.CreateRecordSet();
+			Selection = QueryResults[0].Select();
+			
+			While Selection.Next() Do
+				RecordSet.Filter.UsersGroup.Set(Selection.UsersGroup);
+				RecordSet.Filter.User.Set(Selection.User);
+				RecordSet.Write(); // 
+				
+				ItemsToChange.Insert(Selection.User);
+				ModifiedGroups.Insert(Selection.UsersGroup);
+				If ForRegistration <> Undefined Then
+					AddCompositionChange(ForRegistration, Selection, True);
+				EndIf;
+			EndDo;
+		EndIf;
+		
+		If Not QueryResults[1].IsEmpty() Then
+			RecordSet = InformationRegisters.UserGroupCompositions.CreateRecordSet();
+			Record = RecordSet.Add();
+			Selection = QueryResults[1].Select();
+			
+			While Selection.Next() Do
+				RecordSet.Filter.UsersGroup.Set(Selection.UsersGroup);
+				RecordSet.Filter.User.Set(Selection.User);
+				FillPropertyValues(Record, Selection);
+				RecordSet.Write(); // 
+				
+				ItemsToChange.Insert(Selection.User);
+				ModifiedGroups.Insert(Selection.UsersGroup);
+				If ForRegistration <> Undefined Then
+					AddCompositionChange(ForRegistration, Selection);
+				EndIf;
+			EndDo;
+		EndIf;
+		
+		CommitTransaction();
+	Except
+		RollbackTransaction();
+		Raise;
+	EndTry;
+	
+EndProcedure
+
+// 
+// 
+//
+// Parameters:
+//  User - CatalogRef.Users
+//               - CatalogRef.ExternalUsers - 
+//                   
+//               - Array of CatalogRef.Users
+//               - Array of CatalogRef.ExternalUsers
+//
+//  ChangesInComposition - See GroupsCompositionNewChanges
+//
+Procedure UpdateUserGroupCompositionUsage(User, ChangesInComposition) Export
+	
+	If TypeOf(User) = Type("Array")
+	   And Not ValueIsFilled(User) Then
+		Return;
+	EndIf;
+	
 	Query = New Query;
-	Query.SetParameter("UserOrGroup", UserOrGroup);
-	
-	
+	Query.SetParameter("User", User);
 	Query.Text =
 	"SELECT
-	|	UserGroupCompositions.UsersGroup,
-	|	UserGroupCompositions.User,
-	|	CASE
-	|		WHEN UserGroupCompositions.UsersGroup.DeletionMark
-	|			THEN FALSE
-	|		WHEN UserGroupCompositions.User.DeletionMark
-	|			THEN FALSE
-	|		WHEN UserGroupCompositions.User.Invalid
-	|			THEN FALSE
-	|		ELSE TRUE
-	|	END AS Used
+	|	UserGroupCompositions.UsersGroup AS UsersGroup,
+	|	UserGroupCompositions.User AS User,
+	|	NOT ISNULL(UserGroups.DeletionMark, TRUE)
+	|		AND NOT ISNULL(Users.DeletionMark, TRUE)
+	|		AND NOT ISNULL(Users.Invalid, TRUE) AS Used,
+	|	UserGroupCompositions.Used AS UsedFlagPreviousState
 	|FROM
 	|	InformationRegister.UserGroupCompositions AS UserGroupCompositions
+	|		LEFT JOIN Catalog.Users AS Users
+	|		ON (Users.Ref = UserGroupCompositions.User)
+	|		LEFT JOIN Catalog.UserGroups AS UserGroups
+	|		ON (UserGroups.Ref = UserGroupCompositions.UsersGroup)
 	|WHERE
-	|	&Filter
-	|	AND CASE
-	|			WHEN UserGroupCompositions.UsersGroup.DeletionMark
-	|				THEN FALSE
-	|			WHEN UserGroupCompositions.User.DeletionMark
-	|				THEN FALSE
-	|			WHEN UserGroupCompositions.User.Invalid
-	|				THEN FALSE
-	|			ELSE TRUE
-	|		END <> UserGroupCompositions.Used";
+	|	VALUETYPE(UserGroupCompositions.User) = TYPE(Catalog.Users)
+	|	AND VALUETYPE(UserGroupCompositions.UsersGroup) = TYPE(Catalog.UserGroups)
+	|	AND UserGroupCompositions.Used <> (NOT ISNULL(UserGroups.DeletionMark, TRUE)
+	|			AND NOT ISNULL(Users.DeletionMark, TRUE)
+	|			AND NOT ISNULL(Users.Invalid, TRUE))
+	|	AND &FilterUser
+	|
+	|UNION ALL
+	|
+	|SELECT
+	|	UserGroupCompositions.UsersGroup,
+	|	UserGroupCompositions.User,
+	|	NOT ISNULL(Users.DeletionMark, TRUE)
+	|		AND NOT ISNULL(Users.Invalid, TRUE),
+	|	UserGroupCompositions.Used
+	|FROM
+	|	InformationRegister.UserGroupCompositions AS UserGroupCompositions
+	|		LEFT JOIN Catalog.Users AS Users
+	|		ON (Users.Ref = UserGroupCompositions.User)
+	|WHERE
+	|	VALUETYPE(UserGroupCompositions.User) = TYPE(Catalog.Users)
+	|	AND UserGroupCompositions.UsersGroup = UserGroupCompositions.User
+	|	AND UserGroupCompositions.Used <> (NOT ISNULL(Users.DeletionMark, TRUE)
+	|			AND NOT ISNULL(Users.Invalid, TRUE))
+	|	AND &FilterUser";
+	
+	If Not ValueIsFilled(User) Then
+		Query.Text = StrReplace(Query.Text, "&FilterUser", "TRUE");
+	Else
+		Query.SetParameter("User", User);
+		Query.Text = StrReplace(Query.Text, "&FilterUser",
+			"CAST(UserGroupCompositions.User AS Catalog.Users) IN (&User)");
+	EndIf;
+	
+	ForExternalUsers = Type("CatalogRef.ExternalUsers")
+		= TypeOf(?(TypeOf(User) = Type("Array"), User[0], User));
+	
+	If ForExternalUsers Then
+		Query.Text = StrReplace(Query.Text,
+			"Catalog.Users", "Catalog.ExternalUsers");
+		Query.Text = StrReplace(Query.Text,
+			"Catalog.UserGroups", "Catalog.ExternalUsersGroups");
+	EndIf;
+	
+	SetPrivilegedMode(True);
+	
+	QueryResult = Query.Execute();
+	If QueryResult.IsEmpty() Then
+		Return;
+	EndIf;
 	
 	Block = New DataLock;
 	LockItem = Block.Add("InformationRegister.UserGroupCompositions");
-	// ACC:1377-on
+	LockItem.DataSource = QueryResult;
+	LockItem.UseFromDataSource("UsersGroup", "UsersGroup");
+	LockItem.UseFromDataSource("User", "User");
 	
-	If TypeOf(UserOrGroup) = Type("CatalogRef.Users")
-	 Or TypeOf(UserOrGroup) = Type("CatalogRef.ExternalUsers") Then
-		
-		LockItem.SetValue("User", UserOrGroup);
-		Query.Text = StrReplace(Query.Text, "&Filter",
-			"UserGroupCompositions.User = &UserOrGroup");
-	Else
-		LockItem.SetValue("UsersGroup", UserOrGroup);
-		Query.Text = StrReplace(Query.Text, "&Filter",
-			"UserGroupCompositions.UsersGroup = &UserOrGroup");
-	EndIf;
+	SetOfOneRecord = InformationRegisters.UserGroupCompositions.CreateRecordSet();
+	Record = SetOfOneRecord.Add();
 	
-	SingleRecordSet = InformationRegisters.UserGroupCompositions.CreateRecordSet();
-	Record = SingleRecordSet.Add();
+	ItemsToChange = ChangesInComposition.ItemsToChange;
+	ModifiedGroups   = ChangesInComposition.ModifiedGroups;
+	ForRegistration     = ChangesInComposition.ForRegistration;
 	
 	BeginTransaction();
 	Try
@@ -3898,17 +5510,20 @@ Procedure UpdateUserGroupCompositionUsage(Val UserOrGroup,
 		Selection = Query.Execute().Select();
 		While Selection.Next() Do
 			
-			SingleRecordSet.Filter.UsersGroup.Set(Selection.UsersGroup);
-			SingleRecordSet.Filter.User.Set(Selection.User);
+			SetOfOneRecord.Filter.UsersGroup.Set(Selection.UsersGroup);
+			SetOfOneRecord.Filter.User.Set(Selection.User);
 			
 			Record.UsersGroup = Selection.UsersGroup;
 			Record.User        = Selection.User;
 			Record.Used        = Selection.Used;
 			
-			SingleRecordSet.Write();
+			SetOfOneRecord.Write();
 			
 			ModifiedGroups.Insert(Selection.UsersGroup);
 			ItemsToChange.Insert(Selection.User);
+			If ForRegistration <> Undefined Then
+				AddCompositionChange(ForRegistration, Selection);
+			EndIf;
 		EndDo;
 		
 		CommitTransaction();
@@ -3919,122 +5534,395 @@ Procedure UpdateUserGroupCompositionUsage(Val UserOrGroup,
 	
 EndProcedure
 
-// For internal use only.
-Procedure AfterUserGroupsUpdate(ItemsToChange, ModifiedGroups) Export
+// Parameters:
+//  Ref - CatalogRef.Users
+//         - CatalogRef.ExternalUsers
+//         - CatalogRef.UserGroups
+//         - CatalogRef.ExternalUsersGroups
+//
+Procedure UpdateGroupsCompositionBeforeDeleteUserOrGroup(Ref) Export
 	
-	If ItemsToChange.Count() = 0 Then
+	ChangesInComposition = GroupsCompositionNewChanges();
+	
+	If TypeOf(Ref) = Type("CatalogRef.Users")
+	 Or TypeOf(Ref) = Type("CatalogRef.ExternalUsers")
+	 Or Ref = Users.AllUsersGroup()
+	 Or Ref = ExternalUsers.AllExternalUsersGroup()
+	 Or TypeOf(Ref) = Type("CatalogRef.ExternalUsersGroups")
+	   And Common.ObjectAttributeValue(Ref, "AllAuthorizationObjects") = True Then
+		
+		UpdateCompositionBeforeDeleteGroupWithoutHierarchyOrUser(Ref, ChangesInComposition);
+	Else
+		UpdateHierarchicalUserGroupCompositions(Ref, ChangesInComposition, True);
+	EndIf;
+	
+	AfterUserGroupsUpdate(ChangesInComposition);
+	
+EndProcedure
+
+// Parameters:
+//  ChangesInComposition - See GroupsCompositionNewChanges
+//  HasChanges - Boolean -  returned value
+//
+Procedure AfterUserGroupsUpdate(ChangesInComposition, HasChanges = False) Export
+	
+	If ChangesInComposition.ItemsToChange.Count() = 0
+	   And ChangesInComposition.ModifiedGroups.Count() = 0 Then
 		Return;
 	EndIf;
 	
-	ItemsToChangeArray = New Array;
+	HasChanges = True;
+	RegisterGroupsCompositionChanges(ChangesInComposition);
 	
-	For Each KeyAndValue In ItemsToChange Do
-		ItemsToChangeArray.Add(KeyAndValue.Key);
+	ItemsToChange = New Array;
+	For Each KeyAndValue In ChangesInComposition.ItemsToChange Do
+		If ValueIsFilled(KeyAndValue.Key) Then
+			ItemsToChange.Add(KeyAndValue.Key);
+		EndIf;
 	EndDo;
 	
-	ModifiedGroupsArray = New Array;
-	For Each KeyAndValue In ModifiedGroups Do
-		ModifiedGroupsArray.Add(KeyAndValue.Key);
+	ModifiedGroups = New Array;
+	For Each KeyAndValue In ChangesInComposition.ModifiedGroups Do
+		If ValueIsFilled(KeyAndValue.Key) Then
+			ModifiedGroups.Add(KeyAndValue.Key);
+		EndIf;
 	EndDo;
 	
-	SSLSubsystemsIntegration.AfterUserGroupsUpdate(ItemsToChangeArray,
-		ModifiedGroupsArray);
+	If ValueIsFilled(ItemsToChange)
+	   And TypeOf(ItemsToChange[0]) = Type("CatalogRef.ExternalUsers")
+	 Or ValueIsFilled(ModifiedGroups)
+	   And TypeOf(ModifiedGroups[0]) = Type("CatalogRef.ExternalUsersGroups") Then
+		
+		UpdateExternalUsersRoles(ItemsToChange);
+	EndIf;
+	
+	SSLSubsystemsIntegration.AfterUserGroupsUpdate(ItemsToChange,
+		ModifiedGroups);
+	
+EndProcedure
+
+Procedure AddCompositionChange(ForRegistration, Selection, Removed = False)
+	
+	If Not ValueIsFilled(Selection.UsersGroup)
+	 Or Not ValueIsFilled(Selection.User)
+	 Or Selection.UsersGroup = Selection.User Then
+		Return;
+	EndIf;
+	
+	Filter = New Structure("UsersGroup, User",
+		Selection.UsersGroup, Selection.User);
+	
+	FoundRows = ForRegistration.FindRows(Filter);
+	If ValueIsFilled(FoundRows) Then
+		String = FoundRows[0];
+	Else
+		String = ForRegistration.Add();
+		FillPropertyValues(String, Filter);
+	EndIf;
+	
+	If Removed Then
+		String.ChangeType = "Removed";
+		String.Used = False;
+		
+	ElsIf Selection.UsedFlagPreviousState = Null Then
+		String.ChangeType = "Added";
+		String.Used = Selection.Used;
+	Else
+		String.ChangeType = "UsageChanged";
+		String.Used = Selection.Used;
+	EndIf;
+	
+EndProcedure
+
+Procedure RegisterGroupsCompositionChanges(ChangesInComposition)
+	
+	ForRegistration = ChangesInComposition.ForRegistration;
+	If Not ValueIsFilled(ForRegistration) Then
+		Return;
+	EndIf;
+	
+	Query = New Query;
+	Query.SetParameter("ChangesInComposition", ForRegistration);
+	Query.Text =
+	"SELECT
+	|	ChangesInComposition.UsersGroup AS UsersGroup,
+	|	ChangesInComposition.User AS User
+	|INTO ChangesInComposition
+	|FROM
+	|	&ChangesInComposition AS ChangesInComposition
+	|;
+	|
+	|////////////////////////////////////////////////////////////////////////////////
+	|SELECT
+	|	ChangesInComposition.UsersGroup AS UsersGroup,
+	|	ChangesInComposition.User AS User
+	|FROM
+	|	ChangesInComposition AS ChangesInComposition
+	|		LEFT JOIN Catalog.UserGroups.Content AS UserGroupsComposition
+	|		ON (UserGroupsComposition.Ref = ChangesInComposition.UsersGroup)
+	|			AND (UserGroupsComposition.User = ChangesInComposition.User)
+	|		LEFT JOIN Catalog.ExternalUsersGroups.Content AS ExternalUserGroupsComposition
+	|		ON (ExternalUserGroupsComposition.Ref = ChangesInComposition.UsersGroup)
+	|			AND (ExternalUserGroupsComposition.ExternalUser = ChangesInComposition.User)
+	|WHERE
+	|	(NOT UserGroupsComposition.User IS NULL
+	|			OR NOT ExternalUserGroupsComposition.ExternalUser IS NULL)
+	|;
+	|
+	|////////////////////////////////////////////////////////////////////////////////
+	|SELECT DISTINCT
+	|	ISNULL(FolderHierarchy.Parent.Parent, UNDEFINED) AS Parent,
+	|	ISNULL(FolderHierarchy.Parent, ChangesInComposition.UsersGroup) AS UsersGroup,
+	|	ISNULL(FolderHierarchy.Parent.Description, PRESENTATION(ChangesInComposition.UsersGroup)) AS GroupPresentation
+	|FROM
+	|	ChangesInComposition AS ChangesInComposition
+	|		LEFT JOIN InformationRegister.UserGroupsHierarchy AS FolderHierarchy
+	|		ON ChangesInComposition.UsersGroup = FolderHierarchy.UsersGroup
+	|;
+	|
+	|////////////////////////////////////////////////////////////////////////////////
+	|SELECT DISTINCT
+	|	ChangesInComposition.User AS User,
+	|	ISNULL(Users.Description, ISNULL(ExternalUsers.Description, PRESENTATION(ChangesInComposition.User))) AS UserPresentation2
+	|FROM
+	|	ChangesInComposition AS ChangesInComposition
+	|		LEFT JOIN Catalog.Users AS Users
+	|		ON (Users.Ref = ChangesInComposition.User)
+	|		LEFT JOIN Catalog.ExternalUsers AS ExternalUsers
+	|		ON (ExternalUsers.Ref = ChangesInComposition.User)";
+	
+	QueryResults = Query.ExecuteBatch();
+	
+	Data = New Structure;
+	Data.Insert("DataStructureVersion", 1);
+	Data.Insert("ChangesInComposition", New Array);
+	Data.Insert("GroupsPresentation", New Array);
+	Data.Insert("PresentationUsers", New Array);
+	
+	UsersInGroups = QueryResults[1].Unload();
+	UsersInGroups.Indexes.Add("User, UsersGroup");
+	Filter = New Structure("User, UsersGroup");
+	
+	For Each String In ForRegistration Do
+		FillPropertyValues(Filter, String);
+		UserInGroup = ValueIsFilled(UsersInGroups.FindRows(Filter));
+		Properties = New Structure;
+		Properties.Insert("GroupID",
+			Lower(String.UsersGroup.UUID()));
+		Properties.Insert("UserIdentificator",
+			Lower(String.User.UUID()));
+		Properties.Insert("IsBelongToLowerLevelGroup", Not UserInGroup);
+		Properties.Insert("Used", String.Used);
+		Properties.Insert("ChangeType", String.ChangeType);
+		Data.ChangesInComposition.Add(Properties);
+	EndDo;
+	
+	Selection = QueryResults[2].Select();
+	While Selection.Next() Do
+		Properties = New Structure;
+		Properties.Insert("ParentID", ?(ValueIsFilled(Selection.Parent),
+			Lower(Selection.Parent.UUID()), ""));
+		Properties.Insert("GroupID",
+			Lower(Selection.UsersGroup.UUID()));
+		Properties.Insert("GroupPresentation", Selection.GroupPresentation);
+		Properties.Insert("GroupReference", ValueToStringInternal(Selection.UsersGroup));
+		Data.GroupsPresentation.Add(Properties);
+	EndDo;
+	
+	Selection = QueryResults[3].Select();
+	While Selection.Next() Do
+		Properties = New Structure;
+		Properties.Insert("UserIdentificator",
+			Lower(Selection.User.UUID()));
+		Properties.Insert("UserPresentation2", Selection.UserPresentation2);
+		Properties.Insert("RefToUser", ValueToStringInternal(Selection.User));
+		Data.PresentationUsers.Add(Properties);
+	EndDo;
+	
+	If TypeOf(ForRegistration[0].User) = Type("CatalogRef.ExternalUsers") Then
+		EventName = EventNameChangeMembersChangeInExternalUserGroupsForEventLog();
+	Else
+		EventName = EventNameChangeMembersChangeInUserGroupsForEventLog();
+	EndIf;
+	
+	WriteLogEvent(EventName,
+		EventLogLevel.Information,
+		Metadata.InformationRegisters.UserGroupCompositions,
+		Common.ValueToXMLString(Data),
+		,
+		EventLogEntryTransactionMode.Transactional);
 	
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
 // Procedures and functions for external user operations.
 
-// Updates the content of user groups
-// based on the hierarchy from the "User group content" information register
-//  The register data is used in the external user list form and the external user selection form.
-//  Data can be used to improve performance,
-// because work with the hierarchy in query language is not required.
+// 
 //
 // Parameters:
 //  ExternalUsersGroup - CatalogRef.ExternalUsersGroups
-//                        If AllExternalUsers group is specified, all
-//                        automatic groups are updated according to the authorization object types.
+//                             - Array of CatalogRef.ExternalUsersGroups
+//                             - Undefined - 
 //
-//  ExternalUser - Undefined - for all external users.
-//                      - Array of CatalogRef.ExternalUsers - for the specified
-//                          external users.
-//                      - CatalogRef.ExternalUsers - for the specified external user.
+//  ExternalUser - CatalogRef.ExternalUsers
+//                      - Array of CatalogRef.ExternalUsers
+//                      - Undefined - 
 //
-//  ItemsToChange - Undefined - no actions.
-//                     - Map of KeyAndValue:
-//                         * Key - CatalogRef.ExternalUsers - fills in a mapping
-//                                  with external users for which changes exist.
-//                         * Value - Undefined
+//  ChangesInComposition - See GroupsCompositionNewChanges
 //
-//  ModifiedGroups   - Undefined - no actions.
-//                     - Map of KeyAndValue:
-//                         * Key - CatalogRef.ExternalUsersGroups - fills in the array
-//                                  with groups of external users, for which there are changes.
-//                         * Value - Undefined
-//
-Procedure UpdateExternalUserGroupCompositions(Val ExternalUsersGroup,
-                                                   Val ExternalUser = Undefined,
-                                                   Val ItemsToChange  = Undefined,
-                                                   Val ModifiedGroups    = Undefined) Export
+Procedure UpdateGroupCompositionsByAuthorizationObjectType(ExternalUsersGroup,
+			ExternalUser, ChangesInComposition) Export
 	
-	If Not ValueIsFilled(ExternalUsersGroup) Then
-		Return;
-	EndIf;
+	Query = New Query;
+	Query.Text =
+	"SELECT
+	|	UserGroupCompositions.UsersGroup AS UsersGroup,
+	|	UserGroupCompositions.User AS User
+	|FROM
+	|	InformationRegister.UserGroupCompositions AS UserGroupCompositions
+	|		LEFT JOIN Catalog.ExternalUsers AS ExternalUsers
+	|			INNER JOIN Catalog.ExternalUsersGroups AS ExternalUsersGroups
+	|			ON (ExternalUsersGroups.AllAuthorizationObjects = TRUE)
+	|				AND (&FilterExternalUsersGroups1)
+	|				AND (TRUE IN
+	|					(SELECT TOP 1
+	|						TRUE
+	|					FROM
+	|						Catalog.ExternalUsersGroups.Purpose AS UsersTypes
+	|					WHERE
+	|						UsersTypes.Ref = ExternalUsersGroups.Ref
+	|						AND VALUETYPE(UsersTypes.UsersType) = VALUETYPE(ExternalUsers.AuthorizationObject)))
+	|				AND (&FilterExternalUser1)
+	|		ON (ExternalUsersGroups.Ref = UserGroupCompositions.UsersGroup)
+	|			AND (ExternalUsers.Ref = UserGroupCompositions.User)
+	|WHERE
+	|	VALUETYPE(UserGroupCompositions.UsersGroup) = TYPE(Catalog.ExternalUsersGroups)
+	|	AND ISNULL(CAST(UserGroupCompositions.UsersGroup AS Catalog.ExternalUsersGroups).AllAuthorizationObjects, FALSE) = TRUE
+	|	AND &FilterExternalUsersGroups2
+	|	AND &FilterExternalUser2
+	|	AND ExternalUsersGroups.Ref IS NULL
+	|;
+	|
+	|////////////////////////////////////////////////////////////////////////////////
+	|SELECT
+	|	ExternalUsersGroups.Ref AS UsersGroup,
+	|	ExternalUsers.Ref AS User,
+	|	NOT ExternalUsersGroups.DeletionMark
+	|		AND NOT ExternalUsers.DeletionMark
+	|		AND NOT ExternalUsers.Invalid AS Used,
+	|	UserGroupCompositions.Used AS UsedFlagPreviousState
+	|FROM
+	|	Catalog.ExternalUsers AS ExternalUsers
+	|		INNER JOIN Catalog.ExternalUsersGroups AS ExternalUsersGroups
+	|		ON (ExternalUsersGroups.AllAuthorizationObjects = TRUE)
+	|			AND (&FilterExternalUsersGroups1)
+	|			AND (TRUE IN
+	|				(SELECT TOP 1
+	|					TRUE
+	|				FROM
+	|					Catalog.ExternalUsersGroups.Purpose AS UsersTypes
+	|				WHERE
+	|					UsersTypes.Ref = ExternalUsersGroups.Ref
+	|					AND VALUETYPE(UsersTypes.UsersType) = VALUETYPE(ExternalUsers.AuthorizationObject)))
+	|			AND (&FilterExternalUser1)
+	|		LEFT JOIN InformationRegister.UserGroupCompositions AS UserGroupCompositions
+	|		ON (UserGroupCompositions.UsersGroup = ExternalUsersGroups.Ref)
+	|			AND (UserGroupCompositions.User = ExternalUsers.Ref)
+	|WHERE
+	|	(UserGroupCompositions.User IS NULL
+	|			OR ISNULL(UserGroupCompositions.Used, FALSE) = (NOT ExternalUsersGroups.DeletionMark
+	|				AND NOT ExternalUsers.DeletionMark
+	|				AND NOT ExternalUsers.Invalid))";
 	
-	If TypeOf(ExternalUser) = Type("Array") And ExternalUser.Count() = 0 Then
-		Return;
-	EndIf;
-	
-	If ItemsToChange = Undefined Then
-		CurrentItemsToChange = New Map;
+	If ExternalUsersGroup = Undefined Then
+		Query.Text = StrReplace(Query.Text, "&FilterExternalUsersGroups1", "TRUE");
+		Query.Text = StrReplace(Query.Text, "&FilterExternalUsersGroups2", "TRUE");
 	Else
-		CurrentItemsToChange = ItemsToChange;
+		Query.SetParameter("ExternalUsersGroup", ExternalUsersGroup);
+		Query.Text = StrReplace(
+			Query.Text,
+			"&FilterExternalUsersGroups1",
+			"ExternalUsersGroups.Ref IN (&ExternalUsersGroup)");
+		Query.Text = StrReplace(
+			Query.Text,
+			"&FilterExternalUsersGroups2",
+			"UserGroupCompositions.UsersGroup IN (&ExternalUsersGroup)");
 	EndIf;
 	
-	If ModifiedGroups = Undefined Then
-		CurrentModifiedGroups = New Map;
+	If ExternalUser = Undefined Then
+		Query.Text = StrReplace(Query.Text, "&FilterExternalUser1", "TRUE");
+		Query.Text = StrReplace(Query.Text, "&FilterExternalUser2", "TRUE");
 	Else
-		CurrentModifiedGroups = ModifiedGroups;
+		Query.SetParameter("ExternalUser", ExternalUser);
+		Query.Text = StrReplace(Query.Text,
+			"&FilterExternalUser1",
+			"ExternalUsers.Ref IN (&ExternalUser)");
+		Query.Text = StrReplace(Query.Text,
+			"&FilterExternalUser2",
+			"UserGroupCompositions.User IN (&ExternalUser)");
 	EndIf;
 	
 	SetPrivilegedMode(True);
 	
+	QueryResults = Query.ExecuteBatch();
+	If QueryResults[0].IsEmpty() And QueryResults[1].IsEmpty() Then
+		Return;
+	EndIf;
+	
+	Block = New DataLock;
+	LockItem = Block.Add("InformationRegister.UserGroupCompositions");
+	LockItem.DataSource = QueryResults[0];
+	LockItem.UseFromDataSource("UsersGroup", "UsersGroup");
+	LockItem.UseFromDataSource("User", "User");
+	
+	LockItem = Block.Add("InformationRegister.UserGroupCompositions");
+	LockItem.DataSource = QueryResults[1];
+	LockItem.UseFromDataSource("UsersGroup", "UsersGroup");
+	LockItem.UseFromDataSource("User", "User");
+	
+	ItemsToChange = ChangesInComposition.ItemsToChange;
+	ModifiedGroups   = ChangesInComposition.ModifiedGroups;
+	ForRegistration     = ChangesInComposition.ForRegistration;
+	
 	BeginTransaction();
 	Try
-		If ExternalUsersGroup = Catalogs.ExternalUsersGroups.AllExternalUsers Then
+		Block.Lock();
+		QueriesResults = Query.ExecuteBatch();
+		
+		If Not QueriesResults[0].IsEmpty() Then
+			RecordSet = InformationRegisters.UserGroupCompositions.CreateRecordSet();
+			Selection = QueriesResults[0].Select();
 			
-			UpdateAllUsersGroupComposition(
-				ExternalUser, True, CurrentItemsToChange, CurrentModifiedGroups);
-			
-			UpdateGroupCompositionsByAuthorizationObjectType(
-				Undefined, ExternalUser, CurrentItemsToChange, CurrentModifiedGroups);
-			
-		Else
-			AllAuthorizationObjects = Common.ObjectAttributeValue(ExternalUsersGroup,
-				"AllAuthorizationObjects");
-			AllAuthorizationObjects = ?(AllAuthorizationObjects = Undefined, False, AllAuthorizationObjects);
-			
-			If AllAuthorizationObjects Then
-				UpdateGroupCompositionsByAuthorizationObjectType(
-					ExternalUsersGroup,
-					ExternalUser,
-					CurrentItemsToChange,
-					CurrentModifiedGroups);
-			Else
-				UpdateHierarchicalUserGroupCompositions(
-					ExternalUsersGroup,
-					ExternalUser,
-					CurrentItemsToChange,
-					CurrentModifiedGroups);
-			EndIf;
+			While Selection.Next() Do
+				RecordSet.Filter.UsersGroup.Set(Selection.UsersGroup);
+				RecordSet.Filter.User.Set(Selection.User);
+				RecordSet.Write(); // 
+				
+				ItemsToChange.Insert(Selection.User);
+				ModifiedGroups.Insert(Selection.UsersGroup);
+				If ForRegistration <> Undefined Then
+					AddCompositionChange(ForRegistration, Selection, True);
+				EndIf;
+			EndDo;
 		EndIf;
 		
-		If ItemsToChange = Undefined
-		   And ModifiedGroups   = Undefined Then
+		If Not QueriesResults[1].IsEmpty() Then
+			RecordSet = InformationRegisters.UserGroupCompositions.CreateRecordSet();
+			Record = RecordSet.Add();
+			Selection = QueriesResults[1].Select();
 			
-			AfterUpdateExternalUserGroupCompositions(
-				CurrentItemsToChange, CurrentModifiedGroups);
+			While Selection.Next() Do
+				RecordSet.Filter.UsersGroup.Set(Selection.UsersGroup);
+				RecordSet.Filter.User.Set(Selection.User);
+				FillPropertyValues(Record, Selection);
+				RecordSet.Write(); // 
+				
+				ItemsToChange.Insert(Selection.User);
+				ModifiedGroups.Insert(Selection.UsersGroup);
+				If ForRegistration <> Undefined Then
+					AddCompositionChange(ForRegistration, Selection);
+				EndIf;
+			EndDo;
 		EndIf;
 		
 		CommitTransaction();
@@ -4042,30 +5930,6 @@ Procedure UpdateExternalUserGroupCompositions(Val ExternalUsersGroup,
 		RollbackTransaction();
 		Raise;
 	EndTry;
-	
-EndProcedure
-
-// For internal use only.
-Procedure AfterUpdateExternalUserGroupCompositions(ItemsToChange, ModifiedGroups) Export
-	
-	If ItemsToChange.Count() = 0 Then
-		Return;
-	EndIf;
-	
-	ItemsToChangeArray = New Array;
-	For Each KeyAndValue In ItemsToChange Do
-		ItemsToChangeArray.Add(KeyAndValue.Key);
-	EndDo;
-	
-	UpdateExternalUsersRoles(ItemsToChangeArray);
-	
-	ModifiedGroupsArray = New Array;
-	For Each KeyAndValue In ModifiedGroups Do
-		ModifiedGroupsArray.Add(KeyAndValue.Key);
-	EndDo;
-	
-	SSLSubsystemsIntegration.AfterUserGroupsUpdate(ItemsToChangeArray,
-		ModifiedGroupsArray);
 	
 EndProcedure
 
@@ -4077,9 +5941,9 @@ EndProcedure
 // the Access management subsystem is implemented, the procedure is not required.
 // 
 // Parameters:
-//  ExternalUsersArray - Undefined - all external users.
-//                               CatalogRef.ExternalUsersGroup,
-//                               Array with elements of the CatalogRef.ExternalUsers type.
+//  ExternalUsersArray - Undefined - 
+//                             - CatalogRef.ExternalUsersGroups
+//                             - Array of CatalogRef.ExternalUsers
 //
 Procedure UpdateExternalUsersRoles(Val ExternalUsersArray = Undefined) Export
 	
@@ -4101,7 +5965,7 @@ Procedure UpdateExternalUsersRoles(Val ExternalUsersArray = Undefined) Export
 		If TypeOf(ExternalUsersArray) <> Type("Array") Then
 			
 			If ExternalUsersArray = Undefined Then
-				ExternalUsersGroup = Catalogs.ExternalUsersGroups.AllExternalUsers;
+				ExternalUsersGroup = ExternalUsers.AllExternalUsersGroup();
 			Else
 				ExternalUsersGroup = ExternalUsersArray;
 			EndIf;
@@ -4184,8 +6048,8 @@ Procedure UpdateExternalUsersRoles(Val ExternalUsersArray = Undefined) Export
 		Query.SetParameter("OldExternalUserRoles", OldExternalUserRoles);
 		Query.SetParameter("UseExternalUsers",
 			GetFunctionalOption("UseExternalUsers"));
-		
-		
+		// 
+		// 
 		Query.Text =
 		"SELECT
 		|	OldExternalUserRoles.ExternalUser,
@@ -4473,6 +6337,89 @@ Procedure CopyUserSettings(UserNameSource, UserNameDestination, Wrap = False) Ex
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
+// 
+
+// 
+// 
+//
+// Parameters:
+//  RefsKinds - ValueTable:
+//   * Name - String - 
+//
+//   * ParameterNameExtensionsOperation - String - 
+//       
+//
+//   * AllowedTypes - TypeDescription - 
+//
+Procedure OnFillRegisteredRefKinds(RefsKinds) Export
+	
+	RefsKind = RefsKinds.Add();
+	RefsKind.Name = "UseExternalUsers";
+	RefsKind.AllowedTypes = New TypeDescription("Boolean");
+	RefsKind.ParameterNameExtensionsOperation =
+		"StandardSubsystems.Users.UseExternalUsersModifiedUponImport";
+	
+	RefsKind = RefsKinds.Add();
+	RefsKind.Name = "Users";
+	RefsKind.AllowedTypes = New TypeDescription(
+		"CatalogRef.Users");
+	RefsKind.ParameterNameExtensionsOperation =
+		"StandardSubsystems.Users.UsersChangedOnImport";
+	
+	RefsKind = RefsKinds.Add();
+	RefsKind.Name = "UserGroups";
+	RefsKind.AllowedTypes = New TypeDescription(
+		"CatalogRef.UserGroups");
+	RefsKind.ParameterNameExtensionsOperation =
+		"StandardSubsystems.Users.UserGroupsModifiedOnImport";
+	
+	RefsKind = RefsKinds.Add();
+	RefsKind.Name = "UsersGroupsHierarchy";
+	RefsKind.AllowedTypes = New TypeDescription(
+		"CatalogRef.UserGroups");
+	RefsKind.ParameterNameExtensionsOperation =
+		"StandardSubsystems.Users.UsersGroupsHierarchyModifiedUponImport";
+	
+	RefsKind = RefsKinds.Add();
+	RefsKind.Name = "ExternalUsers";
+	RefsKind.AllowedTypes = New TypeDescription(
+		"CatalogRef.ExternalUsers");
+	RefsKind.ParameterNameExtensionsOperation =
+		"StandardSubsystems.Users.ExternalUsersModifiedUponImport";
+	
+	RefsKind = RefsKinds.Add();
+	RefsKind.Name = "ExternalUsersAuthorizationObjects";
+	RefsKind.AllowedTypes = Metadata.DefinedTypes.ExternalUser.Type;
+	RefsKind.ParameterNameExtensionsOperation =
+		"StandardSubsystems.Users.ExternalUsersAuthorizationObjectsModifiedUponImport";
+	
+	RefsKind = RefsKinds.Add();
+	RefsKind.Name = "ExternalUsersGroups";
+	RefsKind.AllowedTypes = New TypeDescription(
+		"CatalogRef.ExternalUsersGroups");
+	RefsKind.ParameterNameExtensionsOperation =
+		"StandardSubsystems.Users.ExternalUsersGroupsModifiedUponImport";
+	
+	RefsKind = RefsKinds.Add();
+	RefsKind.Name = "ExternalUsersGroupsHierarchy";
+	RefsKind.AllowedTypes = New TypeDescription(
+		"CatalogRef.ExternalUsersGroups");
+	RefsKind.ParameterNameExtensionsOperation =
+		"StandardSubsystems.Users.ExternalUsersGroupsHierarchyModifiedUponImport";
+	
+	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
+		ModuleAccessManagementInternal = Common.CommonModule("AccessManagementInternal");
+		ModuleAccessManagementInternal.OnFillRegisteredRefKinds(RefsKinds);
+	EndIf;
+	
+	If Common.SubsystemExists("StandardSubsystems.BusinessProcessesAndTasks") Then
+		ModuleBusinessProcessesAndTasksServer = Common.CommonModule("BusinessProcessesAndTasksServer");
+		ModuleBusinessProcessesAndTasksServer.OnFillRegisteredRefKinds(RefsKinds);
+	EndIf;
+	
+EndProcedure
+
+////////////////////////////////////////////////////////////////////////////////
 // Procedures and functions for moving users between groups.
 
 // Moves a user from one group to another.
@@ -4517,8 +6464,8 @@ Function MoveUserToNewGroup(UsersArray, SourceGroup,
 		EndIf;
 		
 		// If the user being moved is not included in the destination group, moving that user.
-		If DestinationGroup1 = Catalogs.UserGroups.AllUsers
-			Or DestinationGroup1 = Catalogs.ExternalUsersGroups.AllExternalUsers Then
+		If DestinationGroup1 = Users.AllUsersGroup()
+			Or DestinationGroup1 = ExternalUsers.AllExternalUsersGroup() Then
 			
 			If Move Then
 				Removed = False;
@@ -4610,8 +6557,8 @@ EndFunction
 
 Procedure AddUserToGroup(OwnerGroup, UserRef, CompositionColumnName, Added) Export
 	
-	If OwnerGroup = Catalogs.UserGroups.AllUsers
-	 Or OwnerGroup = Catalogs.ExternalUsersGroups.AllExternalUsers Then
+	If OwnerGroup = Users.AllUsersGroup()
+	 Or OwnerGroup = ExternalUsers.AllExternalUsersGroup() Then
 		Return;
 	EndIf;
 	
@@ -4627,7 +6574,7 @@ Procedure AddUserToGroup(OwnerGroup, UserRef, CompositionColumnName, Added) Expo
 		LockItem.SetValue("Ref", OwnerGroup);
 		Block.Lock();
 		
-		OwnerGroupObject = OwnerGroup.GetObject();
+		OwnerGroupObject = OwnerGroup.GetObject(); // CatalogObject.UserGroups, CatalogObject.ExternalUsersGroups
 		Properties = New Structure("AllAuthorizationObjects", False);
 		FillPropertyValues(Properties, OwnerGroupObject);
 		
@@ -4654,8 +6601,8 @@ EndProcedure
 
 Procedure DeleteUserFromGroup(OwnerGroup, UserRef, CompositionColumnName, Removed = False) Export
 	
-	If OwnerGroup = Catalogs.UserGroups.AllUsers
-	 Or OwnerGroup = Catalogs.ExternalUsersGroups.AllExternalUsers Then
+	If OwnerGroup = Users.AllUsersGroup()
+	 Or OwnerGroup = ExternalUsers.AllExternalUsersGroup() Then
 		Return;
 	EndIf;
 	
@@ -4781,8 +6728,8 @@ Function CreateUserMessage(UsersArray, DestinationGroup1,
 		
 		StringObject = String(UsersArray[0]);
 		
-		If DestinationGroup1 = Catalogs.UserGroups.AllUsers
-		 Or DestinationGroup1 = Catalogs.ExternalUsersGroups.AllExternalUsers Then
+		If DestinationGroup1 = Users.AllUsersGroup()
+		 Or DestinationGroup1 = ExternalUsers.AllExternalUsersGroup() Then
 			
 			UserMessage = NStr("en = '""%1"" is excluded from group ""%2.""';");
 			GroupDescription = String(SourceGroup);
@@ -4799,7 +6746,7 @@ Function CreateUserMessage(UsersArray, DestinationGroup1,
 			+ UsersInternalClientServer.IntegerSubject(UsersCount,
 				"", NStr("en = 'user, users,,,0';"));
 		
-		If DestinationGroup1 = Catalogs.UserGroups.AllUsers Then
+		If DestinationGroup1 = Users.AllUsersGroup() Then
 			UserMessage = NStr("en = '%1 are excluded from group ""%2.""';");
 			GroupDescription = String(SourceGroup);
 			
@@ -5249,15 +7196,14 @@ Function UpdateEmailForPasswordRecovery(UserRef, AuthorizationObject = Undefined
 		Result.Status = "Error";
 		Result.ErrorText = ErrorProcessing.BriefErrorDescription(ErrorInfo);
 		
-		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t process the %1 user due to: %2';"),
-			RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo));
-			
-		WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Warning,
-			Metadata.Catalogs.Users, UserRef, MessageText);
-			
+		InfobaseUpdate.WriteErrorToEventLog(
+			UserRef,
+			RepresentationOfTheReference,
+			ErrorInfo());
+		
+		ErrorText = ErrorProcessing.DetailErrorDescription(ErrorInfo);
 		If ValueIsFilled(EmailForPasswordRecovery)
-			 And StrFind(MessageText, EmailForPasswordRecovery) > 0 Then
+			 And StrFind(ErrorText, EmailForPasswordRecovery) > 0 Then
 				Refinement = NStr("en = 'Email address %1 is already occupied by another user and cannot be used to restore the password.';");
 				Refinement = StringFunctionsClientServer.SubstituteParametersToString(Refinement, EmailForPasswordRecovery);
 				InfobaseUpdate.FileIssueWithData(UserRef, Refinement);
@@ -5308,18 +7254,105 @@ Function UserInformationForUpdatingMailForRecovery()
 	
 EndFunction
 
+// 
+// 
+// 
+// 
+// 
+// 
+//
+// Parameters:
+//  UserObject - CatalogObject.Users - Object before writing.
+//                     - CatalogObject.ExternalUsers
+//  NewAddress  - String
+//  OldAddress - String
+//              - Undefined - If an old infobase user does not exist
+//
+Procedure ChangePasswordRecoveryEmail(UserObject, NewAddress, OldAddress)
+	
+	If Common.SubsystemExists("StandardSubsystems.ContactInformation") Then
+		ModuleContactsManager = Common.CommonModule("ContactsManager");
+		ModuleContactsManager.ChangePasswordRecoveryEmail(UserObject, NewAddress, OldAddress);
+	EndIf;
+	
+EndProcedure
+
+// 
+Procedure AddAddresseeSessions(AddresseeSessions, Addressee, SessionKey = Undefined);
+	
+	SessionsKeys = AddresseeSessions.Get(Addressee.Key);
+	If SessionsKeys = Undefined Then
+		SessionsKeys = New Array;
+		AddresseeSessions.Insert(Addressee.Key, SessionsKeys);
+	EndIf;
+	
+	If SessionKey <> Undefined Then
+		SessionsKeys.Add(SessionKey);
+		Return;
+	EndIf;
+	
+	For Each SessionKey In Addressee.Value Do
+		SessionsKeys.Add(SessionKey);
+	EndDo;
+	
+EndProcedure
+
+// 
+Function RoleKeysAreReduced(OldRoleKeysAreString, NewRoleKeysAsString)
+	
+	OldKeys = StrSplit(OldRoleKeysAreString, ",", False);
+	NewKeys = StrSplit(NewRoleKeysAsString, ",", False);
+	
+	If OldKeys.Count() > NewKeys.Count() Then
+		Return True;
+	EndIf;
+	
+	For Each KeyRole In OldKeys Do
+		If NewKeys.Find(KeyRole) = Undefined Then
+			Return True;
+		EndIf;
+	EndDo;
+	
+	Return False;
+	
+EndFunction
+
+// 
+Function RolesAreReduced(InfobaseOldUser, InfobaseNewUser)
+	
+	For Each Role In InfobaseOldUser.Roles Do
+		If Not InfobaseNewUser.Roles.Contains(Role) Then
+			Return True;
+		EndIf;
+	EndDo;
+	
+	Return False;
+	
+EndFunction
+
+// 
+//
 // Parameters:
 //  IBUser - InfoBaseUser
 //
 // Returns:
 //  String
 //
-Function InfobaseUserRolesChecksum(IBUser)
+Function IBUserRoleKeys(IBUser)
 	
-	Hashing = New DataHashing(HashFunction.SHA256);
-	Hashing.Append(ValueToStringInternal(IBUser.Roles));
+	List = New ValueList;
 	
-	Return Base64String(Hashing.HashSum);
+	For Each Role In IBUser.Roles Do
+		KeyRole = Catalogs.MetadataObjectIDs.RoleMetadataObjectKey(Role);
+		If KeyRole = Undefined Then
+			KeyRole = "Undefined";
+		EndIf;
+		List.Add(KeyRole);
+	EndDo;
+	
+	List.SortByValue();
+	
+	Return StrConcat(List.UnloadValues(), ",");
 	
 EndFunction
 
@@ -5492,10 +7525,247 @@ Procedure RestrictUsageOfDynamicListFieldToFill(List, FieldName) Export
 	
 EndProcedure
 
+// Intended for procedure "DeleteNonExistentFieldsFromAccessAccessEventSetting".
+Procedure AddFieldWithCheck(Fields, Field, AvailableFields, UnfoundFields, AddedFields, ObjectName)
+
+	If AvailableFields <> Undefined
+	   And AvailableFields.Get(Lower(Field)) <> Undefined Then
+		Fields.Add(Field);
+	Else
+		FullFieldName1 = ?(AvailableFields = Undefined, "<<?>>", "") + ObjectName + "."
+			+ ?(AvailableFields = Undefined, "", "<<?>>") + Field;
+		If AddedFields.Get(Lower(FullFieldName1)) = Undefined Then
+			UnfoundFields.Add(FullFieldName1);
+			AddedFields.Insert(Lower(FullFieldName1), True);
+		EndIf;
+	EndIf;
+	
+EndProcedure
+
+// Returns the names and presentations of the fields of the main table and its nested tables.
+//
+// Parameters:
+//  FullTableName - String
+//
+// Returns:
+//  Structure:
+//   * Collections - Array of Structure:
+//      ** Name - String  - "Attributes", "StandardAttributes", "Dimensions", "Resources", "Fields",
+//                         "TabularSections", "StandardTabularSections".
+//      ** Fields          - Array of See NewFieldDescription
+//                       - Undefined - In case this is a collection of tables.
+//      ** Tables       - Array of See TableNewDetails
+//                       - Undefined - In case this is a collection of fields.
+//   * AllFields - Map of KeyAndValue:
+//      ** Key - String - Dot-delimited lower-case field names. For example, "company", "goods.item".
+//      ** Value - String - Dot-delimited field name. For example, "Company", "Goods.Item".
+//
+//  Undefined - The object is missing or has no tables.
+//
+Function TableFields(Val FullTableName) Export
+	
+	ObjectMetadata = Common.MetadataObjectByFullName(FullTableName);
+	If ObjectMetadata = Undefined Then
+		Return Undefined;
+	EndIf;
+	
+	NameParts = StrSplit(ObjectMetadata.FullName(), ".", False);
+	ObjectKind = NameParts[0];
+	
+	If NameParts.Count() = 4 And ObjectKind = "ExternalDataSource" Then
+		ObjectKind = "ExternalDataSourceTable";
+	EndIf;
+	
+	ObjectCollections = ObjectCollectionsByKind(ObjectKind);
+	If ObjectCollections = Undefined Then
+		Return Undefined;
+	EndIf;
+	
+	Result = New Structure;
+	Result.Insert("Collections", New Array);
+	Result.Insert("AllFields", New Map);
+	
+	For Each ObjectCollection In ObjectCollections Do
+		CollectionDescription_ = New Structure;
+		CollectionDescription_.Insert("Name", ObjectCollection.Name);
+		CollectionDescription_.Insert("Fields");
+		CollectionDescription_.Insert("Tables");
+		Result.Collections.Add(CollectionDescription_);
+		
+		If ValueIsFilled(ObjectCollection.Fields) Then
+			CollectionDescription_.Fields = ObjectCollection.Fields;
+			CompleteAllFields(Result.AllFields, CollectionDescription_.Fields);
+			Continue;
+		EndIf;
+		
+		CollectionItems = ObjectMetadata[ObjectCollection.Name];
+		If ValueIsFilled(ObjectCollection.FieldsCollectionName) Then
+			CollectionDescription_.Tables = New Array;
+			For Each CollectionItem In CollectionItems Do
+				TableDetails = TableNewDetails();
+				TableDetails.Name = CollectionItem.Name;
+				TableDetails.Presentation = CollectionItem.Presentation();
+				CollectionDescription_.Tables.Add(TableDetails);
+				AddFields(TableDetails.Fields, CollectionItem[ObjectCollection.FieldsCollectionName]);
+				CompleteAllFields(Result.AllFields, TableDetails.Fields, TableDetails.Name + ".");
+			EndDo;
+		Else
+			CollectionDescription_.Fields = New Array;
+			AddFields(CollectionDescription_.Fields, CollectionItems);
+			CompleteAllFields(Result.AllFields, CollectionDescription_.Fields);
+		EndIf;
+	EndDo;
+	
+	Return Result;
+	
+EndFunction
+
+// Intended for function "TableFields".
+Procedure AddFields(TableFields, TableFieldsMetadata)
+	
+	For Each FieldMetadata In TableFieldsMetadata Do
+		FieldDetails = NewFieldDescription();
+		FieldDetails.Name = FieldMetadata.Name;
+		FieldDetails.Presentation = FieldMetadata.Presentation();
+		TableFields.Add(FieldDetails);
+	EndDo;
+	
+EndProcedure
+
+// Intended for function "TableFields".
+Procedure CompleteAllFields(AllFields, Fields, TableName = "")
+	
+	For Each Field In Fields Do
+		FullFieldName1 = TableName + Field.Name;
+		AllFields.Insert(Lower(FullFieldName1), FullFieldName1);
+	EndDo;
+	
+EndProcedure
+
+// Returns:
+//  Array of Structure:
+//   * Name - String - Collection name.
+//   * FieldsCollectionName - String - An empty string if "Name" is a field collection.
+//   * Fields - Undefined - Get fields from the metadata.
+//
+//  Undefined - The object type has no tables.
+//
+Function ObjectCollectionsByKind(ObjectKind)
+	
+	Result = New Array;
+	
+	If ObjectKind = "ExchangePlan"
+	 Or ObjectKind = "Catalog"
+	 Or ObjectKind = "Document"
+	 Or ObjectKind = "ChartOfCharacteristicTypes"
+	 Or ObjectKind = "ChartOfCharacteristicTypes"
+	 Or ObjectKind = "BusinessProcess" Then
+		
+		AddCollection(Result, "StandardAttributes");
+		AddCollection(Result, "Attributes");
+		AddCollection(Result, "TabularSections", "Attributes");
+		
+	ElsIf ObjectKind = "Constant" Then
+		Fields = New Array;
+		Fields.Add(NewFieldDescription("Value", NStr("en = 'Value';")));
+		AddCollection(Result, "StandardAttributes",, Fields);
+		
+	ElsIf ObjectKind = "Sequence" Then
+		Fields = New Array;
+		Fields.Add(NewFieldDescription("Recorder",   NStr("en = 'Recorder';")));
+		Fields.Add(NewFieldDescription("Period",        NStr("en = 'Period';")));
+		Fields.Add(NewFieldDescription("PointInTime", NStr("en = 'Point in time';")));
+		AddCollection(Result, "StandardAttributes",, Fields);
+		AddCollection(Result, "Dimensions");
+		
+	ElsIf ObjectKind = "DocumentJournal" Then
+		AddCollection(Result, "StandardAttributes");
+		AddCollection(Result, "Columns");
+		
+	ElsIf ObjectKind = "ChartOfAccounts"
+	      Or ObjectKind = "ChartOfCalculationTypes" Then
+		
+		AddCollection(Result, "StandardAttributes");
+		AddCollection(Result, "Attributes");
+		AddCollection(Result, "StandardTabularSections", "StandardAttributes");
+		AddCollection(Result, "TabularSections", "Attributes");
+		
+	ElsIf ObjectKind = "InformationRegister"
+	      Or ObjectKind = "AccumulationRegister"
+	      Or ObjectKind = "AccountingRegister"
+	      Or ObjectKind = "CalculationRegister" Then
+		
+		AddCollection(Result, "StandardAttributes");
+		AddCollection(Result, "Dimensions");
+		AddCollection(Result, "Resources");
+		AddCollection(Result, "Attributes");
+		
+	ElsIf ObjectKind = "Task" Then
+		AddCollection(Result, "AddressingAttributes");
+		AddCollection(Result, "Attributes");
+		AddCollection(Result, "TabularSections", "Attributes");
+		
+	ElsIf ObjectKind = "ExternalDataSource" Then
+		AddCollection(Result, "Tables", "Fields");
+		
+	ElsIf ObjectKind = "ExternalDataSourceTable" Then
+		AddCollection(Result, "Fields");
+	Else
+		Result = Undefined;
+	EndIf;
+	
+	Return Result;
+	
+EndFunction
+
+// Intended for function "ObjectsCollectionsByKind".
+Procedure AddCollection(Collections, Name, FieldsCollectionName = "", Fields = Undefined)
+	
+	Collection = New Structure;
+	Collection.Insert("Name", Name);
+	Collection.Insert("FieldsCollectionName", FieldsCollectionName);
+	Collection.Insert("Fields", Fields);
+	
+	Collections.Add(Collection);
+	
+EndProcedure
+
+// Returns:
+//  Structure:
+//   * Name - String
+//   * Presentation - String
+//
+Function NewFieldDescription(Name = "", Presentation = "")
+	
+	Result = New Structure;
+	Result.Insert("Name", Name);
+	Result.Insert("Presentation", Presentation);
+	
+	Return Result;
+	
+EndFunction
+
+// Returns:
+//  Structure:
+//   * Name - String
+//   * Presentation - String
+//   * Fields - Array of See NewFieldDescription
+//
+Function TableNewDetails()
+	
+	Result = New Structure;
+	Result.Insert("Name", "");
+	Result.Insert("Presentation", "");
+	Result.Insert("Fields", New Array);
+	
+	Return Result;
+	
+EndFunction
+
 ////////////////////////////////////////////////////////////////////////////////
 // Infobase update.
 
-// The procedure is called upon migration to SSL version 2.1.3.16.
+// Runs during update to SSL v.2.1.3.16.
 Procedure UpdatePredefinedUserContactInformationKinds() Export
 	
 	If Not Common.SubsystemExists("StandardSubsystems.ContactInformation") Then
@@ -5592,7 +7862,7 @@ Procedure MoveDesignerPasswordLengthAndComplexitySettings() Export
 	
 EndProcedure
 
-// The procedure is called on update to SSL version 2.4.1.1.
+// Runs during update to SSL v.2.4.1.1.
 Procedure AddOpenExternalReportsAndDataProcessorsRightForAdministrators() Export
 	
 	RoleToAdd = Metadata.Roles.InteractiveOpenExtReportsAndDataProcessors;
@@ -5612,7 +7882,7 @@ Procedure AddOpenExternalReportsAndDataProcessorsRightForAdministrators() Export
 	
 EndProcedure
 
-// The procedure is called on update to SSL version 2.4.1.1.
+// Runs during update to SSL v.2.4.1.1.
 Procedure RenameExternalReportAndDataProcessorOpeningDecisionStorageKey() Export
 	
 	Block = New DataLock;
@@ -5645,36 +7915,10 @@ Procedure RenameExternalReportAndDataProcessorOpeningDecisionStorageKey() Export
 	
 EndProcedure
 
-// Runs when a configuration is updated to v.3.0.2.124 and during the initial data population.
-Procedure FillPredefinedUserGroupsDescription() Export
-	
-	SetTheName(Catalogs.UserGroups.AllUsers,
-		NStr("en = 'All users';"));
-	
-	SetTheName(Catalogs.ExternalUsersGroups.AllExternalUsers,
-		NStr("en = 'All external users';"));
-	
-EndProcedure
-
-// It is required for the FillPredefinedUserGroupsDescription procedure.
-Procedure SetTheName(Ref, Description)
-	
-	Block = New DataLock;
-	LockItem = Block.Add(Ref.Metadata().FullName());
-	LockItem.SetValue("Ref", Ref);
-	
-	BeginTransaction();
-	Try
-		Block.Lock();
-		Object = Ref.GetObject();
-		Object.Description = NStr("en = 'All users';");
-		InfobaseUpdate.WriteObject(Object);
-		CommitTransaction();
-	Except
-		RollbackTransaction();
-		Raise;
-	EndTry;
-	
+Procedure FillUserGroupsHierarchy() Export
+	InformationRegisters.UserGroupsHierarchy.UpdateRegisterData();
+	InformationRegisters.UserGroupCompositions.UpdateRegisterData();
+	InformationRegisters.UsersInfo.UpdateRegisterData();
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -5689,7 +7933,7 @@ Procedure FillSettingsLists(Parameters, StorageAddress) Export
 	   And Not AccessRight("DataAdministration", Metadata) Then
 		
 		ErrorText = NStr("en = 'Insufficient rights to view user settings.';");
-		Raise ErrorText;
+		Raise(ErrorText, ErrorCategory.AccessViolation);
 	EndIf;
 	
 	DataProcessors.UsersSettings.FillSettingsLists(Parameters);
@@ -5773,7 +8017,7 @@ Procedure ClearNonExistingIBUsersIDs()
 	|	ExternalUsers.Ref,
 	|	ExternalUsers.IBUserID
 	|FROM
-	|	Catalog.Users AS ExternalUsers
+	|	Catalog.ExternalUsers AS ExternalUsers
 	|WHERE
 	|	ExternalUsers.IBUserID <> &BlankUUID";
 	
@@ -6229,567 +8473,106 @@ Function EventNameLoginErrorForTheLogLog()
 	
 EndFunction
 
-// The function is used in the following procedures: UpdateUsersGroupsContents,
-// UpdateExternalUserGroupCompositions.
-//
-// Parameters:
-//  Table - String - Full name of a metadata object.
-//
-// Returns:
-//  ValueTable:
-//   * Ref - CatalogRef.ExternalUsersGroups
-//            - CatalogRef.UserGroups - a reference to catalog item.
-//   * Parent - CatalogRef.ExternalUsersGroups
-//              - CatalogRef.UserGroups - a reference to the parent
-//       item of the catalog.
-//
-Function ReferencesInParentHierarchy(Table)
+// 
+Procedure WriteNewGroupParents(TreeRows, NewParents, Val LevelOfParent,
+			ChangesInComposition, Check, HigherLevelGroup = Undefined)
 	
-	ParentsRefs = ParentsRefs(Table);
-	ReferencesInParentHierarchy = ParentsRefs.Copy(New Array);
+	LevelOfParent = LevelOfParent + 1;
+	NewRow = NewParents.Add();
 	
-	For Each ReferenceDetails In ParentsRefs Do
-		NewRow = ReferencesInParentHierarchy.Add();
-		NewRow.Parent = ReferenceDetails.Ref;
-		NewRow.Ref   = ReferenceDetails.Ref;
-		
-		FillRefsInParentHierarchy(ReferenceDetails.Ref, ReferenceDetails.Ref, ParentsRefs, ReferencesInParentHierarchy);
-	EndDo;
-	
-	Return ReferencesInParentHierarchy;
-	
-EndFunction
-
-// Preparing parent group content.
-//
-// Parameters:
-//  Table - String - Full name of a metadata object.
-//
-// Returns:
-//  ValueTable:
-//    * Ref - CatalogRef.ExternalUsersGroups
-//             - CatalogRef.UserGroups
-//    * Parent - CatalogRef.ExternalUsersGroups
-//               - CatalogRef.UserGroups
-//
-Function ParentsRefs(Table)
-	
-	Query = New Query(
-	"SELECT
-	|	ParentsRefs.Ref AS Ref,
-	|	ParentsRefs.Parent AS Parent
-	|FROM
-	|	&Table AS ParentsRefs");
-	
-	Query.Text = StrReplace(Query.Text, "&Table", Table);
-	
-	ParentsRefs = Query.Execute().Unload();
-	ParentsRefs.Indexes.Add("Parent");
-	
-	Return ParentsRefs;
-	
-EndFunction
-
-Procedure FillRefsInParentHierarchy(Val Parent, Val CurrentParent, Val ParentsRefs, Val ReferencesInParentHierarchy)
-	
-	ParentRefs = ParentsRefs.FindRows(New Structure("Parent", CurrentParent));
-	
-	For Each ReferenceDetails In ParentRefs Do
-		NewRow = ReferencesInParentHierarchy.Add();
-		NewRow.Parent = Parent;
-		NewRow.Ref   = ReferenceDetails.Ref;
-		
-		FillRefsInParentHierarchy(Parent, ReferenceDetails.Ref, ParentsRefs, ReferencesInParentHierarchy);
-	EndDo;
-	
-EndProcedure
-
-// The function is used in the following procedures: UpdateUsersGroupsContents,
-// UpdateExternalUserGroupCompositions.
-//
-Procedure UpdateAllUsersGroupComposition(User,
-                                              UpdateExternalUserGroup = False,
-                                              ItemsToChange = Undefined,
-                                              ModifiedGroups   = Undefined)
-	
-	If UpdateExternalUserGroup Then
-		AllUsersGroup = Catalogs.ExternalUsersGroups.AllExternalUsers;
-	Else
-		AllUsersGroup = Catalogs.UserGroups.AllUsers;
-	EndIf;
-	
-	Query = New Query;
-	Query.SetParameter("AllUsersGroup", AllUsersGroup);
-	
-	Query.Text =
-	"SELECT
-	|	Users.Ref AS Ref,
-	|	CASE
-	|		WHEN Users.DeletionMark
-	|			THEN FALSE
-	|		WHEN Users.Invalid
-	|			THEN FALSE
-	|		ELSE TRUE
-	|	END AS Used
-	|INTO Users
-	|FROM
-	|	Catalog.Users AS Users
-	|WHERE
-	|	&FilterUser
-	|
-	|INDEX BY
-	|	Users.Ref
-	|;
-	|
-	|////////////////////////////////////////////////////////////////////////////////
-	|SELECT
-	|	&AllUsersGroup AS UsersGroup,
-	|	Users.Ref AS User,
-	|	Users.Used
-	|FROM
-	|	Users AS Users
-	|		LEFT JOIN InformationRegister.UserGroupCompositions AS UserGroupCompositions
-	|		ON (UserGroupCompositions.UsersGroup = &AllUsersGroup)
-	|			AND (UserGroupCompositions.User = Users.Ref)
-	|			AND (UserGroupCompositions.Used = Users.Used)
-	|WHERE
-	|	UserGroupCompositions.User IS NULL 
-	|
-	|UNION ALL
-	|
-	|SELECT
-	|	Users.Ref,
-	|	Users.Ref,
-	|	Users.Used
-	|FROM
-	|	Users AS Users
-	|		LEFT JOIN InformationRegister.UserGroupCompositions AS UserGroupCompositions
-	|		ON (UserGroupCompositions.UsersGroup = Users.Ref)
-	|			AND (UserGroupCompositions.User = Users.Ref)
-	|			AND (UserGroupCompositions.Used = Users.Used)
-	|WHERE
-	|	UserGroupCompositions.User IS NULL ";
-	
-	Block = New DataLock;
-	
-	If UpdateExternalUserGroup Then
-		FullCatalogName = "Catalog.ExternalUsers";
-		Query.Text = StrReplace(Query.Text, "Catalog.Users", "Catalog.ExternalUsers");
-	Else
-		FullCatalogName = "Catalog.Users";
-	EndIf;
-	
-	If TypeOf(User) = Type("Array") And User.Count() <= 1000 Then
-		For Each Ref In User Do
-			RegisterLockElement = Block.Add("InformationRegister.UserGroupCompositions");
-			RegisterLockElement.SetValue("UsersGroup", AllUsersGroup);
-			RegisterLockElement.SetValue("User", Ref);
-			CatalogBlockingElement = Block.Add(FullCatalogName);
-			CatalogBlockingElement.Mode = DataLockMode.Shared;
-			CatalogBlockingElement.SetValue("Ref", Ref);
-		EndDo;
-	Else
-		RegisterLockElement = Block.Add("InformationRegister.UserGroupCompositions");
-		CatalogBlockingElement = Block.Add(FullCatalogName);
-		CatalogBlockingElement.Mode = DataLockMode.Shared;
-		If User <> Undefined And TypeOf(User) <> Type("Array") Then
-			RegisterLockElement.SetValue("UsersGroup", AllUsersGroup);
-			RegisterLockElement.SetValue("User", User);
-			CatalogBlockingElement.SetValue("Ref", User);
+	// 
+	For Each TreeRow In TreeRows Do
+		If TreeRow.Ref = HigherLevelGroup Then
+			Continue;
 		EndIf;
-	EndIf;
-	
-	If User = Undefined Then
-		Query.Text = StrReplace(Query.Text, "&FilterUser", "TRUE");
-	Else
-		Query.SetParameter("User", User);
-		Query.Text = StrReplace(
-			Query.Text, "&FilterUser", "Users.Ref IN (&User)");
-	EndIf;
-	
-	BeginTransaction();
-	Try
-		Block.Lock();
-		QueryResult = Query.Execute();
+		NewRow.Parent = TreeRow.Ref;
+		NewRow.LevelOfParent = LevelOfParent;
+		NewParents.FillValues(TreeRow.Ref, "UsersGroup");
+		NewParents.FillValues(LevelOfParent, "GroupLevel");
 		
-		If Not QueryResult.IsEmpty() Then
-			RecordSet = InformationRegisters.UserGroupCompositions.CreateRecordSet();
-			Record = RecordSet.Add();
-			Selection = QueryResult.Select();
-			
-			While Selection.Next() Do
-				RecordSet.Filter.UsersGroup.Set(Selection.UsersGroup);
-				RecordSet.Filter.User.Set(Selection.User);
-				FillPropertyValues(Record, Selection);
-				RecordSet.Write(); 
-				
-				If ItemsToChange <> Undefined Then
-					ItemsToChange.Insert(Selection.User);
-				EndIf;
-			EndDo;
-			
-			If ModifiedGroups <> Undefined Then
-				ModifiedGroups.Insert(AllUsersGroup);
-			EndIf;
-		EndIf;
-		
-		CommitTransaction();
-	Except
-		RollbackTransaction();
-		Raise;
-	EndTry;
-	
-EndProcedure
-
-// Used in the UpdateExternalUserGroupCompositions procedure.
-Procedure UpdateGroupCompositionsByAuthorizationObjectType(ExternalUsersGroup,
-		ExternalUser, ItemsToChange, ModifiedGroups)
-	
-	Query = New Query;
-	Query.Text =
-	"SELECT
-	|	ExternalUsersGroups.Ref AS UsersGroup,
-	|	ExternalUsers.Ref AS User,
-	|	CASE
-	|		WHEN ExternalUsersGroups.DeletionMark
-	|			THEN FALSE
-	|		WHEN ExternalUsers.DeletionMark
-	|			THEN FALSE
-	|		WHEN ExternalUsers.Invalid
-	|			THEN FALSE
-	|		ELSE TRUE
-	|	END AS Used
-	|INTO NewCompositions
-	|FROM
-	|	Catalog.ExternalUsers AS ExternalUsers
-	|		INNER JOIN Catalog.ExternalUsersGroups AS ExternalUsersGroups
-	|		ON (ExternalUsersGroups.AllAuthorizationObjects = TRUE)
-	|			AND (&FilterExternalUsersGroups1)
-	|			AND (TRUE IN
-	|				(SELECT TOP 1
-	|					TRUE
-	|				FROM
-	|					Catalog.ExternalUsersGroups.Purpose AS UsersTypes
-	|				WHERE
-	|					UsersTypes.Ref = ExternalUsersGroups.Ref
-	|					AND VALUETYPE(UsersTypes.UsersType) = VALUETYPE(ExternalUsers.AuthorizationObject)))
-	|			AND (&FilterExternalUser1)
-	|;
-	|
-	|////////////////////////////////////////////////////////////////////////////////
-	|SELECT
-	|	UserGroupCompositions.UsersGroup,
-	|	UserGroupCompositions.User
-	|FROM
-	|	InformationRegister.UserGroupCompositions AS UserGroupCompositions
-	|		LEFT JOIN NewCompositions AS NewCompositions
-	|		ON UserGroupCompositions.UsersGroup = NewCompositions.UsersGroup
-	|			AND UserGroupCompositions.User = NewCompositions.User
-	|WHERE
-	|	VALUETYPE(UserGroupCompositions.UsersGroup) = TYPE(Catalog.ExternalUsersGroups)
-	|	AND CAST(UserGroupCompositions.UsersGroup AS Catalog.ExternalUsersGroups).AllAuthorizationObjects = TRUE
-	|	AND &FilterExternalUsersGroups2
-	|	AND &FilterExternalUser2
-	|	AND NewCompositions.User IS NULL 
-	|;
-	|
-	|////////////////////////////////////////////////////////////////////////////////
-	|SELECT
-	|	NewCompositions.UsersGroup,
-	|	NewCompositions.User,
-	|	NewCompositions.Used
-	|FROM
-	|	NewCompositions AS NewCompositions
-	|		LEFT JOIN InformationRegister.UserGroupCompositions AS UserGroupCompositions
-	|		ON (UserGroupCompositions.UsersGroup = NewCompositions.UsersGroup)
-	|			AND (UserGroupCompositions.User = NewCompositions.User)
-	|			AND (UserGroupCompositions.Used = NewCompositions.Used)
-	|WHERE
-	|	UserGroupCompositions.User IS NULL ";
-	
-	If ExternalUsersGroup = Undefined Then
-		Query.Text = StrReplace(Query.Text, "&FilterExternalUsersGroups1", "TRUE");
-		Query.Text = StrReplace(Query.Text, "&FilterExternalUsersGroups2", "TRUE");
-	Else
-		Query.SetParameter("ExternalUsersGroup", ExternalUsersGroup);
-		Query.Text = StrReplace(
-			Query.Text,
-			"&FilterExternalUsersGroups1",
-			"ExternalUsersGroups.Ref IN (&ExternalUsersGroup)");
-		Query.Text = StrReplace(
-			Query.Text,
-			"&FilterExternalUsersGroups2",
-			"UserGroupCompositions.UsersGroup IN (&ExternalUsersGroup)");
-	EndIf;
-	
-	If ExternalUser = Undefined Then
-		Query.Text = StrReplace(Query.Text, "&FilterExternalUser1", "TRUE");
-		Query.Text = StrReplace(Query.Text, "&FilterExternalUser2", "TRUE");
-	Else
-		Query.SetParameter("ExternalUser", ExternalUser);
-		Query.Text = StrReplace(
-			Query.Text,
-			"&FilterExternalUser1",
-			"ExternalUsers.Ref IN (&ExternalUser)");
-		Query.Text = StrReplace(
-			Query.Text,
-			"&FilterExternalUser2",
-			"UserGroupCompositions.User IN (&ExternalUser)");
-	EndIf;
-	
-	QueriesResults = Query.ExecuteBatch();
-	
-	If Not QueriesResults[1].IsEmpty() Then
-		RecordSet = InformationRegisters.UserGroupCompositions.CreateRecordSet();
-		Selection = QueriesResults[1].Select();
-		
-		While Selection.Next() Do
-			RecordSet.Filter.UsersGroup.Set(Selection.UsersGroup);
-			RecordSet.Filter.User.Set(Selection.User);
-			RecordSet.Write(); 
-			
-			If ItemsToChange <> Undefined Then
-				ItemsToChange.Insert(Selection.User);
-			EndIf;
-			
-			If ModifiedGroups <> Undefined
-			   And TypeOf(Selection.UsersGroup)
-			     = Type("CatalogRef.ExternalUsersGroups") Then
-				
-				ModifiedGroups.Insert(Selection.UsersGroup);
-			EndIf;
-		EndDo;
-	EndIf;
-	
-	If Not QueriesResults[2].IsEmpty() Then
-		RecordSet = InformationRegisters.UserGroupCompositions.CreateRecordSet();
-		Record = RecordSet.Add();
-		Selection = QueriesResults[2].Select();
-		
-		While Selection.Next() Do
-			RecordSet.Filter.UsersGroup.Set(Selection.UsersGroup);
-			RecordSet.Filter.User.Set(Selection.User);
-			FillPropertyValues(Record, Selection);
-			RecordSet.Write(); // Adding missing records about relations.
-			
-			If ItemsToChange <> Undefined Then
-				ItemsToChange.Insert(Selection.User);
-			EndIf;
-			
-			If ModifiedGroups <> Undefined
-			   And TypeOf(Selection.UsersGroup)
-			     = Type("CatalogRef.ExternalUsersGroups") Then
-				
-				ModifiedGroups.Insert(Selection.UsersGroup);
-			EndIf;
-		EndDo;
-	EndIf;
-	
-EndProcedure
-
-// The function is used in the following procedures: UpdateUsersGroupsContents,
-// UpdateExternalUserGroupCompositions.
-//
-Procedure UpdateHierarchicalUserGroupCompositions(UsersGroup,
-                                                         User,
-                                                         ItemsToChange = Undefined,
-                                                         ModifiedGroups   = Undefined)
-	
-	UpdateExternalUserGroups =
-		TypeOf(UsersGroup) <> Type("CatalogRef.UserGroups");
-	
-	// Preparation user groups in parent hierarchy.
-	Query = New Query;
-	Query.Text =
-	"SELECT
-	|	ReferencesInParentHierarchy.Parent,
-	|	ReferencesInParentHierarchy.Ref
-	|INTO ReferencesInParentHierarchy
-	|FROM
-	|	&ReferencesInParentHierarchy AS ReferencesInParentHierarchy";
-	
-	Query.SetParameter("ReferencesInParentHierarchy", ReferencesInParentHierarchy(
-		?(UpdateExternalUserGroups,
-		  "Catalog.ExternalUsersGroups",
-		  "Catalog.UserGroups") ));
-	
-	// Preparing a query for the loop
-	QueryText =
-	"SELECT
-	|	UserGroupCompositions.User,
-	|	UserGroupCompositions.Used
-	|INTO UserGroupCompositions
-	|FROM
-	|	InformationRegister.UserGroupCompositions AS UserGroupCompositions
-	|WHERE
-	|	&FilterUserInRegister
-	|	AND UserGroupCompositions.UsersGroup = &UsersGroup
-	|
-	|INDEX BY
-	|	UserGroupCompositions.User,
-	|	UserGroupCompositions.Used
-	|;
-	|
-	|////////////////////////////////////////////////////////////////////////////////
-	|SELECT
-	|	UserGroupsComposition.User AS User,
-	|	MAX(CASE
-	|			WHEN UserGroupsComposition.Ref.DeletionMark
-	|				THEN FALSE
-	|			WHEN UserGroupsComposition.User.DeletionMark
-	|				THEN FALSE
-	|			WHEN UserGroupsComposition.User.Invalid
-	|				THEN FALSE
-	|			ELSE TRUE
-	|		END) AS Used
-	|INTO UserGroupsNewCompositions
-	|FROM
-	|	Catalog.UserGroups.Content AS UserGroupsComposition
-	|		INNER JOIN ReferencesInParentHierarchy AS ReferencesInParentHierarchy
-	|		ON (ReferencesInParentHierarchy.Ref = UserGroupsComposition.Ref)
-	|			AND (ReferencesInParentHierarchy.Parent = &UsersGroup)
-	|			AND (&FilterUserInCatalog)
-	|
-	|GROUP BY
-	|	UserGroupsComposition.User
-	|
-	|INDEX BY
-	|	User
-	|;
-	|
-	|////////////////////////////////////////////////////////////////////////////////
-	|SELECT DISTINCT
-	|	UserGroupCompositions.User
-	|FROM
-	|	UserGroupCompositions AS UserGroupCompositions
-	|		LEFT JOIN UserGroupsNewCompositions AS UserGroupsNewCompositions
-	|		ON UserGroupCompositions.User = UserGroupsNewCompositions.User
-	|WHERE
-	|	UserGroupsNewCompositions.User IS NULL 
-	|;
-	|
-	|////////////////////////////////////////////////////////////////////////////////
-	|SELECT DISTINCT
-	|	&UsersGroup AS UsersGroup,
-	|	UserGroupsNewCompositions.User,
-	|	UserGroupsNewCompositions.Used
-	|FROM
-	|	UserGroupsNewCompositions AS UserGroupsNewCompositions
-	|		LEFT JOIN UserGroupCompositions AS UserGroupCompositions
-	|		ON (UserGroupCompositions.User = UserGroupsNewCompositions.User)
-	|			AND (UserGroupCompositions.Used = UserGroupsNewCompositions.Used)
-	|WHERE
-	|	UserGroupCompositions.User IS NULL 
-	|;
-	|
-	|////////////////////////////////////////////////////////////////////////////////
-	|SELECT
-	|	UserGroups.Parent AS Parent
-	|FROM
-	|	Catalog.UserGroups AS UserGroups
-	|WHERE
-	|	UserGroups.Ref = &UsersGroup
-	|;
-	|
-	|////////////////////////////////////////////////////////////////////////////////
-	|DROP UserGroupCompositions
-	|;
-	|
-	|////////////////////////////////////////////////////////////////////////////////
-	|DROP UserGroupsNewCompositions";
-	
-	If User = Undefined Then
-		FilterUserInRegister    = "TRUE";
-		FilterUserInCatalog = "TRUE";
-	Else
-		Query.SetParameter("User", User);
-		FilterUserInRegister    = "UserGroupCompositions.User IN (&User)";
-		FilterUserInCatalog = "UserGroupsComposition.User IN (&User)";
-	EndIf;
-	
-	QueryText = StrReplace(QueryText, "&FilterUserInRegister",    FilterUserInRegister);
-	QueryText = StrReplace(QueryText, "&FilterUserInCatalog", FilterUserInCatalog);
-	
-	Block = New DataLock;
-	Block.Add("InformationRegister.UserGroupCompositions");
-	
-	If UpdateExternalUserGroups Then
-		
-		QueryText = StrReplace(
-			QueryText,
-			"Catalog.UserGroups",
-			"Catalog.ExternalUsersGroups");
-		
-		QueryText = StrReplace(
-			QueryText,
-			"UserGroupsComposition.User",
-			"UserGroupsComposition.ExternalUser");
-	EndIf;
-	Query.TempTablesManager = New TempTablesManager;
-	
-	BeginTransaction();
-	Try
-		Block.Lock();
-		Query.Execute();
-		Query.Text = QueryText;
-	
-		// Actions for current user group and parent groups
-		While ValueIsFilled(UsersGroup) Do
-			
-			Query.SetParameter("UsersGroup", UsersGroup);
-			
-			
-			QueryResults = Query.ExecuteBatch();
-			
-			If Not QueryResults[2].IsEmpty() Then
-				RecordSet = InformationRegisters.UserGroupCompositions.CreateRecordSet();
-				Selection = QueryResults[2].Select();
-				
-				While Selection.Next() Do
-					RecordSet.Filter.User.Set(Selection.User);
-					RecordSet.Filter.UsersGroup.Set(UsersGroup);
-					RecordSet.Write(); 
-					
-					If ItemsToChange <> Undefined Then
-						ItemsToChange.Insert(Selection.User);
-					EndIf;
-					
-					If ModifiedGroups <> Undefined Then
-						ModifiedGroups.Insert(UsersGroup);
+		HasChanges = Not Check;
+		If Check Then
+			RecordSet = InformationRegisters.UserGroupsHierarchy.CreateRecordSet();
+			RecordSet.Filter.UsersGroup.Set(TreeRow.Ref);
+			RecordSet.Read();
+			If RecordSet.Count() = NewParents.Count() Then
+				Filter = New Structure("UsersGroup, Parent, LevelOfParent, GroupLevel");
+				For Each Record In RecordSet Do
+					FillPropertyValues(Filter, Record);
+					If NewParents.FindRows(Filter).Count() <> 1 Then
+						HasChanges = True;
+						Break;
 					EndIf;
 				EndDo;
-			EndIf;
-			
-			If Not QueryResults[3].IsEmpty() Then
-				RecordSet = InformationRegisters.UserGroupCompositions.CreateRecordSet();
-				Record = RecordSet.Add();
-				Selection = QueryResults[3].Select();
-				
-				While Selection.Next() Do
-					RecordSet.Filter.User.Set(Selection.User);
-					RecordSet.Filter.UsersGroup.Set(Selection.UsersGroup);
-					FillPropertyValues(Record, Selection);
-					RecordSet.Write(); // Adding missing records about relations.
-					
-					If ItemsToChange <> Undefined Then
-						ItemsToChange.Insert(Selection.User);
-					EndIf;
-					
-					If ModifiedGroups <> Undefined Then
-						ModifiedGroups.Insert(Selection.UsersGroup);
-					EndIf;
-				EndDo;
-			EndIf;
-			
-			If Not QueryResults[4].IsEmpty() Then
-				Selection = QueryResults[4].Select();
-				Selection.Next();
-				UsersGroup = Selection.Parent;
 			Else
-				UsersGroup = Undefined;
+				HasChanges = True;
 			EndIf;
-		EndDo;
+		EndIf;
+		If HasChanges Then
+			RecordSet = InformationRegisters.UserGroupsHierarchy.CreateRecordSet();
+			RecordSet.Filter.UsersGroup.Set(TreeRow.Ref);
+			RecordSet.Load(NewParents);
+			RecordSet.Write();
+			ChangesInComposition.ModifiedGroups.Insert(TreeRow.Ref);
+		EndIf;
+		WriteNewGroupParents(TreeRow.Rows,
+			NewParents, LevelOfParent, ChangesInComposition, Check, TreeRow.Ref);
+	EndDo;
+	// 
+	
+	NewParents.Delete(NewRow);
+	
+EndProcedure
+
+// Parameters:
+//  UserOrGroup - CatalogRef.UserGroups
+//                        - CatalogRef.ExternalUsersGroups
+//                        - CatalogRef.Users
+//                        - CatalogRef.ExternalUsers
+//
+//  ChangesInComposition - See GroupsCompositionNewChanges
+//
+Procedure UpdateCompositionBeforeDeleteGroupWithoutHierarchyOrUser(UserOrGroup, ChangesInComposition)
+	
+	SetPrivilegedMode(True);
+	
+	If TypeOf(UserOrGroup) = Type("CatalogRef.Users")
+	 Or TypeOf(UserOrGroup) = Type("CatalogRef.ExternalUsers") Then
 		
+		FieldName = "User";
+	Else
+		FieldName = "UsersGroup";
+	EndIf;
+	
+	Block = New DataLock;
+	LockItem = Block.Add("InformationRegister.UserGroupCompositions");
+	LockItem.SetValue(FieldName, UserOrGroup);
+	
+	ItemsToChange = ChangesInComposition.ItemsToChange;
+	ModifiedGroups   = ChangesInComposition.ModifiedGroups;
+	ForRegistration     = ChangesInComposition.ForRegistration;
+	
+	BeginTransaction();
+	Try
+		Block.Lock();
+		RecordSet = InformationRegisters.UserGroupCompositions.CreateRecordSet();
+		RecordSet.Filter[FieldName].Set(UserOrGroup);
+		RecordSet.Read();
+		IndexOf = RecordSet.Count();
+		HasChanges = IndexOf > 0;
+		While IndexOf > 0 Do
+			IndexOf = IndexOf - 1;
+			Record = RecordSet.Get(IndexOf);
+			ItemsToChange.Insert(Record.User);
+			ModifiedGroups.Insert(Record.UsersGroup);
+			If ForRegistration <> Undefined Then
+				AddCompositionChange(ForRegistration, Record, True);
+			EndIf;
+			RecordSet.Delete(Record);
+		EndDo;
+		If HasChanges Then
+			RecordSet.Write();
+		EndIf;
 		CommitTransaction();
 	Except
 		RollbackTransaction();
@@ -6823,8 +8606,8 @@ Function CheckUserRights(IBUser, CheckMode, IsExternalUser,
 		Return ""; // Do not check user rights in the local mode.
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	If IsExternalUser And CheckMode = "OnStart" Then
 		Return "";
 	EndIf;
@@ -7071,7 +8854,7 @@ Procedure CopyOtherUserSettings(UserNameSource, UserNameDestination)
 	DestinationUserInfo.Insert("UserRef", UserDestinationRef);
 	DestinationUserInfo.Insert("InfobaseUserName", UserNameDestination);
 	
-	
+	// Get other settings.
 	OtherUserSettings = New Structure; // See OnGetOtherUserSettings.Settings
 	OnGetOtherUserSettings(SourceUserInfo, OtherUserSettings);
 	Keys = New ValueList;
@@ -7244,8 +9027,8 @@ Function Shared_Data()
 	DataSeparationEnabled = Common.DataSeparationEnabled();
 	SeparatedDataUsageAvailable = Common.SeparatedDataUsageAvailable();
 	
-	For Each KindDetails In MetadataKinds Do 
-		For Each MetadataObject In KindDetails.Kind Do 
+	For Each KindDetails In MetadataKinds Do // 
+		For Each MetadataObject In KindDetails.Kind Do // 
 			If SeparatedMetadataObjects.Get(MetadataObject) <> Undefined Then
 				Continue;
 			EndIf;
@@ -7321,37 +9104,97 @@ EndFunction
 // Returns:
 //  Structure:
 //   * ForSystemAdministratorsOnly - Map of KeyAndValue:
-//      ** Key     - MetadataObject -  role.
-//      ** Value - Boolean -  Truth.
+//      ** Key     - MetadataObject - A role.
+//      ** Value - Boolean - True.
 //   * ForSystemUsersOnly - Map of KeyAndValue:
-//      ** Key     - MetadataObject -  role.
-//      ** Value - Boolean -  Truth.
+//      ** Key     - MetadataObject - A role.
+//      ** Value - Boolean - True.
 //   * ForExternalUsersOnly - Map of KeyAndValue:
-//      ** Key     - MetadataObject -  role.
-//      ** Value - Boolean -  Truth.
+//      ** Key     - MetadataObject - A role.
+//      ** Value - Boolean - True.
 //   * BothForUsersAndExternalUsers - Map of KeyAndValue:
-//      ** Key     - MetadataObject -  role.
-//      ** Value - Boolean -  Truth.
+//      ** Key     - MetadataObject - A role.
+//      ** Value - Boolean - True.
 //
 Function RolesAssignment()
 	Return New Structure;
 EndFunction
 
+// Parameters:
+//   * Name - String - External attribute name.
+//   * Presentation - String - External attribute presentation.
+//   * ValueType - TypesDetails
+//   * IsInternal - Boolean
+//
+// Returns:
+//  Structure:
+//   * Name - String - External attribute name.
+//   * Presentation - String - External attribute presentation.
+//   * ValueType - TypeDescription
+//   * IsInternal - Boolean
+//
+Function NewExternalAttribute(Name, Presentation, ValueType, IsInternal = False)
+	
+	Result = New Structure;
+	Result.Insert("Name", Name);
+	Result.Insert("Presentation", Presentation);
+	Result.Insert("ValueType", ValueType);
+	Result.Insert("IsInternal", IsInternal);
+	
+	Return Result;
+	
+EndFunction
+
+Function ExternalAttributePrefix()
+	Return "Users" + "_";
+EndFunction
+
+Function EventNameChangeLoginSettingsAdditionalForLogging() Export
+	
+	Return NStr("en = 'Users.Change login settings (additional)';",
+		Common.DefaultLanguageCode());
+	
+EndFunction
+
 ////////////////////////////////////////////////////////////////////////////////
-// Procedures used for data exchange.
+// 
+
+// For procedures that are sent to the Main, sent to the Subordinate,
+// Prepolycondensation, Prepolycondensation.
+//
+Function UsersSubsystemObjectForCreatingInitialImageOnly(DataElement)
+	
+	Return TypeOf(DataElement) = Type("InformationRegisterRecordSet.UserGroupsHierarchy")
+	    Or TypeOf(DataElement) = Type("InformationRegisterRecordSet.UserGroupCompositions");
+	
+EndFunction
 
 // Overrides default behavior during data export.
 // IBUserID attribute is not moved.
 //
-Procedure OnSendData(DataElement, ItemSend, Subordinate1)
+Procedure OnSendData(DataElement, ItemSend, Subordinate1, InitialImageCreating)
 	
+	If InitialImageCreating Then
+		// 
+		// 
+		Return;
+	EndIf;
+	
+	// Standard data processor cannot be overridden.
 	If ItemSend = DataItemSend.Delete
 	 Or ItemSend = DataItemSend.Ignore Then
-		
-		// Standard data processor cannot be overridden.
-		
-	ElsIf TypeOf(DataElement) = Type("CatalogObject.Users")
-	      Or TypeOf(DataElement) = Type("CatalogObject.ExternalUsers") Then
+		Return;
+	EndIf;
+	
+	If UsersSubsystemObjectForCreatingInitialImageOnly(DataElement) Then
+		ItemSend = DataItemSend.Ignore;
+		Return;
+	EndIf;
+	
+	ElementType = TypeOf(DataElement);
+	
+	If ElementType = Type("CatalogObject.Users")
+	 Or ElementType = Type("CatalogObject.ExternalUsers") Then
 		
 		DataElement.IBUserID = CommonClientServer.BlankUUID();
 		
@@ -7367,62 +9210,399 @@ EndProcedure
 //
 Procedure OnDataGet(DataElement, ItemReceive, SendBack, FromSubordinate)
 	
+	// Standard data processor cannot be overridden.
 	If ItemReceive = DataItemReceive.Ignore Then
-		
-		// Standard data processor cannot be overridden.
-		
-	ElsIf TypeOf(DataElement) = Type("ConstantValueManager.UseUserGroups")
-	      Or TypeOf(DataElement) = Type("ConstantValueManager.UseExternalUsers")
-	      Or TypeOf(DataElement) = Type("CatalogObject.Users")
-	      Or TypeOf(DataElement) = Type("CatalogObject.UserGroups")
-	      Or TypeOf(DataElement) = Type("CatalogObject.ExternalUsers")
-	      Or TypeOf(DataElement) = Type("CatalogObject.ExternalUsersGroups")
-	      Or TypeOf(DataElement) = Type("InformationRegisterRecordSet.UserGroupCompositions") Then
-		
-		If FromSubordinate And Common.DataSeparationEnabled() Then
-			
-			
-			
+		Return;
+	EndIf;
+	
+	If UsersSubsystemObjectForCreatingInitialImageOnly(DataElement) Then
+		ItemReceive = DataItemReceive.Ignore;
+		Return;
+	EndIf;
+	
+	ElementType = TypeOf(DataElement);
+	
+	If FromSubordinate And Common.DataSeparationEnabled() Then
+		If ElementType = Type("ConstantValueManager.UseExternalUsers")
+		 Or ElementType = Type("ConstantValueManager.UseUserGroups")
+		 Or ElementType = Type("ConstantValueManager.UseExternalUserGroups")
+		 Or ElementType = Type("CatalogObject.Users")
+		 Or ElementType = Type("CatalogObject.UserGroups")
+		 Or ElementType = Type("CatalogObject.ExternalUsers")
+		 Or ElementType = Type("CatalogObject.ExternalUsersGroups") Then
+			// 
+			// 
 			SendBack = True;
 			ItemReceive = DataItemReceive.Ignore;
-			
-		ElsIf TypeOf(DataElement) = Type("CatalogObject.Users")
-		      Or TypeOf(DataElement) = Type("CatalogObject.ExternalUsers") Then
-			
-			ListOfProperties =
-				"IBUserID,
-				|Prepared,
-				|DeleteInfobaseUserProperties";
-			
-			FillPropertyValues(DataElement, Common.ObjectAttributesValues(
-				DataElement.Ref, ListOfProperties));
-			
-		ElsIf TypeOf(DataElement) = Type("ObjectDeletion") Then
-			
-			If TypeOf(DataElement.Ref) = Type("CatalogRef.Users")
-			 Or TypeOf(DataElement.Ref) = Type("CatalogRef.ExternalUsers") Then
-				
-				ObjectReceived = False;
-				Try
-					Object = DataElement.Ref.GetObject();
-				Except
-					ObjectReceived = True;
-				EndTry;
-				
-				If ObjectReceived Then
-					Object.CommonActionsBeforeDeleteInNormalModeAndDuringDataExchange();
-				EndIf;
-			EndIf;
+			Return;
 		EndIf;
+		
+	ElsIf FromSubordinate Then
+		If ElementType = Type("ConstantValueManager.UseExternalUsers")
+		 Or ElementType = Type("ConstantValueManager.UseUserGroups")
+		 Or ElementType = Type("ConstantValueManager.UseExternalUserGroups") Then
+			// 
+			// 
+			SendBack = True;
+			ItemReceive = DataItemReceive.Ignore;
+			Return;
+		EndIf;
+	EndIf;
+	
+	SetPrivilegedMode(True);
+	
+	If ElementType = Type("ConstantValueManager.UseExternalUsers") Then
+		Constants.UseExternalUsers.CreateValueManager().RegisterChangeUponDataImport(DataElement);
+		
+	ElsIf ElementType = Type("CatalogObject.UserGroups")
+	      Or ElementType = Type("CatalogObject.ExternalUsersGroups") Then
+		
+		RegisterGroupsChangeUponDataImport(DataElement);
+		
+	ElsIf ElementType = Type("CatalogObject.Users")
+	      Or ElementType = Type("CatalogObject.ExternalUsers") Then
+		
+		RegisterUsersChangeUponDataImport(DataElement);
+	EndIf;
+	
+	If ElementType <> Type("ObjectDeletion") Then
+		Return;
+	EndIf;
+	
+	DataElement = DataElement; // ObjectDeletion
+	RefType = TypeOf(DataElement.Ref);
+	
+	If RefType = Type("CatalogRef.UserGroups")
+	 Or RefType = Type("CatalogRef.ExternalUsersGroups") Then
+		
+		RegisterGroupsChangeUponDataImport(DataElement);
+		
+	ElsIf RefType = Type("CatalogRef.Users")
+	      Or RefType = Type("CatalogRef.ExternalUsers") Then
+		
+		RegisterUsersChangeUponDataImport(DataElement);
 	EndIf;
 	
 EndProcedure
 
+// 
+Procedure RegisterGroupsChangeUponDataImport(DataElement)
+	
+	PreviousValues1 = Common.ObjectAttributesValues(DataElement.Ref,
+		"Ref, Parent");
+	
+	If TypeOf(DataElement) = Type("ObjectDeletion") Then
+		If PreviousValues1.Ref <> Undefined Then
+			UpdateGroupsCompositionBeforeDeleteUserOrGroup(DataElement.Ref);
+		EndIf;
+		Return;
+	EndIf;
+	
+	SetPrivilegedMode(True);
+	
+	ObjectRef2 = ObjectRef2(DataElement);
+	Values = New Array;
+	Values.Add(ObjectRef2);
+	
+	If PreviousValues1.Parent <> DataElement.Parent Then
+		If ValueIsFilled(PreviousValues1.Parent) Then
+			Values.Add(PreviousValues1.Parent);
+		EndIf;
+		If TypeOf(ObjectRef2) = Type("CatalogRef.ExternalUsersGroups") Then
+			RegisterRefs("ExternalUsersGroupsHierarchy", ObjectRef2);
+		Else
+			RegisterRefs("UsersGroupsHierarchy", ObjectRef2);
+		EndIf;
+	EndIf;
+	
+	If TypeOf(ObjectRef2) = Type("CatalogRef.ExternalUsersGroups") Then
+		RegisterRefs("ExternalUsersGroups", Values);
+	Else
+		RegisterRefs("UserGroups", Values);
+	EndIf;
+	
+EndProcedure
+
+// 
+Procedure RegisterUsersChangeUponDataImport(DataElement)
+	
+	IsExternalUser = TypeOf(DataElement.Ref) = Type("CatalogRef.ExternalUsers");
+	ListOfPropertiesToRecover = "IBUserID, Prepared, DeleteInfobaseUserProperties";
+	
+	PreviousValues1 = Common.ObjectAttributesValues(DataElement.Ref,
+		"Ref, DeletionMark, Invalid, " + ListOfPropertiesToRecover
+		+ ?(IsExternalUser, ", " + "AuthorizationObject", ""));
+	
+	If TypeOf(DataElement) = Type("ObjectDeletion") Then
+		Try
+			Object = DataElement.Ref.GetObject();
+		Except
+			Object = True;
+		EndTry;
+		If Object <> Undefined Then
+			UserObjectBeforeDelete(Object, True);
+		Else
+			SetPrivilegedMode(True);
+			InformationRegisters.UsersInfo.DeleteUserInfo(DataElement.Ref);
+			SetPrivilegedMode(False);
+		EndIf;
+		If PreviousValues1.Ref <> Undefined Then
+			UpdateGroupsCompositionBeforeDeleteUserOrGroup(DataElement.Ref);
+		EndIf;
+		Return;
+	EndIf;
+	
+	FillPropertyValues(DataElement, PreviousValues1, ListOfPropertiesToRecover);
+	DataElement.AdditionalProperties.Insert("WriteDuringDataExchange");
+	
+	SetPrivilegedMode(True);
+	
+	If IsExternalUser
+	   And PreviousValues1.AuthorizationObject <> DataElement.AuthorizationObject Then
+		
+		Values = New Array;
+		If ValueIsFilled(PreviousValues1.AuthorizationObject) Then
+			Values.Add(PreviousValues1.AuthorizationObject);
+		EndIf;
+		Values.Add(DataElement.AuthorizationObject);
+		RegisterRefs("ExternalUsersAuthorizationObjects", Values);
+	EndIf;
+	
+	If PreviousValues1.Ref          = DataElement.Ref
+	   And PreviousValues1.Invalid  = DataElement.Invalid
+	   And PreviousValues1.DeletionMark = DataElement.DeletionMark Then
+		
+		Return;
+	EndIf;
+	
+	If TypeOf(DataElement.Ref) = Type("CatalogRef.ExternalUsers") Then
+		RegisterRefs("ExternalUsersGroups",
+			ExternalUsers.AllExternalUsersGroup());
+		RegisterRefs("ExternalUsers",
+			ObjectRef2(DataElement));
+	Else
+		RegisterRefs("UserGroups",
+			Users.AllUsersGroup());
+		RegisterRefs("Users",
+			ObjectRef2(DataElement));
+	EndIf;
+	
+EndProcedure
+
+// 
+Procedure UpdateAuxiliaryDataOfItemsModifiedUponDataImport()
+	
+	If Common.DataSeparationEnabled() Then
+		// 
+		Return;
+	EndIf;
+	
+	Constants.UseExternalUsers.CreateValueManager().ProcessChangeRegisteredUponDataImport();
+	
+	RegistrationCleanup = New Array;
+	
+	// 
+	ChangesInComposition = GroupsCompositionNewChanges();
+	
+	BeginTransaction();
+	Try
+		SetPrivilegedMode(True);
+		ProcessRegisteredChangeInHierarchy("UsersGroupsHierarchy",
+			Catalogs.UserGroups.EmptyRef(), ChangesInComposition, RegistrationCleanup);
+		
+		ProcessRegisteredChangeInGroups("UserGroups",
+			Catalogs.UserGroups.EmptyRef(), ChangesInComposition, RegistrationCleanup);
+		
+		ProcessRegisteredChangeInUsers("Users",
+			Catalogs.Users.EmptyRef(), ChangesInComposition, RegistrationCleanup);
+		SetPrivilegedMode(False);
+		
+		AfterUserGroupsUpdate(ChangesInComposition);
+		
+		SetPrivilegedMode(True);
+		For Each RefsKindName In RegistrationCleanup Do
+			RegisterRefs(RefsKindName, Null);
+		EndDo;
+		SetPrivilegedMode(False);
+		
+		CommitTransaction();
+	Except
+		RollbackTransaction();
+		Raise;
+	EndTry;
+	
+	// 
+	ChangesInComposition = GroupsCompositionNewChanges();
+	
+	BeginTransaction();
+	Try
+		SetPrivilegedMode(True);
+		ProcessRegisteredChangeInHierarchy("ExternalUsersGroupsHierarchy",
+			Catalogs.ExternalUsersGroups.EmptyRef(), ChangesInComposition, RegistrationCleanup);
+		
+		ProcessRegisteredChangeInGroups("ExternalUsersGroups",
+			Catalogs.ExternalUsersGroups.EmptyRef(), ChangesInComposition, RegistrationCleanup);
+		
+		ProcessRegisteredChangeInUsers("ExternalUsers",
+			Catalogs.ExternalUsers.EmptyRef(), ChangesInComposition, RegistrationCleanup);
+		SetPrivilegedMode(False);
+		
+		AfterUserGroupsUpdate(ChangesInComposition);
+		
+		SetPrivilegedMode(True);
+		ProcessRegisteredChangeInAuthorizationObjects("ExternalUsersAuthorizationObjects",
+			RegistrationCleanup);
+		For Each RefsKindName In RegistrationCleanup Do
+			RegisterRefs(RefsKindName, Null);
+		EndDo;
+		SetPrivilegedMode(False);
+		
+		CommitTransaction();
+	Except
+		RollbackTransaction();
+		Raise;
+	EndTry;
+	
+EndProcedure
+
+// 
+Procedure ProcessRegisteredChangeInHierarchy(RefsKindName, RefAllGroups,
+			ChangesInComposition, RegistrationCleanup)
+	
+	HierarchyGroups = RegisteredRefs(RefsKindName);
+	
+	If HierarchyGroups.Count() = 0 Then
+		Return;
+	EndIf;
+	
+	If HierarchyGroups.Count() = 1 And HierarchyGroups[0] = Undefined
+	 Or HierarchyGroups.Count() > 30 Then
+		
+		UpdateGroupsHierarchy(RefAllGroups, ChangesInComposition);
+	Else
+		For Each Group In HierarchyGroups Do
+			// 
+			UpdateGroupsHierarchy(Group, ChangesInComposition);
+		EndDo;
+	EndIf;
+	
+	RegistrationCleanup.Add(RefsKindName);
+	
+EndProcedure
+
+// 
+Procedure ProcessRegisteredChangeInGroups(RefsKindName, RefAllGroups,
+			ChangesInComposition, RegistrationCleanup)
+	
+	Groups = RegisteredRefs(RefsKindName);
+	
+	If Groups.Count() = 0 Then
+		Return;
+	EndIf;
+	
+	If TypeOf(RefAllGroups) = Type("CatalogRef.ExternalUsersGroups") Then
+		RefAllUsers = Catalogs.ExternalUsers.EmptyRef();
+		AllUsersGroup = ExternalUsers.AllExternalUsersGroup();
+	Else
+		RefAllUsers = Catalogs.Users.EmptyRef();
+		AllUsersGroup = Users.AllUsersGroup();
+	EndIf;
+	
+	If Groups.Count() = 1 And Groups[0] = Undefined Then
+		UpdateAllUsersGroupComposition(RefAllUsers, ChangesInComposition);
+		
+		If TypeOf(RefAllGroups) = Type("CatalogRef.ExternalUsersGroups") Then
+			UpdateGroupCompositionsByAuthorizationObjectType(Undefined,
+				Undefined, ChangesInComposition);
+		EndIf;
+		
+		UpdateHierarchicalUserGroupCompositions(RefAllGroups, ChangesInComposition);
+	Else
+		IndexOf = Groups.Find(AllUsersGroup);
+		If IndexOf <> Undefined Then
+			Groups.Delete(IndexOf);
+			UpdateAllUsersGroupComposition(RefAllUsers, ChangesInComposition);
+		EndIf;
+		If TypeOf(RefAllUsers) = Type("CatalogRef.ExternalUsersGroups") Then
+			DescriptionOfGroups = Common.ObjectsAttributeValue(Groups, "AllAuthorizationObjects");
+			AutoGroups = New Array;
+			For Each GroupDetails In DescriptionOfGroups Do
+				If GroupDetails.Value = True Then
+					IndexOf = Groups.Find(GroupDetails.Key);
+					If IndexOf <> Undefined Then
+						Groups.Delete(IndexOf);
+						AutoGroups.Add(GroupDetails.Key);
+					EndIf;
+				EndIf;
+			EndDo;
+			If ValueIsFilled(AutoGroups) Then
+				UpdateGroupCompositionsByAuthorizationObjectType(AutoGroups,
+					Undefined, ChangesInComposition);
+			EndIf;
+		EndIf;
+		UpdateHierarchicalUserGroupCompositions(Groups, ChangesInComposition);
+	EndIf;
+	
+	RegistrationCleanup.Add(RefsKindName);
+	
+EndProcedure
+
+// 
+Procedure ProcessRegisteredChangeInUsers(RefsKindName, RefAllUsers,
+			ChangesInComposition, RegistrationCleanup)
+	
+	References = RegisteredRefs(RefsKindName);
+	If References.Count() = 0 Then
+		Return;
+	EndIf;
+	
+	If References.Count() = 1 And References[0] = Undefined Then
+		UpdateAllUsersGroupComposition(RefAllUsers, ChangesInComposition);
+		
+		If TypeOf(RefAllUsers) = Type("CatalogRef.ExternalUsers") Then
+			UpdateGroupCompositionsByAuthorizationObjectType(Undefined, Undefined, ChangesInComposition);
+		EndIf;
+		
+		UpdateUserGroupCompositionUsage(RefAllUsers, ChangesInComposition);
+	Else
+		UpdateAllUsersGroupComposition(References, ChangesInComposition);
+		
+		If TypeOf(RefAllUsers) = Type("CatalogRef.ExternalUsers") Then
+			UpdateGroupCompositionsByAuthorizationObjectType(Undefined, References, ChangesInComposition);
+		EndIf;
+		
+		UpdateUserGroupCompositionUsage(References, ChangesInComposition);
+	EndIf;
+	
+	RegistrationCleanup.Add(RefsKindName);
+	
+EndProcedure
+
+// 
+Procedure ProcessRegisteredChangeInAuthorizationObjects(RefsKindName, RegistrationCleanup)
+	
+	AuthorizationObjects = RegisteredRefs(RefsKindName);
+	If AuthorizationObjects.Count() = 0 Then
+		Return;
+	EndIf;
+	
+	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
+		If AuthorizationObjects.Count() = 1 And AuthorizationObjects[0] = Undefined Then
+			AuthorizationObjects = Undefined;
+		EndIf;
+		ModuleAccessManagementInternal = Common.CommonModule("AccessManagementInternal");
+		ModuleAccessManagementInternal.AfterChangeExternalUserAuthorizationObject(AuthorizationObjects);
+	EndIf;
+	
+	RegistrationCleanup.Add(RefsKindName);
+	
+EndProcedure
+
 ////////////////////////////////////////////////////////////////////////////////
+// Procedures that handle logon settings.
 
-
-// 
-// 
+// Intended for function "AuthenticateCurrentUserOnAuthorization".
+// Updates the last activity date and checks if the password should be changed.
 //
 Function PasswordChangeRequired(ErrorDescription = "", OnStart = False, RegisterInLog = True)
 	
@@ -7574,7 +9754,7 @@ Function PasswordChangeRequired(ErrorDescription = "", OnStart = False, Register
 	
 EndFunction
 
-// 
+// Intended for function "PasswordChangeRequired".
 Procedure UpdateUserInfoRecords(UserInfo, CurrentSessionDateDayStart,
 			ClientUsed, HasChanges, IsOnlyLastActivityDateNoLongerRelevant = True, ThisIsTest = False)
 	
@@ -7624,8 +9804,12 @@ Procedure UpdateUserInfoRecords(UserInfo, CurrentSessionDateDayStart,
 	
 EndProcedure
 
-// 
-Procedure UpdateLastUserActivityDate(Parameters)
+Function ServerNotificationName()
+	Return "StandardSubsystems.Users.UserRolesChangeOrLockOrValidityPeriod";
+EndFunction
+
+// Intended for procedure "OnSendServerNotification".
+Procedure UpdateLastUserActivityDate(Parameters, IBUsersIDs)
 	
 	IBUsersIDs = New Array;
 	For Each CheckParameter1 In Parameters Do
@@ -7697,8 +9881,98 @@ Procedure UpdateLastUserActivityDate(Parameters)
 	
 EndProcedure
 
-// 
-// 
+// Intended for procedure "OnSendServerNotification".
+Function UsersRemainingValidityPeriods(IBUsersIDs, BegOfDay)
+	
+	Result = New Map;
+	
+	DaysCount = LogonSettings().Overall.NotificationLeadTimeBeforeAccessExpire;
+	If Not ValueIsFilled(DaysCount) Then
+		Return Result;
+	EndIf;
+	
+	Days1 = 24*60*60;
+	
+	Query = New Query;
+	Query.SetParameter("DateEmpty", '00010101');
+	Query.SetParameter("CurrentSessionDateDayStart", BegOfDay);
+	Query.SetParameter("WarningDayStart", BegOfDay + DaysCount * Days1);
+	Query.SetParameter("IBUsersIDs", IBUsersIDs);
+	
+	Query.Text =
+	"SELECT
+	|	Users.IBUserID AS IBUserID,
+	|	UsersInfo.ValidityPeriod AS ValidityPeriod
+	|FROM
+	|	Catalog.Users AS Users
+	|		INNER JOIN InformationRegister.UsersInfo AS UsersInfo
+	|		ON (UsersInfo.User = Users.Ref)
+	|WHERE
+	|	Users.IBUserID IN(&IBUsersIDs)
+	|	AND UsersInfo.UnlimitedValidityPeriod = FALSE
+	|	AND UsersInfo.ValidityPeriod > &CurrentSessionDateDayStart
+	|	AND UsersInfo.ValidityPeriod <= &WarningDayStart
+	|
+	|UNION ALL
+	|
+	|SELECT
+	|	ExternalUsers.IBUserID,
+	|	UsersInfo.ValidityPeriod
+	|FROM
+	|	Catalog.ExternalUsers AS ExternalUsers
+	|		INNER JOIN InformationRegister.UsersInfo AS UsersInfo
+	|		ON (UsersInfo.User = ExternalUsers.Ref)
+	|WHERE
+	|	ExternalUsers.IBUserID IN(&IBUsersIDs)
+	|	AND UsersInfo.UnlimitedValidityPeriod = FALSE
+	|	AND UsersInfo.ValidityPeriod > &CurrentSessionDateDayStart
+	|	AND UsersInfo.ValidityPeriod <= &WarningDayStart";
+	
+	Selection = Query.Execute().Select();
+	
+	While Selection.Next() Do
+		Result.Insert(Selection.IBUserID, (Selection.ValidityPeriod - BegOfDay) / Days1);
+	EndDo;
+	
+	Return Result;
+	
+EndFunction
+
+// Intended for procedure "OnSendServerNotification".
+Function IsNotificationRequired(IBUserName, RemainingValidityPeriod, BegOfDay)
+	
+	LastReminder = New Structure("DaysLeft, Date", 0, '00010101');
+	
+	LoadedValue = Common.SystemSettingsStorageLoad(
+		"LastNotificationAboutExpiration",,,, IBUserName);
+	
+	If TypeOf(LoadedValue) = Type("Structure") Then
+		For Each KeyAndValue In LastReminder Do
+			If LoadedValue.Property(KeyAndValue.Key)
+			   And TypeOf(LoadedValue[KeyAndValue.Key]) = TypeOf(KeyAndValue.Value) Then
+				
+				LastReminder[KeyAndValue.Key] = LoadedValue[KeyAndValue.Key];
+			EndIf;
+		EndDo;
+	EndIf;
+	
+	If LastReminder.DaysLeft = RemainingValidityPeriod
+	   And LastReminder.Date = BegOfDay Then
+		Return False;
+	EndIf;
+	
+	LastReminder.DaysLeft = RemainingValidityPeriod;
+	LastReminder.Date = BegOfDay;
+	
+	Common.SystemSettingsStorageSave(
+		"LastNotificationAboutExpiration",, LastReminder,, IBUserName);
+	
+	Return True;
+	
+EndFunction
+
+// Intended for function "ProcessNewPassword" and
+// procedure "Users.SetIBUserProperies".
 //
 // Parameters:
 //  Password - String
@@ -7780,8 +10054,8 @@ Procedure RememberUserProperties(UserObject, ProcessingParameters)
 	PreviousIBUserDetails = Users.IBUserProperies(OldUser.IBUserID);
 	ProcessingParameters.Insert("OldIBUserExists", PreviousIBUserDetails <> Undefined);
 	ProcessingParameters.Insert("OldIBUserCurrent", False);
-	ProcessingParameters.Insert("OldInformationSecurityUser",
-		InformationSecurityUserById(OldUser.IBUserID));
+	ProcessingParameters.Insert("InfobaseOldUser",
+		InfobaseUserByID(OldUser.IBUserID));
 	
 	If ProcessingParameters.OldIBUserExists Then
 		ProcessingParameters.Insert("PreviousIBUserDetails", PreviousIBUserDetails);
@@ -7892,9 +10166,27 @@ Procedure WriteIBUser(UserObject, ProcessingParameters)
 		SetStoredPropertiesOfInfobaseUser(UserObject, StoredProperties);
 	EndIf;
 	
+	If CreateNewIBUser
+	   And IBUserDetails.Property("UpdateInfobaseUserOnly") Then
+		
+		If StoredProperties.CanSignIn <> False Then
+			StoredProperties.CanSignIn = False;
+			SetStoredPropertiesOfInfobaseUser(UserObject, StoredProperties);
+		EndIf;
+		
+		IBUserDetails.Insert("ActionResult", "InfobaseUserSkipped");
+		IBUserDetails.Insert("UUID",
+			UserObject.IBUserID);
+		
+		Return;
+		
+	EndIf;
+	
 	SetStoredAuthentication = Undefined;
 	If IBUserDetails.Property("CanSignIn") Then
-		SetStoredAuthentication = IBUserDetails.CanSignIn = True;
+		SetStoredAuthentication = IBUserDetails.CanSignIn = True
+			Or IBUserDetails.CanSignIn <> False
+			  And Users.CanSignIn(PreviousAuthentication);
 	
 	ElsIf IBUserDetails.Property("StandardAuthentication")
 	        And IBUserDetails.StandardAuthentication = True
@@ -7996,6 +10288,7 @@ Procedure WriteIBUser(UserObject, ProcessingParameters)
 	
 	If UserObject.AdditionalProperties.Property("CreateAdministrator")
 	   And ValueIsFilled(UserObject.AdditionalProperties.CreateAdministrator)
+	   And Not UserObject.DataExchange.Load
 	   And AdministratorRolesAvailable(IBUser) Then
 		
 		ProcessingParameters.Insert("CreateAdministrator",
@@ -8391,12 +10684,12 @@ Procedure DisableInactiveAndOverdueUsers(ForAuthorizedUsersOnly = False,
 			If RegisterInLog Then
 				If Selection.ValidityPeriodExpired Then
 					CommentTemplate =
-						NStr("en = 'Cannot clear the ""Sign-in allowed"" flag
-						           |for user ""%1"" with expired authorization. Reason:
+						NStr("en = 'Cannot clear the ""Login allowed"" flag
+						           |for user ""%1"" with expired access. Reason:
 						           |%2';");
 				Else
 					CommentTemplate =
-						NStr("en = 'Cannot clear the ""Sign-in allowed"" flag
+						NStr("en = 'Cannot clear the ""Login allowed"" flag
 						           |for user ""%1"" with inactivity timeout reached.
 						           |Reason:
 						           |%2';");
@@ -8541,8 +10834,8 @@ Procedure SetUpRoleInterfaceOnReadAtServer(Parameters)
 	Form    = Parameters.Form;
 	Items = Form.Items;
 	
-	
-	
+	// 
+	// 
 	Form.ShowRoleSubsystems = False;
 	Items.RolesShowRolesSubsystems.Check = False;
 	
@@ -8987,7 +11280,6 @@ EndProcedure
 //
 // Parameters:
 //  Parameters - See ProcessRolesInterface.Parameters
-//  Collection - See ProcessRolesInterface.Parameters.Форма.Items.Роли
 //  Add  - Boolean
 //
 Procedure AddDeleteSubsystemRoles(Parameters, Val Collection, Val Add)
@@ -9004,7 +11296,6 @@ EndProcedure
 
 // Parameters:
 //  Parameters - See ProcessRolesInterface.Parameters
-//  Collection - See ProcessRolesInterface.Parameters.Форма.Items.Роли
 //
 Procedure UpdateSelectedRoleMarks(Parameters, Val Collection)
 	

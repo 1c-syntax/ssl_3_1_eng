@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -34,7 +35,7 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 		|	FilesInfo.File > &File
 		|	AND FilesInfo.FileStorageType = VALUE(Enum.FileStorageTypes.EmptyRef)";
 		Query.SetParameter("File", File);
-		// @skip-check query-in-loop - Batch processing of data
+		// @skip-check query-in-loop - Batch-wise data processing
 		RegisterDimensions = Query.Execute().Unload();
 		
 		AdditionalParameters = InfobaseUpdate.AdditionalProcessingMarkParameters();
@@ -63,6 +64,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	ObjectsWithIssuesCount = 0;
 	BadData = New Map;
 	RegisterMetadata = Metadata.InformationRegisters.FilesInfo;
+	RegisterPresentation = RegisterMetadata.Presentation();
 	FullObjectName = RegisterMetadata.FullName();
 	
 	For Each String In SelectedData Do
@@ -86,7 +88,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			FileStorageType = Common.ObjectAttributeValue(String.File, "FileStorageType");
 			If FileStorageType = Undefined Then
 				BadData[String.Owner] = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'The ""File properties"" information register references a non-existent file: ""%1"".';"),
+					NStr("en = 'The ""File info"" information register references a non-existent file: ""%1"".';"),
 					String.File);
 				InfobaseUpdate.MarkProcessingCompletion(RecordSet);
 				CommitTransaction();
@@ -110,11 +112,14 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			RollbackTransaction();
 			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Couldn''t process information records about file %1. Reason:
+				NStr("en = 'Couldn''t process information records on file %1. Reason:
 				|%2';"), 
 				RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-			WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Warning,
-				RegisterMetadata, String.File, MessageText);
+			
+			InfobaseUpdate.WriteErrorToEventLog(
+				RegisterMetadata,
+				RegisterPresentation,
+				MessageText);
 		EndTry;
 		
 	EndDo;
@@ -127,14 +132,14 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 
 	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t process (skipped) some information record about files: %1';"), 
+			NStr("en = 'Couldn''t process (skipped) some of the file info: %1';"), 
 			ObjectsWithIssuesCount);
 		Raise MessageText;
 	Else
 		WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Information,
 			Metadata.Catalogs.Files,,
 			StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Yet another batch of information records about files is processed: %1';"),
+				NStr("en = 'Yet another batch of file info is processed: %1';"),
 				ObjectsProcessed));
 	EndIf;
 	

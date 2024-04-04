@@ -12,6 +12,12 @@
 				<Representation>PictureAndText</Representation>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.WriteAndClose</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save and close</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormWriteAndCloseExtendedTooltip" id="443"/>
 			</Button>
 			<ButtonGroup name="FormCommands" id="444">
@@ -27,6 +33,12 @@
 			<Button name="SnowUnusedAccessKinds" id="334">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.SnowUnusedAccessKinds</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Show unused access kinds</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="SnowUnusedAccessKindsExtendedTooltip" id="335"/>
 			</Button>
@@ -105,7 +117,7 @@
 					<ChildItems>
 						<Table name="Users" id="298">
 							<Representation>List</Representation>
-							<Header>false</Header>
+							<TitleLocation>Auto</TitleLocation>
 							<AutoInsertNewRow>true</AutoInsertNewRow>
 							<InitialTreeView>ExpandAllLevels</InitialTreeView>
 							<EnableStartDrag>true</EnableStartDrag>
@@ -143,6 +155,12 @@
 										<Type>CommandBarButton</Type>
 										<SkipOnInput>false</SkipOnInput>
 										<CommandName>Form.Command.Pick</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Pick</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="UsersPickContextMenuExtendedTooltip" id="345"/>
 									</Button>
 									<ButtonGroup name="UsersContextMenuStandardCommands" id="403">
@@ -164,6 +182,12 @@
 										<Type>CommandBarButton</Type>
 										<SkipOnInput>false</SkipOnInput>
 										<CommandName>Form.Command.Pick</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Pick</v8:content>
+											</v8:item>
+										</Title>
 										<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 										<ExtendedTooltip name="UsersPickExtendedTooltip" id="352"/>
 									</Button>
@@ -243,6 +267,12 @@
 							<ChildItems>
 								<InputField name="User" id="301">
 									<DataPath>GroupUsers.User</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>User</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<AutoMaxWidth>false</AutoMaxWidth>
 									<MaxWidth>40</MaxWidth>
@@ -255,6 +285,24 @@
 										<Event name="Clearing">UserClearing</Event>
 										<Event name="TextEditEnd">UserTextEditEnd</Event>
 									</Events>
+								</InputField>
+								<InputField name="ValidityPeriod" id="454">
+									<DataPath>GroupUsers.ValidityPeriod</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Valid till</v8:content>
+										</v8:item>
+									</Title>
+									<ToolTip>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>The date when the member will be removed from the access group.</v8:content>
+										</v8:item>
+									</ToolTip>
+									<EditMode>EnterOnInput</EditMode>
+									<ContextMenu name="ValidityPeriodContextMenu" id="455"/>
+									<ExtendedTooltip name="ValidityPeriodExtendedTooltip" id="456"/>
 								</InputField>
 							</ChildItems>
 						</Table>
@@ -785,6 +833,30 @@
 						<v8:Type>cfg:CatalogRef.Users</v8:Type>
 					</Type>
 				</Column>
+				<Column name="ValidityPeriod" id="4">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Valid till</v8:content>
+						</v8:item>
+					</Title>
+					<Type>
+						<v8:Type>xs:dateTime</v8:Type>
+						<v8:DateQualifiers>
+							<v8:DateFractions>Date</v8:DateFractions>
+						</v8:DateQualifiers>
+					</Type>
+				</Column>
+				<Column name="Level" id="5">
+					<Type>
+						<v8:Type>xs:decimal</v8:Type>
+						<v8:NumberQualifiers>
+							<v8:Digits>1</v8:Digits>
+							<v8:FractionDigits>0</v8:FractionDigits>
+							<v8:AllowedSign>Any</v8:AllowedSign>
+						</v8:NumberQualifiers>
+					</Type>
+				</Column>
 			</Columns>
 		</Attribute>
 		<Attribute name="ExternalUsersCatalogAvailable" id="27">
@@ -847,6 +919,9 @@
 			<Type>
 				<v8:TypeSet>cfg:AnyRef</v8:TypeSet>
 			</Type>
+		</Attribute>
+		<Attribute name="ServiceOperationError" id="13">
+			<Type/>
 		</Attribute>
 	</Attributes>
 	<Commands>

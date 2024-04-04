@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -72,7 +73,7 @@ EndProcedure
 //   Ref - CatalogRef.AdditionalReportsAndDataProcessors - a reference to a report or data processor being executed.
 //
 // Returns:
-//   Structure - :
+//   Structure - Parameter template for executing the command in the background:
 //      * AdditionalDataProcessorRef - CatalogRef.AdditionalReportsAndDataProcessors - passed "as is" from
 //                                                                                          the form parameters.
 //      * AccompanyingText1 - String - a text of a long-running operation.
@@ -105,19 +106,7 @@ EndFunction
 //       In addition to standard parameters, the procedure can have custom parameters used in the command handler.
 //       It is recommended that you add a prefix, such as "Context…", to custom parameter names
 //       to avoid exact matches with standard parameter names.
-//   Handler - NotifyDescription - 
-//       
-//       :
-//         * Job - Structure
-//                   - Undefined - :
-//             ** Status - String - Completed (the job is completed) or Error (the job threw an exception).
-//             ** ResultAddress - String - an address of the temporary storage for the procedure result.
-//                 The result is filled in the ExecutionParameters.ExecutionResult structure of the command handler.
-//             ** BriefErrorDescription   - String - contains brief description of the exception if Status = "Error".
-//             ** DetailErrorDescription - String - contains detailed description of the exception if Status = "Error".
-//             ** Messages - FixedArray
-//                          - Undefined - messages from the background job.
-//         * AdditionalParameters - a value that was specified on creating the NotifyDescription object.
+//   Handler - See TimeConsumingOperationsClient.WaitCompletion.CallbackOnCompletion
 //
 // Example:
 //	&AtClient
@@ -167,7 +156,7 @@ Procedure ExecuteCommandInBackground(Val CommandID, Val CommandParameters, Val H
 	Else
 		Form = Handler;
 		Handler = Undefined;
-		MustReceiveResult = True; 
+		MustReceiveResult = True; // 
 	EndIf;
 	
 	Job = AdditionalReportsAndDataProcessorsServerCall.StartTimeConsumingOperation(Form.UUID, CommandParameters);
@@ -184,7 +173,7 @@ Procedure ExecuteCommandInBackground(Val CommandID, Val CommandParameters, Val H
 	WaitSettings = TimeConsumingOperationsClient.IdleParameters(Form);
 	WaitSettings.MessageText       = AccompanyingText1;
 	WaitSettings.OutputIdleWindow = True;
-	WaitSettings.MustReceiveResult    = MustReceiveResult; 
+	WaitSettings.MustReceiveResult    = MustReceiveResult; // 
 	WaitSettings.OutputMessages    = True;
 	
 	TimeConsumingOperationsClient.WaitCompletion(Job, Handler, WaitSettings);
@@ -193,10 +182,10 @@ EndProcedure
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated.
-// 
-// 
-// 
+// Deprecated. Instead of using the ChoiceProcessing event along with source analysis,
+// use the notification handler (see the Handler parameter in the ExecuteCommandInBackground procedure):
+// ChoiceSource.FormName = AdditionalReportsAndDataProcessorsClient.TimeConsumingOperationFormName().
+// Returns a form name that is used to identify the outcome of the long-running operation.
 //
 // 
 //
@@ -309,8 +298,8 @@ Procedure HandlerFillingCommands(Val ReferencesArrray, Val ExecutionParameters) 
 	
 	ShowNotificationOnCommandExecution(CommandToExecute);
 	
-	
-	
+	// 
+	// 
 	If CommandToExecute.StartupOption = PredefinedValue("Enum.AdditionalDataProcessorsCallMethods.OpeningForm") Then
 		
 		ExternalObjectName = AdditionalReportsAndDataProcessorsServerCall.AttachExternalDataProcessor(CommandToExecute.Ref);
@@ -528,7 +517,7 @@ Procedure ExportToFile(ExportingParameters) Export
 	
 EndProcedure
 
-// 
+// Intended for the PopulateCommandHandler procedure
 Procedure UpdateDataInForm() Export
 	
 	ParameterName = ApplicationParameterNameFormCommandExecutionOwner();

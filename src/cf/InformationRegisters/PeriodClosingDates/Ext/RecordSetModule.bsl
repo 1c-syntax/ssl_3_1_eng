@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -13,7 +14,7 @@
 
 Procedure BeforeWrite(Cancel, Replacing)
 	
-	// ACC:75-on The DataExchange.Import check must follow the change records in the Event log.
+	// ACC:75-off The DataExchange.Import check must follow the change records in the Event log.
 	WriteChangesToTheLog(ThisObject, Replacing);
 	// ACC:75-on
 	
@@ -31,8 +32,8 @@ EndProcedure
 
 Procedure OnWrite(Cancel, Replacing)
 	
-	
-	
+	// 
+	// 
 	If DataExchange.Load Then
 		If Not AdditionalProperties.Property("SkipPeriodClosingDatesVersionUpdate") Then
 			PeriodClosingDatesInternal.UpdatePeriodClosingDatesVersionOnDataImport(ThisObject);

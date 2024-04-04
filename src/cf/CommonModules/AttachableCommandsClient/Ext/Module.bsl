@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -116,7 +117,7 @@ EndProcedure
 //           - ManagedFormExtensionForDocuments
 //   * IsObjectForm - Boolean - True if the command is called from the object form.
 //   * Source - FormTable
-//              - FormDataStructure - :
+//              - FormDataStructure - An object or a form list with the "Ref" field:
 //     ** Ref - AnyRef
 //
 Function CommandExecuteParameters() Export
@@ -150,7 +151,7 @@ Procedure ContinueCommandExecution(ExecutionParameters)
 	Source = ExecutionParameters.Source;
 	CommandDetails = ExecutionParameters.CommandDetails;
 	
-	
+	// Install 1C:Enterprise Extension.
 	If ExecutionParameters.FilesOperationsRequired Then
 		ExecutionParameters.FilesOperationsRequired = False;
 		Handler = New NotifyDescription("ContinueExecutionCommandAfterSetFileExtension", ThisObject, ExecutionParameters);
@@ -167,8 +168,8 @@ Procedure ContinueCommandExecution(ExecutionParameters)
 			
 			Buttons = New ValueList;
 			If ExecutionParameters.PostingRequired Then
-				QuestionTemplate = NStr("en = 'The document will be posted in order to run the ""%1"" command
-					|. Do you want to continue?';");
+				QuestionTemplate = NStr("en = 'The document will be posted in order to run the ""%1"" command.
+					|Do you want to continue?';");
 				Buttons.Add(DialogReturnCode.OK, NStr("en = 'Post and continue';"));
 			Else
 				QuestionTemplate = NStr("en = 'To run the ""%1"" command,
@@ -212,7 +213,7 @@ Procedure ContinueCommandExecution(ExecutionParameters)
 				Else
 					WarningText = NStr("en = 'Cannot run the command for unposted documents. You are not authorized to post the document.';");
 				EndIf;
-				ShowMessageBox(, WarningText);
+				Raise(WarningText, ErrorCategory.AccessViolation);
 			EndIf;
 			Return;
 		EndIf;
@@ -367,7 +368,7 @@ Procedure ContinueCommandExecutionAfterConfirmContinuation(Response, Context) Ex
 	ContinueCommandExecution(Context);
 EndProcedure
 
-// 
+// Branch of the procedure that triggers after the 1C:Enterprise Extension is installed.
 Procedure ContinueExecutionCommandAfterSetFileExtension(FileSystemExtensionAttached1, Context) Export
 	If Not FileSystemExtensionAttached1 Then
 		Return;

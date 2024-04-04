@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -67,7 +68,7 @@ EndFunction
 // Returns the default interval settings table
 //
 // Returns:
-//   ValueTable - :
+//   ValueTable - Default interval settings:
 //    * LowerBound  - Number
 //    * UpperBound - Number
 //    * Step            - Number
@@ -79,8 +80,8 @@ Function IntervalsSettingsTable()
 	IntervalsSettingsTable.Columns.Add("UpperBound", New TypeDescription("Number",,, New NumberQualifiers(10, 3, AllowedSign.Nonnegative)));
 	IntervalsSettingsTable.Columns.Add("Step", New TypeDescription("Number",,, New NumberQualifiers(10, 3, AllowedSign.Nonnegative)));
 	
-	
-	
+	// 
+	// 
 	
 	// Less than 0.5 sec.
 	NewSettingsRow = IntervalsSettingsTable.Add();
@@ -192,17 +193,17 @@ Function IntervalsTableForSettings(SettingsTable)
 	IntervalsTable.Columns.Add("LowerBound", New TypeDescription("Number",,, New NumberQualifiers(10, 3, AllowedSign.Nonnegative)));
 	IntervalsTable.Columns.Add("UpperBound", New TypeDescription("Number",,, New NumberQualifiers(10, 3, AllowedSign.Nonnegative)));
 	
-	
-	
-	
-	
+	// 
+	// 
+	// 
+	// 
 	MaxIntervalsCount = 80;
 	TotalIntervals = 0;
 		
 	For Each SettingsString In SettingsTable Do
 		
-		
-		
+		// 
+		// 
 		If SettingsString.LowerBound >= SettingsString.UpperBound And SettingsString.Step <> 0
 			Or SettingsString.LowerBound = SettingsString.UpperBound Then
 			Continue;		
@@ -277,8 +278,8 @@ Function QueryTextSubstringForIntervals(IntervalsTable, SourceTableName, SourceC
 		
 	EndDo;
 	
-	
-	
+	// 
+	// 
 	QueryText = "CASE " + QueryText + ?(IsBlankString(QueryText), "", Chars.LF) + " Else 0 End" + ?(WithName, " AS ExecutionTime, ", ",");
 	// ACC:1297-on
 	

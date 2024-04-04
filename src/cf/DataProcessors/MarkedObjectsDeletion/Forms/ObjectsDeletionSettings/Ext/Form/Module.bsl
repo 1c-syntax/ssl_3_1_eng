@@ -1,23 +1,24 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
-	If Parameters.Property("SettingsAddress") Then
+	If IsTempStorageURL(Parameters.SettingsAddress) Then
 		LoadSettings(GetFromTempStorage(Parameters.SettingsAddress));
 	EndIf;
 	
 	ScheduledJob = MarkedObjectsDeletionInternalServerCall.ModeDeleteOnSchedule();
 	AutomaticallyDeleteMarkedObjects = ScheduledJob.Use;
-	DeleteMarkedObjectsSchedule    = ScheduledJob.Schedule;
+	DeleteMarkedObjectsSchedule = ScheduledJob.Schedule;
 	
 	SetFormStateByScheduledJobSettings(ThisObject);
 	
@@ -29,7 +30,7 @@ EndProcedure
 &AtClient
 Procedure OnOpen(Cancel)
 	StandardSubsystemsClient.ExpandTreeNodes(ThisObject, "ObjectsViewSettings");
-	AttachIdleHandler("StartCheckingTheBlockingOfDeletedObjects",0.1, True);
+	AttachIdleHandler("StartCheckOfDeletableObjectsLock",0.1, True);
 EndProcedure
 
 #EndRegion
@@ -102,7 +103,7 @@ Procedure AddSetting(Command)
 	FormParameters.Insert("SubsystemsWithCIOnly", True);
 	FormParameters.Insert("SelectedMetadataObjects", SelectedObjects);
 
-	ClosingNotification1 = New NotifyDescription("AddSettingFollowUp", ThisObject);
+	ClosingNotification1 = New NotifyDescription("AddSettingCompletion", ThisObject);
 	OpenForm("CommonForm.SelectMetadataObjects", FormParameters, ThisObject, , , , ClosingNotification1,
 		FormWindowOpeningMode.LockOwnerWindow);
 EndProcedure
@@ -295,16 +296,16 @@ Function PrepareSettings(Var_UUID)
 EndFunction
 
 &AtClient
-Procedure AddSettingFollowUp(Result, AdditionalParameters) Export
+Procedure AddSettingCompletion(Result, AdditionalParameters) Export
 	If Result = Undefined Then
 		Return;
 	EndIf;
 
-	AddSettingFollowUpServer(Result);
+	AddSettingServer(Result);
 EndProcedure
 
 &AtServer
-Procedure AddSettingFollowUpServer(Result)
+Procedure AddSettingServer(Result)
 	SearchLocationsTree = FormAttributeToValue("ObjectsViewSettings");
 
 	Picture = PictureLib.Folder; 
@@ -357,27 +358,40 @@ Procedure SetMode(Mode)
 EndProcedure
 
 &AtClient
-Procedure StartCheckingTheBlockingOfDeletedObjects()
+Procedure StartCheckOfDeletableObjectsLock()
 
-	Notification = New NotifyDescription("FinishCheckingTheLockOnDeletedObjects", ThisObject);
-	TimeConsumingOperation = StartCheckingTheBlockingOfDeletedObjectsServer();
+	Notification = New NotifyDescription("FinalizeCheckOfDeletableObjectsLock", ThisObject);
+	TimeConsumingOperation = StartCheckOfDeletableObjectsLockServer();
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, Notification, TimeConsumingOperationsClient.IdleParameters(ThisObject));
 
 EndProcedure
 
 &AtServer
-Function StartCheckingTheBlockingOfDeletedObjectsServer()
+Function StartCheckOfDeletableObjectsLockServer()
 
 	BackgroundJobParameters = TimeConsumingOperations.ProcedureExecutionParameters();
-	Return TimeConsumingOperations.ExecuteProcedure(
-		BackgroundJobParameters, 
+	Return TimeConsumingOperations.ExecuteProcedure(BackgroundJobParameters, 
 		"MarkedObjectsDeletionInternal.MarkedObjectsDeletionControl");
 
 EndFunction
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
-Procedure FinishCheckingTheLockOnDeletedObjects(Result, AdditionalParameters) Export
+Procedure FinalizeCheckOfDeletableObjectsLock(Result, AdditionalParameters) Export
 	FinishCheckingTheLockOnDeletedObjectsServer();
+	
+	If Result = Undefined Then
+		Return;
+	EndIf;
+	
+	If Result.Status = "Error" Then
+		StandardSubsystemsClient.OutputErrorInfo(Result.ErrorInfo);
+		Return;
+	EndIf;
+	
 EndProcedure
 
 &AtServer

@@ -87,7 +87,13 @@
 						<Button name="ChangeQuickSettingsComposition" id="990">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.ChangeQuickSettingsComposition</CommandName>
-							<ShapeRepresentation>WhenActive</ShapeRepresentation>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Edit quick settings</v8:content>
+								</v8:item>
+							</Title>
+							<ShapeRepresentation>Always</ShapeRepresentation>
 							<ExtendedTooltip name="ChangeCompositionOfQuickSettingsExtendedTooltip" id="991"/>
 						</Button>
 					</ChildItems>
@@ -130,6 +136,12 @@
 									<Type>CommandBarButton</Type>
 									<DefaultButton>true</DefaultButton>
 									<CommandName>Form.Command.ReportComposeResult</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Run report</v8:content>
+										</v8:item>
+									</Title>
 									<LocationInCommandBar>InCommandBar</LocationInCommandBar>
 									<ExtendedTooltip name="GenerateReportExtendedTooltip" id="135"/>
 								</Button>
@@ -158,6 +170,12 @@
 											<Type>CommandBarButton</Type>
 											<Representation>Text</Representation>
 											<CommandName>Form.Command.AllSettings</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Settings…</v8:content>
+												</v8:item>
+											</Title>
 											<LocationInCommandBar>InCommandBar</LocationInCommandBar>
 											<ExtendedTooltip name="AllSettingsExtendedTooltip" id="459"/>
 										</Button>
@@ -194,6 +212,12 @@
 														<Button name="SaveVariant" id="994">
 															<Type>CommandBarButton</Type>
 															<CommandName>Form.Command.SaveVariant</CommandName>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Save</v8:content>
+																</v8:item>
+															</Title>
 															<LocationInCommandBar>InCommandBar</LocationInCommandBar>
 															<ExtendedTooltip name="SaveVariantExtendedTooltip" id="995"/>
 														</Button>
@@ -230,6 +254,12 @@
 													<Type>CommandBarButton</Type>
 													<Representation>PictureAndText</Representation>
 													<CommandName>Form.Command.OtherReports</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Other reports…</v8:content>
+														</v8:item>
+													</Title>
 													<LocationInCommandBar>InCommandBar</LocationInCommandBar>
 													<ExtendedTooltip name="OtherReportsExtendedTooltip" id="509"/>
 												</Button>
@@ -316,6 +346,12 @@
 												<Button name="ShowGroupsLevel" id="1008">
 													<Type>CommandBarButton</Type>
 													<CommandName>Form.Command.ShowGroupsLevel</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Default</v8:content>
+														</v8:item>
+													</Title>
 													<LocationInCommandBar>InCommandBar</LocationInCommandBar>
 													<ExtendedTooltip name="ShowTheGroupingLevelExtendedTooltip" id="1009"/>
 												</Button>
@@ -373,6 +409,12 @@
 										<Button name="SaveReport" id="1101">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.SaveReport</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Save to file</v8:content>
+												</v8:item>
+											</Title>
 											<LocationInCommandBar>InCommandBar</LocationInCommandBar>
 											<ExtendedTooltip name="SaveReportExtendedTooltip" id="1102"/>
 										</Button>
@@ -400,6 +442,12 @@
 													<Type>CommandBarButton</Type>
 													<Representation>Picture</Representation>
 													<CommandName>Form.Command.SendByEmail</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Send now...</v8:content>
+														</v8:item>
+													</Title>
 													<LocationInCommandBar>InCommandBar</LocationInCommandBar>
 													<ExtendedTooltip name="SendByEmailExtendedTooltip" id="128"/>
 												</Button>
@@ -436,6 +484,12 @@
 										<Button name="CustomizeStandardSettings" id="1113">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.DefaultSettings</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Default settings</v8:content>
+												</v8:item>
+											</Title>
 											<LocationInCommandBar>InCommandBar</LocationInCommandBar>
 											<ExtendedTooltip name="CustomizeStandardSettingsExtendedTooltip" id="1114"/>
 										</Button>
@@ -497,6 +551,12 @@
 						</PictureDecoration>
 						<InputField name="Factor" id="721">
 							<DataPath>Factor</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Indicator</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<ToolTipRepresentation>Button</ToolTipRepresentation>
 							<GroupHorizontalAlign>Right</GroupHorizontalAlign>
@@ -680,12 +740,24 @@ Use:
 								<Button name="MoreCommandBarGenerateReport" id="730">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.ReportComposeResult</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Run report</v8:content>
+										</v8:item>
+									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="MoreCommandBarGenerateReportExtendedTooltip" id="731"/>
 								</Button>
 								<Button name="GenerateImmediately" id="468">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.GenerateImmediately</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Run report on open</v8:content>
+										</v8:item>
+									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="GenerateImmediatelyExtendedTooltip" id="469"/>
 								</Button>
@@ -703,18 +775,36 @@ Use:
 								<Button name="MoreCommandBarAllSettings" id="734">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.AllSettings</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Settings…</v8:content>
+										</v8:item>
+									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="MoreCommandBarAllSettingsExtendedTooltip" id="735"/>
 								</Button>
 								<Button name="ChangeQuickSettingsCompositionMore" id="992">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.ChangeQuickSettingsComposition</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Edit quick settings</v8:content>
+										</v8:item>
+									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="ChangeCompositionOfQuickSettingsMoreExtendedTooltip" id="993"/>
 								</Button>
 								<Button name="ResetSettings" id="382">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.DefaultSettings</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Default settings</v8:content>
+										</v8:item>
+									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="ClearSettings1ExtendedTooltip" id="383"/>
 								</Button>
@@ -752,6 +842,12 @@ Use:
 												<Button name="SaveOptionMore" id="998">
 													<Type>CommandBarButton</Type>
 													<CommandName>Form.Command.SaveVariant</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Save</v8:content>
+														</v8:item>
+													</Title>
 													<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 													<ExtendedTooltip name="SaveOptionMoreExtendedTooltip" id="999"/>
 												</Button>
@@ -799,6 +895,12 @@ Use:
 										<Button name="MoreCommandBarOtherReports" id="740">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.OtherReports</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Other reports…</v8:content>
+												</v8:item>
+											</Title>
 											<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 											<ExtendedTooltip name="MoreCommandBarOtherReportsExtendedTooltip" id="741"/>
 										</Button>
@@ -814,12 +916,24 @@ Use:
 												<Button name="UpdateReportOptionFromFile" id="824">
 													<Type>CommandBarButton</Type>
 													<CommandName>Form.Command.UpdateReportOptionFromFile</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Update from file…</v8:content>
+														</v8:item>
+													</Title>
 													<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 													<ExtendedTooltip name="UpdateReportOptionFromFileExtendedTooltip" id="825"/>
 												</Button>
 												<Button name="SaveReportOptionToFile" id="822">
 													<Type>CommandBarButton</Type>
 													<CommandName>Form.Command.SaveReportOptionToFile</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Save to file…</v8:content>
+														</v8:item>
+													</Title>
 													<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 													<ExtendedTooltip name="SaveReportOptionToFile1ExtendedTooltip" id="823"/>
 												</Button>
@@ -837,18 +951,36 @@ Use:
 												<Button name="ImportSchema" id="700">
 													<Type>CommandBarButton</Type>
 													<CommandName>Form.Command.ImportSchema</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Import scheme</v8:content>
+														</v8:item>
+													</Title>
 													<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 													<ExtendedTooltip name="ImportSchemaExtendedTooltip" id="701"/>
 												</Button>
 												<Button name="EditSchema" id="702">
 													<Type>CommandBarButton</Type>
 													<CommandName>Form.Command.EditSchema</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Edit scheme</v8:content>
+														</v8:item>
+													</Title>
 													<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 													<ExtendedTooltip name="EditSchemaExtendedTooltip" id="703"/>
 												</Button>
 												<Button name="RestoreDefaultSchema" id="704">
 													<Type>CommandBarButton</Type>
 													<CommandName>Form.Command.RestoreDefaultSchema</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Default schema</v8:content>
+														</v8:item>
+													</Title>
 													<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 													<ExtendedTooltip name="RestoreDefaultSchemaExtendedTooltip" id="705"/>
 												</Button>
@@ -880,6 +1012,12 @@ Use:
 										<Button name="ShareSettings" id="828">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.ShareSettings</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Share settings…</v8:content>
+												</v8:item>
+											</Title>
 											<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 											<ExtendedTooltip name="ShareSettingsExtendedTooltip" id="829"/>
 										</Button>
@@ -941,6 +1079,12 @@ Use:
 												<Button name="ShowGroupsLevelMore" id="1010">
 													<Type>CommandBarButton</Type>
 													<CommandName>Form.Command.ShowGroupsLevel</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Default</v8:content>
+														</v8:item>
+													</Title>
 													<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 													<ExtendedTooltip name="ShowLevelOfGroupingsMoreExtendedTooltip" id="1011"/>
 												</Button>
@@ -1018,6 +1162,12 @@ Use:
 								<Button name="SaveReportMore" id="1103">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.SaveReport</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Save to file</v8:content>
+										</v8:item>
+									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="SaveReportAgainExtendedTooltip" id="1104"/>
 								</Button>
@@ -1044,6 +1194,12 @@ Use:
 										<Button name="MoreCommandBarSendByEmail" id="756">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.SendByEmail</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Send now...</v8:content>
+												</v8:item>
+											</Title>
 											<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 											<ExtendedTooltip name="MoreCommandBarSendByEmailExtendedTooltip" id="757"/>
 										</Button>
@@ -1064,12 +1220,24 @@ Use:
 								<Button name="SaveReportSnapshot" id="1174">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.SaveReportSnapshot</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Save report snapshot</v8:content>
+										</v8:item>
+									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="SaveReportSnapshotExtendedTooltip" id="1175"/>
 								</Button>
 								<Button name="ReportsSnapshots" id="1178">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.ReportsSnapshots</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Report snapshots</v8:content>
+										</v8:item>
+									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="ReportsSnapshotsExtendedTooltip" id="1179"/>
 								</Button>
@@ -1187,6 +1355,12 @@ Use:
 								<Button name="UsersRights" id="832">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.UsersRights</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>User rights</v8:content>
+										</v8:item>
+									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="UsersRightsExtendedTooltip" id="833"/>
 								</Button>
@@ -1229,6 +1403,12 @@ Use:
 		<SpreadSheetDocumentField name="ReportSpreadsheetDocument" id="7">
 			<DataPath>ReportSpreadsheetDocument</DataPath>
 			<DefaultItem>true</DefaultItem>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Spreadsheet document: report generation result</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>None</TitleLocation>
 			<Width>59</Width>
 			<Height>15</Height>
@@ -1259,6 +1439,12 @@ Use:
 									<Button name="HeadingAreaContextMenuGroupBySelectedField" id="1045">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.GroupBySelectedField</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Group by field</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ContextMenuOfHeaderAreaIsGroupedBySelectedFieldExtendedTooltip" id="1046"/>
 									</Button>
 									<ButtonGroup name="HeadingAreaContextMenuInsert" id="838">
@@ -1274,24 +1460,48 @@ Use:
 												<Type>CommandBarButton</Type>
 												<Visible>false</Visible>
 												<CommandName>Form.Command.InsertFieldLeft</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Insert field to the left</v8:content>
+													</v8:item>
+												</Title>
 												<ShapeRepresentation>None</ShapeRepresentation>
 												<ExtendedTooltip name="ContextMenuHeaderAreaInsertFieldLeftExtendedTooltip" id="1118"/>
 											</Button>
 											<Button name="HeadingAreaContextMenuInsertFieldRight" id="840">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.InsertFieldRight</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Insert field to the right…</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ContextMenuOfTheHeaderAreaInsertFieldOnTheRightExtendedTooltip" id="841"/>
 											</Button>
 											<Button name="ContextMenuHeaderAreaInsertGroupingAbove" id="1119">
 												<Type>CommandBarButton</Type>
 												<Visible>false</Visible>
 												<CommandName>Form.Command.InsertGroupAbove</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Insert grouping above</v8:content>
+													</v8:item>
+												</Title>
 												<ShapeRepresentation>None</ShapeRepresentation>
 												<ExtendedTooltip name="ContextMenuHeaderAreaInsertGroupingAboveExtendedTooltip" id="1120"/>
 											</Button>
 											<Button name="HeadingAreaContextMenuInsertGroupBelow" id="842">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.InsertGroupBelow</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Insert grouping below…</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ContextMenuOfTheHeaderAreaInsertGroupingBelowExtendedTooltip" id="843"/>
 											</Button>
 										</ChildItems>
@@ -1308,21 +1518,45 @@ Use:
 											<Button name="HeadingAreaContextMenuMoveFieldLeft" id="846">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.MoveFieldLeft</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Move left</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ContextMenuOfTheHeaderAreaMoveTheFieldToTheLeftExtendedTooltip" id="847"/>
 											</Button>
 											<Button name="HeadingAreaContextMenuMoveFieldRight" id="848">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.MoveFieldRight</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Move right</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ContextMenuOfTheHeaderAreaMoveTheFieldToTheRightExtendedTooltip" id="849"/>
 											</Button>
 											<Button name="HeadingAreaContextMenuMoveFieldUp" id="850">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.MoveFieldUp</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Move up</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ContextMenuOfTheHeaderAreaMoveTheFieldAboveExtendedTooltip" id="851"/>
 											</Button>
 											<Button name="HeadingAreaContextMenuMoveFieldDown" id="852">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.MoveFieldDown</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Move down</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ContextMenuOfTheTitleAreaMoveTheFieldBelowExtendedTooltip" id="853"/>
 											</Button>
 										</ChildItems>
@@ -1330,11 +1564,23 @@ Use:
 									<Button name="HeadingAreaContextMenuHideField" id="854">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.HideField</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Hide</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ContextMenuOfTheHeaderAreaHideTheFieldExtendedTooltip" id="855"/>
 									</Button>
 									<Button name="HeadingAreaContextMenuRenameField" id="856">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.RenameField</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Rename…</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="TheContextMenuOfTheHeaderToRenameAFieldExtendedTooltip" id="857"/>
 									</Button>
 								</ChildItems>
@@ -1351,11 +1597,23 @@ Use:
 									<Button name="HeadingAreaContextMenuFilter" id="858">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.FilterCommand</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Filter…</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ContextMenuOfTheFilterHeaderAreaExtendedTooltip" id="859"/>
 									</Button>
 									<Button name="HeadingAreaContextMenuClearFilter" id="982">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.DisableFilter</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Clear filter</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ContextMenuOfTheHeaderAreaRemoveTheFilterExtendedTooltip" id="983"/>
 									</Button>
 								</ChildItems>
@@ -1372,11 +1630,23 @@ Use:
 									<Button name="HeadingAreaContextMenuSortAsc" id="862">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.SortAsc</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Sort ascending</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ContextMenuOfTheHeaderAreaSortInAscendingOrderExtendedTooltip" id="863"/>
 									</Button>
 									<Button name="HeadingAreaContextMenuSortDesc" id="864">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.SortDesc</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Sort descending</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ContextMenuOfTheHeaderAreaSortInDescendingOrderExtendedTooltip" id="865"/>
 									</Button>
 								</ChildItems>
@@ -1397,6 +1667,12 @@ Use:
 									<Button name="TitleAreaContextMenuClearAppearance" id="1091">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.ClearAppearance</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Clear appearance</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ContextMenuOfHeaderAreaClearLayoutExtendedTooltip" id="1092"/>
 									</Button>
 									<ButtonGroup name="HeadingAreaContextMenuFormatNegativePositive" id="868">
@@ -1411,11 +1687,23 @@ Use:
 											<Button name="HeadingAreaContextMenuFormatNegativeValues" id="870">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.FormatNegativeValues</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Negative in red</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="TheContextMenuOfTheHeaderToIssueNegativeExtendedTooltip" id="871"/>
 											</Button>
 											<Button name="HeadingAreaContextMenuFormatPositiveValues" id="872">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.FormatPositiveValues</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Positive in green</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="heContextMenuOfTheTitleAreaFormalizePositiveExtendedTooltip" id="873"/>
 											</Button>
 										</ChildItems>
@@ -1432,11 +1720,23 @@ Use:
 											<Button name="HeadingAreaContextMenuSetRowHeight" id="876">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.SetRowHeight</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Row height…</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="TheContextMenuOfTheHeaderToSetTheHeightOfRowsExtendedTooltip" id="877"/>
 											</Button>
 											<Button name="HeadingAreaContextMenuSetColumnWidth" id="878">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.SetColumnWidth</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Column width…</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ContextMenuOfTheHeaderAreaSetColumnWidthExtendedTooltip" id="879"/>
 											</Button>
 										</ChildItems>
@@ -1444,6 +1744,12 @@ Use:
 									<Button name="MenuHeadingAreaContextMenuApplyAppearanceMore" id="880">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.ApplyAppearanceMore</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>More…</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ContextMenuInTheHeaderMenuToMakeMoreExtendedTooltip" id="881"/>
 									</Button>
 								</ChildItems>
@@ -1527,6 +1833,12 @@ Use:
 											<Button name="ShowGroupsLevelContextMenu" id="1041">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.ShowGroupsLevel</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Default</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ShowLevelOfGroupingsInContextMenuExtendedTooltip" id="1042"/>
 											</Button>
 										</ChildItems>
@@ -1679,6 +1991,12 @@ Use:
 								<Type>CommandBarButton</Type>
 								<Visible>false</Visible>
 								<CommandName>Form.Command.ReportComposeResult</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Run report</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="ContextMenuOfTheGeneralComposeResultAreaExtendedTooltip" id="1044"/>
 							</Button>
 						</ChildItems>
@@ -1737,6 +2055,12 @@ Use:
 						<InputField name="Sum" id="662">
 							<DataPath>Sum</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Amount</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Left</TitleLocation>
 							<Width>10</Width>
 							<HorizontalStretch>false</HorizontalStretch>
@@ -1746,6 +2070,12 @@ Use:
 						<InputField name="Count" id="665">
 							<DataPath>Count</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Quantity</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Left</TitleLocation>
 							<Width>10</Width>
 							<HorizontalStretch>false</HorizontalStretch>
@@ -1755,6 +2085,12 @@ Use:
 						<InputField name="Mean" id="668">
 							<DataPath>Mean</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Average</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Left</TitleLocation>
 							<Width>10</Width>
 							<HorizontalStretch>false</HorizontalStretch>
@@ -1764,6 +2100,12 @@ Use:
 						<InputField name="Minimum" id="671">
 							<DataPath>Minimum</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Minimum</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Left</TitleLocation>
 							<Width>10</Width>
 							<HorizontalStretch>false</HorizontalStretch>
@@ -1773,6 +2115,12 @@ Use:
 						<InputField name="Maximum" id="674">
 							<DataPath>Maximum</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Maximum</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Left</TitleLocation>
 							<Width>10</Width>
 							<HorizontalStretch>false</HorizontalStretch>
@@ -1784,6 +2132,12 @@ Use:
 				<Button name="CollapseIndicators" id="682">
 					<Type>Hyperlink</Type>
 					<CommandName>Form.Command.CollapseIndicators</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Collapse</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="CollapseIndicatorsExtendedTooltip" id="683"/>
 				</Button>
 			</ChildItems>
@@ -1818,6 +2172,12 @@ Use:
 							<Type>UsualButton</Type>
 							<CommandName>Form.Command.MoveThePeriodBack1</CommandName>
 							<Font ref="style:ImportantLabelFont" kind="StyleItem"/>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>&lt;</v8:content>
+								</v8:item>
+							</Title>
 							<ShapeRepresentation>WhenActive</ShapeRepresentation>
 							<ExtendedTooltip name="MoveThePeriodBack1ExtendedTooltip" id="1013"/>
 						</Button>
@@ -1882,6 +2242,12 @@ Use:
 									<Type>UsualButton</Type>
 									<CommandName>Form.Command.SelectPeriod1</CommandName>
 									<Font ref="style:ImportantLabelFont" kind="StyleItem"/>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Select period</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="SelectPeriod31ExtendedTooltip" id="790"/>
 								</Button>
 							</ChildItems>
@@ -1890,6 +2256,12 @@ Use:
 							<Type>UsualButton</Type>
 							<CommandName>Form.Command.MoveThePeriodForward1</CommandName>
 							<Font ref="style:ImportantLabelFont" kind="StyleItem"/>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>&gt;</v8:content>
+								</v8:item>
+							</Title>
 							<ShapeRepresentation>WhenActive</ShapeRepresentation>
 							<ExtendedTooltip name="MoveThePeriodForward1ExtendedTooltip" id="1015"/>
 						</Button>
@@ -1913,6 +2285,12 @@ Use:
 							<Type>UsualButton</Type>
 							<CommandName>Form.Command.MoveThePeriodBack2</CommandName>
 							<Font ref="style:ImportantLabelFont" kind="StyleItem"/>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>&lt;</v8:content>
+								</v8:item>
+							</Title>
 							<ShapeRepresentation>WhenActive</ShapeRepresentation>
 							<ExtendedTooltip name="MoveThePeriodBack2ExtendedTooltip" id="1017"/>
 						</Button>
@@ -1977,6 +2355,12 @@ Use:
 									<Type>UsualButton</Type>
 									<CommandName>Form.Command.SelectPeriod2</CommandName>
 									<Font ref="style:ImportantLabelFont" kind="StyleItem"/>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Select period</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="SelectPeriod32ExtendedTooltip" id="805"/>
 								</Button>
 							</ChildItems>
@@ -1985,6 +2369,12 @@ Use:
 							<Type>UsualButton</Type>
 							<CommandName>Form.Command.MoveThePeriodForward2</CommandName>
 							<Font ref="style:ImportantLabelFont" kind="StyleItem"/>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>&gt;</v8:content>
+								</v8:item>
+							</Title>
 							<ShapeRepresentation>WhenActive</ShapeRepresentation>
 							<ExtendedTooltip name="MoveThePeriodForward2ExtendedTooltip" id="1019"/>
 						</Button>
@@ -1992,6 +2382,12 @@ Use:
 				</UsualGroup>
 				<CheckBoxField name="CheckBox1" id="806">
 					<DataPath>CheckBox1</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>CheckBox</v8:content>
+						</v8:item>
+					</Title>
 					<CheckBoxType>Auto</CheckBoxType>
 					<ContextMenu name="CheckBox1ContextMenu" id="807"/>
 					<ExtendedTooltip name="CheckBox1ExtendedTooltip" id="808"/>
@@ -2001,6 +2397,12 @@ Use:
 				</CheckBoxField>
 				<CheckBoxField name="CheckBox2" id="809">
 					<DataPath>CheckBox2</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Checkbox</v8:content>
+						</v8:item>
+					</Title>
 					<CheckBoxType>Auto</CheckBoxType>
 					<ContextMenu name="CheckBox2ContextMenu" id="810"/>
 					<ExtendedTooltip name="CheckBox2ExtendedTooltip" id="811"/>
@@ -2159,6 +2561,12 @@ Use:
 									<Type>UsualButton</Type>
 									<Representation>Picture</Representation>
 									<CommandName>Form.Command.AllSettings</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Settings…</v8:content>
+										</v8:item>
+									</Title>
 									<ShapeRepresentation>None</ShapeRepresentation>
 									<ExtendedTooltip name="ShowSettingsButtonExtendedTooltip" id="1167"/>
 								</Button>
@@ -2197,6 +2605,12 @@ Use:
 									<Type>UsualButton</Type>
 									<Representation>Picture</Representation>
 									<CommandName>Form.Command.ReportComposeResult</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Generate</v8:content>
+										</v8:item>
+									</Title>
 									<ShapeRepresentation>None</ShapeRepresentation>
 									<ExtendedTooltip name="GenerateReportButtonExtendedTooltip" id="1169"/>
 								</Button>
@@ -3539,6 +3953,10 @@ Use:
 					<v8:AllowedLength>Variable</v8:AllowedLength>
 				</v8:StringQualifiers>
 			</Type>
+		</Parameter>
+		<Parameter name="VariantKey">
+			<Type/>
+			<KeyParameter>true</KeyParameter>
 		</Parameter>
 	</Parameters>
 </Form>

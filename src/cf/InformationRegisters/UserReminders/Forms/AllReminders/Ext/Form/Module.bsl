@@ -1,0 +1,19 @@
+﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
+// 
+//  
+// 
+// 
+// 
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#Region FormHeaderItemsEventHandlers
+
+&AtClient
+Procedure ListSelection(Item, RowSelected, Field, StandardProcessing)
+	
+	StandardProcessing = False;
+	OpenForm("InformationRegister.UserReminders.Form.RecordForm", New Structure("Key", RowSelected));
+	
+EndProcedure
+
+#EndRegion

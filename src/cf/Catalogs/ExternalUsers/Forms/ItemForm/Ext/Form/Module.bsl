@@ -1,16 +1,24 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
+	
+	// Standard subsystems.Pluggable commands
+	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
+		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
+	EndIf;
+	// End StandardSubsystems.AttachableCommands
 	
 	If Not UsersInternal.ExternalUsersEmbedded() Then
 		Items.AuthorizationObject.Enabled = False;
@@ -39,7 +47,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 		// Creating an item.
 		If Parameters.NewExternalUserGroup
-		         <> Catalogs.ExternalUsersGroups.AllExternalUsers Then
+		       <> ExternalUsers.AllExternalUsersGroup() Then
 			
 			NewExternalUserGroup = Parameters.NewExternalUserGroup;
 		EndIf;
@@ -65,7 +73,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			EndIf;
 		Else
 			// Add item.
-			If Parameters.Property("NewExternalUserAuthorizationObject") Then
+			If ValueIsFilled(Parameters.NewExternalUserAuthorizationObject) Then
 				
 				Object.AuthorizationObject = Parameters.NewExternalUserAuthorizationObject;
 				AuthorizationObjectSetOnOpen = ValueIsFilled(Object.AuthorizationObject);
@@ -186,6 +194,13 @@ EndProcedure
 &AtClient
 Procedure OnOpen(Cancel)
 	
+	// Standard subsystems.Pluggable commands
+	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
+		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
+	EndIf;
+	// End StandardSubsystems.AttachableCommands
+	
 	If CommonClient.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManagerClient = CommonClient.CommonModule("PropertyManagerClient");
 		ModulePropertyManagerClient.AfterImportAdditionalAttributes(ThisObject);
@@ -228,6 +243,13 @@ Procedure OnReadAtServer(CurrentObject)
 		ModuleAccessManagement.OnReadAtServer(ThisObject, CurrentObject);
 	EndIf;
 	// End StandardSubsystems.AccessManagement
+	
+	// Standard subsystems.Pluggable commands
+	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommandsClientServer = Common.CommonModule("AttachableCommandsClientServer");
+		ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, Object);
+	EndIf;
+	// End StandardSubsystems.AttachableCommands
 	
 	// StandardSubsystems.ContactInformation
 	If Common.SubsystemExists("StandardSubsystems.ContactInformation") Then
@@ -317,6 +339,7 @@ EndProcedure
 Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	
 	CurrentObject.AdditionalProperties.Insert("CopyingValue", CopyingValue);
+	CurrentObject.AdditionalProperties.Insert("IsRecoveryEmailSetOnForm");
 	
 	UpdateDisplayedUserType();
 	// Auto updating external user description.
@@ -458,6 +481,13 @@ EndProcedure
 
 &AtClient
 Procedure AfterWrite(WriteParameters)
+	
+	// Standard subsystems.Pluggable commands
+	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
+		ModuleAttachableCommandsClient.AfterWrite(ThisObject, Object, WriteParameters);
+	EndIf;
+	// End StandardSubsystems.AttachableCommands
 	
 	Notify("Write_ExternalUsers", New Structure, Object.Ref);
 	NotifyChanged(Object.AuthorizationObject);
@@ -776,7 +806,7 @@ Procedure UserMustChangePasswordOnAuthorizationExtendedTooltipURLProcessing(Item
 	OpenForm("CommonForm.UserAuthorizationSettings", FormParameters, ThisObject);
 EndProcedure
 
-
+// 
 
 &AtClient
 Procedure Attachable_ContactInformationOnChange(Item)
@@ -868,7 +898,7 @@ EndProcedure
 #Region FormTableItemsEventHandlersRoles
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure RolesCheckOnChange(Item)
@@ -880,7 +910,7 @@ Procedure RolesCheckOnChange(Item)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined, StandardProcessing = Undefined)
@@ -917,7 +947,7 @@ Procedure ChangePassword(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure ShowSelectedRolesOnly(Command)
@@ -1110,7 +1140,7 @@ Procedure CustomizeForm(CurrentObject, OnCreateAtServer = False, WriteParameters
 	EndIf;
 	
 	If Not OnCreateAtServer Then
-		ReadIBUser();
+		ReadIBUser(, False);
 	EndIf;
 	
 	SetPrivilegedMode(True);
@@ -1440,7 +1470,7 @@ Procedure CloseForm()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
 Procedure PropertiesExecuteDeferredInitialization()
@@ -1494,7 +1524,7 @@ Procedure AfterRequestingAPasswordToChangeTheMail(Result, AdditionalParameters) 
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
 Procedure ReadIBUserRoles()
@@ -1524,7 +1554,7 @@ Function InitialIBUserDetails()
 EndFunction
 
 &AtServer
-Procedure ReadIBUser(OnCopyItem = False)
+Procedure ReadIBUser(OnCopyItem = False, OnCreateAtServer = True)
 	
 	SetPrivilegedMode(True);
 	
@@ -1534,7 +1564,7 @@ Procedure ReadIBUser(OnCopyItem = False)
 	CanSignIn   = False;
 	CanSignInDirectChangeValue = False;
 	
-	If OnCopyItem Then
+	If OnCreateAtServer And OnCopyItem Then
 		
 		ReadProperties = Users.IBUserProperies(Parameters.CopyingValue.IBUserID);
 		If ReadProperties <> Undefined Then
@@ -1565,8 +1595,7 @@ Procedure ReadIBUser(OnCopyItem = False)
 			IBUserExists = True;
 			IBUserMain = True;
 			
-		ElsIf Parameters.Property("IBUserID")
-		        And ValueIsFilled(Parameters.IBUserID) Then
+		ElsIf OnCreateAtServer And ValueIsFilled(Parameters.IBUserID) Then
 			
 			If Object.IBUserID <> Parameters.IBUserID Then
 				Object.IBUserID = Parameters.IBUserID;
@@ -1663,8 +1692,8 @@ EndProcedure
 &AtServer
 Procedure FindUserAndIBUserDifferences(WriteParameters = Undefined)
 	
-	
-	
+	// 
+	// 
 	
 	ShowDifference = True;
 	ShowDifferenceResolvingCommands = False;
@@ -1687,7 +1716,7 @@ Procedure FindUserAndIBUserDifferences(WriteParameters = Undefined)
 		
 		If CanSignInOnRead And Object.Invalid Then
 			CanSignIn = False;
-			PropertiesToResolve.Insert(0, NStr("en = 'Sign-in allowed';"));
+			PropertiesToResolve.Insert(0, NStr("en = 'Login allowed';"));
 		EndIf;
 		
 		If ValueIsFilled(PropertiesToResolve) Then
@@ -1814,7 +1843,7 @@ Procedure FindUserAndIBUserDifferences(WriteParameters = Undefined)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClientAtServerNoContext
 Procedure SetPropertiesAvailability(Form)
@@ -1824,7 +1853,7 @@ Procedure SetPropertiesAvailability(Form)
 	ActionsOnForm = Form.ActionsOnForm;
 	AccessLevel = Form.AccessLevel;
 	
-	
+	// Note to the "Sign-in blocked" state.
 	If Form.CanSignIn Then
 		Items.GroupNoRights.Visible         = Form.WhetherRightsAreAssigned.HasNoRights;
 		Items.GroupNoStartupRights.Visible = Not Form.WhetherRightsAreAssigned.HasNoRights
@@ -1942,8 +1971,35 @@ Function IBUserWritingRequired(Form, UseStandardName = True)
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
+// Standard subsystems.Pluggable commands
 
+&AtClient
+Procedure Attachable_ExecuteCommand(Command)
+	ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
+	ModuleAttachableCommandsClient.StartCommandExecution(ThisObject, Command, Object);
+EndProcedure
+
+&AtClient
+Procedure Attachable_ContinueCommandExecutionAtServer(ExecutionParameters, AdditionalParameters) Export
+	ExecuteCommandAtServer(ExecutionParameters);
+EndProcedure
+
+&AtServer
+Procedure ExecuteCommandAtServer(ExecutionParameters)
+	ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
+	ModuleAttachableCommands.ExecuteCommand(ThisObject, ExecutionParameters, Object);
+EndProcedure
+
+&AtClient
+Procedure Attachable_UpdateCommands()
+	ModuleAttachableCommandsClientServer = CommonClient.CommonModule("AttachableCommandsClientServer");
+	ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, Object);
+EndProcedure
+
+// End StandardSubsystems.AttachableCommands
+
+////////////////////////////////////////////////////////////////////////////////
+// 
 
 &AtServer
 Procedure ProcessRolesInterface(Action, MainParameter = Undefined)

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -280,6 +281,7 @@ Function HintForFillingInTheRegistrationParameters(Val LanguageCode)
 
 	If LanguageCode = "ru" Or LanguageCode = "be" Then
 
+		//@skip-check module-nstr-camelcase
 		Result.Instruction = StringFunctions.FormattedString(NStr(
 		"en = 'List comma-separated parameters for writing amounts in words.
 		|Example of filling for Russian and Belarusian (ru_RU, be_BY):
@@ -298,6 +300,7 @@ Function HintForFillingInTheRegistrationParameters(Val LanguageCode)
 
 	ElsIf LanguageCode = "uk" Then
 
+		//@skip-check module-nstr-camelcase
 		Result.Instruction = StringFunctions.FormattedString(NStr(
 		"en = 'List comma-separated parameters for writing amounts in words.
 		|Example of filling for Ukrainian (uk_UA):
@@ -316,6 +319,7 @@ Function HintForFillingInTheRegistrationParameters(Val LanguageCode)
 
 	ElsIf LanguageCode = "pl" Then
 
+		//@skip-check module-nstr-camelcase
 		Result.Instruction = StringFunctions.FormattedString(NStr(
 		"en = 'List comma-separated parameters for writing amounts in words.
 		|Example of filling for Polish (pl_PL):
@@ -334,6 +338,7 @@ Function HintForFillingInTheRegistrationParameters(Val LanguageCode)
 
 	ElsIf LanguageCode = "en" Or LanguageCode = "fr" Or LanguageCode = "fi" Or LanguageCode = "kk" Then
 
+		//@skip-check module-nstr-camelcase
 		Result.Instruction = StringFunctions.FormattedString(NStr(
 		"en = 'List comma-separated parameters for writing amounts in words.
 		|Example of filling for English, French, Finnish and Kazakh (en_US, fr_CA,fi_FI, kk_KZ):
@@ -348,6 +353,7 @@ Function HintForFillingInTheRegistrationParameters(Val LanguageCode)
 
 	ElsIf LanguageCode = "de" Then
 
+		//@skip-check module-nstr-camelcase
 		Result.Instruction = StringFunctions.FormattedString(NStr(
 		"en = 'List comma-separated parameters for writing amounts in words.
 		|Example of filling for German (de_DE):
@@ -364,6 +370,7 @@ Function HintForFillingInTheRegistrationParameters(Val LanguageCode)
 
 	ElsIf LanguageCode = "lv" Then
 
+		//@skip-check module-nstr-camelcase
 		Result.Instruction = StringFunctions.FormattedString(NStr(
 		"en = 'List comma-separated parameters for writing amounts in words.
 		|Example of filling for Latvian (lv_LV):
@@ -386,6 +393,7 @@ Function HintForFillingInTheRegistrationParameters(Val LanguageCode)
 
 	ElsIf LanguageCode = "lt" Then
 
+		//@skip-check module-nstr-camelcase
 		Result.Instruction = StringFunctions.FormattedString(NStr(
 		"en = 'List comma-separated parameters for writing amounts in words.
 		|Example of filling for Lithuanian (lt_LT):
@@ -404,6 +412,7 @@ Function HintForFillingInTheRegistrationParameters(Val LanguageCode)
 
 	ElsIf LanguageCode = "et" Then
 
+		//@skip-check module-nstr-camelcase
 		Result.Instruction = StringFunctions.FormattedString(NStr(
 		"en = 'List comma-separated parameters for writing amounts in words.
 		|Example of filling for Estonian (et_EE):
@@ -418,6 +427,7 @@ Function HintForFillingInTheRegistrationParameters(Val LanguageCode)
 
 	ElsIf LanguageCode = "bg" Then
 
+		//@skip-check module-nstr-camelcase
 		Result.Instruction = StringFunctions.FormattedString(NStr(
 		"en = 'List comma-separated parameters for writing amounts in words.
 		|Example of filling for Bulgarian (bg_BG):
@@ -438,6 +448,7 @@ Function HintForFillingInTheRegistrationParameters(Val LanguageCode)
 
 	ElsIf LanguageCode = "ro" Then
 
+		//@skip-check module-nstr-camelcase
 		Result.Instruction = StringFunctions.FormattedString(NStr(
 		"en = 'List comma-separated parameters for writing amounts in words.
 		|Example of filling for Romanian (ro_RO):
@@ -458,6 +469,7 @@ Function HintForFillingInTheRegistrationParameters(Val LanguageCode)
 
 	ElsIf LanguageCode = "ka" Then
 
+		//@skip-check module-nstr-camelcase
 		Result.Instruction = StringFunctions.FormattedString(NStr(
 		"en = 'List comma-separated parameters for writing amounts in words.
 		|Example of filling for Georgian (ka_GE):
@@ -486,6 +498,7 @@ Function HintForFillingInTheRegistrationParameters(Val LanguageCode)
 
 	ElsIf LanguageCode = "vi" Then
 
+		//@skip-check module-nstr-camelcase
 		Result.Instruction = StringFunctions.FormattedString(NStr(
 		"en = 'List comma-separated parameters for writing amounts in words.
 		|Example of filling for Vietnamese (vi_VN):
@@ -500,6 +513,7 @@ Function HintForFillingInTheRegistrationParameters(Val LanguageCode)
 
 	ElsIf LanguageCode = "tr" Then
 
+		//@skip-check module-nstr-camelcase
 		Result.Instruction = StringFunctions.FormattedString(NStr(
 		"en = 'List comma-separated parameters for writing amounts in words.
 		|Example of filling for Turkish (tr_TR):

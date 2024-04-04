@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -632,20 +633,21 @@ Function ChoiceOverride(ReportForm, Val Handler, LayoutItem,
 EndFunction
 
 Function IsSelectMetadataObjects(AvailableTypes, Val MarkedValues, Handler) Export 
-	TypesComposition = AvailableTypes.Types();
 	
-	IndexOf = TypesComposition.UBound();
-	While IndexOf >= 0 Do 
-		If TypesComposition.Find(Type("CatalogRef.MetadataObjectIDs")) <> Undefined
-			Or TypesComposition.Find(Type("CatalogRef.ExtensionObjectIDs")) <> Undefined Then 
-			
-			TypesComposition.Delete(IndexOf);
-		EndIf;
+	TypesCount = AvailableTypes.Types().Count();
+	
+	If TypesCount = 1 Then
+		IsSelectMetadataObjects =
+			    AvailableTypes.ContainsType(Type("CatalogRef.MetadataObjectIDs"))
+			Or AvailableTypes.ContainsType(Type("CatalogRef.ExtensionObjectIDs"));
 		
-		IndexOf = IndexOf - 1;
-	EndDo;
-	
-	IsSelectMetadataObjects = AvailableTypes.Types().Count() > 0 And TypesComposition.Count() = 0;
+	ElsIf TypesCount = 2 Then
+		IsSelectMetadataObjects =
+			    AvailableTypes.ContainsType(Type("CatalogRef.MetadataObjectIDs"))
+			  And AvailableTypes.ContainsType(Type("CatalogRef.ExtensionObjectIDs"));
+	Else
+		IsSelectMetadataObjects = False;
+	EndIf;
 	
 	If IsSelectMetadataObjects Then 
 		CheckMarkedValues(MarkedValues, AvailableTypes);
@@ -659,72 +661,93 @@ Function IsSelectMetadataObjects(AvailableTypes, Val MarkedValues, Handler) Expo
 	EndIf;
 	
 	Return IsSelectMetadataObjects;
+	
 EndFunction
 
-Function IsSelectUsers(Form, FormItem, AvailableTypes, Val MarkedValues, ChoiceParameters, Handler) Export 
+Procedure StartSelectUsers(Form, FormItem, AvailableTypes, Val MarkedValues,
+			ChoiceParameters, ChoiceHandler, FollowUpHandler) Export
 	
-	TypesCount = AvailableTypes.Types().Count();
+	OtherTypes = New TypeDescription(AvailableTypes,,
+		"CatalogRef.Users, CatalogRef.UserGroups,
+		|CatalogRef.ExternalUsers, CatalogRef.ExternalUsersGroups");
+	
+	UsersTypes = New TypeDescription(AvailableTypes,, OtherTypes.Types());
+	
+	TypesCount = UsersTypes.Types().Count();
 	
 	If TypesCount = 1 Then
 		IsSelectUsers =
-			    AvailableTypes.ContainsType(Type("CatalogRef.Users"))
-			Or AvailableTypes.ContainsType(Type("CatalogRef.ExternalUsers"));
+			    UsersTypes.ContainsType(Type("CatalogRef.Users"))
+			Or UsersTypes.ContainsType(Type("CatalogRef.ExternalUsers"));
 		
 	ElsIf TypesCount = 2 Then
 		IsSelectUsers =
-			    AvailableTypes.ContainsType(Type("CatalogRef.Users"))
-			  And AvailableTypes.ContainsType(Type("CatalogRef.ExternalUsers"))
-			Or AvailableTypes.ContainsType(Type("CatalogRef.Users"))
-			  And AvailableTypes.ContainsType(Type("CatalogRef.UserGroups"))
-			Or AvailableTypes.ContainsType(Type("CatalogRef.ExternalUsers"))
-			  And AvailableTypes.ContainsType(Type("CatalogRef.ExternalUsersGroups"));
+			    UsersTypes.ContainsType(Type("CatalogRef.Users"))
+			  And UsersTypes.ContainsType(Type("CatalogRef.ExternalUsers"))
+			Or UsersTypes.ContainsType(Type("CatalogRef.Users"))
+			  And UsersTypes.ContainsType(Type("CatalogRef.UserGroups"))
+			Or UsersTypes.ContainsType(Type("CatalogRef.ExternalUsers"))
+			  And UsersTypes.ContainsType(Type("CatalogRef.ExternalUsersGroups"));
 		
 	ElsIf TypesCount = 4 Then
 		IsSelectUsers =
-			    AvailableTypes.ContainsType(Type("CatalogRef.Users"))
-			  And AvailableTypes.ContainsType(Type("CatalogRef.UserGroups"))
-			  And AvailableTypes.ContainsType(Type("CatalogRef.ExternalUsers"))
-			  And AvailableTypes.ContainsType(Type("CatalogRef.ExternalUsersGroups"));
+			    UsersTypes.ContainsType(Type("CatalogRef.Users"))
+			  And UsersTypes.ContainsType(Type("CatalogRef.UserGroups"))
+			  And UsersTypes.ContainsType(Type("CatalogRef.ExternalUsers"))
+			  And UsersTypes.ContainsType(Type("CatalogRef.ExternalUsersGroups"));
 	Else
 		IsSelectUsers = False;
 	EndIf;
 	
-	If IsSelectUsers Then 
-		CheckMarkedValues(MarkedValues, AvailableTypes);
-		ChooseType =
-			    TypesCount = 4
-			Or TypesCount = 2
-			  And AvailableTypes.ContainsType(Type("CatalogRef.Users"))
-			  And AvailableTypes.ContainsType(Type("CatalogRef.ExternalUsers"));
-		
-		Context = New Structure;
-		Context.Insert("AvailableTypes",      AvailableTypes);
-		Context.Insert("MarkedValues", MarkedValues);
-		Context.Insert("ChoiceParameters",    ChoiceParameters);
-		Context.Insert("Handler",         Handler);
-		
-		UserTypesList = New ValueList;
-		
-		If Not ChooseType Then
-			If AvailableTypes.ContainsType(Type("CatalogRef.Users")) Then
-				UserTypesList.Add(Type("CatalogRef.Users"));
-			Else
-				UserTypesList.Add(Type("CatalogRef.ExternalUsers"));
-			EndIf;
-			SelectUsersAfterSelectionType(UserTypesList[0], Context);
-		Else
-			UserTypesList.Add(Type("CatalogRef.Users"));
-			UserTypesList.Add(Type("CatalogRef.ExternalUsers"));
-			Form.ShowChooseFromMenu(
-				New NotifyDescription("SelectUsersAfterSelectionType", ThisObject, Context),
-				UserTypesList,
-				FormItem);
-		EndIf;
+	If Not IsSelectUsers Then
+		ExecuteNotifyProcessing(FollowUpHandler, Undefined);
+		Return;
 	EndIf;
 	
-	Return IsSelectUsers;
+	ChooseType =
+		    TypesCount = 4
+		Or TypesCount = 2
+		  And UsersTypes.ContainsType(Type("CatalogRef.Users"))
+		  And UsersTypes.ContainsType(Type("CatalogRef.ExternalUsers"));
 	
-EndFunction
+	Context = New Structure;
+	Context.Insert("UsersTypes",     UsersTypes);
+	Context.Insert("OtherTypes",            OtherTypes);
+	Context.Insert("MarkedValues",    MarkedValues);
+	Context.Insert("ChoiceParameters",       ChoiceParameters);
+	Context.Insert("ChoiceHandler",      ChoiceHandler);
+	Context.Insert("FollowUpHandler", FollowUpHandler);
+	
+	UserTypesList = New ValueList;
+	UserTypesList.LoadValues(OtherTypes.Types());
+	
+	If Not ChooseType And OtherTypes.Types().Count() = 0 Then
+		If AvailableTypes.ContainsType(Type("CatalogRef.Users")) Then
+			UserTypesList.Add(Type("CatalogRef.Users"));
+		Else
+			UserTypesList.Add(Type("CatalogRef.ExternalUsers"));
+		EndIf;
+		SelectUsersAfterSelectionType(UserTypesList[0], Context);
+	Else
+		If UsersTypes.ContainsType(Type("CatalogRef.Users")) Then
+			UserTypesList.Add(Type("CatalogRef.Users"));
+		EndIf;
+		If UsersTypes.ContainsType(Type("CatalogRef.ExternalUsers")) Then
+			UserTypesList.Add(Type("CatalogRef.ExternalUsers"));
+		EndIf;
+		If OtherTypes.Types().Count() > 0 Then
+			For Each ListItem In UserTypesList Do
+				ListItem.Presentation = String (ListItem.Value);
+			EndDo;
+			UserTypesList.SortByPresentation();
+		EndIf;
+		Form.ShowChooseFromMenu(
+			New NotifyDescription("SelectUsersAfterSelectionType", ThisObject, Context),
+			UserTypesList,
+			FormItem);
+	EndIf;
+	
+EndProcedure
 
 Procedure CheckMarkedValues(MarkedValues, AvailableTypes)
 	
@@ -752,23 +775,29 @@ Procedure SelectUsersAfterSelectionType(SelectedElement, Context) Export
 	
 	If SelectedElement.Value = Type("CatalogRef.Users") Then
 		FullChoiceFormName = "Catalog.Users.ChoiceForm";
-		If Context.AvailableTypes.ContainsType(Type("CatalogRef.UserGroups")) Then 
+		If Context.UsersTypes.ContainsType(Type("CatalogRef.UserGroups")) Then 
 			PickingParameters.Insert("UsersGroupsSelection", True);
 			PickFormHeader = NStr("en = 'Pick groups and users';");
 		Else
 			PickFormHeader = NStr("en = 'Pick users';");
 		EndIf;
-	Else
+	ElsIf SelectedElement.Value = Type("CatalogRef.ExternalUsers") Then
 		FullChoiceFormName = "Catalog.ExternalUsers.ChoiceForm";
-		If Context.AvailableTypes.ContainsType(Type("CatalogRef.UserGroups")) Then 
+		If Context.UsersTypes.ContainsType(Type("CatalogRef.UserGroups")) Then 
 			PickingParameters.Insert("SelectExternalUsersGroups", True);
 			PickFormHeader = NStr("en = 'Pick groups and external users';");
 		Else
 			PickFormHeader = NStr("en = 'Pick external users';");
 		EndIf;
+	Else
+		ExecuteNotifyProcessing(Context.FollowUpHandler, SelectedElement);
+		Return;
 	EndIf;
 	
-	SelectedUsers = Context.MarkedValues.UnloadValues();
+	List = New ValueList;
+	List.LoadValues(Context.MarkedValues.UnloadValues());
+	CheckMarkedValues(List, Context.UsersTypes);
+	SelectedUsers = List.UnloadValues();
 	
 	PickingParameters.Insert("ChoiceMode", True);
 	PickingParameters.Insert("CloseOnChoice", False);
@@ -778,7 +807,32 @@ Procedure SelectUsersAfterSelectionType(SelectedElement, Context) Export
 	PickingParameters.Insert("PickFormHeader", PickFormHeader);
 	PickingParameters.Insert("SelectedUsers", SelectedUsers);
 	
-	OpenForm(FullChoiceFormName, PickingParameters, ThisObject,,,, Context.Handler);
+	Handler = New NotifyDescription("SelectUsersCompletion", ThisObject, Context);
+	
+	OpenForm(FullChoiceFormName, PickingParameters, ThisObject,,,, Handler);
+	
+EndProcedure
+
+Procedure SelectUsersCompletion(Result, Context) Export
+	
+	If Result = Undefined Then
+		Return;
+	EndIf;
+	
+	If Context.OtherTypes.Types().Count() > 0 Then
+		List = New ValueList;
+		List.LoadValues(Result);
+		List.FillChecks(True);
+		
+		For Each ListItem In Context.MarkedValues Do
+			If Context.OtherTypes.ContainsType(TypeOf(ListItem.Value)) Then
+				FillPropertyValues(List.Add(), ListItem);
+			EndIf;
+		EndDo;
+		ExecuteNotifyProcessing(Context.ChoiceHandler, List);
+	Else
+		ExecuteNotifyProcessing(Context.ChoiceHandler, Result);
+	EndIf;
 	
 EndProcedure
 

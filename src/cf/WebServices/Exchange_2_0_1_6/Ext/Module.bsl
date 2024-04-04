@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Private
@@ -12,7 +13,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Web service operation handlers.
 
-// Matches the Upload web service operation.
+// An analog of the "Upload" operation.
 Function ExecuteExport(ExchangePlanName, InfobaseNodeCode, ExchangeMessageStorage)
 	
 	CheckInfobaseLockForUpdate();
@@ -31,7 +32,7 @@ Function ExecuteExport(ExchangePlanName, InfobaseNodeCode, ExchangeMessageStorag
 	
 EndFunction
 
-// Matches the Download web service operation.
+// An analog of the "Download" operation.
 Function ExecuteImport(ExchangePlanName, InfobaseNodeCode, ExchangeMessageStorage)
 	
 	CheckInfobaseLockForUpdate();
@@ -46,7 +47,7 @@ Function ExecuteImport(ExchangePlanName, InfobaseNodeCode, ExchangeMessageStorag
 	
 EndFunction
 
-// Matches the UploadData web service operation.
+// An analog of the "UploadData" operation.
 Function RunDataExport(ExchangePlanName,
 								InfobaseNodeCode,
 								FileIDAsString,
@@ -66,7 +67,7 @@ Function RunDataExport(ExchangePlanName,
 	
 EndFunction
 
-// Matches the DownloadData web service operation.
+// An analog of the "DownloadData" operation.
 Function RunDataImport(ExchangePlanName,
 								InfobaseNodeCode,
 								FileIDAsString,
@@ -85,7 +86,7 @@ Function RunDataImport(ExchangePlanName,
 	
 EndFunction
 
-// Matches the GetIBParameters web service operation.
+// An analog of the "GetIBParameters" operation.
 Function GetInfobaseParameters(ExchangePlanName, NodeCode, ErrorMessage)
 	
 	Result = DataExchangeServer.InfoBaseAdmParams(ExchangePlanName, NodeCode, ErrorMessage);
@@ -93,14 +94,14 @@ Function GetInfobaseParameters(ExchangePlanName, NodeCode, ErrorMessage)
 	
 EndFunction
 
-// Matches the GetIBData web service operation.
+// An analog of the "GetIBData" operation.
 Function GetInfobaseData(FullTableName)
 	
 	Return XDTOSerializer.WriteXDTO(DataExchangeServer.CorrespondentData(FullTableName));
 	
 EndFunction
 
-// Matches the GetCommonNodsData web service operation.
+// An analog of the "GetCommonNodsData" operation.
 Function GetCommonNodesData(ExchangePlanName)
 	
 	SetPrivilegedMode(True);
@@ -109,7 +110,7 @@ Function GetCommonNodesData(ExchangePlanName)
 	
 EndFunction
 
-// Matches the CreateExchange web service operation.
+// An analog of the "CreateExchange" operation.
 Function CreateDataExchange(ExchangePlanName, ParametersString1, FiltersSettingsXDTO, DefaultValuesXDTO)
 	
 	DataExchangeServer.CheckDataExchangeUsage();
@@ -160,7 +161,7 @@ Function CreateDataExchange(ExchangePlanName, ParametersString1, FiltersSettings
 	
 EndFunction
 
-// Matches the UpdateExchange web service operation.
+// An analog of the "UpdateExchange" operation.
 Function UpdateDataExchangeSettings(ExchangePlanName, NodeCode, DefaultValuesXDTO)
 	
 	DataExchangeServer.ExternalConnectionUpdateDataExchangeSettings(ExchangePlanName, NodeCode, XDTOSerializer.ReadXDTO(DefaultValuesXDTO));
@@ -169,7 +170,7 @@ Function UpdateDataExchangeSettings(ExchangePlanName, NodeCode, DefaultValuesXDT
 	
 EndFunction
 
-// Matches the RegisterOnlyCatalogData web service operation.
+// An analog of the "RegisterOnlyCatalogData" operation.
 Function RecordOnlyCatalogChanges(ExchangePlanName, NodeCode, TimeConsumingOperation, OperationID)
 	
 	RegisterDataForInitialExport(ExchangePlanName, NodeCode, TimeConsumingOperation, OperationID, True);
@@ -178,7 +179,7 @@ Function RecordOnlyCatalogChanges(ExchangePlanName, NodeCode, TimeConsumingOpera
 	
 EndFunction
 
-// Matches the RegisterAllDataExceptCatalogs web service operation.
+// An analog of the "RegisterAllDataExceptCatalogs" operation.
 Function RecordAllDataChangesButCatalogChanges(ExchangePlanName, NodeCode, TimeConsumingOperation, OperationID)
 	
 	RegisterDataForInitialExport(ExchangePlanName, NodeCode, TimeConsumingOperation, OperationID, False);
@@ -187,7 +188,7 @@ Function RecordAllDataChangesButCatalogChanges(ExchangePlanName, NodeCode, TimeC
 	
 EndFunction
 
-// Matches the GetContinuousOperationStatus web service operation.
+// An analog of the "GetContinuousOperationStatus" operation.
 Function GetTimeConsumingOperationState(OperationID, ErrorMessageString)
 	
 	BackgroundJobStates = New Map;
@@ -216,14 +217,14 @@ Function GetTimeConsumingOperationState(OperationID, ErrorMessageString)
 	Return BackgroundJobStates.Get(BackgroundJob.State);
 EndFunction
 
-// Matches the GetFunctionalOption web service operation.
+// An analog of the "GetFunctionalOption" operation.
 Function GetFunctionalOptionValue(Name)
 	
 	Return GetFunctionalOption(Name);
 	
 EndFunction
 
-// Matches the PrepareGetFile web service operation.
+// An analog of the "PrepareGetFile" operation.
 Function PrepareGetFile(FileId, BlockSize, TransferId, PartQuantity)
 	
 	SetPrivilegedMode(True);
@@ -255,7 +256,7 @@ Function PrepareGetFile(FileId, BlockSize, TransferId, PartQuantity)
 	
 EndFunction
 
-// Matches the GetFilePart web service operation.
+// An analog of the "GetFilePart" operation.
 Function GetFilePart(TransferId, PartNumber, PartData)
 	
 	FilesNames = FindPartFile(TemporaryExportDirectory(TransferId), PartNumber);
@@ -281,7 +282,7 @@ Function GetFilePart(TransferId, PartNumber, PartData)
 	
 EndFunction
 
-// Matches the ReleaseFile web service operation.
+// An analog of the "ReleaseFile" operation.
 Function ReleaseFile(TransferId)
 	
 	Try
@@ -295,7 +296,7 @@ Function ReleaseFile(TransferId)
 	
 EndFunction
 
-// Matches the PutFilePart web service operation.
+// An analog of the "PutFilePart" operation.
 //
 // Parameters:
 //   TransferId - UUID - data transfer session UUID.
@@ -320,7 +321,7 @@ Function PutFilePart(TransferId, PartNumber, PartData)
 	
 EndFunction
 
-// Matches the SaveFileFromParts web service operation.
+// An analog of the "SaveFileFromParts" operation.
 Function SaveFileFromParts(TransferId, PartQuantity, FileId)
 	
 	SetPrivilegedMode(True);
@@ -382,7 +383,7 @@ Function SaveFileFromParts(TransferId, PartQuantity, FileId)
 	
 EndFunction
 
-// Matches the PutFileIntoStorage web service operation.
+// An analog of the "PutFileIntoStorage" operation.
 Function PutFileIntoStorage(FileName, FileId)
 	
 	SetPrivilegedMode(True);
@@ -393,7 +394,7 @@ Function PutFileIntoStorage(FileName, FileId)
 	
 EndFunction
 
-// Matches the GetFileFromStorage web service operation.
+// An analog of the "GetFileFromStorage" operation.
 Function GetFileFromStorage(FileId)
 	
 	SetPrivilegedMode(True);
@@ -417,7 +418,7 @@ Function GetFileFromStorage(FileId)
 	Return File.Name;
 EndFunction
 
-// Matches the FileExists web service operation.
+// An analog of the "FileExists" operation.
 Function FileExists(FileName)
 	
 	SetPrivilegedMode(True);
@@ -429,13 +430,13 @@ Function FileExists(FileName)
 	Return File.Exists();
 EndFunction
 
-// Matches the Ping web service operation.
+// An analog of the "Ping" operation.
 Function Ping()
 	// Test connection.
 	Return "";
 EndFunction
 
-// Matches the TestConnection web service operation.
+// An analog of the "TestConnection" operation.
 Function TestConnection(ExchangePlanName, NodeCode, Result)
 	
 	// Checking whether a user has rights to perform the data exchange.

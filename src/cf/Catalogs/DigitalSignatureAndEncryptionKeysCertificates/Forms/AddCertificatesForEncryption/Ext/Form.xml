@@ -7,6 +7,12 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.AddCertificatesToCatalog</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Add certificates to catalog</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="CertificatesAddCertificatesToCatalogExtendedTooltip" id="78"/>
 			</Button>
 		</ChildItems>
@@ -20,7 +26,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Horizontal group</v8:content>
+					<v8:content>Horizontal</v8:content>
 				</v8:item>
 			</Title>
 			<Group>AlwaysHorizontal</Group>
@@ -31,7 +37,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Group certificates</v8:content>
+							<v8:content>Certificates</v8:content>
 						</v8:item>
 					</Title>
 					<Group>Vertical</Group>
@@ -41,6 +47,12 @@
 						<Table name="Certificates" id="1">
 							<Representation>List</Representation>
 							<DataPath>Certificates</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Certificates</v8:content>
+								</v8:item>
+							</Title>
 							<CommandSet>
 								<ExcludedCommand>Add</ExcludedCommand>
 								<ExcludedCommand>Change</ExcludedCommand>
@@ -82,6 +94,12 @@
 							<ChildItems>
 								<InputField name="CertificatesPresentation" id="93">
 									<DataPath>Certificates.Presentation</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Certificate</v8:content>
+										</v8:item>
+									</Title>
 									<ContextMenu name="CertificatesPresentationContextMenu" id="94"/>
 									<ExtendedTooltip name="CertificatesPresentationExtendedTooltip" id="95"/>
 									<Events>
@@ -90,6 +108,12 @@
 								</InputField>
 								<InputField name="CertificatesIndividual" id="17">
 									<DataPath>Certificates.Individual</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Individual</v8:content>
+										</v8:item>
+									</Title>
 									<DropListButton>false</DropListButton>
 									<ChoiceButton>true</ChoiceButton>
 									<ChoiceButtonRepresentation>ShowInInputField</ChoiceButtonRepresentation>
@@ -108,6 +132,12 @@
 						</Table>
 						<InputField name="Organization" id="56">
 							<DataPath>Organization</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Company</v8:content>
+								</v8:item>
+							</Title>
 							<ToolTipRepresentation>Button</ToolTipRepresentation>
 							<ContextMenu name="OrganizationContextMenu" id="57"/>
 							<ExtendedTooltip name="OrganizationExtendedTooltip" id="58">
@@ -147,7 +177,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Group Certificate properties</v8:content>
+									<v8:content>Certificate properties</v8:content>
 								</v8:item>
 							</Title>
 							<Group>Vertical</Group>
@@ -213,6 +243,12 @@
 										<InputField name="CertificateDataDetails1Property" id="41">
 											<DataPath>DetailsOfCertificateData.Property</DataPath>
 											<SkipOnInput>true</SkipOnInput>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Property</v8:content>
+												</v8:item>
+											</Title>
 											<EditMode>EnterOnInput</EditMode>
 											<Width>13</Width>
 											<HorizontalStretch>false</HorizontalStretch>
@@ -222,6 +258,12 @@
 										<InputField name="CertificateDataDetails1Value" id="44">
 											<DataPath>DetailsOfCertificateData.Value</DataPath>
 											<SkipOnInput>true</SkipOnInput>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Value</v8:content>
+												</v8:item>
+											</Title>
 											<EditMode>EnterOnInput</EditMode>
 											<ContextMenu name="CertificateDataDetails1ValueContextMenu" id="45"/>
 											<ExtendedTooltip name="CertificateDataDetails1ValueExtendedTooltip" id="46"/>
@@ -233,6 +275,12 @@
 									<Representation>PictureAndText</Representation>
 									<SkipOnInput>true</SkipOnInput>
 									<CommandName>Form.Command.ShowCertificateData</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>All certificate properties</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="ShowCertificateDataExtendedTooltip" id="48"/>
 								</Button>
 							</ChildItems>
@@ -265,6 +313,12 @@
 					<Visible>false</Visible>
 					<ReadOnly>true</ReadOnly>
 					<DataPath>FilesAreNotCertificates</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Files are not digital signature certificates</v8:content>
+						</v8:item>
+					</Title>
 					<RowFilter xsi:nil="true"/>
 					<ContextMenu name="FilesAreNotCertificatesContextMenu" id="63"/>
 					<AutoCommandBar name="FilesAreNotCertificatesCommandBar" id="62">
@@ -298,6 +352,12 @@
 					<ChildItems>
 						<InputField name="NotCertificatesPathToFile" id="74">
 							<DataPath>FilesAreNotCertificates.PathToFile</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>File path</v8:content>
+								</v8:item>
+							</Title>
 							<ContextMenu name="NotCertificatesPathToFileContextMenu" id="75"/>
 							<ExtendedTooltip name="NotCertificatesPathToFileExtendedTooltip" id="76"/>
 						</InputField>
@@ -526,6 +586,11 @@
 	<Parameters>
 		<Parameter name="PlacedFiles">
 			<Type/>
+		</Parameter>
+		<Parameter name="Organization">
+			<Type>
+				<v8:TypeSet>cfg:CatalogRef</v8:TypeSet>
+			</Type>
 		</Parameter>
 	</Parameters>
 </Form>

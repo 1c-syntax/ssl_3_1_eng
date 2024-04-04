@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -55,8 +56,9 @@ Procedure AdditionalDetailProcessing(ReportForm, Item, Details, StandardProcessi
 	
 EndProcedure
 
-// 
-//  See ReportsOverridable.OnCreateAtServer
+// A handler of commands that were dynamically added and attached to the "Attachable_Command" handler.
+// An example of adding a command See ReportsOverridable.OnCreateAtServer
+// ().
 //
 // Parameters:
 //   ReportForm - ClientApplicationForm
@@ -99,8 +101,8 @@ Procedure AtStartValueSelection(ReportForm, SelectionConditions, ClosingNotifica
 	
 EndProcedure
 
-// 
-// 
+// A handler of subordinate form selection.
+// See "ClientApplicationForm.ChoiceProcessing" in Syntax Assistant.
 //
 // Parameters:
 //   ReportForm - ClientApplicationForm
@@ -131,8 +133,8 @@ Procedure SpreadsheetDocumentSelectionHandler(ReportForm, Item, Area, StandardPr
 	
 EndProcedure
 
-// 
-// 
+// A handler of report form broadcast notification.
+// See "ClientApplicationForm.NotificationProcessing" in Syntax Assistant.
 //
 // Parameters:
 //   ReportForm - ClientApplicationForm

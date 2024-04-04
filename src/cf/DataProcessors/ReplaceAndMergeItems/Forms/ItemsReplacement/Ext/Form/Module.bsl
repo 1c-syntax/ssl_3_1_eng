@@ -1,18 +1,23 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
-// This is a parameterizable form.
+// 
+//  
 //
-// Parameters:
-//     RefSet - Array, ValueList - Set of items to be analyzed.
-//                                            Can be a list of items that have a "Ref" field.
-//
+
+#Region Variables
+
+&AtClient
+Var ReportsToSend; // Array of ErrorReport 
+
+#EndRegion
 
 #Region FormEventHandlers
 
@@ -111,6 +116,7 @@ EndProcedure
 &AtClient
 Procedure OnOpen(Cancel)
 	OnActivateWizardStep();
+	ReportsToSend = New Map;
 EndProcedure
 
 &AtClient
@@ -137,10 +143,26 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	
 EndProcedure
 
-#EndRegion
+&AtClient
+Procedure OnClose(Exit)
+	
+	For Each UnsuccessfulReplacement In UnsuccessfulReplacements.GetItems() Do
+		For Each DetailsOfReplacement In UnsuccessfulReplacement.GetItems() Do
+			If DetailsOfReplacement.ErrorInfo = Undefined Then
+				Continue;
+			EndIf;
+			ReportToSend = ReportsToSend[DetailsOfReplacement.ErrorInfo];
+			If ReportToSend = Undefined Then
+				ReportToSend = New ErrorReport(DetailsOfReplacement.ErrorInfo);
+			EndIf;
+			StandardSubsystemsClient.SendErrorReport(ReportToSend,
+				DetailsOfReplacement.ErrorInfo);
+		EndDo
+	EndDo
+	
+EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// ITEMS
+#EndRegion
 
 #Region FormHeaderItemsEventHandlers
 
@@ -168,9 +190,6 @@ EndProcedure
 
 #EndRegion
 
-////////////////////////////////////////////////////////////////////////////////
-// TABLE List
-
 #Region FormTableItemsEventHandlersList
 
 &AtClient
@@ -188,25 +207,32 @@ EndProcedure
 
 #EndRegion
 
-////////////////////////////////////////////////////////////////////////////////
-// TABLE UnsuccessfulReplacements
-
 #Region FormTableItemsEventHandlersUnsuccessfulReplacements
 
 &AtClient
 Procedure UnsuccessfulReplacementsOnActivateRow(Item)
+	
 	CurrentData = Item.CurrentData;
 	If CurrentData = Undefined Then
-		FailureReasonDetails = "";
-	Else
-		FailureReasonDetails = CurrentData.DetailedReason;
+		FailureReasonDetails = "";	
+		Items.DecorationSendErrorReport.Visible = False;
+		Return;
 	EndIf;
+		
+	FailureReasonDetails = CurrentData.DetailedReason;
+	If CurrentData.ErrorInfo = Undefined Then
+		Items.DecorationSendErrorReport.Visible = False;
+	Else
+		StandardSubsystemsClient.ConfigureVisibilityAndTitleForURLSendErrorReport(
+			Items.DecorationSendErrorReport, CurrentData.ErrorInfo);
+	EndIf;
+			
 EndProcedure
 
 &AtClient
 Procedure UnsuccessfulReplacementsSelection(Item, RowSelected, Field, StandardProcessing)
+
 	StandardProcessing = False;
-	
 	Ref = UnsuccessfulReplacements.FindByID(RowSelected).Ref;
 	If Ref <> Undefined Then
 		ShowValue(, Ref);
@@ -214,10 +240,24 @@ Procedure UnsuccessfulReplacementsSelection(Item, RowSelected, Field, StandardPr
 
 EndProcedure
 
-#EndRegion
+&AtClient
+Procedure DecorationSendErrorReportClick(Item)
 
-////////////////////////////////////////////////////////////////////////////////
-// COMMANDS
+	CurrentData = Items.UnsuccessfulReplacements.CurrentData;
+	If CurrentData = Undefined Then
+		Return;
+	EndIf;
+
+	ReportToSend = ReportsToSend[CurrentData.ErrorInfo];
+	If ReportToSend = Undefined Then
+		ReportToSend = New ErrorReport(CurrentData.ErrorInfo);
+		ReportsToSend[CurrentData.ErrorInfo] = ReportToSend;
+	EndIf;
+	StandardSubsystemsClient.ShowErrorReport(ReportToSend);
+	
+EndProcedure
+
+#EndRegion
 
 #Region FormCommandsEventHandlers
 
@@ -266,13 +306,10 @@ EndProcedure
 
 #EndRegion
 
-////////////////////////////////////////////////////////////////////////////////
-// AUXILIARY PROCEDURES AND FUNCTIONS
-
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 // Initializes wizard structures.
 // 
@@ -280,8 +317,8 @@ EndProcedure
 //   Items - FormItems 
 // 
 // Returns:
-//   Structure - 
-//     :
+//   Structure - Describes wizard settings.
+//     Public wizard settings are:
 //       * Steps - Array - description of wizard steps. Read only.
 //           To add steps, use the AddWizardStep function.
 //       * CurrentStep - See AddWizardStep.
@@ -322,7 +359,7 @@ EndFunction
 //   Page - FormGroup - a page that contains step items.
 //
 // Returns:
-//   Structure - :
+//   Structure - Describes page settings, where:
 //       * PageName - String - a page name.
 //       * NextButton - Structure - description of "Next" button, where:
 //           ** Title - String - a button title. The default value is "Next >".
@@ -433,7 +470,7 @@ Procedure GoToWizardStep1(Val StepOrIndexOrFormGroup)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure OnActivateWizardStep()
@@ -448,7 +485,7 @@ Procedure OnActivateWizardStep()
 		
 		WizardSettings.ShowDialogBeforeClose = True;
 		ReplacementItemResult = ReplacementItem; // Save start parameters.
-		RunBackgroundJob1Client();
+		StartReplacingLinks();
 		
 	ElsIf CurrentPage = Items.RetryReplacementStep Then
 		
@@ -459,12 +496,17 @@ Procedure OnActivateWizardStep()
 		EndDo;
 		
 		ReplacementsCount = RefsToReplace.Count();
-		Items.UnsuccessfulReplacementsResult.Title = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot automatically replace some items to ""%3"".
-			           | %1 out of %2 items were not replaced.';"),
-			Unsuccessful.Count(),
-			ReplacementsCount,
-			ReplacementItem);
+		If ReplacementsCount > 1 Then 
+			Items.UnsuccessfulReplacementsResult.Title = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Cannot automatically replace some items to ""%3"". %1 out of %2 items were not replaced.';"),
+				Unsuccessful.Count(),
+				ReplacementsCount,
+				ReplacementItem);
+		Else
+			Items.UnsuccessfulReplacementsResult.Title = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Cannot automatically replace some items to ""%1"". Some items were not replaced.';"),
+				ReplacementItem);
+		EndIf;
 		
 		// Generating a list of successful replacements and clearing a list of items to replace.
 		UpdatedItemsList = New Array;
@@ -528,7 +570,7 @@ Procedure WizardStepCancel()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure StepReplacementItemSelectionOnClickNextButton()
@@ -593,7 +635,7 @@ Procedure AppliedAreaReplacementAvailabilityCheck()
 	If Not IsBlankString(ErrorText) Then
 		DialogSettings = New Structure;
 		DialogSettings.Insert("PromptDontAskAgain", False);
-		DialogSettings.Insert("Picture", PictureLib.Warning32);
+		DialogSettings.Insert("Picture", PictureLib.DialogExclamation);
 		DialogSettings.Insert("DefaultButton", 0);
 		DialogSettings.Insert("Title", NStr("en = 'Cannot replace items';"));
 		
@@ -862,10 +904,12 @@ Procedure InitializeReferencesToReplace(Val ReferencesArrray)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
-Procedure RunBackgroundJob1Client()
+Procedure StartReplacingLinks()
+	
+	ReportsToSend = New Map;
 	
 	MethodParameters = New Structure("ReplacementPairs, DeletionMethod");
 	MethodParameters.ReplacementPairs = New Map;
@@ -874,18 +918,18 @@ Procedure RunBackgroundJob1Client()
 	EndDo;
 	MethodParameters.Insert("DeletionMethod", CurrentDeletionOption);
 	
-	Job = RunBackgroundJob1(MethodParameters, UUID);
+	Job = ReplaceReferences(MethodParameters, UUID);
 	
 	WaitSettings = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	WaitSettings.OutputIdleWindow = False;
 	
-	Handler = New NotifyDescription("AfterCompleteBackgroundJob1", ThisObject);
+	Handler = New NotifyDescription("AfterCompletionReplacingLinks", ThisObject);
 	TimeConsumingOperationsClient.WaitCompletion(Job, Handler, WaitSettings);
 	
 EndProcedure
 
 &AtServerNoContext
-Function RunBackgroundJob1(Val MethodParameters, Val UUID)
+Function ReplaceReferences(Val MethodParameters, Val UUID)
 	
 	MethodName = "DuplicateObjectsDetection.ReplaceReferences";
 	MethodDescription = NStr("en = 'Duplicate cleaner: Replace references';");
@@ -898,7 +942,7 @@ Function RunBackgroundJob1(Val MethodParameters, Val UUID)
 EndFunction
 
 &AtClient
-Procedure AfterCompleteBackgroundJob1(Job, AdditionalParameters) Export
+Procedure AfterCompletionReplacingLinks(Job, AdditionalParameters) Export
 	
 	WizardSettings.ShowDialogBeforeClose = False;
 	If Job = Undefined 
@@ -907,7 +951,7 @@ Procedure AfterCompleteBackgroundJob1(Job, AdditionalParameters) Export
 	EndIf;
 	
 	If Job.Status <> "Completed2" Then
-		// Background job is completed with error.
+		// 
 		Brief1 = NStr("en = 'Items were not replaced due to:';") + Chars.LF + Job.BriefErrorDescription;
 		More = Brief1 + Chars.LF + Chars.LF + Job.DetailErrorDescription;
 		Items.ErrorTextLabel.Title = Brief1;
@@ -919,11 +963,11 @@ Procedure AfterCompleteBackgroundJob1(Job, AdditionalParameters) Export
 	
 	HasUnsuccessfulReplacements = FillUnsuccessfulReplacements(Job.ResultAddress);
 	If HasUnsuccessfulReplacements Then
-		// Partially successful - display details.
+		// 
 		GoToWizardStep1(Items.RetryReplacementStep);
 		Activate();
 	Else
-		// Completely successful - display notification and close the form.
+		// 
 		Count = RefsToReplace.Count();
 		If Count = 1 Then
 			ResultingText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -936,11 +980,8 @@ Procedure AfterCompleteBackgroundJob1(Job, AdditionalParameters) Export
 				Count,
 				ReplacementItemResult);
 		EndIf;
-		ShowUserNotification(
-			,
-			GetURL(ReplacementItem),
-			ResultingText,
-			PictureLib.Information32);
+		ShowUserNotification(, GetURL(ReplacementItem),
+			ResultingText, PictureLib.DialogInformation);
 		UpdatedItemsList = New Array;
 		For Each String In RefsToReplace Do
 			UpdatedItemsList.Add(String.Ref);
@@ -982,16 +1023,18 @@ Function FillUnsuccessfulReplacements(Val ResultAddress)
 		
 		ErrorType = ResultString1.ErrorType;
 		If ErrorType = "UnknownData" Then
-			ErrorString.Cause = NStr("en = 'Data not supposed to be processed is provided.';");
+			ErrorString.Cause = NStr("en = 'Found instances whose replacement wasn''t intended.';");
 			
 		ElsIf ErrorType = "LockError" Then
-			ErrorString.Cause = NStr("en = 'Cannot lock data.';");
+			ErrorString.Cause = NStr("en = 'Another user updated some data. Retry replacement.';");
 			
 		ElsIf ErrorType = "DataChanged1" Then
-			ErrorString.Cause = NStr("en = 'Data was modified by another user.';");
+			ErrorString.Cause = NStr("en = 'Another user updated some data.';");
 			
 		ElsIf ErrorType = "WritingError" Then
-			ErrorString.Cause = ResultString1.ErrorText;
+			ErrorString.Cause = ?(ResultString1.ErrorInfo <> Undefined,
+				ErrorProcessing.ErrorMessageForUser(ResultString1.ErrorInfo),
+				ResultString1.ErrorText);
 			
 		ElsIf ErrorType = "DeletionError" Then
 			ErrorString.Cause = NStr("en = 'Cannot delete data.';");
@@ -1001,7 +1044,10 @@ Function FillUnsuccessfulReplacements(Val ResultAddress)
 			
 		EndIf;
 		
-		ErrorString.DetailedReason = ResultString1.ErrorText;
+		ErrorString.ErrorInfo = ResultString1.ErrorInfo;
+		ErrorString.DetailedReason = ?(ResultString1.ErrorInfo <> Undefined,
+			ErrorProcessing.ErrorMessageForUser(ResultString1.ErrorInfo),
+			ResultString1.ErrorText);
 	EndDo;
 	
 	Return RootRows.Count() > 0;
@@ -1017,12 +1063,12 @@ Procedure AfterConfirmCancelJob(Response, ExecutionParameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 // Description of wizard button settings.
 //
 // Returns:
-//  Structure - :
+//  Structure - Form's button settings, where:
 //    * Title         - String - a button title.
 //    * ToolTip         - String - button tooltip.
 //    * Visible         - Boolean - if True, the button is visible. The default value is True.

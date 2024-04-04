@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -36,9 +37,9 @@ Function ExecuteFileTransfer(FilesToTransfer, Parameters) Export
 	TransferErrors = New Array;
 	
 	If Parameters.Action = "MoveBetweenVolumes" Then
-		ActionForLog = NStr("en = 'between the volumes on the hard drive.';");
+		ActionForLog = NStr("en = 'between volumes on a server.';");
 	ElsIf Parameters.Action = "MoveToVolumes" Then
-		ActionForLog = NStr("en = 'to the volumes on the hard drive.';")
+		ActionForLog = NStr("en = 'to volume on a server.';")
 	Else
 		ActionForLog = NStr("en = 'to the infobase.';")
 	EndIf;
@@ -184,7 +185,7 @@ Procedure MoveToVolumes(FileObject1, VolumeProperties, Parameters)
 		FileObject1.UniversalModificationDate, , ?(Parameters.MoveToVolume, Parameters.DestinationStorageVolume, Undefined));
 		
 	If FileObject1.FileStorageType <> Enums.FileStorageTypes.InInfobase Then
-		FilesOperationsInternal.DeleteRecordFromBinaryFilesDataRegister(FileObject1.Ref);	
+		InformationRegisters.FileRepository.DeleteBinaryData(FileObject1.Ref);	
 	EndIf;
 	
 	FileObject1.Write();

@@ -9,6 +9,12 @@
 	<ChildItems>
 		<InputField name="ReportVariant" id="3">
 			<DataPath>ReportVariant</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Report option</v8:content>
+				</v8:item>
+			</Title>
 			<Width>25</Width>
 			<HorizontalStretch>false</HorizontalStretch>
 			<DropListButton>true</DropListButton>
@@ -34,7 +40,7 @@
 						<Presentation>
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>With grouping by responses</v8:content>
+								<v8:content>Group by answers</v8:content>
 							</v8:item>
 						</Presentation>
 						<Value xsi:type="xs:string">Replies</Value>
@@ -42,18 +48,24 @@
 				</xr:Item>
 			</ChoiceList>
 			<ContextMenu name="ReportOptionContextMenu" id="4"/>
-			<ExtendedTooltip name="ReportOptionExtendedTooltip" id="5"/>
+			<ExtendedTooltip name="ReportVariantExtendedTooltip" id="5"/>
 			<Events>
 				<Event name="OnChange">ReportOptionOnChange</Event>
 			</Events>
 		</InputField>
 		<SpreadSheetDocumentField name="ReportTable" id="1">
 			<DataPath>ReportTable</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Report table</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>None</TitleLocation>
 			<VerticalScrollBar>true</VerticalScrollBar>
 			<HorizontalScrollBar>true</HorizontalScrollBar>
 			<ContextMenu name="ReportTable1ContextMenu" id="2"/>
-			<ExtendedTooltip name="ReportTable1ExtendedTooltip" id="6"/>
+			<ExtendedTooltip name="ReportTableExtendedTooltip" id="6"/>
 		</SpreadSheetDocumentField>
 	</ChildItems>
 	<Attributes>
@@ -129,4 +141,51 @@
 			</Type>
 		</Attribute>
 	</Attributes>
+	<Parameters>
+		<Parameter name="QuestionnaireTemplateQuestion">
+			<Type>
+				<v8:Type>cfg:CatalogRef.QuestionnaireTemplateQuestions</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="Survey">
+			<Type>
+				<v8:Type>cfg:DocumentRef.PollPurpose</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="FullCode">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Parameter>
+		<Parameter name="SurveyDescription">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Parameter>
+		<Parameter name="SurveyDate">
+			<Type>
+				<v8:Type>xs:dateTime</v8:Type>
+				<v8:DateQualifiers>
+					<v8:DateFractions>Date</v8:DateFractions>
+				</v8:DateQualifiers>
+			</Type>
+		</Parameter>
+		<Parameter name="ReportVariant">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Parameter>
+	</Parameters>
 </Form>

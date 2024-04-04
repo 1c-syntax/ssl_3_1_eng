@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -13,6 +14,13 @@
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	SetConditionalAppearance();
+	
+	// StandardSubsystems.AttachableCommands
+	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
+		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
+	EndIf;
+	// End StandardSubsystems.AttachableCommands
 	
 	If Not IsBlankString(Parameters.FormCaption) Then
 		Title = Parameters.FormCaption;
@@ -23,7 +31,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	BusinessProcessLine = Parameters.BusinessProcess;
 	TaskLine = Parameters.Task;
 	
-	If Parameters.Property("ShowTasks") Then
+	If Parameters.ShowTasks >=0 And Parameters.ShowTasks < 3 Then
 		ShowTasks = Parameters.ShowTasks;
 	Else
 		ShowTasks = 2;
@@ -49,6 +57,18 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.ByPerformer.Visible = False;
 	EndIf;
 	
+EndProcedure
+
+&AtClient
+Procedure OnOpen(Cancel)
+
+	// StandardSubsystems.AttachableCommands
+	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
+		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
+	EndIf;
+	// End StandardSubsystems.AttachableCommands
+
 EndProcedure
 
 &AtClient
@@ -130,6 +150,14 @@ EndProcedure
 
 &AtClient
 Procedure ListOnActivateRow(Item)
+
+	// StandardSubsystems.AttachableCommands
+	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
+		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
+	EndIf;
+	// End StandardSubsystems.AttachableCommands
+
 	AcceptedForExecution = False;
 	If Item.CurrentData <> Undefined Then
 		Item.CurrentData.Property("AcceptedForExecution", AcceptedForExecution) 
@@ -190,6 +218,33 @@ Procedure OpenTaskSubject(Command)
 	ShowValue(, Items.List.CurrentData.SubjectOf);
 EndProcedure
 
+// Standard subsystems.Pluggable commands
+
+&AtClient
+Procedure Attachable_ExecuteCommand(Command)
+	ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
+	ModuleAttachableCommandsClient.StartCommandExecution(ThisObject, Command, Items.List);
+EndProcedure
+
+&AtClient
+Procedure Attachable_ContinueCommandExecutionAtServer(ExecutionParameters, AdditionalParameters) Export
+	ExecuteCommandAtServer(ExecutionParameters);
+EndProcedure
+
+&AtServer
+Procedure ExecuteCommandAtServer(ExecutionParameters)
+	ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
+	ModuleAttachableCommands.ExecuteCommand(ThisObject, ExecutionParameters, Items.List);
+EndProcedure
+
+&AtClient
+Procedure Attachable_UpdateCommands()
+	ModuleAttachableCommandsClientServer = CommonClient.CommonModule("AttachableCommandsClientServer");
+	ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, Items.List);
+EndProcedure
+
+// End StandardSubsystems.AttachableCommands
+
 #EndRegion
 
 #Region Private
@@ -241,8 +296,8 @@ EndProcedure
 Procedure RefreshTasksListOnServer()
 	
 	BusinessProcessesAndTasksServer.SetTaskAppearance(List);
-	
-	
+	// 
+	// 
 	SetConditionalAppearance();
 	Items.List.Refresh();
 	
@@ -251,9 +306,15 @@ EndProcedure
 &AtClient
 Procedure SetAcceptForExecutionAvailability(FlagValue1)
 	
-	Items.AcceptForExecution.Enabled                      = FlagValue1;
-	Items.ListContextMenuAcceptForExecution.Enabled = FlagValue1;
-	Items.ListContextMenuCancelAcceptForExecution.Enabled = Not FlagValue1;
+	If TypeOf(FlagValue1) = Type("Boolean") Then
+		Items.AcceptForExecution.Enabled                               = FlagValue1;
+		Items.ListContextMenuAcceptForExecution.Enabled          = FlagValue1;
+		Items.ListContextMenuCancelAcceptForExecution.Enabled = Not FlagValue1;
+	Else
+		Items.AcceptForExecution.Enabled                               = False;
+		Items.ListContextMenuAcceptForExecution.Enabled          = False;
+		Items.ListContextMenuCancelAcceptForExecution.Enabled = False;
+	EndIf;
 
 EndProcedure
 

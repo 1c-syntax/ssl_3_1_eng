@@ -45,6 +45,7 @@
 				<v8:Type>cfg:ConstantValueManager.AllowScheduledJobsExecutionSaaS</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.DataToChangeMultilanguageAttributes</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.WindowsTemporaryFilesDerectory</v8:Type>
+				<v8:Type>cfg:ConstantValueManager.RegistrationSettingsForDataAccessEvents</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.UseSecurityProfilesForARDP</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.StoreFilesInVolumesOnHardDrive</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.DataExchangeMessageFromMasterNode</v8:Type>

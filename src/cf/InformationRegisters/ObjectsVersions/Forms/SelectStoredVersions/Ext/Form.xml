@@ -81,25 +81,49 @@
 							<DefaultButton>true</DefaultButton>
 							<SkipOnInput>false</SkipOnInput>
 							<CommandName>Form.Command.OpenObjectVersion</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Open version</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="OpenVersionExtendedTooltip" id="39"/>
 						</Button>
 						<Button name="Compare" id="9">
 							<Type>CommandBarButton</Type>
 							<SkipOnInput>false</SkipOnInput>
 							<CommandName>Form.Command.GenerateReportOnChanges</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Compare</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="CompareExtendedTooltip" id="40"/>
 						</Button>
 						<Button name="RestoreVersion" id="34">
 							<Type>CommandBarButton</Type>
 							<Representation>PictureAndText</Representation>
 							<CommandName>Form.Command.RestoreVersion</CommandName>
-							<ExtendedTooltip name="GoToVersionExtendedTooltip" id="41"/>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Set as active version</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="RestoreVersionExtendedTooltip" id="41"/>
 						</Button>
 					</ChildItems>
 				</ButtonGroup>
 				<Button name="FormRefresh" id="117">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.Refresh</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Refresh</v8:content>
+						</v8:item>
+					</Title>
 					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 					<ExtendedTooltip name="FormRefreshExtendedTooltip" id="118"/>
 				</Button>
@@ -127,7 +151,7 @@
 				</v8:item>
 			</Title>
 			<PagesRepresentation>None</PagesRepresentation>
-			<ExtendedTooltip name="MainPage1ExtendedTooltip" id="44"/>
+			<ExtendedTooltip name="BasicPageExtendedTooltip" id="44"/>
 			<ChildItems>
 				<Page name="SelectVersionsToCompare" id="22">
 					<Title>
@@ -175,16 +199,34 @@
 									<Button name="VersionsTreeContextMenuOpenVersion" id="108">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.OpenObjectVersion</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Open version</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="VersionsTreeContextMenuOpenVersionExtendedTooltip" id="109"/>
 									</Button>
 									<Button name="VersionsTreeContextMenuCompareVersions" id="112">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.GenerateReportOnChanges</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Compare</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="VersionsTreeContextMenuCompareVersionsExtendedTooltip" id="113"/>
 									</Button>
 									<Button name="VersionsTreeContextMenuGoToVersion" id="110">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.RestoreVersion</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Set as active version</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="VersionsTreeContextMenuGoToVersionExtendedTooltip" id="111"/>
 									</Button>
 								</ChildItems>
@@ -226,6 +268,12 @@
 								<InputField name="VersionsTreeVersionNumberPresentation" id="105">
 									<DataPath>VersionsTree.VersionNumberPresentation</DataPath>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>#</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<Width>5</Width>
 									<HorizontalStretch>false</HorizontalStretch>
@@ -235,6 +283,12 @@
 								<InputField name="VersionsTreeVersionAuthor" id="90">
 									<DataPath>VersionsTree.VersionAuthor</DataPath>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Author</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ContextMenu name="VersionsTreeVersionAuthorContextMenu" id="91"/>
 									<ExtendedTooltip name="VersionsTreeVersionAuthorExtendedTooltip" id="92"/>
@@ -242,6 +296,12 @@
 								<InputField name="VersionsTreeVersionDate" id="93">
 									<DataPath>VersionsTree.VersionDate</DataPath>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Date</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ContextMenu name="VersionsTreeVersionDateContextMenu" id="94"/>
 									<ExtendedTooltip name="VersionsTreeVersionDateExtendedTooltip" id="95"/>
@@ -262,6 +322,12 @@
 								</InputField>
 								<InputField name="VersionsTreeComment" id="96">
 									<DataPath>VersionsTree.Comment</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Comment</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>Directly</EditMode>
 									<ContextMenu name="VersionsTreeCommentContextMenu" id="97"/>
 									<ExtendedTooltip name="VersionsTreeCommentExtendedTooltip" id="98"/>
@@ -292,8 +358,8 @@
 								</v8:item>
 							</Title>
 							<Picture>
-								<xr:Ref>CommonPicture.Information32</xr:Ref>
-								<xr:LoadTransparent>false</xr:LoadTransparent>
+								<xr:Ref>StdPicture.DialogInformation</xr:Ref>
+								<xr:LoadTransparent>true</xr:LoadTransparent>
 							</Picture>
 							<FileDragMode>AsFile</FileDragMode>
 							<ContextMenu name="PictureContextMenu" id="38"/>
@@ -529,7 +595,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Go to version</v8:content>
+					<v8:content>Set as active version</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>

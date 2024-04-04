@@ -24,7 +24,7 @@
 						<v8:content>Finish</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="OKButtonExtendedTooltip" id="22"/>
+				<ExtendedTooltip name="ConfirmButtonExtendedTooltip" id="22"/>
 			</Button>
 			<Button name="Close" id="12">
 				<Type>CommandBarButton</Type>
@@ -42,6 +42,12 @@
 	<ChildItems>
 		<InputField name="ElementaryQuestion" id="3">
 			<DataPath>ElementaryQuestion</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>General question</v8:content>
+				</v8:item>
+			</Title>
 			<Width>40</Width>
 			<AutoMaxWidth>false</AutoMaxWidth>
 			<HorizontalStretch>false</HorizontalStretch>
@@ -67,6 +73,12 @@
 			<ChildItems>
 				<InputField name="Wording" id="1">
 					<DataPath>Wording</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Text</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<Width>40</Width>
 					<AutoMaxWidth>false</AutoMaxWidth>
@@ -82,7 +94,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Group Required</v8:content>
+					<v8:content>Required</v8:content>
 				</v8:item>
 			</Title>
 			<Group>Vertical</Group>
@@ -183,6 +195,12 @@
 			<ChildItems>
 				<InputField name="ToolTip" id="32">
 					<DataPath>ToolTip</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Hint</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<VerticalStretch>false</VerticalStretch>
 					<MultiLine>true</MultiLine>
@@ -192,6 +210,12 @@
 				</InputField>
 				<RadioButtonField name="HintPlacement" id="29">
 					<DataPath>HintPlacement</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Hint placement</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<RadioButtonType>Auto</RadioButtonType>
 					<ColumnsCount>1</ColumnsCount>
@@ -242,6 +266,12 @@
 			<ChildItems>
 				<InputField name="Notes" id="24">
 					<DataPath>Notes</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Notes</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<AutoMaxWidth>false</AutoMaxWidth>
 					<VerticalStretch>false</VerticalStretch>

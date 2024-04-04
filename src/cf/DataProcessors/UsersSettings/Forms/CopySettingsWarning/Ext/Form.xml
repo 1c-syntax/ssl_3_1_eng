@@ -29,6 +29,12 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.Copy</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Copy</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="CopyExtendedTooltip" id="18"/>
 			</Button>
 			<Button name="Cancel" id="17">
@@ -85,7 +91,7 @@ It is recommended that you close the windows before copying the settings.
 			<Behavior>Usual</Behavior>
 			<Representation>NormalSeparation</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="ActiveUsersGroupExtendedTooltip" id="21"/>
+			<ExtendedTooltip name="GroupActiveUsersExtendedTooltip" id="21"/>
 			<ChildItems>
 				<LabelDecoration name="Message" id="1">
 					<AutoMaxWidth>false</AutoMaxWidth>
@@ -111,7 +117,7 @@ Otherwise, the settings might not be applied.</v8:content>
 					</Title>
 					<Hyperlink>true</Hyperlink>
 					<ContextMenu name="ActiveUserListContextMenu" id="9"/>
-					<ExtendedTooltip name="ActiveUserListExtendedTooltip" id="22"/>
+					<ExtendedTooltip name="ActiveUsersListExtendedTooltip" id="22"/>
 					<Events>
 						<Event name="Click">ActiveUserListClick</Event>
 					</Events>

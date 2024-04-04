@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -90,7 +91,7 @@ Function SSLEvents() Export
 	Events.Insert("OnSetUpSubordinateDIBNode", False);
 	
 	// IBVersionUpdate
-	Events.Insert("OnAddUpdateHandlers", False); 
+	Events.Insert("OnAddUpdateHandlers", False); // 
 	Events.Insert("AfterUpdateInfobase", False);
 	Events.Insert("OnGetUpdatePriority", False);
 	Events.Insert("OnPopulateObjectsPlannedForDeletion", False);
@@ -98,7 +99,7 @@ Function SSLEvents() Export
 	// Print
 	Events.Insert("OnDefinePrintSettings", False);
 	Events.Insert("OnPrepareTemplateListInOfficeDocumentServerFormat", False);
-	Events.Insert("OnDefineObjectsWithPrintCommands", False); // екПечати. 
+	Events.Insert("OnDefineObjectsWithPrintCommands", False); 
 	Events.Insert("BeforeAddPrintCommands", False);
 	Events.Insert("OnGetPrintCommandListSettings", False);
 	Events.Insert("OnPrint", False);
@@ -127,6 +128,7 @@ Function SSLEvents() Export
 	Events.Insert("OnSaveOtherSetings", False);
 	Events.Insert("OnDeleteOtherSettings", False);
 	Events.Insert("OnEndIBUserProcessing", False);
+	Events.Insert("OnDefineRegistrationSettingsForDataAccessEvents", False);
 	
 	//SecurityProfiles
 	Events.Insert("OnCheckCanSetupSecurityProfiles", False);
@@ -141,7 +143,7 @@ Function SSLEvents() Export
 	Events.Insert("BeforeGetEmailMessagesStatuses", False); 
 	Events.Insert("AfterGetEmailMessagesStatuses", False);	
 	
-	// StoredFiles
+	// FilesOperations
 	Events.Insert("OnDefineFileSynchronizationExceptionObjects", False);
 	
 	// ScheduledJobs
@@ -178,8 +180,8 @@ EndFunction
 
 #Region CTLEventHandlers
 
-
-
+// 
+// 
 
 // Defines events, to which this library is subscribed.
 //
@@ -205,22 +207,22 @@ Procedure OnDefineEventsSubscriptionsCTL(Subscriptions) Export
 	Subscriptions.AfterImportInfobaseUser = True;
 	Subscriptions.AfterImportInfobaseUsers = True;
 	
-	// SaaS_CoreSaaS
+	// SaaSOperations_CoreSaaS
 	Subscriptions.OnFillIIBParametersTable = True;
 	Subscriptions.OnDefineSharedDataExceptions = True;
 	Subscriptions.OnDefineUserAlias = True;
 
-	// SaaS_MessageExchange
+	// SaaSOperations_MessageExchange
 	Subscriptions.OnDefineMessagesChannelsHandlers  = True;
 	Subscriptions.RecordingIncomingMessageInterfaces  = True;
 	Subscriptions.RecordingOutgoingMessageInterfaces = True;
 	
-	// SaaS_JobsQueue
+	// SaaSOperations_JobsQueue
 	Subscriptions.OnGetTemplateList = True;
 	Subscriptions.OnDefineHandlerAliases = True;
 	Subscriptions.OnDefineScheduledJobsUsage = True;
 	
-	// SaaS_SuppliedData
+	// SaaSOperations_SuppliedData
 	Subscriptions.OnDefineSuppliedDataHandlers = True;
 
 EndProcedure
@@ -548,7 +550,7 @@ Procedure OnFillIIBParametersTable(Val ParametersTable) Export
 	
 EndProcedure
 
-// Overrides shared data exceptions for the SaaSTechnology subsystem 
+// Overrides shared data exceptions for the CloudTechnology subsystem. 
 // 
 // Parameters:
 //  Exceptions - Array of MetadataObject - Exceptions.
@@ -562,7 +564,7 @@ Procedure OnDefineSharedDataExceptions(Exceptions) Export
 
 EndProcedure
 
-// Allows to override the result of the SaaS.InfobaseUserAlias function.
+// Supports overriding the result of the SaaSOperations.AliasOfUserOfInformationBase function.
 //
 // Parameters:
 //   UserIdentificator - UUID - user ID.
@@ -624,13 +626,18 @@ Procedure OnGetTemplateList(JobTemplates) Export
 		ModuleBusinessProcessesAndTasksServer.OnGetTemplateList(JobTemplates);
 	EndIf;
 
+	If Common.SubsystemExists("StandardSubsystems.ObjectsVersioning") Then
+		ModuleObjectsVersioning = Common.CommonModule("ObjectsVersioning");
+		ModuleObjectsVersioning.OnGetTemplateList(JobTemplates);
+	EndIf;
+	
 	If Common.SubsystemExists("StandardSubsystems.Interactions") Then
 		ModuleInteractions = Common.CommonModule("Interactions");
 		ModuleInteractions.OnGetTemplateList(JobTemplates);
 		ModuleEmailManager = Common.CommonModule("EmailManagement");
 		ModuleEmailManager.OnGetTemplateList(JobTemplates);
 	EndIf;
-
+	
 	If Common.SubsystemExists("StandardSubsystems.PersonalDataProtection") Then
 		ModulePersonalDataProtection = Common.CommonModule("PersonalDataProtection");
 		ModulePersonalDataProtection.OnGetTemplateList(JobTemplates);
@@ -684,6 +691,7 @@ Procedure OnGetTemplateList(JobTemplates) Export
 		ModuleMachineReadableLettersOfAuthorityFTSInternal = Common.CommonModule("MachineReadableLettersOfAuthorityFTSInternal");
 		ModuleMachineReadableLettersOfAuthorityFTSInternal.OnGetTemplateList(JobTemplates);
 	EndIf;
+
 	
 EndProcedure
 
@@ -695,11 +703,6 @@ Procedure OnDefineHandlerAliases(NamesAndAliasesMap) Export
 	If Common.SubsystemExists("StandardSubsystems.BusinessProcessesAndTasks") Then
 		ModuleBusinessProcessesAndTasksServer = Common.CommonModule("BusinessProcessesAndTasksServer");
 		ModuleBusinessProcessesAndTasksServer.OnDefineHandlerAliases(NamesAndAliasesMap);
-	EndIf;
-
-	If Common.SubsystemExists("StandardSubsystems.ObjectsVersioning") Then
-		ModuleObjectsVersioning = Common.CommonModule("ObjectsVersioning");
-		ModuleObjectsVersioning.OnDefineHandlerAliases(NamesAndAliasesMap);
 	EndIf;
 
 	If Common.SubsystemExists("StandardSubsystems.DataExchange") Then
@@ -827,8 +830,8 @@ EndProcedure
 #EndRegion
 
 #Region OSLEventHandlers
-
-
+// 
+// 
 
 // Defines events, to which this library is subscribed.
 //
@@ -1192,7 +1195,7 @@ EndProcedure
 //
 // Parameters:
 //  ReplacementPairs		 - See Common.ReplaceReferences.ReplacementPairs
-//   See Common.RefsReplacementParameters
+//  ReplacementParameters - See Common.RefsReplacementParameters
 //
 Procedure BeforeSearchForUsageInstances(ReplacementPairs, ExecutionParameters) Export
 
@@ -1208,9 +1211,9 @@ Procedure OnAddMetadataObjectsRenaming(Total) Export
 
 	StandardSubsystemsServer.OnAddMetadataObjectsRenaming(Total);
 
-	If Common.SubsystemExists("StandardSubsystems.EventLogAnalysis") Then
-		ModuleEventLogAnalysisInternal = Common.CommonModule("EventLogAnalysisInternal");
-		ModuleEventLogAnalysisInternal.OnAddMetadataObjectsRenaming(Total);
+	If Common.SubsystemExists("StandardSubsystems.UserMonitoring") Then
+		UserExperienceMonitoringModuleInternal = Common.CommonModule("UserMonitoringInternal");
+		UserExperienceMonitoringModuleInternal.OnAddMetadataObjectsRenaming(Total);
 	EndIf;
 
 	If Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
@@ -1281,9 +1284,10 @@ Procedure OnAddMetadataObjectsRenaming(Total) Export
 
 EndProcedure
 
-// See InformationRegister.ExtensionVersionParameters.ЗаполнитьВсеПараметрыРаботыРасширений.
 Procedure OnFillAllExtensionParameters() Export
 
+	UsersInternal.OnFillAllExtensionParameters();
+	
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagementInternal = Common.CommonModule("AccessManagementInternal");
 		ModuleAccessManagementInternal.OnFillAllExtensionParameters();
@@ -1294,6 +1298,11 @@ Procedure OnFillAllExtensionParameters() Export
 		ModuleAttachableCommands.OnFillAllExtensionParameters();
 	EndIf;
 
+	If Common.SubsystemExists("StandardSubsystems.BusinessProcessesAndTasks") Then
+		ModuleBusinessProcessesAndTasksServer = Common.CommonModule("BusinessProcessesAndTasksServer");
+		ModuleBusinessProcessesAndTasksServer.OnFillAllExtensionParameters();
+	EndIf;
+	
 	If Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
 		ModuleReportsOptions = Common.CommonModule("ReportsOptions");
 		ModuleReportsOptions.OnFillAllExtensionParameters();
@@ -1311,7 +1320,6 @@ Procedure OnFillAllExtensionParameters() Export
 
 EndProcedure
 
-// See InformationRegister.ExtensionVersionParameters.ОчиститьВсеПараметрыРаботыРасширений.
 Procedure OnClearAllExtemsionParameters() Export
 
 	If Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
@@ -1348,8 +1356,8 @@ Procedure OnSendDataToMaster(DataElement, ItemSend, Recipient) Export
 		"StandardSubsystems.SaaSOperations.AddInsSaaS") Then
 		ModuleAddInsSaaSInternal = Common.CommonModule(
 			"AddInsSaaSInternal");
-		ModuleAddInsSaaSInternal.OnSendDataToMaster(DataElement, ItemSend,
-			Recipient);
+		ModuleAddInsSaaSInternal.OnSendDataToMaster(DataElement,
+			ItemSend, Recipient);
 	EndIf;
 
 	If Common.SubsystemExists("StandardSubsystems.SaaSOperations.DataExchangeSaaS") Then
@@ -1392,57 +1400,58 @@ Procedure OnSendDataToSlave(DataElement, ItemSend, InitialImageCreating, Recipie
 
 	If Common.SubsystemExists("StandardSubsystems.ObjectsVersioning") Then
 		ModuleObjectsVersioning = Common.CommonModule("ObjectsVersioning");
-		ModuleObjectsVersioning.OnSendDataToSlave(DataElement, ItemSend,
-			InitialImageCreating, Recipient);
+		ModuleObjectsVersioning.OnSendDataToSlave(DataElement,
+			ItemSend, InitialImageCreating, Recipient);
 	EndIf;
 
 	If Common.SubsystemExists("StandardSubsystems.AddIns") Then
 		ModuleAddInsInternal = Common.CommonModule("AddInsInternal");
-		ModuleAddInsInternal.OnSendDataToSlave(DataElement, ItemSend,
-			InitialImageCreating, Recipient);
+		ModuleAddInsInternal.OnSendDataToSlave(DataElement,
+			ItemSend, InitialImageCreating, Recipient);
 	EndIf;
 
 	If Common.SubsystemExists(
 		"StandardSubsystems.SaaSOperations.AddInsSaaS") Then
 		ModuleAddInsSaaSInternal = Common.CommonModule(
 			"AddInsSaaSInternal");
-		ModuleAddInsSaaSInternal.OnSendDataToSlave(DataElement, ItemSend,
-			InitialImageCreating, Recipient);
+		ModuleAddInsSaaSInternal.OnSendDataToSlave(DataElement,
+			ItemSend, InitialImageCreating, Recipient);
 	EndIf;
 
 	If Common.SubsystemExists("StandardSubsystems.PeriodClosingDates") Then
 		ModulePeriodClosingDatesInternal = Common.CommonModule("PeriodClosingDatesInternal");
-		ModulePeriodClosingDatesInternal.OnSendDataToSlave(DataElement, ItemSend,
-			InitialImageCreating, Recipient);
+		ModulePeriodClosingDatesInternal.OnSendDataToSlave(DataElement,
+			ItemSend, InitialImageCreating, Recipient);
 	EndIf;
 
-	InfobaseUpdateInternal.OnSendDataToSlave(DataElement, ItemSend,
-		InitialImageCreating, Recipient);
-	UsersInternal.OnSendDataToSlave(DataElement, ItemSend, InitialImageCreating,
-		Recipient);
+	InfobaseUpdateInternal.OnSendDataToSlave(DataElement,
+			ItemSend, InitialImageCreating, Recipient);
+
+	UsersInternal.OnSendDataToSlave(DataElement,
+			ItemSend, InitialImageCreating, Recipient);
 
 	If Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperationsInternal = Common.CommonModule("FilesOperationsInternal");
-		ModuleFilesOperationsInternal.OnSendDataToSlave(DataElement, ItemSend,
-			InitialImageCreating, Recipient);
+		ModuleFilesOperationsInternal.OnSendDataToSlave(DataElement,
+			ItemSend, InitialImageCreating, Recipient);
 	EndIf;
 
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagementInternal = Common.CommonModule("AccessManagementInternal");
-		ModuleAccessManagementInternal.OnSendDataToSlave(DataElement, ItemSend,
-			InitialImageCreating, Recipient);
+		ModuleAccessManagementInternal.OnSendDataToSlave(DataElement,
+			ItemSend, InitialImageCreating, Recipient);
 	EndIf;
 
 	If SSLSubsystemsIntegrationCached.SubscriptionsCTL().OnSendDataToSlave Then
 		ModuleCTLSubsystemsIntegration = Common.CommonModule("CTLSubsystemsIntegration");
-		ModuleCTLSubsystemsIntegration.OnSendDataToSlave(DataElement, ItemSend,
-			InitialImageCreating, Recipient);
+		ModuleCTLSubsystemsIntegration.OnSendDataToSlave(DataElement,
+			ItemSend, InitialImageCreating, Recipient);
 	EndIf;
 
 	If SSLSubsystemsIntegrationCached.SubscriptionsOSL().OnSendDataToSlave Then
 		ModuleOSLSubsystemsIntegration = Common.CommonModule("OSLSubsystemsIntegration");
-		ModuleOSLSubsystemsIntegration.OnSendDataToSlave(DataElement, ItemSend,
-			InitialImageCreating, Recipient);
+		ModuleOSLSubsystemsIntegration.OnSendDataToSlave(DataElement,
+			ItemSend, InitialImageCreating, Recipient);
 	EndIf;
 
 EndProcedure
@@ -1450,75 +1459,82 @@ EndProcedure
 // See StandardSubsystemsServer.OnReceiveDataFromMaster.
 Procedure OnReceiveDataFromMaster(DataElement, ItemReceive, SendBack, Sender) Export
 
+	If Common.SubsystemExists("StandardSubsystems.BusinessProcessesAndTasks") Then
+		ModuleBusinessProcessesAndTasksServer = Common.CommonModule("BusinessProcessesAndTasksServer");
+		ModuleBusinessProcessesAndTasksServer.OnReceiveDataFromMaster(DataElement,
+			ItemReceive, SendBack, Sender);
+	EndIf;
+	
 	If Common.SubsystemExists("StandardSubsystems.ObjectsVersioning") Then
 		ModuleObjectsVersioning = Common.CommonModule("ObjectsVersioning");
-		ModuleObjectsVersioning.OnReceiveDataFromMaster(DataElement, ItemReceive, SendBack,
-			Sender);
+		ModuleObjectsVersioning.OnReceiveDataFromMaster(DataElement,
+			ItemReceive, SendBack, Sender);
 	EndIf;
 
 	If Common.SubsystemExists("StandardSubsystems.AddIns") Then
 		ModuleAddInsInternal = Common.CommonModule("AddInsInternal");
-		ModuleAddInsInternal.OnReceiveDataFromMaster(DataElement, ItemReceive, SendBack,
-			Sender);
+		ModuleAddInsInternal.OnReceiveDataFromMaster(DataElement,
+			ItemReceive, SendBack, Sender);
 	EndIf;
 
 	If Common.SubsystemExists(
 		"StandardSubsystems.SaaSOperations.AddInsSaaS") Then
 		ModuleAddInsSaaSInternal = Common.CommonModule(
 			"AddInsSaaSInternal");
-		ModuleAddInsSaaSInternal.OnReceiveDataFromMaster(DataElement, ItemReceive,
-			SendBack, Sender);
+		ModuleAddInsSaaSInternal.OnReceiveDataFromMaster(DataElement,
+			ItemReceive, SendBack, Sender);
 	EndIf;
 
 	If Common.SubsystemExists("StandardSubsystems.PeriodClosingDates") Then
 		ModulePeriodClosingDatesInternal = Common.CommonModule("PeriodClosingDatesInternal");
-		ModulePeriodClosingDatesInternal.OnReceiveDataFromMaster(DataElement, ItemReceive,
-			SendBack, Sender);
+		ModulePeriodClosingDatesInternal.OnReceiveDataFromMaster(DataElement,
+			ItemReceive, SendBack, Sender);
 	EndIf;
 
 	If Common.SubsystemExists("StandardSubsystems.AdditionalReportsAndDataProcessors") Then
 		ModuleAdditionalReportsAndDataProcessors = Common.CommonModule("AdditionalReportsAndDataProcessors");
-		ModuleAdditionalReportsAndDataProcessors.OnReceiveDataFromMaster(DataElement, ItemReceive,
-			SendBack, Sender);
+		ModuleAdditionalReportsAndDataProcessors.OnReceiveDataFromMaster(DataElement,
+			ItemReceive, SendBack, Sender);
 	EndIf;
 
 	If Common.SubsystemExists("StandardSubsystems.PersonalDataProtection") Then
 		ModulePersonalDataProtection = Common.CommonModule("PersonalDataProtection");
-		ModulePersonalDataProtection.OnReceiveDataFromMaster(DataElement, ItemReceive, SendBack,
-			Sender);
+		ModulePersonalDataProtection.OnReceiveDataFromMaster(DataElement,
+			ItemReceive, SendBack, Sender);
 	EndIf;
 
-	UsersInternal.OnReceiveDataFromMaster(DataElement, ItemReceive, SendBack, Sender);
+	UsersInternal.OnReceiveDataFromMaster(DataElement,
+		ItemReceive, SendBack, Sender);
 
 	If Common.SubsystemExists("StandardSubsystems.EmailOperations") Then
 		ModuleEmailOperationsInternal = Common.CommonModule(
 			"EmailOperationsInternal");
-		ModuleEmailOperationsInternal.OnReceiveDataFromMaster(DataElement, ItemReceive,
-			SendBack, Sender);
+		ModuleEmailOperationsInternal.OnReceiveDataFromMaster(DataElement,
+			ItemReceive, SendBack, Sender);
 	EndIf;
 
 	If Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperationsInternal = Common.CommonModule("FilesOperationsInternal");
-		ModuleFilesOperationsInternal.OnReceiveDataFromMaster(DataElement, ItemReceive, SendBack,
-			Sender);
+		ModuleFilesOperationsInternal.OnReceiveDataFromMaster(DataElement,
+			ItemReceive, SendBack, Sender);
 	EndIf;
 
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagementInternal = Common.CommonModule("AccessManagementInternal");
-		ModuleAccessManagementInternal.OnReceiveDataFromMaster(DataElement, ItemReceive, SendBack,
-			Sender);
+		ModuleAccessManagementInternal.OnReceiveDataFromMaster(DataElement,
+			ItemReceive, SendBack, Sender);
 	EndIf;
 
 	If SSLSubsystemsIntegrationCached.SubscriptionsCTL().OnReceiveDataFromMaster Then
 		ModuleCTLSubsystemsIntegration = Common.CommonModule("CTLSubsystemsIntegration");
-		ModuleCTLSubsystemsIntegration.OnReceiveDataFromMaster(DataElement, ItemReceive, SendBack,
-			Sender);
+		ModuleCTLSubsystemsIntegration.OnReceiveDataFromMaster(DataElement,
+			ItemReceive, SendBack, Sender);
 	EndIf;
 
 	If SSLSubsystemsIntegrationCached.SubscriptionsOSL().OnReceiveDataFromMaster Then
 		ModuleOSLSubsystemsIntegration = Common.CommonModule("OSLSubsystemsIntegration");
-		ModuleOSLSubsystemsIntegration.OnReceiveDataFromMaster(DataElement, ItemReceive, SendBack,
-			Sender);
+		ModuleOSLSubsystemsIntegration.OnReceiveDataFromMaster(DataElement,
+			ItemReceive, SendBack, Sender);
 	EndIf;
 
 EndProcedure
@@ -1526,16 +1542,22 @@ EndProcedure
 // See StandardSubsystemsServer.OnReceiveDataFromSlave.
 Procedure OnReceiveDataFromSlave(DataElement, ItemReceive, SendBack, Sender) Export
 
+	If Common.SubsystemExists("StandardSubsystems.BusinessProcessesAndTasks") Then
+		ModuleBusinessProcessesAndTasksServer = Common.CommonModule("BusinessProcessesAndTasksServer");
+		ModuleBusinessProcessesAndTasksServer.OnReceiveDataFromMaster(DataElement,
+			ItemReceive, SendBack, Sender);
+	EndIf;
+
 	If Common.SubsystemExists("StandardSubsystems.ObjectsVersioning") Then
 		ModuleObjectsVersioning = Common.CommonModule("ObjectsVersioning");
-		ModuleObjectsVersioning.OnReceiveDataFromSlave(DataElement, ItemReceive, SendBack,
-			Sender);
+		ModuleObjectsVersioning.OnReceiveDataFromSlave(DataElement,
+			ItemReceive, SendBack, Sender);
 	EndIf;
 
 	If Common.SubsystemExists("StandardSubsystems.AddIns") Then
 		ModuleAddInsInternal = Common.CommonModule("AddInsInternal");
-		ModuleAddInsInternal.OnReceiveDataFromSlave(DataElement, ItemReceive,
-			SendBack, Sender);
+		ModuleAddInsInternal.OnReceiveDataFromSlave(DataElement,
+			ItemReceive, SendBack, Sender);
 	EndIf;
 
 	If Common.SubsystemExists(
@@ -1548,65 +1570,70 @@ Procedure OnReceiveDataFromSlave(DataElement, ItemReceive, SendBack, Sender) Exp
 
 	If Common.SubsystemExists("StandardSubsystems.SaaSOperations.DataExchangeSaaS") Then
 		ModuleDataExchangeSaaS = Common.CommonModule("DataExchangeSaaS");
-		ModuleDataExchangeSaaS.OnReceiveDataFromSlave(DataElement, ItemReceive,
-			SendBack, Sender);
+		ModuleDataExchangeSaaS.OnReceiveDataFromSlave(DataElement,
+			ItemReceive, SendBack, Sender);
 	EndIf;
 
 	If Common.SubsystemExists("StandardSubsystems.PeriodClosingDates") Then
 		ModulePeriodClosingDatesInternal = Common.CommonModule("PeriodClosingDatesInternal");
-		ModulePeriodClosingDatesInternal.OnReceiveDataFromSlave(DataElement, ItemReceive,
-			SendBack, Sender);
+		ModulePeriodClosingDatesInternal.OnReceiveDataFromSlave(DataElement,
+			ItemReceive, SendBack, Sender);
 	EndIf;
 
 	If Common.SubsystemExists("StandardSubsystems.AdditionalReportsAndDataProcessors") Then
 		ModuleAdditionalReportsAndDataProcessors = Common.CommonModule("AdditionalReportsAndDataProcessors");
-		ModuleAdditionalReportsAndDataProcessors.OnReceiveDataFromSlave(DataElement, ItemReceive,
-			SendBack, Sender);
+		ModuleAdditionalReportsAndDataProcessors.OnReceiveDataFromSlave(DataElement,
+			ItemReceive, SendBack, Sender);
 	EndIf;
 
 	If Common.SubsystemExists("StandardSubsystems.PersonalDataProtection") Then
 		ModulePersonalDataProtection = Common.CommonModule("PersonalDataProtection");
-		ModulePersonalDataProtection.OnReceiveDataFromSlave(DataElement, ItemReceive,
-			SendBack, Sender);
+		ModulePersonalDataProtection.OnReceiveDataFromSlave(DataElement,
+			ItemReceive, SendBack, Sender);
 	EndIf;
 
 	UsersInternal.OnReceiveDataFromSlave(DataElement, ItemReceive, SendBack, Sender);
 
 	If Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperationsInternal = Common.CommonModule("FilesOperationsInternal");
-		ModuleFilesOperationsInternal.OnReceiveDataFromSlave(DataElement, ItemReceive, SendBack,
-			Sender);
+		ModuleFilesOperationsInternal.OnReceiveDataFromSlave(DataElement,
+			ItemReceive, SendBack, Sender);
 	EndIf;
 
 	If Common.SubsystemExists("StandardSubsystems.EmailOperations") Then
 		ModuleEmailOperationsInternal = Common.CommonModule(
 			"EmailOperationsInternal");
-		ModuleEmailOperationsInternal.OnReceiveDataFromSlave(DataElement, ItemReceive,
-			SendBack, Sender);
+		ModuleEmailOperationsInternal.OnReceiveDataFromSlave(DataElement,
+			ItemReceive, SendBack, Sender);
 	EndIf;
 
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagementInternal = Common.CommonModule("AccessManagementInternal");
-		ModuleAccessManagementInternal.OnReceiveDataFromSlave(DataElement, ItemReceive,
-			SendBack, Sender);
+		ModuleAccessManagementInternal.OnReceiveDataFromSlave(DataElement,
+			ItemReceive, SendBack, Sender);
 	EndIf;
 
 	If SSLSubsystemsIntegrationCached.SubscriptionsCTL().OnReceiveDataFromSlave Then
 		ModuleCTLSubsystemsIntegration = Common.CommonModule("CTLSubsystemsIntegration");
-		ModuleCTLSubsystemsIntegration.OnReceiveDataFromSlave(DataElement, ItemReceive, SendBack,
-			Sender);
+		ModuleCTLSubsystemsIntegration.OnReceiveDataFromSlave(DataElement,
+			ItemReceive, SendBack, Sender);
 	EndIf;
 
 	If SSLSubsystemsIntegrationCached.SubscriptionsOSL().OnReceiveDataFromSlave Then
 		ModuleOSLSubsystemsIntegration = Common.CommonModule("OSLSubsystemsIntegration");
-		ModuleOSLSubsystemsIntegration.OnReceiveDataFromSlave(DataElement, ItemReceive, SendBack,
-			Sender);
+		ModuleOSLSubsystemsIntegration.OnReceiveDataFromSlave(DataElement,
+			ItemReceive, SendBack, Sender);
 	EndIf;
 
 EndProcedure
 
 // See StandardSubsystemsServer.AfterGetData.
 Procedure AfterGetData(Sender, Cancel, GetFromMasterNode) Export
+
+	If Common.SubsystemExists("StandardSubsystems.BusinessProcessesAndTasks") Then
+		ModuleBusinessProcessesAndTasksServer = Common.CommonModule("BusinessProcessesAndTasksServer");
+		ModuleBusinessProcessesAndTasksServer.AfterGetData(Sender, Cancel, GetFromMasterNode);
+	EndIf;
 
 	UsersInternal.AfterGetData(Sender, Cancel, GetFromMasterNode);
 
@@ -1863,8 +1890,18 @@ Procedure OnAddClientParameters(Parameters) Export
 		TheDSSCryptographyServiceModuleInternal.OnAddClientParameters(Parameters);
 	EndIf;
 	
+	If Common.SubsystemExists("StandardSubsystems.UserReminders") Then
+		ModuleUserReminderInternal = Common.CommonModule("UserRemindersInternal");
+		ModuleUserReminderInternal.OnAddClientParameters(Parameters);
+	EndIf;
+	
 	If Common.SubsystemExists("IntegrationWith1CDocumentManagementSubsystem") Then
 		Parameters.Insert("DMILVersion", InfobaseUpdate.IBVersion("DocumentManagementIntegrationLibrary"));
+	EndIf;
+	
+	If Common.SubsystemExists("ElectronicInteraction") Then
+		Parameters.Insert("HasModuleEDLSubsystemsIntegrationClient", 
+			Metadata.CommonModules.Find("EDLSubsystemsIntegrationClient") <> Undefined);
 	EndIf;
 	
 EndProcedure
@@ -2068,9 +2105,9 @@ EndProcedure
 // See ReportsOptionsOverridable.CustomizeReportsOptions.
 Procedure OnSetUpReportsOptions(Settings) Export
 
-	If Common.SubsystemExists("StandardSubsystems.EventLogAnalysis") Then
-		ModuleEventLogAnalysisInternal = Common.CommonModule("EventLogAnalysisInternal");
-		ModuleEventLogAnalysisInternal.OnSetUpReportsOptions(Settings);
+	If Common.SubsystemExists("StandardSubsystems.UserMonitoring") Then
+		UserExperienceMonitoringModuleInternal = Common.CommonModule("UserMonitoringInternal");
+		UserExperienceMonitoringModuleInternal.OnSetUpReportsOptions(Settings);
 	EndIf;
 
 	If Common.SubsystemExists("StandardSubsystems.Surveys") Then
@@ -2220,6 +2257,14 @@ Procedure BeforeAddReportCommands(ReportsCommands, Parameters, StandardProcessin
 			StandardProcessing);
 	EndIf;
 
+	If Common.SubsystemExists("StandardSubsystems.UserMonitoring") Then
+		UserExperienceMonitoringModuleInternal = Common.CommonModule("UserMonitoringInternal");
+		UserExperienceMonitoringModuleInternal.BeforeAddReportCommands(ReportsCommands, Parameters,
+			StandardProcessing);
+	EndIf;
+
+	UsersInternal.BeforeAddReportCommands(ReportsCommands, Parameters, StandardProcessing);
+
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagementInternal = Common.CommonModule("AccessManagementInternal");
 		ModuleAccessManagementInternal.BeforeAddReportCommands(ReportsCommands, Parameters,
@@ -2288,9 +2333,9 @@ EndProcedure
 #Region AddIns
 
 // Parameters:
-//  Components - ValueTable - :
-//      * Id          - String - 
-//      * AutoUpdate - Boolean - 
+//  Components - ValueTable - List of add-ins used in the configuration:
+//      * Id          - String - Add-in ID (a 50-character-long string).
+//      * AutoUpdate - Boolean - Autoupdate flag.
 //
 Procedure OnDefineUsedAddIns(Components) Export
 	
@@ -2299,9 +2344,19 @@ Procedure OnDefineUsedAddIns(Components) Export
 		ModulePELSubsystemsIntegration.OnDefineUsedAddIns(Components);
 	EndIf;
 	
+	If SSLSubsystemsIntegrationCached.EDLSubscriptions().OnDefineUsedAddIns Then
+		ModuleEDLSubsystemsIntegration = Common.CommonModule("EDLSubsystemsIntegration");
+		ModuleEDLSubsystemsIntegration.OnDefineUsedAddIns(Components);
+	EndIf;
+	
 	If Common.SubsystemExists("StandardSubsystems.DigitalSignature") Then
 		ModuleDigitalSignatureInternal = Common.CommonModule("DigitalSignatureInternal");
 		ModuleDigitalSignatureInternal.OnDefineUsedAddIns(Components);
+	EndIf;
+	
+	If Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
+		ModuleFilesOperationsInternal = Common.CommonModule("FilesOperationsInternal");
+		ModuleFilesOperationsInternal.OnDefineUsedAddIns(Components);
 	EndIf;
 
 EndProcedure
@@ -2738,11 +2793,11 @@ EndProcedure
 //   Object - CatalogObject.AdditionalReportsAndDataProcessors - an object of an additional report or a data processor.
 //   Command - CatalogTabularSectionRow.AdditionalReportsAndDataProcessors.Commands - a command details.
 //   Job - ScheduledJob
-//           - ValueTableRow - 
-//       
-//   Changes - Structure - 
-//       
-//       
+//           - ValueTableRow - Scheduled job details.
+//       See the ScheduledJobsServer.Job() function for the return value details.
+//   Changes - Structure - Job attribute values to be modified.
+//       See details of the second parameter of the ScheduledJobsServer.ChangeJob procedure.
+//       If the value is Undefined, the scheduled job stays unchanged.
 //
 Procedure BeforeUpdateJob(Object, Command, Job, Changes) Export
 
@@ -3009,11 +3064,11 @@ EndProcedure
 
 #Region ItemOrderSetup
 
-Procedure BeforeMovingItem(ItemToMove, AdjacentElement, Direction, ErrorText, StandardProcessing) Export
+Procedure BeforeItemMoved(ItemToMove, AdjacentElement, Direction, ErrorText, StandardProcessing) Export
 	
 	If Common.SubsystemExists("StandardSubsystems.SourceDocumentsOriginalsRecording") Then
 		ModuleSourceDocumentsOriginalsAccounting = Common.CommonModule("SourceDocumentsOriginalsRecording");
-		ModuleSourceDocumentsOriginalsAccounting.BeforeMovingItem(
+		ModuleSourceDocumentsOriginalsAccounting.BeforeItemMoved(
 			ItemToMove, AdjacentElement, Direction, ErrorText, StandardProcessing);
 	EndIf;
 	
@@ -3092,7 +3147,12 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 		ModuleReportsOptions = Common.CommonModule("ReportsOptions");
 		ModuleReportsOptions.OnAddUpdateHandlers(Handlers);
 	EndIf;
-
+	
+	If Common.SubsystemExists("StandardSubsystems.ObjectsVersioning") Then
+		ModuleObjectsVersioning = Common.CommonModule("ObjectsVersioning");
+		ModuleObjectsVersioning.OnAddUpdateHandlers(Handlers);
+	EndIf;
+	
 	If Common.SubsystemExists("StandardSubsystems.Interactions") Then
 		ModuleInteractions = Common.CommonModule("Interactions");
 		ModuleInteractions.OnAddUpdateHandlers(Handlers);
@@ -3137,11 +3197,6 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	If Common.SubsystemExists("StandardSubsystems.AccountingAudit") Then
 		ModuleAccountingAuditInternal = Common.CommonModule("AccountingAuditInternal");
 		ModuleAccountingAuditInternal.OnAddUpdateHandlers(Handlers);
-	EndIf;
-	
-	If Common.SubsystemExists("StandardSubsystems.MachineReadableLettersOfAuthority") Then
-		ModuleMachineReadableLettersOfAuthorityFTSInternal = Common.CommonModule("MachineReadableLettersOfAuthorityFTSInternal");
-		ModuleMachineReadableLettersOfAuthorityFTSInternal.OnAddUpdateHandlers(Handlers);
 	EndIf;
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
@@ -3272,7 +3327,10 @@ EndProcedure
 // See InfobaseUpdateSSL.AfterUpdateInfobase.
 Procedure AfterUpdateInfobase(Val PreviousVersion, Val CurrentVersion, Val CompletedHandlers,
 	OutputUpdatesDetails, ExclusiveMode) Export
-
+	
+	UsersInternal.AfterUpdateInfobase(PreviousVersion, CurrentVersion,
+		CompletedHandlers, OutputUpdatesDetails, ExclusiveMode);
+	
 	If Common.SubsystemExists("StandardSubsystems.InformationOnStart") Then
 		ModuleInformationOnStart = Common.CommonModule("InformationOnStart");
 		ModuleInformationOnStart.AfterUpdateInfobase(PreviousVersion, CurrentVersion,
@@ -3484,6 +3542,11 @@ Procedure PrintDocumentsOnCreateAtServer(Form, Cancel, StandardProcessing) Expor
 		ModuleOSLSubsystemsIntegration = Common.CommonModule("OSLSubsystemsIntegration");
 		ModuleOSLSubsystemsIntegration.PrintDocumentsOnCreateAtServer(Form, Cancel, StandardProcessing);
 	EndIf;
+	
+	If SSLSubsystemsIntegrationCached.EDLSubscriptions().PrintDocumentsOnCreateAtServer Then
+		ModuleEDLSubsystemsIntegration = Common.CommonModule("EDLSubsystemsIntegration");
+		ModuleEDLSubsystemsIntegration.PrintDocumentsOnCreateAtServer(Form, Cancel, StandardProcessing);
+	EndIf;
 
 EndProcedure
 
@@ -3528,6 +3591,11 @@ Procedure PrintDocumentsOnExecuteCommand(Form, AdditionalParameters) Export
 	If SSLSubsystemsIntegrationCached.SubscriptionsOSL().PrintDocumentsOnExecuteCommand Then
 		ModuleOSLSubsystemsIntegration = Common.CommonModule("OSLSubsystemsIntegration");
 		ModuleOSLSubsystemsIntegration.PrintDocumentsOnExecuteCommand(Form, AdditionalParameters);
+	EndIf;
+	
+	If SSLSubsystemsIntegrationCached.EDLSubscriptions().PrintDocumentsOnExecuteCommand Then
+		ModuleEDLSubsystemsIntegration = Common.CommonModule("EDLSubsystemsIntegration");
+		ModuleEDLSubsystemsIntegration.PrintDocumentsOnExecuteCommand(Form, AdditionalParameters);
 	EndIf;
 
 EndProcedure
@@ -3642,6 +3710,11 @@ Procedure OnDefineAttachableCommandsKinds(AttachableCommandsKinds) Export
 		ModuleOSLSubsystemsIntegration = Common.CommonModule("OSLSubsystemsIntegration");
 		ModuleOSLSubsystemsIntegration.OnDefineAttachableCommandsKinds(AttachableCommandsKinds);
 	EndIf;
+	
+	If SSLSubsystemsIntegrationCached.EDLSubscriptions().OnDefineAttachableCommandsKinds Then
+		ModuleEDLSubsystemsIntegration = Common.CommonModule("EDLSubsystemsIntegration");
+		ModuleEDLSubsystemsIntegration.OnDefineAttachableCommandsKinds(AttachableCommandsKinds);
+	EndIf;
 
 	If Common.SubsystemExists("StandardSubsystems.MarkedObjectsDeletion") Then
 		ModuleMarkedObjectsDeletionInternal = Common.CommonModule("MarkedObjectsDeletionInternal");
@@ -3673,6 +3746,11 @@ Procedure OnDefineAttachableObjectsSettingsComposition(InterfaceSettings4) Expor
 	If Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
 		ModuleReportsOptions = Common.CommonModule("ReportsOptions");
 		ModuleReportsOptions.OnDefineAttachableObjectsSettingsComposition(InterfaceSettings4);
+	EndIf;
+	
+	If Common.SubsystemExists("StandardSubsystems.MessageTemplates") Then
+		ModuleMessageTemplatesInternal = Common.CommonModule("MessageTemplatesInternal");
+		ModuleMessageTemplatesInternal.OnDefineAttachableObjectsSettingsComposition(InterfaceSettings4);
 	EndIf;
 
 	If SSLSubsystemsIntegrationCached.SubscriptionsCTL().OnDefineAttachableObjectsSettingsComposition Then
@@ -3725,7 +3803,25 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 		ModuleBatchObjectsModification.OnDefineCommandsAttachedToObject(FormSettings, Sources,
 			AttachedReportsAndDataProcessors, Commands);
 	EndIf;
-
+		
+	If Common.SubsystemExists("StandardSubsystems.MessageTemplates") Then
+		ModuleMessageTemplatesInternal = Common.CommonModule("MessageTemplatesInternal");
+		ModuleMessageTemplatesInternal.OnDefineCommandsAttachedToObject(FormSettings, Sources,
+			AttachedReportsAndDataProcessors, Commands);
+	EndIf;
+		
+	If Common.SubsystemExists("StandardSubsystems.UserNotes") Then
+		ModuleUserNotesInternal = Common.CommonModule("UserNotesInternal");
+		ModuleUserNotesInternal.OnDefineCommandsAttachedToObject(FormSettings, Sources,
+			AttachedReportsAndDataProcessors, Commands);
+	EndIf;
+		
+	If Common.SubsystemExists("StandardSubsystems.UserReminders") Then
+		ModuleUserReminderInternal = Common.CommonModule("UserRemindersInternal");
+		ModuleUserReminderInternal.OnDefineCommandsAttachedToObject(FormSettings, Sources,
+			AttachedReportsAndDataProcessors, Commands);
+	EndIf;
+		
 	If SSLSubsystemsIntegrationCached.SubscriptionsCTL().OnDefineCommandsAttachedToObject Then
 		ModuleCTLSubsystemsIntegration = Common.CommonModule("CTLSubsystemsIntegration");
 		ModuleCTLSubsystemsIntegration.OnDefineCommandsAttachedToObject(FormSettings, Sources,
@@ -3735,6 +3831,12 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 	If SSLSubsystemsIntegrationCached.SubscriptionsOSL().OnDefineCommandsAttachedToObject Then
 		ModuleOSLSubsystemsIntegration = Common.CommonModule("OSLSubsystemsIntegration");
 		ModuleOSLSubsystemsIntegration.OnDefineCommandsAttachedToObject(FormSettings, Sources,
+			AttachedReportsAndDataProcessors, Commands);
+	EndIf;
+	
+	If SSLSubsystemsIntegrationCached.EDLSubscriptions().OnDefineCommandsAttachedToObject Then
+		ModuleEDLSubsystemsIntegration = Common.CommonModule("EDLSubsystemsIntegration");
+		ModuleEDLSubsystemsIntegration.OnDefineCommandsAttachedToObject(FormSettings, Sources,
 			AttachedReportsAndDataProcessors, Commands);
 	EndIf;
 
@@ -4072,6 +4174,31 @@ Procedure OnDeleteOtherSettings(UserInfo, Settings) Export
 
 EndProcedure
 
+// See UsersOverridable.OnDefineRegistrationSettingsForDataAccessEvents
+Procedure OnDefineRegistrationSettingsForDataAccessEvents(Settings) Export
+	
+	If Common.SubsystemExists("StandardSubsystems.PersonalDataProtection") Then
+		ModulePersonalDataProtection = Common.CommonModule("PersonalDataProtection");
+		ModulePersonalDataProtection.OnDefineRegistrationSettingsForDataAccessEvents(Settings);
+	EndIf;
+	
+	If Common.SubsystemExists("StandardSubsystems.UserMonitoring") Then
+		UserExperienceMonitoringModuleInternal = Common.CommonModule("UserMonitoringInternal");
+		UserExperienceMonitoringModuleInternal.OnDefineRegistrationSettingsForDataAccessEvents(Settings);
+	EndIf;
+	
+	If SSLSubsystemsIntegrationCached.SubscriptionsCTL().OnDefineRegistrationSettingsForDataAccessEvents Then
+		ModuleCTLSubsystemsIntegration = Common.CommonModule("CTLSubsystemsIntegration");
+		ModuleCTLSubsystemsIntegration.OnDefineRegistrationSettingsForDataAccessEvents(Settings);
+	EndIf;
+	
+	If SSLSubsystemsIntegrationCached.SubscriptionsOSL().OnDefineRegistrationSettingsForDataAccessEvents Then
+		ModuleOSLSubsystemsIntegration = Common.CommonModule("OSLSubsystemsIntegration");
+		ModuleOSLSubsystemsIntegration.OnDefineRegistrationSettingsForDataAccessEvents(Settings);
+	EndIf;
+	
+EndProcedure
+
 // See UsersInternalSaaS.OnEndIBUserProcessing
 Procedure OnEndIBUserProcessing(User) Export
 
@@ -4266,11 +4393,6 @@ EndProcedure
 //
 Procedure AfterAddChangeUserOrGroup(Ref, IsNew) Export
 
-	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
-		ModuleAccessManagementInternal = Common.CommonModule("AccessManagementInternal");
-		ModuleAccessManagementInternal.AfterAddChangeUserOrGroup(Ref, IsNew);
-	EndIf;
-
 	If Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperationsInternal = Common.CommonModule("FilesOperationsInternal");
 		ModuleFilesOperationsInternal.AfterAddChangeUserOrGroup(Ref, IsNew);
@@ -4278,16 +4400,17 @@ Procedure AfterAddChangeUserOrGroup(Ref, IsNew) Export
 
 EndProcedure
 
-// Redefines the actions that are required after completing the update of
-// relations in UserGroupCompositions register.
+// 
+// 
 //
 // Parameters:
 //  ItemsToChange - Array of CatalogRef.Users
 //                     - Array of CatalogRef.ExternalUsers -
-//                       
+//                       Users who edited the groups.
 //
 //  ModifiedGroups   - Array of CatalogRef.UserGroups
 //                     - Array of CatalogRef.ExternalUsersGroups -
+//                       
 //                       
 //
 Procedure AfterUserGroupsUpdate(ItemsToChange, ModifiedGroups) Export
@@ -4302,25 +4425,6 @@ Procedure AfterUserGroupsUpdate(ItemsToChange, ModifiedGroups) Export
 		ModulePeriodClosingDatesInternal = Common.CommonModule("PeriodClosingDatesInternal");
 		ModulePeriodClosingDatesInternal.AfterUserGroupsUpdate(ItemsToChange,
 			ModifiedGroups);
-	EndIf;
-
-EndProcedure
-
-// Redefines the actions that are required after changing an external user authorization object.
-// 
-// Parameters:
-//  ExternalUser     - CatalogRef.ExternalUsers - external user.
-//  PreviousAuthorizationObject - Null - used when adding an external user.
-//                          - DefinedType.ExternalUser - the authorization object type.
-//  NewAuthorizationObject  - DefinedType.ExternalUser - the authorization object type.
-//
-Procedure AfterChangeExternalUserAuthorizationObject(ExternalUser, PreviousAuthorizationObject,
-	NewAuthorizationObject) Export
-
-	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
-		ModuleAccessManagementInternal = Common.CommonModule("AccessManagementInternal");
-		ModuleAccessManagementInternal.AfterChangeExternalUserAuthorizationObject(
-			ExternalUser, PreviousAuthorizationObject, NewAuthorizationObject);
 	EndIf;
 
 EndProcedure
@@ -4708,6 +4812,11 @@ Procedure OnDefineScheduledJobSettings(Settings) Export
 		ModuleCurrencyExchangeRates.OnDefineScheduledJobSettings(Settings);
 	EndIf;
 
+	If Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
+		ModuleReportsOptionsInternal = Common.CommonModule("ReportsOptionsInternal");
+		ModuleReportsOptionsInternal.OnDefineScheduledJobSettings(Settings);
+	EndIf;
+
 	If Common.SubsystemExists("StandardSubsystems.ObjectsVersioning") Then
 		ModuleObjectsVersioning = Common.CommonModule("ObjectsVersioning");
 		ModuleObjectsVersioning.OnDefineScheduledJobSettings(Settings);
@@ -4863,6 +4972,11 @@ Procedure OnGetPredefinedPropertiesSets(Sets) Export
 		ModuleAdditionalReportsAndDataProcessors = Common.CommonModule("AdditionalReportsAndDataProcessors");
 		ModuleAdditionalReportsAndDataProcessors.OnGetPredefinedPropertiesSets(Sets);
 	EndIf;
+	
+	If Common.SubsystemExists("StandardSubsystems.ContactInformation") Then
+		ModuleContactsManager = Common.CommonModule("ContactsManager");
+		ModuleContactsManager.OnGetPredefinedPropertiesSets(Sets);
+	EndIf;
 
 	If SSLSubsystemsIntegrationCached.SubscriptionsCTL().OnGetPredefinedPropertiesSets Then
 		ModuleCTLSubsystemsIntegration = Common.CommonModule("CTLSubsystemsIntegration");
@@ -5002,6 +5116,16 @@ EndProcedure
 //
 Procedure OnFillToDoList(ToDoList) Export
 
+	If Common.SubsystemExists("StandardSubsystems.UserMonitoring") Then
+		UserExperienceMonitoringModuleInternal = Common.CommonModule("UserMonitoringInternal");
+		UserExperienceMonitoringModuleInternal.OnFillToDoList(ToDoList);
+	EndIf;
+
+	If Common.SubsystemExists("StandardSubsystems.MarkedObjectsDeletion") Then
+		ModuleMarkedObjectsDeletionInternal = Common.CommonModule("MarkedObjectsDeletionInternal");
+		ModuleMarkedObjectsDeletionInternal.OnFillToDoList(ToDoList);
+	EndIf;
+
 	If SSLSubsystemsIntegrationCached.SubscriptionsCTL().OnFillToDoList Then
 		ModuleCTLSubsystemsIntegration = Common.CommonModule("CTLSubsystemsIntegration");
 		ModuleCTLSubsystemsIntegration.OnFillToDoList(ToDoList);
@@ -5010,11 +5134,6 @@ Procedure OnFillToDoList(ToDoList) Export
 	If SSLSubsystemsIntegrationCached.SubscriptionsOSL().OnFillToDoList Then
 		ModuleOSLSubsystemsIntegration = Common.CommonModule("OSLSubsystemsIntegration");
 		ModuleOSLSubsystemsIntegration.OnFillToDoList(ToDoList);
-	EndIf;
-
-	If (Common.SubsystemExists("StandardSubsystems.MarkedObjectsDeletion")) Then
-		ModuleMarkedObjectsDeletionInternal = Common.CommonModule("MarkedObjectsDeletionInternal");
-		ModuleMarkedObjectsDeletionInternal.OnFillToDoList(ToDoList);
 	EndIf;
 
 EndProcedure
@@ -5390,10 +5509,10 @@ EndProcedure
 //
 //  ParameterValue       - Undefined - If ParameterContent = Undefined,
 //                          - CatalogRef.TaskPerformersGroups - 
-//                              
+//                              If ParameterContent = "PerformersGroups".
 //                          - CatalogRef.Users
 //                          - CatalogRef.ExternalUsers -
-//                              
+//                              If ParameterContent = "Assignees".
 //                          - Array - array of the types specified above.
 //
 //  NoPerformerGroups    - Boolean - If False, TempTablesManager contains a temporary table. Otherwise, does not.
@@ -5510,7 +5629,7 @@ EndProcedure
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated.
+// Deprecated. Obsolete. Use SSLSubsystemsIntegration.OnDefinePrintSettings instead.
 // See PrintManagementOverridable.OnDefineObjectsWithPrintCommands.
 //
 Procedure OnDefineObjectsWithPrintCommands(ListOfObjects) Export

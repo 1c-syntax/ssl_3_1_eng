@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -29,7 +30,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	OwnerType = TypeOf(Parameters.FileOwner);
 	If Metadata.DefinedTypes.FilesOwner.Type.ContainsType(OwnerType) Then
 		FullOwnerName = Metadata.FindByType(OwnerType).Name;
-		If Metadata.Catalogs.Find(FullOwnerName + FilesOperationsClientServer.CatalogSuffixAttachedFiles()) = Undefined Then
+		If Metadata.Catalogs.Find(FullOwnerName + FilesOperationsInternal.CatalogSuffixAttachedFiles()) = Undefined Then
 			IsFilesCatalogItemsOwner = True;
 		EndIf;
 	EndIf;
@@ -42,7 +43,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.ListImportantAttributes.Visible = Not Parameters.SimpleForm;
 	Preview = Parameters.SimpleForm;
 	
-	ShowSizeColumn = FilesOperationsInternal.GetShowSizeColumn();
+	ShowSizeColumn = FilesOperationsInternal.ShowSizeColumn();
 	If Not ShowSizeColumn Then
 		Items.ListSize.Visible = False;
 	EndIf;
@@ -130,6 +131,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	HasDigitalSignature = Common.SubsystemExists("StandardSubsystems.DigitalSignature");
 	Items.PrintWithStamp.Visible = HasDigitalSignature;
 	Items.CompareFiles.Visible = Not Common.IsLinuxClient() And Not Common.IsWebClient();
+	Items.Send.Visible = Common.SubsystemExists("StandardSubsystems.EmailOperations");
 	
 	RestrictedExtensions = FilesOperationsInternal.DeniedExtensionsList();
 	Items.ShowServiceFiles.Visible = ThereArePropsInternal
@@ -399,10 +401,11 @@ Procedure ListDrag(Item, DragParameters, StandardProcessing, String, Field)
 			TransferOrCopyAttachedFiles(FileNamesArray, Parameters.FileOwner, Action);
 			
 			NotifyChanged(Parameters.FileOwner);
-			FileRecordingNotificationParameters = FilesOperationsInternalClient.FileRecordingNotificationParameters();
-			FileRecordingNotificationParameters.IsNew = True;
-			FileRecordingNotificationParameters.Owner = Parameters.FileOwner;
-			Notify("Write_File", FileRecordingNotificationParameters, FileNamesArray);
+			FileWriteNotificationParameters = FilesOperationsInternalClient.FileWriteNotificationParameters();
+			FileWriteNotificationParameters.IsNew = True;
+			FileWriteNotificationParameters.Owner = Parameters.FileOwner;
+			FileWriteNotificationParameters.FileOwner = FileWriteNotificationParameters.Owner;
+			Notify("Write_File", FileWriteNotificationParameters, FileNamesArray);
 			
 		EndIf;
 	EndIf;
@@ -413,8 +416,8 @@ EndProcedure
 Procedure ListOnChange(Item)
 	
 	NotifyChanged(FileOwner);
-	FileRecordingNotificationParameters = FilesOperationsInternalClient.FileRecordingNotificationParameters("FileDataChanged");
-	Notify("Write_File", FileRecordingNotificationParameters, Item.SelectedRows);
+	FileWriteNotificationParameters = FilesOperationsInternalClient.FileWriteNotificationParameters("FileDataChanged");
+	Notify("Write_File", FileWriteNotificationParameters, Item.SelectedRows);
 	
 EndProcedure
 
@@ -423,7 +426,7 @@ EndProcedure
 #Region FormCommandsEventHandlers
 
 ///////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure Add(Command)
@@ -798,7 +801,7 @@ Procedure ShowServiceFiles(Command)
 EndProcedure
 
 //////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure Sign(Command)
@@ -1004,7 +1007,7 @@ Procedure DecryptServer(DataArrayToStoreInDatabase,
 EndProcedure
 
 ///////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure Edit(Command)
@@ -1110,7 +1113,7 @@ Procedure Delete(Command)
 	SelectedRows = SelectedRows();
 	
 	NotifyDescription = New NotifyDescription("AfterDeleteData", ThisObject);
-	FilesOperationsInternalClient.DeleteFileData(NotifyDescription, SelectedRows, UUID);
+	FilesOperationsInternalClient.DeleteFilesData(NotifyDescription, SelectedRows, UUID);
 
 EndProcedure
 
@@ -1459,8 +1462,8 @@ Procedure SetDeletionMarkCompletion(Result, AdditionalParameters) Export
 	
 	If Result = DialogReturnCode.Yes Then
 		SetClearDeletionMark(AdditionalParameters.Files);
-		FileRecordingNotificationParameters = FilesOperationsInternalClient.FileRecordingNotificationParameters("FileDataChanged");
-		Notify("Write_File", FileRecordingNotificationParameters, Items.List.SelectedRows);
+		FileWriteNotificationParameters = FilesOperationsInternalClient.FileWriteNotificationParameters("FileDataChanged");
+		Notify("Write_File", FileWriteNotificationParameters, Items.List.SelectedRows);
 		Items.List.Refresh();
 	EndIf;
 	

@@ -16,12 +16,24 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.ExitApplication</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Exit</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="ExitApplicationExtendedTooltip" id="13"/>
 			</Button>
 			<Button name="RestartApplication" id="4">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.RestartApplication</CommandName>
-				<ExtendedTooltip name="RestartApplicationExtendedTooltip" id="14"/>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Restart</v8:content>
+					</v8:item>
+				</Title>
+				<ExtendedTooltip name="RestartApplication1ExtendedTooltip" id="14"/>
 			</Button>
 			<Button name="FormOpenExternalDataProcessor" id="21">
 				<Type>CommandBarButton</Type>
@@ -30,6 +42,12 @@
 					<xr:Ref>StdPicture.OpenFile</xr:Ref>
 					<xr:LoadTransparent>true</xr:LoadTransparent>
 				</Picture>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Open external data processor…</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormOpenExternalDataProcessorExtendedTooltip" id="22"/>
 			</Button>
@@ -38,6 +56,7 @@
 	<Events>
 		<Event name="OnOpen">OnOpen</Event>
 		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
+		<Event name="OnClose">OnClose</Event>
 	</Events>
 	<ChildItems>
 		<UsualGroup name="ErrorMessage" id="7">
@@ -60,67 +79,116 @@
 						</v8:item>
 					</Title>
 					<Picture>
-						<xr:Ref>CommonPicture.Error32</xr:Ref>
-						<xr:LoadTransparent>false</xr:LoadTransparent>
+						<xr:Ref>StdPicture.DialogStop</xr:Ref>
+						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</Picture>
 					<FileDragMode>AsFile</FileDragMode>
 					<ContextMenu name="ErrorPictureContextMenu" id="9"/>
 					<ExtendedTooltip name="ErrorPictureExtendedTooltip" id="16"/>
 				</PictureDecoration>
-				<LabelDecoration name="ErrorMessageText" id="1">
-					<AutoMaxWidth>false</AutoMaxWidth>
-					<Title formatted="false">
+				<UsualGroup name="ContentGroup" id="27">
+					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>%Error text%</v8:content>
+							<v8:content>Content</v8:content>
 						</v8:item>
 					</Title>
-					<VerticalAlign>Top</VerticalAlign>
-					<ContextMenu name="ErrorMessageTextContextMenu" id="2"/>
-					<ExtendedTooltip name="ErrorMessageTextExtendedTooltip" id="17"/>
-				</LabelDecoration>
-			</ChildItems>
-		</UsualGroup>
-		<Button name="FormCheckPatches" id="23">
-			<Type>Hyperlink</Type>
-			<CommandName>Form.Command.CheckPatches</CommandName>
-			<ExtendedTooltip name="FormCheckPatchesExtendedTooltip" id="24"/>
-		</Button>
-		<UsualGroup name="TechnicalInformationOnUpdateResultGroup" id="10">
-			<Title>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Update technical details</v8:content>
-				</v8:item>
-			</Title>
-			<Behavior>Usual</Behavior>
-			<Representation>NormalSeparation</Representation>
-			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="TechnicalInformationOnUpdateResultGroupExtendedTooltip" id="18"/>
-			<ChildItems>
-				<LabelDecoration name="TechnicalInformationOnUpdateResult" id="5">
-					<AutoMaxWidth>false</AutoMaxWidth>
-					<Title formatted="false">
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Technical details</v8:content>
-						</v8:item>
-					</Title>
-					<ToolTipRepresentation>Button</ToolTipRepresentation>
-					<Hyperlink>true</Hyperlink>
-					<ContextMenu name="TechnicalInformationOnUpdateResultContextMenu" id="6"/>
-					<ExtendedTooltip name="TechnicalInformationOnUpdateResultExtendedTooltip" id="20">
-						<Title formatted="false">
-							<v8:item>
-								<v8:lang>en</v8:lang>
-								<v8:content>Technical details from the event log to provide to technical support.</v8:content>
-							</v8:item>
-						</Title>
-					</ExtendedTooltip>
-					<Events>
-						<Event name="Click">ShowUpdateResultInfoClick</Event>
-					</Events>
-				</LabelDecoration>
+					<Group>Vertical</Group>
+					<Representation>NormalSeparation</Representation>
+					<ShowTitle>false</ShowTitle>
+					<ExtendedTooltip name="ContentGroup1ExtendedTooltip" id="28"/>
+					<ChildItems>
+						<LabelDecoration name="ErrorMessageText" id="1">
+							<AutoMaxWidth>false</AutoMaxWidth>
+							<Title formatted="false">
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>%Error text%</v8:content>
+								</v8:item>
+							</Title>
+							<VerticalAlign>Top</VerticalAlign>
+							<ContextMenu name="ErrorMessageTextContextMenu" id="2"/>
+							<ExtendedTooltip name="ErrorMessageTextExtendedTooltip" id="17"/>
+						</LabelDecoration>
+						<UsualGroup name="TechnicalInformationOnUpdateResultGroup" id="10">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Update technical details</v8:content>
+								</v8:item>
+							</Title>
+							<HorizontalSpacing>Double</HorizontalSpacing>
+							<Behavior>Usual</Behavior>
+							<Representation>NormalSeparation</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="TechnicalInformationOnUpdateResultGroupExtendedTooltip" id="18"/>
+							<ChildItems>
+								<LabelDecoration name="TechnicalInformationOnUpdateResult" id="5">
+									<AutoMaxWidth>false</AutoMaxWidth>
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Technical details</v8:content>
+										</v8:item>
+									</Title>
+									<ToolTipRepresentation>Button</ToolTipRepresentation>
+									<Hyperlink>true</Hyperlink>
+									<ContextMenu name="TechnicalInformationOnUpdateResultContextMenu" id="6"/>
+									<ExtendedTooltip name="TechnicalInformationOnUpdateResultExtendedTooltip" id="20">
+										<Title formatted="false">
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Technical details from the event log to provide to technical support.</v8:content>
+											</v8:item>
+										</Title>
+									</ExtendedTooltip>
+									<Events>
+										<Event name="Click">ShowUpdateResultInfoClick</Event>
+									</Events>
+								</LabelDecoration>
+								<UsualGroup name="CheckGroupPatchesAndReport" id="32">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Check group patch and report</v8:content>
+										</v8:item>
+									</Title>
+									<Group>Vertical</Group>
+									<Representation>None</Representation>
+									<ShowTitle>false</ShowTitle>
+									<ExtendedTooltip name="CheckGroupPatchesAndReportExtendedTooltip" id="33"/>
+									<ChildItems>
+										<Button name="FormCheckPatches" id="23">
+											<Type>Hyperlink</Type>
+											<CommandName>Form.Command.CheckPatches</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Check patches</v8:content>
+												</v8:item>
+											</Title>
+											<ExtendedTooltip name="FormCheckPatchesExtendedTooltip" id="24"/>
+										</Button>
+										<LabelDecoration name="GenerateErrorReport" id="29">
+											<Title formatted="false">
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Generate error report</v8:content>
+												</v8:item>
+											</Title>
+											<Hyperlink>true</Hyperlink>
+											<ContextMenu name="GenerateErrorReportContextMenu" id="30"/>
+											<ExtendedTooltip name="GenerateErrorReportExtendedTooltip" id="31"/>
+											<Events>
+												<Event name="Click">GenerateErrorReportClick</Event>
+											</Events>
+										</LabelDecoration>
+									</ChildItems>
+								</UsualGroup>
+							</ChildItems>
+						</UsualGroup>
+					</ChildItems>
+				</UsualGroup>
 			</ChildItems>
 		</UsualGroup>
 	</ChildItems>
@@ -162,6 +230,27 @@
 				</v8:StringQualifiers>
 			</Type>
 		</Attribute>
+		<Attribute name="ErrorInfo" id="7">
+			<Type/>
+		</Attribute>
+		<Attribute name="BriefErrorDescription" id="8">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="DetailErrorDescription" id="9">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
 	</Attributes>
 	<Commands>
 		<Command name="ExitApplication" id="1">
@@ -190,7 +279,7 @@
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Restart application.</v8:content>
+					<v8:content>Restart application</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>RestartApp</Action>
@@ -251,6 +340,9 @@
 				</v8:StringQualifiers>
 			</Type>
 			<KeyParameter>true</KeyParameter>
+		</Parameter>
+		<Parameter name="ErrorInfo">
+			<Type/>
 		</Parameter>
 	</Parameters>
 </Form>

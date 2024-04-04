@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -34,14 +35,14 @@
 //  FormattedString - a converted string.
 //
 // Example:
-//  1. StringFunctionsClient.FormattedString(NStr("en='
-//       <span style=""color: LockedAttributeColor; font: ImportantLabelFont"">Minimum</span>application version<b>1.1</b>. 
-//       <a href = ""Update"">Update</a> the application.'"));
-//  2. StringFunctionsClient.FormattedString(NStr("en='Mode: <img src=""EditInDialog"">
-//       <a style=""color: ModifiedAttributeValueColor; background-color: ModifiedAttributeValueBackground""
-//       href=""e1cib/command/DataProcessor.Editor"">Edit</a>'"));
-//  3. StringFunctionsClient.FormattedString(NStr("en='Current date <img src=""Calendar"">
-//       <span style=""font:ImportantLabelFont"">%1</span>'"), CurrentSessionDate());
+//  
+//        
+//       
+//  
+//       
+//       
+//  
+//       
 //
 Function FormattedString(Val StringPattern, Val Parameter1 = Undefined, Val Parameter2 = Undefined,
 	Val Parameter3 = Undefined, Val Parameter4 = Undefined, Val Parameter5 = Undefined) Export
@@ -73,7 +74,6 @@ EndFunction
 // Returns a period presentation in low case or with an uppercase letter
 //  if a phrase or a sentence starts with the period presentation.
 //  For example if the period presentation is displayed in the report heading
-//  as "Sales for [ДатаНачала] - [ДатаОкончания]",
 //  it will look like this: "Sales for February 2020 - March 2020".
 //  The period is in low case because it is not the beginning of the sentence.
 //

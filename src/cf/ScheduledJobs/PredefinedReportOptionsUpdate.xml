@@ -11,7 +11,7 @@
 			</Synonym>
 			<Comment/>
 			<MethodName>CommonModule.ReportsOptions.FillPredefinedReportsOptionsPresentations</MethodName>
-			<Description>Populating views of predefined report options</Description>
+			<Description/>
 			<Key/>
 			<Use>false</Use>
 			<Predefined>false</Predefined>

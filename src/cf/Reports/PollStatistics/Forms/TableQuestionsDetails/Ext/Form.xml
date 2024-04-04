@@ -9,11 +9,17 @@
 	<ChildItems>
 		<SpreadSheetDocumentField name="ReportTable" id="1">
 			<DataPath>ReportTable</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Report table</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>None</TitleLocation>
 			<VerticalScrollBar>true</VerticalScrollBar>
 			<HorizontalScrollBar>true</HorizontalScrollBar>
 			<ContextMenu name="ReportTable1ContextMenu" id="2"/>
-			<ExtendedTooltip name="ReportTable1ExtendedTooltip" id="3"/>
+			<ExtendedTooltip name="ReportTableExtendedTooltip" id="3"/>
 		</SpreadSheetDocumentField>
 	</ChildItems>
 	<Attributes>
@@ -99,4 +105,42 @@
 			</Type>
 		</Attribute>
 	</Attributes>
+	<Parameters>
+		<Parameter name="QuestionnaireTemplateQuestion">
+			<Type>
+				<v8:Type>cfg:CatalogRef.QuestionnaireTemplateQuestions</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="Survey">
+			<Type>
+				<v8:Type>cfg:DocumentRef.PollPurpose</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="FullCode">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Parameter>
+		<Parameter name="SurveyDescription">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Parameter>
+		<Parameter name="SurveyDate">
+			<Type>
+				<v8:Type>xs:dateTime</v8:Type>
+				<v8:DateQualifiers>
+					<v8:DateFractions>Date</v8:DateFractions>
+				</v8:DateQualifiers>
+			</Type>
+		</Parameter>
+	</Parameters>
 </Form>

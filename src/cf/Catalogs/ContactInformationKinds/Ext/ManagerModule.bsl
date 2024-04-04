@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -175,7 +176,7 @@ Procedure OnSetUpInitialItemsFilling(Settings) Export
 	ContactsManagerOverridable.OnSetUpInitialItemsFilling(Settings);
 
 	Settings.OnInitialItemFilling = True;
-	Settings.KeyAttributeName          = "PredefinedKindName";
+	Settings.KeyAttributeName          = KeyAttributeName();
 	
 EndProcedure
 
@@ -257,9 +258,23 @@ Procedure OnInitialItemFilling(Object, Data, AdditionalParameters) Export
 	
 	ContactsManagerOverridable.OnInitialItemFilling(Object, Data, AdditionalParameters);
 	
+	If Not Object.IsFolder And IsBlankString(Object.GroupName) Then
+		GroupName = Common.ObjectAttributeValue(Object.Parent, KeyAttributeName());
+		If IsBlankString(GroupName) Then
+			GroupName = Common.ObjectAttributeValue(Object.Parent, "PredefinedDataName");
+		EndIf;
+		Object.GroupName = GroupName;
+	EndIf;
+	
 	Result = ContactsManagerInternal.CheckContactsKindParameters(Object);
 	If Result.HasErrors Then
 		Raise Result.ErrorText;
+	EndIf;
+	
+	If Object.Type = Enums.ContactInformationTypes.Address Then 
+		If IsBlankString(Object.EditingOption) Then
+			Object.EditingOption = "InputFieldAndDialog";
+		EndIf;
 	EndIf;
 	
 EndProcedure
@@ -531,39 +546,72 @@ Function DescriptionForIDGeneration(Val Description, Val Presentations)
 	Return Description;
 EndFunction
 
+// Parameters:
+//  Parent - CatalogRef.ContactInformationKinds
+// 
+// Returns:
+//  String
+//
+Function NameOfContactInformationTypeGroup(Parent) Export
+	
+	GroupName = Common.ObjectAttributeValue(Parent, "PredefinedKindName");
+	If IsBlankString(GroupName) Then
+		GroupName = Common.ObjectAttributeValue(Parent, "PredefinedDataName");
+	EndIf;
+	
+	Return GroupName;
+	
+EndFunction
+
 #EndRegion
 
 // Registers contact information kinds for processing.
 //
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
-	MoreThanOneLanguage = Metadata.Languages.Count() > 1;
 	
-	Query = New Query;
-	Query.Text = "SELECT
-	|	ContactInformationKinds.Ref AS Ref
-	|FROM
-	|	Catalog.ContactInformationKinds AS ContactInformationKinds
-	|WHERE
-	|	ContactInformationKinds.IsFolder = FALSE
-	|	AND (ISNULL(ContactInformationKinds.IDForFormulas, """") = """"
-	|			OR ISNULL(ContactInformationKinds.EditingOption, """") = """"
-	|			OR ContactInformationKinds.IsAlwaysDisplayed = FALSE)";
-	
-	If MoreThanOneLanguage Then
-		Query.Text = Query.Text + "
-		|UNION ALL
-		|
-		|SELECT
-		|	ContactInformationKinds.Ref AS Ref
-		|FROM
-		|	Catalog.ContactInformationKinds AS ContactInformationKinds
-		|WHERE
-		|	NOT ContactInformationKinds.Presentations.Ref = ContactInformationKinds.Ref
-		|	AND ContactInformationKinds.IsFolder = FALSE";
+	If Metadata.Languages.Count() = 1 Then
+			QueryText = "SELECT
+			|	ContactInformationKinds.Ref AS Ref,
+			|	ContactInformationKinds.PredefinedDataName AS PredefinedDataName
+			|FROM
+			|	Catalog.ContactInformationKinds AS ContactInformationKinds
+			|WHERE
+			|	ContactInformationKinds.IsFolder = FALSE
+			|	AND (ISNULL(ContactInformationKinds.IDForFormulas, """") = """"
+			|			OR ISNULL(ContactInformationKinds.EditingOption, """") = """"
+			|			OR ISNULL(ContactInformationKinds.GroupName, """") = """"
+			|			OR ContactInformationKinds.IsAlwaysDisplayed = FALSE)";
+	Else
+		
+		QueryText = "SELECT
+			|	ContactInformationKinds.Ref AS Ref,
+			|	ContactInformationKinds.PredefinedDataName AS PredefinedDataName
+			|FROM
+			|	Catalog.ContactInformationKinds AS ContactInformationKinds
+			|		LEFT JOIN Catalog.ContactInformationKinds.Presentations AS PresentationsOfForm
+			|		ON (PresentationsOfForm.Ref = ContactInformationKinds.Ref)
+			|WHERE
+			|	(ContactInformationKinds.IsFolder = FALSE
+			|				AND ((ISNULL(ContactInformationKinds.IDForFormulas, """") = """"
+			|					OR ISNULL(ContactInformationKinds.EditingOption, """") = """"
+			|					OR ISNULL(ContactInformationKinds.GroupName, """") = """"
+			|					OR ContactInformationKinds.IsAlwaysDisplayed = FALSE)
+			|			OR PresentationsOfForm.Ref IS NULL))"
 	EndIf;
 		
+	Query = New Query(QueryText);
+	
 	QueryResult = Query.Execute().Unload();
+	
+	Position = QueryResult.Count() - 1;
+	While Position >= 0 Do
+		TableRow = QueryResult.Get(Position);
+		If StrStartsWith(TableRow.PredefinedDataName, "Delete") Then
+			QueryResult.Delete(Position);
+		EndIf;
+		Position = Position - 1;
+	EndDo;
 	
 	InfobaseUpdate.MarkForProcessing(Parameters, QueryResult.UnloadColumn("Ref"));
 	
@@ -623,12 +671,18 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 				And Not ValueIsFilled(ContactInformationKind.IDForFormulas) Then
 				DescriptionForID = DescriptionForIDGeneration(ContactInformationKind.Description,
 					ContactInformationKind.Presentations);
+				// @skip-check query-in-loop - Read up-to-date data from the infobase at each iteration.
 				ContactInformationKind.IDForFormulas = UUIDForFormulas(DescriptionForID,
 					ContactInformationKind.Ref, ContactInformationKind.Parent);
 			EndIf;
 				
-			If Not ContactInformationKind.IsFolder And SetAlwaysShow Then
-				ContactInformationKind.IsAlwaysDisplayed = True;
+			If Not ContactInformationKind.IsFolder Then
+				If SetAlwaysShow Then
+					ContactInformationKind.IsAlwaysDisplayed = True;
+				EndIf;
+				If IsBlankString(ContactInformationKind.GroupName) Then
+					ContactInformationKind.GroupName = NameOfContactInformationTypeGroup(ContactInformationKind.Parent);
+				EndIf;
 			EndIf;
 							
 			InfobaseUpdate.WriteData(ContactInformationKind);
@@ -641,12 +695,10 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			// If you cannot process any kind of contact information, try again.
 			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
 			
-			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Couldn''t process contact information kind: %1. Reason:
-					|%2';"),
-					RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-			WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Warning,
-				Metadata.Catalogs.ContactInformationKinds, ContactInformationKindRef.Ref, MessageText);
+			InfobaseUpdate.WriteErrorToEventLog(
+				ContactInformationKindRef.Ref,
+				RepresentationOfTheReference,
+				ErrorInfo());
 		EndTry;
 	EndDo;
 	
@@ -699,6 +751,10 @@ Procedure SetContactInformationKindsDescriptions(ContactInformationKind, KindNam
 	EndDo;
 
 EndProcedure
+
+Function KeyAttributeName()
+	Return "PredefinedKindName";
+EndFunction
 
 #EndRegion
 

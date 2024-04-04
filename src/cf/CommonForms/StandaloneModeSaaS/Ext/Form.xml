@@ -31,6 +31,12 @@
 					<ExtendedTooltip name="StandaloneModeNotConfiguredExtendedTooltip" id="117"/>
 					<ChildItems>
 						<UsualGroup name="Group1" id="53">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group</v8:content>
+								</v8:item>
+							</Title>
 							<Group>Horizontal</Group>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
@@ -49,6 +55,12 @@
 									<ExtendedTooltip name="Decoration2ExtendedTooltip" id="119"/>
 								</PictureDecoration>
 								<UsualGroup name="Group4" id="100">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Group</v8:content>
+										</v8:item>
+									</Title>
 									<Group>Vertical</Group>
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
@@ -82,6 +94,12 @@ If you have no stable Internet connection (for example, in a business trip), you
 											<Type>Hyperlink</Type>
 											<AutoMaxWidth>false</AutoMaxWidth>
 											<CommandName>Form.Command.HowToInstallOrUpdate1CEnterprisePlatfomVersion</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>How to install or update 1C:Enterprise platform</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="HowToInstallOrUpdate1CEnterprisePlatfomVersionExtendedTooltip" id="123"/>
 										</Button>
 									</ChildItems>
@@ -89,6 +107,12 @@ If you have no stable Internet connection (for example, in a business trip), you
 							</ChildItems>
 						</UsualGroup>
 						<UsualGroup name="Group8" id="58">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group</v8:content>
+								</v8:item>
+							</Title>
 							<Group>Horizontal</Group>
 							<Behavior>Usual</Behavior>
 							<Representation>NormalSeparation</Representation>
@@ -98,7 +122,13 @@ If you have no stable Internet connection (for example, in a business trip), you
 								<Button name="CreateStandaloneWorkstation" id="59">
 									<Type>UsualButton</Type>
 									<CommandName>Form.Command.CreateStandaloneWorkstation</CommandName>
-									<ExtendedTooltip name="CreateStandaloneWorkstation2ExtendedTooltip" id="125"/>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Create…</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="CreateStandaloneWorkstationExtendedTooltip" id="125"/>
 								</Button>
 								<LabelDecoration name="Decoration3" id="60">
 									<AutoMaxWidth>false</AutoMaxWidth>
@@ -116,6 +146,12 @@ If you have no stable Internet connection (for example, in a business trip), you
 						<Button name="HowToConfigureStandaloneWorkstation" id="110">
 							<Type>Hyperlink</Type>
 							<CommandName>Form.Command.HowToConfigureStandaloneWorkstation</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>How to set up standalone workstations</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="HowToConfigureStandaloneWorkstationExtendedTooltip" id="127"/>
 						</Button>
 					</ChildItems>
@@ -130,6 +166,12 @@ If you have no stable Internet connection (for example, in a business trip), you
 					<ExtendedTooltip name="SingleStandaloneWorkstationExtendedTooltip" id="128"/>
 					<ChildItems>
 						<UsualGroup name="Group9" id="113">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group</v8:content>
+								</v8:item>
+							</Title>
 							<Group>Vertical</Group>
 							<Behavior>Usual</Behavior>
 							<Representation>NormalSeparation</Representation>
@@ -137,6 +179,12 @@ If you have no stable Internet connection (for example, in a business trip), you
 							<ExtendedTooltip name="Group9ExtendedTooltip" id="129"/>
 							<ChildItems>
 								<UsualGroup name="Group5" id="5">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Group</v8:content>
+										</v8:item>
+									</Title>
 									<Group>Horizontal</Group>
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
@@ -155,6 +203,12 @@ If you have no stable Internet connection (for example, in a business trip), you
 										</LabelDecoration>
 										<LabelField name="StandaloneWorkstation" id="67">
 											<DataPath>StandaloneWorkstation</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Standalone workstation</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<HorizontalAlign>Left</HorizontalAlign>
 											<AutoMaxWidth>false</AutoMaxWidth>
@@ -164,6 +218,12 @@ If you have no stable Internet connection (for example, in a business trip), you
 									</ChildItems>
 								</UsualGroup>
 								<UsualGroup name="Group3" id="76">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Group</v8:content>
+										</v8:item>
+									</Title>
 									<Group>Horizontal</Group>
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
@@ -184,11 +244,23 @@ If you have no stable Internet connection (for example, in a business trip), you
 										<Button name="GoToConflicts" id="114">
 											<Type>Hyperlink</Type>
 											<CommandName>Form.Command.GoToConflicts</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>No warnings</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="GoToConflictsExtendedTooltip" id="135"/>
 										</Button>
 									</ChildItems>
 								</UsualGroup>
 								<UsualGroup name="Group2" id="14">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Group</v8:content>
+										</v8:item>
+									</Title>
 									<Group>Horizontal</Group>
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
@@ -196,6 +268,12 @@ If you have no stable Internet connection (for example, in a business trip), you
 									<ExtendedTooltip name="Group2ExtendedTooltip" id="136"/>
 									<ChildItems>
 										<UsualGroup name="Group10" id="183">
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Group</v8:content>
+												</v8:item>
+											</Title>
 											<Group>Horizontal</Group>
 											<Behavior>Usual</Behavior>
 											<Representation>None</Representation>
@@ -206,6 +284,12 @@ If you have no stable Internet connection (for example, in a business trip), you
 													<Type>UsualButton</Type>
 													<Width>12</Width>
 													<CommandName>Form.Command.ChangeStandaloneWorkstation</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Configure...</v8:content>
+														</v8:item>
+													</Title>
 													<ExtendedTooltip name="ChangeStandaloneWorkstationExtendedTooltip" id="137"/>
 												</Button>
 												<Button name="DataToSendComposition" id="181">
@@ -213,6 +297,12 @@ If you have no stable Internet connection (for example, in a business trip), you
 													<Representation>Picture</Representation>
 													<Width>3</Width>
 													<CommandName>Form.Command.DataToSendComposition</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>View data before sending</v8:content>
+														</v8:item>
+													</Title>
 													<ExtendedTooltip name="CompositionOfDataToSendExtendedTooltip" id="182"/>
 												</Button>
 											</ChildItems>
@@ -230,6 +320,12 @@ If you have no stable Internet connection (for example, in a business trip), you
 									</ChildItems>
 								</UsualGroup>
 								<UsualGroup name="Group6" id="16">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Group</v8:content>
+										</v8:item>
+									</Title>
 									<Group>Horizontal</Group>
 									<Behavior>Usual</Behavior>
 									<Representation>NormalSeparation</Representation>
@@ -240,6 +336,12 @@ If you have no stable Internet connection (for example, in a business trip), you
 											<Type>UsualButton</Type>
 											<Width>16</Width>
 											<CommandName>Form.Command.StopSynchronizationWithStandaloneWorkstation</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Stop</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="StopSynchronizationWithStandaloneWorkstationExtendedTooltip" id="140"/>
 										</Button>
 										<LabelDecoration name="Decoration8" id="18">
@@ -257,6 +359,12 @@ If you have no stable Internet connection (for example, in a business trip), you
 							</ChildItems>
 						</UsualGroup>
 						<UsualGroup name="Group7" id="20">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group</v8:content>
+								</v8:item>
+							</Title>
 							<Group>Horizontal</Group>
 							<Behavior>Usual</Behavior>
 							<Representation>NormalSeparation</Representation>
@@ -266,7 +374,13 @@ If you have no stable Internet connection (for example, in a business trip), you
 								<Button name="CreateStandaloneWorkstation1" id="21">
 									<Type>UsualButton</Type>
 									<CommandName>Form.Command.CreateStandaloneWorkstation</CommandName>
-									<ExtendedTooltip name="CreateStandaloneWorkstation21ExtendedTooltip" id="143"/>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Create…</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="CreateStandaloneWorkstation1ExtendedTooltip" id="143"/>
 								</Button>
 								<LabelDecoration name="Decoration7" id="22">
 									<AutoMaxWidth>false</AutoMaxWidth>
@@ -284,6 +398,12 @@ If you have no stable Internet connection (for example, in a business trip), you
 						<Button name="HowToConfigureStandaloneWorkstation1" id="111">
 							<Type>Hyperlink</Type>
 							<CommandName>Form.Command.HowToConfigureStandaloneWorkstation</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>How to set up standalone workstations</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="HowToConfigureStandaloneWorkstation1ExtendedTooltip" id="145"/>
 						</Button>
 					</ChildItems>
@@ -300,6 +420,12 @@ If you have no stable Internet connection (for example, in a business trip), you
 						<Button name="GoToConflicts1" id="115">
 							<Type>Hyperlink</Type>
 							<CommandName>Form.Command.GoToConflicts</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>No warnings</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="GoToConflicts1ExtendedTooltip" id="147"/>
 						</Button>
 						<Table name="StandaloneWorkstationsList" id="78">
@@ -341,11 +467,23 @@ If you have no stable Internet connection (for example, in a business trip), you
 									<Button name="StandaloneWorkstationsListCreateStandaloneWorkstation21" id="103">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.CreateStandaloneWorkstation</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Create…</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="StandaloneWorkstationsListCreateStandaloneWorkstation21ExtendedTooltip" id="148"/>
 									</Button>
 									<Button name="StandaloneWorkstationsListChangeStandaloneWorkstationInList1" id="104">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.ChangeStandaloneWorkstationInList</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Change</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="StandaloneWorkstationsListChangeStandaloneWorkstationInList1ExtendedTooltip" id="149"/>
 									</Button>
 									<Button name="StandaloneWorkstationListStopSynchronizationWithStandaloneWorkstation1" id="105">
@@ -367,22 +505,34 @@ If you have no stable Internet connection (for example, in a business trip), you
 									<Button name="StandaloneWorkstationsListContextMenuCompositionOfDataToSend" id="172">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.DataToSendComposition</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>View data before sending</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="StandaloneWorkstationsListContextMenuCompositionOfDataToSendExtendedTooltip" id="173"/>
 									</Button>
 									<ButtonGroup name="StandaloneWorkstationListGroup4" id="106">
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Standalone workstations group 4</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="StandaloneWorkstationListGroup4ExtendedTooltip" id="151"/>
 										<ChildItems>
 											<Button name="StandaloneWorkstationsListCopyToClipboard1" id="107">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Item.StandaloneWorkstationsList.StandardCommand.CopyToClipboard</CommandName>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-												<ExtendedTooltip name="StandaloneWorkstationListCopyToClipboard1ExtendedTooltip" id="152"/>
+												<ExtendedTooltip name="StandaloneWorkstationsListCopyToClipboard1ExtendedTooltip" id="152"/>
 											</Button>
 											<Button name="StandaloneWorkstationsListOutputList1" id="108">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Item.StandaloneWorkstationsList.StandardCommand.OutputList</CommandName>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-												<ExtendedTooltip name="StandaloneWorkstationListOutputList1ExtendedTooltip" id="153"/>
+												<ExtendedTooltip name="StandaloneWorkstationsListOutputList1ExtendedTooltip" id="153"/>
 											</Button>
 										</ChildItems>
 									</ButtonGroup>
@@ -394,11 +544,23 @@ If you have no stable Internet connection (for example, in a business trip), you
 									<Button name="StandaloneWorkstationsListCreateStandaloneWorkstation2" id="85">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.CreateStandaloneWorkstation</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Create…</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="StandaloneWorkstationsListCreateStandaloneWorkstation2ExtendedTooltip" id="154"/>
 									</Button>
 									<Button name="StandaloneWorkstationsListChangeStandaloneWorkstationInList" id="98">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.ChangeStandaloneWorkstationInList</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Change</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="StandaloneWorkstationsListChangeStandaloneWorkstationInListExtendedTooltip" id="155"/>
 									</Button>
 									<Button name="StandaloneWorkstationListStopSynchronizationWithStandaloneWorkstation" id="87">
@@ -420,51 +582,81 @@ If you have no stable Internet connection (for example, in a business trip), you
 									<Button name="StandaloneWorkstationsListCompositionOfDataToSend" id="170">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.DataToSendComposition</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>View data before sending</v8:content>
+											</v8:item>
+										</Title>
 										<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 										<ExtendedTooltip name="StandaloneWorkstationsListCompositionOfDataToSendExtendedTooltip" id="171"/>
 									</Button>
 									<ButtonGroup name="StandaloneWorkstationListGroup3" id="95">
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Standalone workstations group 3</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="StandaloneWorkstationListGroup3ExtendedTooltip" id="157"/>
 										<ChildItems>
 											<Button name="StandaloneWorkstationsListRefresh" id="88">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.Refresh</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Refresh</v8:content>
+													</v8:item>
+												</Title>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-												<ExtendedTooltip name="StandaloneWorkstationListRefreshExtendedTooltip" id="158"/>
+												<ExtendedTooltip name="StandaloneWorkstationsListRefreshExtendedTooltip" id="158"/>
 											</Button>
 										</ChildItems>
 									</ButtonGroup>
 									<ButtonGroup name="StandaloneWorkstationListGroup1" id="93">
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Standalone workstations group 1</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="StandaloneWorkstationListGroup1ExtendedTooltip" id="159"/>
 										<ChildItems>
 											<Button name="StandaloneWorkstationsListFind" id="89">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Item.StandaloneWorkstationsList.StandardCommand.Find</CommandName>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-												<ExtendedTooltip name="StandaloneWorkstationListFindExtendedTooltip" id="160"/>
+												<ExtendedTooltip name="StandaloneWorkstationsListFindExtendedTooltip" id="160"/>
 											</Button>
 											<Button name="StandaloneWorkstationsListCancelSearch" id="90">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Item.StandaloneWorkstationsList.StandardCommand.CancelSearch</CommandName>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-												<ExtendedTooltip name="StandaloneWorkstationListCancelSearchExtendedTooltip" id="161"/>
+												<ExtendedTooltip name="StandaloneWorkstationsListCancelSearchExtendedTooltip" id="161"/>
 											</Button>
 										</ChildItems>
 									</ButtonGroup>
 									<ButtonGroup name="StandaloneWorkstationListGroup2" id="94">
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Standalone workstations group 2</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="StandaloneWorkstationListGroup2ExtendedTooltip" id="162"/>
 										<ChildItems>
 											<Button name="StandaloneWorkstationsListCopyToClipboard" id="92">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Item.StandaloneWorkstationsList.StandardCommand.CopyToClipboard</CommandName>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-												<ExtendedTooltip name="StandaloneWorkstationListCopyToClipboardExtendedTooltip" id="163"/>
+												<ExtendedTooltip name="StandaloneWorkstationsListCopyToClipboardExtendedTooltip" id="163"/>
 											</Button>
 											<Button name="StandaloneWorkstationsListOutputList" id="91">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Item.StandaloneWorkstationsList.StandardCommand.OutputList</CommandName>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-												<ExtendedTooltip name="StandaloneWorkstationListOutputListExtendedTooltip" id="164"/>
+												<ExtendedTooltip name="StandaloneWorkstationsListOutputListExtendedTooltip" id="164"/>
 											</Button>
 										</ChildItems>
 									</ButtonGroup>
@@ -506,12 +698,24 @@ If you have no stable Internet connection (for example, in a business trip), you
 							<ChildItems>
 								<InputField name="StandaloneWorkstationsListStandaloneWorkstation" id="81">
 									<DataPath>StandaloneWorkstationsList.StandaloneWorkstation</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Standalone workstation</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ContextMenu name="StandaloneWorkstationsListStandaloneWorkstationContextMenu" id="82"/>
 									<ExtendedTooltip name="StandaloneWorkstationsListStandaloneWorkstationExtendedTooltip" id="167"/>
 								</InputField>
 								<InputField name="StandaloneWorkstationsListSynchronizationDatePresentation" id="96">
 									<DataPath>StandaloneWorkstationsList.SynchronizationDatePresentation</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Last synchronization</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<Format>
 										<v8:item>
@@ -533,6 +737,12 @@ If you have no stable Internet connection (for example, in a business trip), you
 						<Button name="HowToConfigureStandaloneWorkstation2" id="112">
 							<Type>Hyperlink</Type>
 							<CommandName>Form.Command.HowToConfigureStandaloneWorkstation</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>How to set up standalone workstations</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="HowToConfigureStandaloneWorkstation2ExtendedTooltip" id="169"/>
 						</Button>
 					</ChildItems>
@@ -716,13 +926,13 @@ If you have no stable Internet connection (for example, in a business trip), you
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>How to set up a standalone workstation</v8:content>
+					<v8:content>How to set up standalone workstations</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>How to set up a standalone workstation</v8:content>
+					<v8:content>How to set up standalone workstations</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>HowToConfigureStandaloneWorkstation</Action>

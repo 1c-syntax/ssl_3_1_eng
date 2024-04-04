@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -76,11 +77,14 @@ Procedure RunDataImport(Cancel, Val ImportOnlyParameters, ErrorMessage = "") Exp
 	EndTry;
 	
 	DataExchangeInternal.DisableAccessKeysUpdate(True);
+	DataExchangeInternal.SetDIBDataImportFlag(True);
 	Try
 		ReadExchangeMessageFile(Cancel, XMLReader, ImportOnlyParameters, ImportMetadata, ErrorMessage);
 		DataExchangeInternal.DisableAccessKeysUpdate(False);
+		DataExchangeInternal.SetDIBDataImportFlag(False);
 	Except
 		DataExchangeInternal.DisableAccessKeysUpdate(False);
+		DataExchangeInternal.SetDIBDataImportFlag(False);
 		Raise;
 	EndTry;
 	
@@ -144,9 +148,9 @@ Procedure ReadExchangeMessageFile(Cancel, XMLReader, Val ImportOnlyParameters, V
 	Try
 		MessageReader.BeginRead(XMLReader, AllowedMessageNo.Greater);
 	Except
-		
-		
-		
+		// 
+		// 
+		// 
 		ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		WriteExchangeFinish(Cancel, ErrorMessage, ErrorStartRedingTheExchangeMessageFile());
 		Return;
@@ -323,8 +327,8 @@ Procedure WriteChangesToExchangeMessageFile(Cancel, XMLWriter, ErrorMessage = ""
 		// Writing configuration changes and data changes to the exchange message.
 		ExchangePlans.WriteChanges(WriteMessage1, TransactionItemsCount);
 		
-		
-		
+		// 
+		// 
 		WritePriorityChangesToExchangeMessage(WriteMessage1);
 		
 		WriteMessage1.EndWrite();
@@ -477,9 +481,9 @@ Procedure ReadPriorityChangesFromExchangeMessage(Val MessageReader, CommonDataNo
 					
 				Else // Type("ObjectDeletion")
 					
-					
+					// 
 					//    
-					
+					// 
 					Continue;
 				EndIf;
 				
@@ -545,7 +549,7 @@ Procedure WriteExchangeFinish(Cancel, ErrorDescription = "", ContextErrorDescrip
 	
 	Cancel = True;
 	
-	Comment = "[ContextErrorDescription]: [ErrorDescription]"; 
+	Comment = "[ContextErrorDescription]: [ErrorDescription]"; // Do not localize.
 	
 	Comment = StrReplace(Comment, "[ContextErrorDescription]", ContextErrorDescription);
 	Comment = StrReplace(Comment, "[ErrorDescription]", ErrorDescription);

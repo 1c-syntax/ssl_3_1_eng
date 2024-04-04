@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -40,8 +41,8 @@ EndProcedure
 #Region FormCommandsEventHandlers
 
 &AtClient
-Procedure RepeatScan(Command)
-	Close("RepeatScan");
+Procedure RedoScanning(Command)
+	Close("RedoScanning");
 EndProcedure
 
 #EndRegion
@@ -51,27 +52,35 @@ EndProcedure
 &AtClient
 Procedure SetErrorText()
 	If Not ValueIsFilled(ErrorText) Then
+		If Not ShowScannerDialog And Not CommonClient.IsLinuxClient() Then
+			ErrorTextOnUseAppSettings = Chars.LF + " • "
+				+ StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'Open <a href = ""%1"">scanner settings</> and select ""Advanced settings"".';"), "OpenSettings");
+		Else
+			ErrorTextOnUseAppSettings = "";
+		EndIf;
+		
 		ErrorText = StringFunctionsClient.FormattedString(StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Scanner %1 not found or not connected.
-						|Try any of the following:
+						|Try the following:
 						| • Check whether the scanner is connected and try again.
-						| • Specify the available scanner in the <a href = ""%2"">scanner settings</a>.
+						| • Specify the available scanner in the <a href = ""%2"">scanner settings</a>.%4
 						| • If the issue persists, contact 1C technical support and 
 						| provide <a href = ""%3"">technical information about the issue</a>.';"), 
-			ScannerName, "OpenSettings", "TechnicalInformation"));
+			ScannerName, "OpenSettings", "TechnicalInformation", ErrorTextOnUseAppSettings));
   	EndIf;
   	Items.ErrorText.Title = ErrorText;
 EndProcedure
 
 &AtClient
 Procedure GetTechnicalInformation()
-	AfterReceivingTechnicalInformation = New NotifyDescription("AfterReceivingTechnicalInformation", ThisObject);
-	FilesOperationsInternalClient.GetTechnicalInformation(DetailErrorDescription, AfterReceivingTechnicalInformation);
+	AfterTechnicalInfoReceived = New NotifyDescription("AfterTechnicalInfoReceived", ThisObject);
+	FilesOperationsInternalClient.GetTechnicalInformation(DetailErrorDescription, AfterTechnicalInfoReceived);
 EndProcedure
 
 &AtClient
-Procedure AfterReceivingTechnicalInformation(Result, Context) Export
-	NotifyChoice("UpdateErrorDisplay");
+Procedure AfterTechnicalInfoReceived(Result, Context) Export
+	NotifyChoice("RefreshErrorDisplay");
 EndProcedure
 
 #EndRegion

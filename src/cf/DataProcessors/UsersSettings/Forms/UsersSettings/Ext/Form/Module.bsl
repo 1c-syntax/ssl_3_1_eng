@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -436,7 +437,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure UpdateSettingsList()
@@ -450,59 +451,66 @@ Procedure UpdateSettingsList()
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
 	
-	CompletionNotification2 = New NotifyDescription("UpdateSettingsListCompletion", ThisObject);
+	CallbackOnCompletion = New NotifyDescription("UpdateSettingsListCompletion", ThisObject);
 	
-	TimeConsumingOperationsClient.WaitCompletion(Result, CompletionNotification2, IdleParameters);
+	TimeConsumingOperationsClient.WaitCompletion(Result, CallbackOnCompletion, IdleParameters);
 	
 EndProcedure
 
 &AtServer
 Function UpdatingSettingsList()
 	
-	If ExecutionResult <> Undefined
-	   And ValueIsFilled(ExecutionResult.JobID) Then
-		TimeConsumingOperations.CancelJobExecution(ExecutionResult.JobID);
+	If ValueIsFilled(JobID) Then
+		TimeConsumingOperations.CancelJobExecution(JobID);
 	EndIf;
 	
 	TimeConsumingOperationParameters = TimeConsumingOperationParameters();
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.WaitCompletion = 0; 
+	ExecutionParameters.WaitCompletion = 0; // 
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Update user settings';");
 	
-	ExecutionResult = TimeConsumingOperations.ExecuteInBackground("UsersInternal.FillSettingsLists",
+	TimeConsumingOperation = TimeConsumingOperations.ExecuteInBackground("UsersInternal.FillSettingsLists",
 		TimeConsumingOperationParameters, ExecutionParameters);
 	
-	Return ExecutionResult;
+	If TimeConsumingOperation.Status = "Running" Then
+		JobID = TimeConsumingOperation.JobID; 
+	EndIf;
+	
+	Return TimeConsumingOperation;
 	
 EndFunction
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
 Procedure UpdateSettingsListCompletion(Result, AdditionalParameters) Export
+	
+	Items.TimeConsumingOperationPages.CurrentPage = Items.SettingsPage;
+	Items.QuickSearch.Enabled = True;
+	Items.CommandBar.Enabled = True;
 	
 	If Result = Undefined Then
 		Return;
 	EndIf;
 	
 	If Result.Status = "Completed2" Then
-		FillSettings();
-		
-		Items.TimeConsumingOperationPages.CurrentPage = Items.SettingsPage;
-		Items.QuickSearch.Enabled = True;
-		Items.CommandBar.Enabled = True;
-		
+		FillSettings(Result.ResultAddress);
 		AttachIdleHandler("Attachable_ExpandValueTree", 0.1, True);
+		
 	ElsIf Result.Status = "Error" Then
-		Items.TimeConsumingOperationPages.CurrentPage = Items.SettingsPage;
-		Raise Result.BriefErrorDescription;
+		StandardSubsystemsClient.OutputErrorInfo(
+			Result.ErrorInfo);
 	EndIf;
 	
 EndProcedure
 
 &AtServer
-Procedure FillSettings()
+Procedure FillSettings(Val ResultAddress)
 	
-	Result = GetFromTempStorage(ExecutionResult.ResultAddress);
+	Result = GetFromTempStorage(ResultAddress);
 	
 	ValueToFormAttribute(Result.ReportSettingsTree, "ReportsSettings");
 	ValueToFormAttribute(Result.UserReportOptions, "UserReportOptionTable");
@@ -514,7 +522,7 @@ Procedure FillSettings()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
 Procedure CalculateSettingsCount()
@@ -573,7 +581,7 @@ Function SettingsInTreeCount(SettingsList)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
 Procedure CopyAtServer(UsersDestination, ReportPersonalizationCount, Report)
@@ -837,7 +845,7 @@ Procedure ClearCompletion(Response, SettingsTree) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure Attachable_ExecuteNotifyProcessing()
@@ -862,7 +870,7 @@ Procedure Attachable_ExecuteNotifyProcessing()
 		UsersCount, UsersDestination[0]);
 	
 	NotificationText1     = NStr("en = 'Copy settings';");
-	NotificationPicture  = PictureLib.Information32;
+	NotificationPicture  = PictureLib.DialogInformation;
 	
 	If Parameter.CopyAll Then
 		
@@ -990,7 +998,7 @@ Procedure ClearSettingsForAllUsersCompletion(Response, AdditionalParameters) Exp
 	CommonClient.RefreshApplicationInterface();
 	
 	ShowUserNotification(NStr("en = 'Clear settings';"), ,
-		NStr("en = 'All settings of all users are cleared.';"), PictureLib.Information32);
+		NStr("en = 'All settings of all users are cleared.';"), PictureLib.DialogInformation);
 	
 EndProcedure
 
@@ -1005,7 +1013,7 @@ Procedure ClearObsoleteSettingsOfAllUsersCompletion(Response, AdditionalParamete
 	CommonClient.RefreshApplicationInterface();
 	
 	ShowUserNotification(NStr("en = 'Clear settings';"), ,
-		NStr("en = 'Obsolete settings are cleared for all users';"), PictureLib.Information32);
+		NStr("en = 'Obsolete settings are cleared for all users';"), PictureLib.DialogInformation);
 	
 EndProcedure
 
@@ -1031,7 +1039,7 @@ Procedure ClearAllSettingsCompletion(Response, AdditionalParameters) Export
 	
 	ExplanationText = NStr("en = 'All settings of user ""%1"" are cleared.';");
 	ExplanationText = StringFunctionsClientServer.SubstituteParametersToString(ExplanationText, UserRef);
-	ShowUserNotification(NStr("en = 'Clear settings';"), , ExplanationText, PictureLib.Information32);
+	ShowUserNotification(NStr("en = 'Clear settings';"), , ExplanationText, PictureLib.DialogInformation);
 	
 EndProcedure
 
@@ -1048,7 +1056,7 @@ Procedure ClearObsoleteSettingsCompletion(Response, AdditionalParameters) Export
 	
 	ExplanationText = NStr("en = 'Obsolete settings are cleared for the ""%1"" user';");
 	ExplanationText = StringFunctionsClientServer.SubstituteParametersToString(ExplanationText, UserRef);
-	ShowUserNotification(NStr("en = 'Clear settings';"), , ExplanationText, PictureLib.Information32);
+	ShowUserNotification(NStr("en = 'Clear settings';"), , ExplanationText, PictureLib.DialogInformation);
 	
 EndProcedure
 
@@ -1069,7 +1077,7 @@ Procedure ClearReportAndInterfaceSettingsCompletion(Response, AdditionalParamete
 	
 	ExplanationText = NStr("en = 'All interface and report settings of user ""%1"" are cleared.';");
 	ExplanationText = StringFunctionsClientServer.SubstituteParametersToString(ExplanationText, String(UserRef));
-	ShowUserNotification(NStr("en = 'Clear settings';"), , ExplanationText, PictureLib.Information32);
+	ShowUserNotification(NStr("en = 'Clear settings';"), , ExplanationText, PictureLib.DialogInformation);
 	
 EndProcedure
 
@@ -1252,7 +1260,7 @@ Procedure NotifyDeletion(SettingsCount, SettingName1 = Undefined, UsersCount = U
 	EndIf;
 	
 	ShowUserNotification(NStr("en = 'Clear settings';"),
-		, ExplanationText, PictureLib.Information32);
+		, ExplanationText, PictureLib.DialogInformation);
 	
 EndProcedure
 

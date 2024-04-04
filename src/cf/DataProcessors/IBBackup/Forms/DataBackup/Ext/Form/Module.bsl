@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -50,14 +51,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	AutomaticRun = (Parameters.WorkMode = "ExecuteNow" Or Parameters.WorkMode = "ExecuteOnExit");
-	
-	If BackupSettings1.Property("ManualBackupsStorageDirectory")
-		And Not IsBlankString(BackupSettings1.ManualBackupsStorageDirectory)
-		And Not AutomaticRun Then
-		Object.BackupDirectory = BackupSettings1.ManualBackupsStorageDirectory;
-	Else
-		Object.BackupDirectory = BackupSettings1.BackupStorageDirectory;
-	EndIf;
+	Object.BackupDirectory = ?(AutomaticRun, 
+		?(Not IsBlankString(BackupSettings1.BackupStorageDirectory), 
+			BackupSettings1.BackupStorageDirectory,
+			BackupSettings1.ManualBackupsStorageDirectory),
+		?(Not IsBlankString(BackupSettings1.ManualBackupsStorageDirectory),
+			BackupSettings1.ManualBackupsStorageDirectory,
+			BackupSettings1.BackupStorageDirectory));
 	
 	If BackupSettings1.LatestBackupDate = Date(1, 1, 1) Then
 		TitleText = NStr("en = 'The infobase has never been backed up.';");
@@ -106,7 +106,7 @@ EndProcedure
 Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	
 	CurrentPage = Items.WizardPages.CurrentPage;
-	If CurrentPage <> Items.WizardPages.ChildItems.InformationAndBackupCreationPage Then
+	If CurrentPage <> Items.InformationAndBackupCreationPage Then
 		Return;
 	EndIf;
 	
@@ -185,15 +185,14 @@ EndProcedure
 Procedure Next(Command)
 	
 	ClearMessages();
-	
 	If Not CheckAttributesFilling() Then
 		Return;
 	EndIf;
 	
 	CurrentWizardPage = Items.WizardPages.CurrentPage;
-	If CurrentWizardPage = Items.WizardPages.ChildItems.BackupCreationPage Then
+	If CurrentWizardPage = Items.BackupCreationPage Then
 		GoToPage3(Items.InformationAndBackupCreationPage);
-		SetBackupArchivePath(Object.BackupDirectory);
+		SetBackupArchivePath(Object.BackupDirectory, AutomaticRun);
 	Else
 		Close();
 	EndIf;
@@ -225,11 +224,10 @@ EndProcedure
 Procedure GoToPage3(NewPage)
 	
 	GoToNext = True;
-	SubordinatePages = Items.WizardPages.ChildItems;
-	If NewPage = SubordinatePages.InformationAndBackupCreationPage Then
+	If NewPage = Items.InformationAndBackupCreationPage Then
 		GoToInformationAndBackupPage(GoToNext);
-	ElsIf NewPage = SubordinatePages.BackupCreationErrorsPage 
-		Or NewPage = SubordinatePages.BackupSuccessfulPage Then
+	ElsIf NewPage = Items.BackupCreationErrorsPage 
+		Or NewPage = Items.BackupSuccessfulPage Then
 		GoToBackupResultsPage();
 	EndIf;
 	
@@ -562,13 +560,17 @@ Procedure AfterStartScript(Result, Context) Export
 EndProcedure
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServerNoContext
-Procedure SetBackupArchivePath(Path)
+Procedure SetBackupArchivePath(Val Path, Val AutomaticRun)
 	
 	PathSettings = IBBackupServer.BackupSettings1();
-	PathSettings.Insert("ManualBackupsStorageDirectory", Path);
+	If AutomaticRun Then
+		PathSettings.BackupStorageDirectory = Path;
+	Else
+		PathSettings.ManualBackupsStorageDirectory = Path;
+	EndIf;
 	IBBackupServer.SetBackupSettings(PathSettings);
 	
 EndProcedure

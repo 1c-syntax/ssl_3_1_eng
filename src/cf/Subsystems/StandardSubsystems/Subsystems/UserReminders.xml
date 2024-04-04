@@ -34,6 +34,10 @@
 				<xr:Item xsi:type="xr:MDObjectRef">DefinedType.ReminderSubjectObject</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.UserRemindersOverridable</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.UserReminders</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.NotificationCenter</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.UserRemindersInternalClient</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">FunctionalOption.UseRemindersCommand</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">Constant.UseRemindersCommand</xr:Item>
 			</Content>
 		</Properties>
 		<ChildObjects/>

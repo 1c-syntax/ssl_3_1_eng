@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -50,14 +51,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	OnCreateAndOnReadAtServer();
 	
-	// StandardSubsystems.StoredFiles
+	// StandardSubsystems.FilesOperations
 	If Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperations = Common.CommonModule("FilesOperations");
 		FilesHyperlink = ModuleFilesOperations.FilesHyperlink();
 		FilesHyperlink.Location = "CommandBar";
 		ModuleFilesOperations.OnCreateAtServer(ThisObject, FilesHyperlink);
 	EndIf;
-	// End StandardSubsystems.StoredFiles
+	// End StandardSubsystems.FilesOperations
 	
 	// StandardSubsystems.AttachableCommands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
@@ -108,12 +109,12 @@ Procedure OnOpen(Cancel)
 	
 	CheckContactCreationAvailability();
 	
-	// StandardSubsystems.StoredFiles
+	// StandardSubsystems.FilesOperations
 	If CommonClient.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperationsClient = CommonClient.CommonModule("FilesOperationsClient");
 		ModuleFilesOperationsClient.OnOpen(ThisObject, Cancel);
 	EndIf;
-	// End StandardSubsystems.StoredFiles
+	// End StandardSubsystems.FilesOperations
 	
 	// StandardSubsystems.AttachableCommands
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
@@ -141,12 +142,12 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 	InteractionsClientServer.CheckContactsFilling(Object, ThisObject, "PlannedInteraction");
 	CheckContactCreationAvailability();
 	
-	// StandardSubsystems.StoredFiles
+	// StandardSubsystems.FilesOperations
 	If CommonClient.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperationsClient = CommonClient.CommonModule("FilesOperationsClient");
 		ModuleFilesOperationsClient.NotificationProcessing(ThisObject, EventName);
 	EndIf;
-	// End StandardSubsystems.StoredFiles
+	// End StandardSubsystems.FilesOperations
 
 EndProcedure
 
@@ -259,7 +260,7 @@ Procedure SubjectOfStartChoice(Item, ChoiceData, StandardProcessing)
 	
 EndProcedure
 
-// StandardSubsystems.StoredFiles
+// StandardSubsystems.FilesOperations
 &AtClient
 Procedure Attachable_PreviewFieldClick(Item, StandardProcessing)
 	
@@ -291,7 +292,7 @@ Procedure Attachable_PreviewFieldDrag(Item, DragParameters, StandardProcessing)
 	EndIf;
 	
 EndProcedure
-// End StandardSubsystems.StoredFiles
+// End StandardSubsystems.FilesOperations
 
 #EndRegion
 
@@ -406,7 +407,7 @@ Procedure CreateContactExecute()
 	
 EndProcedure
 
-
+// 
 
 &AtClient
 Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined, StandardProcessing = Undefined)
@@ -430,7 +431,7 @@ EndProcedure
 
 // End StandardSubsystems.Properties
 
-// StandardSubsystems.StoredFiles
+// StandardSubsystems.FilesOperations
 &AtClient
 Procedure Attachable_AttachedFilesPanelCommand(Command)
 	
@@ -440,7 +441,7 @@ Procedure Attachable_AttachedFilesPanelCommand(Command)
 	EndIf;
 	
 EndProcedure
-// End StandardSubsystems.StoredFiles
+// End StandardSubsystems.FilesOperations
 
 #EndRegion
 
@@ -486,7 +487,7 @@ Function ContactsAutoSelection(Val SearchString)
 	
 EndFunction
 
-
+// 
 
 &AtServer
 Procedure PropertiesExecuteDeferredInitialization()

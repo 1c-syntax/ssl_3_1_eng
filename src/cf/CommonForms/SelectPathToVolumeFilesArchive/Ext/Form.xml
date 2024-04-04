@@ -18,6 +18,12 @@
 				<DefaultButton>true</DefaultButton>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.Place</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Store files</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="PlaceExtendedTooltip" id="7"/>
 			</Button>
 		</ChildItems>

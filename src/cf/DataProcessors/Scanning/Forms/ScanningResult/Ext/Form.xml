@@ -53,6 +53,12 @@
 			<Button name="FormScanAgain" id="14">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.Scan</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Scan</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormScanAgainExtendedTooltip" id="24"/>
 			</Button>
 			<Button name="Rescan" id="5">
@@ -70,6 +76,12 @@
 			<Button name="FormSetting" id="19">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.Setting</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Setting</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormSettingExtendedTooltip" id="30"/>
 			</Button>
@@ -93,7 +105,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="ImageGroupExtendedTooltip" id="31"/>
+			<ExtendedTooltip name="ImagesGroupExtendedTooltip" id="31"/>
 			<ChildItems>
 				<Table name="TableOfFiles" id="9">
 					<Representation>List</Representation>
@@ -141,7 +153,7 @@
 					<AutoCommandBar name="TableOfFilesCommandBar" id="11">
 						<Autofill>false</Autofill>
 					</AutoCommandBar>
-					<ExtendedTooltip name="FilesTable1ExtendedTooltip" id="33"/>
+					<ExtendedTooltip name="TableOfFilesExtendedTooltip" id="33"/>
 					<SearchStringAddition name="FilesTable1SearchString" id="39">
 						<AdditionSource>
 							<Item>TableOfFiles</Item>
@@ -174,16 +186,28 @@
 						<InputField name="TableOfFilesPresentation" id="12">
 							<DataPath>TableOfFiles.Presentation</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Presentation</v8:content>
+								</v8:item>
+							</Title>
 							<EditMode>EnterOnInput</EditMode>
 							<ShowInHeader>false</ShowInHeader>
 							<TextEdit>false</TextEdit>
 							<ContextMenu name="FilesTable1PresentationContextMenu" id="13"/>
-							<ExtendedTooltip name="FilesTable1PresentationExtendedTooltip" id="34"/>
+							<ExtendedTooltip name="TableOfFilesPresentationExtendedTooltip" id="34"/>
 						</InputField>
 					</ChildItems>
 				</Table>
 				<PictureField name="Picture" id="6">
 					<DataPath>PictureAddress</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Picture file path</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<Width>50</Width>
 					<Height>10</Height>
@@ -211,7 +235,7 @@
 			<ShowTitle>false</ShowTitle>
 			<ExtendedTooltip name="ScanningErrorExtendedTooltip" id="67"/>
 			<ChildItems>
-				<PictureDecoration name="ScanErrorPicture" id="68">
+				<PictureDecoration name="PictureScanError" id="68">
 					<Title formatted="false">
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -222,8 +246,8 @@
 						<xr:Ref>CommonPicture.Warning</xr:Ref>
 						<xr:LoadTransparent>false</xr:LoadTransparent>
 					</Picture>
-					<ContextMenu name="ScanErrorPictureContextMenu" id="69"/>
-					<ExtendedTooltip name="ScanErrorPictureExtendedTooltip" id="70"/>
+					<ContextMenu name="PictureScanErrorContextMenu" id="69"/>
+					<ExtendedTooltip name="PictureScanErrorExtendedTooltip" id="70"/>
 				</PictureDecoration>
 				<LabelDecoration name="ScanErrorText" id="71">
 					<AutoMaxWidth>false</AutoMaxWidth>
@@ -279,6 +303,12 @@
 						<xr:Ref>CommonPicture.OtherUserSettings</xr:Ref>
 						<xr:LoadTransparent>false</xr:LoadTransparent>
 					</Picture>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Settings text change</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="SettingsTextChange1ExtendedTooltip" id="65"/>
 				</Button>
 				<UsualGroup name="SettingsTextGroup" id="53">
@@ -296,6 +326,12 @@
 					<ChildItems>
 						<LabelField name="SettingsText" id="17">
 							<DataPath>SettingsText</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Settings text</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<Width>75</Width>
 							<Height>2</Height>
@@ -309,11 +345,17 @@
 							<Width>75</Width>
 							<Height>2</Height>
 							<CommandName>Form.Command.SettingsTextChange</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Settings text change</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="SettingsTextChangeExtendedTooltip" id="61"/>
 						</Button>
 					</ChildItems>
 				</UsualGroup>
-				<LabelDecoration name="HelpIsNeeded" id="74">
+				<LabelDecoration name="AssistanceRequired" id="74">
 					<Title formatted="false">
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -321,10 +363,10 @@
 						</v8:item>
 					</Title>
 					<Hyperlink>true</Hyperlink>
-					<ContextMenu name="HelpIsNeededContextMenu" id="75"/>
-					<ExtendedTooltip name="HelpIsNeededExtendedTooltip" id="76"/>
+					<ContextMenu name="AssistanceRequiredContextMenu" id="75"/>
+					<ExtendedTooltip name="AssistanceRequiredExtendedTooltip" id="76"/>
 					<Events>
-						<Event name="Click">HelpIsNeededClick</Event>
+						<Event name="Click">AssistanceRequiredClick</Event>
 					</Events>
 				</LabelDecoration>
 			</ChildItems>
@@ -653,7 +695,12 @@
 				</v8:DateQualifiers>
 			</Type>
 		</Attribute>
-		<Attribute name="ScanningStarted" id="33">
+		<Attribute name="IsScanStarted" id="33">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="IsReScanning" id="40">
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
@@ -779,6 +826,33 @@
 			</Type>
 		</Parameter>
 		<Parameter name="ClientID">
+			<Type/>
+		</Parameter>
+		<Parameter name="ResultType">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Parameter>
+		<Parameter name="FileOwner">
+			<Type>
+				<v8:TypeSet>cfg:AnyRef</v8:TypeSet>
+			</Type>
+		</Parameter>
+		<Parameter name="IsFile">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="NotOpenCardAfterCreateFromFile">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="ScanningParameters">
 			<Type/>
 		</Parameter>
 	</Parameters>

@@ -36,7 +36,7 @@
 			<Synonym>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Questionnaire responses</v8:content>
+					<v8:content>Questionnaire answers</v8:content>
 				</v8:item>
 			</Synonym>
 			<Comment/>
@@ -176,7 +176,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Response</v8:content>
+							<v8:content>Answer</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -189,7 +189,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Response to questionnaire question</v8:content>
+							<v8:content>Answer</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -237,7 +237,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>comment to a question</v8:content>
+							<v8:content>Comment to answer</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -414,7 +414,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>General question with given response</v8:content>
+							<v8:content>General question with given answer</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>

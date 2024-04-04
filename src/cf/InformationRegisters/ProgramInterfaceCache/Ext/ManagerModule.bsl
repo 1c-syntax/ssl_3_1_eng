@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -292,6 +293,7 @@ Function InnerWSProxy(Parameters) Export
 	Location = Parameters.Location;
 	UseOSAuthentication = Parameters.UseOSAuthentication;
 	SecureConnection = Parameters.SecureConnection;
+	IsPackageDeliveryCheckOnErrorEnabled = Parameters.IsPackageDeliveryCheckOnErrorEnabled;
 	
 	Protocol = "";
 	Position = StrFind(WSDLAddress, "://");
@@ -343,7 +345,7 @@ Function WSDefinitions(Val WSDLAddress, Val UserName, Val Password, Val Timeout 
 	
 	If Not Common.SubsystemExists("StandardSubsystems.GetFilesFromInternet") Then
 		Try
-			InternetProxy = Undefined; 
+			InternetProxy = Undefined; // By default.
 			Definitions = New WSDefinitions(WSDLAddress, UserName, Password, InternetProxy, Timeout, SecureConnection);
 		Except
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -442,14 +444,16 @@ Function GetInterfaceVersionsToCache(Val ConnectionParameters, Val InterfaceName
 	
 	ServiceAddress = ConnectionParameters.URL + "/ws/InterfaceVersion?wsdl";
 	
+	IsPackageDeliveryCheckOnErrorEnabled = ConnectionParameters.IsPackageDeliveryCheckOnErrorEnabled;
 	
-	ConnectionParameters = New Structure;
-	ConnectionParameters.Insert("WSDLAddress", ServiceAddress);
-	ConnectionParameters.Insert("NamespaceURI", "http://www.1c.ru/SaaS/1.0/WS");
-	ConnectionParameters.Insert("ServiceName", "InterfaceVersion");
-	ConnectionParameters.Insert("UserName", UserName);
-	ConnectionParameters.Insert("Password", UserPassword);
-	ConnectionParameters.Insert("Timeout", 7);
+	ConnectionParameters = Common.WSProxyConnectionParameters();
+	ConnectionParameters.WSDLAddress = ServiceAddress;
+	ConnectionParameters.NamespaceURI = "http://www.1c.ru/SaaS/1.0/WS";
+	ConnectionParameters.ServiceName = "InterfaceVersion";
+	ConnectionParameters.UserName = UserName;
+	ConnectionParameters.Password = UserPassword;
+	ConnectionParameters.Timeout = 7;
+	ConnectionParameters.IsPackageDeliveryCheckOnErrorEnabled = IsPackageDeliveryCheckOnErrorEnabled;
 	
 	VersioningProxy = Common.CreateWSProxy(ConnectionParameters);
 	

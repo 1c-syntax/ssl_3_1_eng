@@ -17,6 +17,12 @@
 			<Button name="FormRegisteredData" id="39">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.RegisteredData</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Registered data</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormRegisteredDataExtendedTooltip" id="40"/>
 			</Button>
 		</ChildItems>
@@ -96,6 +102,12 @@
 					<ChildItems>
 						<PictureField name="DependencyTreePicture" id="23">
 							<DataPath>DependencyTree.Picture</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Picture</v8:content>
+								</v8:item>
+							</Title>
 							<EditMode>EnterOnInput</EditMode>
 							<ShowInHeader>false</ShowInHeader>
 							<ContextMenu name="DependencyTreePictureContextMenu" id="24"/>
@@ -119,6 +131,12 @@
 				</ColumnGroup>
 				<InputField name="DependencyTreeTotalObjectCount" id="20">
 					<DataPath>DependencyTree.TotalObjectCount</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Total</v8:content>
+						</v8:item>
+					</Title>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -132,6 +150,12 @@
 				</InputField>
 				<InputField name="DependencyTreeLeftToProcess" id="29">
 					<DataPath>DependencyTree.LeftToProcess</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Remained</v8:content>
+						</v8:item>
+					</Title>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -145,6 +169,12 @@
 				</InputField>
 				<InputField name="DependencyTreeTotalProgress" id="32">
 					<DataPath>DependencyTree.TotalProgress</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Progress, %</v8:content>
+						</v8:item>
+					</Title>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -158,6 +188,12 @@
 				</InputField>
 				<InputField name="DependencyTreeProcessedForInterval" id="26">
 					<DataPath>DependencyTree.ProcessedForInterval</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Processed for period</v8:content>
+						</v8:item>
+					</Title>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>

@@ -18,6 +18,12 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.SaveFile</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save file</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormSaveFileExtendedTooltip" id="11"/>
 			</Button>
 			<Button name="FormCancel" id="2">
@@ -33,6 +39,12 @@
 	<ChildItems>
 		<RadioButtonField name="SaveDecrypted" id="8">
 			<DataPath>SaveDecrypted</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>File save mode</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>None</TitleLocation>
 			<RadioButtonType>Auto</RadioButtonType>
 			<ColumnsCount>1</ColumnsCount>

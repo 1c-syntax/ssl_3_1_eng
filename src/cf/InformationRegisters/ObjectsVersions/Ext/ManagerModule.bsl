@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -31,7 +32,7 @@ EndProcedure
 
 // End StandardSubsystems.AccessManagement
 
-// SaaSTechnology.ExportImportData
+// CloudTechnology.ExportImportData
 
 // Attached in ExportImportDataOverridable.OnRegisterDataExportHandlers.
 //
@@ -80,7 +81,7 @@ Procedure BeforeExportObject(Container, ObjectExportManager, Serializer, Object,
 	
 EndProcedure
 
-// End SaaSTechnology.ExportImportData
+// End CloudTechnology.ExportImportData
 
 #EndRegion
 
@@ -121,15 +122,15 @@ Procedure DeleteVersionAuthorInfo(Val VersionAuthor) Export
 			Break;
 		EndIf;
 		
-		Selection = Query.Execute().Select(); 
+		Selection = Query.Execute().Select(); // 
 	EndDo;
 	
 EndProcedure
 
 
 Procedure GenerateReportOnChanges(ReportParameters, ResultAddress) Export
-	
-	
+	// 
+	// 
 	Var ObjectVersion;
 	
 	// Global ID used for string changes between versions.
@@ -141,30 +142,30 @@ Procedure GenerateReportOnChanges(ReportParameters, ResultAddress) Export
 	CommonTemplate = GetTemplate("StandardObjectPresentationTemplate");
 	ReportTS = New SpreadsheetDocument;
 	
-	
-	
+	// 
+	// 
 	VersionNumberArray = VersionsList.UnloadValues();
 	
-	
-	
-	
+	// 
+	// 
+	// 
 	ObjectVersionCount = VersionNumberArray.Count();
 	
-	
-	
-	
-	
-	
+	// 
+	// 
+	// 
+	// 
+	// 
 	ChangesTableBankingDetails_ = New ValueTable;
 	PrepareAttributeChangeTableColumns(ChangesTableBankingDetails_, VersionNumberArray);
 	
-	
-	
-	
-	
-	
-	
-	
+	// 
+	// 
+	// 
+	// 
+	// 
+	// 
+	// 
 	TabularSectionChangeTable = New Map;
 	
 	SpreadsheetDocuments = New ValueList;
@@ -173,8 +174,8 @@ Procedure GenerateReportOnChanges(ReportParameters, ResultAddress) Export
 	SpreadsheetDocumentChangeTable.Columns.Add("Presentation");
 	//
 	
-	
-	
+	// 
+	// 
 	ObjectVersionPrev = CountInitialAttributeAndTabularSectionValues(ChangesTableBankingDetails_, TabularSectionChangeTable,
 		ObjectVersionCount, VersionNumberArray, ObjectReference);
 	
@@ -439,13 +440,13 @@ Procedure OutputTabularSectionChanges(ReportTS, TabularSectionChangeTable, Versi
 			
 			UUIDStringChanged = False;
 			
-			 
-			
-			
+			//  
+			// 
+			// 
 			IndexByVersions = VersionNumberArray.Count();
 			
 			// -
-			
+			// 
 			
 			RowModified = False;
 			
@@ -481,8 +482,8 @@ Procedure OutputTabularSectionChanges(ReportTS, TabularSectionChangeTable, Versi
 			
 			IntervalBetweenFillings = 0;
 			
-			
-			
+			// 
+			// 
 			While IndexByVersions >= 1 Do
 				IntervalBetweenFillings = IntervalBetweenFillings + 1;
 				CurrentTSVersionColumn = "Version" + Format(VersionNumberArray[IndexByVersions-1], "NG=0");
@@ -1652,9 +1653,9 @@ Procedure ClearVersionWarnings(DeletionParameters, EventName) Export
 		BeginTransaction();
 		Try
 			
-			 
-			 
-			 
+			 // 
+			 // 
+			 // 
 			DataLock = New DataLock;
 			DataLockItem = DataLock.Add("InformationRegister.ObjectsVersions");
 			DataLockItem.SetValue("Object", SelectionOfObjects.BlockingObject);
@@ -1687,8 +1688,8 @@ Procedure ClearVersionWarnings(DeletionParameters, EventName) Export
 			
 		Except
 			
-			
-			
+			// 
+			// 
 			RollbackTransaction();
 			
 			WriteLogEvent(EventName, EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));

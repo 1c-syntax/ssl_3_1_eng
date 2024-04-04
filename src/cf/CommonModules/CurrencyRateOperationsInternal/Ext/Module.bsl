@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -146,10 +147,10 @@ Procedure UpdateCurrencyRates() Export
 	|	Currencies.RateSource = VALUE(Enum.RateSources.DownloadFromInternet)";
 	Selection = Query.Execute().Select();
 	
-	
-	 
-	
-	
+	// 
+	//  
+	// 
+	// 
 	While Selection.Next() Do
 		CopyCurrencyRates(Selection.Code);
 	EndDo;
@@ -169,17 +170,17 @@ EndProcedure
 //
 Procedure NewDataAvailable(Val Descriptor, ToImport) Export
 	
-	
-	
-	
+	// 
+	// 
+	// 
 	//
 	If Descriptor.DataType = "CurrencyRatesForDay" Then
 		ToImport = True;
-	 
-	 
-	
-	
-	
+	//  
+	//  
+	// 
+	// 
+	// 
 	ElsIf Descriptor.DataType = "ExchangeRates" Then
 		ToImport = True;
 	EndIf;
@@ -367,7 +368,7 @@ EndFunction
 // Is called when ExchangeRates data type is received.
 //
 // Parameters:
-//   Descriptor   - 
+//   Descriptor   - XDTODataObject Descriptor.
 //   PathToFile   - String - a full name of the extracted file.
 //
 Procedure HandleSuppliedRates(Val Descriptor, Val PathToFile)
@@ -411,7 +412,7 @@ EndProcedure
 // Is called after getting new CurrencyRatesForDay data type.
 //
 // Parameters:
-//   Descriptor   - 
+//   Descriptor   - XDTODataObject Descriptor.
 //   PathToFile   - String - a full name of the extracted file.
 //
 Procedure HandleSuppliedRatesPerDay(Val Descriptor, Val PathToFile)
@@ -543,7 +544,7 @@ Procedure DistributeRatesByDataAreas(Val RatesDate, Val RateTable, Val AreasForU
 		
 		BeginTransaction();
 		Try
-			
+			// @skip-check query-in-loop - Data area processing.
 			ProcessTransactionedAreaRates(CommonQuery, AreaCurrencies, RateTable);
 			ModuleSaaSOperations.SignOutOfDataArea();
 			ModuleSuppliedData.AreaProcessed(FileID, HandlerCode, DataArea);
@@ -652,14 +653,14 @@ Procedure ProcessTransactionedAreaRates(CommonQuery, AreaCurrencies, RateTable)
 	|WHERE
 	|	Currencies.RateSource = VALUE(Enum.RateSources.DownloadFromInternet)";
 	
-	CurrencySelection1 = CurrencyQuery.Execute().Select(); 
+	CurrencySelection1 = CurrencyQuery.Execute().Select(); // ACC:1328 - Lock not required.
 	
 	While CurrencySelection1.Next() Do
 		
 		CommonQuery.SetParameter("Currency", CurrencySelection1.Ref);
 		CommonQuery.SetParameter("CurrencyCode_", CurrencySelection1.Code);
 		
-		
+		// @skip-check query-in-loop - A temporary table in the query is complemented with another temporary table.
 		CurrencyProperties = SuppliedCurrencyProperties(AreaCurrencies, CurrencySelection1.Code, RateTable, CommonQuery);
 		
 		If Not CurrencyProperties.Supplied_3 Then
@@ -716,7 +717,7 @@ Procedure ProcessTransactionedAreaRates(CommonQuery, AreaCurrencies, RateTable)
 		
 		CommonQuery.Text = StrReplace(QueryText, "NNN", CurrencyProperties.SequenceNumber);
 		
-		
+		// @skip-check query-in-loop - A batch selection that simplifies the query.
 		CommonResult1 = CommonQuery.Execute();
 		CommonSelection = CommonResult1.Select();
 		

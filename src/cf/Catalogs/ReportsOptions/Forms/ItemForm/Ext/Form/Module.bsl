@@ -1,11 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
+
+#Region Variables
+
+&AtClient
+Var IsFormNotificationTriggered;
+
+#EndRegion
 
 #Region FormEventHandlers
 
@@ -13,7 +21,8 @@
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 
 	SetConditionalAppearance();
-	If Parameters.Property("ReportFormOpeningParameters", ReportFormOpeningParameters) Then
+	ReportFormOpeningParameters = Parameters.ReportFormOpeningParameters;
+	If ReportFormOpeningParameters <> Undefined Then
 		Return;
 	EndIf;
 
@@ -85,8 +94,8 @@ EndProcedure
 
 &AtClient
 Procedure NotificationProcessing(EventName, Parameter, Source)
-	If Source <> ThisObject And (EventName = ReportsOptionsClient.EventNameChangingOption() Or EventName
-		= "Write_ConstantsSet") Then
+	If IsFormNotificationTriggered <> True And (EventName = ReportsOptionsClient.EventNameChangingOption() 
+		Or EventName = "Write_ConstantsSet") Then
 		RefillTree(True);
 		Items.SubsystemsTree.Expand(SubsystemsTree.GetItems()[0].GetID(), True);
 	EndIf;
@@ -168,7 +177,9 @@ EndProcedure
 
 &AtClient
 Procedure AfterWrite(WriteParameters)
-	ReportsOptionsClient.UpdateOpenForms(Object.Ref, ThisObject);
+	IsFormNotificationTriggered = True;
+	ReportsOptionsClient.UpdateOpenForms(, Object.Ref);
+	IsFormNotificationTriggered = False;
 	StandardSubsystemsClient.ExpandTreeNodes(ThisObject, "SubsystemsTree", "*", True);
 EndProcedure
 

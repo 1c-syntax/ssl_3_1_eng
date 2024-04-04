@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -14,7 +15,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	DefineSettings();
 	
-	Parameters.Property("FilterObject", MainObject);
+	If ValueIsFilled(Parameters.FilterObject) Then
+		MainObject = Parameters.FilterObject;
+	EndIf;
+	
 	InitialObject = MainObject;
 	
 	If ValueIsFilled(MainObject) Then
@@ -89,7 +93,7 @@ EndProcedure
 #Region Private
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
 Procedure OutputSpreadsheetDocument()
@@ -263,7 +267,7 @@ Procedure OutputPresentationAndPicture(TreeRow, Template, IsCurrentObject = Fals
 	
 EndProcedure
 
-// 
+// Determines whether a vertical connector is to be output to the spreadsheet.
 //
 // Parameters:
 //  LevelUp  - Number - how many levels higher is the 
@@ -370,7 +374,7 @@ Procedure OutputSubordinateTreeItems(TreeRows, Template, RecursionLevels = 1)
 		IsInitialObject = (TreeRow.Ref = InitialObject);
 		SubordinateTreeItems = TreeRow.GetItems();
 		
-		
+		// 
 		For Level = 1 To RecursionLevels Do
 			
 			If RecursionLevels > Level Then
@@ -416,7 +420,7 @@ Procedure OutputHierarchy()
 EndProcedure
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
 Procedure UpdateHierarchicalTree()
@@ -1018,7 +1022,7 @@ Function DocumentAttributeName(Val ObjectMetadata, Val Var_AttributeName)
 	EndIf;	
 	
 	// For backward compatibility purposes.
-	DocumentAttributeName = SubordinationStructureOverridable.DocumentAttributeName(ObjectMetadata.Name, Var_AttributeName); 
+	DocumentAttributeName = SubordinationStructureOverridable.DocumentAttributeName(ObjectMetadata.Name, Var_AttributeName); // ACC:223
 	If Var_AttributeName = "DocumentAmount" Then
 		Return ?(DocumentAttributeName = Undefined, "DocumentAmount", DocumentAttributeName);
 	ElsIf Var_AttributeName = "Currency" Then
@@ -1068,7 +1072,7 @@ Function ObjectPresentationForOutput(Data)
 EndFunction
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Function SelectedItems()
@@ -1131,7 +1135,7 @@ Function SelectedAreaBorders(SelectedArea1)
 	
 EndFunction
 
-
+// 
 
 &AtServerNoContext
 Function StatisticsBySelectedItems(SelectedItems)
@@ -1260,7 +1264,7 @@ Procedure ExecuteDeletionMarkChangeScenario(Response, Scenario) Export
 			Scenario.Notification,
 			Scenario.Ref,
 			Scenario.Explanation,
-			PictureLib.Information32);
+			PictureLib.DialogInformation);
 	EndIf;
 	CommonClient.NotifyObjectsChanged(Scenario.SelectedItems);
 	
@@ -1339,7 +1343,7 @@ Procedure ChangeDocumentsPosting(Mode)
 			NStr("en = 'Change (%1)';"), ProcessedDocumentsCount);
 	EndIf;
 	
-	ShowUserNotification(Notification, Ref, Explanation, PictureLib.Information32);
+	ShowUserNotification(Notification, Ref, Explanation, PictureLib.DialogInformation);
 	CommonClient.NotifyObjectsChanged(SelectedDocuments);
 	
 EndProcedure
@@ -1414,7 +1418,7 @@ Function ProcessedDocuments(SelectedDocuments, Mode, Errors)
 	
 EndFunction
 
-
+// 
 
 &AtClient
 Procedure WarnAboutAnErrorWhenChangingElements(Errors, Scenario)

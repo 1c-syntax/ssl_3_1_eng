@@ -17,6 +17,12 @@
 					<xr:Ref>StdPicture.WriteAndClose</xr:Ref>
 					<xr:LoadTransparent>true</xr:LoadTransparent>
 				</Picture>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save and close</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormWriteAndCloseExtendedTooltip" id="346"/>
 			</Button>
 			<ButtonGroup name="FormCommands" id="347">
@@ -32,12 +38,24 @@
 			<Button name="FormSelectPhoto" id="373">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.SelectPhoto</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Edit photo…</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormSelectPhotoExtendedTooltip" id="374"/>
 			</Button>
 			<Button name="FormClearPhoto" id="356">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.ClearPhoto</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Remove photo</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormClearPhotoExtendedTooltip" id="357"/>
 			</Button>
@@ -64,20 +82,14 @@
 						</Title>
 						<ExtendedTooltip name="ReportsImportantSubmenuExtendedTooltip" id="361"/>
 					</ButtonGroup>
-					<ButtonGroup name="ReportsSubmenuGo" id="362">
+					<ButtonGroup name="SubmenuReportsStandard" id="362">
 						<Title>
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>Submenu reports navigate</v8:content>
+								<v8:content>Submenu fill in standard</v8:content>
 							</v8:item>
 						</Title>
-						<ToolTip>
-							<v8:item>
-								<v8:lang>en</v8:lang>
-								<v8:content>Submenu reports important</v8:content>
-							</v8:item>
-						</ToolTip>
-						<ExtendedTooltip name="ReportsSubmenuGoExtendedTooltip" id="363"/>
+						<ExtendedTooltip name="SubmenuReportsStandardExtendedTooltip" id="363"/>
 					</ButtonGroup>
 					<ButtonGroup name="ReportsSubmenuSeeAlso" id="364">
 						<Title>
@@ -86,12 +98,6 @@
 								<v8:content>Submenu reports see also</v8:content>
 							</v8:item>
 						</Title>
-						<ToolTip>
-							<v8:item>
-								<v8:lang>en</v8:lang>
-								<v8:content>Submenu reports important</v8:content>
-							</v8:item>
-						</ToolTip>
 						<ExtendedTooltip name="ReportsSubmenuSeeAlsoExtendedTooltip" id="365"/>
 					</ButtonGroup>
 				</ChildItems>
@@ -187,8 +193,8 @@ They are not displayed in any user lists, including the lists where one can sele
 						</v8:item>
 					</Title>
 					<Picture>
-						<xr:Ref>CommonPicture.Warning32</xr:Ref>
-						<xr:LoadTransparent>false</xr:LoadTransparent>
+						<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</Picture>
 					<FileDragMode>AsFile</FileDragMode>
 					<ContextMenu name="PropertiesWarningPictureContextMenu" id="166"/>
@@ -244,6 +250,12 @@ Click "Save" to resolve the differences and hide this message.</v8:content>
 									<Type>UsualButton</Type>
 									<SkipOnInput>false</SkipOnInput>
 									<CommandName>Form.Command.FillFromIBUser</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Fill from user data</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="FillFromIBUserExtendedTooltip" id="212"/>
 								</Button>
 							</ChildItems>
@@ -273,8 +285,8 @@ Click "Save" to resolve the differences and hide this message.</v8:content>
 						</v8:item>
 					</Title>
 					<Picture>
-						<xr:Ref>CommonPicture.Warning32</xr:Ref>
-						<xr:LoadTransparent>false</xr:LoadTransparent>
+						<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</Picture>
 					<FileDragMode>AsFile</FileDragMode>
 					<ContextMenu name="MappingWarningPictureContextMenu" id="173"/>
@@ -312,6 +324,12 @@ Click "Save" to resolve the issue and hide this message.</v8:content>
 			<ChildItems>
 				<PictureField name="Photo" id="353">
 					<DataPath>PhotoAddress</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Photo</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<ToolTip>
 						<v8:item>
@@ -337,11 +355,23 @@ Click "Save" to resolve the issue and hide this message.</v8:content>
 							<Button name="PhotoContextMenuSelectPhoto" id="371">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.SelectPhoto</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Edit photo…</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="PhotoContextMenuSelectPhotoExtendedTooltip" id="372"/>
 							</Button>
 							<Button name="PhotoContextMenuClearPhoto" id="369">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.ClearPhoto</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Remove photo</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="PhotoContextMenuClearPhotoExtendedTooltip" id="370"/>
 							</Button>
 						</ChildItems>
@@ -418,7 +448,7 @@ Click "Save" to resolve the issue and hide this message.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Sign-in allowed</v8:content>
+					<v8:content>Login allowed</v8:content>
 				</v8:item>
 			</Title>
 			<Behavior>Usual</Behavior>
@@ -428,6 +458,12 @@ Click "Save" to resolve the issue and hide this message.</v8:content>
 			<ChildItems>
 				<CheckBoxField name="CanSignIn" id="99">
 					<DataPath>CanSignIn</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Login allowed</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Right</TitleLocation>
 					<ToolTip>
 						<v8:item>
@@ -598,6 +634,12 @@ with the specified authentication methods.</v8:content>
 						<Button name="ChangeAuthorizationRestriction" id="333">
 							<Type>Hyperlink</Type>
 							<CommandName>Form.Command.ChangeAuthorizationRestriction</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Edit sign-in restrictions</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="ChangeAuthorizationRestrictionExtendedTooltip" id="334"/>
 						</Button>
 					</ChildItems>
@@ -674,6 +716,12 @@ by the user list owner (not by the administrator).</v8:content>
 									<ChildItems>
 										<InputField name="IBUserName" id="95">
 											<DataPath>IBUserName</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Username</v8:content>
+												</v8:item>
+											</Title>
 											<AutoMarkIncomplete>true</AutoMarkIncomplete>
 											<ContextMenu name="IBUserNameContextMenu" id="96"/>
 											<ExtendedTooltip name="IBUserNameExtendedTooltip" id="222"/>
@@ -698,6 +746,12 @@ by the user list owner (not by the administrator).</v8:content>
 									<ChildItems>
 										<InputField name="ContactInformationFieldUserEmail" id="395">
 											<DataPath>ContactInformationFieldUserEmail</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Email account</v8:content>
+												</v8:item>
+											</Title>
 											<ContextMenu name="ContactInformationFieldUserEmailContextMenu" id="396"/>
 											<ExtendedTooltip name="ContactInformationFieldUserEmailExtendedTooltip" id="397"/>
 											<Events>
@@ -709,6 +763,12 @@ by the user list owner (not by the administrator).</v8:content>
 										<Button name="CommandContactInfoFieldUserEmail" id="405">
 											<Type>UsualButton</Type>
 											<CommandName>Form.Command.CommandContactInfoFieldUserEmail</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Compose mail message</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="CommandContactInfoFieldUserEmailExtendedTooltip" id="406"/>
 										</Button>
 									</ChildItems>
@@ -728,6 +788,12 @@ by the user list owner (not by the administrator).</v8:content>
 									<ChildItems>
 										<InputField name="ContactInformationFieldUserPhone" id="398">
 											<DataPath>ContactInformationFieldUserPhone</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Phone</v8:content>
+												</v8:item>
+											</Title>
 											<ChoiceButton>true</ChoiceButton>
 											<ContextMenu name="ContactInformationFieldUserPhoneContextMenu" id="399"/>
 											<ExtendedTooltip name="ContactInformationFieldUserPhoneExtendedTooltip" id="400"/>
@@ -740,6 +806,12 @@ by the user list owner (not by the administrator).</v8:content>
 										<Button name="CommandContactInfoFieldUserPhoneNum" id="407">
 											<Type>UsualButton</Type>
 											<CommandName>Form.Command.CommandContactInfoFieldUserPhoneNum</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Make call or send text message</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="CommandContactInfoFieldUserPhoneNumExtendedTooltip" id="408"/>
 										</Button>
 									</ChildItems>
@@ -786,6 +858,12 @@ by the user list owner (not by the administrator).</v8:content>
 											<ChildItems>
 												<CheckBoxField name="IBUserStandardAuthentication" id="19">
 													<DataPath>IBUserStandardAuthentication</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>1C:Enterprise authentication</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>Right</TitleLocation>
 													<ToolTip>
 														<v8:item>
@@ -858,12 +936,24 @@ username and password.</v8:content>
 																		<Button name="ChangePassword" id="324">
 																			<Type>UsualButton</Type>
 																			<CommandName>Form.Command.ChangePassword</CommandName>
+																			<Title>
+																				<v8:item>
+																					<v8:lang>en</v8:lang>
+																					<v8:content>Change password…</v8:content>
+																				</v8:item>
+																			</Title>
 																			<ExtendedTooltip name="ChangePasswordExtendedTooltip" id="325"/>
 																		</Button>
 																	</ChildItems>
 																</UsualGroup>
 																<CheckBoxField name="UserMustChangePasswordOnAuthorization" id="316">
 																	<DataPath>UserMustChangePasswordOnAuthorization</DataPath>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Demand password change on next login</v8:content>
+																		</v8:item>
+																	</Title>
 																	<TitleLocation>Right</TitleLocation>
 																	<ToolTipRepresentation>Button</ToolTipRepresentation>
 																	<CheckBoxType>Auto</CheckBoxType>
@@ -880,13 +970,18 @@ username and password.</v8:content>
 																</CheckBoxField>
 																<CheckBoxField name="IBUserCannotChangePassword" id="51">
 																	<DataPath>IBUserCannotChangePassword</DataPath>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Deny password change</v8:content>
+																		</v8:item>
+																	</Title>
 																	<TitleLocation>Right</TitleLocation>
 																	<ToolTip>
 																		<v8:item>
 																			<v8:lang>en</v8:lang>
-																			<v8:content>Prevent limited-access user from changing
-their password, even during sign-in.
-</v8:content>
+																			<v8:content>Prevent the limited-access user from
+changing their password.</v8:content>
 																		</v8:item>
 																	</ToolTip>
 																	<CheckBoxType>Auto</CheckBoxType>
@@ -898,6 +993,12 @@ their password, even during sign-in.
 																</CheckBoxField>
 																<CheckBoxField name="IBUserCannotRecoverPassword" id="366">
 																	<DataPath>IBUserCannotRecoverPassword</DataPath>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Deny password recovery</v8:content>
+																		</v8:item>
+																	</Title>
 																	<TitleLocation>Right</TitleLocation>
 																	<CheckBoxType>Auto</CheckBoxType>
 																	<ContextMenu name="UserIbuprodenToRecoverYourPasswordContextMenu" id="367"/>
@@ -905,6 +1006,12 @@ their password, even during sign-in.
 																</CheckBoxField>
 																<CheckBoxField name="IBUserShowInList" id="25">
 																	<DataPath>IBUserShowInList</DataPath>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Show in list</v8:content>
+																		</v8:item>
+																	</Title>
 																	<TitleLocation>Right</TitleLocation>
 																	<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 																	<CheckBoxType>Auto</CheckBoxType>
@@ -935,13 +1042,19 @@ their password, even during sign-in.
 											<ChildItems>
 												<CheckBoxField name="IBUserOpenIDAuthentication" id="205">
 													<DataPath>IBUserOpenIDAuthentication</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>OpenID authentication</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>Right</TitleLocation>
 													<ToolTip>
 														<v8:item>
 															<v8:lang>en</v8:lang>
 															<v8:content>Authentication with the name assigned to the 1C:Enterprise user,
 which is sent to the authentication service over OpenID protocol.
-Only for a web server connection (the service address must be configured).</v8:content>
+Only for a web server connection (the service address must be configured)</v8:content>
 														</v8:item>
 													</ToolTip>
 													<CheckBoxType>Auto</CheckBoxType>
@@ -953,6 +1066,12 @@ Only for a web server connection (the service address must be configured).</v8:c
 												</CheckBoxField>
 												<CheckBoxField name="InfobaseUserAuthWithOpenIDConnect" id="375">
 													<DataPath>InfobaseUserAuthWithOpenIDConnect</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>OpenID-Connect authentication</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>Right</TitleLocation>
 													<CheckBoxType>Auto</CheckBoxType>
 													<ContextMenu name="InfobaseUserAuthWithOpenIDConnectContextMenu" id="376"/>
@@ -972,6 +1091,12 @@ This authentication applies only to web server connections and requires the serv
 												</CheckBoxField>
 												<CheckBoxField name="InfobaseUserAuthWithAccessToken" id="378">
 													<DataPath>InfobaseUserAuthWithAccessToken</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Access token authentication</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>Right</TitleLocation>
 													<CheckBoxType>Auto</CheckBoxType>
 													<ContextMenu name="InfobaseUserAuthWithAccessTokenContextMenu" id="379"/>
@@ -1005,6 +1130,12 @@ It is widely used by many public digital services.</v8:content>
 													<ChildItems>
 														<CheckBoxField name="IBUserOSAuthentication" id="27">
 															<DataPath>IBUserOSAuthentication</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Operating system authentication</v8:content>
+																</v8:item>
+															</Title>
 															<TitleLocation>Right</TitleLocation>
 															<ToolTip>
 																<v8:item>
@@ -1041,6 +1172,12 @@ associated with the 1C:Enterprise user.</v8:content>
 																</LabelDecoration>
 																<InputField name="IBUserOSUser" id="29">
 																	<DataPath>IBUserOSUser</DataPath>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>User</v8:content>
+																		</v8:item>
+																	</Title>
 																	<TitleLocation>Left</TitleLocation>
 																	<ToolTip>
 																		<v8:item>
@@ -1079,10 +1216,17 @@ associated with the 1C:Enterprise user.</v8:content>
 									<Representation>NormalSeparation</Representation>
 									<ChildItemsWidth>Equal</ChildItemsWidth>
 									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="PropertiesAdditionalExtendedTooltip" id="236"/>
+									<ExtendedTooltip name="AdditionalPropertiesExtendedTooltip" id="236"/>
 									<ChildItems>
 										<InputField name="IBUserLanguage" id="196">
 											<DataPath>IBUserLanguage</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>UI language
+</v8:content>
+												</v8:item>
+											</Title>
 											<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 											<Wrap>false</Wrap>
 											<ClearButton>true</ClearButton>
@@ -1096,6 +1240,12 @@ associated with the 1C:Enterprise user.</v8:content>
 										</InputField>
 										<InputField name="IBUserRunMode" id="198">
 											<DataPath>IBUserRunMode</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Run mode</v8:content>
+												</v8:item>
+											</Title>
 											<ListChoiceMode>true</ListChoiceMode>
 											<ContextMenu name="IBUserRunModeContextMenu" id="199"/>
 											<ExtendedTooltip name="IBUserRunModeExtendedTooltip" id="238"/>
@@ -1178,12 +1328,24 @@ associated with the 1C:Enterprise user.</v8:content>
 												<Type>CommandBarButton</Type>
 												<SkipOnInput>false</SkipOnInput>
 												<CommandName>Form.Command.AddRoles</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Add roles</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="RolesSelectAllExtendedTooltip" id="240"/>
 											</Button>
 											<Button name="RolesClearAll" id="186">
 												<Type>CommandBarButton</Type>
 												<SkipOnInput>false</SkipOnInput>
 												<CommandName>Form.Command.RemoveRoles</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Remove roles</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="RolesClearAllExtendedTooltip" id="241"/>
 											</Button>
 										</ChildItems>
@@ -1192,11 +1354,23 @@ associated with the 1C:Enterprise user.</v8:content>
 										<Type>CommandBarButton</Type>
 										<SkipOnInput>false</SkipOnInput>
 										<CommandName>Form.Command.ShowSelectedRolesOnly</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Selected roles only</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="RolesShowSelectedRolesOnlyExtendedTooltip" id="242"/>
 									</Button>
 									<Button name="RolesShowRolesSubsystems" id="193">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.RolesBySubsystemsGroup</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Group by subsystem</v8:content>
+											</v8:item>
+										</Title>
 										<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 										<ExtendedTooltip name="RolesShowRolesSubsystemsExtendedTooltip" id="243"/>
 									</Button>
@@ -1264,6 +1438,12 @@ associated with the 1C:Enterprise user.</v8:content>
 									<ChildItems>
 										<CheckBoxField name="RolesCheck" id="188">
 											<DataPath>Roles.Check</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Checkmark</v8:content>
+												</v8:item>
+											</Title>
 											<EditMode>Directly</EditMode>
 											<ShowInHeader>false</ShowInHeader>
 											<CheckBoxType>Auto</CheckBoxType>
@@ -1276,6 +1456,12 @@ associated with the 1C:Enterprise user.</v8:content>
 										<InputField name="RolesSynonym" id="190">
 											<DataPath>Roles.Synonym</DataPath>
 											<ReadOnly>true</ReadOnly>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Allowed action (role)</v8:content>
+												</v8:item>
+											</Title>
 											<EditMode>EnterOnInput</EditMode>
 											<ContextMenu name="RolesSynonymContextMenu" id="191"/>
 											<ExtendedTooltip name="RolesSynonymExtendedTooltip" id="247"/>
@@ -1389,7 +1575,7 @@ associated with the 1C:Enterprise user.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>User cannot change password</v8:content>
+					<v8:content>Deny password change</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -1417,7 +1603,7 @@ associated with the 1C:Enterprise user.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Sign-in allowed</v8:content>
+					<v8:content>Login allowed</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -1581,8 +1767,8 @@ associated with the 1C:Enterprise user.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Application interface
-language</v8:content>
+					<v8:content>UI language
+</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -1652,7 +1838,7 @@ language</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>User must change password at next logon</v8:content>
+					<v8:content>Demand password change on next login</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -1779,7 +1965,7 @@ language</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>User cannot recover password</v8:content>
+					<v8:content>Deny password recovery</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -1952,6 +2138,9 @@ language</v8:content>
 				</Column>
 			</Columns>
 		</Attribute>
+		<Attribute name="ServiceOperationError" id="57">
+			<Type/>
+		</Attribute>
 	</Attributes>
 	<Commands>
 		<Command name="ShowSelectedRolesOnly" id="1">
@@ -2100,13 +2289,13 @@ language</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Clear photo</v8:content>
+					<v8:content>Remove photo</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Clear photo</v8:content>
+					<v8:content>Remove photo</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>ClearPhoto</Action>
@@ -2117,7 +2306,7 @@ language</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Select a photo...</v8:content>
+					<v8:content>Edit photo…</v8:content>
 				</v8:item>
 			</Title>
 			<Action>SelectPhoto</Action>
@@ -2175,16 +2364,4 @@ language</v8:content>
 			</Type>
 		</Parameter>
 	</Parameters>
-	<CommandInterface>
-		<NavigationPanel>
-			<Item>
-				<Command>0</Command>
-				<Type>Auto</Type>
-				<DefaultVisible>false</DefaultVisible>
-				<Visible>
-					<xr:Common>false</xr:Common>
-				</Visible>
-			</Item>
-		</NavigationPanel>
-	</CommandInterface>
 </Form>

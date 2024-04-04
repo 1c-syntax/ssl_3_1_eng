@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -215,10 +216,10 @@ EndProcedure
 //      * GroupID          - String - a string ID of the check group, for example: 
 //                                       "SystemChecks", "MonthEndClosing", "VATChecks", and so on.
 //                                       Required.
-//      * Id                - String - 
-//                                       :
-//                                       
-//                                       
+//      * Id                - String - The id of a check group. A mandatory parameter.
+//                                       The id format is:
+//                                       <Software name>.<Check id>.
+//                                       For example, "StandardSubsystems.SystemChecks".
 //      * AccountingChecksContext - DefinedType.AccountingChecksContext - a value that additionally
 //                                       specifies the belonging of a data integrity check group to a certain category.
 //      * Comment                  - String - a comment to a check group.
@@ -248,10 +249,10 @@ EndFunction
 //      * Reasons                                - String - a description of possible reasons that result in issue
 //                                                 appearing.
 //      * Recommendation                           - String - a recommendation on solving an appeared issue.
-//      * Id                          - String - 
-//                                                 :
-//                                                 
-//                                                 
+//      * Id                          - String - The id of an item. A mandatory parameter.
+//                                                 The id format is:
+//                                                 <Software name>.<Check id>.
+//                                                 For example, "StandardSubsystems.SystemChecks".
 //      * CheckStartDate                     - Date - a threshold date that indicates the boundary of the checked
 //                                                 objects (only for objects with a date). Do not check objects whose date is less
 //                                                 than the specified one. It is not filled in by default (

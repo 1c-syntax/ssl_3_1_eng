@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -71,8 +72,8 @@ Procedure ExecuteDefaultAutomaticMapping(Cancel) Export
 	
 	SetPrivilegedMode(True);
 	
-	
-	
+	// 
+	// 
 	MappingFieldsList = UsedFieldsList.Copy();
 	
 	ExecuteDefaultAutomaticInfobaseObjectMapping(Cancel, MappingFieldsList);
@@ -218,36 +219,6 @@ Procedure Designer() Export
 	TableFieldsList.LoadValues(StrSplit(DestinationTableFields, ",", False));
 	
 	SearchFieldArray = StrSplit(DestinationTableSearchFields, ",", False);
-	
-	// Selecting search fields if they are not specified.
-	If SearchFieldArray.Count() = 0 Then
-		
-		// For catalogs.
-		AddSearchField(SearchFieldArray, "Description");
-		AddSearchField(SearchFieldArray, "Code");
-		AddSearchField(SearchFieldArray, "Owner");
-		AddSearchField(SearchFieldArray, "Parent");
-		
-		// For documents and business processes
-		AddSearchField(SearchFieldArray, "Date");
-		AddSearchField(SearchFieldArray, "Number");
-		
-		// Popular search fields.
-		AddSearchField(SearchFieldArray, "Organization");
-		AddSearchField(SearchFieldArray, "TIN");
-		AddSearchField(SearchFieldArray, "CRTR");
-		
-		If SearchFieldArray.Count() = 0 Then
-			
-			If TableFieldsList.Count() > 0 Then
-				
-				SearchFieldArray.Add(TableFieldsList[0].Value);
-				
-			EndIf;
-			
-		EndIf;
-		
-	EndIf;
 	
 	// Deleting fields with indexes exceeding the specified limit from the search array.
 	CheckMappingFieldCountInArray(SearchFieldArray);
@@ -447,10 +418,10 @@ Procedure ExecuteAutomaticInfobaseObjectMapping(Cancel, MappingFieldsList)
 		Return;
 	EndIf;
 	
-	
-	
-	
-	
+	// 
+	// 
+	// 
+	// 
 	UserFields = New Array;
 	
 	For Each Item In UsedFieldsList Do
@@ -523,25 +494,25 @@ EndProcedure
 
 Procedure ObjectsMappingData(SourceTable2, UserFields, TempTablesManager)
 	
-	
+	// 
+	//
+	// 
+	// 
+	// 
+	//
+	// 
+	// 
+	// 
+	//
+	// 
+	//
+	// 
+	// 
+	//
 	//
 	
-	
-	
-	//
-	
-	
-	
-	//
-	
-	//
-	
-	
-	//
-	//
-	
-	
-	 
+	// 
+	//  
 	
 	QueryText = "
 	|//////////////////////////////////////////////////////////////////////////////// {SourceTable2}
@@ -1439,9 +1410,9 @@ EndProcedure
 
 Procedure AutimaticMappingDataByGUID(UserFields, TempTablesManager)
 	
-	
+	// 
 	//
-	
+	// 
 	
 	QueryText = "
 	|//////////////////////////////////////////////////////////////////////////////// {AutomaticallyMappedObjectsTable}
@@ -1510,24 +1481,24 @@ EndProcedure
 
 Procedure AutimaticMappingDataByGUIDPlusBySearchFields(SourceTable2, MappingFieldsList, UserFields, TempTablesManager)
 	
-	
+	// 
 	//
-	
-	
-	
-	
-	
+	// 
+	// 
+	// 
+	// 
+	// 
 	//
+	// 
+	// 
+	// 
 	
-	
-	
-	
-	
+	// 
 	//
-	
-	
+	// 
+	// 
 	//
-	
+	// 
 	
 	QueryText = "
 	|//////////////////////////////////////////////////////////////////////////////// {ТаблицаАвтоматическиСопоставленныхОбъектовПоGUID}
@@ -2167,7 +2138,7 @@ Function GetSortingFieldsAtServer()
 	// Function return value.
 	SortFields = "";
 	
-	FieldPattern = "SortFieldNN #SortDirection"; 
+	FieldPattern = "SortFieldNN #SortDirection"; // Do not localize.
 	
 	For Each TableRow In SortTable Do
 		
@@ -2259,7 +2230,7 @@ Procedure FillSortTable(SourceValueList)
 		TableRow = SortTable.Add();
 		
 		TableRow.FieldName               = Item.Value;
-		TableRow.Use         = IsFirstField; 
+		TableRow.Use         = IsFirstField; // 
 		TableRow.SortDirection = True; // Ascending.
 		
 	EndDo;

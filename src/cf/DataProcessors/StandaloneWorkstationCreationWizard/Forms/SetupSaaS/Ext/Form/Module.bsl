@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -97,7 +98,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	
 EndProcedure
 
-
+// 
 
 &AtClient
 Procedure TimeConsumingOperationIdleHandler()
@@ -148,7 +149,7 @@ EndProcedure
 
 #Region FormCommandsEventHandlers
 
-
+// 
 
 &AtClient
 Procedure NextCommand(Command)
@@ -180,7 +181,7 @@ Procedure CancelCommand(Command)
 	
 EndProcedure
 
-
+// 
 
 &AtClient
 Procedure SetUpDataTransferRestrictions(Command)
@@ -374,7 +375,7 @@ Function ExtensionsThatChangeDataStructure()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure ChangeNavigationNumber(Iterator_SSLy)
@@ -683,7 +684,7 @@ Procedure CancelStandaloneWorkstationGeneration(Result, AdditionalParameters) Ex
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
 Procedure CreateStandaloneWorkstationInitialImageAtServer(Cancel)
@@ -822,7 +823,7 @@ EndFunction
 Function SynchronizationUsers()
 	
 	Result = New ValueTable;
-	Result.Columns.Add("User"); 
+	Result.Columns.Add("User"); // 
 	Result.Columns.Add("DataSynchronizationPermitted", New TypeDescription("Boolean"));
 	Result.Columns.Add("PermitDataSynchronization", New TypeDescription("Boolean"));
 	
@@ -868,7 +869,7 @@ Function SynchronizationUsers()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Function Attachable_ExportSettingsOnGoNext(Cancel)
@@ -963,7 +964,7 @@ Function Attachable_PresenceOfExtensionsThatChangeDataStructure_WhenOpened(Cance
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
 Procedure StandaloneWorkstationCreatingScript()

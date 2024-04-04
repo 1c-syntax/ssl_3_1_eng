@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -164,7 +165,7 @@ Procedure WriteAndCloseBeginning(Result = Undefined, AdditionalParameters = Unde
 	If NotifyUser1.HasErrors = False Then
 		If NotifyUser1.Message <> Undefined Then
 			ShowUserNotification(
-				NStr("en = 'Move users';"), , NotifyUser1.Message, PictureLib.Information32);
+				NStr("en = 'Move users';"), , NotifyUser1.Message, PictureLib.DialogInformation);
 		EndIf;
 	Else
 		
@@ -223,13 +224,13 @@ Procedure FillGroupTree(OnlyClearAll = False)
 	EndIf;
 	
 	UserGroups = Undefined;
-	SubordinateGroups = New Array; // Array of ValueTableRow: см. ПолучитьГруппыВнешнихПользователей.ГруппыПользователей
+	SubordinateGroups = New Array; 
 	ParentArray = New Array;
 	
 	If ThisisExternalUsers Then
 		EmptyGroup1 = Catalogs.ExternalUsersGroups.EmptyRef();
 		GetExternalUserGroups(UserGroups);
-		AuthorizationObjects = UserAuthorizationObjects(UsersList.UsersArray);
+		AuthorizationObjects = UsersAuthenticationObjects(UsersList.UsersArray);
 	Else
 		EmptyGroup1 = Catalogs.UserGroups.EmptyRef();
 		GetUserGroups(UserGroups);
@@ -241,7 +242,7 @@ Procedure FillGroupTree(OnlyClearAll = False)
 	EndIf;
 	
 	GetSubordinateGroups(UserGroups, SubordinateGroups, EmptyGroup1);
-	CompositionOfGroups = CompositionOfGroups();
+	GroupsComposition = GroupsComposition();
 	
 	While SubordinateGroups.Count() > 0 Do
 		ParentArray.Clear();
@@ -267,7 +268,7 @@ Procedure FillGroupTree(OnlyClearAll = False)
 						NewGroupRow.ReadOnlyGroup = True;
 					EndIf;
 					
-					NewGroupRow.Check = ?(UserInGroup(CompositionOfGroups,
+					NewGroupRow.Check = ?(UserInGroup(GroupsComposition,
 						Var_Group.Ref, UserRef) Or UserIndirectlyIncludedInGroup, 1, 0);
 				Else
 					NewGroupRow.Check = 2;
@@ -281,7 +282,7 @@ Procedure FillGroupTree(OnlyClearAll = False)
 				NewSubordinateGroupRow.Picture = ?(ThisisExternalUsers, 9, 3);
 				
 				If UsersList.UsersCount = 1 Then
-					NewSubordinateGroupRow.Check = ?(UserInGroup(CompositionOfGroups,
+					NewSubordinateGroupRow.Check = ?(UserInGroup(GroupsComposition,
 						Var_Group.Ref, UsersList.UsersArray[0]), 1, 0);
 				Else
 					NewSubordinateGroupRow.Check = 2;
@@ -361,7 +362,6 @@ EndProcedure
 // 
 // Parameters:
 //  UserGroups - See GetExternalUserGroups.UserGroups
-//  SubordinateGroups - Array of ValueTableRow: см. ПолучитьГруппыВнешнихПользователей.ГруппыПользователей
 //  ParentGroup1 - CatalogRef.UserGroups
 //                 - CatalogRef.ExternalUsersGroups
 //
@@ -373,8 +373,8 @@ Procedure GetSubordinateGroups(UserGroups, SubordinateGroups, ParentGroup1)
 	
 	For Each Item In PickedRows Do
 		
-		If Item.Ref = Catalogs.UserGroups.AllUsers
-			Or Item.Ref = Catalogs.ExternalUsersGroups.AllExternalUsers Then
+		If Item.Ref = Users.AllUsersGroup()
+			Or Item.Ref = ExternalUsers.AllExternalUsersGroup() Then
 			Continue;
 		EndIf;
 		
@@ -384,7 +384,7 @@ Procedure GetSubordinateGroups(UserGroups, SubordinateGroups, ParentGroup1)
 EndProcedure
 
 &AtServer
-Function UserAuthorizationObjects(UsersArray)
+Function UsersAuthenticationObjects(UsersArray)
 	
 	Query = New Query;
 	Query.Parameters.Insert("UsersArray", UsersArray);
@@ -409,24 +409,24 @@ Function UserAuthorizationObjects(UsersArray)
 EndFunction
 
 &AtServer
-Function CompositionOfGroups()
+Function GroupsComposition()
 	
 	Query = New Query;
 	
 	If ThisisExternalUsers Then
 		Query.Text =
 		"SELECT DISTINCT
-		|	CompositionOfGroups.Ref AS Group,
-		|	CompositionOfGroups.ExternalUser AS User
+		|	GroupsComposition.Ref AS Group,
+		|	GroupsComposition.ExternalUser AS User
 		|FROM
-		|	Catalog.ExternalUsersGroups.Content AS CompositionOfGroups";
+		|	Catalog.ExternalUsersGroups.Content AS GroupsComposition";
 	Else
 		Query.Text =
 		"SELECT DISTINCT
-		|	CompositionOfGroups.Ref AS Group,
-		|	CompositionOfGroups.User AS User
+		|	GroupsComposition.Ref AS Group,
+		|	GroupsComposition.User AS User
 		|FROM
-		|	Catalog.UserGroups.Content AS CompositionOfGroups";
+		|	Catalog.UserGroups.Content AS GroupsComposition";
 	EndIf;
 	
 	Upload0 = Query.Execute().Unload();
@@ -437,13 +437,13 @@ Function CompositionOfGroups()
 EndFunction
 
 &AtServer
-Function UserInGroup(CompositionOfGroups, Var_Group, User)
+Function UserInGroup(GroupsComposition, Var_Group, User)
 	
 	Filter = New Structure;
 	Filter.Insert("Group", Var_Group);
 	Filter.Insert("User", User);
 	
-	Return ValueIsFilled(CompositionOfGroups.FindRows(Filter));
+	Return ValueIsFilled(GroupsComposition.FindRows(Filter));
 	
 EndFunction
 
@@ -459,7 +459,7 @@ Procedure WriteChanges(NotifyUser1)
 	UsersArray = Undefined;
 	NotMovedUsers = New Map;
 	GroupTreeSource = GroupsTree.GetItems();
-	RefillGroupComposition(GroupTreeSource, CompositionOfGroups(), UsersArray, NotMovedUsers);
+	RefillGroupComposition(GroupTreeSource, GroupsComposition(), UsersArray, NotMovedUsers);
 	GenerateMessageText(UsersArray, NotifyUser1, NotMovedUsers)
 	
 EndProcedure
@@ -476,7 +476,7 @@ EndProcedure
 //               - CatalogRef.ExternalUsersGroups
 //
 &AtServer
-Procedure RefillGroupComposition(GroupTreeSource, CompositionOfGroups, MovedUsersArray, NotMovedUsers)
+Procedure RefillGroupComposition(GroupTreeSource, GroupsComposition, MovedUsersArray, NotMovedUsers)
 	
 	UsersArray = UsersList.UsersArray; // Array of CatalogRef.Users
 	If MovedUsersArray = Undefined Then
@@ -506,7 +506,7 @@ Procedure RefillGroupComposition(GroupTreeSource, CompositionOfGroups, MovedUser
 					EndIf;
 				EndIf;
 				
-				If Not UserInGroup(CompositionOfGroups, TreeRow.Group, UserRef) Then
+				If Not UserInGroup(GroupsComposition, TreeRow.Group, UserRef) Then
 					Added = False;
 					UsersInternal.AddUserToGroup(TreeRow.Group,
 						UserRef, CompositionColumnName, Added);
@@ -523,7 +523,7 @@ Procedure RefillGroupComposition(GroupTreeSource, CompositionOfGroups, MovedUser
 			
 			For Each UserRef In UsersArray Do
 				
-				If UserInGroup(CompositionOfGroups, TreeRow.Group, UserRef) Then
+				If UserInGroup(GroupsComposition, TreeRow.Group, UserRef) Then
 					Removed = False;
 					UsersInternal.DeleteUserFromGroup(TreeRow.Group,
 						UserRef, CompositionColumnName, Removed);
@@ -539,7 +539,7 @@ Procedure RefillGroupComposition(GroupTreeSource, CompositionOfGroups, MovedUser
 		
 		TreeRowItems = TreeRow.GetItems();
 		// Recursion
-		RefillGroupComposition(TreeRowItems, CompositionOfGroups, MovedUsersArray, NotMovedUsers);
+		RefillGroupComposition(TreeRowItems, GroupsComposition, MovedUsersArray, NotMovedUsers);
 		
 	EndDo;
 	

@@ -55,12 +55,24 @@
 							<Button name="NodesStateListContextMenuGoToDataExportEventLog" id="39">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.GoToDataExportEventLog</CommandName>
-								<ExtendedTooltip name="NodesStatesListContextMenuGoToDataExportEventLogExtendedTooltip" id="56"/>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Data send events…</v8:content>
+									</v8:item>
+								</Title>
+								<ExtendedTooltip name="NodesStateListContextMenuGoToDataExportEventLogExtendedTooltip" id="56"/>
 							</Button>
 							<Button name="NodesStateListContextMenuGoToDataImportEventLog" id="40">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.GoToDataImportEventLog</CommandName>
-								<ExtendedTooltip name="NodesStatesListContextMenuGoToDataImportEventLogExtendedTooltip" id="57"/>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Data receipt events…</v8:content>
+									</v8:item>
+								</Title>
+								<ExtendedTooltip name="NodesStateListContextMenuGoToDataImportEventLogExtendedTooltip" id="57"/>
 							</Button>
 						</ChildItems>
 					</ButtonGroup>
@@ -76,12 +88,12 @@
 							<Button name="NodesStateListContextMenuOutputList" id="36">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Item.NodesStateList.StandardCommand.OutputList</CommandName>
-								<ExtendedTooltip name="NodesStatesListContextMenuOutputListExtendedTooltip" id="59"/>
+								<ExtendedTooltip name="NodesStateListContextMenuOutputListExtendedTooltip" id="59"/>
 							</Button>
 							<Button name="NodesStateListContextMenuCopyToClipboard" id="33">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Item.NodesStateList.StandardCommand.CopyToClipboard</CommandName>
-								<ExtendedTooltip name="NodesStatesListContextMenuCopyToClipboardExtendedTooltip" id="60"/>
+								<ExtendedTooltip name="NodesStateListContextMenuCopyToClipboardExtendedTooltip" id="60"/>
 							</Button>
 						</ChildItems>
 					</ButtonGroup>
@@ -103,13 +115,13 @@
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Item.NodesStateList.StandardCommand.Find</CommandName>
 								<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
-								<ExtendedTooltip name="NodesStatesListFindExtendedTooltip" id="62"/>
+								<ExtendedTooltip name="NodesStateListFindExtendedTooltip" id="62"/>
 							</Button>
 							<Button name="NodesStateListCancelSearch" id="24">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Item.NodesStateList.StandardCommand.CancelSearch</CommandName>
 								<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
-								<ExtendedTooltip name="NodesStatesListCancelSearchExtendedTooltip" id="63"/>
+								<ExtendedTooltip name="NodesStateListCancelSearchExtendedTooltip" id="63"/>
 							</Button>
 						</ChildItems>
 					</ButtonGroup>
@@ -125,14 +137,26 @@
 							<Button name="NodesStateListRefreshScreen" id="20">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.RefreshScreen</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Refresh</v8:content>
+									</v8:item>
+								</Title>
 								<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
-								<ExtendedTooltip name="NodesStatesListRefreshMonitorExtendedTooltip" id="65"/>
+								<ExtendedTooltip name="NodesStateListRefreshScreenExtendedTooltip" id="65"/>
 							</Button>
 						</ChildItems>
 					</ButtonGroup>
 					<Button name="NodesStateListDetailed" id="49">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.More</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Details</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="NodesStateListDetailedExtendedTooltip" id="66"/>
 					</Button>
 					<ButtonGroup name="NodesStateListOutputListGroup" id="50">
@@ -148,13 +172,13 @@
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Item.NodesStateList.StandardCommand.CopyToClipboard</CommandName>
 								<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-								<ExtendedTooltip name="NodesStatesListCopyToClipboardExtendedTooltip" id="68"/>
+								<ExtendedTooltip name="NodesStateListCopyToClipboardExtendedTooltip" id="68"/>
 							</Button>
 							<Button name="NodesStateListOutputList" id="25">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Item.NodesStateList.StandardCommand.OutputList</CommandName>
 								<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-								<ExtendedTooltip name="NodesStatesListOutputListExtendedTooltip" id="69"/>
+								<ExtendedTooltip name="NodesStateListOutputListExtendedTooltip" id="69"/>
 							</Button>
 						</ChildItems>
 					</ButtonGroup>
@@ -199,6 +223,12 @@
 				<InputField name="NodesStateListDataArea" id="51">
 					<DataPath>NodesStateList.DataArea</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Data area</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ContextMenu name="NodesStateListDataAreaContextMenu" id="52"/>
 					<ExtendedTooltip name="NodesStateListDataAreaExtendedTooltip" id="73"/>
@@ -206,6 +236,12 @@
 				<InputField name="NodesStateListExchangePlanName" id="45">
 					<DataPath>NodesStateList.ExchangePlanName</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Exchange plan</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ContextMenu name="NodesStateListExchangePlanNameContextMenu" id="46"/>
 					<ExtendedTooltip name="NodesStateListExchangePlanNameExtendedTooltip" id="74"/>
@@ -213,6 +249,12 @@
 				<InputField name="NodesStateListInfobaseNode" id="10">
 					<DataPath>NodesStateList.InfobaseNode</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Application</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ContextMenu name="NodesStateListInfobaseNodeContextMenu" id="11"/>
 					<ExtendedTooltip name="NodesStateListInfobaseNodeExtendedTooltip" id="75"/>
@@ -225,7 +267,7 @@
 							<v8:content>Exports</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="ExportGroup1ExtendedTooltip" id="76"/>
+					<ExtendedTooltip name="ExportGroupExtendedTooltip" id="76"/>
 					<ChildItems>
 						<ColumnGroup name="ExportStateGroup" id="19">
 							<Title>
@@ -239,6 +281,12 @@
 							<ChildItems>
 								<PictureField name="NodesStateListLastDataExportResult" id="6">
 									<DataPath>NodesStateList.LastDataExportResult</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Result of last data export</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<EditMode>EnterOnInput</EditMode>
 									<ValuesPicture>
@@ -251,6 +299,12 @@
 								</PictureField>
 								<InputField name="NodesStatesListLastExportDate" id="16">
 									<DataPath>NodesStateList.LastExportDatePresentation</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Last try to send</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<Format>
 										<v8:item>
@@ -272,6 +326,12 @@
 						<InputField name="NodesStatesListLastSuccessfulExportDate" id="4">
 							<DataPath>NodesStateList.LastSuccessfulExportDatePresentation</DataPath>
 							<Visible>false</Visible>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Data sent</v8:content>
+								</v8:item>
+							</Title>
 							<EditMode>EnterOnInput</EditMode>
 							<Format>
 								<v8:item>
@@ -312,6 +372,12 @@
 							<ChildItems>
 								<PictureField name="NodesStateListLastDataImportResult" id="8">
 									<DataPath>NodesStateList.LastDataImportResult</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Result of last data import</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<EditMode>EnterOnInput</EditMode>
 									<ValuesPicture>
@@ -324,6 +390,12 @@
 								</PictureField>
 								<InputField name="NodesStatesListLastImportDate" id="14">
 									<DataPath>NodesStateList.LastImportDatePresentation</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Last try to receive</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<Format>
 										<v8:item>
@@ -345,6 +417,12 @@
 						<InputField name="NodesStatesListLastSuccessfulImportDate" id="12">
 							<DataPath>NodesStateList.LastSuccessfulImportDatePresentation</DataPath>
 							<Visible>false</Visible>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Data received</v8:content>
+								</v8:item>
+							</Title>
 							<EditMode>EnterOnInput</EditMode>
 							<Format>
 								<v8:item>

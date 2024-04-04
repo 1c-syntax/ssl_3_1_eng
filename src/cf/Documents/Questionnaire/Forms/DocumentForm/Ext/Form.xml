@@ -31,52 +31,30 @@
 			<ExtendedTooltip name="HeaderCommandBarExtendedTooltip" id="183"/>
 			<ChildItems>
 				<ButtonGroup name="FormGroupFormCommands" id="190">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Form group form commands</v8:content>
+						</v8:item>
+					</Title>
 					<CommandSource>Form</CommandSource>
 					<ExtendedTooltip name="FormGroupFormCommandsExtendedTooltip" id="191"/>
 					<ChildItems>
-						<Button name="HideShowSectionsTreeDocument" id="156">
-							<Type>CommandBarButton</Type>
-							<CommandName>Form.Command.ShowSections</CommandName>
-							<Picture>
-								<xr:Ref>StdPicture.ShowInList</xr:Ref>
-								<xr:LoadTransparent>true</xr:LoadTransparent>
-							</Picture>
-							<Title>
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Show sections</v8:content>
-								</v8:item>
-							</Title>
-							<ExtendedTooltip name="HideShowSectionsTreeDocumentExtendedTooltip" id="157"/>
-						</Button>
-						<Button name="PreviousSection" id="163">
-							<Type>CommandBarButton</Type>
-							<Width>10</Width>
-							<CommandName>Form.Command.PreviousSection</CommandName>
-							<ExtendedTooltip name="PreviousSectionExtendedTooltip" id="164"/>
-						</Button>
-						<Button name="NextSection" id="165">
-							<Type>CommandBarButton</Type>
-							<Width>10</Width>
-							<CommandName>Form.Command.NextSection</CommandName>
-							<Title>
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Next &gt;</v8:content>
-								</v8:item>
-							</Title>
-							<ExtendedTooltip name="NextSectionExtendedTooltip" id="166"/>
-						</Button>
 						<Button name="FillingFormEndAndClose" id="92">
 							<Type>CommandBarButton</Type>
 							<Representation>PictureAndText</Representation>
 							<SkipOnInput>false</SkipOnInput>
 							<CommandName>Form.Command.FillingFormEndAndClose</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Save and close</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="FillingFormEndAndCloseExtendedTooltip" id="115"/>
 						</Button>
 						<Button name="ResponseFormWrite" id="91">
 							<Type>CommandBarButton</Type>
-							<Representation>Text</Representation>
 							<SkipOnInput>false</SkipOnInput>
 							<CommandName>Form.Command.ResponseFormWrite</CommandName>
 							<Title>
@@ -113,6 +91,57 @@
 					</Picture>
 					<ExtendedTooltip name="FormCommandBarWriteExtendedTooltip" id="114"/>
 				</Button>
+				<Button name="HideShowSectionsTree" id="156">
+					<Type>CommandBarButton</Type>
+					<CommandName>Form.Command.ShowSections</CommandName>
+					<Picture>
+						<xr:Ref>StdPicture.ShowInList</xr:Ref>
+						<xr:LoadTransparent>true</xr:LoadTransparent>
+					</Picture>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Show sections</v8:content>
+						</v8:item>
+					</Title>
+					<ExtendedTooltip name="HideShowSectionsTreeExtendedTooltip" id="157"/>
+				</Button>
+				<ButtonGroup name="NavigationGroup" id="223">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Navigation</v8:content>
+						</v8:item>
+					</Title>
+					<Representation>Compact</Representation>
+					<ExtendedTooltip name="NavigationGroupExtendedTooltip" id="224"/>
+					<ChildItems>
+						<Button name="PreviousSection" id="163">
+							<Type>CommandBarButton</Type>
+							<Width>10</Width>
+							<CommandName>Form.Command.PreviousSection</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Back</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="PreviousSectionExtendedTooltip" id="164"/>
+						</Button>
+						<Button name="NextSection" id="165">
+							<Type>CommandBarButton</Type>
+							<Width>10</Width>
+							<CommandName>Form.Command.NextSection</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Next</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="NextSectionExtendedTooltip" id="166"/>
+						</Button>
+					</ChildItems>
+				</ButtonGroup>
 				<Button name="FormReread" id="215">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.StandardCommand.Reread</CommandName>
@@ -129,6 +158,12 @@
 					<ExtendedTooltip name="FormSetDeletionMarkExtendedTooltip" id="218"/>
 				</Button>
 				<ButtonGroup name="FormGlobalCommands" id="186">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Global commands form</v8:content>
+						</v8:item>
+					</Title>
 					<CommandSource>FormCommandPanelGlobalCommands</CommandSource>
 					<ExtendedTooltip name="FormGlobalCommandsExtendedTooltip" id="187"/>
 				</ButtonGroup>
@@ -152,6 +187,12 @@
 					<ExtendedTooltip name="PrintSubmenuExtendedTooltip" id="189"/>
 				</Popup>
 				<ButtonGroup name="SurveySubmenu" id="204">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Surveys submenu</v8:content>
+						</v8:item>
+					</Title>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -315,6 +356,7 @@
 					<v8:content>Sections tree filling form</v8:content>
 				</v8:item>
 			</Title>
+			<Group>AlwaysHorizontal</Group>
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ChildItemsWidth>LeftNarrowest</ChildItemsWidth>
@@ -447,7 +489,7 @@
 									<ShowInFooter>false</ShowInFooter>
 									<HorizontalStretch>false</HorizontalStretch>
 									<ContextMenu name="SectionsTreeWording1ContextMenu" id="73"/>
-									<ExtendedTooltip name="SectionsTreeWording1ExtendedTooltip" id="138"/>
+									<ExtendedTooltip name="SectionsTreeWordingExtendedTooltip" id="138"/>
 								</LabelField>
 							</ChildItems>
 						</Table>
@@ -532,12 +574,12 @@ Opening the section…</v8:content>
 									</Title>
 									<PictureSize>Stretch</PictureSize>
 									<Picture>
-										<xr:Ref>CommonPicture.Information32</xr:Ref>
-										<xr:LoadTransparent>false</xr:LoadTransparent>
+										<xr:Ref>StdPicture.DialogInformation</xr:Ref>
+										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
 									<ContextMenu name="TimeConsumingOperationPicture4ContextMenu" id="99"/>
-									<ExtendedTooltip name="TimeConsumingOperationPicture4ExtendedTooltip" id="147"/>
+									<ExtendedTooltip name="TimeConsumingProcessPictureExtendedTooltip" id="147"/>
 								</PictureDecoration>
 								<LabelDecoration name="WaitLabel" id="100">
 									<Width>20</Width>
@@ -562,45 +604,92 @@ Opening the section…</v8:content>
 				</UsualGroup>
 			</ChildItems>
 		</UsualGroup>
-		<CommandBar name="FooterCommandBar" id="176">
+		<UsualGroup name="GroupCommandBar" id="229">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Command bar footer</v8:content>
+					<v8:content>Command bar</v8:content>
 				</v8:item>
 			</Title>
-			<HorizontalLocation>Auto</HorizontalLocation>
-			<ExtendedTooltip name="FooterCommandBarExtendedTooltip" id="177"/>
+			<Representation>NormalSeparation</Representation>
+			<ShowTitle>false</ShowTitle>
+			<BackColor>style:TableFooterBackColor</BackColor>
+			<ExtendedTooltip name="CommandBarGroupExtendedTooltip" id="230"/>
 			<ChildItems>
-				<Button name="FooterPreviousSection" id="107">
-					<Type>CommandBarButton</Type>
-					<SkipOnInput>false</SkipOnInput>
-					<Width>10</Width>
-					<CommandName>Form.Command.PreviousSection</CommandName>
+				<CommandBar name="FooterCommandBar" id="176">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>&lt; Back</v8:content>
+							<v8:content>Command bar footer</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="FooterPreviousSectionExtendedTooltip" id="151"/>
-				</Button>
-				<Button name="FooterNextSection" id="108">
-					<Type>CommandBarButton</Type>
-					<SkipOnInput>false</SkipOnInput>
-					<Width>10</Width>
-					<CommandName>Form.Command.NextSection</CommandName>
-					<Title>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Next &gt;</v8:content>
-						</v8:item>
-					</Title>
-					<ExtendedTooltip name="FooterNextSectionExtendedTooltip" id="152"/>
-				</Button>
+					<HorizontalLocation>Auto</HorizontalLocation>
+					<ExtendedTooltip name="FooterCommandBarExtendedTooltip" id="177"/>
+					<ChildItems>
+						<Button name="ToggleSectionsTreeVisibilityFooter" id="227">
+							<Type>CommandBarButton</Type>
+							<CommandName>Form.Command.ShowSections</CommandName>
+							<Picture>
+								<xr:Ref>StdPicture.ShowInList</xr:Ref>
+								<xr:LoadTransparent>true</xr:LoadTransparent>
+							</Picture>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Show sections</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="ToggleSectionsTreeVisibilityFooterExtendedTooltip" id="228"/>
+						</Button>
+						<ButtonGroup name="GroupNavigationFooter" id="225">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Navigation footer</v8:content>
+								</v8:item>
+							</Title>
+							<Representation>Compact</Representation>
+							<ExtendedTooltip name="GroupNavigationFooterExtendedTooltip" id="226"/>
+							<ChildItems>
+								<Button name="FooterPreviousSection" id="107">
+									<Type>CommandBarButton</Type>
+									<SkipOnInput>false</SkipOnInput>
+									<Width>10</Width>
+									<CommandName>Form.Command.PreviousSection</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>&lt; Back</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="FooterPreviousSectionExtendedTooltip" id="151"/>
+								</Button>
+								<Button name="FooterNextSection" id="108">
+									<Type>CommandBarButton</Type>
+									<SkipOnInput>false</SkipOnInput>
+									<Width>10</Width>
+									<CommandName>Form.Command.NextSection</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Next</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="FooterNextSectionExtendedTooltip" id="152"/>
+								</Button>
+							</ChildItems>
+						</ButtonGroup>
+					</ChildItems>
+				</CommandBar>
 			</ChildItems>
-		</CommandBar>
+		</UsualGroup>
 		<UsualGroup name="FooterGroup" id="221">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Footer</v8:content>
+				</v8:item>
+			</Title>
 			<Representation>NormalSeparation</Representation>
 			<ShowTitle>false</ShowTitle>
 			<ExtendedTooltip name="FooterGroupExtendedTooltip" id="222"/>
@@ -995,7 +1084,7 @@ Opening the section…</v8:content>
 						<Title>
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>Response</v8:content>
+								<v8:content>Answer</v8:content>
 							</v8:item>
 						</Title>
 						<Type>
@@ -1416,7 +1505,7 @@ Opening the section…</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Next section</v8:content>
+					<v8:content>Next</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
@@ -1425,14 +1514,19 @@ Opening the section…</v8:content>
 					<v8:content>Go to the next section.</v8:content>
 				</v8:item>
 			</ToolTip>
+			<Picture>
+				<xr:Ref>StdPicture.MoveRight</xr:Ref>
+				<xr:LoadTransparent>true</xr:LoadTransparent>
+			</Picture>
 			<Action>NextSection</Action>
+			<Representation>TextPicture</Representation>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 		<Command name="PreviousSection" id="5">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>&lt; Back</v8:content>
+					<v8:content>Back</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
@@ -1441,6 +1535,10 @@ Opening the section…</v8:content>
 					<v8:content>Go to the previous section.</v8:content>
 				</v8:item>
 			</ToolTip>
+			<Picture>
+				<xr:Ref>StdPicture.MoveLeft</xr:Ref>
+				<xr:LoadTransparent>true</xr:LoadTransparent>
+			</Picture>
 			<Action>PreviousSection</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>

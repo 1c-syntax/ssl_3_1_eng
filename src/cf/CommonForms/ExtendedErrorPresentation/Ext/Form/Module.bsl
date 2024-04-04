@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -105,7 +106,8 @@ Procedure SupportInformationURLProcessing(Item, Var_URL, StandardProcessing)
 		EndIf;
 		
 		ErrorsText = ErrorsText + ErrorDescription;
-		DigitalSignatureInternalClient.GenerateTechnicalInformation(ErrorsText, , FilesDetails);
+		DigitalSignatureInternalClient.GenerateTechnicalInformation(
+			ErrorsText, New Structure("Subject, Message", Items.SupportInformation.Title), , FilesDetails);
 	
 	EndIf;
 	
@@ -218,14 +220,14 @@ Procedure SetItems(ErrorText, TwoMistakes, ErrorLocation)
 			
 			If ValueIsFilled(ClassifierError.RemedyActions) Then
 				If ClassifierError.RemedyActions.Find(
-					"SpecifyLinkToCertificateAuthorityInDecision") <> Undefined Then
-					CertificatePublisher = CertificatePublisher();
-					If ValueIsFilled(CertificatePublisher) Then
+					"MentionLinkToCAInSolution") <> Undefined Then
+					CertificateIssuer = CertificateIssuer();
+					If ValueIsFilled(CertificateIssuer) Then
 						Decision = New Array;
 						Decision.Add(ClassifierError.Decision);
 						Decision.Add(Chars.LF);
 						Decision.Add(StringFunctionsClientServer.SubstituteParametersToString(
-							NStr("en = 'Certificate authority that issued the certificate: %1.';"), CertificatePublisher));
+							NStr("en = 'Certificate authority that issued the certificate: %1.';"), CertificateIssuer));
 						ClassifierError.Decision = New FormattedString(Decision);
 					EndIf;
 				EndIf;
@@ -285,7 +287,7 @@ Procedure SetItems(ErrorText, TwoMistakes, ErrorLocation)
 EndProcedure
 
 &AtServer
-Function CertificatePublisher()
+Function CertificateIssuer()
 	
 	If Not ValueIsFilled(AdditionalData) Then
 		Return Undefined;

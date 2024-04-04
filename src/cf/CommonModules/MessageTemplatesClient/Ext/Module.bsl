@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -15,11 +16,11 @@
 //
 // Parameters:
 //  MessageSubject            - DefinedType.MessageTemplateSubject
-//                              - String - a source object of data entered in the message.
-//                                For common templates, pass the Common value.
-//                                To pass a message subject as a string, specify a full metadata name.
+//                              - String - Object whose data should be output to the message.
+//                                For common templates, pass "Shared".
+//                                To pass a topic as a string, specify the full name of the metadata object.
 //                                For example, "Catalog.Counterparties".
-//  MessageKind                - String - Email for emails and SMSMessage for text messages.
+//  MessageKind                - String - "MailMessage" for email messages and "SMSMessage" for text messages.
 //  OnCloseNotifyDescription - NotifyDescription - a notification that is called once a message is generated. Contains:
 //     * Result - Boolean - if True, a message was created.
 //     * MessageParameters - Structure
@@ -45,7 +46,7 @@ EndProcedure
 //  Notification - NotifyDescription - a notification to be called after a template is selected.:
 //      * Result - CatalogRef.MessageTemplates - a selected template.
 //      * AdditionalParameters - Structure - a value that was specified on creating the NotifyDescription object.
-//  MessageKind                - String - Email for emails and SMSMessage for text messages.
+//  MessageKind                - String - "MailMessage" for email messages and "SMSMessage" for text messages.
 //  TemplateSubject   - AnyRef
 //                   - String - a reference to an object that is a subject, or its full name.
 //  TemplateOwner  - DefinedType.MessageTemplateOwner - an owner of templates. If it is not specified, all available templates are displayed
@@ -69,11 +70,11 @@ EndProcedure
 // Parameters:
 //  Value - CatalogRef.MessageTemplates
 //           - Structure
-//           - AnyRef - 
- //                    
- //                    
-//                      See MessageTemplatesClientServer.TemplateParametersDetails.
-//                     
+//           - AnyRef - If a reference to a template is passed, this template opens.
+ //                    If a structure is passed, a new template filled with the data from the structure opens.
+ //                    For field details,.
+//                     If a reference of the "TypeToDefine.MessageTemplateOwner" flexible type is passed, See MessageTemplatesClientServer.TemplateParametersDetails.
+//                     a template by the owner opens.
 //                     
 //  OpeningParameters - Structure - form opening parameters.:
 //    * Owner - Arbitrary - a form or another form control.
@@ -111,7 +112,7 @@ EndProcedure
 //                                    Undefined, Null, Number, String, Date, Boolean, and Date.
 // 
 // Returns:
-//  Structure - :
+//  Structure - List of form open parameters.:
 //   * Owner - Arbitrary - a form or another form control.
 //   * Uniqueness - Arbitrary - a key whose value will be used to search for already opened forms.
 //   * URL - String - sets a URL returned by the form.
@@ -144,9 +145,9 @@ EndFunction
 //
 // Parameters:
 //  MessageSubject            - AnyRef
-//                              - String - a source object of data entered in the message.
-//                                For common templates, pass the Common value.
-//  MessageKind                - String - Email for emails and SMSMessage for text messages.
+//                              - String - Object whose data should be output to the message.
+//                                For common templates, pass "Shared".
+//  MessageKind                - String - "MailMessage" for email messages and "SMSMessage" for text messages.
 //  OnCloseNotifyDescription - NotifyDescription - a notification that is called once a message is generated.:
 //     * Result - Structure - if True, a message was created.
 //     * MessageParameters - Structure
@@ -167,6 +168,20 @@ Procedure PrepareMessageFromTemplate(MessageSubject, MessageKind, OnCloseNotifyD
 	
 EndProcedure
 
+Procedure SendMail(Ref, Parameters) Export
+	AdditionalParameters = New Structure("MessageSourceFormName", "");
+	AdditionalParameters.MessageSourceFormName = Parameters.Form.FormName;
+	
+	GenerateMessage(Ref, "MailMessage",,, AdditionalParameters);
+EndProcedure
+
+Procedure SendSMS(Ref, Parameters) Export
+	AdditionalParameters = New Structure("MessageSourceFormName", "");
+	AdditionalParameters.MessageSourceFormName = Parameters.Form.FormName;
+	
+	GenerateMessage(Ref, "SMSMessage",,, AdditionalParameters);
+EndProcedure
+	
 #EndRegion
 
 #Region Private

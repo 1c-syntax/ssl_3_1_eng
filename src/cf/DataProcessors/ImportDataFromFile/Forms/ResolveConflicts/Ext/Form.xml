@@ -54,6 +54,12 @@ Select the item that matches the spreadsheet data.</v8:content>
 		<RadioButtonField name="ConflictResolutionOption" id="26">
 			<DataPath>ConflictResolutionOption</DataPath>
 			<Visible>false</Visible>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Conflict resolution option</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>None</TitleLocation>
 			<RadioButtonType>Auto</RadioButtonType>
 			<ChoiceList>
@@ -121,18 +127,36 @@ Select the item that matches the spreadsheet data.</v8:content>
 						<Type>CommandBarButton</Type>
 						<DefaultButton>true</DefaultButton>
 						<CommandName>Form.Command.Select</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Select</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="SelectionOptionsSelectExtendedTooltip" id="57"/>
 					</Button>
 					<Button name="SelectionOptionsNewItem" id="58">
 						<Type>CommandBarButton</Type>
 						<Visible>false</Visible>
 						<CommandName>Form.Command.NewItem</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Add item</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="SelectionOptionsNewItemExtendedTooltip" id="59"/>
 					</Button>
 					<Button name="SelectionOptionsOpen" id="60">
 						<Type>CommandBarButton</Type>
 						<Visible>false</Visible>
 						<CommandName>Form.Command.Open</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Open</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="SelectionOptionsOpenExtendedTooltip" id="61"/>
 					</Button>
 				</ChildItems>
@@ -169,6 +193,12 @@ Select the item that matches the spreadsheet data.</v8:content>
 				<InputField name="SelectionOptionsPresentation" id="44">
 					<DataPath>SelectionOptions.Presentation</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Presentation</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ContextMenu name="SelectionOptionsPresentationContextMenu" id="45"/>
 					<ExtendedTooltip name="SelectionOptionsPresentationExtendedTooltip" id="46"/>
@@ -176,6 +206,12 @@ Select the item that matches the spreadsheet data.</v8:content>
 				<InputField name="SelectionOptionsRef" id="50">
 					<DataPath>SelectionOptions.Ref</DataPath>
 					<Visible>false</Visible>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Reference</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ContextMenu name="SelectionOptionsRefContextMenu" id="51"/>
 					<ExtendedTooltip name="SelectionOptionsRefExtendedTooltip" id="52"/>
@@ -183,6 +219,12 @@ Select the item that matches the spreadsheet data.</v8:content>
 				<InputField name="SelectionOptionsValue" id="53">
 					<DataPath>SelectionOptions.Value</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Value</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ShowInHeader>false</ShowInHeader>
 					<ContextMenu name="SelectionOptionsValueContextMenu" id="54"/>
@@ -225,6 +267,12 @@ Select the item that matches the spreadsheet data.</v8:content>
 					<Button name="Select" id="20">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.Select</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Select</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="SelectExtendedTooltip" id="21"/>
 					</Button>
 					<Button name="CatalogItemsNewItem" id="35">
@@ -283,6 +331,12 @@ Select the item that matches the spreadsheet data.</v8:content>
 			<ChildItems>
 				<InputField name="CatalogItemsPresentation" id="37">
 					<DataPath>CatalogItems.Presentation</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Presentation</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ContextMenu name="CatalogItemsPresentationContextMenu" id="38"/>
 					<ExtendedTooltip name="CatalogItemsPresentationExtendedTooltip" id="39"/>

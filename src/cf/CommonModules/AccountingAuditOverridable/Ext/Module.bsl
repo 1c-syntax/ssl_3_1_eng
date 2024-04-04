@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -54,10 +55,10 @@ EndProcedure
 //      * Description                 - String - a check description displayed to a user.
 //      * Reasons                      - String - a description of possible reasons that result in issue appearing.
 //      * Recommendation                 - String - a recommendation on solving an appeared issue.
-//      * Id                - String - 
-//                                                :
-//                                                
-//                                                
+//      * Id                - String - The id of an item. A mandatory parameter.
+//                                                The id format is:
+//                                                <Software name>.<Check id>.
+//                                                For example, "StandardSubsystems.SystemChecks".
 //      * CheckStartDate           - Date - a threshold date that indicates the boundary of the checked
 //                                              objects (only for objects with a date). Do not check objects whose date is less than 
 //                                              the specified one. Not filled in 
@@ -66,16 +67,16 @@ EndProcedure
 //                                               If 0 is specified, check all objects.
 //      * HandlerChecks           - String - a name of the export handler procedure of the server common
 //                                                module as ModuleName.ProcedureName.
-//      * GoToCorrectionHandler - String - 
-//                                                  
-//                                                  
-//                                                  : 
-//                                                    
-//                                                      
-//                                                      
-//                                                               
-//                                                    
-//                                                  
+//      * GoToCorrectionHandler - String - The name of the export handler procedure for client common module
+//                                                  to start correcting an issue in the form of "ModuleName.ProcedureName"
+//                                                  or the full name of the form that needs to be opened to correct the issue.
+//                                                  The handler procedure accepts two parameters for input: 
+//                                                    CorrectionParameters - Structure - A structure with the following properties
+//                                                      CheckID - String - The check id.
+//                                                      CheckKind - CatalogRef.ChecksKinds - The check kind, which narrows down the check scope.
+//                                                               AdditionalParameters - Undefined - The parameter is not used.
+//                                                    When a user opens the form, it takes the same properties
+//                                                 as in the "CorrectionParameters" parameter. 
 //                                                 
 //      * NoCheckHandler       - Boolean - a flag of the service check that does not have the handler procedure.
 //      * ImportanceChangeDenied   - Boolean - if True, the administrator cannot change 

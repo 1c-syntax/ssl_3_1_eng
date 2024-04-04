@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -78,17 +79,26 @@ EndFunction
 //                       Consists of the ISO 639-1 language code and the ISO 3166-1 country code (optional)
 //                       separated by the underscore character. Examples: "en", "en_US", "en_GB", "ru", "ru_RU".
 //                       The default value is the configuration language.
+//   IsFractionalPartInWords - Boolean
 //
 // Returns:
 //   String - the amount in words.
 //
-Function GenerateAmountInWords(AmountAsNumber, Currency, OmitFractionalPart = False, Val LanguageCode = Undefined) Export
+Function GenerateAmountInWords(AmountAsNumber, Currency, OmitFractionalPart = False, Val LanguageCode = Undefined, IsFractionalPartInWords = False) Export
 	
-	If Metadata.DataProcessors.Find("CurrenciesRatesImport") <> Undefined Then
-		Result = DataProcessors["CurrenciesRatesImport"].GenerateAmountInWords(AmountAsNumber, Currency, OmitFractionalPart, LanguageCode);
-	Else
-		Result = "";
+	AmountInWordsParameters = Common.ObjectAttributeValue(Currency, "AmountInWordsParameters", , LanguageCode);
+	
+	If Not ValueIsFilled(LanguageCode) Then
+		LanguageCode = Common.DefaultLanguageCode();
 	EndIf;
+	
+	Sum = ?(AmountAsNumber < 0, -AmountAsNumber, AmountAsNumber);
+	Format = StrTemplate("L=%1;DP=%2", LanguageCode, ?(IsFractionalPartInWords, "True", "False"));
+	Result = NumberInWords(Sum, Format, AmountInWordsParameters); // 
+	If OmitFractionalPart And Int(Sum) = Sum Then
+		Result = Left(Result, StrFind(Result, "0") - 1);
+	EndIf;
+	
 	Return Result;
 	
 EndFunction
@@ -173,8 +183,8 @@ Procedure OnFillToDoList(ToDoList) Export
 	
 	RatesUpToDate = RatesUpToDate();
 	
-	
-	
+	// 
+	// 
 	Sections = ModuleToDoListServer.SectionsForObject(MetadataObject.FullName());
 	
 	For Each Section In Sections Do
@@ -547,11 +557,11 @@ Function RatesUpToDate() Export
 	Return Query.Execute().IsEmpty();
 EndFunction
 
-// 
+// Intended for procedure OnAddClientParametersOnStart
 //
 Function ShouldNotifyWhenExchageRatesOutdated()
 	
-	
+	// Auto-updates in SaaS.
 	If Common.DataSeparationEnabled() Or Common.IsStandaloneWorkplace() 
 		Or Not CurrencyRateOperationsInternal.HasRightToChangeExchangeRates() Then
 		Return False;

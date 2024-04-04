@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -61,7 +62,7 @@ Function RunBackgroundJob1(Val MethodParameters, Val UUID) Export
 	
 	StartSettings1 = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	StartSettings1.BackgroundJobDescription = NStr("en = 'Report distribution. Running in the background';");
-	
+	StartSettings1.RefinementErrors = NStr("en = 'Report distributions failed due to:';");
 	Return TimeConsumingOperations.ExecuteInBackground(MethodName, MethodParameters, StartSettings1);
 EndFunction
 
@@ -71,6 +72,8 @@ Function RunBackgroundJobToSendSMSWithPasswords(Val MethodParameters, Val UUID) 
 	                             
 	StartSettings1 = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	StartSettings1.BackgroundJobDescription = NStr("en = 'Report distributions: Send text messages with passwords in the background';");
+	StartSettings1.RefinementErrors =
+		NStr("en = 'Cannot send text messages with archive passwords to receive the report distribution. Reason:';");
 	
 	Return TimeConsumingOperations.ExecuteInBackground(MethodName, MethodParameters, StartSettings1);
 EndFunction  
@@ -81,7 +84,8 @@ Function RunBackgroundJobToClearUpReportDistributionHistory(Val MethodParameters
 	
 	StartSettings1 = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	StartSettings1.BackgroundJobDescription = NStr("en = 'Report distributions: Clear the report distribution history';");
-	
+	StartSettings1.RefinementErrors =
+		NStr("en = 'Cleaup of report distributions failed due to:';");
 	Return TimeConsumingOperations.ExecuteInBackground(MethodName, MethodParameters, StartSettings1);
 EndFunction
 

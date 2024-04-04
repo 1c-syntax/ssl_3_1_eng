@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Private
@@ -75,23 +76,23 @@ Function ReportsToExclude() Export
 	
 EndFunction
 
-Function EmailTextAndFileParameters() Export
+Function FilesAndEmailTextParameters() Export
 
-	MailingParameters = New Structure;
+	ReportDistributionParameters = New Structure;
 	
-	MailingParameters.Insert("Recipient", NStr("en = 'Recipient';"));
-	MailingParameters.Insert("ExecutionDate", NStr("en = 'Fulfillment date';"));
-	MailingParameters.Insert("Author", NStr("en = 'Author';"));
-	MailingParameters.Insert("MailingDescription", NStr("en = 'Distribution description';"));
-	MailingParameters.Insert("GeneratedReports", NStr("en = 'Generated reports';"));
-	MailingParameters.Insert("SystemTitle", NStr("en = 'Application title';"));
-	MailingParameters.Insert("DeliveryMethod", NStr("en = 'Delivery method';"));
-	MailingParameters.Insert("ReportFormat", NStr("en = 'Report format';"));
-	MailingParameters.Insert("Period", NStr("en = 'Period';"));
-	MailingParameters.Insert("MailingDate", NStr("en = 'Send date';"));
-	MailingParameters.Insert("ReportDescription1", NStr("en = 'Report name';"));
+	ReportDistributionParameters.Insert("Recipient", NStr("en = 'Recipient';"));
+	ReportDistributionParameters.Insert("ExecutionDate", NStr("en = 'Fulfillment date';"));
+	ReportDistributionParameters.Insert("Author", NStr("en = 'Author';"));
+	ReportDistributionParameters.Insert("MailingDescription", NStr("en = 'Distribution description';"));
+	ReportDistributionParameters.Insert("GeneratedReports", NStr("en = 'Generated reports';"));
+	ReportDistributionParameters.Insert("SystemTitle", NStr("en = 'Application title';"));
+	ReportDistributionParameters.Insert("DeliveryMethod", NStr("en = 'Delivery method';"));
+	ReportDistributionParameters.Insert("ReportFormat", NStr("en = 'Report format';"));
+	ReportDistributionParameters.Insert("Period", NStr("en = 'Period';"));
+	ReportDistributionParameters.Insert("MailingDate", NStr("en = 'Send date';"));
+	ReportDistributionParameters.Insert("ReportDescription1", NStr("en = 'Report name';"));
 	
-	Return MailingParameters;
+	Return ReportDistributionParameters;
 
 EndFunction
 

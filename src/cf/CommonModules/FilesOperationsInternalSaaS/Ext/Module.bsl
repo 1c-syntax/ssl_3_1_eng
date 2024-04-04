@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -55,6 +56,7 @@ Procedure OnDefineHandlerAliases(NamesAndAliasesMap) Export
 	NamesAndAliasesMap.Insert("FilesOperationsInternal.ExtractTextFromFiles");
 	NamesAndAliasesMap.Insert("FilesOperationsInternal.ClearExcessiveFiles");
 	NamesAndAliasesMap.Insert("FilesOperationsInternal.ScheduledFileSynchronizationWebdav");
+	NamesAndAliasesMap.Insert("InformationRegisters.FileRepository.TransferData_");
 	
 EndProcedure
 
@@ -91,17 +93,22 @@ Procedure OnPopulateDependantTablesForODataImportExport(Tables) Export
 	
 EndProcedure
 
-// SaaSTechnology.ExportImportData
+// CloudTechnology.ExportImportData
 
 // See ExportImportDataOverridable.OnFillTypesExcludedFromExportImport.
 Procedure OnFillTypesExcludedFromExportImport(Types) Export
+	
+	ModuleExportImportData = Common.CommonModule("ExportImportData");
 	
 	Types.Add(Metadata.InformationRegisters.TextExtractionQueue);
 	Types.Add(Metadata.Constants.VolumePathIgnoreRegionalSettings);
 	
 	TypesToExclude = FilesCatalogsAndStorageOptionObjects().StorageObjects;
 	For Each IsExcludableType In TypesToExclude Do
-		Types.Add(Common.MetadataObjectByFullName(IsExcludableType.Key));
+		ModuleExportImportData.AddTypeExcludedFromUploadingUploads(
+			Types,
+			Common.MetadataObjectByFullName(IsExcludableType.Key),
+			ModuleExportImportData.ActionWithLinksDoNotChange());	
 	EndDo;
 	
 EndProcedure
@@ -297,7 +304,48 @@ Procedure BeforeImportObject(Container, Object, Artifacts, Cancel) Export
 	
 EndProcedure
 
-// End SaaSTechnology.ExportImportData
+// End CloudTechnology.ExportImportData
+
+// Creates and queues jobs that will transfer data to the file
+// storage with deduplication for the used data areas.
+//
+Procedure StartDeduplication() Export
+	
+	If Not Common.SubsystemExists("CloudTechnology") Then
+		
+		Return;
+		
+	EndIf;
+	
+	ModuleJobsQueue = Common.CommonModule("JobsQueue");
+	
+	Query = New Query( 
+	"SELECT
+	|	DataAreas.DataAreaAuxiliaryData AS DataArea
+	|FROM
+	|	InformationRegister.DataAreas AS DataAreas
+	|WHERE
+	|	DataAreas.Status = VALUE(Enum.DataAreaStatuses.Used)");
+	
+	Selection = Query.Execute().Select();
+	
+	While Selection.Next() Do
+		
+		JobParameters = New Structure;
+		JobParameters.Insert("DataArea", Selection.DataArea);
+		JobParameters.Insert("MethodName", "InformationRegisters.FileRepository.TransferData_");
+		
+		If ModuleJobsQueue.GetJobs(JobParameters).Count() = 0 Then
+			
+			JobParameters.Insert("Use", True);
+			JobParameters.Insert("RestartCountOnFailure", 3);
+			ModuleJobsQueue.AddJob(JobParameters);
+			
+		EndIf;
+		
+	EndDo;
+	
+EndProcedure
 
 #EndRegion
 
@@ -390,9 +438,9 @@ Procedure HandleTextExtractionQueue() Export
 	Result = Undefined;
 	While True Do
 		Try
-			Result = Query.Execute(); 
-			                                
-			                                
+			Result = Query.Execute(); // 
+			                                // 
+			                                // 
 			Break;
 		Except
 			AttemptsNumber = AttemptsNumber + 1;

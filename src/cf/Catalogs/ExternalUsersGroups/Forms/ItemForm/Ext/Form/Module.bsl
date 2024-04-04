@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -31,7 +32,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		AllAuthorizationObjects = ?(AllAuthorizationObjects = Undefined, False, AllAuthorizationObjects);
 		
 		If AllAuthorizationObjects
-		 Or Object.Parent = Catalogs.ExternalUsersGroups.AllExternalUsers Then
+		 Or Object.Parent = ExternalUsers.AllExternalUsersGroup() Then
 			
 			Object.Parent = Catalogs.ExternalUsersGroups.EmptyRef();
 		EndIf;
@@ -53,7 +54,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	GroupMembers = ?(Object.AllAuthorizationObjects, "AllSpecifiedKindsUsers", "SelectedUsersOfSpecifiedKinds");
 	
 	IsAllExternalUsersGroup = 
-		Object.Ref = Catalogs.ExternalUsersGroups.AllExternalUsers;
+		Object.Ref = ExternalUsers.AllExternalUsersGroup();
 	
 	If IsAllExternalUsersGroup Then
 		Items.Description.ReadOnly = True;
@@ -92,9 +93,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	FillUserStatuses();
 	
 	If ValueIsFilled(Object.Parent) And Not ValueIsFilled(Object.Ref) Then
-		ParentAssignment = Common.ObjectAttributeValue(Object.Parent, "Purpose");
-		If TypeOf(ParentAssignment) = Type("QueryResult") Then
-			Object.Purpose.Load(ParentAssignment.Unload());
+		Parent_Assignment = Common.ObjectAttributeValue(Object.Parent, "Purpose");
+		If TypeOf(Parent_Assignment) = Type("QueryResult") Then
+			Object.Purpose.Load(Parent_Assignment.Unload());
 		Else
 			Object.Purpose.Clear();
 		EndIf;
@@ -258,7 +259,7 @@ EndProcedure
 #Region FormTableItemsEventHandlersRoles
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure RolesCheckOnChange(Item)
@@ -311,7 +312,7 @@ Procedure ContentDrag(Item, DragParameters, StandardProcessing, String, Field)
 	UserMessage = MoveUserToGroup(DragParameters.Value, Object.Ref);
 	If UserMessage <> Undefined Then
 		ShowUserNotification(
-			NStr("en = 'Move users';"), , UserMessage, PictureLib.Information32);
+			NStr("en = 'Move users';"), , UserMessage, PictureLib.DialogInformation);
 	EndIf;
 	
 EndProcedure
@@ -364,7 +365,7 @@ Procedure SelectPurpose(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure ShowSelectedRolesOnly(Command)
@@ -448,7 +449,7 @@ EndFunction
 Procedure SelectGroupMembersTypesAvailableForSelection()
 	
 	If ValueIsFilled(Object.Parent)
-		And Object.Parent <> Catalogs.ExternalUsersGroups.AllExternalUsers Then
+		And Object.Parent <> ExternalUsers.AllExternalUsersGroup() Then
 		
 		Items.UsersType.Enabled = False;
 		GroupMembers = Items.GroupMembers.ChoiceList.FindByValue("SelectedUsersOfSpecifiedKinds").Value;
@@ -652,25 +653,13 @@ EndProcedure
 &AtServer
 Function ExtendedPickFormParameters()
 	
-	SelectedUsers = New ValueTable;
-	SelectedUsers.Columns.Add("User");
-	SelectedUsers.Columns.Add("PictureNumber");
+	PickingParameters = UsersInternal.NewParametersOfExtendedPickForm();
+	PickingParameters.PickFormHeader = NStr("en = 'Pick external user group members';");
 	
-	ExternalUsersGroupMembers = Object.Content.Unload(, "ExternalUser");
+	PickingParameters.SelectedUsers =
+		Object.Content.Unload(, "ExternalUser").UnloadColumn("ExternalUser");
 	
-	For Each Item In ExternalUsersGroupMembers Do
-		
-		SelectedUsersRow = SelectedUsers.Add();
-		SelectedUsersRow.User = Item.ExternalUser;
-		
-	EndDo;
-	
-	PickFormHeader = NStr("en = 'Pick external user group members';");
-	ExtendedPickFormParameters = 
-		New Structure("PickFormHeader, SelectedUsers, CannotPickGroups",
-		                 PickFormHeader, SelectedUsers, True);
-	StorageAddress = PutToTempStorage(ExtendedPickFormParameters);
-	Return StorageAddress;
+	Return PutToTempStorage(PickingParameters, UUID);
 	
 EndFunction
 
@@ -760,7 +749,7 @@ Procedure AfterAssignmentChoice(TypesArray, AdditionalParameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
 Procedure ProcessRolesInterface(Action, MainParameter = Undefined)

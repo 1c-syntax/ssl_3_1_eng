@@ -19,6 +19,12 @@
 	<ChildItems>
 		<LabelField name="NoteLabel" id="12">
 			<DataPath>NoteLabel</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Note label</v8:content>
+				</v8:item>
+			</Title>
 			<TitleTextColor>style:NoteText</TitleTextColor>
 			<TitleLocation>None</TitleLocation>
 			<AutoMaxWidth>false</AutoMaxWidth>
@@ -114,7 +120,7 @@
 					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ContextMenu name="MapFieldsListPresentationContextMenu" id="15"/>
-					<ExtendedTooltip name="MapFieldsListPresentationExtendedTooltip" id="19"/>
+					<ExtendedTooltip name="MappingFieldsListPresentationExtendedTooltip" id="19"/>
 				</InputField>
 			</ChildItems>
 		</Table>
@@ -134,12 +140,24 @@
 					<DefaultButton>true</DefaultButton>
 					<SkipOnInput>false</SkipOnInput>
 					<CommandName>Form.Command.RunMapping</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Map infobase objects</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="RunMappingExtendedTooltip" id="21"/>
 				</Button>
 				<Button name="Cancel" id="9">
 					<Type>CommandBarButton</Type>
 					<SkipOnInput>false</SkipOnInput>
 					<CommandName>Form.Command.Cancel</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Cancel</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="CancelExtendedTooltip" id="22"/>
 				</Button>
 			</ChildItems>

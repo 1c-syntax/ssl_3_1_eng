@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -16,9 +17,11 @@
 //   * CanReceiveEmails - Boolean - show email receiving settings in accounts.
 //                                       Default value: False - for basic configuration versions,
 //                                       True - for other versions.
+//   * ShouldUsePOP3Protocol - Boolean - Toggles POP3 settings for new email settings.
+//                                         By default, "True".
 //
 Procedure OnDefineSettings(Settings) Export
-	
+
 EndProcedure
 
 // Allows executing additional operations after sending email.
@@ -79,7 +82,7 @@ Procedure AfterEmailSending(EmailParameters) Export
 EndProcedure
 
 // Specifies a list of emails to receive the delivered/read status for.
-// For the email list determination example, see ReportsDistribution.BeforeGetEmailMessagesStatuses
+// For the email list determination example, see ReportMailing.BeforeGetEmailMessagesStatuses
 //
 //   Parameters:
 //  EmailMessagesIDs - ValueTable:
@@ -92,7 +95,7 @@ Procedure BeforeGetEmailMessagesStatuses(EmailMessagesIDs) Export
 EndProcedure
 
 // Returns information only about known delivery statuses (if corresponding emails were received).
-// For an example of processing received email statuses, see ReportsMailing.AfterGetEmailMessagesStatuses
+// For an example of processing received email statuses, see ReportMailing.AfterGetEmailMessagesStatuses
 //
 // Parameters:
 //  DeliveryStatuses - ValueTable:

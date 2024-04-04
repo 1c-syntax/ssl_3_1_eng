@@ -13,6 +13,12 @@
 				<SkipOnInput>false</SkipOnInput>
 				<DefaultItem>true</DefaultItem>
 				<CommandName>Form.Command.OK</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>OK</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="OKExtendedTooltip" id="31"/>
 			</Button>
 			<Button name="Cancel" id="11">
@@ -121,6 +127,12 @@
 						<InputField name="UsersRef" id="4">
 							<DataPath>AllUsers.User</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>User</v8:content>
+								</v8:item>
+							</Title>
 							<EditMode>EnterOnInput</EditMode>
 							<ContextMenu name="UsersRefContextMenu" id="5"/>
 							<ExtendedTooltip name="UsersRefExtendedTooltip" id="37"/>
@@ -145,21 +157,45 @@
 						<Button name="GrantCommandAccessToSelectedUsers" id="28">
 							<Type>UsualButton</Type>
 							<CommandName>Form.Command.GrantCommandAccessToSelectedUsers</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>&gt;</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="GrantCommandAccessToSelectedUsersExtendedTooltip" id="40"/>
 						</Button>
 						<Button name="GrantAccessToAllUsers" id="27">
 							<Type>UsualButton</Type>
 							<CommandName>Form.Command.GrantAccessToAllUsers</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>&gt;&gt;</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="GrantAccessToAllUsersExtendedTooltip" id="41"/>
 						</Button>
 						<Button name="RevokeCommandAccessFromAllUsers" id="29">
 							<Type>UsualButton</Type>
 							<CommandName>Form.Command.RevokeCommandAccessFromAllUsers</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>&lt;&lt;</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="RevokeCommandAccessFromAllUsersExtendedTooltip" id="42"/>
 						</Button>
 						<Button name="RevokeCommandAccessFromSelectedUsers" id="30">
 							<Type>UsualButton</Type>
 							<CommandName>Form.Command.RevokeCommandAccessFromSelectedUsers</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>&lt;</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="RevokeCommandAccessFromSelectedUsersExtendedTooltip" id="43"/>
 						</Button>
 					</ChildItems>
@@ -245,6 +281,12 @@
 						<InputField name="ShortListUsersUser" id="16">
 							<DataPath>ShortListUsers.User</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>User</v8:content>
+								</v8:item>
+							</Title>
 							<EditMode>EnterOnInput</EditMode>
 							<ContextMenu name="ShortListUsersUserContextMenu" id="17"/>
 							<ExtendedTooltip name="ShortListUsersUserExtendedTooltip" id="47"/>

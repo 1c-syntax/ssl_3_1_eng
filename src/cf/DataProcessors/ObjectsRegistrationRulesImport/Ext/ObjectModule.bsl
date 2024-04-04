@@ -1,18 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Variables
 
-Var Registration Export; 
-Var ObjectsRegistrationRules Export; 
+Var Registration Export; // Structure with registration parameters.
+Var ObjectsRegistrationRules Export; // A value table with object registration rules.
 Var FlagErrors Export; // A value table with object registration rules.
 
 Var StringType;
@@ -21,11 +22,11 @@ Var NumberType;
 Var DateType;
 
 Var BlankDateValue1;
-Var FilterByExchangePlanPropertiesTreePattern;  
-                                                
+Var FilterByExchangePlanPropertiesTreePattern;  // Value tree template for rules of registration by exchange plan properties.
+                                                // 
 Var FilterByObjectPropertiesTreePattern;      // Value tree template for rules of registration by exchange plan properties.
-Var BooleanRootPropertiesGroupValue; 
-Var ErrorsMessages; 
+Var BooleanRootPropertiesGroupValue; // Boolean value for the root property group.
+Var ErrorsMessages; // Map: Key - A error code; Value - Error details.
 
 #EndRegion
 
@@ -51,7 +52,7 @@ Procedure ImportRules(Val FileName, InformationOnly = False) Export
 		Return;
 	EndIf;
 	
-	
+	// Initialize the collections for the rules.
 	Registration                             = RecordInitialization();
 	ObjectsRegistrationRules              = DataProcessors.ObjectsRegistrationRulesImport.ORRTableInitialization();
 	FilterByExchangePlanPropertiesTreePattern = DataProcessors.ObjectsRegistrationRulesImport.FilterByExchangePlanPropertiesTableInitialization();
@@ -178,7 +179,7 @@ Procedure LoadRecord(Rules, InformationOnly)
 			
 		ElsIf NodeName = "ExchangePlan" Then
 			
-			
+			// Attributes for the exchange plan
 			Registration.ExchangePlanName = deAttribute(Rules, StringType, "Name");
 			
 			Registration.ExchangePlan = deElementValue(Rules, StringType);
@@ -189,7 +190,7 @@ Procedure LoadRecord(Rules, InformationOnly)
 			
 		ElsIf NodeName = "Configuration" Then
 			
-			
+			// Configuration's attributes
 			Registration.PlatformVersion     = deAttribute(Rules, StringType, "PlatformVersion");
 			Registration.ConfigurationVersion  = deAttribute(Rules, StringType, "ConfigurationVersion");
 			Registration.ConfigurationSynonym = deAttribute(Rules, StringType, "ConfigurationSynonym");
@@ -460,11 +461,11 @@ Procedure LoadExchangePlanFilterItem(Rules, NewRow)
 			
 		ElsIf NodeName = "ExchangePlanProperty" Then
 			
-			
-			
-			
-			
-			
+			// 
+			// 
+			// 
+			// 
+			// 
 			FullPropertyDescription = deElementValue(Rules, StringType);
 			
 			ExchangePlanTabularSectionName = "";
@@ -827,9 +828,9 @@ Function GetPropertyConditionText(Rule, ObjectProperties)
 	
 	RuleComparisonKind = Rule.ComparisonType;
 	
-	
-	
-	
+	// 
+	// 
+	// 
 	InvertComparisonType(RuleComparisonKind);
 	
 	TextOperator = GetCompareOperatorText(RuleComparisonKind);
@@ -941,7 +942,7 @@ EndProcedure
 
 Procedure ReportProcessingError(Code = -1, ErrorDescription = "")
 	
-	
+	// Set the global error flag.
 	FlagErrors = True;
 	
 	If ErrorsMessages = Undefined Then
@@ -1137,7 +1138,7 @@ EndFunction
 //
 Procedure deSkip(Object, Name = "")
 	
-	AttachmentsCount = 0; 
+	AttachmentsCount = 0; // The number of attachments with the same name.
 	
 	If IsBlankString(Name) Then
 	
@@ -1201,7 +1202,7 @@ Procedure InitAttributesAndModuleVariables()
 	
 	BlankDateValue1 = Date('00010101');
 	
-	BooleanRootPropertiesGroupValue = "And"; 
+	BooleanRootPropertiesGroupValue = "And"; // 
 	
 EndProcedure
 
@@ -1221,7 +1222,7 @@ Function RecordInitialization()
 	Registration.Insert("ExchangePlanName",      "");
 	Registration.Insert("Comment",         "");
 	
-	
+	// Configuration's parameters
 	Registration.Insert("PlatformVersion",     "");
 	Registration.Insert("ConfigurationVersion",  "");
 	Registration.Insert("ConfigurationSynonym", "");

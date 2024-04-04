@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -35,8 +36,8 @@ Procedure ResolveIssue(Command)
 	If CheckID = "StandardSubsystems.CheckCircularRefs1" Then
 		TimeConsumingOperation = ResolveIssueInBackground(CheckID);
 		IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
-		CompletionNotification2 = New NotifyDescription("ResolveIssueInBackgroundCompletion", ThisObject);
-		TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CompletionNotification2, IdleParameters);
+		CallbackOnCompletion = New NotifyDescription("ResolveIssueInBackgroundCompletion", ThisObject);
+		TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
 	ElsIf CheckID = "StandardSubsystems.CheckNoPredefinedItems" Then
 		SetCurrentPage(ThisObject, "TroubleshootingInProgress");
 		RestoreMissingPredefinedItems(CheckID);
@@ -86,6 +87,10 @@ Function ResolveIssueInBackground(CheckID)
 	
 EndFunction
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
 Procedure ResolveIssueInBackgroundCompletion(Result, AdditionalParameters) Export
 	
@@ -93,10 +98,12 @@ Procedure ResolveIssueInBackgroundCompletion(Result, AdditionalParameters) Expor
 
 	If Result = Undefined Then
 		SetCurrentPage(ThisObject, "TroubleshootingInProgress");
-		Return;
+	
 	ElsIf Result.Status = "Error" Then
 		SetCurrentPage(ThisObject, "DoQueryBox");
-		Raise Result.BriefErrorDescription;
+		StandardSubsystemsClient.OutputErrorInfo(
+			Result.ErrorInfo);
+	
 	ElsIf Result.Status = "Completed2" Then
 		SetCurrentPage(ThisObject, "FixedSuccessfully");
 	EndIf;
@@ -145,7 +152,7 @@ Procedure RestoreMissingPredefinedItems(CheckID)
 			Query.Text = StrReplace(Query.Text,
 				"ISNULL(SpecifiedTableAlias.Parent.PredefinedDataName, """")", """""");
 		EndIf;
-		NameTable = Query.Execute().Unload(); 
+		NameTable = Query.Execute().Unload(); // @skip-check query-in-loop - A multi-table query.
 		
 		If NameTable.Count() = 0 Then
 			Continue; // All predefined items are missing, restoration in a regular way.
@@ -178,7 +185,7 @@ Procedure RestoreMissingPredefinedItems(CheckID)
 			|WHERE
 			|	NOT SpecifiedTableAlias.Predefined";
 		Query.Text = StrReplace(Query.Text, "&CurrentTable", FullName);
-		AllNonPredefinedItems = Query.Execute().Unload(); 
+		AllNonPredefinedItems = Query.Execute().Unload(); // @skip-check query-in-loop - A multi-table query.
 		AllNonPredefinedItems.Indexes.Add("Description, Parent");
 		
 		If PredefinedItemsInMetadata.Count() > 0 Then

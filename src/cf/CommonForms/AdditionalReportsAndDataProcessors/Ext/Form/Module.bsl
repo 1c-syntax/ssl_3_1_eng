@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -215,6 +216,10 @@ Function RunBackgroundJob1(Val CommandToExecute, Val UUID)
 		NStr("en = 'Additional reports and data processors: executing command %1.';"),
 		CommandToExecute.Presentation);
 	
+	StartSettings1.RefinementErrors = StringFunctionsClientServer.SubstituteParametersToString(
+		NStr("en = 'Cannot execute the command. Reason: %1.';"),
+		CommandToExecute.Presentation);
+	
 	MethodParameters = New Structure("AdditionalDataProcessorRef, CommandID, RelatedObjects");
 	MethodParameters.AdditionalDataProcessorRef = CommandToExecute.Ref;
 	MethodParameters.CommandID          = CommandToExecute.Id;
@@ -223,21 +228,23 @@ Function RunBackgroundJob1(Val CommandToExecute, Val UUID)
 	Return TimeConsumingOperations.ExecuteInBackground(MethodName, MethodParameters, StartSettings1);
 EndFunction
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
-Procedure ExecuteDataProcessorServerMethodCompletion(Job, AdditionalParameters) Export
+Procedure ExecuteDataProcessorServerMethodCompletion(Result, AdditionalParameters) Export
 	
-	If Job = Undefined Then
+	If Result = Undefined Then
 		Return;
 	EndIf;
 	
-	If Job.Status <> "Completed2" Then
-		Text = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The ""%1"" operation is not performed:';"),
-			CommandToExecute.Presentation);
+	If Result.Status = "Error" Then
 		If IsOpen() Then
 			Close();
 		EndIf;
-		Raise Text + Chars.LF + Job.BriefErrorDescription;
+		StandardSubsystemsClient.OutputErrorInfo(
+			Result.ErrorInfo);
 	EndIf;
 		
 	// Showing a pop-up notification and closing this form.
@@ -258,7 +265,7 @@ Procedure ExecuteDataProcessorServerMethodCompletion(Job, AdditionalParameters) 
 	EndIf;
 	
 	// Notify other forms.
-	ExecutionResult = GetFromTempStorage(Job.ResultAddress);
+	ExecutionResult = GetFromTempStorage(Result.ResultAddress);
 	NotifyForms = CommonClientServer.StructureProperty(ExecutionResult, "NotifyForms");
 	If NotifyForms <> Undefined Then
 		StandardSubsystemsClient.NotifyFormsAboutChange(NotifyForms);

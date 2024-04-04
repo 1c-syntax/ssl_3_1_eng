@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -17,8 +18,8 @@
 //
 Procedure CheckSharedObjectsOnWrite(Source, Cancel) Export
 	
-	
-	
+	// 
+	// 
 	If Not Common.DataSeparationEnabled() Then
 		Return;
 	EndIf;
@@ -39,8 +40,8 @@ EndProcedure
 //
 Procedure CheckSharedRecordsSetsOnWrite(Source, Cancel, Replacing) Export
 	
-	
-	
+	// 
+	// 
 	If Not Common.DataSeparationEnabled() Then
 		Return;
 	EndIf;
@@ -49,5 +50,32 @@ Procedure CheckSharedRecordsSetsOnWrite(Source, Cancel, Replacing) Export
 	ModuleSaaSOperations.CheckSharedRecordsSetsOnWrite(Source, Cancel, Replacing);
 	
 EndProcedure
+
+#EndRegion
+
+#Region Internal
+
+// Returns "True" if a single standard numeric separator
+// "Data area" is used.
+//
+// Returns:
+//  Boolean
+//
+Function StandardSeparatorsOnly() Export
+	
+	Result = True;
+	For Each CommonAttribute In Metadata.CommonAttributes Do
+		If CommonAttribute = Metadata.CommonAttributes.DataAreaMainData
+		 Or CommonAttribute = Metadata.CommonAttributes.DataAreaAuxiliaryData
+		 Or CommonAttribute.DataSeparation = Metadata.ObjectProperties.CommonAttributeDataSeparation.DontUse Then
+			Continue;
+		EndIf;
+		Result = False;
+		Break;
+	EndDo;
+	
+	Return Result;
+	
+EndFunction
 
 #EndRegion

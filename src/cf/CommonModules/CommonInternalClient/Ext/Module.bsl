@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -51,31 +52,31 @@ EndFunction
 // Add-in attachment context.
 // 
 // Returns:
-//  Structure - :
+//  Structure - Add-in attachment context:
 //   * Notification - Undefined, NotifyDescription - notification.
 //   * Id - String - an add-in object ID, add-in ID.
 //   * Version - Undefined, String - an add-in version.
 //   * Location - String - template location or an add-in reference.
 //   * OriginalLocation - String - Initial call location, for cache storage.
-//   * Cached - Boolean -  
-//                 
-//                 
+//   * Cached - Boolean -  Flag indicating whether to save the attached add-in to the cache.
+//                 If False, multiple add-in objects can be saved to memory (this might cause errors).
+//                 By default, True.
 //   * SuggestInstall - Boolean - prompt to install the add-in.
-//   * WasInstallationAttempt - Boolean - 
+//   * WasInstallationAttempt - Boolean - Attachment attempt flag.
 //   * SuggestToImport - Boolean - prompt to import the add-in from the ITS website.
 //   * ExplanationText - String - a text that describes the add-in purpose and which functionality requires the add-in. 
 //   * ObjectsCreationIDs - Array -the creation IDs of object module instances.
 //                 Applicable only with add-ins that have a number of object creation IDs.
 //                 Ignored if the ID parameter is specified.
 //   * ASearchForANewVersionHasBeenPerformed - Boolean - a new add-in version was searched.
-//   * Isolated - Boolean, Undefined - 
-//                
-//                
-//                :
-//                
-//                See https://its.1c.eu/db/v83doc
-//    * AutoUpdate - Boolean -  
-//                
+//   * Isolated - Boolean, Undefined - If True, the add-in is attached isolatedly (it is uploaded to a separate OS process).
+//                If False, the add-in is executed in the same OS process that runs the 1C:Enterprise code.
+//                If Undefined, the add-in is executed according to the default 1C:Enterprise settings
+//                Isolatedly if the add-in supports only isolated execution; otherwise, non-isolatedly.:
+//                By default, Undefined.
+//                See https://its.1c.eu/db/v83doc#bookmark:dev:TI000001866
+//    * AutoUpdate - Boolean - Flag indicating whether UpdateFrom1CITSPortal will be set to True, 
+//                if SuggestToImport is set to True. By default, True.
 //
 Function AddInAttachmentContext() Export
 	
@@ -102,7 +103,7 @@ EndFunction
 // Parameters:
 //  Context - See AddInAttachmentContext.
 //
-Async Function AttachExtAddInAsync(Context) Export
+Async Function AttachAddInSSLAsync(Context) Export
 	
 	If IsBlankString(Context.Id) Then 
 		AddInContainsOneObjectClass = (Context.ObjectsCreationIDs.Count() = 0);
@@ -114,9 +115,9 @@ Async Function AttachExtAddInAsync(Context) Export
 				           |Either %2 or %3 must be specified.';"), 
 				Context.Location, "Id", "ObjectsCreationIDs");
 		Else
-			
-			
-			
+			// 
+			// 
+			// 
 			Context.Id = StrConcat(Context.ObjectsCreationIDs, ", ");
 		EndIf;
 	EndIf;
@@ -143,7 +144,7 @@ Async Function AttachExtAddInAsync(Context) Export
 			// If the cache already has a symbolic name, it means that the add-in has already been attached to this session.
 				Attached = True;
 				Context.Insert("SymbolicName", SymbolicName);
-				Return Await AttachAddInAfterTriedAttachAsync(Attached, Context);
+				Return Await AttachAddInSSLAfterAttachmentAttemptAsync(Attached, Context);
 			EndIf;
 			
 		EndIf;
@@ -184,7 +185,7 @@ Async Function AttachExtAddInAsync(Context) Export
 			Context.Location = TheComponentOfTheLatestVersion.Location;
 			Context.Version = TheComponentOfTheLatestVersion.Version;
 			
-			Return Await AttachExtAddInAsync(Context);
+			Return Await AttachAddInSSLAsync(Context);
 				
 		EndIf;
 	EndIf;
@@ -217,7 +218,7 @@ Async Function AttachExtAddInAsync(Context) Export
 		
 	EndTry;
 	
-	Return Await AttachAddInAfterTriedAttachAsync(Attached, Context);
+	Return Await AttachAddInSSLAfterAttachmentAttemptAsync(Attached, Context);
 	
 EndFunction
 
@@ -236,9 +237,9 @@ Procedure AttachAddInSSL(Context) Export
 				           |Either %2 or %3 must be specified.';"), 
 				Context.Location, "Id", "ObjectsCreationIDs");
 		Else
-			
-			
-			
+			// 
+			// 
+			// 
 			Context.Id = StrConcat(Context.ObjectsCreationIDs, ", ");
 		EndIf;
 	EndIf;
@@ -392,8 +393,8 @@ Procedure InstallAddInSSL(Context) Export
 		
 	Else 
 		
-		
-		
+		// 
+		// 
 		Result = AddInInstallationResult();
 		Result.Insert("IsSet", True);
 		ExecuteNotifyProcessing(Context.Notification, Result);
@@ -416,7 +417,7 @@ EndProcedure
 // Parameters:
 //  Context - See AddInAttachmentContext.
 //
-Async Function InstallExtAddInAsync(Context) Export
+Async Function InstallAddInSSLAsync(Context) Export
 	
 	CheckTheLocationOfTheComponent(Context.Id, Context.Location);
 	
@@ -462,8 +463,8 @@ Async Function InstallExtAddInAsync(Context) Export
 		EndIf;
 	Else 
 		
-		
-		
+		// 
+		// 
 		
 		Result = AddInInstallationResult();
 		Result.IsSet = True;
@@ -479,6 +480,21 @@ Function AddInInstallationError(ErrorDescription) Export
 	Result.ErrorDescription = ErrorDescription;
 	Return Result;
 	
+EndFunction
+
+Function ApplicationKind() Export
+
+	SystemInfo = New SystemInfo();
+	Result = "";
+#If WebClient Then
+	Result = NStr("en = 'Web client';") + SystemInfo.UserAgentInformation;
+#ElsIf ThickClientOrdinaryApplication Or ThickClientManagedApplication Then
+	Result = NStr("en = 'Thick client';");
+#ElsIf ThinClient Then
+	Result = NStr("en = 'Thin client';");
+#EndIf
+	Return Result + " (" + SystemInfo.PlatformType + ")";
+
 EndFunction
 
 #EndRegion
@@ -527,8 +543,8 @@ Procedure CalculateIndicators(Form, SpreadsheetDocumentName, CurrentCommand = ""
 		AdditionalParameters.Insert("CurrentCommand", CurrentCommand);
 		AdditionalParameters.Insert("MinimumNumber", MinimumNumber);
 		
-		CompletionNotification2 = New NotifyDescription("ContinueCalculatingIndicators", ThisObject, AdditionalParameters);
-		TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CompletionNotification2, IdleParameters);
+		CallbackOnCompletion = New NotifyDescription("ContinueCalculatingIndicators", ThisObject, AdditionalParameters);
+		TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
 		
 	Else
 		
@@ -545,8 +561,8 @@ EndProcedure
 //
 // Parameters:
 //  FormItems - FormItems
-//  Visible - Boolean - 
-//              
+//  Visible - Boolean - The indicator panel visibility flag.
+//              See also: "FormGroup.Visibility" in Syntax Assistant.
 //
 Procedure SetIndicatorsPanelVisibiility(FormItems, Visible = False) Export 
 	
@@ -557,9 +573,9 @@ EndProcedure
 
 #EndRegion
 
-// 
-// 
-//  
+// Shortens a filename.
+// Applicable to filenames whose size with extension exceeds 255 B.
+// The procedure replaces a part of the filename with this part's hash, followed by the file extension. 
 // 
 // 
 // Parameters:
@@ -612,20 +628,20 @@ EndProcedure
 
 #Region Other
 
-// 
+// The parameter constructor for the print form format choice form.
 // 
 // Returns:
-//  Structure - :
-//   * PackToArchive - Boolean - 
+//  Structure - Print form format settings:
+//   * PackToArchive - Boolean - Attachment archiving flag.
 //   * SaveFormats - Array of See StandardSubsystemsServer.SpreadsheetDocumentSaveFormatsSettings
 //   * Recipients - Array of Structure:
 //                            * ContactInformationSource - CatalogRef - a contact information owner.
 //                            * Address - String - an email recipient address.
 //                            * Presentation - String - Addressee presentation.
-//   * TransliterateFilesNames - Boolean -  
+//   * TransliterateFilesNames - Boolean - Cyrillic-to-Latin conversion flag. 
 //   * Sign  - Undefined, 
-// 				- Boolean - 
-//   * SignatureAndSeal - Boolean - 
+// 				- Boolean - Flag indicating whether print forms must be digitally signed. If Undefined, the flag is hidden from the format choice form.
+//   * SignatureAndSeal - Boolean - Stamp and signature usage flag.
 //
 Function PrintFormFormatSettings() Export
 	Result = New Structure;
@@ -911,42 +927,66 @@ Procedure AttachAddInSSLAfterAttachmentAttempt(Attached, Context) Export
 			Notification = Context.Notification;
 			Result = AddInAttachmentResult();
 			ErrorText =  StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Не удалось подключить внешнюю компоненту ""%1"".
-				|Возможно компонента не установлена.';"), Context.Id);
+				NStr("en = 'Cannot attach the %1 add-in.
+				|It might not have been installed.';"), Context.Id);
 			
 			Result.ErrorDescription = ErrorText;
 			
 			ExecuteNotifyProcessing(Notification, Result);
-		Else 
-			ErrorText =  StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot apply add-in ""%1"".
-				   |The add-in might not be intended for use in the client application: %2.
-				   |
-				   |Technical details:
-				   |%3
-				   |Method %4 returned False.';"),
-				Context.Id, ApplicationKind(), Context.Location, "BeginAttachingAddIn");
-				
-			AttachAddInSSLNotifyOnError(ErrorText, Context, Context.SuggestInstall);
+		Else
+			
+			If CommonClient.SubsystemExists("StandardSubsystems.AddIns") Then
+				Notification = New NotifyDescription("AfterTemplateAddInCheckedForCompatibility", ThisObject, Context);
+				ModuleAddInsInternalClient = CommonClient.CommonModule("AddInsInternalClient");
+				ModuleAddInsInternalClient.CheckTemplateAddInForCompatibility(Notification, Context);
+				Return;
+			EndIf;
+			
+			AfterTemplateAddInCheckedForCompatibility("", Context);
+			
 		EndIf;
 		
 	EndIf;
 	
 EndProcedure
 
-Function ApplicationKind()
+Procedure AfterTemplateAddInCheckedForCompatibility(Result, Context) Export
+	
+	If ValueIsFilled(Result) Then
+		ErrorText =  StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'Cannot apply add-in ""%1"".
+						 |%2.
+						 |
+						 |Technical details:
+						 |%3
+						 |Method %4 returned False.';"), Context.Id, Result,
+			Context.Location, "BeginAttachingAddIn");
+	Else
+		ErrorText =  StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'Cannot apply add-in ""%1"".
+						 |The add-in might not be intended for use in the client application: %2.
+						 |
+						 |Technical details:
+						 |%3
+						 |Method %4 returned False.';"), Context.Id, ApplicationKind(), Context.Location,
+			"BeginAttachingAddIn");
+	EndIf;
 
-	SystemInfo = New SystemInfo();
-	Result = "";
-#If WebClient Then
-	Result = NStr("en = 'Web client';") + SystemInfo.UserAgentInformation;
-#ElsIf ThickClientOrdinaryApplication Or ThickClientManagedApplication Then
-	Result = NStr("en = 'Thick client';");
-#ElsIf ThinClient Then
-	Result = NStr("en = 'Thin client';");
-#EndIf
-	Return Result + " (" + SystemInfo.PlatformType + ")";
+	AttachAddInSSLNotifyOnError(ErrorText, Context, Context.SuggestInstall);
+	
+EndProcedure
 
+Function TemplateAddInCompatibilityError(Location)
+	
+	If Not CommonClient.SubsystemExists("StandardSubsystems.AddIns") Then
+		Return "";
+	EndIf;
+	
+	ModuleAddInsInternalClient = CommonClient.CommonModule("AddInsInternalClient");
+	
+	Return ModuleAddInsInternalClient.TemplateAddInCompatibilityError(
+		Location);
+	
 EndFunction
 
 // Continue the AttachAddInSSL procedure.
@@ -969,13 +1009,13 @@ EndProcedure
 Procedure AttachAddInSSLAfterInstallation(Result, Context) Export 
 	
 	If Result.IsSet Then 
-		
-		
+		// 
+		// 
 		Context.WasInstallationAttempt = True;
 		AttachAddInSSL(Context);
 	Else 
-		
-		
+		// 
+		// 
 		AttachAddInSSLNotifyOnError(Result.ErrorDescription, Context);
 	EndIf;
 	
@@ -1000,7 +1040,7 @@ Procedure AttachAddInSSLOnProcessError(ErrorInfo, StandardProcessing, Context) E
 		Context.Id,
 		Context.Location,
 		ErrorProcessing.BriefErrorDescription(ErrorInfo));
-		
+
 	AttachAddInSSLNotifyOnError(ErrorText, Context);
 	
 EndProcedure
@@ -1079,7 +1119,7 @@ EndFunction
 // Continue the InstallAddInSSL procedure.
 Procedure InstallAddInSSLAfterAnswerToInstallationQuestion(Response, Context) Export
 	
-	 
+	//  
 	// 
 	// 
 	// 
@@ -1171,7 +1211,7 @@ Procedure CheckTheLocationOfTheComponent(Id, Location)
 
 EndProcedure
 
-Async Function AttachAddInAfterTriedAttachAsync(Attached, Context)
+Async Function AttachAddInSSLAfterAttachmentAttemptAsync(Attached, Context)
 	
 	If Attached Then 
 		
@@ -1194,8 +1234,9 @@ Async Function AttachAddInAfterTriedAttachAsync(Attached, Context)
 		
 #If WebClient Then
 		SystemInfo = New SystemInfo;
-		If CommonClientServer.CompareVersions(SystemInfo.AppVersion, "8.3.24.0") >= 0 Then
-				Await PauseAsinx(2);
+		If CommonClientServer.CompareVersions(SystemInfo.AppVersion, "8.3.24.0") >= 0
+			And Not CommonClient.DataSeparationEnabled() Then
+			Await PauseAsync(2);
 		EndIf;
 #EndIf
 
@@ -1216,16 +1257,16 @@ Async Function AttachAddInAfterTriedAttachAsync(Attached, Context)
 			InstallationContext.Insert("Location", Context.Location);
 			InstallationContext.Insert("ExplanationText", Context.ExplanationText);
 			InstallationContext.Insert("Id", Context.Id);   
-			InstallResult = Await InstallExtAddInAsync(InstallationContext);
+			InstallResult = Await InstallAddInSSLAsync(InstallationContext);
 			
 			If InstallResult.IsSet Then 
-				
-				
+				// 
+				// 
 				Context.WasInstallationAttempt = True;
-				Return AttachExtAddInAsync(Context);
+				Return AttachAddInSSLAsync(Context);
 			Else 
-				
-				
+				// 
+				// 
 				
 				Return AddInAttachmentError(InstallResult.ErrorDescription);
 			EndIf;
@@ -1233,21 +1274,41 @@ Async Function AttachAddInAfterTriedAttachAsync(Attached, Context)
 			Notification = Context.Notification;
 			Result = AddInAttachmentResult();
 			ErrorText =  StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Не удалось подключить внешнюю компоненту ""%1"".
-				|Возможно компонента не установлена.';"), Context.Id);
+				NStr("en = 'Cannot attach the %1 add-in.
+				|It might not have been installed.';"), Context.Id);
 			
 			Result.ErrorDescription = ErrorText;
 			
 			Return Result;	
-		Else 
-			ErrorText =  StringFunctionsClientServer.SubstituteParametersToString(
+		Else
+			
+			AddInCompatibilityError = TemplateAddInCompatibilityError(Context.Location);
+			
+			If ValueIsFilled(AddInCompatibilityError) Then
+				ErrorText =  StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'Cannot apply add-in ""%1"".
+						 |%2.
+						 |
+						 |Technical details:
+						 |%3
+						 |Method %4 returned False.';"), Context.Id, AddInCompatibilityError,
+					Context.Location, "AttachAddInAsync");
+					
+				WarningText =  StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'Couldn''t attach add-in ""%1"".
+						 |%2.';"), Context.Id, AddInCompatibilityError);
+					
+				Await DoMessageBoxAsync(WarningText);
+			Else
+				ErrorText =  StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot apply add-in ""%1"".
-				   |The add-in might not be intended for use in the client application: %2.
-				   |
-				   |Technical details:
-				   |%3
-				   |Method %4 returned False.';"),
-				Context.Id, ApplicationKind(), Context.Location, "AttachAddInAsync");
+					 |The add-in might not be intended for use in the client application: %2.
+					 |
+					 |Technical details:
+					 |%3
+					 |Method %4 returned False.';"), Context.Id, ApplicationKind(), Context.Location,
+					"AttachAddInAsync");
+			EndIf;
 			
 			Return AddInAttachmentError(ErrorText, Context.SuggestInstall);
 			
@@ -1257,10 +1318,10 @@ Async Function AttachAddInAfterTriedAttachAsync(Attached, Context)
 	 
 EndFunction
 
-Async Function PauseAsinx(TimeInSeconds)
+Async Function PauseAsync(TimeInSeconds)
 	
-	EndDate = CurrentDate() + TimeInSeconds; 
-	While CurrentDate() < EndDate Do         
+	EndDate = CurrentDate() + TimeInSeconds; // ACC:143 - Session date is not used in interval checks
+	While CurrentDate() < EndDate Do         // ACC:143 - Session date is not used in interval checks
 		Await 1;
 	EndDo;
 	
@@ -1384,23 +1445,16 @@ Procedure RegisterCOMConnectorOnCheckRegistration(Result, Context) Export
 	If ApplicationStarted Then
 		
 		If RestartSession Then
-			
 			Notification = New NotifyDescription("RegisterCOMConnectorOnCheckAnswerAboutRestart", 
 				CommonInternalClient, Context);
-			
 			QueryText = 
-				NStr("en = 'To complete reregistration of the comcntr component, restart the application.
-				           |Do you want to restart it now?';");
-			
+				NStr("en = 'To complete the reregistration of comcntr, restart the app.
+				           |Restart now?';");
 			ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo);
-			
 		Else 
-			
 			Notification = Context.Notification;
-			
 			IsRegistered = True;
 			ExecuteNotifyProcessing(Notification, IsRegistered);
-			
 		EndIf;
 		
 	Else 
@@ -1484,6 +1538,10 @@ EndFunction
 
 #Region SpreadsheetDocument
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Structure
+//
 Procedure ContinueCalculatingIndicators(Result, AdditionalParameters) Export 
 	
 	If Result = Undefined Then
@@ -1491,7 +1549,9 @@ Procedure ContinueCalculatingIndicators(Result, AdditionalParameters) Export
 	EndIf;
 	
 	If Result.Status = "Error" Then
-		Raise Result.BriefErrorDescription;
+		StandardSubsystemsClient.OutputErrorInfo(
+			Result.ErrorInfo);
+		Return;
 	EndIf;
 	
 	If Result.Status <> "Completed2" Then
@@ -1637,38 +1697,33 @@ EndProcedure
 
 #Region StringHashByMD5Algorithm
 
- 
+// ACC:1353-off, ACC-247-off - Short names of math operands. 
 
-// 
+// Returns the MD5 hash of the passed string.
 //
-// Параметры:
-//  Строка - Строка - произвольная строка любой длины
 //
-// Возвращаемое значение:
-//  Строка - хеш, вычисленный из строки
 ////
-// Возвращает хеш по алгоритму MD5 для произвольной строки.
 //
 // Parameters:
-//  
+//  String - String - Arbitrary string of any length.
 //
 // Returns:
-//  String - 
+//  String - Generated hash.
 //
 Function CalculateStringHashByMD5Algorithm(Val String)
 	
-	a = 1732584193; 
-	b = 4023233417; // 89 AB CD EF;
+	a = 1732584193; // 01 23 45 67; (hexadecimal representation, low byte first)
+	b = 4023233417; // 01 23 45 67; (hexadecimal representation, low byte first)
 	c = 2562383102; // 89 AB CD EF;
 	d = 271733878;  // FE DC BA 98;
 	
-	X = New Array(16); 
+	X = New Array(16); // "X" is a 512-bit data block, an array of 32-bit words.
 	
 	EmptyByte = GetBinaryDataFromHexString("00");
 	EndByte = GetBinaryDataFromHexString("80");
 	BinaryData = AddToBinaryData(GetBinaryDataFromString(String, "UTF-8"), EndByte);
 	
-	
+	// Split the string in 512-bit blocks.
 	BlocksArrayFromString = SplitBinaryData(BinaryData, 64);
 	
 	LastBlock = BlocksArrayFromString[BlocksArrayFromString.UBound()];
@@ -1683,7 +1738,7 @@ Function CalculateStringHashByMD5Algorithm(Val String)
 		BlocksArrayFromString.Add(0);
 	EndIf;
 
-	
+	// Run the calculation for each of the blocks.
 	For BlockNumber = 0 To BlocksArrayFromString.Count() - 1 Do 
 		Block = BlocksArrayFromString[BlockNumber];
 		
@@ -1700,11 +1755,11 @@ Function CalculateStringHashByMD5Algorithm(Val String)
 			EndDo;
 		EndIf;
  
-		
+		// Append the string length in bits to the last block.
 		If BlockNumber = BlocksArrayFromString.Count() - 1 Then
 			StringSizeInBits = GetBinaryDataFromString(String).Size()* 8;
-			X[14] = StringSizeInBits % Pow(2,32); 
-			X[15] = Int(StringSizeInBits / Pow(2,32)) % Pow(2,64); 
+			X[14] = StringSizeInBits % Pow(2,32); // 
+			X[15] = Int(StringSizeInBits / Pow(2,32)) % Pow(2,64); // 
 		EndIf;
 		CalculateBlock(a, b, c, d, X);
 	EndDo;
@@ -1736,7 +1791,7 @@ Procedure CalculateBlock(a, b, c, d, X)
 	cc = c;
 	dd = d;
 	
-	
+	// Round 1.
 	ExecuteOperationWithFunctionF(a,b,c,d, X[ 0],  7, 3614090360); // 0xd76aa478 /* 1 */
 	ExecuteOperationWithFunctionF(d,a,b,c, X[ 1], 12, 3905402710); // 0xe8c7b756 /* 2 */
 	ExecuteOperationWithFunctionF(c,d,a,b, X[ 2], 17,  606105819); // 0x242070db /* 3 */
@@ -1754,7 +1809,7 @@ Procedure CalculateBlock(a, b, c, d, X)
 	ExecuteOperationWithFunctionF(c,d,a,b, X[14], 17, 2792965006); // 0xa679438e /* 15 */
 	ExecuteOperationWithFunctionF(b,c,d,a, X[15], 22, 1236535329); // 0x49b40821 /* 16 */
 	
-	
+	// Round 2.
 	ExecuteOperationWithFunctionG(a,b,c,d, X[ 1],  5, 4129170786); // 0xf61e2562 /* 17 */
 	ExecuteOperationWithFunctionG(d,a,b,c, X[ 6],  9, 3225465664); // 0xc040b340 /* 18 */
 	ExecuteOperationWithFunctionG(c,d,a,b, X[11], 14,  643717713); // 0x265e5a51 /* 19 */
@@ -1772,7 +1827,7 @@ Procedure CalculateBlock(a, b, c, d, X)
 	ExecuteOperationWithFunctionG(c,d,a,b, X[ 7], 14, 1735328473); // 0x676f02d9 /* 31 */
 	ExecuteOperationWithFunctionG(b,c,d,a, X[12], 20, 2368359562); // 0x8d2a4c8a /* 32 */
 	
-	
+	// Round 3.
 	ExecuteOperationWithFunctionH(a,b,c,d, X[ 5],  4, 4294588738); // 0xfffa3942 /* 33 */
 	ExecuteOperationWithFunctionH(d,a,b,c, X[ 8], 11, 2272392833); // 0x8771f681 /* 34 */
 	ExecuteOperationWithFunctionH(c,d,a,b, X[11], 16, 1839030562); // 0x6d9d6122 /* 35 */
@@ -1790,7 +1845,7 @@ Procedure CalculateBlock(a, b, c, d, X)
 	ExecuteOperationWithFunctionH(c,d,a,b, X[15], 16,  530742520); // 0x1fa27cf8 /* 47 */
 	ExecuteOperationWithFunctionH(b,c,d,a, X[ 2], 23, 3299628645); // 0xc4ac5665 /* 48 */
 	
-	
+	// Round 4.
 	ExecuteOperationWithFunctionI(a,b,c,d, X[ 0],  6, 4096336452); // 0xf4292244 /* 49 */
 	ExecuteOperationWithFunctionI(d,a,b,c, X[ 7], 10, 1126891415); // 0x432aff97 /* 50 */
 	ExecuteOperationWithFunctionI(c,d,a,b, X[14], 15, 2878612391); // 0xab9423a7 /* 51 */
@@ -1865,13 +1920,13 @@ Function AddToBinaryData(BinaryData, Create)
 	Return ConcatBinaryData(BinaryDataArray);
 EndFunction
 
- 
+// ACC:1353-on, ACC-247-on 
 
 #EndRegion
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. Used in CommonClient.CheckFileSystemExtensionAttached.
+// 
 Procedure CheckFileSystemExtensionAttachedCompletion(ExtensionAttached, AdditionalParameters) Export
 	
 	If ExtensionAttached Then

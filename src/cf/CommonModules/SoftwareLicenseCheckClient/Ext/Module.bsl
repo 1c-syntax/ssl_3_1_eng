@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 
 #Region Public
 
@@ -14,10 +13,10 @@
 // 
 //
 // Parameters:
-//  Notification             - NotifyDescription - contains a handler called after
-//                                    confirming that the update is legal.
-//  TerminateApplication - Boolean - close the application if the user
-//                                    specifies that the update is received illegally.
+//  Notification             - NotifyDescription -  contains a handler that is called after
+//                                    confirming that the update was received legally.
+//  TerminateApplication - Boolean -  shut down the system if the user
+//                                    indicated that the update was not received legally.
 //
 Procedure ShowLegitimateSoftwareCheck(Notification, TerminateApplication = False) Export
 	
@@ -41,8 +40,8 @@ EndProcedure
 // See CommonClientOverridable.BeforeStart.
 Procedure BeforeStart(Parameters) Export
 	
-	
-	
+	// 
+	// 
 	
 	ClientParameters = StandardSubsystemsClient.ClientParametersOnStart();
 	
@@ -55,7 +54,7 @@ Procedure BeforeStart(Parameters) Export
 	
 EndProcedure
 
-// For internal use only. Continues the execution of the CheckLegitimateSoftwareOnStart procedure.
+// For internal use only. Continue with the procedure to check the legality of receiving an update on Startup.
 Procedure LegitimateSoftwareCheckInteractiveHandler(Parameters, Context) Export
 	
 	FormParameters = New Structure;
@@ -73,7 +72,7 @@ EndProcedure
 
 #Region Private
 
-// For internal use only. Continues the execution of the CheckLegitimateSoftwareOnStart procedure.
+// For internal use only. Continue with the procedure to check the legality of receiving an update on Startup.
 Procedure AfterCloseLegitimateSoftwareCheckFormOnStart(Result, Parameters) Export
 	
 	If Result <> True Then

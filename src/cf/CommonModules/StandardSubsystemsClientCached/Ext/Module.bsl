@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Private
@@ -84,11 +85,11 @@ Procedure CheckIfAppStartupFinished(OnlyBeforeSystemStartup = False)
 	ParameterName = "StandardSubsystems.ApplicationStartCompleted";
 	If ApplicationParameters[ParameterName] = Undefined Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'An unexpected error occurred during the application startup.
+			NStr("en = 'Exception occurred during startup.
 			           |
-			           |Technical error details:
-			           |Invalid call %1 during the application startup.
-			           |The first procedure that is called from the %2 event handler must be the %3 procedure.';"),
+			           |Technical details:
+			           |Invalid call %1 during startup.
+			           |The first procedure that is called from the %2 event handler must be %3.';"),
 			"StandardSubsystemsClient.ClientRunParameters",
 			"BeforeStart", 
 			"StandardSubsystemsClient.BeforeStart");
@@ -106,10 +107,10 @@ Procedure CheckIfAppStartupFinished(OnlyBeforeSystemStartup = False)
 				"DisableSystemStartupLogic");
 		Else
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'An unexpected error occurred during the application startup.
+				NStr("en = 'Exception occurred during startup.
 			           |
-			           |Technical error details:
-			           |Invalid call %1 during the application startup. Call %2 while the %3 procedure is not completed.
+			           |Technical details:
+			           |Invalid call %1 during startup. Call %2 while the %3 procedure is not completed.
 				       |The last called procedure is %4.';"),
 				"StandardSubsystemsClient.ClientRunParameters", 
 				"StandardSubsystemsClient.ClientParametersOnStart",

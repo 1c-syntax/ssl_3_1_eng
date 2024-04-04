@@ -7,6 +7,12 @@
 			<Button name="ListOpen" id="23">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.ListOpen</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Open</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="ListOpenExtendedTooltip" id="24"/>
 			</Button>
 			<ButtonGroup name="ListStandardCommands" id="25">
@@ -100,6 +106,12 @@
 				<InputField name="ListPresentation" id="20">
 					<DataPath>List.Presentation</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Presentation</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ContextMenu name="ListPresentationContextMenu" id="21"/>
 					<ExtendedTooltip name="ListPresentationExtendedTooltip" id="22"/>

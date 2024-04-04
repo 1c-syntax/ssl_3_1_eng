@@ -6,6 +6,7 @@
 	<Events>
 		<Event name="OnSaveDataInSettingsAtServer">OnSaveDataInSettingsAtServer</Event>
 		<Event name="NotificationProcessing">NotificationProcessing</Event>
+		<Event name="OnOpen">OnOpen</Event>
 		<Event name="NavigationProcessing">NavigationProcessing</Event>
 		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
 		<Event name="BeforeLoadDataFromSettingsAtServer">BeforeLoadDataFromSettingsAtServer</Event>
@@ -21,7 +22,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="GroupHeaderExtendedTooltip" id="86"/>
+			<ExtendedTooltip name="TitleGroup1ExtendedTooltip" id="86"/>
 			<ChildItems>
 				<LabelField name="BusinessProcessLine" id="55">
 					<DataPath>BusinessProcessLine</DataPath>
@@ -60,10 +61,16 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="FilterGroup7ExtendedTooltip" id="89"/>
+			<ExtendedTooltip name="GroupFilterExtendedTooltip" id="89"/>
 			<ChildItems>
 				<InputField name="ShowTasks" id="49">
 					<DataPath>ShowTasks</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Show</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Top</TitleLocation>
 					<Width>20</Width>
 					<DropListButton>true</DropListButton>
@@ -111,13 +118,19 @@
 						</xr:Item>
 					</ChoiceList>
 					<ContextMenu name="ShowTasks1ContextMenu" id="50"/>
-					<ExtendedTooltip name="ShowTasks1ExtendedTooltip" id="90"/>
+					<ExtendedTooltip name="ShowTasksExtendedTooltip" id="90"/>
 					<Events>
 						<Event name="OnChange">ShowTasks1OnChange</Event>
 					</Events>
 				</InputField>
 				<InputField name="ByAuthor" id="18">
 					<DataPath>ByAuthor</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Author</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Top</TitleLocation>
 					<Width>35</Width>
 					<Wrap>false</Wrap>
@@ -132,6 +145,12 @@
 				</InputField>
 				<InputField name="ByPerformer" id="20">
 					<DataPath>ByPerformer</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Assignee</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Top</TitleLocation>
 					<Width>35</Width>
 					<Wrap>false</Wrap>
@@ -176,12 +195,24 @@
 				<Button name="OpenBusinessProcess" id="147">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.OpenBusinessProcess</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Open business process</v8:content>
+						</v8:item>
+					</Title>
 					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 					<ExtendedTooltip name="OpenBusinessProcessExtendedTooltip" id="148"/>
 				</Button>
 				<Button name="OpenTaskSubject" id="149">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.OpenTaskSubject</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Open task subject</v8:content>
+						</v8:item>
+					</Title>
 					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 					<ExtendedTooltip name="OpenTaskSubjectExtendedTooltip" id="150"/>
 				</Button>
@@ -239,6 +270,12 @@
 						<Button name="CancelAcceptForExecution" id="62">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.CancelAcceptForExecution</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Decline</v8:content>
+								</v8:item>
+							</Title>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 							<ExtendedTooltip name="CancelAcceptForExecutionExtendedTooltip" id="98"/>
 						</Button>
@@ -265,7 +302,7 @@
 						</v8:item>
 					</Title>
 					<CommandSource>FormCommandPanelGlobalCommands</CommandSource>
-					<ExtendedTooltip name="FormCommandBarExtendedTooltip" id="100"/>
+					<ExtendedTooltip name="CommandBarFormExtendedTooltip" id="100"/>
 				</ButtonGroup>
 				<Button name="Help" id="139">
 					<Type>CommandBarButton</Type>
@@ -317,11 +354,23 @@
 					<Button name="ListContextMenuOpenBusinessProcess" id="145">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.OpenBusinessProcess</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Open business process</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="ListContextMenuOpenBusinessProcessExtendedTooltip" id="146"/>
 					</Button>
 					<Button name="ListContextMenuOpenTaskSubject" id="143">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.OpenTaskSubject</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Open task subject</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="ListContextMenuOpenTaskSubjectExtendedTooltip" id="144"/>
 					</Button>
 					<ButtonGroup name="ListContextMenuGroup" id="66">
@@ -336,11 +385,23 @@
 							<Button name="ListContextMenuAcceptForExecution" id="63">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.AcceptForExecution</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Accept</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="ListContextMenuAcceptForExecutionExtendedTooltip" id="105"/>
 							</Button>
 							<Button name="ListContextMenuCancelAcceptForExecution" id="64">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.CancelAcceptForExecution</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Decline</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="ListContextMenuCancelAcceptForExecutionExtendedTooltip" id="106"/>
 							</Button>
 						</ChildItems>
@@ -497,7 +558,7 @@
 							</ValuesPicture>
 							<FileDragMode>AsFile</FileDragMode>
 							<ContextMenu name="Stopped1ContextMenu" id="60"/>
-							<ExtendedTooltip name="Stopped1ExtendedTooltip" id="118"/>
+							<ExtendedTooltip name="StoppedExtendedTooltip" id="118"/>
 						</PictureField>
 					</ChildItems>
 				</ColumnGroup>
@@ -663,7 +724,7 @@
 									<HorizontalStretch>false</HorizontalStretch>
 									<Wrap>false</Wrap>
 									<ContextMenu name="DueDateContextMenu" id="31"/>
-									<ExtendedTooltip name="DueDateExtendedTooltip" id="130"/>
+									<ExtendedTooltip name="TaskDueDateExtendedTooltip" id="130"/>
 								</InputField>
 								<CheckBoxField name="Executed" id="10">
 									<DataPath>List.Executed</DataPath>
@@ -942,13 +1003,13 @@ WHERE
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Show task subject</v8:content>
+					<v8:content>Open task subject</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Show task subject</v8:content>
+					<v8:content>Open task subject</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>OpenTaskSubject</Action>

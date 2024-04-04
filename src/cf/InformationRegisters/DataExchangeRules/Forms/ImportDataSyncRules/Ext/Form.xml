@@ -15,6 +15,12 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.WriteAndClose</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save and close</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormWriteAndCloseExtendedTooltip" id="83"/>
 			</Button>
 			<Button name="FormWrite" id="84">
@@ -37,6 +43,12 @@
 				<Type>CommandBarButton</Type>
 				<SkipOnInput>true</SkipOnInput>
 				<CommandName>Form.Command.SaveConversionRulesToFile</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save rules to file…</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="SaveRulesToFileExtendedTooltip" id="62"/>
 			</Button>
@@ -61,6 +73,12 @@
 			<ChildItems>
 				<RadioButtonField name="RulesSource" id="29">
 					<DataPath>RulesSource</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Rule source</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<RadioButtonType>Auto</RadioButtonType>
 					<ColumnsCount>1</ColumnsCount>
@@ -116,6 +134,12 @@
 							<SkipOnInput>true</SkipOnInput>
 							<Height>1</Height>
 							<CommandName>Form.Command.ImportRules</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Import</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="ImportStandardRulesExtendedTooltip" id="61"/>
 						</Button>
 					</ChildItems>
@@ -182,6 +206,12 @@
 				<InputField name="RulesInformation" id="11">
 					<DataPath>CommonRulesInformation</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Rule set information</v8:content>
+						</v8:item>
+					</Title>
 					<AutoMaxWidth>false</AutoMaxWidth>
 					<Height>6</Height>
 					<MultiLine>true</MultiLine>
@@ -281,6 +311,12 @@
 										<InputField name="ExternalDataProcessorForExportDebug" id="40">
 											<DataPath>ExportDebuggingDataProcessorFileName</DataPath>
 											<Enabled>false</Enabled>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>File name of the data processor for export debugging</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<AutoMaxWidth>false</AutoMaxWidth>
 											<ChoiceButton>true</ChoiceButton>
@@ -324,6 +360,12 @@
 										<InputField name="ExternalDataProcessorForImportDebug" id="36">
 											<DataPath>ImportDebuggingDataProcessorFileName</DataPath>
 											<Enabled>false</Enabled>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>File name of the data processor for import debugging</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<AutoMaxWidth>false</AutoMaxWidth>
 											<ChoiceButton>true</ChoiceButton>
@@ -350,6 +392,12 @@
 									<ChildItems>
 										<CheckBoxField name="EnableDataExchangeLogging" id="43">
 											<DataPath>DataExchangeLoggingMode</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Data exchange logging mode</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>Right</TitleLocation>
 											<CheckBoxType>Auto</CheckBoxType>
 											<ContextMenu name="EnableDataExchangeLoggingContextMenu" id="44"/>
@@ -361,6 +409,12 @@
 										<InputField name="ExchangeProtocolFile" id="45">
 											<DataPath>ExchangeProtocolFileName</DataPath>
 											<Enabled>false</Enabled>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Exchange log file name</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<AutoMaxWidth>false</AutoMaxWidth>
 											<ChoiceButton>true</ChoiceButton>
@@ -385,7 +439,7 @@
 									<TitleLocation>Right</TitleLocation>
 									<CheckBoxType>Auto</CheckBoxType>
 									<ContextMenu name="DoNotStopOnErrorContextMenu" id="48"/>
-									<ExtendedTooltip name="DoNotStopOnErrorExtendedTooltip" id="78"/>
+									<ExtendedTooltip name="NotStopByMistakeExtendedTooltip" id="78"/>
 									<Events>
 										<Event name="OnChange">DoNotStopOnErrorOnChange</Event>
 									</Events>

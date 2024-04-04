@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -29,25 +30,27 @@ Procedure BeforeWrite(Cancel)
 	If IsNew() Or CurrentFolder.Parent <> Parent Then
 		// Check rights for the source folder.
 		If Not FilesOperationsInternal.HasRight("FoldersModification", CurrentFolder.Parent) Then
-			Raise StringFunctionsClientServer.SubstituteParametersToString(
+			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Insufficient rights to move files from the ""%1"" folder.';"),
-				String(?(ValueIsFilled(CurrentFolder.Parent), CurrentFolder.Parent, NStr("en = 'Folders';"))));
+				?(ValueIsFilled(CurrentFolder.Parent), CurrentFolder.Parent, NStr("en = 'Folders';")));
+			Raise(MessageText, ErrorCategory.AccessViolation);
 		EndIf;
 		// Check rights for the destination folder.
 		If Not FilesOperationsInternal.HasRight("FoldersModification", Parent) Then
-			Raise StringFunctionsClientServer.SubstituteParametersToString(
+			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Insufficient rights to add subfolders to the ""%1"" folder.';"),
-				String(?(ValueIsFilled(Parent), Parent, NStr("en = 'Folders';"))));
+				?(ValueIsFilled(Parent), Parent, NStr("en = 'Folders';")));
+			Raise(MessageText, ErrorCategory.AccessViolation);
 		EndIf;
 	EndIf;
 	
 	If DeletionMark And CurrentFolder.DeletionMark <> True Then
-		
 		// Check the "Deletion mark" right.
 		If Not FilesOperationsInternal.HasRight("FoldersModification", Ref) Then
-			Raise StringFunctionsClientServer.SubstituteParametersToString(
+			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Insufficient rights to change the ""%1"" file folder.';"),
 				String(Ref));
+			Raise(MessageText, ErrorCategory.AccessViolation);
 		EndIf;
 	EndIf;
 	
@@ -70,9 +73,8 @@ Procedure BeforeWrite(Cancel)
 		While Selection.Next() Do
 			If ValueIsFilled(Selection.BeingEditedBy) Then
 				Raise StringFunctionsClientServer.SubstituteParametersToString(
-				                     NStr("en = 'Cannot delete the %1 folder as it contains the ""%2"" file that is locked for editing.';"),
-				                     String(Ref),
-				                     String(Selection.Ref));
+					NStr("en = 'Cannot delete the %1 folder as it contains the ""%2"" file that is locked for editing.';"),
+				    String(Ref), String(Selection.Ref));
 			EndIf;
 
 			FileObject1 = Selection.Ref.GetObject();

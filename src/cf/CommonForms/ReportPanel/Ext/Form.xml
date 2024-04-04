@@ -45,6 +45,12 @@
 			<ChildItems>
 				<InputField name="SearchString" id="397">
 					<DataPath>SearchString</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Search</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<ToolTip>
 						<v8:item>
@@ -73,6 +79,12 @@
 				<Button name="ExecuteSearch" id="400">
 					<Type>UsualButton</Type>
 					<CommandName>Form.Command.ExecuteSearch</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Find</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="ExecuteSearch1ExtendedTooltip" id="401"/>
 				</Button>
 				<UsualGroup name="CommandBarRightGroup" id="405">
@@ -110,6 +122,12 @@
 						<CheckBoxField name="ShowTooltips" id="407">
 							<DataPath>ShowTooltips</DataPath>
 							<Visible>false</Visible>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Report descriptions</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<GroupVerticalAlign>Center</GroupVerticalAlign>
 							<CheckBoxType>Auto</CheckBoxType>
@@ -136,18 +154,36 @@
 									<Type>CommandBarButton</Type>
 									<Width>12</Width>
 									<CommandName>Form.Command.Customize</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Configure</v8:content>
+										</v8:item>
+									</Title>
 									<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
-									<ExtendedTooltip name="ConfigureExtendedTooltip" id="413"/>
+									<ExtendedTooltip name="CustomizeExtendedTooltip" id="413"/>
 								</Button>
 								<Button name="FormRefresh" id="414">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.Refresh</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Refresh</v8:content>
+										</v8:item>
+									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="FormRefreshExtendedTooltip" id="415"/>
 								</Button>
 								<Button name="FormAllReports" id="416">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.AllReports</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>All reports…</v8:content>
+										</v8:item>
+									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="FormAllReportsExtendedTooltip" id="417"/>
 								</Button>
@@ -163,6 +199,12 @@
 										<Button name="ReportsSnapshots" id="454">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.ReportsSnapshots</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Report snapshots</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="ReportsSnapshotsExtendedTooltip" id="455"/>
 										</Button>
 									</ChildItems>
@@ -179,6 +221,12 @@
 										<Button name="ResetMySettings" id="420">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.ResetMySettings</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Reset my settings</v8:content>
+												</v8:item>
+											</Title>
 											<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 											<ExtendedTooltip name="ResetMySettingsExtendedTooltip" id="421"/>
 										</Button>
@@ -188,7 +236,7 @@
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.StandardCommand.CustomizeForm</CommandName>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-									<ExtendedTooltip name="FormChangeFormExtendedTooltip" id="423"/>
+									<ExtendedTooltip name="FormCustomizeFormExtendedTooltip" id="423"/>
 								</Button>
 								<Button name="Help" id="426">
 									<Type>CommandBarButton</Type>
@@ -670,6 +718,12 @@ This only affects your report view and does not affect the reports of other user
 					<Type>Hyperlink</Type>
 					<CommandName>Form.Command.AllReports</CommandName>
 					<TextColor>style:HyperlinkColor</TextColor>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>All reports…</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="AllReportsHyperlinkExtendedTooltip" id="304"/>
 				</Button>
 				<LabelDecoration name="Decoration2" id="389">
@@ -1263,6 +1317,20 @@ This only affects your report view and does not affect the reports of other user
 					<v8:Length>0</v8:Length>
 					<v8:AllowedLength>Variable</v8:AllowedLength>
 				</v8:StringQualifiers>
+			</Type>
+		</Parameter>
+		<Parameter name="SearchString">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Parameter>
+		<Parameter name="SearchInAllSections">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Parameter>
 	</Parameters>

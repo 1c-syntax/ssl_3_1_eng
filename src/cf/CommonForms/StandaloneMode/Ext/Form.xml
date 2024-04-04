@@ -30,6 +30,12 @@
 					<ExtendedTooltip name="DataSynchronizationExtendedTooltip" id="69"/>
 					<ChildItems>
 						<UsualGroup name="Group3" id="56">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group</v8:content>
+								</v8:item>
+							</Title>
 							<Group>Horizontal</Group>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
@@ -60,6 +66,12 @@
 							</ChildItems>
 						</UsualGroup>
 						<UsualGroup name="Group2" id="4">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group</v8:content>
+								</v8:item>
+							</Title>
 							<Group>Vertical</Group>
 							<Behavior>Usual</Behavior>
 							<Representation>NormalSeparation</Representation>
@@ -67,6 +79,12 @@
 							<ExtendedTooltip name="Group2ExtendedTooltip" id="73"/>
 							<ChildItems>
 								<UsualGroup name="Group7" id="5">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Group</v8:content>
+										</v8:item>
+									</Title>
 									<Group>Horizontal</Group>
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
@@ -78,6 +96,12 @@
 											<DefaultButton>true</DefaultButton>
 											<DefaultItem>true</DefaultItem>
 											<CommandName>Form.Command.PerformDataSynchronization</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Synchronize</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="PerformDataSynchronizationExtendedTooltip" id="75"/>
 										</Button>
 										<LabelDecoration name="Decoration3" id="7">
@@ -93,6 +117,12 @@
 									</ChildItems>
 								</UsualGroup>
 								<UsualGroup name="Group1" id="65">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Group</v8:content>
+										</v8:item>
+									</Title>
 									<Group>Horizontal</Group>
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
@@ -113,6 +143,12 @@
 										<Button name="GoToConflicts" id="64">
 											<Type>Hyperlink</Type>
 											<CommandName>Form.Command.GoToConflicts</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>No warnings</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="GoToConflictsExtendedTooltip" id="79"/>
 										</Button>
 									</ChildItems>
@@ -133,6 +169,12 @@
 							<ExtendedTooltip name="DataSynchronizationSetupExtendedTooltip" id="80"/>
 							<ChildItems>
 								<UsualGroup name="Group10" id="12">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Group</v8:content>
+										</v8:item>
+									</Title>
 									<Group>Vertical</Group>
 									<Behavior>Usual</Behavior>
 									<Representation>NormalSeparation</Representation>
@@ -141,6 +183,12 @@
 									<ChildItems>
 										<CheckBoxField name="SynchronizeDataOnStart" id="13">
 											<DataPath>SynchronizeDataOnStart</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Upon starting application</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>Right</TitleLocation>
 											<CheckBoxType>Auto</CheckBoxType>
 											<ContextMenu name="SynchronizeDataOnStartContextMenu" id="14"/>
@@ -151,6 +199,12 @@
 										</CheckBoxField>
 										<CheckBoxField name="SynchronizeDataOnExit" id="18">
 											<DataPath>SynchronizeDataOnExit</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Upon closing application</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>Right</TitleLocation>
 											<CheckBoxType>Auto</CheckBoxType>
 											<ContextMenu name="SynchronizeDataOnExitContextMenu" id="19"/>
@@ -176,6 +230,12 @@ each time a user starts or exits the desktop application.</v8:content>
 									</ChildItems>
 								</UsualGroup>
 								<UsualGroup name="Group11" id="22">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Group</v8:content>
+										</v8:item>
+									</Title>
 									<Group>Vertical</Group>
 									<Behavior>Usual</Behavior>
 									<Representation>NormalSeparation</Representation>
@@ -196,6 +256,12 @@ each time a user starts or exits the desktop application.</v8:content>
 											<ExtendedTooltip name="AutomaticSynchronizationSetupExtendedTooltip" id="86"/>
 											<ChildItems>
 												<UsualGroup name="Group4" id="59">
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Group</v8:content>
+														</v8:item>
+													</Title>
 													<Group>Horizontal</Group>
 													<Behavior>Usual</Behavior>
 													<Representation>None</Representation>
@@ -204,6 +270,12 @@ each time a user starts or exits the desktop application.</v8:content>
 													<ChildItems>
 														<CheckBoxField name="SynchronizeDataBySchedule" id="23">
 															<DataPath>SynchronizeDataBySchedule</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Automatically:</v8:content>
+																</v8:item>
+															</Title>
 															<TitleLocation>Right</TitleLocation>
 															<CheckBoxType>Auto</CheckBoxType>
 															<ContextMenu name="SynchronizeDataByScheduleContextMenu" id="24"/>
@@ -214,6 +286,12 @@ each time a user starts or exits the desktop application.</v8:content>
 														</CheckBoxField>
 														<InputField name="DataSynchronizationScheduleOption" id="60">
 															<DataPath>DataSynchronizationScheduleOption</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Data synchronization schedule option</v8:content>
+																</v8:item>
+															</Title>
 															<TitleLocation>None</TitleLocation>
 															<Width>30</Width>
 															<ListChoiceMode>true</ListChoiceMode>
@@ -227,6 +305,12 @@ each time a user starts or exits the desktop application.</v8:content>
 														<Button name="ChangeDataSynchronizationSchedule" id="27">
 															<Type>UsualButton</Type>
 															<CommandName>Form.Command.ChangeDataSynchronizationSchedule</CommandName>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Change…</v8:content>
+																</v8:item>
+															</Title>
 															<ExtendedTooltip name="ChangeDataSynchronizationScheduleExtendedTooltip" id="90"/>
 														</Button>
 													</ChildItems>
@@ -248,9 +332,21 @@ if there is constant Internet connection.</v8:content>
 													<Type>UsualButton</Type>
 													<AutoMaxWidth>false</AutoMaxWidth>
 													<CommandName>Form.Command.ConfigureConnection</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Set up connection…</v8:content>
+														</v8:item>
+													</Title>
 													<ExtendedTooltip name="ConfigureConnectionExtendedTooltip" id="92"/>
 												</Button>
 												<UsualGroup name="Group9" id="112">
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Group</v8:content>
+														</v8:item>
+													</Title>
 													<Group>Vertical</Group>
 													<Behavior>Usual</Behavior>
 													<Representation>NormalSeparation</Representation>
@@ -259,6 +355,12 @@ if there is constant Internet connection.</v8:content>
 													<ChildItems>
 														<CheckBoxField name="ShowTimeConsumingSynchronizationWarning" id="109">
 															<DataPath>ShowTimeConsumingSynchronizationWarning</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Ask for confirmation before data synchronization start</v8:content>
+																</v8:item>
+															</Title>
 															<TitleLocation>Right</TitleLocation>
 															<CheckBoxType>CheckBox</CheckBoxType>
 															<ContextMenu name="ShowTimeConsumingSynchronizationWarningContextMenu" id="110"/>
@@ -291,6 +393,12 @@ Receiving and installation of the update can take a long time.</v8:content>
 						<Button name="ArchiveOfExchangeMessages" id="114">
 							<Type>UsualButton</Type>
 							<CommandName>Form.Command.ArchiveOfExchangeMessages</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Exchange message archive...</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="ArchiveOfExchangeMessagesExtendedTooltip" id="115"/>
 						</Button>
 					</ChildItems>
@@ -302,9 +410,15 @@ Receiving and installation of the update can take a long time.</v8:content>
 							<v8:content>Configuration update is received</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="ConfigurationUpdateReceived1ExtendedTooltip" id="93"/>
+					<ExtendedTooltip name="IsConfigurationUpdateReceivedExtendedTooltip" id="93"/>
 					<ChildItems>
 						<UsualGroup name="Group6" id="29">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group</v8:content>
+								</v8:item>
+							</Title>
 							<Group>Horizontal</Group>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
@@ -340,9 +454,21 @@ Install the received update so that synchronization continues.</v8:content>
 						<Button name="InstallUpdate" id="34">
 							<Type>UsualButton</Type>
 							<CommandName>Form.Command.InstallUpdate</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Install update</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="InstallUpdateExtendedTooltip" id="97"/>
 						</Button>
 						<UsualGroup name="Group5" id="67">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group</v8:content>
+								</v8:item>
+							</Title>
 							<Group>Horizontal</Group>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
@@ -363,6 +489,12 @@ Install the received update so that synchronization continues.</v8:content>
 								<Button name="GoToConflicts1" id="66">
 									<Type>Hyperlink</Type>
 									<CommandName>Form.Command.GoToConflicts</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>No warnings</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="GoToConflicts1ExtendedTooltip" id="100"/>
 								</Button>
 							</ChildItems>
@@ -379,6 +511,12 @@ Install the received update so that synchronization continues.</v8:content>
 					<ExtendedTooltip name="ExtensionsAreReceivedExtendedTooltip" id="117"/>
 					<ChildItems>
 						<UsualGroup name="Group8" id="118">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group</v8:content>
+								</v8:item>
+							</Title>
 							<Group>Horizontal</Group>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
@@ -414,9 +552,21 @@ To continue with the changes made, restart the application.</v8:content>
 						<Button name="RestartApplication" id="135">
 							<Type>UsualButton</Type>
 							<CommandName>Form.Command.RestartApplication</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Restart application</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="RestartApplication1ExtendedTooltip" id="136"/>
 						</Button>
 						<UsualGroup name="Group12" id="128">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group</v8:content>
+								</v8:item>
+							</Title>
 							<Group>Horizontal</Group>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
@@ -437,6 +587,12 @@ To continue with the changes made, restart the application.</v8:content>
 								<Button name="GoToConflicts2" id="133">
 									<Type>Hyperlink</Type>
 									<CommandName>Form.Command.GoToConflicts</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>No warnings</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="GoToConflicts2ExtendedTooltip" id="134"/>
 								</Button>
 							</ChildItems>

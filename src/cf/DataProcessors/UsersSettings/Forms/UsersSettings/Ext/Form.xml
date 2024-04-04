@@ -61,6 +61,12 @@
 							<ChildItems>
 								<InputField name="UserRef" id="59">
 									<DataPath>UserRef</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>User</v8:content>
+										</v8:item>
+									</Title>
 									<ToolTip>
 										<v8:item>
 											<v8:lang>en</v8:lang>
@@ -96,12 +102,24 @@
 								<Button name="Open" id="61">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.Open</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Open</v8:content>
+										</v8:item>
+									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="OpenExtendedTooltip" id="124"/>
 								</Button>
 								<Button name="Copy" id="41">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.CopyToOtherUsers</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Copy to other users…</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="CopyExtendedTooltip" id="125"/>
 								</Button>
 								<Popup name="CopyToOtherUsers" id="94">
@@ -122,28 +140,58 @@
 										<Button name="CopyReportSettings" id="95">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.CopyReportSettings</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Report settings…</v8:content>
+												</v8:item>
+											</Title>
 											<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 											<ExtendedTooltip name="CopyReportSettingsExtendedTooltip" id="127"/>
 										</Button>
 										<Button name="CopyInterfaceSettings" id="96">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.CopyInterfaceSettings</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Interface settings…</v8:content>
+												</v8:item>
+											</Title>
 											<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 											<ExtendedTooltip name="CopyInterfaceSettingsExtendedTooltip" id="128"/>
 										</Button>
 										<Button name="CopyReportAndInterfaceSettings" id="97">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.CopyReportAndInterfaceSettings</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Report and interface settings…</v8:content>
+												</v8:item>
+											</Title>
 											<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 											<ExtendedTooltip name="CopyReportAndInterfaceSettingsExtendedTooltip" id="129"/>
 										</Button>
 										<Button name="CopyAllSettings" id="75">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.CopyAllSettings</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Report, interface, and other settings…</v8:content>
+												</v8:item>
+											</Title>
 											<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-											<ExtendedTooltip name="CopyAllSettings1ExtendedTooltip" id="130"/>
+											<ExtendedTooltip name="CopyAllSettingsExtendedTooltip" id="130"/>
 										</Button>
 										<ButtonGroup name="CopySelectedSettingsToOtherUsers" id="111">
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Copy selected settings to other users</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="CopySelectedSettingsToOtherUsersExtendedTooltip" id="131"/>
 										</ButtonGroup>
 									</ChildItems>
@@ -151,6 +199,12 @@
 								<Button name="ClearSettings" id="44">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.Clear</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Clear</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="ClearSettingsExtendedTooltip" id="132"/>
 								</Button>
 								<Popup name="Clear" id="98">
@@ -171,36 +225,78 @@
 										<Button name="ClearAllSettings" id="99">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.ClearAllSettings</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>All settings</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="ClearAllSettingsExtendedTooltip" id="134"/>
 										</Button>
 										<Button name="ClearObsoleteSettings" id="233">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.ClearObsoleteSettings</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Obsolete settings</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="ClearOutdatedSettingsExtendedTooltip" id="234"/>
 										</Button>
 										<Button name="ClearReportAndInterfaceSettings" id="100">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.ClearReportAndInterfaceSettings</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Report and interface settings</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="ClearReportAndInterfaceSettingsExtendedTooltip" id="135"/>
 										</Button>
 										<ButtonGroup name="ClearSelectedSettingsGroup" id="110">
-											<ExtendedTooltip name="ClearSelectedSettings1ExtendedTooltip" id="136"/>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Clear selected settings</v8:content>
+												</v8:item>
+											</Title>
+											<ExtendedTooltip name="ClearSelectedSettingsGroupExtendedTooltip" id="136"/>
 											<ChildItems>
 												<Button name="ClearSettingsForSelectedUsers" id="108">
 													<Type>CommandBarButton</Type>
 													<CommandName>Form.Command.ClearUserSettingsSSL</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Selected user settings…</v8:content>
+														</v8:item>
+													</Title>
 													<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 													<ExtendedTooltip name="ClearSettingsForSelectedUsersExtendedTooltip" id="137"/>
 												</Button>
 												<Button name="ClearSettingsForAllUsers" id="74">
 													<Type>CommandBarButton</Type>
 													<CommandName>Form.Command.ClearSettingsForAllUsers</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>All settings of all users</v8:content>
+														</v8:item>
+													</Title>
 													<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 													<ExtendedTooltip name="ClearSettingsForAllUsersExtendedTooltip" id="138"/>
 												</Button>
 												<Button name="ClearObsoleteSettingsOfAllUsers" id="235">
 													<Type>CommandBarButton</Type>
 													<CommandName>Form.Command.ClearObsoleteSettingsOfAllUsers</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Obsolete settings for all users</v8:content>
+														</v8:item>
+													</Title>
 													<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 													<ExtendedTooltip name="ClearOutdatedSettingsOfAllUsersExtendedTooltip" id="236"/>
 												</Button>
@@ -211,11 +307,23 @@
 								<Button name="CopyFrom" id="102">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.CopyFrom</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Copy from…</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="CopyFromExtendedTooltip" id="139"/>
 								</Button>
 								<Button name="Refresh" id="1">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.Refresh</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Update</v8:content>
+										</v8:item>
+									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="RefreshExtendedTooltip" id="140"/>
 								</Button>
@@ -282,7 +390,7 @@
 												</v8:item>
 											</Title>
 											<PagesRepresentation>TabsOnTop</PagesRepresentation>
-											<ExtendedTooltip name="SettingsTypesExtendedTooltip" id="141"/>
+											<ExtendedTooltip name="SettingsKindsExtendedTooltip" id="141"/>
 											<Events>
 												<Event name="OnCurrentPageChange">OnCurrentPageChange</Event>
 											</Events>
@@ -336,6 +444,12 @@
 																	<Button name="InterfaceContextMenuOpen" id="76">
 																		<Type>CommandBarButton</Type>
 																		<CommandName>Form.Command.Open</CommandName>
+																		<Title>
+																			<v8:item>
+																				<v8:lang>en</v8:lang>
+																				<v8:content>Open</v8:content>
+																			</v8:item>
+																		</Title>
 																		<ExtendedTooltip name="InterfaceContextMenuOpenExtendedTooltip" id="143"/>
 																	</Button>
 																	<Button name="InterfaceContextMenuCopy" id="106">
@@ -361,6 +475,12 @@
 																		<ExtendedTooltip name="InterfaceContextMenuDeleteExtendedTooltip" id="145"/>
 																	</Button>
 																	<ButtonGroup name="InterfaceContextMenuOther" id="114">
+																		<Title>
+																			<v8:item>
+																				<v8:lang>en</v8:lang>
+																				<v8:content>Interface settings context menu other</v8:content>
+																			</v8:item>
+																		</Title>
 																		<ExtendedTooltip name="InterfaceContextMenuOtherExtendedTooltip" id="146"/>
 																		<ChildItems>
 																			<Button name="InterfaceContextMenuCopyToClipboard" id="56">
@@ -429,6 +549,12 @@
 																		<PictureField name="InterfacePicture" id="36">
 																			<DataPath>Interface.Picture</DataPath>
 																			<ReadOnly>true</ReadOnly>
+																			<Title>
+																				<v8:item>
+																					<v8:lang>en</v8:lang>
+																					<v8:content>Picture</v8:content>
+																				</v8:item>
+																			</Title>
 																			<TitleLocation>None</TitleLocation>
 																			<EditMode>EnterOnInput</EditMode>
 																			<FileDragMode>AsFile</FileDragMode>
@@ -437,10 +563,16 @@
 																		</PictureField>
 																		<LabelField name="InterfacePreferences" id="32">
 																			<DataPath>Interface.Setting</DataPath>
+																			<Title>
+																				<v8:item>
+																					<v8:lang>en</v8:lang>
+																					<v8:content>Setting</v8:content>
+																				</v8:item>
+																			</Title>
 																			<TitleLocation>None</TitleLocation>
 																			<EditMode>EnterOnInput</EditMode>
 																			<ContextMenu name="InterfaceSettingsContextMenu" id="33"/>
-																			<ExtendedTooltip name="InterfaceSettingsExtendedTooltip" id="153"/>
+																			<ExtendedTooltip name="InterfacePreferencesExtendedTooltip" id="153"/>
 																		</LabelField>
 																	</ChildItems>
 																</ColumnGroup>
@@ -496,6 +628,12 @@
 																	<Button name="ReportSettingsTreeContextMenuOpen" id="65">
 																		<Type>CommandBarButton</Type>
 																		<CommandName>Form.Command.Open</CommandName>
+																		<Title>
+																			<v8:item>
+																				<v8:lang>en</v8:lang>
+																				<v8:content>Open</v8:content>
+																			</v8:item>
+																		</Title>
 																		<ExtendedTooltip name="ReportSettingsTreeContextMenuOpenExtendedTooltip" id="155"/>
 																	</Button>
 																	<Button name="ReportSettingsTreeContextMenuCopy" id="105">
@@ -521,6 +659,12 @@
 																		<ExtendedTooltip name="ReportSettingsTreeContextMenuClearExtendedTooltip" id="157"/>
 																	</Button>
 																	<ButtonGroup name="ReportSettingsTreeContextMenuOther" id="113">
+																		<Title>
+																			<v8:item>
+																				<v8:lang>en</v8:lang>
+																				<v8:content>Report settings tree context menu other</v8:content>
+																			</v8:item>
+																		</Title>
 																		<ExtendedTooltip name="ReportSettingsTreeContextMenuOtherExtendedTooltip" id="158"/>
 																		<ChildItems>
 																			<Button name="ReportSettingsTreeContextMenuSelectAll" id="53">
@@ -589,6 +733,12 @@
 																		<PictureField name="Picture" id="26">
 																			<DataPath>ReportsSettings.Picture</DataPath>
 																			<ReadOnly>true</ReadOnly>
+																			<Title>
+																				<v8:item>
+																					<v8:lang>en</v8:lang>
+																					<v8:content>Picture</v8:content>
+																				</v8:item>
+																			</Title>
 																			<TitleLocation>None</TitleLocation>
 																			<EditMode>Directly</EditMode>
 																			<FileDragMode>AsFile</FileDragMode>
@@ -597,6 +747,12 @@
 																		</PictureField>
 																		<LabelField name="Settings" id="22">
 																			<DataPath>ReportsSettings.Setting</DataPath>
+																			<Title>
+																				<v8:item>
+																					<v8:lang>en</v8:lang>
+																					<v8:content>Setting</v8:content>
+																				</v8:item>
+																			</Title>
 																			<TitleLocation>None</TitleLocation>
 																			<EditMode>EnterOnInput</EditMode>
 																			<ContextMenu name="SettingsContextMenu" id="23"/>
@@ -657,6 +813,12 @@
 																	<Button name="OtherSettingsContextMenuOpen" id="109">
 																		<Type>CommandBarButton</Type>
 																		<CommandName>Form.Command.Open</CommandName>
+																		<Title>
+																			<v8:item>
+																				<v8:lang>en</v8:lang>
+																				<v8:content>Open</v8:content>
+																			</v8:item>
+																		</Title>
 																		<ExtendedTooltip name="OtherSettingsContextMenuOpenExtendedTooltip" id="167"/>
 																	</Button>
 																	<Button name="OtherSettingsContextMenuCopy" id="107">
@@ -682,6 +844,12 @@
 																		<ExtendedTooltip name="OtherSettingsContextMenuDeleteExtendedTooltip" id="169"/>
 																	</Button>
 																	<ButtonGroup name="OtherSettingsContextMenuOther" id="116">
+																		<Title>
+																			<v8:item>
+																				<v8:lang>en</v8:lang>
+																				<v8:content>Other settings context menu other</v8:content>
+																			</v8:item>
+																		</Title>
 																		<ExtendedTooltip name="OtherSettingsContextMenuOtherExtendedTooltip" id="170"/>
 																		<ChildItems>
 																			<Button name="OtherSettingsContextMenuSelectAll" id="89">
@@ -750,6 +918,12 @@
 																	<ChildItems>
 																		<PictureField name="OtherSettingsPicture" id="92">
 																			<DataPath>OtherSettings.Picture</DataPath>
+																			<Title>
+																				<v8:item>
+																					<v8:lang>en</v8:lang>
+																					<v8:content>Picture</v8:content>
+																				</v8:item>
+																			</Title>
 																			<EditMode>EnterOnInput</EditMode>
 																			<FileDragMode>AsFile</FileDragMode>
 																			<ContextMenu name="OtherSettingsPictureContextMenu" id="93"/>
@@ -757,6 +931,12 @@
 																		</PictureField>
 																		<LabelField name="OtherSettingsSetting" id="90">
 																			<DataPath>OtherSettings.Setting</DataPath>
+																			<Title>
+																				<v8:item>
+																					<v8:lang>en</v8:lang>
+																					<v8:content>Setting</v8:content>
+																				</v8:item>
+																			</Title>
 																			<TitleLocation>None</TitleLocation>
 																			<EditMode>EnterOnInput</EditMode>
 																			<ContextMenu name="OtherSettingsSettingContextMenu" id="91"/>
@@ -805,12 +985,12 @@
 										</v8:item>
 									</Title>
 									<Picture>
-										<xr:Ref>CommonPicture.Information32</xr:Ref>
-										<xr:LoadTransparent>false</xr:LoadTransparent>
+										<xr:Ref>StdPicture.DialogInformation</xr:Ref>
+										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
 									<ContextMenu name="InformationPicture7ContextMenu" id="70"/>
-									<ExtendedTooltip name="PictureOfInformationExtendedTooltip" id="182"/>
+									<ExtendedTooltip name="InformationPicture7ExtendedTooltip" id="182"/>
 								</PictureDecoration>
 								<LabelDecoration name="InfoText" id="71">
 									<Title formatted="false">
@@ -822,7 +1002,7 @@ that are allowed to access the infobase.</v8:content>
 									</Title>
 									<VerticalAlign>Center</VerticalAlign>
 									<ContextMenu name="InfoText1ContextMenu" id="72"/>
-									<ExtendedTooltip name="InfoText1ExtendedTooltip" id="183"/>
+									<ExtendedTooltip name="InfoTextExtendedTooltip" id="183"/>
 								</LabelDecoration>
 							</ChildItems>
 						</UsualGroup>
@@ -857,8 +1037,8 @@ that are allowed to access the infobase.</v8:content>
 										</v8:item>
 									</Title>
 									<Picture>
-										<xr:Ref>CommonPicture.Information32</xr:Ref>
-										<xr:LoadTransparent>false</xr:LoadTransparent>
+										<xr:Ref>StdPicture.DialogInformation</xr:Ref>
+										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
 									<ContextMenu name="InformationPicture71ContextMenu" id="228"/>
@@ -1182,7 +1362,7 @@ that are allowed to access the infobase.</v8:content>
 				</v8:StringQualifiers>
 			</Type>
 		</Attribute>
-		<Attribute name="ExecutionResult" id="17">
+		<Attribute name="JobID" id="17">
 			<Type/>
 		</Attribute>
 		<Attribute name="NoViewRight" id="18">

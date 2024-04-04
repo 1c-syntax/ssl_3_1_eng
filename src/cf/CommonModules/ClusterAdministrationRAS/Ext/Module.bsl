@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -164,7 +165,7 @@ EndProcedure
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
-//   Filter - See ClusterAdministration.SessionsFilter See ClusterAdministration.SessionsFilter
+//   Filter - See ClusterAdministration.SessionsFilter, Array of See ClusterAdministration.SessionsFilter
 //
 // Returns: 
 //   Array of See ClusterAdministration.SessionProperties
@@ -190,7 +191,7 @@ Function InfobaseSessions(Val ClusterAdministrationParameters, Val IBAdministrat
 	For Each Process_ In RunCommand(Command, ClusterAdministrationParameters, , , WorkingProcessPropertyTypes()) Do
 		Process_.Insert("license", ProcessLicenses[Process_["process"]]);
 		Process_.Insert("running", ?(Process_["running"], 1, 0));
-		Process_.Insert("use", ?(Process_["use"] = "used", 1, ?(Process_["use"] = "not-used", 0, 2)));  
+		Process_.Insert("use", ?(Process_["use"] = "used", 1, ?(Process_["use"] = "not-used", 0, 2)));  // 
 		Processes.Insert(Process_["process"], Process_);
 	EndDo;
 	
@@ -248,7 +249,7 @@ EndFunction
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
-//   Filter - See ClusterAdministration.SessionsFilter See ClusterAdministration.SessionsFilter
+//   Filter - See ClusterAdministration.SessionsFilter, Array of See ClusterAdministration.SessionsFilter
 //
 Procedure DeleteInfobaseSessions(Val ClusterAdministrationParameters, Val IBAdministrationParameters, Val Filter = Undefined) Export
 	
@@ -311,7 +312,7 @@ EndProcedure
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
-//   Filter - See ClusterAdministration.JoinsFilters See ClusterAdministration.JoinsFilters
+//   Filter - See ClusterAdministration.JoinsFilters, Array of See ClusterAdministration.JoinsFilters
 //
 // Returns:
 //   Array of See ClusterAdministration.ConnectionProperties
@@ -329,7 +330,7 @@ EndFunction
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
-//   Filter - See ClusterAdministration.JoinsFilters See ClusterAdministration.JoinsFilters
+//   Filter - See ClusterAdministration.JoinsFilters, Array of See ClusterAdministration.JoinsFilters
 //
 Procedure TerminateInfobaseConnections(Val ClusterAdministrationParameters, Val IBAdministrationParameters, Val Filter = Undefined) Export
 	
@@ -339,7 +340,7 @@ Procedure TerminateInfobaseConnections(Val ClusterAdministrationParameters, Val 
 	ClusterParameters = ClusterParameters(ClusterAdministrationParameters, ClusterID);
 	
 	Value = New Array;
-	Value.Add("1CV8");               
+	Value.Add("1CV8");               // 
 	Value.Add("1CV8C");              // ID of 1C:Enterprise application running in thin client mode.
 	Value.Add("WebClient");          // ID of 1C:Enterprise application running in web client mode.
 	Value.Add("Designer");           // Designer ID.
@@ -649,7 +650,7 @@ EndProcedure
 // Parameters:
 //   ClusterID - String - Internal server cluster ID.
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
-//   Parameteradministrationib -  See ClusterAdministration.ClusterInfobaseAdministrationParameters
+//   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
 //
 // Returns: 
 //   String
@@ -782,9 +783,9 @@ EndFunction
 // Parameters:
 //   ClusterID - String - Internal server cluster ID.
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
-//   InfoBaseID - String -  internal ID of the information database.
-//   Parameteradministrationib -  See ClusterAdministration.ClusterInfobaseAdministrationParameters
-//   Filter - See ClusterAdministration.SessionsFilter See ClusterAdministration.SessionsFilter
+//   InfoBaseID - String - Internal infobase ID.
+//   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
+//   Filter - See ClusterAdministration.SessionsFilter, Array of See ClusterAdministration.SessionsFilter
 //   UseDictionary - Boolean - If True, the return value is generated using a dictionary.
 //
 // Returns: 
@@ -816,7 +817,7 @@ EndFunction
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   InfoBaseID - String - Internal infobase ID.
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
-//   Filter - See ClusterAdministration.SessionsFilter See ClusterAdministration.SessionsFilter
+//   Filter - See ClusterAdministration.SessionsFilter, Array of See ClusterAdministration.SessionsFilter
 //   UseDictionary - Boolean - If True, the return value is generated using a dictionary.
 //
 // Returns: 
@@ -1282,11 +1283,11 @@ Function AdjustValue(Val Value)
 		
 	ElsIf TypeOf(Value) = Type("String") Then
 		
-		
-		
+		// 
+		// 
 		Digits = "0123456789";
 		LatinCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-		CyrillicCharacters = "ABVGDEZHZIYKLMNOPRSTUFKHTSCHSHSHYEYUYaabvgdezhziyklmnoprstufkhtschshyeyu"; 
+		CyrillicCharacters = "ABVGDEZHZIYKLMNOPRSTUFKHTSCHSHSHYEYUYaabvgdezhziyklmnoprstufkhtschshyeyu"; // ACC:1036 - Orthography check is not required.
 		AllowedChars = Digits + LatinCharacters + CyrillicCharacters + "-";
 		If StringContainsAllowedCharsOnly(Value, AllowedChars) Then
 			Return Value;
@@ -1359,9 +1360,9 @@ Function CastOutputItem(OutputItem, ElementType)
 		
 	ElsIf ElementType = Undefined Then
 		
-		 
-		 
-		
+		//  
+		//  
+		// 
 		
 		If IsBlankString(OutputItem) Then
 			Return Undefined;

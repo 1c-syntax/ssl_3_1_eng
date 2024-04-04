@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -12,49 +13,68 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	FillPropertyValues(ThisObject, Parameters.SignatureProperties);
+	SignatureProperties = DigitalSignatureClientServer.ResultOfSignatureValidationOnForm();
+	FillPropertyValues(SignatureProperties, Parameters.SignatureProperties);
+	
+	FillPropertyValues(ThisObject, SignatureProperties);
+	FillPropertyValues(ThisObject, SignatureProperties.CheckResult);
 	
 	If Parameters.SignatureProperties.Property("Object") Then
 		SignedObject = Parameters.SignatureProperties.Object;
 	EndIf;
 	
-	Items.MRLOAGroup.Visible = False;
+	Items.GroupMachineReadableLOA.Visible = False;
 	
 	
-	If Parameters.SignatureProperties.SignatureCorrect Then
-		Items.ErrorDescription.Visible = ValueIsFilled(ErrorDescription);
-		StandardSubsystemsServer.SetFormAssignmentKey(ThisObject, "");
-		Items.Instruction.Visible     = False;
-	Else
-		Items.ErrorDescription.Visible = ValueIsFilled(ErrorDescription);
+	Items.AdditionalAttributesManualCheckJustification.Visible = ValueIsFilled(AdditionalAttributesManualCheckJustification)
+		And StrLen(AdditionalAttributesManualCheckJustification) > 100;
+	
+	If ValueIsFilled(ErrorDescription) Then
 		StandardSubsystemsServer.SetFormAssignmentKey(ThisObject, "ErrorDescription");
 		Items.Instruction.Visible     = 
 			DigitalSignatureInternal.VisibilityOfRefToAppsTroubleshootingGuide();
+	ElsIf ValueIsFilled(AdditionalAttributesManualCheckJustification) Then
+		StandardSubsystemsServer.SetFormAssignmentKey(ThisObject, "ManualVerification");
+		Items.Instruction.Visible     = False;
+	Else
+		StandardSubsystemsServer.SetFormAssignmentKey(ThisObject, "");
+		Items.Instruction.Visible     = False;
 	EndIf;
 	
 	If Not IsTempStorageURL(SignatureAddress) Then
 		Return;
 	EndIf;
 	
-	SignatureAlgorithmDoesNotComplyWithGOST = "";
+	SignAlgorithmDoesNotComplyWithGOST = "";
 	SignAlgorithm = DigitalSignatureInternalClientServer.GeneratedSignAlgorithm(
-		SignatureAddress, True, False, SignatureAlgorithmDoesNotComplyWithGOST);
+		SignatureAddress, True, False, SignAlgorithmDoesNotComplyWithGOST);
 		
-	If ValueIsFilled(SignatureAlgorithmDoesNotComplyWithGOST) Then
-		SignAlgorithm = SignatureAlgorithmDoesNotComplyWithGOST;
+	If ValueIsFilled(SignAlgorithmDoesNotComplyWithGOST) Then
+		SignAlgorithm = SignAlgorithmDoesNotComplyWithGOST;
 		Items.SignAlgorithm.Visible = False;
-		Items.SignatureAlgorithmWarning.Visible = True;
+		Items.SignAlgorithmWarning.Visible = True;
 	Else
 		Items.SignAlgorithm.Visible = True;
-		Items.SignatureAlgorithmWarning.Visible = False;
+		Items.SignAlgorithmWarning.Visible = False;
 	EndIf;
 	
 	HashAlgorithm = DigitalSignatureInternalClientServer.HashAlgorithm(
 		SignatureAddress, True);
 	
-	Items.DecorationStatus.Title = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Status as of %1: %2';"), SignatureValidationDate, Status);
-		
+	If ValueIsFilled(Status) Then
+		Items.DecorationStatus.Title = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Status as of %1: %2';"), SignatureValidationDate, Status);
+	Else
+		Items.DecorationStatus.Title = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Status as of %1: %2';"), SignatureValidationDate, BriefCheckResult);
+	EndIf;
+	
+	Items.ErrorDescription.Visible = Not IsBlankString(ErrorDescription);
+	Items.Comment.Visible = Not IsBlankString(Comment);
+	
+	Items.GroupMathValidationError.Visible   = Not IsBlankString(SignatureMathValidationError);
+	Items.GroupErrorOnAdditionalAttributesManualCheck.Visible = Not IsBlankString(AdditionalAttributesCheckError);
+	
 	UpdateFormData();
 		
 EndProcedure
@@ -131,10 +151,40 @@ Procedure ExtendActionSignature(Command)
 	
 EndProcedure
 
+&AtClient
+Procedure OpenMathValidationErrorDetails(Command)
+	
+	OpenErrorDescription(SignatureMathValidationError);
+	
+EndProcedure
+
+&AtClient
+Procedure OpenAdditionalAttributesErrorDetails(Command)
+	
+	OpenErrorDescription(AdditionalAttributesCheckError);
+	
+EndProcedure
+
 #EndRegion
 
 #Region Private
 
+&AtClient
+Procedure OpenErrorDescription(ErrorText)
+	
+	FormParameters = New Structure;
+	FormParameters.Insert("WarningTitle", NStr("en = 'SIgnature validation error';"));
+	FormParameters.Insert("ErrorTextClient", ErrorText);
+	
+	If ValueIsFilled(CertificateAddress) Then
+		AdditionalParameters = New Structure("CertificateData",
+			CertificateAddress);
+	EndIf;
+	
+	OpenForm("CommonForm.ExtendedErrorPresentation",
+		FormParameters, ThisObject,,,,, FormWindowOpeningMode.LockOwnerWindow);
+
+EndProcedure
 
 &AtServer
 Procedure UpdateFormData()
@@ -229,7 +279,7 @@ Async Procedure AfterSignaturePropertiesRead(Result, AdditionalParameters) Expor
 			
 		EndIf;
 	ElsIf Result.Success = Undefined Then
-		SignatureReadError = NStr("en = 'Cannot get certificates from the signature. Check the settings of the digital signature applications.';");
+		SignatureReadError = NStr("en = 'Couldn''t get certificates from the signature. Check the settings of the digital signing apps.';");
 	Else
 		SignatureReadError = Result.ErrorText;
 	EndIf;

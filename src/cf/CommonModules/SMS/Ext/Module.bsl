@@ -4,7 +4,6 @@
 // It sends a text message via a configured service provider and returns message ID. 
 //
 // Parameters:
-//  RecipientsNumbers - Array - an array of strings containing recipient numbers in format +7ХХХХХХХХХХ.
 //  Text - String - a message text, the maximum length varies depending on operators.
 //  SenderName - String - a sender name that recipients will see instead of a number.
 //  Transliterate - Boolean - True if the message text is to be transliterated before sending.

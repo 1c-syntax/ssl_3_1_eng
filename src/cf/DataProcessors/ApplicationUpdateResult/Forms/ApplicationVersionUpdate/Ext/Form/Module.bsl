@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -84,7 +85,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure ImportUpdateApplicationParameters(Var_Parameters) Export
@@ -121,14 +122,14 @@ Procedure StartApplicationParametersImport()
 		Return;
 	EndIf;
 	
-	CompletionNotification2 = New NotifyDescription("StartUpdateApplicationParameters",
+	CallbackOnCompletion = New NotifyDescription("StartUpdateApplicationParameters",
 		ThisObject, AdditionalParameters);
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
 	IdleParameters.Interval = 1;
 	IdleParameters.OutputProgressBar = True;
 	IdleParameters.ExecutionProgressNotification = New NotifyDescription("ApplicationParametersUpdateProgress", ThisObject); 
-	TimeConsumingOperationsClient.WaitCompletion(ExecutionResult, CompletionNotification2, IdleParameters);
+	TimeConsumingOperationsClient.WaitCompletion(ExecutionResult, CallbackOnCompletion, IdleParameters);
 	
 EndProcedure
 
@@ -146,8 +147,8 @@ Function ImportApplicationParametersInBackground()
 	StartupParameters = StandardSubsystemsServer.ClientParametersAtServer().Get("LaunchParameter");
 	If Common.SubsystemExists("StandardSubsystems.ConfigurationUpdate")
 		And StrFind(StartupParameters, "UpdateAndExit") = 0 Then
-		
-		
+		// 
+		// 
 		ModuleConfigurationUpdate = Common.CommonModule("ConfigurationUpdate");
 		Try
 			Result = ModuleConfigurationUpdate.PatchesChanged();
@@ -155,8 +156,7 @@ Function ImportApplicationParametersInBackground()
 			ErrorInfo = ErrorInfo();
 			AdditionalParameters = New Structure;
 			AdditionalParameters.Insert("ErrorDeletingFixes");
-			AdditionalParameters.Insert("BriefErrorDescription",   ErrorProcessing.BriefErrorDescription(ErrorInfo));
-			AdditionalParameters.Insert("DetailErrorDescription", ErrorProcessing.DetailErrorDescription(ErrorInfo));
+			AdditionalParameters.Insert("ErrorInfo", ErrorInfo);
 			Return AdditionalParameters;
 		EndTry;
 		If Result.HasChanges Then
@@ -174,28 +174,36 @@ Function ImportApplicationParametersInBackground()
 	
 EndFunction
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.LongRunningOperationNewState
+//  AdditionalParameters - Undefined
+//
 &AtClient
-Procedure ApplicationParametersUpdateProgress(Progress, AdditionalParameters) Export
+Procedure ApplicationParametersUpdateProgress(Result, AdditionalParameters) Export
 	
-	If Progress = Undefined Then
+	If Result = Undefined Then
 		Return;
 	EndIf;
 	
-	If Progress.Status <> "Running" Then
+	If Result.Status <> "Running" Then
 		Return;
 	EndIf;
 	
-	If Progress.Progress <> Undefined Then
+	If Result.Progress <> Undefined Then
 		
 		If UpdateApplicationParametersOnly Then
-			ExecutionProgress = 5 + (90 * Progress.Progress.Percent / 100);
+			ExecutionProgress = 5 + (90 * Result.Progress.Percent / 100);
 		Else
-			ExecutionProgress = 5 + (5 * Progress.Progress.Percent / 100);
+			ExecutionProgress = 5 + (5 * Result.Progress.Percent / 100);
 		EndIf;
 	EndIf;
 		
 EndProcedure
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
 Procedure StartUpdateApplicationParameters(Result, AdditionalParameters) Export
 	
@@ -203,15 +211,11 @@ Procedure StartUpdateApplicationParameters(Result, AdditionalParameters) Export
 		ProcessedResult = ProcessedTimeConsumingOperationResult(Result,
 			"ImportApplicationParameters");
 	Except
-		ErrorInfo = ErrorInfo();
 		ProcessedResult = New Structure;
-		ProcessedResult.Insert("BriefErrorDescription",
-			ErrorProcessing.BriefErrorDescription(ErrorInfo));
-		ProcessedResult.Insert("DetailErrorDescription",
-			ErrorProcessing.DetailErrorDescription(ErrorInfo));
+		ProcessedResult.Insert("ErrorInfo", ErrorInfo());
 	EndTry;
 	
-	If ValueIsFilled(ProcessedResult.BriefErrorDescription) Then
+	If ProcessedResult.ErrorInfo <> Undefined Then
 		FailedUpdateMessage(ProcessedResult, Undefined);
 		Return;
 	EndIf;
@@ -220,14 +224,14 @@ Procedure StartUpdateApplicationParameters(Result, AdditionalParameters) Export
 	
 	AdditionalParameters = New Structure("BriefErrorDescription, DetailErrorDescription");
 	
-	CompletionNotification2 = New NotifyDescription("StartUpdateExtensionVersionParameters",
+	CallbackOnCompletion = New NotifyDescription("StartUpdateExtensionVersionParameters",
 		ThisObject, AdditionalParameters);
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
 	IdleParameters.Interval = 1;
 	IdleParameters.OutputProgressBar = True;
 	IdleParameters.ExecutionProgressNotification = New NotifyDescription("ApplicationParametersUpdateProgress", ThisObject); 
-	TimeConsumingOperationsClient.WaitCompletion(ExecutionResult, CompletionNotification2, IdleParameters);
+	TimeConsumingOperationsClient.WaitCompletion(ExecutionResult, CallbackOnCompletion, IdleParameters);
 	
 EndProcedure
 
@@ -240,6 +244,10 @@ Function UpdateApplicationParametersInBackground()
 	
 EndFunction
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
 Procedure StartUpdateExtensionVersionParameters(Result, AdditionalParameters) Export
 	
@@ -247,15 +255,11 @@ Procedure StartUpdateExtensionVersionParameters(Result, AdditionalParameters) Ex
 		ProcessedResult = ProcessedTimeConsumingOperationResult(Result,
 			"ApplicationParametersUpdate");
 	Except
-		ErrorInfo = ErrorInfo();
 		ProcessedResult = New Structure;
-		ProcessedResult.Insert("BriefErrorDescription",
-			ErrorProcessing.BriefErrorDescription(ErrorInfo));
-		ProcessedResult.Insert("DetailErrorDescription",
-			ErrorProcessing.DetailErrorDescription(ErrorInfo));
+		ProcessedResult.Insert("ErrorInfo", ErrorInfo());
 	EndTry;
 	
-	If ValueIsFilled(ProcessedResult.BriefErrorDescription) Then
+	If ProcessedResult.ErrorInfo <> Undefined Then
 		FailedUpdateMessage(ProcessedResult, Undefined);
 		Return;
 	EndIf;
@@ -270,14 +274,14 @@ Procedure StartUpdateExtensionVersionParameters(Result, AdditionalParameters) Ex
 	
 	AdditionalParameters = New Structure("BriefErrorDescription, DetailErrorDescription");
 	
-	CompletionNotification2 = New NotifyDescription("CompleteUpdatingApplicationParameters",
+	CallbackOnCompletion = New NotifyDescription("CompleteUpdatingApplicationParameters",
 		ThisObject, AdditionalParameters);
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
 	IdleParameters.Interval = 1;
 	IdleParameters.OutputProgressBar = True;
 	IdleParameters.ExecutionProgressNotification = New NotifyDescription("ApplicationParametersUpdateProgress", ThisObject); 
-	TimeConsumingOperationsClient.WaitCompletion(ExecutionResult, CompletionNotification2, IdleParameters);
+	TimeConsumingOperationsClient.WaitCompletion(ExecutionResult, CallbackOnCompletion, IdleParameters);
 	
 EndProcedure
 
@@ -294,6 +298,10 @@ Function UpdateExtensionVersionParametersInBackground()
 	
 EndFunction
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
 Procedure CompleteUpdatingApplicationParameters(Result, AdditionalParameters) Export
 	
@@ -301,15 +309,11 @@ Procedure CompleteUpdatingApplicationParameters(Result, AdditionalParameters) Ex
 		ProcessedResult = ProcessedTimeConsumingOperationResult(Result,
 			"ExtensionVersionParametersUpdate");
 	Except
-		ErrorInfo = ErrorInfo();
 		ProcessedResult = New Structure;
-		ProcessedResult.Insert("BriefErrorDescription",
-			ErrorProcessing.BriefErrorDescription(ErrorInfo));
-		ProcessedResult.Insert("DetailErrorDescription",
-			ErrorProcessing.DetailErrorDescription(ErrorInfo));
+		ProcessedResult.Insert("ErrorInfo", ErrorInfo());
 	EndTry;
 	
-	If ValueIsFilled(ProcessedResult.BriefErrorDescription) Then
+	If ProcessedResult.ErrorInfo <> Undefined Then
 		FailedUpdateMessage(ProcessedResult, Undefined);
 		Return;
 	EndIf;
@@ -323,10 +327,9 @@ Procedure CompleteUpdatingApplicationParameters(Result, AdditionalParameters) Ex
 	Try
 		ClientParameters = StandardSubsystemsClient.ClientParametersOnStart();
 	Except
-		ErrorInfo = ErrorInfo();
-		AdditionalParameters.Insert("BriefErrorDescription", ErrorProcessing.BriefErrorDescription(ErrorInfo));
-		AdditionalParameters.Insert("DetailErrorDescription", ErrorProcessing.DetailErrorDescription(ErrorInfo));
-		FailedUpdateMessage(AdditionalParameters, Undefined);
+		ProcessedResult = New Structure;
+		ProcessedResult.Insert("ErrorInfo", ErrorInfo());
+		FailedUpdateMessage(ProcessedResult, Undefined);
 		Return;
 	EndTry;
 	
@@ -338,15 +341,15 @@ Procedure CompleteUpdatingApplicationParameters(Result, AdditionalParameters) Ex
 	EndIf;
 		
 	If ClientParameters.Property("SharedInfobaseDataUpdateRequired") Then
+		ProcessedResult = Undefined;
 		Try
 			InfobaseUpdateInternalServerCall.UpdateInfobase(True);
 		Except
-			ErrorInfo = ErrorInfo();
-			AdditionalParameters.Insert("BriefErrorDescription",   ErrorProcessing.BriefErrorDescription(ErrorInfo));
-			AdditionalParameters.Insert("DetailErrorDescription", ErrorProcessing.DetailErrorDescription(ErrorInfo));
+			ProcessedResult = New Structure;
+			ProcessedResult.Insert("ErrorInfo", ErrorInfo());
 		EndTry;
-		If ValueIsFilled(AdditionalParameters.BriefErrorDescription) Then
-			FailedUpdateMessage(AdditionalParameters, Undefined);
+		If ProcessedResult <> Undefined Then
+			FailedUpdateMessage(ProcessedResult, Undefined);
 			Return;
 		EndIf;
 	EndIf;
@@ -360,7 +363,7 @@ Procedure CompleteUpdatingApplicationParameters(Result, AdditionalParameters) Ex
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure UpdateInfobase1() Export
@@ -388,13 +391,13 @@ Procedure StartInfobaseUpdate1()
 		ContinuationProcedure = "CompleteInfobaseUpdate";
 	EndIf;
 	
-	CompletionNotification2 = New NotifyDescription(ContinuationProcedure, ThisObject);
+	CallbackOnCompletion = New NotifyDescription(ContinuationProcedure, ThisObject);
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
 	IdleParameters.OutputProgressBar = True;
 	IdleParameters.OutputMessages = True;
 	IdleParameters.ExecutionProgressNotification = New NotifyDescription("InfobaseUpdateProgress", ThisObject); 
-	TimeConsumingOperationsClient.WaitCompletion(IBUpdateResult, CompletionNotification2, IdleParameters);
+	TimeConsumingOperationsClient.WaitCompletion(IBUpdateResult, CallbackOnCompletion, IdleParameters);
 	
 EndProcedure
 
@@ -408,34 +411,36 @@ Function UpdateInfobaseInBackground()
 EndFunction
 
 // Parameters:
-//  Progress - Undefined
-//           - Structure:
-//               * AdditionalParameters - Structure
+//  Result - See TimeConsumingOperationsClient.LongRunningOperationNewState
 //  AdditionalParameters - Undefined
 //
 &AtClient
-Procedure InfobaseUpdateProgress(Progress, AdditionalParameters) Export
+Procedure InfobaseUpdateProgress(Result, AdditionalParameters) Export
 	
-	If Progress = Undefined Then
+	If Result = Undefined Then
 		Return;
 	EndIf;
 	
-	If Progress.Status = "Error" Then
+	If Result.Status = "Error" Then
 		Return;
 	EndIf;
 	
-	If Progress.Property("AdditionalParameters")
-		And Progress.AdditionalParameters.Property("DataExchange") Then
-		Return;
+	If Result.Progress <> Undefined Then
+		If Result.Property("AdditionalParameters")
+		   And TypeOf(Result.Progress.AdditionalParameters) = Type("Structure")
+		   And Result.AdditionalParameters.Property("DataExchange") Then
+			Return;
+		EndIf;
+		ExecutionProgress = 10 + (90 * Result.Progress.Percent / 100);
 	EndIf;
-	
-	If Progress.Progress <> Undefined Then
-		ExecutionProgress = 10 + (90 * Progress.Progress.Percent / 100);
-	EndIf;
-	ProcessRegistrationRuleError(Progress.Messages);
+	ProcessRegistrationRuleError(Result.Messages);
 	
 EndProcedure
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
 Procedure CompleteInfobaseUpdate(Result, AdditionalParameters) Export
 	
@@ -446,8 +451,7 @@ Procedure CompleteInfobaseUpdate(Result, AdditionalParameters) Export
 	ElsIf Result.Status = "Completed2"  Then
 		
 		ReviseRuntimeResult(Result.ResultAddress,
-			Result.BriefErrorDescription,
-			Result.DetailErrorDescription,
+			Result.ErrorInfo,
 			HandlersExecutionFlag,
 			ExecutionProgress);
 		
@@ -463,8 +467,7 @@ Procedure CompleteInfobaseUpdate(Result, AdditionalParameters) Export
 	
 	AdditionalParameters = New Structure;
 	AdditionalParameters.Insert("DocumentUpdatesDetails", Undefined);
-	AdditionalParameters.Insert("BriefErrorDescription", Result.BriefErrorDescription);
-	AdditionalParameters.Insert("DetailErrorDescription", Result.DetailErrorDescription);
+	AdditionalParameters.Insert("ErrorInfo", Result.ErrorInfo);
 	AdditionalParameters.Insert("UpdateStartTime", UpdateStartTime);
 	AdditionalParameters.Insert("UpdateEndTime", CommonClient.SessionDate());
 	AdditionalParameters.Insert("HandlersExecutionFlag", HandlersExecutionFlag);
@@ -559,7 +562,7 @@ EndProcedure
 &AtClient
 Procedure UpdateInfobase1Completion(AdditionalParameters)
 	
-	If ValueIsFilled(AdditionalParameters.BriefErrorDescription) Then
+	If TypeOf(AdditionalParameters.ErrorInfo) = Type("ErrorInfo") Then
 		
 		UpdateEndTime = CommonClient.SessionDate();
 		FailedUpdateMessage(AdditionalParameters, UpdateEndTime);
@@ -596,8 +599,12 @@ Procedure CloseForm(Cancel, Restart)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
+// 
 
-
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
 Procedure RegisterDataForDeferredUpdate(Result, AdditionalParameters) Export
 	
@@ -779,7 +786,7 @@ Function CheckDeferredHandlerFillingProcedures(ControllingBackgroundJobExecution
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure BeginClose() Export
@@ -803,8 +810,7 @@ Procedure FailedUpdateMessage(AdditionalParameters, UpdateEndTime)
 	NotifyDescription = New NotifyDescription("UpdateInfobaseActionsOnError", ThisObject);
 	
 	FormParameters = New Structure;
-	FormParameters.Insert("BriefErrorDescription",   AdditionalParameters.BriefErrorDescription);
-	FormParameters.Insert("DetailErrorDescription", AdditionalParameters.DetailErrorDescription);
+	FormParameters.Insert("ErrorInfo",         AdditionalParameters.ErrorInfo);
 	FormParameters.Insert("UpdateStartTime",      UpdateStartTime);
 	FormParameters.Insert("UpdateEndTime",   UpdateEndTime);
 	
@@ -813,8 +819,10 @@ Procedure FailedUpdateMessage(AdditionalParameters, UpdateEndTime)
 		ModuleDataExchangeClient = CommonClient.CommonModule("DataExchangeClient");
 		NameOfFormToOpen_ = ModuleDataExchangeClient.FailedUpdateMessageFormName();
 		FormParameters.Insert("ExchangePlanName", ExchangePlanName);
+		FormParameters.Insert("BriefErrorDescription", ErrorProcessing.BriefErrorDescription(AdditionalParameters.ErrorInfo));
+		FormParameters.Insert("DetailErrorDescription", ErrorProcessing.DetailErrorDescription(AdditionalParameters.ErrorInfo));
 		
-	Else	
+	Else
 		NameOfFormToOpen_ = "DataProcessor.ApplicationUpdateResult.Form.FailedUpdateMessage";
 	
 	EndIf;
@@ -849,15 +857,14 @@ Procedure RestartWithScheduledJobExecutionLock()
 EndProcedure
 
 &AtServerNoContext
-Procedure ReviseRuntimeResult(ResultAddress, BriefErrorDescription,
-			DetailErrorDescription, HandlersExecutionFlag, ExecutionProgress)
-		
+Procedure ReviseRuntimeResult(ResultAddress, ErrorInfo, HandlersExecutionFlag, ExecutionProgress)
+	
 	UpdateResult = GetFromTempStorage(ResultAddress);
+	ErrorInfo  = Undefined;
 	If TypeOf(UpdateResult) = Type("Structure") Then
-		If UpdateResult.Property("BriefErrorDescription")
-			And UpdateResult.Property("DetailErrorDescription") Then
-			BriefErrorDescription = UpdateResult.BriefErrorDescription;
-			DetailErrorDescription = UpdateResult.DetailErrorDescription;
+		
+		If UpdateResult.Property("ErrorInfo") Then
+			ErrorInfo = UpdateResult.ErrorInfo;
 		Else
 			HandlersExecutionFlag = UpdateResult.Result;
 			ExecutionProgress = 100;

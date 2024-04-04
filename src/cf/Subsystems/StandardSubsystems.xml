@@ -18,31 +18,31 @@
 			<Content/>
 		</Properties>
 		<ChildObjects>
-			<Subsystem>EventLogAnalysis</Subsystem>
-			<Subsystem>ObjectAttributesLock</Subsystem>
-			<Subsystem>AdditionalReportsAndDataProcessors</Subsystem>
 			<Subsystem>Surveys</Subsystem>
-			<Subsystem>BatchEditObjects</Subsystem>
-			<Subsystem>BusinessProcessesAndTasks</Subsystem>
-			<Subsystem>ImportDataFromFile</Subsystem>
+			<Subsystem>AdditionalReportsAndDataProcessors</Subsystem>
 			<Subsystem>Interactions</Subsystem>
-			<Subsystem>Core</Subsystem>
-			<Subsystem>Currencies</Subsystem>
-			<Subsystem>UsersSessions</Subsystem>
-			<Subsystem>WorkSchedules</Subsystem>
-			<Subsystem>PeriodClosingDates</Subsystem>
-			<Subsystem>Banks</Subsystem>
-			<Subsystem>UserNotes</Subsystem>
+			<Subsystem>BatchEditObjects</Subsystem>
 			<Subsystem>ObjectsVersioning</Subsystem>
-			<Subsystem>ODataInterface</Subsystem>
+			<Subsystem>BusinessProcessesAndTasks</Subsystem>
+			<Subsystem>Currencies</Subsystem>
 			<Subsystem>BarcodeGeneration</Subsystem>
-			<Subsystem>ReportsOptions</Subsystem>
 			<Subsystem>AddIns</Subsystem>
+			<Subsystem>ObjectAttributesLock</Subsystem>
+			<Subsystem>Banks</Subsystem>
+			<Subsystem>PeriodClosingDates</Subsystem>
+			<Subsystem>UsersSessions</Subsystem>
+			<Subsystem>UserNotes</Subsystem>
 			<Subsystem>InformationOnStart</Subsystem>
+			<Subsystem>WorkSchedules</Subsystem>
+			<Subsystem>ReportsOptions</Subsystem>
+			<Subsystem>ImportDataFromFile</Subsystem>
+			<Subsystem>ODataInterface</Subsystem>
+			<Subsystem>Core</Subsystem>
 			<Subsystem>CalendarSchedules</Subsystem>
 			<Subsystem>FormulasConstructor</Subsystem>
 			<Subsystem>ContactInformation</Subsystem>
 			<Subsystem>AccountingAudit</Subsystem>
+			<Subsystem>UserMonitoring</Subsystem>
 			<Subsystem>NationalLanguageSupport</Subsystem>
 			<Subsystem>UserReminders</Subsystem>
 			<Subsystem>ItemOrderSetup</Subsystem>

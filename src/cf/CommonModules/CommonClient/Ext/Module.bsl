@@ -1,18 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #Region Public
 
 #Region UserNotification
 
- 
-
+//  
+// 
 
 // Generates and displays the message that can relate to a form item.
 //
@@ -137,11 +138,11 @@ EndFunction
 ////////////////////////////////////////////////////////////////////////////////
 // Procedures and functions for calling optional subsystems.
 
-// 
-// 
-// 
-// 
-// 
+// Returns True if the functional subsystem exists in the configuration.
+// Intended for calling an optional subsystem (conditional call).
+// A subsystem is considered functional if its "Include in command interface" check box is cleared.
+// See also: CommonOverridable.OnDetermineDisabledSubsystems
+// and Common.SubsystemExists to call from server-side code.
 //
 // Parameters:
 //  FullSubsystemName - String - the full name of the subsystem metadata object
@@ -149,13 +150,13 @@ EndFunction
 //                        Example: "StandardSubsystems.ReportsOptions".
 //
 // Example:
-//  If Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
-//  	ModuleReportOptions = Common.CommonModule("ReportsOptions");
-//  	ModuleReportOptions.<Method name>();
-//  EndIf;
+//  
+//  	
+//  	
+//  
 //
 // Returns:
-//  Boolean - True if exists.
+//  Boolean
 //
 Function SubsystemExists(FullSubsystemName) Export
 	
@@ -184,15 +185,10 @@ EndFunction
 //  InformationRegisterManager.
 //
 // Example:
-//	If Common.SubsystemExists("StandardSubsystems.ConfigurationUpdate") Then
-//		ModuleSoftwareUpdate = Common.CommonModule("ConfigurationUpdate");
-//		ModuleSoftwareUpdate.<Method name>();
-//	EndIf;
-//
-//	If Common.SubsystemExists("StandardSubsystems.FullTextSearch") then
-//		ModuleFullTextSearchServer = Common.CommonModule("FullTextSearchServer");
-//		ModuleFullTextSearchServer.<Method name>();
-//	EndIf;
+//	
+//		
+//		
+//	
 //
 Function CommonModule(Name) Export
 	
@@ -200,8 +196,8 @@ Function CommonModule(Name) Export
 	
 #If Not WebClient Then
 	
-	
-	
+	// 
+	// 
 	
 	If TypeOf(Module) <> Type("CommonModule") Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
@@ -249,9 +245,14 @@ Function IsLinuxClient() Export
 	SystemInfo = New SystemInfo;
 	ClientPlatformType = SystemInfo.PlatformType;
 	
+#If MobileClient Then
+	Return ClientPlatformType = PlatformType.Linux_x86
+		Or ClientPlatformType = PlatformType.Linux_x86_64;
+#EndIf
+	
 	Return ClientPlatformType = PlatformType.Linux_x86
 		Or ClientPlatformType = PlatformType.Linux_x86_64
-		Or CommonClientServer.CompareVersions(SystemInfo.AppVersion, "8.3.22.0") >= 0
+		Or CommonClientServer.CompareVersions(SystemInfo.AppVersion, "8.3.22.1923") >= 0
 			And (ClientPlatformType = PlatformType["Linux_ARM64"]
 			Or ClientPlatformType = PlatformType["Linux_E2K"]);
 	
@@ -355,8 +356,8 @@ EndFunction
 // (does not contain attributes to share).
 //
 // Returns:
-//  Boolean - 
-//           
+//  Boolean - True if data separation is enabled,
+//           False is separation is disabled or not supported.
 //
 Function DataSeparationEnabled() Export
 	
@@ -372,9 +373,9 @@ EndFunction
 // (does not contain attributes to share).
 //
 // Returns:
-//   Boolean - 
-//                    
-//            
+//   Boolean - True if separation is not supported or disabled
+//                    or separation is enabled and separators are set.
+//            False if separation is enabled and separators are not set.
 //
 Function SeparatedDataUsageAvailable() Export
 	
@@ -389,17 +390,17 @@ EndFunction
 ////////////////////////////////////////////////////////////////////////////////
 // Functions to work with dates considering the session timezone
 
-// 
-// 
-// 
+// Returns current date in the session time zone.
+// It is designed to be used instead of CurrentDate() function in client-side code
+// in cases when it is impossible to transfer algorithm into server-side code.
 //
-// 
-// 
-//  
-// 
-// 
-// 
-// 
+// The returned time is close to the CurrentSessionDate function result in server-side code.
+// The time inaccuracy is associated with the server call execution time.
+// Besides, if you set the time on the client computer, the function will not take this change 
+// into account immediately, but only after you again clear the cache of reused values.
+// (See also: UpdateCachedValues).
+// What is why the algorithms for which the exact time is crucially important must be placed in server-side code
+// rather than in the client-side code.
 //
 // Returns:
 //  Date - a current session date.
@@ -407,7 +408,7 @@ EndFunction
 Function SessionDate() Export
 	
 	Adjustment = StandardSubsystemsClient.ClientParameter("SessionTimeOffset");
-	Return CurrentDate() + Adjustment; 
+	Return CurrentDate() + Adjustment; // ACC:143 - CurrentDate() is required to calculate the session time
 	
 EndFunction
 
@@ -429,7 +430,7 @@ Function UniversalDate() Export
 	
 EndFunction
 
-// Convert a local date to the "YYYY-MM-DDThh:mm:ssTZD" format (ISO 8601).
+// Casts a local date to "YYYY-MM-DDThh:mm:ssTZD" (ISO 8601).
 //
 // See Common.LocalDatePresentationWithOffset
 //
@@ -557,13 +558,13 @@ EndFunction
 ////////////////////////////////////////////////////////////////////////////////
 // Common client procedures to work with forms.
 
+// Asks whether the user wants to continue the action that will discard the changes:
+// "Data was changed. Save the changes?" 
+// Use in form modules BeforeClose event handlers of the objects
+// that can be written to infobase.
+// The message presentation depends on the form modification property.
 // 
-//  
-// 
-// 
-// 
-// 
-// 
+// See also: CommonClient.ShowArbitraryFormClosingConfirmation.
 //
 // Parameters:
 //  SaveAndCloseNotification  - NotifyDescription - name of the procedure to be called once the OK button is clicked.
@@ -634,9 +635,9 @@ Procedure ShowFormClosingConfirmation(
 	
 EndProcedure
 
-// 
-// 
-// 
+// Asks whether the user wants to proceed the action, which will make the form close.
+// Intended for the BeforeClose event handlers in form modules.
+// See also: CommonClient.ShowFormClosingConfirmation.
 //
 // Parameters:
 //  Form                        - ClientApplicationForm - the form that calls the warning dialog.
@@ -778,8 +779,8 @@ EndProcedure
 #Region EditingForms
 
 ////////////////////////////////////////////////////////////////////////////////
-
-
+// 
+// 
 
 // Opens the multiline text edit form.
 //
@@ -887,7 +888,7 @@ EndProcedure
 #Region Styles
 
 ////////////////////////////////////////////////////////////////////////////////
-// Functions to manage style colors in the client code.
+// Functions to manage style colors in client-side code.
 
 // Gets the style color by a style item name.
 //
@@ -924,7 +925,7 @@ EndFunction
 ////////////////////////////////////////////////////////////////////////////////
 // Procedures and functions to connect and install add-ins from configuration templates.
 
-// 
+// Returns a structure of parameters for the AttachAddInFromTemplate procedure.
 //
 // Returns:
 //  Structure:
@@ -935,14 +936,14 @@ EndFunction
 //      * ObjectsCreationIDs - Array - the creation IDs of object module instances.
 //                 Applicable only with add-ins that have a number of object creation IDs.
 //                 Ignored if the ID parameter is specified.
-//      * Isolated - Boolean, Undefined - 
-//                 
-//                 
-//                 :
-//                 
-//                 See https://its.1c.eu/db/v83doc
-//      * AutoUpdate - Boolean -  
-//                 
+//      * Isolated - Boolean, Undefined - If True, the add-in is attached isolatedly (it is uploaded to a separate OS process).
+//                 If False, the add-in is executed in the same OS process that runs the 1C:Enterprise code.
+//                 If Undefined, the add-in is executed according to the default 1C:Enterprise settings
+//                 Isolatedly if the add-in supports only isolated execution; otherwise, non-isolatedly.:
+//                 By default, Undefined.
+//                 See https://its.1c.eu/db/v83doc#bookmark:dev:TI000001866
+//      * AutoUpdate - Boolean - Flag indicating whether UpdateFrom1CITSPortal will be set to True, 
+//                 if SuggestToImport is set to True. By default, True.
 //
 //
 // Example:
@@ -975,8 +976,8 @@ EndFunction
 //      * Result - Structure - add-in attachment result:
 //          ** Attached         - Boolean - attachment flag.
 //          ** Attachable_Module - AddInObject  - an instance of the add-in;
-//                                - FixedMap of KeyAndValue -  
-//                                     :
+//                                - FixedMap of KeyAndValue - Add-in object instances stored in 
+//                                     AttachmentParameters.ObjectsCreationIDs:
 //                                    *** Key - String - the add-in ID;
 //                                    *** Value - AddInObject - object instance.
 //          ** ErrorDescription     - String - brief error message. Empty string on cancel by user.
@@ -1038,7 +1039,7 @@ Procedure AttachAddInFromTemplate(Notification, Id, FullTemplateName,
 	
 EndProcedure
 
-// 
+// Returns a structure of parameters for the InstallAddInFromTemplate procedure.
 //
 // Returns:
 //  Structure:
@@ -1112,10 +1113,10 @@ EndProcedure
 
 #Region ForCallsFromOtherSubsystems
 
+// ConnectedHardwareLibrary
 // 
-// 
-// 
-// 
+// Connects an add-in based on Native API and COM technology in an asynchronous mode.
+// The add-inn must be stored in the configuration template in as a ZIP file.
 //
 // Parameters:
 //  FullTemplateName    - String                  - the full name of the template used as the add-in location.
@@ -1123,7 +1124,7 @@ EndProcedure
 //                     - Undefined - see the AddInInstallParameters function.
 //
 // Returns:
-//		Structure - :
+//		Structure - Add-in installation result:
 //          * IsSet    - Boolean - Installation flag.
 //          * ErrorDescription - String - brief error message. Empty string on cancel by user.
 //
@@ -1139,12 +1140,12 @@ Async Function InstallAddInFromTemplateAsync(FullTemplateName, InstallationParam
 	Context.Insert("ExplanationText", Parameters.ExplanationText);
 	Context.Insert("Id", FullTemplateName);
 	
-	Return Await CommonInternalClient.InstallExtAddInAsync(Context);
+	Return Await CommonInternalClient.InstallAddInSSLAsync(Context);
 	
 EndFunction
 
-// 
-// 
+// Attaches an add-in based on Native API and COM technology in an asynchronous mode.
+// The add-inn must be stored in the configuration template in as a ZIP file.
 //
 // Parameters:
 //  Id        - String - the add-in identification code.
@@ -1153,11 +1154,11 @@ EndFunction
 //                       - Undefined - See AddInAttachmentParameters.
 //
 // Returns:
-// 	 Structure - :
+// 	 Structure - Add-in attachment result:
 //    * Attached         - Boolean - attachment flag.
 //    * Attachable_Module - AddInObject  - an instance of the add-in;
-//                         - FixedMap of KeyAndValue -  
-//                           :
+//                         - FixedMap of KeyAndValue - Add-in object instances stored in 
+//                           AttachmentParameters.ObjectsCreationIDs:
 //                             ** Key - String - the add-in ID;
 //                             ** Value - AddInObject - object instance.
 //    * ErrorDescription     - String - brief error message. Empty string on cancel by user.
@@ -1175,11 +1176,11 @@ Async Function AttachAddInFromTemplateAsync(Id, FullTemplateName,
 	Context.Id = Id;
 	Context.Location = FullTemplateName;
 	
-	Return Await CommonInternalClient.AttachExtAddInAsync(Context);
+	Return Await CommonInternalClient.AttachAddInSSLAsync(Context);
 	
 EndFunction
 
-
+// End ConnectedHardwareLibrary
 
 #EndRegion
 
@@ -1305,7 +1306,7 @@ EndProcedure
 Procedure GoToLink(Ref) Export
 	
 	#If ThickClientOrdinaryApplication Then
-		// Platform design feature: GotoURL is not supported by ordinary applications running in the thick client mode.
+		// 1C:Enterprise design aspect: GotoURL is not supported by ordinary applications running in the thick client mode.
 		Notification = New NotifyDescription;
 		BeginRunningApplication(Notification, Ref);
 	#Else
@@ -1392,8 +1393,8 @@ Procedure CheckFileSystemExtensionAttached(OnCloseNotifyDescription, Val Suggest
 	
 EndProcedure
 
-// Deprecated.
-// 
+// Deprecated. Instead, use FileSystemClient.AttachFileOperationsExtension
+// Returns the value of the "Suggest file system extension installation" user setting.
 //
 // Returns:
 //  Boolean - True if the installation is suggested.
@@ -1412,7 +1413,7 @@ EndFunction
 // Prevents executable files from opening.
 //
 // Parameters:
-//  PathToFile - String - 
+//  PathToFile - String - Full path to the file to open.
 //  Notification - NotifyDescription - notification on file open attempt.
 //      If the notification is not specified and an error occurs, the method shows a warning:
 //      * ApplicationStarted - Boolean - True if the external application opened successfully.
@@ -1455,14 +1456,14 @@ Procedure OpenExplorer(PathToDirectoryOrFile) Export
 	
 EndProcedure
 
-// Deprecated.
-// 
+// Deprecated. Use FileSystemClient.OpenURL instead.
+// Opens a URL in an application associated with URL protocol.
 //
-// 
+// Valid protocols: HTTP, HTTPS, E1C, V8HELP, MAILTO, TEL, SKYPE.
 //
-// 
-//  See OpenExplorer.
-//  See OpenFileInViewer.
+// Do not use the FILE:// protocol to open the Explorer or a file.
+// - To Open Explorer, See OpenExplorer.
+// - To open a file in the associated application, See OpenFileInViewer.
 //
 // Parameters:
 //  URL - String - a link to open.

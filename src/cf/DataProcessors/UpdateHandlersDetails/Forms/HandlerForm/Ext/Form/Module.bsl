@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -1335,7 +1336,7 @@ Function MetadataObjectAttributes1(ObjectName)
 		
 		For Each Attribute In Collection.Value Do
 			FullAttributeName = FullObjectName + "." + EdH[Collection.Key];
-			
+			// 
 			For Each Type In Attribute.Type.Types() Do
 				// If at least one reference type is found.
 				If Common.IsReference(Type) Then // Add it to the list.

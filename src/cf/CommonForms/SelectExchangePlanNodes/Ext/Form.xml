@@ -27,7 +27,13 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.Select</CommandName>
-				<ExtendedTooltip name="FormSelectExtendedTooltip" id="28"/>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Select</v8:content>
+					</v8:item>
+				</Title>
+				<ExtendedTooltip name="FormChooseExtendedTooltip" id="28"/>
 			</Button>
 			<ButtonGroup name="NodesListCommands" id="27">
 				<Title>
@@ -108,6 +114,12 @@
 			<ChildItems>
 				<InputField name="ExchangePlansNodesExchangePlanPresentation" id="23">
 					<DataPath>ExchangePlansNodes.ExchangePlanPresentation</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Application</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<Width>40</Width>
 					<ContextMenu name="ExchangePlansNodesExchangePlanPresentationContextMenu" id="24"/>
@@ -115,6 +127,12 @@
 				</InputField>
 				<InputField name="ExchangePlansNodesNodePresentation" id="25">
 					<DataPath>ExchangePlansNodes.NodePresentation</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Infobase</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<Width>40</Width>
 					<ContextMenu name="ExchangePlansNodesNodePresentationContextMenu" id="26"/>
@@ -218,6 +236,16 @@
 		<Parameter name="CurrentRow">
 			<Type>
 				<v8:TypeSet>cfg:ExchangePlanRef</v8:TypeSet>
+			</Type>
+		</Parameter>
+		<Parameter name="CloseOnChoice">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="MultipleChoice">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Parameter>
 	</Parameters>

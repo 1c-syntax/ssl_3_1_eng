@@ -14,6 +14,12 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.Select</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Select</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="OriginalStatesListSelectExtendedTooltip" id="18"/>
 			</Button>
 			<ButtonGroup name="SelectClearAllDocumentKindGroup" id="26">
@@ -28,11 +34,23 @@
 					<Button name="SelectAllCheckBoxes" id="22">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.SelectAllCheckBoxes</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Select all</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="SelectAllCheckBoxesExtendedTooltip" id="23"/>
 					</Button>
 					<Button name="ClearAllCheckBoxes" id="24">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.ClearAllCheckBoxes</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Clear all</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="ClearAllCheckBoxesExtendedTooltip" id="25"/>
 					</Button>
 				</ChildItems>
@@ -186,4 +204,11 @@
 			<AssociatedTableElementId xsi:type="xs:string">OriginalStatesList</AssociatedTableElementId>
 		</Command>
 	</Commands>
+	<Parameters>
+		<Parameter name="StatesList">
+			<Type>
+				<v8:Type>v8:ValueListType</v8:Type>
+			</Type>
+		</Parameter>
+	</Parameters>
 </Form>

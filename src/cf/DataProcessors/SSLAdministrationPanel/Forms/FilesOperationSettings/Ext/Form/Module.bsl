@@ -1,14 +1,15 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
-
-
+// 
+// 
 
 #Region Variables
 
@@ -67,6 +68,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.TextFilesExtensionsList.TitleLocation = FormItemTitleLocation.Top;
 		Items.FilesExtensionsListDocumentDataAreas.TitleLocation = FormItemTitleLocation.Top;
 		
+	EndIf;
+	
+	If Common.DataSeparationEnabled() Or IsDeduplicationCompleted() Then
+		Items.GroupDeduplication.Visible = False;
 	EndIf;
 	
 EndProcedure
@@ -192,7 +197,7 @@ Procedure MaxDataAreaFileSizeOnChange(Item)
 	
 	If MaxDataAreaFileSize = 0 Then
 		
-		MessageText = NStr("en = 'Please specify File size limit.';");
+		MessageText = NStr("en = 'File size limit is required.';");
 		CommonClient.MessageToUser(MessageText, ,"MaxDataAreaFileSize");
 		Return;
 		
@@ -217,14 +222,14 @@ Procedure TestFilesExtensionsListOnChange(Item)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure MaxFileSizeOnChange(Item)
 	
 	If MaxFileSize = 0 Then
 		
-		MessageText = NStr("en = 'Please specify File size limit.';");
+		MessageText = NStr("en = 'File size limit is required.';");
 		CommonClient.MessageToUser(MessageText, ,"MaxFileSize");
 		Return;
 		
@@ -280,6 +285,31 @@ Procedure FileTransfer(Command)
 	
 EndProcedure
 
+&AtClient
+Async Procedure StartDeduplication(Command)
+	
+	QuestionTitle = NStr("en = 'File deduplication';");
+	QuestionTemplate = NStr("en = 'With file deduplication, you can save up to 30% of infobase space by removing duplicate files stored in the application (the ""Infobase"" storage option). The process takes from minutes to hours, depending on the number of files, and can be paused and resumed at any time. All newly added files are automatically stored as a single instance.
+	 |
+	 |During deduplication, the infobase size may increase significantly. Therefore, before initiating the process, ensure that the device hosting the infobase has at least %1 MB of free space and back up the infobase. After completion, compress the infobase for the deduplication to take effect.
+	 |
+	 |Do you want to start file deduplication?';");
+	QueryText = StringFunctionsClientServer.SubstituteParametersToString(QuestionTemplate, FilesSizeInInfobase());
+	Response = Await DoQueryBoxAsync(QueryText, QuestionDialogMode.YesNo, , DialogReturnCode.No, QuestionTitle);
+	If Response <> DialogReturnCode.Yes Then
+		Return;
+	EndIf;
+	
+	TimeConsumingOperation = StartDeduplicationAtServer();
+	CallbackOnCompletion = New NotifyDescription("FinishDeduplication", ThisObject);
+	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
+	IdleParameters.Title = NStr("en = 'Deduplicating files';");
+	IdleParameters.OutputProgressBar = True;
+	IdleParameters.CancelButtonTitle = NStr("en = 'Cancel';");
+	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
+		
+EndProcedure
+
 #EndRegion
 
 #Region Private
@@ -296,7 +326,7 @@ Procedure FilesStorageMethodOnChangeCompletion(Response, Item) Export
 			And ConstantsSet.StoreFilesInVolumesOnHardDrive
 			And Not HasFileStorageVolumes() Then
 			
-			ShowMessageBox(, NStr("en = 'Storing files to the hard disk drive is enabled but the volumes are not configured.
+			ShowMessageBox(, NStr("en = 'Storing files to the file server is enabled but the volumes are not configured.
 				|Files will be saved to the infobase until at least one file storage volume is configured.';"));
 		EndIf;
 		
@@ -506,6 +536,69 @@ EndFunction
 Function HasFileStorageVolumes()
 	
 	Return FilesOperationsInVolumesInternal.HasFileStorageVolumes();
+	
+EndFunction
+
+&AtServer
+Function StartDeduplicationAtServer()
+	
+	Return TimeConsumingOperations.ExecuteProcedure(, "InformationRegisters.FileRepository.TransferData_", True);
+	
+EndFunction
+
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
+&AtClient
+Procedure FinishDeduplication(Result, AdditionalParameters) Export
+	
+	If Result = Undefined Then
+		ShowMessageBox(, NStr("en = 'Deduplication has been paused and can be resumed later.';"));
+		Return;
+	EndIf;
+	
+	If Result.Status = "Error" Then
+		StandardSubsystemsClient.OutputErrorInfo(
+			Result.ErrorInfo);
+		Return;
+	EndIf;
+	
+	If IsDeduplicationCompleted() Then
+		Items.GroupDeduplication.Visible = False;
+		ShowMessageBox(, NStr("en = 'File deduplication is completed.';"));
+	Else
+		ShowMessageBox(, NStr("en = 'Some files have not been processed. Start again.';"));
+	EndIf;
+EndProcedure 
+
+&AtServerNoContext
+Function IsDeduplicationCompleted()
+	
+	Query = New Query;
+	Query.Text = 
+	"SELECT TOP 1
+	|	TRUE AS Validation
+	|FROM
+	|	InformationRegister.DeleteFilesBinaryData AS DeleteFilesBinaryData";
+	
+	Return Query.Execute().IsEmpty();
+	
+EndFunction
+
+&AtServerNoContext
+Function FilesSizeInInfobase()
+	
+	IncludeObjects = New Array();
+	IncludeObjects.Add(Metadata.InformationRegisters.DeleteFilesBinaryData);
+	FilesSizeMB = GetDatabaseDataSize(, IncludeObjects) / 1024 / 1024;
+	If FilesSizeMB > 100 Then
+		FilesSizeMB = Round(FilesSizeMB, 0);
+	Else
+		FilesSizeMB = Round(FilesSizeMB, 2);
+	EndIf;
+	
+	Return FilesSizeMB;
 	
 EndFunction
 

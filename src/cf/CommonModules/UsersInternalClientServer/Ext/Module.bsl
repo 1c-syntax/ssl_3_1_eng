@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -110,15 +111,15 @@ Procedure UpdateLifetimeRestriction(Form) Export
 	TitleWithRestriction = "";
 	
 	If Form.UnlimitedValidityPeriod Then
-		TitleWithRestriction = NStr("en = 'Sign-in allowed (no time limit)';");
+		TitleWithRestriction = NStr("en = 'Login allowed (no time limit)';");
 		
 	ElsIf ValueIsFilled(Form.ValidityPeriod) Then
-		TitleWithRestriction = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Sign-in allowed (till %1)';"),
+		TitleWithRestriction = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Login allowed (till %1)';"),
 			Format(Form.ValidityPeriod, "DLF=D"));
 			
 	ElsIf ValueIsFilled(Form.InactivityPeriodBeforeDenyingAuthorization) Then
 		TitleWithRestriction = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Sign-in allowed (revoke access after inactivity of %1)';"),
+			NStr("en = 'Login allowed (revoke access after inactivity of %1)';"),
 			Format(Form.InactivityPeriodBeforeDenyingAuthorization, "NG=") + " "
 				+ IntegerSubject(Form.InactivityPeriodBeforeDenyingAuthorization,
 					"", NStr("en = 'day,days,,,0';")));

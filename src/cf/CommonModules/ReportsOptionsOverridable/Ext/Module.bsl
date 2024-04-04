@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -137,7 +138,7 @@ EndProcedure
 //           If True and the report is attached to the general ReportForm form,
 //           then the procedure must be defined in the report object module according to the following template::
 //               
-//               Set the report form settings.
+//               Set report form settings.
 //               //
 //               
 //               Parameters:

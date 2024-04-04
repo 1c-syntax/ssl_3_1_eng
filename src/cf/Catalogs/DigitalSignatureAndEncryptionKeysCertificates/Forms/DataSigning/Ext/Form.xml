@@ -66,6 +66,12 @@
 			<ChildItems>
 				<InputField name="SignatureType" id="477">
 					<DataPath>SignatureType</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Signature type</v8:content>
+						</v8:item>
+					</Title>
 					<ToolTipRepresentation>Button</ToolTipRepresentation>
 					<ListChoiceMode>true</ListChoiceMode>
 					<TextEdit>false</TextEdit>
@@ -120,6 +126,12 @@
 							<ChildItems>
 								<InputField name="Certificate" id="313">
 									<DataPath>Certificate</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Certificate</v8:content>
+										</v8:item>
+									</Title>
 									<AutoMaxWidth>false</AutoMaxWidth>
 									<DropListButton>false</DropListButton>
 									<ChoiceButton>true</ChoiceButton>
@@ -196,7 +208,7 @@
 											<Title formatted="false">
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>The certificate is marked in the application as revoked. Please select another certificate.</v8:content>
+													<v8:content>The certificate is marked as revoked. Please select another certificate.</v8:content>
 												</v8:item>
 											</Title>
 											<ContextMenu name="DecorationRecalledLabelContextMenu" id="486"/>
@@ -219,13 +231,26 @@
 									<ChildItems>
 										<InputField name="Password" id="316">
 											<DataPath>Password</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Password</v8:content>
+												</v8:item>
+											</Title>
 											<HorizontalStretch>false</HorizontalStretch>
 											<Wrap>false</Wrap>
 											<PasswordMode>true</PasswordMode>
+											<ChoiceButton>true</ChoiceButton>
+											<EditTextUpdate>OnValueChange</EditTextUpdate>
+											<ChoiceButtonPicture>
+												<xr:Ref>CommonPicture.CharsBeingTypedShown</xr:Ref>
+												<xr:LoadTransparent>false</xr:LoadTransparent>
+											</ChoiceButtonPicture>
 											<ContextMenu name="PasswordContextMenu" id="317"/>
 											<ExtendedTooltip name="PasswordExtendedTooltip" id="318"/>
 											<Events>
 												<Event name="OnChange">PasswordOnChange</Event>
+												<Event name="StartChoice">PasswordStartChoice</Event>
 											</Events>
 										</InputField>
 										<CheckBoxField name="RememberPassword" id="324">
@@ -241,7 +266,7 @@
 											<ToolTip>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Remember certificate password before closing the application. When the check box is cleared, the password is erased from memory if it was remembered earlier.</v8:content>
+													<v8:content>Remember the certificate password before closing the app. When the check box is cleared, the stored password will be forgotten.</v8:content>
 												</v8:item>
 											</ToolTip>
 											<ToolTipRepresentation>Button</ToolTipRepresentation>
@@ -321,7 +346,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Group Letter of authority</v8:content>
+									<v8:content>Letter of authority</v8:content>
 								</v8:item>
 							</Title>
 							<Representation>NormalSeparation</Representation>
@@ -350,6 +375,12 @@
 											<ChildItems>
 												<CheckBoxField name="ByLetterOfAuthority1" id="515">
 													<DataPath>ByLetterOfAuthority</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Under letter of authority</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>Right</TitleLocation>
 													<GroupVerticalAlign>Center</GroupVerticalAlign>
 													<CheckBoxType>Auto</CheckBoxType>
@@ -396,6 +427,12 @@
 												</CheckBoxField>
 												<InputField name="MachineReadableLetterOfAuthority" id="501">
 													<DataPath>MachineReadableLetterOfAuthority</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Machine-readable letter of authority</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>None</TitleLocation>
 													<AutoMaxWidth>false</AutoMaxWidth>
 													<DropListButton>true</DropListButton>
@@ -512,6 +549,12 @@
 							<Type>CommandBarButton</Type>
 							<DefaultButton>true</DefaultButton>
 							<CommandName>Form.Command.Sign</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Sign</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="SignExtendedTooltip" id="463"/>
 						</Button>
 						<Button name="Cancel" id="464">
@@ -744,7 +787,7 @@
 				</v8:StringQualifiers>
 			</Type>
 		</Attribute>
-		<Attribute name="MRLOAVerificationResultForSigning" id="29">
+		<Attribute name="MachineReadableSigningLOACheckResult" id="29">
 			<Type/>
 		</Attribute>
 	</Attributes>

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -212,10 +213,10 @@ EndFunction
 //
 Procedure FillInTheLanguageSubmenu(Form, CurrentLanguage = Undefined, Val Filter = Undefined) Export
 	
-	UseRegionalLanguageRepresentations = True; 
+	UseRegionalLanguageRepresentations = True; // For a print form.
 	If Filter = Undefined Then
 		Filter = AvailableLanguages();
-		UseRegionalLanguageRepresentations = False; 
+		UseRegionalLanguageRepresentations = False; // For an edit form.
 	EndIf;
 	
 	If Not ValueIsFilled(CurrentLanguage) Then
@@ -243,13 +244,13 @@ Procedure FillInTheLanguageSubmenu(Form, CurrentLanguage = Undefined, Val Filter
 	Form.CurrentLanguage = CurrentLanguage;
 	AvailableLanguages = AvailableLanguages(UseRegionalLanguageRepresentations);
 		
-	IsEditorForm = StrStartsWith(Form.FormName, "CommonForm.Edit");		
+	IsEditorForm = StrStartsWith(Form.FormName, "CommonForm.Edit");
+	PlaceMoreInSubmenu = Items.Find("LanguageAllActions") <> Undefined;
 		
 	IsMobileClient = Common.IsMobileClient();
 	If Not IsMobileClient Then
 		
 		If IsEditorForm Then
-			Items.Language.Title = "";
 			If ValueIsFilled(Form.IdentifierOfTemplate) Then
 				LayoutLanguages = LayoutLanguages(Form.IdentifierOfTemplate);
 			ElsIf ValueIsFilled(Form.IDOfTemplateBeingCopied) Then
@@ -260,11 +261,14 @@ Procedure FillInTheLanguageSubmenu(Form, CurrentLanguage = Undefined, Val Filter
 			EndIf;
 			Form.TemplateSavedLangs.LoadValues(LayoutLanguages);
 		ElsIf StrStartsWith(Form.FormName, "CommonForm.PrintDocuments") Then
-			Items.Language.Title = "";
 			LayoutLanguages = New Array(New FixedArray(AvailableLanguages));
 		Else
-			Items.Language.Title = "";
 			LayoutLanguages = New Array;
+		EndIf;                   
+		
+		Items.Language.Title = "";
+		If PlaceMoreInSubmenu Then
+			Items.LanguageAllActions.Title = Items.Language.Title;
 		EndIf;
 	EndIf;
 	
@@ -277,6 +281,9 @@ Procedure FillInTheLanguageSubmenu(Form, CurrentLanguage = Undefined, Val Filter
 		LanguagePresentation = LanguagePresentation(LocalizationCode);
 		If Not ValueIsFilled(Items.Language.Title) And LanguageCode = CurrentLanguage Then
 			Items.Language.Title = LanguagePresentation;
+			If PlaceMoreInSubmenu Then
+				Items.LanguageAllActions.Title = Items.Language.Title;
+			EndIf;
 		EndIf;
 		
 		Command = Commands.Add("Language_" + LocalizationCode);
@@ -294,6 +301,16 @@ Procedure FillInTheLanguageSubmenu(Form, CurrentLanguage = Undefined, Val Filter
 			ButtonLocationInCommandBar.InAdditionalSubmenu, ButtonLocationInCommandBar.InCommandBar);
 		FormButton.Visible = TemplateInCurrLang Or Not IsEditorForm;
 		
+		If PlaceMoreInSubmenu And Not IsMobileClient Then
+			FormButton = Items.Add(Command.Name+"AllActions", Type("FormButton"), Items.LanguageAllActions);
+			FormButton.Type = FormButtonType.CommandBarButton;
+			FormButton.Check = LanguageCode = CurrentLanguage;
+			FormButton.CommandName = Command.Name;
+			FormButton.Title = LanguagePresentation;
+			FormButton.LocationInCommandBar = ButtonLocationInCommandBar.InAdditionalSubmenu;
+			FormButton.Visible = TemplateInCurrLang Or Not IsEditorForm;
+		EndIf;
+		
 		If IsEditorForm Then
 			Command = Commands.Add("AddLanguage_" + LocalizationCode);
 			Command.Action = "Attachable_SwitchLanguage";
@@ -306,6 +323,16 @@ Procedure FillInTheLanguageSubmenu(Form, CurrentLanguage = Undefined, Val Filter
 			FormButton.LocationInCommandBar= ?(IsMobileClient, 
 			ButtonLocationInCommandBar.InAdditionalSubmenu, ButtonLocationInCommandBar.InCommandBar);
 			FormButton.Visible = Not TemplateInCurrLang;
+			
+			If PlaceMoreInSubmenu And Not IsMobileClient Then
+				FormButton = Items.Add(Command.Name+"AllActions", Type("FormButton"), Items.LanguagesToAddAllActions);
+				FormButton.Type = FormButtonType.CommandBarButton;
+				FormButton.CommandName = Command.Name;
+				FormButton.Title = NStr("en = 'Add:';") + " " + LanguagePresentation;
+				FormButton.LocationInCommandBar = ButtonLocationInCommandBar.InAdditionalSubmenu;
+				FormButton.Visible = Not TemplateInCurrLang;
+			EndIf;
+			
 		EndIf;
 	EndDo;
 	
@@ -358,7 +385,7 @@ Procedure OnDefinePrintDataSources(Object, PrintDataSources) Export
 		MetadataObject = Common.MetadataObjectByFullName(MetadataObjectName);
 		
 		MultilingualObjectAttributes = NationalLanguageSupportServer.MultilingualObjectAttributes(MetadataObject);
-		If MultilingualObjectAttributes[AttributeName] = True Then
+		If MultilingualObjectAttributes[AttributeName] <> Undefined Then
 			PrintDataSources.Add(SchemaDataPrintingMultilanguageRequisites(), "DataPrintMultilingualRequisites");
 		EndIf;
 	EndIf;

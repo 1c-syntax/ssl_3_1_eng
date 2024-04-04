@@ -11,6 +11,12 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.WriteAndClose</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save and close</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormWriteAndCloseExtendedTooltip" id="209"/>
 			</Button>
 			<Button name="FormWrite" id="217">
@@ -32,11 +38,23 @@
 			<Button name="FormCheckSettings" id="265">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.CheckSettings</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Test settings</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormCheckSettingsExtendedTooltip" id="266"/>
 			</Button>
 			<Button name="FormOpenSetupWizard" id="272">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.SetupWizard</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Reconfigure…</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormOpenSetupWizardExtendedTooltip" id="273"/>
 			</Button>
 			<Button name="FormHelp" id="212">
@@ -312,6 +330,12 @@
 				</InputField>
 				<RadioButtonField name="AuthenticationMethodMailService" id="296" DisplayImportance="VeryHigh">
 					<DataPath>AuthenticationMethod</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Authentication method</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<RadioButtonType>RadioButtons</RadioButtonType>
 					<ChoiceList>
@@ -349,6 +373,12 @@
 					<ChildItems>
 						<RadioButtonField name="AuthenticationPassword" id="280" DisplayImportance="VeryHigh">
 							<DataPath>AuthenticationMethod</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Authentication method</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<RadioButtonType>RadioButtons</RadioButtonType>
 							<ChoiceList>
@@ -374,6 +404,12 @@
 						</RadioButtonField>
 						<InputField name="Password" id="105" DisplayImportance="VeryHigh">
 							<DataPath>Password</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Password</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<HorizontalStretch>false</HorizontalStretch>
 							<PasswordMode>true</PasswordMode>
@@ -435,6 +471,12 @@
 							<ChildItems>
 								<CheckBoxField name="DeleteMailFromServer" id="214">
 									<DataPath>DeleteMailFromServer</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Delete messages from server after:</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>Right</TitleLocation>
 									<CheckBoxType>Auto</CheckBoxType>
 									<ContextMenu name="DeleteMailFromServerContextMenu" id="215"/>
@@ -523,6 +565,12 @@
 						</InputField>
 						<RadioButtonField name="EncryptOnReceiveMail" id="260">
 							<DataPath>EncryptOnReceiveMail</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Encryption</v8:content>
+								</v8:item>
+							</Title>
 							<RadioButtonType>Auto</RadioButtonType>
 							<ChoiceList>
 								<xr:Item>
@@ -601,6 +649,12 @@
 						</InputField>
 						<RadioButtonField name="EncryptOnSendMail" id="255">
 							<DataPath>EncryptOnSendMail</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Encryption</v8:content>
+								</v8:item>
+							</Title>
 							<RadioButtonType>Auto</RadioButtonType>
 							<ChoiceList>
 								<xr:Item>
@@ -713,6 +767,12 @@ create a rule to filter BCC to a special folder.</v8:content>
 										</PictureDecoration>
 										<RadioButtonField name="AuthorizationMethodOnSendMail" id="238">
 											<DataPath>AuthorizationMethodOnSendMail</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Outgoing mail authentication method</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<RadioButtonType>Auto</RadioButtonType>
 											<ColumnsCount>1</ColumnsCount>

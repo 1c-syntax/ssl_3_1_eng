@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -20,21 +21,18 @@ Var RefreshInterface;
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not SafeModeManagerInternal.SecurityProfilesUsageAvailable() Then
-		Raise NStr("en = 'Warning! Use of security profiles is not available for this configuration';");
+		Raise NStr("en = 'Security profiles are unavailable';");
 	EndIf;
 	
 	If Not SafeModeManagerInternal.CanSetUpSecurityProfiles() Then
-		Raise NStr("en = 'Warning! Setting of security profiles is unavailable.';");
+		Raise NStr("en = 'Setting of security profiles is unavailable.';");
 	EndIf;
 	
 	If Not Users.IsFullUser(, True) Then
-		Raise NStr("en = 'Insufficient access rights';");
+		Raise(NStr("en = 'Insufficient access rights.';"), ErrorCategory.AccessViolation);
 	EndIf;
 	
-	// Visibility settings at startup.
 	ReadSecurityProfilesUsageMode();
-	
-	// Update items states.
 	SetAvailability();
 	
 EndProcedure
@@ -175,17 +173,17 @@ Function CurrentSecurityProfilesUsageMode()
 		
 		If Constants.AutomaticallyConfigurePermissionsInSecurityProfiles.Get() Then
 			
-			Result = 2; 
+			Result = 2; // From the current infobase
 			
 		Else
 			
-			Result = 1; 
+			Result = 1; // Via the cluster console
 			
 		EndIf;
 		
 	Else
 		
-		Result = 0; 
+		Result = 0; // Obsolete
 		
 	EndIf;
 	

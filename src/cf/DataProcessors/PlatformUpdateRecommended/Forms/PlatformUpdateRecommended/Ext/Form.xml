@@ -17,11 +17,23 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.ExitApplication</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Exit</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormExitApplicationExtendedTooltip" id="26"/>
 			</Button>
 			<Button name="FormNo" id="8">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.Continue</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Skip update</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormNoExtendedTooltip" id="27"/>
 			</Button>
 		</ChildItems>
@@ -51,8 +63,8 @@
 						</v8:item>
 					</Title>
 					<Picture>
-						<xr:Ref>CommonPicture.Warning32</xr:Ref>
-						<xr:LoadTransparent>false</xr:LoadTransparent>
+						<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</Picture>
 					<FileDragMode>AsFile</FileDragMode>
 					<ContextMenu name="WarningPictureContextMenu" id="17"/>
@@ -81,7 +93,7 @@
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="VersionGroup1ExtendedTooltip" id="31"/>
+							<ExtendedTooltip name="VersionGroupExtendedTooltip" id="31"/>
 							<ChildItems>
 								<LabelDecoration name="Version" id="19">
 									<AutoMaxWidth>false</AutoMaxWidth>
@@ -89,8 +101,8 @@
 									<Title formatted="false">
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>For the proper functioning of the application, 1C:Enterprise version %2 or later is %1.
-Current version: %3.</v8:content>
+											<v8:content>The app requires 1C:Enterprise version %1 or later.
+Current version is %2.</v8:content>
 										</v8:item>
 									</Title>
 									<VerticalAlign>Top</VerticalAlign>

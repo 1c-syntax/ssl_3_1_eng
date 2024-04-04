@@ -36,7 +36,7 @@
 						<v8:content>OK</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="OKButtonExtendedTooltip" id="39"/>
+				<ExtendedTooltip name="OKButton1ExtendedTooltip" id="39"/>
 			</Button>
 			<Button name="CloseButton" id="21">
 				<Type>CommandBarButton</Type>
@@ -153,7 +153,7 @@
 				</v8:item>
 			</Title>
 			<PagesRepresentation>None</PagesRepresentation>
-			<ExtendedTooltip name="InformationPanel1ExtendedTooltip" id="45"/>
+			<ExtendedTooltip name="InfoPanelExtendedTooltip" id="45"/>
 			<ChildItems>
 				<Page name="AutomaticRollback" id="7">
 					<Title>
@@ -191,7 +191,7 @@ the update will be rolled back.</v8:content>
 					</Title>
 					<ExtendedTooltip name="ManualRollbackExtendedTooltip" id="48"/>
 					<ChildItems>
-						<UsualGroup name="GroupRestoreInformationBase" id="24">
+						<UsualGroup name="GroupRestoreInfobase" id="24">
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -202,7 +202,7 @@ the update will be rolled back.</v8:content>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="GroupRestoreInformationBaseExtendedTooltip" id="49"/>
+							<ExtendedTooltip name="GroupRestoreInfobaseExtendedTooltip" id="49"/>
 							<ChildItems>
 								<CheckBoxField name="RestoreInfobase" id="22">
 									<DataPath>Object.RestoreInfobase</DataPath>
@@ -258,7 +258,7 @@ the update will be rolled back.</v8:content>
 												</v8:item>
 											</Title>
 											<Group>HorizontalIfPossible</Group>
-											<ExtendedTooltip name="DontRestoreExtendedTooltip" id="54"/>
+											<ExtendedTooltip name="NotRestoreExtendedTooltip" id="54"/>
 											<ChildItems>
 												<LabelDecoration name="DoNotRestoreLabel" id="28">
 													<AutoMaxWidth>false</AutoMaxWidth>

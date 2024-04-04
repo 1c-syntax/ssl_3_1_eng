@@ -9,11 +9,23 @@
 			<Button name="FormRegisterEverything" id="31">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.RegisterEverything</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Register all</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormRegisterEverythingExtendedTooltip" id="32"/>
 			</Button>
 			<Button name="FormRegisterSelected" id="33">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.RegisterSelected</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Register selected</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormRegisterSelectedExtendedTooltip" id="34"/>
 			</Button>
 		</ChildItems>

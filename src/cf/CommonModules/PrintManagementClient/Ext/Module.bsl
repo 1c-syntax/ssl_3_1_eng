@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -28,20 +29,24 @@ Procedure ExecutePrintCommand(PrintManagerName, TemplatesNames, ObjectsArray, Fo
 		Return;
 	EndIf;
 	
+	ParameterName = "StandardSubsystems.Print.ExecutePrintCommand";
+	PassedParametersList = ApplicationParameters[ParameterName];
+	
+	If PassedParametersList = Undefined Then
+		PassedParametersList = New Array;
+		ApplicationParameters[ParameterName] = PassedParametersList;
+	EndIf;
+	
 	OpeningParameters = PrintManagementInternalClient.ParametersForOpeningPrintForm();
 	OpeningParameters.PrintManagerName = PrintManagerName;
-	OpeningParameters.TemplatesNames		 = TemplatesNames;
-	OpeningParameters.CommandParameter	 = ObjectsArray;
-	OpeningParameters.PrintParameters	 = PrintParameters;
+	OpeningParameters.TemplatesNames = TemplatesNames;
+	OpeningParameters.CommandParameter = ObjectsArray;
+	OpeningParameters.PrintParameters = PrintParameters;
+	OpeningParameters.FormOwner = FormOwner;
 	
-	If TypeOf(PrintParameters) = Type("Structure")
-		And PrintParameters.Property("RunInBackground")
-		And PrintParameters.RunInBackground = True Then
-		
-		ExecutePrintCommandInBackground(FormOwner, OpeningParameters);
-	Else
-		OpenForm("CommonForm.PrintDocuments", OpeningParameters, FormOwner, String(New UUID));
-	EndIf;
+	PassedParametersList.Add(OpeningParameters);
+	
+	AttachIdleHandler("ResumePrintCommandWithPassedParameters", 0.1, True);
 	
 EndProcedure
 
@@ -173,7 +178,7 @@ Procedure PrintDocuments(PrintFormsCollection, Val PrintObjects = Undefined,
 		FormOwner = PrintParameters.FormOwner;
 		PrintParameters.Delete("FormOwner");
 	ElsIf TypeOf(AdditionalParameters) = Type("ClientApplicationForm") Then 
-		FormOwner = AdditionalParameters; 
+		FormOwner = AdditionalParameters; // 
 	EndIf;
 	
 	If PrintObjects = Undefined Then
@@ -209,9 +214,9 @@ Function PrintParameters() Export
 	
 EndFunction
 
-// 
+// Constructor of the PrintFormsCollection parameter for procedures and functions in this module.
 // See PrintDocuments
-// See PrintFormDetails
+// See PrintFormDetails.
 //
 // Parameters:
 //  IDs - String - Print form IDs.
@@ -455,7 +460,6 @@ EndFunction
 //	
 //						
 //						
-//	 (см. ниже)
 //	
 //							
 ////////////////////////////////////////////////////////////////////////////////
@@ -490,7 +494,7 @@ EndFunction
 Function InitializePrintForm(Val DocumentType, Val TemplatePagesSettings = Undefined, Template = Undefined) Export
 	
 	If Upper(DocumentType) = "DOC" Then
-		Parameter = ?(Template = Undefined, TemplatePagesSettings, Template); 
+		Parameter = ?(Template = Undefined, TemplatePagesSettings, Template); // For backward compatibility purposes.
 		PrintForm = PrintManagementMSWordClient.InitializeMSWordPrintForm(Parameter);
 		PrintForm.Insert("Type", "DOC");
 		PrintForm.Insert("LastOutputArea", Undefined);
@@ -594,8 +598,8 @@ Procedure ShowDocument(Val PrintForm) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
-
+// 
+// 
 
 // Deprecated. Obsolete. Use PrintManagement.TemplateArea.
 //
@@ -896,6 +900,7 @@ Procedure SwitchLanguage(Form, Command) Export
 	FormButton = Form.Items[Command.Name]; // FormButton
 	Parameters.Insert("Title", Form.Items["Language_"+TheSelectedLanguage].Title);
 	Parameters.Insert("FormButton", FormButton);
+	Parameters.Insert("AllActionsFormButton", Form.Items.Find(Command.Name+"AllActions"));
 	
 	If Form.Modified Then
 		NotifyDescription = New NotifyDescription("WhenSwitchingTheLanguage", ThisObject, Parameters);
@@ -1001,10 +1006,14 @@ Procedure WhenSwitchingTheLanguage(Response, Parameters) Export
 	EndIf;
 	
 	Form = Parameters.Form; // ClientApplicationForm - 
+	Items = Form.Items;
 	TheSelectedLanguage = Parameters.TheSelectedLanguage;
 	Title = Parameters.Title;
-	Form.Items.Language.Title = Title;
+	ProcessSubmenuElementsMore = Parameters.AllActionsFormButton <> Undefined;
+	
+	Items.Language.Title = Title;
 	FormButton = Parameters.FormButton;
+	AllActionsFormButton = Parameters.AllActionsFormButton;
 	
 	IsEditorForm = StrStartsWith(Form.FormName, "CommonForm.Edit");
 	
@@ -1015,7 +1024,7 @@ Procedure WhenSwitchingTheLanguage(Response, Parameters) Export
 	LangSwitchFrom = Form.CurrentLanguage;
 	
 	Form.CurrentLanguage = TheSelectedLanguage;
-	MenuLang = Form.Items.Language;
+	MenuLang = Items.Language;
 	
 	For Each LangButton In MenuLang.ChildItems Do
 		If TypeOf(LangButton) = Type("FormButton") Then
@@ -1032,11 +1041,34 @@ Procedure WhenSwitchingTheLanguage(Response, Parameters) Export
 	Else
 		FormButton.Visible = False;
 	EndIf;
+	
+	If ProcessSubmenuElementsMore Then
+		Items.LanguageAllActions.Title = Title;
+		MenuLanguageAllActions = Items.LanguageAllActions;
+	
+		For Each LangButton In MenuLanguageAllActions.ChildItems Do
+			If TypeOf(LangButton) = Type("FormButton") Then
+				LangButton.Check = False;
+				If FormButton.CommandName = "Add"+LangButton.CommandName Then
+					LangButton.Visible = True;
+					LangButton.Check = True;
+				EndIf;
+			EndIf;
+		EndDo;
+		
+		If AllActionsFormButton.Parent = MenuLanguageAllActions Then
+			AllActionsFormButton.Check = True;
+		Else
+			AllActionsFormButton.Visible = False;
+		EndIf;
+
+	EndIf;
 
 	If IsEditorForm Then
 				
 		If Not IsTemplateCreated Then
-			LangsToAdd = Form.Items.LangsToAdd;
+			
+			LangsToAdd = Items.LangsToAdd;
 			For Each LangButton In LangsToAdd.ChildItems Do
 				If StrEndsWith(LangButton.Name, LangSwitchFrom) Then
 					LangButton.Visible = True;
@@ -1053,6 +1085,28 @@ Procedure WhenSwitchingTheLanguage(Response, Parameters) Export
 					EndIf;
 				EndIf;
 			EndDo;
+			
+			If ProcessSubmenuElementsMore Then
+				LanguagesToAddAllActions = Items.LanguagesToAddAllActions;
+				For Each LangButton In LanguagesToAddAllActions.ChildItems Do
+					If TypeOf(LangButton) = Type("FormButton") Then
+						If StrEndsWith(LangButton.CommandName, LangSwitchFrom) Then
+							LangButton.Visible = True;
+							Break;
+						EndIf;
+					EndIf;
+				EndDo;
+				
+				For Each LangButton In MenuLanguageAllActions.ChildItems Do
+					If TypeOf(LangButton) = Type("FormButton") Then
+						If StrEndsWith(LangButton.CommandName, LangSwitchFrom) Then
+							LangButton.Visible = False;
+							LangButton.Check = False;
+							Break;
+						EndIf;
+					EndIf;
+				EndDo;
+			EndIf;
 			
 		EndIf;
 	EndIf;
@@ -1080,23 +1134,6 @@ Procedure WhenCheckingTheExistenceOfAFile(Exists, PreparationParameters) Export
 	EndIf;
 	
 	PrepareFileNamesToSaveToADirectory(PreparationParameters);
-	
-EndProcedure
-
-Procedure ExecutePrintCommandInBackground(FormOwner, OpeningParameters)
-	
-	If FormOwner = Undefined Then
-		OpeningParameters.StorageUUID = New UUID;
-	Else
-		OpeningParameters.StorageUUID = FormOwner.UUID;
-	EndIf;
-	
-	TimeConsumingOperation = PrintManagementServerCall.StartGeneratingPrintForms(OpeningParameters);
-	OpeningParameters.FormOwner = FormOwner;
-	
-	CompletionNotification2 = New NotifyDescription("OpenPrintDocumentsForm", PrintManagementInternalClient, OpeningParameters);
-	IdleParameters = PrintManagementInternalClient.IdleParameters(FormOwner);
-	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CompletionNotification2, IdleParameters);
 	
 EndProcedure
 

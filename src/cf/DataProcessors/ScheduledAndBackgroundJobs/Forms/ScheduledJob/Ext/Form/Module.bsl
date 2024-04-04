@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -14,43 +15,38 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not Users.IsFullUser(, True) Then
 		Raise NStr("en = 'Insufficient access rights.
-		                             |
-		                             |Only administrators can change
-		                             |scheduled job settings.';");
+		                             |Only administrators can change scheduled job settings.';",
+			ErrorCategory.AccessViolation);
 	EndIf;
 	
 	Action = Parameters.Action;
-	
 	If StrFind(", Add, Copy, Change,", ", " + Action + ",") = 0 Then
-		
-		Raise NStr("en = 'Cannot open the ""Scheduled job"" form. Invalid opening parameters.';");
+		Raise NStr("en = 'Cannot open the ""Scheduled job"" form. Invalid opening parameters.';",
+			ErrorCategory.ConfigurationError);
 	EndIf;
 	
 	If Action = "Add" Then
 		
-		FilterParameters        = New Structure;
-		ParameterizedJobs = New Array;
+		ParameterizedJobs = New Map;
 		JobDependencies     = ScheduledJobsInternal.ScheduledJobsDependentOnFunctionalOptions();
 		
+		FilterParameters        = New Structure;
 		FilterParameters.Insert("IsParameterized", True);
 		SearchResult = JobDependencies.FindRows(FilterParameters);
 		
 		For Each TableRow In SearchResult Do
-			ParameterizedJobs.Add(TableRow.ScheduledJob);
+			ParameterizedJobs[TableRow.ScheduledJob] = True;
 		EndDo;
 		
 		Schedule = New JobSchedule;
 		
 		For Each ScheduledJobMetadata1 In Metadata.ScheduledJobs Do
-			If ParameterizedJobs.Find(ScheduledJobMetadata1) <> Undefined Then
+			If ParameterizedJobs[ScheduledJobMetadata1] <> Undefined Then
 				Continue;
 			EndIf;
 			
-			ScheduledJobMetadataDetailsCollection.Add(
-				ScheduledJobMetadata1.Name
-					+ Chars.LF
-					+ ScheduledJobMetadata1.Synonym
-					+ Chars.LF
+			ScheduledJobMetadataDetailsCollection.Add(ScheduledJobMetadata1.Name + Chars.LF
+					+ ScheduledJobMetadata1.Synonym + Chars.LF
 					+ ScheduledJobMetadata1.MethodName,
 				?(IsBlankString(ScheduledJobMetadata1.Synonym),
 				  ScheduledJobMetadata1.Name,
@@ -95,13 +91,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Id = NStr("en = '<will be generated automatically>';");
 		Use = False;
 		
-		Description = ?(
-			Action = "Add",
-			"",
-			ScheduledJobsInternal.ScheduledJobPresentation(Job));
+		Description = ?(Action = "Add", "", ScheduledJobsInternal.ScheduledJobPresentation(Job));
 	EndIf;
 	
-	
+	// Populate the choice list with usernames.
 	UsersArray = InfoBaseUsers.GetUsers(); // Array of InfoBaseUser
 	For Each User In UsersArray Do
 		Items.UserName.ChoiceList.Add(User.Name);

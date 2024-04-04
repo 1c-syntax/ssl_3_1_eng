@@ -286,6 +286,12 @@
 										<Button name="AdditionalAddressSettings" id="153">
 											<Type>Hyperlink</Type>
 											<CommandName>Form.Command.AdditionalAddressSettings</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Advanced address settings</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="AdditionalAddressSettingsExtendedTooltip" id="154"/>
 										</Button>
 									</ChildItems>
@@ -536,6 +542,12 @@
 				<Button name="FillIDForFormulas" id="176">
 					<Type>UsualButton</Type>
 					<CommandName>Form.Command.FillIDForFormulas</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Fill in ID for formulas</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="FillIDForFormulasExtendedTooltip" id="177"/>
 				</Button>
 			</ChildItems>

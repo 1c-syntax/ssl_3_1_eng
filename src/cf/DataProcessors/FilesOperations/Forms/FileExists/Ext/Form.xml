@@ -23,18 +23,36 @@
 				<Type>CommandBarButton</Type>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.Overwrite</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Overwrite</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="OverwriteExtendedTooltip" id="9"/>
 			</Button>
 			<Button name="Ignore" id="7">
 				<Type>CommandBarButton</Type>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.Ignore</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Ignore</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="IgnoreExtendedTooltip" id="10"/>
 			</Button>
 			<Button name="Abort" id="8">
 				<Type>CommandBarButton</Type>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.Abort</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Cancel</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="AbortExtendedTooltip" id="11"/>
 			</Button>
 		</ChildItems>
@@ -46,6 +64,12 @@
 	<ChildItems>
 		<LabelField name="MessageText" id="2">
 			<DataPath>MessageText</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Message body</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>None</TitleLocation>
 			<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 			<Width>50</Width>

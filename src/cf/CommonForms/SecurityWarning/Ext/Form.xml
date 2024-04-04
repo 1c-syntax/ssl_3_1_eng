@@ -22,8 +22,6 @@
 	</Events>
 	<ChildItems>
 		<PictureDecoration name="WarningPicture32" id="21">
-			<Width>4</Width>
-			<Height>2</Height>
 			<Title formatted="false">
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -31,8 +29,8 @@
 				</v8:item>
 			</Title>
 			<Picture>
-				<xr:Ref>CommonPicture.Warning32</xr:Ref>
-				<xr:LoadTransparent>false</xr:LoadTransparent>
+				<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+				<xr:LoadTransparent>true</xr:LoadTransparent>
 			</Picture>
 			<FileDragMode>AsFile</FileDragMode>
 			<ContextMenu name="WarningPicture32ContextMenu" id="22"/>
@@ -67,7 +65,7 @@
 and data processors from the &lt;b&gt;File - &lt;/&gt;&lt;b&gt;Open&lt;/&gt; menu.
 External report or data processor files from 
 untrusted sources
-can be harmful to your computer and data.
+can be harmful to your computer and application data.
 
 Instead of opening external reports and data processors, it is recommended that you use 
 &lt;link e1cib/list/Guide.Additional reportsreferences&gt;additional&lt;/&gt;&lt;link e1cib/list/Guide.Additional reportsreferences&gt; reports&lt;/&gt;&lt;link e1cib/list/Guide.Additional reportsreferences&gt; and data processors&lt;/&gt; and &lt;link e1cib/app/General form.Extensions&gt;extensions&lt;/&gt; from trusted sources.
@@ -92,11 +90,23 @@ See also: &lt;link http://1c.ru/news/info.jsp?id=21537&gt;Example of a virus in 
 									<Type>CommandBarButton</Type>
 									<DefaultButton>true</DefaultButton>
 									<CommandName>Form.Command.DenyOpeningExternalReportsAndDataProcessors</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Forbid external reports and data processors</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="DenyOpeningExternalReportsAndDataProcessorsExtendedTooltip" id="105"/>
 								</Button>
 								<Button name="Allow" id="64">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.AllowOpeningExternalReportsAndDataProcessors</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Allow</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="AllowExtendedTooltip" id="65"/>
 								</Button>
 							</ChildItems>
@@ -123,9 +133,10 @@ and data processors from the &lt;b&gt;File — &lt;/&gt;&lt;b&gt;Open&lt;/&gt; m
 You are encouraged to pay attention to the file sources.
 Do not open files from untrusted sources.
 
-Such files might be harmful to your computer and data. 
+Such files might be harmful to your computer and application data. 
 
-See also:&lt;link http://1c.ru/news/info.jsp?id=21537&gt;Example of a virus in an external data processor&lt;/&gt; (in Russian).</v8:content>
+See also: &lt;link http://1c.ru/news/info.jsp?id=21537&gt;Example of a virus in an external data processor&lt;/&gt; (in Russian).
+</v8:content>
 								</v8:item>
 							</Title>
 							<ContextMenu name="Label2ContextMenu" id="56"/>
@@ -144,6 +155,12 @@ See also:&lt;link http://1c.ru/news/info.jsp?id=21537&gt;Example of a virus in a
 								<Button name="IAgree" id="106">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.IAgree</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>OK</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="IAgreeExtendedTooltip" id="107"/>
 								</Button>
 							</ChildItems>
@@ -172,8 +189,8 @@ pay attention to their sources.
 If you are not sure that the file was obtained from a trusted source,
 refrain from attaching it.
 
-
-See also: &lt;link http://1c.ru/news/info.jsp?id=21537&gt;Example of a virus in an external data processor&lt;/&gt; (in Russian).</v8:content>
+See also: &lt;link http://1c.ru/news/info.jsp?id=21537&gt;Example of a virus in an external data processor&lt;/&gt; (in Russian).
+</v8:content>
 								</v8:item>
 							</Title>
 							<ContextMenu name="Label3ContextMenu" id="71"/>
@@ -192,6 +209,12 @@ See also: &lt;link http://1c.ru/news/info.jsp?id=21537&gt;Example of a virus in 
 								<Button name="Continue3" id="84">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.Continue</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Continue</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="Continue3ExtendedTooltip" id="85"/>
 								</Button>
 								<Button name="Cancel3" id="82">
@@ -243,6 +266,12 @@ See also: &lt;link http://1c.ru/news/info.jsp?id=21537&gt;Example of a virus in 
 								<Button name="Continue4" id="66">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.Continue</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Continue</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="Continue4ExtendedTooltip" id="67"/>
 								</Button>
 								<Button name="Cancel4" id="38">
@@ -300,6 +329,12 @@ See also: &lt;link http://1c.ru/news/info.jsp?id=21537&gt;Example of a virus in 
 								<Button name="Continue8" id="162">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.Continue</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Continue</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="Continue8ExtendedTooltip" id="163"/>
 								</Button>
 								<Button name="Cancel8" id="164">
@@ -350,6 +385,12 @@ See also: &lt;link http://1c.ru/news/info.jsp?id=21537&gt;Example of a virus in 
 								<Button name="Continue5" id="120">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.Continue</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Continue</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="Continue5ExtendedTooltip" id="121"/>
 								</Button>
 								<Button name="Cancel5" id="122">
@@ -400,6 +441,12 @@ See also: &lt;link http://1c.ru/news/info.jsp?id=21537&gt;Example of a virus in 
 								<Button name="Continue6" id="133">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.Continue</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Continue</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="Continue6ExtendedTooltip" id="134"/>
 								</Button>
 								<Button name="Cancel6" id="135">
@@ -459,6 +506,12 @@ See also: &lt;link http://1c.ru/news/info.jsp?id=21537&gt;Example of a virus in 
 								<Button name="Continue7" id="149">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.Continue</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Continue</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="Continue7ExtendedTooltip" id="150"/>
 								</Button>
 								<Button name="Cancel7" id="151">
@@ -510,6 +563,12 @@ See also: &lt;link http://1c.ru/news/info.jsp?id=21537&gt;Example of a virus in 
 								<Button name="Continue9" id="175">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.Continue</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Continue</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="Continue9ExtendedTooltip" id="176"/>
 								</Button>
 								<Button name="Cancel9" id="177">
@@ -746,8 +805,8 @@ before deleting the extension.</v8:content>
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>The extension you are about to detach stores its data in the infobase
-. If you detach the extension, the data will become unavailable, and some application data can become unavailable for editing.</v8:content>
+									<v8:content>The extension you are about to detach stores its data in the app.
+If you detach the extension, the data will become unavailable, and some app data can become unavailable for editing.</v8:content>
 								</v8:item>
 							</Title>
 							<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
@@ -882,7 +941,7 @@ before deleting the extension.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Deny opening external reports and data processors</v8:content>
+					<v8:content>Forbid external reports and data processors</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>

@@ -17,6 +17,12 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.OKButton</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>OK</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormOKButton1ExtendedTooltip" id="30"/>
 			</Button>
 			<Button name="FormCancel" id="29">
@@ -57,14 +63,26 @@
 					<ChildItems>
 						<InputField name="HTTPServer" id="4">
 							<DataPath>HTTPServer</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>HTTP</v8:content>
+								</v8:item>
+							</Title>
 							<ContextMenu name="ServerHTTPContextMenu" id="5"/>
-							<ExtendedTooltip name="ServerHTTPExtendedTooltip" id="35"/>
+							<ExtendedTooltip name="HTTPServerExtendedTooltip" id="35"/>
 							<Events>
 								<Event name="OnChange">HTTPServerOnChange</Event>
 							</Events>
 						</InputField>
 						<InputField name="HTTPPort" id="6">
 							<DataPath>HTTPPort</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Port</v8:content>
+								</v8:item>
+							</Title>
 							<EditFormat>
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -74,7 +92,7 @@
 							<MinValue xsi:type="xs:decimal">0</MinValue>
 							<MaxValue xsi:type="xs:decimal">65535</MaxValue>
 							<ContextMenu name="PortHTTPContextMenu" id="7"/>
-							<ExtendedTooltip name="PortHTTPExtendedTooltip" id="36"/>
+							<ExtendedTooltip name="HTTPPortExtendedTooltip" id="36"/>
 						</InputField>
 					</ChildItems>
 				</UsualGroup>
@@ -92,14 +110,26 @@
 					<ChildItems>
 						<InputField name="HTTPSServer" id="8">
 							<DataPath>HTTPSServer</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>HTTPS</v8:content>
+								</v8:item>
+							</Title>
 							<ContextMenu name="ServerHTTPSContextMenu" id="9"/>
-							<ExtendedTooltip name="ServerHTTPSExtendedTooltip" id="38"/>
+							<ExtendedTooltip name="HTTPSServerExtendedTooltip" id="38"/>
 							<Events>
 								<Event name="OnChange">HTTPServerOnChange</Event>
 							</Events>
 						</InputField>
 						<InputField name="HTTPSPort" id="10">
 							<DataPath>HTTPSPort</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Port</v8:content>
+								</v8:item>
+							</Title>
 							<EditFormat>
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -109,7 +139,7 @@
 							<MinValue xsi:type="xs:decimal">0</MinValue>
 							<MaxValue xsi:type="xs:decimal">65535</MaxValue>
 							<ContextMenu name="PortHTTPSContextMenu" id="11"/>
-							<ExtendedTooltip name="PortHTTPSExtendedTooltip" id="39"/>
+							<ExtendedTooltip name="HTTPSPortExtendedTooltip" id="39"/>
 						</InputField>
 					</ChildItems>
 				</UsualGroup>
@@ -133,14 +163,26 @@
 					<ChildItems>
 						<InputField name="FTPServer" id="12">
 							<DataPath>FTPServer</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>FTP</v8:content>
+								</v8:item>
+							</Title>
 							<ContextMenu name="ServerFTPContextMenu" id="13"/>
-							<ExtendedTooltip name="ServerFTPExtendedTooltip" id="41"/>
+							<ExtendedTooltip name="FTPServerExtendedTooltip" id="41"/>
 							<Events>
 								<Event name="OnChange">HTTPServerOnChange</Event>
 							</Events>
 						</InputField>
 						<InputField name="FTPPort" id="14">
 							<DataPath>FTPPort</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Port</v8:content>
+								</v8:item>
+							</Title>
 							<EditFormat>
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -150,7 +192,7 @@
 							<MinValue xsi:type="xs:decimal">0</MinValue>
 							<MaxValue xsi:type="xs:decimal">65535</MaxValue>
 							<ContextMenu name="PortFTPContextMenu" id="15"/>
-							<ExtendedTooltip name="PortFTPExtendedTooltip" id="42"/>
+							<ExtendedTooltip name="FTPPortExtendedTooltip" id="42"/>
 						</InputField>
 					</ChildItems>
 				</UsualGroup>
@@ -229,6 +271,12 @@
 					<ChildItems>
 						<InputField name="ExceptionsAddressesServerAddress" id="23">
 							<DataPath>ExceptionsAddresses.ServerAddress</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Server address</v8:content>
+								</v8:item>
+							</Title>
 							<EditMode>EnterOnInput</EditMode>
 							<ContextMenu name="ExceptionsAddressesServerAddressContextMenu" id="24"/>
 							<ExtendedTooltip name="ExceptionsAddressesServerAddressExtendedTooltip" id="45"/>

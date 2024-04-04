@@ -23,6 +23,12 @@
 	<ChildItems>
 		<InputField name="FileStoragePresentation" id="9">
 			<DataPath>FileStoragePresentation</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>File location</v8:content>
+				</v8:item>
+			</Title>
 			<ChoiceButton>true</ChoiceButton>
 			<TextEdit>false</TextEdit>
 			<ContextMenu name="FileStoragePresentationContextMenu" id="10"/>
@@ -245,14 +251,14 @@
 				<ManualQuery>true</ManualQuery>
 				<DynamicDataRead>true</DynamicDataRead>
 				<QueryText>SELECT
-	FileStorage2Overridable.Ref AS Ref,
+	FileRepositoryOverridable.Ref AS Ref,
 	1 AS PictureIndex,
 	CAST("" AS STRING) AS PathToFile,
 	CAST(0 AS NUMBER(10, 0)) AS Size,
 	VALUE(Catalog.Users.EmptyRef) AS Author,
 	FALSE AS AreAttachedFiles
 FROM
-	Catalog.FileStorageVolumes AS FileStorage2Overridable</QueryText>
+	Catalog.FileStorageVolumes AS FileRepositoryOverridable</QueryText>
 				<MainTable>Catalog.FileStorageVolumes</MainTable>
 				<ListSettings>
 					<dcsset:filter>

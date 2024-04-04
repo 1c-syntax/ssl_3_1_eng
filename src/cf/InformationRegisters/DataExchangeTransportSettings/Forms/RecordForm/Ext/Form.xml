@@ -12,6 +12,12 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.WriteAndClose</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save and close</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormWriteAndCloseExtendedTooltip" id="185"/>
 			</Button>
 			<Button name="FormWrite" id="186">
@@ -200,7 +206,7 @@
 								<InputField name="COMUserName" id="53">
 									<DataPath>Record.COMUserName</DataPath>
 									<ContextMenu name="COMUserNameContextMenu" id="54"/>
-									<ExtendedTooltip name="COMUsernameExtendedTooltip" id="133"/>
+									<ExtendedTooltip name="COMUserNameExtendedTooltip" id="133"/>
 								</InputField>
 								<InputField name="COMUserPassword" id="59">
 									<DataPath>COMUserPassword</DataPath>
@@ -222,6 +228,12 @@
 						<Button name="TestCOMConnection" id="67">
 							<Type>UsualButton</Type>
 							<CommandName>Form.Command.TestCOMConnection</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Test connection</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="TestCOMConnectionExtendedTooltip" id="136"/>
 						</Button>
 					</ChildItems>
@@ -259,7 +271,7 @@
 									<Width>30</Width>
 									<HorizontalStretch>false</HorizontalStretch>
 									<ContextMenu name="WSUserNameContextMenu" id="93"/>
-									<ExtendedTooltip name="WSUsernameExtendedTooltip" id="141"/>
+									<ExtendedTooltip name="WSUserNameExtendedTooltip" id="141"/>
 								</InputField>
 								<UsualGroup name="PasswordWS" id="111">
 									<Title>
@@ -275,6 +287,12 @@
 									<ChildItems>
 										<InputField name="WSPassword" id="94">
 											<DataPath>WSPassword</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Password</v8:content>
+												</v8:item>
+											</Title>
 											<Width>30</Width>
 											<HorizontalStretch>false</HorizontalStretch>
 											<PasswordMode>true</PasswordMode>
@@ -298,6 +316,12 @@
 						<InputField name="WSCorrespondentEndpoint" id="210">
 							<DataPath>WSCorrespondentEndpoint</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Endpoint</v8:content>
+								</v8:item>
+							</Title>
 							<ContextMenu name="WSCorrespondentEndpointContextMenu" id="211"/>
 							<ExtendedTooltip name="WSCorrespondentEndpointExtendedTooltip" id="212"/>
 						</InputField>
@@ -316,11 +340,23 @@
 						<Button name="InternetAccessParameters" id="119">
 							<Type>Hyperlink</Type>
 							<CommandName>Form.Command.InternetAccessParameters</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Internet access parameters</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="InternetAccessParametersExtendedTooltip" id="145"/>
 						</Button>
 						<Button name="TestWSConnection" id="96">
 							<Type>UsualButton</Type>
 							<CommandName>Form.Command.TestWSConnection</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Test connection</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="TestWSConnectionExtendedTooltip" id="146"/>
 						</Button>
 					</ChildItems>
@@ -340,7 +376,7 @@
 							<ChoiceButton>true</ChoiceButton>
 							<OpenButton>true</OpenButton>
 							<ContextMenu name="FILEDataExchangeDirectoryContextMenu" id="9"/>
-							<ExtendedTooltip name="FILEInformationExchangeDirectoryExtendedTooltip" id="149"/>
+							<ExtendedTooltip name="FILEDataExchangeDirectoryExtendedTooltip" id="149"/>
 							<Events>
 								<Event name="StartChoice">FILEInformationExchangeDirectoryStartChoice</Event>
 								<Event name="Opening">FILEInformationExchangeDirectoryOpening</Event>
@@ -368,6 +404,12 @@
 								</CheckBoxField>
 								<InputField name="ArchivePasswordExchangeMessages1" id="101">
 									<DataPath>ArchivePasswordExchangeMessages</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Archive password</v8:content>
+										</v8:item>
+									</Title>
 									<Width>20</Width>
 									<HorizontalStretch>false</HorizontalStretch>
 									<PasswordMode>true</PasswordMode>
@@ -399,6 +441,12 @@ If you select the check box, also select it in the peer application.</v8:content
 							<Type>UsualButton</Type>
 							<SkipOnInput>false</SkipOnInput>
 							<CommandName>Form.Command.TestFILEConnection</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Test connection</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="TestFILEConnectionExtendedTooltip" id="150"/>
 						</Button>
 					</ChildItems>
@@ -468,6 +516,12 @@ If you select the check box, also select it in the peer application.</v8:content
 								</InputField>
 								<InputField name="FTPConnectionPassword" id="22">
 									<DataPath>FTPConnectionPassword</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Password</v8:content>
+										</v8:item>
+									</Title>
 									<PasswordMode>true</PasswordMode>
 									<ContextMenu name="FTPConnectionPasswordContextMenu" id="23"/>
 									<ExtendedTooltip name="FTPConnectionPasswordExtendedTooltip" id="160"/>
@@ -518,6 +572,12 @@ If you select the check box, also select it in the peer application.</v8:content
 						<Button name="InternetAccessParametersFTP" id="120">
 							<Type>Hyperlink</Type>
 							<CommandName>Form.Command.InternetAccessParameters</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Internet access parameters</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="InternetAccessParametersFTPExtendedTooltip" id="165"/>
 						</Button>
 						<UsualGroup name="FTPArchive" id="103">
@@ -542,6 +602,12 @@ If you select the check box, also select it in the peer application.</v8:content
 								</CheckBoxField>
 								<InputField name="ArchivePasswordExchangeMessages" id="34">
 									<DataPath>ArchivePasswordExchangeMessages</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Archive password</v8:content>
+										</v8:item>
+									</Title>
 									<Width>20</Width>
 									<HorizontalStretch>false</HorizontalStretch>
 									<PasswordMode>true</PasswordMode>
@@ -574,6 +640,12 @@ If you select the check box, also select it in the peer application.</v8:content
 							<SkipOnInput>false</SkipOnInput>
 							<GroupVerticalAlign>Bottom</GroupVerticalAlign>
 							<CommandName>Form.Command.TestFTPConnection</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Test connection</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="TestFTPConnectionExtendedTooltip" id="166"/>
 						</Button>
 					</ChildItems>
@@ -596,7 +668,7 @@ If you select the check box, also select it in the peer application.</v8:content
 						<InputField name="EMAILAccount" id="30">
 							<DataPath>Record.EMAILAccount</DataPath>
 							<ContextMenu name="EMAILAccountContextMenu" id="31"/>
-							<ExtendedTooltip name="EMAILUserAccountExtendedTooltip" id="171"/>
+							<ExtendedTooltip name="EMAILAccountExtendedTooltip" id="171"/>
 						</InputField>
 						<UsualGroup name="EMAILFileSize" id="116">
 							<Title>
@@ -651,6 +723,12 @@ If you select the check box, also select it in the peer application.</v8:content
 								</CheckBoxField>
 								<InputField name="ArchivePasswordExchangeMessages2" id="105">
 									<DataPath>ArchivePasswordExchangeMessages</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Archive password</v8:content>
+										</v8:item>
+									</Title>
 									<Width>20</Width>
 									<HorizontalStretch>false</HorizontalStretch>
 									<PasswordMode>true</PasswordMode>
@@ -682,6 +760,12 @@ If you select the check box, also select it in the peer application.</v8:content
 							<Type>UsualButton</Type>
 							<SkipOnInput>false</SkipOnInput>
 							<CommandName>Form.Command.TestEMAILConnection</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Test connection</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="TestEMAILConnectionExtendedTooltip" id="175"/>
 						</Button>
 					</ChildItems>

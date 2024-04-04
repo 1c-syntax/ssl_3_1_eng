@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -117,6 +118,10 @@ Function GenerateVersionsReport()
 	Return TimeConsumingOperations.ExecuteInBackground("InformationRegisters.ObjectsVersions.GenerateReportOnChanges", ReportParameters, ExecutionParameters);
 EndFunction
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
 Procedure OnCompleteGenerateReport(Result, AdditionalParameters) Export
 	If Result = Undefined Then
@@ -126,7 +131,8 @@ Procedure OnCompleteGenerateReport(Result, AdditionalParameters) Export
 	If Result.Status = "Completed2" Then
 		ReportTable = GetFromTempStorage(Result.ResultAddress);
 	Else
-		Raise Result.BriefErrorDescription;
+		StandardSubsystemsClient.OutputErrorInfo(
+			Result.ErrorInfo);
 	EndIf;
 EndProcedure
 

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -511,13 +512,7 @@ Procedure AddRegisterTotals(Val ReportParameters, Val DataCompositionSchema)
 		EndDo;
 	EndIf;
 	
-	// Add period fields.
-	If ReportParameters.TableName = "BalanceAndTurnovers" 
-		Or ReportParameters.TableName = "Turnovers" 
-		Or ReportParameters.MetadataObjectType = "AccountingRegisters" And ReportParameters.TableName = "" Then
-		AddPeriodFieldsInDataSet(DataCompositionSchema.DataSets[0]);
-	EndIf;
-	
+	ThereIsFieldLogger = False;
 	If ReportParameters.TableName = "BalanceAndTurnovers" Then
 		
 		DataSetField = DataCompositionSchema.DataSets[0].Fields.Add(Type("DataCompositionSchemaDataSetField"));
@@ -528,16 +523,23 @@ Procedure AddRegisterTotals(Val ReportParameters, Val DataCompositionSchema)
 		DataSetField.Role.PeriodNumber = 1;
 		DataSetField.Role.IgnoreNULLValues = True;
 		
-		OrderPeriod = DataSetField.OrderExpressions.Add();
-		OrderPeriod.Expression = "TimeIntervals.SecondPeriod";
-		OrderPeriod.OrderType = DataCompositionSortDirection.Asc;
+		Order_Period = DataSetField.OrderExpressions.Add();
+		Order_Period.Expression = "TimeIntervals.SecondPeriod";
+		Order_Period.OrderType = DataCompositionSortDirection.Asc;
 		
 		OrderRegistrar = DataSetField.OrderExpressions.Add();
 		OrderRegistrar.Expression = "Recorder";
 		OrderRegistrar.OrderType = DataCompositionSortDirection.Asc;
-		
+		ThereIsFieldLogger = True;
 	EndIf;
 	
+	// Add period fields.
+	If ReportParameters.TableName = "BalanceAndTurnovers" 
+		Or ReportParameters.TableName = "Turnovers" 
+		Or ReportParameters.MetadataObjectType = "AccountingRegisters" And ReportParameters.TableName = "" Then
+		AddPeriodFieldsInDataSet(DataCompositionSchema.DataSets[0], ThereIsFieldLogger);
+	EndIf;
+		
 	// For accounting registers, setting up roles is important.
 	If ReportParameters.MetadataObjectType = "AccountingRegisters" Then
 		
@@ -789,11 +791,12 @@ EndProcedure
 // 
 // Parameters:
 //  DataSet - DataCompositionSchemaDataSetQuery
+//  ThereIsFieldLogger - Boolean
 //
 // Returns:
 //  ValueList
 //
-Function AddPeriodFieldsInDataSet(DataSet)
+Function AddPeriodFieldsInDataSet(DataSet, ThereIsFieldLogger)
 	
 	PeriodsList = New ValueList;
 	PeriodsList.Add("SecondPeriod",   NStr("en = 'Period second';"));
@@ -821,7 +824,7 @@ Function AddPeriodFieldsInDataSet(DataSet)
 		DataSetField.Title   = Period.Presentation;
 		DataSetField.DataPath = FolderName + "." + Period.Value;
 		DataSetField.Role.PeriodType = PeriodType;
-		DataSetField.Role.PeriodNumber = PeriodsList.Count() - PeriodsList.IndexOf(Period) + 1;
+		DataSetField.Role.PeriodNumber = ?(ThereIsFieldLogger, PeriodsList.IndexOf(Period) + 2, PeriodsList.IndexOf(Period));
 		DataSetFieldsList.Add(DataSetField);
 		PeriodType = DataCompositionPeriodType.Additional;
 		
@@ -1230,7 +1233,7 @@ Function OptionSettings(Variant) Export
 	Try
 		OptionSettings = Variant.Settings.Get(); // DataCompositionSettings
 	Except
-		
+		// 
 		//  
 		Return Undefined;
 	EndTry;
@@ -1321,13 +1324,13 @@ Function DataSourceMetadata(DataSource, Context)
 		MetadataObject = Common.MetadataObjectByID(DataSource);
 	Except
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Отчет не может быть сформирован по причине: %1 %2';"),
+			NStr("en = 'Cannot generate the report due to: %1%2';"),
 			ErrorProcessing.BriefErrorDescription(ErrorInfo()),
-			NStr("en = 'Выберите другой справочник или документ.';"));
-		WriteLogEvent(NStr("en = 'Формирование варианта универсального отчета';", Common.DefaultLanguageCode()),
+			NStr("en = 'Select another catalog or document.';"));
+		WriteLogEvent(NStr("en = 'Generate a universal report option';", Common.DefaultLanguageCode()),
 			EventLogLevel.Warning, Metadata.Reports.UniversalReport,, MessageText);
 		If TypeOf(Context) = Type("ClientApplicationForm") Then
-			RecommendationText = NStr("en = 'Отчет не может быть сформирован. Выберите другой справочник или документ.';");
+			RecommendationText = NStr("en = 'Cannot generate the report. Select another catalog or document.';");
 			ReportsClientServer.DisplayReportState(
 				Context, RecommendationText);
 			Common.MessageToUser(MessageText);

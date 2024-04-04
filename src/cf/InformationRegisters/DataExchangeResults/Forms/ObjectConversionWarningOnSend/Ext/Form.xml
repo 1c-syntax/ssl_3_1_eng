@@ -10,6 +10,12 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.OK</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>OK</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormOKExtendedTooltip" id="17"/>
 			</Button>
 			<Button name="FormCancel" id="18">
@@ -51,6 +57,12 @@ If the warning is no longer relevant, click "Hide from list". Note that warnings
 		</PictureDecoration>
 		<LabelField name="OccurrenceDate" id="23">
 			<DataPath>OccurrenceDate</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Issue date</v8:content>
+				</v8:item>
+			</Title>
 			<Width>40</Width>
 			<Format>
 				<v8:item>
@@ -63,6 +75,12 @@ If the warning is no longer relevant, click "Hide from list". Note that warnings
 		</LabelField>
 		<LabelField name="InfobaseNode" id="13">
 			<DataPath>InfobaseNode</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Synchronization</v8:content>
+				</v8:item>
+			</Title>
 			<Hiperlink>true</Hiperlink>
 			<ContextMenu name="InfobaseNodeContextMenu" id="14"/>
 			<ExtendedTooltip name="InfobaseNodeExtendedTooltip" id="15"/>
@@ -70,6 +88,12 @@ If the warning is no longer relevant, click "Hide from list". Note that warnings
 		<LabelField name="ObjectWithIssue" id="10">
 			<DataPath>ObjectWithIssue</DataPath>
 			<DefaultItem>true</DefaultItem>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Object</v8:content>
+				</v8:item>
+			</Title>
 			<Hiperlink>true</Hiperlink>
 			<ContextMenu name="ObjectWithIssueContextMenu" id="11"/>
 			<ExtendedTooltip name="ObjectWithIssueExtendedTooltip" id="12"/>
@@ -80,6 +104,12 @@ If the warning is no longer relevant, click "Hide from list". Note that warnings
 		<InputField name="LongDesc" id="4">
 			<DataPath>LongDesc</DataPath>
 			<ReadOnly>true</ReadOnly>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Details</v8:content>
+				</v8:item>
+			</Title>
 			<AutoMaxWidth>false</AutoMaxWidth>
 			<Height>9</Height>
 			<MultiLine>true</MultiLine>
@@ -88,6 +118,12 @@ If the warning is no longer relevant, click "Hide from list". Note that warnings
 		</InputField>
 		<InputField name="WarningComment" id="20">
 			<DataPath>WarningComment</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Administrator comment on synchronization warning</v8:content>
+				</v8:item>
+			</Title>
 			<AutoMaxWidth>false</AutoMaxWidth>
 			<MultiLine>true</MultiLine>
 			<ClearButton>true</ClearButton>
@@ -112,6 +148,12 @@ If the warning is no longer relevant, click "Hide from list". Note that warnings
 			<ChildItems>
 				<CheckBoxField name="HideWarning" id="28">
 					<DataPath>HideWarning</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Hide warning</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Right</TitleLocation>
 					<ToolTipRepresentation>Button</ToolTipRepresentation>
 					<CheckBoxType>Auto</CheckBoxType>

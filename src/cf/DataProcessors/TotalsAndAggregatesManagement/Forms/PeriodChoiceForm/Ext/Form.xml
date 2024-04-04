@@ -18,6 +18,12 @@
 				<DefaultButton>true</DefaultButton>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.OK</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>OK</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="OKExtendedTooltip" id="12"/>
 			</Button>
 			<Button name="Cancel" id="6">
@@ -40,6 +46,12 @@
 	<ChildItems>
 		<InputField name="PeriodForAccumulationRegisters" id="10">
 			<DataPath>PeriodForAccumulationRegisters</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Total period for accumulation registers</v8:content>
+				</v8:item>
+			</Title>
 			<Wrap>false</Wrap>
 			<ContextMenu name="PeriodForAccumulationRegistersContextMenu" id="11"/>
 			<ExtendedTooltip name="PeriodForAccumulationRegistersExtendedTooltip" id="15"/>
@@ -49,6 +61,12 @@
 		</InputField>
 		<InputField name="PeriodForAccountingRegisters" id="8">
 			<DataPath>PeriodForAccountingRegisters</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Total period for accounting registers</v8:content>
+				</v8:item>
+			</Title>
 			<Wrap>false</Wrap>
 			<ContextMenu name="PeriodForAccountingRegistersContextMenu" id="9"/>
 			<ExtendedTooltip name="PeriodForAccountingRegistersExtendedTooltip" id="16"/>

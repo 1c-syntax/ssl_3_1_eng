@@ -92,8 +92,8 @@
 																		</v8:item>
 																	</Title>
 																	<Picture>
-																		<xr:Ref>CommonPicture.Information32</xr:Ref>
-																		<xr:LoadTransparent>false</xr:LoadTransparent>
+																		<xr:Ref>StdPicture.DialogInformation</xr:Ref>
+																		<xr:LoadTransparent>true</xr:LoadTransparent>
 																	</Picture>
 																	<FileDragMode>AsFile</FileDragMode>
 																	<ContextMenu name="SettingsInClusterToSetOnEnableHeaderInformationContextMenu" id="261"/>
@@ -130,8 +130,8 @@
 																		</v8:item>
 																	</Title>
 																	<Picture>
-																		<xr:Ref>CommonPicture.Warning32</xr:Ref>
-																		<xr:LoadTransparent>false</xr:LoadTransparent>
+																		<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+																		<xr:LoadTransparent>true</xr:LoadTransparent>
 																	</Picture>
 																	<FileDragMode>AsFile</FileDragMode>
 																	<ContextMenu name="ChangesInClusterRequiredWarningContextMenu" id="70"/>
@@ -171,8 +171,8 @@ Make changes to the permissions in the security profile to continue:
 																		</v8:item>
 																	</Title>
 																	<Picture>
-																		<xr:Ref>CommonPicture.Information32</xr:Ref>
-																		<xr:LoadTransparent>false</xr:LoadTransparent>
+																		<xr:Ref>StdPicture.DialogInformation</xr:Ref>
+																		<xr:LoadTransparent>true</xr:LoadTransparent>
 																	</Picture>
 																	<FileDragMode>AsFile</FileDragMode>
 																	<ContextMenu name="SettingsInClusterToSetOnRecoveryInformationContextMenu" id="264"/>
@@ -209,8 +209,8 @@ Make changes to the permissions in the security profile to continue:
 																		</v8:item>
 																	</Title>
 																	<Picture>
-																		<xr:Ref>CommonPicture.Warning32</xr:Ref>
-																		<xr:LoadTransparent>false</xr:LoadTransparent>
+																		<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+																		<xr:LoadTransparent>true</xr:LoadTransparent>
 																	</Picture>
 																	<FileDragMode>AsFile</FileDragMode>
 																	<ContextMenu name="ObsoletePermissionsCancellationRequiredInClusterWarningContextMenu" id="258"/>
@@ -221,8 +221,8 @@ Make changes to the permissions in the security profile to continue:
 																	<Title formatted="false">
 																		<v8:item>
 																			<v8:lang>en</v8:lang>
-																			<v8:content>The security profiles limiting the access to external resources are set up for this infobase in the cluster of 1C:Enterprise servers. 
-Update the settings of permissions in the security profiles in the server cluster as some of the application settings have been changed during its use (impacting the use of external resources by the application):</v8:content>
+																			<v8:content>The security profiles limiting access to external resources are set up for this infobase in the cluster of 1C:Enterprise servers.
+Update the security profiles in the server cluster as external resource access settings were changed in the app:</v8:content>
 																		</v8:item>
 																	</Title>
 																	<ContextMenu name="ObsoletePermissionsCancellationRequiredInClusterHeaderContextMenu" id="242"/>
@@ -236,6 +236,12 @@ Update the settings of permissions in the security profiles in the server cluste
 										</UsualGroup>
 										<SpreadSheetDocumentField name="PermissionsPresentation" id="119">
 											<DataPath>PermissionsPresentation</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Permission presentation</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<Width>85</Width>
 											<Height>18</Height>
@@ -266,7 +272,7 @@ Update the settings of permissions in the security profiles in the server cluste
 											<Behavior>Usual</Behavior>
 											<Representation>None</Representation>
 											<ShowTitle>false</ShowTitle>
-											<ExtendedTooltip name="GroupErrorExtendedHint" id="84"/>
+											<ExtendedTooltip name="ErrorGroupExtendedTooltip" id="84"/>
 											<ChildItems>
 												<PictureDecoration name="ErrorDecoration" id="165">
 													<Title formatted="false">
@@ -276,8 +282,8 @@ Update the settings of permissions in the security profiles in the server cluste
 														</v8:item>
 													</Title>
 													<Picture>
-														<xr:Ref>CommonPicture.Error32</xr:Ref>
-														<xr:LoadTransparent>false</xr:LoadTransparent>
+														<xr:Ref>StdPicture.DialogStop</xr:Ref>
+														<xr:LoadTransparent>true</xr:LoadTransparent>
 													</Picture>
 													<FileDragMode>AsFile</FileDragMode>
 													<ContextMenu name="ErrorDecorationContextMenu" id="166"/>
@@ -310,6 +316,12 @@ Update the settings of permissions in the security profiles in the server cluste
 														<InputField name="ErrorText" id="88">
 															<DataPath>ErrorText</DataPath>
 															<ReadOnly>true</ReadOnly>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Error text</v8:content>
+																</v8:item>
+															</Title>
 															<TitleLocation>None</TitleLocation>
 															<Height>3</Height>
 															<VerticalStretch>false</VerticalStretch>
@@ -396,6 +408,12 @@ where the infobase is deployed:</v8:content>
 													<ChildItems>
 														<InputField name="AttachmentType" id="128">
 															<DataPath>AttachmentType</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Connection type</v8:content>
+																</v8:item>
+															</Title>
 															<Width>40</Width>
 															<HorizontalStretch>false</HorizontalStretch>
 															<ListChoiceMode>true</ListChoiceMode>
@@ -438,6 +456,12 @@ where the infobase is deployed:</v8:content>
 														</InputField>
 														<InputField name="ServerClusterPort" id="17">
 															<DataPath>ServerClusterPort</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Server cluster port</v8:content>
+																</v8:item>
+															</Title>
 															<Wrap>false</Wrap>
 															<ContextMenu name="ServerClusterPortContextMenu" id="18"/>
 															<ExtendedTooltip name="ServerClusterPortExtendedTooltip" id="59"/>
@@ -720,7 +744,7 @@ where the infobase is deployed:</v8:content>
 													<Title formatted="false">
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Once the security profile settings in the server cluster are changed, the application is restarted automatically.</v8:content>
+															<v8:content>Once the security profile settings in the server cluster are changed, the app will restart automatically.</v8:content>
 														</v8:item>
 													</Title>
 													<ContextMenu name="RestartRequiredWarningDecorationLabelContextMenu" id="203"/>
@@ -756,6 +780,12 @@ where the infobase is deployed:</v8:content>
 										<Button name="FormBack" id="112">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.Back</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>&lt; Back</v8:content>
+												</v8:item>
+											</Title>
 											<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 											<ExtendedTooltip name="FormBackExtendedTooltip" id="113"/>
 										</Button>
@@ -776,6 +806,12 @@ where the infobase is deployed:</v8:content>
 											<Representation>Text</Representation>
 											<DefaultButton>true</DefaultButton>
 											<CommandName>Form.Command.Next</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Apply changes</v8:content>
+												</v8:item>
+											</Title>
 											<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 											<ExtendedTooltip name="FormAllowExtendedTooltip" id="40"/>
 										</Button>
@@ -828,8 +864,8 @@ where the infobase is deployed:</v8:content>
 										</v8:item>
 									</Title>
 									<Picture>
-										<xr:Ref>CommonPicture.Error32</xr:Ref>
-										<xr:LoadTransparent>false</xr:LoadTransparent>
+										<xr:Ref>StdPicture.DialogStop</xr:Ref>
+										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
 									<ContextMenu name="OperationNotSupportedInWebClientDecorationContextMenu" id="293"/>
@@ -863,6 +899,12 @@ To continue, make the following changes to the settings of security profiles in 
 										</LabelDecoration>
 										<SpreadSheetDocumentField name="OperationNotSupportedInWebClientPermissionsPresentation" id="276">
 											<DataPath>PermissionsPresentation</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Permission presentation</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<VerticalScrollBar>true</VerticalScrollBar>
 											<HorizontalScrollBar>true</HorizontalScrollBar>
@@ -874,9 +916,9 @@ To continue, make the following changes to the settings of security profiles in 
 											<Title formatted="false">
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>You can not change the settings of security profiles in the server cluster when you access the application via web client.
+													<v8:content>The web client doesn't support changing security profiles in the server cluster.
 
-To execute the requested operation connect to the application via thin client and repeat the operation.</v8:content>
+Open the app in the thin client and try again.</v8:content>
 												</v8:item>
 											</Title>
 											<ContextMenu name="OperationNotSupportedInWebClientTitleContinuationContextMenu" id="280"/>
@@ -1189,7 +1231,7 @@ To execute the requested operation connect to the application via thin client an
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Register component and restart application</v8:content>
+					<v8:content>Attach add-in and restart app</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>ReregisterCOMConnector</Action>

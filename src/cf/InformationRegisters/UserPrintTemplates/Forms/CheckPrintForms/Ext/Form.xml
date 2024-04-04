@@ -10,16 +10,34 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.GoToList</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Go to list</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormGoToListExtendedTooltip" id="4"/>
 			</Button>
 			<Button name="FormChecked" id="1">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.Checked</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Reviewed</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormCheckedExtendedTooltip" id="2"/>
 			</Button>
 			<Button name="FormClose" id="5">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.Close</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Cancel</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormClose3ExtendedTooltip" id="6"/>
 			</Button>
 		</ChildItems>
@@ -48,8 +66,8 @@
 						</v8:item>
 					</Title>
 					<Picture>
-						<xr:Ref>CommonPicture.Information32</xr:Ref>
-						<xr:LoadTransparent>false</xr:LoadTransparent>
+						<xr:Ref>StdPicture.DialogInformation</xr:Ref>
+						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</Picture>
 					<FileDragMode>AsFile</FileDragMode>
 					<ContextMenu name="MessagePictureContextMenu" id="10"/>

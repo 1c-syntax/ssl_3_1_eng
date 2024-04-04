@@ -11,6 +11,12 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.SetPassword</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Set password</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormSetPasswordExtendedTooltip" id="5"/>
 			</Button>
 			<Button name="FormCloseForm" id="79">
@@ -59,6 +65,12 @@
 			<ChildItems>
 				<InputField name="PreviousPassword" id="66">
 					<DataPath>PreviousPassword</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Current password</v8:content>
+						</v8:item>
+					</Title>
 					<Width>14</Width>
 					<HorizontalStretch>false</HorizontalStretch>
 					<PasswordMode>true</PasswordMode>
@@ -79,6 +91,12 @@
 					<ChildItems>
 						<InputField name="NewPassword" id="8">
 							<DataPath>NewPassword</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>New password</v8:content>
+								</v8:item>
+							</Title>
 							<ToolTipRepresentation>Button</ToolTipRepresentation>
 							<Width>14</Width>
 							<HorizontalStretch>false</HorizontalStretch>
@@ -93,6 +111,12 @@
 						<InputField name="NewPassword2" id="96">
 							<DataPath>NewPassword</DataPath>
 							<Visible>false</Visible>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>New password</v8:content>
+								</v8:item>
+							</Title>
 							<ToolTipRepresentation>Button</ToolTipRepresentation>
 							<Width>14</Width>
 							<HorizontalStretch>false</HorizontalStretch>
@@ -107,6 +131,12 @@
 							<Type>UsualButton</Type>
 							<SkipOnInput>true</SkipOnInput>
 							<CommandName>Form.Command.CreatePassword</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Generate password</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="CreatePasswordExtendedTooltip" id="30"/>
 						</Button>
 					</ChildItems>
@@ -126,6 +156,12 @@
 					<ChildItems>
 						<InputField name="Confirmation" id="11">
 							<DataPath>Confirmation</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Repeat password</v8:content>
+								</v8:item>
+							</Title>
 							<Width>14</Width>
 							<HorizontalStretch>false</HorizontalStretch>
 							<PasswordMode>true</PasswordMode>
@@ -165,6 +201,12 @@
 					<ChildItems>
 						<CheckBoxField name="ShowNewPassword" id="26">
 							<DataPath>ShowNewPassword</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Show new password</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<CheckBoxType>Auto</CheckBoxType>
 							<ContextMenu name="ShowNewPasswordContextMenu" id="27"/>

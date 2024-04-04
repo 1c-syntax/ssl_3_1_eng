@@ -1,16 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
+	
+	SetConditionalAppearance();
 	
 	Date                        = Parameters.Date;
 	UserName             = Parameters.UserName;
@@ -29,8 +32,39 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	PrimaryIPPort              = Parameters.PrimaryIPPort;
 	SyncPort       = Parameters.SyncPort;
 	
-	If Parameters.Property("SessionDataSeparation") Then
-		SessionDataSeparation = Parameters.SessionDataSeparation;
+	If ValueIsFilled(Parameters.User)
+	   And StringFunctionsClientServer.IsUUID(Parameters.User)
+	   And Common.SeparatedDataUsageAvailable() Then
+		
+		SetPrivilegedMode(True);
+		IBUserID = New UUID(Parameters.User);
+		If ValueIsFilled(IBUserID) Then
+			User = Users.FindByID(IBUserID);
+			If Not ValueIsFilled(User) Then
+				IBUser = InfoBaseUsers.FindByUUID(
+					IBUserID);
+				If IBUser <> Undefined And IBUser.Name = "" Then
+					IBUserID = CommonClientServer.BlankUUID();
+					User = Users.FindByID(IBUserID);
+				EndIf;
+			EndIf;
+			If ValueIsFilled(User) Then
+				Items.UserName.OpenButton = True;
+			EndIf;
+		EndIf;
+		SetPrivilegedMode(False);
+	EndIf;
+	
+	SeparationVisibility = Not Common.SeparatedDataUsageAvailable();
+	SessionDataSeparation = Parameters.SessionDataSeparation;
+	
+	If EventLog.StandardSeparatorsOnly() Then
+		DataArea = Parameters.DataArea;
+		Items.DataArea.Visible = SeparationVisibility;
+		Items.SessionDataSeparation.Visible = False;
+	Else
+		Items.DataArea.Visible = False;
+		Items.SessionDataSeparation.Visible = SeparationVisibility;
 	EndIf;
 	
 	Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1, %2';"), 
@@ -39,109 +73,73 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	// Enabling the open button for the metadata list.
 	If TypeOf(MetadataPresentation) = Type("ValueList") Then
 		Items.MetadataPresentation.OpenButton = True;
-		Items.AccessMetadataPresentation.OpenButton = True;
-		Items.AccessRightDeniedMetadataPresentation.OpenButton = True;
-		Items.AccessActionDeniedMetadataPresentation.OpenButton = True;
 	EndIf;
 	
 	// Processing special event data.
-	Items.AccessData.Visible = False;
-	Items.AccessRightDeniedData.Visible = False;
-	Items.AccessActionDeniedData.Visible = False;
-	Items.AuthenticationData.Visible = False;
+	Items.DataTree.Visible = False;
 	Items.IBUserData.Visible = False;
-	Items.SimpleData.Visible = False;
 	Items.DataPresentations.PagesRepresentation = FormPagesRepresentation.None;
 	
-	If Not ValueIsFilled(Parameters.DataStorage) Then
-		EventsData = New Map;
-	Else
-		EventsData = GetFromTempStorage(Parameters.DataStorage);
+	EventData = EventLog.EventData(Parameters.DataAsStr); // Structure
+	
+	If TypeOf(EventData) = Type("String") Then
+		EventData = EventLog.DataFromXMLString(EventData);
 	EndIf;
 	
 	If Event = "_$Access$_.Access" Then
-		Items.DataPresentations.CurrentPage = Items.AccessData;
-		Items.AccessData.Visible = True;
-		EventData = EventsData[Parameters.DataAddress]; // Structure
-		If EventData <> Undefined Then
-			CreateFormTable("AccessDataTable", "DataTable", EventData.Data);
+		Items.Data.Visible = False;
+		Items.DataPresentation.Visible = False;
+		If EventData <> Undefined And EventData.Property("Data") And EventData.Data <> Undefined Then
+			CreateFormTable("DataTable", "DataTable", EventData.Data);
+		ElsIf EventData <> Undefined Then
+			CreateFormTable("DataTable", "DataTable", EventData);
 		EndIf;
-		Items.Comment.VerticalStretch = False;
-		Items.Comment.Height = 1;
 		
 	ElsIf Event = "_$Access$_.AccessDenied" Then
-		EventData = EventsData[Parameters.DataAddress]; // Structure
+		Items.Data.Visible = False;
 		
 		If EventData <> Undefined Then
 			If EventData.Property("Right") Then
-				Items.DataPresentations.CurrentPage = Items.AccessRightDeniedData;
-				Items.AccessRightDeniedData.Visible = True;
-				AccessRightDenied = EventData.Right;
+				Items.DataPresentation.Title = NStr("en = 'Access denied';");
+				DataPresentation = EventData.Right;
 			Else
-				Items.DataPresentations.CurrentPage = Items.AccessActionDeniedData;
-				Items.AccessActionDeniedData.Visible = True;
-				AccessActionDenied = EventData.Action;
-				TableData_ = Undefined;
-				If EventData.Property("Data") Then
-					TableData_ = EventData.Data;
+				Items.DataPresentation.Title = NStr("en = 'Action denied';");
+				DataPresentation = EventData.Action;
+				If EventData.Property("Data") And EventData.Data <> Undefined Then
+					CreateFormTable("DataTable", "DataTable", EventData.Data);
 				EndIf;
-				CreateFormTable("AccessActionDeniedDataTable", "DataTable", TableData_);
-				Items.Comment.VerticalStretch = False;
-				Items.Comment.Height = 1;
 			EndIf;
-		EndIf;
-		
-	ElsIf Event = "_$Session$_.Authentication"
-		  Or Event = "_$Session$_.AuthenticationError" Then
-		EventData = EventsData[Parameters.DataAddress];
-		Items.DataPresentations.CurrentPage = Items.AuthenticationData;
-		Items.AuthenticationData.Visible = True;
-		If EventData <> Undefined Then
-			EventData.Property("Name",                   AuthenticationUsername);
-			EventData.Property("OSUser",        AuthenticationOSUser);
-			EventData.Property("CurrentOSUser", AuthenticationCurrentOSUser);
 		EndIf;
 		
 	ElsIf Event = "_$User$_.Delete"
 		  Or Event = "_$User$_.New"
 		  Or Event = "_$User$_.Update" Then
-		EventData = EventsData[Parameters.DataAddress];
-		Items.DataPresentations.CurrentPage = Items.IBUserData;
-		Items.IBUserData.Visible = True;
-		IBUserProperies = New ValueTable;
-		IBUserProperies.Columns.Add("Name");
-		IBUserProperies.Columns.Add("Value");
-		RolesArray = Undefined;
-		If EventData <> Undefined Then
-			For Each KeyAndValue In EventData Do
-				If KeyAndValue.Key = "Roles" Then
-					RolesArray = KeyAndValue.Value;
-					Continue;
-				EndIf;
-				NewRow = IBUserProperies.Add();
-				NewRow.Name      = KeyAndValue.Key;
-				NewRow.Value = KeyAndValue.Value;
-			EndDo;
-		EndIf;
-		IBUserProperies.Sort("Name Asc");
-		CreateFormTable("IBUserPropertiesTable", "DataTable", IBUserProperies);
-		If RolesArray <> Undefined Then
-			IBUserRoles1 = New ValueTable;
-			IBUserRoles1.Columns.Add("Role",, NStr("en = 'Role';"));
-			For Each CurrentRole In RolesArray Do
-				IBUserRoles1.Add().Role = CurrentRole;
-			EndDo;
-			CreateFormTable("IBUserRolesTable", "Roles", IBUserRoles1);
-		EndIf;
-		Items.Comment.VerticalStretch = False;
-		Items.Comment.Height = 1;
 		
-	Else
-		Items.DataPresentations.CurrentPage = Items.SimpleData;
-		Items.SimpleData.Visible = True;
+		Items.StandardData.Visible = False;
+		Items.IBUserData.Visible = True;
+		Items.DataPresentations.CurrentPage = Items.IBUserData;
+		
+		If EventData <> Undefined Then
+			If EventData.Property("Roles") Then
+				If TypeOf(EventData.Roles) = Type("Array") Then
+					IBUserRoles1 = EventLog.RoleTable(EventData.Roles);
+					CreateFormTable("IBUserRolesTable", "RoleTable", IBUserRoles1);
+				EndIf;
+				EventData.Delete("Roles");
+			EndIf;
+			CreateFormTable("IBUserPropertiesTable", "DataTable", EventData);
+		EndIf;
+		
+	ElsIf TypeOf(EventData) = Type("Structure")
+	      Or TypeOf(EventData) = Type("FixedStructure")
+	      Or TypeOf(EventData) = Type("ValueTable") Then
+		
+		Items.Data.Visible = False;
+		Items.DataPresentation.Visible = False;
+		CreateFormTable("DataTable", "DataTable", EventData);
 	EndIf;
 	
-	Items.SessionDataSeparation.Visible = Not Common.SeparatedDataUsageAvailable();
+	StandardSubsystemsServer.ResetWindowLocationAndSize(ThisObject);
 	
 EndProcedure
 
@@ -150,8 +148,31 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 &AtClient
+Procedure UserNameOpening(Item, StandardProcessing)
+	
+	If ValueIsFilled(User) Then
+		StandardProcessing = False;
+		ShowValue(, User);
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure CommentOpening(Item, StandardProcessing)
+	
+	If ValueIsFilled(Comment) Then
+		Text = New TextDocument;
+		Text.SetText(Comment);
+		Text.Show(Title + " (" + NStr("en = 'Comment';") + ")");
+		StandardProcessing = False;
+	EndIf;
+	
+EndProcedure
+
+&AtClient
 Procedure MetadataPresentationOpening(Item, StandardProcessing)
 	
+	StandardProcessing = False;
 	ShowValue(, MetadataPresentation);
 	
 EndProcedure
@@ -159,6 +180,7 @@ EndProcedure
 &AtClient
 Procedure SessionDataSeparationOpening(Item, StandardProcessing)
 	
+	StandardProcessing = False;
 	ShowValue(, SessionDataSeparation);
 	
 EndProcedure
@@ -181,7 +203,33 @@ EndProcedure
 &AtServer
 Procedure CreateFormTable(Val FormTableFieldName, Val AttributeNameFormDataCollection, Val ValueTable)
 	
-	If TypeOf(ValueTable) <> Type("ValueTable") Then
+	If Not ValueIsFilled(Comment) Then
+		Items.Comment.VerticalStretch = False;
+		Items.Comment.Height = 1;
+	EndIf;
+	
+	If TypeOf(ValueTable) = Type("Structure")
+	 Or TypeOf(ValueTable) = Type("FixedStructure") Then
+		
+		ValueTree = EventLog.TreeWithStructureData(ValueTable);
+		Filter = New Structure("ThereIsValue", False);
+		HasAttachments = ValueTree.Rows.FindRows(Filter).Count() <> 0;
+		If HasAttachments Then
+			Items.DataTree.Visible = True;
+			ValueToFormAttribute(ValueTree, "DataTree");
+			Return;
+		EndIf;
+		ValueTree.Columns.Delete("ThereIsValue");
+		ValueTable = New ValueTable;
+		For Each Column In ValueTree.Columns Do
+			ValueTable.Columns.Add(Column.Name, Column.ValueType, Column.Title);
+		EndDo;
+		For Each String In ValueTree.Rows Do
+			FillPropertyValues(ValueTable.Add(), String);
+		EndDo;
+		Items[FormTableFieldName].Header = False;
+		
+	ElsIf TypeOf(ValueTable) <> Type("ValueTable") Then
 		ValueTable = New ValueTable;
 		ValueTable.Columns.Add("Undefined", , " ");
 	EndIf;
@@ -189,7 +237,8 @@ Procedure CreateFormTable(Val FormTableFieldName, Val AttributeNameFormDataColle
 	// Adding form table attributes.
 	AttributesToBeAdded = New Array;
 	For Each Column In ValueTable.Columns Do
-		AttributesToBeAdded.Add(New FormAttribute(Column.Name, Column.ValueType, AttributeNameFormDataCollection, Column.Title));
+		AttributesToBeAdded.Add(New FormAttribute(Column.Name,
+			Column.ValueType, AttributeNameFormDataCollection, Column.Title));
 	EndDo;
 	ChangeAttributes(AttributesToBeAdded);
 	
@@ -197,9 +246,42 @@ Procedure CreateFormTable(Val FormTableFieldName, Val AttributeNameFormDataColle
 	For Each Column In ValueTable.Columns Do
 		AttributeItem = Items.Add(FormTableFieldName + Column.Name, Type("FormField"), Items[FormTableFieldName]);
 		AttributeItem.DataPath = AttributeNameFormDataCollection + "." + Column.Name;
+		AttributeItem.AutoCellHeight = True;
 	EndDo;
 	
-	ValueToFormAttribute(ValueTable, AttributeNameFormDataCollection);
+	For Each String In ValueTable Do
+		NewRow = ThisObject[AttributeNameFormDataCollection].Add();
+		Try
+			FillPropertyValues(NewRow, String);
+		Except
+			For Each Column In ValueTable.Columns Do
+				Try
+					NewRow[Column.Name] = String[Column.Name];
+				Except
+					NewRow[Column.Name] = String(String[Column.Name]); // 
+				EndTry;
+			EndDo;
+		EndTry;
+	EndDo;
+	
+EndProcedure
+
+&AtServer
+Procedure SetConditionalAppearance()
+	
+	ConditionalAppearance.Items.Clear();
+	
+	Item = ConditionalAppearance.Items.Add();
+	
+	ItemField = Item.Fields.Items.Add();
+	ItemField.Field = New DataCompositionField(Items.DataTreeValue.Name);
+	
+	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
+	ItemFilter.LeftValue = New DataCompositionField("DataTree.ThereIsValue");
+	ItemFilter.ComparisonType = DataCompositionComparisonType.Equal;
+	ItemFilter.RightValue = False;
+	
+	Item.Appearance.SetParameterValue("Visible", False);
 	
 EndProcedure
 

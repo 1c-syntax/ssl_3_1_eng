@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -34,8 +35,8 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-
-
+// 
+// 
 //
 
 // Starts external resource permissions setup wizard.
@@ -150,8 +151,8 @@ Procedure AfterInitializeRequestForPermissionsToUseExternalResources(Result, Sta
 			
 		Else
 			
-			
-			
+			// 
+			// 
 			CompleteSetUpPermissionsToUseExternalResourcesAsynchronously(State.NotifyDescription);
 			
 		EndIf;
@@ -226,7 +227,7 @@ EndProcedure
 
 // Processes the data entered to the external resource permission application wizard.
 // The operation result is processing of the notification description, which was initially passed from the form for which
-// the the wizard was opened.
+// the wizard was opened.
 //
 // Parameters:
 //  Result - DialogReturnCode - a result of executing a previous operation of
@@ -305,9 +306,9 @@ Procedure CompleteSetUpPermissionsToUseExternalResourcesSynchronously(Val Return
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
-
-
+// 
+// 
+// 
 //
 
 // Starts the wizard in operation completion check mode. In this mode, the wizard checks whether the operation whence requests for
@@ -364,8 +365,8 @@ Procedure AfterCheckApplicabilityOfPermissionsToUseExternalResources(Val Validat
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
-
+// 
+// 
 //
 
 // Calls the external resource permissions setup wizard in infobase security profile enabling
@@ -424,15 +425,15 @@ Function RequestForPermissionsToUseExternalResourcesState()
 	// IDs of requests to use external resources to be provided.
 	Result.Insert("RequestsIDs", New Array());
 	
-	
-	
+	// 
+	// 
 	Result.Insert("NotifyDescription", Undefined);
 	
 	// Address in a temporary storage for storing data passed between forms.
 	Result.Insert("StorageAddress", "");
 	
-	
-	
+	// 
+	// 
 	Result.Insert("OwnerForm");
 	
 	// Enabling mode - indicates whether security profiles are being enabled.
@@ -441,14 +442,14 @@ Function RequestForPermissionsToUseExternalResourcesState()
 	// Disabling mode - indicates whether security profiles are being disabled.
 	Result.Insert("DisablingMode", False);
 	
-	
-	
-	
+	// 
+	// 
+	// 
 	Result.Insert("RecoveryMode", False);
 	
-	
-	
-	
+	// 
+	// 
+	// 
 	Result.Insert("CheckMode", False);
 	
 	Return Result;
@@ -468,8 +469,8 @@ Function PermissionsApplicabilityCheckStateAfterCloseOwnerForm()
 	// Address in a temporary storage for storing data passed between forms.
 	Result.Insert("StorageAddress", Undefined);
 	
-	
-	
+	// 
+	// 
 	Result.Insert("NotifyDescription", Undefined);
 	
 	Return Result;

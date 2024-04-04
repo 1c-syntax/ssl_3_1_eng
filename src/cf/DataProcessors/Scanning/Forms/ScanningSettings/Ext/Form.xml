@@ -7,6 +7,7 @@
 		<HorizontalAlign>Right</HorizontalAlign>
 	</AutoCommandBar>
 	<Events>
+		<Event name="NotificationProcessing">NotificationProcessing</Event>
 		<Event name="OnOpen">OnOpen</Event>
 		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
 		<Event name="FillCheckProcessingAtServer">FillCheckProcessingAtServer</Event>
@@ -29,7 +30,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Group Header</v8:content>
+							<v8:content>Header</v8:content>
 						</v8:item>
 					</Title>
 					<Representation>None</Representation>
@@ -38,6 +39,12 @@
 					<ChildItems>
 						<InputField name="DeviceName" id="4">
 							<DataPath>DeviceName</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Scanner</v8:content>
+								</v8:item>
+							</Title>
 							<Width>35</Width>
 							<HorizontalStretch>false</HorizontalStretch>
 							<DropListButton>true</DropListButton>
@@ -57,7 +64,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Dialog box group</v8:content>
+							<v8:content>Dialog box</v8:content>
 						</v8:item>
 					</Title>
 					<Representation>None</Representation>
@@ -66,6 +73,12 @@
 					<ChildItems>
 						<InputField name="ShowScannerDialog" id="142">
 							<DataPath>ShowScannerDialog</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Configure settings</v8:content>
+								</v8:item>
+							</Title>
 							<ToolTipRepresentation>Button</ToolTipRepresentation>
 							<AutoMaxWidth>false</AutoMaxWidth>
 							<MaxWidth>37</MaxWidth>
@@ -120,7 +133,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Group Parameters</v8:content>
+							<v8:content>Parameters</v8:content>
 						</v8:item>
 					</Title>
 					<Representation>None</Representation>
@@ -154,6 +167,12 @@
 									<ChildItems>
 										<InputField name="Resolution" id="14">
 											<DataPath>Resolution</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Resolution</v8:content>
+												</v8:item>
+											</Title>
 											<ToolTip>
 												<v8:item>
 													<v8:lang>en</v8:lang>
@@ -178,6 +197,12 @@
 										</InputField>
 										<InputField name="Chromaticity" id="16">
 											<DataPath>Chromaticity</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Color scale</v8:content>
+												</v8:item>
+											</Title>
 											<Width>13</Width>
 											<HorizontalStretch>false</HorizontalStretch>
 											<ContextMenu name="ChromaticityContextMenu" id="17"/>
@@ -198,6 +223,12 @@
 										</InputField>
 										<InputField name="PaperSize" id="22">
 											<DataPath>PaperSize</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Paper size</v8:content>
+												</v8:item>
+											</Title>
 											<Width>13</Width>
 											<HorizontalStretch>false</HorizontalStretch>
 											<ContextMenu name="PaperSizeContextMenu" id="23"/>
@@ -205,6 +236,12 @@
 										</InputField>
 										<CheckBoxField name="DuplexScanning" id="28">
 											<DataPath>DuplexScanning</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Scan both sides</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>Right</TitleLocation>
 											<ToolTipRepresentation>Button</ToolTipRepresentation>
 											<CheckBoxType>Auto</CheckBoxType>
@@ -213,7 +250,7 @@
 												<Title formatted="false">
 													<v8:item>
 														<v8:lang>en</v8:lang>
-														<v8:content>This is a function of scanners and multifunction devices that allows you to automatically scan a document from both sides. It is available not on all device models.</v8:content>
+														<v8:content>This feature allows scanners and MFPs to automatically scan both sides of a document. Some models may not support it.</v8:content>
 													</v8:item>
 												</Title>
 											</ExtendedTooltip>
@@ -272,6 +309,12 @@
 											<ChildItems>
 												<InputField name="ScannedImageFormat" id="42">
 													<DataPath>ScannedImageFormat</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Save as</v8:content>
+														</v8:item>
+													</Title>
 													<Width>9</Width>
 													<HorizontalStretch>false</HorizontalStretch>
 													<DropListWidth>9</DropListWidth>
@@ -353,6 +396,12 @@ compression</v8:content>
 												</LabelDecoration>
 												<TrackBarField name="JPGQuality" id="30">
 													<DataPath>JPGQuality</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Quality</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>Top</TitleLocation>
 													<Width>35</Width>
 													<HorizontalStretch>false</HorizontalStretch>
@@ -379,6 +428,12 @@ quality</v8:content>
 										</UsualGroup>
 										<InputField name="TIFFDeflation" id="32">
 											<DataPath>TIFFDeflation</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Compression</v8:content>
+												</v8:item>
+											</Title>
 											<Width>9</Width>
 											<HorizontalStretch>false</HorizontalStretch>
 											<DropListWidth>9</DropListWidth>
@@ -401,6 +456,12 @@ quality</v8:content>
 									<ChildItems>
 										<InputField name="MultipageStorageFormat" id="40">
 											<DataPath>MultipageStorageFormat</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Save as</v8:content>
+												</v8:item>
+											</Title>
 											<ToolTip>
 												<v8:item>
 													<v8:lang>en</v8:lang>
@@ -443,6 +504,12 @@ TIF. Not all browsers display this format.</v8:content>
 											<ExtendedTooltip name="GroupUseImageMagickExtendedTooltip" id="102"/>
 											<ChildItems>
 												<UsualGroup name="GroupImageMagikRadioButton" id="132">
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>ImageMagic radio buttons</v8:content>
+														</v8:item>
+													</Title>
 													<HorizontalStretch>false</HorizontalStretch>
 													<Group>AlwaysHorizontal</Group>
 													<Representation>None</Representation>
@@ -517,7 +584,7 @@ TIF. Not all browsers display this format.</v8:content>
 													<ToolTip>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>You can use ImageMagick to convert scanned images to PDF. If the checkbox is not selected, internal tools are used.</v8:content>
+															<v8:content>ImageMagick can convert scanned images into PDF files. If this option is not selected, the app will use built-in tools.</v8:content>
 														</v8:item>
 													</ToolTip>
 													<ContextMenu name="UseImageMagickToConvertToPDFTitleContextMenu" id="104"/>
@@ -554,7 +621,7 @@ TIF. Not all browsers display this format.</v8:content>
 						</UsualGroup>
 					</ChildItems>
 				</UsualGroup>
-				<UsualGroup name="LogGroup" id="160">
+				<UsualGroup name="GroupLog" id="160">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -562,6 +629,7 @@ TIF. Not all browsers display this format.</v8:content>
 						</v8:item>
 					</Title>
 					<HorizontalStretch>true</HorizontalStretch>
+					<Group>Vertical</Group>
 					<Behavior>Collapsible</Behavior>
 					<CollapsedRepresentationTitle>
 						<v8:item>
@@ -572,58 +640,87 @@ TIF. Not all browsers display this format.</v8:content>
 					<Collapsed>true</Collapsed>
 					<ControlRepresentation>Picture</ControlRepresentation>
 					<Representation>NormalSeparation</Representation>
-					<ExtendedTooltip name="LogGroupExtendedTooltip" id="161"/>
+					<ExtendedTooltip name="GroupLogExtendedTooltip" id="161"/>
 					<ChildItems>
-						<CheckBoxField name="UseScanLogDirectory" id="162">
-							<DataPath>UseScanLogDirectory</DataPath>
+						<UsualGroup name="GroupLogSettings" id="168">
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Save information for technical support:</v8:content>
+									<v8:content>Group1</v8:content>
 								</v8:item>
 							</Title>
-							<TitleLocation>Right</TitleLocation>
-							<CheckBoxType>Auto</CheckBoxType>
-							<ContextMenu name="UseScanLogDirectoryContextMenu" id="163"/>
-							<ExtendedTooltip name="UseScanLogDirectoryExtendedTooltip" id="164"/>
-							<Events>
-								<Event name="OnChange">UseScanLogDirectoryOnChange</Event>
-							</Events>
-						</CheckBoxField>
-						<InputField name="ScanLogDirectory" id="157">
-							<DataPath>ScanLogDirectory</DataPath>
-							<Title>
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Scan log directory</v8:content>
-								</v8:item>
-							</Title>
-							<TitleLocation>None</TitleLocation>
-							<ToolTipRepresentation>Button</ToolTipRepresentation>
-							<Width>40</Width>
-							<AutoMaxWidth>false</AutoMaxWidth>
-							<HorizontalStretch>false</HorizontalStretch>
-							<ChoiceButton>true</ChoiceButton>
-							<InputHint>
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Diagnostics log directory</v8:content>
-								</v8:item>
-							</InputHint>
-							<ContextMenu name="ScanLogDirectoryContextMenu" id="158"/>
-							<ExtendedTooltip name="ScanLogDirectoryExtendedTooltip" id="159">
-								<Title formatted="false">
-									<v8:item>
-										<v8:lang>en</v8:lang>
-										<v8:content>If the application crashes, diagnostic information will be saved to the specified directory. 
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="GroupLogSettingsExtendedTooltip" id="169"/>
+							<ChildItems>
+								<CheckBoxField name="UseScanLogDirectory" id="162">
+									<DataPath>UseScanLogDirectory</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Save information for technical support:</v8:content>
+										</v8:item>
+									</Title>
+									<TitleLocation>Right</TitleLocation>
+									<CheckBoxType>Auto</CheckBoxType>
+									<ContextMenu name="UseScanLogDirectoryContextMenu" id="163"/>
+									<ExtendedTooltip name="UseScanLogDirectoryExtendedTooltip" id="164"/>
+									<Events>
+										<Event name="OnChange">UseScanLogDirectoryOnChange</Event>
+									</Events>
+								</CheckBoxField>
+								<InputField name="ScanLogCatalog" id="157">
+									<DataPath>ScanLogCatalog</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Scan log directory</v8:content>
+										</v8:item>
+									</Title>
+									<TitleLocation>None</TitleLocation>
+									<ToolTipRepresentation>Button</ToolTipRepresentation>
+									<Width>40</Width>
+									<AutoMaxWidth>false</AutoMaxWidth>
+									<HorizontalStretch>false</HorizontalStretch>
+									<ChoiceButton>true</ChoiceButton>
+									<InputHint>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Diagnostics log directory</v8:content>
+										</v8:item>
+									</InputHint>
+									<ContextMenu name="ScanLogCatalogContextMenu" id="158"/>
+									<ExtendedTooltip name="ScanLogCatalogExtendedTooltip" id="159">
+										<Title formatted="false">
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>If the application crashes, diagnostic information will be saved to the specified directory. 
 Submit it to 1C technical support.</v8:content>
-									</v8:item>
-								</Title>
-							</ExtendedTooltip>
+											</v8:item>
+										</Title>
+									</ExtendedTooltip>
+									<Events>
+										<Event name="StartChoice">ScanLogCatalogStartChoice</Event>
+									</Events>
+								</InputField>
+							</ChildItems>
+						</UsualGroup>
+						<LabelDecoration name="InformationForTechnicalSupport" id="165">
+							<Title formatted="false">
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Information for technical support</v8:content>
+								</v8:item>
+							</Title>
+							<GroupHorizontalAlign>Right</GroupHorizontalAlign>
+							<Hyperlink>true</Hyperlink>
+							<HorizontalAlign>Auto</HorizontalAlign>
+							<ContextMenu name="InformationForTechnicalSupportContextMenu" id="166"/>
+							<ExtendedTooltip name="InformationForTechnicalSupportExtendedTooltip" id="167"/>
 							<Events>
-								<Event name="StartChoice">ScanLogDirectoryStartChoice</Event>
+								<Event name="Click">InformationForTechnicalSupportClick</Event>
 							</Events>
-						</InputField>
+						</LabelDecoration>
 					</ChildItems>
 				</UsualGroup>
 			</ChildItems>
@@ -632,7 +729,7 @@ Submit it to 1C technical support.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Group Footer</v8:content>
+					<v8:content>Footer</v8:content>
 				</v8:item>
 			</Title>
 			<Representation>None</Representation>
@@ -650,7 +747,7 @@ Submit it to 1C technical support.</v8:content>
 					<ShowTitle>false</ShowTitle>
 					<ExtendedTooltip name="ScanningErrorExtendedTooltip" id="146"/>
 					<ChildItems>
-						<PictureDecoration name="ScanErrorPicture" id="147">
+						<PictureDecoration name="PictureScanError" id="147">
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -661,8 +758,8 @@ Submit it to 1C technical support.</v8:content>
 								<xr:Ref>CommonPicture.Warning</xr:Ref>
 								<xr:LoadTransparent>false</xr:LoadTransparent>
 							</Picture>
-							<ContextMenu name="ScanErrorPictureContextMenu" id="148"/>
-							<ExtendedTooltip name="ScanErrorPictureExtendedTooltip" id="149"/>
+							<ContextMenu name="PictureScanErrorContextMenu" id="148"/>
+							<ExtendedTooltip name="PictureScanErrorExtendedTooltip" id="149"/>
 						</PictureDecoration>
 						<LabelDecoration name="ScanErrorText" id="150">
 							<AutoMaxWidth>false</AutoMaxWidth>
@@ -728,6 +825,12 @@ Submit it to 1C technical support.</v8:content>
 									<Type>CommandBarButton</Type>
 									<SkipOnInput>false</SkipOnInput>
 									<CommandName>Form.Command.CustomizeStandardSettings</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Restore default parameters</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="CustomizeStandardSettingsExtendedTooltip" id="78"/>
 								</Button>
 							</ChildItems>
@@ -980,12 +1083,12 @@ Submit it to 1C technical support.</v8:content>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
-		<Attribute name="SetSettings" id="19">
+		<Attribute name="SpecifySettings" id="19">
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
-		<Attribute name="ScanLogDirectory" id="21">
+		<Attribute name="ScanLogCatalog" id="21">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>

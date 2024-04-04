@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -50,16 +51,15 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	History.Sort("ValidFrom Desc");
 	
-	If Parameters.Property("FromAddressEntryForm") And Parameters.FromAddressEntryForm Then
+	If Parameters.FromAddressEntryForm Then
 		Items.HistorySelect.DefaultButton = True;
 		ChoiceMode = Parameters.FromAddressEntryForm;
 		Items.GroupCommandBar.Visible = False;
 		Items.HistorySelect.Visible = True;
 		Items.HistoryEdit.Visible = False;
 		Items.HistoryPresentation.ReadOnly = True;
-		If Parameters.Property("ValidFrom") Then
-			DateOnOpen = Parameters.ValidFrom;
-			Filter = New Structure("ValidFrom", DateOnOpen);
+		If ValueIsFilled(Parameters.ValidFrom) Then
+			Filter = New Structure("ValidFrom", Parameters.ValidFrom);
 			FoundRows = History.FindRows(Filter);
 			If FoundRows.Count() > 0 Then
 				Items.History.CurrentRow = FoundRows[0].GetID();
@@ -269,6 +269,7 @@ Procedure OpenAddressEditForm(Val RowSelected)
 		OpeningParameters.Insert("Presentation", RowData.Presentation);
 		OpeningParameters.Insert("ValidFrom",    RowData.ValidFrom);
 		OpeningParameters.Insert("Comment",   RowData.Comment);
+		OpeningParameters.Insert("ContactInformationAdditionalAttributesDetails", History);
 		AdditionalParameters = New Structure("ValidFrom, New", RowData.ValidFrom, Not ValueIsFilled(RowData.FieldValues));
 	EndIf;
 	

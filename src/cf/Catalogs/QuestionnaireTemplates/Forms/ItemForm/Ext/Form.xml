@@ -22,6 +22,12 @@
 				<Type>CommandBarButton</Type>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.EndEdit</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>End editing</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="EndEditExtendedTooltip" id="78"/>
 			</Button>
 		</ChildItems>
@@ -69,7 +75,7 @@
 				</v8:item>
 			</Title>
 			<PagesRepresentation>TabsOnTop</PagesRepresentation>
-			<ExtendedTooltip name="MainPages1ExtendedTooltip" id="82"/>
+			<ExtendedTooltip name="PagesMainExtendedTooltip" id="82"/>
 			<ChildItems>
 				<Page name="Headers" id="8">
 					<Title>
@@ -150,6 +156,12 @@
 											<xr:Ref>StdPicture.DataCompositionNewGroup</xr:Ref>
 											<xr:LoadTransparent>true</xr:LoadTransparent>
 										</Picture>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Add basic question</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="QuestionnaireTreeContextMenuAddQuestionExtendedTooltip" id="91"/>
 									</Button>
 									<Button name="QuestionnaireTreeContextMenuAddConditionalQuestion" id="67">
@@ -160,6 +172,12 @@
 											<xr:Ref>StdPicture.DataCompositionNewNestedScheme</xr:Ref>
 											<xr:LoadTransparent>true</xr:LoadTransparent>
 										</Picture>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Add conditional question</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="QuestionnaireTreeContextMenuAddConditionalQuestionExtendedTooltip" id="92"/>
 									</Button>
 									<Button name="QuestionnaireTreeContextMenuAddTableQuestion" id="66">
@@ -170,6 +188,12 @@
 											<xr:Ref>StdPicture.DataCompositionNewTable</xr:Ref>
 											<xr:LoadTransparent>true</xr:LoadTransparent>
 										</Picture>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Add question chart</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="QuestionnaireTreeContextMenuAddTableQuestionExtendedTooltip" id="93"/>
 									</Button>
 									<Button name="QuestionnaireTreeContextMenuAddInterviewQuestion" id="144">
@@ -180,12 +204,24 @@
 											<xr:Ref>CommonPicture.AddTabularQuestion</xr:Ref>
 											<xr:LoadTransparent>false</xr:LoadTransparent>
 										</Picture>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Add interview question</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="QuestionnaireTreeContextMenuAddInterviewQuestionExtendedTooltip" id="145"/>
 									</Button>
 									<Button name="QuestionnaireTreeContextMenuAddSection" id="33">
 										<Type>CommandBarButton</Type>
 										<SkipOnInput>false</SkipOnInput>
 										<CommandName>Form.Command.AddSection</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Add section</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="QuestionnaireTreeContextMenuAddSectionExtendedTooltip" id="90"/>
 									</Button>
 									<ButtonGroup name="QuestionnaireTreeFormContextMenuGroupMove" id="135">
@@ -211,14 +247,14 @@
 											</Button>
 										</ChildItems>
 									</ButtonGroup>
-									<ButtonGroup name="QuestionnaireTreeFormContextMenuDeleteGroup" id="137">
+									<ButtonGroup name="QuestionnaireTreeFormContextMenuGroupDelete" id="137">
 										<Title>
 											<v8:item>
 												<v8:lang>en</v8:lang>
 												<v8:content>Delete</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="QuestionnaireTreeFormContextMenuDeleteGroupExtendedTooltip" id="138"/>
+										<ExtendedTooltip name="QuestionnaireTreeFormContextMenuGroupDeleteExtendedTooltip" id="138"/>
 										<ChildItems>
 											<Button name="QuestionnaireTreeContextMenuRemove" id="37">
 												<Type>CommandBarButton</Type>
@@ -339,14 +375,14 @@
 											</Button>
 										</ChildItems>
 									</ButtonGroup>
-									<ButtonGroup name="QuestionnaireTreeFormDeleteGroup" id="133">
+									<ButtonGroup name="QuestionnaireTreeFormGroupDelete" id="133">
 										<Title>
 											<v8:item>
 												<v8:lang>en</v8:lang>
 												<v8:content>Delete</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="QuestionnaireTreeFormDeleteGroupExtendedTooltip" id="134"/>
+										<ExtendedTooltip name="QuestionnaireTreeFormGroupDeleteExtendedTooltip" id="134"/>
 										<ChildItems>
 											<Button name="QuestionnaireTreeCommandBarRemove" id="38">
 												<Type>CommandBarButton</Type>
@@ -446,10 +482,16 @@
 											<Wrap>false</Wrap>
 											<ClearButton>false</ClearButton>
 											<ContextMenu name="QuestionnaireTreeWording1ContextMenu" id="24"/>
-											<ExtendedTooltip name="QuestionnaireTreeWording1ExtendedTooltip" id="109"/>
+											<ExtendedTooltip name="QuestionnaireTreeWordingExtendedTooltip" id="109"/>
 										</InputField>
 										<PictureField name="QuestionnaireTreePictureCode" id="21">
 											<DataPath>QuestionnaireTree.PictureCode</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Picture code</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<EditMode>EnterOnInput</EditMode>
 											<FileDragMode>AsFile</FileDragMode>
@@ -460,6 +502,12 @@
 								</ColumnGroup>
 								<InputField name="QuestionnaireTreeIsRequired" id="25">
 									<DataPath>QuestionnaireTree.IsRequired</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Required</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<EditMode>EnterOnInput</EditMode>
 									<HeaderPicture>
@@ -474,6 +522,12 @@
 								</InputField>
 								<PictureField name="QuestionnaireTreeFormHasNotes" id="115">
 									<DataPath>QuestionnaireTree.HasNotes</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Notes flag</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<EditMode>EnterOnInput</EditMode>
 									<HeaderPicture>
@@ -722,7 +776,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Has notes</v8:content>
+							<v8:content>Notes flag</v8:content>
 						</v8:item>
 					</Title>
 					<Type>
@@ -816,7 +870,7 @@
 						<Title>
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>Response</v8:content>
+								<v8:content>Answer</v8:content>
 							</v8:item>
 						</Title>
 						<Type>

@@ -26,6 +26,12 @@
 		</InputField>
 		<InputField name="Body" id="10">
 			<DataPath>Body</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Body</v8:content>
+				</v8:item>
+			</Title>
 			<WarningOnEditRepresentation>Show</WarningOnEditRepresentation>
 			<MultiLine>true</MultiLine>
 			<ExtendedEdit>true</ExtendedEdit>

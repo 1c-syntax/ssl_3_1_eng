@@ -75,6 +75,12 @@
 		</InputField>
 		<InputField name="AuthorizationMethod" id="24">
 			<DataPath>AuthorizationMethod</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Authentication method</v8:content>
+				</v8:item>
+			</Title>
 			<Width>30</Width>
 			<HorizontalStretch>false</HorizontalStretch>
 			<ListChoiceMode>true</ListChoiceMode>
@@ -147,6 +153,12 @@
 		</InputField>
 		<InputField name="SenderName" id="16">
 			<DataPath>SenderName</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Sender's name</v8:content>
+				</v8:item>
+			</Title>
 			<Width>30</Width>
 			<HorizontalStretch>false</HorizontalStretch>
 			<ContextMenu name="SenderNameContextMenu" id="17"/>

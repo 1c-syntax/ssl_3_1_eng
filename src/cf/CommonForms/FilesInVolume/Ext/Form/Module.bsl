@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -109,16 +110,16 @@ Procedure SetUpDynamicList(Val StorageName)
 	
 	QueryText =
 	"SELECT
-	|	FileStorage2.Ref AS Ref,
-	|	FileStorage2.PictureIndex AS PictureIndex,
-	|	FileStorage2.PathToFile AS PathToFile,
-	|	FileStorage2.Size AS Size,
-	|	FileStorage2.Author AS Author,
+	|	FileRepository.Ref AS Ref,
+	|	FileRepository.PictureIndex AS PictureIndex,
+	|	FileRepository.PathToFile AS PathToFile,
+	|	FileRepository.Size AS Size,
+	|	FileRepository.Author AS Author,
 	|	&AreAttachedFiles AS AreAttachedFiles
 	|FROM
-	|	&CatalogName AS FileStorage2
+	|	&CatalogName AS FileRepository
 	|WHERE
-	|	FileStorage2.Volume = &Volume";
+	|	FileRepository.Volume = &Volume";
 	
 	QueryText = StrReplace(QueryText, "&CatalogName", "Catalog." + StorageName);
 	QueryText = StrReplace(QueryText, "&AreAttachedFiles", ?(
@@ -143,7 +144,7 @@ Procedure FillFileStorageNames()
 		FileStorageNames.Add(MetadataCatalogs.FilesVersions.Name, MetadataCatalogs.FilesVersions.Presentation());
 		
 		For Each Catalog In Metadata.Catalogs Do
-			If StrEndsWith(Catalog.Name, FilesOperationsClientServer.CatalogSuffixAttachedFiles()) Then
+			If StrEndsWith(Catalog.Name, FilesOperationsInternal.CatalogSuffixAttachedFiles()) Then
 				FileStorageNames.Add(Catalog.Name, Catalog.Presentation());
 			EndIf;
 		EndDo;

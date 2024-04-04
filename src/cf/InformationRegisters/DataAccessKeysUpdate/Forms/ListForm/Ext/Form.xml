@@ -33,12 +33,24 @@
 				<Button name="FormAccessUpdate" id="39">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.AccessUpdateOnRecordsLevel</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Update record-level access…</v8:content>
+						</v8:item>
+					</Title>
 					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 					<ExtendedTooltip name="FormAccessUpdateExtendedTooltip" id="40"/>
 				</Button>
 				<Button name="FormEnableEditing" id="37">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.EnableEditing</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Allow editing</v8:content>
+						</v8:item>
+					</Title>
 					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 					<ExtendedTooltip name="FormEnableEditingExtendedTooltip" id="38"/>
 				</Button>
@@ -224,7 +236,7 @@
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Allow editing for troubleshooting. The feature is for advanced users only.</v8:content>
+					<v8:content>Allow editing for troubleshooting. Recommended for advanced users only.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>EnableEditing</Action>

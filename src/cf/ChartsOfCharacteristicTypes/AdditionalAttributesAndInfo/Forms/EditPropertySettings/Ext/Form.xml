@@ -15,6 +15,12 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.WriteAndClose</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save and close</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormWriteAndCloseExtendedTooltip" id="60"/>
 			</Button>
 		</ChildItems>
@@ -32,7 +38,7 @@
 				</v8:item>
 			</Title>
 			<PagesRepresentation>None</PagesRepresentation>
-			<ExtendedTooltip name="PropertyTypes1ExtendedTooltip" id="61"/>
+			<ExtendedTooltip name="PropertyTypesExtendedTooltip" id="61"/>
 			<ChildItems>
 				<Page name="AdditionalAttribute" id="17">
 					<Title>
@@ -63,8 +69,8 @@
 										</v8:item>
 									</Title>
 									<Picture>
-										<xr:Ref>CommonPicture.Warning32</xr:Ref>
-										<xr:LoadTransparent>false</xr:LoadTransparent>
+										<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
 									<ContextMenu name="AttributeWarningPictureContextMenu" id="49"/>
@@ -89,6 +95,12 @@ Alternatively, you can add a new independent attribute with exclusive list of va
 						</UsualGroup>
 						<RadioButtonField name="IndependentAttributeValues" id="8">
 							<DataPath>IndependentPropertyWithIndependentValuesList</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Exclusive property with exclusive values</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<RadioButtonType>Auto</RadioButtonType>
 							<ChoiceList>
@@ -146,6 +158,12 @@ Alternatively, you can add a new independent attribute with exclusive list of va
 									<ChildItems>
 										<RadioButtonField name="SharedAttributesValues" id="6">
 											<DataPath>IndependentPropertyWithSharedValuesList</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Exclusive property with shared values</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<RadioButtonType>Auto</RadioButtonType>
 											<ChoiceList>
@@ -195,6 +213,12 @@ Alternatively, you can add a new independent attribute with exclusive list of va
 									<ChildItems>
 										<RadioButtonField name="CommonAttribute" id="4">
 											<DataPath>CommonProperty</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Shared property</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<RadioButtonType>Auto</RadioButtonType>
 											<ChoiceList>
@@ -269,8 +293,8 @@ For example, with attribute "Color" you can filter all yellow shoes and dresses.
 										</v8:item>
 									</Title>
 									<Picture>
-										<xr:Ref>CommonPicture.Warning32</xr:Ref>
-										<xr:LoadTransparent>false</xr:LoadTransparent>
+										<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
 									<ContextMenu name="InfoItemWarningPictureContextMenu" id="57"/>
@@ -295,6 +319,12 @@ Alternatively, you can add a new independent information record with exclusive l
 						</UsualGroup>
 						<RadioButtonField name="IndependentInfoItemValues" id="26">
 							<DataPath>IndependentPropertyWithIndependentValuesList</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Exclusive property with exclusive values</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<RadioButtonType>Auto</RadioButtonType>
 							<ChoiceList>
@@ -339,7 +369,7 @@ Alternatively, you can add a new independent information record with exclusive l
 								</v8:item>
 							</Title>
 							<PagesRepresentation>None</PagesRepresentation>
-							<ExtendedTooltip name="InfoKinds1ExtendedTooltip" id="81"/>
+							<ExtendedTooltip name="InfoKindsExtendedTooltip" id="81"/>
 							<ChildItems>
 								<Page name="SharedInfoValuesKind" id="39">
 									<Title>
@@ -352,6 +382,12 @@ Alternatively, you can add a new independent information record with exclusive l
 									<ChildItems>
 										<RadioButtonField name="SharedInfoValues" id="22">
 											<DataPath>IndependentPropertyWithSharedValuesList</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Exclusive property with shared values</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<RadioButtonType>Auto</RadioButtonType>
 											<ChoiceList>
@@ -401,6 +437,12 @@ Alternatively, you can add a new independent information record with exclusive l
 									<ChildItems>
 										<RadioButtonField name="SharedInfo" id="18">
 											<DataPath>CommonProperty</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Shared property</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<RadioButtonType>Auto</RadioButtonType>
 											<ChoiceList>

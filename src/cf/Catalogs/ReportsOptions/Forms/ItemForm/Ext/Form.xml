@@ -38,7 +38,7 @@
 						<v8:content>Reset settings</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="ClearSettingsExtendedTooltip" id="154"/>
+				<ExtendedTooltip name="ResetBackupSettingsExtendedTooltip" id="154"/>
 				<ChildItems>
 					<Button name="FormResetAssignmentSettings" id="119">
 						<Type>CommandBarButton</Type>
@@ -52,14 +52,14 @@
 						<CommandName>Catalog.ReportsOptions.Command.ResetUserSettings</CommandName>
 						<DataPath>Object.Ref</DataPath>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-						<ExtendedTooltip name="FormResetUserSettingsExtendedTooltip" id="156"/>
+						<ExtendedTooltip name="FormResetUsersSettingsExtendedTooltip" id="156"/>
 					</Button>
 					<Button name="FormPlaceInSections" id="138">
 						<Type>CommandBarButton</Type>
 						<Visible>false</Visible>
 						<CommandName>Catalog.ReportsOptions.Command.PlaceInSections</CommandName>
 						<DataPath>Object.Ref</DataPath>
-						<ExtendedTooltip name="FormAssignToSectionsExtendedTooltip" id="157"/>
+						<ExtendedTooltip name="FormPlaceInSectionsExtendedTooltip" id="157"/>
 					</Button>
 				</ChildItems>
 			</ButtonGroup>
@@ -71,7 +71,7 @@
 			<Button name="FormCustomizeForm" id="149">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.CustomizeForm</CommandName>
-				<ExtendedTooltip name="FormChangeFormExtendedTooltip" id="159"/>
+				<ExtendedTooltip name="FormCustomizeFormExtendedTooltip" id="159"/>
 			</Button>
 			<Button name="FormHelp" id="146">
 				<Type>CommandBarButton</Type>
@@ -158,6 +158,12 @@
 							<ChildItems>
 								<RadioButtonField name="Available" id="109">
 									<DataPath>Available</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Available to</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>Left</TitleLocation>
 									<RadioButtonType>Auto</RadioButtonType>
 									<ChoiceList>
@@ -349,6 +355,12 @@
 						</Table>
 						<CheckBoxField name="NotifyUsers" id="304">
 							<DataPath>NotifyUsers</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Notify chat members about this report option</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<ToolTip>
 								<v8:item>
@@ -450,6 +462,12 @@
 									<ChildItems>
 										<CheckBoxField name="SubsystemsTreeUse" id="104" DisplayImportance="VeryHigh">
 											<DataPath>SubsystemsTree.Use</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Use</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<HorizontalAlign>Left</HorizontalAlign>
 											<EditMode>EnterOnInput</EditMode>
@@ -463,6 +481,12 @@
 										<InputField name="SubsystemsTreePresentation" id="86" DisplayImportance="VeryHigh">
 											<DataPath>SubsystemsTree.Presentation</DataPath>
 											<ReadOnly>true</ReadOnly>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Section, Group</v8:content>
+												</v8:item>
+											</Title>
 											<HorizontalAlign>Left</HorizontalAlign>
 											<EditMode>EnterOnInput</EditMode>
 											<ContextMenu name="SubsystemsTreePresentationContextMenu" id="87"/>
@@ -472,6 +496,12 @@
 								</ColumnGroup>
 								<InputField name="SubsystemsTreeImportance" id="96">
 									<DataPath>SubsystemsTree.Importance</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Importance</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<Width>8</Width>
 									<ClearButton>true</ClearButton>
@@ -568,7 +598,7 @@
 					<RowFilter xsi:nil="true"/>
 					<ContextMenu name="PlacementContextMenu" id="123"/>
 					<AutoCommandBar name="LocationCommandBar" id="124"/>
-					<ExtendedTooltip name="PlacementExtendedTooltip" id="177"/>
+					<ExtendedTooltip name="LocationExtendedTooltip" id="177"/>
 					<SearchStringAddition name="PlacementSearchString" id="215">
 						<AdditionSource>
 							<Item>Location</Item>
@@ -599,7 +629,7 @@
 							<EditMode>EnterOnInput</EditMode>
 							<CheckBoxType>Auto</CheckBoxType>
 							<ContextMenu name="PlacementUsageContextMenu" id="128"/>
-							<ExtendedTooltip name="PlacementUsageExtendedTooltip" id="178"/>
+							<ExtendedTooltip name="PlacementUseExtendedTooltip" id="178"/>
 						</CheckBoxField>
 						<InputField name="PlacementSubsystem" id="129">
 							<DataPath>Object.Location.Subsystem</DataPath>
@@ -612,7 +642,7 @@
 							<EditMode>EnterOnInput</EditMode>
 							<CheckBoxType>Auto</CheckBoxType>
 							<ContextMenu name="PlacementIsImportantContextMenu" id="132"/>
-							<ExtendedTooltip name="PlacementIsImportantExtendedTooltip" id="180"/>
+							<ExtendedTooltip name="PlacementImportantExtendedTooltip" id="180"/>
 						</CheckBoxField>
 						<CheckBoxField name="PlacementSeeAlso" id="133">
 							<DataPath>Object.Location.SeeAlso</DataPath>
@@ -917,7 +947,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Notify about this report option in the chat</v8:content>
+					<v8:content>Notify chat members about this report option</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -950,4 +980,9 @@
 			<Action>PickUsers</Action>
 		</Command>
 	</Commands>
+	<Parameters>
+		<Parameter name="ReportFormOpeningParameters">
+			<Type/>
+		</Parameter>
+	</Parameters>
 </Form>

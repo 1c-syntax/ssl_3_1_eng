@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -301,7 +302,7 @@ Function SectionsFillingQueryText()
 			|	END AS Importance
 			|FROM
 			|	CommonSettings AS CommonSettings
-			|	FULL JOIN SeparatedSettings AS SeparatedSettings // ACC:70 - существенно не замедляет запрос, так как в соединяемых таблицах малое количество записей.
+			|	FULL JOIN SeparatedSettings AS SeparatedSettings
 			|		ON CommonSettings.Ref = SeparatedSettings.Ref
 			|		AND CommonSettings.Subsystem = SeparatedSettings.Subsystem
 			|WHERE
@@ -396,7 +397,7 @@ Procedure AddSubsystemsToTree(DestinationParent, SourceParent, SubsystemsOccurre
 		ElsIf OccurrencesOfThisSubsystem.Count() = 0 Then
 			Receiver.Importance = "";
 		Else
-			Receiver.Importance = MixedImportance; 
+			Receiver.Importance = MixedImportance; // 
 		EndIf;
 
 		OptionsOccurrences = OccurrencesOfThisSubsystem.Total("Count");

@@ -11,6 +11,12 @@
 			<Button name="FormSetDeletionMark" id="53">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.SetDeletionMark</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Toggle deletion mark</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormSetDeletionMarkExtendedTooltip" id="54"/>
 			</Button>
@@ -30,7 +36,7 @@
 			<Title formatted="false">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>The digital signature and encryption application is set up in the root node</v8:content>
+					<v8:content>The digital signing and encryption app was configured on the master node</v8:content>
 				</v8:item>
 			</Title>
 			<BackColor>style:ToolTipBackColor</BackColor>

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Not MobileStandaloneServer Then
@@ -71,8 +72,8 @@ EndProcedure
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 Procedure FormGetProcessing(FormType, Parameters, SelectedForm, AdditionalInformation, StandardProcessing)
-	
-	
+	// 
+	// 
 	If FormType = "ObjectForm" Then
 		OptionRef1 = CommonClientServer.StructureProperty(Parameters, "Key");
 		If Not ValueIsFilled(OptionRef1) Then
@@ -269,9 +270,11 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			EndIf;
 			Comment = StringFunctionsClientServer.SubstituteParametersToString(
 				CommentTemplate, RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-			WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Warning,
-				MetadataObject, Variant.Ref, Comment);
-
+			
+			InfobaseUpdate.WriteErrorToEventLog(
+				Variant.Ref,
+				RepresentationOfTheReference,
+				Comment);
 		EndTry;
 
 	EndDo;

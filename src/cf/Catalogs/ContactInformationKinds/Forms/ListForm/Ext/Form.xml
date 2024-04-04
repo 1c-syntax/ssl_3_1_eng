@@ -9,6 +9,12 @@
 			<Button name="FormGoToList" id="55">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.GoToList</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Go to list…</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormGoToListExtendedTooltip" id="56"/>
 			</Button>
@@ -78,6 +84,12 @@
 					<Button name="ListContextMenuGoToList" id="57">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.GoToList</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Go to list…</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="ListContextMenuGoToListExtendedTooltip" id="58"/>
 					</Button>
 				</ChildItems>
@@ -213,6 +225,12 @@ WHERE
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>IconIndex</dcssch:dataPath>
 					<dcssch:field>IconIndex</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Icon index</v8:content>
+						</v8:item>
+					</dcssch:title>
 				</Field>
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>Ref</dcssch:dataPath>

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -23,7 +24,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 		Items.MinimalUserActivityPeriodHintGroup.Visible = False;
 		Items.WhereToFindThisFormHint.Title = 
-			NStr("en = 'To monitor the progress of processing application version data,
+			NStr("en = 'To view the progress of processing app data,
 		               |go to Quick menu > Information > Release notes.';");
 		
 	EndIf;
@@ -492,8 +493,8 @@ EndProcedure
 &AtServer
 Procedure ResetHandlersStatus(Status)
 	
-	
-	
+	// 
+	// 
 	Query = New Query;
 	Query.SetParameter("Status", Status);
 	Query.Text =
@@ -518,8 +519,8 @@ Procedure ResetHandlersStatus(Status)
 		
 		RecordSet.Write();
 	EndDo;
-	
-	
+	// 
+	// 
 	
 EndProcedure
 
@@ -560,7 +561,7 @@ Function UpdateResultMessage()
 	Else
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Some of the update procedures are not completed (%1 out of %2 completed)';"), 
 			Progress.CompletedHandlersCount, Progress.TotalHandlerCount);
-		Items.CompletedPicture.Picture = PictureLib.Error32;
+		Items.CompletedPicture.Picture = PictureLib.DialogStop;
 	EndIf;
 	Return MessageText;
 	
@@ -599,8 +600,8 @@ Procedure UpdateInformationOnIssues()
 	Items.ProblemSituationsCompleted.Title = TextIndicator; // On the completed handler page.
 	
 	// Display information about the data issue.
-	OutputDataProblems = InfobaseUpdateInternal.OutputDataProblems();
-	If OutputDataProblems Then
+	ShouldShowDataIssues = InfobaseUpdateInternal.ShouldShowDataIssues();
+	If ShouldShowDataIssues Then
 		NumberofProblemswithData = InfobaseUpdateInternal.NumberofProblemswithData();
 	Else
 		NumberofProblemswithData = 0; 
@@ -971,8 +972,8 @@ Procedure CheckPerformDeferredUpdate(UpdateInfo)
 			EndIf;
 			JobActive = False;
 			
-			
-			
+			// 
+			// 
 			If BackgroundJob.End > CurrentDate() - Job.Schedule.RepeatPeriodInDay * 5 Then
 				TaskIsRunning = True;
 			EndIf;

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region EventHandlers
@@ -80,7 +81,8 @@ EndProcedure
 //
 Procedure SaveProcessing(ReportKey, VariantKey, Settings, SettingsDescription, User)
 	If Not ReportsOptionsCached.InsertRight1() Then
-		Raise NStr("en = 'Insufficient rights to save report options.';");
+		Raise(NStr("en = 'Insufficient rights to save report options.';"),
+			ErrorCategory.AccessViolation);
 	EndIf;
 	
 	ReportInformation = ReportsOptions.ReportInformation(ReportKey, True);
@@ -217,7 +219,8 @@ EndProcedure
 //
 Procedure SetDescriptionProcessing(ReportKey, VariantKey, SettingsDescription, User)
 	If Not ReportsOptionsCached.InsertRight1() Then
-		Raise NStr("en = 'Insufficient rights to save report options.';");
+		Raise(NStr("en = 'Insufficient rights to save report options.';"),
+			ErrorCategory.AccessViolation);
 	EndIf;
 	
 	If TypeOf(ReportKey) = Type("String") Then
@@ -269,8 +272,8 @@ EndProcedure
 
 #Region Private
 
-
-
+// 
+// 
 
 // Returns a list of user report options.
 //

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -48,12 +49,12 @@ Procedure OnFillPeriodClosingDatesSections(Sections) Export
 	
 EndProcedure
 
-// 
-//  See PeriodClosingDates.AddRow.
+// Allows you to specify tables and object fields to check period-end closing.
+// To add a new source to DataSources  See PeriodClosingDates.AddRow.
 //
-// 
-// 
-// 
+// Called from the ChangeProhibited procedure of the PeriodEndClosingDates common module
+// used in the BeforeWrite event subscription of the object to check for period-end
+// closing and canceled restricted object changes.
 //
 // Parameters:
 //  DataSources - ValueTable:
@@ -61,8 +62,8 @@ EndProcedure
 //                   for example, Metadata.Documents.PurchaseInvoice.FullName().
 //   * DateField    - String - an attribute name of an object or a tabular section,
 //                   for example: "Date", "Goods.ShipmentDate".
-//   * Section      - String - 
-//                   
+//   * Section      - String - Name of a period-end closing date section
+//                   specified in the OnFillPeriodClosingDatesSections procedure (see above).
 //   * ObjectField - String - an attribute name of an object or a tabular section,
 //                   for example: "Company", "Goods.Warehouse".
 //

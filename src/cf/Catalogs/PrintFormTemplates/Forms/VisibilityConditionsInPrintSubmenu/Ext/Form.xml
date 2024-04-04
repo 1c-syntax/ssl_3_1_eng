@@ -112,6 +112,12 @@
 			<ChildItems>
 				<InputField name="VisibilityConditionsField" id="29">
 					<DataPath>VisibilityConditions.FieldPresentation</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Field</v8:content>
+						</v8:item>
+					</Title>
 					<ContextMenu name="VisibilityConditionsFieldContextMenu" id="30"/>
 					<ExtendedTooltip name="VisibilityConditionsFieldExtendedTooltip" id="31"/>
 					<Events>
@@ -121,6 +127,12 @@
 				</InputField>
 				<InputField name="ConditionsVisibilityViewComparison" id="32">
 					<DataPath>VisibilityConditions.ViewComparisonView</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Comparison type</v8:content>
+						</v8:item>
+					</Title>
 					<ChoiceButton>true</ChoiceButton>
 					<ContextMenu name="ConditionsVisibilityViewComparisonContextMenu" id="33"/>
 					<ExtendedTooltip name="ConditionsVisibilityViewComparisonExtendedTooltip" id="34"/>
@@ -132,6 +144,12 @@
 				</InputField>
 				<InputField name="VisibilityConditionsValue" id="35">
 					<DataPath>VisibilityConditions.Value</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Value</v8:content>
+						</v8:item>
+					</Title>
 					<ContextMenu name="VisibilityConditionsValueContextMenu" id="36"/>
 					<ExtendedTooltip name="VisibilityConditionsValueExtendedTooltip" id="37"/>
 				</InputField>

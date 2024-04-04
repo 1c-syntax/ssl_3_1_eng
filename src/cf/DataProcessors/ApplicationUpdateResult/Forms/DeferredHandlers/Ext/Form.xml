@@ -36,6 +36,12 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.CloseForm</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Close</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormCloseFormExtendedTooltip" id="22"/>
 			</Button>
 		</ChildItems>
@@ -165,18 +171,36 @@
 						<Button name="Refresh" id="97">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.Refresh</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Refresh</v8:content>
+								</v8:item>
+							</Title>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 							<ExtendedTooltip name="RefreshExtendedTooltip" id="98"/>
 						</Button>
 						<Button name="RunProcedure" id="123">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.RunProcedure</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Run procedure</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="RunProcedureExtendedTooltip" id="124"/>
 						</Button>
 						<Button name="Resume" id="93">
 							<Type>CommandBarButton</Type>
 							<Representation>PictureAndText</Representation>
 							<CommandName>Form.Command.Resume</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Resume</v8:content>
+								</v8:item>
+							</Title>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 							<ExtendedTooltip name="ResumeExtendedTooltip" id="94"/>
 						</Button>
@@ -184,6 +208,12 @@
 							<Type>CommandBarButton</Type>
 							<Representation>PictureAndText</Representation>
 							<CommandName>Form.Command.Stop</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Suspend</v8:content>
+								</v8:item>
+							</Title>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 							<ExtendedTooltip name="StopExtendedTooltip" id="96"/>
 						</Button>
@@ -199,12 +229,24 @@
 								<Button name="OnSchedule" id="106">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.OnSchedule</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Normal priority</v8:content>
+										</v8:item>
+									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="OnScheduleExtendedTooltip" id="107"/>
 								</Button>
 								<Button name="HighPriority" id="108">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.HighPriority</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>High priority</v8:content>
+										</v8:item>
+									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="HighPriorityExtendedTooltip" id="109"/>
 								</Button>
@@ -267,16 +309,34 @@
 							<Button name="ContextMenuRunSelectedHandler" id="125">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.RunProcedure</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Run procedure</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="ContextMenuRunSelectedHandlerExtendedTooltip" id="126"/>
 							</Button>
 							<Button name="ContextMenuPause" id="85">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.Stop</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Suspend</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="ContextMenuPauseExtendedTooltip" id="86"/>
 							</Button>
 							<Button name="ContextMenuRun" id="87">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.Resume</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Resume</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="ContextMenuRunExtendedTooltip" id="88"/>
 							</Button>
 							<ButtonGroup name="DeferredHandlersContextMenuOrder" id="112">
@@ -291,11 +351,23 @@
 									<Button name="NormalPriorityContextMenu" id="104">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.OnSchedule</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Normal priority</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="NormalPriorityContextMenuExtendedTooltip" id="105"/>
 									</Button>
 									<Button name="HighPriorityContextMenu" id="102">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.HighPriority</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>High priority</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="HighPriorityContextMenuExtendedTooltip" id="103"/>
 									</Button>
 								</ChildItems>
@@ -347,6 +419,12 @@
 					<ChildItems>
 						<PictureField name="Priority" id="99">
 							<DataPath>DeferredHandlers.PriorityPicture</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Priority picture</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<EditMode>EnterOnInput</EditMode>
 							<HeaderPicture>
@@ -375,6 +453,12 @@
 						</InputField>
 						<InputField name="DeferredHandlersHandler" id="41">
 							<DataPath>DeferredHandlers.Handler</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Data processing procedure</v8:content>
+								</v8:item>
+							</Title>
 							<EditMode>EnterOnInput</EditMode>
 							<Width>36</Width>
 							<HorizontalStretch>false</HorizontalStretch>
@@ -396,6 +480,12 @@
 							<ChildItems>
 								<PictureField name="DeferredHandlersStatusPicture" id="46">
 									<DataPath>DeferredHandlers.StatusPicture</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Status picture</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<EditMode>EnterOnInput</EditMode>
 									<Width>9</Width>
@@ -406,6 +496,12 @@
 								</PictureField>
 								<InputField name="DeferredHandlersHandlerStatus" id="49">
 									<DataPath>DeferredHandlers.StatusPresentation</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Status</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<Width>1</Width>
 									<HorizontalStretch>false</HorizontalStretch>
@@ -416,6 +512,12 @@
 						</ColumnGroup>
 						<InputField name="DeferredHandlersExecutionInterval" id="80">
 							<DataPath>DeferredHandlers.ExecutionInterval</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Frequency</v8:content>
+								</v8:item>
+							</Title>
 							<EditMode>EnterOnInput</EditMode>
 							<Width>15</Width>
 							<HorizontalStretch>false</HorizontalStretch>
@@ -425,6 +527,12 @@
 						</InputField>
 						<InputField name="DeferredHandlersExecutionDuration" id="77">
 							<DataPath>DeferredHandlers.ExecutionDuration</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Duration</v8:content>
+								</v8:item>
+							</Title>
 							<EditMode>EnterOnInput</EditMode>
 							<Width>15</Width>
 							<HorizontalStretch>false</HorizontalStretch>
@@ -570,12 +678,18 @@
 								</v8:item>
 							</Title>
 							<ContextMenu name="NoteText1ContextMenu" id="12"/>
-							<ExtendedTooltip name="NoteText1ExtendedTooltip" id="32"/>
+							<ExtendedTooltip name="ExplanationTextExtendedTooltip" id="32"/>
 						</LabelDecoration>
 						<Button name="RunAgain" id="9">
 							<Type>UsualButton</Type>
 							<Representation>PictureAndText</Representation>
 							<CommandName>Form.Command.RunAgain</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Run</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="RunAgainExtendedTooltip" id="33"/>
 						</Button>
 					</ChildItems>

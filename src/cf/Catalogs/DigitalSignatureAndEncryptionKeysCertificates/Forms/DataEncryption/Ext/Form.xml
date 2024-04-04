@@ -173,6 +173,12 @@
 											<Button name="EncryptionCertificatesContextMenuOpenCertificate" id="479">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.OpenCertificate</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Open certificate</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="EncryptionCertificatesContextMenuOpenCertificateExtendedTooltip" id="480"/>
 											</Button>
 										</ChildItems>
@@ -183,6 +189,12 @@
 											<Button name="EncryptionCertificatesPick" id="481">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.Pick</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Pick</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="EncryptionCertificatesPickExtendedTooltip" id="482"/>
 											</Button>
 											<Button name="EncryptionCertificatesAdd" id="483">
@@ -255,6 +267,12 @@
 									<ChildItems>
 										<InputField name="EncryptionCertificatesCertificate" id="491">
 											<DataPath>EncryptionCertificates.Certificate</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Certificate</v8:content>
+												</v8:item>
+											</Title>
 											<EditMode>EnterOnInput</EditMode>
 											<DropListButton>false</DropListButton>
 											<ChoiceButton>true</ChoiceButton>
@@ -325,6 +343,12 @@
 											<Button name="CertificatesSetContextMenuOpenCertificate" id="524">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.OpenCertificate</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Open certificate</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="CertificatesSetContextMenuOpenCertificateExtendedTooltip" id="525"/>
 											</Button>
 										</ChildItems>
@@ -358,6 +382,12 @@
 									<ChildItems>
 										<InputField name="CertificatesSetPresentation" id="519">
 											<DataPath>CertificatesSet.Presentation</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Presentation</v8:content>
+												</v8:item>
+											</Title>
 											<EditMode>EnterOnInput</EditMode>
 											<ContextMenu name="CertificatesSetPresentationContextMenu" id="520"/>
 											<ExtendedTooltip name="CertificatesSetPresentationExtendedTooltip" id="521"/>
@@ -411,6 +441,12 @@
 							<Type>CommandBarButton</Type>
 							<DefaultButton>true</DefaultButton>
 							<CommandName>Form.Command.Encrypt</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Encrypt</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="FormEncryptExtendedTooltip" id="533"/>
 						</Button>
 						<Button name="FormClose" id="534">

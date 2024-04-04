@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -26,9 +27,10 @@ Var FirstOpeningOfForm; // Boolean
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not ConfigurationUpdate.HasRightsToInstallUpdate() Then
-		Raise NStr("en = 'Insufficient rights to update the configuration. Please contact the administrator.';");
+		Raise(NStr("en = 'Insufficient rights to update the application. Please contact the administrator.';"),
+			ErrorCategory.AccessViolation);
 	ElsIf Users.IsExternalUserSession() Then
-		Raise NStr("en = 'This operation is not available to external users.';");
+		Raise(NStr("en = 'Insufficient access rights.';"), ErrorCategory.AccessViolation);
 	EndIf;
 	
 	If Not Common.IsWindowsClient() Then
@@ -47,6 +49,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Not Common.SubsystemExists("StandardSubsystems.EmailOperations") Then
 		Items.EmailPanel.Visible = False;
 	EndIf;
+	
+	UncompletedHandlersStatus = InfobaseUpdateInternal.UncompletedHandlersStatus();
+	Items.IncompleteHandlersLabel.Visible = ValueIsFilled(UncompletedHandlersStatus);
 	
 	Items.IssuesDiscoveredLabel.Visible = SystemCheckIssues();
 	Items.ExtensionsAvailableLabel.Visible     = ConfigurationUpdate.WarnAboutExistingExtensions();
@@ -80,6 +85,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		RestoreConfigurationUpdateSettings();
 	Else 
 		SelectedFiles = Parameters.SelectedFiles;
+		ShowInstalledPatches = True;
 	EndIf;
 	
 	If IsFileInfobase And Object.UpdateMode > 1 Or Parameters.ShouldExitApp Then
@@ -162,7 +168,7 @@ Procedure OnClose(Exit)
 		Return;
 	EndIf;
 	
-	ConfigurationUpdateClient.WriteEventsToEventLog();
+	EventLogClient.WriteEventsToEventLog();
 	
 EndProcedure
 
@@ -171,7 +177,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure UpdateFileRequiredRadioButtonsOnChange(Item)
@@ -187,7 +193,7 @@ Procedure UpdateFileFieldStartChoice(Item, ChoiceData, StandardProcessing)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure ActiveUsersDecorationURLProcessing(Item, FormattedStringURL, StandardProcessing)
@@ -204,7 +210,7 @@ Procedure PatchInstallationErrorLabelURLProcessing(Item, FormattedStringURL, Sta
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure ActionsListLabelClick(Item)
@@ -245,7 +251,7 @@ Procedure AfterCloseBackupForm(Result, AdditionalParameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure UpdateRadioButtonsOnChange(Item)
@@ -261,7 +267,7 @@ EndProcedure
 Procedure DeferredHandlersLabelURLProcessing(Item, FormattedStringURL, StandardProcessing)
 	
 	StandardProcessing = False;
-	InfobaseUpdateClient.ShowDeferredHandlers();
+	InfobaseUpdateClient.ShowUpdateResults();
 	
 EndProcedure
 
@@ -303,6 +309,17 @@ Function SystemCheckIssues()
 	Return False;
 	
 EndFunction
+
+&AtClient
+Procedure RestartApplicationOnChange(Item)
+	
+	If RestartApplication Then
+		Items.NextButton.Title = NStr("en = 'Restart';");
+	Else
+		Items.NextButton.Title = NStr("en = 'Finish';");
+	EndIf;
+
+EndProcedure
 
 #EndRegion
 
@@ -371,8 +388,8 @@ Procedure BeforeOpenPage(Val NewPage = Undefined)
 	BackButtonAvailable = True;
 	NextButtonAvailable = True;
 	CloseButtonAvailable = True;
-	NextButtonFunction = True; 
-	CloseButtonFunction = True; 
+	NextButtonFunction = True; // True means "Next", False means "Ready".
+	CloseButtonFunction = True; // True means "Next", False means "Ready".
 	
 	Items.NextButton.Representation = ButtonRepresentation.Text;
 	
@@ -390,7 +407,7 @@ Procedure BeforeOpenPage(Val NewPage = Undefined)
 		
 	ElsIf NewPage = Pages.SelectUpdateModeFile Then
 		
-		NextButtonFunction = (Object.UpdateMode = 0);
+		NextButtonFunction = (Object.UpdateMode = 0);// If no updating now, than done.
 		
 		UpdateConnectionsInformation(Pages.SelectUpdateModeFile);
 		
@@ -407,7 +424,7 @@ Procedure BeforeOpenPage(Val NewPage = Undefined)
 		EndIf;
 	ElsIf NewPage = Pages.UpdateModeSelectionServer Then
 		
-		NextButtonFunction = (Object.UpdateMode = 0);
+		NextButtonFunction = (Object.UpdateMode = 0);// If no updating now, than done.
 		Object.RestoreInfobase = False;
 		
 		RestartInformationPanelPages = Items.RestartInformationPages.ChildItems;
@@ -453,7 +470,7 @@ Procedure BeforeOpenPage(Val NewPage = Undefined)
 		
 	EndIf;
 	
-	ConfigurationUpdateClient.WriteEventsToEventLog();
+	EventLogClient.WriteEventsToEventLog();
 	
 	NextButton = Items.NextButton;
 	CloseButton = Items.CloseButton;
@@ -675,7 +692,6 @@ Procedure UpdateConnectionsInformation(CurrentPage = Undefined)
 	ElsIf CurrentPage = Items.UpdateModeSelectionServer Then
 		
 		PageSetup = SelectUpdateModePageParametersServer(ApplicationParameters[ParameterName]);
-		Items.DeferredHandlersLabel.Visible = PageSetup.DeferredHandlersAvailable;
 		
 		ConnectionsInfo = PageSetup.ConnectionsInformation;
 		ConnectionsPresent = ConnectionsInfo.HasActiveConnections And Object.UpdateMode = 0;
@@ -737,6 +753,9 @@ Procedure HandleNextButtonClick()
 		Exit(True, True);
 	Else
 		Close();
+		If ShowInstalledPatches Then
+			ConfigurationUpdateClient.ShowInstalledPatches();
+		EndIf;
 	EndIf;
 	
 EndProcedure
@@ -881,6 +900,7 @@ Procedure ContinueInstallUpdates(PlacedFiles, AdditionalParameters) Export
 	
 	Items.WizardPages.CurrentPage = Items.AfterInstallUpdates;
 	Items.NextButton.Title = NStr("en = 'Finish';");
+	Items.CloseButton.Title = NStr("en = 'Close';");
 	
 EndProcedure
 
@@ -892,7 +912,12 @@ Procedure InstallPatchesAtServer(PlacedFiles)
 	
 	Corrections = New Structure;
 	Corrections.Insert("Set", PlacedFiles);
-	Result = ConfigurationUpdate.InstallAndDeletePatches(Corrections);
+	PatchesInstallationParameters = ConfigurationUpdate.PatchesInstallationParameters();
+	PatchesInstallationParameters.InBackground = False;
+	PatchesInstallationParameters.UpdateExtensionParameters = True;
+	PatchesInstallationParameters.ShouldCheckApplicabilityByManifest = True;
+
+	Result = ConfigurationUpdate.InstallAndDeletePatches(Corrections, PatchesInstallationParameters);
 	HasErrors = (Result.Unspecified <> 0);
 	PatchesInstalled1 = Result.Installed.Count();
 	Items.PatchInstallationError.Visible = HasErrors;
@@ -1004,7 +1029,7 @@ Procedure AfterGetAdministrationParameters(Result, IsMoveNext) Export
 		
 	EndIf;
 	
-	ConfigurationUpdateClient.WriteEventsToEventLog();
+	EventLogClient.WriteEventsToEventLog();
 	
 EndProcedure
 
@@ -1021,14 +1046,13 @@ EndProcedure
 Function SelectUpdateModePageParametersServer(MessagesForEventLog)
 	
 	PageSetup = New Structure;
-	PageSetup.Insert("DeferredHandlersAvailable", (InfobaseUpdateInternal.UncompletedHandlersStatus() = "UncompletedStatus"));
 	PageSetup.Insert("ConnectionsInformation", IBConnections.ConnectionsInformation(False, MessagesForEventLog));
 	Return PageSetup;
 	
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 // Returns a file directory (a partial path without a file name).
 //

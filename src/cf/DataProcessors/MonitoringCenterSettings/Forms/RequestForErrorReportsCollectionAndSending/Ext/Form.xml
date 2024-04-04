@@ -35,8 +35,8 @@
 						</v8:item>
 					</Title>
 					<Picture>
-						<xr:Ref>CommonPicture.Warning32</xr:Ref>
-						<xr:LoadTransparent>false</xr:LoadTransparent>
+						<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</Picture>
 					<FileDragMode>AsFile</FileDragMode>
 					<ContextMenu name="WarningDecorationContextMenu" id="21"/>
@@ -47,7 +47,7 @@
 					<Title formatted="false">
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Abnormal application terminations were registered. You can send the error report to 1C Company. The received information helps us increase the quality of released products. Your data will be treated as confidential and will not be passed on to third parties.</v8:content>
+							<v8:content>Abnormal terminations of the app were detected. Please send the error report to 1C International to help us improve. Your data is confidential and will not be passed on to third parties.</v8:content>
 						</v8:item>
 					</Title>
 					<ContextMenu name="MessageContextMenu" id="8"/>

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -676,7 +677,7 @@ Function GenerateMatches(LeftTable, RightTable, ByRows)
 			|FROM
 			|	MapsWithConflict AS MapsWithConflict";
 			
-		Selection = Query.Execute().Select();
+		Selection = Query.Execute().Select(); //@skip-check query-in-loop - Iterative processing of the table
 		Selection.Next();
 		ConflictsLevel = Selection.NumberOfConflicts;
 		
@@ -690,7 +691,7 @@ Function GenerateMatches(LeftTable, RightTable, ByRows)
 		TempTablesToDelete.Add("ReplacementMaxWeight");
 		TempTablesToDelete.Add("FoundOptionsConflicts");
 		
-		DeleteTemporaryTables(Query, TempTablesToDelete);
+		DeleteTemporaryTables(Query, TempTablesToDelete); //@skip-check query-in-loop - Iterative processing of the table
 
 	EndDo;
 	

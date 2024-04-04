@@ -876,12 +876,7 @@
 			<Attribute uuid="6593baab-fce0-49ed-867e-be242bfc08d7">
 				<Properties>
 					<Name>Application</Name>
-					<Synonym>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Application</v8:content>
-						</v8:item>
-					</Synonym>
+					<Synonym/>
 					<Comment/>
 					<Type>
 						<v8:TypeSet>cfg:DefinedType.DigitalSignatureApplication</v8:TypeSet>
@@ -889,13 +884,7 @@
 					<PasswordMode>false</PasswordMode>
 					<Format/>
 					<EditFormat/>
-					<ToolTip>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Application that is required for signing and decrypting documents
-(using secret key by which the certificate was issued).</v8:content>
-						</v8:item>
-					</ToolTip>
+					<ToolTip/>
 					<MarkNegatives>false</MarkNegatives>
 					<Mask/>
 					<MultiLine>false</MultiLine>
@@ -970,7 +959,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Protect digital signature application with password</v8:content>
+							<v8:content>Protect digital signing app with password</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -983,11 +972,10 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>- Enables interactive mode of the digital signature application.
-The application will ask you to sign in (it supports saving passwords).
-- You can disable password protection in 1C:Enterprise form.
+							<v8:content>- The digital signing app prompts for a password and allows you to save it.
+- 1C:Enterprise never prompts for a password.
 
-This option is required for private keys of certificates covered by OS advanced protection.</v8:content>
+It is required for private keys of the certificates with strong protection enabled in the OS.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -1397,7 +1385,7 @@ certificate expiration.</v8:content>
 			<Form>UsersList</Form>
 			<Form>EditFirstNameAndPatronymic</Form>
 			<Form>InstallingTheCertificate</Form>
-			<Template>ComponentExtraCryptoAPI_3_0_2_29</Template>
+			<Template>ComponentExtraCryptoAPI_3_0_2_30</Template>
 			<Template>Stamp</Template>
 		</ChildObjects>
 	</Catalog>

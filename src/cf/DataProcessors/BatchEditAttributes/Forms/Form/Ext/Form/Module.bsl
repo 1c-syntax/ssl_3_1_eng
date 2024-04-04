@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -47,12 +48,12 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		WindowOpeningMode = FormWindowOpeningMode.Independent;
 	EndIf;
 	
-	
+	// Check if data processor object contains the UsedFileName field.
 	DataProcessorObject  = FormAttributeToValue("Object");
 	ObjectStructure = New Structure("UsedFileName", Undefined);
 	FillPropertyValues(ObjectStructure, DataProcessorObject);
 	
-	
+	// If the UsedFileName field is present, this is an external data processor.
 	If Not ValueIsFilled(AdditionalDataProcessorRef)
 	   And ValueIsFilled(ObjectStructure.UsedFileName)
 	   And Not StrStartsWith(ObjectStructure.UsedFileName, "e1cib/")
@@ -370,7 +371,7 @@ Procedure ConfigureChangeParameters(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure Attachable_ValueOnChange(FormField)
@@ -499,7 +500,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter.RightValue = True;
 
 	//@skip-check new-color
-	Item.Appearance.SetParameterValue("TextColor", New Color(192, 192, 192)); 
+	Item.Appearance.SetParameterValue("TextColor", New Color(192, 192, 192)); // 
 	
 	// Notes for linked attributes
 	
@@ -772,7 +773,7 @@ Procedure AskForAttributeUnlockConfirmation(SelectedAttribute)
 			|Before you allow editing, view the occurrences of the selected items
 			|and consider possible data implications.
 			|
-			|Do you want to allow editing of %1?
+			|Allow editing of %1?
 			|';"),
 		SelectedAttribute.Presentation);
 	
@@ -1028,7 +1029,7 @@ Procedure ChangeObjects1()
 	// Position of the last processed item, where 1 is the first item.
 	CurrentChangeStatus.Insert("CurrentPosition", 0);
 	
-	
+	// Batching in multithreaded runtime is performed in the object module.
 	CurrentChangeStatus.Insert("PortionSize", ObjectsCountForProcessing);
 	
 	CurrentChangeStatus.Insert("ErrorsCount", 0);            // Initialize the error counter.
@@ -1080,6 +1081,10 @@ Async Procedure ChangeObjectsBatch()
 	
 EndProcedure
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
 Procedure OnCompleteChange(Result, AdditionalParameters) Export
 	
@@ -1090,7 +1095,10 @@ Procedure OnCompleteChange(Result, AdditionalParameters) Export
 	
 	If Result.Status <> "Completed2" Then
 		BackServer();
-		Raise Result.BriefErrorDescription;
+		ModuleStandardClientSubsystems = CommonModule("StandardSubsystemsClient");
+		ModuleStandardClientSubsystems.OutputErrorInfo(
+			Result.ErrorInfo);
+		Return;
 	EndIf;
 	
 	ResultsOfChanges = GetFromTempStorage(Result.ResultAddress);
@@ -1100,19 +1108,16 @@ Procedure OnCompleteChange(Result, AdditionalParameters) Export
 		Raise ErrorText;
 	EndIf;
 	
-	StatusError         = "Error";
+	StatusError = "Error";
 	
 	For Each ChangeResult In ResultsOfChanges Do
 		
 		ResultOfBatchExecution = ChangeResult.Value;
 		If ResultOfBatchExecution.Status = StatusError Then
-			ErrorText = SubstituteParametersToString(
-				NStr("en = 'The thread background job completed with error:
-				           |%1';"),
-				ResultOfBatchExecution.DetailErrorDescription);
-			Raise ErrorText;
+			ModuleStandardClientSubsystems = CommonModule("StandardSubsystemsClient");
+			ModuleStandardClientSubsystems.OutputErrorInfo(
+				ResultOfBatchExecution.ErrorInfo);
 		Else
-			
 			ResultOfBatchChange = GetFromTempStorage(ResultOfBatchExecution.ResultAddress);
 			If TypeOf(ResultOfBatchChange) <> Type("Structure") Then
 				ErrorText = NStr("en = 'The thread background job did not return a result';");
@@ -1280,10 +1285,10 @@ Procedure GoToCompletedPage()
 	
 EndProcedure
 
-// 
-// 
-// 
-// 
+// A message stating that attribute edit can be accelerated is shown if:
+// 1. The run mode is client/server (not SaaS).
+// 2. The transaction runtime flag is set.
+// 3. The number of batches in Administration settings is more than 1.
 //
 &AtServer
 Procedure AddMessagePossibleToEditAttributesFaster()
@@ -1803,7 +1808,7 @@ Procedure InitializeSettingsComposer()
 	SettingsComposer.LoadSettings(DataCompositionSchema.DefaultSettings);
 	
 	If SelectedObjectsInContext.Count() > 0 Then
-		If Parameters.Property("SettingsComposer") And TypeOf(Parameters.SettingsComposer) = Type("DataCompositionSettingsComposer") Then
+		If TypeOf(Parameters.SettingsComposer) = Type("DataCompositionSettingsComposer") Then
 			ComposerSettings = Parameters.SettingsComposer.GetSettings();
 			SettingsComposer.LoadSettings(ComposerSettings);
 			SettingsComposer.Settings.ConditionalAppearance.Items.Clear();
@@ -1943,8 +1948,8 @@ Function LockedAttributes()
 			Continue;
 		EndIf;
 		
-		 
-		
+		//  
+		// 
 		ObjectManager = ObjectManagerByFullName(ObjectsKind);
 		Try
 			AttributesToLockDetails = ObjectManager.GetObjectAttributesToLock();
@@ -2501,6 +2506,8 @@ Procedure FillObjectAttributes(AttributesToLock, NotToEdit, DisabledAttributes, 
 		EndIf;
 	EndIf;
 	
+	AddExternalAttributesToSet(AttributesSets, KindsOfObjectsToChangeList);
+	
 EndProcedure
 
 &AtServer
@@ -2685,6 +2692,34 @@ Procedure AddAttributesToSet(AttributesSets, MetadataObject)
 		ObjectAttribute.IsStandardAttribute = TypeOf(AttributeDetails) = Type("StandardAttributeDescription");
 		
 	EndDo;
+	
+EndProcedure
+
+&AtServer
+Procedure AddExternalAttributesToSet(AttributesSets, KindsOfObjectsToChangeList)
+	
+	ModuleUsersInternal = CommonModule("UsersInternal");
+	If ModuleUsersInternal = Undefined
+	 Or Not IsSSLVersionSupportsUserExternalAttributes() Then
+		Return;
+	EndIf;
+	
+	ExternalAttributes = New Array; 
+	ModuleUsersInternal.OnFillExternalAttributes(KindsOfObjectsToChangeList, ExternalAttributes);
+	
+	For Each ExternalAttribute In ExternalAttributes Do
+		If Not Object.ShowInternalAttributes
+		   And ExternalAttribute.IsInternal Then
+			Continue;
+		EndIf;
+		AttributeDetails = ObjectAttributes.Add();
+		AttributeDetails.OperationKind = 4;
+		AttributeDetails.Name = ExternalAttribute.Name;
+		AttributeDetails.Presentation = ExternalAttribute.Presentation;
+		AttributeDetails.AllowedTypes = ExternalAttribute.ValueType;
+	EndDo;
+	
+	ObjectAttributes.Sort("Presentation");
 	
 EndProcedure
 
@@ -2944,11 +2979,11 @@ Procedure GenerateNoteOnConfiguredChanges()
 		Explanation = NStr("en = 'No items selected.';");
 	Else
 		If AttributesToChange.Count() = 1 Then
-			NoteTemplate = NStr("en = 'Change the %1 attribute for the selected items';") 
+			NoteTemplate = NStr("en = 'Change the %1 attribute for the selected items';") // Example: "Update attribute ""Warehouse""..."
 		ElsIf AttributesToChange.Count() > 3 Then
-			NoteTemplate = NStr("en = 'Change attributes (%1) for the selected items';"); 
+			NoteTemplate = NStr("en = 'Change attributes (%1) for the selected items';"); // Example: "Update attributes (5)..."
 		ElsIf AttributesToChange.Count() > 1 Then
-			NoteTemplate = NStr("en = 'Change the %1 attributes for the selected items';"); 
+			NoteTemplate = NStr("en = 'Change the %1 attributes for the selected items';"); // Example: "Update attributes ""Warehouse"", ""Office""..."
 		Else	
 			NoteTemplate = "";
 		EndIf;
@@ -3380,7 +3415,7 @@ Procedure OnUnlockAttributes(UnlockedAttributes, AdditionalParameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 // Saves a setting to the common settings storage.
 // 
@@ -4393,10 +4428,9 @@ EndFunction
 // Generates a string according to the specified pattern.
 // The following tags are available:
 //	<b> String </b> - formats the string as bold.
-//	<a href = "Ссылка"> String </a>
 //
 // Example:
-//	The lowest supported version is <b>1.1</b>. Please <a href = "Обновление">Update</a> the application.
+//	
 //
 // Returns:
 //  FormattedString
@@ -4463,7 +4497,7 @@ Function FormattedString(Val String)
 		
 		If RowPart.Check Then
 			//@skip-check new-font
-			RowArray.Add(New FormattedString(RowPart.Value, New Font(,,True))); 
+			RowArray.Add(New FormattedString(RowPart.Value, New Font(,,True))); // 
 		ElsIf Not IsBlankString(RowPart.Presentation) Then
 			RowArray.Add(New FormattedString(RowPart.Value,,,, RowPart.Presentation));
 		Else
@@ -4472,7 +4506,7 @@ Function FormattedString(Val String)
 		
 	EndDo;
 	
-	Return New FormattedString(RowArray); // ACC:1356 Can use a compound format string as the string array consists of the passed text.
+	Return New FormattedString(RowArray); // ACC:1356 - A compound format string can be used as the string array consists of the passed text.
 	
 EndFunction
 
@@ -4493,7 +4527,6 @@ EndFunction
 // Example:
 //  
 //  String = StringFunctionsClientServer.StringWithNumberForAnyLanguage(
-//		NStr("ru=';остался %1 день;;осталось %1 дня;осталось %1 дней;осталось %1 дня';
 //		     |en=';%1 day left;;;;%1 days left'"), 
 //		0.05,,"NFD=1);
 // 
@@ -4564,6 +4597,12 @@ EndFunction
 Function SSLVersionMatchesRequirements()
 	DataProcessorObject = FormAttributeToValue("Object");
 	Return DataProcessorObject.SSLVersionMatchesRequirements();
+EndFunction
+
+&AtServer
+Function IsSSLVersionSupportsUserExternalAttributes()
+	DataProcessorObject = FormAttributeToValue("Object");
+	Return DataProcessorObject.IsSSLVersionSupportsUserExternalAttributes();
 EndFunction
 
 &AtServer
@@ -4641,7 +4680,7 @@ Function ChoiceData(String, ChoiceList)
 			//@skip-check new-font
 			//@skip-check new-color
 			FormattedStrings.Add(New FormattedString(OccurenceSubstring,
-				New Font( , , True), New Color(0,128,0))); 
+				New Font( , , True), New Color(0,128,0))); // 
 		EndDo;
 		
 		If Not ValueIsFilled(FormattedStrings) Then
@@ -4649,7 +4688,7 @@ Function ChoiceData(String, ChoiceList)
 		EndIf;
 		
 		FormattedStrings.Add(SearchString);
-		HighlightedString = New FormattedString(FormattedStrings); 
+		HighlightedString = New FormattedString(FormattedStrings); // ACC:1356 - A compound format string can be used as the string array consists of the passed text.
 		
 		Result.Add(Item.Value, HighlightedString);
 	EndDo;

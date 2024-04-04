@@ -99,6 +99,12 @@
 							<ChildItems>
 								<InputField name="DataProcessorsPresentation" id="26">
 									<DataPath>CommandsTable.Presentation</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Presentation</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ContextMenu name="DataProcessorsPresentationContextMenu" id="27"/>
 									<ExtendedTooltip name="DataProcessorsPresentationExtendedTooltip" id="57"/>
@@ -170,6 +176,12 @@
 					<Type>Hyperlink</Type>
 					<SkipOnInput>false</SkipOnInput>
 					<CommandName>Form.Command.CustomizeList</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Customize list</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="CustomizeListExtendedTooltip" id="63"/>
 				</Button>
 				<CommandBar name="PageCommandBarOpenDataProcessor" id="36">
@@ -188,6 +200,12 @@
 							<SkipOnInput>false</SkipOnInput>
 							<DefaultItem>true</DefaultItem>
 							<CommandName>Form.Command.ExecuteProcessing</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Run</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="ExecuteProcessingExtendedTooltip" id="65"/>
 						</Button>
 						<Button name="CloseForm" id="29">

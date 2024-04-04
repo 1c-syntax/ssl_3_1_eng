@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -333,8 +334,8 @@ Procedure FillDefaultAccessValuesSets(Object, Table) Export
 		Or TypeOf(Object) = Type("DocumentObject.SMSMessage") 
 		Or TypeOf(Object) = Type("DocumentObject.PhoneCall") Then
 		
-		
-		
+		// 
+		// 
 		
 		SetNumber = 1;
 
@@ -351,8 +352,8 @@ Procedure FillDefaultAccessValuesSets(Object, Table) Export
 		
 	ElsIf TypeOf(Object) = Type("DocumentObject.IncomingEmail") Then
 		
-		
-		
+		// 
+		// 
 		
 		SetNumber = 1;
 
@@ -369,8 +370,8 @@ Procedure FillDefaultAccessValuesSets(Object, Table) Export
 		
 	ElsIf TypeOf(Object) = Type("DocumentObject.OutgoingEmail") Then
 		
-		
-		
+		// 
+		// 
 
 		SetNumber = 1;
 
@@ -402,10 +403,10 @@ EndProcedure
 //                 - DocumentRef.PhoneCall,
 //                 - DocumentRef.SMSMessage,
 //                 - DocumentRef.IncomingEmail,
-//                 - DocumentRef.OutgoingEmail - Reference to the interaction. 
+//                 - DocumentRef.OutgoingEmail
 //
 // Returns:
-//   TypeToDefine.InteractionSubject, undefined
+//  DefinedType.InteractionSubject
 //
 Function InteractionSubject(Interaction) Export
 	
@@ -441,7 +442,18 @@ Procedure PerformCompleteStatesRecalculation() Export
 	
 EndProcedure
 
-// Returns a list of topic participants by the specified contact information type.
+// 
+// 
+// Parameters:
+//  SubjectOf - DefinedType.InteractionSubject - 
+//  ContactInformationTypes - Array of EnumRef.ContactInformationTypes -  
+//                             
+// 
+// Returns:
+//  Array of Structure:
+//    * Contact - DefinedType.InteractionContact
+//    * Presentation - String
+//    * Address - String
 //
 Function GetContactsBySubject(SubjectOf, ContactInformationTypes) Export
 	
@@ -1157,8 +1169,8 @@ Procedure OnFillToDoList(ToDoList) Export
 	
 	NewEmailsByAccounts = NewEmailsByAccounts();
 	
-	
-	
+	// 
+	// 
 	Sections = ModuleToDoListServer.SectionsForObject(Metadata.DocumentJournals.Interactions.FullName());
 	
 	For Each Section In Sections Do
@@ -2234,7 +2246,9 @@ Function FullTextContactsSearchByRow(Val SearchString, FoundContacts, Val ForAdd
 	Try
 		SearchResultsList.FirstPart();
 	Except
-		Return NStr("en = 'Search failed. Please change the search parameters and try again.';");
+		Return NStr("en = 'Nothing was found. Please try another search expression.
+		              |Hint: use asterisk to search by a part of a word. Search for ""ment"" will return nothing, while search for ""*ment"" will return ""agreement"", ""document"", and so on.
+		              |See Help for search syntax.';");
 	EndTry;
 	
 	FoundItemsCount1 = SearchResultsList.Count();
@@ -3247,6 +3261,10 @@ Function EmailSendingParameters(Object) Export
 	EmailParameters.Insert("Encoding", Object.Encoding);
 	EmailParameters.Insert("Importance",  EmailManagement.GetImportance(Object.Importance));
 	EmailParameters.Insert("TextType", Object.TextType);
+	
+	If Not IsBlankString(Object.BasisID) Then
+		EmailParameters.Insert("BasisID", Object.BasisID);
+	EndIf;
 	
 	If Not IsBlankString(Object.BasisIDs) Then
 		EmailParameters.Insert("BasisIDs", Object.BasisIDs);
@@ -4400,8 +4418,8 @@ Function ProcessHTMLText(MailMessage, DisableExternalResources = True, HasExtern
 	
 	If Not IsBlankString(HTMLText) Then
 		
-		 
-		
+		//  
+		// 
 		If StrOccurrenceCount(HTMLText,"<html") = 0 Then
 			HTMLText = "<html>" + HTMLText + "</html>"
 		EndIf;
@@ -4476,9 +4494,9 @@ EndFunction
 // based on the system settings and the format of the last letter sent by the user.
 // 
 // Parameters:
-//   User - CatalogRef.Users - User.
+//   User - CatalogRef.Users -  user.
 //
-// Return value
+// Returns:
 //   EnumRef.EmailEditingMethods
 // 
 Function DefaultMessageFormat(User) Export
@@ -8595,7 +8613,7 @@ Function HasDelayInExecutionOfJobOfReceivingAndSendingEmails()
 		Return False;
 	EndIf;
 	
-	Return Schedule.ExecutionRequired(CurrentDate() - Schedule.RepeatPeriodInDay, 
+	Return Schedule.ExecutionRequired(CurrentDate() - Schedule.RepeatPeriodInDay, // 
 		BackgroundJob.Begin, BackgroundJob.End);
 	
 EndFunction

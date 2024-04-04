@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -115,9 +116,10 @@ EndFunction
 Procedure AppendFile(AttachedFile, BinaryDataOrPath,
 	FileDateInVolume = Undefined, FillInternalStorageAttribute = False, VolumeForPlacement = Undefined) Export
 	
-	FillInTheFileDetails(AttachedFile, BinaryDataOrPath, FileDateInVolume, FillInternalStorageAttribute);
+	FillInTheFileDetails(AttachedFile, BinaryDataOrPath, FileDateInVolume, 
+		FillInternalStorageAttribute, VolumeForPlacement);
 	
-	If Not AttachedFile.FileStorageType = Enums.FileStorageTypes.InInfobase Then
+	If AttachedFile.FileStorageType <> Enums.FileStorageTypes.InInfobase Then
 		WriteTheFileDataToTheVolume(AttachedFile, BinaryDataOrPath);
 	EndIf;
 	
@@ -133,20 +135,20 @@ EndProcedure
 // 
 // Parameters:
 //   AttachedFile  - See FilesOperationsInVolumesInternal.FileAddingOptions
-//                       - TypeToDefine.AttachedFileObject is an attachment catalog
-//                                     item whose data is saved
-//                                     to a volume or a structure with properties required to save data to the volume.
+//                       
+//                                     
+//                                     
 //   BinaryDataOrPath - BinaryData
 //                         - String - binary data of the file or the full file path.
 //   FileDateInVolume - Date - if it is not specified, the current session time is used.
-//   FillInternalStorageAttribute - Boolean - if the parameter is True, binary data of the file
-//                                        will be additionally placed in the FileStorage internal attribute.
-//   VolumeToPlace - CatalogRef.FileStorageVolumes
-//                    - Undefined - If the parameter is filled, files will be placed to a specified volume.
-//                                     Otherwise, the volume will be selected automatically.
+//   FillInternalStorageAttribute - Boolean -  if the parameter is set to True, the binary data
+//                                       of the file will be additionally placed in the service details of the file storage.
+//   VolumeForPlacement - CatalogRef.FileStorageVolumes
+//                    - Undefined - 
+//                                     
 //
 Procedure FillInTheFileDetails(AttachedFile, BinaryDataOrPath, 
-	FileDateInVolume = Undefined, FillInternalStorageAttribute = False) Export
+	FileDateInVolume = Undefined, FillInternalStorageAttribute = False, VolumeForPlacement = Undefined) Export
 	
 	ExpectedTypes = New Array;
 	ExpectedTypes.Add(Type("BinaryData"));
@@ -175,10 +177,8 @@ Procedure FillInTheFileDetails(AttachedFile, BinaryDataOrPath,
 			
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot add file ""%1"" to a volume as the file is missing.
-				|The file might have been deleted by antivirus software.
-				|Please contact the administrator.';"),
+				|The file might have been deleted by antivirus software. Please contact the administrator.';"),
 				AttachedFile.Description + "." + AttachedFile.Extension);
-				
 			Raise ErrorText;
 			
 		EndIf;
@@ -215,7 +215,11 @@ Procedure FillInTheFileDetails(AttachedFile, BinaryDataOrPath,
 
 	Else
 		
-		AttachedFile.Volume = FreeVolume(AttachedFile);
+		If ValueIsFilled(VolumeForPlacement) Then
+			AttachedFile.Volume = VolumeForPlacement;
+		Else
+			AttachedFile.Volume = FreeVolume(AttachedFile);
+		EndIf;
 		AttachedFile.FileStorageType = Enums.FileStorageTypes.InVolumesOnHardDrive;
 		
 		FileProperties = FilePropertiesInVolume();
@@ -258,8 +262,8 @@ Procedure CopyAttachedFile(AttachedFile, FilePathDestination) Export
 	
 	FileCopy(FilePathSource, FilePathDestination);
 	
-	 
-	
+	//  
+	// 
 	FileDestination = New File(FilePathDestination);
 	If FileDestination.Exists() And FileDestination.GetReadOnly() Then
 		FileDestination.SetReadOnly(False);
@@ -278,15 +282,15 @@ EndProcedure
 //    * ErrorInfo - ErrorInfo
 //
 Function DeleteFile(PathToFile) Export
-	Result = New Structure("Success, ErrorInfo", True, Undefined);
+	Result = New Structure("Name,Success,ErrorInfo", 
+		PathToFile, True, Undefined);
 	
 	FileOnHardDrive = New File(PathToFile);
 	If FileOnHardDrive.Exists() Then
 		
 		FileDirectory = FileOnHardDrive.Path;
-		FileOnHardDrive.SetReadOnly(False);
-		
 		Try
+			FileOnHardDrive.SetReadOnly(False);
 			DeleteFiles(PathToFile);
 			
 			// Deleting the file directory if the directory is empty after the file deletion.
@@ -296,17 +300,13 @@ Function DeleteFile(PathToFile) Export
 			EndIf;
 			
 		Except
-			
+			Error = ErrorInfo();
+			Result.ErrorInfo = ErrorProcessing.ErrorMessageForUser(Error);
 			Result.Success = False;
-			Error= ErrorInfo();
-			Result.ErrorInfo = ErrorProcessing.BriefErrorDescription(Error);
 			WriteLogEvent(
 				NStr("en = 'Files.Delete files from volume';", Common.DefaultLanguageCode()),
-				EventLogLevel.Error,
-				,
-				,
+				EventLogLevel.Error,,,
 				ErrorProcessing.DetailErrorDescription(Error));
-			
 		EndTry;
 		
 	EndIf;
@@ -476,9 +476,10 @@ Function FullFileNameInVolume(FileProperties, FileDateInVolume = Undefined) Expo
 	PlacementDate = ?(ValueIsFilled(FileDateInVolume), FileDateInVolume, CurrentSessionDate());
 	RootDirectory1 = RootDirectory1 + Format(PlacementDate, "DF=yyyyMMdd") + Separator;
 	
-	FileName = FileProperties.Description
-		+ ?(ValueIsFilled(FileProperties.VersionNumber), "." + FileProperties.VersionNumber, "")
-		+ ?(StrFind(FileProperties.Extension, ".") > 0, FileProperties.Extension, "." + FileProperties.Extension);
+	VersionNumber = ?(ValueIsFilled(FileProperties.VersionNumber), "." + FileProperties.VersionNumber, "");
+	AddPoint = ValueIsFilled(FileProperties.Extension) And StrFind(FileProperties.Extension, ".") = 0;
+	FileName = CommonClientServer.ReplaceProhibitedCharsInFileName(FileProperties.Description)
+		+ VersionNumber + ?(AddPoint, ".", "") + FileProperties.Extension;
 		
 	Common.ShortenFileName(FileName);
 	
@@ -734,6 +735,107 @@ EndProcedure
 
 #EndRegion
 
+// Fills the "PathToFile" attribute for attachments.
+// 
+// Parameters:
+//  FilesToRecover - ValueTable:
+//   * File - DefinedType.AttachedFile - File
+//   * FullName - String - File's full name in the given volume.
+//  VolumePath - String
+// 
+// Returns:
+//  Structure:
+//   * Processed - Number
+//   * Total - Number
+//
+Function SetFilesStoragePaths(FilesToRecover, VolumePath) Export
+	Result = New Structure;
+	Result.Insert("Processed", 0);
+	Result.Insert("Total", FilesToRecover.Count());
+	
+	If FilesToRecover.Count() = 0 Then
+		Return Result;
+	EndIf;
+	
+	FilesTypes = New Map;
+	
+	For Each FileToRecover In FilesToRecover Do
+		FileType = TypeOf(FileToRecover.File);
+		If FilesTypes[FileType] = Undefined Then
+			FilesTypes.Insert(FileType, New Array);
+		EndIf;
+		
+		FilesTypes[FileType].Add(FilesToRecover.IndexOf(FileToRecover));
+	EndDo;
+	
+	Portions = New Array;
+	PortionSize = 100;
+	
+	For Each FileType In FilesTypes Do
+		NewBatch = True;
+		For Each RowIndex In FileType.Value Do
+			If NewBatch Then
+				FilesInBatch = New ValueTable;
+				FilesInBatch.Columns.Add("File", New TypeDescription(CommonClientServer.ValueInArray(FileType.Key)));
+				FilesInBatch.Columns.Add("FullName", New TypeDescription("String"));
+				NewBatch = False;
+			EndIf;
+			NewRecord = FilesInBatch.Add();
+			FileToRecover = FilesToRecover[RowIndex];
+			NewRecord.File = FileToRecover.File;
+			NewRecord.FullName = FileToRecover.FullName;
+			IsBatchWritten = False;
+			If FilesInBatch.Count() = PortionSize Then
+				Portions.Add(FilesInBatch);
+				NewBatch = True;
+				IsBatchWritten = True;
+			EndIf;
+		EndDo;
+		If Not IsBatchWritten Then
+			Portions.Add(FilesInBatch);
+		EndIf;
+	EndDo;
+	
+	For Each Batch In Portions Do
+		BeginTransaction();
+		Try
+			Block = New DataLock;
+			LockItem = Block.Add(Batch[0].File.Metadata().FullName());
+			LockItem.DataSource = Batch;
+			LockItem.UseFromDataSource("Ref", "File");
+			Block.Lock();
+			
+			FilesStoragePaths = Common.ObjectsAttributeValue(Batch.UnloadColumn("File"), "PathToFile");
+			For Each FileToFix In Batch Do
+				FileStoragePath = FilesStoragePaths[FileToFix.File];
+				If VolumePath = "" Then
+					FilePathOnHardDrive = TrimR(FileToFix.FullName);
+				ElsIf StrStartsWith(FileToFix.FullName, VolumePath) Then
+					FilePathOnHardDrive = TrimR(Mid(FileToFix.FullName, StrLen(VolumePath) + 1));
+				Else
+					FilePathOnHardDrive = Undefined;
+				EndIf;
+				
+				If FilePathOnHardDrive <> FileStoragePath Then
+					FileToWrite = FileToFix.File.GetObject();
+					FileToWrite.PathToFile = FilePathOnHardDrive;
+					FileToWrite.AdditionalProperties.Insert("FileConversion", True);
+					FileToWrite.Write();
+				EndIf;
+			EndDo;
+			Result.Processed = Result.Processed + Batch.Count(); 
+			CommitTransaction();
+		Except
+			RollbackTransaction();
+			WriteLogEvent(
+				NStr("en = 'Files.File recovery in volume';", Common.DefaultLanguageCode()),
+				EventLogLevel.Error,,,
+				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+		EndTry;
+	EndDo;
+	Return Result;
+EndFunction
+
 #EndRegion
 
 #Region Private
@@ -921,7 +1023,7 @@ Procedure WriteTheFileDataToTheVolume(AttachedFile, BinaryDataOrPath)
 	EndTry; 
 	
 	If ValueIsFilled(AttachedFile.Ref) Then
-		FilesOperationsInternal.DeleteRecordFromBinaryFilesDataRegister(AttachedFile.Ref);
+		InformationRegisters.FileRepository.DeleteBinaryData(AttachedFile.Ref);
 	EndIf;
 	
 EndProcedure
@@ -935,7 +1037,7 @@ Procedure ClearDeletedFiles() Export
 	DescriptionOfVolumes = Common.ObjectsAttributesValues(ProcessedVolumes, 
 		"Ref, LastFilesCleanupTime, DeletionMark, FullPathLinux, FullPathWindows");
 		
-	ProcessedDirectories = New Map; 
+	ProcessedDirectories = New Map; // Several volumes can store files in the same directory.
 	For Each VolumeDescription In DescriptionOfVolumes Do
 		RootDirectory1 = FullVolumePath(VolumeDescription.Key);
 		
@@ -992,8 +1094,8 @@ Procedure AddVolume(SearchDirectoryForDeletedFiles, Volume)
 		Return;
 	EndIf;
 	
-	 
-	
+	//  
+	// 
 	If Common.DataSeparationEnabled() 
 			And (ValueIsFilled(Volume.FullPathLinux) And StrFind(Volume.FullPathLinux, "%z") = 0
 				Or ValueIsFilled(Volume.FullPathWindows) And StrFind(Volume.FullPathWindows, "%z") = 0) Then
@@ -1024,14 +1126,7 @@ Procedure ClearDeletedFilesInTheVolume(Directory)
 	
 	FilesForDeletion = FilesForDeletion(RootDirectory1, TimeOfLastCleaning);
 	
-	For Each File In DeletedFiles(Directory.Volumes, RootDirectory1, FilesForDeletion) Do
-		WriteLogEvent(NStr("en = 'File management.File cleanup';", Common.DefaultLanguageCode()),
-			EventLogLevel.Information,
-			Metadata.Catalogs.FileStorageVolumes,
-			,
-			NStr("en = 'File is deleted:';") + Chars.NBSp + File);
-		DeleteFile(File);
-	EndDo;
+	DeleteVolumesFiles(DeletedFiles(Directory.Volumes, RootDirectory1, FilesForDeletion));
 	
 	Volume = New Structure("Ref");
 	BeginTransaction();
@@ -1060,12 +1155,12 @@ Procedure ClearDeletedFilesInTheVolume(Directory)
 
 EndProcedure
 
-// Deleted files.
+// Returns deleted files.
 // 
 // Parameters:
-//  Volume - CatalogRef.FileStorageVolumes
+//  Volumes - Array of CatalogRef.FileStorageVolumes
 //  RootDirectory1 - String
-//  FilesForDeletion - Array of File - files to delete
+//  FilesForDeletion - Array of File
 // 
 // Returns:
 //   Array of File
@@ -1073,19 +1168,80 @@ EndProcedure
 Function DeletedFiles(Volumes, RootDirectory1, FilesForDeletion)
 	Result = New Array;
 	
+	FileSystemProperties = FileSystemProperties(RootDirectory1);
+	
+	ShouldFixFilePaths = Not FileSystemProperties.HasFilenameLeadingWhitespace
+		Or Not FileSystemProperties.HasFilenameTrailingDot;
+	
 	TableFiles = New ValueTable();
 	StringLength = Metadata.Catalogs.Files.Attributes.PathToFile.Type;
 	TableFiles.Columns.Add("Path", StringLength);
 	
+	If ShouldFixFilePaths Then
+		TableFiles.Columns.Add("AlternativePath", StringLength);
+		TableFiles.Columns.Add("ShouldUseAlternativePath", New TypeDescription("Boolean"));
+	EndIf;
+	
 	For Each File In FilesForDeletion Do
 		RelativePath = StrReplace(File, RootDirectory1, "");
-		TableFiles.Add().Path = RelativePath;
+		FileString = TableFiles.Add();
+		FileString.Path = RelativePath;
+		
+		If ShouldFixFilePaths Then
+			
+			FileProperties = New File(RelativePath);
+			
+			AlternativePath = RelativePath;
+			ShouldAddWhitespaceString = False;
+			If Not FileSystemProperties.HasFilenameLeadingWhitespace
+				And Left(FileProperties.Name, 1) <> " " Then
+				AlternativePath = FileProperties.Path + " " + FileProperties.Name;
+				ShouldAddWhitespaceString = True;
+			EndIf;
+			
+			ShouldAddDotString = False;
+			If Not FileSystemProperties.HasFilenameTrailingDot 
+				And FileProperties.Extension = "" Then
+				AlternativePath = AlternativePath + ".";
+				ShouldAddDotString = True;
+			EndIf;
+			
+			If ShouldAddWhitespaceString Or ShouldAddDotString Then
+				FileString = TableFiles.Add();
+				FileString.Path = RelativePath;
+				FileString.ShouldUseAlternativePath = True;
+				FileString.AlternativePath = AlternativePath;
+			EndIf;
+			
+			If ShouldAddWhitespaceString And ShouldAddDotString Then
+				FileString = TableFiles.Add();
+				FileString.Path = RelativePath;
+				FileString.ShouldUseAlternativePath = True;
+				FileString.AlternativePath = FileProperties.Path + " " + FileProperties.Name;
+
+				FileString = TableFiles.Add();
+				FileString.Path = RelativePath;
+				FileString.ShouldUseAlternativePath = True;
+				FileString.AlternativePath = RelativePath + ".";
+			EndIf;
+		EndIf;
 	EndDo;
 	
-	Query = RequestToVerifyTheExistenceOfFiles(TableFiles);
-	Query.SetParameter("Volumes", Volumes);
-	QueryResult = Query.Execute();
-	Selection = QueryResult.Select();
+	If ShouldFixFilePaths Then
+		Query = QueryExistingFilesWithRestoredLinks(TableFiles);
+		Query.SetParameter("Volumes", Volumes);
+		QueryResults = Query.ExecuteBatch();
+		UnnecessaryFiles = QueryResults[QueryResults.UBound() - 1];
+		
+		FilesToFix = QueryResults[QueryResults.UBound()].Unload();
+		SetFilesStoragePaths(FilesToFix, "");
+	Else
+		Query = RequestToVerifyTheExistenceOfFiles(TableFiles);
+		Query.SetParameter("Volumes", Volumes);
+		UnnecessaryFiles = Query.Execute();
+	EndIf;
+	
+	Selection = UnnecessaryFiles.Select();
 	While Selection.Next() Do
 		Result.Add(RootDirectory1 + TrimAll(Selection.Path));
 	EndDo;
@@ -1103,21 +1259,22 @@ Function RequestToVerifyTheExistenceOfFiles(Val TableFiles)
 	|	CAST(Files.Path AS STRING(1024)) AS Path
 	|INTO Files
 	|FROM
-	|	&Files AS Files");
+	|	&Files AS Files");  
 	
 	Query.TempTablesManager = TableManager;
 	Query.SetParameter("Files", TableFiles);
 	Query.Execute();
 	
-	QueryParts = New Array;
-	RequestHeader = "SELECT
+	QueryPartsForFoundFiles = New Array;
+	
+	QueryHeaderForFoundFiles = "SELECT
 	|	"""" AS Path
 	|INTO ExistingFiles
 	|WHERE 
 	|	FALSE";
-	QueryParts.Add(RequestHeader);
+	QueryPartsForFoundFiles.Add(QueryHeaderForFoundFiles);
 	
-	QueryTemplate = "
+	QueryTemplateForFoundFiles = "
 	|SELECT
 	|	Files.Path AS Path
 	|FROM
@@ -1129,15 +1286,15 @@ Function RequestToVerifyTheExistenceOfFiles(Val TableFiles)
 	AttachedFilesTypes = Metadata.DefinedTypes.AttachedFile.Type.Types();
 	For Each Type In AttachedFilesTypes Do
 		MetadataAttachedFiles = Metadata.FindByType(Type);
-		QueryText = StrReplace(QueryTemplate, "&AttachedFilesCatalog", MetadataAttachedFiles.FullName());
-		QueryParts.Add(QueryText);
+		QueryText = StrReplace(QueryTemplateForFoundFiles, "&AttachedFilesCatalog", MetadataAttachedFiles.FullName());
+		QueryPartsForFoundFiles.Add(QueryText);
 	EndDo;
 	
 	Separator = "
 	|UNION ALL
 	|";
 	
-	QueryText = StrConcat(QueryParts, Separator);
+	QueryText = StrConcat(QueryPartsForFoundFiles, Separator);
 	
 	QueryText = QueryText + Common.QueryBatchSeparator() + "
 	|SELECT 
@@ -1150,7 +1307,129 @@ Function RequestToVerifyTheExistenceOfFiles(Val TableFiles)
 	|			ExistingFiles.Path AS Path
 	|		FROM
 	|			ExistingFiles AS ExistingFiles)";
+
+	Query = New Query(QueryText);
+	Query.TempTablesManager = TableManager;
+	Return Query;
+EndFunction
+
+Function QueryExistingFilesWithRestoredLinks(Val TableFiles)
+	TableManager = New TempTablesManager();
+	Query = New Query("SELECT
+	|	CAST(Files.AlternativePath AS STRING(1024)) AS AlternativePath,
+	|	CAST(Files.ShouldUseAlternativePath AS BOOLEAN) AS ShouldUseAlternativePath,
+	|	CAST(Files.Path AS STRING(1024)) AS Path
+	|INTO Files
+	|FROM
+	|	&Files AS Files");  
 	
+	Query.TempTablesManager = TableManager;
+	Query.SetParameter("Files", TableFiles);
+	Query.Execute();
+	
+	QueryPartsForFoundFiles = New Array;
+
+	QueryHeaderForFoundFiles = "SELECT
+	|	FALSE AS IsAlternativePathUsed,
+	|	VALUE(Catalog.Files.EmptyRef) AS Ref,
+	|	"""" AlternativePath,
+	|	"""" AS Path
+	|INTO ExistingFiles
+	|WHERE 
+	|	FALSE";
+	QueryPartsForFoundFiles.Add(QueryHeaderForFoundFiles);
+
+	QueryTemplateForFoundFiles = "
+	|SELECT
+	|	Files.ShouldUseAlternativePath AS IsAlternativePathUsed,
+	|	AttachedFiles.Ref,
+	|	Files.AlternativePath,
+	|	Files.Path AS Path
+	|FROM
+	|	Files AS Files
+	|	INNER JOIN &AttachedFilesCatalog AS AttachedFiles
+	|		ON AttachedFiles.Volume IN (&Volumes)
+	|		AND ((NOT Files.ShouldUseAlternativePath AND CAST(AttachedFiles.PathToFile AS STRING(1024)) = Files.Path)
+	|			OR (Files.ShouldUseAlternativePath AND CAST(AttachedFiles.PathToFile AS STRING(1024)) = Files.AlternativePath))";
+	
+	AttachedFilesTypes = Metadata.DefinedTypes.AttachedFile.Type.Types();
+	For Each Type In AttachedFilesTypes Do
+		MetadataAttachedFiles = Metadata.FindByType(Type);
+		QueryText = StrReplace(QueryTemplateForFoundFiles, "&AttachedFilesCatalog", MetadataAttachedFiles.FullName());
+		QueryPartsForFoundFiles.Add(QueryText);
+	EndDo;
+	
+	Separator = "
+	|UNION ALL
+	|";
+	
+	QueryText = StrConcat(QueryPartsForFoundFiles, Separator);
+	
+	QueryText = QueryText + Common.QueryBatchSeparator() + 
+	"SELECT
+	|	ExistingFiles.Ref AS File,
+	|	ExistingVersionFiles.Ref AS Version
+	|INTO VersionFiles
+	|FROM
+	|	ExistingFiles AS ExistingFiles
+	|		INNER JOIN ExistingFiles AS ExistingVersionFiles
+	|		ON (CASE
+	|				WHEN TYPE(Catalog.FilesVersions) = VALUETYPE(ExistingVersionFiles.Ref)
+	|						AND CAST(ExistingVersionFiles.Ref AS Catalog.FilesVersions).Owner = ExistingFiles.Ref
+	|					THEN TRUE
+	|				ELSE FALSE
+	|			END)
+	|			AND ExistingFiles.Path = ExistingVersionFiles.Path
+	|;
+	|
+	|////////////////////////////////////////////////////////////////////////////////
+	|SELECT
+	|	ExistingFiles.Path AS Path
+	|INTO UniqueLinks
+	|FROM
+	|	ExistingFiles AS ExistingFiles
+	|		LEFT JOIN VersionFiles AS VersionFiles
+	|		ON (ExistingFiles.Ref = VersionFiles.File
+	|				OR ExistingFiles.Ref = VersionFiles.Version)
+	|
+	|GROUP BY
+	|	ExistingFiles.Path
+	|
+	|HAVING
+	|	SUM(CASE
+	|			WHEN ExistingFiles.Ref = ISNULL(VersionFiles.File, ExistingFiles.Ref)
+	|				THEN 1
+	|			ELSE 0
+	|		END) = 1
+	|;
+	|
+	|////////////////////////////////////////////////////////////////////////////////
+	|SELECT
+	|	Files.Path AS Path
+	|FROM
+	|	Files AS Files
+	|WHERE
+	|	NOT Files.Path IN
+	|				(SELECT
+	|					UniqueLinks.Path AS Path
+	|				FROM
+	|					UniqueLinks AS UniqueLinks)
+	|;
+	|
+	|////////////////////////////////////////////////////////////////////////////////
+	|SELECT
+	|	ExistingFiles.Path AS FullName,
+	|	ExistingFiles.Ref AS File
+	|FROM
+	|	ExistingFiles AS ExistingFiles
+	|WHERE
+	|	ExistingFiles.IsAlternativePathUsed = TRUE
+	|	AND ExistingFiles.Path IN
+	|			(SELECT
+	|				UniqueLinks.Path AS Path
+	|			FROM
+	|				UniqueLinks AS UniqueLinks)";
+
 	Query = New Query(QueryText);
 	Query.TempTablesManager = TableManager;
 	Return Query;
@@ -1193,7 +1472,7 @@ Procedure BeforeUpdatingTheFileData(Context) Export
 	FilePropertiesContainer = FileAddingOptions();
 	FilePropertiesContainer.Ref = Context.AttachedFile;
 	FillPropertyValues(FilePropertiesContainer, Context.FileAddingOptions,,"Ref");
-	FilePropertiesContainer.PathToFile = ""; 
+	FilePropertiesContainer.PathToFile = ""; // 
 	
 	SetSafeModeDisabled(True);
 	AppendFile(FilePropertiesContainer, Context.FileData);
@@ -1244,9 +1523,8 @@ Procedure AfterUpdatingTheFileData(Context, Success) Export
 		ThisIsAnEncryptedFile = Common.HasObjectAttribute("Encrypted", MainFile.Metadata())
 			And Common.ObjectAttributeValue(MainFile, "Encrypted");
 			
-		
-		 
-		// см. РаботаСФайламиСлужебный.ЗаписатьИнформациюОШифровании.
+		// 
+		//  
 		If ThisIsAnEncryptedFile Or Not TransactionActive() Then
 			
 			FileProperties = FilePropertiesInVolume(AttachedFile);
@@ -1262,6 +1540,38 @@ Procedure AfterUpdatingTheFileData(Context, Success) Export
 		EndIf;
 	EndIf;
 EndProcedure
+
+// Parameters:
+//  FilesForDeletion - Array of String -  full path to the file.
+// 
+// Returns:
+//  Structure:
+//   * Total - Number
+//   * Deleted - Number
+//   * DeletionErrors - Array of Structure:
+//   * Error - String - 
+//   * Name - String -  file name.
+// 
+Function DeleteVolumesFiles(FilesForDeletion) Export
+	Result = New Structure;
+	Result.Insert("Total", FilesForDeletion.Count());
+	Result.Insert("Deleted", 0);
+	Result.Insert("DeletionErrors", New Array);
+	
+	For Each File In FilesForDeletion Do
+		DeletionResult = DeleteFile(File);
+		If DeletionResult.Success Then
+			Result.Deleted = Result.Deleted + 1;
+		Else
+			Error = New Structure;
+			Error.Insert("Error", DeletionResult.ErrorInfo);
+			Error.Insert("Name", DeletionResult.Name);
+			Result.DeletionErrors.Add(Error);
+		EndIf; 
+	EndDo;
+	
+	Return Result;
+EndFunction
 
 #Region FilesStorageInVolumesSettings
 
@@ -1331,7 +1641,6 @@ Procedure AddFilesToVolumes(WindowsArchivePath, PathToArchiveLinux) Export
 	
 	For Each ZIPItem In ZipFile.Items Do
 		FullFilePath1 = DirectoryName + "\" + ZIPItem.Name;
-		// For filename generation, See FilesOperationsInternal.ПриОтправкеФайлаСозданиеНачальногоОбраза
 		CatalogUUID = ZIPItem.Name;
 		
 		FilesPathsMap.Insert(CatalogUUID, FullFilePath1);
@@ -1386,8 +1695,8 @@ Procedure AddFilesToVolumesOnPlace(FilesPathsMap, FileStorageType)
 			
 			If FileStorageType = Enums.FileStorageTypes.InInfobase Then
 				
-				
-				
+				// 
+				// 
 				
 				Object.Volume = Catalogs.FileStorageVolumes.EmptyRef();
 				Object.PathToFile = "";
@@ -1409,7 +1718,7 @@ Procedure AddFilesToVolumesOnPlace(FilesPathsMap, FileStorageType)
 				
 			EndIf;
 			
-			Object.AdditionalProperties.Insert("FilePlacementInVolumes", True); 
+			Object.AdditionalProperties.Insert("FilePlacementInVolumes", True); // 
 			InfobaseUpdate.WriteObject(Object);
 			
 			CommitTransaction();
@@ -1548,15 +1857,15 @@ Procedure FillInExtraFiles(FilesTableOnHardDrive, Volume) Export
 	Selection = Query.Execute().Select();
 	
 	FileProperties = FilePropertiesInVolume();
-	FileProperties.Volume = Volume;
+	FileProperties.Volume = Volume; 
+	
+	FullVolumePath = FullVolumePath(Volume);
+	VolumeFileSystemProperties =  FileSystemProperties(FullVolumePath);
 	
 	While Selection.Next() Do
 		
 		VersionRef = Selection.Ref;
 		PathToFile   = Selection.PathToFile;
-		If Right(PathToFile, 1) = "." Then
-			PathToFile = Left(PathToFile, StrLen(PathToFile) - 1);
-		EndIf;
 		
 		If ValueIsFilled(Selection.PathToFile)
 			And ValueIsFilled(Selection.Volume) Then
@@ -1565,6 +1874,30 @@ Procedure FillInExtraFiles(FilesTableOnHardDrive, Volume) Export
 			
 			FullFilePath1 = FullFileNameInVolume(FileProperties);
 			ExistingFile = FilesTableOnHardDrive.FindRows(New Structure("FullName", FullFilePath1));
+			
+			ShouldSearchUsingAlternativePath = False;
+			
+			If ExistingFile.Count() = 0 And (Not VolumeFileSystemProperties.HasFilenameTrailingDot
+				Or Not VolumeFileSystemProperties.HasFilenameLeadingWhitespace) Then
+				
+				If Not VolumeFileSystemProperties.HasFilenameTrailingDot And Right(PathToFile, 1) = "." Then
+					PathToFile = Left(PathToFile, StrLen(PathToFile)-1);
+				EndIf;
+				
+				If Not VolumeFileSystemProperties.HasFilenameLeadingWhitespace And StrFind(PathToFile, GetPathSeparator()+" ") > 0 Then
+					FileParameters = New File(PathToFile);
+					PathToFile = FileParameters.Path+TrimAll(FileParameters.Name);
+				EndIf;
+				
+				If Selection.PathToFile <> PathToFile Then
+					FileProperties.PathToFile = PathToFile;
+				
+					FullFilePath1 = FullFileNameInVolume(FileProperties);
+					ExistingFile = FilesTableOnHardDrive.FindRows(New Structure("FullName", FullFilePath1));
+					ShouldSearchUsingAlternativePath = True;
+				EndIf;
+			EndIf;
+			
 			If ExistingFile.Count() = 0 Then
 				NonExistingFile = FilesTableOnHardDrive.Add();
 				NonExistingFile.File = VersionRef;
@@ -1576,6 +1909,12 @@ Procedure FillInExtraFiles(FilesTableOnHardDrive, Volume) Export
 				NonExistingFile.EditDate = Selection.FileModificationDate;
 				NonExistingFile.Count = 1;
 				NonExistingFile.CheckStatus = ?(Selection.DeletionMark, "OK", "NoFileInVolume");
+			ElsIf ShouldSearchUsingAlternativePath Then
+				ExistingFile[0].File = VersionRef;
+				ExistingFile[0].CheckStatus = "FixingPossible";
+				ExistingFile[0].EditDate = Selection.FileModificationDate;
+				ExistingFile[0].Count = 1;
+				ExistingFile[0].WasEditedBy = Selection.WasEditedBy;
 			Else
 				ExistingFile[0].File = VersionRef;
 				ExistingFile[0].CheckStatus = "OK";
@@ -1595,6 +1934,8 @@ Function ViewStatusChecks(Val CheckStatus) Export
 		Return NStr("en = 'Extraneous files (files in the volume that are not registered in the application)';");
 	ElsIf CheckStatus = "NoFileInVolume" Then
 		Return NStr("en = 'No files in the volume';");
+	ElsIf CheckStatus = "FixingPossible" Then
+		Return NStr("en = 'Corrupted file info';");
 	EndIf;
 EndFunction
 
@@ -1759,7 +2100,7 @@ Procedure SearchRefsToNonExistingFilesInVolumes(MetadataObject, CheckParameters,
 		EndDo;
 		
 		Query.SetParameter("Ref", ResultString1.ObjectWithIssue);
-		// @skip-check query-in-loop - Batch processing of data
+		// @skip-check query-in-loop - Batch-wise data processing
 		Result = Query.Execute().Unload();
 		
 	EndDo;
@@ -1768,7 +2109,7 @@ EndProcedure
 
 Function CheckAttachedFilesObject(MetadataObject)
 	
-	If StrEndsWith(MetadataObject.Name, FilesOperationsClientServer.CatalogSuffixAttachedFiles())
+	If StrEndsWith(MetadataObject.Name, FilesOperationsInternal.CatalogSuffixAttachedFiles())
 		Or MetadataObject.FullName() = "Catalog.FilesVersions" Then
 		
 		Return MetadataObject.Attributes.Find("PathToFile") <> Undefined
@@ -2020,6 +2361,40 @@ Function FreeVolume(AttachedFile)
 		AttachedFile.Description + "." + AttachedFile.Extension);
 	Raise ErrorText;	
 	
+EndFunction
+
+Function FileSystemProperties(Directory)
+	SetSafeModeDisabled(True);
+	SetPrivilegedMode(True);
+	
+	TestDirName = Directory + "CheckAccess"+Format(CurrentSessionDate(), "DF=ddMMyy_HHmmss;");
+	TestFileName = TestDirName + GetPathSeparator() + " FileNameCheck.";
+	CreateDirectory(TestDirName);
+	
+	TextFile = New TextDocument;
+	TextFile.Write(TestFileName);
+	
+	Result = New Structure;
+	Result.Insert("HasFilenameLeadingWhitespace", False);
+	Result.Insert("HasFilenameTrailingDot", False);
+	FilesFound = FindFiles(TestDirName,"*FileNameCheck*", True);
+	For Each FoundFile In FilesFound Do
+		If StrEndsWith(FoundFile.FullName, " FileNameCheck.") Then
+			Result.HasFilenameLeadingWhitespace = True;
+			Result.HasFilenameTrailingDot = True;
+			Break;
+		ElsIf StrEndsWith(FoundFile.FullName, "FileNameCheck.") Then
+			Result.HasFilenameLeadingWhitespace = False;
+			Result.HasFilenameTrailingDot = True;
+			Break;
+		ElsIf StrEndsWith(FoundFile.FullName, " FileNameCheck") Then
+			Result.HasFilenameLeadingWhitespace = True;
+			Result.HasFilenameTrailingDot = False;
+			Break;
+		EndIf;
+	EndDo;
+	DeleteFiles(TestDirName);
+	Return Result;
 EndFunction
 
 #EndRegion

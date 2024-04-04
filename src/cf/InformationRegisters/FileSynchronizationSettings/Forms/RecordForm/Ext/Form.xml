@@ -7,6 +7,12 @@
 		<Autofill>false</Autofill>
 		<ChildItems>
 			<ButtonGroup name="GroupCommandBar" id="34">
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Command bar</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="CommandBarGroupExtendedTooltip" id="35"/>
 				<ChildItems>
 					<Button name="WriteAndClose" id="36">
@@ -148,6 +154,12 @@
 						</RadioButtonField>
 						<InputField name="CatalogItem" id="115">
 							<DataPath>CatalogItem</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Catalog item</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<Width>35</Width>
 							<HorizontalStretch>false</HorizontalStretch>
@@ -162,6 +174,12 @@
 				</UsualGroup>
 				<RadioButtonField name="SyncObjectAllFiles" id="69">
 					<DataPath>SynchronizationObject</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Synchronization object</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 					<RadioButtonType>Auto</RadioButtonType>
@@ -237,6 +255,12 @@
 					<ContextMenu name="SetupRuleFilterContextMenu" id="11">
 						<ChildItems>
 							<ButtonGroup name="ContextMenuAdd" id="151">
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Context menu "Add"</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="ContextMenuAddExtendedTooltip" id="152"/>
 								<ChildItems>
 									<Button name="SetupRuleFilterContextMenuAddFilterItem" id="149">
@@ -248,11 +272,23 @@
 										<Type>CommandBarButton</Type>
 										<Enabled>false</Enabled>
 										<CommandName>Form.Command.AddConditionByDate</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Add date-based condition</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="SetupRuleFilterContextMenuAddConditionByDateExtendedTooltip" id="148"/>
 									</Button>
 								</ChildItems>
 							</ButtonGroup>
 							<ButtonGroup name="ContextMenuGroup" id="153">
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Context menu "Group"</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="ContextMenuGroupExtendedTooltip" id="154"/>
 								<ChildItems>
 									<Button name="SetupRuleFilterContextMenuGroupFilterItems" id="155">
@@ -294,11 +330,23 @@
 									<Button name="AddConditionByDate" id="46">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.AddConditionByDate</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Add date-based condition</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="AddConditionByDateExtendedTooltip" id="47"/>
 									</Button>
 								</ChildItems>
 							</Popup>
 							<ButtonGroup name="MenuGroup" id="145">
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Menu "Group"</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="MenuGroupExtendedTooltip" id="146"/>
 								<ChildItems>
 									<Button name="GroupFilterItems" id="42">
@@ -493,6 +541,16 @@ Alternatively, you can set the file synchronization files.</v8:content>
 		<Parameter name="FileOwnerType">
 			<Type>
 				<v8:Type>cfg:CatalogRef.MetadataObjectIDs</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="IsFile">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="NewSetting">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Parameter>
 	</Parameters>

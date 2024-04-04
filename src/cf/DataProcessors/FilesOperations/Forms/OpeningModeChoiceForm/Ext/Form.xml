@@ -20,12 +20,24 @@
 				<TextColor>style:ButtonTextColor</TextColor>
 				<BackColor>style:ButtonBackColor</BackColor>
 				<BorderColor>style:BorderColor</BorderColor>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Open file</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="OpenFileExtendedTooltip" id="16"/>
 			</Button>
 			<Button name="Cancel" id="4">
 				<Type>CommandBarButton</Type>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.Cancel</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Cancel</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="CancelExtendedTooltip" id="17"/>
 			</Button>
 			<Button name="Help" id="5">
@@ -99,6 +111,12 @@
 		</UsualGroup>
 		<CheckBoxField name="DontAskAgain" id="6">
 			<DataPath>DontAskAgain</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Do not ask again</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>Right</TitleLocation>
 			<CheckBoxType>Auto</CheckBoxType>
 			<ContextMenu name="DontAskAgainContextMenu" id="7"/>
@@ -119,6 +137,12 @@
 				<Button name="OpenFileMobileClient" id="25">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.OpenFile</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Open file</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="OpenFileMobileClientExtendedTooltip" id="26"/>
 				</Button>
 			</ChildItems>

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -307,7 +308,7 @@ Function ReportIsBlank(ReportObject, DCProcessor = Undefined) Export
 			Try
 				ValueIsFilled = ValueIsFilled(DCTemplateParameterValue.Value);
 			Except
-				ValueIsFilled = False; 
+				ValueIsFilled = False; // 
 			EndTry;
 			If ValueIsFilled Then
 				DCResultOutputProcessor.EndOutput();
@@ -451,20 +452,20 @@ EndFunction
 //
 // Returns:
 //   Structure - Contains property values of the group:
-//    * Representation - UsualGroupRepresentation - 
+//    * Representation - UsualGroupRepresentation - See Syntax Assistant for "UsualGroupPresentation".
 //    * Group - ChildFormItemsGroup - Number of the item groups (columns)::
 //       ** Vertical - ChildFormItemsGroup - Equals to one column.
 //       ** HorizontalIfPossible - ChildFormItemsGroup - Equals to two columns.
 //       ** AlwaysHorizontal - ChildFormItemsGroup - Number of columns equals to the number of group items.
 //                                                                        
-//    * Title - String - 
-//    * BackColor - Color - 
-//    * ToolTip - String - 
-//    * ToolTipRepresentation - ToolTipRepresentation - 
-//    * Height - Number - 
-//    * Width - Number - 
-//    * VerticalStretch - Undefined, Boolean - 
-//    * HorizontalStretch - Undefined, Boolean - 
+//    * Title - String - See Syntax Assistant for "FormGroup.Title".
+//    * BackColor - Color - See Syntax Assistant for "FormGroup.BackColor".
+//    * ToolTip - String - See Syntax Assistant for "FormGroup.Tooltip".
+//    * ToolTipRepresentation - ToolTipRepresentation - See Syntax Assistant for "FormGroup.TooltipRepresentation".
+//    * Height - Number - See Syntax Assistant for "FormGroup.Height".
+//    * Width - Number - See Syntax Assistant for "FormGroup.Width".
+//    * VerticalStretch - Undefined, Boolean - See Syntax Assistant for "FormGroup.VerticalStretch".
+//    * HorizontalStretch - Undefined, Boolean - See Syntax Assistant for "FormGroup.HorizontalStretch".
 //
 Function FormItemsGroupProperties() Export 
 	GroupProperties = New Structure;
@@ -496,14 +497,14 @@ EndFunction
 //   Form - ClientApplicationForm
 //         - ManagedFormExtensionForSettingsComposer
 //   ItemsHierarchyNode - FormGroup
-//   ParametersOfUpdate - Structure
-//                       - Undefined
+//   ParametersOfUpdate - See ReportsClientServer.ReportFormUpdateParameters
 //
 Procedure UpdateSettingsFormItems(Form, ItemsHierarchyNode, ParametersOfUpdate = Undefined) Export 
 	BeforeUpdatingTheElementsOfTheSettingsForm(Form, ParametersOfUpdate);
 	
 	If Common.IsMobileClient() Then 
 		Form.CreateUserSettingsFormItems(ItemsHierarchyNode);
+		RestoreFiltersValues(Form);
 		Return;
 	EndIf;
 	
@@ -532,6 +533,7 @@ Procedure UpdateSettingsFormItems(Form, ItemsHierarchyNode, ParametersOfUpdate =
 		Form, ItemsHierarchyNode, ItemsProperties, AttributesNames, StyylizedItemsKinds);
 	
 	Items.Delete(TemporaryGroup);
+	RestoreFiltersValues(Form);
 	
 	// Call an overridable module.
 	If ReportSettings.Events.AfterQuickSettingsBarFilled Then
@@ -540,20 +542,24 @@ Procedure UpdateSettingsFormItems(Form, ItemsHierarchyNode, ParametersOfUpdate =
 	EndIf;
 EndProcedure
 
+// Parameters:
+//   ImportParameters - See ReportsClientServer.ReportFormUpdateParameters
+//   ReportSettings - Structure
+//
 Function AvailableSettings(ImportParameters, ReportSettings) Export 
 	Settings = Undefined;
 	UserSettings = Undefined;
 	FixedSettings = Undefined;
 	
-	If ImportParameters.Property("DCSettingsComposer") Then
+	If ImportParameters.DCSettingsComposer <> Undefined Then
 		Settings = ImportParameters.DCSettingsComposer.Settings;
 		UserSettings = ImportParameters.DCSettingsComposer.UserSettings;
 		FixedSettings = ImportParameters.DCSettingsComposer.FixedSettings;
 	Else
-		If ImportParameters.Property("DCSettings") Then
+		If ImportParameters.DCSettings <> Undefined Then
 			Settings = ImportParameters.DCSettings;
 		EndIf;
-		If ImportParameters.Property("DCUserSettings") Then
+		If ImportParameters.DCUserSettings <> Undefined Then
 			UserSettings = ImportParameters.DCUserSettings;
 		EndIf;
 	EndIf;
@@ -563,8 +569,7 @@ Function AvailableSettings(ImportParameters, ReportSettings) Export
 			Try
 				Settings = Common.ValueFromXMLString(ReportSettings.NewXMLSettings);
 				
-				
-				//   (см. синтакс-помощник: ЗначенияПараметровДанныхКомпоновкиДанных)
+				// 
 				SettingsComposer = New DataCompositionSettingsComposer;
 				InitializeSettingsComposer(SettingsComposer, ReportSettings.SchemaURL);
 				SettingsComposer.LoadSettings(Settings);
@@ -591,11 +596,13 @@ Function AvailableSettings(ImportParameters, ReportSettings) Export
 		Settings, UserSettings, FixedSettings);
 EndFunction
 
+// Parameters:
+//   AvailableSettings - Structure
+//   ImportParameters - See ReportsClientServer.ReportFormUpdateParameters
+//
 Procedure ResetCustomSettings(AvailableSettings, ImportParameters) Export 
-	ResetCustomSettings = CommonClientServer.StructureProperty(
-		ImportParameters, "ResetCustomSettings", False);
-	
-	If Not ResetCustomSettings Then 
+
+	If Not ImportParameters.ResetCustomSettings Then 
 		Return;
 	EndIf;
 	
@@ -613,51 +620,6 @@ Procedure ResetCustomSettings(AvailableSettings, ImportParameters) Export
 	
 	For Each Property In AdditionalProperties Do 
 		AvailableSettings.UserSettings.AdditionalProperties.Insert(Property.Key, Property.Value);
-	EndDo;
-EndProcedure
-
-Procedure RestoreFiltersValues(Form) Export 
-	PathToItemsData = Form.PathToItemsData;
-	If PathToItemsData = Undefined Then 
-		Return;
-	EndIf;
-	
-	UserSettings = Form.Report.SettingsComposer.UserSettings;
-	
-	FiltersValuesCache = CommonClientServer.StructureProperty(
-		UserSettings.AdditionalProperties, "FiltersValuesCache");
-	
-	If FiltersValuesCache = Undefined Then 
-		Return;
-	EndIf;
-	
-	For Each CacheItem In FiltersValuesCache Do 
-		FilterValue = CacheItem.Value;
-		If FilterValue.Count() = 0 Then 
-			Continue;
-		EndIf;
-		
-		SettingItem = UserSettings.Items.Find(CacheItem.Key);
-		If SettingItem = Undefined Then 
-			Continue;
-		EndIf;
-		
-		IndexOf = UserSettings.Items.IndexOf(SettingItem);
-		ListName = PathToItemsData.ByIndex[IndexOf];
-		If ListName = Undefined Then 
-			Continue;
-		EndIf;
-		
-		List = Form[ListName];
-		If List = Undefined Then 
-			Continue;
-		EndIf;
-		
-		For Each Item In FilterValue Do 
-			If List.FindByValue(Item.Value) = Undefined Then 
-				List.Add(Item.Value);
-			EndIf;
-		EndDo;
 	EndDo;
 EndProcedure
 
@@ -697,14 +659,14 @@ Procedure SetAvailableValues(Report, Form) Export
 			
 			SettingDetails = ReportsClientServer.FindAvailableSetting(
 				SettingsComposer.Settings, MainSettingItem);
-			// @skip-check query-in-loop - Query multiple tables.
-			SetAvailableSettingsValues(Form, Report, SettingsComposer, UserSettingItem, MainSettingItem, SettingDetails);
+			// @skip-check query-in-loop - A multi-table query.
+			SetValidSettingsValues(Form, Report, SettingsComposer, UserSettingItem, MainSettingItem, SettingDetails);
 			
 			If TypeOf(MainSettingItem) = Type("DataCompositionFilterItem") Then
 				SettingDetails = SettingsComposer.Settings.StructureItemsFilterAvailableFields.FindField(MainSettingItem.LeftValue);
 				If SettingDetails <> Undefined Then
-					// @skip-check query-in-loop - Query multiple tables.
-					SetAvailableSettingsValues(Form, Report, SettingsComposer, UserSettingItem, MainSettingItem, SettingDetails);
+					// @skip-check query-in-loop - A multi-table query.
+					SetValidSettingsValues(Form, Report, SettingsComposer, UserSettingItem, MainSettingItem, SettingDetails);
 				EndIf;
 			EndIf;
 
@@ -896,19 +858,11 @@ EndProcedure
 
 Function ItIsRequiredToResetThePredefinedOutputParameters(ImportParameters) Export 
 	
-	If ImportParameters.Property("ClearOptionSettings")
-		And ImportParameters.ClearOptionSettings = True Then 
-		
+	If ImportParameters.ClearOptionSettings Then  
 		Return False;
 	EndIf;
 	
-	If ImportParameters.Property("EventName")
-		And ImportParameters.EventName = ReportsClientServer.NameOfTheDefaultSettingEvent() Then 
-		
-		Return True;
-	EndIf;
-	
-	Return False;
+	Return ImportParameters.EventName = ReportsClientServer.NameOfTheDefaultSettingEvent();
 	
 EndFunction
 
@@ -947,6 +901,51 @@ Function StandardPropertiesOfAPredefinedOutputParameter()
 	Return New Structure("Id, Use, Value", "", False, Undefined);
 	
 EndFunction
+
+Procedure RestoreFiltersValues(Form) 
+	PathToItemsData = Form.PathToItemsData;
+	If PathToItemsData = Undefined Then 
+		Return;
+	EndIf;
+	
+	UserSettings = Form.Report.SettingsComposer.UserSettings;
+	
+	FiltersValuesCache = CommonClientServer.StructureProperty(
+		UserSettings.AdditionalProperties, "FiltersValuesCache");
+	
+	If FiltersValuesCache = Undefined Then 
+		Return;
+	EndIf;
+	
+	For Each CacheItem In FiltersValuesCache Do 
+		FilterValue = CacheItem.Value;
+		If FilterValue.Count() = 0 Then 
+			Continue;
+		EndIf;
+		
+		SettingItem = UserSettings.Items.Find(CacheItem.Key);
+		If SettingItem = Undefined Then 
+			Continue;
+		EndIf;
+		
+		IndexOf = UserSettings.Items.IndexOf(SettingItem);
+		ListName = PathToItemsData.ByIndex[IndexOf];
+		If ListName = Undefined Then 
+			Continue;
+		EndIf;
+		
+		List = Form[ListName];
+		If List = Undefined Then 
+			Continue;
+		EndIf;
+		
+		For Each Item In FilterValue Do 
+			If List.FindByValue(Item.Value) = Undefined Then 
+				List.Add(Item.Value);
+			EndIf;
+		EndDo;
+	EndDo;
+EndProcedure
 
 Procedure SetFixedFilters(FiltersStructure, DCSettings, ReportSettings) Export
 	If TypeOf(DCSettings) <> Type("DataCompositionSettings")
@@ -1236,10 +1235,7 @@ Procedure BeforeUpdatingTheElementsOfTheSettingsForm(Form, ParametersOfUpdate)
 	EndIf;
 	
 	SettingsComposer = Form.Report.SettingsComposer;
-	
-	EventName = CommonClientServer.StructureProperty(ParametersOfUpdate, "EventName");
-	
-	If EventName = "DefaultSettings" Then 
+	If ParametersOfUpdate.EventName = "DefaultSettings" Then 
 		SettingsComposer.Settings.AdditionalProperties.Insert("TheOrderOfTheSettingsElements", New Map);
 	EndIf;
 	
@@ -2742,6 +2738,8 @@ Procedure OutputSettingsPeriods(Form, SettingsItems, AttributesNames)
 	PresentationOption = Form.ReportSettings.PeriodRepresentationOption;
 	ThisIsTheStandardRepresentation = (PresentationOption = Enums.PeriodPresentationOptions.Standard);
 	
+	ShouldOutputPeriodTitles = OutputSettingsTitles(Form) And FoundItems1.Count() >= 2;
+	
 	For Each Item In FoundItems1 Do 
 		LinkedItems1 = SettingsItems.FindRows(New Structure("SettingIndex", Item.SettingIndex));
 		For Each LinkedItem1 In LinkedItems1 Do 
@@ -2769,9 +2767,15 @@ Procedure OutputSettingsPeriods(Form, SettingsItems, AttributesNames)
 				PeriodElementType = TypeOf(PeriodElement);
 				
 				If PeriodElementType = Type("FormField") Then 
-					PeriodElement.Title = PeriodElementHeader(PeriodElement.Name, Field.Title);
+					PeriodElement.Title = PeriodElementHeader(PeriodElement.Name, Field.Title, ShouldOutputPeriodTitles);
 					PeriodElement.ToolTip = PeriodElement.Title;
 					PeriodElement.InputHint = PeriodElement.Title;
+					If ShouldOutputPeriodTitles And StrEndsWith(Lower(PeriodElement.Name), Lower("StartDate")) Then
+						ToolTip = PeriodElementHeader(PeriodElement.Name, Field.Title, False);
+						PeriodElement.ToolTip = ToolTip;
+						PeriodElement.InputHint = ToolTip;
+						PeriodElement.TitleLocation = FormItemTitleLocation.Left;
+					EndIf;
 				EndIf;
 				
 				If ThisIsTheStandardRepresentation Then 
@@ -2795,7 +2799,7 @@ Procedure OutputSettingsPeriods(Form, SettingsItems, AttributesNames)
 		Group = PeriodItemsGroup(Items, Parent, NextItem, ItemNameTemplate, Field.Title);
 		
 		AddAPeriodShiftCommand(Form, Group, ItemNameTemplate, ThisIsTheStandardRepresentation, -1);
-		AddAPeriodField(Items, Group, ItemNameTemplate, "StartDate", Field.Title, ThisIsTheStandardRepresentation);
+		AddAPeriodField(Items, Group, ItemNameTemplate, "StartDate", Field.Title, ThisIsTheStandardRepresentation, ShouldOutputPeriodTitles);
 		
 		TagName = StringFunctionsClientServer.SubstituteParametersToString(ItemNameTemplate, "Separator");
 		Separator = Items.Find(TagName);
@@ -2803,10 +2807,10 @@ Procedure OutputSettingsPeriods(Form, SettingsItems, AttributesNames)
 			Separator = Items.Add(TagName, Type("FormDecoration"), Group);
 		EndIf;
 		Separator.Type = FormDecorationType.Label;
-		Separator.Title = Char(8211); 
+		Separator.Title = Char(8211); // 
 		Separator.Visible = ThisIsTheStandardRepresentation;
 		
-		AddAPeriodField(Items, Group, ItemNameTemplate, "EndDate", Field.Title, ThisIsTheStandardRepresentation);
+		AddAPeriodField(Items, Group, ItemNameTemplate, "EndDate", Field.Title, ThisIsTheStandardRepresentation, ShouldOutputPeriodTitles);
 		AddPeriodChoiceCommand(Form, Group, ItemNameTemplate, Period, ThisIsTheStandardRepresentation);
 		AddAPeriodShiftCommand(Form, Group, ItemNameTemplate, ThisIsTheStandardRepresentation);
 	EndDo;
@@ -2833,7 +2837,7 @@ Function PeriodItemsGroup(Items, Parent, NextItem, NameTemplate, Title)
 	Return Group;
 EndFunction
 
-Procedure AddAPeriodField(Items, Group, NameTemplate, Property, SettingItemTitle, ThisIsTheStandardRepresentation)
+Procedure AddAPeriodField(Items, Group, NameTemplate, Property, SettingItemTitle, ThisIsTheStandardRepresentation, ShouldOutputPeriodTitles)
 	TagName = StringFunctionsClientServer.SubstituteParametersToString(NameTemplate, "", Property);
 	
 	Item = Items.Find(TagName);
@@ -2849,15 +2853,25 @@ Procedure AddAPeriodField(Items, Group, NameTemplate, Property, SettingItemTitle
 	Item.ClearButton = False;
 	Item.SpinButton = False;
 	Item.TextEdit = True;
-	Item.Title = PeriodElementHeader(Property, SettingItemTitle);
+	Item.Title = PeriodElementHeader(Property, SettingItemTitle, ShouldOutputPeriodTitles);
 	Item.ToolTip = Item.Title;
 	Item.InputHint = Item.Title;
 	Item.TitleLocation = FormItemTitleLocation.None;
+	If ShouldOutputPeriodTitles And StrEndsWith(Lower(Property), Lower("StartDate")) Then
+		ToolTip = PeriodElementHeader(Property, SettingItemTitle, False);
+		Item.ToolTip = ToolTip;
+		Item.InputHint = ToolTip;
+		Item.TitleLocation = FormItemTitleLocation.Left;
+	EndIf;
 	Item.SetAction("OnChange", "Attachable_Period_OnChange");
 	Item.Visible = ThisIsTheStandardRepresentation;
 EndProcedure
 
-Function PeriodElementHeader(Property, SettingItemTitle)
+Function PeriodElementHeader(Property, SettingItemTitle, ShouldOutputPeriodTitles)
+
+	If ShouldOutputPeriodTitles And StrEndsWith(Lower(Property), Lower("StartDate")) Then
+		Return SettingItemTitle;
+	EndIf;
 	
 	Return StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = '%1 (date %2)';"),
@@ -3131,10 +3145,23 @@ Procedure AddListCommands(Form, SettingItem, SettingsItems, ListName)
 		Return;
 	EndIf;
 	
-	CommandName = ListName + "PasteFromClipboard1";
-	CommandTitle = NStr("en = 'Paste from clipboard…';");
-	AddListCommand(Form, TitleGroup, CommandName, CommandTitle,
-		"Attachable_List_PasteFromClipboard", PictureLib.PasteFromClipboard);
+	ThereIsReferenceType = False;
+	For Each Current_Type In SettingItem.ValueType.Types() Do
+		If Common.IsReference(Current_Type) Then
+			ThereIsReferenceType = True;
+			Break;
+		EndIf;
+	EndDo;
+	
+	If ThereIsReferenceType Then
+		
+		CommandName = ListName + "PasteFromClipboard1";
+		CommandTitle = NStr("en = 'Paste from clipboard…';");
+		AddListCommand(Form, TitleGroup, CommandName, CommandTitle,
+			"Attachable_List_PasteFromClipboard", PictureLib.PasteFromClipboard);
+			
+	EndIf;
+	
 EndProcedure
 
 Procedure AddListCommand(Form, Parent, CommandName, Title, Action, Picture = Undefined)
@@ -3184,8 +3211,8 @@ Procedure InitializeList(Form, IndexOf, Field, SettingItem)
 	Else
 		SelectedValues = ReportsClientServer.ValuesByList(SettingItem[ValueFieldName]);
 		If SelectedValues.Count() > 0 Then 
-			
-			
+			// 
+			// 
 			SettingItem[ValueFieldName] = SelectedValues;
 		EndIf;
 	EndIf;
@@ -3787,16 +3814,20 @@ Function SettingsItemByFullPath(Val Settings, Val FullPathToItem) Export
 	Return SettingsItem;
 EndFunction
 
+// Parameters:
+//  ImportParameters - See ReportsClientServer.ReportFormUpdateParameters
+//  SettingsComposer - DataCompositionSettingsComposer
+//
 Procedure SetFiltersConditions(ImportParameters, SettingsComposer) Export 
-	FiltersConditions = CommonClientServer.StructureProperty(ImportParameters, "FiltersConditions");
-	If FiltersConditions = Undefined Then
+
+	If ImportParameters.FiltersConditions = Undefined Then
 		Return;
 	EndIf;
 	
 	Settings = SettingsComposer.Settings;
 	UserSettings = SettingsComposer.UserSettings;
 	
-	For Each Condition In FiltersConditions Do
+	For Each Condition In ImportParameters.FiltersConditions Do
 		UserSettingItem = UserSettings.GetObjectByID(Condition.Key);
 		UserSettingItem.ComparisonType = Condition.Value;
 		
@@ -3814,7 +3845,8 @@ Procedure SetFiltersConditions(ImportParameters, SettingsComposer) Export
 	EndDo;
 EndProcedure
 
-Procedure SetAvailableSettingsValues(Form, Report, SettingsComposer, UserSettingItem, MainSettingItem, SettingDetails)
+Procedure SetValidSettingsValues(Form, Report, SettingsComposer, UserSettingItem, 
+	MainSettingItem, SettingDetails)
 		
 	SettingProperties = UserSettingsItemProperties(
 	SettingsComposer, UserSettingItem, MainSettingItem, SettingDetails);
@@ -3825,14 +3857,14 @@ Procedure SetAvailableSettingsValues(Form, Report, SettingsComposer, UserSetting
 	// Global settings of type output.
 	ReportsOverridable.OnDefineSelectionParameters(Undefined, SettingProperties);
 	
-	// Local override for a report.
+	// A local report overriding.
 	If Form.ReportSettings.Events.OnDefineSelectionParameters Then 
 		Report.OnDefineSelectionParameters(Form, SettingProperties);
 	EndIf;
 	
 	// Populate automatically.
 	If SettingProperties.SelectionValuesQuery.Text <> "" Then
-		// @skip-check query-in-loop - Query multiple tables.
+		// @skip-check query-in-loop - A multi-table query.
 		ValuesToAdd = SettingProperties.SelectionValuesQuery.Execute().Unload().UnloadColumn(0);
 		For Each Item In ValuesToAdd Do
 			ReportsClientServer.AddUniqueValueToList(

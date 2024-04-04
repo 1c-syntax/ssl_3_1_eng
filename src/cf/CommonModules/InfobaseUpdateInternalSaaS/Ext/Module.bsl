@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -74,8 +75,8 @@ Procedure GenerateDataAreaUpdatePlan(LibraryID, AllHandlers,
 		UpdatePlanEmpty = DataAreaUpdatePlan.Rows.Count() = 0;
 		
 		If LibraryID = Metadata.Name Then
-			
-			
+			// 
+			// 
 			UpdatePlanEmpty = False;
 			
 			// Checking whether each plan is empty.
@@ -202,8 +203,8 @@ Procedure GenerateDataAreaUpdatePlan(LibraryID, AllHandlers,
 		
 		If UpdatePlanEmpty Then
 			
-			
-			
+			// 
+			// 
 			DeferredFilterParameters = InfobaseUpdateInternal.HandlerFIlteringParameters();
 			DeferredFilterParameters.GetSeparated = True;
 			DeferredFilterParameters.UpdateMode = "Deferred";
@@ -750,8 +751,8 @@ Procedure AfterUpdateInfobase(Val PreviousVersion, Val CurrentVersion,
 		Try
 			BackgroundJobs.Execute(Job.Metadata.MethodName, , Job.Key, Job.Description);
 		Except
-			
-			
+			// 
+			// 
 		EndTry;
 		// ACC:280-on
 	EndIf;
@@ -842,7 +843,7 @@ Procedure OnGetUpdatePriority(Priority) Export
 	Priority = Constants.DataAreasUpdatePriority.Get();
 EndProcedure
 
-// 
+// Intended to be used on form "ApplicationUpdateResult"
 //
 Function AreasUpdateProgressReport() Export
 	
@@ -916,8 +917,8 @@ Procedure ScheduleDataAreaUpdate()
 	
 	SharedDataVersion = InfobaseUpdateInternal.IBVersion(Metadata.Name, True);
 	If InfobaseUpdateInternal.UpdateRequired(MetadataVersion, SharedDataVersion) Then
-		
-		
+		// 
+		// 
 		Return;
 	EndIf;
 	
@@ -1131,8 +1132,8 @@ Procedure DataAreasUpdate() Export
 		Return;
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	
 	ScheduleDataAreaUpdate();
 	
@@ -1240,7 +1241,7 @@ Function DataAreaLockResult(RecordKey, AttemptNumber)
 		If AttemptNumber = 1 Then
 			IdleTimeEnd = CurrentSessionDate() + 20;
 			While CurrentSessionDate() < IdleTimeEnd Do
-				
+				// Wait till the lock is released.
 			EndDo;
 			Return "Repeat";
 		EndIf;
@@ -1305,9 +1306,9 @@ Function ExecuteQueryOutsideTransaction(Val Query)
 	Result = Undefined;
 	While True Do
 		Try
-			Result = Query.Execute(); 
-			                                
-			                                
+			Result = Query.Execute(); // 
+			                                // 
+			                                // 
 			Break;
 		Except
 			AttemptsNumber = AttemptsNumber + 1;

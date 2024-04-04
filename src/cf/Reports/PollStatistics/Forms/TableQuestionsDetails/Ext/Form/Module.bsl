@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -14,7 +15,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	BasicQuestionsFormulations = New Map;
 	
-	If ProcessIncomingParameters(BasicQuestionsFormulations) Then
+	If Not ProcessFormParameters(BasicQuestionsFormulations) Then
 		Cancel = True;
 		Return;
 	EndIf;
@@ -311,35 +312,32 @@ Function ExecuteQueryOnQuestionnareQuestion()
 EndFunction
 
 &AtServer
-Function ProcessIncomingParameters(BasicQuestionsFormulations)
+Function ProcessFormParameters(BasicQuestionsFormulations)
 
-	If Parameters.Property("QuestionnaireTemplateQuestion") Then
-		QuestionnaireTemplateQuestion = Parameters.QuestionnaireTemplateQuestion;
-	Else
-		Return True;
+	If Parameters.QuestionnaireTemplateQuestion.IsEmpty() Then
+		Return False;
 	EndIf;
+	QuestionnaireTemplateQuestion = Parameters.QuestionnaireTemplateQuestion;
 	
-	If Parameters.Property("Survey") Then
-		Survey = Parameters.Survey; 
-	Else
-		Return True;
+	If Parameters.Survey.IsEmpty() Then
+		Return False;
 	EndIf;
+	Survey = Parameters.Survey; 
 	
-	If Parameters.Property("FullCode") Then
-		FullCode =  Parameters.FullCode;
+	If IsBlankString(Parameters.FullCode) Then
+		Return False;
 	EndIf;
+	FullCode = Parameters.FullCode;
 	
-	If Parameters.Property("SurveyDescription") Then
-		SurveyDescription =  Parameters.SurveyDescription;
-	Else
-		Return True;
-	EndIf; 
-	
-	If Parameters.Property("SurveyDate") Then
-		SurveyDate =  Parameters.SurveyDate;
-	Else
-		Return True;
+	If IsBlankString(Parameters.SurveyDescription) Then
+		Return False;
 	EndIf;
+	SurveyDescription = Parameters.SurveyDescription;
+	
+	If Not ValueIsFilled(Parameters.SurveyDate) Then
+		Return False;
+	EndIf;
+	SurveyDate = Parameters.SurveyDate;
 	
 	TemplateQuestionsAttributes = Common.ObjectAttributesValues(QuestionnaireTemplateQuestion,
 		"TabularQuestionType,TableQuestionComposition,PredefinedAnswers,Wording");
@@ -352,7 +350,7 @@ Function ProcessIncomingParameters(BasicQuestionsFormulations)
 	Title = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Responses to question %1 of survey %2, %3.';"), FullCode, SurveyDescription, Format(SurveyDate, "DLF=D"));
 	
-	Return False;
+	Return True;
 
 EndFunction
 

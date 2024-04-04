@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -25,7 +26,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.SettingInCentralNodeLabel.Visible = False;
 	EndIf;
 	
-	Items.Description.ChoiceList.Add("", NStr("en = '<Another application>';"));
+	Items.Description.ChoiceList.Add("", NStr("en = '<Другое приложение>';"));
 	SettingsToSupply = Catalogs.DigitalSignatureAndEncryptionApplications.ApplicationsSettingsToSupply();
 	For Each SettingToSupply In SettingsToSupply Do
 		If ThereIsAClientOrServerVOS(SettingToSupply) Then
@@ -92,8 +93,8 @@ EndProcedure
 &AtServer
 Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 	
-	
-	
+	// 
+	// 
 	RefreshReusableValues();
 	
 EndProcedure
@@ -189,7 +190,7 @@ Procedure UsageModeChoiceProcessing(Item, ValueSelected, StandardProcessing)
 		ApplicationToSupply = ApplicationsByNamesWithType.Get(Var_Key);
 		If ApplicationToSupply = Undefined Then
 			StandardProcessing = False;
-			ShowMessageBox(, NStr("en = 'An application with the specified name and type cannot be determined automatically.';"));
+			ShowMessageBox(, NStr("en = 'An app with the specified name and type cannot be determined automatically.';"));
 			Return;
 		EndIf;
 		
@@ -257,12 +258,12 @@ EndProcedure
 Procedure SetTitleAutoSettings(SettingToSupply)
 	
 	If SettingToSupply = Undefined Then
-		Items.DecorationLabelAutoSettings.Title = NStr("en = 'This application cannot be determined automatically';");
+		Items.DecorationLabelAutoSettings.Title = NStr("en = 'This app cannot be determined automatically';");
 		Return;
 	EndIf;
 	
 	Items.DecorationLabelAutoSettings.Title = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Algorithms used in this application:
+			NStr("en = 'Algorithms used in this app:
 			|Signing algorithm: %1
 			|Hashing algorithm: %2
 			|Encryption algorithm: %3';"), SettingToSupply.SignAlgorithm, SettingToSupply.HashAlgorithm,
@@ -340,8 +341,8 @@ EndProcedure
 &AtClient
 Procedure FillSelectedApplicationAlgorithmsAfterGetInformation(ModuleInfo, Context) Export
 	
-	
-	
+	// 
+	// 
 	
 	If ModuleInfo <> Undefined
 	   And Object.ApplicationName <> ModuleInfo.Name

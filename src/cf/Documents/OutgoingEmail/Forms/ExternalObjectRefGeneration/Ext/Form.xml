@@ -45,6 +45,12 @@
 					<ChildItems>
 						<InputField name="InfobasePublicationURL" id="1">
 							<DataPath>InfobasePublicationURL</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Infobase publication URL</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Top</TitleLocation>
 							<Width>40</Width>
 							<HorizontalStretch>false</HorizontalStretch>
@@ -96,7 +102,7 @@
 							<TitleLocation>Top</TitleLocation>
 							<AutoMarkIncomplete>true</AutoMarkIncomplete>
 							<ContextMenu name="ObjectRef1ContextMenu" id="4"/>
-							<ExtendedTooltip name="ObjectRef1ExtendedTooltip" id="24"/>
+							<ExtendedTooltip name="ObjectReferenceExtendedTooltip" id="24"/>
 							<Events>
 								<Event name="OnChange">ObjectRef1OnChange</Event>
 							</Events>
@@ -124,6 +130,12 @@
 			<DataPath>GeneratedRef</DataPath>
 			<Visible>false</Visible>
 			<ReadOnly>true</ReadOnly>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Generated reference</v8:content>
+				</v8:item>
+			</Title>
 			<ContextMenu name="RefToGenerateContextMenu" id="7"/>
 			<ExtendedTooltip name="RefToGenerateExtendedTooltip" id="26"/>
 		</InputField>
@@ -147,6 +159,12 @@
 					<Type>UsualButton</Type>
 					<DefaultButton>true</DefaultButton>
 					<CommandName>Form.Command.Insert</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Insert</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="InsertExtendedTooltip" id="30"/>
 				</Button>
 				<Button name="Close" id="31">

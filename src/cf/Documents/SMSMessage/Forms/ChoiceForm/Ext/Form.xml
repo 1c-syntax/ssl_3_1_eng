@@ -91,7 +91,7 @@
 				<LabelField name="Subject" id="25">
 					<DataPath>List.Subject</DataPath>
 					<ContextMenu name="SubjectContextMenu" id="26"/>
-					<ExtendedTooltip name="SubjectExtendedTip" id="27"/>
+					<ExtendedTooltip name="SubjectExtendedTooltip" id="27"/>
 				</LabelField>
 				<LabelField name="SubjectOf" id="31">
 					<DataPath>List.SubjectOf</DataPath>

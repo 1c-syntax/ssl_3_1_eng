@@ -1,11 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
+
+#Region Variables
+
+&AtClient
+Var ReportsToSend; // Array of ErrorReport 
+
+#EndRegion
 
 #Region FormEventHandlers
 
@@ -131,8 +139,8 @@ EndProcedure
 &AtClient
 Procedure OnOpen(Cancel)
 	
-	// Run wizard.
 	OnActivateWizardStep();
+	ReportsToSend = New Map;
 	
 EndProcedure
 
@@ -496,9 +504,20 @@ Procedure UnprocessedItemsUsageInstancesOnActivateRow(Item)
 	
 	CurrentData = Item.CurrentData;
 	If CurrentData = Undefined Then
-		UnprocessedItemsErrorDescription = "";
+		UnprocessedItemsErrorDescription = "";	
+		Items.DecorationSendErrorReport.Visible = False;
+		Return;
+	EndIf;
+		
+	UnprocessedItemsErrorDescription = ?(CurrentData.ErrorInfo <> Undefined,
+			ErrorProcessing.ErrorMessageForUser(CurrentData.ErrorInfo),
+			CurrentData.ErrorText);
+
+	If CurrentData.ErrorInfo = Undefined Then
+		Items.DecorationSendErrorReport.Visible = False;
 	Else
-		UnprocessedItemsErrorDescription = CurrentData.ErrorText;
+		StandardSubsystemsClient.ConfigureVisibilityAndTitleForURLSendErrorReport(
+			Items.DecorationSendErrorReport, CurrentData.ErrorInfo);
 	EndIf;
 	
 EndProcedure
@@ -508,6 +527,23 @@ Procedure UnprocessedItemsUsageInstancesSelection(Item, RowSelected, Field, Stan
 	
 	CurrentData = UnprocessedItemsUsageInstances.FindByID(RowSelected);
 	ShowValue(, CurrentData.ErrorObject);
+	
+EndProcedure
+
+&AtClient
+Procedure DecorationSendErrorReportClick(Item)
+
+	CurrentData = Items.UnprocessedItemsUsageInstances.CurrentData;
+	If CurrentData = Undefined Then
+		Return;
+	EndIf;
+
+	ReportToSend = ReportsToSend[CurrentData.ErrorInfo];
+	If ReportToSend = Undefined Then
+		ReportToSend = New ErrorReport(CurrentData.ErrorInfo);
+		ReportsToSend[CurrentData.ErrorInfo] = ReportToSend;
+	EndIf;
+	StandardSubsystemsClient.ShowErrorReport(ReportToSend);
 	
 EndProcedure
 
@@ -691,7 +727,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
 Procedure InitializeStepByStepWizardSettings()
@@ -1055,7 +1091,7 @@ EndProcedure
 #EndRegion
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
 Function DuplicatesDeletionSearchSettings()
@@ -1354,8 +1390,8 @@ Procedure InitializeFilterComposerAndRules(Val FormSettings)
 		EndDo;
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	If Not FiltersImported Then
 		CommonClientServer.SetFilterItem(	PrefilterComposer.Settings.Filter,
 			"DeletionMark", False, DataCompositionComparisonType.Equal,, False);
@@ -1665,13 +1701,15 @@ Function ImageOfTheMetadataType(ImageCache, Kind)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure FindAndDeleteDuplicatesClient()
 	
-	Job = FindAndDeleteDuplicates();
-	If Job = Undefined Then
+	ReportsToSend = New Map;
+	
+	TimeConsumingOperation = FindAndDeleteDuplicates();
+	If TimeConsumingOperation = Undefined Then
 		WizardSettings.ShowDialogBeforeClose = False;
 		GoToWizardStep1(Items.MainItemSelectionStep);
 		Return;
@@ -1682,7 +1720,7 @@ Procedure FindAndDeleteDuplicatesClient()
 	WaitSettings.OutputProgressBar = True;
 	WaitSettings.ExecutionProgressNotification = New NotifyDescription("FindAndRemoveDuplicatesProgress", ThisObject);
 	Handler = New NotifyDescription("FindAndDeleteDuplicatesCompletion", ThisObject);
-	TimeConsumingOperationsClient.WaitCompletion(Job, Handler, WaitSettings);
+	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, Handler, WaitSettings);
 	
 EndProcedure
 
@@ -1741,10 +1779,15 @@ Function FindAndDeleteDuplicates()
 	
 EndFunction
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.LongRunningOperationNewState
+//  AdditionalParameters - Undefined
+//
 &AtClient
-Procedure FindAndRemoveDuplicatesProgress(Progress, AdditionalParameters) Export
+Procedure FindAndRemoveDuplicatesProgress(Result, AdditionalParameters) Export
 	
-	If Progress = Undefined Or Progress.Progress = Undefined Then
+	If Result.Status <> "Running"
+	 Or Result.Progress = Undefined Then
 		Return;
 	EndIf;
 	
@@ -1752,28 +1795,28 @@ Procedure FindAndRemoveDuplicatesProgress(Progress, AdditionalParameters) Export
 	If CurrentPage = Items.PerformSearchStep Then
 		
 		Message = NStr("en = 'Searching for duplicates…';");
-		If Progress.Progress.Text = "CalculateUsageInstances" Then 
+		If Result.Progress.Text = "CalculateUsageInstances" Then 
 			Message = NStr("en = 'Searching for duplicate occurrences…';");
-		ElsIf Progress.Progress.Percent > 0 Then
+		ElsIf Result.Progress.Percent > 0 Then
 			Message = Message + " " 
 				+ StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = '(%1 locations found)';"), Progress.Progress.Percent);
+					NStr("en = '(%1 locations found)';"), Result.Progress.Percent);
 		EndIf;
 		Items.Searching.StatePresentation.Text = Message;
 		
 	ElsIf CurrentPage = Items.DeletionStep Then
 		
 		ProgressParameters = Undefined;
-		If Progress.Progress.Property("AdditionalParameters", ProgressParameters)
+		If Result.Progress.Property("AdditionalParameters", ProgressParameters)
 			And ProgressParameters = "ProgressofMultithreadedProcess" Then
 			Return;
 		EndIf;
 		
-		If Not IsBlankString(Progress.Progress.Text) Then
+		If Not IsBlankString(Result.Progress.Text) Then
 			If ProgressParameters = Undefined Then
-				Message = Progress.Progress.Text;
+				Message = Result.Progress.Text;
 			Else
-				Message = ProgressText(ProgressParameters, Progress.Progress.Text);
+				Message = ProgressText(ProgressParameters, Result.Progress.Text);
 			EndIf;
 		Else	
 			Message = NStr("en = 'Processing duplicates…';");
@@ -1826,26 +1869,29 @@ Function ProgressText(Val ProgressParameters, Val SourceProgressText)
 	
 EndFunction
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
-Procedure FindAndDeleteDuplicatesCompletion(Job, AdditionalParameters) Export
+Procedure FindAndDeleteDuplicatesCompletion(Result, AdditionalParameters) Export
 	WizardSettings.ShowDialogBeforeClose = False;
 	Activate();
 	CurrentPage = Items.WizardSteps.CurrentPage;
 	
-	// The job is canceled.
-	If Job = Undefined Then 
+	If Result = Undefined Then 
 		Return;
 	EndIf;
 	
-	If Job.Status <> "Completed2" Then
+	If Result.Status <> "Completed2" Then
 		// Background job is completed with error.
 		If CurrentPage = Items.PerformSearchStep Then
 			Brief1 = NStr("en = 'Cannot find duplicates. Reason:';");
 		ElsIf CurrentPage = Items.DeletionStep Then
 			Brief1 = NStr("en = 'Cannot delete the duplicates. Reason:';");
 		EndIf;
-		Brief1 = Brief1 + Chars.LF + Job.BriefErrorDescription;
-		More = Brief1 + Chars.LF + Chars.LF + Job.DetailErrorDescription;
+		Brief1 = Brief1 + Chars.LF + Result.BriefErrorDescription;
+		More = Brief1 + Chars.LF + Chars.LF + Result.DetailErrorDescription;
 		Items.ErrorTextLabel.Title = Brief1;
 		Items.DetailsRef.ToolTip    = More;
 		GoToWizardStep1(Items.ErrorOccurredStep);
@@ -1854,7 +1900,7 @@ Procedure FindAndDeleteDuplicatesCompletion(Job, AdditionalParameters) Export
 	
 	Step = WizardSettings.CurrentStep;// See AddWizardStep
 	If CurrentPage = Items.PerformSearchStep Then
-		TotalFoundDuplicates = FillDuplicatesSearchResults(Job.ResultAddress);
+		TotalFoundDuplicates = FillDuplicatesSearchResults(Result.ResultAddress);
 		TotalItems = TotalFoundDuplicates;
 		If TotalFoundDuplicates > 0 Then
 			UpdateFoundDuplicatesStateDetails();
@@ -1863,7 +1909,7 @@ Procedure FindAndDeleteDuplicatesCompletion(Job, AdditionalParameters) Export
 			GoToWizardStep1(Items.DuplicatesNotFoundStep);
 		EndIf;
 	ElsIf CurrentPage = Items.DeletionStep Then
-		Success = FillDuplicatesDeletionResults(Job.ResultAddress);
+		Success = FillDuplicatesDeletionResults(Result.ResultAddress);
 		CommonClient.NotifyObjectsChanged(ProcessedObjectsTypes);
 		If Success = True Then
 			// All duplicate groups are replaced.
@@ -1880,7 +1926,7 @@ EndProcedure
 &AtServer
 Function FillDuplicatesSearchResults(Val ResultAddress)
 	
-	
+	// Get the result of the "DuplicatesGroups" function of the data processor module.
 	Data = GetFromTempStorage(ResultAddress); // See DataProcessorObject.DuplicateObjectsDetection.DuplicatesGroups
 	DuplicatesSearchErrorDescription = Data.ErrorDescription;
 	
@@ -1907,7 +1953,7 @@ Function FillDuplicatesSearchResults(Val ResultAddress)
 		TreeGroup.Check = 1;
 		TreeGroup.PictureNumber = -1;
 		
-		OriginalItem = Undefined; 
+		OriginalItem = Undefined; // Item with the most occurrences.
 		MaxUsageInstances = -1;
 		
 		For Each Item In GroupItems1 Do
@@ -1964,7 +2010,7 @@ EndFunction
 &AtServer
 Function FillDuplicatesDeletionResults(Val ResultAddress)
 	// ErrorsTable - a result of the ReplaceReferences function of the module.
-	BackgroundExecutionResult = GetFromTempStorage(ResultAddress);
+	BackgroundExecutionResult = GetFromTempStorage(ResultAddress); // See Common.ReplaceReferences
 	ErrorsTable = GetFromTempStorage(BackgroundExecutionResult[0].ResultAddress);
 	For BatchIndex = 1 To BatchesCount - 1 Do
 		BatchResultAddress = BackgroundExecutionResult[BatchIndex].ResultAddress;
@@ -2056,7 +2102,7 @@ Function FillDuplicatesDeletionResults(Val ResultAddress)
 		
 		Children = Parent.GetItems();
 		ChildPosition = Children.Count() - 1;
-		MainChild = Children[0];	
+		MainChild = Children[0];	// At least one is present
 		
 		While ChildPosition >= 0 Do
 			Child = Children[ChildPosition];
@@ -2109,7 +2155,7 @@ Procedure FillPossibleDuplicates()
 	ExpectedPossibleDuplicates = GeneratePossibleDuplicates(UsageInstances);
 	
 	PossibleDuplicatesSearchFilter = GeneratePossibleDuplicatesFilter(FormAttributeToValue("FoundDuplicates"));
-	TypeOfObjectBeingProcessed = TypeOf(Common.ObjectAttributeValue(ObjectToProcessID, 
+	TypeOfObjectToProcess = TypeOf(Common.ObjectAttributeValue(ObjectToProcessID, 
 		"EmptyRefValue"));
 	
 	For Each UsageInstance1 In ExpectedPossibleDuplicates Do
@@ -2120,7 +2166,7 @@ Procedure FillPossibleDuplicates()
 			Continue;
 		EndIf;
 		
-		KeysLinks = KeysMetadataLinks(TypeOfObjectBeingProcessed, UsageInstance1);
+		KeysLinks = KeysMetadataLinks(TypeOfObjectToProcess, UsageInstance1);
 		If KeysLinks.Count() > 0 Then
 			AddPossibleDuplicate(MetadataObjectToProcess, UsageInstance1, KeysLinks, PossibleDuplicatesSearchFilter); 	
 		EndIf;
@@ -2226,8 +2272,8 @@ Procedure AddPossibleDuplicate(MetadataObjectToProcess, UsageInstance1, KeysLink
 	PossibleDuplicate.RelationDegree = ?(KeysLinks.Find(2, "RelationDegree") <> Undefined, 2, 1);
 	PossibleDuplicate.SourcesPresentation = StrConcat(PossibleDuplicate.Sources.UnloadValues(), ", ");
 	
-	
-			
+	// 
+	// 		
 	For Each KeysLinks In KeysLinks Do
 	
 		PossibleDuplicatesFilter = PossibleDuplicatesFilterInformation[KeysLinks.Name];
@@ -2244,7 +2290,7 @@ Procedure AddPossibleDuplicate(MetadataObjectToProcess, UsageInstance1, KeysLink
 
 EndProcedure
 
-// 
+// Returns metadata objects' relationship degree
 // 
 // Returns:
 //   - Number - — how metadata objects are linked
@@ -2253,7 +2299,7 @@ EndProcedure
 //    2 — by Parent/Owner
 //
 &AtServerNoContext
-Function KeysMetadataLinks(Val TypeOfObjectBeingProcessed, Val UsageInstance1)
+Function KeysMetadataLinks(Val TypeOfObjectToProcess, Val UsageInstance1)
 	
 	Result = New ValueTable;
 	Result.Columns.Add("Name");
@@ -2261,7 +2307,7 @@ Function KeysMetadataLinks(Val TypeOfObjectBeingProcessed, Val UsageInstance1)
 			
 	For Each UsageInstanceAttribute In UsageInstance1.Attributes Do
 		
-		If UsageInstanceAttribute.Type.Types().Find(TypeOfObjectBeingProcessed) <> Undefined Then
+		If UsageInstanceAttribute.Type.Types().Find(TypeOfObjectToProcess) <> Undefined Then
 			MetadataLink = Result.Add();
 			MetadataLink.Name = UsageInstanceAttribute.Name;
 			MetadataLink.RelationDegree = 1;
@@ -2271,7 +2317,7 @@ Function KeysMetadataLinks(Val TypeOfObjectBeingProcessed, Val UsageInstance1)
 	
 	For Each UsageInstanceAttribute In UsageInstance1.StandardAttributes Do
 		
-		If UsageInstanceAttribute.Type.Types().Find(TypeOfObjectBeingProcessed) <> Undefined Then
+		If UsageInstanceAttribute.Type.Types().Find(TypeOfObjectToProcess) <> Undefined Then
 			MetadataLink = Result.Add();
 			MetadataLink.Name = UsageInstanceAttribute.Name;
 			MetadataLink.RelationDegree = 2;
@@ -2292,12 +2338,12 @@ Procedure AfterConfirmCancelJob(Response, ExecutionParameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 // Description of wizard button settings.
 //
 // Returns:
-//  Structure - :
+//  Structure - Form's button settings, where:
 //    * Title         - String - a button title.
 //    * ToolTip         - String - button tooltip.
 //    * Visible         - Boolean - if True, the button is visible. Default value is True.

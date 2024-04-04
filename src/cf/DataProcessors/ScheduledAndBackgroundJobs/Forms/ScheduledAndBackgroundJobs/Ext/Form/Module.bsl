@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -15,10 +16,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	SetConditionalAppearance();
 	
 	If Not Users.IsFullUser(, True) Then
-		Raise NStr("en = 'Insufficient access rights.
-		                             |
-		                             |Only administrators can manage
-		                             |scheduled and background jobs.';");
+		Raise(NStr("en = 'Insufficient access rights.';"), ErrorCategory.AccessViolation);
 	EndIf;
 	
 	BlankID = String(CommonClientServer.BlankUUID());
@@ -648,8 +646,7 @@ Procedure FillFormSettings(Val Settings)
 		Settings.Insert("ScheduledJobForFilterID", BlankID);
 	EndIf;
 	
-	
-	// См. также 
+	// 
 	If Settings.Get("FilterKindByPeriod") = Undefined
 	 Or Settings.Get("FilterPeriodFrom")       = Undefined
 	 Or Settings.Get("FilterPeriodFor")      = Undefined Then
@@ -908,7 +905,7 @@ Procedure LockOfOperationsWithExternalResourcesURLProcessingAtServerNote()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure ImportScheduledJobs(JobID = Undefined, UpdateSilently = False)
@@ -923,12 +920,16 @@ Procedure ImportScheduledJobs(JobID = Undefined, UpdateSilently = False)
 	
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
-	CompletionNotification2 = New NotifyDescription("ImportScheduledJobsCompletion", ThisObject);
+	CallbackOnCompletion = New NotifyDescription("ImportScheduledJobsCompletion", ThisObject);
 	
-	TimeConsumingOperationsClient.WaitCompletion(Result, CompletionNotification2, IdleParameters);
+	TimeConsumingOperationsClient.WaitCompletion(Result, CallbackOnCompletion, IdleParameters);
 	
 EndProcedure
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
 Procedure ImportScheduledJobsCompletion(Result, AdditionalParameters) Export
 	
@@ -941,7 +942,8 @@ Procedure ImportScheduledJobsCompletion(Result, AdditionalParameters) Export
 		Items.ScheduledJobsDeferredImportPages.CurrentPage = Items.ScheduledJobsPage;
 	ElsIf Result.Status = "Error" Then
 		Items.ScheduledJobsDeferredImportPages.CurrentPage = Items.ScheduledJobsPage;
-		Raise Result.BriefErrorDescription;
+		StandardSubsystemsClient.OutputErrorInfo(
+			Result.ErrorInfo);
 	EndIf;
 	
 EndProcedure
@@ -961,7 +963,7 @@ Function ScheduledJobsImport(JobID)
 	If JobID <> Undefined Then
 		ExecutionParameters.RunNotInBackground1 = True;
 	EndIf;
-	ExecutionParameters.WaitCompletion = 0; 
+	ExecutionParameters.WaitCompletion = 0; // 
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Generate scheduled job list';");
 	
 	Return TimeConsumingOperations.ExecuteInBackground("ScheduledJobsInternal.GenerateScheduledJobsTable",
@@ -1021,7 +1023,7 @@ Procedure ProcessResult(JobParameters)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure UpdateBackgroundJobsTableAtClient()
@@ -1036,8 +1038,8 @@ Procedure UpdateBackgroundJobsTableAtClient()
 	
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
-	CompletionNotification2 = New NotifyDescription("UpdateBackgroundJobTableCompletion", ThisObject);
-	TimeConsumingOperationsClient.WaitCompletion(Result, CompletionNotification2, IdleParameters);
+	CallbackOnCompletion = New NotifyDescription("UpdateBackgroundJobTableCompletion", ThisObject);
+	TimeConsumingOperationsClient.WaitCompletion(Result, CallbackOnCompletion, IdleParameters);
 	
 EndProcedure
 
@@ -1187,6 +1189,10 @@ Procedure UpdateBackgroundJobTable(ResultAddress = Undefined)
 	
 EndProcedure
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
 Procedure UpdateBackgroundJobTableCompletion(Result, AdditionalParameters) Export
 	
@@ -1201,7 +1207,8 @@ Procedure UpdateBackgroundJobTableCompletion(Result, AdditionalParameters) Expor
 	ElsIf Result.Status = "Error" Then
 		Items.HeaderGroup.Enabled = True;
 		Items.BackgroundJobsDeferredImportPages.CurrentPage = Items.BackgroundJobsPage;
-		Raise Result.BriefErrorDescription;
+		StandardSubsystemsClient.OutputErrorInfo(
+			Result.ErrorInfo);
 	EndIf;
 	
 EndProcedure

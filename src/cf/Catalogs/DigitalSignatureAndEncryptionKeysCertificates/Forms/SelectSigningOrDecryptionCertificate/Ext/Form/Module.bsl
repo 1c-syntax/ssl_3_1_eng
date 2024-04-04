@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -51,12 +52,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	CertificateAttributeParameters =
 		DigitalSignatureInternal.NewParametersForCertificateDetails();
 	
-	If Parameters.Property("Organization") Then
+	If ValueIsFilled(Parameters.Organization) Then
 		CertificateAttributeParameters.Insert("Organization", Parameters.Organization);
 	EndIf;
+	
 	ExecuteAtServer = Parameters.ExecuteAtServer;
 	
-	LinkSelectionMode = Parameters.LinkSelectionMode;
+	RefSelectionMode = Parameters.RefSelectionMode;
 	
 	HasCloudSignature = DigitalSignatureInternal.UseCloudSignatureService();
 	
@@ -106,7 +108,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndIf;
 	EndIf;
 	
-	HasCompanies = Not Metadata.DefinedTypes.Organization.Type.ContainsType(Type("String"));
+	HasCompanies = DigitalSignature.CommonSettings().IsCompanyUsed;
 	Items.CertificateCompany.Visible = HasCompanies;
 	
 	Items.CertificateUser1.ToolTip =
@@ -115,10 +117,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.CertificateCompany.ToolTip =
 		Metadata.Catalogs.DigitalSignatureAndEncryptionKeysCertificates.Attributes.Organization.Tooltip;
 	
-	If Metadata.DefinedTypes.Individual.Type.ContainsType(Type("String")) Then
-		Items.GroupInidividual.Visible = False;
-	EndIf;
-	
+	Items.GroupInidividual.Visible = DigitalSignature.CommonSettings().IndividualUsed;
+		
 	If ValueIsFilled(Parameters.SelectedCertificateThumbprint) Then
 		SelectedCertificateThumbprintNotFound = False;
 		SelectedCertificateThumbprint = Parameters.SelectedCertificateThumbprint;
@@ -136,10 +136,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		SelectedCertificateThumbprintNotFound = True;
 	EndIf;
 	
-	Items.SelectCancelCommands.Visible = LinkSelectionMode;
-	Items.SelectLink.DefaultButton = LinkSelectionMode;
-	Items.CommandsNextAndCancel.Visible = Not LinkSelectionMode;
-	Items.Next.DefaultButton = Not LinkSelectionMode;
+	Items.CommandsSelectCancel.Visible = RefSelectionMode;
+	Items.SelectRef.DefaultButton = RefSelectionMode;
+	Items.CommandsNextAndCancel.Visible = Not RefSelectionMode;
+	Items.Next.DefaultButton = Not RefSelectionMode;
 	
 EndProcedure
 
@@ -213,6 +213,12 @@ EndProcedure
 #EndRegion
 
 #Region FormHeaderItemsEventHandlers
+
+&AtClient
+Procedure PasswordStartChoice(Item, ChoiceData, StandardProcessing)
+	DigitalSignatureInternalClient.PasswordFieldStartChoice(ThisObject,
+		InternalData, PasswordProperties, StandardProcessing);
+EndProcedure
 
 &AtClient
 Procedure CertificatesUnavailableAtClientLabelClick(Item)
@@ -317,8 +323,8 @@ EndProcedure
 &AtClient
 Procedure CertificatesSelection(Item, RowSelected, Field, StandardProcessing)
 	
-	If LinkSelectionMode Then
-		SelectLink(Undefined);
+	If RefSelectionMode Then
+		SelectRef(Undefined);
 	Else
 		Next(Undefined);
 	EndIf;
@@ -460,6 +466,7 @@ Procedure Select(Command)
 		CertificateParameters.Description = DescriptionCertificate;
 		CertificateParameters.User = CertificateUser1;
 		CertificateParameters.Organization = CertificateCompany;
+		CertificateParameters.Individual = CertificateIndividual;
 		CertificateParameters.EnterPasswordInDigitalSignatureApplication = CertificateEnterPasswordInElectronicSignatureProgram;
 		
 		DigitalSignatureClient.WriteCertificateToCatalog(
@@ -471,7 +478,7 @@ Procedure Select(Command)
 EndProcedure
 
 &AtClient
-Procedure SelectLink(Command)
+Procedure SelectRef(Command)
 	
 	CurrentData = Items.Certificates.CurrentData;
 	If CurrentData = Undefined Then
@@ -483,7 +490,7 @@ Procedure SelectLink(Command)
 		Return;
 	EndIf;
 	
-	CompletionNotification = New NotifyDescription("SelectLinkCompletion", ThisObject);
+	CompletionNotification = New NotifyDescription("SelectRefCompletion", ThisObject);
 	
 	If CurrentData.LocationType = 3 Then
 		TheDSSCryptographyServiceModuleClientServer = CommonClient.CommonModule("DSSCryptographyServiceClientServer");
@@ -499,9 +506,9 @@ Procedure SelectLink(Command)
 	EndIf;
 EndProcedure
 
-// Continues the SelectRef???????????? procedure.
+// Continues the SelectRef procedure.
 &AtClient
-Procedure SelectLinkCompletion(Result, Context) Export 
+Procedure SelectRefCompletion(Result, Context) Export 
 	Close(Result.Unload());
 EndProcedure
 
@@ -900,7 +907,7 @@ Procedure GoToCurrentCertificateChoiceAfterCertificateSearch(SearchResult, Conte
 	
 	If TypeOf(SearchResult) <> Type("CryptoCertificate") Then
 		If SearchResult.Property("CertificateNotFound") Then
-			Context.Result.ErrorDescription = NStr("en = 'The certificate is not installed on the computer (it might have been deleted).';");
+			Context.Result.ErrorDescription = NStr("en = 'The certificate is not installed or was deleted from your computer.';");
 		Else
 			Context.Result.ErrorDescription = SearchResult.ErrorDescription;
 		EndIf;
@@ -1038,6 +1045,7 @@ Procedure GoToCurrentCertificateChoiceAfterFillCertificateProperties(Context)
 	Certificate             = Context.SavedProperties.Ref;
 	CertificateCompany  = Context.SavedProperties.Organization;
 	DescriptionCertificate = Context.SavedProperties.Description;
+	CertificateIndividual = Context.SavedProperties.Individual;
 	CertificateEnterPasswordInElectronicSignatureProgram = Context.SavedProperties.EnterPasswordInDigitalSignatureApplication;
 	
 	DigitalSignatureInternalClient.ProcessPasswordInForm(ThisObject, InternalData, PasswordProperties);

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -1016,7 +1017,7 @@ Procedure ImportanceLow(Command)
 	
 EndProcedure
 
-
+// 
 
 &AtClient
 Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined, StandardProcessing = Undefined)
@@ -1030,7 +1031,7 @@ EndProcedure
 
 // End StandardSubsystems.Properties
 
-
+// 
 
 &AtClient
 Procedure GenerateFromTemplate(Command)
@@ -1805,7 +1806,7 @@ EndFunction
 &AtServer
 Function GenerateOutgoingMessagePlainText(SelectionIncomingEmailData, CurrentObject)
 
-	StringHeader1 = NStr("en = '---------- Forwarded message ---------';");
+	StringHeader1 = NStr("en = '-----Forwarded message-----';");
 	
 	StringHeader1 = StringHeader1 + Chars.LF+ NStr("en = 'From';") + ": "+ SelectionIncomingEmailData.SenderPresentation
 		          + ?(SelectionIncomingEmailData.MetadataObjectName = "IncomingEmail",
@@ -1851,9 +1852,9 @@ Procedure DetermineEmailEditMethod()
 		
 		MessageFormat = Interactions.DefaultMessageFormat(Users.CurrentUser());
 		
-		
-		
-		
+		// 
+		// 
+		// 
 		If MessageFormat = Enums.EmailEditingMethods.NormalText 
 			And TrimAll(Object.Text) = "" And TrimAll(Object.HTMLText) <> "" Then
 			MessageFormat = Enums.EmailEditingMethods.HTML;
@@ -1911,8 +1912,8 @@ Procedure DetermineEmailEditMethod()
 				HTMLText = "";
 				EmailTextFormattedDocument.GetHTML(HTMLText, AttachmentsStructure);
 				
-				
-				
+				// 
+				// 
 				HTMLTextToCheck = EmailTextFormattedDocument.GetText();
 				If IsBlankString(HTMLTextToCheck) And ValueIsFilled(Object.HTMLText) Then
 					Object.HTMLText = Interactions.ProcessHTMLTextForFormattedDocument(
@@ -2220,9 +2221,8 @@ Procedure SendExecute()
 		ButtonsList.Add(DialogReturnCode.No, NStr("en = 'Send and save';"));
 		ButtonsList.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel';"));
 		
-		QueryText = NStr("en = 'This email account doesn''t store sent messages in the application.
+		QueryText = NStr("en = 'This email account doesn''t store sent messages in the app.
 		                    |Do you want to continue?';");
-		
 		CloseNotificationHandler = New NotifyDescription("PromptForNotSavingSentEmail", ThisObject);
 		ShowQueryBox(CloseNotificationHandler,QueryText, ButtonsList,, DialogReturnCode.Yes, NStr("en = 'Send message';"));
 	Else
@@ -3026,7 +3026,7 @@ Procedure FillTabularSectionsByRecipientsList()
 	
 EndProcedure
 
-
+// 
 
 &AtServer
 Procedure PropertiesExecuteDeferredInitialization()
@@ -3070,7 +3070,7 @@ EndProcedure
 
 // End StandardSubsystems.Properties
 
-
+// 
 
 &AtClient
 Procedure FillByTemplateAfterTemplateChoice(Result, AdditionalParameters) Export

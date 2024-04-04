@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -45,24 +46,25 @@ Procedure OnFillAccessKinds(AccessKinds) Export
 	
 EndProcedure
 
-// 
-// 
+// Allows specifying the metadata objects for which the data access restriction logic is set.
+// In manager modules of the specified lists, there is a handler procedure, for example:
 //
-//
-// See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
+//Parameters:
+//Constraint - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
 ////
 //
 //	
-//  
-//  
-//  
-//  
-//  
+//  Procedure OnFillAccessRestriction(Constraint) Export
+//  Restriction.Text =
+//  "AllowReadEdit
+//  |WHERE
+//  |	ValueAllowed(Company)
 //	
+//|	AND ValueAllowed(Counterparty)";
 //
-//
-// 
-// 
+// EndProcedure
+// The data access restriction logic can also be overridden in the procedure
+// "AccessManagementOverridable.OnFillAccessRestriction".
 //
 // Parameters:
 //  Lists - Map of KeyAndValue - lists with access restriction:
@@ -169,7 +171,6 @@ EndProcedure
 //
 //   * Title    - String - a right title, for example, in the ObjectsRightsSettings form:
 //                  "Folders.
-//                  |сhange".
 //
 //   * ToolTip    - String - a tooltip of the right title.
 //                  For example, "Add, change, and mark folders for deletion".

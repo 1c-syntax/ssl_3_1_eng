@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -45,8 +46,8 @@ Function UpdateRequired1(SubordinateDIBNodeSetup = False) Export
 	If Common.SubsystemExists("StandardSubsystems.DataExchange") Then
 		ModuleDataExchangeServer = Common.CommonModule("DataExchangeServer");
 		
-		
-		
+		// 
+		// 
 		If ModuleDataExchangeServer.SubordinateDIBNodeSetup() Then
 			SubordinateDIBNodeSetup = True;
 			Return True;
@@ -141,9 +142,9 @@ Function ApplicationParameterChanges(ParameterName) Export
 	If Common.DataSeparationEnabled()
 	   And Not Common.SeparatedDataUsageAvailable() Then
 		
-		
-		
-		
+		// 
+		// 
+		// 
 		
 		// Version of shared (common) data.
 		IBVersion = InfobaseUpdateInternal.IBVersion(Metadata.Name, True);
@@ -162,7 +163,7 @@ Function ApplicationParameterChanges(ParameterName) Export
 	If Not IsApplicationParameterChanges(LastChanges) Then
 		CheckIfCanUpdateSaaS(ParameterName, Undefined, "GettingChanges");
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'No changes are found for application parameter ""%1.""';"), ParameterName)
+			NStr("en = 'No changes are found for parameter ""%1"".';"), ParameterName)
 			+ StandardSubsystemsServer.ApplicationRunParameterErrorClarificationForDeveloper();
 		Raise ErrorText;
 	EndIf;
@@ -171,10 +172,10 @@ Function ApplicationParameterChanges(ParameterName) Export
 	NextVersion = NextVersion(Version);
 	UpdateOutsideIBUpdate = CommonClientServer.CompareVersions(IBVersion, Version) = 0;
 	
-	
-	
-	
-	
+	// 
+	// 
+	// 
+	// 
 	
 	IndexOf = LastChanges.Count()-1;
 	While IndexOf >= 0 Do
@@ -243,10 +244,10 @@ Procedure AddApplicationParameterChanges(ParameterName, Val Changes) Export
 		
 		If ValueIsFilled(Changes) Then
 			
-			
-			
-			
-			
+			// 
+			// 
+			// 
+			// 
 			Version = Metadata.Version;
 			
 			UpdateOutsideIBUpdate =
@@ -264,9 +265,9 @@ Procedure AddApplicationParameterChanges(ParameterName, Val Changes) Export
 		
 		EarliestIBVersion = InfobaseUpdateInternalCached.EarliestIBVersion();
 		
-		
-		
-		
+		// 
+		// 
+		// 
 		IndexOf = LastChanges.Count()-1;
 		While IndexOf >=0 Do
 			RevisionVersion = LastChanges[IndexOf].ConfigurationVersion;
@@ -321,8 +322,8 @@ Procedure ImportUpdateApplicationParameters() Export
 		Result = UpdateApplicationParametersInBackground(Undefined, Undefined, False);
 		ProcessedResult = ProcessedTimeConsumingOperationResult(Result, False);
 		
-		If ValueIsFilled(ProcessedResult.BriefErrorDescription) Then
-			Raise ProcessedResult.DetailErrorDescription;
+		If TypeOf(ProcessedResult.ErrorInfo) = Type("ErrorInfo") Then
+			Raise ErrorProcessing.DetailErrorDescription(ProcessedResult.ErrorInfo);
 		EndIf;
 	Else
 		Try
@@ -360,10 +361,10 @@ EndFunction
 Function ImportApplicationParametersInBackground(WaitCompletion, FormIdentifier, ReportProgress) Export
 	
 	OperationParametersList = TimeConsumingOperations.BackgroundExecutionParameters(FormIdentifier);
-	OperationParametersList.BackgroundJobDescription = NStr("en = 'Background import of application parameters';");
-	
-	
-	
+	OperationParametersList.BackgroundJobDescription = NStr("en = 'Background import of app parameters';");
+	// 
+	// 
+	// 
 	OperationParametersList.RunInBackground = True;
 	OperationParametersList.WaitCompletion = WaitCompletion;
 	
@@ -386,7 +387,7 @@ EndFunction
 Function UpdateApplicationParametersInBackground(WaitCompletion, FormIdentifier, ReportProgress) Export
 	
 	OperationParametersList = TimeConsumingOperations.BackgroundExecutionParameters(FormIdentifier);
-	OperationParametersList.BackgroundJobDescription = NStr("en = 'Update application parameters in background';");
+	OperationParametersList.BackgroundJobDescription = NStr("en = 'Background update of app parameters';");
 	OperationParametersList.NoExtensions = True;
 	OperationParametersList.WaitCompletion = WaitCompletion;
 	
@@ -399,7 +400,7 @@ Function UpdateApplicationParametersInBackground(WaitCompletion, FormIdentifier,
 	   And Not CanExecuteBackgroundJobs() Then
 		
 		ErrorText =
-			NStr("en = 'Application parameters with attached configuration extensions
+			NStr("en = 'App parameters with attached configuration extensions
 			           |can be updated only in a background job without configuration extensions
 			           |
 			           |In a file infobase, a background job cannot be started
@@ -425,9 +426,9 @@ Function UpdateExtensionVersionParametersInBackground(WaitCompletion, FormIdenti
 	
 	OperationParametersList = TimeConsumingOperations.BackgroundExecutionParameters(FormIdentifier);
 	OperationParametersList.BackgroundJobDescription = NStr("en = 'Update extension version parameters in background';");
-	
-	
-	
+	// 
+	// 
+	// 
 	OperationParametersList.RunInBackground = True;
 	OperationParametersList.WaitCompletion = WaitCompletion;
 	
@@ -454,18 +455,18 @@ EndFunction
 Function ProcessedTimeConsumingOperationResult(Result, Operation) Export
 	
 	BriefErrorDescription   = Undefined;
-	DetailErrorDescription = Undefined;
+	ErrorInfo           = Undefined;
 	
 	If Result = Undefined Or Result.Status = "Canceled" Then
 		
 		If Operation = "ImportApplicationParameters" Then
 			BriefErrorDescription =
-				NStr("en = 'Cannot import application parameters. Reason:
+				NStr("en = 'Couldn''t import app parameters. Reason:
 				           |The import background job is canceled.';");
 			
 		ElsIf Operation = "ApplicationParametersUpdate" Then
 			BriefErrorDescription =
-				NStr("en = 'Cannot update application parameters. Reason:
+				NStr("en = 'Couldn''t update app parameters. Reason:
 				           |The update background job is canceled.';");
 			
 		Else // ExtensionVersionParametersUpdate.
@@ -479,17 +480,15 @@ Function ProcessedTimeConsumingOperationResult(Result, Operation) Export
 		DeleteFromTempStorage(Result.ResultAddress);
 		
 		If TypeOf(ExecutionResult) = Type("Structure") Then
-			BriefErrorDescription   = ExecutionResult.BriefErrorDescription;
-			DetailErrorDescription = ExecutionResult.DetailErrorDescription;
-			
+			ErrorInfo = ExecutionResult.ErrorInfo;
 		ElsIf Operation = "ImportApplicationParameters" Then
 			BriefErrorDescription =
-				NStr("en = 'Cannot import application parameters. Reason:
+				NStr("en = 'Couldn''t import app parameters. Reason:
 				           |The import background job has not returned the result.';");
 			
 		ElsIf Operation = "ApplicationParametersUpdate" Then
 			BriefErrorDescription =
-				NStr("en = 'Cannot update application parameters. Reason:
+				NStr("en = 'Couldn''t update app parameters. Reason:
 				           |The update background job has not returned the result.';");
 			
 		Else // ExtensionVersionParametersUpdate.
@@ -497,31 +496,20 @@ Function ProcessedTimeConsumingOperationResult(Result, Operation) Export
 				NStr("en = 'Cannot update extension version parameters. Reason:
 				           |The update background job has not returned the result.';");
 		EndIf;
-		
 	ElsIf Result.Status <> "ImportApplicationParametersNotRequired"
 	        And Result.Status <> "ApplicationParametersImportAndUpdateNotRequired"
 	        And Result.Status <> "ExtensionVersionParametersUpdateNotRequired" Then
 		
 		// Background job error.
-		BriefErrorDescription   = Result.BriefErrorDescription;
-		DetailErrorDescription = Result.DetailErrorDescription;
+		ErrorInfo = Result.ErrorInfo;
 	EndIf;
 	
-	If Not ValueIsFilled(DetailErrorDescription)
-	   And    ValueIsFilled(BriefErrorDescription) Then
-		
-		DetailErrorDescription = BriefErrorDescription;
-	EndIf;
-	
-	If Not ValueIsFilled(BriefErrorDescription)
-	   And    ValueIsFilled(DetailErrorDescription) Then
-		
-		BriefErrorDescription = DetailErrorDescription;
+	If ErrorInfo = Undefined Then
+		ErrorInfo = InfoOnLongRunningOperationError(BriefErrorDescription);
 	EndIf;
 	
 	ProcessedResult = New Structure;
-	ProcessedResult.Insert("BriefErrorDescription",   BriefErrorDescription);
-	ProcessedResult.Insert("DetailErrorDescription", DetailErrorDescription);
+	ProcessedResult.Insert("ErrorInfo", ErrorInfo);
 	
 	Return ProcessedResult;
 	
@@ -645,7 +633,7 @@ Procedure LongOperationHandlerPerformUpdateUnsharedData(Parameters, ResultAddres
 	
 	If ValueIsFilled(SessionParameters.AttachedExtensions) Then
 		ErrorText =
-			NStr("en = 'Cannot update application parameters. Reason:
+			NStr("en = 'Couldn''t update app parameters. Reason:
 			           |Attached configuration extensions are found.';");
 		Raise ErrorText;
 	EndIf;
@@ -653,7 +641,7 @@ Procedure LongOperationHandlerPerformUpdateUnsharedData(Parameters, ResultAddres
 	If Common.DataSeparationEnabled()
 	   And Common.SeparatedDataUsageAvailable() Then
 		ErrorText =
-			NStr("en = 'Cannot update application parameters. Reason:
+			NStr("en = 'Couldn''t update app parameters. Reason:
 			           |Cannot perform the update in the data area.';");
 		Raise ErrorText;
 	EndIf;
@@ -717,7 +705,7 @@ Procedure LongOperationHandlerPerformUpdateUnsharedData(Parameters, ResultAddres
 	If Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
 		ModuleReportsOptions = Common.CommonModule("ReportsOptions");
 		Settings = ModuleReportsOptions.SettingsUpdateParameters();
-		Settings.SharedData = True; 
+		Settings.SharedData = True; // 
 		Settings.SeparatedData = False;
 		If Parameters.ReportsOptions.ParametersReportsConfiguration.ShouldUpdate Then
 			Settings.Configuration = True;
@@ -771,6 +759,7 @@ EndProcedure
 Procedure ApplicationParametersImportLongRunningOperationHandler(ReportProgress, StorageAddress) Export
 	
 	ExecutionResult = New Structure;
+	ExecutionResult.Insert("ErrorInfo",           Undefined);
 	ExecutionResult.Insert("BriefErrorDescription",   Undefined);
 	ExecutionResult.Insert("DetailErrorDescription", Undefined);
 	
@@ -778,10 +767,11 @@ Procedure ApplicationParametersImportLongRunningOperationHandler(ReportProgress,
 		LoadProgramOperationParametersTakingIntoAccountExecutionMode(ReportProgress);
 	Except
 		ErrorInfo = ErrorInfo();
+		ExecutionResult.ErrorInfo = ErrorInfo;
 		ExecutionResult.BriefErrorDescription   = ErrorProcessing.BriefErrorDescription(ErrorInfo);
 		ExecutionResult.DetailErrorDescription = ErrorProcessing.DetailErrorDescription(ErrorInfo);
-		
-		
+		// 
+		// 
 		If Common.SubsystemExists("StandardSubsystems.DataExchange")
 		   And Common.IsSubordinateDIBNode() Then
 			ModuleDataExchangeServer = Common.CommonModule("DataExchangeServer");
@@ -797,6 +787,7 @@ EndProcedure
 Procedure ApplicationParametersUpdateLongRunningOperationHandler(ReportProgress, StorageAddress) Export
 	
 	ExecutionResult = New Structure;
+	ExecutionResult.Insert("ErrorInfo",           Undefined);
 	ExecutionResult.Insert("BriefErrorDescription",   Undefined);
 	ExecutionResult.Insert("DetailErrorDescription", Undefined);
 	
@@ -804,10 +795,11 @@ Procedure ApplicationParametersUpdateLongRunningOperationHandler(ReportProgress,
 		UpdateProgramOperationParametersBasedOnExecutionMode(ReportProgress);
 	Except
 		ErrorInfo = ErrorInfo();
+		ExecutionResult.ErrorInfo = ErrorInfo;
 		ExecutionResult.BriefErrorDescription   = ErrorProcessing.BriefErrorDescription(ErrorInfo);
 		ExecutionResult.DetailErrorDescription = ErrorProcessing.DetailErrorDescription(ErrorInfo);
-		
-		
+		// 
+		// 
 		If Common.SubsystemExists("StandardSubsystems.DataExchange")
 		   And Common.IsSubordinateDIBNode() Then
 			ModuleDataExchangeServer = Common.CommonModule("DataExchangeServer");
@@ -823,6 +815,7 @@ EndProcedure
 Procedure ExtensionsVersionsParametersUpdateLongRunningOperationHandler(ReportProgress, StorageAddress) Export
 	
 	ExecutionResult = New Structure;
+	ExecutionResult.Insert("ErrorInfo",           Undefined);
 	ExecutionResult.Insert("BriefErrorDescription",   Undefined);
 	ExecutionResult.Insert("DetailErrorDescription", Undefined);
 	
@@ -830,10 +823,11 @@ Procedure ExtensionsVersionsParametersUpdateLongRunningOperationHandler(ReportPr
 		UpdateParametersOfExtensionVersionsTakingIntoAccountExecutionMode(ReportProgress);
 	Except
 		ErrorInfo = ErrorInfo();
+		ExecutionResult.ErrorInfo = ErrorInfo;
 		ExecutionResult.BriefErrorDescription   = ErrorProcessing.BriefErrorDescription(ErrorInfo);
 		ExecutionResult.DetailErrorDescription = ErrorProcessing.DetailErrorDescription(ErrorInfo);
-		
-		
+		// 
+		// 
 		If Common.SubsystemExists("StandardSubsystems.DataExchange")
 		   And Common.IsSubordinateDIBNode() Then
 			ModuleDataExchangeServer = Common.CommonModule("DataExchangeServer");
@@ -852,7 +846,7 @@ Procedure LoadProgramOperationParametersTakingIntoAccountExecutionMode(ReportPro
 	If Common.DataSeparationEnabled()
 	   And Common.SeparatedDataUsageAvailable() Then
 		ErrorText =
-			NStr("en = 'Cannot import application parameters. Reason:
+			NStr("en = 'Couldn''t import application parameters. Reason:
 			           |Cannot perform the import in the data area.';");
 		Raise ErrorText;
 	EndIf;
@@ -904,8 +898,8 @@ Procedure LoadProgramOperationParametersTakingIntoAccountExecutionMode(ReportPro
 	Try
 		Catalogs.MetadataObjectIDs.RunDataUpdate(False, False, True, , ListOfCriticalChanges);
 	Except
-		
-		
+		// 
+		// 
 		If Not SubordinateDIBNodeSetup
 		   And Common.SubsystemExists("StandardSubsystems.DataExchange") Then
 			ModuleDataExchangeServer.EnableDataExchangeMessageImportRecurrenceBeforeStart();
@@ -920,8 +914,8 @@ Procedure LoadProgramOperationParametersTakingIntoAccountExecutionMode(ReportPro
 		
 		WriteLogEvent(EventName, EventLogLevel.Error, , , ListOfCriticalChanges);
 		
-		
-		
+		// 
+		// 
 		If Not SubordinateDIBNodeSetup
 		   And Common.SubsystemExists("StandardSubsystems.DataExchange") Then
 			ModuleDataExchangeServer.EnableDataExchangeMessageImportRecurrenceBeforeStart();
@@ -929,14 +923,14 @@ Procedure LoadProgramOperationParametersTakingIntoAccountExecutionMode(ReportPro
 		
 		ErrorTemplate =
 			NStr("en = 'The infobase cannot be updated. Possible reasons:
-			           |- The master node was updated incorrectly (the configuration version number might not be incremented,
+			           |- The master node was updated incorrectly (the app version number might not be incremented,
 			           | therefore the ""Metadata object IDs"" catalog was not populated).
 			           |- Export of priority data (items of the ""Metadata object IDs"" catalog)
 			           |was canceled.
 			           |
 			           |Update the master node again, register priority data for export,
 			           |and repeat data synchronization:
-			           |- In the master node, run the application with "" %1"" command-line option.
+			           |- In the master node, start the app with "" %1"" command-line option.
 			           |%2';");
 		
 		If SubordinateDIBNodeSetup Then
@@ -972,7 +966,7 @@ Procedure UpdateProgramOperationParametersBasedOnExecutionMode(ReportProgress)
 	If ValueIsFilled(SessionParameters.AttachedExtensions)
 		And Not UpdateWithoutBackgroundJob() Then
 		ErrorText =
-			NStr("en = 'Cannot update application parameters. Reason:
+			NStr("en = 'Couldn''t update app parameters. Reason:
 			           |Attached configuration extensions are found.';");
 		Raise ErrorText;
 	EndIf;
@@ -980,7 +974,7 @@ Procedure UpdateProgramOperationParametersBasedOnExecutionMode(ReportProgress)
 	If Common.DataSeparationEnabled()
 	   And Common.SeparatedDataUsageAvailable() Then
 		ErrorText =
-			NStr("en = 'Cannot update application parameters. Reason:
+			NStr("en = 'Couldn''t update app parameters. Reason:
 			           |Cannot perform the update in the data area.';");
 		Raise ErrorText;
 	EndIf;
@@ -991,10 +985,10 @@ Procedure UpdateProgramOperationParametersBasedOnExecutionMode(ReportProgress)
 		BeginTime = ModulePerformanceMonitor.StartTimeMeasurement();
 	EndIf;
 	
-	
-	
-	
-	
+	// 
+	// 
+	// 
+	// 
 	UpdateApplicationParameters(ReportProgress);
 	
 	If ModulePerformanceMonitor <> Undefined Then
@@ -1119,9 +1113,9 @@ Function ApplicationParameterValueDescription(ParameterName, CheckIfCanUpdateSaa
 	
 EndFunction
 
-// 
-// 
-// 
+// Intended for the function ApplicationParameterValueDescription
+// and the procedures AddApplicationParameterChanges
+// and CheckIfCanUpdateSaaS.
 //
 Function ApplicationParameterStoredData(ParameterName)
 	
@@ -1144,18 +1138,17 @@ Function ApplicationParameterStoredData(ParameterName)
 		Try
 			Content = Selection.ParameterStorage.Get();
 		Except
-			
-			
+			// 
+			// 
 			Content = Undefined;
 			ErrorInfo = ErrorInfo();
 			Comment = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'When getting application parameter
-				           |%1
-				           |, an error of retrieving the value from the storage occurred:
+				NStr("en = 'Error getting parameter of %1
+				           |Failed to retrieve the value from the storage:
 				           |%2';"),
 				ParameterName,
 				ErrorProcessing.DetailErrorDescription(ErrorInfo));
-			EventName = NStr("en = 'Application parameters.Get parameter';",
+			EventName = NStr("en = 'App parameters.Get parameter';",
 				Common.DefaultLanguageCode());
 			WriteLogEvent(EventName, EventLogLevel.Information,,, Comment);
 		EndTry;
@@ -1167,7 +1160,7 @@ Function ApplicationParameterStoredData(ParameterName)
 	
 EndFunction
 
-// 
+// Intended for the SetApplicationParameter procedure.
 Procedure SetApplicationParameterStoredData(ParameterName, StoredData)
 	
 	RecordSet = ServiceRecordSet(InformationRegisters.ApplicationRuntimeParameters);
@@ -1204,17 +1197,17 @@ Procedure CheckIfCanUpdateSaaS(Val ParameterName, NewValue, Val Operation)
 	ChangeStorageParameterName = ParameterName + ChangeStorageParameterNameClarification();
 	LastChanges = ApplicationParameterStoredData(ChangeStorageParameterName);
 	
-	EventName = NStr("en = 'Application parameters.Not updated in shared mode';",
+	EventName = NStr("en = 'App parameters.Not updated in shared mode';",
 		Common.DefaultLanguageCode());
 	
 	Comment = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = '1. Send the message to the technical support.
-		           |2. Attempt to resolve the issue manually: run the application
-		           |with ""%1"" command-line option
+		           |2. Try to resolve the issue:
+		           |Run the app with the ""%1"" command-line option
 		           |on behalf of a user with service administrator rights
 		           |(in shared mode).
 		           |
-		           |Invalid application parameter:';"),
+		           |Invalid parameter:';"),
 		"/From1" + " " + "StartInfobaseUpdate");
 
 	Comment = Comment + Chars.LF +
@@ -1307,7 +1300,9 @@ EndFunction
 //  RegisterManager - InformationRegisterManager
 //  
 // Returns:
-//  InformationRegisterRecordSet
+//  - InformationRegisterRecordSet.ExtensionVersionParameters
+//  - InformationRegisterRecordSet.ApplicationRuntimeParameters
+//  - InformationRegisterRecordSet.ExtensionVersionObjectIDs
 //  
 Function ServiceRecordSet(RegisterManager) Export
 	
@@ -1318,6 +1313,21 @@ Function ServiceRecordSet(RegisterManager) Export
 	RecordSet.DataExchange.Load = True;
 	
 	Return RecordSet;
+	
+EndFunction
+
+// 
+Function InfoOnLongRunningOperationError(ErrorPresentation)
+	
+	If Not ValueIsFilled(ErrorPresentation) Then
+		Return Undefined;
+	EndIf;
+	
+	Try
+		Raise ErrorPresentation;
+	Except
+		Return ErrorInfo();
+	EndTry;
 	
 EndFunction
 

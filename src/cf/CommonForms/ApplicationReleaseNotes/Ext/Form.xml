@@ -163,7 +163,7 @@
 						<v8:item>
 							<v8:lang>en</v8:lang>
 							<v8:content>A scheduled job lock was applied during the update.
-To release the lock,&lt;link Restart&gt;restart&lt;/&gt; the application.</v8:content>
+To release the lock, &lt;link Restart&gt;restart the application&lt;/&gt;.</v8:content>
 						</v8:item>
 					</Title>
 					<ContextMenu name="ScheduledJobsDisabled1ContextMenu" id="56"/>
@@ -192,7 +192,7 @@ To release the lock,&lt;link Restart&gt;restart&lt;/&gt; the application.</v8:co
 			<EnableStartDrag>false</EnableStartDrag>
 			<EnableDrag>false</EnableDrag>
 			<ContextMenu name="UpdateDetailsContextMenu" id="2"/>
-			<ExtendedTooltip name="UpdateDetailsExtendedTooltip" id="38"/>
+			<ExtendedTooltip name="UpdatesDetailsExtendedTooltip" id="38"/>
 			<Events>
 				<Event name="Selection">UpdateDetailsSelection</Event>
 			</Events>
@@ -272,7 +272,7 @@ To release the lock,&lt;link Restart&gt;restart&lt;/&gt; the application.</v8:co
 								</v8:item>
 							</Title>
 							<HorizontalLocation>Right</HorizontalLocation>
-							<ExtendedTooltip name="FormCommandBarExtendedTooltip" id="43"/>
+							<ExtendedTooltip name="CommandBarFormExtendedTooltip" id="43"/>
 							<ChildItems>
 								<Button name="Close" id="3">
 									<Type>CommandBarButton</Type>

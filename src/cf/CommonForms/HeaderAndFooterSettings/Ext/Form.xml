@@ -7,6 +7,12 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.OK</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save and close</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormOKExtendedTooltip" id="92"/>
 			</Button>
 			<Button name="FormCancel" id="68">
@@ -18,6 +24,12 @@
 			<Button name="FormCustomizeStandardSettings" id="137">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.CustomizeStandardSettings</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Restore the default settings</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormCustomizeStandardSettingsExtendedTooltip" id="138"/>
 			</Button>
@@ -50,31 +62,67 @@
 						<Button name="HeaderTime" id="58">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.Time</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Time</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="HeaderTimeExtendedTooltip" id="97"/>
 						</Button>
 						<Button name="HeaderDate" id="59">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.Date</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Date</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="HeaderDateExtendedTooltip" id="98"/>
 						</Button>
 						<Button name="HeaderReportName" id="60">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.ReportTitle</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Report name</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="HeaderReportNameExtendedTooltip" id="99"/>
 						</Button>
 						<Button name="HeaderUser" id="62">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.User</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>User</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="HeaderUserExtendedTooltip" id="100"/>
 						</Button>
 						<Button name="HeaderPageNumber" id="61">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.PageNumber</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Page number</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="HeaderPageNumberExtendedTooltip" id="101"/>
 						</Button>
 						<Button name="HeaderPagesCount" id="63">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.PagesTotal</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Total pages</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="HeaderPagesCountExtendedTooltip" id="102"/>
 						</Button>
 					</ChildItems>
@@ -83,6 +131,12 @@
 					<Type>CommandBarButton</Type>
 					<GroupHorizontalAlign>Right</GroupHorizontalAlign>
 					<CommandName>Form.Command.CustomizeHeaderFont</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Font…</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="HeaderFontExtendedTooltip" id="104"/>
 				</Button>
 				<ButtonGroup name="HeaderVerticalAlignment" id="78">
@@ -99,16 +153,34 @@
 						<Button name="HeaderVerticalAlignTop" id="79">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.HeaderVerticalAlignTop</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Top</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="HeaderVerticalAlignTopExtendedTooltip" id="106"/>
 						</Button>
 						<Button name="HeaderVerticalAlignCenter" id="80">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.HeaderVerticalAlignCenter</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Center</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="HeaderVerticalAlignCenterExtendedTooltip" id="107"/>
 						</Button>
 						<Button name="HeaderVerticalAlignBottom" id="81">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.HeaderVerticalAlignBottom</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Bottom</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="HeaderVerticalAlignBottomExtendedTooltip" id="108"/>
 						</Button>
 					</ChildItems>
@@ -130,6 +202,12 @@
 			<ChildItems>
 				<InputField name="TopLeftText" id="1">
 					<DataPath>TopLeftText</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Top left text</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<AutoMaxWidth>false</AutoMaxWidth>
 					<Height>3</Height>
@@ -144,6 +222,12 @@
 				</InputField>
 				<InputField name="TopMiddleText" id="4">
 					<DataPath>TopMiddleText</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Top center text</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<AutoMaxWidth>false</AutoMaxWidth>
 					<Height>3</Height>
@@ -158,6 +242,12 @@
 				</InputField>
 				<InputField name="TopRightText" id="6">
 					<DataPath>TopRightText</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Top right text</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<AutoMaxWidth>false</AutoMaxWidth>
 					<Height>3</Height>
@@ -174,6 +264,12 @@
 		</UsualGroup>
 		<InputField name="StartHeaderFromPage" id="17">
 			<DataPath>HeaderStartPage</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Insert header starting page #</v8:content>
+				</v8:item>
+			</Title>
 			<SpinButton>true</SpinButton>
 			<ContextMenu name="StartHeaderFromPageContextMenu" id="18"/>
 			<ExtendedTooltip name="StartHeaderFromPageExtendedTooltip" id="113"/>
@@ -184,6 +280,12 @@
 		<SpreadSheetDocumentField name="Pattern" id="15">
 			<DataPath>Pattern</DataPath>
 			<ReadOnly>true</ReadOnly>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Preview</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>None</TitleLocation>
 			<Width>70</Width>
 			<Height>9</Height>
@@ -208,11 +310,17 @@
 			<ChildItems>
 				<InputField name="PageSample" id="35">
 					<DataPath>PageSample</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Preview page #</v8:content>
+						</v8:item>
+					</Title>
 					<Width>4</Width>
 					<SpinButton>true</SpinButton>
 					<MinValue xsi:type="xs:decimal">1</MinValue>
 					<ContextMenu name="PagePreviewContextMenu" id="36"/>
-					<ExtendedTooltip name="PagePreviewExtendedTooltip" id="117"/>
+					<ExtendedTooltip name="PageSampleExtendedTooltip" id="117"/>
 					<Events>
 						<Event name="OnChange">PagePreviewOnChange</Event>
 					</Events>
@@ -240,31 +348,67 @@
 						<Button name="FooterTime" id="44">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.Time</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Time</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="FooterTimeExtendedTooltip" id="120"/>
 						</Button>
 						<Button name="FooterDate" id="45">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.Date</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Date</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="FooterDateExtendedTooltip" id="121"/>
 						</Button>
 						<Button name="FooterReportName" id="46">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.ReportTitle</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Report name</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="FooterReportNameExtendedTooltip" id="122"/>
 						</Button>
 						<Button name="FooterUser" id="49">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.User</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>User</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="FooterUserExtendedTooltip" id="123"/>
 						</Button>
 						<Button name="FooterPageNumber" id="47">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.PageNumber</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Page number</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="FooterPageNumberExtendedTooltip" id="124"/>
 						</Button>
 						<Button name="FooterPageTotal" id="50">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.PagesTotal</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Total pages</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="FooterPageTotalExtendedTooltip" id="125"/>
 						</Button>
 					</ChildItems>
@@ -272,6 +416,12 @@
 				<Button name="FooterFont" id="34">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.CustomizeFooterFont</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Font…</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="FooterFontExtendedTooltip" id="127"/>
 				</Button>
 				<ButtonGroup name="FooterVerticalAlignment" id="86">
@@ -287,16 +437,34 @@
 						<Button name="FooterVerticalAlignTop" id="87">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.FooterVerticalAlignTop</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Top</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="FooterVerticalAlignTopExtendedTooltip" id="129"/>
 						</Button>
 						<Button name="FooterVerticalAlignCenter" id="88">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.FooterVerticalAlignCenter</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Center</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="FooterVerticalAlignCenterExtendedTooltip" id="130"/>
 						</Button>
 						<Button name="FooterVerticalAlignBottom" id="89">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.FooterVerticalAlignBottom</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Bottom</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="FooterVerticalAlignBottomExtendedTooltip" id="131"/>
 						</Button>
 					</ChildItems>
@@ -318,6 +486,12 @@
 			<ChildItems>
 				<InputField name="BottomLeftText" id="9">
 					<DataPath>BottomLeftText</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Bottom left text</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<AutoMaxWidth>false</AutoMaxWidth>
 					<Height>3</Height>
@@ -332,6 +506,12 @@
 				</InputField>
 				<InputField name="BottomCenterText" id="11">
 					<DataPath>BottomCenterText</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Bottom center text</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<AutoMaxWidth>false</AutoMaxWidth>
 					<Height>3</Height>
@@ -346,6 +526,12 @@
 				</InputField>
 				<InputField name="BottomRightText" id="13">
 					<DataPath>BottomRightText</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Bottom right text</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<AutoMaxWidth>false</AutoMaxWidth>
 					<Height>3</Height>
@@ -362,6 +548,12 @@
 		</UsualGroup>
 		<InputField name="StartFooterFromPage" id="19">
 			<DataPath>FooterStartPage</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Insert footer starting page #</v8:content>
+				</v8:item>
+			</Title>
 			<SpinButton>true</SpinButton>
 			<ContextMenu name="StartFooterFromPageContextMenu" id="20"/>
 			<ExtendedTooltip name="StartFooterFromPageExtendedTooltip" id="136"/>

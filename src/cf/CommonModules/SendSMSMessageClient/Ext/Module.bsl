@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -44,10 +45,10 @@ Procedure SendSMS(RecipientsNumbers, Text, AdditionalParameters) Export
 	
 EndProcedure
 
-// 
+// Opens the form for setting up text message sending.
 // 
 // Parameters:
-//  OnCloseNotifyDescription - NotifyDescription - 
+//  OnCloseNotifyDescription - NotifyDescription - The procedure to be executed after the form is closed.
 //
 Procedure OpenSettingsForm(OnCloseNotifyDescription = Undefined) Export
 	
@@ -113,7 +114,7 @@ Procedure CreateNewSMSMessageSettingsCheckCompleted(SMSMessageSendingIsSetUp, Se
 EndProcedure
 
 // Returns:
-//  Structure - :
+//  Structure - Additional text message sending parameters:
 //   * SenderName - String - Sender's name that recipients will see instead of the phone number.
 //   * Transliterate - Boolean - If True, transliterate the outgoing message.
 //   * SubjectOf - AnyRef - Topic the outgoing message is associated with.

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -50,7 +51,7 @@ EndProcedure
 // Parameters:
 //  DataType - AnyRef - a reference type of the output object. See the RelatedDocuments filter criteria type property.
 //  Data    - QueryResultSelection
-//            - Structure - :
+//            - Structure - Values of the fields used to generate the presentation:
 //               * Ref - AnyRef - a reference of the object being output in the list of related documents.
 //               * AdditionalAttribute1 - Arbitrary - a value of the first attribute specified in array 
 //                 AttributesForPresentation of the Settings parameter in the OnDefineSettings procedure.
@@ -74,7 +75,7 @@ EndProcedure
 //         - TaskRef
 //         - BusinessProcessRef
 //         - ChartOfCharacteristicTypesRef -
-//           
+//           Reference to the hierarchy object that should be output to the report.
 //  ObjectProperties - Structure - defining object state flags, where:
 //    * IsMain2 - Boolean - if True, this is the object the structure is formed for.
 //    * IsInternal - Boolean - if True, the object output is optional. By default is False.
@@ -93,9 +94,9 @@ EndProcedure
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated.
-// 
-//  
+// Deprecated. Instead, use "SubordinationStructureOverridable.OnDefineSettings".
+// See "AttributesForPresentation" property of the "Settings" parameter.
+// Generates an array of document attributes. 
 // 
 // Parameters: 
 //  DocumentName - String - a document name.
@@ -129,13 +130,13 @@ Function ObjectPresentationForReportOutput(Selection) Export
 	
 EndFunction
 
-// Deprecated.
-// 
-// 
-// 
-// 
-// 
-// 
+// Deprecated. Instead, use "SubordinationStructureOverridable.OnDefineSettings".
+// See the Attributes property of the Settings parameter.
+// Returns the name of the document attribute that contains information about "Amount" and "Currency"
+// of the document for output to the hierarchy.
+// The default attributes are "Currency" and "DocumentAmount". If other
+// attributes are used for a particular document or configuration,
+// you can change default values using this function.
 //
 // Parameters:
 //  DocumentName  - String - name of the document whose attribute name is required.

@@ -40,6 +40,12 @@
 				<Button name="ListChangeSelectedItems" id="30">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.ChangeSelectedItems</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Edit selected…</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="ListChangeSelectedItemsExtendedTooltip" id="31"/>
 				</Button>
 			</ChildItems>

@@ -37,7 +37,7 @@
 			<Group>AlwaysHorizontal</Group>
 			<Behavior>Usual</Behavior>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="SecurityWarningExtendedTooltip1" id="927"/>
+			<ExtendedTooltip name="WarningAboutUnsentEmailsExtendedTooltip" id="927"/>
 			<ChildItems>
 				<PictureDecoration name="WarningAboutUnsentEmailsPicture" id="928">
 					<Title formatted="false">
@@ -50,8 +50,8 @@
 						<xr:Ref>CommonPicture.Warning</xr:Ref>
 						<xr:LoadTransparent>false</xr:LoadTransparent>
 					</Picture>
-					<ContextMenu name="WarningPictureContextMenu1" id="929"/>
-					<ExtendedTooltip name="WarningPictureExtendedTooltip1" id="930"/>
+					<ContextMenu name="WarningAboutUnsentEmailsPictureContextMenu" id="929"/>
+					<ExtendedTooltip name="WarningAboutUnsentEmailsPictureExtendedTooltip" id="930"/>
 				</PictureDecoration>
 				<LabelDecoration name="WarningAboutUnsentEmailsLabel" id="931">
 					<Width>33</Width>
@@ -64,8 +64,8 @@
 						</v8:item>
 					</Title>
 					<ToolTipRepresentation>Button</ToolTipRepresentation>
-					<ContextMenu name="WarningAboutUnsafeContentContextMenu1" id="932"/>
-					<ExtendedTooltip name="WarningAboutUnsafeContentExtendedTooltip1" id="933"/>
+					<ContextMenu name="WarningAboutUnsentEmailsLabelContextMenu" id="932"/>
+					<ExtendedTooltip name="WarningAboutUnsentEmailsLabelExtendedTooltip" id="933"/>
 					<Events>
 						<Event name="URLProcessing">WarningAboutUnsentEmailsLabelURLProcessing</Event>
 					</Events>
@@ -100,7 +100,7 @@
 			<ControlRepresentation>Picture</ControlRepresentation>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="FiltersGroup3ExtendedTooltip" id="416"/>
+			<ExtendedTooltip name="FiltersGroupExtendedTooltip" id="416"/>
 			<ChildItems>
 				<InputField name="SearchString" id="89">
 					<DataPath>SearchString</DataPath>
@@ -326,6 +326,12 @@
 					<UserVisible>
 						<xr:Common>false</xr:Common>
 					</UserVisible>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Status</v8:content>
+						</v8:item>
+					</Title>
 					<Width>12</Width>
 					<HorizontalStretch>false</HorizontalStretch>
 					<Wrap>false</Wrap>
@@ -386,7 +392,7 @@
 						</xr:Item>
 					</ChoiceList>
 					<ContextMenu name="StatusContextMenu" id="68"/>
-					<ExtendedTooltip name="StatusExtendedTooltip_SSLs" id="418"/>
+					<ExtendedTooltip name="StatusExtendedTooltip" id="418"/>
 					<Events>
 						<Event name="OnChange">StatusOnChange</Event>
 						<Event name="Clearing">InteractionTypeStatusClearing</Event>
@@ -442,6 +448,12 @@
 								<xr:Ref>CommonPicture.LeftArrow</xr:Ref>
 								<xr:LoadTransparent>false</xr:LoadTransparent>
 							</Picture>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Edit navigation panel view</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="EditNavigationPanelViewExtendedTooltip" id="831"/>
 						</Button>
 						<Popup name="SelectNavigationOption" id="26">
@@ -457,24 +469,48 @@
 									<Type>CommandBarButton</Type>
 									<Width>20</Width>
 									<CommandName>Form.Command.SetNavigationMethodBySubject</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>By topic</v8:content>
+										</v8:item>
+									</Title>
 									<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="SetNavigationMethodBySubjectExtendedTooltip" id="426"/>
 								</Button>
 								<Button name="SetNavigationMethodByContact" id="28">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.SetNavigationMethodByContact</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>By contact</v8:content>
+										</v8:item>
+									</Title>
 									<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="SetNavigationMethodByContactExtendedTooltip" id="427"/>
 								</Button>
 								<Button name="SetNavigationMethodByTabs" id="124">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.SetNavigationMethodByTabs</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>By bookmark</v8:content>
+										</v8:item>
+									</Title>
 									<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="SetNavigationMethodByTabsExtendedTooltip" id="428"/>
 								</Button>
 								<Button name="SetNavigationMethodByFolders" id="176">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.SetNavigationMethodByFolders</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>By folder</v8:content>
+										</v8:item>
+									</Title>
 									<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="SetNavigationMethodByFoldersExtendedTooltip" id="429"/>
 								</Button>
@@ -500,32 +536,62 @@
 										<xr:Ref>StdPicture.CreateListItem</xr:Ref>
 										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
-									<ExtendedTooltip name="CreateGroup1ExtendedTooltip" id="555"/>
+									<ExtendedTooltip name="GroupCreateExtendedTooltip" id="555"/>
 									<ChildItems>
 										<Button name="ListCreateMeeting" id="44">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.CreateMeeting</CommandName>
-											<ExtendedTooltip name="CreateMeetingListExtendedTooltip" id="556"/>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Appointment</v8:content>
+												</v8:item>
+											</Title>
+											<ExtendedTooltip name="ListCreateMeetingExtendedTooltip" id="556"/>
 										</Button>
 										<Button name="ListCreateScheduledInteraction" id="45">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.CreateScheduledInteraction</CommandName>
-											<ExtendedTooltip name="CreateScheduledInteractionListExtendedTooltip" id="557"/>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Scheduled interaction</v8:content>
+												</v8:item>
+											</Title>
+											<ExtendedTooltip name="ListCreateScheduledInteractionExtendedTooltip" id="557"/>
 										</Button>
 										<Button name="ListCreatePhoneCall" id="46">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.CreatePhoneCall</CommandName>
-											<ExtendedTooltip name="CreatePhoneCallListExtendedTooltip" id="558"/>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Phone call</v8:content>
+												</v8:item>
+											</Title>
+											<ExtendedTooltip name="ListCreatePhoneCallExtendedTooltip" id="558"/>
 										</Button>
 										<Button name="ListCreateSMSMessage" id="415">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.CreateSMSMessage</CommandName>
-											<ExtendedTooltip name="CreateSMSMessageListExtendedTooltip" id="559"/>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Text message</v8:content>
+												</v8:item>
+											</Title>
+											<ExtendedTooltip name="ListCreateSMSMessageExtendedTooltip" id="559"/>
 										</Button>
 										<Button name="ListCreateEmailMessage" id="47">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.CreateEmailMessage</CommandName>
-											<ExtendedTooltip name="CreateEmailListExtendedTooltip" id="560"/>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Mail message</v8:content>
+												</v8:item>
+											</Title>
+											<ExtendedTooltip name="ListCreateEmailMessageExtendedTooltip" id="560"/>
 										</Button>
 									</ChildItems>
 								</Popup>
@@ -563,18 +629,36 @@
 												<xr:Ref>CommonPicture.ReplyEmail</xr:Ref>
 												<xr:LoadTransparent>false</xr:LoadTransparent>
 											</Picture>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Reply</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="ReplyListExtendedTooltip" id="606"/>
 										</Button>
 										<Button name="ReplyToAllList" id="343">
 											<Type>CommandBarButton</Type>
 											<Representation>Picture</Representation>
 											<CommandName>Form.Command.ReplyToAll</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Reply all</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="ReplyToAllListExtendedTooltip" id="607"/>
 										</Button>
 										<Button name="ForwardList" id="344">
 											<Type>CommandBarButton</Type>
 											<Representation>Picture</Representation>
 											<CommandName>Form.Command.ForwardMail</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Forward</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="ForwardListExtendedTooltip" id="608"/>
 										</Button>
 									</ChildItems>
@@ -583,6 +667,12 @@
 									<Type>CommandBarButton</Type>
 									<Representation>Picture</Representation>
 									<CommandName>Form.Command.SendReceiveEmail</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Send/Receive</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="SendReceiveMailListExtendedTooltip" id="562"/>
 								</Button>
 								<Popup name="CreateBasedOnSubmenu" id="917">
@@ -613,28 +703,58 @@
 											<Type>CommandBarButton</Type>
 											<Representation>Picture</Representation>
 											<CommandName>Form.Command.MarkAsReviewed</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Reviewed</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="ReviewedListExtendedTooltip" id="564"/>
 										</Button>
 										<Button name="DeferReviewList" id="42">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.DeferListReview</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Snooze till…</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="DeferReviewListExtendedTooltip" id="565"/>
 										</Button>
 										<Button name="ListNotReviewed" id="191">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.ClearReviewedFlag</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Mark as Unreviewed</v8:content>
+												</v8:item>
+											</Title>
 											<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-											<ExtendedTooltip name="NotReviewedListExtendedTooltip" id="566"/>
+											<ExtendedTooltip name="ListNotReviewedExtendedTooltip" id="566"/>
 										</Button>
 										<Button name="ListEmployeeResponsible" id="39">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.EmployeeResponsibleList</CommandName>
-											<ExtendedTooltip name="EmployeeResponsibleList1ExtendedTooltip" id="567"/>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Assign to…</v8:content>
+												</v8:item>
+											</Title>
+											<ExtendedTooltip name="ListEmployeeResponsibleExtendedTooltip" id="567"/>
 										</Button>
 										<Button name="ListSubject" id="41">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.SubjectList</CommandName>
-											<ExtendedTooltip name="SubjectList1ExtendedTooltip" id="568"/>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Select topic…</v8:content>
+												</v8:item>
+											</Title>
+											<ExtendedTooltip name="ListSubjectExtendedTooltip" id="568"/>
 										</Button>
 									</ChildItems>
 								</ButtonGroup>
@@ -663,7 +783,7 @@
 											<v8:content>List commands</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="GroupListCommandsExtendedTooltip" id="569"/>
+									<ExtendedTooltip name="ListCommandsGroup1ExtendedTooltip" id="569"/>
 									<ChildItems>
 										<Button name="Change" id="49">
 											<Type>CommandBarButton</Type>
@@ -726,13 +846,19 @@
 								<Button name="ListRefresh" id="60">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.Refresh</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Refresh</v8:content>
+										</v8:item>
+									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-									<ExtendedTooltip name="RefreshList1ExtendedTooltip" id="578"/>
+									<ExtendedTooltip name="ListRefreshExtendedTooltip" id="578"/>
 								</Button>
 								<Button name="ListListSettings" id="61">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Item.List.StandardCommand.ListSettings</CommandName>
-									<ExtendedTooltip name="ListSettingsListExtendedTooltip" id="579"/>
+									<ExtendedTooltip name="ListListSettingsExtendedTooltip" id="579"/>
 								</Button>
 								<Button name="ListOutputList" id="62">
 									<Type>CommandBarButton</Type>
@@ -742,17 +868,29 @@
 								<Button name="ListCustomizeForm" id="64">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.StandardCommand.CustomizeForm</CommandName>
-									<ExtendedTooltip name="ListChangeFormExtendedTooltip" id="582"/>
+									<ExtendedTooltip name="ListCustomizeFormExtendedTooltip" id="582"/>
 								</Button>
 								<Button name="DisplayReadingPaneList" id="792">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.DisplayReadingPane</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Show reading pane</v8:content>
+										</v8:item>
+									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="DisplayReadingPaneListExtendedTooltip" id="793"/>
 								</Button>
 								<Button name="FormPersonalSettings" id="146">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.PersonalSettings</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Personal settings…</v8:content>
+										</v8:item>
+									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="FormPersonalSettingsExtendedTooltip" id="583"/>
 								</Button>
@@ -864,31 +1002,67 @@
 															<Button name="ContactsContextMenuSubject" id="112">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.SubjectOf</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Select topic…</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="ContactsContextMenuSubjectExtendedTooltip" id="436"/>
 															</Button>
 															<Button name="ContactsContextMenuEmployeeResponsible" id="110">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.EmployeeResponsible</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Assign to…</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="ContactsContextMenuEmployeeResponsibleExtendedTooltip" id="435"/>
 															</Button>
 															<Button name="ContactsContextMenuDeferReview" id="113">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.DeferReview</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Snooze till…</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="ContactsContextMenuDeferReviewExtendedTooltip" id="434"/>
 															</Button>
 															<Button name="ContactsContextMenuReviewed" id="111">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.Reviewed</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Mark as Reviewed</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="ContactsContextMenuReviewedExtendedTooltip" id="433"/>
 															</Button>
 															<Button name="ContactsContextMenuAddToTabs" id="393">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.AddToTabs</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Add to bookmarks</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="ContactsContextMenuAddToTabsExtendedTooltip" id="437"/>
 															</Button>
 															<Button name="ContactsContextMenuChangeNavigationPanelValue" id="325">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.EditNavigationPanelValue</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Edit…</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="ContactsContextMenuChangeNavigationPanelValueExtendedTooltip" id="438"/>
 															</Button>
 															<ButtonGroup name="NavigationPanelContactsContextMenuGroupDynamicList" id="814">
@@ -1064,7 +1238,7 @@
 													<v8:content>Topic page</v8:content>
 												</v8:item>
 											</Title>
-											<ExtendedTooltip name="SubjectPageExtendedTooltip" id="447"/>
+											<ExtendedTooltip name="EmailSubjectPageExtendedTooltip" id="447"/>
 											<ChildItems>
 												<Table name="NavigationPanelSubjects" id="690">
 													<UseAlternationRowColor>true</UseAlternationRowColor>
@@ -1103,26 +1277,56 @@
 															<Button name="NavigationPanelSubjectsContextMenuReviewed" id="715">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.Reviewed</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Mark as Reviewed</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="NavigationPanelSubjectsContextMenuReviewed1ExtendedTooltip" id="716"/>
 															</Button>
 															<Button name="NavigationPanelSubjectsContextMenuDeferReview" id="717">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.DeferReview</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Snooze till…</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="NavigationPanelSubjectsContextMenuDeferReviewExtendedTooltip" id="718"/>
 															</Button>
 															<Button name="NavigationPanelSubjectsContextMenuEmployeeResponsible" id="719">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.EmployeeResponsible</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Assign to…</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="NavigationPanelSubjectsContextMenuEmployeeResponsibleExtendedTooltip" id="720"/>
 															</Button>
 															<Button name="NavigationPanelSubjectsContextMenuSubjectOf" id="721">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.SubjectOf</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Select topic…</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="NavigationPanelSubjectsContextMenuSubjectOfExtendedTooltip" id="722"/>
 															</Button>
 															<Button name="NavigationPanelSubjectsContextMenuAddToTabs" id="723">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.AddToTabs</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Add to bookmarks</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="NavigationPanelSubjectsContextMenuAddToTabsExtendedTooltip" id="724"/>
 															</Button>
 															<ButtonGroup name="SubjectsNavigationPanelContextMenuDynamicListGroup" id="794">
@@ -1147,6 +1351,12 @@
 																	<Button name="NavigationPanelSubjectsContextMenuActiveSubjectsOnly" id="790">
 																		<Type>CommandBarButton</Type>
 																		<CommandName>Form.Command.ActiveSubjectsOnly</CommandName>
+																		<Title>
+																			<v8:item>
+																				<v8:lang>en</v8:lang>
+																				<v8:content>Only active topics</v8:content>
+																			</v8:item>
+																		</Title>
 																		<ExtendedTooltip name="SubjectsNavigationPanelContextMenuActiveSubjectsOnlyExtendedTooltip" id="791"/>
 																	</Button>
 																</ChildItems>
@@ -1356,21 +1566,45 @@
 															<Button name="TabsContextMenuReviewed" id="126">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.Reviewed</CommandName>
-																<ExtendedTooltip name="TabsContextMenuReviewed1ExtendedTooltip" id="465"/>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Reviewed</v8:content>
+																	</v8:item>
+																</Title>
+																<ExtendedTooltip name="TabsContextMenuReviewedExtendedTooltip" id="465"/>
 															</Button>
 															<Button name="TabsContextMenuDeferReview" id="128">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.DeferReview</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Snooze till…</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="TabsContextMenuDeferReviewExtendedTooltip" id="466"/>
 															</Button>
 															<Button name="TabsEmployeeResponsible" id="125">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.EmployeeResponsible</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Assign to…</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="TabsEmployeeResponsibleExtendedTooltip" id="467"/>
 															</Button>
 															<Button name="TabsContextMenuSubjectOf" id="127">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.SubjectOf</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Select topic…</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="TabsContextMenuSubjectOfExtendedTooltip" id="468"/>
 															</Button>
 															<ButtonGroup name="TabsContextMenuStandardCommands" id="398">
@@ -1439,7 +1673,7 @@
 															</Title>
 															<ShowInHeader>false</ShowInHeader>
 															<ContextMenu name="BookmarksNameContextMenu" id="123"/>
-															<ExtendedTooltip name="BookmarksNameExtendedTooltip" id="473"/>
+															<ExtendedTooltip name="TabsDescriptionExtendedTooltip" id="473"/>
 														</LabelField>
 														<InputField name="TabsRef" id="940">
 															<DataPath>Tabs.Ref</DataPath>
@@ -1512,28 +1746,58 @@
 																	<Button name="PropertiesContextMenuReviewed" id="139">
 																		<Type>CommandBarButton</Type>
 																		<CommandName>Form.Command.Reviewed</CommandName>
+																		<Title>
+																			<v8:item>
+																				<v8:lang>en</v8:lang>
+																				<v8:content>Mark as Reviewed</v8:content>
+																			</v8:item>
+																		</Title>
 																		<ExtendedTooltip name="PropertiesContextMenuReviewedExtendedTooltip" id="476"/>
 																	</Button>
 																	<Button name="PropertiesContextMenuDeferReview" id="141">
 																		<Type>CommandBarButton</Type>
 																		<CommandName>Form.Command.DeferReview</CommandName>
+																		<Title>
+																			<v8:item>
+																				<v8:lang>en</v8:lang>
+																				<v8:content>Snooze till…</v8:content>
+																			</v8:item>
+																		</Title>
 																		<ExtendedTooltip name="PropertiesContextMenuDeferReviewExtendedTooltip" id="477"/>
 																	</Button>
 																	<Button name="PropertiesContextMenuEmployeeResponsible" id="138">
 																		<Type>CommandBarButton</Type>
 																		<CommandName>Form.Command.EmployeeResponsible</CommandName>
+																		<Title>
+																			<v8:item>
+																				<v8:lang>en</v8:lang>
+																				<v8:content>Assign to…</v8:content>
+																			</v8:item>
+																		</Title>
 																		<ExtendedTooltip name="PropertiesContextMenuEmployeeResponsibleExtendedTooltip" id="478"/>
 																	</Button>
 																	<Button name="PropertiesContextMenuSubjectOf" id="140">
 																		<Type>CommandBarButton</Type>
 																		<CommandName>Form.Command.SubjectOf</CommandName>
-																		<ExtendedTooltip name="PropertiesContextMenuSubjectExtendedTooltip" id="479"/>
+																		<Title>
+																			<v8:item>
+																				<v8:lang>en</v8:lang>
+																				<v8:content>Select topic…</v8:content>
+																			</v8:item>
+																		</Title>
+																		<ExtendedTooltip name="PropertiesContextMenuSubjectOfExtendedTooltip" id="479"/>
 																	</Button>
 																</ChildItems>
 															</ButtonGroup>
 															<Button name="PropertiesContextMenuAddToTabs" id="145">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.AddToTabs</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Add to bookmarks</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="PropertiesContextMenuAddToTabsExtendedTooltip" id="480"/>
 															</Button>
 															<ButtonGroup name="PropertiesContextMenuUpdateGroup" id="205">
@@ -1553,7 +1817,13 @@
 																	<Button name="PropertiesContextMenuRefresh" id="206">
 																		<Type>CommandBarButton</Type>
 																		<CommandName>Form.Command.Refresh</CommandName>
-																		<ExtendedTooltip name="PropertiesContextMenuUpdateExtendedTooltip" id="483"/>
+																		<Title>
+																			<v8:item>
+																				<v8:lang>en</v8:lang>
+																				<v8:content>Refresh</v8:content>
+																			</v8:item>
+																		</Title>
+																		<ExtendedTooltip name="PropertiesContextMenuRefreshExtendedTooltip" id="483"/>
 																	</Button>
 																	<Button name="PropertiesContextMenuOutputList" id="403">
 																		<Type>CommandBarButton</Type>
@@ -1613,6 +1883,12 @@
 																<InputField name="PropertiesPresentation" id="133">
 																	<DataPath>Properties.Presentation</DataPath>
 																	<ReadOnly>true</ReadOnly>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Presentation</v8:content>
+																		</v8:item>
+																	</Title>
 																	<TitleLocation>None</TitleLocation>
 																	<EditMode>EnterOnInput</EditMode>
 																	<ShowInHeader>false</ShowInHeader>
@@ -1622,6 +1898,12 @@
 																</InputField>
 																<PictureField name="PropertiesPictureNumber" id="136">
 																	<DataPath>Properties.PictureNumber</DataPath>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Picture index</v8:content>
+																		</v8:item>
+																	</Title>
 																	<EditMode>EnterOnInput</EditMode>
 																	<ShowInHeader>false</ShowInHeader>
 																	<ShowInFooter>false</ShowInFooter>
@@ -1697,16 +1979,34 @@
 																	<Button name="FoldersContextMenuReviewed" id="187">
 																		<Type>CommandBarButton</Type>
 																		<CommandName>Form.Command.Reviewed</CommandName>
+																		<Title>
+																			<v8:item>
+																				<v8:lang>en</v8:lang>
+																				<v8:content>Mark as Reviewed</v8:content>
+																			</v8:item>
+																		</Title>
 																		<ExtendedTooltip name="FoldersContextMenuReviewedExtendedTooltip" id="508"/>
 																	</Button>
 																	<Button name="FoldersContextMenuDeferReview" id="189">
 																		<Type>CommandBarButton</Type>
 																		<CommandName>Form.Command.DeferReview</CommandName>
+																		<Title>
+																			<v8:item>
+																				<v8:lang>en</v8:lang>
+																				<v8:content>Snooze till…</v8:content>
+																			</v8:item>
+																		</Title>
 																		<ExtendedTooltip name="FoldersContextMenuDeferReviewExtendedTooltip" id="509"/>
 																	</Button>
 																	<Button name="FoldersContextMenuEmployeeResponsible" id="186">
 																		<Type>CommandBarButton</Type>
 																		<CommandName>Form.Command.EmployeeResponsible</CommandName>
+																		<Title>
+																			<v8:item>
+																				<v8:lang>en</v8:lang>
+																				<v8:content>Assign to…</v8:content>
+																			</v8:item>
+																		</Title>
 																		<ExtendedTooltip name="FoldersContextMenuEmployeeResponsibleExtendedTooltip" id="510"/>
 																	</Button>
 																</ChildItems>
@@ -1714,16 +2014,34 @@
 															<Button name="FoldersContextMenuAddToTabs" id="394">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.AddToTabs</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Add to bookmarks</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="FoldersContextMenuAddToTabsExtendedTooltip" id="511"/>
 															</Button>
 															<Button name="FoldersContextMenuApplyProcessingRules" id="190">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.ApplyProcessingRules</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Run mailbox rules…</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="FoldersContextMenuApplyProcessingRulesExtendedTooltip" id="512"/>
 															</Button>
 															<Button name="FoldersContextMenuMoveToFolder" id="199">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.MoveToFolder</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Move to folder…</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="FoldersContextMenuMoveToFolderExtendedTooltip" id="513"/>
 															</Button>
 															<ButtonGroup name="FoldersContextMenuChangeGroup" id="389">
@@ -1749,7 +2067,13 @@
 																	<Button name="FoldersContextMenuEditNavigationPanelValue" id="329">
 																		<Type>CommandBarButton</Type>
 																		<CommandName>Form.Command.EditNavigationPanelValue</CommandName>
-																		<ExtendedTooltip name="FoldersContextMenuChangeNavigationPanelValueExtendedTooltip" id="516"/>
+																		<Title>
+																			<v8:item>
+																				<v8:lang>en</v8:lang>
+																				<v8:content>Edit…</v8:content>
+																			</v8:item>
+																		</Title>
+																		<ExtendedTooltip name="FoldersContextMenuEditNavigationPanelValueExtendedTooltip" id="516"/>
 																	</Button>
 																	<Button name="FoldersContextMenuDelete" id="385">
 																		<Type>CommandBarButton</Type>
@@ -1775,6 +2099,12 @@
 																	<Button name="FoldersContextMenuRefresh" id="210">
 																		<Type>CommandBarButton</Type>
 																		<CommandName>Form.Command.Refresh</CommandName>
+																		<Title>
+																			<v8:item>
+																				<v8:lang>en</v8:lang>
+																				<v8:content>Refresh</v8:content>
+																			</v8:item>
+																		</Title>
 																		<ExtendedTooltip name="FoldersContextMenuRefreshExtendedTooltip" id="520"/>
 																	</Button>
 																	<Button name="FoldersContextMenuOutputList" id="386">
@@ -1839,6 +2169,12 @@
 															<ChildItems>
 																<PictureField name="FoldersPictureNumber" id="182">
 																	<DataPath>Folders.PictureNumber</DataPath>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Picture index</v8:content>
+																		</v8:item>
+																	</Title>
 																	<TitleLocation>None</TitleLocation>
 																	<EditMode>EnterOnInput</EditMode>
 																	<FileDragMode>AsFile</FileDragMode>
@@ -1848,6 +2184,12 @@
 																<InputField name="FoldersPresentation" id="184">
 																	<DataPath>Folders.Presentation</DataPath>
 																	<ReadOnly>true</ReadOnly>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Presentation</v8:content>
+																		</v8:item>
+																	</Title>
 																	<TitleLocation>None</TitleLocation>
 																	<EditMode>EnterOnInput</EditMode>
 																	<TextEdit>false</TextEdit>
@@ -1919,28 +2261,58 @@
 																	<Button name="CategoriesContextMenuReviewed" id="318">
 																		<Type>CommandBarButton</Type>
 																		<CommandName>Form.Command.Reviewed</CommandName>
+																		<Title>
+																			<v8:item>
+																				<v8:lang>en</v8:lang>
+																				<v8:content>Mark as Reviewed</v8:content>
+																			</v8:item>
+																		</Title>
 																		<ExtendedTooltip name="CategoriesContextMenuReviewedExtendedTooltip" id="528"/>
 																	</Button>
 																	<Button name="CategoriesContextMenuDeferReview" id="320">
 																		<Type>CommandBarButton</Type>
 																		<CommandName>Form.Command.DeferReview</CommandName>
+																		<Title>
+																			<v8:item>
+																				<v8:lang>en</v8:lang>
+																				<v8:content>Snooze till…</v8:content>
+																			</v8:item>
+																		</Title>
 																		<ExtendedTooltip name="CategoriesContextMenuDeferReviewExtendedTooltip" id="529"/>
 																	</Button>
 																	<Button name="CategoriesContextMenuEmployeeResponsible" id="316">
 																		<Type>CommandBarButton</Type>
 																		<CommandName>Form.Command.EmployeeResponsible</CommandName>
+																		<Title>
+																			<v8:item>
+																				<v8:lang>en</v8:lang>
+																				<v8:content>Assign to…</v8:content>
+																			</v8:item>
+																		</Title>
 																		<ExtendedTooltip name="CategoriesContextMenuEmployeeResponsibleExtendedTooltip" id="530"/>
 																	</Button>
 																	<Button name="CategoriesContextMenuSubjectOf" id="319">
 																		<Type>CommandBarButton</Type>
 																		<CommandName>Form.Command.SubjectOf</CommandName>
-																		<ExtendedTooltip name="CategoriesContextMenuSubjectExtendedTooltip" id="531"/>
+																		<Title>
+																			<v8:item>
+																				<v8:lang>en</v8:lang>
+																				<v8:content>Select topic…</v8:content>
+																			</v8:item>
+																		</Title>
+																		<ExtendedTooltip name="CategoriesContextMenuSubjectOfExtendedTooltip" id="531"/>
 																	</Button>
 																</ChildItems>
 															</ButtonGroup>
 															<Button name="CategoriesContextMenuAddToTabs" id="321">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.AddToTabs</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Add to bookmarks</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="CategoriesContextMenuAddToTabsExtendedTooltip" id="532"/>
 															</Button>
 															<ButtonGroup name="CategoriesContextMenuRefreshGroup" id="315">
@@ -1960,6 +2332,12 @@
 																	<Button name="CategoriesContextMenuRefresh" id="314">
 																		<Type>CommandBarButton</Type>
 																		<CommandName>Form.Command.Refresh</CommandName>
+																		<Title>
+																			<v8:item>
+																				<v8:lang>en</v8:lang>
+																				<v8:content>Refresh</v8:content>
+																			</v8:item>
+																		</Title>
 																		<ExtendedTooltip name="CategoriesContextMenuRefreshExtendedTooltip" id="535"/>
 																	</Button>
 																	<Button name="CategoriesContextMenuOutputList" id="409">
@@ -2016,6 +2394,12 @@
 															<ChildItems>
 																<PictureField name="CategoriesPictureNumber" id="312">
 																	<DataPath>Categories.PictureNumber</DataPath>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Picture index</v8:content>
+																		</v8:item>
+																	</Title>
 																	<TitleLocation>None</TitleLocation>
 																	<EditMode>EnterOnInput</EditMode>
 																	<ValuesPicture>
@@ -2029,6 +2413,12 @@
 																<InputField name="CategoriesPresentation" id="309">
 																	<DataPath>Categories.Presentation</DataPath>
 																	<ReadOnly>true</ReadOnly>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Presentation</v8:content>
+																		</v8:item>
+																	</Title>
 																	<TitleLocation>None</TitleLocation>
 																	<EditMode>EnterOnInput</EditMode>
 																	<ContextMenu name="CategoriesPresentationContextMenu" id="310"/>
@@ -2055,7 +2445,7 @@
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="GroupListExtendedTooltip" id="541"/>
+							<ExtendedTooltip name="ListGroup2ExtendedTooltip" id="541"/>
 							<ChildItems>
 								<Table name="List" id="2">
 									<HeightInTableRows>3</HeightInTableRows>
@@ -2106,16 +2496,34 @@
 													<Button name="ListContextMenuMarkAsReviewed" id="377">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.MarkAsReviewed</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Mark as Reviewed</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="ListContextMenuMarkAsReviewedExtendedTooltip" id="545"/>
 													</Button>
 													<Button name="ListContextMenuDeferListReview" id="378">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.DeferListReview</CommandName>
-														<ExtendedTooltip name="ListContextMenuDeferReviewListExtendedTooltip" id="546"/>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Snooze till…</v8:content>
+															</v8:item>
+														</Title>
+														<ExtendedTooltip name="ListContextMenuDeferListReviewExtendedTooltip" id="546"/>
 													</Button>
 													<Button name="ListContextMenuSubjectList" id="379">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.SubjectList</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Select topic…</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="ListContextMenuSubjectListExtendedTooltip" id="547"/>
 													</Button>
 												</ChildItems>
@@ -2132,21 +2540,45 @@
 													<Button name="ListContextMenuReply" id="901">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.Reply</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Reply</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="ListContextMenuReplyExtendedTooltip" id="902"/>
 													</Button>
 													<Button name="ListContextMenuReplyToAll" id="903">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.ReplyToAll</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Reply all</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="ListContextMenuReplyToAllExtendedTooltip" id="904"/>
 													</Button>
 													<Button name="ListContextMenuSendOn" id="905">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.ForwardMail</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Forward</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="ListContextMenuForwardExtendedTooltip" id="906"/>
 													</Button>
 													<Button name="ListContextMenuForwardAsAttachment" id="907">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.ForwardAsAttachment</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Forward as attachment</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="ListContextMenuForwardAsAttachmentExtendedTooltip" id="908"/>
 													</Button>
 												</ChildItems>
@@ -2154,6 +2586,12 @@
 											<Button name="ListContextMenuAddToTabs" id="142">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.AddToTabs</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Add to bookmarks</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ListContextMenuAddToTabsExtendedTooltip" id="548"/>
 											</Button>
 											<Button name="ListContextMenuChange" id="372">
@@ -2164,11 +2602,23 @@
 											<Button name="ListContextMenuMoveToFolder" id="198">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.MoveToFolder</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Move to folder…</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ListContextMenuMoveToFolderExtendedTooltip" id="550"/>
 											</Button>
 											<Button name="ListContextMenuInteractionsBySubject" id="380">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.InteractionsBySubject</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Interactions on this topic</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ListContextMenuInteractionsBySubjectExtendedTooltip" id="551"/>
 											</Button>
 											<ButtonGroup name="ListContextMenuDeleteCopyGroup" id="381">
@@ -2436,6 +2886,12 @@
 											<ChildItems>
 												<TextDocumentField name="PreviewPlainText" id="150">
 													<DataPath>Preview</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Preview</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>None</TitleLocation>
 													<Width>30</Width>
 													<ContextMenu name="PreviewPlainTextContextMenu" id="151"/>
@@ -2507,6 +2963,12 @@
 												</UsualGroup>
 												<HTMLDocumentField name="HTMLPreview" id="91">
 													<DataPath>HTMLPreview</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>HTML preview</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>None</TitleLocation>
 													<Width>30</Width>
 													<Height>8</Height>
@@ -2523,6 +2985,12 @@
 								<LabelField name="DetailsFoundByFullTextSearch" id="323">
 									<DataPath>DetailsFoundByFullTextSearch</DataPath>
 									<Visible>false</Visible>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Full-text search result details</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<TextColor>style:NoteText</TextColor>
 									<ContextMenu name="DescriptionFoundByFullTextSearchContextMenu" id="324"/>
@@ -2663,10 +3131,22 @@ FROM
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>Search</dcssch:dataPath>
 					<dcssch:field>Search</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Search</v8:content>
+						</v8:item>
+					</dcssch:title>
 				</Field>
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>HasAttachments</dcssch:dataPath>
 					<dcssch:field>HasAttachments</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Has attachments</v8:content>
+						</v8:item>
+					</dcssch:title>
 				</Field>
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>InteractionBasis</dcssch:dataPath>
@@ -2675,6 +3155,12 @@ FROM
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>Size</dcssch:dataPath>
 					<dcssch:field>Size</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Size</v8:content>
+						</v8:item>
+					</dcssch:title>
 				</Field>
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>DateToSendEmail</dcssch:dataPath>
@@ -2691,6 +3177,12 @@ FROM
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>PictureNumber</dcssch:dataPath>
 					<dcssch:field>PictureNumber</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Picture index</v8:content>
+						</v8:item>
+					</dcssch:title>
 				</Field>
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>Ref</dcssch:dataPath>
@@ -2723,14 +3215,27 @@ FROM
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>EmployeeResponsible</dcssch:dataPath>
 					<dcssch:field>EmployeeResponsible</dcssch:field>
+					<dcssch:title xsi:type="xs:string">Ответственный</dcssch:title>
 				</Field>
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>Reviewed</dcssch:dataPath>
 					<dcssch:field>Reviewed</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Reviewed</v8:content>
+						</v8:item>
+					</dcssch:title>
 				</Field>
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>ReviewAfter</dcssch:dataPath>
 					<dcssch:field>ReviewAfter</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Snooze till</v8:content>
+						</v8:item>
+					</dcssch:title>
 				</Field>
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>Attendees</dcssch:dataPath>
@@ -2747,10 +3252,22 @@ FROM
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>SubjectOf</dcssch:dataPath>
 					<dcssch:field>SubjectOf</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Topic</v8:content>
+						</v8:item>
+					</dcssch:title>
 				</Field>
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>SubjectType</dcssch:dataPath>
 					<dcssch:field>SubjectType</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Topic category</v8:content>
+						</v8:item>
+					</dcssch:title>
 				</Field>
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>Account</dcssch:dataPath>
@@ -2759,6 +3276,12 @@ FROM
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>Folder</dcssch:dataPath>
 					<dcssch:field>Folder</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Folder</v8:content>
+						</v8:item>
+					</dcssch:title>
 				</Field>
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>SentReceived</dcssch:dataPath>
@@ -2771,6 +3294,12 @@ FROM
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>ImportancePictureNumber</dcssch:dataPath>
 					<dcssch:field>ImportancePictureNumber</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Importance Picture index</v8:content>
+						</v8:item>
+					</dcssch:title>
 				</Field>
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>Posted</dcssch:dataPath>

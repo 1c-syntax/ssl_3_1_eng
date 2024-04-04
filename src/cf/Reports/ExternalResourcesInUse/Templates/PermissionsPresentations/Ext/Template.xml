@@ -429,7 +429,7 @@
 					<tl>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>• Attach built-in add-ins ([Count]):</v8:content>
+							<v8:content>Attach built-in add-ins ([Count]):</v8:content>
 						</v8:item>
 					</tl>
 				</c>
@@ -983,7 +983,7 @@
 					<tl>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>• Set privileged mode (in this mode the program module can execute data operations that are denied for the current user)</v8:content>
+							<v8:content>Attach built-in add-ins ([Count]):</v8:content>
 						</v8:item>
 					</tl>
 				</c>

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -17,6 +18,16 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not ValueIsFilled(Parameters.User) Then
 		Cancel = True;
+		Return;
+	EndIf;
+	
+	If TypeOf(Parameters.User) = Type("CatalogRef.Users")
+	   And Common.ObjectAttributeValue(Parameters.User, "IsInternal") = True Then
+		
+		IsInternalUser = True;
+		Items.UtilityUserRights.Visible = True;
+		CommandBar.Visible = False;
+		Items.RightsAndRestrictions.Visible = False;
 		Return;
 	EndIf;
 	
@@ -69,7 +80,12 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	   And Common.SubsystemExists("StandardSubsystems.SaaSOperations.UsersSaaS") Then
 		
 		ModuleUsersInternalSaaS = Common.CommonModule("UsersInternalSaaS");
-		ActionsWithSaaSUser = ModuleUsersInternalSaaS.GetActionsWithSaaSUser();
+		Try
+			ActionsWithSaaSUser = ModuleUsersInternalSaaS.GetActionsWithSaaSUser(
+				Undefined, ActionsWithSaaSUser);
+		Except
+			ServiceOperationError = ErrorInfo();
+		EndTry;
 		
 		AdministrativeAccessChangeProhibition = Not ActionsWithSaaSUser.ChangeAdministrativeAccess;
 	EndIf;
@@ -86,10 +102,20 @@ Procedure OnOpen(Cancel)
 		Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Access rights (%1)';"), String(Parameters.User));
 	EndIf;
 	
+	If ServiceOperationError <> Undefined Then
+		CurrentServiceOperationError = ServiceOperationError;
+		ServiceOperationError = Undefined;
+		StandardSubsystemsClient.OutputErrorInfo(CurrentServiceOperationError);
+	EndIf;
+	
 EndProcedure
 
 &AtClient
 Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
+	
+	If IsInternalUser Then
+		Return;
+	EndIf;
 	
 	Notification = New NotifyDescription("WriteAndCloseNotification", ThisObject);
 	CommonClient.ShowFormClosingConfirmation(Notification, Cancel, Exit);
@@ -160,8 +186,8 @@ Procedure ProfilesCheckOnChange(Item)
 	
 	If CurrentData <> Undefined
 	   And Not CurrentData.Check Then
-		
-		
+		// 
+		// 
 		ClearMessages();
 		Errors = Undefined;
 		AccessManagementInternalClientServer.ProcessingOfCheckOfFillingAtServerAllowedValuesEditForm(
@@ -231,7 +257,7 @@ Procedure AccessKindsOnEditEnd(Item, NewRow, CancelEdit)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure AccessKindsAllAllowedPresentationOnChange(Item)
@@ -843,7 +869,7 @@ Procedure WriteChangesAtServer(Cancel)
 								CancelOnWriteChanges = True;
 								Cancel = True;
 								Raise
-									NStr("en = 'At least one user that can sign in to the application
+									NStr("en = 'At least one user authorized to sign in
 									           |must have the Administrator profile.';");
 							EndIf;
 						EndIf;

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -27,6 +28,10 @@ EndProcedure
 #EndRegion
 
 #Region Internal
+
+Procedure ShowUpdateResults() Export
+	OpenForm("DataProcessor.ApplicationUpdateResult.Form.ApplicationUpdateResult");
+EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
 // Configuration subsystems event handlers.
@@ -193,8 +198,8 @@ Procedure OnProcessCommand(ReportForm, Command, Result) Export
 	
 EndProcedure
 
-// 
-// 
+// Handles mouse double-click, "Enter" key, and hyperlink activation in report spreadsheets.
+// See "Form field extension for a spreadsheet document field.Choice" in Syntax Assistant.
 //
 // Parameters:
 //   ReportForm          - ClientApplicationForm - Report form.
@@ -395,11 +400,10 @@ Procedure NotifyDeferredHandlersNotExecuted() Export
 		Return;
 	EndIf;
 	
-	ShowUserNotification(
-		NStr("en = 'The application functionality is temporarily limited.';"),
+	ShowUserNotification(NStr("en = 'The application functionality is temporarily limited.';"),
 		DataProcessorURL(),
 		NStr("en = 'Upgrade to the new version is still in progress.';"),
-		PictureLib.Warning32);
+		PictureLib.DialogExclamation);
 	
 EndProcedure
 

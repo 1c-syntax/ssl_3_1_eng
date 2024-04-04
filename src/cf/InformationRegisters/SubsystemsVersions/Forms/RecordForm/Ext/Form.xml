@@ -6,6 +6,12 @@
 			<Button name="FormEnableEditing" id="17">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.EnableEditing</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Allow editing</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormEnableEditingExtendedTooltip" id="18"/>
 			</Button>
@@ -52,7 +58,7 @@ where:
 Example:
 &lt;b&gt;1.6.4.7&lt;/&gt; stands for revision 1.6, version 4, build 7.
 
-For more details, see &lt;link https://kb.1ci.com/1C_Enterprise_Platform/Guides/Developer_Guides/1C_Enterprise_Development_Standards/Creating_and_modifying_metadata_objects/Configuration_version_management/Versions_and_releases_numbering/&gt;Version and revision numbering&lt;/&gt;.</v8:content>
+For more details, see &lt;link https://kb.1ci.com/1C_Enterprise_Platform/Guides/Developer_Guides/1C_Enterprise_Development_Standards/Creating_and_modifying_metadata_objects/Configuration_version_management/Version_numbering/&gt;Version and revision numbering&lt;/&gt;.</v8:content>
 							</v8:item>
 						</Title>
 					</ExtendedTooltip>

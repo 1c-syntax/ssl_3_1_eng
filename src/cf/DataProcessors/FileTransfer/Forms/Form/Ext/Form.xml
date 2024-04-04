@@ -11,6 +11,12 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.ExecuteTransfer</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Move</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormExecuteTransferExtendedTooltip" id="60"/>
 			</Button>
 			<Button name="FormClose" id="61">
@@ -128,6 +134,12 @@
 						</CheckBoxField>
 						<InputField name="DestinationStorageVolume" id="11">
 							<DataPath>DestinationStorageVolume</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Storage volume destination</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<Width>35</Width>
 							<AutoMaxWidth>false</AutoMaxWidth>
@@ -167,6 +179,12 @@
 						</CheckBoxField>
 						<InputField name="StorageVolumeSource" id="19">
 							<DataPath>StorageVolumeSource</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Storage volume source</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<Width>35</Width>
 							<AutoMaxWidth>false</AutoMaxWidth>
@@ -206,6 +224,12 @@
 						</CheckBoxField>
 						<InputField name="FilesOwner" id="27">
 							<DataPath>FilesOwner</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>File location</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<Width>35</Width>
 							<AutoMaxWidth>false</AutoMaxWidth>
@@ -259,6 +283,12 @@
 							<ChildItems>
 								<InputField name="CreationDateComparisonOperator" id="37">
 									<DataPath>CreationDateComparisonOperator</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Before or after</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<Width>5</Width>
 									<AutoMaxWidth>false</AutoMaxWidth>
@@ -288,6 +318,12 @@
 								</InputField>
 								<InputField name="CreationDate" id="40">
 									<DataPath>CreationDate</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Date created</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<ContextMenu name="CreationDateContextMenu" id="41"/>
 									<ExtendedTooltip name="CreationDateExtendedTooltip" id="42"/>
@@ -324,6 +360,12 @@
 						</CheckBoxField>
 						<InputField name="FilesExtensions" id="48">
 							<DataPath>FilesExtensions</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>File extensions</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<Width>35</Width>
 							<AutoMaxWidth>false</AutoMaxWidth>

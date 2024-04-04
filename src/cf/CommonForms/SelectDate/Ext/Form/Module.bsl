@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -25,18 +26,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		InitialValue = CurrentSessionDate();
 	EndIf;
 	
-	Parameters.Property("BeginOfRepresentationPeriod", Items.Calendar.BeginOfRepresentationPeriod);
-	Parameters.Property("EndOfRepresentationPeriod", Items.Calendar.EndOfRepresentationPeriod);
+	Items.Calendar.BeginOfRepresentationPeriod = Parameters.BeginOfRepresentationPeriod;
+	Items.Calendar.EndOfRepresentationPeriod = Parameters.EndOfRepresentationPeriod;
 	
 	Calendar = InitialValue;
-	
-	Parameters.Property("Title", Title);
-	
-	If Parameters.Property("NoteText") Then
-		Items.NoteText.Title = Parameters.NoteText;
-	Else
-		Items.NoteText.Visible = False;
-	EndIf;
+
+	Title = Parameters.Title;
+	Items.NoteText.Title = Parameters.NoteText;
+	Items.NoteText.Visible = ValueIsFilled(Parameters.NoteText);
 	
 EndProcedure
 

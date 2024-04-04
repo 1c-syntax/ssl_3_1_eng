@@ -49,8 +49,8 @@
 						</v8:item>
 					</Title>
 					<Picture>
-						<xr:Ref>CommonPicture.DoQueryBox32</xr:Ref>
-						<xr:LoadTransparent>false</xr:LoadTransparent>
+						<xr:Ref>StdPicture.DialogQuestion</xr:Ref>
+						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</Picture>
 					<FileDragMode>AsFile</FileDragMode>
 					<ContextMenu name="WarningContextMenu" id="6"/>
@@ -105,10 +105,16 @@
 						</InputField>
 						<CheckBoxField name="NeverAskAgain" id="3">
 							<DataPath>NeverAskAgain</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Do not ask again</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<CheckBoxType>Auto</CheckBoxType>
 							<ContextMenu name="DoNotAskAgainContextMenu" id="4"/>
-							<ExtendedTooltip name="DoNotAskAgainExtendedTooltip" id="22"/>
+							<ExtendedTooltip name="NeverAskAgainExtendedTooltip" id="22"/>
 						</CheckBoxField>
 					</ChildItems>
 				</UsualGroup>

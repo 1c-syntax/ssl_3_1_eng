@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -44,25 +45,29 @@ Function LongRunningOperationStartServer(UUID)
 	Return TimeConsumingOperations.ExecuteInBackground(MethodName, Undefined, StartSettings1);
 EndFunction
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
-Procedure TimeConsumingOperationCompletionClient(Operation, AdditionalParameters) Export
+Procedure TimeConsumingOperationCompletionClient(Result, AdditionalParameters) Export
 	
-	Handler = New NotifyDescription("TimeConsumingOperationAfterOutputResult", ThisObject);
-	If Operation = Undefined Then
-		ExecuteNotifyProcessing(Handler, False);
+	If Result = Undefined Then
+		TimeConsumingOperationAfterOutputResult(False);
 		Return;
 	EndIf;
-	If Operation.Status = "Completed2" Then
+	If Result.Status = "Completed2" Then
 		ShowUserNotification(NStr("en = 'Optimization completed successfully';"),,, PictureLib.Success32);
-		ExecuteNotifyProcessing(Handler, True);
+		TimeConsumingOperationAfterOutputResult(True);
 	Else
-		Raise Operation.BriefErrorDescription;
+		StandardSubsystemsClient.OutputErrorInfo(
+			Result.ErrorInfo);
 	EndIf;
 	
 EndProcedure
 
 &AtClient
-Procedure TimeConsumingOperationAfterOutputResult(Result, AdditionalParameters) Export
+Procedure TimeConsumingOperationAfterOutputResult(Result)
 	If OnCloseNotifyDescription <> Undefined Then
 		ExecuteNotifyProcessing(OnCloseNotifyDescription, Result); // Bypass call characteristic from OnOpen.
 	EndIf;

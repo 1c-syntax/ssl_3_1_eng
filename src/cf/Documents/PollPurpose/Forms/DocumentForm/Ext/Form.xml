@@ -254,6 +254,12 @@
 						</InputField>
 						<InputField name="RespondentsType" id="25">
 							<DataPath>RespondentsType</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Respondent type</v8:content>
+								</v8:item>
+							</Title>
 							<Width>36</Width>
 							<HorizontalStretch>false</HorizontalStretch>
 							<DropListButton>true</DropListButton>
@@ -287,7 +293,7 @@
 							<TitleLocation>Right</TitleLocation>
 							<CheckBoxType>Auto</CheckBoxType>
 							<ContextMenu name="HideFromArchivedQuestionnairesContextMenu" id="39"/>
-							<ExtendedTooltip name="HideFromArchivedQuestionnairesExtendedTooltip" id="57"/>
+							<ExtendedTooltip name="NotShowInQuestionnaireArchiveExtendedTooltip" id="57"/>
 						</CheckBoxField>
 						<CheckBoxField name="AllowSavingQuestionnaireDraft" id="13">
 							<DataPath>Object.AllowSavingQuestionnaireDraft</DataPath>

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -70,7 +71,7 @@ Procedure SelectedUsersBeforeAddRow(Item, Cancel, Copy, Parent, IsFolder, Parame
 		NStr("en = 'Select users who will see the certificate in the choice list';"));
 	PickingParameters.Insert("PickingCompletionButtonTitle", NStr("en = 'Select';"));
 	
-	Handler = New NotifyDescription("AddUsers", ThisObject);
+	Handler = New NotifyDescription("Add_Users", ThisObject);
 	
 	OpenForm("Catalog.Users.ChoiceForm", PickingParameters,,,,, Handler);
 	
@@ -134,7 +135,7 @@ EndProcedure
 #Region Private
 
 &AtClient
-Procedure AddUsers(Result, AdditionalParameters) Export
+Procedure Add_Users(Result, AdditionalParameters) Export
 	
 	If Result = Undefined Then
 		Return;

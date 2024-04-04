@@ -1,17 +1,18 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Private
 
-// 
+// Delete the objects marked for deletion.
 // 
 // Parameters:
 //  DeletionParameters - See DeletionParameters
@@ -23,7 +24,7 @@
 Function ToDeleteMarkedObjects(DeletionParameters, JobID = Undefined) Export
 	
 	If Not Users.IsFullUser() Then
-		Raise NStr("en = 'Insufficient rights to perform the operation.';");
+		Raise(NStr("en = 'Insufficient rights to perform the operation.';"), ErrorCategory.AccessViolation);
 	EndIf;
 	
 	Measurement = CurrentUniversalDateInMilliseconds();	
@@ -101,7 +102,7 @@ Procedure ReflectNotDeletedItems(DeletionParameters, NotTrash)
 		NotTrash.UnloadColumn("ItemToDeleteRef"), "DataVersion");
 	For Each Item In NotTrash Do
 
-		
+		// An object can be deleted if its parent object is marked for deletion.
 		If ObjectDeleted(Item.ItemToDeleteRef, DataVersions) Then
 			Continue;
 		EndIf;
@@ -147,7 +148,7 @@ Procedure ReflectUsageInstances(DeletionParameters, UsageInstances)
 		ColumnsThatPreventDeletion.Add(Column.Name);
 	EndDo;
 	
-	
+	// Group the table to exclude duplicates (since the packages are not searched for repetitions.
 	ObjectsPreventingDeletion.GroupBy(StrConcat(ColumnsThatPreventDeletion, ","));
 EndProcedure
 
@@ -315,8 +316,8 @@ Function ProcessPackage(DeletionParameters, Package)
 				ReflectPackageItemDeletionResult(DeletionParameters, PackageProcessingResult, DeletionResult);
 					
 				If Not ItemToRemove.IsMainObject And DeletionResult.Code = DeletionResultCodes().ErrorOnDelete Then
-					
-					
+					// 
+					// 
 					YouCanTDeleteTheMainObject = True;
 					UndeletedItems.Add(DeletionResult.ItemToDeleteRef);
 					
@@ -338,8 +339,8 @@ Function ProcessPackage(DeletionParameters, Package)
 				
 			EndDo;
 			
-			
-			
+			// 
+			// 
 			If Not IsTransactionCanceled Then
 				If Not YouCanTDeleteTheMainObject Then
 					CommitTransaction();
@@ -429,64 +430,63 @@ Procedure ClearRefsToObjectsToDelete(DeletionParameters, PackageProcessingResult
 	EndDo;
 EndProcedure
 
-Procedure ClearRefsInUsageInstance(UsageInstance, ObjectsToDeleteInUsageInstance)
-	If ObjectDeleted(UsageInstance) Then
-		Return;
-	EndIf;
-	
-	ObjectToEdit = UsageInstance.GetObject();
-	ObjectMetadata = ObjectToEdit.Metadata();
-	
-	ClearRefsInAttributesCollection(ObjectToEdit, ObjectMetadata.StandardAttributes, ObjectsToDeleteInUsageInstance);
-	ClearRefsInAttributesCollection(ObjectToEdit, ObjectMetadata.Attributes, ObjectsToDeleteInUsageInstance);
-	
-	For Each TabularSection In ObjectMetadata.TabularSections Do
-		ClearRefsInTabularSection(ObjectToEdit[TabularSection.Name], TabularSection.Attributes, ObjectsToDeleteInUsageInstance);
-	EndDo;
-	
-	ThereAreStandardTabularSections = CommonClientServer.HasAttributeOrObjectProperty(ObjectMetadata,
-		"StandardTabularSections");
-		
-	StandardTabularSections = ?(ThereAreStandardTabularSections,
-		ObjectMetadata.StandardTabularSections,
-		New Array);
-		
-	For Each TabularSection In StandardTabularSections Do
-		ClearRefsInTabularSection(ObjectToEdit[TabularSection.Name], TabularSection.StandardAttributes, ObjectsToDeleteInUsageInstance);
-	EndDo;
-	
-	WriteObjectToEdit(UsageInstance, ObjectToEdit);
-EndProcedure
+Procedure ClearRefsInUsageInstance(UsageInstance1, ObjectsToDelete)
 
-Procedure WriteObjectToEdit(UsageInstance, ObjectToEdit)
-	ObjectToEdit.AdditionalProperties.Insert("DontControlObjectsToDelete");
-	ObjectToEdit.DataExchange.Load = True;
-	
 	BeginTransaction();
 	Try
+		ObjectMetadata = UsageInstance1.Metadata();
+
 		Block = New DataLock();
-		Item = Block.Add(UsageInstance.Metadata().FullName());
-		Item.SetValue("Ref", UsageInstance);
+		Item = Block.Add(UsageInstance1.Metadata().FullName());
+		Item.SetValue("Ref", UsageInstance1);
 		Block.Lock();
 		
-		ObjectToEdit.Write();
+		OccurrenceObject = UsageInstance1.GetObject();
+		If OccurrenceObject = Undefined Then
+			CommitTransaction();
+			Return;
+		EndIf;
+		
+		ClearRefsInAttributesCollection(OccurrenceObject, ObjectMetadata.StandardAttributes, ObjectsToDelete);
+		ClearRefsInAttributesCollection(OccurrenceObject, ObjectMetadata.Attributes, ObjectsToDelete);
+		
+		For Each TabularSection In ObjectMetadata.TabularSections Do
+			ClearRefsInTabularSection(OccurrenceObject[TabularSection.Name], TabularSection.Attributes, ObjectsToDelete);
+		EndDo;
+		
+		ThereAreStandardTabularSections = CommonClientServer.HasAttributeOrObjectProperty(ObjectMetadata,
+			"StandardTabularSections");
+		StandardTabularSections = ?(ThereAreStandardTabularSections,
+			ObjectMetadata.StandardTabularSections,
+			New Array);
+			
+		For Each TabularSection In StandardTabularSections Do
+			ClearRefsInTabularSection(OccurrenceObject[TabularSection.Name], TabularSection.StandardAttributes, ObjectsToDelete);
+		EndDo;
+		
+		OccurrenceObject.AdditionalProperties.Insert("DontControlObjectsToDelete");
+		OccurrenceObject.DataExchange.Load = True;
+		OccurrenceObject.Write();
+
 		CommitTransaction();
 	Except
 		RollbackTransaction();
-		WriteWarning(UsageInstance, ErrorInfo());
+		WriteWarning(NStr("en = 'Couldn''t remove links to the object in ""%1"" due to:';"), 
+			UsageInstance1, ErrorInfo());
 	EndTry;
+	
 EndProcedure
 
-Procedure ClearRefsInTabularSection(ObjectToEdit, AttributesCollection, ObjectsToDeleteInUsageInstance)
-	For Each TSRow In ObjectToEdit Do
-		ClearRefsInAttributesCollection(TSRow, AttributesCollection, ObjectsToDeleteInUsageInstance);
+Procedure ClearRefsInTabularSection(OccurrenceObject, AttributesCollection, ObjectsToDelete)
+	For Each TSRow In OccurrenceObject Do
+		ClearRefsInAttributesCollection(TSRow, AttributesCollection, ObjectsToDelete);
 	EndDo;
 EndProcedure
 
-Procedure ClearRefsInAttributesCollection(ObjectToEdit, AttributesCollection, ObjectsToDeleteInUsageInstance)
+Procedure ClearRefsInAttributesCollection(OccurrenceObject, AttributesCollection, ObjectsToDelete)
 	For Each Attribute In AttributesCollection Do
-		If ObjectsToDeleteInUsageInstance.Find(ObjectToEdit[Attribute.Name]) <> Undefined Then
-			ObjectToEdit[Attribute.Name] = Attribute.Type.AdjustValue(Undefined);
+		If ObjectsToDelete.Find(OccurrenceObject[Attribute.Name]) <> Undefined Then
+			OccurrenceObject[Attribute.Name] = Attribute.Type.AdjustValue(Undefined);
 		EndIf;
 	EndDo;	
 EndProcedure
@@ -521,7 +521,7 @@ EndFunction
 #Region ChildSubordinateItemsGeneration
 
 // Parameters:
-//   Elementaire -  See ObjectsToDelete
+//   QueueItem - See ObjectsToDelete
 //   MetadataInformation - See MetadataInfo
 //
 // Returns:
@@ -740,7 +740,7 @@ EndFunction
 // Parameters:
 //   DeletionParameters - See DeletionResult
 //   PackageProcessingResult - See ProcessingResult
-//   Element -  See ObjectsToDeletePackage
+//   Item - See ObjectsToDeletePackage
 //   DeletionResult - See DeletePackageItem
 //
 Procedure ReflectPackageItemDeletionResult(DeletionParameters, PackageProcessingResult, DeletionResult)
@@ -800,18 +800,23 @@ Function ProcessPackageInOneTransaction(DeletionParameters, Package)
 	ObjectsToDelete = Package.UnloadColumn("ItemToDeleteRef");
 	BeforeDeletingAGroupOfObjects(Context, ObjectsToDelete);
 
+	ItemPresentation = "";
 	BeginTransaction();
 	Try
 		For Each PackageItem In Package Do
+			
+			ItemToRemove = PackageItem.ItemToDeleteRef;
+			ItemPresentation = Common.SubjectString(ItemToRemove);
+			
 			Block = New DataLock();
-			Item = Block.Add(PackageItem.ItemToDeleteRef.Metadata().FullName());
-			Item.SetValue("Ref", PackageItem.ItemToDeleteRef);
+			Item = Block.Add(ItemToRemove.Metadata().FullName());
+			Item.SetValue("Ref", ItemToRemove);
 			Block.Lock();
 			
-			Object = PackageItem.ItemToDeleteRef.GetObject();
+			Object = ItemToRemove.GetObject();
 			If Object <> Undefined Then
 				DeleteObject(Object);
-				Result.DeletedObjects.Add(PackageItem.ItemToDeleteRef);
+				Result.DeletedObjects.Add(ItemToRemove);
 			EndIf;
 		EndDo;
 		
@@ -819,6 +824,8 @@ Function ProcessPackageInOneTransaction(DeletionParameters, Package)
 	Except
 		RollbackTransaction();
 		Result.NotDeletedObjects = Package.Copy();
+		WriteWarning(NStr("en = 'Couldn''t delete ""%1"" due to:';"),
+			ItemPresentation, ErrorInfo());
 	EndTry;
 	AfterDeletingAGroupOfObjects(Context, True);
 	 
@@ -842,7 +849,7 @@ EndFunction
 Function DeletePackageItem(DeletionParameters, Item, UsageInstances, UndeletedItems)
 
 	Result = ResultOfDeletingAnElement(Item);
-	If ObjectDeleted(Item.ItemToDeleteRef) Then 
+	If ObjectDeleted(Item.ItemToDeleteRef) Then // The object has already been deleted.
 		Return Result;
 	EndIf;
 	
@@ -851,7 +858,7 @@ Function DeletePackageItem(DeletionParameters, Item, UsageInstances, UndeletedIt
 			Item.ChildSubordinateObjects.UnloadColumn("Item"), "DataVersion");
 	EndIf;
 
-	
+	// The item has child or subordinate objects pending deletion.
 	For Each ChildSubordinateItem In Item.ChildSubordinateObjects Do
 		If Not ObjectDeleted(ChildSubordinateItem.Item, DataVersions) 
 				Or UndeletedItems.Find(ChildSubordinateItem.Item) <> Undefined Then
@@ -864,7 +871,7 @@ Function DeletePackageItem(DeletionParameters, Item, UsageInstances, UndeletedIt
 	EndDo;
 	
 	RefsCleanupLocations = RefsCleanupLocations(DeletionParameters, UsageInstances);
-	
+	ItemPresentation = Common.SubjectString(Item.ItemToDeleteRef);
 	Try
 		Block = New DataLock();
 		LockItem = Block.Add(Item.ItemToDeleteRef.Metadata().FullName());
@@ -875,6 +882,7 @@ Function DeletePackageItem(DeletionParameters, Item, UsageInstances, UndeletedIt
 		DeleteObject(Object);	
 	Except
 		ErrorInfo = ErrorInfo();
+		WriteWarning(NStr("en = 'Couldn''t delete ""%1"" due to:';"), ItemPresentation, ErrorInfo);
 		Result.Messages = TimeConsumingOperations.UserMessages(True);
 		Result.ErrorInfo = ErrorInfo; 
 		Result.Code = DeletionResultCodes().ErrorOnDelete;
@@ -967,7 +975,7 @@ Procedure SupplementPackageWithChildAndSubordinateItems(Package, MainItem, Child
 EndProcedure
 
 // Parameters:
-//   Parametrically -  See DeletionResult
+//   DeletionParameters - See DeletionResult
 //
 Procedure NotifyOfProgress(ExecutionParameters)
 	CurrentTime = CurrentUniversalDateInMilliseconds();
@@ -1030,7 +1038,7 @@ Function RemainingUsageInstancesOfObjectToDelete(DeletionParameters, UsageInstan
 		EndIf;
 		
 		If Common.IsSequence(UsageInstanceInfo1.Metadata) Then
-			
+			// Delete data if the reference is found only in the table.
 			Continue;
 		EndIf;
 		
@@ -1143,9 +1151,9 @@ Function DeletionParameters() Export
 	
 EndFunction
 
-// 
-//   
-//    See DeletionParameters
+// DeletionParameters:
+//   ObjectsToDelete - Array of AnyRef
+//   DeletionParameters - See DeletionParameters
 //
 // Returns:
 //   Structure:
@@ -1558,19 +1566,19 @@ Procedure DeleteMarkedObjectsExclusively(ObjectsToDelete, ExecutionParameters)
 	MetadataInfo = MetadataInfo(ExecutionParameters, ObjectsToDelete);
 	TypesInformation = MarkedObjectsDeletionInternal.TypesInformation(ObjectsToDelete);
 	SubordinateObjects = New Array;
-	InformationAboutObjectsBeingDeleted = StandardSubsystemsServer.ObjectAttributeValuesIfExist(ObjectsToDelete, 
+	DeletableObjectsInfoRecords = StandardSubsystemsServer.ObjectAttributeValuesIfExist(ObjectsToDelete, 
 		"DeletionMark,DataVersion");
 	
 	For IndexOf = -(ObjectsToDelete.Count() - 1) To 0 Do
 		RemovableObject = ObjectsToDelete[-IndexOf];
 		
-		InformationAboutObjectBeingDeleted = New Map;
-		InformationAboutObjectBeingDeleted[RemovableObject] = New Structure("DataVersion");
-		InformationAboutObjectBeingDeleted[RemovableObject].DataVersion = 
-			?(ValueIsFilled(InformationAboutObjectsBeingDeleted[RemovableObject]), 
-				InformationAboutObjectsBeingDeleted[RemovableObject].DataVersion, Undefined);
-		If Not ObjectDeleted(RemovableObject, InformationAboutObjectBeingDeleted) 
-				And Not InformationAboutObjectsBeingDeleted[RemovableObject].DeletionMark Then
+		DeletableObjectInfoRecords = New Map;
+		DeletableObjectInfoRecords[RemovableObject] = New Structure("DataVersion");
+		DeletableObjectInfoRecords[RemovableObject].DataVersion = 
+			?(ValueIsFilled(DeletableObjectsInfoRecords[RemovableObject]), 
+				DeletableObjectsInfoRecords[RemovableObject].DataVersion, Undefined);
+		If Not ObjectDeleted(RemovableObject, DeletableObjectInfoRecords) 
+				And Not DeletableObjectsInfoRecords[RemovableObject].DeletionMark Then
 			ReasonForNotDeletion = New Structure;
 			ReasonForNotDeletion.Insert("ItemToDeleteRef", RemovableObject);
 			ReasonForNotDeletion.Insert("UsageInstance1", NStr("en = 'The object being deleted is not marked for deletion.';"));
@@ -1581,7 +1589,7 @@ Procedure DeleteMarkedObjectsExclusively(ObjectsToDelete, ExecutionParameters)
 		EndIf;
 		
 		MetadataInformation = MetadataInfo.Find(TypeOf(RemovableObject), "Type");
-		MetadataInformation.Hierarchical = False; 
+		MetadataInformation.Hierarchical = False; // 
 		
 		// @skip-check query-in-loop - Batch processing of a large amount of data.
 		ChildSubordinateObjects = ChildSubordinateItems(RemovableObject, MetadataInformation);
@@ -1607,7 +1615,7 @@ Procedure DeleteMarkedObjectsExclusively(ObjectsToDelete, ExecutionParameters)
 			DeleteObjects(ObjectsToDelete, True, ObjectsPreventingDeletion);
 		Except
 			ErrorInfo = ErrorInfo();
-			WriteWarning(Undefined, ErrorInfo);
+			WriteWarning(NStr("en = 'Couldn''t delete items due to:';"), Undefined, ErrorInfo);
 			ErrorDescription = ErrorProcessing.BriefErrorDescription(ErrorInfo);
 
 			Messages = TimeConsumingOperations.UserMessages(True);
@@ -1639,7 +1647,7 @@ Procedure DeleteMarkedObjectsExclusively(ObjectsToDelete, ExecutionParameters)
 		TypesInformation = MarkedObjectsDeletionInternal.TypesInformation(
 			ObjectsPreventingDeletion.UnloadColumn("ItemToDeleteRef"), TypesInformation); 
 
-		
+		// Analyze occurrences of the objects marked for deletion.
 		For Each TableRow In ObjectsPreventingDeletion Do
 			// Check excluding rights.
 			If InternalDataLinks[TableRow] <> Undefined
@@ -1679,15 +1687,16 @@ Procedure DeleteMarkedObjectsExclusively(ObjectsToDelete, ExecutionParameters)
 	ExecutionParameters.Insert("Trash", ObjectsToDelete);
 EndProcedure
 
-Procedure WriteWarning(Ref, ErrorInfo)
+Procedure WriteWarning(Val LongDesc, Val ItemPresentation, Val ErrorInfo)
 	If TypeOf(ErrorInfo) = Type("ErrorInfo") Then
 		TextForLog = ErrorProcessing.DetailErrorDescription(ErrorInfo);
 	Else
 		TextForLog = ErrorInfo;
 	EndIf;
-	
+	TextForLog = StringFunctionsClientServer.SubstituteParametersToString(LongDesc, ItemPresentation) 
+		+ Chars.LF + TextForLog;
 	WriteLogEvent(NStr("en = 'Delete marked objects';", Common.DefaultLanguageCode()),
-		EventLogLevel.Warning,, Ref, TextForLog);
+		EventLogLevel.Warning,,, TextForLog);
 EndProcedure
 
 Procedure WriteReasonToResult(ExecutionParameters, TableRow, TypesInformation)

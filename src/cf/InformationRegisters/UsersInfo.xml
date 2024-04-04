@@ -176,7 +176,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>User must change password at next logon</v8:content>
+							<v8:content>Demand password change on next login</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -316,7 +316,7 @@ from signing in.</v8:content>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Inactivity period before sign-in is denied</v8:content>
+							<v8:content>User inactivity timeout</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -334,11 +334,10 @@ from signing in.</v8:content>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>The period since the latest activity, after which the user sign-in will be denied.
+							<v8:content>Maximum number of inactive days
+before the user is locked out.
 
-When it is set, it overrides the equivalent parameter for all users (or external users).
-
-</v8:content>
+Overrides the common setting configured for all users (external users).</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -369,7 +368,7 @@ When it is set, it overrides the equivalent parameter for all users (or external
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Sign-in allowed on</v8:content>
+							<v8:content>Login allowed on</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -386,7 +385,7 @@ When it is set, it overrides the equivalent parameter for all users (or external
 						<v8:item>
 							<v8:lang>en</v8:lang>
 							<v8:content>The latest date when 
-the "Sign-in allowed" check box was set.</v8:content>
+the "Login allowed" checkbox was set.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -435,7 +434,7 @@ the "Sign-in allowed" check box was set.</v8:content>
 							<v8:lang>en</v8:lang>
 							<v8:content>The date when the user was last active in the application.
 
-The date is set when the user signs in and updates every 20 minutes.
+The date is set when the user logs in and updates every 20 minutes.
 </v8:content>
 						</v8:item>
 					</ToolTip>
@@ -710,7 +709,7 @@ The date is set when the user creates a password and updated when the password i
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Sign-in allowed</v8:content>
+							<v8:content>Login allowed</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -723,7 +722,7 @@ The date is set when the user creates a password and updated when the password i
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>User can sign in to the application using the specified authentication methods</v8:content>
+							<v8:content>The user can sign in to the app using the specified authentication methods</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -996,7 +995,7 @@ The date is set when the user creates a password and updated when the password i
 						<v8:item>
 							<v8:lang>en</v8:lang>
 							<v8:content>Authentication with 1C:Enterprise
-username and password</v8:content>
+username and password.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -1040,9 +1039,8 @@ username and password</v8:content>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Prevent limited-access user from changing
-their password, even during sign-in.
-</v8:content>
+							<v8:content>Prevent the limited-access user from
+changing their password.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -1387,7 +1385,7 @@ associated with the 1C:Enterprise user.</v8:content>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Interface language</v8:content>
+							<v8:content>UI language</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -178,17 +179,17 @@ Function ExecuteReportsMailing(BulkEmail, LogParameters = Undefined, AdditionalS
 		DeliveryParameters.TextTemplate1 = ?(BulkEmailObject.HTMLFormatEmail,
 			BulkEmailObject.EmailTextInHTMLFormat, BulkEmailObject.EmailText);
 		
-		MailoutRecipientsSelected = MailoutRecipientsSelected(
+		IsDistributionRecipientsSelected = IsDistributionRecipientsSelected(
 			BulkEmail, DeliveryParameters, LogParameters, AdditionalSettings);
 		
-		If Not MailoutRecipientsSelected Then 
+		If Not IsDistributionRecipientsSelected Then 
 			Return False;
 		EndIf;
 		
 		DeliveryParameters.EmailParameters.TextType = ?(BulkEmailObject.HTMLFormatEmail, "HTML", "PlainText");
 		DeliveryParameters.EmailParameters.ReplyToAddress = BulkEmailObject.ReplyToAddress;
 		DeliveryParameters.EmailParameters.Importance = ?(ValueIsFilled(BulkEmailObject.EmailImportance),
-			EmailOperationsInternal.ImportanceOfInternetMailMessageFromString(BulkEmailObject.EmailImportance),
+			EmailOperationsInternal.InternetMailMessageImportanceFromString(BulkEmailObject.EmailImportance),
 			InternetMailMessageImportance.Normal);
 		
 		If BulkEmailObject.HTMLFormatEmail Then
@@ -277,7 +278,7 @@ Function ExecuteBulkEmail(Var_Reports, DeliveryParameters, MailingDescription = 
 			EndIf;
 		EndDo;
 	Else
-		ReportsTree = GenerateReports(Var_Reports, DeliveryParameters, MailingDescription, LogParameters); 
+		ReportsTree = RunReportsGeneration(Var_Reports, DeliveryParameters, MailingDescription, LogParameters); 
 	EndIf;
 
 	If TypeOf(LogParameters.Metadata) = Type("String") And ValueIsFilled(LogParameters.Metadata) Then
@@ -569,8 +570,8 @@ EndFunction
 // Returns:
 //   Structure - Logging parameters.:
 //       * EventName - String - an event name (or events group).
-//       * Metadata - Array of MetadataObject, Undefined - Metadata for linking the Event Log record.
-//       * Data     - Arbitrary - Data for linking the Event Log record.
+//       * Metadata - Array of MetadataObject, Undefined - Metadata for linking the Event log record.
+//       * Data     - Arbitrary - Data for linking the Event log record.
 //
 Function LogParameters(BulkEmail = Undefined) Export
 	
@@ -578,7 +579,7 @@ Function LogParameters(BulkEmail = Undefined) Export
 	LogParameters.Insert("EventName", NStr("en = 'Report distribution. Manual start';", Common.DefaultLanguageCode()));
 	LogParameters.Insert("Data", BulkEmail);
 	LogParameters.Insert("Metadata", ?(BulkEmail <> Undefined, BulkEmail.Metadata(), Undefined));
-	LogParameters.Insert("ErrorsArray", Undefined); 
+	LogParameters.Insert("ErrorsArray", Undefined); // 
 	Return LogParameters;
 	
 EndFunction
@@ -664,7 +665,6 @@ EndFunction
 //       * Personalized - Boolean - a mailing personalized by recipients.
 //           The default value is False.
 //           If True value is set, each recipient will receive a report with a filter by it.
-//           To do this, in reports, set the "[Получатель]" filter by the attribute that match the recipient type.
 //           Applies only to delivery by mail,
 //           so when setting to the True, other delivery methods are disabled.
 //       * NotifyOnly - Boolean - False - send notifications only (do not attach generated reports).
@@ -817,13 +817,13 @@ Procedure AddItemToRecipientsTypesTable(TypesTable, AvailableTypes, Settings) Ex
 	EndIf;
 	
 	// Email as the main contact information kind for the object.
-	ThereIsKindOfKI = Settings.Property("CIKind");
-	AttributesOfCIType = ?(ThereIsKindOfKI, Common.ObjectAttributesValues(Settings.CIKind, "IsFolder, Parent"), Undefined);
-	If ThereIsKindOfKI And Not AttributesOfCIType.IsFolder Then
+	HasContactInfoKind = Settings.Property("CIKind");
+	AttributesOfCIType = ?(HasContactInfoKind, Common.ObjectAttributesValues(Settings.CIKind, "IsFolder, Parent"), Undefined);
+	If HasContactInfoKind And Not AttributesOfCIType.IsFolder Then
 		TableRow.MainCIKind = Settings.CIKind;
 		TableRow.CIGroup = AttributesOfCIType.Parent;
 	Else
-		If ThereIsKindOfKI Then
+		If HasContactInfoKind Then
 			TableRow.CIGroup = Settings.CIKind;
 		Else
 			
@@ -972,8 +972,8 @@ EndProcedure
 //   BulkEmail - CatalogRef.ReportMailings - a report mailing to be executed.
 //   LogParameters - Structure - Logging parameters:
 //       * EventName - String - an event name (or events group).
-//       * Metadata - MetadataObject - Metadata for linking the Event Log record.
-//       * Data     - Arbitrary - Data for linking the Event Log record.
+//       * Metadata - MetadataObject - Metadata for linking the Event log record.
+//       * Data     - Arbitrary - Data for linking the Event log record.
 //   AdditionalSettings - Structure - settings that override standard mailing parameters:
 //       * Recipients - Map of KeyAndValue - a set of recipients and their email addresses:
 //           ** Key - CatalogRef - a recipient.
@@ -1111,7 +1111,7 @@ Procedure OnFillToDoList(ToDoList) Export
 		Return;
 	EndIf;
 	
-	AddToToDoListSetTemporaryFileDirectory(ToDoList);
+	AddToToDoListSetTempFilesDirectory(ToDoList);
 	
 	ToDoName = "ReportMailingIssues";
 	ModuleToDoListServer = Common.CommonModule("ToDoListServer");
@@ -1252,7 +1252,7 @@ Procedure BeforeGetEmailMessagesStatuses(EmailMessagesIDs) Export
 		|	AND ReportsDistributionHistory.Period >= &VerificationPeriod
 		|	AND ReportsDistributionHistory.EmailID <> """"";
 	
-	Query.SetParameter("VerificationPeriod", CurrentSessionDate() - 259200); 
+	Query.SetParameter("VerificationPeriod", CurrentSessionDate() - 259200); // 
 	Query.SetParameter("EmptyStatus", Enums.EmailMessagesStatuses.EmptyRef());
 	
 	QueryResult = Query.Execute();
@@ -1352,16 +1352,14 @@ Procedure ExecuteScheduledMailing(BulkEmail) Export
 	InformationRegisters.ReportMailingStates.FixMailingStart(BulkEmail);
 	
 	If Not AccessRight("Read", Metadata.Catalogs.ReportMailings) Then
-		Raise
-			NStr("en = 'The user has insufficient rights to read report distributions. 
-				|Remove this user from all report distributions or change the distribution author. You can change the author on the Schedule tab.';");
+		Raise(NStr("en = 'Insufficient rights to view the report distribution.';"), ErrorCategory.AccessViolation);
 	EndIf;
 		
 	Query = New Query("SELECT ALLOWED ExecuteOnSchedule FROM Catalog.ReportMailings WHERE Ref = &Ref");
 	Query.SetParameter("Ref", BulkEmail);
 	Selection = Query.Execute().Select();
 	If Not Selection.Next() Then
-		Raise NStr("en = 'Insufficient rights to view the report distribution.';");
+		Raise(NStr("en = 'Insufficient rights to view the report distribution.';"), ErrorCategory.AccessViolation);
 	EndIf;
 	If Not Selection.ExecuteOnSchedule Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
@@ -1743,7 +1741,7 @@ Function GenerateArrayOfDistributionRecipients(BulkEmail, LogParameters)
 	
 EndFunction
 
-Function MailoutRecipientsSelected(BulkEmail, DeliveryParameters, LogParameters, AdditionalSettings)
+Function IsDistributionRecipientsSelected(BulkEmail, DeliveryParameters, LogParameters, AdditionalSettings)
 	
 	Recipients = GenerateMailingRecipientsList(BulkEmail, LogParameters);
 	
@@ -1914,9 +1912,9 @@ Function InitializeReport(LogParameters, ReportParameters, PersonalizationAvaila
 		
 		If ValueIsFilled(ReportParameters.Settings) Then
 			
-			
-			
-			
+			// 
+			// 
+			// 
 			For Each SettingDetails In ReportParameters.Settings Do
 				If TypeOf(SettingDetails) = Type("ValueTableRow") Then
 					AttributeName = SettingDetails.Attribute;
@@ -2348,7 +2346,7 @@ Function IBUserName(User) Export
 	Return IBUser.Name;
 EndFunction
 
-// Creates a record in the Event Log and outputs user messages.
+// Creates a record in the Event log and outputs user messages.
 // A brief error presentation is output to the user, and a detailed error presentation is written to the log.
 //
 // Parameters:
@@ -2367,7 +2365,7 @@ Procedure LogRecord(LogParameters, Val LogLevel = Undefined, Val Text = "", Val 
 		Return;
 	EndIf;
 	
-	// Determine the Event Log level based on the type of the passed error message.
+	// Determine the Event log level based on the type of the passed error message.
 	If TypeOf(LogLevel) <> Type("EventLogLevel") Then
 		If TypeOf(IssueDetails) = Type("ErrorInfo") Then
 			LogLevel = EventLogLevel.Error;
@@ -2400,7 +2398,7 @@ Procedure LogRecord(LogParameters, Val LogLevel = Undefined, Val Text = "", Val 
 		TextForUser = TextForUser + Chars.LF + IssueDetails;
 	EndIf;
 	
-	// The Event Log.
+	// The Event log.
 	If WriteToLog Then
 		WriteLogEvent(LogParameters.EventName, LogLevel, LogParameters.Metadata, 
 			LogParameters.Data, TrimAll(TextForLog));
@@ -2578,6 +2576,172 @@ Function ReportRedistributionRecipients(BulkEmail, LastRunStart, SessionNumber) 
 	
 EndFunction
 
+// Generates a representation of delivery methods according to the delivery parameters.
+//
+// Parameters:
+//   DeliveryParameters - See ExecuteBulkEmail.DeliveryParameters.
+//
+// Returns:
+//   String
+//
+Function DeliveryMethodsPresentation(DeliveryParameters) Export
+	Prefix = NStr("en = 'Result';");
+	PresentationText = "";
+	Suffix = "";
+	
+	If Not DeliveryParameters.NotifyOnly Then
+		
+		PresentationText = PresentationText 
+		+ ?(PresentationText = "", Prefix, " " + NStr("en = 'and';")) 
+		+ " "
+		+ NStr("en = 'sent by email (see attachment)';");
+		
+	EndIf;
+	
+	If DeliveryParameters.ExecutedToFolder Then
+		
+		PresentationText = PresentationText 
+		+ ?(PresentationText = "", Prefix, " " + NStr("en = 'and';")) 
+		+ " "
+		+ NStr("en = 'delivered to folder';")
+		+ " ";
+		
+		Ref = GetInfoBaseURL() +"#"+ GetURL(DeliveryParameters.Folder);
+		
+		If DeliveryParameters.HTMLFormatEmail Then
+			PresentationText = PresentationText 
+			+ "<a href = '"
+			+ Ref
+			+ "'>" 
+			+ String(DeliveryParameters.Folder)
+			+ "</a>";
+		Else
+			PresentationText = PresentationText 
+			+ """"
+			+ String(DeliveryParameters.Folder)
+			+ """";
+			Suffix = Suffix + ":" + Chars.LF + "<" + Ref + ">";
+		EndIf;
+		
+	EndIf;
+	
+	If DeliveryParameters.ExecutedToNetworkDirectory Then
+		
+		PresentationText = PresentationText 
+		+ ?(PresentationText = "", Prefix, " " + NStr("en = 'and';")) 
+		+ " "
+		+ NStr("en = 'delivered to network directory';")
+		+ " ";
+		
+		If DeliveryParameters.HTMLFormatEmail Then
+			PresentationText = PresentationText 
+			+ "<a href = '"
+			+ DeliveryParameters.NetworkDirectoryWindows
+			+ "'>" 
+			+ DeliveryParameters.NetworkDirectoryWindows
+			+ "</a>";
+		Else
+			PresentationText = PresentationText 
+			+ "<"
+			+ DeliveryParameters.NetworkDirectoryWindows
+			+ ">";
+		EndIf;
+		
+	EndIf;
+	
+	If DeliveryParameters.ExecutedAtFTP Then
+		
+		PresentationText = PresentationText 
+		+ ?(PresentationText = "", Prefix, " " + NStr("en = 'and';")) 
+		+ " "
+		+ NStr("en = 'delivered to FTP resource';")
+		+ " ";
+		
+		Ref = "ftp://"
+		+ DeliveryParameters.Server 
+		+ ":"
+		+ Format(DeliveryParameters.Port, "NZ=0; NG=0") 
+		+ DeliveryParameters.Directory;
+		
+		If DeliveryParameters.HTMLFormatEmail Then
+			PresentationText = PresentationText 
+			+ "<a href = '"
+			+ Ref
+			+ "'>" 
+			+ Ref
+			+ "</a>";
+		Else
+			PresentationText = PresentationText 
+			+ "<"
+			+ Ref
+			+ ">";
+		EndIf;
+		
+	EndIf;
+	
+	PresentationText = PresentationText + ?(Suffix = "", ".", Suffix);
+	
+	Return PresentationText;
+EndFunction
+
+// 
+//
+// Parameters:
+//   Template - String -  the original template. For example, " Good afternoon, [full name]".
+//   Parameters - Structure:
+//      * Key - String - 
+//      * Value - Arbitrary - 
+//
+// Returns: 
+//   String
+//
+Function FillTemplate(Template, Parameters) Export
+	ParameterStart = "[";
+	ParameterEnd = "]";
+	StartOfFormat = "("; 
+	EndOfFormat = ")"; 
+	CutBorders = True; // 
+	
+	Result = Template;
+	For Each KeyAndValue In Parameters Do
+		// 
+		Result = StrReplace(
+			Result,
+			ParameterStart + KeyAndValue.Key + ParameterEnd, 
+			?(CutBorders, "", ParameterStart) + KeyAndValue.Value + ?(CutBorders, "", ParameterEnd));
+		LengthLeftFormat = StrLen(ParameterStart + KeyAndValue.Key + StartOfFormat);
+		// 
+		Position1 = StrFind(Result, ParameterStart + KeyAndValue.Key + StartOfFormat);
+		While Position1 > 0 Do
+			Position2 = StrFind(Result, EndOfFormat + ParameterEnd);
+			If Position2 = 0 Then
+				Break;
+			EndIf;
+			FormatString = Mid(Result, Position1 + LengthLeftFormat, Position2 - Position1 - LengthLeftFormat);
+			Try
+				If TypeOf(KeyAndValue.Value) = Type("StandardPeriod") Then
+					ValueWithFormat = NStr("en = '%StartDate% - %EndDate%';");
+					ValueWithFormat = StrReplace(ValueWithFormat, "%StartDate%", Format(
+						KeyAndValue.Value.StartDate, FormatString));
+					ValueWithFormat = StrReplace(ValueWithFormat, "%EndDate%", Format(
+						KeyAndValue.Value.EndDate, FormatString));
+				Else
+					ValueWithFormat = Format(KeyAndValue.Value, FormatString);
+				EndIf;
+				ReplacedWith = ?(CutBorders, "", ParameterStart) + ValueWithFormat + ?(CutBorders, "", ParameterEnd);
+			Except
+				ReplacedWith = ?(CutBorders, "", ParameterStart) + KeyAndValue.Value + ?(CutBorders, "", ParameterEnd);
+			EndTry;
+			Result = StrReplace(
+				Result,
+				ParameterStart + KeyAndValue.Key + StartOfFormat + FormatString + EndOfFormat + ParameterEnd, 
+				ReplacedWith);
+			Position1 = StrFind(Result, ParameterStart + KeyAndValue.Key + StartOfFormat);
+		EndDo;
+	EndDo;
+	Return Result;
+EndFunction
+
 ////////////////////////////////////////////////////////////////////////////////
 // Local internal procedures and functions.
 
@@ -2586,9 +2750,9 @@ EndFunction
 //
 // Parameters:
 //   LogParameters - Structure - Logging parameters:
-//       * Prefix    - String           - Event Log record prefix.
-//       * Metadata - MetadataObject - Metadata to write to the Event Log.
-//       * Data     - Arbitrary     - Data to write to the Event Log.
+//       * Prefix    - String           - Event log record prefix.
+//       * Metadata - MetadataObject - Metadata to write to the Event log.
+//       * Data     - Arbitrary     - Data to write to the Event log.
 //   ReportParameters   - See ExecuteBulkEmail.Var_Reports
 //   ReportsTree     - ValueTree   - reports and result of formation.
 //   DeliveryParameters - See DeliveryParameters
@@ -2599,8 +2763,8 @@ EndFunction
 //
 Procedure GenerateAndSaveReport(LogParameters, ReportParameters, ReportsTree, DeliveryParameters, RecipientRef)
 	
-	
-	 
+	// 
+	//  
 	//   
 	//   
 	//   
@@ -2660,8 +2824,8 @@ Procedure GenerateAndSaveReport(LogParameters, ReportParameters, ReportsTree, De
 		
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	//   
 	//   
 	//   
@@ -2671,9 +2835,9 @@ Procedure GenerateAndSaveReport(LogParameters, ReportParameters, ReportsTree, De
 	RowReport.Value  = Result.TabDoc;
 	RowReport.Settings = Common.CopyRecursive(ReportParameters);
 	
-	
-	
-	
+	// 
+	// 
+	// 
 	RowReport.Settings.Delete("Object");
 	RowReport.Settings.Delete("DCSettingsComposer");
 	If RowReport.Settings.Property("Metadata") Then
@@ -2747,8 +2911,8 @@ Procedure GenerateAndSaveReport(LogParameters, ReportParameters, ReportsTree, De
 				Continue;
 			EndIf;
 		
-		
-		
+		// 
+		// 
 		//   
 		//   
 		//   
@@ -2904,7 +3068,7 @@ EndFunction
 //   See ExecuteBulkEmail.
 //
 Function CheckAndFillExecutionParameters(ReportsTable, DeliveryParameters, MailingDescription, LogParameters)
-	// Parameters of the writing to the Event Log.
+	// Parameters of the writing to the Event log.
 	If TypeOf(LogParameters) <> Type("Structure") Then
 		LogParameters = New Structure;
 	EndIf;
@@ -3078,14 +3242,10 @@ Function CheckAndFillExecutionParameters(ReportsTable, DeliveryParameters, Maili
 		EndIf;
 		
 		// Subject template.
-		DeliveryParameters.SubjectTemplate = ReportMailingClientServer.FillTemplate(
-			DeliveryParameters.SubjectTemplate, 
-			TemplateFillingStructure);
+		DeliveryParameters.SubjectTemplate = FillTemplate(DeliveryParameters.SubjectTemplate, TemplateFillingStructure);
 		
 		// Message template.
-		DeliveryParameters.TextTemplate1 = ReportMailingClientServer.FillTemplate(
-			DeliveryParameters.TextTemplate1,
-			TemplateFillingStructure);
+		DeliveryParameters.TextTemplate1 = FillTemplate(DeliveryParameters.TextTemplate1, TemplateFillingStructure);
 		
 		// Flags that show whether it is necessary to fill in the templates (checks cache).
 		DeliveryParameters.FillRecipientInSubjectTemplate =
@@ -3101,7 +3261,7 @@ Function CheckAndFillExecutionParameters(ReportsTable, DeliveryParameters, Maili
 	// Archive name (delete forbidden characters, fill a template) and extension.
 	If DeliveryParameters.Archive Then
 		Structure = New Structure("MailingDescription, ExecutionDate", DeliveryParameters.BulkEmail, CurrentSessionDate());
-		ArchiveName = ReportMailingClientServer.FillTemplate(DeliveryParameters.ArchiveName, Structure);
+		ArchiveName = FillTemplate(DeliveryParameters.ArchiveName, Structure);
 		DeliveryParameters.ArchiveName = ConvertFileName(ArchiveName, DeliveryParameters.TransliterateFileNames);
 		If Lower(Right(DeliveryParameters.ArchiveName, 4)) <> ".zip" Then
 			DeliveryParameters.ArchiveName = DeliveryParameters.ArchiveName +".zip";
@@ -3175,7 +3335,7 @@ Procedure SendReportsToRecipient(Attachments, DeliveryParameters, LogParameters,
 	
 	// Delivery method is filled earlier (outside this procedure).
 	If DeliveryParameters.FillDeliveryMethodInMessageTemplate Then
-		TextTemplate1 = StrReplace(TextTemplate1, "[DeliveryMethod]", ReportMailingClientServer.DeliveryMethodsPresentation(DeliveryParameters));
+		TextTemplate1 = StrReplace(TextTemplate1, "[DeliveryMethod]", DeliveryMethodsPresentation(DeliveryParameters));
 	EndIf;
 	
 	// Subject and body of the message
@@ -3592,7 +3752,7 @@ EndFunction
 //
 // Parameters:
 //   Attachments - Map
-//            - ValueTreeRow - See CreateReportsTree
+//            - ValueTreeRow - See CreateReportsTree, the return value, level 3.
 //   DeliveryParameters - See ExecuteBulkEmail.DeliveryParameters
 //   TempFilesDir - String - a directory for archiving.
 //
@@ -3724,8 +3884,8 @@ Function WriteSpreadsheetDocumentToFormatParameters(Format) Export
 		Result.FileType = SpreadsheetDocumentFileType.ANSITXT;
 		
 	Else 
-		
-		
+		// 
+		// 
 		Result.Extension = Undefined;
 		Result.FileType = Undefined;
 		
@@ -3747,9 +3907,9 @@ Function FullFileNameFromTemplate(Directory, ReportDescription1, Format, Deliver
 		If Period <> Undefined Then
 			FileNameParameters.Insert("Period", Period);
 		EndIf;
-		FileName = ReportMailingClientServer.FillTemplate(FileNameTemplate, FileNameParameters);
+		FileName = FillTemplate(FileNameTemplate, FileNameParameters);
 	Else
-		FileNameTemplate = "[ReportDescription1] ([ReportFormat])[FileExtention]"; 
+		FileNameTemplate = "[ReportDescription1] ([ReportFormat])[FileExtention]"; // 
 		FileName = StringFunctionsClientServer.InsertParametersIntoString(FileNameTemplate, FileNameParameters);
 	EndIf;
 	
@@ -3805,18 +3965,18 @@ EndFunction
 
 // Value tree required for generating and delivering reports.
 Function CreateReportsTree()
-	
+	// 
 	//
-	
-	//   
-	//   
-	//
-	
-	//   
+	// 
 	//   
 	//   
 	//
-	
+	// 
+	//   
+	//   
+	//   
+	//
+	// 
 	//   
 	//   
 	//   
@@ -3830,7 +3990,7 @@ Function CreateReportsTree()
 	Return ReportsTree;
 EndFunction
 
-// Checks the current users right to output information. If there are no rights - an Event Log record is created.
+// Checks the current users right to output information. If there are no rights - an Event log record is created.
 //
 // Parameters:
 //   LogParameters - Structure
@@ -3842,7 +4002,7 @@ Function OutputRight(LogParameters)
 	OutputRight = AccessRight("Output", Metadata);
 	If Not OutputRight Then
 		LogRecord(LogParameters, EventLogLevel.Error,
-			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 has insufficient rights to export data';"),
+			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 has insufficient rights to export data.';"),
 			Users.CurrentUser()));
 	EndIf;
 	Return OutputRight;
@@ -4438,19 +4598,19 @@ Function CanEncryptAttachments() Export
 EndFunction
 
 // Returns the default body template for delivery by email.
-Function TextTemplate1(AllParametersOfMessageTextAndFiles = Undefined) Export
+Function TextTemplate1(AllParametersOfFilesAndEmailText = Undefined) Export
 	
-	If AllParametersOfMessageTextAndFiles <> Undefined Then
+	If AllParametersOfFilesAndEmailText <> Undefined Then
 		Return StringFunctionsClientServer.SubstituteParametersToString(NStr(
 		"en = 'Reports are generated:
 		|
 		|%1';"),
-		"[" + AllParametersOfMessageTextAndFiles.GeneratedReports + "]
+		"[" + AllParametersOfFilesAndEmailText.GeneratedReports + "]
 		|
-		|[" + AllParametersOfMessageTextAndFiles.DeliveryMethod + "]
+		|[" + AllParametersOfFilesAndEmailText.DeliveryMethod + "]
 		|
-		|[" + AllParametersOfMessageTextAndFiles.SystemTitle + "]
-		|[" + AllParametersOfMessageTextAndFiles.ExecutionDate + "(DLF='DD')]");
+		|[" + AllParametersOfFilesAndEmailText.SystemTitle + "]
+		|[" + AllParametersOfFilesAndEmailText.ExecutionDate + "(DLF='DD')]");
 	Else
 		Return StringFunctionsClientServer.SubstituteParametersToString(NStr(
 		"en = 'Reports are generated:
@@ -4725,27 +4885,27 @@ Procedure ResendByEmail(ReportsTable, DeliveryParameters, BulkEmail, LogParamete
 	
 EndProcedure
 
-Function GenerateReports(Var_Reports, DeliveryParameters, MailingDescription, LogParameters) 
+Function RunReportsGeneration(Var_Reports, DeliveryParameters, MailingDescription, LogParameters) 
 
-	ExecuteInMultipleThreads = FileSystem.SharedDirectoryOfTemporaryFiles() <> TempFilesDir();
+	RunInMultipleThreads = FileSystem.SharedDirectoryOfTemporaryFiles() <> TempFilesDir();
 	
-	If ExecuteInMultipleThreads Then
+	If RunInMultipleThreads Then
 		Return GenerateReportsInMultipleThreads(Var_Reports, DeliveryParameters, MailingDescription, LogParameters);
 	Else
 		WriteToLog = Common.CommonSettingsStorageLoad("ReportMailings",
-			"ЗаписыватьВЖурналПодсказкуУскоренияРассылкиОтчетов", True);
+			"ShouldLogReportDistributionAccelerationPrompt", True);
 		If Not Common.FileInfobase() And Not Common.DataSeparationEnabled() And WriteToLog Then
 			LogRecord(LogParameters, EventLogLevel.Information, NStr(
 				"en = 'Reports can be sent faster. To send reports in multiple threads, specify a directory of temporary files of the 1C:Enterprise server cluster.';"));
-			Common.CommonSettingsStorageSave("ReportMailings", "ЗаписыватьВЖурналПодсказкуУскоренияРассылкиОтчетов", False);
+			Common.CommonSettingsStorageSave("ReportMailings", "ShouldLogReportDistributionAccelerationPrompt", False);
 		EndIf;
 		
-		Return GenerateReportsInOneStream(Var_Reports, DeliveryParameters, MailingDescription, LogParameters);
+		Return RunReportsGenerationInSingleThread(Var_Reports, DeliveryParameters, MailingDescription, LogParameters);
 	EndIf;
 
 EndFunction 
 
-Function GenerateReportsInOneStream(Var_Reports, DeliveryParameters, MailingDescription, LogParameters)
+Function RunReportsGenerationInSingleThread(Var_Reports, DeliveryParameters, MailingDescription, LogParameters)
 
 	// Add a tree of generated reports  - spreadsheet document and reports saved in formats (of files).
 	ReportsTree = CreateReportsTree();
@@ -4823,7 +4983,7 @@ EndFunction
 // Parameters:
 //   ToDoList - See ToDoListServer.ToDoList.
 //
-Procedure AddToToDoListSetTemporaryFileDirectory(ToDoList)
+Procedure AddToToDoListSetTempFilesDirectory(ToDoList)
 	
 	If Not Users.IsFullUser() 
 	   Or Common.FileInfobase()
@@ -4833,7 +4993,7 @@ Procedure AddToToDoListSetTemporaryFileDirectory(ToDoList)
 		Return;
 	EndIf;
 	
-	ToDoName = "MailingReportsCanWorkFaster";
+	ToDoName = "ReportDistributionsCanBeAccelerated";
 	ModuleToDoListServer = Common.CommonModule("ToDoListServer");
 	If ModuleToDoListServer.UserTaskDisabled(ToDoName) Then
 		Return;
@@ -4863,7 +5023,7 @@ Procedure AddToToDoListSetTemporaryFileDirectory(ToDoList)
 		ToDoItem.ToolTip  = NStr("en = 'To send reports in multiple threads, specify a directory of temporary files of the 1C:Enterprise server cluster.';");	
 		If Common.SubsystemExists("StandardSubsystems.ApplicationSettings") Then
 			AppSettingsModule = Common.CommonModule("ApplicationSettings");
-			ToDoItem.Form = AppSettingsModule.FormNameGeneralSettings();
+			ToDoItem.Form = AppSettingsModule.CommonSettingsFormName();
 		EndIf;
 	EndDo;
 
@@ -5032,7 +5192,7 @@ EndFunction
 //     * ReportsTree - See CreateReportsTree
 //     * ReportsForEmailText - Array of Map
 //
-// ACC:299-off, ACC:581-off - Export function as it's called from a background job.
+// ACC:299-off, ACC:581-off - An export function as it's called from a background job.
 //
 Function ReportsBatchGenerationResult(Var_Reports, LogParameters, DeliveryParameters, Recipient = Undefined) Export
 	

@@ -15,6 +15,12 @@
 				<Type>CommandBarButton</Type>
 				<Check>true</Check>
 				<CommandName>Form.Command.EnableDeveloperMode</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Developer mode</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormEnableAdvancedFeaturesExtendedTooltip" id="231"/>
 			</Button>
@@ -22,6 +28,12 @@
 				<Type>CommandBarButton</Type>
 				<Representation>PictureAndText</Representation>
 				<CommandName>Form.Command.ExecuteOperation</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Start</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormExecuteOperationExtendedTooltip" id="235"/>
 			</Button>
@@ -40,14 +52,26 @@
 			<Button name="FormUseInternalMessageDirectory" id="270">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.UseInternalMessageDirectory</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Use internal message directory</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormUseInternalMessageDirectoryExtendedTooltip" id="271"/>
 			</Button>
-			<Button name="FormLogObjectUploads" id="272">
+			<Button name="FormLogObjectsExport" id="272">
 				<Type>CommandBarButton</Type>
-				<CommandName>Form.Command.LogObjectUploads</CommandName>
+				<CommandName>Form.Command.LogObjectsExport</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Log object export</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-				<ExtendedTooltip name="FormLogObjectUploadsExtendedTooltip" id="273"/>
+				<ExtendedTooltip name="FormLogObjectsExportExtendedTooltip" id="273"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
@@ -149,6 +173,12 @@ select the file that contains the data.</v8:content>
 						</LabelDecoration>
 						<RadioButtonField name="ImportSource" id="180">
 							<DataPath>ImportSource</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Import from</v8:content>
+								</v8:item>
+							</Title>
 							<RadioButtonType>Tumbler</RadioButtonType>
 							<ChoiceList>
 								<xr:Item>
@@ -186,6 +216,12 @@ select the file that contains the data.</v8:content>
 						</RadioButtonField>
 						<InputField name="PathToImportFile" id="186">
 							<DataPath>PathToImportFile</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Path to import file</v8:content>
+								</v8:item>
+							</Title>
 							<ChoiceButton>true</ChoiceButton>
 							<OpenButton>false</OpenButton>
 							<ContextMenu name="PathToImportFileContextMenu" id="187"/>
@@ -224,6 +260,12 @@ select the file that contains the data.</v8:content>
 						</InputField>
 						<LabelField name="StringSupportedFormatVersions" id="239">
 							<DataPath>StringSupportedFormatVersions</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Supported format versions line</v8:content>
+								</v8:item>
+							</Title>
 							<TitleFont ref="style:LargeTextFont" kind="StyleItem"/>
 							<TitleLocation>None</TitleLocation>
 							<ContextMenu name="StringSupportedFormatVersionsContextMenu" id="240"/>
@@ -303,6 +345,12 @@ select the file that contains the data.</v8:content>
 										<Button name="OpenXML" id="153">
 											<Type>UsualButton</Type>
 											<CommandName>Form.Command.OpenXML</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Open XML file</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="OpenXMLExtendedTooltip" id="154"/>
 										</Button>
 									</ChildItems>
@@ -322,6 +370,12 @@ select the file that contains the data.</v8:content>
 					<ChildItems>
 						<RadioButtonField name="ExportLocation" id="183">
 							<DataPath>ExportLocation</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Export to</v8:content>
+								</v8:item>
+							</Title>
 							<RadioButtonType>Tumbler</RadioButtonType>
 							<ChoiceList>
 								<xr:Item>
@@ -545,6 +599,12 @@ select the file that contains the data.</v8:content>
 													<Width>3</Width>
 													<AutoMaxWidth>false</AutoMaxWidth>
 													<CommandName>Form.Command.ShouldSaveSettings</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Save settings</v8:content>
+														</v8:item>
+													</Title>
 													<ExtendedTooltip name="SaveSettingsExtendedTooltip" id="175"/>
 												</Button>
 												<Button name="RestoreSettings" id="176">
@@ -552,6 +612,12 @@ select the file that contains the data.</v8:content>
 													<Width>3</Width>
 													<AutoMaxWidth>false</AutoMaxWidth>
 													<CommandName>Form.Command.RestoreSettings</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Restore settings</v8:content>
+														</v8:item>
+													</Title>
 													<ExtendedTooltip name="RestoreSettings1ExtendedTooltip" id="177"/>
 												</Button>
 												<InputField name="AllDocumentsFilterPeriod" id="140">
@@ -697,6 +763,12 @@ select the file that contains the data.</v8:content>
 														<Button name="SaveXML" id="83">
 															<Type>UsualButton</Type>
 															<CommandName>Form.Command.SaveXML</CommandName>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Save XML file</v8:content>
+																</v8:item>
+															</Title>
 															<ExtendedTooltip name="SaveXMLExtendedTooltip" id="84"/>
 														</Button>
 													</ChildItems>
@@ -1329,7 +1401,7 @@ select the file that contains the data.</v8:content>
 			</Title>
 			<Action>UseInternalMessageDirectory</Action>
 		</Command>
-		<Command name="LogObjectUploads" id="6">
+		<Command name="LogObjectsExport" id="6">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -1342,7 +1414,7 @@ select the file that contains the data.</v8:content>
 					<v8:content>Log object export</v8:content>
 				</v8:item>
 			</ToolTip>
-			<Action>LogObjectUploads</Action>
+			<Action>LogObjectsExport</Action>
 		</Command>
 	</Commands>
 </Form>

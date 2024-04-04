@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -36,13 +37,13 @@ Procedure FillOnBasisOutgoingEmail(FillingData, FillingText, StandardProcessing)
 	TemplateAttributes.Add("Text");
 	TemplateAttributes.Add("TextType");
 	
-	TemplateInformation = Common.ObjectAttributesValues(FillingData, TemplateAttributes);
+	InfoAboutTemplate = Common.ObjectAttributesValues(FillingData, TemplateAttributes);
 	
-	EmailSubject                             = TemplateInformation.Subject;
-	HTMLEmailTemplateText                 = TemplateInformation.HTMLText;
-	MessageTemplateText                     = TemplateInformation.Text;
-	EmailSubject                             = TemplateInformation.Subject;
-	Description                           = TemplateInformation.Subject;
+	EmailSubject                             = InfoAboutTemplate.Subject;
+	HTMLEmailTemplateText                 = InfoAboutTemplate.HTMLText;
+	MessageTemplateText                     = InfoAboutTemplate.Text;
+	EmailSubject                             = InfoAboutTemplate.Subject;
+	Description                           = InfoAboutTemplate.Subject;
 	ForEmails        = True;
 	ForSMSMessages                     = False;
 	InputOnBasisParameterTypeFullName = NStr("en = 'Common';");
@@ -53,8 +54,8 @@ Procedure FillOnBasisOutgoingEmail(FillingData, FillingText, StandardProcessing)
 		HTMLEmailsTextTypes = ModuleEmailOperationsInternal.EmailTextsType("HTML");
 		HTMLEmailsWithPicturesTextsTypes = ModuleEmailOperationsInternal.EmailTextsType("HTMLWithPictures");
 		
-		If TemplateInformation.TextType = HTMLEmailsTextTypes
-			Or TemplateInformation.TextType = HTMLEmailsWithPicturesTextsTypes Then
+		If InfoAboutTemplate.TextType = HTMLEmailsTextTypes
+			Or InfoAboutTemplate.TextType = HTMLEmailsWithPicturesTextsTypes Then
 			EmailTextType = Enums.EmailEditingMethods.HTML;
 		EndIf;
 	
@@ -108,11 +109,10 @@ Procedure FillBasedOnStructure(FillingData, FillingText, StandardProcessing)
 		SMSTemplateText                 = TemplateParameters.Text;
 		SendInTransliteration            = TemplateParameters.Transliterate;
 		
-	ElsIf TemplateParameters.TemplateType = "Shared" Then
-		
+	Else
 		ForSMSMessages              = False;
 		ForEmails = False;
-		
+		TemplateTextArbitrary        = TemplateParameters.Text;
 	EndIf;
 	
 	If TypeOf(TemplateParameters.PrintCommands) = Type("Array") Then

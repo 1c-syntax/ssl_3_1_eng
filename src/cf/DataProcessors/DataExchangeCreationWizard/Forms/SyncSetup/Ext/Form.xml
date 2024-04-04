@@ -34,6 +34,12 @@
 					<Type>Hyperlink</Type>
 					<AutoMaxWidth>false</AutoMaxWidth>
 					<CommandName>Form.Command.DataSyncDetails</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Detailed description</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="DataSyncDetailsExtendedTooltip" id="7"/>
 				</Button>
 			</ChildItems>
@@ -179,6 +185,12 @@
 							<AutoMaxWidth>false</AutoMaxWidth>
 							<CommandName>Form.Command.SetUpConnectionParameters</CommandName>
 							<Font ref="style:SynchronizationSetupWizardCommandStandardFont" kind="StyleItem"/>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Configure connection parameters</v8:content>
+								</v8:item>
+							</Title>
 							<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 							<ExtendedTooltip name="SetUpConnectionParametersExtendedTooltip" id="31">
 								<AutoMaxWidth>false</AutoMaxWidth>
@@ -283,6 +295,12 @@
 							<Type>Hyperlink</Type>
 							<CommandName>Form.Command.GetConnectionConfirmation</CommandName>
 							<Font ref="style:SynchronizationSetupWizardCommandStandardFont" kind="StyleItem"/>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Get connection confirmation</v8:content>
+								</v8:item>
+							</Title>
 							<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 							<ExtendedTooltip name="GetConnectionConfirmationExtendedTooltip" id="149">
 								<AutoMaxWidth>false</AutoMaxWidth>
@@ -388,6 +406,12 @@
 							<AutoMaxWidth>false</AutoMaxWidth>
 							<CommandName>Form.Command.ConfigureDataExportImportRules</CommandName>
 							<Font ref="style:SynchronizationSetupWizardCommandStandardFont" kind="StyleItem"/>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Configure data sending and receiving rules</v8:content>
+								</v8:item>
+							</Title>
 							<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 							<ExtendedTooltip name="SetSendingAndReceivingRulesExtendedTooltip" id="52">
 								<AutoMaxWidth>false</AutoMaxWidth>
@@ -493,6 +517,12 @@
 							<AutoMaxWidth>false</AutoMaxWidth>
 							<CommandName>Form.Command.CreateInitialDIBImage</CommandName>
 							<Font ref="style:SynchronizationSetupWizardCommandStandardFont" kind="StyleItem"/>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Create initial image of a subordinate DIB node</v8:content>
+								</v8:item>
+							</Title>
 							<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 							<ExtendedTooltip name="CreateInitialDIBImageExtendedTooltip" id="73">
 								<AutoMaxWidth>false</AutoMaxWidth>
@@ -598,6 +628,12 @@ After creation, deploy the infobase from the initial image and run the applicati
 							<Type>Hyperlink</Type>
 							<CommandName>Form.Command.MapAndExportData</CommandName>
 							<Font ref="style:SynchronizationSetupWizardCommandStandardFont" kind="StyleItem"/>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Map and import data</v8:content>
+								</v8:item>
+							</Title>
 							<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 							<ExtendedTooltip name="MapAndExportDataExtendedTooltip" id="130">
 								<AutoMaxWidth>false</AutoMaxWidth>
@@ -703,6 +739,12 @@ After creation, deploy the infobase from the initial image and run the applicati
 							<AutoMaxWidth>false</AutoMaxWidth>
 							<CommandName>Form.Command.ExecuteInitialDataExport</CommandName>
 							<Font ref="style:SynchronizationSetupWizardCommandStandardFont" kind="StyleItem"/>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Run initial data export</v8:content>
+								</v8:item>
+							</Title>
 							<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 							<ExtendedTooltip name="ExecuteInitialDataExportExtendedTooltip" id="94">
 								<AutoMaxWidth>false</AutoMaxWidth>

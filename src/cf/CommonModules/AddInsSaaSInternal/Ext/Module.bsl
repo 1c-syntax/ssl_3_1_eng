@@ -1,15 +1,16 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #Region Internal
 
-// 
+// Deletes unused common add-ins.
 //
 Procedure RemoveUnusedAddIns() Export
 	
@@ -66,7 +67,7 @@ Procedure UpdateSharedAddIn(ComponentDetails) Export
 	
 	If Not Common.DataSeparationEnabled() Or Common.SeparatedDataUsageAvailable() Then 
 		Raise
-			NStr("en = 'External shared add-ins can be imported only in SaaS shared mode.';");
+			NStr("en = 'Common add-ins can be imported only in shared SaaS mode.';");
 	EndIf;
 	
 	SetPrivilegedMode(True);
@@ -99,7 +100,7 @@ Procedure UpdateSharedAddIn(ComponentDetails) Export
 			SharedAddIn.Lock();
 		EndIf;
 		
-		SharedAddIn.Fill(Undefined); 
+		SharedAddIn.Fill(Undefined); // 
 		
 		ComponentBinaryData = New BinaryData(ComponentDetails.PathToFile);
 		Information = AddInsInternal.InformationOnAddInFromFile(ComponentBinaryData, False);
@@ -167,8 +168,8 @@ Procedure FillAddInInformation(Result, Version, Id) Export
 			Result.Ref = ReferenceFromStorage;
 		Else
 			If ValueIsFilled(Version) Then
-				
-				
+				// 
+				// 
 				Result.State = "FoundInStorage";
 				Result.Ref = ReferenceFromStorage;
 			Else
@@ -179,8 +180,8 @@ Procedure FillAddInInformation(Result, Version, Id) Export
 					Result.State = "FoundInSharedStorage";
 					Result.Ref = ReferenceFromSharedStorage;
 				Else
-					
-					
+					// 
+					// 
 					Result.State = "FoundInStorage";
 					Result.Ref = ReferenceFromStorage;
 				EndIf;
@@ -267,8 +268,8 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Version = "3.1.9.221";
 	Handler.SharedData = True;
 	Handler.Id = New UUID("a76bc949-68aa-4ba3-b9f3-a03b530da817");
-	Handler.Procedure = "Catalogs.CommonAddIns.ProcessCommonExternalComponents";
-	Handler.Comment = NStr("en = 'Fill compatibility attributes of common add-ins.';");
+	Handler.Procedure = "Catalogs.CommonAddIns.HandleCommonAddIns";
+	Handler.Comment = NStr("en = 'Fill in compatibility attributes of common add-ins.';");
 	Handler.ExecutionMode = "Seamless";
 	
 EndProcedure

@@ -10,6 +10,12 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.AddSelectedUsers</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Add selected users</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="AddSelectedUsersExtendedTooltip" id="32"/>
 			</Button>
 			<Button name="Cancel" id="22">
@@ -68,11 +74,23 @@
 							<Button name="ServiceUsersSetAll" id="18">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.SetAll</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Select all</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="ServiceUsersSetAllExtendedTooltip" id="23"/>
 							</Button>
 							<Button name="ServiceUsersClearAll1" id="19">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.ClearAllIetmsCommand</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Clear all</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="ServiceUsersClearAll1ExtendedTooltip" id="24"/>
 							</Button>
 						</ChildItems>
@@ -107,6 +125,12 @@
 			<ChildItems>
 				<CheckBoxField name="ServiceUsersAdd" id="16">
 					<DataPath>TableOfServiceUsers.Add</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Add</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<EditMode>EnterOnInput</EditMode>
 					<CheckBoxType>Auto</CheckBoxType>
@@ -115,12 +139,24 @@
 				</CheckBoxField>
 				<LabelField name="ServiceUsersName" id="4">
 					<DataPath>TableOfServiceUsers.Name</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>First name</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ContextMenu name="ServiceUsersNameContextMenu" id="5"/>
 					<ExtendedTooltip name="ServiceUsersNameExtendedTooltip" id="27"/>
 				</LabelField>
 				<LabelField name="ServiceUsersFullName" id="6">
 					<DataPath>TableOfServiceUsers.FullName</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Full name</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ContextMenu name="ServiceUsersFullNameContextMenu" id="7"/>
 					<ExtendedTooltip name="ServiceUsersFullNameExtendedTooltip" id="28"/>
@@ -128,17 +164,29 @@
 				<LabelField name="ServiceUsersId" id="12">
 					<DataPath>TableOfServiceUsers.Id</DataPath>
 					<Visible>false</Visible>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>ID</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ContextMenu name="ServiceUsersIDContextMenu" id="13"/>
-					<ExtendedTooltip name="ServiceUsersIDExtendedTooltip" id="29"/>
+					<ExtendedTooltip name="ServiceUsersIdExtendedTooltip" id="29"/>
 				</LabelField>
 				<CheckBoxField name="ServiceUsersAccess" id="14">
 					<DataPath>TableOfServiceUsers.Access</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Access</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<CheckBoxType>Auto</CheckBoxType>
 					<ContextMenu name="UsersOfTheAccessServiceContextMenu" id="15"/>
-					<ExtendedTooltip name="UsersOfTheAccessServiceExtendedTooltip" id="30"/>
+					<ExtendedTooltip name="ServiceUsersAccessExtendedTooltip" id="30"/>
 				</CheckBoxField>
 			</ChildItems>
 		</Table>

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Not MobileStandaloneServer Then
@@ -33,7 +34,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// SaaSTechnology.ExportImportData
+// CloudTechnology.ExportImportData
 
 // Returns the catalog attributes that naturally form a catalog item key.
 //
@@ -49,7 +50,7 @@ Function NaturalKeyFields() Export
 	
 EndFunction
 
-// End SaaSTechnology.ExportImportData
+// End CloudTechnology.ExportImportData
 
 #EndRegion
 
@@ -134,15 +135,14 @@ Procedure CheckForUsage(ExtensionsObjects = False) Export
 	   And ValueIsFilled(Common.ObjectManagerByFullName("Constant.MasterNode").Get()) Then
 		
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The ""%1"" catalog cannot be used
-			           |in the infobase where the detachment of the master node is not confirmed. 
+			NStr("en = 'Cannot use catalog ""%1"" in an infobase whose
+			           |master node disconnection was not confirmed.
 			           |
-			           |To attach the infobase back to the master node, start 1C:Enterprise
-			           |and click ""Attach"", or set the master node programmatically
-			           |(it is stored in the ""Master node"" constant).
+			           |To reconnect with the master node, run 1C:Enterprise and click ""Restore"".
+					   |Alternatively, set the master node programmatically in the ""MasterNode"" constant.
 			           |
-			           |To confirm the detachment of the master node, start 1C:Enterprise and
-			           |click ""Detach"", or clear the ""Master node"" constant programmatically.';"),
+			           |To confirm the disconnection, run 1C:Enterprise and click ""Disconnect"".
+					   |Alternatively, programmatically clear the value of the ""MasterNode"" constant.';"),
 			CatalogDescription(ExtensionsObjects));
 		Raise ErrorText;
 	EndIf;
@@ -251,8 +251,8 @@ Procedure ImportDataToSubordinateNode(Objects) Export
 				ItemToImportProperties.Ref = Object.GetNewObjectRef();
 				If Not ValueIsFilled(ItemToImportProperties.Ref) Then
 					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'Metadata object ID import error.
-						           |Cannot import a new item because its UUID is not specified:
+						NStr("en = 'Could not import the metadata object ids from the master node.
+						           |No reference is specified for the new item:
 						           |""%1"".';"),
 						Object.FullName);
 					Raise ErrorText;
@@ -271,16 +271,16 @@ Procedure ImportDataToSubordinateNode(Objects) Export
 				If ItemToImportProperties.MetadataObjectByKey = Undefined
 				   And ItemToImportProperties.MetadataObjectByFullName = Undefined
 				   And Object.DeletionMark <> True Then
-					
-					
+					// 
+					// 
 					Object.DeletionMark = True;
 				EndIf;
 			EndIf;
 			
 			If Object.DeletionMark Then
-				
-				
-				
+				// 
+				// 
+				// 
 				UpdateMarkedForDeletionItemProperties(Object);
 			EndIf;
 			
@@ -303,7 +303,7 @@ Procedure ImportDataToSubordinateNode(Objects) Export
 			EndIf;
 			
 			If Properties <> Undefined Then
-				Upload0.Delete(Properties); 
+				Upload0.Delete(Properties); // 
 			EndIf;
 		EndDo;
 		ItemsToImportTable.Indexes.Add("Ref");
@@ -340,8 +340,8 @@ Procedure ImportDataToSubordinateNode(Objects) Export
 			
 			If FullNamesOfItemsToImport.Get(Lower(Object.FullName)) <> Undefined Then
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Metadata object ID import error.
-					           |Cannot import two items with identical full names:
+					NStr("en = 'Could not import the metadata object ids from the master node.
+					           |Two items have identical full names:
 					           |""%1"".';"),
 					Object.FullName);
 				Raise ErrorText;
@@ -354,8 +354,8 @@ Procedure ImportDataToSubordinateNode(Objects) Export
 				
 				If KeysOfItemsToImport.Get(MetadataObjectKey) <> Undefined Then
 					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'Metadata object ID import error.
-						           |Cannot import two items with identical metadata object keys:
+						NStr("en = 'Could not import the metadata object ids from the master node.
+						           |Two items have identical metadata object keys:
 						           |""%1"".';"),
 						String(MetadataObjectKey));
 					Raise ErrorText;
@@ -364,9 +364,8 @@ Procedure ImportDataToSubordinateNode(Objects) Export
 				
 				If ItemToImportProperties.MetadataObjectByKey <> ItemToImportProperties.MetadataObjectByFullName Then
 					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'Metadata object ID import error.
-						           |Cannot import an item with metadata object key
-						           |""%1"" that does not match its full name ""%2"".';"),
+						NStr("en = 'Could not import the metadata object ids from the master node.
+						           |The metadata key ""%1"" does not correspond to the full name ""%2"".';"),
 						String(MetadataObjectKey), Object.FullName);
 					Raise ErrorText;
 				EndIf;
@@ -420,7 +419,7 @@ EndProcedure
 //  FullNameOfDeletedItem - String - for example "Role.ReadBasicRegulatoryData".
 //
 // Returns:
-//  Array - :
+//  Array - Has the following values:
 //   * Value - CatalogRef.MetadataObjectIDs
 //              - CatalogRef.ExtensionObjectIDs - found reference.
 // 
@@ -520,6 +519,49 @@ Function ValidCollections() Export
 	CollectionsProperties = StandardSubsystemsCached.MetadataObjectCollectionProperties();
 	
 	Return CollectionsProperties.UnloadColumn("Name");
+	
+EndFunction
+
+// For internal use only.
+// Parameters:
+//  MetadataObjectRole - MetadataObject
+// Returns:
+//  String
+//  Undefined
+//
+Function RoleMetadataObjectKey(MetadataObjectRole) Export
+	Return KeyRole(MetadataObjectRole, False);
+EndFunction
+
+// For internal use only.
+// Parameters:
+//  IDsOfRole - Array of CatalogRef.MetadataObjectIDs
+//                     - Array of CatalogRef.ExtensionObjectIDs
+// Returns:
+//  Map of KeyAndValue:
+//   * Key - CatalogRef.MetadataObjectIDs
+//          - CatalogRef.ExtensionObjectIDs
+//   * Value - See RoleMetadataObjectKey
+//
+Function RolesKeys(IDsOfRole) Export
+	
+	Result = New Map;
+	Values = Common.ObjectsAttributeValue(IDsOfRole, "MetadataObjectKey");
+	
+	For Each KeyAndValue In Values Do
+		Result.Insert(KeyAndValue.Key, Undefined);
+		If TypeOf(KeyAndValue.Value) <> Type("ValueStorage") Then
+			Continue;
+		EndIf;
+		KeyRole = KeyAndValue.Value.Get();
+		If TypeOf(KeyRole) <> Type("String")
+		 Or Not StringFunctionsClientServer.IsUUID(KeyRole) Then
+			Continue;
+		EndIf;
+		Result.Insert(KeyAndValue.Key, KeyRole);
+	EndDo;
+	
+	Return Result;
 	
 EndFunction
 
@@ -1335,9 +1377,9 @@ Procedure BeforeDeleteObject(Object) Export
 	ExtensionsObjects = IsExtensionsObject(Object);
 	StandardSubsystemsCached.MetadataObjectIDsUsageCheck(, ExtensionsObjects);
 	
-	
-	
-	
+	// 
+	// 
+	// 
 	Object.AdditionalProperties.Insert("DisableObjectChangeRecordMechanism");
 	
 	If Object.DataExchange.Load Then
@@ -1360,19 +1402,16 @@ EndProcedure
 //
 Procedure ListFormOnCreateAtServer(Form) Export
 	
-	Parameters = Form.Parameters;
-	Items  = Form.Items;
-	
 	SetListOrderAndAppearance(Form);
 	
-	If Parameters.ChoiceMode Then
+	If Form.Parameters.ChoiceMode Then
 		StandardSubsystemsServer.SetFormAssignmentKey(Form, "SelectionPick");
 		Form.WindowOpeningMode = FormWindowOpeningMode.LockOwnerWindow;
 	Else
-		Items.List.ChoiceMode = False;
+		Form.Items.List.ChoiceMode = False;
 	EndIf;
 	
-	Parameters.Property("SelectMetadataObjectsGroups", Form.SelectMetadataObjectsGroups);
+	Form.SelectMetadataObjectsGroups = Form.Parameters.SelectMetadataObjectsGroups;
 	
 EndProcedure
 
@@ -1454,14 +1493,14 @@ Procedure UpdateData1(HasChanges, HasDeletedItems, IsCheckOnly,
 	// Found - this status indicates that ID is found for the metadata object.
 	MetadataObjectProperties1.Columns.Add("Found", New TypeDescription("Boolean"));
 	
-	
-	
-	
-	
-	
-	
-	
-	
+	// 
+	// 
+	// 
+	// 
+	// 
+	// 
+	// 
+	// 
 	
 	ExtensionsVersion = SessionParameters.ExtensionsVersion;
 	
@@ -1484,8 +1523,8 @@ Procedure UpdateData1(HasChanges, HasDeletedItems, IsCheckOnly,
 		MetadataObjectRenamingList = "";
 		If Not ExtensionsObjects
 		   And Not Common.IsSubordinateDIBNode() Then
-			
-			
+			// 
+			// 
 			RenameFullNames(Upload0, MetadataObjectRenamingList, HasCriticalChanges);
 		EndIf;
 		
@@ -1636,9 +1675,8 @@ Function ExportAllIDs(ExtensionsObjects = False)
 	For Each String In Upload0 Do
 		If Not ValueIsFilled(String.Ref) Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Data of the %1 catalog is corrupted.
-				           |In Designer, open the ""Administration"" menu
-				           |and click ""Verify and repair"".';"),
+				NStr("en = 'The catalog ""%1"" contains corrupted data.
+				           |Open Designer and select Administration > Verify and repair…';"),
 				?(ExtensionsObjects, "ExtensionObjectIDs", "MetadataObjectIDs"));
 			Raise ErrorText;
 		EndIf;
@@ -1752,8 +1790,8 @@ Procedure ProcessMetadataObjectIDs(Upload0, MetadataObjectProperties1, Extension
 		If ExtensionsObjects
 		   And (    ExtensionProperties.UnattachedExtensionsNames[Lower(Properties.ExtensionName)] <> Undefined
 		      Or ExtensionProperties.UnattachedExtensionsNames[Lower(Properties.ExtensionID)] <> Undefined)Then
-			
-			
+			// 
+			// 
 			Continue;
 		EndIf;
 		
@@ -1781,22 +1819,22 @@ Procedure ProcessMetadataObjectIDs(Upload0, MetadataObjectProperties1, Extension
 				EndIf;
 			EndIf;
 		Else
-			
-			
-			
+			// 
+			// 
+			// 
 			If Upper(Left(MetadataObject.Name, StrLen("Delete"))) =  Upper("Delete")
 			   And Upper(Left(Properties.Name,         StrLen("Delete"))) <> Upper("Delete") Then
 				
 				NewMetadataObject = MetadataFindByFullName(Properties.FullName);
 				If NewMetadataObject <> Undefined Then
 					MetadataObject = NewMetadataObject;
-					MetadataObjectKey = Undefined; 
+					MetadataObjectKey = Undefined; // 
 				EndIf;
 			EndIf;
 		EndIf;
 		
-		
-		
+		// 
+		// 
 		If MetadataObject <> Undefined Then
 			ObjectProperties = MetadataObjectProperties1.Find(MetadataObject.FullName(), "FullName");
 			If ObjectProperties = Undefined Then
@@ -1807,8 +1845,8 @@ Procedure ProcessMetadataObjectIDs(Upload0, MetadataObjectProperties1, Extension
 		EndIf;
 		
 		If MetadataObject = Undefined Or ObjectProperties.Found Then
-			
-			
+			// 
+			// 
 			IsDuplicate = MetadataObject <> Undefined And ObjectProperties.Found;
 			PropertiesUpdated = False;
 			UpdateMarkedForDeletionItemProperties(Properties, PropertiesUpdated, HasDeletedItems, IsDuplicate);
@@ -1869,8 +1907,8 @@ Function ExtensionMetadataFindByFullName(Properties)
 		Return Undefined;
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	OriginalFullName = FullNameOfDeletedItem(Properties.FullName);
 	MetadataObject = MetadataFindByFullName(OriginalFullName);
 	
@@ -1914,18 +1952,18 @@ Procedure AddNewMetadataObjectsIDs(Upload0, MetadataObjectProperties1, Extension
 	
 	ObjectProperties = MetadataObjectProperties1.FindRows(New Structure("Found", False));
 	
-	For Each Var_153_ObjectProperties In ObjectProperties Do
+	For Each Var_155_ObjectProperties In ObjectProperties Do
 		Properties = Upload0.Add();
-		FillPropertyValues(Properties, Var_153_ObjectProperties);
+		FillPropertyValues(Properties, Var_155_ObjectProperties);
 		Properties.IsNew = True;
 		Properties.Ref = NewCatalogRef(ExtensionsObjects);
 		Properties.DeletionMark  = False;
-		Properties.MetadataObject = Var_153_ObjectProperties.MetadataObject;
+		Properties.MetadataObject = Var_155_ObjectProperties.MetadataObject;
 		Properties.MetadataObjectKey = MetadataObjectKey(Properties.FullName);
 		HasCriticalChanges = True;
 		NewMetadataObjectsList = NewMetadataObjectsList
 			+ ?(ValueIsFilled(NewMetadataObjectsList), "," + Chars.LF, "")
-			+ Var_153_ObjectProperties.FullName;
+			+ Var_155_ObjectProperties.FullName;
 	EndDo;
 	
 EndProcedure
@@ -2008,7 +2046,7 @@ Procedure UpdateMetadataObjectIDs(Upload0, MetadataObjectProperties1, Extensions
 		FillPropertyValues(TableObject, Properties);
 		TableObject.MetadataObjectKey = New ValueStorage(Properties.MetadataObjectKey);
 		TableObject.DataExchange.Load = True;
-		
+		// @skip-check query-in-loop - The query branch is not triggered in this option
 		CheckObjectBeforeWrite(TableObject, True);
 		TableObject.Write();
 	EndDo;
@@ -2027,8 +2065,8 @@ Procedure UpdateMetadataObjectIDs(Upload0, MetadataObjectProperties1, Extensions
 		EndIf;
 		If RecordsTable.Count() = 0
 		   And ValueIsFilled(ExtensionsVersion) Then
-			
-			
+			// 
+			// 
 			RecordsTable.Add().ExtensionsVersion = ExtensionsVersion;
 			UpdateRecordSet = True;
 		EndIf;
@@ -2357,7 +2395,7 @@ Function RolesByKeysMetadataObjects() Export
 	
 EndFunction
 
-Function KeyRole(MetadataObjectRole)
+Function KeyRole(MetadataObjectRole, RaiseException1 = True)
 	
 	IBUser = InfoBaseUsers.CreateUser();
 	IBUser.Roles.Add(MetadataObjectRole);
@@ -2370,6 +2408,10 @@ Function KeyRole(MetadataObjectRole)
 		If StringFunctionsClientServer.IsUUID(Id) Then
 			Return Id;
 		EndIf;
+	EndIf;
+	
+	If Not RaiseException1 Then
+		Return Undefined;
 	EndIf;
 	
 	ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -3003,7 +3045,7 @@ Function ExtensionNames(ExtensionSource, ExtensionKeyIds)
 	
 EndFunction
 
-// This method is required by UpdateData procedure.
+// Required by procedure "UpdateData".
 Procedure AddNamesOfUnconnectedExtensionsInSessionWithoutDelimiters(ExtensionProperties, DatabaseExtensions)
 	
 	If Not StandardSubsystemsServer.ThisIsSplitSessionModeWithNoDelimiters() Then
@@ -3198,7 +3240,7 @@ Function MetadataObjectIDsWithoutRetryAttempt(FullMetadataObjectsNames,
 			
 			If DataBaseConfigurationChangedDynamically Then
 				If IDsFromKeys = Undefined Then
-					
+					// @skip-check query-in-loop - Called no more than once
 					IDsFromKeys = IDsFromKeys();
 				EndIf;
 				Id = IDsFromKeys.Get(FullMetadataObjectName);
@@ -3351,8 +3393,8 @@ Function IDsFromKeys()
 	
 EndFunction
 
-// 
-// 
+// Intended for the functions MetadataObjectIDsWithRetryAttempt,
+// MetadataObjectsByIDsWithRetryAttempt.
 //
 Function UpdateIDCatalogs()
 	
@@ -3438,8 +3480,8 @@ Function MetadataObjectsByIDsWithRetryAttempt(IDs, RaiseException1)
 		Except
 			If Not Common.DataSeparationEnabled()
 			 Or Not Common.SeparatedDataUsageAvailable() Then
-				
-				
+				// 
+				// 
 				MetadataObjects = Undefined;
 			Else
 				Raise;
@@ -3549,24 +3591,14 @@ Function MetadataObjectsByIDsWithoutRetryAttempt(IDs,
 		If RaiseException1 Then
 			If ExtensionsIDs.Find(Id) = Undefined Then
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Metadata object ID ""%1""
-					           |was deleted from the infobase after it was marked for deletion
-					           |because the object was deleted from the new configuration version.
-					           |
-					           |All settings made for the object before its deletion
-					           |are no longer available. Delete them. If the object
-					           |was added again later, set up again.';"),
+					NStr("en = 'The object ""%1"" was deleted from this app version.
+					           |The related data and settings are no longer available.';"),
 					String(Id));
 			Else
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Extension object ID ""%1""
-					           |was deleted from the infobase after it was marked for deletion
-					           |because the configuration extension was deleted with this object
-					           |or the object was deleted from the new configuration version.
-					           |
-					           |All settings made for the object before its deletion
-					           |are no longer available. Delete them. If the object
-					           |was added again later, set up again.';"),
+					NStr("en = 'The object ""%1"" is deleted since either
+					           |its extension was removed or the object was deleted from the extensions version.
+					           |The related data and settings are no longer available.';"),
 					String(Id));
 			EndIf;
 			Raise ErrorText;
@@ -3614,31 +3646,28 @@ Function MetadataObjectsByIDsWithoutRetryAttempt(IDs,
 					If InstalledExtensions.Count() = 0 Then
 						TheExtensionObjectDoesNotExist = True;
 						ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-							NStr("en = 'Configuration extension ""%1"" is deleted.
-							           |Object ""%2"" does not exist.
-							           |All settings made for the extension before its deletion are no longer available.
-							           |Set up again with changes.';"),
+							NStr("en = 'The object ""%2"" does not exist since its extension ""%1"" was uninstalled.
+							           |The related data and settings are no longer available.';"),
 							ExtensionName,
 							IDPresentation);
 						
 					ElsIf Not InstalledExtensions[0].Active Then
 						ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-							NStr("en = '%1 configuration extension is installed but detached.
-							           |Attach the extension and restart the session.';"),
+							NStr("en = 'The extension ""%1"" is installed but disabled.
+							           |Enable the extensions and restart the app.';"),
 							ExtensionName);
 						
 					ElsIf DetachedExtensions.Count() > 0 And Not DetachedExtensions[0].Active
 					      Or DetachedExtensions.Count() = 0 And ActiveExtensions.Count() = 0 Then
 						
 						ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-							NStr("en = '%1 configuration extension is installed after the session start and therefore not attached.
-							           |Restart the session.';"),
+							NStr("en = 'The extension ""%1"" is installed but the app requires a restart.%1Restart the app.';"),
 							ExtensionName);
 						
 					ElsIf DetachedExtensions.Count() > 0 And DetachedExtensions[0].Active Then
 						ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-							NStr("en = 'Configuration extension ""%1"" is installed but detached at the start of the session.
-							           |This means that an error occurred when attaching it.';"),
+							NStr("en = 'The extension ""%1"" is installed but it was disabled at the startup.
+							           |This means that an unexpected exception occurred.';"),
 							ExtensionName);
 						
 					Else // ActiveExtensions.Count() > 0
@@ -3649,21 +3678,15 @@ Function MetadataObjectsByIDsWithoutRetryAttempt(IDs,
 						   And CheckResult.RemoteMetadataObject.ConfigurationExtension().Name = ActiveExtensions[0].Name Then
 							
 							ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-								NStr("en = 'Configuration extension ""%1"" is installed and attached
-								           |but the ""%2"" object
-								           |cannot be received by an ID marked for deletion.
-								           |Usually this means the extension was deleted and installed again instead of the update.
-								           |All settings made for the extension before its deletion
-								           |are no longer available. Set up again.';"),
+								NStr("en = 'The id of the ""%2"" metadata object, which is a part of the ""%1"" extension, is marked for deletion.
+								           |Usually, this happens when an extension is uninstalled and then reinstalled (instead of being updated).
+								           |The related data and settings are no longer available.';"),
 								ExtensionName,
 								IDPresentation);
 						Else
 							ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-								NStr("en = 'Configuration extension ""%1"" is installed and attached
-								           |but the ""%2"" object does not exist.
-								           |This means the object was deleted in the new extension version.
-								           |The object and all settings made before its deletion are no longer available.
-								           |Set up again with changes.';"),
+								NStr("en = 'The object ""%2"" was deleted in the current version of the extension ""%1"".
+								           |The related data and settings are no longer available.';"),
 								ExtensionName,
 								IDPresentation);
 						EndIf;
@@ -3698,19 +3721,15 @@ Function MetadataObjectsByIDsWithoutRetryAttempt(IDs,
 				        And CheckResult.RemoteMetadataObject.ConfigurationExtension() = Undefined Then
 					
 					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'Cannot get the ""%1"" object
-						           |by an ID marked for deletion.
-						           |This means the object was deleted from the configuration and added again later.
-						           |All settings made for the object before its deletion
-						           |are no longer available. Set up again.';"),
+						NStr("en = 'The id of the ""%2"" metadata object is marked for deletion.
+						           |Usually, this happens when an object is deleted and then re-added.
+						           |The related data and settings are no longer available.';"),
 						IDPresentation);
 					Raise ErrorText;
 				Else
 					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'Object ""%1"" does not exist.
-						           |This means the metadata object was deleted in the new configuration version.
-						           |The object and all settings made before its deletion are no longer available.
-						           |Set up again with changes.';"),
+						NStr("en = 'The object ""%1"" does not exist as it was removed from the current app version.
+						           |The related data and settings are no longer available.';"),
 						IDPresentation);
 					Raise ErrorText;
 				EndIf;
@@ -3720,10 +3739,9 @@ Function MetadataObjectsByIDsWithoutRetryAttempt(IDs,
 				ErrorDescription = "";
 			Else
 				ErrorDescription =  StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'The ID ""%1""
-					           |found in catalog ""%2""
-					           |matches the metadata object ""%3""
-					           |whose full name is different from the name specified in the ID.';"),
+					NStr("en = 'The id ""%1"" from the catalog ""%2""
+					           |corresponds with the metadata object ""%3"", whose full name
+					           |does not match the full name in the id.';"),
 					Properties.Presentation,
 					CatalogDescription(Properties.ExtensionObject),
 					CheckResult.MetadataObject.FullName())
@@ -3738,9 +3756,7 @@ Function MetadataObjectsByIDsWithoutRetryAttempt(IDs,
 		
 		If Not Properties.ExtensionObject And Properties.DeletionMark And Not DataBaseConfigurationChangedDynamically Then
 			ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The ID ""%1""
-				           |is found in catalog ""%2""
-				           |, but its ""Deletion mark"" attribute is set to True.';"),
+				NStr("en = 'The id ""%1"" from the catalog ""%2"" is marked for deletion.';"),
 				Properties.Presentation,
 				CatalogDescription(Properties.ExtensionObject));
 			
@@ -3972,14 +3988,13 @@ EndProcedure
 // Changes:
 // - operations with the progress bar form are no longer supported;
 // - the UserInterruptProcessing procedure is deleted;
-// - the InformationRegisters[СтрокаТаблицы.Метаданные.Имя] is replaced with
 //   Common.ObjectManagerByFullName(TableRow.Metadata.FullName()).
 //
 Function ExecuteItemReplacement(Val Replaceable, Val RefsTable, Val DisableWriteControl = False, Val ExtensionsObjects = False)
 	
-	
-	
-	
+	// 
+	// 
+	// 
 	Parameters = ItemsReplacementParameters();
 	
 	For Each AccountingRegister In Metadata.AccountingRegisters Do
@@ -4014,7 +4029,7 @@ Function ExecuteItemReplacement(Val Replaceable, Val RefsTable, Val DisableWrite
 						HadExceptions = True;
 						ErrorInfo = ErrorInfo();
 						ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-							NStr("en = 'Cannot save object ""%1"":
+							NStr("en = 'Couldn''t write object ""%1"" due to:
 							           |%2';"),
 							GetURL(Parameters.Object.Ref),
 							ErrorProcessing.DetailErrorDescription(ErrorInfo));
@@ -4068,7 +4083,7 @@ Function ExecuteItemReplacement(Val Replaceable, Val RefsTable, Val DisableWrite
 					
 					ColumnsNames = New Array;
 					
-					
+					// 
 					For Each Dimension In Movement.Dimensions Do
 						
 						If Dimension.Type.ContainsType(TypeOf(Ref)) Then
@@ -4183,7 +4198,7 @@ Function ExecuteItemReplacement(Val Replaceable, Val RefsTable, Val DisableWrite
 							HadExceptions = True;
 							ErrorInfo = ErrorInfo();
 							ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-								NStr("en = 'Cannot save register records of object ""%1"" to record set ""%2"":
+								NStr("en = 'Couldn''t add to ""%2"" a record for object ""%1"" due to:
 								           |%3';"),
 								GetURL(Parameters.Object.Ref),
 								RecordSet.Metadata().FullName(),
@@ -4222,7 +4237,7 @@ Function ExecuteItemReplacement(Val Replaceable, Val RefsTable, Val DisableWrite
 									HadExceptions = True;
 									ErrorInfo = ErrorInfo();
 									ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-											NStr("en = 'Cannot save register records for recorder ""%1"" to record set ""%2"":
+											NStr("en = 'Couldn''t add to ""%2"" data for recorder ""%1"" due to:
 											           |%3';"),
 											GetURL(TableRow.Data),
 											SingleRecordSet.Metadata().FullName(),
@@ -4336,7 +4351,7 @@ Function ExecuteItemReplacement(Val Replaceable, Val RefsTable, Val DisableWrite
 					Except
 						ErrorInfo = ErrorInfo();
 						ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-							NStr("en = 'Cannot delete record ""%1"":
+							NStr("en = 'Record ""%1"" was not deleted due to:
 							           |%2';"),
 							GetURL(RegisterManager.CreateRecordKey(DimensionStructure)),
 							ErrorProcessing.DetailErrorDescription(ErrorInfo));
@@ -4365,7 +4380,7 @@ Function ExecuteItemReplacement(Val Replaceable, Val RefsTable, Val DisableWrite
 					Except
 						ErrorInfo = ErrorInfo();
 						ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-							NStr("en = 'Cannot add record ""%1"":
+							NStr("en = 'Record ""%1"" was not added due to:
 							           |%2';"),
 							GetURL(RegisterManager.CreateRecordKey(DimensionStructure)),
 							ErrorProcessing.DetailErrorDescription(ErrorInfo));
@@ -4405,7 +4420,7 @@ Function ExecuteItemReplacement(Val Replaceable, Val RefsTable, Val DisableWrite
 				HadExceptions = True;
 				ErrorInfo = ErrorInfo();
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Cannot save object ""%1"":
+					NStr("en = 'Couldn''t write object ""%1"" due to:
 					           |%2';"),
 					GetURL(Parameters.Object.Ref),
 					ErrorProcessing.DetailErrorDescription(ErrorInfo));

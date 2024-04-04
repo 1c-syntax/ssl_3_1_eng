@@ -8,11 +8,23 @@
 			<Button name="FormContinue" id="10">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.ContinueOpening</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Continue</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormContinueExtendedTooltip" id="11"/>
 			</Button>
 			<Button name="FormCancel" id="12">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.Cancel</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Cancel</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormCancelExtendedTooltip" id="13"/>
 			</Button>
 		</ChildItems>
@@ -37,8 +49,8 @@
 						</v8:item>
 					</Title>
 					<Picture>
-						<xr:Ref>CommonPicture.Warning32</xr:Ref>
-						<xr:LoadTransparent>false</xr:LoadTransparent>
+						<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</Picture>
 					<FileDragMode>AsFile</FileDragMode>
 					<ContextMenu name="PictureContextMenu" id="15"/>
@@ -54,8 +66,8 @@ pay attention to their sources.
 If you are not sure that the file was obtained from a trusted source,
 refrain from opening it.
 
-
-See also: &lt;link http://1c.ru/news/info.jsp?id=21537&gt;Example of a virus in an external data processor&lt;/&gt; (in Russian).</v8:content>
+See also: &lt;link http://1c.ru/news/info.jsp?id=21537&gt;Example of a virus in an external data processor&lt;/&gt; (in Russian).
+</v8:content>
 						</v8:item>
 					</Title>
 					<ContextMenu name="LabelContextMenu" id="4"/>

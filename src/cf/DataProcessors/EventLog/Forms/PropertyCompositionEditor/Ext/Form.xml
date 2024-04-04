@@ -31,6 +31,12 @@
 			<FileDragMode>AsFile</FileDragMode>
 			<DataPath>List</DataPath>
 			<BorderColor>style:BorderColor</BorderColor>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>List</v8:content>
+				</v8:item>
+			</Title>
 			<ContextMenu name="ListContextMenu" id="2"/>
 			<AutoCommandBar name="ListCommandBar" id="3">
 				<Autofill>false</Autofill>
@@ -42,6 +48,12 @@
 						<TextColor>style:ButtonTextColor</TextColor>
 						<BackColor>style:ButtonBackColor</BackColor>
 						<BorderColor>style:BorderColor</BorderColor>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Select all</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="SetAllExtendedTooltip" id="14"/>
 					</Button>
 					<Button name="ClearAllIetmsCommand" id="10">
@@ -51,7 +63,13 @@
 						<TextColor>style:ButtonTextColor</TextColor>
 						<BackColor>style:ButtonBackColor</BackColor>
 						<BorderColor>style:BorderColor</BorderColor>
-						<ExtendedTooltip name="ClearAll1ExtendedTooltip" id="15"/>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Clear all</v8:content>
+							</v8:item>
+						</Title>
+						<ExtendedTooltip name="ClearAllIetmsCommandExtendedTooltip" id="15"/>
 					</Button>
 					<SearchStringAddition name="SearchString_" id="32">
 						<AdditionSource>
@@ -96,11 +114,23 @@
 			</SearchControlAddition>
 			<ChildItems>
 				<ColumnGroup name="Group" id="6">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Group</v8:content>
+						</v8:item>
+					</Title>
 					<Group>InCell</Group>
 					<ExtendedTooltip name="GroupExtendedTooltip" id="17"/>
 					<ChildItems>
 						<CheckBoxField name="Check" id="7">
 							<DataPath>List.Check</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Checkmark</v8:content>
+								</v8:item>
+							</Title>
 							<CheckBoxType>Auto</CheckBoxType>
 							<ContextMenu name="CheckContextMenu" id="8"/>
 							<ExtendedTooltip name="CheckExtendedTooltip" id="18"/>
@@ -111,6 +141,12 @@
 						<LabelField name="Presentation" id="4">
 							<DataPath>List.Presentation</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Presentation</v8:content>
+								</v8:item>
+							</Title>
 							<ShowInFooter>false</ShowInFooter>
 							<ContextMenu name="PresentationContextMenu" id="5"/>
 							<ExtendedTooltip name="PresentationExtendedTooltip" id="19"/>
@@ -136,6 +172,12 @@
 					<CommandName>Form.Command.SelectFilterComposition</CommandName>
 					<TextColor>style:ButtonTextColor</TextColor>
 					<BorderColor>style:BorderColor</BorderColor>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>OK</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="OKExtendedTooltip" id="21"/>
 				</Button>
 				<Button name="Cancel" id="13">

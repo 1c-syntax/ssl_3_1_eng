@@ -39,14 +39,14 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="GroupHeaderExtendedTooltip" id="1600"/>
+			<ExtendedTooltip name="TitleGroup1ExtendedTooltip" id="1600"/>
 			<ChildItems>
 				<LabelDecoration name="SectionDetails" id="1581">
 					<AutoMaxWidth>false</AutoMaxWidth>
 					<Title formatted="false">
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Security profile options to control how the application can use external resources (regarding 1C:Enterprise server cluster).</v8:content>
+							<v8:content>Security profiles that manage access to resources external to the 1C:Enterprise server cluster.</v8:content>
 						</v8:item>
 					</Title>
 					<VerticalAlign>Top</VerticalAlign>
@@ -125,6 +125,12 @@
 									<ChildItems>
 										<RadioButtonField name="ProfileSecurityUsageMode" id="1613">
 											<DataPath>ProfileSecurityUsageMode</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Security profile usage mode</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>Top</TitleLocation>
 											<VerticalAlign>Center</VerticalAlign>
 											<RadioButtonType>RadioButtons</RadioButtonType>
@@ -208,6 +214,12 @@
 										<Button name="RequiredPermissions" id="1623">
 											<Type>Hyperlink</Type>
 											<CommandName>Form.Command.RequiredPermissions</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Required permissions</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="RequiredPermissionsExtendedTooltip" id="1624"/>
 										</Button>
 										<LabelDecoration name="RequiredPermissionsNote" id="1625">
@@ -216,7 +228,7 @@
 											<Title formatted="false">
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Permissions to use external resources that must be granted in the security profiles for the application to operates correctly.</v8:content>
+													<v8:content>The external resource access permissions that should be granted to security profiles to keep the app functional.</v8:content>
 												</v8:item>
 											</Title>
 											<VerticalAlign>Top</VerticalAlign>
@@ -348,6 +360,12 @@
 										<Button name="OpenExternalDataProcessor" id="1692">
 											<Type>Hyperlink</Type>
 											<CommandName>Form.Command.OpenExternalDataProcessor</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Open external report or data processor</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="OpenExternalDataProcessorExtendedTooltip" id="1693"/>
 										</Button>
 										<LabelDecoration name="OpenExternalDataProcessorNote" id="1694">
@@ -397,6 +415,12 @@
 										<Button name="RestoreSecurityProfiles" id="1685">
 											<Type>Hyperlink</Type>
 											<CommandName>Form.Command.RestoreSecurityProfiles</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Restore security profile settings</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="RestoreSecurityProfilesExtendedTooltip" id="1686"/>
 										</Button>
 										<LabelDecoration name="RestoreSecurityProfilesNote" id="1687">

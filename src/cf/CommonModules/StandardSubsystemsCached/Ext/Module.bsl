@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -46,7 +47,7 @@ Function SubsystemsDetails() Export
 				           |subsystem details (see procedure %1.%2)
 				           |contain subsystem name ""%2"", which is already registered.';"),
 				ModuleName, "OnAddSubsystem", LongDesc.Name);
-			Raise ErrorText;
+			Raise(ErrorText, ErrorCategory.ConfigurationError);
 		EndIf;
 		
 		If LongDesc.Name = Metadata.Name Then
@@ -61,7 +62,7 @@ Function SubsystemsDetails() Export
 		SubsystemsDetails.ByNames.Insert(LongDesc.Name, LongDesc);
 		// Setting up the subsystem order according to the adding order of main modules.
 		SubsystemsDetails.Order.Add(LongDesc.Name);
-		
+		// 
 		For Each RequiredSubsystem In LongDesc.RequiredSubsystems1 Do
 			If AllRequiredSubsystems.Get(RequiredSubsystem) = Undefined Then
 				AllRequiredSubsystems.Insert(RequiredSubsystem, New Array);
@@ -84,15 +85,19 @@ Function SubsystemsDetails() Export
 				LongDesc.MainServerModule,
 				"OnAddSubsystem",
 				Metadata.Version);
-			Raise ErrorText;
+			Raise(ErrorText, ErrorCategory.ConfigurationError);
 		EndIf;
+	ElsIf Metadata.Name = "StandardSubsystemsLibrary" Then
+		ErrorText = NStr("en = 'The 1C:Standard Subsystems Library distribution file is not intended for template-based infobase creation.
+			|Before you start using it,  read the documentation available on ITS (http://its.1c.eu/db/bspdoc, in Russian).';");
+		Raise ErrorText;
 	Else
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'An error occurred when preparing subsystem details:
 			           |subsystem details matching configuration name ""%2"" 
 			           |do not exist in common modules specified in procedure %1.';"),
 			"ConfigurationSubsystemsOverridable.OnAddSubsystem", Metadata.Name);
-		Raise ErrorText;
+		Raise(ErrorText, ErrorCategory.ConfigurationError);
 	EndIf;
 	
 	// Checking whether all required subsystems are presented.
@@ -107,7 +112,7 @@ Function SubsystemsDetails() Export
 				           |Subsystem ""%1"" does not exist. It is required for the following subsystems: %2.';"),
 				KeyAndValue.Key,
 				DependentSubsystems);
-			Raise ErrorText;
+			Raise(ErrorText, ErrorCategory.ConfigurationError);
 		EndIf;
 	EndDo;
 	
@@ -188,7 +193,7 @@ Function DisableMetadataObjectsIDs() Export
 	 Or Common.SubsystemExists("StandardSubsystems.ReportMailing")
 	 Or Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		
-		Raise StringFunctionsClientServer.SubstituteParametersToString(
+		ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot disable the catalog of metadata object IDs
 			           |if any of the following subsystems is used:
 			           |- %1,
@@ -196,6 +201,7 @@ Function DisableMetadataObjectsIDs() Export
 			           |- %3,
 			           |- %4.';"),
 			"ReportsOptions", "AdditionalReportsAndDataProcessors", "ReportMailing", "AccessManagement");
+		Raise(ExceptionText, ErrorCategory.ConfigurationError);
 	EndIf;
 	
 	Return True;
@@ -287,7 +293,7 @@ Function DIBNodes(FilterByPurpose = "") Export
 		|	NOT ExchangePlan.ThisNode
 		|	AND NOT ExchangePlan.DeletionMark";
 		Query.Text = StrReplace(Query.Text, "&ExchangePlanName", "ExchangePlan" + "." + ExchangePlanName);
-		
+		// @skip-check query-in-loop - Set of reference from tables.
 		NodeSelection = Query.Execute().Select();
 		While NodeSelection.Next() Do
 			NodesList.Add(NodeSelection.Ref);
@@ -382,8 +388,8 @@ Function ExchangePlanDataRegistrationMode(FullObjectName, ExchangePlanName) Expo
 		Return "AutoRecordEnabled";
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	For Each Subscription In Metadata.EventSubscriptions Do
 		SubscriptionTitleBeginning = ExchangePlanName + "Registration";
 		If Upper(Left(Subscription.Name, StrLen(SubscriptionTitleBeginning))) = Upper(SubscriptionTitleBeginning) Then
@@ -443,7 +449,7 @@ EndFunction
 //  Location - String - full name of the metadata template
 // 
 // Returns:
-//  FixedStructure - :
+//  FixedStructure - Latest version of the template add-in:
 //   * Version - String
 //   * Location - String
 //
@@ -545,6 +551,17 @@ EndFunction
 
 #Region Private
 
+// 
+//
+// Returns:
+//   See CommonOverridable.OnDetermineCommonCoreParameters.CommonParameters
+//
+Function CommonCoreParameters() Export
+	
+	Return Common.CommonCoreParameters(False);
+
+EndFunction
+
 // Parameters applied to command interface items associated with parametric functional options.
 // 
 // Returns:
@@ -582,7 +599,7 @@ EndFunction
 
 Function AllRefsTypeDetails() Export
 	
-	Return New TypeDescription(New TypeDescription(New TypeDescription(New TypeDescription(New TypeDescription(
+	AllLinks = New TypeDescription(New TypeDescription(New TypeDescription(New TypeDescription(New TypeDescription(
 		New TypeDescription(New TypeDescription(New TypeDescription(New TypeDescription(
 			Catalogs.AllRefsType(),
 			Documents.AllRefsType().Types()),
@@ -594,7 +611,14 @@ Function AllRefsTypeDetails() Export
 			BusinessProcesses.AllRefsType().Types()),
 			BusinessProcesses.RoutePointsAllRefsType().Types()),
 			Tasks.AllRefsType().Types());
+			
+	For Each ExternalSource In Metadata.ExternalDataSources Do
+		AllLinks = New TypeDescription(AllLinks,
+			ExternalDataSources[ExternalSource.Name].Tables.AllRefsType().Types());
+	EndDo;
 	
+	Return AllLinks;
+
 EndFunction
 
 Function IsLongRunningOperationSession() Export
@@ -703,8 +727,8 @@ EndFunction
 
 // Returns:
 //  FixedMap of KeyAndValue:
-//    * Key - String - 
-//                      
+//    * Key - String - Name of the predefined shared scheduled job that is used
+//                      as a templated for the job queue.
 //    * Value - Boolean - the True value.
 //  
 Function QueueJobTemplates() Export
@@ -761,10 +785,10 @@ EndFunction
 // Returns the map of predefined value names and their references.
 //
 // Parameters:
-//  FullMetadataObjectName - String - for example, "Catalog.ProductAndServiceTypes",
+//  FullMetadataObjectName - String - For example, "Catalog.ProductAndServiceTypes".
 //                               Only tables
 //                               with the following predefined items are supported:
-//                               > Справочники,
+//                               > Catalogs,
 //                               > Charts of characteristic types,
 //                               > Charts of accounts,
 //                               > Charts of calculation types.
@@ -869,17 +893,17 @@ Function NewSubsystemDescription() Export
 	// The property is set automatically.
 	LongDesc.Insert("IsConfiguration", False);
 	
-	
-	
+	// 
+	// 
 	LongDesc.Insert("MainServerModule", "");
 	
-	
-	
+	// 
+	// 
 	LongDesc.Insert("DeferredHandlersExecutionMode", "Sequentially");
 	LongDesc.Insert("ParallelDeferredUpdateFromVersion", "");
 	
-	
-	
+	// 
+	// 
 	LongDesc.Insert("FillDataNewSubsystemsWhenSwitchingFromAnotherProgram", False);
 	
 	Return LongDesc;

@@ -1,13 +1,28 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #Region Private
+
+// For internal use only
+Function CertificateThumbprints(OnlyPersonal, ErrorDescription = Null, Service = True) Export
+	
+	Return DigitalSignature.CertificateThumbprints(OnlyPersonal, ErrorDescription, Service);
+	
+EndFunction
+
+// For internal use only
+Function ServiceCertificateThumbprints() Export
+	
+	Return DigitalSignatureInternal.ServiceCertificateThumbprints();
+	
+EndFunction
 
 // For internal use only
 Function PersonalCertificates(CertificatesPropertiesAtClient, Filter, Error = "") Export
@@ -42,7 +57,7 @@ Function PersonalCertificates(CertificatesPropertiesAtClient, Filter, Error = ""
 				CertificatesArray = CryptoManager.GetCertificateStore(
 					CryptoCertificateStoreType.PersonalCertificates).GetAll();
 				DigitalSignatureInternalClientServer.AddCertificatesProperties(CertificatesPropertiesTable, CertificatesArray, True,
-					DigitalSignatureInternal.TimeAddition(), CurrentSessionDate());
+					DigitalSignatureInternal.UTCOffset(), CurrentSessionDate());
 			Except
 				ErrorDescription = ErrorProcessing.BriefErrorDescription(ErrorInfo());
 				If TypeOf(Error) = Type("Structure") Then
@@ -63,7 +78,7 @@ Function PersonalCertificates(CertificatesPropertiesAtClient, Filter, Error = ""
 		
 		PropertiesAddingOptions = New Structure("InCloudService", True);
 		DigitalSignatureInternalClientServer.AddCertificatesProperties(CertificatesPropertiesTable, CertificatesArray, True,
-			DigitalSignatureInternal.TimeAddition(), CurrentSessionDate(), PropertiesAddingOptions);
+			DigitalSignatureInternal.UTCOffset(), CurrentSessionDate(), PropertiesAddingOptions);
 			
 	EndIf;
 	
@@ -235,13 +250,6 @@ Function CertificateRef(Thumbprint, CertificateAddress) Export
 	EndIf;
 	
 	Return Undefined;
-	
-EndFunction
-
-// For internal use only.
-Function CertificatesInOrderToRoot(Certificates) Export
-	
-	Return DigitalSignatureInternal.CertificatesInOrderToRoot(Certificates);
 	
 EndFunction
 
@@ -816,11 +824,11 @@ Function GetIndividualsByCertificateFieldIssuedTo(IssuedTo) Export
 
 	Result = New Structure;
 
-	TypesIndividuals = Metadata.DefinedTypes.Individual.Type.Types();
-	If TypesIndividuals[0] = Type("String") Then
+	If Not DigitalSignature.CommonSettings().IndividualUsed Then
 		Return Result;
 	EndIf;
 
+	TypesIndividuals = Metadata.DefinedTypes.Individual.Type.Types();
 	IndividualEmptyRef = New (TypesIndividuals[0]);
 	
 	Result.Insert("Persons", DigitalSignatureInternal.GetIndividualsByCertificateFieldIssuedTo(IssuedTo));
@@ -966,7 +974,7 @@ Procedure AddADescriptionOfTheCertificate(Certificate, FilesDetails, Information
 			Chars.Tab + NStr("en = 'Application: %1';"), String(AttributesValues.Application)) + Chars.LF;
 		
 		InformationRecords = InformationRecords + StringFunctionsClientServer.SubstituteParametersToString(
-			Chars.Tab + NStr("en = 'Protect digital signature application with password: %1';"),
+			Chars.Tab + NStr("en = 'Protect digital signing app with password: %1';"),
 			?(AttributesValues.EnterPasswordInDigitalSignatureApplication = True, NStr("en = 'Yes';"), NStr("en = 'No';"))) + Chars.LF;
 	EndIf;
 	
@@ -1050,21 +1058,25 @@ Function UsedApplications() Export
 	
 EndFunction
 
-Function TechnicalInformationArchiveAddress(Val AccompanyingText,
-			Val AdditionalFiles, Val VerifiedPathsToProgramModulesOnTheClient) Export
-	
-	DigitalSignatureInternal.SupplementWithTechnicalInformationAboutServer(AccompanyingText,
-		VerifiedPathsToProgramModulesOnTheClient);
-	
-	InformationArchive = New ZipFileWriter();
+Function TechnicalInformationArchiveAddress(
+			Val AdditionalFiles, Val AccompanyingText = Undefined, Val VerifiedPathsToProgramModulesOnTheClient = Undefined) Export
 	
 	TemporaryFiles = New Array;
-	TemporaryFiles.Add(GetTempFileName("txt"));
+	InformationArchive = New ZipFileWriter();
 	
-	StateText = New TextDocument;
-	StateText.SetText(AccompanyingText);
-	
+	If TypeOf(AccompanyingText) = Type("String") Then
+		DigitalSignatureInternal.SupplementWithTechnicalInformationAboutServer(AccompanyingText,
+			VerifiedPathsToProgramModulesOnTheClient);
+		StateText = New TextDocument;
+		StateText.SetText(AccompanyingText);
+		FileName = GetTempFileName("txt"); // 
+		StateText.Write(FileName);
+		TemporaryFiles.Add(FileName);
+		InformationArchive.Add(TemporaryFiles[0]);
+	EndIf;
+		
 	TempDirectory = FileSystem.CreateTemporaryDirectory();
+	
 	If AdditionalFiles <> Undefined Then
 		
 		If TypeOf(AdditionalFiles) = Type("Array") Then
@@ -1078,10 +1090,7 @@ Function TechnicalInformationArchiveAddress(Val AccompanyingText,
 		EndIf;
 		
 	EndIf;
-	
-	StateText.Write(TemporaryFiles[0]);
-	InformationArchive.Add(TemporaryFiles[0]);
-	
+		
 	ArchiveAddress = PutToTempStorage(InformationArchive.GetBinaryData(),
 		New UUID);
 	
@@ -1092,6 +1101,27 @@ Function TechnicalInformationArchiveAddress(Val AccompanyingText,
 	FileSystem.DeleteTemporaryDirectory(TempDirectory);
 	
 	Return ArchiveAddress;
+	
+EndFunction
+
+Function TechnicalInfoFileAddress(Val AccompanyingText,
+			Val VerifiedPathsToProgramModulesOnTheClient) Export
+	
+	DigitalSignatureInternal.SupplementWithTechnicalInformationAboutServer(AccompanyingText,
+		VerifiedPathsToProgramModulesOnTheClient);
+	
+	FileName = GetTempFileName("txt");
+	
+	StateText = New TextDocument;
+	StateText.SetText(AccompanyingText);
+	StateText.Write(FileName);
+	
+	FileAddress = PutToTempStorage(New BinaryData(FileName),
+		New UUID);
+	
+	FileSystem.DeleteTempFile(FileName);
+	
+	Return FileAddress;
 	
 EndFunction
 

@@ -608,7 +608,7 @@
 			</Attribute>
 			<Attribute uuid="ca47123d-90f5-4d1d-be06-34b505b01d81">
 				<Properties>
-					<Name>LogObjectUploads</Name>
+					<Name>LogObjectsExport</Name>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>

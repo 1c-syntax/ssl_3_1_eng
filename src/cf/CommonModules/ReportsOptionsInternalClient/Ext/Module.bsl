@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -191,9 +192,12 @@ EndProcedure
 
 Function ThisIsAContextSettingEvent(Event) Export 
 	
+	If TypeOf(Event) <> Type("Structure") Or Not Event.Property("Action") Then
+		Return False;
+	EndIf;
+
 	Events = ContextConfigurationEvents();
-	
-	Return Events[Event] = True;
+	Return Events[Event.Action] = True;
 	
 EndFunction
 
@@ -898,6 +902,10 @@ Procedure InsertAFieldInASectionGrouping(Group, Group2, SelectedField, CurrentFi
 		
 		FieldIndex = Fields.Items.IndexOf(FoundTheCurrentField);
 		
+		If FieldIndex = -1 And FoundTheCurrentField.Parent <> Undefined Then
+			FieldIndex = Fields.Items.IndexOf(FoundTheCurrentField.Parent);
+		EndIf;
+		
 		If Action = "InsertFieldRight" Then 
 			FieldIndex = FieldIndex + 1;
 		EndIf;
@@ -1201,10 +1209,16 @@ EndFunction
 
 Procedure MakeCopyOfFields(Group, Group2, CollectionName)
 	
-	Group[CollectionName].Items.Clear();
-	For Each CurrentField2 In Group2[CollectionName].Items Do
-		NewField = Group[CollectionName].Items.Add(TypeOf(CurrentField2));
+	GroupItems = ?(ValueIsFilled(CollectionName), Group[CollectionName].Items, Group.Items);
+	GroupItems2 = ?(ValueIsFilled(CollectionName), Group2[CollectionName].Items, Group2.Items);
+	
+	GroupItems.Clear();
+	For Each CurrentField2 In GroupItems2 Do
+		NewField = GroupItems.Add(TypeOf(CurrentField2));
 		FillPropertyValues(NewField, CurrentField2);
+		If TypeOf(CurrentField2) = Type("DataCompositionSelectedFieldGroup") Then
+			MakeCopyOfFields(NewField, CurrentField2, "");
+		EndIf;
 	EndDo;
 	
 EndProcedure
@@ -2673,11 +2687,7 @@ EndProcedure
 Procedure MoveResourcesToEnd(Fields)
 	
 	Resources = New Map;
-	For Each AvailableField In Fields.SelectionAvailableFields.Items Do
-		If AvailableField.Resource Then
-			Resources.Insert(AvailableField.Field, True);
-		EndIf;
-	EndDo;
+	GatherAllResourcesRecursively(Resources, Fields.SelectionAvailableFields.Items);
 	
 	IndexOf = Fields.Items.Count();
 	LastResourceIndex = IndexOf;
@@ -2694,6 +2704,16 @@ Procedure MoveResourcesToEnd(Fields)
 		EndIf;
 	EndDo;
 	
+EndProcedure
+
+Procedure GatherAllResourcesRecursively(Resources, Items)
+	For Each AvailableField In Items Do
+		If AvailableField.Resource Then
+			Resources.Insert(AvailableField.Field, True);
+		ElsIf AvailableField.Folder Then
+			GatherAllResourcesRecursively(Resources, AvailableField.Items)
+		EndIf;
+	EndDo;
 EndProcedure
 
 Procedure CopyFieldsOrder(GroupFields, SelectionFields)
@@ -3048,8 +3068,8 @@ Function DataAreaContextMenu(TitleProperties, AvailableCompareTypes)
 	
 	ContextMenu.Add(DesignSubmenu, NStr("en = 'Format';"),, PictureLib.DataCompositionConditionalAppearance);
 	
-	// Decrypt.
-	ContextMenu.Add("DecodeByDetailedRecords", NStr("en = 'Decrypt by detailed records';"));
+	// Drill down.
+	ContextMenu.Add("DecodeByDetailedRecords", NStr("en = 'Drill down by detailed records';"));
 	
 	Return ContextMenu;
 	

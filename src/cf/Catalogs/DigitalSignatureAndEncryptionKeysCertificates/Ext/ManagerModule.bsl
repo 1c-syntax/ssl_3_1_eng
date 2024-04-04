@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -140,7 +141,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	Selection = InfobaseUpdate.SelectRefsToProcess(Parameters.Queue,
 		"Catalog.DigitalSignatureAndEncryptionKeysCertificates");
 	If Selection.Count() > 0 Then
-		ProcessNotificationStatementsAndValidityOfCertificates(Selection);
+		ProcessCertificatesRequestsNotificationsAndValidityPeriods(Selection);
 	EndIf;
 
 	ProcessingCompleted = InfobaseUpdate.DataProcessingCompleted(Parameters.Queue,
@@ -153,7 +154,7 @@ EndProcedure
 
 #Region Private
 
-Procedure ProcessNotificationStatementsAndValidityOfCertificates(Selection)
+Procedure ProcessCertificatesRequestsNotificationsAndValidityPeriods(Selection)
 	
 	ObjectsProcessed = 0;
 	ObjectsWithIssuesCount = 0;
@@ -183,7 +184,7 @@ Procedure ProcessNotificationStatementsAndValidityOfCertificates(Selection)
 
 			CertificateObject = Selection.Ref.GetObject(); // CatalogObject.DigitalSignatureAndEncryptionKeysCertificates
 			
-			
+			// Transfer certificate update notifications into the information register.
 			If CertificateObject.DeleteUserNotifiedOfExpirationDate Then
 				AlertRecordset = InformationRegisters.CertificateUsersNotifications.CreateRecordSet();
 				AlertRecordset.Filter.Certificate.Set(Selection.Ref);
@@ -213,7 +214,7 @@ Procedure ProcessNotificationStatementsAndValidityOfCertificates(Selection)
 				WriteObject = True;
 			EndIf;
 			
-			
+			// Transfer request data into the information register.
 			If CertificateIssueRequestAvailable
 			   And ValueIsFilled(CertificateObject.DeleteStatementStatement) Then
 				
@@ -239,7 +240,7 @@ Procedure ProcessNotificationStatementsAndValidityOfCertificates(Selection)
 					
 					If Certificate <> Undefined Then
 						CertificateProperties = DigitalSignatureInternalClientServer.CertificateProperties(
-							Certificate, DigitalSignatureInternal.TimeAddition(), CertificateBinaryData);
+							Certificate, DigitalSignatureInternal.UTCOffset(), CertificateBinaryData);
 						If CertificateObject.ValidBefore <> CertificateProperties.ValidBefore Then
 							SearchString = Format(CertificateObject.ValidBefore, "DF=MM.yyyy");
 							ReplacementString = Format(CertificateProperties.ValidBefore, "DF=MM.yyyy");
@@ -263,23 +264,20 @@ Procedure ProcessNotificationStatementsAndValidityOfCertificates(Selection)
 		Except
 
 			RollbackTransaction();
-			
+			// If a certificate cannot be processed, try again.
 			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
-
-			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Не удалось обработать сертификат: %1 по причине:
-					 |%2';"), RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-
-			WriteLogEvent(InfobaseUpdate.EventLogEvent(),
-				EventLogLevel.Warning, Selection.Ref.Metadata(), Selection.Ref, MessageText);
-
+			
+			InfobaseUpdate.WriteErrorToEventLog(
+				Selection.Ref,
+				RepresentationOfTheReference,
+				ErrorInfo());
 		EndTry;
 
 	EndDo;
 
 	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Не удалось обработать некоторые сертификаты (пропущены): %1';"),
+			NStr("en = 'Couldn''t process (skipped) some certificates: %1';"),
 			ObjectsWithIssuesCount);
 		Raise MessageText;
 	Else
@@ -287,7 +285,7 @@ Procedure ProcessNotificationStatementsAndValidityOfCertificates(Selection)
 			EventLogLevel.Information,
 			Metadata.Catalogs.DigitalSignatureAndEncryptionKeysCertificates,,
 			StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Обработана очередная порция сертификатов: %1';"), ObjectsProcessed));
+				NStr("en = 'Another batch of certificates is processed: %1';"), ObjectsProcessed));
 	EndIf;
 	
 EndProcedure

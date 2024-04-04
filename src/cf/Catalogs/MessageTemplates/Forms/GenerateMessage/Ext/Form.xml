@@ -15,11 +15,23 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.Generate</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Create from template</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormGenerateExtendedTooltip" id="25"/>
 			</Button>
 			<Button name="FormGenerateAndSend" id="22">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.GenerateAndSend</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Create and send</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormGenerateAndSendExtendedTooltip" id="23"/>
 			</Button>
 			<ButtonGroup name="FormEditGroup" id="76">
@@ -35,6 +47,12 @@
 					<Button name="FormCreate" id="58">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.Create</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Create</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InCommandBar</LocationInCommandBar>
 						<ExtendedTooltip name="FormCreateExtendedTooltip" id="59"/>
 					</Button>
@@ -148,6 +166,12 @@
 					<ChildItems>
 						<InputField name="TemplatesPresentation" id="55">
 							<DataPath>Templates.Presentation</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Presentation</v8:content>
+								</v8:item>
+							</Title>
 							<EditMode>EnterOnInput</EditMode>
 							<ContextMenu name="TemplatesPresentationContextMenu" id="56"/>
 							<ExtendedTooltip name="TemplatesPresentationExtendedTooltip" id="57"/>
@@ -176,6 +200,12 @@
 								<TextDocumentField name="PreviewPlainText" id="71" DisplayImportance="VeryHigh">
 									<DataPath>PreviewPlainText</DataPath>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Preview plain mail</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<Height>15</Height>
 									<ContextMenu name="PreviewPlainTextContextMenu" id="72"/>
@@ -195,6 +225,12 @@
 								<FormattedDocumentField name="PreviewFormattedDocument" id="68">
 									<DataPath>PreviewFormattedDocument</DataPath>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Preview HTML mail</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<AutoMaxHeight>false</AutoMaxHeight>
 									<ContextMenu name="PreviewFormattedDocumentContextMenu" id="69"/>
@@ -311,6 +347,12 @@
 										</Table>
 										<LabelField name="AttachmentFormat" id="104">
 											<DataPath>AttachmentFormat</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Attachment format</v8:content>
+												</v8:item>
+											</Title>
 											<Hiperlink>true</Hiperlink>
 											<ContextMenu name="AttachmentFormatContextMenu" id="105"/>
 											<ExtendedTooltip name="AttachmentFormatExtendedTooltip" id="106"/>
@@ -333,6 +375,12 @@
 										</CheckBoxField>
 										<CheckBoxField name="TransliterateFilesNames" id="110">
 											<DataPath>TransliterateFilesNames</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Transliterate file names</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>Right</TitleLocation>
 											<ToolTip>
 												<v8:item>
@@ -347,6 +395,12 @@
 										</CheckBoxField>
 										<CheckBoxField name="SignatureAndSeal" id="115">
 											<DataPath>SignatureAndSeal</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Insert signature and stamp</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>Right</TitleLocation>
 											<CheckBoxType>Auto</CheckBoxType>
 											<ContextMenu name="SignatureAndSealContextMenu" id="116"/>
@@ -354,6 +408,12 @@
 										</CheckBoxField>
 										<CheckBoxField name="Sign" id="118">
 											<DataPath>Sign</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Sign</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>Right</TitleLocation>
 											<CheckBoxType>Auto</CheckBoxType>
 											<ContextMenu name="SignContextMenu" id="119"/>

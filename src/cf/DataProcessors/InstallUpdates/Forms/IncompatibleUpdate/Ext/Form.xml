@@ -51,8 +51,8 @@
 						</v8:item>
 					</Title>
 					<Picture>
-						<xr:Ref>CommonPicture.Warning32</xr:Ref>
-						<xr:LoadTransparent>false</xr:LoadTransparent>
+						<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</Picture>
 					<ContextMenu name="WarningPicture2ContextMenu" id="20"/>
 					<ExtendedTooltip name="WarningPicture2ExtendedTooltip" id="21"/>
@@ -150,6 +150,12 @@
 			<ChildItems>
 				<InputField name="UpdateForVersionsConfigurationVersion" id="14">
 					<DataPath>UpdateForVersions.Version</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Version</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ContextMenu name="UpdateForVersionsConfigurationVersionContextMenu" id="15"/>
 					<ExtendedTooltip name="UpdateForVersionsConfigurationVersionExtendedTooltip" id="16"/>

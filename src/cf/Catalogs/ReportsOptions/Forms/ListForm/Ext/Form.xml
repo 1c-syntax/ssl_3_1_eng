@@ -80,6 +80,12 @@
 			<ChildItems>
 				<InputField name="SearchString" id="60">
 					<DataPath>SearchString</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Search</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<ToolTip>
 						<v8:item>
@@ -109,6 +115,12 @@
 				<Button name="ExecuteSearch" id="132">
 					<Type>UsualButton</Type>
 					<CommandName>Form.Command.ExecuteSearch</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Find</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="ExecuteSearch1ExtendedTooltip" id="133"/>
 				</Button>
 				<InputField name="FilterReportType" id="45">
@@ -116,6 +128,12 @@
 					<UserVisible>
 						<xr:Common>false</xr:Common>
 					</UserVisible>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Type</v8:content>
+						</v8:item>
+					</Title>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -143,7 +161,7 @@
 					</InputHint>
 					<ChoiceHistoryOnInput>DontUse</ChoiceHistoryOnInput>
 					<ContextMenu name="FilterReportTypeContextMenu" id="46"/>
-					<ExtendedTooltip name="FilterByReportTypeExtendedTooltip" id="101"/>
+					<ExtendedTooltip name="FilterReportTypeExtendedTooltip" id="101"/>
 					<Events>
 						<Event name="OnChange">FilterByReportTypeOnChange</Event>
 						<Event name="Clearing">FilterByReportTypeClearing</Event>
@@ -258,7 +276,7 @@
 					<CommandName>Catalog.ReportsOptions.Command.ResetUserSettings</CommandName>
 					<DataPath>Items.List.CurrentData.Ref</DataPath>
 					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-					<ExtendedTooltip name="ResetUsersSettingsExtendedTooltip" id="111"/>
+					<ExtendedTooltip name="ResetUserSettingsExtendedTooltip" id="111"/>
 				</Button>
 				<Button name="SetDeletionMark" id="83">
 					<Type>CommandBarButton</Type>
@@ -278,11 +296,23 @@
 						<Button name="UpdateReportOptionFromFile" id="196">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.UpdateReportOptionFromFile</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Update from file…</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="UpdateReportOptionFromFileExtendedTooltip" id="197"/>
 						</Button>
 						<Button name="SaveReportOptionToFile" id="198">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.SaveReportOptionToFile</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Save to file…</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="SaveReportOptionToFile1ExtendedTooltip" id="199"/>
 						</Button>
 					</ChildItems>
@@ -299,7 +329,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="HorizontalGroup4ExtendedTooltip" id="113"/>
+			<ExtendedTooltip name="GroupHorizontalExtendedTooltip" id="113"/>
 			<ChildItems>
 				<UsualGroup name="SectionsGroup" id="92">
 					<Title>
@@ -381,6 +411,12 @@
 							<ChildItems>
 								<InputField name="SubsystemsTreePresentation" id="68">
 									<DataPath>SubsystemsTree.Presentation</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Section, Group</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<TextEdit>false</TextEdit>
 									<ContextMenu name="SubsystemsTreePresentationContextMenu" id="69"/>
@@ -390,6 +426,12 @@
 						</Table>
 						<CheckBoxField name="IncludingSubordinates" id="93">
 							<DataPath>IncludingSubordinates</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Show nested reports</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<CheckBoxType>Auto</CheckBoxType>
 							<ContextMenu name="IncludingSubordinatesContextMenu" id="94"/>
@@ -783,6 +825,271 @@ WHERE
 						ParentsOverridable.Report IN (&amp;AvailableReports)
 						AND NOT ParentsOverridable.Ref IN (&amp;UserOptions))
 		END</QueryText>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Description</dcssch:dataPath>
+					<dcssch:field>Description</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Description</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DefaultVisibility</dcssch:dataPath>
+					<dcssch:field>DefaultVisibility</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DefaultVisibilityOverridden</dcssch:dataPath>
+					<dcssch:field>DefaultVisibilityOverridden</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>InteractiveDeletionMark</dcssch:dataPath>
+					<dcssch:field>InteractiveDeletionMark</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Keywords</dcssch:dataPath>
+					<dcssch:field>Keywords</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Context</dcssch:dataPath>
+					<dcssch:field>Context</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>FilterParameterDescriptions</dcssch:dataPath>
+					<dcssch:field>FilterParameterDescriptions</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>FieldDescriptions</dcssch:dataPath>
+					<dcssch:field>FieldDescriptions</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Settings</dcssch:dataPath>
+					<dcssch:field>Settings</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>LongDesc</dcssch:dataPath>
+					<dcssch:field>LongDesc</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Details</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>LongDescLanguage1</dcssch:dataPath>
+					<dcssch:field>LongDescLanguage1</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>LongDescLanguage2</dcssch:dataPath>
+					<dcssch:field>LongDescLanguage2</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>PredefinedOption</dcssch:dataPath>
+					<dcssch:field>PredefinedOption</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>AuthorOnly</dcssch:dataPath>
+					<dcssch:field>AuthorOnly</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>SettingsHash</dcssch:dataPath>
+					<dcssch:field>SettingsHash</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Location</dcssch:dataPath>
+					<dcssch:field>Location</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Presentations</dcssch:dataPath>
+					<dcssch:field>Presentations</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Predefined</dcssch:dataPath>
+					<dcssch:field>Predefined</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>PredefinedDataName</dcssch:dataPath>
+					<dcssch:field>PredefinedDataName</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DescriptionLanguage2</dcssch:dataPath>
+					<dcssch:field>DescriptionLanguage2</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DescriptionLanguage1</dcssch:dataPath>
+					<dcssch:field>DescriptionLanguage1</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Ref</dcssch:dataPath>
+					<dcssch:field>Ref</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DeletionMark</dcssch:dataPath>
+					<dcssch:field>DeletionMark</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>MeasurementsKey</dcssch:dataPath>
+					<dcssch:field>MeasurementsKey</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Sample key</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Custom</dcssch:dataPath>
+					<dcssch:field>Custom</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>AvailableToAllUsers</dcssch:dataPath>
+					<dcssch:field>AvailableToAllUsers</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Available to all users</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Report</dcssch:dataPath>
+					<dcssch:field>Report</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>VariantKey</dcssch:dataPath>
+					<dcssch:field>VariantKey</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>ReportType</dcssch:dataPath>
+					<dcssch:field>ReportType</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Author</dcssch:dataPath>
+					<dcssch:field>Author</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Purpose</dcssch:dataPath>
+					<dcssch:field>Purpose</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>ReportName</dcssch:dataPath>
+					<dcssch:field>ReportName</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Report name</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>FullReportName</dcssch:dataPath>
+					<dcssch:field>FullReportName</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Full report name</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>PictureIndex</dcssch:dataPath>
+					<dcssch:field>PictureIndex</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Picture index</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Parent</dcssch:dataPath>
+					<dcssch:field>Parent</dcssch:field>
+				</Field>
+				<Parameter>
+					<dcssch:name>UserOptions</dcssch:name>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>User's report options</v8:content>
+						</v8:item>
+					</dcssch:title>
+					<dcssch:useRestriction>true</dcssch:useRestriction>
+					<dcssch:valueListAllowed>true</dcssch:valueListAllowed>
+				</Parameter>
+				<Parameter>
+					<dcssch:name>IsMainLanguage</dcssch:name>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>This is default language</v8:content>
+						</v8:item>
+					</dcssch:title>
+					<dcssch:valueType>
+						<v8:Type>xs:boolean</v8:Type>
+					</dcssch:valueType>
+					<dcssch:value xsi:nil="true"/>
+					<dcssch:useRestriction>true</dcssch:useRestriction>
+				</Parameter>
+				<Parameter>
+					<dcssch:name>ExtensionsVersion</dcssch:name>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Extension version</v8:content>
+						</v8:item>
+					</dcssch:title>
+					<dcssch:valueType>
+						<v8:Type>cfg:CatalogRef.ExtensionsVersions</v8:Type>
+					</dcssch:valueType>
+					<dcssch:value xsi:nil="true"/>
+					<dcssch:useRestriction>true</dcssch:useRestriction>
+				</Parameter>
+				<Parameter>
+					<dcssch:name>ReportName</dcssch:name>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Report name</v8:content>
+						</v8:item>
+					</dcssch:title>
+					<dcssch:value xsi:nil="true"/>
+					<dcssch:useRestriction>true</dcssch:useRestriction>
+				</Parameter>
+				<Parameter>
+					<dcssch:name>HasFilterByOptions</dcssch:name>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Has filter by option</v8:content>
+						</v8:item>
+					</dcssch:title>
+					<dcssch:value xsi:nil="true"/>
+					<dcssch:useRestriction>true</dcssch:useRestriction>
+				</Parameter>
+				<Parameter>
+					<dcssch:name>DIsabledApplicationOptions</dcssch:name>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Disabled report options</v8:content>
+						</v8:item>
+					</dcssch:title>
+					<dcssch:useRestriction>true</dcssch:useRestriction>
+					<dcssch:valueListAllowed>true</dcssch:valueListAllowed>
+				</Parameter>
+				<Parameter>
+					<dcssch:name>AvailableReports</dcssch:name>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Available reports</v8:content>
+						</v8:item>
+					</dcssch:title>
+					<dcssch:useRestriction>true</dcssch:useRestriction>
+					<dcssch:valueListAllowed>true</dcssch:valueListAllowed>
+				</Parameter>
 				<MainTable>Catalog.ReportsOptions</MainTable>
 				<ListSettings>
 					<dcsset:filter>
@@ -933,7 +1240,7 @@ WHERE
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Include subordinate subsystems</v8:content>
+					<v8:content>Show nested reports</v8:content>
 				</v8:item>
 			</Title>
 			<Type>

@@ -50,6 +50,12 @@
 				<Button name="FormDeletionMark" id="31">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.DeletionMark</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Toggle deletion mark</v8:content>
+						</v8:item>
+					</Title>
 					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 					<ExtendedTooltip name="FormDeletionMarkExtendedTooltip" id="47"/>
 				</Button>
@@ -60,7 +66,7 @@
 							<v8:content>Search</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="GroupSearchExtendedTooltip" id="48"/>
+					<ExtendedTooltip name="SearchGroupExtendedTooltip" id="48"/>
 					<ChildItems>
 						<Button name="FormCancelSearch" id="33">
 							<Type>CommandBarButton</Type>
@@ -78,11 +84,23 @@
 					<Type>CommandBarButton</Type>
 					<Representation>PictureAndText</Representation>
 					<CommandName>Form.Command.BusinessProcessTasks</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Tasks</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="BusinessProcessTaskFormExtendedTooltip" id="89"/>
 				</Button>
 				<Button name="FormFlowchart" id="35">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.Flowchart</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Flowchart</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="FormFlowchartExtendedTooltip" id="51"/>
 				</Button>
 			</ChildItems>
@@ -133,6 +151,12 @@
 					<Button name="ListContextMenuDeletionMark" id="46">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.DeletionMark</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Toggle deletion mark</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="ListContextMenuDeletionMarkExtendedTooltip" id="53"/>
 					</Button>
 					<ButtonGroup name="ListContextMenuGroup" id="38">
@@ -159,6 +183,12 @@
 					<Button name="ListContextMenuFlowchart" id="41">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.Flowchart</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Flowchart</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="ListContextMenuFlowchartExtendedTooltip" id="57"/>
 					</Button>
 					<Button name="ListContextMenuCopyToClipboard" id="45">
@@ -257,6 +287,12 @@
 		</Table>
 		<CheckBoxField name="ShowCompletedItems" id="29">
 			<DataPath>ShowCompletedItems</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Show completed duties</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>Right</TitleLocation>
 			<CheckBoxType>Auto</CheckBoxType>
 			<ContextMenu name="ShowCompletedItemsContextMenu" id="30"/>
@@ -325,6 +361,12 @@ FROM
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>BusinessProcess</dcssch:dataPath>
 					<dcssch:field>BusinessProcess</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Business process</v8:content>
+						</v8:item>
+					</dcssch:title>
 				</Field>
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>Number</dcssch:dataPath>
@@ -361,10 +403,22 @@ FROM
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>RowPicture</dcssch:dataPath>
 					<dcssch:field>RowPicture</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Row picture</v8:content>
+						</v8:item>
+					</dcssch:title>
 				</Field>
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>Defer</dcssch:dataPath>
 					<dcssch:field>Defer</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Deferred</v8:content>
+						</v8:item>
+					</dcssch:title>
 				</Field>
 				<MainTable>InformationRegister.BusinessProcessesData</MainTable>
 				<ListSettings>

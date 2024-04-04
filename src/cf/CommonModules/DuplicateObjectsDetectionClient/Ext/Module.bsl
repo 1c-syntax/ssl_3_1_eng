@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -71,9 +72,9 @@ EndProcedure
 //              - Array of AnyRef
 //              - ValueList - List of items to analyze.
 //         Alternatively can take a collection of items with the Reference attribute.
-//     OpeningParameters - Structure -  
-//         
-//         
+//     OpeningParameters - Structure - Form opening parameters. Optional fields are: 
+//         Owner, Uniqueness, Window, URL, OnCloseNotifyDescription, WindowOpeningMode
+//         The fields match the parameters of the "OpenForm" function.
 // 
 Procedure ShowUsageInstances(Val Items, Val OpeningParameters = Undefined) Export
 	

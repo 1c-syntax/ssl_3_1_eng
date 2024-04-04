@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -94,8 +95,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.AdditionalInformationGroup.Visible = Not IsBlankString(Items.AdditionalInformation.Title);
 	Items.PictureOfInformation.Visible = Items.PictureOfInformation.Picture.Type <> PictureType.Empty;
 	
-	SSLSubsystemsIntegration.PrintDocumentsOnCreateAtServer(ThisObject, Cancel, StandardProcessing);
-	PrintManagementOverridable.PrintDocumentsOnCreateAtServer(ThisObject, Cancel, StandardProcessing);
+	PrintManagement.PrintDocumentsOnCreateAtServer(ThisObject, Cancel, StandardProcessing);
 	
 	If Common.IsMobileClient() Then
 		Items.CommandBarLeftPart.Visible = False;
@@ -143,7 +143,6 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	SetFormHeader();		
 EndProcedure
 
-
 &AtClient
 Procedure OnOpen(Cancel)
 	
@@ -165,7 +164,6 @@ Procedure OnOpen(Cancel)
 	EndIf;
 	
 EndProcedure
-
 
 &AtClient
 Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
@@ -206,7 +204,6 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 	PrintManagementClientOverridable.PrintDocumentsNotificationProcessing(ThisObject, EventName, Parameter, Source);
 	
 EndProcedure
-
 
 #EndRegion
 
@@ -486,10 +483,15 @@ Function IdleParameters()
 
 EndFunction
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  ArrayOfPrintForms - Array
+//
 &AtClient
 Procedure OpenPrintFormsFollowUp(Result, ArrayOfPrintForms) Export
 	If Result.Status = "Error" Then
-		Raise Result.BriefErrorDescription; 
+		StandardSubsystemsClient.OutputErrorInfo(
+			Result.ErrorInfo);
 	Else
 		CombinedDocStructure = GetFromTempStorage(Result.ResultAddress);
 		ArrayOfPrintForms = GetPrintForms(CombinedDocStructure, ArrayOfPrintForms);
@@ -715,6 +717,10 @@ Function HasSignaturesAndSealsForPrintObjects()
 	
 EndFunction
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  ContinuationHandler - 
+//
 &AtClient
 Procedure OnCompleteGeneratingPrintForms(Result, ContinuationHandler) Export
 
@@ -723,7 +729,9 @@ Procedure OnCompleteGeneratingPrintForms(Result, ContinuationHandler) Export
 	EndIf;
 	
 	If Result.Status = "Error" Then
-		Raise Result.BriefErrorDescription;
+		StandardSubsystemsClient.OutputErrorInfo(
+			Result.ErrorInfo);
+		Return;
 	EndIf;
 	CombinedDocStructure = GetFromTempStorage(Result.ResultAddress);
 
@@ -862,9 +870,9 @@ Procedure SelectionProcessingCompletion(Result, ChoiceParameters) Export
 				EndIf;
 				
 				ModuleFilesOperationsInternalClient = CommonClient.CommonModule("FilesOperationsInternalClient");
-				ModuleFilesOperationsInternalClient.NotifyAboutFileChanges(WrittenObjects);
+				ModuleFilesOperationsInternalClient.NotifyOfFilesModification(WrittenObjects);
 				
-				ShowUserNotification(NStr("en = 'Saved';"), , , PictureLib.Information32);
+				ShowUserNotification(NStr("en = 'Saved';"), , , PictureLib.DialogInformation);
 			EndIf;
 		EndIf;
 		
@@ -1037,7 +1045,7 @@ Procedure PrintAfterTempDirNameObtained(TempFilesDirName, ArrayOfPrintForms) Exp
 	#If WebClient Then
 		TempFileName = TempFilesDirName + String(New UUID);
 	#Else
-		TempFileName = GetTempFileName("DOCX"); 
+		TempFileName = GetTempFileName("DOCX"); // ACC:441 - The function is a temporary file name getter.
 	#EndIf
 		Notification = New NotifyDescription("AfterFileSaved", ThisObject, TempFileName);
 		DocumentData = GetFromTempStorage(PrintForm.PrintFormAddress); // BinaryData
@@ -1304,7 +1312,7 @@ Function PutOfficeDocsToTempStorage(PassedSettings, UseIndividualPrintForms = Fa
 	
 	If PassedSettings.Property("AttachmentsList") And PassedSettings.AttachmentsList <> Undefined
 			And Not UseIndividualPrintForms Then
-		PrintFormsSettingsTemp = PassedSettings.AttachmentsList; 
+		PrintFormsSettingsTemp = PassedSettings.AttachmentsList; // A single document.
 	Else
 		PrintFormsSettingsTemp = PrintFormsSettings;
 	EndIf;
@@ -1501,7 +1509,7 @@ Procedure WhenPreparingFileNames(FilesListInTempStorage, DirectoryName) Export
 	If ValueIsFilled(DirectoryName) Then
 		NotifyDescription = New NotifyDescription("OpenFolderSaveTo", ThisObject, DirectoryName); 
 		ShowUserNotification(NStr("en = 'Saved successfully.';"), NotifyDescription,
-			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Folder: %1';"), DirectoryName), PictureLib.Information32);
+			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Folder: %1';"), DirectoryName), PictureLib.DialogInformation);
 	EndIf;
 #EndIf
 	
@@ -1530,10 +1538,15 @@ Function AttachPrintFormsToObject(FilesInTempStorage)
 	Return Result;
 EndFunction
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  ArrayOfPrintForms - Array
+//
 &AtClient
 Procedure PrintFollowUp(Result, ArrayOfPrintForms) Export
 	If Result.Status = "Error" Then
-		Raise Result.BriefErrorDescription; 
+		StandardSubsystemsClient.OutputErrorInfo(
+			Result.ErrorInfo);
 	Else
 		CombinedDocStructure = GetFromTempStorage(Result.ResultAddress);
 		ArrayOfPrintForms = GetPrintForms(CombinedDocStructure, ArrayOfPrintForms);

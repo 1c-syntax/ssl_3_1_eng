@@ -26,7 +26,7 @@
 			</Title>
 			<VerticalStretch>true</VerticalStretch>
 			<PagesRepresentation>None</PagesRepresentation>
-			<ExtendedTooltip name="MainPanel1ExtendedTooltip" id="31"/>
+			<ExtendedTooltip name="PanelMainExtendedTooltip" id="31"/>
 			<ChildItems>
 				<Page name="Begin" id="14">
 					<Title>
@@ -39,6 +39,12 @@
 					<ExtendedTooltip name="BeginExtendedTooltip" id="32"/>
 					<ChildItems>
 						<UsualGroup name="Group7" id="15">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group</v8:content>
+								</v8:item>
+							</Title>
 							<Group>Horizontal</Group>
 							<VerticalAlign>Center</VerticalAlign>
 							<Behavior>Usual</Behavior>
@@ -50,8 +56,8 @@
 									<Width>6</Width>
 									<Height>3</Height>
 									<Picture>
-										<xr:Ref>CommonPicture.Warning32</xr:Ref>
-										<xr:LoadTransparent>false</xr:LoadTransparent>
+										<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
 									<ContextMenu name="Decoration3ContextMenu" id="17"/>
@@ -86,6 +92,12 @@ is transferred to the web application.</v8:content>
 					<ExtendedTooltip name="WaitingExtendedTooltip" id="36"/>
 					<ChildItems>
 						<UsualGroup name="Group8" id="9">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group</v8:content>
+								</v8:item>
+							</Title>
 							<Group>Horizontal</Group>
 							<VerticalAlign>Center</VerticalAlign>
 							<Behavior>Usual</Behavior>
@@ -132,6 +144,12 @@ Please wait…</v8:content>
 					<ExtendedTooltip name="EndExtendedTooltip" id="40"/>
 					<ChildItems>
 						<UsualGroup name="Group9" id="3">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group</v8:content>
+								</v8:item>
+							</Title>
 							<Group>Horizontal</Group>
 							<VerticalAlign>Center</VerticalAlign>
 							<Behavior>Usual</Behavior>
@@ -188,6 +206,12 @@ Please wait…</v8:content>
 					<ExtendedTooltip name="NavigationStartPageExtendedTooltip" id="45"/>
 					<ChildItems>
 						<CommandBar name="Group5" id="28">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group</v8:content>
+								</v8:item>
+							</Title>
 							<HorizontalLocation>Right</HorizontalLocation>
 							<ExtendedTooltip name="Group5ExtendedTooltip" id="46"/>
 							<ChildItems>
@@ -195,11 +219,23 @@ Please wait…</v8:content>
 									<Type>CommandBarButton</Type>
 									<DefaultButton>true</DefaultButton>
 									<CommandName>Form.Command.StopDataSynchronization</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Stop data synchronization</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="StopDataSynchronizationExtendedTooltip" id="47"/>
 								</Button>
 								<Button name="Cancel" id="30">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.Cancel</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Cancel</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="CancelExtendedTooltip" id="48"/>
 								</Button>
 							</ChildItems>
@@ -221,6 +257,12 @@ Please wait…</v8:content>
 						<CommandBar name="Group6" id="22">
 							<Enabled>false</Enabled>
 							<EnableContentChange>true</EnableContentChange>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group</v8:content>
+								</v8:item>
+							</Title>
 							<HorizontalLocation>Right</HorizontalLocation>
 							<ExtendedTooltip name="Group6ExtendedTooltip" id="50"/>
 							<ChildItems>
@@ -228,6 +270,12 @@ Please wait…</v8:content>
 									<Type>CommandBarButton</Type>
 									<Enabled>false</Enabled>
 									<CommandName>Form.Command.Close</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Close</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="CloseExtendedTooltip" id="51"/>
 								</Button>
 							</ChildItems>
@@ -246,12 +294,24 @@ Please wait…</v8:content>
 					<ChildItems>
 						<CommandBar name="Group14" id="25">
 							<EnableContentChange>true</EnableContentChange>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group</v8:content>
+								</v8:item>
+							</Title>
 							<HorizontalLocation>Right</HorizontalLocation>
 							<ExtendedTooltip name="Group14ExtendedTooltip" id="53"/>
 							<ChildItems>
 								<Button name="Close1" id="26">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.Close</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Close</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="Close1ExtendedTooltip" id="54"/>
 								</Button>
 							</ChildItems>

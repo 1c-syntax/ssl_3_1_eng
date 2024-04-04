@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region EventHandlers
@@ -23,9 +24,9 @@ Procedure CommandProcessing(CommandParameter, CommandExecuteParameters)
 				|
 				|With them, users will be able to exchange text messages, make video calls,
 				|create themed conversations, and correspond on documents.';");
-		CompletionNotification2 = New NotifyDescription("SuggestDiscussionsCompletion", ThisObject);
+		CallbackOnCompletion = New NotifyDescription("SuggestDiscussionsCompletion", ThisObject);
 		
-		ShowQueryBox(CompletionNotification2, SuggestConversationsText, QuestionDialogMode.YesNo);
+		ShowQueryBox(CallbackOnCompletion, SuggestConversationsText, QuestionDialogMode.YesNo);
 		Return;
 	EndIf;
 	

@@ -23,7 +23,7 @@
 				</v8:item>
 			</Title>
 			<PagesRepresentation>None</PagesRepresentation>
-			<ExtendedTooltip name="MainPanel1ExtendedTooltip" id="151"/>
+			<ExtendedTooltip name="PanelMainExtendedTooltip" id="151"/>
 			<ChildItems>
 				<Page name="ObjectsMapping" id="77">
 					<EnableContentChange>true</EnableContentChange>
@@ -33,7 +33,7 @@
 							<v8:content>Object mapping</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="ObjectMappingExtendedTooltip" id="152"/>
+					<ExtendedTooltip name="ObjectsMappingExtendedTooltip" id="152"/>
 					<ChildItems>
 						<CommandBar name="TableCommandBar" id="69">
 							<Title>
@@ -48,13 +48,25 @@
 									<Type>CommandBarButton</Type>
 									<SkipOnInput>false</SkipOnInput>
 									<CommandName>Form.Command.SelectCheckBoxes</CommandName>
-									<ExtendedTooltip name="SelectAll3ExtendedTooltip" id="154"/>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Select all</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="SelectCheckBoxesExtendedTooltip" id="154"/>
 								</Button>
 								<Button name="ClearCheckBoxes" id="68">
 									<Type>CommandBarButton</Type>
 									<SkipOnInput>false</SkipOnInput>
 									<CommandName>Form.Command.ClearCheckBoxes</CommandName>
-									<ExtendedTooltip name="ClearAll4ExtendedTooltip" id="155"/>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Clear all</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="ClearCheckBoxesExtendedTooltip" id="155"/>
 								</Button>
 							</ChildItems>
 						</CommandBar>
@@ -264,19 +276,31 @@
 								</v8:item>
 							</Title>
 							<HorizontalLocation>Right</HorizontalLocation>
-							<ExtendedTooltip name="FormCommandBarExtendedTooltip" id="172"/>
+							<ExtendedTooltip name="CommandBarFormExtendedTooltip" id="172"/>
 							<ChildItems>
 								<Button name="Apply" id="14">
 									<Type>CommandBarButton</Type>
 									<DefaultButton>true</DefaultButton>
 									<SkipOnInput>false</SkipOnInput>
 									<CommandName>Form.Command.Apply</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Apply</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="ApplyExtendedTooltip" id="173"/>
 								</Button>
 								<Button name="Cancel" id="30">
 									<Type>CommandBarButton</Type>
 									<SkipOnInput>false</SkipOnInput>
 									<CommandName>Form.Command.Cancel</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Cancel</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="CancelExtendedTooltip" id="174"/>
 								</Button>
 							</ChildItems>
@@ -332,7 +356,7 @@
 											<Behavior>Usual</Behavior>
 											<Representation>None</Representation>
 											<ShowTitle>false</ShowTitle>
-											<ExtendedTooltip name="PictureGroup4ExtendedTooltip" id="178"/>
+											<ExtendedTooltip name="PicturesGroupExtendedTooltip" id="178"/>
 											<ChildItems>
 												<PictureDecoration name="Decoration14" id="123">
 													<SkipOnInput>false</SkipOnInput>
@@ -436,7 +460,7 @@
 											<Behavior>Usual</Behavior>
 											<Representation>None</Representation>
 											<ShowTitle>false</ShowTitle>
-											<ExtendedTooltip name="PictureGroup41ExtendedTooltip" id="185"/>
+											<ExtendedTooltip name="PicturesGroup1ExtendedTooltip" id="185"/>
 											<ChildItems>
 												<PictureDecoration name="Decoration3" id="132">
 													<SkipOnInput>false</SkipOnInput>
@@ -497,11 +521,17 @@
 								</v8:item>
 							</Title>
 							<HorizontalLocation>Right</HorizontalLocation>
-							<ExtendedTooltip name="FormCommandBar2ExtendedTooltip" id="189"/>
+							<ExtendedTooltip name="CommandBarForm2ExtendedTooltip" id="189"/>
 							<ChildItems>
 								<Button name="Close1" id="150">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.Close</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Close</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="Close1ExtendedTooltip" id="190"/>
 								</Button>
 							</ChildItems>
@@ -569,7 +599,7 @@
 											<Behavior>Usual</Behavior>
 											<Representation>None</Representation>
 											<ShowTitle>false</ShowTitle>
-											<ExtendedTooltip name="PictureGroup42ExtendedTooltip" id="194"/>
+											<ExtendedTooltip name="PicturesGroup2ExtendedTooltip" id="194"/>
 											<ChildItems>
 												<PictureDecoration name="Decoration5" id="141">
 													<SkipOnInput>false</SkipOnInput>
@@ -631,11 +661,17 @@ Try specifying other search conditions.</v8:content>
 								</v8:item>
 							</Title>
 							<HorizontalLocation>Right</HorizontalLocation>
-							<ExtendedTooltip name="FormCommandBar1ExtendedTooltip" id="198"/>
+							<ExtendedTooltip name="CommandBarForm1ExtendedTooltip" id="198"/>
 							<ChildItems>
 								<Button name="Close" id="149">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.Close</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Close</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="CloseExtendedTooltip" id="199"/>
 								</Button>
 							</ChildItems>

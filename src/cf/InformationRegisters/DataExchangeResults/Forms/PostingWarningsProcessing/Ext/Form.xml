@@ -30,6 +30,12 @@
 					<Button name="TableOfCorrectionObjectsPostDocuments" id="26">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.PostDocuments</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Post documents</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="TableOfCorrectionObjectsPostDocumentsExtendedTooltip" id="27"/>
 					</Button>
 					<ButtonGroup name="PatchObjectsTableSelectionCommand" id="24">
@@ -45,11 +51,23 @@
 							<Button name="TableOfCorrectionObjectsSelectAll1" id="22">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.SelectAllCommand</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Select all</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="CorrectionObjectTableMarkAllExtendedTooltip" id="23"/>
 							</Button>
 							<Button name="TableOfCorrectionObjectsDeselectSelection" id="20">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.RemoveSelection</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Clear all</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="TableOfCorrectionObjectsDeselectExtendedTooltip" id="21"/>
 							</Button>
 						</ChildItems>
@@ -57,6 +75,12 @@
 					<Button name="TableOfCorrectionObjectsSpendInDeveloperMode" id="28">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.PostInDeveloperMode</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Post in developer mode</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="TableOfCorrectionObjectsSpendInDeveloperModeExtendedTooltip" id="29"/>
 					</Button>
@@ -90,6 +114,12 @@
 			<ChildItems>
 				<CheckBoxField name="TableOfCorrectionObjectsProcessAString" id="14">
 					<DataPath>PatchObjectsTable.ProcessString</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>...</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<CheckBoxType>Auto</CheckBoxType>
 					<ContextMenu name="TableOfCorrectionObjectsProcessAStringContextMenu" id="15"/>
@@ -98,6 +128,12 @@
 				<InputField name="TableOfCorrectionObjectsObjectWithIssue" id="17">
 					<DataPath>PatchObjectsTable.ObjectWithIssue</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Object with issues</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ContextMenu name="TheTableOfObjectsFixesTheProblemObjectContextMenu" id="18"/>
 					<ExtendedTooltip name="TheTableOfObjectsFixesTheProblemObjectExtendedTooltip" id="19"/>
@@ -108,6 +144,12 @@
 						<xr:Common>false</xr:Common>
 					</UserVisible>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Fix result</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ContextMenu name="TableOfCorrectionObjectsErrorDescriptionContextMenu" id="31"/>
 					<ExtendedTooltip name="TableOfCorrectionObjectsErrorDescriptionExtendedTooltip" id="32"/>
@@ -118,6 +160,12 @@
 						<xr:Common>false</xr:Common>
 					</UserVisible>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Failed attempt</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<EditMode>EnterOnInput</EditMode>
 					<CheckBoxType>Auto</CheckBoxType>

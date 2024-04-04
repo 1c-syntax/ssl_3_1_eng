@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -64,10 +65,10 @@ Procedure BeforeWrite(Cancel)
 			Raise NStr("en = 'Cannot perform tasks of suspended business processes.';");
 		EndIf;
 		
-		
-		
-		
-		
+		// 
+		// 
+		// 
+		// 
 		If Not ValueIsFilled(Performer) Then
 			Performer = Users.AuthorizedUser();
 		EndIf;
@@ -150,7 +151,7 @@ Procedure SetSubordinateBusinessProcessesState(NewState)
 			BusinessProcessObject = SubordinateBusinessProcess.GetObject();
 			BusinessProcessObject.Lock();
 			BusinessProcessObject.State = NewState;
-			BusinessProcessObject.Write(); 
+			BusinessProcessObject.Write(); // 
 		EndDo;	
 		CommitTransaction();
 	Except

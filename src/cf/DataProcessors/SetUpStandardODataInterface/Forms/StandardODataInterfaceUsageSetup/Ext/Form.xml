@@ -13,11 +13,23 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.SaveAndLoad</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save and close</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormSaveAndLoadExtendedTooltip" id="35"/>
 			</Button>
 			<Button name="FormSave" id="79">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.Save</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormSaveExtendedTooltip" id="80"/>
 			</Button>
 		</ChildItems>
@@ -88,6 +100,12 @@
 									<ChildItems>
 										<CheckBoxField name="CreateStandardODataInterfaceUser" id="74">
 											<DataPath>CreateStandardODataInterfaceUser</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Create another username and password for the automatic REST service</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>Right</TitleLocation>
 											<ToolTipRepresentation>ShowTop</ToolTipRepresentation>
 											<VerticalAlign>Center</VerticalAlign>
@@ -136,6 +154,12 @@
 									<ChildItems>
 										<InputField name="UserName" id="41">
 											<DataPath>UserName</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Username</v8:content>
+												</v8:item>
+											</Title>
 											<AutoMaxWidth>false</AutoMaxWidth>
 											<ContextMenu name="UserNameContextMenu" id="42"/>
 											<ExtendedTooltip name="UserNameExtendedTooltip" id="43"/>
@@ -155,6 +179,12 @@
 											<ChildItems>
 												<InputField name="Password" id="44">
 													<DataPath>Password</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Password</v8:content>
+														</v8:item>
+													</Title>
 													<AutoMaxWidth>false</AutoMaxWidth>
 													<PasswordMode>true</PasswordMode>
 													<ContextMenu name="PasswordContextMenu" id="45"/>
@@ -162,6 +192,12 @@
 												</InputField>
 												<InputField name="PasswordConfirmation" id="57">
 													<DataPath>PasswordConfirmation</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Confirm password</v8:content>
+														</v8:item>
+													</Title>
 													<AutoMaxWidth>false</AutoMaxWidth>
 													<PasswordMode>true</PasswordMode>
 													<ContextMenu name="PasswordConfirmationContextMenu" id="58"/>
@@ -188,7 +224,7 @@
 									<v8:item>
 										<v8:lang>en</v8:lang>
 										<v8:content>The list contains objects that can be accessed through the automatic REST service.
-The required composition of objects can be checked with the developer of a third-party program that will connect to the application through the automatic REST service. &lt;link https://its.1c.eu/db/v8323doc#bookmark:dev:ti000001358&gt;Information for developers&lt;/&gt;</v8:content>
+The required composition of objects can be checked with the developer of a third-party application that will connect to the application through the automatic REST service. &lt;link https://its.1c.eu/db/v8323doc#bookmark:dev:ti000001358&gt;Information for developers&lt;/&gt;</v8:content>
 									</v8:item>
 								</Title>
 							</ExtendedTooltip>
@@ -224,6 +260,12 @@ The required composition of objects can be checked with the developer of a third
 											<Button name="MetadataObjectsImportMetadata" id="127">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.ImportMetadata</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Import metadata</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="MetadataObjectsImportMetadataExtendedTooltip" id="128"/>
 											</Button>
 										</ChildItems>
@@ -273,6 +315,12 @@ The required composition of objects can be checked with the developer of a third
 												<PictureField name="MetadataObjectsPicture" id="26">
 													<DataPath>MetadataObjects.Picture</DataPath>
 													<ReadOnly>true</ReadOnly>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Picture</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>None</TitleLocation>
 													<EditMode>EnterOnInput</EditMode>
 													<FileDragMode>AsFile</FileDragMode>
@@ -281,6 +329,12 @@ The required composition of objects can be checked with the developer of a third
 												</PictureField>
 												<CheckBoxField name="MetadataObjectsUse" id="29">
 													<DataPath>MetadataObjects.Use</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Usage</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>None</TitleLocation>
 													<EditMode>EnterOnInput</EditMode>
 													<CheckBoxType>Auto</CheckBoxType>
@@ -339,6 +393,12 @@ The required composition of objects can be checked with the developer of a third
 												<LabelField name="MetadataObjectsReadOnly" id="101">
 													<DataPath>MetadataObjects.ReadOnly</DataPath>
 													<ReadOnly>true</ReadOnly>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Read only</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>None</TitleLocation>
 													<EditMode>EnterOnInput</EditMode>
 													<Format>

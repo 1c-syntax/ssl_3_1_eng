@@ -10,11 +10,23 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.OKButton</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>OK</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormOKButton1ExtendedTooltip" id="28"/>
 			</Button>
 			<Button name="FormCancelButton" id="29">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.CancelButton</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Cancel</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormCancelButtonExtendedTooltip" id="30"/>
 			</Button>
 			<Button name="FormHelp" id="65">
@@ -82,31 +94,85 @@
 									<AutoCommandBar name="DisplayedUserTasksTreeCommandBar" id="9">
 										<Autofill>false</Autofill>
 										<ChildItems>
-											<Button name="DisplayedUserTasksTreeCheckAll" id="19">
-												<Type>CommandBarButton</Type>
-												<CommandName>Form.Command.CheckAll</CommandName>
-												<ExtendedTooltip name="DisplayedUserTasksTreeCheckAllExtendedTooltip" id="20"/>
-											</Button>
-											<Button name="DisplayedUserTasksTreeUncheckAll" id="21">
-												<Type>CommandBarButton</Type>
-												<CommandName>Form.Command.UncheckAll</CommandName>
-												<ExtendedTooltip name="DisplayedUserTasksTreeUncheckAllExtendedTooltip" id="22"/>
-											</Button>
-											<Button name="DisplayedUserTasksTreeMoveUp" id="23">
-												<Type>CommandBarButton</Type>
-												<CommandName>Form.Command.MoveUp</CommandName>
-												<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
-												<ExtendedTooltip name="DisplayedUserTasksTreeMoveUpExtendedTooltip" id="24"/>
-											</Button>
-											<Button name="DisplayedUserTasksTreeMoveDown" id="25">
-												<Type>CommandBarButton</Type>
-												<CommandName>Form.Command.MoveDown</CommandName>
-												<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
-												<ExtendedTooltip name="DisplayedUserTasksTreeMoveDownExtendedTooltip" id="26"/>
-											</Button>
+											<ButtonGroup name="AGroupOfCheckBoxes" id="75">
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Checkboxes</v8:content>
+													</v8:item>
+												</Title>
+												<Representation>Compact</Representation>
+												<ExtendedTooltip name="AGroupOfCheckBoxesExtendedTooltip" id="76"/>
+												<ChildItems>
+													<Button name="DisplayedUserTasksTreeCheckAll" id="19">
+														<Type>CommandBarButton</Type>
+														<CommandName>Form.Command.CheckAll</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Select all</v8:content>
+															</v8:item>
+														</Title>
+														<ExtendedTooltip name="DisplayedUserTasksTreeCheckAllExtendedTooltip" id="20"/>
+													</Button>
+													<Button name="DisplayedUserTasksTreeUncheckAll" id="21">
+														<Type>CommandBarButton</Type>
+														<CommandName>Form.Command.UncheckAll</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Clear all</v8:content>
+															</v8:item>
+														</Title>
+														<ExtendedTooltip name="DisplayedUserTasksTreeUncheckAllExtendedTooltip" id="22"/>
+													</Button>
+												</ChildItems>
+											</ButtonGroup>
+											<ButtonGroup name="OrderGroup" id="77">
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Order</v8:content>
+													</v8:item>
+												</Title>
+												<Representation>Compact</Representation>
+												<ExtendedTooltip name="OrderGroupExtendedTooltip" id="78"/>
+												<ChildItems>
+													<Button name="DisplayedUserTasksTreeMoveUp" id="23">
+														<Type>CommandBarButton</Type>
+														<CommandName>Form.Command.MoveUp</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Move up</v8:content>
+															</v8:item>
+														</Title>
+														<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
+														<ExtendedTooltip name="DisplayedUserTasksTreeMoveUpExtendedTooltip" id="24"/>
+													</Button>
+													<Button name="DisplayedUserTasksTreeMoveDown" id="25">
+														<Type>CommandBarButton</Type>
+														<CommandName>Form.Command.MoveDown</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Move down</v8:content>
+															</v8:item>
+														</Title>
+														<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
+														<ExtendedTooltip name="DisplayedUserTasksTreeMoveDownExtendedTooltip" id="26"/>
+													</Button>
+												</ChildItems>
+											</ButtonGroup>
 											<Button name="DisplayedToDoTreeDuplicateInNotificationCenter" id="67">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.OutputAdditionallyInNotificationCenter</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Display additionally in the notification center</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="DisplayedToDoTreeDuplicateInNotificationCenterExtendedTooltip" id="68"/>
 											</Button>
 											<SearchStringAddition name="SearchString_" id="72">
@@ -167,6 +233,12 @@
 											<ChildItems>
 												<CheckBoxField name="DisplayedUserTasksTreeCheck" id="14">
 													<DataPath>DisplayedUserTasksTree.Check</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Checkmark</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>None</TitleLocation>
 													<EditMode>EnterOnInput</EditMode>
 													<CheckBoxType>Auto</CheckBoxType>
@@ -175,6 +247,12 @@
 												</CheckBoxField>
 												<PictureField name="DisplayedUserTasksTreePicture" id="69">
 													<DataPath>DisplayedUserTasksTree.Picture</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Picture</v8:content>
+														</v8:item>
+													</Title>
 													<EditMode>EnterOnInput</EditMode>
 													<ContextMenu name="DisplayedUserTasksTreePictureContextMenu" id="70"/>
 													<ExtendedTooltip name="DisplayedUserTasksTreePictureExtendedTooltip" id="71"/>
@@ -182,6 +260,12 @@
 												<InputField name="DisplayedUserTasksTreePresentation" id="34">
 													<DataPath>DisplayedUserTasksTree.Presentation</DataPath>
 													<ReadOnly>true</ReadOnly>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Presentation</v8:content>
+														</v8:item>
+													</Title>
 													<EditMode>EnterOnInput</EditMode>
 													<ContextMenu name="DisplayedUserTasksTreePresentationContextMenu" id="35"/>
 													<ExtendedTooltip name="DisplayedUserTasksTreePresentationExtendedTooltip" id="36"/>
@@ -230,6 +314,12 @@
 							<ChildItems>
 								<CheckBoxField name="UseAutoUpdate" id="45">
 									<DataPath>UseAutoUpdate</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Refresh automatically every:</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>Right</TitleLocation>
 									<CheckBoxType>Auto</CheckBoxType>
 									<ContextMenu name="UseAutoUpdateContextMenu" id="46"/>
@@ -237,6 +327,12 @@
 								</CheckBoxField>
 								<InputField name="UpdatePeriod" id="42">
 									<DataPath>UpdatePeriod</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Refresh period</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<Shortcut>Ctrl+S</Shortcut>
 									<Width>4</Width>

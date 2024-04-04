@@ -7,11 +7,23 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.OK</CommandName>
-				<ExtendedTooltip name="FormOK1ExtendedTooltip" id="19"/>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>OK</v8:content>
+					</v8:item>
+				</Title>
+				<ExtendedTooltip name="FormOKExtendedTooltip" id="19"/>
 			</Button>
 			<Button name="FormFill" id="14">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.Fill</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Define…</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormFillExtendedTooltip" id="20"/>
 			</Button>
 		</ChildItems>
@@ -22,6 +34,12 @@
 	<ChildItems>
 		<InputField name="ServerAndDirectory" id="9">
 			<DataPath>ServerAndDirectory</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Server and directory</v8:content>
+				</v8:item>
+			</Title>
 			<InputHint>
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -48,6 +66,12 @@
 			<ChildItems>
 				<InputField name="Port" id="3">
 					<DataPath>Port</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Port</v8:content>
+						</v8:item>
+					</Title>
 					<SpinButton>true</SpinButton>
 					<EditFormat>
 						<v8:item>
@@ -69,6 +93,12 @@
 				</LabelDecoration>
 				<CheckBoxField name="PassiveConnection" id="17">
 					<DataPath>PassiveConnection</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Passive connection</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Right</TitleLocation>
 					<CheckBoxType>Auto</CheckBoxType>
 					<ContextMenu name="PassiveConnectionContextMenu" id="18"/>
@@ -78,6 +108,12 @@
 		</UsualGroup>
 		<InputField name="Login" id="5">
 			<DataPath>Login</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Username</v8:content>
+				</v8:item>
+			</Title>
 			<AutoMaxWidth>false</AutoMaxWidth>
 			<MaxWidth>35</MaxWidth>
 			<ContextMenu name="LoginContextMenu" id="6"/>
@@ -85,6 +121,12 @@
 		</InputField>
 		<InputField name="Password" id="7">
 			<DataPath>Password</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Password</v8:content>
+				</v8:item>
+			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>

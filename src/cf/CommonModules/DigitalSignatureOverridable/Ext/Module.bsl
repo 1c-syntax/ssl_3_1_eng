@@ -1,13 +1,25 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #Region Public
+
+// 
+//
+// Parameters:
+//  Settings - Structure:
+//   * IndividualUsed - Boolean - 
+//          See DefinedType.Individual
+//
+Procedure OnDefineSettings(Settings) Export
+	
+EndProcedure
 
 // It is called in the DigitalSignatureAndEncryptionKeysCertificates catalog item form and in other places
 // where certificates are created or refreshed, for example, in the SelectSigningOrDecryptionCertificate form.
@@ -29,8 +41,8 @@
 //
 Procedure BeforeStartEditKeyCertificate(Ref, Certificate, AttributesParameters) Export
 	
-	
-	
+	// 
+	// 
 	
 EndProcedure
 
@@ -113,25 +125,25 @@ EndProcedure
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. Obsolete. Use CertificateRequestOverridable.OnFillCompanyAttributesInApplicationForCertificate instead.
+// Deprecated. Instead, use ApplicationForACertificateOverridable.OnFillCompanyAttributesInApplicationForCertificate.
 //
 Procedure OnFillCompanyAttributesInApplicationForCertificate(Parameters) Export
 	
 EndProcedure
 
-// Deprecated. Obsolete. Use CertificateRequestOverridable.OnFillOwnerAttributesInApplicationForCertificate instead.
+// Deprecated. Instead, use ApplicationForACertificateOverridable.OnFillOwnerAttributesInApplicationForCertificate.
 //
 Procedure OnFillOwnerAttributesInApplicationForCertificate(Parameters) Export
 	
 EndProcedure
 
-// Deprecated. Obsolete. Use CertificateRequestOverridable.OnFillOfficerAttributesInApplicationForCertificate instead.
+// Deprecated. Instead, use ApplicationForACertificateOverridable.OnFillOfficerAttributesInApplicationForCertificate.
 //
 Procedure OnFillOfficerAttributesInApplicationForCertificate(Parameters) Export
 	
 EndProcedure
 
-// Deprecated. Obsolete. Use CertificateRequestOverridable.OnFillPartnerAttributesInApplicationForCertificate instead.
+// Deprecated. Instead, use ApplicationForACertificateOverridable.OnFillPartnerAttributesInApplicationForCertificate.
 //
 Procedure OnFillPartnerAttributesInApplicationForCertificate(Parameters) Export
 	

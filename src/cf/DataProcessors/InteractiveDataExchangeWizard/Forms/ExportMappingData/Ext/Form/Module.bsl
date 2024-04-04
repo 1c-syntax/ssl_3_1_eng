@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -352,7 +353,7 @@ Procedure OnStartExportDataForMapping()
 			AttachIdleHandler("OnWaitForExportDataForMapping",
 				MappingDataExportIdleHandlerParameters.CurrentInterval, True);
 		Else
-			CompletionNotification2 = New NotifyDescription("ExportMappingDataCompletion", ThisObject);
+			CallbackOnCompletion = New NotifyDescription("ExportMappingDataCompletion", ThisObject);
 		
 			IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 			IdleParameters.OutputIdleWindow = False;
@@ -360,7 +361,7 @@ Procedure OnStartExportDataForMapping()
 			IdleParameters.ExecutionProgressNotification = New NotifyDescription("DataExportForMappingProgress", ThisObject);
 			
 			TimeConsumingOperationsClient.WaitCompletion(MappingDataExportHandlerParameters.BackgroundJob,
-				CompletionNotification2, IdleParameters);
+				CallbackOnCompletion, IdleParameters);
 		EndIf;
 			
 	Else

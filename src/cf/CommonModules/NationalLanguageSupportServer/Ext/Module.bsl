@@ -1,27 +1,26 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #Region Public
 
-// For calling from the OnInitialItemsFilling handler.
-// Fills in columns called AttributeName_<LanguageCode> with text values for the specified language codes.
+// Called from the "OnInitialItemsFilling" handler.
+// Fills in columns named "AttributeName_<LanguageCode>" with the text for the given language codes.
 //
 // Parameters:
-//  Item        - ValueTableRow - 
-//  AttributeName   - String - an attribute name. For example, Description.
-//  InitialString - String - a string in the NStr format. For example, "ru" = 'Russian message'; en = 'English message'".
-//  LanguagesCodes     - Array - codes of languages ​​in which you need to fill in the rows.
+//  Item        - ValueTableRow - A row that takes the value.
+//  AttributeName   - String - An attribute name. For example, "Description".
+//  LanguagesCodes     - Array - The codes of the target languages.
 // 
 // Example:
 //
-//  NationalLanguageSupportServer.FillMultilingualAttribute(Item, "Description", "ru = 'Russian message'; en =
-//  'English message'", LanguageCodes);
+//  NationalLanguageSupportServer.FillMultilingualAttribute(Item, "Description", "en = 'An English message';
 //
 Procedure FillMultilanguageAttribute(Item, AttributeName, InitialString, LanguagesCodes = Undefined) Export
 	
@@ -135,19 +134,15 @@ Procedure OnReadAtServer(Form, CurrentObject, ObjectName = Undefined) Export
 		Return;
 	EndIf;
 	
-	If Common.IsRegister(MetadataObject) Then
-		OnReadPresentationsAtServer(CurrentObject);
 		If TypeOf(ObjectName) <> Type("String") Then
-			ObjectName = "Record";
+		ObjectName = ?(Common.IsRegister(MetadataObject), "Record", "Object");
 		EndIf;
-	Else
-		If TypeOf(ObjectName) <> Type("String") Then
-			ObjectName = "Object";
-		EndIf;
-		CurrentObject.OnReadPresentationsAtServer();
+
+	PropertyCheck = New Structure(ObjectName, Undefined);
+	FillPropertyValues(PropertyCheck, Form, ObjectName);
+	If PropertyCheck[ObjectName] <> Undefined Then
+		OnReadPresentationsAtServer(Form[ObjectName]);
 	EndIf;
-	
-	Form.ValueToFormAttribute(CurrentObject, ObjectName);
 	
 EndProcedure
 
@@ -169,13 +164,12 @@ Procedure BeforeWriteAtServer(CurrentObject) Export
 	MetadataObject = MetadataObject(CurrentObject);
 	CurrentLanguageSuffix = CurrentLanguageSuffix();
 	
-	NamesOfMultiLangAttributesInHeader = New Map;
-	
+	NamesOfMultilingualAttributes       = DescriptionsOfObjectAttributesToLocalize(MetadataObject);
+	NamesOfMultiLangAttributesInHeader = TheNamesOfTheLocalizedDetailsOfTheObjectInTheHeader(MetadataObject);
+
 	If MultilanguageStringsInAttributes(MetadataObject) Then
 		
 		If Not Common.IsRegister(MetadataObject) And CurrentObject.IsNew()  Then
-			
-			NamesOfMultiLangAttributesInHeader = TheNamesOfTheLocalizedDetailsOfTheObjectInTheHeader(MetadataObject);
 			
 			For Each Attribute In NamesOfMultiLangAttributesInHeader Do
 				
@@ -200,8 +194,6 @@ Procedure BeforeWriteAtServer(CurrentObject) Export
 			Return;
 		EndIf;
 		
-		NamesOfMultiLangAttributesInHeader = TheNamesOfTheLocalizedDetailsOfTheObjectInTheHeader(MetadataObject);
-		
 		For Each Attribute In NamesOfMultiLangAttributesInHeader Do
 			
 			Value = CurrentObject[Attribute.Key];
@@ -212,18 +204,13 @@ Procedure BeforeWriteAtServer(CurrentObject) Export
 		
 	EndIf;
 	
-	If Not ObjectContainsPMRepresentations(MetadataObject.FullName()) Then
+	FullName = MetadataObject.FullName();
+	
+	If Not ObjectContainsPMRepresentations(FullName) Then
 		Return;
 	EndIf;
 	
-	Attributes = New Array;
-	For Each Attribute In CurrentObject.Ref.Metadata().TabularSections.Presentations.Attributes Do
-		If StrCompare(Attribute.Name, "LanguageCode") = 0 Then
-			Continue;
-		EndIf;
-		
-		Attributes.Add(Attribute.Name);
-	EndDo;
+	Attributes = NationalLanguageSupportCached.TabularSectionMultilingualAttributes(FullName);
 	
 	Presentations = CurrentObject.Presentations; // TabularSection
 	Filter = New Structure();
@@ -271,11 +258,6 @@ Procedure BeforeWriteAtServer(CurrentObject) Export
 	
 	Presentations.GroupBy("LanguageCode", StrConcat(Attributes, ","));
 	
-	If NamesOfMultiLangAttributesInHeader.Count() > 0 Then
-		CopyMultilingualValuesInDetailsCaps(CurrentObject, NamesOfMultiLangAttributesInHeader, FirstAdditionalInfobaseLanguageCode());
-		CopyMultilingualValuesInDetailsCaps(CurrentObject, NamesOfMultiLangAttributesInHeader, SecondAdditionalInfobaseLanguageCode());
-	EndIf;
-	
 EndProcedure
 
 // It is called from the object module to fill in the multilingual
@@ -319,17 +301,15 @@ Procedure OnReadPresentationsAtServer(Object) Export
 		
 	EndIf;
 	
-	If Not ObjectContainsPMRepresentations(MetadataObject.FullName()) Then
+	FullName = MetadataObject.FullName();
+	
+	If Not ObjectContainsPMRepresentations(FullName) Then
 		Return;
 	EndIf;
 	
-	For Each Attribute In MetadataObject.TabularSections.Presentations.Attributes Do
-		
-		If StrCompare(Attribute.Name, "LanguageCode") = 0 Then
-			Continue;
-		EndIf;
-		
-		AttributeName = Attribute.Name;
+	Attributes = NationalLanguageSupportCached.TabularSectionMultilingualAttributes(FullName);
+	
+	For Each AttributeName In Attributes Do
 		
 		Filter = New Structure();
 		Filter.Insert("LanguageCode", Common.DefaultLanguageCode());
@@ -394,7 +374,7 @@ Procedure ChoiceDataGetProcessing(ChoiceData, Val Parameters, StandardProcessing
 	
 	DescriptionsOfAttributesToLocalize = DescriptionsOfObjectAttributesToLocalize(MetadataObject);
 	For Each Field In InputByStringFields Do
-		If DescriptionsOfAttributesToLocalize.Get(Field.Name) = True Then
+		If DescriptionsOfAttributesToLocalize.Get(Field.Name) <> Undefined Then
 			
 			Fields.Add("Table." + Field.Name + " LIKE &SearchString ESCAPE ""~""");
 			
@@ -456,6 +436,77 @@ Procedure ChangeRequestFieldUnderCurrentLanguage(QueryText, FieldName) Export
 	QueryText = StrReplace(QueryText, FieldName, NewFieldName);
 	
 EndProcedure
+
+// 
+// 
+// Returns:
+//  String - 
+//           
+//
+Function CurrentLanguageSuffix() Export
+
+	Return LanguageSuffix(CurrentLanguage().LanguageCode);
+
+EndFunction
+
+
+// 
+// 
+// Parameters:
+//  LanguageCode - String - 
+// 
+// Returns:
+//  String - 
+//           
+//
+Function LanguageSuffix(LanguageCode) Export
+	
+	If IsBlankString(LanguageCode) Then
+		Return CurrentLanguageSuffix();
+	EndIf;
+	
+	Return NationalLanguageSupportCached.LanguageSuffix(LanguageCode);
+
+EndFunction
+
+// 
+// 
+// Parameters:
+//  LanguageSuffix - String - 
+// 
+// Returns:
+//  Boolean -  
+//
+Function IsAdditionalLangUsed(LanguageSuffix) Export
+
+	Return NationalLanguageSupportCached.IsAdditionalLangUsed(LanguageSuffix);
+
+EndFunction
+
+// 
+// 
+// Parameters:
+//  AttributesNames - String - 
+//  LanguageCode - String - 
+// 
+// Returns:
+//  Map of KeyAndValue:
+//   * Key - String -  
+//   * Value - String - 
+//
+Function AttributesNamesConsideringLangCode(AttributesNames, LanguageCode = "") Export
+	
+	Result    = New Map;
+	Attributes    = StrSplit(AttributesNames, ",", False);
+	LanguageSuffix = LanguageSuffix(LanguageCode);
+	
+	For Each Attribute In Attributes Do
+		Result.Insert(TrimL(Attribute), TrimAll(Attribute) + LanguageSuffix);
+	EndDo;
+	
+	Return Result;
+	
+EndFunction
 
 #EndRegion
 
@@ -593,6 +644,71 @@ Function UpdateMultilanguageStringsOfPredefinedItems(ObjectsRefs, MetadataObject
 	
 EndFunction
 
+Procedure DetermineModifiedMultilingualItems(NewValue, TableRow, NameOfAttributeToLocalize, EditedAttributes, DatasetToFill) Export
+
+	ObjectAttributesToLocalize = DatasetToFill.ObjectAttributesToLocalize;
+
+	If ObjectAttributesToLocalize.Count() = 0 Then
+		Return;
+	EndIf;
+
+	Languages                  = StandardSubsystemsServer.ConfigurationLanguages();
+	LanguagesInformationRecords       = LanguagesInformationRecords();
+	HierarchySupported = DatasetToFill.HierarchySupported;
+
+	If DatasetToFill.MultilanguageStringsInAttributes Then
+		
+		For LanguageNumber = 0 To LanguagesInformationRecords.AdditionalLanguagesCount Do
+
+			LanguageCode = LanguagesInformationRecords["Language" + String(LanguageNumber)];
+
+			LocalizableAttributeNameInHeader = ?(LanguageNumber = 0, NameOfAttributeToLocalize, NameOfAttributeToLocalize
+				+ "Language" + String(LanguageNumber));
+			If ValueIsFilled(LanguageCode) Then
+				If NewValue[LocalizableAttributeNameInHeader] <> TableRow[NameOfAttributeToLocalize + "_"
+					+ LanguageCode] Then
+					EditedAttributes.Add(LocalizableAttributeNameInHeader);
+				EndIf;
+			EndIf;
+		EndDo;
+	ElsIf Not (HierarchySupported And NewValue.IsFolder) Then
+		
+		For Each LanguageCode In Languages Do
+			ViewTable = NewValue.Presentations; // ValueTable
+			NewPresentation = ViewTable.Add();
+			NewPresentation.LanguageCode = LanguageCode;
+			For Each NameOfAttributeToLocalize In ObjectAttributesToLocalize Do
+				Value = TableRow[NameOfAttributeToLocalize.Key + "_" + LanguageCode];
+				NewPresentation[NameOfAttributeToLocalize.Key] = ?(ValueIsFilled(Value), Value,
+					TableRow[NameOfAttributeToLocalize.Key]);
+			EndDo;
+		EndDo;
+
+	EndIf;
+
+EndProcedure
+
+Procedure DeleteMultilingualAttributes(EditedAttributes) Export
+	
+	LanguagesInformationRecords = LanguagesInformationRecords();
+	
+	Position = EditedAttributes.Count() - 1;
+	
+	While Position >= 0 Do
+	
+		For LanguageNumber = 1 To LanguagesInformationRecords.AdditionalLanguagesCount Do
+			If StrEndsWith(EditedAttributes[Position], "Language" + LanguageNumber) Then
+				EditedAttributes.Delete(Position);
+				Break;
+			EndIf;
+		EndDo;
+		
+		Position = Position - 1;
+	
+	EndDo;
+	
+EndProcedure
+
 Procedure ChangeListQueryTextForCurrentLanguage(Form, ListName = "List") Export
 	
 	LanguageSuffix = CurrentLanguageSuffix();
@@ -687,29 +803,15 @@ Procedure ChangeListQueryTextForCurrentLanguage(Form, ListName = "List") Export
 	
 EndProcedure
 
-Function CurrentLanguageSuffix() Export
-	
-	Return LanguageSuffix(CurrentLanguage().LanguageCode);
-	
-EndFunction
-
-// It returns suffix Language1 or Language2 by the language code.
-//
-Function LanguageSuffix(Language) Export
-	
-	Return NationalLanguageSupportCached.LanguageSuffix(Language);
-	
-EndFunction
-
 Function FirstAdditionalLanguageUsed() Export
 	
-	Return Constants.UseAdditionalLanguage1.Get() = True;
+	Return IsAdditionalLangUsed("Language1");
 	
 EndFunction
 
 Function SecondAdditionalLanguageUsed() Export
 	
-	Return Constants.UseAdditionalLanguage2.Get() = True;
+	Return IsAdditionalLangUsed("Language2");
 	
 EndFunction
 
@@ -818,9 +920,9 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
 	ObjectsWithPredefinedItems = InfobaseUpdateInternal.ObjectsWithInitialFilling();
 	For Each ObjectWithPredefinedElements In ObjectsWithPredefinedItems Do
-		
-		If ObjectsToProcess.Find(ObjectWithPredefinedElements.FullName()) = Undefined Then
-			ObjectsToProcess.Add(ObjectWithPredefinedElements.FullName());
+
+		If ObjectsToProcess.Find(ObjectWithPredefinedElements.Value) = Undefined Then
+			ObjectsToProcess.Add(ObjectWithPredefinedElements.Value);
 		EndIf;
 		
 	EndDo;
@@ -831,11 +933,13 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			Break;
 		EndIf;
 		
-		Selection = InfobaseUpdate.SelectRefsToProcess(Parameters.Queue, ObjectWithPredefinedElements.FullName());
+		Selection = InfobaseUpdate.SelectRefsToProcess(Parameters.Queue,
+			ObjectWithPredefinedElements.Value);
 		If Selection.Count() > 0 Then
 		
-			
-			FillInEmptyMultilingualDetailsWithTheValueOfTheMainLanguage(Selection, ObjectWithPredefinedElements, TotalProcessed);
+			// @skip-check query-in-loop - Batch-wise data processing in an update handler
+			FillInEmptyMultilingualDetailsWithTheValueOfTheMainLanguage(Selection, ObjectWithPredefinedElements.Key,
+				TotalProcessed);
 			
 		EndIf;
 	EndDo;
@@ -1043,52 +1147,69 @@ Procedure WhenGettingParametersForFillingInPredefinedData(FillParameters) Export
 	
 EndProcedure
 
-Procedure InitialFillingInOfPredefinedDataLocalizedBankingDetails(ItemToFill, HierarchySupported, TableRow, FillParameters) Export
+Procedure InitialFillingInOfPredefinedDataLocalizedBankingDetails(ItemToFill, TableRow, 
+	ExceptionFields, Context) Export
 	
 	LanguagesInformationRecords = LanguagesInformationRecords();
 	
-	ObjectAttributesToLocalize = FillParameters.ObjectAttributesToLocalize;
-	MultilanguageStringsInAttributes = FillParameters.MultilanguageStringsInAttributes;
-		
+	HierarchySupported = Context.HierarchySupported;
+	
+	ObjectAttributesToLocalize = Context.ObjectAttributesToLocalize;
+	MultilanguageStringsInAttributes = Context.MultilanguageStringsInAttributes;
+	
 	If ObjectAttributesToLocalize.Count() > 0 Then
 		If MultilanguageStringsInAttributes Then
 			
 			For Each NameOfAttributeToLocalize In ObjectAttributesToLocalize Do
 				
-				ValueMainLanguage = TableRow[NameOfAttributeToLocalize.Key + "_" + LanguagesInformationRecords.DefaultLanguage];
+				ValueMainLanguage = TableRow[NameOfAttributeToLocalize.Key + "_"
+				+ LanguagesInformationRecords.DefaultLanguage];
+				
 				If IsBlankString(ValueMainLanguage) Then
 					ValueMainLanguage = TableRow[NameOfAttributeToLocalize.Key];
 				EndIf;
-				ItemToFill[NameOfAttributeToLocalize.Key] = ValueMainLanguage;
 				
-				If ValueIsFilled(LanguagesInformationRecords.Language1) Then
-					ValueLanguage1 = TableRow[NameOfAttributeToLocalize.Key + "_" + LanguagesInformationRecords.Language1];
-				EndIf;
-				If IsBlankString(ValueLanguage1) Then
-					ValueLanguage1 = ValueMainLanguage;
+				If ExceptionFields[NameOfAttributeToLocalize.Key] = Undefined Then
+					ItemToFill[NameOfAttributeToLocalize.Key] = ValueMainLanguage;
 				EndIf;
 				
-				If ValueIsFilled(LanguagesInformationRecords.Language2) Then
-					ValueLanguage2 = TableRow[NameOfAttributeToLocalize.Key + "_" + LanguagesInformationRecords.Language2];
-				EndIf;
-				If IsBlankString(ValueLanguage2) Then
-					ValueLanguage2 = ValueMainLanguage;
-				EndIf;
-				
-				ItemToFill[NameOfAttributeToLocalize.Key + "Language1"] = ValueLanguage1;
-				ItemToFill[NameOfAttributeToLocalize.Key + "Language2"] = ValueLanguage2;
+				For Position = 1 To LanguagesInformationRecords.AdditionalLanguagesCount Do
+					
+					LanguageSuffix = "Language" + String(Position);
+					AttributeName = NameOfAttributeToLocalize.Key + LanguageSuffix;
+					
+					If ExceptionFields[AttributeName] <> Undefined
+						Or (Not IsAdditionalLangUsed(LanguageSuffix) 
+						And ValueIsFilled(ItemToFill[AttributeName])) Then
+						Continue;
+					EndIf;
+					
+					If ValueIsFilled(LanguagesInformationRecords[LanguageSuffix]) Then
+						ValueLanguage = TableRow[NameOfAttributeToLocalize.Key + "_" + LanguagesInformationRecords[LanguageSuffix]];
+					EndIf;
+					
+					ItemToFill[AttributeName] = ?(IsBlankString(ValueLanguage), ValueMainLanguage, ValueLanguage);
+					
+				EndDo;
 				
 			EndDo;
 		EndIf;
 		
-		If FillParameters.ObjectContainsPMRepresentations And Not (HierarchySupported And ItemToFill.IsFolder) Then
-			InfobaseUpdateInternal.InitialFillingPMViews(ItemToFill, TableRow, FillParameters);
+		If Context.ObjectContainsPMRepresentations And Not (HierarchySupported
+			And ItemToFill.IsFolder) Then
+			InfobaseUpdateInternal.InitialFillingPMViews(ItemToFill, TableRow,
+			Context);
 		EndIf;
 	EndIf;
 	
 EndProcedure
 
-Procedure FillItemsWithMultilingualInitialData(Val ItemToFill, Val ObjectAttributesToLocalize, Val MultilanguageStringsInAttributes, Val HierarchySupported, Val TableRow) Export
+
+Procedure FillItemsWithMultilingualInitialData(ItemToFill, TableRow, Context, ExceptionFields) Export
+	
+	HierarchySupported = Context.HierarchySupported;
+	ObjectAttributesToLocalize = Context.ObjectAttributesToLocalize;
+	MultilanguageStringsInAttributes = Context.MultilanguageStringsInAttributes;
 	
 	If ObjectAttributesToLocalize.Count() = 0 Then
 		Return;
@@ -1097,28 +1218,9 @@ Procedure FillItemsWithMultilingualInitialData(Val ItemToFill, Val ObjectAttribu
 	Languages = StandardSubsystemsServer.ConfigurationLanguages();
 	LanguagesInformationRecords = LanguagesInformationRecords();
 	
-	If MultilanguageStringsInAttributes Then
+	If MultilanguageStringsInAttributes Then 
 		
-		LanguageCode =LanguagesInformationRecords.DefaultLanguage;
-		If ValueIsFilled(LanguageCode) Then
-			For Each NameOfAttributeToLocalize In ObjectAttributesToLocalize Do
-				ItemToFill[NameOfAttributeToLocalize.Key] = TableRow[NameOfAttributeToLocalize.Key + "_" + LanguageCode];
-			EndDo;
-		EndIf;
-		
-		LanguageCode = LanguagesInformationRecords.Language1;
-		If ValueIsFilled(LanguageCode) Then
-			For Each NameOfAttributeToLocalize In ObjectAttributesToLocalize Do
-				ItemToFill[NameOfAttributeToLocalize.Key + "Language1"] = TableRow[NameOfAttributeToLocalize.Key + "_" + LanguageCode];
-			EndDo;
-		EndIf;
-		
-		LanguageCode = LanguagesInformationRecords.Language2;
-		If ValueIsFilled(LanguageCode) Then
-			For Each NameOfAttributeToLocalize In ObjectAttributesToLocalize Do
-				ItemToFill[NameOfAttributeToLocalize.Key + "Language2"] = TableRow[NameOfAttributeToLocalize.Key + "_" + LanguageCode];
-			EndDo;
-		EndIf;
+		InitialFillingInOfPredefinedDataLocalizedBankingDetails(ItemToFill, TableRow, ArrayIntoMap(ExceptionFields), Context);
 		
 	ElsIf Not (HierarchySupported And ItemToFill.IsFolder) Then
 		
@@ -1475,6 +1577,11 @@ Function ObjectAttributesToLocalizeForCurrentLanguage(MetadataObject, Language =
 	
 EndFunction
 
+// Returns:
+//  Map of KeyAndValue:
+//   * Key - String 
+//   * Value - Boolean 
+//
 Function DescriptionsOfObjectAttributesToLocalize(MetadataObject, Prefix = "") Export
 	
 	ObjectAttributesList = New Map;
@@ -1493,21 +1600,22 @@ Function DescriptionsOfObjectAttributesToLocalize(MetadataObject, Prefix = "") E
 		QueryResult = Query.Execute();
 		
 		For Each Column In QueryResult.Columns Do
-			If StrEndsWith(Column.Name, "Language1") Or StrEndsWith(Column.Name, "Language2") Then
-				ObjectAttributesList.Insert(Prefix + Left(Column.Name, StrLen(Column.Name) - LanguageSuffixLength), True);
+			If (StrEndsWith(Column.Name, "Language1")
+			 Or  StrEndsWith(Column.Name, "Language2"))
+			   And Not StrStartsWith(Column.Name, "Delete") Then
+				ObjectAttributesList.Insert(Prefix + Left(Column.Name, StrLen(Column.Name) - LanguageSuffixLength), False);
 			EndIf;
 		EndDo;
 		
 	EndIf;
 	
-	If ObjectContainsPMRepresentations(MetadataObject.FullName()) Then
+	FullName = MetadataObject.FullName();
+	
+	If ObjectContainsPMRepresentations(FullName) Then
 		
-		PresentationTabularSectionAttributes = MetadataObject.TabularSections.Presentations.Attributes; // MetadataObjectCollection of MetadataObjectAttribute - 
-		For Each Attribute In PresentationTabularSectionAttributes Do
-			If StrCompare(Attribute.Name, "LanguageCode") = 0 Then
-				Continue;
-			EndIf;
-			ObjectAttributesList.Insert(Prefix + Attribute.Name, True);
+		PresentationTabularSectionAttributes = NationalLanguageSupportCached.TabularSectionMultilingualAttributes(FullName);
+		For Each AttributeName In PresentationTabularSectionAttributes Do
+			ObjectAttributesList.Insert(Prefix + AttributeName, True);
 		EndDo;
 		
 	EndIf;
@@ -1534,8 +1642,10 @@ Function TheNamesOfTheLocalizedDetailsOfTheObjectInTheHeader(MetadataObject, Pre
 		QueryResult = Query.Execute();
 		
 		For Each Column In QueryResult.Columns Do
-			If StrEndsWith(Column.Name, "Language1") Or StrEndsWith(Column.Name, "Language2") Then
-				ObjectAttributesList.Insert(Prefix + Left(Column.Name, StrLen(Column.Name) - LanguageSuffixLength), True);
+			If (StrEndsWith(Column.Name, "Language1")
+			 Or  StrEndsWith(Column.Name, "Language2"))
+			   And Not StrStartsWith(Column.Name, "Delete") Then
+				ObjectAttributesList.Insert(Prefix + Left(Column.Name, StrLen(Column.Name) - LanguageSuffixLength), False);
 			EndIf;
 		EndDo;
 	EndIf;
@@ -1548,6 +1658,14 @@ Function LanguageSuffixLength()
 	
 	Return StrLen("Language1");
 	
+EndFunction
+
+Function ArrayIntoMap(Array)
+	Map = New Map();
+	For Each Item In Array Do
+		Map.Insert(Item, True);
+	EndDo; 
+	Return Map;
 EndFunction
 
 Function DefaultListForm(FormNameParts1)
@@ -1755,10 +1873,10 @@ Function IsAttributeToLocalize(AttributeName)
 EndFunction
 
 // Parameters:
-//  DataVariant - String -  
+//  DataVariant - String - Valid values are: "Overall", "Separated_Data", "All" 
 // 
 // Returns:
-//  Array - 
+//  Array - ObjectsSCHRepresentations objects
 //
 Function ObjectsSCHRepresentations(DataVariant)
 	
@@ -1825,8 +1943,10 @@ Procedure FillAndMoveLinesFromPchViewToRequisites(Ref, FillParameters, ObjectsPr
 		EndIf;
 	EndIf;
 	
+	FullName = MetadataObject.FullName();
+	
 	Block = New DataLock;
-	LockItem = Block.Add(MetadataObject.FullName());
+	LockItem = Block.Add(FullName);
 	LockItem.SetValue("Ref", Ref);
 	
 	Languages = StandardSubsystemsServer.ConfigurationLanguages();
@@ -1835,6 +1955,7 @@ Procedure FillAndMoveLinesFromPchViewToRequisites(Ref, FillParameters, ObjectsPr
 	Try
 		
 		Block.Lock();
+		RepresentationOfTheReference = String(Ref);
 		LockDataForEdit(Ref);
 		
 		Object = Ref.GetObject();
@@ -1855,12 +1976,8 @@ Procedure FillAndMoveLinesFromPchViewToRequisites(Ref, FillParameters, ObjectsPr
 				TableRow.LanguageCode = LanguageCode;
 			EndIf;
 			
-			For Each ColumnProps In ObjectTabularSection.Attributes Do
-				
-				AttributeName = ColumnProps.Name;
-				If AttributeName = "LanguageCode" Then
-					Continue;
-				EndIf;
+			MultilingualAttributes = NationalLanguageSupportCached.TabularSectionMultilingualAttributes(FullName);
+			For Each AttributeName In MultilingualAttributes Do
 				
 				ValueInMainLanguage = Object[AttributeName];
 				
@@ -1907,11 +2024,10 @@ Procedure FillAndMoveLinesFromPchViewToRequisites(Ref, FillParameters, ObjectsPr
 		
 		ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
 		
-		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t process object: %1. Reason: %2';"),
-				Ref, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-		WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Warning,
-			Ref.Metadata(), Ref, MessageText);
+		InfobaseUpdate.WriteErrorToEventLog(
+			Ref,
+			RepresentationOfTheReference,
+			ErrorInfo());
 	EndTry;
 	
 EndProcedure
@@ -1920,14 +2036,14 @@ EndProcedure
 //  ListOfObjects - Array
 // 
 // Returns:
-//  String - 
+//  String - A comma-delimited list of object names
 //
 Function ObjectsWithInitialStringFilling(ListOfObjects)
 	
 	ObjectsWithInitialFilling = ObjectsWithInitialFilling(VariantOfDataForProcessingTakingIntoAccountSeparation());
 
 	For Each ObjectWithPredefinedElements In ObjectsWithInitialFilling Do
-		FullName = ObjectWithPredefinedElements.FullName();
+		FullName = ObjectWithPredefinedElements.Value;
 		If ListOfObjects.Find(FullName) = Undefined Then
 			ListOfObjects.Add(FullName);
 		EndIf;
@@ -1956,7 +2072,10 @@ Function ListOfObjectsToBeProcessedToUpgradeToNewVersion(DataVariant)
 		
 		QueriesSet = New Array;
 		
-		For Each MetadataObjectWithItems In ObjectsWithPredefinedItems Do
+		For Each ObjectWithPredefinedElements In ObjectsWithPredefinedItems Do
+			
+			MetadataObjectWithItems = ObjectWithPredefinedElements.Key;
+			FullMetadataObjectName  = ObjectWithPredefinedElements.Value;
 			
 			// @skip-check query-in-loop - Batch processing of a large amount of data.
 			ObjectAttributesToLocalize = TheNamesOfTheLocalizedDetailsOfTheObjectInTheHeader(MetadataObjectWithItems);
@@ -1996,8 +2115,9 @@ Function ListOfObjectsToBeProcessedToUpgradeToNewVersion(DataVariant)
 				Continue;
 			EndIf;
 				
-			TheTextOfTheRequest = StrReplace(QueryTemplate, "&Table", MetadataObjectWithItems.FullName());
-			TheTextOfTheRequest = StrReplace(TheTextOfTheRequest, "&FilterCriterion", StrConcat(Filters, " OR "));
+			TheTextOfTheRequest = StrReplace(QueryTemplate, "&Table", FullMetadataObjectName);
+			TheTextOfTheRequest = StrReplace(TheTextOfTheRequest, "&FilterCriterion", StrConcat(
+				Filters, " OR "));
 			QueriesSet.Add(TheTextOfTheRequest);
 			
 		EndDo;
@@ -2013,7 +2133,7 @@ Function ListOfObjectsToBeProcessedToUpgradeToNewVersion(DataVariant)
 		
 	EndIf;
 	
-	
+	// A special batch of objects that should be registered with the "Presentations" table.
 	ObjectsSCHRepresentations = ObjectsSCHRepresentations(DataVariant);
 	
 	If ObjectsSCHRepresentations.Count() > 0 Then
@@ -2036,14 +2156,13 @@ Function ListOfObjectsToBeProcessedToUpgradeToNewVersion(DataVariant)
 			MetadataObject = Metadata.FindByFullName(MetadataObjectName);
 			ObjectTabularSection = MetadataObject.TabularSections.Find("Presentations"); // MetadataObjectTabularSection
 			
+			MultilingualAttributes = NationalLanguageSupportCached.TabularSectionMultilingualAttributes(MetadataObjectName);
 			FilterConditions = New Array;
-			For Each MultilingualProps In ObjectTabularSection.Attributes Do
-				If MultilingualProps.Name = "LanguageCode" Then
-					Continue;
-				EndIf;
+			
+			For Each MultilingualProps In MultilingualAttributes Do
 				
 				FilterConditions.Add(StringFunctionsClientServer.SubstituteParametersToString(
-					TemplateWhere, MultilingualProps.Name));
+					TemplateWhere, MultilingualProps));
 			EndDo;
 			
 			QueryTextWhere = "(" + StrConcat(FilterConditions, " OR ") + ")";
@@ -2155,47 +2274,74 @@ Procedure ChangeLanguageinMultilingualDetailsConfig(Parameters, Address) Export
 	
 	ObjectsWithInitialFilling = InfobaseUpdateInternal.ObjectsWithInitialFilling();
 	
+	ProcessedObjectsCount1 = 0;
+	DeletableObjects = New Array;
+	
 	For Each ObjectData In DataToChangeMultilanguageAttributes.Objects Do
 		FullName = ObjectData.Key;
 		ObjectMetadata = Common.MetadataObjectByFullName(FullName);
-		FillParameters = New Structure;
-		
-		If ObjectsWithInitialFilling.Find(ObjectMetadata) <> Undefined Then
-			
-			FillParameters = InfobaseUpdateInternal.ParameterSetForFillingObject(ObjectMetadata);
+		Context = New Structure;
+
+		If ObjectsWithInitialFilling.Get(ObjectMetadata) <> Undefined Then
+
+			Context = InfobaseUpdateInternal.ParameterSetForFillingObject(
+				ObjectMetadata);
 			
 		EndIf;
 		
+		Percent = Round(ProcessedObjectsCount1 * 100 / ObjectsWithInitialFilling.Count()) + 1;
+		TimeConsumingOperations.ReportProgress(?(Percent >99, 98, Percent), ObjectMetadata.Presentation());
+		
 		If StrStartsWith(FullName, "Catalog")
-			Or StrStartsWith(FullName, "ChartOfCharacteristicTypes") Then
+		 Or StrStartsWith(FullName, "ChartOfCharacteristicTypes")
+		 Or StrStartsWith(FullName, "ChartOfAccounts")
+		 Or StrStartsWith(FullName, "ChartOfCalculationTypes") Then
 			
 			// @skip-check query-in-loop - Batch processing of a large amount of data.
-			HandleReferenceObjects(FullName, ObjectData.Value, DataToChangeMultilanguageAttributes, FillParameters);
+			HandleReferenceObjects(FullName, ObjectData.Value, DataToChangeMultilanguageAttributes,
+				Context);
 				
 		ElsIf StrStartsWith(FullName, "InformationRegister") Then
 			MetadataObject = Common.MetadataObjectByFullName(FullName);
 			
 			If MetadataObject.WriteMode = Metadata.ObjectProperties.RegisterWriteMode.RecorderSubordinate Then
 				// @skip-check query-in-loop - Batch processing of a large amount of data.
-				ChangeLanguageInSubRegistersDetails(MetadataObject, ObjectData.Value, DataToChangeMultilanguageAttributes, FillParameters);
+				ChangeLanguageInSubRegistersDetails(MetadataObject, ObjectData.Value,
+					DataToChangeMultilanguageAttributes, Context);
 			Else
-				Periodic3 = MetadataObject.InformationRegisterPeriodicity <> Metadata.ObjectProperties.InformationRegisterPeriodicity.Nonperiodical;
+				Periodic3 = MetadataObject.InformationRegisterPeriodicity
+					<> Metadata.ObjectProperties.InformationRegisterPeriodicity.Nonperiodical;
 				// @skip-check query-in-loop - Batch processing of a large amount of data.
-				ChangeLanguageIncaseIndependentDetails(MetadataObject, ObjectData.Value, DataToChangeMultilanguageAttributes, FillParameters, Periodic3);
+				ChangeLanguageIncaseIndependentDetails(MetadataObject, ObjectData.Value,
+					DataToChangeMultilanguageAttributes, Context, Periodic3);
 			EndIf;
-			
+		Else
+			DeletableObjects.Add(FullName);
 		EndIf;
-	
+		
+		ProcessedObjectsCount1 = ProcessedObjectsCount1 + 1;
 	EndDo;
 	
+	If DeletableObjects.Count() > 0 Then
+		For Each FullNameOfObjectToDelete In DeletableObjects Do
+			DataToChangeMultilanguageAttributes.Objects.Delete(FullNameOfObjectToDelete);
+		EndDo;
+		WriteDataToChangeMultilingualAttributes(DataToChangeMultilanguageAttributes);
+	EndIf;
+	
 	If Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
+		
+		TimeConsumingOperations.ReportProgress(99 , NStr("en = 'Report options';"));
+		
 		ModuleReportsOptions = Common.CommonModule("ReportsOptions");
 		Settings = ModuleReportsOptions.SettingsUpdateParameters();
 		Settings.Deferred2 = True;
 		ModuleReportsOptions.Refresh(Settings);
 		ModuleReportsOptions.ResetInfillViews("ConfigurationCommonData");
 	EndIf;
-
+	
+	TimeConsumingOperations.ReportProgress(100, "");
+	
 EndProcedure
 
 Procedure HandleReferenceObjects(FullName, ObjectData, DataToChangeMultilanguageAttributes, FillParameters)
@@ -2250,13 +2396,16 @@ Procedure HandleReferenceObjects(FullName, ObjectData, DataToChangeMultilanguage
 		Query.Text = QueryText;
 		Query.SetParameter("Ref", LastRef);
 		
-		// @skip-check query-in-loop - Batch processing of data
+		// @skip-check query-in-loop - Batch-wise data processing
 		QueryResult = Query.Execute();
 		
 		If Not QueryResult.IsEmpty() Then
 
 			SelectionDetailRecords = QueryResult.Select();
 
+			IsIncludesEditedPredefinedAttributes = 
+				InfobaseUpdateInternal.IsIncludesEditedPredefinedAttributes(FullName);
+			
 			While SelectionDetailRecords.Next() Do
 
 				BeginTransaction();
@@ -2277,18 +2426,48 @@ Procedure HandleReferenceObjects(FullName, ObjectData, DataToChangeMultilanguage
 					
 					NewStringPchRepresentation = Undefined;
 					
+					EditedAttributes = Undefined;
+					If IsIncludesEditedPredefinedAttributes And ValueIsFilled(ObjectToChange.EditedPredefinedAttributes) Then
+						EditedAttributes = StrSplit(ObjectToChange.EditedPredefinedAttributes, ",", False);
+					EndIf;
+					
 					For Each MultilingualProps In MultilingualAttributes Do
 						
 						// Save old values.
 						AttributeValues = New Map;
 						AttributeValues[ValuesLanguageConstants.MainLanguageOldValue] =  ObjectToChange[MultilingualProps];
-						AttributeValues[ValuesLanguageConstants.AdditionalLanguage1OldValue] = ObjectToChange[MultilingualProps + FirstLanguageSuffix()];
-						AttributeValues[ValuesLanguageConstants.AdditionalLanguage2OldValue] = ObjectToChange[MultilingualProps + SecondLanguageSuffix()];
+						AttributeValues[ValuesLanguageConstants.AdditionalLanguage1OldValue] = ObjectToChange[MultilingualProps
+							+ FirstLanguageSuffix()];
+						AttributeValues[ValuesLanguageConstants.AdditionalLanguage2OldValue] = ObjectToChange[MultilingualProps
+							+ SecondLanguageSuffix()];
+
+						If EditedAttributes <> Undefined Then
+							
+							Substitutions_3 = New Map;
+							If EditedAttributes.Find(MultilingualProps) <> Undefined Then
+								Position = EditedAttributes.Find(MultilingualProps);
+								Substitutions_3.Insert(Position, MultilingualProps + LanguageSuffix(ValuesLanguageConstants.MainLanguageOldValue));
+							EndIf;
+							If EditedAttributes.Find(MultilingualProps + FirstLanguageSuffix()) <> Undefined Then
+								Position = EditedAttributes.Find(MultilingualProps + FirstLanguageSuffix());
+								Substitutions_3.Insert(Position, MultilingualProps + LanguageSuffix(ValuesLanguageConstants.AdditionalLanguage1OldValue));
+							EndIf;
+							If EditedAttributes.Find(MultilingualProps + SecondLanguageSuffix()) <> Undefined Then 
+								Position = EditedAttributes.Find(MultilingualProps + SecondLanguageSuffix());
+								Substitutions_3.Insert(Position, MultilingualProps + LanguageSuffix(ValuesLanguageConstants.AdditionalLanguage2OldValue));
+							EndIf;
+							
+							For Each Replacement In Substitutions_3 Do 
+								EditedAttributes[Replacement.Key] = Replacement.Value;
+							EndDo;
+
+						EndIf;
 							
 						DefaultValue = ObjectToChange[MultilingualProps];
 						If DataToChangeMultilanguageAttributes.MainLanguageChanged Then
 							NewValue = AttributeValues[ValuesLanguageConstants.MainLanguageNewMeaning];
-							FillPropsITCHSubmissions(FillParameters, MultilingualProps, ObjectToChange, NewValue, DefaultValue,
+							FillPropsITCHSubmissions(FillParameters, MultilingualProps,
+								ObjectToChange, NewValue, DefaultValue,
 								ValuesLanguageConstants.MainLanguageNewMeaning);
 								
 							If ObjectContainsPMRepresentations Then
@@ -2298,7 +2477,10 @@ Procedure HandleReferenceObjects(FullName, ObjectData, DataToChangeMultilanguage
 									ObjectToChange.Presentations.Delete(FoundRow);
 								EndDo;
 								
-								If ValueIsFilled(ValuesLanguageConstants.MainLanguageOldValue) Then
+								IsAttributePresentInTabularSection = FillParameters.ObjectAttributesToLocalize[MultilingualProps];
+								
+								If ValueIsFilled(ValuesLanguageConstants.MainLanguageOldValue) 
+								   And IsAttributePresentInTabularSection Then
 									
 									If FillParameters.HierarchySupported 
 										And ObjectToChange.IsFolder
@@ -2340,6 +2522,10 @@ Procedure HandleReferenceObjects(FullName, ObjectData, DataToChangeMultilanguage
 						
 					EndDo;
 					
+					If EditedAttributes <> Undefined Then
+						ObjectToChange.EditedPredefinedAttributes = StrConcat(EditedAttributes, ",");
+					EndIf;
+					
 					InfobaseUpdate.WriteObject(ObjectToChange);
 					
 					LastRef = SelectionDetailRecords.Ref;
@@ -2369,12 +2555,12 @@ Procedure HandleReferenceObjects(FullName, ObjectData, DataToChangeMultilanguage
 		
 EndProcedure
 
-Procedure FillPropsITCHSubmissions(FillParameters, MultilingualProps, ObjectToChange, NewValue, DefaultValue, LanguageCode = "")
+Procedure FillPropsITCHSubmissions(FillParameters, MultilingualProps, ObjectToChange,
+	NewValue, DefaultValue, LanguageCode = "")
 	
 	FillValue = "";
 	ThereFillingParameters  = FillParameters.Count() <> 0;
-	ObjectContainsPMRepresentations = ?(ThereFillingParameters,
-		FillParameters.ObjectContainsPMRepresentations,False);
+	ObjectContainsPMRepresentations = ?(ThereFillingParameters, FillParameters.ObjectContainsPMRepresentations,False);
 	
 	If NewValue <> Undefined Then
 		FillValue = NewValue;
@@ -2406,10 +2592,14 @@ Procedure FillPropsITCHSubmissions(FillParameters, MultilingualProps, ObjectToCh
 		ObjectToChange[MultilingualProps] = FillValue;
 	EndIf;
 	
+	IsAttributePresentInTabularSection = ?(ThereFillingParameters, 
+		FillParameters.ObjectAttributesToLocalize[MultilingualProps], Undefined);
+	
 	If IsBlankString(LanguageCode) 
 		Or Not ObjectContainsPMRepresentations
-		Or (FillParameters.HierarchySupported And ObjectToChange.IsFolder) Then
-		Return;
+		Or (FillParameters.HierarchySupported And ObjectToChange.IsFolder)
+		Or IsAttributePresentInTabularSection <> True Then
+			Return;
 	EndIf;
 	
 	Filter = New Structure("LanguageCode", LanguageCode);
@@ -2583,7 +2773,7 @@ Procedure ChangeLanguageInSubRegistersDetails(MetadataObject, ObjectData, DataTo
 		
 		Query.SetParameter("Recorder", ResultString1.RecorderAttributeRef);
 		
-		// @skip-check query-in-loop - Batch processing of data
+		// @skip-check query-in-loop - Batch-wise data processing
 		Result = Query.Execute().Unload();
 		
 	EndDo;
@@ -2788,7 +2978,7 @@ Procedure ChangeLanguageIncaseIndependentDetails(MetadataObject, ObjectData, Dat
 			Query.SetParameter(Dimension.Name, ResultString1[Dimension.Name + "DimensionRef"]);
 		EndDo;
 		
-		// @skip-check query-in-loop - Batch processing of data
+		// @skip-check query-in-loop - Batch-wise data processing
 		Result = Query.Execute().Unload();
 		
 	EndDo;
@@ -2797,36 +2987,6 @@ Procedure ChangeLanguageIncaseIndependentDetails(MetadataObject, ObjectData, Dat
 	WriteDataToChangeMultilingualAttributes(DataToChangeMultilanguageAttributes);
 	
 EndProcedure
-
-Procedure CopyMultilingualValuesInDetailsCaps(CurrentObject, NamesOfAttributesToLocalize, LanguageCode)
-	
-	LanguageSuffix = LanguageSuffix(LanguageCode);
-	If IsBlankString(LanguageSuffix) Then
-		Return;
-	EndIf;
-	
-	Presentations = CurrentObject.Presentations; // TabularSection
-	
-	Filter = New Structure("LanguageCode", LanguageCode);
-	
-	FoundRows = Presentations.FindRows(Filter);
-	If FoundRows.Count() > 0 Then
-		IsFoundString = FoundRows[0];
-		For Each Attribute In NamesOfAttributesToLocalize Do
-			If ValueIsFilled(IsFoundString[Attribute.Key]) Then
-				CurrentObject[Attribute.Key + LanguageSuffix] = IsFoundString[Attribute.Key];
-			Else
-				CurrentObject[Attribute.Key + LanguageSuffix] = CurrentObject[Attribute.Key];
-			EndIf;
-		EndDo;
-	Else
-		For Each Attribute In NamesOfAttributesToLocalize Do
-			CurrentObject[Attribute.Key + LanguageSuffix] = CurrentObject[Attribute.Key];
-		EndDo;
-	EndIf;
-	
-EndProcedure
-
 
 Function FirstLanguageSuffix() Export
 	Return "Language1";
@@ -2847,21 +3007,21 @@ Function ObjectsWithInitialFilling(DataVariant)
 	
 	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 	
-	Position =  ObjectsWithPredefinedItems.Count() - 1;
-	While Position >= 0 Do
+	ObjectsWithPredefinedItemsForDataVariant = New Map(ObjectsWithPredefinedItems);
+	
+	For Each ObjectWithPredefinedItem In ObjectsWithPredefinedItems Do
 		
-		IsSeparatedMetadataObject = ModuleSaaSOperations.IsSeparatedMetadataObject(ObjectsWithPredefinedItems[Position]);
+		IsSeparatedMetadataObject = ModuleSaaSOperations.IsSeparatedMetadataObject(
+			ObjectWithPredefinedItem.Key);
 		If DataVariant = "Overall" And IsSeparatedMetadataObject Then
-			If IsSeparatedMetadataObject Then
-				ObjectsWithPredefinedItems.Delete(Position);
-			EndIf;
+			ObjectsWithPredefinedItemsForDataVariant.Delete(ObjectWithPredefinedItem.Key);
 		ElsIf Not IsSeparatedMetadataObject Then
-			ObjectsWithPredefinedItems.Delete(Position);
+			ObjectsWithPredefinedItemsForDataVariant.Delete(ObjectWithPredefinedItem.Key);
 		EndIf;
-		Position = Position - 1;
+		
 	EndDo;
 	
-	Return ObjectsWithPredefinedItems;
+	Return ObjectsWithPredefinedItemsForDataVariant;
 	
 EndFunction
 

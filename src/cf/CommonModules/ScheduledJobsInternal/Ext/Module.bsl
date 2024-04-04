@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -178,7 +179,7 @@ Procedure SetScheduledJobsUsageByFunctionalOptions(EnableJobs = False) Export
 		EndDo;
 		
 		If Use = Undefined
-			Or (Use And Not EnableJobs) 
+			Or (Use And Not EnableJobs) // 
 			Or (Not Use And Not DisableJob) Then
 			Continue;
 		EndIf;
@@ -766,7 +767,7 @@ EndFunction
 // Cancels the background job if possible, i.e. if it is running on the server and is active.
 //
 // Parameters:
-//  Id  - 
+//  Id  - UUID of the background job.
 // 
 Procedure CancelBackgroundJob(Id) Export
 	

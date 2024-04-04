@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -136,7 +137,7 @@ Procedure CreateKeyOperations(KeyOperations) Export
 
 	While Selection.Next() Do
 		If Selection.Ref.IsEmpty() Then
-			CreateKeyOperation(Selection.KeyOperationName, Selection.ResponseTimeThreshold); 
+			CreateKeyOperation(Selection.KeyOperationName, Selection.ResponseTimeThreshold); // @skip-check query-in-loop - Create a key operation if it is missing.
 		EndIf;
 	EndDo;
 EndProcedure
@@ -298,12 +299,12 @@ EndProcedure
 //   Map of KeyAndValue:
 //     * Key - String
 //     * Value - Arbitrary
-//   :
-//    
-//    
-//    
-//    
-//    
+//   Keys are:
+//    # KeyOperation - String - Key operation name.
+//    # StartTime - Number - Operation start time, in ms.
+//    # LastMeasurementTime - Last time the key operation was measured, in ms.
+//    # MeasurementWeight - Number - Amount of data processed during the runtime.
+//    # NestedMeasurements - Map - Collection of nested step samples.
 //
 Function StartTimeConsumingOperationMeasurement(KeyOperation) Export
 
@@ -492,13 +493,13 @@ Procedure SetCompletedWithErrorFlag(KeyOperations) Export
 
 		For Each KeyOperation In KeyOperations Do
 			Query.SetParameter("Name", KeyOperation.KeyOperationName);
-			QueryResult = Query.Execute(); 
+			QueryResult = Query.Execute(); // @skip-check query-in-loop - Obsolete code, not subject for rework.
 			If Not QueryResult.IsEmpty() Then
 				Selection = QueryResult.Select();
 				Selection.Next();
 				KeyOperationRef = Selection.Ref;
 				KeyOperationObject = KeyOperationRef.GetObject(); // CatalogObject.KeyOperations
-				KeyOperationObject.OperationFailed = KeyOperation.Flag;
+				KeyOperationObject.IsFailed = KeyOperation.Flag;
 
 				KeyOperationObject.Write();
 			EndIf;
@@ -604,11 +605,11 @@ EndFunction
 //  String                 - String - delimited text;
 //
 // Returns:
-//  String - 
+//  String - String split into separate words.
 //
-// :
-//  
-//  
+// Example::
+//  SplitStringByWords("OneTwoThree") returns "One two three".
+//  Note that SplitStringByWords("onetwothree") returns "onetwothree".
 //
 Function SplitStringByWords(Val String)
 
@@ -727,7 +728,7 @@ Procedure RecordKeyOperationDuration(Parameters)
 	Record.MeasurementStartDate = KeyOperationStartDate;
 	Record.SessionNumber = InfoBaseSessionNumber();
 
-	Record.RunTime = ?(Duration = 0, 0.001, Duration); 
+	Record.RunTime = ?(Duration = 0, 0.001, Duration); // 
 	Record.MeasurementWeight = MeasurementWeight;
 
 	Record.RecordDate = Date(1, 1, 1) + CurrentUniversalDateInMilliseconds() / 1000;
@@ -810,7 +811,7 @@ Procedure WriteTimeMeasurements(MeasurementsArray)
 		Record.MeasurementStartDate = Measurement.KeyOperationStartDate;
 		Record.SessionNumber = SessionNumber;
 
-		Record.RunTime = ?(Measurement.Duration = 0, 0.001, Measurement.Duration); 
+		Record.RunTime = ?(Measurement.Duration = 0, 0.001, Measurement.Duration); // 
 		Record.MeasurementWeight = Measurement.MeasurementWeight;
 
 		Record.RecordDate = RecordDate;
@@ -964,7 +965,7 @@ Procedure ClearTimeMeasurementsRegisters() Export
 		If DeletionRequired Then
 			DeletionRequired = False;
 
-			Result = TimeMeasurementsQuery.Execute(); 
+			Result = TimeMeasurementsQuery.Execute(); // @skip-check query-in-loop - Batch-wise data processing.
 			Selection = Result.Select();
 			Selection.Next();
 			RecordDateBegOfHour = Selection.RecordDateBegOfHour;
@@ -978,7 +979,7 @@ Procedure ClearTimeMeasurementsRegisters() Export
 
 		If TechnologicalDeletionRequired Then
 			TechnologicalDeletionRequired = False;
-			Result = TechnologicalTimeMeasurementsQuery.Execute(); 
+			Result = TechnologicalTimeMeasurementsQuery.Execute(); // @skip-check query-in-loop - Batch-wise data processing.
 			Selection = Result.Select();
 			Selection.Next();
 			RecordDateBegOfHour = Selection.RecordDateBegOfHour;
@@ -1253,7 +1254,7 @@ Function ExportFileFullName(Directory, CurDate, FileSequenceNumber, ExtentionWit
 	FileSequenceNumberFormat = Format(FileSequenceNumber, "ND=5; NLZ=; NG=0");
 
 	Separator = ?(Upper(Left(Directory, 3)) = "FTP", "/", GetPathSeparator());
-	
+	// ACC-1367-off - A non-localizable (hard-coded) filename template.
 	Return RemoveSeparatorsAtFileNameEnd(Directory, Separator) + Separator + Format(FileFormationDate,
 		"DF='yyyy-MM-dd HH-mm-ex-" + FileSequenceNumberFormat + "'") + ExtentionWithDot;
 	// ACC:1367-on
@@ -1314,7 +1315,7 @@ Procedure LoadPerformanceMonitorFile(FileName, StorageAddress) Export
 			XMLReader.OpenFile(File.FullName);
 			XMLReader.MoveToContent();
 
-			
+			// @skip-check query-in-loop - Batch-wise data processing.
 			LoadPerformanceMonitorFileApdexExport(XMLReader, AvailableKeyOperations,
 				KeyOperationsToWrite, RawMeasurementsToWrite);  
 			XMLReader.Close();
@@ -1371,7 +1372,7 @@ Procedure LoadPerformanceMonitorFileApdexExport(XMLReader, AvailableKeyOperation
 
 		KeyOperationRef = AvailableKeyOperations[KeyOperationName1];
 		If KeyOperationRef = Undefined Then
-			KeyOperationRef = CreateKeyOperation(KeyOperationName1, ResponseTimeThreshold, TimeConsuming);  
+			KeyOperationRef = CreateKeyOperation(KeyOperationName1, ResponseTimeThreshold, TimeConsuming);  // 
 			AvailableKeyOperations.Insert(KeyOperationName1, KeyOperationRef);
 		EndIf;
 

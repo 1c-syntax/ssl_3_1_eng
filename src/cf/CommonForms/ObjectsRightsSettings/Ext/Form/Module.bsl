@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -434,7 +435,7 @@ Procedure RereadCompletion(Response, Context) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure UpdateDependentRights(Val Data, Val Right, Val PreviousValue2, Val RecursionDepth = 0)
@@ -453,26 +454,26 @@ Procedure UpdateDependentRights(Val Data, Val Right, Val PreviousValue2, Val Rec
 	
 	If Data[Right] = True Then
 		
-		
-		
+		// 
+		// 
 		DirectRightsDependencies.Property(Right, DependentRights);
 		DependentRightValue = True;
 		
 	ElsIf Data[Right] = False Then
 		
-		
-		
+		// 
+		// 
 		ReverseRightsDependencies.Property(Right, DependentRights);
 		DependentRightValue = False;
 	Else
 		If PreviousValue2 = False Then
-			
-			
+			// 
+			// 
 			DirectRightsDependencies.Property(Right, DependentRights);
 			DependentRightValue = Undefined;
 		Else
-			
-			
+			// 
+			// 
 			ReverseRightsDependencies.Property(Right, DependentRights);
 			DependentRightValue = Undefined;
 		EndIf;
@@ -794,8 +795,8 @@ Procedure FillCheckProcessing(Cancel)
 			Return;
 		EndIf;
 		
-		
-		
+		// 
+		// 
 		
 		// Validate value population.
 		If Not ValueIsFilled(CurrentRow["User"]) Then

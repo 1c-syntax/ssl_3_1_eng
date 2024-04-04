@@ -87,6 +87,12 @@
 				<Button name="SelectPurpose" id="62">
 					<Type>Hyperlink</Type>
 					<CommandName>Form.Command.SelectPurpose</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Select</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="SelectPurposeExtendedTooltip" id="63"/>
 				</Button>
 			</ChildItems>
@@ -214,7 +220,7 @@ To refine the role, you can specify main and additional business objects.</v8:co
 			<Behavior>Usual</Behavior>
 			<Representation>NormalSeparation</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="GroupCommentExtendedTooltip" id="55"/>
+			<ExtendedTooltip name="CommentGroupExtendedTooltip" id="55"/>
 			<ChildItems>
 				<InputField name="Comment" id="25">
 					<DataPath>Object.Comment</DataPath>

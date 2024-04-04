@@ -615,7 +615,7 @@ Inactive users are hidden from the user lists.
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>A shared or separated user with the rights specified explicitly and programmatically.</v8:content>
+							<v8:content>Utility user intended for app automation. Its rights cannot be configured interactively.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>

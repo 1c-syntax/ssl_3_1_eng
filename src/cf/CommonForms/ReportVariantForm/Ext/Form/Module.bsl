@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -25,7 +26,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	ParametersForm = ReportsOptions.StoredReportFormParameters(Parameters);
 	
-	If Parameters.Property("VariantPresentation") And ValueIsFilled(Parameters.VariantPresentation) Then
+	If ValueIsFilled(Parameters.VariantPresentation) Then
 		AutoTitle = False;
 		Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Modify ""%1"" report option';"), Parameters.VariantPresentation);
 	EndIf;
@@ -55,13 +56,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		SettingsStructureItemID = DCSettings.GetIDByObject(StructureItem);
 	EndIf;
 	
-	If Parameters.Property("VariantModified") Then 
-		VariantModified = Parameters.VariantModified;
-	EndIf;
-	
-	If Parameters.Property("UserSettingsModified") Then 
-		UserSettingsModified = Parameters.UserSettingsModified;
-	EndIf;
+	VariantModified = Parameters.VariantModified;
+	UserSettingsModified = Parameters.UserSettingsModified;
 	
 	SetCurrentPage();
 EndProcedure
@@ -112,24 +108,25 @@ EndProcedure
 #Region FormCommandsEventHandlers
 
 &AtClient
-Procedure CompleteEditing(Command)
-	If ModalMode
-		Or WindowOpeningMode = FormWindowOpeningMode.LockWholeInterface
+Procedure GenerateAndClose(Command)
+	If ModalMode Or WindowOpeningMode = FormWindowOpeningMode.LockWholeInterface
 		Or FormOwner = Undefined Then
 		Close(True);
-	Else
-		SelectionResult = New Structure;
-		SelectionResult.Insert("EventName", ReportsOptionsInternalClientServer.NameEventFormSettings());
-		SelectionResult.Insert("DCSettingsComposer", Report.SettingsComposer);
-		SelectionResult.Insert("VariantModified", VariantModified);
-		SelectionResult.Insert("UserSettingsModified", VariantModified Or UserSettingsModified);
-		
-		If SelectionResult.UserSettingsModified Then
-			SelectionResult.Insert("ResetCustomSettings", True);
-		EndIf;
-		
-		NotifyChoice(SelectionResult);
+		Return;
 	EndIf;
+
+	SelectionResult = ReportsClientServer.ReportFormUpdateParameters(
+		ReportsOptionsInternalClientServer.NameEventFormSettings());
+	SelectionResult.DCSettingsComposer = Report.SettingsComposer;
+	SelectionResult.VariantModified = VariantModified;
+	SelectionResult.UserSettingsModified = VariantModified Or UserSettingsModified;
+	SelectionResult.Regenerate = True;
+	
+	If SelectionResult.UserSettingsModified Then
+		SelectionResult.ResetCustomSettings = True;
+	EndIf;
+	
+	NotifyChoice(SelectionResult);
 EndProcedure
 
 #EndRegion
@@ -148,9 +145,7 @@ EndProcedure
 
 &AtServer
 Procedure SetCurrentPage()
-	If Not Parameters.Property("PageName")
-		Or Not ValueIsFilled(Parameters.PageName) Then
-		
+	If Not ValueIsFilled(Parameters.PageName) Then
 		Return;
 	EndIf;
 	

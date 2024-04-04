@@ -6,6 +6,12 @@
 	<AutoCommandBar name="FormCommandBar" id="-1">
 		<ChildItems>
 			<ButtonGroup name="GroupCommandBar" id="34">
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Command bar</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="CommandBarGroupExtendedTooltip" id="35"/>
 				<ChildItems>
 					<Button name="WriteAndClose" id="36">
@@ -37,6 +43,12 @@
 							<Button name="AddConditionByDate" id="46">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.AddConditionByDate</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Add date-based condition</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="AddConditionByDateExtendedTooltip" id="47"/>
 							</Button>
 						</ChildItems>

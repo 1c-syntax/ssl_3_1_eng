@@ -6,7 +6,7 @@
 			<Synonym>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Synchronize with additional parameters…</v8:content>
+					<v8:content>Map data manually…</v8:content>
 				</v8:item>
 			</Synonym>
 			<Comment/>
@@ -15,7 +15,7 @@
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Specify additional parameters and synchronize data</v8:content>
+					<v8:content>Map data manually</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>

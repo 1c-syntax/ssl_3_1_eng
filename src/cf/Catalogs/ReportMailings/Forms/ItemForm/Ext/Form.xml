@@ -14,11 +14,23 @@
 				<Representation>Text</Representation>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.CommandSaveAndClose</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save and close</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="CommandWriteAndCloseExtendedTooltip" id="956"/>
 			</Button>
 			<Button name="CommandWrite" id="957">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.CommandWrite</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="CommandWriteExtendedTooltip" id="958"/>
 			</Button>
 			<ButtonGroup name="CommonCommands" id="994">
@@ -33,6 +45,12 @@
 					<Button name="ExecuteNowCommand" id="1051">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.ExecuteNowCommand</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Run now</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="ExecuteNowCommandExtendedTooltip" id="1052"/>
 					</Button>
 					<Button name="ExecuteNow" id="996">
@@ -45,6 +63,12 @@
 					<Button name="FormCheckIfBulkEmailIsPossible" id="1185">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.CheckIfBulkEmailIsPossible</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Test</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="FormCheckIfBulkEmailIsPossibleExtendedTooltip" id="1186"/>
 					</Button>
 				</ChildItems>
@@ -76,6 +100,12 @@
 					<Button name="MailingEventsCommand" id="1053">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.MailingEventsCommand</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Show events…</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="MailingEventsCommandExtendedTooltip" id="1054"/>
 					</Button>
 					<Button name="MailingEvents" id="992">
@@ -123,7 +153,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Group Resend</v8:content>
+							<v8:content>Resend</v8:content>
 						</v8:item>
 					</Title>
 					<Representation>None</Representation>
@@ -154,6 +184,12 @@
 						<Button name="Redistribution" id="1298">
 							<Type>Hyperlink</Type>
 							<CommandName>Form.Command.Redistribution</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Resend</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="RedistributionExtendedTooltip" id="1299"/>
 						</Button>
 					</ChildItems>
@@ -168,7 +204,7 @@
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="DataToMailPreparedGroupExtendedTooltip" id="700"/>
+					<ExtendedTooltip name="GroupMailingIsReadyExtendedTooltip" id="700"/>
 					<ChildItems>
 						<InputField name="Description" id="1">
 							<DataPath>Object.Description</DataPath>
@@ -325,6 +361,12 @@
 									<ChildItems>
 										<InputField name="MailingRecipientType" id="132">
 											<DataPath>MailingRecipientType</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Recipients</v8:content>
+												</v8:item>
+											</Title>
 											<AutoMaxWidth>false</AutoMaxWidth>
 											<MaxWidth>25</MaxWidth>
 											<ListChoiceMode>true</ListChoiceMode>
@@ -401,6 +443,12 @@
 									<Button name="ReportsGenerateReportContextMenu" id="1178">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.ReportPreview</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Preview…</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ReportsGenerateReportContextMenuExtendedTooltip" id="1179"/>
 									</Button>
 								</ChildItems>
@@ -426,11 +474,23 @@
 											<Button name="ReportsAddReport" id="226">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.AddReport</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Pick</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ReportsAddReportExtendedTooltip" id="714"/>
 											</Button>
 											<Button name="ReportsAddAdditionalReport" id="227">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.AddAdditionalReport</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Pick additional report</v8:content>
+													</v8:item>
+												</Title>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 												<ExtendedTooltip name="ReportsAddAdditionalReportExtendedTooltip" id="715"/>
 											</Button>
@@ -465,6 +525,12 @@
 									<Button name="ReportsGenerateReport" id="356">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.ReportPreview</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Preview…</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ReportsGenerateReportExtendedTooltip" id="717"/>
 									</Button>
 									<Button name="ReportsDelete" id="1002">
@@ -571,7 +637,7 @@
 													<v8:content>Blank page</v8:content>
 												</v8:item>
 											</Title>
-											<ExtendedTooltip name="BlankPageExtendedTooltip" id="722"/>
+											<ExtendedTooltip name="PageEmptyExtendedTooltip" id="722"/>
 											<ChildItems>
 												<Table name="EmptySettings" id="657">
 													<Representation>List</Representation>
@@ -628,6 +694,12 @@
 													<ChildItems>
 														<CheckBoxField name="CurrentReportSettingsUse1" id="660">
 															<DataPath>CurrentReportSettings.Use</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Usage</v8:content>
+																</v8:item>
+															</Title>
 															<EditMode>EnterOnInput</EditMode>
 															<CheckBoxType>Auto</CheckBoxType>
 															<ContextMenu name="CurrentReportSettingsUse1ContextMenu" id="661"/>
@@ -649,6 +721,12 @@
 														</InputField>
 														<InputField name="CurrentReportSettingsValue1" id="664">
 															<DataPath>CurrentReportSettings.Value</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Value</v8:content>
+																</v8:item>
+															</Title>
 															<EditMode>Directly</EditMode>
 															<TypeLink>
 																<xr:DataPath>Items.CurrentReportSettings.CurrentData.Type</xr:DataPath>
@@ -690,11 +768,23 @@
 															<Button name="UseMailingRecipientInReport2Setting" id="949">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.SpecifyMailingRecipient</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Select recipient</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="UseMailingRecipientInReport2SettingExtendedTooltip" id="950"/>
 															</Button>
 															<Button name="UserSettingsContextMenuDeleteMailingRecipient" id="1183">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.DeleteMailingRecipient</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Remove recipient</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="UserSettingsContextMenuDeleteMailingRecipientExtendedTooltip" id="1184"/>
 															</Button>
 														</ChildItems>
@@ -732,6 +822,12 @@
 															<Button name="UseMailingRecipientInReport1Setting" id="945">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.SpecifyMailingRecipient</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Select recipient</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="UseMailingRecipientInReport1SettingExtendedTooltip" id="946"/>
 															</Button>
 														</ChildItems>
@@ -893,6 +989,12 @@
 															<Button name="UseMailingRecipientInReport4Setting" id="947">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.SpecifyMailingRecipient</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Select recipient</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="UseMailingRecipientInReport4SettingExtendedTooltip" id="948"/>
 															</Button>
 														</ChildItems>
@@ -903,6 +1005,12 @@
 															<Button name="UseMailingRecipientInReport3Setting" id="943">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.SpecifyMailingRecipient</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Select recipient</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="UseMailingRecipientInReport3SettingExtendedTooltip" id="944"/>
 															</Button>
 														</ChildItems>
@@ -938,6 +1046,12 @@
 													<ChildItems>
 														<CheckBoxField name="CurrentReportSettingsUse" id="245">
 															<DataPath>CurrentReportSettings.Use</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Usage</v8:content>
+																</v8:item>
+															</Title>
 															<EditMode>EnterOnInput</EditMode>
 															<CheckBoxType>Auto</CheckBoxType>
 															<ContextMenu name="CurrentReportSettingsUseContextMenu" id="246"/>
@@ -959,6 +1073,12 @@
 														</InputField>
 														<InputField name="CurrentReportSettingsValue" id="243">
 															<DataPath>CurrentReportSettings.Value</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Value</v8:content>
+																</v8:item>
+															</Title>
 															<EditMode>Directly</EditMode>
 															<TypeLink>
 																<xr:DataPath>Items.CurrentReportSettings.CurrentData.Type</xr:DataPath>
@@ -1055,12 +1175,24 @@
 											<Type>UsualButton</Type>
 											<Representation>Text</Representation>
 											<CommandName>Form.Command.ModifySchedule</CommandName>
-											<ExtendedTooltip name="EditScheduleExtendedTooltip" id="752"/>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Edit…</v8:content>
+												</v8:item>
+											</Title>
+											<ExtendedTooltip name="ModifyScheduleExtendedTooltip" id="752"/>
 										</Button>
 										<Button name="FillScheduleByTemplate" id="526">
 											<Type>UsualButton</Type>
 											<Representation>Text</Representation>
 											<CommandName>Form.Command.FillScheduleByTemplate</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Fill from template…</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="FillScheduleByTemplateExtendedTooltip" id="754"/>
 										</Button>
 									</ChildItems>
@@ -1068,12 +1200,24 @@
 							</ChildItems>
 						</UsualGroup>
 						<UsualGroup name="GroupExecutionTime" id="428">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Schedule</v8:content>
+								</v8:item>
+							</Title>
 							<Group>AlwaysHorizontal</Group>
 							<ShowTitle>false</ShowTitle>
 							<ExtendedTooltip name="GroupExecutionTimeExtendedTooltip" id="749"/>
 							<ChildItems>
 								<InputField name="BeginTime" id="429">
 									<DataPath>BeginTime</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Start time</v8:content>
+										</v8:item>
+									</Title>
 									<EditFormat>
 										<v8:item>
 											<v8:lang>en</v8:lang>
@@ -1086,33 +1230,45 @@
 										<Event name="OnChange">BeginTimeOnChange</Event>
 									</Events>
 								</InputField>
-								<UsualGroup name="GroupRepeatPeriodDuringDay" id="1303">
+								<UsualGroup name="GroupHourlyRepeatPeriod" id="1303">
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Group Repeat period during one day</v8:content>
+											<v8:content>Hourly repeat period</v8:content>
 										</v8:item>
 									</Title>
 									<Representation>None</Representation>
 									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="GroupRepeatPeriodDuringDayExtendedTooltip" id="1304"/>
+									<ExtendedTooltip name="GroupHourlyRepeatPeriodExtendedTooltip" id="1304"/>
 									<ChildItems>
-										<CheckBoxField name="UseRepeatPeriodThroughoutDay" id="1310">
-											<DataPath>UseRepeatPeriodThroughoutDay</DataPath>
+										<CheckBoxField name="UseHourlyRepeatPeriod" id="1310">
+											<DataPath>UseHourlyRepeatPeriod</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Use hourly repeat period</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<CheckBoxType>Auto</CheckBoxType>
-											<ContextMenu name="UseRepeatPeriodThroughoutDayContextMenu" id="1311"/>
-											<ExtendedTooltip name="UseRepeatPeriodThroughoutDayExtendedTooltip" id="1312"/>
+											<ContextMenu name="UseHourlyRepeatPeriodContextMenu" id="1311"/>
+											<ExtendedTooltip name="UseHourlyRepeatPeriodExtendedTooltip" id="1312"/>
 											<Events>
-												<Event name="OnChange">UseRepeatPeriodThroughoutDayOnChange</Event>
+												<Event name="OnChange">UseHourlyRepeatPeriodOnChange</Event>
 											</Events>
 										</CheckBoxField>
 										<InputField name="RepeatPeriodInDay" id="1300">
 											<DataPath>RepeatPeriodInDay</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Repeat every</v8:content>
+												</v8:item>
+											</Title>
 											<ToolTip>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Repeat period during one day</v8:content>
+													<v8:content>Hourly repeat period</v8:content>
 												</v8:item>
 											</ToolTip>
 											<SpinButton>true</SpinButton>
@@ -1124,12 +1280,12 @@
 												<Event name="OnChange">RepeatPeriodInDayOnChange</Event>
 											</Events>
 										</InputField>
-										<LabelDecoration name="DecorationOfClock" id="1305">
+										<LabelDecoration name="ClockDecoration" id="1305">
 											<AutoMaxWidth>false</AutoMaxWidth>
 											<Title formatted="false">
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>(h.)</v8:content>
+													<v8:content>(hours)</v8:content>
 												</v8:item>
 											</Title>
 											<ToolTip>
@@ -1138,11 +1294,17 @@
 													<v8:content>Hours</v8:content>
 												</v8:item>
 											</ToolTip>
-											<ContextMenu name="DecorationOfClockContextMenu" id="1306"/>
-											<ExtendedTooltip name="DecorationOfClockExtendedTooltip" id="1307"/>
+											<ContextMenu name="ClockDecorationContextMenu" id="1306"/>
+											<ExtendedTooltip name="ClockDecorationExtendedTooltip" id="1307"/>
 										</LabelDecoration>
 										<InputField name="EndTime" id="1313">
 											<DataPath>EndTime</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>End time</v8:content>
+												</v8:item>
+											</Title>
 											<EditFormat>
 												<v8:item>
 													<v8:lang>en</v8:lang>
@@ -1192,6 +1354,12 @@
 											<ChildItems>
 												<InputField name="DaysRepeatPeriod" id="439">
 													<DataPath>DaysRepeatPeriod</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Repeat every</v8:content>
+														</v8:item>
+													</Title>
 													<SpinButton>true</SpinButton>
 													<ContextMenu name="DaysRepeatPeriodContextMenu" id="440"/>
 													<ExtendedTooltip name="DaysRepeatPeriodExtendedTooltip" id="760"/>
@@ -1238,6 +1406,12 @@
 											<ChildItems>
 												<CheckBoxField name="Monday" id="447">
 													<DataPath>Monday</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Monday</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>Right</TitleLocation>
 													<CheckBoxType>Auto</CheckBoxType>
 													<ContextMenu name="MondayContextMenu" id="448"/>
@@ -1248,6 +1422,12 @@
 												</CheckBoxField>
 												<CheckBoxField name="Tuesday" id="449">
 													<DataPath>Tuesday</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Tuesday</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>Right</TitleLocation>
 													<CheckBoxType>Auto</CheckBoxType>
 													<ContextMenu name="TuesdayContextMenu" id="450"/>
@@ -1258,6 +1438,12 @@
 												</CheckBoxField>
 												<CheckBoxField name="Wednesday" id="451">
 													<DataPath>Wednesday</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Wednesday</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>Right</TitleLocation>
 													<CheckBoxType>Auto</CheckBoxType>
 													<ContextMenu name="WednesdayContextMenu" id="452"/>
@@ -1268,6 +1454,12 @@
 												</CheckBoxField>
 												<CheckBoxField name="Thursday" id="453">
 													<DataPath>Thursday</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Thursday</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>Right</TitleLocation>
 													<CheckBoxType>Auto</CheckBoxType>
 													<ContextMenu name="ThursdayContextMenu" id="454"/>
@@ -1278,6 +1470,12 @@
 												</CheckBoxField>
 												<CheckBoxField name="Friday" id="455">
 													<DataPath>Friday</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Friday</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>Right</TitleLocation>
 													<CheckBoxType>Auto</CheckBoxType>
 													<ContextMenu name="FridayContextMenu" id="456"/>
@@ -1288,6 +1486,12 @@
 												</CheckBoxField>
 												<CheckBoxField name="Saturday" id="457">
 													<DataPath>Saturday</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Saturday</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>Right</TitleLocation>
 													<CheckBoxType>Auto</CheckBoxType>
 													<ContextMenu name="SaturdayContextMenu" id="458"/>
@@ -1298,6 +1502,12 @@
 												</CheckBoxField>
 												<CheckBoxField name="Sunday" id="459">
 													<DataPath>Sunday</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Sunday</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>Right</TitleLocation>
 													<CheckBoxType>Auto</CheckBoxType>
 													<ContextMenu name="SundayContextMenu" id="460"/>
@@ -1344,6 +1554,12 @@
 												</LabelDecoration>
 												<InputField name="DayInMonth" id="467">
 													<DataPath>DayInMonth</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Day of month</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>None</TitleLocation>
 													<SpinButton>true</SpinButton>
 													<ContextMenu name="DayInMonthContextMenu" id="468"/>
@@ -1417,6 +1633,12 @@
 													<ChildItems>
 														<CheckBoxField name="January" id="477">
 															<DataPath>January</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>January</v8:content>
+																</v8:item>
+															</Title>
 															<TitleLocation>Right</TitleLocation>
 															<CheckBoxType>Auto</CheckBoxType>
 															<ContextMenu name="JanuaryContextMenu" id="478"/>
@@ -1427,6 +1649,12 @@
 														</CheckBoxField>
 														<CheckBoxField name="February" id="479">
 															<DataPath>February</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>February</v8:content>
+																</v8:item>
+															</Title>
 															<TitleLocation>Right</TitleLocation>
 															<CheckBoxType>Auto</CheckBoxType>
 															<ContextMenu name="FebruaryContextMenu" id="480"/>
@@ -1437,6 +1665,12 @@
 														</CheckBoxField>
 														<CheckBoxField name="March" id="481">
 															<DataPath>March</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>March</v8:content>
+																</v8:item>
+															</Title>
 															<TitleLocation>Right</TitleLocation>
 															<CheckBoxType>Auto</CheckBoxType>
 															<ContextMenu name="MarchContextMenu" id="482"/>
@@ -1461,6 +1695,12 @@
 													<ChildItems>
 														<CheckBoxField name="April" id="484">
 															<DataPath>April</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>April</v8:content>
+																</v8:item>
+															</Title>
 															<TitleLocation>Right</TitleLocation>
 															<CheckBoxType>Auto</CheckBoxType>
 															<ContextMenu name="AprilContextMenu" id="485"/>
@@ -1471,6 +1711,12 @@
 														</CheckBoxField>
 														<CheckBoxField name="May" id="486">
 															<DataPath>May</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>May</v8:content>
+																</v8:item>
+															</Title>
 															<TitleLocation>Right</TitleLocation>
 															<CheckBoxType>Auto</CheckBoxType>
 															<ContextMenu name="MayContextMenu" id="487"/>
@@ -1481,6 +1727,12 @@
 														</CheckBoxField>
 														<CheckBoxField name="June" id="488">
 															<DataPath>June</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>June</v8:content>
+																</v8:item>
+															</Title>
 															<TitleLocation>Right</TitleLocation>
 															<CheckBoxType>Auto</CheckBoxType>
 															<ContextMenu name="JuneContextMenu" id="489"/>
@@ -1505,6 +1757,12 @@
 													<ChildItems>
 														<CheckBoxField name="July" id="494">
 															<DataPath>July</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>July</v8:content>
+																</v8:item>
+															</Title>
 															<TitleLocation>Right</TitleLocation>
 															<CheckBoxType>Auto</CheckBoxType>
 															<ContextMenu name="JulyContextMenu" id="495"/>
@@ -1515,6 +1773,12 @@
 														</CheckBoxField>
 														<CheckBoxField name="August" id="496">
 															<DataPath>August</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>August</v8:content>
+																</v8:item>
+															</Title>
 															<TitleLocation>Right</TitleLocation>
 															<CheckBoxType>Auto</CheckBoxType>
 															<ContextMenu name="AugustContextMenu" id="497"/>
@@ -1525,6 +1789,12 @@
 														</CheckBoxField>
 														<CheckBoxField name="September" id="498">
 															<DataPath>September</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>September</v8:content>
+																</v8:item>
+															</Title>
 															<TitleLocation>Right</TitleLocation>
 															<CheckBoxType>Auto</CheckBoxType>
 															<ContextMenu name="SeptemberContextMenu" id="499"/>
@@ -1549,6 +1819,12 @@
 													<ChildItems>
 														<CheckBoxField name="October" id="501">
 															<DataPath>October</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>October</v8:content>
+																</v8:item>
+															</Title>
 															<TitleLocation>Right</TitleLocation>
 															<CheckBoxType>Auto</CheckBoxType>
 															<ContextMenu name="OctoberContextMenu" id="502"/>
@@ -1559,6 +1835,12 @@
 														</CheckBoxField>
 														<CheckBoxField name="November" id="503">
 															<DataPath>November</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>November</v8:content>
+																</v8:item>
+															</Title>
 															<TitleLocation>Right</TitleLocation>
 															<CheckBoxType>Auto</CheckBoxType>
 															<ContextMenu name="NovemberContextMenu" id="504"/>
@@ -1569,6 +1851,12 @@
 														</CheckBoxField>
 														<CheckBoxField name="December" id="505">
 															<DataPath>December</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>December</v8:content>
+																</v8:item>
+															</Title>
 															<TitleLocation>Right</TitleLocation>
 															<CheckBoxType>Auto</CheckBoxType>
 															<ContextMenu name="DecemberContextMenu" id="506"/>
@@ -1596,12 +1884,24 @@
 														<Button name="SelectCheckBoxes" id="491">
 															<Type>Hyperlink</Type>
 															<CommandName>Form.Command.SelectCheckBoxes</CommandName>
-															<ExtendedTooltip name="SelectAll3ExtendedTooltip" id="790"/>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Select all</v8:content>
+																</v8:item>
+															</Title>
+															<ExtendedTooltip name="SelectCheckBoxesExtendedTooltip" id="790"/>
 														</Button>
 														<Button name="ClearCheckBoxes" id="508">
 															<Type>Hyperlink</Type>
 															<CommandName>Form.Command.ClearCheckBoxes</CommandName>
-															<ExtendedTooltip name="ClearAll4ExtendedTooltip" id="801"/>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Clear all</v8:content>
+																</v8:item>
+															</Title>
+															<ExtendedTooltip name="ClearCheckBoxesExtendedTooltip" id="801"/>
 														</Button>
 													</ChildItems>
 												</UsualGroup>
@@ -1624,6 +1924,12 @@
 							<ExtendedTooltip name="SchedulePresentationExtendedTooltip" id="1177"/>
 						</LabelDecoration>
 						<UsualGroup name="AuthorGroup" id="1308">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Author</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="AuthorGroupExtendedTooltip" id="1309"/>
 							<ChildItems>
 								<InputField name="Author" id="3">
@@ -1688,6 +1994,12 @@
 									<ChildItems>
 										<CheckBoxField name="Publish" id="631">
 											<DataPath>Publish</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Publish</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>Right</TitleLocation>
 											<CheckBoxType>Auto</CheckBoxType>
 											<ContextMenu name="PublishContextMenu" id="632"/>
@@ -1698,6 +2010,12 @@
 										</CheckBoxField>
 										<InputField name="OtherDeliveryMethod" id="615">
 											<DataPath>OtherDeliveryMethod</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Another delivery method</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<Width>13</Width>
 											<HorizontalStretch>false</HorizontalStretch>
@@ -1852,6 +2170,12 @@
 													<ChildItems>
 														<InputField name="FTPServerAndDirectory" id="388">
 															<DataPath>FTPServerAndDirectory</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Server and directory</v8:content>
+																</v8:item>
+															</Title>
 															<TitleLocation>None</TitleLocation>
 															<Wrap>false</Wrap>
 															<ChoiceButton>true</ChoiceButton>
@@ -1919,6 +2243,12 @@
 												</CheckBoxField>
 												<LabelField name="BulkEmailRecipients" id="982">
 													<DataPath>BulkEmailRecipients</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Recipients</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>None</TitleLocation>
 													<ToolTip>
 														<v8:item>
@@ -2005,7 +2335,7 @@
 															<Title>
 																<v8:item>
 																	<v8:lang>en</v8:lang>
-																	<v8:content>Group email subject</v8:content>
+																	<v8:content>Subject</v8:content>
 																</v8:item>
 															</Title>
 															<Group>AlwaysHorizontal</Group>
@@ -2035,36 +2365,78 @@
 																					<Button name="EmailSubjectContextMenuAddOrChangeMailingDateTemplate" id="172">
 																						<Type>CommandBarButton</Type>
 																						<CommandName>Form.Command.AddChangeMailingDateTemplate</CommandName>
+																						<Title>
+																							<v8:item>
+																								<v8:lang>en</v8:lang>
+																								<v8:content>Send date</v8:content>
+																							</v8:item>
+																						</Title>
 																						<ExtendedTooltip name="EmailSubjectContextMenuAddOrChangeMailingDateTemplateExtendedTooltip" id="835"/>
 																					</Button>
 																					<Button name="EmailSubjectContextMenuAddAuthorTemplate" id="267">
 																						<Type>CommandBarButton</Type>
 																						<CommandName>Form.Command.AddAuthorTemplate</CommandName>
+																						<Title>
+																							<v8:item>
+																								<v8:lang>en</v8:lang>
+																								<v8:content>Author</v8:content>
+																							</v8:item>
+																						</Title>
 																						<ExtendedTooltip name="EmailSubjectContextMenuAddAuthorTemplateExtendedTooltip" id="836"/>
 																					</Button>
 																					<Button name="EmailSubjectContextMenuAddRecipientTemplate" id="173">
 																						<Type>CommandBarButton</Type>
 																						<CommandName>Form.Command.AddRecipientTemplate</CommandName>
+																						<Title>
+																							<v8:item>
+																								<v8:lang>en</v8:lang>
+																								<v8:content>Recipient</v8:content>
+																							</v8:item>
+																						</Title>
 																						<ExtendedTooltip name="EmailSubjectContextMenuAddRecipientTemplateExtendedTooltip" id="837"/>
 																					</Button>
 																					<Button name="EmailSubjectContextMenuAddMailingTemplate" id="268">
 																						<Type>CommandBarButton</Type>
 																						<CommandName>Form.Command.AddMailingDescriptionTemplate</CommandName>
+																						<Title>
+																							<v8:item>
+																								<v8:lang>en</v8:lang>
+																								<v8:content>Distribution description</v8:content>
+																							</v8:item>
+																						</Title>
 																						<ExtendedTooltip name="EmailSubjectContextMenuAddMailingTemplateExtendedTooltip" id="838"/>
 																					</Button>
 																					<Button name="EmailSubjectContextMenuAddSystemTemplate" id="402">
 																						<Type>CommandBarButton</Type>
 																						<CommandName>Form.Command.AddSystemTemplate</CommandName>
+																						<Title>
+																							<v8:item>
+																								<v8:lang>en</v8:lang>
+																								<v8:content>App title</v8:content>
+																							</v8:item>
+																						</Title>
 																						<ExtendedTooltip name="EmailSubjectContextMenuAddSystemTemplateExtendedTooltip" id="839"/>
 																					</Button>
 																					<Button name="EmailSubjectContextMenuAddDefaultTemplate" id="671">
 																						<Type>CommandBarButton</Type>
 																						<CommandName>Form.Command.AddDefaultTemplate</CommandName>
+																						<Title>
+																							<v8:item>
+																								<v8:lang>en</v8:lang>
+																								<v8:content>Default template</v8:content>
+																							</v8:item>
+																						</Title>
 																						<ExtendedTooltip name="EmailSubjectContextMenuAddDefaultTemplateExtendedTooltip" id="840"/>
 																					</Button>
 																					<Button name="EmailSubjectContextMenuTemplatePreview" id="277">
 																						<Type>CommandBarButton</Type>
 																						<CommandName>Form.Command.TemplatePreview</CommandName>
+																						<Title>
+																							<v8:item>
+																								<v8:lang>en</v8:lang>
+																								<v8:content>Preview</v8:content>
+																							</v8:item>
+																						</Title>
 																						<ExtendedTooltip name="EmailSubjectContextMenuTemplatePreviewExtendedTooltip" id="841"/>
 																					</Button>
 																				</ChildItems>
@@ -2108,16 +2480,34 @@
 																				<Button name="ImportanceHigh" id="1257">
 																					<Type>CommandBarButton</Type>
 																					<CommandName>Form.Command.ImportanceHigh</CommandName>
+																					<Title>
+																						<v8:item>
+																							<v8:lang>en</v8:lang>
+																							<v8:content>High importance</v8:content>
+																						</v8:item>
+																					</Title>
 																					<ExtendedTooltip name="ImportanceHighExtendedTooltip" id="1258"/>
 																				</Button>
 																				<Button name="ImportanceNormal" id="1259">
 																					<Type>CommandBarButton</Type>
 																					<CommandName>Form.Command.ImportanceNormal</CommandName>
+																					<Title>
+																						<v8:item>
+																							<v8:lang>en</v8:lang>
+																							<v8:content>Normal importance</v8:content>
+																						</v8:item>
+																					</Title>
 																					<ExtendedTooltip name="ImportanceNormalExtendedTooltip" id="1260"/>
 																				</Button>
 																				<Button name="ImportanceLow" id="1261">
 																					<Type>CommandBarButton</Type>
 																					<CommandName>Form.Command.ImportanceLow</CommandName>
+																					<Title>
+																						<v8:item>
+																							<v8:lang>en</v8:lang>
+																							<v8:content>Low importance</v8:content>
+																						</v8:item>
+																					</Title>
 																					<ExtendedTooltip name="ImportanceLowExtendedTooltip" id="1262"/>
 																				</Button>
 																			</ChildItems>
@@ -2172,41 +2562,89 @@
 																						<Button name="EmailTextFormattedDocumentAddOrChangeMailingDateTemplate" id="303">
 																							<Type>CommandBarButton</Type>
 																							<CommandName>Form.Command.AddChangeMailingDateTemplate</CommandName>
+																							<Title>
+																								<v8:item>
+																									<v8:lang>en</v8:lang>
+																									<v8:content>Send date</v8:content>
+																								</v8:item>
+																							</Title>
 																							<ExtendedTooltip name="EmailTextFormattedDocumentAddOrChangeMailingDateTemplateExtendedTooltip" id="847"/>
 																						</Button>
 																						<Button name="EmailTextFormattedDocumentAddAuthorTemplate" id="304">
 																							<Type>CommandBarButton</Type>
 																							<CommandName>Form.Command.AddAuthorTemplate</CommandName>
+																							<Title>
+																								<v8:item>
+																									<v8:lang>en</v8:lang>
+																									<v8:content>Author</v8:content>
+																								</v8:item>
+																							</Title>
 																							<ExtendedTooltip name="EmailTextFormattedDocumentAddAuthorTemplateExtendedTooltip" id="848"/>
 																						</Button>
 																						<Button name="EmailTextFormattedDocumentAddRecipientTemplate" id="305">
 																							<Type>CommandBarButton</Type>
 																							<CommandName>Form.Command.AddRecipientTemplate</CommandName>
+																							<Title>
+																								<v8:item>
+																									<v8:lang>en</v8:lang>
+																									<v8:content>Recipient</v8:content>
+																								</v8:item>
+																							</Title>
 																							<ExtendedTooltip name="EmailTextFormattedDocumentAddRecipientTemplateExtendedTooltip" id="849"/>
 																						</Button>
 																						<Button name="EmailTextFormattedDocumentAddMailingTemplate" id="306">
 																							<Type>CommandBarButton</Type>
 																							<CommandName>Form.Command.AddMailingDescriptionTemplate</CommandName>
+																							<Title>
+																								<v8:item>
+																									<v8:lang>en</v8:lang>
+																									<v8:content>Distribution description</v8:content>
+																								</v8:item>
+																							</Title>
 																							<ExtendedTooltip name="EmailTextFormattedDocumentAddMailingTemplateExtendedTooltip" id="850"/>
 																						</Button>
 																						<Button name="EmailTextFormattedDocumentAddGeneratedReportsTemplate" id="307">
 																							<Type>CommandBarButton</Type>
 																							<CommandName>Form.Command.AddGeneratedReportsTemplate</CommandName>
+																							<Title>
+																								<v8:item>
+																									<v8:lang>en</v8:lang>
+																									<v8:content>Generated reports</v8:content>
+																								</v8:item>
+																							</Title>
 																							<ExtendedTooltip name="EmailTextFormattedDocumentAddGeneratedReportsTemplateExtendedTooltip" id="851"/>
 																						</Button>
 																						<Button name="EmailTextFormattedDocumentAddSystemTemplate" id="406">
 																							<Type>CommandBarButton</Type>
 																							<CommandName>Form.Command.AddSystemTemplate</CommandName>
+																							<Title>
+																								<v8:item>
+																									<v8:lang>en</v8:lang>
+																									<v8:content>App title</v8:content>
+																								</v8:item>
+																							</Title>
 																							<ExtendedTooltip name="EmailTextFormattedDocumentAddSystemTemplateExtendedTooltip" id="852"/>
 																						</Button>
 																						<Button name="EmailTextFormattedDocumentAddDeliveryMethodTemplate" id="419">
 																							<Type>CommandBarButton</Type>
 																							<CommandName>Form.Command.AddDeliveryMethodTemplate</CommandName>
+																							<Title>
+																								<v8:item>
+																									<v8:lang>en</v8:lang>
+																									<v8:content>Delivery method</v8:content>
+																								</v8:item>
+																							</Title>
 																							<ExtendedTooltip name="EmailTextFormattedDocumentAddDeliveryMethodTemplateExtendedTooltip" id="853"/>
 																						</Button>
 																						<Button name="EmailTextFormattedDocumentAddDefaultTemplate" id="698">
 																							<Type>CommandBarButton</Type>
 																							<CommandName>Form.Command.AddDefaultTemplate</CommandName>
+																							<Title>
+																								<v8:item>
+																									<v8:lang>en</v8:lang>
+																									<v8:content>Default template</v8:content>
+																								</v8:item>
+																							</Title>
 																							<ExtendedTooltip name="EmailTextFormattedDocumentAddDefaultTemplateExtendedTooltip" id="854"/>
 																						</Button>
 																					</ChildItems>
@@ -2230,11 +2668,23 @@
 																							<Type>CommandBarButton</Type>
 																							<Check>true</Check>
 																							<CommandName>Form.Command.ChangeTextTypeToHTML</CommandName>
+																							<Title>
+																								<v8:item>
+																									<v8:lang>en</v8:lang>
+																									<v8:content>HTML</v8:content>
+																								</v8:item>
+																							</Title>
 																							<ExtendedTooltip name="ChangeTextTypeToHTMLMarkExtendedTooltip" id="857"/>
 																						</Button>
 																						<Button name="ChangeTextTypeToPlain" id="606">
 																							<Type>CommandBarButton</Type>
 																							<CommandName>Form.Command.ChangeTextTypeToPlain</CommandName>
+																							<Title>
+																								<v8:item>
+																									<v8:lang>en</v8:lang>
+																									<v8:content>Plain text</v8:content>
+																								</v8:item>
+																							</Title>
 																							<ExtendedTooltip name="ChangeTextTypeToPlainExtendedTooltip" id="858"/>
 																						</Button>
 																					</ChildItems>
@@ -2243,6 +2693,12 @@
 																					<Type>CommandBarButton</Type>
 																					<Representation>Picture</Representation>
 																					<CommandName>Form.Command.TemplatePreview</CommandName>
+																					<Title>
+																						<v8:item>
+																							<v8:lang>en</v8:lang>
+																							<v8:content>Preview</v8:content>
+																						</v8:item>
+																					</Title>
 																					<ExtendedTooltip name="EmailTextFormattedDocumentTemplatePreviewExtendedTooltip" id="855"/>
 																				</Button>
 																				<Button name="EmailTextFormattedDocumentPicture" id="174">
@@ -2303,6 +2759,12 @@
 																		</CommandBar>
 																		<FormattedDocumentField name="EmailTextFormattedDocument" id="129">
 																			<DataPath>EmailTextFormattedDocument</DataPath>
+																			<Title>
+																				<v8:item>
+																					<v8:lang>en</v8:lang>
+																					<v8:content>Message body in HTML format</v8:content>
+																				</v8:item>
+																			</Title>
 																			<TitleLocation>None</TitleLocation>
 																			<Width>1</Width>
 																			<Height>1</Height>
@@ -2324,46 +2786,100 @@
 																							<Button name="EmailTextFormattedDocumentContextMenuAddOrChangeMailingDateTemplate" id="312">
 																								<Type>CommandBarButton</Type>
 																								<CommandName>Form.Command.AddChangeMailingDateTemplate</CommandName>
+																								<Title>
+																									<v8:item>
+																										<v8:lang>en</v8:lang>
+																										<v8:content>Send date</v8:content>
+																									</v8:item>
+																								</Title>
 																								<ExtendedTooltip name="EmailTextFormattedDocumentContextMenuAddOrChangeMailingDateTemplateExtendedTooltip" id="868"/>
 																							</Button>
 																							<Button name="EmailTextFormattedDocumentContextMenuAddAuthorTemplate" id="308">
 																								<Type>CommandBarButton</Type>
 																								<CommandName>Form.Command.AddAuthorTemplate</CommandName>
+																								<Title>
+																									<v8:item>
+																										<v8:lang>en</v8:lang>
+																										<v8:content>Author</v8:content>
+																									</v8:item>
+																								</Title>
 																								<ExtendedTooltip name="EmailTextFormattedDocumentContextMenuAddAuthorTemplateExtendedTooltip" id="869"/>
 																							</Button>
 																							<Button name="EmailTextFormattedDocumentContextMenuAddRecipientTemplate" id="309">
 																								<Type>CommandBarButton</Type>
 																								<CommandName>Form.Command.AddRecipientTemplate</CommandName>
+																								<Title>
+																									<v8:item>
+																										<v8:lang>en</v8:lang>
+																										<v8:content>Recipient</v8:content>
+																									</v8:item>
+																								</Title>
 																								<ExtendedTooltip name="EmailTextFormattedDocumentContextMenuAddRecipientTemplateExtendedTooltip" id="870"/>
 																							</Button>
 																							<Button name="EmailTextFormattedDocumentContextMenuAddMailingTemplate" id="310">
 																								<Type>CommandBarButton</Type>
 																								<CommandName>Form.Command.AddMailingDescriptionTemplate</CommandName>
+																								<Title>
+																									<v8:item>
+																										<v8:lang>en</v8:lang>
+																										<v8:content>Distribution description</v8:content>
+																									</v8:item>
+																								</Title>
 																								<ExtendedTooltip name="EmailTextFormattedDocumentContextMenuAddMailingTemplateExtendedTooltip" id="871"/>
 																							</Button>
 																							<Button name="EmailTextFormattedDocumentContextMenuAddGeneratedReportsTemplate" id="311">
 																								<Type>CommandBarButton</Type>
 																								<CommandName>Form.Command.AddGeneratedReportsTemplate</CommandName>
+																								<Title>
+																									<v8:item>
+																										<v8:lang>en</v8:lang>
+																										<v8:content>Generated reports</v8:content>
+																									</v8:item>
+																								</Title>
 																								<ExtendedTooltip name="EmailTextFormattedDocumentContextMenuAddGeneratedReportsTemplateExtendedTooltip" id="872"/>
 																							</Button>
 																							<Button name="EmailTextFormattedDocumentContextMenuAddSystemTemplate" id="403">
 																								<Type>CommandBarButton</Type>
 																								<CommandName>Form.Command.AddSystemTemplate</CommandName>
+																								<Title>
+																									<v8:item>
+																										<v8:lang>en</v8:lang>
+																										<v8:content>App title</v8:content>
+																									</v8:item>
+																								</Title>
 																								<ExtendedTooltip name="EmailTextFormattedDocumentContextMenuAddSystemTemplateExtendedTooltip" id="873"/>
 																							</Button>
 																							<Button name="EmailTextFormattedDocumentContextMenuAddDeliveryMethodTemplate" id="420">
 																								<Type>CommandBarButton</Type>
 																								<CommandName>Form.Command.AddDeliveryMethodTemplate</CommandName>
+																								<Title>
+																									<v8:item>
+																										<v8:lang>en</v8:lang>
+																										<v8:content>Delivery method</v8:content>
+																									</v8:item>
+																								</Title>
 																								<ExtendedTooltip name="EmailTextFormattedDocumentContextMenuAddDeliveryMethodTemplateExtendedTooltip" id="874"/>
 																							</Button>
 																							<Button name="EmailTextFormattedDocumentContextMenuAddDefaultTemplate" id="673">
 																								<Type>CommandBarButton</Type>
 																								<CommandName>Form.Command.AddDefaultTemplate</CommandName>
+																								<Title>
+																									<v8:item>
+																										<v8:lang>en</v8:lang>
+																										<v8:content>Default template</v8:content>
+																									</v8:item>
+																								</Title>
 																								<ExtendedTooltip name="EmailTextFormattedDocumentContextMenuAddDefaultTemplateExtendedTooltip" id="875"/>
 																							</Button>
 																							<Button name="EmailTextFormattedDocumentContextMenuTemplatePreview" id="394">
 																								<Type>CommandBarButton</Type>
 																								<CommandName>Form.Command.TemplatePreview</CommandName>
+																								<Title>
+																									<v8:item>
+																										<v8:lang>en</v8:lang>
+																										<v8:content>Preview</v8:content>
+																									</v8:item>
+																								</Title>
 																								<ExtendedTooltip name="EmailTextFormattedDocumentContextMenuTemplatePreviewExtendedTooltip" id="876"/>
 																							</Button>
 																						</ChildItems>
@@ -2410,41 +2926,89 @@
 																						<Button name="AddOrChangeMailingDateTemplate" id="328">
 																							<Type>CommandBarButton</Type>
 																							<CommandName>Form.Command.AddChangeMailingDateTemplate</CommandName>
+																							<Title>
+																								<v8:item>
+																									<v8:lang>en</v8:lang>
+																									<v8:content>Send date</v8:content>
+																								</v8:item>
+																							</Title>
 																							<ExtendedTooltip name="AddOrChangeMailingDateTemplateExtendedTooltip" id="881"/>
 																						</Button>
 																						<Button name="AddAuthorTemplate" id="324">
 																							<Type>CommandBarButton</Type>
 																							<CommandName>Form.Command.AddAuthorTemplate</CommandName>
+																							<Title>
+																								<v8:item>
+																									<v8:lang>en</v8:lang>
+																									<v8:content>Author</v8:content>
+																								</v8:item>
+																							</Title>
 																							<ExtendedTooltip name="AddAuthorTemplateExtendedTooltip" id="882"/>
 																						</Button>
 																						<Button name="AddRecipientTemplate" id="325">
 																							<Type>CommandBarButton</Type>
 																							<CommandName>Form.Command.AddRecipientTemplate</CommandName>
+																							<Title>
+																								<v8:item>
+																									<v8:lang>en</v8:lang>
+																									<v8:content>Recipient</v8:content>
+																								</v8:item>
+																							</Title>
 																							<ExtendedTooltip name="AddRecipientTemplateExtendedTooltip" id="883"/>
 																						</Button>
 																						<Button name="AddMailingTemplate" id="326">
 																							<Type>CommandBarButton</Type>
 																							<CommandName>Form.Command.AddMailingDescriptionTemplate</CommandName>
+																							<Title>
+																								<v8:item>
+																									<v8:lang>en</v8:lang>
+																									<v8:content>Distribution description</v8:content>
+																								</v8:item>
+																							</Title>
 																							<ExtendedTooltip name="AddMailingTemplateExtendedTooltip" id="884"/>
 																						</Button>
 																						<Button name="AddGeneratedReportsTemplate" id="327">
 																							<Type>CommandBarButton</Type>
 																							<CommandName>Form.Command.AddGeneratedReportsTemplate</CommandName>
+																							<Title>
+																								<v8:item>
+																									<v8:lang>en</v8:lang>
+																									<v8:content>Generated reports</v8:content>
+																								</v8:item>
+																							</Title>
 																							<ExtendedTooltip name="AddGeneratedReportsTemplateExtendedTooltip" id="885"/>
 																						</Button>
 																						<Button name="AddSystemTemplate" id="404">
 																							<Type>CommandBarButton</Type>
 																							<CommandName>Form.Command.AddSystemTemplate</CommandName>
+																							<Title>
+																								<v8:item>
+																									<v8:lang>en</v8:lang>
+																									<v8:content>App title</v8:content>
+																								</v8:item>
+																							</Title>
 																							<ExtendedTooltip name="AddSystemTemplateExtendedTooltip" id="886"/>
 																						</Button>
 																						<Button name="AddDeliveryMethodTemplate" id="421">
 																							<Type>CommandBarButton</Type>
 																							<CommandName>Form.Command.AddDeliveryMethodTemplate</CommandName>
+																							<Title>
+																								<v8:item>
+																									<v8:lang>en</v8:lang>
+																									<v8:content>Delivery method</v8:content>
+																								</v8:item>
+																							</Title>
 																							<ExtendedTooltip name="AddDeliveryMethodTemplateExtendedTooltip" id="887"/>
 																						</Button>
 																						<Button name="AddDefaultTemplate" id="699">
 																							<Type>CommandBarButton</Type>
 																							<CommandName>Form.Command.AddDefaultTemplate</CommandName>
+																							<Title>
+																								<v8:item>
+																									<v8:lang>en</v8:lang>
+																									<v8:content>Default template</v8:content>
+																								</v8:item>
+																							</Title>
 																							<ExtendedTooltip name="AddDefaultTemplateExtendedTooltip" id="888"/>
 																						</Button>
 																					</ChildItems>
@@ -2467,12 +3031,24 @@
 																						<Button name="ChangeTextTypeToHTML" id="608">
 																							<Type>CommandBarButton</Type>
 																							<CommandName>Form.Command.ChangeTextTypeToHTML</CommandName>
+																							<Title>
+																								<v8:item>
+																									<v8:lang>en</v8:lang>
+																									<v8:content>HTML</v8:content>
+																								</v8:item>
+																							</Title>
 																							<ExtendedTooltip name="ChangeTextTypeToHTMLExtendedTooltip" id="891"/>
 																						</Button>
 																						<Button name="ChangeTextTypeToPlainMark" id="629">
 																							<Type>CommandBarButton</Type>
 																							<Check>true</Check>
 																							<CommandName>Form.Command.ChangeTextTypeToPlain</CommandName>
+																							<Title>
+																								<v8:item>
+																									<v8:lang>en</v8:lang>
+																									<v8:content>Plain text</v8:content>
+																								</v8:item>
+																							</Title>
 																							<ExtendedTooltip name="ChangeTextTypeToPlainMarkExtendedTooltip" id="892"/>
 																						</Button>
 																					</ChildItems>
@@ -2481,6 +3057,12 @@
 																					<Type>CommandBarButton</Type>
 																					<Representation>Picture</Representation>
 																					<CommandName>Form.Command.TemplatePreview</CommandName>
+																					<Title>
+																						<v8:item>
+																							<v8:lang>en</v8:lang>
+																							<v8:content>Preview</v8:content>
+																						</v8:item>
+																					</Title>
 																					<ExtendedTooltip name="TemplatePreviewExtendedTooltip" id="889"/>
 																				</Button>
 																			</ChildItems>
@@ -2509,46 +3091,100 @@
 																							<Button name="EmailTextContextMenuAddOrChangeMailingDateTemplate" id="322">
 																								<Type>CommandBarButton</Type>
 																								<CommandName>Form.Command.AddChangeMailingDateTemplate</CommandName>
+																								<Title>
+																									<v8:item>
+																										<v8:lang>en</v8:lang>
+																										<v8:content>Send date</v8:content>
+																									</v8:item>
+																								</Title>
 																								<ExtendedTooltip name="EmailTextContextMenuAddOrChangeMailingDateTemplateExtendedTooltip" id="894"/>
 																							</Button>
 																							<Button name="EmailTextContextMenuAddAuthorTemplate" id="318">
 																								<Type>CommandBarButton</Type>
 																								<CommandName>Form.Command.AddAuthorTemplate</CommandName>
+																								<Title>
+																									<v8:item>
+																										<v8:lang>en</v8:lang>
+																										<v8:content>Author</v8:content>
+																									</v8:item>
+																								</Title>
 																								<ExtendedTooltip name="EmailTextContextMenuAddAuthorTemplateExtendedTooltip" id="895"/>
 																							</Button>
 																							<Button name="EmailTextContextMenuAddRecipientTemplate" id="319">
 																								<Type>CommandBarButton</Type>
 																								<CommandName>Form.Command.AddRecipientTemplate</CommandName>
+																								<Title>
+																									<v8:item>
+																										<v8:lang>en</v8:lang>
+																										<v8:content>Recipient</v8:content>
+																									</v8:item>
+																								</Title>
 																								<ExtendedTooltip name="EmailTextContextMenuAddRecipientTemplateExtendedTooltip" id="896"/>
 																							</Button>
 																							<Button name="EmailTextContextMenuAddMailingTemplate" id="320">
 																								<Type>CommandBarButton</Type>
 																								<CommandName>Form.Command.AddMailingDescriptionTemplate</CommandName>
+																								<Title>
+																									<v8:item>
+																										<v8:lang>en</v8:lang>
+																										<v8:content>Distribution description</v8:content>
+																									</v8:item>
+																								</Title>
 																								<ExtendedTooltip name="EmailTextContextMenuAddMailingTemplateExtendedTooltip" id="897"/>
 																							</Button>
 																							<Button name="EmailTextContextMenuAddGeneratedReportsTemplate" id="321">
 																								<Type>CommandBarButton</Type>
 																								<CommandName>Form.Command.AddGeneratedReportsTemplate</CommandName>
+																								<Title>
+																									<v8:item>
+																										<v8:lang>en</v8:lang>
+																										<v8:content>Generated reports</v8:content>
+																									</v8:item>
+																								</Title>
 																								<ExtendedTooltip name="EmailTextContextMenuAddGeneratedReportsTemplateExtendedTooltip" id="898"/>
 																							</Button>
 																							<Button name="EmailTextContextMenuAddSystemTemplate" id="405">
 																								<Type>CommandBarButton</Type>
 																								<CommandName>Form.Command.AddSystemTemplate</CommandName>
+																								<Title>
+																									<v8:item>
+																										<v8:lang>en</v8:lang>
+																										<v8:content>App title</v8:content>
+																									</v8:item>
+																								</Title>
 																								<ExtendedTooltip name="EmailTextContextMenuAddSystemTemplateExtendedTooltip" id="899"/>
 																							</Button>
 																							<Button name="EmailTextContextMenuAddDeliveryMethodTemplate" id="422">
 																								<Type>CommandBarButton</Type>
 																								<CommandName>Form.Command.AddDeliveryMethodTemplate</CommandName>
+																								<Title>
+																									<v8:item>
+																										<v8:lang>en</v8:lang>
+																										<v8:content>Delivery method</v8:content>
+																									</v8:item>
+																								</Title>
 																								<ExtendedTooltip name="EmailTextContextMenuAddDeliveryMethodTemplateExtendedTooltip" id="900"/>
 																							</Button>
 																							<Button name="EmailTextContextMenuAddDefaultTemplate" id="672">
 																								<Type>CommandBarButton</Type>
 																								<CommandName>Form.Command.AddDefaultTemplate</CommandName>
+																								<Title>
+																									<v8:item>
+																										<v8:lang>en</v8:lang>
+																										<v8:content>Default template</v8:content>
+																									</v8:item>
+																								</Title>
 																								<ExtendedTooltip name="EmailTextContextMenuAddDefaultTemplateExtendedTooltip" id="901"/>
 																							</Button>
 																							<Button name="EmailTextContextMenuTemplatePreview" id="392">
 																								<Type>CommandBarButton</Type>
 																								<CommandName>Form.Command.TemplatePreview</CommandName>
+																								<Title>
+																									<v8:item>
+																										<v8:lang>en</v8:lang>
+																										<v8:content>Preview</v8:content>
+																									</v8:item>
+																								</Title>
 																								<ExtendedTooltip name="EmailTextContextMenuTemplatePreviewExtendedTooltip" id="902"/>
 																							</Button>
 																						</ChildItems>
@@ -2685,6 +3321,12 @@
 													<ChildItems>
 														<LabelField name="DefaultFormats" id="335">
 															<DataPath>DefaultFormats</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Report file formats</v8:content>
+																</v8:item>
+															</Title>
 															<AutoMaxWidth>false</AutoMaxWidth>
 															<MaxWidth>70</MaxWidth>
 															<Hiperlink>true</Hiperlink>
@@ -2693,6 +3335,12 @@
 																	<Button name="ResetDefaultFormat" id="1198">
 																		<Type>CommandBarButton</Type>
 																		<CommandName>Form.Command.ResetDefaultFormat</CommandName>
+																		<Title>
+																			<v8:item>
+																				<v8:lang>en</v8:lang>
+																				<v8:content>Reset</v8:content>
+																			</v8:item>
+																		</Title>
 																		<ExtendedTooltip name="ResetDefaultFormatExtendedTooltip" id="1199"/>
 																	</Button>
 																</ChildItems>
@@ -2724,31 +3372,67 @@
 																		<Button name="SetTemplateDescription" id="1237">
 																			<Type>CommandBarButton</Type>
 																			<CommandName>Form.Command.SetTemplateDescription</CommandName>
+																			<Title>
+																				<v8:item>
+																					<v8:lang>en</v8:lang>
+																					<v8:content>Report name</v8:content>
+																				</v8:item>
+																			</Title>
 																			<ExtendedTooltip name="SetTemplateDescriptionExtendedTooltip" id="1238"/>
 																		</Button>
 																		<Button name="SetTemplateDescriptionFormat" id="1239">
 																			<Type>CommandBarButton</Type>
 																			<CommandName>Form.Command.SetTemplateDescriptionFormat</CommandName>
+																			<Title>
+																				<v8:item>
+																					<v8:lang>en</v8:lang>
+																					<v8:content>Report name, format</v8:content>
+																				</v8:item>
+																			</Title>
 																			<ExtendedTooltip name="SetTemplateDescriptionFormatExtendedTooltip" id="1240"/>
 																		</Button>
 																		<Button name="SetTemplateDescriptionPeriod" id="1241">
 																			<Type>CommandBarButton</Type>
 																			<CommandName>Form.Command.SetTemplateDescriptionPeriod</CommandName>
+																			<Title>
+																				<v8:item>
+																					<v8:lang>en</v8:lang>
+																					<v8:content>Report name, period</v8:content>
+																				</v8:item>
+																			</Title>
 																			<ExtendedTooltip name="SetTemplateDescriptionPeriodExtendedTooltip" id="1242"/>
 																		</Button>
 																		<Button name="SetTemplateDescriptionPeriodFormat" id="1243">
 																			<Type>CommandBarButton</Type>
 																			<CommandName>Form.Command.SetTemplateDescriptionPeriodFormat</CommandName>
+																			<Title>
+																				<v8:item>
+																					<v8:lang>en</v8:lang>
+																					<v8:content>Report name, period, format</v8:content>
+																				</v8:item>
+																			</Title>
 																			<ExtendedTooltip name="SetTemplateDescriptionPeriodFormatExtendedTooltip" id="1244"/>
 																		</Button>
 																		<Button name="SetTemplateDescriptionDistributionDate" id="1245">
 																			<Type>CommandBarButton</Type>
 																			<CommandName>Form.Command.SetTemplateDescriptionDistributionDate</CommandName>
+																			<Title>
+																				<v8:item>
+																					<v8:lang>en</v8:lang>
+																					<v8:content>Report name, report distribution date</v8:content>
+																				</v8:item>
+																			</Title>
 																			<ExtendedTooltip name="SetTemplateDescriptionDistributionDateExtendedTooltip" id="1246"/>
 																		</Button>
 																		<Button name="SetTemplateDescriptionDistributionDateFormat" id="1247">
 																			<Type>CommandBarButton</Type>
 																			<CommandName>Form.Command.SetTemplateDescriptionDistributionDateFormat</CommandName>
+																			<Title>
+																				<v8:item>
+																					<v8:lang>en</v8:lang>
+																					<v8:content>Report name, report distribution date, format</v8:content>
+																				</v8:item>
+																			</Title>
 																			<ExtendedTooltip name="SetTemplateDescriptionDistributionDateFormatExtendedTooltip" id="1248"/>
 																		</Button>
 																	</ChildItems>
@@ -2789,6 +3473,12 @@
 																			<Type>CommandBarButton</Type>
 																			<Representation>Picture</Representation>
 																			<CommandName>Form.Command.ClearAllSendIfBlank</CommandName>
+																			<Title>
+																				<v8:item>
+																					<v8:lang>en</v8:lang>
+																					<v8:content>Clear all</v8:content>
+																				</v8:item>
+																			</Title>
 																			<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 																			<ExtendedTooltip name="ClearAllSendIfBlankExtendedTooltip" id="928"/>
 																		</Button>
@@ -2796,6 +3486,12 @@
 																			<Type>CommandBarButton</Type>
 																			<Representation>Picture</Representation>
 																			<CommandName>Form.Command.SelectAllSendIfBlank</CommandName>
+																			<Title>
+																				<v8:item>
+																					<v8:lang>en</v8:lang>
+																					<v8:content>Select all</v8:content>
+																				</v8:item>
+																			</Title>
 																			<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 																			<ExtendedTooltip name="SelectAllSendIfBlankExtendedTooltip" id="927"/>
 																		</Button>
@@ -2827,11 +3523,23 @@
 															<Button name="ReportFormatsContextMenuSelectAllSendIfBlank" id="684">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.SelectAllSendIfBlank</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Select all</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="ReportFormatsContextMenuSelectAllSendIfBlankExtendedTooltip" id="918"/>
 															</Button>
 															<Button name="ReportFormatsContextMenuClearAllSendIfBlank" id="685">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.ClearAllSendIfBlank</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Clear all</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="ReportFormatsContextMenuClearAllSendIfBlankExtendedTooltip" id="919"/>
 															</Button>
 														</ChildItems>
@@ -3098,6 +3806,12 @@
 															<Type>UsualButton</Type>
 															<Representation>Picture</Representation>
 															<CommandName>Form.Command.CreateArchivePassword</CommandName>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Generate archive password</v8:content>
+																</v8:item>
+															</Title>
 															<ExtendedTooltip name="CreateArchivePasswordExtendedTooltip" id="1191"/>
 														</Button>
 													</ChildItems>
@@ -3128,6 +3842,12 @@
 														<Button name="PasswordsEncryption" id="1194">
 															<Type>Hyperlink</Type>
 															<CommandName>Form.Command.PasswordsEncryption</CommandName>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Set passwords and encrypt data</v8:content>
+																</v8:item>
+															</Title>
 															<ExtendedTooltip name="PasswordsEncryptionExtendedTooltip" id="1195"/>
 														</Button>
 													</ChildItems>
@@ -4094,11 +4814,11 @@
 			</Type>
 			<SavedData>true</SavedData>
 		</Attribute>
-		<Attribute name="UseRepeatPeriodThroughoutDay" id="55">
+		<Attribute name="UseHourlyRepeatPeriod" id="55">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Use repeat period during one day</v8:content>
+					<v8:content>Use hourly repeat period</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -4120,7 +4840,7 @@
 			</Type>
 			<SavedData>true</SavedData>
 		</Attribute>
-		<Attribute name="EmailTextAndFileParameters" id="67">
+		<Attribute name="FilesAndEmailTextParameters" id="67">
 			<Type/>
 		</Attribute>
 	</Attributes>
@@ -4297,7 +5017,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Infobase title</v8:content>
+					<v8:content>App title</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
@@ -4333,7 +5053,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Fill in from template…</v8:content>
+					<v8:content>Fill from template…</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
@@ -4802,4 +5522,9 @@
 			<Action>Redistribution</Action>
 		</Command>
 	</Commands>
+	<Parameters>
+		<Parameter name="ReportsToAttach">
+			<Type/>
+		</Parameter>
+	</Parameters>
 </Form>

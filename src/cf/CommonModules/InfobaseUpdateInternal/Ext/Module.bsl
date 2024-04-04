@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -40,13 +41,13 @@ Function SharedInfobaseDataUpdateRequired() Export
 	
 EndFunction
 
-// 
-// 
-// 
+// Returns True if deferred update handlers are completed successfully
+// in the local mode (ignoring the master node in the subordinate DIB node)
+// or in all data areas in the SaaS mode.
 //
 // Parameters:
-//  UpdateProgress - Structure - 
-//                         
+//  UpdateProgress - Structure - A return value. See
+//                         InfobaseUpdate.DataAreasUpdateProgress.
 //
 // Returns:
 //  Boolean
@@ -79,10 +80,10 @@ EndFunction
 //                 repeated updates of application operating parameters.
 //                 In case of external call (for example, in external connection session), application
 //                 operating parameters must be updated before the infobase update can proceed.
-//    * Restart             - Boolean    - 
-//                                  
-//                                  
-//                                  
+//    * Restart             - Boolean    - A return value: a restart flag.
+//                                  Intended for the "OnClientStart" event.
+//                                  (For example, when app rolls back to a subordinate DIB's state.)
+//                                  See the procedure "SynchronizeWithoutInfobaseUpdate.DataExchangeServer ".
 //                                  
 //    * IBLockSet - See IBLock
 //    * InBackground                     - Boolean    - if an infobase update is executed on
@@ -91,8 +92,8 @@ EndFunction
 //                 in the default update mode. Only for a client-server mode.
 // 
 // Returns:
-//  String -  :
-//           
+//  String -  Update handlers runtime status::
+//           "Done", "NotRequired", "ExclusiveModeSettingError".
 //
 Function UpdateInfobase(ParametersOfUpdate) Export
 	
@@ -121,18 +122,18 @@ EndFunction
 //
 // Parameters:
 //  LibraryID   - String - a configuration name or library ID.
-//                            - Undefined - 
+//                            - Undefined - Pass to get the versions of all subsystems.
 //  GetSharedDataVersion - Boolean - if you set a True value, a version in shared data will 
 //                                       return for SaaS.
 //
 // Returns:
-//   String   - 
-//   :
-//      * Key - String - 
-//      * Value - String - 
+//   String   - The version.
+//   Map of KeyAndValue - If "LibraryID" is set to "Undefined".:
+//      * Key - String - Subsystem name
+//      * Value - String - Subsystem version.
 //
-// :
-//   
+// For example:
+//   IBConfigurationVersion = IBVersion(Metadata.Name);
 //
 Function IBVersion(Val LibraryID, Val GetSharedDataVersion = False) Export
 	
@@ -513,16 +514,16 @@ Function UncompletedHandlersStatus(OnUpdate = False) Export
 		IdenticalSubrevisions = (DataVersionWithoutBuildNumber = MetadataVersionWithoutBuildNumber);
 		
 		If DataVersion = "0.0.0.0" Or IdenticalSubrevisions Then
-			
-			
+			// 
+			// 
 			Return "";
 		EndIf;
 		
 		HandlerTreeVersion = UpdateInfo.HandlerTreeVersion;
 		If HandlerTreeVersion <> "" And CommonClientServer.CompareVersions(HandlerTreeVersion, DataVersion) > 0 Then
-			
-			
-			
+			// 
+			// 
+			// 
 			Return "";
 		EndIf;
 	EndIf;
@@ -541,7 +542,8 @@ Function UncompletedHandlersStatus(OnUpdate = False) Export
 		|	UpdateHandlers.Status";
 	HandlersStatuses = Query.Execute().Unload();
 	
-	If HandlersStatuses.Find(Enums.UpdateHandlersStatuses.NotPerformed) <> Undefined Then
+	If HandlersStatuses.Find(Enums.UpdateHandlersStatuses.NotPerformed) <> Undefined
+		Or HandlersStatuses.Find(Enums.UpdateHandlersStatuses.Running) <> Undefined Then
 		Return "UncompletedStatus";
 	ElsIf HandlersStatuses.Find(Enums.UpdateHandlersStatuses.Error) <> Undefined Then
 		Return "StatusError";
@@ -559,13 +561,14 @@ Procedure ExecuteDeferredUpdateNow(ParametersOfUpdate = Undefined) Export
 	
 	UpdateInfo = InfobaseUpdateInfo();
 	
-	
-	
-	
+	// 
+	// 
+	// 
 	StartupParameters = StandardSubsystemsServer.ClientParametersAtServer().Get("LaunchParameter");
 	SyncedUpdate = ParametersOfUpdate <> Undefined
 		And (Not ParametersOfUpdate.OnClientStart
 			Or StrFind(StartupParameters, "UpdateAndExit") > 0);
+	ScriptUpdate = StrFind(StartupParameters, "UpdateAndExit") > 0;
 	
 	If UpdateInfo.DeferredUpdatesEndTime <> Undefined Then
 		RunActionAfterDeferredInfobaseUpdate(SyncedUpdate);
@@ -585,9 +588,9 @@ Procedure ExecuteDeferredUpdateNow(ParametersOfUpdate = Undefined) Export
 	HandlersExecutedEarlier = True;
 	ProcessedItems = New Array;
 	While HandlersExecutedEarlier Do
-		HandlersExecutedEarlier = ExecuteDeferredUpdateHandler(ParametersOfUpdate); 
+		HandlersExecutedEarlier = ExecuteDeferredUpdateHandler(ParametersOfUpdate); // 
 		
-		QueuesToClear = QueuesToClear(ProcessedItems); 
+		QueuesToClear = QueuesToClear(ProcessedItems); // @skip-check query-in-loop - Retrieve current data on processed queues.
 		ClearProcessedQueues(QueuesToClear, ProcessedItems, UpdateInfo);
 		
 		If HandlersExecutedEarlier Then
@@ -599,7 +602,7 @@ Procedure ExecuteDeferredUpdateNow(ParametersOfUpdate = Undefined) Export
 		EndIf;
 	EndDo;
 	
-	RunActionAfterDeferredInfobaseUpdate(SyncedUpdate);
+	RunActionAfterDeferredInfobaseUpdate(SyncedUpdate, ScriptUpdate);
 	
 EndProcedure
 
@@ -1112,11 +1115,11 @@ Procedure WriteDeferredUpdateHandlerParameters(Id, Parameters) Export
 		New ValueStorage(ExecutionStatistics));
 EndProcedure
 
-// 
+// Returns the number of infobase update threads.
 //
-// 
-// 
-//  See DefaultInfobaseUpdateThreadsCount.
+// If this number is specified in the UpdateThreadsCount command-line parameter, the parameter is returned.
+// Otherwise, the value of the InfobaseUpdateThreadCount constant is returned (if defined).
+// Otherwise, returns the default value. See DefaultInfobaseUpdateThreadsCount.
 //
 // Returns:
 //  Number - number of threads.
@@ -1137,10 +1140,10 @@ Function InfobaseUpdateThreadCount() Export
 			Try
 				Count = Number(UpdateThreads[1]);
 			Except
-				ExceptionText = NStr(
-					"en = 'Specify application startup parameter ""%1"" in format
-					|""%1=X"", where X is the maximum number of update threads.';");
-				ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(ExceptionText, "UpdateThreadsCount1");
+				ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'Specify application startup parameter ""%1"" in format
+						|""%1=X"", where X is the maximum number of update threads.';"),
+					"UpdateThreadsCount1");
 				Raise ExceptionText;
 			EndTry;
 		EndIf;
@@ -1391,7 +1394,7 @@ Procedure UpdateListOfUpdateHandlersToExecute(UpdateIterations, FirstExchangeInD
 		EndDo;
 		
 		If ValueIsFilled(ErrorsText) Then
-			Raise ErrorsText;
+			Raise(ErrorsText, ErrorCategory.ConfigurationError);
 		EndIf;
 		
 		If (HandlerTypes = Undefined Or OnlyDeferred)
@@ -1526,8 +1529,8 @@ Function ExecuteUpdateIteration(Val UpdateIteration, Val Parameters) Export
 				
 				If Handler.ExclusiveMode = True Or Handler.ExecutionMode = "Exclusively" Then
 					If Parameters.SeamlessUpdate Then
-						
-						
+						// 
+						// 
 						Continue;
 					EndIf;
 					
@@ -1756,8 +1759,8 @@ Procedure OnFillToDoList(ToDoList) Export
 		Return;
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	Sections = ModuleToDoListServer.SectionsForObject(Metadata.DataProcessors.ApplicationUpdateResult.FullName());
 	
 	HandlersStatus           = UncompletedHandlersStatus();
@@ -1913,13 +1916,13 @@ EndFunction
 // Initial predefined data population.
 
 // Returns:
-//  Array of MetadataObject
+//  FixedMap of KeyAndValue:
+//   * Key - MetadataObject
+//   * Value - String -  full name of the metadata object
 //
 Function ObjectsWithInitialFilling() Export
 	
-	SubsystemSettings = SubsystemSettings();
-	ObjectsWithInitialFilling = SubsystemSettings.ObjectsWithInitialFilling;
-	Return ObjectsWithInitialFilling;
+	Return InfobaseUpdateInternalCached.ObjectsWithInitialFilling();
 	
 EndFunction
 
@@ -2042,9 +2045,9 @@ EndFunction
 //  UpdateMultilanguageStrings - Boolean - if True, only multilingual attributes will be refilled.
 //  AdditionalParameters - See NationalLanguageSupportServer.DescriptionOfOldAndNewLanguageSettings
 // 
-Procedure InitialFillingOfPredefinedData(UpdateMultilanguageStrings = False, AdditionalParameters = Undefined) Export
-	
-	ObjectsWithInitialFilling = ObjectsWithInitialFilling();
+Procedure InitialFillingOfPredefinedData(UpdateMultilanguageStrings = False,
+	AdditionalParameters = Undefined) Export
+
 	FillParameters = New Structure;
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
@@ -2052,189 +2055,228 @@ Procedure InitialFillingOfPredefinedData(UpdateMultilanguageStrings = False, Add
 		ModuleNationalLanguageSupportServer.WhenGettingParametersForFillingInPredefinedData(FillParameters);
 	EndIf;
 	
-	CheckRequiredExecution = AdditionalParameters <> Undefined
-		And TypeOf(AdditionalParameters) = Type("Structure")
-		And AdditionalParameters.Property("NewObjects");
+	CheckRequiredExecution = AdditionalParameters <> Undefined And TypeOf(AdditionalParameters) = Type(
+		"Structure") And AdditionalParameters.Property("NewObjects");
+
+	ObjectsWithInitialFilling = ObjectsWithInitialFilling();
 	
-	For Each ObjectMetadata In ObjectsWithInitialFilling Do
+	ParametersOfUpdate = InfobaseUpdate.PredefinedItemsUpdateParameters();
+	ParametersOfUpdate.UpdateMultilingualStringsOnly = UpdateMultilanguageStrings;
+	
+	For Each ObjectWithInitialPopulation In ObjectsWithInitialFilling Do
+
+		ObjectMetadata          = ObjectWithInitialPopulation.Key;
+		FullMetadataObjectName = ObjectWithInitialPopulation.Value;
 		
-		If CheckRequiredExecution
-			And AdditionalParameters.NewObjects.Find(ObjectMetadata.FullName()) = Undefined Then
+		If CheckRequiredExecution 
+		   And AdditionalParameters.NewObjects.Find(FullMetadataObjectName) = Undefined Then
 			Continue;
 		EndIf;
 		
-		FillParameters = ParameterSetForFillingObject(ObjectMetadata);
+		// 
+		UpdateObjectPredefinedItems(ObjectMetadata,ParametersOfUpdate);
 
-		ObjectManager = FillParameters.ObjectManager;
-		PredefinedData = FillParameters.PredefinedData;
-		PopulationSettings = FillParameters.PredefinedItemsSettings;
-		
-		KeyAttributeName = PopulationSettings.OverriddenSettings.KeyAttributeName;
-		 
-		ExistingItems = ExistingSuppliedItems(PredefinedData, PopulationSettings, ObjectManager, ObjectMetadata); 
-		
-		TabularSections = New Array;
-		MetadataObjectTabularSections = ObjectMetadata.TabularSections; // MetadataObjectCollection of MetadataObjectTabularSection
-		For Each TabularSection In MetadataObjectTabularSections Do
-			If PredefinedData.Columns.Find(TabularSection.Name) <> Undefined Then
-				TabularSections.Add(TabularSection.Name);
-			EndIf;
-		EndDo;
-		
-		ExceptionAttributes = New Map;
-		If StrStartsWith(ObjectMetadata.FullName(), "ChartOfCharacteristicTypes") Then
-			ExceptionAttributes.Insert("ValueType", True);
-		EndIf;
-		
-		HierarchySupported =  PredefinedData.Columns.Find("IsFolder") <> Undefined;
-		ExceptionAttributes.Insert("Parent", True); 
-		
-		DetailsOfTheExceptionWithTheElements = New Map;
-		If HierarchySupported Then
-			CommonClientServer.SupplementMap(DetailsOfTheExceptionWithTheElements, ExceptionAttributes);
-			ForItem = Metadata.ObjectProperties.AttributeUse.ForItem;
-			For Each Attribute In ObjectMetadata.Attributes Do
-				If Attribute.Use = ForItem Then
-					DetailsOfTheExceptionWithTheElements.Insert(Attribute.Name, True);
-				EndIf;
-			EndDo;
-		EndIf;
-		
-		HaveColumnLink = PredefinedData.Columns.Find("Ref") <> Undefined;
-		
-		BeginTransaction();
-		Try
-			
-			For Each TableRow In PredefinedData Do
-				
-				ObjectReference = Undefined;
-				
-				If PopulationSettings.IsColumnNamePredefinedData Then
-					ObjectReference = ExistingItems[TableRow.PredefinedDataName];
-				EndIf;
-				
-				If ObjectReference = Undefined And ValueIsFilled(TableRow[KeyAttributeName]) Then
-					ObjectReference = ExistingItems[TableRow[KeyAttributeName]];
-				EndIf;
-					
-				If ObjectReference <> Undefined Then
-					
-					DataLock = New DataLock;
-					DataLockItem = DataLock.Add(ObjectMetadata.FullName());
-					DataLockItem.SetValue("Ref", ObjectReference);
-					DataLock.Lock();
-					
-					ItemToFill = ObjectReference.GetObject();
-					
-				Else
-					
-					If HierarchySupported And TableRow.IsFolder = True Then
-						ItemToFill = ObjectManager.CreateFolder();
-					Else
-						ItemToFill = ObjectManager.CreateItem();
-					EndIf;
-					
-					If HaveColumnLink And ValueIsFilled(TableRow.Ref) Then
-						
-						ItemToFill.SetNewObjectRef(TableRow.Ref);
-						
-						If ValueIsFilled(TableRow[KeyAttributeName]) Then
-							ExistingItems.Insert(TableRow[KeyAttributeName], TableRow.Ref);
-						EndIf;
-					
-					Else
-						
-						NewRef = ObjectManager.GetRef();
-						ItemToFill.SetNewObjectRef(NewRef);
-					
-						If ValueIsFilled(TableRow[KeyAttributeName]) Then
-							ExistingItems.Insert(TableRow[KeyAttributeName], NewRef);
-						EndIf;
-						
-					EndIf;
-				
-				EndIf;
-				
-				If Not UpdateMultilanguageStrings Then
-					
-					If HierarchySupported And ValueIsFilled(TableRow.Parent) Then
-						
-						If KeyAttributeName = "Ref" Then
-							If TypeOf(TableRow.Parent) = Type("String") Then
-								ItemToFill.Parent = ObjectManager.GetRef(New UUID(TableRow.Parent));
-							ElsIf TypeOf(TableRow.Parent) = Type("UUID") Then
-								ItemToFill.Parent = ObjectManager.GetRef(TableRow.Parent);
-							Else
-								ItemToFill.Parent = TableRow.Parent;
-							EndIf;
-						ElsIf TypeOf(TableRow.Parent) = Type("String") Then
-							ItemToFill.Parent = ExistingItems[TableRow.Parent];
-						Else
-							ItemToFill.Parent = TableRow.Parent;
-						EndIf;
-					
-					EndIf;
-					
-					ExceptionFields =?(HierarchySupported And ItemToFill.IsFolder,
-						DetailsOfTheExceptionWithTheElements, ExceptionAttributes);
-					
-					FillingData = DefineTheFillingData(PredefinedData, TableRow, ExceptionFields);
-					
-					FillPropertyValues(ItemToFill, FillingData);
-					
-					If Not (HierarchySupported And ItemToFill.IsFolder) Then
-						For Each TabularSectionName In TabularSections Do
-							If TableRow[TabularSectionName].Count() > 0 Then
-								ItemToFill[TabularSectionName].Load(TableRow[TabularSectionName]);
-							EndIf;
-						EndDo;
-					EndIf;
-					
-				EndIf;
-				
-				If FillParameters.ObjectAttributesToLocalize.Count() > 0 And FillParameters.ObjectAttributesToLocalize["Description"] <> Undefined Then
-					If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-						ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-						ModuleNationalLanguageSupportServer.InitialFillingInOfPredefinedDataLocalizedBankingDetails(
-							ItemToFill, HierarchySupported, TableRow, FillParameters);
-					ElsIf FillParameters.ObjectContainsPMRepresentations Then
-						InitialFillingPMViews(ItemToFill, TableRow, FillParameters);
-					EndIf;
-				ElsIf UpdateMultilanguageStrings
-						  And PredefinedData.Columns.Find("Description") <> Undefined
-						  And ValueIsFilled(TableRow["Description"]) Then
-							ItemToFill["Description"] = TableRow["Description"];
-				EndIf;
-				
-				If Not UpdateMultilanguageStrings And PopulationSettings.OverriddenSettings.OnInitialItemFilling Then
-					
-					ObjectManager.OnInitialItemFilling(ItemToFill, TableRow, PopulationSettings.OverriddenSettings.AdditionalParameters);
-					InfobaseUpdateOverridable.OnInitialItemFilling(ObjectMetadata.FullName(),
-						ItemToFill, TableRow, PopulationSettings.OverriddenSettings.AdditionalParameters);
-					
-				EndIf;
-				
-				InfobaseUpdate.WriteObject(ItemToFill);
-				
-				TableRow.Ref = ItemToFill.Ref;
-				
-			EndDo;
-			
-			CommitTransaction();
-			
-		Except
-			RollbackTransaction();
-			Raise;
-		EndTry;
-		
 	EndDo;
-	
+
 	If UpdateMultilanguageStrings Then
 		If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 			ModuleAccessManagementInternal = Common.CommonModule("AccessManagementInternal");
 			ModuleAccessManagementInternal.WhenChangingTheLanguageOfTheInformationBase(AdditionalParameters);
 		EndIf;
 	EndIf;
+
+EndProcedure
+
+
+Procedure UpdateObjectPredefinedItems(ObjectMetadata, ParametersOfUpdate) Export
+	
+	Context = ParameterSetForFillingObject(ObjectMetadata);
+	
+	ObjectManager                   = Context.ObjectManager;
+	PredefinedData            = Context.PredefinedData;
+	PopulationSettings               = Context.PredefinedItemsSettings;
+	FullMetadataObjectName        = ObjectMetadata.FullName();
+	UpdateMultilingualStringsOnly = ParametersOfUpdate.UpdateMultilingualStringsOnly;
+	Items                          = ParametersOfUpdate.Items;
+	AreOnlyDefinedItems        = Items.Count() > 0;
+	
+	DetailsToFillIn               = New Map;
+	For Each DetailsToFillIn_ In StrSplit(ParametersOfUpdate.Attributes, ",", False) Do
+		DetailsToFillIn.Insert(TrimAll(DetailsToFillIn_), True);
+	EndDo;
+	
+	KeyAttributeName = PopulationSettings.OverriddenSettings.KeyAttributeName;
+	
+	ExistingItems = ExistingSuppliedItems(PredefinedData, PopulationSettings,
+	ObjectManager, ObjectMetadata);
+	
+	TabularSections = New Array;
+	MetadataObjectTabularSections = ObjectMetadata.TabularSections; // MetadataObjectCollection of MetadataObjectTabularSection
+	For Each TabularSection In MetadataObjectTabularSections Do
+		If PredefinedData.Columns.Find(TabularSection.Name) <> Undefined Then
+			TabularSections.Add(TabularSection.Name);
+		EndIf;
+	EndDo;
+	
+	ExceptionAttributes = New Map;
+	If StrStartsWith(FullMetadataObjectName, "ChartOfCharacteristicTypes") Then
+		ExceptionAttributes.Insert("ValueType", True);
+	EndIf;
+	
+	HierarchySupported =  PredefinedData.Columns.Find("IsFolder") <> Undefined;
+	ExceptionAttributes.Insert("Parent", True); // 
+	
+	DetailsOfTheExceptionWithTheElements = New Map;
+	If HierarchySupported Then
+		CommonClientServer.SupplementMap(DetailsOfTheExceptionWithTheElements, ExceptionAttributes);
+		ForItem = Metadata.ObjectProperties.AttributeUse.ForItem;
+		For Each Attribute In ObjectMetadata.Attributes Do
+			If Attribute.Use = ForItem Then
+				DetailsOfTheExceptionWithTheElements.Insert(Attribute.Name, True);
+			EndIf;
+		EndDo;
+	EndIf;
+	
+	HaveColumnLink = PredefinedData.Columns.Find("Ref") <> Undefined;
+	
+	BeginTransaction();
+	Try
+		
+		For Each TableRow In PredefinedData Do
+			
+			ObjectReference = Undefined;
+			
+			If PopulationSettings.IsColumnNamePredefinedData Then
+				ObjectReference = ExistingItems[TableRow.PredefinedDataName];
+			EndIf;
+			
+			If ObjectReference = Undefined And ValueIsFilled(TableRow[KeyAttributeName]) Then
+				ObjectReference = ExistingItems[TableRow[KeyAttributeName]];
+			EndIf;
+			
+			If ObjectReference <> Undefined Then
+				
+				If AreOnlyDefinedItems And Items.Find(ObjectReference) = Undefined Then
+					Continue;
+				EndIf;
+				
+				DataLock = New DataLock;
+				DataLockItem = DataLock.Add(FullMetadataObjectName);
+				DataLockItem.SetValue("Ref", ObjectReference);
+				DataLock.Lock();
+				
+				ItemToFill = ObjectReference.GetObject();
+				
+			Else
+				
+				If HierarchySupported And TableRow.IsFolder = True Then
+					ItemToFill = ObjectManager.CreateFolder();
+				Else
+					ItemToFill = ObjectManager.CreateItem();
+				EndIf;
+				
+				If HaveColumnLink And ValueIsFilled(TableRow.Ref) Then
+					
+					ItemToFill.SetNewObjectRef(TableRow.Ref);
+					
+					If ValueIsFilled(TableRow[KeyAttributeName]) Then
+						ExistingItems.Insert(TableRow[KeyAttributeName], TableRow.Ref);
+					EndIf;
+					
+				Else
+					
+					NewRef = ObjectManager.GetRef();
+					ItemToFill.SetNewObjectRef(NewRef);
+					
+					If ValueIsFilled(TableRow[KeyAttributeName]) Then
+						ExistingItems.Insert(TableRow[KeyAttributeName], NewRef);
+					EndIf;
+					
+				EndIf;
+				
+			EndIf;
+			
+			EditedAttributes = EditedAttributes(ItemToFill, FullMetadataObjectName);
+			
+			If Not UpdateMultilingualStringsOnly Then
+				
+				If HierarchySupported And ValueIsFilled(TableRow.Parent) Then
+					
+					If KeyAttributeName = "Ref" Then
+						If TypeOf(TableRow.Parent) = Type("String") Then
+							ItemToFill.Parent = ObjectManager.GetRef(
+							New UUID(TableRow.Parent));
+						ElsIf TypeOf(TableRow.Parent) = Type("UUID") Then
+							ItemToFill.Parent = ObjectManager.GetRef(TableRow.Parent);
+						Else
+							ItemToFill.Parent = TableRow.Parent;
+						EndIf;
+					ElsIf TypeOf(TableRow.Parent) = Type("String") Then
+						ItemToFill.Parent = ExistingItems[TableRow.Parent];
+					Else
+						ItemToFill.Parent = TableRow.Parent;
+					EndIf;
+					
+				EndIf;
+				
+				CurrentExceptionFields =?(HierarchySupported And ItemToFill.IsFolder,
+				DetailsOfTheExceptionWithTheElements, ExceptionAttributes);
+				ObjectExceptionFields = New Map(New FixedMap(CurrentExceptionFields));
+				For Each EditedAttribute In EditedAttributes Do
+					ObjectExceptionFields.Insert(EditedAttribute, True);
+				EndDo;
+				
+				FillingData = DefineTheFillingData(PredefinedData, TableRow, ObjectExceptionFields, DetailsToFillIn);
+				
+				FillPropertyValues(ItemToFill, FillingData);
+				
+				If Not (HierarchySupported And ItemToFill.IsFolder) Then
+					For Each TabularSectionName In TabularSections Do
+						If TableRow[TabularSectionName].Count() > 0 Then
+							ItemToFill[TabularSectionName].Load(TableRow[TabularSectionName]);
+						EndIf;
+					EndDo;
+				EndIf;
+				
+			EndIf;
+			
+			If Context.ObjectAttributesToLocalize.Count() > 0
+				And Context.ObjectAttributesToLocalize["Description"] <> Undefined Then
+				If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
+					ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+					ModuleNationalLanguageSupportServer.InitialFillingInOfPredefinedDataLocalizedBankingDetails(
+					ItemToFill, TableRow, ObjectExceptionFields, Context);
+				ElsIf Context.ObjectContainsPMRepresentations Then
+					InitialFillingPMViews(ItemToFill, TableRow, Context);
+				EndIf;
+			ElsIf UpdateMultilingualStringsOnly And PredefinedData.Columns.Find("Description") <> Undefined
+				And ValueIsFilled(TableRow["Description"]) Then
+				ItemToFill["Description"] = TableRow["Description"];
+			EndIf;
+			
+			If Not UpdateMultilingualStringsOnly
+				And PopulationSettings.OverriddenSettings.OnInitialItemFilling Then
+				
+				ObjectManager.OnInitialItemFilling(ItemToFill, TableRow,
+				PopulationSettings.OverriddenSettings.AdditionalParameters);
+				InfobaseUpdateOverridable.OnInitialItemFilling(
+				FullMetadataObjectName, ItemToFill, TableRow,
+				PopulationSettings.OverriddenSettings.AdditionalParameters);
+				
+			EndIf;
+			
+			InfobaseUpdate.WriteObject(ItemToFill);
+			
+			TableRow.Ref = ItemToFill.Ref;
+			
+		EndDo;
+		
+		CommitTransaction();
+		
+	Except
+		RollbackTransaction();
+		Raise;
+	EndTry;
 	
 EndProcedure
 
@@ -2263,7 +2305,7 @@ Function ParameterSetForFillingObject(ObjectMetadata) Export
 	Result = New Structure;
 	
 	ObjectsWithInitialFilling = ObjectsWithInitialFilling();
-	HavePredefinedData =  ObjectsWithInitialFilling.Find(ObjectMetadata) <> Undefined;
+	HavePredefinedData   =  ObjectsWithInitialFilling.Get(ObjectMetadata) <> Undefined;
 	
 	ObjectAttributesToLocalize = New Map;
 	MultilanguageStringsInAttributes = False;
@@ -2333,30 +2375,163 @@ Function ParameterSetForFillingObject(ObjectMetadata) Export
 	
 EndFunction
 
+// Parameters:
+//  Object  - CatalogObject
+//          - ChartOfCharacteristicTypesObject
+//          - ChartOfAccountsObject
+//          - ChartOfCalculationTypesObject
+// 
+Procedure DetermineModifiedAttributesInPredefinedItems(Object) Export
+
+	ObjectsWithInitialFilling = ObjectsWithInitialFilling();
+	
+	MetadataObject = Object.Ref.Metadata();
+	FullMetadataObjectName = ObjectsWithInitialFilling.Get(MetadataObject);
+
+	If Not ValueIsFilled(FullMetadataObjectName) Then
+		Return;
+	EndIf;
+	
+	IsIncludesEditedPredefinedAttributes = IsIncludesEditedPredefinedAttributes(FullMetadataObjectName);
+	If Not IsIncludesEditedPredefinedAttributes Then
+		Return;
+	EndIf;
+
+	DatasetToFill = ParameterSetForFillingObject(
+		MetadataObject);
+		
+	If DatasetToFill.PredefinedItemsSettings.IsColumnNamePredefinedData Then
+		ValueOfKeyProps = Object["PredefinedDataName"];
+	EndIf;
+	
+	If IsBlankString(ValueOfKeyProps) Then
+		KeyAttributeName = KeyAttributeName(
+			DatasetToFill.PredefinedItemsSettings);
+		ValueOfKeyProps = Object[KeyAttributeName];
+	EndIf;
+	
+	If IsBlankString(ValueOfKeyProps) Then
+		Return;
+	EndIf;
+	
+	TableRow = DatasetToFill.PredefinedData.Find(ValueOfKeyProps,
+		KeyAttributeName);
+		
+	If TableRow = Undefined Then
+		Return;
+	EndIf;
+	
+	ObjectAttributes = EditableObjectAttributes(MetadataObject, KeyAttributeName);
+	EditedPredefinedAttributes = StrSplit(Object.EditedPredefinedAttributes, ",",
+		False);
+	
+	For Each TableColumn2 In DatasetToFill.PredefinedData.Columns Do
+		AttributeName = TableColumn2.Name;
+
+		If ObjectAttributes[AttributeName] = Undefined Then
+			Continue;
+		EndIf;
+
+		ObjectManager = Common.ObjectManagerByFullName(FullMetadataObjectName);
+
+		If DatasetToFill.ObjectAttributesToLocalize[AttributeName] <> Undefined Then
+			
+			If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
+				ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+				ModuleNationalLanguageSupportServer.DetermineModifiedMultilingualItems(Object,
+					TableRow, AttributeName, EditedPredefinedAttributes, DatasetToFill);
+			EndIf;
+			
+		Else
+			If AttributeName = "Parent" Then
+
+				If KeyAttributeName = "Ref" Then
+					If TypeOf(TableRow.Parent) = Type("String") Then
+						AttributeValue = ObjectManager.GetRef(New UUID(TableRow.Parent));
+					ElsIf TypeOf(TableRow.Parent) = Type("UUID") Then
+						AttributeValue = ObjectManager.GetRef(TableRow.Parent);
+					Else
+						AttributeValue = TableRow.Parent;
+					EndIf;
+				ElsIf TypeOf(TableRow.Parent) = Type("String") Then
+					AttributeValue = ObjectManager.FindByAttribute(KeyAttributeName, TableRow.Parent);
+				Else
+					AttributeValue = TableRow.Parent;
+				EndIf;
+
+			Else
+				AttributeValue = TableRow[AttributeName];
+			EndIf;
+				
+			If Object[AttributeName] <> AttributeValue Then
+				If EditedPredefinedAttributes.Find(TableColumn2.Name) = Undefined Then
+					EditedPredefinedAttributes.Add(TableColumn2.Name);
+				EndIf;
+			EndIf;
+		
+		EndIf;
+		
+	EndDo;
+	Object.EditedPredefinedAttributes = StrConcat(EditedPredefinedAttributes, ",");
+	
+EndProcedure
+
+Function IsIncludesEditedPredefinedAttributes(FullName) Export
+	
+	Result = False;
+	If Metadata.CommonAttributes.Find("EditedPredefinedAttributes") = Undefined Then
+		Return Result;
+	EndIf;
+	
+	MetadataObject    = Metadata.FindByFullName(FullName);
+	AttributeInfo = Metadata.CommonAttributes.EditedPredefinedAttributes.Content.Find(MetadataObject);
+
+	If AttributeInfo <> Undefined Then
+		If AttributeInfo.Use = Metadata.ObjectProperties.CommonAttributeUse.Use Then
+			Result = True;
+		ElsIf AttributeInfo.Use = Metadata.ObjectProperties.CommonAttributeUse.Auto
+			And Metadata.CommonAttributes.EditedPredefinedAttributes.AutoUse = Metadata.ObjectProperties.CommonAttributeAutoUse.Use Then
+			Result = True;
+		EndIf;
+	EndIf;
+	
+	Return Result;
+	
+EndFunction
+
 #EndRegion
 
 #Region Private
 
-Function DefineTheFillingData(Val PredefinedData, Val TableRow, Val ExceptionFields)
+Function DefineTheFillingData(Val PredefinedData, Val TableRow, Val ExceptionFields, Val DetailsToFillIn)
+
+	AreOnlyAttributesToFill = DetailsToFillIn.Count() > 0;
 	
 	FillingData = New Structure;
 	For Each Column In PredefinedData.Columns Do
 		
 		FieldName = Column.Name;
+		
+		If AreOnlyAttributesToFill And DetailsToFillIn[FieldName]= Undefined Then
+			Continue;
+		EndIf;
+			
 		If ExceptionFields[FieldName] = True Then
 			Continue;
 		EndIf;
 		
-		Value = TableRow[FieldName];
+		Value       = TableRow[FieldName]; 
+		IsUpdateBoolean = False;
 		If Column.ValueType.Types().Count() > 1 Then
 			Filled = Value <> Undefined;
 		ElsIf TypeOf(Value) = Type("Boolean") Then
 			Filled = Value;
+			IsUpdateBoolean = True;
 		Else
 			Filled = ValueIsFilled(Value);
 		EndIf;
 		
-		If Filled Then
+		If Filled Or IsUpdateBoolean Then
 			FillingData.Insert(FieldName, Value);
 		EndIf;
 	EndDo;
@@ -2400,8 +2575,8 @@ Function ActionsBeforeUpdateInfobase(ParametersOfUpdate)
 		ModuleInfobaseUpdateInternalSaaS = Common.CommonModule("InfobaseUpdateInternalSaaS");
 		ModuleInfobaseUpdateInternalSaaS.BeforeUpdateInfobase();
 		
-		
-		
+		// 
+		// 
 		If Common.DataSeparationEnabled() And Common.SeparatedDataUsageAvailable() Then
 			SetPrivilegedMode(True);
 		EndIf;
@@ -2438,9 +2613,9 @@ Function ActionsBeforeUpdateInfobase(ParametersOfUpdate)
 	
 	// Verifying rights to update the infobase.
 	If Not CanUpdateInfobase() Then
-		Message = NStr("en = 'Insufficient rights for upgrading to a new application version.';");
+		Message = NStr("en = 'Insufficient rights to update the app.';");
 		WriteError(Message);
-		Raise Message;
+		Raise(Message, ErrorCategory.AccessViolation);
 	EndIf;
 	
 	If DataUpdateMode = "MigrationFromAnotherApplication" Then
@@ -2450,8 +2625,8 @@ Function ActionsBeforeUpdateInfobase(ParametersOfUpdate)
 			Metadata.Name);
 	ElsIf DataUpdateMode = "VersionUpdate" Then
 		Message = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The configuration version changed from %1 to %2.
-			|The infobase will be updated.';"),
+			NStr("en = 'Configuration version was updated from ""%1"" to ""%2"".
+			|Your app will be updated.';"),
 			DataVersion, MetadataVersion);
 	Else
 		Message = StringFunctionsClientServer.SubstituteParametersToString(
@@ -2489,8 +2664,8 @@ EndFunction
 Procedure ExecuteActionsOnUpdateInfobase(ParametersOfUpdate, AdditionalParameters)
 	
 	If Common.SubsystemExists("StandardSubsystems.SaaSOperations.IBVersionUpdateSaaS") Then
-		
-		
+		// 
+		// 
 		If Common.DataSeparationEnabled() And Common.SeparatedDataUsageAvailable() Then
 			SetPrivilegedMode(True);
 		EndIf;
@@ -2547,7 +2722,7 @@ Procedure ExecuteActionsOnUpdateInfobase(ParametersOfUpdate, AdditionalParameter
 		
 		// Executing all update handlers for configuration subsystems.
 		For Each UpdateIteration In UpdateIterations Do
-			UpdateIteration.CompletedHandlers = ExecuteUpdateIteration(UpdateIteration, Parameters); 
+			UpdateIteration.CompletedHandlers = ExecuteUpdateIteration(UpdateIteration, Parameters); // 
 		EndDo;
 		
 		// Clearing a list of new subsystems.
@@ -2557,8 +2732,8 @@ Procedure ExecuteActionsOnUpdateInfobase(ParametersOfUpdate, AdditionalParameter
 		FillDataForParallelDeferredUpdate1(Parameters);
 		WriteInfobaseUpdateInfo(UpdateInfo);
 		
-		
-		
+		// 
+		// 
 		If ExecuteDeferredUpdateNow Then
 			ExecuteDeferredUpdateNow(Parameters);
 		EndIf;
@@ -2575,8 +2750,8 @@ EndProcedure
 Procedure ExecuteActionsAfterUpdateInfobase(ParametersOfUpdate, AdditionalParameters)
 	
 	If Common.SubsystemExists("StandardSubsystems.SaaSOperations.IBVersionUpdateSaaS") Then
-		
-		
+		// 
+		// 
 		If Common.DataSeparationEnabled() And Common.SeparatedDataUsageAvailable() Then
 			SetPrivilegedMode(True);
 		EndIf;
@@ -2669,9 +2844,16 @@ Procedure ExecuteActionsAfterUpdateInfobase(ParametersOfUpdate, AdditionalParame
 	
 EndProcedure
 
-Procedure RunActionAfterDeferredInfobaseUpdate(SyncedUpdate = False)
+Procedure RunActionAfterDeferredInfobaseUpdate(SyncedUpdate = False, ScriptUpdate = False)
 	
 	If Not DeferredUpdateCompleted() Then
+		If ScriptUpdate And Common.SubsystemExists("StandardSubsystems.ConfigurationUpdate") Then
+			ModuleConfigurationUpdate = Common.CommonModule("ConfigurationUpdate");
+			AbortUpdate = ModuleConfigurationUpdate.CurVersionRequiresSuccessfulEndOfHandlers();
+			If AbortUpdate Then
+				Raise NStr("en = 'The deferred update is completed with errors. See the event log for details.';");
+			EndIf;
+		EndIf;
 		Return;
 	EndIf;
 	
@@ -2845,6 +3027,7 @@ Function UpdateInfobaseInBackground(FormUniqueID, IBLock) Export
 		Result.Insert("IBLock", IBUpdateParameters.IBLock);
 		Result.Insert("BriefErrorDescription", ErrorProcessing.BriefErrorDescription(ErrorInfo));
 		Result.Insert("DetailErrorDescription", ErrorProcessing.DetailErrorDescription(ErrorInfo));
+		Result.Insert("ErrorInfo", ErrorInfo);
 		
 		Return Result;
 	EndTry;
@@ -2858,9 +3041,9 @@ Function UpdateInfobaseInBackground(FormUniqueID, IBLock) Export
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(FormUniqueID);
 	ExecutionParameters.WaitCompletion = 0;
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Update infobase in background';");
-	
-	
-	
+	// 
+	// 
+	// 
 	ExecutionParameters.RunInBackground = True;
 	
 	Result = TimeConsumingOperations.ExecuteInBackground("InfobaseUpdateInternal.RunInfobaseUpdateInBackground",
@@ -2892,8 +3075,8 @@ Procedure RunInfobaseUpdateInBackground(IBUpdateParameters, StorageAddress) Expo
 		Result = UpdateInfobase(ParametersOfUpdate);
 	Except
 		ErrorInfo = ErrorInfo();
-		
-		
+		// 
+		// 
 		If Common.SubsystemExists("StandardSubsystems.DataExchange")
 		   And Common.IsSubordinateDIBNode() Then
 			ModuleDataExchangeServer = Common.CommonModule("DataExchangeServer");
@@ -2903,8 +3086,7 @@ Procedure RunInfobaseUpdateInBackground(IBUpdateParameters, StorageAddress) Expo
 	
 	If ErrorInfo <> Undefined Then
 		UpdateResult = New Structure;
-		UpdateResult.Insert("BriefErrorDescription", ErrorProcessing.BriefErrorDescription(ErrorInfo));
-		UpdateResult.Insert("DetailErrorDescription", ErrorProcessing.DetailErrorDescription(ErrorInfo));
+		UpdateResult.Insert("ErrorInfo", ErrorInfo);
 	ElsIf Not IBUpdateParameters.InBackground Then
 		UpdateResult = Result;
 	Else
@@ -3025,7 +3207,7 @@ Procedure UnlockIB(IBLock) Export
 		
 	If ExclusiveMode() Then
 		While TransactionActive() Do
-			RollbackTransaction(); 
+			RollbackTransaction(); // ACC:325 - Cancel unclosed transactions.
 		EndDo;
 		
 		SetExclusiveMode(False);
@@ -3202,8 +3384,8 @@ Procedure MigrateFromAnotherApplication(UpdateIterations)
 		|	InformationRegister.SubsystemsVersions AS SubsystemsVersions
 		|WHERE
 		|	SubsystemsVersions.IsMainConfiguration = TRUE";
-		
-		
+		// 
+		// 
 		QueryResult = Query.Execute();
 		// ACC:1328-on
 	ElsIf ModuleInfobaseUpdateInternalSaaS = Undefined Then
@@ -3249,7 +3431,7 @@ Procedure MigrateFromAnotherApplication(UpdateIterations)
 				
 				RecordSet[0].LibraryName = Metadata.Name;
 				
-				RecordSet.Write(); 
+				RecordSet.Write(); // 
 			EndDo;
 		EndIf;
 	EndIf;
@@ -3370,8 +3552,8 @@ Procedure OnCompleteApplicationMigration(PreviousConfigurationName, PreviousConf
 EndProcedure
 
 Procedure IBVersionUpdateBeforeDeleteRefObject(Source, Cancel) Export
-	
-	
+	// 
+	// 
 	
 	If GetFunctionalOption("DeferredUpdateCompletedSuccessfully")
 		Or Not Common.SeparatedDataUsageAvailable() Then
@@ -3641,8 +3823,8 @@ EndProcedure
 //
 Procedure ScheduleDeferredUpdate()
 	
-	
-	
+	// 
+	// 
 	If Not Common.FileInfobase() Then
 		OnEnableDeferredUpdate(True);
 	EndIf;
@@ -3693,36 +3875,36 @@ Procedure ExecuteDeferredUpdate() Export
 			CancelAllThreadsExecution(Groups);
 			
 			While HandlersExecutedEarlier Do
-				Stream = AddDeferredUpdateHandlerThread(UpdateInfo); 
+				Stream = AddDeferredUpdateHandlerThread(UpdateInfo); // @skip-check query-in-loop - Multi-threading.
 				
-				QueuesToClear = QueuesToClear(ProcessedItems); 
+				QueuesToClear = QueuesToClear(ProcessedItems); // @skip-check query-in-loop - Retrieve current data on processed queues.
 				ClearProcessedQueues(QueuesToClear, ProcessedItems, UpdateInfo);
 				
 				If TypeOf(Stream) = Type("ValueTableRow") Then
 					ExecuteThread(Groups, Stream);
-					WaitForAvailableThread(Groups); 
+					WaitForAvailableThread(Groups); // @skip-check query-in-loop - Multi-threading.
 				ElsIf Stream = True Then
-					WaitForAnyThreadCompletion(Groups); 
+					WaitForAnyThreadCompletion(Groups); // @skip-check query-in-loop - Multi-threading.
 				ElsIf Stream = False Then
 					HandlersExecutedEarlier = False;
-					WaitForAllThreadsCompletion(Groups); 
+					WaitForAllThreadsCompletion(Groups); // @skip-check query-in-loop - Multi-threading.
 					Break;
 				ElsIf Stream = "AbortExecution" Then
-					WaitForAllThreadsCompletion(Groups); 
+					WaitForAllThreadsCompletion(Groups); // @skip-check query-in-loop - Multi-threading.
 					Break;
 				EndIf;
 				
 				If LastCheckDate = Undefined
 					Or CurrentSessionDate() - LastCheckDate > 600 Then
 					LastCheckDate = CurrentSessionDate();
-					ClearProcessingProgressForPreviousDayIntervals(); 
+					ClearProcessingProgressForPreviousDayIntervals(); // @skip-check query-in-loop - Multi-threading.
 				EndIf;
 				
 				Job = ScheduledJobsServer.Job(Metadata.ScheduledJobs.DeferredIBUpdate);
 				ExecutionRequired = Job.Schedule.ExecutionRequired(CurrentSessionDate());
 				
 				If Not ExecutionRequired Or Not ForceUpdate(UpdateInfo) Then
-					WaitForAllThreadsCompletion(Groups); 
+					WaitForAllThreadsCompletion(Groups); // @skip-check query-in-loop - Multi-threading.
 					DeleteAllUpdateThreads();
 					Break;
 				EndIf;
@@ -4121,23 +4303,20 @@ Procedure CheckDeferredHandlerIDUniqueness(UpdateIterations)
 	UniquenessCheckTable.GroupBy("Id", "IndexOf");
 	FinalRowCount = UniquenessCheckTable.Count();
 	
-	// Run a quick check.
 	If InitialRowCount = FinalRowCount Then
 		Return; // All IDs are unique.
 	EndIf;
 	
 	UniquenessCheckTable.Sort("IndexOf Desc");
-	MessageText = NStr("en = 'Deferred update handlers with duplicate UUIDs are found.
-		|The following UUIDs are duplicate:';");
+	MessageText = NStr("en = 'Some of the deferred update handlers have matching UUIDs:';");
 	For Each IDRow In UniquenessCheckTable Do
 		If IDRow.IndexOf = 1 Then
 			Break;
-		Else
-			MessageText = MessageText + Chars.LF + IDRow.Id;
 		EndIf;
+		MessageText = MessageText + Chars.LF + IDRow.Id;
 	EndDo;
 	
-	Raise MessageText;
+	Raise(MessageText, ErrorCategory.ConfigurationError);
 	
 EndProcedure
 
@@ -4172,8 +4351,8 @@ Procedure AddDeferredHandlers(LibraryName, HandlersByVersion, UpdateGroup, Error
 		
 		If DeferredHandlersExecutionMode = "Sequentially" Then
 			If CurrentExecutionMode = "Parallel" Then
-				
-				
+				// 
+				// 
 				UpdateGroup = UpdateGroup + 1;
 			EndIf;
 			HandlersGroupsDependence.Insert(UpdateGroup, Iteration <> 1);
@@ -4194,8 +4373,8 @@ Procedure AddDeferredHandlers(LibraryName, HandlersByVersion, UpdateGroup, Error
 			
 			If Result < 0 Then
 				If CurrentExecutionMode = "Parallel" Then
-					
-					
+					// 
+					// 
 					UpdateGroup = UpdateGroup + 1;
 				EndIf;
 				HandlersGroupsDependence.Insert(UpdateGroup, Iteration <> 1);
@@ -4456,7 +4635,7 @@ Function HandlerForExecution(Handlers, HandlersGroupsAndDependency, UpdateInfo)
 			Continue;
 		EndIf;
 		
-		
+		// Filter down handers that don't comply with the current execution order.
 		If RunningOnes[Handler.Order] = Undefined Then
 			Continue;
 		ElsIf CurrOrder <> Enums.OrderOfUpdateHandlers.Noncritical
@@ -4487,8 +4666,8 @@ Function HandlerForExecution(Handlers, HandlersGroupsAndDependency, UpdateInfo)
 		If CurrentUpdateGroup = Undefined Then
 			CurrentUpdateGroup = Handler.UpdateGroup;
 		ElsIf CurrentUpdateGroup <> Handler.UpdateGroup Then
-			
-			
+			// 
+			// 
 			If RunningMultithreadHandler <> Undefined Then
 				HandlerForExecution = RunningMultithreadHandler;
 				Break;
@@ -4500,11 +4679,11 @@ Function HandlerForExecution(Handlers, HandlersGroupsAndDependency, UpdateInfo)
 			And Not Handler.BatchProcessingCompleted Then
 			If Handler.Multithreaded Then
 				If HasBatchesForUpdate(Handler) Then
-					
-					
+					// 
+					// 
 					RunningMultithreadHandler = Handler;
 				EndIf;
-			ElsIf UpdateThreads().Count() = 0 Then 
+			ElsIf UpdateThreads().Count() = 0 Then // @skip-check query-in-loop - Getting the number of current threads.
 				HandlerForExecution = Handler;
 			EndIf;
 			HasRunning = True;
@@ -4776,7 +4955,7 @@ Function AddDeferredUpdateHandlerThread(UpdateInfo)
 	
 	While Stream = Undefined Do
 		HandlerContext = NewHandlerContext();
-		HandlerUpdates = FindUpdateHandler(HandlerContext); 
+		HandlerUpdates = FindUpdateHandler(HandlerContext); // @skip-check query-in-loop - Creating an update thread.
 		
 		If TypeOf(HandlerUpdates) = Type("ValueTableRow") Then
 			If HandlerContext.ExecuteHandler Then
@@ -4796,7 +4975,7 @@ Function AddDeferredUpdateHandlerThread(UpdateInfo)
 					AddUpdateHandlerThread(Stream, HandlerContext);
 				EndIf;
 			Else
-				CompleteDeferredHandlerExecution(HandlerContext, Undefined); 
+				CompleteDeferredHandlerExecution(HandlerContext, Undefined); // @skip-check query-in-loop - Creating an update thread.
 				Stream = Undefined;
 			EndIf;
 		Else
@@ -4949,8 +5128,8 @@ EndProcedure
 //
 // Parameters:
 //  HandlerContext - See NewHandlerContext
-//  ResultAddress - String -  the address of the temporary storage with the result from runcomposed Handler().
-//  Swedenlithuania -  See InfobaseUpdateInfo
+//  ResultAddress - String - Address of the runtime result of "ExecuteDeferredHandler" in temporary storage.
+//  UpdateInfo - See InfobaseUpdateInfo
 //
 Procedure CompleteDeferredHandlerExecution(HandlerContext, ResultAddress) Export
 	
@@ -4962,6 +5141,7 @@ Procedure CompleteDeferredHandlerExecution(HandlerContext, ResultAddress) Export
 		HandlerProperty(HandlerUpdates.HandlerName, "BatchProcessingCompleted", True);
 		
 		ImportHandlerExecutionResult(HandlerContext, ResultAddress);
+		CalculateHandlerProcedureEecutionTime(HandlerContext, HandlerContext.HandlerName);
 		SessionParameters.UpdateHandlerParameters = HandlerContext.UpdateHandlerParameters;
 		
 		If HandlerContext.StartedWithoutErrors Then
@@ -4976,7 +5156,6 @@ Procedure CompleteDeferredHandlerExecution(HandlerContext, ResultAddress) Export
 		EndIf;
 		
 		EndDeferredUpdateHandlerExecution(HandlerContext);
-		CalculateHandlerProcedureEecutionTime(HandlerContext, HandlerContext.HandlerName);
 		CommitTransaction();
 	Except
 		RollbackTransaction();
@@ -5128,7 +5307,7 @@ EndProcedure
 // Update handler execution context.
 //
 // Returns:
-//  Structure - :
+//  Structure - Context details (serialized before passing to a background job):
 //   * ExecuteHandler - Boolean - if True, the handler is ready for execution.
 //   * HandlerFullDetails - See PrepareUpdateProgressDetails
 //   * HandlerProcedureCompletion - Number - completing the data processing procedure.
@@ -5365,7 +5544,8 @@ Procedure ExecuteThread(Groups, Stream, FormIdentifier = Undefined)
 		If Status = "Running" Then
 			Stream.JobID = RunResult.JobID;
 		ElsIf Status <> "Running" And Status <> "Completed2" Then
-			Raise RunResult.BriefErrorDescription;
+			Refinement = CommonClientServer.ExceptionClarification(RunResult.ErrorInfo);
+			Raise(Refinement.Text, Refinement.Category,,, RunResult.ErrorInfo);
 		EndIf;
 	EndIf;
 	
@@ -5400,15 +5580,14 @@ Function StopThreadsWithCompletedBackgroundJobs(Threads, Groups)
 				ErrorInfo = ErrorInfo();
 				JobCompleted = Undefined;
 				
-				If Not IsBlankString(ThreadDetails.OnAbnormalTermination) Then
-					CallParameters = New Array;
-					CallParameters.Add(Stream);
-					CallParameters.Add(ErrorInfo);
-					
-					Common.ExecuteConfigurationMethod(ThreadDetails.OnAbnormalTermination, CallParameters);
-				Else
+				If IsBlankString(ThreadDetails.OnAbnormalTermination) Then
 					Raise;
 				EndIf;
+
+				CallParameters = New Array;
+				CallParameters.Add(Stream);
+				CallParameters.Add(ErrorInfo);
+				Common.ExecuteConfigurationMethod(ThreadDetails.OnAbnormalTermination, CallParameters);
 			EndTry;
 		EndIf;
 		
@@ -5528,24 +5707,24 @@ EndProcedure
 //
 // Returns:
 //  Structure - General thread details with the following fields:
-//   * Procedure - String - :
-//                 
-//                   
-//                   
-//   * CompletionProcedure - String - :
-//                           
-//                             
-//                             
-//                             
-//   * OnAbnormalTermination - String - :
-//                              
-//                                 See NewThreadsDetails
-//                                
-//                                
-//   * OnCancelThread - String - :
-//                       
-//                          See NewThreadsDetails
-//                         
+//   * Procedure - String - The name of the procedure executing in the background job. Declaration:
+//                 ProcedureName(ProcedureDetails, ResultAddress), where:
+//                   ProcedureDetails - Structure - details of the filling procedure.
+//                   ResultAddress - String - an address of the temporary storage for storing the result.
+//   * CompletionProcedure - String - The name of the procedure executing after the background job has completed. Declaration:
+//                           CompletionProcedure(ProcedureDetails, ResultAddress, AdditionalParameters), where:
+//                             ProcedureDetails - Structure - details of the filling procedure.
+//                             ResultAddress - String - address of the temporary storage used to store the result.
+//                             AdditionalParameters - Arbitrary - the additional parameter.
+//   * OnAbnormalTermination - String - Thread failure handler. Declaration:
+//                              OnAbnormalTermination(Thread, ErrorInfo, AdditionalParameters), where
+//                                Stream -  See NewThreadsDetails
+//                                ErrorInfo - ErrorInfo - an error description.
+//                                AdditionalParameters - Arbitrary - the additional parameter.
+//   * OnCancelThread - String - Thread cancellation handler. Declaration::
+//                       OnCancelThread(Thread, AdditionalParameters), where:
+//                         Stream -  See NewThreadsDetails
+//                         AdditionalParameters - Arbitrary - the additional parameter.
 //
 Function NewThreadsGroupDetails()
 	
@@ -5635,9 +5814,8 @@ Procedure FindBatchToUpdate(SearchParameters, ResultAddress) Export
 	SelectionParameters.OptimizeSelectionByPages = Not HasOrderingByExternalTables(OrderFields);
 	Maximum = InfobaseUpdate.MaxRecordsCountInSelection();
 	IterationParameters = DataIterationParametersForUpdate(SearchParameters);
-	SearchFromBegin = SearchParameters.LastSelectedRecord = Undefined And SearchParameters.FirstRecord = Undefined;
 	
-	If Not SearchFromBegin Then
+	If Not SearchFromBegin(SearchParameters) And Not IsBatchProcessing(SearchParameters) Then
 		NextIterationParameters(IterationParameters, False);
 	EndIf;
 
@@ -5660,8 +5838,8 @@ Procedure FindBatchToUpdate(SearchParameters, ResultAddress) Export
 			RefObject1,
 			TabularObject);
 		
-		
-		
+		// 
+		// 
 		If Not SelectionParameters.Property("UpdateHandlerParameters") Then
 			SelectionParameters.Insert("UpdateHandlerParameters", SearchParameters.HandlerContext.UpdateHandlerParameters);
 		EndIf;
@@ -5710,22 +5888,23 @@ Procedure CheckSelectionParameters(SelectionParameters)
 	              Or (SelectionMethod = InfobaseUpdate.RegisterRecordersSelectionMethod())
 	              Or (SelectionMethod = InfobaseUpdate.RefsSelectionMethod());
 	If Not KnownMethod Then
-		MessageTemplate = NStr(
+		MessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr(
 			"en = 'Specify a selection method in the update data registration procedure
 			|in ""%1"".
-			|The current selection method is invalid: ""%2"".';");
-		Raise StringFunctionsClientServer.SubstituteParametersToString(MessageTemplate, SelectionMethod, "Parameters.SelectionParameters.SelectionMethod");
+			|The current selection method is invalid: ""%2"".';"),
+			SelectionMethod, "Parameters.SelectionParameters.SelectionMethod");
+		Raise(MessageText, ErrorCategory.ConfigurationError);
 	EndIf;
 	
 	TablesSpecified = Not IsBlankString(SelectionParameters.FullNamesOfObjects)
 	             Or Not IsBlankString(SelectionParameters.FullRegistersNames);
 	If Not TablesSpecified Then
-		MessageTemplate = NStr(
+		MessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr(
 			"en = 'Specify tables to be processed in the update data registration procedure
 			|in ""%1"" and/or
-			|""%2"".';");
-		Raise StringFunctionsClientServer.SubstituteParametersToString(MessageTemplate,
+			|""%2"".';"),
 			"Parameters.SelectionParameters.FullNamesOfObjects", "Parameters.SelectionParameters.FullRegistersNames");
+		Raise(MessageText, ErrorCategory.ConfigurationError);
 	EndIf;
 	
 EndProcedure
@@ -5813,6 +5992,22 @@ Function SelectBatchData(SelectionParameters, Queue, RefObject1, TabularObject)
 	
 EndFunction
 
+// 
+//
+// Parameters:
+//  SearchParameters - See NewBatchSearchParameters
+//
+// Returns:
+//  Boolean - 
+//
+Function IsBatchProcessing(SearchParameters)
+	
+	Return SearchParameters.LastSelectedRecord = Undefined
+	      And SearchParameters.FirstRecord <> Undefined
+	      And SearchParameters.LatestRecord <> Undefined;
+	
+EndFunction
+
 // Prepare data iteration parameters for the update.
 // It means to find the selection beginning boundary (the place where you stopped last time).
 //
@@ -5820,10 +6015,10 @@ EndFunction
 //  SearchParameters - See NewBatchSearchParameters
 //
 // Returns:
-//  Structure - :
-//   
-//   
-//   
+//  Structure - Search parameters with the following fields:
+//   RefObjects - Array - Names of reference metadata objects.
+//   TabularObjectsAll - Array - Names of table metadata objects.
+//   TabularObjectsBeginning - Array - Names of table metadata objects obtained at the first iteration.
 //
 Function DataIterationParametersForUpdate(SearchParameters)
 	
@@ -5845,15 +6040,15 @@ Function DataIterationParametersForUpdate(SearchParameters)
 		FirstTabular = Undefined;
 	EndIf;
 	
-	If Not IsBlankString(FullNamesOfObjects) And Not IsBlankString(FirstReferenced) Then 
-		
+	If Not IsBlankString(FullNamesOfObjects) And Not IsBlankString(FirstReferenced) Then // 
+		// 
 		FullObjectNamesArray = TheRemainderOfTheArray(FullNamesOfObjects, FirstReferenced);
 	Else
 		FullObjectNamesArray = StrSplitTrimAll(FullNamesOfObjects, ",");
 	EndIf;
 	
-	If Not IsBlankString(FullRegistersNamesStart) And Not IsBlankString(FirstTabular) Then 
-		
+	If Not IsBlankString(FullRegistersNamesStart) And Not IsBlankString(FirstTabular) Then // 
+		// 
 		FullRegisterNamesStartArray = TheRemainderOfTheArray(FullRegistersNamesStart, FirstTabular);
 	Else
 		FullRegisterNamesStartArray = StrSplitTrimAll(FullRegistersNamesStart, ",");
@@ -5870,13 +6065,30 @@ Function DataIterationParametersForUpdate(SearchParameters)
 	
 EndFunction
 
+// 
+//
+// Parameters:
+//  SearchParameters - See NewBatchSearchParameters
+//
+// Returns:
+//  Boolean - 
+//           
+//
+Function SearchFromBegin(SearchParameters)
+	
+	Return SearchParameters.LastSelectedRecord = Undefined
+	      And SearchParameters.FirstRecord = Undefined
+	      And SearchParameters.LatestRecord = Undefined;
+	
+EndFunction
+
 // Get the next batch of data iteration parameters for an update.
 //
 // Parameters:
 //  IterationParameters - See DataIterationParametersForUpdate
 //
 // Returns:
-//   Structure - :
+//   Structure - Current iteration parameters as a structure with the following fields:
 //    * RefObject1 - String - a reference object name.
 //    * TabularObject - String - a tabular object name.
 //   Undefined - if iteration is completed.
@@ -5974,8 +6186,8 @@ EndFunction
 //
 // Parameters:
 //  SearchParameters - See NewBatchSearchParameters
-//  ResultAddress - String -  address of the result of naytiportionfor Updating
-//  Swedenlithuania -  See InfobaseUpdateInfo
+//  ResultAddress - String - Address of the runtime result of "FindBatchToUpdate".
+//  UpdateInfo - See InfobaseUpdateInfo
 //
 Procedure EndSearchForBatchToUpdate(SearchParameters, ResultAddress) Export
 	
@@ -6030,7 +6242,7 @@ Procedure EndSearchForBatchToUpdate(SearchParameters, ResultAddress) Export
 			Batch.LatestRecord = Particle.LatestRecord;
 			Batch.InProcessing = True;
 			
-			
+			// For multiple butches, assign each batch with a unique "UpdateProgressRecordKey".
 			UpdateHandlerParameters = New Structure(HandlerContext.UpdateHandlerParameters);
 			UpdateHandlerParameters.KeyRecordProgressUpdates = New UUID;
 			If SearchResult.Property("IsUpToDateDataProcessed")
@@ -6073,8 +6285,8 @@ EndProcedure
 //
 // Parameters:
 //  Stream - See NewThreadsDetails
-//  ErrorInfo - ErrorInfo -  description of the error that occurred.
-//  Swedenlithuania -  See InfobaseUpdateInfo.
+//  ErrorInfo - ErrorInfo - Error details.
+//  UpdateInfo - See InfobaseUpdateInfo.
 //
 Procedure OnBatchToImportSearchThreadAbnormalTermination(Stream, ErrorInfo) Export
 	
@@ -6091,7 +6303,7 @@ EndProcedure
 //
 // Parameters:
 //  Stream - See NewThreadsDetails
-//  Swedenlithuania -  See InfobaseUpdateInfo
+//  UpdateInfo - See InfobaseUpdateInfo
 //
 Procedure OnCancelSearchBatchToUpdate(Stream) Export
 	
@@ -6109,7 +6321,7 @@ EndProcedure
 //
 // Parameters:
 //  HandlerContext - See NewHandlerContext
-//  Swedenlithuania -  See InfobaseUpdateInfo
+//  UpdateInfo - See InfobaseUpdateInfo
 //
 Procedure CompleteMultithreadHandlerExecution(HandlerContext, HandlerName)
 	
@@ -6148,8 +6360,8 @@ EndProcedure
 //     * ProcedureParameters - See NewHandlerContext
 //     * CompletionProcedureParameters - Arbitrary - parameters for CompletionProcedure.
 //     * ResultAddress - String - an address of the temporary storage for storing the background job result.
-//  HandlerUpdates - ValueTreeRow -  update handler as a string in the handler tree.
-//  Swedenlithuania -  See InfobaseUpdateInfo
+//  HandlerUpdates - ValueTreeRow - An update handler represented as a row of the handlers tree.
+//  UpdateInfo - See InfobaseUpdateInfo
 //  
 Procedure CancelUpdatingDataOfMultithreadHandler(Stream, HandlerUpdates)
 	
@@ -6257,7 +6469,7 @@ Function SplitSearchResultIntoParticles(SearchResult, Val ParticlesCount)
 	MaxBatchSize = Int(FoundItemsCount / ParticlesCount);
 	ProcessedItemsCount = 0;
 	
-	For ParticleNumber = 1 To ParticlesCount Do 
+	For ParticleNumber = 1 To ParticlesCount Do // 
 		Particle = NewBatchForUpdate();
 		Particle.Id = New UUID;
 		Particle.DataSet = NewDataSetForUpdate();
@@ -6425,7 +6637,7 @@ EndFunction
 //  Background - Boolean - True if it is used for FillDeferredHandlerData().
 //
 // Returns:
-//  Structure - :
+//  Structure - Data details with the following fields:
 //   * HandlerData - Map - data that is registered and processed by the update handler.
 //   * BatchSearchInProgress - Boolean - indicates that there is a thread that searches a data batch for update.
 //   * SelectionParameters - See InfobaseUpdate.AdditionalMultithreadProcessingDataSelectionParameters
@@ -6473,7 +6685,7 @@ EndFunction
 // Otherwise, records are searched between FirstRecord and LastRecord.
 //
 // Returns:
-//  Structure - :
+//  Structure - A filter with the following fields:
 //   * BatchID - UUID - an ID of the batch, for which data is being searched.
 //   * HandlerContext - See NewHandlerContext
 //   * LastSelectedRecord - ValueList - details of selection start in a page selection:
@@ -6553,7 +6765,7 @@ EndFunction
 // It is the search result for an update.
 //
 // Returns:
-//  ValueTable - :
+//  ValueTable - Batches details with the following structure:
 //   * RefObject1 - String - a reference metadata object name (it can be Undefined).
 //   * TabularObject - String - a tabular metadata object name (it can be Undefined).
 //   * Data - ValueTable - a selection from DBMS as a value table.
@@ -6585,7 +6797,7 @@ EndFunction
 // Data batch details for an update.
 //
 // Returns:
-//  Structure - :
+//  Structure - Describes batches. Fields are:
 //   * Id - UUID - Batch ID.
 //   * FirstRecord - ValueList - Key of the first batch of records (see NewRecordKeyFromBatchData()).
 //   * LatestRecord - ValueList - Key of the last batch of record (see NewRecordKeyFromBatchData()).
@@ -6606,10 +6818,10 @@ EndFunction
 // Batch search execution result.
 //
 // Returns:
-//  Structure - :
-//   
-//    See NewDataSetForUpdate
-//   
+//  Structure - Search result with the following fields:
+//   Count - Number - The number of selected records.
+//   DataSet -  See NewDataSetForUpdate
+//   SearchCompleted - Boolean - True if there is nothing more to search.
 //
 Function NewBatchSearchResult()
 	
@@ -6631,7 +6843,7 @@ EndFunction
 //
 // Returns:
 //  ValueTableRow of See NewBatchesTableForUpdate
-//  
+//  Undefined - If no unprocessed batches left.
 //
 Function FirstUnprocessedBatch(BatchesToUpdate)
 	
@@ -6693,9 +6905,12 @@ Procedure RegisterPredefinedItemsToUpdate(Parameters, MetadataObject = Undefined
 		FillPropertyValues(RegistrationParameters, AdditionalParameters);
 	EndIf;
 	
-	ObjectsWithPredefinedItems = ?(MetadataObject <> Undefined,
-		CommonClientServer.ValueInArray(MetadataObject),
-		ObjectsWithInitialFilling());
+	If MetadataObject <> Undefined Then
+		ObjectsWithPredefinedItems = New Map();
+		ObjectsWithPredefinedItems.Insert(MetadataObject, MetadataObject.FullName());
+	Else
+		ObjectsWithPredefinedItems = ObjectsWithInitialFilling();
+	EndIf;
 	
 	ObjectsToBeProcessed = New Array;
 	
@@ -6706,9 +6921,12 @@ Procedure RegisterPredefinedItemsToUpdate(Parameters, MetadataObject = Undefined
 		|WHERE
 		|	Table.Predefined = TRUE";
 	
-	For Each MetadataObjectWithItems In ObjectsWithPredefinedItems Do
+	For Each ObjectWithPredefinedElements In ObjectsWithPredefinedItems Do
 		
-		ObjectManager = Common.ObjectManagerByFullName(MetadataObjectWithItems.FullName());
+		MetadataObjectWithItems = ObjectWithPredefinedElements.Key;
+		FullMetadataObjectName  = ObjectWithPredefinedElements.Value;
+		
+		ObjectManager = Common.ObjectManagerByFullName(FullMetadataObjectName);
 		ObjectAttributesToLocalize = New Map;
 		If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 			ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
@@ -6743,10 +6961,10 @@ Procedure RegisterPredefinedItemsToUpdate(Parameters, MetadataObject = Undefined
 		EndIf;
 		
 		QueryText = StrReplace(QueryTemplate, "&Fields", StrConcat(ObjectAttributesNames, ", " + Chars.LF));
-		QueryText = StrReplace(QueryText, "#Table", MetadataObjectWithItems.FullName());
+		QueryText = StrReplace(QueryText, "#Table", FullMetadataObjectName);
 		Query = New Query(QueryText);
 		
-		
+		// @skip-check query-in-loop - Queries to tables, each having a unique set of attributes.
 		QueryResult = Query.Execute();
 		If QueryResult.IsEmpty() Then
 			Continue;
@@ -6819,17 +7037,6 @@ Procedure FillObjectInitialData(ObjectToFillIn, PopulationSettings) Export
 	
 EndProcedure
 
-Function KeyAttributeName(DatasetToFill)
-	
-	KeyAttributeName = DatasetToFill.OverriddenSettings.KeyAttributeName;
-	If Not ValueIsFilled(KeyAttributeName) Then
-		KeyAttributeName = "PredefinedDataName";
-	EndIf;
-	
-	Return KeyAttributeName;
-	
-EndFunction
-
 Procedure FillItemsWithInitialData(Parameters, MetadataObject, PopulationSettings) Export
 	
 	ObjectsRefs = InfobaseUpdate.SelectRefsToProcess(Parameters.Queue, MetadataObject.FullName());
@@ -6850,12 +7057,11 @@ Procedure FillItemsWithInitialData(Parameters, MetadataObject, PopulationSetting
 			NStr("en = 'Couldn''t populate (skipped) some items with initial data: %1';"),
 			Result.ObjectsWithIssuesCount);
 		Raise MessageText;
-	Else
-		WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Information,
-			MetadataObject,, StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Yet another batch of items is processed: %1';"),
-		Result.ObjectsProcessed));
 	EndIf;
+	WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Information,
+		MetadataObject,, StringFunctionsClientServer.SubstituteParametersToString(
+		NStr("en = 'Yet another batch of items is processed: %1';"),
+	Result.ObjectsProcessed));
 	
 EndProcedure
 
@@ -6946,15 +7152,15 @@ Function CustomSettingsFillItems()
 	
 EndFunction
 
-Procedure FillRequisitesInitialData(ItemToFill, DatasetToFill, PopulationSettings)
+Procedure FillRequisitesInitialData(ItemToFill, Context, PopulationSettings)
 	
-	KeyAttributeName = KeyAttributeName(DatasetToFill.PredefinedItemsSettings);
+	KeyAttributeName = KeyAttributeName(Context.PredefinedItemsSettings);
 	
 	ObjectKeyValue = ItemToFill[KeyAttributeName];
 	
 	If Not ValueIsFilled(ObjectKeyValue) Then
 		
-		If Not DatasetToFill.PredefinedItemsSettings.IsColumnNamePredefinedData Then 
+		If Not Context.PredefinedItemsSettings.IsColumnNamePredefinedData Then 
 			Return;
 		EndIf;
 		
@@ -6966,19 +7172,20 @@ Procedure FillRequisitesInitialData(ItemToFill, DatasetToFill, PopulationSetting
 		
 	EndIf;
 	
-	ObjectManager = DatasetToFill.ObjectManager;
+	ObjectManager = Context.ObjectManager;
 	
-	TableRow = DatasetToFill.PredefinedData.Find(ObjectKeyValue, KeyAttributeName);
+	TableRow = Context.PredefinedData.Find(ObjectKeyValue, KeyAttributeName);
 	If TableRow = Undefined Then
 		Return;
 	EndIf;
 		
-	ButAttributes = DatasetToFill.ExceptionAttributes;
+	ButAttributes = Context.ExceptionAttributes;
 	
-	If DatasetToFill.HierarchySupported And ItemToFill.IsFolder Then
+	If Context.HierarchySupported And ItemToFill.IsFolder Then
 		
-		ButAttributes = DatasetToFill.ExceptionAttributes
-		+ ?(IsBlankString(DatasetToFill.ExceptionAttributes), "", ",") + StrConcat(DatasetToFill.AttributesWithItems, ",");
+		ButAttributes = Context.ExceptionAttributes + ?(IsBlankString(
+			Context.ExceptionAttributes), "", ",") + StrConcat(
+			Context.AttributesWithItems, ",");
 	EndIf;
 	
 	If Not PopulationSettings.UpdateMultilingualStringsOnly Then
@@ -6989,7 +7196,7 @@ Procedure FillRequisitesInitialData(ItemToFill, DatasetToFill, PopulationSetting
 			FillPropertyValues(ItemToFill, TableRow,, ButAttributes);
 		EndIf;      
 		
-		If DatasetToFill.HierarchySupported And ValueIsFilled(TableRow.Parent) Then
+		If Context.HierarchySupported And ValueIsFilled(TableRow.Parent) Then
 			
 			If KeyAttributeName = "Ref" Then
 				If TypeOf(TableRow.Parent) = Type("String") Then
@@ -7002,8 +7209,8 @@ Procedure FillRequisitesInitialData(ItemToFill, DatasetToFill, PopulationSetting
 			ElsIf TypeOf(TableRow.Parent) = Type("String") Then 
 				
 				ObjectMetadata = Metadata.FindByType(TypeOf(ItemToFill));
-				ExistingItems = ExistingSuppliedItems(DatasetToFill.PredefinedData,
-					DatasetToFill.PredefinedItemsSettings, ObjectManager, ObjectMetadata);
+				ExistingItems = ExistingSuppliedItems(Context.PredefinedData,
+					Context.PredefinedItemsSettings, ObjectManager, ObjectMetadata);
 				ItemToFill.Parent = ExistingItems[TableRow.Parent];
 				
 			Else
@@ -7012,8 +7219,8 @@ Procedure FillRequisitesInitialData(ItemToFill, DatasetToFill, PopulationSetting
 			
 		EndIf; 
 		
-		If Not (DatasetToFill.HierarchySupported And ItemToFill.IsFolder) Then
-			For Each TabularSectionName In DatasetToFill.TabularSections Do
+		If Not (Context.HierarchySupported And ItemToFill.IsFolder) Then
+			For Each TabularSectionName In Context.TabularSections Do
 				ItemToFill[TabularSectionName].Load(TableRow[TabularSectionName]);
 			EndDo;
 		EndIf;
@@ -7022,13 +7229,14 @@ Procedure FillRequisitesInitialData(ItemToFill, DatasetToFill, PopulationSetting
 		
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		ModuleNationalLanguageSupportServer.FillItemsWithMultilingualInitialData(ItemToFill,
-			DatasetToFill.ObjectAttributesToLocalize, DatasetToFill.MultilanguageStringsInAttributes,
-			DatasetToFill.HierarchySupported, TableRow);
+
+		ExceptionFields = StrSplitTrimAll(ButAttributes, ",", False);
+		ModuleNationalLanguageSupportServer.FillItemsWithMultilingualInitialData(ItemToFill, 
+			TableRow, Context, ExceptionFields);
 	EndIf;
 	
-	If DatasetToFill.PredefinedItemsSettings.OverriddenSettings.OnInitialItemFilling Then
-		ObjectManager.OnInitialItemFilling(ItemToFill, TableRow, DatasetToFill.PredefinedItemsSettings.OverriddenSettings.AdditionalParameters);
+	If Context.PredefinedItemsSettings.OverriddenSettings.OnInitialItemFilling Then
+		ObjectManager.OnInitialItemFilling(ItemToFill, TableRow, Context.PredefinedItemsSettings.OverriddenSettings.AdditionalParameters);
 	EndIf;
 	
 EndProcedure
@@ -7042,7 +7250,7 @@ EndProcedure
 //  PopulationSettings - See InfobaseUpdate.PopulationSettings
 // 
 // Returns:
-//  Structure - :
+//  Structure - Update predefined items.:
 //   * ObjectsWithIssuesCount - Number
 //   * ObjectsProcessed - Number
 //
@@ -7053,12 +7261,15 @@ Function UpdateItemsOfPredefinedItems(ObjectsRefs, ObjectMetadata, PopulationSet
 	Result.Insert("ObjectsProcessed", 0);
 	
 	ParametersForFillingObject = ParameterSetForFillingObject(ObjectMetadata);
+	FullName                     = ObjectMetadata.FullName();
+	
+	IsIncludesEditedPredefinedAttributes = IsIncludesEditedPredefinedAttributes(FullName);
 	
 	KeyAttributeName = KeyAttributeName(ParametersForFillingObject.PredefinedItemsSettings);
 	
 	HierarchySupported = ParametersForFillingObject.HierarchySupported;
 	ExceptionAttributes = ParametersForFillingObject.ExceptionAttributes;
-	ObjectManager = ParametersForFillingObject.ObjectManager;
+	ObjectManager = ParametersForFillingObject.ObjectManager;  
 	
 	While ObjectsRefs.Next() Do
 		
@@ -7085,7 +7296,7 @@ Function UpdateItemsOfPredefinedItems(ObjectsRefs, ObjectMetadata, PopulationSet
 		Try
 			
 			DataLock = New DataLock;
-			DataLockItem = DataLock.Add(ObjectMetadata.FullName());
+			DataLockItem = DataLock.Add(FullName);
 			DataLockItem.SetValue("Ref", ObjectsRefs.Ref);
 			DataLock.Lock();
 			
@@ -7093,13 +7304,28 @@ Function UpdateItemsOfPredefinedItems(ObjectsRefs, ObjectMetadata, PopulationSet
 			
 			ButAttributes = ExceptionAttributes;
 			If HierarchySupported And ItemToFill.IsFolder Then
-				ButAttributes = ExceptionAttributes
-				+ ?(IsBlankString(ExceptionAttributes), "", ",") + StrConcat(ParametersForFillingObject.AttributesWithItems, ",");
+				ButAttributes = ExceptionAttributes + ?(IsBlankString(ExceptionAttributes), "", ",") + StrConcat(ParametersForFillingObject.AttributesWithItems, ",");
 			EndIf;
 			
 			If ValueIsFilled(PopulationSettings.Attributes) Then
 				FillPropertyValues(ItemToFill, TableRow, PopulationSettings.Attributes);
 			Else
+				
+				If IsIncludesEditedPredefinedAttributes Then
+					EditedAttributes = EditedAttributes(ItemToFill, FullName);
+					
+					If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
+						ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+						ModuleNationalLanguageSupportServer.DeleteMultilingualAttributes(EditedAttributes);
+					EndIf;
+					
+					EditedAttributesAsString = StrConcat(EditedAttributes, ",");
+				
+					If ValueIsFilled(EditedAttributesAsString) Then
+						ButAttributes = ?(ValueIsFilled(ButAttributes), "," , "") + EditedAttributesAsString;
+					EndIf;
+				EndIf;
+				
 				FillPropertyValues(ItemToFill, TableRow,, ButAttributes);
 			EndIf;
 			
@@ -7112,8 +7338,7 @@ Function UpdateItemsOfPredefinedItems(ObjectsRefs, ObjectMetadata, PopulationSet
 			If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 				ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
 				ModuleNationalLanguageSupportServer.FillItemsWithMultilingualInitialData(ItemToFill,
-					ParametersForFillingObject.ObjectAttributesToLocalize, ParametersForFillingObject.MultilanguageStringsInAttributes, 
-					HierarchySupported, TableRow);
+					TableRow, ParametersForFillingObject, EditedAttributes(ItemToFill, FullName));
 			EndIf;
 			
 			If ParametersForFillingObject.PredefinedItemsSettings.OverriddenSettings.OnInitialItemFilling Then
@@ -7171,10 +7396,11 @@ Function ExistingSuppliedItems(PredefinedData, PredefinedItemsSettings, Val Obje
 		
 		For Each PredefinedItem In PredefinedData Do
 			
-			If IsColumnNamePredefinedData 
-				 And ValueIsFilled(PredefinedItem.PredefinedDataName) 
-				 And PredefinedItemsNames.Find(PredefinedItem.PredefinedDataName) <> Undefined Then
-					Result.Insert(PredefinedItem.PredefinedDataName, ObjectManager[PredefinedItem.PredefinedDataName]);
+			If IsColumnNamePredefinedData And ValueIsFilled(
+				PredefinedItem.PredefinedDataName) And PredefinedItemsNames.Find(
+				PredefinedItem.PredefinedDataName) <> Undefined Then
+				Result.Insert(PredefinedItem.PredefinedDataName,
+					ObjectManager[PredefinedItem.PredefinedDataName]);
 					Continue;
 			EndIf;
 			
@@ -7267,7 +7493,7 @@ Procedure AddPredefinedDataTableColumn(PredefinedData, Attribute, AttributesToLo
 
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		AttributeToLocalizeFlag = ModuleNationalLanguageSupportServer.AttributeToLocalizeFlag()
+		AttributeToLocalizeFlag = ModuleNationalLanguageSupportServer.AttributeToLocalizeFlag();
 	Else
 		AttributeToLocalizeFlag = Undefined;
 	EndIf;
@@ -7294,16 +7520,16 @@ Procedure InstallScheduledJobKey() Export
 			Continue;
 		EndIf;
 		Job.Key = Metadata.ScheduledJobs.DeferredIBUpdate.Key;
-		Job.Write(); 
+		Job.Write(); // 
 	EndDo;
 	
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
-
-
 // 
+// 
+
+// Scheduled job handler "ClearObsoleteData" (applies to both shared and separated jobs).
 Procedure ClearObsoleteData() Export
 	
 	Common.OnStartExecuteScheduledJob(
@@ -7311,7 +7537,7 @@ Procedure ClearObsoleteData() Export
 	
 	If TransactionActive() Then
 		ErrorText = NStr("en = 'You cannot clear obsolete data in an external transaction.';");
-		Raise ErrorText;
+		Raise(ErrorText, ErrorCategory.ConfigurationError);
 	EndIf;
 	
 	JobMetadata = Metadata.ScheduledJobs.ClearObsoleteData;
@@ -7321,12 +7547,12 @@ Procedure ClearObsoleteData() Export
 	
 	CurrentSession = GetCurrentInfoBaseSession();
 	If CurrentSession.ApplicationName <> "BackgroundJob" Then
-		Raise ErrorText;
+		Raise(ErrorText, ErrorCategory.ConfigurationError);
 	EndIf;
 	
 	CurrentBackgroundJob = CurrentSession.GetBackgroundJob();
 	If CurrentBackgroundJob = Undefined Then
-		Raise ErrorText;
+		Raise(ErrorText, ErrorCategory.ConfigurationError);
 	EndIf;
 	
 	If Not Common.SeparatedDataUsageAvailable() Then
@@ -7350,10 +7576,9 @@ Procedure ClearObsoleteData() Export
 	ElsIf Not DeferredUpdateCompleted() Then
 		SetUpObsoleteDataPurgeJobNoAttempt(False);
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'You cannot clear obsolete data before the deferred
-			           |infobase update is completed.
-			           |1. To view the update results, click %1
-			           |2. To manually clear the data, click %2';"),
+			NStr("en = 'Cannot clear obsolete data while the app is being updated.
+			           |1. View update result: %1
+			           |2. Start cleanup: %2';"),
 			"e1cib/app/DataProcessor.ApplicationUpdateResult",
 			"e1cib/app/DataProcessor.ApplicationUpdateResult.Form.ClearObsoleteData");
 		Raise ErrorText;
@@ -7438,12 +7663,12 @@ Procedure ClearObsoleteData() Export
 	
 EndProcedure
 
-// 
+// Intended for procedure "Intended for procedure "ClearObsoleteData".
 Function ObsoleteDataContinuousPurgeTimerMinutes()
 	Return 15;
 EndFunction
 
-// 
+// Intended for procedures "ClearObsoleteData" and "IsObsoleteDataPurgeJobRunning".
 Function IsJobAlreadyRunning(MethodName, IDOfJobToExclude = Undefined,
 			Var_Key = Undefined, FoundJob = Undefined)
 	
@@ -7465,7 +7690,7 @@ Function IsJobAlreadyRunning(MethodName, IDOfJobToExclude = Undefined,
 	
 EndFunction
 
-// 
+// Intended for calls from infobase update procedures.
 Procedure SetUpObsoleteDataPurgeJob(Enable)
 	
 	Try
@@ -7486,7 +7711,7 @@ Procedure SetUpObsoleteDataPurgeJob(Enable)
 	
 EndProcedure
 
-// 
+// Intended for procedures "SetUpObsoleteDataPurgeJob" and "ClearObsoleteData".
 Procedure SetUpObsoleteDataPurgeJobNoAttempt(Enable)
 	
 	JobMetadata = Metadata.ScheduledJobs.ClearObsoleteData;
@@ -7513,7 +7738,7 @@ Procedure SetUpObsoleteDataPurgeJobNoAttempt(Enable)
 			ScheduledJobsServer.BlockARoutineTask(JobMetadata);
 			FoundJobs = ScheduledJobsServer.FindJobs(Filter);
 			If FoundJobs.Count() = 0 Then
-				
+				// ACC:453 - No. 760.4. It's acceptable to create a job and not save it in order to obtain metadata properties.
 				NewJob = ScheduledJobs.CreateScheduledJob(JobMetadata);
 				// ACC:453-on
 				ParametersOfNewJob = New Structure("Key, RestartIntervalOnFailure,
@@ -7558,12 +7783,12 @@ Procedure SetUpObsoleteDataPurgeJobNoAttempt(Enable)
 	
 EndProcedure
 
-// 
+// Intended to be called from the form and procedure "ClearObsoleteData".
 Function ObsoleteDataPurgeJobKey() Export
 	Return New UUID("f5104cf5-6251-438c-8557-e8bde0faec3e");
 EndFunction
 
-// 
+// Intended to be called from the form.
 Procedure CancelObsoleteDataPurgeJob(CancelManagerJob = False) Export
 	
 	Filter = New Structure("State, MethodName", BackgroundJobState.Active,
@@ -7590,7 +7815,7 @@ Procedure CancelObsoleteDataPurgeJob(CancelManagerJob = False) Export
 	
 EndProcedure
 
-// 
+// Intended to be called after a deferred update.
 Procedure ClearCompletelyAfterDeferredUpdateSucceeded()
 	
 	ErrorTitle = NStr("en = 'Cannot clear obsolete data.';")
@@ -7600,7 +7825,7 @@ Procedure ClearCompletelyAfterDeferredUpdateSucceeded()
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'You cannot call the %1 procedure in shared mode.';"),
 			"ClearCompletelyAfterDeferredUpdateSucceeded");
-		Raise ErrorTitle + ErrorText;
+		Raise(ErrorTitle + ErrorText, ErrorCategory.ConfigurationError);
 	EndIf;
 	
 	CancelObsoleteDataPurgeJob(True);
@@ -7639,7 +7864,7 @@ Procedure ClearCompletelyAfterDeferredUpdateSucceeded()
 		Results = GetFromTempStorage(AddressOfCleaningResult);
 		ErrorText = ObsoleteDataPurgeJobErrorText(Results);
 		If ErrorText <> Undefined Then
-			Raise ErrorTitle + ErrorText;
+			Raise(ErrorTitle + ErrorText, ErrorCategory.ConfigurationError);
 		EndIf;
 		
 	Except
@@ -7651,7 +7876,7 @@ Procedure ClearCompletelyAfterDeferredUpdateSucceeded()
 	
 EndProcedure
 
-// 
+// Intended to be called from the form and procedure "ClearCompletelyAfterDeferredUpdateSucceeded".
 Function ObsoleteDataPurgeJobErrorText(Results) Export
 	
 	If TypeOf(Results) <> Type("Map") Then
@@ -7689,17 +7914,17 @@ Function ObsoleteDataPurgeJobErrorText(Results) Export
 	
 EndFunction
 
-// 
-// 
+// Intended to be called from the thread of control of multi-threaded long-running operations
+// and procedures "ClearObsoleteData" and "PurgeObsoleteDataInBackgroundNoAttempt".
 //
 // Parameters:
 //  NewBatches - Map of KeyAndValue:
-//   * Key - UUID - 
-//   * Value - Arbitrary - 
+//   * Key - UUID - Batch's new batch key.
+//   * Value - Arbitrary - Intended to be passed to the batch processing procedure.
 //
-//  Context - Structure - 
-//                
-//                
+//  Context - Structure - Contains properties passed during a long-running operation.
+//                You can add new properties.
+//                The structure is then passed to the batch processing procedure.
 //
 Procedure ObsoleteDataOnRequestChunksInBackground(NewBatches, Context) Export
 	
@@ -7770,7 +7995,7 @@ Procedure ObsoleteDataOnRequestChunksInBackground(NewBatches, Context) Export
 	
 EndProcedure
 
-// 
+// Intended for the "ObsoleteDataOnRequestChunksInBackground" procedure.
 Function IsObsoleteDataPurgeJobRunning(RaiseException1 = False)
 	
 	JobMetadata = Metadata.ScheduledJobs.ClearObsoleteData;
@@ -7790,14 +8015,14 @@ Function IsObsoleteDataPurgeJobRunning(RaiseException1 = False)
 	
 EndFunction
 
-// 
+// Intended for procedure "ObsoleteDataOnRequestChunksInBackground".
 Procedure SetTablesCleaningOrder(TablesToClearUp)
 	
 	TablesToClearUp.Sort("IsRegister Desc, ClearAll Desc, IsExchangePlan Asc");
 	
 EndProcedure
 
-// 
+// Intended for procedure "ObsoleteDataOnRequestChunksInBackground".
 Function TableNodes(TableToCleanUp)
 	
 	If Not TableToCleanUp.InExchangePlan Then
@@ -7818,7 +8043,7 @@ Function TableNodes(TableToCleanUp)
 	
 EndFunction
 
-// 
+// Intended for procedure "ObsoleteDataOnRequestChunksInBackground".
 Function ContinueAddingCleanUpBatches(Context, NewBatches, TableToCleanUp, BatchOfRefs = Undefined)
 	
 	If TableToCleanUp.LastRef <> Null
@@ -7842,7 +8067,7 @@ Function ContinueAddingCleanUpBatches(Context, NewBatches, TableToCleanUp, Batch
 EndFunction
 
 
-// 
+// Intended for procedures "ClearObsoleteData" and "PurgeObsoleteDataInBackgroundNoAttempt".
 Procedure ObsoleteDataOnCleaningBatchInBackground(Parameters) Export
 	
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
@@ -7861,7 +8086,7 @@ Procedure ObsoleteDataOnCleaningBatchInBackground(Parameters) Export
 	
 EndProcedure
 
-// 
+// Intended for procedure "ObsoleteDataOnBatchPurge".
 Procedure ObsoleteDataOnBatchPurge(Parameters)
 	
 	TableToCleanUp = Parameters.TableToCleanUp;
@@ -7937,7 +8162,7 @@ Procedure ObsoleteDataOnBatchPurge(Parameters)
 	
 EndProcedure
 
-// 
+// Intended for procedure "ObsoleteDataOnBatchPurge".
 Procedure WriteWithAttempt(Data, Delete = False, TableNodes = "", NodesData = Undefined)
 	
 	AttemptNumber = 1;
@@ -7951,7 +8176,7 @@ Procedure WriteWithAttempt(Data, Delete = False, TableNodes = "", NodesData = Un
 				CurrentObject = Data.GetObject();
 				If CurrentObject <> Undefined Then
 					Common.DisableRecordingControl(CurrentObject, NodesData);
-					
+					// ACC:1327-off - It is acceptable since this is a repeated attempt. Required for avoiding DBMS deadlocks.
 					CurrentObject.Delete();
 					// ACC:1327-on
 				EndIf;
@@ -7974,7 +8199,7 @@ Procedure WriteWithAttempt(Data, Delete = False, TableNodes = "", NodesData = Un
 	
 EndProcedure
 
-// 
+// Intended for procedure "ObsoleteDataOnRequestChunksInBackground".
 Procedure WriteCleanUpPlanToLog(Context)
 	
 	CleanUpPlan = ObsoleteDataPurgePlan(Context.CleanUpDeleteable, Context.TablesToClearUp);
@@ -7986,7 +8211,7 @@ Procedure WriteCleanUpPlanToLog(Context)
 	
 EndProcedure
 
-// 
+// Intended to be called from the form and procedure "WriteCleanUpPlanToLog".
 Function ObsoleteDataPurgePlan(CleanUpDeleteable, TablesToClearUp = Undefined, ShouldConsiderDataSeparation = True) Export
 	
 	Rows = New Array;
@@ -8028,7 +8253,7 @@ Function ObsoleteDataPurgePlan(CleanUpDeleteable, TablesToClearUp = Undefined, S
 	
 EndFunction
 
-// 
+// Intended for the "ObsoleteDataPurgePlan" function.
 Procedure AddTablesDetailsToCleanUpPlan(Rows, TablesToClearUp)
 	
 	For Each TableToCleanUp In TablesToClearUp Do
@@ -8054,7 +8279,7 @@ Procedure AddTablesDetailsToCleanUpPlan(Rows, TablesToClearUp)
 	
 EndProcedure
 
-// 
+// Intended for the "AddTablesDetailsToCleanUpPlan' procedure.
 Procedure AddFieldsDetailsToCleanUpPlan(Rows, FieldsDetails)
 	
 	For Each FieldDetails In FieldsDetails Do
@@ -8075,7 +8300,7 @@ Procedure AddFieldsDetailsToCleanUpPlan(Rows, FieldsDetails)
 EndProcedure
 
 
-// 
+// A background job handler for the SaaS mode.
 Procedure PurgeObsoleteDataInBackground(Parameters, ResultAddress) Export
 	
 	LastSendOut = CurrentSessionDate();
@@ -8093,7 +8318,7 @@ Procedure PurgeObsoleteDataInBackground(Parameters, ResultAddress) Export
 				"DataArea");
 			For Each DataArea In DataAreas Do
 				ModuleSaaSOperations.SignInToDataArea(DataArea);
-				PurgeObsoleteDataInBackgroundNoAttempt(Parameters); // @skip-check query-in-loop - Batch processing of data
+				PurgeObsoleteDataInBackgroundNoAttempt(Parameters); // @skip-check query-in-loop - Batch-wise data processing
 				ModuleSaaSOperations.SignOutOfDataArea();
 				If LastSendOut + 5 < CurrentSessionDate() Then
 					NewPercentage = Int(DataAreas.Find(DataArea) / DataAreas.Count() * 100);
@@ -8107,8 +8332,7 @@ Procedure PurgeObsoleteDataInBackground(Parameters, ResultAddress) Export
 		EndIf;
 		Result = New Map;
 	Except
-		ErrorInfo = ErrorInfo();
-		Result = ErrorProcessing.DetailErrorDescription(ErrorInfo);
+		Result = ErrorInfo();
 		If Parameters.ShouldProcessDataAreas
 		   And ModuleSaaSOperations <> Undefined Then
 			ModuleSaaSOperations.SignOutOfDataArea();
@@ -8119,7 +8343,7 @@ Procedure PurgeObsoleteDataInBackground(Parameters, ResultAddress) Export
 	
 EndProcedure
 
-// 
+// Intended for procedure "PurgeObsoleteDataInBackground".
 Procedure PurgeObsoleteDataInBackgroundNoAttempt(Parameters)
 
 	ShouldProcessDataAreas = Parameters.ShouldProcessDataAreas;
@@ -8151,7 +8375,7 @@ Procedure PurgeObsoleteDataInBackgroundNoAttempt(Parameters)
 EndProcedure
 
 
-// 
+// A background job handler to be called from the form.
 Procedure GenerateObsoleteDataListInBackground(Parameters, ResultAddress) Export
 	
 	ObsoleteData = New ValueTable;
@@ -8177,7 +8401,7 @@ Procedure GenerateObsoleteDataListInBackground(Parameters, ResultAddress) Export
 			For Each DataArea In DataAreas Do
 				AreaObsoleteData = ObsoleteData.Copy(New Array);
 				ModuleSaaSOperations.SignInToDataArea(DataArea);
-				GenerateListOfObsoleteDataInBackgroundNoAttempt(AreaObsoleteData, Parameters); // @skip-check query-in-loop - Batch processing of data
+				GenerateListOfObsoleteDataInBackgroundNoAttempt(AreaObsoleteData, Parameters); // @skip-check query-in-loop - Batch-wise data processing
 				ModuleSaaSOperations.SignOutOfDataArea();
 				If ValueIsFilled(AreaObsoleteData) Then
 					NewRow = ObsoleteData.Add();
@@ -8196,8 +8420,7 @@ Procedure GenerateObsoleteDataListInBackground(Parameters, ResultAddress) Export
 		EndIf;
 		Result = ObsoleteData;
 	Except
-		ErrorInfo = ErrorInfo();
-		Result = ErrorProcessing.DetailErrorDescription(ErrorInfo);
+		Result = ErrorInfo();
 		If Parameters.ShouldProcessDataAreas
 		   And ModuleSaaSOperations <> Undefined Then
 			ModuleSaaSOperations.SignOutOfDataArea();
@@ -8208,7 +8431,7 @@ Procedure GenerateObsoleteDataListInBackground(Parameters, ResultAddress) Export
 	
 EndProcedure
 
-// 
+// Intended for procedure "GenerateObsoleteDataListInBackground".
 Procedure GenerateListOfObsoleteDataInBackgroundNoAttempt(ObsoleteData, Parameters)
 	
 	TablesToClearUp = TablesToClearUp(Not Parameters.CleanUpDeleteable);
@@ -8221,7 +8444,7 @@ Procedure GenerateListOfObsoleteDataInBackgroundNoAttempt(ObsoleteData, Paramete
 	
 	For Each TableToCleanUp In TablesToClearUp Do
 		Query = DataRequest(TableToCleanUp, True, DisplayQuantity);
-		QueryResult = Query.Execute(); 
+		QueryResult = Query.Execute(); // @skip-check query-in-loop - Batch-wise data processing
 		Count = 0;
 		If DisplayQuantity Then
 			Selection = QueryResult.Select();
@@ -8276,17 +8499,17 @@ Procedure GenerateListOfObsoleteDataInBackgroundNoAttempt(ObsoleteData, Paramete
 EndProcedure
 
 
-// 
-// 
+// Intended for procedures "ObsoleteDataOnRequestChunksInBackground",
+// "ObsoleteDataOnBatchPurge", "GenerateListOfObsoleteDataInBackgroundNoAttempt".
 //
 // Parameters:
 //  TableToCleanUp - ValueTableRow of See TablesToClearUp
 //
 // Returns:
-//  Query - 
-//  :
-//    
-//    
+//  Query - A query for retrieving a value field from the main table.
+//  ValueList:
+//    Value - Query - A query for retrieving a value field from the main table.
+//    Presentation - String - Name of an independent information register field with "PresentOnly" set to False.
 //
 Function DataRequest(TableToCleanUp, PresentOnly = True, Count = False, PortionSize = 10000)
 	
@@ -8447,7 +8670,7 @@ Function DataRequest(TableToCleanUp, PresentOnly = True, Count = False, PortionS
 	
 EndFunction
 
-// 
+// Intended for function "DataQuery".
 Procedure ApplyFilterToQueryText(FieldsDetails, QueryText, Query, ParameterNamePrefix)
 	
 	Filter = "";
@@ -8532,9 +8755,9 @@ Procedure ApplyFilterToQueryText(FieldsDetails, QueryText, Query, ParameterNameP
 	
 EndProcedure
 
-// 
-// 
-// 
+// Intended for procedures "ObsoleteDataOnRequestChunksInBackground",
+// "GenerateListOfObsoleteDataInBackgroundNoAttempt",
+// and function "ObsoleteDataPurgePlan"
 //
 // Parameters:
 //  RegistersOnly - Boolean
@@ -8547,11 +8770,11 @@ EndProcedure
 //   * Presentation - String
 //   * ClearAll   - Boolean
 //   * IsRegister    - Boolean
-//   * Independent   - Boolean - 
+//   * Independent   - Boolean - Independent register writing mode.
 //   * RegisterFields  - See RegisterNewFields
 //   * ExtdimensionFields  - See RegisterNewFields
 //   * IsExchangePlan - Boolean
-//   * InExchangePlan  - Boolean - 
+//   * InExchangePlan  - Boolean - Indicates whether the object is included in at least one exchange plan.
 //   * Shared2 - Boolean
 //
 Function TablesToClearUp(RegistersOnly, ShouldConsiderDataSeparation = True)
@@ -8583,8 +8806,8 @@ Function TablesToClearUp(RegistersOnly, ShouldConsiderDataSeparation = True)
 	
 	ErrorTitle = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Error in procedure %1 of common module %2.';"),
-		"OnPopulateObjectsPlannedForDeletion",
-		"InfobaseUpdateOverridable")
+			"OnPopulateObjectsPlannedForDeletion",
+			"InfobaseUpdateOverridable")
 		+ Chars.LF + Chars.LF;
 	
 	For Each ObjectDetails In Objects Do
@@ -8603,11 +8826,11 @@ Function TablesToClearUp(RegistersOnly, ShouldConsiderDataSeparation = True)
 		If MetadataObject = Undefined Then
 			ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'The ""%1"" metadata object does not exist.';"), FullName);
-			Raise ErrorText;
+			Raise(ErrorText, ErrorCategory.ConfigurationError);
 		ElsIf FieldName = Undefined And Not StrStartsWith(MetadataObject.Name, "Delete") Then
 			ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'The ""%1"" metadata object name must begin with ""%2"".';"), FullName, "Delete");
-			Raise ErrorText;
+			Raise(ErrorText, ErrorCategory.ConfigurationError);
 		EndIf;
 		FullName = MetadataObject.FullName();
 		IsEnum = Common.IsEnum(MetadataObject);
@@ -8626,11 +8849,11 @@ Function TablesToClearUp(RegistersOnly, ShouldConsiderDataSeparation = True)
 					If ValueMetadata = Undefined Then
 						ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
 							NStr("en = 'The ""%1"" value does not exist.';"), ObjectDetails.Key);
-						Raise ErrorText;
+						Raise(ErrorText, ErrorCategory.ConfigurationError);
 					ElsIf Not StrStartsWith(ValueMetadata.Name, "Delete") Then
 						ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
 							NStr("en = 'The ""%1"" value name must begin with ""%2"".';"), ObjectDetails.Key, "Delete");
-						Raise ErrorText;
+						Raise(ErrorText, ErrorCategory.ConfigurationError);
 					EndIf;
 					EnumValues = DeletedTypes.Get(RefType);
 					If EnumValues = Undefined Then
@@ -8644,7 +8867,7 @@ Function TablesToClearUp(RegistersOnly, ShouldConsiderDataSeparation = True)
 				ElsIf Upper(FieldName) = Upper("Points") Then
 					RouteDotsType = TypeOf(PredefinedValue(FullName + ".RoutePoint.EmptyRef"));
 					DeletedTypes.Insert(RouteDotsType, FullName + ".Points");
-				Else 
+				Else // A route point.
 					FieldParts = StrSplit(FieldName, ".", True);
 					RoutePoint = Undefined;
 					If FieldParts.Count() = 2 Then
@@ -8661,11 +8884,11 @@ Function TablesToClearUp(RegistersOnly, ShouldConsiderDataSeparation = True)
 					 Or Upper(FieldParts[0]) <> Upper("RoutePoint") Then
 						ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
 							NStr("en = 'The ""%1"" value is not an existing route point.';"), ObjectDetails.Key);
-						Raise ErrorText;
+						Raise(ErrorText, ErrorCategory.ConfigurationError);
 					ElsIf Not StrStartsWith(RoutePoint.Name, "Delete") Then
 						ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
 							NStr("en = 'The ""%1"" route point name must begin with ""%2"".';"), ObjectDetails.Key, "Delete");
-						Raise ErrorText;
+						Raise(ErrorText, ErrorCategory.ConfigurationError);
 					EndIf;
 					RouteDotsType = TypeOf(PredefinedValue(FullName + ".RoutePoint.EmptyRef"));
 					RouteDotsValues = DeletedTypes.Get(RouteDotsType);
@@ -8715,7 +8938,7 @@ Function TablesToClearUp(RegistersOnly, ShouldConsiderDataSeparation = True)
 	Context.Insert("ObjectsKindsOrder",    ObjectsKindsOrder);
 	Context.Insert("ChangeRecords",    ChangeRecords);
 	Context.Insert("RegistersTypesToClear", RegistersTypesToClear);
-	Context.Insert("NamesOfSimpleTypes",       NamesOfSimpleTableFieldTypes());
+	Context.Insert("PrimitiveTypesNames",       TablesFieldsPrimitiveTypesNames());
 	
 	AddRegisterFieldTypesToDelete(Context, "InformationRegisters");
 	AddRegisterFieldTypesToDelete(Context, "AccumulationRegisters");
@@ -8735,7 +8958,7 @@ Function TablesToClearUp(RegistersOnly, ShouldConsiderDataSeparation = True)
 			NStr("en = 'You cannot use the following field types to clear obsolete data:
 			           |%1';"),
 			"- " + StrConcat(RedundantFieldsTypes, ";" + Chars.LF + "- ") + ".");
-		Raise ErrorText;
+		Raise(ErrorText. ErrorCategory.ConfigurationError);
 	EndIf;
 	
 	If ShouldConsiderDataSeparation And Common.DataSeparationEnabled() Then
@@ -8749,7 +8972,7 @@ Function TablesToClearUp(RegistersOnly, ShouldConsiderDataSeparation = True)
 	
 EndFunction
 
-// 
+// Intended for function "TablesToClearUp".
 Function ChangeRecords()
 	
 	Result = New Map;
@@ -8764,7 +8987,7 @@ Function ChangeRecords()
 	
 EndFunction
 
-// 
+// Intended for function "TablesToClearUp".
 Function ObjectsKindsOrder()
 	
 	Result = New Map;
@@ -8786,11 +9009,11 @@ Function ObjectsKindsOrder()
 	
 EndFunction
 
-// 
-// 
+// Returns a Structure of flags indicating which register types
+// will be cleared from objects prefixed with "Delete".
 //
-// 
-// 
+// Usually, the restructuring of registers (except for information registers) goes smoothly
+// in cases where types are reduced in dimensions and extra dimensions.
 // 
 //
 // Returns:
@@ -8827,7 +9050,7 @@ Function TablesNamesByType()
 	
 EndFunction
 
-Function NamesOfSimpleTableFieldTypes();
+Function TablesFieldsPrimitiveTypesNames();
 	
 	Names = New Map;
 	Names.Insert(Type("Number"), "Number");
@@ -8841,7 +9064,7 @@ Function NamesOfSimpleTableFieldTypes();
 	
 EndFunction
 
-// 
+// Intended to be overridden with an extension.
 //
 // Parameters:
 //  TypesOfCleaning - See RegistersTypesToClear
@@ -8850,7 +9073,7 @@ Procedure RefineRegisterTypesToBeCleaned(TypesOfCleaning)
 	Return;
 EndProcedure
 
-// 
+// Intended for functions "TablesToClearUp" and "AddRegisterFieldTypesToDelete".
 Function IsSharedObject(MetadataObject)
 	
 	If Not Common.DataSeparationEnabled() Then
@@ -8867,7 +9090,7 @@ Function IsSharedObject(MetadataObject)
 	
 EndFunction
 
-// 
+// Intended for function "TablesToClearUp".
 Procedure AddRegisterFieldTypesToDelete(Context, RegistersKind)
 	
 	Registers = Metadata[RegistersKind]; // MetadataObjectCollection
@@ -8941,15 +9164,15 @@ Procedure AddRegisterFieldTypesToDelete(Context, RegistersKind)
 	
 EndProcedure
 
-// 
+// Intended for the "AddRegisterFieldTypesToDelete" procedure.
 //
 // Returns:
 //  Map of KeyAndValue:
 //   * Key     - Field name.
 //   * Value - Map of KeyAndValue:
 //      ** Key     - Type - Reference type.
-//      ** Value - String - 
-//                  - Array of String - 
+//      ** Value - String - Full name of the type for searching.
+//                  - Array of String - Full names of values for searching.
 //
 Function RegisterNewFields()
 	
@@ -8957,7 +9180,7 @@ Function RegisterNewFields()
 	
 EndFunction
 
-// 
+// Intended for the "AddRegisterFieldTypesToDelete" procedure.
 Procedure AddDeleteableFieldTypes(Fields, Field, FullRegisterName, Context, RegistersKind)
 	
 	AllDeleteableFieldTypes = Fields.Get(Field.Name);
@@ -8996,11 +9219,11 @@ Procedure AddDeleteableFieldTypes(Fields, Field, FullRegisterName, Context, Regi
 				ErrorText = Context.ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'The ""%1"" field does not contain the ""%2"" type.';"),
 					FullFieldName1, Common.TypePresentationString(Type));
-				Raise ErrorText;
+				Raise(ErrorText, ErrorCategory.ConfigurationError);
 			Else
 				TableName = TablesNamesByType.Get(Type);
 				If TableName = Undefined Then
-					TableName = Context.NamesOfSimpleTypes.Get(Type);
+					TableName = Context.PrimitiveTypesNames.Get(Type);
 					If TableName = Undefined Then
 						MetadataTables = Metadata.FindByType(Type);
 						If MetadataTables = Undefined Then
@@ -9012,9 +9235,8 @@ Procedure AddDeleteableFieldTypes(Fields, Field, FullRegisterName, Context, Regi
 									Common.DefaultLanguageCode()),
 								EventLogLevel.Error,,, ErrorText);
 							Continue;
-						Else
-							TableName = MetadataTables.FullName();
 						EndIf;
+						TableName = MetadataTables.FullName();
 					EndIf;
 					TablesNamesByType.Insert(Type, TableName);
 				EndIf;
@@ -9027,11 +9249,10 @@ Procedure AddDeleteableFieldTypes(Fields, Field, FullRegisterName, Context, Regi
 						ErrorText = Context.ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
 							NStr("en = 'The ""%1""field
 							           |contains a value of the ""%2"" type,
-							           |which is not an enumeration value
-							           |or a business process route point.';"),
+							           |which is not an enumeration value or a business process route point.';"),
 							FullFieldName1,
 							Common.TypePresentationString(Type));
-						Raise ErrorText;
+						Raise(ErrorText, ErrorCategory.ConfigurationError);
 					EndIf;
 					ValuesToDelete = New Map;
 					If IsEnumValue Then
@@ -9055,7 +9276,7 @@ Procedure AddDeleteableFieldTypes(Fields, Field, FullRegisterName, Context, Regi
 	
 EndProcedure
 
-// 
+// Intended for the "AddDeleteableFieldTypes" procedure.
 Procedure AddEnumValues(AllDeleteableFieldTypes, Type, ValuesToDelete)
 	
 	AllValues = AllDeleteableFieldTypes.Get(Type);
@@ -9088,7 +9309,7 @@ Procedure SetProcedureForDeferredUpdate() Export
 	
 	If Not Common.DataSeparationEnabled()
 		Or Common.SeparatedDataUsageAvailable() Then
-		
+		// The scheduled job is intended for the shared mode only.
 		Jobs = ScheduledJobsServer.FindJobs(New Structure("Metadata", Metadata.ScheduledJobs.SetDeferredUpdateProcedureInSaaS));
 		For Each Job In Jobs Do
 			ScheduledJobsServer.ChangeJob(Job.UUID,
@@ -9127,7 +9348,7 @@ Procedure SetProcedureForDeferredUpdate() Export
 	
 	CommonHandlersCondition = "TRUE";
 	If OrderOfDataToProcess = Enums.OrderOfUpdateHandlers.Normal Then
-		
+		// ACC:1297-off - Query condition.
 		CommonHandlersCondition = "(Not UpdateHandlers.IsSeveritySeparationUsed
 			|	Or Not UpdateHandlers.IsUpToDateDataProcessed)";
 		// ACC:1297-on
@@ -9215,8 +9436,8 @@ EndFunction
 Function CanExecuteSeamlessUpdate(UpdateIterationsToCheck = Undefined) Export
 	
 	If UpdateIterationsToCheck = Undefined Then
-		
-		
+		// 
+		// 
 		UpdateIterations = UpdateIterations();
 	Else
 		UpdateIterations = UpdateIterationsToCheck;
@@ -9266,8 +9487,8 @@ Function CanExecuteSeamlessUpdate(UpdateIterationsToCheck = Undefined) Export
 				And Common.DataSeparationEnabled() 
 				And Not Common.SeparatedDataUsageAvailable() Then
 				
-				
-				
+				// 
+				// 
 				Continue;
 			EndIf;
 			
@@ -9276,7 +9497,7 @@ Function CanExecuteSeamlessUpdate(UpdateIterationsToCheck = Undefined) Export
 				HandlerProcedures.Add(Handler.Procedure);
 			EndDo;
 			
-			
+			// 
 			For Each Handler In HandlersTree.Rows[0].Rows Do
 				If Handler.RegistrationVersion <> "*" Then
 					HandlerProcedures.Add(Handler.Procedure);
@@ -9582,7 +9803,7 @@ Procedure CheckNestedTransactionWhenExecutingDeferredHandler(HandlerContext, Res
 		Result.HasOpenTransactions = True;
 		
 		While TransactionActive() Do
-			RollbackTransaction(); 
+			RollbackTransaction(); // ACC:325 - Cancel unclosed transactions.
 		EndDo;
 	EndTry;
 	
@@ -9604,7 +9825,7 @@ Procedure ValidateNestedTransaction(TransactionActiveAtExecutionStartTime, Handl
 				Comment = StringFunctionsClientServer.SubstituteParametersToString(CommentTemplate, HandlerName1);
 				
 				WriteLogEvent(EventName, EventLogLevel.Error,,, Comment);
-				Raise(Comment);
+				Raise(Comment, ErrorCategory.ConfigurationError);
 			EndTry;
 		Else
 			CommentTemplate = NStr("en = 'Error while executing update handler %1:
@@ -9612,7 +9833,7 @@ Procedure ValidateNestedTransaction(TransactionActiveAtExecutionStartTime, Handl
 			Comment = StringFunctionsClientServer.SubstituteParametersToString(CommentTemplate, HandlerName1);
 			
 			WriteLogEvent(EventName, EventLogLevel.Error,,, Comment);
-			Raise(Comment);
+			Raise(Comment, ErrorCategory.ConfigurationError);
 		EndIf;
 	Else
 		If TransactionActive() Then
@@ -9621,7 +9842,7 @@ Procedure ValidateNestedTransaction(TransactionActiveAtExecutionStartTime, Handl
 			Comment = StringFunctionsClientServer.SubstituteParametersToString(CommentTemplate, HandlerName1);
 			
 			WriteLogEvent(EventName, EventLogLevel.Error,,, Comment);
-			Raise(Comment);
+			Raise(Comment, ErrorCategory.ConfigurationError);
 		EndIf;
 	EndIf;
 	
@@ -9717,7 +9938,7 @@ Procedure ValidateHandlerProperties(UpdateIteration)
 			Handler.Procedure);
 		
 		WriteError(ErrorDescription);
-		Raise ErrorDescription;
+		Raise(ErrorDescription, ErrorCategory.ConfigurationError);
 
 	EndDo;
 	
@@ -10051,9 +10272,11 @@ Function TheValueOfTheEnumerationByName(EnumValueName, EnumerationMetadata) Expo
 	EndDo;
 
 	If Result = Undefined Then
-		Raise StringFunctionsClientServer.SubstituteParametersToString(
+		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Invalid name ""%1"" of the ""%2"" enumeration value.
-				 |Available values: %3';"), EnumValueName, EnumerationMetadata, StrConcat(AvailableValues, ", "));
+				 |Available values: %3';"), 
+			EnumValueName, EnumerationMetadata, StrConcat(AvailableValues, ", "));
+		Raise(MessageText, ErrorCategory.ConfigurationError); 
 	EndIf;
 
 	Return Result;
@@ -10205,7 +10428,7 @@ Function UpdateDetailsSections() Export
 					|is greater than the version specified in the metadata (%2 instead of correct version %3)';");
 				ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(ExceptionText,
 					"SystemReleaseNotes", Version, Metadata.Version);
-				Raise ExceptionText;
+				Raise(ExceptionText, ErrorCategory.ConfigurationError);
 			EndIf;
 			
 			Sections.Add(VersionWeight, Version);
@@ -10294,13 +10517,13 @@ EndFunction
 
 Procedure HandlerAccountingChecks(Validation, CheckParameters) Export
 	
-	
-	
+	// 
+	// 
 	Return;
 	
 EndProcedure
 
-Function OutputDataProblems() Export
+Function ShouldShowDataIssues() Export
 	
 	If Common.SubsystemExists("StandardSubsystems.AccountingAudit") Then
 		ModuleAccountingAudit = Common.CommonModule("AccountingAudit");
@@ -10375,7 +10598,7 @@ Function ExecuteDeferredUpdateHandler(ParametersOfUpdate = Undefined)
 				Iterator = CurrentIterationParameters(IterationParameters);
 				AdditionalDataSources = SelectionParameters.AdditionalDataSources;
 				
-				InitialParametersOfHandler = HandlerContext.UpdateHandlerParameters;
+				HandlerInitialParameters = HandlerContext.UpdateHandlerParameters;
 				
 				While Iterator <> Undefined Do
 					TheHandlerWasExecutedWithoutErrors = False;
@@ -10387,8 +10610,8 @@ Function ExecuteDeferredUpdateHandler(ParametersOfUpdate = Undefined)
 						AdditionalDataSources,
 						RefObject1,
 						TabularObject);
-					
-					
+					// 
+					// 
 					SelectionParameters.Insert("UpdateHandlerParameters", HandlerContext.UpdateHandlerParameters);
 					
 					DataWriter.Data = SelectBatchData(SelectionParameters, Queue, RefObject1, TabularObject);
@@ -10411,17 +10634,17 @@ Function ExecuteDeferredUpdateHandler(ParametersOfUpdate = Undefined)
 						ExecuteDeferredHandler(HandlerContext, ResultAddress);
 					EndIf;
 					TheHandlerWasExecutedWithoutErrors = True;
-					CompleteDeferredHandlerExecution(HandlerContext, ResultAddress); 
+					CompleteDeferredHandlerExecution(HandlerContext, ResultAddress); // @skip-check query-in-loop - Execution of deferred handlers.
 					
-					
-					HandlerUpdates = HandlerUpdates(HandlerContext.HandlerName); 
+					// Skip the handler if it reached the launch attempt limit.
+					HandlerUpdates = HandlerUpdates(HandlerContext.HandlerName); // 
 					MaxAttempts = MaxUpdateAttempts(HandlerUpdates);
 					If HandlerUpdates.AttemptCount >= MaxAttempts Then
 						Break;
 					EndIf;
 					
-					
-					HandlerContext.UpdateHandlerParameters = InitialParametersOfHandler;
+					// Reset the handler parameters before proceeding to the next batch.
+					HandlerContext.UpdateHandlerParameters = HandlerInitialParameters;
 					
 					If Count > 0 Then
 						DataToProcess.LastSelectedRecord = LastDataSetRowRecordKey(DataSet);
@@ -10482,8 +10705,8 @@ Procedure EndDeferredUpdateHandlerExecution(HandlerContext)
 		
 	ElsIf HandlerUpdates.Status = Enums.UpdateHandlersStatuses.Running Then
 		
-		
-		
+		// 
+		// 
 		StartsWithPriority = Undefined;
 		If HandlerUpdates.Priority = "HighPriority" Then
 			ExecutionStatistics = HandlerUpdates.ExecutionStatistics.Get();
@@ -10503,8 +10726,8 @@ Procedure EndDeferredUpdateHandlerExecution(HandlerContext)
 	
 	SetHandlerProperties(HandlerUpdates.HandlerName, PropertiesToSet);
 	
-	
-	
+	// 
+	// 
 	If ParallelMode
 		And HandlerUpdates.Status = Enums.UpdateHandlersStatuses.Error
 		And HandlerUpdates.AttemptCount >= MaxUpdateAttempts(HandlerUpdates)
@@ -10532,7 +10755,7 @@ Function AreHandlersToRunMissing()
 	Statuses.Add(Enums.UpdateHandlersStatuses.NotPerformed);
 	Statuses.Add(Enums.UpdateHandlersStatuses.Running);
 	
-	
+	// A quick check for handlers whose status is not "Error".
 	Query = New Query;
 	Query.SetParameter("Statuses", Statuses);
 	Query.Text =
@@ -10779,8 +11002,8 @@ Procedure BeforeStartDataProcessingProcedure(HandlerContext,
 		If ParametersOfUpdate.ParallelMode
 			And Common.IsSubordinateDIBNode()
 			And HandlerUpdates.ExecuteInMasterNodeOnly Then
-			
-			
+			// 
+			// 
 			HandlerContext.SkipProcessedDataCheck = True;
 			DataToProcessDetails = HandlerUpdates.DataToProcess.Get();
 			HandlerData = DataToProcessDetails.HandlerData;
@@ -10833,9 +11056,9 @@ Procedure AfterStartDataProcessingProcedure(HandlerContext, HandlerName)
 		
 		If Parameters.ProcessingCompleted = Undefined Then
 			ErrorText = NStr("en = 'The update handler cannot initialize parameter %1.
-				|The execution is canceled due to explicit error in the handler code.';");
+				|The execution is canceled due to an error in the handler code.';");
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorText, "ProcessingCompleted");
-			Raise ErrorText;
+			Raise(ErrorText, ErrorCategory.ConfigurationError);
 		EndIf;
 		
 		ExecutionStatistics = HandlerUpdates.ExecutionStatistics.Get();
@@ -10862,7 +11085,7 @@ Procedure AfterStartDataProcessingProcedure(HandlerContext, HandlerName)
 			
 			MinQueue = 0;
 			If HasProcessedObjects Then
-				
+				// Check if the transaction didn't roll back.
 				TransactionID = SessionParameters.UpdateHandlerParameters.TransactionID;
 				RecordManager = InformationRegisters.CommitDataProcessedByHandlers.CreateRecordManager();
 				RecordManager.TransactionID = TransactionID;
@@ -10873,8 +11096,8 @@ Procedure AfterStartDataProcessingProcedure(HandlerContext, HandlerName)
 				EndIf;
 			EndIf;
 			
-			
-			
+			// 
+			// 
 			ProcessedRecordersTables = SessionParameters.UpdateHandlerParameters.ProcessedRecordersTables;
 			If ValueIsFilled(ProcessedRecordersTables) Then
 				If FillingProcedureDetails.ProcessedRecordersTables = Undefined Then
@@ -10888,7 +11111,7 @@ Procedure AfterStartDataProcessingProcedure(HandlerContext, HandlerName)
 				EndIf;
 			EndIf;
 			
-			
+			// Check if the handler processed relevant data.
 			If Not HasProcessedObjects Then
 				IsAllUpToDateDataProcessed = SessionParameters.UpdateHandlerParameters.IsUpToDateDataProcessed;
 				If IsAllUpToDateDataProcessed = True Then
@@ -10906,7 +11129,7 @@ Procedure AfterStartDataProcessingProcedure(HandlerContext, HandlerName)
 				MaxAttempts = MaxUpdateAttempts(HandlerUpdates) - 1;
 				If AttemptCount >= MaxAttempts Then
 					ExceptionText = NStr("en = 'The data processing procedure went into an endless loop and was canceled.';");
-					Raise ExceptionText;
+					Raise(ExceptionText, ErrorCategory.ConfigurationError);
 				Else
 					AttemptsCountToAdd = AttemptsCountToAdd(HandlerUpdates, HandlerContext);
 					PropertiesToSet.Insert("AttemptCount", AttemptCount + AttemptsCountToAdd);
@@ -11023,10 +11246,11 @@ Procedure FillLockedItems(VersionRow, LockedObjectsInfo)
 				EndIf;
 			EndDo;
 		ElsIf ValueIsFilled(ObjectsToLock) And Not ValueIsFilled(CheckProcedure) Then
-			ExceptionText = NStr("en = 'In deferred update handler ""%1"",
-				|the list of locked objects is filled in but property ""%2"" is not specified.';");
-			
-			Raise StringFunctionsClientServer.SubstituteParametersToString(ExceptionText, Handler.HandlerName, "CheckProcedure");
+			ExceptionText =  StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'In deferred update handler ""%1"",
+					|the list of locked objects is filled in but property ""%2"" is not specified.';"),
+					Handler.HandlerName, "CheckProcedure");
+			Raise(ExceptionText, ErrorCategory.ConfigurationError);
 		EndIf;
 	EndDo;
 	
@@ -11260,7 +11484,7 @@ Procedure StartDeferredHandlerDataRegistration(FormIdentifier, ResultAddress) Ex
 		CurrentQueue = ?(Handlers.Count() > 0, Handlers[0].DeferredProcessingQueue, 0);
 		For Each Handler In Handlers Do
 			If Handler.DeferredProcessingQueue > CurrentQueue Then
-				WaitForAllThreadsCompletion(Groups); 
+				WaitForAllThreadsCompletion(Groups); // @skip-check query-in-loop - Batch-wise data registration
 				CurrentQueue = Handler.DeferredProcessingQueue;
 			EndIf;
 			
@@ -11268,7 +11492,7 @@ Procedure StartDeferredHandlerDataRegistration(FormIdentifier, ResultAddress) Ex
 			
 			Stream = AddDeferredUpdateDataRegistrationThread(DataToProcessDetails);
 			ExecuteThread(Groups, Stream, FormIdentifier);
-			WaitForAvailableThread(Groups); 
+			WaitForAvailableThread(Groups); // @skip-check query-in-loop - Batch-wise data registration
 		EndDo;
 		
 		WaitForAllThreadsCompletion(Groups);
@@ -11436,7 +11660,7 @@ Function NewUpdateHandlerParameters() Export
 	UpdateHandlerParameters.Insert("UpToDateData", Undefined);
 	UpdateHandlerParameters.Insert("IsUpToDateDataProcessed", Undefined);
 	UpdateHandlerParameters.Insert("ProcessedRecordersTables", Undefined);
-	UpdateHandlerParameters.Insert("DateOfLastProgressRecord", Undefined);
+	UpdateHandlerParameters.Insert("ProgressLastRecordDate", Undefined);
 	UpdateHandlerParameters.Insert("ProcessedObjectsCount1", 0);
 	
 	Return UpdateHandlerParameters;
@@ -11459,13 +11683,13 @@ Function ComparisonKindAsString(Val ComparisonCondition, HandlerName)
 	ElsIf ComparisonCondition = ComparisonType.NotEqual Then
 		ComparisonCondition = "<>";
 	Else
-		ErrorText = NStr("en = 'Unsupported comparison type %1 is specified for the relevant data filter
-			|in the data registration procedure of the %2 handler.
-			|Available options are described in the %3 function.';");
+		ErrorText = NStr("en = 'Invalid comparison type ""%1"" is specified for the relevant data filter
+			|in the data registration procedure of the ""%2"" handler.
+			|For valid types, see the function ""%3""';");
 		AvailableCompareTypes = "InfobaseUpdate.UpToDateDataSelectionParameters";
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorText,
 			ComparisonCondition, HandlerName, AvailableCompareTypes);
-		Raise ErrorText;
+		Raise(ErrorText, ErrorCategory.ConfigurationError);
 	EndIf;
 	
 	Return ComparisonCondition;
@@ -11573,8 +11797,8 @@ EndProcedure
 // 
 //
 // Parameters:
-//   See NewBatchesSetForUpdate
-//   See NewThreadsDetails
+//  Existing1CSuppliedItems - Array of See NewBatchesSetForUpdate
+//  ThreadsDetails - See NewThreadsDetails
 //  HandlerContext - See NewHandlerContext
 //
 Procedure ProcessDataFragmentInThread(Particle, Groups, HandlerContext)
@@ -11654,9 +11878,9 @@ Function AttemptsCountToAdd(HandlerUpdates, HandlerContext, Error = False)
 			DataToUpdate = Undefined;
 		EndIf;
 		
-		
-		
-		
+		// 
+		// 
+		// 
 		If DataToUpdate <> Undefined Then
 			HasData = DataToUpdate.FirstRecord <> Undefined Or DataToUpdate.LatestRecord <> Undefined;
 			If Not HasData And Not Error Then
@@ -11863,13 +12087,13 @@ Function StepDurationAsString(Val Duration) Export
 		Return StringFunctionsClientServer.SubstituteParametersToString(Template, Int(Duration));
 	ElsIf Duration < 3600 Then
 		Template = NStr("en = '%1 min %2 sec';");
-		Duration = Duration / 60; 
+		Duration = Duration / 60; // Converted to minutes.
 		Minutes1 = Int(Duration);
 		Seconds = Int((Duration - Minutes1) * 60);
 		Return StringFunctionsClientServer.SubstituteParametersToString(Template, Minutes1, Seconds);
 	Else
 		Template = NStr("en = '%1 h %2 min';");
-		Duration = Duration / 60 / 60; 
+		Duration = Duration / 60 / 60; // Converted to hours.
 		Hours1 = Int(Duration);
 		Minutes1 = Int((Duration - Hours1) * 60);
 		Return StringFunctionsClientServer.SubstituteParametersToString(Template, Hours1, Minutes1);
@@ -11975,7 +12199,7 @@ Procedure ClearProcessedQueues(QueuesToClear, ProcessedItems, UpdateInfo)
 		Node = ExchangePlans.InfobaseUpdate.NodeInQueue(QueueToClear);
 		For Each FullTableName In AllReadAndModifiedTables Do
 			If QueueObjects.Find(FullTableName) <> Undefined Then
-				
+				// Do not clear tables that have associated handlers.
 				Continue;
 			EndIf;
 			
@@ -12100,5 +12324,56 @@ Procedure WriteProgressProgressHandler(HandlerParameters) Export
 	EndTry;
 	
 EndProcedure
+
+// 
+
+Function EditedAttributes(ItemToFill, FullMetadataObjectName)
+	
+	EditedAttributes = New Array;
+	
+	If IsIncludesEditedPredefinedAttributes(FullMetadataObjectName) Then
+		EditedAttributes = StrSplit(ItemToFill.EditedPredefinedAttributes, ",", False);
+	EndIf;
+	
+	Return EditedAttributes;
+	
+EndFunction
+
+Function EditableObjectAttributes(MetadataObject, KeyAttributeName)
+
+	ObjectAttributes = New Map;
+
+	AttributesException = New Map;
+	AttributesException.Insert("Ref", True);
+	AttributesException.Insert("DeletionMark", True);
+	AttributesException.Insert("IsFolder", True);
+	AttributesException.Insert("Predefined", True);
+	AttributesException.Insert("PredefinedDataName", True);
+	AttributesException.Insert("KeyAttributeName", True);
+
+	For Each Attribute In MetadataObject.Attributes Do
+		ObjectAttributes.Insert(Attribute.Name, True);
+	EndDo;
+
+	For Each Attribute In MetadataObject.StandardAttributes Do
+		If AttributesException[Attribute.Name] = Undefined Then
+			ObjectAttributes.Insert(Attribute.Name, True);
+		EndIf;
+	EndDo;
+
+	Return ObjectAttributes;
+
+EndFunction
+
+Function KeyAttributeName(DatasetToFill)
+	
+	KeyAttributeName = DatasetToFill.OverriddenSettings.KeyAttributeName;
+	If Not ValueIsFilled(KeyAttributeName) Then
+		KeyAttributeName = "PredefinedDataName";
+	EndIf;
+	
+	Return KeyAttributeName;
+	
+EndFunction
 
 #EndRegion

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -341,10 +342,10 @@ Procedure FillServicePropertiesAfterGetSectionsRecursively(CurrentTreeRow)
 	
 	If TypeOf(CurrentTreeRow) = Type("ValueTreeRow") Then 
 		
-		
-		
-		
-		
+		// 
+		// 
+		// 
+		// 
 		
 		IsMetadataObject = ValueIsFilled(CurrentTreeRow.MetadataObjectsList);
 		
@@ -502,46 +503,46 @@ EndProcedure
 &AtClientAtServerNoContext
 Function NextItemCheckMarkValue(TreeItem)
 	
-	
-	
-	
+	// 
+	// 
+	// 
 	//
-	
+	// 
 	//
-	
-	
-	
+	// 
+	// 
+	// 
 	//
 	//    
 	//   
 	//  
 	//
-	
+	// 
 	//
-	
-	
+	// 
+	// 
 	//
-	
+	// 
 	//
-	
+	// 
 	//
-	
-	
-	
-	//
-	//      
-	
-	//
-	
-	//
-	
-	
-	
+	// 
+	// 
+	// 
 	//
 	//      
-	
+	// 
 	//
-	
+	// 
+	//
+	// 
+	// 
+	// 
+	//
+	//      
+	// 
+	//
+	// 
 	
 	// At the time of checking, the platform has already changed the check box value.
 	
@@ -604,9 +605,9 @@ Function CheckMarkValueRelativeToNestedItems(TreeItem)
 	
 	If TreeItem.IsMetadataObject Then 
 		
-		
-		
-		
+		// 
+		// 
+		// 
 		
 		If TreeItem.Check = MarkCheckBoxIsSelected() Then 
 			// Leave the check box selected, regardless of nested items.
@@ -625,8 +626,8 @@ Function CheckMarkValueRelativeToNestedItems(TreeItem)
 		
 	Else 
 		
-		 
-		
+		//  
+		// 
 		
 		If HasMarkedItems Then
 			
@@ -669,9 +670,9 @@ Function NestedItemsState(TreeItem)
 			
 			If NestedItem.IsMetadataObject Then 
 				
-				
-				
-				
+				// 
+				// 
+				// 
 				
 				State = NestedItemsState(NestedItem);
 				HasMarkedItems   = HasMarkedItems   Or State.HasMarkedItems;
@@ -707,8 +708,8 @@ Function RequiredToMarkNestedItems(TreeItem)
 	
 	If TreeItem.IsMetadataObject Then 
 		
-		
-		
+		// 
+		// 
 		
 		NestedItemsState = NestedItemsState(TreeItem);
 		
@@ -782,7 +783,7 @@ Function MetadataObjectAvailable(MetadataObject)
 	FillPropertyValues(MetadataProperties, MetadataObject);
 	
 	If MetadataProperties.IncludeInCommandInterface = Undefined Then 
-		IncludeInCommandInterface = True; 
+		IncludeInCommandInterface = True; // Ignore if the property is missing.
 	Else 
 		IncludeInCommandInterface = MetadataProperties.IncludeInCommandInterface;
 	EndIf;

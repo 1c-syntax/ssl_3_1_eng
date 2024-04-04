@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -171,8 +172,8 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			
 			ReportDistributionObject = ReportsDistributionRef.Ref.GetObject(); // CatalogObject.ReportMailings
 			
-			
-			
+			// 
+			// 
 			If ReportDistributionObject.IsFolder Then
 				InfobaseUpdate.MarkProcessingCompletion(ReportsDistributionRef.Ref);
 				ObjectsProcessed = ObjectsProcessed + 1;
@@ -224,12 +225,10 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			// If failed to process a report distribution, try again.
 			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
 			
-			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot process the %1 report distribution due to: 
-					|%2';"),
-					RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-			WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Warning,
-				Metadata.Catalogs.ReportMailings, ReportsDistributionRef.Ref, MessageText);
+			InfobaseUpdate.WriteErrorToEventLog(
+				ReportsDistributionRef.Ref,
+				RepresentationOfTheReference,
+				ErrorInfo());
 		EndTry;
 	EndDo;
 	

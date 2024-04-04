@@ -9,7 +9,7 @@
 			<Button name="ListChoose" id="16">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Item.List.StandardCommand.Choose</CommandName>
-				<ExtendedTooltip name="ListSelectExtendedTooltip" id="21"/>
+				<ExtendedTooltip name="ListChooseExtendedTooltip" id="21"/>
 			</Button>
 			<ButtonGroup name="Create" id="47">
 				<Title>
@@ -36,6 +36,12 @@
 						<Type>CommandBarButton</Type>
 						<DefaultButton>true</DefaultButton>
 						<CommandName>Form.Command.SelectFromClassifier</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Add from classifier…</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="ListSelectFromClassifierExtendedTooltip" id="54"/>
 					</Button>
 				</ChildItems>
@@ -48,18 +54,24 @@
 					</v8:item>
 				</Title>
 				<CommandSource>Item.List</CommandSource>
-				<ExtendedTooltip name="ListCommands1ExtendedTooltip" id="22"/>
+				<ExtendedTooltip name="CommandsListExtendedTooltip" id="22"/>
 			</ButtonGroup>
 			<Button name="ListClassifier" id="17">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.OpenClassifier</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Country classifier</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="ListClassifierExtendedTooltip" id="23"/>
 			</Button>
 			<Button name="ListCustomizeForm" id="19">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.CustomizeForm</CommandName>
-				<ExtendedTooltip name="ListChangeFormExtendedTooltip" id="25"/>
+				<ExtendedTooltip name="ListCustomizeFormExtendedTooltip" id="25"/>
 			</Button>
 			<Button name="ListHelp" id="20">
 				<Type>CommandBarButton</Type>

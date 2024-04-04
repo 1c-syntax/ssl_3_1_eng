@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -132,7 +133,7 @@ Procedure UserSettingsOnChange(Item)
 		Return;
 	EndIf;
 	
-	CurrentUserSettings = UserSettings.FindByValue(
+	CurrentUserSettings = PersonalSettings.FindByValue(
 		ReportsOptionsDetails[0].UserSettingsKey);
 	
 	If CurrentUserSettings <> Undefined Then 
@@ -211,7 +212,7 @@ Procedure SetConditionalAppearance()
 	ItemField.Field = New DataCompositionField(Items.UserSettingsValue.Name);
 	
 	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
-	ItemFilter.LeftValue = New DataCompositionField("UserSettings.Presentation");
+	ItemFilter.LeftValue = New DataCompositionField("PersonalSettings.Presentation");
 	ItemFilter.ComparisonType = DataCompositionComparisonType.Contains;
 	ItemFilter.RightValue = "[IsCurrentSettings]";
 	
@@ -228,7 +229,7 @@ Procedure SetConditionalAppearance()
 	ItemField.Field = New DataCompositionField(Items.UserSettingsCheckBox.Name);
 	
 	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
-	ItemFilter.LeftValue = New DataCompositionField("UserSettings.Presentation");
+	ItemFilter.LeftValue = New DataCompositionField("PersonalSettings.Presentation");
 	ItemFilter.ComparisonType = DataCompositionComparisonType.Contains;
 	ItemFilter.RightValue = "[IsCurrentSettings]";
 	
@@ -239,7 +240,7 @@ EndProcedure
 &AtServer
 Procedure FillInTheDescriptionOfTheReportOptions()
 	
-	If Parameters.Property("SelectedReportsOptions") Then 
+	If Parameters.SelectedReportsOptions <> Undefined Then 
 		
 		DataOfReportVariants = Common.ObjectsAttributesValues(
 			Parameters.SelectedReportsOptions, "Report, VariantKey, Presentation, Settings, ReportType");
@@ -359,13 +360,17 @@ Procedure ReadUserSettings()
 	Selection = ReportsUserSettingsStorage.Select(Filter);
 	While Selection.Next() Do 
 		
-		UserSettings.Add(Selection.SettingsKey, Selection.Presentation);
+		PersonalSettings.Add(Selection.SettingsKey, Selection.Presentation);
 		FillPropertyValues(UserSettingsStorage.Add(), Selection);
 		
 	EndDo;
 	
-	CurrentUserSettings = UserSettings.FindByValue(ReportOptionDetails.UserSettingsKey);
+	CurrentUserSettings = PersonalSettings.FindByValue(ReportOptionDetails.UserSettingsKey);
 	If CurrentUserSettings = Undefined Then 
+		Items.CommandBarPersonalSettings.Visible = False;
+		Items.PersonalSettings.ReadOnly = True;
+		Items.PersonalSettings.Enabled = False;
+		PersonalSettings.Add("", NStr("en = 'The report has no personal settings.';"));
 		Return;
 	EndIf;
 	
@@ -376,9 +381,9 @@ Procedure ReadUserSettings()
 	CurrentUserSettings.Check = True;
 	CurrentUserSettings.Presentation = CurrentUserSettings.Presentation + " [IsCurrentSettings]";
 	
-	IndexOf = UserSettings.IndexOf(CurrentUserSettings);
+	IndexOf = PersonalSettings.IndexOf(CurrentUserSettings);
 	If IndexOf > 0 Then 
-		UserSettings.Move(CurrentUserSettings, -IndexOf);
+		PersonalSettings.Move(CurrentUserSettings, -IndexOf);
 	EndIf;
 	
 EndProcedure
@@ -408,7 +413,6 @@ EndProcedure
 Procedure CompressReportOptionSettings(ReportOptionDetails)
 	
 	TempDirectoryName = FileSystem.CreateTemporaryDirectory();
-	
 	If Not ValueIsFilled(TempDirectoryName) Then 
 		Return;
 	EndIf;
@@ -424,7 +428,7 @@ Procedure CompressReportOptionSettings(ReportOptionDetails)
 	Counter = 0;
 	Search = New Structure("SettingsKey");
 	
-	For Each ListItem In UserSettings Do 
+	For Each ListItem In PersonalSettings Do 
 		
 		If Not ListItem.Check Then 
 			Continue;
@@ -513,7 +517,7 @@ Procedure AddSettingsDetailsToArchive(Archive, TempDirectoryName, ReportOptionDe
 		
 		XMLWriter.WriteEndElement(); // <Settings>
 	
-		For Each ListItem In UserSettings Do 
+		For Each ListItem In PersonalSettings Do 
 			
 			If Not ListItem.Check Then 
 				Continue;
@@ -613,7 +617,7 @@ EndProcedure
 &AtClient
 Function SuggestionText()
 	
-	Return NStr("en = 'It is recommended that you install 1C:Enterprise Extension before you save the report option or data processor to a file.';");
+	Return NStr("en = 'It is recommended that you install 1C:Enterprise Extension before you save the report option to a file.';");
 	
 EndFunction
 

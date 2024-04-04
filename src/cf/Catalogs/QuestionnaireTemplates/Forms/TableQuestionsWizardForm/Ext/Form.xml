@@ -30,6 +30,12 @@
 	<ChildItems>
 		<InputField name="Wording" id="141">
 			<DataPath>Wording</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Text</v8:content>
+				</v8:item>
+			</Title>
 			<AutoMaxWidth>false</AutoMaxWidth>
 			<MultiLine>true</MultiLine>
 			<ExtendedEdit>true</ExtendedEdit>
@@ -79,6 +85,12 @@
 							<ChildItems>
 								<RadioButtonField name="TabularQuestionType" id="3">
 									<DataPath>TabularQuestionType</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Question chart type</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<RadioButtonType>Auto</RadioButtonType>
 									<ItemHeight>1</ItemHeight>
@@ -136,7 +148,7 @@
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Responses in rows picture page</v8:content>
+													<v8:content>Answers in rows picture page</v8:content>
 												</v8:item>
 											</Title>
 											<ExtendedTooltip name="AnswersInRowsPicturePageExtendedTooltip" id="155"/>
@@ -148,7 +160,7 @@
 													<Title formatted="false">
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Responses in rows picture</v8:content>
+															<v8:content>Answers  in rows picture</v8:content>
 														</v8:item>
 													</Title>
 													<Picture>
@@ -165,7 +177,7 @@
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Responses in columns picture page</v8:content>
+													<v8:content>Answers in columns picture page</v8:content>
 												</v8:item>
 											</Title>
 											<ExtendedTooltip name="AnswersInColumnsPicturePageExtendedTooltip" id="157"/>
@@ -177,7 +189,7 @@
 													<Title formatted="false">
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Responses in columns picture</v8:content>
+															<v8:content>Answers in columns picture</v8:content>
 														</v8:item>
 													</Title>
 													<Picture>
@@ -194,7 +206,7 @@
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Responses in rows and columns picture page</v8:content>
+													<v8:content>Answers  in rows and columns picture page</v8:content>
 												</v8:item>
 											</Title>
 											<ExtendedTooltip name="AnswersInRowsAndColumnsPicturePageExtendedTooltip" id="159"/>
@@ -206,7 +218,7 @@
 													<Title formatted="false">
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Responses in rows and columns picture</v8:content>
+															<v8:content>Answers in rows and columns picture</v8:content>
 														</v8:item>
 													</Title>
 													<Picture>
@@ -250,7 +262,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Predefined responses in rows and columns page</v8:content>
+									<v8:content>Predefined answers in rows and columns page</v8:content>
 								</v8:item>
 							</Title>
 							<ExtendedTooltip name="PredefinedAnswersInRowsAndColumnsPageExtendedTooltip" id="163"/>
@@ -259,7 +271,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Common responses in rows and columns</v8:content>
+											<v8:content>Common answers in rows and columns</v8:content>
 										</v8:item>
 									</Title>
 									<Behavior>Usual</Behavior>
@@ -271,7 +283,7 @@
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Column content responses in rows and columns</v8:content>
+													<v8:content>Column content answers in rows and columns</v8:content>
 												</v8:item>
 											</Title>
 											<Group>Vertical</Group>
@@ -282,6 +294,12 @@
 											<ChildItems>
 												<LabelField name="QuestionColumnAnswersInRowsAndColumns" id="14">
 													<DataPath>QuestionForColumnsPresentation</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Question presentation for columns</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>None</TitleLocation>
 													<ContextMenu name="QuestionColumnAnswersInRowsAndColumnsContextMenu" id="15"/>
 													<ExtendedTooltip name="QuestionColumnAnswersInRowsAndColumnsExtendedTooltip" id="166"/>
@@ -299,7 +317,7 @@
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Responses columns responses in rows and columns</v8:content>
+															<v8:content>Answers columns answers in rows and columns</v8:content>
 														</v8:item>
 													</Title>
 													<RowFilter xsi:nil="true"/>
@@ -311,6 +329,12 @@
 																<Representation>Picture</Representation>
 																<SkipOnInput>false</SkipOnInput>
 																<CommandName>Form.Command.PopulateAnswerOptionsAnswersInColumns</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Fill answer choices</v8:content>
+																	</v8:item>
+																</Title>
 																<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 																<ExtendedTooltip name="PopulateAnswerOptionsColumnsAnswersInRowsAndColumnsExtendedTooltip" id="167"/>
 															</Button>
@@ -348,13 +372,19 @@
 													<ChildItems>
 														<InputField name="AnswersColumnsAnswersInRowsAndColumnsResponse" id="117">
 															<DataPath>Replies.Response</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Answer</v8:content>
+																</v8:item>
+															</Title>
 															<EditMode>EnterOnInput</EditMode>
 															<TypeLink>
 																<xr:DataPath>QuestionForColumns</xr:DataPath>
 																<xr:LinkItem>0</xr:LinkItem>
 															</TypeLink>
 															<ContextMenu name="AnswersColumnsAnswersInRowsAndColumnsResponse1ContextMenu" id="118"/>
-															<ExtendedTooltip name="AnswersColumnsAnswersInRowsAndColumnsResponse1ExtendedTooltip" id="169"/>
+															<ExtendedTooltip name="AnswersColumnsAnswersInRowsAndColumnsResponseExtendedTooltip" id="169"/>
 															<Events>
 																<Event name="StartChoice">AnswersColumnsAnswersInRowsAndColumnsResponse1StartChoice</Event>
 															</Events>
@@ -367,7 +397,7 @@
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Row content responses in rows and columns</v8:content>
+													<v8:content>Row content answers in rows and columns</v8:content>
 												</v8:item>
 											</Title>
 											<Group>Vertical</Group>
@@ -401,7 +431,7 @@
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Responses rows responses in rows and columns</v8:content>
+															<v8:content>Answers rows answers in rows and columns</v8:content>
 														</v8:item>
 													</Title>
 													<RowFilter xsi:nil="true"/>
@@ -413,6 +443,12 @@
 																<Representation>Picture</Representation>
 																<SkipOnInput>false</SkipOnInput>
 																<CommandName>Form.Command.PopulateAnswerOptionsAnswersRows</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Fill answer choices</v8:content>
+																	</v8:item>
+																</Title>
 																<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 																<ExtendedTooltip name="PopulateRowsAnswerOptionsAnswersInRowsAndColumnsExtendedTooltip" id="172"/>
 															</Button>
@@ -450,13 +486,19 @@
 													<ChildItems>
 														<InputField name="AnswersRowsAnswersInRowsAndColumnsResponse" id="121">
 															<DataPath>Replies.Response</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Answer</v8:content>
+																</v8:item>
+															</Title>
 															<EditMode>EnterOnInput</EditMode>
 															<TypeLink>
 																<xr:DataPath>QuestionForRows</xr:DataPath>
 																<xr:LinkItem>0</xr:LinkItem>
 															</TypeLink>
 															<ContextMenu name="AnswersRowsAnswersInRowsAndColumnsResponse1ContextMenu" id="122"/>
-															<ExtendedTooltip name="AnswersRowsAnswersInRowsAndColumnsResponse1ExtendedTooltip" id="174"/>
+															<ExtendedTooltip name="AnswersRowsAnswersInRowsAndColumnsResponseExtendedTooltip" id="174"/>
 															<Events>
 																<Event name="StartChoice">AnswersRowsAnswersInRowsAndColumnsResponse1StartChoice</Event>
 															</Events>
@@ -550,7 +592,7 @@
 													<ChoiceButton>true</ChoiceButton>
 													<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>
 													<ContextMenu name="QuestionsQuestionContextMenu" id="140"/>
-													<ExtendedTooltip name="QuestionsQuestionExtendedTooltip" id="178"/>
+													<ExtendedTooltip name="QuestionsDoQueryBoxExtendedTooltip" id="178"/>
 													<Events>
 														<Event name="OnChange">QuestionsOnChange</Event>
 														<Event name="ChoiceProcessing">QuestionsQuestionChoiceProcessing</Event>
@@ -566,7 +608,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Predefined responses in columns page</v8:content>
+									<v8:content>Predefined answers in columns page</v8:content>
 								</v8:item>
 							</Title>
 							<Group>HorizontalIfPossible</Group>
@@ -576,7 +618,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Column content responses in columns</v8:content>
+											<v8:content>Column content answers in columns</v8:content>
 										</v8:item>
 									</Title>
 									<Group>Vertical</Group>
@@ -587,6 +629,12 @@
 									<ChildItems>
 										<LabelField name="QuestionColumnAnswersInColumns" id="40">
 											<DataPath>QuestionForColumnsPresentation</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Question presentation for columns</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<ContextMenu name="QuestionColumnAnswersInColumnsContextMenu" id="41"/>
 											<ExtendedTooltip name="QuestionColumnAnswersInColumnsExtendedTooltip" id="181"/>
@@ -604,7 +652,7 @@
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Responses columns responses in columns</v8:content>
+													<v8:content>Answers columns answers in columns</v8:content>
 												</v8:item>
 											</Title>
 											<RowFilter xsi:nil="true"/>
@@ -616,6 +664,12 @@
 														<Representation>Picture</Representation>
 														<SkipOnInput>false</SkipOnInput>
 														<CommandName>Form.Command.PopulateAnswerOptionsAnswersInColumns</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Fill answer choices</v8:content>
+															</v8:item>
+														</Title>
 														<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 														<ExtendedTooltip name="PopulateAnswerOptionsAnswersInColumnsExtendedTooltip" id="182"/>
 													</Button>
@@ -653,13 +707,19 @@
 											<ChildItems>
 												<InputField name="AnswersColumnsAnswersInColumnsResponse" id="113">
 													<DataPath>Replies.Response</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Answer</v8:content>
+														</v8:item>
+													</Title>
 													<EditMode>EnterOnInput</EditMode>
 													<TypeLink>
 														<xr:DataPath>QuestionForColumns</xr:DataPath>
 														<xr:LinkItem>0</xr:LinkItem>
 													</TypeLink>
 													<ContextMenu name="AnswersColumnsAnswersInColumnsResponse1ContextMenu" id="114"/>
-													<ExtendedTooltip name="AnswersColumnsAnswersInColumnsResponse1ExtendedTooltip" id="184"/>
+													<ExtendedTooltip name="AnswersColumnsAnswersInColumnsResponseExtendedTooltip" id="184"/>
 													<Events>
 														<Event name="StartChoice">AnswersColumnsAnswersInColumnsResponse1StartChoice</Event>
 													</Events>
@@ -669,6 +729,12 @@
 										<InputField name="QuestionForColumns" id="125">
 											<DataPath>QuestionForColumns</DataPath>
 											<Visible>false</Visible>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Question for columns</v8:content>
+												</v8:item>
+											</Title>
 											<ContextMenu name="QuestionForColumnsContextMenu" id="126"/>
 											<ExtendedTooltip name="QuestionForColumnsExtendedTooltip" id="185"/>
 										</InputField>
@@ -690,7 +756,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Row content responses in rows</v8:content>
+											<v8:content>Row content answers in rows</v8:content>
 										</v8:item>
 									</Title>
 									<Group>Vertical</Group>
@@ -701,6 +767,12 @@
 									<ChildItems>
 										<LabelField name="QuestionRowAnswersInRows" id="59">
 											<DataPath>QuestionForRowsPresentation</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Question presentation for rows</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<ContextMenu name="QuestionRowAnswersInRowsContextMenu" id="60"/>
 											<ExtendedTooltip name="QuestionRowAnswersInRowsExtendedTooltip" id="188"/>
@@ -720,7 +792,7 @@
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Responses rows responses in rows</v8:content>
+													<v8:content>Answers rows answers in rows</v8:content>
 												</v8:item>
 											</Title>
 											<RowFilter xsi:nil="true"/>
@@ -732,6 +804,12 @@
 														<Representation>Picture</Representation>
 														<SkipOnInput>false</SkipOnInput>
 														<CommandName>Form.Command.PopulateAnswerOptionsAnswersRows</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Fill answer choices</v8:content>
+															</v8:item>
+														</Title>
 														<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 														<ExtendedTooltip name="PopulateAnswerOptionsAnswersRowsExtendedTooltip" id="189"/>
 													</Button>
@@ -769,6 +847,12 @@
 											<ChildItems>
 												<InputField name="AnswersRowsAnswersInRowsResponse" id="107">
 													<DataPath>Replies.Response</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Answer</v8:content>
+														</v8:item>
+													</Title>
 													<EditMode>EnterOnInput</EditMode>
 													<DropListButton>false</DropListButton>
 													<ChoiceButton>true</ChoiceButton>
@@ -781,7 +865,7 @@
 														<xr:LinkItem>0</xr:LinkItem>
 													</TypeLink>
 													<ContextMenu name="AnswersRowsAnswersInRowsResponse1ContextMenu" id="108"/>
-													<ExtendedTooltip name="AnswersRowsAnswersInRowsResponse1ExtendedTooltip" id="191"/>
+													<ExtendedTooltip name="AnswersRowsAnswersInRowsResponseExtendedTooltip" id="191"/>
 													<Events>
 														<Event name="StartChoice">AnswersRowsAnswersInRowsResponse1StartChoice</Event>
 													</Events>
@@ -791,6 +875,12 @@
 										<InputField name="QuestionForRows" id="123">
 											<DataPath>QuestionForRows</DataPath>
 											<Visible>false</Visible>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Question for rows</v8:content>
+												</v8:item>
+											</Title>
 											<ContextMenu name="QuestionForRowsContextMenu" id="124"/>
 											<ExtendedTooltip name="QuestionForRowsExtendedTooltip" id="192"/>
 										</InputField>
@@ -873,12 +963,24 @@
 			<ChildItems>
 				<InputField name="HintPlacement" id="266">
 					<DataPath>HintPlacement</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Hint placement</v8:content>
+						</v8:item>
+					</Title>
 					<HorizontalStretch>false</HorizontalStretch>
 					<ContextMenu name="HintPlacementContextMenu" id="267"/>
 					<ExtendedTooltip name="HintPlacementExtendedTooltip" id="268"/>
 				</InputField>
 				<InputField name="ToolTip" id="269">
 					<DataPath>ToolTip</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Hint</v8:content>
+						</v8:item>
+					</Title>
 					<AutoMaxWidth>false</AutoMaxWidth>
 					<VerticalStretch>false</VerticalStretch>
 					<MultiLine>true</MultiLine>
@@ -890,6 +992,12 @@
 		</UsualGroup>
 		<LabelField name="InformationFooter" id="130">
 			<DataPath>InformationFooter</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Information footer</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>None</TitleLocation>
 			<ContextMenu name="InformationFooterContextMenu" id="131"/>
 			<ExtendedTooltip name="InformationFooterExtendedTooltip" id="195"/>
@@ -946,7 +1054,7 @@
 									<v8:content>Next &gt;</v8:content>
 								</v8:item>
 							</Title>
-							<ExtendedTooltip name="NextButtonExtendedTooltip" id="200"/>
+							<ExtendedTooltip name="NextPageButtonExtendedTooltip" id="200"/>
 						</Button>
 						<Button name="CancelButton" id="11">
 							<Type>CommandBarButton</Type>
@@ -1041,7 +1149,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Responses</v8:content>
+					<v8:content>Answers</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -1057,7 +1165,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Response</v8:content>
+							<v8:content>Answer</v8:content>
 						</v8:item>
 					</Title>
 					<Type>
@@ -1231,13 +1339,13 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Fill in with response options</v8:content>
+					<v8:content>Fill answer choices</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Fill in response options</v8:content>
+					<v8:content>Fill answer choices</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>
@@ -1251,13 +1359,13 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Fill in with response options</v8:content>
+					<v8:content>Fill answer choices</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Fill in response options</v8:content>
+					<v8:content>Fill answer choices</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>

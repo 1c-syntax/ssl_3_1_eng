@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -305,6 +306,14 @@ Procedure ScheduleAccessUpdateByConfigurationChanges() Export
 		ScheduleUpdate_00_00463430("GoToVersionSSL3.1.5.475");
 	EndIf;
 	
+	If CommonClientServer.CompareVersions(IBVersion, "3.1.9.1") > 0
+	   And CommonClientServer.CompareVersions(IBVersion, "3.1.9.319") < 0
+	 Or CommonClientServer.CompareVersions(IBVersion, "3.1.10.1") > 0
+	   And CommonClientServer.CompareVersions(IBVersion, "3.1.10.103") < 0 Then
+		
+		ScheduleUpdate_00_00615173("GoToVersionSSL3.1.9.319");
+	EndIf;
+	
 EndProcedure
 
 // For the UpdateRegisterDataByConfigurationChanges procedure.
@@ -457,7 +466,7 @@ Procedure ScheduleUpdate_00_00463430(LongDesc)
 	
 EndProcedure
 
-// 
+// Intended for procedure "ShouldScheduleUpdate_00_00463430".
 Procedure AddLists_00_00463430(Lists, AdditionalContext)
 	
 	ListsWithKeysRecordForDependentListsWithoutKeys =
@@ -473,6 +482,56 @@ Procedure AddLists_00_00463430(Lists, AdditionalContext)
 		EndIf;
 		Lists.Add(MetadataObject.FullName());
 	EndDo;
+	
+EndProcedure
+
+// For the procedure update the data of the register of configuration Changes.
+Procedure ScheduleUpdate_00_00615173(LongDesc)
+	
+	If Not AccessManagementInternal.LimitAccessAtRecordLevelUniversally() Then
+		Return;
+	EndIf;
+	
+	Lists = New Array;
+	ListsForExternalUsers = New Array;
+	ExternalUsersEnabled = Constants.UseExternalUsers.Get();
+	
+	AddLists_00_00615173(Lists, False);
+	If ExternalUsersEnabled Then
+		AddLists_00_00615173(ListsForExternalUsers, True);
+	EndIf;
+	
+	PlanningParameters = AccessManagementInternal.AccessUpdatePlanningParameters();
+	
+	PlanningParameters.DataAccessKeys = True;
+	PlanningParameters.AllowedAccessKeys = False;
+	PlanningParameters.ForExternalUsers = False;
+	PlanningParameters.IsUpdateContinuation = True;
+	PlanningParameters.LongDesc = LongDesc;
+	AccessManagementInternal.ScheduleAccessUpdate(Lists, PlanningParameters);
+	
+	PlanningParameters.ForUsers = False;
+	PlanningParameters.ForExternalUsers = True;
+	PlanningParameters.LongDesc = LongDesc;
+	AccessManagementInternal.ScheduleAccessUpdate(ListsForExternalUsers, PlanningParameters);
+	
+EndProcedure
+
+// 
+Procedure AddLists_00_00615173(Lists, ForExternalUsers)
+	
+	Query = New Query;
+	Query.SetParameter("ForExternalUsers", ForExternalUsers);
+	Query.Text =
+	"SELECT DISTINCT
+	|	AccessKeys.List AS List
+	|FROM
+	|	Catalog.AccessKeys AS AccessKeys
+	|WHERE
+	|	AccessKeys.FieldsComposition >= 16
+	|	AND AccessKeys.ForExternalUsers = &ForExternalUsers";
+	
+	Lists = Query.Execute().Unload().UnloadColumn("List");
 	
 EndProcedure
 
@@ -535,6 +594,10 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 EndProcedure
 
 Procedure EnableUniversalRecordLevelAccessRestriction() Export
+	
+	If Common.IsSubordinateDIBNode() Then
+		Return;
+	EndIf;
 	
 	Constants.LimitAccessAtRecordLevelUniversally.Set(True);
 	

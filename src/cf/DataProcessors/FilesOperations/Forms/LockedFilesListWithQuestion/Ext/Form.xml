@@ -46,6 +46,12 @@
 					<Type>CommandBarButton</Type>
 					<SkipOnInput>false</SkipOnInput>
 					<CommandName>Form.Command.OpenFile</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>View</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="FormOpenFileExtendedTooltip" id="75"/>
 				</Button>
 				<Button name="FormEndEdit" id="52">
@@ -53,6 +59,12 @@
 					<Representation>Text</Representation>
 					<SkipOnInput>false</SkipOnInput>
 					<CommandName>Form.Command.EndEdit</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Commit</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="FormEndEditExtendedTooltip" id="76"/>
 				</Button>
 				<Button name="FormChange" id="20">
@@ -89,10 +101,16 @@
 		</CommandBar>
 		<LabelField name="MessageTitle" id="64">
 			<DataPath>MessageTitle</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Message title</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>None</TitleLocation>
 			<AutoMaxWidth>false</AutoMaxWidth>
 			<ContextMenu name="MessageTitle1ContextMenu" id="65"/>
-			<ExtendedTooltip name="MessageTitle1ExtendedTooltip" id="78"/>
+			<ExtendedTooltip name="MessageTitleExtendedTooltip" id="78"/>
 		</LabelField>
 		<Table name="List" id="6">
 			<Representation>List</Representation>
@@ -147,6 +165,12 @@
 								<Type>CommandBarButton</Type>
 								<SkipOnInput>false</SkipOnInput>
 								<CommandName>Form.Command.OpenFile</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>View</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="ListContextMenuOpenFileExtendedTooltip" id="79"/>
 							</Button>
 							<Button name="ListContextMenuSaveChanges" id="57">
@@ -156,12 +180,24 @@
 								</UserVisible>
 								<SkipOnInput>false</SkipOnInput>
 								<CommandName>Form.Command.SaveChanges</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Save changes</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="ListContextMenuSaveChangesExtendedTooltip" id="81"/>
 							</Button>
 							<Button name="ListContextMenuEndEdit" id="55">
 								<Type>CommandBarButton</Type>
 								<SkipOnInput>false</SkipOnInput>
 								<CommandName>Form.Command.EndEdit</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Commit</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="ListContextMenuFinishEditingExtendedTooltip" id="80"/>
 							</Button>
 						</ChildItems>
@@ -179,6 +215,12 @@
 								<Type>CommandBarButton</Type>
 								<SkipOnInput>false</SkipOnInput>
 								<CommandName>Form.Command.SaveAs</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Save as…</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="ListContextMenuSaveAsExtendedTooltip" id="83"/>
 							</Button>
 							<Button name="ListContextMenuUnlock" id="56">
@@ -188,7 +230,7 @@
 								<Title>
 									<v8:item>
 										<v8:lang>en</v8:lang>
-										<v8:content>Cancel editing</v8:content>
+										<v8:content>Undo edits</v8:content>
 									</v8:item>
 								</Title>
 								<ExtendedTooltip name="ListContextMenuUnlockExtendedTooltip" id="84"/>
@@ -197,12 +239,24 @@
 								<Type>CommandBarButton</Type>
 								<SkipOnInput>false</SkipOnInput>
 								<CommandName>Form.Command.UpdateFromFileOnHardDrive</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Update from local file…</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="ListContextMenuUpdateFromFileOnDiskExtendedTooltip" id="85"/>
 							</Button>
 							<Button name="ListContextMenuOpenFileDirectory" id="58">
 								<Type>CommandBarButton</Type>
 								<SkipOnInput>false</SkipOnInput>
 								<CommandName>Form.Command.OpenFileDirectory</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Open file directory</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="ListContextMenuOpenFileDirectoryExtendedTooltip" id="82"/>
 							</Button>
 						</ChildItems>
@@ -343,6 +397,12 @@
 		<CheckBoxField name="ShowLockedFilesOnExit" id="72">
 			<DataPath>ShowLockedFilesOnExit</DataPath>
 			<Visible>false</Visible>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Show locked files before exit</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>Right</TitleLocation>
 			<CheckBoxType>Auto</CheckBoxType>
 			<ContextMenu name="ShowLockedFilesOnExitContextMenu" id="73"/>
@@ -350,6 +410,12 @@
 		</CheckBoxField>
 		<LabelField name="MessageQuestion" id="66">
 			<DataPath>MessageQuestion</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Message question</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>None</TitleLocation>
 			<ContextMenu name="MessageQuestionContextMenu" id="67"/>
 			<ExtendedTooltip name="MessageQuestionExtendedTooltip" id="95"/>
@@ -624,7 +690,7 @@ WHERE
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Update from local file...</v8:content>
+					<v8:content>Update from local file…</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
@@ -656,13 +722,13 @@ WHERE
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Open file properties</v8:content>
+					<v8:content>Open file info</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Open file properties</v8:content>
+					<v8:content>Open file info</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Shortcut>F2</Shortcut>

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -216,10 +217,10 @@ Function RegisteredObjects(SelectedIntervals)
 		FullName        = MetadataObject.FullName();
 		FullNameParts = StrSplit(FullName, ".");
 		
-		
-		
+		// 
+		// 
 		If FullNameParts[0] = "CalculationRegister" And FullNameParts.Count() = 4 And FullNameParts[2] = "Recalculation" Then
-			FullNameParts.Delete(2); 
+			FullNameParts.Delete(2); // 
 			FullName = StrConcat(FullNameParts, ".");
 		EndIf;
 		// Contextual translation.
@@ -246,7 +247,7 @@ Function RegisteredObjects(SelectedIntervals)
 		PresentationMap.Insert(FullNameParts[1], Presentation);
 		If Restriction = 200 Then
 			Query.Text = QueryText;
-			Selection = Query.Execute().Select(); 
+			Selection = Query.Execute().Select(); // @skip-check query-in-loop - Batch selection (to avoid heavy queries).
 			While Selection.Next() Do
 				String = ResultTable2.Add();
 				FillPropertyValues(String, Selection);

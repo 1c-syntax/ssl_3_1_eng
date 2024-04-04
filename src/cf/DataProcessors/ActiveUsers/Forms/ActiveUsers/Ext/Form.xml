@@ -31,6 +31,12 @@
 			<ChildItems>
 				<InputField name="FilterApplicationName" id="61">
 					<DataPath>FilterApplicationName</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Show</v8:content>
+						</v8:item>
+					</Title>
 					<HorizontalStretch>false</HorizontalStretch>
 					<ClearButton>true</ClearButton>
 					<ListChoiceMode>true</ListChoiceMode>
@@ -83,6 +89,12 @@
 				<Button name="OpenUser" id="33">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.Open</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Open</v8:content>
+						</v8:item>
+					</Title>
 					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 					<ExtendedTooltip name="OpenUserExtendedTooltip" id="40"/>
 				</Button>
@@ -113,7 +125,13 @@
 							<TextColor>style:ButtonTextColor</TextColor>
 							<BackColor>style:ButtonBackColor</BackColor>
 							<BorderColor>style:BorderColor</BorderColor>
-							<ExtendedTooltip name="SortAscending1ExtendedTooltip" id="45"/>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Sort ascending</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="SortAscendingExtendedTooltip" id="45"/>
 						</Button>
 						<Button name="SortDescending" id="27">
 							<Type>CommandBarButton</Type>
@@ -122,7 +140,13 @@
 							<TextColor>style:ButtonTextColor</TextColor>
 							<BackColor>style:ButtonBackColor</BackColor>
 							<BorderColor>style:BorderColor</BorderColor>
-							<ExtendedTooltip name="SortDescending1ExtendedTooltip" id="46"/>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Sort descending</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="SortDescendingExtendedTooltip" id="46"/>
 						</Button>
 					</ChildItems>
 				</ButtonGroup>
@@ -131,6 +155,12 @@
 					<Representation>Text</Representation>
 					<SkipOnInput>false</SkipOnInput>
 					<CommandName>Form.Command.TerminateSession</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Close session</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="TerminateSessionExtendedTooltip" id="41"/>
 				</Button>
 				<Button name="EventLog" id="16">
@@ -141,6 +171,12 @@
 					<TextColor>style:ButtonTextColor</TextColor>
 					<BackColor>style:ButtonBackColor</BackColor>
 					<BorderColor>style:BorderColor</BorderColor>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Event log</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="EventLogExtendedTooltip" id="42"/>
 				</Button>
 				<Button name="Refresh" id="18">
@@ -150,6 +186,12 @@
 					<TextColor>style:ButtonTextColor</TextColor>
 					<BackColor>style:ButtonBackColor</BackColor>
 					<BorderColor>style:BorderColor</BorderColor>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Refresh</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="RefreshExtendedTooltip" id="47"/>
 				</Button>
 				<ButtonGroup name="ListCommands" id="71">
@@ -202,12 +244,24 @@
 						<Type>CommandBarButton</Type>
 						<SkipOnInput>false</SkipOnInput>
 						<CommandName>Form.Command.EventLog</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Event log</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="EventLogContextExtendedTooltip" id="49"/>
 					</Button>
 					<Button name="TerminateSessionContext" id="32">
 						<Type>CommandBarButton</Type>
 						<SkipOnInput>false</SkipOnInput>
 						<CommandName>Form.Command.TerminateSession</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Close session</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="TerminateSessionContextExtendedTooltip" id="50"/>
 					</Button>
 					<Button name="RefreshContext" id="21">
@@ -217,12 +271,18 @@
 						<TextColor>style:ButtonTextColor</TextColor>
 						<BackColor>style:ButtonBackColor</BackColor>
 						<BorderColor>style:BorderColor</BorderColor>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Refresh</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="RefreshContextExtendedTooltip" id="51"/>
 					</Button>
 				</ChildItems>
 			</ContextMenu>
 			<AutoCommandBar name="UsersListCommandBar" id="23"/>
-			<ExtendedTooltip name="UsersList1ExtendedTooltip" id="52"/>
+			<ExtendedTooltip name="UsersListExtendedTooltip" id="52"/>
 			<SearchStringAddition name="UsersList1SearchString" id="73">
 				<AdditionSource>
 					<Item>UsersList</Item>
@@ -253,6 +313,12 @@
 			<ChildItems>
 				<InputField name="User" id="36">
 					<DataPath>UsersList.User</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>User</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<Width>20</Width>
 					<ContextMenu name="UserContextMenu" id="37"/>
@@ -275,6 +341,12 @@
 				</InputField>
 				<InputField name="Package" id="8">
 					<DataPath>UsersList.Package</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Application</v8:content>
+						</v8:item>
+					</Title>
 					<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 					<Width>20</Width>
 					<Wrap>false</Wrap>
@@ -284,6 +356,12 @@
 				</InputField>
 				<InputField name="WorkStart" id="10">
 					<DataPath>UsersList.WorkStart</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Session start time</v8:content>
+						</v8:item>
+					</Title>
 					<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 					<Width>15</Width>
 					<Wrap>false</Wrap>
@@ -293,15 +371,27 @@
 				</InputField>
 				<InputField name="Computer" id="12">
 					<DataPath>UsersList.Computer</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Computer</v8:content>
+						</v8:item>
+					</Title>
 					<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 					<Width>20</Width>
 					<Wrap>false</Wrap>
 					<BorderColor>style:BorderColor</BorderColor>
 					<ContextMenu name="HostNameContextMenu" id="13"/>
-					<ExtendedTooltip name="HostNameExtendedTooltip" id="57"/>
+					<ExtendedTooltip name="ComputerExtendedTooltip" id="57"/>
 				</InputField>
 				<InputField name="Session" id="14">
 					<DataPath>UsersList.Session</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Session</v8:content>
+						</v8:item>
+					</Title>
 					<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 					<Width>6</Width>
 					<Wrap>false</Wrap>
@@ -320,12 +410,18 @@
 					<EditMode>EnterOnInput</EditMode>
 					<Width>17</Width>
 					<ContextMenu name="UsersList1DataSeparationContextMenu" id="35"/>
-					<ExtendedTooltip name="UsersList1DataSeparationExtendedTooltip" id="59"/>
+					<ExtendedTooltip name="UsersListDataSeparationExtendedTooltip" id="59"/>
 				</InputField>
 			</ChildItems>
 		</Table>
 		<LabelField name="ActiveUserCount" id="6">
 			<DataPath>ActiveUserCount</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Quantity</v8:content>
+				</v8:item>
+			</Title>
 			<HorizontalAlign>Left</HorizontalAlign>
 			<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 			<ContextMenu name="ActiveUserCountContextMenu" id="7"/>

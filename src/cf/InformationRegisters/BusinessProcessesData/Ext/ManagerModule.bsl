@@ -1,17 +1,18 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Internal
 
-
+// StandardSubsystems.AccessManagement
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -52,7 +53,7 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 		|	BusinessProcessesData.Owner > &BusinessProcess
 		|	AND BusinessProcessesData.State = VALUE(Enum.BusinessProcessStates.EmptyRef)";
 		Query.SetParameter("BusinessProcess", BusinessProcess);
-		// @skip-check query-in-loop - Batch processing of data
+		// @skip-check query-in-loop - Batch-wise data processing
 		RegisterDimensions = Query.Execute().Unload();
 		
 		AdditionalParameters = InfobaseUpdate.AdditionalProcessingMarkParameters();
@@ -137,12 +138,10 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 		Except
 			RollbackTransaction();
 			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
-			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Couldn''t process information records about the %1 business process. Reason:
-				|%2';"), 
-				RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-			WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Warning,
-				RegisterMetadata, String.Owner, MessageText);
+			InfobaseUpdate.WriteErrorToEventLog(
+				String.Owner,
+				RepresentationOfTheReference,
+				ErrorInfo());
 		EndTry;
 		
 	EndDo;

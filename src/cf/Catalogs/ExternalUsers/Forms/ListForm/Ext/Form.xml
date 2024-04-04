@@ -87,6 +87,12 @@
 						<xr:Ref>StdPicture.WriteAndClose</xr:Ref>
 						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</Picture>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Save and close</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="EndAndCloseExtendedTooltip" id="99"/>
 				</Button>
 				<Button name="SelectExternalUsersGroup" id="67">
@@ -122,11 +128,23 @@
 					<Type>CommandBarButton</Type>
 					<SkipOnInput>false</SkipOnInput>
 					<CommandName>Form.Command.CreateExternalUsersGroup</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Create external user group</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="CreateExternalUsersGroupExtendedTooltip" id="103"/>
 				</Button>
 				<Button name="AssignGroups" id="75">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.AssignGroups</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Assign to groups</v8:content>
+						</v8:item>
+					</Title>
 					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 					<ExtendedTooltip name="AssignGroupsExtendedTooltip" id="104"/>
 				</Button>
@@ -158,6 +176,12 @@
 						<Button name="FormSetPassword" id="207">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.SetPassword</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Set password…</v8:content>
+								</v8:item>
+							</Title>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 							<ExtendedTooltip name="FormSetPasswordExtendedTooltip" id="208"/>
 						</Button>
@@ -171,13 +195,64 @@
 							<CommandSource>Form</CommandSource>
 							<ExtendedTooltip name="ExternalUsersStandardCommandsExtendedTooltip" id="202"/>
 						</ButtonGroup>
-						<Button name="ExternalUsersInfo" id="133">
-							<Type>CommandBarButton</Type>
-							<SkipOnInput>false</SkipOnInput>
-							<CommandName>Form.Command.ExternalUsersInfo</CommandName>
-							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-							<ExtendedTooltip name="ExternalUsersInfoExtendedTooltip" id="134"/>
-						</Button>
+						<Popup name="ReportsSubmenu" id="287">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Reports</v8:content>
+								</v8:item>
+							</Title>
+							<Picture>
+								<xr:Ref>CommonPicture.Reports</xr:Ref>
+								<xr:LoadTransparent>false</xr:LoadTransparent>
+							</Picture>
+							<Representation>PictureAndText</Representation>
+							<ExtendedTooltip name="ReportsSubmenuExtendedTooltip" id="288"/>
+							<ChildItems>
+								<ButtonGroup name="ReportsImportantSubmenu" id="289">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Submenu reports important</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="ReportsImportantSubmenuExtendedTooltip" id="290"/>
+								</ButtonGroup>
+								<ButtonGroup name="SubmenuReportsStandard" id="295">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Submenu fill in standard</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="SubmenuReportsStandardExtendedTooltip" id="297"/>
+								</ButtonGroup>
+								<ButtonGroup name="ReportsSubmenuSeeAlso" id="296">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Submenu reports see also</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="ReportsSubmenuSeeAlsoExtendedTooltip" id="294"/>
+									<ChildItems>
+										<Button name="ExternalUsersInfo" id="133">
+											<Type>CommandBarButton</Type>
+											<SkipOnInput>false</SkipOnInput>
+											<CommandName>Form.Command.ExternalUsersInfo</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>External user details</v8:content>
+												</v8:item>
+											</Title>
+											<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+											<ExtendedTooltip name="ExternalUsersInfoExtendedTooltip" id="134"/>
+										</Button>
+									</ChildItems>
+								</ButtonGroup>
+							</ChildItems>
+						</Popup>
 						<Button name="IBUsers" id="6">
 							<Type>CommandBarButton</Type>
 							<SkipOnInput>false</SkipOnInput>
@@ -188,6 +263,12 @@
 						<Button name="FormChangeSelectedItems" id="197">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.ChangeSelectedItems</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Edit selected…</v8:content>
+								</v8:item>
+							</Title>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 							<ExtendedTooltip name="FormEditSelectedItemsExtendedTooltip" id="198"/>
 						</Button>
@@ -348,6 +429,7 @@
 									<Events>
 										<Event name="DragCheck">ExternalUsersGroupsDragCheck</Event>
 										<Event name="ValueChoice">ExternalUsersGroupsValueChoice</Event>
+										<Event name="Selection">ExternalUsersGroupsSelection</Event>
 										<Event name="BeforeAddRow">ExternalUsersGroupsBeforeAddRow</Event>
 										<Event name="OnActivateRow">ExternalUsersGroupsOnActivateRow</Event>
 										<Event name="Drag">ExternalUsersGroupsDrag</Event>
@@ -390,18 +472,36 @@
 											<Type>UsualButton</Type>
 											<Width>5</Width>
 											<CommandName>Form.Command.SelectGroup</CommandName>
-											<ExtendedTooltip name="SelectGroup1ExtendedTooltip" id="116"/>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>&gt;</v8:content>
+												</v8:item>
+											</Title>
+											<ExtendedTooltip name="SelectGroupExtendedTooltip" id="116"/>
 										</Button>
 										<Button name="CancelUserOrGroupSelection" id="90">
 											<Type>UsualButton</Type>
 											<Width>5</Width>
 											<CommandName>Form.Command.CancelUserOrGroupSelection</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>&lt;</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="CancelUserOrGroupSelectionExtendedTooltip" id="117"/>
 										</Button>
 										<Button name="ClearSelectedUsersAndGroupsList" id="91">
 											<Type>UsualButton</Type>
 											<Width>5</Width>
 											<CommandName>Form.Command.ClearSelectedUsersAndGroupsList</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>&lt;&lt;</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="ClearSelectedUsersAndGroupsListExtendedTooltip" id="118"/>
 										</Button>
 									</ChildItems>
@@ -485,6 +585,12 @@
 											<Button name="ExternalUsersListContextMenuSetPassword" id="217">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.SetPassword</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Set password…</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ExternalUsersListContextMenuSetPasswordExtendedTooltip" id="218"/>
 											</Button>
 											<ButtonGroup name="ExternalUsersListContextMenuStandardCommands" id="209">
@@ -500,11 +606,23 @@
 											<Button name="ExternalUsersListContextMenuAssignGroups" id="76">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.AssignGroups</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Assign to groups</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ExternalUsersListContextMenuAssignGroupsExtendedTooltip" id="120"/>
 											</Button>
 											<Button name="ExternalUsersListContextMenuChangeSelectedItems" id="199">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.ChangeSelectedItems</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Edit selected…</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ExternalUsersListContextMenuChangeSelectedItemsExtendedTooltip" id="200"/>
 											</Button>
 										</ChildItems>
@@ -580,6 +698,12 @@
 											<Type>UsualButton</Type>
 											<Width>5</Width>
 											<CommandName>Form.Command.SelectUserCommand</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>&gt;</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="SelectUserCommandExtendedTooltip" id="125"/>
 										</Button>
 										<Button name="CancelUserSelection" id="96">
@@ -587,6 +711,12 @@
 											<Visible>false</Visible>
 											<Width>5</Width>
 											<CommandName>Form.Command.CancelUserOrGroupSelection</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>&lt;</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="CancelUserSelectionExtendedTooltip" id="126"/>
 										</Button>
 										<Button name="ClearSelectedItemsList" id="97">
@@ -594,6 +724,12 @@
 											<Visible>false</Visible>
 											<Width>5</Width>
 											<CommandName>Form.Command.ClearSelectedUsersAndGroupsList</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>&lt;&lt;</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="ClearSelectedItemsListExtendedTooltip" id="127"/>
 										</Button>
 									</ChildItems>
@@ -682,6 +818,12 @@
 								<InputField name="UsersAndGroups" id="82">
 									<DataPath>SelectedUsersAndGroups.User</DataPath>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>User</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ChoiceListButton>false</ChoiceListButton>
 									<ContextMenu name="UsersAndGroupsContextMenu" id="83"/>
@@ -707,6 +849,12 @@
 			<ChildItems>
 				<CheckBoxField name="SelectHierarchy" id="56">
 					<DataPath>SelectHierarchy</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Show users that belong to subgroups</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Right</TitleLocation>
 					<CheckBoxType>Auto</CheckBoxType>
 					<ContextMenu name="SelectHierarchyContextMenu" id="57"/>
@@ -717,6 +865,12 @@
 				</CheckBoxField>
 				<CheckBoxField name="ShowInvalidUsers" id="167">
 					<DataPath>ShowInvalidUsers</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Show inactive users</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Right</TitleLocation>
 					<CheckBoxType>Auto</CheckBoxType>
 					<ContextMenu name="ShowInvalidUsers1ContextMenu" id="168"/>
@@ -739,6 +893,16 @@
 			<ShowTitle>false</ShowTitle>
 			<ExtendedTooltip name="LegendExtendedTooltip" id="256"/>
 			<ChildItems>
+				<LabelDecoration name="Legend_Label" id="291">
+					<Title formatted="false">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Legend:</v8:content>
+						</v8:item>
+					</Title>
+					<ContextMenu name="Legend_LabelContextMenu" id="292"/>
+					<ExtendedTooltip name="Legend_LabelExtendedTooltip" id="293"/>
+				</LabelDecoration>
 				<UsualGroup name="LogonRestrictred" id="257">
 					<Title>
 						<v8:item>
@@ -1005,7 +1169,7 @@ no startup rights (thin client or web client).</v8:content>
 	ExternalUsers.Predefined AS Predefined,
 	ExternalUsers.Description AS Description,
 	ExternalUsers.Comment AS Comment,
-	VALUETYPE(ExternalUsers.Ref.AuthorizationObject) AS AuthorizationObjectType,
+	VALUETYPE(ExternalUsers.AuthorizationObject) AS AuthorizationObjectType,
 	-1 AS PictureNumber,
 	CASE
 		WHEN ExternalUsers.Invalid
@@ -1456,6 +1620,14 @@ FROM
 			<Type/>
 		</Parameter>
 		<Parameter name="Purpose">
+			<Type/>
+		</Parameter>
+		<Parameter name="NonExistingIBUsersIDs">
+			<Type>
+				<v8:Type>v8:ValueListType</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="CurrentRow">
 			<Type/>
 		</Parameter>
 	</Parameters>

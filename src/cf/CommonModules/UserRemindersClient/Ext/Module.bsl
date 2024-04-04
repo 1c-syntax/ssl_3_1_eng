@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -24,12 +25,17 @@ EndProcedure
 // Parameters:
 //  Text - String - Reminder text;
 //  Time - Date - Reminder's due date and time.
-//  SubjectOf - AnyRef - Reminder's subject.
+//  SubjectOf - AnyRef -  the subject of the reminder;
+//  Id - String -  specifies the subject of the reminder, for example, "Birthday".
 //
-Procedure RemindInSpecifiedTime(Text, Time, SubjectOf = Undefined) Export
+Procedure RemindInSpecifiedTime(Text, Time, SubjectOf = Undefined, Id = Undefined) Export
 	
 	Reminder = UserRemindersServerCall.AttachReminder(
-		Text, Time, , SubjectOf);
+		Text, Time, , SubjectOf, Id);
+		
+	ShowUserNotification(NStr("en = 'Reminder saved';"),,
+		Reminder.LongDesc, PictureLib.Reminder,
+		UserNotificationStatus.Information, Id);
 		
 	UpdateRecordInNotificationsCache(Reminder);
 	ResetCurrentNotificationsCheckTimer();
@@ -93,11 +99,11 @@ Procedure RemindOfAnnualSubjectEvent(Text, Interval, SubjectOf, AttributeName) E
 	
 EndProcedure
 
-// 
+// A handler of the form's same-name event.
 //
 // Parameters:
-//   Item - FormField - 
-//   Form - ClientApplicationForm - 
+//   Item - FormField - The form containing the reminder settings elements.
+//   Form - ClientApplicationForm - The form containing the reminder settings elements.
 //	
 Procedure OnChangeReminderSettings(Item, Form) Export
 	
@@ -121,10 +127,10 @@ Procedure OnChangeReminderSettings(Item, Form) Export
 	
 EndProcedure
 
-// 
+// A handler of the form's same-name event.
 //
 // Parameters:
-//   Form - ClientApplicationForm - 
+//   Form - ClientApplicationForm - The form containing the reminder settings elements.
 //   EventName  - String
 //   Parameter    - See UserRemindersClientServer.ReminderDetails
 //   Source    - ClientApplicationForm
@@ -149,6 +155,11 @@ Procedure NotificationProcessing(Form, EventName, Parameter, Source) Export
 		EndIf;
 	EndIf;
 	
+EndProcedure
+
+// 
+Procedure OpenSettings() Export
+	OpenForm("InformationRegister.UserReminders.Form.Settings");
 EndProcedure
 
 #EndRegion
@@ -190,6 +201,8 @@ Procedure OnReceiptServerNotification(NameOfAlert, Result) Export
 		UpdateRecordInNotificationsCache(Reminder);
 	EndDo;
 	
+	ResetCurrentNotificationsCheckTimer();
+	
 EndProcedure
 
 #EndRegion
@@ -215,16 +228,15 @@ Function SettingsOnClient()
 	
 EndFunction
 
-// Resets the check timer of current reminders and performs the check immediately.
 Procedure ResetCurrentNotificationsCheckTimer() Export
 	DetachIdleHandler("CheckCurrentReminders");
-	CheckCurrentReminders();
+	AttachIdleHandler("CheckCurrentReminders", 0.1, True);
 EndProcedure
 
-// Opens a form with notifications.
 Procedure OpenNotificationForm() Export
 	
-	
+	// 
+	// 
 	ParameterName = "StandardSubsystems.NotificationForm";
 	If ApplicationParameters[ParameterName] = Undefined Then
 		NotificationFormName = "InformationRegister.UserReminders.Form.NotificationForm";
@@ -232,6 +244,7 @@ Procedure OpenNotificationForm() Export
 	EndIf;
 	NotificationForm = ApplicationParameters[ParameterName];
 	NotificationForm.Open();
+
 EndProcedure
 
 // Returns cached notifications for the current user, excluding the ones that are not due yet.

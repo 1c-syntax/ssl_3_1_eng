@@ -1,16 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #Region Variables
 
 &AtClient
-Var FormClosing, AccumulatedMessages;
+Var FormClosing, FinishAfterClosing, AccumulatedMessages;
 
 &AtClient
 Var StandardCloseAlert;
@@ -31,7 +32,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Not ValueIsFilled(Parameters.Title) Then
 		Items.MessageOperation.ShowTitle = False;
 		
-	ElsIf Parameters.StandbyWindowOpeningMode = FormWindowOpeningMode.Independent Then
+	ElsIf Parameters.OpeningModeForWaitDialog = FormWindowOpeningMode.Independent Then
 		Title = Parameters.Title;
 		Items.MessageOperation.ShowTitle = False;
 		CommandBarLocation = FormCommandBarLabelLocation.Top;
@@ -42,13 +43,17 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	If TypeOf(Parameters.ShouldCancelWhenOwnerFormClosed) = Type("Boolean") Then
-		CancelWhenClosing = Parameters.ShouldCancelWhenOwnerFormClosed;
+		ShouldCancelOnClose = Parameters.ShouldCancelWhenOwnerFormClosed;
 	Else
-		CancelWhenClosing = True;
+		ShouldCancelOnClose = True;
 	EndIf;
 	
 	If ValueIsFilled(Parameters.JobID) Then
 		JobID = Parameters.JobID;
+	EndIf;
+	
+	If ValueIsFilled(Parameters.CancelButtonTitle) Then
+		Items.FormClose.Title = Parameters.CancelButtonTitle;
 	EndIf;
 	
 	If Common.IsMobileClient() Then
@@ -66,6 +71,7 @@ Procedure OnOpen(Cancel)
 	
 	If Parameters.OutputIdleWindow Then
 		FormClosing = False;
+		FinishAfterClosing = False;
 		Status = "Running";
 		AccumulatedMessages = New Array;
 		
@@ -76,15 +82,16 @@ Procedure OnOpen(Cancel)
 		TimeConsumingOperation.Insert("ResultAddress", Parameters.ResultAddress);
 		TimeConsumingOperation.Insert("AdditionalResultAddress", Parameters.AdditionalResultAddress);
 		
-		CompletionNotification2 = New NotifyDescription("OnCompleteTimeConsumingOperation", ThisObject);
+		CallbackOnCompletion = New NotifyDescription("OnCompleteTimeConsumingOperation", ThisObject);
 		NotificationAboutProgress  = New NotifyDescription("OnGetLongRunningOperationProgress", ThisObject);
 		
 		IdleParameters = TimeConsumingOperationsClient.IdleParameters(FormOwner);
 		IdleParameters.OutputIdleWindow = False;
 		IdleParameters.Interval = Parameters.Interval;
 		IdleParameters.ExecutionProgressNotification = NotificationAboutProgress;
+		IdleParameters.ShouldCancelWhenOwnerFormClosed = ShouldCancelOnClose;
 		
-		TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CompletionNotification2, IdleParameters);
+		TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
 	EndIf;
 	
 EndProcedure
@@ -121,7 +128,7 @@ Procedure OnClose(Exit)
 	EndIf;
 	
 	If StandardCloseAlert Then
-		TimeConsumingOperation = CheckJobAndCancelIfRunning(JobID, CancelWhenClosing);
+		TimeConsumingOperation = CheckJobAndCancelIfRunning(JobID, ShouldCancelOnClose);
 		FinishLongRunningOperationAndCloseForm(TimeConsumingOperation);
 	Else
 		CancelJobExecution(JobID);
@@ -136,7 +143,7 @@ EndProcedure
 &AtClient
 Procedure CancelAndClose(Command)
 	
-	CancelWhenClosing = True;
+	ShouldCancelOnClose = True;
 	Close();
 	
 EndProcedure
@@ -145,54 +152,61 @@ EndProcedure
 
 #Region Private
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.LongRunningOperationNewState
+//  AdditionalParameters - Undefined
+//
 &AtClient
-Procedure OnGetLongRunningOperationProgress(TimeConsumingOperation, AdditionalParameters) Export
+Procedure OnGetLongRunningOperationProgress(Result, AdditionalParameters) Export
 	
 	If FormClosing Or Not IsOpen() Then
 		Return;
 	EndIf;
 	
 	If Parameters.OutputProgressBar
-	   And TimeConsumingOperation.Progress <> Undefined Then
+	   And Result.Progress <> Undefined Then
 		
 		Percent = 0;
-		If TimeConsumingOperation.Progress.Property("Percent", Percent) Then
+		If Result.Progress.Property("Percent", Percent) Then
 			Items.DecorationPercent.Visible = True;
 			Items.DecorationPercent.Title = String(Percent) + "%";
 		EndIf;
 		
 		Text = "";
-		If TimeConsumingOperation.Progress.Property("Text", Text) Then
+		If Result.Progress.Property("Text", Text) Then
 			Items.TimeConsumingOperationNoteTextDecoration.Title = TrimAll(Text);
 		EndIf;
 		
 	EndIf;
 	
-	If TimeConsumingOperation.Messages = Undefined Then
+	If Result.Messages = Undefined Then
 		Return;
 	EndIf;
 	
-	TimeConsumingOperationsClient.ProcessMessagesToUser(TimeConsumingOperation.Messages,
+	TimeConsumingOperationsClient.ProcessMessagesToUser(Result.Messages,
 		AccumulatedMessages, Parameters.OutputMessages, FormOwner);
 	
 EndProcedure
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
-Procedure OnCompleteTimeConsumingOperation(TimeConsumingOperation, AdditionalParameters) Export
+Procedure OnCompleteTimeConsumingOperation(Result, AdditionalParameters) Export
 	
-	If FormClosing Or Not IsOpen() Then
+	If (FormClosing Or Not IsOpen())
+	   And Not FinishAfterClosing Then
+		
 		Return;
 	EndIf;
 	
-	FinishLongRunningOperationAndCloseForm(TimeConsumingOperation);
+	FinishLongRunningOperationAndCloseForm(Result);
 	
 EndProcedure
 
 &AtClient
 Procedure FinishLongRunningOperationAndCloseForm(TimeConsumingOperation)
-	
-	AdditionalParameters = ?(StandardCloseAlert,
-		OnCloseNotifyDescription.AdditionalParameters, Undefined);
 	
 	If TimeConsumingOperation = Undefined Then
 		Status = "Canceled";
@@ -202,10 +216,7 @@ Procedure FinishLongRunningOperationAndCloseForm(TimeConsumingOperation)
 	
 	If Status = "Canceled" Then
 		If StandardCloseAlert Then
-			AdditionalParameters.Result = Undefined;
-			If Not FormClosing Then
-				Close();
-			EndIf;
+			PerformStandardClosingNotification(Undefined);
 		Else
 			Close(Undefined);
 		EndIf;
@@ -229,10 +240,7 @@ Procedure FinishLongRunningOperationAndCloseForm(TimeConsumingOperation)
 		EndIf;
 		Result = ExecutionResult(TimeConsumingOperation);
 		If StandardCloseAlert Then
-			AdditionalParameters.Result = Result;
-			If Not FormClosing Then
-				Close();
-			EndIf;
+			PerformStandardClosingNotification(Result);
 		Else
 			Close(Result);
 		EndIf;
@@ -241,16 +249,40 @@ Procedure FinishLongRunningOperationAndCloseForm(TimeConsumingOperation)
 		
 		Result = ExecutionResult(TimeConsumingOperation);
 		If StandardCloseAlert Then
-			AdditionalParameters.Result = Result;
-			If Not FormClosing Then
-				Close();
-			EndIf;
+			PerformStandardClosingNotification(Result);
 		Else
 			Close(Result);
 		EndIf;
 		If ReturnResultToChoiceProcessing() Then
 			Raise TimeConsumingOperation.BriefErrorDescription;
 		EndIf;
+		
+	ElsIf Status = "Running"
+	        And FormClosing
+	        And Not ShouldCancelOnClose
+	        And StandardCloseAlert Then
+		
+		Result = ExecutionResult(TimeConsumingOperation);
+		OnCloseNotifyDescription.AdditionalParameters.Result = Result;
+		If FinishAfterClosing <> Undefined Then
+			FinishAfterClosing = True;
+		EndIf;
+		
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure PerformStandardClosingNotification(Result)
+	
+	OnCloseNotifyDescription.AdditionalParameters.Result = Result;
+	
+	If Not FormClosing Then
+		Close();
+		
+	ElsIf FinishAfterClosing Then
+		FinishAfterClosing = Undefined;
+		ExecuteNotifyProcessing(OnCloseNotifyDescription, Undefined);
 	EndIf;
 	
 EndProcedure
@@ -260,7 +292,7 @@ Procedure Attachable_CancelJob()
 	
 	FormClosing = True;
 	
-	TimeConsumingOperation = CheckJobAndCancelIfRunning(JobID, CancelWhenClosing);
+	TimeConsumingOperation = CheckJobAndCancelIfRunning(JobID, ShouldCancelOnClose);
 	FinishLongRunningOperationAndCloseForm(TimeConsumingOperation);
 	
 EndProcedure
@@ -277,11 +309,11 @@ Procedure ShowNotification()
 EndProcedure
 
 &AtServerNoContext
-Function CheckJobAndCancelIfRunning(JobID, CancelWhenClosing)
+Function CheckJobAndCancelIfRunning(JobID, ShouldCancelOnClose)
 	
 	TimeConsumingOperation = TimeConsumingOperations.ActionCompleted(JobID);
 	
-	If TimeConsumingOperation.Status = "Running" And CancelWhenClosing Then
+	If TimeConsumingOperation.Status = "Running" And ShouldCancelOnClose Then
 		CancelJobExecution(JobID);
 		TimeConsumingOperation.Status = "Canceled";
 	EndIf;
@@ -300,14 +332,15 @@ EndProcedure
 &AtClient
 Function ExecutionResult(TimeConsumingOperation)
 	
-	Result = New Structure;
-	Result.Insert("Status", TimeConsumingOperation.Status);
-	Result.Insert("ResultAddress", Parameters.ResultAddress);
-	Result.Insert("AdditionalResultAddress", Parameters.AdditionalResultAddress);
-	Result.Insert("BriefErrorDescription", TimeConsumingOperation.BriefErrorDescription);
-	Result.Insert("DetailErrorDescription", TimeConsumingOperation.DetailErrorDescription);
-	Result.Insert("Messages", New FixedArray(
-		?(AccumulatedMessages = Undefined, New Array, AccumulatedMessages)));
+	Result = TimeConsumingOperationsClient.NewResultLongOperation();
+	Result.ResultAddress                = Parameters.ResultAddress;
+	Result.AdditionalResultAddress = Parameters.AdditionalResultAddress;
+	Result.Status                         = TimeConsumingOperation.Status;
+	Result.ErrorInfo             = TimeConsumingOperation.ErrorInfo;
+	Result.BriefErrorDescription     = TimeConsumingOperation.BriefErrorDescription;
+	Result.DetailErrorDescription   = TimeConsumingOperation.DetailErrorDescription;
+	Result.Messages = New FixedArray(
+		?(AccumulatedMessages = Undefined, New Array, AccumulatedMessages));
 	
 	If Parameters.MustReceiveResult Then
 		Result.Insert("Result", TimeConsumingOperation.Result);
@@ -320,11 +353,11 @@ EndFunction
 &AtClient
 Function ReturnResultToChoiceProcessing()
 	
-	CompletionNotification2 = ?(StandardCloseAlert,
-		OnCloseNotifyDescription.AdditionalParameters.CompletionNotification2,
+	CallbackOnCompletion = ?(StandardCloseAlert,
+		OnCloseNotifyDescription.AdditionalParameters.CallbackOnCompletion,
 		OnCloseNotifyDescription);
 	
-	Return CompletionNotification2 = Undefined
+	Return CallbackOnCompletion = Undefined
 		And Parameters.MustReceiveResult
 		And TypeOf(FormOwner) = Type("ClientApplicationForm");
 	

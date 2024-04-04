@@ -114,6 +114,12 @@
 							<ChildItems>
 								<PictureField name="SelectedFilesPictureIndex" id="30">
 									<DataPath>SelectedFiles.PictureIndex</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Picture index</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ValuesPicture>
 										<xr:Ref>CommonPicture.FileIconCollection</xr:Ref>
@@ -125,6 +131,12 @@
 								</PictureField>
 								<LabelField name="SelectedRef" id="32">
 									<DataPath>SelectedFiles.Ref</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Reference</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ContextMenu name="SelectedRefContextMenu" id="33"/>
 									<ExtendedTooltip name="SelectedRefExtendedTooltip" id="45"/>
@@ -153,6 +165,12 @@
 		</InputField>
 		<CheckBoxField name="StoreVersions" id="21">
 			<DataPath>StoreVersions</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Track versions</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>Right</TitleLocation>
 			<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 			<CheckBoxType>Auto</CheckBoxType>
@@ -178,6 +196,12 @@
 					<TextColor>style:ButtonTextColor</TextColor>
 					<BackColor>style:ButtonBackColor</BackColor>
 					<BorderColor>style:BorderColor</BorderColor>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Commit</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="EndEditExtendedTooltip" id="54"/>
 				</Button>
 				<Button name="Cancel" id="20">

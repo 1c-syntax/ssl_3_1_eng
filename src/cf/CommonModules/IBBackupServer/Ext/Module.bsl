@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -107,8 +108,8 @@ Procedure OnFillToDoList(ToDoList) Export
 	
 	NotificationOption = BackupSettings1.NotificationParameter1;
 	
-	
-	
+	// 
+	// 
 	Sections = ModuleToDoListServer.SectionsForObject(Metadata.DataProcessors.IBBackupSetup.FullName());
 	
 	For Each Section In Sections Do
@@ -212,7 +213,7 @@ Function NewBackupSettings()
 	
 	Parameters.Insert("CopyingSchedule", CommonClientServer.ScheduleToStructure(New JobSchedule));
 	Parameters.Insert("BackupStorageDirectory", "");
-	Parameters.Insert("ManualBackupsStorageDirectory", ""); 
+	Parameters.Insert("ManualBackupsStorageDirectory", ""); // 
 	Parameters.Insert("BackupCreated1", False);
 	Parameters.Insert("RestorePerformed", False);
 	Parameters.Insert("CopyingResult", Undefined);
@@ -231,51 +232,20 @@ EndFunction
 // Returns saved backup parameters.
 //
 // Returns:
-//   Structure - backup parameters.
+//   See NewBackupSettings
 //
 Function BackupParameters() Export
 	
 	Parameters = Common.CommonSettingsStorageLoad("BackupParameters", "");
+	NewParameters = NewBackupSettings();
 	If Parameters = Undefined Then
-		Parameters = NewBackupSettings();
-		SetBackupSettings(Parameters);
+		SetBackupSettings(NewParameters);
 	Else
-		SupplementBackupParameters(Parameters);
+		FillPropertyValues(NewParameters, Parameters); 
 	EndIf;
-	Return Parameters;
+	Return NewParameters;
 	
 EndFunction
-
-// Parameters:
-//  BackupParameters - Structure - infobase backup parameters.
-//
-Procedure SupplementBackupParameters(BackupParameters)
-	
-	ParametersChanged = False;
-	
-	Parameters = NewBackupSettings();
-	For Each StructureItem In Parameters Do
-		ValueFound = Undefined;
-		If BackupParameters.Property(StructureItem.Key, ValueFound) Then
-			If ValueFound = Undefined And StructureItem.Value <> Undefined Then
-				BackupParameters.Insert(StructureItem.Key, StructureItem.Value);
-				ParametersChanged = True;
-			EndIf;
-		Else
-			If StructureItem.Value <> Undefined Then
-				BackupParameters.Insert(StructureItem.Key, StructureItem.Value);
-				ParametersChanged = True;
-			EndIf;
-		EndIf;
-	EndDo;
-	
-	If Not ParametersChanged Then 
-		Return;
-	EndIf;
-	
-	SetBackupSettings(BackupParameters);
-	
-EndProcedure
 
 // Returns:
 //   Boolean - True if it is time for backup.
@@ -603,7 +573,7 @@ Function ScriptMessages()
 	Messages["[TheMessageDatabaseRecoveryResult]"] = NStr("en = 'Infobase is restored.';");
 	Messages["[DatabaseRecoveryFailureMessage]"] = NStr("en = 'An unexpected error occurred while restoring the infobase.';");
 	Messages["[MessageRecoveryLogging1S]"] = NStr("en = 'The restore protocol is saved to the event log.';");
-	Messages["[TheMessageFailureToTransferTheDatabaseFileToATemporaryDirectory]"] = NStr("en = 'The infobase file is not transferred to a temporary directory. The application might have active sessions: {0}, {1}.';");
+	Messages["[TheMessageFailureToTransferTheDatabaseFileToATemporaryDirectory]"] = NStr("en = 'The infobase file is not transferred to a temporary directory. The app might have active sessions: {0}, {1}.';");
 	Messages["[MessageAttemptToTransferADatabaseFileToATemporaryDirectory]"] = NStr("en = 'Attempting to transfer an infobase file to a temporary directory ({0} out of 5): {1}, {2}.';");
 	Messages["[TheMessageDatabaseRecoveryFailureInDetail]"] = NStr("en = 'Exception when restoring an infobase from a backup: {0}, {1}.';");
 	

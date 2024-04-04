@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -13,7 +14,7 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// SaaSTechnology.ExportImportData
+// CloudTechnology.ExportImportData
 
 // Returns the catalog attributes
 //  that naturally form a catalog item key.
@@ -31,7 +32,7 @@ Function NaturalKeyFields() Export
 	
 EndFunction
 
-// End SaaSTechnology.ExportImportData
+// End CloudTechnology.ExportImportData
 
 // StandardSubsystems.Print
 
@@ -229,7 +230,7 @@ EndProcedure
 //  DataTable - ValueTable - business calendars data.
 // 
 // Returns:
-//  ValueTable - :
+//  ValueTable - Changes of business calendar data:
 //   * BusinessCalendarCode - String - a changed calendar code,
 //   * Year - Number - a year for which the calendar was changed.
 //
@@ -361,7 +362,7 @@ EndFunction
 //  BasicCalendarCode - String - a source calendar code
 // 
 // Returns:
-//  ValueTable - :
+//  ValueTable - The result of filling the default business calendar:
 //   * BusinessCalendarCode - String
 //   * DayKind - EnumRef.BusinessCalendarDaysKinds
 //   * Year - Number
@@ -373,8 +374,8 @@ Function BusinessCalendarDefaultFillingResult(CalendarCode1, YearNumber, Val Bas
 	DaysKinds = New Map;
 	ShiftedDays = New Map;
 	
-	
-	
+	// 
+	// 
 	CalendarsCodes = New Array;
 	CalendarsCodes.Add(CalendarCode1);
 	HasBasicCalendar = False;
@@ -383,8 +384,8 @@ Function BusinessCalendarDefaultFillingResult(CalendarCode1, YearNumber, Val Bas
 		HasBasicCalendar = True;
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	TemplateData = DefaultBusinessCalendarsData(CalendarsCodes, False);
 	
 	RowFilter = New Structure("BusinessCalendarCode,Year");
@@ -984,7 +985,6 @@ EndFunction
 // Parameters:
 //  BusinessCalendar - CatalogRef.BusinessCalendars - a current catalog item.
 //  YearNumber - Number - a number of the year for which the business calendar is to be recorded.
-//  BusinessCalendarData - See Catalog.BusinessCalendars.ДанныеПроизводственногоКалендаря.
 //
 Procedure WriteBusinessCalendarData(BusinessCalendar, YearNumber, BusinessCalendarData) Export
 	
@@ -1112,10 +1112,19 @@ Function DayLength()
 	Return 24 * 3600;
 EndFunction
 
-Function NewBusinessCalendarsData()
+// Returns:
+//  ValueTable:
+//   * BusinessCalendarCode - String 
+//   * DayKind - EnumRef.BusinessCalendarDaysKinds 
+//   * Year - Number 
+//   * Date - Date 
+//   * ReplacementDate - Date 
+//
+Function NewBusinessCalendarsData() Export
 	
 	DataTable = New ValueTable;
-	DataTable.Columns.Add("BusinessCalendarCode", New TypeDescription("String", , New StringQualifiers(2)));
+	DataTable.Columns.Add("BusinessCalendarCode", New TypeDescription("String", ,
+		New StringQualifiers(2)));
 	DataTable.Columns.Add("DayKind", New TypeDescription("EnumRef.BusinessCalendarDaysKinds"));
 	DataTable.Columns.Add("Year", New TypeDescription("Number"));
 	DataTable.Columns.Add("Date", New TypeDescription("Date"));
@@ -1124,10 +1133,19 @@ Function NewBusinessCalendarsData()
 	
 EndFunction	
 
+// Returns:
+//  ValueTable:
+//   * BusinessCalendarCode - String
+//   * PeriodNumber - Number
+//   * StartDate - Date
+//   * EndDate - Date
+//   * Basis - String
+//
 Function NewNonWorkDaysPeriodsTable()
 
 	DataTable = New ValueTable;
-	DataTable.Columns.Add("BusinessCalendarCode", New TypeDescription("String", , New StringQualifiers(2)));
+	DataTable.Columns.Add("BusinessCalendarCode", New TypeDescription("String", ,
+		New StringQualifiers(2)));
 	DataTable.Columns.Add("PeriodNumber", New TypeDescription("Number"));
 	DataTable.Columns.Add("StartDate", New TypeDescription("Date"));
 	DataTable.Columns.Add("EndDate", New TypeDescription("Date"));
@@ -1140,8 +1158,8 @@ Procedure FillPermanentHolidays(DaysKinds, ShiftedDays, YearNumber, CalendarCode
 	
 	// If not, fill in holidays and their replacements.
 	Holidays = BusinessCalendarHolidays(CalendarCode1, YearNumber);
-	 
-	
+	//  
+	// 
 	NextYearHolidays = BusinessCalendarHolidays(CalendarCode1, YearNumber + 1);
 	CommonClientServer.SupplementTable(NextYearHolidays, Holidays);
 	
@@ -1153,15 +1171,15 @@ Procedure FillPermanentHolidays(DaysKinds, ShiftedDays, YearNumber, CalendarCode
 		CommonClientServer.SupplementTable(NextYearHolidays, Holidays);
 	EndIf;
 	
-	 
-	 
-	 
-		
+	//  
+	//  
+	//  
+	// 	
 	
 	For Each TableRow In Holidays Do
 		PublicHoliday = TableRow.Date;
-		 
-		
+		//  
+		// 
 		If TableRow.AddPreholiday Then
 			PreholidayDate = PublicHoliday - DayLength();
 			If Year(PreholidayDate) = YearNumber Then
@@ -1178,9 +1196,9 @@ Procedure FillPermanentHolidays(DaysKinds, ShiftedDays, YearNumber, CalendarCode
 		EndIf;
 		If DaysKinds[PublicHoliday] <> Enums.BusinessCalendarDaysKinds.Work 
 			And TableRow.ShiftHoliday Then
-			 
-			 
-			
+			//  
+			//  
+			// 
 			DayDate = PublicHoliday;
 			While True Do
 				DayDate = DayDate + DayLength();
@@ -1437,7 +1455,7 @@ Function BusinessCalendarPrintForm(PrintFormPreparationParameters)
 				CumulateColumn(ForYear, ForMonth);
 				MonthColumn = Template.GetArea("MonthColumn");
 				FillAreaParameters(MonthColumn.Parameters, ForMonth);
-				MonthColumn.Parameters.MonthName = Format(Date(YearNumber, SelectionByMonth.CalendarMonth, 1), "DF='MMMM'"); 
+				MonthColumn.Parameters.MonthName = Format(Date(YearNumber, SelectionByMonth.CalendarMonth, 1), "DF='MMMM'"); // 
 				SpreadsheetDocument.Join(MonthColumn);
 			EndDo;
 			MonthColumn = Template.GetArea("MonthColumn");

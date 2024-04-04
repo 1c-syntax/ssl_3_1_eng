@@ -17,11 +17,23 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.WriteAndClose</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save and close</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormWriteAndCloseExtendedTooltip" id="28"/>
 			</Button>
 			<Button name="FormWrite" id="29">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.Write</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormWriteExtendedTooltip" id="30"/>
 			</Button>
 		</ChildItems>
@@ -85,6 +97,12 @@
 				<InputField name="AmountInWords" id="24">
 					<DataPath>AmountInWords</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Amount in words</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Left</TitleLocation>
 					<TextEdit>false</TextEdit>
 					<ContextMenu name="AmountInWordsContextMenu" id="25"/>

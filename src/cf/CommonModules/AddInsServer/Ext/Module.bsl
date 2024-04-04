@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -16,20 +17,21 @@
 //    * ObjectsCreationIDs - Array of String - IDs of object module instances.
 //              Use it only for add-ins with several object creation IDs.
 //              When specified, the ID parameter is used only to determine an add-in.
-//    * Isolated - Boolean, Undefined - 
-//              
-//              
-//              :
-//              
-//              See https://its.1c.ru/db/v83doc
+//    * Isolated - Boolean  -  
+//                               
+//                                
+//                                
+//              - Undefined - :
+//                                
+//                               
+//                               See https://its.1c.eu/db/v83doc
 //    * FullTemplateName - String - 
-//
 //
 Function ConnectionParameters() Export
 	
 	Parameters = New Structure;
 	Parameters.Insert("ObjectsCreationIDs", New Array);
-	Parameters.Insert("Isolated", False);
+	Parameters.Insert("Isolated", Common.ConnectionTypeDefaultComponents());
 	Parameters.Insert("FullTemplateName");
 	
 	Return Parameters;
@@ -46,11 +48,11 @@ EndFunction
 //  ConnectionParameters - See ConnectionParameters.
 //
 // Returns:
-//   Structure - :
+//   Structure - Add-in attachment result:
 //     * Attached - Boolean - attachment flag.
 //     * Attachable_Module - AddInObject - an instance of the add-in;
-//                          - FixedMap of KeyAndValue - 
-//                            :
+//                          - FixedMap of KeyAndValue - Add-in object instances stored in
+//                            AttachmentParameters.ObjectsCreationIDs:
 //                            ** Key - String - ID.
 //                            ** Value - AddInObject - an instance of the add-in.
 //     * ErrorDescription - String - brief error message. 
@@ -58,7 +60,7 @@ EndFunction
 Function AttachAddInSSL(Val Id, Version = Undefined, ConnectionParameters = Undefined) Export
 	
 	If ConnectionParameters = Undefined Then
-		Isolated = False;
+		Isolated = Common.ConnectionTypeDefaultComponents();
 	Else
 		Isolated = ConnectionParameters.Isolated;
 	EndIf;
@@ -82,17 +84,23 @@ EndFunction
 
 // OnlineUserSupport.GetAddIns
 
-// 
+// Returns a table of add-in details.
 //
 // Parameters:
-//  Variant - String - :
-//    
-//    
-//    
+//  Variant - String - Valid values::
+//    ForUpdate - Add-ins from a catalog with the UpdateFrom1CITSPortal flag set.
+//    ForImport - Add-ins used in the configuration.
+//    Supplied1 - For determining 1C-supplied add-ins in the SaaS mode.
 //
 // Returns:
-//   - See GetAddIns.AddInsDetails
-//   
+//   - ValueTable:
+//     * Id - String -  contains a unique identifier of the external
+//                    component, which is specified by the user in the publication database;
+//     * Version        - String - 
+//     * Description  - String - 
+//     * VersionDate    - Date - 
+//     * AutoUpdate - Boolean - 
+//   - Array - 
 //
 Function ComponentsToUse(Variant) Export
 	
@@ -131,16 +139,16 @@ EndFunction
 //    * FileName - String - file name.
 //    * FileAddress - String - file address.
 //    * ErrorCode - String - error code.
-//  ResultAddress - String - 
-//      
-//      :
-//       
-//       
-//         
-//         
-//       
-//         
-//         
+//  ResultAddress - String - Temp storage address.
+//      If specified, the operation result will be put to the storage.
+//      Structure:
+//       # Result - Boolean - If False, errors occur.
+//       # Errors - Map:
+//         ## Key - String - UUID.
+//         ## Value - String - ErrorMessage.
+//       # Success - Map:
+//         ## Key - String - UUID.
+//         ## Value - String - ErrorMessage.
 //
 Procedure UpdateAddIns(AddInsData, ResultAddress = Undefined) Export
 	
@@ -349,11 +357,17 @@ Procedure UpdateSharedAddIn(ComponentDetails) Export
 	
 EndProcedure
 
-// 
-// 
+// For OSL versions 2.7.2.0 and later, use ComponentsToUse("ForUpdate").
+// Returns a table containing the details of the add-ins that must be auto-updated from 1C:ITS Portal.
 //
 // Returns:
-//   See GetAddIns.AddInsDetails
+//  ValueTable:
+//    * Id - String -  contains a unique identifier of the external
+//                   component, which is specified by the user in the publication database;
+//    * Version        - String - 
+//    * Description  - String - 
+//    * VersionDate    - Date - 
+//    * AutoUpdate - Boolean - 
 //
 Function AutomaticallyUpdatedAddIns() Export
 	

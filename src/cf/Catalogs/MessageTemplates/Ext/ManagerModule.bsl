@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -190,6 +191,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	ObjectsProcessed = 0;
 	
 	While Template.Next() Do
+		RepresentationOfTheReference = String(Template.Ref);
 		
 		Block = New DataLock;
 		LockItem = Block.Add("Catalog.MessageTemplates");
@@ -246,15 +248,26 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 				If TemplateParameters.TemplateType = "MailMessage" Then
 					
 					For Each AttributeToReplace In ParametersToReplace Do
-						TemplateObject1.EmailSubject = StrReplace(TemplateObject1.EmailSubject, AttributeToReplace.Key, AttributeToReplace.Value);
-						TemplateObject1.HTMLEmailTemplateText = StrReplace(TemplateObject1.HTMLEmailTemplateText, AttributeToReplace.Key, AttributeToReplace.Value);
-						TemplateObject1.MessageTemplateText = StrReplace(TemplateObject1.MessageTemplateText, AttributeToReplace.Key, AttributeToReplace.Value);
+						TemplateObject1.EmailSubject =
+							StrReplace(TemplateObject1.EmailSubject, AttributeToReplace.Key, AttributeToReplace.Value);
+						TemplateObject1.HTMLEmailTemplateText =
+							StrReplace(TemplateObject1.HTMLEmailTemplateText, AttributeToReplace.Key, AttributeToReplace.Value);
+						TemplateObject1.MessageTemplateText =
+							StrReplace(TemplateObject1.MessageTemplateText, AttributeToReplace.Key, AttributeToReplace.Value);
+					EndDo;
+					
+				ElsIf TemplateParameters.TemplateType = "SMS" Then
+					
+					For Each AttributeToReplace In ParametersToReplace Do
+						TemplateObject1.SMSTemplateText =
+							StrReplace(TemplateObject1.SMSTemplateText, AttributeToReplace.Key, AttributeToReplace.Value);
 					EndDo;
 					
 				Else
 					
 					For Each AttributeToReplace In ParametersToReplace Do
-						TemplateObject1.SMSTemplateText = StrReplace(TemplateObject1.SMSTemplateText, AttributeToReplace.Key, AttributeToReplace.Value);
+						TemplateObject1.TemplateTextArbitrary =
+							StrReplace(TemplateObject1.TemplateTextArbitrary, AttributeToReplace.Key, AttributeToReplace.Value);
 					EndDo;
 					
 				EndIf;
@@ -272,12 +285,10 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			RollbackTransaction();
 			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
 			
-			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Couldn''t process message template %1. Reason:
-					|%2';"),
-				Template.Ref, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-			WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Warning,
-				Metadata.Catalogs.MessageTemplates, Template.Ref, MessageText);
+			InfobaseUpdate.WriteErrorToEventLog(
+				Template.Ref,
+				RepresentationOfTheReference,
+				ErrorInfo());
 		EndTry;
 	EndDo;
 	

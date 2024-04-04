@@ -15,6 +15,12 @@
 				<DefaultButton>true</DefaultButton>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.OkCommand</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save and close</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="OkCommandExtendedTooltip" id="33"/>
 			</Button>
 		</ChildItems>
@@ -59,7 +65,7 @@
 			<AutoCommandBar name="TableOfContactsCommandBar" id="15">
 				<Autofill>false</Autofill>
 			</AutoCommandBar>
-			<ExtendedTooltip name="ContactsTableExtendedTooltip" id="34"/>
+			<ExtendedTooltip name="TableOfContactsExtendedTooltip" id="34"/>
 			<SearchStringAddition name="ContactsTableSearchString" id="40">
 				<AdditionSource>
 					<Item>TableOfContacts</Item>
@@ -91,6 +97,12 @@
 			<ChildItems>
 				<CheckBoxField name="ContactsTableChange" id="26">
 					<DataPath>TableOfContacts.Change</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Editable</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<ToolTip>
 						<v8:item>

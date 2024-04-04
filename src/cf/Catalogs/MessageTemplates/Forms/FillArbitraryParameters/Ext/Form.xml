@@ -52,6 +52,12 @@
 					<DefaultButton>true</DefaultButton>
 					<DefaultItem>true</DefaultItem>
 					<CommandName>Form.Command.OK</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>OK</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="FormOKExtendedTooltip" id="10"/>
 				</Button>
 				<Button name="FormCancel" id="5">

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -257,8 +258,8 @@ EndFunction
 // Returns:
 //   Map of KeyAndValue:
 //     * Key - MetadataObject - a metadata object.
-//     * Value - Array of String -  
-//                                     
+//     * Value - Array of String - Array of names of access rights that should be granted to 
+//                                     the metadata object in the role.
 //
 Function ReferenceRoleCompositionForStandardODataInterface() Export
 	
@@ -597,7 +598,8 @@ EndFunction
 Function StandardODataInterfaceUserProperties()
 	
 	If Not AccessRight("DataAdministration", Metadata) Then
-		Raise NStr("en = 'Insufficient access rights to configure automatic REST service';");
+		Raise(NStr("en = 'Insufficient access rights to configure automatic REST service.';"),
+			ErrorCategory.AccessViolation);
 	EndIf;
 	
 	SetPrivilegedMode(True);
@@ -637,7 +639,7 @@ Procedure CheckCanCreateUserForStandardODataInterfaceCalls()
 	SetPrivilegedMode(False);
 	
 	If UsersCount = 0 Then
-		Raise NStr("en = 'Cannot create a separate username and password for using the automatic REST service, as there are no other users in the application.';");
+		Raise NStr("en = 'Cannot create a separate username and password for the automatic REST service, as there are no app users.';");
 	EndIf;
 	
 EndProcedure

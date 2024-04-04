@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -29,16 +30,20 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	VersionNumber   = Recommended;
 	CannotContinue = False;
+	TextCondition = "";
 	If CommonClientServer.CompareVersions(Current, Min) < 0 Then
-		TextCondition                = NStr("en = 'required';");
+		TextCondition = NStr("en = 'The app requires 1C:Enterprise version %1 or later.
+			|Current version is %2.';");
 		CannotContinue = True;
 		VersionNumber = Min;
 	Else
-		TextCondition = NStr("en = 'recommended';");
+		TextCondition = NStr("en = 'The app requires 1C:Enterprise version %1 or later.
+			|Current version is %2.';");
 	EndIf;
+	
 	Items.Version.Title = StringFunctionsClientServer.SubstituteParametersToString(
-		Items.Version.Title,
-		TextCondition, VersionNumber,
+		TextCondition,
+		VersionNumber,
 		SystemInfo.AppVersion);
 	
 	If CannotContinue Then

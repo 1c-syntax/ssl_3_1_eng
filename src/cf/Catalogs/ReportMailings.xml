@@ -889,7 +889,7 @@ It can be mentioned in email subject or body.</v8:content>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Check box of delivery to an FTP resource</v8:content>
+							<v8:content>Save reports on a FTP server.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -934,7 +934,7 @@ It can be mentioned in email subject or body.</v8:content>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Check box of delivery to an application folder</v8:content>
+							<v8:content>Save reports to the app's directory.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -979,7 +979,7 @@ It can be mentioned in email subject or body.</v8:content>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Check box of delivery to a network directory</v8:content>
+							<v8:content>Save reports to the selected network directory.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -1024,7 +1024,7 @@ It can be mentioned in email subject or body.</v8:content>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Check box of delivery by email</v8:content>
+							<v8:content>Send reports or notifications by email.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -1114,7 +1114,7 @@ It can be mentioned in email subject or body.</v8:content>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>If the option is selected, the report distribution is available only to its author and the administrator.</v8:content>
+							<v8:content>Only the author and the administrator can start report distribution.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -1159,7 +1159,7 @@ It can be mentioned in email subject or body.</v8:content>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Application folder for delivering reports</v8:content>
+							<v8:content>Destination directory for reports.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>

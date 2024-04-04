@@ -59,6 +59,12 @@
 							<ChildItems>
 								<InputField name="TypeOfRecipientsPhone" id="26">
 									<DataPath>TypeOfRecipientsPhone</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Phone</v8:content>
+										</v8:item>
+									</Title>
 									<OpenButton>false</OpenButton>
 									<CreateButton>false</CreateButton>
 									<ChoiceParameters>
@@ -207,12 +213,24 @@
 										<InputField name="RecipientsRecipient" id="14">
 											<DataPath>Recipients.Recipient</DataPath>
 											<ReadOnly>true</ReadOnly>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Recipient</v8:content>
+												</v8:item>
+											</Title>
 											<ContextMenu name="RecipientsRecipientContextMenu" id="15"/>
 											<ExtendedTooltip name="RecipientsRecipientExtendedTooltip" id="16"/>
 										</InputField>
 										<InputField name="RecipientsPhoneNumber" id="17">
 											<DataPath>Recipients.Phone</DataPath>
 											<ReadOnly>true</ReadOnly>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Phone</v8:content>
+												</v8:item>
+											</Title>
 											<ShowInHeader>false</ShowInHeader>
 											<ContextMenu name="RecipientsPhoneNumberContextMenu" id="18"/>
 											<ExtendedTooltip name="RecipientsPhoneNumberExtendedTooltip" id="19"/>
@@ -236,6 +254,12 @@
 									<Type>CommandBarButton</Type>
 									<DefaultButton>true</DefaultButton>
 									<CommandName>Form.Command.Send</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Send</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="SendExtendedTooltip" id="39"/>
 								</Button>
 								<Button name="Cancel" id="31">
@@ -507,11 +531,23 @@
 							<ChildItems>
 								<InputField name="SMSDistributionResultRecipient" id="95">
 									<DataPath>SMSDistributionResult.Recipient</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Recipient</v8:content>
+										</v8:item>
+									</Title>
 									<ContextMenu name="SMSDistributionResultRecipientContextMenu" id="96"/>
 									<ExtendedTooltip name="SMSDistributionResultRecipientExtendedTooltip" id="97"/>
 								</InputField>
 								<InputField name="SMSDistributionResultComment" id="98">
 									<DataPath>SMSDistributionResult.Comment</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Comment</v8:content>
+										</v8:item>
+									</Title>
 									<MultiLine>true</MultiLine>
 									<HeightControlVariant>UseContentHeight</HeightControlVariant>
 									<ContextMenu name="SMSDistributionResultCommentContextMenu" id="99"/>
@@ -551,6 +587,12 @@
 										<InputField name="SentCount" id="164">
 											<DataPath>SentCount</DataPath>
 											<ReadOnly>true</ReadOnly>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Sent</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>Left</TitleLocation>
 											<ContextMenu name="SentCountContextMenu" id="165"/>
 											<ExtendedTooltip name="SentCountExtendedTooltip" id="166"/>
@@ -558,6 +600,12 @@
 										<InputField name="UnsentCount" id="167">
 											<DataPath>UnsentCount</DataPath>
 											<ReadOnly>true</ReadOnly>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Not sent</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>Left</TitleLocation>
 											<ContextMenu name="UnsentCountContextMenu" id="168"/>
 											<ExtendedTooltip name="UnsentCountExtendedTooltip" id="169"/>

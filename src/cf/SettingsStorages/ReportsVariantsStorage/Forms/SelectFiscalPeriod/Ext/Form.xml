@@ -48,6 +48,12 @@
 							<Width>6</Width>
 							<CommandName>Form.Command.GotoPreviousYear</CommandName>
 							<Font ref="style:LargeTextFont" kind="StyleItem"/>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>&lt;</v8:content>
+								</v8:item>
+							</Title>
 							<ShapeRepresentation>WhenActive</ShapeRepresentation>
 							<ExtendedTooltip name="GoBackAYearAvailableExtendedTooltip" id="91"/>
 						</Button>
@@ -64,6 +70,12 @@
 				</UsualGroup>
 				<LabelField name="YearStartDate" id="92">
 					<DataPath>YearStartDate</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Year start date</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<HorizontalAlign>Center</HorizontalAlign>
 					<Format>
@@ -80,6 +92,12 @@
 					<Width>6</Width>
 					<CommandName>Form.Command.GotoNextYear</CommandName>
 					<Font ref="style:LargeTextFont" kind="StyleItem"/>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>&gt;</v8:content>
+						</v8:item>
+					</Title>
 					<ShapeRepresentation>WhenActive</ShapeRepresentation>
 					<ExtendedTooltip name="GotoNextYearExtendedTooltip" id="96"/>
 				</Button>
@@ -130,6 +148,12 @@
 									<Type>UsualButton</Type>
 									<HorizontalStretch>true</HorizontalStretch>
 									<CommandName>Form.Command.SelectMonth1</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>January</v8:content>
+										</v8:item>
+									</Title>
 									<ShapeRepresentation>WhenActive</ShapeRepresentation>
 									<ExtendedTooltip name="SelectedMonth1ExtendedTooltip" id="102"/>
 								</Button>
@@ -137,6 +161,12 @@
 									<Type>UsualButton</Type>
 									<HorizontalStretch>true</HorizontalStretch>
 									<CommandName>Form.Command.SelectMonth2</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>February</v8:content>
+										</v8:item>
+									</Title>
 									<ShapeRepresentation>WhenActive</ShapeRepresentation>
 									<ExtendedTooltip name="SelectedMonth2ExtendedTooltip" id="104"/>
 								</Button>
@@ -144,6 +174,12 @@
 									<Type>UsualButton</Type>
 									<HorizontalStretch>true</HorizontalStretch>
 									<CommandName>Form.Command.SelectMonth3</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>March</v8:content>
+										</v8:item>
+									</Title>
 									<ShapeRepresentation>WhenActive</ShapeRepresentation>
 									<ExtendedTooltip name="SelectedMonth3ExtendedTooltip" id="106"/>
 								</Button>
@@ -167,6 +203,12 @@
 									<Type>UsualButton</Type>
 									<HorizontalStretch>true</HorizontalStretch>
 									<CommandName>Form.Command.SelectMonth4</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>April</v8:content>
+										</v8:item>
+									</Title>
 									<ShapeRepresentation>WhenActive</ShapeRepresentation>
 									<ExtendedTooltip name="SelectedMonth4ExtendedTooltip" id="110"/>
 								</Button>
@@ -174,6 +216,12 @@
 									<Type>UsualButton</Type>
 									<HorizontalStretch>true</HorizontalStretch>
 									<CommandName>Form.Command.SelectMonth5</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>May</v8:content>
+										</v8:item>
+									</Title>
 									<ShapeRepresentation>WhenActive</ShapeRepresentation>
 									<ExtendedTooltip name="SelectedMonth5ExtendedTooltip" id="112"/>
 								</Button>
@@ -181,6 +229,12 @@
 									<Type>UsualButton</Type>
 									<HorizontalStretch>true</HorizontalStretch>
 									<CommandName>Form.Command.SelectMonth6</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>June</v8:content>
+										</v8:item>
+									</Title>
 									<ShapeRepresentation>WhenActive</ShapeRepresentation>
 									<ExtendedTooltip name="SelectedMonth6ExtendedTooltip" id="114"/>
 								</Button>
@@ -204,6 +258,12 @@
 									<Type>UsualButton</Type>
 									<HorizontalStretch>true</HorizontalStretch>
 									<CommandName>Form.Command.SelectMonth7</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>July</v8:content>
+										</v8:item>
+									</Title>
 									<ShapeRepresentation>WhenActive</ShapeRepresentation>
 									<ExtendedTooltip name="SelectedMonth7ExtendedTooltip" id="118"/>
 								</Button>
@@ -211,6 +271,12 @@
 									<Type>UsualButton</Type>
 									<HorizontalStretch>true</HorizontalStretch>
 									<CommandName>Form.Command.SelectMonth8</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>August</v8:content>
+										</v8:item>
+									</Title>
 									<ShapeRepresentation>WhenActive</ShapeRepresentation>
 									<ExtendedTooltip name="SelectedMonth8ExtendedTooltip" id="120"/>
 								</Button>
@@ -218,6 +284,12 @@
 									<Type>UsualButton</Type>
 									<HorizontalStretch>true</HorizontalStretch>
 									<CommandName>Form.Command.SelectMonth9</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>September</v8:content>
+										</v8:item>
+									</Title>
 									<ShapeRepresentation>WhenActive</ShapeRepresentation>
 									<ExtendedTooltip name="SelectedMonth9ExtendedTooltip" id="122"/>
 								</Button>
@@ -241,6 +313,12 @@
 									<Type>UsualButton</Type>
 									<HorizontalStretch>true</HorizontalStretch>
 									<CommandName>Form.Command.SelectMonth10</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>October</v8:content>
+										</v8:item>
+									</Title>
 									<ShapeRepresentation>WhenActive</ShapeRepresentation>
 									<ExtendedTooltip name="SelectedMonth10ExtendedTooltip" id="126"/>
 								</Button>
@@ -248,6 +326,12 @@
 									<Type>UsualButton</Type>
 									<HorizontalStretch>true</HorizontalStretch>
 									<CommandName>Form.Command.SelectMonth11</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>November</v8:content>
+										</v8:item>
+									</Title>
 									<ShapeRepresentation>WhenActive</ShapeRepresentation>
 									<ExtendedTooltip name="SelectedMonth11ExtendedTooltip" id="128"/>
 								</Button>
@@ -255,6 +339,12 @@
 									<Type>UsualButton</Type>
 									<HorizontalStretch>true</HorizontalStretch>
 									<CommandName>Form.Command.SelectMonth12</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>December</v8:content>
+										</v8:item>
+									</Title>
 									<ShapeRepresentation>WhenActive</ShapeRepresentation>
 									<ExtendedTooltip name="SelectedMonth12ExtendedTooltip" id="130"/>
 								</Button>
@@ -281,6 +371,12 @@
 							<HorizontalStretch>true</HorizontalStretch>
 							<CommandName>Form.Command.SelectAQuarter1</CommandName>
 							<BackColor>style:TotalsGroupBackground</BackColor>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Q1</v8:content>
+								</v8:item>
+							</Title>
 							<ShapeRepresentation>WhenActive</ShapeRepresentation>
 							<ExtendedTooltip name="SelectAQuarter1ExtendedTooltip" id="108"/>
 						</Button>
@@ -289,6 +385,12 @@
 							<HorizontalStretch>true</HorizontalStretch>
 							<CommandName>Form.Command.SelectAQuarter2</CommandName>
 							<BackColor>style:TotalsGroupBackground</BackColor>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Q2</v8:content>
+								</v8:item>
+							</Title>
 							<ShapeRepresentation>WhenActive</ShapeRepresentation>
 							<ExtendedTooltip name="SelectAQuarter2ExtendedTooltip" id="116"/>
 						</Button>
@@ -297,6 +399,12 @@
 							<HorizontalStretch>true</HorizontalStretch>
 							<CommandName>Form.Command.SelectAQuarter3</CommandName>
 							<BackColor>style:TotalsGroupBackground</BackColor>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Q3</v8:content>
+								</v8:item>
+							</Title>
 							<ShapeRepresentation>WhenActive</ShapeRepresentation>
 							<ExtendedTooltip name="SelectAQuarter3ExtendedTooltip" id="124"/>
 						</Button>
@@ -305,6 +413,12 @@
 							<HorizontalStretch>true</HorizontalStretch>
 							<CommandName>Form.Command.SelectAQuarter4</CommandName>
 							<BackColor>style:TotalsGroupBackground</BackColor>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Q4</v8:content>
+								</v8:item>
+							</Title>
 							<ShapeRepresentation>WhenActive</ShapeRepresentation>
 							<ExtendedTooltip name="SelectAQuarter4ExtendedTooltip" id="132"/>
 						</Button>
@@ -328,6 +442,12 @@
 							<Type>UsualButton</Type>
 							<HorizontalStretch>true</HorizontalStretch>
 							<CommandName>Form.Command.SelectDay</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Day…</v8:content>
+								</v8:item>
+							</Title>
 							<ShapeRepresentation>WhenActive</ShapeRepresentation>
 							<ExtendedTooltip name="ChooseDayExtendedTooltip" id="175"/>
 						</Button>
@@ -348,6 +468,12 @@
 							<Type>UsualButton</Type>
 							<HorizontalStretch>true</HorizontalStretch>
 							<CommandName>Form.Command.Select9Months</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>9 months</v8:content>
+								</v8:item>
+							</Title>
 							<ShapeRepresentation>WhenActive</ShapeRepresentation>
 							<ExtendedTooltip name="Select9MonthsExtendedTooltip" id="138"/>
 						</Button>
@@ -355,6 +481,12 @@
 							<Type>UsualButton</Type>
 							<HorizontalStretch>true</HorizontalStretch>
 							<CommandName>Form.Command.SelectYear</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Year</v8:content>
+								</v8:item>
+							</Title>
 							<ShapeRepresentation>WhenActive</ShapeRepresentation>
 							<ExtendedTooltip name="SelectAYearExtendedTooltip" id="140"/>
 						</Button>
@@ -379,12 +511,24 @@
 				<Button name="ClearPeriod" id="189">
 					<Type>UsualButton</Type>
 					<CommandName>Form.Command.ClearPeriod</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>All time</v8:content>
+						</v8:item>
+					</Title>
 					<ShapeRepresentation>WhenActive</ShapeRepresentation>
 					<ExtendedTooltip name="ClearPeriodExtendedTooltip" id="190"/>
 				</Button>
 				<Button name="GoToStandardPeriodOption" id="195">
 					<Type>UsualButton</Type>
 					<CommandName>Form.Command.GoToStandardPeriodOption</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Standard option</v8:content>
+						</v8:item>
+					</Title>
 					<ShapeRepresentation>WhenActive</ShapeRepresentation>
 					<ExtendedTooltip name="GoToStandardVersionOfPeriodExtendedTooltip" id="196"/>
 				</Button>

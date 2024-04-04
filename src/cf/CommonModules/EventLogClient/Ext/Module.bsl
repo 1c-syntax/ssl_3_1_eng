@@ -1,19 +1,20 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #Region Public
 
-// Write the message to the event log. 
-// If WriteEvents = True, the message is written immediately, through a server call. 
-// If WriteEvents is False (by default), the message is placed in a queue 
-// to be written later, with the next call of this or another procedure.
-// The queue of the messages to be written is passed in the MessagesForEventLog parameter.
+// 
+// 
+// 
+// 
+// 
 //
 //  Parameters: 
 //   EventName          - String - an event name for the event log;
@@ -52,17 +53,17 @@ Procedure AddMessageForEventLog(Val EventName, Val LevelPresentation = "Informat
 	EndIf;
 	
 	MessageStructure = New Structure;
+	MessageStructure.Insert("EventDate", EventDate);
 	MessageStructure.Insert("EventName", EventName);
 	MessageStructure.Insert("LevelPresentation", LevelPresentation);
-	MessageStructure.Insert("Comment", Comment);
-	MessageStructure.Insert("EventDate", EventDate);
+	MessageStructure.Insert("Comment",
+		CommonClientServer.ReplaceProhibitedXMLChars(Comment, " "));
 	
-	MessagesForEventLog = ApplicationParameters["StandardSubsystems.MessagesForEventLog"]; // ValueList
-	MessagesForEventLog.Add(MessageStructure);
+	Messages = ApplicationParameters["StandardSubsystems.MessagesForEventLog"]; // ValueList
+	Messages.Add(MessageStructure);
 	
 	If WriteEvents Then
-		EventLogServerCall.WriteEventsToEventLog(MessagesForEventLog);
-		ApplicationParameters.Insert(ParameterName, MessagesForEventLog);
+		WriteEventsToEventLog();
 	EndIf;
 	
 EndProcedure
@@ -89,6 +90,24 @@ EndProcedure
 Procedure OpenEventLog(Val Filter = Undefined, Owner = Undefined) Export
 	
 	OpenForm("DataProcessor.EventLog.Form", Filter, Owner);
+	
+EndProcedure
+
+// 
+// 
+//
+Procedure WriteEventsToEventLog() Export
+	
+	ParameterName = "StandardSubsystems.MessagesForEventLog";
+	If ApplicationParameters[ParameterName] = Undefined Then
+		ApplicationParameters.Insert(ParameterName, New ValueList);
+	EndIf;
+	
+	Messages = ApplicationParameters["StandardSubsystems.MessagesForEventLog"]; // ValueList
+	If ValueIsFilled(Messages) Then
+		EventLogServerCall.WriteEventsToEventLog(Messages);
+		ApplicationParameters.Insert(ParameterName, Messages);
+	EndIf;
 	
 EndProcedure
 
@@ -132,16 +151,14 @@ EndProcedure
 // Parameters:
 //  Data - FormDataCollectionItem of See DataProcessor.EventLog.Form.EventLog.Log
 //
-Procedure ViewCurrentEventInNewWindow(Data, DataStorage) Export
+Procedure ViewCurrentEventInNewWindow(Data) Export
 	
 	If Data = Undefined Then
 		Return;
 	EndIf;
 	
-	FormUniqueKey = Data.DataAddress;
 	FormOpenParameters = EventLogEventToStructure(Data);
-	FormOpenParameters.Insert("DataStorage", DataStorage);
-	OpenForm("DataProcessor.EventLog.Form.Event", FormOpenParameters,, FormUniqueKey);
+	OpenForm("DataProcessor.EventLog.Form.Event", FormOpenParameters,, Data.EventKey);
 	
 EndProcedure
 
@@ -193,7 +210,7 @@ EndProcedure
 //     * Field - FormField - value table field.
 //     * DateInterval - StandardPeriod
 //     * EventLogFilter - Filter - the event log filter.
-//     * DataStorage - String
+//     * NotificationHandlerForSettingDateInterval - NotifyDescription
 //
 Procedure EventsChoice(Parameters) Export
 	
@@ -202,9 +219,12 @@ Procedure EventsChoice(Parameters) Export
 	EndIf;
 	
 	If Parameters.Field.Name = "Data" Or Parameters.Field.Name = "DataPresentation" Then
-		If Parameters.CurrentData.Data <> Undefined
-			And (TypeOf(Parameters.CurrentData.Data) <> Type("String")
-			And ValueIsFilled(Parameters.CurrentData.Data)) Then
+		If TypeOf(Parameters.CurrentData.Data) <> Type("Undefined")
+		   And TypeOf(Parameters.CurrentData.Data) <> Type("String")
+		   And TypeOf(Parameters.CurrentData.Data) <> Type("Number")
+		   And TypeOf(Parameters.CurrentData.Data) <> Type("Date")
+		   And TypeOf(Parameters.CurrentData.Data) <> Type("Boolean")
+		   And ValueIsFilled(Parameters.CurrentData.Data) Then
 			
 			OpenDataForViewing(Parameters.CurrentData);
 			Return;
@@ -212,11 +232,13 @@ Procedure EventsChoice(Parameters) Export
 	EndIf;
 	
 	If Parameters.Field.Name = "Date" Then
-		SetPeriodForViewing(Parameters.DateInterval, Parameters.EventLogFilter);
+		SetPeriodForViewing(Parameters.DateInterval,
+			Parameters.EventLogFilter,
+			Parameters.NotificationHandlerForSettingDateInterval);
 		Return;
 	EndIf;
 	
-	ViewCurrentEventInNewWindow(Parameters.CurrentData, Parameters.DataStorage);
+	ViewCurrentEventInNewWindow(Parameters.CurrentData);
 	
 EndProcedure
 
@@ -224,44 +246,50 @@ EndProcedure
 //
 // Parameters:
 //  CurrentData - ValueTableRow
-//  CurrentItem - FormField - current item of the value table row.
+//  CurrentItemName - String - Name of the current item in the value table.
 //  EventLogFilter - Structure
-//  ExcludeColumns - ValueList
+//  ExcludeColumns - Array
 //
 // Returns:
 //  Boolean - True if the filter is set, False otherwise.
 //
-Function SetFilterByValueInCurrentColumn(CurrentData, CurrentItem, EventLogFilter, ExcludeColumns) Export
+Function SetFilterByValueInCurrentColumn(CurrentData, CurrentItemName,
+			EventLogFilter, ExcludeColumns) Export
 	
 	If CurrentData = Undefined Then
 		Return False;
 	EndIf;
 	
-	PresentationColumnName = CurrentItem.Name;
-	
-	If PresentationColumnName = "SessionDataSeparationPresentation" Then
-		EventLogFilter.Delete("SessionDataSeparationPresentation");
-		EventLogFilter.Insert("SessionDataSeparation", CurrentData.SessionDataSeparation);
-		PresentationColumnName = "SessionDataSeparation";
-	EndIf;
-	
-	If ExcludeColumns.Find(PresentationColumnName) <> Undefined Then
+	If ExcludeColumns.Find(CurrentItemName) <> Undefined Then
 		Return False;
 	EndIf;
-	FilterValue = CurrentData[PresentationColumnName];
-	Presentation  = CurrentData[PresentationColumnName];
 	
-	FilterElementName = PresentationColumnName;
-	If PresentationColumnName = "UserName" Then 
-		FilterElementName = "User";
-		FilterValue = CurrentData["User"];
-	ElsIf PresentationColumnName = "ApplicationPresentation" Then
-		FilterElementName = "ApplicationName";
-		FilterValue = CurrentData["ApplicationName"];
-	ElsIf PresentationColumnName = "EventPresentation" Then
-		FilterElementName = "Event";
-		FilterValue = CurrentData["Event"];
+	FilterColumnName        = CurrentItemName;
+	PresentationColumnName = CurrentItemName;
+	
+	If CurrentItemName = "MetadataPresentation" Then
+		FilterColumnName = "Metadata";
+		
+	ElsIf CurrentItemName = "Metadata" Then
+		PresentationColumnName = "MetadataPresentation";
+		
+	ElsIf CurrentItemName = "SessionDataSeparationPresentation"
+	      Or CurrentItemName = "DataArea" Then
+		
+		FilterColumnName = "SessionDataSeparation";
+		
+	ElsIf CurrentItemName = "UserName" Then
+		FilterColumnName = "User";
+		
+	ElsIf CurrentItemName = "ApplicationPresentation" Then
+		FilterColumnName = "ApplicationName";
+		
+	ElsIf CurrentItemName = "EventPresentation" Then
+		FilterColumnName = "Event";
 	EndIf;
+	
+	FilterValue = CurrentData[FilterColumnName];
+	Presentation  = CurrentData[PresentationColumnName];
 	
 	// Filtering by a blanked string is not allowed.
 	If TypeOf(FilterValue) = Type("String") And IsBlankString(FilterValue) Then
@@ -271,27 +299,36 @@ Function SetFilterByValueInCurrentColumn(CurrentData, CurrentItem, EventLogFilte
 		EndIf;
 	EndIf;
 	
-	CurrentValue = Undefined;
-	If EventLogFilter.Property(FilterElementName, CurrentValue) Then
-		// Filter is already applied.
-		EventLogFilter.Delete(FilterElementName);
+	EventLogFilter.Delete(FilterColumnName);
+	EventLogFilter.Delete(PresentationColumnName);
+	
+	If FilterColumnName = "Data"
+	   And ValueIsFilled(CurrentData.DataAsStr) Then
+		
+		FilterValue = New ValueList;
+		FilterValue.Add(CurrentData.DataAsStr, CurrentData.Data);
 	EndIf;
 	
-	If FilterElementName = "Data" // Filter type is not a list but a single value.
-		Or FilterElementName = "Comment"
-		Or FilterElementName = "Transaction"
-		Or FilterElementName = "DataPresentation" Then
-		EventLogFilter.Insert(FilterElementName, FilterValue);
+	If FilterColumnName = "Metadata"
+	 Or FilterColumnName = "Data"
+	 Or FilterColumnName = "Comment"
+	 Or FilterColumnName = "Transaction"
+	 Or FilterColumnName = "DataPresentation" Then
+		
+		EventLogFilter.Insert(FilterColumnName, FilterValue);
 	Else
 		
-		If FilterElementName = "SessionDataSeparation" Then
+		If FilterColumnName = "SessionDataSeparation" Then
 			FilterList = FilterValue.Copy();
+		ElsIf FilterColumnName = "User"
+		        And FilterValue = String(CommonClientServer.BlankUUID()) Then
+			Return False;
 		Else
 			FilterList = New ValueList;
 			FilterList.Add(FilterValue, Presentation);
 		EndIf;
 		
-		EventLogFilter.Insert(FilterElementName, FilterList);
+		EventLogFilter.Insert(FilterColumnName, FilterList);
 	EndIf;
 	
 	Return True;
@@ -305,7 +342,6 @@ EndFunction
 // For internal use only.
 // 
 // Parameters:
-//  Data - FormDataCollectionItem: см. Обработка.ЖурналРегистрации.Форма.ЖурналРегистрации.Журнал
 // 
 // Returns:
 //  Structure
@@ -319,6 +355,7 @@ Function EventLogEventToStructure(Data)
 	FormParameters = New Structure;
 	FormParameters.Insert("Date",                    Data.Date);
 	FormParameters.Insert("UserName",         Data.UserName);
+	FormParameters.Insert("User",            Data.User);
 	FormParameters.Insert("ApplicationPresentation", Data.ApplicationPresentation);
 	FormParameters.Insert("Computer",               Data.Computer);
 	FormParameters.Insert("Event",                 Data.Event);
@@ -334,13 +371,17 @@ Function EventLogEventToStructure(Data)
 	FormParameters.Insert("PrimaryIPPort",          Data.Port);
 	FormParameters.Insert("SyncPort",   Data.SyncPort);
 	FormParameters.Insert("Level",                 Data.Level);
+	FormParameters.Insert("EventKey",             Data.EventKey);
 	
+	If Data.Property("DataArea") Then
+		FormParameters.Insert("DataArea", Data.DataArea);
+	EndIf;
 	If Data.Property("SessionDataSeparation") Then
 		FormParameters.Insert("SessionDataSeparation", Data.SessionDataSeparation);
 	EndIf;
 	
-	If ValueIsFilled(Data.DataAddress) Then
-		FormParameters.Insert("DataAddress", Data.DataAddress);
+	If ValueIsFilled(Data.DataAsStr) Then
+		FormParameters.Insert("DataAsStr", Data.DataAsStr);
 	EndIf;
 	
 	Return FormParameters;

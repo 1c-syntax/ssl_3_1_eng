@@ -1,28 +1,29 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
 // 
 // 
-
 // 
 // 
-
-
+// 
+// 
+// 
+// 
 //
-
-
-
+// 
+// 
+// 
 //
-
-
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #Region Internal
@@ -424,8 +425,8 @@ Procedure WriteFileInfobaseIDToCheckFile(TheDatabaseID)
 		           |Using both infobase copies with the same ID at the same time can lead to conflicts
 		           |while synchronizing data, sending emails, and performing other operations with external resources.
 		           |
-		           |If the file is missing in the folder with the infobase, the application will ask the administrator whether this
-		           |infobase can operate with external resources.';"), 
+		           |If the file is missing from the infobase directory, the app will prompt
+		           |the administrator if accessing external resources is allowed.';"), 
 		TheDatabaseID, 
 		Metadata.Synonym);
 	
@@ -460,8 +461,8 @@ Function SetExternalResourcesOperationsLock()
 	
 	LockParameters = SavedLockParameters();
 	
-	
-	
+	// 
+	// 
 	If LockParameters.OperationsWithExternalResourcesLocked = Undefined 
 		Or LockParameters.OperationsWithExternalResourcesLocked = True Then
 		Return True; 
@@ -500,14 +501,14 @@ Function SetExternalResourcesOperationsLock()
 		Return True;
 	EndIf;
 	
-	
-	
-	
+	// 
+	// 
+	// 
 	
 	If IsFileInfobase Then
 		
-		
-		
+		// 
+		// 
 		
 		If Not FileInfobaseIDCheckFileExists() Then
 			MessageText = NStr("en = 'The infobase folder does not contain check file %1.';");
@@ -543,10 +544,10 @@ Function SetExternalResourcesOperationsLock()
 			And WorkingProcessServerName <> SavedWorkingProcessServerName
 			And StrFind(SavedConnectionManagerServerName, ConnectionManagerServerName) = 0;
 		
-		
-		
-		 
-		
+		// 
+		// 
+		//  
+		// 
 		
 		If InfobaseNameChanged Or ComputerNameChanged Then
 			
@@ -583,7 +584,7 @@ Procedure SetFlagShowsNecessityOfLock(LockParameters, MessageText)
 	
 	CurrentBlockingParameters = SavedLockParameters();
 	If CurrentBlockingParameters.OperationsWithExternalResourcesLocked = Undefined Then
-		
+		// If the flag indicating that a lock decision should be made was set in another session.
 		Return;
 	EndIf;
 	
@@ -600,7 +601,7 @@ EndProcedure
 
 Function LockReasonPresentation(LockParameters)
 	
-	CurrentDate = CurrentDate(); 
+	CurrentDate = CurrentDate(); // ACC:143 Lock information is required in server date.
 	
 	Return StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'The lock was set on server <b>%1</b> on <b>%2</b> at <b>%3</b> %4.

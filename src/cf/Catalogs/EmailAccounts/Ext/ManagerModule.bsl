@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -369,7 +370,7 @@ Function DefineDomainMailServersNames(Domain)
 	ApplicationStartupParameters.ExecutionEncoding = "OEM";
 	
 	DNSServerAddresses = EmailOperationsInternal.DNSServerAddresses();
-	DNSServerAddresses.Insert(0, ""); 
+	DNSServerAddresses.Insert(0, ""); // 
 	
 	CommandsStrings = New Array;
 	
@@ -1031,8 +1032,8 @@ Function IMAPServerConnectionSettingsOptions(Email) Export
 		Return Result;
 	EndIf;
 
-	
-	
+	// 
+	// 
 	SettingsMode = Result.Add();
 	SettingsMode.IncomingMailServer = "imap." + ServerNameInAccount;
 	SettingsMode.IncomingMailServerPort = 993;
@@ -1082,8 +1083,8 @@ Function POPServerConnectionSettingsOptions(Email)
 	Result.Columns.Add("IncomingMailServerPort");
 	Result.Columns.Add("UseSecureConnectionForIncomingMail");
 	
-	
-	
+	// 
+	// 
 	SettingsMode = Result.Add();
 	SettingsMode.IncomingMailServer = "pop." + ServerNameInAccount;
 	SettingsMode.IncomingMailServerPort = 995;
@@ -1163,8 +1164,8 @@ Function SMTPServerConnectionSettingsOptions(Email) Export
 		Return Result;
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	SettingsMode = Result.Add();
 	SettingsMode.OutgoingMailServer = "smtp." + ServerNameInAccount;
 	SettingsMode.OutgoingMailServerPort = 465;

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -78,14 +79,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	// Reading a user setting common to all report panels.
 	ImportAllSettings();
 	
-	If Parameters.Property("SearchString") Then
+	If ValueIsFilled(Parameters.SearchString) Then
 		SearchString = Parameters.SearchString;
 	EndIf;
-	If Parameters.Property("SearchInAllSections") Then
-		SearchInAllSections = Parameters.SearchInAllSections;
-	Else
-		SearchInAllSections = True;
-	EndIf;
+	SearchInAllSections = Parameters.SearchInAllSections;
 	
 	DefineSubsystemsAndTitle(Parameters);
 	TimeConsumingOperation = UpdateReportPanelAtServer();
@@ -94,7 +91,7 @@ EndProcedure
 
 &AtClient
 Procedure OnOpen(Cancel)
-	If TimeConsumingOperation <> Undefined And TimeConsumingOperation.Status = "Running" Then
+	If TimeConsumingOperation <> Undefined Then
 		IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 		IdleParameters.OutputIdleWindow = False;
 		End = New NotifyDescription("UpdateReportPanelCompletion", ThisObject);
@@ -102,6 +99,10 @@ Procedure OnOpen(Cancel)
 	EndIf;	
 EndProcedure
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
 Procedure UpdateReportPanelCompletion(Result, AdditionalParameters) Export
 	
@@ -110,7 +111,9 @@ Procedure UpdateReportPanelCompletion(Result, AdditionalParameters) Export
 		Return;
 	EndIf;
 	If Result.Status = "Error" Then
-		Raise Result.BriefErrorDescription;
+		StandardSubsystemsClient.OutputErrorInfo(
+			Result.ErrorInfo);
+		Return;
 	EndIf;
 	If Result.Status = "Completed2" Then
 		FillReportPanel(Result.ResultAddress);
@@ -262,6 +265,7 @@ Procedure Attachable_SectionTitleClick(Item)
 	ParametersForm = New Structure;
 	ParametersForm.Insert("SubsystemPath",      SubsystemPath);
 	ParametersForm.Insert("SearchString",         SearchString);
+	ParametersForm.Insert("SearchInAllSections", True);
 	
 	OwnerForm     = ThisObject;
 	FormUniqueness = True;
@@ -501,7 +505,7 @@ Function UpdateReportPanelAtClient(Event = "")
 	EndIf;
 	
 	TimeConsumingOperation = UpdateReportPanelAtServer(Event);
-	If TimeConsumingOperation <> Undefined And TimeConsumingOperation.Status = "Running" Then
+	If TimeConsumingOperation <> Undefined Then
 		End = New NotifyDescription("UpdateReportPanelCompletion", ThisObject);
 		IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 		IdleParameters.OutputIdleWindow = False;
@@ -531,7 +535,7 @@ Function StartMeasurement(Event, Comment = Undefined)
 		If SetupMode Or Event = "DisableSetupMode" Then
 			Measurement.Name = "ReportPanel.SetupMode";
 		ElsIf ValueIsFilled(SearchString) Then
-			Measurement.Name = "ReportPanel.Search"; 
+			Measurement.Name = "ReportPanel.Search"; // 
 		EndIf;
 		Comment.Insert("SubsystemPath", ClientParameters.SubsystemPath);
 		Comment.Insert("ShowTooltips", ShowTooltips);
@@ -580,7 +584,7 @@ Function FindOptionByItemName(LabelName)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClientAtServerNoContext
 Function FindSubsystemByRef(Form, Ref)
@@ -597,7 +601,7 @@ Function FindSubsystemByRef(Form, Ref)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
 Procedure MoveQuickAccessOption(Val OptionID, Val QuickAccess)
@@ -939,7 +943,7 @@ Procedure SaveSettingsOfThisReportPanel()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
 Function FillReportPanelInBackground()
@@ -968,26 +972,28 @@ Function FillReportPanelInBackground()
 	EndIf;
 	SearchParameters.Insert("ApplicationSubsystems", SubsystemsTable);
 	
-	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.RunNotInBackground1 = (ReportsOptions.PresentationsFilled() = "Filled1");
-	Result = TimeConsumingOperations.ExecuteInBackground("ReportsOptions.FindReportOptionsForOutput", SearchParameters, ExecutionParameters);
-	If Result.Status = "Error" Then
-		Raise Result.BriefErrorDescription;
-	EndIf;	
-	If Result.Status <> "Completed2" Then
-		Return Result;
-	EndIf;	
+	If ReportsOptions.PresentationsFilled() = "Filled1" Then
+		ResultAddress = PutToTempStorage(Undefined, UUID);
+		ReportsOptions.FindReportOptionsForOutput(SearchParameters, ResultAddress);
+	Else
+		ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
+		Result = TimeConsumingOperations.ExecuteInBackground("ReportsOptions.FindReportOptionsForOutput", SearchParameters, ExecutionParameters);
+		If Result.Status <> "Completed2" Then
+			Return Result;
+		EndIf;
+		ResultAddress = Result.ResultAddress;
+	EndIf;
 	
-	FillReportPanel(Result.ResultAddress);
-	Return Result;
+	FillReportPanel(ResultAddress);
+	Return Undefined;
 	
 EndFunction
 
 &AtServer
-Procedure FillReportPanel(FillingParametersTempStorage)
+Procedure FillReportPanel(ResultAddress)
 	
-	FillParameters = GetFromTempStorage(FillingParametersTempStorage); // See ReportsOptions.ReportOptionsToShow
-	DeleteFromTempStorage(FillingParametersTempStorage);
+	FillParameters = GetFromTempStorage(ResultAddress); // See ReportsOptions.ReportOptionsToShow
+	DeleteFromTempStorage(ResultAddress);
 	
 	InitializeFillingParameters(FillParameters);
 	If SetupMode Then
@@ -1174,7 +1180,7 @@ Procedure OutputSectionOptions(FillParameters, SectionReference)
 	Else
 		SectionSubsystems = FillParameters.SubsystemsTable.Copy(FilterBySection);
 	EndIf;
-	SectionSubsystems.Sort("Priority ASC"); 
+	SectionSubsystems.Sort("Priority ASC"); // 
 	
 	FillParameters.Insert("SectionReference",      SectionReference);
 	FillParameters.Insert("SectionSubsystems", SectionSubsystems);
@@ -1308,7 +1314,7 @@ Procedure DefineGroupsAndDecorationsForOptionsOutput(FillParameters)
 	
 	// Previously, an output limit was reached in other groups, so there is no need to generate subordinate items.
 	If FillParameters.RemainsToOutput = 0 Then
-		SectionTitle.Height = 1; 
+		SectionTitle.Height = 1; // 
 		Return;
 	EndIf;
 	
@@ -1672,8 +1678,8 @@ EndFunction
 &AtServer
 Procedure FillOutputOrder(OutputOrder, ParentLevelRow, TreeRow, Recursion, FillParameters)
 	
-	If Not Recursion.IsLastColumn And Recursion.FreeRows <= 0 Then 
-		
+	If Not Recursion.IsLastColumn And Recursion.FreeRows <= 0 Then // 
+		// 
 		Recursion.TotaItemsLeftToOutput = Recursion.TotaItemsLeftToOutput - 1; // Empty group that shouldn't be output.
 		Recursion.CurrentColumnNumber = Recursion.CurrentColumnNumber + 1;
 		Recursion.IsLastColumn = (Recursion.CurrentColumnNumber = Recursion.ColumnsCount);
@@ -1682,8 +1688,8 @@ Procedure FillOutputOrder(OutputOrder, ParentLevelRow, TreeRow, Recursion, FillP
 		Recursion.Level3GroupCutoff = Max(Int(Recursion.TotaItemsLeftToOutput / FreeColumns), 2);
 		Recursion.FreeRows = Recursion.Level3GroupCutoff; // Number of options to output per column.
 		
-		
-		
+		// 
+		// 
 		CurrentParent = ParentLevelRow;
 		While CurrentParent <> Undefined And CurrentParent.SubsystemRef <> FillParameters.SectionReference Do
 			
@@ -1757,10 +1763,10 @@ Procedure FillOutputOrder(OutputOrder, ParentLevelRow, TreeRow, Recursion, FillP
 		OutputOptionsCount = 0;
 		VisibleOptionsCount = 0;
 		For Each Variant In TreeRow.Variants Do
-			
-			
-			
-			
+			// 
+			// 
+			// 
+			// 
 			
 			If CanContinue
 				And Not Recursion.IsLastColumn
@@ -1797,8 +1803,8 @@ Procedure FillOutputOrder(OutputOrder, ParentLevelRow, TreeRow, Recursion, FillP
 					CurrentParent = CurrentParent.Parent;
 				EndDo;
 				
-				
-				
+				// 
+				// 
 				OutputSubsystem = OutputOrder.Add();
 				OutputSubsystem.ColumnNumber        = Recursion.CurrentColumnNumber;
 				OutputSubsystem.IsSubsystem       = True;
@@ -2252,7 +2258,7 @@ Function GenerateRowWithHighlighting(SearchArea, Content = Undefined)
 	HighlightStartPosition = 0;
 	For Each ListItem In SearchArea.WordHighlighting Do
 		If TextIsShortened And ListItem.Value > TextLength Then
-			ListItem.Value = TextLength; 
+			ListItem.Value = TextLength; // 
 		EndIf;
 		Highlight = (ListItem.Presentation = "+");
 		CountOpen = CountOpen + ?(Highlight, 1, -1);

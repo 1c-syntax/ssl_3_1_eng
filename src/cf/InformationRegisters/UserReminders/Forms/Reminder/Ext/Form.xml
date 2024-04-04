@@ -10,12 +10,18 @@
 	</CommandSet>
 	<AutoCommandBar name="FormCommandBar" id="-1">
 		<ChildItems>
-			<Button name="Delete" id="109">
+			<Button name="Dismiss" id="109">
 				<Type>CommandBarButton</Type>
 				<Representation>Text</Representation>
 				<CommandName>Form.Command.Delete</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Dismiss</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
-				<ExtendedTooltip name="DeleteExtendedTooltip" id="110"/>
+				<ExtendedTooltip name="DismissExtendedTooltip" id="110"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
@@ -65,6 +71,40 @@
 					<Events>
 						<Event name="Click">ReminderSubjectClick</Event>
 					</Events>
+				</LabelDecoration>
+			</ChildItems>
+		</UsualGroup>
+		<UsualGroup name="Message" id="140">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Message</v8:content>
+				</v8:item>
+			</Title>
+			<Group>Vertical</Group>
+			<Representation>None</Representation>
+			<ShowTitle>false</ShowTitle>
+			<ExtendedTooltip name="MessageExtendedTooltip" id="141"/>
+			<ChildItems>
+				<LabelDecoration name="MessageDetails" id="142">
+					<Title formatted="false">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Message details</v8:content>
+						</v8:item>
+					</Title>
+					<ContextMenu name="MessageDetailsContextMenu" id="143"/>
+					<ExtendedTooltip name="MessageDetailsExtendedTooltip" id="144"/>
+				</LabelDecoration>
+				<LabelDecoration name="RefToMessage" id="145">
+					<Title formatted="false">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Message link</v8:content>
+						</v8:item>
+					</Title>
+					<ContextMenu name="RefToMessageContextMenu" id="146"/>
+					<ExtendedTooltip name="RefToMessageExtendedTooltip" id="147"/>
 				</LabelDecoration>
 			</ChildItems>
 		</UsualGroup>
@@ -272,6 +312,12 @@
 										</LabelDecoration>
 										<InputField name="RemindBeforeDueTime" id="59">
 											<DataPath>TimeIntervalString</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Time interval as string</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<ToolTip>
 												<v8:item>
@@ -524,6 +570,12 @@
 							<ChildItems>
 								<InputField name="FrequencyOption" id="61">
 									<DataPath>FrequencyOption</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Frequency option</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<EditMode>EnterOnInput</EditMode>
 									<Width>25</Width>
@@ -696,6 +748,9 @@
 	</Commands>
 	<Parameters>
 		<Parameter name="Source">
+			<Type/>
+		</Parameter>
+		<Parameter name="KeyData">
 			<Type/>
 		</Parameter>
 	</Parameters>

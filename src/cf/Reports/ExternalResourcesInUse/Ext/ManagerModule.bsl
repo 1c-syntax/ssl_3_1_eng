@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -26,7 +27,7 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 	ReportSettings.DefineFormSettings = True;
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, Metadata.Reports.ExternalResourcesInUse, "");
-	OptionSettings.Description = NStr("en = 'External resources that the application and additional modules use';");
+	OptionSettings.Description = NStr("en = 'External resources that the app and additional modules use';");
 	OptionSettings.LongDesc = 
 		NStr("en = 'Online resources, add-ins, COM classes, and more.
 		           |Environment parameters that will help administrator 
@@ -282,8 +283,7 @@ EndProcedure
 //
 // Parameters:
 //  SpreadsheetDocument - SpreadsheetDocument - a document, in which an operation presentation will be displayed,
-//  PermissionsSets - See DataProcessors.ExternalResourcesPermissionsSetup.ТаблицыРазрешений
-//  
+//  Template - SpreadsheetDocument - a document received from the PermissionsPresentations report template,
 //  AsRequired - Boolean - indicates whether terms of "the following resources are required" kind are used in the presentation instead of
 //                          "the following resources will be granted."
 //
@@ -425,8 +425,8 @@ Function ConfigurationModuleDictionary()
 	
 	Result = New Structure();
 	
-	Result.Insert("Nominative", NStr("en = 'Application';"));
-	Result.Insert("Genitive", NStr("en = 'Applications';"));
+	Result.Insert("Nominative", NStr("en = 'App';"));
+	Result.Insert("Genitive", NStr("en = 'Apps';"));
 	
 	Return Result;
 	

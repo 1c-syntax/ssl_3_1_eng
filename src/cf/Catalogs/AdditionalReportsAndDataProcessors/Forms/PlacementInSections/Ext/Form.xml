@@ -12,6 +12,12 @@
 				<SkipOnInput>false</SkipOnInput>
 				<DefaultItem>true</DefaultItem>
 				<CommandName>Form.Command.OK</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>OK</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="OKExtendedTooltip" id="13"/>
 			</Button>
 			<Button name="Cancel" id="9">
@@ -106,6 +112,12 @@
 					<ChildItems>
 						<CheckBoxField name="Used" id="6">
 							<DataPath>Sections.Used</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Used</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<EditMode>EnterOnInput</EditMode>
 							<CheckBoxType>Auto</CheckBoxType>
@@ -115,6 +127,12 @@
 						<InputField name="Presentation" id="10">
 							<DataPath>Sections.Presentation</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Presentation</v8:content>
+								</v8:item>
+							</Title>
 							<EditMode>EnterOnInput</EditMode>
 							<TextEdit>false</TextEdit>
 							<ContextMenu name="PresentationContextMenu" id="11"/>

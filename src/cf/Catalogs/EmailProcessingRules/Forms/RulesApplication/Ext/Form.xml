@@ -23,6 +23,12 @@
 			<ChildItems>
 				<InputField name="ForEmailsInFolder" id="8">
 					<DataPath>ForEmailsInFolder</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Apply rules to folder</v8:content>
+						</v8:item>
+					</Title>
 					<AutoMarkIncomplete>true</AutoMarkIncomplete>
 					<ChoiceParameterLinks>
 						<xr:Link>
@@ -36,6 +42,12 @@
 				</InputField>
 				<CheckBoxField name="IncludingSubordinates" id="11">
 					<DataPath>IncludingSubordinates</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>And its subfolders</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Right</TitleLocation>
 					<CheckBoxType>Auto</CheckBoxType>
 					<ContextMenu name="IncludingSubordinatesContextMenu" id="12"/>
@@ -76,6 +88,12 @@
 						<Type>CommandBarButton</Type>
 						<DefaultButton>true</DefaultButton>
 						<CommandName>Form.Command.Apply</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Apply</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="RulesApplyExtendedTooltip" id="26"/>
 					</Button>
 					<ButtonGroup name="RulesGroup" id="45">
@@ -91,11 +109,23 @@
 							<Button name="RulesSelectAllApply" id="16">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.ApplyAllRules</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Select all rules</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="RulesSelectAllApplyExtendedTooltip" id="27"/>
 							</Button>
 							<Button name="RulesClearAllApply" id="15">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.DontApplyAllRules</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Clear all rules</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="RulesClearAllApplyExtendedTooltip" id="28"/>
 							</Button>
 						</ChildItems>
@@ -104,6 +134,12 @@
 						<Type>CommandBarButton</Type>
 						<CommandName>Catalog.EmailProcessingRules.StandardCommand.OpenByValue</CommandName>
 						<DataPath>Account</DataPath>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Email account</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="RulesEmailProcessingRulesCatalogOpenByValue1ExtendedTooltip" id="29"/>
 					</Button>
@@ -119,7 +155,7 @@
 					</ButtonGroup>
 				</ChildItems>
 			</AutoCommandBar>
-			<ExtendedTooltip name="RulesExtendedTooltip" id="31"/>
+			<ExtendedTooltip name="EmailRulesExtendedTooltip" id="31"/>
 			<SearchStringAddition name="RulesSearchString" id="36">
 				<AdditionSource>
 					<Item>EmailRules</Item>
@@ -147,6 +183,12 @@
 			<ChildItems>
 				<CheckBoxField name="RulesApply1" id="6">
 					<DataPath>EmailRules.Apply</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Apply</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<ToolTip>
 						<v8:item>
@@ -182,6 +224,12 @@
 					<DataPath>EmailRules.PutInFolder</DataPath>
 					<Enabled>false</Enabled>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Move to</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ChoiceButton>false</ChoiceButton>
 					<OpenButton>false</OpenButton>
@@ -206,6 +254,12 @@
 			<Type>Hyperlink</Type>
 			<CommandName>Catalog.EmailProcessingRules.StandardCommand.OpenByValue</CommandName>
 			<DataPath>Account</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Email account</v8:content>
+				</v8:item>
+			</Title>
 			<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 			<ExtendedTooltip name="RulesCatalogEmailProcessingRulesOpenByValue2ExtendedTooltip" id="48"/>
 		</Button>

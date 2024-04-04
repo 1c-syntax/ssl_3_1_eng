@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -13,15 +14,15 @@
 Var ErrorMessageString Export;
 Var ErrorMessageStringEL Export;
 
-Var ErrorsMessages; 
-Var ObjectName;		
-Var FTPServerName;		
+Var ErrorsMessages; // Map that contains predefined error messages.
+Var ObjectName;		// Metadata object name.
+Var FTPServerName;		// FTP server name or IP address.
 Var DirectoryAtFTPServer;// FTP server address is a name or address.
 
-Var TempExchangeMessageFile; 
+Var TempExchangeMessageFile; // A temporary exchange message file.
 Var TempExchangeMessagesDirectory; // Temporary exchange message file for importing and exporting data.
 
-Var SendGetDataTimeout; 
+Var SendGetDataTimeout; // Timeout for exchanging data with a FTP server.
 Var ConnectionCheckTimeout; // Timeout that is used for FTP connection when sending and receiving data.
 
 Var DirectoryID;
@@ -560,14 +561,14 @@ Procedure ErrorMessageInitialization()
 	
 	ErrorsMessages = New Map;
 	
-	
+	// General error codes
 	ErrorsMessages.Insert(001, NStr("en = 'No message file with data was found in the exchange directory.';"));
 	ErrorsMessages.Insert(002, NStr("en = 'Error extracting message file.';"));
 	ErrorsMessages.Insert(003, NStr("en = 'Error packing the exchange message file.';"));
 	ErrorsMessages.Insert(004, NStr("en = 'An error occurred when creating a temporary directory.';"));
 	ErrorsMessages.Insert(005, NStr("en = 'The archive does not contain the exchange message file.';"));
 	
-	
+	// Transport-specific error codes.
 	ErrorsMessages.Insert(101, NStr("en = 'Path on the server is not specified.';"));
 	ErrorsMessages.Insert(102, NStr("en = 'An occurred when initializing connection to the FTP server.';"));
 	ErrorsMessages.Insert(103, NStr("en = 'An error occurred when establishing connection to the FTP server. Check whether the path is specified correctly and access rights are sufficient.';"));
@@ -659,13 +660,13 @@ Procedure CreateDirectoryIfNecessary(FTPConnection, DirectoryAtServer)
 	
 	If Common.DataSeparationEnabled() Then
 		
-		
-		 
-		
+		// 
+		//  
+		// 
 		Try
 			FTPConnection.CreateDirectory(DirectoryAtServer);
 		Except
-			
+			// No action required
 		EndTry;
 		
 	Else	
@@ -712,9 +713,9 @@ Function DeleteFileAtFTPServer(Val FileName, ConnectionCheckUp = False)
 		
 		If ConnectionCheckUp Then
 			
-			ErrorMessage = NStr("en = 'Cannot check connection using test file ""%1"".
-			|Maybe, the specified directory does not exist or is unavailable.
-			|Check FTP server documentation to configure support of Cyrillic file names.';");
+			ErrorMessage = NStr("en = 'Cannot check the connection using test file ""%1"".
+			|The specified directory might not exist or is no longer available.
+			|Refer to the FTP server documentation to configure support for Cyrillic file names.';");
 			ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(ErrorMessage, FileName);
 			SupplementErrorMessage(ErrorMessage);
 			

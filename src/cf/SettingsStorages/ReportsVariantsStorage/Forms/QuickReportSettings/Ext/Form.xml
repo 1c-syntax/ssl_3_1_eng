@@ -150,12 +150,24 @@
 							<Button name="QuickSettingsSetMark" id="42">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.SetMark</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Set mark</v8:content>
+									</v8:item>
+								</Title>
 								<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 								<ExtendedTooltip name="QuickSettingsSetATagExtendedTooltip" id="43"/>
 							</Button>
 							<Button name="QuickSettingsUncheckIt" id="44">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.ClearMark</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Clear mark</v8:content>
+									</v8:item>
+								</Title>
 								<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 								<ExtendedTooltip name="QuickSettingsUncheckExtendedTooltip" id="45"/>
 							</Button>
@@ -229,6 +241,12 @@
 					<ChildItems>
 						<CheckBoxField name="QuickSettingsCheck" id="14">
 							<DataPath>QuickSettings.Check</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Checkmark</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<EditMode>EnterOnInput</EditMode>
 							<CheckBoxType>Auto</CheckBoxType>
@@ -240,6 +258,12 @@
 						</CheckBoxField>
 						<PictureField name="QuickSettingsSettingPicture" id="56">
 							<DataPath>QuickSettings.PictureSettings</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Setting picture</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<EditMode>EnterOnInput</EditMode>
 							<ContextMenu name="QuickSettingsSettingPictureContextMenu" id="57"/>
@@ -264,6 +288,12 @@
 				<InputField name="QuickSettingsComparisonType" id="93">
 					<DataPath>QuickSettings.ComparisonType</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Condition</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<CellHyperlink>true</CellHyperlink>
 					<Width>12</Width>
@@ -276,6 +306,12 @@
 		</Table>
 		<CheckBoxField name="OutputSettingsTitles" id="106">
 			<DataPath>OutputSettingsTitles</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Show setting titles</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>Right</TitleLocation>
 			<CheckBoxType>Auto</CheckBoxType>
 			<ContextMenu name="OutputSettingsHeadersContextMenu" id="107"/>
@@ -312,6 +348,12 @@
 						<Button name="GoToAdvancedSettings" id="104">
 							<Type>Hyperlink</Type>
 							<CommandName>Form.Command.GoToAdvancedSettings</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>More options…</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="GoToAdvancedSettingsExtendedTooltip" id="105"/>
 						</Button>
 					</ChildItems>
@@ -331,6 +373,12 @@
 							<Type>CommandBarButton</Type>
 							<DefaultButton>true</DefaultButton>
 							<CommandName>Form.Command.Apply</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Apply</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="ApplyExtendedTooltip" id="101"/>
 						</Button>
 						<Button name="Cancel" id="102">

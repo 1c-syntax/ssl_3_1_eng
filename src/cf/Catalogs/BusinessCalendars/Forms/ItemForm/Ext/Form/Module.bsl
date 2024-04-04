@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -253,8 +254,8 @@ EndProcedure
 &AtServer
 Procedure FillWithDefaultData()
 	
-	 
-	
+	//  
+	// 
 	
 	BasicCalendarCode = Undefined;
 	If ValueIsFilled(Object.BasicCalendar) Then
@@ -273,9 +274,9 @@ EndProcedure
 &AtServer
 Procedure ConvertBusinessCalendarData(BusinessCalendarData)
 	
-	 
-	
-	
+	//  
+	// 
+	// 
 	
 	DaysKindsMap = New Map;
 	ShiftedDaysMap = New Map;
@@ -363,7 +364,7 @@ EndProcedure
 &AtClient
 Procedure ShiftDayKind(ReplacementDate, PurposeDate)
 	
-	
+	// 
 	// 
 	// 
 	//	 
@@ -412,8 +413,8 @@ Procedure FillReplacementsPresentation(Form)
 	
 	Form.ReplacementsList.Clear();
 	For Each KeyAndValue In Form.ShiftedDays Do
-		 
-		
+		//  
+		// 
 		SourceDate = KeyAndValue.Key;
 		DestinationDate = KeyAndValue.Value;
 		DayKind = Form.DaysKinds.Get(SourceDate);
@@ -547,8 +548,8 @@ Procedure StartBasicCalendarVisibilitySetup()
 	
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	
-	CompletionNotification2 = New NotifyDescription("CompleteBasicCalendarVisibilitySetting", ThisObject);
-	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CompletionNotification2, IdleParameters);
+	CallbackOnCompletion = New NotifyDescription("CompleteBasicCalendarVisibilitySetting", ThisObject);
+	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
 	
 EndProcedure
 
@@ -565,12 +566,22 @@ Function LoadSupportedBusinessCalendarsList()
 	
 EndFunction
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
 Procedure CompleteBasicCalendarVisibilitySetting(Result, AdditionalParameters) Export
 	
 	If Result = Undefined Then
 		CommonClientServer.SetFormItemProperty(Items, "BasicCalendarGroup", "Visible", True);
 		Return;
+	EndIf;
+	
+	If Result.Status = "Error" Then
+		StandardSubsystemsClient.OutputErrorInfo(
+			Result.ErrorInfo);
+		Return;	
 	EndIf;
 	
 	CalendarsAddress = Result.ResultAddress;

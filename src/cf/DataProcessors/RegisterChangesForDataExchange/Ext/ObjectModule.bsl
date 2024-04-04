@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -242,7 +243,7 @@ EndFunction
 //                   - Undefined     - the tree of all configuration is generated.
 //
 // Returns: 
-//    Structure - :
+//    Structure - Metadata object details with the following fields:
 //         * NamesStructure              - Structure - Key - metadata group (constants, catalogs and so on),
 //                                                    value is an array of full names.
 //         * PresentationsStructure     - Structure - Key - metadata group (constants, catalogs and so on),
@@ -277,9 +278,9 @@ Function GenerateMetadataStructure(ExchangePlanName = Undefined) Export
 	EndIf;
 	CurParameters.Insert("ExchangePlan", ExchangePlan);
 	
-	
-	
-	
+	// 
+	// 
+	// 
 	If ExchangePlan <> Undefined
 		And ExchangePlan.DistributedInfoBase
 		And ConfigurationSupportsSSL Then
@@ -763,13 +764,12 @@ EndProcedure
 //   MetadataTableName - String - table name, for example "Catalog.Currencies".
 //
 // Returns:
-//    Structure - :
+//    Structure - Data details as a value set. Contains the following data:
 //      * IsSequence - Boolean - a sequence flag.
 //      * IsCollection - Boolean - a value collection flag.
 //      * IsConstant - Boolean - a constant flag.
 //      * IsReference - Boolean - a flag indicating a reference data type.
 //      * IsRecordsSet - Boolean - a flag indicating a register record set
-//      * Manager - CatalogManager, DocumentManager, и т.п. - table value manager.
 //      * TableName - String - table name.
 //
 Function MetadataCharacteristics(MetadataTableName) Export
@@ -1055,10 +1055,8 @@ EndFunction
 // Adds columns to the FormTable.
 //
 // Parameters:
-//    FormTable   - ЭлементФормы - an item linked to an attribute. The data columns are added to this attribute.
 //    SaveNames - String - a list of column names, separated by commas.
 //    Add      - Array - contains structures that describe columns to be added (Name, ValueType, Title).
-//    ColumnGroup  - ЭлементФормы - a column group where the columns are added.
 //
 Procedure AddColumnsToFormTable(FormTable, SaveNames, Add, ColumnGroup = Undefined) Export
 	
@@ -1258,7 +1256,7 @@ Procedure ReadSettings(SettingsKey = "") Export
 		CurrentSettings.Insert("RegisterRecordAutoRecordSetting",            False);
 		CurrentSettings.Insert("SequenceAutoRecordSetting", False);
 		CurrentSettings.Insert("QueryExternalDataProcessorAddressSetting",      "");
-		CurrentSettings.Insert("ObjectExportControlSetting",           True); 
+		CurrentSettings.Insert("ObjectExportControlSetting",           True); // 
 		CurrentSettings.Insert("MessageNumberOptionSetting",              0);     // First exchange execution
 	EndIf;
 	
@@ -1362,7 +1360,7 @@ EndFunction
 //                             - String
 //                             - Structure - data or data array.
 //     TableName              - String - if Data is a structure, then contains a table name.
-//     MetadataNames         - 
+//     MetadataNames         - Structure, Array
 //
 // Returns: 
 //     Structure:
@@ -1560,7 +1558,7 @@ Function EditRegistrationAtServer(Command, NoAutoRegistration, Node, Data, Table
 			
 		EndIf;
 		
-		
+		// 
 		For Each CurValue In Values Do
 			ExecuteObjectRegistrationCommand(Command, Node, CurValue);
 			Result.Success = Result.Success + 1;
@@ -1665,8 +1663,8 @@ Procedure RecordChanges(Val Node, Val RegistrationObject)
 			DimensionFields = Mid(DimensionFields, 2);
 			If IsBlankString(DimensionFields) Then
 				
-				
-				
+				// 
+				// 
 				ExchangePlans.RecordChanges(Node, RegistrationObject);
 				
 			Else
@@ -2085,7 +2083,7 @@ Function GeneralModuleStandardSubsystemsOfRepeatIsp()
 	Return Eval("StandardSubsystemsCached");
 EndFunction
 
-// Returns the CommonUse common module or Undefined if there is no such module in the configuration.
+// Returns the Common common module, or Undefined if there is no such module in the configuration.
 //
 Function CommonModuleCommonUse()
 	If Metadata.CommonModules.Find("Common") = Undefined Then
@@ -2150,7 +2148,7 @@ Function SSLRequiredVersionAvailable(Val Version = Undefined)
 	Return True;
 EndFunction
 
-// 
+// Returns a flag indicating whether the integrated DSL is working properly.
 //
 Function DSL_RequiredVersionIsAvailable(Val Version = Undefined)
 	
@@ -2165,7 +2163,7 @@ Function DSL_RequiredVersionIsAvailable(Val Version = Undefined)
 	EndIf;
 	
 	If CurrentVersion = Undefined Then
-		
+		// The version detection method is missing or malfunctioning. DSL is assumed unavailable.
 		Return False
 	EndIf;
 	CurrentVersion = StrReplace(CurrentVersion, ".", Chars.LF);
@@ -2380,8 +2378,8 @@ Function SSLMetadataObjectChangesRegistration(Node, LongDesc, NoAutoRegistration
 		EndDo;
 		DimensionFields = Mid(DimensionFields, 2);
 		If IsBlankString(DimensionFields) Then
-			
-			
+			// 
+			// 
 			ExchangePlans.RecordChanges(Node, LongDesc.Metadata);
 			
 			// To calculate the result.
@@ -2466,7 +2464,7 @@ Function SSLUpdateAndRegisterMasterNodeMetadataObjectID(Val Node) Export
 	
 	If (Not DIBModeAvailable)                                      // Current SSL version does not support MOID.
 		Or (ExchangePlans.MasterNode() <> Undefined)              // Current infobase is a subordinate node.
-		Or (Not MetaNodeExchangePlan.DistributedInfoBase) Then 
+		Or (Not MetaNodeExchangePlan.DistributedInfoBase) Then // 
 		Return Result;
 	EndIf;
 	

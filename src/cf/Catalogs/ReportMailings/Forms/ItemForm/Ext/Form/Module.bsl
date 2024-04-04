@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -64,9 +65,9 @@ Procedure OnReadAtServer(CurrentObject)
 	EndIf;
 	// End StandardSubsystems.AccessManagement
 	
-	UpdateListOfEmailTextAndFileParameters();
+	UpdateListOfFilesAndEmailTextParameters();
 	ConvertTextParameters(Object, "ParametersInPresentation");
-	ConvertReportSettingsParameters(Object, "ParametersInPresentation");
+	ConvertReportsSettingsParameters(Object, "ParametersInPresentation");
 	
 EndProcedure
 
@@ -76,7 +77,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	IsNew = Object.Ref.IsEmpty();
 	
 	If IsNew Then
-		UpdateListOfEmailTextAndFileParameters();
+		UpdateListOfFilesAndEmailTextParameters();
 	EndIf;
 	
 	SetConditionalAppearance();
@@ -104,7 +105,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		ReadOnly = True;
 	EndIf;
 	
-	// Deleting the "To folder" option if the StoredFiles subsystem is not available.
+	// Deleting the "To folder" option if the FilesOperations subsystem is not available.
 	If TypeOf(Object.Folder) = Type("Undefined") Or TypeOf(Object.Folder) = Type("String") Then
 		Items.OtherDeliveryMethod.ChoiceList.Delete(0);
 	EndIf;
@@ -133,7 +134,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	// Add reports to tabular section.
-	If Parameters.Property("ReportsToAttach") And TypeOf(Parameters.ReportsToAttach) = Type("Array") Then
+	If TypeOf(Parameters.ReportsToAttach) = Type("Array") Then
 		Modified = True;
 		AddReportsSettings(Parameters.ReportsToAttach);
 	EndIf;
@@ -162,7 +163,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		// Report distribution author.
 		CurrentUser = Users.CurrentUser();
 		Object.Author = CurrentUser;
-		Object.EmailImportance = EmailOperationsInternalClientServer.UsualImportanceOfInternetMail();
+		Object.EmailImportance = EmailOperationsInternalClientServer.InternetMailMessageImportanceStandard();
 		Object.ShouldAttachReports = True;
 		If Not ValueIsFilled(Object.Author) Then
 			Cancel = True;
@@ -236,7 +237,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	// Add additional report button availability.
 	Items.ReportsAddAdditionalReport.Enabled = ?(Cache.EmptyReportValue = Undefined, True, False);
-	 
+	//  
 	//   
 	
 	// Report distribution author availability.
@@ -285,7 +286,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If CreatedByCopying Then
 		ReadObjectSettingsOfObjectToCopy();
 		ConvertTextParameters(Object, "ParametersInPresentation");
-		ConvertReportSettingsParameters(Object, "ParametersInPresentation");
+		ConvertReportsSettingsParameters(Object, "ParametersInPresentation");
 	EndIf;
 	
 	// Activate the first row.
@@ -440,8 +441,8 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	If Object.ExecuteOnSchedule Then
 		If Object.SchedulePeriodicity <> Enums.ReportMailingSchedulePeriodicities.CustomValue
 		   And ValueIsFilled(Schedule.EndTime)Then
-			DateDifferenceInHours = SecondsInHours(Schedule.EndTime - Schedule.BeginTime);
-			If DateDifferenceInHours < 4 Then
+			DatesDiffInHours = SecondsToHours(Schedule.EndTime - Schedule.BeginTime);
+			If DatesDiffInHours < 4 Then
 				Cancel = True;
 				MessageText = NStr("en = 'The end time must be 4 hours later than the start time.';");
 				Common.MessageToUser(MessageText, , "EndTime");
@@ -470,6 +471,8 @@ Procedure AfterWrite(WriteParameters)
 		ModuleAttachableCommandsClient.AfterWrite(ThisObject, Object, WriteParameters);
 	EndIf;
 	// End StandardSubsystems.AttachableCommands
+	
+	AttachIdleHandler("UpdateValueOfParameterOfRecipientOfPersonalizedMailing", 0.1, True);
 EndProcedure
 
 &AtServer
@@ -479,14 +482,14 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 		WriteReportsRowSettings(CurrentRowIDOfReportsTable);
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	//     
 	//     
-	
+	// 
 	//     
 	CheckRequired1 = Object.IsPrepared;
-	
+	// 
 	//     
 	//     
 	MailingIsNotPersonalized = (Not Object.Personalized And MailingWasPersonalized);
@@ -529,8 +532,8 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 		If ReportsRow.DCS Then
 			DCSettings = ReportSettings.Settings;
 			DCUserSettings = ReportSettings.UserSettings; // DataCompositionUserSettings
-			
-			Filter = New Structure("Use, Value", True, MailingRecipientValueTemplate(EmailTextAndFileParameters));
+			// 
+			Filter = New Structure("Use, Value", True, MailingRecipientValueTemplate(FilesAndEmailTextParameters));
 			FoundItems = ReportsClientServer.SettingsItemsFiltered(DCUserSettings, Filter);
 			If FoundItems.Count() > 0 Then
 				ReportPersonalized = True;
@@ -571,7 +574,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 		
 		// [3] Ordinary report analysis.
 		If TypeOf(ReportSettings) = Type("ValueTable") Then
-			FoundItems = ReportSettings.FindRows(New Structure("Value, Use", MailingRecipientValueTemplate(EmailTextAndFileParameters), True));
+			FoundItems = ReportSettings.FindRows(New Structure("Value, Use", MailingRecipientValueTemplate(FilesAndEmailTextParameters), True));
 			If FoundItems.Count() > 0 Then
 				ReportPersonalized = True;
 			EndIf;
@@ -631,7 +634,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	CurrentObject.AdditionalProperties.Insert("Schedule", Schedule);
 	
 	ConvertTextParameters(CurrentObject, "PresentationInParameters");
-	ConvertReportSettingsParameters(CurrentObject, "PresentationInParameters");
+	ConvertReportsSettingsParameters(CurrentObject, "PresentationInParameters");
 	
 EndProcedure
 
@@ -683,7 +686,7 @@ EndProcedure
 Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 	
 	ConvertTextParameters(Object, "ParametersInPresentation");
-	ConvertReportSettingsParameters(Object, "ParametersInPresentation");
+	ConvertReportsSettingsParameters(Object, "ParametersInPresentation");
 	
 	// StandardSubsystems.AccessManagement
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
@@ -716,7 +719,7 @@ Procedure IsPreparedOnChange(Item)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure ExecuteOnScheduleOnChange(Item)
@@ -780,17 +783,17 @@ Procedure BeginTimeOnChange(Item)
 EndProcedure
 
 &AtClient
-Procedure UseRepeatPeriodThroughoutDayOnChange(Item)
-	RepeatPeriodInDay = ?(UseRepeatPeriodThroughoutDay, 1, 0);
-	EndTime = ?(UseRepeatPeriodThroughoutDay, BeginTime + HoursInSeconds(4), '00010101');
+Procedure UseHourlyRepeatPeriodOnChange(Item)
+	RepeatPeriodInDay = ?(UseHourlyRepeatPeriod, 1, 0);
+	EndTime = ?(UseHourlyRepeatPeriod, BeginTime + HoursToSeconds(4), '00010101');
 	Schedule.EndTime = EndTime;
-	Schedule.RepeatPeriodInDay = HoursInSeconds(RepeatPeriodInDay);
+	Schedule.RepeatPeriodInDay = HoursToSeconds(RepeatPeriodInDay);
 	VisibilityAvailabilityCorrectness(ThisObject, "RepeatPeriodInDay");
 EndProcedure
 
 &AtClient
 Procedure RepeatPeriodInDayOnChange(Item)
-	Schedule.RepeatPeriodInDay = HoursInSeconds(RepeatPeriodInDay);
+	Schedule.RepeatPeriodInDay = HoursToSeconds(RepeatPeriodInDay);
 	VisibilityAvailabilityCorrectness(ThisObject, "RepeatPeriodInDay");
 EndProcedure
 
@@ -813,7 +816,7 @@ Procedure MonthDayOnChange(Item)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure MailingRecipientTypeChoiceProcessing(Item, ValueSelected, StandardProcessing)
@@ -1002,9 +1005,10 @@ EndProcedure
 Procedure FolderChoiceProcessing(Item, ValueSelected, StandardProcessing)
 	If Not ChangeFolderAndFilesRight(ValueSelected) Then
 		StandardProcessing = False;
-		WarningText = NStr("en = 'Insufficient rights to change files of folder ""%1"".';");
-		WarningText = StringFunctionsClientServer.SubstituteParametersToString(WarningText, String(ValueSelected));
-		ShowMessageBox(, WarningText);
+		WarningText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Insufficient rights to change files of folder ""%1"".';"), 
+			String(ValueSelected));
+		Raise(WarningText, ErrorCategory.AccessViolation);
 	EndIf;
 EndProcedure
 
@@ -1025,7 +1029,7 @@ Procedure NetworkDirectoryLinuxOnChange(Item)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure DefaultFormatsClick(Item, StandardProcessing)
@@ -1061,19 +1065,17 @@ Procedure ArchiveNameChoiceProcessing(Item, ValueSelected, StandardProcessing)
 		AddLayout();
 		StandardProcessing = False;
 		CurrentItem.SelectedText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 dated %2';"), "[" + EmailTextAndFileParameters.MailingDescription + "]",
-			"[" + EmailTextAndFileParameters.ExecutionDate + "()]");
-
-		Variables1 = New Structure;
-		Variables1.Insert("Item", CurrentItem);
-		Variables1.Insert("PreviousText1", "");
-		Variables1.Insert("Prefix", StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 dated %2';"), "[" + EmailTextAndFileParameters.MailingDescription + "]",
-			"[" + EmailTextAndFileParameters.ExecutionDate + "("));
-		Variables1.Insert("Postfix", ")]");
-		Variables1.Insert("FormatText", "");
-		Variables1.Insert("PreviousFragmentFound", False);
-
+			NStr("en = '%1 dated %2';"), "[" + FilesAndEmailTextParameters.MailingDescription + "]",
+			"[" + FilesAndEmailTextParameters.ExecutionDate + "()]");
+		
+		Variables1 = ReportDescriptionTemplateChoiceVariables("DescriptionDistributionDate", False);
+		Variables1.Item = CurrentItem;
+		Variables1.Prefix = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = '%1 dated %2';"), "[" + FilesAndEmailTextParameters.MailingDescription + "]",
+			"[" + FilesAndEmailTextParameters.ExecutionDate + "(");
+		Variables1.Postfix = ")]";
+		Variables1.ShouldChangeReportDescriptionTemplate = False;
+		
 		Handler = New NotifyDescription("AddChangeMailingDateTemplateCompletion", ThisObject, Variables1);
 
 		Dialog = New FormatStringWizard;
@@ -1175,8 +1177,8 @@ Procedure ReportsChoiceProcessing(Item, ValueSelected, StandardProcessing)
 	FillingStructure.Insert("SendIfEmpty", False);
 	FillingStructure.Insert("DoNotSendIfEmpty", True);
 	FillingStructure.Insert("Enabled", True);  
-	FillingStructure.Insert("DescriptionTemplate", "[" + EmailTextAndFileParameters.ReportDescription1
-		+ "] [" + EmailTextAndFileParameters.ReportFormat + "]");
+	FillingStructure.Insert("DescriptionTemplate", "[" + FilesAndEmailTextParameters.ReportDescription1
+		+ "] [" + FilesAndEmailTextParameters.ReportFormat + "]");
 	
 	NewRowArray = ChoicePickupDragToTabularSection(
 		ValueSelected,
@@ -1260,11 +1262,13 @@ Procedure ReportsTableRowActivationHandler()
 	If RowID = CurrentRowIDOfReportsTable Then
 		Return;
 	EndIf;
-	
 	WarningText = ReportsOnActivateRowAtServer(RowID);
 	If WarningText <> "" Then
 		ShowMessageBox(, WarningText);
 	EndIf;
+	
+	UpdateValueOfParameterOfRecipientOfPersonalizedMailing();
+	
 EndProcedure
 
 &AtClient
@@ -1453,7 +1457,7 @@ EndProcedure
 #Region FormCommandsEventHandlers
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure CommandSaveAndClose(Command)
@@ -1520,7 +1524,7 @@ Procedure Redistribution(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure AddReport(Command)
@@ -1605,7 +1609,7 @@ EndProcedure
 &AtClient
 Procedure ReportsPreviewContinue(SelectionResult, ReportParameters) Export
 	DCUserSettings = ReportParameters.Settings;
-	Filter = New Structure("Use, Value", True, MailingRecipientValueTemplate(EmailTextAndFileParameters));
+	Filter = New Structure("Use, Value", True, MailingRecipientValueTemplate(FilesAndEmailTextParameters));
 	PersonalizedSettings = ReportsClientServer.SettingsItemsFiltered(DCUserSettings, Filter);
 	If Object.Personalized Then
 		If SelectionResult = Undefined Then
@@ -1630,9 +1634,9 @@ Procedure ReportsPreviewContinue(SelectionResult, ReportParameters) Export
 	
 	For Each DCUserSetting In PersonalizedSettings Do
 		If TypeOf(DCUserSetting) = Type("DataCompositionFilterItem") Then
-			DCUserSetting.RightValue = MailingRecipientValueTemplate(EmailTextAndFileParameters);
+			DCUserSetting.RightValue = MailingRecipientValueTemplate(FilesAndEmailTextParameters);
 		ElsIf TypeOf(DCUserSetting) = Type("DataCompositionSettingsParameterValue") Then
-			DCUserSetting.Value = MailingRecipientValueTemplate(EmailTextAndFileParameters);
+			DCUserSetting.Value = MailingRecipientValueTemplate(FilesAndEmailTextParameters);
 		EndIf;
 	EndDo;
 EndProcedure
@@ -1697,12 +1701,20 @@ Procedure SpecifyMailingRecipient(Command)
 				Or Setting.SettingsString.ComparisonType = DataCompositionComparisonType.NotInListByHierarchy Then
 				Setting.SettingsString.ComparisonType = DataCompositionComparisonType.Equal;
 			EndIf;
-			Setting.SettingsString.RightValue = MailingRecipientValueTemplate(EmailTextAndFileParameters);
+			Setting.SettingsString.RightValue = MailingRecipientValueTemplate(FilesAndEmailTextParameters);
 		Else
-			Setting.SettingsString.Value = MailingRecipientValueTemplate(EmailTextAndFileParameters);
+			AvailableParameter = DCSettingsComposer.Settings.DataParameters.AvailableParameters.FindParameter(Setting.SettingsString.Parameter);
+			If AvailableParameter <> Undefined And AvailableParameter.ValueListAllowed Then
+				ListValue = New ValueList;
+				ListValue.Add(MailingRecipientValueTemplate(FilesAndEmailTextParameters),
+					MailingRecipientValueTemplate(FilesAndEmailTextParameters));
+				Setting.SettingsString.Value = ListValue;
+			Else	
+				Setting.SettingsString.Value = MailingRecipientValueTemplate(FilesAndEmailTextParameters);
+			EndIf;
 		EndIf;
 	Else
-		Setting.SettingsString.Value = MailingRecipientValueTemplate(EmailTextAndFileParameters);
+		Setting.SettingsString.Value = MailingRecipientValueTemplate(FilesAndEmailTextParameters);
 	EndIf;
 	
 	FindPersonalizationSettings();
@@ -1726,18 +1738,18 @@ Procedure DeleteMailingRecipient(Command)
 	ChangesMade = False;
 	If Setting.DCS Then
 		If Setting.IsFilterItem Then
-			If Setting.SettingsString.RightValue = MailingRecipientValueTemplate(EmailTextAndFileParameters) Then
+			If Setting.SettingsString.RightValue = MailingRecipientValueTemplate(FilesAndEmailTextParameters) Then
 				Setting.SettingsString.RightValue = Undefined;
 				ChangesMade = True;
 			EndIf;
 		Else
-			If Setting.SettingsString.Value = MailingRecipientValueTemplate(EmailTextAndFileParameters) Then 
+			If Setting.SettingsString.Value = MailingRecipientValueTemplate(FilesAndEmailTextParameters) Then 
 				Setting.SettingsString.Value = Undefined;
 				ChangesMade = True;
 			EndIf;
 		EndIf;
 	Else
-		If Setting.SettingsString.Value = MailingRecipientValueTemplate(EmailTextAndFileParameters) Then 
+		If Setting.SettingsString.Value = MailingRecipientValueTemplate(FilesAndEmailTextParameters) Then 
 			Setting.SettingsString.Value = Undefined;
 			ChangesMade = True;
 		EndIf;
@@ -1861,7 +1873,7 @@ Function DetermineFieldFromComposer(SettingID, Collection)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure SelectCheckBoxes(Command)
@@ -1893,24 +1905,24 @@ Procedure FillScheduleByTemplate(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure AddChangeMailingDateTemplate(Command)
 	AddLayout();
 	
-	Variables1 = New Structure;
-	Variables1.Insert("Item",      CurrentItem);
-	Variables1.Insert("PreviousText1",  Variables1.Item.SelectedText);
-	Variables1.Insert("Prefix",      "[" + EmailTextAndFileParameters.ExecutionDate + "(");
-	Variables1.Insert("Postfix",     ")]");
-	Variables1.Insert("FormatText", "");
+	Variables1 = ReportDescriptionTemplateChoiceVariables("", False);
+	Variables1.Item = CurrentItem;
+	Variables1.PreviousText1 = Variables1.Item.SelectedText;
+	Variables1.Prefix = "[" + FilesAndEmailTextParameters.ExecutionDate + "(";
+	Variables1.Postfix = ")]";
+	Variables1.ShouldChangeReportDescriptionTemplate = False;
 	
 	PrefixLength  = StrLen(Variables1.Prefix);
 	PrefixPosition  = StrFind(Variables1.PreviousText1, Variables1.Prefix);
 	PostfixPosition = StrFind(Variables1.PreviousText1, Variables1.Postfix);
+	Variables1.PreviousFragmentFound = (PrefixPosition > 0 And PostfixPosition > PrefixPosition);
 	
-	Variables1.Insert("PreviousFragmentFound", (PrefixPosition > 0 And PostfixPosition > PrefixPosition));
 	If Variables1.PreviousFragmentFound Then
 		Variables1.FormatText = Mid(Variables1.PreviousText1, PrefixPosition + PrefixLength, PostfixPosition - PrefixPosition - PrefixLength);
 	EndIf;
@@ -1938,33 +1950,33 @@ Procedure AddRecipientTemplate(Command)
 		Return;
 	EndIf;
 	
-	AddLayout(MailingRecipientValueTemplate(EmailTextAndFileParameters));
+	AddLayout(MailingRecipientValueTemplate(FilesAndEmailTextParameters));
 	MailingWasPersonalized = True;
 EndProcedure
 
 &AtClient
 Procedure AddGeneratedReportsTemplate(Command)
-	AddLayout("[" + EmailTextAndFileParameters.GeneratedReports + "]", True);
+	AddLayout("[" + FilesAndEmailTextParameters.GeneratedReports + "]", True);
 EndProcedure
 
 &AtClient
 Procedure AddAuthorTemplate(Command)
-	AddLayout("[" + EmailTextAndFileParameters.Author + "]");
+	AddLayout("[" + FilesAndEmailTextParameters.Author + "]");
 EndProcedure
 
 &AtClient
 Procedure AddMailingDescriptionTemplate(Command)
-	AddLayout("[" + EmailTextAndFileParameters.MailingDescription + "]");
+	AddLayout("[" + FilesAndEmailTextParameters.MailingDescription + "]");
 EndProcedure
 
 &AtClient
 Procedure AddSystemTemplate(Command)
-	AddLayout("[" + EmailTextAndFileParameters.SystemTitle +  "]");
+	AddLayout("[" + FilesAndEmailTextParameters.SystemTitle +  "]");
 EndProcedure
 
 &AtClient
 Procedure AddDeliveryMethodTemplate(Command)
-	AddLayout("[" + EmailTextAndFileParameters.DeliveryMethod + "]");
+	AddLayout("[" + FilesAndEmailTextParameters.DeliveryMethod + "]");
 EndProcedure
 
 &AtClient
@@ -2027,7 +2039,7 @@ EndProcedure
 
 &AtClient
 Procedure TemplatePreview(Command)
-	AttachIdleHandler("WhenOpeningTemplatePreview", 0.1, True);
+	AttachIdleHandler("OnOpenTemplatePreview", 0.1, True);
 EndProcedure
 
 &AtClient
@@ -2072,7 +2084,7 @@ EndProcedure
 
 &AtClient
 Procedure ImportanceHigh(Command)
-	Object.EmailImportance = EmailOperationsInternalClientServer.HighImportanceOfInternetMailCommunication();
+	Object.EmailImportance = EmailOperationsInternalClientServer.InternetMailMessageImportanceHigh();
 	Items.SeverityGroup.Picture = PictureLib.ImportanceHigh;
 	Items.SeverityGroup.ToolTip = NStr("en = 'High importance';");
 	Modified = True;
@@ -2080,7 +2092,7 @@ EndProcedure
 
 &AtClient
 Procedure ImportanceNormal(Command)
-	Object.EmailImportance = EmailOperationsInternalClientServer.UsualImportanceOfInternetMail();
+	Object.EmailImportance = EmailOperationsInternalClientServer.InternetMailMessageImportanceStandard();
 	Items.SeverityGroup.Picture = PictureLib.ImportanceNotSpecified;
 	Items.SeverityGroup.ToolTip = NStr("en = 'Normal importance';");
 	Modified = True;
@@ -2088,7 +2100,7 @@ EndProcedure
 
 &AtClient
 Procedure ImportanceLow(Command)
-	Object.EmailImportance = EmailOperationsInternalClientServer.LowImportanceOfInternetMail();
+	Object.EmailImportance = EmailOperationsInternalClientServer.InternetMailMessageImportanceLow();
 	Items.SeverityGroup.Picture = PictureLib.ImportanceLow;
 	Items.SeverityGroup.ToolTip = NStr("en = 'Low importance';");
 	Modified = True;
@@ -2143,7 +2155,7 @@ Procedure ShouldAttachReportsOnChange(Item)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure ResetDefaultFormat(Command)
@@ -2248,7 +2260,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure UserSettingStartChoice(StandardProcessing)
@@ -2443,15 +2455,14 @@ Procedure AddChangeMailingDateTemplateCompletion(ResultRow, Variables1) Export
 	NewFragment   = Variables1.Prefix + ResultRow + Variables1.Postfix;
 	PreviousFragment  = Variables1.Prefix + Variables1.FormatText + Variables1.Postfix;
 	
-	If Variables1.Property("ChangeReportDescriptionTemplateMultiply")
-	   And Variables1.ChangeReportDescriptionTemplateMultiply Then
+	If Variables1.ChangeReportDescriptionTemplateMultiply Then
 		If Variables1.PreviousFragmentFound Then
 			DescriptionTemplate = StrReplace(Variables1.PreviousText1, PreviousFragment, NewFragment);
 		Else
 			DescriptionTemplate = Variables1.PreviousText1 + NewFragment;
 		EndIf;
 		SetDescriptionTemplatesForAllReports(Variables1.TemplateName, DescriptionTemplate);
-	ElsIf Variables1.Property("ShouldChangeReportDescriptionTemplate") And Variables1.ShouldChangeReportDescriptionTemplate Then
+	ElsIf Variables1.ShouldChangeReportDescriptionTemplate Then
 		If Variables1.PreviousFragmentFound Then
 			If ResultRow = Variables1.FormatText Then
 				Return;
@@ -2477,7 +2488,7 @@ Procedure AddChangeMailingDateTemplateCompletion(ResultRow, Variables1) Export
 		EndIf; // Variable.PreviousFragmentFound
 		If Not ReplacementExecuted Then
 			If TrimAll(Variables1.PreviousText1) = PreviousFragment Then
-				
+				// 
 				//  
 				Variables1.Item.SelectedText = NewFragment;
 			Else
@@ -2604,9 +2615,9 @@ EndFunction
 
 &AtClient
 Procedure ChooseFormat(ReportRef1, ResultHandler)
-	
-	
-	
+	// 
+	// 
+	// 
 	IsDefaultFormat = Not ValueIsFilled(ReportRef1);
 	
 	FoundItems = Object.ReportFormats.FindRows(New Structure("Report", ReportRef1));
@@ -2676,7 +2687,7 @@ Procedure AddLayout(TextTemplate = Undefined, SkipEmailSubject = False)
 	EndIf;
 	
 	If CurrentItem.SelectedText = "" Then
-		
+		// 
 		//  
 		//  
 		If CurrentItem = Items.EmailTextFormattedDocument Then
@@ -2791,6 +2802,7 @@ Function ReportDescriptionTemplateChoiceVariables(TemplateName, MultipleChange)
 	Variables1 = New Structure;
 	Variables1.Insert("Item", Undefined);
 	Variables1.Insert("PreviousText1", "");
+	Variables1.Insert("Prefix", "[(");
 	Variables1.Insert("Postfix", ")]");
 	Variables1.Insert("FormatText", "");
 	Variables1.Insert("PreviousFragmentFound", False);
@@ -2801,30 +2813,30 @@ Function ReportDescriptionTemplateChoiceVariables(TemplateName, MultipleChange)
 	If TemplateName = "DescriptionDistributionDate" Then
 
 		Variables1.Insert("Prefix", StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 dated %2';"), "[" + EmailTextAndFileParameters.ReportDescription1 + "]",
-			"[" + EmailTextAndFileParameters.MailingDate + "("));
+			NStr("en = '%1 dated %2';"), "[" + FilesAndEmailTextParameters.ReportDescription1 + "]",
+			"[" + FilesAndEmailTextParameters.MailingDate + "("));
 
 	ElsIf TemplateName = "DescriptionDistributionDateFormat" Then
 
 		Variables1.Insert("Prefix", StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 dated %2';"), "[" + EmailTextAndFileParameters.ReportDescription1 + "]",
-			"[" + EmailTextAndFileParameters.MailingDate + "("));
+			NStr("en = '%1 dated %2';"), "[" + FilesAndEmailTextParameters.ReportDescription1 + "]",
+			"[" + FilesAndEmailTextParameters.MailingDate + "("));
 
-		Variables1.Insert("Postfix", ")] [" + EmailTextAndFileParameters.ReportFormat + "]");
+		Variables1.Insert("Postfix", ")] [" + FilesAndEmailTextParameters.ReportFormat + "]");
 
 	ElsIf TemplateName = "DescriptionPeriod" Then
 
 		Variables1.Insert("Prefix", StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 for %2';"), "[" + EmailTextAndFileParameters.ReportDescription1 + "]",
-			"[" + EmailTextAndFileParameters.Period + "("));
+			NStr("en = '%1 for %2';"), "[" + FilesAndEmailTextParameters.ReportDescription1 + "]",
+			"[" + FilesAndEmailTextParameters.Period + "("));
 
 	ElsIf TemplateName = "DescriptionPeriodFormat" Then
 
 		Variables1.Insert("Prefix", StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 for %2';"), "[" + EmailTextAndFileParameters.ReportDescription1 + "]",
-			"[" + EmailTextAndFileParameters.Period + "("));
+			NStr("en = '%1 for %2';"), "[" + FilesAndEmailTextParameters.ReportDescription1 + "]",
+			"[" + FilesAndEmailTextParameters.Period + "("));
 			
-		Variables1.Insert("Postfix", ")] [" + EmailTextAndFileParameters.ReportFormat + "]");
+		Variables1.Insert("Postfix", ")] [" + FilesAndEmailTextParameters.ReportFormat + "]");
 	EndIf;
 
 	Return Variables1;
@@ -3062,20 +3074,20 @@ EndProcedure
 Function DescriptionsTemplates()
 
 	Templates = New Map;
-	Templates.Insert("ReportDescription1", "[" + EmailTextAndFileParameters.ReportDescription1 + "]");
-	Templates.Insert("ReportDescriptionFormat", "[" + EmailTextAndFileParameters.ReportDescription1 + "] [" + EmailTextAndFileParameters.ReportFormat + "]");
+	Templates.Insert("ReportDescription1", "[" + FilesAndEmailTextParameters.ReportDescription1 + "]");
+	Templates.Insert("ReportDescriptionFormat", "[" + FilesAndEmailTextParameters.ReportDescription1 + "] [" + FilesAndEmailTextParameters.ReportFormat + "]");
 	Templates.Insert("DescriptionPeriod", StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 for %2';"), "[" + EmailTextAndFileParameters.ReportDescription1 + "]",
-			"[" + EmailTextAndFileParameters.Period + "()]"));
+			NStr("en = '%1 for %2';"), "[" + FilesAndEmailTextParameters.ReportDescription1 + "]",
+			"[" + FilesAndEmailTextParameters.Period + "()]"));
 	Templates.Insert("DescriptionPeriodFormat", StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 for %2 %3';"), "[" + EmailTextAndFileParameters.ReportDescription1 + "]",
-			"[" + EmailTextAndFileParameters.Period + "()]", "[" + EmailTextAndFileParameters.ReportFormat + "]"));
+			NStr("en = '%1 for %2 %3';"), "[" + FilesAndEmailTextParameters.ReportDescription1 + "]",
+			"[" + FilesAndEmailTextParameters.Period + "()]", "[" + FilesAndEmailTextParameters.ReportFormat + "]"));
 	Templates.Insert("DescriptionDistributionDate", StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 dated %2';"), "[" + EmailTextAndFileParameters.ReportDescription1 + "]",
-			"[" + EmailTextAndFileParameters.MailingDate + "()]"));
+			NStr("en = '%1 dated %2';"), "[" + FilesAndEmailTextParameters.ReportDescription1 + "]",
+			"[" + FilesAndEmailTextParameters.MailingDate + "()]"));
 	Templates.Insert("DescriptionDistributionDateFormat", StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 dated %2 %3';"), "[" + EmailTextAndFileParameters.ReportDescription1 + "]",
-			"[" + EmailTextAndFileParameters.MailingDate + "()]", "[" + EmailTextAndFileParameters.ReportFormat + "]"));
+			NStr("en = '%1 dated %2 %3';"), "[" + FilesAndEmailTextParameters.ReportDescription1 + "]",
+			"[" + FilesAndEmailTextParameters.MailingDate + "()]", "[" + FilesAndEmailTextParameters.ReportFormat + "]"));
 
 	Return Templates;
 
@@ -3089,7 +3101,7 @@ Procedure AfterCloseRedistribution(Result, Var_Parameters) Export
 EndProcedure
 
 &AtClient
-Procedure WhenOpeningTemplatePreview()
+Procedure OnOpenTemplatePreview()
 	AddLayout();
 	FormParameters = TemplatePreviewFormParameters();
 	OpenForm("Catalog.ReportMailings.Form.EmailPreview", FormParameters, ThisObject, , , , ,
@@ -3098,7 +3110,7 @@ Procedure WhenOpeningTemplatePreview()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClientAtServerNoContext
 Function PasswordHidden()
@@ -3320,18 +3332,20 @@ Procedure VisibilityAvailabilityCorrectness(Form, Changes = "")
 	If Changes = "" Or Changes = "SchedulePeriodicity" Then
 		
 		If Object.SchedulePeriodicity = PredefinedValue("Enum.ReportMailingSchedulePeriodicities.Daily") Then
-			EnumerationName = "Daily";
-		ElsIf Object.SchedulePeriodicity = PredefinedValue("Enum.ReportMailingSchedulePeriodicities.Monthly") Then
-			EnumerationName = "Monthly";
+			EnumerationName    = "Daily";
+			VisiblePagesName = Items.DailyPage.Name;
 		ElsIf Object.SchedulePeriodicity = PredefinedValue("Enum.ReportMailingSchedulePeriodicities.Weekly") Then
-			EnumerationName = "Weekly";
+			EnumerationName    = "Weekly";
+			VisiblePagesName = Items.WeeklyPage.Name;
+		ElsIf Object.SchedulePeriodicity = PredefinedValue("Enum.ReportMailingSchedulePeriodicities.Monthly") Then
+			EnumerationName    = "Monthly";
+			VisiblePagesName = Items.MonthlyPage.Name;
 		Else
-			EnumerationName = "CustomValue";
+			EnumerationName    = "CustomValue";
+			VisiblePagesName = "";
 		EndIf;
 		
-		Pages = Items.PeriodicityPages.ChildItems;
-		VisiblePagesName = "Page"+EnumerationName;
-		For Each Page In Pages Do
+		For Each Page In Items.PeriodicityPages.ChildItems Do
 			Page.Visible = (Page.Name = VisiblePagesName);
 		EndDo;
 		If EnumerationName = "CustomValue" Then
@@ -3402,18 +3416,18 @@ Procedure VisibilityAvailabilityCorrectness(Form, Changes = "")
 				Form[KeyAndValue.Key] = (Form.Schedule.Months.Find(KeyAndValue.Value) <> Undefined);
 			EndDo;
 		EndIf;
-		Form.RepeatPeriodInDay = SecondsInHours(Form.Schedule.RepeatPeriodInDay);
+		Form.RepeatPeriodInDay = SecondsToHours(Form.Schedule.RepeatPeriodInDay);
 		Form.EndTime = Form.Schedule.EndTime;
 
-		Form.UseRepeatPeriodThroughoutDay = ValueIsFilled(Form.RepeatPeriodInDay);
+		Form.UseHourlyRepeatPeriod = ValueIsFilled(Form.RepeatPeriodInDay);
 		
 	EndIf; // Changes = Or Changes = SchedulePeriodicity
 
 	If Changes = "" Or Changes = "RepeatPeriodInDay" Or Changes = "SchedulePeriodicity" Then
-		Items.RepeatPeriodInDay.Enabled = Form.UseRepeatPeriodThroughoutDay;
-		Items.DecorationOfClock.Enabled = Form.UseRepeatPeriodThroughoutDay;
-		Items.EndTime.Enabled = Form.UseRepeatPeriodThroughoutDay;
-		Form.EndTime = ?(Form.UseRepeatPeriodThroughoutDay, Form.EndTime, '00010101');
+		Items.RepeatPeriodInDay.Enabled = Form.UseHourlyRepeatPeriod;
+		Items.ClockDecoration.Enabled = Form.UseHourlyRepeatPeriod;
+		Items.EndTime.Enabled = Form.UseHourlyRepeatPeriod;
+		Form.EndTime = ?(Form.UseHourlyRepeatPeriod, Form.EndTime, '00010101');
 		Form.Schedule.EndTime = Form.EndTime;
 	EndIf;
 	
@@ -3603,24 +3617,24 @@ Function RecipientsSpecified(Recipients)
 EndFunction
 
 &AtClientAtServerNoContext
-Function MailingRecipientValueTemplate(EmailTextAndFileParameters)
+Function MailingRecipientValueTemplate(FilesAndEmailTextParameters)
 	
-	Return "[" + EmailTextAndFileParameters.Recipient + "]";
+	Return "[" + FilesAndEmailTextParameters.Recipient + "]";
 	
 EndFunction
 
 &AtClientAtServerNoContext
-Function HoursInSeconds(Hours1)
+Function HoursToSeconds(Hours1)
 	Return Hours1 * 60 * 60;
 EndFunction
 
 &AtClientAtServerNoContext
-Function SecondsInHours(Seconds)
+Function SecondsToHours(Seconds)
 	Return Seconds / 60 / 60;
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServerNoContext
 Function RecipientMailAddresses(Recipient, ValueList)
@@ -3693,6 +3707,36 @@ Function AdditionOfSaaSSchedulePresentation()
 	
 EndFunction
 
+&AtClient
+Procedure UpdateValueOfParameterOfRecipientOfPersonalizedMailing()
+	
+	If Not Object.Personalized Then
+		Return;
+	EndIf;
+	
+	RecipientValueTemplate = MailingRecipientValueTemplate(FilesAndEmailTextParameters);
+	ListValue = New ValueList;
+	ListValue.Add(RecipientValueTemplate, RecipientValueTemplate);
+
+	For Each SettingItem In DCSettingsComposer.UserSettings.Items Do
+		If Not TypeOf(SettingItem) = Type("DataCompositionSettingsParameterValue") Then
+			Continue;
+		EndIf;
+		If SettingItem.Value = RecipientValueTemplate 
+			Or TypeOf(SettingItem.Value) = Type("ValueList")
+			And SettingItem.Value.FindByValue(RecipientValueTemplate) <> Undefined Then
+			AvailableParameter = DCSettingsComposer.Settings.DataParameters.AvailableParameters.FindParameter(SettingItem.Parameter);
+			If AvailableParameter <> Undefined And AvailableParameter.ValueListAllowed Then
+				SettingItem.Value = ListValue;
+				Items.Reports.CurrentData.ChangesMade = True;
+			EndIf;
+		EndIf;
+	EndDo;
+
+	FindPersonalizationSettings();
+	
+EndProcedure
+
 &AtServer
 Function ReportsOnActivateRowAtServer(RowID, AddCommonText = True, Val UserSettings = Undefined)
 	// Save previous report settings.
@@ -3754,7 +3798,7 @@ Procedure FindPersonalizationSettings()
 			Continue;
 		EndIf;
 		
-		If SettingValue <> MailingRecipientValueTemplate(EmailTextAndFileParameters) Then 
+		If SettingValue <> MailingRecipientValueTemplate(FilesAndEmailTextParameters) Then 
 			Continue;
 		EndIf;
 		
@@ -3765,7 +3809,6 @@ Procedure FindPersonalizationSettings()
 		EndIf;
 		
 	EndDo;
-	
 	SetUpPersonalizationSettings();
 	
 EndProcedure
@@ -4259,8 +4302,8 @@ Procedure SetConditionalAppearance()
 	ItemFilter.RightValue = "";
 
 	Item.Appearance.SetParameterValue("TextColor", ProhibitedCellTextColor);
-	Item.Appearance.SetParameterValue("Text", "[" + EmailTextAndFileParameters.ReportDescription1 + "] [" 
-		+ EmailTextAndFileParameters.ReportFormat + "]");
+	Item.Appearance.SetParameterValue("Text", "[" + FilesAndEmailTextParameters.ReportDescription1 + "] [" 
+		+ FilesAndEmailTextParameters.ReportFormat + "]");
 
 	//
 
@@ -4292,7 +4335,7 @@ Procedure SetUpPersonalizationSettings()
 	For Each AppearanceItem In ConditionalAppearance.Items Do 
 		
 		ParameterValue = AppearanceItem.Appearance.FindParameterValue(DesignParameter);
-		If ParameterValue.Value = MailingRecipientValueTemplate(EmailTextAndFileParameters) Then 
+		If ParameterValue.Value = MailingRecipientValueTemplate(FilesAndEmailTextParameters) Then 
 			
 			Item = AppearanceItem;
 			Break;
@@ -4319,8 +4362,11 @@ Procedure SetUpPersonalizationSettings()
 	ItemFilter.ComparisonType = DataCompositionComparisonType.InList;
 	ItemFilter.RightValue = PersonalizationSettings;
 	
-	Item.Appearance.SetParameterValue("Text", MailingRecipientValueTemplate(EmailTextAndFileParameters));
+	Item.Appearance.SetParameterValue("Text", MailingRecipientValueTemplate(FilesAndEmailTextParameters));
 	Item.Appearance.SetParameterValue("ReadOnly", True);
+	FontImportantLabel = Metadata.StyleItems.ImportantLabelFont;
+	Item.Appearance.SetParameterValue("Font", FontImportantLabel.Value);
+	
 	
 EndProcedure
 
@@ -4355,9 +4401,9 @@ Function GetCache()
 	
 	// Defaults for fields that support filling templates.
 	Templates = New FixedStructure("Subject, Text, ArchiveName",
-		ReportMailingClientServer.SubjectTemplate(EmailTextAndFileParameters),
-		ReportMailing.TextTemplate1(EmailTextAndFileParameters),
-		ReportMailingClientServer.ArchivePatternName(EmailTextAndFileParameters));
+		ReportMailingClientServer.SubjectTemplate(FilesAndEmailTextParameters),
+		ReportMailing.TextTemplate1(FilesAndEmailTextParameters),
+		ReportMailingClientServer.ArchivePatternName(FilesAndEmailTextParameters));
 	
 	// Cache structure.
 	Cache = New Structure;
@@ -4411,11 +4457,11 @@ EndProcedure
 &AtServer
 Procedure ReadObjectSettingsOfObjectToCopy()
 	RowsCount = Object.Reports.Count();
-	MailingReportsOfFoundation = Common.ObjectAttributeValue(MailingBasis, "Reports").Unload();
+	ReportsDistributionsBases = Common.ObjectAttributeValue(MailingBasis, "Reports").Unload();
 	For ReverseIndex = 1 To RowsCount Do
 		IndexOf = RowsCount - ReverseIndex;
 		ReportsRow = Object.Reports.Get(IndexOf);
-		ObjectToCopyReportsRow = MailingReportsOfFoundation.Get(IndexOf);
+		ObjectToCopyReportsRow = ReportsDistributionsBases.Get(IndexOf);
 		
 		DCUserSettings = ObjectToCopyReportsRow.Settings.Get();
 		
@@ -4691,10 +4737,10 @@ EndProcedure
 &AtServer
 Procedure DoDisplayImportance()
 
-	If Object.EmailImportance = EmailOperationsInternalClientServer.HighImportanceOfInternetMailCommunication() Then
+	If Object.EmailImportance = EmailOperationsInternalClientServer.InternetMailMessageImportanceHigh() Then
 		Items.SeverityGroup.Picture = PictureLib.ImportanceHigh;
 		Items.SeverityGroup.ToolTip = NStr("en = 'High importance';");
-	ElsIf Object.EmailImportance = EmailOperationsInternalClientServer.LowImportanceOfInternetMail() Then
+	ElsIf Object.EmailImportance = EmailOperationsInternalClientServer.InternetMailMessageImportanceLow() Then
 		Items.SeverityGroup.Picture = PictureLib.ImportanceLow;
 		Items.SeverityGroup.ToolTip = NStr("en = 'Low importance';");
 	Else
@@ -4707,14 +4753,14 @@ EndProcedure
 &AtServer
 Procedure AddCommandsAddTextAdditionalParameters()
 	ReportMailing.AddCommandsAddTextAdditionalParameters(ThisObject);
-	UpdateListOfEmailTextAndFileParameters();
+	UpdateListOfFilesAndEmailTextParameters();
 EndProcedure
 
 &AtServer
-Procedure UpdateListOfEmailTextAndFileParameters()
-	EmailTextAndFileParameters = ReportMailingCached.EmailTextAndFileParameters();
+Procedure UpdateListOfFilesAndEmailTextParameters()
+	FilesAndEmailTextParameters = ReportMailingCached.FilesAndEmailTextParameters();
 	MailingRecipientType = ?(BulkEmailType = "Personal", Undefined, MailingRecipientType);
-	ReportMailingOverridable.OnDefineEmailTextParameters(BulkEmailType, MailingRecipientType, EmailTextAndFileParameters);
+	ReportMailingOverridable.OnDefineEmailTextParameters(BulkEmailType, MailingRecipientType, FilesAndEmailTextParameters);
 EndProcedure
 
 &AtServer
@@ -4753,20 +4799,20 @@ EndProcedure
 Procedure ConvertTextParameters(CurrentObject, ConversionOption)
 	
 	If ConversionOption = "ParametersInPresentation" Then
-		NameOfSearchSubstring = "Key";
-		NameOfReplacementSubstring = "Value";
+		SearchSubstringName = "Key";
+		ReplaceSubstringName = "Value";
 	Else
-		NameOfSearchSubstring = "Value";
-		NameOfReplacementSubstring = "Key";
+		SearchSubstringName = "Value";
+		ReplaceSubstringName = "Key";
 	EndIf;
 	
 	HTMLText = "";
 	EmailAttachmentsStructureInHTMLFormat = "";
 	EmailTextFormattedDocument.GetHTML(HTMLText, EmailAttachmentsStructureInHTMLFormat);
-	For Each ParameterDetails In EmailTextAndFileParameters Do
+	For Each ParameterDetails In FilesAndEmailTextParameters Do
 		
-		SearchSubstring = "[" + ParameterDetails[NameOfSearchSubstring];
-		ReplaceSubstring = "[" + ParameterDetails[NameOfReplacementSubstring];
+		SearchSubstring = "[" + ParameterDetails[SearchSubstringName];
+		ReplaceSubstring = "[" + ParameterDetails[ReplaceSubstringName];
 		
 		CurrentObject.EmailSubject = StrReplace(CurrentObject.EmailSubject, SearchSubstring, ReplaceSubstring);
 		CurrentObject.EmailText = StrReplace(CurrentObject.EmailText, SearchSubstring, ReplaceSubstring);
@@ -4791,7 +4837,7 @@ Procedure ConvertTextParameters(CurrentObject, ConversionOption)
 EndProcedure
 
 &AtServer
-Procedure ConvertReportSettingsParameters(CurrentObject, ConversionOption)
+Procedure ConvertReportsSettingsParameters(CurrentObject, ConversionOption)
 	
 	If Not Object.Personalized Then
 		Return;
@@ -4799,9 +4845,9 @@ Procedure ConvertReportSettingsParameters(CurrentObject, ConversionOption)
 	
 	If ConversionOption = "ParametersInPresentation" Then
 		SearchSubstring = "[Recipient]";
-		ReplaceSubstring = MailingRecipientValueTemplate(EmailTextAndFileParameters);
+		ReplaceSubstring = MailingRecipientValueTemplate(FilesAndEmailTextParameters);
 	Else
-		SearchSubstring = MailingRecipientValueTemplate(EmailTextAndFileParameters);
+		SearchSubstring = MailingRecipientValueTemplate(FilesAndEmailTextParameters);
 		ReplaceSubstring = "[Recipient]";
 	EndIf;
 	
@@ -4884,7 +4930,7 @@ Function TemplatePreviewFormParameters()
 
 		ArchiveNameStructure = New Structure("MailingDescription, ExecutionDate", Object.Description,
 			CurrentSessionDate());
-		ArchiveName = ReportMailingClientServer.FillTemplate(Object.ArchiveName, ArchiveNameStructure);
+		ArchiveName = ReportMailing.FillTemplate(Object.ArchiveName, ArchiveNameStructure);
 		ArchiveName = ArchiveName + ".zip";
 
 		GeneratedReports = TrimAll(
@@ -4896,7 +4942,7 @@ Function TemplatePreviewFormParameters()
 	DeliveryParameters.ExecutedToFolder = Object.UseFolder;
 	DeliveryParameters.ExecutedToNetworkDirectory = Object.UseNetworkDirectory;
 	DeliveryParameters.ExecutedAtFTP = Object.UseFTPResource;
-	DeliveryMethod = ReportMailingClientServer.DeliveryMethodsPresentation(DeliveryParameters);
+	DeliveryMethod = ReportMailing.DeliveryMethodsPresentation(DeliveryParameters);
 	
 	TemplateParameters = New Structure;
 	TemplateParameters.Insert("MailingDescription", Object.Description);
@@ -4938,7 +4984,7 @@ Function TemplatePreviewFormParameters()
 			AttachmentText = Chars.LF + Chars.LF + NStr("en = 'Email attachments:';");
 			If Object.Archive Then
 				ArchiveNameStructure = New Structure("MailingDescription, ExecutionDate", Object.Description, CurrentSessionDate());
-				ArchiveName = ReportMailingClientServer.FillTemplate(Object.ArchiveName, ArchiveNameStructure);
+				ArchiveName = ReportMailing.FillTemplate(Object.ArchiveName, ArchiveNameStructure);
 				ArchiveName = ArchiveName + ".zip";
 				AttachmentText = AttachmentText + Chars.LF + Chars.LF + ArchiveName;
 			Else
@@ -4963,7 +5009,7 @@ Function TemplatePreviewFormParameters()
 		EndIf;
 	EndIf;
 	
-	Text = ReportMailingClientServer.FillTemplate(Template, TemplateParameters);
+	Text = ReportMailing.FillTemplate(Template, TemplateParameters);
 	
 	FormParameters = New Structure;
 	FormParameters.Insert("MailingDescription", Object.Description);
@@ -4980,7 +5026,7 @@ Function TemplatePreviewFormParameters()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure WriteAtClient(Result, WriteParameters) Export
@@ -5165,7 +5211,7 @@ EndProcedure
 // End StandardSubsystems.AttachableCommands
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure ExecuteNow()
@@ -5181,7 +5227,7 @@ Procedure ExecuteNow()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure MailingEvents()

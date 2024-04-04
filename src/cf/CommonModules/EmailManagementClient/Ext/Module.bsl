@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Private
@@ -91,28 +92,21 @@ Procedure SendReceiveUserEmail(UUID, Form, ItemList = Undefined, DisplayProgress
 		AdditionalParameters.URL = Form.Window.GetURL();
 	EndIf;	
 	
-	If TimeConsumingOperation.Status = "Completed2" Then
-		SendReceiveUserEmailCompletion(TimeConsumingOperation, AdditionalParameters);
-	ElsIf TimeConsumingOperation.Status = "Running" Then
-		IdleParameters = TimeConsumingOperationsClient.IdleParameters(Form);
-		If DisplayProgress Then
-			IdleParameters.OutputProgressBar = True;
-		Else
-			IdleParameters.OutputIdleWindow = False;
-		EndIf;
-		CompletionNotification2 = New NotifyDescription("SendReceiveUserEmailCompletion", ThisObject, AdditionalParameters);
-		TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CompletionNotification2, IdleParameters);
+	IdleParameters = TimeConsumingOperationsClient.IdleParameters(Form);
+	If DisplayProgress Then
+		IdleParameters.OutputProgressBar = True;
+	Else
+		IdleParameters.OutputIdleWindow = False;
 	EndIf;
+	CallbackOnCompletion = New NotifyDescription("SendReceiveUserEmailCompletion", ThisObject, AdditionalParameters);
+	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
 	
 EndProcedure
 
 // The processing of user email import completion
 // 
 // Parameters:
-//  Result - Structure:
-//   * BriefErrorDescription     - String - information on occurred error
-//   * AdditionalResultAddress - String - a temporary storage address with additional information on the execution results.
-//   * Status                         - String - operation status.
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
 //  AdditionalParameters - Structure:
 //   * ItemList - FormTable - an item containing a dynamic list.
 //
@@ -125,7 +119,9 @@ Procedure SendReceiveUserEmailCompletion(Result, AdditionalParameters) Export
 	EndIf;
 	
 	If Result.Status = "Error" Then
-		Raise Result.BriefErrorDescription;
+		StandardSubsystemsClient.OutputErrorInfo(
+			Result.ErrorInfo);
+		Return;
 	EndIf;
 	
 	If Result.Status = "Completed2" Then

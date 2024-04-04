@@ -40,6 +40,12 @@
 			<ChildItems>
 				<InputField name="KindFilter" id="20">
 					<DataPath>KindFilter</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Type</v8:content>
+						</v8:item>
+					</Title>
 					<HorizontalStretch>false</HorizontalStretch>
 					<ClearButton>true</ClearButton>
 					<ListChoiceMode>true</ListChoiceMode>
@@ -60,6 +66,12 @@
 				</InputField>
 				<InputField name="PublicationFilter" id="17">
 					<DataPath>PublicationFilter</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Publication</v8:content>
+						</v8:item>
+					</Title>
 					<Width>26</Width>
 					<HorizontalStretch>false</HorizontalStretch>
 					<ClearButton>true</ClearButton>
@@ -95,8 +107,8 @@
 			<ChildItems>
 				<PictureDecoration name="NotesPicture" id="132">
 					<Picture>
-						<xr:Ref>CommonPicture.Information32</xr:Ref>
-						<xr:LoadTransparent>false</xr:LoadTransparent>
+						<xr:Ref>StdPicture.DialogInformation</xr:Ref>
+						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</Picture>
 					<FileDragMode>AsFile</FileDragMode>
 					<ContextMenu name="NotePicture1ContextMenu" id="133"/>
@@ -171,11 +183,23 @@ For further assistance, contact provider's technical support.</v8:content>
 						<Button name="LoadFromFile" id="56">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.LoadFromFile</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Update from file…</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="LoadFromFileExtendedTooltip" id="57"/>
 						</Button>
 						<Button name="ExportToFile" id="58">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.ExportToFile</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Save as…</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="ExportToFileExtendedTooltip" id="59"/>
 						</Button>
 					</ChildItems>
@@ -197,6 +221,12 @@ For further assistance, contact provider's technical support.</v8:content>
 						<Button name="ChangeSelectedItems" id="62">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.ChangeSelectedItems</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Edit selected…</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="ChangeSelectedItemsExtendedTooltip" id="63"/>
 						</Button>
 					</ChildItems>
@@ -223,18 +253,36 @@ For further assistance, contact provider's technical support.</v8:content>
 						<Button name="Used" id="72">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.PublicationAvailable</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Active</v8:content>
+								</v8:item>
+							</Title>
 							<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 							<ExtendedTooltip name="UsedExtendedTooltip" id="73"/>
 						</Button>
 						<Button name="DebugMode" id="76">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.PublicationDebugMode</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Debug mode</v8:content>
+								</v8:item>
+							</Title>
 							<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 							<ExtendedTooltip name="DebugModeExtendedTooltip" id="77"/>
 						</Button>
 						<Button name="isDisabled" id="74">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.PublicationDisabled</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Inactive</v8:content>
+								</v8:item>
+							</Title>
 							<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 							<ExtendedTooltip name="isDisabledExtendedTooltip" id="75"/>
 						</Button>
@@ -346,18 +394,36 @@ For further assistance, contact provider's technical support.</v8:content>
 							<Button name="EnabledMenu" id="121">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.PublicationAvailable</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Active</v8:content>
+									</v8:item>
+								</Title>
 								<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 								<ExtendedTooltip name="EnabledMenuExtendedTooltip" id="122"/>
 							</Button>
 							<Button name="DebugModeMenu" id="123">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.PublicationDebugMode</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Debug mode</v8:content>
+									</v8:item>
+								</Title>
 								<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 								<ExtendedTooltip name="DebugModeMenuExtendedTooltip" id="124"/>
 							</Button>
 							<Button name="DisabledMenu" id="125">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.PublicationDisabled</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Inactive</v8:content>
+									</v8:item>
+								</Title>
 								<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 								<ExtendedTooltip name="DisabledMenuExtendedTooltip" id="126"/>
 							</Button>
@@ -380,6 +446,12 @@ For further assistance, contact provider's technical support.</v8:content>
 							<Button name="ChangeSelectedItemsMenu" id="60">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.ChangeSelectedItems</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Edit selected…</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="ChangeSelectedItemsMenuExtendedTooltip" id="61"/>
 							</Button>
 						</ChildItems>
@@ -396,11 +468,23 @@ For further assistance, contact provider's technical support.</v8:content>
 							<Button name="ExportFromMenuFile" id="54">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.LoadFromFile</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Update from file…</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="ExportFromMenuFileExtendedTooltip" id="55"/>
 							</Button>
 							<Button name="ExportToFileMenu" id="52">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.ExportToFile</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Save as…</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="ExportToFileMenuExtendedTooltip" id="53"/>
 							</Button>
 						</ChildItems>
@@ -712,38 +796,8 @@ WHERE
 				</v8:StringQualifiers>
 			</Type>
 		</Parameter>
+		<Parameter name="Representation">
+			<Type/>
+		</Parameter>
 	</Parameters>
-	<CommandInterface>
-		<CommandBar>
-			<Item>
-				<Command>0</Command>
-				<Type>Auto</Type>
-				<CommandGroup>FormCommandBarImportant</CommandGroup>
-				<DefaultVisible>false</DefaultVisible>
-				<Visible>
-					<xr:Common>false</xr:Common>
-				</Visible>
-			</Item>
-			<Item>
-				<Command>0</Command>
-				<Type>Auto</Type>
-				<CommandGroup>FormCommandBarImportant</CommandGroup>
-				<Index>2</Index>
-				<DefaultVisible>false</DefaultVisible>
-				<Visible>
-					<xr:Common>false</xr:Common>
-				</Visible>
-			</Item>
-			<Item>
-				<Command>0</Command>
-				<Type>Auto</Type>
-				<CommandGroup>FormCommandBarImportant</CommandGroup>
-				<Index>1</Index>
-				<DefaultVisible>false</DefaultVisible>
-				<Visible>
-					<xr:Common>false</xr:Common>
-				</Visible>
-			</Item>
-		</CommandBar>
-	</CommandInterface>
 </Form>

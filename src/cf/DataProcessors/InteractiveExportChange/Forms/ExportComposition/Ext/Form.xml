@@ -3,7 +3,7 @@
 	<Title>
 		<v8:item>
 			<v8:lang>en</v8:lang>
-			<v8:content>View data before sending</v8:content>
+			<v8:content>Scope of send data</v8:content>
 		</v8:item>
 	</Title>
 	<AutoTitle>false</AutoTitle>
@@ -15,29 +15,59 @@
 				<Representation>PictureAndText</Representation>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.GenerateReport</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Generate</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormGenerateReportExtendedTooltip" id="23"/>
 			</Button>
 			<Button name="FormReportSettings" id="19">
 				<Type>CommandBarButton</Type>
 				<Representation>PictureAndText</Representation>
 				<CommandName>Form.Command.ReportSettings</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Settings…</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormReportSettingsExtendedTooltip" id="24"/>
 			</Button>
 			<Button name="FormSelectSetting" id="20">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.SelectSetting</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Select setting</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormSelectSettingExtendedTooltip" id="25"/>
 			</Button>
 			<Button name="FormSaveSetting" id="21">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.SaveSetting</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save setting</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormSaveSettingExtendedTooltip" id="26"/>
 			</Button>
 			<Button name="FormStandardSetting" id="22">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.StandardSetting</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Reset to default settings</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormStandardSettingExtendedTooltip" id="27"/>
 			</Button>
@@ -96,6 +126,12 @@
 		</Table>
 		<SpreadSheetDocumentField name="Result" id="13">
 			<DataPath>Result</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Result</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>None</TitleLocation>
 			<VerticalScrollBar>true</VerticalScrollBar>
 			<HorizontalScrollBar>true</HorizontalScrollBar>

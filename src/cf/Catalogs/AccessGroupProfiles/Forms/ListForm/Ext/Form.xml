@@ -179,6 +179,12 @@ Obsolete profiles contain deleted roles (manual update skipped).</v8:content>
 				<Button name="FormRefresh" id="48">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.Refresh</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Refresh</v8:content>
+						</v8:item>
+					</Title>
 					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 					<ExtendedTooltip name="FormRefreshExtendedTooltip" id="49"/>
 				</Button>
@@ -192,6 +198,49 @@ Obsolete profiles contain deleted roles (manual update skipped).</v8:content>
 					<CommandSource>Form</CommandSource>
 					<ExtendedTooltip name="FormStandardCommandsExtendedTooltip" id="61"/>
 				</ButtonGroup>
+				<Popup name="ReportsSubmenu" id="72">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Reports</v8:content>
+						</v8:item>
+					</Title>
+					<Picture>
+						<xr:Ref>CommonPicture.Reports</xr:Ref>
+						<xr:LoadTransparent>false</xr:LoadTransparent>
+					</Picture>
+					<Representation>PictureAndText</Representation>
+					<ExtendedTooltip name="ReportsSubmenuExtendedTooltip" id="73"/>
+					<ChildItems>
+						<ButtonGroup name="ReportsImportantSubmenu" id="74">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Submenu reports important</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="ReportsImportantSubmenuExtendedTooltip" id="75"/>
+						</ButtonGroup>
+						<ButtonGroup name="SubmenuReportsStandard" id="76">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Submenu fill in standard</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="SubmenuReportsStandardExtendedTooltip" id="77"/>
+						</ButtonGroup>
+						<ButtonGroup name="ReportsSubmenuSeeAlso" id="78">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Submenu reports see also</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="ReportsSubmenuSeeAlsoExtendedTooltip" id="79"/>
+						</ButtonGroup>
+					</ChildItems>
+				</Popup>
 				<Button name="Help" id="62">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.StandardCommand.Help</CommandName>

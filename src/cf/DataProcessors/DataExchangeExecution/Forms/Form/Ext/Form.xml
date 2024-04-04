@@ -48,6 +48,12 @@
 					<ExtendedTooltip name="DataSynchronizationPageIsNotAvailableExtendedTooltip" id="203"/>
 					<ChildItems>
 						<UsualGroup name="Group2" id="204">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group</v8:content>
+								</v8:item>
+							</Title>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
@@ -100,6 +106,12 @@ Try again later or &lt;link ExpectSynchronizationCapability&gt;wait for synchron
 					<ExtendedTooltip name="PageCheckExchangeTasksExtendedTooltip" id="221"/>
 					<ChildItems>
 						<UsualGroup name="Group3" id="222">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group</v8:content>
+								</v8:item>
+							</Title>
 							<VerticalStretch>true</VerticalStretch>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
@@ -137,6 +149,12 @@ Try again later or &lt;link ExpectSynchronizationCapability&gt;wait for synchron
 							</ChildItems>
 						</UsualGroup>
 						<UsualGroup name="Group4" id="230">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group</v8:content>
+								</v8:item>
+							</Title>
 							<HorizontalStretch>true</HorizontalStretch>
 							<HorizontalAlign>Right</HorizontalAlign>
 							<Behavior>Usual</Behavior>
@@ -174,6 +192,12 @@ Try again later or &lt;link ExpectSynchronizationCapability&gt;wait for synchron
 					<ExtendedTooltip name="WaitingForSynchronizationToStartExtendedTooltip" id="193"/>
 					<ChildItems>
 						<UsualGroup name="Group1" id="200">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group</v8:content>
+								</v8:item>
+							</Title>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
@@ -265,6 +289,12 @@ Please wait…</v8:content>
 									<ChildItems>
 										<InputField name="WSPassword" id="54">
 											<DataPath>WSPassword</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Password</v8:content>
+												</v8:item>
+											</Title>
 											<Width>20</Width>
 											<HorizontalStretch>false</HorizontalStretch>
 											<PasswordMode>true</PasswordMode>
@@ -275,6 +305,12 @@ Please wait…</v8:content>
 										<Button name="ForgotPassword" id="58">
 											<Type>Hyperlink</Type>
 											<CommandName>Form.Command.ForgotPassword</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Forgot password?</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="ForgotPasswordExtendedTooltip" id="93"/>
 										</Button>
 									</ChildItems>
@@ -358,6 +394,12 @@ Please wait…</v8:content>
 										</LabelDecoration>
 										<CheckBoxField name="NoLongSynchronizationPrompt" id="138">
 											<DataPath>NoLongSynchronizationPrompt</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Don't remind again</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>Right</TitleLocation>
 											<CheckBoxType>Auto</CheckBoxType>
 											<ContextMenu name="NoLongSynchronizationPromptContextMenu" id="139"/>
@@ -393,13 +435,19 @@ Please wait…</v8:content>
 									<DefaultButton>true</DefaultButton>
 									<DefaultItem>true</DefaultItem>
 									<CommandName>Form.Command.ExecuteExchange</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Start sync</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="ExecuteExchangeExtendedTooltip" id="95"/>
 								</Button>
 								<Button name="FormClose2" id="70">
 									<Type>CommandBarButton</Type>
 									<Representation>Text</Representation>
 									<CommandName>Form.StandardCommand.Close</CommandName>
-									<ExtendedTooltip name="FormClose32ExtendedTooltip" id="96"/>
+									<ExtendedTooltip name="FormClose2ExtendedTooltip" id="96"/>
 								</Button>
 							</ChildItems>
 						</CommandBar>
@@ -415,6 +463,12 @@ Please wait…</v8:content>
 					<ExtendedTooltip name="DataSynchronizationWaitExtendedTooltip" id="97"/>
 					<ChildItems>
 						<UsualGroup name="Group5" id="263">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group</v8:content>
+								</v8:item>
+							</Title>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
 							<ExtendedTooltip name="Group5ExtendedTooltip" id="264"/>
@@ -455,7 +509,7 @@ Please wait…</v8:content>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Group Warning upon exchange via internal publication</v8:content>
+									<v8:content>Warning on exchange via internal publication</v8:content>
 								</v8:item>
 							</Title>
 							<Group>Vertical</Group>
@@ -464,6 +518,12 @@ Please wait…</v8:content>
 							<ExtendedTooltip name="GroupWarningWhenSharingViaInternalPublishingExtendedTooltip" id="266"/>
 							<ChildItems>
 								<UsualGroup name="Group6" id="278">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Group</v8:content>
+										</v8:item>
+									</Title>
 									<Representation>None</Representation>
 									<ShowTitle>false</ShowTitle>
 									<ExtendedTooltip name="Group6ExtendedTooltip" id="279"/>
@@ -498,8 +558,8 @@ Please wait…</v8:content>
 											<Title formatted="false">
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>When you close the window, synchronization will occur in the background. 
-To stop, click Finish synchronization</v8:content>
+													<v8:content>Once you close the window, synchronization will run in the background. 
+To stop it, click "Finish synchronization".</v8:content>
 												</v8:item>
 											</Title>
 											<VerticalAlign>Center</VerticalAlign>
@@ -509,6 +569,12 @@ To stop, click Finish synchronization</v8:content>
 									</ChildItems>
 								</UsualGroup>
 								<UsualGroup name="Group7" id="280">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Group</v8:content>
+										</v8:item>
+									</Title>
 									<Representation>None</Representation>
 									<ShowTitle>false</ShowTitle>
 									<ExtendedTooltip name="Group7ExtendedTooltip" id="281"/>
@@ -521,6 +587,12 @@ To stop, click Finish synchronization</v8:content>
 										<Button name="EndSyncing" id="276">
 											<Type>UsualButton</Type>
 											<CommandName>Form.Command.EndSyncing</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Finish sync</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="EndSyncingExtendedTooltip" id="277"/>
 										</Button>
 									</ChildItems>
@@ -552,6 +624,12 @@ To stop, click Finish synchronization</v8:content>
 						</LabelDecoration>
 						<ProgressBarField name="ProgressPercent" id="175">
 							<DataPath>ProgressPercent</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Progress percentage</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<ShowPercent>true</ShowPercent>
 							<ContextMenu name="ProgressPercentContextMenu" id="176"/>
@@ -559,6 +637,12 @@ To stop, click Finish synchronization</v8:content>
 						</ProgressBarField>
 						<LabelField name="ImportProgressAdditionalInformation" id="178">
 							<DataPath>ProgressAdditionalInformation</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Additional progress details</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<AutoMaxWidth>false</AutoMaxWidth>
 							<ContextMenu name="ProgressAdditionalInformation1ContextMenu" id="179"/>
@@ -589,6 +673,12 @@ To stop, click Finish synchronization</v8:content>
 						</LabelDecoration>
 						<ProgressBarField name="DataExportProgressBar" id="186">
 							<DataPath>ProgressPercent</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Progress percentage</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<ShowPercent>true</ShowPercent>
 							<ContextMenu name="ExportProgressPercent1ContextMenu" id="187"/>
@@ -596,6 +686,12 @@ To stop, click Finish synchronization</v8:content>
 						</ProgressBarField>
 						<LabelField name="AdditionalInformationExportProgress" id="189">
 							<DataPath>ProgressAdditionalInformation</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Additional progress details</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<AutoMaxWidth>false</AutoMaxWidth>
 							<ContextMenu name="AdditionalInformationExportProgressContextMenu" id="190"/>
@@ -640,8 +736,8 @@ To stop, click Finish synchronization</v8:content>
 												</v8:item>
 											</Title>
 											<Picture>
-												<xr:Ref>CommonPicture.Information32</xr:Ref>
-												<xr:LoadTransparent>false</xr:LoadTransparent>
+												<xr:Ref>StdPicture.DialogInformation</xr:Ref>
+												<xr:LoadTransparent>true</xr:LoadTransparent>
 											</Picture>
 											<FileDragMode>AsFile</FileDragMode>
 											<ContextMenu name="ExchangeSucceededPictureContextMenu" id="14"/>
@@ -755,6 +851,12 @@ Please contact the administrator.</v8:content>
 												<Button name="GoToEventLog" id="34">
 													<Type>Hyperlink</Type>
 													<CommandName>Form.Command.GoToEventLog</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Open Event log</v8:content>
+														</v8:item>
+													</Title>
 													<ExtendedTooltip name="GoToEventLogExtendedTooltip" id="112"/>
 												</Button>
 											</ChildItems>
@@ -799,7 +901,7 @@ Please contact the administrator.</v8:content>
 											<AutoMaxWidth>false</AutoMaxWidth>
 											<MultiLine>true</MultiLine>
 											<ContextMenu name="UserErrorMessageContextMenu" id="87"/>
-											<ExtendedTooltip name="UserErrorMessageExtendedTooltip" id="115"/>
+											<ExtendedTooltip name="ErrorMessageToUserExtendedTooltip" id="115"/>
 										</InputField>
 									</ChildItems>
 								</Page>
@@ -1032,7 +1134,7 @@ To continue with the changes made, restart the application.</v8:content>
 													<Type>CommandBarButton</Type>
 													<Representation>Text</Representation>
 													<CommandName>Form.StandardCommand.Close</CommandName>
-													<ExtendedTooltip name="FormCloseExtendedTooltip" id="126"/>
+													<ExtendedTooltip name="FormClose3ExtendedTooltip" id="126"/>
 												</Button>
 											</ChildItems>
 										</CommandBar>
@@ -1060,13 +1162,19 @@ To continue with the changes made, restart the application.</v8:content>
 												<Button name="InstallUpdate" id="51">
 													<Type>CommandBarButton</Type>
 													<CommandName>Form.Command.InstallUpdate</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Install update</v8:content>
+														</v8:item>
+													</Title>
 													<ExtendedTooltip name="InstallUpdateExtendedTooltip" id="129"/>
 												</Button>
 												<Button name="FormClose1" id="52">
 													<Type>CommandBarButton</Type>
 													<Representation>Text</Representation>
 													<CommandName>Form.StandardCommand.Close</CommandName>
-													<ExtendedTooltip name="FormClose31ExtendedTooltip" id="130"/>
+													<ExtendedTooltip name="FormClose1ExtendedTooltip" id="130"/>
 												</Button>
 											</ChildItems>
 										</CommandBar>
@@ -1094,6 +1202,12 @@ To continue with the changes made, restart the application.</v8:content>
 												<Button name="ContinueSync" id="168">
 													<Type>CommandBarButton</Type>
 													<CommandName>Form.Command.ContinueSync</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Continue</v8:content>
+														</v8:item>
+													</Title>
 													<ExtendedTooltip name="ContinueSyncExtendedTooltip" id="169"/>
 												</Button>
 												<Button name="Close" id="166">
@@ -1134,6 +1248,12 @@ To continue with the changes made, restart the application.</v8:content>
 												<Button name="RestartApplication" id="261">
 													<Type>CommandBarButton</Type>
 													<CommandName>Form.Command.RestartApplication</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Restart app</v8:content>
+														</v8:item>
+													</Title>
 													<ExtendedTooltip name="RestartApplication1ExtendedTooltip" id="262"/>
 												</Button>
 												<Button name="FormClose3" id="259">
@@ -1618,7 +1738,7 @@ To continue with the changes made, restart the application.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Synchronize</v8:content>
+					<v8:content>Start sync</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>

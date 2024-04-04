@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -156,12 +157,12 @@ Function GlobalSettings()
 	Settings = New Structure;
 	Settings.Insert("Show", True);
 	
-	
+	// Disable information in the PROF version if the user cleared the check box.
 	Settings.Show = (Metadata.DataProcessors.InformationOnStart.Templates.Count() > 0)
 		And (StandardSubsystemsServer.IsBaseConfigurationVersion() Or ShowAtStartup());
 	
 	If Settings.Show Then
-		
+		// Disable information if changes details are displayed.
 		If Common.SubsystemExists("StandardSubsystems.IBVersionUpdate") Then
 			ModuleUpdatingInfobaseInternal = Common.CommonModule("InfobaseUpdateInternal");
 			If ModuleUpdatingInfobaseInternal.ShowChangeHistory1() Then
@@ -171,7 +172,7 @@ Function GlobalSettings()
 	EndIf;
 	
 	If Settings.Show Then
-		
+		// Disable information if the assistant of setting completion of the subordinate DIB node is displayed.
 		If Common.SubsystemExists("StandardSubsystems.DataExchange") Then
 			ModuleDataExchangeServer = Common.CommonModule("DataExchangeServer");
 			If ModuleDataExchangeServer.OpenDataExchangeCreationWizardForSubordinateNodeSetup() Then
@@ -254,7 +255,7 @@ Function PagesPackages(TemplatesMedia) Export
 	EndIf;
 		
 	SpreadsheetDocument = TemplatesMedia.GetTemplate("Specifier");
-	SpreadsheetDocument.LanguageCode = Metadata.DefaultLanguage.LanguageCode;
+	SpreadsheetDocument.LanguageCode = Common.DefaultLanguageCode();
 	For LineNumber = 3 To SpreadsheetDocument.TableHeight Do
 		RowPrefix = "R"+ LineNumber +"C";
 		
@@ -415,8 +416,8 @@ Function ExtractPackageFiles(TemplatesMedia, TemplateName) Export
 	While Left > 0 Do
 		Left = Left - 1;
 		Directory = FilesDirectories[0];
-		DirectoryFullPath        = Directory.Value; 
-		DirectoryRelativePath = Directory.Presentation; 
+		DirectoryFullPath        = Directory.Value; // A full path in the file system format.
+		DirectoryRelativePath = Directory.Presentation; // A full path in the file system format.
 		FilesDirectories.Delete(0);
 		
 		FoundItems = FindFiles(DirectoryFullPath, "*", False);

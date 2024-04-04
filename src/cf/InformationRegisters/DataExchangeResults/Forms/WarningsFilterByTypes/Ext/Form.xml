@@ -17,11 +17,23 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.OK</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>OK</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormOKExtendedTooltip" id="36"/>
 			</Button>
 			<Button name="FormReset" id="43">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.Reset</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Reset</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormResetExtendedTooltip" id="44"/>
 			</Button>
 			<Button name="FormCancel" id="30">
@@ -63,6 +75,12 @@
 					<ChildItems>
 						<CheckBoxField name="ApplicationAdministrativeError" id="45">
 							<DataPath>ApplicationAdministrativeError</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>App administrative error</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<CheckBoxType>Auto</CheckBoxType>
 							<ContextMenu name="ApplicationAdministrativeErrorContextMenu" id="46"/>
@@ -70,6 +88,12 @@
 						</CheckBoxField>
 						<CheckBoxField name="CheckErrorBeforeSendXTDO" id="19">
 							<DataPath>CheckErrorBeforeSendXTDO</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Verification error before sending (XDTO)</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<CheckBoxType>Auto</CheckBoxType>
 							<ContextMenu name="ErrorCheckingBeforeSendingXTDOContextMenu" id="20"/>
@@ -77,6 +101,12 @@
 						</CheckBoxField>
 						<CheckBoxField name="HandlersCodeExecutionErrorOnSendData" id="13">
 							<DataPath>HandlersCodeExecutionErrorOnSendData</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Data sending handler errors</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<CheckBoxType>Auto</CheckBoxType>
 							<ContextMenu name="HandlersCodeExecutionErrorOnSendDataContextMenu" id="14"/>
@@ -99,6 +129,12 @@
 					<ChildItems>
 						<CheckBoxField name="UnpostedDocument" id="1">
 							<DataPath>UnpostedDocument</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Unposted documents</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<CheckBoxType>Auto</CheckBoxType>
 							<ContextMenu name="UnpostedDocumentContextMenu" id="2"/>
@@ -106,6 +142,12 @@
 						</CheckBoxField>
 						<CheckBoxField name="BlankAttributes" id="4">
 							<DataPath>BlankAttributes</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Blank attributes</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<CheckBoxType>Auto</CheckBoxType>
 							<ContextMenu name="BlankAttributesContextMenu" id="5"/>
@@ -114,6 +156,12 @@
 						<CheckBoxField name="RejectedConflictData" id="7">
 							<DataPath>RejectedConflictData</DataPath>
 							<Visible>false</Visible>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Data from rejected conflict</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<CheckBoxType>Auto</CheckBoxType>
 							<ContextMenu name="NotAcceptedCollisionDataContextMenu" id="8"/>
@@ -122,6 +170,12 @@
 						<CheckBoxField name="ConflictDataAccepted" id="37">
 							<DataPath>ConflictDataAccepted</DataPath>
 							<Visible>false</Visible>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Data from resolved conflict</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<CheckBoxType>Auto</CheckBoxType>
 							<ContextMenu name="ConflictDataAcceptedContextMenu" id="38"/>
@@ -130,6 +184,12 @@
 						<CheckBoxField name="RejectedDueToPeriodEndClosingDateObjectDoesNotExistInInfobase" id="10">
 							<DataPath>RejectedDueToPeriodEndClosingDateObjectDoesNotExistInInfobase</DataPath>
 							<Visible>false</Visible>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Object rejected due to restriction date (object does not exist)</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<CheckBoxType>Auto</CheckBoxType>
 							<ContextMenu name="RejectedDueToPeriodEndClosingDateObjectDoesNotExistInInfobaseContextMenu" id="11"/>
@@ -138,6 +198,12 @@
 						<CheckBoxField name="RejectedDueToPeriodEndClosingDateObjectExistsInInfobase" id="40">
 							<DataPath>RejectedDueToPeriodEndClosingDateObjectExistsInInfobase</DataPath>
 							<Visible>false</Visible>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Object rejected by period-end closing date (object exists)</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<CheckBoxType>Auto</CheckBoxType>
 							<ContextMenu name="RejectedDueToPeriodEndClosingDateObjectExistsInInfobaseContextMenu" id="41"/>
@@ -145,6 +211,12 @@
 						</CheckBoxField>
 						<CheckBoxField name="HandlersCodeExecutionErrorOnGetData" id="16">
 							<DataPath>HandlersCodeExecutionErrorOnGetData</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Data receiving handler errors</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<CheckBoxType>Auto</CheckBoxType>
 							<ContextMenu name="HandlersCodeExecutionErrorOnGetDataContextMenu" id="17"/>
@@ -152,6 +224,12 @@
 						</CheckBoxField>
 						<CheckBoxField name="IsExchangeMessageOutsideOfArchive" id="48">
 							<DataPath>IsExchangeMessageOutsideOfArchive</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Exchange message is not placed to archive</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<CheckBoxType>Auto</CheckBoxType>
 							<ContextMenu name="IsExchangeMessageOutsideOfArchiveContextMenu" id="49"/>

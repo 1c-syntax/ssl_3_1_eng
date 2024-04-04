@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -14,30 +15,43 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	SetConditionalAppearance();
 	
+	If Parameters.DataAccessLog Then
+		Title = NStr("en = 'Data access log';");
+		EventLogEvent = New Array;
+		EventLogEvent.Add("_$Access$_.Access");
+		EventLogEvent.Add("_$Access$_.AccessDenied");
+		EventLogEvent.Add("_$Session$_.Authentication");
+		EventLogEvent.Add("_$Session$_.AuthenticationError");
+		EventLogEvent.Add("_$Session$_.Start");
+		EventLogEvent.Add("_$Session$_.Finish");
+		Items.Log.Visible = False;
+		Items.Log2.Visible = True;
+		AutoURL = False;
+		URL = "e1cib/command/DataProcessor.EventLog.Command.DataAccessLog";
+	Else
+		Items.Log.Visible = True;
+		Items.Log2.Visible = False;
+		EventLogEvent = Parameters.EventLogEvent;
+	EndIf;
+	
 	EventLogFilter = New Structure;
 	DefaultEventLogFilter = New Structure;
 	FilterValues = GetEventLogFilterValues("Event").Event;
 	
-	If Not IsBlankString(Parameters.User) Then
-		If TypeOf(Parameters.User) = Type("ValueList") Then
-			FilterByUser = Parameters.User;
-		Else
-			UserName = Parameters.User;
-			FilterByUser = New ValueList;
-			FilterByUser.Add(UserName, UserName);
-		EndIf;
+	FilterByUser = FilterByUserFromParameter(Parameters.User);
+	If ValueIsFilled(FilterByUser) Then
 		EventLogFilter.Insert("User", FilterByUser);
 	EndIf;
 	
-	If ValueIsFilled(Parameters.EventLogEvent) Then
+	If ValueIsFilled(EventLogEvent) Then
 		FilterByEvent = New ValueList;
-		If TypeOf(Parameters.EventLogEvent) = Type("Array") Then
-			For Each Event In Parameters.EventLogEvent Do
-				EventPresentation = FilterValues[Event];
-				FilterByEvent.Add(Event, EventPresentation);
+		If TypeOf(EventLogEvent) = Type("Array") Then
+			For Each Event In EventLogEvent Do
+				FilterByEvent.Add(Event, EventPresentation(Event, FilterValues));
 			EndDo;
 		Else
-			FilterByEvent.Add(Parameters.EventLogEvent, Parameters.EventLogEvent);
+			Event = EventLogEvent;
+			FilterByEvent.Add(Event, EventPresentation(Event, FilterValues));
 		EndIf;
 		EventLogFilter.Insert("Event", FilterByEvent);
 	EndIf;
@@ -48,7 +62,12 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		?(ValueIsFilled(Parameters.EndDate), Parameters.EndDate, EndOfDay(CurrentSessionDate())));
 	
 	If Parameters.Data <> Undefined Then
-		EventLogFilter.Insert("Data", Parameters.Data);
+		If TypeOf(Parameters.Data) = Type("Array") Then
+			EventLogFilter.Insert("Data", New ValueList);
+			EventLogFilter.Data.LoadValues(Parameters.Data);
+		Else
+			EventLogFilter.Insert("Data", Parameters.Data);
+		EndIf;
 	EndIf;
 	
 	If Parameters.Session <> Undefined Then
@@ -92,7 +111,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EventLogFilter.Insert("Event", FilterDefault);
 	EndIf;
 	DefaultEventLogFilter.Insert("Event", FilterDefault);
-	Items.SessionDataSeparationPresentation.Visible = Not Common.SeparatedDataUsageAvailable();
+	
+	StandardSeparatorsOnly = EventLog.StandardSeparatorsOnly();
+	SetSeparationVisibility(ThisObject,
+		Not Common.SeparatedDataUsageAvailable());
 	
 	Severity = "AllEvents";
 	
@@ -109,39 +131,23 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 EndProcedure
 
-&AtServer
-Procedure SetConditionalAppearance()
-	
-	ConditionalAppearance.Items.Clear();
-	
-	//
-	Item = ConditionalAppearance.Items.Add();
-	
-	ItemField = Item.Fields.Items.Add();
-	ItemField.Field = New DataCompositionField(Items.Data.Name);
-	
-	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
-	ItemFilter.LeftValue = New DataCompositionField("Log.Data");
-	ItemFilter.ComparisonType = DataCompositionComparisonType.NotFilled;
-	Item.Appearance.SetParameterValue("Visible", False);
-	
-	//
-	Item = ConditionalAppearance.Items.Add();
-	
-	ItemField = Item.Fields.Items.Add();
-	ItemField.Field = New DataCompositionField(Items.MetadataPresentation.Name);
-	
-	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
-	ItemFilter.LeftValue = New DataCompositionField("Log.MetadataPresentation");
-	ItemFilter.ComparisonType = DataCompositionComparisonType.NotFilled;
-	Item.Appearance.SetParameterValue("Visible", False);
-	
-EndProcedure
-
 &AtClient
 Procedure OnOpen(Cancel)
 	
 	AttachIdleHandler("RefreshCurrentList", 0.1, True);
+	
+EndProcedure
+
+&AtClient
+Procedure NotificationProcessing(EventName, Parameter, Source)
+	
+	If EventName = "LoggedOnToDataArea"
+	 Or EventName = "LoggedOffFromDataArea" Then
+		
+		Log.Clear();
+		SetSeparationVisibility(ThisObject,
+			Not CommonClient.SeparatedDataUsageAvailable());
+	EndIf;
 	
 EndProcedure
 
@@ -189,13 +195,35 @@ EndProcedure
 &AtClient
 Procedure LogSelection(Item, RowSelected, Field, StandardProcessing)
 	ChoiceParameters = New Structure;
-	ChoiceParameters.Insert("CurrentData", Items.Log.CurrentData);
+	ChoiceParameters.Insert("CurrentData", Item.CurrentData);
 	ChoiceParameters.Insert("Field", Field);
 	ChoiceParameters.Insert("DateInterval", DateInterval);
 	ChoiceParameters.Insert("EventLogFilter", EventLogFilter);
-	ChoiceParameters.Insert("DataStorage", DataStorage);
+	ChoiceParameters.Insert("NotificationHandlerForSettingDateInterval",
+		New NotifyDescription("SetPeriodForViewingCompletion", ThisObject));
 	
 	EventLogClient.EventsChoice(ChoiceParameters);
+EndProcedure
+
+&AtClient
+Procedure LogOnActivateField(Item)
+	
+	CanFilterCurrentColumnByValue =
+		Item.CurrentItem <> Items.Date
+		And Item.CurrentItem <> Items.Date2;
+	
+	Items.SetFilterByValueInCurrentColumn.Enabled
+		= CanFilterCurrentColumnByValue;
+	
+	Items.SetFilterByValueInCurrentColumn2.Enabled
+		= CanFilterCurrentColumnByValue;
+	
+	Items.SetFilterByValueInCurrentColumnContext.Enabled
+		= CanFilterCurrentColumnByValue;
+	
+	Items.SetFilterByValueInCurrentColumnContext2.Enabled
+		= CanFilterCurrentColumnByValue;
+	
 EndProcedure
 
 &AtClient
@@ -240,14 +268,22 @@ Procedure RefreshCurrentList()
 	
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
-	CompletionNotification2 = New NotifyDescription("RefreshCurrentListCompletion", ThisObject);
+	CallbackOnCompletion = New NotifyDescription("RefreshCurrentListCompletion", ThisObject);
 	
-	TimeConsumingOperationsClient.WaitCompletion(ExecutionResult, CompletionNotification2, IdleParameters);
+	TimeConsumingOperationsClient.WaitCompletion(ExecutionResult, CallbackOnCompletion, IdleParameters);
 	
 EndProcedure
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
 Procedure RefreshCurrentListCompletion(Result, AdditionalParameters) Export
+	
+	Items.Pages.CurrentPage = Items.EventLog;
+	CommonClientServer.SetSpreadsheetDocumentFieldState(
+		Items.TimeConsumingOperationProgressField, "DontUse");
 	
 	If Result = Undefined Then
 		Return;
@@ -255,14 +291,10 @@ Procedure RefreshCurrentListCompletion(Result, AdditionalParameters) Export
 	
 	If Result.Status = "Completed2" Then
 		LoadPreparedData(Result.ResultAddress);
-		CommonClientServer.SetSpreadsheetDocumentFieldState(Items.TimeConsumingOperationProgressField, "DontUse");
-		Items.Pages.CurrentPage = Items.EventLog;
-		MoveToListEnd();
+		ScrollToListBottom();
 	ElsIf Result.Status = "Error" Then
-		CommonClientServer.SetSpreadsheetDocumentFieldState(Items.TimeConsumingOperationProgressField, "DontUse");
-		Items.Pages.CurrentPage = Items.EventLog;
-		MoveToListEnd();
-		Raise Result.BriefErrorDescription;
+		ScrollToListBottom();
+		StandardSubsystemsClient.OutputErrorInfo(Result.ErrorInfo);
 	EndIf;
 	
 EndProcedure
@@ -279,14 +311,14 @@ EndProcedure
 &AtClient
 Procedure OpenDataForViewing()
 	
-	EventLogClient.OpenDataForViewing(Items.Log.CurrentData);
+	EventLogClient.OpenDataForViewing(ItemLog().CurrentData);
 	
 EndProcedure
 
 &AtClient
 Procedure ViewCurrentEventInNewWindow()
 	
-	EventLogClient.ViewCurrentEventInNewWindow(Items.Log.CurrentData, DataStorage);
+	EventLogClient.ViewCurrentEventInNewWindow(ItemLog().CurrentData);
 	
 EndProcedure
 
@@ -319,11 +351,17 @@ Procedure SetFilterByValueInCurrentColumn()
 	ExcludeColumns = New Array;
 	ExcludeColumns.Add("Date");
 	
-	If EventLogClient.SetFilterByValueInCurrentColumn(
-			Items.Log.CurrentData,
-			Items.Log.CurrentItem,
-			EventLogFilter,
-			ExcludeColumns) Then
+	Item = ItemLog();
+	CurrentItemName = Item.CurrentItem.Name;
+	
+	If StrEndsWith(CurrentItemName, "2")
+	 Or StrEndsWith(CurrentItemName, "3") Then
+		
+		CurrentItemName = Mid(CurrentItemName, 1, StrLen(CurrentItemName) - 1);
+	EndIf;
+	
+	If EventLogClient.SetFilterByValueInCurrentColumn(Item.CurrentData,
+			CurrentItemName, EventLogFilter, ExcludeColumns) Then
 		
 		RefreshCurrentList();
 		
@@ -344,6 +382,40 @@ EndProcedure
 
 #Region Private
 
+&AtClientAtServerNoContext
+Procedure SetSeparationVisibility(Form, SeparationVisibility)
+	
+	Items = Form.Items;
+	
+	Items.DataArea.Visible  = SeparationVisibility And Form.StandardSeparatorsOnly;
+	Items.DataArea2.Visible = SeparationVisibility And Form.StandardSeparatorsOnly;
+	Items.DataArea3.Visible = SeparationVisibility And Form.StandardSeparatorsOnly;
+	
+	Items.SessionDataSeparationPresentation.Visible =
+		SeparationVisibility And Not Form.StandardSeparatorsOnly;
+	
+	Items.SessionDataSeparationPresentation2.Visible =
+		SeparationVisibility And Not Form.StandardSeparatorsOnly;
+	
+	If SeparationVisibility And Form.StandardSeparatorsOnly Then
+		GroupTitle = NStr("en = 'App, Session, Area';");
+		GroupTip = NStr("en = 'App, Session, Data area';");
+	Else
+		GroupTitle = NStr("en = 'App, Session';");
+		GroupTip = "";
+	EndIf;
+	Items.ApplicationSessionGroup.Title = GroupTitle;
+	Items.ApplicationSessionGroup.ToolTip = GroupTip;
+	Items.ApplicationSessionGroup2.Title = GroupTitle;
+	Items.ApplicationSessionGroup2.ToolTip = GroupTip;
+	
+EndProcedure
+
+&AtClient
+Function ItemLog()
+	Return ?(Items.Log.Visible, Items.Log, Items.Log2);
+EndFunction
+
 &AtClient
 Procedure SetPeriodForViewingCompletion(IntervalSet, AdditionalParameters) Export
 	
@@ -352,6 +424,31 @@ Procedure SetPeriodForViewingCompletion(IntervalSet, AdditionalParameters) Expor
 	EndIf;
 	
 EndProcedure
+
+// Parameters:
+//  Event - String
+//
+// Returns:
+//  String, Undefined
+//
+&AtServer
+Function EventPresentation(Event, FilterValues)
+	
+	EventPresentation = EventLogEventPresentation(Event);
+	
+	If ValueIsFilled(EventPresentation) Then
+		Return EventPresentation;
+	EndIf;
+	
+	EventPresentation = FilterValues[Event];
+	
+	If ValueIsFilled(EventPresentation) Then
+		Return EventPresentation;
+	EndIf;
+	
+	Return Undefined;
+	
+EndFunction
 
 &AtServer
 Function FilterDefault(EventsList)
@@ -374,6 +471,110 @@ Function FilterDefault(EventsList)
 EndFunction
 
 &AtServer
+Function FilterByUserFromParameter(ParameterUser)
+	
+	If Not ValueIsFilled(ParameterUser) Then
+		Return Undefined;
+	EndIf;
+	
+	FilterByUser = New ValueList;
+	References = New Array;
+	Names = New Array;
+	
+	If TypeOf(ParameterUser) = Type("ValueList") Then
+		For Each ListItem In ParameterUser Do
+			ProcessItem(ListItem.Value, References, Names);
+		EndDo;
+	ElsIf TypeOf(ParameterUser) = Type("Array") Then
+		For Each Value In ParameterUser Do
+			ProcessItem(Value, References, Names);
+		EndDo;
+	Else
+		ProcessItem(ParameterUser, References, Names);
+	EndIf;
+	
+	SetPrivilegedMode(True);
+	
+	For Each Name In Names Do
+		IBUser = InfoBaseUsers.FindByName(Name);
+		If IBUser = Undefined Then
+			FilterByUser.Add(Name, Name);
+		Else
+			FilterByUser.Add(Lower(IBUser.UUID), Name);
+		EndIf;
+	EndDo;
+	
+	If ValueIsFilled(References) Then
+		Query = New Query;
+		Query.SetParameter("References", References);
+		Query.Text =
+		"SELECT
+		|	CurrentTable.Description AS Description,
+		|	CurrentTable.IBUserID AS IBUserID
+		|FROM
+		|	Catalog.Users AS CurrentTable
+		|WHERE
+		|	CurrentTable.Ref IN(&References)
+		|
+		|UNION ALL
+		|
+		|SELECT
+		|	CurrentTable.Description,
+		|	CurrentTable.IBUserID
+		|FROM
+		|	Catalog.ExternalUsers AS CurrentTable
+		|WHERE
+		|	CurrentTable.Ref IN(&References)";
+		Selection = Query.Execute().Select();
+		UserWithEmptyUUID = Undefined;
+		While Selection.Next() Do
+			If Not ValueIsFilled(Selection.IBUserID) Then
+				UserWithEmptyUUID = Selection.Description;
+				Continue;
+			EndIf;
+			If FilterByUser.FindByValue(Lower(Selection.IBUserID)) <> Undefined Then
+				Continue;
+			EndIf;
+			IBUser = InfoBaseUsers.FindByUUID(
+				Selection.IBUserID);
+			
+			If IBUser = Undefined Then
+				FilterByUser.Add(Lower(Selection.IBUserID), Selection.Description);
+			Else
+				FilterByUser.Add(Lower(Selection.IBUserID), IBUser.Name);
+			EndIf;
+		EndDo;
+		If Not ValueIsFilled(FilterByUser)
+		   And ValueIsFilled(UserWithEmptyUUID) Then
+			FilterByUser.Add(Lower(New UUID), UserWithEmptyUUID);
+		EndIf;
+	EndIf;
+	
+	Return FilterByUser;
+	
+EndFunction
+
+&AtServer
+Procedure ProcessItem(Value, References, Names)
+	
+	If TypeOf(Value) = Type("CatalogRef.Users")
+	 Or TypeOf(Value) = Type("CatalogRef.ExternalUsers") Then
+		
+		If References.Find(Value) = Undefined Then
+			References.Add(Value);
+		EndIf;
+		
+	ElsIf TypeOf(Value) = Type("String") Then
+		
+		If Names.Find(Value) = Undefined Then
+			Names.Add(Value);
+		EndIf;
+		
+	EndIf;
+	
+EndProcedure
+
+&AtServer
 Function ReadEventLog()
 	
 	If ValueIsFilled(JobID) Then
@@ -382,11 +583,14 @@ Function ReadEventLog()
 	
 	StartDate    = Undefined; // Date
 	EndDate = Undefined; // Date
-	FilterDatesSpecified = EventLogFilter.Property("StartDate", StartDate) And EventLogFilter.Property("EndDate", EndDate)
-		And ValueIsFilled(StartDate) And ValueIsFilled(EndDate);
+	FilterDatesSpecified = EventLogFilter.Property("StartDate", StartDate)
+		And ValueIsFilled(StartDate)
+		And EventLogFilter.Property("EndDate", EndDate)
+		And ValueIsFilled(EndDate);
 		
 	If FilterDatesSpecified And StartDate > EndDate Then
-		CommonClientServer.SetSpreadsheetDocumentFieldState(Items.TimeConsumingOperationProgressField, "DontUse");
+		CommonClientServer.SetSpreadsheetDocumentFieldState(
+			Items.TimeConsumingOperationProgressField, "DontUse");
 		Items.Pages.CurrentPage = Items.EventLog;
 		Raise NStr("en = 'Incorrect event log filter settings. 
 			|The start date cannot be later than the end date.';");
@@ -395,27 +599,31 @@ Function ReadEventLog()
 	ReportParameters = ReportParameters();
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.WaitCompletion = 0; 
+	ExecutionParameters.WaitCompletion = 0; // 
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Updating event log';");
 	ExecutionParameters.RunNotInBackground1 = ShouldNotRunInBackground;
 	
-	ExecutionResult = TimeConsumingOperations.ExecuteInBackground("EventLog.ReadEventLogEvents",
+	TimeConsumingOperation = TimeConsumingOperations.ExecuteInBackground("EventLog.ReadEventLogEvents",
 		ReportParameters, ExecutionParameters);
 	
-	If ExecutionResult.Status = "Error" Then
-		Items.Pages.CurrentPage = Items.EventLog;
-		Raise ExecutionResult.BriefErrorDescription;
+	If TimeConsumingOperation.Status = "Running" Then
+		JobID = TimeConsumingOperation.JobID;
 	EndIf;
-	JobID = ExecutionResult.JobID;
 	
-	EventLog.GenerateFilterPresentation(FilterPresentation, EventLogFilter, DefaultEventLogFilter);
+	If TimeConsumingOperation.Status = "Running"
+	 Or TimeConsumingOperation.Status = "Completed2" Then
 	
-	Return ExecutionResult;
+		EventLog.GenerateFilterPresentation(FilterPresentation,
+			EventLogFilter, DefaultEventLogFilter);
+	EndIf;
+	
+	Return TimeConsumingOperation;
 	
 EndFunction
 
 &AtServer
 Function ReportParameters()
+	
 	ReportParameters = New Structure;
 	ReportParameters.Insert("EventLogFilter", EventLogFilter);
 	ReportParameters.Insert("EventsCountLimit", EventsCountLimit);
@@ -432,21 +640,13 @@ Procedure LoadPreparedData(ResultAddress)
 	Result      = GetFromTempStorage(ResultAddress);
 	LogEvents = Result.LogEvents;
 	
-	If DataStorage = Undefined Then
-		Address = UUID;
-	Else
-		Address = DataStorage;
-	EndIf;
-	DataStorage = PutToTempStorage(New Map, Address);
-	EventLog.PutDataInTempStorage(LogEvents, DataStorage);
-	
 	ValueToFormData(LogEvents, Log);
 EndProcedure
 
 &AtClient
-Procedure MoveToListEnd()
+Procedure ScrollToListBottom()
 	If Log.Count() > 0 Then
-		Items.Log.CurrentRow = Log[Log.Count() - 1].GetID();
+		ItemLog().CurrentRow = Log[Log.Count() - 1].GetID();
 	EndIf;
 EndProcedure 
 
@@ -474,5 +674,142 @@ EndProcedure
 Function ExportRegistrationLog()
 	Return EventLog.TechnicalSupportLog(EventLogFilter, EventsCountLimit, UUID);
 EndFunction
+
+&AtServer
+Procedure SetConditionalAppearance()
+	
+	ConditionalAppearance.Items.Clear();
+	
+	// Importance
+	Item = ConditionalAppearance.Items.Add();
+	
+	ItemField = Item.Fields.Items.Add();
+	If Parameters.DataAccessLog Then
+		ItemField.Field = New DataCompositionField(Items.Importance2.Name);
+	Else
+		ItemField.Field = New DataCompositionField(Items.Importance.Name);
+	EndIf;
+	
+	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
+	ItemFilter.LeftValue = New DataCompositionField("Log.Level");
+	ItemFilter.ComparisonType = DataCompositionComparisonType.Filled;
+	
+	Item.Appearance.SetParameterValue("Visible", False);
+	
+	// Data
+	Item = ConditionalAppearance.Items.Add();
+	
+	ItemField = Item.Fields.Items.Add();
+	If Parameters.DataAccessLog Then
+		ItemField.Field = New DataCompositionField(Items.Data2.Name);
+	Else
+		ItemField.Field = New DataCompositionField(Items.Data.Name);
+	EndIf;
+	
+	AddDataColumnHideCondition(Item.Filter.Items);
+	
+	Item.Appearance.SetParameterValue("Visible", False);
+	
+	Items.Data.Format  = NStr("en = 'NZ=0; DE=''01.01.0001 00:00:00''';");
+	Items.Data2.Format = Items.Data.Format;
+	
+	// DataPresentation
+	Item = ConditionalAppearance.Items.Add();
+	
+	ItemField = Item.Fields.Items.Add();
+	If Parameters.DataAccessLog Then
+		ItemField.Field = New DataCompositionField(Items.DataPresentation2.Name);
+	Else
+		ItemField.Field = New DataCompositionField(Items.DataPresentation.Name);
+	EndIf;
+	
+	AddConditionToHideDataPresentationColumn(Item.Filter.Items);
+	
+	Item.Appearance.SetParameterValue("Visible", False);
+	
+	// MetadataPresentation
+	Item = ConditionalAppearance.Items.Add();
+	
+	ItemField = Item.Fields.Items.Add();
+	If Parameters.DataAccessLog Then
+		ItemField.Field = New DataCompositionField(Items.MetadataPresentation2.Name);
+	Else
+		ItemField.Field = New DataCompositionField(Items.MetadataPresentation.Name);
+	EndIf;
+	
+	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
+	ItemFilter.LeftValue = New DataCompositionField("Log.MetadataPresentation");
+	ItemFilter.ComparisonType = DataCompositionComparisonType.NotFilled;
+	Item.Appearance.SetParameterValue("Visible", False);
+	
+	// Comment
+	Item = ConditionalAppearance.Items.Add();
+	
+	ItemField = Item.Fields.Items.Add();
+	If Parameters.DataAccessLog Then
+		ItemField.Field = New DataCompositionField(Items.Comment2.Name);
+	Else
+		ItemField.Field = New DataCompositionField(Items.Comment.Name);
+	EndIf;
+	
+	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
+	ItemFilter.LeftValue = New DataCompositionField("Log.Comment");
+	ItemFilter.ComparisonType = DataCompositionComparisonType.NotFilled;
+	
+	Var_Group = Item.Filter.Items.Add(Type("DataCompositionFilterItemGroup"));
+	Var_Group.GroupType = DataCompositionFilterItemsGroupType.OrGroup;
+	
+	Subgroup = Var_Group.Items.Add(Type("DataCompositionFilterItemGroup"));
+	Subgroup.GroupType = DataCompositionFilterItemsGroupType.NotGroup;
+	AddDataColumnHideCondition(Subgroup.Items);
+	
+	Subgroup = Var_Group.Items.Add(Type("DataCompositionFilterItemGroup"));
+	Subgroup.GroupType = DataCompositionFilterItemsGroupType.NotGroup;
+	AddConditionToHideDataPresentationColumn(Subgroup.Items);
+	
+	ItemFilter = Var_Group.Items.Add(Type("DataCompositionFilterItem"));
+	ItemFilter.LeftValue = New DataCompositionField("Log.DataPresentation");
+	ItemFilter.ComparisonType = DataCompositionComparisonType.Filled;
+	
+	Item.Appearance.SetParameterValue("Visible", False);
+	
+EndProcedure
+
+&AtServer
+Procedure AddDataColumnHideCondition(FilterItems1)
+	
+	ValuesToDisplay = New ValueList;
+	ValuesToDisplay.Add(0);
+	ValuesToDisplay.Add('00010101');
+	ValuesToDisplay.Add(False);
+	
+	Var_Group = FilterItems1.Add(Type("DataCompositionFilterItemGroup"));
+	Var_Group.GroupType = DataCompositionFilterItemsGroupType.AndGroup;
+	
+	ItemFilter = Var_Group.Items.Add(Type("DataCompositionFilterItem"));
+	ItemFilter.LeftValue = New DataCompositionField("Log.Data");
+	ItemFilter.ComparisonType = DataCompositionComparisonType.NotFilled;
+	
+	ItemFilter = Var_Group.Items.Add(Type("DataCompositionFilterItem"));
+	ItemFilter.LeftValue = New DataCompositionField("Log.Data");
+	ItemFilter.ComparisonType = DataCompositionComparisonType.NotInList;
+	ItemFilter.RightValue = ValuesToDisplay;
+	
+EndProcedure
+
+&AtServer
+Procedure AddConditionToHideDataPresentationColumn(FilterItems1);
+	
+	Var_Group = FilterItems1.Add(Type("DataCompositionFilterItemGroup"));
+	Var_Group.GroupType = DataCompositionFilterItemsGroupType.OrGroup;
+	ItemFilter = Var_Group.Items.Add(Type("DataCompositionFilterItem"));
+	ItemFilter.LeftValue = New DataCompositionField("Log.DataPresentation");
+	ItemFilter.ComparisonType = DataCompositionComparisonType.NotFilled;
+	ItemFilter = Var_Group.Items.Add(Type("DataCompositionFilterItem"));
+	ItemFilter.LeftValue = New DataCompositionField("Log.IsDataStringMatchesDataPresentation");
+	ItemFilter.ComparisonType = DataCompositionComparisonType.Equal;
+	ItemFilter.RightValue = True;
+	
+EndProcedure
 
 #EndRegion

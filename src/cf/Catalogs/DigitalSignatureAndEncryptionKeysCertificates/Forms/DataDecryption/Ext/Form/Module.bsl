@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -86,7 +87,10 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 			EndIf;
 		Else
 			Items.FormDecrypt.Visible = True;
+			Items.FormDecrypt.Enabled = True;
 			Items.FormDecrypt.DefaultButton = True;
+			HandleError(New NotifyDescription("DecryptCompletion", ThisObject),
+				New Structure("ErrorDescription", Parameter.Error), New Structure);
 		EndIf;	
 	
 	ElsIf Upper(EventName) = Upper("ConfirmationAuthorization") And Source = UUID Then
@@ -106,6 +110,12 @@ EndProcedure
 #EndRegion
 
 #Region FormHeaderItemsEventHandlers
+
+&AtClient
+Procedure PasswordStartChoice(Item, ChoiceData, StandardProcessing)
+	DigitalSignatureInternalClient.PasswordFieldStartChoice(ThisObject,
+		InternalData, PasswordProperties, StandardProcessing);
+EndProcedure
 
 &AtClient
 Procedure DataPresentationClick(Item, StandardProcessing)
@@ -307,6 +317,7 @@ Procedure Decrypt(Command)
 		ModuleCryptographyServiceDSSConfirmationClient = CommonClient.CommonModule("DSSCryptographyServiceClient");
 		If ModuleCryptographyServiceDSSConfirmationClient.CheckingBeforePerformingOperation(ThisObject, PasswordProperties.Value) Then 
 			ModuleCryptographyServiceDSSConfirmationClient.PerformInitialServiceOperation(ThisObject, DataDetails, PasswordProperties.Value);
+			Items.FormDecrypt.Enabled = False;
 		EndIf;
 		
 	Else
@@ -596,7 +607,7 @@ Async Procedure DecryptDataAfterProcessingBeforeExecute(Result, Context) Export
 	ExecutionParameters.Insert("Form",              ThisObject);
 	ExecutionParameters.Insert("FormIdentifier", Context.FormIdentifier);
 	ExecutionParameters.Insert("PasswordValue",     PasswordProperties.Value);
-	ExecutionParameters.Insert("AddressOfCertificate",    AddressOfCertificate); 
+	ExecutionParameters.Insert("AddressOfCertificate",    AddressOfCertificate); // 
 	
 	Context.Insert("ExecutionParameters", ExecutionParameters);
 	

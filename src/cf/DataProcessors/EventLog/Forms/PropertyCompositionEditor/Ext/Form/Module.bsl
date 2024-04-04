@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -58,8 +59,17 @@ EndProcedure
 
 &AtServer
 Procedure SetEditorParameters(ListToEdit, ParametersToSelect)
-	FilterParameterStructure = GetEventLogFilterValues(ParametersToSelect);
-	FilterValues = FilterParameterStructure[ParametersToSelect];
+	StringParts1 = StrSplit(ParametersToSelect, ".");
+	If StringParts1.Count() > 1 Then
+		ParametersToSelect = StringParts1[0];
+		Separator = StringParts1[1];
+		FilterParameterStructure = GetEventLogFilterValues();
+		FilterValues = FilterParameterStructure[ParametersToSelect].Get(Separator);
+		FilterValues.Insert("", NStr("en = '<Not set>';"));
+	Else
+		FilterParameterStructure = GetEventLogFilterValues(ParametersToSelect);
+		FilterValues = FilterParameterStructure[ParametersToSelect];
+	EndIf;
 	// Getting a list of event presentations.
 	If ParametersToSelect = "Event" Or ParametersToSelect = "Event" Then
 		
@@ -99,40 +109,62 @@ Procedure SetEditorParameters(ListToEdit, ParametersToSelect)
 			
 		Else 
 			// Getting as a flat list.
+			IsUnspecifiedUserAdded = False;
 			ListItems = List.GetItems();
 			For Each MapItem In FilterValues Do
 				NewItem = ListItems.Add();
 				NewItem.Check = False;
-				NewItem.Value = MapItem.Key;
+				If ParametersToSelect = "SessionDataSeparationValues" Then
+					NewItem.Value = Format(MapItem.Key, "NG=");
+				Else
+					NewItem.Value = MapItem.Key;
+				EndIf;
 				
 				If (ParametersToSelect = "User" Or ParametersToSelect = "User") Then
 					// In this case, the username serves as a key.
 					NewItem.Value = MapItem.Key;
-					NewItem.Presentation = MapItem.Value;
-					NewItem.FullPresentation = MapItem.Value;
 					
-					If NewItem.Value = "" Then
+					If MapItem.Value = "" Then
 						// In case of default user.
-						NewItem.Value = "";
-						NewItem.FullPresentation = UnspecifiedUserFullName();
+						IsUnspecifiedUserAdded = True;
 						NewItem.Presentation = UnspecifiedUserFullName();
 					Else
 						// In case of internal user.
 						InternalUserPresentation = InternalUserFullName(MapItem.Key);
 						If Not IsBlankString(InternalUserPresentation) Then
-							
-							NewItem.FullPresentation = InternalUserPresentation;
 							NewItem.Presentation = InternalUserPresentation;
-							
+						Else
+							SetPrivilegedMode(True);
+							IBUser = InfoBaseUsers.FindByUUID(
+								MapItem.Key);
+							SetPrivilegedMode(False);
+							If IBUser = Undefined Then
+								NewItem.Presentation = StringFunctionsClientServer.SubstituteParametersToString(
+									NStr("en = '%1 <Deleted>';"), MapItem.Value);
+							Else
+								NewItem.Presentation = MapItem.Value;
+							EndIf;
 						EndIf;
 					EndIf;
-					
+					NewItem.FullPresentation = NewItem.Presentation;
 				Else
 					NewItem.Presentation = MapItem.Value;
 					NewItem.FullPresentation = MapItem.Value;
 				EndIf;
-				
 			EndDo;
+			
+			If Not IsUnspecifiedUserAdded
+			   And (ParametersToSelect = "User" Or ParametersToSelect = "User") Then
+				
+				SetPrivilegedMode(True);
+				EmptyInfobaseUser = InfoBaseUsers.FindByName("");
+				SetPrivilegedMode(False);
+				NewItem = ListItems.Add();
+				NewItem.Check = False;
+				NewItem.Value = EmptyInfobaseUser.UUID;
+				NewItem.Presentation = UnspecifiedUserFullName();
+				NewItem.FullPresentation = NewItem.Presentation;
+			EndIf;
 			
 		EndIf;
 		
@@ -141,8 +173,8 @@ Procedure SetEditorParameters(ListToEdit, ParametersToSelect)
 	// Selecting marks of tree items that are mapped to ListToEdit items.
 	SelectFoundItems(List.GetItems(), ListToEdit);
 	
-	
-	
+	// 
+	// 
 	IsTree = False;
 	For Each TreeItem In List.GetItems() Do
 		If TreeItem.GetItems().Count() > 0 Then 
@@ -353,11 +385,10 @@ EndFunction
 &AtServerNoContext
 Function InternalUserFullName(IBUserID)
 	
-	If Not Common.DataSeparationEnabled() Then
-		Return "";
-	EndIf;
-	
-	If Common.SubsystemExists("CloudTechnology.Core") Then
+	If Common.DataSeparationEnabled()
+	   And Common.SeparatedDataUsageAvailable()
+	   And Common.SubsystemExists("CloudTechnology.Core") Then
+		
 		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 		Return ModuleSaaSOperations.AliasOfUserOfInformationBase(IBUserID);
 	EndIf;

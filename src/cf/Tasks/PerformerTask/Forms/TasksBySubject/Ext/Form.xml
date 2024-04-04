@@ -64,6 +64,12 @@
 						<Button name="CancelAcceptForExecution" id="124">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.Refresh</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Refresh</v8:content>
+								</v8:item>
+							</Title>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 							<ExtendedTooltip name="CancelAcceptForExecutionExtendedTooltip" id="125"/>
 						</Button>
@@ -211,7 +217,7 @@
 							</ValuesPicture>
 							<FileDragMode>AsFile</FileDragMode>
 							<ContextMenu name="Stopped1ContextMenu" id="57"/>
-							<ExtendedTooltip name="Stopped1ExtendedTooltip" id="69"/>
+							<ExtendedTooltip name="StoppedExtendedTooltip" id="69"/>
 						</PictureField>
 					</ChildItems>
 				</ColumnGroup>
@@ -357,7 +363,7 @@
 										</v8:item>
 									</Format>
 									<ContextMenu name="DueDateContextMenu" id="24"/>
-									<ExtendedTooltip name="DueDateExtendedTooltip" id="77"/>
+									<ExtendedTooltip name="TaskDueDateExtendedTooltip" id="77"/>
 								</LabelField>
 								<CheckBoxField name="TaskExecuted" id="54">
 									<DataPath>List.Executed</DataPath>
@@ -400,6 +406,12 @@
 		</Table>
 		<CheckBoxField name="ShowExecuted" id="21">
 			<DataPath>ShowExecuted</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Show completed tasks</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>Right</TitleLocation>
 			<CheckBoxType>Auto</CheckBoxType>
 			<ContextMenu name="ShowExecutedContextMenu" id="22"/>
@@ -442,12 +454,24 @@
 					<Button name="TasksTreeContextMenuChange" id="43">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.Change</CommandName>
-						<ExtendedTooltip name="TaskTreeContextMenuChangeExtendedTooltip" id="79"/>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Edit</v8:content>
+							</v8:item>
+						</Title>
+						<ExtendedTooltip name="TasksTreeContextMenuChangeExtendedTooltip" id="79"/>
 					</Button>
 					<Button name="TasksTreeContextMenuRefresh" id="44">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.Refresh</CommandName>
-						<ExtendedTooltip name="TaskTreeContextMenuRefreshExtendedTooltip" id="80"/>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Refresh</v8:content>
+							</v8:item>
+						</Title>
+						<ExtendedTooltip name="TasksTreeContextMenuRefreshExtendedTooltip" id="80"/>
 					</Button>
 					<Button name="TasksTreeContextMenuCopyToClipboard" id="45">
 						<Type>CommandBarButton</Type>
@@ -467,11 +491,23 @@
 					<Button name="TasksTreeChange" id="47">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.Change</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Edit</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="TasksTreeChangeExtendedTooltip" id="83"/>
 					</Button>
 					<Button name="TasksTreeRefresh" id="48">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.Refresh</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Refresh</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="TasksTreeRefreshExtendedTooltip" id="84"/>
 					</Button>
@@ -518,6 +554,12 @@
 			<ChildItems>
 				<PictureField name="TasksTreeImportance" id="28">
 					<DataPath>TasksTree.Importance</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Priority</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<ToolTip>
 						<v8:item>
@@ -545,6 +587,12 @@
 					<UserVisible>
 						<xr:Common>false</xr:Common>
 					</UserVisible>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Completed</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<ToolTip>
 						<v8:item>
@@ -563,6 +611,12 @@
 				</CheckBoxField>
 				<PictureField name="TasksTreeStopped" id="32">
 					<DataPath>TasksTree.Suspended</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Suspended</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<ToolTip>
 						<v8:item>
@@ -597,6 +651,12 @@
 					<ChildItems>
 						<PictureField name="TasksTreeType" id="35">
 							<DataPath>TasksTree.Type</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Type</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<EditMode>EnterOnInput</EditMode>
 							<ShowInHeader>false</ShowInHeader>
@@ -631,6 +691,12 @@
 				</ColumnGroup>
 				<InputField name="TasksTreePerformer" id="39">
 					<DataPath>TasksTree.Performer</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Assignee</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<Width>1</Width>
 					<ContextMenu name="TasksTreePerformerContextMenu" id="40"/>
@@ -647,7 +713,7 @@
 					<EditMode>EnterOnInput</EditMode>
 					<Width>8</Width>
 					<ContextMenu name="DueDate1ContextMenu" id="42"/>
-					<ExtendedTooltip name="DueDate1ExtendedTooltip" id="95"/>
+					<ExtendedTooltip name="TaskDueDate1ExtendedTooltip" id="95"/>
 				</InputField>
 			</ChildItems>
 		</Table>

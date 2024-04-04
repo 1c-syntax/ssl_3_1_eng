@@ -7,6 +7,12 @@
 			<Button name="FormSyncSettings" id="43">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.SyncSettings</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Sync with cloud drive…</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormSyncSettingsExtendedTooltip" id="44"/>
 			</Button>
@@ -115,6 +121,12 @@
 		<InputField name="FullPath" id="28">
 			<DataPath>FullPath</DataPath>
 			<ReadOnly>true</ReadOnly>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Full path</v8:content>
+				</v8:item>
+			</Title>
 			<AutoMaxWidth>false</AutoMaxWidth>
 			<ContextMenu name="FullPathContextMenu" id="29"/>
 			<ExtendedTooltip name="FullPathExtendedTooltip" id="35"/>
@@ -148,6 +160,12 @@
 		</InputField>
 		<InputField name="WorkingDirectory" id="26">
 			<DataPath>WorkingDirectory</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Working directory</v8:content>
+				</v8:item>
+			</Title>
 			<AutoMaxWidth>false</AutoMaxWidth>
 			<MaxWidth>40</MaxWidth>
 			<ChoiceButton>true</ChoiceButton>
@@ -206,7 +224,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Synchronize with cloud…</v8:content>
+					<v8:content>Sync with cloud drive…</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
@@ -231,11 +249,6 @@
 	</Parameters>
 	<CommandInterface>
 		<NavigationPanel>
-			<Item>
-				<Command>0</Command>
-				<Type>Auto</Type>
-				<DefaultVisible>false</DefaultVisible>
-			</Item>
 			<Item>
 				<Command>CommonCommand.AttachedFiles</Command>
 				<Type>Auto</Type>

@@ -32,7 +32,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="GroupHeaderExtendedTooltip" id="1600"/>
+			<ExtendedTooltip name="TitleGroup1ExtendedTooltip" id="1600"/>
 			<ChildItems>
 				<LabelDecoration name="SectionDetails" id="1581">
 					<AutoMaxWidth>false</AutoMaxWidth>
@@ -94,7 +94,7 @@
 					<ShowTitle>false</ShowTitle>
 					<ExtendedTooltip name="AddressClassifierSettingsExtendedTooltip" id="1875"/>
 					<ChildItems>
-						<UsualGroup name="LoadingAndCleaningAddressClassifier" id="1941">
+						<UsualGroup name="ImportAndClearAddressClassifier" id="1941">
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -104,18 +104,24 @@
 							<ToolTip>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>It is recommended that you import the address classifier and keep it up-to-date to save bandwidth during auto completion and auto verification of addresses. You will need up to 2 GB on the computer.</v8:content>
+									<v8:content>It is recommended that you import the address classifier and keep it up-to-date to save traffic on filling and verifying addresses. The classifier takes up to 2 GB on the hard drive.</v8:content>
 								</v8:item>
 							</ToolTip>
 							<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 							<Group>AlwaysHorizontal</Group>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="LoadingAndCleaningAddressClassifierExtendedTooltip" id="1942"/>
+							<ExtendedTooltip name="ImportAndClearAddressClassifierExtendedTooltip" id="1942"/>
 							<ChildItems>
 								<Button name="AddressClassifierLoading" id="1876">
 									<Type>Hyperlink</Type>
 									<CommandName>Form.Command.AddressClassifierLoading</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Import address classifier</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="AddressClassifierLoadingExtendedTooltip" id="1877">
 										<AutoMaxWidth>false</AutoMaxWidth>
 									</ExtendedTooltip>
@@ -123,6 +129,12 @@
 								<Button name="ClearAddressInfoRecords" id="1878">
 									<Type>Hyperlink</Type>
 									<CommandName>Form.Command.ClearAddressInfoRecords</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Clear</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="ClearAddressInfoRecordsExtendedTooltip" id="1879">
 										<AutoMaxWidth>false</AutoMaxWidth>
 										<Title formatted="false">
@@ -135,14 +147,20 @@
 								</Button>
 							</ChildItems>
 						</UsualGroup>
-						<CheckBoxField name="UseWebServiceOfAddresses" id="1943">
-							<DataPath>UseWebServiceOfAddresses</DataPath>
+						<CheckBoxField name="UseAddressesWebService" id="1943">
+							<DataPath>UseAddressesWebService</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Autocomplete and verify non-imported addresses over the Internet</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<CheckBoxType>Auto</CheckBoxType>
-							<ContextMenu name="UseWebServiceOfAddressesContextMenu" id="1944"/>
-							<ExtendedTooltip name="UseWebServiceOfAddressesExtendedTooltip" id="1945"/>
+							<ContextMenu name="UseAddressesWebServiceContextMenu" id="1944"/>
+							<ExtendedTooltip name="UseAddressesWebServiceExtendedTooltip" id="1945"/>
 							<Events>
-								<Event name="OnChange">UseWebServiceOfAddressesOnChange</Event>
+								<Event name="OnChange">UseAddressesWebServiceOnChange</Event>
 							</Events>
 						</CheckBoxField>
 					</ChildItems>
@@ -165,6 +183,12 @@
 						<Button name="CurrenciesRatesImport" id="1645">
 							<Type>Hyperlink</Type>
 							<CommandName>Form.Command.CurrenciesRatesImport</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Import exchange rates</v8:content>
+								</v8:item>
+							</Title>
 							<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 							<ExtendedTooltip name="CurrenciesRatesImportExtendedTooltip" id="1646">
 								<AutoMaxWidth>false</AutoMaxWidth>
@@ -248,6 +272,12 @@
 					<Type>Hyperlink</Type>
 					<Height>2</Height>
 					<CommandName>Form.Command.ConversationsConfigureIntegrationWithExternalSystems</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Messages from other applications</v8:content>
+						</v8:item>
+					</Title>
 					<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 					<ExtendedTooltip name="ConversationsConfigureIntegrationWithExternalSystemsExtendedTooltip" id="1940">
 						<Title formatted="false">
@@ -306,7 +336,7 @@
 								<Title formatted="true">
 									<v8:item>
 										<v8:lang>en</v8:lang>
-										<v8:content>Allow usage of &lt;link http://www.morpher.ru&gt;Morpher&lt;/&gt; declension service to get an alternative object presentation declension in grammar cases (Internet connection is required).
+										<v8:content>Allow usage of Morpher declension service to get an alternative object presentation declension in grammar cases (Internet connection is required).
 If the external service is not used, presentation declension is carried out using the built-in application functionality.</v8:content>
 									</v8:item>
 								</Title>
@@ -335,6 +365,12 @@ If the external service is not used, presentation declension is carried out usin
 						<Button name="MorpherServiceAccessSetting" id="1714">
 							<Type>Hyperlink</Type>
 							<CommandName>Form.Command.MorpherServiceAccessSetting</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Configure access to Morpher service</v8:content>
+								</v8:item>
+							</Title>
 							<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 							<ExtendedTooltip name="MorpherServiceAccessSettingExtendedTooltip" id="1715">
 								<AutoMaxWidth>false</AutoMaxWidth>
@@ -417,6 +453,12 @@ The collected data does not contain any personal information; it only contains s
 								</LabelDecoration>
 								<RadioButtonField name="MonitoringCenterAllowSendingData" id="1675">
 									<DataPath>MonitoringCenterAllowSendingData</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Monitoring center: allow sending data</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<RadioButtonType>RadioButtons</RadioButtonType>
 									<ColumnsCount>1</ColumnsCount>
@@ -464,6 +506,12 @@ The collected data does not contain any personal information; it only contains s
 									<Type>Hyperlink</Type>
 									<Enabled>false</Enabled>
 									<CommandName>Form.Command.MonitoringCenter_Settings</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Monitoring center settings</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="MonitoringCenterSettings1ExtendedTooltip" id="1841"/>
 								</Button>
 							</ChildItems>
@@ -488,6 +536,12 @@ The collected data does not contain any personal information; it only contains s
 								<Button name="MonitoringCenterSendContactInformation" id="1852">
 									<Type>Hyperlink</Type>
 									<CommandName>Form.Command.MonitoringCenterSendContactInformation</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Inform of performance issues</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="MonitoringCenterSendContactInformationExtendedTooltip" id="1853"/>
 								</Button>
 							</ChildItems>
@@ -514,6 +568,12 @@ The collected data does not contain any personal information; it only contains s
 						</LabelDecoration>
 						<RadioButtonField name="MonitoringCenterAllowSendingDataToThirdParty" id="1837">
 							<DataPath>MonitoringCenterAllowSendingData</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Monitoring center: allow sending data</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<RadioButtonType>RadioButtons</RadioButtonType>
 							<ColumnsCount>1</ColumnsCount>
@@ -592,6 +652,12 @@ The collected data does not contain any personal information; it only contains s
 						</LabelDecoration>
 						<RadioButtonField name="MonitoringCenterProhibitSendingData" id="1691">
 							<DataPath>MonitoringCenterAllowSendingData</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Monitoring center: allow sending data</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<RadioButtonType>RadioButtons</RadioButtonType>
 							<ChoiceList>
@@ -650,6 +716,12 @@ The collected data does not contain any personal information; it only contains s
 						<Button name="OpenAddIns" id="1720">
 							<Type>Hyperlink</Type>
 							<CommandName>Form.Command.OpenAddIns</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Configure add-ins</v8:content>
+								</v8:item>
+							</Title>
 							<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 							<ExtendedTooltip name="OpenAddInsExtendedTooltip" id="1721">
 								<Title formatted="false">
@@ -742,11 +814,11 @@ The collected data does not contain any personal information; it only contains s
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
-		<Attribute name="UseWebServiceOfAddresses" id="34">
+		<Attribute name="UseAddressesWebService" id="34">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Pick and check addresses that are not imported to the application via the Internet</v8:content>
+					<v8:content>Autocomplete and verify non-imported addresses over the Internet</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -794,7 +866,7 @@ The collected data does not contain any personal information; it only contains s
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Clear</v8:content>
+					<v8:content>Cleanup</v8:content>
 				</v8:item>
 			</Title>
 			<Action>ClearAddressInfoRecords</Action>

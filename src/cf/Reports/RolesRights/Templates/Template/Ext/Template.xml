@@ -213,7 +213,7 @@ End</presentationExpression>
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>There is a restriction</v8:content>
+					<v8:content>Has restriction</v8:content>
 				</v8:item>
 			</title>
 			<valueType>
@@ -468,7 +468,7 @@ End</presentationExpression>
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>There is a right restriction (Detailed rights)</v8:content>
+					<v8:content>Has restriction (Detailed rights)</v8:content>
 				</v8:item>
 			</title>
 			<valueType>
@@ -499,7 +499,7 @@ End</presentationExpression>
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Object name (Rights of roles to an object)</v8:content>
+					<v8:content>Object name (Role rights to an object)</v8:content>
 				</v8:item>
 			</title>
 			<presentationExpression>Case
@@ -523,7 +523,7 @@ End</presentationExpression>
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Object presentation (Rights of roles to an object)</v8:content>
+					<v8:content>Object presentation (Role rights to an object)</v8:content>
 				</v8:item>
 			</title>
 			<valueType>
@@ -540,7 +540,7 @@ End</presentationExpression>
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Role name (Rights of roles to an object)</v8:content>
+					<v8:content>Role name (Role rights to an object)</v8:content>
 				</v8:item>
 			</title>
 			<presentationExpression>Case
@@ -564,7 +564,7 @@ End</presentationExpression>
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Role presentation (Rights of roles to an object)</v8:content>
+					<v8:content>Role presentation (Role rights to an object)</v8:content>
 				</v8:item>
 			</title>
 			<valueType>
@@ -581,7 +581,7 @@ End</presentationExpression>
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Profile (Rights of roles to an object)</v8:content>
+					<v8:content>Profile (Role rights to an object)</v8:content>
 				</v8:item>
 			</title>
 			<valueType>
@@ -594,7 +594,7 @@ End</presentationExpression>
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Access level (Rights of roles to an object)</v8:content>
+					<v8:content>Access level (Role rights to an object)</v8:content>
 				</v8:item>
 			</title>
 			<valueType>
@@ -612,7 +612,7 @@ End</presentationExpression>
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>There is a restriction (Rights of roles to an object)</v8:content>
+					<v8:content>Has restriction (Role rights to an object)</v8:content>
 				</v8:item>
 			</title>
 			<valueType>
@@ -625,7 +625,7 @@ End</presentationExpression>
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Without a profile (Rights of roles to an object)</v8:content>
+					<v8:content>No profile (Role rights to an object)</v8:content>
 				</v8:item>
 			</title>
 			<valueType>
@@ -8423,7 +8423,7 @@ PC9zdmc+Cg==</dcscor:value>
 		<dcsset:presentation xsi:type="v8:LocalStringType">
 			<v8:item>
 				<v8:lang>en</v8:lang>
-				<v8:content>Rights of roles</v8:content>
+				<v8:content>Role rights</v8:content>
 			</v8:item>
 		</dcsset:presentation>
 		<dcsset:settings xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows">
@@ -9155,7 +9155,7 @@ PC9zdmc+Cg==</dcscor:value>
 		<dcsset:presentation xsi:type="v8:LocalStringType">
 			<v8:item>
 				<v8:lang>en</v8:lang>
-				<v8:content>Rights of roles to a metadata object</v8:content>
+				<v8:content>Role rights to a metadata object</v8:content>
 			</v8:item>
 		</dcsset:presentation>
 		<dcsset:settings xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows">
@@ -9325,7 +9325,7 @@ PC9zdmc+Cg==</dcscor:value>
 									<dcscor:value xsi:type="v8:LocalStringType">
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>&lt;Without a profile&gt;</v8:content>
+											<v8:content>&lt;No profile&gt;</v8:content>
 										</v8:item>
 									</dcscor:value>
 								</dcscor:item>

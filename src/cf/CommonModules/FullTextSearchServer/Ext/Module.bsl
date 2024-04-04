@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -72,13 +73,13 @@ EndFunction
 // Does not throw exceptions.
 //
 // Returns:
-//  String - :
-//    
-//    
-//    
-//    
-//    
-//    
+//  String - Valid values are:
+//    "SearchAllowed"
+//    "SearchProhibited"
+//    "UpdatingIndex"
+//    "IndexMergeInProgress"
+//    "IndexUpdateRequired"
+//    "SearchSettingsError"
 //
 Function FullTextSearchStatus() Export
 	
@@ -101,15 +102,15 @@ Function FullTextSearchStatus() Export
 			EndIf;
 			
 		Else 
-			
-			
+			// 
+			// 
 			Return "SearchSettingsError";
 		EndIf;
 		
 	Else
 		If FullTextSearch.GetFullTextSearchMode() = FullTextSearchMode.Enable Then
-			
-			
+			// 
+			// 
 			Return "SearchSettingsError";
 		Else 
 			Return "SearchProhibited";
@@ -181,15 +182,14 @@ Procedure OnFillToDoList(ToDoList) Export
 	ToDoItem.Presentation = NStr("en = 'Full-text search not set up';");
 	ToDoItem.Form = "DataProcessor.FullTextSearchInData.Form.FullTextSearchAndTextExtractionControl";
 	ToDoItem.ToolTip = 
-		NStr("en = 'The application settings and infobase full-text search settings are not synced.
-		           |Disable and re-enable the full-text search, and try again.';");
+		NStr("en = 'Try toggling the full-text search off and on.';");
 	ToDoItem.Owner = Section;
 	
 	// Index update is required.
 	
 	If State = "IndexUpdateRequired" Then 
 		IndexUpdateDate = FullTextSearch.UpdateDate();
-		CurrentDate = CurrentDate(); 
+		CurrentDate = CurrentDate(); // ACC:143 - CurrentDate() must be used.
 		
 		If IndexUpdateDate > CurrentDate Then
 			Interval = NStr("en = 'less than one day ago';");
@@ -449,7 +449,7 @@ Function FullTextSearchResults(SearchResultsList)
 		Try
 			Ref = GetURL(Value);
 		Except
-			Ref = "#"; 
+			Ref = "#"; // 
 		EndTry;
 		
 		ResultString1 = New Structure;
@@ -469,8 +469,8 @@ Function HTMLSearchResultStrings(SearchResultsList)
 	
 	HTMLListDisplay = SearchResultsList.GetRepresentation(FullTextSearchRepresentationType.HTMLText);
 	
-	
-	
+	// 
+	// 
 	HTMLReader = New HTMLReader;
 	HTMLReader.SetString(HTMLListDisplay);
 	DOMBuilder = New DOMBuilder;
@@ -528,18 +528,18 @@ Function PresentationStrings(AnchorDOMItemsList)
 	
 EndFunction
 
-// 
-// 
-// 
+// Allows to override:
+// - Value
+// - Presentation
 //
-//  
+// See the data type "FullTextSearchListItem" 
 //
 Procedure OverridableOnGetByFullTextSearch(ObjectMetadata, Value, Presentation)
 	
 	If Common.SubsystemExists("StandardSubsystems.Properties") Then 
 		
-		
-		
+		// 
+		// 
 		
 		If ObjectMetadata = Metadata.InformationRegisters["AdditionalInfo"] Then 
 			

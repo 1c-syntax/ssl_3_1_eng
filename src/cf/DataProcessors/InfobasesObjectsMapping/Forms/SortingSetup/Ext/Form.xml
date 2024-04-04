@@ -68,6 +68,12 @@
 			<ChildItems>
 				<CheckBoxField name="SortTableUse" id="6">
 					<DataPath>SortTable.Use</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Use</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<EditMode>EnterOnInput</EditMode>
 					<CheckBoxType>Auto</CheckBoxType>
@@ -77,6 +83,12 @@
 				<InputField name="SortTableFieldName" id="4">
 					<DataPath>SortTable.FieldName</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Field name</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ContextMenu name="SortTableFieldNameContextMenu" id="5"/>
 					<ExtendedTooltip name="SortTableFieldNameExtendedTooltip" id="18"/>
@@ -156,12 +168,24 @@
 					<DefaultButton>true</DefaultButton>
 					<SkipOnInput>false</SkipOnInput>
 					<CommandName>Form.Command.Apply</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Apply</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="ApplyExtendedTooltip" id="21"/>
 				</Button>
 				<Button name="Cancel" id="14">
 					<Type>CommandBarButton</Type>
 					<SkipOnInput>false</SkipOnInput>
 					<CommandName>Form.Command.Cancel</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Cancel</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="CancelExtendedTooltip" id="22"/>
 				</Button>
 			</ChildItems>

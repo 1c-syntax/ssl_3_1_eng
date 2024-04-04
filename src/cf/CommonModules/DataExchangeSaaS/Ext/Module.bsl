@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -69,8 +70,8 @@ Procedure AfterDetermineRecipients(Data, Recipients, ExchangePlanName) Export
 		
 	Else
 		
-		
-		
+		// 
+		// 
 		If StandaloneModeInternal.IsStandaloneWorkplace()
 			And Not ModuleSaaSOperations.IsSeparatedMetadataObject(Data.Metadata(),
 				ModuleSaaSOperations.MainDataSeparator()) Then
@@ -85,11 +86,11 @@ EndProcedure
 // Fills mapping of method names and their aliases for calling from a job queue.
 //
 // Parameters:
-//   NamesAndAliasesMap - Map of KeyAndValue - method names and their aliases:
-//     Key - Method alias, for example: ClearDataArea
-//     Value - a name of the method to be called, for example, SaaS.ClearDataArea
-//                You can specify Undefined as a value, in this case, the name is assumed 
-//                to be the same as an alias.
+//   NamesAndAliasesMap - Map of KeyAndValue - Method names and their aliases:
+//     Key is the method alias. For example, ClearDataArea.
+//     Value is the name of the method to be called. For example, SaaSOperations.ClearDataArea.
+//                If Undefined, it is assumed that the name matches the alias. 
+//                
 //
 Procedure OnDefineHandlerAliases(NamesAndAliasesMap) Export
 	
@@ -107,8 +108,7 @@ EndProcedure
 // Generates the list of infobase parameters.
 //
 // Parameters:
-//   ParametersTable - ValueTable -  
-//                                         See SaaSOperations.ПолучитьТаблицуПараметровИБ
+//   ParametersTable - ValueTable - Table of parameter details. For column details, 
 //
 Procedure OnFillIIBParametersTable(Val ParametersTable) Export
 	
@@ -119,10 +119,10 @@ Procedure OnFillIIBParametersTable(Val ParametersTable) Export
 	
 EndProcedure
 
-// 
-// 
-// 
-// 
+// Fills a structure with arrays of supported versions of the subsystems that can have versions.
+// Subsystem names are used as structure keys.
+// Implements the "InterfaceVersion" web service functionality.
+// This procedure must return current version sets, therefore its body must be changed accordingly before use. See the example below.
 //
 // Parameters:
 //   SupportedVersionsStructure - Structure - subsystem names and their corresponding sets of supported versions.
@@ -168,8 +168,8 @@ EndProcedure
 // Adds parameters of client logic upon system startup for the data exchange subsystem in SaaS mode.
 //
 // Parameters:
-//   Parameters - Structure -  the names and values of parameters client at startup you need to set that.
-//                           More detailed  See CommonOverridable.OnAddClientParametersOnStart.
+//   Parameters - Structure - Names and values of the client startup parameters.
+//                           For details, See CommonOverridable.OnAddClientParametersOnStart.
 //
 Procedure OnAddClientParametersOnStart(Parameters) Export
 	
@@ -209,6 +209,7 @@ Procedure OnFillTypesExcludedFromExportImport(Types) Export
 	Types.Add(Metadata.Constants.DataChangesRecorded);
 	Types.Add(Metadata.Constants.SubordinateDIBNodeSettings);
 	Types.Add(Metadata.Constants.LastStandaloneWorkstationPrefix);
+	Types.Add(Metadata.Constants.IsDIBDataImportInProgress);
 	
 	ModuleExportImportData = Common.CommonModule("ExportImportData");
 	ModuleExportImportData.AddTypeExcludedFromUploadingUploads(Types,
@@ -251,7 +252,6 @@ EndProcedure
 
 // Deletes exchange message files that are not deleted due to system failures.
 // Files placed more than 24 hours ago are deleted (the files are calculated based on the universal current date)
-// Analyzing РC.DataAreasDataExchangeMessages.
 //
 Procedure OnDeleteObsoleteExchangeMessages() Export
 	
@@ -447,16 +447,16 @@ EndProcedure
 
 #EndRegion
 
-// 
-// 
-//	
-//	
-//	
-//	
+// Checks whether shared data can be written in a standalone workstation.
+// An object cannot be written in a standalone workstation if all these conditions are met:
+//	1. The object is a standalone workstation.
+//	2. The object is a shared metadata object.
+//	3. The object is included in a standalone exchange plan.
+//	4. The object is not included in an exception list.
 // 
 // Parameters:
-//  Object - Arbitrary - 
-//  Cancel - Boolean - 
+//  Object - Arbitrary - Data source.
+//  Cancel - Boolean - Cancel flag.
 //
 Procedure BeforeWriteCommonData(Object, Cancel) Export
 	
@@ -495,8 +495,8 @@ Procedure ChangeTheIndicationOfTheNeedForDataExchangeInTheServiceModel(ItIsNeces
 	
 	ItIsNecessaryToPerformAnExchange = (ItIsNecessaryToPerformAnExchange = True); // Protect from non-Boolean values.
 	
-	IdleInterval = 180; 
-	AttemptsNumber = 65; 
+	IdleInterval = 180; // A 200-second long attempt. (180-sec timeout + 20-sec attempt to lock 1C:Enterprise.)
+	AttemptsNumber = 65; // A 200-second long attempt. (180-sec timeout + 20-sec attempt to lock 1C:Enterprise.)
 	If TypeOf(AdditionalParameters) = Type("Structure") Then
 		
 		If AdditionalParameters.Property("IdleInterval") Then
@@ -1471,7 +1471,7 @@ EndProcedure
 // If it requires, select the Import check box.
 // 
 // Parameters:
-//   Descriptor   - 
+//   Descriptor   - XDTODataObject Descriptor.
 //   ToImport    - Boolean - a return value.
 //
 Procedure NewDataAvailable(Val Descriptor, ToImport) Export
@@ -1509,7 +1509,7 @@ EndProcedure
 // The procedure is called after calling NewDataAvailable, it parses the data.
 //
 // Parameters:
-//   Descriptor   - 
+//   Descriptor   - XDTODataObject Descriptor.
 //   PathToFile   - String, Undefined - Full name of the extracted file. 
 //                  The file is automatically deleted once the procedure is completed.
 //                  If a file is not specified, it is set to Undefined.
@@ -1538,7 +1538,7 @@ EndProcedure
 //
 Function SuppliedDataKindID()
 	
-	Return "ER"; // Not localizable.
+	Return "ER"; // Do not localize.
 	
 EndFunction
 
@@ -1549,7 +1549,7 @@ EndFunction
 //
 Function IdOfTypeOfDataSuppliedRegistrationRules()
 	
-	Return "RR"; // Not localizable.
+	Return "RR"; // Do not localize.
 	
 EndFunction
 

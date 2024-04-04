@@ -6,6 +6,12 @@
 	<AutoCommandBar name="FormCommandBar" id="-1">
 		<ChildItems>
 			<ButtonGroup name="GroupCommandBar" id="34">
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Command bar</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="CommandBarGroupExtendedTooltip" id="35"/>
 				<ChildItems>
 					<Button name="WriteAndClose" id="36">
@@ -87,4 +93,24 @@
 			<SavedData>true</SavedData>
 		</Attribute>
 	</Attributes>
+	<Parameters>
+		<Parameter name="FileOwner">
+			<Type>
+				<v8:TypeSet>cfg:BusinessProcessRef</v8:TypeSet>
+				<v8:TypeSet>cfg:DocumentRef</v8:TypeSet>
+				<v8:TypeSet>cfg:TaskRef</v8:TypeSet>
+				<v8:TypeSet>cfg:CatalogRef</v8:TypeSet>
+			</Type>
+		</Parameter>
+		<Parameter name="FileOwnerType">
+			<Type>
+				<v8:Type>cfg:CatalogRef.ExtensionObjectIDs</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="IsFile">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Parameter>
+	</Parameters>
 </Form>

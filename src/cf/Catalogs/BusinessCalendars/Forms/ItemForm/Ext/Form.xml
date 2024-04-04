@@ -6,21 +6,45 @@
 			<Button name="FormChangeDay" id="11">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.ChangeDay</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Change day category</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormChangeDayExtendedTooltip" id="26"/>
 			</Button>
 			<Button name="FormShiftHoliday" id="12">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.ShiftDay</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Substitute day</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormShiftHolidayExtendedTooltip" id="27"/>
 			</Button>
 			<Button name="FormFillByDefault" id="16">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.FillByDefault</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Set default holidays</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormFillByDefaultExtendedTooltip" id="28"/>
 			</Button>
 			<Button name="FormPrint" id="25">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.Print</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Print</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormPrintExtendedTooltip" id="29"/>
 			</Button>
 		</ChildItems>
@@ -59,6 +83,12 @@
 				</InputField>
 				<InputField name="CurrentYearNumber" id="8">
 					<DataPath>CurrentYearNumber</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Year</v8:content>
+						</v8:item>
+					</Title>
 					<SpinButton>true</SpinButton>
 					<EditFormat>
 						<v8:item>
@@ -125,7 +155,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="CalendarGroup1ExtendedTooltip" id="34"/>
+			<ExtendedTooltip name="GroupCalendarExtendedTooltip" id="34"/>
 			<ChildItems>
 				<UsualGroup name="NonWorkPeriodsGroup" id="58">
 					<Title>
@@ -148,8 +178,8 @@
 								</v8:item>
 							</Title>
 							<Picture>
-								<xr:Ref>CommonPicture.Warning32</xr:Ref>
-								<xr:LoadTransparent>false</xr:LoadTransparent>
+								<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+								<xr:LoadTransparent>true</xr:LoadTransparent>
 							</Picture>
 							<ContextMenu name="NonWorkPeriodsPictureContextMenu" id="61"/>
 							<ExtendedTooltip name="NonWorkPeriodsPictureExtendedTooltip" id="62"/>
@@ -169,6 +199,12 @@
 				</UsualGroup>
 				<CalendarField name="Calendar" id="5">
 					<DataPath>Calendar</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Calendar</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<Width>1</Width>
 					<Height>1</Height>
@@ -180,11 +216,23 @@
 							<Button name="CalendarContextMenuChangeDay" id="10">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.ChangeDay</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Change day category</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="CalendarContextMenuChangeDayExtendedTooltip" id="35"/>
 							</Button>
 							<Button name="CalendarContextMenuShiftDay" id="13">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.ShiftDay</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Substitute day</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="CalendarContextMenuShiftDayExtendedTooltip" id="36"/>
 							</Button>
 						</ChildItems>
@@ -198,6 +246,12 @@
 					<DataPath>ShiftedHolidaysPresentation</DataPath>
 					<Visible>false</Visible>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Substitute days</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Top</TitleLocation>
 					<TextColor>style:NoteText</TextColor>
 					<ContextMenu name="ShiftedHolidaysPresentationContextMenu" id="19"/>
@@ -265,7 +319,7 @@
 							<EditMode>EnterOnInput</EditMode>
 							<Height>2</Height>
 							<ContextMenu name="ShiftedHolidaysListPresentationContextMenu" id="24"/>
-							<ExtendedTooltip name="ShiftedHolidaysListPresentationExtendedTooltip" id="40"/>
+							<ExtendedTooltip name="ReplacementsListPresentationExtendedTooltip" id="40"/>
 						</LabelField>
 					</ChildItems>
 				</Table>
@@ -384,13 +438,13 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Change day</v8:content>
+					<v8:content>Change day category</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Change day</v8:content>
+					<v8:content>Change day category</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>ChangeDay</Action>
@@ -458,16 +512,4 @@
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 	</Commands>
-	<CommandInterface>
-		<NavigationPanel>
-			<Item>
-				<Command>0</Command>
-				<Type>Auto</Type>
-				<DefaultVisible>false</DefaultVisible>
-				<Visible>
-					<xr:Common>false</xr:Common>
-				</Visible>
-			</Item>
-		</NavigationPanel>
-	</CommandInterface>
 </Form>

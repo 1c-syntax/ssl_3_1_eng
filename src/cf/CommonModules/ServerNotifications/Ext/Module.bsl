@@ -1,49 +1,50 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #Region Public
 
-// 
+// Intended for the CommonOverridable.OnAddServerNotifications procedure.
 //
 // Parameters:
-//  Name - String - 
+//  Name - String - Notification name matching the structure property name.
 //
 // Returns:
 //  Structure:
-//   * Name - String - 
+//   * Name - String - Notification name.
 //
-//   * NotificationSendModuleName - String - 
-//                    
-//                    
-//                    
-//                    
-//                    
-//                    
-//                    
-//
-//   * NotificationReceiptModuleName - String - 
+//   * NotificationSendModuleName - String - Name of the server module containing the export procedure
+//                    OnSendServerNotification. For example, "IBConnections".
+//                    For a use case, see the StandardSubsystemsServer common module.
+//                    An optional parameter. If not passed, the procedure will not be called.
+//                    For example, to notify about functional option changes immediately after its constant is reassigned
+//                    (instead of tracking changes in the scheduled job).
 //                    
 //                    
 //
-//   * Parameters - Arbitrary - 
-//                    
-//                    
-//                    
-//                    
+//   * NotificationReceiptModuleName - String - Name of the client common module containing the export procedure
+//                    OnReceiptServerNotification. For example, "IBConnectionsClient".
+//                    For a use case, see the StandardSubsystemsClient common module.
+//
+//   * Parameters - Arbitrary - Any serializable value to pass as a parameter to the OnSendServerNotification procedure.
+//                    Try to make the size of serialized values as small as possible.
+//                    For example, the details of session extensions and metadata it order to calculate
+//                    the added and removed extensions and patches in a scheduled job upon calling
+//                    OnSendServerNotification and sending a notification containing the diff of the given sessions.
 //                    
 //                    
 //
-//   * VerificationPeriod - Number - 
-//                         
-//                         
-//                         
-//                         
+//   * VerificationPeriod - Number - Timeout (in seconds) before calling OnSendServerNotification
+//                         in order to check the status of the server and notification (if required).
+//                         The start value is 20 minutes.
+//                         If the passed timeout is less than 60 seconds, it will be increased to "60".
+//                         Note: The actual minimal interval in SaaS might be greater and vary (5 to 10 minutes).
 //                         
 //                         
 //
@@ -61,28 +62,28 @@ Function NewServerNotification(Name) Export
 	
 EndFunction
 
-// 
-// 
+// Queues a server notification to be delivered to the client.
+// It will be delivered by the Collaboration System or within a server call.
 // 
 //
 // Parameters:
-//  NameOfAlert - String - 
+//  NameOfAlert - String - See NewServerNotification.Name.
 //  
-//  Result - Arbitrary - 
-//             
-//             
+//  Result - Arbitrary - Any serializable value to send to the client within the notification.
+//             Try to make the size of serialized values as small as possible.
+//             The recommended size is less than 1 KB.
 //
-//  SMSMessageRecipients - Undefined - 
-//               
+//  SMSMessageRecipients - Undefined - All users (all sessions).
+//               If an empty map is passed, then return.
 //           - Map of KeyAndValue:
 //              * Key - UUID - infobase user ID.
 //              * Value - Array of See ServerNotifications.SessionKey
 //
-//  SendImmediately - Boolean - 
-//               
-//               
-//               
-//               
+//  SendImmediately - Boolean - If True, tries to send a message immediately via the
+//               Collaboration System, and it fails, adds it to the queue.
+//               The handlers of the OnSendServerNotification event don't support immediate sending.
+//               Note: A failed request to the Collaboration System takes about (3–5 sec)*2,
+//               a successful one takes about (50 msec)*2. This is particularly important when developing transactions.
 //
 Procedure SendServerNotification(NameOfAlert, Result, SMSMessageRecipients, SendImmediately = False) Export
 	
@@ -90,24 +91,24 @@ Procedure SendServerNotification(NameOfAlert, Result, SMSMessageRecipients, Send
 	
 EndProcedure
 
-// 
-// 
+// Logs an error caught in the handlers of the
+// OnReceiptRecurringClientDataOnServer event.
 //
 // Parameters:
 //  ErrorInfo - ErrorInfo
 //
 // Example:
-//	
-//	
-//		
-//			
-//			
-//		
-//	
-//		
-//	
-//	
-//		
+//	StartMoment = CurrentUniversalDateInMilliseconds();
+//	Try
+//		If Common.SubsystemExists("StandardSubsystems.MonitoringCenter") Then
+//			ModuleMonitoringCenterInternal = Common.CommonModule("MonitoringCenterInternal");
+//			ModuleMonitoringCenterInternal.OnReceiptRecurringClientDataOnServer(Parameters, Results);
+//		EndIf;
+//	Exception
+//		ServerNotifications.HandleError(ErrorInfo());
+//	EndTry;
+//	ServerNotifications.AddIndicator(Results, StartMoment,
+//		"MonitoringCenterInternal.OnReceiptRecurringClientDataOnServer");
 //
 Procedure HandleError(ErrorInfo) Export
 	
@@ -119,26 +120,26 @@ Procedure HandleError(ErrorInfo) Export
 	
 EndProcedure
 
-// 
-// 
+// Adds a performance indicator to the handlers of the event
+// OnReceiptRecurringClientDataOnServer.
 //
 // Parameters:
 //  Results - See CommonOverridable.OnReceiptRecurringClientDataOnServer.Results
-//  StartMoment - Number - 
-//  ProcedureName - String - 
+//  StartMoment - Number - CurrentUniversalDateInMilliseconds before the procedure will be called.
+//  ProcedureName - String - Full name of the called procedure
 //
 // Example:
-//	
-//	
-//		
-//			
-//			
-//		
-//	
-//		
-//	
-//	
-//		
+//	StartMoment = CurrentUniversalDateInMilliseconds();
+//	Try
+//		If Common.SubsystemExists("StandardSubsystems.MonitoringCenter") Then
+//			ModuleMonitoringCenterInternal = Common.CommonModule("MonitoringCenterInternal");
+//			ModuleMonitoringCenterInternal.OnReceiptRecurringClientDataOnServer(Parameters, Results);
+//		EndIf;
+//	Exception
+//		ServerNotifications.HandleError(ErrorInfo());
+//	EndTry;
+//	ServerNotifications.AddIndicator(Results, StartMoment,
+//		"MonitoringCenterInternal.OnReceiptRecurringClientDataOnServer");
 //
 Procedure AddIndicator(Results, StartMoment, ProcedureName) Export
 	
@@ -149,16 +150,16 @@ EndProcedure
 
 #Region ForCallsFromOtherSubsystems
 
-// 
-// 
+// Returns the session's UUID obtained from
+// the session properties SessionStart and SessionNumber.
 //
 // Parameters:
 //  Session - InfoBaseSession
-//        - Undefined - 
+//        - Undefined - Use the current session.
 //
 // Returns:
-//  String - 
-//    
+//  String - String of the following format: "<SessionStart> <SessionNumber>".
+//    For example, "2022.03.07 05:01:09 8342".
 //
 Function SessionKey(Session = Undefined) Export
 	
@@ -166,8 +167,8 @@ Function SessionKey(Session = Undefined) Export
 		Session = GetCurrentInfoBaseSession();
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	Return Format(Session.SessionStarted, "DF='yyyy.MM.dd HH:mm:ss'") + " "
 		+ Format(Session.SessionNumber, "NZ=0; NG=");
 	// ACC:1367-on
@@ -216,20 +217,20 @@ EndProcedure
 
 // Returns:
 //  Structure:
-//    * GroupID  - UUID - 
-//                           - Undefined - 
-//    * NotificationTypeInGroup - UUID - 
-//                           - Undefined - 
-//    * DeliveryDeferral     - Number  - 
-//                                      
-//                                      
-//    * Replace             - Boolean - 
-//                                      
-//                                      
+//    * GroupID  - UUID - Notification group ID (for writing to the register).
+//                           - Undefined - No need to provide.
+//    * NotificationTypeInGroup - UUID - ID of the notification type in the notification group.
+//                           - Undefined - No need to provide.
+//    * DeliveryDeferral     - Number  - If "0", write to the Collaboration System with the scheduled job (unless it must be sent immediately).
+//                                      Otherwise, the timeout in seconds before writing the message to the Collaboration System.
+//                                      If the passed timeout exceeds 5 seconds, it will be reduced to "5".
+//    * Replace             - Boolean - Flag indicating whether the last undelivered notification of the given type in the group must be
+//                                      replaced with a new one considering the specified delay (excluding the elapsed time).
+//                                      If the delay is more than 0, ShouldSendImmediately is ignored.
 //
-//    * LogEventOnDeliveryDeferral     - String - 
-//                                                
-//    * LogCommentOnDeliveryDeferral - String - 
+//    * LogEventOnDeliveryDeferral     - String - Event name that will be logged upon the delayed delivery.
+//                                                Applicable if "Replace" is set to True.
+//    * LogCommentOnDeliveryDeferral - String - Event comment for the Event Log.
 //
 Function AdditionalSendingParameters() Export
 	
@@ -251,7 +252,7 @@ EndFunction
 //  SMSMessageRecipients       - See SendServerNotification.SMSMessageRecipients
 //  SendImmediately - See SendServerNotification.SendImmediately
 //
-//   See AdditionalSendingParameters
+//  AdditionalParameters - See AdditionalSendingParameters
 //
 Procedure SendServerNotificationWithGroupID(NameOfAlert, Result, SMSMessageRecipients,
 			SendImmediately, AdditionalSendingParameters = Undefined) Export
@@ -373,7 +374,7 @@ Procedure SendServerNotificationWithGroupID(NameOfAlert, Result, SMSMessageRecip
 	
 EndProcedure
 
-// 
+// Intended for the SendServerNotificationWithGroupID procedure.
 Procedure DeleteLastUndeliveredNotification(GroupID, NotificationTypeInGroup,
 			DeliveryDeferral, AddedOn, DateAddedMilliseconds)
 	
@@ -428,7 +429,7 @@ Procedure DeleteLastUndeliveredNotification(GroupID, NotificationTypeInGroup,
 	
 EndProcedure
 
-// 
+// Intended for the SendServerNotificationWithGroupID procedure.
 Function SendMessageImmediately(NotificationID, AddedOn, NotificationContent)
 	
 	Data = MessageNewData();
@@ -461,11 +462,11 @@ Function Milliseconds()
 EndFunction
 
 // Parameters:
-//  GroupID  - UUID - 
-//                           
+//  GroupID  - UUID - ID of the notification type.
+//                           Used to search for records in the register.
 //
-//  NotificationTypeInGroup - UUID - 
-//                           
+//  NotificationTypeInGroup - UUID - ID of the notification type in the notification group.
+//                           Used to search for records in the register.
 //
 //  LastAlert  - See NewServerNotificationToClient
 //
@@ -568,7 +569,7 @@ Function NotificationNewContent(Store = Undefined)
 	
 EndFunction
 
-// 
+// Scheduled job handler.
 Procedure SendServerNotificationsToClients() Export
 	
 	Common.OnStartExecuteScheduledJob(
@@ -600,7 +601,7 @@ Procedure SendServerNotificationsToClients() Export
 	
 EndProcedure
 
-// 
+// Common server call handler.
 //
 // Parameters:
 //  Parameters - See ServerNotificationsClient.CommonServerCallNewParameters
@@ -612,8 +613,8 @@ EndProcedure
 //      ** Result     - See SendServerNotification.Result
 //   * LastNotificationDate - Date
 //   * MinCheckInterval - Number
-//   * AdditionalResults - Map - 
-//       
+//   * AdditionalResults - Map - Contains the parameters inserted in the procedure
+//       CommonOverridable.OnReceiptRecurringClientDataOnServer.
 //   * CollaborationSystemConnected - Boolean
 //   * ShouldRegisterIndicators - Boolean
 //
@@ -892,7 +893,14 @@ Procedure PrepareServerNotifications(SendStatus, MaxIntervalByUser = Undefined)
 	SendStatus.LastCheckDate = CurrentSessionDate();
 	SendStatus.MinCheckInterval = 60*20;
 	
-	RecurringNotifications = PeriodicServerNotifications(MaxIntervalByUser);
+	ActiveSessionsByKey = New Map;
+	Sessions = GetInfoBaseSessions();
+	For Each Session In Sessions Do
+		ActiveSessionsByKey.Insert(SessionKey(Session), Session);
+	EndDo;
+	
+	RecurringNotifications = PeriodicServerNotifications(MaxIntervalByUser,
+		ActiveSessionsByKey);
 	
 	For Each KeyAndValue In RecurringNotifications Do
 		NameOfAlert = KeyAndValue.Key;
@@ -911,8 +919,15 @@ Procedure PrepareServerNotifications(SendStatus, MaxIntervalByUser = Undefined)
 			Continue;
 		EndIf;
 		SendingModule = Common.CommonModule(Notification.NotificationSendModuleName);
+		If SendingModule = UsersInternal Then
+			ProcedureParameters = New Structure;
+			ProcedureParameters.Insert("ParametersVariants", KeyAndValue.Value.ParametersVariants);
+			ProcedureParameters.Insert("ActiveSessionsByKey", ActiveSessionsByKey);
+		Else
+			ProcedureParameters = KeyAndValue.Value.ParametersVariants;
+		EndIf;
 		Try
-			SendingModule.OnSendServerNotification(NameOfAlert, KeyAndValue.Value.ParametersVariants);
+			SendingModule.OnSendServerNotification(NameOfAlert, ProcedureParameters);
 		Except
 			ErrorInfo = ErrorInfo();
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -973,8 +988,8 @@ EndFunction
 //
 // Returns:
 //  Map of KeyAndValue:
-//   ** 
-//   **  See ServerNotificationToSave
+//   ** Value -
+//   ** Value - See ServerNotificationToSave
 //
 Function RepeatedNotificationToSave(RecurringNotifications)
 	
@@ -993,12 +1008,12 @@ EndFunction
 //
 // Returns:
 //  Structure:
-//   * NotificationSendModuleName - String - 
-//   * Parameters         - Arbitrary - 
-//                           
+//   * NotificationSendModuleName - String - See NewServerNotification.NotificationSendModuleName.
+//   * Parameters         - Arbitrary - See NewServerNotification.Parameters.
+//                           If empty, the property does not exist.
 //
-//   * VerificationPeriod    - Number - 
-//                           
+//   * VerificationPeriod    - Number - See NewServerNotification.VerificationPeriod.
+//                           If "20*60" is passed, the property does not exist.
 //
 Function ServerNotificationToSave(Notification)
 	
@@ -1178,13 +1193,13 @@ EndProcedure
 //   * NameOfAlert           - See SendServerNotification.NameOfAlert
 //   * Result               - See SendServerNotification.Result
 //   * SMSMessageRecipients                - See SendServerNotification.SMSMessageRecipients
-//   * NotificationID - String - 
-//   * AddedOn          - Date - 
+//   * NotificationID - String - UUID string.
+//   * AddedOn          - Date - Date the notification was added.
 //   * Errors - Map of KeyAndValue:
 //       ** Key - UUID - infobase user ID.
-//       ** Value - Date - 
-//   * WasSentFromQueue - Boolean - 
-//       
+//       ** Value - Date - Date of the first message failed to send.
+//   * WasSentFromQueue - Boolean - If True, the message was sent in its due order
+//       (according to the time it was queued). Therefore, you should update the last notification date.
 //
 Function MessageNewData() Export
 	
@@ -1284,7 +1299,7 @@ EndFunction
 
 // Returns:
 //  Structure:
-//   * Parameters - Arbitrary - 
+//   * Parameters - Arbitrary - See NewServerNotification.Parameters.
 //   * SMSMessageRecipients - Map of KeyAndValue:
 //      ** Key - UUID - infobase user ID.
 //      ** Value - Array of See ServerNotifications.SessionKey
@@ -1305,13 +1320,13 @@ EndFunction
 
 // Returns:
 //  Map of KeyAndValue:
-//   * Key - String - 
+//   * Key - String - See NewServerNotification.Name
 //   * Value - Structure:
-//      ** NotificationSendModuleName - String - 
-//      ** VerificationPeriod - Number - 
+//      ** NotificationSendModuleName - String - See NewServerNotification.NotificationSendModuleName
+//      ** VerificationPeriod - Number - See NewServerNotification.VerificationPeriod
 //      ** ParametersVariants - See StandardSubsystemsServer.OnSendServerNotification.ParametersVariants
 //
-Function PeriodicServerNotifications(MaxIntervalByUser)
+Function PeriodicServerNotifications(MaxIntervalByUser, ActiveSessionsByKey)
 	
 	Query = New Query;
 	Query.Text =
@@ -1325,23 +1340,12 @@ Function PeriodicServerNotifications(MaxIntervalByUser)
 	Notifications = New Map;
 	NotificationParametersVariantsByValueKeys = New Map;
 	
-	ActiveSessionsKeys = New Map;
-	Sessions = GetInfoBaseSessions();
-	For Each Session In Sessions Do
-		ActiveSessionsKeys.Insert(SessionKey(Session), True);
-	EndDo;
-	
 	Selection = Query.Execute().Select();
 	While Selection.Next() Do
-		If ActiveSessionsKeys.Get(Selection.SessionKey) = Undefined Then
+		If ActiveSessionsByKey.Get(Selection.SessionKey) = Undefined Then
 			RecordSet = ServiceRecordSet(InformationRegisters.PeriodicServerNotifications);
 			RecordSet.Filter.SessionKey.Set(Selection.SessionKey);
 			RecordSet.Write();
-			Continue;
-		EndIf;
-		IBUser = InfoBaseUsers.FindByUUID(
-			Selection.IBUserID);
-		If IBUser = Undefined Then
 			Continue;
 		EndIf;
 		SessionNotifications = RecurringServerNotificationsAboutSession(Selection.Notifications);
@@ -1439,7 +1443,7 @@ EndProcedure
 //
 // Returns:
 //  Map of KeyAndValue:
-//   * Key     - String - 
+//   * Key     - String - See ServerNotifications.NewServerNotification.Name
 //   * Value - See ServerNotifications.NewServerNotification
 //
 Function RecurringServerNotificationsAboutSession(NotificationsStorage)
@@ -1462,13 +1466,13 @@ EndFunction
 //   * LastCheckDate - Date
 //   * MinCheckInterval - Number
 //   * CheckDatesByNotificationNames - Map of KeyAndValue:
-//       ** Key     - String - 
+//       ** Key     - String - See NewServerNotification.Name
 //       ** Value - Date
-//   * LastNotificationDate - Date - 
-//   * FailedNotificationDate   - Date - 
+//   * LastNotificationDate - Date - Date of the last notification sent.
+//   * FailedNotificationDate   - Date - Date of the failed notification.
 //   * FailedNotificationsDatesByUsers - Map of KeyAndValue:
 //       ** Key     - UUID - infobase user ID.
-//       ** Value - Date - 
+//       ** Value - Date - Date of the failed notification.
 //   * SuccessfullNotificationsDatesByUsers - Map of KeyAndValue:
 //       ** Key     - UUID - infobase user ID.
 //       ** Value - Date
@@ -1663,12 +1667,12 @@ Procedure DeleteOutdatedNotifications()
 	
 EndProcedure
 
-// 
+// Intended for the SendServerNotificationWithGroupID procedure.
 Procedure StartDeliverDeferredServerNotifications(Launched = False)
 	
 	If Not IsCurrentUserRegisteredInInteractionSystem()
-	 Or Common.FileInfobase() 
-	 Or ExclusiveMode() 
+	 Or Common.FileInfobase() // Starting the delivery is pointless as the job will be waiting for a long-running operation job.
+	 Or ExclusiveMode() // Starting the delivery is prohibited as all changes within the session will be blocked.
 	 Or InfobaseUpdate.InfobaseUpdateRequired()
 	 Or IsDeferredServerAlertsDeliveryRunning() Then
 		Return;
@@ -1689,7 +1693,7 @@ Procedure StartDeliverDeferredServerNotifications(Launched = False)
 	
 EndProcedure
 
-// 
+// Start background handler.
 Procedure ServerNotificationsDeferredDelivery() Export
 	
 	If Not Common.SeparatedDataUsageAvailable() Then
@@ -1735,7 +1739,7 @@ Procedure ServerNotificationsDeferredDelivery() Export
 	
 EndProcedure
 
-// 
+// Intended for the ServerNotificationsDeferredDelivery procedure.
 Procedure DeliverNotification(Selection)
 	
 	AdditionDeferredDate = Selection.AddedOn + Selection.DeferralOfWritingToCollaborationSystem;
@@ -1781,7 +1785,7 @@ Procedure DeliverNotification(Selection)
 	
 EndProcedure
 
-// 
+// Intended for the procedures StartDeliverDeferredServerNotifications and ServerNotificationsDeferredDelivery.
 Function IsDeferredServerAlertsDeliveryRunning(CurrentBackgroundJob = Undefined)
 	
 	Filter = New Structure;
@@ -1810,8 +1814,8 @@ Function IsDeferredServerAlertsDeliveryRunning(CurrentBackgroundJob = Undefined)
 	
 EndFunction
 
-// 
-// 
+// Intended for the StartDeliverDeferredServerNotifications procedure
+// and the IsDeferredServerAlertsDeliveryRunning function.
 //
 Function NameOfJobMethodServerNotificationsDeferredDelivery()
 	
@@ -1819,7 +1823,7 @@ Function NameOfJobMethodServerNotificationsDeferredDelivery()
 	
 EndFunction
 
-// 
+// Intended for the ServerNotificationsDeferredDelivery procedure.
 Function UnsentDeferredNotifications()
 	
 	SendStatus = ServerNotificationsSendStatus();
@@ -1853,17 +1857,17 @@ EndFunction
 // Returns:
 //  Structure:
 //   * SessionKey - See SessionKey
-//   * IBUserID - UUID - 
+//   * IBUserID - UUID - ID of the current user.
 //   * LastNotificationDate - Date
 //   * Notifications - See CommonOverridable.OnAddServerNotifications.Notifications
-//   * MinimumPeriod - Number - 
+//   * MinimumPeriod - Number - Time interval in seconds.
 //   * CollaborationSystemConnected - Boolean
-//   * PersonalChatID - Undefined - 
-//                                    - CollaborationSystemConversationID - 
-//                                        
-//   * GlobalChatID - Undefined - 
-//                                   - CollaborationSystemConversationID - 
-//                                        
+//   * PersonalChatID - Undefined - Chat is unavailable.
+//                                    - CollaborationSystemConversationID - ID of the chat
+//                                        "ServerNotifications <Infobase user ID>".
+//   * GlobalChatID - Undefined - Chat is unavailable.
+//                                   - CollaborationSystemConversationID - ID of the chat
+//                                        "ServerNotifications".
 //   * ServiceAdministratorSession - Boolean
 //
 Function ServerNotificationsParametersThisSession() Export
@@ -1974,8 +1978,8 @@ EndFunction
 
 Function CurrSessionStartInCurrSessionDateTimeZone()
 	
-	
-	
+	// 
+	// 
 	TimeShift = CurrentSessionDate() - CurrentDate();
 	// ACC:143-on
 	
@@ -1985,12 +1989,12 @@ EndFunction
 
 // Returns:
 //  Structure:
-//   * PersonalChatID - Undefined - 
-//                                    - CollaborationSystemConversationID - 
-//                                        
-//   * GlobalChatID - Undefined - 
-//                                   - CollaborationSystemConversationID - 
-//                                        
+//   * PersonalChatID - Undefined - Chat is unavailable.
+//                                    - CollaborationSystemConversationID - ID of the chat
+//                                        "ServerNotifications <Infobase user ID>".
+//   * GlobalChatID - Undefined - Chat is unavailable.
+//                                   - CollaborationSystemConversationID - ID of the chat
+//                                        "ServerNotifications".
 // 
 Function ChatsIDs()
 	
@@ -2036,18 +2040,18 @@ Procedure ReviseMinCheckInterval(MinCheckInterval)
 	
 EndProcedure
 
-// 
-// 
-// 
-// 
-// 
+// When Collaboration System is not used, and the number of sessions exceeds 2,000,
+// 1-minute interval for server calls will cause a high server load (33 calls per second).
+// If the ratio is less than 1 core per 10 sessions, the load might lead to a critical performance degradation.
+// To reduce the load, set the interval to 2–5 minutes.
+// Note that will reduce the UI responsiveness when user actions affect the server side.
 // 
 // 
 //
 // Returns:
-//  Number - 
-//          
-//          
+//  Number - The minimal time (in minutes) the intermittent data transfer must run
+//          for the common server call and checks run by the scheduled job.
+//          This parameter overrides (upward) the predefined value.
 //
 Function RepeatedDateExportMinInterval()
 	Return 1;
@@ -2286,8 +2290,8 @@ Function EventLogInteractionSystemErrorSeverity(ErrorInfo)
 EndFunction
 
 // Parameters:
-//  
-//     
+//  IsInternal - Boolean - If True and the current username is empty,
+//     creates an utility user and assign it to the scheduled job.
 //
 // Returns:
 //  Boolean
@@ -2448,8 +2452,16 @@ Function InfobaseDummyUser()
 	
 	If WriteIBUser Then
 		FillPropertyValues(IBUser, Properties);
-		IBUser.StoredPasswordValue =
-			Users.PasswordHashString(String(New UUID));
+		NewPassword = String(New UUID);
+		If UsersInternal.IsSettings8_3_26Available() Then
+			// 
+			IBUser.StoredPasswordValue =
+				Eval("EvaluateStoredUserPasswordValue(NewPassword)");
+			// 
+		Else
+			IBUser.StoredPasswordValue =
+				Users.PasswordHashString(NewPassword);
+		EndIf;
 		IBUser.Roles.Clear();
 		IBUser.Write();
 	EndIf;
@@ -2470,17 +2482,73 @@ Function InfobaseDummyUser()
 	|WHERE
 	|	Users.IBUserID = &IBUserID";
 	
-	If Query.Execute().IsEmpty() Then
+	If Not Query.Execute().IsEmpty() Then
+		Return IBUser;
+	EndIf;
+	
+	Query = New Query;
+	Query.SetParameter("Description", IBUser.FullName);
+	Query.Text =
+	"SELECT
+	|	Users.Ref AS Ref
+	|FROM
+	|	Catalog.Users AS Users
+	|WHERE
+	|	Users.Description = &Description
+	|	AND Users.IsInternal";
+	
+	RefToNew = Catalogs.Users.GetRef(
+		New UUID("ea3b6bcf-d6d8-11ee-886a-b06ebfbf08c7"));
+	
+	Block = New DataLock;
+	LockItem = Block.Add("Catalog.Users");
+	LockItem.SetValue("Ref", RefToNew);
+	
+	Selection = Query.Execute().Select();
+	If Selection.Next() Then
+		RefToExisting = Selection.Ref; // CatalogRef.Users
+		LockItem = Block.Add("Catalog.Users");
+		LockItem.SetValue("Ref", RefToExisting);
+	Else
+		RefToExisting = Undefined;
+	EndIf;
+	
+	BeginTransaction();
+	Try
+		Block.Lock();
+		User = RefToNew.GetObject();
+
+		If User = Undefined
+		   And ValueIsFilled(RefToExisting) Then
+			
+			User = RefToExisting.GetObject();
+			If User <> Undefined Then
+				ExistingInfobaseUser = InfoBaseUsers.FindByUUID(
+					User.IBUserID);
+				If ExistingInfobaseUser <> Undefined Then
+					User = Undefined;
+				EndIf;
+			EndIf;
+		EndIf;
+		
+		If User = Undefined Then
+			User = Catalogs.Users.CreateItem();
+			User.SetNewObjectRef(RefToNew);
+		EndIf;
+		
 		IBUserDetails = New Structure;
 		IBUserDetails.Insert("Action", "Write");
 		IBUserDetails.Insert("UUID", IBUserID);
 		
-		User = Catalogs.Users.CreateItem();
 		User.Description = IBUser.FullName;
 		User.IsInternal = True;
 		User.AdditionalProperties.Insert("IBUserDetails", IBUserDetails);
 		User.Write();
-	EndIf;
+		CommitTransaction();
+	Except
+		RollbackTransaction();
+		Raise;
+	EndTry;
 	
 	Return IBUser;
 	
@@ -2704,16 +2772,16 @@ Function GlobalChatID()
 	
 EndFunction
 
-// 
+// Delivers a message containing arbitrary data from the client to the server.
 //
-// 
+// Throws an exception if the delivery failed.
 //
 // Parameters: 
 //   Data - See MessageNewData
 //   ConversationID - CollaborationSystemConversationID
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the message is successfully written to the Collaboration System.
 //
 Function SendMessage(Data, ConversationID)
 	

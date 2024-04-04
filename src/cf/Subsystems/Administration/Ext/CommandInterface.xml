@@ -141,7 +141,7 @@
 				<xr:Common>false</xr:Common>
 			</Visibility>
 		</Command>
-		<Command name="CommonCommand.CurrentSessionTime">
+		<Command name="CommonCommand.TimeInApp">
 			<Visibility>
 				<xr:Common>false</xr:Common>
 			</Visibility>
@@ -192,6 +192,11 @@
 			</Visibility>
 		</Command>
 		<Command name="Catalog.SourceDocumentsOriginalsStates.StandardCommand.OpenList">
+			<Visibility>
+				<xr:Common>false</xr:Common>
+			</Visibility>
+		</Command>
+		<Command name="Catalog.AdditionalAttributesAndInfoSets.Command.Labels">
 			<Visibility>
 				<xr:Common>false</xr:Common>
 			</Visibility>
@@ -261,9 +266,19 @@
 				<xr:Common>false</xr:Common>
 			</Visibility>
 		</Command>
+		<Command name="DataProcessor.EventLog.Command.DataAccessLog">
+			<Visibility>
+				<xr:Common>false</xr:Common>
+			</Visibility>
+		</Command>
 		<Command name="CommonCommand.AddServiceUsers">
 			<Visibility>
 				<xr:Common>false</xr:Common>
+			</Visibility>
+		</Command>
+		<Command name="CommonCommand.ReportPanelAdministration">
+			<Visibility>
+				<xr:Common>true</xr:Common>
 			</Visibility>
 		</Command>
 		<Command name="Report.EventLogAnalysis.StandardCommand.Open">
@@ -282,6 +297,11 @@
 			</Visibility>
 		</Command>
 		<Command name="Report.PerformanceMonitor.StandardCommand.Open">
+			<Visibility>
+				<xr:Common>false</xr:Common>
+			</Visibility>
+		</Command>
+		<Command name="Report.RolesRights.StandardCommand.Open">
 			<Visibility>
 				<xr:Common>false</xr:Common>
 			</Visibility>
@@ -392,6 +412,11 @@
 			</Visibility>
 		</Command>
 		<Command name="DataProcessor.UsersSettings.StandardCommand.Open">
+			<Visibility>
+				<xr:Common>false</xr:Common>
+			</Visibility>
+		</Command>
+		<Command name="CommonForm.RegistrationSettingsForDataAccessEvents.StandardCommand.Open">
 			<Visibility>
 				<xr:Common>false</xr:Common>
 			</Visibility>
@@ -546,22 +571,17 @@
 				<xr:Common>false</xr:Common>
 			</Visibility>
 		</Command>
-		<Command name="DataProcessor.InformationOnStart.Command.InformationOnStart">
-			<Visibility>
-				<xr:Common>false</xr:Common>
-			</Visibility>
-		</Command>
-		<Command name="Report.RolesRights.StandardCommand.Open">
-			<Visibility>
-				<xr:Common>false</xr:Common>
-			</Visibility>
-		</Command>
 		<Command name="100:cb81fb9f-16a2-4265-92a9-b827ca2fd588">
 			<Visibility>
 				<xr:Common>false</xr:Common>
 			</Visibility>
 		</Command>
-		<Command name="Catalog.AdditionalAttributesAndInfoSets.Command.Labels">
+		<Command name="DataProcessor.InformationOnStart.Command.InformationOnStart">
+			<Visibility>
+				<xr:Common>false</xr:Common>
+			</Visibility>
+		</Command>
+		<Command name="Report.UserAccountsChanges.StandardCommand.Open">
 			<Visibility>
 				<xr:Common>false</xr:Common>
 			</Visibility>
@@ -758,7 +778,7 @@
 		<Command name="InformationRegister.FilesClearingSettings.StandardCommand.OpenList">
 			<CommandGroup>NavigationPanelOrdinary</CommandGroup>
 		</Command>
-		<Command name="CommonCommand.CurrentSessionTime">
+		<Command name="CommonCommand.TimeInApp">
 			<CommandGroup>NavigationPanelOrdinary</CommandGroup>
 		</Command>
 		<Command name="Catalog.KeyOperationProfiles.StandardCommand.OpenList">
@@ -792,6 +812,9 @@
 			<CommandGroup>NavigationPanelOrdinary</CommandGroup>
 		</Command>
 		<Command name="Catalog.SourceDocumentsOriginalsStates.StandardCommand.OpenList">
+			<CommandGroup>NavigationPanelOrdinary</CommandGroup>
+		</Command>
+		<Command name="Catalog.AdditionalAttributesAndInfoSets.Command.Labels">
 			<CommandGroup>NavigationPanelOrdinary</CommandGroup>
 		</Command>
 		<Command name="CommonCommand.StandaloneModeSaaS">
@@ -835,6 +858,42 @@
 		</Command>
 		<Command name="Catalog.EmailAccounts.StandardCommand.OpenList">
 			<CommandGroup>NavigationPanelSeeAlso</CommandGroup>
+		</Command>
+		<Command name="DataProcessor.EventLog.Command.DataAccessLog">
+			<CommandGroup>NavigationPanelSeeAlso</CommandGroup>
+		</Command>
+		<Command name="CommonCommand.ReportPanelAdministration">
+			<CommandGroup>ActionsPanelReports</CommandGroup>
+		</Command>
+		<Command name="CommonCommand.AdditionalReportsAdministration">
+			<CommandGroup>ActionsPanelReports</CommandGroup>
+		</Command>
+		<Command name="Report.EventLogAnalysis.StandardCommand.Open">
+			<CommandGroup>ActionsPanelReports</CommandGroup>
+		</Command>
+		<Command name="Report.AccessRightsAnalysis.StandardCommand.Open">
+			<CommandGroup>ActionsPanelReports</CommandGroup>
+		</Command>
+		<Command name="Report.IrrelevantFilesVolume.StandardCommand.Open">
+			<CommandGroup>ActionsPanelReports</CommandGroup>
+		</Command>
+		<Command name="Report.PerformanceMonitor.StandardCommand.Open">
+			<CommandGroup>ActionsPanelReports</CommandGroup>
+		</Command>
+		<Command name="Report.RolesRights.StandardCommand.Open">
+			<CommandGroup>ActionsPanelReports</CommandGroup>
+		</Command>
+		<Command name="Report.DeferredUpdateProgress.StandardCommand.Open">
+			<CommandGroup>ActionsPanelReports</CommandGroup>
+		</Command>
+		<Command name="Report.UsersInfo.StandardCommand.Open">
+			<CommandGroup>ActionsPanelReports</CommandGroup>
+		</Command>
+		<Command name="Report.UniversalReport.StandardCommand.Open">
+			<CommandGroup>ActionsPanelReports</CommandGroup>
+		</Command>
+		<Command name="Report.DeferredUpdateDuration.StandardCommand.Open">
+			<CommandGroup>ActionsPanelReports</CommandGroup>
 		</Command>
 		<Command name="100:b04b4979-1328-492e-8f87-bcff499c00c0">
 			<CommandGroup>ActionsPanelTools</CommandGroup>
@@ -906,6 +965,9 @@
 			<CommandGroup>ActionsPanelTools</CommandGroup>
 		</Command>
 		<Command name="DataProcessor.UsersSettings.StandardCommand.Open">
+			<CommandGroup>ActionsPanelTools</CommandGroup>
+		</Command>
+		<Command name="CommonForm.RegistrationSettingsForDataAccessEvents.StandardCommand.Open">
 			<CommandGroup>ActionsPanelTools</CommandGroup>
 		</Command>
 		<Command name="100:fabbac92-cb98-4087-b3fa-387482ed0d86">
@@ -998,42 +1060,15 @@
 		<Command name="DataProcessor.EnableDiscussions.Command.SettingsOfMessagesFromOtherApplications">
 			<CommandGroup>ActionsPanelTools</CommandGroup>
 		</Command>
-		<Command name="CommonCommand.ReportPanelAdministration">
-			<CommandGroup>ActionsPanelReports</CommandGroup>
-		</Command>
-		<Command name="CommonCommand.AdditionalReportsAdministration">
-			<CommandGroup>ActionsPanelReports</CommandGroup>
-		</Command>
-		<Command name="Report.EventLogAnalysis.StandardCommand.Open">
-			<CommandGroup>ActionsPanelReports</CommandGroup>
-		</Command>
-		<Command name="Report.AccessRightsAnalysis.StandardCommand.Open">
-			<CommandGroup>ActionsPanelReports</CommandGroup>
-		</Command>
-		<Command name="Report.IrrelevantFilesVolume.StandardCommand.Open">
-			<CommandGroup>ActionsPanelReports</CommandGroup>
-		</Command>
-		<Command name="Report.PerformanceMonitor.StandardCommand.Open">
-			<CommandGroup>ActionsPanelReports</CommandGroup>
-		</Command>
-		<Command name="Report.RolesRights.StandardCommand.Open">
-			<CommandGroup>ActionsPanelReports</CommandGroup>
-		</Command>
-		<Command name="Report.DeferredUpdateProgress.StandardCommand.Open">
-			<CommandGroup>ActionsPanelReports</CommandGroup>
-		</Command>
-		<Command name="Report.UsersInfo.StandardCommand.Open">
-			<CommandGroup>ActionsPanelReports</CommandGroup>
-		</Command>
-		<Command name="Report.UniversalReport.StandardCommand.Open">
-			<CommandGroup>ActionsPanelReports</CommandGroup>
+		<Command name="100:cb81fb9f-16a2-4265-92a9-b827ca2fd588">
+			<CommandGroup>ActionsPanelTools</CommandGroup>
 		</Command>
 	</CommandsOrder>
 	<GroupsOrder>
 		<Group>NavigationPanelImportant</Group>
 		<Group>NavigationPanelOrdinary</Group>
 		<Group>NavigationPanelSeeAlso</Group>
-		<Group>ActionsPanelTools</Group>
 		<Group>ActionsPanelReports</Group>
+		<Group>ActionsPanelTools</Group>
 	</GroupsOrder>
 </CommandInterface>

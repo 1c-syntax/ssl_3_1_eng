@@ -8,13 +8,19 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.Select</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Select</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormChooseExtendedTooltip" id="22"/>
 			</Button>
 			<ButtonGroup name="GroupOfCommandsFlags" id="72">
 				<Title>
 					<v8:item>
 						<v8:lang>en</v8:lang>
-						<v8:content>Command group check boxes</v8:content>
+						<v8:content>Checkboxes</v8:content>
 					</v8:item>
 				</Title>
 				<Representation>Compact</Representation>

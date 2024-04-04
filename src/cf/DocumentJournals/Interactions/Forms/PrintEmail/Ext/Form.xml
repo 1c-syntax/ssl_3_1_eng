@@ -40,6 +40,12 @@
 				<Button name="Print" id="37">
 					<Type>UsualButton</Type>
 					<CommandName>Form.Command.Print</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Print</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="PrintExtendedTooltip" id="38"/>
 				</Button>
 			</ChildItems>
@@ -99,6 +105,12 @@
 		</UsualGroup>
 		<HTMLDocumentField name="HTMLText" id="1">
 			<DataPath>HTMLText</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>HTML text</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>None</TitleLocation>
 			<ContextMenu name="HTMLTextContextMenu" id="2"/>
 			<ExtendedTooltip name="HTMLTextExtendedTooltip" id="3"/>
@@ -138,12 +150,24 @@
 						<Type>CommandBarButton</Type>
 						<SkipOnInput>false</SkipOnInput>
 						<CommandName>Form.Command.OpenAttachment</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Open</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="OpenAttachmentExtendedTooltip" id="29"/>
 					</Button>
 					<Button name="SaveAttachment" id="30">
 						<Type>CommandBarButton</Type>
 						<SkipOnInput>false</SkipOnInput>
 						<CommandName>Form.Command.SaveAttachment</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Save as…</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="SaveAttachmentExtendedTooltip" id="31"/>
 					</Button>
 				</ChildItems>
@@ -179,6 +203,12 @@
 			</Events>
 			<ChildItems>
 				<ColumnGroup name="Group" id="17">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Group</v8:content>
+						</v8:item>
+					</Title>
 					<Width>15</Width>
 					<Group>InCell</Group>
 					<ShowInHeader>true</ShowInHeader>
@@ -186,6 +216,12 @@
 					<ChildItems>
 						<PictureField name="PictureIndex" id="19">
 							<DataPath>Attachments.PictureIndex</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Picture index</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<ShowInHeader>false</ShowInHeader>
 							<Width>2</Width>
@@ -203,6 +239,12 @@
 						</PictureField>
 						<InputField name="FileName" id="22">
 							<DataPath>Attachments.FileName</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Attachment</v8:content>
+								</v8:item>
+							</Title>
 							<ShowInHeader>false</ShowInHeader>
 							<Wrap>false</Wrap>
 							<TextEdit>false</TextEdit>
@@ -211,6 +253,12 @@
 						</InputField>
 						<InputField name="AttachmentsSizePresentation" id="25">
 							<DataPath>Attachments.SizePresentation</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Size presentation</v8:content>
+								</v8:item>
+							</Title>
 							<EditMode>EnterOnInput</EditMode>
 							<ShowInHeader>false</ShowInHeader>
 							<Width>5</Width>

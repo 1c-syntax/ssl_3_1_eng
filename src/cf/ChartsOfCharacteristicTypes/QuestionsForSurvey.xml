@@ -421,7 +421,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Response type</v8:content>
+							<v8:content>Answer type</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -434,7 +434,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Type of response to the question</v8:content>
+							<v8:content>Answer type</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -479,7 +479,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Indicates whether this response needs to be commented.</v8:content>
+							<v8:content>Indicates whether this answer needs to be commented.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -573,7 +573,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Available for predefined responses</v8:content>
+							<v8:content>Available for predefined answers</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -623,7 +623,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>The length of a string or numeric response</v8:content>
+							<v8:content>The length of a string or numeric answer</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -673,7 +673,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Answer's minimum value</v8:content>
+							<v8:content>Min answer value</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -723,7 +723,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Answer's maximum value</v8:content>
+							<v8:content>Max answer value</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -773,7 +773,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>The number of decimals for numeric responses</v8:content>
+							<v8:content>The number of decimals for numeric answers</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -818,7 +818,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Indicates whether the responses will be aggregated in the "Survey analysis" report.</v8:content>
+							<v8:content>Indicates whether the answers will be aggregated in the "Survey analysis" report.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -863,7 +863,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Type of control to select one response option</v8:content>
+							<v8:content>Radio button type</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -953,7 +953,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Use the minimum response value</v8:content>
+							<v8:content>Use the minimum answer value</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -998,7 +998,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Use the maximum response value</v8:content>
+							<v8:content>Use the maximum answer value</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>

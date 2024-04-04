@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Private
@@ -74,22 +75,26 @@ Procedure RestartingApplication() Export
 	Exit(True, True);
 EndProcedure
 
-Procedure NotificationOfUpcomingRestartInFiveMinutes() Export
+Procedure NotificationFiveMinutesBeforeRestart() Export
 
-	StandardSubsystemsClient.NotifyingCurrentUserAboutUpcomingRestart(300);
-
-EndProcedure
-
-Procedure NotificationOfUpcomingRestartInThreeMinutes() Export
-
-	StandardSubsystemsClient.NotifyingCurrentUserAboutUpcomingRestart(180);
+	StandardSubsystemsClient.NotifyCurrentUserOfUpcomingRestart(300);
 
 EndProcedure
 
-Procedure NotificationOfUpcomingRestartInMinute() Export
+Procedure NotificationThreeMinutesBeforeRestart() Export
 
-	StandardSubsystemsClient.NotifyingCurrentUserAboutUpcomingRestart(60);
+	StandardSubsystemsClient.NotifyCurrentUserOfUpcomingRestart(180);
 
+EndProcedure
+
+Procedure NotificationOneMinuteBeforeRestart() Export
+
+	StandardSubsystemsClient.NotifyCurrentUserOfUpcomingRestart(60);
+
+EndProcedure
+
+Procedure RestartControlWhenAccessRightsAreReduced() Export
+	UsersInternalClient.WhenMonitoringRestartsWithReducedAccessRights();
 EndProcedure
 
 #EndRegion

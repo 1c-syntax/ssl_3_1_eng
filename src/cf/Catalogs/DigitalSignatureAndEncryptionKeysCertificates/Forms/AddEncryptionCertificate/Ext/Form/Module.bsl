@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -39,7 +40,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	CertificateAttributeParameters =
 		DigitalSignatureInternal.NewParametersForCertificateDetails();
 	
-	If Parameters.Property("Organization") Then
+	If ValueIsFilled(Parameters.Organization) Then
 		CertificateAttributeParameters.Insert("Organization", Parameters.Organization);
 	EndIf;
 	
@@ -68,15 +69,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		UpdateCertificatesListAtServer(Parameters.CertificatesPropertiesAtClient);
 	EndIf;
 	
-	If Metadata.DefinedTypes.Organization.Type.ContainsType(Type("String")) Then
+	If Not DigitalSignature.CommonSettings().IsCompanyUsed Then
 		Items.CertificateCompany.Visible = False;
 	Else
 		CompanyTypeToDefineConfigured = True;
 	EndIf;
 	
-	If Metadata.DefinedTypes.Individual.Type.ContainsType(Type("String")) Then
-		Items.GroupInidividual.Visible = False;
-	EndIf;
+	Items.GroupInidividual.Visible = DigitalSignature.CommonSettings().IndividualUsed;
 	
 	Items.CertificateUser1.ToolTip =
 		Metadata.Catalogs.DigitalSignatureAndEncryptionKeysCertificates.Attributes.User.Tooltip;
@@ -254,9 +253,8 @@ Procedure Next(Command)
 	EndIf;
 	
 	If Not HaveRightToAddInDirectory And Not CurrentData.Isinthedirectory Then
-		ShowMessageBox(,
-			NStr("en = 'Insufficient rights to use certificates that are not in the catalog.';"));
-		Return;
+		Raise(NStr("en = 'insufficient rights to use the certificate.';"),
+			ErrorCategory.AccessViolation);
 	EndIf;
 	
 	Items.Next.Enabled = False;
@@ -306,7 +304,7 @@ Procedure NextAfterCertificateSearch(Result, Context) Export
 	Context = New Structure;
 	
 	If Result.Property("CertificateNotFound") Then
-		Context.Insert("ErrorDescription", NStr("en = 'The certificate is not installed on the computer (it might have been deleted).';"));
+		Context.Insert("ErrorDescription", NStr("en = 'The certificate is not installed or was deleted from your computer.';"));
 	Else
 		Context.Insert("ErrorDescription", Result.ErrorDescription);
 	EndIf;
@@ -494,6 +492,7 @@ Procedure ShowCertificatePropertiesAdjustmentPage(Form, CryptoCertificate, Certi
 	Form.DescriptionCertificate = SavedProperties.Description;
 	Form.CertificateUser1 = SavedProperties.User;
 	Form.CertificateCompany  = SavedProperties.Organization;
+	Form.CertificateIndividual = SavedProperties.Individual;
 	
 	Items.Pages.CurrentPage   = Items.PromptForCertificatePropertiesPage;
 	Items.Add.DefaultButton = True;

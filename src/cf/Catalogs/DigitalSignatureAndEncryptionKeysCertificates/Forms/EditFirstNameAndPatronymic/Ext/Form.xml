@@ -9,6 +9,12 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.OK</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>OK</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormOKExtendedTooltip" id="16"/>
 			</Button>
 			<Button name="FormCancel" id="13">
@@ -24,11 +30,23 @@
 	<ChildItems>
 		<LabelField name="NewNameAndPatronymic" id="17">
 			<DataPath>NewNameAndPatronymic</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>First name and middle name</v8:content>
+				</v8:item>
+			</Title>
 			<ContextMenu name="NewNameAndPatronymicContextMenu" id="18"/>
 			<ExtendedTooltip name="NewNameAndPatronymicExtendedTooltip" id="19"/>
 		</LabelField>
 		<InputField name="Name" id="1">
 			<DataPath>Name</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>First name</v8:content>
+				</v8:item>
+			</Title>
 			<ContextMenu name="NameContextMenu" id="2"/>
 			<ExtendedTooltip name="NameExtendedTooltip" id="3"/>
 			<Events>
@@ -37,6 +55,12 @@
 		</InputField>
 		<InputField name="MiddleName" id="4">
 			<DataPath>MiddleName</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Middle name</v8:content>
+				</v8:item>
+			</Title>
 			<ContextMenu name="MiddleNameContextMenu" id="5"/>
 			<ExtendedTooltip name="MiddleNameExtendedTooltip" id="6"/>
 			<Events>

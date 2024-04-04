@@ -16,6 +16,12 @@
 		<Button name="OpenCommonTransportSettings" id="48">
 			<Type>Hyperlink</Type>
 			<CommandName>Form.Command.OpenCommonTransportSettings</CommandName>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Common transport settings</v8:content>
+				</v8:item>
+			</Title>
 			<ExtendedTooltip name="OpenCommonTransportSettingsExtendedTooltip" id="54"/>
 		</Button>
 	</ChildItems>

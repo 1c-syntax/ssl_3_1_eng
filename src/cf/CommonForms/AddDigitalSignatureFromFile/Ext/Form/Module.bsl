@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -360,9 +361,9 @@ EndProcedure
 Async Procedure SelectFileAfterGettingContainerSignature(ContainerSignatures, Context) Export
 	
 	SessionDate = CommonClient.SessionDate();
-	TimeAddition = SessionDate - CommonClient.UniversalDate();
+	UTCOffset = SessionDate - CommonClient.UniversalDate();
 	SignatureParameters = Await DigitalSignatureInternalClient.ParametersCryptoSignatures(
-		ContainerSignatures, TimeAddition, SessionDate);
+		ContainerSignatures, UTCOffset, SessionDate);
 			
 	Context.Insert("SignatureParameters", SignatureParameters);
 	SignatureDate = SignatureParameters.UnverifiedSignatureDate;
@@ -549,7 +550,7 @@ Function AddRowAtServer(Address, FileName, AddNewRow, ErrorAtServer,
 	If DigitalSignature.CommonSettings().AvailableAdvancedSignature Then
 		ContainerSignatures = CryptoManager.GetCryptoSignaturesContainer(SignatureData);
 		SignatureParameters = DigitalSignatureInternal.ParametersCryptoSignatures(ContainerSignatures,
-			DigitalSignatureInternal.TimeAddition(), CurrentSessionDate());
+			DigitalSignatureInternal.UTCOffset(), CurrentSessionDate());
 		
 		If ValueIsFilled(SignatureParameters.UnverifiedSignatureDate) Then
 			SignatureDate = SignatureParameters.UnverifiedSignatureDate;

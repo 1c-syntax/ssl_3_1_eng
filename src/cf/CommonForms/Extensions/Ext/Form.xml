@@ -67,11 +67,23 @@
 								<Button name="ExtensionsListUpdateFromFile" id="92">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.UpdateFromFile</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Update from file…</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="ExtensionsListUpdateFromFileExtendedTooltip" id="93"/>
 								</Button>
 								<Button name="ExtensionsListSaveAs" id="94">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.SaveAs</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Save as…</v8:content>
+										</v8:item>
+									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="ExtensionsListSaveAsExtendedTooltip" id="95"/>
 								</Button>
@@ -81,14 +93,187 @@
 							<Type>CommandBarButton</Type>
 							<Representation>Text</Representation>
 							<CommandName>Form.Command.Refresh</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Refresh</v8:content>
+								</v8:item>
+							</Title>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 							<ExtendedTooltip name="ExtensionsListUpdateExtendedTooltip" id="69"/>
 						</Button>
 					</ChildItems>
 				</ButtonGroup>
+				<Popup name="SubmenuEnableExtensions" id="242">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>"Enable extensions" submenu</v8:content>
+						</v8:item>
+					</Title>
+					<ToolTip>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Toggle selected extensions</v8:content>
+						</v8:item>
+					</ToolTip>
+					<Picture>
+						<xr:Ref>StdPicture.CheckAll</xr:Ref>
+						<xr:LoadTransparent>true</xr:LoadTransparent>
+					</Picture>
+					<Representation>Picture</Representation>
+					<ExtendedTooltip name="SubmenuEnableExtensionsExtendedTooltip" id="243"/>
+					<ChildItems>
+						<Button name="EnableExtensions" id="246">
+							<Type>CommandBarButton</Type>
+							<CommandName>Form.Command.EnableExtensions</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Enabled extensions</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="EnableExtensionsExtendedTooltip" id="247"/>
+						</Button>
+						<Button name="DisableExtensions" id="244">
+							<Type>CommandBarButton</Type>
+							<CommandName>Form.Command.DisableExtensions</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Disable extensions</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="DisableExtensionsExtendedTooltip" id="245"/>
+						</Button>
+					</ChildItems>
+				</Popup>
+				<Popup name="SubmenuTransferToSubordinateDIBNodes" id="236">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>"Transfer to subordinate nodes" submenu</v8:content>
+						</v8:item>
+					</Title>
+					<ToolTip>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Toggle transferring data to subordinate nodes for the selected extensions.</v8:content>
+						</v8:item>
+					</ToolTip>
+					<Picture>
+						<xr:Ref>StdPicture.ExchangePlan</xr:Ref>
+						<xr:LoadTransparent>true</xr:LoadTransparent>
+					</Picture>
+					<Representation>Picture</Representation>
+					<ExtendedTooltip name="SubmenuTransferToSubordinateDIBNodesExtendedTooltip" id="237"/>
+					<ChildItems>
+						<Button name="EnableTransferToSubordinateDIBNodes" id="238">
+							<Type>CommandBarButton</Type>
+							<CommandName>Form.Command.EnableTransferToSubordinateDIBNodes</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Enable transfer to subordinate nodes</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="EnableTransferToSubordinateDIBNodesExtendedTooltip" id="239"/>
+						</Button>
+						<Button name="DisableTransferToSubordinateDIBNodes" id="240">
+							<Type>CommandBarButton</Type>
+							<CommandName>Form.Command.DisableTransferToSubordinateDIBNodes</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Disable transfer to subordinate nodes</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="DisableTransferToSubordinateDIBNodesExtendedTooltip" id="241"/>
+						</Button>
+					</ChildItems>
+				</Popup>
+				<Popup name="SubmenuSafeMode" id="230">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Safe mode</v8:content>
+						</v8:item>
+					</Title>
+					<ToolTip>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Toggle the safe mode for the selected extensions.</v8:content>
+						</v8:item>
+					</ToolTip>
+					<Picture>
+						<xr:Ref>CommonPicture.ShieldIcon</xr:Ref>
+						<xr:LoadTransparent>false</xr:LoadTransparent>
+					</Picture>
+					<Representation>Picture</Representation>
+					<ExtendedTooltip name="SubmenuSafeModeExtendedTooltip" id="231"/>
+					<ChildItems>
+						<Button name="EnableSafeMode" id="232">
+							<Type>CommandBarButton</Type>
+							<CommandName>Form.Command.EnableSafeMode</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Enable safe mode</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="EnableSafeModeExtendedTooltip" id="233"/>
+						</Button>
+						<Button name="DisableSafeMode" id="234">
+							<Type>CommandBarButton</Type>
+							<CommandName>Form.Command.DisableSafeMode</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Disable safe mode</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="DisableSafeModeExtendedTooltip" id="235"/>
+						</Button>
+					</ChildItems>
+				</Popup>
+				<Button name="SetEmployeeResponsible" id="262">
+					<Type>CommandBarButton</Type>
+					<Representation>Picture</Representation>
+					<CommandName>Form.Command.SetEmployeeResponsible</CommandName>
+					<Picture>
+						<xr:Ref>StdPicture.User</xr:Ref>
+						<xr:LoadTransparent>true</xr:LoadTransparent>
+					</Picture>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Assign to</v8:content>
+						</v8:item>
+					</Title>
+					<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
+					<ExtendedTooltip name="SetEmployeeResponsibleExtendedTooltip" id="263"/>
+				</Button>
+				<Button name="CheckIfAllExtensionsCanBeApplied" id="228">
+					<Type>CommandBarButton</Type>
+					<CommandName>Form.Command.CheckIfAllExtensionsCanBeApplied</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Check extension applicability</v8:content>
+						</v8:item>
+					</Title>
+					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+					<ExtendedTooltip name="CheckIfAllExtensionsCanBeAppliedExtendedTooltip" id="229"/>
+				</Button>
 				<Button name="FormInstalledPatches1" id="177">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.InstalledPatches</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Installed patches</v8:content>
+						</v8:item>
+					</Title>
 					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 					<ExtendedTooltip name="FormInstalledPatchesExtendedTooltip" id="178"/>
 				</Button>
@@ -98,6 +283,12 @@
 						<xr:Common>false</xr:Common>
 					</UserVisible>
 					<CommandName>Form.Command.RunUpdateSettingsExtensionsWorkInBackground</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Start background update of extension parameters</v8:content>
+						</v8:item>
+					</Title>
 					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 					<ExtendedTooltip name="RunUpdateSettingsExtensionsWorkInBackgroundExtendedTooltip" id="160"/>
 				</Button>
@@ -107,6 +298,12 @@
 						<xr:Common>false</xr:Common>
 					</UserVisible>
 					<CommandName>Form.Command.ShowEventsBackgroundUpdateSettingsExtensionsJob</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Show events of the background update of extension parameters</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="ShowErrorsBackgroundUpdateSettingsWorkExtensionsExtendedTooltip" id="221"/>
 				</Button>
 				<Button name="DeleteDeprecatedSettingsWorkExtensions" id="131">
@@ -115,6 +312,12 @@
 						<xr:Common>false</xr:Common>
 					</UserVisible>
 					<CommandName>Form.Command.DeleteDeprecatedSettingsWorkExtensions</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Delete obsolete extension parameters</v8:content>
+						</v8:item>
+					</Title>
 					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 					<ExtendedTooltip name="DeleteDeprecatedSettingsWorkExtensionsExtendedTooltip" id="132"/>
 				</Button>
@@ -175,8 +378,8 @@
 										</v8:item>
 									</Title>
 									<Picture>
-										<xr:Ref>CommonPicture.Warning32</xr:Ref>
-										<xr:LoadTransparent>false</xr:LoadTransparent>
+										<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
 									<ContextMenu name="WarningPicture2ContextMenu" id="81"/>
@@ -184,10 +387,11 @@
 								</PictureDecoration>
 								<LabelDecoration name="WarningDetails" id="83">
 									<AutoMaxWidth>false</AutoMaxWidth>
+									<HorizontalStretch>true</HorizontalStretch>
 									<Title formatted="true">
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>To apply the changes, &lt;link 1&gt;restart&lt;/&gt; the application.</v8:content>
+											<v8:content>To apply changes, &lt;link 1&gt;restart&lt;/&gt; the app.</v8:content>
 										</v8:item>
 									</Title>
 									<ContextMenu name="WarningDetails1ContextMenu" id="84"/>
@@ -199,11 +403,12 @@
 								<LabelDecoration name="WarningDetails2" id="222">
 									<Visible>false</Visible>
 									<AutoMaxWidth>false</AutoMaxWidth>
+									<HorizontalStretch>true</HorizontalStretch>
 									<Title formatted="false">
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>To use data area extensions, start a session with separators.
-Extension changes for data area users will be applied next time they log in to the application.</v8:content>
+											<v8:content>To start using data area extensions, run a session with separators.
+New extensions for data area users will be applied next time they sign in to the app.</v8:content>
 										</v8:item>
 									</Title>
 									<ContextMenu name="WarningDetails2ContextMenu" id="223"/>
@@ -219,8 +424,6 @@ Extension changes for data area users will be applied next time they log in to t
 							<CommandBarLocation>None</CommandBarLocation>
 							<UseAlternationRowColor>true</UseAlternationRowColor>
 							<AutoInsertNewRow>true</AutoInsertNewRow>
-							<EnableStartDrag>true</EnableStartDrag>
-							<EnableDrag>true</EnableDrag>
 							<FileDragMode>AsFile</FileDragMode>
 							<DataPath>ExtensionsList</DataPath>
 							<Title>
@@ -264,11 +467,23 @@ Extension changes for data area users will be applied next time they log in to t
 									<Button name="ExtensionsListContextMenuUpdateFromFile" id="64">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.UpdateFromFile</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Update from file…</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ExtensionsListContextMenuUpdateFromFileExtendedTooltip" id="65"/>
 									</Button>
 									<Button name="ExtensionsListContextMenuRefresh" id="138">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.Refresh</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Refresh</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ExtensionsListContextMenuRefreshExtendedTooltip" id="139"/>
 									</Button>
 									<ButtonGroup name="ExtensionsListContextMenuGroup" id="119">
@@ -290,6 +505,12 @@ Extension changes for data area users will be applied next time they log in to t
 									<Button name="ExtensionsListContextMenuSaveAs" id="66">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.SaveAs</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Save as…</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ExtensionsListContextMenuSaveAsExtendedTooltip" id="67"/>
 									</Button>
 								</ChildItems>
@@ -321,6 +542,7 @@ Extension changes for data area users will be applied next time they log in to t
 								<ExtendedTooltip name="ExtensionsListSearchControlExtendedTooltip" id="31"/>
 							</SearchControlAddition>
 							<Events>
+								<Event name="Selection">ExtensionsListSelection</Event>
 								<Event name="BeforeAddRow">ExtensionsListBeforeAddRow</Event>
 								<Event name="BeforeDeleteRow">ExtensionsListBeforeDeleteRow</Event>
 								<Event name="OnActivateRow">ExtensionsListOnActivateRow</Event>
@@ -329,6 +551,12 @@ Extension changes for data area users will be applied next time they log in to t
 								<CheckBoxField name="ExtensionsListCommon" id="168">
 									<DataPath>ExtensionsList.Common</DataPath>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Common</v8:content>
+										</v8:item>
+									</Title>
 									<ToolTip>
 										<v8:item>
 											<v8:lang>en</v8:lang>
@@ -343,6 +571,12 @@ Extension changes for data area users will be applied next time they log in to t
 								<CheckBoxField name="ExtensionsListReceivedFromMasterDIBNode" id="171">
 									<DataPath>ExtensionsList.ReceivedFromMasterDIBNode</DataPath>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Received from the master node of the distributed infobase</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<ToolTip>
 										<v8:item>
@@ -361,11 +595,17 @@ Extension changes for data area users will be applied next time they log in to t
 								</CheckBoxField>
 								<CheckBoxField name="ExtensionsListAttach" id="174">
 									<DataPath>ExtensionsList.Attach</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Attach</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<ToolTip>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Attach the extension when a user signs in.</v8:content>
+											<v8:content>Attach the patch when a user signs in</v8:content>
 										</v8:item>
 									</ToolTip>
 									<EditMode>EnterOnInput</EditMode>
@@ -392,6 +632,12 @@ Extension changes for data area users will be applied next time they log in to t
 									<ChildItems>
 										<PictureField name="ExtensionsListAttached" id="142">
 											<DataPath>ExtensionsList.Attached</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Attached</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<EditMode>EnterOnInput</EditMode>
 											<ValuesPicture>
@@ -421,6 +667,12 @@ Extension changes for data area users will be applied next time they log in to t
 								<InputField name="ExtensionsListVersion" id="38">
 									<DataPath>ExtensionsList.Version</DataPath>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Version</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<Width>10</Width>
 									<ContextMenu name="ExtensionsListVersionContextMenu" id="39"/>
@@ -429,6 +681,12 @@ Extension changes for data area users will be applied next time they log in to t
 								<InputField name="ExtensionsListPurpose" id="156">
 									<DataPath>ExtensionsList.Purpose</DataPath>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Use for</v8:content>
+										</v8:item>
+									</Title>
 									<ToolTip>
 										<v8:item>
 											<v8:lang>en</v8:lang>
@@ -441,6 +699,12 @@ Extension changes for data area users will be applied next time they log in to t
 								</InputField>
 								<CheckBoxField name="ExtensionsListPassToSubordinateDIBNodes" id="165">
 									<DataPath>ExtensionsList.PassToSubordinateDIBNodes</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Send to subordinate nodes of the distributed infobase</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<ToolTip>
 										<v8:item>
@@ -473,7 +737,24 @@ Extension changes for data area users will be applied next time they log in to t
 									<ChildItems>
 										<CheckBoxField name="ExtensionsListSafeModeFlag" id="50">
 											<DataPath>ExtensionsList.SafeModeFlag</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Safe mode</v8:content>
+												</v8:item>
+											</Title>
+											<TitleLocation>None</TitleLocation>
+											<ToolTip>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Safe mode</v8:content>
+												</v8:item>
+											</ToolTip>
 											<EditMode>EnterOnInput</EditMode>
+											<HeaderPicture>
+												<xr:Ref>CommonPicture.ShieldIcon</xr:Ref>
+												<xr:LoadTransparent>false</xr:LoadTransparent>
+											</HeaderPicture>
 											<CheckBoxType>Auto</CheckBoxType>
 											<ContextMenu name="ExtensionsListSafeModeFlagContextMenu" id="51"/>
 											<ExtendedTooltip name="ExtensionsListSafeModeFlagExtendedTooltip" id="52"/>
@@ -483,7 +764,16 @@ Extension changes for data area users will be applied next time they log in to t
 										</CheckBoxField>
 										<InputField name="ExtensionsListSafeMode" id="133">
 											<DataPath>ExtensionsList.SafeMode</DataPath>
+											<UserVisible>
+												<xr:Common>false</xr:Common>
+											</UserVisible>
 											<ReadOnly>true</ReadOnly>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Safe mode</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<EditMode>EnterOnInput</EditMode>
 											<Width>7</Width>
@@ -510,6 +800,12 @@ Extension changes for data area users will be applied next time they log in to t
 										<xr:Common>false</xr:Common>
 									</UserVisible>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Connection status</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ContextMenu name="ExtensionsListActivationStateContextMenu" id="195"/>
 									<ExtendedTooltip name="ExtensionsListActivationStateExtendedTooltip" id="196"/>
@@ -520,145 +816,230 @@ Extension changes for data area users will be applied next time they log in to t
 										<xr:Common>false</xr:Common>
 									</UserVisible>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Checksum</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ContextMenu name="ExtensionsListChecksumContextMenu" id="99"/>
 									<ExtendedTooltip name="ExtensionsListChecksumExtendedTooltip" id="100"/>
 								</InputField>
+								<InputField name="ExtensionsListEmployeeResponsible" id="256">
+									<DataPath>ExtensionsList.EmployeeResponsible</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Assigned to</v8:content>
+										</v8:item>
+									</Title>
+									<ToolTip>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>A user responsible for the extension. </v8:content>
+										</v8:item>
+									</ToolTip>
+									<EditMode>EnterOnInput</EditMode>
+									<Width>45</Width>
+									<ContextMenu name="ExtensionsListEmployeeResponsibleContextMenu" id="257"/>
+									<ExtendedTooltip name="ExtensionsListEmployeeResponsibleExtendedTooltip" id="258"/>
+									<Events>
+										<Event name="OnChange">ExtensionsListEmployeeResponsibleOnChange</Event>
+									</Events>
+								</InputField>
+								<PictureField name="ExtensionsListHasComment" id="259">
+									<DataPath>ExtensionsList.HasComment</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Has comment</v8:content>
+										</v8:item>
+									</Title>
+									<TitleLocation>None</TitleLocation>
+									<ToolTip>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Comment</v8:content>
+										</v8:item>
+									</ToolTip>
+									<EditMode>EnterOnInput</EditMode>
+									<HeaderPicture>
+										<xr:Ref>CommonPicture.Comment</xr:Ref>
+										<xr:LoadTransparent>false</xr:LoadTransparent>
+									</HeaderPicture>
+									<ValuesPicture>
+										<xr:Ref>CommonPicture.Comment</xr:Ref>
+										<xr:LoadTransparent>false</xr:LoadTransparent>
+									</ValuesPicture>
+									<ContextMenu name="ExtensionsListHasCommentContextMenu" id="260"/>
+									<ExtendedTooltip name="ExtensionsListHasCommentExtendedTooltip" id="261"/>
+								</PictureField>
 							</ChildItems>
 						</Table>
-						<UsualGroup name="LegendGroup" id="197">
+						<UsualGroup name="GroupLegendAndComment" id="251">
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Legend</v8:content>
+									<v8:content>Legend and comment</v8:content>
 								</v8:item>
 							</Title>
-							<Group>Vertical</Group>
-							<Behavior>Usual</Behavior>
+							<Group>AlwaysHorizontal</Group>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="LegendGroupExtendedTooltip" id="198"/>
+							<ExtendedTooltip name="GroupLegendAndCommentExtendedTooltip" id="252"/>
 							<ChildItems>
-								<UsualGroup name="AttachedLegendGroup" id="199">
+								<UsualGroup name="LegendGroup" id="197">
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Legend attached</v8:content>
+											<v8:content>Legend</v8:content>
 										</v8:item>
 									</Title>
-									<Group>AlwaysHorizontal</Group>
+									<Group>Vertical</Group>
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
 									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="AttachedLegendGroupExtendedTooltip" id="200"/>
+									<ExtendedTooltip name="LegendGroupExtendedTooltip" id="198"/>
 									<ChildItems>
-										<PictureDecoration name="AttachedPicture" id="201">
-											<Title formatted="false">
+										<UsualGroup name="AttachedLegendGroup" id="199">
+											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Attached</v8:content>
+													<v8:content>Legend attached</v8:content>
 												</v8:item>
 											</Title>
-											<Picture>
-												<xr:Ref>CommonPicture.ExtensionStatesAttached</xr:Ref>
-												<xr:LoadTransparent>false</xr:LoadTransparent>
-											</Picture>
-											<FileDragMode>AsFile</FileDragMode>
-											<ContextMenu name="AttachedPictureContextMenu" id="202"/>
-											<ExtendedTooltip name="AttachedPictureExtendedTooltip" id="203"/>
-										</PictureDecoration>
-										<LabelDecoration name="AttachedLegend" id="181">
-											<Title formatted="false">
+											<Group>AlwaysHorizontal</Group>
+											<Behavior>Usual</Behavior>
+											<Representation>None</Representation>
+											<ShowTitle>false</ShowTitle>
+											<ExtendedTooltip name="AttachedLegendGroupExtendedTooltip" id="200"/>
+											<ChildItems>
+												<PictureDecoration name="AttachedPicture" id="201">
+													<Title formatted="false">
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Attached</v8:content>
+														</v8:item>
+													</Title>
+													<Picture>
+														<xr:Ref>CommonPicture.ExtensionStatesAttached</xr:Ref>
+														<xr:LoadTransparent>false</xr:LoadTransparent>
+													</Picture>
+													<FileDragMode>AsFile</FileDragMode>
+													<ContextMenu name="AttachedPictureContextMenu" id="202"/>
+													<ExtendedTooltip name="AttachedPictureExtendedTooltip" id="203"/>
+												</PictureDecoration>
+												<LabelDecoration name="AttachedLegend" id="181">
+													<Title formatted="false">
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Extension is attached</v8:content>
+														</v8:item>
+													</Title>
+													<ContextMenu name="AttachedLegendContextMenu" id="182"/>
+													<ExtendedTooltip name="AttachedLegendExtendedTooltip" id="183"/>
+												</LabelDecoration>
+											</ChildItems>
+										</UsualGroup>
+										<UsualGroup name="WillBeAttachedLegendGroup" id="204">
+											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Extension is attached</v8:content>
+													<v8:content>Legend will be attached</v8:content>
 												</v8:item>
 											</Title>
-											<ContextMenu name="AttachedLegendContextMenu" id="182"/>
-											<ExtendedTooltip name="AttachedLegendExtendedTooltip" id="183"/>
-										</LabelDecoration>
+											<Group>AlwaysHorizontal</Group>
+											<Behavior>Usual</Behavior>
+											<Representation>None</Representation>
+											<ShowTitle>false</ShowTitle>
+											<ExtendedTooltip name="WillBeAttachedLegendGroupExtendedTooltip" id="205"/>
+											<ChildItems>
+												<PictureDecoration name="WillBeAttachedPicture" id="206">
+													<Title formatted="false">
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Will be attached</v8:content>
+														</v8:item>
+													</Title>
+													<Picture>
+														<xr:Ref>CommonPicture.ExtensionStatesWillBeConnected</xr:Ref>
+														<xr:LoadTransparent>false</xr:LoadTransparent>
+													</Picture>
+													<FileDragMode>AsFile</FileDragMode>
+													<ContextMenu name="WillBeAttachedPictureContextMenu" id="207"/>
+													<ExtendedTooltip name="WillBeAttachedPictureExtendedTooltip" id="208"/>
+												</PictureDecoration>
+												<LabelDecoration name="WillBeAttachedLegend" id="209">
+													<Title formatted="false">
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Extension will be attached after app restart</v8:content>
+														</v8:item>
+													</Title>
+													<ContextMenu name="WillBeAttachedLegendContextMenu" id="210"/>
+													<ExtendedTooltip name="WillBeAttachedLegendExtendedTooltip" id="211"/>
+												</LabelDecoration>
+											</ChildItems>
+										</UsualGroup>
+										<UsualGroup name="AttachmentErrorLegendGroup" id="212">
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Legend attachment error</v8:content>
+												</v8:item>
+											</Title>
+											<Group>AlwaysHorizontal</Group>
+											<Behavior>Usual</Behavior>
+											<Representation>None</Representation>
+											<ShowTitle>false</ShowTitle>
+											<ExtendedTooltip name="AttachmentErrorLegendGroupExtendedTooltip" id="213"/>
+											<ChildItems>
+												<PictureDecoration name="AttachmentErrorPicture" id="214">
+													<Title formatted="false">
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Connection error</v8:content>
+														</v8:item>
+													</Title>
+													<Picture>
+														<xr:Ref>CommonPicture.ExtensionStatesError</xr:Ref>
+														<xr:LoadTransparent>false</xr:LoadTransparent>
+													</Picture>
+													<FileDragMode>AsFile</FileDragMode>
+													<ContextMenu name="AttachmentErrorPictureContextMenu" id="215"/>
+													<ExtendedTooltip name="AttachmentErrorPictureExtendedTooltip" id="216"/>
+												</PictureDecoration>
+												<LabelDecoration name="AttachmentErrorLegend" id="217">
+													<Title formatted="false">
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Failed to attach on app start</v8:content>
+														</v8:item>
+													</Title>
+													<ContextMenu name="AttachmentErrorLegendContextMenu" id="218"/>
+													<ExtendedTooltip name="AttachmentErrorLegendExtendedTooltip" id="219"/>
+												</LabelDecoration>
+											</ChildItems>
+										</UsualGroup>
 									</ChildItems>
 								</UsualGroup>
-								<UsualGroup name="WillBeAttachedLegendGroup" id="204">
-									<Title>
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>Legend will be attached</v8:content>
-										</v8:item>
-									</Title>
-									<Group>AlwaysHorizontal</Group>
-									<Behavior>Usual</Behavior>
-									<Representation>None</Representation>
-									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="WillBeAttachedLegendGroupExtendedTooltip" id="205"/>
-									<ChildItems>
-										<PictureDecoration name="WillBeAttachedPicture" id="206">
-											<Title formatted="false">
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>Will be attached</v8:content>
-												</v8:item>
-											</Title>
-											<Picture>
-												<xr:Ref>CommonPicture.ExtensionStatesWillBeConnected</xr:Ref>
-												<xr:LoadTransparent>false</xr:LoadTransparent>
-											</Picture>
-											<FileDragMode>AsFile</FileDragMode>
-											<ContextMenu name="WillBeAttachedPictureContextMenu" id="207"/>
-											<ExtendedTooltip name="WillBeAttachedPictureExtendedTooltip" id="208"/>
-										</PictureDecoration>
-										<LabelDecoration name="WillBeAttachedLegend" id="209">
-											<Title formatted="false">
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>Extension will be attached after restarting the application</v8:content>
-												</v8:item>
-											</Title>
-											<ContextMenu name="WillBeAttachedLegendContextMenu" id="210"/>
-											<ExtendedTooltip name="WillBeAttachedLegendExtendedTooltip" id="211"/>
-										</LabelDecoration>
-									</ChildItems>
-								</UsualGroup>
-								<UsualGroup name="AttachmentErrorLegendGroup" id="212">
-									<Title>
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>Legend attachment error</v8:content>
-										</v8:item>
-									</Title>
-									<Group>AlwaysHorizontal</Group>
-									<Behavior>Usual</Behavior>
-									<Representation>None</Representation>
-									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="AttachmentErrorLegendGroupExtendedTooltip" id="213"/>
-									<ChildItems>
-										<PictureDecoration name="AttachmentErrorPicture" id="214">
-											<Title formatted="false">
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>Connection error</v8:content>
-												</v8:item>
-											</Title>
-											<Picture>
-												<xr:Ref>CommonPicture.ExtensionStatesError</xr:Ref>
-												<xr:LoadTransparent>false</xr:LoadTransparent>
-											</Picture>
-											<FileDragMode>AsFile</FileDragMode>
-											<ContextMenu name="AttachmentErrorPictureContextMenu" id="215"/>
-											<ExtendedTooltip name="AttachmentErrorPictureExtendedTooltip" id="216"/>
-										</PictureDecoration>
-										<LabelDecoration name="AttachmentErrorLegend" id="217">
-											<Title formatted="false">
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>Failed to attach on application start</v8:content>
-												</v8:item>
-											</Title>
-											<ContextMenu name="AttachmentErrorLegendContextMenu" id="218"/>
-											<ExtendedTooltip name="AttachmentErrorLegendExtendedTooltip" id="219"/>
-										</LabelDecoration>
-									</ChildItems>
-								</UsualGroup>
+								<LabelDecoration name="IndentDecoration" id="253">
+									<ContextMenu name="IndentDecorationContextMenu" id="254"/>
+									<ExtendedTooltip name="IndentDecorationExtendedTooltip" id="255"/>
+								</LabelDecoration>
+								<InputField name="ExtensionsListComment" id="248">
+									<DataPath>Items.ExtensionsList.CurrentData.Comment</DataPath>
+									<TitleLocation>Top</TitleLocation>
+									<AutoMaxWidth>false</AutoMaxWidth>
+									<VerticalStretch>false</VerticalStretch>
+									<MultiLine>true</MultiLine>
+									<ContextMenu name="ExtensionsListCommentContextMenu" id="249"/>
+									<ExtendedTooltip name="ExtensionsListCommentExtendedTooltip" id="250"/>
+									<Events>
+										<Event name="OnChange">ExtensionsListCommentOnChange</Event>
+									</Events>
+								</InputField>
 							</ChildItems>
 						</UsualGroup>
 					</ChildItems>
@@ -912,12 +1293,55 @@ Extension changes for data area users will be applied next time they log in to t
 						</v8:StringQualifiers>
 					</Type>
 				</Column>
+				<Column name="Comment" id="17">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Comment</v8:content>
+						</v8:item>
+					</Title>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+				<Column name="EmployeeResponsible" id="18">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Assigned to</v8:content>
+						</v8:item>
+					</Title>
+					<Type>
+						<v8:Type>cfg:CatalogRef.Users</v8:Type>
+					</Type>
+				</Column>
+				<Column name="HasComment" id="19">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Has comment</v8:content>
+						</v8:item>
+					</Title>
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Column>
 			</Columns>
 		</Attribute>
 		<Attribute name="IsSharedUserInArea" id="1">
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
+		</Attribute>
+		<Attribute name="ExtensionsToReAdd" id="3">
+			<Type>
+				<v8:Type>v8:ValueListType</v8:Type>
+			</Type>
+			<Settings xsi:type="v8:TypeDescription"/>
 		</Attribute>
 	</Attributes>
 	<Commands>
@@ -1047,6 +1471,126 @@ Extension changes for data area users will be applied next time they log in to t
 			</Picture>
 			<Action>ShowEventsBackgroundUpdateSettingsExtensionsJob</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
+		</Command>
+		<Command name="CheckIfAllExtensionsCanBeApplied" id="8">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Check extension applicability</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Check extension applicability</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>CheckIfAllExtensionsCanBeApplied</Action>
+		</Command>
+		<Command name="EnableSafeMode" id="9">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Enable safe mode</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Enable the safe mode for the selected extensions.</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>EnableSafeMode</Action>
+		</Command>
+		<Command name="DisableSafeMode" id="10">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Disable safe mode</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Disable the safe mode for the selected extensions.</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>DisableSafeMode</Action>
+		</Command>
+		<Command name="EnableTransferToSubordinateDIBNodes" id="11">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Enable transfer to subordinate nodes</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Enable transferring data to subordinate nodes for the selected extensions.</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>EnableTransferToSubordinateDIBNodes</Action>
+		</Command>
+		<Command name="DisableTransferToSubordinateDIBNodes" id="12">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Disable transfer to subordinate nodes</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Disable transferring data to subordinate nodes for the selected extensions.</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>DisableTransferToSubordinateDIBNodes</Action>
+		</Command>
+		<Command name="EnableExtensions" id="13">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Enabled extensions</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Set the "Attach the extension when a user signs in" flag for the selected extensions.</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>EnableExtensions</Action>
+		</Command>
+		<Command name="DisableExtensions" id="14">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Disable extensions</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Clear the "Attach the extension when a user signs in" flag for the selected extensions.</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>DisableExtensions</Action>
+		</Command>
+		<Command name="SetEmployeeResponsible" id="15">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Assign to</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Assign a user responsible for the selected extensions.</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>SetEmployeeResponsible</Action>
 		</Command>
 	</Commands>
 </Form>

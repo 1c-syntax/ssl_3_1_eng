@@ -28,12 +28,24 @@
 				<DefaultButton>true</DefaultButton>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.WriteAndClose</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save and close</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormWriteAndCloseExtendedTooltip" id="42"/>
 			</Button>
 			<Button name="FormWrite" id="21">
 				<Type>CommandBarButton</Type>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.Write</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormWriteExtendedTooltip" id="43"/>
 			</Button>
 			<Button name="FormAdd" id="31">
@@ -81,7 +93,7 @@
 				<Type>CommandBarButton</Type>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.StandardCommand.CustomizeForm</CommandName>
-				<ExtendedTooltip name="FormChangeFormExtendedTooltip" id="49"/>
+				<ExtendedTooltip name="FormCustomizeFormExtendedTooltip" id="49"/>
 			</Button>
 			<Button name="FormOutputList" id="59">
 				<Type>CommandBarButton</Type>
@@ -156,18 +168,36 @@
 						<Type>CommandBarButton</Type>
 						<Enabled>false</Enabled>
 						<CommandName>Form.Command.DisableRight</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Not assigned ●</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="RightsGroupsContextMenuDisableRightExtendedTooltip" id="53"/>
 					</Button>
 					<Button name="RightsGroupsContextMenuDenyRight" id="40">
 						<Type>CommandBarButton</Type>
 						<Enabled>false</Enabled>
 						<CommandName>Form.Command.DenyRight</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Denied ✘</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="RightsGroupsContextMenuDenyRightExtendedTooltip" id="54"/>
 					</Button>
 					<Button name="RightsGroupsContextMenuGrantRight" id="41">
 						<Type>CommandBarButton</Type>
 						<Enabled>false</Enabled>
 						<CommandName>Form.Command.GrantRight</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Allowed ✔</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="RightsGroupsContextMenuGrantRightExtendedTooltip" id="55"/>
 					</Button>
 				</ChildItems>
@@ -210,6 +240,12 @@
 			<ChildItems>
 				<InputField name="RightsGroupsUser" id="19">
 					<DataPath>RightsGroups.User</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>User</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<HeaderHorizontalAlign>Center</HeaderHorizontalAlign>
 					<Width>31</Width>

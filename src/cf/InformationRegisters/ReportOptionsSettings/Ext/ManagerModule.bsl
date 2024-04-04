@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -333,7 +334,7 @@ Function NumberOfUsersReportOption(OptionUsers) Export
 	
 	SelectedUsers = New Array;
 	
-	AllUsers = Catalogs.UserGroups.AllUsers;
+	AllUsersGroup = Users.AllUsersGroup();
 	
 	For Each OptionUser In OptionUsers Do 
 		
@@ -344,7 +345,7 @@ Function NumberOfUsersReportOption(OptionUsers) Export
 		SelectedUser = OptionUser.Value;
 		
 		If SelectedUser = Undefined Then 
-			SelectedUser = AllUsers;
+			SelectedUser = AllUsersGroup;
 		EndIf;
 		
 		SelectedUsers.Add(SelectedUser);
@@ -450,8 +451,8 @@ Procedure AddReportOptionUsers(ReportVariant, OptionUsers, NotifyUsers)
 	Records.Filter.Subsystem.Set(Subsystem);
 	
 	CommonUserGroups = New Array;
-	CommonUserGroups.Add(Catalogs.UserGroups.AllUsers);
-	CommonUserGroups.Add(Catalogs.ExternalUsersGroups.AllExternalUsers);
+	CommonUserGroups.Add(Users.AllUsersGroup());
+	CommonUserGroups.Add(ExternalUsers.AllExternalUsersGroup());
 	
 	If OptionUsers.FindByValue(Undefined) <> Undefined
 		Or OptionUsers.Count() = 1
@@ -712,11 +713,10 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 				RepresentationOfTheReference,
 				RegisterPresentation,
 				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-				
-			WriteLogEvent(
-				InfobaseUpdate.EventLogEvent(),
-				EventLogLevel.Warning,
-				RegisterMetadata,,
+			
+			InfobaseUpdate.WriteErrorToEventLog(
+				RegisterMetadata,
+				RegisterPresentation,
 				Comment);
 			
 		EndTry;

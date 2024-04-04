@@ -10,35 +10,71 @@
 				<Representation>Text</Representation>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.StandardSaveAndClose</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save and close</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormStandardWriteAndCloseExtendedTooltip" id="4"/>
 			</Button>
 			<Button name="FormStandardWrite" id="1">
 				<Type>CommandBarButton</Type>
 				<Representation>Text</Representation>
 				<CommandName>Form.Command.StandardWrite</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormStandardWriteExtendedTooltip" id="2"/>
 			</Button>
 			<Button name="FormStandardReread" id="19">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.StandardReread</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Reread</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormStandardRefreshExtendedTooltip" id="20"/>
 			</Button>
 			<Button name="FormStandardShowInList" id="21">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.StandardShowInList</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Show in list</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormStandardShowInListExtendedTooltip" id="22"/>
 			</Button>
 			<Button name="FormStandardCopy" id="23">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.StandardCopy</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Copy</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormStandardCopyExtendedTooltip" id="24"/>
 			</Button>
 			<Button name="FormStandardMarkForDeletion" id="25">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.StandardMarkForDeletion</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Toggle deletion mark</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormStandardMarkForDeletionExtendedTooltip" id="26"/>
 			</Button>
@@ -103,6 +139,12 @@
 				</InputField>
 				<LabelField name="CreatedStatus" id="37">
 					<DataPath>CreatedStatus</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Created status</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<ContextMenu name="CreatedStatusContextMenu" id="38"/>
 					<ExtendedTooltip name="CreatedStatusExtendedTooltip" id="39"/>
@@ -135,6 +177,12 @@
 				</InputField>
 				<LabelField name="ChangedStatus" id="40">
 					<DataPath>ChangedStatus</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Changed status</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<ContextMenu name="ChangedStatus1ContextMenu" id="41"/>
 					<ExtendedTooltip name="ChangedStatus1ExtendedTooltip" id="42"/>

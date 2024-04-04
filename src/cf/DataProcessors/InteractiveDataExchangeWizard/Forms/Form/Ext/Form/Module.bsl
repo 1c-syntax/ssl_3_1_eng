@@ -1,21 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 // There are two ways to parameterize a form:
 //
 // Option 1
-//     Параметры: 
-//         УзелИнформационнойБазы             - ПланОбменаСсылка - узел плана обмена, для которого выполняется помощник.
-//         РасширенныйРежимДополненияВыгрузки - Булево           - флаг включения механизма настройки дополнения
-//                                                                 выгрузки по сценарию узла.
 //
-// Вариант 2:
 //     Parameters: 
 //         InfobaseNodeCode - String - Exchange plan node code, for which the wizard will be opened.
 //         ExchangePlanName - String - Name of an exchange plan to use for searching an exchange plan node whose code is specified in the InfobaseNodeCode parameter.
@@ -229,7 +225,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure ExchangeMessagesTransportKindOnChange(Item)
@@ -253,7 +249,7 @@ Procedure DataExchangeDirectoryClick(Item)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure EndDataMappingOnChange(Item)
@@ -270,7 +266,7 @@ Procedure LoadMessageAfterMappingOnChange(Item)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure ExportAdditionExportVariantOnChange(Item)
@@ -377,7 +373,7 @@ EndProcedure
 
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure OpenDataExchangeDirectory(Command)
@@ -399,7 +395,7 @@ Procedure ConfigureExchangeMessagesTransportParameters(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure RefreshAllMappingInformation(Command)
@@ -513,7 +509,7 @@ Procedure OpenMappingForm(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure GoToDataImportEventLog(Command)
@@ -530,7 +526,7 @@ Procedure GoToDataExportEventLog(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure ExportAdditionGeneralDocumentsFilter(Command)
@@ -589,7 +585,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 ////////////////////////////////////////////////////////////////////////////////
 
 #Region PartToSupply
@@ -902,7 +898,7 @@ EndProcedure
 #EndRegion
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 ////////////////////////////////////////////////////////////////////////////////
 
 #Region OverridablePart
@@ -1391,8 +1387,8 @@ Procedure InitializeExportAdditionAttributes()
 	ExportAdditionSettings = DataExchangeServer.InteractiveExportChange(
 		Object.InfobaseNode, ThisObject.UUID, ExportAdditionExtendedMode);
 		
-	
-	
+	// 
+	// 
 	DataExchangeServer.InteractiveExportChangeAttributeBySettings(ThisObject, ExportAdditionSettings, "ExportAddition");
 	
 	AdditionScenarioParameters = ExportAddition.AdditionScenarioParameters;
@@ -1708,7 +1704,7 @@ EndFunction
 #EndRegion
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure TimeConsumingOperationIdleHandler()
@@ -1751,7 +1747,7 @@ Procedure TimeConsumingOperationIdleHandler()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Function GetSelectedRowKeys(SelectedRows)
@@ -1847,7 +1843,7 @@ Procedure ExpandStatisticsTree(Composite = "")
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Function BackgroundJobParameters()
@@ -1856,7 +1852,7 @@ Function BackgroundJobParameters()
 	JobParameters.Insert("MethodToExecute",      "");
 	JobParameters.Insert("JobDescription",   "");
 	JobParameters.Insert("MethodParameters",       Undefined);
-	JobParameters.Insert("CompletionNotification2", Undefined);
+	JobParameters.Insert("CallbackOnCompletion", Undefined);
 	JobParameters.Insert("CompletionHandler",  Undefined);
 	
 	Return JobParameters;
@@ -2129,7 +2125,7 @@ Procedure TestConnectionAndSaveSettings(Cancel)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Function Attachable_PageDataExchangeJobCheck_OnOpen(Cancel, SkipPage, IsMoveNext)
@@ -2189,7 +2185,7 @@ Procedure CancelQueueAndResumeOnServer()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Function Attachable_DataAnalysisWaitingPageOnOpen(Cancel, SkipPage, IsMoveNext)
@@ -2365,7 +2361,7 @@ Procedure GetDataToTemporaryDirectoryAtServerCompletion()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Function Attachable_DataAnalysisPageOnOpen(Cancel, SkipPage, IsMoveNext)
@@ -2500,7 +2496,7 @@ Procedure AtalyzeDataAtServerCompletion()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Function Attachable_StatisticsInformationPageOnOpen(Cancel, SkipPage, IsMoveNext)
@@ -2574,7 +2570,7 @@ Procedure Attachable_GoStepForwardWithDeferredProcessing()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Function Attachable_DataImportOnOpen(Cancel, SkipPage, IsMoveNext)
@@ -2652,7 +2648,7 @@ Procedure DataImportCompletion()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Function Attachable_QuestionAboutExportCompositionPageOnOpen(Cancel, SkipPage, IsMoveNext)
@@ -2796,7 +2792,7 @@ Procedure OnCompleteDataRecordingAtServer(HandlerParameters, DataRegistered, Err
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Function Attachable_DataExportOnOpen(Cancel, SkipPage, IsMoveNext)
@@ -3101,7 +3097,7 @@ Procedure OnCompleteDataExportViaInternalPublication()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Function Attachable_MappingCompletePageOnOpen(Cancel, SkipPage, Val IsMoveNext)
@@ -3119,7 +3115,7 @@ EndFunction
 #EndRegion
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
 Procedure FillNavigationTable()

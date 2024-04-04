@@ -1,15 +1,16 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #Region Internal
 
-// 
+// Adds "Number.WithPrefix" to the calculated field of the given data composition schema.
 //
 // Parameters:
 //    DataCompositionSchema - DataCompositionSchema
@@ -53,8 +54,8 @@ EndProcedure
 //
 Procedure ChangeIBPrefix(Parameters, ResultAddress = "") Export
 	
-	
-	
+	// 
+	// 
 	If Not Common.SubsystemExists("StandardSubsystems.DataExchange") Then
 		Return;
 	EndIf;
@@ -264,8 +265,8 @@ Function MetadataUsingPrefixesDetails(DiagnosticsMode = False) Export
 				IsSeparatedMetadataObject = ModuleSaaSOperations.IsSeparatedMetadataObject(FullObjectName);
 			EndIf;
 			
-			
-			
+			// 
+			// 
 			If Not DiagnosticsMode Then
 				
 				If Result.Find(FullObjectName, "FullName") <> Undefined Then

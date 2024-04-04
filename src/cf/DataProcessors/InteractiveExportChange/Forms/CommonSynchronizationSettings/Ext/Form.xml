@@ -24,7 +24,7 @@
 						<v8:content>Close</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="FormCloseExtendedTooltip" id="4"/>
+				<ExtendedTooltip name="FormClose3ExtendedTooltip" id="4"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
@@ -34,6 +34,12 @@
 	<ChildItems>
 		<InputField name="CommonSyncSettingsAsString" id="1">
 			<DataPath>CommonSyncSettingsAsString</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Common synchronization parameters as string</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>None</TitleLocation>
 			<HorizontalStretch>true</HorizontalStretch>
 			<VerticalStretch>true</VerticalStretch>

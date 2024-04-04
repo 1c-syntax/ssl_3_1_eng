@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -306,7 +307,7 @@ Procedure ExecuteBatch(Result, Package) Export
 			FoundItems = ReportOptions.FindRows(New Structure("Ref", OptionRef));
 			Variant = FoundItems[0];
 			If Not RightToWriteOption(Variant, Context.FullRightsToOptions) Then
-				ErrorText = NStr("en = 'Insufficient rights to modify option ""%1"". Save it under a different description or select another report option.';");
+				ErrorText = NStr("en = 'Insufficient rights to modify option ""%1"". Save it under a different name or select another report option.';");
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorText, Object.Description);
 				CommonClient.MessageToUser(ErrorText, , "Object.Description");
 				Return;
@@ -355,7 +356,7 @@ Procedure ExecuteBatch(Result, Package) Export
 	EndIf;
 	
 	If Package.CloseAfterWrite = True Then
-		ReportsOptionsClient.UpdateOpenForms(, FormName);
+		ReportsOptionsClient.UpdateOpenForms(, OptionRef);
 		Close(New SettingsChoice(ReportOptionOptionKey));
 		Package.CloseAfterWrite = False;
 	EndIf;
@@ -482,7 +483,7 @@ Procedure LongDescStartChoiceCompletion(Val EnteredText, Val AdditionalParameter
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 // Returns the flag of the available report option change rights.
 //
@@ -554,7 +555,7 @@ Procedure FillOptionsListDeferred()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServerNoContext
 Function NumberOfUsersReportOption(OptionUsers)
@@ -600,28 +601,27 @@ Procedure CheckAndWriteReportOption(Package)
 	IsNewReportOption = Not ValueIsFilled(OptionRef);
 	
 	BeginTransaction();
-	
 	Try
 		
 		Block = New DataLock;
 		If Not IsNewReportOption Then
-			
 			LockItem = Block.Add(Metadata.Catalogs.ReportsOptions.FullName());
 			LockItem.SetValue("Ref", OptionRef);
-			
+		ElsIf TypeOf(PrototypeRef) = Type("CatalogRef.ReportsOptions") And Not PrototypeRef.IsEmpty() Then
+			LockItem = Block.Add(PrototypeRef.Metadata().FullName());
+			LockItem.SetValue("Ref", PrototypeRef);
+			LockItem.Mode = DataLockMode.Shared;
 		EndIf;
-		
 		Block.Lock();
 		
 		If IsNewReportOption And ReportsOptions.DescriptionIsUsed(Context.ReportRef, OptionRef, Object.Description) Then
-			
-			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '""%1"" is taken. Enter another description.';"), Object.Description);
+			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = '""%1"" is taken. Enter another description.';"), 
+				Object.Description);
 			Common.MessageToUser(ErrorText, , "Object.Description");
 			Package.Cancel = True;
 			RollbackTransaction();
-			
 			Return;
-			
 		EndIf;
 		
 		If IsNewReportOption Then
@@ -642,27 +642,19 @@ Procedure CheckAndWriteReportOption(Package)
 			EndIf;
 			
 		Else
-			
 			OptionObject = OptionRef.GetObject();
-			
 		EndIf;
 		
 		If Context.IsExternal Then
-			
 			OptionObject.Location.Clear();
-			
 		Else
-			
 			DestinationTree = FormAttributeToValue("SubsystemsTree", Type("ValueTree"));
-			
 			If IsNewReportOption Then
 				ChangedSections = DestinationTree.Rows.FindRows(New Structure("Use", 1), True);
 			Else
 				ChangedSections = DestinationTree.Rows.FindRows(New Structure("Modified", True), True);
 			EndIf;
-			
 			ReportsOptions.SubsystemsTreeWrite(OptionObject, ChangedSections);
-			
 		EndIf;
 		
 		OptionObject.Description = Object.Description;

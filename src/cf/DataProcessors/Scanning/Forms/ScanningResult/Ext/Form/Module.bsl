@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -29,25 +30,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.FormAcceptAllAsSingleFile.Visible = False;
 	Items.FormAcceptAllAsSeparateFiles.Visible = False;
 	
-	If Parameters.Property("ResultType") Then
-		ResultType = Parameters.ResultType;
-	EndIf;
-	
-	If Parameters.Property("FileOwner") Then
-		FileOwner = Parameters.FileOwner;
-	EndIf;
-	
+	ResultType = Parameters.ResultType;
+	FileOwner = Parameters.FileOwner;
 	OneFileOnly = Parameters.OneFileOnly;
-	
-	If Parameters.Property("IsFile") Then
-		IsFile = Parameters.IsFile;
-	EndIf;
+	IsFile = Parameters.IsFile;
+	NotOpenCardAfterCreateFromFile = Parameters.NotOpenCardAfterCreateFromFile;
 	
 	ClientID = Parameters.ClientID;
-	
-	If Parameters.Property("NotOpenCardAfterCreateFromFile") Then
-		NotOpenCardAfterCreateFromFile = Parameters.NotOpenCardAfterCreateFromFile;
-	EndIf;
 	
 	FileNumber = FilesOperationsInternal.GetNewNumberToScan(FileOwner);
 	FileName = FilesOperationsInternalClientServer.ScannedFileName(FileNumber, "");
@@ -56,7 +45,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	Items.FormSetting.Visible = Not ShowScannerDialog;
 	
-	If Parameters.Property("ScanningParameters") Then
+	If ValueIsFilled(Parameters.ScanningParameters) Then
 		FillPropertyValues(ThisObject, Parameters.ScanningParameters);
 	EndIf;
 	
@@ -71,7 +60,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	TransformCalculationsToParametersAndGetPresentation();
 	
-	ScanJobParameters = Common.CommonSettingsStorageLoad("ScanningComponent", "ScanJobParameters", Undefined);
+	ScanJobParameters = Common.CommonSettingsStorageLoad("ScanAddIn", "ScanJobParameters", Undefined);
 	Items.ScanningError.Visible = ScanJobParameters <> Undefined;
 	
 EndProcedure
@@ -119,7 +108,7 @@ Procedure ChoiceProcessing(ValueSelected, ChoiceSource)
 		
 		TransformCalculationsToParametersAndGetPresentation();
 	ElsIf Upper(ChoiceSource.FormName) = Upper("DataProcessor.Scanning.Form.ScanningError") Then
-		Items.ScanningError.Visible = FilesOperationsInternalClient.ThereWasScanError();
+		Items.ScanningError.Visible = FilesOperationsInternalClient.HasScanErrorOccurred();
 	EndIf;
 	
 EndProcedure
@@ -128,6 +117,9 @@ EndProcedure
 Procedure OnClose(Exit)
 	
 	DeleteTempFiles(TableOfFiles);
+	If Not FilesOperationsInternalClient.HasScanErrorOccurred() Then
+		FilesOperationsInternalClient.DeleteScanError(Attachable_Module);
+	EndIf;
 	
 EndProcedure
 
@@ -189,30 +181,10 @@ EndProcedure
 &AtClient
 Procedure Rescan(Command)
 	
-	If TableOfFiles.Count() = 1 Then
-		DeleteTempFiles(TableOfFiles);
-		InsertionPosition = 0;
-	ElsIf TableOfFiles.Count() > 1 Then
-		
-		CurrentRowNumber = Items.TableOfFiles.CurrentRow;
-		TableRow = Items.TableOfFiles.RowData(CurrentRowNumber);
-		InsertionPosition = TableOfFiles.IndexOf(TableRow);
-		DeleteFiles(TableRow.PathToFile);
-		TableOfFiles.Delete(TableRow);
-		
-	EndIf;
+	SetCommandBarAvailability(False);
+	IsReScanning = True;
+	BeginScan();
 	
-	If PictureAddress <> "" Then
-		DeleteFromTempStorage(PictureAddress);
-	EndIf;	
-	PictureAddress = "";
-	PathToSelectedFile = "";
-	
-	Items.Save.Enabled = False;
-	
-	NotifyDescription = New NotifyDescription("StartScanAfterAddInObtained", ThisObject);
-	FilesOperationsInternalClient.InitAddIn(NotifyDescription, True);
-		
 EndProcedure
 
 &AtClient
@@ -243,7 +215,7 @@ Procedure Save(Command)
 	If ShouldSaveAsPDF Then
 		
 #If Not WebClient And Not MobileClient Then
-		ExecutionParameters.ResultFile = GetTempFileName("pdf");
+		ExecutionParameters.ResultFile = GetTempFileName("pdf"); 
 #EndIf
 		
 		GraphicDocumentConversionParameters = FilesOperationsClient.GraphicDocumentConversionParameters();
@@ -264,7 +236,7 @@ EndProcedure
 &AtClient
 Procedure Setting(Command)
 	
-	DuplexScanningNumber = FilesOperationsInternalClient.ConfiguringScanner(ThisObject, Attachable_Module,
+	DuplexScanningNumber = FilesOperationsInternalClient.ScannerSetting(ThisObject, Attachable_Module,
 		ScannerName, "DUPLEX");
 	DuplexScanningAvailable = (DuplexScanningNumber <> -1);
 	
@@ -324,7 +296,7 @@ Procedure SaveAllAsSingleFile(Command)
 #If Not WebClient And Not MobileClient Then
 	ResultExtension = String(MultipageStorageFormat);
 	ResultExtension = Lower(ResultExtension); 
-	ExecutionParameters.ResultFile = GetTempFileName(ResultExtension);
+	ExecutionParameters.ResultFile = GetTempFileName(ResultExtension); 
 	GraphicDocumentConversionParameters.ResultFormat = ResultExtension;
 #EndIf
 		
@@ -381,23 +353,24 @@ EndProcedure
 Procedure Scan(Command)
 	
 	InsertionPosition = Undefined;
-	NotifyDescription = New NotifyDescription("StartScanAfterAddInObtained", ThisObject);
-	FilesOperationsInternalClient.InitAddIn(NotifyDescription, True);
-		
+	
+	SetCommandBarAvailability(False);
+	BeginScan();
+	
 EndProcedure
 
 &AtClient
 Procedure ScanErrorTextURLProcessing(Item, FormattedStringURL, StandardProcessing)
 	If FormattedStringURL = "TechnicalInformation" Then
-		AfterReceivingTechnicalInformation = New NotifyDescription("AfterReceivingTechnicalInformation", ThisObject);
+		AfterTechnicalInfoReceived = New NotifyDescription("AfterTechnicalInfoReceived", ThisObject);
 		FilesOperationsInternalClient.GetTechnicalInformation(NStr("en = 'The last scan attempt failed.';"),
-			AfterReceivingTechnicalInformation);
+			AfterTechnicalInfoReceived);
 		StandardProcessing = False;
 	EndIf;
 EndProcedure
 
 &AtClient
-Procedure HelpIsNeededClick(Item)
+Procedure AssistanceRequiredClick(Item)
 	
 	ErrorText = StringFunctionsClient.FormattedString(StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Scanning with device %1 is underway.
@@ -408,7 +381,7 @@ Procedure HelpIsNeededClick(Item)
 						| provide <a href = ""%3"">technical information</a> about the issue.';"), 
 					ScannerName, "OpenSettings", "TechnicalInformation"));
 	
-	FilesOperationsInternalClient.ShowScanError(Attachable_Module, ThisObject, 
+	FilesOperationsInternalClient.ShowScanError(ThisObject, 
 		NStr("en = 'Scanning problem';"), 
 		NStr("en = 'The user called help dialog box during scanning.';"), ErrorText, True);
 EndProcedure
@@ -459,11 +432,17 @@ Procedure PrepareForScanningAfterInitialization(InitializationCheckResult, Openi
 		Return;
 	EndIf;
 	Attachable_Module = InitializationCheckResult.Attachable_Module;
-	FilesOperationsInternalClient.EnableLoggingComponents(Attachable_Module, True);
+	ContinueNotification = New NotifyDescription("PrepareToScanAfterLogEnabled", 
+		ThisObject, OpeningParameters);
+	FilesOperationsInternalClient.EnableScanLog(Attachable_Module, ContinueNotification, True);
+EndProcedure
 
-	OpeningParameters.CurrentStep = 2;
+&AtClient
+Procedure PrepareToScanAfterLogEnabled(Result, OpeningParameters) Export
 	
+	OpeningParameters.CurrentStep = 2;
 	BeforeOpenAutomatFollowUp(OpeningParameters);
+	
 EndProcedure
 
 &AtClient
@@ -489,18 +468,18 @@ Procedure BeforeOpenAutomatFollowUp(OpeningParameters)
 			Return; // Do not open the form.
 		EndIf;
 		
-		RotationNumber = FilesOperationsInternalClient.ConfiguringScanner(ThisObject, Attachable_Module,
+		RotationNumber = FilesOperationsInternalClient.ScannerSetting(ThisObject, Attachable_Module,
 			OpeningParameters.SelectedDevice, "ROTATION");
-		PaperSizeNumber = FilesOperationsInternalClient.ConfiguringScanner(ThisObject, Attachable_Module,
+		PaperSizeNumber = FilesOperationsInternalClient.ScannerSetting(ThisObject, Attachable_Module,
 			OpeningParameters.SelectedDevice, "SUPPORTEDSIZES");
-		DuplexScanningNumber = FilesOperationsInternalClient.ConfiguringScanner(ThisObject, Attachable_Module,
+		DuplexScanningNumber = FilesOperationsInternalClient.ScannerSetting(ThisObject, Attachable_Module,
 			OpeningParameters.SelectedDevice, "DUPLEX");
 		
 		RotationAvailable = (RotationNumber <> -1);
 		PaperSizeAvailable = (PaperSizeNumber <> -1);
 		DuplexScanningAvailable = (DuplexScanningNumber <> -1);
-			
-		Items.Save.Enabled = False;
+		
+		SetCommandBarAvailability(False);
 		
 		DeflateParameter = ?(Upper(PictureFormat) = "JPG", JPGQuality, TIFFDeflation);
 		
@@ -509,9 +488,8 @@ Procedure BeforeOpenAutomatFollowUp(OpeningParameters)
 			Open();
 			ChecksOnOpenExecuted = False;
 		EndIf;
-			
-		NotifyDescription = New NotifyDescription("StartScanAfterAddInObtained", ThisObject);
-		FilesOperationsInternalClient.InitAddIn(NotifyDescription, True);
+
+		BeginScan();	
 		
 	EndIf;
 	
@@ -545,9 +523,9 @@ EndProcedure
 Procedure TransformCalculationsToParametersAndGetPresentation()
 	
 	Presentation = "";
-		
-		
-		
+		// 
+		// 
+		// 
 	
 	If Not ShowScannerDialog Then
 	
@@ -646,8 +624,30 @@ Procedure ExternalEvent(Source, Event, Data)
 	
 	If Source = "TWAIN" And Event = "ImageAcquired" Then
 		
+		If IsReScanning Then
+			If TableOfFiles.Count() = 1 Then
+				DeleteTempFiles(TableOfFiles);
+				InsertionPosition = 0;
+			ElsIf TableOfFiles.Count() > 1 Then
+				
+				CurrentRowNumber = Items.TableOfFiles.CurrentRow;
+				TableRow = Items.TableOfFiles.RowData(CurrentRowNumber);
+				InsertionPosition = TableOfFiles.IndexOf(TableRow);
+				DeleteFiles(TableRow.PathToFile);
+				TableOfFiles.Delete(TableRow);
+				
+			EndIf;
+			
+			If PictureAddress <> "" Then
+				DeleteFromTempStorage(PictureAddress);
+			EndIf;	
+			PictureAddress = "";
+			PathToSelectedFile = "";
+			IsReScanning = False;
+		EndIf;
+		
 		PictureFileName = Data;
-		Items.Save.Enabled = True;
+		SetCommandBarAvailability(True);
 		RowsNumberBeforeAdd = TableOfFiles.Count();
 		TableRow = Undefined;
 		
@@ -674,13 +674,11 @@ Procedure ExternalEvent(Source, Event, Data)
 			TableRow.PictureAddress = PictureAddress;
 		EndIf;
 		
-		If OneFileOnly Then
-			Items.FormScanAgain.Visible = (TableOfFiles.Count() = 0);
-		ElsIf TableOfFiles.Count() > 1 And Items.TableOfFiles.Visible = False Then
+		If TableOfFiles.Count() > 1 And Items.TableOfFiles.Visible = False Then
 			Items.TableOfFiles.Visible = True;
 			Items.FormAcceptAllAsSingleFile.Visible = True;
 			Items.FormAcceptAllAsSingleFile.DefaultButton = True;
-			Items.FormAcceptAllAsSeparateFiles.Visible = True;
+			Items.FormAcceptAllAsSeparateFiles.Visible = Not OneFileOnly;
 			Items.Save.Visible = False;
 		EndIf;
 		
@@ -694,29 +692,49 @@ Procedure ExternalEvent(Source, Event, Data)
 			RowID = TableOfFiles[TableOfFiles.Count() - 1].GetID();
 			Items.TableOfFiles.CurrentRow = RowID;
 		EndIf;
-		FilesOperationsInternalClient.RemoveScanError(Attachable_Module);
+		Context = New Structure;
+		Context.Insert("CloseForm", False);
+		CompletionNotification = New NotifyDescription("AfterErrorDeleted", ThisObject, Context);
+		FilesOperationsInternalClient.DeleteScanError(Attachable_Module, CompletionNotification, False);
 	ElsIf Source = "TWAIN" And Event = "UserPressedCancel" Then
 		If IsOpen() Then
-			CurrentDate = CurrentDate(); 
-			If CurrentDate < StartScanning_ + 3 Then
+			CurrentDate = CurrentDate(); // ACC:143 - "CurrentDate" to calculate the time interval
+			If CurrentDate < StartScanning_ + 3 And TableOfFiles.Count() = 0 Then
 				ErrorPresentation = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Scanning is canceled (event %1) in %2 sec. See %3';"), Event, 
 					CurrentDate - StartScanning_, "ImageScan.log");
 				FilesOperationsInternalClient.WriteScanLog("ScannerEvent" + "." + Event, 
 					ErrorPresentation, True);
-				FilesOperationsInternalClient.ShowScanError(Attachable_Module, ThisObject, 
+				FilesOperationsInternalClient.ShowScanError(ThisObject, 
 					NStr("en = 'Cannot scan the document';"), ErrorPresentation);
 			Else
-				FilesOperationsInternalClient.RemoveScanError(Attachable_Module);
-				Close();
+				Context = New Structure;
+				Context.Insert("CloseForm", TableOfFiles.Count() = 0);
+				If TableOfFiles.Count() <> 0 Then
+					TableRow = TableOfFiles[TableOfFiles.Count() - 1];
+					PathToSelectedFile = TableRow.PathToFile;
+					BinaryData = New BinaryData(PathToSelectedFile);
+					PictureAddress = PutToTempStorage(BinaryData, UUID);
+					TableRow.PictureAddress = PictureAddress;
+				EndIf;
+				CompletionNotification = New NotifyDescription("AfterErrorDeleted", ThisObject, Context);
+				FilesOperationsInternalClient.DeleteScanError(Attachable_Module, CompletionNotification, False);
 			EndIf;
 		EndIf;
+		Items.ScanningError.Visible = FilesOperationsInternalClient.HasScanErrorOccurred();
 	EndIf;
-	
-	Items.ScanningError.Visible = FilesOperationsInternalClient.ThereWasScanError();
 	
 #EndIf
 
+EndProcedure  
+
+&AtClient
+Procedure AfterErrorDeleted(Result, Context) Export
+	If Context.CloseForm Then
+		Close();
+	Else
+		SetCommandBarAvailability(True);
+	EndIf;
 EndProcedure
 
 &AtClient
@@ -735,10 +753,8 @@ EndProcedure
 Function MessageTextOfTransformToPDFError(ResultFile)
 	
 	MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'File ""%1"" is not found.
-		           |Please check whether the ImageMagick application is installed, and
-		           |whether the PDF converter path
-		           |specified in the scanner settings form is valid.';"),
+		NStr("en = '""%1"" doesn''t exist.
+		           |Make sure that your computer has ImageMagick installed and check the scan settings.';"),
 		ResultFile);
 		
 	Return MessageText;
@@ -772,7 +788,7 @@ Procedure SaveAfterMergingCompletion(Context)
 	ElsIf ResultType = FilesOperationsClient.ConversionResultTypeFileName() Then
 		Result.FileName = Context.PathToFileLocal;
 		For FileIndex = -ExecutionParameters.FileArrayCopy.UBound() To 0 Do
-			If ExecutionParameters.FileArrayCopy[-FileIndex].PathToFile <> Context.PathToFileLocal Then
+			If ExecutionParameters.FileArrayCopy[-FileIndex].PathToFile = Context.PathToFileLocal Then
 				ExecutionParameters.FileArrayCopy.Delete(-FileIndex);
 			EndIf;
 		EndDo;	
@@ -926,8 +942,8 @@ Procedure SaveAsSeparateFilesRecursively(Context)
 		If ResultExtension = "pdf" Then
 			
 #If Not WebClient And Not MobileClient Then
-		
-		
+		// 
+		// 
 		Context.ResultFile = GetTempFileName("pdf");
 		// ACC:441-on
 #EndIf
@@ -1052,38 +1068,56 @@ EndProcedure
 &AtClient
 Procedure StartScanAfterAddInObtained(InitializationResult, Context) Export
 	If InitializationResult.Attached Then
-		
 		Attachable_Module = InitializationResult.Attachable_Module;
-		ScanningParameters = FilesOperationsInternalClientServer.ScanningParameters();
-		ScanningParameters.ShowDialogBox = ShowScannerDialog;
-		ScanningParameters.SelectedDevice = ScannerName;
-		ScanningParameters.PictureFormat = PictureFormat;
-		ScanningParameters.Resolution = Resolution;
-		ScanningParameters.Chromaticity = Chromaticity;
-		ScanningParameters.Rotation = Rotation;
-		ScanningParameters.PaperSize = PaperSize;
-		ScanningParameters.JPGQuality = JPGQuality;
-		ScanningParameters.TIFFDeflation = TIFFDeflation;
-		ScanningParameters.DuplexScanning = DuplexScanning;
-		StartScanning_ = CurrentDate();// ACC:143 - Intended for calculation time intervals
-		ScanJobParameters = New Structure();
-		ScanJobParameters.Insert("StartScanning_", StartScanning_);
-		ScanJobParameters.Insert("ScanningParameters", ScanningParameters);
-		
-		PictureAddress = PutToTempStorage(PictureLib.TimeConsumingOperation48.GetBinaryData(), UUID);
-		CommonServerCall.CommonSettingsStorageSave("ScanningComponent", "ScanJobParameters", 
-			ScanJobParameters,,,True);
-		FilesOperationsInternalClient.BeginScan(ThisObject, Attachable_Module, ScanningParameters);
-		
+		BeginScan();
 	EndIf;
 EndProcedure
 
 &AtClient
-Procedure AfterClosingErrorForm(ClosingResult, Context) Export
-	If ClosingResult = "RepeatScan" Then
+Procedure BeginScan()
+	
+	If Attachable_Module = Undefined Then
+		NotifyDescription = New NotifyDescription("StartScanAfterAddInObtained", ThisObject);
+		FilesOperationsInternalClient.InitAddIn(NotifyDescription, True);
+		Return;
+	EndIf;
+	
+	AttachIdleHandler("DoStartScan", 0.1, True);
+EndProcedure
+
+&AtClient
+Procedure DoStartScan()
+
+	ScanningParameters = FilesOperationsInternalClientServer.ScanningParameters();
+	ScanningParameters.ShowDialogBox = ShowScannerDialog;
+	ScanningParameters.SelectedDevice = ScannerName;
+	ScanningParameters.PictureFormat = PictureFormat;
+	ScanningParameters.Resolution = Resolution;
+	ScanningParameters.Chromaticity = Chromaticity;
+	ScanningParameters.Rotation = Rotation;
+	ScanningParameters.PaperSize = PaperSize;
+	ScanningParameters.JPGQuality = JPGQuality;
+	ScanningParameters.TIFFDeflation = TIFFDeflation;
+	ScanningParameters.DuplexScanning = DuplexScanning;
+	StartScanning_ = CurrentDate();// ACC:143 - Intended for calculation time intervals
+	ScanJobParameters = New Structure();
+	ScanJobParameters.Insert("StartScanning_", StartScanning_);
+	ScanJobParameters.Insert("ScanningParameters", ScanningParameters);
+		
+#If Not WebClient Then
+	PictureAddress = PutToTempStorage(PictureLib.TimeConsumingOperation48.GetBinaryData(), UUID);
+#EndIf
+	CommonServerCall.CommonSettingsStorageSave("ScanAddIn", "ScanJobParameters", 
+		ScanJobParameters,,,True);
+	FilesOperationsInternalClient.BeginScan(ThisObject, Attachable_Module, ScanningParameters);
+EndProcedure
+
+&AtClient
+Procedure AfterErrorFormClosed(ClosingResult, Context) Export
+	If ClosingResult = "RedoScanning" Then
 		ReadSettings();
 		Rescan(Undefined);
-	ElsIf ClosingResult = DialogReturnCode.Cancel And Not Context.ModeNeedsHelp Then
+	ElsIf ClosingResult = DialogReturnCode.Cancel And Not Context.AssistanceRequiredMode Then
 		If IsOpen() Then
 			Close();
 		EndIf;
@@ -1091,8 +1125,13 @@ Procedure AfterClosingErrorForm(ClosingResult, Context) Export
 EndProcedure
 
 &AtClient
-Procedure AfterReceivingTechnicalInformation(Result, Context) Export
+Procedure AfterTechnicalInfoReceived(Result, Context) Export
 	Items.ScanningError.Visible = False;
+EndProcedure
+
+&AtClient
+Procedure SetCommandBarAvailability(Var_Enabled)
+	Items.FormCommandBar.Enabled = Var_Enabled;
 EndProcedure
 
 #EndRegion

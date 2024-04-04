@@ -31,6 +31,12 @@
 	<ChildItems>
 		<SpreadSheetDocumentField name="Report" id="2">
 			<DataPath>Report</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Report</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>None</TitleLocation>
 			<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 			<ShowGrid>true</ShowGrid>
@@ -58,4 +64,9 @@
 			</Type>
 		</Attribute>
 	</Attributes>
+	<Parameters>
+		<Parameter name="ArrayOfFilesNamesWithErrors">
+			<Type/>
+		</Parameter>
+	</Parameters>
 </Form>

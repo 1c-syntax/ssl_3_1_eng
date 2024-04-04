@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -122,7 +123,8 @@ Procedure ExecuteChecksInContext(AccountingChecksContext) Export
 	
 	If ExecutionResult.Status <> "Completed2" Then
 		If ExecutionResult.Status = "Error" Then
-			ErrorText = ExecutionResult.DetailErrorDescription;
+			Refinement = CommonClientServer.ExceptionClarification(ExecutionResult.ErrorInfo);
+			Raise(Refinement.Text, Refinement.Category,,, ExecutionResult.ErrorInfo);
 		ElsIf ExecutionResult.Status = "Canceled" Then
 			ErrorText = NStr("en = 'The background job is canceled.';");
 		Else
@@ -141,7 +143,8 @@ Procedure ExecuteChecksInContext(AccountingChecksContext) Export
 		Result = ResultDetails.Value; // See TimeConsumingOperations.ExecuteProcedure
 		If Result.Status <> "Completed2" Then
 			If Result.Status = "Error" Then
-				ErrorText = Result.DetailErrorDescription;
+				Refinement = CommonClientServer.ExceptionClarification(Result.ErrorInfo);
+				Raise(Refinement.Text, Refinement.Category,,, Result.ErrorInfo);
 			ElsIf Result.Status = "Canceled" Then
 				ErrorText = NStr("en = 'The background job is canceled.';");
 			Else
@@ -162,8 +165,8 @@ EndProcedure
 //
 // Parameters:
 //   ChecksKind                - CatalogRef.ChecksKinds - a reference to a check kind.
-//                              - String - 
-//                              - Array of String - 
+//                              - String - The string id of the check kind.
+//                              - Array of String - The string ids of the check kind.
 //   SearchByExactMap - Boolean - regulates accuracy capabilities. If True, the search is conducted
 //                                by the passed properties for equality, other properties must be equal
 //                                Undefined (tabular section of additional properties has to be blank).
@@ -202,12 +205,12 @@ EndFunction
 //
 // Parameters:
 //   ChecksKind                - CatalogRef.ChecksKinds - a reference to a check kind.
-//                              - String - 
-//                              - Array of String - 
-//   SearchByExactMap - Boolean - 
-//                                
-//                                
-//                                
+//                              - String - The string id of the check kind.
+//                              - Array of String - The string ids of the check kind.
+//   SearchByExactMap - Boolean - If True, the check kind is determined by the exact match of
+//                                all property values in the ChecksKind parameter (see example 2).
+//                                If False, the check kind is determined by the specified property values
+//                                and by any values of the unspecified properties in the ViewCheck parameter (see example 3).
 //
 // Returns:
 //   ValueTable:
@@ -380,7 +383,6 @@ EndFunction
 //                   - String
 //                   - Date - Check's third parameter.
 //       ...                                              
-//       * СвойствоН - AnyRef
 //                   - Boolean
 //                   - Number
 //                   - String
@@ -432,7 +434,7 @@ EndProcedure
 //   CheckParameters - Structure - parameters of the check being performed, whose value needs to be taken from the similarly named 
 //                                   parameter of the check handler procedure:
 //     * Validation         - CatalogRef.AccountingCheckRules - Completed check.
-//     * CheckKind      - CatalogRef.ChecksKinds - 
+//     * CheckKind      - CatalogRef.ChecksKinds - The type of the executed check.
 //     * IssueSeverity   - EnumRef.AccountingIssueSeverity - Severity level that you need to assign to
 //                            the found data integrity issue:
 //                            Information, Warning, Error, UsefulTip, or ImportantInformation.
@@ -442,12 +444,12 @@ EndProcedure
 //                            the specified one. Not filled in by default (check all).
 //     * IssuesLimit       - Number - Number of objects to check.
 //                            By default, 1,000. To check all the objects, set it to 0.
-//     * CheckKind        - CatalogRef.ChecksKinds -  a reference to the type of check
-//                            that the performed check belongs to.
+//     * CheckKind        - CatalogRef.ChecksKinds - The type of the executed check.
+//                            
 //
 // Returns:
 //   Structure:
-//     * ObjectWithIssue         - AnyRef - 
+//     * ObjectWithIssue         - AnyRef - A reference to the erroneous object.
 //     * Validation                 - CatalogRef.AccountingCheckRules - a reference to the executed check.
 //                                  Taken from the CheckParameters structure.
 //     * CheckKind              - CatalogRef.ChecksKinds - Reference to the completed check's kind.
@@ -541,7 +543,7 @@ EndProcedure
 //   Form                  - ClientApplicationForm - list form.
 //   ListsNames           - String - dynamic list names, separated with commas.
 //   AdditionalProperties - Structure
-//                          - Undefined - :
+//                          - Undefined - Additional properties:
 //      * ProblemIndicatorFieldID - String - a dynamic list field name that
 //                            will be used to show an object problem
 //                            indicator.
@@ -856,8 +858,8 @@ EndFunction
 // Parameters:
 //   ChecksKind                - String
 //                              - Array of String 
-//                              - CatalogRef.ChecksKinds - 
-//                                
+//                              - CatalogRef.ChecksKinds - Either a check kind id, or an array of kind ids,
+//                                or a check kind reference.
 //   SearchByExactMap - Boolean - regulates accuracy capabilities. If True, the search is conducted
 //                                by the passed properties for equality, other properties must be equal
 //                                Undefined (tabular section of additional properties has to be blank).
@@ -933,8 +935,8 @@ EndProcedure
 //
 // Parameters:
 //   ChecksKind                - CatalogRef.ChecksKinds - a reference to a check kind.
-//                              - String - 
-//                              - Array of String - 
+//                              - String - The string id of the check kind.
+//                              - Array of String - The string ids of the check kind.
 //   SearchByExactMap - Boolean - regulates accuracy capabilities. If True, the search is conducted
 //                                by the passed properties for equality, other properties must be equal
 //                                Undefined (tabular section of additional properties has to be blank).
@@ -1009,8 +1011,8 @@ EndFunction
 //
 // Parameters:
 //   ChecksKind                - CatalogRef.ChecksKinds - a reference to a check kind.
-//                              - String - 
-//                              - Array of String - 
+//                              - String - The string id of the check kind.
+//                              - Array of String - The string ids of the check kind.
 //   SearchByExactMap - Boolean - regulates accuracy capabilities. If True, the search is conducted
 //                                by the passed properties for equality, other properties must be equal
 //                                Undefined (tabular section of additional properties has to be blank).

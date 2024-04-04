@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -135,8 +136,8 @@ Procedure ExecuteCheck(Command)
 	EndIf;	
 	
 	If Not Object.Use Then
-		CompletionNotification2 = New NotifyDescription("ExecuteCheckAfterQuestion", ThisObject);
-		ShowQueryBox(CompletionNotification2, NStr("en = 'Checkup is disabled. Check anyway?';"), QuestionDialogMode.YesNo);
+		CallbackOnCompletion = New NotifyDescription("ExecuteCheckAfterQuestion", ThisObject);
+		ShowQueryBox(CallbackOnCompletion, NStr("en = 'Checkup is disabled. Check anyway?';"), QuestionDialogMode.YesNo);
 		Return;
 	EndIf;	
 	
@@ -190,13 +191,17 @@ Procedure ExecuteCheckAfterQuestion(QuestionResult, AdditionalParameters) Export
 	
 	TimeConsumingOperation = RunCheckAtServer();
 	
-	CompletionNotification2 = New NotifyDescription("ExecuteCheckCompletion", ThisObject);
+	CallbackOnCompletion = New NotifyDescription("ExecuteCheckCompletion", ThisObject);
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.MessageText = NStr("en = 'Checking. This might take a while.';");
-	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CompletionNotification2, IdleParameters);
+	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
 	
 EndProcedure
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
 Procedure ExecuteCheckCompletion(Result, AdditionalParameters) Export
 	
@@ -205,7 +210,9 @@ Procedure ExecuteCheckCompletion(Result, AdditionalParameters) Export
 	EndIf;
 	
 	If Result.Status = "Error" Then
-		Raise Result.BriefErrorDescription;
+		StandardSubsystemsClient.OutputErrorInfo(
+			Result.ErrorInfo);
+		
 	ElsIf Result.Status = "Completed2" Then
 		ShowUserNotification(NStr("en = 'Scan completed';"),,
 			NStr("en = 'Data integrity check completed successfully.';"));

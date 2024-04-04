@@ -1,27 +1,28 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-
-
+//
 
 // 
-
-
+// 
+// 
+// 
+// 
 //                                                  
-
+// 
 //                                                  
 //
-
+// 
 //
-
+// 
 //                                                
 //                                                
-
+// 
 //                                                
 //                                                
 //
@@ -37,9 +38,9 @@ Var MetadataCurrentRow;
 
 #Region ForCallsFromOtherSubsystems
 
+// 
 
-
-
+// 
 
 // Command export handler for the additional reports and data processors subsystem.
 //
@@ -1102,7 +1103,7 @@ Procedure ExchangeNodeChoiceProcessingServer()
 	
 	If Object.DIBModeAvailable                             // Current SSL version supports MOID.
 		And (ExchangePlans.MasterNode() = Undefined)          // Current infobase is a master node.
-		And MetaNodeExchangePlan.DistributedInfoBase Then 
+		And MetaNodeExchangePlan.DistributedInfoBase Then // 
 		Items.FormRegisterMOIDAndPredefinedItems.Visible = True;
 	Else
 		Items.FormRegisterMOIDAndPredefinedItems.Visible = False;
@@ -1484,8 +1485,8 @@ Procedure BackgroundJobStartClient(BackgroundJobParameters)
 		IdleParameters.OutputIdleWindow  = False;
 		IdleParameters.OutputMessages     = True;
 		
-		CompletionNotification2 = New NotifyDescription("BackgroundJobCompletion", ThisObject);
-		CommonModuleTimeConsumingOperationsClient.WaitCompletion(Result, CompletionNotification2, IdleParameters);
+		CallbackOnCompletion = New NotifyDescription("BackgroundJobCompletion", ThisObject);
+		CommonModuleTimeConsumingOperationsClient.WaitCompletion(Result, CallbackOnCompletion, IdleParameters);
 	Else
 		BackgroundJobCompleteResult = Result;
 		AttachIdleHandler("BackgroundJobExecutionResult", 0.1, True);
@@ -2740,7 +2741,7 @@ Function RecordSetKeyStructure(Val CurrentData)
 		Result.FormName = RecordSetsListTableName + ".ListForm";
 		
 	Else
-		Set = LongDesc.Manager.CreateRecordSet(); 
+		Set = LongDesc.Manager.CreateRecordSet(); // InformationRegisterRecordSet, etc.
 		For Each KeyValue In Dimensions Do
 			DataProcessorObject.SetFilterItemValue(Set.Filter, KeyValue.Key, KeyValue.Value);
 		EndDo;
@@ -2931,22 +2932,22 @@ EndFunction
 
 &AtServer
 Function CommonModuleDataExchangeCached()
-	Return Eval("DataExchangeCached"); 
+	Return Eval("DataExchangeCached"); // ACC:488 - No need to call "CalculateInSafeMode" as a string literal was passed.
 EndFunction
 
 &AtServer
 Function CommonModuleDataExchangeRegistrationCached()
-	Return Eval("DataExchangeRegistrationCached"); 
+	Return Eval("DataExchangeRegistrationCached"); // ACC:488 - No need to call "CalculateInSafeMode" as a string literal was passed.
 EndFunction
 
 &AtServer
 Function CommonModuleDataExchangeRegistrationServer()
-	Return Eval("DataExchangeRegistrationServer"); 
+	Return Eval("DataExchangeRegistrationServer"); // ACC:488 - No need to call "CalculateInSafeMode" as a string literal was passed.
 EndFunction
 
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
 Function SubstituteParametersToString(Val SubstitutionString, Val Parameter1, Val Parameter2 = Undefined, Val Parameter3 = Undefined)

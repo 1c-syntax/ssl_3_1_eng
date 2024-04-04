@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -152,11 +153,11 @@ Procedure CheckDeliveryStatus()
 	
 	
 	If DeliveryResult.Status = "Error" Then
-		Items.MessageSentPicture.Picture = PictureLib.Error32;
+		Items.MessageSentPicture.Picture = PictureLib.DialogStop;
 	Else
 		If DeliveryResults.Find(DeliveryResult.Status) <> Undefined Then
 			If Not DeliveryResult.Status = "Delivered" Then
-				Items.MessageSentPicture.Picture = PictureLib.Warning32;
+				Items.MessageSentPicture.Picture = PictureLib.DialogExclamation;
 			EndIf;
 			Items.DeliveryStatusCheckGroup.Visible = False;
 		Else
@@ -226,7 +227,7 @@ Function FormattedString(Text)
 		EndIf;
 	EndDo;
 	
-	Return New FormattedString(FormattedStrings); 
+	Return New FormattedString(FormattedStrings); // 
 	
 EndFunction
 

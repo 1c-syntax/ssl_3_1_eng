@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -215,8 +216,9 @@ Function AddFromFileSystemWithExtensionSynchronous(ExecutionParameters) Export
 		Return Result;
 	EndIf;
 	
-	NotificationParameters = FileRecordingNotificationParameters();
+	NotificationParameters = FileWriteNotificationParameters();
 	NotificationParameters.Owner = ExecutionParameters.FileOwner;
+	NotificationParameters.FileOwner = NotificationParameters.Owner;
 	NotificationParameters.File = Result.FileRef;
 	NotificationParameters.IsNew = True;
 	Notify("Write_File", NotificationParameters, Result.FileRef);
@@ -225,7 +227,7 @@ Function AddFromFileSystemWithExtensionSynchronous(ExecutionParameters) Export
 		NStr("en = 'Created:';"),
 		GetURL(Result.FileRef),
 		Result.FileRef,
-		PictureLib.Information32);
+		PictureLib.DialogInformation);
 	
 	Return Result;
 	
@@ -285,7 +287,7 @@ Procedure AddFilesAddInSuggested(FileSystemExtensionAttached1, AdditionalParamet
 					NStr("en = 'Created:';"),
 					GetURL(AttachedFile),
 					AttachedFile,
-					PictureLib.Information32);
+					PictureLib.DialogInformation);
 				
 				FormParameters = New Structure("IsNew", True);
 				FilesOperationsClient.OpenFileForm(AttachedFile,, FormParameters)
@@ -294,8 +296,9 @@ Procedure AddFilesAddInSuggested(FileSystemExtensionAttached1, AdditionalParamet
 			If AttachedFilesArray.Count() > 0 Then
 				NotifyChanged(AttachedFilesArray[0]);
 				NotifyChanged(FileOwner);
-				NotificationParameters = FileRecordingNotificationParameters();
+				NotificationParameters = FileWriteNotificationParameters();
 				NotificationParameters.Owner = FileOwner;
+				NotificationParameters.FileOwner = NotificationParameters.Owner;
 				NotificationParameters.File = AttachedFilesArray[0];
 				NotificationParameters.IsNew = True;
 				Notify("Write_File", NotificationParameters, AttachedFilesArray);
@@ -409,8 +412,8 @@ EndFunction
 //
 Procedure CorrectFileName(FileName, DeleteInvalidCharacters = False) Export
 	
-	
-	
+	// 
+	// 
 	
 	ExceptionStr = CommonClientServer.GetProhibitedCharsInFileName();
 	
@@ -656,6 +659,47 @@ Function ExtensionsByFileType(FileType) Export
 	
 EndFunction
 
+// 
+//
+// Parameters:
+//   AttachedFilesOwner - AnyRef -  owner of the attached files.
+//   ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient - CommonModule - 
+//     
+//   Form - ClientApplicationForm -  form of the file owner.
+//   Command - FormCommand - 
+//
+// Returns:
+//   Boolean
+//
+Function _1CDocumentManagementIsUsedToStoreObjectFiles(AttachedFilesOwner,
+		ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient = Undefined, Form = Undefined,
+		Command = Undefined) Export
+	
+	UseEDIToStoreObjectFiles = False;
+	
+	// IntegrationWith1CDocumentManagementSubsystem
+	If CommonClient.SubsystemExists("IntegrationWith1CDocumentManagementSubsystem") Then
+		DMILVersion = "1.0.0.0";
+		StandardSubsystemsClient.ClientRunParameters().Property("DMILVersion", DMILVersion);
+		If CommonClientServer.CompareVersions(DMILVersion, "3.0.2.4") >= 0 Then
+			ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient = CommonClient.CommonModule(
+				"Integration1CDocumentManagementCommonClient");
+			If Form = Undefined Then
+				Form = New Structure("UseAttachedFiles1CDocumentManagement", True);
+			EndIf;
+			UseEDIToStoreObjectFiles =
+				ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient.UseEDIToStoreObjectFiles(
+					Form,
+					Command,
+					AttachedFilesOwner);
+		EndIf;
+	EndIf;
+	// End IntegrationWith1CDocumentManagementSubsystem
+	
+	Return UseEDIToStoreObjectFiles;
+	
+EndFunction
+
 ////////////////////////////////////////////////////////////////////////////////
 // Procedures and functions for cryptography operations.
 
@@ -681,8 +725,8 @@ EndFunction
 //
 Procedure VerifySignatures(Form, RefToBinaryData, SelectedRows = Undefined, FileData = Undefined) Export
 	
-	
-	
+	// 
+	// 
 	
 	If FileData = Undefined Then
 		FileData = Form.Object; // TypeToDefine.AttachedFileObject
@@ -692,7 +736,7 @@ Procedure VerifySignatures(Form, RefToBinaryData, SelectedRows = Undefined, File
 	AdditionalParameters.Insert("Form", Form);
 	AdditionalParameters.Insert("SelectedRows", SelectedRows);
 	AdditionalParameters.Insert("SignedObject", FileData.Ref);
-	AdditionalParameters.Insert("LinesToCheckForMRLOA", New Array);
+	AdditionalParameters.Insert("RowsForCheckingByMachineReadableLOA", New Array);
 	
 	If Not FileData.Encrypted Then
 		CheckSignaturesAfterPrepareData(RefToBinaryData, AdditionalParameters);
@@ -725,12 +769,12 @@ Procedure CheckSignaturesAfterCheckRow(SignatureVerificationResult, AdditionalPa
 	SignatureRow = AdditionalParameters.SignatureRow;
 	
 	RowData = SignatureRowData();
+	CheckResult = RowData.CheckResult;
 	FillPropertyValues(RowData, SignatureRow);
-	
+		
 	RowData.SignatureValidationDate = CommonClient.SessionDate();
 	RowData.SignatureCorrect      = (Result = True);
 	RowData.IsVerificationRequired = SignatureVerificationResult.IsVerificationRequired;
-	RowData.ErrorDescription    = ?(RowData.SignatureCorrect, "", Result);
 	If ValueIsFilled(SignatureVerificationResult.SignatureType) Then
 		RowData.SignatureType        = SignatureVerificationResult.SignatureType;
 	EndIf;
@@ -738,13 +782,30 @@ Procedure CheckSignaturesAfterCheckRow(SignatureVerificationResult, AdditionalPa
 		RowData.DateActionLastTimestamp = SignatureVerificationResult.DateActionLastTimestamp;
 	EndIf;
 	
+	FillPropertyValues(CheckResult, SignatureVerificationResult);
+	CheckResult.IsAdditionalAttributesCheckedManually = False;
+	CheckResult.AdditionalAttributesManualCheckAuthor = Undefined;
+	CheckResult.AdditionalAttributesManualCheckJustification = "";
+	RowData.CheckResult = CheckResult;
 	
-	FilesOperationsInternalClientServer.FillSignatureStatus(RowData, CommonClient.SessionDate());
+	If SignatureRow.Property("ErrorDescription") Then
+		
+		If TypeOf(Result) = Type("String") Then
+			RowData.ErrorDescription = Result;
+		EndIf;
+		FilesOperationsInternalClientServer.FillSignatureStatus(RowData, CommonClient.SessionDate());
+	Else
+		If CommonClient.SubsystemExists("StandardSubsystems.DigitalSignature") Then
+			ModuleDigitalSignatureClientServer = CommonClient.CommonModule("DigitalSignatureClientServer");
+			ModuleDigitalSignatureClientServer.FillSignatureStatus(RowData, CommonClient.SessionDate());
+		EndIf;
+	EndIf;
+		
 	
 	FillPropertyValues(SignatureRow, RowData);
 	
 	CheckSignaturesLoopStart(AdditionalParameters);
-	
+
 EndProcedure
 
 Procedure ExtendActionSignatures(Form, RenewalOptions, FollowUpHandler) Export
@@ -943,7 +1004,7 @@ Procedure BeforeExit(Cancel, Warnings) Export
 	UserWarning.HyperlinkText = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Open list of locked files (%1)';"),
 		Response.LockedFilesCount);
-	UserWarning.WarningText = NStr("en = 'There are files locked for editing';");
+	UserWarning.WarningText = NStr("en = 'Some files are being edited, and their changes are not propagated to the app.';");
 	
 	ActionOnClickHyperlink = UserWarning.ActionOnClickHyperlink;
 	
@@ -970,28 +1031,29 @@ Procedure BeforeExit(Cancel, Warnings) Export
 	
 EndProcedure
 
-Function FileRecordingNotificationParameters(Event = "") Export
+Function FileWriteNotificationParameters(Event = "") Export
 	EventParameters = New Structure;
 	EventParameters.Insert("Event", Event);
 	EventParameters.Insert("IsNew", False);
 	EventParameters.Insert("Owner");
+	EventParameters.Insert("FileOwner"); // 
 	EventParameters.Insert("File");
 	Return EventParameters;
 EndFunction
 
-Procedure NotifyAboutFileChanges(Files, FileRecordingNotificationParameters = Undefined) Export
+Procedure NotifyOfFilesModification(Files, FileWriteNotificationParameters = Undefined) Export
 	If TypeOf(Files) <> Type("Array") Then
-		NotificationFiles = CommonClientServer.ValueInArray(Files);
+		FilesForNotification = CommonClientServer.ValueInArray(Files);
 	Else
-		NotificationFiles = Files;
+		FilesForNotification = Files;
 	EndIf;
 	
-	If FileRecordingNotificationParameters = Undefined Then
-		FileRecordingNotificationParameters = FileRecordingNotificationParameters();
+	If FileWriteNotificationParameters = Undefined Then
+		FileWriteNotificationParameters = FileWriteNotificationParameters();
 	EndIf;
 	
-	For Each File In NotificationFiles Do
-		Notify("Write_File", FileRecordingNotificationParameters, File);
+	For Each File In FilesForNotification Do
+		Notify("Write_File", FileWriteNotificationParameters, File);
 	EndDo;
 	
 EndProcedure
@@ -1045,8 +1107,8 @@ Procedure ExtractVersionText(FileOrFileVersion, FileAddress, Extension, UUID,
 				EndTry;	
 			EndIf;
 		Else
-			
-			
+			// 
+			// 
 			ExtractionResult = "FailedExtraction";
 		EndIf;
 		
@@ -1067,6 +1129,36 @@ Procedure ExtractVersionText(FileOrFileVersion, FileAddress, Extension, UUID,
 EndProcedure
 
 #EndRegion
+
+Procedure CheckDirAvailability(NotificationOfResult, DirectoryName) Export
+	TestDirectoryName = DirectoryName + GetPathSeparator()+ "CheckAccess";
+	Context = New Structure;
+	Context.Insert("NotificationOfResult", NotificationOfResult);
+	Context.Insert("TestDirectoryName", TestDirectoryName);
+	
+	Notification = New NotifyDescription("CheckDirAvailabilityAfterCreated", ThisObject, 
+		Context, "CheckDirAvailabilityCreationError", ThisObject);
+	BeginCreatingDirectory(Notification, TestDirectoryName);
+EndProcedure
+
+Procedure SpreadsheetDocumentSelectionHandler(ReportForm, Item, Area, StandardProcessing) Export
+	If Area.Details = "VolumeIntegrityCheck.RecoverFiles" Then
+		StandardProcessing = False;
+		Volume = ReportForm.Report.SettingsComposer.Settings.DataParameters.Items.Find("Volume").Value;
+		Job = FilesOperationsInternalServerCall.RunFilesRecovery(Volume, ReportForm.UUID);
+
+		AdditionalParameters = New Structure;
+		AdditionalParameters.Insert("ReportForm",  ReportForm);
+		
+		CallbackOnCompletion = New NotifyDescription("AfterFilesRecovered", ThisObject, AdditionalParameters);
+
+		IdleParameters = TimeConsumingOperationsClient.IdleParameters(ReportForm);
+		IdleParameters.Title = NStr("en = 'Restoring file info';");
+		IdleParameters.OutputIdleWindow = True;
+		
+		TimeConsumingOperationsClient.WaitCompletion(Job, CallbackOnCompletion, IdleParameters);
+	EndIf;
+EndProcedure
 
 #EndRegion
 
@@ -1417,8 +1509,8 @@ Procedure GetUserWorkingDirectoryAfterGetDataDirectory(Result, Context) Export
 			CreateDirectory(TestDirectoryName);
 			DeleteFiles(TestDirectoryName);
 		Except
-			
-			
+			// 
+			// 
 			Context.Directory = Undefined;
 			EventLogClient.AddMessageForEventLog(EventLogEvent(),
 				"Warning", ErrorProcessing.DetailErrorDescription(ErrorInfo()),, True);
@@ -1473,7 +1565,7 @@ Procedure OutputNotificationOnEdit(ResultHandler)
 			Buttons.Add("Continue", NStr("en = 'Continue';"));
 			Buttons.Add("Cancel", NStr("en = 'Cancel';"));
 			ReminderParameters = New Structure;
-			ReminderParameters.Insert("Picture", PictureLib.Information32);
+			ReminderParameters.Insert("Picture", PictureLib.DialogInformation);
 			ReminderParameters.Insert("CheckBoxText",
 				NStr("en = 'Do not show this message again';"));
 			ReminderParameters.Insert("Title",
@@ -1559,18 +1651,8 @@ EndProcedure
 
 Function SignatureRowData()
 	
-	RowData = New Structure;
-	RowData.Insert("SignatureAddress");
-	RowData.Insert("Status");
-	RowData.Insert("SignatureCorrect");
-	RowData.Insert("SignatureDate");
-	RowData.Insert("ErrorDescription");
-	RowData.Insert("SignatureValidationDate");
-	RowData.Insert("SignatureType");
-	RowData.Insert("IsVerificationRequired");
-	RowData.Insert("DateActionLastTimestamp");
-	RowData.Insert("ResultOfSignatureVerificationByMRLOA");
-	Return RowData;
+	ModuleDigitalSignatureClientServer = CommonClient.CommonModule("DigitalSignatureClientServer");
+	Return ModuleDigitalSignatureClientServer.ResultOfSignatureValidationOnForm();
 	
 EndFunction
 
@@ -1684,7 +1766,7 @@ Procedure UpdateFileSavingState(Val SelectedFiles,
 				NStr("en = 'File ""%1"" (%2 MB) is saved.';"),
 				FileNameToSave,
 				SizeInMB);
-			ShowUserNotification(NStr("en = 'Save files';"), , ExplanationText, PictureLib.Information32);
+			ShowUserNotification(NStr("en = 'Save files';"), , ExplanationText, PictureLib.DialogInformation);
 		EndIf;
 	EndIf;
 	
@@ -1847,10 +1929,10 @@ Procedure UnlockFiles(ListOfFiles) Export
 		FilesData.LockedFilesCount);
 	If FilesArray.Count() > 1 Then
 		NotifyChanged(TypeOf(FilesArray[0]));
-		Notify("Write_File", FileRecordingNotificationParameters(), Undefined);
+		Notify("Write_File", FileWriteNotificationParameters(), Undefined);
 	Else	
 		NotifyChanged(FilesArray[0]);
-		Notify("Write_File", FileRecordingNotificationParameters(), FilesArray[0]);
+		Notify("Write_File", FileWriteNotificationParameters(), FilesArray[0]);
 	EndIf;
 
 EndProcedure
@@ -1872,7 +1954,7 @@ Procedure UnlockFileWithoutQuestion(FileData, UUID = Undefined)
 	EndIf;
 	
 	ShowUserNotification(NStr("en = 'The file is released.';"),
-		FileData.URL, FileData.FullVersionDescription, PictureLib.Information32);
+		FileData.URL, FileData.FullVersionDescription, PictureLib.DialogInformation);
 	
 EndProcedure
 
@@ -1898,7 +1980,7 @@ Procedure MoveFilesToFolder(ObjectsRef, Folder) Export
 				           |is moved to folder ""%2"".';"),
 				String(FileData.Ref),
 				String(Folder)),
-			PictureLib.Information32);
+			PictureLib.DialogInformation);
 		
 	EndDo;
 	
@@ -2063,9 +2145,9 @@ EndProcedure
 
 // Continuation of the procedure (see above).
 Procedure FinishEditWithExtension(ExecutionParameters)
-	
-	
-	
+	// 
+	// 
+	// 
 	
 	FileData = FilesOperationsInternalServerCall.FileDataAndWorkingDirectory(ExecutionParameters.ObjectRef);
 	ExecutionParameters.FileData = FileData;
@@ -2127,8 +2209,8 @@ Procedure FinishEditWithExtension(ExecutionParameters)
 		ExecutionParameters.NewVersionFile.SetReadOnly(ReadOnly);
 	Except
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot store file ""%1""
-				|to the working directory as it might have been locked by another application.';"),
+			NStr("en = 'Cannot store file ""%1"" to the working directory.
+				|Probably, the directory is in use by another app.';"),
 			String(FileData.Ref));
 		Raise ErrorText + Chars.LF + Chars.LF + ErrorProcessing.DetailErrorDescription(ErrorInfo());
 	EndTry;
@@ -2138,8 +2220,8 @@ Procedure FinishEditWithExtension(ExecutionParameters)
 		
 		ExecutionParameters.CreateNewVersion = FileData.StoreVersions;
 		If FileData.StoreVersions Then
-			
-			
+			// 
+			// 
 			CreateNewVersionAvailability = FileData.CurrentVersionAuthor = FileData.BeingEditedBy;
 			
 			ReturnFile = New Structure;
@@ -2159,8 +2241,8 @@ Procedure FinishEditWithExtension(ExecutionParameters)
 		
 		If FileData.StoreVersions Then
 			
-			
-			
+			// 
+			// 
 			If FileData.CurrentVersionAuthor <> FileData.BeingEditedBy Then
 				ExecutionParameters.CreateNewVersion = True;
 			EndIf;
@@ -2350,7 +2432,7 @@ Procedure FinishEditWithExtensionAfterDeleteFileFromWorkingDirectory(Result, Exe
 			ExecutionParameters.FileData.URL,
 			StringFunctionsClientServer.SubstituteParametersToString(
 				NoteTemplate, String(ExecutionParameters.FileData.Ref)),
-			PictureLib.Information32);
+			PictureLib.DialogInformation);
 		
 		If Not ExecutionParameters.VersionUpdated Then
 			Handler = New NotifyDescription("FinishEditWithExtensionAfterShowNotification", ThisObject, ExecutionParameters);
@@ -2448,8 +2530,8 @@ Procedure FinishEditWithoutExtension(ExecutionParameters)
 		If ExecutionParameters.StoreVersions Then
 			ExecutionParameters.CreateNewVersion = True;
 			
-			
-			
+			// 
+			// 
 			If ExecutionParameters.CurrentVersionAuthor <> ExecutionParameters.BeingEditedBy Then
 				CreateNewVersionAvailability = False;
 			Else
@@ -2474,8 +2556,8 @@ Procedure FinishEditWithoutExtension(ExecutionParameters)
 		
 		If ExecutionParameters.StoreVersions Then
 			
-			
-			
+			// 
+			// 
 			If ExecutionParameters.CurrentVersionAuthor <> ExecutionParameters.BeingEditedBy Then
 				ExecutionParameters.CreateNewVersion = True;
 			EndIf;
@@ -2647,7 +2729,7 @@ Procedure FinishEditWithoutExtensionAfterEncryptFile(DataDetails, ExecutionParam
 			ExecutionParameters.FileData.URL,
 			StringFunctionsClientServer.SubstituteParametersToString(
 				NoteTemplate, String(ExecutionParameters.FileData.Ref)),
-			PictureLib.Information32);
+			PictureLib.DialogInformation);
 		
 		If Not Result.Success Then
 			Handler = New NotifyDescription("FinishEditWithoutExtensionAfterShowNotification", ThisObject, ExecutionParameters);
@@ -3179,7 +3261,7 @@ Procedure LockFileByRefAfterInstallExtension(ExtensionInstalled, ExecutionParame
 		StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'File ""%1""
 			           |is locked for editing.';"), String(FileData.Ref)),
-		PictureLib.Information32);
+		PictureLib.DialogInformation);
 	
 	ChangeLockedFilesCount(1);
 	
@@ -3253,7 +3335,7 @@ Procedure LockFilesByRefsAfterInstallExtension(ExtensionInstalled, ExecutionPara
 			NStr("en = 'Files (%1 out of %2) are locked for editing.';"),
 			LockedFilesCount,
 			ExecutionParameters.FilesArray.Count()),
-		PictureLib.Information32);
+		PictureLib.DialogInformation);
 	
 	ChangeLockedFilesCount(FilesData.Count());
 	
@@ -3331,7 +3413,7 @@ Procedure EditFileByRefAfterInstallExtension(ExtensionInstalled, ExecutionParame
 		StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'File ""%1""
 			           |is locked for editing.';"), String(FileData.Ref)),
-			PictureLib.Information32);
+			PictureLib.DialogInformation);
 	
 	If ExecutionParameters.FileData.Version.IsEmpty() Then 
 		ReturnResultAfterShowValue(ExecutionParameters.ResultHandler, FileData.Ref, True);
@@ -3632,7 +3714,7 @@ Procedure UnlockFilesByRefsAfterRespondQuestionCancelEdit(Response, ExecutionPar
 			NStr("en = 'File editing canceled (%1 out of %2).';"),
 			ExecutionParameters.FilesData.Count(),
 			ExecutionParameters.FilesArray.Count()),
-		PictureLib.Information32);
+		PictureLib.DialogInformation);
 	
 	ReturnResult(ExecutionParameters.ResultHandler, Undefined);
 	
@@ -3753,7 +3835,7 @@ Procedure UnlockFileAfterRespondQuestionCancelEdit(Response, ExecutionParameters
 		FilesOperationsInternalServerCall.GetFileDataAndUnlockFile(ExecutionParameters.ObjectRef,
 			ExecutionParameters.FileData, ExecutionParameters.UUID);
 		NotifyChanged(TypeOf(ExecutionParameters.ObjectRef));
-		Notify("Write_File", FileRecordingNotificationParameters("FileDataChanged"), ExecutionParameters.ObjectRef);
+		Notify("Write_File", FileWriteNotificationParameters("FileDataChanged"), ExecutionParameters.ObjectRef);
 		
 		If FileSystemExtensionAttached1() Then
 			ForReading = True;
@@ -3766,7 +3848,7 @@ Procedure UnlockFileAfterRespondQuestionCancelEdit(Response, ExecutionParameters
 				NStr("en = 'File released';"),
 				ExecutionParameters.FileData.URL,
 				ExecutionParameters.FileData.FullVersionDescription,
-				PictureLib.Information32);
+				PictureLib.DialogInformation);
 		EndIf;
 		
 		ChangeLockedFilesCount();
@@ -3837,7 +3919,8 @@ Procedure SaveFileChangesWithExtension(ExecutionParameters)
 	If Not ExecutionParameters.NewVersionFile.Exists() Then
 		If Not IsBlankString(ExecutionParameters.FullFilePath) Then
 			WarningString = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot store the ""%1"" file
+				NStr("en = 'Cannot store
+						   |the ""%1"" file
 				           |to the application as it does not exist on the computer:
 				           |%2.
 				           |
@@ -3846,8 +3929,9 @@ Procedure SaveFileChangesWithExtension(ExecutionParameters)
 				ExecutionParameters.FullFilePath);
 		Else
 			WarningString = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot store the ""%1"" file
-				           |to the application as it does not exist on the computer.
+				NStr("en = 'Cannot store
+						   |the ""%1"" file
+				           |to the application as it does not exist on the computer:
 				           |
 				           |Do you want to release the file?';"),
 				String(FileData.Ref));
@@ -3867,8 +3951,8 @@ Procedure SaveFileChangesWithExtension(ExecutionParameters)
 		If FileData.StoreVersions Then
 			ExecutionParameters.CreateNewVersion = True;
 			
-			
-			
+			// 
+			// 
 			If FileData.CurrentVersionAuthor <> FileData.BeingEditedBy Then
 				CreateNewVersionAvailability = False;
 			Else
@@ -3895,8 +3979,8 @@ Procedure SaveFileChangesWithExtension(ExecutionParameters)
 		
 		If ExecutionParameters.StoreVersions Then
 			
-			
-			
+			// 
+			// 
 			If ExecutionParameters.CurrentVersionAuthor <> ExecutionParameters.BeingEditedBy Then
 				ExecutionParameters.CreateNewVersion = True;
 			EndIf;
@@ -4023,12 +4107,12 @@ Procedure SaveFileChangesWithExtensionAfterCheckEncrypted(ExecutionParameters)
 				NStr("en = 'New version saved';"),
 				ExecutionParameters.FileData.URL,
 				ExecutionParameters.FileData.FullVersionDescription,
-				PictureLib.Information32);
+				PictureLib.DialogInformation);
 		Else
 			ShowUserNotification(
 				NStr("en = 'New version not saved';"),,
 				NStr("en = 'The file is not changed.';"),
-				PictureLib.Information32);
+				PictureLib.DialogInformation);
 			Handler = New NotifyDescription("SaveFileChangesWithExtensionAfterShowNotification", ThisObject, ExecutionParameters);
 			ShowInformationFileWasNotModified(Handler);
 			Return;
@@ -4088,8 +4172,8 @@ Procedure SaveFileChangesWithoutExtension(ExecutionParameters)
 		If ExecutionParameters.StoreVersions Then
 			ExecutionParameters.CreateNewVersion = True;
 			
-			
-			
+			// 
+			// 
 			If ExecutionParameters.CurrentVersionAuthor <> ExecutionParameters.BeingEditedBy Then
 				CreateNewVersionAvailability = False;
 			Else
@@ -4114,8 +4198,8 @@ Procedure SaveFileChangesWithoutExtension(ExecutionParameters)
 		
 		If ExecutionParameters.StoreVersions Then
 			
-			
-			
+			// 
+			// 
 			If ExecutionParameters.CurrentVersionAuthor <> ExecutionParameters.BeingEditedBy Then
 				ExecutionParameters.CreateNewVersion = True;
 			EndIf;
@@ -4262,7 +4346,7 @@ Procedure SaveFileChangesWithoutExtensionAfterEncryptFile(DataDetails, Execution
 			NStr("en = 'The new version is saved.';"),
 			ExecutionParameters.FileData.URL,
 			ExecutionParameters.FileData.FullVersionDescription,
-			PictureLib.Information32);
+			PictureLib.DialogInformation);
 	EndIf;
 	
 	ReturnResult(ExecutionParameters.ResultHandler, True);
@@ -4408,7 +4492,7 @@ Procedure LockFileAfterInstallExtension(ExtensionInstalled, ExecutionParameters)
 			NStr("en = 'File ""%1""
 			           |is locked for editing.';"),
 			String(ExecutionParameters.FileData.Ref)),
-		PictureLib.Information32);
+		PictureLib.DialogInformation);
 	
 	ChangeLockedFilesCount(1);
 	
@@ -4430,8 +4514,9 @@ Procedure AddFilesCompletion(AttachedFile, AdditionalParameters) Export
 	NotifyChanged(AttachedFile);
 	NotifyChanged(FileOwner);
 	
-	NotificationParameters = FileRecordingNotificationParameters();
-	NotificationParameters.FileOwner = FileOwner;
+	NotificationParameters = FileWriteNotificationParameters();
+	NotificationParameters.Owner = FileOwner;
+	NotificationParameters.FileOwner = NotificationParameters.Owner;
 	NotificationParameters.File = AttachedFile;
 	NotificationParameters.IsNew = True;
 	Notify("Write_File", NotificationParameters, AttachedFile);
@@ -4453,7 +4538,7 @@ Procedure AddFilesCompletion(AttachedFile, AdditionalParameters) Export
 			NStr("en = 'Create';"),
 			GetURL(AttachedFile),
 			AttachedFile,
-			PictureLib.Information32);
+			PictureLib.DialogInformation);
 		FilesOperationsClient.OpenFileForm(AttachedFile);
 			
 	EndIf;
@@ -4554,8 +4639,8 @@ Procedure GetVersionFileToLocalFilesCache(ResultHandler, FileData, ForReading,
 		Return;
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	Handler = New NotifyDescription("GetVersionFileToLocalFilesCacheAfterActionChoice", 
 		ThisObject, ExecutionParameters);
 	ActionOnOpenFileInWorkingDirectory(Handler, ExecutionParameters.FullFileName, FileData);
@@ -4627,7 +4712,7 @@ Procedure GetVersionFileToWorkingDirectory(ResultHandler, FileData, FullFileName
 			FormIdentifier, AdditionalParameters);
 	Else
 		
-		If Not WorkingDirectoryIsAvailable(FileData.OwnerWorkingDirectory, FileData.Owner) Then
+		If Not CanAccessWorkingDirectory(FileData.OwnerWorkingDirectory, FileData.Owner) Then
 			GetVersionFileToLocalFilesCache(ResultHandler, FileData, FileData.ForReading,
 			FormIdentifier, AdditionalParameters);
 			Return;
@@ -4639,15 +4724,15 @@ Procedure GetVersionFileToWorkingDirectory(ResultHandler, FileData, FullFileName
 	
 EndProcedure
 
-Function WorkingDirectoryIsAvailable(OwnerWorkingDirectory, Owner)
+Function CanAccessWorkingDirectory(OwnerWorkingDirectory, Owner)
 	Result = False;
-	
+	// Create a directory for files.
 	Try
-		
-		
+		// 
+		// 
 		InformationAboutTheCatalog = New File(OwnerWorkingDirectory);
 		If Not InformationAboutTheCatalog.Exists() Then
-			Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Каталог папки файлов %1 не существует.';"), 
+			Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The directory of the %1 file folder does not exist.';"), 
 				Owner);
 		EndIf;
 		CreateDirectory(OwnerWorkingDirectory);
@@ -4656,9 +4741,9 @@ Function WorkingDirectoryIsAvailable(OwnerWorkingDirectory, Owner)
 		DeleteFiles(TestDirectoryName);
 		Result = True;
 	Except
-		
-		
-		EventLogMessage = NStr("en = 'Не найден рабочий каталог %1 для папки файлов %2 или нет права на запись. Восстановлены настройки по умолчанию.';");
+		// 
+		// 
+		EventLogMessage = NStr("en = 'Working directory %1 for file folder %2 is not found or there is no save permission. Default settings are restored.';");
 		EventLogMessage = StringFunctionsClientServer.SubstituteParametersToString(EventLogMessage, 
 			OwnerWorkingDirectory, Owner);
 		OwnerWorkingDirectory = "";
@@ -4666,7 +4751,7 @@ Function WorkingDirectoryIsAvailable(OwnerWorkingDirectory, Owner)
 		FilesOperationsInternalServerCall.CleanUpWorkingDirectory(Owner);
 		
 		EventLogClient.AddMessageForEventLog(
-			NStr("en = 'Работа с файлами';", CommonClient.DefaultLanguageCode()),
+			NStr("en = 'File management';", CommonClient.DefaultLanguageCode()),
 			"Warning",
 			EventLogMessage,
 			CommonClient.SessionDate(),
@@ -5223,8 +5308,8 @@ Procedure ClearSpaceInWorkingDirectory(ResultHandler, VersionAttributes)
 	
 	MaxSize1 = PersonalFilesOperationsSettings().LocalFileCacheMaxSize;
 	
-	
-	
+	// 
+	// 
 	If MaxSize1 = 0 Then
 		Return;
 	EndIf;
@@ -5281,7 +5366,7 @@ Procedure ClearWorkingDirectoryStart(ExecutionParameters)
 	FilesArray = FindFiles(DirectoryName, "*");
 	ProcessFilesTable(DirectoryName, FilesArray, TableOfFiles);
 	
-	
+	// 
 	//  
 	FilesOperationsInternalServerCall.SortStructuresArray(TableOfFiles);
 	
@@ -5426,7 +5511,7 @@ Procedure GetFromServerAndRegisterInLocalFilesCache(Val ExecutionParameters)
 			ExecutionParameters.FullPathMaxSize = 218;
 		EndIf;
 		
-		MaxFileNameLength = ExecutionParameters.FullPathMaxSize - 5; 
+		MaxFileNameLength = ExecutionParameters.FullPathMaxSize - 5; // "5" is the minimum length of "C:\1\"
 		
 		If ExecutionParameters.InOwnerWorkingDirectory = False Then
 #If Not WebClient Then
@@ -5642,7 +5727,7 @@ Procedure GetFromServerAndRegisterInLocalFilesCacheFileSending(ExecutionParamete
 		CallDetails = New Array;
 		CallDetails.Add("GetFiles");
 		CallDetails.Add(TransmittedFiles);
-		CallDetails.Add(Undefined);  
+		CallDetails.Add(Undefined);  // 
 		CallDetails.Add(ExecutionParameters.ParameterFilePath);
 		CallDetails.Add(False);          // Interactively = False.
 		OperationArray.Add(CallDetails);
@@ -5708,7 +5793,7 @@ Procedure GetFromServerAndRegisterInLocalFilesCacheCompletion(ExecutionParameter
 			NotifyChanged(ExecutionParameters.FileData.Ref);
 			NotifyChanged(ExecutionParameters.FileData.Version);
 			
-			NotificationParameters = FileRecordingNotificationParameters();
+			NotificationParameters = FileWriteNotificationParameters();
 			NotificationParameters.File = ExecutionParameters.FileData.Ref;
 			NotificationParameters.Event = "FileDataChanged";
 			NotificationParameters.IsNew = False;
@@ -5785,12 +5870,14 @@ EndProcedure
 Procedure GetVersionFileToFolderWorkingDirectoryFollowUp(ExecutionParameters)
 	
 	// Search for file registration in working directory (full name with the path).
-	FoundProperties = FilesOperationsInternalServerCall.FindInRegisterByPath(ExecutionParameters.FullFileName);
-	ExecutionParameters.Insert("FileIsInRegister", FoundProperties.FileIsInRegister);
-	Version            = FoundProperties.File;
-	Owner          = FoundProperties.Owner;
-	InRegisterForReading = FoundProperties.InRegisterForReading;
-	InRegisterFolder    = FoundProperties.InRegisterFolder;
+	FileInfo1 = FilesOperationsInternalServerCall.FilesInfoInWorkingDir(
+		CommonClientServer.ValueInArray(ExecutionParameters.FullFileName));
+	FileInfo1 = FileInfo1[ExecutionParameters.FullFileName];
+	ExecutionParameters.Insert("FileIsInRegister", FileInfo1.FileIsInRegister);
+	Version            = FileInfo1.File;
+	Owner          = FileInfo1.Owner;
+	InRegisterForReading = FileInfo1.InRegisterForReading;
+	InRegisterFolder    = FileInfo1.InRegisterFolder;
 	
 	FileOnHardDrive = New File(ExecutionParameters.FullFileName);
 	FileOnHardDriveExists = FileOnHardDrive.Exists();
@@ -5818,9 +5905,9 @@ Procedure GetVersionFileToFolderWorkingDirectoryFollowUp(ExecutionParameters)
 	If ExecutionParameters.FileIsInRegister And Version <> ExecutionParameters.FileData.CurrentVersion Then
 		
 		If Owner = ExecutionParameters.FileData.Ref And InRegisterForReading = True Then
-			
-			
-			
+			// 
+			// 
+			// 
 			GetFromServerAndRegisterInFolderWorkingDirectory(
 				ExecutionParameters.ResultHandler,
 				ExecutionParameters.FileData,
@@ -5855,8 +5942,8 @@ Procedure GetVersionFileToFolderWorkingDirectoryFollowUp(ExecutionParameters)
 		Return;
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	
 	// Checking the modification date and deciding what to do next.
 	Handler = New NotifyDescription("GetVersionsFileToFolderWorkingDirectoryAfterActionChoice", ThisObject, ExecutionParameters);
@@ -5952,8 +6039,8 @@ Procedure GetFromServerAndRegisterInFolderWorkingDirectory(ResultHandler, FileDa
 		Return;
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	Handler = New NotifyDescription("GetFromServerAndRegisterInFolderWorkingDirectoryAfterActionChoice", 
 		ThisObject, ExecutionParameters);
 	ActionOnOpenFileInWorkingDirectory(Handler, ExecutionParameters.FullFileName,
@@ -6026,7 +6113,7 @@ Procedure CheckFullPathMaxLengthInWorkingDirectory(ResultHandler, FileData,
 		ExecutionParameters.FullPathMaxSize = 218;
 	EndIf;
 	
-	MaxFileNameLength = ExecutionParameters.FullPathMaxSize - 5; 
+	MaxFileNameLength = ExecutionParameters.FullPathMaxSize - 5; // "5" is the minimum length of "C:\1\"
 	If StrLen(ExecutionParameters.FullFileName) <= ExecutionParameters.FullPathMaxSize Then
 		ReturnResult(ResultHandler, True);
 		Return;
@@ -6049,8 +6136,8 @@ Procedure CheckFullPathMaxLengthInWorkingDirectory(ResultHandler, FileData,
 		Return;
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	If StrLen(FileData.OwnerWorkingDirectory) > ExecutionParameters.FullPathMaxSize - 5 Then
 		MessageText = MessageText + Chars.CR + Chars.CR
 			+ NStr("en = 'Please rename the folders or move the current folder to another one.';");
@@ -6109,9 +6196,9 @@ EndProcedure
 Procedure CheckFullPathMaxLengthInWorkingDirectoryAfterMoveWorkingDirectoryContent(ContentMoved, ExecutionParameters) Export
 	
 	If ContentMoved Then
-		
-		
-		
+		// 
+		// 
+		// 
 		FilesOperationsInternalServerCall.SaveFolderWorkingDirectoryAndReplacePathsInRegister(
 			ExecutionParameters.FileData.Owner,
 			ExecutionParameters.FileData.OwnerWorkingDirectory,
@@ -6186,7 +6273,8 @@ EndProcedure
 // Copies all files from the specified directory to another one.
 //
 // Parameters:
-//   Result - Structure -  See CopyDirectoryContent1
+//   Result - Structure - Indicates copying result. See CopyDirectoryContent1
+//                            (return value).
 //   SourceDirectory  - String - the directory previous name.
 //   RecipientDirectory  - String - new name of the directory.
 //
@@ -6589,7 +6677,7 @@ Procedure FilesImportAfterLoopFollowUp(ExecutionParameters)
 			NStr("en = 'Updated:';"),
 			Ref,
 			Item0.File,
-			PictureLib.Information32);
+			PictureLib.DialogInformation);
 	EndIf;
 	
 	// Error message output
@@ -7016,7 +7104,7 @@ Procedure ShowReminderBeforePutFile(ResultHandler)
 			Buttons.Add("Continue", NStr("en = 'Continue';"));
 			Buttons.Add("Cancel", NStr("en = 'Cancel';"));
 			ReminderParameters = New Structure;
-			ReminderParameters.Insert("Picture", PictureLib.Information32);
+			ReminderParameters.Insert("Picture", PictureLib.DialogInformation);
 			ReminderParameters.Insert("CheckBoxText",
 				NStr("en = 'Do not show this message again';"));
 			ReminderParameters.Insert("Title",
@@ -7135,7 +7223,7 @@ Procedure ShowInformationFileWasNotModified(ResultHandler)
 		Buttons = QuestionDialogMode.OK;
 		ReminderParameters = New Structure;
 		ReminderParameters.Insert("LockWholeInterface", True);
-		ReminderParameters.Insert("Picture", PictureLib.Information32);
+		ReminderParameters.Insert("Picture", PictureLib.DialogInformation);
 		ReminderParameters.Insert("CheckBoxText",
 			NStr("en = 'Do not show this message again';"));
 		ReminderParameters.Insert("Title",
@@ -7155,10 +7243,10 @@ EndProcedure
 Procedure EndEditAndNotifyCompletion(Result, ExecutionParameters) Export
 	
 	If Result = True Then
-		Notify("Write_File", FileRecordingNotificationParameters("EditFinished"), ExecutionParameters.CommandParameter);
+		Notify("Write_File", FileWriteNotificationParameters("EditFinished"), ExecutionParameters.CommandParameter);
 		NotifyChanged(ExecutionParameters.CommandParameter);
-		Notify("Write_File", FileRecordingNotificationParameters("FileDataChanged"), ExecutionParameters.CommandParameter);
-		Notify("Write_File", FileRecordingNotificationParameters("VersionSaved"), ExecutionParameters.CommandParameter);
+		Notify("Write_File", FileWriteNotificationParameters("FileDataChanged"), ExecutionParameters.CommandParameter);
+		Notify("Write_File", FileWriteNotificationParameters("VersionSaved"), ExecutionParameters.CommandParameter);
 		
 	EndIf;
 	
@@ -7220,7 +7308,7 @@ Procedure FinishEditByRefsAfterInstallExtension(ExtensionInstalled, ExecutionPar
 			NStr("en = 'Commit files (%1 of %2).';"),
 			ExecutionParameters.FilesData.Count(),
 			ExecutionParameters.FilesArray.Count()),
-			PictureLib.Information32);
+			PictureLib.DialogInformation);
 	
 	ResultHandler = New NotifyDescription("FinishEditFilesArrayWithNotificationCompletion", ThisObject, ExecutionParameters);
 	ReturnResult(ResultHandler, True);
@@ -7233,10 +7321,10 @@ Procedure FinishEditFilesArrayWithNotificationCompletion(Result, ExecutionParame
 		
 		For Each FileRef In ExecutionParameters.FilesArray Do
 			
-			Notify("Write_File", FileRecordingNotificationParameters("EditFinished"), FileRef);
+			Notify("Write_File", FileWriteNotificationParameters("EditFinished"), FileRef);
 			NotifyChanged(FileRef);
-			Notify("Write_File", FileRecordingNotificationParameters("FileDataChanged"), FileRef);
-			Notify("Write_File", FileRecordingNotificationParameters("VersionSaved"), FileRef);
+			Notify("Write_File", FileWriteNotificationParameters("FileDataChanged"), FileRef);
+			Notify("Write_File", FileWriteNotificationParameters("VersionSaved"), FileRef);
 			
 		EndDo;
 		
@@ -7267,7 +7355,7 @@ Procedure AddFilesWithDrag(Val FileOwner, Val FormIdentifier, Val FileNamesArray
 			NStr("en = 'Create';"),
 			GetURL(AttachedFile),
 			AttachedFile,
-			PictureLib.Information32);
+			PictureLib.DialogInformation);
 		
 		FormParameters = New Structure("AttachedFile, IsNew", AttachedFile, True);
 		OpenForm("DataProcessor.FilesOperations.Form.AttachedFile", FormParameters, , AttachedFile);
@@ -7276,10 +7364,11 @@ Procedure AddFilesWithDrag(Val FileOwner, Val FormIdentifier, Val FileNamesArray
 	If AttachedFilesArray.Count() > 0 Then
 		NotifyChanged(AttachedFilesArray[0]);
 		NotifyChanged(FileOwner);
-		FileRecordingNotificationParameters = FileRecordingNotificationParameters();
-		FileRecordingNotificationParameters.IsNew = True;
-		FileRecordingNotificationParameters.Owner = FileOwner;
-		Notify("Write_File", FileRecordingNotificationParameters, AttachedFilesArray);
+		FileWriteNotificationParameters = FileWriteNotificationParameters();
+		FileWriteNotificationParameters.IsNew = True;
+		FileWriteNotificationParameters.Owner = FileOwner;
+		FileWriteNotificationParameters.FileOwner = FileWriteNotificationParameters.Owner;
+		Notify("Write_File", FileWriteNotificationParameters, AttachedFilesArray);
 	EndIf;
 	
 EndProcedure
@@ -7309,8 +7398,8 @@ Procedure EditWithNotificationCompletion(FileEdited, ExecutionParameters) Export
 	
 	If FileEdited Then
 		NotifyChanged(ExecutionParameters.ObjectRef);
-		Notify("Write_File", FileRecordingNotificationParameters("FileDataChanged"), ExecutionParameters.ObjectRef);
-		Notify("Write_File", FileRecordingNotificationParameters("FileWasEdited"), ExecutionParameters.ObjectRef);
+		Notify("Write_File", FileWriteNotificationParameters("FileDataChanged"), ExecutionParameters.ObjectRef);
+		Notify("Write_File", FileWriteNotificationParameters("FileWasEdited"), ExecutionParameters.ObjectRef);
 	EndIf;
 	
 	ReturnResult(ExecutionParameters.ResultHandler, Undefined);
@@ -7353,7 +7442,7 @@ Procedure LockWithNotificationFilesArrayCompletion(Result, ExecutionParameters) 
 	
 	NotifyChanged(Type("CatalogRef.Files"));
 	For Each FileRef In ExecutionParameters.CommandParameter Do
-		Notify("Write_File", FileRecordingNotificationParameters("FileDataChanged"), FileRef);
+		Notify("Write_File", FileWriteNotificationParameters("FileDataChanged"), FileRef);
 		NotifyChanged(FileRef);
 	EndDo;
 	ReturnResult(ExecutionParameters.ResultHandler, Undefined);
@@ -7365,7 +7454,7 @@ Procedure LockWIthNotificationOneFileCompletion(Result, ExecutionParameters) Exp
 	
 	If Result = True Then
 		NotifyChanged(ExecutionParameters.CommandParameter);
-		Notify("Write_File", FileRecordingNotificationParameters("FileDataChanged"), ExecutionParameters.CommandParameter);
+		Notify("Write_File", FileWriteNotificationParameters("FileDataChanged"), ExecutionParameters.CommandParameter);
 	EndIf;
 	
 	ReturnResult(ExecutionParameters.ResultHandler, Undefined);
@@ -7410,7 +7499,7 @@ Procedure UnlockFileWithNotificationFilesArrayCompletion(Result, ExecutionParame
 	
 	NotifyChanged(Type("CatalogRef.Files"));
 	For Each FileRef In ExecutionParameters.CommandParameter Do
-		Notify("Write_File", FileRecordingNotificationParameters("FileDataChanged"), FileRef);
+		Notify("Write_File", FileWriteNotificationParameters("FileDataChanged"), FileRef);
 	EndDo;
 	ReturnResult(ExecutionParameters.ResultHandler, Undefined);
 	
@@ -7422,7 +7511,7 @@ Procedure UnlockFileWithNotificationOneFileCompletion(Result, ExecutionParameter
 	If Result = True Then
 		
 		NotifyChanged(ExecutionParameters.CommandParameter);
-		Notify("Write_File", FileRecordingNotificationParameters("FileDataChanged"), ExecutionParameters.CommandParameter);
+		Notify("Write_File", FileWriteNotificationParameters("FileDataChanged"), ExecutionParameters.CommandParameter);
 		
 	EndIf;
 	
@@ -7665,8 +7754,8 @@ EndProcedure
 Procedure SaveFileChangesWithNotificationCompletion(Result, ExecutionParameters) Export
 	
 	If Result = True Then
-		Notify("Write_File", FileRecordingNotificationParameters("FileDataChanged"), ExecutionParameters.CommandParameter);
-		Notify("Write_File", FileRecordingNotificationParameters("VersionSaved"), ExecutionParameters.CommandParameter);
+		Notify("Write_File", FileWriteNotificationParameters("FileDataChanged"), ExecutionParameters.CommandParameter);
+		Notify("Write_File", FileWriteNotificationParameters("VersionSaved"), ExecutionParameters.CommandParameter);
 	EndIf;
 	
 	ReturnResult(ExecutionParameters.ResultHandler, Result);
@@ -7706,8 +7795,8 @@ Procedure UpdateFromFileOnHardDriveWithNotificationCompletion(Result, ExecutionP
 	
 	If Result = True Then
 		NotifyChanged(ExecutionParameters.FileData.Ref);
-		Notify("Write_File", FileRecordingNotificationParameters("FileDataChanged"), ExecutionParameters.FileData.Ref);
-		Notify("Write_File", FileRecordingNotificationParameters("VersionSaved"), ExecutionParameters.FileData.Ref);
+		Notify("Write_File", FileWriteNotificationParameters("FileDataChanged"), ExecutionParameters.FileData.Ref);
+		Notify("Write_File", FileWriteNotificationParameters("VersionSaved"), ExecutionParameters.FileData.Ref);
 	EndIf;
 	
 	ReturnResult(ExecutionParameters.ResultHandler, Undefined);
@@ -8227,7 +8316,7 @@ Procedure AddFromFileSystemWithoutFileSystemExtensionAfterImportFile(Put, Addres
 		Return;
 	EndIf;
 	
-	NotificationParameters = FileRecordingNotificationParameters();
+	NotificationParameters = FileWriteNotificationParameters();
 	NotificationParameters.Owner = ExecutionParameters.FileOwner;
 	NotificationParameters.File = Result.FileRef;
 	NotificationParameters.IsNew = True;
@@ -8237,7 +8326,7 @@ Procedure AddFromFileSystemWithoutFileSystemExtensionAfterImportFile(Put, Addres
 		NStr("en = 'Created:';"),
 		GetURL(Result.FileRef),
 		Result.FileRef,
-		PictureLib.Information32);
+		PictureLib.DialogInformation);
 	
 	If ExecutionParameters.NotOpenCardAfterCreateFromFile <> True Then
 		FormParameters = New Structure("OpenCardAfterCreateFile", True);
@@ -8424,8 +8513,8 @@ Procedure InformOfEncryption(FilesArrayInWorkingDirectoryToDelete,
                                    FileRef) Export
 	
 	NotifyChanged(FileRef);
-	Notify("Write_File", FileRecordingNotificationParameters("AttachedFileEncrypted"), FileOwner);
-	Notify("Write_File", FileRecordingNotificationParameters("FileDataChanged"), FileRef);
+	Notify("Write_File", FileWriteNotificationParameters("AttachedFileEncrypted"), FileOwner);
+	Notify("Write_File", FileWriteNotificationParameters("FileDataChanged"), FileRef);
 	
 	// Deleting all file versions from working directory.
 	For Each FullFileName In FilesArrayInWorkingDirectoryToDelete Do
@@ -8450,8 +8539,8 @@ EndProcedure
 Procedure InformOfDecryption(FileOwner, FileRef) Export
 	
 	NotifyChanged(FileRef);
-	Notify("Write_File", FileRecordingNotificationParameters("AttachedFileEncrypted"), FileOwner);
-	Notify("Write_File", FileRecordingNotificationParameters("FileDataChanged"), FileRef);
+	Notify("Write_File", FileWriteNotificationParameters("AttachedFileEncrypted"), FileOwner);
+	Notify("Write_File", FileWriteNotificationParameters("FileDataChanged"), FileRef);
 	
 	If Not CommonClient.SubsystemExists("StandardSubsystems.DigitalSignature") Then
 		Return;
@@ -8561,12 +8650,12 @@ Procedure AfterAddSignatures(DataDetails, ExecutionParameters) Export
 			
 			For Each File In ExecutionParameters.AttachedFile Do
 				NotifyChanged(File);
-				Notify("Write_File", FileRecordingNotificationParameters(), File);
+				Notify("Write_File", FileWriteNotificationParameters(), File);
 			EndDo;
 			
 		Else
 			NotifyChanged(ExecutionParameters.AttachedFile);
-			Notify("Write_File", FileRecordingNotificationParameters(), ExecutionParameters.AttachedFile);
+			Notify("Write_File", FileWriteNotificationParameters(), ExecutionParameters.AttachedFile);
 		EndIf;
 	EndIf;
 	
@@ -8654,7 +8743,7 @@ Procedure NotifyOfFileChange(FileData)
 	NotifyChanged(FileData.Ref);
 	NotifyChanged(FileData.CurrentVersion);
 	
-	Notify("Write_File", FileRecordingNotificationParameters("AttachedFileSigned"), FileData.Owner);
+	Notify("Write_File", FileWriteNotificationParameters("AttachedFileSigned"), FileData.Owner);
 	
 EndProcedure
 
@@ -8838,9 +8927,9 @@ Procedure ImportFilesRecursively(Owner, SelectedFiles, ExecutionParameters)
 		Return;
 	EndIf;
 	
-	 
-	
-	
+	//  
+	// 
+	// 
 	InternalParameters.SelectedFiles = New Array;
 	InternalParameters.Insert("FolderToAddToSelectedFiles", Undefined);
 	ImportFilesRecursivelySetNextQuestion(InternalParameters);
@@ -8954,14 +9043,14 @@ Procedure ImportFilesRecursivelyWithoutDialogBoxes(Val Owner, Val SelectedFiles,
 						
 						FilesFolderRef = FilesOperationsInternalServerCall.CreateFilesFolder(FileName, Owner,,ExecutionParameters.FilesGroup);
 						If FilesOperationsInternalClientCached.IsDirectoryFiles(FilesFolderRef) Then
-							
-							
+							// 
+							// 
 							ImportFilesRecursivelyWithoutDialogBoxes(FilesFolderRef, FilesArray, ExecutionParameters, True);
 						Else
 							CurrentFilesGroup = ExecutionParameters.FilesGroup;
 							ExecutionParameters.FilesGroup = FilesFolderRef;
-							
-							
+							// 
+							// 
 							ImportFilesRecursivelyWithoutDialogBoxes(Owner, FilesArray, ExecutionParameters, True);
 							ExecutionParameters.FilesGroup = CurrentFilesGroup;
 						EndIf;
@@ -8993,7 +9082,7 @@ Procedure ImportFilesRecursivelyWithoutDialogBoxes(Val Owner, Val SelectedFiles,
 			Status(StateText,
 				ExecutionParameters.Indicator,
 				LabelMore,
-				PictureLib.Information32);
+				PictureLib.DialogInformation);
 			
 			// Create an item of the Files catalog.
 			TempFileStorageAddress = "";
@@ -9260,7 +9349,7 @@ Function CheckLockedFilesOnExit()
 	CurrentUser = UsersClient.AuthorizedUser();
 	
 	ApplicationWarningFormParameters = New Structure;
-	ApplicationWarningFormParameters.Insert("MessageQuestion",      NStr("en = 'Do you want to exit the application?';"));
+	ApplicationWarningFormParameters.Insert("MessageQuestion",      NStr("en = 'Exit the app?';"));
 	ApplicationWarningFormParameters.Insert("MessageTitle",   NStr("en = 'The following files are locked:';"));
 	ApplicationWarningFormParameters.Insert("Title",            NStr("en = 'Exit application';"));
 	ApplicationWarningFormParameters.Insert("BeingEditedBy",          CurrentUser);
@@ -9310,19 +9399,20 @@ Function FilesInWorkingDirectoryData()
 EndFunction
 
 // Passing files in working directory recursively and collecting information about them.
+//
 // Parameters:
 //  Path - String - a working directory path.
-//  FilesArray - Array - an array of "File" objects.
-//  TableOfFiles - Array of See FilesInWorkingDirectoryData - an array of file structures.
+//  FilesArray - Array of DefinedType.AttachedFile
+//  TableOfFiles - Array of See FilesInWorkingDirectoryData - Files to be deleted.
 //
-Procedure ProcessFilesTable(Path, FilesArray, TableOfFiles)
+Procedure ProcessFilesTable(Val Path, Val FilesArray, Val TableOfFiles)
 	
 #If Not WebClient Then
 	Var Version;
 	Var PutFileDate;
 	
 	DirectoryName = UserWorkingDirectory();
-	
+	FilesToAnalize = New Array;
 	For Each SelectedFile In FilesArray Do
 		
 		If SelectedFile.IsDirectory() Then
@@ -9344,38 +9434,29 @@ Procedure ProcessFilesTable(Path, FilesArray, TableOfFiles)
 		EndIf;
 		
 		RelativePath = Mid(SelectedFile.FullName, StrLen(DirectoryName) + 1);
+		FilesToAnalize.Add(RelativePath);
+	EndDo;
+	
+	FilesInfo = FilesOperationsInternalServerCall.FilesInfoInWorkingDir(FilesToAnalize);
+	For Each FileInfoKey In FilesInfo Do
+		RelativePath = FileInfoKey.Key;
+		FileInfo1 = FileInfoKey.Value;
+		// 
+		// 
+		PutFileDate = ?(FileInfo1.FileIsInRegister, FileInfo1.PutFileDate, Date('00010101'));
 		
-		
-		
-		PutFileDate = Date('00010101');
-		
-		FoundProperties = FilesOperationsInternalServerCall.FindInRegisterByPath(RelativePath);
-		FileIsInRegister = FoundProperties.FileIsInRegister;
-		Version            = FoundProperties.File;
-		PutFileDate     = ?(FileIsInRegister, FoundProperties.PutFileDate, PutFileDate);
-		
-		If FileIsInRegister Then
-			EditedByCurrentUser = FilesOperationsInternalServerCall.GetEditedByCurrentUser(Version);
-			
-			// If it is not locked by the current user, you can delete it.
-			If Not EditedByCurrentUser Then
-				Record = FilesInWorkingDirectoryData();
-				Record.Path = RelativePath;
-				Record.Size = SelectedFile.Size();
-				Record.Version = Version;
-				Record.PutFileInWorkingDirectoryDate = PutFileDate;
-				TableOfFiles.Add(Record);
-			EndIf;
-		Else
+		// If it is not locked by the current user, you can delete it.
+		If Not FileInfo1.FileIsInRegister 
+			Or FileInfo1.FileIsInRegister And Not FileInfo1.EditedByCurrentUser Then
 			Record = FilesInWorkingDirectoryData();
 			Record.Path = RelativePath;
 			Record.Size = SelectedFile.Size();
-			Record.Version = Version;
+			Record.Version = FileInfo1.File;
 			Record.PutFileInWorkingDirectoryDate = PutFileDate;
 			TableOfFiles.Add(Record);
 		EndIf;
-		
 	EndDo;
+	
 #EndIf
 	
 EndProcedure
@@ -9457,8 +9538,8 @@ Function CommonFilesOperationsSettings()
 	
 	CommonSettings = StandardSubsystemsClient.ClientRunParameters().CommonFilesOperationsSettings;
 	
-	
-	
+	// 
+	// 
 	
 	Return CommonSettings;
 	
@@ -9678,7 +9759,7 @@ Function DereferenceLnkFile(SelectedFile)
 	
 #If Not WebClient And Not MobileClient Then
 	ShellApplication = New COMObject("shell.application");
-	FullPath = ShellApplication.NameSpace(SelectedFile.Path);
+	FullPath = ShellApplication.NameSpace(SelectedFile.Path);// Path to the LNK file (without the filename).
 	FileName = FullPath.items().item(SelectedFile.Name); // Full path (only) to the lnk file.
 	Ref = FileName.GetLink();
 	Return New File(Ref.path);
@@ -10042,9 +10123,9 @@ Procedure OpenDragFormFromOutside(FolderForAdding, FileNamesArray) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 //
-
+// 
 //   
 //       
 //       
@@ -10605,7 +10686,7 @@ Procedure InitAddIn(NotificationOfReturn, SuggestInstall = False) Export
 	If Not ScanAvailable() Then 
 		AddInAttachmentResult = CommonInternalClient.AddInAttachmentResult();
 		AddInAttachmentResult.Attached = False;
-		AddInAttachmentResult.ErrorDescription = NStr("en = 'Scanning is available in applications for Microsoft Windows x86 and x64';");
+		AddInAttachmentResult.ErrorDescription = NStr("en = 'Scanning is supported on Windows and Linux only.';");
 		ExecuteNotifyProcessing(NotificationOfReturn, AddInAttachmentResult);
 		Return;
 	EndIf;
@@ -10622,19 +10703,25 @@ EndProcedure
 Function ScanAvailable(IsSettingsCheck = False) Export
 	
 	If IsSettingsCheck Then
-#If MobileClient Then
-		Return MultimediaTools.PhotoSupported();
-#ElsIf WebClient Then
-		Return False;
-#Else
-		Return CommonClient.IsWindowsClient();
-#EndIf
+		#If MobileClient Then
+			Return MultimediaTools.PhotoSupported();
+		#ElsIf WebClient Then
+			Return False;
+		#Else
+			Return CommonClient.ClientPlatformType() = PlatformType.Windows_x86 
+			Or CommonClient.ClientPlatformType() = PlatformType.Windows_x86_64
+			Or CommonClient.ClientPlatformType() = PlatformType.Linux_x86 
+			Or CommonClient.ClientPlatformType() = PlatformType.Linux_x86_64;
+		#EndIf
 	Else
-#If MobileClient Or WebClient Then
-		Return False;
-#Else
-		Return CommonClient.IsWindowsClient();
-#EndIf
+		#If MobileClient Or WebClient Then
+			Return False;
+		#Else
+			Return CommonClient.ClientPlatformType() = PlatformType.Windows_x86 
+			Or CommonClient.ClientPlatformType() = PlatformType.Windows_x86_64
+			Or CommonClient.ClientPlatformType() = PlatformType.Linux_x86 
+			Or CommonClient.ClientPlatformType() = PlatformType.Linux_x86_64;
+		#EndIf
 	EndIf;
 	
 EndFunction
@@ -10642,9 +10729,9 @@ EndFunction
 // Returns scanning devices (an array of strings).
 Function EnumDevices(Form, Attachable_Module) Export
 	
-	Устройства = ConnectedDevices(Form, Attachable_Module);
+	Devices = ConnectedDevices(Form, Attachable_Module);
 	
-	Return Устройства;
+	Return Devices;
 	
 EndFunction
 
@@ -10957,8 +11044,8 @@ Procedure ShowDialogNeedToGetFileFromServer(ResultHandler, Val FileNameWithPath,
 	StandardFileData.Insert("InWorkingDirectoryForRead",     Not ForEditing);
 	StandardFileData.Insert("BeingEditedBy",                  FileData.BeingEditedBy);
 	
-	
-	
+	// 
+	// 
 	
 	Parameters = New Structure;
 	Parameters.Insert("ResultHandler", ResultHandler);
@@ -11010,8 +11097,8 @@ EndFunction
 Function ConnectedDevices(Form, Attachable_Module)
 	WriteScanLog("EnumDevices.Start");
 	Try
-		Устройства = Attachable_Module.EnumDevices();
-		ConnectedDevices = StrSplit(Устройства, Chars.LF, False);
+		Devices = Attachable_Module.EnumDevices();
+		ConnectedDevices = StrSplit(Devices, Chars.LF, False);
 		WriteScanLog("EnumDevices.Result", 
 			StringFunctionsClientServer.SubstituteParametersToString("EnumDevices() = %1", 
 			StrConcat(ConnectedDevices, "|")));
@@ -11019,7 +11106,7 @@ Function ConnectedDevices(Form, Attachable_Module)
 		ConnectedDevices = New Array;
 		ErrorPresentation = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		WriteScanLog("EnumDevices", ErrorPresentation, True);
-		ShowScanError(Attachable_Module, Form, NStr("en = 'Cannot get the list of devices';"), ErrorPresentation);
+		ShowScanError(Form, NStr("en = 'Cannot get the list of devices';"), ErrorPresentation);
 	EndTry;
 	Return ConnectedDevices;
 EndFunction
@@ -11035,7 +11122,7 @@ EndFunction
 // Returns:
 //   Number - scanner setting value.
 //
-Function ConfiguringScanner(Form, Attachable_Module, DeviceName, SettingName) Export
+Function ScannerSetting(Form, Attachable_Module, DeviceName, SettingName) Export
 	
 	If Not ScanAvailable(True) Then
 		Return -1;
@@ -11054,7 +11141,7 @@ Function ConfiguringScanner(Form, Attachable_Module, DeviceName, SettingName) Ex
 	Except
 		ErrorPresentation = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		WriteScanLog("GetSetting", ErrorPresentation, True);
-		ShowScanError(Attachable_Module, Form, NStr("en = 'Cannot get the device settings.';"), ErrorPresentation);
+		ShowScanError(Form, NStr("en = 'Cannot get the device settings.';"), ErrorPresentation);
 		Return -1;
 	EndTry;
 	
@@ -11070,7 +11157,7 @@ Function IsDevicePresent(Form, Attachable_Module, ShowError_ = True) Export
 		ErrorPresentation = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		WriteScanLog("IsDevicePresent", ErrorPresentation, True);
 		If ShowError_ Then
-			ShowScanError(Attachable_Module, Form, NStr("en = 'Cannot check for devices';"), ErrorPresentation);
+			ShowScanError(Form, NStr("en = 'Cannot check for devices';"), ErrorPresentation);
 		EndIf;
 		IsDevicePresent = False;
 	EndTry;
@@ -11109,50 +11196,99 @@ Procedure BeginScan(Form, Attachable_Module, ScanningParameters) Export
 	Except
 		ErrorPresentation = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		WriteScanLog("BeginScan", ErrorPresentation, True);
-		ShowScanError(Attachable_Module, Form, NStr("en = 'Cannot scan the document';"), ErrorPresentation);
+		ShowScanError(Form, NStr("en = 'Cannot scan the document';"), ErrorPresentation);
 	EndTry;
 	
 EndProcedure
 
-Procedure EnableLoggingComponents(Attachable_Module, Val Restart = False) Export 
+Procedure EnableScanLog(Attachable_Module, ContinueNotification, Val Restart_1 = False) Export 
 	ClientID = ClientID();
-	LoggingParameters = FilesOperationsInternalServerCall.LoggingParameters(ClientID);
+	ScanLogParameters = FilesOperationsInternalServerCall.ScanLogParameters(ClientID);
 	
-	If Not Restart Then
-		Restart = LoggingParameters.StartDateOfScanLogging = Date(1,1,1);
+	If Not Restart_1 Then
+		Restart_1 = ScanLogParameters.ScanLogStartDate = Date(1,1,1);
 	EndIf;
 	
-	NameOfLogFile = LoggingParameters.NameOfLogFile;
+	NameOfLogFile = ScanLogParameters.NameOfLogFile;
 	
-	If Restart And NameOfLogFile <> Undefined Then
-		SetNameOfLogFile(Attachable_Module, "");
+	If Restart_1 And NameOfLogFile <> Undefined Then
+		SetLogFileName(Attachable_Module, "");
 		LogFile1 = New File(NameOfLogFile);
 		If LogFile1.Exists() Then
 			DeleteFiles(NameOfLogFile);
 		EndIf;
 	EndIf;	
 	
-	ScanLogDirectory = LoggingParameters.ScanLogDirectory;
-	UseScanLogDirectory  = LoggingParameters.UseScanLogDirectory;
+	ScanLogCatalog = ScanLogParameters.ScanLogCatalog;
+	UseScanLogDirectory  = ScanLogParameters.UseScanLogDirectory;
 	
 	Context = New Structure;
 	Context.Insert("Attachable_Module", Attachable_Module);
+	Context.Insert("ContinueNotification", ContinueNotification);
 	
-	NotificationAfterCreatingTemporaryDirectoryForConnectingLogFiles = New NotifyDescription("NotificationAfterCreatingTemporaryDirectoryForConnectingLogFiles",
-		ThisObject, Context);
+	NotificationAfterTempDirectoryToAttachLogFilesCreated = New NotifyDescription("NotificationAfterTempDirectoryToAttachLogFilesCreated",
+		ThisObject, Context);      
 	
-	If UseScanLogDirectory And ScanLogDirectory <> Undefined Then
-		ExecuteNotifyProcessing(NotificationAfterCreatingTemporaryDirectoryForConnectingLogFiles, ScanLogDirectory);
-	ElsIf Restart And Not ValueIsFilled(NameOfLogFile) Then
-		FileSystemClient.CreateTemporaryDirectory(NotificationAfterCreatingTemporaryDirectoryForConnectingLogFiles);
+	If UseScanLogDirectory And ScanLogCatalog <> Undefined Then
+		Context = New Structure;
+		Context.Insert("NotificationAfterTempDirectoryToAttachLogFilesCreated",
+			NotificationAfterTempDirectoryToAttachLogFilesCreated);
+		Context.Insert("ScanLogCatalog", ScanLogCatalog);
+		Context.Insert("ClientID", ClientID);
+		
+		CheckResultNotification = New NotifyDescription("AfterScanLogDirAvailabilityChecked", ThisObject, Context);	
+		CheckDirAvailability(CheckResultNotification, ScanLogCatalog);
+		
+	ElsIf Restart_1 And Not ValueIsFilled(NameOfLogFile) Then
+		FileSystemClient.CreateTemporaryDirectory(NotificationAfterTempDirectoryToAttachLogFilesCreated);
+	ElsIf Restart_1 Then
+		Context = New Structure;
+		Context.Insert("NameOfLogFile", NameOfLogFile);
+		Context.Insert("NotificationAfterTempDirectoryToAttachLogFilesCreated",
+			NotificationAfterTempDirectoryToAttachLogFilesCreated);
+	
+		CheckResultNotification = New NotifyDescription("AfterLogFileDirAvailabilityChecked", ThisObject, Context);
+		LogFile1 = New File(NameOfLogFile);
+		CheckDirAvailability(CheckResultNotification, LogFile1.Path);
 	Else
-		SetNameOfLogFile(Attachable_Module, NameOfLogFile);
+		ExecuteNotifyProcessing(ContinueNotification);
 	EndIf;
 	
 EndProcedure
 
-Procedure SetNameOfLogFile(Attachable_Module, NameOfLogFile) 
-	WriteScanLog("LogFilePath.SettingValue", 
+Procedure AfterLogFileDirAvailabilityChecked(Result, ExternalContext) Export
+	Notification = ExternalContext.NotificationAfterTempDirectoryToAttachLogFilesCreated;
+	Attachable_Module = Notification.AdditionalParameters.Attachable_Module;
+	If Not Result.Success Then
+		FileSystemClient.CreateTemporaryDirectory(Notification);
+	Else
+		SetLogFileName(Attachable_Module, ExternalContext.NameOfLogFile);
+		If Notification.AdditionalParameters.ContinueNotification <> Undefined Then
+			ExecuteNotifyProcessing(Notification.AdditionalParameters.ContinueNotification);
+		EndIf;
+	EndIf;
+	
+EndProcedure
+
+Procedure AfterScanLogDirAvailabilityChecked(Result, ExternalContext) Export
+	If Not Result.Success Then
+		FilesOperationsInternalServerCall.ResetScanLogDirectoryParameters(ExternalContext.ClientID);
+		WriteScanLog("ComponentFile", StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Cannot access the scan log directory: %1. Your choice is not saved.';"), ExternalContext.ScanLogCatalog), True);
+		ScanningSettings1 = New Structure;
+		ScanningSettings1.Insert("ScanLogCatalog", "");
+		ScanningSettings1.Insert("UseScanLogDirectory", False);
+		Notify("ScanSettingsChanged", ScanningSettings1); 
+		FileSystemClient.CreateTemporaryDirectory(ExternalContext.NotificationAfterTempDirectoryToAttachLogFilesCreated);
+	Else
+		ExecuteNotifyProcessing(ExternalContext.NotificationAfterTempDirectoryToAttachLogFilesCreated, 
+			ExternalContext.ScanLogCatalog);
+	EndIf;
+	
+EndProcedure
+
+Procedure SetLogFileName(Attachable_Module, NameOfLogFile) 
+	WriteScanLog("LogFilePath.ValueSetting", 
 		StringFunctionsClientServer.SubstituteParametersToString("LogFilePath = %1", NameOfLogFile));
 	Try
 		Attachable_Module.LogFilePath = NameOfLogFile;
@@ -11163,12 +11299,15 @@ Procedure SetNameOfLogFile(Attachable_Module, NameOfLogFile)
 	EndTry;
 EndProcedure
 
-Procedure NotificationAfterCreatingTemporaryDirectoryForConnectingLogFiles(ScanLogDirectory, Context) Export
+Procedure NotificationAfterTempDirectoryToAttachLogFilesCreated(ScanLogCatalog, Context) Export
 		
-	NameOfLogFile = ScanLogDirectory + GetPathSeparator() + "ImageScan.log";
+	NameOfLogFile = ScanLogCatalog + GetPathSeparator() + "ImageScan.log";
 	Attachable_Module = Context.Attachable_Module;
-	SetNameOfLogFile(Attachable_Module, NameOfLogFile);
-	FilesOperationsInternalServerCall.SetParametersForStartOfLogging(NameOfLogFile);
+	SetLogFileName(Attachable_Module, NameOfLogFile);
+	FilesOperationsInternalServerCall.SetScanLogStartParameters(NameOfLogFile);
+	If Context.ContinueNotification <> Undefined Then
+		ExecuteNotifyProcessing(Context.ContinueNotification);
+	EndIf;
 			
 EndProcedure
 
@@ -11180,35 +11319,36 @@ Procedure WriteScanLog(Event, Comment = "", IsError = False) Export
 	
 EndProcedure
 
-Procedure ShowScanError(Attachable_Module, Form, Title, DetailErrorDescription, 
-	ErrorText = "", ModeNeedsHelp = False) Export
+Procedure ShowScanError(Form, Title, DetailErrorDescription, 
+	ErrorText = "", AssistanceRequiredMode = False) Export
 
 	FormOpenParameters = New Structure("Title, DetailErrorDescription", 
 		Title, DetailErrorDescription);
 	FormOpenParameters.Insert("ErrorText", ErrorText);
 	FormOpenParameters.Insert("ScannerName", Form.ScannerName);
+	FormOpenParameters.Insert("ShowScannerDialog", Form.ShowScannerDialog);
 	
-	Context = New Structure("ModeNeedsHelp", ModeNeedsHelp);
-	AfterClosingErrorForm = New NotifyDescription("AfterClosingErrorForm", Form, Context);
-	OpenForm("DataProcessor.Scanning.Form.ScanningError", FormOpenParameters, Form,,,, AfterClosingErrorForm);
+	Context = New Structure("AssistanceRequiredMode", AssistanceRequiredMode);
+	AfterErrorFormClosed = New NotifyDescription("AfterErrorFormClosed", Form, Context);
+	OpenForm("DataProcessor.Scanning.Form.ScanningError", FormOpenParameters, Form,,,, AfterErrorFormClosed);
 	
 EndProcedure
 
-Function ThereWasScanError() Export
+Function HasScanErrorOccurred() Export
 	
-	ScanJobParameters = CommonServerCall.CommonSettingsStorageLoad("ScanningComponent", "ScanJobParameters", Undefined);
+	ScanJobParameters = CommonServerCall.CommonSettingsStorageLoad("ScanAddIn", "ScanJobParameters", Undefined);
 	Return ScanJobParameters <> Undefined;
 	
 EndFunction
 
-Procedure RemoveScanError(Attachable_Module) Export
+Procedure DeleteScanError(Attachable_Module, CompletionNotification = Undefined, ShouldClearAddInLog = True) Export
 	
-	CommonServerCall.CommonSettingsStorageSave("ScanningComponent", "ScanJobParameters", Undefined);
-	EnableLoggingComponents(Attachable_Module, True);
+	CommonServerCall.CommonSettingsStorageSave("ScanAddIn", "ScanJobParameters", Undefined);
+	EnableScanLog(Attachable_Module, CompletionNotification, ShouldClearAddInLog);
 	
 EndProcedure
 
-Procedure GetTechnicalInformation(DetailErrorDescription, NotificationAfterReceivingTechnicalInformation) Export
+Procedure GetTechnicalInformation(DetailErrorDescription, NotificationAfterTechnicalInfoObtained) Export
 	Mode = FileDialogMode.Save;
 	OpenFileDialog = New FileDialog(Mode);
 	OpenFileDialog.FullFileName = NStr("en = 'Technical information';");
@@ -11226,17 +11366,17 @@ Procedure GetTechnicalInformation(DetailErrorDescription, NotificationAfterRecei
 		
 	Context = New Structure();
 	Context.Insert("DetailErrorDescription", DetailErrorDescription);
-	Context.Insert("NotificationAfterReceivingTechnicalInformation", NotificationAfterReceivingTechnicalInformation);
+	Context.Insert("NotificationAfterTechnicalInfoObtained", NotificationAfterTechnicalInfoObtained);
 	Context.Insert("FileName", FilesArray[0]);
-	NotificationAfterCreatingTemporaryDirectoryForLogFiles = New NotifyDescription("AfterCreatingTemporaryDirectoryForLogFiles", ThisObject, Context);
-	FileSystemClient.CreateTemporaryDirectory(NotificationAfterCreatingTemporaryDirectoryForLogFiles);
+	NotificationAfterLogFilesTempDirectoryCreated = New NotifyDescription("AfterLogFilesTempDirectoryCreated", ThisObject, Context);
+	FileSystemClient.CreateTemporaryDirectory(NotificationAfterLogFilesTempDirectoryCreated);
 
 EndProcedure
 
-Procedure AfterCreatingTemporaryDirectoryForLogFiles(DirectoryName, Context) Export
+Procedure AfterLogFilesTempDirectoryCreated(DirectoryName, Context) Export
 #If Not WebClient Then	
 	DetailErrorDescription = Context.DetailErrorDescription;
-	NotificationAfterReceivingTechnicalInformation = Context.NotificationAfterReceivingTechnicalInformation;
+	NotificationAfterTechnicalInfoObtained = Context.NotificationAfterTechnicalInfoObtained;
 	FileName = Context.FileName;
 	
 	TempFilesDir = DirectoryName + GetPathSeparator();
@@ -11248,13 +11388,13 @@ Procedure AfterCreatingTemporaryDirectoryForLogFiles(DirectoryName, Context) Exp
 	If NameOfLogFile = Undefined Then
 		WriteScanLog("ComponentFile", NStr("en = 'Specify the name of the scanning add-in log file.';"), True);
 	Else
-		LogFile = New File(NameOfLogFile);
-		NameOfLogFileToSave = "";
+		Log_File = New File(NameOfLogFile);
+		LogFileNameForSaving = "";
 		
-		If LogFile.Exists() Then
-			NameOfLogFileToSave = TempFilesDir + "ImageScan.log";
-			MoveFile(NameOfLogFile, NameOfLogFileToSave);
-			RecordZIP.Add(NameOfLogFileToSave);
+		If Log_File.Exists() Then
+			LogFileNameForSaving = TempFilesDir + "ImageScan.log";
+			MoveFile(NameOfLogFile, LogFileNameForSaving);
+			RecordZIP.Add(LogFileNameForSaving);
 		Else
 			WriteScanLog("ComponentFile", StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'The scanning add-in log file does not exist. %1';"), 
@@ -11262,38 +11402,25 @@ Procedure AfterCreatingTemporaryDirectoryForLogFiles(DirectoryName, Context) Exp
 		EndIf;
 	EndIf;
 	
-	ContextIsOutgoing = New Structure;
+	ContextOutgoing = New Structure;
 	Context.Insert("RecordZIP", RecordZIP);
 	Context.Insert("FilesForDeletion", FilesForDeletion);
 	Context.Insert("DetailErrorDescription", DetailErrorDescription);
-	Context.Insert("NotificationAfterReceivingTechnicalInformation", NotificationAfterReceivingTechnicalInformation);
+	Context.Insert("NotificationAfterTechnicalInfoObtained", NotificationAfterTechnicalInfoObtained);
 	Context.Insert("TempFilesDir", TempFilesDir);
 	Context.Insert("TechnicalInformation", TechnicalInformation);
 	
-	Text =  NStr("en = 'Computer information:';") + Chars.LF;
+	Text =  NStr("en = 'Computer information:';") + Chars.LF + StandardSubsystemsClient.SupportInformation();
+	Context.Insert("SummaryInfoText", Text);
 		
-	SysInfo = New SystemInfo;
-	Viewer = SysInfo.UserAgentInformation;
-	
-	If Not IsBlankString(Viewer) Then
-		Viewer = Chars.LF + NStr("en = 'Viewer:';") + " " + Viewer;
-	EndIf;
-	
-	Text = Text + NStr("en = 'Operating system:';") + " " + SysInfo.OSVersion
-		+ Chars.LF + NStr("en = 'Application version:';") + " " + SysInfo.AppVersion
-		+ Chars.LF + NStr("en = 'Platform type:';") + " " + SysInfo.PlatformType
-		+ Viewer + Chars.LF;
-		
-	Context.Insert("SummaryInformationText", Text);
-		
-	NotifyDescription = New NotifyDescription("SummaryInformationAfterReceivingComponent", ThisObject, Context);
+	NotifyDescription = New NotifyDescription("SummaryInfoAfterAddInObtained", ThisObject, Context);
 	InitAddIn(NotifyDescription, True);
 #EndIf
 EndProcedure
 
-Procedure SummaryInformationAfterReceivingComponent(InitializationResult, Context) Export
+Procedure SummaryInfoAfterAddInObtained(InitializationResult, Context) Export
 #If Not WebClient Then
-	SummaryInformationText = Context.SummaryInformationText;
+	SummaryInfoText = Context.SummaryInfoText;
 	TechnicalInformation = Context.TechnicalInformation;
 	FilesForDeletion = Context.FilesForDeletion;
 	RecordZIP = Context.RecordZIP;
@@ -11312,7 +11439,7 @@ Procedure SummaryInformationAfterReceivingComponent(InitializationResult, Contex
 		Return;
 	EndIf;
 	
-	SummaryInformationText = SummaryInformationText + Chars.LF + AddInInformation
+	SummaryInfoText = SummaryInfoText + Chars.LF + AddInInformation
 		+ Chars.LF + Chars.LF + NStr("en = 'Technical information';") + ":" 
 		+ Chars.LF + Context.DetailErrorDescription
 		+ Chars.LF + Chars.LF;
@@ -11324,37 +11451,40 @@ Procedure SummaryInformationAfterReceivingComponent(InitializationResult, Contex
 		WorkMode = NStr("en = 'Client/server';");
 	EndIf;
 	
-	SummaryInformationText = SummaryInformationText + NStr("en = 'Infobase operation mode';")+ " - " + WorkMode;
+	SummaryInfoText = SummaryInfoText + NStr("en = 'Infobase operation mode';")+ " - " + WorkMode;
 	
-	NameOfSummaryInformationFile = Context.TempFilesDir + "SummaryInformation.txt";
+	SummaryInfoFileName = Context.TempFilesDir + "SummaryInformation.txt";
 	
-	SummaryInformationText = SummaryInformationText + Chars.LF 
-		+TechnicalInformation.TechnicalInformationAboutSubsystemVersionsAndExtensions + Chars.LF;
-	SummaryInformation = GetBinaryDataFromString(SummaryInformationText);
-	SummaryInformation.Write(NameOfSummaryInformationFile);
-	FilesForDeletion.Add(NameOfSummaryInformationFile);
-	RecordZIP.Add(NameOfSummaryInformationFile);
+	SummaryInfoText = SummaryInfoText + Chars.LF 
+		+TechnicalInformation.TechnicalInfoOnExtensionsAndSubsystemsVersions + Chars.LF;
+	SummaryInformation = GetBinaryDataFromString(SummaryInfoText);
+	SummaryInformation.Write(SummaryInfoFileName);
+	FilesForDeletion.Add(SummaryInfoFileName);
+	RecordZIP.Add(SummaryInfoFileName);
 	
 	LogFileName = Context.TempFilesDir + "EventLog.xml";
 	EventLog = TechnicalInformation.EventLog; // BinaryData
-	EventLog.Write(LogFileName); 
+	EventLog.Write(LogFileName); // 
 	FilesForDeletion.Add(LogFileName);
 	RecordZIP.Add(LogFileName); 
 	
-	EndContext = New Structure;
-	EndContext.Insert("NameOfSummaryInformationFile", NameOfSummaryInformationFile);
-	EndContext.Insert("FilesForDeletion", Context.FilesForDeletion);
-	EndContext.Insert("NotificationAfterReceivingTechnicalInformation", Context.NotificationAfterReceivingTechnicalInformation);
+	CompletionContext = New Structure;
+	CompletionContext.Insert("SummaryInfoFileName", SummaryInfoFileName);
+	CompletionContext.Insert("FilesForDeletion", Context.FilesForDeletion);
+	CompletionContext.Insert("NotificationAfterTechnicalInfoObtained", Context.NotificationAfterTechnicalInfoObtained);
 	RecordZIP.Write();
 	For Each FileToDelete In FilesForDeletion Do
 		DeleteFiles(FileToDelete);
 	EndDo;
-	RemoveScanError(Attachable_Module);
-	
-	If Context.NotificationAfterReceivingTechnicalInformation <> Undefined Then
-		ExecuteNotifyProcessing(Context.NotificationAfterReceivingTechnicalInformation);
+	CompletionNotification = New NotifyDescription("SummaryInfoAfterAddInObtainedAndScanErrorDeleted", ThisObject, Context);
+	DeleteScanError(Attachable_Module, CompletionNotification);
+#EndIf
+EndProcedure
+
+Procedure SummaryInfoAfterAddInObtainedAndScanErrorDeleted(Result, Context) Export
+	If Context.NotificationAfterTechnicalInfoObtained <> Undefined Then
+		ExecuteNotifyProcessing(Context.NotificationAfterTechnicalInfoObtained);
 	EndIf; 
-#EndIf	
 EndProcedure
 
 #Region FilesAndVersionsDataDeletion
@@ -11390,7 +11520,7 @@ Procedure DeleteDataAfterRespondQuestion(Response, Context) Export
 		Return;
 	EndIf;
 	
-	Result = FilesOperationsInternalServerCall.ResultOfDeletingFiles(
+	Result = FilesOperationsInternalServerCall.FilesDeletionResult(
 		CommonClientServer.ValueInArray(Context.FileOrVersion),
 		Context.UUID);
 	Result = Result[Context.FileOrVersion];
@@ -11426,7 +11556,7 @@ EndProcedure
 
 Procedure NotifyOfDataDeletion(CompletionHandler, WarningText)
 	
-	Notify("Write_File", FileRecordingNotificationParameters());
+	Notify("Write_File", FileWriteNotificationParameters());
 	If Not IsBlankString(WarningText) Then
 		ShowMessageBox(CompletionHandler, WarningText);
 	ElsIf CompletionHandler <> Undefined Then
@@ -11444,7 +11574,7 @@ Procedure ChangeFilterByDeletionMark(Area, CommandButton) Export
 		
 EndProcedure
 
-Procedure DeleteFileData(CompletionHandler, FilesOrVersions, UUID) Export
+Procedure DeleteFilesData(CompletionHandler, FilesOrVersions, UUID) Export
 	
 	If FilesOrVersions.Count() = 0 Then
 		ExecuteNotifyProcessing(CompletionHandler, Undefined);
@@ -11465,17 +11595,17 @@ Procedure DeleteFileData(CompletionHandler, FilesOrVersions, UUID) Export
 		TitleText = NStr("en = 'Delete files';");
 	EndIf;
 	
-	ShowQueryBox(New NotifyDescription("DeleteFileDataAfterAnsweringQuestion", ThisObject, Context),
+	ShowQueryBox(New NotifyDescription("DeleteFilesDataAfterQuestionAnswered", ThisObject, Context),
 		QueryText, QuestionDialogMode.YesNo,, DialogReturnCode.No, TitleText, DialogReturnCode.No);
 EndProcedure
 
-Procedure DeleteFileDataAfterAnsweringQuestion(Response, Context) Export
+Procedure DeleteFilesDataAfterQuestionAnswered(Response, Context) Export
 	
 	If Response <> DialogReturnCode.Yes Then
 		Return;
 	EndIf;
 	
-	DeletionResults = FilesOperationsInternalServerCall.ResultOfDeletingFiles(
+	DeletionResults = FilesOperationsInternalServerCall.FilesDeletionResult(
 		Context.FilesOrVersions, Context.UUID);
 		
 	Warnings = New Map;
@@ -11510,5 +11640,88 @@ Procedure DeleteFileDataAfterAnsweringQuestion(Response, Context) Export
 EndProcedure
 	
 #EndRegion
+
+Procedure CheckDirAvailabilityAfterCreated(TestDirectoryName, Context) Export
+	
+	Notification = New NotifyDescription("CheckDirAvailabilityAfterDeleted", ThisObject, 
+		Context, "CheckDirAvailabilityDeletionError", ThisObject);
+	BeginDeletingFiles(Notification, TestDirectoryName);
+	
+EndProcedure
+
+Function DirAvailabilityCheckResult()
+	Result = New Structure;
+	Result.Insert("Success", False);
+	Result.Insert("Create", False);
+	Result.Insert("Delete", False);
+	Result.Insert("ErrorInfo");
+	Return Result;
+EndFunction
+
+Procedure CheckDirAvailabilityAfterDeleted(Context) Export
+	
+	Result = DirAvailabilityCheckResult();
+	Result.Success = True;
+	Result.Create = True;
+	Result.Delete = True;
+	
+	ExecuteNotifyProcessing(Context.NotificationOfResult, Result);
+	
+EndProcedure
+
+Procedure CheckDirAvailabilityCreationError(ErrorInfo, StandardProcessing, Context) Export
+	
+    Result = DirAvailabilityCheckResult();
+	Result.ErrorInfo = ErrorInfo;
+	StandardProcessing = False;
+	
+	ExecuteNotifyProcessing(Context.NotificationOfResult, Result);
+   
+EndProcedure
+
+Procedure CheckDirAvailabilityDeletionError(ErrorInfo, StandardProcessing, Context) Export
+	
+    Result = DirAvailabilityCheckResult();
+	Result.Create = True;
+	Result.ErrorInfo = ErrorInfo;
+	StandardProcessing = False;
+	
+	ExecuteNotifyProcessing(Context.NotificationOfResult, Result);
+   
+EndProcedure
+
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
+Procedure AfterFilesRecovered(Result, AdditionalParameters) Export
+	
+	If Result = Undefined Then
+		Return;
+	EndIf;
+	
+	If Result.Status = "Completed2" Then
+		ProgressDetailedInfo = GetFromTempStorage(Result.ResultAddress);
+		If ProgressDetailedInfo.Processed < ProgressDetailedInfo.Total Then
+			Message = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Restored file info: %1 out of %1. For details, see Event log.';"),
+				ProgressDetailedInfo.Processed, ProgressDetailedInfo.Total);
+			ShowUserNotification(NStr("en = 'Restore file info';"),,
+				Message, PictureLib.DialogExclamation, UserNotificationStatus.Important);
+		Else
+			ShowUserNotification(NStr("en = 'Restore file info';"),,
+				NStr("en = 'File info is restored. Updating the report…';"));
+		EndIf;
+		
+		AdditionalParameters.ReportForm.ComposeResult();
+		
+	ElsIf Result.Status = "Error" Then
+		
+		StandardSubsystemsClient.OutputErrorInfo(
+			Result.ErrorInfo);
+		
+	EndIf;
+	
+EndProcedure
 
 #EndRegion

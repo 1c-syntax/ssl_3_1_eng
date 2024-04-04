@@ -1,17 +1,16 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 
 #Region Public
 
-// Prohibits editing specified attributes
-//  of an object form, and adds the Allow editing
-//  attributes command to All actions.
+// Takes as a parameter the form of the object to which the subsystem is connected,
+//  and prohibits editing the specified details,
+//  and also adds a command to "All actions" to allow editing them.
 //
 // Parameters:
 //  Form - ClientApplicationForm
@@ -21,11 +20,11 @@
 //             - DocumentObject
 //    * Items - FormAllItems:
 //        ** AllowObjectAttributeEdit - FormButton
-//  LockButtonGroup  - FormGroup - used to modify the default placement
-//                            of the lock button in the object form.
-//  LockButtonTitle  - String - The button title. By default, "Allow edit attributes".
-//  Object                  - Undefined - take the object from the Object form attribute.
-//                          - FormDataStructure - by object type.
+//  LockButtonGroup  - FormGroup -  overrides the standard placement
+//                            of the deny button in the object form.
+//  LockButtonTitle  - String -  the title of the button. By default, the "Allow edit account details".
+//  Object                  - Undefined -  take an object from the props of the "Object" form.
+//                          - FormDataStructure - 
 //                          - CatalogObject
 //                          - DocumentObject
 //
@@ -34,7 +33,7 @@ Procedure LockAttributes(Form, LockButtonGroup = Undefined, LockButtonTitle = ""
 	
 	ObjectDetails = ?(Object = Undefined, Form.Object, Object);
 	
-	// Determining whether the form is already prepared during an earlier call.
+	// 
 	FormPrepared = False;
 	FormAttributes = Form.GetAttributes();
 	For Each FormAttribute In FormAttributes Do
@@ -51,7 +50,7 @@ Procedure LockAttributes(Form, LockButtonGroup = Undefined, LockButtonTitle = ""
 	
 	IsNewObject = ObjectDetails.Ref.IsEmpty();
 	
-	// Enabling edit prohibition for form items related to the specified attributes.
+	// 
 	For Each DescriptionOfAttributeToLock In Form.AttributeEditProhibitionParameters Do
 		For Each FormItemDescription In DescriptionOfAttributeToLock.ItemsToLock Do
 			
@@ -82,10 +81,10 @@ Procedure LockAttributes(Form, LockButtonGroup = Undefined, LockButtonTitle = ""
 	
 EndProcedure
 
-// Returns a list of attributes and object tabular sections locked for editing.
+// Returns a list of details and table parts of the object for which editing is prohibited.
 // 
 // Parameters:
-//  ObjectName - String - Full name of a metadata object.
+//  ObjectName - String -  full name of the metadata object.
 //
 // Returns:
 //  Array of String 

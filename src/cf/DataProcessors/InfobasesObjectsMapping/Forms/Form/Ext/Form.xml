@@ -54,6 +54,12 @@ Then, if any items are left unmapped, you can map them manually.</v8:content>
 				<InputField name="FilterByMappingStatus" id="30">
 					<DataPath>FilterByMappingStatus</DataPath>
 					<SkipOnInput>true</SkipOnInput>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Show</v8:content>
+						</v8:item>
+					</Title>
 					<Width>50</Width>
 					<HorizontalStretch>false</HorizontalStretch>
 					<ListChoiceMode>true</ListChoiceMode>
@@ -94,33 +100,69 @@ Then, if any items are left unmapped, you can map them manually.</v8:content>
 							<DefaultButton>true</DefaultButton>
 							<SkipOnInput>true</SkipOnInput>
 							<CommandName>Form.Command.WriteAndClose</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Save and close</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="WriteAndCloseExtendedTooltip" id="344"/>
 						</Button>
 						<Button name="WriteRefresh" id="270">
 							<Type>CommandBarButton</Type>
 							<SkipOnInput>true</SkipOnInput>
 							<CommandName>Form.Command.WriteRefresh</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Save</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="WriteRefreshExtendedTooltip" id="345"/>
 						</Button>
 						<ButtonGroup name="LinksGroup" id="294">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Links</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="LinksGroupExtendedTooltip" id="346"/>
 							<ChildItems>
 								<Button name="RunAutoMapping" id="71">
 									<Type>CommandBarButton</Type>
 									<SkipOnInput>true</SkipOnInput>
 									<CommandName>Form.Command.RunAutoMapping</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Map automatically…</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="RunAutoMappingExtendedTooltip" id="347"/>
 								</Button>
 								<Button name="AddMapping" id="163">
 									<Type>CommandBarButton</Type>
 									<SkipOnInput>true</SkipOnInput>
 									<CommandName>Form.Command.AddMapping</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Set mapping</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="AddMappingExtendedTooltip" id="348"/>
 								</Button>
 								<Button name="CancelMapping" id="33">
 									<Type>CommandBarButton</Type>
 									<SkipOnInput>true</SkipOnInput>
 									<CommandName>Form.Command.CancelMapping</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Clear mapping</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="CancelMappingExtendedTooltip" id="349"/>
 								</Button>
 							</ChildItems>
@@ -129,10 +171,22 @@ Then, if any items are left unmapped, you can map them manually.</v8:content>
 							<Type>CommandBarButton</Type>
 							<SkipOnInput>true</SkipOnInput>
 							<CommandName>Form.Command.Refresh</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Refresh</v8:content>
+								</v8:item>
+							</Title>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 							<ExtendedTooltip name="RefreshExtendedTooltip" id="350"/>
 						</Button>
 						<ButtonGroup name="FindGroup" id="295">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Find</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="FindGroupExtendedTooltip" id="351"/>
 							<ChildItems>
 								<Button name="Find" id="287">
@@ -151,6 +205,12 @@ Then, if any items are left unmapped, you can map them manually.</v8:content>
 									<Type>CommandBarButton</Type>
 									<SkipOnInput>true</SkipOnInput>
 									<CommandName>Form.Command.Sort</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Sort</v8:content>
+										</v8:item>
+									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="SortExtendedTooltip" id="354"/>
 								</Button>
@@ -160,22 +220,46 @@ Then, if any items are left unmapped, you can map them manually.</v8:content>
 							<Type>CommandBarButton</Type>
 							<SkipOnInput>true</SkipOnInput>
 							<CommandName>Form.Command.RunDataImport</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Import data from another application</v8:content>
+								</v8:item>
+							</Title>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 							<ExtendedTooltip name="RunDataImportExtendedTooltip" id="355"/>
 						</Button>
 						<ButtonGroup name="SettingsSubmenu" id="268">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Settings submenu</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="SettingsSubmenuExtendedTooltip" id="356"/>
 							<ChildItems>
 								<Button name="ChangeTableFieldsList" id="266">
 									<Type>CommandBarButton</Type>
 									<SkipOnInput>true</SkipOnInput>
 									<CommandName>Form.Command.SetupTableFieldsList</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Columns…</v8:content>
+										</v8:item>
+									</Title>
 									<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="ChangeTableFieldsListExtendedTooltip" id="357"/>
 								</Button>
 							</ChildItems>
 						</ButtonGroup>
 						<ButtonGroup name="FormOutputListGroup" id="308">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Form output list group</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="FormOutputListGroupExtendedTooltip" id="358"/>
 							<ChildItems>
 								<Button name="FormOutputList" id="309">
@@ -205,7 +289,7 @@ Then, if any items are left unmapped, you can map them manually.</v8:content>
 				</v8:item>
 			</Title>
 			<PagesRepresentation>None</PagesRepresentation>
-			<ExtendedTooltip name="MainPanel1ExtendedTooltip" id="361"/>
+			<ExtendedTooltip name="PanelMainExtendedTooltip" id="361"/>
 			<ChildItems>
 				<Page name="ObjectsMapping" id="321">
 					<EnableContentChange>true</EnableContentChange>
@@ -215,7 +299,7 @@ Then, if any items are left unmapped, you can map them manually.</v8:content>
 							<v8:content>Object mapping</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="ObjectMappingExtendedTooltip" id="362"/>
+					<ExtendedTooltip name="ObjectsMappingExtendedTooltip" id="362"/>
 					<ChildItems>
 						<Table name="MappingTable" id="22">
 							<Representation>List</Representation>
@@ -253,23 +337,47 @@ Then, if any items are left unmapped, you can map them manually.</v8:content>
 								<Autofill>false</Autofill>
 								<ChildItems>
 									<ButtonGroup name="MappingTableContextMenuLinksGroup" id="296">
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Choice table context menu link group</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="MappingTableContextMenuLinksGroupExtendedTooltip" id="363"/>
 										<ChildItems>
 											<Button name="ContextMenuMappingTableAddMap" id="279">
 												<Type>CommandBarButton</Type>
 												<SkipOnInput>false</SkipOnInput>
 												<CommandName>Form.Command.AddMapping</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Set mapping</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ContextMenuMappingTableAddMapExtendedTooltip" id="364"/>
 											</Button>
 											<Button name="ContextMenuMappingTableClearMap" id="280">
 												<Type>CommandBarButton</Type>
 												<SkipOnInput>false</SkipOnInput>
 												<CommandName>Form.Command.CancelMapping</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Clear mapping</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ContextMenuMappingTableClearMapExtendedTooltip" id="365"/>
 											</Button>
 										</ChildItems>
 									</ButtonGroup>
 									<ButtonGroup name="MappingTableContextMenuFindGroup" id="297">
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Choice table context menu find group</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="MappingTableContextMenuFindGroupExtendedTooltip" id="366"/>
 										<ChildItems>
 											<Button name="MappingTableContextMenuFind" id="289">
@@ -287,9 +395,21 @@ Then, if any items are left unmapped, you can map them manually.</v8:content>
 									<Button name="MappingTableContextMenuSort" id="291">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.Sort</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Sort</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="MappingTableContextMenuSortExtendedTooltip" id="369"/>
 									</Button>
 									<ButtonGroup name="MappingTableContextMenuOutputListGroup" id="311">
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Choice table context menu output list group</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="MappingTableContextMenuOutputListGroupExtendedTooltip" id="370"/>
 										<ChildItems>
 											<Button name="MappingTableContextMenuOutputList" id="312">
@@ -339,6 +459,12 @@ Then, if any items are left unmapped, you can map them manually.</v8:content>
 							<ChildItems>
 								<PictureField name="MappingTablePictureMappingByRef" id="419">
 									<DataPath>MappingTable.PictureMappingByRef</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Map by reference picture</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<ValuesPicture>
 										<xr:Ref>StdPicture.GetURL</xr:Ref>
@@ -376,6 +502,12 @@ Then, if any items are left unmapped, you can map them manually.</v8:content>
 												<PictureField name="MappingTableDestinationPictureIndex" id="285">
 													<DataPath>MappingTable.DestinationPictureIndex</DataPath>
 													<SkipOnInput>true</SkipOnInput>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Destination picture index</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>None</TitleLocation>
 													<WarningOnEditRepresentation>DontShow</WarningOnEditRepresentation>
 													<EditMode>EnterOnInput</EditMode>
@@ -393,30 +525,60 @@ Then, if any items are left unmapped, you can map them manually.</v8:content>
 												</PictureField>
 												<InputField name="MappingTableDestinationField1" id="48">
 													<DataPath>MappingTable.DestinationField1</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Destination field1</v8:content>
+														</v8:item>
+													</Title>
 													<EditMode>EnterOnInput</EditMode>
 													<ContextMenu name="MappingTableDestinationField1ContextMenu" id="49"/>
 													<ExtendedTooltip name="MappingTableDestinationField1ExtendedTooltip" id="377"/>
 												</InputField>
 												<InputField name="MappingTableDestinationField2" id="50">
 													<DataPath>MappingTable.DestinationField2</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Destination field2</v8:content>
+														</v8:item>
+													</Title>
 													<EditMode>EnterOnInput</EditMode>
 													<ContextMenu name="MappingTableDestinationField2ContextMenu" id="51"/>
 													<ExtendedTooltip name="MappingTableDestinationField2ExtendedTooltip" id="378"/>
 												</InputField>
 												<InputField name="MappingTableDestinationField3" id="52">
 													<DataPath>MappingTable.DestinationField3</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Destination field3</v8:content>
+														</v8:item>
+													</Title>
 													<EditMode>EnterOnInput</EditMode>
 													<ContextMenu name="MappingTableDestinationField3ContextMenu" id="53"/>
 													<ExtendedTooltip name="MappingTableDestinationField3ExtendedTooltip" id="379"/>
 												</InputField>
 												<InputField name="MappingTableDestinationField4" id="54">
 													<DataPath>MappingTable.DestinationField4</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Destination field4</v8:content>
+														</v8:item>
+													</Title>
 													<EditMode>EnterOnInput</EditMode>
 													<ContextMenu name="MappingTableDestinationField4ContextMenu" id="55"/>
 													<ExtendedTooltip name="MappingTableDestinationField4ExtendedTooltip" id="380"/>
 												</InputField>
 												<InputField name="MappingTableDestinationField5" id="56">
 													<DataPath>MappingTable.DestinationField5</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Destination field5</v8:content>
+														</v8:item>
+													</Title>
 													<EditMode>EnterOnInput</EditMode>
 													<ContextMenu name="MappingTableDestinationField5ContextMenu" id="57"/>
 													<ExtendedTooltip name="MappingTableDestinationField5ExtendedTooltip" id="381"/>
@@ -448,6 +610,12 @@ Then, if any items are left unmapped, you can map them manually.</v8:content>
 												<PictureField name="MappingTableSourcePictureIndex" id="283">
 													<DataPath>MappingTable.SourcePictureIndex</DataPath>
 													<ReadOnly>true</ReadOnly>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Source picture index</v8:content>
+														</v8:item>
+													</Title>
 													<EditMode>EnterOnInput</EditMode>
 													<ShowInHeader>false</ShowInHeader>
 													<ShowInFooter>false</ShowInFooter>
@@ -463,30 +631,60 @@ Then, if any items are left unmapped, you can map them manually.</v8:content>
 												</PictureField>
 												<InputField name="MappingTableSourceField1" id="58">
 													<DataPath>MappingTable.SourceField1</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Source field1</v8:content>
+														</v8:item>
+													</Title>
 													<EditMode>EnterOnInput</EditMode>
 													<ContextMenu name="MappingTableSourceField1ContextMenu" id="59"/>
 													<ExtendedTooltip name="MappingTableSourceField1ExtendedTooltip" id="385"/>
 												</InputField>
 												<InputField name="MappingTableSourceField2" id="60">
 													<DataPath>MappingTable.SourceField2</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Source field2</v8:content>
+														</v8:item>
+													</Title>
 													<EditMode>EnterOnInput</EditMode>
 													<ContextMenu name="MappingTableSourceField2ContextMenu" id="61"/>
 													<ExtendedTooltip name="MappingTableSourceField2ExtendedTooltip" id="386"/>
 												</InputField>
 												<InputField name="MappingTableSourceField3" id="62">
 													<DataPath>MappingTable.SourceField3</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Source field3</v8:content>
+														</v8:item>
+													</Title>
 													<EditMode>EnterOnInput</EditMode>
 													<ContextMenu name="MappingTableSourceField3ContextMenu" id="63"/>
 													<ExtendedTooltip name="MappingTableSourceField3ExtendedTooltip" id="387"/>
 												</InputField>
 												<InputField name="MappingTableSourceField4" id="64">
 													<DataPath>MappingTable.SourceField4</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Source field4</v8:content>
+														</v8:item>
+													</Title>
 													<EditMode>EnterOnInput</EditMode>
 													<ContextMenu name="MappingTableSourceField4ContextMenu" id="65"/>
 													<ExtendedTooltip name="MappingTableSourceField4ExtendedTooltip" id="388"/>
 												</InputField>
 												<InputField name="MappingTableSourceField5" id="66">
 													<DataPath>MappingTable.SourceField5</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Source field5</v8:content>
+														</v8:item>
+													</Title>
 													<EditMode>EnterOnInput</EditMode>
 													<ContextMenu name="MappingTableSourceField5ContextMenu" id="67"/>
 													<ExtendedTooltip name="MappingTableSourceField5ExtendedTooltip" id="389"/>
@@ -548,7 +746,7 @@ Then, if any items are left unmapped, you can map them manually.</v8:content>
 											<Behavior>Usual</Behavior>
 											<Representation>None</Representation>
 											<ShowTitle>false</ShowTitle>
-											<ExtendedTooltip name="PictureGroup4ExtendedTooltip" id="393"/>
+											<ExtendedTooltip name="PicturesGroupExtendedTooltip" id="393"/>
 											<ChildItems>
 												<PictureDecoration name="Decoration14" id="331">
 													<SkipOnInput>false</SkipOnInput>
@@ -652,7 +850,7 @@ Then, if any items are left unmapped, you can map them manually.</v8:content>
 											<Behavior>Usual</Behavior>
 											<Representation>None</Representation>
 											<ShowTitle>false</ShowTitle>
-											<ExtendedTooltip name="PictureGroup41ExtendedTooltip" id="400"/>
+											<ExtendedTooltip name="PicturesGroup1ExtendedTooltip" id="400"/>
 											<ChildItems>
 												<PictureDecoration name="Decoration3" id="324">
 													<SkipOnInput>false</SkipOnInput>
@@ -734,6 +932,12 @@ Then, if any items are left unmapped, you can map them manually.</v8:content>
 				<LabelField name="MappedObjectCount" id="316">
 					<DataPath>MappedObjectCount</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Mapped</v8:content>
+						</v8:item>
+					</Title>
 					<Width>6</Width>
 					<Format>
 						<v8:item>
@@ -758,6 +962,12 @@ Then, if any items are left unmapped, you can map them manually.</v8:content>
 				<LabelField name="UnmappedObjectsCount" id="277">
 					<DataPath>UnmappedObjectsCount</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Not mapped</v8:content>
+						</v8:item>
+					</Title>
 					<Width>6</Width>
 					<Format>
 						<v8:item>
@@ -1126,7 +1336,7 @@ Then, if any items are left unmapped, you can map them manually.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Output</v8:content>
+					<v8:content>Show</v8:content>
 				</v8:item>
 			</Title>
 			<Type>

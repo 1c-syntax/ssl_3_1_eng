@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -31,11 +32,18 @@ EndFunction
 //  User - CatalogRef.Users - User whose available actions to get.
 //   If not specified, get available actions for the active user.
 //   
+//
+//  MinimalActions - Undefined - Return value.
+//   Contains minimal actions of the "NewActionsWithSaaSUser" type,
+//   including the cases where a service interaction error occurred.
 //  
 // Returns:
 //   See NewActionsWithSaaSUser
 //
-Function GetActionsWithSaaSUser(Val User = Undefined) Export
+Function GetActionsWithSaaSUser(Val User = Undefined,
+			MinimalActions = Undefined) Export
+	
+	MinimalActions = NewActionsWithSaaSUser();
 	
 	If User = Undefined Then
 		User = Users.CurrentUser();
@@ -59,7 +67,7 @@ Function GetActionsWithSaaSUser(Val User = Undefined) Export
 			Return ActionsWithNewSaaSUser();
 		Else
 			ErrorText = NStr("en = 'Insufficient rights to add users';");
-			Raise ErrorText;
+			Raise(ErrorText, ErrorCategory.AccessViolation);
 		EndIf;
 	EndIf;
 	
@@ -129,7 +137,7 @@ Procedure WriteSaaSUser(Val User, Val CreateServiceUser, Val ServiceUserPassword
 	
 	If ValueIsFilled(UserObject.IBUserID) Then
 		IBUser = InfoBaseUsers.FindByUUID(UserObject.IBUserID);
-		AccessAllowed = ApplicationCanBeLaunched(IBUser);
+		AccessAllowed = CanStartApp(IBUser);
 	Else
 		AccessAllowed = False;
 	EndIf;
@@ -179,26 +187,26 @@ Procedure WriteSaaSUser(Val User, Val CreateServiceUser, Val ServiceUserPassword
 	
 EndProcedure
 
-// 
+// Notifies the service manager about the updated logon permissions.
 // 
 // 
 // Parameters:
 //  User - CatalogRef.Users
 //  IBUser - InfoBaseUser
-//  OldInformationSecurityUser - Undefined - 
-//                       - InfoBaseUser - 
+//  InfobaseOldUser - Undefined - Send unconditionally.
+//                       - InfoBaseUser - Send if a change was made.
 //
-Procedure ReportAppLaunchChanged(User, IBUser, OldInformationSecurityUser = Undefined) Export
+Procedure NotifyAppStartupModified(User, IBUser, InfobaseOldUser = Undefined) Export
 	
 	If Not Common.SubsystemExists("CloudTechnology.Core")
-	 Or Not Common.SubsystemExists("CloudTechnology.MessagesExchange")
-	 Or Not MessagesSupportedHasRightsToLogIn() Then
+	 Or Not Common.SubsystemExists("CloudTechnology.MessagesExchange") Then
 		Return;
 	EndIf;
 	
-	PossibleLaunch = ApplicationCanBeLaunched(IBUser);
-	If OldInformationSecurityUser <> Undefined
-	   And PossibleLaunch = ApplicationCanBeLaunched(OldInformationSecurityUser) Then
+	IsStartupPossible = CanStartApp(IBUser);
+	If InfobaseOldUser <> Undefined
+	   And IsStartupPossible = CanStartApp(InfobaseOldUser)
+	 Or Not MessagesSupportedHasRightsToLogIn() Then
 		Return;
 	EndIf;
 	
@@ -212,7 +220,7 @@ Procedure ReportAppLaunchChanged(User, IBUser, OldInformationSecurityUser = Unde
 	User_Info.Insert("DataArea", ModuleSaaSOperations.SessionSeparatorValue());
 	User_Info.Insert("IBUserID", Attributes.IBUserID);
 	User_Info.Insert("ServiceUserID", Attributes.ServiceUserID);
-	User_Info.Insert("HasRights", PossibleLaunch);
+	User_Info.Insert("HasRights", IsStartupPossible);
 	User_Info.Insert("DateUTC", CurrentUniversalDate());
 	
 	BeginTransaction();
@@ -294,8 +302,8 @@ EndFunction
 Procedure OnNoCurrentUserInCatalog(CreateUser) Export
 	
 	If IsSharedIBUser() Then
-		
-		
+		// 
+		// 
 		CreateUser = True;
 	EndIf;
 	
@@ -371,8 +379,8 @@ Procedure OnStartIBUserProcessing(ProcessingParameters, IBUserDetails) Export
 	        And UserRegisteredAsShared(
 	              IBUserDetails.UUID) Then
 		
-		
-		
+		// 
+		// 
 		ProcessingParameters.Delete("Action");
 		
 		If IBUserDetails.Count() > 2
@@ -564,9 +572,9 @@ Procedure OnEndIBUserProcessing(UserObject, ProcessingParameters, UpdateRoles) E
 					ProcessingParameters.CreateServiceUser,
 					UserObject.AdditionalProperties.ServiceUserPassword);
 			Else
-				ReportAppLaunchChanged(UserObject.Ref,
-					ProcessingParameters.NewIBUser,
-					ProcessingParameters.OldInformationSecurityUser);
+				NotifyAppStartupModified(UserObject.Ref,
+					ProcessingParameters.InfobaseNewUser,
+					ProcessingParameters.InfobaseOldUser);
 			EndIf;
 			SetPrivilegedMode(False);
 			
@@ -579,7 +587,7 @@ Procedure OnEndIBUserProcessing(UserObject, ProcessingParameters, UpdateRoles) E
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Event handlers of the "SaaS" SSL subsystem
+// Event handlers of the SaaSOperations SSL subsystem
 
 // See SSLSubsystemsIntegration.OnDefineUserAlias
 Procedure OnDefineUserAlias(UserIdentificator, Alias) Export
@@ -591,8 +599,8 @@ Procedure OnDefineUserAlias(UserIdentificator, Alias) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
-
+// 
+// 
 
 // See ExportImportDataOverridable.OnFillTypesThatRequireRefAnnotationOnImport.
 Procedure OnFillTypesThatRequireRefAnnotationOnImport(Types) Export
@@ -841,12 +849,12 @@ Procedure UpdateDetailsSaasManagerWebService()
 EndProcedure
 
 // Parameters:
-//  IBUser - 
+//  IBUser - Undefined, IBUser
 //
 // Returns:
 //  Boolean
 //
-Function ApplicationCanBeLaunched(IBUser)
+Function CanStartApp(IBUser)
 	
 	Return IBUser <> Undefined
 		And Users.CanSignIn(IBUser)
@@ -1146,14 +1154,14 @@ Procedure HandleWebServiceErrorInfo(Val ErrorInfo, Val OperationName)
 		ModuleSaaSOperations.HandleWebServiceErrorInfo(
 			ErrorInfo,
 			Subsystem.Name,
-			"ManageApplication", // Not localizable.
+			"ManageApplication", // Do not localize.
 			OperationName);
 		
 	EndIf;
 	
 EndProcedure
 
-// 
+// Intended for procedure "NotifyHasRightsToLogIn".
 Function MessagesSupportedHasRightsToLogIn()
 	
 	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");

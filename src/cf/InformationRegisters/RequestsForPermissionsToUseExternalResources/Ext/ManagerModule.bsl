@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -273,23 +274,17 @@ EndFunction
 Function CanRequestForPermissionsToUseExternalResources()
 	
 	If Common.FileInfobase(InfoBaseConnectionString()) Or Not GetFunctionalOption("UseSecurityProfiles") Then
-		
-		
-		
+		// 
+		// 
 		Return PrivilegedMode() Or Users.IsFullUser();
-		
 	Else
-		
-		
-		
+		// 
+		// 
 		If Not Users.IsFullUser() Then
-			
-			Raise NStr("en = 'Insufficient access rights to request permissions to use external resources.';");
-			
+			Raise(NStr("en = 'Insufficient access rights to request permissions to use external resources.';"),
+				ErrorCategory.AccessViolation);
 		EndIf;
-		
 		Return True;
-		
 	EndIf; 
 	
 EndFunction
@@ -363,8 +358,8 @@ Procedure ClearObsoleteRequests() Export
 				
 			Except
 				
-				
-				
+				// 
+				// 
 				Continue;
 				
 			EndTry;

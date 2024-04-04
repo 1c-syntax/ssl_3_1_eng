@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -13,6 +14,8 @@
 Var DisplayedUserTasksAndSections;
 &AtClient
 Var OutputNotifications;
+&AtClient
+Var ErrorReport;
 
 #EndRegion
 
@@ -37,9 +40,9 @@ Procedure OnOpen(Cancel)
 	If TimeConsumingOperation <> Undefined Then
 		IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 		IdleParameters.OutputIdleWindow = False;
-		IdleParameters.Interval = 2; 
-		CompletionNotification2 = New NotifyDescription("GenerateToDoListInBackgroundCompletion", ThisObject);
-		TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CompletionNotification2, IdleParameters);
+		IdleParameters.Interval = 2; // 
+		CallbackOnCompletion = New NotifyDescription("GenerateToDoListInBackgroundCompletion", ThisObject);
+		TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
 	EndIf;
 	
 EndProcedure
@@ -60,10 +63,11 @@ EndProcedure
 &AtClient
 Procedure OnClose(Exit)
 	
-	DetachIdleHandler("UpdateCurrentToDosAutomatically");
-	If Exit Then
-		Return;
+	If ErrorReport <> Undefined Then
+		StandardSubsystemsClient.SendErrorReport(ErrorReport, ErrorInfo);
 	EndIf;
+	
+	DetachIdleHandler("UpdateCurrentToDosAutomatically");
 	
 EndProcedure
 
@@ -137,7 +141,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure UpdateCurrentToDosAutomatically()
@@ -156,8 +160,8 @@ Procedure GenerateToDoList(ToDoList)
 	ToDoList.Sort("IsSection Desc, SectionPresentation Asc, Important Desc, Presentation");
 	PutToTempStorage(ToDoList, UserTasksToStorage);
 	
-	
-	
+	// 
+	// 
 	If ViewSettings.SectionsVisibility.Count() = 0 Then
 		ToDoListInternal.SetInitialSectionsOrder(ToDoList);
 	EndIf;
@@ -278,7 +282,7 @@ Procedure OrderToDoList()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
 Function GenerateToDoListInBackground()
@@ -296,11 +300,11 @@ Function GenerateToDoListInBackground()
 	EndIf;
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.WaitCompletion = 0; 
+	ExecutionParameters.WaitCompletion = 0; // 
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Update to-do list';");
 	ExecutionParameters.ResultAddress = UserTasksToStorage;
-	
-	
+	// 
+	// 
 	ExecutionParameters.RunInBackground = True;
 	
 	Result = TimeConsumingOperations.ExecuteInBackground("ToDoListInternal.GenerateToDoListForUser",
@@ -362,6 +366,10 @@ Procedure ImportToDoList(ToDoListAddress)
 	
 EndProcedure
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
 Procedure GenerateToDoListInBackgroundCompletion(Result, AdditionalParameters) Export
 	
@@ -379,12 +387,17 @@ Procedure GenerateToDoListInBackgroundCompletion(Result, AdditionalParameters) E
 		Items.FormConfigure.Enabled = OnlyUpdateUserTasks;
 		Items.UserTasksPage.Visible     = False;
 		Items.ErrorPage.Visible   = True;
-		ErrorText = Result.DetailErrorDescription;
+		ErrorText          = ErrorProcessing.ErrorMessageForUser(Result.ErrorInfo);
+		ErrorTextDetailed = ErrorProcessing.DetailErrorDescription(Result.ErrorInfo);
+		ErrorInfo   = Result.ErrorInfo;
+		ErrorReport        = New ErrorReport(Result.ErrorInfo);
+		StandardSubsystemsClient.ConfigureVisibilityAndTitleForURLSendErrorReport(Items.GenerateErrorReport, Result.ErrorInfo);
+		Items.GroupDetails_3.Visible = Not Items.GenerateErrorReport.Visible;
 		Return;
 	ElsIf Result.Status = "Completed2" Then
 		ImportToDoList(Result.ResultAddress);
 		If OutputNotifications Then
-			Picture = PictureLib.Information32;
+			Picture = PictureLib.DialogInformation;
 			For Each ToDoWithNotification In ToDoItemsWithNotification Do
 				NotificationProcessing = New NotifyDescription("GoToImportantUserTaskFromNotificationCenter", ThisObject, 
 					ToDoWithNotification.Id);
@@ -405,7 +418,7 @@ Procedure GenerateToDoListInBackgroundCompletion(Result, AdditionalParameters) E
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure GoToImportantUserTaskFromNotificationCenter(Id) Export
@@ -421,8 +434,8 @@ EndProcedure
 &AtClient
 Procedure StartToDoListUpdate(AutoUpdate = False, UpdateSilently = False)
 	
-	
-	
+	// 
+	// 
 	If Not AutoUpdate Then
 		DetachIdleHandler("UpdateCurrentToDosAutomatically");
 	EndIf;
@@ -443,9 +456,9 @@ Procedure StartToDoListUpdate(AutoUpdate = False, UpdateSilently = False)
 	
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
-	IdleParameters.Interval = 2; 
-	CompletionNotification2 = New NotifyDescription("GenerateToDoListInBackgroundCompletion", ThisObject);
-	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CompletionNotification2, IdleParameters);
+	IdleParameters.Interval = 2; // 
+	CallbackOnCompletion = New NotifyDescription("GenerateToDoListInBackgroundCompletion", ThisObject);
+	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
 	
 EndProcedure
 
@@ -501,7 +514,7 @@ EndProcedure
 &AtServer
 Procedure CreateCaption(ToDoItem, Var_Group, SectionCollapsed)
 	
-	
+	// Create an icon for the section show/hide button.
 	Item = Items.Add("Picture" + ToDoItem.OwnerID, Type("FormDecoration"), Var_Group); // FormFieldExtensionForALabelField
 	Item.Type = FormDecorationType.Picture;
 	Item.Hyperlink = True;
@@ -825,6 +838,11 @@ Procedure AddToDoItemsWithNotification(ViewSettings, ToDoList)
 		ToDoWithNotification.LongDesc = String.Presentation + Addition;
 	EndDo;
 	
+EndProcedure
+
+&AtClient
+Procedure GenerateErrorReportClick(Item)
+	StandardSubsystemsClient.ShowErrorReport(ErrorReport);
 EndProcedure
 
 #EndRegion

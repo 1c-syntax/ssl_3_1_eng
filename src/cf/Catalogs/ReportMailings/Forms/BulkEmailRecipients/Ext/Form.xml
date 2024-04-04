@@ -29,6 +29,12 @@
 	<ChildItems>
 		<InputField name="RecipientsEmailAddressKind" id="41">
 			<DataPath>RecipientsEmailAddressKind</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Email account</v8:content>
+				</v8:item>
+			</Title>
 			<CreateButton>false</CreateButton>
 			<QuickChoice>true</QuickChoice>
 			<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>
@@ -88,11 +94,23 @@
 					<Button name="Pick" id="74">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.PickRecipients</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Pick</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="PickExtendedTooltip" id="75"/>
 					</Button>
 					<Button name="PasteFromClipboard" id="95">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.PasteFromClipboard</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Paste from clipboard</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="PasteFromClipboardExtendedTooltip" id="96"/>
 					</Button>
 					<ButtonGroup name="RecipientsSelectClearAllGroup" id="106">
@@ -108,11 +126,23 @@
 							<Button name="RecipientsSelectAll3" id="108">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.SelectCheckBoxes</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Select all</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="RecipientsSelectAllExtendedTooltip" id="109"/>
 							</Button>
 							<Button name="RecipientsClearAll4" id="110">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.ClearCheckBoxes</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Clear all</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="RecipientsClearAllExtendedTooltip" id="111"/>
 							</Button>
 						</ChildItems>
@@ -209,6 +239,12 @@
 					<ChildItems>
 						<InputField name="RecipientsRecipient" id="68">
 							<DataPath>Recipients.Recipient</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Recipient</v8:content>
+								</v8:item>
+							</Title>
 							<EditMode>EnterOnInput</EditMode>
 							<Width>10</Width>
 							<ContextMenu name="RecipientsRecipientContextMenu" id="69"/>
@@ -216,6 +252,12 @@
 						</InputField>
 						<InputField name="RecipientsVTAddress" id="80">
 							<DataPath>Recipients.Address</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Email</v8:content>
+								</v8:item>
+							</Title>
 							<EditMode>EnterOnInput</EditMode>
 							<ShowInHeader>false</ShowInHeader>
 							<Width>20</Width>
@@ -226,6 +268,12 @@
 				</ColumnGroup>
 				<CheckBoxField name="RecipientsExcluded" id="71">
 					<DataPath>Recipients.Excluded</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Excluded</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<CheckBoxType>Auto</CheckBoxType>
 					<ContextMenu name="RecipientsExcludedContextMenu" id="72"/>
@@ -268,12 +316,24 @@
 						<InputField name="ResultTotalCount" id="119">
 							<DataPath>ResultTotalCount</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Total</v8:content>
+								</v8:item>
+							</Title>
 							<ContextMenu name="ResultTotalCountContextMenu" id="120"/>
 							<ExtendedTooltip name="ResultTotalCountExtendedTooltip" id="121"/>
 						</InputField>
 						<InputField name="ResultExcludedCount" id="122">
 							<DataPath>ResultExcludedCount</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Excluded</v8:content>
+								</v8:item>
+							</Title>
 							<ContextMenu name="ResultExcludedCountContextMenu" id="123"/>
 							<ExtendedTooltip name="ResultExcludedCountExtendedTooltip" id="124"/>
 						</InputField>
@@ -295,6 +355,12 @@
 							<Type>CommandBarButton</Type>
 							<DefaultButton>true</DefaultButton>
 							<CommandName>Form.Command.OK</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>OK</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="OKExtendedTooltip" id="50"/>
 						</Button>
 						<Button name="FormClose" id="39">

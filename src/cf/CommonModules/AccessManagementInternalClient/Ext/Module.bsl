@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -418,8 +419,8 @@ EndProcedure
 ////////////////////////////////////////////////////////////////////////////////
 // Event handlers for the ReportForm common form.
 
-// 
-// 
+// Handles mouse double-click, "Enter" key, and hyperlink activation in report spreadsheets.
+// See "Form field extension for a spreadsheet document field.Choice" in Syntax Assistant.
 //
 // Parameters:
 //   ReportForm          - ClientApplicationForm - a report form.
@@ -616,7 +617,7 @@ EndProcedure
 
 // Process report details.
 
-// 
+// Intended for procedure "OnProcessDetails".
 Procedure WhenProcessingReportDecryptionAccessPermissionAnalysis(ReportForm, Item, Details, StandardProcessing)
 	
 	StandardProcessing = False;
@@ -820,7 +821,7 @@ Procedure WhenProcessingReportDecryptionAccessPermissionAnalysis(ReportForm, Ite
 	
 EndProcedure
 
-// 
+// Intended for procedure "OnProcessDetails".
 Procedure WhenProcessingDecodingReportRightsRoles(ReportForm, Item, Details, StandardProcessing)
 	
 	StandardProcessing = False;
@@ -996,8 +997,8 @@ Procedure WhenProcessingDecodingReportRightsRoles(ReportForm, Item, Details, Sta
 	
 EndProcedure
 
-// 
-// 
+// Intended for procedures "OnProcessAccessRightsAnalysisReportDrillDown"
+// and "OnProcessRolesRightsReportDrillDown".
 //
 Function ParameterValue(SettingsComposer, ParameterName, UsedAlways = False)
 	
@@ -1040,8 +1041,8 @@ Function InitialFilterValue(ReportForm, ParameterName)
 	
 EndFunction
 
-// 
-// 
+// Intended for procedures "OnProcessAccessRightsAnalysisReportDrillDown"
+// and "OnProcessRolesRightsReportDrillDown".
 //
 Procedure RefineUseDestinationKey(Var_Key, Filter, PropertyName)
 	
@@ -1070,8 +1071,8 @@ Procedure RefineUseDestinationKey(Var_Key, Filter, PropertyName)
 	
 EndProcedure
 
-// 
-// 
+// Intended for procedures "OnProcessAccessRightsAnalysisReportDrillDown"
+// and "OnProcessRolesRightsReportDrillDown".
 //
 Procedure ShortenUseDestinationKey(PurposeUseKey)
 	
@@ -1085,7 +1086,7 @@ Procedure ShortenUseDestinationKey(PurposeUseKey)
 	
 EndProcedure
 
-// 
+// Intended for procedure "OnProcessAccessRightsAnalysisReportDrillDown".
 Function GroupByReportsEnabled1(SettingsComposer)
 	
 	Result = False;
@@ -1127,7 +1128,7 @@ Function FindGroupItemByName(ItemsCollection, Name)
 	
 EndFunction
 
-// 
+// Intended for procedure "OnProcessRolesRightsReportDrillDown".
 Procedure SetParameterValue(Filter, ParameterName, ReportForm, UsedAlways = False)
 	
 	ParameterValue = ParameterValue(ReportForm.Report.SettingsComposer, ParameterName, UsedAlways);
@@ -1138,7 +1139,7 @@ Procedure SetParameterValue(Filter, ParameterName, ReportForm, UsedAlways = Fals
 EndProcedure
 
 
-// 
+// Intended for procedure "OnValueChoiceStart".
 Procedure AttheStartofSelectingReportValuesAnalysisAccessPermissions(ReportForm, SelectionConditions, ClosingNotification1, StandardProcessing)
 	
 	If SelectionConditions.FieldName <> "MetadataObject" Then
@@ -1180,7 +1181,7 @@ Procedure AttheStartofSelectingReportValuesAnalysisAccessPermissions(ReportForm,
 	
 EndProcedure
 
-// 
+// Intended for procedure "OnValueChoiceStart".
 Procedure AttheStartofSelectingReportValuesRoleRights(ReportForm, SelectionConditions, ClosingNotification1, StandardProcessing)
 	
 	If SelectionConditions.FieldName <> "Role"
@@ -1221,7 +1222,7 @@ Procedure AttheStartofSelectingReportValuesRoleRights(ReportForm, SelectionCondi
 	
 EndProcedure
 
-// 
+// Intended for procedure "OnValueChoiceStart".
 Procedure AfterSelectingMetadataObjects(SelectedValues, Context) Export
 	
 	If Context.SelectionConditions.FieldName = "Role"
@@ -1236,7 +1237,7 @@ Procedure AfterSelectingMetadataObjects(SelectedValues, Context) Export
 	
 EndProcedure
 
-// 
+// Intended for procedure "OnValueChoiceStart".
 Procedure DeleteDisabledValues(MarkedValues)
 	
 	IndexOf = MarkedValues.Count() - 1;
@@ -1252,7 +1253,7 @@ Procedure DeleteDisabledValues(MarkedValues)
 	
 EndProcedure
 
-// 
+// Intended for procedure "OnValueChoiceStart".
 Procedure AddMetadataObjectCollectionWithRights(Collections)
 	
 	Collections.Add("Subsystems");

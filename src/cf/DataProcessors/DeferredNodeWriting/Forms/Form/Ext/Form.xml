@@ -162,7 +162,7 @@ Please wait…</v8:content>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="GroupErrorExtendedHint" id="41"/>
+							<ExtendedTooltip name="ErrorGroupExtendedTooltip" id="41"/>
 							<ChildItems>
 								<PictureDecoration name="Decoration4" id="42">
 									<Picture>
@@ -198,6 +198,12 @@ Please wait…</v8:content>
 								<Button name="CloseCommand" id="50">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.CloseCommand</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Close</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="CloseCommandExtendedTooltip" id="51"/>
 								</Button>
 							</ChildItems>

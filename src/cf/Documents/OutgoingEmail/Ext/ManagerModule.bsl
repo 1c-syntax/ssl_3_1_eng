@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -254,7 +255,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 		
 		Try
 			
-			// Setting a managed lock to post object responsible reading.
+			// Set a managed lock to perform a locking read of the object.
 			Block = New DataLock;
 			
 			LockItem = Block.Add(FullObjectName);
@@ -284,22 +285,14 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			CommitTransaction();
 			
 		Except
-			
 			RollbackTransaction();
 			
 			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
 			
-			ObjectMetadata = Common.MetadataObjectByFullName(FullObjectName);
-			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Failed to process %1 %2 due to:
-				|%3';"),
-				FullObjectName, RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-			WriteLogEvent(InfobaseUpdate.EventLogEvent(),
-				EventLogLevel.Warning,
-				ObjectMetadata,
+			InfobaseUpdate.WriteErrorToEventLog(
 				ObjectsForProcessing.Ref,
-				MessageText);
-			
+				RepresentationOfTheReference,
+				ErrorInfo());
 		EndTry;
 		
 	EndDo;

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -312,6 +313,7 @@ Function MakeChanges(Val ObjectData, Val ObjectToChange, Val Parameters)
 	Result.Insert("AdditionalObjectAttributesToChange", New Map);
 	Result.Insert("AdditionalObjectInfoToChange",  New Map);
 	Result.Insert("AddInfoRecordsArray",      New Array);
+	Result.Insert("ExternalAttributesToChange",    New Map);
 	
 	AdditionalAttributes = New Array;
 	For Each Operation In Parameters.AttributesToChange Do
@@ -383,6 +385,17 @@ Function MakeChanges(Val ObjectData, Val ObjectToChange, Val Parameters)
 			
 			FormAttributeName = AddInfoNamePrefix() + StrReplace(String(Operation.Property.UUID()), "-", "_");
 			Result.AdditionalObjectInfoToChange.Insert(FormAttributeName, Value);
+		
+		ElsIf Operation.OperationKind = 4 Then // Update an external attribute.
+			
+			If Value = Undefined
+			   And Operation.AllowedTypes.Types().Count() = 1 Then
+				
+				CastedValue = Operation.AllowedTypes.AdjustValue(Value);
+			Else
+				CastedValue = Value;
+			EndIf;
+			Result.ExternalAttributesToChange.Insert(Operation.Name, CastedValue);
 			
 		EndIf;
 		
@@ -650,8 +663,8 @@ Function AttributesEditingSettings(MetadataObject, ObjectsManagers = Null) Expor
 				ToEdit = ObjectManager.AttributesToEditInBatchProcessing();
 		EndIf;
 	Else
-		
-		
+		// 
+		// 
 		ObjectManager = ObjectManagerByFullName(MetadataObject.FullName());
 		Try
 			ToEdit = ObjectManager.AttributesToEditInBatchProcessing();
@@ -671,8 +684,8 @@ Function AttributesEditingSettings(MetadataObject, ObjectsManagers = Null) Expor
 		EndIf;
 		
 	Else
-		
-		
+		// 
+		// 
 		Try
 			NotToEdit = ObjectManager.AttributesToSkipInBatchProcessing();
 		Except
@@ -745,6 +758,23 @@ Function SSLVersionMatchesRequirements() Export
 	
 	SSLVersion = ModuleStandardSubsystemsServer.LibraryVersion();
 	Return CompareVersions(SSLVersion, "3.1.8.240") >= 0;
+	
+EndFunction
+
+Function IsSSLVersionSupportsUserExternalAttributes() Export
+	
+	Try
+		ModuleStandardSubsystemsServer = CommonModule("StandardSubsystemsServer");
+	Except
+		// Module doesn't exist.
+		ModuleStandardSubsystemsServer = Undefined;
+	EndTry;
+	If ModuleStandardSubsystemsServer = Undefined Then 
+		Return False;
+	EndIf;
+	
+	SSLVersion = ModuleStandardSubsystemsServer.LibraryVersion();
+	Return CompareVersions(SSLVersion, "3.1.10.32") >= 0;
 	
 EndFunction
 
@@ -912,7 +942,8 @@ Function EvalExpression(Val Expression, Object, AvailableAttributes)
 		Value = "";
 		If AttributeDetails.OperationKind = 1 Then
 			Value = Object[AttributeDetails.Name];
-		Else
+			
+		ElsIf AttributeDetails.OperationKind < 4 Then
 			ModulePropertyManager = CommonModule("PropertyManager");
 			ListOfProperties = New Array;
 			ListOfProperties.Add(AttributeDetails.Property);
@@ -920,6 +951,10 @@ Function EvalExpression(Val Expression, Object, AvailableAttributes)
 			For Each TableRow In PropertiesValues.FindRows(New Structure("Property", AttributeDetails.Property)) Do
 				Value = TableRow.Value;
 			EndDo;
+		Else
+			ErrorText = SubstituteParametersToString(
+				NStr("en = 'Expressions do not support the ""%1"" attribute';"), AttributeDetails.Presentation);
+			Raise ErrorText;
 		EndIf;
 		
 		Expression = StrReplace(Expression, "[" + AttributeDetails.Presentation + "]", """" 
@@ -1019,7 +1054,7 @@ EndFunction
 // Checks whether the object is an item group.
 //
 // Parameters:
-//  Object       - 
+//  Object       - Object, Reference, FormDataStructure for the Object type.
 //
 // Returns:
 //  Boolean
@@ -1029,6 +1064,7 @@ Function ObjectIsFolder(Object) Export
 	If RefTypeValue(Object) Then
 		Ref = Object;
 	Else
+		//@skip-check reading-attribute-from-database - Data is being read from an object.
 		Ref = Object.Ref;
 	EndIf;
 	
@@ -1280,7 +1316,7 @@ EndFunction
 Function CommonModule(Name) Export
 	
 	If Metadata.CommonModules.Find(Name) <> Undefined Then
-		Module = Eval(Name); 
+		Module = Eval(Name); // ACC:488 "Calculate" instead of "Common.CalculateInSafeMode" because it's a standalone data processor.
 	Else
 		Module = Undefined;
 	EndIf;
@@ -1303,8 +1339,8 @@ Function SubstituteParametersToString(Val SubstitutionString,
 	Return SubstitutionString;
 EndFunction
 
-
-
+// 
+// 
 
 // Executes an arbitrary algorithm in the 1C:Enterprise script, setting
 //  the safe mode of script execution and the safe mode of data separation
@@ -1409,11 +1445,17 @@ EndFunction
 
 #Region MultiThreadedObjectModification
 
-// ACC:581-off Export as it is called from a background job.
+// ACC:581-off - An export function as it's called from a background job.
 Function ObjectsBatchChangeResult(ObjectsToProcess, ChangeResult, ModificationSettings) Export
 
 	Ref         = Undefined;
 	WriteError = True;
+	
+	ModuleUsersInternal = CommonModule("UsersInternal");
+	If ModuleUsersInternal = Undefined
+	 Or Not IsSSLVersionSupportsUserExternalAttributes() Then
+		ModuleUsersInternal = Undefined;
+	EndIf;
 	
 	DisableAccessKeysUpdate(True);
 	If ModificationSettings.ChangeInTransaction Then
@@ -1471,6 +1513,14 @@ Function ObjectsBatchChangeResult(ObjectsToProcess, ChangeResult, ModificationSe
 					For Each RecordManager In Changes.AddInfoRecordsArray Do
 						RecordManager.Write(True);
 					EndDo;
+				EndIf;
+				
+				If ModuleUsersInternal <> Undefined
+				   And Changes <> Undefined
+				   And ValueIsFilled(Changes.ExternalAttributesToChange) Then
+					
+					ModuleUsersInternal.OnChangeExternalAttributes(ObjectToChange,
+						Changes.ExternalAttributesToChange);
 				EndIf;
 				
 				ChangesAreConfigured = ValueIsFilled(ModificationSettings.AttributesToChange)

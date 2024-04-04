@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -87,7 +88,9 @@ Function FieldDetails(DataPath, ListsOfFields) Export
 		If FieldsCollection = Undefined Then
 			ListSettings.FieldsCollection = NewCollectionOfFields();
 			FieldsCollection = ListSettings.FieldsCollection;
-			FillInTheListOfAvailableDetails(FieldsCollection, SourcesOfAvailableFields, , ListSettings);
+			FillingParametersForAvailableAttributesList = FillingParametersForAvailableAttributesList(FieldsCollection);
+			FillingParametersForAvailableAttributesList.ListSettings = ListSettings;
+			FillInTheListOfAvailableDetails(FillingParametersForAvailableAttributesList, SourcesOfAvailableFields);
 		EndIf;
 
 		Attribute = FindField(DataPath, ChildItems(FieldsCollection), False, SourcesOfAvailableFields, ListSettings);
@@ -339,14 +342,14 @@ Procedure FormulaEditorHandler(Form, Parameter, AdditionalParameters) Export
 	EndIf;
 EndProcedure
 
-// 
+// Run a search in the field list.
 // 
 // Parameters:
 //  ShapeStructure - Structure:
 //    * 
 // 
 // Returns:
-//  Undefined, Structure - :
+//  Undefined, Structure - Run a search in the field list.:
 //   * ItemsTree 
 //   * FoundItems1 - Array
 //
@@ -360,35 +363,21 @@ Function RunSearchInListOfFields(ShapeStructure) Export
 	Filter = ShapeStructure[TheNameOfTheSearchStringProps];
 	FilterIs_Specified = ValueIsFilled(Filter);
 	
-	Result = New Structure;
-	Result.Insert("ListName", NameOfTheFieldList);
-	
-	If IsBackgroundJob Then
-		Common.MessageToUser(Common.ValueToXMLString(Result));
+	If FilterIs_Specified Then
+		CacheTable = New ValueTable;
+		CacheTable.Columns.Add("NameOfTheFieldList", New TypeDescription("String"));
+		CacheTable.Columns.Add("FieldType", New TypeDescription("TypeDescription"));
+		CacheTable.Columns.Add("AvailableFields", New TypeDescription("ValueTable"));
+		ShapeStructure.Insert("CacheForDCS", CacheTable);
+		SearchResult = SetFilter(ShapeStructure, NameOfTheFieldList, Filter, ShapeStructure[NameOfTheFieldList]);
 	EndIf;
 	
-	If FilterIs_Specified Then
-		SetFilter(ShapeStructure, NameOfTheFieldList, Filter, ShapeStructure[NameOfTheFieldList]);
+	If SearchResult.FoundItems1.Count() > 0 Then
+		Return SearchResult;
+	Else
+		Return Undefined;
 	EndIf;
 		
-	If IsBackgroundJob Then
-		Return Undefined;
-	Else
-		SearchTree = ShapeStructure[NameOfTheFieldList];// See TreeOfAvailableAttributes
-		FilterStructure1 = New Structure("MatchesFilter", True);
-		ArrayOfFoundElements = SearchTree.Rows.FindRows(FilterStructure1, True);
-		If ArrayOfFoundElements.Count()  <> 0 Then
-			FoundRows = New Array;
-			For Each FoundItem In ArrayOfFoundElements Do
-				StringStructure = TreeStringIntoStructure(FoundItem, SearchTree);
-				FoundRows.Add(StringStructure);
-			EndDo;
-			
-			Result = New Structure("FoundItems1", FoundRows);
-			Return Result;
-		EndIf;
-		Return Undefined;
-	EndIf;
 EndFunction
 
 #EndRegion
@@ -405,21 +394,58 @@ Procedure SetTreeRowsIDs(Collection)
 	EndDo;
 EndProcedure
 
+// Parameters:
+//  Form - ClientApplicationForm
+//
 Function RunBackgroundSearchInFieldList(Form)
 	
-	NameOfSearchStringCurrentAttribute = Form.NameOfCurrSearchString;
+	CancellationResult = CancelBackgroundSearchJob(Form);
+	SearchListParameters = SearchListParameters(Form);
+	
+	ExecutionParameters = TimeConsumingOperations.FunctionExecutionParameters(Form.UUID);
+	TimeConsumingOperation = TimeConsumingOperations.ExecuteFunction(ExecutionParameters, 
+		"FormulasConstructorInternal.RunSearchInListOfFields", SearchListParameters);
+
+	CancellationResult.BackgroundSearchJobs.Insert(CancellationResult.NameOfTheSearchString, 
+		TimeConsumingOperation.JobID);
+	If IsTempStorageURL(Form.AddressOfLongRunningOperationDetails) Then
+		PutToTempStorage(CancellationResult.BackgroundSearchJobs, Form.AddressOfLongRunningOperationDetails);
+	Else
+		Form.AddressOfLongRunningOperationDetails = PutToTempStorage(CancellationResult.BackgroundSearchJobs, 
+			Form.UUID);
+	EndIf;
+		
+	Return	TimeConsumingOperation;
+	
+EndFunction
+
+Function CancelBackgroundSearchJob(Form)
 	
 	If IsTempStorageURL(Form.AddressOfLongRunningOperationDetails) Then
-		LongRunningOperationsMap = GetFromTempStorage(Form.AddressOfLongRunningOperationDetails);
+		BackgroundSearchJobs = GetFromTempStorage(Form.AddressOfLongRunningOperationDetails);
 	Else
-		LongRunningOperationsMap = New Map();
+		BackgroundSearchJobs = New Map();
 	EndIf;
 	
-	If LongRunningOperationsMap[NameOfSearchStringCurrentAttribute] <> Undefined Then
-		JobID = LongRunningOperationsMap[NameOfSearchStringCurrentAttribute];
+	NameOfTheSearchString = Form.NameOfCurrSearchString;
+	
+	If BackgroundSearchJobs[NameOfTheSearchString] <> Undefined Then
+		JobID = BackgroundSearchJobs[NameOfTheSearchString];
 		TimeConsumingOperations.CancelJobExecution(JobID);
+		WaitForEndOfTask = Common.FileInfobase();
+		While WaitForEndOfTask Do
+			ExecutionResult = TimeConsumingOperations.JobCompleted(JobID, True);
+			If ExecutionResult.Status <> "Running" Then
+				Break;
+			EndIf;
+		EndDo;
 	EndIf;
 	
+	Return New Structure("BackgroundSearchJobs, NameOfTheSearchString", BackgroundSearchJobs, NameOfTheSearchString);
+EndFunction
+
+Function SearchListParameters(Form)
+	NameOfSearchStringCurrentAttribute = Form.NameOfCurrSearchString;
 	FIlterRow = Form[NameOfSearchStringCurrentAttribute];
 	ListName = NameOfFieldsListAttribute(NameOfSearchStringCurrentAttribute);
 	
@@ -434,25 +460,22 @@ Function RunBackgroundSearchInFieldList(Form)
 		Return Undefined;
 	EndIf;
 	
-	ExecutionParameters = TimeConsumingOperations.FunctionExecutionParameters(Form.UUID);
-	
-	ShapeStructure = New Structure;
-
-	ShapeStructure.Insert("ListName", ListName);		
-	ShapeStructure.Insert("ConnectedFieldLists", AttachedFieldListsSearchStrings);
+	SearchListParameters = New Structure;
+	SearchListParameters.Insert("ListName", ListName);
+	SearchListParameters.Insert("ConnectedFieldLists", AttachedFieldListsSearchStrings);
 		
 	For Each AttachedListOfFields In AttachedFieldListsSearchStrings Do
 		NameOfTheFieldList = AttachedListOfFields.NameOfTheFieldList;
 		TheNameOfTheSearchStringProps = TheNameOfTheFieldListSearchStringDetails(NameOfTheFieldList);
 					
-		ShapeStructure.Insert(TheNameOfTheSearchStringProps, Form[TheNameOfTheSearchStringProps]);
+		SearchListParameters.Insert(TheNameOfTheSearchStringProps, Form[TheNameOfTheSearchStringProps]);
 		FieldTree = TreeOfAvailableAttributes(Form, AttachedListOfFields.NameOfTheFieldList);
 		
 		ValueToFormData(FieldTree, Form[AttachedListOfFields.NameOfTheFieldList]);
 		SetTreeRowsIDs(FieldTree);
-		ShapeStructure.Insert(AttachedListOfFields.NameOfTheFieldList, FieldTree);
+		SearchListParameters.Insert(AttachedListOfFields.NameOfTheFieldList, FieldTree);
 		
-		TableOfSources = FormDataToValue(Form[AttachedListOfFields.NameOfTheSourceList], Type("ValueTable"));
+		TableOfSources = Form.FormAttributeToValue(AttachedListOfFields.NameOfTheSourceList);
 		For Each TableRow In TableOfSources Do
 			If TableRow.DataCompositionSchema <> Undefined Then
 				If IsTempStorageURL(TableRow.DataCompositionSchema) Then
@@ -466,25 +489,15 @@ Function RunBackgroundSearchInFieldList(Form)
 			TableRow.FieldsCollection = Common.ValueToXMLString(Container);
 		EndDo;
 		SourcesTableRow = Common.ValueToXMLString(TableOfSources);
-		ShapeStructure.Insert(AttachedListOfFields.NameOfTheSourceList, SourcesTableRow);
+		SearchListParameters.Insert(AttachedListOfFields.NameOfTheSourceList, SourcesTableRow);
 	EndDo;
-	
-	AttributesStructure1 = New Structure("SettingsComposer, ReportSettings, LayoutOwner");
-	FillPropertyValues(AttributesStructure1, Form);
-	
-	TimeConsumingOperation = TimeConsumingOperations.ExecuteFunction(ExecutionParameters, "FormulasConstructorInternal.RunSearchInListOfFields", ShapeStructure);
-
-	LongRunningOperationsMap.Insert(NameOfSearchStringCurrentAttribute, TimeConsumingOperation.JobID);
-	If IsTempStorageURL(Form.AddressOfLongRunningOperationDetails) Then
-		PutToTempStorage(LongRunningOperationsMap, Form.AddressOfLongRunningOperationDetails);
-	Else
-		Form.AddressOfLongRunningOperationDetails = PutToTempStorage(LongRunningOperationsMap, Form.UUID);
-	EndIf;
-		
-	Return	TimeConsumingOperation;
-	
+	Return SearchListParameters;
 EndFunction
 
+// Parameters:
+//  Form - ClientApplicationForm
+//  ListName - String
+//  
 // Returns: 
 //  ValueTree:
 //   * Name - String
@@ -502,10 +515,11 @@ EndFunction
 //   * TheSubordinateElementCorrespondsToTheSelection - Boolean
 //   * IsFolder - Boolean
 //   * IsFunction - Boolean
+//   * Weight - Number
 //   * Id - UUID
 //						
 Function TreeOfAvailableAttributes(Val Form, Val ListName)
-	TreeOfCurrList = FormDataToValue(Form[ListName], Type("ValueTree"));// ValueTree
+	TreeOfCurrList = Form.FormAttributeToValue(ListName);// ValueTree
 	If TreeOfCurrList.Columns.Find("Id") = Undefined Then
 		TreeOfCurrList.Columns.Add("Id", New TypeDescription("UUID"));
 	EndIf;
@@ -542,7 +556,10 @@ Procedure AddAListOfFieldsToTheForm(Form, Parameters) Export
 		AttributesToBeAdded.Add(New FormAttribute("ExpandableBranches", New TypeDescription("String"), TheNameOfThePropsConnectedFieldLists));
 		
 		AttributesToBeAdded.Add(New FormAttribute("NameOfCurrSearchString", New TypeDescription("String")));
+		
 	EndIf;
+	
+	NameOfTheFieldList = AddingOptions.ListName;
 	
 	AddressOfLongRunningOperationDetails = AttributesValues.AddressOfLongRunningOperationDetails;
 	If AddressOfLongRunningOperationDetails = Undefined Then
@@ -550,9 +567,18 @@ Procedure AddAListOfFieldsToTheForm(Form, Parameters) Export
 		AttributesToBeAdded.Add(New FormAttribute("UseBackgroundSearch", New TypeDescription("Boolean"), TheNameOfThePropsConnectedFieldLists));
 		AttributesToBeAdded.Add(New FormAttribute("NumberOfCharsToAllowSearching", New TypeDescription("Number"), TheNameOfThePropsConnectedFieldLists));
 		AttributesToBeAdded.Add(New FormAttribute("AddressOfLongRunningOperationDetails", New TypeDescription("String")));
+		AttributesToBeAdded.Add(New FormAttribute("CacheForDCS", New TypeDescription("ValueTable")));
+		AttributesToBeAdded.Add(New FormAttribute("NameOfTheFieldList", New TypeDescription("String"), "CacheForDCS"));
+		AttributesToBeAdded.Add(New FormAttribute("FieldType", New TypeDescription("TypeDescription"), "CacheForDCS"));
+		AttributesToBeAdded.Add(New FormAttribute("AvailableFields", New TypeDescription("ValueTable"), "CacheForDCS"));
+		For Each AttributeDetails In DetailsOfTheConnectedList() Do
+			AttributeName = AttributeDetails.Key;
+			AttributeType = AttributeDetails.Value;
+			AttributesToBeAdded.Add(New FormAttribute(AttributeName, AttributeType, "CacheForDCS.AvailableFields"));
+		EndDo;
+		AttributesToBeAdded.Add(New FormAttribute("HasSubordinateItems", New TypeDescription("Boolean"), "CacheForDCS.AvailableFields"));
 	EndIf;
 	
-	NameOfTheFieldList = AddingOptions.ListName;
 	If FindFormAttribute(Form, NameOfTheFieldList) = Undefined Then
 		AttributesToBeAdded.Add(New FormAttribute(NameOfTheFieldList, New TypeDescription("ValueTree")));
 	EndIf;
@@ -717,8 +743,11 @@ Procedure AddAListOfFieldsToTheForm(Form, Parameters) Export
 	FieldTree = Form.FormAttributeToValue(NameOfTheFieldList);
 	TableOfSources = Form.FormAttributeToValue(NameOfTheSourceList);
 	
-	FillInTheListOfAvailableDetails(FieldTree, TableOfSources, , ConnectedList, Form.UUID);
-	
+	FillingParametersForAvailableAttributesList = FillingParametersForAvailableAttributesList(FieldTree);
+	FillingParametersForAvailableAttributesList.FormUniqueID = Form.UUID;
+	FillingParametersForAvailableAttributesList.ListSettings = ConnectedList;
+	FillInTheListOfAvailableDetails(FillingParametersForAvailableAttributesList, TableOfSources);
+		
 	Form.ValueToFormAttribute(FieldTree, NameOfTheFieldList);
 	Form.ValueToFormAttribute(TableOfSources, NameOfTheSourceList);
 	
@@ -805,9 +834,10 @@ EndProcedure
 
 Procedure ClearUpSearchString(Form, TagName)
 	
-	Item = Form.Items[StrReplace(TagName, "Clearing", "")];
-	Form.CurrentItem = Item;
-	Form[Item.Name] = "";
+	SearchString = Form.Items[StrReplace(TagName, "Clearing", "")];
+	Form.CurrentItem = SearchString;
+	Form[SearchString.Name] = "";
+	CancelBackgroundSearchJob(Form);
 	
 EndProcedure
 
@@ -837,7 +867,10 @@ Procedure UpdateFieldCollections(Form, FieldsCollections, NameOfTheFieldList = "
 	
 	Form[NameOfTheFieldList].GetItems().Clear();
 	ListSettings = FormulasConstructorClientServer.FieldListSettings(Form, NameOfTheFieldList);
-	FillInTheListOfAvailableDetails(Form[NameOfTheFieldList], SourcesOfAvailableFields, , ListSettings);
+	
+	FillingParametersForAvailableAttributesList = FillingParametersForAvailableAttributesList(Form[NameOfTheFieldList]);
+	FillingParametersForAvailableAttributesList.ListSettings = ListSettings;
+	FillInTheListOfAvailableDetails(FillingParametersForAvailableAttributesList, SourcesOfAvailableFields);
 	
 EndProcedure
 
@@ -924,11 +957,43 @@ Function CollectionOfSettingsLinkerFields(Val SettingsComposer, Val NameOfTheSKD
 	Return FieldsCollection;
 EndFunction
 
-Procedure FillInTheListOfAvailableDetails(Val CurrentAttribute, SourcesOfAvailableFields, Val Filter = "", 
-	ListSettings = Undefined, FormUniqueID = Undefined)
+Function FillingParametersForAvailableAttributesList(CurrentAttribute)
+	Parameters = New Structure;
+	Parameters.Insert("NameOfTheFieldList", "");
+	Parameters.Insert("FormUniqueID", Undefined);
+	Parameters.Insert("ListSettings", Undefined);
+	Parameters.Insert("CurrentAttribute", CurrentAttribute);
+	Return Parameters;
+EndFunction
+
+Procedure FillInTheListOfAvailableDetails(Parameters, SourcesOfAvailableFields, DCSCache_ = Undefined)
 	
-	CollectionsOfAvailableFields = CollectionsOfAvailableFields(CurrentAttribute, SourcesOfAvailableFields, ListSettings, FormUniqueID);
-	AvailableAttributes = AvailableAttributes(CollectionsOfAvailableFields);
+	NameOfTheFieldList = Parameters.NameOfTheFieldList;
+	FormUniqueID = Parameters.FormUniqueID;
+	ListSettings = Parameters.ListSettings;
+	CurrentAttribute = Parameters.CurrentAttribute;
+	
+	CacheData = Undefined;
+	AvailableAttributes = Undefined;
+	TypeSpecified = TypeOf(CurrentAttribute) = Type("ValueTreeRow") And CurrentAttribute.Type <> New TypeDescription();
+	If DCSCache_ <> Undefined And TypeSpecified Then
+		CacheSelection_ = New Structure("NameOfTheFieldList, FieldType", NameOfTheFieldList, CurrentAttribute.Type);
+		CacheData = DCSCache_.FindRows(CacheSelection_);
+		If CacheData.Count() > 0 Then
+			AvailableAttributes = CacheData[0].AvailableFields;
+		EndIf;
+	EndIf;
+	
+	If AvailableAttributes = Undefined Then
+		CollectionsOfAvailableFields = CollectionsOfAvailableFields(CurrentAttribute, SourcesOfAvailableFields, ListSettings, FormUniqueID);
+		AvailableAttributes = AvailableAttributes(CollectionsOfAvailableFields);
+		If DCSCache_ <> Undefined And TypeSpecified And CacheData.Count() = 0 Then
+			CacheData = DCSCache_.Add();
+			CacheData.NameOfTheFieldList = NameOfTheFieldList;
+			CacheData.FieldType = CurrentAttribute.Type;
+			CacheData.AvailableFields = AvailableAttributes;
+		EndIf;
+	EndIf;
 	
 	AttributesCollection = ChildItems(CurrentAttribute);
 	FieldReferenceAdded = False;
@@ -1783,64 +1848,103 @@ Procedure PerformASearchInTheListOfFields(Form) Export
 	TheNameOfTheSearchStringProps = Form.NameOfCurrSearchString;
 	Filter = Form[TheNameOfTheSearchStringProps];
 	FilterIs_Specified = ValueIsFilled(Filter);
+	
 	If ValueIsFilled(Filter) Then
-		SetFilter(Form, NameOfTheFieldList, Filter, Form[NameOfTheFieldList]);
+		SearchResultsRoot = FormulasConstructorClientServer.SearchResultsString(Form[NameOfTheFieldList], False);
+		If SearchResultsRoot <> Undefined Then
+			Form[NameOfTheFieldList].GetItems().Delete(SearchResultsRoot);
+		EndIf;
+		
+		SearchListParameters = SearchListParameters(Form);
+		SearchResult = RunSearchInListOfFields(SearchListParameters);
+		If SearchResult <> Undefined Then
+			SearchResultsRoot = FormulasConstructorClientServer.SearchResultsString(Form[NameOfTheFieldList]);
+			SearchResultsRoot.Title = Filter;
+			For Each FoundItem In SearchResult.FoundItems1 Do
+				SearchResultsString = SearchResultsRoot.GetItems().Add();
+				FillPropertyValues(SearchResultsString, FoundItem);
+			EndDo;
+			FormulasConstructorClientServer.SortByColumn(SearchResultsRoot, "Weight");
+		EndIf;
+	Else
+		SearchResultsRoot = FormulasConstructorClientServer.SearchResultsString(Form[NameOfTheFieldList], False);
+		If SearchResultsRoot <> Undefined Then
+			Form[NameOfTheFieldList].GetItems().Delete(SearchResultsRoot);
+		EndIf;
 	EndIf;
 	Form.Items[NameOfTheFieldList + "Presentation"].Visible = Not FilterIs_Specified;
 	Form.Items[NameOfTheFieldList + "RepresentationOfTheDataPath"].Visible = FilterIs_Specified;
-	Form.Items[NameOfTheFieldList].Representation = ?(FilterIs_Specified, TableRepresentation.List, TableRepresentation.Tree);
+	Form.Items[NameOfTheFieldList].Representation = ?(FilterIs_Specified, TableRepresentation.List, 
+		TableRepresentation.Tree);
 	
 EndProcedure
 
-Procedure SetFilter(Val Form, Val ListName, Val Filter,
+Function SetFilter(Val Form, Val ListName, Val Filter,
 	Val AttributesCollection = Undefined, Val Level = 0)
 	
 	CurrentSession = GetCurrentInfoBaseSession().GetBackgroundJob();
 	IsBackgroundJob = (CurrentSession <> Undefined);
 	
-	CountInBatch = 10;
-	MaxNumOfResults = 200;
-	MaxSearchLevel = ?(IsBackgroundJob, 3, 2);
+	CountInBatch = 5;
+	MaxNumOfResults = 25;
+	MaxSearchLevel = 3;
+	
 	MaximumNumberOfResultsHasBeenAchieved = False;
+	FilterConsideringLevels = StrSplit(Filter, ".", False);
+	SearchConsideringLevels = FilterConsideringLevels.Count() > 1;
+	If SearchConsideringLevels Then
+		MaxSearchLevel = FilterConsideringLevels.Count();
+	EndIf;
+	Filter = ?(StrEndsWith(Filter, "."), Mid(Filter, 1, StrLen(Filter)-1), Filter);
 	
 	FilterStructure1 = New Structure("MatchesFilter", True);
-	Level = 1;					   
+	Level = 1;
 	FoundItemsCount = 0;
-	AllRefsTypeDetails = Common.AllRefsTypeDetails();
-	
+	CollectionAcquisitionParameters = New Structure;
+	CollectionAcquisitionParameters.Insert("ListName", ListName);
+	CollectionAcquisitionParameters.Insert("Form", Form);
+	CollectionAcquisitionParameters.Insert("SearchConsideringLevels", SearchConsideringLevels);
 	PortionLines = New Array;
 	AllFoundLines = New Array;
+	
 	While True Do	
 		UsedNodes = New Map;
 		While True Do
-			BatchOfCurrentLevelFIelds = GetBatchOfGivenLevelFields(AttributesCollection, Level, UsedNodes,  ListName, Form);
+			BatchOfCurrentLevelFIelds = GetBatchOfGivenLevelFields(CollectionAcquisitionParameters, AttributesCollection, Level, UsedNodes);
 			If BatchOfCurrentLevelFIelds = Undefined Then
 				Break;
 			EndIf;
-			SetFilterFlag(FoundItemsCount, MaxNumOfResults, BatchOfCurrentLevelFIelds, Filter);
-			If FoundItemsCount = MaxNumOfResults Then
-				MaximumNumberOfResultsHasBeenAchieved = True;
-				Break;	
+			
+			If SearchConsideringLevels Then
+				SetFilterFlag(FoundItemsCount, MaxNumOfResults, BatchOfCurrentLevelFIelds, FilterConsideringLevels[Level-1], 
+					SearchConsideringLevels, FilterConsideringLevels.Count() = Level);
+			Else
+				SetFilterFlag(FoundItemsCount, MaxNumOfResults, BatchOfCurrentLevelFIelds, Filter);
 			EndIf;
+			
 			If IsBackgroundJob Then
 				ArrayOfFoundElements = BatchOfCurrentLevelFIelds.Rows.FindRows(FilterStructure1, True);
-				If ArrayOfFoundElements.Count()  <> 0 Then
+				If ArrayOfFoundElements.Count() <> 0 Then
 					For Each FoundItem In ArrayOfFoundElements Do
 						StringStructure = TreeStringIntoStructure(FoundItem, AttributesCollection);
 						PortionLines.Add(StringStructure);
 						AllFoundLines.Add(StringStructure);
 						If PortionLines.Count() = CountInBatch Then
-							SendPortionOfFound(PortionLines, AllRefsTypeDetails);
+							SendPortionOfFound(PortionLines);
 						EndIf;
 					EndDo;
 				EndIf;
 			EndIf;
+			
+			If FoundItemsCount = MaxNumOfResults Then
+				MaximumNumberOfResultsHasBeenAchieved = True;
+				Break;	
+			EndIf;
+
 		EndDo;
 		
-		If Level > 1 Then 
-			If IsBackgroundJob Then
-				SendPortionOfFound(PortionLines, AllRefsTypeDetails);
-			EndIf;
+		If Level >= 2 And IsBackgroundJob And PortionLines.Count() > 0 Then
+			SendPortionOfFound(PortionLines);
 		EndIf;
 		
 		Level = Level + 1;
@@ -1848,20 +1952,25 @@ Procedure SetFilter(Val Form, Val ListName, Val Filter,
 			Break;
 		EndIf;
 		
-	EndDo;
+	EndDo; 
 	
-	If IsBackgroundJob Then
-		SendPortionOfFound(AllFoundLines, AllRefsTypeDetails);
+	If Not IsBackgroundJob Then
+		ArrayOfFoundElements = AttributesCollection.Rows.FindRows(FilterStructure1, True);
+		If ArrayOfFoundElements.Count() <> 0 Then
+			For Each FoundItem In ArrayOfFoundElements Do
+				StringStructure = TreeStringIntoStructure(FoundItem, AttributesCollection);
+				AllFoundLines.Add(StringStructure);
+			EndDo;
+		EndIf;
 	EndIf;
 	
-EndProcedure
+	Result = New Structure("FoundItems1", AllFoundLines);
+	Return Result;
+	
+EndFunction
 
-Procedure SendPortionOfFound(FoundRows, AllRefsTypeDetails = Undefined)
-	If AllRefsTypeDetails = Undefined Then
-		AllRefsTypeDetails = Common.AllRefsTypeDetails();
-	EndIf;
+Procedure SendPortionOfFound(FoundRows)
 	Result = New Structure("FoundItems1", FoundRows);
-	Result.Insert("AllRefsTypeDetails", AllRefsTypeDetails);
 	Common.MessageToUser(Common.ValueToXMLString(Result));
 	FoundRows.Clear();
 EndProcedure
@@ -1882,23 +1991,38 @@ Function TreeStringIntoStructure(TreeRow, Tree)
 	
 EndFunction
 
-Procedure SetFilterFlag(FoundItemsCount, Val MaxNumOfResults, Val AttributesCollection, Val Filter)
+Procedure SetFilterFlag(FoundItemsCount, Val MaxNumOfResults, Val AttributesCollection,
+	Val Filter, SearchConsideringLevels = False, TargetLevel = False)
 	
 	For Each Attribute In ChildItems(AttributesCollection) Do
 		If FoundItemsCount = MaxNumOfResults Then
-			Return;	
+			Return;
 		EndIf;
-		If TheParentPropsMatchTheSelection(Attribute) Then
+		If (SearchConsideringLevels And Not IsRelevantParent(Attribute))
+			Or (Not SearchConsideringLevels And TheParentPropsMatchTheSelection(Attribute)) Then
 			Attribute.MatchesFilter = False;
 		Else
-			FormattedString = FindTextInALine(Attribute.RepresentationOfTheDataPath, Filter);
-			Attribute.MatchesFilter = FormattedString <> Undefined;
-			If Attribute.MatchesFilter Then
+			SearchResult = FindTextInALine(Attribute, Filter, SearchConsideringLevels);
+			If Not SearchConsideringLevels Or TargetLevel Then
+				Attribute.MatchesFilter = SearchResult.MatchesFilter;
+			EndIf;
+			
+			If SearchResult.MatchesFilter Then
 				FoundItemsCount = FoundItemsCount + 1;
-				Attribute.RepresentationOfTheDataPath = FormattedString;
+				Attribute.RepresentationOfTheDataPath = SearchResult.FormattedString;
+				Attribute.Weight = SearchResult.Weight;
 				ParentOfAttribute = Parent(Attribute);
 				If ParentOfAttribute <> Undefined Then
 					ParentOfAttribute.TheSubordinateElementCorrespondsToTheSelection = True;
+					If SearchConsideringLevels Then
+						ParentOfAttribute.Weight = ParentOfAttribute.Weight + Attribute.Weight;
+						If ParentOfAttribute.MatchesFilter Then
+							FoundItemsCount = FoundItemsCount - 1;
+						EndIf;
+						ParentOfAttribute.MatchesFilter = False;
+					Else
+						ParentOfAttribute.Weight = Max(ParentOfAttribute.Weight, Attribute.Weight);
+					EndIf;
 				EndIf;
 			EndIf;
 		EndIf;
@@ -1906,7 +2030,7 @@ Procedure SetFilterFlag(FoundItemsCount, Val MaxNumOfResults, Val AttributesColl
 
 EndProcedure
 
-Function GetBatchOfGivenLevelFields(AttributesCollection, Level, UsedNodes,  ListName, Form)
+Function GetBatchOfGivenLevelFields(CollectionAcquisitionParameters, AttributesCollection, Level, UsedNodes)
 	If Level = 1 Then
 		If UsedNodes.Get(-1) <> Undefined Then
 			Return Undefined;
@@ -1915,7 +2039,8 @@ Function GetBatchOfGivenLevelFields(AttributesCollection, Level, UsedNodes,  Lis
 			Return AttributesCollection;
 		EndIf;
 	EndIf;
-	Return GetLevelCollection(AttributesCollection, Level, UsedNodes,  ListName, Form);
+	
+	Return GetLevelCollection(CollectionAcquisitionParameters, AttributesCollection, Level, UsedNodes);
 EndFunction    
 
 Function GetID(Item)
@@ -1928,7 +2053,8 @@ Function GetID(Item)
 	Return Undefined;
 EndFunction
 
-Function GetLevelCollection(AttributesCollection, Level, UsedNodes,  ListName, Form, CurrentLevel = 1, ParentIndex = "")
+Function GetLevelCollection(CollectionAcquisitionParameters, AttributesCollection, Level, UsedNodes, CurrentLevel = 1, ParentIndex = "")
+	
 	If Level = CurrentLevel Then
 		IDOfAttribute = ParentIndex;
 		UsedNodes.Insert(IDOfAttribute, True);
@@ -1940,6 +2066,12 @@ Function GetLevelCollection(AttributesCollection, Level, UsedNodes,  ListName, F
 	For Each Attribute In CollectionItems Do
 		IDOfAttribute = GetID(Attribute);
 		If UsedNodes.Get(IDOfAttribute) = Undefined Then
+			
+			If Attribute.DataPath = "<SearchResultsString>" Or StrFind(Attribute.DataPath, ".Delete") > 0 Then
+				UsedNodes.Insert(IDOfAttribute, True);
+				Continue;
+			EndIf;
+			
 			If CollectionItems.Count() = CollectionItems.IndexOf(Attribute)+1 Then
 				CollectionParent = Parent(AttributesCollection);
 				If CollectionParent <> Undefined Then
@@ -1948,12 +2080,13 @@ Function GetLevelCollection(AttributesCollection, Level, UsedNodes,  ListName, F
 			EndIf;
 			
 			If Level = CurrentLevel + 1 Then
-				If Not Attribute.MatchesFilter Then
-					ExpandAttribute(IDOfAttribute, ListName, Form);
+				If (Not Attribute.MatchesFilter And Not CollectionAcquisitionParameters.SearchConsideringLevels) 
+					Or (Attribute.Weight > 0 And CollectionAcquisitionParameters.SearchConsideringLevels) Then
+					ExpandAttribute(IDOfAttribute, CollectionAcquisitionParameters.ListName, CollectionAcquisitionParameters.Form);
 				EndIf;
 			EndIf;
-			 
-			Collection = GetLevelCollection(Attribute, Level, UsedNodes,  ListName, Form, CurrentLevel + 1, IDOfAttribute); 		
+			
+			Collection = GetLevelCollection(CollectionAcquisitionParameters, Attribute, Level, UsedNodes, CurrentLevel + 1, IDOfAttribute);
 			
 			If Collection <> Undefined Then
 				Return Collection;
@@ -1971,6 +2104,18 @@ Function TheParentPropsMatchTheSelection(Attribute)
 	EndIf;
 	
 	Return False;
+	
+EndFunction
+
+Function IsRelevantParent(Attribute)
+	
+	Parent = Parent(Attribute);
+	
+	If Parent <> Undefined Then
+		Return Parent.Weight <> 0;
+	EndIf;
+	
+	Return True;
 	
 EndFunction
 
@@ -2005,7 +2150,19 @@ Procedure ExpandAttribute(RowID, ListName, Form)
 		Form[NameOfTheSourceList] = SourcesOfAvailableFields;
 	EndIf;
 	
-	FillInTheListOfAvailableDetails(CurrentData, SourcesOfAvailableFields, Filter, ListSettings);
+	CacheForDCS = ?(TypeOf(Form) = Type("Structure"), Form.CacheForDCS, Form.FormAttributeToValue("CacheForDCS"));
+	
+	FillingParametersForAvailableAttributesList = FillingParametersForAvailableAttributesList(CurrentData);
+	FillingParametersForAvailableAttributesList.NameOfTheFieldList = ListName;
+	FillingParametersForAvailableAttributesList.ListSettings = ListSettings;
+	FillInTheListOfAvailableDetails(FillingParametersForAvailableAttributesList, SourcesOfAvailableFields, CacheForDCS);
+	
+	If TypeOf(Form) = Type("Structure") Then
+		Form.CacheForDCS = CacheForDCS;
+	Else
+		Form.ValueToFormAttribute(CacheForDCS, "CacheForDCS");
+	EndIf;
+	
 	If TypeOf(CurrentData) = Type("ValueTreeRow") Then
 		SetTreeRowsIDs(CurrentData);
 	EndIf;
@@ -2020,7 +2177,9 @@ Procedure ExpandTheField(CurrentData, SourcesOfAvailableFields, ListSettings)
 	EndIf;
 	AttributesCollection.Clear();
 	
-	FillInTheListOfAvailableDetails(CurrentData, SourcesOfAvailableFields, "", ListSettings);
+	FillingParametersForAvailableAttributesList = FillingParametersForAvailableAttributesList(CurrentData);
+	FillingParametersForAvailableAttributesList.ListSettings = ListSettings;
+	FillInTheListOfAvailableDetails(FillingParametersForAvailableAttributesList, SourcesOfAvailableFields);
 	
 EndProcedure
 
@@ -2068,41 +2227,33 @@ Procedure SetConditionalAppearance(Form, NameOfTheFieldList)
 	FilterElement.RightValue = True;
 	
 	AppearanceItem.Appearance.SetParameterValue("Visible", False);
-	AppearanceItem.Appearance.SetParameterValue("Show", False);
+	AppearanceItem.Appearance.SetParameterValue("Show", False); 
+	
+	//
+	
+	AppearanceItem = ConditionalAppearance.Items.Add();
+	
+	FormattedField = AppearanceItem.Fields.Items.Add();
+	FormattedField.Field = New DataCompositionField(NameOfTheFieldList + "Picture");
+	FormattedField = AppearanceItem.Fields.Items.Add();
+	FormattedField.Field = New DataCompositionField(NameOfTheFieldList + "Presentation");
+	FormattedField = AppearanceItem.Fields.Items.Add();
+	FormattedField.Field = New DataCompositionField(NameOfTheFieldList + "RepresentationOfTheDataPath");
+	
+	FilterElement = AppearanceItem.Filter.Items.Add(Type("DataCompositionFilterItem"));
+	FilterElement.LeftValue = New DataCompositionField(NameOfTheFieldList + ".MatchesFilter");
+	FilterElement.ComparisonType = DataCompositionComparisonType.Equal;
+	FilterElement.RightValue = True; 
+	
+	FilterElement = AppearanceItem.Filter.Items.Add(Type("DataCompositionFilterItem"));
+	FilterElement.LeftValue = New DataCompositionField(NameOfTheFieldList + ".RepresentationOfTheDataPath");
+	FilterElement.ComparisonType = DataCompositionComparisonType.NotContains;
+	FilterElement.RightValue = ".";
+	
+	AppearanceItem.Appearance.SetParameterValue("Font", StyleFonts.ImportantLabelFont);
+		
 	
 EndProcedure
-
-Function FindTextInALine(Val String, Val Text)
-	
-	SearchString = String;
-	
-	FormattedStrings = New Array;
-	For Each Substring In StrSplit(Text, " ", False) Do
-		Position = StrFind(Lower(SearchString), Lower(Substring));
-		If Position = 0 Then
-			FormattedStrings = Undefined;
-			Break;
-		EndIf;
-		
-		SubstringBeforeOccurence = Left(SearchString, Position - 1);
-		OccurenceSubstring = Mid(SearchString, Position, StrLen(Substring));
-		SearchString = Mid(SearchString, Position + StrLen(Substring));
-		
-		FormattedStrings.Add(SubstringBeforeOccurence);
-		FormattedStrings.Add(New FormattedString(OccurenceSubstring,
-			StyleFonts.ImportantLabelFont, StyleColors.SuccessResultColor));
-	EndDo;
-	
-	If Not ValueIsFilled(FormattedStrings) Then
-		Return Undefined;
-	EndIf;
-	
-	FormattedStrings.Add(SearchString);
-	HighlightedString = New FormattedString(FormattedStrings); 
-	
-	Return HighlightedString;
-	
-EndFunction
 
 Procedure AddAGroupOfItemsToADataset(ItemsCollection, DataSet, Parent = Undefined)
 	
@@ -2245,7 +2396,9 @@ Function RepresentationOfTheExpression(Val Expression, ListsOfFields) Export
 		SourcesOfAvailableFields = ListSettings.SourcesOfAvailableFields;
 		If FieldsCollection = Undefined Then
 			FieldsCollection = NewCollectionOfFields();
-			FillInTheListOfAvailableDetails(FieldsCollection, SourcesOfAvailableFields, , ListSettings);
+			FillingParametersForAvailableAttributesList = FillingParametersForAvailableAttributesList(FieldsCollection);
+			FillingParametersForAvailableAttributesList.ListSettings = ListSettings;
+			FillInTheListOfAvailableDetails(FillingParametersForAvailableAttributesList, SourcesOfAvailableFields);
 		EndIf;
 		
 		For Each ItemDetails In FormulaElements.OperandsAndFunctions Do
@@ -2327,7 +2480,7 @@ Function ExpressionToCheck(Form, FormulaPresentation, NameOfTheListOfOperands) E
 						Operand = """" + Operand + """";
 					EndIf;
 					If TypeOf(Operand) = Type("Boolean") Then
-						Operand = Format(Operand, "BF=False; BT=True"); 
+						Operand = Format(Operand, "BF=False; BT=True"); // 
 					EndIf;
 					If TypeOf(Operand) = Type("Date") Then
 						Operand = "'" + Format(CurrentSessionDate(), "DF=yyyyMMddHHmm") +  "'"; // Used in the Calculate() expression.
@@ -2503,6 +2656,7 @@ Function DetailsOfTheConnectedList()
 	Result.Insert("IsFunction", New TypeDescription("Boolean"));
 	Result.Insert("Hidden", New TypeDescription("Boolean"));
 	Result.Insert("ExpressionToInsert", New TypeDescription("String"));
+	Result.Insert("Weight", New TypeDescription("Number"));
 	
 	Return Result;
 	
@@ -2761,14 +2915,14 @@ Procedure AddAGroupOfLogicalOperationsOperators(ListOfOperators)
 	
 	Operator = Group.Rows.Add();
 	Operator.Id = "CHOICEIFTHENELSEEND";
-	Operator.Presentation = StrTemplate(
+	Operator.Presentation = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = '%1 %2 ... %3 ...';"),
 		OperatorPresentation(NStr("en = 'CASE';")),
 		OperatorPresentation(NStr("en = 'WHEN';")),
 		OperatorPresentation(NStr("en = 'THEN';")));
 	Operator.Picture = PictureLib.IsEmpty;
-	Operator.ExpressionToInsert = StrTemplate(NStr(
-		"en = '%1
+	Operator.ExpressionToInsert = StringFunctionsClientServer.SubstituteParametersToString(
+		NStr("en = '%1
 		|	%2 <%6> %3 <%6>
 		|	%4 <%6>
 		|%5';"),
@@ -2934,7 +3088,7 @@ Function HasSubordinateElements(Val FieldDetails)
 EndFunction
 
 Procedure ClearFilterFlag(Collection)
-	For Each CollectionRow In Collection.Rows Do
+	For Each CollectionRow In ChildItems(Collection) Do
 		CollectionRow.MatchesFilter = False;
 		CollectionRow.TheSubordinateElementCorrespondsToTheSelection = False;
 		ClearFilterFlag(CollectionRow);
@@ -2953,4 +3107,9 @@ Function OperatorPresentation(Val Operator)
 	
 EndFunction
 
+Function FindTextInALine(String, Text, SearchConsideringLevels)
+	Return FormulasConstructorClientServer.FindTextInALine(String, Text, 
+		StyleFonts.ImportantLabelFont, StyleColors.SuccessResultColor, SearchConsideringLevels);
+EndFunction
+	
 #EndRegion

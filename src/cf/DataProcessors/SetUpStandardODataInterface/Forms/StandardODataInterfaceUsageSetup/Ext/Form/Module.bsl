@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -13,7 +14,8 @@
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not AccessRight("DataAdministration", Metadata) Then
-		Raise NStr("en = 'Insufficient rights to configure automatic REST service';");
+		Raise(NStr("en = 'Insufficient rights to configure automatic REST service.';"),
+			ErrorCategory.AccessViolation);
 	EndIf;
 	
 	AuthorizationSettings = DataProcessors.SetUpStandardODataInterface.AuthorizationSettingsForStandardODataInterface();
@@ -221,6 +223,10 @@ Procedure MetadataObjectsUsageOnChangeFollowUp(Result, Context) Export
 	
 EndProcedure
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
 Procedure SetupParametersReceivingCompletion(Result, AdditionalParameters) Export
 	
@@ -228,11 +234,12 @@ Procedure SetupParametersReceivingCompletion(Result, AdditionalParameters) Expor
 		Return;
 	EndIf;
 	If Result.Status <> "Completed2" Then
-		Raise Result.BriefErrorDescription;
+		StandardSubsystemsClient.OutputErrorInfo(
+			Result.ErrorInfo);
+		Return;
 	EndIf;
 	
-	StorageAddress = Result.ResultAddress;
-	ImportSetupParameters();
+	ImportSetupParameters(Result.ResultAddress);
 	
 EndProcedure
 
@@ -374,7 +381,7 @@ Procedure SaveAtServer()
 EndProcedure
 
 &AtServer
-Procedure ImportSetupParameters()
+Procedure ImportSetupParameters(Val StorageAddress)
 	
 	Data = GetFromTempStorage(StorageAddress);
 	If TypeOf(Data) <> Type("Structure") Then
@@ -393,17 +400,10 @@ Function StartPreparingSetupParameters()
 	BackgroundExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	BackgroundExecutionParameters.BackgroundJobDescription = "PrepareStandardODataInterfaceContentSetupParameters";
 	
-	Result = TimeConsumingOperations.ExecuteInBackground(
+	Return TimeConsumingOperations.ExecuteInBackground(
 		"DataProcessors.SetUpStandardODataInterface.PrepareStandardODataInterfaceContentSetupParameters",
 		New Structure,
 		BackgroundExecutionParameters);
-	
-	StorageAddress = Result.ResultAddress;
-	If Result.Status = "Completed2" Then
-		ImportSetupParameters();
-	EndIf;
-	
-	Return Result;
 	
 EndFunction
 

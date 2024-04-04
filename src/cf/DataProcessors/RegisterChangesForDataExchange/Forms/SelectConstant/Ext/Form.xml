@@ -15,6 +15,12 @@
 				<Representation>PictureAndText</Representation>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.SelectConstant</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Select</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormSelectConstant1ExtendedTooltip" id="28"/>
 			</Button>
 		</ChildItems>

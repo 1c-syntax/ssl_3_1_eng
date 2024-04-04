@@ -29,6 +29,12 @@
 			<Button name="FormCancel13" id="16">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.DoNotSend</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Cancel</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormCancel13ExtendedTooltip" id="17"/>
 			</Button>
 			<Button name="FormClose" id="4">
@@ -47,7 +53,7 @@
 			<Title formatted="false">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>If the application runs slow and you are ready to provide a copy of your infobase (it may be impersonal) to investigate performance issues, specify your contacts so that 1C specialists could contact you.</v8:content>
+					<v8:content>If you are willing to provide a copy of your infobase (you can impersonalize the data) to investigate performance issues, specify your contacts so that 1C specialists can contact you.</v8:content>
 				</v8:item>
 			</Title>
 			<ContextMenu name="TitleContextMenu" id="11"/>
@@ -85,6 +91,12 @@
 		</InputField>
 		<InputField name="Comment" id="13">
 			<DataPath>Comment</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Comment</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>Top</TitleLocation>
 			<ToolTipRepresentation>None</ToolTipRepresentation>
 			<Width>60</Width>

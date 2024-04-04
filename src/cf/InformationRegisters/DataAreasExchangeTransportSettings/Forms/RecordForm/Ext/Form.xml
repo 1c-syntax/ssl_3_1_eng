@@ -50,7 +50,7 @@
 							<ChoiceButton>true</ChoiceButton>
 							<OpenButton>true</OpenButton>
 							<ContextMenu name="FILEDataExchangeDirectoryContextMenu" id="9"/>
-							<ExtendedTooltip name="FILEInformationExchangeDirectoryExtendedTooltip" id="107"/>
+							<ExtendedTooltip name="FILEDataExchangeDirectoryExtendedTooltip" id="107"/>
 							<Events>
 								<Event name="StartChoice">FILEInformationExchangeDirectoryStartChoice</Event>
 								<Event name="Opening">FILEInformationExchangeDirectoryOpening</Event>
@@ -60,9 +60,21 @@
 							<Type>UsualButton</Type>
 							<SkipOnInput>false</SkipOnInput>
 							<CommandName>Form.Command.TestFILEConnection</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Check connection</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="TestFILEConnectionExtendedTooltip" id="108"/>
 						</Button>
 						<UsualGroup name="Group1" id="100">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group</v8:content>
+								</v8:item>
+							</Title>
 							<Group>Vertical</Group>
 							<Behavior>Usual</Behavior>
 							<Representation>NormalSeparation</Representation>
@@ -78,6 +90,12 @@
 								</CheckBoxField>
 								<InputField name="ArchivePasswordExchangeMessages1" id="101">
 									<DataPath>ArchivePasswordExchangeMessages</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Exchange message archive password</v8:content>
+										</v8:item>
+									</Title>
 									<Width>20</Width>
 									<HorizontalStretch>false</HorizontalStretch>
 									<PasswordMode>true</PasswordMode>
@@ -157,6 +175,12 @@
 								</InputField>
 								<InputField name="FTPConnectionPassword" id="22">
 									<DataPath>FTPConnectionPassword</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Password</v8:content>
+										</v8:item>
+									</Title>
 									<PasswordMode>true</PasswordMode>
 									<ContextMenu name="FTPConnectionPasswordContextMenu" id="23"/>
 									<ExtendedTooltip name="FTPConnectionPasswordExtendedTooltip" id="118"/>
@@ -167,6 +191,12 @@
 							</ChildItems>
 						</UsualGroup>
 						<UsualGroup name="Group2" id="125">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group</v8:content>
+								</v8:item>
+							</Title>
 							<Group>Horizontal</Group>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
@@ -202,9 +232,21 @@
 							<Type>UsualButton</Type>
 							<SkipOnInput>false</SkipOnInput>
 							<CommandName>Form.Command.TestFTPConnection</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Check connection</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="TestFTPConnectionExtendedTooltip" id="121"/>
 						</Button>
 						<UsualGroup name="Group3" id="103">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group</v8:content>
+								</v8:item>
+							</Title>
 							<Group>Vertical</Group>
 							<Behavior>Usual</Behavior>
 							<Representation>NormalSeparation</Representation>
@@ -220,6 +262,12 @@
 								</CheckBoxField>
 								<InputField name="ArchivePasswordExchangeMessages" id="34">
 									<DataPath>ArchivePasswordExchangeMessages</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Exchange message archive password</v8:content>
+										</v8:item>
+									</Title>
 									<Width>20</Width>
 									<HorizontalStretch>false</HorizontalStretch>
 									<PasswordMode>true</PasswordMode>

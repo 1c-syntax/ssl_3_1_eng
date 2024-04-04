@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -14,12 +15,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 
 	SetConditionalAppearance();
 	
-	If Not Parameters.Property("QuestionnaireTemplate") Then
+	If Parameters.QuestionnaireTemplate.IsEmpty() Then
 		Cancel = True;
 		Return;
-	Else
-		QuestionnaireTemplate = Parameters.QuestionnaireTemplate;
 	EndIf;
+	QuestionnaireTemplate = Parameters.QuestionnaireTemplate;
 	
 	SetFormAttributesValuesAccordingToQuestionnaireTemplate();
 	Surveys.SetQuestionnaireSectionsTreeItemIntroductionConclusion(SectionsTree, NStr("en = 'Introduction';"), "Introduction");
@@ -218,7 +218,7 @@ Procedure AvailabilityControlSubordinateQuestions()
 					ItemOfSubordinateQuestion.AutoMarkIncomplete = 
 						ThisObject[QuestionName] And SubordinateQuestion.IsRequired;
 				Except
-					
+					// ACC:280 The check box and radio buttons do not have the AutoMarkIncomplete property.
 				EndTry;
 				
 			EndIf;

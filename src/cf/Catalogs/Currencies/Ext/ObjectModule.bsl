@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -41,7 +42,7 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 		EndDo;
 	EndIf;
 
-	If ValueIsFilled(MainCurrency.MainCurrency) Then
+	If ValueIsFilled(Common.ObjectAttributeValue(MainCurrency, "MainCurrency")) Then
 		Cancel = True;
 	EndIf;
 
@@ -173,14 +174,21 @@ Procedure StartBackgroundCurrencyExchangeRatesUpdate()
 	JobParameters.Insert("Currency", CurrencyParameters);
 	JobParameters.Insert("CurrencyCodes", Catalogs.Currencies.CurrencyCodes());
 
+	If InfobaseUpdate.InfobaseUpdateRequired() Then
+		CurrencyRateOperations.UpdateCurrencyRate(JobParameters, Undefined);
+		Return;
+	EndIf;
+	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(New UUID);
 	ExecutionParameters.WaitCompletion = 0;
-	ExecutionParameters.RunNotInBackground1 = InfobaseUpdate.InfobaseUpdateRequired();
 
 	Result = TimeConsumingOperations.ExecuteInBackground("CurrencyRateOperations.UpdateCurrencyRate", JobParameters,
 		ExecutionParameters);
+	
 	If Result.Status = "Error" Then
-		Raise Result.BriefErrorDescription;
+		Refinement = CommonClientServer.ExceptionClarification(Result.ErrorInfo,
+			NStr("en = 'Couldn''t update exchange rates due to:';"));
+		Raise(Refinement.Text, Refinement.Category,,, Result.ErrorInfo);
 	EndIf;
 
 EndProcedure

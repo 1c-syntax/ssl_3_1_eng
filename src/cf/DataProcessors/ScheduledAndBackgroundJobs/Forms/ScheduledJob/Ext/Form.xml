@@ -27,11 +27,23 @@
 				<DefaultButton>true</DefaultButton>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.WriteAndClose</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save and close</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="WriteAndCloseExtendedTooltip" id="47"/>
 			</Button>
 			<Button name="Write" id="34">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.Write</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="WriteExtendedTooltip" id="48"/>
 			</Button>
 		</ChildItems>
@@ -69,6 +81,12 @@
 					<ChildItems>
 						<CheckBoxField name="Use" id="9">
 							<DataPath>Use</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Enabled</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<ToolTip>
 								<v8:item>
@@ -83,12 +101,24 @@
 						<Button name="SetUpSchedule" id="73">
 							<Type>Hyperlink</Type>
 							<CommandName>Form.Command.SetUpSchedule</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Schedule</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="SetUpScheduleExtendedTooltip" id="74"/>
 						</Button>
 					</ChildItems>
 				</UsualGroup>
 				<InputField name="Description" id="7">
 					<DataPath>Description</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Description</v8:content>
+						</v8:item>
+					</Title>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -118,6 +148,12 @@
 			<ChildItems>
 				<InputField name="RestartCountOnFailure" id="13">
 					<DataPath>RestartCountOnFailure</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Retry on error</v8:content>
+						</v8:item>
+					</Title>
 					<TitleHeight>2</TitleHeight>
 					<Width>5</Width>
 					<Wrap>false</Wrap>
@@ -163,38 +199,16 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="AdditionalExtendedTooltip" id="60"/>
+			<ExtendedTooltip name="MoreExtendedTooltip" id="60"/>
 			<ChildItems>
-				<InputField name="Predefined" id="38">
-					<DataPath>Predefined</DataPath>
-					<ReadOnly>true</ReadOnly>
-					<SkipOnInput>true</SkipOnInput>
-					<ToolTip>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Predefined jobs are created in Designer.
-They cannot be deleted.
-</v8:content>
-						</v8:item>
-					</ToolTip>
-					<ContextMenu name="PredefinedContextMenu" id="39"/>
-					<ExtendedTooltip name="PredefinedExtendedTooltip" id="61"/>
-				</InputField>
-				<InputField name="Id" id="1">
-					<DataPath>Id</DataPath>
-					<ReadOnly>true</ReadOnly>
-					<Wrap>false</Wrap>
-					<ContextMenu name="IdContextMenu" id="2"/>
-					<ExtendedTooltip name="IdExtendedTooltip" id="62"/>
-				</InputField>
-				<InputField name="Key" id="5">
-					<DataPath>Key</DataPath>
-					<Wrap>false</Wrap>
-					<ContextMenu name="KeyContextMenu" id="6"/>
-					<ExtendedTooltip name="KeyExtendedTooltip" id="63"/>
-				</InputField>
 				<InputField name="UserName" id="15">
 					<DataPath>UserName</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Run on behalf of</v8:content>
+						</v8:item>
+					</Title>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -215,43 +229,17 @@ They cannot be deleted.
 					<ContextMenu name="UserNameContextMenu" id="16"/>
 					<ExtendedTooltip name="UserNameExtendedTooltip" id="64"/>
 				</InputField>
-			</ChildItems>
-		</UsualGroup>
-		<UsualGroup name="Metadata" id="26">
-			<Title>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Metadata</v8:content>
-				</v8:item>
-			</Title>
-			<Group>Vertical</Group>
-			<Behavior>Usual</Behavior>
-			<Representation>NormalSeparation</Representation>
-			<ShowTitle>false</ShowTitle>
-			<ThroughAlign>Use</ThroughAlign>
-			<ExtendedTooltip name="MetadataExtendedTooltip" id="65"/>
-			<ChildItems>
-				<InputField name="NameOfMetadataObjects" id="19">
-					<DataPath>NameOfMetadataObjects</DataPath>
-					<ReadOnly>true</ReadOnly>
+				<InputField name="Key" id="5">
+					<DataPath>Key</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Key</v8:content>
+						</v8:item>
+					</Title>
 					<Wrap>false</Wrap>
-					<ContextMenu name="MetadataName1ContextMenu" id="20"/>
-					<ExtendedTooltip name="MetadataName1ExtendedTooltip" id="66"/>
-				</InputField>
-				<InputField name="MetadataSynonym" id="21">
-					<DataPath>MetadataSynonym</DataPath>
-					<ReadOnly>true</ReadOnly>
-					<SkipOnInput>true</SkipOnInput>
-					<Wrap>false</Wrap>
-					<ContextMenu name="MetadataSynonymContextMenu" id="22"/>
-					<ExtendedTooltip name="MetadataSynonymExtendedTooltip" id="67"/>
-				</InputField>
-				<InputField name="MetadataMethodName" id="23">
-					<DataPath>MetadataMethodName</DataPath>
-					<ReadOnly>true</ReadOnly>
-					<Wrap>false</Wrap>
-					<ContextMenu name="MetadataMethodNameContextMenu" id="24"/>
-					<ExtendedTooltip name="MetadataMethodNameExtendedTooltip" id="68"/>
+					<ContextMenu name="KeyContextMenu" id="6"/>
+					<ExtendedTooltip name="KeyExtendedTooltip" id="63"/>
 				</InputField>
 			</ChildItems>
 		</UsualGroup>
@@ -264,9 +252,9 @@ They cannot be deleted.
 			</Title>
 			<Group>Vertical</Group>
 			<Behavior>Usual</Behavior>
-			<Representation>None</Representation>
+			<Representation>NormalSeparation</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="UserMessagesAndErrorDescriptionExtendedTooltip" id="69"/>
+			<ExtendedTooltip name="MessagesToUserAndErrorDescriptionExtendedTooltip" id="69"/>
 			<ChildItems>
 				<InputField name="MessagesAndErrorDescription" id="27">
 					<DataPath>MessagesToUserAndErrorDescription</DataPath>
@@ -275,21 +263,115 @@ They cannot be deleted.
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Message</v8:content>
+							<v8:content>Messages or error details</v8:content>
 						</v8:item>
 					</Title>
-					<TitleLocation>Left</TitleLocation>
+					<AutoMaxWidth>false</AutoMaxWidth>
+					<Height>5</Height>
+					<HorizontalStretch>true</HorizontalStretch>
+					<MultiLine>true</MultiLine>
+					<OpenButton>true</OpenButton>
+					<InputHint>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>No messages</v8:content>
+						</v8:item>
+					</InputHint>
+					<ContextMenu name="MessagesAndErrorInformationDetailsContextMenu" id="28"/>
+					<ExtendedTooltip name="MessagesAndErrorDescriptionExtendedTooltip" id="70"/>
+				</InputField>
+			</ChildItems>
+		</UsualGroup>
+		<UsualGroup name="TechnicalInformation" id="26">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Technical information</v8:content>
+				</v8:item>
+			</Title>
+			<Group>Vertical</Group>
+			<Behavior>Collapsible</Behavior>
+			<Collapsed>true</Collapsed>
+			<ControlRepresentation>Picture</ControlRepresentation>
+			<Representation>NormalSeparation</Representation>
+			<ThroughAlign>Use</ThroughAlign>
+			<ExtendedTooltip name="TechnicalInformationExtendedTooltip" id="65"/>
+			<ChildItems>
+				<CheckBoxField name="Predefined" id="38">
+					<DataPath>Predefined</DataPath>
+					<ReadOnly>true</ReadOnly>
+					<SkipOnInput>true</SkipOnInput>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Predefined</v8:content>
+						</v8:item>
+					</Title>
+					<TitleLocation>Right</TitleLocation>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>User message and error details</v8:content>
+							<v8:content>Predefined jobs are created in Designer.
+They cannot be deleted.
+</v8:content>
 						</v8:item>
 					</ToolTip>
-					<Height>5</Height>
-					<MultiLine>true</MultiLine>
-					<OpenButton>true</OpenButton>
-					<ContextMenu name="MessagesAndErrorInformationDetailsContextMenu" id="28"/>
-					<ExtendedTooltip name="MessagesAndErrorInformationDetailsExtendedTooltip" id="70"/>
+					<CheckBoxType>Auto</CheckBoxType>
+					<ContextMenu name="PredefinedContextMenu" id="39"/>
+					<ExtendedTooltip name="PredefinedExtendedTooltip" id="61"/>
+				</CheckBoxField>
+				<InputField name="NameOfMetadataObjects" id="19">
+					<DataPath>NameOfMetadataObjects</DataPath>
+					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Name</v8:content>
+						</v8:item>
+					</Title>
+					<Wrap>false</Wrap>
+					<ContextMenu name="MetadataName1ContextMenu" id="20"/>
+					<ExtendedTooltip name="NameOfMetadataObjectsExtendedTooltip" id="66"/>
+				</InputField>
+				<InputField name="MetadataSynonym" id="21">
+					<DataPath>MetadataSynonym</DataPath>
+					<ReadOnly>true</ReadOnly>
+					<SkipOnInput>true</SkipOnInput>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Synonym</v8:content>
+						</v8:item>
+					</Title>
+					<Wrap>false</Wrap>
+					<ContextMenu name="MetadataSynonymContextMenu" id="22"/>
+					<ExtendedTooltip name="MetadataSynonymExtendedTooltip" id="67"/>
+				</InputField>
+				<InputField name="MetadataMethodName" id="23">
+					<DataPath>MetadataMethodName</DataPath>
+					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Method name</v8:content>
+						</v8:item>
+					</Title>
+					<Wrap>false</Wrap>
+					<ContextMenu name="MetadataMethodNameContextMenu" id="24"/>
+					<ExtendedTooltip name="MetadataMethodNameExtendedTooltip" id="68"/>
+				</InputField>
+				<InputField name="Id" id="1">
+					<DataPath>Id</DataPath>
+					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>ID</v8:content>
+						</v8:item>
+					</Title>
+					<Wrap>false</Wrap>
+					<ContextMenu name="IdContextMenu" id="2"/>
+					<ExtendedTooltip name="IdExtendedTooltip" id="62"/>
 				</InputField>
 			</ChildItems>
 		</UsualGroup>

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -40,8 +41,8 @@ Procedure OnFillToDoList(ToDoList) Export
 		Return;
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	Sections = ModuleToDoListServer.SectionsForObject(Metadata.Catalogs.Notes.FullName());
 	
 	NumberOfNotes = NumberOfNotes();
@@ -82,6 +83,22 @@ Procedure OnAddTypesToExcludeFromPossibleDuplicates(TypesToExclude) Export
 
 	TypesToExclude.Add(Type("CatalogRef.Notes"));
 
+EndProcedure
+
+// See AttachableCommandsOverridable.OnDefineCommandsAttachedToObject.
+Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReportsAndDataProcessors, Commands) Export
+	
+	Command = Commands.Add();
+	Command.Kind = "Organizer";
+	Command.Presentation = NStr("en = 'Create note';");
+	Command.FunctionalOptions = "UseNotes";
+	Command.Picture = PictureLib.Note;
+	Command.ParameterType = Metadata.DefinedTypes.NotesSubject.Type;
+	Command.WriteMode = "NotWrite";
+	Command.Order = 50;
+	Command.Handler = "UserNotesInternalClient.CreateSubjectNote"; 
+	Command.MultipleChoice = False;
+	
 EndProcedure
 
 #EndRegion

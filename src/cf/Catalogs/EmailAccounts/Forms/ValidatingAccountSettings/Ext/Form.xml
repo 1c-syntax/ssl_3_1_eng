@@ -21,11 +21,23 @@
 			<Button name="FormBack" id="253">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.Back</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>&lt; Back</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormBackExtendedTooltip" id="254"/>
 			</Button>
 			<Button name="FormGoToSettings" id="200">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.GoToSettings</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Settings</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormGoToSettingsExtendedTooltip" id="201"/>
 			</Button>
 			<Button name="FormClose" id="179">
@@ -114,8 +126,8 @@ This might take a while.</v8:content>
 										</v8:item>
 									</Title>
 									<Picture>
-										<xr:Ref>CommonPicture.Warning32</xr:Ref>
-										<xr:LoadTransparent>false</xr:LoadTransparent>
+										<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
 									<ContextMenu name="WarningPictureContextMenu" id="14"/>
@@ -137,6 +149,12 @@ This might take a while.</v8:content>
 								<InputField name="ErrorsMessages" id="18">
 									<DataPath>ErrorsMessages</DataPath>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Error messages</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<Width>40</Width>
 									<AutoMaxWidth>false</AutoMaxWidth>
@@ -308,6 +326,12 @@ This might take a while.</v8:content>
 								</LabelDecoration>
 								<LabelField name="ExecutedChecks" id="181">
 									<DataPath>ExecutedChecks</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Completed tests</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<VerticalAlign>Top</VerticalAlign>
 									<HorizontalStretch>true</HorizontalStretch>
@@ -349,8 +373,8 @@ This might take a while.</v8:content>
 										</v8:item>
 									</Title>
 									<Picture>
-										<xr:Ref>CommonPicture.Warning32</xr:Ref>
-										<xr:LoadTransparent>false</xr:LoadTransparent>
+										<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
 									<ContextMenu name="StatusWarningPicture1ContextMenu" id="220"/>
@@ -372,6 +396,12 @@ This might take a while.</v8:content>
 										<InputField name="TextInformationForSupport" id="224">
 											<DataPath>InformationForTechSupport</DataPath>
 											<ReadOnly>true</ReadOnly>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Information for technical support</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<Width>40</Width>
 											<AutoMaxWidth>false</AutoMaxWidth>

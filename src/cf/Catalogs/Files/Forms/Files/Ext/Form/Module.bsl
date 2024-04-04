@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -19,12 +20,19 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	Items.ShowServiceFiles.Visible = Users.IsFullUser();
 	
+	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
+		ModuleAccessManagementInternal = Common.CommonModule("AccessManagementInternal");
+		IsAccessRightsSetupCommandAvailable = ModuleAccessManagementInternal.IsAccessRightsSetupCommandAvailable();
+	Else
+		IsAccessRightsSetupCommandAvailable = False;
+	EndIf;
+	
 	If Not Parameters.Folder.IsEmpty() Then
 		InitialFolder = Parameters.Folder;
 	Else
 		InitialFolder = Common.FormDataSettingsStorageLoad("Files", "CurrentFolder");
 		If InitialFolder = Undefined Then // An attempt to import settings, saved in the previous versions.
-			InitialFolder = Common.FormDataSettingsStorageLoad("FileStorage2", "CurrentFolder");
+			InitialFolder = Common.FormDataSettingsStorageLoad("FileRepository", "CurrentFolder");
 		EndIf;
 	EndIf;
 	
@@ -42,20 +50,17 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		FilesOperationsInternal.ChangeFormForExternalUser(ThisObject, True);
 	EndIf;
 	
-	List.Parameters.SetParameterValue(	"Owner", InitialFolder);
-	List.Parameters.SetParameterValue(	"CurrentUser", CurrentUser);
+	List.Parameters.SetParameterValue("Owner", InitialFolder);
+	List.Parameters.SetParameterValue("CurrentUser", CurrentUser);
 		
 	EmptyUsers = New Array;
 	EmptyUsers.Add(Undefined);
 	EmptyUsers.Add(Catalogs.Users.EmptyRef());
 	EmptyUsers.Add(Catalogs.ExternalUsers.EmptyRef());
 	EmptyUsers.Add(Catalogs.FileSynchronizationAccounts.EmptyRef());
-	List.Parameters.SetParameterValue(	"EmptyUsers",  EmptyUsers);
-	
-	ShowSizeColumn = FilesOperationsInternal.GetShowSizeColumn();
-	If ShowSizeColumn = False Then
-		Items.ListCurrentVersionSize.Visible = False;
-	EndIf;
+	List.Parameters.SetParameterValue("EmptyUsers",  EmptyUsers);
+
+	Items.ListCurrentVersionSize.Visible = FilesOperationsInternal.ShowSizeColumn();
 	
 	UseHierarchy = True;
 	SetHierarchy(UseHierarchy);
@@ -75,9 +80,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.CloudServiceNoteGroup.Visible = False;
 	UseFileSync = GetFunctionalOption("UseFileSync");
 	
-	Items.FoldersContextMenuSyncSettings.Visible = AccessRight("Edit", Metadata.Catalogs.FileSynchronizationAccounts);
+	Items.FoldersContextMenuSyncSettings.Visible = 
+		AccessRight("Edit", Metadata.Catalogs.FileSynchronizationAccounts);
 	Items.Compare.Visible = Not Common.IsLinuxClient()
 		And Not Common.IsWebClient();
+	Items.Send.Visible = Common.SubsystemExists("StandardSubsystems.EmailOperations");
 	
 	UniversalDate = CurrentSessionDate();
 	List.Parameters.SetParameterValue("SecondsToLocalTime",
@@ -156,8 +163,8 @@ Procedure ChoiceProcessing(ValueSelected, ChoiceSource)
 		FilesOperationsInternalClient.MoveFilesToFolder(SelectedRows, ValueSelected);
 		
 		For Each SelectedRow In SelectedRows Do
-			FileRecordingNotificationParameters = FilesOperationsInternalClient.FileRecordingNotificationParameters("FileDataChanged");
-			Notify("Write_File", FileRecordingNotificationParameters, SelectedRow);
+			FileWriteNotificationParameters = FilesOperationsInternalClient.FileWriteNotificationParameters("FileDataChanged");
+			Notify("Write_File", FileWriteNotificationParameters, SelectedRow);
 		EndDo;
 		
 		Items.List.Refresh();
@@ -283,8 +290,8 @@ EndProcedure
 &AtClient
 Procedure ListOnChange(Item)
 	
-	FileRecordingNotificationParameters = FilesOperationsInternalClient.FileRecordingNotificationParameters("FileDataChanged");
-	Notify("Write_File", FileRecordingNotificationParameters, Item.SelectedRows);
+	FileWriteNotificationParameters = FilesOperationsInternalClient.FileWriteNotificationParameters("FileDataChanged");
+	Notify("Write_File", FileWriteNotificationParameters, Item.SelectedRows);
 	
 EndProcedure
 
@@ -777,7 +784,7 @@ Procedure Delete(Command)
 	SelectedRows = SelectedRows();
 	
 	NotifyDescription = New NotifyDescription("AfterDeleteData", ThisObject);
-	FilesOperationsInternalClient.DeleteFileData(NotifyDescription, SelectedRows, UUID);
+	FilesOperationsInternalClient.DeleteFilesData(NotifyDescription, SelectedRows, UUID);
 	
 EndProcedure
 
@@ -934,7 +941,7 @@ Procedure DragToFolder(FolderForAdding, DragValue, Action)
 						DragValue.Count(),
 						String(FolderForAdding));
 				EndIf;
-				ShowUserNotification(NotificationTitle1, , NotificationText, PictureLib.Information32);
+				ShowUserNotification(NotificationTitle1, , NotificationText, PictureLib.DialogInformation);
 			Else
 				
 				OwnerIsSet = FilesOperationsInternalServerCall.SetFileOwner(DragValue, FolderForAdding);
@@ -959,7 +966,7 @@ Procedure DragToFolder(FolderForAdding, DragValue, Action)
 						String(DragValue.Count()),
 						String(FolderForAdding));
 				EndIf;
-				ShowUserNotification(NotificationTitle1, , NotificationText, PictureLib.Information32);
+				ShowUserNotification(NotificationTitle1, , NotificationText, PictureLib.DialogInformation);
 			EndIf;
 			
 		ElsIf ValueType = Type("CatalogRef.FilesFolders") Then
@@ -998,7 +1005,7 @@ Procedure DragToFolder(FolderForAdding, DragValue, Action)
 					String(DragValue.Count()),
 					String(FolderForAdding));
 			EndIf;
-			ShowUserNotification(NotificationTitle1, , NotificationText, PictureLib.Information32);
+			ShowUserNotification(NotificationTitle1, , NotificationText, PictureLib.DialogInformation);
 		EndIf;
 	EndIf;
 EndProcedure
@@ -1098,20 +1105,9 @@ EndProcedure
 &AtClient
 Procedure SetCommandsAvailabilityOnChangeFolder()
 	
-	If Items.Folders.CurrentRow <> CurrentFolder Then
-		CurrentFolder = Items.Folders.CurrentRow;
-		FillPropertyValues(ThisObject, FolderRightsSettings(Items.Folders.CurrentRow));
-		Items.FormCreateCatalog.Enabled = FoldersModification;
-		Items.FoldersContextMenuCreate.Enabled = FoldersModification;
-		Items.FoldersContextMenuCopy.Enabled = FoldersModification;
-		Items.FoldersContextMenuSetDeletionMark.Enabled = FoldersModification;
-		Items.FoldersContextMenuMoveItem.Enabled = FoldersModification;
-	EndIf;
-	
 	If Items.Folders.CurrentRow = Undefined Or Items.Folders.CurrentRow.IsEmpty() Then
 		
 		Items.FormCreateSubmenu.Enabled = False;
-		
 		Items.FormCreateFromFile.Enabled = False;
 		Items.FormCreateFromTemplate.Enabled = False;
 		Items.FormCreateFromScanner.Enabled = False;
@@ -1128,7 +1124,29 @@ Procedure SetCommandsAvailabilityOnChangeFolder()
 		Items.ListContextMenuFilesImport1.Enabled = False;
 		
 		Items.FoldersContextMenuFolderImport.Enabled = False;
+		
+		Items.FoldersContextMenuCopy.Enabled = False;
+		Items.FoldersContextMenuLevelUp.Enabled = False;
+		Items.FoldersContextMenuMoveItem.Enabled = False;
+		Items.FoldersContextMenuFolderExport.Enabled = False;
+		Items.FoldersContextMenuSyncSettings.Enabled = False;
+		If IsAccessRightsSetupCommandAvailable Then
+			Items.FoldersContextMenuSetRights.Enabled = False;
+		EndIf;
 	Else
+		If Items.Folders.CurrentRow <> CurrentFolder Then
+			CurrentFolder = Items.Folders.CurrentRow;
+			FillPropertyValues(ThisObject, FolderRightsSettings(Items.Folders.CurrentRow));
+			Items.FormCreateCatalog.Enabled = FoldersModification;
+			Items.FoldersContextMenuCreate.Enabled = FoldersModification;
+			Items.FoldersContextMenuCopy.Enabled = FoldersModification;
+			Items.FoldersContextMenuSetDeletionMark.Enabled = FoldersModification;
+			Items.FoldersContextMenuMoveItem.Enabled = FoldersModification;
+			If IsAccessRightsSetupCommandAvailable Then
+				Items.FoldersContextMenuSetRights.Enabled = RightsManagement;
+			EndIf;
+		EndIf;
+		
 		Items.FormCreateSubmenu.Enabled = AddFilesAllowed And Not FilesBeingEditedInCloudService;
 		Items.FormCreateFromFile.Enabled = AddFilesAllowed And Not FilesBeingEditedInCloudService;
 		Items.FormCreateFromTemplate.Enabled = AddFilesAllowed And Not FilesBeingEditedInCloudService;
@@ -1143,6 +1161,7 @@ Procedure SetCommandsAvailabilityOnChangeFolder()
 		Items.ListContextMenuUnlock.Enabled = Not FilesBeingEditedInCloudService;
 		
 		Items.FormCopy.Enabled = AddFilesAllowed And Not FilesBeingEditedInCloudService;
+		Items.FoldersContextMenuCopy.Enabled = Items.FormCopy.Enabled;
 	
 		Items.ListContextMenuSetDeletionMark.Enabled = AddFilesAllowed And Not FilesBeingEditedInCloudService;
 		Items.FormSetDeletionMark.Enabled = AddFilesAllowed And Not FilesBeingEditedInCloudService;
@@ -1157,6 +1176,10 @@ Procedure SetCommandsAvailabilityOnChangeFolder()
 		Items.ListContextMenuFilesImport1.Enabled = AddFilesAllowed  And Not FilesBeingEditedInCloudService;
 		
 		Items.FoldersContextMenuFolderImport.Enabled = AddFilesAllowed And Not FilesBeingEditedInCloudService;
+		Items.FoldersContextMenuLevelUp.Enabled = True;
+		Items.FoldersContextMenuFolderExport.Enabled = True;
+		Items.FoldersContextMenuSyncSettings.Enabled = True;
+		
 	EndIf;
 	
 	If Items.Folders.CurrentRow <> Undefined Then
@@ -1170,7 +1193,7 @@ Procedure SetFilesSynchronizationNoteVisibility()
 	
 	FilesBeingEditedInCloudService = False;
 	
-	If Items.Folders.CurrentRow = Undefined Or Items.Folders.CurrentRow.IsEmpty() Then
+	If Items.Folders.CurrentData = Undefined Or Items.Folders.CurrentRow.IsEmpty() Then
 		
 		Items.CloudServiceNoteGroup.Visible = False;
 		
@@ -1234,8 +1257,8 @@ EndFunction
 Procedure FolderIdleHandlerOnActivateRow()
 	
 	If Items.Folders.CurrentRow <> List.Parameters.Items.Find("Owner").Value Then
-		
-		
+		// 
+		// 
 		UpdateAndSaveFilesListParameters();
 	Else
 		// The procedure of calling the OnActivateRow handler of the List table is performed by the application.
@@ -1255,6 +1278,7 @@ Function FolderRightsSettings(Folder)
 		RightsSettings.Insert("FilesModification", Value);
 		RightsSettings.Insert("AddFilesAllowed", Value);
 		RightsSettings.Insert("FilesDeletionMark", Value);
+		RightsSettings.Insert("RightsManagement", Value);
 		Return RightsSettings;
 	EndIf;
 	
@@ -1271,6 +1295,9 @@ Function FolderRightsSettings(Folder)
 	
 	RightsSettings.Insert("FilesDeletionMark",
 		ModuleAccessManagement.HasRight("FilesDeletionMark", Folder));
+		
+	RightsSettings.Insert("RightsManagement",
+		ModuleAccessManagement.HasRight("RightsManagement", Folder));
 	
 	Return RightsSettings;
 	

@@ -292,11 +292,23 @@ Please wait…</v8:content>
 									<Type>CommandBarButton</Type>
 									<DefaultButton>true</DefaultButton>
 									<CommandName>Form.Command.NextCommand</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Delete synchronization setting</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="NextCommandExtendedTooltip" id="28"/>
 								</Button>
 								<Button name="CancelCommand" id="29">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.CancelCommand</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Cancel</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="CancelCommandExtendedTooltip" id="30"/>
 								</Button>
 							</ChildItems>
@@ -325,6 +337,12 @@ Please wait…</v8:content>
 								<Button name="CancelCommand1" id="33">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.CancelCommand</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Cancel</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="CancelCommand1ExtendedTooltip" id="34"/>
 								</Button>
 							</ChildItems>
@@ -353,6 +371,12 @@ Please wait…</v8:content>
 								<Button name="DoneCommand" id="37">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.DoneCommand</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Finish</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="DoneCommandExtendedTooltip" id="38"/>
 								</Button>
 							</ChildItems>

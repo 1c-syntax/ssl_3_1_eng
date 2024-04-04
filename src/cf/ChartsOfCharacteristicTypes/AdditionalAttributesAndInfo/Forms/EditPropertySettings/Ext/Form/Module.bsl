@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -113,19 +114,30 @@ Procedure WriteBeginning()
 		WriteCompletion(OpenProperty);
 	Else
 		IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
-		CompletionNotification2 = New NotifyDescription("WriteFollowUp", ThisObject);
+		CallbackOnCompletion = New NotifyDescription("WriteFollowUp", ThisObject);
 		
-		TimeConsumingOperationsClient.WaitCompletion(ExecutionResult, CompletionNotification2, IdleParameters);
+		TimeConsumingOperationsClient.WaitCompletion(ExecutionResult, CallbackOnCompletion, IdleParameters);
 	EndIf;
 	
 EndProcedure
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
 Procedure WriteFollowUp(Result, AdditionalParameters) Export
 	
 	If Result = Undefined Then
 		Return;
 	EndIf;
+	
+	If Result.Status = "Error" Then
+		StandardSubsystemsClient.OutputErrorInfo(
+			Result.ErrorInfo);
+		Return;
+	EndIf;
+	
 	OpenProperty = GetFromTempStorage(Result.ResultAddress);
 	
 	WriteCompletion(OpenProperty);

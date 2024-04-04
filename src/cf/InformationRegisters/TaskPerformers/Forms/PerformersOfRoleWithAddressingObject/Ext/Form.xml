@@ -16,6 +16,12 @@
 			<Button name="FormPick" id="33">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.Pick</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Pick</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormPickExtendedTooltip" id="35"/>
 			</Button>
 			<Button name="FormReread" id="34">
@@ -74,6 +80,12 @@
 				<LabelField name="MainAddressingObject" id="18">
 					<DataPath>MainAddressingObject</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Main business object</v8:content>
+						</v8:item>
+					</Title>
 					<ContextMenu name="MainAddressingObjectContextMenu" id="19"/>
 					<ExtendedTooltip name="MainAddressingObjectExtendedTooltip" id="39"/>
 				</LabelField>

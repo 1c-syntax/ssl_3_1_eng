@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -13,35 +12,114 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// StandardSubsystems.ReportsOptions
+// 
+
+// See ReportsOptionsOverridable.BeforeAddReportCommands.
+Procedure BeforeAddReportCommands(ReportsCommands, Parameters, StandardProcessing) Export
+	
+	If Not Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
+		Return;
+	EndIf;
+	
+	If Not AccessRight("View", Metadata.Reports.EventLogAnalysis)
+	 Or StandardSubsystemsServer.IsBaseConfigurationVersion() Then
+		Return;
+	EndIf;
+	
+	AddCommand = False;
+	
+	If Parameters.FormName = "Catalog.Users.Form.ListForm" Then
+		
+		Command = ReportsCommands.Add();
+		Command.Presentation = NStr("en = 'Summary user activity';");
+		Command.VariantKey = "UsersActivityAnalysis";
+		Command.MultipleChoice = True;
+		Command.Manager = "Report.EventLogAnalysis";
+		Command.OnlyInAllActions = True;
+		Command.Importance = "SeeAlso";
+		
+		If Users.IsDepartmentUsed() Then
+			Command = ReportsCommands.Add();
+			Command.Presentation = NStr("en = 'Department activity analysis';");
+			Command.VariantKey = "DepartmentActivityAnalysis";
+			Command.MultipleChoice = True;
+			Command.Manager = "Report.EventLogAnalysis";
+			Command.OnlyInAllActions = True;
+			Command.Importance = "SeeAlso";
+		EndIf;
+		
+		AddCommand = True;
+		
+	ElsIf Parameters.FormName = "Catalog.Users.Form.ItemForm" Then
+		AddCommand = True;
+	EndIf;
+	
+	If Not AddCommand Then
+		Return;
+	EndIf;
+	
+	Command = ReportsCommands.Add();
+	Command.Presentation = NStr("en = 'User activity';");
+	Command.VariantKey = "UserActivity";
+	Command.MultipleChoice = False;
+	Command.Manager = "Report.EventLogAnalysis";
+	Command.OnlyInAllActions = True;
+	Command.Importance = "SeeAlso";
+	
+EndProcedure
 
 // Parameters:
 //   Settings - See ReportsOptionsOverridable.CustomizeReportsOptions.Settings.
 //   ReportSettings - See ReportsOptions.DescriptionOfReport.
 //
 Procedure CustomizeReportOptions(Settings, ReportSettings) Export
+	
 	ReportSettings.DefineFormSettings = True;
 	
 	ModuleReportsOptions = Common.CommonModule("ReportsOptions");
 	ModuleReportsOptions.SetOutputModeInReportPanels(Settings, ReportSettings, False);
+	SubsystemForAdministration = Common.MetadataObjectByFullName(
+		"Subsystem" + "." + "Administration");
+	SubsystemForMonitoring = Common.MetadataObjectByFullName(
+		"Subsystem" + "." + "Administration" + "." + "Subsystem" + "." + "UserMonitoring");
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "UsersActivityAnalysis");
-	OptionSettings.LongDesc = 
-		NStr("en = 'Users activity in the application 
-		|(total load and affected objects).';");
+	If SubsystemForMonitoring <> Undefined Then
+		OptionSettings.Location.Insert(SubsystemForMonitoring, "");
+	EndIf;
+	OptionSettings.LongDesc =
+		NStr("en = 'User activity (total load and affected objects).';");
+	
+	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "DepartmentActivityAnalysis");
+	OptionSettings.Enabled = Users.IsDepartmentUsed();
+	If SubsystemForMonitoring <> Undefined Then
+		OptionSettings.Location.Insert(SubsystemForMonitoring, "");
+	EndIf;
+	OptionSettings.LongDesc =
+		NStr("en = 'Department activity (total load and affected objects).';");
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "UserActivity");
-	OptionSettings.LongDesc = 
-		NStr("en = 'Objects affected by user activities
-		|(detailed).';");
+	If SubsystemForMonitoring <> Undefined Then
+		OptionSettings.Location.Insert(SubsystemForMonitoring, "");
+	EndIf;
+	OptionSettings.LongDesc =
+		NStr("en = 'Objects affected by user activities (detailed).';");
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "EventLogMonitor");
-	OptionSettings.LongDesc = NStr("en = 'Critical events in the system event log.';");
 	OptionSettings.SearchSettings.TemplatesNames = "EvengLogErrorReportTemplate";
+	If SubsystemForAdministration <> Undefined Then
+		OptionSettings.Location.Insert(SubsystemForAdministration, "");
+	EndIf;
+	OptionSettings.LongDesc = NStr("en = 'Critical events in the system event log.';");
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "ScheduledJobsDuration");
-	OptionSettings.LongDesc = NStr("en = 'Scheduled jobs schedule.';");
 	OptionSettings.SearchSettings.TemplatesNames = "ScheduledJobsDuration, ScheduledJobsDetails";
+	OptionSettings.Enabled = Not Common.DataSeparationEnabled();
+	If SubsystemForAdministration <> Undefined Then
+		OptionSettings.Location.Insert(SubsystemForAdministration, "");
+	EndIf;
+	OptionSettings.LongDesc = NStr("en = 'Job schedules.';");
+	
 EndProcedure
 
 // End StandardSubsystems.ReportsOptions
@@ -52,55 +130,58 @@ EndProcedure
 
 #Region Private
 
-// Gets information on user activity during the specified period
-// from the event log.
+// The function gets information about user activity from the log
+// for the transmitted period.
 //
 // Parameters:
 //    ReportParameters - Structure:
-//    * StartDate          - Date   - Beginning of the reporting period.
-//    * EndDate       - Date   - End of the reporting period.
-//    * User        - String - a user to analyze activity.
-//                                     Use this parameter for the "User activity" report option.
-//    * UsersAndGroups - ValueList - the values are user group(s) and/or
-//                                     user(s) to analyze activity.
-//                                     Use this parameter for the "User activity analysis" report option.
-//    * ReportVariant       - String - "UserActivity" or "UsersActivityAnalysis".
-//    * OutputTasks      - Boolean - Flag indicating whether to get data on tasks from the Event Log.
-//    * OutputCatalogs - Boolean - Flag indicating whether to get data on catalogs from the Event Log.
-//    * OutputDocuments   - Boolean - Flag indicating whether to get data on documents from the Event Log.
-//    * OutputBusinessProcesses - Boolean - Flag indicating whether to get data on business processes from the Event Log.
+//    * StartDate          - Date   -  the beginning of the period for which information will be collected.
+//    * EndDate       - Date   -  the end of the period for which information will be collected.
+//    * User        - String -  name of the user to use for analysis.
+//                                     For the "user Activity" report option.
+//    * UsersAndGroups - ValueList -  where the value is the group(s) of users and(or)
+//                                     the user (s) to analyze.
+//                                     For the "user activity Analysis" version of the report.
+//    * ReportVariant       - String -  "User activity" or "user activity Analysis".
+//    * OutputTasks      - Boolean -  get or not information about issues from the log.
+//    * OutputCatalogs - Boolean -  get or not information about reference books from the registration log.
+//    * OutputDocuments   - Boolean -  get or not document information from the registration log.
+//    * OutputBusinessProcesses - Boolean -  get or not information about business processes from the log.
 //
 // Returns:
-//  ValueTable - a table with ungrouped user activity data
-//     from the event log.
+//  ValueTable - 
+//     
 //
 Function EventLogData1(ReportParameters) Export
 	
-	// Prepare report parameters.
+	// 
 	StartDate = ReportParameters.StartDate;
 	EndDate = ReportParameters.EndDate;
 	User = ReportParameters.User;
 	UsersAndGroups = ReportParameters.UsersAndGroups;
+	Department = ReportParameters.Department;
 	ReportVariant = ReportParameters.ReportVariant;
 	
 	If ReportVariant = "UserActivity" Then
+		ShouldOutputUtilityUsers = True;
 		OutputBusinessProcesses = ReportParameters.OutputBusinessProcesses;
 		OutputTasks = ReportParameters.OutputTasks;
 		OutputCatalogs = ReportParameters.OutputCatalogs;
 		OutputDocuments = ReportParameters.OutputDocuments;
 	Else
+		ShouldOutputUtilityUsers = ReportParameters.ShouldOutputUtilityUsers;
 		OutputCatalogs = True;
 		OutputDocuments = True;
 		OutputBusinessProcesses = False;
 		OutputTasks = False;
 	EndIf;
 	
-	// Generating source data table.
+	// 
 	RawData = New ValueTable();
 	RawData.Columns.Add("Date", New TypeDescription("Date", , , New DateQualifiers(DateFractions.Date)));
 	RawData.Columns.Add("Week", New TypeDescription("String", , New StringQualifiers(10)));
 	RawData.Columns.Add("User");
-	RawData.Columns.Add("WorkHours", New TypeDescription("Number", New NumberQualifiers(15,2)));
+	RawData.Columns.Add("WorkHours", New TypeDescription("Number", New NumberQualifiers(15,4)));
 	RawData.Columns.Add("StartsCount", New TypeDescription("Number", New NumberQualifiers(10)));
 	RawData.Columns.Add("DocumentsCreated", New TypeDescription("Number", New NumberQualifiers(10)));
 	RawData.Columns.Add("CatalogsCreated", New TypeDescription("Number", New NumberQualifiers(10)));
@@ -115,7 +196,7 @@ Function EventLogData1(ReportParameters) Export
 	RawData.Columns.Add("ObjectKind", New TypeDescription("String", , New StringQualifiers(50)));
 	RawData.Columns.Add("CatalogDocumentObject");
 	
-	// Calculating the maximum number of concurrent sessions.
+	// 
 	ConcurrentSessionsData = New ValueTable();
 	ConcurrentSessionsData.Columns.Add("ConcurrentUsersDate",
 		New TypeDescription("Date", , , New DateQualifiers(DateFractions.Date)));
@@ -130,24 +211,25 @@ Function EventLogData1(ReportParameters) Export
 	
 	Events = New Array;
 	Events.Add("_$Session$_.Start"); //  
-	Events.Add("_$Session$_.Finish"); //  End session.  
-	Events.Add("_$Data$_.New"); // Add data.
-	Events.Add("_$Data$_.Update"); // Modify data.
+	Events.Add("_$Session$_.Finish"); //    
+	Events.Add("_$Data$_.New"); // 
+	Events.Add("_$Data$_.Update"); // 
 	
 	ApplicationName = New Array;
 	ApplicationName.Add("1CV8C");
 	ApplicationName.Add("WebClient");
 	ApplicationName.Add("1CV8");
+	ApplicationName.Add("BackgroundJob");
 	
 	UserFilter = New Array;
 	
-	// Get a user list.
+	// 
 	If ReportVariant = "UserActivity" Then
-		UserFilter.Add(IBUserName(User));
-	ElsIf TypeOf(UsersAndGroups) = Type("ValueList") Then
-		UsersToAnalyze(UserFilter, UsersAndGroups.UnloadValues());
+		UserFilter.Add(UserForSelection(User));
+	ElsIf ReportVariant = "DepartmentActivityAnalysis" Then
+		FillUsersForAnalysisFromDepartment(UserFilter, Department);
 	Else
-		UsersToAnalyze(UserFilter, UsersAndGroups);
+		FillUsersForAnalysis(UserFilter, UsersAndGroups);
 	EndIf;
 	
 	DatesInServerTimeZone = CommonClientServer.StructureProperty(ReportParameters, "DatesInServerTimeZone", False);
@@ -170,6 +252,8 @@ Function EventLogData1(ReportParameters) Export
 	
 	If UserFilter.Find("AllUsers") = Undefined Then
 		EventLogFilter.Insert("User", UserFilter);
+	Else
+		UserFilter = Undefined;
 	EndIf;
 	
 	SetPrivilegedMode(True);
@@ -178,11 +262,9 @@ Function EventLogData1(ReportParameters) Export
 	
 	ReportIsBlank = (EventLogData.Count() = 0);
 	
-	EventLogData.Sort("Session, Date");
-	
-	// Add a UUID—UserRef map for future use.
-	UsersIDs = EventLogData.UnloadColumn("User");
-	UsersIDsMap = UsersUUIDs(UsersIDs);
+	// 
+	UsersIDsMap = UsersUUIDs(EventLogData,
+		ShouldOutputUtilityUsers);
 	
 	CurrentSession        = Undefined;
 	WorkHours         = 0;
@@ -191,11 +273,17 @@ Function EventLogData1(ReportParameters) Export
 	CatalogsCreated = 0;
 	DocumentsChanged  = 0;
 	CatalogsChanged= 0;
-	ObjectKind          = Undefined;
-	SourceDataString= Undefined;
-	SessionStarted        = Undefined;
 	
-	// Calculating data required for the report.
+	Sessions = New ValueTable;
+	Sessions.Columns.Add("SessionNumber");
+	Sessions.Columns.Add("StartingEvent");
+	Sessions.Columns.Add("FinishingEvent");
+	Sessions.Columns.Add("User");
+	Sessions.Columns.Add("SessionFirstEventDate");
+	Sessions.Columns.Add("SessionLastEventDate");
+	Sessions.Indexes.Add("SessionNumber");
+	
+	// 
 	For Each EventLogDataRow In EventLogData Do
 		DocumentsCreated       = 0;
 		CatalogsCreated     = 0;
@@ -205,13 +293,8 @@ Function EventLogData1(ReportParameters) Export
 		BusinessProcessesChanged = 0;
 		TasksChanged           = 0;
 		TasksCreated            = 0;
-		ObjectKind              = Undefined;
 		
 		EventLogDataRow.Date = EventLogDataRow.Date - ServerTimeOffset;
-		If EventLogDataRow.UserName = "" Then
-			Continue;
-		EndIf;
-		Session = EventLogDataRow.Session; 
 		
 		If Not ValueIsFilled(EventLogDataRow.Session)
 			Or Not ValueIsFilled(EventLogDataRow.Date) Then
@@ -219,61 +302,38 @@ Function EventLogData1(ReportParameters) Export
 		EndIf;
 		
 		UsernameRef = UsersIDsMap[EventLogDataRow.User];
-		
-		// Calculating the duration of user activity and the number of times the application was started.
-		If CurrentSession <> Session
-			Or EventLogDataRow.Event = "_$Session$_.Start" Then
-			If SourceDataString <> Undefined Then
-				SourceDataString.WorkHours  = WorkHours;
-				SourceDataString.StartsCount = StartsCount;
-			EndIf;
-			SourceDataString = RawData.Add();
-			SourceDataString.Date		  = EventLogDataRow.Date;
-			SourceDataString.Week 	  = WeekOfYearString(EventLogDataRow.Date);
-			SourceDataString.User = UsernameRef;
-			WorkHours			= 0;
-			StartsCount	= 0; 
-			CurrentSession			= Session; 
-			SessionStarted		= EventLogDataRow.Date;
+		If UsernameRef = Undefined Then
+			Continue;
 		EndIf;
 		
-		If EventLogDataRow.Event = "_$Session$_.Finish" Then
-			
-			StartsCount	= StartsCount + 1;
-			If SessionStarted <> Undefined Then 
-				
-				// Checking whether a user session has ended the day it had started, or the next day.
-				If BegOfDay(EventLogDataRow.Date) > BegOfDay(SessionStarted) Then
-					// If the session is extended overnight, fill in the work hours for the previous day.
-					Diff = EndOfDay(SessionStarted) - SessionStarted;
-					WorkHours = Diff/60/60;
-					SourceDataString.WorkHours = WorkHours;
-					SessionDay = EndOfDay(SessionStarted) + 86400;
-					While EndOfDay(EventLogDataRow.Date) > SessionDay Do
-						SourceDataString = RawData.Add();
-						SourceDataString.Date = SessionDay;
-						SourceDataString.Week 	  = WeekOfYearString(EventLogDataRow.Date);
-						SourceDataString.User = UsernameRef;
-						WorkHours = (SessionDay - BegOfDay(SessionDay))/60/60;
-						SourceDataString.WorkHours  = WorkHours;
-						SessionDay = SessionDay + 86400;
-					EndDo;	
-					SourceDataString = RawData.Add();
-					SourceDataString.Date = EventLogDataRow.Date;
-					SourceDataString.Week 	  = WeekOfYearString(EventLogDataRow.Date);
-					SourceDataString.User = UsernameRef;
-					WorkHours = (EventLogDataRow.Date - BegOfDay(SessionDay))/60/60;
-					SourceDataString.WorkHours  = WorkHours;
-				Else
-					Diff =  (EventLogDataRow.Date - SessionStarted)/60/60;
-					WorkHours = WorkHours + Diff;
-				EndIf;
-				
+		// 
+		Session = Sessions.Find(EventLogDataRow.Session, "SessionNumber");
+		If EventLogDataRow.Event = "_$Session$_.Start" Then
+			If Session <> Undefined Then
+				Session.SessionNumber = Undefined;
 			EndIf;
+			Session = Sessions.Add();
+			Session.SessionNumber   = EventLogDataRow.Session;
+			Session.StartingEvent = EventLogDataRow;
+			Session.User  = UsernameRef;
 			
+		ElsIf EventLogDataRow.Event = "_$Session$_.Finish" Then
+			If Session = Undefined Then
+				Session = Sessions.Add();
+				Session.User = UsernameRef;
+			EndIf;
+			Session.SessionNumber = Undefined;
+			Session.FinishingEvent = EventLogDataRow;
+		Else
+			If Session = Undefined Then
+				Session = Sessions.Add();
+				Session.User = UsernameRef;
+				Session.SessionFirstEventDate = EventLogDataRow.Date
+			EndIf;
+			Session.SessionLastEventDate = EventLogDataRow.Date;
 		EndIf;
 		
-		// Calculating the number of created documents and catalogs.
+		// 
 		If EventLogDataRow.Event = "_$Data$_.New" Then
 			
 			If StrFind(EventLogDataRow.Metadata, "Document.") > 0 
@@ -306,7 +366,7 @@ Function EventLogData1(ReportParameters) Export
 			
 		EndIf;
 		
-		// Calculating the number of changed documents and catalogs.
+		// 
 		If EventLogDataRow.Event = "_$Data$_.Update" Then
 			
 			If StrFind(EventLogDataRow.Metadata, "Document.") > 0
@@ -339,7 +399,7 @@ Function EventLogData1(ReportParameters) Export
 			
 		EndIf;
 		
-		// Calculating the number of created BusinessProcesses and Tasks.
+		// 
 		If EventLogDataRow.Event = "_$Data$_.New" Then
 			
 			If StrFind(EventLogDataRow.Metadata, "BusinessProcess.") > 0 
@@ -372,7 +432,7 @@ Function EventLogData1(ReportParameters) Export
 			
 		EndIf;
 		
-		// Calculating the number of changed BusinessProcesses and Tasks.
+		// 
 		If EventLogDataRow.Event = "_$Data$_.Update" Then
 			
 			If StrFind(EventLogDataRow.Metadata, "BusinessProcess.") > 0
@@ -407,15 +467,45 @@ Function EventLogData1(ReportParameters) Export
 		
 	EndDo;
 	
-	If SourceDataString <> Undefined Then
-		SourceDataString.WorkHours  = WorkHours;
-		SourceDataString.StartsCount = StartsCount;
-	EndIf;
+	// 
+	For Each Session In Sessions Do
+		If Session.StartingEvent <> Undefined Then
+			Begin = Session.StartingEvent.Date;
+		ElsIf ValueIsFilled(Session.SessionFirstEventDate) Then
+			Begin = Session.SessionFirstEventDate;
+		Else
+			Begin = Session.FinishingEvent.Date;
+		EndIf;
+		If Session.FinishingEvent <> Undefined Then
+			End = Session.FinishingEvent.Date;
+		ElsIf ValueIsFilled(Session.SessionLastEventDate) Then
+			End = Session.SessionLastEventDate;
+		Else
+			End = Begin;
+		EndIf;
+		StartsCount = 1;
+		Continue_ = True;
+		While Continue_ Do
+			Date = Begin;
+			If BegOfDay(Begin) < BegOfDay(End) Then
+				Begin = BegOfDay(Begin) + 86400;
+				WorkHours = (Begin - Date) / 3600;
+			Else
+				Continue_ = False;
+				WorkHours = (End - Begin) / 3600;
+			EndIf;
+			SourceDataString = RawData.Add();
+			SourceDataString.Date = Date;
+			SourceDataString.Week = WeekOfYearString(Date);
+			SourceDataString.User = Session.User;
+			SourceDataString.StartsCount = StartsCount;
+			SourceDataString.WorkHours = ?(WorkHours = 0, 0.0001, WorkHours);
+			StartsCount = 0;
+		EndDo;
+	EndDo;
 	
 	If ReportVariant = "UsersActivityAnalysis" Then
 	
-		EventLogData.Sort("Date");
-		
 		UsersArray 	= New Array;
 		MaxUsersArray = New Array;
 		ConcurrentUsers  = 0;
@@ -424,8 +514,7 @@ Function EventLogData1(ReportParameters) Export
 		
 		For Each EventLogDataRow In EventLogData Do
 			
-			If Not ValueIsFilled(EventLogDataRow.Date)
-				Or EventLogDataRow.UserName = "" Then
+			If Not ValueIsFilled(EventLogDataRow.Date) Then
 				Continue;
 			EndIf;
 			
@@ -434,11 +523,9 @@ Function EventLogData1(ReportParameters) Export
 				Continue;
 			EndIf;
 			
-			UsernameRow = IBUserName(UsernameRef);
-			
 			ConcurrentUsersDate = BegOfDay(EventLogDataRow.Date);
 			
-			// If the day is changed, clearing all concurrent sessions data and filling the data for the previous day.
+			// 
 			If CurrentDate <> ConcurrentUsersDate Then
 				If ConcurrentUsers <> 0 Then
 					GenerateConcurrentSessionsRow(ConcurrentSessionsData, MaxUsersArray, 
@@ -452,16 +539,16 @@ Function EventLogData1(ReportParameters) Export
 			
 			If EventLogDataRow.Event = "_$Session$_.Start" Then
 				Counter = Counter + 1;
-				UsersArray.Add(UsernameRow);
+				UsersArray.Add(UsernameRef);
 			ElsIf EventLogDataRow.Event = "_$Session$_.Finish" Then
-				UserIndex = UsersArray.Find(UsernameRow);
+				UserIndex = UsersArray.Find(UsernameRef);
 				If Not UserIndex = Undefined Then 
 					UsersArray.Delete(UserIndex);
 					Counter = Counter - 1;
 				EndIf;
 			EndIf;
 			
-			// Reading the counter value and comparing it with the maximum value.
+			// 
 			Counter = Max(Counter, 0);
 			If Counter > ConcurrentUsers Then
 				MaxUsersArray = New Array;
@@ -478,26 +565,21 @@ Function EventLogData1(ReportParameters) Export
 				ConcurrentUsers, CurrentDate);
 		EndIf;
 		
-		// Calculating the number of errors and warnings.
+		// 
 		EventLogData = Undefined;
 		Errors1 					 = 0;
 		Warnings			 = 0;
-		EventLogData = EventLogErrorsInformation(StartDate, EndDate, ServerTimeOffset);
+		EventLogData = EventLogErrorsInformation(StartDate,
+			EndDate, ServerTimeOffset, UserFilter);
 		
 		ReportIsBlank =  ReportIsBlank Or (EventLogData.Count() = 0);
 		
 		For Each EventLogDataRow In EventLogData Do
 			
-			If EventLogDataRow.UserName = "" Then
-				Continue;
-			EndIf;
-			
-			If UserFilter.Find(EventLogDataRow.UserName) = Undefined
-				And UserFilter.Count() <> 0 Then
-				Continue;
-			EndIf;
-			
 			UsernameRef = UsersIDsMap[EventLogDataRow.User];
+			If UsernameRef = Undefined Then
+				Continue;
+			EndIf;
 			
 			If EventLogDataRow.Level = EventLogLevel.Error Then
 				Errors1 = Errors1 + 1;
@@ -528,26 +610,29 @@ Function EventLogData1(ReportParameters) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Analyze user activities.
+// 
 
-Function UsersToAnalyze(UserFilter, Val UsersAndGroups)
+Procedure FillUsersForAnalysis(UserFilter, FilterValue)
 	
-	If Not TypeOf(UsersAndGroups) = Type("Array") Then
-		UsersAndGroups = CommonClientServer.ValueInArray(UsersAndGroups);
+	If TypeOf(FilterValue) = Type("ValueList") Then
+		UsersAndGroups = FilterValue.UnloadValues();
+	Else
+		UsersAndGroups = CommonClientServer.ValueInArray(FilterValue);
 	EndIf;
 	
 	GroupToRetrieveUsers = New Array;
-	AllUsers = Catalogs.UserGroups.AllUsers;
+	AllUsersGroup = Users.AllUsersGroup();
 	For Each UserOrGroup In UsersAndGroups Do
 		If TypeOf(UserOrGroup) = Type("CatalogRef.Users") Then
-			IBUserName = IBUserName(UserOrGroup);
+			UserForSelection = UserForSelection(UserOrGroup);
 			
-			If IBUserName <> Undefined Then
-				UserFilter.Add(IBUserName);
+			If UserForSelection <> Undefined Then
+				UserFilter.Add(UserForSelection);
 			EndIf;
-		ElsIf UserOrGroup = AllUsers Then
+		ElsIf UserOrGroup = AllUsersGroup Then
+			UserFilter = New Array;
 			UserFilter.Add("AllUsers");
-			Return UserFilter;
+			Return;
 		ElsIf TypeOf(UserOrGroup) = Type("CatalogRef.UserGroups") Then
 			GroupToRetrieveUsers.Add(UserOrGroup);
 		EndIf;
@@ -573,56 +658,141 @@ Function UsersToAnalyze(UserFilter, Val UsersAndGroups)
 		Result = Query.Execute().Unload();
 		
 		For Each String In Result Do
-			IBUserName = IBUserName(String.User);
+			UserForSelection = UserForSelection(String.User);
 			
-			If IBUserName <> Undefined Then
-				UserFilter.Add(IBUserName);
+			If UserForSelection <> Undefined Then
+				UserFilter.Add(UserForSelection);
 			EndIf;
 		
 		EndDo;
 		
 	EndIf;
 	
-	Return UserFilter;
-EndFunction
+EndProcedure
 
-Function UsersUUIDs(UsersIDs)
-	UsersUUIDsArray = New Array;
+Procedure FillUsersForAnalysisFromDepartment(UserFilter, FilterValue)
 	
-	CommonClientServer.SupplementArray(UsersUUIDsArray,
-		UsersIDs, True);
-	UUIDMap = New Map;
-	For Each Item In UsersUUIDsArray Do
+	If FilterValue = Undefined Then
+		UserFilter.Add("AllUsers");
+		Return;
+	EndIf;
+	
+	If TypeOf(FilterValue) = Type("ValueList") Then
+		SelectedDivisions = FilterValue.UnloadValues();
+	Else
+		SelectedDivisions = CommonClientServer.ValueInArray(FilterValue);
+	EndIf;
+	
+	Query = New Query;
+	Query.SetParameter("Department", SelectedDivisions);
+	Query.Text = 
+	"SELECT DISTINCT
+	|	Users.IBUserID AS IBUserID
+	|FROM
+	|	Catalog.Users AS Users
+	|WHERE
+	|	Users.Department IN(&Department)";
+	
+	Selection = Query.Execute().Select();
+	
+	SetPrivilegedMode(True);
+	
+	While Selection.Next() Do
+		IBUser = InfoBaseUsers.FindByUUID(
+			Selection.IBUserID);
 		
-		If ValueIsFilled(Item) Then
-			UsernameRef = UserRef(Item);
-			IBUserID = Common.ObjectAttributeValue(UsernameRef, "IBUserID");
-			
-			If IBUserID <> Undefined Then
-				UUIDMap.Insert(Item, UsernameRef);
-			EndIf;
-			
+		If IBUser <> Undefined Then
+			UserFilter.Add(IBUser.Name);
 		EndIf;
-		
+	EndDo;
+	
+EndProcedure
+
+Function UsersUUIDs(EventLogData, ShouldOutputUtilityUsers)
+	
+	UsersTable = EventLogData.Copy(, "User, UserName");
+	UsersTable.Indexes.Add("User, UserName");
+	UsersTable.GroupBy("User, UserName");
+	
+	UUIDMap = New Map;
+	
+	Filter = New Structure("User", CommonClientServer.BlankUUID());
+	FoundRows = UsersTable.FindRows(Filter);
+	For Each FoundRow In FoundRows Do
+		If Not ValueIsFilled(FoundRow.UserName) And ShouldOutputUtilityUsers Then
+			UUIDMap.Insert(FoundRows[0].User,
+				Users.UnspecifiedUserRef());
+		EndIf;
+		UsersTable.Delete(FoundRows[0]);
+	EndDo;
+	
+	IBUsersIDs = UsersTable.UnloadColumn("User");
+	
+	Query = New Query;
+	Query.SetParameter("IBUsersIDs", IBUsersIDs);
+	Query.Text =
+	"SELECT
+	|	Users.Ref AS Ref,
+	|	Users.IsInternal AS IsInternal,
+	|	Users.IBUserID AS IBUserID
+	|FROM
+	|	Catalog.Users AS Users
+	|WHERE
+	|	Users.IBUserID IN(&IBUsersIDs)
+	|
+	|UNION ALL
+	|
+	|SELECT
+	|	Users.Ref,
+	|	FALSE,
+	|	Users.IBUserID
+	|FROM
+	|	Catalog.ExternalUsers AS Users
+	|WHERE
+	|	Users.IBUserID IN(&IBUsersIDs)";
+	
+	Selection = Query.Execute().Select();
+	
+	While Selection.Next() Do
+		If Not Selection.IsInternal Or ShouldOutputUtilityUsers Then
+			UUIDMap.Insert(Selection.IBUserID, Selection.Ref);
+		EndIf;
+		String = UsersTable.Find(Selection.IBUserID, "User");
+		UsersTable.Delete(String);
+	EndDo;
+	
+	If Not ShouldOutputUtilityUsers Then
+		Return UUIDMap;
+	EndIf;
+	
+	For Each String In UsersTable Do
+		If ValueIsFilled(String.UserName) Then
+			UUIDMap.Insert(String.User, String.UserName);
+		Else
+			UUIDMap.Insert(String.User, String(String.User));
+		EndIf;
 	EndDo;
 	
 	Return UUIDMap;
-EndFunction
-
-Function UserRef(UUIDUser)
-	Return Catalogs.Users.FindByAttribute("IBUserID", UUIDUser);
-EndFunction
-
-Function IBUserName(UserRef) Export
-	SetPrivilegedMode(True);
-	IBUserID = Common.ObjectAttributeValue(UserRef, "IBUserID");
-	IBUser = InfoBaseUsers.FindByUUID(IBUserID);
 	
-	If IBUser <> Undefined Then
-		Return IBUser.Name; 
-	Else
-		Return Undefined;
+EndFunction
+
+Function UserForSelection(UserRef) Export
+	
+	SetPrivilegedMode(True);
+	
+	IBUserID = Common.ObjectAttributeValue(UserRef,
+		"IBUserID");
+	
+	If ValueIsFilled(IBUserID) Then
+		Return EventLog.InfobaseUserForFilter(IBUserID);
 	EndIf;
+	
+	If UserRef = Users.UnspecifiedUserRef() Then
+		Return InfoBaseUsers.FindByName("");
+	EndIf;
+	
+	Return Undefined;
 	
 EndFunction
 
@@ -639,8 +809,8 @@ Procedure GenerateConcurrentSessionsRow(ConcurrentSessionsData, MaxUsersArray,
 		TemporaryArray.Insert(IndexOf, Item);
 		UserSessionsCounter = 0;
 		
-		For Each UserName In TemporaryArray Do
-			If UserName = Item Then
+		For Each CurrentUser In TemporaryArray Do
+			If CurrentUser = Item Then
 				UserSessionsCounter = UserSessionsCounter + 1;
 				UserAndNumber = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (%2)';"),
 					Item,
@@ -658,27 +828,27 @@ Procedure GenerateConcurrentSessionsRow(ConcurrentSessionsData, MaxUsersArray,
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Duration of scheduled jobs.
+// 
 
-// Generates a report on scheduled jobs.
+// This function generates a report on routine tasks.
 //
 // Parameters:
-//   FillParameters - Structure - a set of parameters required for the report where:
-//     * StartDate    - Date - Beginning of the reporting period.
-//     * EndDate - Date - the end of the report period.
-//   ConcurrentSessionsSize - Number - the minimum number of concurrent scheduled jobs
-//                                      to display in the table.
-//   MinScheduledJobSessionDuration - Number - the minimum duration of a scheduled job session
-//                                                                    (in seconds).
-//   DisplayBackgroundJobs - Boolean - if True, display a line with intervals of background jobs sessions
-//                                       on the Gantt chart.
-//   OutputTitle - DataCompositionTextOutputType - shows whether to show the title.
-//   OutputFilter - DataCompositionTextOutputType - shows whether to show the filter.
-//   HideScheduledJobs - ValueList - a list of scheduled jobs to exclude from the report.
+//   FillParameters - Structure - :
+//     * StartDate    - Date -  the beginning of the period for which information will be collected.
+//     * EndDate - Date -  the end of the period for which information will be collected.
+//   Timestamp Size-Number - the minimum number of concurrent scheduled tasks to
+//                                      display in the table.
+//   Minimum duration of Scheduled Task sessions - Number - minimum duration of scheduled
+//                                                                    task sessions in seconds.
+//   Display Background tasks-Boolean - if true, the Gantt chart will display a row with the intervals
+//                                       of the background task sessions.
+//   Output Header-The type of the output text of the data components-is used to disable/enable the header.
+//   Output Selection-The type of the output of the text of the data components-is used to disable / enable the display of the selection.
+//   Hide Scheduled tasks-List of values - a list of scheduled tasks that should be excluded from the report.
 //
 Function GenerateScheduledJobsDurationReport(FillParameters) Export
 	
-	// Report parameters.
+	// 
 	StartDate = FillParameters.StartDate;
 	EndDate = FillParameters.EndDate;
 	MinScheduledJobSessionDuration = 
@@ -689,7 +859,7 @@ Function GenerateScheduledJobsDurationReport(FillParameters) Export
 	Result = New Structure;
 	Report = New SpreadsheetDocument;
 	
-	// Getting data to generate the report.
+	// 
 	GetData = DataForScheduledJobsDurationsReport(FillParameters);
 	ScheduledJobsSessionsTable = GetData.ScheduledJobsSessionsTable;
 	ConcurrentSessionsData = GetData.TotalConcurrentScheduledJobs;
@@ -697,14 +867,14 @@ Function GenerateScheduledJobsDurationReport(FillParameters) Export
 	ReportIsBlank        = GetData.ReportIsBlank;
 	Template = GetTemplate("ScheduledJobsDuration");
 	
-	// A set of colors for the chart and table backgrounds.
+	// 
 	BackColors = New Array;
 	BackColors.Add(WebColors.White);
 	BackColors.Add(WebColors.LightYellow);
 	BackColors.Add(WebColors.LemonChiffon);
 	BackColors.Add(WebColors.NavajoWhite);
 	
-	// Generate a report header.
+	// 
 	If TitleOutput.Value = DataCompositionTextOutputType.Output
 		And TitleOutput.Use
 		Or Not TitleOutput.Use Then
@@ -730,7 +900,7 @@ Function GenerateScheduledJobsDurationReport(FillParameters) Export
 	
 		Report.Put(TemplateAreaDetails(Template, "TableHeader"));
 		
-		// Generating a table of the maximum number of concurrent scheduled jobs.
+		// 
 		CurrentSessionsCount = 0; 
 		ColorIndex = 3;
 		For Each ConcurrentSessionsRow In ConcurrentSessionsData Do
@@ -778,7 +948,7 @@ Function GenerateScheduledJobsDurationReport(FillParameters) Export
 	
 	Report.Put(TemplateAreaDetails(Template, "IsBlankString"));
 	
-	// Getting a Gantt chart and specifying the parameters required to fill the chart.
+	// 
 	Area = TemplateAreaDetails(Template, "Chart");
 	GanttChart = Area.Drawings.GanttChart.Object; // GanttChart
 	GanttChart.RefreshEnabled = False;  
@@ -792,7 +962,7 @@ Function GenerateScheduledJobsDurationReport(FillParameters) Export
 	ScheduledJobStarts = 0;
 	PointChangedFlag        = False;
 	
-	// Populate the Gantt chart.	
+	// 	
 	For Each ScheduledJobsRow In ScheduledJobsSessionsTable Do
 		ScheduledJobIntervalDuration =
 			ScheduledJobsRow.JobEndDate - ScheduledJobsRow.JobStartDate;
@@ -813,7 +983,7 @@ Function GenerateScheduledJobsDurationReport(FillParameters) Export
 				EndIf;
 				StartsCountRow = StartsCount.Find(
 					ScheduledJobsRow.NameOfEvent, "NameOfEvent");
-				// Leaving the details of background jobs blank.
+				// 
 				If ScheduledJobsRow.EventMetadata <> "" Then 
 					PointName = ScheduledJobsRow.NameOfEvent;
 					Point = GanttChart.SetPoint(PointName);
@@ -849,7 +1019,7 @@ Function GenerateScheduledJobsDurationReport(FillParameters) Export
 				Format(Interval.Begin, "DLF=T"),
 				Format(Interval.End, "DLF=T"));
 			PointChangedFlag = False;
-			// Leaving the details of background jobs blank.
+			// 
 			If ScheduledJobsRow.EventMetadata <> "" Then
 				IntervalStart.Add(ScheduledJobsRow.JobStartDate);
 				IntervalEnd.Add(ScheduledJobsRow.JobEndDate);
@@ -863,7 +1033,7 @@ Function GenerateScheduledJobsDurationReport(FillParameters) Export
 	
 	If ScheduledJobStarts <> 0
 		And ValueIsFilled(Point.Details) Then
-		
+		// 
 		DetailsPoint = Point.Details; // Array
 		DetailsPoint.Add(ScheduledJobStarts);
 		DetailsPoint.Add(OverallScheduledJobsDuration);
@@ -876,7 +1046,7 @@ Function GenerateScheduledJobsDurationReport(FillParameters) Export
 		Point.Value = PointName;
 	EndIf;
 		
-	// Setting up chart view settings.
+	// 
 	GanttChartColors(StartDate, GanttChart, ConcurrentSessionsData, BackColors);
 	AnalysisPeriod = EndDate - StartDate;
 	GanttChartTimescale(GanttChart, AnalysisPeriod);
@@ -898,23 +1068,23 @@ Function GenerateScheduledJobsDurationReport(FillParameters) Export
 	Return Result;
 EndFunction
 
-// Gets scheduled jobs data from the Event Log.
+// The function receives information on routine tasks from the registration log.
 //
 // Parameters:
-//   FillParameters - Structure - a set of parameters required for the report:
-//   * StartDate    - Date - Beginning of the reporting period.
-//   * EndDate - Date - End of the reporting period.
-//   * ConcurrentSessionsSize	- Number - the minimum number of concurrent scheduled jobs
-// 		to display in the table.
-//   * MinScheduledJobSessionDuration - Number - Min scheduled job session duration in seconds.
-// 		
-//   * DisplayBackgroundJobs - Boolean - if True, display a line with intervals of background jobs sessions 
-// 		on the Gantt chart.
-//   * HideScheduledJobs - ValueList - a list of scheduled jobs to exclude from the report.
+//   FillParameters - Structure - :
+//   * StartDate    - Date -  the beginning of the period for which information will be collected.
+//   * EndDate - Date -  the end of the period for which information will be collected.
+//   * ConcurrentSessionsSize	- Number -  the minimum number of concurrent scheduled
+// 		tasks to display in the table.
+//   * MinScheduledJobSessionDuration - Number -  minimum duration
+// 		of scheduled task sessions in seconds.
+//   * DisplayBackgroundJobs - Boolean -  if true, the Gantt chart will display a line with 
+// 		the intervals of sessions of background tasks.
+//   * HideScheduledJobs - ValueList -  a list of routine tasks that need to be excluded from the report.
 //
-// Returns
-//   ValueTable - the table that contains scheduled jobs data
-//     from the event log.
+// Return value
+//   Assignment table - a table containing information on the work of routine tasks
+//     from the registration log.
 //
 Function DataForScheduledJobsDurationsReport(FillParameters)
 	
@@ -958,7 +1128,7 @@ Function DataForScheduledJobsDurationsReport(FillParameters)
 		EndDo;
 	EndIf;
 	
-	// Generate data for the filter by scheduled jobs.
+	// 
 	AllScheduledJobsList = ScheduledJobsServer.FindJobs(New Structure);
 	MetadataIDMap = New Map;
 	MetadataNameMap = New Map;
@@ -975,7 +1145,7 @@ Function DataForScheduledJobsDurationsReport(FillParameters)
 		EndIf;
 	EndDo;
 	
-	// Populate parameters required for defining concurrent scheduled jobs.
+	// 
 	ConcurrentSessionsParameters = New Structure;
 	ConcurrentSessionsParameters.Insert("EventLogData", EventLogData);
 	ConcurrentSessionsParameters.Insert("DescriptionIDMap", DescriptionIDMap);
@@ -985,10 +1155,10 @@ Function DataForScheduledJobsDurationsReport(FillParameters)
 	ConcurrentSessionsParameters.Insert("MinScheduledJobSessionDuration",
 		MinScheduledJobSessionDuration);
 	
-	// The maximum number of concurrent scheduled jobs sessions.
+	// 
 	ConcurrentSessionsData = ConcurrentScheduledJobs(ConcurrentSessionsParameters);
 	
-	// Select values from the ConcurrentSessions table.
+	// 
 	ConcurrentSessionsData.Sort("ConcurrentScheduledJobs Desc");
 	
 	TotalConcurrentScheduledJobsRow = Undefined;
@@ -1014,7 +1184,7 @@ Function DataForScheduledJobsDurationsReport(FillParameters)
 	
 	EventLogData.Sort("Metadata, Data, Date, Session");
 	
-	// Populate parameters required for getting data by scheduled jobs session.
+	// 
 	ScheduledJobsSessionsParameters = New Structure;
 	ScheduledJobsSessionsParameters.Insert("EventLogData", EventLogData);
 	ScheduledJobsSessionsParameters.Insert("DescriptionIDMap", DescriptionIDMap);
@@ -1023,7 +1193,7 @@ Function DataForScheduledJobsDurationsReport(FillParameters)
 	ScheduledJobsSessionsParameters.Insert("DisplayBackgroundJobs", DisplayBackgroundJobs);
 	ScheduledJobsSessionsParameters.Insert("HideScheduledJobs", HideScheduledJobs);
 	
-	// Scheduled jobs.
+	// 
 	ScheduledJobsSessionsTable = 
 		ScheduledJobsSessions(ScheduledJobsSessionsParameters).ScheduledJobsSessionsTable;
 	StartsCount = ScheduledJobsSessions(ScheduledJobsSessionsParameters).StartsCount;
@@ -1132,8 +1302,8 @@ Function ConcurrentScheduledJobs(ConcurrentSessionsParameters)
 				EndIf;
 			EndIf;    						
 			ScheduledJobsArray.Delete(ScheduledJobIndex);
-			ScheduledJobsArray.Delete(ScheduledJobIndex); 
-			ScheduledJobsArray.Delete(ScheduledJobIndex); // Delete date value.
+			ScheduledJobsArray.Delete(ScheduledJobIndex); // 
+			ScheduledJobsArray.Delete(ScheduledJobIndex); // 
 			Counter = Counter - 1;
 		EndIf;
 		
@@ -1273,9 +1443,9 @@ Function ScheduledJobsSessions(ScheduledJobsSessionsParameters)
 					ScheduledJobsSessionsTable, StartsCount);
 EndFunction
 
-// Generates a report for a single scheduled job.
+// Function for generating a report on the selected routine task.
 // Parameters:
-//   Details - scheduled job details.
+//   Details - 
 //
 Function ScheduledJobDetails1(Details) Export
 	Result = New Structure;
@@ -1332,7 +1502,7 @@ Function ScheduledJobDetails1(Details) Export
 	
 	Report.Put(Template.GetArea("TableHeader"));
 	
-	// Populate the interval table.
+	// 
 	ArraySize = JobStartDate.Count();
 	IntervalNumber = 1; 	
     Report.StartRowGroup(, False);
@@ -1359,17 +1529,17 @@ Function ScheduledJobDetails1(Details) Export
 	Return Result;
 EndFunction
 
-// Sets interval and background colors for a Gantt chart.
+// Procedure for setting the color of the intervals and background of the Gantt chart.
 //
 // Parameters:
-//   StartDate - the day for which a chart is generated.
-//   GanttChart - GanttChart, Type - SpreadsheetDocumentDrawing.
-//   ConcurrentSessionsData - ValueTable - a value table with data on the number of
-// 		concurrent scheduled jobs during the day.
-//   BackColors - an array of colors for background intervals.
+//   StartDate - 
+//   GanttChart - GanttChart, Type -  Drawing table of the document.
+//   ConcurrentSessionsData - ValueTable -  with data on the number
+// 		of scheduled tasks that worked simultaneously during the day.
+//   BackColors - 
 //
 Procedure GanttChartColors(StartDate, GanttChart, ConcurrentSessionsData, BackColors)
-	// Adding colors of background intervals.
+	// 
 	CurrentSessionsCount = 0;
 	ColorIndex = 3;
 	For Each ConcurrentSessionsRow In ConcurrentSessionsData Do
@@ -1392,10 +1562,10 @@ Procedure GanttChartColors(StartDate, GanttChart, ConcurrentSessionsData, BackCo
 	EndDo;
 EndProcedure
 
-// Generates a timescale of a Gantt chart.
+// Procedure for generating the Gantt chart time scale.
 //
 // Parameters:
-//   GanttChart - GanttChart, Type - SpreadsheetDocumentDrawing.
+//   GanttChart - GanttChart, Type -  Drawing table of the document.
 //
 Procedure GanttChartTimescale(GanttChart, AnalysisPeriod)
 	TimeScaleItems = GanttChart.PlotArea.TimeScale.Items;
@@ -1486,15 +1656,15 @@ Function TemplateAreaDetails(Template, AreaName)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Event log management.
+// 
 
-// Generates a report on errors registered in the event log.
+// A function that generates a report on errors registered in the log.
 //
 // Parameters:
-//   EventLogData - ValueTable - a table exported from the event log.
+//   Dataregistration Log-Value table - an unloaded table from the log of registrations.
 //
-// It must have the following columns: Date, Username, ApplicationPresentation,
-//                                          EventPresentation, Comment, and Level.
+// The following columns must be present: Date, Username, Application View,
+//                                          Event View, Comment, Level.
 //
 Function GenerateEventLogMonitorReport(StartDate, EndDate, ServerTimeOffset) Export
 	
@@ -1504,10 +1674,10 @@ Function GenerateEventLogMonitorReport(StartDate, EndDate, ServerTimeOffset) Exp
 	EventLogData = EventLogErrorsInformation(StartDate, EndDate, ServerTimeOffset);
 	EventLogRecordsCount = EventLogData.Count();
 	
-	ReportIsBlank = (EventLogRecordsCount = 0); 
+	ReportIsBlank = (EventLogRecordsCount = 0); // 
 		
 	///////////////////////////////////////////////////////////////////////////////
-	// Data preparation block.
+	// 
 	//
 	
 	CollapseByComments = EventLogData.Copy();
@@ -1527,7 +1697,7 @@ Function GenerateEventLogMonitorReport(StartDate, EndDate, ServerTimeOffset) Exp
 	CollapseWarnings.Sort("TotalByComment Desc");
 	
 	///////////////////////////////////////////////////////////////////////////////
-	// Report generation block.
+	// 
 	//
 	
 	Area = Template.GetArea("ReportHeader1");
@@ -1567,14 +1737,14 @@ Function GenerateEventLogMonitorReport(StartDate, EndDate, ServerTimeOffset) Exp
 	
 EndFunction
 
-// Gets a presentation of the physical infobase location to display it to an administrator.
+// Get a view of the physical location of the information base for display to the administrator.
 //
 // Returns:
-//   String - Infobase presentation.
+//   String - 
 //
 // Example:
-// - For a file infobase: \\FileServer\1c_ib\
-// - For a server infobase: ServerName:1111 / information_base_name.
+// - 
+// 
 //
 Function InfobasePresentation()
 	
@@ -1584,7 +1754,7 @@ Function InfobasePresentation()
 		Return Mid(DatabaseConnectionString, 6, StrLen(DatabaseConnectionString) - 6);
 	EndIf;
 		
-	// Append the infobase name to the server name.
+	// 
 	SearchPosition = StrFind(Upper(DatabaseConnectionString), "SRVR=");
 	If SearchPosition <> 1 Then
 		Return Undefined;
@@ -1598,7 +1768,7 @@ Function InfobasePresentation()
 	
 	DatabaseConnectionString = Mid(DatabaseConnectionString, SemicolonPosition + 1);
 	
-	// Server name position.
+	// 
 	SearchPosition = StrFind(Upper(DatabaseConnectionString), "REF=");
 	If SearchPosition <> 1 Then
 		Return Undefined;
@@ -1614,18 +1784,19 @@ Function InfobasePresentation()
 	
 EndFunction
 
-// Gets error details for the specified period from the event log.
+// The function gets information about errors in the log for the passed period.
 //
 // Parameters:
-//   StartDate    - Date - the beginning of the period.
-//   EndDate - Date - the end of the report period.
+//   StartDate    - Date - 
+//   EndDate - Date - 
 //
-// Returns
-//   ValueTable - the table contains event log records with the following filter:
-//                    EventLogLevel - EventLogLevel.Error
-//                    The beginning and end of period are taken from the parameters.
+// 
+//   :
+//                    
+//                    
 //
-Function EventLogErrorsInformation(Val StartDate, Val EndDate, ServerTimeOffset)
+Function EventLogErrorsInformation(StartDate, EndDate,
+			ServerTimeOffset, UserFilter = Undefined)
 	
 	EventLogData = New ValueTable;
 	
@@ -1633,15 +1804,17 @@ Function EventLogErrorsInformation(Val StartDate, Val EndDate, ServerTimeOffset)
 	LogLevels.Add(EventLogLevel.Error);
 	LogLevels.Add(EventLogLevel.Warning);
 	
-	StartDate = StartDate + ServerTimeOffset;
-	EndDate = EndDate + ServerTimeOffset;
+	Filter = New Structure;
+	Filter.Insert("Level", LogLevels);
+	Filter.Insert("StartDate", StartDate + ServerTimeOffset);
+	Filter.Insert("EndDate", EndDate + ServerTimeOffset);
+	
+	If UserFilter <> Undefined Then
+		Filter.Insert("User", UserFilter);
+	EndIf;
 	
 	SetPrivilegedMode(True);
-	UnloadEventLog(EventLogData,
-							   New Structure("Level, StartDate, EndDate",
-											   LogLevels,
-											   StartDate,
-											   EndDate));
+	UnloadEventLog(EventLogData, Filter);
 	SetPrivilegedMode(False);
 	
 	If ServerTimeOffset <> 0 Then
@@ -1654,15 +1827,15 @@ Function EventLogErrorsInformation(Val StartDate, Val EndDate, ServerTimeOffset)
 	
 EndFunction
 
-// Adds a tabular section with errors to the report.
-// The errors are grouped by comment.
+// Adds the error table part to the report. Errors are displayed grouped
+// according to the review.
 //
 // Parameters:
-//   Template  - SpreadsheetDocument - a source of formatted areas
-//                              for report generation.
-//   EventLogData   - ValueTable - "As is" errors and warnings from the Event Log.
-//                              
-//   CollapsedData - ValueTable - contains their total numbers (collapsed by comment).
+//   Template  - SpreadsheetDocument -  source of formatted areas that will
+//                              be used when generating the report.
+//   EventLogData   - ValueTable -  data on errors and warnings
+//                              from the log "as is".
+//   CollapsedData - ValueTable -  information collapsed by comments by their number.
 //
 Function GenerateTabularSection(Template, EventLogData, CollapsedData)
 	

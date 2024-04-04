@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -75,6 +76,7 @@ Procedure OpenAddRecipientsForm(IsPick)
 	ChoiceFormParameters.Insert("SelectGroups", True);
 	ChoiceFormParameters.Insert("UsersGroupsSelection", True);
 	
+	// 
 	If IsPick Then
 		ChoiceFormParameters.Insert("AdvancedPick", True);
 		ChoiceFormParameters.Insert("PickFormHeader", NStr("en = 'Pick recipients';"));
@@ -267,14 +269,14 @@ Procedure FillMailAddresses()
 	RecipientsParameters.Recipients = Recipients;
 	
 	RecipientsMetadata = Common.MetadataObjectByID(MetadataObjectID, False);
-	If RecipientsMetadata.Hierarchical Then
+	If RecipientsMetadata.Hierarchical And RecipientsMetadata.HierarchyType = Metadata.ObjectProperties.HierarchyType.HierarchyFoldersAndItems Then
 		ArrayOfRecipients_ = New Array;
 		For Each BulkEmailRecipient In Recipients Do
 			ArrayOfRecipients_.Add(BulkEmailRecipient.Recipient);
 		EndDo;
-		RecipientsAttributesAreGroup = Common.ObjectsAttributeValue(ArrayOfRecipients_, "IsFolder");
+		RecipientsAttributeIsGroup = Common.ObjectsAttributeValue(ArrayOfRecipients_, "IsFolder");
 	Else
-		RecipientsAttributesAreGroup = Undefined;
+		RecipientsAttributeIsGroup = Undefined;
 	EndIf;
 	
 	BulkEmailRecipients = ReportMailing.GenerateMailingRecipientsList(RecipientsParameters);
@@ -287,7 +289,7 @@ Procedure FillMailAddresses()
 			RecipientEmailAddr = BulkEmailRecipients.Get(BulkEmailRecipient.Recipient);
 			BulkEmailRecipient.Address = ?(RecipientEmailAddr <> Undefined, RecipientEmailAddr, "")
 		EndIf;
-		IsFolder = ?(RecipientsAttributesAreGroup <> Undefined, RecipientsAttributesAreGroup.Get(BulkEmailRecipient.Recipient), False);
+		IsFolder = ?(RecipientsAttributeIsGroup <> Undefined, RecipientsAttributeIsGroup.Get(BulkEmailRecipient.Recipient), False);
 		IsFolder = ?(IsFolder <> Undefined, IsFolder, False);
 		If IsFolder Or TypeOf(BulkEmailRecipient.Recipient) = Type("CatalogRef.UserGroups") Then
 			BulkEmailRecipient.PictureIndex = 3;

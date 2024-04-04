@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -28,11 +29,11 @@ Procedure ShowDisconnection() Export
 	ConversationsInternalClient.ShowDisconnection();
 EndProcedure
 
-//  
+// Returns True if the Collaboration System is enabled and available. 
 //
-// 
-//  
-// 
+// Makes a server call to ensure getting the actual status in case
+// registration data in the infobase were modified by the method 
+// "CollaborationSystem.SetInfoBaseRegistrationData".
 // 
 // Returns:
 //   Boolean

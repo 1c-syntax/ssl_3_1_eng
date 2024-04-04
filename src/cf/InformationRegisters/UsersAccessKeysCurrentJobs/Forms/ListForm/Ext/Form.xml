@@ -33,12 +33,24 @@
 				<Button name="FormEnableEditing" id="24">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.EnableEditing</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Allow editing</v8:content>
+						</v8:item>
+					</Title>
 					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 					<ExtendedTooltip name="FormEnableEditingExtendedTooltip" id="25"/>
 				</Button>
 				<Button name="FormCancelBackgroundJob" id="29">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.CancelBackgroundJob</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Cancel background job</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="FormCancelBackgroundJobExtendedTooltip" id="30"/>
 				</Button>
 			</ChildItems>
@@ -79,6 +91,12 @@
 					<Button name="ListContextMenuCancelBackgroundJob" id="31">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.CancelBackgroundJob</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Cancel background job</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="ListContextMenuCancelBackgroundJobExtendedTooltip" id="32"/>
 					</Button>
 				</ChildItems>
@@ -176,7 +194,7 @@
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Allow editing for troubleshooting. The feature is for advanced users only.</v8:content>
+					<v8:content>Allow editing for troubleshooting. Recommended for advanced users only.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>EnableEditing</Action>

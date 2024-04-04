@@ -48,6 +48,12 @@
 				<Button name="FormMarkForDeletion1" id="28">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.SetMarkForDeletion</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Set deletion mark</v8:content>
+						</v8:item>
+					</Title>
 					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 					<ExtendedTooltip name="FormMarkForDeletionExtendedTooltip" id="29"/>
 				</Button>
@@ -59,11 +65,23 @@
 				<Button name="MoveAllFilesToVolumes" id="75">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.MoveFiles</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Move files</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="MoveAllFilesToVolumesExtendedTooltip" id="76"/>
 				</Button>
 				<Button name="CheckIntegrity" id="79">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.CheckIntegrity</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Check integrity</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="CheckIntegrityExtendedTooltip" id="80"/>
 				</Button>
 			</ChildItems>
@@ -112,6 +130,12 @@
 					<Button name="ListContextMenuMarkForDeletion1" id="77">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.SetMarkForDeletion</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Set deletion mark</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="ListContextMenuMarkForDeletion1ExtendedTooltip" id="78"/>
 					</Button>
 				</ChildItems>

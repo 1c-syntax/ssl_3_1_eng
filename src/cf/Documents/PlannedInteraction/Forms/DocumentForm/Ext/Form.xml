@@ -255,6 +255,12 @@
 												<Type>CommandBarButton</Type>
 												<SkipOnInput>false</SkipOnInput>
 												<CommandName>Form.Command.CreateContact</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Create contact</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="CreateContactExtendedTooltip" id="124"/>
 											</Button>
 										</ChildItems>
@@ -302,7 +308,7 @@
 											<ChoiceButton>true</ChoiceButton>
 											<OpenButton>true</OpenButton>
 											<ContextMenu name="ContactPresentationContextMenu" id="31"/>
-											<ExtendedTooltip name="ContactPresentation1ExtendedTooltip" id="126"/>
+											<ExtendedTooltip name="ContactPresentationExtendedTooltip" id="126"/>
 											<Events>
 												<Event name="OnChange">ContactPresentationOnChange</Event>
 												<Event name="AutoComplete">ContactPresentationAutoComplete</Event>
@@ -421,6 +427,12 @@
 			<ChildItems>
 				<InputField name="SubjectOf" id="19">
 					<DataPath>SubjectOf</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Topic</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Top</TitleLocation>
 					<Width>30</Width>
 					<AutoMaxWidth>false</AutoMaxWidth>
@@ -450,6 +462,12 @@
 				</InputField>
 				<CheckBoxField name="Reviewed" id="15">
 					<DataPath>Reviewed</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Reviewed</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Right</TitleLocation>
 					<CheckBoxType>Auto</CheckBoxType>
 					<ContextMenu name="ReviewedContextMenu" id="16"/>
@@ -460,6 +478,12 @@
 				</CheckBoxField>
 				<InputField name="ReviewAfter" id="17">
 					<DataPath>ReviewAfter</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Snooze till</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Top</TitleLocation>
 					<Width>16</Width>
 					<Wrap>false</Wrap>
@@ -676,30 +700,6 @@
 	</Commands>
 	<CommandInterface>
 		<NavigationPanel>
-			<Item>
-				<Command>0</Command>
-				<Type>Auto</Type>
-				<DefaultVisible>false</DefaultVisible>
-				<Visible>
-					<xr:Common>false</xr:Common>
-				</Visible>
-			</Item>
-			<Item>
-				<Command>0</Command>
-				<Type>Auto</Type>
-				<DefaultVisible>false</DefaultVisible>
-				<Visible>
-					<xr:Common>false</xr:Common>
-				</Visible>
-			</Item>
-			<Item>
-				<Command>0</Command>
-				<Type>Auto</Type>
-				<DefaultVisible>false</DefaultVisible>
-				<Visible>
-					<xr:Common>false</xr:Common>
-				</Visible>
-			</Item>
 			<Item>
 				<Command>CommonCommand.RelatedDocuments</Command>
 				<Type>Auto</Type>

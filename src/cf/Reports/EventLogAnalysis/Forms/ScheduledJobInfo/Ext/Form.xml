@@ -23,7 +23,7 @@
 						<v8:content>Change schedule</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="EditScheduleExtendedTooltip" id="5"/>
+				<ExtendedTooltip name="ModifyScheduleExtendedTooltip" id="5"/>
 			</Button>
 			<Button name="GoToEventLogCommand" id="4">
 				<Type>CommandBarButton</Type>
@@ -39,7 +39,7 @@
 						<v8:content>Go to event log</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="GoToEventLog2ExtendedTooltip" id="6"/>
+				<ExtendedTooltip name="GoToEventLogCommandExtendedTooltip" id="6"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
@@ -49,6 +49,12 @@
 	<ChildItems>
 		<SpreadSheetDocumentField name="Report" id="1">
 			<DataPath>Report</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Report</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>None</TitleLocation>
 			<VerticalScrollBar>true</VerticalScrollBar>
 			<HorizontalScrollBar>true</HorizontalScrollBar>

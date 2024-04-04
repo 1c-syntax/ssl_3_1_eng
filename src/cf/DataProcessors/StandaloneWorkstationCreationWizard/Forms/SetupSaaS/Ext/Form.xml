@@ -34,7 +34,7 @@
 			<HorizontalStretch>true</HorizontalStretch>
 			<VerticalStretch>true</VerticalStretch>
 			<PagesRepresentation>None</PagesRepresentation>
-			<ExtendedTooltip name="MainPanel1ExtendedTooltip" id="226"/>
+			<ExtendedTooltip name="PanelMainExtendedTooltip" id="226"/>
 			<ChildItems>
 				<Page name="HasExtensionsThatChangeDataStructure" id="327">
 					<Title>
@@ -47,6 +47,12 @@
 					<ExtendedTooltip name="ThePresenceOfExtensionsThatChangeTheDataStructureExtendedTooltip" id="328"/>
 					<ChildItems>
 						<UsualGroup name="Group1" id="329">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group</v8:content>
+								</v8:item>
+							</Title>
 							<Group>AlwaysHorizontal</Group>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
@@ -196,6 +202,12 @@ Note that the data added by the extensions will be permanently deleted along wit
 									<ExtendedTooltip name="LocalWorkstationCreationPictureExtendedTooltip" id="229"/>
 								</PictureDecoration>
 								<UsualGroup name="Group3" id="153">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Group</v8:content>
+										</v8:item>
+									</Title>
 									<Group>Horizontal</Group>
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
@@ -231,6 +243,12 @@ Note that the data added by the extensions will be permanently deleted along wit
 									</ChildItems>
 								</UsualGroup>
 								<UsualGroup name="Group5" id="173">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Group</v8:content>
+										</v8:item>
+									</Title>
 									<Group>Horizontal</Group>
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
@@ -246,6 +264,12 @@ Note that the data added by the extensions will be permanently deleted along wit
 											<SkipOnInput>true</SkipOnInput>
 											<AutoMaxWidth>false</AutoMaxWidth>
 											<CommandName>Form.Command.HowToInstallOrUpdate1CEnterprisePlatfomVersion</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>How to install or update 1C:Enterprise platform</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="HowToInstallOrUpdate1CEnterprisePlatfomVersionExtendedTooltip" id="235"/>
 										</Button>
 									</ChildItems>
@@ -312,6 +336,12 @@ Note that the data added by the extensions will be permanently deleted along wit
 									</ExtendedTooltip>
 								</InputField>
 								<UsualGroup name="Group2" id="143">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Group</v8:content>
+										</v8:item>
+									</Title>
 									<Group>Horizontal</Group>
 									<Behavior>Usual</Behavior>
 									<Representation>NormalSeparation</Representation>
@@ -321,6 +351,12 @@ Note that the data added by the extensions will be permanently deleted along wit
 										<Button name="SetUpDataTransferRestrictions" id="105">
 											<Type>UsualButton</Type>
 											<CommandName>Form.Command.SetUpDataTransferRestrictions</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Change…</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="SetUpDataTransferRestrictionsExtendedTooltip" id="242"/>
 										</Button>
 										<LabelDecoration name="DataTransferRestrictionsDetails" id="206">
@@ -408,6 +444,12 @@ Note that the data added by the extensions will be permanently deleted along wit
 											<ChildItems>
 												<CheckBoxField name="UsersPermitDataSynchronization" id="224">
 													<DataPath>SynchronizationUsers.PermitDataSynchronization</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Enable data synchronization</v8:content>
+														</v8:item>
+													</Title>
 													<EditMode>EnterOnInput</EditMode>
 													<CheckBoxType>Auto</CheckBoxType>
 													<ContextMenu name="UsersPermitDataSynchronizationContextMenu" id="225"/>
@@ -416,6 +458,12 @@ Note that the data added by the extensions will be permanently deleted along wit
 												<InputField name="UsersUser" id="216">
 													<DataPath>SynchronizationUsers.User</DataPath>
 													<ReadOnly>true</ReadOnly>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>User</v8:content>
+														</v8:item>
+													</Title>
 													<EditMode>EnterOnInput</EditMode>
 													<AutoMaxWidth>false</AutoMaxWidth>
 													<ContextMenu name="UsersUserContextMenu" id="217"/>
@@ -494,7 +542,7 @@ Note that the data added by the extensions will be permanently deleted along wit
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
 									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="PictureGroup4ExtendedTooltip" id="253"/>
+									<ExtendedTooltip name="PicturesGroupExtendedTooltip" id="253"/>
 									<ChildItems>
 										<PictureDecoration name="Decoration14" id="50">
 											<Width>8</Width>
@@ -592,7 +640,7 @@ Please wait…</v8:content>
 										<Title formatted="true">
 											<v8:item>
 												<v8:lang>en</v8:lang>
-												<v8:content>If errors occur when downloading a file using the web client, try to use 1C:Enterprise thin client. 
+												<v8:content>If errors occur when downloading a file using the web client, try to use 1C:Enterprise thin client.
 To use the thin client, read the &lt;link ThinClientSetupGuideAddress&gt;instruction&lt;/&gt; or contact administrator.</v8:content>
 											</v8:item>
 										</Title>
@@ -614,29 +662,59 @@ To use the thin client, read the &lt;link ThinClientSetupGuideAddress&gt;instruc
 							<ExtendedTooltip name="Decoration1ExtendedTooltip" id="262"/>
 						</LabelDecoration>
 						<UsualGroup name="Group9" id="201">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group</v8:content>
+								</v8:item>
+							</Title>
 							<Group>Vertical</Group>
 							<Behavior>Usual</Behavior>
 							<ShowTitle>false</ShowTitle>
 							<ExtendedTooltip name="Group9ExtendedTooltip" id="263"/>
 							<ChildItems>
 								<CommandBar name="Group6" id="180">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Group</v8:content>
+										</v8:item>
+									</Title>
 									<CommandSource>Item.StandaloneWorkstationSetupInstruction</CommandSource>
 									<ExtendedTooltip name="Group6ExtendedTooltip" id="264"/>
 									<ChildItems>
 										<Button name="StandaloneWorkstationSetupGuideSaveGuideAs" id="209">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.SaveGuideAs</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Import</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="StandaloneWorkstationSetupGuideSaveGuideAsExtendedTooltip" id="266"/>
 										</Button>
 										<Button name="StandaloneWorkstationSetupGuidePrintGuide" id="208">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.PrintGuide</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Print</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="StandaloneWorkstationSetupGuidePrintGuideExtendedTooltip" id="265"/>
 										</Button>
 									</ChildItems>
 								</CommandBar>
 								<HTMLDocumentField name="StandaloneWorkstationSetupInstruction" id="171">
 									<DataPath>StandaloneWorkstationSetupInstruction</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>How to set up standalone workstations</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<ContextMenu name="StandaloneWorkstationSetupInstructionContextMenu" id="172"/>
 									<ExtendedTooltip name="StandaloneWorkstationSetupInstructionExtendedTooltip" id="267"/>
@@ -659,6 +737,12 @@ To use the thin client, read the &lt;link ThinClientSetupGuideAddress&gt;instruc
 					<ExtendedTooltip name="ExecutionErrorExtendedTooltip" id="357"/>
 					<ChildItems>
 						<UsualGroup name="Group7" id="358">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group</v8:content>
+								</v8:item>
+							</Title>
 							<Group>AlwaysHorizontal</Group>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
@@ -675,6 +759,12 @@ To use the thin client, read the &lt;link ThinClientSetupGuideAddress&gt;instruc
 									<ExtendedTooltip name="Decoration4ExtendedTooltip" id="362"/>
 								</PictureDecoration>
 								<UsualGroup name="Group8" id="363">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Group</v8:content>
+										</v8:item>
+									</Title>
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
 									<ShowTitle>false</ShowTitle>
@@ -721,6 +811,12 @@ When contacting the technical support, attach the error text below.</v8:content>
 						<InputField name="ExecutionErrorText" id="371">
 							<DataPath>ExecutionErrorText</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Execution error text</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<AutoMaxWidth>false</AutoMaxWidth>
 							<AutoMaxHeight>false</AutoMaxHeight>
@@ -778,6 +874,12 @@ When contacting the technical support, attach the error text below.</v8:content>
 											<Type>CommandBarButton</Type>
 											<Visible>false</Visible>
 											<CommandName>Form.Command.BackCommand</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>&lt; Back</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="BackCommandExtendedTooltip" id="272"/>
 										</Button>
 									</ChildItems>
@@ -798,11 +900,23 @@ When contacting the technical support, attach the error text below.</v8:content>
 											<DefaultButton>true</DefaultButton>
 											<DefaultItem>true</DefaultItem>
 											<CommandName>Form.Command.NextCommand</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Next &gt;</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="NextCommandExtendedTooltip" id="273"/>
 										</Button>
 										<Button name="CancelCommand" id="61">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.CancelCommand</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Cancel</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="CancelCommandExtendedTooltip" id="274"/>
 										</Button>
 										<Button name="Help" id="62">
@@ -837,6 +951,12 @@ When contacting the technical support, attach the error text below.</v8:content>
 										<Button name="BackCommand1" id="65">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.BackCommand</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>&lt; Back</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="BackCommand1ExtendedTooltip" id="278"/>
 										</Button>
 									</ChildItems>
@@ -872,6 +992,12 @@ When contacting the technical support, attach the error text below.</v8:content>
 										<Button name="CancelCommand1" id="67">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.CancelCommand</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Cancel</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="CancelCommand1ExtendedTooltip" id="280"/>
 										</Button>
 										<Button name="Help1" id="68">
@@ -907,6 +1033,12 @@ When contacting the technical support, attach the error text below.</v8:content>
 											<Type>CommandBarButton</Type>
 											<Enabled>false</Enabled>
 											<CommandName>Form.Command.BackCommand</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>&lt; Back</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="BackCommand2ExtendedTooltip" id="284"/>
 										</Button>
 									</ChildItems>
@@ -925,12 +1057,24 @@ When contacting the technical support, attach the error text below.</v8:content>
 										<Button name="DoneCommand" id="72">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.DoneCommand</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Done</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="DoneCommandExtendedTooltip" id="285"/>
 										</Button>
 										<Button name="CancelCommand2" id="73">
 											<Type>CommandBarButton</Type>
 											<Enabled>false</Enabled>
 											<CommandName>Form.Command.CancelCommand</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Cancel</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="CancelCommand2ExtendedTooltip" id="286"/>
 										</Button>
 										<Button name="Help2" id="74">
@@ -968,6 +1112,12 @@ When contacting the technical support, attach the error text below.</v8:content>
 											<Type>CommandBarButton</Type>
 											<Enabled>false</Enabled>
 											<CommandName>Form.Command.BackCommand</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>&lt; Back</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="BackCommand3ExtendedTooltip" id="290"/>
 										</Button>
 									</ChildItems>
@@ -998,6 +1148,12 @@ When contacting the technical support, attach the error text below.</v8:content>
 										<Button name="CancelCommand3" id="79">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.CancelCommand</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Cancel</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="CancelCommand3ExtendedTooltip" id="292"/>
 										</Button>
 										<Button name="Help3" id="80">

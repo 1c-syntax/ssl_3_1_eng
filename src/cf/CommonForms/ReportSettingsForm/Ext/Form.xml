@@ -23,6 +23,12 @@
 	<ChildItems>
 		<InputField name="CurrentChartType" id="788">
 			<DataPath>CurrentChartType</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Chart type</v8:content>
+				</v8:item>
+			</Title>
 			<Width>35</Width>
 			<HorizontalStretch>false</HorizontalStretch>
 			<ContextMenu name="CurrentChartTypeContextMenu" id="789"/>
@@ -108,12 +114,24 @@
 										<Button name="GroupingComposition_MoveUp" id="614">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.GroupingComposition_MoveUp</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Move up</v8:content>
+												</v8:item>
+											</Title>
 											<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 											<ExtendedTooltip name="GroupContentMoveUpExtendedTooltip" id="615"/>
 										</Button>
 										<Button name="GroupingComposition_MoveDown" id="616">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.GroupingComposition_MoveDown</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Move down</v8:content>
+												</v8:item>
+											</Title>
 											<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 											<ExtendedTooltip name="GroupContentMoveDownExtendedTooltip" id="617"/>
 										</Button>
@@ -220,11 +238,23 @@
 											<Button name="GroupingComposition_MoveUp1" id="655">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.GroupingComposition_MoveUp</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Move up</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="GroupContentMoveUp1ExtendedTooltip" id="656"/>
 											</Button>
 											<Button name="GroupingComposition_MoveDown1" id="657">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.GroupingComposition_MoveDown</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Move down</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="GroupContentMoveDown1ExtendedTooltip" id="658"/>
 											</Button>
 										</ChildItems>
@@ -265,7 +295,7 @@
 								<Event name="BeforeDeleteRow">GroupCompositionBeforeDeleteRow</Event>
 							</Events>
 							<ChildItems>
-								<ColumnGroup name="CompositionOfGroupingIsBasic" id="643">
+								<ColumnGroup name="GroupingCompositionMain" id="643">
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
@@ -273,10 +303,16 @@
 										</v8:item>
 									</Title>
 									<Group>InCell</Group>
-									<ExtendedTooltip name="CompositionOfGroupingIsBasicExtendedTooltip" id="644"/>
+									<ExtendedTooltip name="GroupingCompositionMainExtendedTooltip" id="644"/>
 									<ChildItems>
 										<CheckBoxField name="GroupCompositionUse" id="659">
 											<DataPath>GroupingComposition.Use</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Use</v8:content>
+												</v8:item>
+											</Title>
 											<EditMode>EnterOnInput</EditMode>
 											<ShowInHeader>false</ShowInHeader>
 											<CheckBoxType>Auto</CheckBoxType>
@@ -289,6 +325,12 @@
 										<InputField name="GroupCompositionField" id="662">
 											<DataPath>GroupingComposition.Field</DataPath>
 											<ReadOnly>true</ReadOnly>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Field</v8:content>
+												</v8:item>
+											</Title>
 											<EditMode>EnterOnInput</EditMode>
 											<DropListButton>false</DropListButton>
 											<ContextMenu name="GroupCompositionFieldContextMenu" id="663"/>
@@ -296,17 +338,23 @@
 										</InputField>
 									</ChildItems>
 								</ColumnGroup>
-								<ColumnGroup name="CompositionOfGroupingIsOptional" id="817">
+								<ColumnGroup name="GroupingCompositionAdditionally" id="817">
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
 											<v8:content>More</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="CompositionOfGroupingIsOptionalExtendedTooltip" id="818"/>
+									<ExtendedTooltip name="GroupingCompositionAdditionallyExtendedTooltip" id="818"/>
 									<ChildItems>
 										<InputField name="GroupCompositionGroupType" id="665">
 											<DataPath>GroupingComposition.GroupType</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Grouping type</v8:content>
+												</v8:item>
+											</Title>
 											<EditMode>EnterOnInput</EditMode>
 											<ContextMenu name="GroupCompositionGroupTypeContextMenu" id="666"/>
 											<ExtendedTooltip name="GroupCompositionGroupTypeExtendedTooltip" id="667"/>
@@ -316,6 +364,12 @@
 										</InputField>
 										<InputField name="GroupCompositionAdditionType" id="814">
 											<DataPath>GroupingComposition.AdditionType</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Addition type</v8:content>
+												</v8:item>
+											</Title>
 											<EditMode>EnterOnInput</EditMode>
 											<ContextMenu name="GroupCompositionAdditionTypeContextMenu" id="815"/>
 											<ExtendedTooltip name="GroupCompositionAdditionTypeExtendedTooltip" id="816"/>
@@ -437,6 +491,12 @@
 														</CheckBoxField>
 														<CheckBoxField name="OutputFilters" id="1148">
 															<DataPath>OutputFilters</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Display filters</v8:content>
+																</v8:item>
+															</Title>
 															<TitleLocation>Right</TitleLocation>
 															<CheckBoxType>Auto</CheckBoxType>
 															<ContextMenu name="OutputFiltersContextMenu" id="1149"/>
@@ -540,11 +600,23 @@
 											<Button name="Filters_MoveUp1" id="423">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.Filters_MoveUp</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Move up</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="FiltersMoveUp1ExtendedTooltip" id="424"/>
 											</Button>
 											<Button name="Filters_MoveDown1" id="425">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.Filters_MoveDown</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Move down</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="FiltersMoveDown1ExtendedTooltip" id="426"/>
 											</Button>
 										</ChildItems>
@@ -565,11 +637,23 @@
 													<xr:Ref>StdPicture.CreateFolder</xr:Ref>
 													<xr:LoadTransparent>true</xr:LoadTransparent>
 												</Picture>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Group</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="FiltersGroup1ExtendedTooltip" id="412"/>
 											</Button>
 											<Button name="Filters_Ungroup1" id="413">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.Filters_Ungroup</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Ungroup</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="FiltersUngroup1ExtendedTooltip" id="414"/>
 											</Button>
 											<Popup name="Filters_GroupType1" id="1423">
@@ -584,18 +668,36 @@
 													<Button name="FiltersSelectedField_GroupAND1" id="1425">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.SelectedField_GroupAND</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Group And</v8:content>
+															</v8:item>
+														</Title>
 														<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 														<ExtendedTooltip name="FiltersSelectedFields_GroupAND1ExtendedTooltip" id="1426"/>
 													</Button>
 													<Button name="FiltersSelectedFields_GroupOR1" id="1427">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.SelectedFields_GroupOR</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Group Or</v8:content>
+															</v8:item>
+														</Title>
 														<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 														<ExtendedTooltip name="FiltersSelectedFields_GroupOR1ExtendedTooltip" id="1428"/>
 													</Button>
 													<Button name="FiltersSelectedField_GroupNOT1" id="1429">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.SelectedField_GroupNOT</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Group Not</v8:content>
+															</v8:item>
+														</Title>
 														<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 														<ExtendedTooltip name="FiltersSelectedFields_GroupNOT1ExtendedTooltip" id="1430"/>
 													</Button>
@@ -615,11 +717,23 @@
 											<Button name="Filters_SelectCheckBoxes1" id="1067">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.Filters_SelectCheckBoxes</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Select all</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="FiltersSelectCheckBoxes1ExtendedTooltip" id="1068"/>
 											</Button>
 											<Button name="Filters_ClearCheckBoxes1" id="1069">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.Filters_ClearCheckBoxes</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Clear all</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="FiltersClearCheckBoxes1ExtendedTooltip" id="1070"/>
 											</Button>
 										</ChildItems>
@@ -642,26 +756,56 @@
 											<Button name="Filters_ShowInReportHeader1" id="1100">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.Filters_ShowInReportHeader</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>In report header</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="FiltersShowInReportHeader1ExtendedTooltip" id="1101"/>
 											</Button>
 											<Button name="Filters_ShowOnlyCheckBoxInReportHeader1" id="1102">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.Filters_ShowOnlyCheckBoxInReportHeader</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Only checkbox in report header</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="FiltersShowOnlyCheckBoxInReportHeader1ExtendedTooltip" id="1103"/>
 											</Button>
 											<Button name="Filters_ShowInReportSettings1" id="1104">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.Filters_ShowInReportSettings</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>In report settings</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="FiltersShowInReportSettings1ExtendedTooltip" id="1105"/>
 											</Button>
 											<Button name="Filters_ShowOnlyCheckBoxInReportSettings1" id="1106">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.Filters_ShowOnlyCheckBoxInReportSettings</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Only checkbox in report settings</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="FiltersShowOnlyCheckBoxInReportSettings1ExtendedTooltip" id="1107"/>
 											</Button>
 											<Button name="Filters_DontShow1" id="1108">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.Filters_DontShow</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Hide</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="FiltersDontShow1ExtendedTooltip" id="1109"/>
 											</Button>
 										</ChildItems>
@@ -715,11 +859,23 @@
 											<Button name="Filters_MoveUp" id="417">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.Filters_MoveUp</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Move up</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="FiltersMoveUpExtendedTooltip" id="418"/>
 											</Button>
 											<Button name="Filters_MoveDown" id="419">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.Filters_MoveDown</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Move down</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="FiltersMoveDownExtendedTooltip" id="420"/>
 											</Button>
 										</ChildItems>
@@ -740,12 +896,24 @@
 													<xr:Ref>StdPicture.CreateFolder</xr:Ref>
 													<xr:LoadTransparent>true</xr:LoadTransparent>
 												</Picture>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Group</v8:content>
+													</v8:item>
+												</Title>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 												<ExtendedTooltip name="FiltersGroup4ExtendedTooltip" id="339"/>
 											</Button>
 											<Button name="Filters_Ungroup" id="340">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.Filters_Ungroup</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Ungroup</v8:content>
+													</v8:item>
+												</Title>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 												<ExtendedTooltip name="FiltersUngroupExtendedTooltip" id="341"/>
 											</Button>
@@ -761,18 +929,36 @@
 													<Button name="FiltersSelectedField_GroupAND" id="1417">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.SelectedField_GroupAND</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Group And</v8:content>
+															</v8:item>
+														</Title>
 														<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 														<ExtendedTooltip name="FiltersSelectedField_GroupANDExtendedTooltip" id="1418"/>
 													</Button>
 													<Button name="FiltersSelectedFields_GroupOR" id="1419">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.SelectedFields_GroupOR</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Group Or</v8:content>
+															</v8:item>
+														</Title>
 														<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 														<ExtendedTooltip name="FiltersSelectedFields_GroupORExtendedTooltip" id="1420"/>
 													</Button>
 													<Button name="FiltersSelectedField_GroupNOT" id="1421">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.SelectedField_GroupNOT</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Group Not</v8:content>
+															</v8:item>
+														</Title>
 														<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 														<ExtendedTooltip name="FiltersSelectedField_GroupNOTExtendedTooltip" id="1422"/>
 													</Button>
@@ -793,11 +979,23 @@
 											<Button name="Filters_SelectCheckBoxes" id="1061">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.Filters_SelectCheckBoxes</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Select all</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="FiltersSelectCheckBoxesExtendedTooltip" id="1062"/>
 											</Button>
 											<Button name="Filters_ClearCheckBoxes" id="1063">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.Filters_ClearCheckBoxes</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Clear all</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="FiltersClearCheckBoxesExtendedTooltip" id="1064"/>
 											</Button>
 										</ChildItems>
@@ -814,26 +1012,56 @@
 											<Button name="Filters_ShowInReportHeader" id="1090">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.Filters_ShowInReportHeader</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>In report header</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="FiltersShowInReportHeaderExtendedTooltip" id="1091"/>
 											</Button>
 											<Button name="Filters_ShowOnlyCheckBoxInReportHeader" id="1094">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.Filters_ShowOnlyCheckBoxInReportHeader</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Only checkbox in report header</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="FiltersShowOnlyCheckBoxInReportHeaderExtendedTooltip" id="1095"/>
 											</Button>
 											<Button name="Filters_ShowInReportSettings" id="1088">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.Filters_ShowInReportSettings</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>In report settings</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="FiltersShowInReportSettingsExtendedTooltip" id="1089"/>
 											</Button>
 											<Button name="Filters_ShowOnlyCheckBoxInReportSettings" id="1096">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.Filters_ShowOnlyCheckBoxInReportSettings</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Only checkbox in report settings</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="FiltersShowOnlyCheckBoxInReportSettingsExtendedTooltip" id="1097"/>
 											</Button>
 											<Button name="Filters_DontShow" id="1092">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.Filters_DontShow</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Hide</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="FiltersDontShowExtendedTooltip" id="1093"/>
 											</Button>
 										</ChildItems>
@@ -864,6 +1092,12 @@
 											<Button name="FiltersGoToSettingsForATechnicalSpecialist" id="1387">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.GoToSettingsForTechnician</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Settings for technician…</v8:content>
+													</v8:item>
+												</Title>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 												<ExtendedTooltip name="SelectionsGoToSettingsForATechnicalSpecialistExtendedTooltip" id="1388"/>
 											</Button>
@@ -920,6 +1154,12 @@
 									<ChildItems>
 										<CheckBoxField name="FiltersUse" id="1173">
 											<DataPath>Filters.Use</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Use</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<EditMode>EnterOnInput</EditMode>
 											<CheckBoxType>Auto</CheckBoxType>
@@ -931,6 +1171,12 @@
 										</CheckBoxField>
 										<InputField name="FiltersField" id="1408">
 											<DataPath>Filters.Field</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Field</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<EditMode>EnterOnInput</EditMode>
 											<DropListButton>false</DropListButton>
@@ -947,6 +1193,12 @@
 										</InputField>
 										<InputField name="FiltersParameter" id="1212">
 											<DataPath>Filters.Parameter</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Field</v8:content>
+												</v8:item>
+											</Title>
 											<EditMode>EnterOnInput</EditMode>
 											<Width>1</Width>
 											<ContextMenu name="FiltersParameterContextMenu" id="1213"/>
@@ -954,6 +1206,12 @@
 										</InputField>
 										<InputField name="FiltersGroupType" id="1209">
 											<DataPath>Filters.GroupType</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Field</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<EditMode>EnterOnInput</EditMode>
 											<Width>1</Width>
@@ -964,6 +1222,12 @@
 								</ColumnGroup>
 								<InputField name="FiltersComparisonType" id="1185">
 									<DataPath>Filters.ComparisonType</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Condition</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<Width>10</Width>
 									<ContextMenu name="FiltersComparisonTypeContextMenu" id="1186"/>
@@ -983,6 +1247,12 @@
 									<ChildItems>
 										<InputField name="FiltersValue" id="1188">
 											<DataPath>Filters.Value</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Value</v8:content>
+												</v8:item>
+											</Title>
 											<EditMode>EnterOnInput</EditMode>
 											<Width>10</Width>
 											<ContextMenu name="FiltersValueContextMenu" id="1189"/>
@@ -994,6 +1264,12 @@
 										</InputField>
 										<InputField name="FiltersRightValue" id="1220">
 											<DataPath>Filters.RightValue</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Value</v8:content>
+												</v8:item>
+											</Title>
 											<EditMode>EnterOnInput</EditMode>
 											<Width>10</Width>
 											<ContextMenu name="FiltersRightValueContextMenu" id="1221"/>
@@ -1007,6 +1283,12 @@
 								</ColumnGroup>
 								<PictureField name="FiltersDisplayModePicture" id="1203">
 									<DataPath>Filters.DisplayModePicture</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Display</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<EditMode>EnterOnInput</EditMode>
 									<HeaderPicture>
@@ -1025,6 +1307,12 @@
 								</PictureField>
 								<InputField name="FiltersUserSettingPresentation" id="1206">
 									<DataPath>Filters.UserSettingPresentation</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Title</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<Width>10</Width>
 									<ClearButton>true</ClearButton>
@@ -1195,11 +1483,23 @@
 													<Button name="SelectedFields_MoveUp1" id="393">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.SelectedFields_MoveUp</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Move up</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="SelectedFieldsMoveUp1ExtendedTooltip" id="394"/>
 													</Button>
 													<Button name="SelectedFields_MoveDown1" id="395">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.SelectedFields_MoveDown</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Move down</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="SelectedFieldsMoveDown1ExtendedTooltip" id="396"/>
 													</Button>
 												</ChildItems>
@@ -1220,11 +1520,23 @@
 															<xr:Ref>StdPicture.CreateFolder</xr:Ref>
 															<xr:LoadTransparent>true</xr:LoadTransparent>
 														</Picture>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Group</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="SelectedFieldsGroup1ExtendedTooltip" id="388"/>
 													</Button>
 													<Button name="SelectedFields_Ungroup1" id="389">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.SelectedFields_Ungroup</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Ungroup</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="SelectedFieldsUngroup1ExtendedTooltip" id="390"/>
 													</Button>
 												</ChildItems>
@@ -1241,11 +1553,23 @@
 													<Button name="SelectedFieldsSelectedFieldsSelectCheckBoxes1" id="1043">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.SelectedFields_SelectCheckBoxes</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Select all</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="SelectedFieldsSelectedFieldsSelectCheckBoxes1ExtendedTooltip" id="1044"/>
 													</Button>
 													<Button name="SelectedFieldsSelectedFieldsClearCheckBoxes1" id="1045">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.SelectedFields_ClearCheckBoxes</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Clear all</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="SelectedFieldsSelectedFieldsClearCheckBoxes1ExtendedTooltip" id="1046"/>
 													</Button>
 												</ChildItems>
@@ -1280,6 +1604,12 @@
 													<Button name="SelectedFieldsChangeFormula" id="1403">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.ChangeFormula</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Edit formula</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="SelectedFieldsChangeFormulaExtendedTooltip" id="1404"/>
 													</Button>
 													<Button name="SelectedFields_Delete" id="216">
@@ -1304,12 +1634,24 @@
 													<Button name="SelectedFields_MoveUp" id="220">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.SelectedFields_MoveUp</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Move up</v8:content>
+															</v8:item>
+														</Title>
 														<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 														<ExtendedTooltip name="SelectedFieldsMoveUpExtendedTooltip" id="221"/>
 													</Button>
 													<Button name="SelectedFields_MoveDown" id="222">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.SelectedFields_MoveDown</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Move down</v8:content>
+															</v8:item>
+														</Title>
 														<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 														<ExtendedTooltip name="SelectedFieldsMoveDownExtendedTooltip" id="223"/>
 													</Button>
@@ -1328,11 +1670,23 @@
 													<Button name="SelectedFieldsSelectedFieldsSelectCheckBoxes" id="1037">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.SelectedFields_SelectCheckBoxes</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Select all</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="SelectedFieldsSelectedFieldsSelectCheckBoxesExtendedTooltip" id="1038"/>
 													</Button>
 													<Button name="SelectedFieldsSelectedFieldsClearCheckBoxes" id="1039">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.SelectedFields_ClearCheckBoxes</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Clear all</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="SelectedFieldsSelectedFieldsClearCheckBoxesExtendedTooltip" id="1040"/>
 													</Button>
 												</ChildItems>
@@ -1353,12 +1707,24 @@
 															<xr:Ref>StdPicture.CreateFolder</xr:Ref>
 															<xr:LoadTransparent>true</xr:LoadTransparent>
 														</Picture>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Group</v8:content>
+															</v8:item>
+														</Title>
 														<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 														<ExtendedTooltip name="SelectedFieldsGroup2ExtendedTooltip" id="289"/>
 													</Button>
 													<Button name="SelectedFields_Ungroup" id="290">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.SelectedFields_Ungroup</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Ungroup</v8:content>
+															</v8:item>
+														</Title>
 														<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 														<ExtendedTooltip name="SelectedFieldsUngroupExtendedTooltip" id="291"/>
 													</Button>
@@ -1381,6 +1747,12 @@
 											<Button name="SelectedFieldsGoToSettingsForATechnicalSpecialist" id="1391">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.GoToSettingsForTechnician</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Settings for technician…</v8:content>
+													</v8:item>
+												</Title>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 												<ExtendedTooltip name="SelectedFieldsGoToSettingsForATechnicalSpecialistExtendedTooltip" id="1392"/>
 											</Button>
@@ -1434,6 +1806,12 @@
 											<ChildItems>
 												<CheckBoxField name="SelectedFieldsUse" id="259">
 													<DataPath>SelectedFields.Use</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Use</v8:content>
+														</v8:item>
+													</Title>
 													<EditMode>EnterOnInput</EditMode>
 													<ShowInHeader>false</ShowInHeader>
 													<CheckBoxType>Auto</CheckBoxType>
@@ -1446,6 +1824,12 @@
 												<InputField name="SelectedFieldsField" id="262">
 													<DataPath>SelectedFields.Field</DataPath>
 													<ReadOnly>true</ReadOnly>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Field</v8:content>
+														</v8:item>
+													</Title>
 													<EditMode>EnterOnInput</EditMode>
 													<ContextMenu name="SelectedFieldsFieldContextMenu" id="263"/>
 													<ExtendedTooltip name="SelectedFieldsFieldExtendedTooltip" id="264"/>
@@ -1455,6 +1839,12 @@
 										<PictureField name="SelectedFieldsFormulaIndicator" id="1405">
 											<DataPath>SelectedFields.FormulaIndicator</DataPath>
 											<ReadOnly>true</ReadOnly>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Formula indicator</v8:content>
+												</v8:item>
+											</Title>
 											<EditMode>EnterOnInput</EditMode>
 											<ContextMenu name="SelectedFieldsFormulaIndicatorContextMenu" id="1406"/>
 											<ExtendedTooltip name="SelectedFieldsFormulaIndicatorExtendedTooltip" id="1407"/>
@@ -1601,11 +1991,23 @@
 															<Button name="Sort_MoveUp1" id="1023">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.Sort_MoveUp</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Move up</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="SortingMoveUp1ExtendedTooltip" id="1024"/>
 															</Button>
 															<Button name="Sort_MoveDown1" id="1025">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.Sort_MoveDown</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Move down</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="SortingMoveDown1ExtendedTooltip" id="1026"/>
 															</Button>
 														</ChildItems>
@@ -1623,12 +2025,24 @@
 																<Type>CommandBarButton</Type>
 																<Visible>false</Visible>
 																<CommandName>Form.Command.Sort_Ascending</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Sort ascending</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="SortingAscending1ExtendedTooltip" id="1030"/>
 															</Button>
 															<Button name="Sort_Descending1" id="1031">
 																<Type>CommandBarButton</Type>
 																<Visible>false</Visible>
 																<CommandName>Form.Command.Sort_Descending</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Sort descending</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="SortingDescending1ExtendedTooltip" id="1032"/>
 															</Button>
 														</ChildItems>
@@ -1645,11 +2059,23 @@
 															<Button name="SortSortingSelectCheckBoxes1" id="1055">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.Sort_SelectAll</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Select all</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="SortingSortingSelectCheckBoxes1ExtendedTooltip" id="1056"/>
 															</Button>
 															<Button name="SortSortingClearCheckBoxes1" id="1057">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.Sorting_ClearAll</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Clear all</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="SortingSortingClearCheckBoxes1ExtendedTooltip" id="1058"/>
 															</Button>
 														</ChildItems>
@@ -1697,11 +2123,23 @@
 															<Button name="Sort_MoveUp" id="165">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.Sort_MoveUp</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Move up</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="SortingMoveUpExtendedTooltip" id="166"/>
 															</Button>
 															<Button name="Sort_MoveDown" id="167">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.Sort_MoveDown</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Move down</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="SortingMoveDownExtendedTooltip" id="168"/>
 															</Button>
 														</ChildItems>
@@ -1719,11 +2157,23 @@
 															<Button name="Sort_Ascending" id="169">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.Sort_Ascending</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Sort ascending</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="SortAscendingExtendedTooltip" id="170"/>
 															</Button>
 															<Button name="Sort_Descending" id="171">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.Sort_Descending</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Sort descending</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="SortDescendingExtendedTooltip" id="172"/>
 															</Button>
 														</ChildItems>
@@ -1741,11 +2191,23 @@
 															<Button name="SortSortingSelectCheckBoxes" id="1049">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.Sort_SelectAll</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Select all</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="SortingSortingSelectCheckBoxesExtendedTooltip" id="1050"/>
 															</Button>
 															<Button name="SortSortingClearCheckBoxes" id="1051">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.Sorting_ClearAll</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Clear all</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="SortingSortingClearCheckBoxesExtendedTooltip" id="1052"/>
 															</Button>
 														</ChildItems>
@@ -1813,6 +2275,12 @@
 													<ChildItems>
 														<CheckBoxField name="SortUse" id="773">
 															<DataPath>Sort.Use</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Use</v8:content>
+																</v8:item>
+															</Title>
 															<EditMode>EnterOnInput</EditMode>
 															<CheckBoxType>Auto</CheckBoxType>
 															<ContextMenu name="SortUseContextMenu" id="774"/>
@@ -1824,6 +2292,12 @@
 														<InputField name="SortField" id="155">
 															<DataPath>Sort.Field</DataPath>
 															<ReadOnly>true</ReadOnly>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Field</v8:content>
+																</v8:item>
+															</Title>
 															<EditMode>EnterOnInput</EditMode>
 															<ContextMenu name="SortFieldContextMenu" id="156"/>
 															<ExtendedTooltip name="SortFieldExtendedTooltip" id="157"/>
@@ -1832,6 +2306,12 @@
 												</ColumnGroup>
 												<LabelField name="SortOrderType" id="158">
 													<DataPath>Sort.OrderType</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Ordering type</v8:content>
+														</v8:item>
+													</Title>
 													<EditMode>EnterOnInput</EditMode>
 													<FixingInTable>Right</FixingInTable>
 													<CellHyperlink>true</CellHyperlink>
@@ -1993,11 +2473,23 @@
 											<Button name="Appearance_MoveUp" id="834">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.Appearance_MoveUp</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Move up</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="AppearanceMoveUpExtendedTooltip" id="835"/>
 											</Button>
 											<Button name="Appearance_MoveDown" id="836">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.Appearance_MoveDown</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Move down</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="AppearanceMoveDownExtendedTooltip" id="837"/>
 											</Button>
 										</ChildItems>
@@ -2015,11 +2507,23 @@
 											<Button name="Appearance_SelectCheckBoxes" id="1122">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.Appearance_SelectCheckBoxes</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Select all</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="AppearanceSelectCheckBoxesExtendedTooltip" id="1123"/>
 											</Button>
 											<Button name="Appearance_ClearCheckBoxes" id="1124">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.Appearance_ClearCheckBoxes</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Clear all</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="AppearanceClearCheckBoxesExtendedTooltip" id="1125"/>
 											</Button>
 										</ChildItems>
@@ -2027,6 +2531,12 @@
 									<Button name="AppearanceCustomizeHeadersFooters" id="1126">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.CustomizeHeadersFooters</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Headers and footers</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="AppearanceCustomizeHeadersFootersExtendedTooltip" id="1127"/>
 									</Button>
 									<SearchStringAddition name="SearchString_Appearance" id="1440">
@@ -2055,6 +2565,12 @@
 											<Button name="AppearanceGoToSettingsForATechnicalSpecialist" id="1399">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.GoToSettingsForTechnician</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Settings for technician…</v8:content>
+													</v8:item>
+												</Title>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 												<ExtendedTooltip name="RegistrationGoToSettingsForATechnicalSpecialistExtendedTooltip" id="1400"/>
 											</Button>
@@ -2105,6 +2621,12 @@
 									<ChildItems>
 										<CheckBoxField name="AppearanceUse" id="891">
 											<DataPath>Appearance.Use</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Use</v8:content>
+												</v8:item>
+											</Title>
 											<EditMode>EnterOnInput</EditMode>
 											<ShowInHeader>false</ShowInHeader>
 											<CheckBoxType>Auto</CheckBoxType>
@@ -2131,6 +2653,12 @@
 								</ColumnGroup>
 								<PictureField name="AppearanceAccessPictureIndex" id="897">
 									<DataPath>Appearance.DisplayModePicture</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Display mode picture</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<EditMode>EnterOnInput</EditMode>
 									<HeaderPicture>
@@ -2269,6 +2797,12 @@
 											<Button name="OptionStructure_Group1" id="747">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.OptionStructure_Group</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Group…</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="OptionStructureGroup1ExtendedTooltip" id="748"/>
 											</Button>
 											<ButtonGroup name="OptionStructure_AddTablesAndCharts1" id="782">
@@ -2283,11 +2817,23 @@
 													<Button name="OptionStructure_AddTable1" id="784">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.OptionStructure_AddTable</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Add table</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="OptionStructureAddTable1ExtendedTooltip" id="785"/>
 													</Button>
 													<Button name="OptionStructure_AddChart1" id="786">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.OptionStructure_AddChart</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Add chart</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="OptionStructureAddChart1ExtendedTooltip" id="787"/>
 													</Button>
 												</ChildItems>
@@ -2307,6 +2853,12 @@
 												<Type>CommandBarButton</Type>
 												<Representation>Picture</Representation>
 												<CommandName>Form.Command.OptionStructure_Change</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Change</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="OptionStructureChange1ExtendedTooltip" id="752"/>
 											</Button>
 											<Button name="OptionStructure_Delete1" id="753">
@@ -2329,11 +2881,23 @@
 											<Button name="OptionStructure_MoveUp1" id="763">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.OptionStructure_MoveUp</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Move up</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="OptionStructureMoveUp1ExtendedTooltip" id="764"/>
 											</Button>
 											<Button name="OptionStructure_MoveDown1" id="765">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.OptionStructure_MoveDown</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Move down</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="OptionStructureMoveDown1ExtendedTooltip" id="766"/>
 											</Button>
 										</ChildItems>
@@ -2351,11 +2915,23 @@
 											<Button name="OptionStructure_MoveOneLevelUp1" id="1371">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.OptionStructure_MoveOneLevelUp</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Move one level up</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="StructureOfTheMoveToLevelAbove1OptionExtendedTooltip" id="1372"/>
 											</Button>
 											<Button name="OptionStructure_MoveOneLevelBelow1" id="1373">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.OptionStructure_MoveOneLevelBelow</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Move one level down</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="StructureOfTheMoveToLevelBelow1OptionExtendedTooltip" id="1374"/>
 											</Button>
 										</ChildItems>
@@ -2372,11 +2948,23 @@
 											<Button name="OptionStructure_MoveUpAndLeft1" id="757">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.OptionStructure_MoveUpAndLeft</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Move up and left</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="OptionStructureMoveUpAndLeft1ExtendedTooltip" id="758"/>
 											</Button>
 											<Button name="OptionStructure_MoveDownAndRight1" id="759">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.OptionStructure_MoveDownAndRight</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Move down and right</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="OptionStructureMoveDownAndRight1ExtendedTooltip" id="760"/>
 											</Button>
 										</ChildItems>
@@ -2393,11 +2981,23 @@
 											<Button name="OptionStructure_CheckAll1" id="769">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.OptionStructure_CheckAll</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Select all</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="OptionStructureSelectCheckBoxes1ExtendedTooltip" id="770"/>
 											</Button>
 											<Button name="OptionStructure_UncheckAll1" id="771">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.OptionStructure_UncheckAll</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Clear all</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="OptionStructureClearCheckBoxes1ExtendedTooltip" id="772"/>
 											</Button>
 										</ChildItems>
@@ -2425,17 +3025,35 @@
 											<Button name="OptionStructure_Group" id="510">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.OptionStructure_Group</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Group…</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="OptionStructureGroupExtendedTooltip" id="511"/>
 											</Button>
 											<Button name="OptionStructure_AddTable" id="780">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.OptionStructure_AddTable</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Add table</v8:content>
+													</v8:item>
+												</Title>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 												<ExtendedTooltip name="OptionStructureAddTableExtendedTooltip" id="781"/>
 											</Button>
 											<Button name="OptionStructure_AddChart" id="778">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.OptionStructure_AddChart</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Add chart</v8:content>
+													</v8:item>
+												</Title>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 												<ExtendedTooltip name="OptionStructureAddChartExtendedTooltip" id="779"/>
 											</Button>
@@ -2452,6 +3070,12 @@
 												<Type>CommandBarButton</Type>
 												<Representation>Picture</Representation>
 												<CommandName>Form.Command.OptionStructure_Change</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Change</v8:content>
+													</v8:item>
+												</Title>
 												<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 												<ExtendedTooltip name="OptionStructure_ChangeExtendedTooltip" id="513"/>
 											</Button>
@@ -2486,12 +3110,24 @@
 											<Button name="OptionStructure_MoveUp" id="504">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.OptionStructure_MoveUp</CommandName>
-												<ExtendedTooltip name="OptionStructureMoveUpExtendedTooltip" id="505"/>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Move up</v8:content>
+													</v8:item>
+												</Title>
+												<ExtendedTooltip name="OptionStructure_MoveUpExtendedTooltip" id="505"/>
 											</Button>
 											<Button name="OptionStructure_MoveDown" id="506">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.OptionStructure_MoveDown</CommandName>
-												<ExtendedTooltip name="OptionStructureMoveDownExtendedTooltip" id="507"/>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Move down</v8:content>
+													</v8:item>
+												</Title>
+												<ExtendedTooltip name="OptionStructure_MoveDownExtendedTooltip" id="507"/>
 											</Button>
 										</ChildItems>
 									</ButtonGroup>
@@ -2508,11 +3144,23 @@
 											<Button name="OptionStructure_MoveOneLevelUp" id="1365">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.OptionStructure_MoveOneLevelUp</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Move one level up</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="StructureOfTheMoveToHigherOptionExtendedTooltip" id="1366"/>
 											</Button>
 											<Button name="OptionStructure_MoveOneLevelBelow" id="1367">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.OptionStructure_MoveOneLevelBelow</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Move one level down</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="StructureOfTheMoveOptionToALowerLevelExtendedTooltip" id="1368"/>
 											</Button>
 										</ChildItems>
@@ -2530,11 +3178,23 @@
 											<Button name="OptionStructure_MoveUpAndLeft" id="500">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.OptionStructure_MoveUpAndLeft</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Move up and left</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="OptionStructureMoveUpAndLeftExtendedTooltip" id="501"/>
 											</Button>
 											<Button name="OptionStructure_MoveDownAndRight" id="502">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.OptionStructure_MoveDownAndRight</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Move down and right</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="OptionStructureMoveDownAndRightExtendedTooltip" id="503"/>
 											</Button>
 										</ChildItems>
@@ -2552,11 +3212,23 @@
 											<Button name="OptionStructure_CheckAll" id="520">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.OptionStructure_CheckAll</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Select all</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="OptionStructure_CheckAllExtendedTooltip" id="521"/>
 											</Button>
 											<Button name="OptionStructure_UncheckAll" id="522">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.OptionStructure_UncheckAll</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Clear all</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="OptionStructure_UncheckAllExtendedTooltip" id="523"/>
 											</Button>
 										</ChildItems>
@@ -2564,6 +3236,12 @@
 									<Button name="OptionStructureOptionStructureSaveToFile" id="1084">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.OptionStructure_SaveToFile</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Save to file</v8:content>
+											</v8:item>
+										</Title>
 										<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 										<ExtendedTooltip name="OptionStructureOptionStructureSaveToFileExtendedTooltip" id="1085"/>
 									</Button>
@@ -2593,6 +3271,12 @@
 											<Button name="OptionStructureGoToSettingsForATechnicalSpecialist" id="1393">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.GoToSettingsForTechnician</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Settings for technician…</v8:content>
+													</v8:item>
+												</Title>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 												<ExtendedTooltip name="StructureOfOptionGoToSettingsForATechnicalSpecialistExtendedTooltip" id="1394"/>
 											</Button>
@@ -2647,6 +3331,12 @@
 									<ChildItems>
 										<CheckBoxField name="OptionStructureUse" id="494">
 											<DataPath>OptionStructure.Use</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Use</v8:content>
+												</v8:item>
+											</Title>
 											<EditMode>EnterOnInput</EditMode>
 											<ShowInHeader>false</ShowInHeader>
 											<CheckBoxType>Auto</CheckBoxType>
@@ -2659,6 +3349,12 @@
 										<InputField name="OptionStructurePresentation" id="497">
 											<DataPath>OptionStructure.Presentation</DataPath>
 											<ReadOnly>true</ReadOnly>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Grouped fields</v8:content>
+												</v8:item>
+											</Title>
 											<EditMode>EnterOnInput</EditMode>
 											<TextEdit>false</TextEdit>
 											<ContextMenu name="OptionStructurePresentationContextMenu" id="498"/>
@@ -2668,6 +3364,12 @@
 								</ColumnGroup>
 								<InputField name="OptionStructureTitle" id="554">
 									<DataPath>OptionStructure.Title</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Title</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ClearButton>true</ClearButton>
 									<ContextMenu name="OptionStructureTitleContextMenu" id="555"/>
@@ -2679,11 +3381,17 @@
 								<PictureField name="OptionStructureContainsFilters" id="967">
 									<DataPath>OptionStructure.ContainsFilters</DataPath>
 									<SkipOnInput>true</SkipOnInput>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Contains filters</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<ToolTip>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>The picture is displayed if the item is assigned with filters.</v8:content>
+											<v8:content>Filters are applied</v8:content>
 										</v8:item>
 									</ToolTip>
 									<EditMode>EnterOnInput</EditMode>
@@ -2705,11 +3413,17 @@
 								<PictureField name="OptionStructureContainsFieldsOrOrders" id="997">
 									<DataPath>OptionStructure.ContainsFieldsOrOrders</DataPath>
 									<SkipOnInput>true</SkipOnInput>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Contains fields or sorts</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<ToolTip>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>The picture is displayed if the item is assigned with sorts.</v8:content>
+											<v8:content>Fields and sortings are configured</v8:content>
 										</v8:item>
 									</ToolTip>
 									<EditMode>EnterOnInput</EditMode>
@@ -2731,11 +3445,17 @@
 								<PictureField name="OptionStructureContainsConditionalAppearance" id="934">
 									<DataPath>OptionStructure.ContainsConditionalAppearance</DataPath>
 									<SkipOnInput>true</SkipOnInput>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Contains conditional appearance</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<ToolTip>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>The picture is displayed if the item is assigned with appearance.</v8:content>
+											<v8:content>Appearance is configured</v8:content>
 										</v8:item>
 									</ToolTip>
 									<EditMode>EnterOnInput</EditMode>
@@ -2903,6 +3623,12 @@ Remove nonexistent fields from report settings or replace them with existent fie
 				<Button name="RemoveNonexistentFieldsFromSettings" id="1118">
 					<Type>UsualButton</Type>
 					<CommandName>Form.Command.RemoveNonexistentFieldsFromSettings</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Clear</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="RemoveNonexistentFieldsFromSettingsExtendedTooltip" id="1119"/>
 				</Button>
 			</ChildItems>
@@ -2988,12 +3714,24 @@ In the Advanced mode, you can edit report structure. To save the changes, you ha
 							<Representation>Text</Representation>
 							<DefaultButton>true</DefaultButton>
 							<CommandName>Form.Command.GenerateAndClose</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Close and generate</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="GenerateAndCloseExtendedTooltip" id="22"/>
 						</Button>
 						<Button name="Close" id="4">
 							<Type>CommandBarButton</Type>
 							<Representation>Text</Representation>
 							<CommandName>Form.Command.DontGenerateAndClose</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Close</v8:content>
+								</v8:item>
+							</Title>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 							<ExtendedTooltip name="CloseExtendedTooltip" id="7"/>
 						</Button>
@@ -3010,12 +3748,24 @@ In the Advanced mode, you can edit report structure. To save the changes, you ha
 									<Type>CommandBarButton</Type>
 									<Representation>Picture</Representation>
 									<CommandName>Form.Command.EditFiltersConditions</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Edit filter criteria…</v8:content>
+										</v8:item>
+									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="EditFiltersConditionsExtendedTooltip" id="1001"/>
 								</Button>
 								<Button name="GoToSettingsForTechnician" id="1411">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.GoToSettingsForTechnician</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Settings for technician…</v8:content>
+										</v8:item>
+									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="GoToSettingsForTechnicianExtendedTooltip" id="1412"/>
 								</Button>
@@ -3074,6 +3824,12 @@ In the Advanced mode, you can edit report structure. To save the changes, you ha
 							<Type>UsualButton</Type>
 							<CommandName>Form.Command.MoveThePeriodBack1</CommandName>
 							<Font ref="style:ImportantLabelFont" kind="StyleItem"/>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>&lt;</v8:content>
+								</v8:item>
+							</Title>
 							<ShapeRepresentation>WhenActive</ShapeRepresentation>
 							<ExtendedTooltip name="MoveThePeriodBack1ExtendedTooltip" id="1380"/>
 						</Button>
@@ -3138,6 +3894,12 @@ In the Advanced mode, you can edit report structure. To save the changes, you ha
 									<Type>UsualButton</Type>
 									<CommandName>Form.Command.SelectPeriod1</CommandName>
 									<Font ref="style:ImportantLabelFont" kind="StyleItem"/>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Select period</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="SelectPeriod31ExtendedTooltip" id="1255"/>
 								</Button>
 							</ChildItems>
@@ -3146,6 +3908,12 @@ In the Advanced mode, you can edit report structure. To save the changes, you ha
 							<Type>UsualButton</Type>
 							<CommandName>Form.Command.MoveThePeriodForward1</CommandName>
 							<Font ref="style:ImportantLabelFont" kind="StyleItem"/>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>&gt;</v8:content>
+								</v8:item>
+							</Title>
 							<ShapeRepresentation>WhenActive</ShapeRepresentation>
 							<ExtendedTooltip name="MoveThePeriodForward1ExtendedTooltip" id="1382"/>
 						</Button>
@@ -3169,6 +3937,12 @@ In the Advanced mode, you can edit report structure. To save the changes, you ha
 							<Type>UsualButton</Type>
 							<CommandName>Form.Command.MoveThePeriodBack2</CommandName>
 							<Font ref="style:ImportantLabelFont" kind="StyleItem"/>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>&lt;</v8:content>
+								</v8:item>
+							</Title>
 							<ShapeRepresentation>WhenActive</ShapeRepresentation>
 							<ExtendedTooltip name="MoveThePeriodBack2ExtendedTooltip" id="1384"/>
 						</Button>
@@ -3233,6 +4007,12 @@ In the Advanced mode, you can edit report structure. To save the changes, you ha
 									<Type>UsualButton</Type>
 									<CommandName>Form.Command.SelectPeriod2</CommandName>
 									<Font ref="style:ImportantLabelFont" kind="StyleItem"/>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Select period</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="SelectPeriod32ExtendedTooltip" id="1356"/>
 								</Button>
 							</ChildItems>
@@ -3241,6 +4021,12 @@ In the Advanced mode, you can edit report structure. To save the changes, you ha
 							<Type>UsualButton</Type>
 							<CommandName>Form.Command.MoveThePeriodForward2</CommandName>
 							<Font ref="style:ImportantLabelFont" kind="StyleItem"/>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>&gt;</v8:content>
+								</v8:item>
+							</Title>
 							<ShapeRepresentation>WhenActive</ShapeRepresentation>
 							<ExtendedTooltip name="MoveThePeriodForward2ExtendedTooltip" id="1386"/>
 						</Button>
@@ -3248,6 +4034,12 @@ In the Advanced mode, you can edit report structure. To save the changes, you ha
 				</UsualGroup>
 				<CheckBoxField name="CheckBox1" id="1357">
 					<DataPath>CheckBox1</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Checkbox</v8:content>
+						</v8:item>
+					</Title>
 					<CheckBoxType>Auto</CheckBoxType>
 					<ContextMenu name="CheckBox1ContextMenu" id="1358"/>
 					<ExtendedTooltip name="CheckBox1ExtendedTooltip" id="1359"/>
@@ -3257,6 +4049,12 @@ In the Advanced mode, you can edit report structure. To save the changes, you ha
 				</CheckBoxField>
 				<CheckBoxField name="CheckBox2" id="1360">
 					<DataPath>CheckBox2</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Checkbox</v8:content>
+						</v8:item>
+					</Title>
 					<CheckBoxType>Auto</CheckBoxType>
 					<ContextMenu name="CheckBox2ContextMenu" id="1361"/>
 					<ExtendedTooltip name="CheckBox2ExtendedTooltip" id="1362"/>
@@ -5572,7 +6370,7 @@ In the Advanced mode, you can edit report structure. To save the changes, you ha
 				</v8:item>
 			</ToolTip>
 			<Picture>
-				<xr:Ref>CommonPicture.GreyCross</xr:Ref>
+				<xr:Ref>CommonPicture.GrayCross</xr:Ref>
 				<xr:LoadTransparent>false</xr:LoadTransparent>
 			</Picture>
 			<Action>Filters_DontShow</Action>
@@ -6013,6 +6811,16 @@ In the Advanced mode, you can edit report structure. To save the changes, you ha
 		</Parameter>
 		<Parameter name="PageName">
 			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Parameter>
+		<Parameter name="DisplayPages">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
 				<v8:Type>xs:string</v8:Type>
 				<v8:StringQualifiers>
 					<v8:Length>0</v8:Length>

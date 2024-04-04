@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -26,8 +27,8 @@
 //                                                    parameters in message templates.
 //    * DCSParametersValues - Structure - common values of DCS parameters for all templates, where the attribute composition
 //                                          is defined using DCS.
-//    * ExtendedRecipientsList - Boolean - 
-//                                              
+//    * ExtendedRecipientsList - Boolean - If set to "True", the message recipients can specify a send option
+//                                              and the contact in "Business interactions" outbox.
 //
 Procedure OnDefineSettings(Settings) Export
 	
@@ -38,13 +39,13 @@ EndProcedure
 // It is called when preparing message templates and allows you to override a list of attributes and attachments.
 //
 // Parameters:
-//  Attributes - ValueTree - a list of template attributes.:
+//  Attributes - ValueTreeRowCollection - a list of template attributes.:
 //    * Name            - String - a unique attribute name.
 //    * Presentation  - String - an attribute presentation.
 //    * Type            - Type    - an attribute type.
 //    * ToolTip      - String - extended attribute information.
-//    * Format         - String - a value output format for numbers, dates, strings, and boolean values. 
-//                                For example, DLF=D for a date.
+//    * Format         - String - Output format for numbers, dates, strings, and boolean values. 
+//                                For example, "DLF=D" for dates.
 //  Attachments - ValueTable - print forms and attachments, where:
 //    * Name           - String - a unique attachment name.
 //    * Id - String - an attachment ID.
@@ -94,9 +95,9 @@ EndProcedure
 //     * Contact       - Arbitrary - a contact that owns the phone number.
 //  TemplateAssignment - String - a template assignment ID.
 //  MessageSubject - AnyRef - a reference to an object that is a data source.
-//                   - Structure  - :
+//                   - Structure  - Describes template parameters:
 //    * SubjectOf               - AnyRef - a reference to an object that is a data source.
-//    * MessageKind - String - a kind of a message being generated: Email or SMSMessage.
+//    * MessageKind - String - Message type: "Email", "SMSMessage".
 //    * ArbitraryParameters - Map - a filled list of arbitrary parameters.
 //    * SendImmediately - Boolean - indicates whether to send a text message immediately.
 //    * MessageParameters - Structure - additional message parameters.
@@ -109,15 +110,15 @@ EndProcedure
 //
 // Parameters:
 //   EmailRecipients - ValueTable - a list of mail recipients.:
-//     * SendingOption - String - 
+//     * SendingOption - String - Messaging options: "Whom" (To), "Copy" (CC), "HiddenCopy" (BCC), and "ReplyTo".
 //     * Address           - String - a recipient email address.
 //     * Presentation   - String - an email recipient presentation.
 //     * Contact         - Arbitrary - a contact that owns the email address.
 //  TemplateAssignment - String - a template assignment ID.
 //  MessageSubject - AnyRef - a reference to an object that is a data source.
-//                   - Structure  - :
+//                   - Structure  - Describes template parameters:
 //    * SubjectOf               - AnyRef - a reference to an object that is a data source.
-//    * MessageKind - String - a kind of a message being generated: Email or SMSMessage.
+//    * MessageKind - String - Message type: "Email", "SMSMessage".
 //    * ArbitraryParameters - Map - a filled list of arbitrary parameters.
 //    * SendImmediately - Boolean - a kind of a message being generated: Email or SMSMessage.
 //    * MessageParameters - Structure - additional message parameters.

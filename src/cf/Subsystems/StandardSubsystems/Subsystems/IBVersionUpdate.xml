@@ -60,6 +60,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">Report.DeferredUpdateDuration</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">ScheduledJob.SetDeferredUpdateProcedureInSaaS</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">ScheduledJob.ClearObsoleteData</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonAttribute.EditedPredefinedAttributes</xr:Item>
 			</Content>
 		</Properties>
 		<ChildObjects/>

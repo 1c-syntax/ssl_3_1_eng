@@ -1,28 +1,30 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #Region Public
 
+// 
+// 
 
-
-
-// 
-// 
-// 
-// 
+// Starts the function execution in a background job if possible.
+// The function to call can have the arbitrary number of parameters, but not more than 7.
+// Values of the passed function parameters and its return value must be serialized.
+// Function parameters must not be returned.
 //
-// 
-// 
+// Do not use the function if the background job must be started unconditionally.
+// We recommend that you use it together with the TimeConsumingOperationsClient.WaitForCompletion function.
+// If it's impossible, use the IsJobCompleted function to ensure the operation is completed.
 // 
 //
 // Parameters:
-//  ExecutionParameters - ClientApplicationForm - 
+//  ExecutionParameters - ClientApplicationForm - Form where the call originated.
 //                      - UUID - an ID of the form, from which a call is executed;
 //                      - Structure - See FunctionExecutionParameters
 //  FunctionName - String - a name of the export function in a common module, object manager module, 
@@ -46,47 +48,53 @@
 //                                     "Canceled" if job is canceled by a user or by an administrator.
 //   * JobID - UUID - contains 
 //                                     the ID of the running background job if Status = "Running".
-//                          - Undefined - 
+//                          - Undefined - If Status <> "Running" and the background job wasn't started.
 //   * ResultAddress       - String - the address of the temporary storage where the function result must be
 //                                      stored.
-//   * BriefErrorDescription   - String - contains brief description of the exception if Status = "Error".
-//   * DetailErrorDescription - String - contains detailed description of the exception if Status = "Error".
+//   * ErrorInfo    - ErrorInfo - If Status = "Error".
+//                           - Undefined - If Status <> "Error".
 //   * Messages - FixedArray - If Status <> "Running", then the MessageToUser array of objects
 //                                      that were generated in the background job.
+//   * BriefErrorDescription   - String - 
+//   * DetailErrorDescription - String - 
 //
 // Example:
-//  In general, the process of starting and processing the result of a long-running operation in the form module looks like this:
+//  
 //
-//   1) The function that will be executed in the background is located in the object manager module or in the server common module:
-//    Function CalculateValue(Val MyParameter1, Val MyParameter2) Export
-//     …
-//     Return Result;
-//    EndFunction
-//
-//   2) Starting the operation on the server and attaching the idle handler:
-//    &AtClient
-//    Procedure CalculateValue()
-//     TimeConsumingOperation = StartExecutionAtServer();
-//     CompletionNotification = New NotifyDescription("ProcessResult", ThisObject);
-//     IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
-//     TimeConsumingOperationsClient.WaitForCompletion(TimeConsumingOperation, CompletionNotification, IdleParameters);
-//    EndProcedure
-//
-//    &AtServer
-//    Function StartExecutionAtServer()
-//     ExecutionParameters = TimeConsumingOperations.FunctionExecutionParameters(UUID);
-//     Return TimeConsumingOperations.ExecuteFunction(ExecutionParameters, "DataProcessor.MyDataProcessor.CalculateValue", 
-//      MyParameter1, MyParameter2);
-//    EndFunction
+//   
 //    
-//   3) The result processing of a long-running operation:
-//    &AtClient
-//    Procedure ProcessResult(Result, AdditionalParameters) Export
-//     If Result = Undefined Then
-//      Return;
-//     EndIf;
-//     OutputResult(Result.ResultAddress);
-//    EndProcedure 
+//     
+//     
+//    
+//
+//   
+//    
+//    
+//     
+//     
+//     
+//     
+//    
+//
+//    
+//    
+//     
+//      
+//      
+//    
+//    
+//   
+//    
+//    
+//     
+//      
+//     
+//     
+//      
+//      
+//     
+//     
+//     
 //  
 Function ExecuteFunction(Val ExecutionParameters, FunctionName, Val Parameter1 = Undefined,
 	Val Parameter2 = Undefined, Val Parameter3 = Undefined, Val Parameter4 = Undefined,
@@ -101,16 +109,17 @@ Function ExecuteFunction(Val ExecutionParameters, FunctionName, Val Parameter1 =
 	
 EndFunction
 
+// 
+// 
 
-
-
-// 
-// 
-// 
-// 
+// Starts the procedure execution in a background job if possible.
+// The procedure to call can have the arbitrary number of parameters, but not more than 7.
+// Values of the passed procedure parameters and its return value must be serialized.
+// Procedure parameters must not be returned.
 //
-// 
-// 
+// Do not use the function if the background job must be started unconditionally.
+// We recommend that you use it together with the TimeConsumingOperationsClient.WaitForCompletion function.
+// If it's impossible, use the IsJobCompleted function to ensure the operation is completed.
 // 
 //
 // Parameters:
@@ -131,51 +140,59 @@ EndFunction
 //  Parameter7 - Arbitrary
 //
 // Returns:
-//  Structure - : 
+//  Structure - Job runtime parameters: 
 //   * Status               - String - "Running" if the job is running;
 //                                     "Completed " if the job has completed;
 //                                     "Error" if the job has completed with error;
 //                                     "Canceled" if job is canceled by a user or by an administrator.
 //   * JobID - UUID - contains 
 //                                     the ID of the running background job if Status = "Running".
-//                          - Undefined - 
-//   * BriefErrorDescription   - String - contains brief description of the exception if Status = "Error".
-//   * DetailErrorDescription - String - contains detailed description of the exception if Status = "Error".
+//                          - Undefined - If Status <> "Running" and the background job wasn't started.
+//   * ErrorInfo    - ErrorInfo - If Status = "Error".
+//                           - Undefined - If Status <> "Error".
 //   * Messages - FixedArray - If Status <> "Running", then the MessageToUser array of objects
 //                                      that were generated in the background job.
+//   * BriefErrorDescription   - String - 
+//   * DetailErrorDescription - String - 
 //
 // Example:
-//  In general, running a long-running operation in the form module and processing its results is organized as follows:
+//  
 //
-//   1) The procedure to run in the background is added to the object manager module or common server module:
-//    Procedure ExecuteCalculation(Val MyParameter1, Val MyParameter2) Export
-//     …
-//    EndProcedure
-//
-//   2) The operation is started on the server, and the idle handler is attached (if necessary):
-//    &AtClient
-//    Procedure ExecuteCalculation()
-//     TimeConsumingOperation = StartExecuteAtServer();
-//     CompletionNotification = New NotifyDescription("ProcessResult", ThisObject);
-//     IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
-//     TimeConsumingOperationsClient.WaitForCompletion(TimeConsumingOperation, CompletionNotification, IdleParameters);
-//    EndProcedure
-//
-//    &AtServer
-//    Function StartExecuteAtServer()
-//     Return TimeConsumingOperations.ExecuteProcedure(, "DataProcessor.MyDataProcessor.ExecuteCalculation", 
-//      MyParameter1, MyParameter2);
-//    EndFunction
-//    
-//   3) The result of a long-running operation is processed:
-//    &AtClient
-//    Procedure ProcessResult(Result, AdditionalParameters) Export
-//     If Result = Undefined Then
-//      Return;
-//     EndIf;
-//     OnCalculaionCompletion();
-//    EndProcedure 
 //   
+//    
+//     
+//    
+//
+//   
+//    
+//    
+//     
+//     
+//     
+//     
+//    
+//
+//    
+//    
+//      
+//      
+//    
+//    
+//   
+//    
+//    
+//     
+//      
+//     
+//     
+//      
+//      
+//     
+//     
+//     
+//   
+//
+//
 Function ExecuteProcedure(Val ExecutionParameters = Undefined, ProcedureName, Val Parameter1 = Undefined,
 	Val Parameter2 = Undefined, Val Parameter3 = Undefined, Val Parameter4 = Undefined,
 	Val Parameter5 = Undefined, Val Parameter6 = Undefined, Val Parameter7 = Undefined) Export
@@ -189,18 +206,18 @@ Function ExecuteProcedure(Val ExecutionParameters = Undefined, ProcedureName, Va
 	
 EndFunction
 
+// 
+// 
+// 
 
-
-
-
-// 
-// 
-// 
-// 
-// 
+// Starts the function execution in a multi-threaded background job if possible.
+// The procedure to call can have the arbitrary number of parameters, but not more than 7.
+// Values of the passed procedure parameters and its return value must be serialized.
+// Procedure parameters must not be returned. Shared sessions do not support multi-threaded long-running operations.
+// Do not use the function if the background job must be started unconditionally.
 //
-// 
-// 
+// We recommend that you use it together with the TimeConsumingOperationsClient.WaitForCompletion function.
+// If it's impossible, use the IsJobCompleted function to ensure the operation is completed.
 // 
 //
 // Parameters:
@@ -221,14 +238,16 @@ EndFunction
 //                                     "Canceled" if job is canceled by a user or by an administrator.
 //   * JobID - UUID - contains 
 //                                     the ID of the running background job if Status = "Running".
-//                          - Undefined - 
+//                          - Undefined - If Status <> "Running" and the background job wasn't started.
 //   * ResultAddress       - String - Address of the temporary storage to save the Map to:
 //                                      ** Key - Arbitrary
 //                                      ** Value - See ExecuteFunction
-//   * BriefErrorDescription   - String - contains brief description of the exception if Status = "Error".
-//   * DetailErrorDescription - String - contains detailed description of the exception if Status = "Error".
+//   * ErrorInfo    - ErrorInfo - If Status = "Error".
+//                           - Undefined - If Status <> "Error".
 //   * Messages - FixedArray - If Status <> "Running", then the MessageToUser array of objects
 //                                      that were generated in the background job.
+//   * BriefErrorDescription   - String - 
+//   * DetailErrorDescription - String - 
 //
 Function ExecuteFunctionInMultipleThreads(FunctionName, Val ExecutionParameters, Val FunctionSettings = Undefined) Export
 	
@@ -277,15 +296,14 @@ Function ExecuteFunctionInMultipleThreads(FunctionName, Val ExecutionParameters,
 	
 EndFunction
 
-
-// 
-// 
-// 
-// 
-// 
+// Starts the procedure execution in a multi-threaded background job if possible.
+// The procedure to call can have the arbitrary number of parameters, but not more than 7.
+// Values of the passed procedure parameters and its return value must be serialized.
+// Procedure parameters must not be returned. Shared sessions do not support multi-threaded long-running operations.
+// Do not use the function if the background job must be started unconditionally.
 //
-// 
-// 
+// We recommend that you use it together with the TimeConsumingOperationsClient.WaitForCompletion function.
+// If it's impossible, use the IsJobCompleted function to ensure the operation is completed.
 // 
 //
 // Parameters:
@@ -304,14 +322,16 @@ EndFunction
 //                                     "Canceled" if job is canceled by a user or by an administrator.
 //   * JobID - UUID - contains 
 //                                     the ID of the running background job if Status = "Running".
-//                          - Undefined - 
+//                          - Undefined - If Status <> "Running" and the background job wasn't started.
 //   * ResultAddress       - String - Address of the temporary storage to save the Map to:
 //                                       ** Key - Arbitrary
 //                                       ** Value - See ExecuteProcedure
-//   * BriefErrorDescription   - String - contains brief description of the exception if Status = "Error".
-//   * DetailErrorDescription - String - contains detailed description of the exception if Status = "Error".
+//   * ErrorInfo    - ErrorInfo - If Status = "Error".
+//                           - Undefined - If Status <> "Error".
 //   * Messages - FixedArray - If Status <> "Running", then the MessageToUser array of objects
 //                                      that were generated in the background job.
+//   * BriefErrorDescription   - String - 
+//   * DetailErrorDescription - String - 
 //
 Function ExecuteProcedureinMultipleThreads(ProcedureName, Val ExecutionParameters, Val ProcedureSettings = Undefined) Export
 	
@@ -378,13 +398,13 @@ EndFunction
 //                               containing the temporary storage where the procedure puts its result.
 //
 // Returns:
-//   Structure - :
+//   Structure - Long-running operation runtime parameters:
 //     * FormIdentifier  - UUID - a UUID of the form
 //                             containing the temporary storage where the procedure puts its result.
-//     * WaitCompletion   - Undefined - 
-//                           - Number - 
-//                               
-//                               
+//     * WaitCompletion   - Undefined - Wait till the background job is completed.
+//                           - Number - Timeout in seconds.
+//                               If "0", don't wait till the background job is completed.
+//                               By default, "0.8" ("4" for low-speed connections).
 //     * BackgroundJobDescription - String - the description of the background job. The default value is the procedure name.
 //     * BackgroundJobKey - String - the unique key for active background jobs that have the same procedure name.
 //                                      Not set by default.
@@ -403,16 +423,19 @@ EndFunction
 //                                  are attached to run the background job. Has priority over the RunNotInBackground parameter. 
 //     * WithDatabaseExtensions  - Boolean - If True, the background job will run with the latest version of
 //                                  the configuration extensions. Has priority over the RunNotInBackground parameter.
-//     * ExternalReportDataProcessor    - Undefined - 
-//                                - BinaryData - 
-//                                    
-//                                    
-//                                    
+//     * ExternalReportDataProcessor    - Undefined - By default.
+//                                - BinaryData - If the passed method name starts with "ExternalReport" or "ExternalDataProcessor".
+//                                    Calling the method requires the right to open external reports or
+//                                    external data processors respectively. External reports and
+//                                    external data processors are attached with the unsafe action protection enabled.
 //                                    
 //     * AbortExecutionIfError - Boolean - If True, when an error occurs in a child job, the multithread background job is aborted.
 //                                  The running child jobs will be aborted.
 //                                  Applicable to function RunFunctionInMultithreading.
 //                                  
+//     * RefinementErrors          - String - 
+//                                   :
+//                                   
 //
 Function FunctionExecutionParameters(Val FormIdentifier) Export
 	
@@ -433,11 +456,11 @@ EndFunction
 //  * the function belongs to an external data processor module or an external report module.
 //
 // Returns:
-//   Structure - :
-//     * WaitCompletion   - Undefined - 
-//                           - Number - 
-//                               
-//                               
+//   Structure - Long-running operation runtime parameters:
+//     * WaitCompletion   - Undefined - Wait till the background job is completed.
+//                           - Number - Timeout in seconds.
+//                               If "0", don't wait till the background job is completed.
+//                               By default, "0.8" ("4" for low-speed connections).
 //     * BackgroundJobDescription - String - the description of the background job. The default value is the procedure name.
 //     * BackgroundJobKey - String - the unique key for active background jobs that have the same procedure name.
 //                                      Not set by default.
@@ -454,16 +477,19 @@ EndFunction
 //                                  are attached to run the background job. Has priority over the RunNotInBackground parameter. 
 //     * WithDatabaseExtensions  - Boolean - If True, the background job will run with the latest version of
 //                                  the configuration extensions. Has priority over the RunNotInBackground parameter. 
-//     * ExternalReportDataProcessor    - Undefined - 
-//                                - BinaryData - 
-//                                    
-//                                    
-//                                    
+//     * ExternalReportDataProcessor    - Undefined - By default.
+//                                - BinaryData - If the passed method name starts with "ExternalReport" or "ExternalDataProcessor".
+//                                    Calling the method requires the right to open external reports or
+//                                    external data processors respectively. External reports and
+//                                    external data processors are attached with the unsafe action protection enabled.
 //                                    
 //     * AbortExecutionIfError - Boolean - If True, when an error occurs in a child job, the multithread background job is aborted.
 //                                  The running child jobs will be aborted.
 //                                  Applicable to function RunProcedureInMultithreading.
 //                                  
+//     * RefinementErrors          - String - 
+//                                   :
+//                                   
 //
 Function ProcedureExecutionParameters() Export
 	
@@ -471,12 +497,12 @@ Function ProcedureExecutionParameters() Export
 	
 EndFunction
 
+// We recommend that you use functions ExecuteFunction and ExecuteProcedure instead of this one.
 // 
-// 
-// 
-// 
-// 
-// 
+// It executes the procedure in a background job when possible.
+// Do not use the function if the background job must be started unconditionally.
+// We recommend that you use it together with the TimeConsumingOperationsClient.WaitForCompletion function.
+// If it's impossible, use the IsJobCompleted function to ensure the operation is completed.
 // 
 // Parameters:
 //  ProcedureName           - String    - a name of the export procedure in a common module, object manager module, 
@@ -503,58 +529,64 @@ EndFunction
 //                                     "Canceled" if job is canceled by a user or by an administrator.
 //   * JobID  - UUID - contains 
 //                                     the ID of the running background job if Status = "Running".
-//                           - Undefined - 
+//                           - Undefined - If Status <> "Running" and the background job wasn't started.
 //   * ResultAddress       - String - the address of the temporary storage to which the procedure result must be placed
 //                                      (or is already placed if Status = "Completed").
 //   * AdditionalResultAddress - String - If the AdditionalResult parameter is set, 
 //                                      it contains the address of the additional temporary storage
 //                                      , to which the procedure result must be placed
 //                                      (or is already placed if Status = "Completed").
-//   * BriefErrorDescription   - String - contains brief description of the exception if Status = "Error".
-//   * DetailErrorDescription - String - contains detailed description of the exception if Status = "Error".
-//   * Messages - FixedArray - 
-//                                      
+//   * ErrorInfo    - ErrorInfo - If Status = "Error".
+//                           - Undefined - If Status <> "Error".
+//   * Messages - FixedArray - If Status <> "Running", then the MessageToUser array of objects
+//                                      that were generated in the background job.
+//   * BriefErrorDescription   - String - 
+//   * DetailErrorDescription - String - 
 // 
 // Example:
-//  In general, running a long-running operation and processing its results is organized as follows:
+//  
 //
-//   1) The procedure to run in the background is added to the object manager module or common server module:
-//    Procedure ExecuteAction(Parameters, ResultAddress) Export
-//     …
-//     PutToTempStorage(Result, ResultAddress);
-//    EndProcedure
-//
-//   2) The operation is started on the server, and the idle handler is attached:
-//    &AtClient
-//    Procedure ExecuteAction()
-//     TimeConsumingOperation = StartExecuteAtServer();
-//     IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
-//     …
-//     CompletionNotification = New NotifyDescription("ExecuteActionCompletion", ThisObject);
-//     TimeConsumingOperationsClient.WaitForCompletion(TimeConsumingOperation, CompletionNotification, IdleParameters);
-//    EndProcedure
-//
-//    &AtServer
-//    Function StartExecuteAtServer()
-//     ProcedureParameters = New Structure;
-//     …
-//     ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-//     …
-//     Return TimeConsumingOperations.ExecuteInBackground("DataProcessors.MyDataProcessor.ExecuteAction", 
-//     ProcedureParameters, ExecutionParameters);
-//    EndFunction
+//   
 //    
-//   3) The operation result is processed:
-//    &AtClient
-//    Procedure ExecuteActionCompletion(Result, AdditionalParameters) Export
-//     If Result = Undefined Then
-//      Return;
-//     EndIf;
-//     OutputResult(Result);
-//    EndProcedure 
+//     
+//     
+//    
+//
+//   
+//    
+//    
+//     
+//     
+//     
+//     
+//     
+//    
+//
+//    
+//    
+//     
+//     
+//     
+//     
+//      
+//     
+//    
+//    
+//   
+//    
+//    
+//     
+//      
+//     
+//     
+//      
+//      
+//     
+//     
+//     
 //  
 Function ExecuteInBackground(Val ProcedureName, Val ProcedureParameters, Val ExecutionParameters) Export
-	
+		
 	// Backward compatibility.
 	If ExecutionParameters.Property("WaitForCompletion") And ExecutionParameters.WaitForCompletion <> -1 Then
 		ExecutionParameters.WaitCompletion = ExecutionParameters.WaitForCompletion;
@@ -623,6 +655,7 @@ Function ExecuteInBackground(Val ProcedureName, Val ProcedureParameters, Val Exe
 	If ExecutionParameters.Property("AdditionalResult") Then
 		Result.Insert("AdditionalResultAddress", "");
 	EndIf;
+	Result.Insert("ErrorInfo", Undefined);
 	Result.Insert("BriefErrorDescription", "");
 	Result.Insert("DetailErrorDescription", "");
 	Result.Insert("Messages", New FixedArray(New Array));
@@ -673,7 +706,17 @@ Function ExecuteInBackground(Val ProcedureName, Val ProcedureParameters, Val Exe
 			Result.Status = "Completed2";
 		Except
 			Result.Status = "Error";
-			SetErrorProperties(Result, ErrorInfo());
+			ErrorInfo = ErrorInfo();
+			If ValueIsFilled(ExecutionParameters.RefinementErrors) Then
+				Refinement = CommonClientServer.ExceptionClarification(ErrorInfo,
+					ExecutionParameters.RefinementErrors);
+				Try
+					Raise(Refinement.Text, Refinement.Category,,, ErrorInfo);
+				Except
+					ErrorInfo = ErrorInfo();
+				EndTry;
+			EndIf;
+			SetErrorProperties(Result, ErrorInfo);
 			WriteLogEvent(NStr("en = 'Long-running operations.Runtime error';", Common.DefaultLanguageCode()),
 				EventLogLevel.Error, , , Result.DetailErrorDescription);
 		EndTry;
@@ -683,19 +726,9 @@ Function ExecuteInBackground(Val ProcedureName, Val ProcedureParameters, Val Exe
 	// Executing in background.
 	SafeMode = SafeMode();
 	SetSafeModeDisabled(True);
-	Try
-		Job = RunBackgroundJobWithClientContext(ProcedureName,
-			ExecutionParameters, ExportProcedureParameters, SafeMode,
-			ExecutionParameters.WaitCompletion <> Undefined);
-	Except
-		Result.Status = "Error";
-		If Job <> Undefined And Job.ErrorInfo <> Undefined Then
-			SetErrorProperties(Result, Job.ErrorInfo);
-		Else
-			SetErrorProperties(Result, ErrorInfo());
-		EndIf;
-		Return Result;
-	EndTry;
+	Job = RunBackgroundJobWithClientContext(ProcedureName,
+		ExecutionParameters, ExportProcedureParameters, SafeMode,
+		ExecutionParameters.WaitCompletion <> Undefined);
 	SetSafeModeDisabled(False);
 	
 	If Job <> Undefined And Job.ErrorInfo <> Undefined Then
@@ -764,16 +797,16 @@ EndFunction
 //                                 containing the temporary storage where the procedure puts its result.
 //     * AdditionalResult - Boolean     - the flag that indicates whether additional temporary storage is to be used to pass 
 //                                 the result from the background job to the parent session. The default value is False.
-//     * WaitCompletion       - Undefined - 
-//                               - Number - 
-//                                   
-//                                   
+//     * WaitCompletion       - Undefined - Wait till the background job is completed.
+//                               - Number - Timeout in seconds.
+//                                   If "0", don't wait till the background job is completed.
+//                                   By default, "0.8" ("4" for low-speed connections).
 //     * BackgroundJobDescription - String - the description of the background job. The default value is the procedure name.
 //     * BackgroundJobKey      - String    - the unique key for active background jobs that have the same procedure name.
 //                                              Not set by default.
 //     * ResultAddress          - String - the address of the temporary storage to which the procedure
 //                                           result must be placed. If the address is not set, it is generated automatically 
-//                                           for the lifetime of the form using the FormID ID.
+//                                           for the lifetime of the form using the FormIdentifier ID.
 //     * RunInBackground           - Boolean - If True, the job always runs in the background, except for the following cases:
 //                                  a) the procedure is called in the file infobase through an external connection 
 //                                  (this mode has no background job support);
@@ -787,32 +820,34 @@ EndFunction
 //                                  are attached to run the background job. Has priority over the RunNotInBackground parameter. 
 //     * WithDatabaseExtensions  - Boolean - If True, the background job will run with the latest version of
 //                                  the configuration extensions. Has priority over the RunNotInBackground parameter. 
-//     * ExternalReportDataProcessor    - Undefined - 
-//                                - BinaryData - 
+//     * ExternalReportDataProcessor    - Undefined - By default.
+//                                - BinaryData - If the passed method name starts with "ExternalReport" or "ExternalDataProcessor".
+//                                    Calling the method requires the right to open external reports or
+//                                    external data processors respectively. External reports and
+//                                    external data processors are attached with the unsafe action protection enabled.
 //                                    
-//                                    
-//                                    
-//                                    
+//     * RefinementErrors          - String - 
+//                                   :
+//                                   
 //
 Function BackgroundExecutionParameters(Val FormIdentifier = Undefined) Export
 	
 	Result = CommonBackgroundExecutionParameters();
 	AddExecutionParametersToReturnResult(Result, FormIdentifier);
 	Result.Insert("AdditionalResult", False);
-	
 	Return Result;
 	
 EndFunction
 
-// 
-// 
+// Registers information about the long-running operation progress.
+// Don't use it to pass long-running operation outcome in batches.
 //
-// 
-// 
+// To avoid excessive memory consumption and leaks, update the progress no more than 100 times per operation.
+// If the progress is updated in less than 3 seconds after the last call, the new message overwrites the old one
 //
-// 
-// 
-// 
+// (if the Collaboration System is used, each new message is sent with at least 3-second delay).
+// After the progress is updated, all messages from the background job queue are sent.
+// To display the progress for users, set OutputProgressBar to True.
 //
 // 
 //
@@ -846,21 +881,22 @@ Procedure ReportProgress(Val Percent = Undefined, Val Text = Undefined, Val Addi
 	
 EndProcedure
 
-//  
-// 
+// Reads the runtime information on the long-running operation 
+// written by the TimeConsumingOperations.ReportProgress procedure.
 //
-// 
-// 
+// We recommend that you obtain the progress with the notification handler
+// attached with TimeConsumingOperationsClient.WaitForCompletion.
 //
 // Parameters:
 //   JobID - UUID - a background job ID.
 //
 // Returns:
-//   Undefined, Structure - :
+//  Undefined -  
+//  :
 //    * Percent                 - Number  - optional. Progress percentage.
 //    * Text                   - String - optional. Details on the current action.
 //    * AdditionalParameters - Arbitrary - optional. Any additional information.
-//
+// 
 Function ReadProgress(Val JobID) Export
 	
 	Return GetFromNotifications(True, JobID, "Progress");
@@ -876,8 +912,8 @@ EndFunction
 // then it is not required to open one long-running transaction.
 // 
 // Parameters:
-//  JobID - UUID - 
-//                           
+//  JobID - UUID - Background job ID assigned when the long-running operation was started.
+//                           See TimeConsumingOperations.ExecuteInBackground.
 // 
 Procedure CancelJobExecution(Val JobID) Export 
 	
@@ -910,33 +946,35 @@ Procedure CancelJobExecution(Val JobID) Export
 	
 EndProcedure
 
-// 
-// 
-// 
+// Checks the status of the background job by the passed ID.
+// If the job crashed, it throws an exception with the text of the error occurred
+// and a note, for example, "See details in the Event Log."
 //
 // Parameters:
 //  JobID - UUID - a background job ID.
-//  ExtendedResult - Boolean - 
+//  ExtendedResult - Boolean - If True, return a structure.
 //
 // Returns:
-//  Boolean - 
-//  :
+//  Boolean - Job runtime status.
+//  Structure:
 //   * Status      - String - "Running" if the job is running;
 //                            "Completed " if the job has completed;
 //                            "Error" if the job has completed with error;
 //                            "Canceled" if job is canceled by a user or by an administrator.
 //
-//   * ErrorText - String - 
-//                            
+//   * ErrorInfo - ErrorInfo - 
+//                        - Undefined - 
 //
-//   * BriefErrorDescription   - String - contains brief description of the exception if Status = "Error".
-//   * DetailErrorDescription - String - contains detailed description of the exception if Status = "Error".
-//   * JobID         - UUID - 
-//                                      
-//                                      
+//   * JobID - UUID - The last job ID if restarts occurred
+//                              (for example, for long-running operations).
+//                              Or the ID that was passed to the function if no restarts occurred.
 //
-//   * Job - Undefined   - 
-//             - BackgroundJob - 
+//   * Job - Undefined   - Job was not found.
+//             - BackgroundJob - Job is found.
+//
+//   * ErrorText                  - String - 
+//   * BriefErrorDescription   - String - 
+//   * DetailErrorDescription - String - 
 //
 Function JobCompleted(Val JobID, ExtendedResult = False) Export
 	
@@ -953,6 +991,7 @@ Function JobCompleted(Val JobID, ExtendedResult = False) Export
 		Properties = New Structure;
 		Properties.Insert("Status",                       Result.Status);
 		Properties.Insert("ErrorText",                  "");
+		Properties.Insert("ErrorInfo",           Result.ErrorInfo);
 		Properties.Insert("BriefErrorDescription",   Result.BriefErrorDescription);
 		Properties.Insert("DetailErrorDescription", Result.DetailErrorDescription);
 		Properties.Insert("JobID",         LastID_(JobID));
@@ -967,6 +1006,14 @@ Function JobCompleted(Val JobID, ExtendedResult = False) Export
 	
 	If Result.Status = "Canceled" Then
 		ErrorText = NStr("en = 'Operation canceled';");
+		Try
+			Raise ErrorText;
+		Except
+			If Not ExtendedResult Then
+				Raise;
+			EndIf;
+			Properties.ErrorInfo = ErrorInfo();
+		EndTry;
 		
 	ElsIf Job = Undefined Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -978,6 +1025,16 @@ Function JobCompleted(Val JobID, ExtendedResult = False) Export
 			           |See also the event log.';"),
 			Result.BriefErrorDescription,
 			Result.DetailErrorDescription);
+		Refinement = CommonClientServer.ExceptionClarification(Result.ErrorInfo);
+		ForAdministrator = NStr("en = 'Also, see the event log.';");
+		Try
+			Raise(Refinement.Text, Refinement.Category,, ForAdministrator, Result.ErrorInfo);
+		Except
+			If Not ExtendedResult Then
+				Raise;
+			EndIf;
+			Properties.ErrorInfo = ErrorInfo();
+		EndTry;
 	Else
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = '%1
@@ -991,21 +1048,31 @@ Function JobCompleted(Val JobID, ExtendedResult = False) Export
 			Job.MethodName,
 			String(JobID),
 			Result.DetailErrorDescription);
+		Refinement = CommonClientServer.ExceptionClarification(Result.ErrorInfo);
+		ForAdministrator = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Error executing the background job ""%1"" (id %2).
+			           |See also: Event log.';"),
+			Job.MethodName,
+			String(JobID));
+		Try
+			Raise(Refinement.Text, Refinement.Category,, ForAdministrator, Result.ErrorInfo);
+		Except
+			If Not ExtendedResult Then
+				Raise;
+			EndIf;
+			Properties.ErrorInfo = ErrorInfo();
+		EndTry;
 	EndIf;
 	
-	If ExtendedResult Then
-		Properties.ErrorText = ErrorText;
-		Return Properties;
-	EndIf;
-	
-	Raise ErrorText;
+	Properties.ErrorText = ErrorText;
+	Return Properties;
 	
 EndFunction
 
-// 
+// Gets user messages from a long-running operation background job.
 //
-// 
-// 
+// We recommend that you obtain the messages with the notification handler
+// attached with TimeConsumingOperationsClient.WaitForCompletion.
 // 
 // Parameters:
 //  ToDeleteGetting    - Boolean                  - the flag indicates whether the received messages need to be deleted.
@@ -1053,14 +1120,14 @@ EndFunction
 //                           to the parent session. The default value is False.
 //
 // Returns:
-//  Structure              - : 
+//  Structure              - Job runtime parameters: 
 //   * StorageAddress  - String     - the address of the temporary storage where the job result must be
 //                                    stored;
 //   * StorageAddressAdditional - String - the address of the additional temporary storage
 //                                    where the job result must be stored (can only be used 
 //                                    when UseAdditionalTempStorage is set);
 //   * JobID - UUID - the unique ID of the running background job;
-//                          - Undefined - 
+//                          - Undefined - Background job was not started.
 //   * JobCompleted - Boolean - True if the job is completed successfully during the function call.
 // 
 Function StartBackgroundExecution(Val FormIdentifier, Val ExportProcedureName, Val Parameters,
@@ -1131,8 +1198,8 @@ EndFunction
 
 // Parameters:
 //  JobID - UUID
-//  Job - BackgroundJob - 
-//          - Undefined - 
+//  Job - BackgroundJob - Found background job (the return value).
+//          - Undefined - Background job was not found.
 //
 // Returns:
 //   See OperationNewRuntimeResult
@@ -1156,10 +1223,15 @@ Function ActionCompleted(Val JobID, Job = Undefined) Export
 		If IsThreadOfControlRestarted(JobID, Job) Then
 			Return Result;
 		EndIf;
-		Result.BriefErrorDescription =
-			NStr("en = 'Cannot perform the operation due to abnormal termination of a background job.';");
-		Result.DetailErrorDescription = Result.BriefErrorDescription + Chars.LF
-			+ NStr("en = 'The background job does not exist';") + ": " + String(LastID_);
+		ErrorText = NStr("en = 'Cannot perform the operation due to abnormal termination of a background job.';");
+		ClarificationForAdmin = NStr("en = 'The background job does not exist';") + ": "
+			+ String(LastID_);
+		Try
+			Raise(ErrorText,,, ClarificationForAdmin);
+		Except
+			ErrorInfo = ErrorInfo();
+		EndTry;
+		SetErrorProperties(Result, ErrorInfo);
 		WriteLogEvent(NStr("en = 'Long-running operations.Background job not found';", Common.DefaultLanguageCode()),
 			EventLogLevel.Error, , , Result.DetailErrorDescription);
 		Result.Status = "Error";
@@ -1178,8 +1250,14 @@ Function ActionCompleted(Val JobID, Job = Undefined) Export
 		If SessionParameters.TimeConsumingOperations.CanceledJobs.Find(LastID_) = Undefined Then
 			Result.Status = "Error";
 			If Job.ErrorInfo <> Undefined Then
-				Result.BriefErrorDescription   = NStr("en = 'Operation canceled by administrator.';");
-				Result.DetailErrorDescription = Result.BriefErrorDescription;
+				Refinement = CommonClientServer.ExceptionClarification(Job.ErrorInfo,
+					NStr("en = 'Operation canceled by administrator.';"));
+				Try
+					Raise(Refinement.Text, Refinement.Category,,, Job.ErrorInfo);
+				Except
+					ErrorInfo = ErrorInfo();
+				EndTry;
+				SetErrorProperties(Result, ErrorInfo);
 			EndIf;
 		Else
 			Result.Status = "Canceled";
@@ -1316,23 +1394,23 @@ Procedure OnAddServerNotifications(Notifications) Export
 	
 EndProcedure
 
-// 
-// 
+// Returns the maximum number of threads allowed for all multi-threaded long-running operations
+// considering main threads.
 //
-// 
-// 
+// For example, if there are 10 threads and 2 operations,
+// you will have 2 main threads and 8 worker threads.
 //
-// 
-// 
-// 
+// If there are 3 threads and 2 operations,
+// you will have 2 main threads and 1 worker thread,
+// with 1 main thread also functioning as a worker thread.
 //
-// 
-// 
-// 
+// If there are 5 threads and 7 operations,
+// you will have 7 main threads and 0 worker threads,
+// with each main thread also functioning as a worker thread.
 //
-// 
-// 
-// 
+// If there is 1 thread,
+// you will have 0 worker threads,
+// and the main thread will also act as a worker thread.
 //
 // Returns:
 //  Number - number of threads.
@@ -1370,10 +1448,29 @@ Procedure OnSendServerNotification(NameOfAlert, ParametersVariants) Export
 	
 EndProcedure
 
+// Returns:
+//  Structure:
+//   * Status               - String - "Running" if the job is running;
+//                                     "Completed " if the job has completed;
+//                                     "Error" if the job has completed with error;
+//                                     "Canceled" if job is canceled by a user or by an administrator.
+//
+//   * ErrorInfo    - ErrorInfo - If Status = "Error".
+//                           - Undefined - If Status <> "Error".
+//
+//   * Progress - See ReadProgress
+//
+//   * Messages - Undefined
+//               - FixedArray of UserMessage
+//
+//   * BriefErrorDescription   - String - 
+//   * DetailErrorDescription - String - 
+//   
 Function OperationNewRuntimeResult() Export
 	
 	Result = New Structure;
 	Result.Insert("Status", "Running");
+	Result.Insert("ErrorInfo", Undefined);
 	Result.Insert("BriefErrorDescription", "");
 	Result.Insert("DetailErrorDescription", "");
 	Result.Insert("Progress", Undefined);
@@ -1439,6 +1536,8 @@ EndFunction
 //
 Procedure SetErrorProperties(Properties, Error)
 	
+	Properties.ErrorInfo = Error;
+	
 	BriefErrorDescription = ErrorProcessing.BriefErrorDescription(Error);
 	DetailErrorDescription = ErrorProcessing.DetailErrorDescription(Error);
 	
@@ -1450,11 +1549,11 @@ Procedure SetErrorProperties(Properties, Error)
 	
 EndProcedure
 
-// 
+// Multi-threaded operation parameter constructor.
 // 
 // Parameters:
 //   ProcessID - UUID
-//   SavedParameters1 - 
+//   SavedParameters1 - Undefined, Structure
 // 
 // Returns:
 //  Structure:
@@ -1462,7 +1561,7 @@ EndProcedure
 //   * MethodName - String
 //   * ForFunction - Boolean
 //   * ExecutionParameters - See FunctionExecutionParameters
-//   * MethodParameters - 
+//   * MethodParameters - Number, Structure
 //   * AddressResults - String
 //
 Function MultithreadOperationParameters(ProcessID, SavedParameters1 = Undefined) 
@@ -1486,7 +1585,7 @@ EndFunction
 // See CommonOverridable.OnReceiptRecurringClientDataOnServer
 Procedure OnReceiptRecurringClientDataOnServer(Parameters, Results) Export
 	
-	CheckParameters = Parameters.Get( // See TimeConsumingOperationsClient.ПараметрыПроверкиДлительныхОпераций
+	CheckParameters = Parameters.Get( 
 		"StandardSubsystems.Core.LongRunningOperationCheckParameters");
 	
 	If CheckParameters = Undefined Then
@@ -1499,18 +1598,17 @@ Procedure OnReceiptRecurringClientDataOnServer(Parameters, Results) Export
 EndProcedure
 
 // Parameters:
-//  Parameters - See TimeConsumingOperationsClient.ПараметрыПроверкиДлительныхОпераций
 //
 // Returns:
 //  Map of KeyAndValue:
-//   * Key     - UUID - 
+//   * Key     - UUID - Job ID
 //   * Value - See ActionCompleted
 //  
 Function LongRunningOperationCheckResult(Parameters) Export
 	
 	Result = New Map;
 	For Each JobID In Parameters.JobsToCheck Do
-		
+		// @skip-check query-in-loop - Query branch is rarely called (only when the main thread is restarted)
 		Result.Insert(JobID, ActionCompleted(JobID));
 	EndDo;
 	
@@ -1537,15 +1635,25 @@ Function RunBackgroundJobWithClientContext(ProcedureName,
 		ClientParameters = New FixedMap(ClientParameters);
 	EndIf;
 	
+	StartupStack = "";
+	If Common.CommonCoreParameters().ShouldIncludeFullStackInLongRunningOperationErrors Then
+		Try
+			Raise NStr("en = 'Starting the background job of a long-running operation:';");
+		Except
+			StartupStack = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+		EndTry;
+	EndIf;
+	
 	AllParameters = New Structure;
 	AllParameters.Insert("ProcedureName",       ProcedureName);
 	AllParameters.Insert("ProcedureParameters", ProcedureParameters);
 	AllParameters.Insert("ClientParametersAtServer", ClientParameters);
 	AllParameters.Insert("ExecutionParameters", ExecutionParameters);
 	AllParameters.Insert("SafeMode",     SafeMode);
+	AllParameters.Insert("StartupStack",         StartupStack);
 	
 	If Not ExecutionParameters.NoExtensions
-		And Not ExecutionParameters.WithDatabaseExtensions Then		
+	   And Not ExecutionParameters.WithDatabaseExtensions Then
 		Catalogs.ExtensionsVersions.InsertARegisteredSetOfInstalledExtensions(AllParameters);
 	EndIf;
 	
@@ -1560,8 +1668,8 @@ Function RunBackgroundJobWithClientContext(ProcedureName,
 	
 EndFunction
 
-// 
-// 
+// Returns True if the current session if a background job session of a long-running operation
+// or background job method name is not specified in the scheduled jobs.
 // 
 //
 Function ShouldSkipHandlerBeforeAppStartup() Export
@@ -1674,10 +1782,28 @@ Procedure ExecuteWithClientContext(AllParameters) Export
 		Result.Status = "Completed2";
 	Except
 		Result.Status = "Error";
-		SetErrorProperties(Result, ErrorInfo());
-		SetFullNameOfAppliedProcedure(NameOfLongRunningOperationBackgroundJobProcedure());
-		SendClientNotification("TimeConsumingOperationCompleted", Result);
-		Raise;
+		ErrorInfo = ErrorInfo();
+		SystemInfo = New SystemInfo;
+		StartupStack = AllParameters.StartupStack;
+		If CommonClientServer.CompareVersions(SystemInfo.AppVersion, "8.3.22.2009") < 0 Then
+			ErrorStack = NStr("en = 'The stack of the background job error:';") + Chars.LF
+				+ ErrorProcessing.DetailErrorDescription(ErrorInfo);
+			StartupStack = ErrorStack + ?(ValueIsFilled(StartupStack),
+				Chars.LF + Chars.LF + StartupStack, "");
+		EndIf;
+		StartupStack = ?(ValueIsFilled(StartupStack),
+			CommonClientServer.ReplaceProhibitedXMLChars(StartupStack), Undefined);
+		Refinement = CommonClientServer.ExceptionClarification(ErrorInfo,
+			ExecutionParameters.RefinementErrors);
+		Try
+			Raise(Refinement.Text, Refinement.Category,, StartupStack, ErrorInfo);
+		Except
+			ClarifiedErrorInfo = ErrorInfo();
+			SetErrorProperties(Result, ClarifiedErrorInfo);
+			SetFullNameOfAppliedProcedure(NameOfLongRunningOperationBackgroundJobProcedure());
+			SendClientNotification("TimeConsumingOperationCompleted", Result);
+			Raise;
+		EndTry;
 	EndTry;
 	
 	SetFullNameOfAppliedProcedure(NameOfLongRunningOperationBackgroundJobProcedure());
@@ -1816,7 +1942,7 @@ Procedure SetFunctionCallResult(Result, ExecutionParameters)
 EndProcedure
 
 // Parameters:
-//  JobID - 
+//  JobID - UUID, String
 //
 // Returns:
 //  BackgroundJob, Undefined
@@ -1939,14 +2065,14 @@ EndFunction
 //
 Function ShouldSkipNotification(Data) Export
 	
-	
-	
-	
-	
-	
-	
-	
-	
+	// 
+	// 
+	// 
+	// 
+	// 
+	// 
+	// 
+	// 
 	
 	Return Data.NameOfAlert = NameOfAlert()
 	      And Data.Result.NotificationKind = "TimeConsumingOperationCompleted"
@@ -1997,7 +2123,7 @@ Procedure SendClientNotification(NotificationKind, ValueToPass,
 	ElsIf NotificationKind = "Progress" Then
 		Messages = BackgroundJob.GetUserMessages(True);
 		For Each Message In Messages Do
-			
+			// @skip-check query-in-loop - The query branch opens only at the first call in the session
 			SendClientNotification("UserMessage", Message);
 		EndDo;
 		Result.Messages = New FixedArray(New Array);
@@ -2005,7 +2131,7 @@ Procedure SendClientNotification(NotificationKind, ValueToPass,
 	ElsIf NotificationKind = "TimeConsumingOperationCompleted" Then
 		Messages = BackgroundJob.GetUserMessages(True);
 		For Each Message In Messages Do
-			
+			// @skip-check query-in-loop - The query branch opens only at the first call in the session
 			SendClientNotification("UserMessage", Message);
 		EndDo;
 	EndIf;
@@ -2042,7 +2168,7 @@ Procedure SendClientNotification(NotificationKind, ValueToPass,
 	
 EndProcedure
 
-// 
+// Intended for the SendClientNotification procedure and GetFromNotifications function.
 Function NotificationTypeID(NotificationKind)
 	
 	If NotificationKind = "UserMessage" Or NotificationKind = "Messages" Then
@@ -2062,8 +2188,8 @@ Function NotificationTypeID(NotificationKind)
 	
 EndFunction
 
-// 
-// 
+// Writes to a queue unwritten messages that were sent without
+// using the Common.MessageToUser procedure.
 //
 // Parameters:
 //  JobID - UUID
@@ -2078,7 +2204,7 @@ Procedure WritePendingUserMessages(JobID)
 		
 		Messages = BackgroundJob.GetUserMessages(True);
 		For Each Message In Messages Do
-			
+			// @skip-check query-in-loop - The query branch opens only at the first call in the session
 			SendClientNotification("UserMessage", Message, BackgroundJob, JobID);
 		EndDo;
 	EndIf;
@@ -2086,11 +2212,11 @@ Procedure WritePendingUserMessages(JobID)
 EndProcedure
 
 // Parameters:
-//  BackgroundJob - BackgroundJob - 
+//  BackgroundJob - BackgroundJob - Task whose activity must be considered.
 //
 // Returns:
-//  Boolean - 
-//    
+//  Boolean - If True, the session is running in the exclusive mode
+//    and at least one background job is active (the writing is unavailable within the session).
 //
 Function ExclusiveModeInBackgroundJob(BackgroundJob = Undefined)
 	
@@ -2218,8 +2344,9 @@ Function CommonBackgroundExecutionParameters()
 	Result.Insert("NoExtensions", False);
 	Result.Insert("WithDatabaseExtensions", False);
 	Result.Insert("AbortExecutionIfError", False);
-	Result.Insert("WaitForCompletion", -1); 
+	Result.Insert("WaitForCompletion", -1); // 
 	Result.Insert("ExternalReportDataProcessor", Undefined);
+	Result.Insert("RefinementErrors", "");
 	
 	Return Result;
 	
@@ -2262,9 +2389,9 @@ Function ExecuteMultithreadedProcess(OperationParametersList) Export
 	
 	FinishEarly = False;
 	
-	SettingProcess = GetCurrentInfoBaseSession().GetBackgroundJob();
-	IdOfProcessTask = ?(SettingProcess = Undefined,
-		Undefined, SettingProcess.UUID);
+	ProcessJob = GetCurrentInfoBaseSession().GetBackgroundJob();
+	ProcessJobID = ?(ProcessJob = Undefined,
+		Undefined, ProcessJob.UUID);
 	
 	While True Do
 		
@@ -2283,7 +2410,7 @@ Function ExecuteMultithreadedProcess(OperationParametersList) Export
 				ResultsNewAddresses, ProcessID, NewBatches, OperationParametersList);
 		EndIf;
 		
-		
+		// @skip-check query-in-loop - Get up-to-date tread details considering other running processes.
 		Threads = TreadsPendingProcessing(ProcessID);
 		If Threads.Count() = 0 Then
 			Break;
@@ -2301,21 +2428,21 @@ Function ExecuteMultithreadedProcess(OperationParametersList) Export
 					FinishEarly = True;
 					Break;
 				EndIf; 
-				
+				// @skip-check query-in-loop - The query branch opens only at the first call in the session
 				SendThreadMessages(Stream.JobID);
 			EndIf;
 			
 			Result = Undefined;
 			While Result = Undefined Do
-				
+				// @skip-check query-in-loop - Read up-to-date thread details from the infobase.
 				ExecuteInBackground = WaitForAvailableThread(ProcessID, AbortExecutionIfError);
 				If ExecuteInBackground = Undefined Then
 					FinishEarly = True;
 					Break;
 				EndIf;
 				
-				
-				Result = ExecuteThread(Stream, OperationParametersList, ExecuteInBackground, IdOfProcessTask);
+				// @skip-check query-in-loop - Read up-to-date thread details from the infobase.
+				Result = ExecuteThread(Stream, OperationParametersList, ExecuteInBackground, ProcessJobID);
 				
 			EndDo;
 			
@@ -2350,7 +2477,7 @@ Function ExecuteMultithreadedProcess(OperationParametersList) Export
 			Break;
 		EndIf;
 		
-		
+		// @skip-check query-in-loop - Read up-to-date data from the infobase at each iteration.
 		WaitForAllThreadsCompletion(ProcessID, AbortExecutionIfError, FinishEarly);
 		
 		If FinishEarly Then
@@ -2366,10 +2493,10 @@ Function ExecuteMultithreadedProcess(OperationParametersList) Export
 	If Percent > 0 Then
 		ReportProgress(100, "", "ProgressofMultithreadedProcess");
 	EndIf;
-	 
+	// Request the information register and get all the results 
 	
 	ThreadsProcess = ThreadsLongOperations(ProcessID); 
-	ResultLongOperation = NewResultLongOperation();
+	ThreadExecutionResult = ThreadExecutionNewResult();
 	Results = New Map();
 	
 	For Each Stream In ThreadsProcess Do
@@ -2378,13 +2505,14 @@ Function ExecuteMultithreadedProcess(OperationParametersList) Export
 		EndIf;
 		
 		Var_Key = Stream.ThreadKey.Get();
-		Results.Insert(Var_Key, New Structure(New FixedStructure(ResultLongOperation)));
+		Results.Insert(Var_Key, New Structure(New FixedStructure(ThreadExecutionResult)));
 		Results[Var_Key].ResultAddress = PutToTempStorage(Stream.Result.Get(), Stream.ResultAddress);
+		Results[Var_Key].ErrorInfo = Stream.StorageOfErrorInfo.Get();
 		
 		FillPropertyValues(Results[Var_Key], Stream, 
 			"Status, DetailErrorDescription, BriefErrorDescription, JobID");
 		
-		
+		// @skip-check query-in-loop - The query branch opens only at the first call in the session
 		SendThreadMessages(Stream.JobID);
 	EndDo;
 	
@@ -2402,7 +2530,7 @@ EndFunction
 // Returns:
 //   See ExecuteInBackground
 //
-Function ExecuteThread(Stream, OperationParametersList, ExecuteInBackground, IdOfProcessTask)
+Function ExecuteThread(Stream, OperationParametersList, ExecuteInBackground, ProcessJobID)
 	
 	ExecutionParameters = BackgroundExecutionParameters();
 	ExecutionParameters.BackgroundJobDescription = Stream.Description;
@@ -2433,7 +2561,7 @@ Function ExecuteThread(Stream, OperationParametersList, ExecuteInBackground, IdO
 	Block.Add("Constant.LongRunningOperationsThreadCount");
 	SetFullNameOfAppliedProcedure(OperationParametersList.MethodName);
 	
-	ThreadIsBusy = False;
+	IsThreadOccupied = False;
 	
 	If Not ExecutionParameters.RunNotInBackground1 Then
 	
@@ -2443,11 +2571,11 @@ Function ExecuteThread(Stream, OperationParametersList, ExecuteInBackground, IdO
 			
 			Threads = ActiveThreads();
 			If Threads.Count() < MaxThreads Then
-				TemporaryLaunchResult = NewResultLongOperation();
-				TemporaryLaunchResult.JobID = IdOfProcessTask;
-				TemporaryLaunchResult.Status = TimeConsumingOperationStatus().Running;
-				UpdateInfoAboutThread(Stream, TemporaryLaunchResult, False);
-				ThreadIsBusy = True;
+				StartupTempResult = ThreadExecutionNewResult();
+				StartupTempResult.JobID = ProcessJobID;
+				StartupTempResult.Status = TimeConsumingOperationStatus().Running;
+				UpdateInfoAboutThread(Stream, StartupTempResult, False);
+				IsThreadOccupied = True;
 			EndIf;
 		
 			CommitTransaction();
@@ -2460,7 +2588,7 @@ Function ExecuteThread(Stream, OperationParametersList, ExecuteInBackground, IdO
 	
 	Try
 	
-		If ExecutionParameters.RunNotInBackground1 Or ThreadIsBusy Then
+		If ExecutionParameters.RunNotInBackground1 Or IsThreadOccupied Then
 			RunResult = ExecuteInBackground(OperationParametersList.MethodName, MethodParameters, ExecutionParameters);
 			SetFullNameOfAppliedProcedure(MultithreadProcessMethodName());
 			UpdateInfoAboutThread(Stream, RunResult);
@@ -2468,9 +2596,9 @@ Function ExecuteThread(Stream, OperationParametersList, ExecuteInBackground, IdO
 	
 	Except
 		
-		If ThreadIsBusy Then
-			EmptyLaunchResult = NewResultLongOperation();
-			UpdateInfoAboutThread(Stream, EmptyLaunchResult, False);
+		If IsThreadOccupied Then
+			EmptyStartupResult = ThreadExecutionNewResult();
+			UpdateInfoAboutThread(Stream, EmptyStartupResult, False);
 		EndIf;
 		Raise;
 		
@@ -2499,7 +2627,7 @@ Procedure UpdateInfoAboutThread(Stream, RunResult = Undefined, NewAttempt = True
 	IsStartupResultSpecified = RunResult <> Undefined;
 	
 	If RunResult = Undefined Then
-		RunResult = NewResultLongOperation(); 
+		RunResult = ThreadExecutionNewResult(); 
 		
 		If ValueIsFilled(Stream.JobID) Then
 			LastID_ = ThreadOfControlJobLastID(Stream);
@@ -2551,6 +2679,7 @@ Procedure UpdateInfoAboutThread(Stream, RunResult = Undefined, NewAttempt = True
 			EndIf;
 			Record.Status = RunResult.Status;
 			If RunResult.Status = TimeConsumingOperationStatus().Error Then
+				Record.MethodParameters = New ValueStorage(RunResult.ErrorInfo);
 				Record.DetailErrorDescription = RunResult.DetailErrorDescription;
 				Record.BriefErrorDescription   = RunResult.BriefErrorDescription;
 			EndIf;
@@ -2620,7 +2749,7 @@ EndFunction
 //   * ProcessID - UUID
 //   * ThreadID - UUID
 //
-//  Result - Arbitrary - 
+//  Result - Arbitrary - Outcome of the worker thread function.
 //
 Procedure SetThreadResult(ThreadProperties, Result)
 	
@@ -2660,10 +2789,10 @@ EndProcedure
 // Waits until the number of active threads drops below the maximum limit.
 //
 // Parameters:
-//  
+//  AllowedThreadsNumber - Number
 //  ProcessID - UUID
 //  EndEarlyIfError - Boolean
-//  
+//  ExecuteNotInBackground - Boolean - Return value
 //
 // Returns:
 //  Boolean
@@ -2696,7 +2825,7 @@ Function WaitForAvailableThread(ProcessID, EndEarlyIfError)
 			EndEarlyIfError, ProcessID);
 		
 		If EndEarlyIfError And HasCompletedThreads = Undefined Then 
-			ExecuteInBackground = Undefined; 
+			ExecuteInBackground = Undefined; // 
 			Break;
 		EndIf;
 		
@@ -2712,12 +2841,12 @@ Function WaitForAvailableThread(ProcessID, EndEarlyIfError)
 		EndDo;
 		
 		If Threads.Find(ProcessID, "ProcessID") = Undefined Then
-			
+			// No need to wait if the process has no worker threads.
 			ExecuteInBackground = False;
 			Break;
 		EndIf;
 		
-		If WaitForThreadCompletion(Threads[0]) Then 
+		If WaitForThreadCompletion(Threads[0]) Then // The job is completed.
 			UpdateInfoAboutThread(Threads[0]);
 		EndIf;
 		
@@ -2727,8 +2856,8 @@ Function WaitForAvailableThread(ProcessID, EndEarlyIfError)
 	
 EndFunction
 
-// 
-// 
+// Sends out to thread messages that were output without
+// using the Common.MessageToUser procedure.
 //
 // Parameters:
 //  JobID - UUID
@@ -2746,7 +2875,7 @@ Procedure SendThreadMessages(Val JobID)
 	
 	Messages = BackgroundJob.GetUserMessages(True);
 	For Each Message In Messages Do
-		
+		// @skip-check query-in-loop - The query branch opens only at the first call in the session
 		SendClientNotification("UserMessage", Message);
 	EndDo;
 
@@ -2886,8 +3015,8 @@ Procedure DeleteNonExistingThreads()
 		CommonClientServer.BlankUUID());
 	
 	CurrentSessionDate = CurrentSessionDate();
-	UndoTime = 24*60*60; 
-	ObsolescenceDeadline = 15*60; 
+	UndoTime = 24*60*60; // 24 hours.
+	ObsolescenceDeadline = 15*60; // 24 hours.
 	
 	For Each ProcessID In ProcessesIDs Do
 		ThreadOfControlFilter.ProcessID = ProcessID;
@@ -2933,7 +3062,7 @@ EndProcedure
 //
 // Parameters:
 //  ProcessID - UUID
-//                        - Undefined - 
+//                        - Undefined - Return all
 //
 // Returns:
 //    ValueTable:
@@ -2941,12 +3070,12 @@ EndProcedure
 //      * JobID - UUID - background job UUID.
 //      * ProcessID - UUID - Process UUID. 
 //      * ThreadID - UUID - Thread UUID within the process.
-//      * MethodParameters - Arbitrary - Procedure or function parameters.
 //      * ResultAddress - String - an address of the temporary storage for storing the background job result.
-//      * MethodName - String - 
+//      * MethodName - String - Name of the method for batch processing
 //      * ThreadKey - Arbitrary - Data chunk UUID.
 //      * Result - ValueStorage
 //      * AttemptNumber - Number
+//      * StorageOfErrorInfo - ValueStorage
 //      * DetailErrorDescription - String
 //      * BriefErrorDescription - String
 //      * CreationDate - Date
@@ -2966,6 +3095,7 @@ Function ThreadsLongOperations(ProcessID = Undefined)
 	|	TimeConsumingOperations.MethodName AS MethodName,
 	|	TimeConsumingOperations.Result AS Result,
 	|	TimeConsumingOperations.AttemptNumber AS AttemptNumber,
+	|	TimeConsumingOperations.MethodParameters AS StorageOfErrorInfo,
 	|	TimeConsumingOperations.DetailErrorDescription AS DetailErrorDescription,
 	|	TimeConsumingOperations.BriefErrorDescription AS BriefErrorDescription,
 	|	TimeConsumingOperations.CreationDate AS CreationDate,
@@ -3001,21 +3131,24 @@ EndFunction
 //                                      Empty string if the job hasn't been started.
 //   * JobID - UUID - contains 
 //                                     the ID of the running background job if Status = "Running".
-//                          - Undefined - 
+//                          - Undefined - If Status <> "Running" and the background job wasn't started.
 //   * ResultAddress       - String - Address of the temporary storage to save the Map to:
 //                                      ** Key - Arbitrary 
 //                                      ** Value - Structure
-//   * BriefErrorDescription   - String - contains brief description of the exception if Status = "Error".
-//   * DetailErrorDescription - String - contains detailed description of the exception if Status = "Error".
+//   * ErrorInfo    - ErrorInfo - If Status = "Error".
+//                           - Undefined - If Status <> "Error".
 //   * Messages - FixedArray - If Status <> "Running", then the MessageToUser array of objects
 //                                      that were generated in the background job.
+//   * BriefErrorDescription   - String - 
+//   * DetailErrorDescription - String - 
 //
-Function NewResultLongOperation()
+Function ThreadExecutionNewResult()
 	
 	Result = New Structure;
 	Result.Insert("Status",                       "");
 	Result.Insert("JobID",         Undefined);
 	Result.Insert("ResultAddress",              "");
+	Result.Insert("ErrorInfo",           Undefined);
 	Result.Insert("BriefErrorDescription",   "");
 	Result.Insert("DetailErrorDescription", "");
 	Result.Insert("Messages", New FixedArray(New Array));
@@ -3277,8 +3410,8 @@ Function IsThreadOfControlRestarted(JobID, Job)
 		
 		ExecutionParameters = OperationParametersList.ExecutionParameters;
 		ExecutionParameters.WaitCompletion = 0;
-		
-		
+		// 
+		// 
 		ExecutionParameters.RunInBackground = True;
 		ExecutionParameters.Insert("IsThreadOfControlRestart");
 		

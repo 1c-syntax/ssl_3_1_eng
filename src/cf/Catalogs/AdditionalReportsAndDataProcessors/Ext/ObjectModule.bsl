@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -33,16 +34,12 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 		If Not UseForObjectForm And Not UseForListForm 
 			And Publication <> Enums.AdditionalReportsAndDataProcessorsPublicationOptions.isDisabled Then
 			Common.MessageToUser(
-				NStr("en = 'Disable publication or select at least one of the forms to use';")
-				,
-				,
-				,
-				"Object.UseForObjectForm",
-				Cancel);
+				NStr("en = 'Disable publication or select at least one of the forms to use.';"),,, 
+				"Object.UseForObjectForm", Cancel);
 		EndIf;
 	EndIf;
 	
-	 
+	//  
 	//     
 	If Publication = Enums.AdditionalReportsAndDataProcessorsPublicationOptions.Used Then
 		
@@ -114,7 +111,8 @@ Procedure BeforeWrite(Cancel)
 	SSLSubsystemsIntegration.BeforeWriteAdditionalDataProcessor(ThisObject, Cancel);
 	
 	If IsNew() And Not AdditionalReportsAndDataProcessors.InsertRight1(ThisObject) Then
-		Raise NStr("en = 'Insufficient rights to add additional reports or data processors.';");
+		Raise(NStr("en = 'Insufficient rights to add additional reports or data processors.';"),
+			ErrorCategory.AccessViolation);
 	EndIf;
 	
 	// Preliminary checks.
@@ -224,10 +222,8 @@ Procedure BeforeWriteGlobalDataProcessors(Cancel)
 		Return;
 	EndIf;
 	
-	CommandsTable = AdditionalProperties.RelevantCommands;// CatalogTabularSection.AdditionalReportsAndDataProcessors.Commands
-	
+	CommandsTable = AdditionalProperties.RelevantCommands; // CatalogTabularSection.AdditionalReportsAndDataProcessors.Commands
 	JobsToUpdate = New Map;
-	
 	PublicationEnabled = (Publication <> Enums.AdditionalReportsAndDataProcessorsPublicationOptions.isDisabled);
 	
 	// Scheduled jobs must be changed in the privileged mode.

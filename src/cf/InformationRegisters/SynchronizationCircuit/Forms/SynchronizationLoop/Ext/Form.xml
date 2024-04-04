@@ -10,6 +10,12 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.CloseForm</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Close</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormCloseFormExtendedTooltip" id="40"/>
 			</Button>
 		</ChildItems>
@@ -24,6 +30,12 @@
 			<ExtendedTooltip name="IndentToLeftExtendedTooltip" id="43"/>
 		</LabelDecoration>
 		<UsualGroup name="Group1" id="47">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Group</v8:content>
+				</v8:item>
+			</Title>
 			<Group>Vertical</Group>
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
@@ -118,6 +130,12 @@
 							<EnableStartDrag>true</EnableStartDrag>
 							<EnableDrag>true</EnableDrag>
 							<DataPath>NodeTable_</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Node table</v8:content>
+								</v8:item>
+							</Title>
 							<CommandSet>
 								<ExcludedCommand>Add</ExcludedCommand>
 								<ExcludedCommand>CancelSearch</ExcludedCommand>
@@ -175,6 +193,12 @@
 								<InputField name="NodeTable_InfobaseNode" id="122">
 									<DataPath>NodeTable_.InfobaseNode</DataPath>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Infobase node</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ContextMenu name="NodeTable_InfobaseNodeContextMenu" id="123"/>
 									<ExtendedTooltip name="NodeTable_InfobaseNodeExtendedTooltip" id="124"/>
@@ -195,6 +219,12 @@
 								</InputField>
 								<InputField name="NodeTable_UnregistreredData" id="137">
 									<DataPath>NodeTable_.UnregistreredData</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Unregistered data</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<CellHyperlink>true</CellHyperlink>
 									<ContextMenu name="TableOfNodesUnregisteredDataContextMenu" id="138"/>

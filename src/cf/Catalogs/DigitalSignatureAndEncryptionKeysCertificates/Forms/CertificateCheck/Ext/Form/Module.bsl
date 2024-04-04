@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -228,6 +229,12 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 &AtClient
+Procedure PasswordStartChoice(Item, ChoiceData, StandardProcessing)
+	DigitalSignatureInternalClient.PasswordFieldStartChoice(ThisObject,
+		InternalData, PasswordProperties, StandardProcessing);
+EndProcedure
+
+&AtClient
 Procedure Attachable_LabelClick(Item)
 	
 	TagName = Left(Item.Name, StrLen(Item.Name) - StrLen("Label"));
@@ -320,7 +327,10 @@ Procedure SupportInformationURLProcessing(Item, Var_URL, StandardProcessing)
 	SupplementTextWithErrors(ErrorsText, ChecksContent, True);
 	
 	DigitalSignatureInternalClient.GenerateTechnicalInformation(
-		ErrorsText, Undefined, FilesDetails);
+		ErrorsText, New Structure("Subject, Message",
+			NStr("en = 'Issue occured checking the signature certificate';"),
+			DigitalSignatureInternalClient.TechnicalSupportRequestTextUponCertificateCheck()),
+		Undefined, FilesDetails);
 	
 EndProcedure
 
@@ -2137,7 +2147,7 @@ Function StandardItemTitle(TagName)
 		Return NStr("en = 'Certificate data accuracy';");
 		
 	ElsIf TagName = "ProgramExistsLabel" Then
-		Return NStr("en = 'Existence of application for signing and decryption';");
+		Return NStr("en = 'Existence of a signing and decryption app';");
 		
 	ElsIf TagName = "SigningLabel" Then
 		Return NStr("en = 'Data signing';");

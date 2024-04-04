@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -30,17 +31,7 @@ EndProcedure
 &AtClient
 Procedure UpdateRegisterData(Command)
 	
-	HasChanges = False;
-	
-	UpdateRegisterDataAtServer(HasChanges);
-	
-	If HasChanges Then
-		Text = NStr("en = 'Updated successfully.';");
-	Else
-		Text = NStr("en = 'No update required.';");
-	EndIf;
-	
-	ShowMessageBox(, Text);
+	ShowMessageBox(, DataUpdateResult());
 	
 EndProcedure
 
@@ -49,12 +40,30 @@ EndProcedure
 #Region Private
 
 &AtServer
-Procedure UpdateRegisterDataAtServer(HasChanges)
+Function DataUpdateResult()
 	
-	InformationRegisters.UserGroupCompositions.UpdateRegisterData(HasChanges);
+	TemplateUpdated = NStr("en = '%1: Updated successfully.';");
+	TemplateNoUpdateRequired = NStr("en = '%1: No update required.';");
+	
+	HasHierarchyChanges = False;
+	HasChangesInComposition = False;
+	
+	InformationRegisters.UserGroupCompositions.UpdateHierarchyAndComposition(HasHierarchyChanges,
+		HasChangesInComposition);
+	
+	Result = New Array;
+	Result.Add(StringFunctionsClientServer.SubstituteParametersToString(
+		?(HasHierarchyChanges, TemplateUpdated, TemplateNoUpdateRequired),
+		Metadata.InformationRegisters.UserGroupsHierarchy.Presentation()));
+	
+	Result.Add(StringFunctionsClientServer.SubstituteParametersToString(
+		?(HasChangesInComposition, TemplateUpdated, TemplateNoUpdateRequired),
+		Metadata.InformationRegisters.UserGroupCompositions.Presentation()));
 	
 	Items.List.Refresh();
 	
-EndProcedure
+	Return StrConcat(Result, Chars.LF);
+	
+EndFunction
 
 #EndRegion

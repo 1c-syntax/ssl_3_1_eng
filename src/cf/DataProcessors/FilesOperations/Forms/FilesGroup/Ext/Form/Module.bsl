@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -25,7 +26,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			ElsIf ParentProperties.Parent <> Undefined
 				And TypeOf(ParentProperties.Parent) = TypeOf(ObjectValue.Ref) Then
 				
-				ObjectValue.Parent = ParentProperties.Parent; 
+				ObjectValue.Parent = ParentProperties.Parent; // 
 			EndIf;
 			
 		Else
@@ -202,7 +203,8 @@ Procedure SetUpFormObject(Val NewObject)
 	
 	RefreshInformationAboutChange();
 	
-	If Parameters.Property("Parent") Then
+	If Parameters.Parent <> Undefined
+			And TypeOf(Parameters.Parent) = TypeOf(NewObject.Ref) Then
 		NewObject.Parent = Parameters.Parent;
 	EndIf;
 	
@@ -251,9 +253,9 @@ Function HandleFileRecordCommand()
 	Modified = False;
 	RepresentDataChange(ThisObject.Object.Ref, DataChangeType.Update);
 	NotifyChanged(ThisObject.Object.Ref);
-	FileRecordingNotificationParameters = FilesOperationsInternalClient.FileRecordingNotificationParameters();
-	FileRecordingNotificationParameters.IsNew = FileCreated;
-	Notify("Write_File", FileRecordingNotificationParameters, ThisObject.Object.Ref);
+	FileWriteNotificationParameters = FilesOperationsInternalClient.FileWriteNotificationParameters();
+	FileWriteNotificationParameters.IsNew = FileCreated;
+	Notify("Write_File", FileWriteNotificationParameters, ThisObject.Object.Ref);
 	
 	Return True;
 	

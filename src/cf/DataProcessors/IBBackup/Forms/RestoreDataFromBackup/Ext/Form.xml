@@ -77,7 +77,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Specify path to backup file</v8:content>
+									<v8:content>Backup file</v8:content>
 								</v8:item>
 							</Title>
 							<TitleLocation>Top</TitleLocation>
@@ -119,6 +119,12 @@
 								</InputField>
 								<InputField name="IBAdministratorPassword" id="89">
 									<DataPath>IBAdministratorPassword</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Password</v8:content>
+										</v8:item>
+									</Title>
 									<HorizontalStretch>false</HorizontalStretch>
 									<PasswordMode>true</PasswordMode>
 									<ContextMenu name="IBAdministratorPasswordContextMenu" id="90"/>
@@ -172,7 +178,7 @@
 											<Behavior>Usual</Behavior>
 											<Representation>None</Representation>
 											<ShowTitle>false</ShowTitle>
-											<ExtendedTooltip name="PictureGroup41ExtendedTooltip" id="109"/>
+											<ExtendedTooltip name="PicturesGroup1ExtendedTooltip" id="109"/>
 											<ChildItems>
 												<PictureDecoration name="WarningPicture1" id="14">
 													<Title formatted="false">
@@ -182,12 +188,12 @@
 														</v8:item>
 													</Title>
 													<Picture>
-														<xr:Ref>CommonPicture.Warning32</xr:Ref>
-														<xr:LoadTransparent>false</xr:LoadTransparent>
+														<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+														<xr:LoadTransparent>true</xr:LoadTransparent>
 													</Picture>
 													<FileDragMode>AsFile</FileDragMode>
 													<ContextMenu name="StatusWarningPicture1ContextMenu" id="15"/>
-													<ExtendedTooltip name="StatusWarningPicture1ExtendedTooltip" id="110"/>
+													<ExtendedTooltip name="WarningPicture1ExtendedTooltip" id="110"/>
 												</PictureDecoration>
 											</ChildItems>
 										</UsualGroup>
@@ -250,8 +256,8 @@ Their sessions will be terminated automatically.</v8:content>
 										<PictureDecoration name="Picture12" id="52">
 											<SkipOnInput>false</SkipOnInput>
 											<Picture>
-												<xr:Ref>CommonPicture.Warning32</xr:Ref>
-												<xr:LoadTransparent>false</xr:LoadTransparent>
+												<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+												<xr:LoadTransparent>true</xr:LoadTransparent>
 											</Picture>
 											<FileDragMode>AsFile</FileDragMode>
 											<ContextMenu name="Picture12ContextMenu" id="53"/>
@@ -290,6 +296,12 @@ Their sessions will be terminated automatically.</v8:content>
 												<Button name="GoToEventLog" id="164">
 													<Type>Hyperlink</Type>
 													<CommandName>Form.Command.GoToEventLog</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>View error details</v8:content>
+														</v8:item>
+													</Title>
 													<ExtendedTooltip name="GoToEventLogExtendedTooltip" id="165"/>
 												</Button>
 												<UsualGroup name="ComcntrGroupFileMode" id="56">
@@ -356,7 +368,7 @@ Don’t turn off your computer.</v8:content>
 							<Group>AlwaysHorizontal</Group>
 							<Behavior>Usual</Behavior>
 							<Representation>NormalSeparation</Representation>
-							<ExtendedTooltip name="ActiveUsersGroup1ExtendedTooltip" id="119"/>
+							<ExtendedTooltip name="ActiveUsersGroupExtendedTooltip" id="119"/>
 							<ChildItems>
 								<UsualGroup name="ActiveUsersPicturesGroup" id="36">
 									<Title>
@@ -383,6 +395,12 @@ Don’t turn off your computer.</v8:content>
 									</ChildItems>
 								</UsualGroup>
 								<UsualGroup name="Group" id="142">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Group</v8:content>
+										</v8:item>
+									</Title>
 									<Group>Vertical</Group>
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
@@ -426,7 +444,7 @@ Please wait.</v8:content>
 													</Title>
 													<Hyperlink>true</Hyperlink>
 													<ContextMenu name="UsersList1ContextMenu" id="41"/>
-													<ExtendedTooltip name="UsersList1ExtendedTooltip" id="123"/>
+													<ExtendedTooltip name="UsersListExtendedTooltip" id="123"/>
 													<Events>
 														<Event name="Click">UsersListClick</Event>
 													</Events>
@@ -453,6 +471,12 @@ that cannot be closed:
 										<Button name="DonTWaitForSessionsToEnd" id="191">
 											<Type>UsualButton</Type>
 											<CommandName>Form.Command.DonTWaitForSessionsToEnd</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Do not wait for sessions to end (debug mode)</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="DonTWaitForSessionsToEndExtendedTooltip" id="192"/>
 										</Button>
 									</ChildItems>
@@ -518,8 +542,8 @@ that cannot be closed:
 							<ChildItems>
 								<PictureDecoration name="WarningDecoration" id="180">
 									<Picture>
-										<xr:Ref>CommonPicture.Warning32</xr:Ref>
-										<xr:LoadTransparent>false</xr:LoadTransparent>
+										<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
 									<ContextMenu name="WarningDecorationContextMenu" id="181"/>

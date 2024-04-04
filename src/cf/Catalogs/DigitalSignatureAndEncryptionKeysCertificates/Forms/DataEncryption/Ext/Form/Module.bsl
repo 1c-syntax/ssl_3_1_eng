@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -23,8 +24,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		SpecifiedImmutableCertificateSet = True;
 		FillEncryptionCertificatesFromSet(Parameters.CertificatesSet);
 		If CertificatesSet.Count() = 0 And Parameters.ChangeSet Then
-			
-			
+			// 
+			// 
 			SpecifiedImmutableCertificateSet = False;
 		EndIf;
 	EndIf;
@@ -104,6 +105,9 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 			Else
 				ExecuteNotifyProcessing(NotificationOnConfirmation, ThisObject);
 			EndIf;
+		Else
+			HandleError(New NotifyDescription("EncryptCompletion", ThisObject),
+				New Structure("ErrorDescription", Parameter.Error), New Structure);
 		EndIf;
 		
 	ElsIf Upper(EventName) = Upper("ConfirmationPrepareData") And Source = UUID Then
@@ -287,6 +291,7 @@ Procedure Encrypt(Command)
 		ModuleCryptographyServiceDSSConfirmationClient = CommonClient.CommonModule("DSSCryptographyServiceClient");
 		If ModuleCryptographyServiceDSSConfirmationClient.CheckingBeforePerformingOperation(ThisObject, "") Then 
 			ModuleCryptographyServiceDSSConfirmationClient.PerformInitialServiceOperation(ThisObject, DataDetails, "");
+			Items.FormEncrypt.Enabled = False;
 		EndIf;
 		
 	Else	
@@ -919,8 +924,8 @@ Async Procedure EncryptData(Notification)
 		If Not ValueIsFilled(CertificateApp)
 			And Not ValueIsFilled(AppAuto) And Not ValueIsFilled(AppAutoAtServer) Then
 			Context.ErrorAtClient.Insert("ErrorDescription",
-				NStr("en = 'An application for the private key of the selected personal certificate is not specified or cannot be determined automatically.
-				           |Select another certificate.';"));
+				NStr("en = 'For the selected personal certificate, no private key management app is specified or it cannot be found automatically.
+				           |Choose another certificate.';"));
 			HandleError(Notification, Context.ErrorAtClient, Context.ErrorAtServer);
 			Return;
 		EndIf;
@@ -954,7 +959,7 @@ Async Procedure EncryptData(Notification)
 	ExecutionParameters.Insert("DataDetails",     DataDetails);
 	ExecutionParameters.Insert("Form",              ThisObject);
 	ExecutionParameters.Insert("FormIdentifier", Context.FormIdentifier);
-	ExecutionParameters.Insert("AddressOfCertificate",    AddressOfCertificate); 
+	ExecutionParameters.Insert("AddressOfCertificate",    AddressOfCertificate); // 
 	
 	Context.Insert("ExecutionParameters", ExecutionParameters);
 	
@@ -1049,7 +1054,7 @@ Procedure EncryptDataAfterExecuteAtClientSide(Result, Context) Export
 		
 		ShowUserNotification(
 			NStr("en = 'You need to reissue the certificate';"), ActionOnClick, Certificate,
-			PictureLib.Warning32, UserNotificationStatus.Important,
+			PictureLib.DialogExclamation, UserNotificationStatus.Important,
 			Certificate);
 	EndIf;
 	
@@ -1062,8 +1067,8 @@ EndProcedure
 Procedure EncryptDataAfterExecute(Result)
 	
 	If Result.Property("HasProcessedDataItems") Then
-		
-		
+		// 
+		// 
 		Items.Certificate.ReadOnly = True;
 		Items.EncryptionCertificates.ReadOnly = True;
 	EndIf;

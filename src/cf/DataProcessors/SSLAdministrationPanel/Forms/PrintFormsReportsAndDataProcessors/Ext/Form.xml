@@ -32,7 +32,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="GroupHeaderExtendedTooltip" id="1600"/>
+			<ExtendedTooltip name="TitleGroup1ExtendedTooltip" id="1600"/>
 			<ChildItems>
 				<LabelDecoration name="SectionDetails" id="1581">
 					<AutoMaxWidth>false</AutoMaxWidth>
@@ -393,7 +393,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Group report distribution history settings</v8:content>
+											<v8:content>Report distribution history settings</v8:content>
 										</v8:item>
 									</Title>
 									<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
@@ -438,6 +438,12 @@
 										<Button name="ClearReportDistributionHistory" id="1738">
 											<Type>UsualButton</Type>
 											<CommandName>Form.Command.ClearReportDistributionHistory</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Clear</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="ClearReportDistributionHistoryExtendedTooltip" id="1739"/>
 										</Button>
 									</ChildItems>
@@ -588,6 +594,12 @@
 								<Button name="OpenAdditionalReportsAndDataProcessors" id="1680">
 									<Type>Hyperlink</Type>
 									<CommandName>Form.Command.OpenAdditionalReportsAndDataProcessors</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Additional reports and data processors</v8:content>
+										</v8:item>
+									</Title>
 									<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 									<ExtendedTooltip name="OpenAdditionalReportsAndDataProcessorsExtendedTooltip" id="1681">
 										<AutoMaxWidth>false</AutoMaxWidth>

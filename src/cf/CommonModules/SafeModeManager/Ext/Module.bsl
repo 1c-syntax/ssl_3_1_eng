@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -269,7 +270,7 @@ EndFunction
 //                  - Array of See SafeModeManager.PermissionToUseFileSystemDirectory  
 //                  - Array of See SafeModeManager.PermissionToUsePrivilegedMode  
 //					- Array of See SafeModeManager.PermissionToUseOperatingSystemApplications - 
-//					  
+//					  Requests permissions to access external resources.
 //  Owner - AnyRef - a reference to the infobase object the
 //    permissions being requested are logically connected with. For example, all permissions to access file storage volume directories are logically associated
 //    with relevant FileStorageVolumes catalog items, all permissions to access data exchange
@@ -282,9 +283,9 @@ EndFunction
 //    clearing all permissions that were previously requested for the owner are added to the request.
 //
 // Returns:
-//  UUID -  
-//     
-//    
+//  UUID -  A reference to the permission request written to the infobase. When
+//    all requests for permission changes are created, the changes must be applied by calling the SafeModeManagerClient.ApplyExternalResourcesRequests 
+//    procedure.
 //
 Function RequestToUseExternalResources(Val NewPermissions, Val Owner = Undefined, Val ReplacementMode = True) Export
 	
@@ -313,7 +314,7 @@ EndFunction
 //                       - Array of See SafeModeManager.PermissionToUseFileSystemDirectory  
 //                       - Array of See SafeModeManager.PermissionToUsePrivilegedMode  
 //					- Array of See SafeModeManager.PermissionToUseOperatingSystemApplications - 
-//					  
+//					  External resource permissions that should be revoked.
 //
 // Returns:
 //  UUID - a reference to the permission request written to the infobase. When
@@ -355,8 +356,8 @@ Function RequestToClearPermissionsToUseExternalResources(Val Owner) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-
-
+// 
+// 
 //
 
 // Checks whether the safe mode is enabled ignoring the security profile safe mode
@@ -417,7 +418,7 @@ EndFunction
 //   TemplateName - String - a configuration template name.
 //
 // Returns:
-//   FixedMap of KeyAndValue - :
+//   FixedMap of KeyAndValue - Checksums of the files:
 //     * Key - String - file name,
 //     * Value - String - checksum.
 //

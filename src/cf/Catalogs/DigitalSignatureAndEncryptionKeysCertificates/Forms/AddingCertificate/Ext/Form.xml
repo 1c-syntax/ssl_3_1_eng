@@ -14,7 +14,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Group Commands</v8:content>
+					<v8:content>Commands</v8:content>
 				</v8:item>
 			</Title>
 			<Group>Vertical</Group>
@@ -24,11 +24,23 @@
 				<Button name="AddCertificateIssueRequest" id="100">
 					<Type>UsualButton</Type>
 					<CommandName>Form.Command.AddCertificateIssueRequest</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Submit an application for certificate issuance…</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="AddCertificateIssueRequestExtendedTooltip" id="101"/>
 				</Button>
 				<Button name="AddToSignAndEncrypt" id="84">
 					<Type>UsualButton</Type>
 					<CommandName>Form.Command.AddToSignAndEncrypt</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Add to sign and encrypt…</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="AddToSignAndEncryptExtendedTooltip" id="85"/>
 				</Button>
 				<UsualGroup name="GroupForEncryptionOnly" id="94">
@@ -45,16 +57,34 @@
 						<Button name="AddToEncryptOnly" id="92">
 							<Type>UsualButton</Type>
 							<CommandName>Form.Command.AddToEncryptOnly</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Add from Personal store…</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="AddToEncryptOnlyExtendedTooltip" id="93"/>
 						</Button>
 						<Button name="AddFromFiles" id="90">
 							<Type>UsualButton</Type>
 							<CommandName>Form.Command.AddFromFiles</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Add from files…</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="AddFromFilesExtendedTooltip" id="91"/>
 						</Button>
 						<Button name="AddFromDirectory" id="88">
 							<Type>UsualButton</Type>
 							<CommandName>Form.Command.AddFromDirectory</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Add from directory…</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="AddFromDirectoryExtendedTooltip" id="89"/>
 						</Button>
 					</ChildItems>

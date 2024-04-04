@@ -1,11 +1,13 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
+
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Variables
@@ -95,7 +97,7 @@ Procedure OnComposeResult(ResultDocument, DetailsData, StandardProcessing)
 	StandardProcessing = False;
 
 	If Not Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
-		ErrorText = NStr("en = 'To generate a report in the configuration, the Report options subsystem is required.';");
+		ErrorText = NStr("en = 'To generate a report, the Report options subsystem is required.';");
 		Raise ErrorText;
 	EndIf;
 
@@ -118,7 +120,7 @@ Procedure OnComposeResult(ResultDocument, DetailsData, StandardProcessing)
 		And Not Users.IsFullUser() Then
 
 		ErrorText = NStr("en = 'Insufficient rights to view the report.';");
-		Raise ErrorText;
+		Raise(ErrorText, ErrorCategory.AccessViolation);
 	EndIf;
 
 	OutputGroupRights = TypeOf(UserOrGroup) = Type("CatalogRef.UserGroups") 
@@ -209,7 +211,7 @@ Function SelectInfoOnAccessRights(Val AvailableRights, Val OutputGroupRights, Va
 	Query.SetParameter("RightsSettingsOwnersTypes", AvailableRights.OwnersTypes);
 	Query.SetParameter("ExtensionsRolesRights", AccessManagementInternal.ExtensionsRolesRights());
 	
-	
+	// ACC:96-off - No.434 The "JOIN" statement is acceptable since rows must be unique and this is a report query.
 	Query.Text =
 	"SELECT
 	|	ExtensionsRolesRights.MetadataObject AS MetadataObject,
@@ -764,7 +766,7 @@ Procedure OutputAvailableForView(Val AvailableRights, Val Template, Val QueryRes
 	IndentArea = Template.GetArea("Indent");
 	RightsObjects = QueryResult.Unload(QueryResultIteration.ByGroups); // ValueTree
 	
-	FillInPresentationsOfObjects(RightsObjects);
+	FillObjectsPresentations(RightsObjects);
 	RightsObjects.Rows.Sort(
 		"ObjectKindOrder Asc,
 		|ObjectPresentation Asc,
@@ -979,7 +981,7 @@ Procedure OutputAvailableForEdit(Val AvailableRights, Val Template, Val QueryRes
 	IndentArea = Template.GetArea("Indent");
 	RightsObjects = QueryResult.Unload(QueryResultIteration.ByGroups); // ValueTree
 	
-	FillInPresentationsOfObjects(RightsObjects);
+	FillObjectsPresentations(RightsObjects);
 	RightsObjects.Rows.Sort(
 		"ObjectKindOrder Asc,
 		|ObjectPresentation Asc,
@@ -1265,13 +1267,13 @@ Procedure OutputAvailableForEdit(Val AvailableRights, Val Template, Val QueryRes
 
 EndProcedure
 
-Procedure FillInPresentationsOfObjects(RightsObjects)
+Procedure FillObjectsPresentations(RightsObjects)
 	
 	RightsObjects.Columns.Add("ObjectsKindPresentation", New TypeDescription("String"));
 	RightsObjects.Columns.Add("ObjectPresentation", New TypeDescription("String"));
 	
-	MetadataTypeIdentifiers = RightsObjects.Rows.UnloadColumn("MetadataObjectID");
-	MetadataObjectsKinds = Common.MetadataObjectsByIDs(MetadataTypeIdentifiers, False);
+	MedatadataKindIDs = RightsObjects.Rows.UnloadColumn("MetadataObjectID");
+	MetadataObjectsKinds = Common.MetadataObjectsByIDs(MedatadataKindIDs, False);
 	MetadataObjectsCollections = StandardSubsystemsCached.MetadataObjectCollectionProperties();
 
 	For Each ObjectsKindDetails In RightsObjects.Rows Do
@@ -1326,7 +1328,7 @@ Procedure OutputRightsToSeparateObjects(Val AvailableRights, Val Template, Val Q
 		If AvailableRights.HierarchicalTables.Get(ObjectsTypeDetails.ObjectType) = Undefined Then
 			ObjectsTypeRootItems = Undefined;
 		Else
-			
+			// @skip-check query-in-loop - A minor loop (1 or 2 iterations)
 			ObjectsTypeRootItems = ObjectsTypeRootItems(ObjectsTypeDetails.ObjectType);
 		EndIf;
 
@@ -1584,8 +1586,8 @@ Procedure OutputDetailedInfoOnAccessRights(Val Template, UserOrGroup, Val QueryR
 		EndIf;
 		// Displaying group membership.
 		If AccessGroupDetails.Rows.Count() = 1 And AccessGroupDetails.Rows[0].Member = UserOrGroup Then
-			
-			
+			// 
+			// 
 		Else
 			Area = Template.GetArea("AccessGroupDetailsUserIsInGroup");
 			Document.Put(Area, 3);

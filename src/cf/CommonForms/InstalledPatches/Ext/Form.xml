@@ -35,8 +35,8 @@
 								</v8:item>
 							</Title>
 							<Picture>
-								<xr:Ref>CommonPicture.Information32</xr:Ref>
-								<xr:LoadTransparent>false</xr:LoadTransparent>
+								<xr:Ref>StdPicture.DialogInformation</xr:Ref>
+								<xr:LoadTransparent>true</xr:LoadTransparent>
 							</Picture>
 							<FileDragMode>AsFile</FileDragMode>
 							<ContextMenu name="InformationPicture6ContextMenu" id="63"/>
@@ -167,6 +167,12 @@
 					<Button name="InstalledPatchesExportAttachedPatches" id="125">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.ExportAttachedPatches</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Export attached patches</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="InstalledPatchesExportAttachedPatchesExtendedTooltip" id="126"/>
 					</Button>
 					<Button name="InstalledPatchesClose" id="110">
@@ -192,6 +198,12 @@
 					<Button name="InstalledPatchesSaveAs" id="104">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.SaveAs</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Save as…</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="InstalledPatchesSaveAsExtendedTooltip" id="105"/>
 					</Button>
@@ -243,6 +255,12 @@
 			<ChildItems>
 				<CheckBoxField name="InstalledPatchesAttach" id="112">
 					<DataPath>InstalledPatches.Attach</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Attach</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<ToolTip>
 						<v8:item>
@@ -273,6 +291,12 @@
 					<ChildItems>
 						<PictureField name="InstalledPatchesStatus" id="29">
 							<DataPath>InstalledPatches.Status</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Status</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<EditMode>EnterOnInput</EditMode>
 							<FileDragMode>AsFile</FileDragMode>
@@ -281,6 +305,12 @@
 						</PictureField>
 						<LabelField name="InstalledPatchesDescription" id="14">
 							<DataPath>InstalledPatches.Name</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Description</v8:content>
+								</v8:item>
+							</Title>
 							<EditMode>EnterOnInput</EditMode>
 							<ContextMenu name="InstalledPatchesDescriptionContextMenu" id="15"/>
 							<ExtendedTooltip name="InstalledPatchesDescriptionExtendedTooltip" id="16"/>
@@ -289,6 +319,12 @@
 				</ColumnGroup>
 				<LabelField name="InstalledPatchesLongDesc" id="17">
 					<DataPath>InstalledPatches.LongDesc</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Details</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<Height>2</Height>
 					<ContextMenu name="InstalledPatchesLongDescContextMenu" id="18"/>
@@ -296,6 +332,12 @@
 				</LabelField>
 				<LabelField name="InstalledPatchesApplicableTo" id="37">
 					<DataPath>InstalledPatches.ApplicableTo</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Applicable to</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ContextMenu name="InstalledPatchesApplicableToContextMenu" id="38"/>
 					<ExtendedTooltip name="InstalledPatchesApplicableToExtendedTooltip" id="39"/>
@@ -305,6 +347,12 @@
 					<UserVisible>
 						<xr:Common>false</xr:Common>
 					</UserVisible>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>File path</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ContextMenu name="InstalledPatchesPathToFileContextMenu" id="27"/>
 					<ExtendedTooltip name="InstalledPatchesPathToFileExtendedTooltip" id="28"/>
@@ -396,7 +444,7 @@
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Extension will be attached after restarting the application</v8:content>
+									<v8:content>Extension will be attached after app restart</v8:content>
 								</v8:item>
 							</Title>
 							<ContextMenu name="WillBeAttachedLegendContextMenu" id="94"/>
@@ -436,7 +484,7 @@
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Failed to attach on application start</v8:content>
+									<v8:content>Failed to attach on app start</v8:content>
 								</v8:item>
 							</Title>
 							<ContextMenu name="AttachmentErrorLegendContextMenu" id="102"/>

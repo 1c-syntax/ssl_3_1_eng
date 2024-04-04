@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -60,7 +61,7 @@ EndFunction
 //   SelectedAreas - Array of See CommonClientServer.CellsIndicatorsCalculationParameters.
 //
 // Returns:
-//   Structure - :
+//   Structure - Outcome of the selected cell.:
 //       * Count         - Number - selected cells count.
 //       * NumericCellsCount - Number - numeric cells count.
 //       * Sum      - Number - a sum of the selected cells with numbers.
@@ -285,7 +286,7 @@ EndFunction
 
 Function UseStandardGettingPredefinedItemFunction(FullPredefinedItemName) Export
 	
-	
+	// 
 	//   
 	//  
 	//  
@@ -384,7 +385,7 @@ Function EstablishExternalConnectionWithInfobase(Parameters, ConnectionNotAvaila
 	
 #If MobileClient Then
 	
-	ErrorMessageString = NStr("en = 'Mobile client does not support connecting other applications.';");
+	ErrorMessageString = NStr("en = 'Mobile client does not support connecting other apps.';");
 	
 	Result.AddInAttachmentError = True;
 	Result.DetailedErrorDetails = ErrorMessageString;
@@ -405,7 +406,7 @@ Function EstablishExternalConnectionWithInfobase(Parameters, ConnectionNotAvaila
 		COMConnector = New COMObject(CommonClientServer.COMConnectorName()); // "V83.COMConnector"
 	Except
 		Information = ErrorInfo();
-		ErrorMessageString = NStr("en = 'Failed to connect to another application: %1';");
+		ErrorMessageString = NStr("en = 'Failed to connect to another app: %1';");
 		
 		Result.AddInAttachmentError = True;
 		Result.DetailedErrorDetails = StringFunctionsClientServer.SubstituteParametersToString(ErrorMessageString, ErrorProcessing.DetailErrorDescription(Information));
@@ -478,7 +479,7 @@ Function EstablishExternalConnectionWithInfobase(Parameters, ConnectionNotAvaila
 		Result.Join = COMConnector.Connect(ConnectionString);
 	Except
 		Information = ErrorInfo();
-		ErrorMessageString = NStr("en = 'Failed to connect to another application: %1';");
+		ErrorMessageString = NStr("en = 'Failed to connect to another app: %1';");
 		
 		Result.AddInAttachmentError = True;
 		Result.DetailedErrorDetails     = StringFunctionsClientServer.SubstituteParametersToString(ErrorMessageString, ErrorProcessing.DetailErrorDescription(Information));
@@ -511,8 +512,7 @@ EndFunction
 Procedure CheckContainsUnsafeActions(Val StartupCommand)
 	If ContainsUnsafeActions(StartupCommand) Then 
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot start the application.
-			           |Invalid command line
+			NStr("en = 'Cannot start the app. Invalid command line:
 			           |%1
 			           |
 			           |The following characters are not allowed: ""${"", ""$("", ""`"", ""|"", "";"", ""&"".';"),
@@ -612,15 +612,15 @@ Function LatinString(Val Value, TransliterationRules) Export
 	
 	For Position = 1 To StrLen(Value) Do
 		Char = Mid(Value, Position, 1);
-		LatinChar = TransliterationRules[Lower(Char)]; 
+		LatinChar = TransliterationRules[Lower(Char)]; // Search the map regardless the register.
 		If LatinChar = Undefined Then
-			
+			// Keep the other characters as is.
 			LatinChar = Char;
 		Else
 			If OnlyUppercaseInString Then 
-				LatinChar = Upper(LatinChar); 
+				LatinChar = Upper(LatinChar); // Restore the register
 			ElsIf Char = Upper(Char) Then
-				LatinChar = Title(LatinChar); 
+				LatinChar = Title(LatinChar); // Restore the register
 			EndIf;
 		EndIf;
 		Result = Result + LatinChar;
@@ -646,7 +646,6 @@ EndFunction
 // Returns a period presentation in low case or with an uppercase letter
 //  if a phrase or a sentence starts with the period presentation.
 //  For example, if the period presentation must be displayed in the report heading
-//  as "Sales for [ДатаНачала] - [ДатаОкончания]",
 //  the result will look like this: "Sales for February 2020 - March 2020".
 //  The period is in low case because it is not the beginning of the sentence.
 //
@@ -738,7 +737,7 @@ Function TheTextOfACellOfTheFormForScientificNotation(Val CellText)
 	CellText = StrReplace(CellText, Char(46), ""); // Dot ( . ).
 	
 	ExponentCharacterCodes = New Array;
-	ExponentCharacterCodes.Add(1045); 
+	ExponentCharacterCodes.Add(1045); // 
 	ExponentCharacterCodes.Add(69);   // Latin "E".
 	
 	For Each Code In ExponentCharacterCodes Do 

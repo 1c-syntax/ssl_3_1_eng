@@ -36,21 +36,45 @@
 					<Button name="FormSetActionCleanUpFilesAndVersions" id="41">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.SetActionCleanUpFilesAndVersions</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Clean up files and versions</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="FormSetActionCleanUpFilesAndVersionsExtendedTooltip" id="42"/>
 					</Button>
 					<Button name="FormSetActionCleanUpFiles" id="43">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.SetActionCleanUpFiles</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Clean up files</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="FormSetActionCleanUpFilesExtendedTooltip" id="44"/>
 					</Button>
 					<Button name="FormSetActionCleanUpVersions" id="45">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.SetActionCleanUpVersions</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Clean up versions</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="FormSetActionCleanUpVersionsExtendedTooltip" id="46"/>
 					</Button>
 					<Button name="FormSetActionDoNotCleanUp" id="47">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.SetActionDoNotCleanUp</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Do not clean up</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="FormSetActionDoNotCleanUpExtendedTooltip" id="48"/>
 					</Button>
 				</ChildItems>
@@ -67,16 +91,34 @@
 					<Button name="FormOverOneMonth" id="51">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.OverOneMonth</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Over a month</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="FormOverOneMonthExtendedTooltip" id="52"/>
 					</Button>
 					<Button name="FormOverSixMonths" id="53">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.OverSixMonths</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Over six months</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="FormOverSixMonthsExtendedTooltip" id="54"/>
 					</Button>
 					<Button name="FormOverOneYear" id="55">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.OverOneYear</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Over a year</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="FormOverOneYearExtendedTooltip" id="56"/>
 					</Button>
 				</ChildItems>
@@ -158,6 +200,12 @@
 					<Button name="MetadataObjectsTreeContextMenuGoToList" id="149">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.GoToList</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Go to list…</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="MetadataObjectsTreeContextMenuGoToListExtendedTooltip" id="150"/>
 					</Button>
 				</ChildItems>
@@ -216,12 +264,24 @@
 					<UserVisible>
 						<xr:Common>false</xr:Common>
 					</UserVisible>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>File catalog</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ContextMenu name="MetadataObjectsTreeFileOwnerTypeContextMenu" id="108"/>
 					<ExtendedTooltip name="MetadataObjectsTreeFileOwnerTypeExtendedTooltip" id="109"/>
 				</InputField>
 				<InputField name="MetadataObjectsTreeAction" id="25" DisplayImportance="Usual">
 					<DataPath>MetadataObjectsTree.Action</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Action</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>Directly</EditMode>
 					<ListChoiceMode>true</ListChoiceMode>
 					<ChooseType>false</ChooseType>
@@ -235,6 +295,12 @@
 				</InputField>
 				<InputField name="MetadataObjectsTreeClearingPeriod" id="28" DisplayImportance="Usual">
 					<DataPath>MetadataObjectsTree.ClearingPeriod</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Cleanup period</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>Directly</EditMode>
 					<TextEdit>false</TextEdit>
 					<ContextMenu name="MetadataObjectsTreeClearingPeriodContextMenu" id="29"/>
@@ -246,6 +312,12 @@
 				</InputField>
 				<InputField name="MetadataObjectsTreeFilterRule" id="34" DisplayImportance="VeryLow">
 					<DataPath>MetadataObjectsTree.FilterRule</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Rule</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<CellHyperlink>true</CellHyperlink>
 					<ChoiceButton>true</ChoiceButton>
@@ -355,6 +427,12 @@
 													<Type>UsualButton</Type>
 													<Representation>PictureAndText</Representation>
 													<CommandName>Form.Command.Clear</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Clear</v8:content>
+														</v8:item>
+													</Title>
 													<ExtendedTooltip name="ClearExtendedTooltip" id="70"/>
 												</Button>
 											</ChildItems>
@@ -386,6 +464,12 @@
 								<Button name="ShouldUpdateInfo" id="151">
 									<Type>UsualButton</Type>
 									<CommandName>Form.Command.ShouldUpdateInfo</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Refresh</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="ShouldUpdateInfoExtendedTooltip" id="152"/>
 								</Button>
 								<UsualGroup name="FilesSizeInformation" id="130">
@@ -404,11 +488,23 @@
 										<Button name="DeletedFilesVolume" id="128">
 											<Type>Hyperlink</Type>
 											<CommandName>Form.Command.DeletedFilesVolume</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Size of deleted files </v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="VolumeOfDeletedFilesExtendedTooltip" id="129"/>
 										</Button>
 										<Button name="IrrelevantFilesVolume" id="74">
 											<Type>Hyperlink</Type>
 											<CommandName>Form.Command.IrrelevantFilesVolume</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Size of unused files</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="IrrelevantFilesVolumeExtendedTooltip" id="75"/>
 										</Button>
 									</ChildItems>
@@ -446,6 +542,12 @@
 					<ChildItems>
 						<CheckBoxField name="AutomaticallyCleanUpUnusedFiles" id="66">
 							<DataPath>AutomaticallyCleanUpUnusedFiles</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Clean up unused files automatically:</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<CheckBoxType>Auto</CheckBoxType>
 							<ContextMenu name="AutomaticallyCleanUpUnusedFilesContextMenu" id="67"/>
@@ -456,6 +558,12 @@
 						</CheckBoxField>
 						<InputField name="FilesCleanupMode" id="143">
 							<DataPath>FilesCleanupMode</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>File cleanup mode</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<Width>20</Width>
 							<HorizontalStretch>false</HorizontalStretch>
@@ -497,6 +605,12 @@
 						<Button name="SetUpSchedule" id="76">
 							<Type>Hyperlink</Type>
 							<CommandName>Form.Command.SetUpSchedule</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Set schedule</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="SetUpScheduleExtendedTooltip" id="77"/>
 						</Button>
 					</ChildItems>
@@ -599,6 +713,7 @@
 						</v8:item>
 					</Title>
 					<Type>
+						<v8:Type>cfg:CatalogRef.ExtensionObjectIDs</v8:Type>
 						<v8:Type>cfg:CatalogRef.MetadataObjectIDs</v8:Type>
 					</Type>
 				</Column>
@@ -863,7 +978,7 @@
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Files that do not exist in the application but are available in the volume of the network directory</v8:content>
+					<v8:content>Files that do not exist in the app but are available in the volume of the network directory</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>DeletedFilesVolume</Action>

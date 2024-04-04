@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -13,12 +14,12 @@
 Var ErrorMessageString Export;
 Var ErrorMessageStringEL Export;
 
-Var ErrorsMessages; 
-Var ObjectName; 
+Var ErrorsMessages; // Map that contains error messages.
+Var ObjectName; // Metadata object name.
 
-Var TempExchangeMessageFile; 
-Var TempExchangeMessagesDirectory; 
-Var DataExchangeDirectory; 
+Var TempExchangeMessageFile; // A temporary exchange message file.
+Var TempExchangeMessagesDirectory; // A temporary exchange directory.
+Var DataExchangeDirectory; // A network exchange directory.
 
 Var DirectoryID;
 #EndRegion

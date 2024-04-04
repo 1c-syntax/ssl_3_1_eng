@@ -81,12 +81,24 @@ You can release the lock later in &lt;b&gt;Administration&lt;/&gt;&lt;b&gt; &gt;
 								<Button name="InfobaseMoved" id="6">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.InfobaseMoved</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Moved infobase</v8:content>
+										</v8:item>
+									</Title>
 									<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="InfobaseMovedExtendedTooltip" id="7"/>
 								</Button>
 								<Button name="IsInfobaseCopy" id="8">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.IsInfobaseCopy</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Infobase copy</v8:content>
+										</v8:item>
+									</Title>
 									<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="IsInfobaseCopyExtendedTooltip" id="9"/>
 								</Button>
@@ -102,6 +114,12 @@ You can release the lock later in &lt;b&gt;Administration&lt;/&gt;&lt;b&gt; &gt;
 										<Button name="FormCheckServerName" id="10">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.CheckServerName</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Check server name.</v8:content>
+												</v8:item>
+											</Title>
 											<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 											<ExtendedTooltip name="FormCheckServerNameExtendedTooltip" id="11"/>
 										</Button>
@@ -144,12 +162,24 @@ You can release the lock later in &lt;b&gt;Administration&lt;/&gt;&lt;b&gt; &gt;
 								<Button name="WriteAndClose" id="34">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.WriteAndClose</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Save and close</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="WriteAndCloseExtendedTooltip" id="35"/>
 								</Button>
 							</ChildItems>
 						</CommandBar>
 						<CheckBoxField name="CheckServerName" id="29">
 							<DataPath>CheckServerName</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Check server name</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 							<CheckBoxType>Auto</CheckBoxType>

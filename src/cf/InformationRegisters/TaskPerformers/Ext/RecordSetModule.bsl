@@ -1,20 +1,21 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Variables
 
-
+// 
 Var ModifiedPerformersGroups; // Array of CatalogRef.TaskPerformersGroups -
-                                    
-
+                                    // 
+// 
 
 #EndRegion
 
@@ -39,29 +40,34 @@ Procedure BeforeWrite(Cancel, Replacing)
 	EndIf;
 		
 	// StandardSubsystems.AccessManagement
-	FillModifiedTaskPerformersGroups();
+	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
+		ModifiedPerformersGroups = ModifiedTasksAssigneesGroups();
+	EndIf;
 	// End StandardSubsystems.AccessManagement
 	
 EndProcedure
 
 // StandardSubsystems.AccessManagement
-
 Procedure OnWrite(Cancel, Replacing)
 	
 	If DataExchange.Load Then
 		Return;
 	EndIf;
 	
-	ModuleAccessManagementInternal = Common.CommonModule("AccessManagementInternal");
-	ModuleAccessManagementInternal.UpdatePerformersGroupsUsers(ModifiedPerformersGroups);
+	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
+		ModuleAccessManagementInternal = Common.CommonModule("AccessManagementInternal");
+		ModuleAccessManagementInternal.UpdatePerformersGroupsUsers(ModifiedPerformersGroups);
+	EndIf;
 	
 EndProcedure
+// End StandardSubsystems.AccessManagement
 
 #EndRegion
 
 #Region Private
 
-Procedure FillModifiedTaskPerformersGroups()
+// StandardSubsystems.AccessManagement
+Function ModifiedTasksAssigneesGroups() Export
 	
 	Query = New Query;
 	Query.SetParameter("NewRecords", Unload());
@@ -130,10 +136,9 @@ Procedure FillModifiedTaskPerformersGroups()
 	EndDo;
 	
 	Query.Text = StrReplace(Query.Text, "&FilterConditions", FilterConditions);
-	ModifiedPerformersGroups = Query.Execute().Unload().UnloadColumn("TaskPerformersGroup");
+	Return Query.Execute().Unload().UnloadColumn("TaskPerformersGroup");
 	
-EndProcedure
-
+EndFunction
 // End StandardSubsystems.AccessManagement
 
 #EndRegion

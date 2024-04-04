@@ -981,7 +981,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Predefined responses</v8:content>
+							<v8:content>Predefined answers</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -1037,7 +1037,7 @@
 							<ToolTip>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>This question is a part of a question chart and has a predefined response.</v8:content>
+									<v8:content>This question is a part of a question chart and has a predefined answer.</v8:content>
 								</v8:item>
 							</ToolTip>
 							<MarkNegatives>false</MarkNegatives>
@@ -1066,7 +1066,7 @@
 							<Synonym>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Response</v8:content>
+									<v8:content>Answer</v8:content>
 								</v8:item>
 							</Synonym>
 							<Comment/>
@@ -1079,7 +1079,7 @@
 							<ToolTip>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Predefined response to one of the questions of the question chart. It is used when filling in the first column or header of the question chart.</v8:content>
+									<v8:content>Predefined answer to one of the questions of the question chart. It is used when filling in the first column or header of the question chart.</v8:content>
 								</v8:item>
 							</ToolTip>
 							<MarkNegatives>false</MarkNegatives>

@@ -16,11 +16,23 @@
 					<xr:Ref>StdPicture.WriteAndClose</xr:Ref>
 					<xr:LoadTransparent>true</xr:LoadTransparent>
 				</Picture>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>OK</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormOKButton1ExtendedTooltip" id="8"/>
 			</Button>
 			<Button name="FormCancelButton" id="9">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.CancelButton</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Cancel</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormCancelButtonExtendedTooltip" id="10"/>
 			</Button>
 		</ChildItems>
@@ -32,11 +44,23 @@
 	<ChildItems>
 		<InputField name="Ref" id="1">
 			<DataPath>Ref</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Reference</v8:content>
+				</v8:item>
+			</Title>
 			<ContextMenu name="RefContextMenu" id="2"/>
 			<ExtendedTooltip name="RefExtendedTooltip" id="3"/>
 		</InputField>
 		<InputField name="Presentation" id="4">
 			<DataPath>Presentation</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Presentation</v8:content>
+				</v8:item>
+			</Title>
 			<ContextMenu name="PresentationContextMenu" id="5"/>
 			<ExtendedTooltip name="PresentationExtendedTooltip" id="6"/>
 		</InputField>

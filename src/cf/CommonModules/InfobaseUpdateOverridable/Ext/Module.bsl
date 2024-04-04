@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -14,8 +15,8 @@
 // 
 // Parameters:
 //  Parameters - Structure:
-//    * UpdateResultNotes - String - tooltip text that indicates the path to
-//                                          the "Application update results" form.
+//    * UpdateResultNotes - String - 
+//                                          
 //    * UncompletedDeferredHandlersMessageParameters - Structure - message on
 //                                          availability of uncompleted deferred handlers that perform an update
 //                                          to a previous version; displayed on attempting migration:
@@ -77,10 +78,10 @@ EndProcedure
 //       * Subsystem              - String - name of a library or a configuration.
 //       * Version                  - String - for example, "2.1.3.39". Library (configuration) version number.
 //       * IsMainConfiguration - Boolean - True if it is a main configuration, not a library.
-//       * Handlers             - ValueTable - 
-//                                   
-//       * CompletedHandlers  - ValueTree - 
-//                                   
+//       * Handlers             - ValueTable - All library update handlers. For column details, see
+//                                   "InfobaseUpdate.NewUpdateHandlersTable".
+//       * CompletedHandlers  - ValueTree - Executed update handlers grouped by libraries and version numbers.
+//                                   For column details, see "InfobaseUpdate.NewUpdateHandlersTable".
 //                                   
 //       * MainServerModuleName - String - name of a library (configuration) module that contains
 //                                        basic information about it: name, version, etc.
@@ -136,10 +137,10 @@ EndProcedure
 //       * Subsystem              - String - name of a library or a configuration.
 //       * Version                  - String - for example, "2.1.3.39". Library (configuration) version number.
 //       * IsMainConfiguration - Boolean - True if it is a main configuration, not a library.
-//       * Handlers             - ValueTable - 
-//                                   
-//       * CompletedHandlers  - ValueTree - 
-//                                   
+//       * Handlers             - ValueTable - All library update handlers. For column details, see
+//                                   "InfobaseUpdate.NewUpdateHandlersTable".
+//       * CompletedHandlers  - ValueTree - Executed update handlers grouped by libraries and version numbers.
+//                                   For column details, see "InfobaseUpdate.NewUpdateHandlersTable".
 //                                   
 //       * MainServerModuleName - String - name of a library (configuration) module that contains
 //                                        basic information about it: name, version, etc.
@@ -192,7 +193,7 @@ EndProcedure
 //                   * Value - Number - Update order.
 //
 // Example:
-//   									
+//  MetadataTypesPriorities.Insert("InformationRegister.DocumentsRegistry", 120); 									
 //
 Procedure WhenPrioritizingMetadataTypes(PrioritizingMetadataTypes) Export
 	
@@ -262,35 +263,35 @@ Procedure OnInitialItemFilling(FullObjectName, Object, Data, AdditionalParameter
 	
 EndProcedure
 
-// 
-// 
+// Called during the execution of the update handler that
+// clears up obsolete metadata objects.
 //
-// 
-// 
-// 
-// 
+// Besides the objects prefixed with "Delete", the metadata objects detached from libraries
+// are automatically added to the data type reductions is the corresponding register dimensions.
+// To provide any additional information, specify it in the "Deleting applied objects from subsystem"
+// section of the subsystem implementation documentation.
 // 
 //
 // Parameters:
 //  Objects - See InfobaseUpdate.AddObjectPlannedForDeletion.Objects
 //
 // Example:
-//  
-//		
+//  InfobaseUpdate.AddObjectPlannedForDeletion(Objects,
+//		"Catalog.DeleteJobsQueue");
 //	
-//  
-//		
+//  InfobaseUpdate.AddObjectPlannedForDeletion(Objects,
+//		"Enum.DeleteProductCompatibility");
 //	
-//  
-//		
+//  InfobaseUpdate.AddObjectPlannedForDeletion(Objects,
+//		"Enum.BusinessTransactions.DeleteWriteOffGoodsTransferredToPartners");
 //	
-//  
-//		
+//  InfobaseUpdate.AddObjectPlannedForDeletion(Objects,
+//		"BusinessProcess.Job.RoutePoint.DeleteReturnToAssignee");
 //	
-//  
-//		
-//		
-//			
+//  InfobaseUpdate.AddObjectPlannedForDeletion(Objects,
+//		"InformationRegister.ObjectsVersions.Object",
+//		New TypeDetails("CatalogRef.Persons,
+//			|DocumentRef.AccrualOfSalary"));
 //
 Procedure OnPopulateObjectsPlannedForDeletion(Objects) Export
 	

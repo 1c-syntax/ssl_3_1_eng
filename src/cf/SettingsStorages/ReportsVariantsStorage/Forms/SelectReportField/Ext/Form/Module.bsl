@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -38,7 +39,7 @@ Procedure Attachable_ExpandTheCurrentFieldListItem()
 EndProcedure
 
 &AtClient
-Procedure Attachable_FillInTheListOfAvailableFields(FillParameters) Export // ACC:78 The procedure is called from common module FormulaConstructorClient.
+Procedure Attachable_FillInTheListOfAvailableFields(FillParameters) Export // ACC:78 - The procedure is called from "FormulaConstructorClient.StartSearchInFieldsList".
 	
 	FillInTheListOfAvailableFields(FillParameters);
 	
@@ -80,7 +81,7 @@ Procedure HideUnusedCommands()
 	
 	FormulaEditingCommands = New Array;
 	
-	For Each Item In Items.AvailableFieldsContextMenu.ChildItems Do 
+	For Each Item In Items.AvailableFieldsContextMenu.ChildItems Do // 
 		
 		Item.Visible = TypeOf(Item) = Type("FormButton")
 			And NamesOfFormulaEditingCommands.Find(Item.CommandName) <> Undefined;
@@ -144,7 +145,7 @@ Procedure Attachable_FormulaEditorHandlerServer(Parameter, AdditionalParameters)
 EndProcedure
 
 &AtClient
-Procedure Attachable_FormulaEditorHandlerClient(Parameter, AdditionalParameters = Undefined) Export // ACC:78 - Procedure is called from FormulaConstructorClient.StartSearchInFieldsList. 
+Procedure Attachable_FormulaEditorHandlerClient(Parameter, AdditionalParameters = Undefined) Export // ACC:78 - The procedure is called from "FormulaConstructorClient.StartSearchInFieldsList". 
 	FormulasConstructorClient.FormulaEditorHandler(ThisObject, Parameter, AdditionalParameters);
 	If AdditionalParameters.RunAtServer Then
 		Attachable_FormulaEditorHandlerServer(Parameter, AdditionalParameters);
@@ -374,7 +375,7 @@ Procedure ActivateTheAvailableField()
 		Return;
 	EndIf;
 	
-	FieldOfAvailableFields = Items.AvailableFields; 
+	FieldOfAvailableFields = Items.AvailableFields; // ACC:275 - Items are generated programmatically.
 	DataOfAvailableFields = ThisObject[FieldOfAvailableFields.DataPath].GetItems();
 	
 	For Each String In DataOfAvailableFields Do 
@@ -559,7 +560,6 @@ Function NamesOfFormulaEditingCommands()
 EndFunction
 
 // Parameters:
-//  SelectedField - See ListOfAvailableFields.Поле
 // 
 // Returns:
 //  Boolean

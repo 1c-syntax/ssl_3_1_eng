@@ -9,34 +9,70 @@
 				<Type>CommandBarButton</Type>
 				<Visible>false</Visible>
 				<CommandName>Form.Command.AddToGroup</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Add to group</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormAddToGroupExtendedTooltip" id="109"/>
 			</Button>
 			<Button name="FormRemoveFromGroup" id="107">
 				<Type>CommandBarButton</Type>
 				<Visible>false</Visible>
 				<CommandName>Form.Command.RemoveFromGroup</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Remove from group</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormRemoveFromGroupExtendedTooltip" id="110"/>
 			</Button>
 			<Button name="FormChangeGroup1" id="50">
 				<Type>CommandBarButton</Type>
 				<Visible>false</Visible>
 				<CommandName>Form.Command.ChangeGroup</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Change group</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormChangeGroup1ExtendedTooltip" id="111"/>
 			</Button>
 			<Button name="FormReportUserRights" id="158">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.ReportUserRights</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>User rights report</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormReportUserRightsExtendedTooltip" id="159"/>
 			</Button>
 			<Button name="FormRefresh" id="57">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.Refresh</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Refresh</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormRefreshExtendedTooltip" id="115"/>
 			</Button>
 			<Button name="FormAccessRightsReport" id="76">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.AccessRightsReport</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Access rights report (the old one)</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormAccessRightsReportExtendedTooltip" id="112"/>
 			</Button>
@@ -76,6 +112,18 @@
 			<ContextMenu name="InsufficientViewRightsContextMenu" id="62"/>
 			<ExtendedTooltip name="InsufficientViewRightsExtendedTooltip" id="116"/>
 		</LabelDecoration>
+		<LabelDecoration name="UtilityUserRights" id="166">
+			<Visible>false</Visible>
+			<AutoMaxWidth>false</AutoMaxWidth>
+			<Title formatted="false">
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Rights (roles) of utility users cannot be changed interactively.</v8:content>
+				</v8:item>
+			</Title>
+			<ContextMenu name="UtilityUserRightsContextMenu" id="167"/>
+			<ExtendedTooltip name="UtilityUserRightsExtendedTooltip" id="168"/>
+		</LabelDecoration>
 		<Pages name="AccessGroupsAndRoles" id="83">
 			<Title>
 				<v8:item>
@@ -93,7 +141,7 @@
 							<v8:content>Access groups</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="UserAccessGroups1ExtendedTooltip" id="118"/>
+					<ExtendedTooltip name="UserAccessGroupsExtendedTooltip" id="118"/>
 					<ChildItems>
 						<Table name="AccessGroups" id="1">
 							<Representation>List</Representation>
@@ -134,6 +182,12 @@
 											<xr:Ref>StdPicture.Change</xr:Ref>
 											<xr:LoadTransparent>true</xr:LoadTransparent>
 										</Picture>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Change group</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="AccessGroupsContextMenuChangeGroup1ExtendedTooltip" id="119"/>
 									</Button>
 									<ButtonGroup name="AccessGroupsContextAutoMenu" id="52">
@@ -154,16 +208,34 @@
 									<Button name="AccessGroupsAddToGroup" id="101">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.AddToGroup</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Add to group</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="AccessGroupsAddToGroupExtendedTooltip" id="121"/>
 									</Button>
 									<Button name="AccessGroupsRemoveFromGroup" id="103">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.RemoveFromGroup</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Remove from group</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="AccessGroupsRemoveFromGroupExtendedTooltip" id="122"/>
 									</Button>
 									<Button name="AccessGroupsChangeGroup1" id="102">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.ChangeGroup</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Change group</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="AccessGroupsChangeGroup1ExtendedTooltip" id="123"/>
 									</Button>
 									<SearchStringAddition name="AccessGroupsStringSearch" id="160">
@@ -214,18 +286,36 @@
 							<ChildItems>
 								<InputField name="AccessGroupsDescription" id="30">
 									<DataPath>AccessGroups.Description</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Description</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ContextMenu name="AccessGroupsDescriptionContextMenu" id="31"/>
 									<ExtendedTooltip name="AccessGroupsDescriptionExtendedTooltip" id="125"/>
 								</InputField>
 								<InputField name="AccessGroupsProfilePresentation" id="77">
 									<DataPath>AccessGroups.ProfileDescription</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Profile</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ContextMenu name="AccessGroupsProfilePresentationContextMenu" id="78"/>
 									<ExtendedTooltip name="AccessGroupsProfilePresentationExtendedTooltip" id="126"/>
 								</InputField>
 								<InputField name="AccessGroupsEmployeeResponsible" id="79">
 									<DataPath>AccessGroups.EmployeeResponsible</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Person responsible</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ContextMenu name="AccessGroupsEmployeeResponsibleContextMenu" id="80"/>
 									<ExtendedTooltip name="AccessGroupsEmployeeResponsibleExtendedTooltip" id="127"/>
@@ -268,8 +358,8 @@
 										</v8:item>
 									</Title>
 									<Picture>
-										<xr:Ref>CommonPicture.Information32</xr:Ref>
-										<xr:LoadTransparent>false</xr:LoadTransparent>
+										<xr:Ref>StdPicture.DialogInformation</xr:Ref>
+										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
 									<ContextMenu name="HasProhibitedGroupsPictureContextMenu" id="68"/>
@@ -350,6 +440,12 @@ due to insufficient access rights.
 									<Button name="RolesShowRolesSubsystems" id="96">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.RolesBySubsystemsGroup</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Group by subsystem</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="RolesShowRolesSubsystemsExtendedTooltip" id="133"/>
 									</Button>
 									<SearchStringAddition name="RolesStringSearch" id="163">
@@ -407,6 +503,12 @@ due to insufficient access rights.
 										<CheckBoxField name="RolesCheck" id="105">
 											<DataPath>Roles.Check</DataPath>
 											<Visible>false</Visible>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Checkmark</v8:content>
+												</v8:item>
+											</Title>
 											<EditMode>Directly</EditMode>
 											<ShowInHeader>false</ShowInHeader>
 											<CheckBoxType>Auto</CheckBoxType>
@@ -416,6 +518,12 @@ due to insufficient access rights.
 										<InputField name="RolesSynonym" id="99">
 											<DataPath>Roles.Synonym</DataPath>
 											<ReadOnly>true</ReadOnly>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Allowed action (role)</v8:content>
+												</v8:item>
+											</Title>
 											<EditMode>EnterOnInput</EditMode>
 											<ContextMenu name="RolesSynonymContextMenu" id="100"/>
 											<ExtendedTooltip name="RolesSynonymExtendedTooltip" id="137"/>
@@ -617,6 +725,11 @@ due to insufficient access rights.
 		<Attribute name="AdministratorsAccessGroup" id="7">
 			<Type>
 				<v8:Type>cfg:CatalogRef.AccessGroups</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="IsInternalUser" id="8">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
 	</Attributes>

@@ -9,26 +9,50 @@
 				<Representation>Text</Representation>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.StandardCommand.Close</CommandName>
-				<ExtendedTooltip name="FormCloseExtendedTooltip" id="21"/>
+				<ExtendedTooltip name="FormClose3ExtendedTooltip" id="21"/>
 			</Button>
 			<Button name="FormSaveToFile" id="10">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.SaveToFile</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save to file…</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormSaveToFileExtendedTooltip" id="22"/>
 			</Button>
 			<Button name="FormOpenCertificate" id="16">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.OpenCertificate</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Open certificate…</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormOpenCertificateExtendedTooltip" id="23"/>
 			</Button>
 			<Button name="FormExtendActionSignature" id="55">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.ExtendActionSignature</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Renew signature…</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormExtendActionSignatureExtendedTooltip" id="56"/>
 			</Button>
 			<Button name="FormOpenCertificateToVerifySignature" id="64">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.OpenCertificateToVerifySignature</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Open signature certificates…</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormOpenCertificateToVerifySignatureExtendedTooltip" id="65"/>
 			</Button>
@@ -40,6 +64,7 @@
 	<ChildItems>
 		<LabelDecoration name="DecorationStatus" id="59">
 			<AutoMaxWidth>false</AutoMaxWidth>
+			<MaxWidth>80</MaxWidth>
 			<HorizontalStretch>true</HorizontalStretch>
 			<Title formatted="false">
 				<v8:item>
@@ -51,8 +76,31 @@
 			<ContextMenu name="DecorationStatusContextMenu" id="60"/>
 			<ExtendedTooltip name="DecorationStatusExtendedTooltip" id="61"/>
 		</LabelDecoration>
+		<InputField name="AdditionalAttributesManualCheckJustification" id="87">
+			<DataPath>AdditionalAttributesManualCheckJustification</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Verified signature justification</v8:content>
+				</v8:item>
+			</Title>
+			<TitleLocation>Top</TitleLocation>
+			<AutoMaxWidth>false</AutoMaxWidth>
+			<AutoMaxHeight>false</AutoMaxHeight>
+			<MaxHeight>4</MaxHeight>
+			<MultiLine>true</MultiLine>
+			<TextEdit>false</TextEdit>
+			<ContextMenu name="AdditionalAttributesManualCheckJustificationContextMenu" id="88"/>
+			<ExtendedTooltip name="AdditionalAttributesManualCheckJustificationExtendedTooltip" id="89"/>
+		</InputField>
 		<InputField name="ErrorDescription" id="35">
 			<DataPath>ErrorDescription</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Error details</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>None</TitleLocation>
 			<AutoMaxWidth>false</AutoMaxWidth>
 			<AutoMaxHeight>false</AutoMaxHeight>
@@ -63,7 +111,7 @@
 			<ContextMenu name="ErrorDescriptionContextMenu" id="36"/>
 			<ExtendedTooltip name="ErrorDescriptionExtendedTooltip" id="37"/>
 		</InputField>
-		<UsualGroup name="MRLOAGroup" id="69">
+		<UsualGroup name="GroupMachineReadableLOA" id="69">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -75,9 +123,9 @@
 			<Collapsed>true</Collapsed>
 			<Representation>NormalSeparation</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="MRLOAGroupExtendedTooltip" id="70"/>
+			<ExtendedTooltip name="GroupMachineReadableLOAExtendedTooltip" id="70"/>
 			<ChildItems>
-				<LabelDecoration name="MachineReadableAuthorizationLetterDecoration" id="66">
+				<LabelDecoration name="MachineReadableLOADecoration" id="66">
 					<AutoMaxWidth>false</AutoMaxWidth>
 					<HorizontalStretch>true</HorizontalStretch>
 					<Title formatted="false">
@@ -86,10 +134,10 @@
 							<v8:content>Machine-readable letter of authority</v8:content>
 						</v8:item>
 					</Title>
-					<ContextMenu name="MachineReadableAuthorizationLetterDecorationContextMenu" id="67"/>
-					<ExtendedTooltip name="MachineReadableAuthorizationLetterDecorationExtendedTooltip" id="68"/>
+					<ContextMenu name="MachineReadableLOADecorationContextMenu" id="67"/>
+					<ExtendedTooltip name="MachineReadableLOADecorationExtendedTooltip" id="68"/>
 				</LabelDecoration>
-				<UsualGroup name="GroupVerificationProtocol" id="73">
+				<UsualGroup name="GroupCheckProtocol" id="73">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -100,7 +148,7 @@
 					<Behavior>Collapsible</Behavior>
 					<Collapsed>true</Collapsed>
 					<ControlRepresentation>Picture</ControlRepresentation>
-					<ExtendedTooltip name="GroupVerificationProtocolExtendedTooltip" id="74"/>
+					<ExtendedTooltip name="GroupCheckProtocolExtendedTooltip" id="74"/>
 				</UsualGroup>
 			</ChildItems>
 		</UsualGroup>
@@ -108,12 +156,24 @@
 			<DataPath>CertificateOwner</DataPath>
 			<ReadOnly>true</ReadOnly>
 			<SkipOnInput>true</SkipOnInput>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Signed by</v8:content>
+				</v8:item>
+			</Title>
 			<ContextMenu name="CertificateOwnerContextMenu" id="3"/>
 			<ExtendedTooltip name="CertificateOwnerExtendedTooltip" id="24"/>
 		</InputField>
 		<InputField name="SignatureType" id="52">
 			<DataPath>SignatureType</DataPath>
 			<ReadOnly>true</ReadOnly>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Signature type</v8:content>
+				</v8:item>
+			</Title>
 			<ContextMenu name="SignatureTypeContextMenu" id="53"/>
 			<ExtendedTooltip name="SignatureTypeExtendedTooltip" id="54"/>
 		</InputField>
@@ -121,6 +181,12 @@
 			<DataPath>SignatureSetBy</DataPath>
 			<ReadOnly>true</ReadOnly>
 			<SkipOnInput>true</SkipOnInput>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Signed by</v8:content>
+				</v8:item>
+			</Title>
 			<Width>35</Width>
 			<HorizontalStretch>false</HorizontalStretch>
 			<ContextMenu name="SignatureSetByContextMenu" id="13"/>
@@ -130,6 +196,12 @@
 			<DataPath>SignatureDate</DataPath>
 			<ReadOnly>true</ReadOnly>
 			<SkipOnInput>true</SkipOnInput>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Date signed</v8:content>
+				</v8:item>
+			</Title>
 			<ContextMenu name="SignatureDateContextMenu" id="18"/>
 			<ExtendedTooltip name="SignatureDateExtendedTooltip" id="27"/>
 		</InputField>
@@ -137,12 +209,27 @@
 			<DataPath>Comment</DataPath>
 			<ReadOnly>true</ReadOnly>
 			<SkipOnInput>true</SkipOnInput>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Comment</v8:content>
+				</v8:item>
+			</Title>
+			<AutoMaxWidth>false</AutoMaxWidth>
+			<MultiLine>true</MultiLine>
+			<TextEdit>false</TextEdit>
 			<ContextMenu name="CommentContextMenu" id="15"/>
 			<ExtendedTooltip name="CommentExtendedTooltip" id="28"/>
 		</InputField>
 		<InputField name="DateActionLastTimestamp" id="49">
 			<DataPath>DateActionLastTimestamp</DataPath>
 			<ReadOnly>true</ReadOnly>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Validity period of the last timestamp</v8:content>
+				</v8:item>
+			</Title>
 			<TitleHeight>2</TitleHeight>
 			<ContextMenu name="DateActionLastTimestampContextMenu" id="50"/>
 			<ExtendedTooltip name="DateActionLastTimestampExtendedTooltip" id="51"/>
@@ -161,8 +248,14 @@
 			<Representation>None</Representation>
 			<ExtendedTooltip name="TechnicalInformationExtendedTooltip" id="42"/>
 			<ChildItems>
-				<InputField name="SignatureAlgorithmWarning" id="75">
+				<InputField name="SignAlgorithmWarning" id="75">
 					<DataPath>SignAlgorithm</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Signature algorithm</v8:content>
+						</v8:item>
+					</Title>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -176,11 +269,17 @@
 					<MultiLine>true</MultiLine>
 					<TextEdit>false</TextEdit>
 					<BackColor>style:AttentionBackColor</BackColor>
-					<ContextMenu name="SignatureAlgorithmWarningContextMenu" id="76"/>
-					<ExtendedTooltip name="SignatureAlgorithmWarningExtendedTooltip" id="77"/>
+					<ContextMenu name="SignAlgorithmWarningContextMenu" id="76"/>
+					<ExtendedTooltip name="SignAlgorithmWarningExtendedTooltip" id="77"/>
 				</InputField>
 				<InputField name="SignAlgorithm" id="43">
 					<DataPath>SignAlgorithm</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Signature algorithm</v8:content>
+						</v8:item>
+					</Title>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -188,12 +287,19 @@
 						</v8:item>
 					</ToolTip>
 					<ToolTipRepresentation>Button</ToolTipRepresentation>
+					<AutoMaxWidth>false</AutoMaxWidth>
 					<TextEdit>false</TextEdit>
 					<ContextMenu name="SignAlgorithmContextMenu" id="44"/>
 					<ExtendedTooltip name="SignAlgorithmExtendedTooltip" id="45"/>
 				</InputField>
 				<InputField name="HashAlgorithm" id="46">
 					<DataPath>HashAlgorithm</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Hashing algorithm</v8:content>
+						</v8:item>
+					</Title>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -201,10 +307,91 @@
 						</v8:item>
 					</ToolTip>
 					<ToolTipRepresentation>Button</ToolTipRepresentation>
+					<AutoMaxWidth>false</AutoMaxWidth>
 					<TextEdit>false</TextEdit>
 					<ContextMenu name="HashAlgorithmContextMenu" id="47"/>
 					<ExtendedTooltip name="HashAlgorithmExtendedTooltip" id="48"/>
 				</InputField>
+				<UsualGroup name="GroupMathValidationError" id="90">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Mathematical validation error</v8:content>
+						</v8:item>
+					</Title>
+					<ShowTitle>false</ShowTitle>
+					<ExtendedTooltip name="GroupMathValidationErrorExtendedTooltip" id="91"/>
+					<ChildItems>
+						<InputField name="SignatureMathValidationError" id="78">
+							<DataPath>SignatureMathValidationError</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Error verifying signature against document</v8:content>
+								</v8:item>
+							</Title>
+							<TitleLocation>Top</TitleLocation>
+							<AutoMaxWidth>false</AutoMaxWidth>
+							<AutoMaxHeight>false</AutoMaxHeight>
+							<MaxHeight>2</MaxHeight>
+							<MultiLine>true</MultiLine>
+							<TextEdit>false</TextEdit>
+							<ContextMenu name="SignatureMathValidationErrorContextMenu" id="79"/>
+							<ExtendedTooltip name="SignatureMathValidationErrorExtendedTooltip" id="80"/>
+						</InputField>
+						<Button name="OpenErrorDescription" id="97">
+							<Type>Hyperlink</Type>
+							<CommandName>Form.Command.OpenMathValidationErrorDetails</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Details</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="OpenErrorDescriptionExtendedTooltip" id="98"/>
+						</Button>
+					</ChildItems>
+				</UsualGroup>
+				<UsualGroup name="GroupErrorOnAdditionalAttributesManualCheck" id="92">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Additional attribute verification error</v8:content>
+						</v8:item>
+					</Title>
+					<ShowTitle>false</ShowTitle>
+					<ExtendedTooltip name="GroupErrorOnAdditionalAttributesManualCheckExtendedTooltip" id="93"/>
+					<ChildItems>
+						<InputField name="AdditionalAttributesCheckError" id="81">
+							<DataPath>AdditionalAttributesCheckError</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Error verifying signature certificate</v8:content>
+								</v8:item>
+							</Title>
+							<TitleLocation>Top</TitleLocation>
+							<AutoMaxWidth>false</AutoMaxWidth>
+							<AutoMaxHeight>false</AutoMaxHeight>
+							<MaxHeight>2</MaxHeight>
+							<MultiLine>true</MultiLine>
+							<TextEdit>false</TextEdit>
+							<ContextMenu name="AdditionalAttributesCheckErrorContextMenu" id="82"/>
+							<ExtendedTooltip name="AdditionalAttributesCheckErrorExtendedTooltip" id="83"/>
+						</InputField>
+						<Button name="OpenAdditionalAttributesErrorDetails" id="99">
+							<Type>Hyperlink</Type>
+							<CommandName>Form.Command.OpenAdditionalAttributesErrorDetails</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Details</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="OpenAdditionalAttributesErrorDetailsExtendedTooltip" id="100"/>
+						</Button>
+					</ChildItems>
+				</UsualGroup>
 			</ChildItems>
 		</UsualGroup>
 		<LabelDecoration name="Instruction" id="38">
@@ -212,7 +399,7 @@
 			<Title formatted="false">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>How to troubleshoot common issues with digital signature applications</v8:content>
+					<v8:content>Troubleshoot digital signing apps</v8:content>
 				</v8:item>
 			</Title>
 			<Hyperlink>true</Hyperlink>
@@ -261,7 +448,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Signature set by</v8:content>
+					<v8:content>Signed by</v8:content>
 				</v8:item>
 			</Title>
 			<Type/>
@@ -469,6 +656,84 @@
 				</v8:StringQualifiers>
 			</Type>
 		</Attribute>
+		<Attribute name="IsSignatureMathematicallyValid" id="28">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="SignatureMathValidationError" id="29">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Error verifying signature against document</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="AdditionalAttributesCheckError" id="30">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Error verifying signature certificate</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="IsAdditionalAttributesCheckedManually" id="31">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="AdditionalAttributesManualCheckAuthor" id="32">
+			<Type>
+				<v8:Type>cfg:CatalogRef.Users</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="AdditionalAttributesManualCheckJustification" id="33">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Justification for manual verification of additional attributes</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="CheckResult" id="34">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="BriefCheckResult" id="35">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
 	</Attributes>
 	<Commands>
 		<Command name="SaveToFile" id="1">
@@ -526,6 +791,24 @@
 				</v8:item>
 			</ToolTip>
 			<Action>OpenCertificateToVerifySignature</Action>
+		</Command>
+		<Command name="OpenMathValidationErrorDetails" id="5">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Details</v8:content>
+				</v8:item>
+			</Title>
+			<Action>OpenMathValidationErrorDetails</Action>
+		</Command>
+		<Command name="OpenAdditionalAttributesErrorDetails" id="6">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Details</v8:content>
+				</v8:item>
+			</Title>
+			<Action>OpenAdditionalAttributesErrorDetails</Action>
 		</Command>
 	</Commands>
 	<Parameters>

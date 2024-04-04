@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Private
@@ -175,6 +176,17 @@ Function CommonSettings() Export
 	CommonSettings.Insert("ApplicationsByPublicKeyAlgorithmsIDs",
 		New FixedMap(ApplicationsByPublicKeyAlgorithmsIDs));
 	
+	IndividualUsed = Not (Metadata.DefinedTypes.Individual.Type.Types().Count() = 1
+		And Metadata.DefinedTypes.Individual.Type.Types()[0] = Type("String"));
+		
+	IsCompanyUsed = Not (Metadata.DefinedTypes.Organization.Type.Types().Count() = 1
+		And Metadata.DefinedTypes.Organization.Type.Types()[0] = Type("String"));
+	CommonSettings.Insert("IsCompanyUsed", IsCompanyUsed);
+	
+	OverriddenSettings = New Structure("IndividualUsed", IndividualUsed);
+	DigitalSignatureOverridable.OnDefineSettings(OverriddenSettings);
+	CommonSettings.Insert("IndividualUsed", OverriddenSettings.IndividualUsed);
+		
 	Return New FixedStructure(CommonSettings);
 	
 EndFunction
@@ -310,7 +322,7 @@ Procedure SupplementSolutionWithAutomaticActions(Decision, RemedyActions)
 				|%2';"), Action, Decision);
 		ElsIf Action = "InstallCertificateIntoContainer" Then
 			Decision = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '- <a href=%1>Install a certificate in the container</a> from the application.
+				NStr("en = '- <a href=%1>Install certificate on container</a> from the app.
 				|%2';"), Action, Decision);
 		EndIf;
 		
@@ -462,9 +474,9 @@ Function YouCanCheckTheCertificateInTheCloudServiceWithTheFollowingParameters()
 	
 EndFunction
 
-// Function ImprovedSignatureAvailable.
-// Defines whether 1C:Enterprise has the 
-// 
+// Function "ImprovedSignatureAvailable".
+// Determines whether 1C:Enterprise has the "CryptoSignature" type.
+// ValueToStringInternal(Type("CryptoSignature")) = "{""T"",a338a24d-6470-4101-8735-008988fb74d8}"
 // 
 // Returns:
 //   Boolean

@@ -44,6 +44,12 @@
 						<Representation>Text</Representation>
 						<SkipOnInput>false</SkipOnInput>
 						<CommandName>Form.Command.OpenForViewing</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>View</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="FormViewExtendedTooltip" id="92"/>
 					</Button>
 					<Button name="FormUnlock" id="82">
@@ -51,6 +57,12 @@
 						<Representation>Text</Representation>
 						<SkipOnInput>false</SkipOnInput>
 						<CommandName>Form.Command.Release</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Undo edits</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="FormReleaseExtendedTooltip" id="93"/>
 					</Button>
 					<Button name="FormSaveAs" id="59">
@@ -90,12 +102,24 @@
 					<Button name="FormSetDeletionMark" id="128">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.MarkToDelete</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Toggle deletion mark</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="FormSetDeletionMarkExtendedTooltip" id="129"/>
 					</Button>
 					<Button name="FormDelete" id="157">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.Delete</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Delete</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="FormDeleteExtendedTooltip" id="158"/>
 					</Button>
@@ -121,12 +145,24 @@
 			<Button name="ShowMarkedFiles" id="159">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.ShowMarkedFiles</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Show marked files</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="ShowMarkedFilesExtendedTooltip" id="160"/>
 			</Button>
 			<Button name="ShowServiceFiles" id="155">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.ShowServiceFiles</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Show program files</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="ShowServiceFilesExtendedTooltip" id="156"/>
 			</Button>
@@ -215,6 +251,12 @@
 						<Type>CommandBarButton</Type>
 						<SkipOnInput>false</SkipOnInput>
 						<CommandName>Form.Command.OpenForViewing</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>View</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="ListContextMenuViewExtendedTooltip" id="97"/>
 					</Button>
 					<ButtonGroup name="ListContextMenuMainCommandsGroup" id="134">
@@ -230,11 +272,23 @@
 								<Type>CommandBarButton</Type>
 								<SkipOnInput>false</SkipOnInput>
 								<CommandName>Form.Command.Release</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Undo edits</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="ListContextMenuUnlockExtendedTooltip" id="98"/>
 							</Button>
 							<Button name="ListOpenFIleProperties" id="153">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.OpenFileProperties</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Open file info</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="ListOpenFIlePropertiesExtendedTooltip" id="154"/>
 							</Button>
 						</ChildItems>
@@ -252,16 +306,34 @@
 								<Type>CommandBarButton</Type>
 								<SkipOnInput>false</SkipOnInput>
 								<CommandName>Form.Command.SaveAs</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Save as…</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="ListContextMenuSaveAsExtendedTooltip" id="99"/>
 							</Button>
 							<Button name="ListContextMenuSetDeletionMark" id="130">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.MarkToDelete</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Toggle deletion mark</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="ListContextMenuSetDeletionMarkExtendedTooltip" id="131"/>
 							</Button>
 							<Button name="ListContextMenuDelete" id="161">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.Delete</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Delete</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="ListContextMenuDeleteExtendedTooltip" id="162"/>
 							</Button>
 						</ChildItems>
@@ -605,7 +677,7 @@ WHERE
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Cancel editing</v8:content>
+					<v8:content>Undo edits</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
@@ -647,13 +719,13 @@ WHERE
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Open file properties</v8:content>
+					<v8:content>Open file info</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Open file properties</v8:content>
+					<v8:content>Open file info</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Shortcut>F2</Shortcut>
@@ -682,13 +754,13 @@ WHERE
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Show internal files</v8:content>
+					<v8:content>Show program files</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Show internal files</v8:content>
+					<v8:content>Show program files</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>ShowServiceFiles</Action>

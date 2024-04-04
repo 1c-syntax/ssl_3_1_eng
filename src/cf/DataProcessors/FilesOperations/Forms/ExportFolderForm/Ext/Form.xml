@@ -81,6 +81,12 @@
 					<DefaultButton>true</DefaultButton>
 					<SkipOnInput>false</SkipOnInput>
 					<CommandName>Form.Command.SaveFolder</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Save folder</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="SaveFolderExtendedTooltip" id="38"/>
 				</Button>
 				<Button name="Cancel" id="32">

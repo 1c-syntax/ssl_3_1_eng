@@ -25,6 +25,12 @@
 				<CheckBoxField name="Use1" id="44">
 					<DataPath>Use1</DataPath>
 					<Visible>false</Visible>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Usage 1</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<CheckBoxType>Auto</CheckBoxType>
 					<ContextMenu name="Use1ContextMenu" id="45"/>
@@ -48,6 +54,12 @@
 							<DataPath>LeftValue1</DataPath>
 							<Visible>false</Visible>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Left value 1</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<InputHint>
 								<v8:item>
@@ -61,6 +73,12 @@
 						<InputField name="RepresentationOfTheLeftValue1" id="60">
 							<DataPath>RepresentationOfTheLeftValue1</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Left value presentation 1</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<InputHint>
 								<v8:item>
@@ -75,6 +93,12 @@
 				</UsualGroup>
 				<InputField name="ComparisonType1" id="5">
 					<DataPath>ComparisonType1</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Comparison type 1</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<Width>15</Width>
 					<AutoMaxWidth>false</AutoMaxWidth>
@@ -95,6 +119,12 @@
 				</InputField>
 				<InputField name="RightValue1" id="8">
 					<DataPath>RightValue1</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Right value 1</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<InputHint>
 						<v8:item>
@@ -127,6 +157,12 @@
 			<ChildItems>
 				<CheckBoxField name="GroupUse" id="47">
 					<DataPath>GroupUse</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Group usage</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<CheckBoxType>Auto</CheckBoxType>
 					<ContextMenu name="UsingAGroupContextMenu" id="48"/>
@@ -212,6 +248,12 @@
 							<DataPath>LeftValue2</DataPath>
 							<Visible>false</Visible>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Left value 2</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<InputHint>
 								<v8:item>
@@ -228,6 +270,12 @@
 						<InputField name="RepresentationOfTheLeftValue2" id="65">
 							<DataPath>RepresentationOfTheLeftValue2</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Left value presentation 2</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<InputHint>
 								<v8:item>
@@ -242,6 +290,12 @@
 				</UsualGroup>
 				<InputField name="ComparisonType2" id="11">
 					<DataPath>ComparisonType2</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Comparison type 2</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<Width>15</Width>
 					<AutoMaxWidth>false</AutoMaxWidth>
@@ -262,6 +316,12 @@
 				</InputField>
 				<InputField name="RightValue2" id="14">
 					<DataPath>RightValue2</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Right value 2</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<InputHint>
 						<v8:item>
@@ -296,6 +356,12 @@
 				<Button name="GoToAdvancedSettings" id="72">
 					<Type>Hyperlink</Type>
 					<CommandName>Form.Command.GoToAdvancedSettings</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>More options…</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="GoToAdvancedSettingsExtendedTooltip" id="73"/>
 				</Button>
 				<CommandBar name="CommandsBasic" id="70">
@@ -313,11 +379,23 @@
 							<Representation>Text</Representation>
 							<DefaultButton>true</DefaultButton>
 							<CommandName>Form.Command.ApplyISform</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Apply and run</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="ApplyISformExtendedTooltip" id="57"/>
 						</Button>
 						<Button name="Apply" id="54">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.Apply</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Apply</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="ApplyExtendedTooltip" id="55"/>
 						</Button>
 						<Button name="Cancel" id="52">
@@ -503,7 +581,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Apply and generate</v8:content>
+					<v8:content>Apply and run</v8:content>
 				</v8:item>
 			</Title>
 			<Picture>

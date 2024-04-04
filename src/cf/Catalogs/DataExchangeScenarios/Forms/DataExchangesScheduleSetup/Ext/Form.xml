@@ -65,11 +65,23 @@
 			<Button name="Create" id="13">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.CreateDataExchangeScenario</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Add</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="CreateExtendedTooltip" id="40"/>
 			</Button>
 			<Button name="ChangeDataExchangeScenario" id="14">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.ChangeDataExchangeScenario</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Edit</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="ChangeDataExchangeScenarioExtendedTooltip" id="41"/>
 			</Button>
 			<ButtonGroup name="ButtonGroup" id="17">
@@ -84,6 +96,12 @@
 					<Button name="FormEnableDisableScheduledJob" id="15">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.EnableDisableScheduledJob</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Toggle scheduling</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="FormEnableDisableScheduledJobExtendedTooltip" id="43"/>
 					</Button>
 				</ChildItems>
@@ -91,6 +109,12 @@
 			<Button name="FormExecuteScenario" id="32">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.ExecuteScenario</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Run scenario</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormExecuteScenarioExtendedTooltip" id="44"/>
 			</Button>
 		</ChildItems>
@@ -146,11 +170,23 @@
 							<Button name="ListContextMenuEnableDisableImport" id="27">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.EnableDisableImport</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Toggle data receipt</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="ListContextMenuEnableDisableImportExtendedTooltip" id="46"/>
 							</Button>
 							<Button name="FormEnableDisableExport" id="26">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.EnableDisableExport</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Toggle data send</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="FormEnableDisableExportExtendedTooltip" id="47"/>
 							</Button>
 						</ChildItems>
@@ -167,6 +203,12 @@
 							<Button name="ListContextMenuEnableDisableScheduledJob" id="16">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.EnableDisableScheduledJob</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Toggle scheduling</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="ListContextMenuEnableDisableScheduledJobExtendedTooltip" id="49"/>
 							</Button>
 							<Button name="ListContextMenuOpenDataExchangeScenario" id="19">
@@ -179,6 +221,12 @@
 					<Button name="ListContextMenuExecuteScenario" id="33">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.ExecuteScenario</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Run scenario</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="ListContextMenuExecuteScenarioExtendedTooltip" id="51"/>
 					</Button>
 				</ChildItems>

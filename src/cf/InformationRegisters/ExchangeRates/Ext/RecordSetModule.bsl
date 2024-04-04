@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -74,12 +75,14 @@ Procedure UpdateSubordinateCurrenciesRates()
 			EndIf;
 			// The rate is not updated more than once over the same period of time.
 			If UpdatedPeriods[BaseCurrencyRecord.Period] = Undefined Then
+				//@skip-check query-in-loop. Batch processing of a large amount of data.
 				UpdateSubordinateCurrencyRate(SelectedCurrency, BaseCurrencyRecord); 
 				UpdatedPeriods.Insert(BaseCurrencyRecord.Period, True);
 			EndIf;
 		Else	// Refresh the rate for all dependent currencies.
 			DependentCurrencies = CurrencyRateOperations.DependentCurrenciesList(BaseCurrencyRecord.Currency, AdditionalProperties);
 			For Each DependentCurrency In DependentCurrencies Do
+				//@skip-check query-in-loop. Batch processing of a large amount of data.
 				UpdateSubordinateCurrencyRate(DependentCurrency, BaseCurrencyRecord); 
 			EndDo;
 		EndIf;

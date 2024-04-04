@@ -9,6 +9,12 @@
 				<DefaultButton>true</DefaultButton>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.SelectCommand</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Select</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="SelectCommandExtendedTooltip" id="181"/>
 			</Button>
 			<Button name="Add" id="86">
@@ -133,6 +139,12 @@
 												<InputField name="SearchString" id="22">
 													<DataPath>SearchString</DataPath>
 													<DefaultItem>true</DefaultItem>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Search bar</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>None</TitleLocation>
 													<Width>30</Width>
 													<Wrap>false</Wrap>
@@ -159,6 +171,12 @@
 															<Type>CommandBarButton</Type>
 															<SkipOnInput>false</SkipOnInput>
 															<CommandName>Form.Command.FindContacts</CommandName>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Find</v8:content>
+																</v8:item>
+															</Title>
 															<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 															<ExtendedTooltip name="FindExtendedTooltip" id="188"/>
 														</Button>
@@ -179,22 +197,46 @@
 																<Button name="SearchEverywhereOption" id="310">
 																	<Type>CommandBarButton</Type>
 																	<CommandName>Form.Command.SearchEverywhereOption</CommandName>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Everywhere</v8:content>
+																		</v8:item>
+																	</Title>
 																	<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 																	<ExtendedTooltip name="SearchEverywhereOptionExtendedTooltip" id="311"/>
 																</Button>
 																<Button name="SearchInAddressesOption" id="312">
 																	<Type>CommandBarButton</Type>
 																	<CommandName>Form.Command.SearchInAddressesOption</CommandName>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>In email addresses</v8:content>
+																		</v8:item>
+																	</Title>
 																	<ExtendedTooltip name="SearchInAddressesOptionExtendedTooltip" id="313"/>
 																</Button>
 																<Button name="SearchInContactsDescriptionsOption" id="314">
 																	<Type>CommandBarButton</Type>
 																	<CommandName>Form.Command.SearchInContactsDescriptionsOption</CommandName>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>In descriptions</v8:content>
+																		</v8:item>
+																	</Title>
 																	<ExtendedTooltip name="SearchInContactsDescriptionsOptionExtendedTooltip" id="315"/>
 																</Button>
 																<Button name="SearchByDomainNameOption" id="316">
 																	<Type>CommandBarButton</Type>
 																	<CommandName>Form.Command.SearchByDomainNameOption</CommandName>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>In email domains</v8:content>
+																		</v8:item>
+																	</Title>
 																	<ExtendedTooltip name="SearchByDomainNameOptionExtendedTooltip" id="317"/>
 																</Button>
 															</ChildItems>
@@ -204,6 +246,12 @@
 												<InputField name="SearchOptions" id="119">
 													<DataPath>SearchOptions</DataPath>
 													<Visible>false</Visible>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Search options</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>None</TitleLocation>
 													<Width>20</Width>
 													<Wrap>false</Wrap>
@@ -247,12 +295,24 @@
 													<Button name="FoundContactsView" id="333">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.View</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>View</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="FoundContactsViewExtendedTooltip" id="334"/>
 													</Button>
 													<Button name="FindInListFromFoundItemsList" id="143">
 														<Type>CommandBarButton</Type>
 														<SkipOnInput>false</SkipOnInput>
 														<CommandName>Form.Command.FindInListFromFoundItemsList</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Find in list</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="FindInListFromFoundItemsListExtendedTooltip" id="189"/>
 													</Button>
 												</ChildItems>
@@ -289,12 +349,24 @@
 											<ChildItems>
 												<InputField name="ContactName" id="28">
 													<DataPath>FoundContacts.ContactName</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Contact</v8:content>
+														</v8:item>
+													</Title>
 													<Wrap>false</Wrap>
 													<ContextMenu name="ContactDescriptionContextMenu" id="29"/>
-													<ExtendedTooltip name="ContactDescriptionExtendedTooltip" id="191"/>
+													<ExtendedTooltip name="ContactNameExtendedTooltip" id="191"/>
 												</InputField>
 												<InputField name="EMAddress" id="30">
 													<DataPath>FoundContacts.Presentation</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Email address</v8:content>
+														</v8:item>
+													</Title>
 													<Wrap>false</Wrap>
 													<ContextMenu name="EMAddressContextMenu" id="31"/>
 													<ExtendedTooltip name="EMAddressExtendedTooltip" id="192"/>
@@ -334,18 +406,36 @@
 														<Type>CommandBarButton</Type>
 														<SkipOnInput>false</SkipOnInput>
 														<CommandName>Form.Command.AddFromSubjectsList</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Add to recipients</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="AddFromSubjectsListExtendedTooltip" id="197"/>
 													</Button>
 													<Button name="SetContactFromSubjectsList" id="132">
 														<Type>CommandBarButton</Type>
 														<SkipOnInput>false</SkipOnInput>
 														<CommandName>Form.Command.SetContactFromSubjectsList</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Select contact's email</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="SetContactFromSubjectsListExtendedTooltip" id="198"/>
 													</Button>
 													<Button name="FindInListFromSubjectsList" id="130">
 														<Type>CommandBarButton</Type>
 														<SkipOnInput>false</SkipOnInput>
 														<CommandName>Form.Command.FindInListFromSubjectsList</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Find in list</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="FindInListFromSubjectsListExtendedTooltip" id="199"/>
 													</Button>
 												</ChildItems>
@@ -382,12 +472,24 @@
 											<ChildItems>
 												<InputField name="DescriptionPresentation" id="128">
 													<DataPath>ContactsBySubject.DescriptionPresentation</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Contact</v8:content>
+														</v8:item>
+													</Title>
 													<Wrap>false</Wrap>
 													<ContextMenu name="DescriptionPresentationContextMenu" id="129"/>
 													<ExtendedTooltip name="DescriptionPresentationExtendedTooltip" id="201"/>
 												</InputField>
 												<InputField name="ContactAddress" id="126">
 													<DataPath>ContactsBySubject.Address</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Email address</v8:content>
+														</v8:item>
+													</Title>
 													<Wrap>false</Wrap>
 													<ContextMenu name="ContactAddressContextMenu" id="127"/>
 													<ExtendedTooltip name="ContactAddressExtendedTooltip" id="202"/>
@@ -462,7 +564,7 @@
 											<AllowGettingCurrentRowURL>true</AllowGettingCurrentRowURL>
 											<ContextMenu name="UsersGroupsContextMenu" id="177"/>
 											<AutoCommandBar name="UserGroupsCommandBar" id="178"/>
-											<ExtendedTooltip name="UsersGroupsExtendedTooltip" id="204"/>
+											<ExtendedTooltip name="UserGroupsExtendedTooltip" id="204"/>
 											<SearchStringAddition name="UsersGroupsSearchString" id="263">
 												<AdditionSource>
 													<Item>UserGroups</Item>
@@ -548,6 +650,12 @@
 													<Button name="UsersList1ContextMenuView" id="331">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.View</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>View</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="UsersList1ContextMenuBrowseExtendedTooltip" id="332"/>
 													</Button>
 												</ChildItems>
@@ -557,11 +665,17 @@
 													<Button name="UsersListView" id="329">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.View</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>View</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="UsersList1BrowseExtendedTooltip" id="330"/>
 													</Button>
 												</ChildItems>
 											</AutoCommandBar>
-											<ExtendedTooltip name="UsersList1ExtendedTooltip" id="206"/>
+											<ExtendedTooltip name="UsersListExtendedTooltip" id="206"/>
 											<SearchStringAddition name="UsersList1SearchString" id="272">
 												<AdditionSource>
 													<Item>UsersList</Item>
@@ -629,6 +743,12 @@
 						</Pages>
 						<CheckBoxField name="ShowOnlyContactsWithAddresses" id="335">
 							<DataPath>ShowOnlyContactsWithAddresses</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Show only contacts with email</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 							<CheckBoxType>Auto</CheckBoxType>
@@ -692,6 +812,12 @@
 											<AutoMaxWidth>false</AutoMaxWidth>
 											<AutoMaxHeight>false</AutoMaxHeight>
 											<CommandName>Form.Command.AddToRecipientsList</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>&gt;</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="MoveFromListToSelectedItemsExtendedTooltip" id="212"/>
 										</Button>
 										<LabelDecoration name="MoveCenterDecoration" id="159">
@@ -701,11 +827,23 @@
 										<Button name="MoveAllFromSelectedItemsToList" id="157">
 											<Type>UsualButton</Type>
 											<CommandName>Form.Command.DeleteAllRecipients</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>&lt;&lt;</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="MoveAllFromSelectedItemsToListExtendedTooltip" id="214"/>
 										</Button>
 										<Button name="MoveFromSelectedItemsToList" id="151">
 											<Type>UsualButton</Type>
 											<CommandName>Form.Command.DeleteRecipient</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>&lt;</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="MoveFromSelectedItemsToListExtendedTooltip" id="215"/>
 										</Button>
 										<LabelDecoration name="MoveBottomDecoration" id="155">
@@ -732,6 +870,12 @@
 										<Button name="MoveFromTopListToSelected" id="166">
 											<Type>UsualButton</Type>
 											<CommandName>Form.Command.AddToRecipientsList</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>&gt;</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="MoveFromTopListToSelectedExtendedTooltip" id="219"/>
 										</Button>
 										<LabelDecoration name="IntervalUpperDecoration" id="167">
@@ -742,11 +886,23 @@
 											<Type>UsualButton</Type>
 											<CommandName>Form.Command.DeleteRecipient</CommandName>
 											<Font ref="style:NormalTextFont" kind="StyleItem"/>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>&lt;</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="MoveFromSelectedItemsToListTwoTablesExtendedTooltip" id="221"/>
 										</Button>
 										<Button name="MoveAllFromSelectedItemsToListTwoTables" id="170">
 											<Type>UsualButton</Type>
 											<CommandName>Form.Command.DeleteAllRecipients</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>&lt;&lt;</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="MoveAllFromSelectedItemsToListTwoTablesExtendedTooltip" id="222"/>
 										</Button>
 										<LabelDecoration name="IntervalLowerDecoration" id="171">
@@ -756,6 +912,12 @@
 										<Button name="MoveFromBottomListToSelectedItems" id="173">
 											<Type>UsualButton</Type>
 											<CommandName>Form.Command.AddToRecipientsList</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>&gt;</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="MoveFromBottomListToSelectedItemsExtendedTooltip" id="224"/>
 										</Button>
 										<LabelDecoration name="MoveBottomDecorationTwoTables" id="174">
@@ -778,7 +940,7 @@
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="RecipientsGroup1ExtendedTooltip" id="226"/>
+							<ExtendedTooltip name="RecipientsGroupExtendedTooltip" id="226"/>
 							<ChildItems>
 								<Table name="EmailRecipients" id="56">
 									<Representation>List</Representation>
@@ -818,24 +980,42 @@
 														<v8:content>Change group</v8:content>
 													</v8:item>
 												</Title>
-												<ExtendedTooltip name="ChangeGroup1ExtendedTooltip" id="232"/>
+												<ExtendedTooltip name="ChangeGroupExtendedTooltip" id="232"/>
 												<ChildItems>
 													<Button name="ChangeGroupTo" id="135">
 														<Type>CommandBarButton</Type>
 														<SkipOnInput>false</SkipOnInput>
 														<CommandName>Form.Command.ChangeGroupTo</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Specify "To"</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="ChangeGroupToExtendedTooltip" id="233"/>
 													</Button>
 													<Button name="ChangeCcGroup" id="136">
 														<Type>CommandBarButton</Type>
 														<SkipOnInput>false</SkipOnInput>
 														<CommandName>Form.Command.ChangeCcGroup</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Specify "Cc"</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="ChangeCcGroupExtendedTooltip" id="234"/>
 													</Button>
 													<Button name="ChangeBCCGroup" id="137">
 														<Type>CommandBarButton</Type>
 														<SkipOnInput>false</SkipOnInput>
 														<CommandName>Form.Command.ChangeBCCGroup</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Specify "Bcc"</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="ChangeBCCGroupExtendedTooltip" id="235"/>
 													</Button>
 												</ChildItems>
@@ -867,6 +1047,12 @@
 												<Type>CommandBarButton</Type>
 												<SkipOnInput>false</SkipOnInput>
 												<CommandName>Form.Command.FindInListFromRecipientsList</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Find in list</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="FindInListFromRecipientsListExtendedTooltip" id="227"/>
 											</Button>
 											<ButtonGroup name="FindContact" id="139">
@@ -882,12 +1068,24 @@
 														<Type>CommandBarButton</Type>
 														<SkipOnInput>false</SkipOnInput>
 														<CommandName>Form.Command.FindByAddress</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Find by email address</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="FindByAddressExtendedTooltip" id="229"/>
 													</Button>
 													<Button name="FindByPresentation" id="141">
 														<Type>CommandBarButton</Type>
 														<SkipOnInput>false</SkipOnInput>
 														<CommandName>Form.Command.FindByPresentation</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Find by name</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="FindByPresentationExtendedTooltip" id="230"/>
 													</Button>
 												</ChildItems>
@@ -896,6 +1094,12 @@
 												<Type>CommandBarButton</Type>
 												<SkipOnInput>false</SkipOnInput>
 												<CommandName>Form.Command.SelectAddressFromContact</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Select contact's email</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="SetContactAddressExtendedTooltip" id="231"/>
 											</Button>
 										</ChildItems>
@@ -954,6 +1158,12 @@
 													<ChildItems>
 														<InputField name="Group" id="84">
 															<DataPath>EmailRecipients.Group</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Group</v8:content>
+																</v8:item>
+															</Title>
 															<Width>12</Width>
 															<Wrap>false</Wrap>
 															<ListChoiceMode>true</ListChoiceMode>
@@ -1018,6 +1228,12 @@
 														</InputField>
 														<InputField name="Address" id="59">
 															<DataPath>EmailRecipients.Address</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Email address</v8:content>
+																</v8:item>
+															</Title>
 															<Wrap>false</Wrap>
 															<DropListButton>true</DropListButton>
 															<TextColor>style:HyperlinkColor</TextColor>
@@ -1038,6 +1254,12 @@
 													<ChildItems>
 														<InputField name="Contact" id="63">
 															<DataPath>EmailRecipients.Contact</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Contact</v8:content>
+																</v8:item>
+															</Title>
 															<Wrap>false</Wrap>
 															<TextColor>style:NoteText</TextColor>
 															<ContextMenu name="ContactContextMenu" id="64"/>
@@ -1049,6 +1271,12 @@
 														<InputField name="Presentation" id="61">
 															<DataPath>EmailRecipients.Presentation</DataPath>
 															<Visible>false</Visible>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Presentation</v8:content>
+																</v8:item>
+															</Title>
 															<Wrap>false</Wrap>
 															<TextColor>style:NoteText</TextColor>
 															<ContextMenu name="PresentationContextMenu" id="62"/>
@@ -1865,6 +2093,15 @@ FROM
 		<Parameter name="SubjectOf">
 			<Type>
 				<v8:TypeSet>cfg:AnyRef</v8:TypeSet>
+			</Type>
+		</Parameter>
+		<Parameter name="DefaultGroup">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
 			</Type>
 		</Parameter>
 	</Parameters>

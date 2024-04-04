@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -303,8 +304,8 @@ Procedure CheckLooping(ExchangePlanName, Mode = "CircuitImport") Export
 			
 	If Mode = "CircuitImport" Then
 		
-		 
-		
+		//  
+		// 
 
 		Query.Text = 
 			"SELECT TOP 1
@@ -476,7 +477,7 @@ Function CheckLoopRecursively(SynchronizationCircuit, InitialNode, CurrentNode =
 	For Each Node In Nodes Do
 		For Each PeerNode In Node.Rows Do
 			
-			If PeerNode.CorrespondentNodeCode = Parent Then  
+			If PeerNode.CorrespondentNodeCode = Parent Then // Exchange between two peer nodes 
 				Continue;
 			EndIf;
 			
@@ -519,7 +520,7 @@ Procedure UpdateCircuitFromTree(Tree, ExchangePlanName)
 	
 	For Each TreeNode In Tree.Rows Do
 		
-		
+		// Do not update data in the current node
 		If TreeNode.NodeCode = ThisNode.Code Then
 			Continue;
 		EndIf;

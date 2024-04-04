@@ -42,8 +42,8 @@
 			<Comment/>
 			<UseStandardCommands>false</UseStandardCommands>
 			<EditType>BothWays</EditType>
-			<DefaultRecordForm/>
-			<DefaultListForm/>
+			<DefaultRecordForm>InformationRegister.UserReminders.Form.Reminder</DefaultRecordForm>
+			<DefaultListForm>InformationRegister.UserReminders.Form.MyReminders</DefaultListForm>
 			<AuxiliaryRecordForm/>
 			<AuxiliaryListForm/>
 			<StandardAttributes>
@@ -698,6 +698,9 @@
 			<Form>Reminder</Form>
 			<Form>NotificationForm</Form>
 			<Form>MyReminders</Form>
+			<Form>Settings</Form>
+			<Form>AllReminders</Form>
+			<Form>RecordForm</Form>
 			<Command uuid="9fe72d73-4c95-47e0-bf92-dcb714d747c6">
 				<Properties>
 					<Name>UsersReminders</Name>

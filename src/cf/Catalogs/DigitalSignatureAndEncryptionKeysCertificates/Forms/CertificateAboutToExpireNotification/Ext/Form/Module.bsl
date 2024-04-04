@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -48,7 +49,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 		If ValueIsFilled(Certificate) Then
 			ValidBefore = Common.ObjectAttributeValue(Certificate, "ValidBefore")
-				+ DigitalSignatureInternal.TimeAddition();
+				+ DigitalSignatureInternal.UTCOffset();
 			Items.DecorationCertificate.Title = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'The certificate expires on %1';"), ValidBefore);
 			If Not YesReissued Then

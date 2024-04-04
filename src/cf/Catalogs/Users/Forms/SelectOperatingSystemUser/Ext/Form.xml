@@ -59,7 +59,7 @@
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Filling operating system domains and users...</v8:content>
+									<v8:content>Filling OS domains and users…</v8:content>
 								</v8:item>
 							</Title>
 							<ContextMenu name="LongRunningOperationClarificationContextMenu" id="81"/>
@@ -94,6 +94,12 @@
 									<TextColor>style:ButtonTextColor</TextColor>
 									<BackColor>style:ButtonBackColor</BackColor>
 									<BorderColor>style:BorderColor</BorderColor>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Select</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="SelectExtendedTooltip" id="28"/>
 								</Button>
 							</ChildItems>
@@ -282,6 +288,12 @@
 													<Button name="DomainUsersTableContextMenuSelect" id="27">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.Select</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Select</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="DomainUsersTableContextMenuSelectExtendedTooltip" id="35"/>
 													</Button>
 													<Button name="DomainUsersTableContextMenuFind" id="22">

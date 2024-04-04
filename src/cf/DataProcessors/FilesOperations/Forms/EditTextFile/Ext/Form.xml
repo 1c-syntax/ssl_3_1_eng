@@ -10,18 +10,36 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.WriteAndClose</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save and close</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="WriteAndCloseExtendedTooltip" id="63"/>
 			</Button>
 			<Button name="Write" id="24">
 				<Type>CommandBarButton</Type>
 				<Width>35</Width>
 				<CommandName>Form.Command.Write</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="WriteExtendedTooltip" id="64"/>
 			</Button>
 			<Button name="Edit" id="32">
 				<Type>CommandBarButton</Type>
 				<Width>35</Width>
 				<CommandName>Form.Command.Edit</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Edit</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="EditExtendedTooltip" id="65"/>
 			</Button>
@@ -29,6 +47,12 @@
 				<Type>CommandBarButton</Type>
 				<Width>35</Width>
 				<CommandName>Form.Command.EndEdit</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Commit</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="EndEditExtendedTooltip" id="66"/>
 			</Button>
@@ -36,6 +60,12 @@
 				<Type>CommandBarButton</Type>
 				<CommandName>CommonCommand.TasksBySubject</CommandName>
 				<DataPath>File</DataPath>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>File</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormCommonCommandTasksBySubjectExtendedTooltip" id="67"/>
 			</Button>
@@ -43,13 +73,25 @@
 				<Type>CommandBarButton</Type>
 				<Width>35</Width>
 				<CommandName>Form.Command.OpenCard</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Open card</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-				<ExtendedTooltip name="OpenCard1ExtendedTooltip" id="68"/>
+				<ExtendedTooltip name="OpenCardExtendedTooltip" id="68"/>
 			</Button>
 			<Button name="ShowDifferences" id="8">
 				<Type>CommandBarButton</Type>
 				<Width>35</Width>
 				<CommandName>Form.Command.ShowDifferences</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Show diff</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="ShowDifferencesExtendedTooltip" id="69"/>
 			</Button>
@@ -57,6 +99,12 @@
 				<Type>CommandBarButton</Type>
 				<Width>35</Width>
 				<CommandName>Form.Command.SaveAs</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save as…</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="SaveAsExtendedTooltip" id="70"/>
 			</Button>
@@ -64,12 +112,24 @@
 				<Type>CommandBarButton</Type>
 				<Width>35</Width>
 				<CommandName>Form.Command.ExternalEditor</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Open with default application</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="ExternalEditorExtendedTooltip" id="71"/>
 			</Button>
 			<Button name="FormSelectEncoding1" id="61">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.SelectEncoding</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Change encoding…</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormSelectEncoding1ExtendedTooltip" id="72"/>
 			</Button>
@@ -102,6 +162,12 @@
 				<TextDocumentField name="Text" id="1">
 					<DataPath>Text</DataPath>
 					<DefaultItem>true</DefaultItem>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Text</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<ContextMenu name="TextContextMenu" id="2"/>
 					<ExtendedTooltip name="TextExtendedTooltip" id="75"/>
@@ -221,13 +287,13 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Show differences</v8:content>
+					<v8:content>Show diff</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Show differences</v8:content>
+					<v8:content>Show diff</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>ShowDifferences</Action>

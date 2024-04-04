@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -209,7 +210,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure UpdateSettingsList()
@@ -220,55 +221,66 @@ Procedure UpdateSettingsList()
 	
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
-	CompletionNotification2 = New NotifyDescription("UpdateSettingsListCompletion", ThisObject);
+	CallbackOnCompletion = New NotifyDescription("UpdateSettingsListCompletion", ThisObject);
 	
-	TimeConsumingOperationsClient.WaitCompletion(Result, CompletionNotification2, IdleParameters);
+	TimeConsumingOperationsClient.WaitCompletion(Result, CallbackOnCompletion, IdleParameters);
 	
 EndProcedure
 
 &AtServer
 Function UpdatingSettingsList()
 	
-	If ExecutionResult <> Undefined
-		And ValueIsFilled(ExecutionResult.JobID) Then
-		TimeConsumingOperations.CancelJobExecution(ExecutionResult.JobID);
+	If ValueIsFilled(JobID) Then
+		TimeConsumingOperations.CancelJobExecution(JobID);
+		JobID = Undefined;
 	EndIf;
 	
 	TimeConsumingOperationParameters = TimeConsumingOperationParameters();
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.WaitCompletion = 0; 
+	ExecutionParameters.WaitCompletion = 0; // 
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Update user settings';");
 	
-	ExecutionResult = TimeConsumingOperations.ExecuteInBackground("UsersInternal.FillSettingsLists",
+	TimeConsumingOperation = TimeConsumingOperations.ExecuteInBackground("UsersInternal.FillSettingsLists",
 		TimeConsumingOperationParameters, ExecutionParameters);
 	
-	Return ExecutionResult;
+	If TimeConsumingOperation.Status = "Running" Then
+		JobID = TimeConsumingOperation.JobID; 
+	EndIf;
+	
+	Return TimeConsumingOperation;
 	
 EndFunction
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
 Procedure UpdateSettingsListCompletion(Result, AdditionalParameters) Export
+	
+	Items.TimeConsumingOperationPages.CurrentPage = Items.SettingsPage;
+	Items.CommandBar.Enabled = True;
 	
 	If Result = Undefined Then
 		Return;
 	EndIf;
 	
 	If Result.Status = "Completed2" Then
-		FillSettings();
+		FillSettings(Result.ResultAddress);
 		ExpandValueTree();
-		Items.TimeConsumingOperationPages.CurrentPage = Items.SettingsPage;
-		Items.CommandBar.Enabled = True;
+		
 	ElsIf Result.Status = "Error" Then
-		Items.TimeConsumingOperationPages.CurrentPage = Items.SettingsPage;
-		Raise Result.BriefErrorDescription;
+		StandardSubsystemsClient.OutputErrorInfo(
+			Result.ErrorInfo);
 	EndIf;
 	
 EndProcedure
 
 &AtServer
-Procedure FillSettings()
-	Result = GetFromTempStorage(ExecutionResult.ResultAddress);
+Procedure FillSettings(Val ResultAddress)
+	
+	Result = GetFromTempStorage(ResultAddress);
 	
 	ValueToFormAttribute(Result.ReportSettingsTree, "ReportsSettings");
 	ValueToFormAttribute(Result.UserReportOptions, "UserReportOptionTable");
@@ -286,7 +298,7 @@ Procedure FillSettings()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure ChangeMark1(Item)

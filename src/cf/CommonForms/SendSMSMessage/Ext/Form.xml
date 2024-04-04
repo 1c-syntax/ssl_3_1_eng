@@ -51,6 +51,12 @@
 							<ChildItems>
 								<InputField name="RecipientsNumbers" id="130">
 									<DataPath>RecipientsNumbers</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Recipient numbers</v8:content>
+										</v8:item>
+									</Title>
 									<InputHint>
 										<v8:item>
 											<v8:lang>en</v8:lang>
@@ -77,6 +83,12 @@
 							<ChildItems>
 								<InputField name="MessageText" id="3">
 									<DataPath>MessageText</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Message text</v8:content>
+										</v8:item>
+									</Title>
 									<Height>5</Height>
 									<MultiLine>true</MultiLine>
 									<EditTextUpdate>OnValueChange</EditTextUpdate>
@@ -100,6 +112,12 @@
 									<ChildItems>
 										<CheckBoxField name="SendInTransliteration" id="21">
 											<DataPath>SendInTransliteration</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Convert Cyrillic to Latin</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>Right</TitleLocation>
 											<CheckBoxType>Auto</CheckBoxType>
 											<ContextMenu name="SendInTransliterationContextMenu" id="22"/>
@@ -107,6 +125,12 @@
 										</CheckBoxField>
 										<LabelField name="CharactersInMessage" id="38">
 											<DataPath>CharactersInMessage</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Symbols used</v8:content>
+												</v8:item>
+											</Title>
 											<ContextMenu name="MessageLength1ContextMenu" id="39"/>
 											<ExtendedTooltip name="MessageLength1ExtendedTooltip" id="40"/>
 										</LabelField>
@@ -143,6 +167,12 @@
 										<InputField name="SenderName" id="13">
 											<DataPath>SenderName</DataPath>
 											<Enabled>false</Enabled>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Sender's name</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<HorizontalStretch>false</HorizontalStretch>
 											<ContextMenu name="SenderNameContextMenu" id="14"/>
@@ -188,6 +218,12 @@
 								</PictureDecoration>
 								<LabelField name="OutboundMessageStatus" id="71">
 									<DataPath>OutboundMessageStatus</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Status</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<VerticalAlign>Center</VerticalAlign>
 									<GroupVerticalAlign>Center</GroupVerticalAlign>
@@ -308,8 +344,8 @@
 								</v8:item>
 							</Title>
 							<Picture>
-								<xr:Ref>CommonPicture.Warning32</xr:Ref>
-								<xr:LoadTransparent>false</xr:LoadTransparent>
+								<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+								<xr:LoadTransparent>true</xr:LoadTransparent>
 							</Picture>
 							<FileDragMode>AsFile</FileDragMode>
 							<ContextMenu name="MessageNotSentPictureContextMenu" id="104"/>

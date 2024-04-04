@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -27,9 +28,8 @@ Procedure OnOpen(Cancel)
 		Return;
 	EndIf;
 	
-	MessageText = NStr("en = 'The computer has %1 GB of RAM.
-		|For better application performance,
-		|it is recommended that you increase the RAM size to %2 GB.';");
+	MessageText = NStr("en = 'Your computer has %1 GB of RAM.
+		|Recommended RAM size is %2 GB.';");
 	
 	MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText, AvailableMemorySize, RecommendedSize);
 	
@@ -37,7 +37,7 @@ Procedure OnOpen(Cancel)
 	
 	QuestionParameters = StandardSubsystemsClient.QuestionToUserParameters();
 	QuestionParameters.Title = MessageTitle;
-	QuestionParameters.Picture = PictureLib.Warning32;
+	QuestionParameters.Picture = PictureLib.DialogExclamation;
 	QuestionParameters.Insert("CheckBoxText", NStr("en = 'Remind in two months';"));
 	
 	Buttons = New ValueList;

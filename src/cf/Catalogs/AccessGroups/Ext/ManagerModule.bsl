@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -54,7 +55,7 @@ EndProcedure
 
 // End StandardSubsystems.AccessManagement
 
-// SaaSTechnology.ExportImportData
+// CloudTechnology.ExportImportData
 
 // Attached in ExportImportDataOverridable.OnRegisterDataExportHandlers.
 //
@@ -86,7 +87,7 @@ Procedure BeforeExportObject(Container, ObjectExportManager, Serializer, Object,
 	
 EndProcedure
 
-// End SaaSTechnology.ExportImportData
+// End CloudTechnology.ExportImportData
 
 #EndRegion
 
@@ -120,6 +121,62 @@ EndProcedure
 #EndRegion
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
+
+#Region Internal
+
+Procedure ExcludeExpiredMembers() Export
+	
+	CurrentSessionDateDayStart = BegOfDay(CurrentSessionDate());
+	
+	Query = New Query;
+	Query.SetParameter("DateEmpty", '00010101');
+	Query.SetParameter("CurrentSessionDateDayStart", CurrentSessionDateDayStart);
+	Query.Text =
+	"SELECT DISTINCT
+	|	AccessGroupsUsers_SSLy.Ref AS Ref
+	|FROM
+	|	Catalog.AccessGroups.Users AS AccessGroupsUsers_SSLy
+	|WHERE
+	|	AccessGroupsUsers_SSLy.ValidityPeriod <> &DateEmpty
+	|	AND AccessGroupsUsers_SSLy.ValidityPeriod <= &CurrentSessionDateDayStart";
+	
+	Selection = Query.Execute().Select();
+	
+	Block = New DataLock;
+	LockItem = Block.Add("Catalog.AccessGroups");
+	
+	While Selection.Next() Do
+		LockItem.SetValue("Ref", Selection.Ref);
+		BeginTransaction();
+		Try
+			Block.Lock();
+			AccessGroupObject = Selection.Ref.GetObject();
+			If AccessGroupObject <> Undefined Then
+				HasChanges = False;
+				IndexOf = AccessGroupObject.Users.Count() - 1;
+				While IndexOf >= 0 Do
+					TSRow = AccessGroupObject.Users[IndexOf];
+					If ValueIsFilled(TSRow.ValidityPeriod)
+					   And TSRow.ValidityPeriod <= CurrentSessionDateDayStart Then
+						AccessGroupObject.Users.Delete(IndexOf);
+						HasChanges = True;
+					EndIf;
+					IndexOf = IndexOf - 1;
+				EndDo;
+				If HasChanges Then
+					AccessGroupObject.Write();
+				EndIf;
+			EndIf;
+			CommitTransaction();
+		Except
+			RollbackTransaction();
+			Raise;
+		EndTry;
+	EndDo;
+	
+EndProcedure
+
+#EndRegion
 
 #Region Private
 
@@ -306,7 +363,7 @@ Procedure MarkForDeletionSelectedProfilesAccessGroups(HasChanges = Undefined) Ex
 			InfobaseUpdate.WriteObject(AccessGroupObject);
 			InformationRegisters.AccessGroupsTables.UpdateRegisterData(Selection.Ref);
 			InformationRegisters.AccessGroupsValues.UpdateRegisterData(Selection.Ref);
-			
+			// @skip-check query-in-loop - Batch-wise data processing within a transaction
 			UsersForUpdate = UsersForRolesUpdate(Undefined, AccessGroupObject);
 			AccessManagement.UpdateUserRoles(UsersForUpdate);
 			HasChanges = True;
@@ -395,8 +452,8 @@ Function UpdateProfileAccessGroups(Profile, UpdatingAccessGroupsWithObsoleteSett
 		If AccessKindsContentChanged1
 		   And ( UpdatingAccessGroupsWithObsoleteSettings
 		       Or Not HasAccessKindsToDeleteWithSpecifiedAccessValues ) Then
-			
-			
+			// 
+			// 
 			CurrentRowNumber1 = AccessGroup.AccessKinds.Count()-1;
 			While CurrentRowNumber1 >= 0 Do
 				CurrentAccessKind = AccessGroup.AccessKinds[CurrentRowNumber1].AccessKind;
@@ -692,97 +749,6 @@ Function ProfileAccessGroups(Profiles) Export
 	
 EndFunction
 
-Procedure RegisterRefs(RefsKind, Val RefsToAdd) Export
-	
-	If Common.DataSeparationEnabled() Then
-		Return;
-	EndIf;
-	
-	RefsKindProperties = RefsKindProperties(RefsKind);
-	
-	SetPrivilegedMode(True);
-	References = StandardSubsystemsServer.ApplicationParameter(
-		RefsKindProperties.ApplicationParameterName);
-	SetPrivilegedMode(False);
-	
-	If TypeOf(References) <> Type("Array") Then
-		References = New Array;
-	EndIf;
-	
-	HasChanges = False;
-	If RefsToAdd = Null Then
-		If References.Count() > 0 Then
-			References = New Array;
-			HasChanges = True;
-		EndIf;
-		
-	ElsIf References.Count() = 1
-	        And References[0] = Undefined Then
-		
-		Return; // Previously more than 300 references were added.
-	Else
-		If TypeOf(RefsToAdd) <> Type("Array") Then
-			RefsToAdd = CommonClientServer.ValueInArray(RefsToAdd);
-		EndIf;
-		For Each RefToAdd In RefsToAdd Do
-			If References.Find(RefToAdd) <> Undefined Then
-				Continue;
-			EndIf;
-			References.Add(RefToAdd);
-			HasChanges = True;
-		EndDo;
-		If References.Count() > 300 Then
-			References = New Array;
-			References.Add(Undefined);
-			HasChanges = True;
-		EndIf;
-	EndIf;
-	
-	If Not HasChanges Then
-		Return;
-	EndIf;
-	
-	SetPrivilegedMode(True);
-	StandardSubsystemsServer.SetApplicationParameter(
-		RefsKindProperties.ApplicationParameterName, References);
-	SetPrivilegedMode(False);
-	
-EndProcedure
-
-Function RegisteredRefs(RefsKind) Export
-	
-	If Common.DataSeparationEnabled() Then
-		Return New Array;
-	EndIf;
-	
-	RefsKindProperties = RefsKindProperties(RefsKind);
-	
-	SetPrivilegedMode(True);
-	References = StandardSubsystemsServer.ApplicationParameter(
-		RefsKindProperties.ApplicationParameterName);
-	SetPrivilegedMode(False);
-	
-	If TypeOf(References) <> Type("Array") Then
-		References = New Array;
-	EndIf;
-	
-	If References.Count() = 1
-	   And References[0] = Undefined Then
-		
-		Return References;
-	EndIf;
-	
-	CheckedRefs = New Array;
-	For Each Ref In References Do
-		If RefsKindProperties.AllowedTypes.ContainsType(TypeOf(Ref)) Then
-			CheckedRefs.Add(Ref);
-		EndIf;
-	EndDo;
-	
-	Return CheckedRefs;
-	
-EndFunction
-
 ////////////////////////////////////////////////////////////////////////////////
 // Procedures and functions to support data exchange in DIB.
 
@@ -869,8 +835,9 @@ EndProcedure
 // 
 // Parameters:
 //  DataElement - CatalogObject.AccessGroups
+//                - ObjectDeletion
 //
-Procedure RegisterAccessGroupChangedOnImport(DataElement) Export
+Procedure RegisterChangeUponDataImport(DataElement) Export
 	
 	PreviousValues1 = Common.ObjectAttributesValues(DataElement.Ref,
 		"Ref, Profile, DeletionMark, Users, AccessKinds, AccessValues");
@@ -903,29 +870,45 @@ Procedure RegisterAccessGroupChangedOnImport(DataElement) Export
 		EndIf;
 	EndIf;
 	
+	SetPrivilegedMode(True);
+	
 	If Required2Registration Then
-		RegisterRefs("AccessGroups", AccessGroup);
+		UsersInternal.RegisterRefs("AccessGroups", AccessGroup);
 	EndIf;
 	
-	UsersForUpdate = UsersForRolesUpdate(PreviousValues1, DataElement);
-	RegisterRefs("Users", UsersForUpdate);
+	UsersInternal.RegisterRefs("AccessGroupsUsers_SSLy",
+		UsersForRolesUpdate(PreviousValues1, DataElement));
 	
 	If AccessManagementInternal.LimitAccessAtRecordLevelUniversally() Then
 		RolesToUpdate = RolesForUpdatingRights(PreviousValues1, DataElement);
-		RegisterRefs("Roles", RolesToUpdate);
+		UsersInternal.RegisterRefs("AccessGroupsRoles", RolesToUpdate);
 	EndIf;
 	
 EndProcedure
 
 // For internal use only.
-Procedure UpdateAccessGroupsAuxiliaryDataChangedOnImport() Export
+Procedure ProcessChangeRegisteredUponDataImport() Export
 	
 	If Common.DataSeparationEnabled() Then
-		// Changes of the access groups in SWP are blocked and are not imported into the data area.
+		// 
 		Return;
 	EndIf;
 	
-	ChangedAccessGroups = RegisteredRefs("AccessGroups");
+	RegistrationCleanup = New Array;
+	ProcessRegisteredChangeInAccessGroups("AccessGroups", RegistrationCleanup);
+	ProcessRegisteredChangeInRoles("AccessGroupsRoles", RegistrationCleanup);
+	ProcessRegisteredChangeInMembers("AccessGroupsUsers_SSLy", RegistrationCleanup);
+	
+	For Each RefsKindName In RegistrationCleanup Do
+		UsersInternal.RegisterRefs(RefsKindName, Null);
+	EndDo;
+	
+EndProcedure
+
+// 
+Procedure ProcessRegisteredChangeInAccessGroups(RefsKindName, RegistrationCleanup)
+
+	ChangedAccessGroups = UsersInternal.RegisteredRefs(RefsKindName);
 	If ChangedAccessGroups.Count() = 0 Then
 		Return;
 	EndIf;
@@ -933,173 +916,73 @@ Procedure UpdateAccessGroupsAuxiliaryDataChangedOnImport() Export
 	If ChangedAccessGroups.Count() = 1
 	   And ChangedAccessGroups[0] = Undefined Then
 		
-		InformationRegisters.AccessGroupsTables.UpdateRegisterData();
-		InformationRegisters.AccessGroupsValues.UpdateRegisterData();
-	Else
-		InformationRegisters.AccessGroupsTables.UpdateRegisterData(ChangedAccessGroups);
-		InformationRegisters.AccessGroupsValues.UpdateRegisterData(ChangedAccessGroups);
+		ChangedAccessGroups = Undefined;
 	EndIf;
+	
+	InformationRegisters.AccessGroupsTables.UpdateRegisterData(ChangedAccessGroups);
+	InformationRegisters.AccessGroupsValues.UpdateRegisterData(ChangedAccessGroups);
 	
 	If AccessManagementInternal.LimitAccessAtRecordLevelUniversally() Then
 		LongDesc = "UpdateAccessGroupsAuxiliaryDataChangedOnImport";
 		AccessManagementInternal.ScheduleAccessGroupsSetsUpdate(LongDesc);
-		CompositionOfRoleChanges = RegisteredRefs("Roles");
-		If CompositionOfRoleChanges.Count() = 1
-		   And CompositionOfRoleChanges[0] = Undefined Then
-			CompositionOfRoleChanges = Undefined;
-		EndIf;
-		AccessManagementInternal.ScheduleAnAccessUpdateWhenTheAccessGroupProfileChanges(LongDesc,
-			CompositionOfRoleChanges, True);
-		RegisterRefs("Roles", Null);
-	EndIf;
-	
-	RegisterRefs("AccessGroups", Null);
-	
-EndProcedure
-
-// For internal use only.
-Procedure RegisterUsersOfUserGroupChangedOnImport(DataElement) Export
-	
-	PreviousValues1 = Common.ObjectAttributesValues(DataElement.Ref,
-		"Ref, DeletionMark, Content");
-	
-	AttributeName = ?(TypeOf(DataElement.Ref) = Type("CatalogRef.ExternalUsersGroups"),
-		"ExternalUser", "User");
-	
-	If PreviousValues1.Ref = DataElement.Ref Then
-		OldUsers = PreviousValues1.Content.Unload().UnloadColumn(AttributeName);
-	Else
-		OldUsers = New Array;
-	EndIf;
-	
-	If TypeOf(DataElement) = Type("ObjectDeletion") Then
-		If PreviousValues1.Ref = Undefined Then
-			Return;
-		EndIf;
-		UsersForUpdate = OldUsers;
-	Else
-		NewUsers = DataElement.Content.UnloadColumn(AttributeName);
 		
-		If PreviousValues1.Ref <> DataElement.Ref Then
-			UsersForUpdate = NewUsers;
-		Else
-			UsersForUpdate = New Array;
-			All = DataElement.DeletionMark <> PreviousValues1.DeletionMark;
-			
-			For Each User In OldUsers Do
-				If All Or NewUsers.Find(User) = Undefined Then
-					UsersForUpdate.Add(User);
-				EndIf;
-			EndDo;
-			
-			For Each User In NewUsers Do
-				If All Or OldUsers.Find(User) = Undefined Then
-					UsersForUpdate.Add(User);
-				EndIf;
-			EndDo;
-		EndIf;
-	EndIf;
-	
-	If UsersForUpdate.Count() > 0 Then
-		RegisterRefs("UserGroups",
-			UsersInternal.ObjectRef2(DataElement));
-	EndIf;
-	
-	RegisterRefs("Users", UsersForUpdate);
-	
-EndProcedure
-
-// For internal use only.
-Procedure UpdateAuxiliaryDataOfUserGroupsChangedOnImport() Export
-	
-	If Common.DataSeparationEnabled() Then
-		// Changes of the access groups in SWP are blocked and are not imported into the data area.
-		Return;
-	EndIf;
-	
-	ChangedUserGroups = RegisteredRefs("UserGroups");
-	If ChangedUserGroups.Count() = 0 Then
-		Return;
-	EndIf;
-	
-	If AccessManagementInternal.LimitAccessAtRecordLevelUniversally() Then
-		AccessManagementInternal.ScheduleAccessUpdateOnIndirectChangeOfAccessGroupMembers(
-			ChangedUserGroups, True);
-	EndIf;
-	
-	RegisterRefs("UserGroups", Null);
-	
-EndProcedure
-
-// For internal use only.
-Procedure RegisterUserChangedOnImport(DataElement) Export
-	
-	PreviousValues1 = Common.ObjectAttributesValues(DataElement.Ref,
-		"Ref, DeletionMark, Invalid");
-	
-	Required2Registration = False;
-	User = DataElement.Ref;
-	
-	If TypeOf(DataElement) = Type("ObjectDeletion") Then
-		If PreviousValues1.Ref = Undefined Then
-			Return;
-		EndIf;
-		Required2Registration = True;
+		ChangedMembersTypes = New Structure("Users, ExternalUsers", True, True);
+		AccessManagementInternal.ScheduleAccessUpdateOnChangeAccessGroupMembers(
+			ChangedAccessGroups, ChangedMembersTypes, True);
 		
-	ElsIf PreviousValues1.Ref <> DataElement.Ref Then
-		Required2Registration = True;
-		User = UsersInternal.ObjectRef2(DataElement);
-	
-	ElsIf DataElement.Invalid <> PreviousValues1.Invalid
-		 Or DataElement.DeletionMark <> PreviousValues1.DeletionMark Then
-			
-		Required2Registration = True;
+		AccessManagementInternal.UpdateAccessGroupsOfAllowedAccessKey(ChangedAccessGroups);
 	EndIf;
 	
-	If Not Required2Registration Then
-		Return;
-	EndIf;
-	
-	RegisterRefs("UserGroups",
-		?(TypeOf(DataElement.Ref) = Type("CatalogRef.Users"),
-			Catalogs.UserGroups.AllUsers,
-			Catalogs.ExternalUsersGroups.AllExternalUsers));
-	
-	RegisterRefs("Users", User);
+	RegistrationCleanup.Add(RefsKindName);
 	
 EndProcedure
 
-// For internal use only.
-Procedure UpdateUsersRolesChangedOnImport() Export
+// 
+Procedure ProcessRegisteredChangeInRoles(RefsKindName, RegistrationCleanup)
 	
-	If Common.DataSeparationEnabled() Then
-		// Changes to profiles in SWP are blocked and are not imported into the data area.
+	If Not AccessManagementInternal.LimitAccessAtRecordLevelUniversally() Then
 		Return;
 	EndIf;
 	
-	ChangedUsers = RegisteredRefs("Users");
-	If ChangedUsers.Count() = 0 Then
+	CompositionOfRoleChanges = UsersInternal.RegisteredRefs(RefsKindName);
+	If CompositionOfRoleChanges.Count() = 0 Then
 		Return;
 	EndIf;
 	
-	If ChangedUsers.Count() = 1
-	   And ChangedUsers[0] = Undefined Then
+	If CompositionOfRoleChanges.Count() = 1
+	   And CompositionOfRoleChanges[0] = Undefined Then
 		
-		ChangedUsers = Undefined;
-	EndIf;
-	AccessManagement.UpdateUserRoles(ChangedUsers);
-	
-	If AccessManagementInternal.LimitAccessAtRecordLevelUniversally() Then
-		AccessManagementInternal.ScheduleAccessUpdateOnIndirectChangeOfAccessGroupMembers(
-			ChangedUsers, True);
+		CompositionOfRoleChanges = Undefined;
 	EndIf;
 	
-	RegisterRefs("Users", Null);
+	LongDesc = "UpdateAccessGroupsAuxiliaryDataChangedOnImport";
+	AccessManagementInternal.ScheduleAnAccessUpdateWhenTheAccessGroupProfileChanges(LongDesc,
+		CompositionOfRoleChanges, True);
+	
+	RegistrationCleanup.Add(RefsKindName);
+	
+EndProcedure
+
+// 
+Procedure ProcessRegisteredChangeInMembers(RefsKindName, RegistrationCleanup)
+	
+	Content = UsersInternal.RegisteredRefs(RefsKindName);
+	If Content.Count() = 0 Then
+		Return;
+	EndIf;
+	
+	If Content.Count() = 1 And Content[0] = Undefined Then
+		Content = Undefined;
+	EndIf;
+	
+	AccessManagement.UpdateUserRoles(Content);
+	
+	RegistrationCleanup.Add(RefsKindName);
 	
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Initial population.
+// Initial population
 
 // See also InfobaseUpdateOverridable.OnSetUpInitialItemsFilling
 // 
@@ -1127,7 +1010,6 @@ Procedure OnInitialItemsFilling(LanguagesCodes, Items, TabularSections) Export
 	Item.Profile      = AccessManagement.ProfileAdministrator();
 	
 EndProcedure
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Infobase update.
@@ -1226,7 +1108,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
 	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t update (skipped) service data for some access groups: %1';"), 
+			NStr("en = 'Couldn''t process (skipped) some access groups: %1';"), 
 			ObjectsWithIssuesCount);
 		Raise MessageText;
 	Else
@@ -1244,6 +1126,21 @@ EndProcedure
 
 Procedure UpdateAuxiliaryAccessGroupsData(Parameters) Export
 	
+	Query = New Query;
+	Query.Text =
+	"SELECT
+	|	Users.Ref AS Ref
+	|FROM
+	|	Catalog.Users AS Users
+	|WHERE
+	|	Users.IsInternal";
+	
+	Selection = Query.Execute().Select();
+	UtilityUsers = New Map;
+	While Selection.Next() Do
+		UtilityUsers.Insert(Selection.Ref, True);
+	EndDo;
+	
 	AccessGroupProcessingErrorTemplate =
 		NStr("en = 'Couldn''t process the ""%1"" access group. Reason:
 		           |%2';");
@@ -1254,20 +1151,34 @@ Procedure UpdateAuxiliaryAccessGroupsData(Parameters) Export
 		NStr("en = 'Cannot update Access Values of the ""%1"" access group. Reason:
 		           |%2';");
 	
-	Block = New DataLock;
-	LockItem = Block.Add("Catalog.AccessGroups");
-	LockItem.Mode = DataLockMode.Shared;
-	
 	ObjectsWithIssuesCount = 0;
 	ProcessedAccessGroups = New Array;
 	
 	For Each AccessGroup In Parameters.AccessGroups Do
+		Block = New DataLock;
+		LockItem = Block.Add("Catalog.AccessGroups");
 		LockItem.SetValue("Ref", AccessGroup);
 		RepresentationOfTheReference = String(AccessGroup);
 		BeginTransaction();
 		Try
 			ErrorTemplate = AccessGroupProcessingErrorTemplate;
 			Block.Lock();
+			
+			AccessGroupObject = AccessGroup.GetObject(); // CatalogObject.AccessGroups
+			IndexOf = AccessGroupObject.Users.Count();
+			While IndexOf > 0 Do
+				IndexOf = IndexOf - 1;
+				TSRow = AccessGroupObject.Users.Get(IndexOf);
+				If UtilityUsers.Get(TSRow.User) <> Undefined Then
+					AccessGroupObject.Users.Delete(IndexOf);
+				EndIf;
+			EndDo;
+			
+			If AccessGroupObject.Modified() Then
+				InfobaseUpdate.WriteObject(AccessGroupObject, False);
+				AccessManagementInternal.ScheduleAccessGroupsSetsUpdate(
+					"UpdateAuxiliaryAccessGroupsData", True, False);
+			EndIf;
 			
 			ErrorTemplate = AccessGroupsTablesUpdateErrorTemplate;
 			InformationRegisters.AccessGroupsTables.UpdateRegisterData(AccessGroup);
@@ -1308,59 +1219,6 @@ Procedure UpdateAuxiliaryAccessGroupsData(Parameters) Export
 	EndIf;
 	
 EndProcedure
-
-////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions.
-
-// For the RegisteredRefs function and the RegisteredRefs procedure.
-//
-// Parameters:
-//  RefsKind - String
-//
-// Returns:
-//  Structure:
-//   * AllowedTypes - TypeDescription
-//   * ApplicationParameterName - String
-// 
-Function RefsKindProperties(RefsKind)
-	
-	If RefsKind = "Profiles" Then
-		AllowedTypes = New TypeDescription("CatalogRef.AccessGroupProfiles");
-		ApplicationParameterName = "StandardSubsystems.AccessManagement.ProfilesChangedOnImport";
-		
-	ElsIf RefsKind = "AccessGroups" Then
-		AllowedTypes = New TypeDescription("CatalogRef.AccessGroups");
-		ApplicationParameterName = "StandardSubsystems.AccessManagement.AccessGroupsModifiedOnImport";
-		
-	ElsIf RefsKind = "UserGroups" Then
-		AllowedTypes = New TypeDescription("CatalogRef.UserGroups,CatalogRef.ExternalUsersGroups");
-		ApplicationParameterName = "StandardSubsystems.AccessManagement.UserGroupsModifiedOnImport";
-		
-	ElsIf RefsKind = "Users" Then
-		AllowedTypes = New TypeDescription("CatalogRef.Users,CatalogRef.ExternalUsers");
-		ApplicationParameterName = "StandardSubsystems.AccessManagement.UsersChangedOnImport";
-		
-	ElsIf RefsKind = "Roles" Then
-		AllowedTypes = New TypeDescription("CatalogRef.MetadataObjectIDs,CatalogRef.ExtensionObjectIDs");
-		ApplicationParameterName = "StandardSubsystems.AccessManagement.RolesChangedDuringLoading";
-		
-	ElsIf RefsKind = "LimitAccessAtRecordLevel" Then
-		AllowedTypes = New TypeDescription("Boolean");
-		ApplicationParameterName = "StandardSubsystems.AccessManagement.RestrictAccessAtTheRecordLevelChangeAtUpload";
-		
-	ElsIf RefsKind = "UsedAccessKinds" Then
-		AllowedTypes = Metadata.DefinedTypes.AccessValue.Type;
-		ApplicationParameterName = "StandardSubsystems.AccessManagement.TheTypesOfAccessUsedChangedDuringTheDownload";
-	Else
-		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'In function ""%3"", parameter ""%2"" has invalid value: %1.';"),
-			RefsKind, "RefsKind", "RefsKindProperties");
-		Raise ErrorText;
-	EndIf;
-	
-	Return New Structure("AllowedTypes, ApplicationParameterName", AllowedTypes, ApplicationParameterName);
-	
-EndFunction
 
 #EndRegion
 

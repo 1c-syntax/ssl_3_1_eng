@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -48,11 +49,11 @@ Procedure AfterWriteUser(Form, CompletionDetails) Export
 	
 	Form.SuggestDiscussions = False;
 		
-	CompletionNotification2 = New NotifyDescription("SuggestDiscussionsCompletion", ThisObject, CompletionDetails);
+	CallbackOnCompletion = New NotifyDescription("SuggestDiscussionsCompletion", ThisObject, CompletionDetails);
 	QuestionParameters = StandardSubsystemsClient.QuestionToUserParameters();
 	QuestionParameters.PromptDontAskAgain = True;
 	QuestionParameters.Title = NStr("en = 'Conversations (collaboration system)';");
-	StandardSubsystemsClient.ShowQuestionToUser(CompletionNotification2, Form.SuggestConversationsText,
+	StandardSubsystemsClient.ShowQuestionToUser(CallbackOnCompletion, Form.SuggestConversationsText,
 		QuestionDialogMode.YesNo, QuestionParameters);
 	
 EndProcedure
@@ -75,6 +76,13 @@ EndProcedure
 
 Procedure ShowSettingOfIntegrationWithExternalSystems() Export
 	OpenForm("DataProcessor.EnableDiscussions.Form.SettingsOfMessagesFromOtherApplications",,ThisObject);
+EndProcedure
+
+Procedure OnStart(Parameters) Export
+	
+	CommandsGenerationHandler = New NotifyDescription("AddConversationsCommands", ThisObject);
+	CollaborationSystem.AttachGenerateCommandsHandler(CommandsGenerationHandler);
+	
 EndProcedure
 
 #EndRegion
@@ -106,11 +114,7 @@ Procedure ShowIntegrationInformation(Form, IntegrationDetails, IntegrationChange
 		FormName = FormName + ".BotCreationVKontakte";
 	EndIf;
 		
-	OpenForm(FormName,
-		IntegrationDetails,
-		Form,,,,
-		Notification,
-		FormWindowOpeningMode.LockOwnerWindow);
+	OpenForm(FormName, IntegrationDetails, Form,,,, Notification, FormWindowOpeningMode.LockOwnerWindow);
 	
 EndProcedure
 
@@ -161,7 +165,7 @@ Procedure OnProcessDisableDiscussionError(ErrorInfo, StandardProcessing, Context
 		"Error",
 		ErrorProcessing.DetailErrorDescription(ErrorInfo),, True);
 	
-	StandardSubsystemsClient.ShowErrorInformationAndContinue(ErrorInfo);
+	StandardSubsystemsClient.OutputErrorInfo(ErrorInfo);
 	
 EndProcedure
 
@@ -182,6 +186,15 @@ Procedure SuggestDiscussionsCompletion(Result, CompletionDetails) Export
 	EndIf;
 	ExecuteNotifyProcessing(CompletionDetails);
 	
+EndProcedure
+
+Procedure AddConversationsCommands(CommandParameters_, Commands, DefaultCommand, AdditionalParameters) Export
+	
+	If CommonClient.SubsystemExists("StandardSubsystems.UserReminders") Then
+		ModuleUserReminderInternalClient = CommonClient.CommonModule("UserRemindersInternalClient");
+		ModuleUserReminderInternalClient.AddConversationsCommands(CommandParameters_, Commands, DefaultCommand);
+	EndIf;
+		
 EndProcedure
 
 #EndRegion

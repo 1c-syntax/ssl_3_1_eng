@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -12,7 +13,7 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	If ProcessIncomingParameters() Then
+	If Not ProcessFormParameters() Then
 		Cancel = True;
 		Return;
 	EndIf;
@@ -61,45 +62,39 @@ Procedure GenerateReport()
 EndProcedure
 
 &AtServer
-Function ProcessIncomingParameters()
+Function ProcessFormParameters()
 
-	If Parameters.Property("QuestionnaireTemplateQuestion") Then	
-		QuestionnaireTemplateQuestion = Parameters.QuestionnaireTemplateQuestion; 
-	Else
-		Return True;
+	If Parameters.QuestionnaireTemplateQuestion.IsEmpty() Then	
+		Return False;
 	EndIf;
-	
-	If Parameters.Property("Survey") Then
-		Survey =  Parameters.Survey; 
-	Else
-		Return True;
-	EndIf;
-	
-	If Parameters.Property("FullCode") Then
-		FullCode =  Parameters.FullCode;
-	Else
-		Return True;
-	EndIf;
-	
-	If Parameters.Property("SurveyDescription") Then
-		SurveyDescription =  Parameters.SurveyDescription;
-	Else
-		Return True;
-	EndIf;
-	
-	If Parameters.Property("SurveyDate") Then
-		SurveyDate =  Parameters.SurveyDate;
-	Else
-		Return True;
-	EndIf;
-	
-	If Parameters.Property("ReportVariant") Then
-		ReportVariant = Parameters.ReportVariant;
-	Else
-		Return True;
-	EndIf;
+	QuestionnaireTemplateQuestion = Parameters.QuestionnaireTemplateQuestion; 
 
-	Return False;
+	If Parameters.Survey.IsEmpty() Then
+		Return False;
+	EndIf;
+	Survey = Parameters.Survey; 
+	
+	If IsBlankString(Parameters.FullCode) Then
+		Return False;
+	EndIf;
+	FullCode = Parameters.FullCode;
+	
+	If IsBlankString(Parameters.SurveyDescription) Then
+		Return False;
+	EndIf;
+	SurveyDescription = Parameters.SurveyDescription;
+	
+	If Not ValueIsFilled(Parameters.SurveyDate) Then
+		Return False;
+	EndIf;
+	SurveyDate = Parameters.SurveyDate;
+	
+	If IsBlankString(Parameters.ReportVariant) Then
+		Return False;
+	EndIf;
+	ReportVariant = Parameters.ReportVariant;
+
+	Return True;
 	
 EndFunction
 

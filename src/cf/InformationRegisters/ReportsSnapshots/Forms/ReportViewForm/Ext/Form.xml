@@ -10,6 +10,12 @@
 		<SpreadSheetDocumentField name="ReportSpreadsheetDocument" id="1">
 			<DataPath>ReportSpreadsheetDocument</DataPath>
 			<DefaultItem>true</DefaultItem>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Spreadsheet: report generation result</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>None</TitleLocation>
 			<CommandSet>
 				<ExcludedCommand>AlignCenter</ExcludedCommand>
@@ -178,6 +184,12 @@
 									<Type>UsualButton</Type>
 									<Representation>Picture</Representation>
 									<CommandName>Form.Command.ReportsSnapshots</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Report snapshots</v8:content>
+										</v8:item>
+									</Title>
 									<ShapeRepresentation>None</ShapeRepresentation>
 									<ExtendedTooltip name="ButtonReportsSnapshotsExtendedTooltip" id="11"/>
 								</Button>
@@ -215,6 +227,12 @@
 									<Type>UsualButton</Type>
 									<Representation>Picture</Representation>
 									<CommandName>Form.Command.GoToBegin</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Go to beginning</v8:content>
+										</v8:item>
+									</Title>
 									<ShapeRepresentation>None</ShapeRepresentation>
 									<ExtendedTooltip name="GoToBeginningButtonExtendedTooltip" id="17"/>
 								</Button>
@@ -252,6 +270,12 @@
 									<Type>UsualButton</Type>
 									<Representation>Picture</Representation>
 									<CommandName>Form.Command.GoBack</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Go back</v8:content>
+										</v8:item>
+									</Title>
 									<ShapeRepresentation>None</ShapeRepresentation>
 									<ExtendedTooltip name="GoBackButtonExtendedTooltip" id="21"/>
 								</Button>
@@ -289,6 +313,12 @@
 									<Type>UsualButton</Type>
 									<Representation>Picture</Representation>
 									<CommandName>Form.Command.GoForward</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Go forward</v8:content>
+										</v8:item>
+									</Title>
 									<ShapeRepresentation>None</ShapeRepresentation>
 									<ExtendedTooltip name="GoAheadButtonExtendedTooltip" id="25"/>
 								</Button>
@@ -326,6 +356,12 @@
 									<Type>UsualButton</Type>
 									<Representation>Picture</Representation>
 									<CommandName>Form.Command.GoToEnd</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Go to end</v8:content>
+										</v8:item>
+									</Title>
 									<ShapeRepresentation>None</ShapeRepresentation>
 									<ExtendedTooltip name="GoToEndButtonExtendedTooltip" id="29"/>
 								</Button>
@@ -363,6 +399,12 @@
 									<Type>UsualButton</Type>
 									<Representation>Picture</Representation>
 									<CommandName>Form.Command.DeleteReportSnapshot</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Delete snapshot</v8:content>
+										</v8:item>
+									</Title>
 									<ShapeRepresentation>None</ShapeRepresentation>
 									<ExtendedTooltip name="ButtonDeleteReportSnapshotExtendedTooltip" id="33"/>
 								</Button>

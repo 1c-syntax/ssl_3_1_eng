@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -37,7 +38,7 @@ Function ClusterAdministrationParameters() Export
 	
 	Result = New Structure();
 	
-	Result.Insert("AttachmentType", "COM"); 
+	Result.Insert("AttachmentType", "COM"); // 
 	
 	// For "COM" only
 	Result.Insert("ServerAgentAddress", "");
@@ -326,11 +327,12 @@ EndProcedure
 //          is seized). If the DBMS session is not seized, the value is a blank string,
 //     * DBMSConnectionTime - Number - the period since the DBMS connection capture, in milliseconds. If the
 //          DBMS session is not seized - the value is 0,
-//     * DBMSConnectionSeizeTime - Date - the time of the last
-//          DBMS connection capture.
+//     * DBMSConnectionSeizeTime - Date - Time of the last DBMS connection capture.
+//          
 //     * IConnectionShort - Structure
-//                          - Undefined -  
-//                   See ClusterAdministration.ConnectionDetailsProperties.
+//                          - Undefined - Contains the details of the connection assigned to the session. 
+//                  For field details, See ClusterAdministration.ConnectionDetailsProperties.
+//                                           Otherwise, Undefined.
 //     * Sleep - Boolean - the session is in the sleep mode.
 //     * TerminateIn - Number - a time interval in seconds, after which the session in sleep mode is terminated.
 //     * SleepIn - Number - a time interval in seconds, after which an inactive session is put into sleep
@@ -341,9 +343,9 @@ EndProcedure
 //     * ReadFromDiskIn5Minutes - Number - contains the amount of data in bytes read from the disk during the last
 //                                         5 minutes.
 //     * ILicenseInfo - Structure
-//                - Undefined - 
-//                   See ClusterAdministration.LicenseProperties. 
-//                  
+//                - Undefined - Contains information on the client license that is used by the current session,
+//                  field details, See ClusterAdministration.LicenseProperties. 
+//                  Undefined if the session does not use a license.
 //     * OccupiedMemory - Number - contains memory volume in bytes used in the process of calls since the session start.
 //     * OccupiedMemoryInCurrentCall - Number - contains memory volume in bytes used since the start of the current call. 
 //                  If the call is not currently running, the value is 0.
@@ -351,12 +353,12 @@ EndProcedure
 //     * WrittenOnDisk - Number - contains the amount of data in bytes written on the disk by the session since it has started.
 //     * WrittenOnDiskInCurrentCall - Number - contains the amount of data in bytes written on the disk since the start
 //                  of the current call.
-//     * WrittenOnDiskIn5Minutes - Number - contains the amount of data in bytes written on the disk the disk during the last 5
+//     * WrittenOnDiskIn5Minutes - Number - contains the amount of data in bytes written on the disk during the last 5
 //                                        minutes.
 //     * IWorkingProcessInfo - Structure
-//                      - Undefined -  
-//                   See ClusterAdministration.WorkingProcessProperties. 
-//                   
+//                      - Undefined - Contains a working process with which the connection is established if 
+//                  the session is assigned to the connection, field details  See ClusterAdministration.WorkingProcessProperties. 
+//                  Else - Undefined. 
 //
 Function SessionProperties() Export
 	
@@ -505,7 +507,7 @@ EndFunction
 //     * SpentByTheLockManager - Number - shows the average time of addressing the lock manager.
 //     * SpentByTheServer - Number - shows the average time spent by the active process itself to execute
 //                  single client call.
-//     * ClientStreams - Number - shows the average number of client streams executed by the active process of cluster.
+//     * ClientStreams - Number - shows the average number of client threads executed by the active process of cluster.
 //     * Capacity - Number - relative process performance. The value can be 
 //                  in the range from 1 to 1000. It is used to select the active process
 //                  for connecting the next client. Clients are distributed between active processes in proportion
@@ -521,7 +523,7 @@ EndFunction
 //     * ExceedingTheCriticalValue - Number - Contains the time during which the virtual memory
 //                  of the active process exceeds the critical value set for the cluster, in seconds.
 //     * OccupiedMemory - Number - Contains the size of virtual memory occupied by the active process, in kilobytes.
-//     * Id - String - active active process ID in terms of the operating system.
+//     * Id - String - Active process ID in terms of the operating system.
 //     * Started2 - Number - a active process status.
 //                  0 - the process is inactive (not imported in memory or cannot execute client queries); 
 //                  1 - the process is active (it works). 
@@ -566,12 +568,13 @@ Function WorkingProcessProperties() Export
 	
 EndFunction
 
-// 
+// Returns details of infobase sessions.
 //
-//  
-// 
-//  (See ClusterAdministration.SessionsFilter) 
-// 
+// The IBAdministrationParameters parameter can be skipped if the same fields are specified 
+// in the ClusterAdministrationParameters parameter.
+// If a structure is specified in the Filter parameter (See ClusterAdministration.SessionsFilter) 
+// ,
+// the comparison type is "equal to".
 //
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
@@ -598,12 +601,13 @@ Function InfobaseSessions(Val ClusterAdministrationParameters, Val IBAdministrat
 	
 EndFunction
 
-// 
+// Deletes infobase sessions according to the filter.
 //
-//  
-// 
-//  (See ClusterAdministration.SessionsFilter) 
-// 
+// The IBAdministrationParameters parameter can be skipped if the same fields are specified 
+// in the ClusterAdministrationParameters parameter.
+// If a structure is specified in the Filter parameter (See ClusterAdministration.SessionsFilter) 
+// ,
+// the comparison type is "equal to".
 //
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
@@ -726,7 +730,7 @@ EndFunction
 //     * WrittenOnDisk - Number - contains the amount of data in bytes written on the disk by the session since it has started.
 //     * WrittenOnDiskInCurrentCall - Number - contains the amount of data in bytes written on the disk since the start
 //                  of the current call.
-//     * WrittenOnDiskIn5Minutes - Number - contains the amount of data in bytes written on the disk the disk during
+//     * WrittenOnDiskIn5Minutes - Number - contains the amount of data in bytes written on the disk during
 //                  the last 5 minutes.
 //     * ControlIsOnServer - Number - Indicates if management is on the server (0 - it is not on the server, otherwise 1).
 //
@@ -772,18 +776,19 @@ Function ConnectionProperties() Export
 	
 EndFunction
 
-// 
+// Returns details of infobase connections.
 //
-//  
+// The IBAdministrationParameters parameter can be skipped if the same fields are specified 
+// in the ClusterAdministrationParameters parameter.
+// If a structure is specified in the Filter parameter, (See ClusterAdministration.SessionsFilter) 
 // 
-//  (See ClusterAdministration.SessionsFilter) 
-// 
+// the comparison type is "equal to".
 //
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
 //   Filter - See ClusterAdministration.JoinsFilters 
-//           See ClusterAdministration.JoinsFilters
+//          - Array of See ClusterAdministration.JoinsFilters
 //
 // Returns: 
 //   Array of See ClusterAdministration.ConnectionProperties
@@ -804,12 +809,13 @@ Function InfobaseConnections(Val ClusterAdministrationParameters, Val IBAdminist
 	
 EndFunction
 
-// 
+// Terminates infobase connections according to filter.
 //
-//  
-// 
-//  (See ClusterAdministration.JoinsFilters) 
-// 
+// The IBAdministrationParameters parameter can be skipped if the same fields are specified 
+// in the ClusterAdministrationParameters parameter.
+// If a structure is specified in the Filter parameter (See ClusterAdministration.JoinsFilters) 
+// , then
+// the comparison is always performed for equality.
 //
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
@@ -1179,7 +1185,7 @@ Function AddInProperties() Export
 	Result.Insert("Name");
 	Result.Insert("LongDesc");
 	Result.Insert("HashSum");
-	Result.Insert("HashSum"); 
+	Result.Insert("HashSum"); // 
 	Return Result;
 	
 EndFunction
@@ -1199,7 +1205,7 @@ Function ExternalModuleProperties() Export
 	Result.Insert("Name");
 	Result.Insert("LongDesc");
 	Result.Insert("HashSum");
-	Result.Insert("HashSum"); 
+	Result.Insert("HashSum"); // 
 	Return Result;
 	
 EndFunction
@@ -1456,17 +1462,18 @@ EndFunction
 
 #EndRegion
 
-// 
+// Returns details of infobase sessions.
 //
-//  (See ClusterAdministration.SessionsFilter) 
+// If a structure is specified in the Filter parameter,  (See ClusterAdministration.SessionsFilter) 
 // 
+// the comparison is always performed for equality.
 //
 // Parameters:
 //   ClusterID - String - Internal server cluster ID.
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   InfoBaseID - String - Internal infobase ID.
 //   Filter - See ClusterAdministration.SessionsFilter
-//           See ClusterAdministration.SessionsFilter
+//          - Array of See ClusterAdministration.SessionsFilter
 //   UseDictionary - Boolean - If True, the return value is generated using a dictionary.
 //
 // Returns: 
@@ -1494,7 +1501,7 @@ EndFunction
 //   InfoBaseID - String - Internal infobase ID.
 //   InfobaseAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
 //   Filter - See ClusterAdministration.JoinsFilters
-//           See ClusterAdministration.JoinsFilters
+//          - Array of See ClusterAdministration.JoinsFilters
 //   UseDictionary - Boolean - If True, the return value is generated using a dictionary.
 //
 // Returns: 

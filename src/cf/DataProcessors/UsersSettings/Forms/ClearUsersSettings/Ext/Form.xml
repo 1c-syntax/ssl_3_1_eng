@@ -28,18 +28,30 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.ClearAndClose</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Clear and close</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormClearAndCloseExtendedTooltip" id="66"/>
 			</Button>
 			<Button name="Clear" id="10">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.Clear</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Clear</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="ClearExtendedTooltip" id="67"/>
 			</Button>
 			<Button name="FormClose" id="56">
 				<Type>CommandBarButton</Type>
 				<Representation>Text</Representation>
 				<CommandName>Form.StandardCommand.Close</CommandName>
-				<ExtendedTooltip name="FormCloseExtendedTooltip" id="68"/>
+				<ExtendedTooltip name="FormClose3ExtendedTooltip" id="68"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
@@ -118,7 +130,7 @@
 					</Title>
 					<Hyperlink>true</Hyperlink>
 					<ContextMenu name="SelectUsers2ContextMenu" id="59"/>
-					<ExtendedTooltip name="SelectUsers2ExtendedTooltip" id="72"/>
+					<ExtendedTooltip name="SelectUsersExtendedTooltip" id="72"/>
 					<Events>
 						<Event name="Click">SelectUsers2Click</Event>
 					</Events>
@@ -139,6 +151,12 @@
 			<ChildItems>
 				<RadioButtonField name="SettingsToClearRadioButton" id="62">
 					<DataPath>SettingsToClearRadioButton</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>All settings or selected settings</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<RadioButtonType>Auto</RadioButtonType>
 					<ColumnsCount>1</ColumnsCount>

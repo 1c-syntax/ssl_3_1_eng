@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -61,14 +62,23 @@ EndProcedure
 // Otherwise UID of the passed reference is returned.
 // 
 // Parameters:
-//  InfobaseNode - a reference to the exchange plan node to which data is exported.
-//  ObjectReference - a reference to an infobase object, that requires
+//  InfobaseNode - ExchangePlanRef - a reference to the exchange plan node to which data is exported.
+//  ObjectReference - AnyRef - a reference to an infobase object, that requires
 //                   a XDTO object UUID.
 //
 // Returns:
 //  String - object UUID.
 //
 Function PublicIDByObjectRef(InfobaseNode, ObjectReference) Export
+	
+	// 
+	// 
+	//  
+	If TypeOf(ObjectReference) = Type("UUID") Then
+		
+		Return TrimAll(ObjectReference);
+		
+	EndIf;
 	
 	SetPrivilegedMode(True);
 	

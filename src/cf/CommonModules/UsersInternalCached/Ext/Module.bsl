@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -88,23 +89,23 @@ Function UnavailableRoles(Purpose = "ForUsers", Service = Undefined) Export
 	
 EndFunction
 
-// 
-// 
+// Returns the role assignment defined by the developer.
+// See the "UsersOverridable .OnDetermineRoleAssignment" procedure.
 //
 // Returns:
 //  FixedStructure:
 //   * ForSystemAdministratorsOnly - FixedMap of KeyAndValue:
 //      ** Key     - String - a role name.
-//      ** Value - Boolean -  Truth.
+//      ** Value - Boolean - True.
 //   * ForSystemUsersOnly - FixedMap of KeyAndValue:
 //      ** Key     - String - a role name.
-//      ** Value - Boolean -  Truth.
+//      ** Value - Boolean - True.
 //   * ForExternalUsersOnly - FixedMap of KeyAndValue:
 //      ** Key     - String - a role name.
-//      ** Value - Boolean -  Truth.
+//      ** Value - Boolean - True.
 //   * BothForUsersAndExternalUsers - FixedMap of KeyAndValue:
 //      ** Key     - String - a role name.
-//      ** Value - Boolean -  Truth.
+//      ** Value - Boolean - True.
 //
 Function RolesAssignment() Export
 	
@@ -131,6 +132,33 @@ Function RolesAssignment() Export
 	EndDo;
 	
 	Return New FixedStructure(Purpose);
+	
+EndFunction
+
+// See UsersInternal.TableFields
+Function TableFields(Val FullTableName) Export
+	
+	TableFields = UsersInternal.TableFields(FullTableName);
+	If TableFields = Undefined Then
+		Return Undefined;
+	EndIf;
+	
+	Return Common.FixedData(TableFields);
+	
+EndFunction
+
+// Returns:
+//  Boolean
+//
+Function ShouldRegisterChangesInAccessRights() Export
+	
+	If Not Common.SubsystemExists("StandardSubsystems.UserMonitoring") Then
+		Return False;
+	EndIf;
+	
+	UserExperienceMonitoringModuleInternal = Common.CommonModule("UserMonitoringInternal");
+	
+	Return UserExperienceMonitoringModuleInternal.ShouldRegisterChangesInAccessRights();
 	
 EndFunction
 
@@ -177,8 +205,8 @@ Function IsExternalUserSession() Export
 	
 EndFunction
 
-// 
-// 
+// Settings of the "Users" subsystem.
+// See the "UsersOverridable .OnDetermineSettings" procedure.
 //
 // Returns:
 //  Structure:
@@ -191,11 +219,11 @@ EndFunction
 //          hide the role editing interface from profiles of users, external users,
 //          and groups of external users. This affects both regular users and administrators.
 //
-//   * IndividualUsed - Boolean - 
-//                                             
+//   * IndividualUsed - Boolean - If set to "True", then it is displayed in the user card.
+//                                             By default, "True".
 //
-//   * IsDepartmentUsed  - Boolean - 
-//                                             
+//   * IsDepartmentUsed  - Boolean - If set to "True", then it is displayed in the user card.
+//                                             By default, "True".
 //
 Function Settings() Export
 	
@@ -247,6 +275,37 @@ Function Settings() Export
 	AllSettings.Insert("IsDepartmentUsed",  Settings.IsDepartmentUsed);
 	
 	Return Common.FixedData(AllSettings);
+	
+EndFunction
+
+
+// Returns:
+//  Boolean - A single value for all the users.
+//  Undefined - Users can have different values.
+//
+Function ShowInList() Export
+	
+	If Common.DataSeparationEnabled()
+	 Or ExternalUsers.UseExternalUsers() Then
+		Return False;
+	EndIf;
+	
+	If Not Users.CommonAuthorizationSettingsUsed() Then
+		Return Undefined;
+	EndIf;
+	
+	CommonSettingShowInList =
+		UsersInternal.LogonSettings().Overall.ShowInList;
+	
+	If CommonSettingShowInList = "HiddenAndEnabledForAllUsers" Then
+		Return True;
+	EndIf;
+	
+	If CommonSettingShowInList = "HiddenAndDisabledForAllUsers" Then
+		Return False;
+	EndIf;
+	
+	Return Undefined;
 	
 EndFunction
 
@@ -319,7 +378,7 @@ Function CurrentIBUserProperties1() Export
 		AccessRight("Administration", Metadata, IBUser),
 		AccessRight("Administration", Metadata)));
 	
-	
+	// ACC:336-off - Do not replace with "RolesAvailable". This is a special administrator role check.
 	
 	//@skip-check using-isinrole
 	Properties.Insert("SystemAdministratorRoleAvailable",
@@ -342,7 +401,7 @@ EndFunction
 // it is ignored.
 //
 // Returns:
-//  FixedArray - :
+//  FixedArray - Has the following values:
 //   * Value - AnyRef - an empty reference of an authorization object type.
 //
 Function BlankRefsOfAuthorizationObjectTypes() Export
@@ -358,6 +417,60 @@ Function BlankRefsOfAuthorizationObjectTypes() Export
 	EndDo;
 	
 	Return New FixedArray(BlankRefs);
+	
+EndFunction
+
+// See Catalogs.UserGroups.StandardUsersGroup
+Function StandardUsersGroup(GroupName) Export
+	
+	Return Catalogs.UserGroups.StandardUsersGroup(GroupName);
+	
+EndFunction
+
+// 
+// 
+//
+// 
+// 
+//
+// Returns:
+//  FixedMap of KeyAndValue:
+//   * Key - String - 
+//   * Value -  FixedStructure:
+//      ** AllowedTypes - TypeDescription
+//      ** ParameterNameExtensionsOperation - String
+// 
+Function RefKindsProperties() Export
+	
+	RefsKinds = New ValueTable;
+	RefsKinds.Columns.Add("Name", New TypeDescription("String"));
+	RefsKinds.Columns.Add("ParameterNameExtensionsOperation", New TypeDescription("String"));
+	RefsKinds.Columns.Add("AllowedTypes", New TypeDescription("TypeDescription"));
+	
+	UsersInternal.OnFillRegisteredRefKinds(RefsKinds);
+	
+	AllParametersNames = New Map;
+	
+	Result = New Map;
+	For Each RefsKind In RefsKinds Do
+		If Result.Get(RefsKind.Name) <> Undefined Then
+			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'The reference kind name ""%1"" is already defined.';"), RefsKind.Name);
+			Raise ErrorText;
+		EndIf;
+		If AllParametersNames.Get(RefsKind.ParameterNameExtensionsOperation) <> Undefined Then
+			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Extension parameter name in reference kind ""%1"" is already taken:
+				           |""%2"".';"), RefsKind.Name, RefsKind.ParameterNameExtensionsOperation);
+			Raise ErrorText;
+		EndIf;
+		Properties = New Structure;
+		Properties.Insert("ParameterNameExtensionsOperation", RefsKind.ParameterNameExtensionsOperation);
+		Properties.Insert("AllowedTypes",               RefsKind.AllowedTypes);
+		Result.Insert(RefsKind.Name, New FixedStructure(Properties));
+	EndDo;
+	
+	Return New FixedMap(Result);
 	
 EndFunction
 

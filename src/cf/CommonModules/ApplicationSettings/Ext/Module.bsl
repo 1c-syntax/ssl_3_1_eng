@@ -1,18 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #Region Public
 
 #Region ForCallsFromOtherSubsystems
 
-// 
-// 
+// Called from the "OnCreateAtServer" handler of the SSL administration panel.
+// Sets up the visibility of the SSL library management elements.
 //
 // Parameters:
 //  Form - See DataProcessor.SSLAdministrationPanel.Form.InternetSupportAndServices
@@ -23,40 +24,39 @@ Procedure OnlineSupportAndServicesOnCreateAtServer(Form, Cancel, StandardProcess
 	
 	Items = Form.Items;
 	
-	Items.ClassifiersGroup.Visible = Not Form.DataSeparationEnabled;
-	
-	If Items.ClassifiersGroup.Visible Then
+	If Not Form.DataSeparationEnabled
+		And Common.SubsystemExists("StandardSubsystems.AddressClassifier") Then
 		
-		If Common.SubsystemExists("StandardSubsystems.AddressClassifier") Then
-			ModuleAddressClassifierInternal = Common.CommonModule("AddressClassifierInternal");
-			If Not ModuleAddressClassifierInternal.HasRightToChangeAddressInformation() Then
-				Items.AddressClassifierSettings.Visible = False;
-			EndIf;
-			
-			FormAttributeValue = New Structure("UseWebServiceOfAddresses", Undefined);
-			FillPropertyValues(FormAttributeValue, Form);
-
-			If FormAttributeValue["UseWebServiceOfAddresses"] <> Undefined Then
-				Form["UseWebServiceOfAddresses"] = ModuleAddressClassifierInternal.ИспользоватьВебСервис();
-			EndIf;
-			
-			CommonClientServer.SetFormItemProperty(
-				Items,
-				"UseWebServiceOfAddresses",
-				"Visible",
-				True);
-		Else
+		ModuleAddressClassifierInternal = Common.CommonModule("AddressClassifierInternal");
+		If Not ModuleAddressClassifierInternal.HasRightToChangeAddressInformation() Then
 			Items.AddressClassifierSettings.Visible = False;
 		EndIf;
 		
+		FormAttributeValue = New Structure("UseAddressesWebService", Undefined);
+		FillPropertyValues(FormAttributeValue, Form);
+
+		If FormAttributeValue["UseAddressesWebService"] <> Undefined Then
+			Form["UseAddressesWebService"] = ModuleAddressClassifierInternal.UseWebService();
+		EndIf;
+		
+		CommonClientServer.SetFormItemProperty(
+			Items,
+			"UseAddressesWebService",
+			"Visible",
+			True);
+		
+	Else
+		Items.AddressClassifierSettings.Visible = False;
 	EndIf;
 	
-	If Common.SubsystemExists("StandardSubsystems.Currencies") Then
+	If Not Form.DataSeparationEnabled
+		And Not Form.IsStandaloneWorkplace
+		And Common.SubsystemExists("StandardSubsystems.Currencies") Then
+		
 		ModuleCurrencyExchangeRatesInternal = Common.CommonModule("CurrencyRateOperationsInternal");
 		Items.ImportCurrenciesRatesDataProcessorGroup.Visible =
-			  Not Form.DataSeparationEnabled
-			And Not Form.IsStandaloneWorkplace
-			And ModuleCurrencyExchangeRatesInternal.HasRightToChangeExchangeRates();
+			ModuleCurrencyExchangeRatesInternal.HasRightToChangeExchangeRates();
+		
 	Else
 		Items.ImportCurrenciesRatesDataProcessorGroup.Visible = False;
 	EndIf;
@@ -136,17 +136,17 @@ Procedure OnlineSupportAndServicesOnCreateAtServer(Form, Cancel, StandardProcess
 		ModuleAddInsInternal = Common.CommonModule("AddInsInternal");
 		AddInsGroupVisibility = ModuleAddInsInternal.CanImportFromPortal();
 	EndIf;
-	Items.AddInsGroup.Visible = AddInsGroupVisibility;
+	Items.AddInsManagementGroup.Visible = AddInsGroupVisibility;
 	
 	ApplicationSettingsOverridable.OnlineSupportAndServicesOnCreateAtServer(Form);
 	
 EndProcedure
 
-// 
+// Saves constant values of the SSL/OSL "Online support and services" administration panel.
 //
 // Parameters:
 //  Form - See DataProcessor.SSLAdministrationPanel.Form.InternetSupportAndServices
-//  ConstantName - String - 
+//  ConstantName - String - The name of the modified value.
 //  NewValue - Arbitrary
 //
 Procedure OnlineSupportAndServicesOnConstantChange(Form, ConstantName, NewValue) Export
@@ -165,33 +165,33 @@ Procedure OnlineSupportAndServicesOnConstantChange(Form, ConstantName, NewValue)
 	
 EndProcedure
 
-//  
-// 
+// Saves the addresses web service constant value on the 
+// SSL/OSL "Online support and services" administration panel.
 //
 // Parameters:
-//  UseWebServiceOfAddresses - Boolean -  
+//  UseAddressesWebService - Boolean - If set to False, the procedure uses only the local data. 
 //
-Procedure InternetSupportAndServicesEstablishUseOfWebService(UseWebServiceOfAddresses) Export
+Procedure InternetSupportAndServicesWebServiceUsage(UseAddressesWebService) Export
 	
 	If Common.SubsystemExists("StandardSubsystems.AddressClassifier") Then
 			
 		ModuleAddressClassifierInternal = Common.CommonModule("AddressClassifierInternal");
-		ModuleAddressClassifierInternal.УстановитьИспользованиеВебСервиса(UseWebServiceOfAddresses);
+		ModuleAddressClassifierInternal.WebServiceUsage(UseAddressesWebService);
 		RefreshReusableValues();
 			
 	EndIf;
 	
 EndProcedure
 
-// 
-// 
+// Handles the "OnChange" event on the following forms of the SSL/OSL "Online support and services" administration panel:
+// "MonitoringCenterAllowSendingData", "MonitoringCenterAllowSendingDataToThirdParty", "MonitoringCenterProhibitSendingData".
 // 
 //
 // Parameters:
 //  Form - See DataProcessor.SSLAdministrationPanel.Form.InternetSupportAndServices
 //  Item - FormField
-//  OperationParametersList - Structure of KeyAndValue - 
-//  
+//  OperationParametersList - Structure of KeyAndValue - Filled with parameters that will be passed for the execution
+//  in the client environment.
 //
 Procedure OnlineSupportAndServicesAllowSendDataOnChange(Form, Item, OperationParametersList) Export
 	Var RunResult;
@@ -233,8 +233,8 @@ Procedure OnlineSupportAndServicesAllowSendDataOnChange(Form, Item, OperationPar
 	
 EndProcedure
 
-// 
-// 
+// Handles the "OnChange" event on the "MonitoringCenterServiceAddress" form in
+// the SSL/OSL "Online support and services" administration panel.
 //
 // Parameters:
 //  Form - See DataProcessor.SSLAdministrationPanel.Form.InternetSupportAndServices
@@ -250,7 +250,7 @@ Procedure OnlineSupportAndServicesMonitoringCenterOnChange(Form, Item) Export
 		EndIf;
 	Except
 		ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Service address %1 is not a valid web service address for sending application usage reports.';"),
+			NStr("en = 'Service address %1 is not a valid web service address for sending usage reports.';"),
 			Form.MonitoringCenterServiceAddress);
 		Raise(ErrorDescription);
 	EndTry;
@@ -272,7 +272,7 @@ EndProcedure
 
 #Region Internal
 
-Function FormNameGeneralSettings() Export
+Function CommonSettingsFormName() Export
 	
 	Return "DataProcessor.SSLAdministrationPanel.Form.CommonSettings";
 	

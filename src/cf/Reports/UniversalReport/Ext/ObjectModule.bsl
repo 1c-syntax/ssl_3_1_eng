@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -57,13 +58,12 @@ Procedure OnDefineSelectionParameters(Form, SettingProperties) Export
 	AvailableValues = CommonClientServer.StructureProperty(
 		SettingsComposer.Settings.AdditionalProperties, "AvailableValues", New Structure);
 	
-	Try
-		ValuesForSelection = CommonClientServer.StructureProperty(
-			AvailableValues, StrReplace(SettingProperties.DCField, "DataParameters.", ""));
-	Except
-		ValuesForSelection = Undefined;
-	EndTry;
-	
+	FieldName = StrReplace(SettingProperties.DCField, "DataParameters.", "");
+	If StrFind(FieldName, ".") > 0 Then
+		Return;
+	EndIf;
+		
+	ValuesForSelection = CommonClientServer.StructureProperty(AvailableValues, FieldName);
 	If ValuesForSelection <> Undefined Then 
 		SettingProperties.RestrictSelectionBySpecifiedValues = True;
 		SettingProperties.ValuesForSelection = ValuesForSelection;
@@ -188,8 +188,8 @@ Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSe
 	ElsIf Not NewDCSettings.AdditionalProperties.Property("ReportInitialized")
 	        And TypeOf(NewDCUserSettings) = Type("DataCompositionUserSettings") Then
 		
-		
-		
+		// 
+		// 
 		SchemaKey = "";
 	EndIf;
 	
@@ -279,18 +279,19 @@ Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSe
 	Reports.UniversalReport.SetStandardReportHeader(
 		Context, NewDCSettings, FixedParameters, AvailableValues);
 	
-	If TypeOf(Context) = Type("Structure") Then
-		ЗаменитьЗначенияПараметров(NewDCSettings, NewDCSettings.AdditionalProperties.AvailableValues);
+	If TypeOf(Context) = Type("Structure") 
+	   And CommonClientServer.StructureProperty(Context, "DCSchema", Undefined) = Undefined Then
+		ReplaceParametersValues(NewDCSettings, NewDCSettings.AdditionalProperties.AvailableValues);
 	EndIf;
 		
 EndProcedure
 
-// 
-// See ReportsServer.SettingsFormItemsProperties
-// 
+// Called after defining form element properties associated with the user settings.
+// See ReportsServer.SettingsFormItemsProperties()
+// Allows to override properties to customize reports.
 //
 // Parameters:
-//  FormType - ReportFormType - 
+//  FormType - ReportFormType - See Syntax Assistant
 //  ItemsProperties - See ReportsServer.SettingsFormItemsProperties
 //  UserSettings - DataCompositionUserSettingsItemCollection - Items of the current
 //                              user settings that affect the creation of linked form items.
@@ -345,8 +346,8 @@ Procedure OnComposeResult(ResultDocument, DetailsData, StandardProcessing)
 	
 	Reports.UniversalReport.OutputSubordinateRecordsCount(Settings, DataCompositionSchema, StandardProcessing);
 	
-	ИсходныеЗначенияПараметров = Undefined;
-	ЗаменитьЗначенияПараметров(Settings, Settings.AdditionalProperties.AvailableValues, ИсходныеЗначенияПараметров);
+	ParametersInitialValues = Undefined;
+	ReplaceParametersValues(Settings, Settings.AdditionalProperties.AvailableValues, ParametersInitialValues);
 	
 	If StandardProcessing Then 
 		Return;
@@ -355,7 +356,7 @@ Procedure OnComposeResult(ResultDocument, DetailsData, StandardProcessing)
 	TemplateComposer = New DataCompositionTemplateComposer;
 	CompositionTemplate = TemplateComposer.Execute(DataCompositionSchema, Settings, DetailsData);
 	
-	ЗаменитьЗначенияПараметров(DetailsData.Settings, Settings.AdditionalProperties.AvailableValues, ИсходныеЗначенияПараметров);
+	ReplaceParametersValues(DetailsData.Settings, Settings.AdditionalProperties.AvailableValues, ParametersInitialValues);
 	
 	CompositionProcessor = New DataCompositionProcessor;
 	CompositionProcessor.Initialize(CompositionTemplate,, DetailsData);
@@ -381,11 +382,11 @@ Function BinaryDataHash(BinaryData)
 	Return StrReplace(DataHashing.HashSum, " ", "") + "_" + Format(BinaryData.Size(), "NG=");
 EndFunction
 
-Procedure ЗаменитьЗначенияПараметров(Settings, AvailableValues, ИсходныеЗначения = Undefined)
+Procedure ReplaceParametersValues(Settings, AvailableValues, InitialValues = Undefined)
 	
-	ЗаменятьНаПредставления = ИсходныеЗначения = Undefined;
-	If ИсходныеЗначения = Undefined Then
-		ИсходныеЗначения = New Map;
+	ShouldReplaceWithPresentations = InitialValues = Undefined;
+	If InitialValues = Undefined Then
+		InitialValues = New Map;
 	EndIf;
 	
 	ParameterNames = New Array;
@@ -398,17 +399,17 @@ Procedure ЗаменитьЗначенияПараметров(Settings, Availab
 		If Parameter = Undefined Then
 			Continue;
 		EndIf;
-		If ЗаменятьНаПредставления Then
+		If ShouldReplaceWithPresentations Then
 			If AvailableValues.Property(ParameterName) Then
 				AvailableParameterValues = AvailableValues[ParameterName];
-				DescriptionOfParameterValue = AvailableParameterValues.FindByValue(Parameter.Value);
-				If DescriptionOfParameterValue <> Undefined Then
-					Parameter.Value = DescriptionOfParameterValue.Presentation;
-					ИсходныеЗначения.Insert(DescriptionOfParameterValue.Presentation, DescriptionOfParameterValue.Value);
+				ParameterValueDetails = AvailableParameterValues.FindByValue(Parameter.Value);
+				If ParameterValueDetails <> Undefined Then
+					Parameter.Value = ParameterValueDetails.Presentation;
+					InitialValues.Insert(ParameterValueDetails.Presentation, ParameterValueDetails.Value);
 				EndIf;
 			EndIf;
 		Else
-			SourceValue = ИсходныеЗначения.Get(Parameter.Value);
+			SourceValue = InitialValues.Get(Parameter.Value);
 			If SourceValue <> Undefined Then
 				Parameter.Value = SourceValue;
 			EndIf;

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -166,8 +167,8 @@ Procedure OnOpen(Cancel)
 #EndIf
 	RunMeasurements = False;
 	
-	
-	
+	// 
+	// 
 	Directly = ReportSettings.External Or ReportSettings.Safe;
 	GeneratingOnOpen = False;
 	IdleInterval = ?(GetClientConnectionSpeed() = ClientConnectionSpeed.Low, 1, 0.2);
@@ -187,9 +188,9 @@ EndProcedure
 
 &AtClient
 Procedure ChoiceProcessing(Result, SubordinateForm)
+
 	ResultProcessed = False;
 	
-	// Get results from standard forms.
 	If TypeOf(SubordinateForm) = Type("ClientApplicationForm") Then
 
 		SubordinateFormName1 = SubordinateForm.FormName;
@@ -202,23 +203,32 @@ Procedure ChoiceProcessing(Result, SubordinateForm)
 
 			FormNameParts1 = StrSplit(SubordinateFormName1, ".");
 			FormSourceName = Upper(FormNameParts1[FormNameParts1.Count() - 1]);
-			If FormSourceName = Upper("ReportSettingsForm") Or FormSourceName = Upper("SettingsForm")
-				Or FormSourceName = Upper("ReportVariantForm") Or FormSourceName = Upper("VariantForm") Then
+			If StrCompare(FormSourceName, "ReportSettingsForm") = 0 
+				Or StrCompare(FormSourceName, "SettingsForm") = 0
+				Or StrCompare(FormSourceName, "ReportVariantForm") = 0 
+				Or StrCompare(FormSourceName, "VariantForm") = 0 Then
 
 				UpdateSettingsFormItems(Result);
 				ResultProcessed = True;
 			EndIf;
 		EndIf;
 
-		ApplySettingsFromTheContextMenu(Result);
+		If ReportsOptionsInternalClient.ThisIsAContextSettingEvent(Result) 
+			And Result.OwnerID = UUID Then
+
+			ApplySettingsFromTheContextMenu(Result);
+			ResultProcessed = True;
+		EndIf;
 
 	ElsIf TypeOf(SubordinateForm) = Type("DataCompositionSchemaWizard") Then
 
 		ApplyTheSchemaFromTheConstructor(Result);
+		ResultProcessed = True;
 
+	Else 
+		Return;
 	EndIf;
 	
-	// Extension functionality.
 	If CommonClient.SubsystemExists("StandardSubsystems.ReportMailing") Then
 		ModuleReportDistributionClient = CommonClient.CommonModule("ReportMailingClient");
 		ModuleReportDistributionClient.ChoiceProcessingReportForm(ThisObject, Result, SubordinateForm,
@@ -226,29 +236,23 @@ Procedure ChoiceProcessing(Result, SubordinateForm)
 	EndIf;
 	SSLSubsystemsIntegrationClient.OnProcessChoice(ThisObject, Result, SubordinateForm, ResultProcessed);
 	ReportsClientOverridable.ChoiceProcessing(ThisObject, Result, SubordinateForm, ResultProcessed);
+	
 EndProcedure
 
 &AtClient
 Procedure NotificationProcessing(EventName, Parameter, Source)
-	NotificationProcessed = False;
 
 	If EventName = "Write_ConstantsSet" Then
 
-		NotificationProcessed = True;
 		PanelOptionsCurrentOptionKey = BlankOptionKey();
+		Return;
 
 	ElsIf EventName = ReportsOptionsClient.EventNameChangingOption() Then
 
-		NotificationProcessed = True;
-		VariantKey = Undefined;
 		ReportSettings.SchemaKey = "";
 
-		If TypeOf(Parameter) = Type("Structure") Then
-			Parameter.Property("VariantKey", VariantKey);
-		EndIf;
-
-		If ValueIsFilled(VariantKey) Then
-			SetCurrentVariant(VariantKey);
+		If ValueIsFilled(Parameter.VariantKey) Then
+			SetCurrentVariant(Parameter.VariantKey);
 		Else
 			PanelOptionsCurrentOptionKey = BlankOptionKey();
 		EndIf;
@@ -258,9 +262,13 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 
 	ElsIf EventName = ReportsOptionsClientServer.ApplyPassedSettingsActionName() Then
 
-		NotificationProcessed = True;
 		ApplyPassedSettings(Parameter);
 
+	ElsIf ReportsOptionsInternalClient.ThisIsAContextSettingEvent(Parameter) 
+		And Parameter.OwnerID = UUID Then
+		
+		ApplySettingsFromTheContextMenu(Parameter);
+	
 	ElsIf EventName = "ChangeReportOptionVisibilityInReportPanel" And Parameter = ReportSettings.FullName
 		And ReportsOptionsInternalClientServer.ReportOptionMode(CurrentVariantKey)
 		And ReportSettings.OptionSelectionAllowed Then
@@ -271,11 +279,10 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 
 	EndIf;
 
-	ApplySettingsFromTheContextMenu(Parameter);
-
 	SSLSubsystemsIntegrationClient.OnProcessNotification(ThisObject, EventName, Parameter, Source,
-		NotificationProcessed);
-	ReportsClientOverridable.NotificationProcessing(ThisObject, EventName, Parameter, Source, NotificationProcessed);
+		True);
+	ReportsClientOverridable.NotificationProcessing(ThisObject, EventName, Parameter, Source, True);
+	
 EndProcedure
 
 &AtServer
@@ -349,8 +356,8 @@ Procedure OnLoadVariantAtServer(NewDCSettings)
 		EndIf;
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	If ReportsOptions.ItIsAcceptableToSetContext(ThisObject) And TypeOf(ParametersForm.Filter) = Type("Structure") Then
 
 		ReportsServer.SetFixedFilters(ParametersForm.Filter, Report.SettingsComposer.Settings,
@@ -416,7 +423,7 @@ Procedure OnUpdateUserSettingSetAtServer(StandardProcessing)
 		RestoreTheStateOfTheOutputSettingsHeadersOption(SettingsKey, OutputSettingsTitles, DetailsMode);
 	EndIf;
 
-	ParametersOfUpdate = New Structure("EventName", "OnUpdateUserSettingSetAtServer");
+	ParametersOfUpdate = ReportsClientServer.ReportFormUpdateParameters("OnUpdateUserSettingSetAtServer");
 	UpdateSettingsFormItemsAtServer(ParametersOfUpdate);
 EndProcedure
 
@@ -531,7 +538,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure Attachable_SettingItem_OnChange(Item)
@@ -557,9 +564,9 @@ Procedure Attachable_SettingItem_OnChange(Item)
 		VariantModified = WasOptionModified;
 		ParametersChanged = True;
 
-		ParametersOfUpdate = New Structure;
-		ParametersOfUpdate.Insert("DCSettingsComposer", SettingsComposer);
-		ParametersOfUpdate.Insert("UserSettingsModified", True);
+		ParametersOfUpdate = ReportsClientServer.ReportFormUpdateParameters();
+		ParametersOfUpdate.DCSettingsComposer = SettingsComposer;
+		ParametersOfUpdate.UserSettingsModified = True;
 		UpdateSettingsFormItems(ParametersOfUpdate);
 
 	EndIf;
@@ -684,8 +691,8 @@ Procedure ReportSpreadsheetDocumentSelection(Item, Area, StandardProcessing)
 			DetailsValue = Area.Details;
 		Except
 			DetailsValue = Undefined;
-			
-			
+			// 
+			// 
 		EndTry;
 
 		If DetailsValue <> Undefined And GoToLink(DetailsValue) Then
@@ -721,21 +728,16 @@ EndProcedure
 &AtClient
 Procedure ReportSpreadsheetDocumentAdditionalDetailProcessing(Item, Details, StandardProcessing)
 
-	If CommonClient.SubsystemExists("StandardSubsystems.EventLogAnalysis") Then
-		ModuleEventLogAnalysisClient = CommonClient.CommonModule("EventLogAnalysisClient");
-		ModuleEventLogAnalysisClient.AdditionalDetailProcessingReportForm(ThisObject, Item,
-			Details, StandardProcessing);
-	EndIf;
-
-	SSLSubsystemsIntegrationClient.OnProcessAdditionalDetails(ThisObject, Item, Details,
-		StandardProcessing);
-	ReportsClientOverridable.AdditionalDetailProcessing(ThisObject, Item, Details,
-		StandardProcessing);
+	SSLSubsystemsIntegrationClient.OnProcessAdditionalDetails(ThisObject,
+		Item, Details, StandardProcessing);
+	
+	ReportsClientOverridable.AdditionalDetailProcessing(ThisObject,
+		Item, Details, StandardProcessing);
 
 	If StandardProcessing Then
 		Data = DataOfTheDecryptionElement(Details);
-		ReportsOptionsInternalClient.AdditionalDetailProcessing(ThisObject, Data, Item, Details,
-			StandardProcessing);
+		ReportsOptionsInternalClient.AdditionalDetailProcessing(ThisObject,
+			Data, Item, Details, StandardProcessing);
 	EndIf;
 
 EndProcedure
@@ -774,14 +776,14 @@ Procedure ApplySettingsAndReshapeReport(Result, ExecutionParameters) Export
 	If TypeOf(Result) <> Type("Structure") Then
 		Return;
 	EndIf;
+	
+	CommonClientServer.SupplementStructure(Result, ReportsClientServer.ReportFormUpdateParameters(), False);
 
-	If Result.Property("EventName") 
-		And Result.EventName = ReportsOptionsInternalClientServer.NameEventFormSettings() 
+	If Result.EventName = ReportsOptionsInternalClientServer.NameEventFormSettings() 
 		And Result.VariantModified Then
 
 		ReportsOptionsInternalClient.AddSettingstoStack(
 			ThisObject, Result.DCSettingsComposer.Settings, Result.EventName);
-
 	EndIf;
 
 	SettingsResult = Result;
@@ -792,17 +794,17 @@ EndProcedure
 
 &AtClient
 Procedure DefaultSettings(Command)
-	FillParameters = New Structure;
-	FillParameters.Insert("EventName", ReportsClientServer.NameOfTheDefaultSettingEvent());
+	FillParameters = ReportsClientServer.ReportFormUpdateParameters(
+		ReportsClientServer.NameOfTheDefaultSettingEvent());
 
 	If VariantModified
 	 Or ReportSettings.FullName = "Report.UniversalReport" Then
-		FillParameters.Insert("ClearOptionSettings", True);
-		FillParameters.Insert("VariantModified", False);
+		FillParameters.ClearOptionSettings = True;
+		FillParameters.VariantModified = False;
 	EndIf;
 
-	FillParameters.Insert("ResetCustomSettings", True);
-	FillParameters.Insert("UserSettingsModified", True);
+	FillParameters.ResetCustomSettings = True;
+	FillParameters.UserSettingsModified = True;
 
 	ReportCreated = False;
 
@@ -913,7 +915,7 @@ Procedure EditResourcePlacement(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure ImportSchema(Command)
@@ -959,15 +961,15 @@ Procedure RestoreDefaultSchema(Command)
 		EndDo;
 	EndIf;
 
-	FillParameters = New Structure;
-	FillParameters.Insert("DCSettingsComposer", Report.SettingsComposer);
-	FillParameters.Insert("UserSettingsModified", True);
-
+	FillParameters = ReportsClientServer.ReportFormUpdateParameters();
+	FillParameters.DCSettingsComposer = Report.SettingsComposer;
+	FillParameters.UserSettingsModified = True;
 	UpdateSettingsFormItems(FillParameters);
+	
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure SaveReportOptionToFile(Command)
@@ -1000,14 +1002,21 @@ Procedure ShareSettings(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure SaveReport(Command)
 
-	SuggestionText = NStr("en = 'We recommend that you install the 1C:Enterprise extension before you save the report result to a file.';");
-	Handler = New NotifyDescription("SaveReportCompletion", ThisObject);
-	FileSystemClient.AttachFileOperationsExtension(Handler, SuggestionText);
+	Context = New Structure;
+	Context.Insert("IndexOfReportSavingFormats", New Map);
+
+	Dialog = New FileDialog(FileDialogMode.Save);
+	Dialog.Filter = AvailableFormatsForSavingTheReport(Context.IndexOfReportSavingFormats);
+	Dialog.Multiselect = False;
+	Dialog.Title = NStr("en = 'Save report result';");
+
+	Handler = New NotifyDescription("SaveReportAfterFilenameSelected", ThisObject, Context);
+	FileSystemClient.ShowSelectionDialog(Handler, Dialog);
 
 EndProcedure
 
@@ -1033,7 +1042,7 @@ Procedure ReportsSnapshots(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure GroupBySelectedField(Command)
@@ -1185,7 +1194,7 @@ Procedure ApplyAppearanceMore(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure SelectAnIndicatorClick(Item)
@@ -1232,7 +1241,7 @@ Procedure CollapseIndicators(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 // Parameters:
 //  Command - FormCommand
@@ -1376,7 +1385,7 @@ EndProcedure
 Procedure UpdateSettingsFormItems(ParametersOfUpdate)
 	UpdateSettingsFormItemsAtServer(ParametersOfUpdate);
 
-	If CommonClientServer.StructureProperty(ParametersOfUpdate, "Regenerate", False) Then
+	If ParametersOfUpdate.Regenerate Then
 		ClearMessages();
 		Generate();
 	EndIf;
@@ -1759,10 +1768,9 @@ Procedure ImportReportGenerationResult()
 		Return;
 	EndIf;
 
-	Result.Insert("EventName", "AfterGenerate");
-	Result.Insert("Directly", False);
-
-	UpdateSettingsFormItemsAtServer(Result);
+	ParametersOfUpdate = ReportsClientServer.ReportFormUpdateParameters("AfterGenerate");
+	CommonClientServer.SupplementStructure(ParametersOfUpdate, Result, True);
+	UpdateSettingsFormItemsAtServer(ParametersOfUpdate);
 EndProcedure
 
 #EndRegion
@@ -1846,9 +1854,7 @@ Procedure ShowChoiceList(Item, StandardProcessing)
 		Return;
 	EndIf;
 
-	If ReportsClient.IsSelectMetadataObjects(Item.AvailableTypes, MarkedValues, Handler)
-		Or ReportsClient.IsSelectUsers(ThisObject, Item, Item.AvailableTypes, MarkedValues,
-			ChoiceParameters, Handler) Then
+	If ReportsClient.IsSelectMetadataObjects(Item.AvailableTypes, MarkedValues, Handler) Then
 		Return;
 	EndIf;
 
@@ -1862,8 +1868,27 @@ Procedure ShowChoiceList(Item, StandardProcessing)
 	OpeningParameters.Insert("ChoiceParameters", New Array(ChoiceParameters));
 	OpeningParameters.Insert("ChoiceFoldersAndItems", ChoiceFoldersAndItems);
 	OpeningParameters.Insert("QuickChoice", ?(SettingsDescription = Undefined, False, SettingsDescription.QuickChoice));
+	
+	Context = New Structure;
+	Context.Insert("OpeningParameters", OpeningParameters);
+	Context.Insert("Handler", Handler);
+	
+	If RestrictSelectionBySpecifiedValues Then
+		ShowChoiceListFollowUp(Undefined, Context);
+	Else
+		ReportsClient.StartSelectUsers(ThisObject,
+			Item, Item.AvailableTypes, MarkedValues, ChoiceParameters, Handler,
+			New NotifyDescription("ShowChoiceListFollowUp", ThisObject, Context));
+	EndIf;
+	
+EndProcedure
 
-	OpenForm("CommonForm.InputValuesInListWithCheckBoxes", OpeningParameters, ThisObject,,,, Handler);
+&AtClient
+Procedure ShowChoiceListFollowUp(Result, Context) Export
+	
+	OpenForm("CommonForm.InputValuesInListWithCheckBoxes",
+		Context.OpeningParameters, ThisObject,,,, Context.Handler);
+	
 EndProcedure
 
 &AtClient
@@ -1966,11 +1991,11 @@ Procedure ImportSchemaAfterLocateFile(SelectedFiles, AdditionalParameters) Expor
 	AdditionalProperties.Insert("DataCompositionSchema", BinaryData);
 	AdditionalProperties.Insert("ReportInitialized", False);
 
-	FillParameters = New Structure;
-	FillParameters.Insert("UserSettingsModified", True);
-	FillParameters.Insert("DCSettingsComposer", Report.SettingsComposer);
-
+	FillParameters = ReportsClientServer.ReportFormUpdateParameters();
+	FillParameters.DCSettingsComposer = Report.SettingsComposer;
+	FillParameters.UserSettingsModified = True;
 	UpdateSettingsFormItems(FillParameters);
+	
 EndProcedure
 
 &AtClient
@@ -2104,9 +2129,9 @@ Procedure GoToSettings(ExtendedMode = Undefined)
 	FormParameters.Insert("DescriptionOption", String(ReportCurrentOptionDescription));
 
 	Handler = New NotifyDescription("ApplySettingsAndReshapeReport", ThisObject);
-	OpenForm(ReportSettings.FullName + ".SettingsForm", FormParameters, ThisObject,,,, Handler);
+	Form = OpenForm(ReportSettings.FullName + ".SettingsForm", FormParameters, ThisObject,,,, Handler);
 
-	If RunMeasurements Then
+	If RunMeasurements And Form <> Undefined Then
 		ModulePerformanceMonitorClient.StopTimeMeasurement(MeasurementID);
 	EndIf;
 
@@ -2116,16 +2141,11 @@ EndProcedure
 Function TheTransitionToTheSettingsIsCompleted(Query = Undefined)
 
 	TheRequestIsNormalized = Upper(?(ValueIsFilled(Query), Query, Factor));
-
 	If TheRequestIsNormalized = "DCS" Then
-
 		ResetUniversalSearch();
 		GoToSettings(ReportSettings.EditOptionsAllowed);
-
 		Return True;
-
 	EndIf;
-
 	Return False;
 
 EndFunction
@@ -2438,7 +2458,7 @@ Procedure FindSuitableUniversalSearchValues(SuitableValues, SearchFieldsByType, 
 				FieldAttribute, SearchParameters.SearchString, SearchParameters.ControlCharacters);
 				
 			DataPathPresentation = StringFunctionsClientServer.SubstituteParametersToString(
-				"%1.%2", FieldForSearch.Value, Selection.FieldByCondition);	
+				"%1.%2", FieldForSearch.Value, Selection.FieldByConditionPresentation);
 				
 			SearchOptions = New Array;
 			SearchOptions.Add(SearchProperties);
@@ -2493,8 +2513,8 @@ Procedure FindSuitableValuesBooleanUniversalSearch(SuitableValues, SearchFieldsB
 		EndIf;
 	EndDo;
 	
-	
-	
+	// 
+	// 
 	If StrCompare(SearchParameters.SearchString, NStr("en = 'Yes';")) = 0 
 		Or StrCompare(SearchParameters.SearchString, NStr("en = 'True';")) = 0 
 		Or StrCompare(SearchParameters.SearchString, NStr("en = 'Enabled';")) = 0 Then
@@ -2624,6 +2644,7 @@ Function TheTextOfTheRequestForTheSearchObject(Object, SearchParameters)
 	|	""&FullObjectName"" AS FullObjectName,
 	|	Ref AS Ref,
 	|	&FieldByCondition AS FieldByCondition,
+	|	&FieldPresentationByCondition AS FieldByConditionPresentation,
 	|	&AdditionalData AS AdditionalData
 	|FROM
 	|	&FullObjectName
@@ -2631,9 +2652,11 @@ Function TheTextOfTheRequestForTheSearchObject(Object, SearchParameters)
 	|	&Condition
 	|";
 
+	FieldsByCondition = QueryTextFieldsBySearchObject(Object, SearchParameters);
+	
 	QueryText = StrReplace(QueryTextTemplate2, "&FullObjectName", Object.FullName());
-	QueryText = StrReplace(QueryText, "&FieldByCondition", TheFieldOfTheQueryTextForTheSearchObject(Object,
-		SearchParameters));
+	QueryText = StrReplace(QueryText, "&FieldByCondition", FieldsByCondition.Value);
+	QueryText = StrReplace(QueryText, "&FieldPresentationByCondition", FieldsByCondition.Presentation);
 	QueryText = StrReplace(QueryText, "&Condition", TheConditionOfTheQueryTextForTheSearchObject(Object, SearchParameters));
 
 	Return StrReplace(QueryText, "&AdditionalData", AdditionalDataOfTheQueryTextForTheSearchObject(Object));
@@ -2646,14 +2669,22 @@ EndFunction
 //    * TheSearchStringIsNormalized - String
 // 
 // Returns:
-//  String
+//  Structure:
+//    * Value - String
+//    * Presentation - String
 //
 &AtServerNoContext
-Function TheFieldOfTheQueryTextForTheSearchObject(Object, SearchParameters)
+Function QueryTextFieldsBySearchObject(Object, SearchParameters)
+	
+	Result = New Structure("Value, Presentation", """""", """""");
 
-	DescriptionOfTheFieldByCondition = New Array;
+	FieldsByCondition = New Array;
+	FieldsPresentationsByCondition = New Array;
 	Fields = Object.InputByString; // FieldList
 
+	QueryFragment = "WHEN CAST(%1 AS STRING(150)) LIKE %2 ESCAPE ""~"" THEN ""%3"""; // @query-part
+	SearchString = """%" + Common.GenerateSearchQueryString(SearchParameters.TheSearchStringIsNormalized) + "%""";
+	
 	For Each Field In Fields Do
 
 		AttributeType = SearchAttributeType(Object, Field.Name);
@@ -2661,23 +2692,31 @@ Function TheFieldOfTheQueryTextForTheSearchObject(Object, SearchParameters)
 			Continue;
 		EndIf;
 		
-		FieldByCondition = StringFunctionsClientServer.SubstituteParametersToString(
-			"WHEN CAST(%1 AS STRING(150)) LIKE %2 ESCAPE ""~"" THEN ""%3""", Field.Name, """%"
-			+ Common.GenerateSearchQueryString(SearchParameters.TheSearchStringIsNormalized) + "%""",
-			FieldPresentation(Field.Name, Object));
-		DescriptionOfTheFieldByCondition.Add(FieldByCondition);
+		FieldByCondition = StringFunctionsClientServer.SubstituteParametersToString(QueryFragment, 
+			Field.Name, SearchString, Field.Name);
+		FieldsByCondition.Add(FieldByCondition);
+		
+		FieldPresentationByCondition = StringFunctionsClientServer.SubstituteParametersToString(QueryFragment,
+			Field.Name, SearchString, FieldPresentation(Field.Name, Object));
+		FieldsPresentationsByCondition.Add(FieldPresentationByCondition);
 
 	EndDo;
 
-	If DescriptionOfTheFieldByCondition.Count() = 0 Then
-		Return """""";
+	If FieldsByCondition.Count() = 0 Then
+		Return Result;
 	EndIf;
 
-	DescriptionOfTheFieldByCondition.Insert(0, "CASE"); //@query-part
-	DescriptionOfTheFieldByCondition.Add("ELSE """""); //@query-part
-	DescriptionOfTheFieldByCondition.Add("END"); //@query-part
-
-	Return StrConcat(DescriptionOfTheFieldByCondition, " ");
+	FieldsByCondition.Insert(0, "CASE"); // @query-part
+	FieldsByCondition.Add("ELSE """""); // @query-part
+	FieldsByCondition.Add("END"); // @query-part
+	Result.Value = StrConcat(FieldsByCondition, " ");
+	
+	FieldsPresentationsByCondition.Insert(0, "CASE"); // @query-part
+	FieldsPresentationsByCondition.Add("ELSE """""); // @query-part
+	FieldsPresentationsByCondition.Add("END"); // @query-part
+	Result.Presentation = StrConcat(FieldsPresentationsByCondition, " ");
+	
+	Return Result;
 
 EndFunction
 
@@ -3088,9 +3127,9 @@ Procedure ApplyTheUniversalSearchValue(SearchOptions)
 		SettingsComposer.Settings.AdditionalProperties.Insert("ReportInitialized", False);
 		VariantModified = WasOptionModified;
 
-		SettingsResult = New Structure;
-		SettingsResult.Insert("DCSettingsComposer", SettingsComposer);
-		SettingsResult.Insert("UserSettingsModified", True);
+		SettingsResult = ReportsClientServer.ReportFormUpdateParameters();
+		SettingsResult.DCSettingsComposer = SettingsComposer;
+		SettingsResult.UserSettingsModified = True;
 		AttachIdleHandler("UpdateSettingsFormItemsDeferred", 0.1, True);
 	EndIf;
 
@@ -3460,7 +3499,21 @@ Function ReportFieldsWithHierarchicalGrouping(IndexOfTheReportStructure)
 	Search.Insert("UsedInGroupingFields", True);
 	Search.Insert("GroupType", DataCompositionGroupType.Hierarchy);
 
-	Return IndexOfTheReportStructure.Copy(Search);
+	ReportFields = IndexOfTheReportStructure.Copy(Search);
+	
+	IndexOf = ReportFields.Count() - 1;
+
+	While IndexOf >= 0 Do
+
+		If StrFind(ReportFields[IndexOf].GroupingID, "/column/") > 0 Then
+			ReportFields.Delete(IndexOf);
+		EndIf;
+
+		IndexOf = IndexOf - 1;
+
+	EndDo;
+	
+	Return ReportFields;
 
 EndFunction
 
@@ -3702,22 +3755,6 @@ EndProcedure
 #Region SavingTheReportResult
 
 &AtClient
-Procedure SaveReportCompletion(ExtensionAttached, AdditionalParameters) Export
-
-	Context = New Structure;
-	Context.Insert("IndexOfReportSavingFormats", New Map);
-
-	Dialog = New FileDialog(FileDialogMode.Save);
-	Dialog.Filter = AvailableFormatsForSavingTheReport(Context.IndexOfReportSavingFormats);
-	Dialog.Multiselect = False;
-	Dialog.Title = NStr("en = 'Save report result';");
-
-	Handler = New NotifyDescription("SaveReportAfterFilenameSelected", ThisObject, Context);
-	FileSystemClient.ShowSelectionDialog(Handler, Dialog);
-
-EndProcedure
-
-&AtClient
 Procedure SaveReportAfterFilenameSelected(Result, Context) Export
 
 	If TypeOf(Result) = Type("Array") And Result.Count() > 0 Then
@@ -3885,7 +3922,7 @@ EndProcedure
 #EndRegion
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
 Procedure SetVisibilityAvailability()
@@ -4038,7 +4075,7 @@ Procedure LoadVariant(VariantKey, ClearStackSettings = True)
 	SetCurrentVariant(VariantKey);
 	ReportsClientServer.DisplayReportState(	ThisObject, 
 		NStr("en = 'Another report option is selected. To generate the report, click ""Generate"".';"),
-		PictureLib.Information32);
+		PictureLib.DialogInformation);
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -4190,8 +4227,7 @@ Procedure SetCurrentOptionKey(ReportFullName, ReportObject)
 
 	EndIf;
 	
-	
-	//   (см. Справочник.ПредопределенныеВариантыОтчетов.Включен = Ложь)
+	// 
 	If ValueIsFilled(OptionContext) Then
 		ContextOption = ?(ValueIsFilled(Parameters.VariantKey), Parameters.VariantKey, CurrentVariantKey);
 		ContextOptions.Add(ContextOption);
@@ -4379,24 +4415,18 @@ Function DataOfTheDecryptionElement(Details)
 EndFunction
 
 &AtServer
-Procedure UpdateSettingsFormItemsAtServer(ParametersOfUpdate = Undefined)
+Procedure UpdateSettingsFormItemsAtServer(ParametersOfUpdate)
 	ImportSettingsToComposer(ParametersOfUpdate);
 
-	ReportsServer.UpdateSettingsFormItems(
-		ThisObject, Items.SettingsComposerUserSettings, ParametersOfUpdate);
+	ReportsServer.UpdateSettingsFormItems(ThisObject, Items.SettingsComposerUserSettings, 
+		ParametersOfUpdate);
 
 	If ParametersOfUpdate.EventName <> "AfterGenerate" Then
-		Regenerate = CommonClientServer.StructureProperty(ParametersOfUpdate, "Regenerate", False);
-
-		If Regenerate And Not CheckFilling() Then
-
+		If ParametersOfUpdate.Regenerate And Not CheckFilling() Then
 			ParametersOfUpdate.Regenerate = False;
-
-		ElsIf Regenerate Then
-
+		ElsIf ParametersOfUpdate.Regenerate Then
 			ReportsClientServer.DisplayReportState(
 				ThisObject, NStr("en = 'Generating report…';"), PictureLib.TimeConsumingOperation48);
-
 		ElsIf Not ReportCreated And (ParametersOfUpdate.VariantModified
 			Or ParametersOfUpdate.UserSettingsModified) Then
 
@@ -4409,14 +4439,20 @@ Procedure UpdateSettingsFormItemsAtServer(ParametersOfUpdate = Undefined)
 		VariantModified = False;
 	EndIf;
 
-	ReportsServer.RestoreFiltersValues(ThisObject);
 	RefreshJumpMenuBetweenSettingChanges();
 	SetVisibilityAvailability();
 EndProcedure
 
 &AtServer
 Procedure ImportSettingsToComposer(ImportParameters)
-	CheckImportParameters(ImportParameters);
+	If ImportParameters.EventName <> ReportsClientServer.NameOfTheDefaultSettingEvent() 
+		And Not ImportParameters.VariantModified Then
+		ImportParameters.VariantModified = VariantModified;
+	EndIf;
+	If Not ImportParameters.UserSettingsModified Then
+		ImportParameters.UserSettingsModified = UserSettingsModified;
+	EndIf;
+	ImportParameters.ReportObjectOrFullName = ReportSettings.FullName;
 
 	ReportObject = FormAttributeToValue("Report");
 	If ReportSettings.Events.BeforeFillQuickSettingsBar Then
@@ -4424,19 +4460,15 @@ Procedure ImportSettingsToComposer(ImportParameters)
 	EndIf;
 
 	AvailableSettings = ReportsServer.AvailableSettings(ImportParameters, ReportSettings);
-
-	ClearOptionSettings = CommonClientServer.StructureProperty(
-		ImportParameters, "ClearOptionSettings", False);
-	If ClearOptionSettings Then
+	If ImportParameters.ClearOptionSettings Then
 		DownloadParametersBeforeSetCurrentOption = ImportParameters;
 		LoadVariant(CurrentVariantKey, False);
 		DownloadParametersBeforeSetCurrentOption = Undefined;
 	EndIf;
 	
-	If DownloadParametersBeforeSetCurrentOption <> Undefined
-	   And DownloadParametersBeforeSetCurrentOption.Property("ResetCustomSettings") Then
-		ImportParameters.Insert("ResetCustomSettings",
-			DownloadParametersBeforeSetCurrentOption.ResetCustomSettings);
+	If DownloadParametersBeforeSetCurrentOption <> Undefined Then
+		ImportParameters.ResetCustomSettings = 
+			DownloadParametersBeforeSetCurrentOption.ResetCustomSettings;
 	EndIf;
 
 	ReportsServer.ResetCustomSettings(AvailableSettings, ImportParameters);
@@ -4454,8 +4486,8 @@ Procedure ImportSettingsToComposer(ImportParameters)
 	SettingsImported = ReportsClientServer.LoadSettings(Report.SettingsComposer, AvailableSettings.Settings, 
 		AvailableSettings.UserSettings, AvailableSettings.FixedSettings);
 	
-	
-	
+	// 
+	// 
 	If SettingsImported And ReportsOptions.ItIsAcceptableToSetContext(ThisObject) 
 		And TypeOf(ParametersForm.Filter) = Type("Structure") Then
 
@@ -4499,11 +4531,9 @@ Procedure ImportSettingsToComposer(ImportParameters)
 		AdditionalProperties.Insert("SchemaURL", ReportSettings.SchemaURL);
 	EndIf;
 
-	If ImportParameters.Property("SettingsFormAdvancedMode") Then
+	If ImportParameters.EventName = ReportsOptionsInternalClientServer.NameEventFormSettings() 
+		And Not IsBlankString(ImportParameters.SettingsFormPageName) Then
 		ReportSettings.SettingsFormAdvancedMode = ImportParameters.SettingsFormAdvancedMode;
-	EndIf;
-
-	If ImportParameters.Property("SettingsFormPageName") Then
 		ReportSettings.SettingsFormPageName = ImportParameters.SettingsFormPageName;
 	EndIf;
 
@@ -4516,31 +4546,6 @@ Procedure ImportSettingsToComposer(ImportParameters)
 			ReportSettings.GenerateImmediately);
 	EndIf;
 
-EndProcedure
-
-&AtServer
-Procedure CheckImportParameters(ImportParameters)
-	If TypeOf(ImportParameters) <> Type("Structure") Then
-		ImportParameters = New Structure;
-	EndIf;
-
-	If Not ImportParameters.Property("EventName") Then
-		ImportParameters.Insert("EventName", "");
-	EndIf;
-
-	If Not ImportParameters.Property("VariantModified") Then
-		ImportParameters.Insert("VariantModified", VariantModified);
-	EndIf;
-
-	If Not ImportParameters.Property("UserSettingsModified") Then
-		ImportParameters.Insert("UserSettingsModified", UserSettingsModified);
-	EndIf;
-
-	If Not ImportParameters.Property("Result") Then
-		ImportParameters.Insert("Result", New Structure);
-	EndIf;
-
-	ImportParameters.Insert("ReportObjectOrFullName", ReportSettings.FullName);
 EndProcedure
 
 &AtServer
@@ -4913,11 +4918,9 @@ Procedure ApplyTheSchemaFromTheConstructor(Result)
 	Report.SettingsComposer.Settings.AdditionalProperties.Insert("DataCompositionSchema", BinaryData);
 	Report.SettingsComposer.Settings.AdditionalProperties.Insert("ReportInitialized", False);
 
-	FillParameters = New Structure;
-	FillParameters.Insert("UserSettingsModified", True);
-	FillParameters.Insert("DCSettingsComposer", Report.SettingsComposer);
-	FillParameters.Insert("EventName", ReportsClientServer.NameOfTheDefaultSettingEvent());
-
+	FillParameters = ReportsClientServer.ReportFormUpdateParameters(ReportsClientServer.NameOfTheDefaultSettingEvent());
+	FillParameters.UserSettingsModified = True;
+	FillParameters.DCSettingsComposer = Report.SettingsComposer;
 	UpdateSettingsFormItems(FillParameters);
 #EndIf
 
@@ -4925,18 +4928,6 @@ EndProcedure
 
 &AtClient
 Procedure ApplySettingsFromTheContextMenu(Result)
-
-	If TypeOf(Result) <> Type("Structure") Then
-		Return;
-	EndIf;
-
-	Action = CommonClientServer.StructureProperty(Result, "Action");
-	OwnerID = CommonClientServer.StructureProperty(Result, "OwnerID");
-
-	If Not ReportsOptionsInternalClient.ThisIsAContextSettingEvent(Action) 
-		Or OwnerID <> UUID Then
-		Return;
-	EndIf;
 
 	RefineReportAutoGenerationSign(Result);
 	ApplySettingsAndReshapeReport(Result, Undefined);
@@ -5236,11 +5227,10 @@ EndFunction
 &AtClient
 Procedure RefineReportAutoGenerationSign(ParametersOfUpdate)
 
-	If Not CommonClientServer.StructureProperty(ParametersOfUpdate, "Regenerate", False) Then
-		AllowableTimeForReportAutoGeneration = 5; // Seconds
+	If Not ParametersOfUpdate.Regenerate Then
+		AllowableTimeForReportAutoGeneration = 5; // seconds
 		ReportGenerationTime = ReportSettings.ResultProperties.FormationTime;
-		ParametersOfUpdate.Insert("Regenerate", 
-			ReportGenerationTime <= AllowableTimeForReportAutoGeneration);
+		ParametersOfUpdate.Regenerate = (ReportGenerationTime <= AllowableTimeForReportAutoGeneration);
 	EndIf;
 
 EndProcedure

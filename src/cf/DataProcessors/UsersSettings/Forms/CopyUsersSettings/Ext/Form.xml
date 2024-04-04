@@ -28,18 +28,30 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.CopyAndClose</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Copy and close</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormCopyAndCloseExtendedTooltip" id="69"/>
 			</Button>
 			<Button name="Copy" id="10">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.Copy</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Copy</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="CopyExtendedTooltip" id="70"/>
 			</Button>
 			<Button name="FormClose" id="56">
 				<Type>CommandBarButton</Type>
 				<Representation>Text</Representation>
 				<CommandName>Form.StandardCommand.Close</CommandName>
-				<ExtendedTooltip name="FormCloseExtendedTooltip" id="71"/>
+				<ExtendedTooltip name="FormClose3ExtendedTooltip" id="71"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
@@ -50,6 +62,12 @@
 	<ChildItems>
 		<InputField name="UserRef" id="1">
 			<DataPath>UserRef</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Copy settings from</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>Top</TitleLocation>
 			<ToolTip>
 				<v8:item>
@@ -89,7 +107,7 @@
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="SelectUsersGroup1ExtendedTooltip" id="75"/>
+					<ExtendedTooltip name="GroupSelectUsersExtendedTooltip" id="75"/>
 					<ChildItems>
 						<RadioButtonField name="CopySettingsToRadioButtons" id="3">
 							<DataPath>CopySettingsToRadioButtons</DataPath>
@@ -150,7 +168,7 @@
 							</Title>
 							<Hyperlink>true</Hyperlink>
 							<ContextMenu name="SelectUsers2ContextMenu" id="59"/>
-							<ExtendedTooltip name="SelectUsers2ExtendedTooltip" id="76"/>
+							<ExtendedTooltip name="SelectUsersExtendedTooltip" id="76"/>
 							<Events>
 								<Event name="Click">SelectUsers</Event>
 							</Events>
@@ -181,10 +199,16 @@
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="SelectGroup2ExtendedTooltip" id="79"/>
+					<ExtendedTooltip name="GroupSelectExtendedTooltip" id="79"/>
 					<ChildItems>
 						<RadioButtonField name="SettingsToCopyRadioButton" id="62">
 							<DataPath>SettingsToCopyRadioButton</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Settings to copy</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<RadioButtonType>Auto</RadioButtonType>
 							<ColumnsCount>1</ColumnsCount>

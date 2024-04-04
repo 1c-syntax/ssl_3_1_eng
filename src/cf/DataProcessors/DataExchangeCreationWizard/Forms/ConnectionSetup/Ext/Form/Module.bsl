@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -566,7 +567,7 @@ Procedure OnCompleteGettingApplicationsListForConnectionAtServer(Cancel = False)
 	ApplicationsTable = CompletionStatus.Result; // ValueTable
 	
 	ApplicationsTable.Columns.Add("PictureUseMode", New TypeDescription("Number"));
-	ApplicationsTable.FillValues(1, "PictureUseMode"); 
+	ApplicationsTable.FillValues(1, "PictureUseMode"); // 
 	ApplicationsSaaS.Load(ApplicationsTable);
 	
 EndProcedure
@@ -1401,7 +1402,7 @@ Procedure ReadWizardConnectionParametersStructure(WizardSettingsStructure)
 	
 	// Transport settings.
 	ExternalConnectionAuthenticationKind =
-		?(WizardSettingsStructure.COMOperatingSystemAuthentication, 0, 1); 
+		?(WizardSettingsStructure.COMOperatingSystemAuthentication, 0, 1); // 0 -Operating system; 1 - 1C:Enterprise
 	ExternalConnectionInfobaseOperationMode =
 		?(WizardSettingsStructure.COMInfobaseOperatingMode = 0, "File", "ClientServer1");
 	ExternalConnectionInfobaseName =
@@ -1630,8 +1631,8 @@ Procedure FillAvailableTransportKinds()
 		ExchangePlans[ExchangePlanName].EmptyRef(), SettingID);
 		
 	For Each CurrentTransportKind In UsedExchangeMessagesTransports Do
-		
-			
+		// 
+		// 	
 		If SaaSModel Then
 			If CurrentTransportKind <> Enums.ExchangeMessagesTransportTypes.WS
 				And CurrentTransportKind <> Enums.ExchangeMessagesTransportTypes.WSPassiveMode Then
@@ -1787,9 +1788,9 @@ Procedure CommonSynchronizationSettingsContinueSetting(Result, AdditionalParamet
 		"Visible",
 		Items.RegularCommunicationChannelsDefaultTransportKind.ChoiceList.Count() > 1);
 		
-	SaveConnectionParametersToFile = ConnectionKind = "RegularCommunicationChannels"
-		And Not DIBSetup 
-		And Not ImportConnectionParametersFromFile;
+	SaveConnectionParametersToFile = (ConnectionKind = "PassiveMode")
+		Or ((ConnectionKind = "RegularCommunicationChannels")
+			And Not DIBSetup And Not ImportConnectionParametersFromFile);
 		
 	CommonClientServer.SetFormItemProperty(Items,
 		"ConnectionSettingsFileNameToExport", "Visible", SaveConnectionParametersToFile);
@@ -1880,7 +1881,7 @@ Procedure InitializeFormAttributes()
 		ConnectionKind = "ExternalConnection";
 		
 		ExternalConnectionInfobaseOperationMode = "File";
-		ExternalConnectionAuthenticationKind = 1; 
+		ExternalConnectionAuthenticationKind = 1; // 1C:Enterprise
 	ElsIf AvailableTransportKinds.Property("WS") Then
 		ConnectionKind = "Internet";
 	ElsIf AvailableTransportKinds.Property("FILE")
@@ -1904,8 +1905,8 @@ Procedure InitializeFormAttributes()
 		RegularCommunicationChannelsFTPPassiveMode = True;
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	If XDTOSetup 
 		And Common.SubsystemExists("StandardSubsystems.SaaSOperations.DataExchangeSaaS") Then 
 		
@@ -1945,10 +1946,15 @@ Procedure InitializeFormAttributes()
 		|CorrespondentConfigurationDescription,
 		|BriefExchangeInfo,
 		|DetailedExchangeInformation,
-		|DataSyncSettingsWizardFormName",
+		|DataSyncSettingsWizardFormName,
+		|CorrespondentExchangePlanName",
 		SettingID);
 	
 	FillPropertyValues(ThisObject, SettingsValuesForOption);
+	
+	If Not ValueIsFilled(CorrespondentExchangePlanName) Then
+		CorrespondentExchangePlanName = ExchangePlanName;
+	EndIf;
 	
 	CorrespondentExchangePlanName = ExchangePlanName;
 	
@@ -2215,11 +2221,11 @@ Procedure OnChangeExternalConnectionAuthenticationKind()
 	
 	CommonClientServer.SetFormItemProperty(Items,
 		"ExternalConnectionUsername",
-		"Enabled", ExternalConnectionAuthenticationKind = 1); 
+		"Enabled", ExternalConnectionAuthenticationKind = 1); // 1C:Enterprise
 		
 	CommonClientServer.SetFormItemProperty(Items,
 		"ExternalConnectionPassword",
-		"Enabled", ExternalConnectionAuthenticationKind = 1); 
+		"Enabled", ExternalConnectionAuthenticationKind = 1); // 1C:Enterprise
 	
 EndProcedure
 
@@ -2476,13 +2482,13 @@ Function Attachable_CommonCommunicationChannelsConnectionParametersPageOnOpen(Ca
 		AdditionalParameters = New Structure;
 		AdditionalParameters.Insert("Notification", ContinueSetupNotification);
 		
-		CompletionNotification2 = New NotifyDescription("OnCompletePutConnectionSettingsFileForImport", ThisObject, AdditionalParameters);
+		CallbackOnCompletion = New NotifyDescription("OnCompletePutConnectionSettingsFileForImport", ThisObject, AdditionalParameters);
 		
 		ImportParameters = FileSystemClient.FileImportParameters();
 		ImportParameters.FormIdentifier = UUID;
 		ImportParameters.Interactively = False;
 		
-		FileSystemClient.ImportFile_(CompletionNotification2, ImportParameters, ConnectionSettingsFileNameToImport);
+		FileSystemClient.ImportFile_(CallbackOnCompletion, ImportParameters, ConnectionSettingsFileNameToImport);
 	Else
 		Result = New Structure;
 		Result.Insert("Cancel", False);
@@ -2655,13 +2661,13 @@ Function Attachable_GeneralSynchronizationSettingsPageOnOpen(Cancel, SkipPage, I
 		AdditionalParameters = New Structure;
 		AdditionalParameters.Insert("Notification", ContinueSetupNotification);
 		
-		CompletionNotification2 = New NotifyDescription("OnCompletePutXDTOCorrespondentSettingsFile", ThisObject, AdditionalParameters);
+		CallbackOnCompletion = New NotifyDescription("OnCompletePutXDTOCorrespondentSettingsFile", ThisObject, AdditionalParameters);
 		
 		ImportParameters = FileSystemClient.FileImportParameters();
 		ImportParameters.FormIdentifier = UUID;
 		ImportParameters.Interactively = False;
 		
-		FileSystemClient.ImportFile_(CompletionNotification2, ImportParameters, XDTOCorrespondentSettingsFileName);
+		FileSystemClient.ImportFile_(CallbackOnCompletion, ImportParameters, XDTOCorrespondentSettingsFileName);
 	Else
 		
 		Result = New Structure;

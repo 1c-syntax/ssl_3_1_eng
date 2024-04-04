@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -12,11 +13,9 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	ThisRemoveTaggedObjects = Parameters.MarkedObjectsDeletion;
-	If ThisRemoveTaggedObjects Then
-		Title = NStr("en = 'Cannot delete marked objects';");
-		Items.ErrorMessageText.Title = NStr("en = 'Cannot delete the marked objects as other users are signed in:';");
-	EndIf;
+	Title = ?(ValueIsFilled(Parameters.Title), Parameters.Title, Title);
+	Items.ErrorMessageText.Title = ?(ValueIsFilled(Parameters.ErrorMessageText),
+		Parameters.ErrorMessageText, Items.ErrorMessageText.Title);
 	
 	CheckExclusiveModeAtServer();
 	
@@ -31,7 +30,7 @@ Procedure OnOpen(Cancel)
 		Return;
 	EndIf;
 	
-	If ThisRemoveTaggedObjects Then
+	If Parameters.ShouldCloseAllSessionsButCurrent Then
 		IBConnectionsClient.SetTerminateAllSessionsExceptCurrentFlag(True);
 	EndIf;
 	AttachIdleHandler("CheckExclusiveMode", 30);
@@ -40,7 +39,7 @@ EndProcedure
 
 &AtClient
 Procedure OnClose(Exit)
-	If ThisRemoveTaggedObjects Then
+	If Parameters.ShouldCloseAllSessionsButCurrent Then
 		IBConnectionsClient.SetTerminateAllSessionsExceptCurrentFlag(False);
 	EndIf;
 EndProcedure
@@ -52,22 +51,22 @@ EndProcedure
 &AtClient
 Procedure ActiveUsersClick(Item)
 	
+	CheckExclusiveModeAtServer();
 	NotifyDescription = New NotifyDescription("OpenActiveUserListCompletion", ThisObject);
 	OpenForm("DataProcessor.ActiveUsers.Form.ActiveUsers", , , , , ,
 		NotifyDescription,
 		FormWindowOpeningMode.LockOwnerWindow);
-	CheckExclusiveModeAtServer();
 	
 EndProcedure
 
 &AtClient
 Procedure ActiveUsers2Click(Item)
 	
+	CheckExclusiveModeAtServer();
 	NotifyDescription = New NotifyDescription("OpenActiveUserListCompletion", ThisObject);
 	OpenForm("DataProcessor.ActiveUsers.Form.ActiveUsers" , , , , , ,
 		NotifyDescription,
 		FormWindowOpeningMode.LockOwnerWindow);
-	CheckExclusiveModeAtServer();
 	
 EndProcedure
 
@@ -145,10 +144,10 @@ Procedure UpdateActiveSessionCount(Form)
 		Form.Items.ErrorMessageText.Title = NStr("en = 'Other users have already signed out:';");
 		Form.Items.FixErrorText.Title = NStr("en = 'To continue, click Retry.';");
 	Else	
-		If Form.ThisRemoveTaggedObjects Then
-			ErrorMessageText = NStr("en = 'Cannot delete the marked objects because the following users are still signed in:';");
+		If ValueIsFilled(Form.Parameters.ErrorTextExitFailed) Then
+			ErrorMessageText = Form.Parameters.ErrorTextExitFailed;
 		Else	
-			ErrorMessageText = NStr("en = 'Cannot update the application because the following users are still signed in:';");
+			ErrorMessageText = NStr("en = 'Cannot update the app because the following users are still signed in:';");
 		EndIf;
 		Form.Items.ErrorMessageText.Title = ErrorMessageText;
 		Form.Items.FixErrorText.Title = NStr("en = 'To continue, close their sessions.';");
@@ -163,7 +162,7 @@ Procedure CheckExclusiveModeAtServer()
 	CurrentUserSessionNumber = InfoBaseSessionNumber();
 	ActiveSessionCount = 0;
 	For Each IBSession In InfobaseSessions Do
-		If IBSession.ApplicationName = "Designer"
+		If IBSession.ApplicationName = "Designer" And Not Parameters.ShouldCloseDesignerSession
 			Or IBSession.SessionNumber = CurrentUserSessionNumber Then
 			Continue;
 		EndIf;
@@ -210,15 +209,11 @@ EndProcedure
 Procedure LockFileInfobase()
 	
 	Object.DisableUserAuthorisation = True;
-	If ThisRemoveTaggedObjects Then
-		Object.LockEffectiveFrom = CurrentSessionDate() + 2*60;
-		Object.LockEffectiveTo = Object.LockEffectiveFrom + 60;
-		Object.MessageForUsers = NStr("en = 'The application is locked to delete marked objects.';");
-	Else
-		Object.LockEffectiveFrom = CurrentSessionDate() + 2*60;
-		Object.LockEffectiveTo = Object.LockEffectiveFrom + 5*60;
-		Object.MessageForUsers = NStr("en = 'The application is locked for update to a new version.';");
-	EndIf;
+	
+	Object.LockEffectiveFrom = CurrentSessionDate() + 2*60;
+	BlockingPeriod = ?(ValueIsFilled(Parameters.BlockingPeriod), Parameters.BlockingPeriod, 5*60);
+	Object.LockEffectiveTo = Object.LockEffectiveFrom + BlockingPeriod;
+	Object.MessageForUsers = ?(ValueIsFilled(Parameters.LoginMessage), Parameters.LoginMessage, NStr("en = 'The app is unavailable while updating';"));
 	
 	Try
 		FormAttributeToValue("Object").PerformInstallation();

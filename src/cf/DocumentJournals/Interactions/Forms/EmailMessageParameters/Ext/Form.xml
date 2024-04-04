@@ -19,7 +19,13 @@
 				<DefaultButton>true</DefaultButton>
 				<DefaultItem>true</DefaultItem>
 				<CommandName>Form.Command.OK</CommandName>
-				<ExtendedTooltip name="FormOK1ExtendedTooltip" id="28"/>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Close</v8:content>
+					</v8:item>
+				</Title>
+				<ExtendedTooltip name="FormOKExtendedTooltip" id="28"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
@@ -57,9 +63,15 @@
 						<InputField name="CreatedOn" id="9">
 							<DataPath>CreatedOn</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Created on</v8:content>
+								</v8:item>
+							</Title>
 							<HorizontalStretch>false</HorizontalStretch>
 							<ContextMenu name="Created1ContextMenu" id="10"/>
-							<ExtendedTooltip name="Created1ExtendedTooltip" id="31"/>
+							<ExtendedTooltip name="CreatedOnExtendedTooltip" id="31"/>
 						</InputField>
 						<InputField name="ReceivedSent" id="11">
 							<DataPath>ReceivedSent</DataPath>
@@ -92,6 +104,12 @@
 						<InputField name="InternalNumber" id="6">
 							<DataPath>InternalNumber</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Internal number</v8:content>
+								</v8:item>
+							</Title>
 							<HorizontalStretch>false</HorizontalStretch>
 							<ContextMenu name="InternalNumberContextMenu" id="7"/>
 							<ExtendedTooltip name="InternalNumberExtendedTooltip" id="34"/>
@@ -99,6 +117,12 @@
 						<CheckBoxField name="IncludeOriginalEmailBody" id="23">
 							<DataPath>IncludeOriginalEmailBody</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Include original message</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<CheckBoxType>Auto</CheckBoxType>
 							<ContextMenu name="IncludeOriginalEmailBodyContextMenu" id="24"/>
@@ -110,6 +134,12 @@
 		</UsualGroup>
 		<InputField name="Folder" id="26">
 			<DataPath>Folder</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Folder</v8:content>
+				</v8:item>
+			</Title>
 			<ChoiceParameterLinks>
 				<xr:Link>
 					<xr:Name>Filter.Owner</xr:Name>
@@ -135,6 +165,12 @@
 				<CheckBoxField name="RequestDeliveryReceipt" id="1">
 					<DataPath>RequestDeliveryReceipt</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Request delivery receipt</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Right</TitleLocation>
 					<CheckBoxType>Auto</CheckBoxType>
 					<ContextMenu name="RequestDeliveryReceiptContextMenu" id="2"/>
@@ -143,6 +179,12 @@
 				<CheckBoxField name="RequestReadReceipt" id="3">
 					<DataPath>RequestReadReceipt</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Request read receipt</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Right</TitleLocation>
 					<CheckBoxType>Auto</CheckBoxType>
 					<ContextMenu name="RequestReadReceiptContextMenu" id="4"/>
@@ -153,6 +195,12 @@
 		<TextDocumentField name="Headers" id="17">
 			<DataPath>InternetTitles</DataPath>
 			<ReadOnly>true</ReadOnly>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Internet headers</v8:content>
+				</v8:item>
+			</Title>
 			<ContextMenu name="HeadersContextMenu" id="18"/>
 			<ExtendedTooltip name="HeadersExtendedTooltip" id="40"/>
 		</TextDocumentField>

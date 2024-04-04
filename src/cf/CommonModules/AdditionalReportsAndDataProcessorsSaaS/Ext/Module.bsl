@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -206,7 +207,7 @@ Procedure BeforeDeleteAdditionalDataProcessor(Source, Cancel) Export
 		
 EndProcedure
 
-// 
+// Called when registration data is obtained for a new additional report or data processor.
 //
 Procedure OnGetRegistrationData(Object, RegistrationData, StandardProcessing) Export
 	
@@ -298,16 +299,16 @@ Procedure OnAttachExternalDataProcessor(Val Ref, StandardProcessing, Result) Exp
 		SafeMode = String(ConnectionParameters.GUIDVersion);
 	EndIf;
 	
-	
-	
-	
+	// 
+	// 
+	// 
 	AddressInTempStorage = PutToTempStorage(ConnectionParameters.DataProcessorStorage.Get());
 	Manager = ?(IsReport(Ref), ExternalReports, ExternalDataProcessors);
 	Result = Manager.Connect(AddressInTempStorage, ConnectionParameters.ObjectName, SafeMode, 
 		Common.ProtectionWithoutWarningsDetails()); 
-	
-	
-	
+	// 
+	// 
+	// 
 	
 EndProcedure
 
@@ -338,15 +339,15 @@ Procedure OnCreateExternalDataProcessor(Val Ref, StandardProcessing, Result) Exp
 	
 	CheckCanExecute(Ref);
 	
-	
-	
+	// 
+	// 
 	If IsReport(Ref) Then
 		Result = ExternalReports.Create(DataProcessorName);
 	Else
 		Result = ExternalDataProcessors.Create(DataProcessorName);
 	EndIf;
-	
-	
+	// 
+	// 
 	
 EndProcedure
 
@@ -358,9 +359,9 @@ EndProcedure
 //   Job - ScheduledJob
 //           - ValueTableRow - scheduled job details.
 //       See ScheduledJobsServer.Job.
-//   Changes - Structure - 
-//       
-//       
+//   Changes - Structure - Job attribute values to be modified.
+//       See the second parameter of the "ScheduledJobsServer.ChangeJob" procedure.
+//       If set to "Undefined", the scheduled job stays unchanged.
 //
 Procedure BeforeUpdateJob(Object, Command, Job, Changes) Export
 	
@@ -583,8 +584,8 @@ Procedure InstallSuppliedDataProcessorToDataArea(Val InstallationDetails, Val Qu
 			
 			DataProcessorToUse.Write();
 			
-			
-			
+			// 
+			// 
 			If Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
 				ModuleReportsOptions = Common.CommonModule("ReportsOptions");
 				For Each AdditionalReportOption In AdditionalReportOptions Do
@@ -628,9 +629,9 @@ Procedure InstallSuppliedDataProcessorToDataArea(Val InstallationDetails, Val Qu
 				
 		Else
 			
-			
-			
-			
+			// 
+			// 
+			// 
 			
 			Context = New Structure;
 			Context.Insert("QuickAccess", QuickAccess);
@@ -912,8 +913,8 @@ Procedure OnFillIIBParametersTable(Val ParametersTable) Export
 		ModuleSaaSOperations.AddConstantToInformationSecurityParameterTable(ParametersTable, "IndependentUsageOfAdditionalReportsAndDataProcessorsSaaS");
 		ModuleSaaSOperations.AddConstantToInformationSecurityParameterTable(ParametersTable, "AllowScheduledJobsExecutionSaaS");
 		
-		
-		
+		// 
+		// 
 		ParameterString = ModuleSaaSOperations.AddConstantToInformationSecurityParameterTable(ParametersTable, "AllowScheduledJobsExecutionSaaS");
 		ParameterString.Name = "AllowUseAdditionalReportsAndDataProcessorsByScheduledJobsInSaaSMode";
 		ParameterString = ModuleSaaSOperations.AddConstantToInformationSecurityParameterTable(ParametersTable, "MinimalARADPScheduledJobIntervalSaaS");
@@ -935,8 +936,8 @@ EndProcedure
 //
 Procedure OnSetIBParametersValues(Val ParameterValues) Export
 	
-	
-	
+	// 
+	// 
 	AllowScheduledJobsExecutionSaaS = Undefined;
 	MinimalARADPScheduledJobIntervalSaaS = Undefined;
 	UseSecurityProfilesForARDP = Undefined;
@@ -981,10 +982,10 @@ EndProcedure
 //
 // Parameters:
 //  NamesAndAliasesMap - Map of KeyAndValue:
-//   Key - Method alias, for example: ClearDataArea
-//   Value - a name of the method to be called, for example, SaaS.ClearDataArea
-//    You can specify Undefined as a value, in this case, the name is assumed to be 
-//    the same as an alias.
+//   Key is the method alias. For example, ClearDataArea.
+//   Value is the name of the method to be called. For example, SaaSOperations.ClearDataArea.
+//    If Undefined, it is assumed that the name matches the alias. 
+//    
 //
 Procedure OnDefineHandlerAliases(NamesAndAliasesMap) Export
 	
@@ -1057,8 +1058,8 @@ EndProcedure
 //
 Procedure OnDefineCorrespondentInterfaceVersion(Val MessageInterface, Val ConnectionParameters, Val RecipientPresentation1, Result) Export
 	
-	
-	
+	// 
+	// 
 	
 	If Common.DataSeparationEnabled()
 		And Result = Undefined
@@ -1420,7 +1421,7 @@ EndFunction
 //
 Function SuppliedDataKindID()
 	
-	Return "ARandDP"; // Not localizable.
+	Return "ARandDP"; // Do not localize.
 	
 EndFunction
 
@@ -1679,8 +1680,8 @@ Procedure FillSettingsOfDataProcessorToUse(DataProcessorToUse, SuppliedDataProce
 		
 	EndDo;
 	
-	
-	
+	// 
+	// 
 	CommandsToRemove = New Array();
 	For Each CommandOfDataProcessorToUse In CommandsOfDataProcessorToUse Do
 		
@@ -1703,7 +1704,7 @@ Procedure FillSettingsOfDataProcessorToUse(DataProcessorToUse, SuppliedDataProce
 	
 EndProcedure
 
-// 
+// Returns registration data for the given data processor being registered by the 1C-supplied data processor.
 //
 // Parameters:
 //  SuppliedDataProcessor - CatalogRef.SuppliedAdditionalReportsAndDataProcessors

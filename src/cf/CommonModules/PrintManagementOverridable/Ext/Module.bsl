@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -103,8 +104,6 @@ EndProcedure
 //   * PrintFormFileName - String - a print form file name upon saving to a file or sending as
 //                                      an email attachment. Do not use for print forms in the office document format.
 //                                      By default, a file name is set as
-//                                      "[НазваниеПечатнойФормы] # [Номер] from [Дата]" for documents and
-//                                      "[НазваниеПечатнойФормы] — [ПредставлениеОбъекта] — [ТекущаяДата]" for objects.
 //                           - Map of KeyAndValue - Filenames for each object:
 //                              ** Key - AnyRef - a reference to a print object from the ObjectsArray collection;
 //                              ** Value - String - file name;
@@ -124,9 +123,6 @@ EndProcedure
 //  OutputParameters - Structure - Print form output settings:
 //   * SendOptions - Structure - Interned for autofilling fields in the message creation form upon sending generated print forms by email 
 //                                     :
-//     ** Recipient - See EmailOperationsClient.EmailSendOptions.Получатель
-//     ** Subject       - See EmailOperationsClient.EmailSendOptions.Тема
-//     ** Text      - See EmailOperationsClient.EmailSendOptions.Текст
 //   * LanguageCode - String - a language in which the print form needs to be generated.
 //                         Consists of the ISO 639-1 language code and the ISO 3166-1 country code (optional)
 //                         separated by the underscore character. Examples: "en", "en_US", "en_GB", "ru", "ru_RU".
@@ -200,8 +196,8 @@ EndProcedure
 //   * Key     - AnyRef - a reference to the print object;
 //   * Value - Structure   - Set of signatures and stamps:
 //     ** Key     - String - Identifier of a signature or stamp in print form template. 
-//                            It must end with "Signature…", "Stamp…", or "Facsimile".
-//                            For example, ManagerSignature or CompanyStamp.
+//                            It must start with "Signature…", "Stamp…", or "Facsimile".
+//                            For example, SignatureManager or StampCompany.
 //     ** Value - Picture - Signature or stamp image.
 //
 Procedure OnGetSignaturesAndSeals(Var_Documents, SignaturesAndSeals) Export
@@ -299,10 +295,10 @@ Procedure PrintDocumentsOnExecuteCommand(Form, AdditionalParameters) Export
 	
 EndProcedure
 
-// Determines the used print data template for metadata objects and individual fields.
-// By default, the PrintData template is used for Ref data.
-// If the template is missing in metadata, 1C:Enterprise generates it based on the set of the selected object attributes.
-// The procedure allows for overriding the printable fields for the entire object or individual fields.
+// 
+// 
+// 
+// 
 //
 // Parameters:
 //  Object - String - Full name of a metadata object.

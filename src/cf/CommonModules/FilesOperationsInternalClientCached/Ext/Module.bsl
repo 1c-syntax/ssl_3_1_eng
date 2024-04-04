@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Private
@@ -42,8 +43,8 @@ Function UserWorkingDirectory() Export
 	
 	// Create a directory for files.
 	Try
-		
-		
+		// 
+		// 
 		InformationAboutTheCatalog = New File(DirectoryName);
 		If Not InformationAboutTheCatalog.Exists() Then
 			Raise NStr("en = 'Directory does not exist.';");
@@ -54,8 +55,8 @@ Function UserWorkingDirectory() Export
 		CreateDirectory(TestDirectoryName);
 		DeleteFiles(TestDirectoryName);
 	Except
-		
-		
+		// 
+		// 
 		EventLogMessage = NStr("en = 'Working directory %1 is not found or there is no save permission. Default settings are restored.';");
 		EventLogMessage = StringFunctionsClientServer.SubstituteParametersToString(EventLogMessage, DirectoryName);
 		DirectoryName = FilesOperationsInternalClient.SelectPathToUserDataDirectory();
@@ -84,8 +85,8 @@ Function IsDirectoryFiles(FilesOwner) Export
 	
 EndFunction
 
-Function StartOfCurrentSession() Export
-	Return FilesOperationsInternalServerCall.StartOfCurrentSession();
+Function CurrentSessionStart() Export
+	Return FilesOperationsInternalServerCall.CurrentSessionStart();
 EndFunction
 
 #EndRegion

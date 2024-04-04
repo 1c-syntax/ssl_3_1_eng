@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -16,21 +17,21 @@
 // some of the measurements may be lost if the session is terminated.
 //
 // Parameters:
-//  KeyOperation - String - 	 	name of the key operation. If Undefined, the key operation
-//									must be specified explicitly by calling the procedure
-//									Set the key operation of the camera.
-//  RecordWithError - Boolean -		indicates whether an error is automatically fixed. 
-//									True - when the measurement is completed automatically, it will be recorded
-//									with the "Failed"sign. At the point in the code where the error
-//									cannot occur explicitly, you must either explicitly complete the measurement method
-//									End timestamp, or remove the error flag using the method
-//									Set the camera's error sign.
-//									False-the measurement will be considered correct when completed automatically.
-//  AutoCompletion - Boolean	 - 		 	indicates whether the measurement is completed automatically.
-//									The truth - the completion of the measurement will be performed automatically
-//									through the global handler expectations.
-//									False - the measurement must be completed explicitly by calling the procedure
-//									Complete the timestamp.
+//  KeyOperation - String - 	Key operation name. If set to "Undefined", then it must be specified explicitly.
+//									For that, call the "SetMeasurementKeyOperation" procedure.
+//									
+//  RecordWithError - Boolean -	Indicates whether automatic stop is considered an error. 
+//									If set to "True" and sampling is stopped automatically, it is assigned the "Completed with error" flag.
+//									In cases where an error cannot occur, either stop the sampling explicitly with the "StopTimeMeasurement"
+//									method, or clear the error flag using the "SetMeasurementErrorFlag".
+//									If set to "False", automatic stop of sampling is considered a normal event.
+//									
+//									
+//  AutoCompletion - Boolean	 - 		Indicates whether sampling should stop automatically.
+//									If set to True, sampling will stop using the global idle handler.
+//									If set to False, the procedure "StopTimeMeasurement" should be called implicitly to stop sampling.
+//									
+//									
 //
 // Returns:
 //  UUID - a unique measurement ID.
@@ -54,11 +55,11 @@ EndFunction
 // The measurement result will be recorded in InformationRegister.TimeMeasurements.
 //
 // Parameters:
-//  AutoCompletion - Boolean	 - 	 	indicates whether the measurement is completed automatically.
-//								The truth - the completion of the measurement will be performed automatically
-//								through the global handler expectations.
-//								False - the measurement must be completed explicitly by calling the procedure
-//								Complete the timestamp.
+//  AutoCompletion - Boolean	 - 	Indicates whether sampling should stop automatically.
+//								If set to True, sampling will stop using the global idle handler.
+//								If set to False, the procedure "StopTimeMeasurement" should be called implicitly to stop sampling.
+//								
+//								
 //  KeyOperation - String - name of the key operation. If Undefined> the key operation
 //								must be specified explicitly by calling the
 //								SetMeasurementKeyOperation procedure.
@@ -120,11 +121,11 @@ EndProcedure
 //  MeasurementUUID	- UUID - a measurement UUID.
 //  MeasurementParameters	- Structure:
 //    * KeyOperation - String		- name of the key operation.
-//    * MeasurementWeight		- Number			- 
+//    * MeasurementWeight		- Number			- Sample complexity indicator.
 //    * Comment		- String
 //						- Map - any additional information about the measurement.
-//    * IsFailed - Boolean			- 
-//											
+//    * IsFailed - Boolean			- Sampling error flag.
+//											See the procedure "SetMeasurementErrorFlag".
 //
 Procedure SetMeasurementParameters(MeasurementUUID, MeasurementParameters) Export
 	
@@ -196,8 +197,8 @@ EndProcedure
 // Parameters:
 //  MeasurementUUID   - UUID - a measurement UUID.
 //  Comment - String
-//              - Map of KeyAndValue - 
-//                               :
+//              - Map of KeyAndValue - Any additional information about the sample.
+//                               If a Map is specified,:
 //                                            * Key     - String - name of the additional parameter.
 //                                            * Value - String
 //                                                       - Number
@@ -234,34 +235,34 @@ EndProcedure
 //
 // Parameters:
 //  KeyOperation - String - name of the key operation. 
-//  RecordWithError - Boolean -		indicates whether an error is automatically fixed. 
-//									True - when the measurement is completed automatically, it will be recorded
-//									with the "Failed"sign. At the point in the code where the error
-//									cannot occur explicitly, you must either explicitly complete the measurement method
-//									End timestamp, or remove the error flag using the method
-//									Set the error sign of the camera
-//									False-the measurement will be considered correct when completed automatically.
-//									Complete the timestamp.
-//  AutoCompletion - Boolean	 - 		 	indicates whether the measurement is completed automatically.
-//									The truth - the completion of the measurement will be performed automatically
-//									through the global handler expectations.
-//									False - the measurement must be completed explicitly by calling the procedure
-//									Complete the timestamp.
-//  LastStepName - String - 	 	name of the last step of the key operation. It is advisable to use it if
-//									the measurement is started with automatic completion. In the opposite case, the last 
-//									actions performed between the commit of the delay Operation and 
-//									the triggering of the wait handler will be recorded under the name "Last step".
+//  RecordWithError - Boolean -	Indicates whether automatic stop is considered an error. 
+//									If set to "True" and sampling is stopped automatically, it is assigned the "Completed with error" flag.
+//									In cases where an error cannot occur, either stop the sampling explicitly with the "StopTimeMeasurement"
+//									method, or clear the error flag using the "SetMeasurementErrorFlag".
+//									If set to "False", automatic stop of sampling is considered a normal event.
+//									StopTimeMeasurement.
+//									
+//									
+//  AutoCompletion - Boolean	 - 		Indicates whether sampling should stop automatically.
+//									If set to True, sampling will stop using the global idle handler.
+//									If set to False, the procedure "StopTimeMeasurement" should be called implicitly to stop sampling.
+//									
+//									
+//  LastStepName - String - 	Name of the key operation's last step.
+//									Intended for cases where sampling was started with an automatic stop. 
+//									Otherwise, the last steps (those that run after the start of "FixTimeConsumingOperationMeasure" and 
+//									before the idle handler triggered) will be written with the name "Last step".
 //
 // Returns:
 //   Map of KeyAndValue:
 //     * Key - String
 //     * Value - Arbitrary
-//   : 
-//     
-//     
-//     
-//     
-//     
+//   Keys are: 
+//     # KeyOperation - String - Key operation name.
+//     # StartTime - Number - Operation start time, in ms.
+//     # LastMeasurementTime - Last time the key operation was measured, in ms.
+//     # MeasurementWeight - Number - Amount of data processed during the runtime.
+//     # NestedMeasurements - Map - Collection of nested step samples.
 //
 Function StartTimeConsumingOperationMeasurement(KeyOperation, RecordWithError = False, AutoCompletion = False, LastStepName = "LastStep") Export
 	
@@ -378,11 +379,11 @@ EndProcedure
 // some of the measurements may be lost if the session is terminated.
 //
 // Parameters:
-//  AutoCompletion - Boolean	 - 	 	indicates whether the measurement is completed automatically.
-//								The truth - the completion of the measurement will be performed automatically
-//								through the global handler expectations.
-//								False - the measurement must be completed explicitly by calling the procedure
-//								Complete the timestamp.
+//  AutoCompletion - Boolean	 - 	Indicates whether sampling should stop automatically.
+//								If set to True, sampling will stop using the global idle handler.
+//								If set to False, the procedure "StopTimeMeasurement" should be called implicitly to stop sampling.
+//								
+//								
 //  KeyOperation - String - name of the key operation. If Undefined> the key operation
 //								must be specified explicitly by calling the
 //								SetMeasurementKeyOperation procedure.
@@ -457,12 +458,12 @@ EndProcedure
 // The result is recorded in the TimeMeasurements information register.
 //
 // Parameters:
-//  Offset - Number	 	 - 	
-//  AutoCompletion - Boolean	 - 	 	indicates whether the measurement is completed automatically.
-//								The truth - the completion of the measurement will be performed automatically
-//								through the global handler expectations.
-//								False - the measurement must be completed explicitly by calling the procedure
-//								Complete the timestamp.
+//  Offset - Number	 	 - 	Date and time when sampling was started. See "CurrentUniversalDateInMilliseconds".
+//  AutoCompletion - Boolean	 - 	Indicates whether sampling should stop automatically.
+//								If set to True, sampling will stop using the global idle handler.
+//								If set to False, the procedure "StopTimeMeasurement" should be called implicitly to stop sampling.
+//								
+//								
 //  KeyOperation - String - name of the key operation. If Undefined> the key operation
 //								must be specified explicitly by calling the
 //								SetMeasurementKeyOperation procedure.
@@ -514,7 +515,7 @@ EndFunction
 //   * Technological - Boolean
 //   * IsFailed - Boolean
 //   * Offset - Number
-//   * Comment - 
+//   * Comment - String, Undefined
 //
 Function TimeMeasurementParametersAtClient(KeyOperation)
 
@@ -571,7 +572,7 @@ Procedure StartTimeMeasurementAtClientInternal(Parameters)
 			DateAndTimeAtClient = CurrentUniversalDateInMilliseconds();
 			TimeMeasurements.ClientDateOffset = DateAndTimeAtServer - DateAndTimeAtClient;
 		Else
-			CurrentRecordingPeriod = Undefined; 
+			CurrentRecordingPeriod = Undefined; // 
 			StandardSubsystemsApplicationParameters = ApplicationParameters[StandardSubsystemsParameterName];
 			If StandardSubsystemsApplicationParameters.Property("PerformanceMonitor") Then
 				TimeMeasurements.ClientDateOffset = StandardSubsystemsApplicationParameters["ClientDateOffset"];
@@ -601,7 +602,7 @@ Procedure StartTimeMeasurementAtClientInternal(Parameters)
 		EndIf;
 	EndIf;
 	
-	
+	// Actual sampling start time on the client.
 	If Parameters.Offset > 0 Then
 		BeginTime = Parameters.Offset + TimeMeasurements.ClientDateOffset;
 	Else
@@ -713,7 +714,7 @@ Procedure WriteResultsAutoNotGlobal(BeforeCompletion = False) Export
 	
 	StandardSubsystemsParameterName = "StandardSubsystems.ClientParameters";
 	If ApplicationParameters[StandardSubsystemsParameterName] = Undefined Then
-		
+		// See also BeforeRecurringClientDataSendToServer.
 		AttachIdleHandler("WriteResultsAuto", NewRecordingPeriod, True);
 	EndIf;
 	

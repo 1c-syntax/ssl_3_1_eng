@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -50,7 +51,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	CertificateProperties = DigitalSignature.CertificateProperties(Certificate);
-	AdditionalCertificateProperties = DigitalSignatureInternalClientServer.AdditionalCertificateProperties(
+	CertificateAdditionalProperties = DigitalSignatureInternalClientServer.CertificateAdditionalProperties(
 		CertificateData);
 	
 	AssignmentSign = Certificate.UseToSign;
@@ -60,8 +61,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	IssuedTo      = CertificateProperties.IssuedTo;
 	IssuedBy       = CertificateProperties.IssuedBy;
 	EndDate  = CertificateProperties.EndDate;
-	EndDateOfPrivateKey = CertificateProperties.EndDateOfPrivateKey;
-	Items.EndDateOfPrivateKey.Visible = ValueIsFilled(EndDateOfPrivateKey);
+	PrivateKeyExpirationDate = CertificateProperties.PrivateKeyExpirationDate;
+	Items.PrivateKeyExpirationDate.Visible = ValueIsFilled(PrivateKeyExpirationDate);
 	
 	SignAlgorithm = DigitalSignatureInternalClientServer.CertificateSignAlgorithm(
 		CertificateData, True);
@@ -69,7 +70,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.SignAlgorithm.ToolTip =
 		Metadata.Catalogs.DigitalSignatureAndEncryptionApplications.Attributes.SignAlgorithm.Tooltip;
 	
-	Items.GroupLicenseCryptoPro.Visible = AdditionalCertificateProperties.ContainsEmbeddedLicenseCryptoPro;
+	Items.GroupLicenseCryptoPro.Visible = CertificateAdditionalProperties.ContainsEmbeddedLicenseCryptoPro;
 	
 	FillCertificatePurposeCodes(CertificateProperties.Purpose, AssignmentCodes);
 	
@@ -102,21 +103,21 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			Items.GroupErrorGettingCertificatesChain.Visible = True;
 		EndIf;
 		
+		CertificatePropertiesExtended = DigitalSignatureInternal.CertificatePropertiesExtended(
+			CertificateData, UUID, ComponentObject);
+		ErrorWhenGettingReviewListAddressesOnServer = CertificatePropertiesExtended.Error;
+		HasError = ValueIsFilled(CertificatePropertiesExtended.Error);
+		Items.GroupErrorGettingReviewLists.Visible = HasError;
+		Items.RevocationLists.Visible = Not HasError;
+		If Not HasError Then
+			For Each CurrentAddress In CertificatePropertiesExtended.CertificateProperties.AddressesOfRevocationLists Do
+				NewRow = RevocationLists.Add();
+				NewRow.Address = CurrentAddress;
+			EndDo;
+		EndIf;
+	
 	EndIf;
 	
-	CertificatePropertiesExtended = DigitalSignatureInternal.CertificatePropertiesExtended(
-		CertificateData, UUID, ComponentObject);
-	ErrorGettingListOfRevocationListsAddresses = CertificatePropertiesExtended.Error;
-	HasError = ValueIsFilled(CertificatePropertiesExtended.Error);
-	Items.ErrorGettingListOfRevocationListsAddresses.Visible = HasError;
-	Items.RevocationLists.Visible = Not HasError;
-	If Not HasError Then
-		For Each CurrentAddress In CertificatePropertiesExtended.CertificateProperties.AddressesOfRevocationLists Do
-			NewRow = RevocationLists.Add();
-			NewRow.Address = CurrentAddress;
-		EndDo;
-	EndIf;
-		
 	If Parameters.Property("OpeningFromCertificateItemForm") Then
 		Items.FormSaveToFile.Visible = False;
 		Items.FormValidate.Visible = False;
@@ -163,6 +164,13 @@ Procedure PagesOnCurrentPageChange(Item, CurrentPage)
 		PopulateRootCertificates();
 		
 	EndIf;
+	
+	If CurrentPage = Items.PageRevocationLists 
+		And RevocationLists.Count() = 0 Then
+
+		FillInReviewLists();
+		
+	EndIf;
 		
 EndProcedure
 
@@ -174,6 +182,16 @@ Procedure DecorationErrorGettingCertificatesChainClick(Item)
 		New Structure("ErrorDescription", ErrorGettingCertificationPaths),
 		New Structure("ErrorDescription", ErrorGettingCertificationPathAtServer));
 		
+EndProcedure
+
+&AtClient
+Procedure DecorationErrorGettingReviewListsClick(Item)
+	
+	DigitalSignatureInternalClient.ShowApplicationCallError(
+		NStr("en = 'Could not receive the addresses of certificate revocation lists';"), "", 
+		New Structure("ErrorDescription", ErrorGettingListOfRevocationListsAddresses),
+		New Structure("ErrorDescription", ErrorWhenGettingReviewListAddressesOnServer));
+	
 EndProcedure
 
 #EndRegion
@@ -392,11 +410,11 @@ Procedure FillInternalCertificateFields()
 		AddProperty(Certificate, "ValidFrom",                NStr("en = 'Start date';"));
 		AddProperty(Certificate, "ValidTo",             NStr("en = 'End date';"));
 		
-		If ValueIsFilled(AdditionalCertificateProperties.StartDateOfPrivateKey) Then
-			AddProperty(AdditionalCertificateProperties, "StartDateOfPrivateKey",    NStr("en = 'Дата начала закрытого ключа';"));
+		If ValueIsFilled(CertificateAdditionalProperties.PrivateKeyStartDate) Then
+			AddProperty(CertificateAdditionalProperties, "PrivateKeyStartDate",    NStr("en = 'Private key start date';"));
 		EndIf;
-		If ValueIsFilled(AdditionalCertificateProperties.EndDateOfPrivateKey) Then
-			AddProperty(AdditionalCertificateProperties, "EndDateOfPrivateKey", NStr("en = 'Дата окончания закрытого ключа';"));
+		If ValueIsFilled(CertificateAdditionalProperties.PrivateKeyExpirationDate) Then
+			AddProperty(CertificateAdditionalProperties, "PrivateKeyExpirationDate", NStr("en = 'Private key end date';"));
 		EndIf;
 		
 		AddProperty(Certificate, "UseToSign",    NStr("en = 'Use for signature';"));
@@ -551,6 +569,44 @@ Async Procedure AfterGotCertificatesChain(Result, AdditionalParameters) Export
 		ErrorGettingCertificationPaths = Result.Error;
 		Items.GroupErrorGettingCertificatesChain.Visible = True;
 	EndIf;
+	
+EndProcedure
+
+&AtClient
+Async Procedure FillInReviewLists()
+	
+	ExplanationText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr(
+		"en = 'To receive addresses of certificate revocation lists, install the %1 add-in.';"),
+		"ExtraCryptoAPI");
+
+	Try
+		ComponentObject = Await DigitalSignatureInternalClient.AnObjectOfAnExternalComponentOfTheExtraCryptoAPI(True, ExplanationText);
+	Except
+		ErrorGettingListOfRevocationListsAddresses = ErrorProcessing.BriefErrorDescription(ErrorInfo());
+		Items.GroupErrorGettingReviewLists.Visible = True;
+		Items.RevocationLists.Visible = False;
+		Return;
+	EndTry;
+	
+	CertificatePropertiesExtended = Await DigitalSignatureInternalClient.GetCertificatePropertiesAsync(
+		CertificateAddress, ComponentObject);
+		
+	If ValueIsFilled(CertificatePropertiesExtended.Error) Then
+		ErrorGettingListOfRevocationListsAddresses = CertificatePropertiesExtended.Error;
+		Items.GroupErrorGettingReviewLists.Visible = True;
+		Items.RevocationLists.Visible = False;
+		Return;
+	EndIf;
+	
+	Items.GroupErrorGettingReviewLists.Visible = False;
+	Items.RevocationLists.Visible = True;
+		
+	AddressesOfRevocationLists = CertificatePropertiesExtended.CertificateProperties.AddressesOfRevocationLists;
+	For Each CurrentAddress In CertificatePropertiesExtended.CertificateProperties.AddressesOfRevocationLists Do
+		NewRow = RevocationLists.Add();
+		NewRow.Address = CurrentAddress;
+	EndDo;
 	
 EndProcedure
 

@@ -605,7 +605,7 @@ End
 						<dcsat:value xsi:type="v8:LocalStringType">
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>* Additional objects may be included in the contents of data sent to preserve data integrity</v8:content>
+								<v8:content>* Additional objects may be included in the scope of send data to preserve data integrity</v8:content>
 							</v8:item>
 						</dcsat:value>
 					</dcsat:item>
@@ -820,7 +820,7 @@ End
 						<dcsat:value xsi:type="v8:LocalStringType">
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>* Additional objects may be included in the contents of data sent to preserve data integrity</v8:content>
+								<v8:content>* Additional objects may be included in the scope of send data to preserve data integrity</v8:content>
 							</v8:item>
 						</dcsat:value>
 					</dcsat:item>
@@ -1039,7 +1039,7 @@ End
 						<dcsat:value xsi:type="v8:LocalStringType">
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>* Additional objects may be included in the contents of data sent to preserve data integrity</v8:content>
+								<v8:content>* Additional objects may be included in the scope of send data to preserve data integrity</v8:content>
 							</v8:item>
 						</dcsat:value>
 					</dcsat:item>
@@ -1201,7 +1201,7 @@ End
 					<dcscor:value xsi:type="v8:LocalStringType">
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Content of data to send*</v8:content>
+							<v8:content>Scope of send data*</v8:content>
 						</v8:item>
 					</dcscor:value>
 				</dcscor:item>
@@ -1412,7 +1412,7 @@ End
 					<dcscor:value xsi:type="v8:LocalStringType">
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Content of data to send*</v8:content>
+							<v8:content>Scope of send data*</v8:content>
 						</v8:item>
 					</dcscor:value>
 				</dcscor:item>

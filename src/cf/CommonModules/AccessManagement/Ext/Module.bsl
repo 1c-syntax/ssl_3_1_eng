@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -23,7 +24,7 @@
 //
 //  ObjectReference - AnyRef - a reference to the object, for which the access value sets are filled
 //                   to check the Read right.
-//                 - ValueTable - :
+//                 - ValueTable - A table of arbitrary access value sets. Columns are:
 //                     * SetNumber     - Number  - a number grouping multiple rows in a separate set.
 //                     * AccessKind      - String - an access kind name specified in the overridable module.
 //                     * AccessValue - DefinedType.AccessValue - a reference to the access value type
@@ -159,8 +160,8 @@ Function HasRole(Val Role, Val ObjectReference = Undefined, Val User = Undefined
 	// Adding internal fields to an access value set.
 	AccessManagementInternal.PrepareAccessValuesSetsForWrite(Undefined, AccessValuesSets, True);
 	
-	
-	
+	// 
+	// 
 	
 	Query = New Query;
 	Query.SetParameter("AuthorizedUser", User);
@@ -738,7 +739,7 @@ EndProcedure
 //
 // If the database already contains an access value group that does not provide access to change the access value
 // or the number of access value groups, which provide access to change the access values, is zero,
-// the ViewOnly form parameter is set to True.
+// the ReadOnly form parameter is set to True.
 //
 // If neither a restriction at the record level or restriction by access kind is used,
 // the form item is hidden.
@@ -776,7 +777,7 @@ Procedure OnCreateAccessValueForm(Form, AdditionalParameters = Undefined,
 	
 	If TypeOf(CreateNewAccessValue) <> Type("Boolean") Then
 		Try
-			FormObject = Form.Object; // DefinedType.AccessValue - 
+			FormObject = Form.Object; // DefinedType.AccessValue - Object's actual "FormDataStructure".
 			CreateNewAccessValue = Not ValueIsFilled(FormObject.Ref);
 		Except
 			ErrorInfo = ErrorInfo();
@@ -793,7 +794,7 @@ Procedure OnCreateAccessValueForm(Form, AdditionalParameters = Undefined,
 	
 	If TypeOf(ValueType) <> Type("Type") Then
 		Try
-			FormObject = Form.Object; // DefinedType.AccessValue - 
+			FormObject = Form.Object; // DefinedType.AccessValue - Object's actual "FormDataStructure".
 			AccessValueType = TypeOf(FormObject.Ref);
 		Except
 			ErrorInfo = ErrorInfo();
@@ -1245,7 +1246,7 @@ EndFunction
 //  Map of KeyAndValue:
 //    * Key     - CatalogRef.MetadataObjectIDs - an access right name (Read, Update, or Insert).
 //    * Value - Structure:
-//        ** Key     - String -  name of the access right ("Read", "Change", " Add");
+//        ** Key     - String - Name of the access right ("Read", "Update", "Add").
 //        ** Value - Boolean - if True, there is the right, otherwise, there is not.
 //
 Function RightsByIDs(IDs = Undefined) Export
@@ -1375,8 +1376,8 @@ Procedure FillAccessValuesSets(Val Object, Table, Val SubordinateObjectRef = Und
 	
 	SetPrivilegedMode(True);
 	
-	
-	
+	// 
+	// 
 	Object = ?(Object = Object.Ref, Object.GetObject(), Object);
 	ObjectReference = Object.Ref;
 	ValueTypeObject = TypeOf(Object);
@@ -1412,8 +1413,8 @@ Procedure FillAccessValuesSets(Val Object, Table, Val SubordinateObjectRef = Und
 	EndTry;
 	
 	If Table.Count() = 0 Then
-		
-		
+		// 
+		// 
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = '%1 ""%2""
 			           |generated a blank access value set.';"),
@@ -1428,12 +1429,12 @@ Procedure FillAccessValuesSets(Val Object, Table, Val SubordinateObjectRef = Und
 		Return;
 	EndIf;
 	
-	
-	
-	
+	// 
+	// 
+	// 
 	//
-	
-	
+	// 
+	// 
 	
 	// Adding a blank set to set all rights check boxes and arrange set rows.
 	AddAccessValuesSets(Table, AccessValuesSetsTable());
@@ -1485,16 +1486,16 @@ Procedure FillAccessValuesSets(Val Object, Table, Val SubordinateObjectRef = Und
 		
 		// Adding sets by a standard rule.
 		
-		
-		
+		// 
+		// 
 		String = Table.Add();
 		String.SetNumber     = 1;
 		String.AccessKind      = "ReadRight1";
 		String.AccessValue = Id;
 		String.Read          = True;
 		
-		
-		
+		// 
+		// 
 		String = Table.Add();
 		String.SetNumber     = 2;
 		String.AccessKind      = "EditRight";
@@ -1511,8 +1512,8 @@ Procedure FillAccessValuesSets(Val Object, Table, Val SubordinateObjectRef = Und
 	Else
 		// Adding sets by a nonstandard rule: check the read rights instead of update rights.
 		
-		
-		
+		// 
+		// 
 		String = Table.Add();
 		String.SetNumber     = 1;
 		String.AccessKind      = "ReadRight1";
@@ -1559,16 +1560,16 @@ Procedure AddAccessValuesSets(Receiver, Val Source, Val Multiplication = False, 
 	
 	If Simplify Then
 		
-		
-		
+		// 
+		// 
 		//
-		
+		// 
 		//  
 		//     
 		//     
 		//  
 		//     
-		
+		// 
 		
 		If Multiplication Then
 			MultiplySetsAndSimplify(Receiver, Source);
@@ -1633,9 +1634,9 @@ EndProcedure
 //                          "Catalog.UserGroups.AllUsers".
 //
 //   * AccessValues - ValueList:
-//                     ** Value      - String -  name of the access type specified in the access View parameter.
-//                     ** Presentation - String -  name of the predefined element, such
-//                          as " reference.User groups.All users".
+//                     ** Value      - String - Name of the access kind passed in the "AccessKinds" parameter.
+//                     ** Presentation - String - Name of a predefined item.
+//                          For example, "Catalog.UserGroups.AllUsers".
 //
 // Example:
 // 
@@ -1893,7 +1894,7 @@ EndFunction
 //
 Function ProfileAdministrator() Export
 	
-	Return Catalogs.AccessGroupProfiles.ProfileAdministrator();
+	Return AccessManagementInternalCached.ProfileAdministrator();
 	
 EndFunction
 
@@ -1904,7 +1905,7 @@ EndFunction
 //
 Function AdministratorsAccessGroup() Export
 	
-	Return Catalogs.AccessGroups.AdministratorsAccessGroup();
+	Return AccessManagementInternalCached.AdministratorsAccessGroup();
 	
 EndFunction
 
@@ -1948,8 +1949,8 @@ EndFunction
 //  
 Procedure ReplaceRightsInObjectsRightsSettings(RenamedTable) Export
 	
-	
-	
+	// 
+	// 
 	Query = New Query;
 	Query.Parameters.Insert("RenamedTable", RenamedTable);
 	Query.Text =
@@ -2324,25 +2325,25 @@ Procedure DisableAccessKeysUpdate(Disconnect, ScheduleUpdate1 = True) Export
 	
 EndProcedure
 
-// 
-// 
-// 
+// Adds deferred update handler that enables the universal restriction of access
+// (enables the LimitAccessAtRecordLevelUniversally constant).
+// Use only in final standard solutions, not in the library distributions.
 //
-// 
-// 
-// 
+// For the file infobase, a handler is not added (except for the initial filling).
+// Accordingly, in client server bases with DIB, a handler is also not added,
+// as DIB might contain file infobases (if case the opposite is true, the behavior can be overridden).
 //
 // Parameters:
-//  Version      - String - 
-//                  
+//  Version      - String - Version to be used in "InfobaseUpdate.NewUpdateHandlersTable".
+//                  Pass an empty string if "IsInitialPopulationOnly" is set to "True".
 //  Handlers - See InfobaseUpdate.NewUpdateHandlerTable
-//  InitialFillingOnly - Boolean - 
-//                  
-//                  
-//  ExcludingRIB - Boolean - 
-//                  
-//                  
-//                  
+//  IsInitialPopulationOnly - Boolean - Indicates whether only an initial population handler should be added.
+//                  It is intended for cases where only newly created infobases are planned to
+//                  be switched to the high-performance mode.
+//  ExclusiveOfDIB - Boolean - Indicates whether an update handler should be added ignoring the DIB presence.
+//                  It is required in cases where you need to switch client/server infobases to high-performance mode
+//                  as it is assumed that a DIB does not include file infobases, at least ones with many active users
+//                  that modify RLS data concurrently.
 //                  
 //
 // Example:
@@ -2351,9 +2352,10 @@ EndProcedure
 //	EndProcedure
 //
 Procedure AddUpdateHandlerToEnableUniversalRestriction(Version, Handlers,
-			InitialFillingOnly = False, ExcludingRIB = False) Export
+			IsInitialPopulationOnly = False, ExclusiveOfDIB = False) Export
 	
-	If Common.SeparatedDataUsageAvailable()
+	If Common.IsSubordinateDIBNode()
+	 Or Common.SeparatedDataUsageAvailable()
 	   And AccessManagementInternal.LimitAccessAtRecordLevelUniversally(True) Then
 		Return;
 	EndIf;
@@ -2363,13 +2365,13 @@ Procedure AddUpdateHandlerToEnableUniversalRestriction(Version, Handlers,
 	Handler.Procedure = "InformationRegisters.AccessRestrictionParameters.EnableUniversalRecordLevelAccessRestriction";
 	Handler.ExecutionMode = "Seamless";
 	
-	If InitialFillingOnly
+	If IsInitialPopulationOnly
 	 Or Common.FileInfobase() Then
 		Return;
 	EndIf;
 	
 	DIBEnabled = False;
-	If Not ExcludingRIB
+	If Not ExclusiveOfDIB
 	   And Not Common.DataSeparationEnabled()
 	   And Common.SubsystemExists("StandardSubsystems.DataExchange") Then
 		
@@ -2494,7 +2496,7 @@ EndFunction
 //           ***** Key - String - a name of the third table name, for example, a tabular section name.
 //           ***** Value - Structure:
 //             ****** TableExists - Boolean - False (True to fill in, if exists).
-//             ****** Fields - Map - 
+//             ****** Fields - Map - Same properties as in the main table (see above).
 //
 Function ParsedRestriction(MainTable, RestrictionText) Export
 	
@@ -2568,9 +2570,9 @@ EndFunction
 //            *** Value - Structure - Any node except for Value or Constant.
 //
 //     Properties of the Not node:
-//       ** Argument - Structure - 
+//       ** Argument - Structure - Any node except for "Value" or "Constant".
 //
-//     
+//     Properties of the "=" and "<>" nodes:
 //       ** FirstArgument - Structure - the Field node.
 //       ** SecondArgument - Structure - Nodes Value and Constant. The Field node is only for the connection condition.
 //
@@ -2580,15 +2582,15 @@ EndFunction
 //            *** Value - Structure - Value or Constant nodes.
 //
 //     Properties of the IsNull node:
-//       ** Argument - Structure - 
+//       ** Argument - Structure - Any node except for "Value" or "Constant".
 //
-//     
+//     Properties of the "=" and "<>" nodes:
 //       ** Name - String - Table name. For example, "Catalog.Companies".
 //
 //     Properties of the ValueType node:
-//       ** Argument - Structure - 
+//       ** Argument - Structure - Any node except for "Value" or "Constant".
 //
-//     
+//     Properties of the "=" and "<>" nodes:
 //       ** Case - Structure - the Field node.
 //                - Undefined - the conditions contain an expression, not the Value node.
 //       ** When - Array - with the following elements:
@@ -2612,7 +2614,8 @@ EndFunction
 //            *** Value - String - Result False or True.
 //
 //     Properties of the ForAllLines, ForOneOfLines nodes:
-//       ** Argument - Structure -  any node.
+//       ** Argument - Structure - Any node except for "Value" or "Constant".
+//                                 Properties of the "=" and "<>" nodes:
 //
 Function RestrictionStructure(ParsedRestriction) Export
 	
@@ -3261,7 +3264,7 @@ Procedure EnableDisableUserProfile(User, Profile, Enable, Source = Undefined) Ex
 					
 					If ValueIsFilled(ErrorDescription) Then
 						ErrorText =
-							NStr("en = 'At least one user that can sign in to the application
+							NStr("en = 'At least one user authorized to sign in
 							           |must have the Administrator profile.';");
 						Raise ErrorText;
 					EndIf;

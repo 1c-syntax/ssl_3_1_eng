@@ -7,6 +7,12 @@
 				<Type>CommandBarButton</Type>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.ExecuteExchange</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Run scenario</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="ExecuteExchangeExtendedTooltip" id="127"/>
 			</Button>
 		</ChildItems>
@@ -23,7 +29,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Group Scenario disabled</v8:content>
+					<v8:content>Scenario disabled</v8:content>
 				</v8:item>
 			</Title>
 			<HorizontalStretch>true</HorizontalStretch>
@@ -61,7 +67,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Group Configuration information in one database</v8:content>
+					<v8:content>Setting info in one infobase</v8:content>
 				</v8:item>
 			</Title>
 			<HorizontalStretch>true</HorizontalStretch>
@@ -86,7 +92,7 @@
 					<Title formatted="false">
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>It is enough to configure the scenario in only one area (base)</v8:content>
+							<v8:content>You can set up the scenario in one area (infobase) only</v8:content>
 						</v8:item>
 					</Title>
 					<ContextMenu name="Decoration4ContextMenu" id="170"/>
@@ -151,6 +157,12 @@
 					<Type>Hyperlink</Type>
 					<SkipOnInput>false</SkipOnInput>
 					<CommandName>Form.Command.ConfigureJobSchedule</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Set schedule</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="ConfigureJobScheduleExtendedTooltip" id="133">
 						<AutoMaxWidth>false</AutoMaxWidth>
 						<Title formatted="false">
@@ -232,12 +244,24 @@ The exact scenario execution time depends on the application workload.</v8:conte
 								<Type>CommandBarButton</Type>
 								<SkipOnInput>false</SkipOnInput>
 								<CommandName>Form.Command.TransportSettings</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Connection parameters</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="TransportSettingsExtendedTooltip" id="135"/>
 							</Button>
 							<Button name="ContextMenuScheduleCompositionGoToEventLog" id="126">
 								<Type>CommandBarButton</Type>
 								<SkipOnInput>false</SkipOnInput>
 								<CommandName>Form.Command.GoToEventLog</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Exchange events</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="ContextMenuScheduleCompositionGoToEventLogExtendedTooltip" id="136"/>
 							</Button>
 						</ChildItems>
@@ -343,7 +367,7 @@ The exact scenario execution time depends on the application workload.</v8:conte
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="AdditionalExtendedTooltip" id="145"/>
+			<ExtendedTooltip name="MoreExtendedTooltip" id="145"/>
 			<ChildItems>
 				<InputField name="Comment" id="30">
 					<DataPath>Object.Comment</DataPath>
@@ -487,31 +511,4 @@ The exact scenario execution time depends on the application workload.</v8:conte
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 	</Commands>
-	<CommandInterface>
-		<NavigationPanel>
-			<Item>
-				<Command>0</Command>
-				<Type>Added</Type>
-				<DefaultVisible>false</DefaultVisible>
-			</Item>
-			<Item>
-				<Command>0</Command>
-				<Type>Added</Type>
-				<Index>3</Index>
-				<DefaultVisible>false</DefaultVisible>
-			</Item>
-			<Item>
-				<Command>0</Command>
-				<Type>Added</Type>
-				<Index>1</Index>
-				<DefaultVisible>false</DefaultVisible>
-			</Item>
-			<Item>
-				<Command>0</Command>
-				<Type>Added</Type>
-				<Index>2</Index>
-				<DefaultVisible>false</DefaultVisible>
-			</Item>
-		</NavigationPanel>
-	</CommandInterface>
 </Form>

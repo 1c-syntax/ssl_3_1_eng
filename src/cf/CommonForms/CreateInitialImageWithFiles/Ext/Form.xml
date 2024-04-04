@@ -18,12 +18,24 @@
 				<DefaultButton>true</DefaultButton>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.CreateInitialImage</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Create initial image</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="CreateInitialImageExtendedTooltip" id="48"/>
 			</Button>
 			<Button name="Back" id="105">
 				<Type>CommandBarButton</Type>
 				<Visible>false</Visible>
 				<CommandName>Form.Command.Back</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>&lt; Back</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="BackExtendedTooltip" id="106"/>
 			</Button>
 			<Button name="Close" id="44">
@@ -73,6 +85,12 @@
 					<ChildItems>
 						<RadioButtonField name="InfobaseKind" id="1">
 							<DataPath>InfobaseKind</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Infobase mode</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<RadioButtonType>Auto</RadioButtonType>
 							<ColumnsCount>1</ColumnsCount>
@@ -105,7 +123,7 @@
 								</xr:Item>
 							</ChoiceList>
 							<ContextMenu name="InfobaseTypeContextMenu" id="2"/>
-							<ExtendedTooltip name="InfobaseTypeExtendedTooltip" id="51"/>
+							<ExtendedTooltip name="InfobaseKindExtendedTooltip" id="51"/>
 							<Events>
 								<Event name="OnChange">InfobaseTypeOnChange</Event>
 							</Events>
@@ -142,6 +160,12 @@
 											<ChildItems>
 												<InputField name="FileModeInfobaseLanguage" id="7">
 													<DataPath>Language</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Language (country)</v8:content>
+														</v8:item>
+													</Title>
 													<Wrap>false</Wrap>
 													<ListChoiceMode>true</ListChoiceMode>
 													<ChooseType>false</ChooseType>
@@ -207,7 +231,7 @@
 											<Group>HorizontalIfPossible</Group>
 											<ExtendedTooltip name="FillClientServerModeInfobaseParametersExtendedTooltip" id="59"/>
 											<ChildItems>
-												<UsualGroup name="MainParametersOfServerDatabase" id="75">
+												<UsualGroup name="ServerInfobaseMainParameters" id="75">
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
@@ -218,32 +242,62 @@
 													<Behavior>Usual</Behavior>
 													<Representation>None</Representation>
 													<ShowTitle>false</ShowTitle>
-													<ExtendedTooltip name="MainParametersOfServerDatabaseExtendedTooltip" id="76"/>
+													<ExtendedTooltip name="ServerInfobaseMainParametersExtendedTooltip" id="76"/>
 													<ChildItems>
 														<InputField name="Server" id="9">
 															<DataPath>Server</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>1C:Enterprise server cluster</v8:content>
+																</v8:item>
+															</Title>
 															<ContextMenu name="ServerContextMenu" id="10"/>
 															<ExtendedTooltip name="ServerExtendedTooltip" id="60"/>
 														</InputField>
 														<InputField name="ClusterAdministratorName" id="99">
 															<DataPath>ClusterAdministratorName</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Cluster administrator name</v8:content>
+																</v8:item>
+															</Title>
 															<Wrap>false</Wrap>
 															<ContextMenu name="ClusterAdministratorNameContextMenu" id="100"/>
 															<ExtendedTooltip name="ClusterAdministratorNameExtendedTooltip" id="101"/>
 														</InputField>
 														<InputField name="ClusterAdministratorPassword" id="102">
 															<DataPath>ClusterAdministratorPassword</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Cluster administrator password</v8:content>
+																</v8:item>
+															</Title>
 															<PasswordMode>true</PasswordMode>
 															<ContextMenu name="ClusterAdministratorPasswordContextMenu" id="103"/>
 															<ExtendedTooltip name="ClusterAdministratorPasswordExtendedTooltip" id="104"/>
 														</InputField>
 														<InputField name="BaseName" id="11">
 															<DataPath>BaseName</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Infobase name in cluster</v8:content>
+																</v8:item>
+															</Title>
 															<ContextMenu name="DatabaseName_SSLyContextMenu" id="12"/>
-															<ExtendedTooltip name="DatabaseName_SSLyExtendedTooltip" id="61"/>
+															<ExtendedTooltip name="BaseNameExtendedTooltip" id="61"/>
 														</InputField>
 														<InputField name="SecureConnection" id="13">
 															<DataPath>SecureConnection</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Secure connection</v8:content>
+																</v8:item>
+															</Title>
 															<WarningOnEditRepresentation>DontShow</WarningOnEditRepresentation>
 															<Width>20</Width>
 															<ListChoiceMode>true</ListChoiceMode>
@@ -294,6 +348,12 @@
 														</InputField>
 														<InputField name="ClientServerModeInfobaseLanguage" id="27">
 															<DataPath>Language</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Language (country)</v8:content>
+																</v8:item>
+															</Title>
 															<Wrap>false</Wrap>
 															<ListChoiceMode>true</ListChoiceMode>
 															<ChooseType>false</ChooseType>
@@ -302,6 +362,12 @@
 														</InputField>
 														<CheckBoxField name="SetScheduledJobLock" id="46">
 															<DataPath>SetScheduledJobLock</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Lock scheduled jobs</v8:content>
+																</v8:item>
+															</Title>
 															<TitleLocation>Right</TitleLocation>
 															<CheckBoxType>Auto</CheckBoxType>
 															<ContextMenu name="SetScheduledJobLockContextMenu" id="47"/>
@@ -309,7 +375,7 @@
 														</CheckBoxField>
 													</ChildItems>
 												</UsualGroup>
-												<UsualGroup name="AdditionalServerDatabaseParameters" id="77">
+												<UsualGroup name="ServerInfobaseAdditionalParameters" id="77">
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
@@ -320,10 +386,16 @@
 													<Behavior>Usual</Behavior>
 													<Representation>None</Representation>
 													<ShowTitle>false</ShowTitle>
-													<ExtendedTooltip name="AdditionalServerDatabaseParametersExtendedTooltip" id="78"/>
+													<ExtendedTooltip name="ServerInfobaseAdditionalParametersExtendedTooltip" id="78"/>
 													<ChildItems>
 														<InputField name="DBMSType" id="15">
 															<DataPath>DBMSType</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>DBMS type</v8:content>
+																</v8:item>
+															</Title>
 															<WarningOnEditRepresentation>DontShow</WarningOnEditRepresentation>
 															<Wrap>false</Wrap>
 															<ListChoiceMode>true</ListChoiceMode>
@@ -390,6 +462,12 @@
 														</InputField>
 														<InputField name="DataBaseServer" id="17">
 															<DataPath>DataBaseServer</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Database server</v8:content>
+																</v8:item>
+															</Title>
 															<WarningOnEditRepresentation>DontShow</WarningOnEditRepresentation>
 															<Wrap>false</Wrap>
 															<ContextMenu name="DataBaseServerContextMenu" id="18"/>
@@ -397,18 +475,36 @@
 														</InputField>
 														<InputField name="DataBaseName" id="19">
 															<DataPath>DataBaseName</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Database name</v8:content>
+																</v8:item>
+															</Title>
 															<Wrap>false</Wrap>
 															<ContextMenu name="DataBaseNameContextMenu" id="20"/>
 															<ExtendedTooltip name="DataBaseNameExtendedTooltip" id="65"/>
 														</InputField>
 														<InputField name="DatabaseUser" id="21">
 															<DataPath>DatabaseUser</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Database user</v8:content>
+																</v8:item>
+															</Title>
 															<Wrap>false</Wrap>
 															<ContextMenu name="DatabaseUserContextMenu" id="22"/>
 															<ExtendedTooltip name="DatabaseUserExtendedTooltip" id="66"/>
 														</InputField>
 														<InputField name="UserPassword" id="23">
 															<DataPath>UserPassword</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>User password</v8:content>
+																</v8:item>
+															</Title>
 															<Wrap>false</Wrap>
 															<PasswordMode>true</PasswordMode>
 															<ContextMenu name="UserPasswordContextMenu" id="24"/>
@@ -416,6 +512,12 @@
 														</InputField>
 														<InputField name="DateOffset" id="25">
 															<DataPath>DateOffset</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Dates offset</v8:content>
+																</v8:item>
+															</Title>
 															<ListChoiceMode>true</ListChoiceMode>
 															<ChooseType>false</ChooseType>
 															<ChoiceList>
@@ -537,6 +639,12 @@
 						</LabelDecoration>
 						<ProgressBarField name="ProgressPercent" id="88">
 							<DataPath>ProgressPercent</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Progress percentage</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<ShowPercent>true</ShowPercent>
 							<ContextMenu name="ProgressPercentContextMenu" id="89"/>
@@ -544,6 +652,12 @@
 						</ProgressBarField>
 						<LabelField name="ImportProgressAdditionalInformation" id="91">
 							<DataPath>ProgressAdditionalInformation</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Additional progress details</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<ContextMenu name="ProgressAdditionalInformation1ContextMenu" id="92"/>
 							<ExtendedTooltip name="ProgressAdditionalInformation1ExtendedTooltip" id="93"/>
@@ -937,4 +1051,11 @@
 			<Action>Back</Action>
 		</Command>
 	</Commands>
+	<Parameters>
+		<Parameter name="Node">
+			<Type>
+				<v8:TypeSet>cfg:ExchangePlanRef</v8:TypeSet>
+			</Type>
+		</Parameter>
+	</Parameters>
 </Form>

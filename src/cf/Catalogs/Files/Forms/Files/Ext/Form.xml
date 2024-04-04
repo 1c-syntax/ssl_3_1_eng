@@ -45,11 +45,23 @@
 					<Button name="FormCreateFromTemplate" id="230">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.AddFileByTemplate</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>From template…</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="FormCreateFromTemplateExtendedTooltip" id="231"/>
 					</Button>
 					<Button name="FormCreateFromScanner" id="232">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.AddFileFromScanner</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>From scanner…</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="FormCreateFromScannerExtendedTooltip" id="233"/>
 					</Button>
 				</ChildItems>
@@ -67,12 +79,24 @@
 						<Type>CommandBarButton</Type>
 						<SkipOnInput>false</SkipOnInput>
 						<CommandName>Form.Command.FilesImport</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Upload files…</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="FormImportFilesExtendedTooltip" id="348"/>
 					</Button>
 					<Button name="FormFolderImport" id="377" DisplayImportance="High">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.FolderImport</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Upload folder…</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="FormImportFolderExtendedTooltip" id="378"/>
 					</Button>
@@ -111,6 +135,12 @@
 				<Type>CommandBarButton</Type>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.MoveToFolder</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Move to folder</v8:content>
+					</v8:item>
+				</Title>
 				<RepresentationInContextMenu>AdditionalInContextMenu</RepresentationInContextMenu>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormMoveToFolderExtendedTooltip" id="159"/>
@@ -129,6 +159,12 @@
 						<Representation>Text</Representation>
 						<SkipOnInput>false</SkipOnInput>
 						<CommandName>Form.Command.OpenFile</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>View</v8:content>
+							</v8:item>
+						</Title>
 						<RepresentationInContextMenu>AdditionalInContextMenu</RepresentationInContextMenu>
 						<ExtendedTooltip name="FormOpenExtendedTooltip" id="151"/>
 					</Button>
@@ -136,6 +172,12 @@
 						<Type>CommandBarButton</Type>
 						<SkipOnInput>false</SkipOnInput>
 						<CommandName>Form.Command.Lock</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Lock</v8:content>
+							</v8:item>
+						</Title>
 						<RepresentationInContextMenu>AdditionalInContextMenu</RepresentationInContextMenu>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="FormLockExtendedTooltip" id="154"/>
@@ -145,6 +187,12 @@
 						<Representation>Text</Representation>
 						<SkipOnInput>false</SkipOnInput>
 						<CommandName>Form.Command.Edit</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Edit</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="FormEditExtendedTooltip" id="152"/>
 					</Button>
 					<Button name="FormSaveChanges" id="79">
@@ -154,6 +202,12 @@
 						</UserVisible>
 						<SkipOnInput>false</SkipOnInput>
 						<CommandName>Form.Command.SaveChanges</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Save changes</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="FormSaveChangesExtendedTooltip" id="157"/>
 					</Button>
@@ -161,6 +215,12 @@
 						<Type>CommandBarButton</Type>
 						<SkipOnInput>false</SkipOnInput>
 						<CommandName>Form.Command.EndEdit</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Commit</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="FormEndEditExtendedTooltip" id="153"/>
 					</Button>
 					<Button name="Print" id="383">
@@ -177,6 +237,12 @@
 					<Button name="Send" id="379">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.Send</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Send</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="SendExtendedTooltip" id="380"/>
 					</Button>
 				</ChildItems>
@@ -224,16 +290,34 @@
 							<Button name="FormSign" id="120">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.Sign</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Sign…</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="FormSignExtendedTooltip" id="163"/>
 							</Button>
 							<Button name="FormAddSignatureFromFile" id="127">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.AddDSFromFile</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Add digital signature from file…</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="FormAddSignatureFromFileExtendedTooltip" id="164"/>
 							</Button>
 							<Button name="FormSaveWithSignature" id="128">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.SaveWithSignature</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Save with digital signature…</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="FormSaveWithSignatureExtendedTooltip" id="165"/>
 							</Button>
 						</ChildItems>
@@ -250,11 +334,23 @@
 							<Button name="FormEncrypt" id="123">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.Encrypt</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Encrypt…</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="FormEncryptExtendedTooltip" id="167"/>
 							</Button>
 							<Button name="FormDecrypt" id="125">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.Decrypt</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Decrypt…</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="FormDecryptExtendedTooltip" id="168"/>
 							</Button>
 						</ChildItems>
@@ -319,6 +415,12 @@
 						<Type>CommandBarButton</Type>
 						<SkipOnInput>false</SkipOnInput>
 						<CommandName>Form.Command.SaveAs</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Save as…</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="FormSaveAsExtendedTooltip" id="158"/>
 					</Button>
@@ -329,7 +431,7 @@
 						<Title>
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>Cancel editing</v8:content>
+								<v8:content>Undo edits</v8:content>
 							</v8:item>
 						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
@@ -339,6 +441,12 @@
 						<Type>CommandBarButton</Type>
 						<SkipOnInput>false</SkipOnInput>
 						<CommandName>Form.Command.UpdateFromFileOnHardDrive</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Update from local file…</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="FormUpdateFromFileOnHardDriveExtendedTooltip" id="160"/>
 					</Button>
@@ -346,12 +454,24 @@
 						<Type>CommandBarButton</Type>
 						<SkipOnInput>false</SkipOnInput>
 						<CommandName>Form.Command.OpenFileDirectory</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Open file directory</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="FormOpenFileDirectoryExtendedTooltip" id="155"/>
 					</Button>
 					<Button name="Compare" id="428">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.Compare</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Compare files…</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="CompareExtendedTooltip" id="429"/>
 					</Button>
@@ -372,6 +492,12 @@
 							<Button name="FormDelete" id="440">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.Delete</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Delete</v8:content>
+									</v8:item>
+								</Title>
 								<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 								<ExtendedTooltip name="FormDeleteExtendedTooltip" id="441"/>
 							</Button>
@@ -391,6 +517,12 @@
 					<Button name="FormRefreshList" id="142">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.Refresh</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Refresh</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="FormRefreshListExtendedTooltip" id="171"/>
 					</Button>
@@ -404,6 +536,12 @@
 							<xr:Ref>CommonPicture.HierarchicalList</xr:Ref>
 							<xr:LoadTransparent>false</xr:LoadTransparent>
 						</Picture>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Use hierarchy</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="FormUseHierarchyExtendedTooltip" id="170"/>
 					</Button>
@@ -469,18 +607,36 @@
 			<Button name="Preview" id="388" DisplayImportance="Low">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.Preview</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Preview</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="PreviewExtendedTooltip" id="389"/>
 			</Button>
 			<Button name="ShowMarkedFiles" id="442">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.ShowMarkedFiles</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Show marked files</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="ShowMarkedFilesExtendedTooltip" id="443"/>
 			</Button>
 			<Button name="ShowServiceFiles" id="432" DisplayImportance="VeryLow">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.ShowServiceFiles</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Show program files</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="ShowServiceFilesExtendedTooltip" id="433"/>
 			</Button>
@@ -672,17 +828,35 @@
 												<Type>CommandBarButton</Type>
 												<SkipOnInput>false</SkipOnInput>
 												<CommandName>Form.Command.FolderImport</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Upload folder…</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="FoldersContextMenuFolderImportExtendedTooltip" id="181"/>
 											</Button>
 											<Button name="FoldersContextMenuFolderExport" id="64">
 												<Type>CommandBarButton</Type>
 												<SkipOnInput>false</SkipOnInput>
 												<CommandName>Form.Command.FolderExport</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Save folder…</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="FoldersContextMenuFolderExportExtendedTooltip" id="182"/>
 											</Button>
 											<Button name="FoldersContextMenuSyncSettings" id="394">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.SyncSettings</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Sync with cloud drive…</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="FoldersContextMenuSyncSettingsExtendedTooltip" id="395"/>
 											</Button>
 										</ChildItems>
@@ -899,6 +1073,12 @@
 											<Button name="ListContextMenuCompare" id="446">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.Compare</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Compare files…</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ListContextMenuCompareExtendedTooltip" id="447"/>
 											</Button>
 											<Button name="ListContextMenuCreate" id="96" DisplayImportance="VeryHigh">
@@ -928,6 +1108,12 @@
 												<Type>CommandBarButton</Type>
 												<SkipOnInput>false</SkipOnInput>
 												<CommandName>Form.Command.MoveToFolder</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Move to folder</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ListContextMenuMoveToFolderExtendedTooltip" id="195"/>
 											</Button>
 											<ButtonGroup name="ListContextMenuMainCommandsGroup" id="306" DisplayImportance="High">
@@ -943,18 +1129,36 @@
 														<Type>CommandBarButton</Type>
 														<SkipOnInput>false</SkipOnInput>
 														<CommandName>Form.Command.OpenFile</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>View</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="ListContextMenuOpenExtendedTooltip" id="187"/>
 													</Button>
 													<Button name="ListContextMenuLock" id="68">
 														<Type>CommandBarButton</Type>
 														<SkipOnInput>false</SkipOnInput>
 														<CommandName>Form.Command.Lock</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Lock</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="ListContextMenuLockExtendedTooltip" id="190"/>
 													</Button>
 													<Button name="ListContextMenuEdit" id="66">
 														<Type>CommandBarButton</Type>
 														<SkipOnInput>false</SkipOnInput>
 														<CommandName>Form.Command.Edit</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Edit</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="ListContextMenuEditExtendedTooltip" id="188"/>
 													</Button>
 													<Button name="ListContextMenuSaveChanges" id="70">
@@ -964,6 +1168,12 @@
 														</UserVisible>
 														<SkipOnInput>false</SkipOnInput>
 														<CommandName>Form.Command.SaveChanges</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Save changes</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="ListContextMenuSaveChangesExtendedTooltip" id="191"/>
 													</Button>
 													<Button name="ListContextMenuEndEdit" id="67">
@@ -981,11 +1191,23 @@
 													<Button name="ListContextMenuPrint" id="390">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.Print</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Print</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="ListContextMenuPrintExtendedTooltip" id="391"/>
 													</Button>
 													<Button name="ListContextMenuSend" id="392">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.Send</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Send</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="ListContextMenuSendExtendedTooltip" id="393"/>
 													</Button>
 												</ChildItems>
@@ -1015,16 +1237,34 @@
 															<Button name="ListContextMenuSign" id="132">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.Sign</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Sign…</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="ListContextMenuSignExtendedTooltip" id="202"/>
 															</Button>
 															<Button name="ListContextMenuAddSignatureFromFile" id="134">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.AddDSFromFile</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Add digital signature from file…</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="ListContextMenuAddSignatureFromFileExtendedTooltip" id="203"/>
 															</Button>
 															<Button name="ListContextMenuSaveWithSignature" id="135">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.SaveWithSignature</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Save with digital signature…</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="ListContextMenuSaveWithSignatureExtendedTooltip" id="204"/>
 															</Button>
 														</ChildItems>
@@ -1047,11 +1287,23 @@
 															<Button name="ListContextMenuEncrypt" id="137">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.Encrypt</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Encrypt…</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="ListContextMenuEncryptExtendedTooltip" id="206"/>
 															</Button>
 															<Button name="ListContextMenuDecrypt" id="138">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.Decrypt</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Decrypt…</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="ListContextMenuDecryptExtendedTooltip" id="207"/>
 															</Button>
 														</ChildItems>
@@ -1080,12 +1332,24 @@
 													<Button name="ListContextMenuDelete" id="444">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.Delete</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Delete</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="ListContextMenuDeleteExtendedTooltip" id="445"/>
 													</Button>
 													<Button name="ListContextMenuSaveAs" id="72">
 														<Type>CommandBarButton</Type>
 														<SkipOnInput>false</SkipOnInput>
 														<CommandName>Form.Command.SaveAs</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Save as…</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="ListContextMenuSaveAsExtendedTooltip" id="193"/>
 													</Button>
 													<Button name="ListContextMenuUnlock" id="69">
@@ -1095,7 +1359,7 @@
 														<Title>
 															<v8:item>
 																<v8:lang>en</v8:lang>
-																<v8:content>Cancel editing</v8:content>
+																<v8:content>Undo edits</v8:content>
 															</v8:item>
 														</Title>
 														<ExtendedTooltip name="ListContextMenuUnlockExtendedTooltip" id="194"/>
@@ -1104,12 +1368,24 @@
 														<Type>CommandBarButton</Type>
 														<SkipOnInput>false</SkipOnInput>
 														<CommandName>Form.Command.UpdateFromFileOnHardDrive</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Update from local file…</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="ListContextMenuUpdateFromFileOnDiskExtendedTooltip" id="196"/>
 													</Button>
 													<Button name="ListContextMenuOpenFileDirectory" id="71">
 														<Type>CommandBarButton</Type>
 														<SkipOnInput>false</SkipOnInput>
 														<CommandName>Form.Command.OpenFileDirectory</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Open file directory</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="ListContextMenuOpenFileDirectoryExtendedTooltip" id="192"/>
 													</Button>
 												</ChildItems>
@@ -1127,6 +1403,12 @@
 														<Type>CommandBarButton</Type>
 														<SkipOnInput>false</SkipOnInput>
 														<CommandName>Form.Command.FilesImport</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Upload files…</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="ListContextMenuImportFilesExtendedTooltip" id="346"/>
 													</Button>
 												</ChildItems>
@@ -1395,6 +1677,12 @@
 						<PictureField name="FileDataURL" id="385">
 							<DataPath>FileDataURL</DataPath>
 							<Visible>false</Visible>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>File data address</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<PictureSize>AutoSize</PictureSize>
 							<NonselectedPictureText>
@@ -1439,7 +1727,6 @@
 				<QueryText>SELECT
 	Files.BeingEditedBy,
 	Files.CreationDate,
-	Files.DeleteCurrentVersionVersionNumber,
 	CAST(Files.Size / 1024 AS NUMBER(10, 0)) AS CurrentVersionSize,
 	Files.Author,
 	Files.Extension AS Extension,
@@ -1488,6 +1775,284 @@ WHERE
 	(Files.FileOwner = &amp;Owner
 			OR NOT &amp;UseHierarchy
 				AND Files.FileOwner REFS Catalog.FilesFolders)</QueryText>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>LockedDate</dcssch:dataPath>
+					<dcssch:field>LockedDate</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>UniversalModificationDate</dcssch:dataPath>
+					<dcssch:field>UniversalModificationDate</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>PictureIndex</dcssch:dataPath>
+					<dcssch:field>PictureIndex</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Picture index</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>LongDesc</dcssch:dataPath>
+					<dcssch:field>LongDesc</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Details</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>TextStorage</dcssch:dataPath>
+					<dcssch:field>TextStorage</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>CurrentVersion</dcssch:dataPath>
+					<dcssch:field>CurrentVersion</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DeleteCurrentVersionFileModificationDate</dcssch:dataPath>
+					<dcssch:field>DeleteCurrentVersionFileModificationDate</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DeleteCurrentVersionCreationDate</dcssch:dataPath>
+					<dcssch:field>DeleteCurrentVersionCreationDate</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DeleteCurrentVersionCode</dcssch:dataPath>
+					<dcssch:field>DeleteCurrentVersionCode</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>PathToFile</dcssch:dataPath>
+					<dcssch:field>PathToFile</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Size</dcssch:dataPath>
+					<dcssch:field>Size</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Volume</dcssch:dataPath>
+					<dcssch:field>Volume</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>FileStorageType</dcssch:dataPath>
+					<dcssch:field>FileStorageType</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>TextExtractionStatus</dcssch:dataPath>
+					<dcssch:field>TextExtractionStatus</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>FileStorage</dcssch:dataPath>
+					<dcssch:field>FileStorage</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>AdditionalAttributes</dcssch:dataPath>
+					<dcssch:field>AdditionalAttributes</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DeleteEncryptionCertificates</dcssch:dataPath>
+					<dcssch:field>DeleteEncryptionCertificates</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Predefined</dcssch:dataPath>
+					<dcssch:field>Predefined</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>PredefinedDataName</dcssch:dataPath>
+					<dcssch:field>PredefinedDataName</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>BeingEditedBy</dcssch:dataPath>
+					<dcssch:field>BeingEditedBy</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>CreationDate</dcssch:dataPath>
+					<dcssch:field>CreationDate</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DeleteCurrentVersionVersionNumber</dcssch:dataPath>
+					<dcssch:field>DeleteCurrentVersionVersionNumber</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>CurrentVersionSize</dcssch:dataPath>
+					<dcssch:field>CurrentVersionSize</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Current version and size</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Author</dcssch:dataPath>
+					<dcssch:field>Author</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Extension</dcssch:dataPath>
+					<dcssch:field>Extension</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Description</dcssch:dataPath>
+					<dcssch:field>Description</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Ref</dcssch:dataPath>
+					<dcssch:field>Ref</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DeletionMark</dcssch:dataPath>
+					<dcssch:field>DeletionMark</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>StoreVersions</dcssch:dataPath>
+					<dcssch:field>StoreVersions</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>FileOwner</dcssch:dataPath>
+					<dcssch:field>FileOwner</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>WasEditedBy</dcssch:dataPath>
+					<dcssch:field>WasEditedBy</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Edited by</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>CurrentUserEditsFile</dcssch:dataPath>
+					<dcssch:field>CurrentUserEditsFile</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>File being edited by current user</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>FileBeingEdited</dcssch:dataPath>
+					<dcssch:field>FileBeingEdited</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>File locked</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>SignedWithDS</dcssch:dataPath>
+					<dcssch:field>SignedWithDS</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Encrypted</dcssch:dataPath>
+					<dcssch:field>Encrypted</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>SignedEncryptedPictureNumber</dcssch:dataPath>
+					<dcssch:field>SignedEncryptedPictureNumber</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Signed-and-encrypted picture number</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>ChangeDate</dcssch:dataPath>
+					<dcssch:field>ChangeDate</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Date modified</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>IsInternal</dcssch:dataPath>
+					<dcssch:field>IsInternal</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Encoding</dcssch:dataPath>
+					<dcssch:field>Encoding</dcssch:field>
+				</Field>
+				<Parameter>
+					<dcssch:name>EmptyUsers</dcssch:name>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Empty users</v8:content>
+						</v8:item>
+					</dcssch:title>
+					<dcssch:useRestriction>true</dcssch:useRestriction>
+					<dcssch:valueListAllowed>true</dcssch:valueListAllowed>
+				</Parameter>
+				<Parameter>
+					<dcssch:name>SecondsToLocalTime</dcssch:name>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Local time offset (sec.)</v8:content>
+						</v8:item>
+					</dcssch:title>
+					<dcssch:valueType>
+						<v8:Type>xs:decimal</v8:Type>
+						<v8:NumberQualifiers>
+							<v8:Digits>0</v8:Digits>
+							<v8:FractionDigits>0</v8:FractionDigits>
+							<v8:AllowedSign>Any</v8:AllowedSign>
+						</v8:NumberQualifiers>
+					</dcssch:valueType>
+					<dcssch:value xsi:nil="true"/>
+					<dcssch:useRestriction>true</dcssch:useRestriction>
+				</Parameter>
+				<Parameter>
+					<dcssch:name>UseHierarchy</dcssch:name>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Use hierarchy</v8:content>
+						</v8:item>
+					</dcssch:title>
+					<dcssch:valueType>
+						<v8:Type>xs:boolean</v8:Type>
+					</dcssch:valueType>
+					<dcssch:value xsi:nil="true"/>
+					<dcssch:useRestriction>true</dcssch:useRestriction>
+				</Parameter>
+				<Parameter>
+					<dcssch:name>Owner</dcssch:name>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Owner</v8:content>
+						</v8:item>
+					</dcssch:title>
+					<dcssch:valueType>
+						<v8:TypeId>89432067-978f-4e8e-a7dc-cb87badd9341</v8:TypeId>
+					</dcssch:valueType>
+					<dcssch:value xsi:nil="true"/>
+					<dcssch:useRestriction>true</dcssch:useRestriction>
+				</Parameter>
+				<Parameter>
+					<dcssch:name>CurrentUser</dcssch:name>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Current user</v8:content>
+						</v8:item>
+					</dcssch:title>
+					<dcssch:valueType>
+						<v8:Type>cfg:CatalogRef.ExternalUsers</v8:Type>
+						<v8:Type>cfg:CatalogRef.FileSynchronizationAccounts</v8:Type>
+						<v8:Type>cfg:CatalogRef.Users</v8:Type>
+					</dcssch:valueType>
+					<dcssch:value xsi:nil="true"/>
+					<dcssch:useRestriction>true</dcssch:useRestriction>
+				</Parameter>
 				<MainTable>Catalog.Files</MainTable>
 				<ListSettings>
 					<dcsset:filter>
@@ -1681,6 +2246,20 @@ FROM
 					<v8:FractionDigits>0</v8:FractionDigits>
 					<v8:AllowedSign>Any</v8:AllowedSign>
 				</v8:NumberQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="RightsManagement" id="4">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="IsAccessRightsSetupCommandAvailable" id="20">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
 	</Attributes>
@@ -1968,7 +2547,7 @@ FROM
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Update from local file...</v8:content>
+					<v8:content>Update from local file…</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
@@ -2212,7 +2791,7 @@ FROM
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Synchronize with cloud…</v8:content>
+					<v8:content>Sync with cloud drive…</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
@@ -2247,13 +2826,13 @@ FROM
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Show internal files</v8:content>
+					<v8:content>Show program files</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Show internal files</v8:content>
+					<v8:content>Show program files</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>ShowServiceFiles</Action>
@@ -2305,16 +2884,4 @@ FROM
 			<Type/>
 		</Parameter>
 	</Parameters>
-	<CommandInterface>
-		<CommandBar>
-			<Item>
-				<Command>0</Command>
-				<Type>Auto</Type>
-				<DefaultVisible>false</DefaultVisible>
-				<Visible>
-					<xr:Common>false</xr:Common>
-				</Visible>
-			</Item>
-		</CommandBar>
-	</CommandInterface>
 </Form>

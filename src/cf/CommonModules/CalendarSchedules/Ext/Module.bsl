@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -67,7 +68,7 @@ Function DatesByCalendar(Val WorkScheduleCalendar, Val DateFrom, Val DaysArray, 
 		|ORDER BY
 		|	Date";
 
-	
+	// Limit the selection by the maximum shift value to avoid oversized day selection.
 	QuerySchema = New QuerySchema();
 	QuerySchema.SetQueryText(Query.Text);
 	QuerySchema.QueryBatch[0].Operators[0].RetrievedRecordsCount = ShiftDays.Maximum;
@@ -186,8 +187,8 @@ Function DateDiffByCalendar(Val WorkScheduleCalendar, Val StartDate, Val EndDate
 		EndDate = Vrem;
 	EndIf;
 	
-	 
-	
+	//  
+	// 
 	Years = New Array();
 	Year = Year(StartDate);
 	While Year <= Year(EndDate) Do
@@ -250,10 +251,10 @@ EndFunction
 // 
 // Returns:
 //  Structure:
-//   * GetPrevious - Boolean - :
-//       
-//       
-//       
+//   * GetPrevious - Boolean - Method that gets the closest date:
+//       If True, workdays preceding the ones passed in the InitialDates parameter are defined.
+//       If False, the nearest workdays following the start dates are defined.
+//       By default, False:
 //   * ConsiderNonWorkPeriods - Boolean - defines a relation to the dates that fall on non-work periods of the calendar.
 //       If True, the dates that fall on a non-work period will be considered non-work ones.
 //       If False, non-work periods will be ignored.
@@ -267,20 +268,24 @@ EndFunction
 //       If True, raise an exception if the schedule is not filled in.
 //       If False, dates whose nearest date is not identified will be ignored.
 //       The default value is True.
+//   * ShouldGetDatesIfCalendarNotFilled - Boolean - If set to "True", and no custom calendar is filled, it gets the dates from 
+//       the default business calendar.
 //
 Function NearestWorkDatesReceivingParameters(BusinessCalendar = Undefined) Export
-	Parameters = New Structure(
-		"GetPrevious,
-		|ConsiderNonWorkPeriods,
-		|NonWorkPeriods,
-		|RaiseException1");
-	Parameters.GetPrevious = False;
-	Parameters.ConsiderNonWorkPeriods = True;
-	Parameters.RaiseException1 = True;
+	
+	Parameters = New Structure;
+	Parameters.Insert("GetPrevious", False);
+	Parameters.Insert("ConsiderNonWorkPeriods", True);
+	Parameters.Insert("NonWorkPeriods", Undefined);
+	Parameters.Insert("RaiseException1", True);
+	Parameters.Insert("ShouldGetDatesIfCalendarNotFilled", False);
+	
 	If BusinessCalendar <> Undefined Then
 		Parameters.NonWorkPeriods = NonWorkDaysPeriods(BusinessCalendar, New StandardPeriod());
 	EndIf;
+	
 	Return Parameters;
+	
 EndFunction
 
 // Defines a date of the nearest workday for each date.
@@ -312,75 +317,35 @@ Function NearestWorkDates(BusinessCalendar, InitialDates, ReceivingParameters = 
 		NStr("en = 'The schedule or business calendar is not specified.';"), 
 		"CalendarSchedules.NearestWorkDates");
 	
-	QueriesTexts = New Array;
-	For Each InitialDate In InitialDates Do
-		If Not ValueIsFilled(InitialDate) Then
-			Continue;
-		EndIf;
-		QueryText = 
-			"SELECT
-			|	&InitialDate AS Date
-			|INTO TTInitialDates";
-		QueryText = StrReplace(
-			QueryText, "&InitialDate", StrTemplate("DATETIME(%1)", Format(InitialDate, "DF=yyyy,MM,dd"))); 
-		If QueriesTexts.Count() > 0 Then
-			QueryText = StrReplace(QueryText, "INTO TTInitialDates", "");
-		EndIf;
-		QueriesTexts.Add(QueryText);
-	EndDo;
-
-	QueryText = StrConcat(QueriesTexts, Chars.LF + "UNION ALL" + Chars.LF);
-
-	If IsBlankString(QueryText) Then
-		Return New Map;
-	EndIf;
-
-	Query = New Query(QueryText);
-	Query.TempTablesManager = New TempTablesManager;
-	Query.Execute();
-	
-	QueryText = 
-		"SELECT
-		|	InitialDates.Date,
-		|	MIN(CalendarDates.Date) AS NearestDate
-		|FROM
-		|	TTInitialDates AS InitialDates
-		|		LEFT JOIN InformationRegister.BusinessCalendarData AS CalendarDates
-		|		ON CalendarDates.Date >= InitialDates.Date
-		|		AND CalendarDates.BusinessCalendar = &BusinessCalendar
-		|		AND CalendarDates.DayKind IN (VALUE(Enum.BusinessCalendarDaysKinds.Work),
-		|			VALUE(Enum.BusinessCalendarDaysKinds.Preholiday))
-		|		AND CalendarDates.Date NOT IN (&NonWorkDates)
-		|GROUP BY
-		|	InitialDates.Date";
-	
-	If ReceivingParameters.GetPrevious Then
-		QueryText = StrReplace(QueryText, "MIN(CalendarDates.Date)", "MAX(CalendarDates.Date)");
-		QueryText = StrReplace(QueryText, "CalendarDates.Date >= InitialDates.Date", "CalendarDates.Date <= InitialDates.Date");
-	EndIf;
-	Query.Text = QueryText;
-	Query.SetParameter("BusinessCalendar", BusinessCalendar);
-	
-	NonWorkDates = New Array;
-	If ReceivingParameters.ConsiderNonWorkPeriods Then
-		NonWorkDates = NonWorkDatesByNonWorkPeriod(ReceivingParameters.NonWorkPeriods, BusinessCalendar);
-	EndIf;
-	Query.SetParameter("NonWorkDates", NonWorkDates);
-	
-	Selection = Query.Execute().Select();
-	
 	WorkdaysDates = New Map;
+	
+	Selection = SelectionOfNearestBusinessDates(BusinessCalendar, InitialDates, ReceivingParameters);
+	If Not ValueIsFilled(Selection) Then
+		Return WorkdaysDates;
+	EndIf;
+	
+	DefaultCalendarData = Catalogs.BusinessCalendars.NewBusinessCalendarsData();
+	
 	While Selection.Next() Do
+		
 		If ValueIsFilled(Selection.NearestDate) Then
-			WorkdaysDates.Insert(Selection.Date, Selection.NearestDate);
-		Else 
-			If ReceivingParameters.RaiseException1 Then
-				Raise StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Cannot determine the workday nearest to %1. 
-						 |The work schedule might be blank.';"), 
-					Format(Selection.Date, "DLF=D"));
-			EndIf;
+			NearestDate = Selection.NearestDate;
+		ElsIf ReceivingParameters.ShouldGetDatesIfCalendarNotFilled Then
+			NearestDate = NearestBusinessDateFromDefaultCalendar(Selection.Date, DefaultCalendarData,
+				ReceivingParameters.GetPrevious);
+		Else
+			NearestDate = Undefined;
 		EndIf;
+		
+		If ValueIsFilled(NearestDate) Then
+			WorkdaysDates.Insert(Selection.Date, NearestDate);
+		ElsIf ReceivingParameters.RaiseException1 Then
+			Raise StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Cannot determine the workday nearest to %1. 
+					 |The work schedule might be blank.';"), 
+				Format(Selection.Date, "DLF=D"));
+		EndIf;
+		
 	EndDo;
 	
 	Return WorkdaysDates;
@@ -483,7 +448,7 @@ EndFunction
 //   BusinessCalendar - CatalogRef.BusinessCalendars - the calendar that is a source.
 //   PeriodFilter - StandardPeriod - a time interval within which you need to define non-work periods.
 // Returns:
-//   Array - :
+//   Array - Array of Structure with the following fields:
 //    * Number     - Number - a sequence number of a period, which can be used for identification.
 //    * Period    - StandardPeriod - a non-work period.
 //    * Basis - String - a regulation a non-work period is based on.
@@ -605,13 +570,13 @@ EndFunction
 
 #Region Internal
 
-//  
-// 
-// 
+// Creates a table DaysIncrement, in which a row with item index and value (number of days)  
+// is generated for each item of the DaysArray.
+// Calculates the maximum day shift.
 // 
 // Parameters:
-//  DaysArray - Array of Number - 
-//  CalculateNextDateFromPrevious - Boolean - 
+//  DaysArray - Array of Number - A days array
+//  CalculateNextDateFromPrevious - Boolean - Calculate the next date based on the previous date
 // 
 // Returns:
 //  Structure:
@@ -740,10 +705,10 @@ EndFunction
 //  Structure:
 //   * BusinessCalendars - Structure:
 //     * TableName - String          - a table name.
-//     * Data     - ValueTable - 
+//     * Data     - ValueTable - A calendar table converted from XML.
 //   * BusinessCalendarsData - Structure:
 //     * TableName - String          - a table name.
-//     * Data     - ValueTable -  converted calendar data table from XML.
+//     * Data     - ValueTable - A calendar table converted from XML.
 //
 Function ClassifierData() Export
 	
@@ -1431,6 +1396,163 @@ Procedure FixTheDataOfDependentCalendars() Export
 	NonWorkDaysPeriods = Catalogs.BusinessCalendars.DefaultNonWorkDaysPeriods();
 	FillBusinessCalendarsDataOnUpdate(BusinessCalendarsData, NonWorkDaysPeriods);
 
+EndProcedure
+
+// Parameters:
+//  See NearestWorkDates
+// 
+// Returns:
+//  Undefined, QueryResultSelection:
+//   * Date - Date
+//   * NearestDate - Date
+//
+Function SelectionOfNearestBusinessDates(BusinessCalendar, InitialDates, ReceivingParameters)
+	
+	QueryText = StartDatesQueryText(InitialDates);
+
+	If IsBlankString(QueryText) Then
+		Return Undefined;
+	EndIf;
+
+	Query = New Query(QueryText);
+	Query.TempTablesManager = New TempTablesManager;
+	Query.Execute();
+	
+	QueryText = 
+		"SELECT
+		|	InitialDates.Date,
+		|	MIN(CalendarDates.Date) AS NearestDate
+		|FROM
+		|	TTInitialDates AS InitialDates
+		|		LEFT JOIN InformationRegister.BusinessCalendarData AS CalendarDates
+		|		ON CalendarDates.Date >= InitialDates.Date
+		|		AND CalendarDates.BusinessCalendar = &BusinessCalendar
+		|		AND CalendarDates.DayKind IN (VALUE(Enum.BusinessCalendarDaysKinds.Work),
+		|			VALUE(Enum.BusinessCalendarDaysKinds.Preholiday))
+		|		AND CalendarDates.Date NOT IN (&NonWorkDates)
+		|GROUP BY
+		|	InitialDates.Date";
+	
+	If ReceivingParameters.GetPrevious Then
+		QueryText = StrReplace(QueryText, "MIN(CalendarDates.Date)", "MAX(CalendarDates.Date)");
+		QueryText = StrReplace(QueryText, "CalendarDates.Date >= InitialDates.Date",
+			"CalendarDates.Date <= InitialDates.Date");
+	EndIf;
+	Query.Text = QueryText;
+	Query.SetParameter("BusinessCalendar", BusinessCalendar);
+	
+	NonWorkDates = New Array;
+	If ReceivingParameters.ConsiderNonWorkPeriods Then
+		NonWorkDates = NonWorkDatesByNonWorkPeriod(ReceivingParameters.NonWorkPeriods, BusinessCalendar);
+	EndIf;
+	Query.SetParameter("NonWorkDates", NonWorkDates);
+	
+	Selection = Query.Execute().Select();
+	
+	Return Selection;
+	
+EndFunction
+
+// Parameters:
+//  InitialDates - Array of Date
+// 
+// Returns:
+//  String
+//
+Function StartDatesQueryText(InitialDates)
+	
+	QueriesTexts = New Array;
+	For Each InitialDate In InitialDates Do
+		If Not ValueIsFilled(InitialDate) Then
+			Continue;
+		EndIf;
+		QueryText = 
+			"SELECT
+			|	&InitialDate AS Date
+			|INTO TTInitialDates";
+		QueryText = StrReplace(
+			QueryText, "&InitialDate", StrTemplate("DATETIME(%1)", Format(InitialDate, "DF=yyyy,MM,dd"))); // 
+		If QueriesTexts.Count() > 0 Then
+			QueryText = StrReplace(QueryText, "INTO TTInitialDates", "");
+		EndIf;
+		QueriesTexts.Add(QueryText);
+	EndDo;
+
+	QueryText = StrConcat(QueriesTexts, Chars.LF + "UNION ALL" + Chars.LF);
+	
+	Return QueryText;
+	
+EndFunction
+
+// Determines the nearest working day to the provided date based on the data
+// of the default business calendar in the Russian Federation.
+// Intended for cases, when no custom business calendar is filled.
+// 
+// Parameters:
+//  InitialDate - Date
+//  DefaultCalendarData - See Catalogs.BusinessCalendars.NewBusinessCalendarsData
+//  GetPreviousOne - Boolean - The method of getting the nearest date.:
+//	 If set to "True", it returns the date that comes before "InitialDate". 
+//	 If set to "False", it returns the date that comes after "InitialDate".
+// 
+// Returns:
+//  Date, Undefined
+//
+Function NearestBusinessDateFromDefaultCalendar(InitialDate, DefaultCalendarData = Undefined,
+	GetPreviousOne = False)
+	
+	If DefaultCalendarData = Undefined Then
+		DefaultCalendarData = Catalogs.BusinessCalendars.NewBusinessCalendarsData();
+	EndIf;
+	
+	Year = Year(InitialDate);
+	If DefaultCalendarData.Find(Year, "Year") = Undefined Then
+		SupplementDefaultCalendarData(DefaultCalendarData, Year, GetPreviousOne);
+	EndIf;
+	TableRow = DefaultCalendarData.Find(InitialDate, "Date");
+	If TableRow = Undefined Then
+		Return Undefined;
+	EndIf;
+	IndexOf = DefaultCalendarData.IndexOf(TableRow);
+	ValueToAdd = ?(GetPreviousOne, -1, 1);
+	
+	While True Do
+		IndexOf = IndexOf + 1;
+		If IndexOf >= DefaultCalendarData.Count() Then
+			If IndexOf > 10000 Then
+				Break;
+			EndIf;
+			Year = Year + ValueToAdd;
+			SupplementDefaultCalendarData(DefaultCalendarData, Year, GetPreviousOne);
+		EndIf;
+		TableRow = DefaultCalendarData.Get(IndexOf);
+		If TableRow.DayKind = Enums.BusinessCalendarDaysKinds.Work
+			Or TableRow.DayKind = Enums.BusinessCalendarDaysKinds.Preholiday Then
+			Return TableRow.Date;
+		EndIf;
+	EndDo;
+	
+	Return Undefined;
+	
+EndFunction
+
+// Parameters:
+//  DefaultCalendarData - See Catalogs.BusinessCalendars.NewBusinessCalendarsData
+//  Year - Number
+//  SortInDescendingOrder - Boolean
+//
+Procedure SupplementDefaultCalendarData(DefaultCalendarData, Year, SortInDescendingOrder)
+
+	CommonClientServer.SupplementTable(
+		Catalogs.BusinessCalendars.BusinessCalendarDefaultFillingResult("RF", Year),
+		DefaultCalendarData);
+		
+	If SortInDescendingOrder Then
+		DefaultCalendarData.Sort("Date Desc");
+	Else
+		DefaultCalendarData.Sort("Date Asc");
+	EndIf;
+	
 EndProcedure
 
 #EndRegion

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -19,8 +20,8 @@ Var ListItemBeforeStartChanging; // See ListItemBeforeStartChanging
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	Parameters.Property("RestrictSelectionBySpecifiedValues", RestrictSelectionBySpecifiedValues);
-	QuickChoice = CommonClientServer.StructureProperty(Parameters, "QuickChoice", False);
+	RestrictSelectionBySpecifiedValues = Parameters.RestrictSelectionBySpecifiedValues;
+	QuickChoice = Parameters.QuickChoice;
 	
 	TypesInformation = ReportsServer.ExtendedTypesDetails(Parameters.TypeDescription, True);
 	TypesInformation.Insert("ContainsRefTypes", False);
@@ -55,8 +56,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndIf;
 	EndDo;
 	
-	ValuesForSelection = CommonClientServer.StructureProperty(Parameters, "ValuesForSelection");
-	Marked = CommonClientServer.StructureProperty(Parameters, "Marked");
+	ValuesForSelection = Parameters.ValuesForSelection;
+	Marked = Parameters.Marked;
 	
 	If AllTypesWithQuickChoice Then
 		QuickChoice = True;
@@ -66,7 +67,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		ValuesForSelection = ReportsServer.ValuesForSelection(Parameters);
 	EndIf;
 	
-	Title = CommonClientServer.StructureProperty(Parameters, "Presentation");
+	Title = Parameters.Presentation;
 	If IsBlankString(Title) Then
 		Title = String(Parameters.TypeDescription);
 	EndIf;
@@ -80,7 +81,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.ListAdd.LocationInCommandBar = ButtonLocationInCommandBar.InCommandBar;
 	EndIf;
 	
-	ChoiceFoldersAndItems = CommonClientServer.StructureProperty(Parameters, "ChoiceFoldersAndItems");
+	ChoiceFoldersAndItems = Parameters.ChoiceFoldersAndItems;
 	Items.ListValue.ChoiceFoldersAndItems = ReportsClientServer.GroupsAndItemsTypeValue(ChoiceFoldersAndItems);
 	
 	List.ValueType = TypesInformation.TypesDetailsForForm;
@@ -113,12 +114,12 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.ListPickFooter.Visible = False;
 	EndIf;
 	
-	ChoiceParameters = CommonClientServer.StructureProperty(Parameters, "ChoiceParameters");
+	ChoiceParameters = Parameters.ChoiceParameters;
 	If TypeOf(ChoiceParameters) = Type("Array") Then
 		Items.ListValue.ChoiceParameters = New FixedArray(ChoiceParameters);
 	EndIf;
 	
-	WindowOptionsKey = CommonClientServer.StructureProperty(Parameters, "UniqueKey");
+	WindowOptionsKey = Parameters.UniqueKey;
 	If IsBlankString(WindowOptionsKey) Then
 		WindowOptionsKey = Common.TrimStringUsingChecksum(String(List.ValueType), 128);
 	EndIf;
@@ -129,6 +130,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			Items.ListPasteFromClipboard.Visible     = False;
 			Items.ListPasteFromClipboardMenu.Visible = False;
 	EndIf;
+	
 EndProcedure
 
 #EndRegion
@@ -195,7 +197,7 @@ Procedure ListBeforeEditEnd(Item, NewRow, CancelEditStart, CancelEditComplete)
 		If RestrictSelectionBySpecifiedValues Then
 			CancelEditComplete = True;
 		Else
-			ListItemInForm.Presentation = ""; 
+			ListItemInForm.Presentation = ""; // 
 			ListItemInForm.Check = True; // Set the flag.
 		EndIf;
 	EndIf;
@@ -285,7 +287,7 @@ Procedure PasteFromClipboardCompletion(FoundObjects, ExecutionParameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 // The constructor of details of value list item properties.
 //

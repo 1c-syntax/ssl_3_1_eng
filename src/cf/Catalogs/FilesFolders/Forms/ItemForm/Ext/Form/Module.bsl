@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -183,7 +184,7 @@ Procedure SyncSettings(Command)
 	
 EndProcedure
 
-
+// 
 
 &AtClient
 Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined, StandardProcessing = Undefined)
@@ -300,7 +301,7 @@ Procedure UpdateCommandsAvailabilityByRightsSetting()
 	
 EndProcedure
 
-
+// 
 
 &AtServer
 Procedure UpdateAdditionalAttributesItems()
@@ -428,11 +429,11 @@ Function OwnerWorkingDirectoryClearingAtServer(Val Ref, Val ParentReference, Val
 	
 	If IsBlankString(ParentWorkingDirectory) Then
 		
-		WorkingDirectory = ""; 
+		WorkingDirectory = ""; // Folder's new working directory.
 		
 	Else
 		
-		WorkingDirectory = InheritedFolderWorkingDirectory; 
+		WorkingDirectory = InheritedFolderWorkingDirectory; // Folder's new working directory.
 		
 	EndIf;
 	

@@ -1,15 +1,23 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
-
+// 
 //     
 //
+
+#Region Variables
+
+&AtClient
+Var ReportsToSend; // Array of ErrorReport 
+
+#EndRegion
 
 #Region FormEventHandlers
 
@@ -84,6 +92,7 @@ EndProcedure
 &AtClient
 Procedure OnOpen(Cancel)
 	OnActivateWizardStep();
+	ReportsToSend = New Map;
 EndProcedure
 
 &AtClient
@@ -109,6 +118,25 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 		
 	EndIf;
 	
+EndProcedure
+
+&AtClient
+Procedure OnClose(Exit)
+
+	For Each UnsuccessfulReplacement In UnsuccessfulReplacements.GetItems() Do
+		For Each DetailsOfReplacement In UnsuccessfulReplacement.GetItems() Do
+			If DetailsOfReplacement.ErrorInfo = Undefined Then
+				Continue;
+			EndIf;
+			ReportToSend = ReportsToSend[DetailsOfReplacement.ErrorInfo];
+			If ReportToSend = Undefined Then
+				ReportToSend = New ErrorReport(DetailsOfReplacement.ErrorInfo);
+			EndIf;
+			StandardSubsystemsClient.SendErrorReport(ReportToSend,
+				DetailsOfReplacement.ErrorInfo);
+		EndDo
+	EndDo
+
 EndProcedure
 
 #EndRegion
@@ -217,12 +245,22 @@ EndProcedure
 
 &AtClient
 Procedure UnsuccessfulReplacementsOnActivateRow(Item)
+
 	CurrentData = Item.CurrentData;
 	If CurrentData = Undefined Then
-		FailureReasonDetails = "";
-	Else
-		FailureReasonDetails = CurrentData.DetailedReason;
+		FailureReasonDetails = "";	
+		Items.DecorationSendErrorReport.Visible = False;
+		Return;
 	EndIf;
+		
+	FailureReasonDetails = CurrentData.DetailedReason;
+	If CurrentData.ErrorInfo = Undefined Then
+		Items.DecorationSendErrorReport.Visible = False;
+	Else
+		StandardSubsystemsClient.ConfigureVisibilityAndTitleForURLSendErrorReport(
+			Items.DecorationSendErrorReport, CurrentData.ErrorInfo);
+	EndIf;
+	
 EndProcedure
 
 &AtClient
@@ -234,6 +272,23 @@ Procedure UnsuccessfulReplacementsSelection(Item, RowSelected, Field, StandardPr
 		ShowValue(, Ref);
 	EndIf;
 
+EndProcedure
+
+&AtClient
+Procedure DecorationSendErrorReportClick(Item)
+
+	CurrentData = Items.UnsuccessfulReplacements.CurrentData;
+	If CurrentData = Undefined Then
+		Return;
+	EndIf;
+
+	ReportToSend = ReportsToSend[CurrentData.ErrorInfo];
+	If ReportToSend = Undefined Then
+		ReportToSend = New ErrorReport(CurrentData.ErrorInfo);
+		ReportsToSend[CurrentData.ErrorInfo] = ReportToSend;
+	EndIf;
+	StandardSubsystemsClient.ShowErrorReport(ReportToSend);
+	
 EndProcedure
 
 #EndRegion
@@ -324,7 +379,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
 Procedure InitializeStepByStepWizardSettings()
@@ -353,7 +408,7 @@ EndProcedure
 //   Page - FormGroup - a page that contains step items.
 //
 // Returns:
-//   Structure - :
+//   Structure - Describes page settings, where:
 //       * PageName - String - a page name.
 //       * NextButton - Structure - description of "Next" button, where:
 //           ** Title - String - a button title. The default value is "Next >".
@@ -462,7 +517,7 @@ Procedure GoToWizardStep1(Val StepOrIndexOrFormGroup)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure OnActivateWizardStep()
@@ -548,7 +603,7 @@ Procedure WizardStepCancel()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
 Procedure SetConditionalAppearance()
@@ -931,7 +986,7 @@ Function CheckCanReplaceReferences()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure StartDeterminingUseLocations()
@@ -986,6 +1041,8 @@ EndProcedure
 &AtClient
 Procedure StartReplacingLinks()
 	
+	ReportsToSend = New Map;
+
 	WizardSettings.ShowDialogBeforeClose = True;
 	Job = ReplaceReferences();
 	
@@ -1040,7 +1097,7 @@ Procedure AfterCompletionReplacingLinks(Job, AdditionalParameters) Export
 		Activate();
 	Else
 		ShowUserNotification(CompleteMessage(), GetURL(MainItem),
-			String(MainItem), PictureLib.Information32);
+			String(MainItem), PictureLib.DialogInformation);
 		NotifyOfSuccessfulReplacement(PlacesofUseInArray());
 		Close();
 	EndIf
@@ -1138,16 +1195,18 @@ Function FillUnsuccessfulReplacements(Val ResultAddress)
 		
 		ErrorType = ResultString1.ErrorType;
 		If ErrorType = "UnknownData" Then
-			ErrorString.Cause = NStr("en = 'Data not supposed to be processed is provided.';");
+			ErrorString.Cause = NStr("en = 'Found instances whose replacement wasn''t intended.';");
 			
 		ElsIf ErrorType = "LockError" Then
-			ErrorString.Cause = NStr("en = 'Cannot lock data.';");
+			ErrorString.Cause = NStr("en = 'Another user updated some data. Retry replacement.';");
 			
 		ElsIf ErrorType = "DataChanged1" Then
-			ErrorString.Cause = NStr("en = 'Data was modified by another user.';");
+			ErrorString.Cause = NStr("en = 'Another user updated some data.';");
 			
 		ElsIf ErrorType = "WritingError" Then
-			ErrorString.Cause = ResultString1.ErrorText;
+			ErrorString.Cause = ?(ResultString1.ErrorInfo <> Undefined,
+				ErrorProcessing.ErrorMessageForUser(ResultString1.ErrorInfo),
+				ResultString1.ErrorText);
 			
 		ElsIf ErrorType = "DeletionError" Then
 			ErrorString.Cause = NStr("en = 'Cannot delete data.';");
@@ -1157,7 +1216,10 @@ Function FillUnsuccessfulReplacements(Val ResultAddress)
 			
 		EndIf;
 		
-		ErrorString.DetailedReason = ResultString1.ErrorText;
+		ErrorString.ErrorInfo = ResultString1.ErrorInfo;
+		ErrorString.DetailedReason = ?(ResultString1.ErrorInfo <> Undefined,
+			ErrorProcessing.ErrorMessageForUser(ResultString1.ErrorInfo),
+			ResultString1.ErrorText);
 	EndDo;
 	
 	Return RootRows.Count() > 0;
@@ -1172,12 +1234,12 @@ Procedure AfterConfirmCancelJob(Response, ExecutionParameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 // Description of wizard button settings.
 //
 // Returns:
-//  Structure - :
+//  Structure - Form's button settings, where:
 //    * Title         - String - a button title.
 //    * ToolTip         - String - button tooltip.
 //    * Visible         - Boolean - if True, the button is visible. The default value is True.

@@ -30,6 +30,12 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.OK</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>OK</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormOKExtendedTooltip" id="5"/>
 			</Button>
 			<Button name="FormCancel" id="6">
@@ -45,6 +51,12 @@
 	<ChildItems>
 		<InputField name="Password" id="1">
 			<DataPath>Password</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Password</v8:content>
+				</v8:item>
+			</Title>
 			<PasswordMode>true</PasswordMode>
 			<ContextMenu name="PasswordContextMenu" id="2"/>
 			<ExtendedTooltip name="PasswordExtendedTooltip" id="3"/>

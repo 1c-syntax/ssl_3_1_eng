@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -87,9 +88,9 @@ EndProcedure
 
 // ACC:142-on
 
-// 
-// 
-// 
+// Outputs the errors accumulated by the AddUserError method.
+// It uses error text templates considering the number of the same-type errors.
+// Not intended for sending messages from long-running operation jobs.
 //
 // Parameters:
 //  Errors - See AddUserError.Errors
@@ -232,14 +233,14 @@ Function FileInfobaseDirectory() Export
 	
 EndFunction
 
-// 
+// Returns the name of the enumeration containing platform types.
 //
 // Parameters:
-//  ValueOf1CEnterpriseType - Undefined - 
-//                                         
-//                        - PlatformType - 
+//  ValueOf1CEnterpriseType - Undefined - Return the current platform type name
+//                                         (retrieved from SystemInfo).
+//                        - PlatformType - Return the name of the given platform type.
 // Returns:
-//  String - 
+//  String - For example: Windows_x86_64, Linux_x86_64, MacOS_x86.
 //
 Function NameOfThePlatformType(Val ValueOf1CEnterpriseType = Undefined) Export
 	
@@ -248,36 +249,38 @@ Function NameOfThePlatformType(Val ValueOf1CEnterpriseType = Undefined) Export
 		ValueOf1CEnterpriseType = SystemInfo.PlatformType;
 	EndIf;
 	
-	PlatformTypeNames = New Array;
-	PlatformTypeNames.Add("Linux_x86");
-	PlatformTypeNames.Add("Linux_x86_64");
+	NamesOf1CEnterpriseTypes = New Array;
+	NamesOf1CEnterpriseTypes.Add("Linux_x86");
+	NamesOf1CEnterpriseTypes.Add("Linux_x86_64");
 	
-	PlatformTypeNames.Add("MacOS_x86");
-	PlatformTypeNames.Add("MacOS_x86_64");
+	NamesOf1CEnterpriseTypes.Add("MacOS_x86");
+	NamesOf1CEnterpriseTypes.Add("MacOS_x86_64");
 	
-	PlatformTypeNames.Add("Windows_x86");
-	PlatformTypeNames.Add("Windows_x86_64");
+	NamesOf1CEnterpriseTypes.Add("Windows_x86");
+	NamesOf1CEnterpriseTypes.Add("Windows_x86_64");
 	
-	If CompareVersions(SystemInfo.AppVersion, "8.3.22.0") >= 0 Then
-		PlatformTypeNames.Add("Linux_ARM64");
-		PlatformTypeNames.Add("Linux_E2K");
+#If Not MobileClient Then
+	If CompareVersions(SystemInfo.AppVersion, "8.3.22.1923") >= 0 Then
+		NamesOf1CEnterpriseTypes.Add("Linux_ARM64");
+		NamesOf1CEnterpriseTypes.Add("Linux_E2K");
 	EndIf;
+#EndIf
 	
 	If CompareVersions(SystemInfo.AppVersion, "8.3.23.0") >= 0 Then
-		PlatformTypeNames.Add("Android_ARM");
-		PlatformTypeNames.Add("Android_ARM_64");
-		PlatformTypeNames.Add("Android_x86");
-		PlatformTypeNames.Add("Android_x86_64");
+		NamesOf1CEnterpriseTypes.Add("Android_ARM");
+		NamesOf1CEnterpriseTypes.Add("Android_ARM_64");
+		NamesOf1CEnterpriseTypes.Add("Android_x86");
+		NamesOf1CEnterpriseTypes.Add("Android_x86_64");
 		
-		PlatformTypeNames.Add("iOS_ARM");
-		PlatformTypeNames.Add("iOS_ARM_64");
+		NamesOf1CEnterpriseTypes.Add("iOS_ARM");
+		NamesOf1CEnterpriseTypes.Add("iOS_ARM_64");
 		
-		PlatformTypeNames.Add("WinRT_ARM");
-		PlatformTypeNames.Add("WinRT_x86");
-		PlatformTypeNames.Add("WinRT_x86_64");
+		NamesOf1CEnterpriseTypes.Add("WinRT_ARM");
+		NamesOf1CEnterpriseTypes.Add("WinRT_x86");
+		NamesOf1CEnterpriseTypes.Add("WinRT_x86_64");
 	EndIf;
 	
-	For Each NameOfThePlatformType In PlatformTypeNames Do
+	For Each NameOfThePlatformType In NamesOf1CEnterpriseTypes Do
 		If ValueOf1CEnterpriseType = PlatformType[NameOfThePlatformType] Then
 			Return NameOfThePlatformType;
 		EndIf;
@@ -341,7 +344,7 @@ EndProcedure
 //       of the parameter of procedure or function.
 //   PropertiesTypesToExpect - Structure - If the expected type is a structure, 
 //       this parameter can be used to specify its properties.
-//   ExpectedValues - Array, String - 
+//   ExpectedValues - Array, String - Valid parameter values (comma-delimited if String).
 //
 Procedure CheckParameter(Val NameOfAProcedureOrAFunction, Val ParameterName, Val ParameterValue, 
 	Val ExpectedTypes, Val PropertiesTypesToExpect = Undefined, Val ExpectedValues = Undefined) Export
@@ -507,10 +510,10 @@ EndProcedure
 //   Receiver - Structure - the collection that receives new values.
 //   Source - Structure - the collection that provides key-value pairs.
 //   Replace - Boolean
-//            - Undefined - :
-//                             
-//                             
-//                             
+//            - Undefined - Describes the behavior when the source and target keys collide::
+//                             True - Replace the source value (the fastest option).
+//                             False - Do not replace the source value (skip it).
+//                             Undefined - The default value. Raise an exception.
 //
 Procedure SupplementStructure(Receiver, Source, Replace = Undefined) Export
 	
@@ -533,10 +536,10 @@ EndProcedure
 //   Receiver - Map - the collection that receives new values.
 //   Source - Map of KeyAndValue - the collection that provides key-value pairs.
 //   Replace - Boolean
-//            - Undefined - :
-//                             
-//                             
-//                             
+//            - Undefined - Describes the behavior when the source and target keys collide::
+//                             True - Replace the source value (the fastest option).
+//                             False - Do not replace the source value (skip it).
+//                             Undefined - The default value. Raise an exception.
 //
 Procedure SupplementMap(Receiver, Source, Replace = Undefined) Export
 	
@@ -554,26 +557,26 @@ Procedure SupplementMap(Receiver, Source, Replace = Undefined) Export
 	
 EndProcedure
 
-// 
-//  
-// 
+// Updates the DestinationList value list with values from SourceList.
+// If the destination list contains an item with the passed value, this item's presentation is updated 
+// with the presentation from the source list.
 // 
 // Parameters:
 //  DestinationList - ValueList
 //  SourceList - ValueList
-//  ShouldSkipValuesOfOtherTypes - Boolean -  
-//                                   
+//  ShouldSkipValuesOfOtherTypes - Boolean - If True, skip items if the source item type and the destination item type mismatch. 
+//                                  By default, True. 
 //                                  
-//  AddNewItems - Boolean, Undefined - 
-//                                          
+//  AddNewItems - Boolean, Undefined - If True, add items from the source list into the destination list,
+//                                          considering only those values that are absent in the destination list.
 // 
 // Returns:
 //  Structure:
-//    * Total     - Number - 
-//    * Added2 - Number - 
-//    * Updated3 - Number -  
-//                          
-//    * Skipped3 - Number - 
+//    * Total     - Number - Source list item count.
+//    * Added2 - Number - If AddNewItems is set to True, then it is the number of items added to the destination.
+//    * Updated3 - Number - Number of matched items, whose presentations in the destination 
+//                          are replaces with the presentations from the source.
+//    * Skipped3 - Number - Number of items skipped in the destination.
 //
 Function SupplementList(Val DestinationList, Val SourceList, Val ShouldSkipValuesOfOtherTypes = Undefined, 
 	Val AddNewItems = True) Export
@@ -731,9 +734,6 @@ EndFunction
 //  Array - a difference between two arrays.
 //
 // Example:
-//	//А = [1, 3, 5, 7];
-//	//В = [3, 7, 9];
-//	Result = CommonClientServer.ArraysDifference(А, В);
 //	//Result = [1, 5];
 //
 Function ArraysDifference(Val Array, Val SubtractionArray) Export
@@ -755,24 +755,58 @@ EndFunction
 //          - ValueList - the first item collection to compare.
 //  List2 - Array
 //          - ValueList - the first item collection to compare.
+//  ShouldCompareValuesCount - Boolean - :
+//                                          
+//                                           
+//                                          
 //
 // Returns:
 //  Boolean - True if the collections are identical.
 //
-Function ValueListsAreEqual(List1, List2) Export
+Function ValueListsAreEqual(List1, List2, ShouldCompareValuesCount = False) Export
+	
+	If ShouldCompareValuesCount Then
+		Count1 = List1.Count();
+		Count2 = List2.Count();
+		If Count1 <> Count2 Then
+			Return False;
+		EndIf;
+	EndIf;
+	
+	Map1 = CollectionIntoMap(List1, ShouldCompareValuesCount);
+	Map2 = CollectionIntoMap(List2, ShouldCompareValuesCount);
 	
 	ListsAreEqual = True;
+	If ShouldCompareValuesCount Then
+		For Each ListItem1 In Map1 Do
+			If Map2[ListItem1.Key] <> ListItem1.Value Then
+				ListsAreEqual = False;
+				Break;
+			EndIf;
+		EndDo;
+	Else
+		For Each ListItem1 In Map1 Do
+			If Map2[ListItem1.Key] = Undefined Then
+				ListsAreEqual = False;
+				Break;
+			EndIf;
+		EndDo;
+	EndIf;
 	
-	For Each ListItem1 In List1 Do
-		If FindInList(List2, ListItem1) = Undefined Then
-			ListsAreEqual = False;
-			Break;
-		EndIf;
-	EndDo;
+	If Not ListsAreEqual Then
+		Return ListsAreEqual;
+	EndIf;
 	
-	If ListsAreEqual Then
-		For Each ListItem2 In List2 Do
-			If FindInList(List1, ListItem2) = Undefined Then
+	If ShouldCompareValuesCount Then
+		For Each ListItem2 In Map2 Do
+			If Map1[ListItem2.Key] <> ListItem2.Value Then
+				ListsAreEqual = False;
+				Break;
+			EndIf;
+		EndDo;
+	Else
+		For Each ListItem2 In Map2 Do
+			If Map1[ListItem2.Key] = Undefined Then
 				ListsAreEqual = False;
 				Break;
 			EndIf;
@@ -1192,8 +1226,8 @@ EndFunction
 //  Presentation           - String - presentation of the data composition item.
 //  Use           - Boolean - Item usage.
 //  ViewMode        - DataCompositionSettingsItemViewMode - the item display mode.
-//  UserSettingID - String - see DataCompositionFilter.UserSettingID
-//                                                    in Syntax Assistant.
+//  UserSettingID - String - See "DataCompositionFilter.UserSettingID" in Syntax Assistant.
+//                                                    
 // Returns:
 //  DataCompositionFilterItem - a composition item.
 //
@@ -1228,9 +1262,9 @@ Function AddCompositionItem(AreaToAddTo,
 		Item.Use = Use;
 	EndIf;
 	
-	
-	
-	
+	// 
+	// 
+	// 
 	If UserSettingID <> Undefined Then
 		Item.UserSettingID = UserSettingID;
 	ElsIf Item.ViewMode <> DataCompositionSettingsItemViewMode.Inaccessible Then
@@ -1253,8 +1287,8 @@ EndFunction
 //  Var_ComparisonType            - DataCompositionComparisonType - comparison type.
 //  Use           - Boolean - Item usage.
 //  ViewMode        - DataCompositionSettingsItemViewMode - the item display mode.
-//  UserSettingID - String - see DataCompositionFilter.UserSettingID
-//                                                    in Syntax Assistant.
+//  UserSettingID - String - See "DataCompositionFilter.UserSettingID" in Syntax Assistant.
+//                                                    
 //
 // Returns:
 //  Number - the changed item count.
@@ -1352,8 +1386,8 @@ EndProcedure
 //  Presentation           - String - presentation of the data composition item.
 //  Use           - Boolean - Item usage.
 //  ViewMode        - DataCompositionSettingsItemViewMode - the item display mode.
-//  UserSettingID - String - see DataCompositionFilter.UserSettingID
-//                                                    in Syntax Assistant.
+//  UserSettingID - String - See "DataCompositionFilter.UserSettingID" in Syntax Assistant.
+//                                                    
 //
 Procedure SetFilterItem(WhereToAdd,
 								Val FieldName,
@@ -1553,12 +1587,12 @@ EndFunction
 //  IsDirectory - Boolean - Indicates that the directory name is passed.
 //
 // Returns:
-//   Structure - :
-//     
-//     
-//     
-//     
-//     
+//   Structure - Split file path (similar to the File object properties):
+//     FullName - Full path to the file. The same as the FullFileName input parameter.
+//     Path - Path to the file directory.
+//     Name - File name with the extension.
+//     Extension - File extension.
+//     BaseName - File name without the extension.
 // 
 // Example:
 //  FullFileName = "c:\temp\test.txt";
@@ -1584,7 +1618,7 @@ Function ParseFullFileName(Val FullFileName, IsDirectory = False) Export
 	
 EndFunction
 
-// 
+// Parses the string into an array of strings, using dot (.), slash mark (/), and backslash () as separators.
 //
 // Parameters:
 //  String - String - the source string.
@@ -1697,8 +1731,8 @@ EndFunction
 //  FileName  - String - file name.
 //
 // Returns:
-//   Array of String  - 
-//                       
+//   Array of String  - Array containing invalid characters found in the filename.
+//                       An empty array if no invalid characters are found.
 //
 Function FindProhibitedCharsInFileName(FileName) Export
 
@@ -1743,8 +1777,8 @@ EndFunction
 // Parses through a string of email addresses. Validates the addresses.
 //
 // Parameters:
-//  AddressesList - String - :
-//                           
+//  AddressesList - String - email addresses separated by commas or semicolons.:
+//                           For example: Recipient1 <Address1>, Recipient2 <Address2>, …
 //
 // Returns:
 //  Array of Structure:
@@ -1901,16 +1935,16 @@ Function EmailAddressMeetsRequirements(Val Address, AllowLocalAddresses = False)
 	
 EndFunction
 
-// 
+// Validates a string of email addresses.
 //
+// String format:
+//  Z = UserName|[User Name] [<]user@email_server[>], Sting = Z[<delimiter*>Z].
 // 
-//  
-// 
-//  
+//  * Delimiter - Any valid delimiting character.
 //
 // Parameters:
 //  Addresses - String - a valid email address string.
-//  RaiseException1 - Boolean - 
+//  RaiseException1 - Boolean - If False and the parsing fails, no exception is raised.
 //
 // Returns:
 //  Array of Structure:
@@ -1960,19 +1994,19 @@ Function COMConnectorName() Export
 	
 EndFunction
 
-// 
-// 
+// Constructor of the "Parameter" parameter of functions
+// Common.EstablishExternalConnectionWithInfobase and CommonClient.EstablishExternalConnectionWithInfobase.
 // 
 // Returns:
 //  Structure:
-//    * InfobaseOperatingMode - Number - 
-//    * InfobaseDirectory - String - 
-//    * NameOf1CEnterpriseServer - String - 
-//    * NameOfInfobaseOn1CEnterpriseServer - String -  
-//    * OperatingSystemAuthentication - Boolean - 
-//                                          
-//    * UserName - String - 
-//    * UserPassword - String - 
+//    * InfobaseOperatingMode - Number - "0" for the file mode.
+//    * InfobaseDirectory - String - Full path to the infobase directory (for file infobases).
+//    * NameOf1CEnterpriseServer - String - Server name (for client/server infobases)
+//    * NameOfInfobaseOn1CEnterpriseServer - String - Infobase name on the server-side (for client/server infobases) 
+//    * OperatingSystemAuthentication - Boolean - If True, then the operating system authentication is used.
+//                                          If False, pass the properties UserName and UserPassword.
+//    * UserName - String - Username for signing in to the infobase.
+//    * UserPassword - String - User password for signing in to the infobase.
 //
 Function ParametersStructureForExternalConnection() Export
 	
@@ -2047,7 +2081,7 @@ EndFunction
 //
 Function DistributeAmountInProportionToCoefficients(Val AmountToDistribute, Val Coefficients, Val Accuracy = 2) Export
 	
-	AbsoluteCoefficients = New Array(New FixedArray(Coefficients)); 
+	AbsoluteCoefficients = New Array(New FixedArray(Coefficients)); // Copy the array from the memory.
 	
 	// Keeping the old behavior in event of unspecified amount, for backward compatibility.
 	If Not ValueIsFilled(AmountToDistribute) Then 
@@ -2055,8 +2089,8 @@ Function DistributeAmountInProportionToCoefficients(Val AmountToDistribute, Val 
 	EndIf;
 	
 	If AbsoluteCoefficients.Count() = 0 Then 
-		
-		
+		// 
+		// 
 		Return Undefined;
 	EndIf;
 	
@@ -2069,15 +2103,15 @@ Function DistributeAmountInProportionToCoefficients(Val AmountToDistribute, Val 
 		ZoomRatio = AbsoluteCoefficients[IndexOf];
 		
 		If NegativeCoefficients And ZoomRatio > 0 Then 
-			
-			
+			// 
+			// 
 			Return Undefined;
 		EndIf;
 		
 		If ZoomRatio < 0 Then 
 			// If the coefficient is less than zero, its absolute value is a negative number.
-			ZoomRatio = -ZoomRatio; 
-			AbsoluteCoefficients[IndexOf] = ZoomRatio; 
+			ZoomRatio = -ZoomRatio; // 
+			AbsoluteCoefficients[IndexOf] = ZoomRatio; // 
 		EndIf;
 		
 		If MaxCoefficient < ZoomRatio Then
@@ -2089,8 +2123,8 @@ Function DistributeAmountInProportionToCoefficients(Val AmountToDistribute, Val 
 	EndDo;
 	
 	If CoefficientsSum = 0 Then
-		
-		
+		// 
+		// 
 		Return Undefined;
 	EndIf;
 	
@@ -2098,8 +2132,8 @@ Function DistributeAmountInProportionToCoefficients(Val AmountToDistribute, Val 
 	
 	Invert = (AmountToDistribute < 0);
 	If Invert Then 
-		
-		
+		// 
+		// 
 		AmountToDistribute = -AmountToDistribute; // Abs(AmountToDistribute).
 	EndIf;
 	
@@ -2163,7 +2197,7 @@ Function ReplaceProhibitedXMLChars(Val Text, ReplacementChar = " ") Export
 	
 #If Not WebClient Then
 	StartPosition = 1;
-	Position = FindDisallowedXMLCharacters(Text, StartPosition);
+	Position = XMLStringProcessing.FindDisallowedXMLCharacters(Text, StartPosition);
 	While Position > 0 Do
 		InvalidChar = Mid(Text, Position, 1);
 		Text = StrReplace(Text, InvalidChar, ReplacementChar);
@@ -2171,13 +2205,13 @@ Function ReplaceProhibitedXMLChars(Val Text, ReplacementChar = " ") Export
 		If StartPosition > StrLen(Text) Then
 			Break;
 		EndIf;
-		Position = FindDisallowedXMLCharacters(Text, StartPosition);
+		Position = XMLStringProcessing.FindDisallowedXMLCharacters(Text, StartPosition);
 	EndDo;
 	
 	Return Text;
 #Else
-	
-	
+	// 
+	// 
 	Total = "";
 	StringLength = StrLen(Text);
 	
@@ -2218,12 +2252,12 @@ EndFunction
 
 #Region SpreadsheetDocument
 
-// 
+// Manages the state of a spreadsheet field.
 //
 // Parameters:
 //  SpreadsheetDocumentField - FormField - a SpreadsheetDocumentField type form field
 //                            that requires the state change.
-//  State               - String - 
+//  State               - String - State: "DontUse", "Irrelevance", "ReportGeneration".
 //
 Procedure SetSpreadsheetDocumentFieldState(SpreadsheetDocumentField, State = "DontUse") Export
 	
@@ -2540,8 +2574,8 @@ Function URIStructure(Val URIString1) Export
 	
 EndFunction
 
-// 
-// 
+// Creates an object describing the OpenSSL secure connection.
+// See the "OpenSSLSecureConnection" in Syntax Assistant.
 //
 // Parameters:
 //  ClientCertificate - FileClientCertificate
@@ -2552,32 +2586,52 @@ EndFunction
 //                                   - LinuxCertificationAuthorityCertificates
 //                                   - OSCertificationAuthorityCertificates
 //                                   - Undefined - OpenSSL certification authority certificates. 
-//
+//  ConnectType - String, Undefined - "OpenSSL" (by default), "CryptoPro"
+//  
 // Returns:
 //  OpenSSLSecureConnection
 //
-Function NewSecureConnection(Val ClientCertificate = Undefined, Val CertificationAuthorityCertificates = Undefined) Export
+Function NewSecureConnection(Val ClientCertificate = Undefined, Val CertificationAuthorityCertificates = Undefined, Val ConnectType = Undefined) Export
 	
 #If WebClient Or MobileClient Then 
 	Return New OpenSSLSecureConnection;
 #Else
-	SystemInfo = New SystemInfo;
-	If CompareVersions(SystemInfo.AppVersion, "8.3.24.1305") >= 0 Then
-		If CertificationAuthorityCertificates = Undefined Then
-#If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
-			ЭтоОСWindows = Common.IsWindowsServer();
-			ЭтоОСLinux = Common.IsLinuxServer();
-#Else
-			ЭтоОСWindows = CommonClient.IsWindowsClient();
-			ЭтоОСLinux = CommonClient.IsLinuxClient();
-#EndIf
-			If ЭтоОСWindows Then
-				CertificationAuthorityCertificates = New WindowsCertificationAuthorityCertificates();
-			ElsIf ЭтоОСLinux Then
-				CertificationAuthorityCertificates = New LinuxCertificationAuthorityCertificates();
-			Else
+	If CertificationAuthorityCertificates = Undefined Then
+		VersionsOf1CEnterpriseForCertificateUsage = "8.3.22.2470; 8.3.23.2122; 8.3.24.1446";
+	
+		SystemInfo = New SystemInfo;
+		VersionCurrentNumber = ConfigurationVersionWithoutBuildNumber(SystemInfo.AppVersion);
+		ShouldUseCertificatesFromCAs = CompareVersionsWithoutBuildNumber(VersionCurrentNumber, "8.3.21") > 0;
+		
+		If ShouldUseCertificatesFromCAs Then
+			If CompareVersionsWithoutBuildNumber(VersionCurrentNumber, "8.3.25") < 0 Then
+				For Each BuildNumber In StrSplit(VersionsOf1CEnterpriseForCertificateUsage, "; ", False) Do
+					If StrStartsWith(BuildNumber, VersionCurrentNumber + ".") Then
+						ShouldUseCertificatesFromCAs = 
+							CompareVersions(SystemInfo.AppVersion, BuildNumber) >= 0;
+						Break;
+					EndIf;
+				EndDo;
+			EndIf;
+			
+			If ShouldUseCertificatesFromCAs Then
 				CertificationAuthorityCertificates = New OSCertificationAuthorityCertificates();
 			EndIf;
+		EndIf;
+	EndIf;
+	
+	If ConnectType = "CryptoPro" Then
+		SystemInfo = New SystemInfo;
+		If CompareVersions(SystemInfo.AppVersion, "8.3.24.0") >= 0 Then
+			CryptoProSecureConnection = Undefined;
+			// ACC:487-off - Support of new 1C:Enterprise methods (the executable code is safe)
+			Execute("CryptoProSecureConnection = New CryptoProSecureConnection(ClientCertificate, CertificationAuthorityCertificates)");
+			// ACC:487-on
+			Return CryptoProSecureConnection;
+		Else
+			Raise StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'To establish a secure %1 connection, 1C:Enterprise version must be 8.3.24 or later. The current version is %2.';"),
+				NStr("en = 'CryptoPro';"), SystemInfo.AppVersion);
 		EndIf;
 	EndIf;
 	
@@ -2599,7 +2653,7 @@ Function DeviceType() Export
 	
 	DisplayInformation = DeviceDisplayParameters();
 	
-	DPI    = DisplayInformation.DPI; 
+	DPI    = DisplayInformation.DPI; // ACC:1353 - Don't translate to Russian.
 	Height = DisplayInformation.Height;
 	Width = DisplayInformation.Width;
 	
@@ -2782,8 +2836,8 @@ EndFunction
 
 #Region ConvertDateForHTTP
 
-// 
-// See https://www.w3.org/Protocols/rfc2616/rfc2616
+// Converts a universal date into a rfc1123-date format.
+// See https://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html, item 3.3.1.
 // 
 // Parameters:
 //  Date - Date
@@ -2799,7 +2853,7 @@ Function HTTPDate(Val Date) Export
 	WeekDays = StrSplit("Mon,Tue,Wed,Thu,Fri,Sat,Sun", ",");
 	Months = StrSplit("Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec", ",");
 	
-	DateTemplate = "[WeekDay], [Day] [Month] [Year] [Hour]:[Minute]:[Second] GMT"; 
+	DateTemplate = "[WeekDay], [Day] [Month] [Year] [Hour]:[Minute]:[Second] GMT"; // ACC:1297 - Do not localize.
 	
 	DateParameters = New Structure;
 	DateParameters.Insert("WeekDay", WeekDays[WeekDay(Date)-1]);
@@ -2816,8 +2870,8 @@ Function HTTPDate(Val Date) Export
 	
 EndFunction
 
-// 
-// See https://www.w3.org/Protocols/rfc2616/rfc2616
+// Returns a date converted from rfc1123-date to Date data type.
+// See https://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html, item 3.3.1.
 // 
 // Parameters:
 //  HTTPDateAsString - String
@@ -2832,7 +2886,7 @@ Function RFC1123Date(HTTPDateAsString) Export
 
 	MonthsNames = "janfebmaraprmayjunjulaugsepoctnovdec";
 	// rfc1123-date = wkday "," SP date1 SP time SP "GMT".
-	FirstSpacePosition = StrFind(HTTPDateAsString, " ");
+	FirstSpacePosition = StrFind(HTTPDateAsString, " ");//The date starts at the first whitespace and ends at the second whitespace.
 	SubstringDate = Mid(HTTPDateAsString,FirstSpacePosition + 1);
 	SubstringTime = Mid(SubstringDate, 13);
 	SubstringDate = Left(SubstringDate, 11);
@@ -3302,7 +3356,7 @@ Function EstablishExternalConnectionWithInfobase(Parameters) Export
 			COMConnector = New COMObject(COMConnectorName()); // "V83.COMConnector"
 		Except
 			Information = ErrorInfo();
-			ErrorMessageString = NStr("en = 'Failed to connect to another application: %1';");
+			ErrorMessageString = NStr("en = 'Failed to connect to another app: %1';");
 			
 			Result.AddInAttachmentError = True;
 			Result.DetailedErrorDetails = StringFunctionsClientServer.SubstituteParametersToString(ErrorMessageString, ErrorProcessing.DetailErrorDescription(Information));
@@ -3375,7 +3429,7 @@ Function EstablishExternalConnectionWithInfobase(Parameters) Export
 			Result.Join = COMConnector.Connect(ConnectionString);
 		Except
 			Information = ErrorInfo();
-			ErrorMessageString = NStr("en = 'Failed to connect to another application: %1';");
+			ErrorMessageString = NStr("en = 'Failed to connect to another app: %1';");
 			
 			Result.AddInAttachmentError = True;
 			Result.DetailedErrorDetails     = StringFunctionsClientServer.SubstituteParametersToString(ErrorMessageString, ErrorProcessing.DetailErrorDescription(Information));
@@ -3487,10 +3541,15 @@ Function IsLinuxClient() Export
 	SystemInfo = New SystemInfo;
 	
 	IsLinuxClient = SystemInfo.PlatformType = PlatformType.Linux_x86
-		Or SystemInfo.PlatformType = PlatformType.Linux_x86_64
-		Or CompareVersions(SystemInfo.AppVersion, "8.3.22.0") >= 0
-			And (SystemInfo.PlatformType = PlatformType["Linux_ARM64"]
-			Or SystemInfo.PlatformType = PlatformType["Linux_E2K"]);
+		Or SystemInfo.PlatformType = PlatformType.Linux_x86_64;
+#EndIf
+
+#If Not MobileClient Then
+	SystemInfo = New SystemInfo;
+	IsLinuxClient = IsLinuxClient
+		Or CompareVersions(SystemInfo.AppVersion, "8.3.22.1923") >= 0
+		And (SystemInfo.PlatformType = PlatformType["Linux_ARM64"]
+		Or SystemInfo.PlatformType = PlatformType["Linux_E2K"]);
 #EndIf
 	
 	Return IsLinuxClient;
@@ -3498,7 +3557,7 @@ Function IsLinuxClient() Export
 EndFunction
 
 // Deprecated. Instead, use Common.IsWebClient or WebClient preprocessor instruction 
-// in the client code.
+// in client-side code.
 // Returns True if the client application is a web client.
 //
 // Returns:
@@ -3544,7 +3603,7 @@ Function IsMacOSWebClient() Export
 EndFunction
 
 // Deprecated. Instead, use Common.IsMobileClient or MobileClient preprocessor instruction 
-// in the client code.
+// in client-side code.
 // Returns True if the client application is a mobile client.
 //
 // Returns:
@@ -3626,7 +3685,7 @@ EndFunction
 
 // Deprecated. Instead, use CommonClient.LocalDatePresentationWithOffset 
 //  or Common.LocalDatePresentationWithOffset
-// Convert a local date to the "YYYY-MM-DDThh:mm:ssTZD" format (ISO 8601).
+// Converts dates to the ISO format (YYYY-MM-DDThh:mm:ssZ).
 //
 // Parameters:
 //  LocalDate - Date - a date in the session time zone.
@@ -3679,7 +3738,7 @@ EndFunction
 //
 Function PredefinedItem(FullPredefinedItemName) Export
 	
-	
+	// 
 	//   
 	//  
 	//  
@@ -3733,9 +3792,9 @@ Function PredefinedItem(FullPredefinedItemName) Export
 	
 EndFunction
 
-// Deprecated. 
-// 
-// 
+// Deprecated. Instead, use FileSystemClient.ApplicationStartupParameters 
+// or FileSystem.ApplicationStartupParameters.
+// Returns Structure of parameters intended for the StartApplication procedure.
 //
 // Returns:
 //  Structure:
@@ -3779,10 +3838,10 @@ EndFunction
 //  ApplicationStartupParameters - See ApplicationStartupParameters
 //
 // Returns:
-//  Structure - :
-//      
-//      
-//      
+//  Structure - App outcome:
+//      ReturnCode - Number - App return code.
+//      OutputStream - String - App result passed to stdout.
+//      ErrorStream - String - App errors passed to stderr.
 //
 // Example:
 //	CommonClientServer.StartApplication("calc");
@@ -3799,7 +3858,7 @@ EndFunction
 Function StartApplication(Val StartupCommand, ApplicationStartupParameters = Undefined) Export 
 	
 #If WebClient Or MobileClient Then
-	Raise NStr("en = 'Cannot run applications in the web client.';");
+	Raise NStr("en = 'Cannot run app in the web client.';");
 #Else
 	
 	CommandString = CommonInternalClientServer.SafeCommandString(StartupCommand);
@@ -3909,7 +3968,7 @@ Function StartApplication(Val StartupCommand, ApplicationStartupParameters = Und
 		
 	ElsIf (SystemInfo.PlatformType = PlatformType.Linux_x86) 
 		Or (SystemInfo.PlatformType = PlatformType.Linux_x86_64)
-		Or CompareVersions(SystemInfo.AppVersion, "8.3.22.0") >= 0
+		Or CompareVersions(SystemInfo.AppVersion, "8.3.22.1923") >= 0
 			And (SystemInfo.PlatformType = PlatformType["Linux_ARM64"]
 			Or SystemInfo.PlatformType = PlatformType["Linux_E2K"]) Then
 		
@@ -3939,8 +3998,8 @@ Function StartApplication(Val StartupCommand, ApplicationStartupParameters = Und
 		
 	Else
 		
-		
-		
+		// 
+		// 
 		RunApp(CommandString, CurrentDirectory, WaitForCompletion, ReturnCode);
 		
 	EndIf;
@@ -4009,9 +4068,9 @@ EndFunction
 //  URL - String - URL resource address to be diagnosed.
 //
 // Returns:
-//  Structure - :
-//      
-//      
+//  Structure - Application outcome::
+//      ErrorDetails - String - Brief error details.
+//      DiagnosticsLog - String - Troubleshooting Log containing technical details.
 //
 // Example:
 //	// Diagnostics of address classifier web service.
@@ -4111,19 +4170,17 @@ Function ConnectionDiagnostics(URL) Export
 				
 				LongDesc.Add(
 					NStr("en = 'No Internet access. Possible reasons:
-					           |- The computer is not connected to the Internet.
-					           | - Internet service provider issues.
-					           |- A firewall, antivirus, or another software
-					           | is blocking the connection.';"));
+					           |- Computer is not connected to the Internet.
+					           | - Internet provider issues.
+					           |- Access blocked by firewall, antivirus, or another software.';"));
 				
 			Else 
 				
 				LongDesc.Add(StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Server %1 is unavailable. Possible reasons:
-					           |- Internet service provider issues.
-					           |- A firewall, antivirus, or another software
-					           | is blocking the connection.
-					           |- The server is turned off or under maintenance.';"),
+					NStr("en = 'Server %1 is currently unavailable. Possible reasons:
+					           |- Internet provider issues.
+					           |- Access blocked by firewall, antivirus, or other software.
+					           |- Server is disabled or undergoing maintenance.';"),
 					ResourceServerAddress));
 				
 				TraceLog = ServerRouteTraceLog(ResourceServerAddress);
@@ -4170,6 +4227,71 @@ EndFunction
 
 #Region Internal
 
+// 
+// 
+//
+// Parameters:
+//  ErrorInfo - ErrorInfo - 
+//  Title          - String - 
+//
+//  ErrorAtClient - Boolean - 
+//      
+//      
+//      
+//      
+//      
+//
+// Returns:
+//  Structure:
+//   * Text - String - 
+//   * Category - ErrorCategory - 
+//               - Undefined - 
+//                   
+//
+Function ExceptionClarification(ErrorInfo, Title = "", ErrorAtClient = False) Export
+	
+	Category = ErrorProcessing.ErrorCategoryForUser(ErrorInfo);
+	If Category = ErrorCategory.OtherError Then
+		Category = ErrorCategory.ConfigurationError;
+	ElsIf Category = ErrorCategory.ExceptionRaisedFromScript Then
+		Category = Undefined;
+	EndIf;
+	
+	If Not ErrorAtClient Then
+		If Category = ErrorCategory.LocalFileAccessError
+		 Or Category = ErrorCategory.PrinterError Then
+			Category = ErrorCategory.ConfigurationError;
+		EndIf;
+	EndIf;
+	
+	ErrorText = "";
+	CurrentReason = ErrorInfo;
+	LongDesc = "";
+	While CurrentReason <> Undefined Do
+		If CurrentReason.IsErrorOfCategory(
+				ErrorCategory.ExceptionRaisedFromScript, False) Then
+			LongDesc = CurrentReason.Description;
+			Break;
+		EndIf;
+		CurrentReason = CurrentReason.Cause;
+	EndDo;
+	If Not ValueIsFilled(LongDesc) Then
+		LongDesc = ErrorProcessing.BriefErrorDescription(ErrorInfo);
+	EndIf;
+	If ValueIsFilled(Title) Then
+		ErrorText = Title + Chars.LF + LongDesc;
+	Else
+		ErrorText = LongDesc;
+	EndIf;
+	
+	Result = New Structure;
+	Result.Insert("Text", ReplaceProhibitedXMLChars(ErrorText));
+	Result.Insert("Category", Category);
+	
+	Return Result;
+	
+EndFunction
+
 // Creates an array and adds the passed values to it.
 //
 // Parameters:
@@ -4203,8 +4325,8 @@ Function ArrayOfValues(Val Value1, Val Value2 = Undefined, Val Value3 = Undefine
 EndFunction
 
 Function NameMeetPropertyNamingRequirements(Name) Export
-	Letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"; 
-	Digits = "1234567890"; // @Non-NLS
+	Letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"; // @Non-NLS, ACC:163 - Data can contain letters
+	Digits = "1234567890"; // @Non-NLS, ACC:163 - Data can contain letters
 	
 	If Name = "" Or StrFind(Letters + "_", Upper(Left(Name, 1))) = 0 Then
 		Return False;
@@ -4221,25 +4343,49 @@ EndFunction
 
 #Region ValueListsAreEqual
 
-// Searches for the item in the value list or in the array.
+// 
+// 
+// Parameters:
+//  Collection - 
+//  ShouldCompareValuesCount - Boolean
+// 
+// Returns:
+//  Map of KeyAndValue:
+//   * Key - Arbitrary - 
+//   * Value - Number, Boolean - 
 //
-Function FindInList(List, Item)
+Function CollectionIntoMap(Collection, ShouldCompareValuesCount)
 	
-	Var ItemInList;
-	
-	If TypeOf(List) = Type("ValueList") Then
-		If TypeOf(Item) = Type("ValueListItem") Then
-			ItemInList = List.FindByValue(Item.Value);
-		Else
-			ItemInList = List.FindByValue(Item);
-		EndIf;
+	CollectionTypeList = TypeOf(Collection) = Type("ValueList");
+	Result = New Map;
+	If Not ShouldCompareValuesCount Then
+		For Each CollectionItem In Collection Do
+			If CollectionTypeList Then
+				Result.Insert(CollectionItem.Value, True);
+			Else
+				Result.Insert(CollectionItem, True);
+			EndIf;
+		EndDo;
+	Else
+		For Each CollectionItem In Collection Do
+			
+			If CollectionTypeList Then
+				Value = CollectionItem.Value;
+			Else
+				Value = CollectionItem;
+			EndIf;
+			
+			Count = Result[Value];
+			If Count <> Undefined Then
+				Count = Count + 1;
+			Else	
+				Count = 1;
+			EndIf;
+			
+			Result[Value] = Count;
+		EndDo;
 	EndIf;
-	
-	If TypeOf(List) = Type("Array") Then
-		ItemInList = List.Find(Item);
-	EndIf;
-	
-	Return ItemInList;
+	Return Result;
 	
 EndFunction
 
@@ -4548,7 +4694,7 @@ Function CheckServerAvailability(ServerAddress)
 	
 	Result = StartApplication(CommandString, ApplicationStartupParameters);
 	
-	
+	// 
 	// 
 	// 
 	AvailabilityLog = Result.OutputStream + Result.ErrorStream;
@@ -4556,10 +4702,10 @@ Function CheckServerAvailability(ServerAddress)
 	// ACC:1297-disable not localized fragment left for backward compatibility
 	
 	If IsWindows Then
-		UnavailabilityFact = (StrFind(AvailabilityLog, "Preassigned node disabled") > 0) 
+		UnavailabilityFact = (StrFind(AvailabilityLog, "Preassigned node disabled") > 0) // Do not localize.
 			Or (StrFind(AvailabilityLog, "Destination host unreachable") > 0); // Do not localize.
 		
-		NoLosses = (StrFind(AvailabilityLog, "(0% loss)") > 0) 
+		NoLosses = (StrFind(AvailabilityLog, "(0% loss)") > 0) // Do not localize.
 			Or (StrFind(AvailabilityLog, "(0% loss)") > 0); // Do not localize.
 	Else 
 		UnavailabilityFact = (StrFind(AvailabilityLog, "Destination Host Unreachable") > 0); // Do not localize.
@@ -4602,9 +4748,9 @@ Function ServerRouteTraceLog(ServerAddress)
 	If IsWindows Then
 		CommandTemplate = "tracert -w 100 -h 15 %1";
 	Else 
-		
-		
-		
+		// 
+		// 
+		// 
 		CommandTemplate = "traceroute -w 100 -m 100 %1";
 	EndIf;
 	

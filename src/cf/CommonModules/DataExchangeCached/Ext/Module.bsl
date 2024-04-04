@@ -1,17 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #Region Public
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. (See DataExchangeServer.IsStandaloneWorkplace)
+// Deprecated. Instead, use the new function (See DataExchangeServer.IsStandaloneWorkplace)
+// .
 //
 Function IsStandaloneWorkplace() Export
 	
@@ -19,7 +21,8 @@ Function IsStandaloneWorkplace() Export
 	
 EndFunction
 
-// Deprecated. (See DataExchangeServer.ExchangePlanNodeByCode)
+// Deprecated. Instead, use the new function (See DataExchangeServer.ExchangePlanNodeByCode)
+// .
 //
 Function FindExchangePlanNodeByCode(ExchangePlanName, NodeCode) Export
 	
@@ -90,7 +93,7 @@ EndFunction
 //   which the object was received.
 //
 // Returns:
-//  Boolean -  
+//  Boolean -  If True, exchange plan is used. Otherwise, False.
 //
 Function DataExchangeEnabled(Val ExchangePlanName, Val Sender = Undefined) Export
 	
@@ -429,7 +432,6 @@ EndFunction
 //  ExchangePlanNode - ExchangePlanRef - an exchange plan node.
 // 
 // Returns:
-//  Имя - String - a name of the exchange plan as a metadata object.
 //
 Function GetExchangePlanName(ExchangePlanNode) Export
 	
@@ -556,7 +558,7 @@ Function RegistrationManagerName(Val ExchangePlanName) Export
 	
 EndFunction	
 
-// 
+// Returns the flag indicating whether the cache was used for searching references in the "SynchronizedObjectPublicIDs" information register
 //
 // Parameters:
 //  ExchangePlanName - String - an exchange plan name, as it is set in Designer.
@@ -572,7 +574,7 @@ Function UseCacheOfPublicIdentifiers(Val ExchangePlanName) Export
 	
 EndFunction
 
-//  
+// Returns the "Global" flag value for an EnterpriseData exchange plan 
 //
 // Parameters:
 //  ExchangePlanName - String - an exchange plan name, as it is set in Designer.
@@ -807,7 +809,6 @@ EndFunction
 //  ExchangePlanName - String - an exchange plan name, as it is set in Designer.
 // 
 // Returns:
-//  ЭтотУзел - ExchangePlanRef - a predefined exchange plan node.
 //
 Function GetThisExchangePlanNode(ExchangePlanName) Export
 	
@@ -922,7 +923,6 @@ EndFunction
 //  ExchangePlanName - String - an exchange plan name, as it is set in Designer.
 // 
 // Returns:
-//  СписокПравил - ValueList - a list of templates of standard exchange rules.
 //
 Function ConversionRulesForExchangePlanFromConfiguration(ExchangePlanName) Export
 	
@@ -937,7 +937,6 @@ EndFunction
 //  ExchangePlanName - String - an exchange plan name, as it is set in Designer.
 // 
 // Returns:
-//  СписокПравил - ValueList - a list of templates of standard registration rules.
 //
 Function RegistrationRulesForExchangePlanFromConfiguration(ExchangePlanName) Export
 	
@@ -952,7 +951,6 @@ EndFunction
 //  No.
 // 
 // Returns:
-//  СписокПлановОбмена - ValueList - a list of configuration exchange plans.
 //
 Function SSLExchangePlansList() Export
 	
@@ -1135,7 +1133,7 @@ Function UsedExchangeMessagesTransports(InfobaseNode, Val SettingsMode = "") Exp
 		Result = DataExchangeServer.AllConfigurationExchangeMessagesTransports();
 	EndIf;
 	
-	
+	// 
 	//  
 	//  
 	//  
@@ -1151,7 +1149,7 @@ Function UsedExchangeMessagesTransports(InfobaseNode, Val SettingsMode = "") Exp
 			
 	EndIf;
 	
-	
+	// 
 	//  
 	//
 	If DataExchangeCached.IsDistributedInfobaseExchangePlan(ExchangePlanName)
@@ -1162,7 +1160,7 @@ Function UsedExchangeMessagesTransports(InfobaseNode, Val SettingsMode = "") Exp
 		
 	EndIf;
 	
-	
+	// 
 	//  
 	//  
 	//
@@ -1174,7 +1172,7 @@ Function UsedExchangeMessagesTransports(InfobaseNode, Val SettingsMode = "") Exp
 		
 	EndIf;
 	
-	
+	// 
 	//  
 	//  
 	If Common.SubsystemExists("StandardSubsystems.EmailOperations") Then
@@ -1201,7 +1199,7 @@ EndFunction
 //   this parameter will store the error details.
 //
 // Returns:
-//  COM-
+//  COM-object - If the connection is established. Undefined - If an error occurred.
 //
 Function GetExternalConnectionForInfobaseNode(InfobaseNode, ErrorMessageString = "") Export
 
@@ -1221,7 +1219,7 @@ EndFunction
 //   this parameter will store the error details.
 //
 // Returns:
-//  COM-
+//  COM-object - If the connection is established. Undefined - If an error occurred.
 //
 Function ExternalConnectionForInfobaseNode(InfobaseNode) Export
 	
@@ -1327,7 +1325,7 @@ EndFunction
 
 Function StandaloneModeExchangePlans()
 	
-	
+	// 
 	// 
 	// 
 	// 
@@ -1399,7 +1397,6 @@ EndFunction
 //  ExchangePlanName - String - an exchange plan name, as it is set in Designer.
 // 
 // Returns:
-//  СписокПравил - ValueList - a list of templates of standard rules for data exchange.
 //
 Function RulesForExchangePlanFromConfiguration(ExchangePlanName, TemplateNameLiteral)
 	
@@ -1426,8 +1423,7 @@ EndFunction
 //
 // Parameters:
 //    ExchangePlanName - String - an exchange plan to analyze.
-//    Periodic2  - 
-//    Regulatory     - флаг того, что надо включать в результат нормативно-reference objects.
+//    Periodic2  - Flag indicating that the result must include objects with dates (such as documents).
 //
 // Returns:
 //    ValueTable:

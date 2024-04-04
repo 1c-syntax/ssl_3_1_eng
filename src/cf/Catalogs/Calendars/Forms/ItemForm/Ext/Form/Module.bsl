@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -59,8 +60,8 @@ Procedure OnWriteAtServer(Cancel, CurrentObject, WriteParameters)
 		YearNumber = CurrentYearNumber;
 	EndIf;
 	
-	 
-	
+	//  
+	// 
 	
 	If ResultModified Then
 		InformationRegisters.CalendarSchedules.WriteScheduleDataToRegister(CurrentObject.Ref, ScheduleDays, 
@@ -726,8 +727,8 @@ Procedure FillByTemplateAtServer(PreserveManualEditing = False)
 		EndIf;
 	EndIf;
 	
-	 
-	
+	//  
+	// 
 	ScheduleDaysMap = New Map(ScheduleDays);
 	DayDate = Object.StartDate;
 	EndDate = Object.EndDate;
@@ -1056,7 +1057,7 @@ Procedure CompleteDayScheduleFilling(ValueSelected, ChoiceContext) Export
 	
 	If ChoiceContext.TemplateRowID <> Undefined Then
 		TemplateRow = Object.FillingTemplate.FindByID(ChoiceContext.TemplateRowID);
-		TemplateRow.DayAddedToSchedule = ValueSelected.WorkSchedule.Count() > 0; 
+		TemplateRow.DayAddedToSchedule = ValueSelected.WorkSchedule.Count() > 0; // 
 		TemplateRow.SchedulePresentation = DaySchedulePresentation(ThisObject, ChoiceContext.DayNumber);
 	EndIf;
 	

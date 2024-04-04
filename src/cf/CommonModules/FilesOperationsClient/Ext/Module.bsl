@@ -1,16 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #Region Public
 
 ////////////////////////////////////////////////////////////////////////////////
-// File operation commands
+// File management commands.
 
 // Opens a file for viewing or editing.
 // If the file is opened for viewing,
@@ -363,10 +364,27 @@ EndProcedure
 //
 Procedure OpenFileListForm(Val FilesOwner) Export
 	
-	FormParameters = New Structure();
-	FormParameters.Insert("FileOwner", FilesOwner);
-	FormParameters.Insert("ShouldHideOwner", False);
-	OpenForm("DataProcessor.FilesOperations.Form.AttachedFiles", FormParameters);
+	ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient = Undefined;
+	UseEDIToStoreObjectFiles =
+		FilesOperationsInternalClient._1CDocumentManagementIsUsedToStoreObjectFiles(
+			FilesOwner,
+			ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient);
+	
+	If UseEDIToStoreObjectFiles Then
+		
+		// IntegrationWith1CDocumentManagementSubsystem
+			ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient.OpenAttachedFiles(
+				FilesOwner);
+		// End IntegrationWith1CDocumentManagementSubsystem
+		
+	Else
+		
+		FormParameters = New Structure();
+		FormParameters.Insert("FileOwner", FilesOwner);
+		FormParameters.Insert("ShouldHideOwner", False);
+		OpenForm("DataProcessor.FilesOperations.Form.AttachedFiles", FormParameters);
+		
+	EndIf;
 	
 EndProcedure
 
@@ -457,7 +475,7 @@ Procedure SignFile(AttachedFile, FormIdentifier, AdditionalParameters = Undefine
 	EndIf;
 	
 	If Not CommonClient.SubsystemExists("StandardSubsystems.DigitalSignature") Then
-		ShowMessageBox(, NStr("en = 'Adding digital signatures is not supported.';"));
+		ShowMessageBox(, NStr("en = 'This app version doesn''t support adding digital signatures.';"));
 		Return;
 	EndIf;
 	
@@ -465,8 +483,7 @@ Procedure SignFile(AttachedFile, FormIdentifier, AdditionalParameters = Undefine
 	
 	If Not ModuleDigitalSignatureClient.UseDigitalSignature() Then
 		ShowMessageBox(,
-			NStr("en = 'To add a digital signature, enable the use of digital signatures
-			           |in the application settings.';"));
+			NStr("en = 'Digital signatures cannot be added due to the app settings.';"));
 		Return;
 	EndIf;
 	
@@ -515,7 +532,7 @@ Function FileData(Val FileRef,
 EndFunction
 
 // Receives a file from the file storage to the user working directory.
-// This is the analog of the View or Edit interactive actions without opening the received file.
+// This is an alternative to the "View" or "Edit" interactive actions without opening the received file.
 // The ReadOnly property of the received file will be set depending on
 // whether the file is locked for editing or not. If it is not locked, the read only mode is set.
 // If there is an existing file in the working directory, it will be deleted and replaced by the file,
@@ -545,7 +562,7 @@ Procedure GetAttachedFile(Notification, AttachedFile, FormIdentifier, Additional
 EndProcedure
 
 // Places the file from the user working directory into the file storage.
-// It is the analogue of the Finish Editing interactive action.
+// It is an alternative to the "Finish Editing" interactive action.
 //
 // Parameters:
 //  Notification - NotifyDescription - Notification that is triggered after the file storage receives a file.
@@ -577,7 +594,7 @@ EndProcedure
 Procedure OpenScanSettingForm() Export
 	
 	If Not FilesOperationsInternalClient.ScanAvailable() Then
-		MessageText = NStr("en = 'Scanning is available in applications for Microsoft Windows x86 and x64.';");
+		MessageText = NStr("en = 'Scanning is supported for MS Windows and Linux OS.';");
 		ShowMessageBox(, MessageText);
 		Return;
 	EndIf;
@@ -717,9 +734,6 @@ EndProcedure
 //                       
 //   * PaperSize - Number - Valid values:
 //     0 - Not specified
-//     11 - А3
-//     1 - А4
-//     5 - А5
 //     6 - B4
 //     2 - B5
 //     7 - B6
@@ -747,7 +761,7 @@ Function ScanningParameters(Fill = False) Export
 	ClientID = FilesOperationsInternalClient.ClientID();
 	
 	If Fill And ClientID <> Undefined Then
-		FilesOperationsInternalServerCall.FillInScanSettings(ScanningParameters, ClientID);
+		FilesOperationsInternalServerCall.FillScanSettings(ScanningParameters, ClientID);
 	EndIf;
 	Return ScanningParameters;
 EndFunction
@@ -792,7 +806,7 @@ Procedure AddFromScanner(AddingOptions, ScanningParameters = Undefined) Export
 	
 EndProcedure
 
-// 
+// Checks if the client has scanner management restrictions.
 // 
 // Returns:
 //   See FilesOperationsInternalClient.ScanAvailable
@@ -801,8 +815,8 @@ Function ScanAvailable() Export
 	Return FilesOperationsInternalClient.ScanAvailable();
 EndFunction
 
-//  
-// 
+// Checks if the client has scanner management restrictions, if a scan add-in is installed, 
+// and if there is a plugged scanner.
 // 
 // Parameters:
 //  NotificationOfResult - NotifyDescription - procedure to which the check result will be passed:
@@ -1042,7 +1056,7 @@ EndProcedure
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. Obsolete. Use FilesOperationsClient.OpenFileForm.
+// Deprecated. Instead, use FilesOperationsClient.OpenFileForm.
 // Opens the file form from the file catalog item form. Closes the item form.
 // 
 // Parameters:
@@ -1112,20 +1126,17 @@ Procedure PrintFileByApplication(FileData, FileToOpenName)
 		Schema.Print();
 		Return;
 	EndIf;
-	
+
+	If CommonClient.IsWindowsClient() Then
+		FileToOpenName = StrReplace(FileToOpenName, "/", "\");
+	EndIf;
+
 	Try
-		
-		If CommonClient.IsWindowsClient() Then
-			FileToOpenName = StrReplace(FileToOpenName, "/", "\");
-		EndIf;
-		
 		PrintFromApplicationByFileName(FileToOpenName);
-		
 	Except
 		ShowMessageBox(, StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot print the file. Reason:
 				|%1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo()))); 
-		
 	EndTry;
 #EndIf
 
@@ -1147,8 +1158,8 @@ Procedure PrintFilesExecution(ResultHandler, ExecutionParameters) Export
 	If ExecutionParameters.FileNumber >= ExecutionParameters.FilesData.Count() Then
 		Return;
 	EndIf;
-	ExecutionParameters.FileData = 
-		FilesOperationsInternalServerCall.FileDataToPrint(ExecutionParameters.FilesData[ExecutionParameters.FileNumber],
+	ExecutionParameters.FileData = FilesOperationsInternalServerCall.FileDataToPrint(
+		ExecutionParameters.FilesData[ExecutionParameters.FileNumber],
 		ExecutionParameters.UUID);
 		
 #If WebClient Then
@@ -1169,14 +1180,13 @@ Procedure PrintFilesExecution(ResultHandler, ExecutionParameters) Export
 	EndIf;
 	
 	If FilesOperationsInternalClient.FileSystemExtensionAttached1() Then
-		Handler = New NotifyDescription("PrintFileAfterReceiveVersionInWorkingDirectory", ThisObject, ExecutionParameters);
-		FilesOperationsInternalClient.GetVersionFileToWorkingDirectory(
-			Handler,
-			ExecutionParameters.FileData,
-			"",
-			ExecutionParameters.UUID);
+		Handler = New NotifyDescription("PrintFileAfterReceiveVersionInWorkingDirectory", ThisObject, 
+			ExecutionParameters);
+		FilesOperationsInternalClient.GetVersionFileToWorkingDirectory(Handler, ExecutionParameters.FileData,
+			"", ExecutionParameters.UUID);
 	Else
-		ExecutionParameters.FileData = FilesOperationsInternalServerCall.FileDataToOpen(ExecutionParameters.FilesData[ExecutionParameters.FileNumber], Undefined);
+		ExecutionParameters.FileData = FilesOperationsInternalServerCall.FileDataToOpen(
+			ExecutionParameters.FilesData[ExecutionParameters.FileNumber], Undefined);
 		OpenFile(ExecutionParameters.FileData, False);
 	EndIf;
 EndProcedure
@@ -1233,7 +1243,14 @@ Procedure OpenScanSettingFormCompletion(InitializationCheckResult, ExecutionPara
 		Return;
 	EndIf;
 	
-	FilesOperationsInternalClient.EnableLoggingComponents(InitializationCheckResult.Attachable_Module);
+	ContinueNotification = New NotifyDescription("OpenScanSetupFormAfterLogEnabled", 
+		ThisObject, AddInInstalled);
+	
+	FilesOperationsInternalClient.EnableScanLog(InitializationCheckResult.Attachable_Module, 
+		ContinueNotification);
+EndProcedure
+
+Procedure OpenScanSetupFormAfterLogEnabled(Result, AddInInstalled) Export
 	ClientID = FilesOperationsInternalClient.ClientID();
 	
 	FormParameters = New Structure;
@@ -1374,17 +1391,27 @@ Procedure MergeIntoMultipageFileAfterCommandExecuted(ImageMagickResult, Context)
 EndProcedure
 
 Procedure ScanCommandAvailableCompletion(InitializationCheckResult, NotificationOfResult) Export
-	ScanCommandAvailable = InitializationCheckResult.Attached;
-	Attachable_Module = InitializationCheckResult.Attachable_Module;
+
+	InitializationCheckResult.Insert("NotificationOfResult", NotificationOfResult);
 	
-	If ScanCommandAvailable Then
-		FilesOperationsInternalClient.EnableLoggingComponents(InitializationCheckResult.Attachable_Module);
+	CompletionNotification = New NotifyDescription("ScanCommandAvailableAfterLogEnabled", ThisObject, 
+		InitializationCheckResult);
+	If InitializationCheckResult.Attached Then
+		FilesOperationsInternalClient.EnableScanLog(InitializationCheckResult.Attachable_Module, 
+			CompletionNotification);
+	Else
+		ExecuteNotifyProcessing(CompletionNotification);
 	EndIf;
 	
-	ScanCommandAvailable = ScanCommandAvailable 
-		And FilesOperationsInternalClient.IsDevicePresent(Undefined, Attachable_Module, False);
+EndProcedure
 
-	ExecuteNotifyProcessing(NotificationOfResult, ScanCommandAvailable);	
+Procedure ScanCommandAvailableAfterLogEnabled(Result, Context) Export
+	
+	ScanCommandAvailable = Context.Attached 
+		And FilesOperationsInternalClient.IsDevicePresent(Undefined, Context.Attachable_Module, False);
+
+	ExecuteNotifyProcessing(Context.NotificationOfResult, ScanCommandAvailable);
+	
 EndProcedure
 
 Procedure AfterCheckIfConversionAppInstalled(RunResult, Context) Export
@@ -1602,23 +1629,13 @@ Procedure AttachmentsControlCommandCompletion(Form, Command, AttachedFilesOwner)
 		Form.FilesOperationsParameters.FormElementsDetails[ItemNumber].SelectionDialogFilter);
 	FileAddingOptions.Insert("NotOpenCard", True);
 	
-	UseEDIToStoreObjectFiles = False;
-
-	// IntegrationWith1CDocumentManagement
-	If CommonClient.SubsystemExists("IntegrationWith1CDocumentManagementSubsystem") Then
-		DMILVersion = "1.0.0.0";
-		StandardSubsystemsClient.ClientRunParameters().Property("DMILVersion", DMILVersion);
-		If CommonClientServer.CompareVersions(DMILVersion, "3.0.2.4") >= 0 Then
-			ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient = CommonClient.CommonModule(
-				"Integration1CDocumentManagementCommonClient");
-			UseEDIToStoreObjectFiles =
-				ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient.UseEDIToStoreObjectFiles(
-					Form,
-					Command,
-					AttachedFilesOwner);
-		EndIf;
-	EndIf;
-	// End IntegrationWith1CDocumentManagement
+	ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient = Undefined;
+	UseEDIToStoreObjectFiles =
+		FilesOperationsInternalClient._1CDocumentManagementIsUsedToStoreObjectFiles(
+			AttachedFilesOwner,
+			ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient,
+			Form,
+			Command);
 	
 	If StrStartsWith(CommandName, "OpenList") Then
 		

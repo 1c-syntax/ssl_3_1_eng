@@ -14,6 +14,12 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.EvaluateResponseTimeThreshold</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Estimate threshold</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormCalculateResponseTimeThreshold1ExtendedTooltip" id="11"/>
 			</Button>
 		</ChildItems>
@@ -24,18 +30,36 @@
 	<ChildItems>
 		<InputField name="Period" id="1">
 			<DataPath>Period</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Period</v8:content>
+				</v8:item>
+			</Title>
 			<AutoMarkIncomplete>true</AutoMarkIncomplete>
 			<ContextMenu name="PeriodContextMenu" id="2"/>
 			<ExtendedTooltip name="PeriodExtendedTooltip" id="3"/>
 		</InputField>
 		<InputField name="KeyOperation" id="4">
 			<DataPath>KeyOperation</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Key operation</v8:content>
+				</v8:item>
+			</Title>
 			<AutoMarkIncomplete>true</AutoMarkIncomplete>
 			<ContextMenu name="KeyOperationContextMenu" id="5"/>
 			<ExtendedTooltip name="KeyOperationExtendedTooltip" id="6"/>
 		</InputField>
 		<InputField name="CurrentAPDEX" id="7">
 			<DataPath>CurrentAPDEX</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Current Apdex score</v8:content>
+				</v8:item>
+			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -48,6 +72,12 @@
 		</InputField>
 		<LabelField name="MeasurementsCount" id="20">
 			<DataPath>MeasurementsCount</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Sample count</v8:content>
+				</v8:item>
+			</Title>
 			<Width>7</Width>
 			<ContextMenu name="MeasurementsCountContextMenu" id="21"/>
 			<ExtendedTooltip name="MeasurementsCountExtendedTooltip" id="22"/>
@@ -55,6 +85,12 @@
 		<InputField name="ResponseTimeThreshold" id="14">
 			<DataPath>ResponseTimeThreshold</DataPath>
 			<ReadOnly>true</ReadOnly>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Response time threshold</v8:content>
+				</v8:item>
+			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -67,6 +103,12 @@
 		</InputField>
 		<LabelField name="EstimatedAPDEX" id="17">
 			<DataPath>EstimatedAPDEX</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Estimated Apdex score</v8:content>
+				</v8:item>
+			</Title>
 			<Width>7</Width>
 			<ContextMenu name="EstimatedAPDEXContextMenu" id="18"/>
 			<ExtendedTooltip name="EstimatedAPDEXExtendedTooltip" id="19"/>

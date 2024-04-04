@@ -72,6 +72,12 @@ application:
 						<Button name="GoToEventLog" id="54">
 							<Type>Hyperlink</Type>
 							<CommandName>Form.Command.GoToEventLog</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>View error details</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="GoToEventLogExtendedTooltip" id="55"/>
 						</Button>
 					</ChildItems>
@@ -111,6 +117,12 @@ or use application rules.</v8:content>
 						<xr:Ref>StdPicture.MoveRight</xr:Ref>
 						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</Picture>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Import new rules</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="ImportRulesSetExtendedTooltip" id="66"/>
 				</Button>
 			</ChildItems>
@@ -129,11 +141,23 @@ or use application rules.</v8:content>
 					<Type>CommandBarButton</Type>
 					<DefaultButton>true</DefaultButton>
 					<CommandName>Form.Command.Restart</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Restart and continue</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="RestartExtendedTooltip" id="18"/>
 				</Button>
 				<Button name="ExitApplication" id="15">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.ExitApplication</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Exit</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="ExitApplicationExtendedTooltip" id="16"/>
 				</Button>
 			</ChildItems>

@@ -1,31 +1,32 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #Region Public
 
-// 
-// 
+// Completion check of the intermittent wait for the handlers of
+// the BeforeRecurringClientDataSendToServer event.
 //
 // Parameters:
-//  CounterName   - String - 
-//  Timeout - Number - 
-//  FirstTime     - Boolean - 
-//  SessionDate    - Date - 
+//  CounterName   - String - For example, "StandardSubsystems.MonitoringCenter".
+//  Timeout - Number - Timeout before the counter triggers (in seconds).
+//  FirstTime     - Boolean - If set to True, returns True after initialization.
+//  SessionDate    - Date - The return value (in cases when a custom counter is required).
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the last count ended, and a new one started.
 //
 // Example:
-//	
-//	
-//		
-//	
+//	CounterName = "StandardSubsystems.MonitoringCenter";
+//	If Not ServerNotificationsClient.TimeoutExpired(CounterName) Then
+//		Return;
+//	EndIf;
 //
 Function TimeoutExpired(CounterName, Timeout = 1200, FirstTime = False, SessionDate = '00010101') Export
 	
@@ -51,25 +52,25 @@ Function TimeoutExpired(CounterName, Timeout = 1200, FirstTime = False, SessionD
 	
 EndFunction
 
-// 
-// 
-// 
+// Logs an error caught in the handlers of the events
+// BeforeRecurringClientDataSendToServer and
+// AfterRecurringReceiptOfClientDataOnServer.
 //
 // Parameters:
 //  ErrorInfo - ErrorInfo
 //
 // Example:
-//	
-//	
-//		
-//			
-//			
-//		
-//	
-//		
-//	
-//	
-//		
+//	StartMoment = CurrentUniversalDateInMilliseconds();
+//	Try
+//		If CommonClient.SubsystemExists("StandardSubsystems.MonitoringCenter") Then
+//			ModuleMonitoringCenterClientInternal = CommonClient.CommonModule("MonitoringCenterClientInternal");
+//			ModuleMonitoringCenterClientInternal.BeforeRecurringClientDataSendToServer(Parameters);
+//		EndIf;
+//	Exception
+//		ServerNotificationsClient.HandleError(ErrorInformation());
+//	EndTry;
+//	ServerNotificationsClient.AddIndicator(StartMoment,
+//		"MonitoringCenterClientInternal.BeforeRecurringClientDataSendToServer");
 //
 Procedure HandleError(ErrorInfo) Export
 	
@@ -81,26 +82,26 @@ Procedure HandleError(ErrorInfo) Export
 	
 EndProcedure
 
-// 
-// 
-// 
+// Adds a performance indicator to the handlers of the event
+// BeforeRecurringClientDataSendToServer and
+// AfterRecurringReceiptOfClientDataOnServer.
 //
 // Parameters:
-//  StartMoment - Number - 
-//  ProcedureName - String - 
+//  StartMoment - Number - CurrentUniversalDateInMilliseconds before the procedure will be called.
+//  ProcedureName - String - Full name of the called procedure
 //
 // Example:
-//	
-//	
-//		
-//			
-//			
-//		
-//	
-//		
-//	
-//	
-//		
+//	StartMoment = CurrentUniversalDateInMilliseconds();
+//	Try
+//		If CommonClient.SubsystemExists("StandardSubsystems.MonitoringCenter") Then
+//			ModuleMonitoringCenterClientInternal = CommonClient.CommonModule("MonitoringCenterClientInternal");
+//			ModuleMonitoringCenterClientInternal.BeforeRecurringClientDataSendToServer(Parameters);
+//		EndIf;
+//	Exception
+//		ServerNotificationsClient.HandleError(ErrorInformation());
+//	EndTry;
+//	ServerNotificationsClient.AddIndicator(StartMoment,
+//		"MonitoringCenterClientInternal.BeforeRecurringClientDataSendToServer");
 //
 Procedure AddIndicator(StartMoment, ProcedureName) Export
 	
@@ -111,8 +112,8 @@ EndProcedure
 
 #Region ForCallsFromOtherSubsystems
 
-// 
-// 
+// Returns the session's UUID obtained from
+// the session properties SessionStart and SessionNumber.
 //
 // Returns:
 //   See ServerNotifications.SessionKey
@@ -131,13 +132,19 @@ EndFunction
 
 // Parameters:
 //  Interval - Number
+//  ShouldReceiveImmediately - Boolean - 
+//                     
 //
-Procedure AttachServerNotificationReceiptCheckHandler(Interval = 1) Export
+Procedure AttachServerNotificationReceiptCheckHandler(Interval = 1, ShouldReceiveImmediately = False) Export
 	
 	If Interval < 1 Then
 		Interval = 1;
 	ElsIf Interval > 60 Then
 		Interval = 60;
+	EndIf;
+	
+	If ShouldReceiveImmediately Then
+		DataReceiptStatus().ShouldReceiveImmediately = True;
 	EndIf;
 	
 	AttachIdleHandler("ServerNotificationsReceiptCheckHandler", Interval);
@@ -298,6 +305,7 @@ Procedure CheckGetServerNotificationsWithIndicators(DataReceiptStatus, Indicator
 	EndIf;
 	
 	If AreNotificationsReceived
+	   And Not DataReceiptStatus.ShouldReceiveImmediately
 	   And Not ValueIsFilled(AdditionalParameters)
 	   And Not ValueIsFilled(MessagesForEventLog) Then
 		
@@ -344,6 +352,7 @@ Procedure CheckGetServerNotificationsWithIndicators(DataReceiptStatus, Indicator
 		AddMainIndicator(Indicators, StartMoment,
 			"ServerNotificationsClient.ProcessServerNotificationOnClient");
 	EndIf;
+	DataReceiptStatus.ShouldReceiveImmediately = False;
 	
 	AdditionalResults = CommonClientServer.StructureProperty(CommonCallResult,
 		"AdditionalResults", New Map);
@@ -552,7 +561,7 @@ EndFunction
 //  Structure:
 //   * LastNotificationDate - Date
 //   * AdditionalParameters - Map
-//   * MessagesForEventLog - 
+//   * MessagesForEventLog - Undefined, ValueList
 //   * ShouldSendDataRecurrently - Boolean
 //   * ShouldRegisterIndicators - Boolean
 //
@@ -567,35 +576,35 @@ EndFunction
 
 // Returns:
 //  Structure:
-//   * IsCheckAllowed - Boolean - 
+//   * IsCheckAllowed - Boolean - Is set to True in the BeforeStart procedure.
 //   * ShouldRegisterIndicators - Boolean
 //   * ServiceAdministratorSession - Boolean
-//   * IsRecurringDataSendEnabled - Boolean - 
-//   * RepeatedDateExportMinInterval - See ServerNotifications.МинимальныйИнтервалПериодическойОтправкиДанных
+//   * IsRecurringDataSendEnabled - Boolean - Is set to True in the AfterStart procedure.
 //   * SessionKey - See ServerNotifications.SessionKey
 //   * IBUserID - UUID
 //   * StatusUpdateDate - Date
 //   * LastReceivedMessageDate - Date
-//   * MinimumPeriod - Number - 
+//   * MinimumPeriod - Number - Time interval in seconds.
 //   * LastNotificationDate - Date
 //   * Notifications - See CommonOverridable.OnAddServerNotifications.Notifications
-//   * ReceivedNotifications - Array of String - 
+//   * ReceivedNotifications - Array of String - UUID strings of the received messages.
 //   * CollaborationSystemConnected - Boolean
-//   * PersonalChatID - Undefined - 
-//                                    - CollaborationSystemConversationID - 
-//        
+//   * PersonalChatID - Undefined - Chat is unavailable.
+//                                    - CollaborationSystemConversationID - ID of the chat
+//        "ServerNotifications <Infobase user ID>".
 //
-//   * GlobalChatID - Undefined - 
-//                                   - CollaborationSystemConversationID - 
-//        
+//   * GlobalChatID - Undefined - Chat is unavailable.
+//                                   - CollaborationSystemConversationID - ID of the chat
+//        "ServerNotifications".
 //   * IsNewPersonalMessageHandlerAttached - Boolean
 //   * IsNewGlobalMessageHandlerAttached - Boolean
 //   * DateOfLastServerCall - Date
 //   * CurrentSessionDateToCheckWaitingCounter - Date
 //   * WaitingCountersDateAlignmentSecondsNumber - Number
 //   * WaitCounters - Map of KeyAndValue:
-//      ** Key - String - 
-//      ** Value - Date - 
+//      ** Key - String - Counter name
+//      ** Value - Date - Last time the counter triggered.
+//   * ShouldReceiveImmediately - Boolean - 
 //
 Function NewReceiptStatus()
 	
@@ -623,6 +632,7 @@ Function NewReceiptStatus()
 	State.Insert("CurrentSessionDateToCheckWaitingCounter", '00010101');
 	State.Insert("WaitingCountersDateAlignmentSecondsNumber", 0);
 	State.Insert("WaitCounters", New Map);
+	State.Insert("ShouldReceiveImmediately", False);
 	
 	Return State;
 	

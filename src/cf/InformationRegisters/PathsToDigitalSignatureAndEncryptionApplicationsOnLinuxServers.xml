@@ -36,7 +36,7 @@
 			<Synonym>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Paths to the digital signature and encryption applications on the Linux servers</v8:content>
+					<v8:content>Path to digital signing and encryption apps on Linux server</v8:content>
 				</v8:item>
 			</Synonym>
 			<Comment/>

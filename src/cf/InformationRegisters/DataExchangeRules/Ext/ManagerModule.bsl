@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -216,11 +217,11 @@ Procedure ImportSuppliedRules(ExchangePlanName, RulesFileName) Export
 		
 EndProcedure
 
-// 
+// Imports 1C-supplied object registration rules for the given exchange plan.
 //
 // Parameters:
 //  ExchangePlanName - String - a name of the exchange plan for which the rules are being imported.
-//  RulesFileName - String - 
+//  RulesFileName - String - The full name of the object registration rules file (XML).
 //
 Procedure DownloadSuppliedObjectRegistrationRules(ExchangePlanName, RulesFileName) Export
 	
@@ -287,7 +288,7 @@ Procedure DeleteSuppliedRules(ExchangePlanName) Export
 	
 EndProcedure
 
-// 
+// Deletes 1C-supplied object registration rules for the given exchange plan (clears up data in the register).
 //
 // Parameters:
 //  ExchangePlanName - String - a name of the exchange plan for which the rules are being deleted.
@@ -805,7 +806,6 @@ EndProcedure
 //  ExchangePlanName - String - a name of the exchange plan as a metadata object.
 // 
 // Returns:
-//  ПравилаЗачитанные - ValueStorage - read object conversion rules.
 //  Undefined - if conversion rules were not imported to the base for an exchange plan.
 //
 Function ParsedRulesOfObjectConversion(Val ExchangePlanName, GetCorrespondentRules = False) Export

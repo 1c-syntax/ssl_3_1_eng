@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -17,12 +18,12 @@
 //
 // Returns:
 //  Structure:
-//      * Exists - Boolean - shows whether the component is absent.
+//      * Exists - Boolean - Add-in absence flag.
 //      * EditingAvailable - Boolean - indicates that the area administrator can change the add-in.
 //      * ErrorDescription - String - brief error message.
 //      * Id - String - the add-in identification code.
 //      * Version - String - Add-in version.
-//      * Description - String - component description and short info.
+//      * Description - String - Add-in description and brief details.
 //
 // Example:
 //

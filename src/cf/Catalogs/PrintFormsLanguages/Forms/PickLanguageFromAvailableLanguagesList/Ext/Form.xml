@@ -40,6 +40,12 @@
 					<Type>UsualButton</Type>
 					<DefaultButton>true</DefaultButton>
 					<CommandName>Form.Command.Select</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Select</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="ListChooseExtendedTooltip" id="23"/>
 				</Button>
 				<SearchStringAddition name="SearchString" id="43">
@@ -142,6 +148,12 @@
 			<ChildItems>
 				<InputField name="ListDescription" id="17" DisplayImportance="VeryHigh">
 					<DataPath>List.Description</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Language</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<Width>40</Width>
 					<ContextMenu name="ListDescriptionContextMenu" id="18"/>

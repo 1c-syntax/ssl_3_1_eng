@@ -14,6 +14,12 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.AttachAndOpen</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Attach and open</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="AttachAndOpenExtendedTooltip" id="8"/>
 			</Button>
 			<Button name="Close" id="11">
@@ -37,6 +43,12 @@
 	<ChildItems>
 		<InputField name="NameOfDataProcessorFile" id="1">
 			<DataPath>NameOfDataProcessorFile</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>External report or data processor</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>Top</TitleLocation>
 			<Width>60</Width>
 			<ChoiceButton>true</ChoiceButton>
@@ -49,6 +61,12 @@
 		</InputField>
 		<InputField name="SafeMode" id="4">
 			<DataPath>SafeMode</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Safe mode for connection</v8:content>
+				</v8:item>
+			</Title>
 			<ContextMenu name="SafeModeContextMenu" id="5"/>
 			<ExtendedTooltip name="SafeModeExtendedTooltip" id="6"/>
 		</InputField>

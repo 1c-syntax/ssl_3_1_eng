@@ -50,27 +50,57 @@
 							<Type>CommandBarButton</Type>
 							<DefaultButton>true</DefaultButton>
 							<CommandName>Form.Command.Select</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Select</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="SelectExtendedTooltip" id="108"/>
 						</Button>
 						<Button name="SelectAllItems" id="79">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.SelectAllItems</CommandName>
-							<ExtendedTooltip name="SelectAll2ExtendedTooltip" id="109"/>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Select all</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="SelectAllItemsExtendedTooltip" id="109"/>
 						</Button>
 						<Button name="ClearAllIetms" id="80">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.ClearAllIetms</CommandName>
-							<ExtendedTooltip name="ClearAll5ExtendedTooltip" id="110"/>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Clear all</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="ClearAllIetmsExtendedTooltip" id="110"/>
 						</Button>
 						<Button name="Open" id="61">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.Open</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Open</v8:content>
+								</v8:item>
+							</Title>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 							<ExtendedTooltip name="OpenExtendedTooltip" id="111"/>
 						</Button>
 						<Button name="FormRefresh" id="182">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.Refresh</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Refresh</v8:content>
+								</v8:item>
+							</Title>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 							<ExtendedTooltip name="FormRefreshExtendedTooltip" id="183"/>
 						</Button>
@@ -137,7 +167,7 @@
 										</v8:item>
 									</Title>
 									<PagesRepresentation>TabsOnTop</PagesRepresentation>
-									<ExtendedTooltip name="SettingsTypesExtendedTooltip" id="112"/>
+									<ExtendedTooltip name="SettingsKindsExtendedTooltip" id="112"/>
 									<Events>
 										<Event name="OnCurrentPageChange">OnCurrentPageChange</Event>
 									</Events>
@@ -191,6 +221,12 @@
 															<Button name="InterfaceContextMenuOpen" id="76">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.Open</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Open</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="InterfaceContextMenuOpenExtendedTooltip" id="114"/>
 															</Button>
 															<Button name="InterfaceContextMenuCopyToClipboard" id="56">
@@ -254,6 +290,12 @@
 															<ChildItems>
 																<CheckBoxField name="InterfaceCheck" id="83">
 																	<DataPath>Interface.Check</DataPath>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Checkmark</v8:content>
+																		</v8:item>
+																	</Title>
 																	<HorizontalAlign>Left</HorizontalAlign>
 																	<EditMode>EnterOnInput</EditMode>
 																	<ThreeState>true</ThreeState>
@@ -266,6 +308,12 @@
 																<PictureField name="InterfacePicture" id="36">
 																	<DataPath>Interface.Picture</DataPath>
 																	<ReadOnly>true</ReadOnly>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Picture</v8:content>
+																		</v8:item>
+																	</Title>
 																	<TitleLocation>None</TitleLocation>
 																	<HorizontalAlign>Left</HorizontalAlign>
 																	<EditMode>EnterOnInput</EditMode>
@@ -275,11 +323,17 @@
 																</PictureField>
 																<LabelField name="InterfacePreferences" id="32">
 																	<DataPath>Interface.Setting</DataPath>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Setting</v8:content>
+																		</v8:item>
+																	</Title>
 																	<TitleLocation>None</TitleLocation>
 																	<HorizontalAlign>Left</HorizontalAlign>
 																	<EditMode>EnterOnInput</EditMode>
 																	<ContextMenu name="InterfaceSettingsContextMenu" id="33"/>
-																	<ExtendedTooltip name="InterfaceSettingsExtendedTooltip" id="122"/>
+																	<ExtendedTooltip name="InterfacePreferencesExtendedTooltip" id="122"/>
 																</LabelField>
 															</ChildItems>
 														</ColumnGroup>
@@ -335,6 +389,12 @@
 															<Button name="ReportSettingsTreeContextMenuOpen" id="65">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.Open</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Open</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="ReportSettingsTreeContextMenuOpenExtendedTooltip" id="124"/>
 															</Button>
 															<Button name="ReportSettingsTreeContextMenuSelectAll" id="53">
@@ -398,6 +458,12 @@
 															<ChildItems>
 																<CheckBoxField name="Check" id="81">
 																	<DataPath>ReportsSettings.Check</DataPath>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Checkmark</v8:content>
+																		</v8:item>
+																	</Title>
 																	<HorizontalAlign>Left</HorizontalAlign>
 																	<EditMode>EnterOnInput</EditMode>
 																	<ThreeState>true</ThreeState>
@@ -410,6 +476,12 @@
 																<PictureField name="Picture" id="26">
 																	<DataPath>ReportsSettings.Picture</DataPath>
 																	<ReadOnly>true</ReadOnly>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Picture</v8:content>
+																		</v8:item>
+																	</Title>
 																	<TitleLocation>None</TitleLocation>
 																	<HorizontalAlign>Left</HorizontalAlign>
 																	<EditMode>Directly</EditMode>
@@ -419,6 +491,12 @@
 																</PictureField>
 																<LabelField name="Settings" id="22">
 																	<DataPath>ReportsSettings.Setting</DataPath>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Setting</v8:content>
+																		</v8:item>
+																	</Title>
 																	<TitleLocation>None</TitleLocation>
 																	<HorizontalAlign>Left</HorizontalAlign>
 																	<EditMode>EnterOnInput</EditMode>
@@ -481,6 +559,12 @@
 															<Button name="OtherSettingsContextMenuOpen" id="100">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.Open</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Open</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="OtherSettingsContextMenuOpenExtendedTooltip" id="134"/>
 															</Button>
 															<Button name="OtherSettingsContextMenuCopyToClipboard" id="98">
@@ -545,6 +629,12 @@
 															<ChildItems>
 																<CheckBoxField name="OtherSettingsCheck" id="95">
 																	<DataPath>OtherSettings.Check</DataPath>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Checkmark</v8:content>
+																		</v8:item>
+																	</Title>
 																	<TitleLocation>None</TitleLocation>
 																	<HorizontalAlign>Left</HorizontalAlign>
 																	<EditMode>EnterOnInput</EditMode>
@@ -558,6 +648,12 @@
 																<PictureField name="OtherSettingsPicture" id="91">
 																	<DataPath>OtherSettings.Picture</DataPath>
 																	<ReadOnly>true</ReadOnly>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Picture</v8:content>
+																		</v8:item>
+																	</Title>
 																	<TitleLocation>None</TitleLocation>
 																	<HorizontalAlign>Left</HorizontalAlign>
 																	<EditMode>EnterOnInput</EditMode>
@@ -567,6 +663,12 @@
 																</PictureField>
 																<LabelField name="OtherSettingsSetting" id="89">
 																	<DataPath>OtherSettings.Setting</DataPath>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Setting</v8:content>
+																		</v8:item>
+																	</Title>
 																	<TitleLocation>None</TitleLocation>
 																	<HorizontalAlign>Left</HorizontalAlign>
 																	<EditMode>EnterOnInput</EditMode>
@@ -964,7 +1066,7 @@
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
-		<Attribute name="ExecutionResult" id="17">
+		<Attribute name="JobID" id="17">
 			<Type/>
 		</Attribute>
 		<Attribute name="SettingsSearch" id="18">

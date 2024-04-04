@@ -22,11 +22,23 @@
 				<DefaultButton>true</DefaultButton>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.OKButton</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>OK</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="OKExtendedTooltip" id="43"/>
 			</Button>
 			<Button name="CancelButton" id="34">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.CancelButton</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Cancel</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="CancelButtonExtendedTooltip" id="44"/>
 			</Button>
 		</ChildItems>
@@ -40,6 +52,12 @@
 	<ChildItems>
 		<RadioButtonField name="ProxyServerUseCases" id="20">
 			<DataPath>ProxyServerUseCase</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Proxy server usage option</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>None</TitleLocation>
 			<RadioButtonType>Auto</RadioButtonType>
 			<ColumnsCount>1</ColumnsCount>
@@ -117,6 +135,12 @@
 					<ChildItems>
 						<InputField name="ProxyServer" id="9">
 							<DataPath>Server</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Server address</v8:content>
+								</v8:item>
+							</Title>
 							<ToolTip>
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -129,6 +153,12 @@
 						</InputField>
 						<InputField name="Port" id="1">
 							<DataPath>Port</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Port</v8:content>
+								</v8:item>
+							</Title>
 							<ToolTip>
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -208,7 +238,7 @@
 									<v8:item>
 										<v8:lang>en</v8:lang>
 										<v8:content>- Basic authentication
-- Operating system authentication (NTLM authentication),
+- Operating system authentication (NTLM Integrated Windows),
  available only on Windows</v8:content>
 									</v8:item>
 								</Title>
@@ -216,6 +246,12 @@
 						</InputField>
 						<InputField name="User" id="5">
 							<DataPath>User</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>User</v8:content>
+								</v8:item>
+							</Title>
 							<ToolTip>
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -228,6 +264,12 @@
 						</InputField>
 						<InputField name="Password" id="3">
 							<DataPath>Password</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Password</v8:content>
+								</v8:item>
+							</Title>
 							<ToolTip>
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -251,10 +293,16 @@
 					<Behavior>Usual</Behavior>
 					<Representation>NormalSeparation</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="AdditionalParametersGroup1ExtendedTooltip" id="53"/>
+					<ExtendedTooltip name="AdditionalParametersGroupExtendedTooltip" id="53"/>
 					<ChildItems>
 						<CheckBoxField name="BypassProxyOnLocal" id="11">
 							<DataPath>BypassProxyOnLocal</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Bypass proxy for local addresses</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<CheckBoxType>Auto</CheckBoxType>
 							<ContextMenu name="BypassProxyOnLocalContextMenu" id="12"/>
@@ -264,6 +312,12 @@
 							<Type>UsualButton</Type>
 							<GroupHorizontalAlign>Right</GroupHorizontalAlign>
 							<CommandName>Form.Command.AdditionalProxyServerParameters</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Additional info</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="AdditionalProxyServerParametersExtendedTooltip" id="56"/>
 						</Button>
 					</ChildItems>

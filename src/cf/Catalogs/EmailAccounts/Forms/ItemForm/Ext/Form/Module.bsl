@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -629,6 +630,11 @@ EndProcedure
 Procedure FillSettings()
 	
 	CanReceiveEmails = EmailOperationsInternal.SubsystemSettings().CanReceiveEmails;
+	ShouldUsePOP3Protocol = EmailOperationsInternal.SubsystemSettings().ShouldUsePOP3Protocol;
+	If Not ShouldUsePOP3Protocol And (Object.ProtocolForIncomingMail = "IMAP" Or Object.Ref.IsEmpty()) Then
+		Object.ProtocolForIncomingMail = "IMAP";
+		Items.Protocol.Visible = False;
+	EndIf;
 	Items.KeepMessagesOnServer.Visible = Object.ProtocolForIncomingMail = "POP" And CanReceiveEmails;
 	
 	Items.IncomingMailServer.Title = StringFunctionsClientServer.SubstituteParametersToString(

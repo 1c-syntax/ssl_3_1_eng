@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -786,13 +787,13 @@ Function PopulatedPossibleSessionPermissions()
 	
 EndFunction
 
-// 
-// 
+// Intended for procedure "AccessManagementInternalCached.AvailableSessionRightsDetailsForObjectsRightSettings".
+// See also "AccessManagementOverridable.OnFillAvailableRightsForObjectsRightsSettings".
 //
 // Parameters:
 //  AccessKindsProperties - See AccessManagementInternal.AccessKindsProperties
 //                       - Undefined.
-//  HashSum - String -  the return value.
+//  HashSum - String - Return value.
 //
 // Returns:
 //   See AccessManagementInternal.RightsForObjectsRightsSettingsAvailable
@@ -1017,8 +1018,8 @@ Function CheckedPossibleSessionPermissions(AccessKindsProperties = Undefined, Ha
 			EndIf;
 		EndDo;
 		
-		
-		OwnerSLinkType = TypeOf(ListItem.Value);
+		// Commit and add a version string.
+		OwnerRefType = TypeOf(ListItem.Value);
 		OwnerRights = New FixedMap(OwnerProperties.OwnerRights);
 		OwnerRightsArray = New FixedArray(OwnerProperties.OwnerRightsArray);
 		ByFullNames.Insert(ListItem.Presentation, OwnerRights);
@@ -1027,15 +1028,15 @@ Function CheckedPossibleSessionPermissions(AccessKindsProperties = Undefined, Ha
 		ByTypes.Insert(ObjectType, OwnerRights);
 		
 		VersionDetails.VersionProperties.Add("");
-		RightsHolderAdded = False;
-		OwnerRights = ByRefsTypes.Get(OwnerSLinkType);
+		IsRightsOwnerAdded = False;
+		OwnerRights = ByRefsTypes.Get(OwnerRefType);
 		For Each RightProperties In OwnerRightsArray Do
-			If Not RightsHolderAdded Then
+			If Not IsRightsOwnerAdded Then
 				AddVersionItem(VersionDetails, "RightsOwner", RightProperties.RightsOwner);
-				AddVersionItem(VersionDetails, "RightsOwnerType", OwnerSLinkType);
-				AddVersionItem(VersionDetails, "HierarchyOfRightsHolders",
-					HierarchicalTables.Get(OwnerSLinkType) <> Undefined);
-				RightsHolderAdded = True;
+				AddVersionItem(VersionDetails, "RightsOwnerType", OwnerRefType);
+				AddVersionItem(VersionDetails, "RightsOwnerHierarchy",
+					HierarchicalTables.Get(OwnerRefType) <> Undefined);
+				IsRightsOwnerAdded = True;
 				VersionDetails.VersionProperties.Add("");
 			EndIf;
 			AddVersionItem(VersionDetails, "Name", RightProperties.Name);
@@ -1123,7 +1124,7 @@ Function AvailableRightProperties(AvailableRight, RightIndex) Export
 	
 EndFunction
 
-// 
+// Intended for function "AvailableRightProperties".
 Function SortedFixedArray(SourceArray)
 	
 	List = New ValueList;

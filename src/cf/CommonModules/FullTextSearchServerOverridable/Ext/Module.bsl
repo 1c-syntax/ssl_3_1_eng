@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -19,8 +20,9 @@
 //   SearchSections - ValueTree - Search locations. Contains the following columns:
 //     * Section   - String   - section presentation, for example, a name of a subsystem or metadata object.
 //     * Picture - Picture - a section picture; recommended only for root sections.
-//     * MetadataObjectsList - CatalogRef.MetadataObjectIDs - specified only for metadata objects,
-//                             leave it blank for sections.
+//     * MetadataObjectsList - CatalogRef.MetadataObjectIDs,
+//                  CatalogRef.ExtensionObjectIDs - Required for metadata objects only.
+//                                                                      Must be empty for sections.
 // Example:
 //
 //	SectionMain = SearchSections.Rows.Add();
@@ -32,8 +34,8 @@
 //		And Common.MetadataObjectAvailableByFunctionalOptions(ProformaInvoice) Then 
 //		
 //		SectionObject = SectionMain.Rows.Add();
-//		SectionObject.Section= ProformaInvoice.ListPresentation;
-//		SectionObject.MetadataObject= Common.MetadataObjectID(ProformaInvoice);
+//		SectionObject.Section = ProformaInvoice.ListPresentation;
+//		SectionObject.MetadataObject = Common.MetadataObjectID(ProformaInvoice);
 //	EndIf;
 //
 Procedure OnGetFullTextSearchSections(SearchSections) Export

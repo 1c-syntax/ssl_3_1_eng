@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -21,7 +22,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	ClientID = Parameters.ClientID;
 	UserScanSettings = FilesOperations.GetUserScanSettings(ClientID);
 	FillPropertyValues(ThisObject, UserScanSettings);
-	Items.ScanLogDirectory.Enabled = UseScanLogDirectory;
+	If DeviceName <> "" Then
+		Items.DeviceName.ChoiceList.Add(DeviceName);
+	EndIf;
+	Items.ScanLogCatalog.Enabled = UseScanLogDirectory;
 			
 	MethodOfConversionToPDF = ?(UseImageMagickToConvertToPDF, 1, 0);
 		
@@ -45,7 +49,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.OK.Title = NStr("en = 'Scan';");
 	EndIf;
 	
-	ScanJobParameters = CommonServerCall.CommonSettingsStorageLoad("ScanningComponent", "ScanJobParameters", Undefined);
+	ScanJobParameters = CommonServerCall.CommonSettingsStorageLoad("ScanAddIn", "ScanJobParameters", Undefined);
 	
 	Items.ScanningError.Visible = ScanJobParameters <> Undefined;
 	
@@ -53,9 +57,13 @@ EndProcedure
 
 &AtClient
 Procedure OnOpen(Cancel)
+	If CommonClient.IsLinuxClient() Then
+		AdaptForLinux();
+		ShowScannerDialog = False;
+	EndIf;
 	RefreshStatus();
-	ProcessUseOfScanDialog();
-	Items.ScanningError.Visible = Items.ScanningError.Visible And Not ScanFormIsOpen();
+	ProcessScanDialogUsage();
+	Items.ScanningError.Visible = Items.ScanningError.Visible And Not IsScanFormOpen();
 EndProcedure
 
 &AtServer
@@ -63,6 +71,13 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	If ShowScannerDialog Then
 		CheckedAttributes.Delete(CheckedAttributes.Find("Resolution"));
 		CheckedAttributes.Delete(CheckedAttributes.Find("Chromaticity"));
+	EndIf;
+EndProcedure
+
+&AtClient
+Procedure NotificationProcessing(EventName, Parameter, Source)
+	If EventName = "ScanSettingsChanged" Then
+		FillPropertyValues(ThisObject, Parameter);
 	EndIf;
 EndProcedure
 
@@ -144,22 +159,22 @@ EndProcedure
 &AtClient
 Procedure ShowScannerDialogOnChange(Item)
 	
-	ProcessUseOfScanDialog();
+	ProcessScanDialogUsage();
 	
 EndProcedure
 
 &AtClient
 Procedure ScanErrorTextURLProcessing(Item, FormattedStringURL, StandardProcessing)
 	If FormattedStringURL = "TechnicalInformation" Then
-		AfterReceivingTechnicalInformation = New NotifyDescription("AfterReceivingTechnicalInformation", ThisObject);
+		AfterTechnicalInfoReceived = New NotifyDescription("AfterTechnicalInfoReceived", ThisObject);
 		FilesOperationsInternalClient.GetTechnicalInformation(NStr("en = 'The last scan attempt failed.';"), 
-			AfterReceivingTechnicalInformation);
+			AfterTechnicalInfoReceived);
 		StandardProcessing = False;
 	EndIf;
 EndProcedure
 
 &AtClient
-Procedure ScanLogDirectoryStartChoice(Item, ChoiceData, StandardProcessing)
+Procedure ScanLogCatalogStartChoice(Item, ChoiceData, StandardProcessing)
 
 	If Not FilesOperationsInternalClient.FileSystemExtensionAttached1() Then
 		Return;
@@ -168,19 +183,27 @@ Procedure ScanLogDirectoryStartChoice(Item, ChoiceData, StandardProcessing)
 	StandardProcessing = False;
 	
 	OpenFileDialog = New FileDialog(FileDialogMode.ChooseDirectory);
-	OpenFileDialog.FullFileName = ScanLogDirectory;
+	OpenFileDialog.FullFileName = ScanLogCatalog;
 	OpenFileDialog.Multiselect = False;
 	OpenFileDialog.Title = NStr("en = 'Select a path to save the scan log';");
 	
 	If OpenFileDialog.Choose() Then
-		ScanLogDirectory = OpenFileDialog.Directory;
+		ScanLogCatalog = OpenFileDialog.Directory;
+		Modified = True;
 	EndIf;
-
+	
 EndProcedure
 
 &AtClient
 Procedure UseScanLogDirectoryOnChange(Item)
-	Items.ScanLogDirectory.Enabled = UseScanLogDirectory;
+	Items.ScanLogCatalog.Enabled = UseScanLogDirectory;
+EndProcedure
+
+&AtClient
+Procedure InformationForTechnicalSupportClick(Item)
+	AfterTechnicalInfoReceived = New NotifyDescription("AfterTechnicalInfoReceived", ThisObject);
+		FilesOperationsInternalClient.GetTechnicalInformation(NStr("en = 'Send technical information from the setting form.';"), 
+			AfterTechnicalInfoReceived);
 EndProcedure
 
 #EndRegion
@@ -198,22 +221,30 @@ Procedure OK(Command)
 	UserScanSettings = FilesOperationsClientServer.UserScanSettings();
 	FillPropertyValues(UserScanSettings, ThisObject);
 	
-	If UserScanSettings.UseImageMagickToConvertToPDF Then
-		If Not ValueIsFilled(UserScanSettings.PathToConverterApplication) Then
-			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Path to the %1 application is not specified.';"), 
-			"ImageMagick");
-			CommonClient.MessageToUser(ErrorText, , "PathToConverterApplication");
-			Return;
-		Else
-			Context = New Structure;
-			CheckResultHandler = New NotifyDescription("AfterCheckInstalledConversionApp", ThisObject, 
-				UserScanSettings);
-			FilesOperationsClient.StartCheckConversionAppPresence(UserScanSettings.PathToConverterApplication, 
-				CheckResultHandler);
-			Return;
-		EndIf;
+	If CommonClient.IsLinuxClient() Then
+		UserScanSettings.PathToConverterApplication = "convert";
 	EndIf;
-	OKCompletion(UserScanSettings);
+	
+	Context = New Structure;
+	Context.Insert("UserScanSettings", UserScanSettings);
+	Context.Insert("FillingCheckError", False);
+	
+	If UserScanSettings.UseScanLogDirectory Then
+		If UserScanSettings.ScanLogCatalog = "" Then
+			ErrorText = NStr("en = 'Path to scan log is not specified.';");
+			CommonClient.MessageToUser(ErrorText, , "ScanLogCatalog");
+			Context.FillingCheckError = True;
+			Result = New Structure("Success", True);
+			AfterScanDirAvailabilityChecked(Result, Context)
+		Else
+			Notification = New NotifyDescription("AfterScanDirAvailabilityChecked", ThisObject, Context);
+			FilesOperationsInternalClient.CheckDirAvailability(Notification, UserScanSettings.ScanLogCatalog);
+		EndIf;
+	Else
+		Result = New Structure("Success", True);
+		AfterScanDirAvailabilityChecked(Result, Context);
+	EndIf;
+	
 EndProcedure
 
 &AtClient
@@ -284,13 +315,13 @@ Procedure UpdateStateAfterInitialization(InitializationCheckResult, Context) Exp
 	Items.MethodOfConversionToPDF.Enabled = True;
 	Items.ShowScannerDialog.Enabled = True;
 	
-	DuplexScanningNumber = FilesOperationsInternalClient.ConfiguringScanner(ThisObject, Attachable_Module, 
+	DuplexScanningNumber = FilesOperationsInternalClient.ScannerSetting(ThisObject, Attachable_Module, 
 		DeviceName, "DUPLEX");
-	PermissionNumber = FilesOperationsInternalClient.ConfiguringScanner(ThisObject, Attachable_Module, 
+	PermissionNumber = FilesOperationsInternalClient.ScannerSetting(ThisObject, Attachable_Module, 
 		DeviceName, "XRESOLUTION");
-	RotationNumber = FilesOperationsInternalClient.ConfiguringScanner(ThisObject, Attachable_Module, 
+	RotationNumber = FilesOperationsInternalClient.ScannerSetting(ThisObject, Attachable_Module, 
 		DeviceName, "ROTATION");
-	PaperSizeNumber  = FilesOperationsInternalClient.ConfiguringScanner(ThisObject, Attachable_Module, 
+	PaperSizeNumber  = FilesOperationsInternalClient.ScannerSetting(ThisObject, Attachable_Module, 
 		DeviceName, "SUPPORTEDSIZES");
 	
 	Items.DuplexScanning.Enabled = (DuplexScanningNumber <> -1);
@@ -321,15 +352,15 @@ Procedure ReadScannerSettings()
 		Items.ShowScannerDialog.Enabled = True;
 	EndIf;
 	
-	PermissionNumber = FilesOperationsInternalClient.ConfiguringScanner(ThisObject, Attachable_Module,
+	PermissionNumber = FilesOperationsInternalClient.ScannerSetting(ThisObject, Attachable_Module,
 		DeviceName, "XRESOLUTION");
-	ChromaticityNumber = FilesOperationsInternalClient.ConfiguringScanner(ThisObject, Attachable_Module,
+	ChromaticityNumber = FilesOperationsInternalClient.ScannerSetting(ThisObject, Attachable_Module,
 		DeviceName, "PIXELTYPE");
-	RotationNumber = FilesOperationsInternalClient.ConfiguringScanner(ThisObject, Attachable_Module,
+	RotationNumber = FilesOperationsInternalClient.ScannerSetting(ThisObject, Attachable_Module,
 		DeviceName, "ROTATION");
-	PaperSizeNumber = FilesOperationsInternalClient.ConfiguringScanner(ThisObject, Attachable_Module,
+	PaperSizeNumber = FilesOperationsInternalClient.ScannerSetting(ThisObject, Attachable_Module,
 		DeviceName, "SUPPORTEDSIZES");
-	DuplexScanningNumber = FilesOperationsInternalClient.ConfiguringScanner(ThisObject, Attachable_Module,
+	DuplexScanningNumber = FilesOperationsInternalClient.ScannerSetting(ThisObject, Attachable_Module,
 		DeviceName, "DUPLEX");
 	
 	Items.Rotation.Enabled = (RotationNumber <> -1);
@@ -341,7 +372,7 @@ Procedure ReadScannerSettings()
 	ConvertScannerParametersToEnums(
 		PermissionNumber, ChromaticityNumber, RotationNumber, PaperSizeNumber);
 		
-	ProcessUseOfScanDialog();
+	ProcessScanDialogUsage();
 EndProcedure
 
 &AtServer
@@ -388,18 +419,18 @@ Procedure OKCompletion(UserScanSettings)
 EndProcedure
 
 &AtClient
-Procedure AfterCheckInstalledConversionApp(RunResult, UserScanSettings) Export
-	If StrFind(RunResult.OutputStream, "ImageMagick") <> 0 Then
-		OKCompletion(UserScanSettings);
-	Else
+Procedure AfterCheckInstalledConversionApp(RunResult, ExternalContext) Export
+	If StrFind(RunResult.OutputStream, "ImageMagick") = 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Specified path to the %1 application is incorrect.';"), "ImageMagick"); 
 		CommonClient.MessageToUser(MessageText, , "PathToConverterApplication");
+	ElsIf Not ExternalContext.FillingCheckError Then
+		OKCompletion(ExternalContext.UserScanSettings);
 	EndIf;
 EndProcedure
 
 &AtClient
-Procedure ProcessUseOfScanDialog()
+Procedure ProcessScanDialogUsage()
 	
 	Items.ScanningParametersGroup.Enabled = Not ShowScannerDialog;
 	Items.ScannedImageFormat.Enabled = Not ShowScannerDialog;
@@ -417,10 +448,10 @@ Procedure UpdateValue(Receiver, Source, Modified)
 EndProcedure
 
 &AtClient
-Function ScanFormIsOpen()
+Function IsScanFormOpen()
 	For Each ClientApplicationWindow In GetWindows() Do
-		For Each WindowContents In ClientApplicationWindow.Content Do
-			If WindowContents.FormName = "DataProcessor.Scanning.Form.ScanningResult" Then
+		For Each WindowContent In ClientApplicationWindow.Content Do
+			If WindowContent.FormName = "DataProcessor.Scanning.Form.ScanningResult" Then
 				Return True;
 			EndIf;
 		EndDo;
@@ -429,8 +460,58 @@ Function ScanFormIsOpen()
 EndFunction
 
 &AtClient
-Procedure AfterReceivingTechnicalInformation(Result, Context) Export
+Procedure AfterTechnicalInfoReceived(Result, Context) Export
 	Items.ScanningError.Visible = False;
+EndProcedure
+
+&AtServer
+Procedure AdaptForLinux()
+	Items.ShowScannerDialog.Visible = False;
+	Items.Rotation.Visible = False;
+	AvailableFormats = New Array;
+	AvailableFormats.Add(Enums.ScannedImageFormats.PNG);
+	AvailableFormats.Add(Enums.ScannedImageFormats.JPG);
+	Items.ScannedImageFormat.ChoiceList.LoadValues(AvailableFormats);
+	Items.ScannedImageFormat.ListChoiceMode = True;
+	If AvailableFormats.Find(ScannedImageFormat) = Undefined Then
+		ScannedImageFormat = Enums.ScannedImageFormats.PNG;
+		Modified = True;
+	EndIf;
+	Items.PathToConverterApplication.Visible = False; 
+EndProcedure
+
+&AtClient
+Procedure AfterScanDirAvailabilityChecked(Result, ExternalContext) Export
+	
+	UserScanSettings = ExternalContext.UserScanSettings;
+	FillingCheckError = ExternalContext.FillingCheckError;
+	
+	If Not Result.Success Then
+		ErrorText = NStr("en = 'Cannot write to the specified directory. Choose another directory.';");
+		CommonClient.MessageToUser(ErrorText, , "ScanLogCatalog");
+		FillingCheckError = True;
+	EndIf;
+	
+	If UserScanSettings.UseImageMagickToConvertToPDF Then
+		If Not ValueIsFilled(UserScanSettings.PathToConverterApplication) Then
+			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Path to ""%1"" is not specified.';"), 
+			"ImageMagick");
+			CommonClient.MessageToUser(ErrorText, , "PathToConverterApplication");
+			FillingCheckError = True;
+		Else
+			Context = New Structure;
+			Context.Insert("Context", UserScanSettings);
+			Context.Insert("FillingCheckError", FillingCheckError);
+			Context.Insert("UserScanSettings", UserScanSettings);
+			CheckResultHandler = New NotifyDescription("AfterCheckInstalledConversionApp", ThisObject, 
+				Context);
+			FilesOperationsClient.StartCheckConversionAppPresence(UserScanSettings.PathToConverterApplication, 
+				CheckResultHandler);
+		EndIf;
+	ElsIf Not FillingCheckError Then
+		OKCompletion(UserScanSettings); 
+	EndIf;
+	
 EndProcedure
 
 #EndRegion

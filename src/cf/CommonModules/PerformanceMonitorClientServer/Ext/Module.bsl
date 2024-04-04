@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Private
@@ -164,9 +165,9 @@ Function AddCompositionItem(AreaToAddTo,
 		Item.Use = Use;
 	EndIf;
 	
-	
-	
-	
+	// 
+	// 
+	// 
 	If UserSettingID <> Undefined Then
 		Item.UserSettingID = UserSettingID;
 	ElsIf Item.ViewMode <> DataCompositionSettingsItemViewMode.Inaccessible Then
@@ -300,10 +301,10 @@ EndProcedure
 //       QuickAccess - in the Quick Settings bar on top of the list;
 //       Normal       - in the list settings (submenu More);
 //       Inaccessible   - prevent users from changing the filter.
-//   UserSettingID - String - 
-//       
+//   UserSettingID - String - Filter UUID.
+//       Intended for associating it with user settings.
 //
-// :
+// See the properties of "DataCompositionFilterItem" in Syntax Assistance.:
 //   
 //
 Procedure SetDynamicListFilterItem(DynamicList, FieldName,
@@ -402,8 +403,8 @@ Function OnlyNumbersInString(Val CheckString, Val IncludingLeadingZeros = True, 
 		CheckString = Mid(CheckString, Position);
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	Return StrLen(
 		StrReplace( StrReplace( StrReplace( StrReplace( StrReplace(
 		StrReplace( StrReplace( StrReplace( StrReplace( StrReplace( 
@@ -432,8 +433,8 @@ Function OnlyLatinInString(Val CheckString, Val WithWordSeparators = True, Allow
 	EndIf;
 	
 	ValidCharCodes = New Array;
-	ValidCharCodes.Add(1105); 
-	ValidCharCodes.Add(1025); // "ё"
+	ValidCharCodes.Add(1105); // 
+	ValidCharCodes.Add(1025); 
 	
 	For IndexOf = 1 To StrLen(AllowedChars) Do
 		ValidCharCodes.Add(CharCode(Mid(AllowedChars, IndexOf, 1)));
@@ -511,8 +512,8 @@ Function IsWordSeparator(CharCode, WordSeparators = Undefined)
 	Ranges.Add(New Structure("Min,Max", 65, 90)); 		// Uppercase Latin characters.
 	Ranges.Add(New Structure("Min,Max", 97, 122)); 		// Lowercase Latin characters.
 	Ranges.Add(New Structure("Min,Max", 1040, 1103)); 	// Cyrillic characters.
-	Ranges.Add(New Structure("Min,Max", 1025, 1025)); 	// Cyrillic letter "Ё".
-	Ranges.Add(New Structure("Min,Max", 1105, 1105)); 	// Cyrillic letter "Ё".
+	Ranges.Add(New Structure("Min,Max", 1025, 1025)); 	
+	Ranges.Add(New Structure("Min,Max", 1105, 1105)); 	
 	Ranges.Add(New Structure("Min,Max", 95, 95)); 		// Underline ( _ ) character.
 	
 	For Each Span In Ranges Do

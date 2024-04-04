@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -20,7 +21,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Common.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService")
 		And DigitalSignatureInternal.UseCloudSignatureService() Then
-		Items.Application.Title = NStr("en = 'Application or service';");
+		Items.Application.Title = NStr("en = 'App or service';");
 	EndIf;
 	
 	If Not ValueIsFilled(Object.Ref) Then
@@ -50,7 +51,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	BuiltinCryptoprovider = DigitalSignatureInternal.BuiltinCryptoprovider();
 	UpdateItemVisibilityEnterPasswordInElectronicSignatureProgram(ThisObject);
 	
-	HasCompanies = Not Metadata.DefinedTypes.Organization.Type.ContainsType(Type("String"));
+	HasCompanies = DigitalSignature.CommonSettings().IsCompanyUsed;
+	Items.GroupInidividual.Visible = DigitalSignature.CommonSettings().IndividualUsed;
 	OnCreateAtServerOnReadAtServer();
 	
 	If Items.FieldsAutoPopulatedFromCertificateData.Visible Then
@@ -348,12 +350,12 @@ Procedure CertificateRevoked(Command)
 	
 	If Not Object.Revoked Then
 		TheDescriptionIsAsFollows = New NotifyDescription("AfterAnsweringQuestionCertificateRevoked", ThisObject);
-		ShowQueryBox(TheDescriptionIsAsFollows, NStr("en = 'Certificate will be marked as revoked and you will not be able to use it for signing in the application. 
-		|It is recommended to select this flag when the certificate revocation application has been submitted but has not been executed yet.
+		ShowQueryBox(TheDescriptionIsAsFollows, NStr("en = 'The certificate will be marked as revoked, and you will not be able to use it for signing.
+		|Select this flag when the certificate revocation application is submitted but not fulfilled.
 		|Continue?';"), QuestionDialogMode.YesNo);
 	Else
 		TheDescriptionIsAsFollows = New NotifyDescription("AfterAnsweringQuestionCertificateRevoked", ThisObject);
-		ShowQueryBox(TheDescriptionIsAsFollows, NStr("en = 'If a certificate is revoked by a certificate authority, you will not be able to sign with this certificate even if you clear the mark in the application.
+		ShowQueryBox(TheDescriptionIsAsFollows, NStr("en = 'If a certificate is revoked by the certificate authority, you will not be able to use it for signing even after clearing the checkmark.
 		|Continue?';"), QuestionDialogMode.YesNo);
 	EndIf;
 	
@@ -470,15 +472,15 @@ Procedure OnCreateAtServerOnReadAtServer()
 			Items.Individual.ReadOnly       =  ValueIsFilled(Object.Individual);
 			Items.PickIndividual.Enabled =  Not Items.Individual.ReadOnly;
 			If Not ThisIsTheAuthor Then
-				
-				
+				// 
+				// 
 				Items.Users.ReadOnly = True;
 				Items.Users.OpenButton = True;
 			EndIf;
 		EndIf;
 	EndIf;
 	
-	HasCompanies = Not Metadata.DefinedTypes.Organization.Type.ContainsType(Type("String"));
+	HasCompanies = DigitalSignature.CommonSettings().IsCompanyUsed;
 	Items.Organization.Visible = HasCompanies;
 	
 	If Not ValueIsFilled(CertificateAddress) Then
@@ -636,7 +638,7 @@ Procedure RefreshVisibilityWarnings(Val CryptoCertificate = Undefined)
 		
 		Items.GroupWarning.Visible = True;
 		Items.Warning.Title = 
-			NStr("en = 'The certificate is marked as revoked in the application. Signatures created by this certificate are considered valid if they contain a timestamp added before the certificate revocation date. To find out the revocation reason and date, contact the certificate authority that issued the certificate.';");
+			NStr("en = 'The certificate is marked as revoked: signatures created with it are valid if their timestamp date is earlier than the revocation date. To find out the revocation reason and date, contact the issuing authority.';");
 		Items.SigningAllowed.Visible = False;
 	
 	ElsIf Object.ValidBefore > CurrentSessionDate() Then
@@ -767,8 +769,8 @@ Procedure AfterChangingThePINCode(CallResult, AdditionalParameters) Export
 		ShowMessageBox(Undefined, 
 				NStr("en = 'PIN is successfully changed.';", CommonClient.DefaultLanguageCode()), 30);
 				
-	ElsIf Not TheDSSCryptographyServiceModuleClientServer.ThisIsFailureError(CallResult.Error) Then
-		TheDSSCryptographyServiceModuleClient.OutputError(Undefined, CallResult.Error);
+	ElsIf Not TheDSSCryptographyServiceModuleClientServer.ThisIsFailureError(CallResult.ErrorStatus) Then
+		TheDSSCryptographyServiceModuleClient.OutputError(Undefined, CallResult.ErrorStatus);
 		
 	EndIf;
 	

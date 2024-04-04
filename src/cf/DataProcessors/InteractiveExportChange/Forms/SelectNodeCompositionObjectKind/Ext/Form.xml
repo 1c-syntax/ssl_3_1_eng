@@ -17,12 +17,24 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.PickAndClose</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Pick and close</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormPickAndCloseExtendedTooltip" id="39"/>
 			</Button>
 			<Button name="FormPick" id="10">
 				<Type>CommandBarButton</Type>
 				<Representation>PictureAndText</Representation>
 				<CommandName>Form.Command.Pick</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Pick</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormPickExtendedTooltip" id="24"/>
 			</Button>
 			<Button name="FormCancel" id="11">
@@ -101,6 +113,12 @@
 			<ChildItems>
 				<LabelField name="AvailableObjectKindsListPresentation" id="22">
 					<DataPath>AvailableObjectKinds.ListPresentation</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>List presentation</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ContextMenu name="AvailableObjectKindsListPresentationContextMenu" id="23"/>
 					<ExtendedTooltip name="AvailableObjectKindsListPresentationExtendedTooltip" id="28"/>

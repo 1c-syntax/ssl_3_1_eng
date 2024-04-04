@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -285,7 +286,10 @@ Function FormPrintCommands(Form, ListOfObjects = Undefined) Export
 					FillPrintCommandsForObjectsList(MetadataObject.RegisteredDocuments, PrintCommands);
 				EndIf;
 			Else
-				PrintCommands = ObjectPrintCommands(MetadataObject);
+				PrintCommandsToAdd = ObjectPrintCommands(MetadataObject);
+				For Each PrintCommand In PrintCommandsToAdd Do
+					FillPropertyValues(PrintCommands.Add(), PrintCommand);
+				EndDo;
 			EndIf;
 		EndIf;
 	EndIf;
@@ -526,8 +530,8 @@ Function CreatePrintCommandsCollection() Export
 	// Additional parameters.
 	Result.Columns.Add("AdditionalParameters", New TypeDescription("Structure"));
 	
-	
-	
+	// 
+	// 
 	Result.Columns.Add("DontWriteToForm", New TypeDescription("Boolean"));
 	
 	// For using office document templates in the web client.
@@ -539,7 +543,7 @@ Function CreatePrintCommandsCollection() Export
 	Result.Columns.Add("isDisabled", New TypeDescription("Boolean"));
 	Result.Columns.Add("FormCommandName", New TypeDescription("String"));
 	Result.Columns.Add("VisibilityConditionsByObjectTypes", New TypeDescription("Map"));
-	Result.Columns.Add("RunInBackground");
+	Result.Columns.Add("ShouldRunInBackgroundJob");
 	
 	Return Result;
 	
@@ -713,7 +717,7 @@ Function TemplatesAndObjectsDataToPrint(Val PrintManagerName, Val TemplatesNames
 	
 	ObjectManager = Common.ObjectManagerByFullName(PrintManagerName);
 	TemplatesAndData = ObjectManager.GetPrintInfo(DocumentsComposition, TemplatesNamesArray);
-	TemplatesAndData.Insert("LocalPrintFileFolder", Undefined); 
+	TemplatesAndData.Insert("LocalPrintFileFolder", Undefined); // 
 	
 	If Not TemplatesAndData.Templates.Property("TemplateTypes") Then
 		TemplatesAndData.Templates.Insert("TemplateTypes", New Map); // For backward compatibility purposes.
@@ -973,6 +977,7 @@ Function PrintToFile(PrintCommands, ListOfObjects, SettingsForSaving) Export
 	EndIf;
 	
 	For Each PrintCommand In ListOfCommands Do
+		//@skip-check query-in-loop - The query is used within the exception handler for unforeknown data.
 		ExecutePrintToFileCommand(PrintCommand, SettingsForSaving, ListOfObjects, Result);
 	EndDo;
 	
@@ -1072,7 +1077,6 @@ EndFunction
 //	
 //						
 //						
-//	 (см. ниже)
 //	
 //						
 ////////////////////////////////////////////////////////////////////////////////
@@ -1184,8 +1188,8 @@ Function GenerateDocument(Val PrintForm) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-
-
+// 
+// 
 
 // Gets a print form template area.
 //
@@ -1574,10 +1578,12 @@ EndFunction
 // 
 // Parameters:
 //  TreeOfTemplate -  See PrintManagementInternal.ReadXMLIntoTree
-//  ReplacementsMap - Map of KeyAndValue - Contains interchange rules.
+//  ParameterValues - Map of KeyAndValue:
+//                        ** 
+//                        ** 
 //  AreaPopulationParameters - See AreaPopulationParameters
 //
-Procedure SpecifyParameters(TreeOfTemplate, ReplacementsMap, AreaPopulationParameters) Export
+Procedure SpecifyParameters(TreeOfTemplate, ParameterValues, AreaPopulationParameters) Export
 	
 	CollectStrings = AreaPopulationParameters.CollectStrings;
 	AreaStructure = AreaPopulationParameters.AreaStructure;
@@ -1593,11 +1599,11 @@ Procedure SpecifyParameters(TreeOfTemplate, ReplacementsMap, AreaPopulationParam
 	
 	If PopulateHeadersAndFooters Then
 		For Each HeaderOrFooter In DocumentStructure.HeaderFooter Do
-			SetParametersInTree(ReplacementsMap, HeaderOrFooter.Value, TreeOfTemplate, ShouldAddLinks);
+			SetParametersInTree(ParameterValues, HeaderOrFooter.Value, TreeOfTemplate, ShouldAddLinks);
 		EndDo;
 	EndIf;
 		
-	SetParametersInTree(ReplacementsMap, DocumentTree, TreeOfTemplate, ShouldAddLinks);
+	SetParametersInTree(ParameterValues, DocumentTree, TreeOfTemplate, ShouldAddLinks);
 	
 EndProcedure
 
@@ -2019,7 +2025,7 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 	
 	HandlerParametersKeys = "Handler, PrintManager, FormCaption, SkipPreview, SaveFormat,
 	|OverrideCopiesUserSetting, AddExternalPrintFormsToSet,
-	|FixedSet, AdditionalParameters, RunInBackground";
+	|FixedSet, AdditionalParameters, ShouldRunInBackgroundJob";
 	For Each PrintCommand In PrintCommands Do
 		If PrintCommand.isDisabled Then
 			Continue;
@@ -2136,7 +2142,7 @@ Procedure OnFillToDoList(ToDoList) Export
 		ArrayVersion  = StrSplit(Metadata.Version, ".");
 		CurrentVersion = ArrayVersion[0] + ArrayVersion[1] + ArrayVersion[2];
 		If VersionChecked = CurrentVersion Then
-			OutputToDoItem = False; 
+			OutputToDoItem = False; // 
 		EndIf;
 	EndIf;
 	
@@ -2270,7 +2276,7 @@ Function CommonFieldsOfDataSources(DataSources) Export
 			EndDo;
 		EndDo;
 		If Result = Undefined Then
-			Result = SetIntersection(CollectionFields, CollectionFields); 
+			Result = SetIntersection(CollectionFields, CollectionFields); // 
 		Else
 			Result = SetIntersection(Result, CollectionFields);
 		EndIf;
@@ -2352,7 +2358,7 @@ Function FormulasFromText(Val Text, Val Form) Export
 		If StrOccurrenceCount(Parameter, "[") > 1 Then
 			Presentation = Mid(Parameter, 2, StrLen(Parameter) - 2);
 		EndIf;
-		Formula = FormulasConstructor.TheFormulaFromTheView(Form, Presentation);
+		Formula = TheFormulaFromTheView(Form, Presentation);
 		If Not StrStartsWith(Formula, "[") Then
 			Formula = "[" + Formula + "]";
 		EndIf;
@@ -2360,6 +2366,12 @@ Function FormulasFromText(Val Text, Val Form) Export
 	EndDo;
 	
 	Return Result;
+	
+EndFunction
+
+Function TheFormulaFromTheView(Form, Presentation) Export
+	
+	Return FormulasConstructor.TheFormulaFromTheView(Form, Presentation);
 	
 EndFunction
 
@@ -2374,7 +2386,7 @@ Function RepresentationTextParameters(Val Text, Val Form) Export
 	TextParameters = FindParametersInText(Text);
 	For Each Parameter In TextParameters Do
 		Formula = Mid(Parameter, 2, StrLen(Parameter) - 2);
-		Presentation = FormulasConstructor.ViewFormulaByFormData(Form, Formula);
+		Presentation = FormulaPresentation(Form, Formula);
 		If Not StrStartsWith(Presentation, "[") Or Not StrEndsWith(Presentation, "]")
 			Or StrOccurrenceCount(Presentation, "[") > 1 Then
 				Presentation = "[" + Presentation + "]";
@@ -2383,6 +2395,12 @@ Function RepresentationTextParameters(Val Text, Val Form) Export
 	EndDo;
 	
 	Return Result;
+	
+EndFunction
+
+Function FormulaPresentation(Val Form, Val Formula) Export
+	
+	Return FormulasConstructor.ViewFormulaByFormData(Form, Formula);
 	
 EndFunction
 
@@ -2680,7 +2698,7 @@ Function GenerateSpreadsheetDocument(Template, ObjectsArray, PrintObjects, Langu
 				EndIf;
 				
 				If ValueIsFilled(OutputCondition) Then
-					OutputRegion = EvalExpression("[" + OutputCondition + "]", DataSource, FieldFormatSettings, LanguageCode);
+					OutputRegion = EvalExpression("[" + OutputCondition + "]", DataSource, FieldFormatSettings, LanguageCode, False);
 					If TypeOf(OutputRegion) <> Type("Boolean") Or Not OutputRegion Then
 						Continue;
 					EndIf;
@@ -2945,27 +2963,28 @@ Function GenerateOfficeDoc(Template, ObjectsArray, PrintObjects, LanguageCode, P
 	
 		
 	ObjectTablePartNames = PrintData.Get("ObjectTablePartNames");
+	PrintManagementInternal.ExcludeNestedTables(ObjectTablePartNames);
 	
 	PrepareConditionalAreasNodes(DocumentStructure.DocumentTree, DocumentStructure.Hyperlinks);
 	PrintManagementInternal.RunIndexNodes(DocumentStructure.DocumentTree);
 	PrintManagementInternal.FindAreas(DocumentStructure, ObjectTablePartNames);
 	
 	HeaderPopulationParameters = New Array;
-		For Each Area In DocumentStructure.Areas Do
-			If Not ValueIsFilled(Area.Collection) Then
-				ParametersToSupplement = Area.Parameters;
-			Else
-				ParametersToSupplement = New Array;
-				For Each Parameter In Area.Parameters Do
-					FormulaElements = FormulasConstructorInternal.FormulaElements(Parameter);
-					For Each FormulaElement In FormulaElements.AllItems Do
-						If StrOccurrenceCount(FormulaElement, Area.Collection+".") = 0 Then
-						CommonClientServer.SupplementArray(HeaderPopulationParameters, 
-							     CommonClientServer.ValueInArray(FormulaElement), True);
-						EndIf;
-					EndDo;
+	For Each Area In DocumentStructure.Areas Do
+		If Not ValueIsFilled(Area.Collection) Then
+			ParametersToSupplement = Area.Parameters;
+		Else
+			ParametersToSupplement = New Array;
+			For Each Parameter In Area.Parameters Do
+				FormulaElements = FormulasConstructorInternal.FormulaElements(Parameter);
+				For Each FormulaElement In FormulaElements.AllItems Do
+					If StrOccurrenceCount(FormulaElement, Area.Collection+".") = 0 Then
+					CommonClientServer.SupplementArray(HeaderPopulationParameters, 
+						     CommonClientServer.ValueInArray(FormulaElement), True);
+					EndIf;
 				EndDo;
-			EndIf;
+			EndDo;
+		EndIf;
 		CommonClientServer.SupplementArray(HeaderPopulationParameters, ParametersToSupplement, True);
 	EndDo;
 				
@@ -2974,7 +2993,7 @@ Function GenerateOfficeDoc(Template, ObjectsArray, PrintObjects, LanguageCode, P
 			HeaderFooterParameters = FindParametersInText(FooterHeaderRow.WholeText);
 			CommonClientServer.SupplementArray(HeaderPopulationParameters, HeaderFooterParameters, True);
 		EndDo;
-		EndDo;
+	EndDo;
 		 
 	OfficeDocuments = New Map;
 	For Each PrintObject In ObjectsArray Do
@@ -3007,6 +3026,7 @@ Function GenerateOfficeDoc(Template, ObjectsArray, PrintObjects, LanguageCode, P
 				CollectionArray = GetAreaData(PrintData, PrintObject, CurrentArea, TemplateTreeForPopulation, LanguageCode, PrintParameters);
 				For Each CollectionItem In CollectionArray Do
 					RowAreaStructure = Common.CopyRecursive(AreaStructure);
+					ProcessNestedAreas(RowAreaStructure, CurrentArea, CollectionItem, ObjectData, FieldFormatSettings, LanguageCode);
 					AreaPopulationParameters = AreaPopulationParameters();
 					AreaPopulationParameters.CollectStrings = False;
 					AreaPopulationParameters.AreaStructure = RowAreaStructure;
@@ -3282,12 +3302,19 @@ Function GeneratePrintForms(Val PrintManagerName, Val TemplatesNames, Val Object
 									|Contact the administrator.';");
 							EndIf;
 							
-							TempCollectionForSinglePrintForm[0].SpreadsheetDocument = New SpreadsheetDocument;
-							TempCollectionForSinglePrintForm[0].TextOfGenerationError = ErrorProcessing.BriefErrorDescription(ErrorInfo());
-							
 							If Not ValueIsFilled(TempCollectionForSinglePrintForm[0].FullTemplatePath) Then
-								TempCollectionForSinglePrintForm[0].FullTemplatePath = LastUsedTemplate();
+								FullTemplatePath = LastUsedTemplate();
+								
+								//@skip-check query-in-loop - The list of templates is unforeknown.
+								If ValueIsFilled(FullTemplatePath) And UserTemplateUsed(FullTemplatePath) Then
+									TempCollectionForSinglePrintForm[0].FullTemplatePath = LastUsedTemplate();
+								Else
+									Raise;
+								EndIf;
 							EndIf;
+							
+							TempCollectionForSinglePrintForm[0].SpreadsheetDocument = New SpreadsheetDocument;
+							TempCollectionForSinglePrintForm[0].GenerationErrorText = ErrorProcessing.BriefErrorDescription(ErrorInfo());
 						EndTry;
 					EndIf;
 				Else
@@ -3296,7 +3323,7 @@ Function GeneratePrintForms(Val PrintManagerName, Val TemplatesNames, Val Object
 			EndIf;
 		EndIf;
 		
-		
+		// 
 		For Each PrintFormDetails In TempCollectionForSinglePrintForm Do
 			CommonClientServer.Validate(
 				TypeOf(PrintFormDetails.Copies2) = Type("Number") And PrintFormDetails.Copies2 > 0,
@@ -3349,7 +3376,7 @@ Function GeneratePrintForms(Val PrintManagerName, Val TemplatesNames, Val Object
 		CheckSpreadsheetDocumentLayoutByPrintObjects(PrintForm.SpreadsheetDocument, 
 			PrintObjects, PrintManagerName, PrintForm.TemplateName);
 		If AddedExternalPrintForms.Find(PrintForm.TemplateName) <> Undefined Then
-			PrintForm.Copies2 = 0; 
+			PrintForm.Copies2 = 0; // 
 		EndIf;
 		If PrintForm.SpreadsheetDocument <> Undefined Then
 			PrintForm.SpreadsheetDocument.Copies = PrintForm.Copies2;
@@ -3532,7 +3559,7 @@ Procedure FillPrintCommandsForObjectsList(ListOfObjects, PrintCommands)
 		If PrintCommandsSources[MetadataObject] = Undefined Then
 			Continue;
 		EndIf;
-		FormPrintCommands = ObjectPrintCommands(MetadataObject); 
+		FormPrintCommands = ObjectPrintCommands(MetadataObject); // @skip-check query-in-loop - Minor cycle
 		
 		For Each PrintCommandToAdd In FormPrintCommands Do
 			If PrintCommandToAdd.isDisabled Then
@@ -3714,8 +3741,8 @@ Function ObjectPrintCommands(MetadataObject, PrintedForms = True) Export
 		If ValueIsFilled(ObjectType) And ValueIsFilled(PrintCommand.VisibilityConditions) Then
 			PrintCommand.VisibilityConditionsByObjectTypes.Insert(ObjectType, PrintCommand.VisibilityConditions);
 		EndIf;
-		If PrintCommand.RunInBackground = Undefined Then
-			PrintCommand.RunInBackground = Lower(PrintCommand.PrintManager) = Lower("PrintManagement")
+		If PrintCommand.ShouldRunInBackgroundJob = Undefined Then
+			PrintCommand.ShouldRunInBackgroundJob = Lower(PrintCommand.PrintManager) = Lower("PrintManagement")
 				And Not Common.FileInfobase();
 		EndIf;
 	EndDo;
@@ -3907,9 +3934,15 @@ Procedure AddSignatureAndSeal(SpreadsheetDocument, AreasSignaturesAndSeals) Expo
 			EndIf;
 
 			If ValueIsFilled(Drawing.DetailsParameter) Then
-				Picture = SignaturesAndSealsSet[Drawing.DetailsParameter];
+				IconName = Drawing.DetailsParameter;
 			Else
-				Picture = SignaturesAndSealsSet[Left(Drawing.Name, Position - 1)];
+				IconName = Left(Drawing.Name, Position - 1);
+			EndIf;
+			
+			Picture = Undefined;
+			If TypeOf(SignaturesAndSealsSet) = Type("Map")
+				Or TypeOf(SignaturesAndSealsSet) = Type("Structure") And SignaturesAndSealsSet.Property(IconName) Then
+				Picture = SignaturesAndSealsSet[IconName];
 			EndIf;
 			
 			If Picture <> Undefined Then
@@ -4278,7 +4311,7 @@ Function PrepareOutputParametersStructure() Export
 	
 	OutputParameters = New Structure;
 	OutputParameters.Insert("FormCaption", "");
-	OutputParameters.Insert("PrintingBySetsIsAvailable", False); 
+	OutputParameters.Insert("PrintingBySetsIsAvailable", False); // 
 	OutputParameters.Insert("LanguageCode", Common.DefaultLanguageCode());
 	
 	EmailParametersStructure = New Structure("Recipient,Subject,Text", Undefined, "", "");
@@ -4463,24 +4496,24 @@ Function FindTemplate(TemplatePath, LanguageCode, SuppliedOnly = False)
 	PathParts.Delete(PathParts.UBound());
 	ObjectName = StrConcat(PathParts, ".");
 	
-	QueryText = 
-	"SELECT
-	|	UserPrintTemplates.Template AS Template,
-	|	UserPrintTemplates.TemplateName AS TemplateName
-	|FROM
-	|	InformationRegister.UserPrintTemplates AS UserPrintTemplates
-	|WHERE
-	|	UserPrintTemplates.Object = &Object
-	|	AND UserPrintTemplates.TemplateName LIKE &TemplateName
-	|	AND UserPrintTemplates.Use";
-	
-	Query = New Query(QueryText);
-	Query.Parameters.Insert("Object", ObjectName);
-	Query.Parameters.Insert("TemplateName", TemplateName + "%");
-	
 	TemplatesList = New Map;
 	
 	If Not SuppliedOnly Then
+		QueryText = 
+		"SELECT
+		|	UserPrintTemplates.Template AS Template,
+		|	UserPrintTemplates.TemplateName AS TemplateName
+		|FROM
+		|	InformationRegister.UserPrintTemplates AS UserPrintTemplates
+		|WHERE
+		|	UserPrintTemplates.Object = &Object
+		|	AND UserPrintTemplates.TemplateName LIKE &TemplateName
+		|	AND UserPrintTemplates.Use";
+		
+		Query = New Query(QueryText);
+		Query.Parameters.Insert("Object", ObjectName);
+		Query.Parameters.Insert("TemplateName", TemplateName + "%");
+		
 		Selection = Query.Execute().Select();
 		While Selection.Next() Do
 			TemplatesList.Insert(Selection.TemplateName, Selection.Template.Get());
@@ -4568,8 +4601,8 @@ Procedure Print(ObjectsArray, PrintParameters, PrintFormsCollection, PrintObject
 		PrintForm.OutputInOtherLanguagesAvailable = True;
 		PrintForm.FullTemplatePath = PrintForm.TemplateName;
 		PrintForm.TemplateSynonym = TemplatePresentation(PrintForm.FullTemplatePath, LanguageCode);
-		 
-		
+		//  
+		// 
 		Template = PrintFormTemplate(PrintForm.FullTemplatePath, LanguageCode); 
 		
 		If TypeOf(Template) = Type("BinaryData") Then
@@ -4756,111 +4789,159 @@ Procedure FillDataPrint(PrintData, FieldsDetails, FieldHierarchy, Objects, Langu
 			
 			DataSources = CommonClientServer.CollapseArray(DataSources);
 			
-			Parameters = CollectionParametersGettingDataSources();
-			Parameters.DataSources = DataSources;
-			Parameters.SchemaFields = SchemaFields;
-			Parameters.LanguageCode = LanguageCode;
-			Parameters.DataCompositionSchema = DataCompositionSchema;
-			Parameters.DataCompositionSchemaId = DataCompositionSchemaId;
-			Parameters.DataSourceDescriptions = DataSourceDescriptions;
-			Parameters.SourceDataGroupedByDataSourceOwner = SourceDataGroupedByDataSourceOwner;
+			For Each RefsByType In RefsByTypes(DataSources) Do
+				SourcesType = RefsByType.Key;
+				DataSources = RefsByType.Value;
+				
+				IsSourceTypeCheckEnabled = False;
+				StringParts1 = StrSplit(DataCompositionSchemaId, ".");
+				If StringParts1.Count() > 1 Then
+					MetadataObjectName = StringParts1[0] + "." +  StringParts1[1];
+					MetadataObject = Common.MetadataObjectByFullName(MetadataObjectName);
+					IsSourceTypeCheckEnabled = MetadataObject <> Undefined;
+				EndIf;
+				
+				SourceTypeName = "";
+				If IsSourceTypeCheckEnabled Then
+					MetadataObject = Metadata.FindByType(SourcesType);
+					SourceTypeName = MetadataObject.FullName();
+				EndIf;
+				
+				If IsSourceTypeCheckEnabled And ValueIsFilled(SourceTypeName)
+					And Not StrStartsWith(DataCompositionSchemaId, SourceTypeName + ".")
+					And DataCompositionSchemaId <> SourceTypeName Then
+					Continue;
+				EndIf;
 			
-			SourceData_ = SourceData_(Parameters);
-			
-			SourceDataGroupedByDataSourceOwner = Parameters.SourceDataGroupedByDataSourceOwner;
-			
-			If SourceData_["ObjectTablePartNames"] <> Undefined Then
-				For Each TabularSectionName In SourceData_["ObjectTablePartNames"] Do
-					If FieldSource = "Ref" Then
-						PrintData["ObjectTablePartNames"].Add(TabularSectionName);
-					Else
-						PrintData["ObjectTablePartNames"].Add(FieldSource + "." + TabularSectionName);
-					EndIf;
-				EndDo;
-			EndIf;
-			
-			For Each Object In Objects Do
-				If SourceOfFieldsInTablePart Then
-					If ThisTableSectionField(PathToDataOfTablePart, PrintData) Then
-						Continue;
-					EndIf;
-					For LineNumber = 1 To PrintData[Object][PathToDataOfTablePart].Count() Do
-						If SourceDataGroupedByDataSourceOwner Then
-							If OwnerOfSourceInTablePart Then
-								DataSource = PrintData[Object][PathToDataOfTablePart][LineNumber][SourceOwnerDataPath];
-							Else
-								If ValueIsFilled(SourceOwnerDataPath) Then
-									DataSource = PrintData[Object][SourceOwnerDataPath];
-								Else
-									DataSource = Object;
-								EndIf;
-							EndIf;
+				Parameters = CollectionParametersGettingDataSources();
+				Parameters.DataSources = DataSources;
+				Parameters.SchemaFields = SchemaFields;
+				Parameters.LanguageCode = LanguageCode;
+				Parameters.DataCompositionSchema = DataCompositionSchema;
+				Parameters.DataCompositionSchemaId = DataCompositionSchemaId;
+				Parameters.DataSourceDescriptions = DataSourceDescriptions;
+				Parameters.SourceDataGroupedByDataSourceOwner = SourceDataGroupedByDataSourceOwner;
+				
+				SourceData_ = SourceData_(Parameters);
+				
+				SourceDataGroupedByDataSourceOwner = Parameters.SourceDataGroupedByDataSourceOwner;
+				
+				If SourceData_["ObjectTablePartNames"] <> Undefined Then
+					For Each TabularSectionName In SourceData_["ObjectTablePartNames"] Do
+						If FieldSource = "Ref" Then
+							PrintData["ObjectTablePartNames"].Add(TabularSectionName);
 						Else
-							DataSource = PrintData[Object][PathToDataOfTablePart][LineNumber][PathToFieldSourceData];
+							PrintData["ObjectTablePartNames"].Add(FieldSource + "." + TabularSectionName);
 						EndIf;
+					EndDo;
+				EndIf;
+				
+				For Each Object In Objects Do
+					If SourceOfFieldsInTablePart Then
+						If ThisTableSectionField(PathToDataOfTablePart, PrintData) Then
+							Continue;
+						EndIf;
+						For LineNumber = 1 To PrintData[Object][PathToDataOfTablePart].Count() Do
+							If SourceDataGroupedByDataSourceOwner Then
+								If OwnerOfSourceInTablePart Then
+									DataSource = PrintData[Object][PathToDataOfTablePart][LineNumber][SourceOwnerDataPath];
+								Else
+									If ValueIsFilled(SourceOwnerDataPath) Then
+										DataSource = PrintData[Object][SourceOwnerDataPath];
+									Else
+										DataSource = Object;
+									EndIf;
+								EndIf;
+							Else
+								DataSource = PrintData[Object][PathToDataOfTablePart][LineNumber][PathToFieldSourceData];
+							EndIf;
+							If DataSource = Undefined Then
+								DataSource = "";
+							EndIf;
+							
+							If SourceData_[DataSource] <> Undefined Then
+								For Each FieldData In SourceData_[DataSource] Do
+									Field = FieldData.Key;
+									Simple = FieldData.Value;
+									PrintData[Object][PathToDataOfTablePart][LineNumber][PathToFieldSourceData + "." + Field] = Simple;
+								EndDo;
+							EndIf;
+						EndDo;
+					Else
+						If SourceDataGroupedByDataSourceOwner Then
+							If ValueIsFilled(SourceOwnerDataPath) Then
+								DataSource = PrintData[Object][SourceOwnerDataPath];
+							Else
+								DataSource = Object;
+							EndIf;
+						ElsIf FieldSource = "Ref" Then
+							DataSource = Object;
+						Else
+							DataSource = PrintData[Object][PathToFieldSourceData];
+						EndIf;
+						
 						If DataSource = Undefined Then
 							DataSource = "";
 						EndIf;
 						
 						If SourceData_[DataSource] <> Undefined Then
-							For Each FieldData In SourceData_[DataSource] Do
+							For Each FieldData In  SourceData_[DataSource] Do
 								Field = FieldData.Key;
 								Simple = FieldData.Value;
-								PrintData[Object][PathToDataOfTablePart][LineNumber][PathToFieldSourceData + "." + Field] = Simple;
+								
+								If FieldSource = "Ref" Then
+									FieldDataPath = Field;
+								Else
+									FieldDataPath = PathToFieldSourceData + "." + Field;
+								EndIf;
+								
+								If PrintData[Object][FieldDataPath] = Undefined Then
+									PrintData[Object][FieldDataPath] = Simple;
+								ElsIf TypeOf(PrintData[Object][FieldDataPath]) = Type("Map") And TypeOf(Simple) = Type("Map") Then
+									For Each SourceRow In Simple Do
+										DestinationRow = PrintData[Object][FieldDataPath][SourceRow.Key];
+										If DestinationRow = Undefined Then
+											DestinationRow = New Map;
+											PrintData[Object][FieldDataPath][SourceRow.Key] = DestinationRow;
+										EndIf;
+										For Each FieldOfRow In SourceRow.Value Do
+											DestinationRow[FieldOfRow.Key] = FieldOfRow.Value;
+										EndDo;
+									EndDo;
+								EndIf;
 							EndDo;
 						EndIf;
-					EndDo;
-				Else
-					If SourceDataGroupedByDataSourceOwner Then
-						If ValueIsFilled(SourceOwnerDataPath) Then
-							DataSource = PrintData[Object][SourceOwnerDataPath];
-						Else
-							DataSource = Object;
-						EndIf;
-					ElsIf FieldSource = "Ref" Then
-						DataSource = Object;
-					Else
-						DataSource = PrintData[Object][PathToFieldSourceData];
 					EndIf;
-					
-					If DataSource = Undefined Then
-						DataSource = "";
-					EndIf;
-					
-					If SourceData_[DataSource] <> Undefined Then
-						For Each FieldData In  SourceData_[DataSource] Do
-							Field = FieldData.Key;
-							Simple = FieldData.Value;
-							
-							If FieldSource = "Ref" Then
-								FieldDataPath = Field;
-							Else
-								FieldDataPath = PathToFieldSourceData + "." + Field;
-							EndIf;
-							
-							If PrintData[Object][FieldDataPath] = Undefined Then
-								PrintData[Object][FieldDataPath] = Simple;
-							ElsIf TypeOf(PrintData[Object][FieldDataPath]) = Type("Map") And TypeOf(Simple) = Type("Map") Then
-								For Each SourceRow In Simple Do
-									DestinationRow = PrintData[Object][FieldDataPath][SourceRow.Key];
-									If DestinationRow = Undefined Then
-										DestinationRow = New Map;
-										PrintData[Object][FieldDataPath][SourceRow.Key] = DestinationRow;
-									EndIf;
-									For Each LineField In SourceRow.Value Do
-										DestinationRow[LineField.Key] = LineField.Value;
-									EndDo;
-								EndDo;
-							EndIf;
-						EndDo;
-					EndIf;
-				EndIf;
+				EndDo;
+			
 			EndDo;
 		EndDo;
 		FillDataPrint(PrintData, FieldsDetails, SubordinateFields, Objects, LanguageCode)
 	EndDo;
 	
 EndProcedure
+
+Function RefsByTypes(References)
+	
+	RefsByTypes = New Map;
+	
+	For Each Ref In References Do
+		If TypeOf(Ref) = Undefined Then
+			Continue;
+		EndIf;
+		
+		Type = TypeOf(Ref);
+		
+		If RefsByTypes[Type] = Undefined Then
+			RefsByTypes[Type] = New Array;
+		EndIf;
+		
+		RefsByTypes[Type].Add(Ref);
+	EndDo;
+	
+	Return RefsByTypes;
+	
+EndFunction
 
 Function PathToFieldOwnerSData(FieldDataPath, FieldsDetails)
 	
@@ -5766,36 +5847,42 @@ Function FieldsLayout(Template)
 		EndIf;
 	EndDo;
 	
+	Expressions = New Array;
+	
 	For Each Area In Template.Areas Do
 		If TypeOf(Area) = Type("SpreadsheetDocumentRange")
 			And Area.AreaType = SpreadsheetDocumentCellAreaType.Rows Then
 			OutputCondition = Area.DetailsParameter;
 			If ValueIsFilled(OutputCondition) Then
-				Texts.Insert(Area.DetailsParameter);
+				Expressions.Add(Area.DetailsParameter);
 			EndIf;
 		EndIf;
 	EndDo;
 	
-	Result = New Array;
-
 	For Each Item In Texts Do
 		Text = Item.Key;
 		TextParameters = FindParametersInText(Text);
 		For Each Expression In TextParameters Do
 			Expression = Mid(Expression, 2, StrLen(Expression) - 2);
-			FormulaElements = FormulasConstructorInternal.FormulaElements(Expression);
-			For Each ItemDetails In FormulaElements.OperandsAndFunctions Do
-				IsFunction = ItemDetails.Value;
-				If IsFunction Then
-					Continue;
-				EndIf;
-				
-				Operand = FormulaElements.AllItems[ItemDetails.Key];
-				Operand = ClearSquareBrackets(Operand);
-				If ValueIsFilled(Operand) Then
-					Result.Add(Operand);
-				EndIf;
-			EndDo;
+			Expressions.Add(Expression);
+		EndDo;
+	EndDo;
+	
+	Result = New Array;
+	
+	For Each Expression In Expressions Do
+		FormulaElements = FormulasConstructorInternal.FormulaElements(Expression);
+		For Each ItemDetails In FormulaElements.OperandsAndFunctions Do
+			IsFunction = ItemDetails.Value;
+			If IsFunction Then
+				Continue;
+			EndIf;
+			
+			Operand = FormulaElements.AllItems[ItemDetails.Key];
+			Operand = ClearSquareBrackets(Operand);
+			If ValueIsFilled(Operand) Then
+				Result.Add(Operand);
+			EndIf;
 		EndDo;
 	EndDo;
 	
@@ -6873,27 +6960,29 @@ Function GetAreaData(PrintData, PrintObject, Area, TreeOfTemplate, LanguageCode,
 	Ref = PrintObject;
 	TableName = Area.Collection;
 	
-	RowsMap = PrintData[Ref][TableName];	
-	For TabularSectionRowNumber = 1 To RowsMap.Count() Do
-		DataSource = New Map;
-		CommonClientServer.SupplementMap(DataSource, PrintData[Ref]);
-		If ValueIsFilled(TableName) Then
-			DataOfTablePartRow = PrintData[Ref][TableName][TabularSectionRowNumber];
-			For Each KeyAndValue In DataOfTablePartRow Do
-				DataSource[TableName + "." + KeyAndValue.Key] = KeyAndValue.Value;
+	RowsMap = PrintData[Ref][TableName];
+	If RowsMap <> Undefined Then
+		For TabularSectionRowNumber = 1 To RowsMap.Count() Do
+			DataSource = New Map;
+			CommonClientServer.SupplementMap(DataSource, PrintData[Ref]);
+			If ValueIsFilled(TableName) Then
+				DataOfTablePartRow = PrintData[Ref][TableName][TabularSectionRowNumber];
+				For Each KeyAndValue In DataOfTablePartRow Do
+					DataSource[TableName + "." + KeyAndValue.Key] = KeyAndValue.Value;
+				EndDo;
+			EndIf;
+			
+			MatchingOfString = New Map();
+			For Each AreaParameter In ArrayOfAreaParameters Do
+				
+				Presentation = SetPresentationPicture(LanguageCode, AreaParameter, FieldFormatSettings, DataSource, PrintParameters);
+				MatchingOfString.Insert(AreaParameter, Presentation);
+				
 			EndDo;
-		EndIf;
-		
-		MatchingOfString = New Map();
-		For Each AreaParameter In ArrayOfAreaParameters Do
 			
-			Presentation = SetPresentationPicture(LanguageCode, AreaParameter, FieldFormatSettings, DataSource, PrintParameters);
-			MatchingOfString.Insert(AreaParameter, Presentation);
-			
+			Result.Add(MatchingOfString);
 		EndDo;
-		
-		Result.Add(MatchingOfString);
-	EndDo;
+	EndIf;
 	
 	Return Result;
 	
@@ -6983,18 +7072,18 @@ EndProcedure
 // Apply parameters to the tree.
 // 
 // Parameters:
-//  ReplacementsMap - Map of KeyAndValue - 
+//  ParameterValues - See SpecifyParameters.ParameterValues
 //  XMLTree - See PrintManagementInternal.ReadXMLIntoTree
 //  TreeOfTemplate - See InitializeTemplateOfDCSOfficeDoc
 //  ShouldAddLinks - Boolean - Flag indicating whether to add links.
 //
-Procedure SetParametersInTree(Val ReplacementsMap, XMLTree, TreeOfTemplate = Undefined, ShouldAddLinks = True)
+Procedure SetParametersInTree(Val ParameterValues, XMLTree, TreeOfTemplate = Undefined, ShouldAddLinks = True)
 	
 	SortTable = New ValueTable();
 	SortTable.Columns.Add("Key");
 	SortTable.Columns.Add("Value");
 	SortTable.Columns.Add("Length");
-	For Each ReplacementCompliance In ReplacementsMap Do
+	For Each ReplacementCompliance In ParameterValues Do
 		NewRow = SortTable.Add();
 		NewRow.Key 		= ReplacementCompliance.Key;
 		NewRow.Length 		= StrLen(ReplacementCompliance.Key);
@@ -7157,6 +7246,74 @@ Procedure ClearLastUsedTemplate()
 	SetPrivilegedMode(True);
 	
 	Common.CommonSettingsStorageDelete("Print", "LastUsedTemplate", Undefined);
+	
+EndProcedure
+
+Procedure ProcessNestedAreas(RowAreaStructure, CurrentArea, CollectionItem, ObjectData, FieldFormatSettings, LanguageCode);
+	If CurrentArea.NestedAreas <> Undefined Then
+		ConditionValues = New Map;
+		LinePrintingData_ = New Map;
+		For Each LinePrintingData In CollectionItem Do
+			LinePrintingData_.Insert(ClearSquareBrackets(LinePrintingData.Key), LinePrintingData.Value);
+		EndDo;
+		
+		SetSafeMode(True);
+		For Each AreaCondition In CurrentArea.NestedAreas.UnloadColumn("AreaCondition") Do
+			If ConditionValues[AreaCondition] = Undefined Then
+				OutputRegion = EvalExpression(AreaCondition, LinePrintingData_, FieldFormatSettings, LanguageCode, False);
+				ConditionValues.Insert(AreaCondition, OutputRegion);
+			EndIf;
+		EndDo;
+		SetSafeMode(False);
+		
+		SUBAssetsToDelete = New Array;
+		For Each NestedArea In CurrentArea.NestedAreas Do
+			If ConditionValues[NestedArea.AreaCondition] = False Then
+				SubAssetOfRegion = RowAreaStructure.AreaTree.Rows.Find(NestedArea.IndexOf, "IndexOf", True);
+				If SubAssetOfRegion <> Undefined Then
+					SubAssetOfRegion.Parent.Rows.Delete(SubAssetOfRegion);
+				EndIf;
+			EndIf;
+		EndDo;
+	EndIf;
+EndProcedure
+
+Function SingleSendButton(ChildItems)
+	
+	If ChildItems.Count() = 1 
+		And TypeOf(ChildItems[0]) = Type("FormButton") Then
+			Return ChildItems[0];
+	EndIf;
+
+	Return Undefined;
+EndFunction
+
+// Parameters:
+//  Form - ClientApplicationForm
+//  Cancel - Boolean
+//  StandardProcessing - Boolean
+//
+Procedure PrintDocumentsOnCreateAtServer(Form, Cancel, StandardProcessing) Export
+	
+	SSLSubsystemsIntegration.PrintDocumentsOnCreateAtServer(Form, Cancel, StandardProcessing);
+	PrintManagementOverridable.PrintDocumentsOnCreateAtServer(Form, Cancel, StandardProcessing);
+	
+	ProcessSendingCommands(Form);
+	
+EndProcedure
+
+Procedure ProcessSendingCommands(Form)
+			
+	Items = Form.Items;
+	ButtonSend = SingleSendButton(Items.SubmenuSend.ChildItems);
+	If ButtonSend <> Undefined Then
+		Items.Move(ButtonSend, Items.SubmenuSend.Parent, Items.SubmenuSend);
+	EndIf;
+	
+	ButtonSend = SingleSendButton(Items.SubmitAllActionsSubmenu.ChildItems);
+	If ButtonSend <> Undefined Then
+		Items.Move(ButtonSend, Items.SubmitAllActionsSubmenu.Parent, Items.SubmitAllActionsSubmenu);
+	EndIf;
 	
 EndProcedure
 

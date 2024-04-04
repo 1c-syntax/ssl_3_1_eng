@@ -1,22 +1,62 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 
 #Region Public
 
 // 
 //
 // Parameters:
+//  FullName - String - 
+//            - Structure:
+//                        * LastName  - String
+//                        * Name      - String
+//                        * MiddleName - String
+//  FullNameFormat - String - 
+//  IsInitialsComeFirst    - Boolean - 
+//                                
+//  Result - String -  
+//
+Procedure OnDefineSurnameAndInitials(Val FullName, Val FullNameFormat, Val IsInitialsComeFirst, Result) Export
+EndProcedure
+
+// 
+// 
+// 
+//
+// Parameters:
+//  FullName - String - 
+//  NameFormat - String - 
+//                         
+//                         
+//  Result - Structure:
+//   * LastName  - String - 
+//   * Name      - String - 
+//   * MiddleName - String - 
+//
+// Example:
+//    
+//   
+//    
+//   
+//    
+//   
+//
+Procedure OnDefineFullNameComponents(Val FullName, Val NameFormat, Result) Export
+EndProcedure
+
+// 
+//
+// Parameters:
 //  LastFirstName - String - 
-//  OnlyNationalSymbols - Boolean - 
+//  IsOnlyNationalScriptLetters - Boolean - 
 //  CheckResult - Boolean - 
 //
-Procedure FullNameWrittenCorrectly(Val LastFirstName, Val OnlyNationalSymbols, CheckResult) Export
+Procedure FullNameWrittenCorrectly(Val LastFirstName, Val IsOnlyNationalScriptLetters, CheckResult) Export
 	
 	
 EndProcedure

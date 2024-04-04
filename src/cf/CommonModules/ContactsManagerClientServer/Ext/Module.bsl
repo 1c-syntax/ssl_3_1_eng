@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -204,7 +205,7 @@ EndFunction
 //                             that determines a composition of contact information fields.
 //
 // Returns:
-//   Structure - :
+//   Structure - Contact information fields:
 //     * value - String - a contact information presentation.
 //     * comment - String - comment.
 //     * type - String - a contact information type. See the value in Enum.ContactInformationTypes.Address.
@@ -296,10 +297,10 @@ EndFunction
 #Region Private
 
 // Returns:
-//  Structure - :
+//  Structure - Contact information details:
 //    * FieldValues - String - contact information in JSON format
-//    * Presentation - String - a contact information presentation. Used if it is impossible to determine 
-//                              a presentation based on a parameter. In FieldValues, the Presentation field is not available.
+//    * Presentation - String - The contact information presentation. 
+//                              Used in cases when the "FieldValues" parameter is missing the "Presentation" field.
 //    * ContactInformationKind - EnumRef.ContactInformationTypes 
 //                              - CatalogRef.ContactInformationKinds - contact information type
 //
@@ -366,7 +367,7 @@ Function AddressFieldsStructure() Export
 	
 EndFunction
 
-// 
+// Returns a structure describing the commands to be displayed for the given contact information kind
 //
 // Parameters:
 //   ContactInformationParameters - Structure:
@@ -383,15 +384,15 @@ EndFunction
 //     * CanSendSMSMessage1 - Boolean
 //     * Owner - AnyRef
 //     * URLProcessing - Boolean
-//     * HiddenKinds - Array - 
+//     * HiddenKinds - Array - Contact information kinds to be hidden from the form.
 //     * DetailsOfCommands - See ContactsManager.DetailsOfCommands
 //     * ShouldShowIcons - Boolean
-//     * ItemsPlacedOnForm - Map of KeyAndValue - 
-//                                          
-//                                         :
+//     * ItemsPlacedOnForm - Map of KeyAndValue - Contact information kinds that were added to the form interactively.
+//                                         In case of deferred initialization, they will appear on the form after the 
+//                                         ContactsManager.ExecuteDeferredInitialization procedure is called.:
 //         * Key - CatalogRef.ContactInformationKinds
 //         * Value - Boolean
-//     * ExcludedKinds - Array - 
+//     * ExcludedKinds - Array - Obsolete. Instead, use "ItemsPlacedOnForm".
 //     * AllowAddingFields - Boolean
 //   Type - EnumRef.ContactInformationTypes
 //   Kind - CatalogRef.ContactInformationKinds
@@ -459,7 +460,7 @@ Function CommandsToOutputToForm(ContactInformationParameters, Type, Kind, StoreH
 	
 EndFunction
 
-// 
+// Returns a detailed prompt for the given address.
 // 
 // Parameters:
 //  CommandsForOutput    - Structure:
@@ -760,9 +761,9 @@ EndFunction
 //  AdditionalChecksModule - Arbitrary
 // 
 // Returns:
-//  ValueList - :
+//  ValueList - Phone number entry errors:
 //    * Presentation   - Error details.
-//    * Value        - 
+//    * Value        - XPath for the field.
 //
 Function PhoneFillingErrors(InfoAboutPhone, AdditionalChecksModule = Undefined) Export
 	

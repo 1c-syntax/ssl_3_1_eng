@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -89,9 +90,9 @@ EndFunction
 
 #Region UpdateHandlers
 
-// 
+// Fills the "TargetPlatforms" attribute in the "CommonAddIns" catalog.
 //
-Procedure ProcessCommonExternalComponents() Export
+Procedure HandleCommonAddIns() Export
 	
 	Query = New Query;
 	Query.Text = "
@@ -171,7 +172,7 @@ Procedure ProcessCommonExternalComponents() Export
 
 	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot process common add-ins (skipped): %1';"),
+			NStr("en = 'Couldn''t process (skipped) some common add-ins: %1';"),
 			ObjectsWithIssuesCount);
 		Raise MessageText;
 	EndIf;

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -85,11 +86,11 @@ EndFunction
 // See Common.CommonSettingsStorageSave
 //
 // Parameters:
-//   ObjectKey       - String           - 
-//   SettingsKey      - String           - 
-//   Settings         - Arbitrary     - 
-//   SettingsDescription  - SettingsDescription - 
-//   UserName   - String           - 
+//   ObjectKey       - String           - See Syntax Assistant.
+//   SettingsKey      - String           - See Syntax Assistant.
+//   Settings         - Arbitrary     - See Syntax Assistant.
+//   SettingsDescription  - SettingsDescription - See Syntax Assistant.
+//   UserName   - String           - See Syntax Assistant.
 //   RefreshReusableValues - Boolean - the flag that indicates whether to execute the method.
 //
 Procedure CommonSettingsStorageSave(ObjectKey, SettingsKey, Settings,
@@ -118,9 +119,9 @@ EndProcedure
 // Parameters:
 //   MultipleSettings - Array - with the following values:
 //     * Value - Structure:
-//         * Object    - String       - see the ObjectKey parameter in the Syntax Assistant.
-//         * Setting - String       - see the SettingsKey parameter in the Syntax Assistant.
-//         * Value  - Arbitrary - see the Settings parameter in the Syntax Assistant.
+//         * Object    - String       - See the "ObjectKey" parameter in Syntax Assistant.
+//         * Setting - String       - See the "SettingsKey" parameter in Syntax Assistant.
+//         * Value  - Arbitrary - See "Settings" parameter in Syntax Assistant.
 //
 //   RefreshReusableValues - Boolean - the flag that indicates whether to execute the method.
 //
@@ -146,15 +147,15 @@ EndProcedure
 // See Common.CommonSettingsStorageLoad
 //
 // Parameters:
-//   ObjectKey          - String           - 
-//   SettingsKey         - String           - 
+//   ObjectKey          - String           - See Syntax Assistant.
+//   SettingsKey         - String           - See Syntax Assistant.
 //   DefaultValue  - Arbitrary     - the value that is returned if the settings do not exist.
 //                                             If not specified, returns Undefined.
-//   SettingsDescription     - SettingsDescription - 
-//   UserName      - String           - 
+//   SettingsDescription     - SettingsDescription - See Syntax Assistant.
+//   UserName      - String           - See Syntax Assistant.
 //
 // Returns: 
-//   Arbitrary - 
+//   Arbitrary - See Syntax Assistant.
 //
 Function CommonSettingsStorageLoad(ObjectKey, SettingsKey, DefaultValue = Undefined,
 			SettingsDescription = Undefined,
@@ -179,11 +180,11 @@ EndFunction
 //
 // Parameters:
 //   ObjectKey     - String
-//                   - Undefined - 
+//                   - Undefined - See Syntax Assistant.
 //   SettingsKey    - String
-//                   - Undefined - 
+//                   - Undefined - See Syntax Assistant.
 //   UserName - String
-//                   - Undefined - 
+//                   - Undefined - See Syntax Assistant.
 //
 Procedure CommonSettingsStorageDelete(ObjectKey, SettingsKey, UserName) Export
 	
@@ -199,11 +200,11 @@ EndProcedure
 // See Common.SystemSettingsStorageSave
 //
 // Parameters:
-//   ObjectKey       - String           - 
-//   SettingsKey      - String           - 
-//   Settings         - Arbitrary     - 
-//   SettingsDescription  - SettingsDescription - 
-//   UserName   - String           - 
+//   ObjectKey       - String           - See Syntax Assistant.
+//   SettingsKey      - String           - See Syntax Assistant.
+//   Settings         - Arbitrary     - See Syntax Assistant.
+//   SettingsDescription  - SettingsDescription - See Syntax Assistant.
+//   UserName   - String           - See Syntax Assistant.
 //   RefreshReusableValues - Boolean - the flag that indicates whether to execute the method.
 //
 Procedure SystemSettingsStorageSave(ObjectKey, SettingsKey, Settings,
@@ -236,15 +237,15 @@ EndProcedure
 // See Common.SystemSettingsStorageLoad
 //
 // Parameters:
-//   ObjectKey          - String           - 
-//   SettingsKey         - String           - 
+//   ObjectKey          - String           - See Syntax Assistant.
+//   SettingsKey         - String           - See Syntax Assistant.
 //   DefaultValue  - Arbitrary     - the value that is returned if the settings do not exist.
 //                                             If not specified, returns Undefined.
-//   SettingsDescription     - SettingsDescription - 
-//   UserName      - String           - 
+//   SettingsDescription     - SettingsDescription - See Syntax Assistant.
+//   UserName      - String           - See Syntax Assistant.
 //
 // Returns: 
-//   Arbitrary - 
+//   Arbitrary - See Syntax Assistant.
 //
 Function SystemSettingsStorageLoad(ObjectKey, SettingsKey, DefaultValue = Undefined, 
 			SettingsDescription = Undefined,
@@ -268,11 +269,11 @@ EndFunction
 //
 // Parameters:
 //   ObjectKey     - String
-//                   - Undefined - 
+//                   - Undefined - See Syntax Assistant.
 //   SettingsKey    - String
-//                   - Undefined - 
+//                   - Undefined - See Syntax Assistant.
 //   UserName - String
-//                   - Undefined - 
+//                   - Undefined - See Syntax Assistant.
 //
 Procedure SystemSettingsStorageDelete(ObjectKey, SettingsKey, UserName) Export
 	
@@ -289,11 +290,11 @@ EndProcedure
 // See Common.FormDataSettingsStorageSave
 //
 // Parameters:
-//   ObjectKey       - String           - 
-//   SettingsKey      - String           - 
-//   Settings         - Arbitrary     - 
-//   SettingsDescription  - SettingsDescription - 
-//   UserName   - String           - 
+//   ObjectKey       - String           - See Syntax Assistant.
+//   SettingsKey      - String           - See Syntax Assistant.
+//   Settings         - Arbitrary     - See Syntax Assistant.
+//   SettingsDescription  - SettingsDescription - See Syntax Assistant.
+//   UserName   - String           - See Syntax Assistant.
 //   RefreshReusableValues - Boolean - the flag that indicates whether to execute the method.
 //
 Procedure FormDataSettingsStorageSave(ObjectKey, SettingsKey, Settings,
@@ -327,15 +328,15 @@ EndProcedure
 // See Common.FormDataSettingsStorageLoad
 //
 // Parameters:
-//   ObjectKey          - String           - 
-//   SettingsKey         - String           - 
+//   ObjectKey          - String           - See Syntax Assistant.
+//   SettingsKey         - String           - See Syntax Assistant.
 //   DefaultValue  - Arbitrary     - the value that is returned if the settings do not exist.
 //                                             If not specified, returns Undefined.
-//   SettingsDescription     - SettingsDescription - 
-//   UserName      - String           - 
+//   SettingsDescription     - SettingsDescription - See Syntax Assistant.
+//   UserName      - String           - See Syntax Assistant.
 //
 // Returns: 
-//   Arbitrary - 
+//   Arbitrary - See Syntax Assistant.
 //
 Function FormDataSettingsStorageLoad(ObjectKey, SettingsKey, DefaultValue = Undefined,
 			SettingsDescription = Undefined,
@@ -360,11 +361,11 @@ EndFunction
 //
 // Parameters:
 //   ObjectKey     - String
-//                   - Undefined - 
+//                   - Undefined - See Syntax Assistant.
 //   SettingsKey    - String
-//                   - Undefined - 
+//                   - Undefined - See Syntax Assistant.
 //   UserName - String
-//                   - Undefined - 
+//                   - Undefined - See Syntax Assistant.
 //
 Procedure FormDataSettingsStorageDelete(ObjectKey, SettingsKey, UserName) Export
 	
@@ -381,7 +382,7 @@ EndProcedure
 #Region Styles
 
 ////////////////////////////////////////////////////////////////////////////////
-// Functions to manage style colors in the client code.
+// Functions to manage style colors in client-side code.
 
 // See CommonClient.StyleColor
 Function StyleColor(Val StyleColorName) Export

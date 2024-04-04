@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -23,7 +24,7 @@ EndFunction
 // Message interface version supported by the handler.
 //
 // Returns:
-//   String - 
+//   String - Version of message interface.
 //
 Function Version() Export
 	
@@ -34,7 +35,7 @@ EndFunction
 // Base type for version messages.
 //
 // Returns:
-//   XDTOObjectType - 
+//   XDTOObjectType - Basic type of message body.
 //
 Function BaseType() Export
 	
@@ -155,8 +156,8 @@ Procedure ConnectCorrespondent(Message, Sender)
 		
 		If ConnectedCorrespondentCode <> Body.RecipientId Then
 			
-			
-			
+			// 
+			// 
 			ErrorPresentation = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Peer infobase endpoint connection error.
 				|Unexpected endpoint ID.

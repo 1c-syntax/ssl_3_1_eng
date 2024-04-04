@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -38,7 +39,7 @@ Procedure TaskFormOnCreateAtServer(BusinessTaskForm, TaskObject,
 		If Item = Undefined Then
 			Item = BusinessTaskForm.Items.Add("__TaskState", Type("FormDecoration"), Parent);
 			Item.Type = FormDecorationType.Label;
-			Item.Height = 0; 
+			Item.Height = 0; // 
 			Item.AutoMaxWidth = False;
 		EndIf;
 		UseDateAndTimeInTaskDeadlines = GetFunctionalOption("UseDateAndTimeInTaskDeadlines");
@@ -243,12 +244,12 @@ EndProcedure
 //  AdditionalAddressingObject - AnyRef - a reference to the additional business object.
 //
 // Returns:
-//  String - :
-//           
-//           
-//           
-//           
-//                                                                   
+//  String - a string representation of the task assignee, for example:
+//           "John Smith" - assignee as specified in the Performer parameter.
+//           "Chief Accountant" - an assignee role specified in the PerformerRole parameter.
+//           "Chief Accountant (Sun LLC)" - if a role is specified along with the main addressing object.
+//           "Chief Accountant (Sun LLC, New York branch)" - if a role is specified along with both addressing
+//                                                                   objects.
 //
 Function PerformerString(Val Performer, Val PerformerRole,
 	Val MainAddressingObject = Undefined, Val AdditionalAddressingObject = Undefined) Export
@@ -270,11 +271,11 @@ EndFunction
 //  AdditionalAddressingObject - AnyRef - a reference to the additional business object.
 // 
 // Returns:
-//  String - :
-//            
-//            
-//            
-//                                                                    
+//  String - a string representation of a role. For example:
+//            "Chief Accountant" - an assignee role specified in the PerformerRole parameter.
+//            "Chief Accountant (Sun LLC)" - if a role is specified along with the main addressing object.
+//            "Chief Accountant (Sun LLC, New York branch)" - if a role is specified along with both addressing
+//                                                                    objects.
 //
 Function RoleString(Val PerformerRole,
 	Val MainAddressingObject = Undefined, Val AdditionalAddressingObject = Undefined) Export
@@ -405,7 +406,7 @@ Function BusinessProcessCompletionDate(BusinessProcessRef) Export
 	
 EndFunction	
 
-// 
+// Returns business processes subordinate to the current task.
 //
 // Parameters:
 //  TaskRef  - TaskRef.PerformerTask
@@ -504,7 +505,7 @@ Procedure ValidateRightsToChangeBusinessProcessState(BusinessProcessObject) Expo
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Insufficient rights to suspend business process ""%1"".';"),
 				String(BusinessProcessObject));
-			Raise MessageText;
+			Raise(MessageText, ErrorCategory.AccessViolation);
 		EndIf;
 		
 		If PreviousState = Enums.BusinessProcessStates.Running Then
@@ -597,8 +598,8 @@ Procedure LockTasks(Var_Tasks) Export
 	
 EndProcedure
 
-// 
-// 
+// Fills MainTask attribute when creating a business process based on another business process.
+// See also BusinessProcessesAndTasksOverridable.OnFillMainBusinessProcessTask.
 //
 // Parameters:
 //  BusinessProcessObject	 - DefinedType.BusinessProcessObject
@@ -665,7 +666,7 @@ Function TaskPerformersGroup(PerformerRole, MainAddressingObject, AdditionalAddr
 			LockItem.SetValue("AdditionalAddressingObject", AdditionalAddressingObject);
 			Block.Lock();
 			
-			Selection = Query.Execute().Select(); 
+			Selection = Query.Execute().Select(); // 
 			If Selection.Next() Then
 				
 				PerformersGroup = Selection.Ref;
@@ -854,9 +855,9 @@ EndFunction
 ////////////////////////////////////////////////////////////////////////////////
 // Scheduled job handlers.
 
-// 
-// 
-// 
+// Runs notification mailing to assignees on new tasks received since the date of previous mailing.
+// Notifications are sent using email on behalf of the system account.
+// Also it is the NewPerformerTaskNotifications scheduled job handler.
 //
 Procedure NotifyPerformersOnNewTasks() Export
 	
@@ -874,8 +875,8 @@ Procedure NotifyPerformersOnNewTasks() Export
 	NotificationDate3 = CurrentSessionDate();
 	LatestNotificationDate = Constants.NewTasksNotificationDate.Get();
 	
-	
-	
+	// 
+	// 
 	If (LatestNotificationDate = '00010101000000') 
 		Or (NotificationDate3 - LatestNotificationDate > 24*60*60) Then
 		LatestNotificationDate = NotificationDate3 - 24*60*60;
@@ -902,12 +903,12 @@ Procedure NotifyPerformersOnNewTasks() Export
 	
 EndProcedure
 
-// 
-// 
-// 
-// 
+// Runs notification mailing to task assignees and authors on overdue tasks.
+// Notifications are sent using email on behalf of the system account.
+// If a task is sent to a role with no assignee,
+// a new task to the persons responsible for role setting is created.
 //
-// 
+// Also it is the TaskMonitoring scheduled job handler.
 //
 Procedure CheckTasks() Export
 	
@@ -1150,6 +1151,59 @@ Procedure OnDeterminePerformersGroups(TempTablesManager, ParameterContent, Param
 	
 EndProcedure
 
+// StandardSubsystems.AccessManagement
+
+// See UsersInternal.OnFillRegisteredRefKinds.
+Procedure OnFillRegisteredRefKinds(RefsKinds) Export
+	
+	RefsKind = RefsKinds.Add();
+	RefsKind.Name = "ModifiedTasksAssigneesGroups";
+	RefsKind.AllowedTypes = New TypeDescription("CatalogRef.TaskPerformersGroups");
+	RefsKind.ParameterNameExtensionsOperation =
+		"StandardSubsystems.BusinessProcessesAndTasks.ModifiedTasksAssigneesGroupsModifiedUponImport";
+	
+EndProcedure
+
+// See StandardSubsystemsServer.OnReceiveDataFromMaster.
+Procedure OnReceiveDataFromMaster(DataElement, ItemReceive, SendBack, Sender) Export
+	
+	OnDataGet(DataElement, ItemReceive);
+	
+EndProcedure
+
+// See StandardSubsystemsServer.OnReceiveDataFromSlave.
+Procedure OnReceiveDataFromSlave(DataElement, ItemReceive, SendBack, Sender) Export
+	
+	OnDataGet(DataElement, ItemReceive);
+	
+EndProcedure
+
+// See StandardSubsystemsServer.AfterGetData.
+Procedure AfterGetData(Sender, Cancel, GetFromMasterNode) Export
+	
+	If InfobaseUpdate.InfobaseUpdateInProgress() Then
+		Return;
+	EndIf;
+	
+	UpdateAuxiliaryDataOfItemsModifiedUponDataImport();
+	
+EndProcedure
+
+// See the description in the procedure
+// to fill in the Extension Work Parameters of the Information Register Manager module Extension Work Parameters.
+//
+Procedure OnFillAllExtensionParameters() Export
+	
+	SetSafeModeDisabled(True);
+	SetPrivilegedMode(True);
+	
+	// 
+	UpdateAuxiliaryDataOfItemsModifiedUponDataImport();
+	
+EndProcedure
+
+// End StandardSubsystems.AccessManagement
+
 // See ImportDataFromFileOverridable.OnDefineCatalogsForDataImport.
 Procedure OnDefineCatalogsForDataImport(CatalogsToImport) Export
 	
@@ -1219,9 +1273,9 @@ EndProcedure
 // See AccessManagementOverridable.OnFillAccessRightsDependencies.
 Procedure OnFillAccessRightsDependencies(RightsDependencies) Export
 	
-	
-	
-	
+	// 
+	// 
+	// 
 	
 	String = RightsDependencies.Add();
 	String.SubordinateTable = "Task.PerformerTask";
@@ -1294,8 +1348,8 @@ Procedure OnFillToDoList(ToDoList) Export
 	
 	PerformerTaskQuantity = PerformerTaskQuantity();
 	
-	
-	
+	// 
+	// 
 	Sections = ModuleToDoListServer.SectionsForObject(Metadata.Tasks.PerformerTask.FullName());
 	
 	If Users.IsExternalUserSession()
@@ -2464,6 +2518,68 @@ Function PerformerTaskQuantity()
 	
 EndFunction
 
+// StandardSubsystems.AccessManagement
+
+////////////////////////////////////////////////////////////////////////////////
+// 
+
+// 
+Procedure OnDataGet(DataElement, ItemReceive)
+	
+	// 
+	If ItemReceive = DataItemReceive.Ignore Then
+		Return;
+	EndIf;
+	
+	If TypeOf(DataElement) = Type("InformationRegisterRecordSet.TaskPerformers") Then
+		RegisterTaskAssigneesChangeUponDataImport(DataElement);
+	EndIf;
+	
+EndProcedure
+
+// 
+Procedure RegisterTaskAssigneesChangeUponDataImport(DataElement)
+	
+	If Not Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
+		Return;
+	EndIf;
+	
+	SetPrivilegedMode(True);
+	
+	Groups = DataElement.ModifiedTasksAssigneesGroups();
+	If Not ValueIsFilled(Groups) Then
+		Return;
+	EndIf;
+	
+	UsersInternal.RegisterRefs("ModifiedTasksAssigneesGroups", Groups);
+	
+EndProcedure
+
+// 
+Procedure UpdateAuxiliaryDataOfItemsModifiedUponDataImport()
+	
+	RefsKindName = "ModifiedTasksAssigneesGroups";
+	
+	Groups = UsersInternal.RegisteredRefs(RefsKindName);
+	If Groups.Count() = 0 Then
+		Return;
+	EndIf;
+	
+	If Groups.Count() = 1 And Groups[0] = Undefined Then
+		Groups = Undefined;
+	EndIf;
+	
+	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
+		ModuleAccessManagementInternal = Common.CommonModule("AccessManagementInternal");
+		ModuleAccessManagementInternal.UpdatePerformersGroupsUsers(Groups);
+	EndIf;
+	
+	UsersInternal.RegisterRefs(RefsKindName, Null);
+	
+EndProcedure
+
+// End StandardSubsystems.AccessManagement
+
 ////////////////////////////////////////////////////////////////////////////////
 // Infobase update.
 
@@ -2485,7 +2601,7 @@ EndProcedure
 
 // Parameters:
 //  Recipients - See ContactsManager.ObjectsContactInformation
-//  Recipient -  
+//  Recipient - CatalogRef.Users, CatalogRef.ExternalUsers 
 // 
 // Returns:
 //  String
@@ -2507,7 +2623,6 @@ EndFunction
 
 // Parameters:
 //   Recipients - Array of CatalogRef.Users
-//              - Array of CatalogRef.ВнешниеПользователи
 //   
 // Returns:
 //   See ContactsManager.ObjectsContactInformation
@@ -2560,7 +2675,7 @@ EndFunction
 Function SystemEmailAccountIsSetUp(ErrorDescription)
 	
 	If Not Common.SubsystemExists("StandardSubsystems.EmailOperations") Then
-		ErrorDescription = NStr("en = 'Email sending is not available in the application.';");
+		ErrorDescription = NStr("en = 'Sending email messages is not supported in the app.';");
 	Else
 		ModuleEmailOperations = Common.CommonModule("EmailOperations");
 		If ModuleEmailOperations.AccountSetUp(ModuleEmailOperations.SystemAccount(), True, False) Then
@@ -2586,7 +2701,7 @@ Procedure UpdateScheduledJobUsage() Export
 	
 EndProcedure
 
-// Runs when a configuration is updated to v.3.0.2.131 and during the initial data population.
+// Runs during update to SSL v.3.0.2.131 and initial data population.
 // 
 Procedure FillPredefinedItemDescriptionAllAddressingObjects() Export
 	

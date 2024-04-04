@@ -117,7 +117,7 @@
 					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ContextMenu name="FieldsListPresentationContextMenu" id="17"/>
-					<ExtendedTooltip name="FieldsListPresentationExtendedTooltip" id="24"/>
+					<ExtendedTooltip name="FieldListPresentationExtendedTooltip" id="24"/>
 				</InputField>
 			</ChildItems>
 		</Table>
@@ -137,12 +137,24 @@
 					<DefaultButton>true</DefaultButton>
 					<SkipOnInput>false</SkipOnInput>
 					<CommandName>Form.Command.Apply</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Apply</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="ApplyExtendedTooltip" id="26"/>
 				</Button>
 				<Button name="Cancel" id="10">
 					<Type>CommandBarButton</Type>
 					<SkipOnInput>false</SkipOnInput>
 					<CommandName>Form.Command.Cancel</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Cancel</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="CancelExtendedTooltip" id="27"/>
 				</Button>
 			</ChildItems>

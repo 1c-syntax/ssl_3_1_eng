@@ -41,6 +41,12 @@
 			<ChildItems>
 				<InputField name="PhoneNumberByMask" id="60">
 					<DataPath>PhoneNumberByMask</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Phone number</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Top</TitleLocation>
 					<ContextMenu name="PhoneNumberByMaskContextMenu" id="61"/>
 					<ExtendedTooltip name="PhoneNumberByMaskExtendedTooltip" id="62"/>
@@ -62,6 +68,12 @@
 					<ChildItems>
 						<InputField name="CountryCode" id="5">
 							<DataPath>CountryCode</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Country code</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Top</TitleLocation>
 							<ToolTip>
 								<v8:item>
@@ -79,6 +91,12 @@
 						</InputField>
 						<InputField name="CityCode" id="3">
 							<DataPath>CityCode</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Area code</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Top</TitleLocation>
 							<ToolTip>
 								<v8:item>
@@ -97,6 +115,12 @@
 						</InputField>
 						<InputField name="PhoneNumber" id="9">
 							<DataPath>PhoneNumber</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Number</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Top</TitleLocation>
 							<ToolTip>
 								<v8:item>
@@ -114,6 +138,12 @@
 						</InputField>
 						<InputField name="PhoneExtension" id="1">
 							<DataPath>PhoneExtension</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Extension</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Top</TitleLocation>
 							<ToolTip>
 								<v8:item>
@@ -124,7 +154,7 @@
 							<Width>8</Width>
 							<HorizontalStretch>false</HorizontalStretch>
 							<ContextMenu name="ExtraContextMenu" id="2"/>
-							<ExtendedTooltip name="ExtraExtendedTooltip" id="44"/>
+							<ExtendedTooltip name="PhoneExtensionExtendedTooltip" id="44"/>
 							<Events>
 								<Event name="OnChange">ExtraOnChange</Event>
 							</Events>
@@ -133,6 +163,12 @@
 				</UsualGroup>
 				<InputField name="Comment" id="7">
 					<DataPath>Comment</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Comment</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Top</TitleLocation>
 					<ToolTip>
 						<v8:item>
@@ -150,6 +186,12 @@
 		<InputField name="Presentation" id="11" DisplayImportance="VeryLow">
 			<DataPath>Presentation</DataPath>
 			<ReadOnly>true</ReadOnly>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Presentation</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>None</TitleLocation>
 			<BackColor>style:ButtonBackColor</BackColor>
 			<BorderColor>style:FormBackColor</BorderColor>
@@ -170,16 +212,34 @@
 					<Type>CommandBarButton</Type>
 					<DefaultButton>true</DefaultButton>
 					<CommandName>Form.Command.OkCommand</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>OK</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="OkCommandExtendedTooltip" id="49"/>
 				</Button>
 				<Button name="Cancel" id="30">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.CancelCommand</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Cancel</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="CancelExtendedTooltip" id="50"/>
 				</Button>
 				<Button name="ClearPhone" id="34">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.ClearPhone</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Clear phone number</v8:content>
+						</v8:item>
+					</Title>
 					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 					<ExtendedTooltip name="ClearPhoneExtendedTooltip" id="53"/>
 				</Button>
@@ -515,7 +575,13 @@
 			</Type>
 		</Parameter>
 		<Parameter name="FieldValues">
-			<Type/>
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
 		</Parameter>
 		<Parameter name="Presentation">
 			<Type>
@@ -535,6 +601,18 @@
 		<Parameter name="ReadOnly">
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="ContactInformationAdditionalAttributesDetails">
+			<Type/>
+		</Parameter>
+		<Parameter name="Value">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
 			</Type>
 		</Parameter>
 	</Parameters>

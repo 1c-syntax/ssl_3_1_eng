@@ -70,6 +70,12 @@
 						<Button name="FormDelete" id="72">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.Delete</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Delete</v8:content>
+								</v8:item>
+							</Title>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 							<ExtendedTooltip name="FormDeleteExtendedTooltip" id="73"/>
 						</Button>
@@ -88,6 +94,12 @@
 				<Button name="ShowMarkedFiles" id="74">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.ShowMarkedFiles</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Show marked files</v8:content>
+						</v8:item>
+					</Title>
 					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 					<ExtendedTooltip name="ShowMarkedFilesExtendedTooltip" id="75"/>
 				</Button>
@@ -181,6 +193,12 @@
 					<Button name="ListContextMenuDelete" id="76">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.Delete</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Delete</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="ListContextMenuDeleteExtendedTooltip" id="77"/>
 					</Button>
 				</ChildItems>

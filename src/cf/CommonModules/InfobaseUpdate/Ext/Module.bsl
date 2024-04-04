@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -177,8 +178,8 @@ EndFunction
 //          - CalculationRegisterRecordSet
 //          - AnyRef
 //          - FormDataStructure 
-//          - String - 
-//                       
+//          - String - A reference, object, record set, or full name of the metadata object
+//                       whose processing should be checked.
 //  Form  - ClientApplicationForm - if an object is not processed, the ReadOnly property is set
 //           for the passed form. If the form is not
 //           passed, an exception is thrown.
@@ -269,8 +270,8 @@ EndProcedure
 //          - CalculationRegisterRecordSet
 //          - AnyRef
 //          - FormDataStructure 
-//          - String - 
-//                     
+//          - String - A reference, object, record set, or full name of the metadata object
+//                     whose lock should be checked.
 //
 // Returns:
 //   Structure:
@@ -312,7 +313,7 @@ Function ObjectProcessed(Data) Export
 	If MetadataAndFilter <> Undefined
 		And AvailableToEdit <> Undefined
 		And AvailableToEdit.Find(MetadataAndFilter.Filter) <> Undefined Then
-		Return Result; 
+		Return Result; // 
 	EndIf;
 	
 	BlockUpdate = False;
@@ -372,8 +373,8 @@ Function ObjectProcessed(Data) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-
-
+// 
+// 
 //
 
 // Checking that the passed data is updated.
@@ -383,13 +384,13 @@ EndFunction
 //         - Array
 //         - InformationRegisterRecordSet, AccumulationRegisterRecordSet, AccountingRegisterRecordSet
 //         - CalculationRegisterRecordSet - the data the changes to be recorded for.
-//         - ValueTable - :
-//                              
-//                              
-//                                
-//                              
-//                                
-//                              
+//         - ValueTable - Dimension values of an independent information register. Requirements:
+//                              a) all register dimensions are included in the main filter;
+//                              b) the table contains only the columns that match the register dimension names
+//                                that were previously subject to process request;
+//                              c) during the update, the filter applied to the process request is applied
+//                                to sets to be recorded;
+//                              d) the respective flag value and full register name are passed to AdditionalParameters.
 //  AdditionalParameters - See InfobaseUpdate.AdditionalProcessingMarkParameters.
 //  Queue - Number
 //          - Undefined - the position in a processing queue where the current handler is running. By default, you do not have to
@@ -579,7 +580,7 @@ EndFunction
 //             - AnyRef
 //             - FormDataStructure - the data to be analyzed. 
 //    * ObjectMetadata   - MetadataObject - the metadata object that matches the Data parameter.
-//    * FullName           - String      - 
+//    * FullName           - String      - Metadata object's full name. See method "MetadataObject.FullName".
 //    * Filter               - AnyRef - if Data is a reference object, it is the reference value. 
 //                                            If Data is a recorder subordinate register, it is the recorder filter value.
 //			   	              - Structure   - if Data is an independent information register, it is the structure that matches 
@@ -700,14 +701,14 @@ EndFunction
 //                    - Array
 //                    - InformationRegisterRecordSet, AccumulationRegisterRecordSet, AccountingRegisterRecordSet
 //                    - CalculationRegisterRecordSet - the data the changes to be recorded for.
-//                    - ValueTable - :
-//                        
-//                        
-//                        
-//                          
-//                        
-//                          
-//                        
+//                    - ValueTable - Dimension values of an independent information register. Requirements:
+//                        a) no dimensions with the "Node" name;
+//                        b) all register dimensions are included in the main filter;
+//                        c) the table contains only the columns that match the register dimension names
+//                          that are subject to process request;
+//                        d) during the update, the filter applied to the process request is applied
+//                          to sets to be recorded;
+//                        e) the respective flag value and full register name are passed to AdditionalParameters.
 //  AdditionalParameters - See InfobaseUpdate.AdditionalProcessingMarkParameters.
 // 
 Procedure MarkForProcessing(MainParameters, Data, AdditionalParameters = Undefined) Export
@@ -791,7 +792,7 @@ Procedure MarkForProcessing(MainParameters, Data, AdditionalParameters = Undefin
 		Else
 			Recorders = Data;
 			
-			
+			// Save the list of tables for which the registration was performed.
 			For Each Recorder In Recorders Do
 				TableType = TypeOf(Recorder);
 				If Recorder.IsEmpty() Then
@@ -872,20 +873,20 @@ EndProcedure
 //   * TempTableName - String - the parameter is valid for methods that create temporary tables. If the name is not specified
 //                           (the default scenario), the temporary table is created with the name specified
 //                           in the method description.
-//   * AdditionalDataSources - Map of KeyAndValue - 
-//                                     
-//                                     :
-//                                     
-//                                        
-//                                        
-//                                     
-//                                        
-//                                        
-//                                        
-//                                     
-//                                     
-//                                     
-//                                     See SetDataSource
+//   * AdditionalDataSources - Map of KeyAndValue - Intended for methods that select recorders and references for processing.
+//                                     The map keys can contain one of the following data kinds:
+//                                     1. Paths to document header attributes or tabular sections attributes that:
+//                                     are connected with other tables (including implicit connections when
+//                                        addressing "separated by dot").
+//                                        2. Names of reference metadata objects (String) that contain
+//                                     a map in their values where the key is a register name (String), and in the map
+//                                        value in the keys of which is the same as in the cl. 1, that means,
+//                                        map hierarchy "Object" -> "Register" -> "Sources".
+//                                        Procedures check data lock for these tables by the handlers with lowest positions
+//                                     in the queue. Source name format: <AttributeName> or
+//                                     <TabularSectionName>.<TabularSectionAttributeName>. 
+//                                     For a seamless population,
+//                                     See SetDataSource.
 //   * OrderFields  - Array - the name of independent information register fields used to organize
 //                                    a query result.
 //   * MaxSelection - Number - the maximum number of selecting records.
@@ -906,16 +907,16 @@ Function AdditionalProcessingDataSelectionParameters() Export
 	
 EndFunction
 
-// 
-// 
-// 
+// Parameters used for selecting handler's up-to-date data when running an update.
+// Intended for handlers with regular order.
+// The filtered-out data will be processed by non-critical update handlers.
 // 
 // Returns:
 //   Structure:
-//      * FilterField   - String - 
-//      * ComparisonType - ComparisonType - 
-//                                      
-//      * Value     - Arbitrary - 
+//      * FilterField   - String - The comparison attribute.
+//      * ComparisonType - ComparisonType - Valid values are "Greater", "Less", "Equal",
+//                                      "GreaterOrEqual", "LessOrEqual".
+//      * Value     - Arbitrary - The comparison value.
 //
 Function UpToDateDataSelectionParameters() Export
 	
@@ -931,7 +932,7 @@ EndFunction
 // Additional parameters for the data selected for multithread processing.
 //
 // Returns:
-//  Structure - :
+//  Structure - Fields from "AdditionalProcessingDataSelectionParameters" supplemented the following fields:
 //   * FullNamesOfObjects - String - full names of updated objects (for example, documents) separated by commas.
 //   * FullRegistersNames - String - full registers names separated by commas.
 //   * OrderingFieldsOnUserOperations - Array - ordering fields that are used when updating
@@ -1059,7 +1060,7 @@ EndFunction
 //  AdditionalParameters	 - See InfobaseUpdate.AdditionalProcessingDataSelectionParameters.
 // 
 // Returns:
-//  Structure - :
+//  Structure - The result of the temporary table generation:
 //   * HasRecordsInTemporaryTable - Boolean - the created table has at least one record. 
 //                                             There are two reasons records can be missing:
 //                                             all references have been processed or the references to be processed are locked by 
@@ -1251,7 +1252,7 @@ EndFunction
 //  AdditionalParameters	 - See InfobaseUpdate.AdditionalProcessingDataSelectionParameters.
 // 
 // Returns:
-//   QueryResultSelection - :
+//   QueryResultSelection - A set of recorders to be processed. Set fields are:
 //     * Recorder - DocumentRef
 //     * Period - Date - if the full document name is passed, the date of the document.
 //                       Otherwise, the maximum period of the recorder.
@@ -1419,7 +1420,7 @@ EndFunction
 //  AdditionalParameters	 - See InfobaseUpdate.AdditionalProcessingDataSelectionParameters.
 // 
 // Returns:
-//   QueryResultSelection - :
+//   QueryResultSelection - A set of references to be processed. Set fields are:
 //     * Ref - AnyRef
 //   ValueTable - data that must be processed, column names map the register dimension names.
 //
@@ -1537,7 +1538,7 @@ EndFunction
 //  AdditionalParameters - See InfobaseUpdate.AdditionalProcessingDataSelectionParameters.
 // 
 // Returns:
-//  Structure - :
+//  Structure - The result of the temporary table generation:
 //   * HasRecordsInTemporaryTable - Boolean - the created table has at least one record. There are
 //                                            two reasons records can be missing:
 //                                             all references have been processed or the references to be processed are locked by
@@ -1801,7 +1802,7 @@ EndFunction
 //  AdditionalParameters	 - See InfobaseUpdate.AdditionalProcessingDataSelectionParameters.
 // 
 // Returns:
-//  Structure - :
+//  Structure - The result of the temporary table generation:
 //   * HasRecordsInTemporaryTable - Boolean - the created table has at least one record. There are
 //                                            two reasons records can be missing:
 //                                              all references have been processed or the references to be processed are locked by
@@ -2150,7 +2151,7 @@ Function HasDataToProcess(Queue, FullObjectNameMetadata, Filter = Undefined) Exp
 		
 		SetSafeModeDisabled(True);
 		SetPrivilegedMode(True);
-		If Not Query.Execute().IsEmpty() Then 
+		If Not Query.Execute().IsEmpty() Then // @skip-check query-in-loop - To avoid heavy queries.
 			Return True;
 		EndIf;
 		SetPrivilegedMode(False);
@@ -2257,7 +2258,7 @@ Function CanReadAndEdit(Queue, Data, AdditionalParameters = Undefined, MetadataA
 EndFunction
 
 // Creates a temporary table containing locked data.
-// Table name: TemporaryTables Locked<ObjectName>, for example TemporaryTableLockedProductsAndServices
+// Table name: TTLocked<ObjectName>, for example TTLockedProductsAndServices
 //  Table columns:
 //      for the reference type objects
 //          * Ref;
@@ -2636,7 +2637,7 @@ EndFunction
 //  - join with the main recorder table by these recorders;
 //  - get the values of changes from the main table;
 //  - perform the grouping.
-//  Table name: TemporaryTables Locked<ObjectName>, for example, TTLockedStock.
+//  Table name: TTLocked<ObjectName>, for example, TTLockedStock.
 //  The table columns match the passed dimensions.
 //
 // Parameters:
@@ -2899,8 +2900,8 @@ EndFunction
 // Returns an empty table of update handlers and initial infobase filling handlers. 
 //
 // Returns:
-//   ValueTable   - :
-//    
+//   ValueTable   - A table with the following columns:
+//    1. For update handlers of any type:
 //
 //     * InitialFilling - Boolean - if True, then a handler is started on a launch with an empty base.
 //     * Version              - String - for example, "2.1.3.39". Configuration version number.
@@ -2910,11 +2911,11 @@ EndFunction
 //     * Procedure           - String - the full name of an update handler or initial filling handler. 
 //                                      For example, "MEMInfobaseUpdate.FillNewAttribute"
 //                                      Must be an export procedure.
-//     * ExecutionMode     - String - :
-//                                      
-//                                      
+//     * ExecutionMode     - String - Update handler execution mode. Valid values are::
+//                                      "Exclusive", "Deferred", "Seamless".
+//                                      By default, "Exclusive" (if no value is passed).
 //
-//    
+//    2. For SaaS update handlers:
 //
 //     * SharedData         - Boolean - if True, the handler is executed prior to
 //                                      other handlers that use shared data.
@@ -2941,18 +2942,18 @@ EndFunction
 //                                      and not required for others. Full names of objects separated by commas. 
 //                                      These names must be locked from changing until data processing procedure is finalized.
 //                                      If it is not empty, then the CheckProcedure property must also be filled in.
-//     * NewObjects        - String - 
-//                                       
-//                                      
-//     * CheckProcedure   - String - 
-//                                       
-//                                       
-//                                       
-//                                      
-//                                      :
-//                                          See InfobaseUpdate.MetadataAndFilterByData.
+//     * NewObjects        - String - It is required and intended for deferred update handlers only.
+//                                      Accepts a comma-delimited list of the full names of the objects 
+//                                      that will be created during the update handler runtime.
+//     * CheckProcedure   - String - It is required and intended for deferred update handlers only.
+//                                       It takes the name of a function that, for the given object, 
+//                                      determines whether the data processing procedure has been completed. 
+//                                      When processing is completed, the function should return "True". 
+//                                      Called from the "InfobaseUpdate.CheckObjectProcessed" procedure.
+//                                      The function takes the following parameters::
+//                                         Parameters - See InfobaseUpdate.MetadataAndFilterByData.
 //
-//    
+//    4. For update handlers in libraries and configurations with parallel deferred handlers:
 //
 //     * UpdateDataFillingProcedure - String - the procedure for registering data
 //                                      to be updated by this handler must be specified.
@@ -2968,13 +2969,13 @@ EndFunction
 //     * ExecutionPriorities         - ValueTable - table of execution priorities for deferred handlers
 //                                      changing or reading the same data. For more information, see the commentary
 //                                      to the InfobaseUpdate.HandlerExecutionPriorities function.
-//     * Multithreaded                - Boolean - 
+//     * Multithreaded                - Boolean - True if the handler supports multi-threaded data processing.
 //     * Order  - EnumRef.OrderOfUpdateHandlers
 //    
-//    :
-//     * DoNotExecuteWhenSwitchingFromAnotherProgram - Boolean - 
-//                                          
-//                                          
+//    5. For real-time and exclusive initial population handlers:
+//     * DoNotExecuteWhenSwitchingFromAnotherProgram - Boolean - If True, the initial subsystem population handlers won't run during a migration from an app.
+//                                          (By default, such handlers are executed automatically.)
+//                                          6. For internal use only
 //
 //    :
 //
@@ -2987,29 +2988,29 @@ EndFunction
 //    6) Obsolete, used for backwards compatibility (not to be specified for new handlers):
 //
 //     * ExclusiveMode    - Undefined
-//                           - Boolean -  
-//                                      
-//                                      :
-//                                        
-//                                        
-//                                      
-//                                        
-//                                        
-//                                                 
-//                                                 
-//                                                 
-//                                                 
-//                                                 
-//                                                 
-//                                                 
-//                                                 
-//                                                 
-//                                                 
-//                                                 
-//                                                 
-//                                                 
-//                                                 
-//                                                 
+//                           - Boolean - if Undefined, the handler 
+//                                      is executed unconditionally in the exclusive mode.
+//                                      For handlers that execute migration to a specific version (Version <> *):
+//                                        False - handler execution does not require an exclusive mode.
+//                                        True - handler execution requires an exclusive mode.
+//                                      For required update handlers (Version = "*"):
+//                                        False - handler execution does not require an exclusive mode.
+//                                        True - handler execution may require an exclusive mode.
+//                                                 A parameter of structure type
+//                                                 with ExclusiveMode property (of Boolean type) is passed to such handlers.
+//                                                 To execute the handler in exclusive mode, set
+//                                                 this parameter to True. In this case the handler must perform
+//                                                 the required update operations. Changing the parameter
+//                                                 in the handler body is ignored.
+//                                                 To execute the handler in nonexclusive mode, set this parameter to
+//                                                 False. In this case the handler must not make any
+//                                                 changes to the infobase.
+//                                                 If the analysis reveals that a handler needs to
+//                                                 change infobase data, set the parameter value to the True,
+//                                                 and stop handler execution.
+//                                                 In this case nonexclusive infobase update is
+//                                                 canceled and an error message with a recommendation to perform the update in
+//                                                 exclusive mode is displayed.
 //
 Function NewUpdateHandlerTable() Export
 	
@@ -3041,7 +3042,7 @@ Function NewUpdateHandlerTable() Export
 	Handlers.Columns.Add("ExecutionPriorities");
 	Handlers.Columns.Add("Multithreaded", New TypeDescription("Boolean"));
 	Handlers.Columns.Add("Order", New TypeDescription("EnumRef.OrderOfUpdateHandlers"));
-	
+	// For initial population handlers.
 	Handlers.Columns.Add("DoNotExecuteWhenSwitchingFromAnotherProgram", New TypeDescription("Boolean"));
 	
 	// Obsolete. Reverse compatibility with edition 2.2.
@@ -3108,21 +3109,21 @@ Function ExecuteUpdateIteration(Val LibraryID, Val IBMetadataVersion,
 	
 EndFunction
 
+// Runs a non-interactive infobase update.
+// Intended to be called through an external connection.
+// When calling the method containing extensions that modify the configuration role, an exception will be thrown.
+// NOTE: Before calling the method, clean up obsolete patches.
+// See the "ConfigurationUpdate.PatchesChanged" function.
 // 
-// 
-// 
-// 
-// 
-// 
-// 
+// Intended for being used in other libraries and configurations.
 //
 // Parameters:
 //  ExecuteDeferredHandlers1 - Boolean - if True, then a deferred update will be executed
 //    in the default update mode. Only for a client-server mode.
 //
 // Returns:
-//  String -  :
-//           
+//  String -  Update handlers runtime status::
+//           "Done", "NotRequired", "ExclusiveModeSettingError".
 //
 Function UpdateInfobase(ExecuteDeferredHandlers1 = False) Export
 	
@@ -3305,9 +3306,10 @@ EndProcedure
 //
 // Parameters:
 //  NameOrID - String
-//                      - UUID - 
-//                         See NewUpdateHandlerTable
+//                      - UUID - The full name or id of a deferred update handler.
+//                        For details, See NewUpdateHandlerTable
 //                        
+//                                                  (properties "Procedure" and "ID").
 //
 // Returns:
 //  Number, Undefined - queue number of a passed handler. If
@@ -3345,7 +3347,7 @@ EndFunction
 //  Parameters - Structure - the parameter that is passed in update handler.
 //
 // Returns:
-//  ValueTable - :
+//  ValueTable - For a Ref object with the following columns:
 //     * Ref - AnyRef - a reference to the object to be updated.
 //     * Date   - Date - the column is present only for documents.
 //  
@@ -3834,29 +3836,29 @@ Function UpdatedObjects() Export
 	
 EndFunction
 
-// 
+// Adds an obsolete object to a list of objects that should be deleted during updates.
 // 
 //
 // Parameters:
 //  Objects - Map of KeyAndValue:
-//   * Key - String - 
-//   * Value - Boolean, Map - 
+//   * Key - String - See the "Object" parameter below.
+//   * Value - Boolean, Map - See the "Refinement" parameter below.
 //
-//  Object - String - 
-//     
-//     
-//     
-//     
-//     
-//     
+//  Object - String - Takes either of the following values:
+//     - The full name of the metadata object that should be cleared.
+//     - A metadata object with a main table. For example, "Catalog.DeleteJobsQueue".
+//     - A enumeration member. For example, "Enum.BusinessTransactions.DeleteWriteOffGoodsTransferredToPartners".
+//     - A route point. For example, "BusinessProcess.Job.RoutePoint.DeleteReturnToAssignee".
+//     - All points of a route. For example, "BusinessProcess.Job.Points".
+//     - A register field included in a unique index. For example, "InformationRegister._DemoPersonsResponsible.Warehouse".
 //
-//  Refinement - Boolean - 
-//               
-//               
+//  Refinement - Boolean - In cases where the "Object" parameter contains an obsolete object.
+//               The object's name must start with "Delete".
+//               If set to True, the object data will be deleted. By default, False.
 //            - TypeDescription, Type, EnumRef, BusinessProcessRoutePointRef - 
-//               
-//               
-//               
+//               In cases where the "Object" parameter contains a field whose type
+//               must be reduced by either a list of reference types, a single type,
+//               a enumeration member value, or a business process' route point value.
 //
 Procedure AddObjectPlannedForDeletion(Objects, Object, Refinement = False) Export
 	
@@ -3965,6 +3967,42 @@ Procedure FillObjectInitialData(ObjectToFillIn, PopulationSettings) Export
 	
 EndProcedure
 
+// 
+// 
+// Parameters:
+//  MetadataObject - MetadataObject - 
+//  ParametersOfUpdate - See PredefinedItemsUpdateParameters
+//                      
+//
+Procedure DoUpdatePredefinedItems(MetadataObject, ParametersOfUpdate = Undefined) Export
+	
+	PredefinedItemsUpdateParameters = ?(ParametersOfUpdate = Undefined,
+		PredefinedItemsUpdateParameters(), ParametersOfUpdate);
+	InfobaseUpdateInternal.UpdateObjectPredefinedItems(MetadataObject, PredefinedItemsUpdateParameters);
+	
+EndProcedure
+
+// 
+//
+// Returns:
+//  Structure:
+//    * Attributes - String - 
+//    * Items - Array - 
+//                          
+//    * UpdateMultilingualStringsOnly - Boolean - 
+//                                                   
+//                                                    
+//
+Function PredefinedItemsUpdateParameters() Export
+	
+	Result = New Structure;
+	Result.Insert("Attributes", "");
+	Result.Insert("Items", New Array);
+	Result.Insert("UpdateMultilingualStringsOnly", False);
+	
+	Return Result;
+	
+EndFunction 
 
 // Population settings for predefined and built-in items.
 // 
@@ -3985,25 +4023,62 @@ EndFunction
 
 #EndRegion
 
-#Region ObsoleteProceduresAndFunctions
-
-// Obsolete: no longer required as the actions are executed automatically by an update feature.
 // 
-// Removes a deferred handler from the handler execution queue for the new version.
-// It is recommended for use in cases, such as switching from a deferred handler execution mode
-// to an exclusive (seamless) one.
-// To perform this action, add a new separate update handler of a
-// "Seamless" execution mode and a "SharedData = False" flag, and place a call for this method in it.
+// 
+// 
 //
 // Parameters:
-//  HandlerName - String - full procedure name of a deferred handler.
+//  Ref_Metadata - AnyRef, MetadataObject - 
+//  Presentation    - String - 
+//                                 
+//  ErrorInfo - ErrorInfo, String - 
+//                                 
+//                                 
+//  Level - EventLogLevel - 
 //
-Procedure DeleteDeferredHandlerFromQueue(HandlerName) Export
-	Return;
+Procedure WriteErrorToEventLog(Ref_Metadata, Val Presentation, ErrorInfo = Undefined, Level = Undefined) Export
+	
+	Data = Undefined;
+	MetadataObject = Undefined;
+	If Common.IsReference(TypeOf(Ref_Metadata)) Then
+		Data = Ref_Metadata;
+		MetadataObject = Ref_Metadata.Metadata();
+	Else
+		MetadataObject = Ref_Metadata;
+	EndIf;
+	
+	ErrorText = "";
+	If TypeOf(ErrorInfo) = Type("String") Then
+		ErrorText = ErrorInfo;
+	Else
+		ErrorText = ErrorProcessing.DetailErrorDescription(ErrorInfo);
+	EndIf;
+	
+	If Not ValueIsFilled(Presentation) Then
+		Presentation = MetadataObject.Name;
+	EndIf;
+	
+	MessageText = NStr("en = 'Couldn''t process ""%1"" due to:
+		|%2';");
+	MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText,
+		Presentation,
+		ErrorText);
+	
+	WriteLogEvent(EventLogEvent(),
+		EventLogLevel.Warning,
+		MetadataObject,
+		Data,
+		MessageText);
+	
+	HandlerName = SessionParameters.UpdateHandlerParameters.HandlerName;
+	If Level = EventLogLevel.Error
+		Or Level = Undefined Then
+		InfobaseUpdateInternal.AddErrorInformationInHandler(HandlerName);
+	ElsIf Level = EventLogLevel.Warning Then
+		InfobaseUpdateInternal.AddErrorInformationInHandler(HandlerName);
+	EndIf;
+	
 EndProcedure
-
-#EndRegion
-
 
 // Logs an event when update handler is running.
 // When writing an error or warning, saves it to the update handler information.
@@ -4171,7 +4246,7 @@ Procedure RelaunchDeferredUpdate(Filter = Undefined) Export
 	InfobaseUpdateInternal.WriteLockedObjectsInfo(LockedObjectsInfo);
 	InfobaseUpdateInternal.FillDataForParallelDeferredUpdate1(RegistrationParameters);
 	
-	
+	// Re-obtain temporary queues if they were added.
 	TempQueues = RequestTemporary.Execute().Unload();
 	
 	// Copy queues.
@@ -4267,7 +4342,7 @@ Procedure RestartExclusiveUpdate(Filter) Export
 	
 EndProcedure
 
-// 
+// Registers data issues found during update in the "Data integrity" subsystem.
 //
 // Parameters:
 //  ObjectWithIssue - AnyRef - Object in which the issue is found.
@@ -4323,6 +4398,25 @@ Procedure EnableDisableDeferredUpdate(Use) Export
 	InfobaseUpdateInternal.OnEnableDeferredUpdate(Use);
 	
 EndProcedure
+
+#Region ObsoleteProceduresAndFunctions
+
+// Obsolete: no longer required as the actions are executed automatically by an update feature.
+// 
+// Removes a deferred handler from the handler execution queue for the new version.
+// It is recommended for use in cases, such as switching from a deferred handler execution mode
+// to an exclusive (seamless) one.
+// To perform this action, add a new separate update handler of a
+// "Seamless" execution mode and a "SharedData = False" flag, and place a call for this method in it.
+//
+// Parameters:
+//  HandlerName - String - full procedure name of a deferred handler.
+//
+Procedure DeleteDeferredHandlerFromQueue(HandlerName) Export
+	Return;
+EndProcedure
+
+#EndRegion
 
 #EndRegion
 
@@ -4396,7 +4490,7 @@ Procedure AddAdditionalSourceLockCheck(Queue, QueryText, FullObjectName, FullReg
 						TemporaryTablesOfLockedAdditionalSources[SourceMetadata] = LockedAdditionalSourceTTName;
 						AdditionalParametersForTTCreation = AdditionalProcessingDataSelectionParameters();
 						AdditionalParametersForTTCreation.TempTableName = LockedAdditionalSourceTTName;
-						CreateTemporaryTableOfDataProhibitedFromReadingAndEditing(Queue, 
+						CreateTemporaryTableOfDataProhibitedFromReadingAndEditing(Queue, // @skip-check query-in-loop - Batch verification of locked data.
 							FullSourceName,
 							TempTablesManager,
 							AdditionalParametersForTTCreation); 
@@ -4470,7 +4564,7 @@ Procedure AddAdditionalSourceLockCheck(Queue, QueryText, FullObjectName, FullReg
 					
 					AdditionalParametersForTTCreation = AdditionalProcessingDataSelectionParameters();
 					AdditionalParametersForTTCreation.TempTableName = LockedAdditionalSourceTTName;
-					CreateTemporaryTableOfDataProhibitedFromReadingAndEditing(Queue, DataSource, TempTablesManager, AdditionalParametersForTTCreation); 
+					CreateTemporaryTableOfDataProhibitedFromReadingAndEditing(Queue, DataSource, TempTablesManager, AdditionalParametersForTTCreation); // @skip-check query-in-loop - Batch verification of locked data.
 					
 					TemporaryTablesOfLockedAdditionalSources.Insert(SourceMetadata, LockedAdditionalSourceTTName);
 				EndIf;
@@ -4551,7 +4645,7 @@ Procedure AddAdditionalSourceLockCheckForStandaloneRegister(Queue, QueryText, Fu
 			TempTableName = "TTLocked" + DataSource;
 			AdditionalParametersForTTCreation.TempTableName = TempTableName;
 			
-			CreateTemporaryTableOfRefsProhibitedFromReadingAndEditing(Queue, MetadataObjectsArray, TempTablesManager, AdditionalParametersForTTCreation); 
+			CreateTemporaryTableOfRefsProhibitedFromReadingAndEditing(Queue, MetadataObjectsArray, TempTablesManager, AdditionalParametersForTTCreation); // @skip-check query-in-loop - Batch verification of locked data.
 			
 			ConditionByAdditionalSourcesRefs = StringFunctionsClientServer.SubstituteParametersToString(
 				TemplateConditionsForAdditionalSourcesLinks,
@@ -4872,7 +4966,7 @@ Procedure DeleteTheRegistrationOfChangesToTheSubordinateRegister(Node, Recorders
 		Set = GetAReusedSet(DeletionParameters.ReusedSets);
 		Set.Filter.Recorder.Set(Recorder);
 		
-		WriteProgressProgressHandler(Set, Node); 
+		WriteProgressProgressHandler(Set, Node); // @skip-check query-in-loop - The loop has no query.
 		DeleteRegistrationOfDataItemChanges(Set, DeletionParameters);
 	EndDo;
 	
@@ -4901,7 +4995,7 @@ Procedure DeleteRegistrationOfIndependentRegisterChanges(Node, Records, FullObje
 			Set.Filter[Column.Name].Use = True;
 		EndDo;
 		
-		WriteProgressProgressHandler(Set, Node, RegisterMetadata); 
+		WriteProgressProgressHandler(Set, Node, RegisterMetadata); // @skip-check query-in-loop - The loop has no query.
 		DeleteRegistrationOfDataItemChanges(Set, DeletionParameters);
 	EndDo;
 	
@@ -5229,7 +5323,7 @@ EndFunction
 //   * TableName - String - the name of the table from which the data is selected.
 //   * SelectionFields1 - Array - fields that are placed in the request selection list.
 //   * OrderFields - Array - fields that are placed in request of ordering section.
-//   * UsedOrderingFields - Map - cache of the fields that were used for ordering.
+//   * UsedOrderingFields - Map - 
 //   * Aliases - Array - name aliases of fields being selected that are inserted in selection request.
 //   * Directions - Array - ordering directions (ASC, and DESC).
 //
@@ -5485,7 +5579,7 @@ Function SelectDataByPage(Query, BuildParameters)
 		Query.Text = StrReplace(Query.Text, "&PagesCondition", "TRUE");
 		Result = Query.Execute().Unload();
 	Else
-		SelectRange = FirstRecord <> Undefined And LatestRecord <> Undefined;
+		SelectRange = FirstRecord <> Undefined Or LatestRecord <> Undefined;
 		BaseQueryText = Query.Text;
 		
 		If SelectRange Then
@@ -5518,7 +5612,7 @@ Function SelectDataByPage(Query, BuildParameters)
 					Query.Text = Query.Text + TemporaryTablesDropQueryText;
 				EndIf;
 				
-				Upload0 = Query.Execute().Unload(); 
+				Upload0 = Query.Execute().Unload(); // @skip-check query-in-loop - Optimized date retrieval.
 				
 				If Result = Undefined Then
 					Result = Upload0;
@@ -5598,7 +5692,7 @@ Procedure SetSelectionByPageConditions(Query, Conditions, Table, Parameters, Top
 	FirstRecord = Parameters.FirstRecord;
 	LatestRecord = Parameters.LatestRecord;
 	SelectRange = FirstRecord <> Undefined
-	                And LatestRecord <> Undefined;
+	              Or LatestRecord <> Undefined;
 	
 	If Not SelectRange Then
 		FirstRecord = Parameters.LastSelectedRecord;
@@ -5643,7 +5737,7 @@ Procedure SetSelectionByPageConditions(Query, Conditions, Table, Parameters, Top
 				Condition = StringFunctionsClientServer.SubstituteParametersToString(ConditionAndPattern, FieldName, Operator, ParameterName);
 				ConditionsAnd.Add(Condition);
 				
-				If IsRangeEndColumnName(FullFieldName) Then
+				If IsRangeEndColumnName(Column.Name) Then
 					ParameterValue = LatestRecord[FieldIndex].Value;
 				Else
 					ParameterValue = FirstRecord[FieldIndex].Value;
@@ -5672,6 +5766,56 @@ Procedure SetSelectionByPageConditions(Query, Conditions, Table, Parameters, Top
 	Query.Text = StrReplace(Query.Text, "&PagesCondition", ConditionsText);
 	
 EndProcedure
+
+// 
+//
+// Parameters:
+//  Conditions - ValueTableRow of See NewConditionsOfSelectionByPage
+//  SelectionFields1 - Array -  fields selected by the query.
+//  Count - Number - 
+//  Operator - String - 
+//  ForRange - Boolean - 
+//
+// Returns:
+//  ValueTableRow of See NewConditionsOfSelectionByPage
+//
+Function AppendCondition(Conditions, SelectionFields1, Count, Operator, ForRange = False)
+	
+	ColumnNameStart = ColumnNameFromSelectionField(SelectionFields1[Count - 1]);
+	ColumnNameEnd = RangeColumnName(ColumnNameStart);
+	Conditions[?(ForRange, ColumnNameEnd, ColumnNameStart)] = Operator;
+	
+	Return Conditions;
+	
+EndFunction
+
+// 
+//
+// Parameters:
+//  AllConditions - See NewConditionsOfSelectionByPage
+//  SelectionFields1 - Array -  fields selected by the query.
+//  Count - Number - 
+//  Operator - String - 
+//  ForRange - Boolean - 
+//
+// Returns:
+//  ValueTableRow of See NewConditionsOfSelectionByPage
+//
+Function AddTerms(AllConditions, SelectionFields1, Count, Operator, ForRange = False)
+	
+	Conditions = AllConditions.Add();
+	
+	For ColumnNumber = 1 To Count - 1 Do
+		ColumnNameStart = ColumnNameFromSelectionField(SelectionFields1[ColumnNumber - 1]);
+		ColumnNameEnd = RangeColumnName(ColumnNameStart);
+		Conditions[?(ForRange, ColumnNameEnd, ColumnNameStart)] = "=";
+	EndDo;
+	
+	AppendCondition(Conditions, SelectionFields1, Count, Operator, ForRange);
+	
+	Return Conditions;
+	
+EndFunction
 
 // Get conditions to filter records larger than the specified one (similar to the dynamic list).
 //
@@ -5731,53 +5875,54 @@ Function PageRangeConditions(SelectionFields1, Parameters, Directions)
 	FieldsTotal = SelectionFields1.Count();
 	InsertPosition = 0;
 	
+	If FirstRecord = Undefined And LatestRecord = Undefined Then
+		Return AllConditions;
+	EndIf;
+	
+	If FirstRecord = LatestRecord Then
+		AddTerms(AllConditions, SelectionFields1, FieldsCount, "=");
+	EndIf;
+	
 	While FieldsCount > 0 Do
-		CurrentFieldsAreEqual = RecordsAreEqual(FirstRecord, LatestRecord, FieldsCount);
+		Direction = Directions[FieldsCount - 1];
+		IsCurrentColumnsIdentical = RecordsAreEqual(FirstRecord, LatestRecord, FieldsCount);
+		IsPreviousColumnsIdentical = RecordsAreEqual(FirstRecord, LatestRecord, FieldsCount - 1);
 		
-		If CurrentFieldsAreEqual And FieldsCount <> FieldsTotal Then
-			Break;
-		EndIf;
-		
-		FirstConditions = AllConditions.Insert(InsertPosition);
-		InsertPosition = InsertPosition + 1;
-		PreviousFieldsAreEqual = RecordsAreEqual(FirstRecord, LatestRecord, FieldsCount - 1);
-		
-		If Not PreviousFieldsAreEqual Then
-			LastConditions = AllConditions.Insert(InsertPosition);
-		EndIf;
-		
-		For ConditionNumber = 1 To FieldsCount Do
-			FieldColumnName = ColumnNameFromSelectionField(SelectionFields1[ConditionNumber - 1]);
-			FieldColumnNameByRange = RangeColumnName(FieldColumnName);
-			
-			If ConditionNumber < FieldsCount Or CurrentFieldsAreEqual And FieldsCount = FieldsTotal Then
-				OperatorFirst = "=";
-				OperatorLast = "=";
-			Else
-				Direction = Directions[ConditionNumber - 1];
+		If FirstRecord <> Undefined Then
+			If FieldsCount = FieldsTotal Then // 
+				Operator = OperatorGreaterOrEqual(Direction);
+				Conditions = AddTerms(AllConditions, SelectionFields1, FieldsCount, Operator);
 				
-				If FieldsCount = FieldsTotal Then
-					OperatorFirst = OperatorGreaterOrEqual(Direction);
-					OperatorLast = OperatorLessOrEqual(Direction);
-				Else
-					OperatorFirst = OperatorGreater(Direction);
-					OperatorLast = OperatorLess(Direction);
+				If IsPreviousColumnsIdentical Then
+					Operator = OperatorLessOrEqual(Direction);
+					AppendCondition(Conditions, SelectionFields1, FieldsCount, Operator, True);
 				EndIf;
-				
-				// Restriction by range.
-				If PreviousFieldsAreEqual Then
-					FirstConditions[FieldColumnNameByRange] = OperatorLast;
+			Else // 
+				If Not IsCurrentColumnsIdentical Then
+					Operator = OperatorGreater(Direction);
+					Conditions = AddTerms(AllConditions, SelectionFields1, FieldsCount, Operator);
+					
+					If IsPreviousColumnsIdentical Then
+						Operator = OperatorLess(Direction);
+						AppendCondition(Conditions, SelectionFields1, FieldsCount, Operator, True);
+					EndIf;
 				EndIf;
 			EndIf;
-			
-			// Selection by the first record
-			FirstConditions[FieldColumnName] = OperatorFirst;
-			
-			// Selection by the last record
-			If Not PreviousFieldsAreEqual Then
-				LastConditions[FieldColumnNameByRange] = OperatorLast;
+		EndIf;
+		
+		If LatestRecord <> Undefined Then
+			If FieldsCount = FieldsTotal Then // 
+				If Not IsPreviousColumnsIdentical Then
+					Operator = OperatorLessOrEqual(Direction);
+					Conditions = AddTerms(AllConditions, SelectionFields1, FieldsCount, Operator, True);
+				EndIf;
+			Else // 
+				If Not IsCurrentColumnsIdentical And Not IsPreviousColumnsIdentical Then
+					Operator = OperatorLess(Direction);
+					Conditions = AddTerms(AllConditions, SelectionFields1, FieldsCount, Operator, True);
+				EndIf;
 			EndIf;
-		EndDo;
+		EndIf;
 		
 		FieldsCount = FieldsCount - 1;
 	EndDo;
@@ -5797,6 +5942,14 @@ EndFunction
 //  Boolean - True if the records are equal.
 //
 Function RecordsAreEqual(FirstRecord, LatestRecord, FieldsCount)
+	
+	If FirstRecord = Undefined And LatestRecord = Undefined Then
+		Return True;
+	EndIf;
+	
+	If FirstRecord = Undefined Or LatestRecord = Undefined Then
+		Return False;
+	EndIf;
 	
 	For IndexOf = 2 To FieldsCount + 2 - 1 Do
 		If FirstRecord[IndexOf].Value <> LatestRecord[IndexOf].Value Then
@@ -5876,7 +6029,7 @@ Function ColumnNameFromSelectionField(Name)
 	
 EndFunction
 
-//  See NewConditionsOfSelectionByPage.
+// Field name received from the column containing page-wise filter conditions. See NewConditionsOfSelectionByPage.
 //
 // Parameters:
 //  FieldName - String - Field name.
@@ -6091,12 +6244,12 @@ EndProcedure
 // Set selection order considering multithread update handlers.
 //
 // Parameters:
-//  Query - Query - 
-//  
-//   See InfobaseUpdate.AdditionalProcessingDataSelectionParameters.
-//  
-//                        
-//  
+//  Query - Query - The query to be modified.
+//  FieldsNames - Array - Names of the fields to select.
+//  Parameters -  See InfobaseUpdate.AdditionalProcessingDataSelectionParameters.
+//  TableName - String - The source table name.
+//                        If an empty string is passed, the table name won't be inserted.
+//  Directions - Array - The ordering directions ("ASC" or "DESC"). The number of array items matches the number of "FieldsNames".
 //              - Undefined - order is not specified (always ASC).
 //
 Procedure SetOrderByPages(Query, BuildParameters)
@@ -6241,7 +6394,8 @@ Function OrderingFieldsAreSet(AdditionalParameters)
 	
 EndFunction
 
-//  See AdditionalProcessingDataSelectionParameters
+// Returns the data source type ( See AdditionalProcessingDataSelectionParameters
+// , items 1 and 2).
 //
 // Parameters:
 //  AdditionalDataSources - See AdditionalProcessingDataSelectionParameters
@@ -6737,12 +6891,12 @@ Procedure WriteProgressProgressHandler(Data, Node, ObjectMetadata = Undefined)
 	FillPropertyValues(NewSessionParameters, SessionParameters.UpdateHandlerParameters);
 	NewSessionParameters.ProcessedObjectsCount1 = NewSessionParameters.ProcessedObjectsCount1 + ObjectsProcessed;
 	
-	If NewSessionParameters.DateOfLastProgressRecord = Undefined
-		Or CurrentSessionDate() - NewSessionParameters.DateOfLastProgressRecord > 15 Then 
+	If NewSessionParameters.ProgressLastRecordDate = Undefined
+		Or CurrentSessionDate() - NewSessionParameters.ProgressLastRecordDate > 15 Then // More than 15 seconds since the last progress save.
 		InfobaseUpdateInternal.WriteProgressProgressHandler(NewSessionParameters);
 		
 		NewSessionParameters.ProcessedObjectsCount1 = 0;
-		NewSessionParameters.DateOfLastProgressRecord = CurrentSessionDate();
+		NewSessionParameters.ProgressLastRecordDate = CurrentSessionDate();
 	EndIf;
 	
 	SessionParameters.UpdateHandlerParameters = New FixedStructure(NewSessionParameters);

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -22,7 +23,7 @@
 //    * Purpose - ValueTable:
 //       ** SectionOrGroup - String - for mapping with the MetadataObjectIDs catalog item.
 //       ** Important - Boolean - True, if it is displayed in the important group.
-//       ** SeeAlso - Boolean - 
+//       ** SeeAlso - Boolean - If set to "True", the report is displayed in "See also" group.
 //  CommandsSchedules - Structure - the keys contain the command IDs and the values contain the schedule.
 //  DataProcessorPermissions - Array of XDTODataObject
 //                      - CatalogTabularSection.AdditionalReportsAndDataProcessors.Permissions
@@ -303,7 +304,7 @@ EndFunction
 //    * Purpose - ValueTable:
 //       ** SectionOrGroup - String - for mapping with the MetadataObjectIDs catalog item,
 //       ** Important - Boolean  - True, if it is displayed in the important group.
-//       ** SeeAlso - Boolean - 
+//       ** SeeAlso - Boolean - If set to "True", the report is displayed in "See also" group.
 //
 Procedure ReadManifest(Val Manifest, DataProcessorObject2, VersionObject1, ReportOptions) Export
 	

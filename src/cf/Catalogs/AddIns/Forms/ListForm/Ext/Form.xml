@@ -134,6 +134,12 @@
 									<Type>UsualButton</Type>
 									<Visible>false</Visible>
 									<CommandName>Form.Command.DeleteUnusedItems</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Delete unused add-ins</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="DeleteUnusedItemsExtendedTooltip" id="82"/>
 								</Button>
 							</ChildItems>
@@ -160,16 +166,34 @@
 										<Button name="AddFromService" id="79">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.AddFromService</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>From service…</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="AddFromServiceExtendedTooltip" id="80"/>
 										</Button>
 										<Button name="AddFromFiles" id="75">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.AddFromFiles</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>From files…</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="AddFromFilesExtendedTooltip" id="76"/>
 										</Button>
 										<Button name="AddFromDirectory" id="77">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.AddFromDirectory</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>From directory...</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="AddFromDirectoryExtendedTooltip" id="78"/>
 										</Button>
 									</ChildItems>
@@ -202,19 +226,37 @@
 									</Title>
 									<ExtendedTooltip name="ActionGroupExtendedTooltip" id="66"/>
 									<ChildItems>
-										<Button name="UpdateFromSite_" id="67">
+										<Button name="UpdateFromWebsite" id="67">
 											<Type>CommandBarButton</Type>
-											<CommandName>Form.Command.UpdateFromSite_</CommandName>
-											<ExtendedTooltip name="UpdateFromSite_ExtendedTooltip" id="68"/>
+											<CommandName>Form.Command.UpdateFromWebsite</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Update</v8:content>
+												</v8:item>
+											</Title>
+											<ExtendedTooltip name="UpdateFromWebsiteExtendedTooltip" id="68"/>
 										</Button>
 										<Button name="FormUpdateFromFile" id="58">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.UpdateFromFile</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Update from file…</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="FormUpdateFromFileExtendedTooltip" id="59"/>
 										</Button>
 										<Button name="FormSaveAs" id="60">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.SaveAs</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Save as…</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="FormSaveAsExtendedTooltip" id="61"/>
 										</Button>
 									</ChildItems>
@@ -262,11 +304,23 @@
 									<Button name="ListContextMenuUpdateFromFile" id="40">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.UpdateFromFile</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Update from file…</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ListContextMenuUpdateFromFileExtendedTooltip" id="41"/>
 									</Button>
 									<Button name="ListContextMenuSaveAs" id="42">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.SaveAs</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Save as…</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ListContextMenuSaveAsExtendedTooltip" id="43"/>
 									</Button>
 								</ChildItems>
@@ -313,7 +367,7 @@
 									<ContextMenu name="VersionContextMenu" id="23"/>
 									<ExtendedTooltip name="VersionExtendedTooltip" id="24"/>
 								</LabelField>
-								<CheckBoxField name="UpdateFromSite" id="28">
+								<CheckBoxField name="ShouldUpdateFromWebsite" id="28">
 									<DataPath>List.UpdateFrom1CITSPortal</DataPath>
 									<TitleLocation>None</TitleLocation>
 									<HorizontalAlign>Center</HorizontalAlign>
@@ -323,8 +377,8 @@
 									</HeaderPicture>
 									<HeaderHorizontalAlign>Center</HeaderHorizontalAlign>
 									<CheckBoxType>Auto</CheckBoxType>
-									<ContextMenu name="UpdateFromSiteContextMenu" id="29"/>
-									<ExtendedTooltip name="UpdateFromSiteExtendedTooltip" id="30"/>
+									<ContextMenu name="ShouldUpdateFromWebsiteContextMenu" id="29"/>
+									<ExtendedTooltip name="ShouldUpdateFromWebsiteExtendedTooltip" id="30"/>
 								</CheckBoxField>
 								<LabelField name="Description" id="52">
 									<DataPath>List.Description</DataPath>
@@ -487,7 +541,7 @@ FROM
 			<Action>SaveAs</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
-		<Command name="UpdateFromSite_" id="1">
+		<Command name="UpdateFromWebsite" id="1">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>

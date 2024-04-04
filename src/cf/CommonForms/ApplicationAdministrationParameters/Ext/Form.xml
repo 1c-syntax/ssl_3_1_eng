@@ -17,6 +17,12 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.OK</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>OK</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="OKExtendedTooltip" id="40"/>
 			</Button>
 			<Button name="Help" id="23">
@@ -28,6 +34,12 @@
 			<Button name="Cancel" id="112">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.Cancel</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Cancel</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="CancelExtendedTooltip" id="113"/>
 			</Button>
 		</ChildItems>
@@ -186,17 +198,35 @@
 							<DataPath>NameInCluster</DataPath>
 							<Visible>false</Visible>
 							<Enabled>false</Enabled>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Name in cluster</v8:content>
+								</v8:item>
+							</Title>
 							<ContextMenu name="NameInClusterContextMenu" id="103"/>
 							<ExtendedTooltip name="NameInClusterExtendedTooltip" id="104"/>
 						</InputField>
 						<InputField name="ClusterAdministratorName" id="10">
 							<DataPath>ClusterAdministratorName</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Cluster administrator name</v8:content>
+								</v8:item>
+							</Title>
 							<Wrap>false</Wrap>
 							<ContextMenu name="ClusterAdministratorNameContextMenu" id="11"/>
 							<ExtendedTooltip name="ClusterAdministratorNameExtendedTooltip" id="54"/>
 						</InputField>
 						<InputField name="ClusterAdministratorPassword" id="12">
 							<DataPath>ClusterAdministratorPassword</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Cluster administrator password</v8:content>
+								</v8:item>
+							</Title>
 							<Wrap>false</Wrap>
 							<PasswordMode>true</PasswordMode>
 							<ContextMenu name="ClusterAdministratorPasswordContextMenu" id="13"/>
@@ -204,6 +234,12 @@
 						</InputField>
 						<InputField name="ServerClusterPort" id="17">
 							<DataPath>ClusterPort</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Server cluster port</v8:content>
+								</v8:item>
+							</Title>
 							<Wrap>false</Wrap>
 							<EditFormat>
 								<v8:item>

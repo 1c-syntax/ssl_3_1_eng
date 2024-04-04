@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Private
@@ -22,23 +23,18 @@ Function HasActiveConnections(MessagesForEventLog = Undefined) Export
 	Return IBConnections.InfobaseSessionsCount(False, False) > 1;
 EndFunction
 
-Procedure WriteUpdateStatus(UpdateAdministratorName, UpdateScheduled, UpdateComplete,
-	UpdateResult, ScriptFileName = "", MessagesForEventLog = Undefined) Export
+Procedure WriteUpdateStatus(ParametersOfUpdate, MessagesForEventLog = Undefined) Export
 	
 	VerifyAccessRights("Administration", Metadata);
 	
 	ScriptDirectory = "";
-	
-	If Not IsBlankString(ScriptFileName) Then 
-		ScriptDirectory = Left(ScriptFileName, StrLen(ScriptFileName) - 10);
+	If Not IsBlankString(ParametersOfUpdate.MainScriptFileName) Then 
+		ScriptDirectory = Left(ParametersOfUpdate.MainScriptFileName, StrLen(ParametersOfUpdate.MainScriptFileName) - 10);
 	EndIf;
+	ParametersOfUpdate.ScriptDirectory = ScriptDirectory;
 	
 	ConfigurationUpdate.WriteUpdateStatus(
-		UpdateAdministratorName,
-		UpdateScheduled,
-		UpdateComplete,
-		UpdateResult,
-		ScriptDirectory,
+		ParametersOfUpdate,
 		MessagesForEventLog);
 	
 EndProcedure
@@ -184,8 +180,8 @@ Procedure DeletePatchesFromScript() Export
 	WriteLogEvent(ConfigurationUpdate.EventLogEvent(), EventLogLevel.Information,,, MessageText);
 	
 EndProcedure
-
-
+// 
+// 
 
 Function ScriptMessages()
 	
@@ -216,7 +212,7 @@ Function ScriptMessages()
 	Messages["[TheMessageDatabaseBackupDirectoryDoesNotExist]"] = NStr("en = 'There is no folder to save the backup: {0}';");
 	Messages["[MessageBackupFileParameters]"] = NStr("en = '\r\n\The backup file already exists: {0}\r\n\Created: {1}\r\n\Last accessed: {2}\r\n\Last modified: {3}\r\n\Size: {4}\r\n\Type: {5}\r\n\Attributes:\r\n\{6}';");
 	Messages["[TheMessageDiskDoesNotExist]"] = NStr("en = '\r\n\Hard drive is not found at {0}\r\n\Exception: {1}, {2}';");
-	Messages["[TheMessageDiskIsUnavailable]"] = NStr("en = 'Hard drive is not available at {0}';");
+	Messages["[TheMessageDiskIsUnavailable]"] = NStr("en = 'Hard drive is unavailable at {0}';");
 	Messages["[MessageEnoughDiskSpace]"] = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Space available on drive {0}: {1} Mb\r\n\%1 file size: {2} Mb\r\n\Drive type: {3}';"), "1Cv8.1CD");
 	Messages["[MessageDiskSpaceIsInsufficient]"] = StringFunctionsClientServer.SubstituteParametersToString(
@@ -280,6 +276,74 @@ Function ScriptMessages()
 	Messages["[MessageImportance]"] = NStr("en = 'Required';");
 	
 	Return Messages;
+	
+EndFunction
+
+Function VersionsThatRequireSuccessfulUpdate(FilesOfUpdate) Export
+	
+	Table = New ValueTable;
+	Table.Columns.Add("Version");
+	Table.Columns.Add("VersionWeight");
+	Table.Columns.Add("Required");
+	
+	If FilesOfUpdate.Count() < 2 Then
+		Return New Array;
+	EndIf;
+	
+	For Each InformationRecords In FilesOfUpdate Do
+		UpdateDetails1 = New ConfigurationUpdateDescription(InformationRecords.BinaryData);
+		
+		String = Table.Add();
+		String.Version       = UpdateDetails1.TargetConfiguration.Version;
+		String.VersionWeight    = VersionWeight(String.Version);
+		String.Required = InformationRecords.Required;
+	EndDo;
+	
+	Versions = New Array;
+	Table.Sort("VersionWeight Asc");
+	LastRow = Table[Table.Count() - 1];
+	For Each String In Table Do
+		If Not String.Required Then
+			Continue;
+		EndIf;
+		
+		If String = LastRow Then
+			// 
+			Continue;
+		EndIf;
+		
+		Versions.Add(String.Version);
+	EndDo;
+	
+	Return Versions;
+	
+EndFunction
+
+Function VersionWeight(Version)
+	
+	VersionByParts = StrSplit(Version, ".");
+	
+	Return 0
+		+ Number(VersionByParts[0]) * 1000000000000
+		+ Number(VersionByParts[1]) * 100000000
+		+ Number(VersionByParts[2]) * 10000
+		+ Number(VersionByParts[3]);
+	
+EndFunction
+
+Function ParametersOfUpdate() Export
+	
+	ParametersOfUpdate = New Structure;
+	ParametersOfUpdate.Insert("UpdateAdministratorName", Undefined);
+	ParametersOfUpdate.Insert("UpdateScheduled", False);
+	ParametersOfUpdate.Insert("UpdateComplete", False);
+	ParametersOfUpdate.Insert("ConfigurationUpdateResult", Undefined);
+	ParametersOfUpdate.Insert("ScriptDirectory", "");
+	ParametersOfUpdate.Insert("MainScriptFileName", "");
+	ParametersOfUpdate.Insert("PatchInstallationResult", Undefined);
+	ParametersOfUpdate.Insert("VersionsThatRequireSuccessfulUpdate", Undefined);
+	
+	Return ParametersOfUpdate;
 	
 EndFunction
 

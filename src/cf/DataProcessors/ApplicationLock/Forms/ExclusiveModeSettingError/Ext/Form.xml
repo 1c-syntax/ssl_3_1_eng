@@ -17,16 +17,34 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.RetryApplicationStart</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Retry</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormRetryApplicationStartExtendedTooltip" id="43"/>
 			</Button>
 			<Button name="TerminateSessionsAndRestartApplicationForm" id="4">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.EndSessionsAndRepeat</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Close sessions and retry</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="TerminateSessionsAndRestartApplicationFormExtendedTooltip" id="44"/>
 			</Button>
 			<Button name="FormAbortApplicationStart" id="3">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.AbortApplicationStart</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Cancel</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormAbortApplicationStartExtendedTooltip" id="45"/>
 			</Button>
 			<Button name="FormHelp" id="41">
@@ -50,7 +68,7 @@
 				</v8:item>
 			</Title>
 			<PagesRepresentation>None</PagesRepresentation>
-			<ExtendedTooltip name="PagesGroup1ExtendedTooltip" id="47"/>
+			<ExtendedTooltip name="GroupPagesExtendedTooltip" id="47"/>
 			<ChildItems>
 				<Page name="Information" id="22">
 					<Title>
@@ -76,8 +94,8 @@
 							<ChildItems>
 								<PictureDecoration name="WarningPicture" id="18">
 									<Picture>
-										<xr:Ref>CommonPicture.Warning32</xr:Ref>
-										<xr:LoadTransparent>false</xr:LoadTransparent>
+										<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
 									<ContextMenu name="WarningPictureContextMenu" id="19"/>
@@ -177,7 +195,7 @@
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="ContentGroupExtendedTooltip" id="57"/>
+							<ExtendedTooltip name="ContentsGroupExtendedTooltip" id="57"/>
 							<ChildItems>
 								<PictureDecoration name="WaitPicture" id="24">
 									<Title formatted="false">
@@ -218,7 +236,7 @@ The users will be prompted to save their data before signing out.</v8:content>
 											</Title>
 											<TitleHeight>1</TitleHeight>
 											<ContextMenu name="NoteText1ContextMenu" id="27"/>
-											<ExtendedTooltip name="NoteText1ExtendedTooltip" id="60"/>
+											<ExtendedTooltip name="ExplanationTextExtendedTooltip" id="60"/>
 										</LabelDecoration>
 										<LabelDecoration name="ActiveUsersWait" id="29">
 											<AutoMaxWidth>false</AutoMaxWidth>
@@ -256,24 +274,6 @@ The users will be prompted to save their data before signing out.</v8:content>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
-		<Attribute name="CurrentWizardPage" id="4">
-			<Type>
-				<v8:Type>xs:string</v8:Type>
-				<v8:StringQualifiers>
-					<v8:Length>0</v8:Length>
-					<v8:AllowedLength>Variable</v8:AllowedLength>
-				</v8:StringQualifiers>
-			</Type>
-		</Attribute>
-		<Attribute name="ErrorMessage" id="6">
-			<Type>
-				<v8:Type>xs:string</v8:Type>
-				<v8:StringQualifiers>
-					<v8:Length>0</v8:Length>
-					<v8:AllowedLength>Variable</v8:AllowedLength>
-				</v8:StringQualifiers>
-			</Type>
-		</Attribute>
 		<Attribute name="UserSessionsTerminationDuration" id="5">
 			<Type>
 				<v8:Type>xs:decimal</v8:Type>
@@ -282,11 +282,6 @@ The users will be prompted to save their data before signing out.</v8:content>
 					<v8:FractionDigits>0</v8:FractionDigits>
 					<v8:AllowedSign>Any</v8:AllowedSign>
 				</v8:NumberQualifiers>
-			</Type>
-		</Attribute>
-		<Attribute name="ThisRemoveTaggedObjects" id="7">
-			<Type>
-				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
 		<Attribute name="ActiveSessionCount" id="8">
@@ -347,9 +342,64 @@ The users will be prompted to save their data before signing out.</v8:content>
 		</Command>
 	</Commands>
 	<Parameters>
-		<Parameter name="MarkedObjectsDeletion">
+		<Parameter name="Title">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Parameter>
+		<Parameter name="ErrorMessageText">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Parameter>
+		<Parameter name="ShouldCloseDesignerSession">
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+			<KeyParameter>true</KeyParameter>
+		</Parameter>
+		<Parameter name="ShouldCloseAllSessionsButCurrent">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+			<KeyParameter>true</KeyParameter>
+		</Parameter>
+		<Parameter name="BlockingPeriod">
+			<Type>
+				<v8:Type>xs:decimal</v8:Type>
+				<v8:NumberQualifiers>
+					<v8:Digits>10</v8:Digits>
+					<v8:FractionDigits>0</v8:FractionDigits>
+					<v8:AllowedSign>Any</v8:AllowedSign>
+				</v8:NumberQualifiers>
+			</Type>
+			<KeyParameter>true</KeyParameter>
+		</Parameter>
+		<Parameter name="LoginMessage">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+			<KeyParameter>true</KeyParameter>
+		</Parameter>
+		<Parameter name="ErrorTextExitFailed">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
 			</Type>
 			<KeyParameter>true</KeyParameter>
 		</Parameter>

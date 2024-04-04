@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -44,8 +45,8 @@ Procedure SessionParametersSetting(ParameterName, SpecifiedParameters) Export
 		// Procedure for updating cached values and session parameters.
 		RefreshObjectsRegistrationMechanismCache();
 		
-		
-		
+		// 
+		// 
 		SpecifiedParameters.Add("ObjectsRegistrationRules");
 		SpecifiedParameters.Add("ORMCachedValuesRefreshDate");
 
@@ -101,12 +102,12 @@ Procedure CheckObjectsRegistrationMechanismCache() Export
 
 EndProcedure
 
-// 
+// Sets (or updates) cached values and session parameters for data exchange subsystem.
 //
-// 
-//   
-//                                                    
-//   
+// The session parameters are
+//   ObjectsRegistrationRules - ValueStorage - A binary value table of object registration rules.
+//                                                    SelectiveObjectsRegistrationRules -
+//   ORMCachedValuesRefreshDate - Date (date and time) - Date of the most recent cache for the "Data exchange" subsystem.
 //                                                                         
 //
 Procedure RefreshObjectsRegistrationMechanismCache() Export
@@ -130,19 +131,19 @@ Procedure RefreshObjectsRegistrationMechanismCache() Export
 
 EndProcedure
 
+// Updates the "ORMCachedValuesRefreshDate" constant value.
 // 
-// 
-// 
+// See the procedure "DataExchangeServerCall.ResetObjectsRegistrationMechanismCache".
 //
 Procedure ResetObjectsRegistrationMechanismCache() Export
 
 	If Common.SeparatedDataUsageAvailable() Then
 
 		SetPrivilegedMode(True);
-		
-		
-		
-		
+		// 
+		// 
+		// 
+		// 
 		Constants.ORMCachedValuesRefreshDate.Set(CurrentUniversalDate());
 
 	EndIf;
@@ -772,8 +773,8 @@ Procedure PutMessageForDataMapping(ExchangeNode, MessageID) Export
 				Try
 					DeleteFiles(TempFileName);
 				Except
-					
-					
+					// 
+					// 
 					DataExchangeServer.PutFileInStorage(TempFileName,
 						CommonSettings.MessageForDataMapping);
 				EndTry;
@@ -853,12 +854,28 @@ Function LoadExtensionsThatChangeDataStructure() Export
 
 EndFunction
 
+Procedure SetDIBDataImportFlag(Enable) Export
+	
+	If ExchangePlans.MasterNode() = Undefined Then
+		Return;
+	EndIf;
+	
+	SetPrivilegedMode(True);
+	
+	If Constants.IsDIBDataImportInProgress.Get() = Enable Then
+		Return;
+	EndIf;
+	
+	Constants.IsDIBDataImportInProgress.Set(Enable);
+	
+EndProcedure
+
 #Region SerializationMethodsExchangeExecution
 
 // Returns the table of predefined infobase data.
 //
 // Returns:
-//   ValueTable - :
+//   ValueTable - A set of predefined items:
 //     * TableName - String - infobase table name.
 //     * XMLTypeName1 - String - the name of a serialized object type.
 //     * Ref - AnyRef - a reference to the predefined data item.
@@ -1417,7 +1434,7 @@ Procedure CheckMarkPredefinedDataRef(Value, PredefinedDataTable)
 
 	PredefinedDataRow = PredefinedDataTable.Find(Value, "Ref");
 	If PredefinedDataRow = Undefined Then
-		// Value is not a predeifined item.
+		// Value is not a predefined item.
 		Return;
 	EndIf;
 

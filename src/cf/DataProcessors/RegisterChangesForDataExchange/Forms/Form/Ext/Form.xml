@@ -62,6 +62,12 @@
 							<ChildItems>
 								<InputField name="ExchangeNodeReference" id="1">
 									<DataPath>ExchangeNodeReference</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Exchange node</v8:content>
+										</v8:item>
+									</Title>
 									<HorizontalStretch>false</HorizontalStretch>
 									<DropListButton>false</DropListButton>
 									<ChoiceButton>true</ChoiceButton>
@@ -71,7 +77,7 @@
 									<OpenButton>false</OpenButton>
 									<CreateButton>false</CreateButton>
 									<ContextMenu name="ExchangeNodeRef1ContextMenu" id="2"/>
-									<ExtendedTooltip name="ExchangeNodeRef1ExtendedTooltip" id="201"/>
+									<ExtendedTooltip name="ExchangeNodeReferenceExtendedTooltip" id="201"/>
 									<Events>
 										<Event name="OnChange">ExchangeNodeRef1OnChange</Event>
 										<Event name="StartChoice">ExchangeNodeRef1StartChoice</Event>
@@ -469,11 +475,23 @@
 														<xr:Abs>Picture.png</xr:Abs>
 														<xr:LoadTransparent>false</xr:LoadTransparent>
 													</Picture>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Export result (DIB)</v8:content>
+														</v8:item>
+													</Title>
 													<ExtendedTooltip name="ShowExportResultExtendedTooltip" id="224"/>
 												</Button>
 												<Button name="FormRegisterMOIDAndPredefinedItems" id="314">
 													<Type>CommandBarButton</Type>
 													<CommandName>Form.Command.RegisterMOIDAndPredefinedItems</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Register items to restore DIB subnode</v8:content>
+														</v8:item>
+													</Title>
 													<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 													<ExtendedTooltip name="FormRegisterMOIDAndPredefinedItemsExtendedTooltip" id="315"/>
 												</Button>
@@ -765,12 +783,18 @@
 													<ChildItems>
 														<CheckBoxField name="MetadataTreeCheck" id="16">
 															<DataPath>MetadataTree.Check</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Check box</v8:content>
+																</v8:item>
+															</Title>
 															<TitleLocation>None</TitleLocation>
 															<EditMode>Directly</EditMode>
 															<ShowInFooter>false</ShowInFooter>
 															<ThreeState>true</ThreeState>
 															<ContextMenu name="MetadataTreeTaggingContextMenu" id="17"/>
-															<ExtendedTooltip name="MetadataTreeTaggingExtendedTooltip" id="244"/>
+															<ExtendedTooltip name="MetadataTreeCheckExtendedTooltip" id="244"/>
 															<Events>
 																<Event name="OnChange">MetadataTreeTaggingOnChange</Event>
 															</Events>
@@ -787,7 +811,7 @@
 															<EditMode>EnterOnInput</EditMode>
 															<Width>17</Width>
 															<ContextMenu name="MetadataTreeNameContextMenu" id="11"/>
-															<ExtendedTooltip name="MetadataTreeNameExtendedTooltip" id="245"/>
+															<ExtendedTooltip name="MetadataTreeDescriptionExtendedTooltip" id="245"/>
 														</LabelField>
 													</ChildItems>
 												</ColumnGroup>
@@ -826,7 +850,7 @@
 															</ValuesPicture>
 															<FileDragMode>AsFile</FileDragMode>
 															<ContextMenu name="MetadataTreeAutoregistrationContextMenu" id="28"/>
-															<ExtendedTooltip name="MetadataTreeAutoregistrationExtendedTooltip" id="247"/>
+															<ExtendedTooltip name="MetadataTreeAutoRecordExtendedTooltip" id="247"/>
 														</PictureField>
 														<LabelField name="MetadataTreeChangeCountString" id="29">
 															<DataPath>MetadataTree.ChangeCountString</DataPath>
@@ -849,7 +873,7 @@
 															<Height>1</Height>
 															<HorizontalStretch>false</HorizontalStretch>
 															<ContextMenu name="MetadataTreeNumberOfChangesByRowContextMenu" id="30"/>
-															<ExtendedTooltip name="MetadataTreeNumberOfChangesByRowExtendedTooltip" id="248"/>
+															<ExtendedTooltip name="MetadataTreeChangeCountStringExtendedTooltip" id="248"/>
 														</LabelField>
 													</ChildItems>
 												</ColumnGroup>
@@ -1020,11 +1044,23 @@
 																					<xr:Ref>StdPicture.ExchangePlan</xr:Ref>
 																					<xr:LoadTransparent>true</xr:LoadTransparent>
 																				</Picture>
+																				<Title>
+																					<v8:item>
+																						<v8:lang>en</v8:lang>
+																						<v8:content>Open registration manager</v8:content>
+																					</v8:item>
+																				</Title>
 																				<ExtendedTooltip name="ConstantsListContextMenuOpenNodeRegistrationFormExtendedTooltip" id="256"/>
 																			</Button>
 																			<Button name="ConstantsListContextMenuEditObjectMessageNumber" id="197">
 																				<Type>CommandBarButton</Type>
 																				<CommandName>Form.Command.EditObjectMessageNumber</CommandName>
+																				<Title>
+																					<v8:item>
+																						<v8:lang>en</v8:lang>
+																						<v8:content>Edit message number</v8:content>
+																					</v8:item>
+																				</Title>
 																				<ExtendedTooltip name="ConstantsListContextMenuEditObjectMessageNumberExtendedTooltip" id="257"/>
 																			</Button>
 																		</ChildItems>
@@ -1253,7 +1289,7 @@
 																						<v8:content>Register selected item</v8:content>
 																					</v8:item>
 																				</Title>
-																				<ExtendedTooltip name="ReferencesListContextMenuAddRefRegistrationPickupExtendedTooltip" id="271"/>
+																				<ExtendedTooltip name="ReferenceListContextMenuAddRefRegistrationPickupExtendedTooltip" id="271"/>
 																			</Button>
 																			<Button name="ReferenceListContextMenuAddRefRegistrationFilter" id="135">
 																				<Type>CommandBarButton</Type>
@@ -1264,7 +1300,7 @@
 																						<v8:content>Register filtered items</v8:content>
 																					</v8:item>
 																				</Title>
-																				<ExtendedTooltip name="ReferencesListContextMenuAddRefRegistrationFilterExtendedTooltip" id="272"/>
+																				<ExtendedTooltip name="ReferenceListContextMenuAddRefRegistrationFilterExtendedTooltip" id="272"/>
 																			</Button>
 																			<Button name="ReferenceListContextMenuAddObjectDeletionRegistration" id="196">
 																				<Type>CommandBarButton</Type>
@@ -1275,7 +1311,7 @@
 																						<v8:content>Register item deletion</v8:content>
 																					</v8:item>
 																				</Title>
-																				<ExtendedTooltip name="ReferencesListContextMenuAddObjectDeleteRegistrationExtendedTooltip" id="273"/>
+																				<ExtendedTooltip name="ReferenceListContextMenuAddObjectDeletionRegistrationExtendedTooltip" id="273"/>
 																			</Button>
 																		</ChildItems>
 																	</ButtonGroup>
@@ -1301,7 +1337,7 @@
 																						<v8:content>Unregister selected item</v8:content>
 																					</v8:item>
 																				</Title>
-																				<ExtendedTooltip name="ReferencesListContextMenuDeleteRefRegistrationExtendedTooltip" id="275"/>
+																				<ExtendedTooltip name="ReferenceListContextMenuDeleteRefRegistrationExtendedTooltip" id="275"/>
 																			</Button>
 																			<Button name="ReferenceListContextMenuDeleteRefRegistrationFilter" id="189">
 																				<Type>CommandBarButton</Type>
@@ -1312,7 +1348,7 @@
 																						<v8:content>Unregister filtered items</v8:content>
 																					</v8:item>
 																				</Title>
-																				<ExtendedTooltip name="ReferencesListContextMenuDeleteRefRegistrationFilterExtendedTooltip" id="276"/>
+																				<ExtendedTooltip name="ReferenceListContextMenuDeleteRefRegistrationFilterExtendedTooltip" id="276"/>
 																			</Button>
 																		</ChildItems>
 																	</ButtonGroup>
@@ -1338,7 +1374,7 @@
 																						<v8:content>Show export result</v8:content>
 																					</v8:item>
 																				</Title>
-																				<ExtendedTooltip name="ReferencesListContextMenuShowExportResultExtendedTooltip" id="278"/>
+																				<ExtendedTooltip name="ReferenceListContextMenuShowExportResultExtendedTooltip" id="278"/>
 																			</Button>
 																			<Button name="ReferenceListContextMenuOpenNodeRegistrationForm" id="137">
 																				<Type>CommandBarButton</Type>
@@ -1353,12 +1389,18 @@
 																						<v8:content>Register at other nodes</v8:content>
 																					</v8:item>
 																				</Title>
-																				<ExtendedTooltip name="ReferencesListContextMenuOpenNodeRegistrationFormExtendedTooltip" id="279"/>
+																				<ExtendedTooltip name="ReferenceListContextMenuOpenNodeRegistrationFormExtendedTooltip" id="279"/>
 																			</Button>
 																			<Button name="ReferenceListContextMenuEditObjectMessageNumber" id="198">
 																				<Type>CommandBarButton</Type>
 																				<CommandName>Form.Command.EditObjectMessageNumber</CommandName>
-																				<ExtendedTooltip name="ReferencesListContextMenuEditObjectMessageNumberExtendedTooltip" id="280"/>
+																				<Title>
+																					<v8:item>
+																						<v8:lang>en</v8:lang>
+																						<v8:content>Edit message number</v8:content>
+																					</v8:item>
+																				</Title>
+																				<ExtendedTooltip name="ReferenceListContextMenuEditObjectMessageNumberExtendedTooltip" id="280"/>
 																			</Button>
 																		</ChildItems>
 																	</ButtonGroup>
@@ -1374,27 +1416,27 @@
 																			<Button name="ReferenceListContextMenuFind" id="159">
 																				<Type>CommandBarButton</Type>
 																				<CommandName>Form.Item.ReferenceList.StandardCommand.Find</CommandName>
-																				<ExtendedTooltip name="ReferencesListContextMenuFindExtendedTooltip" id="282"/>
+																				<ExtendedTooltip name="ReferenceListContextMenuFindExtendedTooltip" id="282"/>
 																			</Button>
 																			<Button name="ReferenceListContextMenuCancelSearch" id="160">
 																				<Type>CommandBarButton</Type>
 																				<CommandName>Form.Item.ReferenceList.StandardCommand.CancelSearch</CommandName>
-																				<ExtendedTooltip name="ReferencesListContextMenuCancelSearchExtendedTooltip" id="283"/>
+																				<ExtendedTooltip name="ReferenceListContextMenuCancelSearchExtendedTooltip" id="283"/>
 																			</Button>
 																			<Button name="ReferenceListContextMenuListSettings" id="161">
 																				<Type>CommandBarButton</Type>
 																				<CommandName>Form.Item.ReferenceList.StandardCommand.ListSettings</CommandName>
-																				<ExtendedTooltip name="ReferencesListContextMenuListSettingsExtendedTooltip" id="284"/>
+																				<ExtendedTooltip name="ReferenceListContextMenuListSettingsExtendedTooltip" id="284"/>
 																			</Button>
 																			<Button name="ReferenceListContextMenuOutputList" id="162">
 																				<Type>CommandBarButton</Type>
 																				<CommandName>Form.Item.ReferenceList.StandardCommand.OutputList</CommandName>
-																				<ExtendedTooltip name="ReferencesListContextMenuOutputListExtendedTooltip" id="285"/>
+																				<ExtendedTooltip name="ReferenceListContextMenuOutputListExtendedTooltip" id="285"/>
 																			</Button>
 																			<Button name="ReferenceListContextMenuRefresh" id="163">
 																				<Type>CommandBarButton</Type>
 																				<CommandName>Form.Item.ReferenceList.StandardCommand.Refresh</CommandName>
-																				<ExtendedTooltip name="ReferencesListContextMenuRefreshExtendedTooltip" id="286"/>
+																				<ExtendedTooltip name="ReferenceListContextMenuRefreshExtendedTooltip" id="286"/>
 																			</Button>
 																		</ChildItems>
 																	</ButtonGroup>
@@ -1455,7 +1497,7 @@
 																		</v8:item>
 																	</Title>
 																	<ContextMenu name="ReferenceListMessageNumberContextMenu" id="53"/>
-																	<ExtendedTooltip name="ReferenceListMessageNumberExtendedTooltip" id="289"/>
+																	<ExtendedTooltip name="ReferenceListMessageNoExtendedTooltip" id="289"/>
 																</LabelField>
 															</ChildItems>
 														</Table>
@@ -1621,11 +1663,23 @@
 																					<xr:Ref>StdPicture.ExchangePlan</xr:Ref>
 																					<xr:LoadTransparent>true</xr:LoadTransparent>
 																				</Picture>
+																				<Title>
+																					<v8:item>
+																						<v8:lang>en</v8:lang>
+																						<v8:content>Open registration manager</v8:content>
+																					</v8:item>
+																				</Title>
 																				<ExtendedTooltip name="RecordSetsListContextMenuOpenNodeRegistrationFormExtendedTooltip" id="298"/>
 																			</Button>
 																			<Button name="RecordSetsListContextMenuEditObjectMessageNumber" id="199">
 																				<Type>CommandBarButton</Type>
 																				<CommandName>Form.Command.EditObjectMessageNumber</CommandName>
+																				<Title>
+																					<v8:item>
+																						<v8:lang>en</v8:lang>
+																						<v8:content>Edit message number</v8:content>
+																					</v8:item>
+																				</Title>
 																				<ExtendedTooltip name="RecordSetsListContextMenuEditObjectMessageNumberExtendedTooltip" id="299"/>
 																			</Button>
 																		</ChildItems>
@@ -1727,7 +1781,7 @@
 																		</v8:item>
 																	</Title>
 																	<ContextMenu name="RecordSetsListMessageNumberContextMenu" id="84"/>
-																	<ExtendedTooltip name="RecordSetsListMessageNumberExtendedTooltip" id="308"/>
+																	<ExtendedTooltip name="RecordSetsListMessageNoExtendedTooltip" id="308"/>
 																</LabelField>
 															</ChildItems>
 														</Table>
@@ -1747,7 +1801,7 @@
 															<v8:content>Totals page</v8:content>
 														</v8:item>
 													</ToolTip>
-													<ExtendedTooltip name="BlankPageExtendedTooltip" id="309"/>
+													<ExtendedTooltip name="BlankPage1ExtendedTooltip" id="309"/>
 													<ChildItems>
 														<UsualGroup name="GroupEmpty" id="77">
 															<EnableContentChange>true</EnableContentChange>

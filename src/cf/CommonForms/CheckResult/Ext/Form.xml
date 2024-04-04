@@ -46,6 +46,12 @@
 		</LabelDecoration>
 		<InputField name="WarningText" id="11">
 			<DataPath>WarningText</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Warning text</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>None</TitleLocation>
 			<AutoMaxWidth>false</AutoMaxWidth>
 			<Height>5</Height>
@@ -58,7 +64,7 @@
 			<Title formatted="false">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Common issues with digital signature and encryption applications</v8:content>
+					<v8:content>Common issues</v8:content>
 				</v8:item>
 			</Title>
 			<Hyperlink>true</Hyperlink>

@@ -257,6 +257,10 @@
 		<AutoRecord>Deny</AutoRecord>
 	</Item>
 	<Item>
+		<Metadata>InformationRegister.UserGroupsHierarchy</Metadata>
+		<AutoRecord>Deny</AutoRecord>
+	</Item>
+	<Item>
 		<Metadata>InformationRegister.XDTODataExchangeSettings</Metadata>
 		<AutoRecord>Deny</AutoRecord>
 	</Item>
@@ -266,6 +270,10 @@
 	</Item>
 	<Item>
 		<Metadata>InformationRegister.PredefinedExtensionsVersionsReportsOptions</Metadata>
+		<AutoRecord>Deny</AutoRecord>
+	</Item>
+	<Item>
+		<Metadata>Constant.RegistrationSettingsForDataAccessEvents</Metadata>
 		<AutoRecord>Deny</AutoRecord>
 	</Item>
 	<Item>
@@ -438,6 +446,10 @@
 	</Item>
 	<Item>
 		<Metadata>InformationRegister.ObjectRightsSettingsInheritance</Metadata>
+		<AutoRecord>Deny</AutoRecord>
+	</Item>
+	<Item>
+		<Metadata>InformationRegister.FileRepository</Metadata>
 		<AutoRecord>Deny</AutoRecord>
 	</Item>
 	<Item>
@@ -657,6 +669,10 @@
 		<AutoRecord>Deny</AutoRecord>
 	</Item>
 	<Item>
+		<Metadata>Constant.UseNotesCommand</Metadata>
+		<AutoRecord>Deny</AutoRecord>
+	</Item>
+	<Item>
 		<Metadata>Catalog.DigitalSignatureAndEncryptionKeysCertificates</Metadata>
 		<AutoRecord>Deny</AutoRecord>
 	</Item>
@@ -694,6 +710,10 @@
 	</Item>
 	<Item>
 		<Metadata>InformationRegister.UpdateThreads</Metadata>
+		<AutoRecord>Deny</AutoRecord>
+	</Item>
+	<Item>
+		<Metadata>Constant.UseRemindersCommand</Metadata>
 		<AutoRecord>Deny</AutoRecord>
 	</Item>
 	<Item>
@@ -1057,6 +1077,10 @@
 		<AutoRecord>Deny</AutoRecord>
 	</Item>
 	<Item>
+		<Metadata>Catalog.BinaryDataStorage</Metadata>
+		<AutoRecord>Deny</AutoRecord>
+	</Item>
+	<Item>
 		<Metadata>InformationRegister.DataAreaExchangeTransportSettings</Metadata>
 		<AutoRecord>Deny</AutoRecord>
 	</Item>
@@ -1106,6 +1130,10 @@
 	</Item>
 	<Item>
 		<Metadata>Constant.LimitAccessAtRecordLevel</Metadata>
+		<AutoRecord>Deny</AutoRecord>
+	</Item>
+	<Item>
+		<Metadata>InformationRegister.ExtensionProperties</Metadata>
 		<AutoRecord>Deny</AutoRecord>
 	</Item>
 	<Item>
@@ -1297,7 +1325,7 @@
 		<AutoRecord>Deny</AutoRecord>
 	</Item>
 	<Item>
-		<Metadata>InformationRegister.BinaryFilesData</Metadata>
+		<Metadata>InformationRegister.DeleteFilesBinaryData</Metadata>
 		<AutoRecord>Deny</AutoRecord>
 	</Item>
 	<Item>

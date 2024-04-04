@@ -31,11 +31,23 @@
 					<Button name="FormAtClient" id="198">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.AtClient</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Client</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="FormAtClientExtendedTooltip" id="236"/>
 					</Button>
 					<Button name="FormAtServer" id="199">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.AtServer</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Server</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="FormAtServerExtendedTooltip" id="237"/>
 					</Button>
 				</ChildItems>
@@ -73,7 +85,7 @@
 							<v8:content>Data export</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="DataExportedExtendedTooltip" id="240"/>
+					<ExtendedTooltip name="Upload0ExtendedTooltip" id="240"/>
 					<ChildItems>
 						<UsualGroup name="RulesFileGroup" id="200">
 							<Title>
@@ -120,6 +132,12 @@
 						</UsualGroup>
 						<RadioButtonField name="DirectExport" id="14">
 							<DataPath>DirectExport</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Direct export</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<RadioButtonType>Auto</RadioButtonType>
 							<ChoiceList>
@@ -164,7 +182,7 @@
 								</v8:item>
 							</Title>
 							<PagesRepresentation>None</PagesRepresentation>
-							<ExtendedTooltip name="ExportParametersExtendedTooltip" id="245"/>
+							<ExtendedTooltip name="ExportingParametersExtendedTooltip" id="245"/>
 							<ChildItems>
 								<Page name="ExportingToFile" id="6">
 									<Title>
@@ -173,7 +191,7 @@
 											<v8:content>Export to file</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="ExportToFile1ExtendedTooltip" id="246"/>
+									<ExtendedTooltip name="ExportingToFileExtendedTooltip" id="246"/>
 									<ChildItems>
 										<InputField name="DataFileName" id="16">
 											<DataPath>DataFileName</DataPath>
@@ -375,7 +393,7 @@
 																		</v8:item>
 																	</Title>
 																	<Group>HorizontalIfPossible</Group>
-																	<ExtendedTooltip name="FileInfobase2ExtendedTooltip" id="255"/>
+																	<ExtendedTooltip name="FileInforbaseFindExtendedTooltip" id="255"/>
 																	<ChildItems>
 																		<InputField name="InfobaseToConnectDirectory" id="27">
 																			<DataPath>Object.InfobaseToConnectDirectory</DataPath>
@@ -457,7 +475,13 @@
 																<Button name="ConnectionTest" id="32">
 																	<Type>UsualButton</Type>
 																	<CommandName>Form.Command.ConnectionTest</CommandName>
-																	<ExtendedTooltip name="ConnectionTest1ExtendedTooltip" id="262"/>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Check connection</v8:content>
+																		</v8:item>
+																	</Title>
+																	<ExtendedTooltip name="ConnectionTestExtendedTooltip" id="262"/>
 																</Button>
 															</ChildItems>
 														</UsualGroup>
@@ -541,7 +565,7 @@
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="ExportCommandGroup1ExtendedTooltip" id="266"/>
+							<ExtendedTooltip name="ExportCommandGroupExtendedTooltip" id="266"/>
 							<ChildItems>
 								<Button name="FormExecuteExport" id="191">
 									<Type>UsualButton</Type>
@@ -601,6 +625,12 @@
 											<ChildItems>
 												<InputField name="ExportPeriod" id="212">
 													<DataPath>ExportPeriod</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Export period</v8:content>
+														</v8:item>
+													</Title>
 													<ContextMenu name="ExportPeriodContextMenu" id="213"/>
 													<ExtendedTooltip name="ExportPeriodExtendedTooltip" id="272"/>
 													<Events>
@@ -631,11 +661,23 @@
 													<Button name="ExportRulesTableExportSelectAll" id="178">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.ExportSelectAll</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Select all</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="ExportRulesTableExportSelectAllExtendedTooltip" id="273"/>
 													</Button>
 													<Button name="ExportRulesTableExportClearAll" id="179">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.ExportClearAll</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Clear all</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="ExportRulesTableExportClearAllExtendedTooltip" id="274"/>
 													</Button>
 													<Popup name="ExchangeNodes" id="180">
@@ -650,12 +692,24 @@
 															<Button name="ExportRulesTableExportClearExchangeNodes" id="181">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.ExportClearExchangeNodes</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Clear exchange nodes</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="ExportRulesTableExportClearExchangeNodesExtendedTooltip" id="276"/>
 															</Button>
 															<Button name="ExportRulesTableExportMarkExchangeNode" id="182">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.ExportMarkExchangeNode</CommandName>
-																<ExtendedTooltip name="ExportRulesTableExportSetExchangeNodeExtendedTooltip" id="277"/>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Assign exchange node for all items</v8:content>
+																	</v8:item>
+																</Title>
+																<ExtendedTooltip name="ExportRulesTableExportMarkExchangeNodeExtendedTooltip" id="277"/>
 															</Button>
 														</ChildItems>
 													</Popup>
@@ -774,11 +828,23 @@
 													<Button name="ParametersSetupTableRestoreParameters" id="61">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.RestoreParameters</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Reconnect</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="ParametersSetupTableRestoreParametersExtendedTooltip" id="285"/>
 													</Button>
 													<Button name="ParametersSetupTableSaveParameters" id="62">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.SaveParameters</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Save</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="ParametersSetupTableSaveParametersExtendedTooltip" id="286"/>
 													</Button>
 												</ChildItems>
@@ -1043,6 +1109,12 @@
 								</LabelDecoration>
 								<InputField name="NameOfImportRulesFile" id="398">
 									<DataPath>NameOfImportRulesFile</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Exchange rules file</v8:content>
+										</v8:item>
+									</Title>
 									<ChoiceButton>true</ChoiceButton>
 									<OpenButton>true</OpenButton>
 									<ContextMenu name="NameOfImportRulesFileContextMenu" id="399"/>
@@ -1353,7 +1425,7 @@
 							<TitleLocation>Right</TitleLocation>
 							<CheckBoxType>Auto</CheckBoxType>
 							<ContextMenu name="DebugModeFlagContextMenu" id="95"/>
-							<ExtendedTooltip name="DebugModeFlagExtendedTooltip" id="328"/>
+							<ExtendedTooltip name="FlagDebugModeExtendedTooltip" id="328"/>
 							<Events>
 								<Event name="OnChange">DebugModeFlagOnChange</Event>
 							</Events>
@@ -1712,16 +1784,34 @@
 									<Button name="DataToDeleteDeletionSelectAll" id="172">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.DeletionSelectAll</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Select all</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="DataToDeleteDeletionSelectAllExtendedTooltip" id="348"/>
 									</Button>
 									<Button name="DataToDeleteDeletionClearAll" id="173">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.DeletionClearAll</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Clear all.</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="DataToDeleteDeletionClearAllExtendedTooltip" id="349"/>
 									</Button>
 									<Button name="DataToDeleteDeletionDelete" id="174">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.DeletionDelete</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Delete</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="DataToDeleteDeletionDeleteExtendedTooltip" id="350"/>
 									</Button>
 								</ChildItems>
@@ -1767,6 +1857,12 @@
 									<ChildItems>
 										<CheckBoxField name="MetadataToDeleteMark" id="206">
 											<DataPath>DataToDelete.Check</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Checkmark</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<EditMode>EnterOnInput</EditMode>
 											<CheckBoxType>Auto</CheckBoxType>

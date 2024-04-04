@@ -48,7 +48,7 @@ For details, see the &lt;link EventLog&gt;event log&lt;/&gt;.</v8:content>
 							<Title formatted="true">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Click &lt;b&gt;Synchronize and continue&lt;/&gt; to get
+									<v8:content>Click &lt;b&gt;Sync and continue&lt;/&gt; to get
 the application update again (recommended).
 </v8:content>
 								</v8:item>
@@ -83,6 +83,12 @@ the application update again (recommended).
 										<Button name="ConnectionParameters" id="63">
 											<Type>Hyperlink</Type>
 											<CommandName>Form.Command.ConnectionParameters</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Change data synchronization connection parameters </v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="ConnectionParametersExtendedTooltip" id="64"/>
 										</Button>
 									</ChildItems>
@@ -103,6 +109,12 @@ the application update again (recommended).
 										</LabelDecoration>
 										<InputField name="Password" id="65">
 											<DataPath>Password</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Password</v8:content>
+												</v8:item>
+											</Title>
 											<PasswordMode>true</PasswordMode>
 											<ContextMenu name="PasswordContextMenu" id="66"/>
 											<ExtendedTooltip name="PasswordExtendedTooltip" id="67"/>
@@ -110,6 +122,12 @@ the application update again (recommended).
 										<Button name="ForgotPassword" id="68">
 											<Type>Hyperlink</Type>
 											<CommandName>Form.Command.ForgotPassword</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Forgot password?</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="ForgotPasswordExtendedTooltip" id="69"/>
 										</Button>
 									</ChildItems>
@@ -121,7 +139,7 @@ the application update again (recommended).
 							<Title formatted="true">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Click &lt;b&gt;Continue&lt;/&gt; to try to update the program again.
+									<v8:content>Click &lt;b&gt;Continue&lt;/&gt; to try updating again.
 </v8:content>
 								</v8:item>
 							</Title>
@@ -205,6 +223,12 @@ Please wait…</v8:content>
 							<Type>CommandBarButton</Type>
 							<DefaultButton>true</DefaultButton>
 							<CommandName>Form.Command.SyncAndContinue</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Sync and continue</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="FormSyncAndContinueExtendedTooltip" id="2"/>
 						</Button>
 						<Button name="FormDoNotSyncAndContinue" id="3">
@@ -221,6 +245,12 @@ Please wait…</v8:content>
 						<Button name="FormExitApplication" id="5">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.ExitApplication</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Exit</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="FormExitApplicationExtendedTooltip" id="6"/>
 						</Button>
 					</ChildItems>
@@ -360,7 +390,7 @@ Please wait…</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Synchronize and continue</v8:content>
+					<v8:content>Sync and continue</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>

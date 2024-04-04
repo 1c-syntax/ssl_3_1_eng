@@ -21,6 +21,12 @@
 					<Button name="FormCopy" id="267">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.Copy</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Copy</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="FormCopyExtendedTooltip" id="268"/>
 					</Button>
 					<Button name="FormDelete" id="231">
@@ -32,21 +38,45 @@
 					<Button name="FormCheckCertificate" id="75">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.CheckCertificate</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Verify…</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="FormCheckCertificateExtendedTooltip" id="92"/>
 					</Button>
 					<Button name="FormSaveCertificateDataToFile" id="235">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.SaveCertificateDataToFile</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Save to file…</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="FormSaveCertificateDataToFileExtendedTooltip" id="236"/>
 					</Button>
 					<Button name="FormChangePINCode" id="269">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.ChangePIN</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Change PIN</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="FormChangePinCodeExtendedTooltip" id="270"/>
 					</Button>
 					<Button name="FormResetYourPassword" id="271">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.ResetPassword</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Reset password</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="FormResetPasswordExtendedTooltip" id="272"/>
 					</Button>
@@ -56,12 +86,24 @@
 				<Type>CommandBarButton</Type>
 				<Representation>PictureAndText</Representation>
 				<CommandName>Form.Command.CertificateRevoked</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Certificate revoked</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormCertificateRevokedExtendedTooltip" id="94"/>
 			</Button>
 			<Button name="FormShowAutoPopulatedAttributes" id="219">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.ShowAutoPopulatedAttributes</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Show autofilled attributes</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormShowAutoPopulatedAttributesExtendedTooltip" id="220"/>
 			</Button>
@@ -69,6 +111,12 @@
 				<Type>CommandBarButton</Type>
 				<Enabled>false</Enabled>
 				<CommandName>Form.Command.ShowCertificateApplication</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Show application for this certificate issuance</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormShowCertificateApplicationExtendedTooltip" id="266"/>
 			</Button>
@@ -144,6 +192,12 @@
 						</LabelDecoration>
 						<CheckBoxField name="SigningAllowed" id="322">
 							<DataPath>SigningAllowed</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Allow signing</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<ToolTipRepresentation>Button</ToolTipRepresentation>
 							<GroupHorizontalAlign>Right</GroupHorizontalAlign>
@@ -220,6 +274,12 @@
 						</LabelDecoration>
 						<CheckBoxField name="RemindAboutReissue" id="278">
 							<DataPath>RemindAboutReissue</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Remind me to reissue</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<GroupHorizontalAlign>Right</GroupHorizontalAlign>
 							<CheckBoxType>Auto</CheckBoxType>
@@ -303,6 +363,12 @@
 						<InputField name="CertificateDataDetailsProperty" id="241">
 							<DataPath>CertificateDataDetails.Property</DataPath>
 							<SkipOnInput>true</SkipOnInput>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Property</v8:content>
+								</v8:item>
+							</Title>
 							<EditMode>EnterOnInput</EditMode>
 							<Width>13</Width>
 							<HorizontalStretch>false</HorizontalStretch>
@@ -312,21 +378,39 @@
 						<InputField name="CertificateDataDetailsValue" id="244">
 							<DataPath>CertificateDataDetails.Value</DataPath>
 							<SkipOnInput>true</SkipOnInput>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Value</v8:content>
+								</v8:item>
+							</Title>
 							<EditMode>EnterOnInput</EditMode>
 							<ContextMenu name="CertificateDataDetailsValueContextMenu" id="245"/>
 							<ExtendedTooltip name="CertificateDataDetailsValueExtendedTooltip" id="246"/>
 						</InputField>
 					</ChildItems>
 				</Table>
-				<UsualGroup name="PropertyDiscoveryGroup" id="327">
+				<UsualGroup name="GroupOpenProperties" id="327">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Open properties</v8:content>
+						</v8:item>
+					</Title>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="PropertyDiscoveryGroupExtendedTooltip" id="328"/>
+					<ExtendedTooltip name="GroupOpenPropertiesExtendedTooltip" id="328"/>
 					<ChildItems>
 						<Button name="ShowCertificateData" id="153">
 							<Type>Hyperlink</Type>
 							<Representation>PictureAndText</Representation>
 							<SkipOnInput>true</SkipOnInput>
 							<CommandName>Form.Command.ShowCertificateData</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>All certificate properties</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="ShowCertificateDataExtendedTooltip" id="154"/>
 						</Button>
 						<Button name="ShowCertificateApplication" id="263">
@@ -335,6 +419,12 @@
 							<Representation>PictureAndText</Representation>
 							<Enabled>false</Enabled>
 							<CommandName>Form.Command.ShowCertificateApplication</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Approved application</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="ShowCertificateApplicationExtendedTooltip" id="264"/>
 						</Button>
 					</ChildItems>
@@ -416,6 +506,12 @@
 										<Button name="EditFirstNameAndPatronymic" id="308">
 											<Type>UsualButton</Type>
 											<CommandName>Form.Command.EditFirstNameAndPatronymic</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Edit first name and middle name</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="EditFirstNameAndPatronymicExtendedTooltip" id="309"/>
 										</Button>
 									</ChildItems>
@@ -516,7 +612,7 @@ the purpose description is used instead of the certificate presentation, for exa
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Group Individual</v8:content>
+													<v8:content>Individual</v8:content>
 												</v8:item>
 											</Title>
 											<Group>AlwaysHorizontal</Group>
@@ -533,6 +629,12 @@ the purpose description is used instead of the certificate presentation, for exa
 													<Type>UsualButton</Type>
 													<Representation>Picture</Representation>
 													<CommandName>Form.Command.PickIndividual</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Select individual</v8:content>
+														</v8:item>
+													</Title>
 													<ExtendedTooltip name="PickIndividualExtendedTooltip" id="321"/>
 												</Button>
 											</ChildItems>
@@ -555,6 +657,12 @@ the purpose description is used instead of the certificate presentation, for exa
 									<ChildItems>
 										<InputField name="Users" id="273">
 											<DataPath>PresentationUsers</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Used by</v8:content>
+												</v8:item>
+											</Title>
 											<AutoMaxWidth>false</AutoMaxWidth>
 											<HorizontalStretch>true</HorizontalStretch>
 											<ChoiceButton>true</ChoiceButton>
@@ -857,7 +965,7 @@ the purpose description is used instead of the certificate presentation, for exa
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Copy.</v8:content>
+					<v8:content>Copy</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Shortcut>F9</Shortcut>
@@ -941,16 +1049,5 @@ the purpose description is used instead of the certificate presentation, for exa
 				<CommandGroup>FormNavigationPanelGoTo</CommandGroup>
 			</Item>
 		</NavigationPanel>
-		<CommandBar>
-			<Item>
-				<Command>0</Command>
-				<Type>Auto</Type>
-				<CommandGroup>FormCommandBarImportant</CommandGroup>
-				<DefaultVisible>false</DefaultVisible>
-				<Visible>
-					<xr:Common>false</xr:Common>
-				</Visible>
-			</Item>
-		</CommandBar>
 	</CommandInterface>
 </Form>

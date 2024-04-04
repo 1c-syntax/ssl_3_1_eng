@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -17,14 +18,16 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	Items.Clear.Visible = False;
 	Items.Schedule.Title = CurrentSchedule();
-	DeleteObsoleteVersionsAutomatically = AutomaticClearingEnabled();
-	Items.Schedule.Enabled = DeleteObsoleteVersionsAutomatically;
-	Items.SetUpSchedule.Enabled = DeleteObsoleteVersionsAutomatically;
+	
+	If Not Common.DataSeparationEnabled() Then
+		DeleteObsoleteVersionsAutomatically = AutomaticClearingEnabled();
+		Items.Schedule.Enabled = DeleteObsoleteVersionsAutomatically;
+		Items.SetUpSchedule.Enabled = DeleteObsoleteVersionsAutomatically;
+	EndIf;
+	
+	Items.VersionDeletionSchedule.Visible = Not Common.DataSeparationEnabled();
 	Items.ObsoleteVersionsInformation.Title = StatusTextCalculation();
 	
-	ShowCleanupScheduleSetting = Not Common.DataSeparationEnabled();
-	Items.Schedule.Visible = ShowCleanupScheduleSetting;
-	Items.SetUpSchedule.Visible = ShowCleanupScheduleSetting;
 EndProcedure
 
 &AtClient
@@ -205,8 +208,8 @@ Procedure FillObjectTypesInValueTree()
 	MOTree = FormAttributeToValue("MetadataObjectsTree");
 	MOTree.Rows.Clear();
 	
-	 
-	
+	//  
+	// 
 	TypesArray = Metadata.CommonCommands.ChangeHistory.CommandParameterType.Types();
 	HasBusinessProcesses = False;
 	AllCatalogs = Catalogs.AllRefsType();
@@ -440,33 +443,25 @@ EndProcedure
 
 &AtServer
 Procedure SetScheduledJobParameter(ParameterName, ParameterValue)
+	
 	JobParameters = New Structure;
 	JobParameters.Insert("Metadata", Metadata.ScheduledJobs.ClearingObsoleteObjectVersions);
 	
 	SetPrivilegedMode(True);
 	
 	JobsList = ScheduledJobsServer.FindJobs(JobParameters);
-	If JobsList.Count() = 0 Then
-		JobParameters = New Structure;
-		JobParameters.Insert(ParameterName, ParameterValue);
-		JobParameters.Insert("Metadata", Metadata.ScheduledJobs.ClearingObsoleteObjectVersions);
-		ScheduledJobsServer.AddJob(JobParameters);
-	Else
-		JobParameters = New Structure(ParameterName, ParameterValue);
-		For Each Job In JobsList Do
-			ScheduledJobsServer.ChangeJob(Job, JobParameters);
-		EndDo;
-	EndIf;
+
+	JobParameters = New Structure(ParameterName, ParameterValue);
+	For Each Job In JobsList Do
+		ScheduledJobsServer.ChangeJob(Job, JobParameters);
+	EndDo;
+	
 EndProcedure
 
 &AtServer
 Function GetScheduledJobParameter(ParameterName, DefaultValue)
 	JobParameters = New Structure;
-	If Common.DataSeparationEnabled() Then
-		JobParameters.Insert("MethodName", Metadata.ScheduledJobs.ClearingObsoleteObjectVersions.MethodName);
-	Else
-		JobParameters.Insert("Metadata", Metadata.ScheduledJobs.ClearingObsoleteObjectVersions);
-	EndIf;
+	JobParameters.Insert("Metadata", Metadata.ScheduledJobs.ClearingObsoleteObjectVersions);
 	
 	SetPrivilegedMode(True);
 	
@@ -572,20 +567,25 @@ Procedure StartUpdateObsoleteVersionsInformation()
 	
 EndProcedure
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
 Procedure OnCompleteSearchForObsoleteVersions(Result, AdditionalParameters) Export
+	
+	BackgroundJobIdentifier = "";
 	
 	If Result = Undefined Then
 		Return;
 	EndIf;
 	
 	If Result.Status = "Error" Then
-		EventLogClient.AddMessageForEventLog(NStr("en = 'Search for outdated versions';", CommonClient.DefaultLanguageCode()),
-			"Error", Result.DetailErrorDescription, , True);
-		Raise Result.BriefErrorDescription;
+		StandardSubsystemsClient.OutputErrorInfo(
+			Result.ErrorInfo);
+		Return;
 	EndIf;
 
-	BackgroundJobIdentifier = "";
 	OutputObsoleteVersionsInfo();
 	
 EndProcedure

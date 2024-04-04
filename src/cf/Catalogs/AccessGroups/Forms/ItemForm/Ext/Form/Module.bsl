@@ -1,16 +1,33 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
+
+#Region Variables
+
+&AtClient
+Var ExternalUsersSelectionAndPickup;
+
+#EndRegion
 
 #Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
+	
+	SetConditionalAppearance();
+	
+	// Standard subsystems.Pluggable commands
+	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
+		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
+	EndIf;
+	// End StandardSubsystems.AttachableCommands
 	
 	// Prepare auxiliary data.
 	AccessManagementInternal.OnCreateAtServerAllowedValuesEditForm(ThisObject);
@@ -39,12 +56,21 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	   And Common.SubsystemExists("StandardSubsystems.SaaSOperations.UsersSaaS") Then
 		
 		ModuleUsersInternalSaaS = Common.CommonModule("UsersInternalSaaS");
-		ActionsWithSaaSUser = ModuleUsersInternalSaaS.GetActionsWithSaaSUser();
+		Try
+			ActionsWithSaaSUser = ModuleUsersInternalSaaS.GetActionsWithSaaSUser(
+				Undefined, ActionsWithSaaSUser);
+			If Not ActionsWithSaaSUser.ChangeAdministrativeAccess Then
+				Raise(NStr("en = 'Insufficient access rights to edit administrators.';"), 
+					ErrorCategory.AccessViolation);
+			EndIf;
+		Except
+			If Not Users.IsFullUser() Then
+				Raise;
+			EndIf;
+			ReadOnly = True;
+			ServiceOperationError = ErrorInfo();
+		EndTry;
 		
-		If Not ActionsWithSaaSUser.ChangeAdministrativeAccess Then
-			Raise
-				NStr("en = 'Insufficient access rights to edit administrators.';");
-		EndIf;
 	EndIf;
 	
 	UpdateAssignment();
@@ -130,6 +156,19 @@ Procedure OnOpen(Cancel)
 		AttachIdleHandler("JumpToAccessValue", 0.1, True);
 	EndIf;
 	
+	// Standard subsystems.Pluggable commands
+	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
+		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
+	EndIf;
+	// End StandardSubsystems.AttachableCommands
+	
+	If ServiceOperationError <> Undefined Then
+		CurrentServiceOperationError = ServiceOperationError;
+		ServiceOperationError = Undefined;
+		StandardSubsystemsClient.OutputErrorInfo(CurrentServiceOperationError);
+	EndIf;
+	
 EndProcedure
 
 &AtClient
@@ -145,6 +184,13 @@ Procedure OnReadAtServer(CurrentObject)
 	If Not ProcedureExecutedOnCreateAtServer Then
 		Return;
 	EndIf;
+	
+	// Standard subsystems.Pluggable commands
+	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommandsClientServer = Common.CommonModule("AttachableCommandsClientServer");
+		ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, Object);
+	EndIf;
+	// End StandardSubsystems.AttachableCommands
 	
 	AccessManagementInternal.OnRereadAtServerAllowedValuesEditForm(ThisObject, CurrentObject);
 	
@@ -181,9 +227,9 @@ EndProcedure
 Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	
 	If Not Users.IsFullUser() Then
-		
-		
-		
+		// 
+		// 
+		// 
 		RestoreObjectWithoutGroupMembers(CurrentObject);
 	EndIf;
 	
@@ -197,7 +243,9 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 		EndIf;
 	Else
 		For Each Item In GroupUsers.GetItems() Do
-			CurrentObject.Users.Add().User = Item.User;
+			NewRow = CurrentObject.Users.Add();
+			NewRow.User = Item.User;
+			NewRow.ValidityPeriod = Item.ValidityPeriod;
 		EndDo;
 	EndIf;
 	
@@ -253,6 +301,13 @@ Procedure AfterWrite(WriteParameters)
 		AfterWriteCompletion(WriteParameters);
 	EndIf;
 	
+	// Standard subsystems.Pluggable commands
+	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
+		ModuleAttachableCommandsClient.AfterWrite(ThisObject, Object, WriteParameters);
+	EndIf;
+	// End StandardSubsystems.AttachableCommands
+	
 EndProcedure
 
 &AtServer
@@ -272,7 +327,7 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	Query.SetParameter("Parent", Object.Profile);
 	Query.Text =
 	"SELECT
-	|	AccessGroupProfilesAssignment.UsersType
+	|	AccessGroupProfilesAssignment.UsersType AS UsersType
 	|INTO AccessGroupProfilesAssignment
 	|FROM
 	|	Catalog.AccessGroupProfiles.Purpose AS AccessGroupProfilesAssignment
@@ -282,7 +337,8 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	|
 	|////////////////////////////////////////////////////////////////////////////////
 	|SELECT
-	|	ExternalUsers.Ref
+	|	ExternalUsers.Ref AS Ref,
+	|	FALSE AS IsInternal
 	|FROM
 	|	Catalog.ExternalUsers AS ExternalUsers
 	|WHERE
@@ -298,7 +354,8 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	|UNION ALL
 	|
 	|SELECT
-	|	ExternalUserGroupsAssignment.Ref
+	|	ExternalUserGroupsAssignment.Ref,
+	|	FALSE
 	|FROM
 	|	Catalog.ExternalUsersGroups.Purpose AS ExternalUserGroupsAssignment
 	|WHERE
@@ -314,23 +371,26 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	|UNION ALL
 	|
 	|SELECT
-	|	Users.Ref
+	|	Users.Ref,
+	|	Users.IsInternal
 	|FROM
 	|	Catalog.Users AS Users
 	|WHERE
-	|	NOT FALSE IN
-	|				(SELECT TOP 1
-	|					FALSE
-	|				FROM
-	|					AccessGroupProfilesAssignment AS AccessGroupProfilesAssignment
-	|				WHERE
-	|					VALUETYPE(AccessGroupProfilesAssignment.UsersType) = TYPE(Catalog.Users))
+	|	(Users.IsInternal
+	|			OR NOT FALSE IN
+	|					(SELECT TOP 1
+	|						FALSE
+	|					FROM
+	|						AccessGroupProfilesAssignment AS AccessGroupProfilesAssignment
+	|					WHERE
+	|						VALUETYPE(AccessGroupProfilesAssignment.UsersType) = TYPE(Catalog.Users)))
 	|	AND Users.Ref IN(&Users)
 	|
 	|UNION ALL
 	|
 	|SELECT
-	|	UserGroups.Ref
+	|	UserGroups.Ref,
+	|	FALSE
 	|FROM
 	|	Catalog.UserGroups AS UserGroups
 	|WHERE
@@ -344,12 +404,14 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	|	AND UserGroups.Ref IN(&Users)";
 	
 	SetPrivilegedMode(True);
-	ProhibitedUsers = Query.Execute().Unload().UnloadColumn("Ref");
+	ProhibitedUsers = Query.Execute().Unload();
 	SetPrivilegedMode(False);
+	BegOfDay = BegOfDay(CurrentSessionDate());
 	
 	For Each CurrentRow In UsersTreeRows Do
 		LineNumber = UsersTreeRows.IndexOf(CurrentRow);
 		Member = CurrentRow.User;
+		ValidityPeriod = CurrentRow.ValidityPeriod;
 		
 		// Checking whether the value is filled.
 		If Not ValueIsFilled(Member) Then
@@ -359,6 +421,17 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 				"GroupUsers",
 				LineNumber,
 				SpecifyMessage(NStr("en = 'The user is not selected in line #%1.';"), Member));
+		EndIf;
+		If ValueIsFilled(ValidityPeriod) And ValidityPeriod <= BegOfDay Then
+			DueDate = Format(ValidityPeriod, NStr("en = 'DLF=D';"));
+			CommonClientServer.AddUserError(Errors,
+				"GroupUsers[%1].User",
+				SpecifyMessage(NStr("en = 'Membership of %2 should expire tomorrow or later.';"), DueDate),
+				"GroupUsers",
+				LineNumber,
+				SpecifyMessage(NStr("en = 'Membership of %2 (line %1) should expire tomorrow or later.';"), DueDate));
+		EndIf;
+		If Not ValueIsFilled(Member) Then
 			Continue;
 		EndIf;
 		
@@ -416,11 +489,17 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 				SpecifyMessage(SeveralErrorsText, Member));
 		EndIf;
 		
-		If ProhibitedUsers.Find(CurrentRow.User) <> Undefined Then
+		ProhibitedUser = ProhibitedUsers.Find(CurrentRow.User, "Ref");
+		If ProhibitedUser <> Undefined Then
 			
 			If TypeOf(CurrentRow.User) = Type("CatalogRef.Users") Then
-				SingleErrorText      = NStr("en = 'User ""%2"" cannot be a member as it does not have the required type.';");
-				SeveralErrorsText = NStr("en = 'User ""%2"" in line #%1 cannot be a member as it does not have the required type.';");
+				If ProhibitedUser.IsInternal Then
+					SingleErrorText      = NStr("en = 'Rights (roles) of utility user ""%2"" cannot be changed interactively.';");
+					SeveralErrorsText = NStr("en = 'Rights (roles) on line %1 of utility user ""%2"" cannot be changed interactively.';");
+				Else
+					SingleErrorText      = NStr("en = 'User ""%2"" cannot be a member as it does not have the required type.';");
+					SeveralErrorsText = NStr("en = 'User ""%2"" in line #%1 cannot be a member as it does not have the required type.';");
+				EndIf;
 			ElsIf TypeOf(CurrentRow.User) = Type("CatalogRef.UserGroups") Then
 				SingleErrorText      = NStr("en = 'User group ""%2"" cannot be a member as it does not have the required type.';");
 				SeveralErrorsText = NStr("en = 'User group ""%2"" in line #%1 cannot be a member as it does not have the required type.';");
@@ -616,20 +695,34 @@ EndProcedure
 Procedure UsersChoiceProcessing(Item, ValueSelected, StandardProcessing)
 	
 	If PickMode Then
-		GroupUsers.GetItems().Clear();
+		UserType = ?(ExternalUsersSelectionAndPickup,
+			New TypeDescription("CatalogRef.ExternalUsers,CatalogRef.ExternalUsersGroups"),
+			New TypeDescription("CatalogRef.Users,CatalogRef.UserGroups"));
+		UsersItems = GroupUsers.GetItems();
+		IndexOf = UsersItems.Count();
+		While IndexOf > 0 Do
+			IndexOf = IndexOf - 1;
+			CurrentUser = UsersItems[IndexOf].User;
+			If Not ValueIsFilled(CurrentUser)
+			 Or UserType.ContainsType(TypeOf(CurrentUser))
+			   And ValueSelected.Find(CurrentUser) = Undefined Then
+				UsersItems.Delete(IndexOf);
+			EndIf;
+		EndDo;
 	EndIf;
+	
 	ModifiedRows = New Array;
 	
 	If TypeOf(ValueSelected) = Type("Array") Then
 		For Each Value In ValueSelected Do
-			ValueNotFound = True;
+			ValueFound2 = False;
 			For Each Item In GroupUsers.GetItems() Do
 				If Item.User = Value Then
-					ValueNotFound = False;
+					ValueFound2 = True;
 					Break;
 				EndIf;
 			EndDo;
-			If ValueNotFound Then
+			If Not ValueFound2 Then
 				NewItem = GroupUsers.GetItems().Add();
 				NewItem.User = Value;
 				ModifiedRows.Add(NewItem.GetID());
@@ -639,6 +732,25 @@ Procedure UsersChoiceProcessing(Item, ValueSelected, StandardProcessing)
 	ElsIf Item.CurrentData.User <> ValueSelected Then
 		Item.CurrentData.User = ValueSelected;
 		ModifiedRows.Add(Item.CurrentRow);
+	EndIf;
+	
+	If PickMode Then
+		TypeExternalUser = New TypeDescription("CatalogRef.ExternalUsers,
+			|CatalogRef.ExternalUsersGroups");
+		List = New ValueList;
+		UsersItems = GroupUsers.GetItems();
+		For Each Item In UsersItems Do
+			List.Add(Item,
+				?(TypeExternalUser.ContainsType(TypeOf(Item.User)), "2", "1")
+					+ String(Item.User));
+		EndDo;
+		List.SortByPresentation();
+		NewIndex = 0;
+		For Each ListItem In List Do
+			PreviousIndex = UsersItems.IndexOf(ListItem.Value);
+			UsersItems.Move(PreviousIndex, NewIndex - PreviousIndex);
+			NewIndex = NewIndex + 1;
+		EndDo;
 	EndIf;
 	
 	If ModifiedRows.Count() > 0 Then
@@ -782,7 +894,7 @@ Procedure AccessKindsOnEditEnd(Item, NewRow, CancelEdit)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure AccessKindsAllAllowedPresentationOnChange(Item)
@@ -897,6 +1009,25 @@ EndProcedure
 #EndRegion
 
 #Region Private
+
+&AtServer
+Procedure SetConditionalAppearance()
+	
+	ConditionalAppearance.Items.Clear();
+	
+	Item = ConditionalAppearance.Items.Add();
+	
+	ItemField = Item.Fields.Items.Add();
+	ItemField.Field = New DataCompositionField(Items.ValidityPeriod.Name);
+	
+	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
+	ItemFilter.LeftValue = New DataCompositionField("GroupUsers.Level");
+	ItemFilter.ComparisonType = DataCompositionComparisonType.Equal;
+	ItemFilter.RightValue = 1;
+	
+	Item.Appearance.SetParameterValue("Visible", False);
+	
+EndProcedure
 
 // OnOpen event handler continuation.
 &AtClient
@@ -1045,7 +1176,9 @@ Procedure InitialSettingsOnReadAndCreate(CurrentObject)
 	UsersTree = GroupUsers.GetItems();
 	UsersTree.Clear();
 	For Each TSRow In CurrentObject.Users Do
-		UsersTree.Add().User = TSRow.User;
+		NewRow = UsersTree.Add();
+		NewRow.User = TSRow.User;
+		NewRow.ValidityPeriod = TSRow.ValidityPeriod;
 	EndDo;
 	RefreshGroupsUsers();
 	
@@ -1068,9 +1201,9 @@ Procedure UpdateAssignment()
 	
 	Purpose.Clear();
 	PurposePresentation = "";
-	ProfilePurpose = Common.ObjectAttributeValue(Object.Profile, "Purpose");
-	If TypeOf(ProfilePurpose) = Type("QueryResult") Then
-		ProfileAssignment = ProfilePurpose.Unload();
+	AssignmentToProfile = Common.ObjectAttributeValue(Object.Profile, "Purpose");
+	If TypeOf(AssignmentToProfile) = Type("QueryResult") Then
+		ProfileAssignment = AssignmentToProfile.Unload();
 		For Each Member In ProfileAssignment Do
 			If Member.UsersType <> Undefined Then
 				Purpose.Add(Member.UsersType);
@@ -1094,18 +1227,18 @@ Procedure DeleteNonTypicalUsers()
 	EndDo;
 	
 	UsersTree = GroupUsers.GetItems();
-	LinksWithAuthorizationObject = New Array; // Array of CatalogRef.ExternalUsers
+	RefsWithAuthorizationObject = New Array; // Array of CatalogRef.ExternalUsers
 	For Each TreeRow In UsersTree Do
 		If TypeOf(TreeRow.User) = Type("CatalogRef.ExternalUsers") Then
-			LinksWithAuthorizationObject.Add(TreeRow.User);
+			RefsWithAuthorizationObject.Add(TreeRow.User);
 		EndIf;
 		If TypeOf(TreeRow.User) = Type("CatalogRef.ExternalUsersGroups") Then
 			For Each GroupMember In TreeRow.GetItems() Do
-				LinksWithAuthorizationObject.Add(GroupMember.User);
+				RefsWithAuthorizationObject.Add(GroupMember.User);
 			EndDo;
 		EndIf;
 	EndDo;
-	AuthorizationObjects = Common.ObjectsAttributeValue(LinksWithAuthorizationObject, "AuthorizationObject");
+	AuthorizationObjects = Common.ObjectsAttributeValue(RefsWithAuthorizationObject, "AuthorizationObject");
 	
 	IndexOf = UsersTree.Count() - 1;
 	While IndexOf >= 0 Do
@@ -1352,18 +1485,19 @@ Procedure SelectPickUsersCompletion(ExternalUsersSelectionAndPickup, Pick) Expor
 	
 	FormParameters = New Structure;
 	FormParameters.Insert("ChoiceMode", True);
-	FormParameters.Insert("CurrentRow", ?(
-		Items.Users.CurrentData = Undefined,
-		Undefined,
-		Items.Users.CurrentData.User));
+	FormParameters.Insert("CurrentRow",
+		?(Items.Users.CurrentData = Undefined,
+			Undefined, Items.Users.CurrentData.User));
 	
 	If Pick Then
 		FormParameters.Insert("CloseOnChoice", False);
 		FormParameters.Insert("MultipleChoice", True);
 		FormParameters.Insert("AdvancedPick", True);
-		FormParameters.Insert("ExtendedPickFormParameters", ExtendedPickFormParameters());
-		FormParameters.Insert("UsersGroupsSelection", True);
-	ElsIf Object.Ref <> AdministratorsAccessGroup Then
+		FormParameters.Insert("ExtendedPickFormParameters",
+			ExtendedPickFormParameters(ExternalUsersSelectionAndPickup));
+	EndIf;
+	
+	If Object.Ref <> AdministratorsAccessGroup Then
 		If ExternalUsersSelectionAndPickup Then
 			FormParameters.Insert("SelectExternalUsersGroups", True);
 		Else
@@ -1376,11 +1510,12 @@ Procedure SelectPickUsersCompletion(ExternalUsersSelectionAndPickup, Pick) Expor
 		FormParameters.Insert("Purpose", Purpose.UnloadValues());
 		
 		If Not UseExternalUsers Then
-			ShowMessageBox(, NStr("en = 'External users are disabled.';"));
+			ShowMessageBox(, NStr("en = 'External users are disabled in the settings.';"));
 		ElsIf ExternalUsersCatalogAvailable Then
 			OpenForm("Catalog.ExternalUsers.ChoiceForm", FormParameters, Items.Users);
 		Else
-			ShowMessageBox(, NStr("en = 'Insufficient rights to select external users.';"));
+			Raise(NStr("en = 'Insufficient rights to select external users.';"),
+				ErrorCategory.AccessViolation);
 		EndIf;
 	Else
 		OpenForm("Catalog.Users.ChoiceForm", FormParameters, Items.Users);
@@ -1389,32 +1524,25 @@ Procedure SelectPickUsersCompletion(ExternalUsersSelectionAndPickup, Pick) Expor
 EndProcedure
 
 &AtServer
-Function ExtendedPickFormParameters()
+Function ExtendedPickFormParameters(ExternalUsersSelectionAndPickup)
+	
+	PickingParameters = UsersInternal.NewParametersOfExtendedPickForm();
+	PickingParameters.PickFormHeader = NStr("en = 'Pick access group members';");
 	
 	CollectionItems = GroupUsers.GetItems();
 	
-	SelectedUsers = New ValueTable;
-	SelectedUsers.Columns.Add("User");
-	SelectedUsers.Columns.Add("PictureNumber");
+	UserType = ?(ExternalUsersSelectionAndPickup,
+		New TypeDescription("CatalogRef.ExternalUsers,CatalogRef.ExternalUsersGroups"),
+		New TypeDescription("CatalogRef.Users,CatalogRef.UserGroups"));
 	
 	For Each Item In CollectionItems Do
-		
-		SelectedUsersRow = SelectedUsers.Add();
-		SelectedUsersRow.User = Item.User;
-		SelectedUsersRow.PictureNumber = Item.PictureNumber;
-		
+		If UserType.ContainsType(TypeOf(Item.User))
+		   And ValueIsFilled(Item.User) Then
+			PickingParameters.SelectedUsers.Add(Item.User);
+		EndIf;
 	EndDo;
 	
-	PickFormHeader = NStr("en = 'Pick access group members';");
-	ExtendedPickFormParameters = New Structure;
-	ExtendedPickFormParameters.Insert("PickFormHeader", PickFormHeader);
-	ExtendedPickFormParameters.Insert("SelectedUsers", SelectedUsers);
-	If Object.Ref = AdministratorsAccessGroup Then
-		ExtendedPickFormParameters.Insert("CannotPickGroups");
-	EndIf;
-	
-	StorageAddress = PutToTempStorage(ExtendedPickFormParameters);
-	Return StorageAddress;
+	Return PutToTempStorage(PickingParameters, UUID);
 	
 EndFunction
 
@@ -1440,11 +1568,13 @@ Procedure RefreshGroupsUsers(RowID = Undefined,
 	
 	UserGroupMembers = New Array;
 	For Each Item In CollectionItems Do
+		CurrentUser = ?(TypeOf(Item) = Type("FormDataTreeItem"),
+			Item.User, Item);
 		
-		If TypeOf(Item.User) = Type("CatalogRef.UserGroups")
-		 Or TypeOf(Item.User) = Type("CatalogRef.ExternalUsersGroups") Then
+		If TypeOf(CurrentUser) = Type("CatalogRef.UserGroups")
+		 Or TypeOf(CurrentUser) = Type("CatalogRef.ExternalUsersGroups") Then
 		
-			UserGroupMembers.Add(Item.User);
+			UserGroupMembers.Add(CurrentUser);
 		EndIf;
 	EndDo;
 	
@@ -1452,13 +1582,14 @@ Procedure RefreshGroupsUsers(RowID = Undefined,
 	Query.SetParameter("UserGroupMembers", UserGroupMembers);
 	Query.Text =
 	"SELECT
-	|	UserGroupCompositions.UsersGroup,
-	|	UserGroupCompositions.User
+	|	UserGroupCompositions.UsersGroup AS UsersGroup,
+	|	UserGroupCompositions.User AS User
 	|FROM
 	|	InformationRegister.UserGroupCompositions AS UserGroupCompositions
 	|WHERE
 	|	UserGroupCompositions.UsersGroup IN(&UserGroupMembers)
-	|	AND UserGroupCompositions.User.Invalid <> TRUE";
+	|	AND UserGroupCompositions.User.Invalid <> TRUE
+	|	AND UserGroupCompositions.User.IsInternal <> TRUE";
 	
 	GroupsUsers = Query.Execute().Unload();
 	GroupsUsers.Indexes.Add("UsersGroup");
@@ -1482,6 +1613,7 @@ Procedure RefreshGroupsUsers(RowID = Undefined,
 					NewItem = OldUsers.Add();
 					NewItem.Ref       = String.User;
 					NewItem.User = String.User;
+					NewItem.Level      = 1;
 				EndDo;
 				HasChanges = True;
 			Else
@@ -1614,5 +1746,32 @@ Procedure JumpToAccessValue()
 	JumpToAccessValue = Undefined;
 	
 EndProcedure
+
+// Standard subsystems.Pluggable commands
+
+&AtClient
+Procedure Attachable_ExecuteCommand(Command)
+	ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
+	ModuleAttachableCommandsClient.StartCommandExecution(ThisObject, Command, Object);
+EndProcedure
+
+&AtClient
+Procedure Attachable_ContinueCommandExecutionAtServer(ExecutionParameters, AdditionalParameters) Export
+	ExecuteCommandAtServer(ExecutionParameters);
+EndProcedure
+
+&AtServer
+Procedure ExecuteCommandAtServer(ExecutionParameters)
+	ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
+	ModuleAttachableCommands.ExecuteCommand(ThisObject, ExecutionParameters, Object);
+EndProcedure
+
+&AtClient
+Procedure Attachable_UpdateCommands()
+	ModuleAttachableCommandsClientServer = CommonClient.CommonModule("AttachableCommandsClientServer");
+	ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, Object);
+EndProcedure
+
+// End StandardSubsystems.AttachableCommands
 
 #EndRegion

@@ -16,6 +16,12 @@
 				<DefaultButton>true</DefaultButton>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.WriteAndClose</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save and close</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="WriteAndCloseExtendedTooltip" id="187"/>
 			</Button>
 			<Button name="FormWrite" id="228">
@@ -27,6 +33,12 @@
 			<Button name="FormDone" id="230">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.Completed2</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Done</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormDoneExtendedTooltip" id="231"/>
 			</Button>
 			<Button name="FormTaskPerformerTaskForward" id="232">
@@ -40,12 +52,24 @@
 				<Type>CommandBarButton</Type>
 				<Representation>Picture</Representation>
 				<CommandName>Form.Command.AcceptForExecution</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Accept</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormAcceptForExecutionExtendedTooltip" id="189"/>
 			</Button>
 			<Button name="FormCancelAcceptForExecution" id="164">
 				<Type>CommandBarButton</Type>
 				<Representation>Picture</Representation>
 				<CommandName>Form.Command.CancelAcceptForExecution</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Decline</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormCancelAcceptForExecutionExtendedTooltip" id="190"/>
 			</Button>
@@ -53,8 +77,14 @@
 				<Type>CommandBarButton</Type>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.More</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>More…</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-				<ExtendedTooltip name="AdditionalExtendedTooltip" id="191"/>
+				<ExtendedTooltip name="MoreExtendedTooltip" id="191"/>
 			</Button>
 			<Button name="Help" id="43">
 				<Type>CommandBarButton</Type>
@@ -202,7 +232,7 @@
 											<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 											<HorizontalStretch>false</HorizontalStretch>
 											<ContextMenu name="DueDateContextMenu" id="176"/>
-											<ExtendedTooltip name="DueDateExtendedTooltip" id="201"/>
+											<ExtendedTooltip name="TaskDueDateExtendedTooltip" id="201"/>
 										</InputField>
 									</ChildItems>
 								</UsualGroup>
@@ -327,7 +357,7 @@
 									<Behavior>Usual</Behavior>
 									<Representation>NormalSeparation</Representation>
 									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="ContentGroupExtendedTooltip" id="208"/>
+									<ExtendedTooltip name="ContentsGroupExtendedTooltip" id="208"/>
 									<ChildItems>
 										<InputField name="Description" id="159">
 											<DataPath>Object.Description</DataPath>
@@ -338,6 +368,12 @@
 										</InputField>
 										<LabelField name="SubjectOf" id="132">
 											<DataPath>SubjectString</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Topic</v8:content>
+												</v8:item>
+											</Title>
 											<Width>60</Width>
 											<Hiperlink>true</Hiperlink>
 											<ContextMenu name="SubjectOfContextMenu" id="133"/>
@@ -442,7 +478,13 @@
 									<SkipOnInput>false</SkipOnInput>
 									<Height>1</Height>
 									<CommandName>Form.Command.Completed2</CommandName>
-									<ExtendedTooltip name="DoneExtendedTooltip" id="216"/>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Done</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="Completed2ExtendedTooltip" id="216"/>
 								</Button>
 								<Button name="Canceled" id="147">
 									<Type>UsualButton</Type>
@@ -454,6 +496,12 @@
 										<xr:Ref>StdPicture.Stop</xr:Ref>
 										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Reject</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="CanceledExtendedTooltip" id="217"/>
 								</Button>
 								<Button name="Returned" id="124">
@@ -466,6 +514,12 @@
 										<xr:Ref>CommonPicture.FillForm</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Return to assignee</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="ReturnedExtendedTooltip" id="218"/>
 								</Button>
 								<InputField name="CompletionDate" id="55">
@@ -507,6 +561,12 @@
 									<Type>Hyperlink</Type>
 									<SkipOnInput>false</SkipOnInput>
 									<CommandName>Form.Command.ChangeJob</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Edit task</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="ChangeJobExtendedTooltip" id="221"/>
 								</Button>
 							</ChildItems>

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -366,8 +367,8 @@ Procedure PlacePackagePages(PagesPackage, PackageFiles)
 			If IsBlankString(Picture.Address) Then
 				Picture.Address = PutToTempStorage(Picture.Data, UUID);
 			EndIf;
-			
-			
+			// 
+			// 
 			PathToPicture = Picture.RelativeName;
 			If Length > 0 And StrStartsWith(PathToPicture, WebPage.RelativeDirectory) Then
 				PathToPicture = Mid(PathToPicture, Length + 1);

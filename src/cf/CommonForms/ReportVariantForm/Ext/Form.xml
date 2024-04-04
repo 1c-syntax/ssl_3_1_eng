@@ -2,6 +2,9 @@
 <Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
 	<WindowOpeningMode>LockOwnerWindow</WindowOpeningMode>
 	<CommandBarLocation>Bottom</CommandBarLocation>
+	<CommandSet>
+		<ExcludedCommand>EndEdit</ExcludedCommand>
+	</CommandSet>
 	<ReportFormType>Variant</ReportFormType>
 	<AutoShowState>Auto</AutoShowState>
 	<ReportResultViewMode>Auto</ReportResultViewMode>
@@ -12,14 +15,14 @@
 			<Button name="CompleteEditing" id="124">
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
-				<CommandName>Form.Command.CompleteEditing</CommandName>
+				<CommandName>Form.Command.GenerateAndClose</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Close and generate</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="CompleteEditingExtendedTooltip" id="127"/>
-			</Button>
-			<Button name="FormEndEdit" id="125">
-				<Type>CommandBarButton</Type>
-				<Visible>false</Visible>
-				<CommandName>Form.StandardCommand.EndEdit</CommandName>
-				<ExtendedTooltip name="FormEndEditExtendedTooltip" id="128"/>
 			</Button>
 			<Button name="FormCancel" id="126">
 				<Type>CommandBarButton</Type>
@@ -53,7 +56,7 @@
 			</Title>
 			<ContextMenu name="SettingsComposerSettingsContextMenu" id="2"/>
 			<AutoCommandBar name="SettingSettingsComposerCommandBar" id="3"/>
-			<ExtendedTooltip name="SettingsComposerSettingsExtendedTooltip" id="130"/>
+			<ExtendedTooltip name="SettingSettingsComposerExtendedTooltip" id="130"/>
 			<SearchStringAddition name="SettingsComposerSettingsSearchString" id="201">
 				<AdditionSource>
 					<Item>SettingSettingsComposer</Item>
@@ -91,7 +94,7 @@
 				</v8:item>
 			</Title>
 			<PagesRepresentation>TabsOnTop</PagesRepresentation>
-			<ExtendedTooltip name="SettingPagesExtendedTooltip" id="131"/>
+			<ExtendedTooltip name="SettingsPagesExtendedTooltip" id="131"/>
 			<ChildItems>
 				<Page name="DataParametersPage" id="5">
 					<Title>
@@ -258,7 +261,7 @@
 											</Title>
 											<ContextMenu name="SettingsComposerSettingsGroupFieldsGroupFieldsAvailableFieldsContextMenu" id="17"/>
 											<AutoCommandBar name="SettingsComposerSettingsGroupFieldsAvailableGroupFieldsFieldsCommandBar" id="18"/>
-											<ExtendedTooltip name="SettingsComposerSettingsGroupFieldsGroupFieldsAvailableFieldsExtendedTooltip" id="139"/>
+											<ExtendedTooltip name="SettingsComposerSettingsGroupFieldsAvailableGroupFieldsFieldsExtendedTooltip" id="139"/>
 											<SearchStringAddition name="SettingsComposerSettingsGroupFieldsGroupFieldsAvailableFieldsSearchString" id="228">
 												<AdditionSource>
 													<Item>SettingsComposerSettingsGroupFieldsAvailableGroupFieldsFields</Item>
@@ -334,7 +337,7 @@
 											<v8:content>Unavailable grouped fields page</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="GroupFieldsSettingsInaccessibleExtendedTooltip" id="141"/>
+									<ExtendedTooltip name="UnavailableGroupFieldsSettingsExtendedTooltip" id="141"/>
 									<ChildItems>
 										<LabelDecoration name="UnavailableGroupFieldsLabel" id="23">
 											<AutoMaxWidth>false</AutoMaxWidth>
@@ -347,7 +350,7 @@ Browse the structure tree and select a grouping to view or edit grouping field s
 												</v8:item>
 											</Title>
 											<ContextMenu name="InaccessibleGroupFieldsStaticContextMenu" id="24"/>
-											<ExtendedTooltip name="InaccessibleGroupFieldsStaticExtendedTooltip" id="142"/>
+											<ExtendedTooltip name="UnavailableGroupFieldsLabelExtendedTooltip" id="142"/>
 										</LabelDecoration>
 									</ChildItems>
 								</Page>
@@ -366,7 +369,7 @@ Browse the structure tree and select a grouping to view or edit grouping field s
 						<xr:Ref>StdPicture.DataCompositionSelection</xr:Ref>
 						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</Picture>
-					<ExtendedTooltip name="SelectedFieldsPageExtendedTooltip" id="143"/>
+					<ExtendedTooltip name="SelectionFieldsPageExtendedTooltip" id="143"/>
 					<ChildItems>
 						<CheckBoxField name="LocalSelectedFields" id="26">
 							<DataPath>LocalSelectedFields</DataPath>
@@ -392,7 +395,7 @@ Browse the structure tree and select a grouping to view or edit grouping field s
 								</v8:item>
 							</Title>
 							<PagesRepresentation>None</PagesRepresentation>
-							<ExtendedTooltip name="SelectedFieldsPagesExtendedTooltip" id="145"/>
+							<ExtendedTooltip name="SelectionFieldsPagesExtendedTooltip" id="145"/>
 							<ChildItems>
 								<Page name="SelectedFieldsSettings" id="29">
 									<Title>
@@ -423,7 +426,7 @@ Browse the structure tree and select a grouping to view or edit grouping field s
 											</Title>
 											<ContextMenu name="SettingsComposerSettingsSelectionSelectionAvailableFieldsContextMenu" id="31"/>
 											<AutoCommandBar name="SettingsComposerSettingsSelectionAvailableSelectionFieldsCommandBar" id="32"/>
-											<ExtendedTooltip name="SettingsComposerSettingsSelectionSelectionAvailableFieldsExtendedTooltip" id="147"/>
+											<ExtendedTooltip name="SettingsComposerSettingsSelectionAvailableSelectionFieldsExtendedTooltip" id="147"/>
 											<SearchStringAddition name="SettingsComposerSettingsSelectionSelectionAvailableFieldsSearchString" id="246">
 												<AdditionSource>
 													<Item>SettingsComposerSettingsSelectionAvailableSelectionFields</Item>
@@ -500,7 +503,7 @@ Browse the structure tree and select a grouping to view or edit grouping field s
 											<v8:content>Disabled fields page</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="SelectedFieldsSettingsOffExtendedTooltip" id="149"/>
+									<ExtendedTooltip name="DisabledSelectedFieldsSettingsExtendedTooltip" id="149"/>
 									<ChildItems>
 										<LabelDecoration name="LocalSelectedFieldsLabel" id="37">
 											<AutoMaxWidth>false</AutoMaxWidth>
@@ -513,7 +516,7 @@ To add custom fields, select the check box above.</v8:content>
 												</v8:item>
 											</Title>
 											<ContextMenu name="LocalSelectedFieldsStaticContextMenu" id="38"/>
-											<ExtendedTooltip name="LocalSelectedFieldsStaticExtendedTooltip" id="150"/>
+											<ExtendedTooltip name="LocalSelectedFieldsLabelExtendedTooltip" id="150"/>
 										</LabelDecoration>
 										<LabelDecoration name="GoToSelectedReportFields" id="39">
 											<AutoMaxWidth>false</AutoMaxWidth>
@@ -525,7 +528,7 @@ To add custom fields, select the check box above.</v8:content>
 											</Title>
 											<Hyperlink>true</Hyperlink>
 											<ContextMenu name="GoToReportSelectedFieldsContextMenu" id="40"/>
-											<ExtendedTooltip name="GoToReportSelectedFieldsExtendedTooltip" id="151"/>
+											<ExtendedTooltip name="GoToSelectedReportFieldsExtendedTooltip" id="151"/>
 											<Events>
 												<Event name="Click">GoToReport</Event>
 											</Events>
@@ -539,7 +542,7 @@ To add custom fields, select the check box above.</v8:content>
 											<v8:content>Unavailable fields page</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="SelectedFieldsSettingsInaccessibleExtendedTooltip" id="152"/>
+									<ExtendedTooltip name="UnavailableSelectedFieldsSettingsExtendedTooltip" id="152"/>
 									<ChildItems>
 										<LabelDecoration name="UnavailableSelectedFieldsLabel" id="42">
 											<AutoMaxWidth>false</AutoMaxWidth>
@@ -551,7 +554,7 @@ In the report structure tree, select the item and then select required fields.</
 												</v8:item>
 											</Title>
 											<ContextMenu name="InaccessibleSelectedFieldsStaticContextMenu" id="43"/>
-											<ExtendedTooltip name="InaccessibleSelectedFieldsStaticExtendedTooltip" id="153"/>
+											<ExtendedTooltip name="UnavailableSelectedFieldsLabelExtendedTooltip" id="153"/>
 										</LabelDecoration>
 										<LabelDecoration name="GoToSelectedReportFields1" id="44">
 											<AutoMaxWidth>false</AutoMaxWidth>
@@ -563,7 +566,7 @@ In the report structure tree, select the item and then select required fields.</
 											</Title>
 											<Hyperlink>true</Hyperlink>
 											<ContextMenu name="GoToReportSelectedFields1ContextMenu" id="45"/>
-											<ExtendedTooltip name="GoToReportSelectedFields1ExtendedTooltip" id="154"/>
+											<ExtendedTooltip name="GoToSelectedReportFields1ExtendedTooltip" id="154"/>
 											<Events>
 												<Event name="Click">GoToReport</Event>
 											</Events>
@@ -622,7 +625,7 @@ In the report structure tree, select the item and then select required fields.</
 									</Title>
 									<Group>HorizontalIfPossible</Group>
 									<ChildItemsWidth>LeftNarrowest</ChildItemsWidth>
-									<ExtendedTooltip name="FilterSettingsExtendedTooltip" id="158"/>
+									<ExtendedTooltip name="Filter_SettingsExtendedTooltip" id="158"/>
 									<ChildItems>
 										<Table name="SettingsComposerSettingsFilterAvailableFilterFields" id="51">
 											<Representation>Tree</Representation>
@@ -642,7 +645,7 @@ In the report structure tree, select the item and then select required fields.</
 											</Title>
 											<ContextMenu name="SettingsComposerSettingsFilterFilterAvailableFieldsContextMenu" id="52"/>
 											<AutoCommandBar name="SettingsComposerSettingsFilterAvailableFilterFieldsCommandBar" id="53"/>
-											<ExtendedTooltip name="SettingsComposerSettingsFilterFilterAvailableFieldsExtendedTooltip" id="159"/>
+											<ExtendedTooltip name="SettingsComposerSettingsFilterAvailableFilterFieldsExtendedTooltip" id="159"/>
 											<SearchStringAddition name="SettingsComposerSettingsFilterFilterAvailableFieldsSearchString" id="264">
 												<AdditionSource>
 													<Item>SettingsComposerSettingsFilterAvailableFilterFields</Item>
@@ -721,7 +724,7 @@ In the report structure tree, select the item and then select required fields.</
 											<v8:content>Disabled filter page</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="FilterSettingsOffExtendedTooltip" id="161"/>
+									<ExtendedTooltip name="DisabledFilterSettingsExtendedTooltip" id="161"/>
 									<ChildItems>
 										<LabelDecoration name="LocalFilterLabel" id="58">
 											<AutoMaxWidth>false</AutoMaxWidth>
@@ -734,7 +737,7 @@ To assign the item with a personal filter, select the check box above.</v8:conte
 												</v8:item>
 											</Title>
 											<ContextMenu name="LocalFilterStaticContextMenu" id="59"/>
-											<ExtendedTooltip name="LocalFilterStaticExtendedTooltip" id="162"/>
+											<ExtendedTooltip name="LocalFilterLabelExtendedTooltip" id="162"/>
 										</LabelDecoration>
 										<LabelDecoration name="GoToReportFilter" id="60">
 											<AutoMaxWidth>false</AutoMaxWidth>
@@ -760,7 +763,7 @@ To assign the item with a personal filter, select the check box above.</v8:conte
 											<v8:content>Unavailable filter page</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="FilterSettingsInaccessibleExtendedTooltip" id="164"/>
+									<ExtendedTooltip name="UnavailableFilterSettingsExtendedTooltip" id="164"/>
 									<ChildItems>
 										<LabelDecoration name="UnavailableFilterLabel" id="63">
 											<AutoMaxWidth>false</AutoMaxWidth>
@@ -772,7 +775,7 @@ In the structure tree, select the report and edit report filters.</v8:content>
 												</v8:item>
 											</Title>
 											<ContextMenu name="InaccessibleFilterStaticContextMenu" id="64"/>
-											<ExtendedTooltip name="InaccessibleFilterStaticExtendedTooltip" id="165"/>
+											<ExtendedTooltip name="UnavailableFilterLabelExtendedTooltip" id="165"/>
 										</LabelDecoration>
 										<LabelDecoration name="GoToReportFilter1" id="65">
 											<AutoMaxWidth>false</AutoMaxWidth>
@@ -863,7 +866,7 @@ In the structure tree, select the report and edit report filters.</v8:content>
 											</Title>
 											<ContextMenu name="SettingsComposerSettingsOrderOrderAvailableFieldsContextMenu" id="73"/>
 											<AutoCommandBar name="SettingsComposerSettingsOrderAvailableOrderFieldsCommandBar" id="74"/>
-											<ExtendedTooltip name="SettingsComposerSettingsOrderOrderAvailableFieldsExtendedTooltip" id="171"/>
+											<ExtendedTooltip name="SettingsComposerSettingsOrderAvailableOrderFieldsExtendedTooltip" id="171"/>
 											<SearchStringAddition name="SettingsComposerSettingsOrderOrderAvailableFieldsSearchString" id="282">
 												<AdditionSource>
 													<Item>SettingsComposerSettingsOrderAvailableOrderFields</Item>
@@ -939,7 +942,7 @@ In the structure tree, select the report and edit report filters.</v8:content>
 											<v8:content>Disabled sort page</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="OrderSettingsOffExtendedTooltip" id="173"/>
+									<ExtendedTooltip name="DisabledOrderSettingsExtendedTooltip" id="173"/>
 									<ChildItems>
 										<LabelDecoration name="LocalOrderLabel" id="79">
 											<AutoMaxWidth>false</AutoMaxWidth>
@@ -952,7 +955,7 @@ To assign the item with a personal sort, select the check box above.</v8:content
 												</v8:item>
 											</Title>
 											<ContextMenu name="LocalOrderStaticContextMenu" id="80"/>
-											<ExtendedTooltip name="LocalOrderStaticExtendedTooltip" id="174"/>
+											<ExtendedTooltip name="LocalOrderLabelExtendedTooltip" id="174"/>
 										</LabelDecoration>
 										<LabelDecoration name="GoToReportOrder" id="81">
 											<AutoMaxWidth>false</AutoMaxWidth>
@@ -978,7 +981,7 @@ To assign the item with a personal sort, select the check box above.</v8:content
 											<v8:content>Unavailable sort page</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="OrderSettingsInaccessibleExtendedTooltip" id="176"/>
+									<ExtendedTooltip name="UnavailableOrderSettingsExtendedTooltip" id="176"/>
 									<ChildItems>
 										<LabelDecoration name="UnavailableOrderLabel" id="84">
 											<AutoMaxWidth>false</AutoMaxWidth>
@@ -990,7 +993,7 @@ In the structure tree, select the report and edit report sorts.</v8:content>
 												</v8:item>
 											</Title>
 											<ContextMenu name="InaccessibleOrderStaticContextMenu" id="85"/>
-											<ExtendedTooltip name="InaccessibleOrderStaticExtendedTooltip" id="177"/>
+											<ExtendedTooltip name="UnavailableOrderLabelExtendedTooltip" id="177"/>
 										</LabelDecoration>
 										<LabelDecoration name="GoToReportOrder1" id="86">
 											<AutoMaxWidth>false</AutoMaxWidth>
@@ -1113,7 +1116,7 @@ In the structure tree, select the report and edit report sorts.</v8:content>
 											<v8:content>Disabled conditional appearance page</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="ConditionalAppearanceSettingsOffExtendedTooltip" id="184"/>
+									<ExtendedTooltip name="DisabledConditionalAppearanceSettingsExtendedTooltip" id="184"/>
 									<ChildItems>
 										<LabelDecoration name="LocalConditionalAppearanceLabel" id="97">
 											<AutoMaxWidth>false</AutoMaxWidth>
@@ -1126,7 +1129,7 @@ To assign the item with a personal conditional appearance, select the check box 
 												</v8:item>
 											</Title>
 											<ContextMenu name="LocalConditionalAppearanceStaticContextMenu" id="98"/>
-											<ExtendedTooltip name="LocalConditionalAppearanceStaticExtendedTooltip" id="185"/>
+											<ExtendedTooltip name="LocalConditionalAppearanceLabelExtendedTooltip" id="185"/>
 										</LabelDecoration>
 										<LabelDecoration name="GoToReportConditionalAppearance" id="99">
 											<AutoMaxWidth>false</AutoMaxWidth>
@@ -1152,7 +1155,7 @@ To assign the item with a personal conditional appearance, select the check box 
 											<v8:content>Unavailable conditional appearance page</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="ConditionalAppearanceSettingsInaccessibleExtendedTooltip" id="187"/>
+									<ExtendedTooltip name="UnavailableConditionalAppearanceSettingsExtendedTooltip" id="187"/>
 									<ChildItems>
 										<LabelDecoration name="UnavailableConditionalAppearanceLabel" id="102">
 											<AutoMaxWidth>false</AutoMaxWidth>
@@ -1164,7 +1167,7 @@ In the structure tree, select the report and edit report conditional appearance.
 												</v8:item>
 											</Title>
 											<ContextMenu name="InaccessibleConditionalAppearanceStaticContextMenu" id="103"/>
-											<ExtendedTooltip name="InaccessibleConditionalAppearanceStaticExtendedTooltip" id="188"/>
+											<ExtendedTooltip name="UnavailableConditionalAppearanceLabelExtendedTooltip" id="188"/>
 										</LabelDecoration>
 										<LabelDecoration name="GoToReportConditionalAppearance1" id="104">
 											<AutoMaxWidth>false</AutoMaxWidth>
@@ -1288,7 +1291,7 @@ In the structure tree, select the report and edit report conditional appearance.
 											<v8:content>Disabled additional settings page</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="OutputParametersSettingsOffExtendedTooltip" id="195"/>
+									<ExtendedTooltip name="DisabledOutputParametersSettingsExtendedTooltip" id="195"/>
 									<ChildItems>
 										<LabelDecoration name="LocalOutputParametersLabel" id="115">
 											<AutoMaxWidth>false</AutoMaxWidth>
@@ -1301,7 +1304,7 @@ To assign the item with personal additional settings, select the check box above
 												</v8:item>
 											</Title>
 											<ContextMenu name="LocalOutputParametersStaticContextMenu" id="116"/>
-											<ExtendedTooltip name="LocalOutputParametersStaticExtendedTooltip" id="196"/>
+											<ExtendedTooltip name="LocalOutputParametersLabelExtendedTooltip" id="196"/>
 										</LabelDecoration>
 										<LabelDecoration name="GoToReportOutputParameters" id="117">
 											<AutoMaxWidth>false</AutoMaxWidth>
@@ -1327,7 +1330,7 @@ To assign the item with personal additional settings, select the check box above
 											<v8:content>Unavailable additional settings page</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="OutputParametersSettingsInaccessibleExtendedTooltip" id="198"/>
+									<ExtendedTooltip name="UnavailableOutputParametersSettingsExtendedTooltip" id="198"/>
 									<ChildItems>
 										<LabelDecoration name="UnavailableOutputParametersLabel" id="120">
 											<AutoMaxWidth>false</AutoMaxWidth>
@@ -1339,7 +1342,7 @@ In the structure tree, select the report and edit additional report settings.</v
 												</v8:item>
 											</Title>
 											<ContextMenu name="InaccessibleOutputParametersStaticContextMenu" id="121"/>
-											<ExtendedTooltip name="InaccessibleOutputParametersStaticExtendedTooltip" id="199"/>
+											<ExtendedTooltip name="UnavailableOutputParametersLabelExtendedTooltip" id="199"/>
 										</LabelDecoration>
 										<LabelDecoration name="GoToReportOutputParameters1" id="122">
 											<AutoMaxWidth>false</AutoMaxWidth>
@@ -1438,20 +1441,20 @@ In the structure tree, select the report and edit additional report settings.</v
 		</Attribute>
 	</Attributes>
 	<Commands>
-		<Command name="CompleteEditing" id="1">
+		<Command name="GenerateAndClose" id="1">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Finish editing</v8:content>
+					<v8:content>Close and generate</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Finish editing.</v8:content>
+					<v8:content>Close and generate</v8:content>
 				</v8:item>
 			</ToolTip>
-			<Action>CompleteEditing</Action>
+			<Action>GenerateAndClose</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 	</Commands>
@@ -1463,6 +1466,25 @@ In the structure tree, select the report and edit additional report settings.</v
 					<v8:Length>0</v8:Length>
 					<v8:AllowedLength>Variable</v8:AllowedLength>
 				</v8:StringQualifiers>
+			</Type>
+		</Parameter>
+		<Parameter name="VariantPresentation">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Parameter>
+		<Parameter name="VariantModified">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="UserSettingsModified">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Parameter>
 	</Parameters>

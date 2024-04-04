@@ -5,11 +5,23 @@
 			<Button name="FormOpen" id="31">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.Open</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Open</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormOpenExtendedTooltip" id="32"/>
 			</Button>
 			<Button name="FormClear" id="33">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.Clear</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Clear</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormClearExtendedTooltip" id="34"/>
 			</Button>
 			<Button name="FormCreate" id="27">
@@ -146,6 +158,12 @@ To view the reasons why these objects cannot be deleted, go to &lt;link %1&gt;Ma
 				<CalculatedField>
 					<dcssch:dataPath>StandardPicture</dcssch:dataPath>
 					<dcssch:expression>4</dcssch:expression>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Standard picture</v8:content>
+						</v8:item>
+					</dcssch:title>
 					<dcssch:useRestriction>
 						<dcssch:condition>true</dcssch:condition>
 						<dcssch:group>true</dcssch:group>

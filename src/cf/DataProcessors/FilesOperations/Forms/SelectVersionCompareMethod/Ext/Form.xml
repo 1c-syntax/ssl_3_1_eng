@@ -50,6 +50,12 @@
 	<ChildItems>
 		<InputField name="FileVersionsComparisonMethod" id="1">
 			<DataPath>FileVersionsComparisonMethod</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Compare file versions with</v8:content>
+				</v8:item>
+			</Title>
 			<ContextMenu name="FileVersionsComparisonMethodContextMenu" id="2"/>
 			<ExtendedTooltip name="FileVersionsComparisonMethodExtendedTooltip" id="10"/>
 		</InputField>

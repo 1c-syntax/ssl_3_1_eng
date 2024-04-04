@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -323,11 +324,11 @@ Procedure SetTableFieldVisible(Val FormTableName, Val MaxUserFieldsCount)
 		ItemSourceField = Items[SourceField]; // FormField
 		ItemDestinationField = Items[DestinationField]; // FormField
 		
-		
+		// Set the field visibility.
 		ItemSourceField.Visible = Item.Check;
 		ItemDestinationField.Visible = Item.Check;
 		
-		
+		// Set field titles.
 		ItemSourceField.Title = Item.Presentation;
 		ItemDestinationField.Title = Item.Presentation;
 		
@@ -361,7 +362,7 @@ Procedure GoBack()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure BackgroundJobIdleHandler()
@@ -392,7 +393,7 @@ Procedure BackgroundJobIdleHandler()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 // Page 1: Automatic object mapping error.
 //
@@ -431,8 +432,8 @@ Function Attachable_ObjectMappingWaitingTimeConsumingOperationProcessing(Cancel,
 		IdleParameters.OutputIdleWindow = False;
 		IdleParameters.OutputMessages    = True;
 		
-		CompletionNotification2 = New NotifyDescription("BackgroundJobCompletion", ThisObject);
-		TimeConsumingOperationsClient.WaitCompletion(Result, CompletionNotification2, IdleParameters);
+		CallbackOnCompletion = New NotifyDescription("BackgroundJobCompletion", ThisObject);
+		TimeConsumingOperationsClient.WaitCompletion(Result, CallbackOnCompletion, IdleParameters);
 		
 	EndIf;
 	
@@ -584,7 +585,7 @@ Procedure RecordError(DetailErrorDescription)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
 Procedure AutomaticObjectMappingScenario()

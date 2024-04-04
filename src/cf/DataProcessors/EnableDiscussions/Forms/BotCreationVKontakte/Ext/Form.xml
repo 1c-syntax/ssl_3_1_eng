@@ -17,12 +17,24 @@
 				<Type>CommandBarButton</Type>
 				<Visible>false</Visible>
 				<CommandName>Form.Command.Disconnect</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Disable</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="DisconnectExtendedTooltip" id="100"/>
 			</Button>
 			<Button name="Close" id="28">
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.Activate</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Activate</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="CloseExtendedTooltip" id="29"/>
 			</Button>
 		</ChildItems>
@@ -92,6 +104,12 @@
 			<ChildItems>
 				<InputField name="Description" id="30">
 					<DataPath>Description</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Description</v8:content>
+						</v8:item>
+					</Title>
 					<InputHint>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -103,6 +121,12 @@
 				</InputField>
 				<InputField name="Token" id="33">
 					<DataPath>Token</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Key</v8:content>
+						</v8:item>
+					</Title>
 					<InputHint>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -151,6 +175,12 @@
 					<Button name="UsersPick" id="66">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.Pick</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Pick</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="UsersPickExtendedTooltip" id="67"/>
 					</Button>
 				</ChildItems>
@@ -186,6 +216,12 @@
 			<ChildItems>
 				<InputField name="AttendeesUser" id="63">
 					<DataPath>Attendees.User</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Conversation members</v8:content>
+						</v8:item>
+					</Title>
 					<ContextMenu name="AttendeesUserContextMenu" id="64"/>
 					<ExtendedTooltip name="AttendeesUserExtendedTooltip" id="65"/>
 				</InputField>

@@ -14,6 +14,12 @@
 				<SkipOnInput>false</SkipOnInput>
 				<DefaultItem>true</DefaultItem>
 				<CommandName>Form.Command.OK</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>OK</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="OKExtendedTooltip" id="19"/>
 			</Button>
 			<Button name="Cancel" id="18">
@@ -73,11 +79,23 @@
 								<Button name="CheckAll" id="42">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.CheckAll</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Select all</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="CheckAllExtendedTooltip" id="43"/>
 								</Button>
 								<Button name="UncheckAll" id="44">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.UncheckAll</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Clear all</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="UncheckAllExtendedTooltip" id="45"/>
 								</Button>
 							</ChildItems>
@@ -149,6 +167,12 @@
 					<ChildItems>
 						<CheckBoxField name="UsedCommandsUse" id="37">
 							<DataPath>UsedCommands.Use</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Usage</v8:content>
+								</v8:item>
+							</Title>
 							<EditMode>EnterOnInput</EditMode>
 							<CheckBoxType>Auto</CheckBoxType>
 							<ContextMenu name="UsedCommandsUseContextMenu" id="38"/>
@@ -157,6 +181,12 @@
 						<InputField name="UsedCommandsPresentation" id="34">
 							<DataPath>UsedCommands.Presentation</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Presentation</v8:content>
+								</v8:item>
+							</Title>
 							<EditMode>EnterOnInput</EditMode>
 							<ContextMenu name="UsedCommandsPresentationContextMenu" id="35"/>
 							<ExtendedTooltip name="UsedCommandsPresentationExtendedTooltip" id="36"/>

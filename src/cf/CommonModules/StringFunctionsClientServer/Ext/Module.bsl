@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -119,8 +120,8 @@ Function IsWordSeparator(CharCode, WordSeparators = Undefined) Export
 	Ranges.Add(New Structure("Min,Max", 65, 90)); 		// Uppercase Latin characters.
 	Ranges.Add(New Structure("Min,Max", 97, 122)); 		// Lowercase Latin characters.
 	Ranges.Add(New Structure("Min,Max", 1040, 1103)); 	// Cyrillic characters.
-	Ranges.Add(New Structure("Min,Max", 1025, 1025)); 	// Cyrillic letter "Ё".
-	Ranges.Add(New Structure("Min,Max", 1105, 1105)); 	// Cyrillic letter "Ё".
+	Ranges.Add(New Structure("Min,Max", 1025, 1025)); 	
+	Ranges.Add(New Structure("Min,Max", 1105, 1105)); 	
 	Ranges.Add(New Structure("Min,Max", 95, 95)); 		// Underline ( _ ) character.
 	
 	For Each Span In Ranges Do
@@ -278,7 +279,6 @@ EndFunction
 //
 // Example:
 //  Values = New Structure("LastName,Name", "Smith", "John");
-//  Result = StringFunctionsClientServer.InsertParametersIntoString("Hello, [Имя] [Фамилия].", Values);
 //  - Returns: "Hello, John Doe".
 //
 Function InsertParametersIntoString(Val StringPattern, Val Parameters) Export
@@ -292,12 +292,12 @@ EndFunction
 // Gets parameter values from the string.
 //
 // Parameters:
-//  ParametersString1 - String - 
-//                              :
-//                                 
-//                                 
-//                              
-//                              
+//  ParametersString1 - String - String containing parameters. Each of the parameters is a key-value pair:
+//                              <Parameter name>=<Value>:
+//                                Substrings are separated from each other by the semicolon ( ; ). 
+//                                Values with whitespaces must be enclosed in double quotation marks ( " ). 
+//                              For example:
+//                              "File=""c:\InfoBases\Trade""; Usr=""Director"";"
 //                              
 //                              
 //                               
@@ -370,8 +370,8 @@ Function OnlyNumbersInString(Val Value, Val Obsolete1 = True, Val SpacesProhibit
 		Return True;
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	Return StrLen(
 		StrReplace( StrReplace( StrReplace( StrReplace( StrReplace(
 		StrReplace( StrReplace( StrReplace( StrReplace( StrReplace( 
@@ -416,6 +416,32 @@ Function OnlyRomanInString(Val CheckString, Val WithWordSeparators = True, Allow
 	EndDo;
 	
 	Return True;
+	
+EndFunction
+
+// 
+//
+// Parameters:
+//  RowToValidate - String -  the string to check.
+//  AdditionalValidChars - Undefined, String - 
+//                                                           
+//  	 
+//  	
+//
+// Returns:
+//  Boolean - 
+//           
+//
+Function IsStringContainsOnlyNationalAlphabetChars(Val RowToValidate, Val AdditionalValidChars = Undefined) Export
+	
+	NationalAlphabetChars = "abcdefghijklmnopqrstuvwxyz";
+	StringFunctionsClientServerLocalization.OnDefineNationalAlphabetChars(NationalAlphabetChars, AdditionalValidChars);
+	
+	If AdditionalValidChars = Undefined Then
+		AllowedChars = " " + Chars.Tab + Chars.LF + Chars.CR + Chars.VTab + Chars.NBSp + Chars.FF;
+	EndIf;
+	
+	Return StrSplit(Lower(RowToValidate), NationalAlphabetChars + AdditionalValidChars, False).Count() = 0;
 	
 EndFunction
 
@@ -495,19 +521,14 @@ EndFunction
 //
 Function GenerateCharacterString(Val Char, Val StringLength) Export
 	
-	Result = "";
-	For Counter = 1 To StringLength Do
-		Result = Result + Char;
-	EndDo;
-	
-	Return Result;
+	Return StrConcat(New Array(StringLength+1), Char);
 	
 EndFunction
 
-// 
-//  
-//  
-// 
+// Adds trailing or leading characters to a string if it is less than the given length.
+// Prior to that, the function removes insignificant leading and trailing characters 
+// (for more details, see the 1C:Enterprise method TrimAll in Syntax Assistant). 
+// By default, the function adds leading zeros.
 //
 // Parameters:
 //  Value    - String - a source string to be supplemented with characters;
@@ -610,7 +631,7 @@ EndFunction
 //  String - a number in Latin notation.
 //
 // Example:
-//  
+//  StringFunctionsClientServer.ConvertNumberIntoRomanNotation("XVII") = 17.
 //
 Function ConvertNumberIntoRomanNotation(ArabicNumber, UseLatinChars = True) Export
 	
@@ -647,7 +668,7 @@ EndFunction
 //  Number - Converted number.
 //
 // Example:
-//  
+//  StringFunctionsClientServer.ConvertNumberIntoArabicNotation("XVII") = 17.
 //
 Function ConvertNumberIntoArabicNotation(RomanNumber, UseLatinChars = True) Export
 	
@@ -1020,7 +1041,6 @@ EndFunction
 //  │ Card.│      │ %1 day left │                │ %1 days left   │ %1 days left      │ %1 days left│
 //  │      │      │ see %1 fish    │                │ see %1 fish     │ see %5 fish           │ see %1 fish  │
 //  ├──────┼──────┼─────────────────┼────────────────┼───────────────────┼───────────────────────┼────────────────┤
-//  │ ru   │      │                 │                │                   │                       │ других нет     │
 //  │ Ord. │      │                 │                │                   │                       │ %1th day      │
 //  ├──────┼──────┼─────────────────┼────────────────┼───────────────────┼───────────────────────┼────────────────┤
 //  │ en   │      │ for 1           │                │                   │                       │ the rest      │
@@ -1147,7 +1167,7 @@ Function FormattedString(Val StringWithTags) Export
 	For Each RowPart In StringsWithLinks Do
 		
 		If RowPart.Check Then
-			RowArray.Add(New FormattedString(RowPart.Value, New Font(,,True))); 
+			RowArray.Add(New FormattedString(RowPart.Value, New Font(,,True))); // 
 		ElsIf Not IsBlankString(RowPart.Presentation) Then
 			RowArray.Add(New FormattedString(RowPart.Value,,,, RowPart.Presentation));
 		Else
@@ -1156,20 +1176,20 @@ Function FormattedString(Val StringWithTags) Export
 		
 	EndDo;
 	
-	Return New FormattedString(RowArray);	
-														
+	Return New FormattedString(RowArray);	// 
+														// 
 	
 EndFunction
 
-// Deprecated. See StringFunctionsClientServer.StringWithNumberForAnyLanguage.
+// Deprecated. Instead, use See StringFunctionsClientServer.StringWithNumberForAnyLanguage.
 //
-// 
-// 
+// NumberInDigitsUnitOfMeasurementInWords(1.5, "minute,minutes,minutes");
+// ->StringWithNumberForAnyLanguage(";%1 minute;;%1 minutes;%1 minutes;%1 minutes ", Value);
 //
-// 
-// 
+// NumberInDigitsUnitOfMeasurementInWords(1.5, "minute,minutes,minutes ", False);
+// ->StringWithNumberForAnyLanguage(";minute;;minutes;minutes;minutes", Value);
 //
-// 
+// Returns a text presentation of the number with a unit of measurement in the correct form (singular or plural).
 //
 // Parameters:
 //  Value                    - Number  - any integer number.
@@ -1207,12 +1227,12 @@ Function NumberInDigitsUnitOfMeasurementInWords(Val Value, Val NumerationItemOpt
 	
 EndFunction
 
-// Deprecated. See StringFunctionsClientServer.StringWithNumberForAnyLanguage.
+// Deprecated. Instead, use See StringFunctionsClientServer.StringWithNumberForAnyLanguage.
 //
-// 
-// 
+// PluralForm("minute", "minutes", "minutes", 1.5);
+// -> StringWithNumberForAnyLanguage(";minute;;minutes;minutes;minutes", Value);
 //
-// 
+// Returns the correct declension of the unit considering the preceding number.
 //
 // Parameters: 
 //  FormFor1 - String - word form for one unit;
@@ -1253,8 +1273,8 @@ Function OnlyLatinInString(Val CheckString, Val WithWordSeparators = True, Allow
 	EndIf;
 	
 	ValidCharCodes = New Array;
-	ValidCharCodes.Add(1105); 
-	ValidCharCodes.Add(1025); // "ё"
+	ValidCharCodes.Add(1105); // 
+	ValidCharCodes.Add(1025); 
 	
 	For IndexOf = 1 To StrLen(AllowedChars) Do
 		ValidCharCodes.Add(CharCode(Mid(AllowedChars, IndexOf, 1)));
@@ -1273,13 +1293,13 @@ Function OnlyLatinInString(Val CheckString, Val WithWordSeparators = True, Allow
 	
 EndFunction
 
-// Deprecated. See StringFunctions.LatinString
-//  See StringFunctionsClient.LatinString.
+// Deprecated. Instead, use See StringFunctions.LatinString
+// or See StringFunctionsClient.LatinString.
 // 
-// 
-// 
-// 
-// 
+// Transliterates the passed string into Latin.
+// Intended for sending the transliterated string as a text message or
+// for naming files and directories for compatibility in different operating systems.
+// Backward transliteration (from Latin letters) is not supported.
 //
 // Parameters:
 //  Value - String - arbitrary string.
@@ -1298,15 +1318,15 @@ Function LatinString(Val Value) Export
 	
 	For Position = 1 To StrLen(Value) Do
 		Char = Mid(Value, Position, 1);
-		LatinChar = Map[Lower(Char)]; 
+		LatinChar = Map[Lower(Char)]; // Search the map regardless the register.
 		If LatinChar = Undefined Then
-			
+			// Keep the other characters as is.
 			LatinChar = Char;
 		Else
 			If OnlyUppercaseInString Then 
-				LatinChar = Upper(LatinChar); 
+				LatinChar = Upper(LatinChar); // Restore the register
 			ElsIf Char = Upper(Char) Then
-				LatinChar = Title(LatinChar); 
+				LatinChar = Title(LatinChar); // Restore the register
 			EndIf;
 		EndIf;
 		Result = Result + LatinChar;
@@ -1438,8 +1458,8 @@ Function GenerateFormattedString(StringPattern, StyleItems,
 		
 	EndDo;
 	
-	Return New FormattedString(RowsSet);	
-														
+	Return New FormattedString(RowsSet);	// 
+														// 
 
 EndFunction
 

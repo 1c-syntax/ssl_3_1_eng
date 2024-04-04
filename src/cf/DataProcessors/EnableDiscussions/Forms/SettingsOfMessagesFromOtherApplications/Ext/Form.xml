@@ -30,6 +30,12 @@
 							<xr:Ref>CommonPicture.Telegram16x16</xr:Ref>
 							<xr:LoadTransparent>false</xr:LoadTransparent>
 						</Picture>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Telegram chat</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="FormCreateBotTelegramExtendedTooltip" id="32"/>
 					</Button>
 					<Button name="FormCreateBotVKontakte" id="33">
@@ -39,6 +45,12 @@
 							<xr:Ref>CommonPicture.VKontakte16</xr:Ref>
 							<xr:LoadTransparent>false</xr:LoadTransparent>
 						</Picture>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>VK chat</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="FormCreateBotVKontakteExtendedTooltip" id="34"/>
 					</Button>
 				</ChildItems>
@@ -46,6 +58,12 @@
 			<Button name="FormRefresh" id="41">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.Refresh</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Refresh</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormRefreshExtendedTooltip" id="42"/>
 			</Button>
 		</ChildItems>
@@ -102,6 +120,12 @@
 			<ChildItems>
 				<PictureField name="ConnectionsListActive" id="20">
 					<DataPath>ConnectionsList.Active</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Active</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<ToolTip>
 						<v8:item>
@@ -125,6 +149,12 @@
 				</PictureField>
 				<InputField name="ConnectionsListDescription" id="14">
 					<DataPath>ConnectionsList.Description</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Description</v8:content>
+						</v8:item>
+					</Title>
 					<ContextMenu name="ConnectionsListDescriptionContextMenu" id="15"/>
 					<ExtendedTooltip name="ConnectionsListDescriptionExtendedTooltip" id="16"/>
 				</InputField>

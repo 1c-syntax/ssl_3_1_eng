@@ -40,6 +40,33 @@
 		</right>
 	</object>
 	<object>
+		<name>Configuration.StandardSubsystemsLibrary</name>
+		<right>
+			<name>MainWindowModeNormal</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeEmbeddedWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeFullscreenWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeKiosk</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>AnalyticsSystemClient</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
 		<name>SessionParameter.AccountingIssuesCounter</name>
 		<right>
 			<name>Get</name>
@@ -253,6 +280,17 @@ ReportsOptions WHERE (ReportsOptions.User = FALSE
 		</right>
 	</object>
 	<object>
+		<name>CommonAttribute.EditedPredefinedAttributes</name>
+		<right>
+			<name>View</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>Edit</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
 		<name>CommonForm.RegionalSettings</name>
 		<right>
 			<name>View</name>
@@ -406,6 +444,17 @@ ReportsOptions WHERE (ReportsOptions.User = FALSE
 	</object>
 	<object>
 		<name>Catalog.ReportsOptions.Command.Open</name>
+		<right>
+			<name>View</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>InformationRegister.UserGroupsHierarchy</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+		</right>
 		<right>
 			<name>View</name>
 			<value>true</value>
@@ -1290,6 +1339,17 @@ WHERE User = &amp;AuthorizedUser
 		</right>
 	</object>
 	<object>
+		<name>Constant.UseNotesCommand</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>View</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
 		<name>Catalog.DigitalSignatureAndEncryptionKeysCertificates</name>
 		<right>
 			<name>Read</name>
@@ -1352,6 +1412,17 @@ WHERE User = &amp;AuthorizedUser
 		</right>
 		<right>
 			<name>Set</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>Constant.UseRemindersCommand</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>View</name>
 			<value>true</value>
 		</right>
 	</object>
@@ -1435,33 +1506,6 @@ WHERE User = &amp;AuthorizedUser
 		<name>CommonForm.SelectDate</name>
 		<right>
 			<name>View</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
-		<name>Configuration.StandardSubsystemsLibrary</name>
-		<right>
-			<name>MainWindowModeNormal</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeEmbeddedWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeFullscreenWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeKiosk</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>AnalyticsSystemClient</name>
 			<value>true</value>
 		</right>
 	</object>
@@ -2239,14 +2283,18 @@ WHERE User = &amp;AuthorizedUser
 		</right>
 	</object>
 	<object>
-		<name>CommonForm.Extensions</name>
+		<name>CommonForm.LabelsEdit</name>
 		<right>
 			<name>View</name>
 			<value>true</value>
 		</right>
 	</object>
 	<object>
-		<name>CommonForm.LabelsEdit</name>
+		<name>Constant.ShouldRegisterChangesInAccessRights</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+		</right>
 		<right>
 			<name>View</name>
 			<value>true</value>

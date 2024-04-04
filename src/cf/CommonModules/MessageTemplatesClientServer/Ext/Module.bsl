@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -36,6 +37,7 @@ EndProcedure
 Function InitializeMessageStructure() Export
 	
 	MessageStructure = New Structure;
+	MessageStructure.Insert("ArbitraryMessageText", "");
 	MessageStructure.Insert("SMSMessageText", "");
 	MessageStructure.Insert("EmailSubject", "");
 	MessageStructure.Insert("EmailText", "");
@@ -60,7 +62,7 @@ EndFunction
 // Template parameter constructor.
 //
 // Returns:
-//  Structure - :
+//  Structure - List of template parameters:
 //   * Subject - String - a subject of templates (for emails).
 //   * Text - String - a template text.
 //   * SignatureAndSeal - Boolean - indicates whether there is a signature and a seal in print forms.
@@ -79,7 +81,6 @@ EndFunction
 //   * Sender - String - a sender email.
 //   * Transliterate - Boolean - if True, the names of report files will 
 //                                   contain only Latin letters and digits. This ensures compatibility between
-//                                   different operating systems. For example, the "Счет на оплату.pdf" 
 //                                   file will be saved as "Schet na oplaty.pdf".
 //   * PackToArchive - Boolean - indicates that attached print forms are to be archived
 //                                upon sending.
@@ -186,7 +187,7 @@ Function ArbitraryParametersTitle() Export
 	Return NStr("en = 'Custom';");
 EndFunction
 
-// Handler of the subscription to FormGetProcessing event for overriding file form.
+// FormGetProcessing event subscription handler for overriding the file form.
 //
 // Parameters:
 //  Source                 - CatalogManager - the *AttachedFiles catalog manager.

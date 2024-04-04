@@ -11,11 +11,23 @@
 	<ChildItems>
 		<LabelField name="CurrencyLabel" id="11">
 			<DataPath>CurrencyLabel</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Currency</v8:content>
+				</v8:item>
+			</Title>
 			<ContextMenu name="CurrencyLabelContextMenu" id="12"/>
 			<ExtendedTooltip name="CurrencyLabelExtendedTooltip" id="13"/>
 		</LabelField>
 		<InputField name="CurrencyList" id="9">
 			<DataPath>CurrencyList</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Currency</v8:content>
+				</v8:item>
+			</Title>
 			<ListChoiceMode>true</ListChoiceMode>
 			<ContextMenu name="CurrencyListContextMenu" id="10"/>
 			<ExtendedTooltip name="CurrencyListExtendedTooltip" id="14"/>

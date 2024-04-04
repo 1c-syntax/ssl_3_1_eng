@@ -25,7 +25,13 @@
 				<DefaultButton>true</DefaultButton>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.Generate</CommandName>
-				<ExtendedTooltip name="PinExtendedTooltip" id="9"/>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Generate</v8:content>
+					</v8:item>
+				</Title>
+				<ExtendedTooltip name="ButtonExtendedTooltip" id="9"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
@@ -48,6 +54,12 @@
 			<ChildItems>
 				<InputField name="Survey" id="3">
 					<DataPath>Survey</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Survey</v8:content>
+						</v8:item>
+					</Title>
 					<Width>40</Width>
 					<HorizontalStretch>false</HorizontalStretch>
 					<DropListButton>false</DropListButton>
@@ -59,6 +71,12 @@
 				</InputField>
 				<InputField name="ReportKind" id="6">
 					<DataPath>ReportKind</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Report type</v8:content>
+						</v8:item>
+					</Title>
 					<Width>15</Width>
 					<HorizontalStretch>false</HorizontalStretch>
 					<ListChoiceMode>true</ListChoiceMode>
@@ -71,7 +89,7 @@
 								<Presentation>
 									<v8:item>
 										<v8:lang>en</v8:lang>
-										<v8:content>Response analysis</v8:content>
+										<v8:content>Answer analytics</v8:content>
 									</v8:item>
 								</Presentation>
 								<Value xsi:type="xs:string">ResponsesAnalysis</Value>
@@ -92,7 +110,7 @@
 						</xr:Item>
 					</ChoiceList>
 					<ContextMenu name="ReportKind1ContextMenu" id="7"/>
-					<ExtendedTooltip name="ReportKind1ExtendedTooltip" id="12"/>
+					<ExtendedTooltip name="ReportKindExtendedTooltip" id="12"/>
 				</InputField>
 			</ChildItems>
 		</UsualGroup>
@@ -102,7 +120,7 @@
 			<VerticalScrollBar>true</VerticalScrollBar>
 			<HorizontalScrollBar>true</HorizontalScrollBar>
 			<ContextMenu name="ReportTable1ContextMenu" id="2"/>
-			<ExtendedTooltip name="ReportTable1ExtendedTooltip" id="13"/>
+			<ExtendedTooltip name="ReportTableExtendedTooltip" id="13"/>
 			<Events>
 				<Event name="DetailProcessing">ReportTable1DetailProcessing</Event>
 			</Events>

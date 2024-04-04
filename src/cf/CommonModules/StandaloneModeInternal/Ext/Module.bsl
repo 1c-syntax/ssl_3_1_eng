@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -286,15 +287,15 @@ Function GenerateStandaloneWorkstationPrefix(Val LastPrefix = "") Export
 	
 	If CharPosition = 0 Or IsBlankString(LastStandaloneWorkstationChar) Then
 		
-		Char = Left(AllowedChars, 1); 
+		Char = Left(AllowedChars, 1); // Use the first character
 		
 	ElsIf CharPosition >= StrLen(AllowedChars) Then
 		
-		Char = Right(AllowedChars, 1); 
+		Char = Right(AllowedChars, 1); // Use the last character
 		
 	Else
 		
-		Char = Mid(AllowedChars, CharPosition + 1, 1); 
+		Char = Mid(AllowedChars, CharPosition + 1, 1); // Use the next character
 		
 	EndIf;
 	
@@ -609,7 +610,7 @@ Function DefaultDataSynchronizationSchedule() Export // Every hour.
 	Schedule = New JobSchedule;
 	Schedule.Months                   = Months;
 	Schedule.WeekDays                = WeekDays;
-	Schedule.RepeatPeriodInDay = 60*60; 
+	Schedule.RepeatPeriodInDay = 60*60; // 
 	Schedule.DaysRepeatPeriod        = 1; // Every day.
 	
 	Return Schedule;
@@ -888,8 +889,8 @@ EndProcedure
 Procedure SetRegistersTotalsUsage(Flagusage)
 	
 	SessionDate = CurrentSessionDate();
-	AccumulationRegisterPeriod  = EndOfMonth(AddMonth(SessionDate, -1)); 
-	AccountingRegisterPeriod = EndOfMonth(SessionDate); 
+	AccumulationRegisterPeriod  = EndOfMonth(AddMonth(SessionDate, -1)); // End of the last month.
+	AccountingRegisterPeriod = EndOfMonth(SessionDate); // End of the last month.
 	
 	KindBalance = Metadata.ObjectProperties.AccumulationRegisterType.Balance;
 	
@@ -1067,8 +1068,8 @@ Procedure DoImportParametersFromInitialImage()
 		RecordStructure.Insert("EndDate", Parameters.InitialImageCreationDate);
 		InformationRegisters.SuccessfulDataExchangesStates.AddRecord(RecordStructure);
 		
-		
-		
+		// 
+		// 
 		ScheduledJobsServer.SetScheduledJobUsage(Metadata.ScheduledJobs.DataSynchronizationWithWebApplication, False);
 		ScheduledJobsServer.SetJobSchedule(Metadata.ScheduledJobs.DataSynchronizationWithWebApplication, DefaultDataSynchronizationSchedule());
 		
@@ -1172,10 +1173,10 @@ Procedure ImportInitialImageData()
 	DataExchangeInternal.DisableAccessKeysUpdate(True, False);
 	SetRegistersTotalsUsage(False);
 	
-	 
-	
-	
-	
+	//  
+	// 
+	// 
+	// 
 	SetsOfAccountingRegisters = New Array;
 	
 	For Each DataFileName In DataFileList Do
@@ -1377,10 +1378,10 @@ Function MetadataObjectIsException(Val MetadataObject)
 		Return True;
 	EndIf;
 	
-	
-	
-	
-	
+	// 
+	// 
+	// 
+	// 
 	If MetadataObject = Metadata.Catalogs.MetadataObjectIDs Then
 		Return True;
 	EndIf;

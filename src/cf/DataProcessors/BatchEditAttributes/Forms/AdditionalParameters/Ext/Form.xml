@@ -17,7 +17,13 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.OK</CommandName>
-				<ExtendedTooltip name="FormOK1ExtendedTooltip" id="50"/>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>OK</v8:content>
+					</v8:item>
+				</Title>
+				<ExtendedTooltip name="FormOKExtendedTooltip" id="50"/>
 			</Button>
 			<Button name="FormCancel" id="6">
 				<Type>CommandBarButton</Type>
@@ -51,6 +57,12 @@
 			<ChildItems>
 				<CheckBoxField name="ChangeInTransaction" id="1">
 					<DataPath>ChangeInTransaction</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Edit in transaction</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Right</TitleLocation>
 					<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 					<CheckBoxType>Auto</CheckBoxType>
@@ -98,6 +110,12 @@
 			<ChildItems>
 				<CheckBoxField name="InterruptOnError" id="37">
 					<DataPath>InterruptOnError</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Abort on error</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Right</TitleLocation>
 					<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 					<CheckBoxType>Auto</CheckBoxType>
@@ -129,6 +147,12 @@
 			<ChildItems>
 				<CheckBoxField name="ProcessGroupsRecursively" id="3">
 					<DataPath>ProcessRecursively</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Process child items</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Right</TitleLocation>
 					<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 					<CheckBoxType>Auto</CheckBoxType>
@@ -173,6 +197,12 @@
 					<ChildItems>
 						<CheckBoxField name="ShowInternalAttributes" id="80">
 							<DataPath>ShowInternalAttributes</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Show service attributes</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 							<CheckBoxType>Auto</CheckBoxType>
@@ -241,6 +271,12 @@
 					<ChildItems>
 						<CheckBoxField name="DisableSelectionParameterConnections" id="93">
 							<DataPath>DisableSelectionParameterConnections</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Clear filters on value select</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 							<CheckBoxType>Auto</CheckBoxType>

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -1867,7 +1868,7 @@ Function MetadataTree(WithFields)
 	Tree.Columns.Add("HasHierarchy",         New TypeDescription("Boolean"));
 	Tree.Columns.Add("WithoutDecryption",       New TypeDescription("Boolean"));
 	Tree.Columns.Add("PathToObject",         StringType(255));
-	Tree.Columns.Add("ParentMetadataAttachments"); 
+	Tree.Columns.Add("ParentMetadataAttachments"); // 
 	
 	// Configuration
 	ConfigurationString = Tree.Rows.Add();
@@ -2210,7 +2211,7 @@ Function MetadataTree(WithFields)
 	StringCube.Presentation        = NStr("en = 'Cubes';");
 	StringCube.ObjectPresentation = NStr("en = 'Cube';");
 	
-	
+	// Configuration.ExternalDataSources.Cubes.DimensionTables
 	RowTableDimensions = StringCube.Rows.Add();
 	RowTableDimensions.Name                  = "DimensionTables";
 	RowTableDimensions.AttachmentName          = "DimensionTables";
@@ -3097,7 +3098,7 @@ EndProcedure
 Function Images()
 	
 	Images = New ValueList;
-	Images.Add(""); 
+	Images.Add(""); // 
 	Images.Add("Configuration",,,              PictureLib.MetadataConfiguration);
 	Images.Add("Overall",,,                     PictureLib.MetadataCommon);
 	Images.Add("Subsystems",,,                PictureLib.MetadataSubsystems);

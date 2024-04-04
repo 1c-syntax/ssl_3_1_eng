@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -13,22 +14,22 @@
 Var ErrorMessageString Export;
 Var ErrorMessageStringEL Export;
 
-
+// 
 Var ErrorsMessages;                 // Map
 
-Var ObjectName;                      
+Var ObjectName;                      // Metadata object name
 
-Var TempExchangeMessageFile;    
+Var TempExchangeMessageFile;    // A temporary exchange message file.
 
-Var TempExchangeMessagesDirectory; 
+Var TempExchangeMessagesDirectory; // A temporary exchange directory.
 
-Var MessageSubject1;                   
+Var MessageSubject1;                   // A subject template
 
-Var SimpleBody;            
+Var SimpleBody;            // Message body text with an attached XML file.
 
-Var CompressedBody;             
+Var CompressedBody;             // Message body with an attached archive.
 
-Var BatchBody;           
+Var BatchBody;           // Message body with an archive of files.
 
 Var EmailOperationsCommonModule;
 Var DirectoryID;
@@ -129,7 +130,7 @@ Procedure Initialize() Export
 	
 	InitMessages();
 	
-	MessageSubject1 = "Exchange message (%1)"; 
+	MessageSubject1 = "Exchange message (%1)"; // 
 	MessageSubject1 = StringFunctionsClientServer.SubstituteParametersToString(MessageSubject1, MessageFileNameTemplate);
 	
 	SimpleBody	= NStr("en = 'Data exchange message';");
@@ -342,7 +343,7 @@ Function SendExchangeMessage()
 EndFunction
 
 // Returns:
-//   ValueTable - :
+//   ValueTable - A collection of exchange messages:
 //     * Id - Array of String - a message ID collection.
 //     * PostingDate - Date - message sending date.
 //
@@ -387,7 +388,6 @@ Function GetExchangeMessage(ExistenceCheck)
 		EmailMessageSubject = StrReplace(EmailMessageSubject, Chars.Tab, "");
 		
 		If Upper(EmailMessageSubject) <> Upper(TrimAll(MessageSubject1)) Then
-			// The message name can be in the format of Message_[prеfix]_UID1_UID2.
 			If StrFind(Upper(EmailMessageSubject), SearchSubjectsSubstring) = 0 Then
 				Continue;
 			EndIf;
@@ -443,7 +443,6 @@ Function GetExchangeMessage(ExistenceCheck)
 			FilePacked = False;
 		EndIf;
 		
-		// The message name can be in the format of Message_[prеfix]_UID1_UID2.
 		FilePacked = False;
 		SearchTemplate = StrReplace(MessageFileNameTemplate, "Message_","");
 		For Each CurAttachment In MessageSet[0].Attachments Do
@@ -589,7 +588,7 @@ Procedure ErrorMessageInitialization()
 	
 	ErrorsMessages = New Map;
 	
-	
+	// General error codes
 	ErrorsMessages.Insert(001, NStr("en = 'Exchange messages are not detected.';"));
 	ErrorsMessages.Insert(002, NStr("en = 'Error extracting message file.';"));
 	ErrorsMessages.Insert(003, NStr("en = 'Error packing the exchange message file.';"));
@@ -597,7 +596,7 @@ Procedure ErrorMessageInitialization()
 	ErrorsMessages.Insert(005, NStr("en = 'The archive does not contain the exchange message file.';"));
 	ErrorsMessages.Insert(006, NStr("en = 'Couldn''t send the message. Message size exceeds the limit.';"));
 	
-	
+	// Transport-specific error codes.
 	ErrorsMessages.Insert(101, NStr("en = 'Initialization error: the exchange message transport email account is not specified.';"));
 	ErrorsMessages.Insert(102, NStr("en = 'Error sending the email message.';"));
 	ErrorsMessages.Insert(103, NStr("en = 'Error receiving message headers from the email server.';"));

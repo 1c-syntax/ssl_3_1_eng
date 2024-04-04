@@ -10,6 +10,12 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.OK</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>OK</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormOKExtendedTooltip" id="50"/>
 			</Button>
 			<Button name="FormCancel" id="51">
@@ -39,6 +45,12 @@
 			<ChildItems>
 				<RadioButtonField name="PeriodTypeNotSpecified" id="1">
 					<DataPath>PeriodType</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Period type</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<RadioButtonType>Auto</RadioButtonType>
 					<ColumnsCount>1</ColumnsCount>
@@ -65,6 +77,12 @@
 				</RadioButtonField>
 				<RadioButtonField name="PeriodTypeNoExpiration" id="29">
 					<DataPath>PeriodType</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Period type</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<RadioButtonType>Auto</RadioButtonType>
 					<ColumnsCount>1</ColumnsCount>
@@ -103,6 +121,12 @@
 					<ChildItems>
 						<RadioButtonField name="PeriodTypeTillDate" id="26">
 							<DataPath>PeriodType</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Period type</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<RadioButtonType>Auto</RadioButtonType>
 							<ColumnsCount>1</ColumnsCount>
@@ -129,6 +153,12 @@
 						</RadioButtonField>
 						<InputField name="DueDate" id="36">
 							<DataPath>DueDate</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Due date</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<ContextMenu name="DueDateContextMenu" id="37"/>
 							<ExtendedTooltip name="DueDateExtendedTooltip" id="38"/>
@@ -149,6 +179,12 @@
 					<ChildItems>
 						<RadioButtonField name="PeriodTypeTimeout" id="23">
 							<DataPath>PeriodType</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Period type</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<RadioButtonType>Auto</RadioButtonType>
 							<ColumnsCount>1</ColumnsCount>
@@ -175,6 +211,12 @@
 						</RadioButtonField>
 						<InputField name="InactivityPeriod" id="39">
 							<DataPath>InactivityPeriod</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Inactivity period</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<MinValue xsi:type="xs:decimal">1</MinValue>
 							<ContextMenu name="InactivityPeriodContextMenu" id="40"/>

@@ -7,6 +7,12 @@
 			<Button name="FormCheckSettings" id="63">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.CheckSettings</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Test settings</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormCheckSettingsExtendedTooltip" id="64"/>
 			</Button>
 		</ChildItems>
@@ -154,12 +160,24 @@
 							<ChildItems>
 								<InputField name="Login" id="31">
 									<DataPath>Login</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Username</v8:content>
+										</v8:item>
+									</Title>
 									<HorizontalStretch>false</HorizontalStretch>
 									<ContextMenu name="LoginContextMenu" id="32"/>
 									<ExtendedTooltip name="LoginExtendedTooltip" id="33"/>
 								</InputField>
 								<InputField name="Password" id="34">
 									<DataPath>Password</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Password</v8:content>
+										</v8:item>
+									</Title>
 									<HorizontalStretch>false</HorizontalStretch>
 									<PasswordMode>true</PasswordMode>
 									<ContextMenu name="PasswordContextMenu" id="35"/>

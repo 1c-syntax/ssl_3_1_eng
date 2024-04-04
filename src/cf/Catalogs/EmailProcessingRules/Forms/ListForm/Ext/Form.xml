@@ -21,6 +21,12 @@
 			<Button name="FormApplyRules" id="8">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.ApplyRules</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Run rules…</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormApplyRulesExtendedTooltip" id="17"/>
 			</Button>
 		</ChildItems>

@@ -1,14 +1,14 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #Region Variables
-
 
 &AtClient
 Var CurrentOperation1; // See TimeConsumingOperations.ExecuteFunction
@@ -17,13 +17,16 @@ Var CurrentOperation1; // See TimeConsumingOperations.ExecuteFunction
 Var PresentationOperation; // String
 
 &AtClient
-Var DeletionResultsInfo; // See MarkedObjectsDeletionInternalClientServer.NewDeletionResultsInfo
+Var DeletionResultsInfo; // See NewDeletionResultsInfo
 
 &AtClient
 Var FormJobsQueue; // Array of String
 
 &AtClient
 Var PreviousStepResult;
+
+&AtClient
+Var ReportToSend; // ErrorReport 
 
 #EndRegion
 
@@ -90,6 +93,10 @@ EndProcedure
 
 &AtClient
 Procedure OnOpen(Cancel)
+	DeletionResultsInfo = NewDeletionResultsInfo(); 
+	PresentationOperation = "";
+	FormJobsQueue = New Array;
+
 	If ValueIsFilled(ErrorText) Then
 		ShowMessageBox(, ErrorText);
 		Cancel = True;
@@ -132,10 +139,18 @@ EndProcedure
 
 &AtClient
 Procedure DetailsRefClick(Item)
-	If IsExclusiveModeSettingError(DetailedBackgroundJobErrorText) Then
+	If IsExclusiveModeSettingError(BackgroundJobErrorInfo) Then
 		ToOpenTheFormCompleteTheUserExperience();
-	Else	
-		ErrorText = ?(Item.Name = Items.DetailsBackgroundJobError.Name, DetailedBackgroundJobErrorText, DetailedErrorText);
+		Return;
+	EndIf;
+
+	If Item.Name = Items.DetailsBackgroundJobError.Name Then
+		If ReportToSend = Undefined Then
+			ReportToSend = New ErrorReport(BackgroundJobErrorInfo);
+		EndIf;
+		StandardSubsystemsClient.ShowErrorReport(ReportToSend);	
+	Else
+		ErrorText = DetailedErrorText;
 		StandardSubsystemsClient.ShowDetailedInfo(Undefined, ErrorText);
 	EndIf;
 EndProcedure
@@ -328,28 +343,16 @@ EndProcedure
 
 &AtClient
 Procedure MarkedForDeletionItemsTreeSelectAll(Command)
-	ListItems = MarkedForDeletionItemsTree.GetItems();
 	
-	For Each Item In ListItems Do
-		MarkedForDeletionItemsTreeSetMarkInList(Item, True, True);
-		Parent = Item.GetParent();
-		If Parent = Undefined Then
-			MarkedForDeletionItemsTreeCheckParent(Item)
-		EndIf;
-	EndDo;
+	MarkedForDeletionItemsTreeSetAllClearAll(True);
+	
 EndProcedure
 
 &AtClient
 Procedure MarkedForDeletionItemsTreeClearAll(Command)
-	ListItems = MarkedForDeletionItemsTree.GetItems();
 	
-	For Each Item In ListItems Do
-		MarkedForDeletionItemsTreeSetMarkInList(Item, False, True);
-		Parent = Item.GetParent();
-		If Parent = Undefined Then
-			MarkedForDeletionItemsTreeCheckParent(Item)
-		EndIf;
-	EndDo;
+	MarkedForDeletionItemsTreeSetAllClearAll(False);
+	
 EndProcedure
 
 &AtClient
@@ -378,7 +381,7 @@ Procedure SetReplaceWith(Command)
 	CurrentData = Items.NotDeletedItemsUsageInstances.CurrentData;
 	
 	If CurrentData = Undefined Then
-		Status(NStr("en = 'Cannot specify an action for the selected row.';"),,,PictureLib.Warning32);
+		Status(NStr("en = 'Cannot specify an action for the selected row.';"),,,PictureLib.DialogExclamation);
 		Return;
 	EndIf;
 	
@@ -388,7 +391,7 @@ Procedure SetReplaceWith(Command)
 		FormParameters.Insert("ChoiceMode", True);
 		OpenForm(FormPath, FormParameters, Items.NotDeletedItemsUsageInstances, , , , , FormWindowOpeningMode.LockOwnerWindow);
 	Else
-		Status(NStr("en = 'Cannot specify an action for the selected row.';"),,,PictureLib.Warning32);
+		Status(NStr("en = 'Cannot specify an action for the selected row.';"),,,PictureLib.DialogExclamation);
 	EndIf;
 EndProcedure
 
@@ -659,6 +662,13 @@ Function SetUncheckDeleteOnTheServer(References)
 	
 EndFunction
 
+&AtClient
+Procedure ShowTechnologicalData(Command)
+	Items.ShowTechnologicalData.Check = Not Items.ShowTechnologicalData.Check;
+	AddJob(FormJobs().MarkedObjectsSearch);
+	RunJob();
+EndProcedure
+
 #EndRegion
 
 #Region Private
@@ -898,10 +908,10 @@ EndFunction
 
 &AtClient
 Procedure RegisterUsageInstanceAction(EditablePlaceOfUse, Action, Parameter = Undefined)
-	ActionPresentation = ?(Parameter = Undefined,
-								NotDeletedItemsUsageInstancesActions.FindByValue(Action).Presentation,
-								ReplaceWithCommandPresentation(EditablePlaceOfUse, Parameter));
 
+	ActionPresentation = ?(Parameter = Undefined,
+		NotDeletedItemsUsageInstancesActions.FindByValue(Action).Presentation,
+		ReplaceWithCommandPresentation(EditablePlaceOfUse, Parameter));
 	If Action = Undefined Then
 		Return;
 	EndIf;
@@ -909,20 +919,19 @@ Procedure RegisterUsageInstanceAction(EditablePlaceOfUse, Action, Parameter = Un
 	Success = True;
 	
 	If Action = "Delete" Then
-		Filter = New Structure("FoundItemReference",EditablePlaceOfUse.FoundItemReference);
+		Filter = New Structure("FoundItemReference", EditablePlaceOfUse.FoundItemReference);
 		RegisteredAction = ActionsTable.FindRows(Filter);
 		
-		If RegisteredAction.Count() <> 0 Then
-			For Each ActionToDelete In RegisteredAction Do
-				ActionsTable.Delete(ActionToDelete);
-			EndDo;
-		EndIf;
+		For Each ActionToDelete In RegisteredAction Do
+			ActionsTable.Delete(ActionToDelete);
+		EndDo;
 		
 		RegisteredAction = ActionsTable.Add();
 		RegisteredAction.Action = Action;
 		RegisteredAction.FoundItemReference = EditablePlaceOfUse.FoundItemReference;
 		RegisteredAction.ActionParameter = Parameter;
 		RegisteredAction.Source = EditablePlaceOfUse.ItemToDeleteRef;
+		
 	ElsIf Action = "ReplaceRef" Then
 		Filter = New Structure("FoundItemReference",EditablePlaceOfUse.FoundItemReference);
 		RegisteredAction = ActionsTable.FindRows(Filter);
@@ -957,20 +966,19 @@ Procedure RegisterUsageInstanceAction(EditablePlaceOfUse, Action, Parameter = Un
 				ModifiableAction.Source = UsageInstance1.ItemToDeleteRef;
 			EndIf;
 		EndDo;
+		
 	Else
 		UserMessage = NStr("en = 'Cannot select the %2 action for the %1 occurrence.';");
 		UserMessage = StringFunctionsClientServer.SubstituteParametersToString(UserMessage, 
-		EditablePlaceOfUse.FoundItemReference,
-		EditablePlaceOfUse.ActionPresentation);
+			EditablePlaceOfUse.FoundItemReference,
+			EditablePlaceOfUse.ActionPresentation);
 		Status(UserMessage);
 		Success = False;
 	EndIf;
 	
 	If Success Then
-		
 		EditablePlaceOfUse.Action = Action;
 		EditablePlaceOfUse.ActionPresentation = ActionPresentation;
-		
 	EndIf;
 	
 EndProcedure
@@ -991,8 +999,15 @@ Procedure ToOpenTheFormCompleteTheUserExperience()
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.UsersSessions") Then
 		Notification = New NotifyDescription("AfterSettingTheExclusiveMode", ThisObject);
-		FormParameters = New Structure("MarkedObjectsDeletion", True);
 		ModuleIBConnectionsClient = CommonClient.CommonModule("IBConnectionsClient");
+		FormParameters = ModuleIBConnectionsClient.ExclusiveModeSetErrorFormOpenParameters();
+		FormParameters.Title = NStr("en = 'Cannot delete marked objects';");
+		FormParameters.ErrorMessageText = NStr("en = 'Cannot delete the marked objects as other users are signed in:';");
+		FormParameters.ErrorTextExitFailed = NStr("en = 'Cannot delete the marked objects because the following users are still signed in:';");
+		FormParameters.ShouldCloseAllSessionsButCurrent = True;
+		FormParameters.LoginMessage = NStr("en = 'The app is temporarily unavailable while deleting objects marked for deletion.';");
+		FormParameters.BlockingPeriod = 60;
+		
 		ModuleIBConnectionsClient.OnOpenExclusiveModeSetErrorForm(Notification, FormParameters);
 	Else
 		StandardSubsystemsClient.OpenActiveUserList();
@@ -1150,6 +1165,7 @@ Procedure ShowNotDeletedItemsLinksAtClient()
 		Return;
 	EndIf;
 
+	ReportToSend = Undefined;
 	DetailedErrorText = "";
 	FillNotDeletedObjectsUsageInstances(ThisObject);
 	
@@ -1449,7 +1465,7 @@ EndFunction
 #Region SearchForItemsmarkedForDeletion
 
 &AtClient
-Procedure StartMarkedObjectsSearch(Parameter = Undefined)
+Procedure StartMarkedObjectsSearch(SearchForTechnologicalObjects)
 	SetObjectsMarkedForDeletionSelectionStateWithStatePanel();
 	
 	PresentationOperation = NStr("en = 'Search for objects marked for deletion';");
@@ -1458,7 +1474,7 @@ Procedure StartMarkedObjectsSearch(Parameter = Undefined)
 	
 	Handler = New NotifyDescription("AfterMarkedObjectsSearchCompletion", ThisObject);
 	
-	CurrentOperation1 = StartMarkedObjectsSearchServer(MetadataFilter, UUID);
+	CurrentOperation1 = StartMarkedObjectsSearchServer(MetadataFilter, UUID, SearchForTechnologicalObjects);
 	OnStartBackgroundJob(Handler);
 EndProcedure
 
@@ -1506,7 +1522,7 @@ Procedure AfterCompleteBackgroundJob1(Result)
 EndProcedure
 
 &AtServer
-Function StartMarkedObjectsSearchServer(MetadataFilter, FormUniqueID)
+Function StartMarkedObjectsSearchServer(MetadataFilter, FormUniqueID, SearchForTechnologicalObjects = False)
 	MethodName = "MarkedObjectsDeletionInternal.MarkedForDeletion";
 	
 	MethodParameters = TimeConsumingOperations.FunctionExecutionParameters(FormUniqueID);
@@ -1514,11 +1530,16 @@ Function StartMarkedObjectsSearchServer(MetadataFilter, FormUniqueID)
 	Job = TimeConsumingOperations.ExecuteFunction(MethodParameters, MethodName,
 		MetadataFilter, 
 		AdditionalAttributesOfItemsMarkedForDeletion.Unload(), 
-		FormAttributeToValue("MarkedForDeletionItemsTree"));
+		FormAttributeToValue("MarkedForDeletionItemsTree"),
+		SearchForTechnologicalObjects);
 
 	Return Job;
 EndFunction
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
 Procedure AfterMarkedObjectsSearchCompletion(Result, AdditionalParameters) Export
 	If Result = Undefined Then
@@ -1526,16 +1547,11 @@ Procedure AfterMarkedObjectsSearchCompletion(Result, AdditionalParameters) Expor
 	EndIf;
 	
 	JobInProgress = False;
-	
 	If Result.Status = "Error" Then
-		
-		FillInformationWithBackgroundJobErrors(ThisObject, Result);
+		FillBackgroundJobErrorInfo(ThisObject, Result);
 		SetObjectsMarkedForDeletionSelectionStateWithStatePanel();
-		
 	Else
-		
 		FillMarkedForDeletionItemsTree(Result);
-	
 		If MarkedForDeletionItemsTree.GetItems().Count() = 0 Then
 			Items.StatePresentationPages.CurrentPage = Items.DeletionNotRequiredState;
 			JobInProgress = True;
@@ -1544,19 +1560,18 @@ Procedure AfterMarkedObjectsSearchCompletion(Result, AdditionalParameters) Expor
 		Else
 			SetObjectsMarkedForDeletionSelectionState();
 		EndIf;
-		
 	EndIf;
 	
 	AfterCompleteBackgroundJob1(Result);
 EndProcedure
 
 &AtClientAtServerNoContext
-Procedure FillInformationWithBackgroundJobErrors(Form, Result)
-	Form.DetailedBackgroundJobErrorText = Result.DetailErrorDescription;
+Procedure FillBackgroundJobErrorInfo(Form, Result)
+	Form.BackgroundJobErrorInfo = Result.ErrorInfo;
 	Form.Items.CompletionPresentationFailedDecoration.Title = 
-		?(IsExclusiveModeSettingError(Result.BriefErrorDescription),
+		?(IsExclusiveModeSettingError(Result.ErrorInfo),
 			NStr("en = 'Couldn''t set exclusive mode';"),
-			Result.BriefErrorDescription);
+			ErrorProcessing.ErrorMessageForUser(Result.ErrorInfo));
 	Form.Items.StatePresentationPages.CurrentPage = Form.Items.CompletedWithErrorsState;
 EndProcedure
 
@@ -1583,35 +1598,26 @@ Procedure StartMarkedObjectsDeletion(Parameter = Undefined)
 	Items.InformationPages.ReadOnly = True;
 
 	Handler = New NotifyDescription("AfterMarkedObjectsDeletionCompletion", ThisObject);
-	CurrentOperation1 = StartMarkedObjectsDeletionServer(
-							UUID,
-							PreviousStepResult,
-							Parameter = "CompleteRemoval");
+	CurrentOperation1 = StartMarkedObjectsDeletionServer(UUID, PreviousStepResult,
+		Parameter = "CompleteRemoval");
 	OnStartBackgroundJob(Handler);
 EndProcedure
 
 &AtServer
 Function SetExclusiveModeAtServer(ExclusiveMode)
 	Result = New Structure;
-	Result.Insert("Success", True);
-	Result.Insert("DetailErrorDescription", "");
-	Result.Insert("BriefErrorDescription", "");
+	Result.Insert("Status", "Completed2");
+	Result.Insert("ErrorInfo", Undefined);
+
 	If ExclusiveMode() <> ExclusiveMode Then
 		Try
 			SetExclusiveMode(ExclusiveMode);
 		Except
-			ErrorInfo = ErrorInfo();
-			Result.Success = False;
-			Result.BriefErrorDescription =  ErrorProcessing.BriefErrorDescription(ErrorInfo);
-			Result.DetailErrorDescription =  ErrorProcessing.DetailErrorDescription(ErrorInfo);
-			ErrorInfo = ErrorInfo();
+			Result.Status = "Error";
+			Result.ErrorInfo = ErrorInfo();
 			WriteLogEvent(NStr("en = 'Delete marked objects';", Common.DefaultLanguageCode()),
-				EventLogLevel.Error,
-				,
-				,
-				Result.BriefErrorDescription
-				+ Chars.LF + Chars.LF 
-				+ Result.DetailErrorDescription);
+				EventLogLevel.Error,,,
+				ErrorProcessing.DetailErrorDescription(Result.ErrorInfo));
 		EndTry;
 	EndIf;
 	
@@ -1656,10 +1662,12 @@ Function StartMarkedObjectsDeletionServer(FormUniqueID, PreviousStepResult, Repe
 			ResultingDeletionMode,
 			AdditionalAttributesSettings,
 			PreviousStepResultValue,
-			FormUniqueID);
+			FormUniqueID,
+			Items.ShowTechnologicalData.Check);
 	Else
 		DeletionParameters = ParametersOfMarkedObjectsDeletion(ObjectsToDeleteSource, ResultingDeletionMode,
-			AdditionalAttributesSettings, PreviousStepResultValue, FormUniqueID);
+			AdditionalAttributesSettings, PreviousStepResultValue, FormUniqueID,
+		Items.ShowTechnologicalData.Check);
 		BatchesCount = DeletionParameters.Count();
 		
 		Job = TimeConsumingOperations.ExecuteFunctionInMultipleThreads(MethodName,
@@ -1671,7 +1679,8 @@ EndFunction
 
 &AtServer
 Function ParametersOfMarkedObjectsDeletion(ObjectsToDeleteSource, ResultingDeletionMode,
-	AdditionalAttributesSettings, PreviousStepResultValue, FormUniqueID)
+	AdditionalAttributesSettings, PreviousStepResultValue, FormUniqueID,
+	ShouldDeleteTechnologicalObjects)
 	
 	If ObjectsToDeleteSource = Undefined Then
 		ObjectsToDeleteSource = FormAttributeToValue("MarkedForDeletionItemsTree");
@@ -1685,6 +1694,7 @@ Function ParametersOfMarkedObjectsDeletion(ObjectsToDeleteSource, ResultingDelet
 		ServerCallParameters.Add(AdditionalAttributesSettings);
 		ServerCallParameters.Add(PreviousStepResultValue);
 		ServerCallParameters.Add(FormUniqueID);
+		ServerCallParameters.Add(ShouldDeleteTechnologicalObjects);
 		DeletionParameters.Insert(0, ServerCallParameters);
 		Return DeletionParameters;
 	EndIf;
@@ -1697,12 +1707,17 @@ Function ParametersOfMarkedObjectsDeletion(ObjectsToDeleteSource, ResultingDelet
 	ServerCallParameters.Add(AdditionalAttributesSettings);
 	ServerCallParameters.Add(PreviousStepResultValue);
 	ServerCallParameters.Add(FormUniqueID);
+	ServerCallParameters.Add(ShouldDeleteTechnologicalObjects);
 	DeletionParameters.Insert(BatchIndex, ServerCallParameters);
 	
 	Return DeletionParameters;
 	
 EndFunction
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
 Procedure AfterMarkedObjectsDeletionCompletion(Result, AdditionalParameters) Export
 	If Result = Undefined Then
@@ -1731,9 +1746,9 @@ EndProcedure
 &AtServer
 Function ProcessDeletionResultError(Result)
 	SetObjectsMarkedForDeletionSelectionStateWithStatePanel();
-	FillInformationWithBackgroundJobErrors(ThisObject, Result);
+	FillBackgroundJobErrorInfo(ThisObject, Result);
 	SetExclusiveModeAtServer(False);
-	Return MarkedObjectsDeletionInternalClientServer.NewDeletionResultsInfo();
+	Return NewDeletionResultsInfo();
 EndFunction
 
 &AtServer
@@ -1750,7 +1765,7 @@ Function ProcessTheDeletionResultSuccess(Result, FormUniqueID, DeletionResultsIn
 EndFunction
 
 // Parameters:
-//   DeletionResultsInfo - See MarkedObjectsDeletionInternalClientServer.NewDeletionResultsInfo
+//   DeletionResultsInfo - See NewDeletionResultsInfo
 //
 &AtServer
 Procedure ProcessDeletionExecutionResult(DeletionResultsInfo)
@@ -1778,7 +1793,7 @@ EndProcedure
 //   * ResultAddress - String
 //   
 // Returns:
-//   See MarkedObjectsDeletionInternalClientServer.NewDeletionResultsInfo
+//   See NewDeletionResultsInfo
 //
 &AtServer
 Function ImportDeletionResult(DeletionResult, ResultStorageID, ResultInfo)
@@ -1912,9 +1927,7 @@ EndProcedure
 
 &AtServer
 Function GenerateDeletionResult(ResultInfo, BackgroundExecutionResult, ResultStorageID)
-	Result = ?(ResultInfo = Undefined,
-		MarkedObjectsDeletionInternalClientServer.NewDeletionResultsInfo(),
-		ResultInfo);
+	Result = ?(ResultInfo = Undefined, NewDeletionResultsInfo(), ResultInfo);
 	
 	ItemsPreventingDeletionResult = ?(IsTempStorageURL(Result.ResultAddress), 
 		GetFromTempStorage(Result.ResultAddress),
@@ -1951,7 +1964,7 @@ Procedure WhenSelectingAPlaceOfUseAction(Val ValueSelected, Val CurrentData)
 		SetReplaceWith(Undefined);
 	ElsIf ValueSelected = "Delete" And Not CurrentData.ReferenceType Then
 		Status(StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot set the Delete action for %1';"),
+			NStr("en = 'Cannot delete selected value: %1';"),
 			CurrentData.Presentation));
 	Else	
 		RegisterUsageInstanceAction(CurrentData, ValueSelected);
@@ -1961,8 +1974,8 @@ EndProcedure
 
 &AtClient
 Procedure StartAdditionalDataProcessorExecution(Parameter)
-	PresentationOperation = NStr("en = 'Additional processing of objects preventing deletion';");
 	
+	PresentationOperation = NStr("en = 'Additional processing of objects preventing deletion';");
 	SetStateUnsuccessfulDeletionWithStatePanel();
 	
 	Items.StatePresentationPages.CurrentPage = Items.RunningState;
@@ -1970,24 +1983,27 @@ Procedure StartAdditionalDataProcessorExecution(Parameter)
 	Items.CommandBarForm.Enabled = False;
 	Items.InformationPages.ReadOnly = True;
 	
-		
 	Handler = New NotifyDescription("AfterCompleteExecutingAdditionalDataProcessor", ThisObject);
 	CurrentOperation1 = StartAdditionalDataProcessorExecutionServer();
 	OnStartBackgroundJob(Handler);
+
 EndProcedure
 
 &AtServer
 Function StartAdditionalDataProcessorExecutionServer()
-	MethodName = "MarkedObjectsDeletionInternal.RunDataProcessorOfReasonsForNotDeletion";
 	
+	MethodName = "MarkedObjectsDeletionInternal.RunDataProcessorOfReasonsForNotDeletion";
 	MethodParameters = TimeConsumingOperations.FunctionExecutionParameters(UUID);
 	MethodParameters.BackgroundJobDescription = NStr("en = 'Additional processing of objects preventing deletion';");
-	
 	Job = TimeConsumingOperations.ExecuteFunction(MethodParameters, MethodName, ActionsTable.Unload());
-	
 	Return Job;
+	
 EndFunction
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
 Procedure AfterCompleteExecutingAdditionalDataProcessor(Result, AdditionalParameters) Export
 	If Result = Undefined Then
@@ -1995,10 +2011,9 @@ Procedure AfterCompleteExecutingAdditionalDataProcessor(Result, AdditionalParame
 	EndIf;
 	
 	JobInProgress = False;
-	
 	If Result.Status = "Error" Then
 		SetStateUnsuccessfulDeletionWithStatePanel();
-		FillInformationWithBackgroundJobErrors(ThisObject, Result);
+		FillBackgroundJobErrorInfo(ThisObject, Result);
 		SetExclusiveModeAtServer(False);
 	EndIf;
 	
@@ -2017,18 +2032,23 @@ Procedure AfterConfirmCancelJob(Response, ExecutionParameters) Export
 	EndIf;
 EndProcedure
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.LongRunningOperationNewState
+//  AdditionalParameters - Structure:
+//    * IsDeletionProcess - Boolean
+//
 &AtClient
-Procedure OnUpdateBackgroundJobProgress(Job, AdditionalParameters) Export
-	If Job.Progress <> Undefined Then
+Procedure OnUpdateBackgroundJobProgress(Result, AdditionalParameters) Export
+	If Result.Progress <> Undefined Then
 		ProgressParameters = Undefined;
-		If Job.Progress.Property("AdditionalParameters", ProgressParameters)
+		If Result.Progress.Property("AdditionalParameters", ProgressParameters)
 			And ProgressParameters = "ProgressofMultithreadedProcess" Then
 			Return;
 		EndIf;
 		
 		Items.ProgressPresentation.Visible = True;
 		If Not AdditionalParameters.IsDeletionProcess Or ProgressParameters = Undefined Then
-			ProgressText = Job.Progress.Text;
+			ProgressText = Result.Progress.Text;
 		Else
 			ProgressText = ProgressText(ProgressParameters);
 		EndIf;
@@ -2104,9 +2124,9 @@ Procedure FillFormDataTreeItemCollection(FormData1, ValueTree)
 EndProcedure
 
 &AtClientAtServerNoContext
-Function IsExclusiveModeSettingError(DetailedBackgroundJobErrorText)
+Function IsExclusiveModeSettingError(BackgroundJobErrorInfo)
 	ErrorTextExclusive = NStr("en = 'Error of separated infobase access';");	
-	Return (StrFind(DetailedBackgroundJobErrorText,ErrorTextExclusive) <> 0)
+	Return StrFind(ErrorProcessing.BriefErrorDescription(BackgroundJobErrorInfo), ErrorTextExclusive) <> 0;
 EndFunction
 
 &AtClient
@@ -2160,12 +2180,12 @@ Procedure RunJob(Job = "", Parameter = Undefined)
 	If Not IsBlankString(CurrentFormJob.Name) Then
 		
 		If DeletionMode = "Exclusive" 
-				And CurrentFormJob.Name <> FormJobs().MarkedObjectsSearch Then
+			And CurrentFormJob.Name <> FormJobs().MarkedObjectsSearch Then
 				
-			Result = SetExclusiveModeAtServer(True);
-			If Not Result.Success Then
-				Result.Insert("Status", "Error");
-				FillInformationWithBackgroundJobErrors(ThisObject, Result);
+			Result = TimeConsumingOperationsClient.NewResultLongOperation();
+			FillPropertyValues(Result, SetExclusiveModeAtServer(True));
+			If Result.Status = "Error" Then
+				FillBackgroundJobErrorInfo(ThisObject, Result);
 				Items.StatePresentationPages.Visible = True;
 				Items.StatePresentationPages.CurrentPage = Items.CompletedWithErrorsState;
 				Return;
@@ -2176,8 +2196,8 @@ Procedure RunJob(Job = "", Parameter = Undefined)
 		
 		If CurrentFormJob.Name = FormJobs().DeleteMarkedObjects Then
 			StartMarkedObjectsDeletion(CurrentFormJob.Parameter);
-		ElsIf CurrentFormJob.Name = FormJobs().MarkedObjectsSearch Then 
-			StartMarkedObjectsSearch(CurrentFormJob.Parameter);
+		ElsIf CurrentFormJob.Name = FormJobs().MarkedObjectsSearch Then
+			StartMarkedObjectsSearch(Items.ShowTechnologicalData.Check);
 		ElsIf CurrentFormJob.Name = FormJobs().AdditionalDataProcessorExecution Then 
 			StartAdditionalDataProcessorExecution(CurrentFormJob.Parameter);
 		EndIf;
@@ -2204,12 +2224,63 @@ Function JobsCountInQueue()
 	Return  FormJobsQueue.Count();
 EndFunction
 
-#EndRegion
+&AtClient
+Procedure MarkedForDeletionItemsTreeSetAllClearAll(Value)
+	
+	If Items.MarkedForDeletionItemsTree.SelectedRows.Count() > 1 Then
+		For Each RowID In Items.MarkedForDeletionItemsTree.SelectedRows Do
+			SelectedItem = MarkedForDeletionItemsTree.FindByID(RowID);
+			If SelectedItem = Undefined Then
+				Continue;
+			EndIf;
+			
+			SelectedItem.Check = Value;
+			RowItems = SelectedItem.GetItems();
+			For Each StringItem In RowItems Do
+				StringItem.Check = Value;
+				MarkedForDeletionItemsTreeSetMarkInList(StringItem, Value, False);
+			EndDo;
+			
+			Parent = SelectedItem.GetParent();
+			If Parent = Undefined Then
+				MarkedForDeletionItemsTreeCheckParent(SelectedItem);
+			Else
+				MarkedForDeletionItemsTreeCheckParent(Parent);
+			EndIf;
+			
+		EndDo;
+		Return;
+	EndIf;
+	
+	ListItems = MarkedForDeletionItemsTree.GetItems();
+	
+	For Each Item In ListItems Do
+		MarkedForDeletionItemsTreeSetMarkInList(Item, Value, True);
+		Parent = Item.GetParent();
+		If Parent = Undefined Then
+			MarkedForDeletionItemsTreeCheckParent(Item)
+		EndIf;
+	EndDo;
+EndProcedure
 
-#Region Initialize
-
-DeletionResultsInfo = MarkedObjectsDeletionInternalClientServer.NewDeletionResultsInfo(); 
-PresentationOperation = "";
-FormJobsQueue = New Array;
+// Generates the result of calling the delete method for marked client Objects.Nachtgedanken
+//
+// Returns:
+//   Structure:
+//   * DeletedItemsCount1 - Number
+//   * NotDeletedItemsCount1 - Number
+//   * ResultAddress - String
+//   * Success - Boolean
+//
+&AtClientAtServerNoContext
+Function NewDeletionResultsInfo()
+	Result = New Structure;
+	Result.Insert("Trash", New Array);
+	Result.Insert("DeletedItemsCount1", 0);
+	Result.Insert("NotDeletedItemsCount1", 0);
+	Result.Insert("ResultAddress", "");
+	Result.Insert("Success", False);
+	Return Result;
+EndFunction
 
 #EndRegion

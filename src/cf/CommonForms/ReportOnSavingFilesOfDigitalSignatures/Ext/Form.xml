@@ -17,6 +17,12 @@
 			<Button name="FormOpenFilesFolder" id="6">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.OpenFilesFolder</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Open folder</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormOpenFilesFolderExtendedTooltip" id="7"/>
 			</Button>
 			<Button name="FormClose" id="1">
@@ -24,7 +30,7 @@
 				<Representation>Text</Representation>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.StandardCommand.Close</CommandName>
-				<ExtendedTooltip name="FormCloseExtendedTooltip" id="4"/>
+				<ExtendedTooltip name="FormClose3ExtendedTooltip" id="4"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
@@ -35,6 +41,12 @@
 		<InputField name="Text" id="2">
 			<DataPath>Text</DataPath>
 			<ReadOnly>true</ReadOnly>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Text</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>None</TitleLocation>
 			<Width>70</Width>
 			<AutoMaxWidth>false</AutoMaxWidth>
@@ -75,7 +87,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Open folder with files</v8:content>
+					<v8:content>Open folder</v8:content>
 				</v8:item>
 			</Title>
 			<Action>OpenFilesFolder</Action>

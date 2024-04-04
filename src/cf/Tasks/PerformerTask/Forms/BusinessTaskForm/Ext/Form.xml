@@ -17,6 +17,12 @@
 				<DefaultButton>true</DefaultButton>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.WriteAndClose</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save and close</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="WriteAndCloseExtendedTooltip" id="130"/>
 			</Button>
 			<ButtonGroup name="MainCommandBar" id="105">
@@ -33,13 +39,19 @@
 				<Type>CommandBarButton</Type>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.More</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>More…</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-				<ExtendedTooltip name="AdditionalExtendedTooltip" id="132"/>
+				<ExtendedTooltip name="MoreExtendedTooltip" id="132"/>
 			</Button>
 			<Button name="FormCustomizeForm" id="129">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.CustomizeForm</CommandName>
-				<ExtendedTooltip name="FormChangeFormExtendedTooltip" id="133"/>
+				<ExtendedTooltip name="FormCustomizeFormExtendedTooltip" id="133"/>
 			</Button>
 			<Button name="FormHelp" id="128">
 				<Type>CommandBarButton</Type>
@@ -49,6 +61,7 @@
 		</ChildItems>
 	</AutoCommandBar>
 	<Events>
+		<Event name="AfterWrite">AfterWrite</Event>
 		<Event name="AfterWriteAtServer">AfterWriteAtServer</Event>
 		<Event name="NotificationProcessing">NotificationProcessing</Event>
 		<Event name="OnReadAtServer">OnReadAtServer</Event>
@@ -176,6 +189,12 @@ To perform the task, go to special task form.</v8:content>
 										<LabelField name="AuthorAsString" id="165">
 											<DataPath>AuthorAsString</DataPath>
 											<Visible>false</Visible>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Author</v8:content>
+												</v8:item>
+											</Title>
 											<ContextMenu name="AuthorStringContextMenu" id="166"/>
 											<ExtendedTooltip name="AuthorStringExtendedTooltip" id="167"/>
 										</LabelField>
@@ -225,7 +244,7 @@ To perform the task, go to special task form.</v8:content>
 											<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 											<HorizontalStretch>false</HorizontalStretch>
 											<ContextMenu name="DueDateContextMenu" id="13"/>
-											<ExtendedTooltip name="DueDateExtendedTooltip" id="149"/>
+											<ExtendedTooltip name="TaskDueDateExtendedTooltip" id="149"/>
 										</InputField>
 									</ChildItems>
 								</UsualGroup>
@@ -330,10 +349,16 @@ To perform the task, go to special task form.</v8:content>
 					<Representation>NormalSeparation</Representation>
 					<United>false</United>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="ContentGroupExtendedTooltip" id="156"/>
+					<ExtendedTooltip name="ContentsGroupExtendedTooltip" id="156"/>
 					<ChildItems>
 						<LabelField name="SubjectOf" id="106">
 							<DataPath>SubjectString</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Topic</v8:content>
+								</v8:item>
+							</Title>
 							<Width>60</Width>
 							<Hiperlink>true</Hiperlink>
 							<ContextMenu name="SubjectOfContextMenu" id="107"/>
@@ -368,6 +393,12 @@ To perform the task, go to special task form.</v8:content>
 							<Type>UsualButton</Type>
 							<SkipOnInput>false</SkipOnInput>
 							<CommandName>Form.Command.Executed</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Completed</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="ExecutedExtendedTooltip" id="162"/>
 						</Button>
 						<InputField name="CompletionDate" id="119">

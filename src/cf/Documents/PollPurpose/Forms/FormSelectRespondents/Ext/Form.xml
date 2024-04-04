@@ -13,6 +13,12 @@
 	<AutoCommandBar name="FormCommandBar" id="-1">
 		<ChildItems>
 			<ButtonGroup name="ListsGroup" id="22">
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Lists</v8:content>
+					</v8:item>
+				</Title>
 				<CommandSource>Item.Respondents</CommandSource>
 				<ExtendedTooltip name="ListsGroupExtendedTooltip" id="34"/>
 			</ButtonGroup>
@@ -102,7 +108,7 @@
 						</v8:item>
 					</Title>
 					<ContextMenu name="RespondentsNameContextMenu" id="10"/>
-					<ExtendedTooltip name="RespondentsNameExtendedTooltip" id="52"/>
+					<ExtendedTooltip name="RespondentsDescriptionExtendedTooltip" id="52"/>
 				</LabelField>
 				<LabelField name="RespondentsRef" id="56">
 					<DataPath>Respondents.Ref</DataPath>

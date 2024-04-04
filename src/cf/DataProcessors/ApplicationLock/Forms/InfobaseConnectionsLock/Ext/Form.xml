@@ -22,6 +22,12 @@
 				<Type>CommandBarButton</Type>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.ActiveUsers</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Active users</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="ActiveUsersExtendedTooltip" id="83"/>
 			</Button>
 		</ChildItems>
@@ -47,8 +53,8 @@
 			<ChildItems>
 				<PictureDecoration name="ErrorDecoration" id="69">
 					<Picture>
-						<xr:Ref>CommonPicture.Warning32</xr:Ref>
-						<xr:LoadTransparent>false</xr:LoadTransparent>
+						<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</Picture>
 					<FileDragMode>AsFile</FileDragMode>
 					<ContextMenu name="ErrorDecorationContextMenu" id="70"/>
@@ -81,7 +87,7 @@
 			<HorizontalStretch>false</HorizontalStretch>
 			<VerticalStretch>false</VerticalStretch>
 			<PagesRepresentation>None</PagesRepresentation>
-			<ExtendedTooltip name="ModeGroupExtendedTooltip" id="94"/>
+			<ExtendedTooltip name="GroupModeExtendedTooltip" id="94"/>
 			<ChildItems>
 				<Page name="SettingsPage" id="47">
 					<Title>
@@ -94,6 +100,12 @@
 					<ChildItems>
 						<LabelField name="InitialUserAuthorizationRestrictionStatus" id="64">
 							<DataPath>InitialUserAuthorizationRestrictionStatus</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Status</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<HorizontalAlign>Left</HorizontalAlign>
 							<AutoMaxWidth>false</AutoMaxWidth>
@@ -200,6 +212,12 @@
 											<Type>Hyperlink</Type>
 											<AutoMaxWidth>false</AutoMaxWidth>
 											<CommandName>Form.Command.AdministrationParameters</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Manage scheduled job locks</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="AdministrationParametersExtendedTooltip" id="127"/>
 										</Button>
 									</ChildItems>
@@ -274,7 +292,7 @@
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
 									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="ContentGroupExtendedTooltip" id="108"/>
+									<ExtendedTooltip name="ContentGroup1ExtendedTooltip" id="108"/>
 									<ChildItems>
 										<LabelDecoration name="State" id="49">
 											<AutoMaxWidth>false</AutoMaxWidth>
@@ -377,12 +395,24 @@ Closing user sessions. Active sessions remaining: %1.</v8:content>
 					<DefaultButton>true</DefaultButton>
 					<SkipOnInput>false</SkipOnInput>
 					<CommandName>Form.Command.Apply</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Apply</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="ApplyCommandExtendedTooltip" id="115"/>
 				</Button>
 				<Button name="StopCommand" id="54">
 					<Type>CommandBarButton</Type>
 					<Visible>false</Visible>
 					<CommandName>Form.Command.Stop</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Suspend</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="StopCommandExtendedTooltip" id="116"/>
 				</Button>
 				<Button name="CloseCommand" id="16">

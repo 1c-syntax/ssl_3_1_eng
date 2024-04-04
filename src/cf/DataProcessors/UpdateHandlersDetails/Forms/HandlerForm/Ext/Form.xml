@@ -6,11 +6,23 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.WriteAndClose</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save and close</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormWriteAndCloseExtendedTooltip" id="232"/>
 			</Button>
 			<Button name="FormWrite" id="229">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.WriteHandler</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormWriteExtendedTooltip" id="230"/>
 			</Button>
 		</ChildItems>
@@ -85,6 +97,12 @@
 											<ChildItems>
 												<InputField name="MainMetadataObject" id="772">
 													<DataPath>MainMetadataObject</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Metadata object.</v8:content>
+														</v8:item>
+													</Title>
 													<ChoiceButton>true</ChoiceButton>
 													<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>
 													<ContextMenu name="MainMetadataObjectContextMenu" id="773"/>
@@ -656,11 +674,23 @@
 													<Button name="ObjectsToReadAddObjectToReadToObjectsToChange" id="792">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.AddObjectToReadToDataToChange</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Add to objects to change</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="ObjectsToReadAddObjectToReadToObjectsToChangeExtendedTooltip" id="793"/>
 													</Button>
 													<Button name="ObjectsToReadAddAttributeTypes" id="784">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.AddAttributeTypesToDataToRead</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Add attribute types</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="ObjectsToReadAddAttributeTypesExtendedTooltip" id="785"/>
 													</Button>
 												</ChildItems>
@@ -670,6 +700,12 @@
 													<Button name="ObjectsToReadInfoAboutLock" id="819">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.InfoAboutLock</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Lock information</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="ObjectsToReadInfoAboutLockExtendedTooltip" id="820"/>
 													</Button>
 												</ChildItems>
@@ -821,6 +857,12 @@
 													<Type>UsualButton</Type>
 													<Visible>false</Visible>
 													<CommandName>Form.Command.WriteHandler</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Save</v8:content>
+														</v8:item>
+													</Title>
 													<ExtendedTooltip name="AddObjectAttributeTypesToDataToReadExtendedTooltip" id="142"/>
 												</Button>
 											</ChildItems>
@@ -850,11 +892,23 @@
 													<Button name="ObjectsToChangeAddHandlerObject" id="775">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.AddHandlerObjectToDataToChange</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Add object by handler name</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="ObjectsToChangeAddHandlerObjectExtendedTooltip" id="776"/>
 													</Button>
 													<Button name="ObjectsToChangeAddObjectToChangeToDataToRead" id="790">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.AddObjectToChangeToDataToRead</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Add to objects to read</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="ObjectsToChangeAddObjectToChangeToDataToReadExtendedTooltip" id="791"/>
 													</Button>
 													<ButtonGroup name="ObjectsToChangeStandardCommands" id="788">
@@ -1022,6 +1076,12 @@
 									<Button name="ObjectsToLockAddAttributeTypes" id="799">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.AddAttributeTypesToObjectsToLock</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Add attribute types</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="LockableObjectsAddTypesOfPropsExtendedTooltip" id="800"/>
 									</Button>
 								</ChildItems>
@@ -1181,6 +1241,12 @@
 									<Button name="SelectEmptyOrder" id="803">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.SelectEmptyOrder</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Select empty order</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="SelectEmptyOrderExtendedTooltip" id="804"/>
 									</Button>
 								</ChildItems>
@@ -1191,16 +1257,34 @@
 									<Button name="FillHandler1" id="764">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.FillHandler1</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Current first</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="FillHandler1ExtendedTooltip" id="765"/>
 									</Button>
 									<Button name="FillHandler2" id="766">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.FillHandler2</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Conflicting first</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="FillHandler2ExtendedTooltip" id="767"/>
 									</Button>
 									<Button name="FillAny" id="768">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.FillAny</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Any order</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="FillAnyExtendedTooltip" id="769"/>
 									</Button>
 								</ChildItems>
@@ -1438,6 +1522,12 @@
 									<Visible>false</Visible>
 									<ReadOnly>true</ReadOnly>
 									<SkipOnInput>true</SkipOnInput>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Comment2</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<AutoMaxWidth>false</AutoMaxWidth>
 									<AutoMaxHeight>false</AutoMaxHeight>
@@ -1535,6 +1625,12 @@
 								<CheckBoxField name="IntersectionsDataToReadWriter" id="752">
 									<DataPath>Intersections.DataToReadWriter</DataPath>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Writing of readable objects</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<ToolTip>
 										<v8:item>
@@ -1555,6 +1651,12 @@ or other handlers modify objects readable by this handler.</v8:content>
 								<CheckBoxField name="IntersectionsWriteAgain" id="755">
 									<DataPath>Intersections.WriteAgain</DataPath>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Write again</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<ToolTip>
 										<v8:item>
@@ -1574,6 +1676,12 @@ or other handlers modify objects readable by this handler.</v8:content>
 								<InputField name="IntersectionsMetadataObject" id="749">
 									<DataPath>Intersections.MetadataObject</DataPath>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Metadata object</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ContextMenu name="IntersectionsMetadataObjectContextMenu" id="750"/>
 									<ExtendedTooltip name="IntersectionsMetadataObjectExtendedTooltip" id="751"/>

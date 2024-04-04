@@ -14,6 +14,12 @@
 				<DefaultButton>true</DefaultButton>
 				<DefaultItem>true</DefaultItem>
 				<CommandName>Form.Command.WriteAndClose</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save and close</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormWriteAndCloseExtendedTooltip" id="44"/>
 			</Button>
 			<Button name="FormWrite" id="116">
@@ -23,6 +29,12 @@
 					<xr:Ref>StdPicture.SaveFile</xr:Ref>
 					<xr:LoadTransparent>true</xr:LoadTransparent>
 				</Picture>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormWriteExtendedTooltip" id="117"/>
 			</Button>
 		</ChildItems>
@@ -35,6 +47,12 @@
 	<ChildItems>
 		<CheckBoxField name="ShowHelpHyperlink" id="1">
 			<DataPath>ShowHelpHyperlink</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Show the "Need help?" hyperlink in the authentication dialog box:</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>Right</TitleLocation>
 			<CheckBoxType>Auto</CheckBoxType>
 			<ContextMenu name="ShowHelpHyperlinkContextMenu" id="2"/>
@@ -45,6 +63,12 @@
 		</CheckBoxField>
 		<InputField name="HelpURL" id="4">
 			<DataPath>HelpURL</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Help URL</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>None</TitleLocation>
 			<OpenButton>true</OpenButton>
 			<InputHint>
@@ -74,6 +98,12 @@
 			<ChildItems>
 				<CheckBoxField name="RestorePassword" id="45">
 					<DataPath>RestorePassword</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Show the "Forgot password?" hyperlink:</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Right</TitleLocation>
 					<CheckBoxType>Auto</CheckBoxType>
 					<ContextMenu name="RestorePasswordContextMenu" id="46"/>
@@ -257,6 +287,12 @@
 														</RadioButtonField>
 														<InputField name="AccountEmail" id="35">
 															<DataPath>AccountEmail</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Email account</v8:content>
+																</v8:item>
+															</Title>
 															<TitleLocation>None</TitleLocation>
 															<ContextMenu name="MailAccountContextMenu" id="36"/>
 															<ExtendedTooltip name="MailAccountExtendedTooltip" id="37"/>
@@ -327,12 +363,24 @@
 											<ChildItems>
 												<InputField name="SMTPServerAddress" id="85">
 													<DataPath>SMTPServerAddress</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>SMTP server</v8:content>
+														</v8:item>
+													</Title>
 													<Width>27</Width>
 													<ContextMenu name="SMTPServerAddressContextMenu" id="86"/>
 													<ExtendedTooltip name="SMTPServerAddressExtendedTooltip" id="87"/>
 												</InputField>
 												<RadioButtonField name="EncryptOnSendMail" id="113">
 													<DataPath>EncryptOnSendMail</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Encryption</v8:content>
+														</v8:item>
+													</Title>
 													<RadioButtonType>Auto</RadioButtonType>
 													<ColumnsCount>2</ColumnsCount>
 													<ChoiceList>
@@ -371,6 +419,12 @@
 												</RadioButtonField>
 												<InputField name="SMTPPort" id="73">
 													<DataPath>SMTPPort</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Port</v8:content>
+														</v8:item>
+													</Title>
 													<ContextMenu name="SMTPPortContextMenu" id="74"/>
 													<ExtendedTooltip name="SMTPPortExtendedTooltip" id="75"/>
 												</InputField>
@@ -391,12 +445,24 @@
 											<ChildItems>
 												<InputField name="SMTPUser" id="76">
 													<DataPath>SMTPUser</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>User</v8:content>
+														</v8:item>
+													</Title>
 													<Width>10</Width>
 													<ContextMenu name="SMTPUserContextMenu" id="77"/>
 													<ExtendedTooltip name="SMTPUserExtendedTooltip" id="78"/>
 												</InputField>
 												<InputField name="SMTPPassword" id="79">
 													<DataPath>SMTPPassword</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Password</v8:content>
+														</v8:item>
+													</Title>
 													<Width>10</Width>
 													<PasswordMode>true</PasswordMode>
 													<ContextMenu name="SMTPPasswordContextMenu" id="80"/>
@@ -406,6 +472,12 @@
 										</UsualGroup>
 										<InputField name="SenderName" id="82">
 											<DataPath>SenderName</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Sender</v8:content>
+												</v8:item>
+											</Title>
 											<InputHint>
 												<v8:item>
 													<v8:lang>en</v8:lang>
@@ -452,16 +524,34 @@
 															<Button name="EmailSubjectContextMenuUserName" id="118">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.UserName</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Username</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="EmailSubjectContextMenuUserNameExtendedTooltip" id="119"/>
 															</Button>
 															<Button name="EmailSubjectContextMenuConfigurationDescription" id="124">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.ConfigurationDescription</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Configuration name</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="EmailSubjectContextMenuConfigurationNameExtendedTooltip" id="125"/>
 															</Button>
 															<Button name="EmailSubjectContextMenuConfirmationCode" id="122">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.ConfirmationCode</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Confirmation code</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="EmailSubjectContextMenuConfirmationCodeExtendedTooltip" id="123"/>
 															</Button>
 														</ChildItems>
@@ -491,16 +581,34 @@
 														<Button name="UserName" id="94">
 															<Type>CommandBarButton</Type>
 															<CommandName>Form.Command.UserName</CommandName>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Username</v8:content>
+																</v8:item>
+															</Title>
 															<ExtendedTooltip name="UserNameExtendedTooltip" id="95"/>
 														</Button>
 														<Button name="ConfigurationName" id="96">
 															<Type>CommandBarButton</Type>
 															<CommandName>Form.Command.ConfigurationDescription</CommandName>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Configuration name</v8:content>
+																</v8:item>
+															</Title>
 															<ExtendedTooltip name="ConfigurationNameExtendedTooltip" id="97"/>
 														</Button>
 														<Button name="ConfirmationCode" id="98">
 															<Type>CommandBarButton</Type>
 															<CommandName>Form.Command.ConfirmationCode</CommandName>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Confirmation code</v8:content>
+																</v8:item>
+															</Title>
 															<ExtendedTooltip name="ConfirmationCodeExtendedTooltip" id="99"/>
 														</Button>
 													</ChildItems>
@@ -519,6 +627,12 @@
 										</CommandBar>
 										<FormattedDocumentField name="MessageText" id="62">
 											<DataPath>MessageText</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Message body</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<Height>5</Height>
 											<ContextMenu name="MessageTextContextMenu" id="63">
@@ -535,16 +649,34 @@
 															<Button name="MessageTextContextMenuUserName" id="126">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.UserName</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Username</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="TheTextOfTheMessageContextMenuUserNameExtendedTooltip" id="127"/>
 															</Button>
 															<Button name="MessageTextContextMenuConfigurationDescription" id="130">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.ConfigurationDescription</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Configuration name</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="TextMessageShortcutMenuForTheConfigurationNameExtendedTooltip" id="131"/>
 															</Button>
 															<Button name="MessageTextContextMenuConfirmationCode" id="128">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.ConfirmationCode</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Confirmation code</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="TheTextOfTheMessageContextMenuConfirmationCodeExtendedTooltip" id="129"/>
 															</Button>
 														</ChildItems>
@@ -570,6 +702,12 @@
 									<ChildItems>
 										<InputField name="CodeLength" id="12">
 											<DataPath>VerificationCodeLength</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Code length</v8:content>
+												</v8:item>
+											</Title>
 											<SpinButton>true</SpinButton>
 											<ContextMenu name="CodeLengthContextMenu" id="13"/>
 											<ExtendedTooltip name="CodeLengthExtendedTooltip" id="14"/>
@@ -588,6 +726,12 @@
 											<ChildItems>
 												<InputField name="RequestLockDuration" id="23">
 													<DataPath>VerificationCodeRefreshRequestLockDuration</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Timeout between recovery requests</v8:content>
+														</v8:item>
+													</Title>
 													<SpinButton>true</SpinButton>
 													<ContextMenu name="TheDurationOfTheLockRequestContextMenu" id="24"/>
 													<ExtendedTooltip name="TheDurationOfTheLockRequestExtendedTooltip" id="25"/>
@@ -606,6 +750,12 @@
 										</UsualGroup>
 										<InputField name="MaxAttemptsCount" id="26">
 											<DataPath>MaxUnsuccessfulVerificationCodeValidationAttemptsCount</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Maximum number of failed input attempts</v8:content>
+												</v8:item>
+											</Title>
 											<Width>3</Width>
 											<SpinButton>true</SpinButton>
 											<ContextMenu name="MaximumNumberOfAttemptsContextMenu" id="27"/>
@@ -683,7 +833,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Length of generated code</v8:content>
+					<v8:content>Code length</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -717,7 +867,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Minimum time between requests</v8:content>
+					<v8:content>Timeout between recovery requests</v8:content>
 				</v8:item>
 			</Title>
 			<Type>

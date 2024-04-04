@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -98,12 +99,12 @@ Procedure Apply(Command)
 	
 	SaveTheOrderOfTheSettingsItems();
 	
-	Result = New Structure;
-	Result.Insert("EventName", ReportsOptionsInternalClientServer.EventNameQuickSettingsChangesContent());
-	Result.Insert("DCSettingsComposer", SettingsComposer);
-	Result.Insert("VariantModified", VariantModified);
-	Result.Insert("ResetCustomSettings", VariantModified);
-	Result.Insert("UserSettingsModified", VariantModified);
+	Result = ReportsClientServer.ReportFormUpdateParameters(
+		ReportsOptionsInternalClientServer.EventNameQuickSettingsChangesContent());
+	Result.DCSettingsComposer = SettingsComposer;
+	Result.VariantModified = VariantModified;
+	Result.ResetCustomSettings = VariantModified;
+	Result.UserSettingsModified = VariantModified;
 	Result.Insert("OutputSettingsTitles", OutputSettingsTitles);
 	
 	Close(Result);

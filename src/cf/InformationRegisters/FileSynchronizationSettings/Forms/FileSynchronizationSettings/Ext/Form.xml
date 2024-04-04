@@ -30,6 +30,12 @@
 					<Button name="FormChangeSyncSetting" id="106">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.ChangeSyncSetting</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Change</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="ChangeSyncSettingFormExtendedTooltip" id="107"/>
 					</Button>
 					<Button name="FormMetadataObjectsTreeDelete" id="102">
@@ -57,6 +63,12 @@
 					<Button name="FormAddSetting" id="56">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.ItemSynchronization</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Sync catalog item</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="FormAddSettingExtendedTooltip" id="57"/>
 					</Button>
 				</ChildItems>
@@ -152,11 +164,23 @@
 							<xr:Ref>StdPicture.CreateListItem</xr:Ref>
 							<xr:LoadTransparent>true</xr:LoadTransparent>
 						</Picture>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Configure file synchronization</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="MetadataObjectsTreeContextMenuCreateFileSynchronizationExtendedTooltip" id="85"/>
 					</Button>
 					<Button name="MetadataObjectsTreeContextMenuChangeSyncSetting" id="86">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.ChangeSyncSetting</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Change</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="MetadataObjectsTreeContextMenuChangeSyncSettingExtendedTooltip" id="87"/>
 					</Button>
 					<Button name="MetadataObjectsTreeContextMenuDelete" id="100">
@@ -219,6 +243,12 @@
 					<ChildItems>
 						<CheckBoxField name="MetadataObjectsTreeSynchronize" id="44" DisplayImportance="VeryLow">
 							<DataPath>MetadataObjectsTree.Synchronize</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Start sync</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<EditMode>EnterOnInput</EditMode>
 							<CheckBoxType>Auto</CheckBoxType>
@@ -248,6 +278,12 @@
 					<UserVisible>
 						<xr:Common>false</xr:Common>
 					</UserVisible>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>File catalog</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ContextMenu name="MetadataObjectsTreeFileOwnerTypeContextMenu" id="98"/>
 					<ExtendedTooltip name="MetadataObjectsTreeFileOwnerTypeExtendedTooltip" id="99"/>
@@ -255,6 +291,12 @@
 				<InputField name="MetadataObjectsTreeAccount" id="47" DisplayImportance="VeryLow">
 					<DataPath>MetadataObjectsTree.Account</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Account</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ContextMenu name="MetadataObjectsTreeAccountContextMenu" id="48"/>
 					<ExtendedTooltip name="MetadataObjectsTreeAccountExtendedTooltip" id="49"/>
@@ -264,6 +306,12 @@
 				</InputField>
 				<InputField name="MetadataObjectsTreeFilterRule" id="32" DisplayImportance="VeryLow">
 					<DataPath>MetadataObjectsTree.FilterRule</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Rule</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<CellHyperlink>true</CellHyperlink>
 					<ChoiceButton>true</ChoiceButton>
@@ -303,6 +351,12 @@
 					<ChildItems>
 						<CheckBoxField name="AutomaticallySynchronizeFiles" id="5">
 							<DataPath>AutomaticallySynchronizeFiles</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Autosync files</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<CheckBoxType>Auto</CheckBoxType>
 							<ContextMenu name="AutomaticallySynchronizeFilesContextMenu" id="6"/>
@@ -314,6 +368,12 @@
 						<Button name="SetUpSchedule" id="8">
 							<Type>Hyperlink</Type>
 							<CommandName>Form.Command.SetUpSchedule</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Configure schedule</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="SetUpScheduleExtendedTooltip" id="9"/>
 						</Button>
 						<Pages name="FilesSynchronization" id="88">
@@ -407,7 +467,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Synchronize files automatically</v8:content>
+					<v8:content>Autosync files</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -487,6 +547,7 @@
 						</v8:item>
 					</Title>
 					<Type>
+						<v8:Type>cfg:CatalogRef.ExtensionObjectIDs</v8:Type>
 						<v8:Type>cfg:CatalogRef.MetadataObjectIDs</v8:Type>
 					</Type>
 				</Column>

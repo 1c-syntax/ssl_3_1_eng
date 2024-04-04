@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -13,9 +12,9 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// StandardSubsystems.ReportsOptions
+// 
 
-// Set report form settings.
+// To set up a report form.
 //
 // Parameters:
 //   Form - ClientApplicationForm
@@ -26,24 +25,66 @@
 //
 Procedure DefineFormSettings(Form, VariantKey, Settings) Export
 	Settings.Events.OnDefineSelectionParameters = True;
-	Settings.Events.OnLoadVariantAtServer = True;
-	Settings.EditOptionsAllowed = False;
+	Settings.Events.BeforeImportSettingsToComposer = True;
 EndProcedure
 
-// Parameters:
-//   Form - ClientApplicationForm
-//         - ManagedFormExtensionForReports:
-//     * Report - FormDataStructure
-//             - ReportObject
-//   NewDCSettings - DataCompositionSettings
+
+// 
 //
-Procedure OnLoadVariantAtServer(Form, NewDCSettings) Export
-	If EventLog.ServerTimeOffset() = 0 Then
-		DCParameter = Form.Report.SettingsComposer.Settings.DataParameters.Items.Find("DatesInServerTimeZone");
-		If TypeOf(DCParameter) = Type("DataCompositionSettingsParameterValue") Then
-			DCParameter.ViewMode = DataCompositionSettingsItemViewMode.Inaccessible;
-		EndIf;
+// Parameters:
+//   Context - Arbitrary
+//   SchemaKey - String
+//   VariantKey - String
+//                - Undefined
+//   NewDCSettings - DataCompositionSettings
+//                    - Undefined
+//   NewDCUserSettings - DataCompositionUserSettings
+//                                    - Undefined
+//
+Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSettings, NewDCUserSettings) Export
+	
+	If SchemaKey <> "1" Then
+		SchemaKey = "1";
 	EndIf;
+	
+	If EventLog.ServerTimeOffset() = 0 Then
+		DataCompositionSchema.Parameters.DatesInServerTimeZone.UseRestriction = True;
+	EndIf;
+	
+	ReportVariant = NewDCSettings.DataParameters.Items.Find("ReportVariant").Value;
+	
+	If ReportVariant <> "UsersActivityAnalysis" Then
+		DataCompositionSchema.Parameters.UsersAndGroups.UseRestriction = True;
+		DataCompositionSchema.Parameters.ShouldOutputUtilityUsers.UseRestriction = True;
+	EndIf;
+	
+	If ReportVariant <> "DepartmentActivityAnalysis" Then
+		DataCompositionSchema.Parameters.Department.UseRestriction = True;
+	EndIf;
+	
+	If ReportVariant <> "UserActivity" Then
+		DataCompositionSchema.Parameters.User.UseRestriction = True;
+		DataCompositionSchema.Parameters.OutputBusinessProcesses.UseRestriction = True;
+		DataCompositionSchema.Parameters.OutputTasks.UseRestriction = True;
+		DataCompositionSchema.Parameters.OutputCatalogs.UseRestriction = True;
+		DataCompositionSchema.Parameters.OutputDocuments.UseRestriction = True;
+	EndIf;
+	
+	If ReportVariant <> "ScheduledJobsDuration" Then
+		DataCompositionSchema.Parameters.DayPeriod.UseRestriction = True;
+		DataCompositionSchema.Parameters.SelectionStart.UseRestriction = True;
+		DataCompositionSchema.Parameters.SelectionEnd.UseRestriction = True;
+		DataCompositionSchema.Parameters.DisplayBackgroundJobs.UseRestriction = True;
+		DataCompositionSchema.Parameters.MinScheduledJobSessionDuration.UseRestriction = True;
+		DataCompositionSchema.Parameters.ConcurrentSessionsSize.UseRestriction = True;
+		DataCompositionSchema.Parameters.HideScheduledJobs.UseRestriction = True;
+	EndIf;
+	
+	If Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
+		ModuleReportsServer = Common.CommonModule("ReportsServer");
+		ModuleReportsServer.AttachSchema(ThisObject, Context, DataCompositionSchema, SchemaKey);
+	EndIf;
+	
 EndProcedure
 
 // See ReportsOverridable.OnDefineSelectionParameters.SettingProperties
@@ -69,15 +110,20 @@ EndProcedure
 
 Procedure OnComposeResult(ResultDocument, ObjectDetailsData, StandardProcessing, StorageAddress)
 	
-	If Common.DataSeparationEnabled()
-		Or Not Common.SeparatedDataUsageAvailable() Then
-		Raise NStr("en = 'The report is not supported in the application on the Internet.';");
+	If Not Common.SeparatedDataUsageAvailable() Then
+		Raise NStr("en = 'The report is supported for data areas and the local mode.';");
 	EndIf;
 	
 	StandardProcessing = False;
 	ReportSettings = SettingsComposer.GetSettings();
-	Period = ReportSettings.DataParameters.Items.Find("Period").Value; // StandardPeriod
 	ReportVariant = ReportSettings.DataParameters.Items.Find("ReportVariant").Value;
+	
+	If Common.DataSeparationEnabled()
+	   And ReportVariant = "ScheduledJobsDuration" Then
+		Raise NStr("en = 'The report option is unavailable in web apps.';");
+	EndIf;
+	
+	Period = ReportSettings.DataParameters.Items.Find("Period").Value; // StandardPeriod
 	DatesInServerTimeZone = ReportSettings.DataParameters.Items.Find("DatesInServerTimeZone").Value;
 	If DatesInServerTimeZone Then
 		ServerTimeOffset = 0;
@@ -85,18 +131,18 @@ Procedure OnComposeResult(ResultDocument, ObjectDetailsData, StandardProcessing,
 		ServerTimeOffset = EventLog.ServerTimeOffset();
 	EndIf;
 	
-	If ReportVariant <> "GanttChart" Then
+	If ReportVariant <> "ScheduledJobsDuration" Then
 		DataCompositionSchema.Parameters.DayPeriod.Use = DataCompositionParameterUse.Auto;
 	EndIf;
 	
 	If ReportVariant = "EventLogMonitor" Then
 		ReportGenerationResult = Reports.EventLogAnalysis.
 			GenerateEventLogMonitorReport(Period.StartDate, Period.EndDate, ServerTimeOffset);
-		// ReportIsBlank - Flag indicating whether the report has no data. Required for report distribution.
+		// 
 		ReportIsBlank = ReportGenerationResult.ReportIsBlank;
 		SettingsComposer.UserSettings.AdditionalProperties.Insert("ReportIsBlank", ReportIsBlank);
 		ResultDocument.Put(ReportGenerationResult.Report);
-	ElsIf ReportVariant = "GanttChart" Then
+	ElsIf ReportVariant = "ScheduledJobsDuration" Then
 		ScheduledJobsDuration(ReportSettings, ResultDocument, SettingsComposer, ServerTimeOffset);
 	Else
 		ReportParameters = UserActivityReportParameters(ReportSettings);
@@ -104,7 +150,8 @@ Procedure OnComposeResult(ResultDocument, ObjectDetailsData, StandardProcessing,
 		ReportParameters.Insert("EndDate", Period.EndDate);
 		ReportParameters.Insert("ReportVariant", ReportVariant);
 		ReportParameters.Insert("DatesInServerTimeZone", DatesInServerTimeZone);
-		If ReportVariant = "UsersActivityAnalysis" Then
+		If ReportVariant = "UsersActivityAnalysis"
+		 Or ReportVariant = "DepartmentActivityAnalysis" Then
 			DataCompositionSchema.Parameters.User.Use = DataCompositionParameterUse.Auto;
 		EndIf;
 		
@@ -133,7 +180,7 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 	
 	ReportSettings = SettingsComposer.GetSettings();
 	ReportVariant = ReportSettings.DataParameters.Items.Find("ReportVariant").Value;
-	If ReportVariant = "GanttChart" Then
+	If ReportVariant = "ScheduledJobsDuration" Then
 		DayPeriod = ReportSettings.DataParameters.Items.Find("DayPeriod").Value;
 		SelectionStart = ReportSettings.DataParameters.Items.Find("SelectionStart");
 		SelectionEnd = ReportSettings.DataParameters.Items.Find("SelectionEnd");
@@ -167,7 +214,7 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 			Return;
 		EndIf;
 		
-		If Reports.EventLogAnalysis.IBUserName(User) = Undefined Then
+		If Reports.EventLogAnalysis.UserForSelection(User) = Undefined Then
 			Common.MessageToUser(
 				NStr("en = 'Cannot create a report because the username is not specified.';"), , );
 			Cancel = True;
@@ -180,7 +227,7 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 		
 		If TypeOf(UsersAndGroups) = Type("CatalogRef.Users") Then
 			
-			If Reports.EventLogAnalysis.IBUserName(UsersAndGroups) = Undefined Then
+			If Reports.EventLogAnalysis.UserForSelection(UsersAndGroups) = Undefined Then
 				Common.MessageToUser(
 					NStr("en = 'Cannot create a report because the username is not specified.';"), , );
 				Cancel = True;
@@ -207,6 +254,9 @@ EndProcedure
 Function UserActivityReportParameters(ReportSettings)
 	
 	UsersAndGroups = ReportSettings.DataParameters.Items.Find("UsersAndGroups").Value;
+	ShouldOutputUtilityUsers = ReportSettings.DataParameters.Items.Find("ShouldOutputUtilityUsers").Value;
+	Department = ?(ReportSettings.DataParameters.Items.Find("Department").Use,
+		ReportSettings.DataParameters.Items.Find("Department").Value, Undefined);
 	User = ReportSettings.DataParameters.Items.Find("User").Value;
 	OutputBusinessProcesses = ReportSettings.DataParameters.Items.Find("OutputBusinessProcesses");
 	OutputTasks = ReportSettings.DataParameters.Items.Find("OutputTasks");
@@ -228,6 +278,8 @@ Function UserActivityReportParameters(ReportSettings)
 	
 	ReportParameters = New Structure;
 	ReportParameters.Insert("UsersAndGroups", UsersAndGroups);
+	ReportParameters.Insert("ShouldOutputUtilityUsers", ShouldOutputUtilityUsers);
+	ReportParameters.Insert("Department", Department);
 	ReportParameters.Insert("User", User);
 	ReportParameters.Insert("OutputBusinessProcesses", OutputBusinessProcesses.Value);
 	ReportParameters.Insert("OutputTasks", OutputTasks.Value);
@@ -250,7 +302,7 @@ Procedure ScheduledJobsDuration(ReportSettings, ResultDocument, Var_SettingsComp
 	HideScheduledJobs = ReportSettings.DataParameters.Items.Find("HideScheduledJobs");
 	ConcurrentSessionsSize = ReportSettings.DataParameters.Items.Find("ConcurrentSessionsSize");
 	
-	// Checking for parameter usage flag.
+	// 
 	If Not MinScheduledJobSessionDuration.Use Then
 		ReportSettings.DataParameters.SetParameterValue("MinScheduledJobSessionDuration", 0);
 	EndIf;
@@ -305,20 +357,26 @@ EndProcedure
 //    * Description - String
 //
 Function AllScheduledJobsList()
+	
+	ScheduledJobsArray = New Array;
+	If Common.DataSeparationEnabled() Then
+		Return ScheduledJobsArray;
+	EndIf;
+	
 	SetPrivilegedMode(True);
 	ScheduledJobsList = ScheduledJobsServer.FindJobs(New Structure);
-	ScheduledJobsArray = New Array;
 	For Each Item In ScheduledJobsList Do
 		If Item.Description <> "" Then
-			ScheduledJobsArray.Add(New Structure("UID, Description", Item.UUID, 
-																			Item.Description));
+			ScheduledJobsArray.Add(New Structure("UID, Description",
+				Item.UUID, Item.Description));
 		ElsIf Item.Metadata.Synonym <> "" Then
-			ScheduledJobsArray.Add(New Structure("UID, Description", Item.UUID,
-																			Item.Metadata.Synonym));
+			ScheduledJobsArray.Add(New Structure("UID, Description",
+				Item.UUID, Item.Metadata.Synonym));
 		EndIf;
 	EndDo;
 	
 	Return ScheduledJobsArray;
+	
 EndFunction
 
 #EndRegion

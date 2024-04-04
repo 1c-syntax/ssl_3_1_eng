@@ -1,35 +1,49 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
+
+#Region Variables
+
+&AtClient
+Var ErrorReport;
+
+#EndRegion
 
 #Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	
-	
-	If ValueIsFilled(Parameters.DetailErrorDescription)
+	// 
+	// 
+	If Parameters.ErrorInfo <> Undefined Then
+		BriefErrorDescription   = ErrorProcessing.BriefErrorDescription(Parameters.ErrorInfo);
+		DetailErrorDescription = ErrorProcessing.DetailErrorDescription(Parameters.ErrorInfo);
+	EndIf;
+	If ValueIsFilled(DetailErrorDescription)
 	   And Common.SubsystemExists("StandardSubsystems.DataExchange")
 	   And Common.IsSubordinateDIBNode() Then
 		ModuleDataExchangeServer = Common.CommonModule("DataExchangeServer");
 		ModuleDataExchangeServer.EnableDataExchangeMessageImportRecurrenceBeforeStart();
 	EndIf;
 	
-	If ValueIsFilled(Parameters.DetailErrorDescription) Then
+	ErrorInfo = Parameters.ErrorInfo;
+	
+	If ValueIsFilled(DetailErrorDescription) Then
 		EventLog.AddMessageForEventLog(InfobaseUpdate.EventLogEvent(), EventLogLevel.Error,
-			, , Parameters.DetailErrorDescription);
+			, , DetailErrorDescription);
 	EndIf;
 	
 	ErrorMessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The application was not updated to a new version due to:
 		|
 		|%1';"),
-		Parameters.BriefErrorDescription);
+		BriefErrorDescription);
 	
 	Items.ErrorMessageText.Title = ErrorMessageText;
 	
@@ -81,9 +95,21 @@ Procedure OnOpen(Cancel)
 	If Not IsBlankString(ScriptDirectory) Then
 		ModuleConfigurationUpdateClient = CommonClient.CommonModule("ConfigurationUpdateClient");
 		ModuleConfigurationUpdateClient.WriteErrorLogFileAndExit(ScriptDirectory, 
-			Parameters.DetailErrorDescription);
+			DetailErrorDescription);
 	EndIf;
 	
+	If ErrorInfo <> Undefined Then
+		ErrorReport = New ErrorReport(ErrorInfo);
+		StandardSubsystemsClient.ConfigureVisibilityAndTitleForURLSendErrorReport(Items.GenerateErrorReport, ErrorInfo, True);
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure OnClose(Exit)
+	If ErrorReport <> Undefined Then
+		StandardSubsystemsClient.SendErrorReport(ErrorReport, ErrorInfo, True);
+	EndIf;
 EndProcedure
 
 #EndRegion
@@ -157,24 +183,6 @@ Procedure OpenExternalDataProcessorCompletion(Result, AdditionalParameters) Expo
 	
 EndProcedure
 
-&AtServer
-Function AttachExternalDataProcessor(AddressInTempStorage)
-	
-	If Not Users.IsFullUser(, True) Then
-		Raise NStr("en = 'Insufficient access rights.';");
-	EndIf;
-	
-	
-	
-	Manager = ExternalDataProcessors;
-	DataProcessorName = Manager.Connect(AddressInTempStorage, , False,
-		Common.ProtectionWithoutWarningsDetails());
-	Return Manager.Create(DataProcessorName, False).Metadata().FullName();
-	
-	
-	
-EndFunction
-
 &AtClient
 Procedure CheckPatches(Command)
 	Result = AvailableFixesOnServer();
@@ -204,9 +212,14 @@ Procedure CheckPatches(Command)
 	
 	NotifyDescription = New NotifyDescription("CheckAvailableFixesContinued", ThisObject, Result);
 	
-	QuestionParameters.Picture = PictureLib.DoQueryBox32;
+	QuestionParameters.Picture = PictureLib.DialogQuestion;
 	QuestionParameters.DefaultButton = DialogReturnCode.Yes;
 	StandardSubsystemsClient.ShowQuestionToUser(NotifyDescription, Message, QuestionDialogMode.YesNo, QuestionParameters);
+EndProcedure
+
+&AtClient
+Procedure GenerateErrorReportClick(Item)
+	StandardSubsystemsClient.ShowErrorReport(ErrorReport);
 EndProcedure
 
 #EndRegion
@@ -242,8 +255,8 @@ Procedure CheckAvailableFixesContinued(Result, AdditionalParameters) Export
 	
 	TimeConsumingOperation    = StartingPatchInstallation();
 	IdleParameters     = TimeConsumingOperationsClient.IdleParameters(ThisObject);
-	CompletionNotification2 = New NotifyDescription("ProcessResult", ThisObject, AdditionalParameters);
-	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CompletionNotification2, IdleParameters);
+	CallbackOnCompletion = New NotifyDescription("ProcessResult", ThisObject, AdditionalParameters);
+	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
 	
 EndProcedure
 
@@ -256,6 +269,10 @@ Function StartingPatchInstallation()
 	
 EndFunction
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
 Procedure ProcessResult(Result, AdditionalParameters) Export
 	If Result = Undefined Then
@@ -267,7 +284,8 @@ Procedure ProcessResult(Result, AdditionalParameters) Export
 	QuestionParameters.Title = NStr("en = 'Installing patches';");
 	
 	If Result.Status = "Error" Then
-		ShowMessageBox(, Result.BriefErrorDescription);
+		StandardSubsystemsClient.OutputErrorInfo(
+			Result.ErrorInfo);
 		Return;
 	EndIf;
 	
@@ -279,7 +297,7 @@ Procedure ProcessResult(Result, AdditionalParameters) Export
 		Buttons = New ValueList;
 		Buttons.Add("EventLog", NStr("en = 'Event log';"));
 		Buttons.Add("Close", NStr("en = 'Close';"));
-		QuestionParameters.Picture = PictureLib.Warning32;
+		QuestionParameters.Picture = PictureLib.DialogExclamation;
 		QuestionParameters.DefaultButton = "Close";
 		NotifyDescription = New NotifyDescription("HandlePatchInstallationError", ThisObject);
 		StandardSubsystemsClient.ShowQuestionToUser(NotifyDescription, ErrorText, Buttons, QuestionParameters);
@@ -305,5 +323,23 @@ Procedure HandlePatchInstallationError(Result, AdditionalParameters) Export
 		EventLogClient.OpenEventLog();
 	EndIf;
 EndProcedure
+
+&AtServer
+Function AttachExternalDataProcessor(AddressInTempStorage)
+	
+	If Not Users.IsFullUser(, True) Then
+		Raise NStr("en = 'Insufficient access rights.';");
+	EndIf;
+	
+	// 
+	// 
+	Manager = ExternalDataProcessors;
+	DataProcessorName = Manager.Connect(AddressInTempStorage, , False,
+		Common.ProtectionWithoutWarningsDetails());
+	Return Manager.Create(DataProcessorName, False).Metadata().FullName();
+	// 
+	// 
+	
+EndFunction
 
 #EndRegion

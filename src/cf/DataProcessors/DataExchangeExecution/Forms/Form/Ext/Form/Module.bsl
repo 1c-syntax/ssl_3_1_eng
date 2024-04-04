@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -69,10 +70,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Title = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Synchronize data with %1';"), CorrespondentDescription);
 	
-	
-	
-	
-	
+	// 
+	// 
+	// 
+	// 
 	UseCurrentUserForAuthentication = False;
 	UseSavedAuthenticationParameters    = False;
 	SynchronizationPasswordSpecified                          = False;
@@ -242,7 +243,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 ////////////////////////////////////////////////////////////////////////////////
 
 &AtClient
@@ -527,11 +528,11 @@ Function NavigationTableNewRow(MainPageName,
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 ////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure RunMoveNext()
@@ -1188,7 +1189,7 @@ Function Attachable_ExchangeCompletionTimeConsumingOperationProcessing(Cancel, G
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Function Attachable_UserPasswordRequestOnOpen(Cancel, SkipPage, IsMoveNext)
@@ -1238,7 +1239,7 @@ Function Attachable_ConnectionTestWaitingTimeConsumingOperationProcessing(Cancel
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure BackgroundJobStartClient(Action, JobName, Cancel)
@@ -1273,8 +1274,8 @@ Procedure BackgroundJobStartClient(Action, JobName, Cancel)
 			IdleParameters.Interval                       = 1;
 		EndIf;
 		
-		CompletionNotification2 = New NotifyDescription("BackgroundJobCompletion", ThisObject);
-		TimeConsumingOperationsClient.WaitCompletion(Result, CompletionNotification2, IdleParameters);
+		CallbackOnCompletion = New NotifyDescription("BackgroundJobCompletion", ThisObject);
+		TimeConsumingOperationsClient.WaitCompletion(Result, CallbackOnCompletion, IdleParameters);
 		
 	Else
 		BackgroundJobCompleteResult = Result;
@@ -1321,8 +1322,8 @@ Procedure BackgroundJobExecutionResult()
 	
 	BackgroundJobGetResultAtServer();
 	
-	
-	
+	// 
+	// 
 	If TimeConsumingOperation Then
 		RetryCountOnConnectionError = 0;
 		AttachIdleHandler("TimeConsumingOperationIdleHandler", 0.1, True);
@@ -1388,8 +1389,8 @@ Procedure TimeConsumingOperationCompletion()
 			ErrorMessage);
 	Else
 		
-		
-		
+		// 
+		// 
 		If BackgroundJobCurrentAction = 1 
 			And ValueIsFilled(MessageFileIDInService) Then
 				
@@ -1414,7 +1415,7 @@ Procedure AfterCompleteBackgroundJob()
 	If BackgroundJobCompleteResult.AdditionalResultData.Property("ForceCloseForm") 
 		And BackgroundJobCompleteResult.AdditionalResultData.ForceCloseForm Then
 		FormReopeningParameters = BackgroundJobCompleteResult.AdditionalResultData.FormReopeningParameters;
-		ThisObject.Close();
+		Close();
 	EndIf;
 	
 	// Go further with a one second delay to display the progress bar 100%.
@@ -1592,7 +1593,7 @@ Function TimeConsumingOperationStateForInfobaseNode(
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
 Procedure FillNavigationTable()
@@ -1670,10 +1671,10 @@ Procedure DecorationErrorAssigningAnIdToANodeURLProcessing(Item, FormattedString
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClient
 Procedure StatusOfUnavailableSynchronizationURLProcessing(Item, FormattedStringURL, StandardProcessing)

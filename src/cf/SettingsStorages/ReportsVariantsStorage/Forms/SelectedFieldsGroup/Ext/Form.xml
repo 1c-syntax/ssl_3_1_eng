@@ -9,6 +9,12 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.OK</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>OK</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormOKExtendedTooltip" id="8"/>
 			</Button>
 			<Button name="FormCancel" id="9">
@@ -24,6 +30,12 @@
 	<ChildItems>
 		<InputField name="GroupTitle" id="1">
 			<DataPath>GroupTitle</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Title</v8:content>
+				</v8:item>
+			</Title>
 			<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 			<ContextMenu name="GroupTitleContextMenu" id="2"/>
 			<ExtendedTooltip name="GroupTitleExtendedTooltip" id="3">
@@ -37,6 +49,12 @@
 		</InputField>
 		<RadioButtonField name="Placement" id="4">
 			<DataPath>GroupPlacement</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Location</v8:content>
+				</v8:item>
+			</Title>
 			<RadioButtonType>Tumbler</RadioButtonType>
 			<ChoiceList>
 				<xr:Item>

@@ -25,6 +25,12 @@
 				<DefaultButton>true</DefaultButton>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.Prepare</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Prepare…</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="PrepareButtonExtendedTooltip" id="67"/>
 			</Button>
 			<Button name="CancelButton" id="30">
@@ -47,6 +53,7 @@
 			<ChangeRowSet>false</ChangeRowSet>
 			<ChangeRowOrder>false</ChangeRowOrder>
 			<Height>10</Height>
+			<HeightControlVariant>UseHeightInFormRows</HeightControlVariant>
 			<RowSelectionMode>Row</RowSelectionMode>
 			<AutoInsertNewRow>true</AutoInsertNewRow>
 			<EnableStartDrag>true</EnableStartDrag>
@@ -77,16 +84,34 @@
 			<ContextMenu name="RecipientsContextMenu" id="44">
 				<ChildItems>
 					<ButtonGroup name="RecipientsContextMenuSelectionManagementGroup" id="66">
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Recipients context menu group choice management</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="RecipientsContextMenuSelectionManagementGroupExtendedTooltip" id="69"/>
 						<ChildItems>
 							<Button name="RecipientsContextMenuSelectAll" id="63">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.SelectAllRecipients</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Select all recipients</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="RecipientsContextMenuSelectAllExtendedTooltip" id="70"/>
 							</Button>
 							<Button name="RecipientsContextMenuCancelSelectAll" id="64">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.CancelSelectAll</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Remove all recipients</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="RecipientsContextMenuCancelSelectAllExtendedTooltip" id="71"/>
 							</Button>
 						</ChildItems>
@@ -132,6 +157,12 @@
 			<ChildItems>
 				<CheckBoxField name="RecipientsSelected" id="52">
 					<DataPath>Recipients.Selected</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Selected</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<EditMode>EnterOnInput</EditMode>
 					<HeaderPicture>
@@ -164,12 +195,24 @@
 							<ChildItems>
 								<InputField name="RecipientsPresentation" id="48">
 									<DataPath>Recipients.Presentation</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Recipient</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ContextMenu name="RecipientsPresentationContextMenu" id="49"/>
 									<ExtendedTooltip name="RecipientsPresentationExtendedTooltip" id="77"/>
 								</InputField>
 								<InputField name="RecipientsAddressPresentation" id="56">
 									<DataPath>Recipients.AddressPresentation</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>E-mail</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ContextMenu name="RecipientsAddressPresentationContextMenu" id="57"/>
 									<ExtendedTooltip name="RecipientsAddressPresentationExtendedTooltip" id="78"/>
@@ -187,6 +230,12 @@
 							<ChildItems>
 								<InputField name="RecipientsExplanation" id="58">
 									<DataPath>Recipients.Explanation</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Note</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<AutoCellHeight>true</AutoCellHeight>
 									<ShowInHeader>false</ShowInHeader>
@@ -314,10 +363,16 @@
 			<Behavior>Usual</Behavior>
 			<Representation>NormalSeparation</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="AdditionalParametersGroupExtendedTooltip" id="85"/>
+			<ExtendedTooltip name="GroupAdditionalParametersExtendedTooltip" id="85"/>
 			<ChildItems>
 				<LabelField name="AttachmentFormat" id="54">
 					<DataPath>AttachmentFormat</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Attachment format</v8:content>
+						</v8:item>
+					</Title>
 					<Hiperlink>true</Hiperlink>
 					<ContextMenu name="AttachmentFormatContextMenu" id="55"/>
 					<ExtendedTooltip name="AttachmentFormatExtendedTooltip" id="86"/>
@@ -340,6 +395,12 @@
 				</CheckBoxField>
 				<CheckBoxField name="TransliterateFilesNames" id="106">
 					<DataPath>TransliterateFilesNames</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Transliterate file names</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Right</TitleLocation>
 					<ToolTip>
 						<v8:item>
@@ -354,6 +415,12 @@
 				</CheckBoxField>
 				<CheckBoxField name="Sign" id="109">
 					<DataPath>Sign</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Sign</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Right</TitleLocation>
 					<CheckBoxType>Auto</CheckBoxType>
 					<ContextMenu name="SignContextMenu" id="110"/>
@@ -600,6 +667,11 @@
 					<v8:Length>0</v8:Length>
 					<v8:AllowedLength>Variable</v8:AllowedLength>
 				</v8:StringQualifiers>
+			</Type>
+		</Parameter>
+		<Parameter name="ShouldSkipAttachmentFormatSelection">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Parameter>
 	</Parameters>

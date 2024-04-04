@@ -9,6 +9,12 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.Save</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="SaveExtendedTooltip" id="28"/>
 			</Button>
 		</ChildItems>
@@ -39,6 +45,12 @@
 					<ChildItems>
 						<InputField name="FileName" id="1">
 							<DataPath>FileName</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Filename</v8:content>
+								</v8:item>
+							</Title>
 							<AutoMaxWidth>false</AutoMaxWidth>
 							<HorizontalStretch>true</HorizontalStretch>
 							<ChoiceButton>true</ChoiceButton>
@@ -49,88 +61,130 @@
 								<Event name="StartChoice">FileNameStartChoice</Event>
 							</Events>
 						</InputField>
-						<Table name="UserSettings" id="4">
+						<UsualGroup name="GroupPersonalSettings" id="80">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Personal settings</v8:content>
+								</v8:item>
+							</Title>
+							<Group>AlwaysHorizontal</Group>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="GroupPersonalSettingsExtendedTooltip" id="81"/>
+							<ChildItems>
+								<LabelDecoration name="PersonalSettingsLabel" id="77">
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Personal settings:</v8:content>
+										</v8:item>
+									</Title>
+									<ContextMenu name="PersonalSettingsLabelContextMenu" id="78"/>
+									<ExtendedTooltip name="PersonalSettingsLabelExtendedTooltip" id="79"/>
+								</LabelDecoration>
+								<CommandBar name="CommandBarPersonalSettings" id="82">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>"Personal settings" command bar</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="CommandBarPersonalSettingsExtendedTooltip" id="83"/>
+									<ChildItems>
+										<ButtonGroup name="UserSettingsGroupChangeCheckboxes" id="75">
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Change check boxes</v8:content>
+												</v8:item>
+											</Title>
+											<Representation>Compact</Representation>
+											<ExtendedTooltip name="UserSettingsGroupChangeCheckboxesExtendedTooltip" id="76"/>
+											<ChildItems>
+												<Button name="UserSettingsCheckAll" id="23">
+													<Type>CommandBarButton</Type>
+													<CommandName>Form.Item.PersonalSettings.StandardCommand.CheckAll</CommandName>
+													<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
+													<ExtendedTooltip name="UserSettingsCheckAllExtendedTooltip" id="24"/>
+												</Button>
+												<Button name="UserSettingsUncheckAll" id="25">
+													<Type>CommandBarButton</Type>
+													<CommandName>Form.Item.PersonalSettings.StandardCommand.UncheckAll</CommandName>
+													<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
+													<ExtendedTooltip name="UserSettingsUncheckAllExtendedTooltip" id="26"/>
+												</Button>
+											</ChildItems>
+										</ButtonGroup>
+									</ChildItems>
+								</CommandBar>
+							</ChildItems>
+						</UsualGroup>
+						<Table name="PersonalSettings" id="4">
 							<Representation>List</Representation>
-							<TitleLocation>Top</TitleLocation>
+							<CommandBarLocation>None</CommandBarLocation>
+							<ChangeRowSet>false</ChangeRowSet>
 							<ChangeRowOrder>false</ChangeRowOrder>
 							<Header>false</Header>
 							<HorizontalLines>false</HorizontalLines>
 							<VerticalLines>false</VerticalLines>
 							<AutoInsertNewRow>true</AutoInsertNewRow>
-							<DataPath>UserSettings</DataPath>
-							<RowPictureDataPath>UserSettings.Picture</RowPictureDataPath>
+							<DataPath>PersonalSettings</DataPath>
+							<RowPictureDataPath>PersonalSettings.Picture</RowPictureDataPath>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>User settings</v8:content>
+									<v8:content>Personal settings</v8:content>
 								</v8:item>
 							</Title>
 							<CommandSet>
+								<ExcludedCommand>Add</ExcludedCommand>
 								<ExcludedCommand>Change</ExcludedCommand>
+								<ExcludedCommand>Copy</ExcludedCommand>
+								<ExcludedCommand>Delete</ExcludedCommand>
 								<ExcludedCommand>EndEdit</ExcludedCommand>
+								<ExcludedCommand>MoveDown</ExcludedCommand>
+								<ExcludedCommand>MoveUp</ExcludedCommand>
 								<ExcludedCommand>Pickup</ExcludedCommand>
+								<ExcludedCommand>ShowRowRearrangement</ExcludedCommand>
+								<ExcludedCommand>SortListAsc</ExcludedCommand>
+								<ExcludedCommand>SortListDesc</ExcludedCommand>
 							</CommandSet>
-							<ContextMenu name="UserSettingsContextMenu" id="5"/>
-							<AutoCommandBar name="UserSettingsCommandBar" id="6">
+							<ContextMenu name="PersonalSettingsContextMenu" id="5"/>
+							<AutoCommandBar name="PersonalSettingsCommandBar" id="6">
 								<Autofill>false</Autofill>
-								<ChildItems>
-									<ButtonGroup name="UserSettingsGroupChangeCheckboxes" id="75">
-										<Title>
-											<v8:item>
-												<v8:lang>en</v8:lang>
-												<v8:content>Change check boxes</v8:content>
-											</v8:item>
-										</Title>
-										<Representation>Compact</Representation>
-										<ExtendedTooltip name="UserSettingsGroupChangeCheckboxesExtendedTooltip" id="76"/>
-										<ChildItems>
-											<Button name="UserSettingsCheckAll" id="23">
-												<Type>CommandBarButton</Type>
-												<CommandName>Form.Item.UserSettings.StandardCommand.CheckAll</CommandName>
-												<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
-												<ExtendedTooltip name="UserSettingsCheckAllExtendedTooltip" id="24"/>
-											</Button>
-											<Button name="UserSettingsUncheckAll" id="25">
-												<Type>CommandBarButton</Type>
-												<CommandName>Form.Item.UserSettings.StandardCommand.UncheckAll</CommandName>
-												<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
-												<ExtendedTooltip name="UserSettingsUncheckAllExtendedTooltip" id="26"/>
-											</Button>
-										</ChildItems>
-									</ButtonGroup>
-								</ChildItems>
 							</AutoCommandBar>
-							<ExtendedTooltip name="UserSettingsExtendedTooltip" id="7"/>
-							<SearchStringAddition name="UserSettingsSearchString" id="8">
+							<ExtendedTooltip name="PersonalSettingsExtendedTooltip" id="7"/>
+							<SearchStringAddition name="PersonalSettingsSearchString" id="8">
 								<AdditionSource>
-									<Item>UserSettings</Item>
+									<Item>PersonalSettings</Item>
 									<Type>SearchStringRepresentation</Type>
 								</AdditionSource>
-								<ContextMenu name="UserSettingsSearchStringContextMenu" id="9"/>
-								<ExtendedTooltip name="UserSettingsSearchStringExtendedTooltip" id="10"/>
+								<ContextMenu name="PersonalSettingsSearchStringContextMenu" id="9"/>
+								<ExtendedTooltip name="PersonalSettingsSearchStringExtendedTooltip" id="10"/>
 							</SearchStringAddition>
-							<ViewStatusAddition name="UserSettingsViewStatus" id="11">
+							<ViewStatusAddition name="PersonalSettingsViewStatus" id="11">
 								<AdditionSource>
-									<Item>UserSettings</Item>
+									<Item>PersonalSettings</Item>
 									<Type>ViewStatusRepresentation</Type>
 								</AdditionSource>
-								<ContextMenu name="UserSettingsViewStatusContextMenu" id="12"/>
-								<ExtendedTooltip name="UserSettingsViewStatusExtendedTooltip" id="13"/>
+								<ContextMenu name="PersonalSettingsViewStatusContextMenu" id="12"/>
+								<ExtendedTooltip name="PersonalSettingsViewStatusExtendedTooltip" id="13"/>
 							</ViewStatusAddition>
-							<SearchControlAddition name="UserSettingsSearchControl" id="14">
+							<SearchControlAddition name="PersonalSettingsSearchControl" id="14">
 								<AdditionSource>
-									<Item>UserSettings</Item>
+									<Item>PersonalSettings</Item>
 									<Type>SearchControl</Type>
 								</AdditionSource>
-								<ContextMenu name="UserSettingsSearchControlContextMenu" id="15"/>
-								<ExtendedTooltip name="UserSettingsSearchControlExtendedTooltip" id="16"/>
+								<ContextMenu name="PersonalSettingsSearchControlContextMenu" id="15"/>
+								<ExtendedTooltip name="PersonalSettingsSearchControlExtendedTooltip" id="16"/>
 							</SearchControlAddition>
 							<Events>
 								<Event name="OnChange">UserSettingsOnChange</Event>
 							</Events>
 							<ChildItems>
 								<CheckBoxField name="UserSettingsCheckBox" id="20">
-									<DataPath>UserSettings.Check</DataPath>
+									<DataPath>PersonalSettings.Check</DataPath>
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
@@ -143,7 +197,7 @@
 									<ExtendedTooltip name="UserSettingsCheckBoxExtendedTooltip" id="22"/>
 								</CheckBoxField>
 								<InputField name="UserSettingsValue" id="17">
-									<DataPath>UserSettings.Value</DataPath>
+									<DataPath>PersonalSettings.Value</DataPath>
 									<ReadOnly>true</ReadOnly>
 									<Title>
 										<v8:item>
@@ -170,6 +224,12 @@
 					<ChildItems>
 						<InputField name="DirectoryName" id="35">
 							<DataPath>DirectoryName</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Directory</v8:content>
+								</v8:item>
+							</Title>
 							<HorizontalStretch>true</HorizontalStretch>
 							<ChoiceButton>true</ChoiceButton>
 							<ContextMenu name="DirectoryNameContextMenu" id="36"/>
@@ -255,6 +315,12 @@
 								<InputField name="DescriptionOfReportOptionsFileNameIsShort" id="72">
 									<DataPath>ReportsOptionsDetails.ShortFileName</DataPath>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Filename</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ContextMenu name="DescriptionOfReportOptionsFileNameIsShortContextMenu" id="73"/>
 									<ExtendedTooltip name="DescriptionOfReportOptionsFileNameIsShortExtendedTooltip" id="74"/>
@@ -285,11 +351,11 @@
 				<Field>FileName</Field>
 			</Save>
 		</Attribute>
-		<Attribute name="UserSettings" id="2">
+		<Attribute name="PersonalSettings" id="2">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Settings</v8:content>
+					<v8:content>Personal settings</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -478,4 +544,9 @@
 			<Action>Save</Action>
 		</Command>
 	</Commands>
+	<Parameters>
+		<Parameter name="SelectedReportsOptions">
+			<Type/>
+		</Parameter>
+	</Parameters>
 </Form>

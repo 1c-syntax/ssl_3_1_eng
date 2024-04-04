@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -78,7 +79,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 		Items.ApplicationsContextMenuApplicationsMarkForDeletion.Visible = False;
 		Items.Programs.Title =
-			NStr("en = 'List of applications provided by administrator which can be used on your computer';");
+			NStr("en = 'A list of apps the administrator authorized for your computer.';");
+	Else
+		SetPrivilegedMode(True);
+		ThisIsMultiUserBase = InfoBaseUsers.GetUsers().Count() > 1;
+		SetPrivilegedMode(False);
+		If Not ThisIsMultiUserBase Then
+			Items.Programs.Title = NStr("en = 'Digital signing and encryption app settings';");
+		EndIf;
 	EndIf;
 	
 	// Certificates page
@@ -121,8 +129,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	CertificatesUpdateFilter(ThisObject, StatusApplicationIsNotInOperation);
 	
 	If Common.IsSubordinateDIBNode() Then
-		
-		
+		// 
+		// 
 		Items.Programs.ChangeRowSet = False;
 		Items.ApplicationsMarkForDeletion.Enabled = False;
 		Items.ApplicationsContextMenuApplicationsMarkForDeletion.Enabled = False;
@@ -412,7 +420,7 @@ Procedure CertificatesOnGetDataAtServer(TagName, Settings, Rows)
 			|BY
 			|	Ref";
 			Query.SetParameter("References", Rows.GetKeys());
-			QueryResult = Query.Execute(); 
+			QueryResult = Query.Execute(); // @skip-check query-in-loop - The query is executed once
 			If QueryResult.IsEmpty() Then
 				Return;
 			EndIf;
@@ -522,7 +530,7 @@ Procedure ApplicationsSelection(Item, RowSelected, Field, StandardProcessing)
 		StandardProcessing = False;
 		
 		FormParameters = New Structure;
-		FormParameters.Insert("WarningTitle", NStr("en = 'Application check result';"));
+		FormParameters.Insert("WarningTitle", NStr("en = 'App check result';"));
 		FormParameters.Insert("ErrorTextClient", CurrentData.CheckResult);
 		FormParameters.Insert("ErrorTextServer", CurrentData.CheckResultAtServer);
 		FormParameters.Insert("ShowNeedHelp", True);
@@ -627,8 +635,7 @@ EndProcedure
 &AtClient
 Procedure TechnicalInformation(Command)
 	
-	DigitalSignatureInternalClient.GenerateTechnicalInformation(
-		NStr("en = 'Digital signature and encryption settings';"));
+	DigitalSignatureInternalClient.GenerateTechnicalInformation(NStr("en = 'Digital signing and encryption settings';"));
 			
 EndProcedure
 
@@ -652,7 +659,6 @@ Procedure ApplicationsMarkForDeletion(Command)
 	EndIf;
 	
 	QuestionContent = New Array;
-	QuestionContent.Add(PictureLib.DoQueryBox32);
 	QuestionContent.Add(StringFunctionsClientServer.SubstituteParametersToString(QueryText, CurrentData.Description));
 	
 	ShowQueryBox(
@@ -941,13 +947,13 @@ Procedure UpdateCurrentItemsVisibility()
 
 		If DigitalSignatureInternal.UseCloudSignatureService() Then
 			Items.AddToSignAndEncrypt.ExtendedTooltip.Title = NStr(
-				"en = 'Add certificates to sign and encrypt from applications installed on DSS server and the computer';");
+				"en = 'Add certificates to sign and encrypt from applications installed on the DSS server and your computer';");
 		ElsIf DigitalSignatureInternal.UseDigitalSignatureSaaS() Then
 			Items.AddToSignAndEncrypt.ExtendedTooltip.Title = NStr(
-				"en = 'Add certificates to sign and encrypt from applications installed in the service and on the computer';");
+				"en = 'Add certificates to sign and encrypt from apps installed in the service and on the computer';");
 		Else
 			Items.AddToSignAndEncrypt.ExtendedTooltip.Title = NStr(
-				"en = 'Add certificates to sign and encrypt from applications installed on the computer';");
+				"en = 'Add certificates to sign and encrypt from installed apps';");
 		EndIf;
 		
 		PurposeToSignAndEncrypt = "ToSignEncryptAndDecrypt";
@@ -1003,23 +1009,10 @@ Procedure DetermineApplicationsInstalledAfterAttachExtension(Attached, Context) 
 EndProcedure
 
 &AtClient
-Procedure IdleHandlerToContinue()
-	
-	Return;
-	
-EndProcedure
-
-&AtClient
 Procedure IdleHandlerDefineInstalledApplications()
 	
 	BeginAttachingCryptoExtension(New NotifyDescription(
 		"DefineInstalledApplicationsOnAttachExtension", ThisObject));
-	
-	#If WebClient Then
-		AttachIdleHandler("IdleHandlerToContinue", 0.3, True);
-	#Else
-		AttachIdleHandler("IdleHandlerToContinue", 0.1, True);
-	#EndIf
 	
 EndProcedure
 
@@ -1030,7 +1023,7 @@ Procedure DefineInstalledApplicationsOnAttachExtension(Attached, Context) Export
 	If Not Attached Then
 		Items.GroupCryptoProvidersHint.Visible = True;
 		Items.DecorationCheckCryptoProviderInstallation.Title = StringFunctionsClient.FormattedString(
-			NStr("en = '<a href = ""%1"">Click here</a> to install an extension for digital signatures and see all the applications for digital signatures installed on the computer.';"),
+			NStr("en = '<a href = ""%1"">Click here</a> to install the digital signature management extension and view all installed digital signing and encryption apps.';"),
 			"CheckCryptographyAppsInstallation");
 		AttachIdleHandler("IdleHandlerDefineInstalledApplications", 3, True);
 		Return;
@@ -1061,7 +1054,7 @@ Async Procedure DetectInstalledAppsAfterCryptoAppsChecked(Result, Context) Expor
 	If Not Attached Then
 		Items.GroupCryptoProvidersHint.Visible = True;
 		Items.DecorationCheckCryptoProviderInstallation.Title = StringFunctionsClient.FormattedString(
-			NStr("en = '<a href = ""%1"">Click here</a> to install an extension for digital signatures and see all the applications for digital signatures installed on the computer.';"),
+			NStr("en = '<a href = ""%1"">Click here</a> to install the digital signature management extension and view all installed digital signing and encryption apps.';"),
 			"CheckCryptographyAppsInstallation");
 	EndIf;
 	
@@ -1249,7 +1242,7 @@ Procedure AfterCryptographyAppsChecked(Result, Notification) Export
 	If Not Result.CheckCompleted Then
 		Items.GroupCryptoProvidersHint.Visible = True;
 		Items.DecorationCheckCryptoProviderInstallation.Title = StringFunctionsClient.FormattedString(
-			NStr("en = '<a href = ""%1"">Click here</a> to see all the applications for digital signatures installed on the computer.';"),
+			NStr("en = '<a href = ""%1"">Click here</a> to view all installed digital signing apps.';"),
 			"CheckCryptographyAppsInstallation");
 	Else
 		Items.GroupCryptoProvidersHint.Visible = False;
@@ -1556,8 +1549,7 @@ Procedure SaveApplicationPath()
 	If NoRightToSaveUserData Then
 		CurrentData.LinuxApplicationPath = LinuxPathToCurrentApplication;
 		ShowMessageBox(,
-			NStr("en = 'Couldn''t save path to the application. You do not have sufficient rights to save data.
-			           |Contact your administrator.';"));
+			NStr("en = 'Couldn''t save the path: Insufficient rights to save data. Contact your administrator.';"));
 	Else
 		SaveLinuxPathAtServer(CurrentData.Ref, CurrentData.LinuxApplicationPath);
 		DefineInstalledApplications();
@@ -1590,7 +1582,7 @@ Procedure ReportResultConnectionsComponents(Result, AdditionalParameters) Export
 	If Result.Attached Then
 		Try 
 			NotificationAfterReceivingTheVersion = New NotifyDescription("ReportComponentVersionAfterConnecting", ThisObject);
-			Result.Attachable_Module.StartAChallengeGetAVersion(NotificationAfterReceivingTheVersion);
+			Result.Attachable_Module.BeginCallingGetVersion(NotificationAfterReceivingTheVersion);
 			Return;
 		Except
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(

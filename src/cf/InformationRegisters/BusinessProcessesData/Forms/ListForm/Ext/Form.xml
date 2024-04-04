@@ -40,6 +40,12 @@
 				<Button name="FormDeletionMark" id="24">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.DeletionMark</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Toggle deletion mark</v8:content>
+						</v8:item>
+					</Title>
 					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 					<ExtendedTooltip name="FormDeletionMarkExtendedTooltip" id="38"/>
 				</Button>
@@ -50,7 +56,7 @@
 							<v8:content>Search</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="GroupSearchExtendedTooltip" id="39"/>
+					<ExtendedTooltip name="SearchGroupExtendedTooltip" id="39"/>
 					<ChildItems>
 						<Button name="FormFind" id="35">
 							<Type>CommandBarButton</Type>
@@ -68,11 +74,23 @@
 					<Type>CommandBarButton</Type>
 					<Representation>PictureAndText</Representation>
 					<CommandName>Form.Command.BusinessProcessTasks</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Tasks</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="BusinessProcessTaskFormExtendedTooltip" id="77"/>
 				</Button>
 				<Button name="FormFlowchart" id="33">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.Flowchart</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Flowchart</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="FormFlowchartExtendedTooltip" id="42"/>
 				</Button>
 			</ChildItems>
@@ -126,6 +144,12 @@
 					<Button name="ListContextMenuDeletionMark" id="31">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.DeletionMark</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Toggle deletion mark</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="ListContextMenuDeletionMarkExtendedTooltip" id="44"/>
 					</Button>
 					<ButtonGroup name="ListContextMenuGroup" id="32">
@@ -152,6 +176,12 @@
 					<Button name="ListContextMenuFlowchart" id="37">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.Flowchart</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Flowchart</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="ListContextMenuFlowchartExtendedTooltip" id="48"/>
 					</Button>
 					<Button name="ListContextMenuCopyToClipboard" id="28">
@@ -323,6 +353,12 @@ FROM
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>BusinessProcess</dcssch:dataPath>
 					<dcssch:field>BusinessProcess</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Business process</v8:content>
+						</v8:item>
+					</dcssch:title>
 				</Field>
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>Number</dcssch:dataPath>
@@ -359,10 +395,22 @@ FROM
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>RowPicture</dcssch:dataPath>
 					<dcssch:field>RowPicture</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Row picture</v8:content>
+						</v8:item>
+					</dcssch:title>
 				</Field>
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>Defer</dcssch:dataPath>
 					<dcssch:field>Defer</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Deferred</v8:content>
+						</v8:item>
+					</dcssch:title>
 				</Field>
 				<MainTable>InformationRegister.BusinessProcessesData</MainTable>
 				<ListSettings>

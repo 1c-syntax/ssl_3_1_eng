@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -14,13 +15,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	GetIDJobState = "";
 	
-	If Parameters.Property("JobID") Then
-		JobID = Parameters.JobID;
+	JobID = Parameters.JobID;
+	If ValueIsFilled(JobID) Then
 		JobResultAddress = Parameters.JobResultAddress;
-		If ValueIsFilled(JobID) Then
-			GetIDJobState = JobCompleted(JobID);
-		EndIf;
-	EndIf;  	
+		GetIDJobState = JobCompleted(JobID);
+	EndIf;
 	
 	MonitoringCenterID = MonitoringCenterID();
 	If Not IsBlankString(MonitoringCenterID) Then
@@ -47,7 +46,7 @@ EndProcedure
 
 &AtClient
 Procedure OnOpen(Cancel)
-	VisibilityParameters = New Structure("Status, ResultAddress", GetIDJobState, JobResultAddress);
+	VisibilityParameters = New Structure("Status, ResultAddress, ErrorInfo", GetIDJobState, JobResultAddress, Undefined);
 	If Not IsBlankString(GetIDJobState) And IsBlankString(Id) Then
 		SetItemsVisibility(VisibilityParameters);
 	EndIf;
@@ -84,14 +83,13 @@ Procedure GetID(Command)
 	JobID = RunResult.JobID;
 	JobResultAddress = RunResult.ResultAddress;
 	GetIDJobState = "Running";
+	// Outputs the status of getting ID.
+	VisibilityParameters = New Structure("Status, ResultAddress", GetIDJobState, JobResultAddress);
+	SetItemsVisibility(VisibilityParameters);
 	Notification = New NotifyDescription("AfterUpdateID", MonitoringCenterClient);
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
 	TimeConsumingOperationsClient.WaitCompletion(RunResult, Notification, IdleParameters);
-	
-	// Outputs the status of getting ID.
-	VisibilityParameters = New Structure("Status, ResultAddress", GetIDJobState, JobResultAddress);
-	SetItemsVisibility(VisibilityParameters);
 EndProcedure
 
 &AtClient
@@ -126,16 +124,8 @@ EndProcedure
 &AtServerNoContext
 Function JobCompleted(JobID)
 	ExecutionResult = "Running";
-	Try
-		JobCompleted = TimeConsumingOperations.JobCompleted(JobID);
-		If JobCompleted Then 
-			ExecutionResult = "Completed2";
-		Else
-			ExecutionResult = "Running";
-		EndIf;
-	Except
-		ExecutionResult = "Error";
-	EndTry;
+	JobCompleted = TimeConsumingOperations.JobCompleted(JobID, True); 
+	ExecutionResult = JobCompleted.Status;
 	Return ExecutionResult;
 EndFunction
 
@@ -165,16 +155,11 @@ Procedure SetItemsVisibility(VisibilityParameters)
 		Items.IDGroup.CurrentPage = Items.IDPage;
 		UpdateParameters();
 	ElsIf VisibilityParameters.Status = "Completed2" And Not ExecutionResult.Success Or VisibilityParameters.Status = "Error" Then
-		If VisibilityParameters.Status = "Error" Then
-			Explanation = NStr("en = 'An unexpected error occurred.';");
-		Else
-			Explanation = ExecutionResult.BriefErrorDescription;
+		If TypeOf(VisibilityParameters.ErrorInfo) = Type("ErrorInfo") Then
+			StandardSubsystemsClient.OutputErrorInfo(VisibilityParameters.ErrorInfo);
 		EndIf;
-		TitleTemplate1 = NStr("en = 'Cannot receive ID. %1 For more information, see the event log';");
-		Items.ProgressDetails.Title = StringFunctionsClientServer.SubstituteParametersToString(TitleTemplate1, Explanation);		
-		Items.ProgressDetails.Visible = True;
-		Items.Progress.Picture = PictureLib.Warning;
-		Items.Progress.Visible = True;
+		Items.ProgressDetails.Visible = False;
+		Items.Progress.Visible = False;
 		Items.IDGroup.Visible = True;
 		Items.IDGroup.CurrentPage = Items.GetIDPage;
 	EndIf;

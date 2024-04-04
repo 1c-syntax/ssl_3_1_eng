@@ -13,30 +13,60 @@
 			<Button name="FormRefresh" id="232">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.Refresh</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Refresh</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormRefreshExtendedTooltip" id="233"/>
 			</Button>
 			<Button name="FormShowVersionComponentsExtraCryptoAPI" id="424">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.ShowVersionComponentsExtraCryptoAPI</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Show ExtraCryptoAPI add-in version</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormShowVersionComponentsExtraCryptoAPIExtendedTooltip" id="425"/>
 			</Button>
 			<Button name="FormSetComponentExtraCryptoAPI" id="430">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.SetComponentExtraCryptoAPI</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Install ExtraCryptoAPI add-in</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormSetComponentExtraCryptoAPIExtendedTooltip" id="431"/>
 			</Button>
 			<Button name="FormInstallExtension" id="450">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.InstallExtension</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Install cryptography extension</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormInstallExtensionExtendedTooltip" id="451"/>
 			</Button>
 			<Button name="FormTechnicalInformation" id="432">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.TechnicalInformation</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Technical information</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormTechnicalInformationExtendedTooltip" id="433"/>
 			</Button>
@@ -86,6 +116,12 @@
 							<ChildItems>
 								<InputField name="CertificatesShow" id="290">
 									<DataPath>CertificatesShow</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Show</v8:content>
+										</v8:item>
+									</Title>
 									<Width>30</Width>
 									<AutoMaxWidth>false</AutoMaxWidth>
 									<HorizontalStretch>false</HorizontalStretch>
@@ -140,6 +176,12 @@
 								</InputField>
 								<CheckBoxField name="CertificatesOnlyValid" id="421">
 									<DataPath>CertificatesOnlyValid</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Only valid certificates</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>Right</TitleLocation>
 									<ToolTip>
 										<v8:item>
@@ -172,6 +214,12 @@
 								</InputField>
 								<InputField name="CertificatesShowRequests" id="334">
 									<DataPath>CertificatesShowRequests</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Application status</v8:content>
+										</v8:item>
+									</Title>
 									<HorizontalStretch>false</HorizontalStretch>
 									<ListChoiceMode>true</ListChoiceMode>
 									<ContextMenu name="CertificatesShowRequestsContextMenu" id="335"/>
@@ -220,6 +268,12 @@
 										<Button name="AddToSignAndEncrypt" id="348">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.AddToSignAndEncrypt</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>To sign and encrypt…</v8:content>
+												</v8:item>
+											</Title>
 											<ToolTipRepresentation>Balloon</ToolTipRepresentation>
 											<ExtendedTooltip name="AddToSignAndEncryptExtendedTooltip" id="349"/>
 										</Button>
@@ -235,16 +289,34 @@
 												<Button name="AddToEncryptOnly" id="457">
 													<Type>CommandBarButton</Type>
 													<CommandName>Form.Command.AddToEncryptOnly</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Only to encrypt from Personal store…</v8:content>
+														</v8:item>
+													</Title>
 													<ExtendedTooltip name="AddToEncryptOnlyExtendedTooltip" id="458"/>
 												</Button>
 												<Button name="AddFromFiles" id="459">
 													<Type>CommandBarButton</Type>
 													<CommandName>Form.Command.AddFromFiles</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Only to encrypt from files…</v8:content>
+														</v8:item>
+													</Title>
 													<ExtendedTooltip name="AddFromFilesExtendedTooltip" id="460"/>
 												</Button>
 												<Button name="AddFromDirectory" id="461">
 													<Type>CommandBarButton</Type>
 													<CommandName>Form.Command.AddFromDirectory</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Only to encrypt from directory…</v8:content>
+														</v8:item>
+													</Title>
 													<ExtendedTooltip name="AddFromDirectoryExtendedTooltip" id="462"/>
 												</Button>
 											</ChildItems>
@@ -260,6 +332,12 @@
 								<Button name="AddCertificateIssueRequest" id="346">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.AddCertificateIssueRequest</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Submit application…</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="AddCertificateIssueRequestExtendedTooltip" id="347"/>
 								</Button>
 								<Button name="ReissueCertificate" id="353">
@@ -478,6 +556,12 @@
 							<Type>Hyperlink</Type>
 							<Visible>false</Visible>
 							<CommandName>Form.Command.OpenMachineReadableLettersOfAuthority</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Machine-readable letters of authority</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="OpenMachineReadableLettersOfAuthorityExtendedTooltip" id="477"/>
 						</Button>
 						<UsualGroup name="LegendGroup" id="379">
@@ -711,7 +795,7 @@
 									<Title formatted="true">
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>&lt;link CheckCryptographyAppsInstallation&gt;Click here&lt;/&gt; to see all applications for digital signatures installed on the computer.</v8:content>
+											<v8:content>&lt;link CheckCryptographyAppsInstallation&gt;Click here&lt;/&gt; to view all installed digital signing apps.</v8:content>
 										</v8:item>
 									</Title>
 									<ContextMenu name="DecorationCheckCryptoProviderInstallationContextMenu" id="448"/>
@@ -744,12 +828,24 @@
 								<Button name="ApplicationsMarkForDeletion" id="276">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.ApplicationsMarkForDeletion</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Toggle deletion mark</v8:content>
+										</v8:item>
+									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="ApplicationsMarkForDeletionExtendedTooltip" id="277"/>
 								</Button>
 								<Button name="ApplicationsRefresh" id="230">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.Refresh</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Refresh</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="ApplicationsRefreshExtendedTooltip" id="231"/>
 								</Button>
 								<Button name="ApplicationsOutputList" id="255">
@@ -791,7 +887,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Application pages and update</v8:content>
+									<v8:content>App page and update</v8:content>
 								</v8:item>
 							</Title>
 							<PagesRepresentation>None</PagesRepresentation>
@@ -801,7 +897,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Application page list</v8:content>
+											<v8:content>App page</v8:content>
 										</v8:item>
 									</Title>
 									<ExtendedTooltip name="ApplicationsListPageExtendedTooltip" id="323"/>
@@ -842,11 +938,23 @@
 													<Button name="ApplicationsContextMenuApplicationsMarkForDeletion" id="278">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.ApplicationsMarkForDeletion</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Toggle deletion mark</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="ApplicationsContextMenuApplicationsMarkForDeletionExtendedTooltip" id="279"/>
 													</Button>
 													<Button name="ApplicationsContextMenuRefresh" id="247">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.Refresh</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Refresh</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="ApplicationsContextMenuRefreshExtendedTooltip" id="248"/>
 													</Button>
 													<Button name="ApplicationsContextMenuOutputList" id="249">
@@ -918,6 +1026,12 @@
 												</InputField>
 												<PictureField name="ProgramsPictureUsageMode" id="452">
 													<DataPath>Programs.PictureUsageMode</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Usage mode picture</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>None</TitleLocation>
 													<HeaderPicture>
 														<xr:Ref>StdPicture.Change</xr:Ref>
@@ -980,6 +1094,12 @@
 												<InputField name="ApplicationsDetails" id="358">
 													<DataPath>Programs.MoreDetails</DataPath>
 													<ReadOnly>true</ReadOnly>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Details</v8:content>
+														</v8:item>
+													</Title>
 													<EditMode>EnterOnInput</EditMode>
 													<CellHyperlink>true</CellHyperlink>
 													<AutoCellHeight>true</AutoCellHeight>
@@ -996,7 +1116,7 @@
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Path to the application</v8:content>
+													<v8:content>App path</v8:content>
 												</v8:item>
 											</Title>
 											<Group>Vertical</Group>
@@ -1010,14 +1130,14 @@
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Path to the application on a client computer running Linux OS or macOS</v8:content>
+															<v8:content>Path to the application on a computer running Linux OS or macOS</v8:content>
 														</v8:item>
 													</Title>
 													<TitleLocation>None</TitleLocation>
 													<ToolTip>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Path to the application required on client computers running Linux OS or macOS</v8:content>
+															<v8:content>Path to the application required on computers running Linux OS or macOS</v8:content>
 														</v8:item>
 													</ToolTip>
 													<ToolTipRepresentation>Button</ToolTipRepresentation>
@@ -1042,7 +1162,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Application page update</v8:content>
+											<v8:content>App page update</v8:content>
 										</v8:item>
 									</Title>
 									<ExtendedTooltip name="ApplicationsRefreshPageExtendedTooltip" id="325"/>
@@ -1052,7 +1172,7 @@
 											<Title formatted="false">
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Looking through installed applications. Please wait…</v8:content>
+													<v8:content>Determining installed applications. Please wait…</v8:content>
 												</v8:item>
 											</Title>
 											<ContextMenu name="ApplicationsRefreshingContextMenu" id="327"/>
@@ -1106,6 +1226,12 @@
 					<ChildItems>
 						<InputField name="EncryptedFilesExtension" id="9">
 							<DataPath>EncryptedFilesExtension</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Encrypted file extension</v8:content>
+								</v8:item>
+							</Title>
 							<Width>10</Width>
 							<HorizontalStretch>false</HorizontalStretch>
 							<ContextMenu name="EncryptedFilesExtensionContextMenu" id="10"/>
@@ -1116,6 +1242,12 @@
 						</InputField>
 						<InputField name="SignatureFilesExtension" id="13">
 							<DataPath>SignatureFilesExtension</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Signature file extension</v8:content>
+								</v8:item>
+							</Title>
 							<Width>10</Width>
 							<HorizontalStretch>false</HorizontalStretch>
 							<ContextMenu name="SignatureFilesExtensionContextMenu" id="14"/>
@@ -1411,7 +1543,7 @@ WHERE
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Linux path to application</v8:content>
+							<v8:content>App path on Linux</v8:content>
 						</v8:item>
 					</Title>
 					<Type>
@@ -1765,7 +1897,7 @@ WHERE
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Update settings and applications list with their check results</v8:content>
+					<v8:content>Update settings and app list with their check results</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>

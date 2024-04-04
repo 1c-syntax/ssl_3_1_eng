@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -18,22 +19,22 @@
 //  UUID  - UUID - a form ID required to place attachments into a
 //                                             temporary storage upon a client/server call. If a call
 //                                            occurs only on the server, any ID can be used.
-//  AdditionalParameters  - Structure - 
-//                                         :
-//      * DCSParametersValues - Structure - 
-//                                            
+//  AdditionalParameters  - Structure - A list of additional parameters to be passed to the "Message" parameter
+//                                         in "OnCreateMessage" procedures upon creating an email message.:
+//      * DCSParametersValues - Structure - Values of the DCS parameters, the set of attributes and their values
+//                                            for the template being generated are determined by the DCS mechanisms.
 //      * ConvertHTMLForFormattedDocument - Boolean - optional, False by default, determines
 //                      whether it is necessary to convert an HTML message text that contains pictures in an email text because of
 //                      picture output features in the formatted document.
 // 
 // Returns:
-//  Structure - :
+//  Structure - Message created from a template.:
 //    * Subject - String - an email subject.
 //    * Text - String - an email text.
-//    * Recipient - ValueList - 
-//                                    
-//                 - Array of See NewEmailRecipients -  
-//                   
+//    * Recipient - ValueList - Message recipients. The value contains the email address,
+//                                    the presentation contains the recipient name.
+//                 - Array of See NewEmailRecipients - If the property "ExtendedRecipientsList" of the procedure 
+//                   "OnDefineSettings.MessageTemplatesOverridable" is set to "True".
 //    * AdditionalParameters - Structure - message template parameters.
 //    * Attachments - ValueTable:
 //       ** Presentation - String - an attachment file name.
@@ -80,13 +81,13 @@ EndFunction
 //                      whether it is necessary to convert an HTML message text that contains pictures in an email text because of
 //                      picture output features in the formatted document.
 //   * Account - Undefined
-//                 - CatalogRef.EmailAccounts - 
+//                 - CatalogRef.EmailAccounts - Recipient's email address.
 //                       
 //   * SendImmediately - Boolean - if False, the email message will be placed in the Outbox folder 
 //                                  and sent with other email messages. When sending via Interaction only.
 //                                  Default value: False.
-//   * DCSParametersValues - Structure - 
-//                                         
+//   * DCSParametersValues - Structure - Values of the DCS parameters, the set of attributes and their values
+//                                         for the template being generated are determined by the DCS mechanisms.
 //
 Function ParametersForSendingAMessageUsingATemplate() Export
 
@@ -100,7 +101,7 @@ Function ParametersForSendingAMessageUsingATemplate() Export
 	Return AdditionalParameters;
 
 EndFunction
-//
+
 // Fills in a list of message template attributes based on a DCS template.
 //
 // 	Parameters:
@@ -108,8 +109,9 @@ EndFunction
 //    Template      - DataCompositionSchema - a DCS template.
 //
 Procedure GenerateAttributesListByDCS(Attributes, Template) Export
+	
 	MessageTemplatesInternal.AttributesByDCS(Attributes, Template);
-
+	
 EndProcedure
 
 // Fills in a list of message template attributes based on a DCS template.
@@ -176,8 +178,8 @@ Function CreateTemplate(Description, TemplateParameters) Export
 					Try
 						ModuleFilesOperations.AppendFile(FileAddingOptions, Attachment.Value);
 					Except
-						
-						
+						// 
+						// 
 						ErrorInfo = ErrorInfo();
 						WriteLogEvent(EventLogEventName, EventLogLevel.Error,,,
 							ErrorProcessing.DetailErrorDescription(ErrorInfo));
@@ -219,20 +221,19 @@ EndFunction
 //                                For email templates only.
 //   * TransliterateFileNames - Boolean - names of print forms and files attached to an email will contain 
 //                                             only Latin letters and digits. This ensures compatibility between
-//                                             different operating systems. For example, the "Счет на оплату.pdf" file will be
 //                                             saved as "Schet na oplatu.pdf". For email templates only.
 //   * AttachmentsFormats - ValueList - a list of attachment formats. For email templates only.
 //   * Attachments - Map of KeyAndValue:
-//      ** Key - String - 
-//                         
-//      ** Value - String - 
-//   * PrintCommands - Array of String - 
+//      ** Key - String - Full filename. For example, "image.png". The description is the filename without the extension.
+//                         Or an image id in the HTML message (without a cid).
+//      ** Value - String - Address in a temporary storage that points to binary data.
+//   * PrintCommands - Array of String - Print form UUIDs.
 //   * TemplateOwner - DefinedType.MessageTemplateOwner - a context template owner.
 //   * TemplateByExternalDataProcessor - Boolean - if True, a template is generated by an external data processor.
 //   * ExternalDataProcessor - CatalogRef.AdditionalReportsAndDataProcessors - external data processor the template belongs to.
 //   * SignatureAndSeal   - Boolean - adds the facsimile signature and seal to the print form. For email
 //                                 templates only.
-//   * AddAttachedFiles - Boolean -  
+//   * AddAttachedFiles - Boolean - If set to "True", the owner's attachments will be added to the message attachments. 
 //                                              
 //
 Function TemplateParametersDetails() Export
@@ -267,7 +268,7 @@ EndProcedure
 //                                     phone numbers.
 //  ContactInformationType - EnumRef.ContactInformationTypes - if the type is Address, adds postal
 //                                                                          addresses. If the type is Phone, adds phone numbers.
-//  SendingOption - String - 
+//  SendingOption - String - Messaging options: "Whom" (To), "Copy" (CC), "HiddenCopy" (BCC), and "ReplyTo".
 //
 Procedure FillRecipients(EmailRecipients, MessageSubject, AttributeName,
 	ContactInformationType = Undefined, SendingOption = "Whom") Export
@@ -321,10 +322,10 @@ Procedure FillRecipients(EmailRecipients, MessageSubject, AttributeName,
 
 EndProcedure
 
-// 
+// Toggles the ability to create messages from templates.
 //
 // Parameters:
-//   Value - Boolean - 
+//   Value - Boolean - If returns "True", the "Message templates" mechanism is available.
 //
 Procedure SetUsageOfMessagesTemplates(Value) Export
 
@@ -332,10 +333,10 @@ Procedure SetUsageOfMessagesTemplates(Value) Export
 
 EndProcedure
 
-// 
+// Checks if "Message templates" mechanism is available.
 //
 // Returns:
-//   Boolean - 
+//   Boolean - If returns "True", the "Message templates" mechanism is available.
 //
 Function MessageTemplatesUsed() Export
 
@@ -393,7 +394,7 @@ EndProcedure
 //
 Function InitializeRecipientsStructure() Export
 
-	Return New Structure("Recipient", New Array);
+	Return MessageTemplatesClientServer.InitializeRecipientsStructure();
 
 EndFunction
 
@@ -404,14 +405,7 @@ EndFunction
 //
 Function InitializeMessageStructure() Export
 
-	MessageStructure = New Structure;
-	MessageStructure.Insert("SMSMessageText", "");
-	MessageStructure.Insert("EmailSubject", "");
-	MessageStructure.Insert("EmailText", "");
-	MessageStructure.Insert("AttachmentsStructure", New Structure);
-	MessageStructure.Insert("HTMLEmailText", "<HTML></HTML>");
-
-	Return MessageStructure;
+	Return MessageTemplatesClientServer.InitializeMessageStructure();
 
 EndFunction
 
@@ -594,8 +588,8 @@ EndFunction
 
 // Returns:
 //  Structure:
-//    * Address - String - 
-//    * Presentation - String - 
+//    * Address - String - Recipient's email address.
+//    * Presentation - String - Recipient presentation.
 //    * ContactInformationSource - DefinedType.MessageTemplateSubject - a contact information owner.
 //                                   - Undefined
 //

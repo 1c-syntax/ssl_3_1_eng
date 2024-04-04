@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -116,7 +117,6 @@ EndFunction
 //    * GetErrorStream - Boolean - False - errors are passed to stderr stream.
 //         Ignored if WaitForCompletion is not specified.
 //    * ThreadsEncoding - TextEncoding
-//                       - String - an encoding used to read stdout и stderr.
 //         "CP866" is default for Windows and "UTF-8" is default for others.
 //    * ExecutionEncoding - String
 //                          - Number - an encoding set in Windows using the chcp command,
@@ -139,16 +139,16 @@ Function ApplicationStartupParameters() Export
 	
 EndFunction
 
-//  
-// 
-// 
+// Starts up an external application for execution (for example, * .exe, * bat), 
+// or a system command (for example, ping, tracert or traceroute, access the rac client),
+// It also allows you to get a return code and the values ​​of output streams (stdout) and errors (stderr)
 //
-//  
-// 
-//  
-//   
-// 
-//    
+// When an external program is started up in batch mode, the output stream and error stream may return in an unexpected language. 
+// To pass to the external application the language in which the expected result must be, you need to:
+// - Specify the language in the startup parameter of this application (if such a parameter is provided). 
+//   For example, batch mode of 1C:Enterprise has the "/L en" key;
+// - In other cases, explicitly set the encoding for the batch command execution.
+//   See the ExecutionEncoding property of return value FileSystem.ApplicationStartupParameters. 
 //
 // Parameters:
 //  StartupCommand - String - application startup command line.
@@ -285,23 +285,23 @@ EndFunction
 
 #EndRegion
 
-// 
+// Returns the path to the shared network directory containing temporary files.
 //
-//  
-//  
-//  
-// 
-// 
-//  
-// 
-// 
-// 
+// For the proper functioning in the client/server mode, place temporary files 
+// to a shared network directory that any server in the cluster have access to. 
+// This will ensure fault tolerance in cases when a temporary file is used by multiple servers. 
+// For example, when a file is processed by multiple parallel background jobs.
+// The path to the directory is specified in "Administration > General settings".
+// If no path is provided or this is a file infobase, 1C:Enterprise will create a directory 
+// in the user's temporary directory.
+// In this case, the user should delete the temporary files manually to prevent
+// the disk space from being flooded with temporary files.
 //
 // Parameters:
-//  NestedDirectory - String - 
+//  NestedDirectory - String - If it is passed, the function creates a subdirectory in the shared network directory.
 // 
 // Returns:
-//  String - 
+//  String - Path to the temporary file directory.
 //
 Function SharedDirectoryOfTemporaryFiles(NestedDirectory = Undefined) Export
 	
@@ -374,7 +374,7 @@ Procedure DeleteTempFiles(Val Path)
 	Except
 		WriteLogEvent(
 			NStr("en = 'Standard subsystems';", Common.DefaultLanguageCode()),
-			EventLogLevel.Warning,,, 
+			EventLogLevel.Warning,,, // ACC:154 - A warning (not an error).
 			StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot delete temporary file %1. Reason:
 					|%2';"),
@@ -386,8 +386,8 @@ EndProcedure
 
 Function IsTempFileName(Path)
 	
-	
-	
+	// 
+	// 
 	Return StrStartsWith(StrReplace(Path, "/", "\"), StrReplace(TempFilesDir(), "/", "\"));
 	
 EndFunction
@@ -402,8 +402,7 @@ Procedure CheckCurrentDirectory(CommandString, CurrentDirectory)
 		
 		If Not FileInfo3.Exists() Then 
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot start the application
-				           |%1.
+				NStr("en = 'Couldn''t start %1.
 				           |Reason:
 				           |The catalog %2 does not exist
 				           |%3';"),
@@ -412,8 +411,7 @@ Procedure CheckCurrentDirectory(CommandString, CurrentDirectory)
 		
 		If Not FileInfo3.IsDirectory() Then 
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot start the application
-				           |%1.
+				NStr("en = 'Couldn''t start %1.
 				           |Reason:
 				           |%2 is not a directory:
 				           |%3';"),

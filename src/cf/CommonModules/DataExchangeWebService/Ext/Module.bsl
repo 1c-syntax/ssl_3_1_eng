@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -18,7 +19,7 @@
 //  FileID      - UUID - file ID.
 //  TimeConsumingOperation      - Boolean - indicates that long-running operation is used.
 //  OperationID   - UUID - an UUID of the long-running operation.
-//  AuthenticationParameters - Structure - contains web service authentication parameters (User, Password).
+//  AuthenticationParameters - Structure - Web service authentication parameters (User, Password).
 //
 //  Returns:
 //   Structure with the following keys:
@@ -537,13 +538,13 @@ EndProcedure
 //
 // Parameters:
 //  FileID       - UUID - an ID of the file being received.
-//  InfobaseNode   - ExchangePlanRef - 
+//  InfobaseNode   - ExchangePlanRef - The exchange plan node that should receive the file.
 //  PartSize              - Number - part size in kilobytes. If the passed value is 0,
 //                             the file is not split into parts.
-//  AuthenticationParameters  - 
+//  AuthenticationParameters  - A structure: "ServiceAddress", "UserName", "UserPassword".
 //
 // Returns:
-//  String - 
+//  String - The path to the received file.
 //
 Function GetFileFromStorageInService(Val FileID, Val InfobaseNode,
 	Val PartSize = 1024, Val AuthenticationParameters = Undefined) Export
@@ -638,7 +639,7 @@ Function GetFileFromStorageInService(Val FileID, Val InfobaseNode,
 	
 	File = New File(FileName);
 	
-	TempDirectory = GetTempFileName();
+	TempDirectory = GetTempFileName(); //ACC:441 - The directory is deleted when the peer infobase receives the exchange data
 	CreateDirectory(TempDirectory);
 	
 	ResultFileName = CommonClientServer.GetFullFileName(TempDirectory, File.Name);
@@ -659,16 +660,16 @@ EndFunction
 //
 // Parameters:
 //  Proxy
-//  ProxyVersion             - String - 
+//  ProxyVersion             - String - The web service version
 //  ExchangeSettingsStructure  - Structure - a structure with all necessary data and objects to execute exchange.
-//  FileName                 - String - 
-//  InfobaseNode   - ExchangePlanRef -  
+//  FileName                 - String - The path to the file.
+//  InfobaseNode   - ExchangePlanRef - The exchange plan node that should receive the file. 
 //  PartSizeKB            - Number - part size in kilobytes. If the passed value is 0,
 //                             the file is not split into parts.
-//  FileID       - UUID - 
+//  FileID       - UUID - The id of the file being uploaded to the service.
 //
 // Returns:
-//  UUID  - 
+//  UUID  - The id of the file in the file transfer service.
 //
 Function PutFileInStorageInService(Proxy, ProxyVersion, ExchangeSettingsStructure, Val FileName, 
 	Val InfobaseNode, Val PartSizeKB = 1024, FileID = Undefined) Export
@@ -722,7 +723,7 @@ EndFunction
 //
 // Parameters:
 //   Proxy - WSProxy - a WS proxy to pass managing commands.
-//   SettingsStructure - Structure - :
+//   SettingsStructure - Structure - A structure of parameters used to connect the peer infobase and identify exchange settings:
 //     * ExchangePlanName - String - name of the exchange plan used during synchronization.
 //     * InfobaseNode - ExchangePlanRef - an exchange plan node matching the correspondent.
 //     * EventLogMessageKey - String - name of an event to write errors to the event log.
@@ -731,12 +732,12 @@ EndFunction
 //     * ActionOnExchange - EnumRef.ActionsOnExchange - indicates the exchange direction.
 //   ProxyParameters - Structure:
 //     * AuthenticationParameters - String
-//                               - Structure - 
+//                               - Structure - The password for authentication on the web-server.
 //     * AuthenticationSettingsStructure - Structure - contains a setting structure for authentication on the web-server.
 //     * MinVersion - String - number of the earliest version of the DataExchange interface required to perform actions.
 //     * CurrentVersion - String - an outgoing one, the actual interface version of the initialized WS proxy.
 //   Cancel - Boolean - indicates a failed WS proxy initialization.
-//   SetupStatus - Structure - :
+//   SetupStatus - Structure - An output parameter. Returns the status of the sync setting described in "SettingsStructure".:
 //     * SettingExists - Boolean - True if a setting with the specified exchange plan and node ID exists.
 //     * DataSynchronizationSetupCompleted - Boolean - True, if synchronization setup is successfully completed.
 //     * DataMappingSupported - Boolean - True if a correspondent supports data mapping.
@@ -877,7 +878,7 @@ Function WSProxyForInfobaseNode(InfobaseNode, ErrorMessageString = "", Additiona
 	ElsIf AvailableVersions.Get("3.0.1.1") = True Then
 		CurrentVersion = "3.0.1.1";
 	ElsIf AvailableVersions.Get("2.1.1.7") = True Then
-		CurrentVersion = "2.1.1.7";
+		CurrentVersion = "2.0.1.6";
 	ElsIf AvailableVersions.Get("2.0.1.6") = True Then
 		CurrentVersion = "2.0.1.6";
 	ElsIf AvailableVersions.Get("0.0.0.0") = True Then
@@ -1062,7 +1063,7 @@ Procedure ImportFromFileTransferServiceForInfobaseNode(ProcedureParameters, Stor
 	DeleteFiles(TempFileName);
 EndProcedure
 
-// 
+// An analog of the "UploadData" operation
 Procedure RunDataExport(Proxy, ProxyVersion, ExchangeSettingsStructure, ExchangeParameters) Export
 	
 	If Version3_0_2_1(ProxyVersion) Then
@@ -1090,7 +1091,7 @@ Procedure RunDataExport(Proxy, ProxyVersion, ExchangeSettingsStructure, Exchange
 
 EndProcedure
 
-// Matches the DownloadData web service operation.
+// An analog of the "DownloadData" operation
 Procedure RunDataImport(Proxy, ProxyVersion, ExchangeSettingsStructure, ExchangeParameters, FileIDAsString) Export
 	
 	If Version3_0_2_1(ProxyVersion) Then
@@ -1118,7 +1119,7 @@ Procedure RunDataImport(Proxy, ProxyVersion, ExchangeSettingsStructure, Exchange
 
 EndProcedure
 
-// Matches the GetIBParameters web service operation.
+// An analog of the "GetIBParameters" operation
 Function GetParametersOfInfobase(Proxy, ProxyVersion, ExchangePlanName, NodeCode, ErrorMessage,
 	DataArea, AdditionalParameters = Undefined) Export
 	
@@ -1144,7 +1145,7 @@ Function GetParametersOfInfobase(Proxy, ProxyVersion, ExchangePlanName, NodeCode
 	
 EndFunction 
 
-// 
+// An analog of the "GetContinuousOperationStatus" operation
 Function GetLongRunningOperationStatus(Proxy, ProxyVersion, ExchangeSettingsStructure, ExchangeParameters, ErrorMessageString) Export
 	
 	If Version3_0_2_1(ProxyVersion) Then
@@ -1161,7 +1162,7 @@ Function GetLongRunningOperationStatus(Proxy, ProxyVersion, ExchangeSettingsStru
 	
 EndFunction
 
-// 
+// An analog of the "PutMessageForDataMatching" operation
 Procedure PutMessageForDataMapping(Proxy, ProxyVersion, ExchangeSettingsStructure, FileIDAsString) Export
 	
 	If Version3_0_2_1(ProxyVersion) Then
@@ -1182,7 +1183,7 @@ Procedure PutMessageForDataMapping(Proxy, ProxyVersion, ExchangeSettingsStructur
 	
 EndProcedure
 
-// 
+// An analog of the "RemoveExchangeNode" operation
 Procedure DeleteExchangeNode(Proxy, ProxyVersion, ExchangeSettingsStructure) Export
 	
 	If Version3_0_2_1(ProxyVersion) Then
@@ -1199,7 +1200,7 @@ Procedure DeleteExchangeNode(Proxy, ProxyVersion, ExchangeSettingsStructure) Exp
 	
 EndProcedure
 
-// 
+// An analog of the "CreateExchangeNode" operation
 Procedure CreateExchangeNode(Proxy, ProxyVersion, ConnectionParameters, DataArea) Export
 	
 	Serializer = New XDTOSerializer(Proxy.XDTOFactory);
@@ -1315,7 +1316,7 @@ Function Version3_0_2_2(ProxyVersion)
 EndFunction
 
 
-// 
+// An analog of the "PrepareGetFile" operation
 Function PrepareFileForObtaining(Proxy, ProxyVersion, ExchangeSettingsStructure,
 	FileID, PartSize, SessionID, PartCount)
 	
@@ -1335,7 +1336,7 @@ Function PrepareFileForObtaining(Proxy, ProxyVersion, ExchangeSettingsStructure,
 	
 EndFunction
 
-// 
+// An analog of the "GetFilePart" operation
 Procedure GetFileChunk(Proxy, ProxyVersion, ExchangeSettingsStructure, SessionID, PartNumber, PartData)
 	
 	If Version3_0_2_1(ProxyVersion) Then
@@ -1352,7 +1353,7 @@ Procedure GetFileChunk(Proxy, ProxyVersion, ExchangeSettingsStructure, SessionID
 	
 EndProcedure
 
-// 
+// An analog of the "PutFilePart" operation
 Procedure PutFileChunk(Proxy, ProxyVersion, ExchangeSettingsStructure, SessionID, PartNumber, FileData)
 	
 	If Version3_0_2_1(ProxyVersion) Then
@@ -1368,7 +1369,7 @@ Procedure PutFileChunk(Proxy, ProxyVersion, ExchangeSettingsStructure, SessionID
 	
 EndProcedure
 
-// 
+// An analog of the "SaveFileFromParts" operation
 Procedure AssembleFileFromParts(Proxy, ProxyVersion, ExchangeSettingsStructure, SessionID, PartCount, FileID)
 	
 	If Version3_0_2_1(ProxyVersion) Then
@@ -1383,7 +1384,7 @@ Procedure AssembleFileFromParts(Proxy, ProxyVersion, ExchangeSettingsStructure, 
 	
 EndProcedure
 
-// Matches the TestConnection web service operation
+// An analog of the "TestConnection" operation
 Function ConnectionTesting(Proxy, ProxyVersion, ExchangeSettingsStructure, ErrorMessage)
 	
 	If Version3_0_2_1(ProxyVersion) Then
@@ -1550,8 +1551,8 @@ Function ObsoleteExchangeSettingsOptionInCorrespondent(Proxy, ProxyParameters, S
 					SettingsStructure.CurrentExchangePlanNodeCode1 = NodeCode;
 				EndIf;
 			Else
-				
-				
+				// 
+				// 
 				ErrorMessageString = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Synchronization settings are being updated in ""%1"" application.
 					|The data import is canceled. Restart the data synchronization later.';"),

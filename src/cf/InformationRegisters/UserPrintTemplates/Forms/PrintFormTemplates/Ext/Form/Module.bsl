@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -32,9 +33,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	HasUpdateRight = AccessRight("Update", Metadata.InformationRegisters.UserPrintTemplates);
 	If Not HasUpdateRight Then
-		MessageText = NStr("en = 'Insufficient rights to edit templates.';");
 		StandardProcessing = False;
-		Raise MessageText;
+		MessageText = NStr("en = 'Insufficient rights to edit templates.';");
+		Raise(MessageText, ErrorCategory.AccessViolation);
 	EndIf;
 	
 	ThereAreAdditionalLanguagesAvailable = False;
@@ -463,7 +464,7 @@ EndProcedure
 
 #EndRegion
 
-
+// 
 
 &AtClient
 Procedure OpenPrintFormTemplate()
@@ -567,7 +568,7 @@ Procedure OpenPrintFormTemplateForEditingFollowUp(SwitchUsages, CurrentData) Exp
 	
 EndProcedure
 
-
+// 
 
 &AtServerNoContext
 Function TemplateVersion(Id, TemplateType)
@@ -704,7 +705,7 @@ Function AssignUniqueDescription(TemplateDescr, ThisIsCopying = True)
 	NewDescription = TemplateDescr;
 	EndOfCopy = "";
 	Counter = 1;
-	TreeOfTemplates = FormDataToValue(Templates, Type("ValueTree"));
+	TreeOfTemplates = FormAttributeToValue("Templates");
 	While TreeOfTemplates.Rows.Find(NewDescription + EndOfCopy, "Presentation", True) <> Undefined Do
 		If ThisIsCopying Then
 			EndOfCopy = " - " + NStr("en = 'copy';");
@@ -1067,7 +1068,7 @@ Procedure OutputCollection(Val Branch1, Val MetadataObjectCollection)
 			NewBranch.IsSubsection = MetadataObjectCollection <> Metadata.Subsystems;
 		Else
 			NewBranch.Owner = Common.MetadataObjectID(NewBranch.Id, False);
-			NewBranch.AvailableCreate = Not Common.IsDocumentJournal(MetadataObject);
+			NewBranch.AvailableCreate = Common.IsRefTypeObject(MetadataObject);
 			NewBranch.GetItems().Add();
 		EndIf;
 		
@@ -1436,10 +1437,10 @@ Procedure UploadListOfTemplates()
 	Items.IsSearchRunning.Visible = True;
 	
 	TimeConsumingOperation = StartExecutionAtServer();
-	CompletionNotification2 = New NotifyDescription("ProcessResult", ThisObject);
+	CallbackOnCompletion = New NotifyDescription("ProcessResult", ThisObject);
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
-	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CompletionNotification2, IdleParameters);
+	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
 	
 EndProcedure
 
@@ -1452,6 +1453,10 @@ Function StartExecutionAtServer()
 	
 EndFunction
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
 Procedure ProcessResult(Result, AdditionalParameters) Export
 	
@@ -1459,6 +1464,12 @@ Procedure ProcessResult(Result, AdditionalParameters) Export
 	Items.IsSearchRunning.Visible = False;
 	
 	If Result = Undefined Then
+		Return;
+	EndIf;
+	
+	If Result.Status = "Error" Then
+		StandardSubsystemsClient.OutputErrorInfo(
+			Result.ErrorInfo);
 		Return;
 	EndIf;
 	

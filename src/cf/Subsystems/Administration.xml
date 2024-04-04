@@ -56,7 +56,6 @@
 				<xr:Item xsi:type="xr:MDObjectRef">DataProcessor.IBBackupSetup</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.AdministrationSection48</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Catalog.ReportMailings</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">Report.EventLogAnalysis</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonCommand.StandaloneModeSaaS</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonCommand.StandaloneMode</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">DataProcessor.InformationOnStart</xr:Item>
@@ -76,7 +75,6 @@
 				<xr:Item xsi:type="xr:MDObjectRef">DataProcessor.ApplicationUpdateResult</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Catalog.KeyOperations</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">DataProcessor.UniversalDataExchangeXML</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">Report.UsersInfo</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonCommand.ReportPanelAdministration</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">DataProcessor.ImportDataFromFile</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonCommand.AdditionalDataProcessorsAdministration</xr:Item>
@@ -94,7 +92,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">CommonCommand.DataSyncWarnings</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonForm.Extensions</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.FilesClearingSettings</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">CommonCommand.CurrentSessionTime</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonCommand.TimeInApp</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonForm.UserAuthorizationSettings</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">DataProcessor.ExportImportEnterpriseData</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Catalog.KeyOperationProfiles</xr:Item>
@@ -108,14 +106,15 @@
 				<xr:Item xsi:type="xr:MDObjectRef">DataProcessor.SetUpStandardODataInterface</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Catalog.AddIns</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Catalog.MessageTemplates</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">Report.AccessRightsAnalysis</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Catalog.SourceDocumentsOriginalsStates</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonForm.PasswordsRecovery</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">Report.RolesRights</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Report.RenewDigitalSignatures</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Report.DeferredUpdateDuration</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonForm.RegistrationSettingsForDataAccessEvents</xr:Item>
 			</Content>
 		</Properties>
-		<ChildObjects/>
+		<ChildObjects>
+			<Subsystem>UserMonitoring</Subsystem>
+		</ChildObjects>
 	</Subsystem>
 </MetaDataObject>

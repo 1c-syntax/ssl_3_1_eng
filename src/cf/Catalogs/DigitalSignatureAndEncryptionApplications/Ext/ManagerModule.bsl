@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -88,7 +89,7 @@ Procedure AddMicrosoftEnhancedCSPSettings(Settings) Export
 	Setting.Presentation       = NStr("en = 'Microsoft Enhanced CSP';");
 	Setting.ApplicationName        = "Microsoft Enhanced Cryptographic Provider v1.0";
 	Setting.ApplicationType        = 1;
-	Setting.SignAlgorithm     = "RSA_SIGN"; 
+	Setting.SignAlgorithm     = "RSA_SIGN"; // 
 	Setting.HashAlgorithm = "MD5";      // Options: SHA-1, MD2, MD4, MD5.
 	Setting.EncryptAlgorithm  = "RC2";      // Options: RC2, RC4, DES, 3DES.
 	Setting.Id       = "MicrosoftEnhanced";
@@ -218,14 +219,14 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
 	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t process (skipped) some digital signature applications: %1';"), 
+			NStr("en = 'Couldn''t process (skipped) some digital signing apps: %1';"), 
 			ObjectsWithIssuesCount);
 		Raise MessageText;
 	Else
 		WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Information,
 			Metadata.Catalogs.DigitalSignatureAndEncryptionApplications,,
 			StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Yet another batch of digital signature applications is processed: %1';"),
+				NStr("en = 'Yet another batch of digital signing apps is processed: %1';"),
 				ObjectsProcessed));
 	EndIf;
 	
@@ -275,21 +276,19 @@ Procedure UpdateAppDataWithDeferral(Application, ObjectsProcessed, ObjectsWithIs
 			
 		EndIf;
 		
+		ObjectsProcessed = ObjectsProcessed + 1;
 		CommitTransaction();
 	Except
 		RollbackTransaction();
 		ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
 		
-		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t update ""%1"". Reason:
-			|%2';"), RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-		
-		WriteLogEvent(InfobaseUpdate.EventLogEvent(),
-			EventLogLevel.Warning, , , MessageText);
+		InfobaseUpdate.WriteErrorToEventLog(
+			Application,
+			RepresentationOfTheReference,
+			ErrorInfo());
 		Return;
 	EndTry;
 	
-	ObjectsProcessed = ObjectsProcessed + 1;
 	InfobaseUpdate.MarkProcessingCompletion(Application);
 	
 EndProcedure
@@ -330,7 +329,7 @@ Procedure FillInitialSettingsDeferred(ObjectsProcessed, ObjectsWithIssuesCount)
 		RollbackTransaction();
 		
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot fill in initial application settings due to:
+			NStr("en = 'Couldn''t perform the initial population of the app settings due to:
 			|%1';"), ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		
 		Raise MessageText;

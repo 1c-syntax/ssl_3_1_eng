@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -105,20 +106,20 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 			Buttons.Add("ContinueWrite",            NStr("en = 'Rename';"));
 			Buttons.Add("ReturnDescription", NStr("en = 'Cancel';"));
 			
+			CancelOnWrite = True;
+			Cancel = True;
+			
 			ShowQueryBox(
 				New NotifyDescription("AfterResponseToDescriptionChangeQuestion", ThisObject, WriteParameters),
 				QueryText, Buttons, , "ReturnDescription");
-			
-			CancelOnWrite = True;
-			Cancel = True;
 			Return;
 		EndIf;
 	EndIf;
 	
 	If Not WriteParameters.Property("WhenDescriptionAlreadyInUse") Then
 	
-		
-		
+		// 
+		// 
 		If CommonClient.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 			QueryText = DescriptionAlreadyUsed(
 				Object.Title, Object.Ref, CurrentPropertiesSet, Object.Description, Object.TitleLanguage1, Object.TitleLanguage2);
@@ -132,12 +133,12 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 			Buttons.Add("ContinueWrite",            NStr("en = 'Save';"));
 			Buttons.Add("BackToDescriptionInput", NStr("en = 'Edit description';"));
 			
+			CancelOnWrite = True;
+			Cancel = True;
+			
 			ShowQueryBox(
 				New NotifyDescription("AfterResponseOnQuestionWhenDescriptionIsAlreadyUsed", ThisObject, WriteParameters),
 				QueryText, Buttons, , "BackToDescriptionInput");
-			
-			CancelOnWrite = True;
-			Cancel = True;
 			Return;
 		EndIf;
 	EndIf;
@@ -153,20 +154,19 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 			Buttons.Add("ContinueWrite",            NStr("en = 'Continue';"));
 			Buttons.Add("BackToNameInput", NStr("en = 'Cancel';"));
 			
+			CancelOnWrite = True;
+			Cancel = True;
 			ShowQueryBox(
 				New NotifyDescription("AfterResponseOnQuestionWhenNameIsAlreadyUsed", ThisObject, WriteParameters),
 				QueryText, Buttons, , "ContinueWrite");
-			
-			CancelOnWrite = True;
-			Cancel = True;
 			Return;
 		EndIf;
 	EndIf;
 	
 	If Not WriteParameters.Property("WhenIDForFormulasIsAlreadyUsed")
 		And ValueIsFilled(Object.IDForFormulas) Then
-		
-		
+		// 
+		// 
 		QueryText = IDForFormulasAlreadyUsed(
 			Object.IDForFormulas, Object.Ref);
 		
@@ -175,12 +175,12 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 			Buttons.Add("ContinueWrite",              NStr("en = 'Continue';"));
 			Buttons.Add("BackToIDInput", NStr("en = 'Cancel';"));
 			
+			CancelOnWrite = True;
+			Cancel = True;
+			
 			ShowQueryBox(
 				New NotifyDescription("AfterResponseOnQuestionWhenIDForFormulasIsAlreadyUsed", ThisObject, WriteParameters),
 				QueryText, Buttons, , "ContinueWrite");
-			
-			CancelOnWrite = True;
-			Cancel = True;
 			Return;
 			
 		Else
@@ -2323,7 +2323,7 @@ Procedure FillActionListOnAddAttribute()
 			|This option is recommended to configure values for similar information records.
 			|You can edit the record description and some other properties.';");
 		If AttributeWithAdditionalValuesList Then
-			CreateByCopying = NStr("en = 'Сopy the information record
+			CreateByCopying = NStr("en = 'Copy the information record
 				|
 				|A copy of the information record and all its values will be created.';")
 		Else
@@ -2395,7 +2395,7 @@ Procedure WriteAdditionalAttributeValuesOnCopyRecursively(Owner, TreeRow, Parent
 		ObjectCopy = TreeItem.Ref.GetObject().Copy();
 		ObjectCopy.Owner = Owner;
 		ObjectCopy.Parent = Parent;
-		ObjectCopy.Write(); 
+		ObjectCopy.Write(); // 
 		
 		SubordinateItems = TreeItem.GetItems();
 		WriteAdditionalAttributeValuesOnCopyRecursively(Owner, SubordinateItems, ObjectCopy.Ref)

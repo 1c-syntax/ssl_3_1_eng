@@ -54,7 +54,13 @@
 							<Button name="ListContextMenuChooseValue" id="8">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.ChooseValue</CommandName>
-								<ExtendedTooltip name="ListContextMenuSelectValueExtendedTooltip" id="17"/>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Select</v8:content>
+									</v8:item>
+								</Title>
+								<ExtendedTooltip name="ListContextMenuChooseValueExtendedTooltip" id="17"/>
 							</Button>
 						</ChildItems>
 					</ButtonGroup>
@@ -81,6 +87,12 @@
 						<Type>CommandBarButton</Type>
 						<DefaultButton>true</DefaultButton>
 						<CommandName>Form.Command.ChooseValue</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Select</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="ListChooseValueExtendedTooltip" id="21"/>
 					</Button>
 				</ChildItems>
@@ -116,6 +128,12 @@
 			<ChildItems>
 				<InputField name="ListPresentation" id="4">
 					<DataPath>List.Presentation</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Presentation</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ContextMenu name="ListPresentationContextMenu" id="5"/>
 					<ExtendedTooltip name="ListPresentationExtendedTooltip" id="23"/>

@@ -26,6 +26,7 @@
 		<Event name="OnOpen">OnOpen</Event>
 		<Event name="BeforeClose">BeforeClose</Event>
 		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
+		<Event name="OnClose">OnClose</Event>
 	</Events>
 	<ChildItems>
 		<Pages name="WizardSteps" id="70">
@@ -286,6 +287,7 @@ Please wait…</v8:content>
 					<ChildItems>
 						<LabelDecoration name="UnsuccessfulReplacementsResult" id="133">
 							<AutoMaxWidth>false</AutoMaxWidth>
+							<HorizontalStretch>true</HorizontalStretch>
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -308,18 +310,48 @@ Please wait…</v8:content>
 									<Type>CommandBarButton</Type>
 									<Representation>PictureAndText</Representation>
 									<CommandName>Form.Command.OpenUnsuccessfulReplacementItem</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Change</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="OpenUnsuccessfulReplacementItemExtendedTooltip" id="165"/>
 								</Button>
-								<Button name="ExpandAllUnsuccessfulReplacements" id="129">
-									<Type>CommandBarButton</Type>
-									<CommandName>Form.Command.ExpandAllUnsuccessfulReplacements</CommandName>
-									<ExtendedTooltip name="ExpandAllUnsuccessfulReplacementsExtendedTooltip" id="130"/>
-								</Button>
-								<Button name="CollapseAllUnsuccessfulReplacements" id="131">
-									<Type>CommandBarButton</Type>
-									<CommandName>Form.Command.CollapseAllUnsuccessfulReplacements</CommandName>
-									<ExtendedTooltip name="CollapseAllUnsuccessfulReplacementsExtendedTooltip" id="132"/>
-								</Button>
+								<ButtonGroup name="GroupExpandCollapse" id="255">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Expand collapse</v8:content>
+										</v8:item>
+									</Title>
+									<Representation>Compact</Representation>
+									<ExtendedTooltip name="GroupExpandCollapseExtendedTooltip" id="256"/>
+									<ChildItems>
+										<Button name="ExpandAllUnsuccessfulReplacements" id="129">
+											<Type>CommandBarButton</Type>
+											<CommandName>Form.Command.ExpandAllUnsuccessfulReplacements</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Expand all</v8:content>
+												</v8:item>
+											</Title>
+											<ExtendedTooltip name="ExpandAllUnsuccessfulReplacementsExtendedTooltip" id="130"/>
+										</Button>
+										<Button name="CollapseAllUnsuccessfulReplacements" id="131">
+											<Type>CommandBarButton</Type>
+											<CommandName>Form.Command.CollapseAllUnsuccessfulReplacements</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Collapse all</v8:content>
+												</v8:item>
+											</Title>
+											<ExtendedTooltip name="CollapseAllUnsuccessfulReplacementsExtendedTooltip" id="132"/>
+										</Button>
+									</ChildItems>
+								</ButtonGroup>
 								<ButtonGroup name="AllActions2" id="136">
 									<Title>
 										<v8:item>
@@ -446,6 +478,12 @@ Please wait…</v8:content>
 											<ChildItems>
 												<PictureField name="UnsuccessfulReplacementsIcon1" id="175">
 													<DataPath>UnsuccessfulReplacements.Pictogram</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Icon</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>None</TitleLocation>
 													<EditMode>EnterOnInput</EditMode>
 													<ValuesPicture>
@@ -458,6 +496,12 @@ Please wait…</v8:content>
 												</PictureField>
 												<InputField name="UnsuccessfulReplacementsData" id="144">
 													<DataPath>UnsuccessfulReplacements.Data</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Description / Occurrence</v8:content>
+														</v8:item>
+													</Title>
 													<EditMode>EnterOnInput</EditMode>
 													<ContextMenu name="UnsuccessfulReplacementsDataContextMenu" id="145"/>
 													<ExtendedTooltip name="UnsuccessfulReplacementsDataExtendedTooltip" id="146"/>
@@ -466,6 +510,12 @@ Please wait…</v8:content>
 										</ColumnGroup>
 										<InputField name="UnsuccessfulReplacementsCode" id="147">
 											<DataPath>UnsuccessfulReplacements.Code</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Code</v8:content>
+												</v8:item>
+											</Title>
 											<EditMode>EnterOnInput</EditMode>
 											<Width>10</Width>
 											<HorizontalStretch>false</HorizontalStretch>
@@ -476,17 +526,73 @@ Please wait…</v8:content>
 								</ColumnGroup>
 								<InputField name="UnsuccessfulReplacementsCause" id="122">
 									<DataPath>UnsuccessfulReplacements.Cause</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Reason</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ContextMenu name="UnsuccessfulReplacementsCauseContextMenu" id="123"/>
 									<ExtendedTooltip name="UnsuccessfulReplacementsCauseExtendedTooltip" id="124"/>
 								</InputField>
 							</ChildItems>
 						</Table>
+						<UsualGroup name="GroupErrorReport" id="253">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Error report</v8:content>
+								</v8:item>
+							</Title>
+							<HorizontalStretch>true</HorizontalStretch>
+							<Group>AlwaysHorizontal</Group>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="GroupErrorReportExtendedTooltip" id="254"/>
+							<ChildItems>
+								<LabelDecoration name="DecorationMoreDetails" id="247">
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Details:</v8:content>
+										</v8:item>
+									</Title>
+									<ContextMenu name="DecorationMoreDetailsContextMenu" id="248"/>
+									<ExtendedTooltip name="DecorationMoreDetailsExtendedTooltip" id="249"/>
+								</LabelDecoration>
+								<LabelDecoration name="DecorationSendErrorReport" id="250">
+									<Height>1</Height>
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Send error report</v8:content>
+										</v8:item>
+									</Title>
+									<GroupHorizontalAlign>Right</GroupHorizontalAlign>
+									<Hyperlink>true</Hyperlink>
+									<ContextMenu name="DecorationSendErrorReportContextMenu" id="251"/>
+									<ExtendedTooltip name="DecorationSendErrorReportExtendedTooltip" id="252"/>
+									<Events>
+										<Event name="Click">DecorationSendErrorReportClick</Event>
+									</Events>
+								</LabelDecoration>
+							</ChildItems>
+						</UsualGroup>
 						<InputField name="FailureReasonDetails" id="172">
 							<DataPath>FailureReasonDetails</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Details</v8:content>
+								</v8:item>
+							</Title>
+							<TitleLocation>None</TitleLocation>
 							<AutoMaxWidth>false</AutoMaxWidth>
-							<VerticalStretch>false</VerticalStretch>
+							<Height>2</Height>
+							<AutoMaxHeight>false</AutoMaxHeight>
+							<MaxHeight>3</MaxHeight>
 							<MultiLine>true</MultiLine>
 							<ContextMenu name="FailureReasonDetailsContextMenu" id="173"/>
 							<ExtendedTooltip name="FailureReasonDetailsExtendedTooltip" id="174"/>
@@ -512,8 +618,8 @@ Please wait…</v8:content>
 							</Title>
 							<GroupVerticalAlign>Center</GroupVerticalAlign>
 							<Picture>
-								<xr:Ref>CommonPicture.Warning32</xr:Ref>
-								<xr:LoadTransparent>false</xr:LoadTransparent>
+								<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+								<xr:LoadTransparent>true</xr:LoadTransparent>
 							</Picture>
 							<FileDragMode>AsFile</FileDragMode>
 							<ContextMenu name="WarningPicture32ContextMenu" id="233"/>
@@ -578,6 +684,12 @@ Please wait…</v8:content>
 						<Button name="WizardStepBack" id="43">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.WizardStepBack</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>&lt; Back</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="WizardStepBackExtendedTooltip" id="44"/>
 						</Button>
 					</ChildItems>
@@ -595,11 +707,23 @@ Please wait…</v8:content>
 						<Button name="WizardStepNext" id="48">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.WizardStepNext</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Next &gt;</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="WizardStepNextExtendedTooltip" id="49"/>
 						</Button>
 						<Button name="WizardStepCancel" id="50">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.WizardStepCancel</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Cancel</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="WizardStepCancelExtendedTooltip" id="51"/>
 						</Button>
 						<Button name="Help" id="58">
@@ -712,6 +836,9 @@ Please wait…</v8:content>
 						</v8:NumberQualifiers>
 					</Type>
 				</Column>
+				<Column name="ErrorInfo" id="7">
+					<Type/>
+				</Column>
 			</Columns>
 		</Attribute>
 		<Attribute name="ReplacementItem" id="8">
@@ -763,14 +890,32 @@ FROM
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>Code</dcssch:dataPath>
 					<dcssch:field>Code</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Code</v8:content>
+						</v8:item>
+					</dcssch:title>
 				</Field>
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>IsFolder</dcssch:dataPath>
 					<dcssch:field>IsFolder</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>This is a group</v8:content>
+						</v8:item>
+					</dcssch:title>
 				</Field>
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>Owner</dcssch:dataPath>
 					<dcssch:field>Owner</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Owner</v8:content>
+						</v8:item>
+					</dcssch:title>
 				</Field>
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>Description</dcssch:dataPath>

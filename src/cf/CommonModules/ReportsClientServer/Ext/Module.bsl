@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -301,7 +302,7 @@ EndFunction
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. Obsolete. Use ReportsClientServer.DefaultReportSettings.
+// Deprecated. Instead, use ReportsClientServer.DefaultReportSettings.
 // Default report form settings.
 //
 // Returns:
@@ -608,14 +609,14 @@ EndFunction
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. Obsolete. Use CommonClientServer.SupplementList instead.
-Function SupplementList(DestinationList, SourceList, CheckType = Undefined, AddNewItems = True) Export
+// Deprecated. Instead, use CommonClientServer.SupplementList.
+Function SupplementList(DestinationList, SourceList, ToControlType = Undefined, AddNewItems = True) Export
 	
 	If DestinationList = Undefined Or SourceList = Undefined Then
 		Return Undefined;
 	EndIf;
 	
-	Return CommonClientServer.SupplementList(DestinationList, SourceList, CheckType, AddNewItems);
+	Return CommonClientServer.SupplementList(DestinationList, SourceList, ToControlType, AddNewItems);
 	
 EndFunction
 
@@ -687,7 +688,7 @@ EndFunction
 //
 // Parameters:
 //   DCSettings - DataCompositionSettings
-//               - DataCompositionGroup - Settings ollections.
+//               - DataCompositionGroup - Settings collections.
 //   Field - String
 //        - DataCompositionField - Field name.
 //
@@ -2022,6 +2023,37 @@ Function NameOfTheDefaultSettingEvent() Export
 	
 	Return "DefaultSettings";
 	
+EndFunction
+
+
+Function ReportFormUpdateParameters(Val EventName = "") Export
+	
+	Result = New Structure;
+	// OnCreateAtServer, AfterGenerate, OnUpdateUserSettingSetAtServer, etc.
+	Result.Insert("EventName", EventName);
+	Result.Insert("VariantModified", False);
+	Result.Insert("UserSettingsModified", False);
+	Result.Insert("Result", New Structure);
+	Result.Insert("ReportObjectOrFullName", "");
+	Result.Insert("DCSettingsComposer", Undefined);
+	Result.Insert("DCSettings", Undefined);
+	Result.Insert("DCUserSettings", Undefined);
+	Result.Insert("ClearOptionSettings", False);
+	Result.Insert("ResetCustomSettings", False);
+	Result.Insert("UpdateOptionSettings", False);
+	Result.Insert("ReportObjectOrFullName", "");
+	Result.Insert("Regenerate", False);
+	Result.Insert("Directly", False);
+	// 
+	Result.Insert("SettingsFormAdvancedMode", 0);
+	Result.Insert("SettingsFormPageName", "");
+	// ReportSettingsForm
+	Result.Insert("FiltersConditions", Undefined);
+	Result.Insert("Result", New Structure("ExpandTreesNodes", New Array));
+	Result.Insert("Abort", False);
+	
+	Return Result;
+		
 EndFunction
 
 #EndRegion

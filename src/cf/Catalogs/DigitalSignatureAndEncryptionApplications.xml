@@ -28,7 +28,7 @@
 			<Synonym>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Applications of digital signature and encryption</v8:content>
+					<v8:content>Digital signing and encryption apps</v8:content>
 				</v8:item>
 			</Synonym>
 			<Comment/>
@@ -323,7 +323,7 @@
 			<ObjectPresentation>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Application of digital signature and encryption</v8:content>
+					<v8:content>Digital signing and encryption app</v8:content>
 				</v8:item>
 			</ObjectPresentation>
 			<ExtendedObjectPresentation/>
@@ -343,7 +343,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Application name</v8:content>
+							<v8:content>App</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -360,7 +360,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Unique application name given by its developer.</v8:content>
+							<v8:content>Unique app name given by its developer.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -392,7 +392,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Application type</v8:content>
+							<v8:content>App type</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -410,8 +410,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Special number which describes application type and 
- is added to application name.</v8:content>
+							<v8:content>A number that complements the app name.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>

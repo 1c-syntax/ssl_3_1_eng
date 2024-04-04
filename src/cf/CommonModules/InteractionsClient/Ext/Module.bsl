@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -179,7 +180,7 @@ EndProcedure
 // Parameters:
 //  MailMessage                  - DocumentRef.IncomingEmail
 //                          - DocumentRef.OutgoingEmail - Email message to save.
-//  UUID - UUID - an Uuid of a form, from which a saving command was called.
+//  UUID - UUID - UUID of the form where the save command was invoked.
 //
 Procedure SaveEmailToHardDrive(MailMessage, UUID) Export
 	
@@ -230,27 +231,28 @@ Procedure CreateInteractionOrSubject(ObjectFormName, Basis, Source) Export
 		And Source.Items.Find("Attendees") <> Undefined
 		And Source.Items.Attendees.CurrentData <> Undefined Then
 	
-	    ParticipantDataSource = Source.Items.Attendees.CurrentData;
-	    FormOpenParameters.Insert("ParticipantData",New Structure("Contact,HowToContact,Presentation",
-	                                                                      ParticipantDataSource.Contact,
-	                                                                      ParticipantDataSource.HowToContact,
-	                                                                      ParticipantDataSource.ContactPresentation));
+		ParticipantDataSource = Source.Items.Attendees.CurrentData;
+		FormOpenParameters.Insert("ParticipantData", ParticipantData(ParticipantDataSource));
 	
 	ElsIf (TypeOf(Basis) = Type("DocumentRef.SMSMessage") 
 		And Source.Items.Find("SMSMessageRecipients") <> Undefined
 		And Source.Items.SMSMessageRecipients.CurrentData <> Undefined) Then
 		
 		ParticipantDataSource = Source.Items.SMSMessageRecipients.CurrentData;
-		FormOpenParameters.Insert("ParticipantData",New Structure("Contact,HowToContact,Presentation",
-		                                                                  ParticipantDataSource.Contact,
-		                                                                  ParticipantDataSource.HowToContact,
-		                                                                  ParticipantDataSource.ContactPresentation));
+		FormOpenParameters.Insert("ParticipantData", ParticipantData(ParticipantDataSource));
 	
 	EndIf;
 	
 	OpenForm(ObjectFormName, FormOpenParameters, Source);
 
 EndProcedure
+
+Function ParticipantData(Source)
+	Return New Structure("Contact,HowToContact,Presentation",
+		Source.Contact,
+		Source.HowToContact,
+		Source.ContactPresentation);
+EndFunction
 
 // Opens a contact object form filled according to an interaction participant details.
 //
@@ -553,7 +555,7 @@ Function ContactChoiceParameters(FormIdentifier) Export
 EndFunction	
 
 // Parameters:
-//  Simple         - Date - "Process after" field value. 
+//  Simple         - Date - "Snooze till" field value. 
 //  ValueSelected    - Date
 //                       - Number - Either the selected date or the numeric increment of the current date.
 //  StandardProcessing - Boolean - indicates a standard processing of a form event handler.

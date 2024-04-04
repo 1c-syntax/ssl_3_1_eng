@@ -27,6 +27,12 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.Select</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Select</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormChooseExtendedTooltip" id="5"/>
 			</Button>
 		</ChildItems>
@@ -34,6 +40,12 @@
 	<ChildItems>
 		<RadioButtonField name="FileType" id="1">
 			<DataPath>SaveAsFileType</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Select file type</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>Top</TitleLocation>
 			<RadioButtonType>Auto</RadioButtonType>
 			<ColumnsCount>1</ColumnsCount>
@@ -110,6 +122,12 @@
 		<Button name="InstallFileSystemExtension" id="6">
 			<Type>UsualButton</Type>
 			<CommandName>Form.Command.InstallFileManagementExtension</CommandName>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Install File Management Extension</v8:content>
+				</v8:item>
+			</Title>
 			<ExtendedTooltip name="InstallFileSystemExtensionExtendedTooltip" id="7"/>
 		</Button>
 	</ChildItems>

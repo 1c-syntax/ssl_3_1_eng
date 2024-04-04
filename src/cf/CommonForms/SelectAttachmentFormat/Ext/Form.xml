@@ -25,6 +25,12 @@
 				<DefaultButton>true</DefaultButton>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.Select</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Select</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="AttachButtonExtendedTooltip" id="42"/>
 			</Button>
 			<Button name="CancelButton" id="30">
@@ -156,7 +162,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>NormalSeparation</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="AdditionalParametersGroupExtendedTooltip" id="48"/>
+			<ExtendedTooltip name="GroupAdditionalParametersExtendedTooltip" id="48"/>
 			<ChildItems>
 				<CheckBoxField name="PackToArchive" id="40">
 					<DataPath>PackToArchive</DataPath>
@@ -173,6 +179,12 @@
 				</CheckBoxField>
 				<CheckBoxField name="TransliterateFilesNames" id="59">
 					<DataPath>TransliterateFilesNames</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Transliterate file names</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Right</TitleLocation>
 					<ToolTip>
 						<v8:item>
@@ -187,6 +199,12 @@
 				</CheckBoxField>
 				<CheckBoxField name="Sign" id="62">
 					<DataPath>Sign</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Sign</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Right</TitleLocation>
 					<CheckBoxType>Auto</CheckBoxType>
 					<ContextMenu name="SignContextMenu" id="63"/>

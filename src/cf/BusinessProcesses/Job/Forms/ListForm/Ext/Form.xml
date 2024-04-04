@@ -28,6 +28,12 @@
 			<ChildItems>
 				<InputField name="ByAuthor" id="14">
 					<DataPath>ByAuthor</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Author</v8:content>
+						</v8:item>
+					</Title>
 					<Width>35</Width>
 					<ClearButton>true</ClearButton>
 					<OpenButton>false</OpenButton>
@@ -39,6 +45,12 @@
 				</InputField>
 				<InputField name="ByPerformer" id="17">
 					<DataPath>ByPerformer</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Assignee</v8:content>
+						</v8:item>
+					</Title>
 					<Width>35</Width>
 					<ClearButton>true</ClearButton>
 					<OpenButton>false</OpenButton>
@@ -54,6 +66,12 @@
 					<UserVisible>
 						<xr:Common>false</xr:Common>
 					</UserVisible>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Supervisor</v8:content>
+						</v8:item>
+					</Title>
 					<Width>35</Width>
 					<ClearButton>true</ClearButton>
 					<OpenButton>false</OpenButton>
@@ -75,10 +93,16 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="ChecksExtendedTooltip" id="63"/>
+			<ExtendedTooltip name="CheckBoxesExtendedTooltip" id="63"/>
 			<ChildItems>
 				<CheckBoxField name="ShowCompletedJobs" id="22">
 					<DataPath>ShowCompletedJobs</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Show completed duties</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Right</TitleLocation>
 					<CheckBoxType>Auto</CheckBoxType>
 					<ContextMenu name="ShowCompletedJobsContextMenu" id="23"/>
@@ -89,6 +113,12 @@
 				</CheckBoxField>
 				<CheckBoxField name="ShowStopped" id="48">
 					<DataPath>ShowStopped</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Show suspended duties</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Right</TitleLocation>
 					<CheckBoxType>Auto</CheckBoxType>
 					<ContextMenu name="ShowStoppedContextMenu" id="49"/>
@@ -132,11 +162,23 @@
 				<Button name="FormStop" id="51">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.Stop</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Suspend</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="FormStopExtendedTooltip" id="67"/>
 				</Button>
 				<Button name="FormContinueBusinessProcess" id="52">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.ContinueBusinessProcess</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Resume</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="FormContinueBusinessProcessExtendedTooltip" id="68"/>
 				</Button>
 			</ChildItems>
@@ -265,7 +307,7 @@
 							<v8:content>Content</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="ContentGroupExtendedTooltip" id="74"/>
+					<ExtendedTooltip name="ContentsGroupExtendedTooltip" id="74"/>
 					<ChildItems>
 						<LabelField name="Description" id="26">
 							<DataPath>List.Description</DataPath>
@@ -294,7 +336,7 @@
 					<DataPath>List.TaskDueDate</DataPath>
 					<HorizontalStretch>false</HorizontalStretch>
 					<ContextMenu name="DueDateContextMenu" id="43"/>
-					<ExtendedTooltip name="DueDateExtendedTooltip" id="78"/>
+					<ExtendedTooltip name="TaskDueDateExtendedTooltip" id="78"/>
 				</LabelField>
 				<LabelField name="VerificationDueDate" id="44">
 					<DataPath>List.VerificationDueDate</DataPath>

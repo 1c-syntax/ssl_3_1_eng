@@ -9,6 +9,12 @@
 				<Representation>Text</Representation>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.OpenVersion</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>View</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormOpenVersionExtendedTooltip" id="74"/>
 			</Button>
 			<Button name="FormOpenCard1" id="36">
@@ -16,23 +22,47 @@
 				<Representation>Text</Representation>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.OpenCard</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Open card</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormOpenCard1ExtendedTooltip" id="75"/>
 			</Button>
 			<Button name="FormMakeActive" id="35">
 				<Type>CommandBarButton</Type>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.MakeActive</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Set as active version</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormMakeActiveExtendedTooltip" id="76"/>
 			</Button>
 			<Button name="FormCompare" id="61">
 				<Type>CommandBarButton</Type>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.Compare</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Show diff</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormCompareExtendedTooltip" id="78"/>
 			</Button>
 			<Button name="FormSaveAs" id="70">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.SaveAs</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save as…</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormSaveAsExtendedTooltip" id="79"/>
 			</Button>
@@ -53,6 +83,12 @@
 					<Button name="FormDelete" id="118">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.Delete</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Delete</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="FormDeleteExtendedTooltip" id="119"/>
 					</Button>
@@ -61,6 +97,12 @@
 			<Button name="ShowMarkedFiles" id="120">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.ShowMarkedFiles</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Show marked files</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="ShowMarkedFilesExtendedTooltip" id="121"/>
 			</Button>
@@ -147,29 +189,59 @@
 						<Type>CommandBarButton</Type>
 						<SkipOnInput>false</SkipOnInput>
 						<CommandName>Form.Command.OpenVersion</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>View</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="ContextMenuListOpenVersionExtendedTooltip" id="82"/>
 					</Button>
 					<Button name="ContextMenuListOpenCard" id="43">
 						<Type>CommandBarButton</Type>
 						<SkipOnInput>false</SkipOnInput>
 						<CommandName>Form.Command.OpenCard</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Open card</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="ContextMenuListOpenCardExtendedTooltip" id="83"/>
 					</Button>
 					<Button name="ContextMenuListMakeActive" id="44">
 						<Type>CommandBarButton</Type>
 						<SkipOnInput>false</SkipOnInput>
 						<CommandName>Form.Command.MakeActive</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Set as active version</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="ContextMenuListMakeActiveExtendedTooltip" id="84"/>
 					</Button>
 					<Button name="ContextMenuListCompare" id="64">
 						<Type>CommandBarButton</Type>
 						<SkipOnInput>false</SkipOnInput>
 						<CommandName>Form.Command.Compare</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Show diff</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="ContextMenuListCompareExtendedTooltip" id="85"/>
 					</Button>
 					<Button name="ContextMenuListSaveAs" id="71">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.SaveAs</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Save as…</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="ContextMenuListSaveAsExtendedTooltip" id="86"/>
 					</Button>
 					<Button name="ContextMenuListCopy" id="46">
@@ -186,6 +258,12 @@
 					<Button name="ListContextMenuDelete" id="122">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.Delete</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Delete</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="ListContextMenuDeleteExtendedTooltip" id="123"/>
 					</Button>
 				</ChildItems>
@@ -433,13 +511,13 @@ WHERE
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Make active</v8:content>
+					<v8:content>Set as active version</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Make active</v8:content>
+					<v8:content>Set as active version</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>MakeActiveExecute</Action>
@@ -489,7 +567,7 @@ WHERE
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Show differences</v8:content>
+					<v8:content>Show diff</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -33,8 +34,8 @@ EndProcedure
 &AtClient
 Procedure OnOpen(Cancel)
 	
-	
-	
+	// 
+	// 
 	FolderForExport = FilesOperationsInternalClient.DumpDirectory();
 	
 EndProcedure
@@ -254,7 +255,7 @@ Procedure ProcessFilesTree(ResultHandler, TableOfFiles, BaseSaveDirectory, Paren
 	CompletionHandler = New NotifyDescription("ProcessFilesTree2", ThisObject);
 	FilesOperationsInternalClient.RegisterCompletionHandler(ExecutionParameters, CompletionHandler);
 	
-	StartTraversingFileTree(ExecutionParameters);
+	StartIterateThroughFilesTree(ExecutionParameters);
 EndProcedure
 
 // Returns:
@@ -298,7 +299,7 @@ Function ExecutionParameters(Val ResultHandler, Val TableOfFiles, Val BaseSaveDi
 EndFunction
 
 &AtClient
-Procedure StartTraversingFileTree(ExecutionParameters)
+Procedure StartIterateThroughFilesTree(ExecutionParameters)
 	If Not ExecutionParameters.LoopStartRequired Then
 		Return;
 	EndIf;
@@ -364,7 +365,7 @@ Procedure ProcessFilesTree2(Result, ExecutionParameters) Export
 		Return;
 	EndIf;
 	
-	StartTraversingFileTree(ExecutionParameters);
+	StartIterateThroughFilesTree(ExecutionParameters);
 EndProcedure
 
 &AtClient
@@ -475,7 +476,7 @@ Procedure ProcessFilesTree7(Result, ExecutionParameters) Export
 	ProcessFilesTree8(ExecutionParameters);
 	
 	// Restart if the dialog was open.
-	StartTraversingFileTree(ExecutionParameters);
+	StartIterateThroughFilesTree(ExecutionParameters);
 	
 EndProcedure
 
@@ -548,7 +549,7 @@ Procedure ProcessFilesTree10(Response, ExecutionParameters) Export
 	ProcessFilesTree11(ExecutionParameters);
 	
 	// Restart if the dialog was open.
-	StartTraversingFileTree(ExecutionParameters);
+	StartIterateThroughFilesTree(ExecutionParameters);
 EndProcedure
 
 // Parameters:
@@ -628,7 +629,7 @@ Procedure ProcessFilesTree12(Result, ExecutionParameters) Export
 	ProcessFilesTree13(ExecutionParameters);
 	
 	// Restart loop if an asynchronous dialog box was opened.
-	StartTraversingFileTree(ExecutionParameters);
+	StartIterateThroughFilesTree(ExecutionParameters);
 EndProcedure
 
 &AtClient
@@ -747,8 +748,8 @@ Procedure ProcessFilesTree16(Response, ExecutionParameters) Export
 	If Response = DialogReturnCode.Abort Then
 		// Just exit with an error.
 		ExecutionParameters.Success = False;
-		ExecutionParameters.LoopStartRequired = False; 
-		
+		ExecutionParameters.LoopStartRequired = False; // 
+		// 
 		FilesOperationsInternalClient.ReturnResult(ExecutionParameters.ResultHandler, ExecutionParameters);
 		Return;
 	ElsIf Response = DialogReturnCode.Ignore Then

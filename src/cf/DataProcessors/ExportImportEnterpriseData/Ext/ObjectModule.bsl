@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -145,7 +146,7 @@ EndFunction
 // Exports objects by settings specified in the data processor attributes and returns the export result.
 // 
 // Returns:
-//   Structure - :
+//   Structure - A structure with the export outcome:
 //     * ExportText - String - an exchange message text.
 //     * HasExportedObjects - Boolean - True if at least one object is exported.
 //     * HasErrors - Boolean - True if errors occurred during export.
@@ -228,7 +229,7 @@ Function ExportDataToXML(ExchangeFileName = "")
 	If ListExportAddition.Count() > 0 Then
 		
 		EventStart = NStr("en = 'ExportImportEnterpriseData.Start';", Common.DefaultLanguageCode());
-		EventEnding = NStr("en = 'ExportImportEnterpriseData.End';", Common.DefaultLanguageCode());
+		EventEnd = NStr("en = 'ExportImportEnterpriseData.End';", Common.DefaultLanguageCode());
 		
 		For Each ListItem In ListExportAddition Do
 			ExportRef = ListItem.Value;
@@ -244,7 +245,7 @@ Function ExportDataToXML(ExchangeFileName = "")
 				ObjectForExport = ExportRef;
 			EndIf;
 			DataExchangeXDTOServer.ExportSelectionObject(ExchangeComponents, ObjectForExport, ProcessingRule);
-			ProcessLogging(EventEnding, ExportRefMetadata, ExportRef);
+			ProcessLogging(EventEnd, ExportRefMetadata, ExportRef);
 			HasExportedObjects = True;
 		EndDo;
 	EndIf;
@@ -637,9 +638,9 @@ EndProcedure
 // Prepares a list of objects to be exported in accordance with the settings.
 Procedure FillListOfObjectsToExport() 
 	SetPrivilegedMode(True);
-	
-	
-	
+	// 
+	// 
+	// 
 	MetadataArrayWithoutFilters = New Array;
 	MetadataArrayFilterByPeriod = New Array;
 	For Each String In AdditionalRegistration Do
@@ -1150,15 +1151,15 @@ Procedure AddListOfObjectsToExport(MetadataArrayFilter)
 	EndDo;
 EndProcedure
 
-Procedure ProcessLogging(LogEvent, ExportRefMetadata, ExportRef)
+Procedure ProcessLogging(Log_Event, ExportRefMetadata, ExportRef)
 	
-	If Not LogObjectUploads Then
+	If Not LogObjectsExport Then
 		
 		Return;
 		
 	EndIf;
 	
-	WriteLogEvent(LogEvent, EventLogLevel.Information, ExportRefMetadata, ExportRef, String(ExportRef));
+	WriteLogEvent(Log_Event, EventLogLevel.Information, ExportRefMetadata, ExportRef, String(ExportRef));
 	
 EndProcedure
 

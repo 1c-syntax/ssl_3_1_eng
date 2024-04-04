@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -29,19 +30,28 @@ EndProcedure
 
 &AtClient
 Procedure OnOpen(Cancel)
+
 	RepeatedNotificationPeriod = NStr("en = 'in 15 minutes';");
 	RepeatedNotificationPeriod = UserRemindersClient.FormatTime(RepeatedNotificationPeriod);
 	UpdateRemindersTable();
 	UpdateTimeInRemindersTable();
-	Activate();
+	
+	If StandardSubsystemsClient.ClientRunParameters().ShouldShowRemindersInNotificationCenter Then
+		Cancel = True;
+	Else
+		Activate();
+	EndIf;
+
 EndProcedure
 
 &AtClient
 Procedure OnReopen()
+
 	UpdateRemindersTable();
 	UpdateTimeInRemindersTable();
 	CurrentItem = Items.RepeatedNotificationPeriod;
 	Activate();
+
 EndProcedure
 
 &AtClient
@@ -130,16 +140,21 @@ Procedure Dismiss(Command)
 	UpdateRemindersTable();
 EndProcedure
 
+&AtClient
+Procedure OpenSettings(Command)
+	UserRemindersClient.OpenSettings();
+EndProcedure
+
 #EndRegion
 
 #Region Private
 
-&AtServer
+&AtServerNoContext
 Procedure AttachReminder(ReminderParameters)
 	UserRemindersInternal.AttachReminder(ReminderParameters, True, True);
 EndProcedure
 
-&AtServer
+&AtServerNoContext
 Procedure DisableReminder(ReminderParameters)
 	UserRemindersInternal.DisableReminder(ReminderParameters, , True);
 EndProcedure
@@ -183,9 +198,39 @@ Procedure UpdateRemindersTable()
 		Reminders.Delete(String);
 	EndDo;
 	
+	If StandardSubsystemsClient.ClientRunParameters().ShouldShowRemindersInNotificationCenter Then
+
+		RefsToMessages = New Array;
+		MessagesReminders = New Map;
+		For Each Reminder In Reminders Do
+			RefsToMessages.Add(Reminder.URL);
+			MessagesReminders.Insert(Reminder.URL, Reminder);
+		EndDo;
+		
+		RefsPresentations = GetURLsPresentations(RefsToMessages);
+		For Each RepresentationOfTheReference In RefsPresentations Do
+			Reminder = MessagesReminders[RepresentationOfTheReference.URL];
+			Context = New Structure("User,EventTime,Source,ReminderTime,LongDesc");
+			FillPropertyValues(Context, Reminder);
+			Context.Insert("URL", RepresentationOfTheReference.URL);
+			
+			NotifyDescription = New NotifyDescription("HandleOpenOfNotification", UserRemindersInternalClient, Context);
+			
+			ShowUserNotification(
+				Reminder.LongDesc, NotifyDescription,
+				RepresentationOfTheReference.Text, RepresentationOfTheReference.Picture,
+				UserNotificationStatus.Important,
+				Reminder.URL);
+			
+		EndDo;
+		
+		Cancel = True;
+		Return;
+	EndIf;
+	
 	SetVisibility1();
 	
-	Interval = 15; 
+	Interval = 15; // Update the table at least once every 15 seconds.
 	If TimeOfClosest <> Undefined Then 
 		Interval = Max(Min(Interval, TimeOfClosest - CommonClient.SessionDate()), 1); 
 	EndIf;
@@ -248,7 +293,7 @@ EndProcedure
 Procedure DeferActiveReminders()
 	TimeInterval = UserRemindersClient.GetTimeIntervalFromString(RepeatedNotificationPeriod);
 	If TimeInterval = 0 Then
-		TimeInterval = 5*60; 
+		TimeInterval = 5*60; // 
 	EndIf;
 	For Each TableRow In Reminders Do
 		TableRow.ReminderTime = CommonClient.SessionDate() + TimeInterval;
@@ -269,6 +314,9 @@ Procedure OpenReminder()
 	Source = Items.Reminders.CurrentData.Source;
 	If ValueIsFilled(Source) Then
 		ShowValue(, Source);
+	ElsIf UserRemindersClientServer.IsMessageURL(
+		Items.Reminders.CurrentData.Id) Then
+		FileSystemClient.OpenURL(Items.Reminders.CurrentData.URL);
 	Else
 		EditReminder();
 	EndIf;
@@ -279,13 +327,9 @@ Procedure EditReminder()
 	ReminderParameters = New Structure("User,Source,EventTime");
 	FillPropertyValues(ReminderParameters, Items.Reminders.CurrentData);
 	
-	OpenForm("InformationRegister.UserReminders.Form.Reminder", New Structure("Key", GetRecordKey(ReminderParameters)));
+	OpenForm("InformationRegister.UserReminders.Form.Reminder", 
+		New Structure("KeyData", ReminderParameters));
 EndProcedure
-
-&AtServer
-Function GetRecordKey(ReminderParameters)
-	Return InformationRegisters.UserReminders.CreateRecordKey(ReminderParameters);
-EndFunction
 
 &AtClient
 Procedure SetVisibility1()

@@ -45,10 +45,22 @@
 					<Type>UsualButton</Type>
 					<DefaultButton>true</DefaultButton>
 					<CommandName>Form.Command.OkCommand</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Select</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="OkCommandExtendedTooltip" id="40"/>
 				</Button>
 				<RadioButtonField name="RadioButtonsEverywhereInSections" id="1">
 					<DataPath>RadioButtonsEverywhereInSections</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Radio button Everywhere or In sections</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<RadioButtonType>RadioButtons</RadioButtonType>
 					<ChoiceList>
@@ -105,17 +117,35 @@
 					<ExtendedTooltip name="CommandBarExtendedTooltip" id="32"/>
 					<ChildItems>
 						<ButtonGroup name="Commands" id="33">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Commands</v8:content>
+								</v8:item>
+							</Title>
 							<Representation>Compact</Representation>
 							<ExtendedTooltip name="CommandsExtendedTooltip" id="34"/>
 							<ChildItems>
 								<Button name="CheckAll" id="37">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.CheckAll</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Select all</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="CheckAllExtendedTooltip" id="38"/>
 								</Button>
 								<Button name="UncheckAll" id="35">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.UncheckAll</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Clear all</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="UncheckAllExtendedTooltip" id="36"/>
 								</Button>
 							</ChildItems>
@@ -123,12 +153,24 @@
 						<Button name="ExpandAll" id="41">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.ExpandAll</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Expand</v8:content>
+								</v8:item>
+							</Title>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 							<ExtendedTooltip name="ExpandAllExtendedTooltip" id="42"/>
 						</Button>
 						<Button name="CollapseAll" id="43">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.CollapseAll</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Collapse</v8:content>
+								</v8:item>
+							</Title>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 							<ExtendedTooltip name="CollapseAllExtendedTooltip" id="44"/>
 						</Button>
@@ -198,11 +240,23 @@
 			</SearchControlAddition>
 			<ChildItems>
 				<ColumnGroup name="Group" id="23">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Group</v8:content>
+						</v8:item>
+					</Title>
 					<Group>InCell</Group>
 					<ExtendedTooltip name="GroupExtendedTooltip" id="24"/>
 					<ChildItems>
 						<CheckBoxField name="Check" id="20">
 							<DataPath>SearchSectionsTree.Check</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Checkmark</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<EditMode>EnterOnInput</EditMode>
 							<ThreeState>true</ThreeState>
@@ -214,6 +268,12 @@
 						</CheckBoxField>
 						<PictureField name="Picture" id="45">
 							<DataPath>SearchSectionsTree.Picture</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Picture</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<EditMode>EnterOnInput</EditMode>
 							<FileDragMode>AsFile</FileDragMode>
@@ -223,6 +283,12 @@
 						<InputField name="Section" id="17">
 							<DataPath>SearchSectionsTree.Section</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Section</v8:content>
+								</v8:item>
+							</Title>
 							<EditMode>EnterOnInput</EditMode>
 							<ContextMenu name="SectionContextMenu" id="18"/>
 							<ExtendedTooltip name="SectionExtendedTooltip" id="19"/>

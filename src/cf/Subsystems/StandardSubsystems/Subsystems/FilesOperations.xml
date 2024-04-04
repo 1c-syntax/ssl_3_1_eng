@@ -58,7 +58,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">DefinedType.FilesOwner</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.FilesExist</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.FileSynchronizationSettings</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.BinaryFilesData</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.DeleteFilesBinaryData</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.FilesInfo</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.FilesSynchronizationWithCloudServiceStatuses</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">DataProcessor.FilesOperations</xr:Item>
@@ -93,7 +93,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.SignedEncryptedStatuses</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.DefaultWorkingDirectory</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.EditFile</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">CommonTemplate.DocumentScanningAddIn_3_0_1_1027</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonTemplate.DocumentScanningAddIn_3_0_1_1030</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonCommand.CreateInitialImageWithFiles</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonCommand.FilesInVolume</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonCommand.FilesToEdit</xr:Item>
@@ -137,6 +137,8 @@
 				<xr:Item xsi:type="xr:MDObjectRef">Constant.FilesCleanupMode</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Enum.FilesCleanupModes</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Constant.VolumePathIgnoreRegionalSettings</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.FileRepository</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">Catalog.BinaryDataStorage</xr:Item>
 			</Content>
 		</Properties>
 		<ChildObjects/>

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -30,8 +31,8 @@ Procedure ResolveIssue(Command)
 	
 	TimeConsumingOperation = ResolveIssueInBackground(CheckID);
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
-	CompletionNotification2 = New NotifyDescription("ResolveIssueInBackgroundCompletion", ThisObject);
-	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CompletionNotification2, IdleParameters);
+	CallbackOnCompletion = New NotifyDescription("ResolveIssueInBackgroundCompletion", ThisObject);
+	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
 	
 EndProcedure
 
@@ -80,6 +81,10 @@ Function ResolveIssueInBackground(CheckID)
 	
 EndFunction
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
 Procedure ResolveIssueInBackgroundCompletion(Result, AdditionalParameters) Export
 	
@@ -90,7 +95,9 @@ Procedure ResolveIssueInBackgroundCompletion(Result, AdditionalParameters) Expor
 		Return;
 	ElsIf Result.Status = "Error" Then
 		SetCurrentPage(ThisObject, "DoQueryBox");
-		Raise Result.BriefErrorDescription;
+		StandardSubsystemsClient.OutputErrorInfo(
+			Result.ErrorInfo);
+		Return;
 	ElsIf Result.Status = "Completed2" Then
 		Result = GetFromTempStorage(Result.ResultAddress);
 		If TypeOf(Result) = Type("Structure") Then

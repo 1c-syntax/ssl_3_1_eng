@@ -11,11 +11,17 @@
 	<ChildItems>
 		<SpreadSheetDocumentField name="ReportTable" id="1">
 			<DataPath>ReportTable</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Report table</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>None</TitleLocation>
 			<VerticalScrollBar>true</VerticalScrollBar>
 			<HorizontalScrollBar>true</HorizontalScrollBar>
 			<ContextMenu name="ReportTable1ContextMenu" id="2"/>
-			<ExtendedTooltip name="ReportTable1ExtendedTooltip" id="3"/>
+			<ExtendedTooltip name="ReportTableExtendedTooltip" id="3"/>
 			<Events>
 				<Event name="Selection">ReportTable1Selection</Event>
 			</Events>

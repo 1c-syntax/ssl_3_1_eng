@@ -32,12 +32,24 @@
 				<Button name="FormEnableEditing" id="27">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.EnableEditing</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Allow editing</v8:content>
+						</v8:item>
+					</Title>
 					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 					<ExtendedTooltip name="FormEnableEditingExtendedTooltip" id="28"/>
 				</Button>
 				<Button name="FormUpdateRegisterData" id="53">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.UpdateRegisterData</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Update register data</v8:content>
+						</v8:item>
+					</Title>
 					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 					<ExtendedTooltip name="FormUpdateRegisterDataExtendedTooltip" id="54"/>
 				</Button>
@@ -138,7 +150,7 @@ No.</v8:content>
 							<v8:lang>en</v8:lang>
 							<v8:content>User must
 change password
-at next sign-in</v8:content>
+at next logon</v8:content>
 						</v8:item>
 					</Title>
 					<CheckBoxType>Auto</CheckBoxType>
@@ -169,9 +181,9 @@ expires
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Inactivity period
-before sign-in
-is denied</v8:content>
+							<v8:content>User
+inactivity
+timeout</v8:content>
 						</v8:item>
 					</Title>
 					<Width>15</Width>
@@ -315,7 +327,7 @@ FROM
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Allow editing for troubleshooting purposes. Recommended for advanced users only.</v8:content>
+					<v8:content>Allow editing for troubleshooting. Recommended for advanced users only.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>EnableEditing</Action>

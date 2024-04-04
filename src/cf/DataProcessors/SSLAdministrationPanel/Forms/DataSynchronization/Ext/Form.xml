@@ -33,7 +33,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="GroupHeaderExtendedTooltip" id="2013"/>
+			<ExtendedTooltip name="TitleGroup1ExtendedTooltip" id="2013"/>
 			<ChildItems>
 				<LabelDecoration name="SectionDetails" id="1567">
 					<AutoMaxWidth>false</AutoMaxWidth>
@@ -138,8 +138,14 @@
 						<Button name="DataSyncSettings" id="1220">
 							<Type>Hyperlink</Type>
 							<CommandName>Form.Command.DataSyncSettings</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Data sync settings</v8:content>
+								</v8:item>
+							</Title>
 							<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
-							<ExtendedTooltip name="DataSynchronizationSettingsExtendedTooltip" id="2023">
+							<ExtendedTooltip name="DataSyncSettingsExtendedTooltip" id="2023">
 								<Title formatted="false">
 									<v8:item>
 										<v8:lang>en</v8:lang>
@@ -288,6 +294,12 @@ This has no effect in distributed infobases.</v8:content>
 						<Button name="RemovingDataSynchronizationAlerts" id="2082">
 							<Type>Hyperlink</Type>
 							<CommandName>Form.Command.RemovingDataSynchronizationAlerts</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Delete data sync warnings</v8:content>
+								</v8:item>
+							</Title>
 							<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 							<ExtendedTooltip name="RemovingDataSynchronizationAlertsExtendedTooltip" id="2083">
 								<Title formatted="false">
@@ -422,6 +434,12 @@ This has no effect in distributed infobases.</v8:content>
 				<Button name="ChangeIBPrefix" id="2080">
 					<Type>Hyperlink</Type>
 					<CommandName>Form.Command.ChangeIBPrefix</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Edit</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="ChangeIBPrefixExtendedTooltip" id="2081"/>
 				</Button>
 			</ChildItems>

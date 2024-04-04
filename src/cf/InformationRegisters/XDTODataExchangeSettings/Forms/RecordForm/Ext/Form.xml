@@ -84,18 +84,36 @@
 							<ChildItems>
 								<InputField name="SupportedObjectsObject" id="29">
 									<DataPath>SupportedObjects.Object</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Object</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ContextMenu name="SupportedObjectsObjectContextMenu" id="30"/>
 									<ExtendedTooltip name="SupportedObjectsObjectExtendedTooltip" id="31"/>
 								</InputField>
 								<InputField name="SupportedObjectsVersion" id="32">
 									<DataPath>SupportedObjects.Version</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Version</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ContextMenu name="SupportedObjectsVersionContextMenu" id="33"/>
 									<ExtendedTooltip name="SupportedObjectsVersionExtendedTooltip" id="34"/>
 								</InputField>
 								<CheckBoxField name="SupportedObjectsSend" id="35">
 									<DataPath>SupportedObjects.Send</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Send</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<CheckBoxType>Auto</CheckBoxType>
 									<ContextMenu name="SupportedObjectsSendingContextMenu" id="36"/>
@@ -103,6 +121,12 @@
 								</CheckBoxField>
 								<CheckBoxField name="SupportedObjectsReceive" id="38">
 									<DataPath>SupportedObjects.Receive</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Receive</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<CheckBoxType>Auto</CheckBoxType>
 									<ContextMenu name="SupportedObjectsReceivingContextMenu" id="39"/>
@@ -175,18 +199,36 @@
 							<ChildItems>
 								<InputField name="SupportedCorrespondentObjectsObject" id="54">
 									<DataPath>SupportedCorrespondentObjects.Object</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Object</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ContextMenu name="SupportedCorrespondentObjectsObjectContextMenu" id="55"/>
 									<ExtendedTooltip name="SupportedCorrespondentObjectsObjectExtendedTooltip" id="56"/>
 								</InputField>
 								<InputField name="SupportedCorrespondentObjectsVersion" id="57">
 									<DataPath>SupportedCorrespondentObjects.Version</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Version</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ContextMenu name="SupportedCorrespondentObjectsVersionContextMenu" id="58"/>
 									<ExtendedTooltip name="SupportedCorrespondentObjectsVersionExtendedTooltip" id="59"/>
 								</InputField>
 								<CheckBoxField name="SupportedCorrespondentObjectsSend" id="60">
 									<DataPath>SupportedCorrespondentObjects.Send</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Send</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<CheckBoxType>Auto</CheckBoxType>
 									<ContextMenu name="SupportedCorrespondentObjectsSendingContextMenu" id="61"/>
@@ -194,6 +236,12 @@
 								</CheckBoxField>
 								<CheckBoxField name="SupportedCorrespondentObjectsReceive" id="63">
 									<DataPath>SupportedCorrespondentObjects.Receive</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Receive</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<CheckBoxType>Auto</CheckBoxType>
 									<ContextMenu name="SupportedCorrespondentObjectsReceivingContextMenu" id="64"/>

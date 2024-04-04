@@ -32,14 +32,14 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="GroupHeaderExtendedTooltip" id="2044"/>
+			<ExtendedTooltip name="TitleGroup1ExtendedTooltip" id="2044"/>
 			<ChildItems>
 				<LabelDecoration name="SectionDetails" id="2016">
 					<AutoMaxWidth>false</AutoMaxWidth>
 					<Title formatted="false">
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Configure file import, storage, and processing parameters.</v8:content>
+							<v8:content>Configure how to handle, store, and import files.</v8:content>
 						</v8:item>
 					</Title>
 					<ContextMenu name="SectionDetailsContextMenu" id="2017"/>
@@ -63,150 +63,204 @@
 				</CommandBar>
 			</ChildItems>
 		</UsualGroup>
-		<UsualGroup name="GeneralGroup" id="2196">
+		<UsualGroup name="ColumnsGroup" id="2218">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Common</v8:content>
+					<v8:content>Columns</v8:content>
 				</v8:item>
 			</Title>
-			<HorizontalStretch>false</HorizontalStretch>
-			<Behavior>Usual</Behavior>
-			<Representation>NormalSeparation</Representation>
+			<Group>Vertical</Group>
+			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="GeneralGroupExtendedTooltip" id="2197"/>
+			<ThroughAlign>Use</ThroughAlign>
+			<ExtendedTooltip name="ColumnsGroupExtendedTooltip" id="2219"/>
 			<ChildItems>
-				<UsualGroup name="GroupFiles" id="2208">
+				<UsualGroup name="GeneralGroup" id="2196">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Files</v8:content>
+							<v8:content>Common</v8:content>
 						</v8:item>
 					</Title>
-					<Group>Vertical</Group>
-					<Behavior>Usual</Behavior>
-					<Representation>None</Representation>
-					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="FilesGroup1ExtendedTooltip" id="2209"/>
-					<ChildItems>
-						<Button name="CatalogFiles" id="2212">
-							<Type>Hyperlink</Type>
-							<CommandName>Form.Command.CatalogFiles</CommandName>
-							<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
-							<ExtendedTooltip name="CatalogFilesExtendedTooltip" id="2213"/>
-						</Button>
-					</ChildItems>
-				</UsualGroup>
-			</ChildItems>
-		</UsualGroup>
-		<UsualGroup name="FilesStorageManagement" id="2146">
-			<Title>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Manage file storage</v8:content>
-				</v8:item>
-			</Title>
-			<Behavior>Usual</Behavior>
-			<Representation>NormalSeparation</Representation>
-			<ChildItemsWidth>Equal</ChildItemsWidth>
-			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="FilesStorageManagementExtendedTooltip" id="2147"/>
-			<ChildItems>
-				<UsualGroup name="FilesStorageMethodGroup" id="2148">
-					<Title>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>File storage method</v8:content>
-						</v8:item>
-					</Title>
-					<Width>43</Width>
 					<HorizontalStretch>false</HorizontalStretch>
-					<Group>Vertical</Group>
 					<Behavior>Usual</Behavior>
-					<Representation>None</Representation>
+					<Representation>NormalSeparation</Representation>
+					<United>false</United>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="FilesStorageMethodGroupExtendedTooltip" id="2149"/>
+					<ExtendedTooltip name="GeneralGroupExtendedTooltip" id="2197"/>
 					<ChildItems>
-						<InputField name="FilesStorageMethod" id="2135">
-							<DataPath>ConstantsSet.FilesStorageMethod</DataPath>
+						<UsualGroup name="GroupFiles" id="2208">
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>File storage</v8:content>
+									<v8:content>Files</v8:content>
 								</v8:item>
 							</Title>
-							<AutoMaxWidth>false</AutoMaxWidth>
-							<MaxWidth>30</MaxWidth>
-							<ListChoiceMode>true</ListChoiceMode>
-							<TextEdit>false</TextEdit>
-							<ChoiceList>
-								<xr:Item>
-									<xr:Presentation/>
-									<xr:CheckState>0</xr:CheckState>
-									<xr:Value xsi:type="FormChoiceListDesTimeValue">
-										<Presentation>
-											<v8:item>
-												<v8:lang>en</v8:lang>
-												<v8:content>Infobase</v8:content>
-											</v8:item>
-										</Presentation>
-										<Value xsi:type="xs:string">InInfobase</Value>
-									</xr:Value>
-								</xr:Item>
-								<xr:Item>
-									<xr:Presentation/>
-									<xr:CheckState>0</xr:CheckState>
-									<xr:Value xsi:type="FormChoiceListDesTimeValue">
-										<Presentation>
-											<v8:item>
-												<v8:lang>en</v8:lang>
-												<v8:content>Disk</v8:content>
-											</v8:item>
-										</Presentation>
-										<Value xsi:type="xs:string">InVolumesOnHardDrive</Value>
-									</xr:Value>
-								</xr:Item>
-								<xr:Item>
-									<xr:Presentation/>
-									<xr:CheckState>0</xr:CheckState>
-									<xr:Value xsi:type="FormChoiceListDesTimeValue">
-										<Presentation>
-											<v8:item>
-												<v8:lang>en</v8:lang>
-												<v8:content>Infobase and disk</v8:content>
-											</v8:item>
-										</Presentation>
-										<Value xsi:type="xs:string">InInfobaseAndVolumesOnHardDrive</Value>
-									</xr:Value>
-								</xr:Item>
-							</ChoiceList>
-							<BackColor>style:MasterFieldBackground</BackColor>
-							<ContextMenu name="FilesStorageMethodContextMenu" id="2136"/>
-							<ExtendedTooltip name="FilesStorageMethodExtendedTooltip" id="2137"/>
-							<Events>
-								<Event name="OnChange">FilesStorageMethodOnChange</Event>
-							</Events>
-						</InputField>
+							<Group>Vertical</Group>
+							<Behavior>Usual</Behavior>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="FilesGroup1ExtendedTooltip" id="2209"/>
+							<ChildItems>
+								<Button name="CatalogFiles" id="2212">
+									<Type>Hyperlink</Type>
+									<CommandName>Form.Command.CatalogFiles</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Files</v8:content>
+										</v8:item>
+									</Title>
+									<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
+									<ExtendedTooltip name="CatalogFilesExtendedTooltip" id="2213"/>
+								</Button>
+							</ChildItems>
+						</UsualGroup>
+						<UsualGroup name="GroupDeduplication" id="2214">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Deduplication</v8:content>
+								</v8:item>
+							</Title>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="GroupDeduplicationExtendedTooltip" id="2215"/>
+							<ChildItems>
+								<Button name="StartDeduplication" id="2216">
+									<Type>Hyperlink</Type>
+									<CommandName>Form.Command.StartDeduplication</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Deduplicate</v8:content>
+										</v8:item>
+									</Title>
+									<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
+									<ExtendedTooltip name="StartDeduplicationExtendedTooltip" id="2217"/>
+								</Button>
+							</ChildItems>
+						</UsualGroup>
 					</ChildItems>
 				</UsualGroup>
-				<UsualGroup name="MoveFilesGroup" id="2153">
+				<UsualGroup name="FilesStorageManagement" id="2146">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Move files</v8:content>
+							<v8:content>Manage file storage</v8:content>
 						</v8:item>
 					</Title>
-					<Group>Vertical</Group>
 					<Behavior>Usual</Behavior>
-					<Representation>None</Representation>
+					<Representation>NormalSeparation</Representation>
+					<United>false</United>
+					<ChildItemsWidth>Equal</ChildItemsWidth>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="MoveFilesGroupExtendedTooltip" id="2154"/>
+					<ExtendedTooltip name="FilesStorageManagementExtendedTooltip" id="2147"/>
 					<ChildItems>
-						<Button name="FileTransfer" id="2144">
-							<Type>Hyperlink</Type>
-							<CommandName>Form.Command.FileTransfer</CommandName>
-							<ExtendedTooltip name="TransferringFilesExtendedTooltip" id="2145"/>
-						</Button>
+						<UsualGroup name="FilesStorageMethodGroup" id="2148">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>File storage method</v8:content>
+								</v8:item>
+							</Title>
+							<Width>43</Width>
+							<HorizontalStretch>false</HorizontalStretch>
+							<Group>Vertical</Group>
+							<Behavior>Usual</Behavior>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="FilesStorageMethodGroupExtendedTooltip" id="2149"/>
+							<ChildItems>
+								<InputField name="FilesStorageMethod" id="2135">
+									<DataPath>ConstantsSet.FilesStorageMethod</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>File storage</v8:content>
+										</v8:item>
+									</Title>
+									<AutoMaxWidth>false</AutoMaxWidth>
+									<MaxWidth>30</MaxWidth>
+									<ListChoiceMode>true</ListChoiceMode>
+									<TextEdit>false</TextEdit>
+									<ChoiceList>
+										<xr:Item>
+											<xr:Presentation/>
+											<xr:CheckState>0</xr:CheckState>
+											<xr:Value xsi:type="FormChoiceListDesTimeValue">
+												<Presentation>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Infobase</v8:content>
+													</v8:item>
+												</Presentation>
+												<Value xsi:type="xs:string">InInfobase</Value>
+											</xr:Value>
+										</xr:Item>
+										<xr:Item>
+											<xr:Presentation/>
+											<xr:CheckState>0</xr:CheckState>
+											<xr:Value xsi:type="FormChoiceListDesTimeValue">
+												<Presentation>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>in volume on server</v8:content>
+													</v8:item>
+												</Presentation>
+												<Value xsi:type="xs:string">InVolumesOnHardDrive</Value>
+											</xr:Value>
+										</xr:Item>
+										<xr:Item>
+											<xr:Presentation/>
+											<xr:CheckState>0</xr:CheckState>
+											<xr:Value xsi:type="FormChoiceListDesTimeValue">
+												<Presentation>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>in infobase and volumes on server</v8:content>
+													</v8:item>
+												</Presentation>
+												<Value xsi:type="xs:string">InInfobaseAndVolumesOnHardDrive</Value>
+											</xr:Value>
+										</xr:Item>
+									</ChoiceList>
+									<BackColor>style:MasterFieldBackground</BackColor>
+									<ContextMenu name="FilesStorageMethodContextMenu" id="2136"/>
+									<ExtendedTooltip name="FilesStorageMethodExtendedTooltip" id="2137"/>
+									<Events>
+										<Event name="OnChange">FilesStorageMethodOnChange</Event>
+									</Events>
+								</InputField>
+							</ChildItems>
+						</UsualGroup>
+						<UsualGroup name="MoveFilesGroup" id="2153">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Move files</v8:content>
+								</v8:item>
+							</Title>
+							<Group>Vertical</Group>
+							<Behavior>Usual</Behavior>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="MoveFilesGroupExtendedTooltip" id="2154"/>
+							<ChildItems>
+								<Button name="FileTransfer" id="2144">
+									<Type>Hyperlink</Type>
+									<CommandName>Form.Command.FileTransfer</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Move files</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="TransferringFilesExtendedTooltip" id="2145"/>
+								</Button>
+							</ChildItems>
+						</UsualGroup>
 					</ChildItems>
 				</UsualGroup>
 			</ChildItems>
@@ -246,8 +300,14 @@
 						<Button name="CatalogFileStorageVolumes" id="1273">
 							<Type>Hyperlink</Type>
 							<CommandName>Form.Command.CatalogFileStorageVolumes</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Storage volumes</v8:content>
+								</v8:item>
+							</Title>
 							<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
-							<ExtendedTooltip name="FileStorageVolumesCatalogExtendedTooltip" id="2054">
+							<ExtendedTooltip name="CatalogFileStorageVolumesExtendedTooltip" id="2054">
 								<Title formatted="false">
 									<v8:item>
 										<v8:lang>en</v8:lang>
@@ -322,7 +382,6 @@
 					<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
-					<ThroughAlign>Use</ThroughAlign>
 					<ExtendedTooltip name="IBFilesExtensionsGroupExtendedTooltip" id="2179">
 						<AutoMaxWidth>false</AutoMaxWidth>
 						<Title formatted="false">
@@ -343,6 +402,8 @@
 							</Title>
 							<TitleHeight>2</TitleHeight>
 							<AutoMaxWidth>false</AutoMaxWidth>
+							<MaxWidth>21</MaxWidth>
+							<HorizontalStretch>true</HorizontalStretch>
 							<DropListButton>true</DropListButton>
 							<InputHint>
 								<v8:item>
@@ -471,7 +532,7 @@ This setting overrides the list of file types to be stored in the infobase.</v8
 								<v8:lang>en</v8:lang>
 								<v8:content>Specify a blacklist of space-delimited file extension types.
 Users will not be able to import these files into the application.
-See also: &lt;link http://1c.ru/news/info.jsp?id=21537/&gt;Example of a virus in an external data processor&lt;/&gt; (in Russian).</v8:content>
+See also: &lt;link http://1c.ru/news/info.jsp?id=21537&gt;Example of a virus in an external data processor&lt;/&gt; (in Russian).</v8:content>
 							</v8:item>
 						</Title>
 					</ExtendedTooltip>
@@ -496,7 +557,6 @@ See also: &lt;link http://1c.ru/news/info.jsp?id=21537/&gt;Example of a virus in
 						<InputField name="DeniedDataAreaExtensionsList" id="725">
 							<DataPath>ConstantsSet.DeniedDataAreaExtensionsList</DataPath>
 							<TitleLocation>None</TitleLocation>
-							<AutoMaxWidth>false</AutoMaxWidth>
 							<Height>2</Height>
 							<HorizontalStretch>true</HorizontalStretch>
 							<VerticalStretch>false</VerticalStretch>
@@ -562,6 +622,12 @@ See also: &lt;link http://1c.ru/news/info.jsp?id=21537/&gt;Example of a virus in
 							<ChildItems>
 								<InputField name="MaxDataAreaFileSize" id="714">
 									<DataPath>MaxDataAreaFileSize</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>File size limit</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<Width>5</Width>
 									<HorizontalStretch>false</HorizontalStretch>
@@ -708,10 +774,9 @@ You will be able to search for text within such files.</v8:content>
 									<v8:content>Text file types</v8:content>
 								</v8:item>
 							</Title>
-							<AutoMaxWidth>false</AutoMaxWidth>
 							<HorizontalStretch>true</HorizontalStretch>
 							<ContextMenu name="TestFilesExtensionsListContextMenu" id="1975"/>
-							<ExtendedTooltip name="TestFilesExtensionsListExtendedTooltip" id="2070"/>
+							<ExtendedTooltip name="TextFilesExtensionsListExtendedTooltip" id="2070"/>
 							<Events>
 								<Event name="OnChange">TestFilesExtensionsListOnChange</Event>
 							</Events>
@@ -827,7 +892,7 @@ The application will try to autodetect encoding for such files.</v8:content>
 			<Behavior>Usual</Behavior>
 			<Representation>NormalSeparation</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="IndentGroup1ExtendedTooltip" id="2082"/>
+			<ExtendedTooltip name="GroupIndent1ExtendedTooltip" id="2082"/>
 			<ChildItems>
 				<UsualGroup name="CommonParametersForAllDataAreas" id="2022">
 					<Title>
@@ -888,6 +953,12 @@ The application will try to autodetect encoding for such files.</v8:content>
 									<ChildItems>
 										<InputField name="MaxFileSize" id="2035">
 											<DataPath>MaxFileSize</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>File size limit</v8:content>
+												</v8:item>
+											</Title>
 											<EditMode>EnterOnInput</EditMode>
 											<Width>5</Width>
 											<Wrap>false</Wrap>
@@ -931,7 +1002,7 @@ The application will try to autodetect encoding for such files.</v8:content>
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Prohibited file extensions</v8:content>
+											<v8:content>Blocked file extensions</v8:content>
 										</v8:item>
 									</Title>
 									<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
@@ -950,7 +1021,6 @@ The application will try to autodetect encoding for such files.</v8:content>
 													<v8:content>File type blacklist</v8:content>
 												</v8:item>
 											</Title>
-											<AutoMaxWidth>false</AutoMaxWidth>
 											<HorizontalStretch>true</HorizontalStretch>
 											<ContextMenu name="DeniedExtensionsListContextMenu" id="2014"/>
 											<ExtendedTooltip name="DeniedExtensionsListExtendedTooltip" id="2091"/>
@@ -1205,6 +1275,21 @@ You will be able to search for text within such files.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>CatalogFiles</Action>
+		</Command>
+		<Command name="StartDeduplication" id="39">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Deduplicate</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Remove duplicate files to save space in the infobase.</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>StartDeduplication</Action>
 		</Command>
 	</Commands>
 </Form>

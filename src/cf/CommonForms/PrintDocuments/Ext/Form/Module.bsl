@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -114,8 +115,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	RemoveSignatureAndSeal();
 	
-	SSLSubsystemsIntegration.PrintDocumentsOnCreateAtServer(ThisObject, Cancel, StandardProcessing);
-	PrintManagementOverridable.PrintDocumentsOnCreateAtServer(ThisObject, Cancel, StandardProcessing);
+	PrintManagement.PrintDocumentsOnCreateAtServer(ThisObject, Cancel, StandardProcessing);
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport.Print") Then
 		PrintManagementModuleNationalLanguageSupport = Common.CommonModule("PrintManagementNationalLanguageSupport");
@@ -192,10 +192,10 @@ Procedure ChoiceProcessing(ValueSelected, ChoiceSource)
 					EndIf;
 					If CommonClient.SubsystemExists("StandardSubsystems.FilesOperations") Then
 						ModuleFilesOperationsInternalClient = CommonClient.CommonModule("FilesOperationsInternalClient");
-						ModuleFilesOperationsInternalClient.NotifyAboutFileChanges(WrittenObjects);
+						ModuleFilesOperationsInternalClient.NotifyOfFilesModification(WrittenObjects);
 					EndIf;
 					
-					ShowUserNotification(, , NStr("en = 'Saved';"), PictureLib.Information32);					
+					ShowUserNotification(, , NStr("en = 'Saved';"), PictureLib.DialogInformation);					
 				EndIf;
 				
 			EndIf;
@@ -346,7 +346,7 @@ Procedure CompleteSigningSaveToFolder(Result, Context) Export
 	FilesInTempStorage = GetSignatureFiles(Result, Context.ValueSelected.TransliterateFilesNames);
 	FilesInTempStorage = PutFilesToArchive(FilesInTempStorage, Context.ValueSelected);
 	SavePrintFormsToDirectory(FilesInTempStorage, Context.ValueSelected.FolderForSaving);
-	ShowUserNotification(, , NStr("en = 'Signed and saved';"), PictureLib.Information32);
+	ShowUserNotification(, , NStr("en = 'Signed and saved';"), PictureLib.DialogInformation);
 EndProcedure
 
 &AtClient
@@ -378,10 +378,10 @@ Procedure CompleteSigningFiles(Result, Context) Export
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperationsInternalClient = CommonClient.CommonModule("FilesOperationsInternalClient");
-		ModuleFilesOperationsInternalClient.NotifyAboutFileChanges(WrittenObjects);
+		ModuleFilesOperationsInternalClient.NotifyOfFilesModification(WrittenObjects);
 	EndIf;
 	
-	ShowUserNotification(, , NStr("en = 'Saved and signed';"), PictureLib.Information32);
+	ShowUserNotification(, , NStr("en = 'Saved and signed';"), PictureLib.DialogInformation);
 	
 EndProcedure
 
@@ -565,7 +565,7 @@ Procedure Print(Command)
 EndProcedure
 
 &AtClient
-Procedure ShowHideCopiesCountSettings(Command)
+Procedure ShowHideSetSettingsButton(Command)
 	SetCopiesCountSettingsVisibility();
 EndProcedure
 
@@ -925,7 +925,7 @@ Procedure CreateAttributesAndFormItemsForPrintForms(PrintFormsCollection)
 			NewItem.Type = FormFieldType.SpreadsheetDocumentField;
 			NewItem.TitleLocation = FormItemTitleLocation.None;
 			NewItem.DataPath = AttributeName;
-			SetParametersOfTabularDocumentField(NewItem, PrintFormDetails.SpreadsheetDocument);
+			SetSpreadsheetFieldParameters(NewItem, PrintFormDetails.SpreadsheetDocument);
 			
 			// Print form settings table (continued).
 			NewPrintFormSetting.PageName = PageName;
@@ -937,7 +937,7 @@ Procedure CreateAttributesAndFormItemsForPrintForms(PrintFormsCollection)
 			NewPrintFormSetting.AttributeName = PreviouslyAddedPrintFormSetting.AttributeName;
 		EndIf;
 		
-		NewPrintFormSetting.TextOfGenerationError = PrintFormDetails.TextOfGenerationError;
+		NewPrintFormSetting.GenerationErrorText = PrintFormDetails.GenerationErrorText;
 		PrintFormNumber = PrintFormNumber + 1;
 	EndDo;
 	
@@ -948,7 +948,7 @@ Procedure CreateAttributesAndFormItemsForPrintForms(PrintFormsCollection)
 EndProcedure
 
 &AtServer
-Procedure SetParametersOfTabularDocumentField(SpreadsheetDocumentField, SpreadsheetDocument)
+Procedure SetSpreadsheetFieldParameters(SpreadsheetDocumentField, SpreadsheetDocument)
 	
 	SpreadsheetDocumentField.Output = EvalOutputUsage(SpreadsheetDocument);
 	SpreadsheetDocumentField.Edit = SpreadsheetDocumentField.Output = UseOutput.Enable And Not SpreadsheetDocument.ReadOnly;
@@ -1008,6 +1008,7 @@ Procedure SetUpFormItemsVisibility()
 	EndIf;
 	
 	Items.ShowHideSetSettingsButton.Visible = IsSetPrinting();
+	Items.ShowHideKitSetupAllActionsButton.Visible = IsSetPrinting();
 	Items.PrintFormsSettings.Visible = IsSetPrinting();
 	
 	SetSettingsAvailable = True;
@@ -1049,7 +1050,7 @@ Procedure SetOutputAvailabilityFlagInPrintFormsPresentations(HasOutputAllowed)
 		For Each PrintFormSetting In PrintFormsSettings Do
 			SpreadsheetDocumentField = Items[PrintFormSetting.AttributeName];
 			If SpreadsheetDocumentField.Output = UseOutput.Disable Then
-				PrintFormSetting.Presentation = PrintFormSetting.Presentation + " (" + NStr("en = 'output is not available';") + ")";
+				PrintFormSetting.Presentation = PrintFormSetting.Presentation + " (" + NStr("en = 'no output';") + ")";
 			ElsIf SpreadsheetDocumentField.Protection Then
 				PrintFormSetting.Presentation = PrintFormSetting.Presentation + " (" + NStr("en = 'print only';") + ")";
 			EndIf;
@@ -1136,10 +1137,13 @@ Procedure SetCurrentPage()
 	
 	Items.Language.Enabled = PrintFormSetting.OutputInOtherLanguagesAvailable;
 	
-	ExceptionOccurredDuringFormation = Not PrintFormAvailable And PrintFormSetting <> Undefined 
-		And ValueIsFilled(PrintFormSetting.TextOfGenerationError);
+	WasGenerationExceptionThrown = Not PrintFormAvailable And PrintFormSetting <> Undefined 
+		And ValueIsFilled(PrintFormSetting.GenerationErrorText);
 	
-	If ExceptionOccurredDuringFormation 	And UserTemplateUsed(PrintFormSetting.TemplatePath) Then
+	UserTemplateUsed = ValueIsFilled(PrintFormSetting.TemplatePath)
+		And UserTemplateUsed(PrintFormSetting.TemplatePath);
+	
+	If WasGenerationExceptionThrown And UserTemplateUsed Then
 		QueryText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot generate the print form. Reason:
 				|%1
@@ -1147,20 +1151,20 @@ Procedure SetCurrentPage()
 				|See the event log for details.
 				|
 				|You are using a customized template. Do you want to switch to the standard one?';"),
-			PrintFormSetting.TextOfGenerationError);
+			PrintFormSetting.GenerationErrorText);
 		
 		Buttons = New ValueList;
 		Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Use standard template';"));
 		Buttons.Add(DialogReturnCode.Cancel);
 	
-		NotifyDescription = New NotifyDescription("WhenReceivingResponse", ThisObject, PrintFormSetting);
+		NotifyDescription = New NotifyDescription("OnReceiveAnswer", ThisObject, PrintFormSetting);
 		ShowQueryBox(NotifyDescription, QueryText, Buttons, , DialogReturnCode.Yes);
 	EndIf;
 	
 EndProcedure
 
 &AtClient
-Procedure WhenReceivingResponse(Response, PrintFormSetting) Export
+Procedure OnReceiveAnswer(Response, PrintFormSetting) Export
 	
 	If Response = DialogReturnCode.Yes Then
 		DisableUserTemplate(PrintFormSetting.TemplatePath);
@@ -1379,7 +1383,7 @@ Function PutSpreadsheetDocumentsInTempStorage(PassedSettings)
 				
 				MaxLength = 218; // https://docs.microsoft.com/en-us/office/troubleshoot/office-suite-issues/error-open-document
 				If FileType = SpreadsheetDocumentFileType.XLS And StrLen(FullFileName) > MaxLength Then
-					MaxLength = MaxLength - 5; 
+					MaxLength = MaxLength - 5; // Reserve characters in order to generate a unique name.
 					If StrLen(TempDirectoryName) < MaxLength Then
 						FileName = Left(FileName, MaxLength - StrLen(TempDirectoryName) - StrLen(FileExtention) - 1);
 						FileNameWithExtension = FileName + "." + FileExtention;
@@ -1522,8 +1526,23 @@ Function StartGeneratingCombinedDoc()
 		TableOfPrintedForms, GenerationParameters, OfficeDocuments, CombinedDocStructure);
 EndFunction
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
-Procedure OpenCombinedDoc(Result, AdditionalValues) Export
+Procedure OpenCombinedDoc(Result, AdditionalParameters) Export
+	
+	If Result = Undefined Then
+		Return;
+	EndIf;
+	
+	If Result.Status <> "Completed2" Then
+		StandardSubsystemsClient.OutputErrorInfo(
+			Result.ErrorInfo);
+		Return;
+	EndIf;
+	
 	CombinedDocStructure = GetFromTempStorage(Result.ResultAddress);
 	NotificationDetailsCompletion = New NotifyDescription("OpenCombinedDocCompletion", ThisObject, CombinedDocStructure);
 	
@@ -1742,7 +1761,7 @@ Procedure WhenPreparingFileNames(FilesListInTempStorage, DirectoryName) Export
 	If ValueIsFilled(DirectoryName) Then
 		NotifyDescription = New NotifyDescription("OpenFolderSaveTo", ThisObject, DirectoryName); 
 		ShowUserNotification(NStr("en = 'Saved successfully.';"), NotifyDescription,
-			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Folder: %1';"), DirectoryName), PictureLib.Information32);
+			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Folder: %1';"), DirectoryName), PictureLib.DialogInformation);
 	EndIf;
 #EndIf
 	
@@ -1962,7 +1981,7 @@ Procedure RefreshCurrentPrintForm()
 		Return;
 	EndIf;
 	
-	PrintFormSetting.TextOfGenerationError =
+	PrintFormSetting.GenerationErrorText =
 		RegeneratePrintForm(PrintFormSetting.TemplateName, PrintFormSetting.AttributeName);
 		
 	PrintFormSetting.CurrentLanguage = CurrentLanguage;
@@ -1984,18 +2003,18 @@ Function RegeneratePrintForm(TemplateName, Var_AttributeName)
 		Raise NStr("en = 'Print form is not generated.';");
 	EndIf;
 	
-	TextOfGenerationError = "";
+	GenerationErrorText = "";
 	For Each PrintForm In PrintFormsCollection Do
 		If PrintForm.TemplateName = TemplateName Then
 			ThisObject[Var_AttributeName] = PrintForm.SpreadsheetDocument;
-			TextOfGenerationError = PrintForm.TextOfGenerationError;
-			SetParametersOfTabularDocumentField(Items[Var_AttributeName], PrintForm.SpreadsheetDocument);
+			GenerationErrorText = PrintForm.GenerationErrorText;
+			SetSpreadsheetFieldParameters(Items[Var_AttributeName], PrintForm.SpreadsheetDocument);
 		EndIf;
 	EndDo;
 	
 	SetCurrentSpreadsheetDocument(Var_AttributeName);
 	
-	Return TextOfGenerationError;
+	Return GenerationErrorText;
 	
 EndFunction
 
@@ -2015,7 +2034,7 @@ Procedure GoToDocumentCompletion(SelectedElement, AdditionalParameters) Export
 	SpreadsheetDocument = CurrentPrintForm;
 	SelectedDocumentArea = SpreadsheetDocument.Areas.Find(SelectedElement.Value);
 	
-	SpreadsheetDocumentField.CurrentArea = SpreadsheetDocument.Area("R1C1"); 
+	SpreadsheetDocumentField.CurrentArea = SpreadsheetDocument.Area("R1C1"); // 
 	
 	If SelectedDocumentArea <> Undefined Then
 		SpreadsheetDocumentField.CurrentArea = SpreadsheetDocument.Area(SelectedDocumentArea.Top,,SelectedDocumentArea.Bottom,);
@@ -2284,7 +2303,8 @@ Function SpreadsheetDocumentSignaturesAndSeals(SpreadsheetDocument)
 	
 	For Each Drawing In SpreadsheetDocument.Drawings Do
 		If PrintManagement.IsSignatureOrSeal(Drawing) Then
-			DrawingDetails = New Structure("Left,Top,Width,Height,Picture,Owner,BackColor,Name,Line");
+			DrawingDetails = New Structure("Left,Top,Width,Height,Picture,Owner,BackColor,Name,Line,
+				|PictureSize,VerticalAlign,HorizontalAlign");
 			FillPropertyValues(DrawingDetails, Drawing);
 			SpreadsheetDocumentDrawings.Add(DrawingDetails);
 		EndIf;

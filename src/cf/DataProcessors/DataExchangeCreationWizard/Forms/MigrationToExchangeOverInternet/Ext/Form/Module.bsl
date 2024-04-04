@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -14,7 +15,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	Parameters.Property("ExchangeNode", ExchangeNode);
 	
-	
+	// Get the current stage
 	Query = New Query;
 	Query.Text = 
 		"SELECT
@@ -513,7 +514,7 @@ Procedure OnCompleteGettingApplicationsListAtServer(GoToNext)
 			DataArea = ApplicationRow.DataArea;
 			CorrespondentEndpoint = ApplicationRow.CorrespondentEndpoint;
 			
-			
+			// Write the stage
 			RecordStructure = New Structure;
 			RecordStructure.Insert("InfobaseNode"					, ExchangeNode);
 			RecordStructure.Insert("MigrationToWebService_PeerEndpoint"	, CorrespondentEndpoint);
@@ -660,8 +661,8 @@ Procedure OnStartSettingUpPeerNode()
 	
 	TimeConsumingOperation = OnStartSettingUpPeerNodeAtServer();
 	
-	CompletionNotification2 = New NotifyDescription("NodePeerInfobaseSetupCompletion", ThisObject);
-	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CompletionNotification2, IdleParameters());
+	CallbackOnCompletion = New NotifyDescription("NodePeerInfobaseSetupCompletion", ThisObject);
+	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters());
 		
 EndProcedure
 
@@ -705,8 +706,8 @@ Procedure OnStartNodeSetup()
 	
 	TimeConsumingOperation = OnStartSettingUpNodeAtServer();
 	
-	CompletionNotification2 = New NotifyDescription("NodeSetupCompletion", ThisObject);
-	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CompletionNotification2, IdleParameters());
+	CallbackOnCompletion = New NotifyDescription("NodeSetupCompletion", ThisObject);
+	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters());
 		
 EndProcedure
 
@@ -735,7 +736,7 @@ Procedure NodeSetupCompletion(Result, AdditionalParameters) Export
 		CurrentStep = CurrentStep + 1;
 		RefreshStepsDisplay();
 		ClearUpTransitionStepsInRegister();
-		AttachIdleHandler("AfterAllStepsCompleted",1,True); 
+		AttachIdleHandler("AfterAllStepsCompleted",1,True); // Required for displaying the last stage.
 	EndIf;
 	
 EndProcedure

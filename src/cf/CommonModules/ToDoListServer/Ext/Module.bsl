@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -13,7 +14,7 @@
 // Is passed to the OnFillToDoList handlers.
 //
 // Returns:
-//  ValueTable - :
+//  ValueTable - Defines the parameters of a to-do item:
 //    * Id  - String - an internal to-do ID used by the subsystem.
 //    * HasToDoItems       - Boolean - if True, the to-do item is displayed in the user's to-do list.
 //    * Important         - Boolean - if True, the to-do item is highlighted in red.
@@ -49,7 +50,7 @@ Function ToDoList() Export
 	UserTasks1.Columns.Add("Owner");
 	UserTasks1.Columns.Add("ToolTip", New TypeDescription("String", New StringQualifiers(250)));
 	UserTasks1.Columns.Add("ToDoOwnerObject", New TypeDescription("String", New StringQualifiers(256)));
-	UserTasks1.Columns.Add("HasUserTasks"); 
+	UserTasks1.Columns.Add("HasUserTasks"); // 
 	
 	Return UserTasks1;
 	

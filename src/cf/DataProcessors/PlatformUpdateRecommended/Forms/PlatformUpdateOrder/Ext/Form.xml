@@ -30,12 +30,24 @@
 				<Button name="PrintGuide" id="13">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.PrintGuide</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Print</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="PrintGuideExtendedTooltip" id="14"/>
 				</Button>
 			</ChildItems>
 		</CommandBar>
 		<HTMLDocumentField name="PlatformUpdateOrder" id="5">
 			<DataPath>PlatformUpdateOrder</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>1C:Enterprise update procedure</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>None</TitleLocation>
 			<ContextMenu name="PlatformUpdateOrderContextMenu" id="6"/>
 			<ExtendedTooltip name="PlatformUpdateOrderExtendedTooltip" id="10"/>

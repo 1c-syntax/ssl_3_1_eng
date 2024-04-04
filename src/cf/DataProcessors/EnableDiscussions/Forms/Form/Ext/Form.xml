@@ -48,7 +48,7 @@
 									<v8:lang>en</v8:lang>
 									<v8:content>To enable conversations, create an application administrator account.
 
-&lt;link e1cib/list/Guide.Users&gt;Go to the list of users&lt;/&gt;</v8:content>
+Go to the list of users&lt;/&gt;</v8:content>
 								</v8:item>
 							</Title>
 							<ContextMenu name="CreateAdministratorRequiredNoteContextMenu" id="45"/>
@@ -140,8 +140,7 @@ Parameters of connection to the interaction server will be restored after unlock
 									<Title formatted="true">
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Enable conversations so that users of this application can communicate with each other online, create topic conversations, and correspond on specific documents, for example, orders, sales, or counterparties.
-</v8:content>
+											<v8:content>Enable conversations so that users of this application can communicate with each other online, create topic conversations, and correspond on specific documents, for example, orders, sales, or counterparties.</v8:content>
 										</v8:item>
 									</Title>
 									<ContextMenu name="ContinueRegistrationNoteContextMenu" id="18"/>
@@ -149,6 +148,12 @@ Parameters of connection to the interaction server will be restored after unlock
 								</LabelDecoration>
 								<InputField name="Email" id="7">
 									<DataPath>Email</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Email address</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<ToolTip>
 										<v8:item>
@@ -191,6 +196,12 @@ Parameters of connection to the interaction server will be restored after unlock
 									<ChildItems>
 										<RadioButtonField name="CollaborationServerChoiceDialog" id="111">
 											<DataPath>CollaborationServerChoice</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Select collaboration server</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<RadioButtonType>RadioButtons</RadioButtonType>
 											<ChoiceList>
@@ -216,6 +227,12 @@ Parameters of connection to the interaction server will be restored after unlock
 										</RadioButtonField>
 										<RadioButtonField name="CollaborationServerChoiceLocally" id="114">
 											<DataPath>CollaborationServerChoice</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Select collaboration server</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<ToolTipRepresentation>Button</ToolTipRepresentation>
 											<RadioButtonType>Auto</RadioButtonType>
@@ -239,7 +256,7 @@ Parameters of connection to the interaction server will be restored after unlock
 												<Title formatted="true">
 													<v8:item>
 														<v8:lang>en</v8:lang>
-														<v8:content>1C:Collaboration server is an application that implements the collaboration system server. You can deploy the collaboration server online or in the enterprise local network. &lt;link https://its.1c.ru/db/cs20doc&gt;More&lt;/&gt; (in Russian).</v8:content>
+														<v8:content>1C:Collaboration server is an application that implements the collaboration system server. You can deploy the collaboration server online or in the enterprise local network. More&lt;/&gt; (in Russian).</v8:content>
 													</v8:item>
 												</Title>
 											</ExtendedTooltip>
@@ -267,6 +284,12 @@ Parameters of connection to the interaction server will be restored after unlock
 												</LabelDecoration>
 												<InputField name="LocalCollaborationServerAddress" id="117">
 													<DataPath>CollaborationServerAddress</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Collaboration server URL</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>None</TitleLocation>
 													<InputHint>
 														<v8:item>
@@ -310,6 +333,12 @@ Parameters of connection to the interaction server will be restored after unlock
 						</LabelDecoration>
 						<InputField name="RegistrationCode" id="12">
 							<DataPath>RegistrationCode</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Registration code</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<AutoMaxWidth>false</AutoMaxWidth>
 							<InputHint>
@@ -430,6 +459,12 @@ Please wait…</v8:content>
 							<Type>CommandBarButton</Type>
 							<SkipOnInput>true</SkipOnInput>
 							<CommandName>Form.Command.Back</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>&lt; Back</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="BackExtendedTooltip" id="80"/>
 						</Button>
 					</ChildItems>
@@ -448,6 +483,12 @@ Please wait…</v8:content>
 							<Type>CommandBarButton</Type>
 							<DefaultButton>true</DefaultButton>
 							<CommandName>Form.Command.CreateAccount</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Register &gt;</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="Register1ExtendedTooltip" id="25"/>
 						</Button>
 						<Button name="Close" id="47">

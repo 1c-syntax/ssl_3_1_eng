@@ -181,6 +181,12 @@ You can paste the data from the clipboard or upload a spreadsheet file.</v8:cont
 					<ChildItems>
 						<RadioButtonField name="ImportOption" id="652">
 							<DataPath>ImportOption</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Import data</v8:content>
+								</v8:item>
+							</Title>
 							<RadioButtonType>Tumbler</RadioButtonType>
 							<ChoiceList>
 								<xr:Item>
@@ -324,6 +330,12 @@ You can paste the data from the clipboard or upload a spreadsheet file.</v8:cont
 										<Button name="ChangeTemplateFillTable" id="657">
 											<Type>Hyperlink</Type>
 											<CommandName>Form.Command.ChooseAnotherTemplate</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Edit template</v8:content>
+												</v8:item>
+											</Title>
 											<ToolTipRepresentation>Button</ToolTipRepresentation>
 											<ExtendedTooltip name="ChangeTemplateFillTableExtendedTooltip" id="658"/>
 										</Button>
@@ -360,6 +372,12 @@ Then import the spreadsheet to the application. The application supports the fol
 											<Width>25</Width>
 											<Height>2</Height>
 											<CommandName>Form.Command.ImportTableFromFile</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Import spreadsheet…</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="ImportTableFromFileExtendedTooltip" id="128"/>
 										</Button>
 										<Button name="SaveTemplateForFilling" id="125">
@@ -368,11 +386,23 @@ Then import the spreadsheet to the application. The application supports the fol
 											<Width>25</Width>
 											<Height>2</Height>
 											<CommandName>Form.Command.SaveTemplateForFilling</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Save template…</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="SaveTemplateForFillingExtendedTooltip" id="126"/>
 										</Button>
 										<Button name="ChooseAnotherTemplate" id="581">
 											<Type>Hyperlink</Type>
 											<CommandName>Form.Command.ChooseAnotherTemplate</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Edit template</v8:content>
+												</v8:item>
+											</Title>
 											<ToolTipRepresentation>Button</ToolTipRepresentation>
 											<ExtendedTooltip name="ChangeTemplateExtendedTooltip" id="582"/>
 										</Button>
@@ -401,6 +431,12 @@ Then import the spreadsheet to the application. The application supports the fol
 										</LabelDecoration>
 										<InputField name="TemplateWithDataSingleColumn" id="489">
 											<DataPath>TemplateWithDataSingleColumn</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Single-column data template</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<AutoMaxWidth>false</AutoMaxWidth>
 											<MultiLine>true</MultiLine>
@@ -442,8 +478,8 @@ Then import the spreadsheet to the application. The application supports the fol
 										</v8:item>
 									</Title>
 									<Picture>
-										<xr:Ref>CommonPicture.Information32</xr:Ref>
-										<xr:LoadTransparent>false</xr:LoadTransparent>
+										<xr:Ref>StdPicture.DialogInformation</xr:Ref>
+										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
 									<ContextMenu name="InformationDecoration32ContextMenu" id="549"/>
@@ -689,6 +725,12 @@ Unmapped data can be skipped or added as new items. Mapped data can be updated o
 									<Type>UsualButton</Type>
 									<Enabled>false</Enabled>
 									<CommandName>Form.Command.ResolveConflictConflict</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Resolve conflict…</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="ResolveConflictExtendedTooltip" id="460"/>
 								</Button>
 								<CommandBar name="GroupCommandBar" id="431">
@@ -715,6 +757,12 @@ Unmapped data can be skipped or added as new items. Mapped data can be updated o
 										<Button name="DataMappingTableCancelMapping" id="659">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.CancelMapping</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Clear mapping</v8:content>
+												</v8:item>
+											</Title>
 											<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 											<ExtendedTooltip name="DataMappingTableCancelMappingExtendedTooltip" id="660"/>
 										</Button>
@@ -766,6 +814,12 @@ Unmapped data can be skipped or added as new items. Mapped data can be updated o
 											<Button name="DataMappingTableContextMenuResolveConflict" id="487">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.ResolveConflictConflict</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Resolve conflict…</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="DataMappingTableContextMenuResolveConflictExtendedTooltip" id="488"/>
 											</Button>
 										</ChildItems>
@@ -983,6 +1037,12 @@ Unmapped data can be skipped or added as new items. Mapped data can be updated o
 											<ChildItems>
 												<LabelField name="CreatedItemsTotalReport" id="475">
 													<DataPath>CreatedItemsTotalReport</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Items added</v8:content>
+														</v8:item>
+													</Title>
 													<Format>
 														<v8:item>
 															<v8:lang>en</v8:lang>
@@ -994,6 +1054,12 @@ Unmapped data can be skipped or added as new items. Mapped data can be updated o
 												</LabelField>
 												<LabelField name="SkippedItemsTotalReport" id="481">
 													<DataPath>SkippedItemsTotalReport</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Total items skipped</v8:content>
+														</v8:item>
+													</Title>
 													<Format>
 														<v8:item>
 															<v8:lang>en</v8:lang>
@@ -1020,6 +1086,12 @@ Unmapped data can be skipped or added as new items. Mapped data can be updated o
 											<ChildItems>
 												<LabelField name="TotalItemsUpdatedReport" id="478">
 													<DataPath>TotalItemsUpdatedReport</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Items updated</v8:content>
+														</v8:item>
+													</Title>
 													<Format>
 														<v8:item>
 															<v8:lang>en</v8:lang>
@@ -1031,6 +1103,12 @@ Unmapped data can be skipped or added as new items. Mapped data can be updated o
 												</LabelField>
 												<LabelField name="TotalInvalidItemsReport" id="484">
 													<DataPath>TotalInvalidItemsReport</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Invalid items skipped</v8:content>
+														</v8:item>
+													</Title>
 													<Format>
 														<v8:item>
 															<v8:lang>en</v8:lang>
@@ -1194,6 +1272,12 @@ Also, you can save skipped lines to a file, revise them, and import them later.<
 											<Type>CommandBarButton</Type>
 											<Representation>Text</Representation>
 											<CommandName>Form.Command.ChangeAttributes</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Edit attributes…</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="ChangeAttributesExtendedTooltip" id="379"/>
 										</Button>
 									</ChildItems>
@@ -1259,6 +1343,12 @@ Also, you can save skipped lines to a file, revise them, and import them later.<
 								</LabelDecoration>
 								<ProgressBarField name="BackgroundJobPercentage" id="566">
 									<DataPath>BackgroundJobPercentage</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Background job progress</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<ShowPercent>true</ShowPercent>
 									<ContextMenu name="BackgroundJobPercentageContextMenu" id="567"/>
@@ -1333,12 +1423,24 @@ Also, you can save skipped lines to a file, revise them, and import them later.<
 							<Type>CommandBarButton</Type>
 							<Visible>false</Visible>
 							<CommandName>Form.Command.AddToList</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Add to list</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="AddToListExtendedTooltip" id="542"/>
 						</Button>
 						<Button name="Next" id="43">
 							<Type>CommandBarButton</Type>
 							<DefaultButton>true</DefaultButton>
 							<CommandName>Form.Command.Next</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Next &gt;</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="NextExtendedTooltip" id="44"/>
 						</Button>
 						<Button name="Close" id="45">
@@ -2013,6 +2115,18 @@ Also, you can save skipped lines to a file, revise them, and import them later.<
 			<Type>
 				<v8:Type>v8:TypeDescription</v8:Type>
 			</Type>
+		</Parameter>
+		<Parameter name="FieldPresentation">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Parameter>
+		<Parameter name="TemplateColumns">
+			<Type/>
 		</Parameter>
 	</Parameters>
 </Form>

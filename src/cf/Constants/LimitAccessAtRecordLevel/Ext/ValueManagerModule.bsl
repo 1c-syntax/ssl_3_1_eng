@@ -1,21 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Variables
 
-Var AccessRestrictionAtRecordLevelEnabled; 
-                                                 
-
-Var AccessRestrictionAtRecordLevelChanged; 
-                                                 
+// 
+Var PreviousValue2;
 
 #EndRegion
 
@@ -27,11 +25,22 @@ Procedure BeforeWrite(Cancel)
 		Return;
 	EndIf;
 	
-	AccessRestrictionAtRecordLevelEnabled
-		= Value And Not Constants.LimitAccessAtRecordLevel.Get();
+	PreviousValue2 = Constants.LimitAccessAtRecordLevel.Get();
 	
-	AccessRestrictionAtRecordLevelChanged
-		= Value <>   Constants.LimitAccessAtRecordLevel.Get();
+	If Value = PreviousValue2 Then
+		Return;
+	EndIf;
+	
+	If Common.IsStandaloneWorkplace() Then
+		ErrorText =
+			NStr("en = 'To update RLS access restrictions, go to the app in the service.';");
+		Raise ErrorText;
+		
+	ElsIf Common.IsSubordinateDIBNode() Then
+		ErrorText =
+			NStr("en = 'To update RLS access restrictions, go to the infobase''s master node.';");
+		Raise ErrorText;
+	EndIf;
 	
 EndProcedure
 
@@ -41,11 +50,11 @@ Procedure OnWrite(Cancel)
 		Return;
 	EndIf;
 	
-	If AccessRestrictionAtRecordLevelChanged Then
+	If Value <> PreviousValue2 Then
 		RefreshReusableValues();
 		Try
 			AccessManagementInternal.OnChangeAccessRestrictionAtRecordLevel(
-				AccessRestrictionAtRecordLevelEnabled);
+				Not PreviousValue2 And Value);
 		Except
 			RefreshReusableValues();
 			Raise;
@@ -59,37 +68,34 @@ EndProcedure
 #Region Private
 
 // For internal use only.
-Procedure RegisterAChangeWhenUploading(DataElement) Export
+Procedure RegisterChangeUponDataImport(DataElement) Export
 	
-	PreviousValue2 = Constants.LimitAccessAtRecordLevel.Get();
-	
-	If PreviousValue2 = DataElement.Value Then
+	If DataElement.Value = Constants.LimitAccessAtRecordLevel.Get() Then
 		Return;
 	EndIf;
 	
-	AccessRestrictionAtRecordLevelEnabled = PreviousValue2 And Not DataElement.Value;
-	
-	Catalogs.AccessGroups.RegisterRefs("LimitAccessAtRecordLevel",
-		AccessRestrictionAtRecordLevelEnabled);
+	SetPrivilegedMode(True);
+	UsersInternal.RegisterRefs("LimitAccessAtRecordLevel", True);
 	
 EndProcedure
 
 // For internal use only.
-Procedure ProcessTheChangeRegisteredDuringTheUpload() Export
+Procedure ProcessChangeRegisteredUponDataImport() Export
 	
 	If Common.DataSeparationEnabled() Then
-		// Right settings changes in SWP are locked and cannot be imported into the data area.
+		// 
 		Return;
 	EndIf;
 	
-	Changes = Catalogs.AccessGroups.RegisteredRefs("LimitAccessAtRecordLevel");
+	Changes = UsersInternal.RegisteredRefs("LimitAccessAtRecordLevel");
 	If Changes.Count() = 0 Then
 		Return;
 	EndIf;
 	
-	AccessManagementInternal.OnChangeAccessRestrictionAtRecordLevel(Changes[0]);
+	AccessManagementInternal.OnChangeAccessRestrictionAtRecordLevel(
+		Constants.LimitAccessAtRecordLevel.Get());
 	
-	Catalogs.AccessGroups.RegisterRefs("LimitAccessAtRecordLevel", Null);
+	UsersInternal.RegisterRefs("LimitAccessAtRecordLevel", Null);
 	
 EndProcedure
 

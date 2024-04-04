@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -22,8 +23,8 @@
 //      * Path   - String   - path to the file on the server. This key is used only if Status is True.
 //      * ErrorMessage - String - error message if Status is False.
 //      * Headers         - Map - see details of the Headers parameter of the HTTPResponse object in Syntax Assistant.
-//      * StatusCode      - Number - added in case of an error.
-//                                    For more information on the StateCode parameter of the HTTPResponse object, see the Syntax Assistant.
+//      * StatusCode      - Number - Added in case of an error.
+//                                    See the "StateCode" parameter of the "HTTPResponse" object in Syntax Assistant.
 //
 Function DownloadFileAtServer(Val URL, ReceivingParameters = Undefined, Val WriteError1 = True) Export
 	
@@ -52,8 +53,8 @@ EndFunction
 //                            The key is used only if the status is True.
 //      * ErrorMessage - String - error message if Status is False.
 //      * Headers         - Map - see details of the Headers parameter of the HTTPResponse object in Syntax Assistant.
-//      * StatusCode      - Number - added in case of an error.
-//                                    For more information on the StateCode parameter of the HTTPResponse object, see the Syntax Assistant.
+//      * StatusCode      - Number - Added in case of an error.
+//                                    See the "StateCode" parameter of the "HTTPResponse" object in Syntax Assistant.
 //
 Function DownloadFileToTempStorage(Val URL, ReceivingParameters = Undefined, Val WriteError1 = True) Export
 	
@@ -87,8 +88,8 @@ Function ProxySettingsAtClient() Export
 	
 	If Common.FileInfobase() Then
 		
-		
-		
+		// 
+		// 
 		
 		CurrentInfobaseSession1 = GetCurrentInfoBaseSession();
 		BackgroundJob = CurrentInfobaseSession1.GetBackgroundJob();
@@ -98,9 +99,9 @@ Function ProxySettingsAtClient() Export
 			
 			If Not ValueIsFilled(BackgroundJob.ScheduledJob.UserName) Then 
 				
-				
-				
-				
+				// 
+				// 
+				// 
 				
 				Sessions = GetInfoBaseSessions(); // Array of InfoBaseSession
 				For Each Session In Sessions Do 
@@ -172,6 +173,7 @@ EndFunction
 // Parameters:
 //  URL - String - URL resource address to be diagnosed.
 //  WriteError1 - Boolean - indicates whether it is necessary to write errors to the event log.
+//  IsPackageDeliveryCheckEnabled - Boolean - Include a PING command to the required URL resource in the diagnostics.
 //
 // Returns:
 //  Structure:
@@ -179,13 +181,13 @@ EndFunction
 //    *  DiagnosticsLog - String - a detailed log of diagnostics with technical details.
 //
 // Example:
-//	// Diagnostics of address classifier web service.
-//	Result = CommonClientServer.ConnectionDiagnostics("https://api.orgaddress.1c.com/orgaddress/v1?wsdl");
+//	Diagnostics of address classifier web service.
+//	Result = GetFilesFromInternet.ConnectionDiagnostics("https://api.orgaddress.1c.com/orgaddress/v1?wsdl");
 //	
-//	ErrorDetails = Result.ErrorDescription;
+//	ErrorDescription = Result.ErrorDescription;
 //	DiagnosticsLog = Result.DiagnosticsLog;
 //
-Function ConnectionDiagnostics(URL, WriteError1 = True) Export
+Function ConnectionDiagnostics(URL, WriteError1 = True, IsPackageDeliveryCheckEnabled = True) Export
 	
 	LongDesc = New Array;
 	LongDesc.Add(StringFunctionsClientServer.SubstituteParametersToString(
@@ -207,10 +209,17 @@ Function ConnectionDiagnostics(URL, WriteError1 = True) Export
 	EndIf;
 	
 	Log = New Array;
-	Log.Add(
-		NStr("en = 'Diagnostics log:
-		           |Server availability test.
-		           |See the error description in the next log record.';"));
+	If IsPackageDeliveryCheckEnabled Then
+		Log.Add(
+			NStr("en = 'Diagnostics log:
+			           |Server availability test.
+			           |See the error description in the next log record.';"));
+	Else
+		Log.Add(
+			NStr("en = 'Diagnostics log:
+			           |Monitoring server availability test.
+			           |See the error details in the next log record.';"));
+	EndIf;
 	Log.Add();
 	
 	RefStructure = CommonClientServer.URIStructure(URL);
@@ -235,47 +244,72 @@ Function ConnectionDiagnostics(URL, WriteError1 = True) Export
 			VerificationServerAddress = ModuleNetworkDownloadInternalLocalization.VerificationServerAddress();
 		EndIf;
 		
-		ResourceAvailabilityResult = GetFilesFromInternetInternal.CheckServerAvailability(ResourceServerAddress);
+		If IsPackageDeliveryCheckEnabled Then
+			ResourceAvailabilityResult = GetFilesFromInternetInternal.CheckServerAvailability(ResourceServerAddress);
+			
+			Log.Add();
+			Log.Add("1) " + ResourceAvailabilityResult.DiagnosticsLog);
 		
-		Log.Add();
-		Log.Add("1) " + ResourceAvailabilityResult.DiagnosticsLog);
-		
-		If ResourceAvailabilityResult.Available Then 
-			
-			LongDesc.Add(StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Attempted to access a resource that does not exist on server %1,
-				           |or some issues occurred on the remote server.';"),
-				ResourceServerAddress));
-			
-		Else 
-			
-			VerificationResult = GetFilesFromInternetInternal.CheckServerAvailability(VerificationServerAddress);
-			Log.Add("2) " + VerificationResult.DiagnosticsLog);
-			
-			If Not VerificationResult.Available Then
+			If ResourceAvailabilityResult.Available Then 
 				
-				LongDesc.Add(
-					NStr("en = 'No Internet access. Possible reasons:
-					           |- The computer is not connected to the Internet.
-					           | - Internet service provider issues.
-					           |- A firewall, antivirus, or another software
-					           | is blocking the connection.';"));
+				LongDesc.Add(StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'Attempted to access a resource that does not exist on server %1,
+					           |or some issues occurred on the remote server.';"),
+					ResourceServerAddress));
 				
 			Else 
 				
-				LongDesc.Add(StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Server %1 is unavailable. Possible reasons:
-					           |- Internet service provider issues.
-					           |- A firewall, antivirus, or another software
-					           | is blocking the connection.
-					           |- The server is turned off or under maintenance.';"),
-					ResourceServerAddress));
+				VerificationResult = GetFilesFromInternetInternal.CheckServerAvailability(VerificationServerAddress);
+				Log.Add("2) " + VerificationResult.DiagnosticsLog);
 				
-				TraceLog = GetFilesFromInternetInternal.ServerRouteTraceLog(ResourceServerAddress);
-				Log.Add("3) " + TraceLog);
+				If Not VerificationResult.Available Then
+					
+					LongDesc.Add(
+						NStr("en = 'No Internet access. Possible reasons:
+						           |- Computer is not connected to the Internet.
+						           | - Internet provider issues.
+						           |- Access blocked by firewall, antivirus, or another software.';"));
+					
+				Else 
+					
+					LongDesc.Add(StringFunctionsClientServer.SubstituteParametersToString(
+						NStr("en = 'Server %1 is currently unavailable. Possible reasons:
+						           |- Internet provider issues.
+						           |- Access blocked by firewall, antivirus, or other software.
+						           |- Server is disabled or undergoing maintenance.';"),
+						ResourceServerAddress));
+					
+					TraceLog = GetFilesFromInternetInternal.ServerRouteTraceLog(ResourceServerAddress);
+					Log.Add("3) " + TraceLog);
+					
+				EndIf;
 				
 			EndIf;
-			
+		Else
+			VerificationResult = GetFilesFromInternetInternal.CheckServerAvailability(VerificationServerAddress);
+				Log.Add("1) " + VerificationResult.DiagnosticsLog);
+				
+				If Not VerificationResult.Available Then
+					
+					LongDesc.Add(
+						NStr("en = 'No Internet access. Possible reasons:
+						           |- Computer is not connected to the Internet.
+						           | - Internet provider issues.
+						           |- Access blocked by firewall, antivirus, or another software.';"));
+					
+				Else 
+					
+					LongDesc.Add(StringFunctionsClientServer.SubstituteParametersToString(
+						NStr("en = 'Server %1 is currently unavailable. Possible reasons:
+						           |- Internet provider issues.
+						           |- Access blocked by firewall, antivirus, or other software.
+						           |- Server is disabled or undergoing maintenance.';"),
+						ResourceServerAddress));
+					
+					TraceLog = GetFilesFromInternetInternal.ServerRouteTraceLog(ResourceServerAddress);
+					Log.Add("2) " + TraceLog);
+					
+				EndIf;
 		EndIf;
 		
 	EndIf;
@@ -298,6 +332,32 @@ Function ConnectionDiagnostics(URL, WriteError1 = True) Export
 	Result.Insert("DiagnosticsLog", DiagnosticsLog);
 	
 	Return Result;
+	
+EndFunction
+
+// Defines the import timeout (in seconds) for the given file size.
+// The timeout equals the file size multiplied by 128.
+// If the size if unknown, then the timeout is maximum (no more than 43200).
+// The minimal timeout is 30, which is required to establish a connection.
+//
+// Parameters:
+//  Size - Number - File size in bytes.
+//
+// Returns:
+//  Number
+//
+Function FileImportTimeout(Size) Export
+	
+	BytesInMegabyte = 1048576;
+	
+	Timeout = Round(Size / BytesInMegabyte * 128);
+	If Timeout > 43200 Then
+		Timeout = 43200;
+	ElsIf Timeout < 30 Then
+			Timeout = 30;
+	EndIf;
+	
+	Return Timeout;
 	
 EndFunction
 

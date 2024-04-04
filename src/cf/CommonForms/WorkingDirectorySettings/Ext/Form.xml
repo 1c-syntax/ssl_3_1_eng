@@ -39,7 +39,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="LocationGroup2ExtendedTooltip" id="30"/>
+			<ExtendedTooltip name="GroupLocationExtendedTooltip" id="30"/>
 			<ChildItems>
 				<InputField name="UserWorkingDirectory" id="4">
 					<DataPath>UserWorkingDirectory</DataPath>
@@ -65,6 +65,12 @@
 					<Type>UsualButton</Type>
 					<SkipOnInput>false</SkipOnInput>
 					<CommandName>Form.Command.DefaultPathToWorkingDirectory</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Default working directory</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="DefaultPathToWorkingDirectoryExtendedTooltip" id="32"/>
 				</Button>
 			</ChildItems>
@@ -88,6 +94,12 @@
 		</InputField>
 		<CheckBoxField name="DeleteFileFromLocalFileCacheOnCompleteEdit" id="16">
 			<DataPath>DeleteFileFromLocalFileCacheOnCompleteEdit</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Delete files after committing</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>Right</TitleLocation>
 			<CheckBoxType>Auto</CheckBoxType>
 			<ContextMenu name="DeleteFileFromLocalFileCacheOnCompleteEditContextMenu" id="17"/>
@@ -121,7 +133,7 @@
 					<Wrap>false</Wrap>
 					<BorderColor>style:BorderColor</BorderColor>
 					<ContextMenu name="TotalCount2ContextMenu" id="12"/>
-					<ExtendedTooltip name="TotalCount2ExtendedTooltip" id="37"/>
+					<ExtendedTooltip name="TotalFilesCountExtendedTooltip" id="37"/>
 				</InputField>
 				<InputField name="WorkingDirectoryFilesSize" id="9">
 					<DataPath>WorkingDirectoryFilesSize</DataPath>

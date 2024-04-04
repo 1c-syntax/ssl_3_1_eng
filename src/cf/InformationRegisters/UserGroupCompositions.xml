@@ -176,7 +176,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Valid user</v8:content>
+							<v8:content>Active user</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -189,7 +189,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>If this check box is selected, the group of users (or external users) is not marked for deletion and the user (or external user) is valid and not marked for deletion.</v8:content>
+							<v8:content>If this check box is selected, the group of users (external users) is not marked for deletion and the user (external user) is valid and not marked for deletion.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>

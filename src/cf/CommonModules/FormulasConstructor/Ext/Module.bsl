@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -102,10 +103,10 @@ EndFunction
 // 
 // Parameters:
 //   FieldSource   - See FieldTable
-//                    See FieldTree
-//                   
-//                                             
-//                                             
+//                   - ValueTree - See FieldTree
+//                   - DataCompositionSchema - A field list is taken from the "FilterAvailableFields" collection of the Settings Composer.
+//                                             The collection name can be overridden in the "DCSCollectionName" parameter.
+//                                             - String - The address of the value in the temporary storage.
 //                   
 //   NameOfTheSKDCollection - String - a field collection name in the Settings Composer. Use the parameter if
 //                              a data composition schema is passed in the FieldSource parameter.
@@ -157,7 +158,7 @@ Procedure PerformASearchInTheListOfFields(Form) Export
 	
 EndProcedure
 
-// 
+// A universal handler in the client context.
 // 
 // Parameters:
 //  Form - ClientApplicationForm
@@ -222,9 +223,10 @@ Function FormulaPresentation(FormulaParameters) Export
 	
 EndFunction
 
-// 
-// 
-//  (See AddAListOfFieldsToTheForm)
+// Generates the formula representation in the user's language.
+// Operators and operands are replaced with their presentations.
+// For usage in forms with default operand lists, (See AddAListOfFieldsToTheForm)
+// .
 //
 // Parameters:
 //  Form - ClientApplicationForm
@@ -244,17 +246,17 @@ EndFunction
 // Returns:
 //  Structure:
 //   * Formula - String
-//   * Operands - String - : 
-//                          See FieldTable
-//                          See FieldTree
-//                         
+//   * Operands - String - The address of an operand collection in the temporary storage. Valid values are: 
+//                         ValueTable - See FieldTable
+//                         ValueTree - See FieldTree
+//                         DataCompositionSchema - The operand list is taken from the "FilterAvailableFields" collection of the Settings Composer.
+//                                                  You can override the collection name in the "DCSCollectionName" parameter.
 //                                                  
-//                                                  
-//   * Operators - String - : 
-//                          See FieldTable
-//                          See FieldTree
-//                         
-//                                                  
+//   * Operators - String - The address of an operator collection in the temporary storage. Valid values are: 
+//                         ValueTable - See FieldTable
+//                         ValueTree - See FieldTree
+//                         DataCompositionSchema - The operand list is taken from the "FilterAvailableFields" collection of the Settings Composer.
+//                                                  You can override the collection name in the "DCSCollectionName" parameter.
 //                                                  
 //   * OperandsDCSCollectionName  - String - a field collection name in the Settings Composer. Use the parameter
 //                                          if a data composition schema is passed in the Operands parameter.

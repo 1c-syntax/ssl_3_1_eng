@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -13,33 +14,32 @@
 //
 // Parameters:
 //  CommonParameters - Structure:
-//      * PersonalSettingsFormName            - String - Name of the user settings edit form.
-//      * AskConfirmationOnExit - Boolean - True by default. If False, 
-//                                                                  the exit confirmation is not
-//                                                                  requested when exiting the application, if it is not clearly enabled in
-//                                                                  the personal application settings.
-//
-//      * MinPlatformVersion - String - a minimum platform version required to start the application.
-//                                              The application startup on the platform version earlier than the specified one will be unavailable.
-//                                              For example, "8.3.6.1650".
-//                                              You can specify multiple semicolon-separated platform versions.
-//                                              In this case, the minimum platform version is selected based
-//                                              on the current one.
-//                                              For example: "8.3.14.1694; 8.3.15.2107; 8.3.16.1791".
-//                                              If you use version 8.3.14, you will be offered to migrate to 8.3.14.1694.
-//                                              To use version 8.3.15, you will be offered 8.3.15.2107 and for version 8.3.16, you will be offered 8.3.16.1791.
-//
-//      * RecommendedPlatformVersion            - String - a recommended platform version for the application startup.
-//                                                           For example, "8.3.8.2137".
-//                                                           You can specify multiple semicolon-separated platform versions
-//                                                           . See the MinPlatformVersion parameter as an example.
-//      * DisableMetadataObjectsIDs - Boolean - disables completing the MetadataObjectIDs
+//      * ShouldIncludeFullStackInLongRunningOperationErrors  - Boolean -  
+//               
+//              
+//              
+//              
+//      * AskConfirmationOnExit - Boolean -  
+//              
+//              
+//      * PersonalSettingsFormName  - String - Name of the user settings edit form.
+//      * MinPlatformVersion    - String - 
+//              
+//              
+//              
+//               
+//               
+//              
+//      * DisableMetadataObjectsIDs - Boolean - disables completing the MetadataObjectIDs 
 //              and ExtensionObjectIDs catalogs, as well as the export/import procedure for DIB nodes.
 //              For partial embedding certain library functions into the configuration without enabling support.
-//      * RecommendedRAM - Number - Obsolete. Gigabytes RAM recommended for the application.
-//                                                      By default, 4 GB.
+//      * RecommendedPlatformVersion              - String - 
+//               
+//              
+//      * RecommendedRAM       - Number -  
+//               
 //
-//    Instead, use MinimumPlatformVersion and RecommendedPlatformVersion properties:
+//    :
 //      * MinPlatformVersion1    - String - Full platform version required to start the application.
 //                                                           For example, "8.3.4.365".
 //      * MustExit               - Boolean - the initial value is False.
@@ -50,28 +50,29 @@ Procedure OnDetermineCommonCoreParameters(CommonParameters) Export
 	
 EndProcedure
 
-// 
-// 
-// 
+// Defines the map between session parameter names and their installing handlers.
+// Called to initialize session parameters from the event handler of the SessionParametersSetting session module
+// (for more details, see Syntax Assistant).
 //
+// The specified modules must contain the handler procedure the parameters are being passed to:
+//  ParameterName - String - Parameter name of session to be set.
+//  SpecifiedParameters - Array - Names of parameters that are already specified.
 // 
-//  
-//  
-// 
-// 
+// The following is an example of a handler procedure for copying to the specified modules.
 //
-//
-//
-//
+//Parameters:
+//ParameterName - String
+//SpecifiedParameters - Array of String
 ////
 //
 //	
-//  
-//		
-//		
-//  
+//  Procedure SessionParametersSetting(ParameterName, SpecifiedParameters) Export
+//		If ParameterName = "CurrentUser" Then
+//		SessionParameters.CurrentUser = Value;
+//  SpecifiedParameters.Add ("CurrentUser);
 //	
-//
+//EndIf;
+// EndProcedure
 //
 // Parameters:
 //  Handlers - Map of KeyAndValue:
@@ -91,10 +92,10 @@ Procedure OnAddSessionParameterSettingHandlers(Handlers) Export
 	
 EndProcedure
 
-// Allows you to set parameters values required for the operation of the client code when
+// Allows you to set parameters values required for the operation of client-side code when
 // starting configuration (in the BeforeStart or OnStart event handlers) 
 // without additional server calls. 
-// To get the values of these parameters from the client code
+// To get the values of these parameters from client-side code
 // See StandardSubsystemsClient.ClientParametersOnStart.
 //
 // Important: do not use cache reset commands of modules that reuse return values 
@@ -111,9 +112,9 @@ Procedure OnAddClientParametersOnStart(Parameters) Export
 	
 EndProcedure
 
-// Allows you to set parameters values required for the operation of the client code
-// configuration without additional server calls.
-// To get these parameters from the client code
+// Allows you to set parameters values required for the operation of client-side code
+// without additional server calls.
+// To get these parameters from client-side code
 // See StandardSubsystemsClient.ClientRunParameters.
 //
 // Parameters:
@@ -127,58 +128,58 @@ Procedure OnAddClientParameters(Parameters) Export
 	
 EndProcedure
 
-//  
-// 
+// Intended for running actions that must be started prior to the start of a session. 
+// For example, the app can set up the home page and other UI elements depending on the selected mode.
 //
-//  
-// 
-// 
+// The procedure is called in client sessions and scheduled job sessions after checking 
+// the minimum 1C:Enterprise version specified in CommonOverridable.OnDetermineCommonCoreParameters.
+// The procedure cannot be called from scheduled job sessions.
 //
-// 
-//  
-// 
+// To ensure that the client session is running, check that CurrentRunMode() is not "Undefined".
+// To determine the other session types, use the condition GetCurrentInfoBaseSession().ApplicationName = "Name". 
+// For example, "WSConnection" or "BackgroundJob".
 //
-// 
+// The procedure is called in the privileged mode.
 //
-//  
-// 
-// 
-//  
+// We recommend that you place your code here rather than in the SessionParametersSetting event handler of the session module 
+// and check the condition SessionParametersNames = Undefined.
+// NOTE: Before this procedure is started, the updated handlers and the initialization might not be finished.
+// Therefore, running some procedures and functions that depend on these actions might be unsafe. 
 // 
 //
 Procedure BeforeStartApplication() Export
 
 EndProcedure
 
-// 
-// 
-// 
+// Defines metadata objects and separate attributes that are excluded from the results of reference search
+// and not included in exclusive delete marked, changing references and in the report of usage locations.
+// See also: Common.RefsSearchExclusions.
 //
-// 
-// 
-// 
-// 
-// 
-// 
+// For example, the Object versioning subsystem and the Properties subsystem are attached to the Sales of goods and services document.
+// This document can also be specifier in other metadata objects - document or registers.
+// Some of them are important for business logic (like register records) and must be shown to user.
+// Other part is "technical" references, referred to the document from the Object versioning and the Properties subsystems.
+// Such technical references must be hidden from users when deleting, analyzing locations of usage, or prohibiting to edit key attributes.
+// The list of technical objects must be specified in this procedure.
 //
-// 
-// 
-//   
-//     
-//   
-//     
-//     
-//     
-// 
+// At the same time, in order to avoid the appearance of references to non-existent objects,
+// it is recommended to provide a procedure for clearing the specified metadata objects.
+//   * For information register dimensions select the Master check box,
+//     this deletes the register record data once the respective reference specified in a dimension is deleted.
+//   * For other attributes of the specified objects, use the BeforeDelete subscription event of all metadata
+//     object types that can be recorded to the attributes of the specified metadata objects.
+//     It is required to find the "technical" objects in the handler that contain the reference to the object to be deleted in the attributes
+//     and select the way of reference clearing: clear the attribute value, delete the row, or delete the whole object.
+// For more information see the documentation to the "Deletion of marked objects" subsystem.
 //
-// 
-// 
-// 
+// When excluding registers, you can exclude only Dimensions.
+// If you need to exclude values from the search in the resources
+// or in the register attributes, it is required to exclude the entire register.
 //
 // Parameters:
-//   RefSearchExclusions - Array - 
-//       
-//       
+//   RefSearchExclusions - Array - Metadata objects or their attributes (MetadataObject, String)
+//       that are not included in the scope of the business logic.
+//       Standard attributes and tables can be provided only as String names (see the example below).
 //
 // Example:
 //   RefsSearchExclusions.Add(Metadata.InformationRegisters.ObjectsVersions);
@@ -191,9 +192,9 @@ Procedure OnAddReferenceSearchExceptions(RefSearchExclusions) Export
 	
 EndProcedure
 
-// 
-// 
-// 
+// Allows setting a list of subordinate objects and their links to main objects.
+// When replacing references, we recommend that you use subordinate objects if you must
+// generate some objects or select the replacement among the existing objects.
 //
 // Parameters:
 //  SubordinateObjects - See Common.SubordinateObjects
@@ -237,13 +238,13 @@ Procedure AfterReplaceRefs(Result, ExecutionParameters, SearchTable) Export
 
 EndProcedure
 
-// 
-//  
-// 
-// 
+// It is called when the infobase is updated to account to consider renaming subsystems and roles in the configuration.
+// Otherwise, there will be an asynchronization between the configuration metadata and 
+// the items of the MetadataObjectsIDs directory, which will lead to various errors when the configuration is running.
+// See also: Common.MetadataObjectID, Common.MetadataObjectsIDs.
 //
-//  
-// 
+// In this procedure, specify renaming only for the subsystems and roles for each version of the configuration. 
+// Do not specify renaming of the remaining metadata objects, since they are processed automatically.
 //
 // Parameters:
 //  Total - ValueTable - a table of renamings that requires filling.
@@ -316,13 +317,13 @@ Procedure OnDefineSupportedInterfaceVersions(SupportedVersions) Export
 	
 EndProcedure
 
-// 
-// 
-// 
-// 
+// Specifies parameters of the functional options that affect the interface and the desktop.
+// For example, if the functional option values are stored in resources of an information register,
+// the functional option parameters can define filters by register dimensions
+// that are taken into account during reading values of this functional option.
 //
-// 
-// 
+// See "GetInterfaceFunctionalOption",
+// "SetInterfaceFunctionalOptionsParameters", and "GetInterfaceFunctionalOptionsParameters" methods in Syntax Assistant.
 //
 // Parameters:
 //   InterfaceOptions - Structure - parameter values of functional options that are set for the command interface.
@@ -333,61 +334,61 @@ Procedure OnDetermineInterfaceFunctionalOptionsParameters(InterfaceOptions) Expo
 EndProcedure
 
 
-// 
-// 
-// 
-// 
+// Runs during the start of the session started to get a list of notifications
+// pending to be sent from the server to the client (from a scheduled job).
+// For details, see StandardSubsystemsServer.OnSendServerNotification,
+// and StandardSubsystemsClient.OnReceiptServerNotification.
 //
 // Parameters:
 //  Notifications - Map of KeyAndValue:
-//   * Key     - String - 
+//   * Key     - String - See: ServerNotifications.NewServerNotification.Name
 //   * Value - See ServerNotifications.NewServerNotification
 //
 // Example:
+//	Notification = ServerNotifications.NewServerNotification(
+//		"StandardSubsystems.UsersSessions.SessionsLock");
+//	Notification.NotificationSendModuleName = "IBConnections";
+//	Notification.NotificationReceiptModuleName = "IBConnectionsClient";
+//	Notification.VerificationPeriod = 300;
 //	
-//		
-//	
-//	
-//	
-//	
-//	
+//	Notifications.Insert(Notification.Name, Notification);
 //
 Procedure OnAddServerNotifications(Notifications) Export
 	
 EndProcedure
 
-// 
-// 
-// 
-// 
+// Called from the global idle handler on demand but no more than once every 60 seconds.
+// It is intended for obtaining data from the client and returning the outcome back if required.
+// For example, to transfer the open window statistics and return the flag indicating whether the transfer should continue.
+// To receive data on the server, pass them in the "Parameters" parameter of the procedure
 //
-// 
-// 
+// CommonClientOverridable.BeforeRecurringClientDataSendToServer.
+// To return data from the server, fill the "Results" parameter on the client.
 //
-// 
-// 
+// The parameter will be passed to the procedure
+// CommonClientOverridable.AfterRecurringReceiptOfClientDataOnServer.
 // 
 //
 // Parameters:
 //  Parameters - Map of KeyAndValue:
-//    * Key     - String       - 
-//    * Value - Arbitrary - 
+//    * Key     - String       - Name of a parameter obtained from the client.
+//    * Value - Arbitrary - Value of a parameter obtained from the client.
 //  Results - Map of KeyAndValue:
-//    * Key     - String       - 
-//    * Value - Arbitrary - 
+//    * Key     - String       - Name of a parameter returned to the client.
+//    * Value - Arbitrary - Value of a parameter returned to the client.
 //
 // Example:
-//	
-//	
-//		
-//			
-//			
-//		
-//	
-//		
-//	
-//	
-//		
+//	StartMoment = CurrentUniversalDateInMilliseconds();
+//	Try
+//		If Common.SubsystemExists("StandardSubsystems.MonitoringCenter") Then
+//			ModuleMonitoringCenterInternal = Common.CommonModule("MonitoringCenterInternal");
+//			ModuleMonitoringCenterInternal.OnReceiptRecurringClientDataOnServer(Parameters, Results);
+//		EndIf;
+//	Exception
+//		ServerNotifications.HandleError(ErrorInfo());
+//	EndTry;
+//	ServerNotifications.AddIndicator(Results, StartMoment,
+//		"MonitoringCenterInternal.OnReceiptRecurringClientDataOnServer");
 //
 Procedure OnReceiptRecurringClientDataOnServer(Parameters, Results) Export
 	
@@ -402,9 +403,9 @@ EndProcedure
 //
 // Parameters:
 //  Source                  - ExchangePlanObject - a node, for which the exchange is performed.
-//  DataElement             - Arbitrary - see the details of the handler of the same name in the Syntax Assistant.
-//  ItemSend          - DataItemSend - see the details of the handler of the same name in the Syntax Assistant.
-//  InitialImageCreating  - Boolean - see the details of the handler of the same name in the Syntax Assistant.
+//  DataElement             - Arbitrary - See the same-name handler in Syntax Assistant.
+//  ItemSend          - DataItemSend - See the same-name handler in Syntax Assistant.
+//  InitialImageCreating  - Boolean - See the same-name handler in Syntax Assistant.
 //
 Procedure OnSendDataToSlave(Source, DataElement, ItemSend, InitialImageCreating) Export
 	
@@ -416,8 +417,8 @@ EndProcedure
 //
 // Parameters:
 //  Source          - ExchangePlanObject - a node, for which the exchange is performed.
-//  DataElement     - Arbitrary - see the details of the handler of the same name in the Syntax Assistant.
-//  ItemSend  - DataItemSend - see the details of the handler of the same name in the Syntax Assistant.
+//  DataElement     - Arbitrary - See the same-name handler in Syntax Assistant.
+//  ItemSend  - DataItemSend - See the same-name handler in Syntax Assistant.
 //
 Procedure OnSendDataToMaster(Source, DataElement, ItemSend) Export
 	
@@ -429,9 +430,9 @@ EndProcedure
 //
 // Parameters:
 //  Source          - ExchangePlanObject - a node, for which the exchange is performed.
-//  DataElement     - Arbitrary - see the details of the handler of the same name in the Syntax Assistant.
-//  ItemReceive - DataItemReceive - see the details of the handler of the same name in the Syntax Assistant.
-//  SendBack     - Boolean - see the details of the handler of the same name in the Syntax Assistant.
+//  DataElement     - Arbitrary - See the same-name handler in Syntax Assistant.
+//  ItemReceive - DataItemReceive - See the same-name handler in Syntax Assistant.
+//  SendBack     - Boolean - See the same-name handler in Syntax Assistant.
 //
 Procedure OnReceiveDataFromSlave(Source, DataElement, ItemReceive, SendBack) Export
 	
@@ -443,9 +444,9 @@ EndProcedure
 //
 // Parameters:
 //  Source          - ExchangePlanObject - a node, for which the exchange is performed.
-//  DataElement     - Arbitrary - see the details of the handler of the same name in the Syntax Assistant.
-//  ItemReceive - DataItemReceive - see the details of the handler of the same name in the Syntax Assistant.
-//  SendBack     - Boolean - see the details of the handler of the same name in the Syntax Assistant.
+//  DataElement     - Arbitrary - See the same-name handler in Syntax Assistant.
+//  ItemReceive - DataItemReceive - See the same-name handler in Syntax Assistant.
+//  SendBack     - Boolean - See the same-name handler in Syntax Assistant.
 //
 Procedure OnReceiveDataFromMaster(Source, DataElement, ItemReceive, SendBack) Export
 	

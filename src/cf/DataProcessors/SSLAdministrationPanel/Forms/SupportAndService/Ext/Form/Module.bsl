@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -50,7 +51,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Common.SubsystemExists("OnlineUserSupport.CloudArchive20") Then
 		ModuleCloudArchive20 = Common.CommonModule("CloudArchive20");
-		ModuleCloudArchive20.Обслуживание_ПриСозданииНаСервере(ThisObject);
+		ModuleCloudArchive20.Maintenance_WhenCreatedOnServer(ThisObject);
 	Else
 		Items.CloudArchivePage.Visible = False;
 	EndIf;
@@ -120,8 +121,8 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 	EndIf;
 	
 	If CommonClient.SubsystemExists("OnlineUserSupport.CloudArchive20") Then
-		ModuleCloudArchive20Client = CommonClient.CommonModule("CloudArchive20Клиент");
-		ModuleCloudArchive20Client.Обслуживание_ОбработкаОповещения(ThisObject, EventName, Parameter, Source);
+		ModuleCloudArchive20Client = CommonClient.CommonModule("CloudArchive20Client");
+		ModuleCloudArchive20Client.Maintenance_NotificationProcessing(ThisObject, EventName, Parameter, Source);
 	EndIf;
 
 EndProcedure
@@ -143,10 +144,10 @@ EndProcedure
 &AtClient
 Procedure BackupRetentionOnChange(Item)
 	
-	
+	// Output the proper page depending on the given storage option.
 	If CommonClient.SubsystemExists("OnlineUserSupport.CloudArchive20") Then
-		ModuleCloudArchive20Client = CommonClient.CommonModule("CloudArchive20Клиент");
-		ModuleCloudArchive20Client.Обслуживание_ХранениеРезервныхКопийПриИзменении(ThisObject, BackupRetention);
+		ModuleCloudArchive20Client = CommonClient.CommonModule("CloudArchive20Client");
+		ModuleCloudArchive20Client.Maintenance_BackupRetentionOnChange(ThisObject, BackupRetention);
 	EndIf;
 	
 EndProcedure
@@ -162,7 +163,7 @@ EndProcedure
 Procedure CloudArchiveCreateBackupClick(Item)
 	
 	If CommonClient.SubsystemExists("OnlineUserSupport.CloudArchive20") Then
-		ModuleCloudArchive20Client = CommonClient.CommonModule("CloudArchive20Клиент");
+		ModuleCloudArchive20Client = CommonClient.CommonModule("CloudArchive20Client");
 		ModuleCloudArchive20Client.OpenBackupForm();
 	EndIf;
 	
@@ -172,8 +173,8 @@ EndProcedure
 Procedure CloudArchiveOpenBackupsClick(Item)
 	
 	If CommonClient.SubsystemExists("OnlineUserSupport.CloudArchive20") Then
-		ModuleCloudArchive20Client = CommonClient.CommonModule("CloudArchive20Клиент");
-		ModuleCloudArchive20Client.ОткрытьСписокРезервныхКопий();
+		ModuleCloudArchive20Client = CommonClient.CommonModule("CloudArchive20Client");
+		ModuleCloudArchive20Client.OpenListOfBackups();
 	EndIf;
 	
 EndProcedure
@@ -187,9 +188,9 @@ Procedure NoteCloudArchiveEnabledURLProcessing(
 	StandardProcessing = False;
 	
 	If CommonClient.SubsystemExists("OnlineUserSupport.CloudArchive20") Then
-		ModuleCloudArchive20Client = CommonClient.CommonModule("CloudArchive20Клиент");
+		ModuleCloudArchive20Client = CommonClient.CommonModule("CloudArchive20Client");
 		If FormattedStringURL = "setting" Then
-			ModuleCloudArchive20Client.ОткрытьФормуНастройкиОблачногоАрхива();
+			ModuleCloudArchive20Client.OpenCloudArchiveSetupForm();
 		EndIf;
 	EndIf;
 	
@@ -227,8 +228,8 @@ EndProcedure
 Procedure CloudArchiveBackupSettings(Command)
 	
 	If CommonClient.SubsystemExists("OnlineUserSupport.CloudArchive20") Then
-		ModuleCloudArchive20Client = CommonClient.CommonModule("CloudArchive20Клиент");
-		ModuleCloudArchive20Client.ОткрытьФормуНастройкиОблачногоАрхива();
+		ModuleCloudArchive20Client = CommonClient.CommonModule("CloudArchive20Client");
+		ModuleCloudArchive20Client.OpenCloudArchiveSetupForm();
 	EndIf;
 	
 EndProcedure
@@ -291,7 +292,7 @@ Procedure RefreshApplicationInterface()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
 Function OnChangeAttributeServer(TagName)

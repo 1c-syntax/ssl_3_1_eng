@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -408,7 +409,7 @@ Procedure UpdateLockState(Form)
 	If Form.SessionCount = 0 Then
 		
 		StateText = NStr("en = 'Lock pending…
-			|Users will be unable to use the application during the lock period.';");
+			|Users will be unable to use the app while the lock is set.';");
 		
 	Else
 		
@@ -450,17 +451,17 @@ Procedure SetInitialUserAuthorizationRestrictionStatus()
 	InitialUserAuthorizationRestrictionStatusValue = Object.DisableUserAuthorisation;
 	If Object.DisableUserAuthorisation Then
 		If CurrentSessionDate() < Object.LockEffectiveFrom Then
-			InitialUserAuthorizationRestrictionStatus = NStr("en = 'Users will be denied access to the application at the specified time.';");
+			InitialUserAuthorizationRestrictionStatus = NStr("en = 'Users will be denied access to the app at the specified time.';");
 			UsersAuthorizationRestrictionStatus = "Scheduled";
 		ElsIf CurrentSessionDate() > Object.LockEffectiveTo And Object.LockEffectiveTo <> '00010101' Then
-			InitialUserAuthorizationRestrictionStatus = NStr("en = 'Users are allowed to sign in to the application (the lock has expired).';");
+			InitialUserAuthorizationRestrictionStatus = NStr("en = 'Users are allowed to sign in to the app (the lock has expired)';");
 			UsersAuthorizationRestrictionStatus = "Expired";
 		Else
-			InitialUserAuthorizationRestrictionStatus = NStr("en = 'Users are denied access to the application.';");
+			InitialUserAuthorizationRestrictionStatus = NStr("en = 'Users are denied access to the app';");
 			UsersAuthorizationRestrictionStatus = "Prohibited";
 		EndIf;
 	Else
-		InitialUserAuthorizationRestrictionStatus = NStr("en = 'Users are allowed access to the application.';");
+		InitialUserAuthorizationRestrictionStatus = NStr("en = 'Users can access the app';");
 		UsersAuthorizationRestrictionStatus = "Allowed1";
 	EndIf;
 	
@@ -506,10 +507,6 @@ Procedure AfterGetAdministrationParametersOnLock(Result, AdditionalParameters) E
 		Return;
 	EndIf;
 	
-	ShowUserNotification(NStr("en = 'User access';"),
-		New NotifyDescription("OpeningHandlerOfAppWorkBlockForm", IBConnectionsClient),
-		?(Object.DisableUserAuthorisation, NStr("en = 'User access is denied.';"), NStr("en = 'User access is allowed.';")),
-		PictureLib.Information32);
 	IBConnectionsClient.SetTheUserShutdownMode(Object.DisableUserAuthorisation);
 	
 	If Object.DisableUserAuthorisation Then
@@ -519,6 +516,11 @@ Procedure AfterGetAdministrationParametersOnLock(Result, AdditionalParameters) E
 		Items.GroupMode.CurrentPage = Items.SettingsPage;
 		RefreshSettingsPage();
 	EndIf;
+	
+	ShowUserNotification(NStr("en = 'User access';"),
+		New NotifyDescription("OpeningHandlerOfAppWorkBlockForm", IBConnectionsClient),
+		?(Object.DisableUserAuthorisation, NStr("en = 'User access is denied.';"), NStr("en = 'User access is allowed.';")),
+		PictureLib.DialogInformation);
 	
 EndProcedure
 

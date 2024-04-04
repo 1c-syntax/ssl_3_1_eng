@@ -32,6 +32,12 @@
 		<LabelField name="Certificate" id="1">
 			<DataPath>Certificate</DataPath>
 			<ReadOnly>true</ReadOnly>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Certificate</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>None</TitleLocation>
 			<Width>50</Width>
 			<HorizontalStretch>false</HorizontalStretch>
@@ -110,6 +116,12 @@
 		</UsualGroup>
 		<CheckBoxField name="DontRemindAgain" id="7">
 			<DataPath>DontRemindAgain</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Don't remind again</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>Right</TitleLocation>
 			<CheckBoxType>Auto</CheckBoxType>
 			<ContextMenu name="DontRemindAgainContextMenu" id="8"/>

@@ -45,6 +45,12 @@
 							<ChildItems>
 								<InputField name="PresentationOfObjectsToChange" id="167">
 									<DataPath>PresentationOfObjectsToChange</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Edit</v8:content>
+										</v8:item>
+									</Title>
 									<Width>50</Width>
 									<HorizontalStretch>false</HorizontalStretch>
 									<ChoiceButton>true</ChoiceButton>
@@ -82,7 +88,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Group Operation type</v8:content>
+									<v8:content>Operation type</v8:content>
 								</v8:item>
 							</Title>
 							<HorizontalStretch>true</HorizontalStretch>
@@ -254,6 +260,12 @@
 																</InputField>
 																<CheckBoxField name="ObjectAttributesChange" id="123">
 																	<DataPath>ObjectAttributes.Change</DataPath>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Edit</v8:content>
+																		</v8:item>
+																	</Title>
 																	<TitleLocation>None</TitleLocation>
 																	<EditMode>EnterOnInput</EditMode>
 																	<HeaderPicture>
@@ -269,6 +281,12 @@
 																</CheckBoxField>
 																<InputField name="ObjectAttributesValue" id="129">
 																	<DataPath>ObjectAttributes.Value</DataPath>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>New value</v8:content>
+																		</v8:item>
+																	</Title>
 																	<EditMode>EnterOnInput</EditMode>
 																	<ContextMenu name="ObjectAttributesValueContextMenu" id="130"/>
 																	<ExtendedTooltip name="ObjectAttributesValueExtendedTooltip" id="131"/>
@@ -294,8 +312,8 @@
 															<ChildItems>
 																<PictureDecoration name="Decoration2" id="263">
 																	<Picture>
-																		<xr:Ref>CommonPicture.Information32</xr:Ref>
-																		<xr:LoadTransparent>false</xr:LoadTransparent>
+																		<xr:Ref>StdPicture.DialogInformation</xr:Ref>
+																		<xr:LoadTransparent>true</xr:LoadTransparent>
 																	</Picture>
 																	<FileDragMode>AsFile</FileDragMode>
 																	<ContextMenu name="Decoration2ContextMenu" id="264"/>
@@ -359,6 +377,12 @@
 													<ChildItems>
 														<InputField name="Algorithm" id="278">
 															<DataPath>Algorithm</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Algorithm</v8:content>
+																</v8:item>
+															</Title>
 															<InputHint>
 																<v8:item>
 																	<v8:lang>en</v8:lang>
@@ -370,6 +394,12 @@
 														</InputField>
 														<TextDocumentField name="AlgorithmCode" id="275">
 															<DataPath>AlgorithmCode</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Algorithm code</v8:content>
+																</v8:item>
+															</Title>
 															<TitleLocation>None</TitleLocation>
 															<Width>20</Width>
 															<Height>5</Height>
@@ -448,6 +478,12 @@
 																	<ChildItems>
 																		<InputField name="InvisibleFieldForAlignment" id="349">
 																			<DataPath>Algorithm</DataPath>
+																			<Title>
+																				<v8:item>
+																					<v8:lang>en</v8:lang>
+																					<v8:content>Algorithm</v8:content>
+																				</v8:item>
+																			</Title>
 																			<ContextMenu name="InvisibleFieldForAlignmentContextMenu" id="350"/>
 																			<ExtendedTooltip name="InvisibleFieldForAlignmentExtendedTooltip" id="351"/>
 																		</InputField>
@@ -514,6 +550,12 @@
 															<ChildItems>
 																<InputField name="ObjectAttributesAlgorithmPresentation" id="334">
 																	<DataPath>ObjectAttributes.Presentation</DataPath>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Presentation</v8:content>
+																		</v8:item>
+																	</Title>
 																	<EditMode>EnterOnInput</EditMode>
 																	<ContextMenu name="ObjectAttributesAlgorithmPresentationContextMenu" id="335"/>
 																	<ExtendedTooltip name="ObjectAttributesAlgorithmPresentationExtendedTooltip" id="336"/>
@@ -666,6 +708,12 @@
 											<Type>CommandBarButton</Type>
 											<Enabled>false</Enabled>
 											<CommandName>Form.Command.StubAlgorythms</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>&lt;No&gt;</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="StubAlgorythmsExtendedTooltip" id="340"/>
 										</Button>
 									</ChildItems>
@@ -683,6 +731,12 @@
 											<Type>CommandBarButton</Type>
 											<Enabled>false</Enabled>
 											<CommandName>Form.Command.Stub</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>&lt;No&gt;</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="StubExtendedTooltip" id="202"/>
 										</Button>
 									</ChildItems>
@@ -726,7 +780,7 @@
 							<v8:content>Edit objects</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="ChangeObjectsExtendedTooltip" id="86"/>
+					<ExtendedTooltip name="ObjectsChangeExtendedTooltip" id="86"/>
 					<ChildItems>
 						<LabelDecoration name="ProcessingResultsLabel" id="139">
 							<AutoMaxWidth>false</AutoMaxWidth>
@@ -847,6 +901,12 @@ Edit failed: 0</v8:content>
 										<InputField name="ObjectsThatCouldNotBeChangedCause" id="162">
 											<DataPath>ObjectsThatCouldNotBeChanged.Cause</DataPath>
 											<ReadOnly>true</ReadOnly>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Reason</v8:content>
+												</v8:item>
+											</Title>
 											<EditMode>EnterOnInput</EditMode>
 											<AutoCellHeight>true</AutoCellHeight>
 											<MultiLine>true</MultiLine>
@@ -859,6 +919,12 @@ Edit failed: 0</v8:content>
 								<InputField name="Cause" id="142">
 									<DataPath>Cause</DataPath>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Reason</v8:content>
+										</v8:item>
+									</Title>
 									<AutoMaxWidth>false</AutoMaxWidth>
 									<Height>2</Height>
 									<VerticalStretch>false</VerticalStretch>
@@ -999,6 +1065,12 @@ Total items edited: %1.</v8:content>
 						<Button name="FormBack" id="203">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.Back</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>&lt; Back</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="FormBackExtendedTooltip" id="204"/>
 						</Button>
 					</ChildItems>
@@ -1550,6 +1622,9 @@ Total items edited: %1.</v8:content>
 		<Parameter name="ObjectsArray">
 			<Type/>
 			<KeyParameter>true</KeyParameter>
+		</Parameter>
+		<Parameter name="SettingsComposer">
+			<Type/>
 		</Parameter>
 	</Parameters>
 </Form>

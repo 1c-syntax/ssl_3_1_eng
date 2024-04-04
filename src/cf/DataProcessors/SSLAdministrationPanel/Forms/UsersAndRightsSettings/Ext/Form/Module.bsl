@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -36,9 +37,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	If StandardSubsystemsServer.IsBaseConfigurationVersion()
-	 Or Common.IsStandaloneWorkplace() Then
+	 Or Common.IsSubordinateDIBNode() Then
 		
 		Items.UseUserGroups.Enabled = False;
+		Items.UseExternalUsers.Enabled = False;
 	EndIf;
 	
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
@@ -52,11 +54,22 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.AccessUpdateOnRecordsLevel.Visible =
 			ModuleAccessManagementInternal.LimitAccessAtRecordLevelUniversally(True);
 		
-		If Common.IsStandaloneWorkplace() Then
+		If Common.IsSubordinateDIBNode() Then
 			Items.LimitAccessAtRecordLevel.Enabled = False;
+			Items.LimitAccessAtRecordLevelUniversally.Enabled = False;
 		EndIf;
+		RegistrationOfAccessRightsChangesIsSupported =
+			ModuleAccessManagementInternal.RegistrationOfAccessRightsChangesIsSupported();
 	Else
 		Items.AccessGroupsGroup.Visible = False;
+		RegistrationOfAccessRightsChangesIsSupported = False;
+	EndIf;
+	
+	If Not RegistrationOfAccessRightsChangesIsSupported Then
+		Items.ShouldRegisterChangesInAccessRights.Title =
+			NStr("en = 'Log changes in user group membership';");
+		Items.ShouldRegisterChangesInAccessRights.ExtendedTooltip.Title =
+			NStr("en = 'Logging events of changes in user group membership.';");
 	EndIf;
 	
 	If Not Common.SubsystemExists("StandardSubsystems.PeriodClosingDates") Then
@@ -64,11 +77,29 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	If Common.SubsystemExists("StandardSubsystems.PersonalDataProtection") Then
-		Items.OpenPersonalDataAccessEventsRegistrationSettingsGroup.Visible =
+		Items.GroupPersonalDataAccessEventRegistrationSettings.Visible =
 			  Not Common.DataSeparationEnabled()
 			And Users.IsFullUser(, True);
 	Else
 		Items.PersonalDataProtectionGroup.Visible = False;
+	EndIf;
+	
+	If Not Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
+		Items.UserMonitoring.Visible = False;
+	EndIf;
+	
+	If Not Common.SubsystemExists("StandardSubsystems.UserMonitoring") Then
+		Items.GroupDataAccessAudit.Visible = False;
+		Items.ShouldRegisterChangesInAccessRights.Visible = False;
+		Items.GroupUserMonitoringLeftColumnVerticalIndent.Visible = True;
+		
+	ElsIf Common.DataSeparationEnabled()
+	      Or Not Users.IsFullUser(, True) Then
+		
+		Items.GroupDataAccessManagementSettings.Visible = False;
+	Else
+		UserExperienceMonitoringModule = Common.CommonModule("UserMonitoring");
+		ShouldRegisterDataAccess = UserExperienceMonitoringModule.ShouldRegisterDataAccess();
 	EndIf;
 	
 	If Common.DataSeparationEnabled() Then
@@ -119,6 +150,48 @@ Procedure UseUserGroupsOnChange(Item)
 EndProcedure
 
 &AtClient
+Procedure ShouldRegisterChangesInAccessRightsOnChange(Item)
+	Attachable_OnChangeAttribute(Item);
+EndProcedure
+
+&AtClient
+Procedure UseExternalUsersOnChange(Item)
+	
+	If ConstantsSet.UseExternalUsers Then
+		
+		QueryText =
+			NStr("en = 'Do you want to allow external user access?
+			           |
+			           |The user list in the startup dialog will be cleared
+			           |(attribute ""Show in choice list"" will be cleared and hidden from all user profiles).
+			           |';");
+		
+		ShowQueryBox(
+			New NotifyDescription(
+				"UseExternalUsersOnChangeCompletion",
+				ThisObject,
+				Item),
+			QueryText,
+			QuestionDialogMode.YesNo);
+	Else
+		QueryText =
+			NStr("en = 'Do you want to deny external user access?
+			           |
+			           |Attribute ""Login allowed"" will be cleared
+			           |in all external user cards.';");
+		
+		ShowQueryBox(
+			New NotifyDescription(
+				"UseExternalUsersOnChangeCompletion",
+				ThisObject,
+				Item),
+			QueryText,
+			QuestionDialogMode.YesNo);
+	EndIf;
+	
+EndProcedure
+
+&AtClient
 Procedure LimitAccessAtRecordLevelUniversallyOnChange(Item)
 	
 	If ConstantsSet.LimitAccessAtRecordLevelUniversally Then
@@ -161,7 +234,7 @@ Procedure LimitAccessAtRecordLevelOnChange(Item)
 			NStr("en = 'Access group settings will take effect gradually.
 			           |To monitor the progress, click ""RLS access update progress"".
 			           |
-			           |This might slow down the application and take
+			           |This might slow down the app and take
 			           |from seconds to a few hours depending on the data volume.';");
 		If ConstantsSet.LimitAccessAtRecordLevel Then
 			QueryText = NStr("en = 'Do you want to enable record-level access restrictions?';")
@@ -178,7 +251,7 @@ Procedure LimitAccessAtRecordLevelOnChange(Item)
 			           |This will initiate the ""Populate data for access restriction"" scheduled job to populate data in batches.
 			           |You can monitor the progress in the event log.
 			           |
-			           |The processing might slow down the application and take from seconds to a few hours depending on the data volume.';");
+			           |The processing might slow down the app and take from seconds to a few hours depending on the data volume.';");
 	Else
 		QueryText = "";
 	EndIf;
@@ -196,40 +269,8 @@ Procedure LimitAccessAtRecordLevelOnChange(Item)
 EndProcedure
 
 &AtClient
-Procedure UseExternalUsersOnChange(Item)
-	
-	If ConstantsSet.UseExternalUsers Then
-		
-		QueryText =
-			NStr("en = 'Do you want to allow external user access?
-			           |
-			           |The user list in the startup dialog will be cleared
-			           |(attribute ""Show in choice list"" will be cleared and hidden from all user profiles).
-			           |';");
-		
-		ShowQueryBox(
-			New NotifyDescription(
-				"UseExternalUsersOnChangeCompletion",
-				ThisObject,
-				Item),
-			QueryText,
-			QuestionDialogMode.YesNo);
-	Else
-		QueryText =
-			NStr("en = 'Do you want to deny external user access?
-			           |
-			           |Attribute ""Sign-in allowed"" will be cleared
-			           |in all external user cards.';");
-		
-		ShowQueryBox(
-			New NotifyDescription(
-				"UseExternalUsersOnChangeCompletion",
-				ThisObject,
-				Item),
-			QueryText,
-			QuestionDialogMode.YesNo);
-	EndIf;
-	
+Procedure ShouldRegisterDataAccessOnChange(Item)
+	RegisterDataAccessOnChangeAtServer(ShouldRegisterDataAccess);
 EndProcedure
 
 #EndRegion
@@ -239,6 +280,16 @@ EndProcedure
 &AtClient
 Procedure CatalogExternalUsers(Command)
 	OpenForm("Catalog.ExternalUsers.ListForm", , ThisObject);
+EndProcedure
+
+&AtClient
+Procedure UserMonitoring(Command)
+	
+	If CommonClient.SubsystemExists("StandardSubsystems.ReportsOptions") Then
+		ModuleReportsOptionsClient = CommonClient.CommonModule("ReportsOptionsClient");
+		ModuleReportsOptionsClient.ShowReportBar("Administration", Undefined);
+	EndIf;
+	
 EndProcedure
 
 &AtClient
@@ -290,7 +341,7 @@ Procedure Attachable_PDDestructionSettingsOnChange(Item)
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.PersonalDataProtection") Then
 		ModulePersonalDataProtectionClient = CommonClient.CommonModule("PersonalDataProtectionClient");
-		ModulePersonalDataProtectionClient.НастройкиУничтоженияПерсональныхДанныхПриИзменении(ThisObject);
+		ModulePersonalDataProtectionClient.SettingsForDestructionOfPersonalDataWhenChanging(ThisObject);
 	EndIf;
 
 	RefreshInterface = True;
@@ -352,7 +403,7 @@ Procedure UseExternalUsersOnChangeCompletion(Response, Item) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
 Function OnChangeAttributeServer(TagName)
@@ -376,6 +427,18 @@ Function OnChangeAttributeServer(TagName)
 	Return ConstantsNames;
 	
 EndFunction
+
+&AtServerNoContext
+Procedure RegisterDataAccessOnChangeAtServer(Val ShouldRegisterDataAccess)
+	
+	If Not Common.SubsystemExists("StandardSubsystems.UserMonitoring") Then
+		Return;
+	EndIf;
+	
+	UserExperienceMonitoringModule = Common.CommonModule("UserMonitoring");
+	UserExperienceMonitoringModule.SetDataAccessRegistration(ShouldRegisterDataAccess);
+	
+EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
 // Server

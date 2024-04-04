@@ -10,6 +10,12 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.Select</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Select</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormChooseExtendedTooltip" id="10"/>
 			</Button>
 		</ChildItems>
@@ -87,6 +93,12 @@
 		</Table>
 		<CheckBoxField name="ShowOnlyPrimaryEncodings" id="8">
 			<DataPath>ShowOnlyPrimaryEncodings</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Show only widely used encodings</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>Right</TitleLocation>
 			<CheckBoxType>Auto</CheckBoxType>
 			<ContextMenu name="ShowOnlyPrimaryEncodingsContextMenu" id="9"/>

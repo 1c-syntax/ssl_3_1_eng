@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -328,13 +329,13 @@ Procedure BeforeWrite(Form, Cancel, WriteParameters) Export
 	
 EndProcedure
 
-// 
-// 
+// A URL handler of the node form. Applies to the elements that were created programmatically.
+// Supports only SaaS infobases.
 //
 // Parameters:
 //  Form - ClientApplicationForm - an exchange plan node.
 //  Item - FormItems
-//  URL -  String - 
+//  URL -  String - The generated URL.
 //  StandardProcessing - Boolean
 //
 Procedure HandleURLInNodeForm(Form, Item, URL, StandardProcessing) Export
@@ -349,7 +350,7 @@ Procedure HandleURLInNodeForm(Form, Item, URL, StandardProcessing) Export
 	
 EndProcedure
 
-// 
+// Opens the data synchronization settings panel.
 //
 // Parameters:
 //  CommandParameter - Structure
@@ -469,10 +470,10 @@ Procedure BeforeStart(Parameters) Export
 				
 	EndIf;
 	
-	
-	
-	
-	
+	// 
+	// 
+	// 
+	// 
 	
 	ClientParameters = StandardSubsystemsClient.ClientParametersOnStart();
 	
@@ -1105,8 +1106,8 @@ EndFunction
 Procedure OpenObjectsMappingWizardCommandProcessing(InfobaseNode,
 		Owner, AdditionalParameters = Undefined) Export
 	
-	
-	
+	// 
+	// 
 	FormParameters = New Structure("InfobaseNode", InfobaseNode);
 	FormParameters.Insert("AdvancedExportAdditionMode", True);
 	

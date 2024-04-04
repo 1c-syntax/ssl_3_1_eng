@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -1234,12 +1235,12 @@ Procedure OpenTheFormWaitingForTheEndOfTheConfiguration(BackgroundTaskSettings, 
 	AdditionalParameters.Insert("WizardParameters",  DescriptionOfTheApplicationString);
 	AdditionalParameters.Insert("ClosingNotification1", ClosingNotification1);
 	
-	CompletionNotification2 = New NotifyDescription("OnCompleteGettingSettingsOptionsOfDataExchangeWithExternalSystems", ThisObject, AdditionalParameters);
+	CallbackOnCompletion = New NotifyDescription("OnCompleteGettingSettingsOptionsOfDataExchangeWithExternalSystems", ThisObject, AdditionalParameters);
 
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = True;
 	
-	TimeConsumingOperationsClient.WaitCompletion(BackgroundTaskSettings, CompletionNotification2, IdleParameters);
+	TimeConsumingOperationsClient.WaitCompletion(BackgroundTaskSettings, CallbackOnCompletion, IdleParameters);
 	
 EndProcedure
 
@@ -1692,7 +1693,7 @@ Procedure SetFormItemsView()
 	
 	If DisabledScenarios.Count() = 1 Then
 		
-		Template = NStr("en = 'The <a href = %1>""%2""</a> scenario was disabled due to synchronization errors. Enable the scenario after you fix the issues.';");
+		Template = NStr("en = 'Scenario <a href = %1>""%2""</a> has been disabled due to synchronization errors. Enable the scenario after you fix the issues.';");
 		
 		Scenario = DisabledScenarios[0].Value;
 		WarningText = StrTemplate(Template, GetURL(Scenario), Scenario);
@@ -1701,7 +1702,7 @@ Procedure SetFormItemsView()
 	ElsIf DisabledScenarios.Count() > 1 Then
 				
 		WarningText = 
-			NStr("en = 'The <a href = ""ScenarioList"">scenarios</a>disabled due to runtime errors are found. Enable the scenario after you fix the issues.';");
+			NStr("en = '<a href = ""ScenariosList"">Some scenarios</a> have been disabled due to runtime errors. Enable scenarios after you fix the issues.';");
 		
 		Items.DisabledScenariosWarningDetails.Title = StringFunctions.FormattedString(WarningText);
 				
@@ -1818,8 +1819,8 @@ Procedure RefreshApplicationsList(UpdateSaaSApplications = False)
 			EndIf;
 		Else
 			
-			
-			
+			// 
+			// 
 			ApplicationRow.LastSuccessfulExportDatePresentation = "";
 			ApplicationRow.LastSuccessfulImportDatePresentation = "";
 			

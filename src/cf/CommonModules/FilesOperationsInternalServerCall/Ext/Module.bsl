@@ -1,10 +1,13 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-
- 
-
-
-
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+
 #Region Internal
 
 Procedure UpdateAttachedFile(Val AttachedFile, Val FileInfo) Export
@@ -13,7 +16,7 @@ Procedure UpdateAttachedFile(Val AttachedFile, Val FileInfo) Export
 
 EndProcedure
 
-// See the AddAttachedFile function in the StoredFiles module.
+// See the AddAttachedFile function in the FilesOperations module.
 Function AppendFile(FileParameters, Val FileAddressInTempStorage, Val TempTextStorageAddress = "",
 	Val LongDesc = "") Export
 
@@ -712,7 +715,7 @@ Function NewSpreadsheetAtServer(PageCount) Export
 	Return SpreadsheetDocument;
 EndFunction
 
-Procedure FillInScanSettings(ScanningParameters, ClientID) Export
+Procedure FillScanSettings(ScanningParameters, ClientID) Export
 
 	UserScanSettings = FilesOperations.GetUserScanSettings(ClientID);
 	FillPropertyValues(ScanningParameters, UserScanSettings);
@@ -726,6 +729,14 @@ EndFunction
 Procedure SaveUserScanSettings(ClientScanSettings, ClientID) Export
 	FilesOperations.SaveUserScanSettings(ClientScanSettings, ClientID);
 EndProcedure
+
+Function RunFilesRecovery(Volume, FormUniqueID) Export
+	ExecutionParameters = TimeConsumingOperations.FunctionExecutionParameters(FormUniqueID);
+	ExecutionParameters.BackgroundJobDescription = NStr("en = '""File recovery""';");
+	ExecutionParameters.BackgroundJobKey = "FileRecovery";
+	
+	Return TimeConsumingOperations.ExecuteFunction(ExecutionParameters, "Reports.VolumeIntegrityCheck.RecoverFiles", Volume);
+EndFunction
 
 #EndRegion
 
@@ -1203,7 +1214,12 @@ Function CopyAttachedFile(SourceFile, NewFileOwner)
 	FileStorageType = FilesOperationsInternal.FileStorageType(NewFile.Size, NewFile.Extension);
 	If FileStorageType = Enums.FileStorageTypes.InInfobase Then
 		NewFile.FileStorageType = FilesOperationsInternal.FilesStorageTyoe();
-		WriteFileToInfobase(FileCopyRef, BinaryDataInValueStorage);
+		SetPrivilegedMode(True);
+		InformationRegisters.FileRepository.WriteBinaryData(FileCopyRef, BinaryData);
+		SetPrivilegedMode(False);
+		SetPrivilegedMode(True);
+		InformationRegisters.FileRepository.WriteBinaryData(FileCopyRef, BinaryData);
+		SetPrivilegedMode(False);
 	Else
 
 		NewFile.Volume = Undefined;
@@ -1336,41 +1352,6 @@ Function MoveFiles(ObjectsRef, Folder) Export
 	EndDo;
 
 	Return FilesData;
-
-EndFunction
-
-// Receives EditedByCurrentUser in the privileged mode.
-// Parameters:
-//  VersionRef  - CatalogRef.FilesVersions - file version.
-//
-// Returns:
-//   Boolean - True if the current user is editing the file.
-//
-Function GetEditedByCurrentUser(VersionRef) Export
-
-	SetPrivilegedMode(True);
-
-	Query = New Query;
-	Query.Text =
-	"SELECT
-	|	Files.BeingEditedBy AS BeingEditedBy
-	|FROM
-	|	Catalog.Files AS Files
-	|		INNER JOIN Catalog.FilesVersions AS FilesVersions
-	|		ON (TRUE)
-	|WHERE
-	|	FilesVersions.Ref = &Version
-	|	AND Files.Ref = FilesVersions.Owner";
-
-	Query.Parameters.Insert("Version", VersionRef);
-
-	Selection = Query.Execute().Select();
-	If Selection.Next() Then
-		EditedByCurrentUser = (Selection.BeingEditedBy = Users.AuthorizedUser());
-		Return EditedByCurrentUser;
-	EndIf;
-
-	Return False;
 
 EndFunction
 
@@ -1529,7 +1510,7 @@ Function FileDataAndWorkingDirectory(FileOrVersionRef, OwnerWorkingDirectory = U
 	If OwnerWorkingDirectory <> "" Then
 
 		FullFileNameInWorkingDirectory = "";
-		DirectoryName = ""; 
+		DirectoryName = ""; // Path to the local cache is not used here.
 		InWorkingDirectoryForRead = True; // Path to the local cache is not used here. 
 		InOwnerWorkingDirectory = True;
 
@@ -1777,38 +1758,31 @@ Procedure WriteRecordStructureToRegister(File, Path, Size, PutFileInWorkingDirec
 
 EndProcedure
 
-// Finds a record in the FilesInWorkingDirectory information register by a relative file path.
+// Returns information records from the "FilesInWorkingDirectory" register for passing filenames.
 //
 // Parameters:
-//  FileName - String - a name of the file with a relative path (without a path to the working directory).
+//  FilesNames - Array of String - file names with a relative path (without a path to the working directory).
 //
 // Returns:
-//  Structure:
-//    Version            - CatalogRef.FilesVersions - a found version.
-//    PutDate     - a date of putting the file to the working directory.
-//    Owner          - AnyRef - a file owner.
-//    VersionNumber       - Number - a version number.
-//    InReadRegister - Boolean - the ForReading resource value.
-//    InFileCodeRegister - Number. Here the file code is placed.
-//    InFolderRegister    - CatalogRef.FilesFolders - a file folder.
+//  Map of KeyAndValue:
+//    * Key - String - File name.
+//    * Value - Structure:
+//        * FileIsInRegister - Boolean - Information records on the passed file were found.
+//        * File              - DefinedType.AttachedFile - File associated with the given name.
+//        * PutFileDate     - the date when the file was stored to the working directory.
+//        * Owner          - DefinedType.AttachedFile - If "File" is "CatalogRef.FilesVersions",
+//                              it contains its "CatalogRef.Files".
+//        * VersionNumber       - Number - Version number.
+//        * EditedByCurrentUser - Boolean
+//        * InRegisterForReading - Boolean - Value of the "ForReading" resource.
+//        * FileCodeInRegister - Number - File code.
+//        * InRegisterFolder    - DefinedType.FilesOwner - File owner or directory.
 //
-Function FindInRegisterByPath(FileName) Export
+Function FilesInfoInWorkingDir(Val FilesNames) Export
 
 	SetPrivilegedMode(True);
 
-	Result = New Structure;
-	Result.Insert("FileIsInRegister", False);
-	Result.Insert("File", Catalogs.FilesVersions.EmptyRef());
-	Result.Insert("PutFileDate");
-	Result.Insert("Owner");
-	Result.Insert("VersionNumber");
-	Result.Insert("InRegisterForReading");
-	Result.Insert("FileCodeInRegister");
-	Result.Insert("InRegisterFolder");
-	
-	
-	
-
+	Result = New Map;
 	AuthorizedUser = Users.AuthorizedUser();
 
 	Block = New DataLock;
@@ -1821,10 +1795,8 @@ Function FindInRegisterByPath(FileName) Export
 
 		Block.Lock();
 
-		QueryToRegister = New Query;
-		QueryToRegister.SetParameter("FileName", FileName);
-		QueryToRegister.SetParameter("User", AuthorizedUser);
-		QueryToRegister.Text =
+		Query = New Query;
+		Query.Text =
 		"SELECT
 		|	FilesInWorkingDirectory.File AS File,
 		|	FilesInWorkingDirectory.PutFileInWorkingDirectoryDate AS PutFileDate,
@@ -1838,27 +1810,31 @@ Function FindInRegisterByPath(FileName) Export
 		|		WHEN VALUETYPE(FilesInWorkingDirectory.File) = TYPE(Catalog.FilesVersions)
 		|			THEN CAST(FilesInWorkingDirectory.File AS Catalog.FilesVersions).VersionNumber
 		|		ELSE 0
-		|	END AS VersionNumber
+		|	END AS VersionNumber,
+		|	FilesInWorkingDirectory.Path AS FilePath
 		|FROM
 		|	InformationRegister.FilesInWorkingDirectory AS FilesInWorkingDirectory
 		|WHERE
-		|	FilesInWorkingDirectory.Path = &FileName
+		|	FilesInWorkingDirectory.Path IN (&FilesNames)
 		|	AND FilesInWorkingDirectory.User = &User";
 
-		QueryResult = QueryToRegister.Execute();
-		If Not QueryResult.IsEmpty() Then
+		Query.SetParameter("FilesNames", FilesNames);
+		Query.SetParameter("User", AuthorizedUser);
+		Selection = Query.Execute().Select();
+		While Selection.Next() Do
 
-			Selection = QueryResult.Select();
-			Selection.Next();
+			FileInfo1 = FileInfoInWorkingDir();
+			FillPropertyValues(FileInfo1, Selection);
+			FileInfo1.FileIsInRegister = True;
 
-			FillPropertyValues(Result, Selection);
-
-			Result.FileIsInRegister = True;
-			Result.InRegisterFolder = Common.ObjectAttributeValue(
-				Selection.Owner, "FileOwner");
-
-		EndIf;
-
+			// @skip-check query-in-loop - Addressing flexible-type tables
+			FileOwner = Common.ObjectAttributesValues(Selection.Owner, "FileOwner,BeingEditedBy");
+			FileInfo1.InRegisterFolder = FileOwner.FileOwner;
+			FileInfo1.EditedByCurrentUser = FileOwner.BeingEditedBy = AuthorizedUser;
+			Result[Selection.FilePath] = FileInfo1;
+			
+		EndDo;
+		
 		CommitTransaction();
 
 	Except
@@ -1866,16 +1842,39 @@ Function FindInRegisterByPath(FileName) Export
 		Raise;
 	EndTry;
 
+	For Each FileName In FilesNames Do
+		If Result[FileName] = Undefined Then
+			Result[FileName] = FileInfoInWorkingDir();
+		EndIf;
+	EndDo;
+
 	Return Result;
 
 EndFunction
+
+Function FileInfoInWorkingDir()
+
+	Result = New Structure;
+	Result.Insert("FileIsInRegister", False);
+	Result.Insert("File", Catalogs.FilesVersions.EmptyRef());
+	Result.Insert("PutFileDate");
+	Result.Insert("Owner");
+	Result.Insert("VersionNumber");
+	Result.Insert("EditedByCurrentUser"); 
+	Result.Insert("InRegisterForReading");
+	Result.Insert("FileCodeInRegister");
+	Result.Insert("InRegisterFolder");
+	Return Result;
+
+EndFunction
+
 
 // Finds information on FileVersions in the FilesInWorkingDirectory information register:
 // The path to the version file in a working directory and its status: read-only editable.
 // 
 // Parameters:
 //  Version - CatalogRef.FilesVersions - Version.
-//  DirectoryName - working directory path.
+//  DirectoryName - String - working directory path.
 //  InWorkingDirectoryForRead - Boolean - a file is placed for reading.
 //  InOwnerWorkingDirectory - Boolean - a file is in owner working directory (not in the main working directory).
 //
@@ -2303,7 +2302,7 @@ EndProcedure
 
 #Region FilesAndVersionsDataDeletion
 
-Function ResultOfDeletingFiles(FilesOrVersions, UUID) Export
+Function FilesDeletionResult(FilesOrVersions, UUID) Export
 
 	SetPrivilegedMode(True);
 
@@ -2315,10 +2314,10 @@ Function ResultOfDeletingFiles(FilesOrVersions, UUID) Export
 		Result = New Structure("WarningText, Files", "", New Array);
 		If Common.ObjectAttributeValue(FileOrVersion, "Author") = AuthorizedUser Then
 			If IsFileVersion Then
-				 
+				// @skip-check query-in-loop - Batch-wise deletion of versions in transactions. 
 				DeleteVersionData(FileOrVersion, UUID, Result);
 			Else
-				 
+				// @skip-check query-in-loop - Batch-wise deletion of files in transactions. 
 				DeleteFileData(FileOrVersion, UUID, Result, AuthorizedUser);
 			EndIf;
 		Else
@@ -2386,19 +2385,19 @@ Procedure DeleteFileData(File, UUID, Result, AuthorizedUser)
 	DataLockItem = DataLock.Add(File.Metadata().FullName());
 	DataLockItem.SetValue("Ref", File);
 	
-	ThereAreVersionsOfFile = TypeOf(File) = Type("CatalogRef.Files");
-	If ThereAreVersionsOfFile Then
+	HasFileVersions = TypeOf(File) = Type("CatalogRef.Files");
+	If HasFileVersions Then
 		DataLockItem = DataLock.Add(Metadata.Catalogs.FilesVersions.FullName());
 		DataLockItem.SetValue("Owner", File);
 		DataLockItem.Mode = DataLockMode.Shared;
 	EndIf;
 	
-	ThereAreVersionsOfFile = False;
+	HasFileVersions = False;
 	BeginTransaction();
 	Try
 		DataLock.Lock();
 		
-		If ThereAreVersionsOfFile Then
+		If HasFileVersions Then
 			Query = New Query;
 			Query.Text =
 			"SELECT
@@ -2414,10 +2413,10 @@ Procedure DeleteFileData(File, UUID, Result, AuthorizedUser)
 			Query.SetParameter("Owner", File);
 			QueryResult = Query.Execute();
 	
-			ThereAreVersionsOfFile = Not QueryResult.IsEmpty();
+			HasFileVersions = Not QueryResult.IsEmpty();
 		EndIf;
 		
-		If ThereAreVersionsOfFile Then
+		If HasFileVersions Then
 			Selection = QueryResult.Select();
 		Else
 			Result.Files.Add(File);
@@ -2430,7 +2429,7 @@ Procedure DeleteFileData(File, UUID, Result, AuthorizedUser)
 		Raise;
 	EndTry;
 
-	If Not ThereAreVersionsOfFile Then
+	If Not HasFileVersions Then
 		Return;
 	EndIf;
 
@@ -2482,13 +2481,15 @@ Procedure DeleteData(FileOrVersion, UUID)
 					FileProperties));
 
 			EndIf;
-			
-			
+			// 
+			// 
 			FileOrVersionObject.PathToFile = FileOrVersionObject.PathToFile + "_remove";//@Non-NLS
 		Else
-			FilesOperationsInternal.DeleteRecordFromBinaryFilesDataRegister(FileOrVersion);
-		EndIf;
-
+			SetPrivilegedMode(True);
+			InformationRegisters.FileRepository.DeleteBinaryData(FileOrVersion);
+			SetPrivilegedMode(False);
+		EndIf;	
+		
 		FileOrVersionObject.DeletionMark = True;
 		FileOrVersionObject.AdditionalProperties.Insert("DataDeletion", True);
 		FileOrVersionObject.Write();
@@ -2579,9 +2580,9 @@ Function HasLoop(Val ArrayOfRefsToFiles, NewParent)
 
 	Parents = Query.Execute().Unload().UnloadColumn("Parent");
 
-	LinksToFilesWithoutParents = CommonClientServer.ArraysDifference(ArrayOfRefsToFiles, Parents);
+	LinksToParentlessFiles = CommonClientServer.ArraysDifference(ArrayOfRefsToFiles, Parents);
 
-	Return LinksToFilesWithoutParents.Count() <> ArrayOfRefsToFiles.Count();
+	Return LinksToParentlessFiles.Count() <> ArrayOfRefsToFiles.Count();
 
 EndFunction
 
@@ -2690,23 +2691,6 @@ Procedure DoCopyAttachedFiles(FilesArray, NewFileOwner) Export
 	For Each File In FilesArray Do
 		CopyAttachedFile(File, NewFileOwner);
 	EndDo;
-
-EndProcedure
-
-// Writes FileStorage to the infobase.
-//
-// Parameters:
-//   VersionRef - reference to the file version.
-//   FileStorage1 - ValueStorage with binary data of the file to write.
-//
-Procedure WriteFileToInfobase(VersionRef, FileStorage1)
-
-	SetPrivilegedMode(True);
-
-	RecordManager = InformationRegisters.BinaryFilesData.CreateRecordManager();
-	RecordManager.File = VersionRef;
-	RecordManager.FileBinaryData = FileStorage1;
-	RecordManager.Write(True);
 
 EndProcedure
 
@@ -2937,6 +2921,12 @@ Procedure RecordTextExtractionResult(FileOrVersionRef, ExtractionResult, TempTex
 EndProcedure
 
 // For internal use only.
+// 
+// Parameters:
+//  RawData - String - 
+//  RowsData - Array of See DigitalSignatureClientServer.ResultOfSignatureValidationOnForm
+//  SignedObject - AnyRef
+//
 Procedure VerifySignatures(RawData, RowsData, SignedObject) Export
 
 	If Not Common.SubsystemExists("StandardSubsystems.DigitalSignature") Then
@@ -2954,7 +2944,14 @@ Procedure VerifySignatures(RawData, RowsData, SignedObject) Export
 
 		SignatureRow.SignatureValidationDate = CurrentSessionDate();
 		SignatureRow.SignatureCorrect      = (SignatureVerificationResult.Result = True);
-		SignatureRow.ErrorDescription    = ErrorDescription;
+		If SignatureRow.ErrorDescription <> Undefined Then
+			SignatureRow.ErrorDescription    = ErrorDescription; // 
+		EndIf;
+		FillPropertyValues(SignatureRow.CheckResult, SignatureVerificationResult);
+		SignatureRow.CheckResult.IsAdditionalAttributesCheckedManually = False;
+		SignatureRow.CheckResult.AdditionalAttributesManualCheckAuthor = Undefined;
+		SignatureRow.CheckResult.AdditionalAttributesManualCheckJustification = "";
+		
 		SignatureRow.IsVerificationRequired = SignatureVerificationResult.IsVerificationRequired;
 		If ValueIsFilled(SignatureVerificationResult.SignatureType) Then
 			SignatureRow.SignatureType        = SignatureVerificationResult.SignatureType;
@@ -2964,7 +2961,11 @@ Procedure VerifySignatures(RawData, RowsData, SignedObject) Export
 		EndIf;
 		
 
-		FilesOperationsInternalClientServer.FillSignatureStatus(SignatureRow, CurrentSessionDate());
+		If SignatureRow.ErrorDescription <> Undefined Then
+			FilesOperationsInternalClientServer.FillSignatureStatus(SignatureRow, CurrentSessionDate()); // 
+		EndIf;
+		ModuleDigitalSignatureClientServer.FillSignatureStatus(SignatureRow, CurrentSessionDate());
+		
 	EndDo;
 
 EndProcedure
@@ -3139,64 +3140,72 @@ Function MergeImagesIntoTIFFile(Val Pictures) Export
 	Return ProcessingPicture.GetPicture();
 EndFunction
 
-Function StartOfCurrentSession() Export
+Function CurrentSessionStart() Export
 	Session = GetCurrentInfoBaseSession();
 	Return Session.SessionStarted;
 EndFunction
 
-Function TechnicalInformationAboutSubsystemVersionsAndExtensions() Export
-
-	Return StandardSubsystemsServer.TechnicalInformationAboutSubsystemVersionsAndExtensions();
-
-EndFunction
-
-Function LoggingParameters(ClientID) Export
+Function ScanLogParameters(ClientID) Export
 	Result = New Structure;
-	Result.Insert("StartDateOfScanLogging", Common.CommonSettingsStorageLoad(
-		"ScanningComponent", "StartDateOfScanLogging", Date(1, 1, 1)));
-	Result.Insert("NameOfLogFile", Common.CommonSettingsStorageLoad("ScanningComponent",
+	Result.Insert("ScanLogStartDate", Common.CommonSettingsStorageLoad(
+		"ScanAddIn", "ScanLogStartDate", Date(1, 1, 1)));
+	Result.Insert("NameOfLogFile", Common.CommonSettingsStorageLoad("ScanAddIn",
 		"NameOfLogFile", Undefined));
-	Result.Insert("ScanLogDirectory", Common.CommonSettingsStorageLoad(
-		"ScanningSettings1/ScanLogDirectory", ClientID, Undefined));
+	Result.Insert("ScanLogCatalog", Common.CommonSettingsStorageLoad(
+		"ScanningSettings1/ScanLogCatalog", ClientID, Undefined));
 	Result.Insert("UseScanLogDirectory", Common.CommonSettingsStorageLoad(
 		"ScanningSettings1/UseScanLogDirectory", ClientID, False));
 	Return Result;
 EndFunction
 
+Procedure ResetScanLogDirectoryParameters(ClientID) Export
+    
+	StructuresArray = New Array;
+	
+	StructuresArray.Add(FilesOperationsInternal.GenerateScanSetting("ScanLogCatalog",
+		"", ClientID));
+	StructuresArray.Add(FilesOperationsInternal.GenerateScanSetting("UseScanLogDirectory",
+		False, ClientID));
+	
+	CommonServerCall.CommonSettingsStorageSaveArray(StructuresArray, True);
+		
+EndProcedure
+
 // Returns:
 //  Structure:
-//   * EventLog - BinaryData - Event Log export data.
-//   * TechnicalInformationAboutSubsystemVersionsAndExtensions - String
-//   * NameOfLogFile - String - 
+//   * EventLog - BinaryData - Event log export data.
+//   * TechnicalInfoOnExtensionsAndSubsystemsVersions - String
+//   * NameOfLogFile - String - Name of the log file used by the scan add-in.
 //
 Function TechnicalInformation() Export
 
 	Result = New Structure;
 	ScanLogEvent = NStr("en = 'Scan images';", Common.DefaultLanguageCode());
 
-	SelectionEvents = New Array;
-	SelectionEvents.Add(ScanLogEvent + "." + "EnumDevices.Start");
-	SelectionEvents.Add(ScanLogEvent + "." + "EnumDevices.Result");
-	SelectionEvents.Add(ScanLogEvent + "." + "EnumDevices");
-	SelectionEvents.Add(ScanLogEvent + "." + "GetSetting.Start");
-	SelectionEvents.Add(ScanLogEvent + "." + "GetSetting.Result");
-	SelectionEvents.Add(ScanLogEvent + "." + "GetSetting");
-	SelectionEvents.Add(ScanLogEvent + "." + "IsDevicePresent.Start");
-	SelectionEvents.Add(ScanLogEvent + "." + "IsDevicePresent.Result");
-	SelectionEvents.Add(ScanLogEvent + "." + "IsDevicePresent");
-	SelectionEvents.Add(ScanLogEvent + "." + "BeginScan.Start");
-	SelectionEvents.Add(ScanLogEvent + "." + "BeginScan.Result");
-	SelectionEvents.Add(ScanLogEvent + "." + "BeginScan");
-	SelectionEvents.Add(ScanLogEvent + "." + "Version");
-	SelectionEvents.Add(ScanLogEvent + "." + "ScannerEvent");
-	SelectionEvents.Add(ScanLogEvent + "." + "ScannerEvent.ImageAcquired");
-	SelectionEvents.Add(ScanLogEvent + "." + "ScannerEvent.EndBatch");
-	SelectionEvents.Add(ScanLogEvent + "." + "ScannerEvent.UserPressedCancel");
-	SelectionEvents.Add(ScanLogEvent + "." + "LogFilePath.SettingValue");
-	SelectionEvents.Add(ScanLogEvent + "." + "LogFilePath.IsValueSet");
-	SelectionEvents.Add(ScanLogEvent + "." + "LogFilePath");
+	FilterEvents = New Array;
+	FilterEvents.Add(ScanLogEvent + "." + "EnumDevices.Start");
+	FilterEvents.Add(ScanLogEvent + "." + "EnumDevices.Result");
+	FilterEvents.Add(ScanLogEvent + "." + "EnumDevices");
+	FilterEvents.Add(ScanLogEvent + "." + "GetSetting.Start");
+	FilterEvents.Add(ScanLogEvent + "." + "GetSetting.Result");
+	FilterEvents.Add(ScanLogEvent + "." + "GetSetting");
+	FilterEvents.Add(ScanLogEvent + "." + "IsDevicePresent.Start");
+	FilterEvents.Add(ScanLogEvent + "." + "IsDevicePresent.Result");
+	FilterEvents.Add(ScanLogEvent + "." + "IsDevicePresent");
+	FilterEvents.Add(ScanLogEvent + "." + "BeginScan.Start");
+	FilterEvents.Add(ScanLogEvent + "." + "BeginScan.Result");
+	FilterEvents.Add(ScanLogEvent + "." + "BeginScan");
+	FilterEvents.Add(ScanLogEvent + "." + "Version");
+	FilterEvents.Add(ScanLogEvent + "." + "ScannerEvent");
+	FilterEvents.Add(ScanLogEvent + "." + "ScannerEvent.ImageAcquired");
+	FilterEvents.Add(ScanLogEvent + "." + "ScannerEvent.EndBatch");
+	FilterEvents.Add(ScanLogEvent + "." + "ScannerEvent.UserPressedCancel");
+	FilterEvents.Add(ScanLogEvent + "." + "LogFilePath.ValueSetting");
+	FilterEvents.Add(ScanLogEvent + "." + "LogFilePath.IsValueSet");
+	FilterEvents.Add(ScanLogEvent + "." + "LogFilePath");
+	FilterEvents.Add(ScanLogEvent + "." + "ComponentFile");
 
-	Filter = New Structure("Event", SelectionEvents);
+	Filter = New Structure("Event", FilterEvents);
 	Filter.Insert("StartDate", CurrentSessionDate() - 600);
 	
 	SetSafeModeDisabled(True);
@@ -3206,17 +3215,17 @@ Function TechnicalInformation() Export
 	SetPrivilegedMode(False);
 	SetSafeModeDisabled(False);
 	
-	Result.Insert("TechnicalInformationAboutSubsystemVersionsAndExtensions",
-		StandardSubsystemsServer.TechnicalInformationAboutSubsystemVersionsAndExtensions());
+	Result.Insert("TechnicalInfoOnExtensionsAndSubsystemsVersions",
+		StandardSubsystemsServer.TechnicalInfoOnExtensionsAndSubsystemsVersions());
 	Result.Insert("NameOfLogFile", CommonServerCall.CommonSettingsStorageLoad(
-		"ScanningComponent", "NameOfLogFile"));
+		"ScanAddIn", "NameOfLogFile"));
 	Return Result;
 EndFunction
 
-Procedure SetParametersForStartOfLogging(NameOfLogFile) Export
-	CommonServerCall.CommonSettingsStorageSave("ScanningComponent", "NameOfLogFile", NameOfLogFile);
-	CommonServerCall.CommonSettingsStorageSave("ScanningComponent",
-		"StartDateOfScanLogging", CurrentSessionDate());
+Procedure SetScanLogStartParameters(NameOfLogFile) Export
+	CommonServerCall.CommonSettingsStorageSave("ScanAddIn", "NameOfLogFile", NameOfLogFile);
+	CommonServerCall.CommonSettingsStorageSave("ScanAddIn",
+		"ScanLogStartDate", CurrentSessionDate());
 EndProcedure
 
 Procedure CleanUpWorkingDirectory(FolderRef) Export

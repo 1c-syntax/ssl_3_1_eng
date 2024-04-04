@@ -52,13 +52,19 @@
 					<Type>CommandBarButton</Type>
 					<DefaultButton>true</DefaultButton>
 					<CommandName>Form.Command.Select</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Select</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="SelectExtendedTooltip" id="52"/>
 				</Button>
 				<ButtonGroup name="GroupOfCommandsFlags" id="107">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Command group check boxes</v8:content>
+							<v8:content>Checkboxes</v8:content>
 						</v8:item>
 					</Title>
 					<Representation>Compact</Representation>
@@ -67,30 +73,60 @@
 						<Button name="SelectAllItems" id="27">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.SelectAllItems</CommandName>
-							<ExtendedTooltip name="SelectAll2ExtendedTooltip" id="53"/>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Select all</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="SelectAllItemsExtendedTooltip" id="53"/>
 						</Button>
 						<Button name="ClearAllIetms" id="28">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.ClearAllIetms</CommandName>
-							<ExtendedTooltip name="ClearAll5ExtendedTooltip" id="54"/>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Clear all</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="ClearAllIetmsExtendedTooltip" id="54"/>
 						</Button>
 					</ChildItems>
 				</ButtonGroup>
 				<Button name="AddCheckMarksToSelectedUsers" id="21">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.AddCheckMarksToSelectedUsers</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Add check marks to selected users</v8:content>
+						</v8:item>
+					</Title>
 					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 					<ExtendedTooltip name="AddCheckMarksToSelectedUsersExtendedTooltip" id="55"/>
 				</Button>
 				<Button name="RemoveCheckMarksFromSelectedUsers" id="22">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.RemoveCheckMarksFromSelectedUsers</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Remove check marks from selected users</v8:content>
+						</v8:item>
+					</Title>
 					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 					<ExtendedTooltip name="RemoveCheckMarksFromSelectedUsersExtendedTooltip" id="56"/>
 				</Button>
 				<Button name="FormActiveUsers" id="49">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.ActiveUsers</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Active users…</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="FormActiveUsersExtendedTooltip" id="57"/>
 				</Button>
 				<SearchStringAddition name="SearchString_" id="104">
@@ -178,6 +214,12 @@
 							<Button name="UserGroupsContextMenuChange" id="42">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.Change</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Edit</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="UserGroupsContextMenuChangeExtendedTooltip" id="60"/>
 							</Button>
 							<Button name="UserGroupsContextMenuCopyToClipboard" id="41">
@@ -195,7 +237,7 @@
 					<AutoCommandBar name="UserGroupsCommandBar" id="14">
 						<Autofill>false</Autofill>
 					</AutoCommandBar>
-					<ExtendedTooltip name="UsersGroupsExtendedTooltip" id="63"/>
+					<ExtendedTooltip name="UserGroupsExtendedTooltip" id="63"/>
 					<SearchStringAddition name="UserGroupsSearchString" id="77">
 						<AdditionSource>
 							<Item>UserGroups</Item>
@@ -237,6 +279,12 @@
 							<ChildItems>
 								<InputField name="UsersGroupsGroup" id="15">
 									<DataPath>UserGroups.Group</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Group</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<EditMode>EnterOnInput</EditMode>
 									<ExtendedEdit>false</ExtendedEdit>
@@ -244,14 +292,20 @@
 									<TextEdit>false</TextEdit>
 									<ChoiceListButton>false</ChoiceListButton>
 									<ContextMenu name="UserGroupsGroupContextMenu" id="16"/>
-									<ExtendedTooltip name="UserGroupsGroupExtendedTooltip" id="65"/>
+									<ExtendedTooltip name="UsersGroupsGroupExtendedTooltip" id="65"/>
 								</InputField>
 								<PictureField name="UsersGroupsPicture" id="18">
 									<DataPath>UserGroups.Picture</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Picture</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<FileDragMode>AsFile</FileDragMode>
 									<ContextMenu name="UserGroupsPictureContextMenu" id="19"/>
-									<ExtendedTooltip name="UserGroupsPictureExtendedTooltip" id="66"/>
+									<ExtendedTooltip name="UsersGroupsPictureExtendedTooltip" id="66"/>
 								</PictureField>
 							</ChildItems>
 						</ColumnGroup>
@@ -290,6 +344,12 @@
 							<Button name="UsersList1ContextMenuChange" id="43">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.Change</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Edit</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="UsersList1ContextMenuChangeExtendedTooltip" id="67"/>
 							</Button>
 							<Button name="UsersList1ContextMenuCopyToClipboard" id="38">
@@ -307,7 +367,7 @@
 					<AutoCommandBar name="UsersListCommandBar" id="3">
 						<HorizontalAlign>Right</HorizontalAlign>
 					</AutoCommandBar>
-					<ExtendedTooltip name="UsersList1ExtendedTooltip" id="70"/>
+					<ExtendedTooltip name="UsersListExtendedTooltip" id="70"/>
 					<SearchStringAddition name="UsersListSearchString_SSLy" id="86">
 						<AdditionSource>
 							<Item>UsersList</Item>
@@ -348,6 +408,12 @@
 							<ChildItems>
 								<CheckBoxField name="UsersCheckBox" id="6">
 									<DataPath>UsersList.Check</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Checkmark</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<EditMode>EnterOnInput</EditMode>
 									<CheckBoxType>Auto</CheckBoxType>
@@ -360,6 +426,12 @@
 								<LabelField name="Users" id="4">
 									<DataPath>UsersList.User</DataPath>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>User</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<EditMode>EnterOnInput</EditMode>
 									<ContextMenu name="UsersContextMenu" id="5"/>
@@ -371,6 +443,12 @@
 										<xr:Common>false</xr:Common>
 									</UserVisible>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Department</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ContextMenu name="UsersList1DepartmentContextMenu" id="96"/>
 									<ExtendedTooltip name="UsersList1DepartmentExtendedTooltip" id="97"/>
@@ -381,6 +459,12 @@
 										<xr:Common>false</xr:Common>
 									</UserVisible>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Individual</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ContextMenu name="UsersList1IndividualContextMenu" id="99"/>
 									<ExtendedTooltip name="UsersList1IndividualExtendedTooltip" id="100"/>
@@ -832,6 +916,9 @@
 					<v8:AllowedLength>Variable</v8:AllowedLength>
 				</v8:StringQualifiers>
 			</Type>
+		</Parameter>
+		<Parameter name="SelectedUsers">
+			<Type/>
 		</Parameter>
 	</Parameters>
 </Form>

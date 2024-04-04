@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -38,9 +39,9 @@ Procedure OnDefineObjectsWithSearchForDuplicates(Objects) Export
 	
 EndProcedure
 
-// 
-// 
-// See DuplicateObjectsDetectionClient.MergeSelectedItems
+// Identifies objects whose list forms will display commands
+// for duplicate merging, reference replacement, and the
+// See DuplicateObjectsDetectionClient.MergeSelectedItems"DuplicateObjectsDetectionClient.ReplaceSelected" command
 // 
 // Parameters:
 //     Objects - Array of MetadataObject
@@ -111,8 +112,8 @@ EndProcedure
 //         ** Presentation      - String - text details of a restriction rule.
 //         ** AdditionalFields - String - a list of comma-separated attributes, the values of which
 //                                          are required for analysis in the OnDuplicatesSearch.
-//       * ItemsCountToCompare - Number - 
-//                                                   
+//       * ItemsCountToCompare - Number - Number of duplicates to be passed in a single call to the
+//                                                   "ItemsDuplicates" parameter of the "OnDuplicatesSearch" handler. By default, "1500".
 //     AdditionalParameters - Arbitrary - Value passed when calling DuplicateObjectsDetection.FindItemDuplicates.
 //                               When calling from the DuplicateObjectsDetection data processor, the value is Undefined.
 //     StandardProcessing - Boolean - if the SearchParameters output parameter is filled in and a call of
@@ -125,24 +126,24 @@ Procedure OnDefineDuplicatesSearchParameters(Val MetadataObjectName, SearchParam
 	
 EndProcedure
 
-// 
-// 
+// Called during a search by rules specified in "OnDefineDuplicatesSearchParameters".
+// It supports appending the duplicate list and overriding the "IsDuplicates" flag for the found candidates.
 //
 // Parameters:
 //     MetadataObjectName - String - a full name of reference metadata object whose items are replaced.
 //                                     For example, "Catalog.Counterparties".
-//     ItemsDuplicates - ValueTable - :
+//     ItemsDuplicates - ValueTable - Information on the found duplicates:
 //         * Ref1  - AnyRef - a reference to the first item.
 //         * Ref2  - AnyRef - a reference to the second item.
 //         * IsDuplicates - Boolean      - indicates whether the candidates are duplicates. Default value is False. 
 //                                    It can be set to True to mark duplicates.
-//         * Fields1    - Structure   - 
-//                                    
-//                                    :
+//         * Fields1    - Structure   - Values of the attributes "Code", "Description", and additional fields of the first item,
+//                                    specified in the "SearchParameters.ComparisonRestrictions.AdditionalFields" parameter of
+//                                    the "OnDuplicatesSearchParametersDefine" handler.:
 //             ** Code - String 
 //             ** Description - String
 //             ** DeletionMark - Boolean
-//         * Fields2    - Structure   - :
+//         * Fields2    - Structure   - Same attributes in the second item.:
 //             ** Code - String 
 //             ** Description - String
 //             ** DeletionMark - Boolean

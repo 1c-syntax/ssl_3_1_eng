@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -70,7 +71,7 @@ Procedure SendClientNotification(OldRecords, NewRecords, Cancel, Replacing)
 		Return;
 	EndIf;
 	
-	FieldList = "User, EventTime, Source, ReminderTime, LongDesc";
+	FieldList = "User, EventTime, Source, ReminderTime, LongDesc, Id";
 	If Replacing Then
 		ModifiedRecords = ModifiedRecords(OldRecords, NewRecords, FieldList);
 	Else
@@ -90,6 +91,7 @@ Procedure SendClientNotification(OldRecords, NewRecords, Cancel, Replacing)
 		Properties = New Structure(FieldList);
 		FillPropertyValues(Properties, Record);
 		Properties.Insert("PictureIndex", 2);
+		Properties.Insert("URL", UserRemindersInternal.ReminderURL(Properties));
 		If Not Replacing Or Record.LineChangeType = 1 Then
 			Reminders.Added1.Add(Properties);
 		Else
@@ -135,6 +137,7 @@ Function OldRecords(RecordSet, Cancel, Replacing)
 	|	Reminders.Source AS Source,
 	|	Reminders.ReminderTime AS ReminderTime,
 	|	Reminders.LongDesc AS LongDesc,
+	|	Reminders.Id AS Id,
 	|	-1 AS LineChangeType
 	|FROM
 	|	InformationRegister.UserReminders AS Reminders

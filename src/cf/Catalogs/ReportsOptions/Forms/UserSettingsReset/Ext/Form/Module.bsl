@@ -1,30 +1,31 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
-	Variants = CommonClientServer.StructureProperty(Parameters, "Variants"); // Array of CatalogRef.ReportsOptions
-	If TypeOf(Variants) <> Type("Array") Then
+	If TypeOf(Parameters.Variants) <> Type("Array") Then
 		ErrorText = NStr("en = 'No report options provided.';");
 		Return;
 	EndIf;
 
-	If Not HasUserSettings(Variants) Then
+	If Not HasUserSettings(Parameters.Variants) Then
 		ErrorText = NStr("en = 'Custom settings for the %1selected report options have not been defined or have been reset.';");
-		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorText, Format(Variants.Count(), "NZ=0; NG=0"));
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorText, 
+			Format(Parameters.Variants.Count(), "NZ=0; NG=0"));
 		Return;
 	EndIf;
 
 	DefineBehaviorInMobileClient();
-	OptionsToAssign.LoadValues(Variants);
+	OptionsToAssign.LoadValues(Parameters.Variants);
 EndProcedure
 
 &AtClient
@@ -69,7 +70,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServerNoContext
 Procedure ResetUserSettingsServer(Val OptionsToAssign)

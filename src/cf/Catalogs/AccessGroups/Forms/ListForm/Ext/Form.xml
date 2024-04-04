@@ -32,7 +32,7 @@
 					<Type>CommandBarButton</Type>
 					<DefaultButton>true</DefaultButton>
 					<CommandName>Form.StandardCommand.Choose</CommandName>
-					<ExtendedTooltip name="FormSelectExtendedTooltip" id="22"/>
+					<ExtendedTooltip name="FormChooseExtendedTooltip" id="22"/>
 				</Button>
 				<Button name="FormCreate" id="12">
 					<Type>CommandBarButton</Type>
@@ -57,8 +57,57 @@
 						</v8:item>
 					</Title>
 					<CommandSource>Form</CommandSource>
-					<ExtendedTooltip name="FormCommandBarExtendedTooltip" id="26"/>
+					<ExtendedTooltip name="CommandBarFormExtendedTooltip" id="26"/>
 				</ButtonGroup>
+				<Popup name="ReportsSubmenu" id="59">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Reports</v8:content>
+						</v8:item>
+					</Title>
+					<Picture>
+						<xr:Ref>CommonPicture.Reports</xr:Ref>
+						<xr:LoadTransparent>false</xr:LoadTransparent>
+					</Picture>
+					<Representation>PictureAndText</Representation>
+					<ExtendedTooltip name="ReportsSubmenuExtendedTooltip" id="60"/>
+					<ChildItems>
+						<ButtonGroup name="ReportsImportantSubmenu" id="61">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Submenu reports important</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="ReportsImportantSubmenuExtendedTooltip" id="62"/>
+						</ButtonGroup>
+						<ButtonGroup name="SubmenuReportsStandard" id="63">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Submenu fill in standard</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="SubmenuReportsStandardExtendedTooltip" id="64"/>
+						</ButtonGroup>
+						<ButtonGroup name="ReportsSubmenuSeeAlso" id="65">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Submenu reports see also</v8:content>
+								</v8:item>
+							</Title>
+							<ToolTip>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Submenu reports important</v8:content>
+								</v8:item>
+							</ToolTip>
+							<ExtendedTooltip name="ReportsSubmenuSeeAlsoExtendedTooltip" id="66"/>
+						</ButtonGroup>
+					</ChildItems>
+				</Popup>
 				<Button name="FormHelp" id="20">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.StandardCommand.Help</CommandName>
@@ -92,7 +141,6 @@
 			<CommandBarLocation>None</CommandBarLocation>
 			<SkipOnInput>false</SkipOnInput>
 			<ChoiceMode>true</ChoiceMode>
-			<SelectionMode>SingleRow</SelectionMode>
 			<UseAlternationRowColor>true</UseAlternationRowColor>
 			<EnableStartDrag>true</EnableStartDrag>
 			<EnableDrag>true</EnableDrag>
@@ -131,7 +179,7 @@
 					<Button name="ListContextMenuCreateFolder" id="18">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Item.List.StandardCommand.CreateFolder</CommandName>
-						<ExtendedTooltip name="ListContextMenuCreateGroupExtendedTooltip" id="29"/>
+						<ExtendedTooltip name="ListContextMenuCreateFolderExtendedTooltip" id="29"/>
 					</Button>
 					<Button name="ListContextMenuCopy" id="19">
 						<Type>CommandBarButton</Type>

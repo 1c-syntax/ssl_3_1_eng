@@ -9,11 +9,23 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.CompleteEditing</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Finish editing</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormCompleteEditingExtendedTooltip" id="557"/>
 			</Button>
 			<Button name="FormCheckFormula" id="558">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.CheckFormula</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Validate formula</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormCheckFormulaExtendedTooltip" id="559"/>
 			</Button>
 		</ChildItems>
@@ -90,6 +102,12 @@
 		</UsualGroup>
 		<InputField name="Description" id="560">
 			<DataPath>Description</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Description</v8:content>
+				</v8:item>
+			</Title>
 			<AutoMarkIncomplete>true</AutoMarkIncomplete>
 			<ContextMenu name="DescriptionContextMenu" id="561"/>
 			<ExtendedTooltip name="DescriptionExtendedTooltip" id="562"/>

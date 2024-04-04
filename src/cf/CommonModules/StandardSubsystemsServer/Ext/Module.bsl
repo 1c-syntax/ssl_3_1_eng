@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -25,9 +26,9 @@
 //
 Function SessionParametersSetting(SessionParametersNames) Export
 	
-	
-	
-	
+	// 
+	// 
+	// 
 	SpecifiedParameters = New Array;
 	
 #If Not MobileStandaloneServer Then
@@ -123,12 +124,12 @@ Function IsBaseConfigurationVersion() Export
 	
 EndFunction
 
-// 
-// 
-// 
+// Returns the flag indicating whether this is the training version of 1C:Enterprise.
+// Intended for the functions and procedures whose functionality
+// is affected by the training version limitations.
 //
 // Returns:
-//   Boolean - 
+//   Boolean - True if the code is executed on the training version of 1C:Enterprise.
 //
 Function IsTrainingPlatform() Export
 	
@@ -138,7 +139,7 @@ Function IsTrainingPlatform() Export
 	Try
 		OSUser = CurrentUser.OSUser;
 	Except
-		
+		// The training version of 1C:Enterprise does not support obtaining the properties of OSUser.
 		Return True;
 	EndTry;
 	Return False;
@@ -201,11 +202,11 @@ Function InfoBaseID() Export
 	
 EndFunction
 
-// 
-// 
-// 
-// 
-// 
+// Returns the administration parameter saved in the infobase.
+// Designed for using in the mechanisms that require
+// the input of infobase and server cluster administration parameters.
+// For example, infobase connection lock.
+// See also: SetAdministrationParameters.
 //
 // Returns:
 //  Structure - contains the properties of two structures
@@ -221,11 +222,11 @@ Function AdministrationParameters() Export
 	   And Common.SeparatedDataUsageAvailable() Then
 		
 		If Not Users.IsFullUser() Then
-			Raise NStr("en = 'Insufficient rights to perform the operation.';");
+			Raise(NStr("en = 'Insufficient rights to perform the operation.';"), ErrorCategory.AccessViolation);
 		EndIf;
 	Else
 		If Not Users.IsFullUser(, True) Then
-			Raise NStr("en = 'Insufficient rights to perform the operation.';");
+			Raise(NStr("en = 'Insufficient rights to perform the operation.';"), ErrorCategory.AccessViolation);
 		EndIf;
 	EndIf;
 	
@@ -291,8 +292,8 @@ Procedure SetDateFieldConditionalAppearance(Form,
 	FullNameParts1 = StrSplit(FullAttributeName, ".");
 	
 	If FullNameParts1.Count() <> 2 Then 
-		
-		
+		// 
+		// 
 		Return;
 	EndIf;
 	
@@ -300,16 +301,16 @@ Procedure SetDateFieldConditionalAppearance(Form,
 	AttributeList = Form[ListName];
 	
 	If TypeOf(AttributeList) = Type("DynamicList") Then 
-		
-		
-		 
-		
+		// 
+		// 
+		//  
+		// 
 		ConditionalAppearance = AttributeList.ConditionalAppearance;
 		AttributePath1 = FullNameParts1[1];
 		FormattedFieldName = AttributePath1;
 	Else 
-		
-		
+		// 
+		// 
 		ConditionalAppearance = Form.ConditionalAppearance;
 		AttributePath1 = FullAttributeName;
 		FormattedFieldName = TagName;
@@ -544,29 +545,29 @@ EndFunction
 
 #Region ForCallsFromOtherSubsystems
 
-// 
-// 
+// Called from a scheduled job in order to send a server notification to client sessions.
+// See also: StandardSubsystemsClient.OnReceiptServerNotification.
 //
-// 
-// 
+// It is called in the privileged mode considering the given period of the notification.
+// See CommonOverridable.OnAddServerNotifications.
 //
 // Parameters:
-//  NameOfAlert - String - 
+//  NameOfAlert - String - See ServerNotifications.NewServerNotification.Name
 //  ParametersVariants - Array of Structure:
-//   * Parameters - Arbitrary - 
+//   * Parameters - Arbitrary - See ServerNotifications.NewServerNotification.Parameters
 //   * SMSMessageRecipients - Map of KeyAndValue:
-//      ** Key - UUID - 
+//      ** Key - UUID - Infobase user ID
 //      ** Value - Array of See ServerNotifications.SessionKey
 //
 // Example:
-//	
-//		
-//	
-//	
-//	
-//		
-//			
-//	
+//	If NotificationName <> "StandardSubsystems.UsersSessions.SessionsLock" Then
+//		Return;
+//	EndIf;
+//	SessionLockParameters = SessionLockParameters(True);
+//	If SessionLockParameters.Use Then
+//		ServerNotifications.SendServerNotification(NotificationName,
+//			SessionLockParameters, Undefined);
+//	EndIf;
 //
 Procedure OnSendServerNotification(NameOfAlert, ParametersVariants) Export
 	
@@ -586,7 +587,7 @@ EndProcedure
 
 #Region Internal
 
-// 
+// Notifies all sessions that the cached values are outdated.
 // 
 // Parameters:
 //  SendImmediately - See ServerNotifications.SendServerNotification.SendImmediately
@@ -611,13 +612,13 @@ EndProcedure
 // Additional base functionality for analyzing client parameters on the server.
 
 // Parameters:
-//  RaiseException1 - Boolean - 
+//  RaiseException1 - Boolean - Call an exception if the parameters are not initialized.
 //
-// 
+// Returns a fixed map if CurrentRunMode() is "Undefined".
 //
 // Returns:
 //  FixedMap of KeyAndValue:
-//   * Key - String - 
+//   * Key - String - LaunchParameter, InfobaseConnectionString
 //   * Value - String
 //
 Function ClientParametersAtServer(RaiseException1 = True) Export
@@ -637,8 +638,8 @@ Function ClientParametersAtServer(RaiseException1 = True) Export
 	EndIf;
 	
 	If CurrentRunMode() <> Undefined Then
-		
-		
+		// 
+		// 
 		RefreshReusableValues();
 	EndIf;
 	
@@ -712,13 +713,13 @@ Function ApplicationVersionUpdatedDynamically() Export
 		Return False;
 	EndIf;
 	
-	
-	
-	
+	// 
+	// 
+	// 
 	
 	If Common.DataSeparationEnabled() Then
-		
-		
+		// 
+		// 
 		Return Not InfobaseUpdateInternal.SharedInfobaseDataUpdateRequired();
 	EndIf;
 	
@@ -729,7 +730,7 @@ EndFunction
 // Raises an exception with a recommendation to restart a session due to an update of the application version.
 Procedure RequireRestartDueToApplicationVersionDynamicUpdate() Export
 	
-	ErrorText = NStr("en = 'The application version is updated. Session update is required.';");
+	ErrorText = NStr("en = 'The app is updated. Restart the app.';");
 	InstallRequiresSessionRestart(ErrorText);
 	Raise ErrorText;
 	
@@ -746,7 +747,7 @@ Procedure RequireSessionRestartDueToDynamicUpdateOfProgramExtensions() Export
 			           |Data area extensions are not applied when you sign in to a data area in a session
 			           |that is started without separators.';");
 	Else
-		ErrorText = NStr("en = 'The application extensions are updated. Session update is required.';");
+		ErrorText = NStr("en = 'Extensions are updated. Restart the app.';");
 	EndIf;
 	
 	InstallRequiresSessionRestart(ErrorText);
@@ -922,7 +923,7 @@ Function ApplicationParameterChanges(ParameterName) Export
 	
 EndFunction
 
-// Add the changes of th application operation parameter during update to the current version of configuration metadata.
+// Add the changes of the application operation parameter during update to the current version of configuration metadata.
 // Later changes are used for conditional adding of mandatory update handlers.
 // In case of initial infobase or shared data filling, changes are not added.
 // 
@@ -1011,23 +1012,23 @@ EndProcedure
 
 Function PredefinedDataAttributes() Export
 	Result = New Structure;
-	Result.Insert("PredefinedDataName", "");
+	Result.Insert("PredefinedDataName",  "");
 	Result.Insert("PredefinedSetName", "");
-	Result.Insert("PredefinedKindName", "");
-	Result.Insert("PredefinedFolder", False);
+	Result.Insert("PredefinedKindName",   "");
+	Result.Insert("PredefinedFolderType",   Undefined);
 	Return Result;
 EndFunction
 
-Function ThisIsPredefinedData(Val Item, AttributeName = "", AttributeValue = "") Export 
+Function ThisIsPredefinedData(Val Item, AttributeName = "", AttributeValue = "") Export // ACC:581 - An export function for auto-testing purposes.
 	
-	
-	
+	// 
+	// 
 	AttributesValues = PredefinedDataAttributes();
 	FillPropertyValues(AttributesValues, Item);
 	If AttributesValues.PredefinedDataName = ""
 		And AttributesValues.PredefinedSetName = ""
 		And AttributesValues.PredefinedKindName = ""
-		And Not AttributesValues.PredefinedFolder Then
+		And Not ValueIsFilled(AttributesValues.PredefinedFolderType) Then
 		Return False;
 	EndIf;
 
@@ -1036,8 +1037,8 @@ Function ThisIsPredefinedData(Val Item, AttributeName = "", AttributeValue = "")
 		AttributeName = "PredefinedSetName";
 	ElsIf AttributesValues.PredefinedKindName <> "" Then
 		AttributeName = "PredefinedKindName";
-	ElsIf AttributesValues.PredefinedFolder Then
-		AttributeName = "PredefinedFolder";
+	ElsIf ValueIsFilled(AttributesValues.PredefinedFolderType) Then
+		AttributeName = "PredefinedFolderType";
 	Else
 		AttributeName = "PredefinedDataName";
 	EndIf;
@@ -1049,18 +1050,18 @@ EndFunction
 
 // Parameters:
 //  References - Array of AnyRef
-//         - FixedArray of AnyRef - 
-//           
+//         - FixedArray of AnyRef - References to objects.
+//           If the array is blank, a blank map is returned.
 //  Attributes - Array of String
-//            - FixedArray of String - 
-//            - String - 
+//            - FixedArray of String - Attribute names formatted according to structure property requirements.
+//            - String - Comma-delimited attribute names
 //
 // Returns:
-//  Map of KeyAndValue - :
+//  Map of KeyAndValue - List of objects and their attribute values:
 //   * Key - AnyRef - object reference;
 //   * Value - Structure:
 //    ** Key - String - an attribute name;
-//    ** Value - Arbitrary - 
+//    ** Value - Arbitrary - Attribute value. "Undefined" if the object does not have this attribute.
 // 
 Function ObjectAttributeValuesIfExist(References, Val Attributes) Export
 	
@@ -1176,11 +1177,11 @@ EndFunction
 //  
 //  IgnoreExtensionsVersion - Boolean
 //  
-//  IsAlreadyModified - Boolean - 
+//  IsAlreadyModified - Boolean - Return value. It is set to True, if IgnoreExtensionsVersion is True,
+//                 the value in the value storage is not "Undefined", and
+//                 the value was set by an earlier session.
 //                 
-//                 
-//                 
-//             - Undefined - 
+//             - Undefined - No need to set a value.
 //
 // Returns:
 //  Arbitrary - Undefined is returned if the parameter is not filled
@@ -1221,10 +1222,10 @@ Procedure DeleteObsoleteExtensionsVersionsParametersJobHandler() Export
 	
 EndProcedure
 
-// 
+// The handler of the FillExtensionsOperationParameters scheduled job.
 //
-// 
-// 
+// The job must be started right after it is enabled.
+// The job is auto-disabled after a successful execution.
 //
 Procedure FillExtensionsOperationParameters() Export
 	
@@ -1233,6 +1234,7 @@ Procedure FillExtensionsOperationParameters() Export
 	
 	SetPrivilegedMode(True);
 	InformationRegisters.ExtensionVersionParameters.FillinAllJobParametersLatestVersionExtensions();
+	InformationRegisters.ExtensionProperties.DeletePropertiesOfDeletedExtensions();
 	
 EndProcedure
 
@@ -1373,8 +1375,8 @@ EndProcedure
 ////////////////////////////////////////////////////////////////////////////////
 // Handlers of exchange data sending and receiving in a DIB.
 
-// 
-// 
+// The procedure handles the same-name event that occurs during data exchange in a distributed infobase.
+// For parameters, see "OnSendDataToSubordinate" in Syntax Assistant.
 // 
 // 
 // Parameters:
@@ -1430,8 +1432,8 @@ Procedure OnSendDataToSlave(DataElement, ItemSend, Val InitialImageCreating, Val
 	
 EndProcedure
 
-// 
-// 
+// The procedure handles the same-name event that occurs during data exchange in a distributed infobase.
+// For the parameters, see "OnSendDataToSubordinate" in Syntax Assistant.
 // 
 // 
 // Parameters:
@@ -1472,9 +1474,9 @@ Procedure OnReceiveDataFromSlave(DataElement, ItemReceive, SendBack, Val Sender)
 	
 EndProcedure
 
-// 
-// 
-// 
+// Procedure handles the event of the same name that occurs during data exchange in a distributed infobase
+// See the OnReceiveDataFromMaster() event handler details in Syntax Assistant.
+// "Sender" can be empty. For example, when getting the initial image message in SWP.
 // 
 // 
 // Parameters:
@@ -1750,9 +1752,9 @@ Function ApplicationRunParameterErrorClarificationForDeveloper() Export
 			|Do one of the following:
 			| • Run external data processor
 			|""Development tools: Service data update.""
-			| • Run the application with command-line option:
+			| • Run the app with command-line option:
 			|/C %1.
-			| • Update the application to a later version.
+			| • Update the app to a later version.
 			|The data update procedures will start automatically at launch.';"),
 		"StartInfobaseUpdate");
 	
@@ -1765,9 +1767,9 @@ EndFunction
 //
 Function CurrentUser() Export
 	
-	
-	
-	
+	// 
+	// 
+	// 
 	CurrentUser = InfoBaseUsers.FindByUUID(
 		InfoBaseUsers.CurrentUser().UUID);
 	
@@ -2070,7 +2072,7 @@ Procedure OnFillPermissionsToAccessExternalResources(PermissionsRequests) Export
 	Permissions = New Array();
 	
 	Permissions.Add(ModuleSafeModeManager.PermissionToUseTempDirectory(True, True,
-		NStr("en = 'Basic permissions required to run the application';")));
+		NStr("en = 'Basic permissions required to run the app.';")));
 	Permissions.Add(ModuleSafeModeManager.PermissionToUsePrivilegedMode());
 	
 	PermissionsRequests.Add(
@@ -2091,7 +2093,7 @@ Procedure OnFillToDoList(ToDoList) Export
 	ToDoItem.HasToDoItems      = DataBaseConfigurationChangedDynamically()
 	                     Or Catalogs.ExtensionsVersions.ExtensionsChangedDynamically();
 	ToDoItem.Important        = False;
-	ToDoItem.Presentation = NStr("en = 'Application update is installed';");
+	ToDoItem.Presentation = NStr("en = 'Application update installed';");
 	ToDoItem.Form         = "CommonForm.DynamicUpdateControl";
 	ToDoItem.Owner      = NStr("en = 'Application performance';");
 	
@@ -2173,7 +2175,7 @@ EndProcedure
 // See ExportImportDataOverridable.AfterImportData.
 Procedure AfterImportData(Container) Export
 	
-	
+	// Update the 1C-supplied profiles and add-in run parameters in the background.
 	InformationRegisters.ExtensionVersionParameters.EnableFillingExtensionsWorkParameters(False, True);
 	If Common.DataSeparationEnabled() Then
 		InformationRegisters.ExtensionVersionParameters.StartFillingWorkParametersExtensions(
@@ -2303,7 +2305,7 @@ Function MessageTextOnDynamicUpdate(DynamicConfigurationChanges) Export
 	Messages = New Array;
 	
 	If DynamicConfigurationChanges.DataBaseConfigurationChangedDynamically Then
-		MessageTextConfiguration = NStr("en = 'The application is updated (the configuration is modified).';");
+		MessageTextConfiguration = NStr("en = 'The application is updated (the infobase configuration is modified).';");
 		Messages.Add(MessageTextConfiguration);
 	EndIf;
 	
@@ -2385,7 +2387,7 @@ Function ConfigurationLanguages() Export
 EndFunction
 
 // Parameters:
-//  Headers - Map - see details of the Headers parameter of the HTTPResponse object in Syntax Assistant.
+//  Headers - Map - See the "Headers" parameter of the "HTTPResponse" object in Syntax Assistant.
 // 
 // Returns:
 //  Map
@@ -2404,7 +2406,7 @@ EndFunction
 //  Id - String - an add-in ID.
 //  Location - String - an add-in template location (without the version specified).
 //  AddIn - Undefined
-//                    - Structure - :
+//                    - Structure - Add-in data:
 //                       * Id - String - an add-in ID in the catalog.
 //                       * Version - String - version.
 //                       * Location - String - location.
@@ -2467,20 +2469,20 @@ Function TheComponentOfTheLatestVersion(Id, Location, AddIn = Undefined) Export
 EndFunction
 
 // Returns:
-//  String -  
+//  String -  Technical information about the subsystem versions and extensions.
 //
-Function TechnicalInformationAboutSubsystemVersionsAndExtensions() Export
+Function TechnicalInfoOnExtensionsAndSubsystemsVersions() Export
 	
 	SubsystemsDetails = Common.SubsystemsDetails();
 	
-	TechnicalInformationAboutSubsystemVersionsAndExtensions = NStr("en = 'Subsystem versions';") + ":" + Chars.LF;
+	TechnicalInfoOnExtensionsAndSubsystemsVersions = NStr("en = 'Subsystem versions';") + ":" + Chars.LF;
 	For Each SubsystemDetails In SubsystemsDetails Do
-		TechnicalInformationAboutSubsystemVersionsAndExtensions = TechnicalInformationAboutSubsystemVersionsAndExtensions
+		TechnicalInfoOnExtensionsAndSubsystemsVersions = TechnicalInfoOnExtensionsAndSubsystemsVersions
 			+ SubsystemDetails.Name + " - "
 			+ SubsystemDetails.Version + Chars.LF;
 	EndDo;
 		
-	TechnicalInformationAboutSubsystemVersionsAndExtensions = TechnicalInformationAboutSubsystemVersionsAndExtensions + Chars.LF;
+	TechnicalInfoOnExtensionsAndSubsystemsVersions = TechnicalInfoOnExtensionsAndSubsystemsVersions + Chars.LF;
 	
 	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
@@ -2488,13 +2490,13 @@ Function TechnicalInformationAboutSubsystemVersionsAndExtensions() Export
 	Extensions = ConfigurationExtensions.Get();
 	For Each Extension In Extensions Do
 		
-		TechnicalInformationAboutSubsystemVersionsAndExtensions = TechnicalInformationAboutSubsystemVersionsAndExtensions
+		TechnicalInfoOnExtensionsAndSubsystemsVersions = TechnicalInfoOnExtensionsAndSubsystemsVersions
 			+ Extension.Name + " - " + Extension.Synonym + " - "
 			+ Format(Extension.Active, NStr("en = 'BF=Disabled; BT=Enabled';")) + Chars.LF;
 		
 	EndDo;
 	
-	Return TechnicalInformationAboutSubsystemVersionsAndExtensions;
+	Return TechnicalInfoOnExtensionsAndSubsystemsVersions;
 	
 EndFunction
 
@@ -2506,7 +2508,7 @@ EndFunction
 // infobase.
 //
 // Parameters:
-//   see the OnSendDataToMaster() event handler details in the syntax assistant.
+//   See the "OnSendDataToMaster" event handler in Syntax Assistant.
 // 
 Procedure OnSendDataToMaster(DataElement, ItemSend, Val Recipient)
 	
@@ -2563,23 +2565,29 @@ Function AddClientParametersOnStart(Parameters) Export
 	Parameters.Insert("SeparatedDataUsageAvailable", 
 		Common.SeparatedDataUsageAvailable());
 	Parameters.Insert("IsSeparatedConfiguration", IsSeparatedConfiguration);
-	
+	// Obsolete. Kept for backward compatibility. Use UsersClient.IsFullUser instead.
 	Parameters.Insert("HasAccessForUpdatingPlatformVersion", Users.IsFullUser(,True));
 	
 	Parameters.Insert("SubsystemsNames", StandardSubsystemsCached.SubsystemsNames());
 	Parameters.Insert("IsBaseConfigurationVersion", IsBaseConfigurationVersion());
 	Parameters.Insert("IsTrainingPlatform", IsTrainingPlatform());
 	Parameters.Insert("UserCurrentName", CurrentUser().Name);
-	
+	// Obsolete. Kept for backward compatibility. Use CommonClientServer.COMConnectorName instead.
 	Parameters.Insert("COMConnectorName", CommonClientServer.COMConnectorName());
 	Parameters.Insert("DefaultLanguageCode", Common.DefaultLanguageCode());
+	
+	UserSettings = ErrorProcessing.GetUserSettings();
+	Parameters.Insert("ErrorInfoSendingSettings",
+		New Structure("SendOutMode, SendOutAddress",
+			UserSettings.SendReport,
+			UserSettings.ErrorProcessingServiceAddress));
 	
 	Parameters.Insert("AskConfirmationOnExit", AskConfirmationOnExit());
 	
 	CommonParameters = Common.CommonCoreParameters();
 	Parameters.Insert("MinPlatformVersion",   CommonParameters.MinPlatformVersion);
 	Parameters.Insert("RecommendedPlatformVersion", CommonParameters.RecommendedPlatformVersion);
-	
+	// Obsolete. Kept for backward compatibility. Use the two previous parameters instead.
 	Parameters.Insert("MinPlatformVersion1", CommonParameters.MinPlatformVersion1);
 	Parameters.Insert("MustExit",            CommonParameters.MustExit);
 	
@@ -2686,7 +2694,7 @@ Function AddClientParametersOnStart(Parameters) Export
 		ServerNotifications.OnAddClientParametersOnStart(Parameters);
 	EndIf;
 	
-	If SessionParameters.IBUpdateInProgress <> Undefined 
+	If SessionParameters.IBUpdateInProgress <> Undefined // Mandatory initialization of the session parameters.
 		And Not Parameters.DataSeparationEnabled
 		And InfobaseUpdate.InfobaseUpdateRequired()
 		And InfobaseUpdateInternal.UncompletedHandlersStatus(True) = "UncompletedStatus" Then
@@ -2748,8 +2756,8 @@ Function AddClientParametersOnStart(Parameters) Export
 		Return True;
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	
 	If InfobaseUpdate.InfobaseUpdateRequired() Then
 		Parameters.Insert("InfobaseUpdateRequired");
@@ -2785,8 +2793,8 @@ Function AddClientParametersOnStart(Parameters) Export
 	If IsCallBeforeStart
 	   And (Parameters.Property("InfobaseUpdateRequired")
 	      Or InfobaseUpdate.InfobaseUpdateInProgress()) Then
-		
-		
+		// 
+		// 
 		Return False;
 	EndIf;
 	
@@ -2809,11 +2817,11 @@ Procedure AddClientRunParameters(Parameters)
 		Common.SeparatedDataUsageAvailable());
 	Parameters.Insert("DataSeparationEnabled", Common.DataSeparationEnabled());
 	
-	
+	// Outdated. Use StandardSubsystemsClient.IsBaseConfigurationVersion instead.
 	Parameters.Insert("IsBaseConfigurationVersion", IsBaseConfigurationVersion());
-	
+	// Outdated. Use StandardSubsystemsClient.IsTrainingPlatform instead.
 	Parameters.Insert("IsTrainingPlatform", IsTrainingPlatform());
-	
+	// Obsolete. Use UsersClientServer.COMConnectorName instead.
 	Parameters.Insert("COMConnectorName", CommonClientServer.COMConnectorName());
 	Parameters.Insert("StyleItems", StyleElementsSet());
 	
@@ -3094,12 +3102,28 @@ EndProcedure
 ////////////////////////////////////////////////////////////////////////////////
 // Event subscription handlers.
 
-// Predefined item BeforeWrite event handler.
-Procedure DenySettingDeletionMarksToPredefinedItemsBeforeWrite(Source, Cancel) Export
+// Event handler Before recording predefined elements.
+//
+Procedure ProcessPredefinedItemsBeforeWrite(Source, Cancel) Export
 	
 	If Source.DataExchange.Load Then
 		Return;
 	EndIf;
+	
+	If Not ThisIsPredefinedData(Source) Then
+		Return;
+	EndIf;
+	
+	DenySettingDeletionMarksToPredefinedItemsBeforeWrite(Source);
+	
+	InfobaseUpdateInternal.DetermineModifiedAttributesInPredefinedItems(Source);
+	
+EndProcedure
+
+// Predefined item BeforeWrite event handler.
+//
+Procedure DenySettingDeletionMarksToPredefinedItemsBeforeWrite(Source)
+	
 	If Source.DeletionMark <> True Then
 		Return;
 	EndIf;
@@ -3114,13 +3138,13 @@ Procedure DenySettingDeletionMarksToPredefinedItemsBeforeWrite(Source, Cancel) E
 		Raise
 			NStr("en = 'Cannot create a predefined item that is marked for deletion.';");
 	EndIf;
-		
+	
 	PreviousProperties = Common.ObjectAttributesValues(Source.Ref, 
 		"DeletionMark, PredefinedDataName" 
 			+ ?(AttributeName <> "PredefinedDataName", ", " + AttributeName, ""));
 	
 	If (PreviousProperties.PredefinedDataName <> "" Or AttributeName <> "" And ValueIsFilled(PreviousProperties[AttributeName]))
-	   And PreviousProperties.DeletionMark <> True Then
+	   And PreviousProperties.DeletionMark <> True And Not IsOwnerMarkedForDeletion(Source.Ref) Then
 		
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot mark the predefined item for deletion:
@@ -3152,8 +3176,12 @@ Procedure DenyPredefinedItemDeletionBeforeDelete(Source, Cancel) Export
 	AttributesValues = New Structure("Owner");
 	FillPropertyValues(AttributesValues, Source);
 	
-	If ValueIsFilled(AttributesValues.Owner) And AttributesValues.Owner.GetObject() = Undefined Then
-		Return;
+	If ValueIsFilled(AttributesValues.Owner) Then
+		OwnerDetailsValues = New Structure("DeletionMark");
+		OwnerDeletionMark = Common.ObjectAttributeValue(AttributesValues.Owner, "DeletionMark");
+		If OwnerDeletionMark <> False Then // 
+			Return;
+		EndIf;
 	EndIf;
 	
 	Raise StringFunctionsClientServer.SubstituteParametersToString(
@@ -3166,8 +3194,8 @@ EndProcedure
 ////////////////////////////////////////////////////////////////////////////////
 // DIB exchange plan event subscription processing.
 
-// 
-// 
+// The procedure handles the same-name event that occurs during data exchange in a distributed infobase.
+// For parameters, see "OnSendDataToSubordinate" in Syntax Assistant.
 // 
 // 
 // Parameters:
@@ -3187,8 +3215,8 @@ Procedure OnSendDataToSubordinateEvent(Source, DataElement, ItemSend, InitialIma
 	
 EndProcedure
 
-// 
-// 
+// Procedure handles the same-name event that occurs during data exchange in a distributed infobase.
+// For parameters, see the "OnSendDataToMaster" event handler in Syntax Assistant.
 // 
 // 
 // Parameters:
@@ -3207,8 +3235,8 @@ Procedure OnSendDataToMasterEvent(Source, DataElement, ItemSend) Export
 	
 EndProcedure
 
-// 
-// 
+// The procedure handles the same-name event that occurs during data exchange in a distributed infobase.
+// For the parameters, see "OnSendDataToSubordinate" in Syntax Assistant.
 // 
 // 
 // Parameters:
@@ -3228,8 +3256,8 @@ Procedure OnReceiveDataFromSubordinateEvent(Source, DataElement, ItemReceive, Se
 	
 EndProcedure
 
-// 
-// 
+// Procedure handles the same-name event that occurs during data exchange in a distributed infobase.
+// See the "OnReceiveDataFromMaster" event handler in Syntax Assistant.
 // 
 // 
 // Parameters:
@@ -3368,8 +3396,8 @@ Procedure CreateMissingPredefinedData(MetadataObjects)
 				"ISNULL(SpecifiedTableAlias.Parent.PredefinedDataName, """")", """""");
 		EndIf;
 		
-		
-		
+		// 
+		// 
 		NameTable = Query.Execute().Unload();
 		// ACC:1328-on.
 		NameTable.Indexes.Add("Name");
@@ -3385,8 +3413,8 @@ Procedure CreateMissingPredefinedData(MetadataObjects)
 		InitializePredefinedData();
 		
 		Query.Text = SavedItemsDescription.QueryText;
-		
-		
+		// 
+		// 
 		NameTable = Query.Execute().Unload();
 		// ACC:1328-on.
 		NameTable.Indexes.Add("Name");
@@ -3410,14 +3438,14 @@ Procedure CreateMissingPredefinedData(MetadataObjects)
 			EndIf;
 			// ACC:1327-off - #648.1.1. An exclusive lock is set in the caller procedure.
 			InfobaseUpdate.WriteData(SavedItemDescription.Object);
-			
+			// 
 		EndDo;
 		For Each String In NameTable Do
 			If Not ValueIsFilled(String.Name)
 			 Or Not ValueIsFilled(String.ParentName) Then
 				Continue;
 			EndIf;
-			ParentLevelRow = DescriptionOfSavedObject(SavedItemsDescription.NameTable, String.ParentName);
+			ParentLevelRow = DetailsOfSavedObject(SavedItemsDescription.NameTable, String.ParentName);
 			If ParentLevelRow <> Undefined Then
 				NewObject = String.Ref.GetObject();
 				NewObject.Parent = ParentLevelRow.Ref;
@@ -3453,7 +3481,7 @@ EndProcedure
 //    * ObjectExist - Boolean
 //  Undefined
 //
-Function DescriptionOfSavedObject(NameTable, ParentName)
+Function DetailsOfSavedObject(NameTable, ParentName)
 	Return NameTable.Find(ParentName, "Name");
 EndFunction
 
@@ -3577,7 +3605,7 @@ EndProcedure
 
 Procedure BeforeStartApplication()
 	
-	
+	// Privileged mode (set by the 1C:Enterprise).
 	
 	If TimeConsumingOperations.ShouldSkipHandlerBeforeAppStartup() Then
 		Return;
@@ -3593,60 +3621,65 @@ Procedure BeforeStartApplication()
 			Metadata.ObjectProperties.ScriptVariant["English"]);
 	EndIf;
 	
-	// Checking settings of compatibility between the configuration and the platform version.
+	// Check for the minimum 1C:Enterprise version that does not support the app.
 	SystemInfo = New SystemInfo;
 	CurrentPlatformVersion = CommonClientServer.ConfigurationVersionWithoutBuildNumber(SystemInfo.AppVersion);
-	MinPlatformVersion = Common.MinPlatformVersion();
+	MinPlatformVersion = Min1CEnterpriseVersionForStart();
 	
 	AssemblyNumbers = StrSplit(MinPlatformVersion, "; ", False);
-	MinimumBuildNumberForCurrentVersionOfPlatform = AssemblyNumbers[AssemblyNumbers.UBound()];
+	MinBuildNumberForCurrent1CEnterpriseVersion = AssemblyNumbers[AssemblyNumbers.UBound()];
 	
 	For Each BuildNumber In AssemblyNumbers Do
 		If StrStartsWith(BuildNumber, CurrentPlatformVersion + ".") Then
-			MinimumBuildNumberForCurrentVersionOfPlatform = BuildNumber;
+			MinBuildNumberForCurrent1CEnterpriseVersion = BuildNumber;
 			Break;
 		EndIf;
 	EndDo;
 	
-	If CommonClientServer.CompareVersions(SystemInfo.AppVersion, MinimumBuildNumberForCurrentVersionOfPlatform) < 0 Then
+	If CommonClientServer.CompareVersions(SystemInfo.AppVersion, 
+		MinBuildNumberForCurrent1CEnterpriseVersion) < 0 Then
+		
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The application requires 1C:Enterprise version %1 or later.';"), MinimumBuildNumberForCurrentVersionOfPlatform);
+			NStr("en = 'The application requires 1C:Enterprise version %1 or later.';"), 
+			MinBuildNumberForCurrent1CEnterpriseVersion);
 	EndIf;
 	
-	SupportedPlatformVersions = Common.SupportedPlatformVersions();
-	SupportedPlatformVersion = SupportedPlatformVersions[SupportedPlatformVersions.Count() - 1].Value;
+	// Check for supported compatibility modes.
+	MinPlatformVersions = Min1CEnterpriseVersionForUse();
+	MinPlatformVersion = MinPlatformVersions[MinPlatformVersions.Count() - 1].Value;
 	CompatibilityModeVersion = Common.CompatibilityModeVersion();
 	
-	If SupportedPlatformVersions.FindByValue(CompatibilityModeVersion) = Undefined Then
+	If MinPlatformVersions.FindByValue(CompatibilityModeVersion) = Undefined Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Configuration compatibility mode ""Version %1"" is not supported. 
 			           |To start the application, set the compatibility mode to ""None"" (on 1C:Enterprise version %2)
 			           | or to ""Version %2"" (on a later 1C:Enterprise version).';"),
-			CompatibilityModeVersion, SupportedPlatformVersion);
+			CompatibilityModeVersion, MinPlatformVersion);
 	EndIf;
 	
 	// Checking whether the configuration version is filled.
 	If IsBlankString(Metadata.Version) Then
 		Raise NStr("en = 'The Version configuration property is blank.';");
-	Else
-		Try
-			ZeroVersion = CommonClientServer.CompareVersions(Metadata.Version, "0.0.0.0") = 0;
-		Except
-			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The Version configuration property has invalid value: %1.
-				           |Use the following format: 1.2.3.45.';"),
-				Metadata.Version);
-		EndTry;
-		If ZeroVersion Then
-			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The Version configuration property has invalid value: %1.
-				           |The version cannot be zero.';"),
-				Metadata.Version);
-		EndIf;
+	EndIf;
+
+	Try
+		ZeroVersion = CommonClientServer.CompareVersions(Metadata.Version, "0.0.0.0") = 0;
+	Except
+		Raise StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'The Version configuration property has invalid value: %1.
+						|Use the following format: 1.2.3.45.';"),
+			Metadata.Version);
+	EndTry;
+	If ZeroVersion Then
+		Raise StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'The Version configuration property has invalid value: %1.
+						|The version cannot be zero.';"),
+			Metadata.Version);
 	EndIf;
 	
 	If Not Metadata.DefaultRoles.Contains(Metadata.Roles.SystemAdministrator)
-	 Or Not Metadata.DefaultRoles.Contains(Metadata.Roles.FullAccess) Then
+		Or Not Metadata.DefaultRoles.Contains(Metadata.Roles.FullAccess) Then
+		
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Standard roles %2 and %3 are not specified in property %1 in the configuration.';"),
 			"DefaultRoles", Metadata.Roles.SystemAdministrator.Name, Metadata.Roles.FullAccess.Name);
@@ -3671,6 +3704,75 @@ Procedure BeforeStartApplication()
 	HandleCopiedSettingsQueue();
 	
 EndProcedure
+
+// Configurations that are launched on earlier versions are blocked as the initialization code cannot be executed.
+// A message is displayed prompting informing the user that 1C:Enterprise requires an update.
+// This value must not be overridden unless a configuration supports only earlier versions of 1C:Enterprise.
+// In this case, choose the version closest to the one returned by the function.
+// 
+// Returns:
+//  String - Comma-delimited numbers of 1C:Enterprise builds.
+//
+Function Min1CEnterpriseVersionForStart() Export
+	
+	Return "8.3.21.1622; 8.3.22.1704"; // Must not be modified by patches.
+	
+EndFunction
+
+// Returns supported compatibility modes and their related minimum 1C:Enterprise versions. See ReadMe.txt. 
+// Configurations that are launched on earlier versions are blocked as the initialization code cannot be executed.
+// (Such versions may lack some functionality, leading to errors and failures.)
+// 
+// 
+//
+// Returns:
+//  ValueList:
+//   * Value      - String - Supported compatibility mode.
+//   * Presentation - String - Comma-delimited numbers of 1C:Enterprise builds.
+//
+Function Min1CEnterpriseVersionForUse() Export
+	
+	// It is not recommended to be modified by patches.
+	Versions = New ValueList;
+	Versions.Add("8.3.21", "8.3.21.1775; 8.3.22.1923");
+	Versions.Add("8.3.22", "8.3.22.2355; 8.3.23.2011; 8.3.24.1304");
+	Versions.Add("8.3.23", "8.3.23.2011; 8.3.24.1304");
+	Versions.Add("8.3.24", "8.3.24.1304");
+	
+	Return Versions;
+	
+EndFunction
+
+// Supported versions of the Secure Software System. See ReadMe.txt.
+// A configuration can run on these versions even if the version is earlier than Min1CEnterpriseVersionForUse, but it must be later than Min1CEnterpriseVersionForStart. 
+// 
+//
+Function SecureSoftwareSystemVersions() Export  // ACC:581 - An export function as it is used for testing.
+	
+	Versions = New Array;
+	Versions.Add("8.3.21.1676");
+	Versions.Add("8.3.21.1901");
+	
+	Return Versions;
+
+EndFunction
+
+// Intended for procedure "ClarifyPlatformVersion".
+// It contains revoked 1C:Enterprise versions and their replacements.
+//
+Function ReplacementVersionForRevoked1CEnterprise(CurrentBuild) Export
+	
+	If StrFind("8.3.22.1672,8.3.22.1603", CurrentBuild) Then
+		Return "8.3.22.1709";
+		
+	ElsIf StrFind("8.3.21.1607,8.3.21.1508,8.3.21.1484", CurrentBuild) Then
+		Return "8.3.21.1624";
+		
+	EndIf;
+	
+	Return "";
+	
+EndFunction
 
 // This method is required by BeforeStartApplication procedure.
 Procedure CorrectSharedUserHomePage()
@@ -3750,8 +3852,8 @@ EndFunction
 // This method is required by CorrectSharedUserHomePage procedure.
 Procedure CompensateChangesOfFormCompositionInHomePageMetadata(PreviousFormCompositionInMetadata)
 	
-	
-	
+	// 
+	// 
 	
 	ObjectKey         = "Common/HomePageSettings";
 	StorageObjectKey = "Common/HomePageSettingsBeforeClear";
@@ -3836,8 +3938,8 @@ EndProcedure
 
 Procedure ExecuteSessionParameterSettingHandlers(SessionParametersNames, Handlers, SpecifiedParameters)
 	
-	
-	
+	// 
+	// 
 	SessionParameterKeys = New Array;
 	
 	For Each Record In Handlers Do
@@ -4021,13 +4123,13 @@ Procedure CheckIfCanStart()
 	
 	If ValueIsFilled(InfobaseProfile) Then
 		
-		
-		
+		// 
+		// 
 		
 		SetSafeMode(InfobaseProfile);
 		If SafeMode() <> InfobaseProfile Then
 			
-			// Infobase profile does not allow the handler execution.
+			// The infobase profile is unavailable for running the handlers.
 			
 			SetSafeMode(False);
 			
@@ -4039,9 +4141,9 @@ Procedure CheckIfCanStart()
 				
 			If Not PrivilegedModeAvailable Then
 				Raise StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Couldn''t set session parameters. Reason: security profile %1 is not found in 1C:Enterprise server cluster or it cannot be applied in safe mode.
+					NStr("en = 'Couldn''t set session parameters. Reason: Security profile %1 is not found in 1C:Enterprise server cluster or it cannot be applied in safe mode.
 						|
-						|To restore the application functionality, disable the security profile using the cluster console and reconfigure the security profiles using the configuration interface (see the commands in the application settings section).';"),
+						|To restore the app functionality, disable the security profile using the cluster console and reconfigure the security profiles using the configuration interface (see the commands in the app settings section).';"),
 					InfobaseProfile);
 			EndIf;
 			
@@ -4056,17 +4158,17 @@ Procedure CheckIfCanStart()
 			// Infobase profile allows the handler execution but the privileged mode cannot be set.
 			
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot set the session parameters. Reason: the %1 security profile does not contain the permission to set the privileged mode. Probably it was edited using the cluster console.
+				NStr("en = 'Cannot set the session parameters. Reason: Security profile %1 does not contain the permission to set the privileged mode. Probably it was edited using the cluster console.
 					|
-					|To restore the application functionality, disable the security profile using the cluster console and reconfigure the security profiles using the configuration interface (see the commands in the application settings section).';"),
+					|To restore the app functionality, disable the security profile using the cluster console and reconfigure the security profiles using the configuration interface (see the commands in the app settings section).';"),
 				InfobaseProfile);
 			
 		EndIf;
 		
 	Else
 		
-		
-		
+		// 
+		// 
 		
 		Try
 			PrivilegedModeAvailable = CanExecuteHandlersWithoutSafeMode();
@@ -4075,7 +4177,7 @@ Procedure CheckIfCanStart()
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot set the session parameters. Reason: %1.
 					|
-					|Probably a security profile that does not allow execution of external modules in unsafe mode was set using the cluster console. If this is the case, to restore the application functionality, disable the security profile using the cluster console and reconfigure the security profiles using the configuration interface (see the commands in the application settings section). The application will be automatically configured to use the enabled security profiles.';"),
+					|Probably a security profile that does not allow execution of external modules in unsafe mode was set using the cluster console. If this is the case, to restore the application functionality, disable the security profile using the cluster console and reconfigure the security profiles using the configuration interface (see the commands in the application settings section). The app will be automatically configured to use the enabled security profiles.';"),
 				ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 			
 		EndTry;
@@ -4091,8 +4193,8 @@ EndProcedure
 //
 Function CanExecuteHandlersWithoutSafeMode()
 	
-	
-	
+	// 
+	// 
 	Return Eval("SwichingToPrivilegedModeAvailable()"); // ACC:488
 		
 EndFunction
@@ -4206,8 +4308,8 @@ Procedure SetFormWindowOptionsSaveKey(Form, Var_Key, SetSettings)
 	SettingsTypes1.Add("/ThinClientWindowSettings"); // @Non-NLS
 	SettingsTypes1.Add("/Taxi/ThinClientWindowSettings"); // @Non-NLS
 	SettingsTypes1.Add("/WebClientWindowSettings"); // @Non-NLS
-	SettingsTypes1.Add("/Taxi/WebClientWindowSettings"); 
-	
+	SettingsTypes1.Add("/Taxi/WebClientWindowSettings"); // 
+	// 
 	SettingsTypes1.Add("/ThinClientWindowSettings");
 	SettingsTypes1.Add("/Taxi/ThinClientWindowSettings");
 	SettingsTypes1.Add("/WebClientWindowSettings");
@@ -4261,7 +4363,7 @@ Procedure SetSettingsForKey(Var_Key, SettingsTypes1, FormName, CurrentKey)
 	
 EndProcedure
 
-
+// Check server notifications and send them to client.
 
 // See OnReceiptRecurringClientDataOnServer
 Procedure ConfigurationOrExtensionModifiedDuringRepeatedCheck(UserMessage)
@@ -4297,7 +4399,7 @@ Procedure ConfigurationOrExtensionModifiedDuringRepeatedCheck(UserMessage)
 	If DynamicChanges.Corrections <> Undefined
 		And DynamicChanges.Extensions = Undefined
 		And Not DataBaseConfigurationChangedDynamically
-		
+		// Only the list of patches is changed. Check that notifications can be displayed.
 		And DynamicChanges.Corrections.Added2 <> 0
 		And DynamicChanges.Corrections.Deleted = 0 Then
 	
@@ -4317,10 +4419,17 @@ Procedure ConfigurationOrExtensionModifiedDuringRepeatedCheck(UserMessage)
 				Common.SystemSettingsStorageSave("DynamicUpdateControl",
 					"PatchCheckSchedule", NotificationSchedule,, UserName);
 			EndIf;
-		Else 
+		Else
 			OnceADay = New JobSchedule;
 			OnceADay.DaysRepeatPeriod = 1;
-			Common.SystemSettingsStorageSave("DynamicUpdateControl", "PatchCheckSchedule", OnceADay);
+			
+			PatchCheckSchedule = New Structure;
+			PatchCheckSchedule.Insert("Id", "Once");
+			PatchCheckSchedule.Insert("Presentation", NStr("en = 'Once a day';"));
+			PatchCheckSchedule.Insert("Schedule", OnceADay);
+			PatchCheckSchedule.Insert("LastAlert", CurrentSessionDate());
+
+			Common.SystemSettingsStorageSave("DynamicUpdateControl", "PatchCheckSchedule", PatchCheckSchedule);
 		EndIf;
 	EndIf;
 	
@@ -4333,7 +4442,7 @@ Procedure ConfigurationOrExtensionModifiedDuringRepeatedCheck(UserMessage)
 		
 	Messages = New Array;
 	Messages.Add(MessageTextOnDynamicUpdate(DynamicChanges));
-	Messages.Add(NStr("en = 'Click here to apply or delay patches.';"));
+	Messages.Add(NStr("en = 'Click here to start or postpone patch application.';"));
 	UserMessage = StrConcat(Messages, Chars.LF);
 	
 EndProcedure
@@ -4487,7 +4596,11 @@ EndProcedure
 // Multilingual configurations.
 
 Function RegionalInfobaseSettingsRequired() Export
-	
+		
+	If Common.DataSeparationEnabled() Then
+		Return False;
+	EndIf;
+
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
 		Return ModuleNationalLanguageSupportServer.RegionalInfobaseSettingsRequired();
@@ -4615,6 +4728,33 @@ Function InvalidPlatformVersionUsed()
 	DeprecatedPlatformVersions = Common.InvalidPlatformVersions();
 	
 	Return StrFind(DeprecatedPlatformVersions, SystemInfo.AppVersion);
+	
+EndFunction
+
+Function IsOwnerMarkedForDeletion(RemovableObject)
+	
+	SourceMetadata = RemovableObject.Metadata();
+	If SourceMetadata.Owners.Count() = 0 Then
+		Return False;
+	EndIf;
+
+	Query = New Query;
+	Query.Text = "
+	|SELECT
+	|	OwnerTable.Owner.DeletionMark AS DeletionMark
+	|FROM
+	|	&TableName AS OwnerTable
+	|WHERE 
+	|	OwnerTable.Ref = &Ref";
+	
+	Query.Text = StrReplace(Query.Text, "&TableName", SourceMetadata.FullName());
+	Query.SetParameter("Ref", RemovableObject);
+		
+	Selection = Query.Execute().Select();
+	If Selection.Next() Then
+		Return Selection.DeletionMark;
+	EndIf;
+	Return False;
 	
 EndFunction
 

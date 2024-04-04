@@ -61,6 +61,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">CommonTemplate.EmptyDOCXTemplate</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonForm.PrintOfficeOpenDocs</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonForm.EditOfficeOpenDoc</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.PrintManagementGlobal</xr:Item>
 			</Content>
 		</Properties>
 		<ChildObjects/>

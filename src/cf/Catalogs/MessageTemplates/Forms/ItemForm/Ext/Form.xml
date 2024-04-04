@@ -13,6 +13,12 @@
 			<Button name="FormCheckTemplate" id="16">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.CheckTemplateFilling</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Validate</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormCheckTemplateExtendedTooltip" id="17"/>
 			</Button>
 			<Popup name="FormEmailTextKind" id="163">
@@ -33,12 +39,24 @@
 					<Button name="FormEmailPlainText" id="161">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.EmailPlainText</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Plain text</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="FormEmailPlainTextExtendedTooltip" id="162"/>
 					</Button>
 					<Button name="FormEmailHTML" id="159">
 						<Type>CommandBarButton</Type>
 						<Check>true</Check>
 						<CommandName>Form.Command.EmailHTML</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>HTML</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="FormEmailHTMLExtendedTooltip" id="160"/>
 					</Button>
 				</ChildItems>
@@ -56,12 +74,24 @@
 						<Type>CommandBarButton</Type>
 						<Check>true</Check>
 						<CommandName>Form.Command.FromTemplate</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>From template</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="FormFromTemplateExtendedTooltip" id="177"/>
 					</Button>
 					<Button name="FormByExternalDataProcessor" id="178">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.ByExternalDataProcessor</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>By external data processor</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="FormByExternalDataProcessorExtendedTooltip" id="179"/>
 					</Button>
@@ -175,7 +205,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>HTML mail message</v8:content>
+											<v8:content>HTML</v8:content>
 										</v8:item>
 									</Title>
 									<ExtendedTooltip name="EmailMessageHTMLExtendedTooltip" id="43"/>
@@ -192,6 +222,12 @@
 										</CommandBar>
 										<FormattedDocumentField name="EmailBodyInHTML" id="46">
 											<DataPath>EmailBodyInHTML</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>HTML mail body</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<ContextMenu name="EmailBodyInHTMLContextMenu" id="47"/>
 											<ExtendedTooltip name="EmailBodyInHTMLExtendedTooltip" id="48"/>
@@ -286,6 +322,12 @@
 										</UsualGroup>
 										<TextDocumentField name="MessageBodySMSMessagePlainText" id="220">
 											<DataPath>MessageBodyPlainText</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Plain text mail body</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<ContextMenu name="MessageBodySMSMessagePlainTextContextMenu" id="221"/>
 											<ExtendedTooltip name="MessageBodySMSMessagePlainTextExtendedTooltip" id="222"/>
@@ -359,6 +401,12 @@
 								</InputField>
 								<RadioButtonField name="Available" id="369">
 									<DataPath>Available</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Available to</v8:content>
+										</v8:item>
+									</Title>
 									<Shortcut>Ctrl+S</Shortcut>
 									<RadioButtonType>Auto</RadioButtonType>
 									<ChoiceList>
@@ -499,12 +547,24 @@
 														<Button name="AddParameterToMessageSubject" id="324">
 															<Type>CommandBarButton</Type>
 															<CommandName>Form.Command.AddParameterToMessageSubject</CommandName>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Subject</v8:content>
+																</v8:item>
+															</Title>
 															<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 															<ExtendedTooltip name="AddParameterToMessageSubjectExtendedTooltip" id="325"/>
 														</Button>
 														<Button name="AttributesAddParameterToMessageText" id="322">
 															<Type>CommandBarButton</Type>
 															<CommandName>Form.Command.AddParameterToMessageText</CommandName>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Message body</v8:content>
+																</v8:item>
+															</Title>
 															<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 															<ExtendedTooltip name="AttributesAddParameterToMessageTextExtendedTooltip" id="323"/>
 														</Button>
@@ -583,6 +643,12 @@
 												<Button name="EmailHTML" id="244">
 													<Type>CommandBarButton</Type>
 													<CommandName>Form.Command.EmailHTML</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>HTML</v8:content>
+														</v8:item>
+													</Title>
 													<ExtendedTooltip name="EmailHTMLExtendedTooltip" id="245"/>
 												</Button>
 											</ChildItems>
@@ -658,11 +724,23 @@
 											<Button name="AttributesContextMenuAddParameterToMessageText1" id="257">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.AddParameterToMessageText</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Message body</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="AttributesContextMenuAddParameterToMessageTextExtendedTooltip" id="258"/>
 											</Button>
 											<Button name="AttributesContextMenuAddParameterToMessageSubject" id="255">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.AddParameterToMessageSubject</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Subject</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="AttributesContextMenuAddParameterToMessageSubjectExtendedTooltip" id="256"/>
 											</Button>
 										</ChildItems>
@@ -681,6 +759,12 @@
 									<Button name="AttributePresentationFormat" id="280">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.AttributePresentationFormat</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Attribute display format…</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="AttributePresentationFormatExtendedTooltip" id="281"/>
 									</Button>
 									<ButtonGroup name="StandardButtonsGroupContextMenu" id="336">
@@ -700,6 +784,12 @@
 											<Button name="AttributesContextMenuChange" id="338">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.ChangeAttribute</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Edit</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="AttributesContextMenuChangeExtendedTooltip" id="339"/>
 											</Button>
 											<Button name="AttributesContextMenuDelete" id="320">
@@ -771,6 +861,12 @@
 										<InputField name="AttributesPresentation" id="72">
 											<DataPath>Attributes.Presentation</DataPath>
 											<ReadOnly>true</ReadOnly>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Presentation</v8:content>
+												</v8:item>
+											</Title>
 											<ToolTipRepresentation>Button</ToolTipRepresentation>
 											<EditMode>EnterOnInput</EditMode>
 											<ContextMenu name="AttributesPresentationContextMenu" id="73"/>
@@ -779,6 +875,12 @@
 										<InputField name="AttributesFormat" id="284">
 											<DataPath>Attributes.Format</DataPath>
 											<ReadOnly>true</ReadOnly>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Format</v8:content>
+												</v8:item>
+											</Title>
 											<EditMode>EnterOnInput</EditMode>
 											<ContextMenu name="AttributesFormatContextMenu" id="285"/>
 											<ExtendedTooltip name="AttributesFormatExtendedTooltip" id="286"/>
@@ -846,11 +948,23 @@
 												<Button name="AttachmentsCopyAttachment" id="356">
 													<Type>CommandBarButton</Type>
 													<CommandName>Form.Command.CopyAttachment</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Copy</v8:content>
+														</v8:item>
+													</Title>
 													<ExtendedTooltip name="AttachmentsCopyAttachmentExtendedTooltip" id="357"/>
 												</Button>
 												<Button name="AttachmentsChange" id="352">
 													<Type>CommandBarButton</Type>
 													<CommandName>Form.Command.ChangeAttachment</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Change</v8:content>
+														</v8:item>
+													</Title>
 													<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 													<ExtendedTooltip name="AttachmentsChangeExtendedTooltip" id="353"/>
 												</Button>
@@ -928,11 +1042,23 @@
 											<Button name="AttachmentsContextMenuCopyAttachment" id="354">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.CopyAttachment</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Copy</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="AttachmentsContextMenuCopyAttachmentExtendedTooltip" id="355"/>
 											</Button>
 											<Button name="AttachmentsContextMenuChangeAttachment" id="253">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.ChangeAttachment</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Edit</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="AttachmentsContextMenuChangeAttachmentExtendedTooltip" id="254"/>
 											</Button>
 											<Button name="AttachmentsContextMenuDelete" id="191">
@@ -1006,6 +1132,12 @@
 									<ChildItems>
 										<CheckBoxField name="AttachmentsSelected" id="148">
 											<DataPath>Attachments.SelectedItemsCount</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Selected</v8:content>
+												</v8:item>
+											</Title>
 											<EditMode>EnterOnInput</EditMode>
 											<ThreeState>true</ThreeState>
 											<ContextMenu name="AttachmentsSelectedContextMenu" id="149"/>
@@ -1026,6 +1158,12 @@
 											<ChildItems>
 												<PictureField name="AttachmentsPictureIndex" id="246">
 													<DataPath>Attachments.PictureIndex</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Picture index</v8:content>
+														</v8:item>
+													</Title>
 													<EditMode>EnterOnInput</EditMode>
 													<Hyperlink>true</Hyperlink>
 													<ValuesPicture>
@@ -1039,6 +1177,12 @@
 												<InputField name="AttachmentsPresentation" id="105">
 													<DataPath>Attachments.Presentation</DataPath>
 													<ReadOnly>true</ReadOnly>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Presentation</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>None</TitleLocation>
 													<EditMode>EnterOnInput</EditMode>
 													<ChooseType>false</ChooseType>
@@ -1064,6 +1208,12 @@
 									<ChildItems>
 										<LabelField name="AttachmentFormat" id="272">
 											<DataPath>PrintFormsFormat</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Save print forms as</v8:content>
+												</v8:item>
+											</Title>
 											<Hiperlink>true</Hiperlink>
 											<ContextMenu name="AttachmentFormatContextMenu" id="273"/>
 											<ExtendedTooltip name="AttachmentFormatExtendedTooltip" id="274"/>
@@ -1480,7 +1630,7 @@
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>HTML mail</v8:content>
+					<v8:content>HTML</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>EmailHTML</Action>
@@ -1674,14 +1824,6 @@
 	</Parameters>
 	<CommandInterface>
 		<NavigationPanel>
-			<Item>
-				<Command>0</Command>
-				<Type>Auto</Type>
-				<DefaultVisible>false</DefaultVisible>
-				<Visible>
-					<xr:Common>false</xr:Common>
-				</Visible>
-			</Item>
 			<Item>
 				<Command>CommonCommand.AttachedFiles</Command>
 				<Type>Auto</Type>

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -12,13 +13,13 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	If Not Parameters.Property("ArrayOfValues") Then // Return if there are no attributes with the date type.
+	If Not ValueIsFilled(Parameters.AttributesOfDateType) Then // Return if there are no attributes with the date type.
 		Return;
 	EndIf;
 	
-	HasOnlyOneAttribute = Parameters.ArrayOfValues.Count() = 1;
+	HasOnlyOneAttribute = Parameters.AttributesOfDateType.Count() = 1;
 	
-	For Each Attribute In Parameters.ArrayOfValues Do
+	For Each Attribute In Parameters.AttributesOfDateType Do
 		Items.DateTypeAttribute.ChoiceList.Add(Attribute.Value, Attribute.Presentation);
 		If HasOnlyOneAttribute Then
 			DateTypeAttribute = Attribute.Value;

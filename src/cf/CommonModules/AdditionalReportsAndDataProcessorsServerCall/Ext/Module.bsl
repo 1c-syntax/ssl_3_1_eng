@@ -1,16 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #Region Public
 
-// Enables external processing (report).
-// More detailed  See AdditionalReportsAndDataProcessors.AttachExternalDataProcessor.
+// Attaches an external report or data processor.
+// For details, See AdditionalReportsAndDataProcessors.AttachExternalDataProcessor.
 //
 // Parameters:
 //   Ref - CatalogRef.AdditionalReportsAndDataProcessors - a data processor to attach.
@@ -25,8 +26,8 @@ Function AttachExternalDataProcessor(Ref) Export
 	
 EndFunction
 
-// Creates and returns an instance of external processing (report).
-// More detailed  See AdditionalReportsAndDataProcessors.ExternalDataProcessorObject.
+// Creates and returns an instance of an external report or data processor.
+// For details, See AdditionalReportsAndDataProcessors.ExternalDataProcessorObject.
 //
 // Parameters:
 //   Ref - CatalogRef.AdditionalReportsAndDataProcessors - a report or a data processor to attach.
@@ -46,8 +47,8 @@ EndFunction
 
 #Region Private
 
-// Executes the processing command and puts the result in temporary storage.
-//   More detailed -  See AdditionalReportsAndDataProcessors.ExecuteCommand.
+// Runs a data processor command and puts the result in a temporary storage.
+//   For details, See AdditionalReportsAndDataProcessors.ExecuteCommand.
 //
 Function ExecuteCommand(CommandParameters, ResultAddress = Undefined) Export
 	
@@ -62,7 +63,8 @@ Function PutInStorage(Ref, FormIdentifier) Export
 		Return Undefined;
 	EndIf;
 	If Not AdditionalReportsAndDataProcessors.CanExportDataProcessorToFile(Ref) Then
-		Raise NStr("en = 'Insufficient rights to export additional report or data processor files';");
+		Raise(NStr("en = 'Insufficient rights to export additional report or data processor files.';"),
+			ErrorCategory.AccessViolation);
 	EndIf;
 	
 	DataProcessorStorage = Common.ObjectAttributeValue(Ref, "DataProcessorStorage");

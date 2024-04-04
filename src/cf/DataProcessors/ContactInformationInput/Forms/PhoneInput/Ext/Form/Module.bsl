@@ -1,13 +1,14 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
-
+// 
 //
 //      
 //       
@@ -118,13 +119,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndIf;
 		
 		If ContactInformationKindStructure1.StoreChangeHistory Then
-			If Parameters.Property("ContactInformationAdditionalAttributesDetails") Then
+			If Parameters.ContactInformationAdditionalAttributesDetails <> Undefined Then
 				For Each CIRow In Parameters.ContactInformationAdditionalAttributesDetails Do
 					NewRow = ContactInformationAdditionalAttributesDetails.Add();
 					FillPropertyValues(NewRow, CIRow);
 				EndDo;
 			EndIf;
-		EndIf;   
+		EndIf;
 	EndIf;
 	
 	If Common.IsMobileClient() Then
@@ -491,12 +492,8 @@ EndProcedure
 &AtServer
 Function DefineAddressValue(Var_Parameters)
 	
-	If Var_Parameters.Property("Value") Then
-		If IsBlankString(Var_Parameters.Value) And ValueIsFilled(Var_Parameters.FieldValues) Then
-			FieldValues = Var_Parameters.FieldValues;
-		Else
-			FieldValues = Var_Parameters.Value;
-		EndIf;
+	If ValueIsFilled(Var_Parameters.Value) Then
+		FieldValues = Var_Parameters.Value;
 	Else
 		FieldValues = Var_Parameters.FieldValues;
 	EndIf;

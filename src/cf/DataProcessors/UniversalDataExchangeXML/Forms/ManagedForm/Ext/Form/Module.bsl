@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -1151,7 +1152,7 @@ EndProcedure
 // according to the mark value in the current row.
 //
 // Parameters:
-//  CurRow      - 
+//  CurRow      - A value tree row.
 // 
 &AtClient
 Procedure SetSubordinateMarks(CurRow, CheckBoxName)
@@ -1176,7 +1177,7 @@ EndProcedure
 // according to the mark value in the current row.
 //
 // Parameters:
-//  CurRow      - 
+//  CurRow      - A value tree row.
 // 
 &AtClient
 Procedure SetParentMarks(CurRow, CheckBoxName)
@@ -1229,8 +1230,8 @@ Procedure OpenImportFileAtServer(FileAddress)
 		
 		BinaryData = GetFromTempStorage(FileAddress); // BinaryData
 		AddressOnServer = GetTempFileName(".xml");
-		
-		
+		// 
+		// 
 		BinaryData.Write(AddressOnServer);
 		Object.ExchangeFileName = AddressOnServer;
 		
@@ -1407,8 +1408,8 @@ Procedure ExecuteImportAtServer(FileAddress, FileNameForExtension)
 		If IsTempStorageURL(ImportRulesFileAddressInStorage) Then
 			BinaryData = GetFromTempStorage(ImportRulesFileAddressInStorage); // BinaryData
 			AddressOnServer = GetTempFileName("xml");
-			
-			
+			// 
+			// 
 			BinaryData.Write(AddressOnServer);
 			Object.ExchangeRulesFileName = AddressOnServer;
 		Else
@@ -1461,8 +1462,8 @@ Function FileNameAtServerOrClient(Var_AttributeName ,Val FileAddress, Val FileNa
 			Extension = FileExtention(FileNameForExtension);
 			BinaryData = GetFromTempStorage(FileAddress); // BinaryData
 			AddressOnServer = GetTempFileName(Extension);
-			
-			
+			// 
+			// 
 			BinaryData.Write(AddressOnServer);
 			FileName = AddressOnServer;
 			
@@ -1903,7 +1904,7 @@ EndProcedure
 // Returns True if the client application is running on Windows.
 //
 // Returns:
-//  Boolean -  
+//  Boolean -  Returns False if no client application is available.
 //
 &AtClient
 Function IsWindowsClient()

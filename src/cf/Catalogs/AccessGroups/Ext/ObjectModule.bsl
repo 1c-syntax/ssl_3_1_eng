@@ -1,18 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Variables
 
-Var PreviousValues1; 
-                      
+Var PreviousValues1; // Values of some access group tables and attributes
+                      // 
 
 #EndRegion
 
@@ -98,8 +99,8 @@ Procedure BeforeWrite(Cancel)
 			EndIf;
 		EndIf;
 		
-		
-		
+		// 
+		// 
 		If Not DeletionMark And PreviousValues1.DeletionMark = True Then
 			BeginTransaction();
 			Try
@@ -169,11 +170,6 @@ Procedure OnWrite(Cancel)
 		InformationRegisters.AccessGroupsValues.UpdateRegisterData(Ref);
 	EndIf;
 	
-	Catalogs.AccessGroupProfiles.UpdateAuxiliaryProfilesDataChangedOnImport();
-	Catalogs.AccessGroups.UpdateAccessGroupsAuxiliaryDataChangedOnImport();
-	Catalogs.AccessGroups.UpdateAuxiliaryDataOfUserGroupsChangedOnImport();
-	Catalogs.AccessGroups.UpdateUsersRolesChangedOnImport();
-	
 	If AccessManagementInternal.LimitAccessAtRecordLevelUniversally() Then
 		ChangedMembersTypes = ChangedMembersTypes(Users, PreviousValues1.Users,
 			DeletionMark <> PreviousValues1.DeletionMark);
@@ -209,6 +205,7 @@ EndProcedure
 // Parameters:
 //  NewMembers - CatalogTabularSection.AccessGroups.Users
 //  OldMembers - QueryResult
+//                  - Undefined
 // Returns:
 //  Structure:
 //    * ExternalUsers - Boolean

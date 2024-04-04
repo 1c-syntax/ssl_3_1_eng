@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -269,21 +270,21 @@ Function SettingsClearing()
 			ExplanationText = StringFunctionsClientServer.SubstituteParametersToString(ExplanationText, SubjectInWords, SettingsClearedForNote);
 		EndIf;
 		
-		ShowUserNotification(NStr("en = 'Clear settings';"), , ExplanationText, PictureLib.Information32);
+		ShowUserNotification(NStr("en = 'Clear settings';"), , ExplanationText, PictureLib.DialogInformation);
 		
 	ElsIf SettingsToClearRadioButton = "ClearAll" Then
 		ClearAllSettings();
 		
 		ExplanationText = NStr("en = 'All settings are cleared for %1';");
 		ExplanationText = StringFunctionsClientServer.SubstituteParametersToString(ExplanationText, SettingsClearedForNote);
-		ShowUserNotification(NStr("en = 'Clear settings';"), , ExplanationText, PictureLib.Information32);
+		ShowUserNotification(NStr("en = 'Clear settings';"), , ExplanationText, PictureLib.DialogInformation);
 		
 	ElsIf SettingsToClearRadioButton = "ObsoleteSettings" Then
 		ClearObsoleteSettings();
 		
 		ExplanationText = NStr("en = 'Obsolete settings %1 are cleared';");
 		ExplanationText = StringFunctionsClientServer.SubstituteParametersToString(ExplanationText, SettingsClearedForNote);
-		ShowUserNotification(NStr("en = 'Clear settings';"), , ExplanationText, PictureLib.Information32);
+		ShowUserNotification(NStr("en = 'Clear settings';"), , ExplanationText, PictureLib.DialogInformation);
 	EndIf;
 	
 	SettingsCount = 0;

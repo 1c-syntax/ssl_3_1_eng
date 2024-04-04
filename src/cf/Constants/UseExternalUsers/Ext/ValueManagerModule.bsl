@@ -1,17 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Variables
 
-Var ValueChanged;
+// 
+Var PreviousValue2;
 
 #EndRegion
 
@@ -23,12 +25,27 @@ Procedure BeforeWrite(Cancel)
 		Return;
 	EndIf;
 	
-	ValueChanged = Value <> Constants.UseExternalUsers.Get();
+	PreviousValue2 = Constants.UseExternalUsers.Get();
 	
-	If ValueChanged
-	   And Value
-	   And Not UsersInternal.ExternalUsersEmbedded() Then
-		Raise NStr("en = 'The application does not support external users.';");
+	If Value = PreviousValue2 Then
+		Return;
+	EndIf;
+	
+	If Not PreviousValue2 And Value And Not UsersInternal.ExternalUsersEmbedded() Then
+		ErrorText =
+			NStr("en = 'The application does not support external users.';");
+		Raise ErrorText;
+	EndIf;
+	
+	If Common.IsStandaloneWorkplace() Then
+		ErrorText =
+			NStr("en = 'To change the usage of user groups, go to the app in the service.';");
+		Raise ErrorText;
+		
+	ElsIf Common.IsSubordinateDIBNode() Then
+		ErrorText =
+			NStr("en = 'To change the usage of user groups, go to the infobase''s master node.';");
+		Raise ErrorText;
 	EndIf;
 	
 EndProcedure
@@ -41,29 +58,8 @@ Procedure OnWrite(Cancel)
 	
 	Constants.UseExternalUserGroups.Refresh();
 	
-	If ValueChanged Then
-		UsersInternal.UpdateExternalUsersRoles();
-		If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
-			ModuleAccessManagement = Common.CommonModule("AccessManagement");
-			ModuleAccessManagement.UpdateUserRoles(Type("CatalogRef.ExternalUsers"));
-			
-			ModuleAccessManagementInternal = Common.CommonModule("AccessManagementInternal");
-			If ModuleAccessManagementInternal.LimitAccessAtRecordLevelUniversally() Then
-				PlanningParameters = ModuleAccessManagementInternal.AccessUpdatePlanningParameters();
-				PlanningParameters.ForUsers = False;
-				PlanningParameters.ForExternalUsers = True;
-				PlanningParameters.IsUpdateContinuation = True;
-				PlanningParameters.LongDesc = "UseExternalUsersOnWrite";
-				ModuleAccessManagementInternal.ScheduleAccessUpdate(, PlanningParameters);
-			EndIf;
-		EndIf;
-		If Value Then
-			UsersInternal.SetShowInListAttributeForAllInfobaseUsers(False);
-		Else
-			ClearCanSignInAttributeForAllExternalUsers();
-		EndIf;
-		
-		SetPropertySetUsageFlag();
+	If Value <> PreviousValue2 Then
+		OnToggleExternalUsersUsage(Value);
 	EndIf;
 	
 EndProcedure
@@ -71,6 +67,67 @@ EndProcedure
 #EndRegion
 
 #Region Private
+
+// For internal use only.
+Procedure RegisterChangeUponDataImport(DataElement) Export
+	
+	If DataElement.Value = Constants.UseExternalUsers.Get() Then
+		Return;
+	EndIf;
+	
+	SetPrivilegedMode(True);
+	UsersInternal.RegisterRefs("UseExternalUsers", True);
+	
+EndProcedure
+
+// For internal use only.
+Procedure ProcessChangeRegisteredUponDataImport() Export
+	
+	If Common.DataSeparationEnabled() Then
+		// 
+		Return;
+	EndIf;
+	
+	Changes = UsersInternal.RegisteredRefs("UseExternalUsers");
+	If Changes.Count() = 0 Then
+		Return;
+	EndIf;
+	
+	OnToggleExternalUsersUsage(
+		Constants.UseExternalUsers.Get());
+	
+	UsersInternal.RegisterRefs("UseExternalUsers", Null);
+	
+EndProcedure
+
+Procedure OnToggleExternalUsersUsage(Var_Value)
+	
+	UsersInternal.UpdateExternalUsersRoles();
+	
+	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
+		ModuleAccessManagement = Common.CommonModule("AccessManagement");
+		ModuleAccessManagement.UpdateUserRoles(Type("CatalogRef.ExternalUsers"));
+		
+		ModuleAccessManagementInternal = Common.CommonModule("AccessManagementInternal");
+		If ModuleAccessManagementInternal.LimitAccessAtRecordLevelUniversally() Then
+			PlanningParameters = ModuleAccessManagementInternal.AccessUpdatePlanningParameters();
+			PlanningParameters.ForUsers = False;
+			PlanningParameters.ForExternalUsers = True;
+			PlanningParameters.IsUpdateContinuation = True;
+			PlanningParameters.LongDesc = "UseExternalUsersOnWrite";
+			ModuleAccessManagementInternal.ScheduleAccessUpdate(, PlanningParameters);
+		EndIf;
+	EndIf;
+	
+	If Var_Value Then
+		UsersInternal.SetShowInListAttributeForAllInfobaseUsers(False);
+	Else
+		ClearCanSignInAttributeForAllExternalUsers();
+	EndIf;
+	
+	SetPropertySetUsageFlag();
+	
+EndProcedure
 
 // Clears the FlagShowInList attribute for all infobase users.
 Procedure ClearCanSignInAttributeForAllExternalUsers()
@@ -98,6 +155,8 @@ Procedure ClearCanSignInAttributeForAllExternalUsers()
 			IBUser.Write();
 		EndIf;
 	EndDo;
+	
+	InformationRegisters.UsersInfo.UpdateRegisterData();
 	
 EndProcedure
 

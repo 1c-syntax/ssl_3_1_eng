@@ -107,6 +107,12 @@
 		<field xsi:type="DataSetFieldField">
 			<dataPath>Folder</dataPath>
 			<field>Folder</field>
+			<title xsi:type="v8:LocalStringType">
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Folder</v8:content>
+				</v8:item>
+			</title>
 		</field>
 		<field xsi:type="DataSetFieldField">
 			<dataPath>Subject</dataPath>
@@ -123,6 +129,12 @@
 		<field xsi:type="DataSetFieldField">
 			<dataPath>SubjectIsActive</dataPath>
 			<field>SubjectIsActive</field>
+			<title xsi:type="v8:LocalStringType">
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Active topic</v8:content>
+				</v8:item>
+			</title>
 		</field>
 		<field xsi:type="DataSetFieldField">
 			<dataPath>Importance</dataPath>
@@ -134,7 +146,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Importance marker</v8:content>
+					<v8:content>Importance Picture index</v8:content>
 				</v8:item>
 			</title>
 		</field>

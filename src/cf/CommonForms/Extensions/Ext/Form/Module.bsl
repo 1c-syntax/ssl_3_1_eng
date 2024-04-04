@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -27,6 +28,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.ExtensionsListSafeModeFlag.ReadOnly = True;
 	EndIf;
 	
+	Items.FormInstalledPatches1.Visible = 
+		Common.SubsystemExists("StandardSubsystems.ConfigurationUpdate");
+	
 	If Not AccessRight("ConfigurationExtensionsAdministration", Metadata) Then
 		Items.ExtensionsListUpdate.LocationInCommandBar = ButtonLocationInCommandBar.InCommandBar;
 		Items.ExtensionsList.ReadOnly = True;
@@ -38,14 +42,20 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.ExtensionsListContextMenuDelete.Visible = False;
 		Items.ExtensionsListContextMenuUpdateFromFile.Visible = False;
 		Items.ExtensionsListContextMenuSaveAs.Visible = False;
+		Items.FormInstalledPatches1.Visible = False;
+		Items.CheckIfAllExtensionsCanBeApplied.Visible = False;
+		Items.SubmenuEnableExtensions.Visible = False;
+		Items.SubmenuTransferToSubordinateDIBNodes.Visible = False;
+		Items.SubmenuSafeMode.Visible = False;
+		Items.SetEmployeeResponsible.Visible = False;
+		Items.ExtensionsListEmployeeResponsible.Visible = False;
+		Items.ExtensionsListHasComment.Visible = False;
+		Items.ExtensionsListComment.Visible = False;
 	EndIf;
 	
 	Items.ExtensionsListCommon.Visible = Common.DataSeparationEnabled() And AccessRight("Administration", Metadata);
 	Items.ExtensionsListReceivedFromMasterDIBNode.Visible = Common.IsSubordinateDIBNode();
 	Items.ExtensionsListPassToSubordinateDIBNodes.Visible = Common.IsDistributedInfobase();
-	
-	Items.FormInstalledPatches1.Visible = 
-		Common.SubsystemExists("StandardSubsystems.ConfigurationUpdate");
 	
 	UpdateList();
 	
@@ -82,6 +92,15 @@ EndProcedure
 #EndRegion
 
 #Region FormTableItemsEventHandlersExtensionsList
+
+&AtClient
+Procedure ExtensionsListSelection(Item, RowSelected, Field, StandardProcessing)
+	
+	If Field.Name="ExtensionsListHasComment" Then
+		CurrentItem = Items.ExtensionsListComment;
+	EndIf;
+	
+EndProcedure
 
 &AtClient
 Procedure ExtensionsListOnActivateRow(Item)
@@ -142,7 +161,7 @@ Procedure ExtensionsListAttachOnChange(Item)
 		FormParameters = New Structure;
 		FormParameters.Insert("Key", "BeforeDisableExtensionWithData");
 		
-		OpenForm("CommonForm.SecurityWarning", FormParameters,,,,, Notification)
+		OpenForm("CommonForm.SecurityWarning", FormParameters,,,,, Notification);
 	Else
 		ExtensionsListAttachOnChangeFollowUp(Context);
 	EndIf;
@@ -158,6 +177,23 @@ Procedure ExtensionsListPassToSubordinateDIBNodesOnChange(Item)
 	EndIf;
 	
 	ExtensionsListSendToSubordinateDIBNodesOnChangeAtServer(CurrentExtension.GetID());
+	
+EndProcedure
+
+&AtClient
+Procedure ExtensionsListEmployeeResponsibleOnChange(Item)
+	
+	CurrentExtension = Items.ExtensionsList.CurrentData;
+	SaveExtensionsProperties(CurrentExtension.ExtensionID, ExtensionProperties(CurrentExtension));
+	
+EndProcedure
+
+&AtClient
+Procedure ExtensionsListCommentOnChange(Item)
+	
+	CurrentExtension = Items.ExtensionsList.CurrentData;
+	CurrentExtension.HasComment = ValueIsFilled(CurrentExtension.Comment);
+	SaveExtensionsProperties(CurrentExtension.ExtensionID, ExtensionProperties(CurrentExtension));
 	
 EndProcedure
 
@@ -250,6 +286,87 @@ Procedure InstalledPatches(Command)
 		ModuleConfigurationUpdateClient.ShowInstalledPatches();
 	EndIf;
 	
+EndProcedure
+
+&AtClient
+Procedure CheckIfAllExtensionsCanBeApplied(Command)
+	
+	Result = ResultOfAllExtensionsApplicabilityCheck();
+	
+	If Result.IssuesCount = 0 Then
+		QuestionFormParameters = StandardSubsystemsClient.QuestionToUserParameters();
+		QuestionFormParameters.Picture = PictureLib.DialogInformation;
+		QuestionFormParameters.PromptDontAskAgain = False;
+		QuestionFormParameters.Title = NStr("en = 'Result of extensions applicability check';");
+		StandardSubsystemsClient.ShowQuestionToUser(Undefined, NStr("en = 'The extensions applicability check is passed.';"),QuestionDialogMode.OK, QuestionFormParameters);
+	Else
+		Result.InfoOnIssues.Show(NStr("en = 'The extension check result.';"));
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure EnableExtensions(Command)
+	
+	ShowTimeConsumingOperation();
+	AttachIdleHandler("EnableAttachExtensions", 0.1, True);
+	
+EndProcedure
+
+&AtClient
+Procedure DisableExtensions(Command)
+	
+	ShowTimeConsumingOperation();
+	AttachIdleHandler("DisableAttachExtensions", 0.1, True);
+	
+EndProcedure
+
+&AtClient
+Procedure EnableTransferToSubordinateDIBNodes(Command)
+	
+	ShowTimeConsumingOperation();
+	AttachIdleHandler("EnableTransferToSubordinateDIBNodesCompletion", 0.1, True);
+	
+EndProcedure
+
+&AtClient
+Procedure DisableTransferToSubordinateDIBNodes(Command)
+	
+	ShowTimeConsumingOperation();
+	AttachIdleHandler("DisableTransferToSubordinateDIBNodesCompletion", 0.1, True);
+	
+EndProcedure
+
+&AtClient
+Procedure EnableSafeMode(Command)
+	
+	ShowTimeConsumingOperation();
+	AttachIdleHandler("EnableSafeModeCompletion", 0.1, True);
+	
+EndProcedure
+
+&AtClient
+Procedure DisableSafeMode(Command)
+		
+	ShowTimeConsumingOperation();
+	AttachIdleHandler("DisableSafeModeCompletion", 0.1, True);
+	
+EndProcedure
+
+&AtClient
+Procedure SetEmployeeResponsible(Command)
+	
+	FormParameters = New Structure;
+	FormParameters.Insert("ChoiceMode", True);
+	FormParameters.Insert("CloseOnChoice", True);
+	FormParameters.Insert("MultipleChoice", False);
+	FormParameters.Insert("AdvancedPick", False);
+	
+	Notification = New NotifyDescription("SetAssigneeAfterSelection", ThisObject);
+	
+	OpenForm("Catalog.Users.ChoiceForm", FormParameters, ThisObject,,,, Notification,
+		FormWindowOpeningMode.LockOwnerWindow);	
+
 EndProcedure
 
 #EndRegion
@@ -369,6 +486,8 @@ Procedure UpdateList(AfterAdd = False)
 	
 	Items.WarningDetails.Visible = Not IsSharedUserInArea;
 	Items.WarningDetails2.Visible = IsSharedUserInArea;
+	
+	UpdateExtensionsPropertiesInList();
 	
 EndProcedure
 
@@ -565,6 +684,7 @@ Procedure DeleteExtensionsAtServer(ExtensionsIDs)
 	
 	ErrorText = "";
 	Catalogs.ExtensionsVersions.DeleteExtensions(ExtensionsIDs, ErrorText);
+	DeleteExtensionsProperties(ExtensionsIDs);
 	
 	UpdateList();
 	
@@ -572,6 +692,15 @@ Procedure DeleteExtensionsAtServer(ExtensionsIDs)
 		Raise ErrorText;
 	EndIf;
 	
+EndProcedure
+
+&AtServer
+Procedure DeleteExtensionsProperties(ExtensionsIDs)
+	
+	For Each ExtensionID In ExtensionsIDs Do
+		InformationRegisters.ExtensionProperties.DeleteExtensionPropertiesByID(ExtensionID);
+	EndDo;
+
 EndProcedure
 
 &AtClient
@@ -585,6 +714,7 @@ Procedure DetachExtensionAfterConfirmation(Result, Context) Export
 		EndIf;
 		
 		ListLine.Attach = Not ListLine.Attach;
+		AttachIdleHandler("HideTimeConsumingOperation", 0.1, True);
 		Return;
 	EndIf;
 	
@@ -832,6 +962,9 @@ Procedure LoadExtensionCompletion()
 	Try
 		ChangeExtensionsAtServer(Context.PlacedFiles,
 			Context.SelectedRows, UnattachedExtensions, ExtensionsChanged, NameReplacementConfirmation);
+		If ExtensionsToReAdd.Count() > 0 Then
+			ToOpenTheFormCompleteTheUserExperience();
+		EndIf;
 	Except
 		ErrorInfo = ErrorInfo();
 		AttachIdleHandler("HideTimeConsumingOperation", 0.1, True);
@@ -923,7 +1056,8 @@ EndProcedure
 &AtServer
 Procedure ChangeExtensionsAtServer(PlacedFiles, RowsIDs,
 			UnattachedExtensions, ExtensionsChanged, NameReplacementConfirmation)
-	
+			
+	ExtensionsToReAdd.Clear();
 	Extension = Undefined;
 	
 	SelectedExtensions = New Structure;
@@ -1032,13 +1166,25 @@ Procedure ChangeExtensionsAtServer(PlacedFiles, RowsIDs,
 				           |%1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo));
 			
 		ElsIf ValueIsFilled(AddedExtensionFileName) Then
-			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot add extension ""%1""
-				           | from file %2. Reason:
-				           |%3';"),
-				ExtensionDetails.Name,
-				AddedExtensionFileName,
-				ErrorProcessing.BriefErrorDescription(ErrorInfo));
+			BriefErrorDescription = ErrorProcessing.BriefErrorDescription(ErrorInfo);
+			If IsInfobaseExclusiveLockError(BriefErrorDescription) Then
+				
+				IndexOfFirstExtensionFailedToAdd = PlacedFiles.Find(FileThatWasPut);
+				If IndexOfFirstExtensionFailedToAdd <> Undefined Then
+					ExtensionsToReAdd.Clear();
+					For IndexOf = IndexOfFirstExtensionFailedToAdd To PlacedFiles.UBound() Do
+						ExtensionsToReAdd.Add(PlacedFiles.Get(IndexOf));
+					EndDo;
+				EndIf;
+			Else
+				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'Cannot add extension ""%1""
+					           | from file %2. Reason:
+					           |%3';"),
+					ExtensionDetails.Name,
+					AddedExtensionFileName,
+					BriefErrorDescription);
+			EndIf;
 		Else
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot add the extension. Reason:
@@ -1294,7 +1440,7 @@ Procedure AddPermissionRequest(PermissionsRequests, PlacedFiles, ExtensionID = U
 				TemporaryExtension = FindExtension(ExtensionID);
 				If TemporaryExtension = Undefined Then
 					Raise StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'An extension with the %1 ID does not exist in the application. It might have been deleted in another session.';"),
+						NStr("en = 'The app does not have extensions with the id ""%1"". Probably, the extension was deleted by another user.';"),
 						ExtensionID);
 				EndIf;
 				UpdatedExtensionData = TemporaryExtension.GetData();
@@ -1418,7 +1564,7 @@ Procedure SetConditionalAppearance()
 	
 	ConditionalAppearance.Items.Clear();
 	
-	// Setting ViewOnly appearance parameter for common extensions and extensions passed from the master node to the subordinate DIB node.
+	// Setting ReadOnly appearance parameter for common extensions and extensions passed from the master node to the subordinate DIB node.
 	
 	Item = ConditionalAppearance.Items.Add();
 	
@@ -1490,6 +1636,8 @@ Procedure SetCommandBarButtonAvailability()
 		Items.ExtensionsListContextMenuDelete.Enabled = CanEdit1;
 		Items.ExtensionsListContextMenuUpdateFromFile.Enabled = OneRowSelected And CanEdit1;
 		
+		AttachIdleHandler("SetTitleToCommentItem", 0.1, True);
+
 	EndIf;
 	
 EndProcedure
@@ -1507,5 +1655,495 @@ Function ParameterFillingEventName()
 	Return InformationRegisters.ExtensionVersionParameters.ParameterFillingEventName();
 	
 EndFunction
+
+&AtServerNoContext
+Function ResultOfAllExtensionsApplicabilityCheck()
+	
+	InfoOnApplyingIssues = ConfigurationExtensions.CheckCanApplyAll();
+	
+	Result = New Structure;
+	Result.Insert("IssuesCount", InfoOnApplyingIssues.Count());
+	Result.Insert("InfoOnIssues", New TextDocument);
+
+	If InfoOnApplyingIssues.Count() = 0 Then
+		Return Result;
+	EndIf;
+	
+	ProblematicExtensions = New Map;
+	
+	For Each Issue1 In InfoOnApplyingIssues Do
+		InfoOnIssue = ProblematicExtensions.Get(Issue1.Extension);
+		If InfoOnIssue = Undefined Then
+			Text = Issue1.Extension.Synonym;
+		Else
+			Text = InfoOnIssue;
+		EndIf;
+		Text = Text + Chars.LF + Chars.Tab + "(" + String(Issue1.Severity) + ")" + " " + Issue1.Description;
+		ProblematicExtensions.Insert(Issue1.Extension, Text);
+	EndDo;
+	
+	For Each Extension In ProblematicExtensions Do
+		Result.InfoOnIssues.AddLine(Extension.Value);
+	EndDo;
+	
+	Return Result;
+	
+EndFunction
+
+&AtClient
+Procedure EnableSafeModeCompletion()
+	
+	ExtensionsModificationErrors = New Array;
+	ToggleSafeModeForSelectedExtensions(True, ExtensionsModificationErrors);
+	AttachIdleHandler("HideTimeConsumingOperation", 0.1, True);
+	OutputErrorsInfoOnExtensionsReconfiguration(ExtensionsModificationErrors);
+	
+EndProcedure
+
+&AtClient
+Procedure DisableSafeModeCompletion()
+	
+	ExtensionsModificationErrors = New Array;
+	ToggleSafeModeForSelectedExtensions(False, ExtensionsModificationErrors);
+	AttachIdleHandler("HideTimeConsumingOperation", 0.1, True);
+	OutputErrorsInfoOnExtensionsReconfiguration(ExtensionsModificationErrors);
+	
+EndProcedure
+
+&AtServer
+Procedure ToggleSafeModeForSelectedExtensions(Value, ExtensionsModificationErrors)
+	
+	For Each RowID In Items.ExtensionsList.SelectedRows Do
+		ListLine = ExtensionsList.FindByID(RowID);
+		If ListLine = Undefined Then
+			Continue;
+		EndIf;
+		
+		ListLine.SafeModeFlag = Value;
+		
+		Extension = FindExtension(ListLine.ExtensionID);
+		
+		If Extension = Undefined
+			Or Extension.SafeMode = ListLine.SafeModeFlag Then
+			Continue;
+		EndIf;
+		
+		Extension.SafeMode = ListLine.SafeModeFlag;
+		DisableSecurityWarnings(Extension);
+		DisableMainRolesUsageForAllUsers(Extension);
+		Try
+			Extension.Write();
+		Except
+			ListLine.SafeModeFlag = Not ListLine.SafeModeFlag;
+			IssueDetails = ListLine.Synonym + ": " + ErrorProcessing.BriefErrorDescription(ErrorInfo());
+			ExtensionsModificationErrors.Add(IssueDetails);
+		EndTry;
+		
+	EndDo;
+	
+	InformationRegisters.ExtensionVersionParameters.UpdateExtensionParameters();
+	
+EndProcedure
+
+&AtClient
+Procedure OutputErrorsInfoOnExtensionsReconfiguration(ExtensionsModificationErrors)
+	If ExtensionsModificationErrors.Count() = 0 Then
+		Return;
+	EndIf;
+	
+	ErrorInformation_ = "";
+	For Each StringError In ExtensionsModificationErrors Do
+		ErrorInformation_ = ?(ValueIsFilled(ErrorInformation_), ErrorInformation_ + Chars.LF + Chars.LF + StringError, StringError);
+	EndDo;
+	
+	QuestionFormParameters = StandardSubsystemsClient.QuestionToUserParameters();
+	QuestionFormParameters.Picture = PictureLib.DialogExclamation;
+	QuestionFormParameters.PromptDontAskAgain = False;
+	QuestionFormParameters.Title = NStr("en = 'Failed to reconfigure some extensions';");
+	StandardSubsystemsClient.ShowQuestionToUser(Undefined, ErrorInformation_,QuestionDialogMode.OK, QuestionFormParameters);
+	
+EndProcedure
+
+&AtClient
+Procedure EnableTransferToSubordinateDIBNodesCompletion()
+	
+	ExtensionsModificationErrors = New Array;
+	ToggleTransferToSubordinateDIBNodes(True, ExtensionsModificationErrors);
+	AttachIdleHandler("HideTimeConsumingOperation", 0.1, True);
+	OutputErrorsInfoOnExtensionsReconfiguration(ExtensionsModificationErrors);
+	
+EndProcedure
+
+&AtClient
+Procedure DisableTransferToSubordinateDIBNodesCompletion()
+	
+	ExtensionsModificationErrors = New Array;
+	ToggleTransferToSubordinateDIBNodes(False, ExtensionsModificationErrors);
+	AttachIdleHandler("HideTimeConsumingOperation", 0.1, True);
+	OutputErrorsInfoOnExtensionsReconfiguration(ExtensionsModificationErrors);
+	
+EndProcedure
+
+&AtServer
+Procedure ToggleTransferToSubordinateDIBNodes(Value, ExtensionsModificationErrors)
+	
+	For Each RowID In Items.ExtensionsList.SelectedRows Do
+		ListLine = ExtensionsList.FindByID(RowID);
+		If ListLine = Undefined Then
+			Continue;
+		EndIf;
+		
+		ListLine.PassToSubordinateDIBNodes = Value;
+		
+		Extension = FindExtension(ListLine.ExtensionID);
+		
+		If Extension = Undefined
+			Or Extension.UsedInDistributedInfoBase = ListLine.PassToSubordinateDIBNodes Then
+			Continue;
+		EndIf;
+		
+		Extension.UsedInDistributedInfoBase = ListLine.PassToSubordinateDIBNodes;
+		DisableSecurityWarnings(Extension);
+		DisableMainRolesUsageForAllUsers(Extension);
+		Try
+			Extension.Write();
+		Except
+			ListLine.PassToSubordinateDIBNodes = Not ListLine.PassToSubordinateDIBNodes;
+			IssueDetails = ListLine.Synonym + ": " + ErrorProcessing.BriefErrorDescription(ErrorInfo());
+			ExtensionsModificationErrors.Add(IssueDetails);
+		EndTry;
+		
+	EndDo;
+	
+	UpdateList();
+	
+EndProcedure
+
+&AtClient
+Procedure EnableAttachExtensions()
+	
+	ExtensionsModificationErrors = New Array;
+	ToggleAttachExtensions(True, ExtensionsModificationErrors);
+	AttachIdleHandler("HideTimeConsumingOperation", 0.1, True);
+	OutputErrorsInfoOnExtensionsReconfiguration(ExtensionsModificationErrors);
+	
+EndProcedure
+
+&AtClient
+Procedure DisableAttachExtensions()
+	
+	ExtensionsSynonyms = ExtensionsSynonymsSelectedExtensionsToDisable();
+	If ExtensionsSynonyms.WithData.Count() = 1 And ExtensionsSynonyms.NoData.Count() = 0 Then
+		
+		CurrentExtension = Items.ExtensionsList.CurrentData;
+		If CurrentExtension = Undefined Then
+			Return;
+		EndIf;
+		CurrentExtension.Attach = False;
+		Context = New Structure;
+		Context.Insert("RowID", CurrentExtension.GetID());
+	
+		Notification = New NotifyDescription("DetachExtensionAfterConfirmation", ThisObject, Context);
+		
+		FormParameters = New Structure;
+		FormParameters.Insert("Key", "BeforeDisableExtensionWithData");
+		
+		OpenForm("CommonForm.SecurityWarning", FormParameters,,,,, Notification);
+
+	ElsIf ExtensionsSynonyms.WithData.Count() > 0 Then
+		
+		If ExtensionsSynonyms.WithData.Count() = 1 Then
+			QueryText = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'One of the selected extensions stores its data in the app.
+			           |This data will become unavailable. The related app data might become unchangeable.
+			           |
+			           |The extension with data:
+			           | - %1';"),
+				ExtensionsSynonyms.WithData[0]);
+		Else
+			ExtensionsWithDataText = StrConcat(ExtensionsSynonyms.WithData, Chars.LF + " - ");
+			QueryText = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Some of the selected extensions store their data in the app.
+			           |This data will become unavailable. The related app data might become unchangeable.
+			           |
+			           |The extensions with data:
+			           | - %1';"),
+				ExtensionsWithDataText);
+		EndIf;
+			
+		CompletionHandler = New NotifyDescription(
+			"DisableExtensionsAfterQuestion", ThisObject);
+		
+		Buttons = New ValueList;
+		If ExtensionsSynonyms.NoData.Count() > 0 Then
+			Buttons.Add("TurnOffExtensionsWithoutData", NStr("en = 'Disabled only extensions without stored data';"));
+			
+			If ExtensionsSynonyms.NoData.Count() = 1 Then
+				ExtensionsWithoutDataText = StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'An extension without stored data:
+			           | - %1';"),
+					ExtensionsSynonyms.NoData[0]);
+			Else
+				ExtensionsWithoutDataText = StrConcat(ExtensionsSynonyms.NoData, Chars.LF + " - ");
+				ExtensionsWithoutDataText = StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'Extensions without stored data:
+			           | - %1';"), 
+					ExtensionsWithoutDataText);
+			EndIf;
+			QueryText = QueryText + Chars.LF + Chars.LF + ExtensionsWithoutDataText;
+		EndIf;
+		Buttons.Add("TurnOffAll", NStr("en = 'Disable all';"));
+		Buttons.Add("Cancel", NStr("en = 'Cancel';"));
+		
+		QuestionParameters = StandardSubsystemsClient.QuestionToUserParameters();
+		QuestionParameters.Title = NStr("en = 'Warning';");
+		QuestionParameters.Picture = PictureLib.DialogExclamation;
+		QuestionParameters.DefaultButton = "TurnOffExtensionsWithoutData";
+		QuestionParameters.PromptDontAskAgain = False;
+		
+		StandardSubsystemsClient.ShowQuestionToUser(CompletionHandler,
+			QueryText, Buttons, QuestionParameters);
+			
+	Else
+		ExtensionsModificationErrors = New Array;
+		ToggleAttachExtensions(False, ExtensionsModificationErrors);
+		AttachIdleHandler("HideTimeConsumingOperation", 0.1, True);
+		OutputErrorsInfoOnExtensionsReconfiguration(ExtensionsModificationErrors);
+	EndIf;
+	
+EndProcedure
+
+&AtServer
+Procedure ToggleAttachExtensions(Value, ExtensionsModificationErrors, ShouldHandleExtensionsContainingData = True)
+	
+	For Each RowID In Items.ExtensionsList.SelectedRows Do
+		ListLine = ExtensionsList.FindByID(RowID);
+		If ListLine = Undefined Then
+			Continue;
+		EndIf;
+		
+		If Not ShouldHandleExtensionsContainingData And IsExtensionWithData(ListLine.ExtensionID) Then
+			Continue;
+		EndIf;
+		
+		ListLine.Attach = Value;
+		
+	Try
+		Catalogs.ExtensionsVersions.ToggleExtensionUsage(ListLine.ExtensionID, Value);
+	Except
+		ListLine.Attach = Not ListLine.Attach;
+		IssueDetails = ListLine.Synonym + ": " + ErrorProcessing.BriefErrorDescription(ErrorInfo());
+		ExtensionsModificationErrors.Add(IssueDetails);
+	EndTry;
+		
+	EndDo;
+	
+	UpdateList();
+	
+EndProcedure
+
+&AtServer
+Function ExtensionsSynonymsSelectedExtensionsToDisable()
+	
+	WithData = New Array;
+	NoData = New Array;
+	
+	For Each RowID In Items.ExtensionsList.SelectedRows Do
+		ListLine = ExtensionsList.FindByID(RowID);
+		If ListLine = Undefined And ListLine.Attach Then
+			Continue;
+		EndIf;
+		If IsExtensionWithData(ListLine.ExtensionID) Then
+			WithData.Add(ListLine.Synonym);
+		Else
+			NoData.Add(ListLine.Synonym);
+		EndIf;
+	EndDo;
+	
+	ExtensionsSynonyms = New Structure;
+	ExtensionsSynonyms.Insert("WithData", WithData);
+	ExtensionsSynonyms.Insert("NoData", NoData);
+	
+	Return ExtensionsSynonyms;
+	
+EndFunction
+
+&AtClient
+Procedure DisableExtensionsAfterQuestion(Result, Context) Export
+	
+	If Result = Undefined Or Result.Value = "Cancel" Then
+		AttachIdleHandler("HideTimeConsumingOperation", 0.1, True);
+		Return;
+	ElsIf Result.Value = "TurnOffExtensionsWithoutData" Then
+		ShouldHandleExtensionsContainingData = False;
+	ElsIf Result.Value = "TurnOffAll" Then
+		ShouldHandleExtensionsContainingData = True;
+	EndIf;
+		
+	ExtensionsModificationErrors = New Array;
+	ToggleAttachExtensions(False, ExtensionsModificationErrors, ShouldHandleExtensionsContainingData);
+	AttachIdleHandler("HideTimeConsumingOperation", 0.1, True);
+	OutputErrorsInfoOnExtensionsReconfiguration(ExtensionsModificationErrors);
+	
+EndProcedure
+
+&AtServerNoContext
+Procedure SaveExtensionsProperties(ExtensionID, ExtensionProperties)
+	InformationRegisters.ExtensionProperties.SaveExtensionsProperties(ExtensionID, ExtensionProperties);
+EndProcedure
+
+&AtClientAtServerNoContext
+Function ExtensionProperties(CurrentExtension)
+	
+	Properties = New Structure;
+	Properties.Insert("EmployeeResponsible", CurrentExtension.EmployeeResponsible);
+	Properties.Insert("Comment", CurrentExtension.Comment);
+	
+	Return Properties;
+	
+EndFunction
+
+&AtServer
+Procedure UpdateExtensionsPropertiesInList()
+	
+	Query = New Query;
+	Query.Text = 
+		"SELECT
+		|	Extensions.ExtensionID AS ExtensionID
+		|INTO ExtensionsIDs
+		|FROM
+		|	&ExtensionsList AS Extensions
+		|;
+		|
+		|////////////////////////////////////////////////////////////////////////////////
+		|SELECT
+		|	ExtensionProperties.EmployeeResponsible AS EmployeeResponsible,
+		|	ExtensionProperties.Comment AS Comment,
+		|	ExtensionsIDs.ExtensionID AS ExtensionID
+		|FROM
+		|	ExtensionsIDs AS ExtensionsIDs
+		|		INNER JOIN InformationRegister.ExtensionProperties AS ExtensionProperties
+		|		ON ExtensionsIDs.ExtensionID = ExtensionProperties.ExtensionID";
+	
+	Query.SetParameter("ExtensionsList", ExtensionsList.Unload());
+	QueryResult = Query.Execute();
+	
+	Selection = QueryResult.Select();
+	
+	While Selection.Next() Do
+		StructureForSearch = New Structure;
+		StructureForSearch.Insert("ExtensionID", Selection.ExtensionID);
+		ExtensionsStrings = ExtensionsList.FindRows(StructureForSearch);
+		FillPropertyValues(ExtensionsStrings[0], Selection);
+		ExtensionsStrings[0].HasComment = ValueIsFilled(ExtensionsStrings[0].Comment);
+	EndDo;
+	
+EndProcedure
+
+&AtClient
+Procedure SetTitleToCommentItem()
+	
+	If Items.ExtensionsList.CurrentData = Undefined Then
+		 Return;
+	EndIf;
+	
+	Items.ExtensionsListComment.Title = StringFunctionsClientServer.SubstituteParametersToString(
+		NStr("en = 'Comment for %1';"), Items.ExtensionsList.CurrentData.Synonym);
+		
+EndProcedure
+
+&AtClient
+Procedure SetAssigneeAfterSelection(EmployeeResponsible, AdditionalParameters) Export
+	
+	If EmployeeResponsible = Undefined Then
+		Return;
+	EndIf;
+	
+	SetAssigneeOnSelectedExtensions(EmployeeResponsible);
+	
+EndProcedure
+
+&AtServer
+Procedure SetAssigneeOnSelectedExtensions(EmployeeResponsible)
+	
+	For Each RowID In Items.ExtensionsList.SelectedRows Do
+		ListLine = ExtensionsList.FindByID(RowID);
+		If ListLine = Undefined Then
+			Continue;
+		EndIf;
+		ListLine.EmployeeResponsible = EmployeeResponsible;
+		SaveExtensionsProperties(ListLine.ExtensionID, ExtensionProperties(ListLine));
+	EndDo;
+	
+EndProcedure
+
+&AtServerNoContext
+Function IsInfobaseExclusiveLockError(ErrorText)
+	ExclusiveLockErrorText = NStr("en = 'Error setting an exclusive lock';");
+	Return (StrFind(ErrorText, ExclusiveLockErrorText) <> 0);
+EndFunction
+
+&AtClient
+Procedure ToOpenTheFormCompleteTheUserExperience()
+
+	If ExtensionsToReAdd.Count() = 0 Then
+		Return;
+	EndIf;
+	
+	If CommonClient.SubsystemExists("StandardSubsystems.UsersSessions") Then
+		Notification = New NotifyDescription("AfterSettingTheExclusiveMode", ThisObject);
+		ModuleIBConnectionsClient = CommonClient.CommonModule("IBConnectionsClient");
+
+		FormParameters = ModuleIBConnectionsClient.ExclusiveModeSetErrorFormOpenParameters();
+		ItemsToImportCount = ExtensionsToReAdd.Count();
+		FormParameters.Title = ?(ItemsToImportCount = 1,
+			NStr("en = 'Couldn''t add extension';"), NStr("en = 'Couldn''t add extensions';"));
+		FormParameters.ErrorMessageText = ?(ItemsToImportCount = 1, 
+			NStr("en = 'Couldn''t add extension: active users detected';"),
+			StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Couldn''t add extensions (%1): active users detected';"), ItemsToImportCount));
+		FormParameters.ErrorTextExitFailed = ?(ItemsToImportCount = 1, 
+			NStr("en = 'Couldn''t add extensions. Failed to terminate the user sessions:';"),
+			StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Couldn''t add extensions (%1). Failed to terminate the user sessions:';"), ItemsToImportCount));
+		FormParameters.LoginMessage = NStr("en = 'Cannot add extensions while the app is being used.';");
+		FormParameters.ShouldCloseAllSessionsButCurrent = True;
+		FormParameters.ShouldCloseDesignerSession = True;
+		FormParameters.BlockingPeriod = 60;
+		
+		ModuleIBConnectionsClient.OnOpenExclusiveModeSetErrorForm(Notification, FormParameters);
+	Else
+		StandardSubsystemsClient.OpenActiveUserList();
+	EndIf;
+
+EndProcedure
+
+&AtClient
+Procedure AfterSettingTheExclusiveMode(Result, AdditionalParameters) Export
+	If Result = False Then // The exclusive mode is set.
+		ShowTimeConsumingOperation();
+		AttachIdleHandler("ReAddExtensionWithData", 0.1, True);
+	EndIf;
+EndProcedure
+
+&AtClient
+Procedure ReAddExtensionWithData()
+	
+	If ExtensionsToReAdd = Undefined Then
+		Return;
+	EndIf;
+	
+	UnattachedExtensions = "";
+	ExtensionsChanged = False;
+	NameReplacementConfirmation = New Structure("OldName, NewName", "", "");
+	ChangeExtensionsAtServer(ExtensionsToReAdd.UnloadValues(), Undefined, UnattachedExtensions,
+		ExtensionsChanged, NameReplacementConfirmation);
+		
+	AttachIdleHandler("HideTimeConsumingOperation", 0.1, True);
+	If ExtensionsToReAdd.Count() > 0 Then
+		ToOpenTheFormCompleteTheUserExperience();
+	EndIf;
+	
+EndProcedure
 
 #EndRegion

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Private
@@ -72,8 +73,10 @@ Function LanguagesInformationRecords() Export
 	
 	Result = New Structure;
 	
+	Result.Insert("Language0", Common.DefaultLanguageCode());
 	Result.Insert("Language1", NationalLanguageSupportServer.FirstAdditionalInfobaseLanguageCode());
 	Result.Insert("Language2",  NationalLanguageSupportServer.SecondAdditionalInfobaseLanguageCode());
+	Result.Insert("AdditionalLanguagesCount", 2);
 	Result.Insert("DefaultLanguage", Common.DefaultLanguageCode());
 	
 	Return New FixedStructure(Result);
@@ -82,15 +85,25 @@ EndFunction
 
 Function LanguageSuffix(Language) Export
 	
-	If StrCompare(Language, Constants.AdditionalLanguage1.Get()) = 0 And NationalLanguageSupportServer.FirstAdditionalLanguageUsed() Then
+	If StrCompare(Language, Constants.AdditionalLanguage1.Get()) = 0 And IsAdditionalLangUsed("Language1") Then
 		Return "Language1";
 	EndIf;
 	
-	If StrCompare(Language, Constants.AdditionalLanguage2.Get()) = 0 And NationalLanguageSupportServer.SecondAdditionalLanguageUsed() Then
+	If StrCompare(Language, Constants.AdditionalLanguage2.Get()) = 0 And IsAdditionalLangUsed("Language2") Then
 		Return "Language2";
 	EndIf;
 	
 	Return "";
+	
+EndFunction
+
+Function IsAdditionalLangUsed(LanguageSuffix) Export
+	
+	ConstantName = ?(LanguageSuffix <> "Language1",
+		StrReplace("UseAdditionalLanguage1", "Language1", LanguageSuffix),
+		"UseAdditionalLanguage1");
+	
+	Return Constants[ConstantName].Get() = True;
 	
 EndFunction
 
@@ -123,13 +136,38 @@ Function ThereareMultilingualDetailsintheHeaderoftheObject(MetadataObjectFullNam
 	QueryResult = Query.Execute();
 	
 	For Each Column In QueryResult.Columns Do
-		If StrEndsWith(Column.Name, NationalLanguageSupportServer.FirstLanguageSuffix())
-			Or StrEndsWith(Column.Name, NationalLanguageSupportServer.SecondLanguageSuffix()) Then
+		If (StrEndsWith(Column.Name, NationalLanguageSupportServer.FirstLanguageSuffix())
+		 Or StrEndsWith(Column.Name, NationalLanguageSupportServer.SecondLanguageSuffix()))
+		   And Not StrStartsWith(Column.Name, "Delete")Then
 				Return True;
 		EndIf;
 	EndDo;
 	
 	Return False;
+	
+EndFunction
+
+// 
+// 
+// Parameters:
+//  FullMetadataObjectName - String
+// 
+// Returns:
+//  FixedArray of String
+//
+Function TabularSectionMultilingualAttributes(FullMetadataObjectName) Export
+	
+	MetadataObject = Metadata.FindByFullName(FullMetadataObjectName);
+	
+	Result = New Array;
+	For Each Attribute In MetadataObject.TabularSections.Presentations.Attributes Do
+		If StrCompare(Attribute.Name, "LanguageCode") = 0 Or StrStartsWith(Attribute.Name, "Delete") Then
+			Continue;
+		EndIf;
+		Result.Add(Attribute.Name);
+	EndDo;
+	
+	Return New FixedArray(Result);
 	
 EndFunction
 

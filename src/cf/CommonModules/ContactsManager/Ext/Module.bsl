@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -651,12 +652,12 @@ Function InfoAboutPhone(ContactInformation = Undefined) Export
 	PhoneByFields         = ContactsManagerInternal.ContactInformationToJSONStructure(ContactInformation, 
 		Enums.ContactInformationTypes.Phone);
 	
-	Result.Presentation = String(PhoneByFields.value);
+	Result.Presentation = String(PhoneByFields.Value);
 	Result.CountryCode     = String(PhoneByFields.CountryCode);
 	Result.CityCode     = String(PhoneByFields.AreaCode);
 	Result.PhoneNumber = String(PhoneByFields.Number);
 	Result.PhoneExtension    = String(PhoneByFields.ExtNumber);
-	Result.Comment   = String(PhoneByFields.comment);
+	Result.Comment   = String(PhoneByFields.Comment);
 	
 	Return Result;
 	
@@ -708,13 +709,13 @@ EndFunction
 //                                       for other types of contact information containing local specific fields.
 //    ExpectedKind - CatalogRef.ContactInformationKinds
 //                 - EnumRef.ContactInformationTypes -
-//                   
-//                   
+//                   Intended for identifying contact information type in cases where
+//                   it cannot be done using the ContactInformation parameter.
 //
 // Returns:
-//     String - 
-//               See ContactsManagerClientServer.NewContactInformationDetails.
-//              
+//     String - Contact information in the internal JSON format.
+//              For the fields and details, See ContactsManagerClientServer.NewContactInformationDetails.
+//              For additional fields used in localized configurations, see AddressManagerClientServer.NewContactInformationDetails
 //
 Function ContactInformationInJSON(Val ContactInformation, Val ExpectedKind = Undefined) Export
 	
@@ -740,11 +741,11 @@ EndFunction
 //                    XML must match XDTO package ContactInformation or Address.
 //                    Structure, Map, ValueList must contain fields in accordance with the structure
 //                    of XDTO packages ContactInformation or Address (for a configuration with support of local specifics).
-//    Presentation - String - a contact information presentation. Used if it is impossible to determine
-//                    a presentation based on the FieldValues parameter (the Presentation field is missing).
+//    Presentation - String - The contact information presentation.
+//                    Used in cases when the "FieldValues" parameter is missing the "Presentation" field.
 //    ExpectedKind  - CatalogRef.ContactInformationKinds
 //                  - EnumRef.ContactInformationTypes -
-//                    
+//                    Intended for identifying contact information type in cases where it cannot be done using the "FieldsValues" field.
 //
 // Returns:
 //     String - contact information in the XML format matching the structure of the XDTO packages ContactInformation and Address.
@@ -904,14 +905,14 @@ EndFunction
 //                         - XDTODataObject - the ContactInformation or Address XDTO object.
 //                         - Structure - see AddressManager.AddressInfo
 //                         - Structure - See ContactsManager.InfoAboutPhone
-//    DeleteATypeOfContactInformation - Undefined - obsolete. Left for backward compatibility.
+//    Transliterate - Boolean - 
 //
 // Returns:
 //    String - a contact information presentation.
 //
-Function ContactInformationPresentation(Val ContactInformation, Val DeleteATypeOfContactInformation = Undefined) Export
+Function ContactInformationPresentation(Val ContactInformation, Val Transliterate = False) Export
 	
-	Return ContactsManagerInternal.ContactInformationPresentation(ContactInformation);
+	Return ContactsManagerInternal.ContactInformationPresentation(ContactInformation, Transliterate);
 	
 EndFunction
 
@@ -963,7 +964,7 @@ Function ContactInformationComment(ContactInformation) Export
 	EndIf;
 	
 	If ContactInformationAsStructure.Property("Comment") Then
-		Return ContactInformationAsStructure.comment;
+		Return ContactInformationAsStructure.Comment;
 	EndIf;
 	
 	Return "";
@@ -1009,7 +1010,7 @@ EndProcedure
 //                     or Address.
 //
 // Returns:
-//    Structure - :
+//    Structure - Country details containing the following fields:
 //        * Ref             - CatalogRef.WorldCountries
 //                             - Undefined - a reference to the world country catalog item.
 //        * Description       - String - a country description.
@@ -1068,8 +1069,8 @@ Function ContactInformationAddressDomain(Val ContactInformation) Export
 	
 	If ContactInformationAsStructure.Property("Type") And ContactInformationAsStructure.Property("Value") Then
 		
-		AddressDomain = TrimAll(ContactInformationAsStructure.value);
-		If ContactInformationTypeByDescription(ContactInformationAsStructure.type) = Enums.ContactInformationTypes.WebPage Then
+		AddressDomain = TrimAll(ContactInformationAsStructure.Value);
+		If ContactInformationTypeByDescription(ContactInformationAsStructure.Type) = Enums.ContactInformationTypes.WebPage Then
 			
 			Position = StrFind(AddressDomain, "://");
 			If Position > 0 Then
@@ -1078,7 +1079,7 @@ Function ContactInformationAddressDomain(Val ContactInformation) Export
 			Position = StrFind(AddressDomain, "/");
 			Return ?(Position = 0, AddressDomain, Left(AddressDomain, Position - 1));
 			
-		ElsIf ContactInformationTypeByDescription(ContactInformationAsStructure.type) = Enums.ContactInformationTypes.Email Then
+		ElsIf ContactInformationTypeByDescription(ContactInformationAsStructure.Type) = Enums.ContactInformationTypes.Email Then
 			
 			Position = StrFind(AddressDomain, "@");
 			Return ?(Position = 0, AddressDomain, Mid(AddressDomain, Position + 1));
@@ -1095,25 +1096,25 @@ EndFunction
 // Parameters:
 //    Data1 - XDTODataObject - object with contact information.
 //            - String     - contact information in XML format.
-//            - Structure  - :
+//            - Structure  - contact information details. The expected fields are:
 //                 * FieldValues - String
 //                                 - Structure
 //                                 - ValueList
 //                                 - Map - contact information fields.
-//                 * Presentation - String - a presentation. Used when presentation
-//                                            cannot be extracted from FieldValues (the Presentation field is not available).
+//                 * Presentation - String - A presentation.
+//                                            Used in cases when the "FieldValues" parameter is missing the "Presentation" field.
 //                 * Comment - String - a comment. Used when a comment cannot be extracted
 //                                          from FieldValues.
 //                 * ContactInformationKind - CatalogRef.ContactInformationKinds
 //                                           - EnumRef.ContactInformationTypes
 //                                           - Structure -
-//                                             
+//                                             Used in cases where the type cannot be identified using "FieldsValues".
 //    Data2 - XDTODataObject
 //            - String
 //            - Structure - — see details of the Data1 parameter.
 //
 // Returns:
-//     ValueTable: - :
+//     ValueTable: - A table of diff fields with the following columns:
 //        * Path      - String - XPath identifying a different value. The "ContactInformationType" value
 //                               means that passed contact information sets have different types.
 //        * LongDesc  - String - details of a different attribute in terms of the subject field.
@@ -1328,7 +1329,7 @@ EndProcedure
 //    Description - String - a country name including an international name. If not specified, search by description is not performed.
 //
 // Returns:
-//    Structure - :
+//    Structure - Country details with the following fields:
 //        * Ref             - CatalogRef.WorldCountries
 //                             - Undefined - a matching item of the world country catalog.
 //        * Description       - String - a country description.
@@ -1421,7 +1422,7 @@ EndFunction
 //  CodeType - String - options: CountryCode (by default), Alpha2, and Alpha3.
 // 
 // Returns:
-//  Structure - :
+//  Structure - Country details with the following fields:
 //     * Description       - String - a country description.
 //     * Code                - String - country code.
 //     * DescriptionFull - String - a full description of the country.
@@ -1471,7 +1472,7 @@ EndFunction
 //    Description - String - a country description.
 //
 // Returns:
-//    Structure - :
+//    Structure - Country details with the following fields:
 //       * Description       - String - a country description.
 //       * Code                - String - country code.
 //       * DescriptionFull - String - a full description of the country.
@@ -1613,7 +1614,7 @@ EndFunction
 // to get a relevant list of all EAEU member states.
 //
 // Returns:
-//  - ValueTable - :
+//  - ValueTable - A list of member states of the Eurasian Economic Union (EEU):
 //     * Ref             - CatalogRef.WorldCountries - a reference to an item of the WorldCountries catalog.
 //     * Description       - String - a country description.
 //     * Code                - String - country code.
@@ -1712,7 +1713,7 @@ EndFunction
 //                              If it is a reference, contact information
 //                              will be received from the object by reference, otherwise, from the ContactInformation table of the object.
 //    AdditionalParameters - See ContactInformationParameters.
-//                            
+//                            - String - Obsolete.
 //    DeleteCITitleLocation - FormItemTitleLocation - obsolete, use AdditionalParameters instead.
 //    DeleteExcludedKinds - Array  - obsolete, use AdditionalParameters instead.
 //    DeleteDeferredInitialization - Array - obsolete, use AdditionalParameters instead.
@@ -1849,11 +1850,11 @@ Procedure OnCreateAtServer(Form, Object, Val AdditionalParameters = Undefined, D
 			ContactInformation.Columns.Add("IsHistoricalContactInformation", BooleanType);
 			ContactInformation.Sort("Kind, ValidFrom");
 			
-			TypesOfCIToKeepHistoryOfChanges = Common.ObjectsAttributeValue(
+			ContactInfoKindsKeepChangeHistory = Common.ObjectsAttributeValue(
 				ContactInformation.UnloadColumn("Kind"), "StoreChangeHistory");
 			
 			For Each ContactInformationRow In ContactInformation Do
-				StoreChangeHistory = TypesOfCIToKeepHistoryOfChanges.Get(ContactInformationRow.Kind);
+				StoreChangeHistory = ContactInfoKindsKeepChangeHistory.Get(ContactInformationRow.Kind);
 				ContactInformationRow.StoreChangeHistory = ?(StoreChangeHistory <> Undefined, StoreChangeHistory, False);
 			EndDo;
 		EndIf;
@@ -1970,7 +1971,6 @@ Procedure OnCreateAtServer(Form, Object, Val AdditionalParameters = Undefined, D
 		CreatedElement = ?(Not CIRow.IsHistoricalContactInformation,
 			CreatedItems.Get(CIRow.Kind), Undefined);
 		
-		CreatedElement = CreatedItems.Get(CIRow.Kind);
 		If CreatedElement <> Undefined Then
 			CreatedElement = CIRow.Kind;
 		EndIf;
@@ -2101,7 +2101,7 @@ Procedure OnReadAtServer(Form, Object, ItemForPlacementName = "ContactInformatio
 				If TabularSectionsNamesByCIKinds = Undefined Then
 					Filter = New Structure("IsTabularSectionAttribute", True);
 					TabularSectionCIKinds = ContactsManagerClientServer.DescriptionOfTheContactInformationOnTheForm(Form).Unload(Filter, "Kind");
-					
+					// @skip-check query-in-loop - Runs only in one iteration when the table attribute first appears
 					TabularSectionsNamesByCIKinds = TabularSectionsNamesByCIKinds(TabularSectionCIKinds, ObjectName);
 				EndIf;
 				
@@ -2132,6 +2132,11 @@ Procedure OnReadAtServer(Form, Object, ItemForPlacementName = "ContactInformatio
 		EndDo;
 		For Each FormAttribute In ContactInformationAdditionalAttributesDetails Do
 			ContactsManagerClientServer.DescriptionOfTheContactInformationOnTheForm(Form).Delete(FormAttribute);
+		EndDo;
+		Filter = New Structure("IsHistoricalContactInformation",True);
+		HistoricalContactInfo = ContactsManagerClientServer.DescriptionOfTheContactInformationOnTheForm(Form).FindRows(Filter);
+		For Each CollectionItem In HistoricalContactInfo Do
+			ContactsManagerClientServer.DescriptionOfTheContactInformationOnTheForm(Form).Delete(CollectionItem);
 		EndDo;
 	EndIf;
 	Form.ChangeAttributes(, AttributesToDeleteArray);
@@ -2226,7 +2231,7 @@ Procedure FillCheckProcessingAtServer(Form, Object, Cancel) Export
 			If TabularSectionsNamesByCIKinds = Undefined Then
 				Filter = New Structure("IsTabularSectionAttribute", True);
 				TabularSectionCIKinds = ContactsManagerClientServer.DescriptionOfTheContactInformationOnTheForm(Form).Unload(Filter , "Kind");
-				
+				// @skip-check query-in-loop - Runs only in one iteration when the table attribute first appears
 				TabularSectionsNamesByCIKinds = TabularSectionsNamesByCIKinds(TabularSectionCIKinds, ObjectName);
 			EndIf;
 			
@@ -2369,7 +2374,7 @@ EndProcedure
 //    Form     - ClientApplicationForm - an owner object form used for displaying contact information.
 //    Object    - FormDataStructure - an owner object of contact information.
 //    Result - Undefined - an optional internal attribute received from the previous event handler.
-//              - Structure: - :
+//              - Structure: - A dynamic property set:
 //      * ReorderItems - Boolean - if item values are swapped.
 //      * TheFirstControl - String - if item values are swapped.
 //      * TheSecondControl - String - if item values are swapped.
@@ -2380,7 +2385,7 @@ EndProcedure
 //      * UpdateConextMenu - Boolean - upon context menu update
 //      * ItemForPlacementName - String -  if adds a new item, comment, or context menu is being updated
 //      * Comment - String - upon context menu update
-//       * Reread  - Boolean - 
+//       * Reread  - Boolean - Identifies whether the contact information should be updated within the element for placing.
 //
 // Returns:
 //    Undefined - a value is not used, backward compatibility.
@@ -2466,9 +2471,9 @@ Function UpdateContactInformation(Form, Object, Result = Undefined) Export
 				If ContactsManagerClientServer.IsJSONContactInformation(FoundRow.Value) Then
 					ContactInformationByFields = ContactsManagerInternal.JSONToContactInformationByFields(FoundRow.Value, Undefined);
 					If Result.Property("Comment") Then
-						ContactInformationByFields.comment = Result.Comment;
+						ContactInformationByFields.Comment = Result.Comment;
 					Else 
-						ContactInformationByFields.comment = "";
+						ContactInformationByFields.Comment = "";
 					EndIf;
 					FoundRow.Value = ContactsManagerInternal.ToJSONStringStructure(ContactInformationByFields);
 				EndIf;
@@ -2485,13 +2490,16 @@ Function UpdateContactInformation(Form, Object, Result = Undefined) Export
 		ContactInformationParameters = FormContactInformationParameters(Form.ContactInformationParameters, 
 		Result.ItemForPlacementName);
 		
-		ContactInformationDetails = ContactsManagerClientServer.DescriptionOfTheContactInformationOnTheForm(Form);
-		CopyOfContactInfoDetails = FormDataToValue(ContactInformationDetails, Type("ValueTable"));
-				
+		CopyOfContactInfoDetails = Form.FormAttributeToValue("ContactInformationAdditionalAttributesDetails", Type("ValueTable"));
+		
 		OnReadAtServer(Form, ContactInformationParameters.Owner, Result.ItemForPlacementName);
 		
 		ContactInformationDetails = ContactsManagerClientServer.DescriptionOfTheContactInformationOnTheForm(Form);
+		CIKindsWithHistory = New Array();
 		For Each String In ContactInformationDetails Do
+			If Not ValueIsFilled(String.AttributeName) Then
+				Continue;
+			EndIf;
 			Filter = New Structure("AttributeName", String.AttributeName);
 			FoundRows = CopyOfContactInfoDetails.FindRows(Filter);
 			If FoundRows.Count() > 0 Then
@@ -2499,7 +2507,8 @@ Function UpdateContactInformation(Form, Object, Result = Undefined) Export
 				If String.Comment <> FoundRow.Comment And HasCommentFieldForContactInfoType(
 					String.Type, ContactInformationParameters.URLProcessing) Then
 					Form["Comment"+String.AttributeName] =  FoundRow.Comment;
-				EndIf;	
+				EndIf;
+				String.ValidFrom = FoundRow.ValidFrom;
 				If String.Value <> FoundRow.Value Then
 					String.Value      =  FoundRow.Value;
 					String.Presentation =  FoundRow.Presentation;
@@ -2522,7 +2531,24 @@ Function UpdateContactInformation(Form, Object, Result = Undefined) Export
 						Form.Items[String.AttributeName].ExtendedTooltip.Title = String.Comment;
 					EndIf;						
 				EndIf;
-			EndIf;			
+			EndIf;
+			If String.StoreChangeHistory Then
+				If CIKindsWithHistory.Find(String.Kind) = Undefined Then
+					CIKindsWithHistory.Add(String.Kind);
+				EndIf;
+			EndIf;
+		EndDo;
+		For Each Kind In CIKindsWithHistory Do
+			HistoricalContactInfo = CopyOfContactInfoDetails.FindRows(New Structure("IsHistoricalContactInformation, Kind", True, Kind));
+			For Each CIRow In HistoricalContactInfo Do
+				Filter = New Structure("Value, IsHistoricalContactInformation, ValidFrom",
+				CIRow.Value, CIRow.IsHistoricalContactInformation, CIRow.ValidFrom);
+				FoundRows = ContactInformationDetails.FindRows(Filter);
+				If FoundRows.Count() = 0 Then
+					AddressHistoryItem = ContactInformationDetails.Add();
+					FillPropertyValues(AddressHistoryItem, CIRow);
+				EndIf;
+			EndDo;
 		EndDo;
 		
 	EndIf;
@@ -2587,7 +2613,7 @@ EndProcedure
 //
 Procedure ExecuteDeferredInitialization(Form, Object, ItemForPlacementName = "ContactInformationGroup") Export
 	
-	ContactInformationStub = Form.Items.Find("ContactInformationStub"); 
+	ContactInformationStub = Form.Items.Find("ContactInformationStub"); // A temporary item
 	If ContactInformationStub <> Undefined Then
 		Form.Items.Delete(ContactInformationStub);
 	EndIf;
@@ -2614,6 +2640,10 @@ Procedure ExecuteDeferredInitialization(Form, Object, ItemForPlacementName = "Co
 		
 		If RowsArray.Count() > 0 Then
 			SavedValue = ContactInformationAdditionalAttributesDetails.FindRows(Filter)[0];
+			If SavedValue <> Undefined And IsBlankString(SavedValue.Value)
+				And IsBlankString(SavedValue.Comment) Then
+				Continue;
+			EndIf;
 			CurrentValue = RowsArray[0];
 			FillPropertyValues(CurrentValue, SavedValue);
 			Form[CurrentValue.AttributeName] = SavedValue.Presentation;
@@ -2641,7 +2671,7 @@ EndProcedure
 //  ContactInformationType - EnumRef.ContactInformationTypes - CI kind filter by type.
 //
 // Returns:
-//  ValueTable - :
+//  ValueTable - Contact information kinds, where:
 //    * Ref  - CatalogRef.ContactInformationKinds
 //    * Type - EnumRef.ContactInformationTypes
 //    * Presentation - String
@@ -2774,7 +2804,7 @@ EndFunction
 // Details of contact information parameters used in the OnCreateAtServer handler.
 // 
 // Returns:
-//  Structure - :
+//  Structure - Contact information parameters:
 //   * IndexOf                   - String - an address postal code.
 //   * Country                   - String - an address country.
 //   * PremiseType             - String - a description of premise type that will be set
@@ -2785,17 +2815,17 @@ EndFunction
 //   * CITitleLocation     - FormItemTitleLocation - can take the following values:
 //                                                             FormItemTitleLocation.Top or
 //                                                             FormItemTitleLocation.Left (by default).
-//   * AllowAddingFields - Boolean - 
+//   * AllowAddingFields - Boolean - If True, the contact information owner form has a button for adding additional contact information
 //                                         
-//   * ItemsPlacedOnForm         - Map of KeyAndValue - 
-//                                               
-//                                               :
-//                                  ** Key - String - 
+//   * ItemsPlacedOnForm         - Map of KeyAndValue - Contact information kinds that were added to the form interactively.
+//                                               In case of deferred initialization, they will appear on the form after the
+//                                               ContactsManager.ExecuteDeferredInitialization procedure is called.:
+//                                  ** Key - String - The name of a predefined contact information kind
 //                                          - CatalogRef.ContactInformationKinds
 //                                  ** Value - Boolean - True
-//   * URLProcessing - Boolean -  
+//   * URLProcessing - Boolean - If True, contact information of the WebPage type is displayed as a hyperlink 
 //   										   	
-//   * ExcludedKinds - Array -  						                                                            
+//   * ExcludedKinds - Array - Obsolete. Instead, use "ItemsPlacedOnForm". 						                                                            
 //
 Function ContactInformationParameters() Export
 
@@ -2822,8 +2852,8 @@ EndFunction
 // Checks contact information.
 //
 // Parameters:
-//   Presentation  - String - a contact information presentation. Used if it is impossible to determine
-//                           a presentation based on the FieldValues parameter (the Presentation field is missing).
+//   Presentation  - String - The contact information presentation.
+//                           Used in cases when the "FieldValues" parameter is missing the "Presentation" field.
 //   FieldValues  - String
 //                  - Structure
 //                  - Map
@@ -2924,10 +2954,10 @@ EndFunction
 //      * Type - EnumRef.ContactInformationTypes - a type of contact information or its
 //                                                                    ID.
 //      * Order - Number
-//                - Undefined - 
-//                                 :
-//                                 
-//                                 
+//                - Undefined - The contact information kind's relative position in the list:
+//                                 "Undefined" - Keep the current order:
+//                                 "0" - Order automatically
+//                                 "1", "2", ... - The specific position in the list.
 //                                 
 //      * CanChangeEditMethod - Boolean                - True if you can change the editing
 //                                                                      method only in the dialog box, otherwise, False.
@@ -2958,7 +2988,7 @@ EndFunction
 //                                                 contact information type. The property is applicable only for contact information with the type:
 //                                                 Address, Phone, Fax, WebPage. Default value is False.
 //      * ValidationSettings - Undefined - for the Other, WebPage, and Skype types.
-//                          - Structure - :
+//                          - Structure - The field set varies for different contact information types:
 //         ** OnlyNationalAddress - Boolean - for the Address type. If True, only national address input is enabled.
 //         ** CheckValidity - Boolean - For the EmailAddress type.
 //                                             If True, forbid users to save invalid email addresses.
@@ -3157,13 +3187,13 @@ EndFunction
 //     * CanChangeEditMethod - Boolean -indicates whether a user can change properties of a contact information kind.
 //                                                    If False, properties of a contact information kind form
 //                                                    are view-only. The default value is False.
-//     * EditingOption - String - 
-//     * EditingOption - String -  determine the type of value editing. Options: "Prevoditelj", "Paliwoda", "Dialogue".
-//                                    If "Dialog", then the form displays a hyperlink with contact
-//                                    information, clicking on which opens the form of the corresponding type of CI.
-//                                    This property is only applicable for contact information with the type: Address, Phone, Fax.
-//                                    If "field input", then the input field is displayed on the form.
-//                                    If "Prevoditelj", that are available for input in the form of the appropriate type KEY.
+//     * EditingOption - String - An editing option.
+//     * EditingOption - String - An editing option.
+//                                    
+//                                    
+//                                    
+//                                    
+//                                    
 //     * StoreChangeHistory     - Boolean - indicates whether the contact information change history can be stored.
 //                                              Storing the history is allowed if EditingOption = "Dialog"
 //                                              is True. The property is only applicable when the tabular section ContactInformation
@@ -3191,7 +3221,7 @@ EndFunction
 //                                               contact information type. The property is applicable only for contact information with the type-
 //                                               Address, Phone, Fax, WebPage. Default value is False.
 //     * ValidationSettings  - Undefined - for the Other, WebPage, and Skype types.
-//                          - Structure - : 
+//                          - Structure - Validation settings for the given contact information kind: 
 //       ** OnlyNationalAddress - Boolean - for the Address type. If True, you can enter only national addresses.
 //                                               Changing the address country is not allowed.
 //       ** CheckValidity - Boolean - for the EmailAddress type. If True, a user cannot enter
@@ -3232,7 +3262,7 @@ EndFunction
 // Writes contact information from XML to the fields of the Object contact information tabular section.
 //
 // Parameters:
-//    Object - CatalogObject - 
+//    Object - CatalogObject - A configuration object containing the contact information table.
 //    Value - String - contact information in the internal JSON format.
 //    InformationKind - CatalogRef.ContactInformationKinds - a reference to a contact information kind.
 //    InformationType - EnumRef.ContactInformationTypes - contact information type.
@@ -3257,7 +3287,7 @@ Procedure WriteContactInformation(Object, Val Value, InformationKind, Informatio
 	EndIf;
 	
 	NewRow = Object.ContactInformation.Add();
-	NewRow.Presentation = CIObject.value;
+	NewRow.Presentation = CIObject.Value;
 	NewRow.Value      = ContactsManagerInternal.ToJSONStringStructure(CIObject);
 	NewRow.Kind           = InformationKind;
 	NewRow.Type           = InformationType;
@@ -3542,8 +3572,8 @@ EndFunction
 
 #EndRegion
 
-// 
-//  
+// Returns command details grouped by the associated contact information type.
+// The resulting map is intended for ContactsManagerOverridable.OnDefineSettings. 
 //
 // Returns:
 //   Map of KeyAndValue:
@@ -3572,22 +3602,22 @@ Function DetailsOfCommands() Export
 	
 EndFunction
 
-// 
-//  
+// Returns the details of the commands associated with the passed contact information type.
+// Intended for ContactsManagerOverridable.OnDefineSettings. 
 //
 // Parameters:
 //   Type - EnumRef.ContactInformationTypes
 //
 // Returns:
-//   Structure - 
-//    
-//     
-//     
-//     
-//     
-//     
-//     
-//     :
+//   Structure - Field sets for different contact information types.
+//   Address: AddCommentToAddress, ShowOnYandexMaps, ShowOnGoogleMap, PlanMeeting, ShowChangeHistory. 
+//     Phone: Telephone, SendSMSMessage, ShowChangeHistory.
+//     Fax: SendFax, ShowChangeHistory.
+//     Email: WriteEmail.
+//     Skype: CallSkype, StartSkypeChat.
+//     WebPage: OpenWebPage.
+//     Other: OpenWindowOther.
+//     A list of fields:
 //     * AddCommentToAddress  - See CommandDetailsByName
 //     * ShowOnYandexMaps     - See CommandDetailsByName
 //     * ShowOnGoogleMap     - See CommandDetailsByName
@@ -3608,18 +3638,18 @@ Function CommandsOfContactInfoType(Type) Export
 
 EndFunction
 
-// 
-//  
+// Returns a structure describing a contact information command.
+// The resulting map is intended for ContactsManagerOverridable.OnDefineSettings. 
 //
 // Parameters:
-//   CommandName - String - 
+//   CommandName - String - The name of the command whose details should be obtained.
 //
 // Returns:
 //   See CommandProperties 
 //
 Function CommandDetailsByName(CommandName) Export
 	
-	
+	// A command associated with the types "Address", "Phone", and "Fax"
 	If CommandName = "ShowChangeHistory" Then
 		Return CommandProperties(
 				NStr("en = 'Change history…';"),
@@ -3629,7 +3659,7 @@ Function CommandDetailsByName(CommandName) Export
 				True);
 	EndIf;
 	
-	
+	// Commands associated with the type "Address"
 	If CommandName = "AddCommentToAddress" Then
 		Return CommandProperties(
 				NStr("en = 'Type comment';"),
@@ -3653,7 +3683,7 @@ Function CommandDetailsByName(CommandName) Export
 		Return CommandProperties("", "");
 	EndIf;
 	
-	
+	// Commands associated with the type "Phone"
 	If CommandName = "Telephone" Then
 		Return CommandProperties(
 				NStr("en = 'Make a call';"),
@@ -3668,12 +3698,12 @@ Function CommandDetailsByName(CommandName) Export
 				"ContactsManagerClient.BeforeCreateSMS");
 	EndIf;
 	
-	
+	// Commands associated with the type "Fax"
 	If CommandName = "SendFax" Then
 		Return CommandProperties("", "");
 	EndIf;
 	
-	
+	// Commands for the type "Email"
 	If CommandName = "WriteEmail2" Then
 		Return CommandProperties(
 				NStr("en = 'Create mail';"),
@@ -3682,7 +3712,7 @@ Function CommandDetailsByName(CommandName) Export
 				"ContactsManagerClient.BeforeCreateEmailMessage");
 	EndIf;
 	
-	
+	// Commands associated with the type "Skype"
 	If CommandName = "SkypeCall" Then
 		Return CommandProperties(
 				NStr("en = 'Make a call';"),
@@ -3697,7 +3727,7 @@ Function CommandDetailsByName(CommandName) Export
 				"ContactsManagerClient.BeforeStartSkypeChat");
 	EndIf;
 	
-	
+	// Commands associated with the type "WebPage"
 	If CommandName = "OpenWebPage" Then
 		Return CommandProperties(
 				NStr("en = 'Follow';"),
@@ -3706,22 +3736,22 @@ Function CommandDetailsByName(CommandName) Export
 				"ContactsManagerClient.BeforeNavigateWebLink");
 	EndIf;
 
-	
+	// Commands associated with the type "Other"
 	If CommandName = "OpenWindowOther" Then
 		Return CommandProperties("", "");
 	EndIf;
 		
 EndFunction
 
-// 
-// 
+// Returns a structure describing contact information commands.
+// The structure is intended for ContactsManagerOverridable.OnDefineSettings
 //
 // Parameters:
-//   Title - String   - 
-//   ToolTip - String   - 
+//   Title - String   - Command title.
+//   ToolTip - String   - Command tooltip.
 //   Picture  - Picture - Command icon.
-//   Action  - String   - 
-//                            
+//   Action  - String   - The full path to the procedure to be executed.
+//                            For example, "_DemoStandardSubsystemsClient.OpenMeetingDocForm".
 //   ModifiesStoredData - Boolean 
 //
 // Returns:
@@ -3754,7 +3784,7 @@ EndFunction
 // Parameters:
 //    Form - ClientApplicationForm - a form to be passed.
 //    Items - Map of KeyAndValue - a list of contact information kinds for which access is set:
-//        * Key     - MetadataObject - 
+//        * Key     - MetadataObject - The subsystem where the report (report option) should be added to.
 //        * Value - Boolean           - if False, an item can only be viewed.
 //    ItemForPlacementName - String - a group name where the contact information is placed.
 //
@@ -3787,7 +3817,7 @@ Procedure SetContactInformationItemAvailability(Form, Items, ItemForPlacementNam
 	If Form.Items.Find("ContactInformationAddInputField") <> Undefined Then
 		ContactInformationParameters = FormContactInformationParameters(Form.ContactInformationParameters, ItemForPlacementName);
 		If ContactInformationParameters.ItemsToAddList.Count() = 0 Then
-			 
+			// Make the "Add" button inactive (as the context menu is empty). 
 			ContactInformationAddInputField = Form.Items.ContactInformationAddInputField; // FormGroup
 			ContactInformationAddInputField.Enabled = False;
 		EndIf;
@@ -3900,6 +3930,82 @@ Function Email(Val ContactInformationValue) Export
 	
 EndFunction
 
+// 
+// 
+// 
+// 
+// Parameters:
+//  UserObject - CatalogObject.Users - 
+//                     - CatalogObject.ExternalUsers
+//  NewAddress  - String
+//  OldAddress - String
+//              - Undefined - 
+//
+Procedure ChangePasswordRecoveryEmail(UserObject, NewAddress, OldAddress) Export
+	
+	ContactInformationOwner = ?( TypeOf(UserObject) = Type("CatalogObject.ExternalUsers"),
+		UserObject.AuthorizationObject, UserObject);
+	
+	UserEmailAccount = ObjectContactInformation(ContactInformationOwner, 
+		Enums.ContactInformationTypes.Email, CurrentSessionDate(), False);
+	
+	StringWithNewAddress = UserEmailAccount.Find(NewAddress, "Presentation");
+	If StringWithNewAddress <> Undefined Then
+		Return;
+	EndIf;
+	
+	StringWithAddress = UserEmailAccount.Find(OldAddress, "Presentation");
+	If StringWithAddress <> Undefined Then
+		FillContactInformationTableRowFromPresentation(StringWithAddress, NewAddress);
+		SetObjectContactInformation(ContactInformationOwner, 
+			UserEmailAccount, True);
+		Return;
+	EndIf;
+	
+	ObjectContactInformationKinds = ObjectContactInformationKinds(ContactInformationOwner,
+		Enums.ContactInformationTypes.Email);
+	
+	If ObjectContactInformationKinds.Count() = 0 Then
+		Return;
+	EndIf;
+	
+	If TypeOf(UserObject) = Type("CatalogObject.Users") Then 
+		ContactInformationKind = ContactInformationKindByName("UserEmail");
+		If ContactInformationKind <> Undefined Then
+			ParametersOfCIType = ContactInformationKindParameters(ContactInformationKind);
+			If ParametersOfCIType.AllowMultipleValueInput Then
+				AddContactInformation(ContactInformationOwner,
+					NewAddress, ContactInformationKind, CurrentSessionDate(), False);
+				Return;
+			EndIf;
+		EndIf;
+	EndIf;
+	
+	ContactInformationKind = Undefined;
+	For Each KindOfObjectContactInformation In ObjectContactInformationKinds Do
+		If KindOfObjectContactInformation.AllowMultipleValueInput Then
+			ContactInformationKind = KindOfObjectContactInformation.Ref;
+			Break;
+		EndIf;
+		StringWithAddress = UserEmailAccount.Find(KindOfObjectContactInformation.Ref, "Kind");
+		If StringWithAddress = Undefined Then
+			ContactInformationKind = KindOfObjectContactInformation.Ref;
+			Break;
+		EndIf;
+	EndDo;
+	
+	If ContactInformationKind <> Undefined Then
+		AddContactInformation(ContactInformationOwner,
+			NewAddress, ContactInformationKind, CurrentSessionDate(), False);
+	ElsIf UserEmailAccount.Count() > 0 Then
+		FillContactInformationTableRowFromPresentation(UserEmailAccount[0], NewAddress);
+		SetObjectContactInformation(ContactInformationOwner, UserEmailAccount, True);
+	EndIf;
+	
+EndProcedure
+
+
+
 Function NewEmailAddressForPasswordRecovery(Val ObjectReference, Val Email) Export
 	
 	Result = Undefined;
@@ -3975,6 +4081,13 @@ Function EmailDescriptionStringForPasswordRecoveryFromFormData(Form, TypeOrTypeO
 	Return Undefined;
 	
 EndFunction
+
+// See PropertyManagerOverridable.OnGetPredefinedPropertiesSets.
+Procedure OnGetPredefinedPropertiesSets(Sets) Export
+	Set = Sets.Rows.Add();
+	Set.Name = "Catalog_WorldCountries";
+	Set.Id = New UUID("38186b5b-6c32-40fa-b894-8eadad18bf62");
+EndProcedure
 
 #EndRegion
 
@@ -4220,8 +4333,8 @@ Procedure AddAdditionalContactInformationFieldButton(Val Form, Val ItemForPlacem
 	ItemContactInformationParameters.AddedItems.Add(CommandName, 2, False);
 	
 	If Not Common.IsMobileClient() And ItemContactInformationParameters.PositionOfAddButton = "Auto" Then
-		
-		
+		// 
+		// 
 		ItemsOfPlacementGroup = Form.Items[ItemForPlacementName].ChildItems;
 		GroupCountInMain = ItemsOfPlacementGroup.Count();
 		ItemsOfContactInfoValGroup = Form.Items["GroupOfContactInfoValues"+ItemForPlacementName].ChildItems;
@@ -4259,8 +4372,8 @@ EndProcedure
 Procedure AddNoteOnFormSettingsReset(Val Form, Val ItemForPlacementName, Val DeferredInitialization)
 	
 	GroupForPlacement = Form.Items[ItemForPlacementName];
-	
-	
+	// 
+	// 
 	If DeferredInitialization
 		And GroupForPlacement.Type = FormGroupType.Page 
 		And Form.Items.Find("ContactInformationStub") = Undefined Then
@@ -4308,7 +4421,7 @@ Procedure ModifyComment(Form, AttributeName, ItemForPlacementName, ContactInform
 	If ContactsManagerClientServer.IsJSONContactInformation(FoundRow.Value) Then
 		ContactInformationByFields = ContactsManagerInternal.JSONToContactInformationByFields(
 			FoundRow.Value, Undefined);
-		ContactInformationByFields.comment = FoundRow.Comment;
+		ContactInformationByFields.Comment = FoundRow.Comment;
 		FoundRow.Value = ContactsManagerInternal.ToJSONStringStructure(ContactInformationByFields);
 	EndIf;
 	
@@ -4414,14 +4527,14 @@ Procedure AddContactInformationRow(Form, Result, ItemForPlacementName, IsNewCIKi
 		Mandatory = CIKindInformation.Mandatory;
 	EndIf;
 	
-	ViewToAddName = Common.ObjectAttributeValue(KindToAdd, "Description");
+	KindToAddDescription = Common.ObjectAttributeValue(KindToAdd, "Description");
 	
 	// Draw items on the form.
 	If Common.IsMobileClient() And ContactInformationParameters.ShouldShowIcons Then
-		GroupStringsTitle = Group("TitleGroup" + AttributeName, Form, ViewToAddName, ItemForPlacementName, "GroupOfContactInfoValues" + ItemForPlacementName, 6);
+		GroupStringsTitle = Group("TitleGroup" + AttributeName, Form, KindToAddDescription, ItemForPlacementName, "GroupOfContactInfoValues" + ItemForPlacementName, 6);
 		GroupStringsTitle.Group = ChildFormItemsGroup.Vertical;
 		GroupStringsTitle.Representation = UsualGroupRepresentation.NormalSeparation; 
-		GroupLinesTitlesPicture = Group("GroupTitlePicture" + AttributeName, Form, ViewToAddName, ItemForPlacementName, "TitleGroup" + AttributeName);
+		GroupLinesTitlesPicture = Group("GroupTitlePicture" + AttributeName, Form, KindToAddDescription, ItemForPlacementName, "TitleGroup" + AttributeName);
 		Decoration = Form.Items.Add("Picture" + AttributeName, Type("FormDecoration"), GroupLinesTitlesPicture);
 		Decoration.Title = NStr("en = 'Picture';");
 		Decoration.Type       = FormDecorationType.Picture;
@@ -4429,7 +4542,7 @@ Procedure AddContactInformationRow(Form, Result, ItemForPlacementName, IsNewCIKi
 		Decoration.Picture = PictureContactInfoType(CIKindInformation.Type);
 		ContactInformationParameters.AddedItems.Add("Picture" + AttributeName, 2, False);
 		TitleDecoration = Form.Items.Add("Title" + AttributeName, Type("FormDecoration"), GroupLinesTitlesPicture);
-		TitleDecoration.Title = Upper(ViewToAddName);
+		TitleDecoration.Title = Upper(KindToAddDescription);
 		TitleDecoration.Type       = FormDecorationType.Label;
 		ContactInformationParameters.AddedItems.Add("Title" + AttributeName, 2, False);
 		ParentGroupName = "TitleGroup" + AttributeName;
@@ -4437,7 +4550,7 @@ Procedure AddContactInformationRow(Form, Result, ItemForPlacementName, IsNewCIKi
 		 ParentGroupName = "GroupOfContactInfoValues" + ItemForPlacementName;
 	EndIf;
 	
-	StringGroup1 = Group("Group" + AttributeName, Form, ViewToAddName, ItemForPlacementName, 
+	StringGroup1 = Group("Group" + AttributeName, Form, KindToAddDescription, ItemForPlacementName, 
 		ParentGroupName);
 	
 	If Common.IsMobileClient() And Not ContactInformationParameters.ShouldShowIcons Then
@@ -4526,7 +4639,7 @@ Procedure AddContactInformationRow(Form, Result, ItemForPlacementName, IsNewCIKi
 	If HasCommentField Then
 		GroupFIeldComment  = Group("GroupComment" + AttributeName, Form,
 			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 field, comment';"),
-			ViewToAddName), ItemForPlacementName, "Group" + AttributeName, 4);
+			KindToAddDescription), ItemForPlacementName, "Group" + AttributeName, 4);
 	Else
 		GroupFIeldComment = StringGroup1;
 	EndIf;
@@ -4919,7 +5032,7 @@ Procedure SetEntryFieldsProperties(CIKindInformation, Item, Form, AttributeName,
 			Item.Height = 1;
 			Item.Width = 72;
 			Item.MultiLine = False;
-		Else // OneLineThin
+		Else // SingleLineNarrow
 			Item.Height = 1;
 			Item.Width = 35;
 			Item.MultiLine = False;
@@ -5202,7 +5315,7 @@ Procedure DeleteFormItemsAndCommands(Form, ItemForPlacementName)
 	
 EndProcedure
 
-// 
+// Returns the flag indicating whether contact information type can be edited interactively.
 //
 // Parameters:
 //    Type - EnumRef.ContactInformationTypes - contact information type.
@@ -5439,9 +5552,9 @@ Function ContactInformationConversionSettings() Export
 	
 EndFunction
 
-Function BasicInformationOfContactInformation(ContactInformation = Undefined) Export
+Function ContactInformationBasicInfo(ContactInformation = Undefined) Export
 	
-	Result = BasicFieldsOfContactInformation();
+	Result = ContactInfoBasicFields();
 	If ContactInformation = Undefined Then
 		Return Result;
 	EndIf;
@@ -5449,8 +5562,8 @@ Function BasicInformationOfContactInformation(ContactInformation = Undefined) Ex
 	ContactInformationFields = ContactsManagerInternal.ContactInformationToJSONStructure(ContactInformation);
 	ContactInformationType = ContactInformationType(ContactInformation);
 	
-	Result.Presentation           = String(ContactInformationFields.value);
-	Result.Comment             = String(ContactInformationFields.comment);
+	Result.Presentation           = String(ContactInformationFields.Value);
+	Result.Comment             = String(ContactInformationFields.Comment);
 	Result.ContactInformationType = ContactInformationType;
 	
 	Return Result;
@@ -5464,7 +5577,7 @@ EndFunction
 //                              - Undefined
 //    * Comment - String
 //
-Function BasicFieldsOfContactInformation()
+Function ContactInfoBasicFields()
 	
 	ContactInformationFields = New Structure;
 	ContactInformationFields.Insert("Presentation",           "");
@@ -5476,13 +5589,13 @@ Function BasicFieldsOfContactInformation()
 EndFunction
 
 // Returns:
-//  Structure -  :
+//  Structure -  Contact information fields to be converted:
 //   * ContactInformationType - EnumRef.ContactInformationTypes
 //                           - Undefined
 //   * XMLData1 - String
 //   * Presentation - String 
 //
-Function ContactInformationFieldsForConversion() Export
+Function ContactInfoFieldsToConvert() Export
 
 	Result = New Structure;
 	Result.Insert("ContactInformationType", Undefined);
@@ -5568,7 +5681,7 @@ EndProcedure
 // Parameters:
 //     EMAddress      - Structure
 //                  - String - contact information.
-//     InformationKind - CatalogRef.ContactInformationKinds - a contact information kind with with validation settings.
+//     InformationKind - CatalogRef.ContactInformationKinds - a contact information kind with validation settings.
 //     AttributeName  - String - an optional attribute name used to link an error message.
 //
 // Returns:
@@ -5590,7 +5703,7 @@ Function EmailFIllingErrors(EMAddress, InformationKind, Val AttributeName = "", 
 	Email = ContactsManagerInternal.JSONToContactInformationByFields(EMAddress, Enums.ContactInformationTypes.Email);
 	
 	Try
-		Result = CommonClientServer.EmailsFromString(Email.value);
+		Result = CommonClientServer.EmailsFromString(Email.Value);
 		If Result.Count() > 1 Then
 			ErrorString = NStr("en = 'Only one email address is allowed';");
 		ElsIf Result.Count() = 1 Then
@@ -5647,7 +5760,7 @@ Function CheckContactInformationFilling(Presentation, Value, InformationKind, In
 	ElsIf InformationType = Enums.ContactInformationTypes.WebPage Then
 		ErrorsLevel = WebPageFillingErrors(Value, InformationKind, AttributeName);
 	Else
-		ErrorsLevel = 0; 
+		ErrorsLevel = 0; // 
 	EndIf;
 	
 	Return ErrorsLevel;
@@ -5682,7 +5795,7 @@ EndProcedure
 //
 // Parameters:
 //     Source      - XDTODataObject - contact information.
-//     InformationKind - CatalogRef.ContactInformationKinds - a contact information kind with with validation settings.
+//     InformationKind - CatalogRef.ContactInformationKinds - a contact information kind with validation settings.
 //     AttributeName  - String - an optional attribute name used to link an error message.
 //
 // Returns:
@@ -5720,11 +5833,12 @@ Function AddressFIllErrors(Source, InformationKind, AttributeName = "", Attribut
 	Return 0;
 EndFunction
 
+
 // Validates phone contact information and reports any errors. Returns the flag indicating that there are errors.
 //
 // Parameters:
 //     Source      - XDTODataObject - contact information.
-//     InformationKind - CatalogRef.ContactInformationKinds - a contact information kind with with validation settings.
+//     InformationKind - CatalogRef.ContactInformationKinds - a contact information kind with validation settings.
 //     AttributeName  - String - To link an error message to a form attribute, the attribute name is not required.
 //
 // Returns:
@@ -5772,7 +5886,7 @@ EndFunction
 //
 // Parameters:
 //     Source      - XDTODataObject - contact information.
-//     InformationKind - CatalogRef.ContactInformationKinds - a contact information kind with with validation settings.
+//     InformationKind - CatalogRef.ContactInformationKinds - a contact information kind with validation settings.
 //     AttributeName  - String - an optional attribute name used to link an error message.
 //
 // Returns:
@@ -5866,7 +5980,7 @@ EndFunction
 //                  - Undefined
 //   * AllowAddingFields - Boolean
 //   * CommentFieldWidth - Number
-//   * PositionOfAddButton - String - 
+//   * PositionOfAddButton - String - Valid values are: "Left", "Right", "Auto".
 //   * HasDestinationGroupWidthLimit - Boolean
 //
 Function ContactInformationOutputParameters(Form, ItemForPlacementName, CITitleLocation,
@@ -5912,8 +6026,8 @@ Function ContactInformationOutputParameters(Form, ItemForPlacementName, CITitleL
 	
 EndFunction
 
-// 
-// 
+// Checks the group (including its parents) for the width limitations.
+// Any width value less than 90 is a limitation.
 //
 Function HasDestinationGroupWidthLimit(Group)
 
@@ -5946,7 +6060,7 @@ EndFunction
 // If no name is specified, a full list of predefined kinds is returned by the application.
 //
 // Returns:
-//  ValueTable  - :
+//  ValueTable  - Contact information kinds, where:
 //    * Name - String - a name of a contact information kind.
 //    * Ref - CatalogRef.ContactInformationKinds - a reference to an item of the "Contact information kinds" catalog.
 //
@@ -6312,7 +6426,7 @@ Function ContactInformationFromFormAttributes(Form, Object)
 			If TabularSectionsNamesByCIKinds = Undefined Then
 				Filter = New Structure("IsTabularSectionAttribute", True);
 				TabularSectionCIKinds = ContactsManagerClientServer.DescriptionOfTheContactInformationOnTheForm(Form).Unload(Filter, "Kind");
-				
+				// @skip-check query-in-loop - Runs only in one iteration when the table attribute first appears
 				TabularSectionsNamesByCIKinds = TabularSectionsNamesByCIKinds(TabularSectionCIKinds, MetadataObjectName);
 			EndIf;
 			
@@ -6369,7 +6483,7 @@ Procedure MoveContactInformationRecordFromFormToTable(ContactInformation, TableR
 	ValidFrom = ?(TableRow.Property("ValidFrom"), TableRow.ValidFrom, Undefined);
 	FillPropertyValues(ContactInformationRow, TableRow, "Kind,Type");
 	
-	ContactInformationRow.Presentation = CIObject.value;
+	ContactInformationRow.Presentation = CIObject.Value;
 	ContactInformationRow.Value      = ContactsManagerInternal.ToJSONStringStructure(CIObject);
 	
 	If ContactsManagerInternalCached.IsLocalizationModuleAvailable() Then
@@ -6383,6 +6497,13 @@ Procedure MoveContactInformationRecordFromFormToTable(ContactInformation, TableR
 	
 	ContactInformationRow.TabularSectionRowID = RowID;
 	
+EndProcedure
+
+Procedure FillContactInformationTableRowFromPresentation(ContactInformationRow, Presentation)
+	ContactInformationRow.Presentation = Presentation;
+	ContactInformationRow.Value      = ContactInformationInJSON(Presentation, 
+		ContactInformationRow.Kind);
+	ContactInformationRow.FieldValues = "";
 EndProcedure
 
 // Contact information kinds
@@ -6472,7 +6593,7 @@ Function SettingsForCheckingContactInformationParameters(Val ContactInformationT
 		ValidationSettings.Insert("CheckValidity",        False);
 		ValidationSettings.Insert("IncludeCountryInPresentation", False);
 		ValidationSettings.Insert("SpecifyRNCMT",               False);
-		ValidationSettings.Insert("HideObsoleteAddresses",   False); 
+		ValidationSettings.Insert("HideObsoleteAddresses",   False); // 
 		ValidationSettings.Insert("CheckByFIAS",              True); // Obsolete. Keep for backward compatibility.
 	ElsIf ContactInformationType = Enums.ContactInformationTypes.Email Then
 		ValidationSettings = New Structure;
@@ -6584,7 +6705,7 @@ EndFunction
 //                                               contact information type. The property is applicable only for contact information with the type:
 //                                               Address, Phone, Fax, WebPage. Default value is False.
 //     * ValidationSettings - Undefined - for the Other, WebPage, and Skype types 
-//                         - Structure - : 
+//                         - Structure - The field set varies for different contact information types: 
 //       ** OnlyNationalAddress- Boolean - for the Address type. If True, you can enter only national
 //                                                          addresses. Changing the address country is not allowed.
 //       ** CheckValidity - Boolean - For the EmailAddress type.
@@ -6609,7 +6730,7 @@ Function ContactInformationParametersDetails(Val ContactInformationType)
 	KindParameters.Insert("Order", Undefined);
 	KindParameters.Insert("Type", ContactInformationType);
 	KindParameters.Insert("CanChangeEditMethod",    False);
-	KindParameters.Insert("EditInDialogOnly",         False);  
+	KindParameters.Insert("EditInDialogOnly",         False);  // 
 	KindParameters.Insert("Mandatory",               False);
 	KindParameters.Insert("AllowMultipleValueInput",      False);
 	KindParameters.Insert("DenyEditingByUser", False);
@@ -6928,7 +7049,7 @@ Procedure SetActionsForStaticItems(Form, CIRow, ItemForPlacementName)
 
 EndProcedure
 
-// 
+// Describes additional output parameters of contact information.
 // 
 // Parameters:             
 //   DetailsOfCommands   - See DetailsOfCommands 
@@ -6990,12 +7111,12 @@ Function SubsystemSettings(ContactInformationOwner)
 	
 EndFunction
 
-// 
+// Looks up for a button in contact information groups.
 // 
 // Parameters:
 //   Group - FormGroup
 //          - FormItems
-//   IsStringGroup - Boolean - 
+//   IsStringGroup - Boolean - If True, search for a button in the group's child elements.
 // 
 // Returns:
 //   Boolean
@@ -7027,13 +7148,13 @@ Function HasContactInfoButton(Group, IsStringGroup)
 
 EndFunction
 
-// 
+// Returns an icon by the given contact information type
 //
 // Parameters:
 //  ContactInformationType	 - EnumRef.ContactInformationTypes
 // 
 // Returns:
-//  Picture - 
+//  Picture - A contact information icon.
 //
 Function PictureContactInfoType(ContactInformationType)
 	
@@ -7041,14 +7162,14 @@ Function PictureContactInfoType(ContactInformationType)
 		
 EndFunction
 
-// 
+// Checks if the contact information type has the "Comment" field
 //
 // Parameters:
 //  ContactInformationType	     - EnumRef.ContactInformationTypes
 //  URLProcessing - Boolean
 // 
 // Returns:
-//  Boolean - 
+//  Boolean - The comment presence flag.
 //
 Function HasCommentFieldForContactInfoType(ContactInformationType, URLProcessing)
 	
@@ -7062,7 +7183,7 @@ Function HasCommentFieldForContactInfoType(ContactInformationType, URLProcessing
 	
 EndFunction
 
-// 
+// Looks up for a hyperlink.
 // 
 // Parameters:
 //  Item - FormGroup

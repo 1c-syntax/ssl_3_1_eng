@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -19,7 +20,7 @@ Procedure OnAddClientParametersOnStart(Parameters) Export
 		Return;
 	EndIf;
 	
-	UseReminders = GetRemindersSettings().UseReminders;
+	UseReminders = ReminderSettings().UseReminders;
 	CurrentRemindersList = ?(UseReminders,
 		CurrentUserRemindersList(), New Array);
 	
@@ -34,10 +35,6 @@ EndProcedure
 // See CommonOverridable.OnAddServerNotifications
 Procedure OnAddServerNotifications(Notifications) Export
 	
-	If Not GetFunctionalOption("UseUserReminders") Then
-		Return;
-	EndIf;
-	
 	Notification = ServerNotifications.NewServerNotification(
 		UserRemindersClientServer.ServerNotificationName());
 	
@@ -51,10 +48,14 @@ EndProcedure
 // See StandardSubsystemsServer.OnSendServerNotification
 Procedure OnSendServerNotification(NameOfAlert, ParametersVariants) Export
 	
+	If Not GetFunctionalOption("UseUserReminders") Then
+		Return;
+	EndIf;
 	
-	
-	
-	
+	// 
+	// 
+	// 
+		
 	UpdateRemindersList(False);
 	
 EndProcedure
@@ -74,6 +75,30 @@ EndProcedure
 Procedure OnFillListsWithAccessRestriction(Lists) Export
 	
 	Lists.Insert(Metadata.InformationRegisters.UserReminders, True);
+	
+EndProcedure
+
+// See AttachableCommandsOverridable.OnDefineCommandsAttachedToObject.
+Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReportsAndDataProcessors, Commands) Export
+	
+	Command = Commands.Add();
+	Command.Kind = "Organizer";
+	Command.Presentation = NStr("en = 'Remind…';");
+	Command.FunctionalOptions = "UseUserReminders";
+	Command.Picture = PictureLib.Reminder;
+	Command.ParameterType = Metadata.DefinedTypes.ReminderSubject.Type;
+	Command.WriteMode = "NotWrite";
+	Command.Order = 50;
+	Command.Handler = "UserRemindersInternalClient.Remind"; 
+	Command.MultipleChoice = False;
+	
+EndProcedure
+
+// See CommonOverridable.OnAddClientParameters.
+Procedure OnAddClientParameters(Parameters) Export
+	
+	Parameters.Insert("UsedUserReminders", UserReminders.UsedUserReminders());
+	Parameters.Insert("ShouldShowRemindersInNotificationCenter", ShouldShowRemindersInNotificationCenter());
 	
 EndProcedure
 
@@ -119,7 +144,7 @@ EndProcedure
 
 Function SubsystemSettings() Export
 	Settings = New Structure;
-	Settings.Insert("Schedules1", GetStandardSchedulesForReminder());
+	Settings.Insert("Schedules1", StandardSchedulesForReminder());
 	Settings.Insert("StandardIntervals", StandardNotifyIntervals());
 	UserRemindersOverridable.OnDefineSettings(Settings);
 	
@@ -147,12 +172,11 @@ Function StandardNotifyIntervals()
 	
 EndFunction
 
-// Returns standard schedules for repeated reminders.
-Function GetStandardSchedulesForReminder()
+Function StandardSchedulesForReminder()
 	
 	Result = New Map;
 		
-	// On Mondays at 9 a.m.
+	// 
 	Schedule = New JobSchedule;
 	Schedule.DaysRepeatPeriod = 1;
 	Schedule.WeeksPeriod = 1;
@@ -162,7 +186,7 @@ Function GetStandardSchedulesForReminder()
 	Schedule.WeekDays = WeekDays;
 	Result.Insert(NStr("en = 'on Mondays at 9.00 AM';"), Schedule);
 	
-	// On Fridays at 3 p.m.
+	// 
 	Schedule = New JobSchedule;
 	Schedule.DaysRepeatPeriod = 1;
 	Schedule.WeeksPeriod = 1;
@@ -172,7 +196,7 @@ Function GetStandardSchedulesForReminder()
 	Schedule.WeekDays = WeekDays;
 	Result.Insert(NStr("en = 'on Fridays at 3.00 PM';"), Schedule);
 	
-	// Every day at 9:00 a.m.
+	// 
 	Schedule = New JobSchedule;
 	Schedule.DaysRepeatPeriod = 1;
 	Schedule.WeeksPeriod = 1;
@@ -183,8 +207,7 @@ Function GetStandardSchedulesForReminder()
 	
 EndFunction
 
-// Returns settings structure of user reminders.
-Function GetRemindersSettings()
+Function ReminderSettings()
 	
 	Result = New Structure;
 	Result.Insert("UseReminders",
@@ -195,26 +218,19 @@ Function GetRemindersSettings()
 	
 EndFunction
 
-// Checks if the user has the right to change the UserReminders information register.
-//
-// Returns:
-//  Boolean - True if the user has the right.
-//
 Function HasRightToUseReminders()
 	Return AccessRight("Update", Metadata.InformationRegisters.UserReminders); 
 EndFunction
 
-// Returns the closest date on schedule relative to the date passed in the parameter.
-//
 // Parameters:
-//  Schedule - JobSchedule - Schedule.
-//  PreviousDate - Date - Date of the previous event according to the schedule.
-//  SearchForFutureDatesOnly - Boolean - False if you need to find a date in the past.
-//  
+//   Schedule - JobSchedule 
+//   PreviousDate - Date 
+//   SearchForFutureDatesOnly - Boolean
+// 
 // Returns:
-//   Date - Date and time of the next scheduled event.
+//   
 //
-Function GetClosestEventDateOnSchedule(Schedule, PreviousDate = '000101010000', SearchForFutureDatesOnly = True) Export
+Function NearestEventDateOnSchedule(Schedule, PreviousDate = '000101010000', SearchForFutureDatesOnly = True) Export
 
 	Result = Undefined;
 	CurrentSessionDate = CurrentSessionDate();
@@ -227,7 +243,7 @@ Function GetClosestEventDateOnSchedule(Schedule, PreviousDate = '000101010000', 
 		StartingDate = Max(StartingDate, CurrentSessionDate);
 	EndIf;
 	
-	Calendar = GetCalendarForFuture(365*4+1, StartingDate, Schedule.BeginDate, Schedule.DaysRepeatPeriod, Schedule.WeeksPeriod);
+	Calendar = FuturePeriodCalendar(365*4+1, StartingDate, Schedule.BeginDate, Schedule.DaysRepeatPeriod, Schedule.WeeksPeriod);
 	
 	WeekDays = Schedule.WeekDays;
 	If WeekDays.Count() = 0 Then
@@ -317,12 +333,12 @@ Function GetClosestEventDateOnSchedule(Schedule, PreviousDate = '000101010000', 
 			StartingTime = StartingTime + (StartingDate-BegOfDay(StartingDate));
 		EndIf;
 		
-		ClosestTime = GetClosestTimeFromSchedule(Schedule, StartingTime);
+		ClosestTime = NearestTimeFromSchedule(Schedule, StartingTime);
 		If ClosestTime <> Undefined Then
 			Result = NearestDate + (ClosestTime - '00010101');
 		Else
 			If Selection.Next() Then
-				Time = GetClosestTimeFromSchedule(Schedule);
+				Time = NearestTimeFromSchedule(Schedule);
 				Result = Selection.Date + (Time - '00010101');
 			EndIf;
 		EndIf;
@@ -332,7 +348,8 @@ Function GetClosestEventDateOnSchedule(Schedule, PreviousDate = '000101010000', 
 	
 EndFunction
 
-Function GetCalendarForFuture(CalendarDaysCount, StartingDate, Val PeriodicityStartDate = Undefined, Val PeriodDays = 1, Val WeeksPeriod = 1) 
+Function FuturePeriodCalendar(CalendarDaysCount, StartingDate, Val PeriodicityStartDate = Undefined, 
+	Val PeriodDays = 1, Val WeeksPeriod = 1) 
 	
 	If WeeksPeriod = 0 Then 
 		WeeksPeriod = 1;
@@ -407,7 +424,7 @@ Function GetCalendarForFuture(CalendarDaysCount, StartingDate, Val PeriodicitySt
 	
 EndFunction
 
-Function GetClosestTimeFromSchedule(Schedule, Val StartingTime = '000101010000')
+Function NearestTimeFromSchedule(Schedule, Val StartingTime = '000101010000')
 	
 	Result = Undefined;
 	
@@ -447,7 +464,7 @@ Function EventSchedule(Schedule, BeginOfPeriod, EndOfPeriod)
 	
 	StartingDate = BeginOfPeriod;
 	
-	Calendar = GetCalendarForFuture((BegOfDay(EndOfPeriod) - BegOfDay(BeginOfPeriod)) / (60*60*24) + 1, 
+	Calendar = FuturePeriodCalendar((BegOfDay(EndOfPeriod) - BegOfDay(BeginOfPeriod)) / (60*60*24) + 1, 
 		StartingDate, Schedule.BeginDate, Schedule.DaysRepeatPeriod, Schedule.WeeksPeriod);
 	
 	WeekDays = Schedule.WeekDays;
@@ -541,12 +558,12 @@ Function EventSchedule(Schedule, BeginOfPeriod, EndOfPeriod)
 		EndIf;
 		
 		DateAndTime = Undefined;
-		ClosestTime = GetClosestTimeFromSchedule(Schedule, StartingTime);
+		ClosestTime = NearestTimeFromSchedule(Schedule, StartingTime);
 		If ClosestTime <> Undefined Then
 			DateAndTime = NearestDate + (ClosestTime - '00010101');
 		Else
 			If Selection.Next() Then
-				Time = GetClosestTimeFromSchedule(Schedule);
+				Time = NearestTimeFromSchedule(Schedule);
 				DateAndTime = Selection.Date + (Time - '00010101');
 			EndIf;
 		EndIf;
@@ -572,7 +589,7 @@ Procedure UpdateRemindersForSubjects(Subjects) Export
 	For Each TableRow In ResultTable2 Do
 		SubjectDate = Common.ObjectAttributeValue(TableRow.Source, TableRow.SourceAttributeName);
 		If (SubjectDate - TableRow.ReminderInterval) <> TableRow.EventTime Then
-			
+			// @skip-check query-in-loop - Write data as a dataset with reading within a loop.
 			DisableReminder(TableRow, False);
 			TableRow.ReminderTime = SubjectDate - TableRow.ReminderInterval;
 			TableRow.EventTime = SubjectDate;
@@ -582,7 +599,7 @@ Procedure UpdateRemindersForSubjects(Subjects) Export
 			
 			ReminderParameters = Common.ValueTableRowToStructure(TableRow);
 			ReminderParameters.Schedule = TableRow.Schedule.Get();
-			
+			// @skip-check query-in-loop - Write data as a dataset with reading within a loop.
 			Reminder = CreateReminder(ReminderParameters);
 			AttachReminder(Reminder);
 		EndIf;
@@ -634,7 +651,6 @@ Function RemindersBySubjects(Val Subjects)
 	Return ResultTable2
 	
 EndFunction
-
 
 // Handler of subscription to event OnWrite object, for which you can create reminders.
 Procedure CheckForDateChangesInItemWhenRecording(Source, Cancel) Export
@@ -766,7 +782,7 @@ Procedure DisableReminder(ReminderParameters, AttachBySchedule = True, ShouldDis
 			Schedule = Reminder.Schedule.Get();
 			If Schedule <> Undefined Then
 				If Schedule.DaysRepeatPeriod > 0 Then
-					NextDateOnSchedule = GetClosestEventDateOnSchedule(Schedule, ReminderParameters.EventTime + 1);
+					NextDateOnSchedule = NearestEventDateOnSchedule(Schedule, ReminderParameters.EventTime + 1);
 				EndIf;
 				DefinedNextDateOnSchedule = NextDateOnSchedule <> Undefined;
 			EndIf;
@@ -774,7 +790,7 @@ Procedure DisableReminder(ReminderParameters, AttachBySchedule = True, ShouldDis
 			If DefinedNextDateOnSchedule Then
 				Reminder.EventTime = NextDateOnSchedule;
 				Reminder.ReminderTime = Reminder.EventTime - Reminder.ReminderInterval;
-				AttachReminder(Reminder, ShouldDisableClientNotifications);
+				AttachReminder(Reminder, , ShouldDisableClientNotifications);
 			EndIf;
 		EndIf;
 		
@@ -813,6 +829,7 @@ Function AttachArbitraryReminder(Text, EventTime, IntervalTillEvent = 0, Subject
 	ReminderParameters.Insert("ReminderInterval", IntervalTillEvent);
 	ReminderParameters.Insert("Source", SubjectOf);
 	ReminderParameters.Insert("Id", Id);
+	ReminderParameters.Insert("URL", ReminderURL(ReminderParameters));
 	
 	Reminder = CreateReminder(ReminderParameters);
 	AttachReminder(Reminder);
@@ -876,7 +893,7 @@ Function CreateReminder(ReminderParameters)
 	EndIf;
 	
 	If Reminder.Schedule <> Undefined Then
-		Reminder.EventTime = GetClosestEventDateOnSchedule(Reminder.Schedule);
+		Reminder.EventTime = NearestEventDateOnSchedule(Reminder.Schedule);
 		If Reminder.EventTime = Undefined Then
 			Reminder.EventTime = '00010101';
 		EndIf;
@@ -943,50 +960,60 @@ Procedure UpdateRemindersList(OnStart)
 			Continue;
 		EndIf;
 		
-		
+		// @skip-check query-in-loop - The query does not address infobase data.
 		EventScheduleForYear = EventSchedule(Schedule, Reminder.EventTime, AddMonth(Reminder.EventTime, 12) - 1);
-		
+		// @skip-check query-in-loop - The query does not address infobase data.
 		ComingEventTime = EventSchedule(Schedule, Reminder.EventTime + 1, CurrentSessionDate());
 		
+		EventTime = Reminder.EventTime;
+		ShouldReconnectOnSchedule = False;
+		IsOverdueReminder = False;
+		
 		// - The next scheduled event time has come.
-		If ComingEventTime.Count() > 0
-			// - Deadline is specified in the job schedule and it is overdue.
-			Or ValueIsFilled(Schedule.CompletionTime) And CurrentSessionDate() > (Reminder.EventTime + (Schedule.CompletionTime - Schedule.BeginTime))
+		If ComingEventTime.Count() > 0 Then
+			EventTime = ComingEventTime[ComingEventTime.UBound()];
+			ShouldReconnectOnSchedule = True;
+		EndIf;
+		
+		// - Deadline is specified in the job schedule and it is overdue.
+		If ValueIsFilled(Schedule.CompletionTime) And CurrentSessionDate() > (EventTime + (Schedule.CompletionTime - Schedule.BeginTime))
 			// - The reminder is annual and the event happened a month ago.
-			Or EventScheduleForYear.Count() = 1 And CurrentSessionDate() > AddMonth(Reminder.EventTime, 1)
+			Or EventScheduleForYear.Count() = 1 And CurrentSessionDate() > AddMonth(EventTime, 1)
 			// - The reminder is annual and the event happened a week ago.
-			Or EventScheduleForYear.Count() = 12 And CurrentSessionDate() > Reminder.EventTime + 60*60*24*7 Then
-				BeginTransaction();
-				Try
-					If ComingEventTime.Count() > 0 Then
-						
-						DisableReminder(Reminder, False, OnStart);
-						
-						ReminderParameters = Common.ValueTableRowToStructure(Reminder);
-						ReminderParameters.Schedule = Reminder.Schedule.Get();
-						
-						Reminder = CreateReminder(ReminderParameters);
-						Reminder.EventTime = ComingEventTime[ComingEventTime.UBound()];
-						Reminder.ReminderTime = Reminder.EventTime - Reminder.ReminderInterval;
-						
-						AttachReminder(Reminder,, OnStart);
-					EndIf;
+			Or EventScheduleForYear.Count() = 12 And CurrentSessionDate() > EventTime + 60*60*24*7 Then
+				IsOverdueReminder = True;
+		EndIf;
+		
+		If ShouldReconnectOnSchedule Then
+			BeginTransaction();
+			Try
+				// @skip-check query-in-loop - Write data as a dataset with reading within a loop.
+				DisableReminder(Reminder, IsOverdueReminder, OnStart);
+				
+				If Not IsOverdueReminder Then
+					ReminderParameters = Common.ValueTableRowToStructure(Reminder);
+					ReminderParameters.Schedule = Reminder.Schedule.Get();
+					// @skip-check query-in-loop - Write data as a dataset with reading within a loop.
+					Reminder = CreateReminder(ReminderParameters);
+					Reminder.EventTime = EventTime;
+					Reminder.ReminderTime = Reminder.EventTime - Reminder.ReminderInterval;
 					
-					DisableReminder(Reminder, True, OnStart);
-					CommitTransaction();
-				Except
-					RollbackTransaction();
-					WriteLogEvent(NStr("en = 'User reminders';", Common.DefaultLanguageCode()),
-						EventLogLevel.Error, Metadata.InformationRegisters.UserReminders, , ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-				EndTry;
+					AttachReminder(Reminder,, OnStart);
+				EndIf;
+				CommitTransaction();
+			Except
+				RollbackTransaction();
+				WriteLogEvent(NStr("en = 'User reminders';", Common.DefaultLanguageCode()),
+					EventLogLevel.Error, Metadata.InformationRegisters.UserReminders, , ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+			EndTry;
 		EndIf;
 	EndDo;
 	
 EndProcedure
 
-// 
-// 
-// 
+// Obtains reminders for the current user for the next 30 minutes.
+// The time is shifted to keep the data up to date during the cache lifetime.
+// The functions that accept this function's result should take this into consideration.
 //
 // Returns:
 //  Array of Structure:
@@ -1009,7 +1036,8 @@ Function CurrentUserRemindersList() Export
 	|	Reminders.Source AS Source,
 	|	Reminders.ReminderTime AS ReminderTime,
 	|	Reminders.LongDesc AS LongDesc,
-	|	2 AS PictureIndex
+	|	2 AS PictureIndex,
+	|	Reminders.Id AS Id
 	|FROM
 	|	InformationRegister.UserReminders AS Reminders
 	|WHERE
@@ -1025,7 +1053,15 @@ Function CurrentUserRemindersList() Export
 	Query.SetParameter("User", Users.CurrentUser());
 	
 	SetPrivilegedMode(True);
-	Result = Common.ValueTableToArray(Query.Execute().Unload());
+	
+	Reminders = Query.Execute().Unload();
+	Reminders.Columns.Add("URL", New TypeDescription("String"));
+	
+	For Each Reminder In Reminders Do
+		Reminder.URL = ReminderURL(Reminder);
+	EndDo;
+	
+	Result = Common.ValueTableToArray(Reminders);
 	
 	Return Result;
 	
@@ -1260,7 +1296,7 @@ Procedure DeleteRemindersBySubject(SubjectOf, AttributeName)
 	RemindersBySubject = UserReminders.FindReminders(SubjectOf);
 	For Each Reminder In RemindersBySubject Do
 		If Lower(Reminder.SourceAttributeName) = Lower(AttributeName) Then
-			
+			// @skip-check query-in-loop - Write data as a dataset with reading within a loop.
 			DisableReminder(Reminder, False);
 		EndIf;
 	EndDo;
@@ -1309,5 +1345,24 @@ Procedure ReadSettingsOfSubjectReminder(Form, SubjectOf)
 	EndDo;
 	
 EndProcedure
+
+Function ReminderURL(Reminder) Export
+	If UserRemindersClientServer.IsMessageURL(Reminder.Id) Then
+		URL = Reminder.Id;
+	ElsIf ValueIsFilled(Reminder.Source) Then
+		URL = GetURL(Reminder.Source);
+	Else
+		RecordKey = New Structure("User, EventTime, Source");
+		FillPropertyValues(RecordKey, Reminder);
+		ReminderKey = InformationRegisters.UserReminders.CreateRecordKey(RecordKey);
+		URL = GetURL(ReminderKey);
+	EndIf;
+	Return URL;
+EndFunction
+
+Function ShouldShowRemindersInNotificationCenter() Export
+	Return Common.CommonSettingsStorageLoad("UserCommonSettings", 
+		"ShouldShowRemindersInNotificationCenter", False);
+EndFunction
 
 #EndRegion

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -100,7 +101,7 @@ EndProcedure
 //     * Presentation - String - a text message recipient presentation.
 //     * Contact       - Arbitrary - a contact that owns the phone number.
 //  MessageSubject - AnyRef - a reference to an object that is a data source.
-//                   - Structure  - :
+//                   - Structure  - a structure describing template parameters:
 //    * SubjectOf               - AnyRef - a reference to an object that is a data source.
 //    * MessageKind - String - a kind of a message being generated: Email or SMSMessage.
 //    * ArbitraryParameters - Map - a filled list of arbitrary parameters.
@@ -115,12 +116,12 @@ EndProcedure
 //
 // Parameters:
 //   EmailRecipients - ValueTable - a list of mail recipients:
-//     * SendingOption - String - 
+//     * SendingOption - String - Messaging options: "Whom" (To), "Copy" (CC), "HiddenCopy" (BCC), and "ReplyTo".
 //     * Address           - String - a recipient email address.
 //     * Presentation   - String - an email recipient presentation.
 //     * Contact         - Arbitrary - a contact that owns the email address.
 //  MessageSubject - AnyRef - a reference to an object that is a data source.
-//                   - Structure  - :
+//                   - Structure  - a structure describing template parameters.:
 //    * SubjectOf               - AnyRef - a reference to an object that is a data source.
 //    * MessageKind - String - a kind of a message being generated: Email or SMSMessage.
 //    * ArbitraryParameters - Map - a filled list of arbitrary parameters.

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -101,7 +102,8 @@ Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSe
 					If Context.Parameters.Property("CommandParameter") Then
 						UsersList = New ValueList;
 						UsersList.LoadValues(Context.Parameters.CommandParameter);
-						SetFilter("User", UsersList, NewDCSettings, NewDCUserSettings);
+						UsersInternal.SetFilterOnParameter("User", UsersList,
+							NewDCSettings, NewDCUserSettings);
 					EndIf;
 				EndIf;
 			EndIf;
@@ -300,6 +302,7 @@ Procedure FinishOutput(ResultDocument, DetailsData, RightsSettings)
 				StringExplanations.Insert(LineNumber, FieldValues);
 				If FontRightNotAssigned = Undefined Then
 					FontRightNotAssigned = Area.Font;
+					//@skip-check new-font - Standard fond enlarged to 120% with an italic style.
 					FontRightAllowed   = New Font(FontRightNotAssigned,,, True,,,, 120);
 					FontRightForbidden   = FontRightAllowed;
 				EndIf;
@@ -661,7 +664,7 @@ Function UsersRights()
 	|		ON (AccessGroupsMembers.Ref = AccessGroups.Ref)
 	|		INNER JOIN InformationRegister.UserGroupCompositions AS UserGroupCompositions
 	|		ON (UserGroupCompositions.UsersGroup = AccessGroupsMembers.User)
-	|			AND (UserGroupCompositions.User <> &AUserIsNotSpecified)
+	|			AND (ISNULL(UserGroupCompositions.User.IsInternal, FALSE) <> TRUE)
 	|			AND (&SelectionCriteriaForUsers)
 	|		LEFT JOIN InformationRegister.UsersInfo AS UsersInfo
 	|		ON (UsersInfo.User = UserGroupCompositions.User)";
@@ -683,7 +686,7 @@ Function UsersRights()
 	|					RightsOfProfilesToTables AS ProfilesRights))
 	|		INNER JOIN InformationRegister.UserGroupCompositions AS UserGroupCompositions
 	|		ON (UserGroupCompositions.UsersGroup = AccessGroupsMembers.User)
-	|			AND (UserGroupCompositions.User <> &AUserIsNotSpecified)
+	|			AND (ISNULL(UserGroupCompositions.User.IsInternal, FALSE) <> TRUE)
 	|			AND (&SelectionCriteriaForUsers)";
 	
 	QueryTextWithoutGroupingByReportsWithAccessRestrictions =
@@ -998,7 +1001,7 @@ Function UsersRights()
 	|		ON (EmptyAccessValueReferences.EmptyRef = AccessKindsAndValues.AccessValue)
 	|		INNER JOIN InformationRegister.UserGroupCompositions AS UserGroupCompositions
 	|		ON (UserGroupCompositions.UsersGroup = AccessGroupsMembers.User)
-	|			AND (UserGroupCompositions.User <> &AUserIsNotSpecified)
+	|			AND (ISNULL(UserGroupCompositions.User.IsInternal, FALSE) <> TRUE)
 	|			AND (&SelectionCriteriaForUsers)
 	|		LEFT JOIN InformationRegister.UsersInfo AS UsersInfo
 	|		ON (UsersInfo.User = UserGroupCompositions.User)";
@@ -1187,7 +1190,7 @@ Function UsersRights()
 	|		ON (AccessGroupsMembers.Ref = AccessGroups.Ref)
 	|		INNER JOIN InformationRegister.UserGroupCompositions AS UserGroupCompositions
 	|		ON (UserGroupCompositions.UsersGroup = AccessGroupsMembers.User)
-	|			AND (UserGroupCompositions.User <> &AUserIsNotSpecified)
+	|			AND (ISNULL(UserGroupCompositions.User.IsInternal, FALSE) <> TRUE)
 	|			AND (&SelectionCriteriaForUsers)
 	|		LEFT JOIN InformationRegister.UsersInfo AS UsersInfo
 	|		ON (UsersInfo.User = UserGroupCompositions.User)";
@@ -1349,7 +1352,6 @@ Function UsersRights()
 	
 	Query.SetParameter("SimplifiedAccessRightsSetupInterface", SimplifiedInterface);
 	Query.SetParameter("ExtensionsRolesRights", AccessManagementInternal.ExtensionsRolesRights());
-	Query.SetParameter("AUserIsNotSpecified", Users.UnspecifiedUserRef());
 	
 	FilterByTables = FilterByTables();
 	If ValueIsFilled(FilterByTables) Then
@@ -1950,41 +1952,6 @@ Function SettingsRightsLegend(TitlesRight, HasHierarchy)
 	EndDo;
 	
 	Return Result;
-	
-EndFunction
-
-Procedure SetFilter(ParameterName, Value, CompositionSettings, UserSettings)
-	
-	SettingItem = CustomParameterSetting(UserSettings,
-		New DataCompositionParameter(ParameterName));
-	
-	If SettingItem <> Undefined Then
-		SettingItem.Use = True;
-		SettingItem.Value = Value;
-		Return;
-	EndIf;
-	
-	Parameter = CompositionSettings.DataParameters.Items.Find(ParameterName);
-	If Parameter = Undefined Then
-		DCSettings = SettingsComposer.Settings;
-		Parameter = DCSettings.DataParameters.Items.Find(ParameterName);
-	EndIf;
-	Parameter.Use = True;
-	Parameter.Value = Value;
-	
-EndProcedure
-
-Function CustomParameterSetting(UserSettings, Parameter)
-	
-	For Each SettingItem In UserSettings.Items Do
-		Properties = New Structure("Parameter");
-		FillPropertyValues(Properties, SettingItem);
-		If Properties.Parameter = Parameter Then
-			Return SettingItem;
-		EndIf;
-	EndDo;
-	
-	Return Undefined;
 	
 EndFunction
 

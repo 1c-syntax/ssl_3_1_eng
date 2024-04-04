@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -30,11 +31,14 @@ Procedure BeforeAddReportCommands(ReportsCommands, Parameters, StandardProcessin
 	Command.MultipleChoice = True;
 	Command.Manager = "Report.AccessRightsAnalysis";
 	
-	If Parameters.FormName = "Catalog.Users.Form.ListForm" Then
-		Command.Presentation = NStr("en = 'User rights';");
+	If Parameters.FormName = "Catalog.Users.Form.ListForm"
+	 Or Parameters.FormName = "Catalog.ExternalUsers.Form.ListForm" Then
+		
 		Command.VariantKey = "UsersRightsToTables";
 		
-	ElsIf Parameters.FormName = "Catalog.Users.Form.ItemForm" Then
+	ElsIf Parameters.FormName = "Catalog.Users.Form.ItemForm"
+	      Or Parameters.FormName = "Catalog.ExternalUsers.Form.ItemForm" Then
+		
 		Command.Presentation = NStr("en = 'User rights';");
 		Command.VariantKey = "UserRightsToTables";
 	Else
@@ -51,17 +55,21 @@ EndProcedure
 //
 Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 	
-	If Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
-		ModuleReportsOptions = Common.CommonModule("ReportsOptions");
-	Else
+	If Not Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
 		Return;
 	EndIf;
 	
+	ModuleReportsOptions = Common.CommonModule("ReportsOptions");
 	ModuleReportsOptions.SetOutputModeInReportPanels(Settings, ReportSettings, False);
 	ReportSettings.DefineFormSettings = True;
+	SubsystemForMonitoring = Common.MetadataObjectByFullName(
+		"Subsystem" + "." + "Administration" + "." + "Subsystem" + "." + "UserMonitoring");
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "AccessRightsAnalysis");
 	OptionSettings.LongDesc = NStr("en = 'Shows user rights to infobase tables (you can enable grouping by reports).';");
+	If SubsystemForMonitoring <> Undefined Then
+		OptionSettings.Location.Insert(SubsystemForMonitoring, "Important");
+	EndIf;
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "UsersRightsToTables");
 	OptionSettings.LongDesc = NStr("en = 'Shows user rights to infobase tables.';");
@@ -305,8 +313,8 @@ Function AccessRestrictionKinds(ForExternalUsers = Undefined,
 		Query.SetParameter("AccessKindsValuesTypes", AccessKindsValuesTypes);
 		Query.SetParameter("UsedAccessKinds",
 			AccessTypesWithView(AccessKindsValuesTypes, True));
-		
-		
+		// 
+		// 
 		Query.Text =
 		"SELECT
 		|	PermanentRestrictionKinds.Table AS Table,
@@ -458,7 +466,7 @@ Function AccessTypesWithView(AccessKindsValuesTypes, UsedOnly)
 	
 EndFunction
 
-// 
+// Intended for functions "AccessRestrictionKinds", "AccessKindsWithPresentation".
 Function RepresentationUnknownAccessType()
 	
 	Return NStr("en = 'Unknown access kind';");
@@ -503,7 +511,7 @@ Function TablesWithRestrictionDisabled(ForExternalUsers, FillIn)
 	
 EndFunction
 
-// 
+// Intended for function "UnrestrictedTables".
 Procedure AddTablesWithRestrictionDisabled(TablesWithRestrictionDisabled,
 			ActiveParameters, ForExternalUsers)
 	

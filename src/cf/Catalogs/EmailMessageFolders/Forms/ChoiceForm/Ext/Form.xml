@@ -8,6 +8,12 @@
 	<ChildItems>
 		<InputField name="Owner" id="22">
 			<DataPath>Owner</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Email account</v8:content>
+				</v8:item>
+			</Title>
 			<AutoMaxWidth>false</AutoMaxWidth>
 			<MaxWidth>27</MaxWidth>
 			<ContextMenu name="OwnerContextMenu" id="23"/>

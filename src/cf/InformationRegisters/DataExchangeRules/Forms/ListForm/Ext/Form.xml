@@ -52,12 +52,24 @@
 						<Button name="FormUseStandardRules" id="40">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.UseStandardRules</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Use standard rules</v8:content>
+								</v8:item>
+							</Title>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 							<ExtendedTooltip name="FormUseStandardRulesExtendedTooltip" id="41"/>
 						</Button>
 						<Button name="FormUpdateAllStandardRules" id="14">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.UpdateAllStandardRules</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Update all standard rules</v8:content>
+								</v8:item>
+							</Title>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 							<ExtendedTooltip name="FormUpdateAllStandardRulesExtendedTooltip" id="27"/>
 						</Button>

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -33,7 +34,7 @@
 //   Boolean   - True if the lock is set successfully.
 //              False if the lock cannot be set due to insufficient rights.
 //
-Function SetConnectionLock(Val MessageText = "", Val KeyCode = "KeyCode", 
+Function SetConnectionLock(Val MessageText = "", Val KeyCode = "KeyCode", // ACC:142 - Intended for backward compatibility.
 	Val WaitingForTheStartOfBlocking = 0, Val LockDuration = 0) Export
 	
 	If Common.DataSeparationEnabled() And Common.SeparatedDataUsageAvailable() Then
@@ -259,7 +260,7 @@ EndFunction
 Procedure SetDataAreaSessionLock(Val Parameters, Val LocalTime = True, Val DataArea = -1) Export
 	
 	If Not Users.IsFullUser() Then
-		Raise NStr("en = 'Not enough rights to perform the operation.';");
+		Raise(NStr("en = 'Insufficient rights to perform the operation.';"), ErrorCategory.AccessViolation);
 	EndIf;
 	
 	// For backward compatibility purposes.
@@ -268,7 +269,7 @@ Procedure SetDataAreaSessionLock(Val Parameters, Val LocalTime = True, Val DataA
 	Parameters = ConnectionsLockParameters;
 	 
 	If Parameters.Exclusive And Not Users.IsFullUser(, True) Then
-		Raise NStr("en = 'Not enough rights to perform the operation.';");
+		Raise(NStr("en = 'Not enough rights to perform the operation.';"), ErrorCategory.AccessViolation);
 	EndIf;
 	
 	If Common.SeparatedDataUsageAvailable() Then
@@ -339,7 +340,7 @@ Function GetDataAreaSessionLock(Val LocalTime = True) Export
 	EndIf;
 	
 	If Not Users.IsFullUser() Then
-		Raise NStr("en = 'Not enough rights to perform the operation.';");
+		Raise(NStr("en = 'Not enough rights to perform the operation.';"), ErrorCategory.AccessViolation);
 	EndIf;
 	
 	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
@@ -373,7 +374,7 @@ EndFunction
 
 Function IsSubsystemUsed() Export
 	
-	//  
+	// See also: IBConnectionsClient.IsSubsystemUsed
 	Return Not Common.DataSeparationEnabled();
 	
 EndFunction
@@ -465,8 +466,7 @@ Function BlockingSessionsInformation(MessageText = "") Export
 	
 	If HasBlockingSessions Then
 		Message = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'There are active sessions
-			|that cannot be closed:
+			NStr("en = 'There are active sessions that cannot be closed:
 			|%1
 			|%2';"),
 			ActiveSessionNames, MessageText);
@@ -514,8 +514,8 @@ Procedure OnAddClientParametersOnStart(Parameters) Export
 	// The following code is intended for locked data areas only.
 	If InfobaseUpdate.InfobaseUpdateInProgress() 
 		And Users.IsFullUser() Then
-		
-		
+		// 
+		// 
 		Return; 
 	EndIf;
 	
@@ -591,8 +591,8 @@ Procedure OnFillToDoList(ToDoList) Export
 		Return;
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	Sections = ModuleToDoListServer.SectionsForObject(Metadata.DataProcessors.ApplicationLock.FullName());
 	
 	LockParameters = SessionLockParameters(False);
@@ -826,7 +826,7 @@ EndFunction
 //
 Function CurrentConnectionLockParameters(ShouldReturnUndefinedIfUnspecified = False)
 	
-	CurrentDate = CurrentDate(); 
+	CurrentDate = CurrentDate(); // ACC:143 - CurrentSessionDate is not used since there's a lock in the server timezone.
 	
 	SetPrivilegedMode(True);
 	CurrentIBMode = GetSessionsLock();

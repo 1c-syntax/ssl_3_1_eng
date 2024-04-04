@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -42,7 +43,12 @@ EndProcedure
 
 &AtClient
 Procedure OnOpen(Cancel)
-	ProcessUseOfScanDialog();
+	If CommonClient.IsLinuxClient() Then
+		AdaptForLinux();
+		ShowScannerDialog = False;
+	EndIf;
+	
+	ProcessScanDialogUsage();
 EndProcedure
 
 #EndRegion
@@ -65,7 +71,7 @@ EndProcedure
 
 &AtClient
 Procedure ShowScannerDialogOnChange(Item)
-	ProcessUseOfScanDialog();
+	ProcessScanDialogUsage();
 EndProcedure
 
 #EndRegion
@@ -133,7 +139,7 @@ Procedure InstallHints()
 EndProcedure
 
 &AtClient
-Procedure ProcessUseOfScanDialog()
+Procedure ProcessScanDialogUsage()
 	
 	Items.Resolution.Enabled = Not ShowScannerDialog;
 	Items.Chromaticity.Enabled = Not ShowScannerDialog;
@@ -144,6 +150,21 @@ Procedure ProcessUseOfScanDialog()
 	Items.JPGQuality.Enabled = Not ShowScannerDialog;
 	Items.TIFFDeflation.Enabled = Not ShowScannerDialog;
 
+EndProcedure
+
+&AtServer
+Procedure AdaptForLinux()
+	Items.ShowScannerDialog.Visible = False;
+	Items.Rotation.Visible = False;
+	AvailableFormats = New Array;
+	AvailableFormats.Add(Enums.ScannedImageFormats.PNG);
+	AvailableFormats.Add(Enums.ScannedImageFormats.JPG);
+	Items.ScannedImageFormat.ChoiceList.LoadValues(AvailableFormats);
+	Items.ScannedImageFormat.ListChoiceMode = True;
+	If AvailableFormats.Find(ScannedImageFormat) = Undefined Then
+		ScannedImageFormat = Enums.ScannedImageFormats.PNG;
+		Modified = True;
+	EndIf;
 EndProcedure
 
 #EndRegion

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -72,11 +73,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		AutoTitle = False;
 		If Parameters.CloseOnChoice = False Then
 			// Pick mode.
-			Items.List.MultipleChoice = True;
 			Items.List.SelectionMode = TableSelectionMode.MultiRow;
 			
 			Title = NStr("en = 'Pick access groups';");
 		Else
+			Items.List.MultipleChoice = False;
 			Title = NStr("en = 'Select access group';");
 		EndIf;
 	EndIf;
@@ -84,6 +85,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Common.IsStandaloneWorkplace() Then
 		ReadOnly = True;
 	EndIf;
+	
+	// Standard subsystems.Pluggable commands
+	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
+		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
+	EndIf;
+	// End StandardSubsystems.AttachableCommands
 	
 EndProcedure
 
@@ -100,6 +108,13 @@ EndProcedure
 
 &AtClient
 Procedure ListOnActivateRow(Item)
+	
+	// Standard subsystems.Pluggable commands
+	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
+		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
+	EndIf;
+	// End StandardSubsystems.AttachableCommands
 	
 	If Not StandardSubsystemsClient.IsDynamicListItem(Items.List) Then
 		Return;
@@ -232,5 +247,36 @@ EndProcedure
 Function CurrentTableData(FormTable)
 	Return FormTable.CurrentData;
 EndFunction
+
+#EndRegion
+
+#Region Private
+
+// Standard subsystems.Pluggable commands
+
+&AtClient
+Procedure Attachable_ExecuteCommand(Command)
+	ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
+	ModuleAttachableCommandsClient.StartCommandExecution(ThisObject, Command, Items.List);
+EndProcedure
+
+&AtClient
+Procedure Attachable_ContinueCommandExecutionAtServer(ExecutionParameters, AdditionalParameters) Export
+	ExecuteCommandAtServer(ExecutionParameters);
+EndProcedure
+
+&AtServer
+Procedure ExecuteCommandAtServer(ExecutionParameters)
+	ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
+	ModuleAttachableCommands.ExecuteCommand(ThisObject, ExecutionParameters, Items.List);
+EndProcedure
+
+&AtClient
+Procedure Attachable_UpdateCommands()
+	ModuleAttachableCommandsClientServer = CommonClient.CommonModule("AttachableCommandsClientServer");
+	ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, Items.List);
+EndProcedure
+
+// End StandardSubsystems.AttachableCommands
 
 #EndRegion

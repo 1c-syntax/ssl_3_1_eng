@@ -108,7 +108,7 @@ from the template till the end of the business calendar year.</v8:content>
 													<Behavior>Usual</Behavior>
 													<Representation>None</Representation>
 													<ShowTitle>false</ShowTitle>
-													<ExtendedTooltip name="PeriodGroup1ExtendedTooltip" id="305">
+													<ExtendedTooltip name="GroupPeriodExtendedTooltip" id="305">
 														<AutoMaxWidth>false</AutoMaxWidth>
 													</ExtendedTooltip>
 													<ChildItems>
@@ -330,6 +330,12 @@ the work schedule is automatically filled for the specified period.</v8:content>
 																	<ChildItems>
 																		<InputField name="PeriodLength" id="189">
 																			<DataPath>PeriodLength</DataPath>
+																			<Title>
+																				<v8:item>
+																					<v8:lang>en</v8:lang>
+																					<v8:content>Period length</v8:content>
+																				</v8:item>
+																			</Title>
 																			<TitleLocation>None</TitleLocation>
 																			<ToolTip>
 																				<v8:item>
@@ -620,6 +626,12 @@ will be excluded from workdays.</v8:content>
 												</Table>
 												<LabelField name="PreholidaySchedule" id="287">
 													<DataPath>PreholidaySchedule</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Preholiday schedule</v8:content>
+														</v8:item>
+													</Title>
 													<HorizontalStretch>false</HorizontalStretch>
 													<Hiperlink>true</Hiperlink>
 													<ContextMenu name="PreholidayScheduleContextMenu" id="288"/>
@@ -727,6 +739,12 @@ will be excluded from workdays.</v8:content>
 										</PictureDecoration>
 										<LabelField name="IsFilledInformationText" id="243">
 											<DataPath>IsFilledInformationText</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Validation text</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<AutoMaxWidth>false</AutoMaxWidth>
 											<TextColor>style:NoteText</TextColor>
@@ -804,6 +822,12 @@ will be excluded from workdays.</v8:content>
 										</PictureDecoration>
 										<LabelField name="ManualEditingInformationText" id="297">
 											<DataPath>ManualEditingInformationText</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Edited manually text</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<AutoMaxWidth>false</AutoMaxWidth>
 											<Height>1</Height>
@@ -819,6 +843,12 @@ will be excluded from workdays.</v8:content>
 									<GroupHorizontalAlign>Right</GroupHorizontalAlign>
 									<GroupVerticalAlign>Bottom</GroupVerticalAlign>
 									<CommandName>Form.Command.FillingResult</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Resulting schedule &gt;&gt;</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="FillingResultExtendedTooltip" id="350"/>
 								</Button>
 							</ChildItems>
@@ -907,6 +937,12 @@ will be excluded from workdays.</v8:content>
 												<Button name="FillFromTemplate" id="270">
 													<Type>UsualButton</Type>
 													<CommandName>Form.Command.FillFromTemplate</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Fill by template</v8:content>
+														</v8:item>
+													</Title>
 													<ExtendedTooltip name="FillFromTemplateExtendedTooltip" id="357"/>
 												</Button>
 											</ChildItems>
@@ -933,7 +969,7 @@ will be excluded from workdays.</v8:content>
 											<WidthInMonths>0</WidthInMonths>
 											<HeightInMonths>0</HeightInMonths>
 											<ContextMenu name="WorkHoursContextMenu" id="254"/>
-											<ExtendedTooltip name="WorkHoursExtendedTooltip" id="358">
+											<ExtendedTooltip name="WorkScheduleCalendarExtendedTooltip" id="358">
 												<AutoMaxWidth>false</AutoMaxWidth>
 											</ExtendedTooltip>
 											<Events>
@@ -972,6 +1008,12 @@ will be excluded from workdays.</v8:content>
 								</PictureDecoration>
 								<LabelField name="FillingResultInformationText" id="277">
 									<DataPath>FillingResultInformationText</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Result text</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<AutoMaxWidth>false</AutoMaxWidth>
 									<Height>2</Height>
@@ -986,6 +1028,12 @@ will be excluded from workdays.</v8:content>
 						<Button name="FillingSettings" id="293">
 							<Type>UsualButton</Type>
 							<CommandName>Form.Command.FillingSettings</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>&lt;&lt; Schedule settings</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="FillingSettingsExtendedTooltip" id="363"/>
 						</Button>
 					</ChildItems>

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -12,7 +13,7 @@
 #Region Variables
 
 Var CurrentVariantKey; // String
-
+                            // 
 Var ParentOptionKey; // String
 Var RegistersProperties; // See NewRegisterProperties
 Var Remarks; // See NotesPropertiesPalette
@@ -1371,7 +1372,7 @@ Procedure RegisterResult(Settings, ResultDocument, DocumentRecorder)
 	
 	For LineNumber = 1 To ResultDocument.TableHeight Do
 		
-		For ColumnNumber = 1 To 2 Do 
+		For ColumnNumber = 1 To 2 Do // 
 	
 			Area = ResultDocument.Area(LineNumber, ColumnNumber);
 			
@@ -2081,7 +2082,7 @@ Function RecordsCountByRecorder(Recorder, DocumentRegisterRecords)
 		If ValueIsFilled(QueryText) Then
 			
 			QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-				"%1 UNION ALL  %2", QueryText, StrReplace(QueryTextTemplate, "SELECT ALLOWED", "SELECT")); 
+				"%1 UNION ALL  %2", QueryText, StrReplace(QueryTextTemplate, "SELECT ALLOWED", "SELECT")); // 
 			
 		Else
 			QueryText = QueryTextTemplate;

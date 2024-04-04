@@ -73,6 +73,12 @@
 			<ChildItems>
 				<PictureField name="ErrorsPicture" id="66">
 					<DataPath>Errors.Picture</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Picture</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<EditMode>EnterOnInput</EditMode>
 					<ContextMenu name="ErrorsPictureContextMenu" id="67"/>
@@ -81,6 +87,12 @@
 				<InputField name="ErrorsCause" id="48">
 					<DataPath>Errors.Cause</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Reason</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<AutoCellHeight>true</AutoCellHeight>
 					<HorizontalStretch>true</HorizontalStretch>
@@ -90,6 +102,12 @@
 				<InputField name="ErrorsDetails" id="51">
 					<DataPath>Errors.MoreDetails</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Details</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<CellHyperlink>true</CellHyperlink>
 					<AutoCellHeight>true</AutoCellHeight>
@@ -130,9 +148,9 @@
 							<Title formatted="true">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>If there are any difficulties, learn &lt;link %1&gt;how to troubleshoot common issues with digital signature applications&lt;/&gt; (in Russian).
+									<v8:content>Facing issues? Learn to &lt;link %1&gt;troubleshoot digital signing apps&lt;/&gt; (in Russian).
 
-If you cannot find a solution, contact 1C support team and provide &lt;link %2&gt;technical information about the issue&lt;/&gt;.</v8:content>
+If you didn't find a solution, contact the 1C support team and provide &lt;link %2&gt;technical information&lt;/&gt; about the issue.</v8:content>
 								</v8:item>
 							</Title>
 							<ContextMenu name="SupportInformationContextMenu" id="70"/>
@@ -156,11 +174,23 @@ If you cannot find a solution, contact 1C support team and provide &lt;link %2&g
 						<Button name="FormInstallExtension" id="15">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.InstallExtension</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Install extension</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="FormInstallExtensionExtendedTooltip" id="16"/>
 						</Button>
 						<Button name="FormOpenApplicationsSettings" id="11">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.OpenApplicationsSettings</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Configure apps</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="FormOpenApplicationSettingsExtendedTooltip" id="12"/>
 						</Button>
 						<Button name="FormClose" id="13">
@@ -284,7 +314,7 @@ If you cannot find a solution, contact 1C support team and provide &lt;link %2&g
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Configure applications...</v8:content>
+					<v8:content>Configure apps</v8:content>
 				</v8:item>
 			</Title>
 			<Action>OpenApplicationsSettings</Action>

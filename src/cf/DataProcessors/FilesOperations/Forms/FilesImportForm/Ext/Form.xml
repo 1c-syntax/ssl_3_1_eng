@@ -156,6 +156,12 @@
 							<ChildItems>
 								<PictureField name="SelectedFilesPictureIndex" id="30">
 									<DataPath>SelectedFiles.PictureIndex</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Picture index</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ValuesPicture>
 										<xr:Ref>CommonPicture.FileIconCollection</xr:Ref>
@@ -167,6 +173,12 @@
 								</PictureField>
 								<InputField name="SelectedFilesPath" id="32">
 									<DataPath>SelectedFiles.Path</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Path</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ContextMenu name="SelectedFilesPathContextMenu" id="33"/>
 									<ExtendedTooltip name="SelectedFilesPathExtendedTooltip" id="45"/>
@@ -191,6 +203,12 @@
 		</LabelField>
 		<CheckBoxField name="DeleteAfterAdd" id="3">
 			<DataPath>ShouldDeleteAddedFiles</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Delete uploaded files</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>Right</TitleLocation>
 			<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 			<CheckBoxType>Auto</CheckBoxType>
@@ -215,6 +233,12 @@
 		</InputField>
 		<CheckBoxField name="StoreVersions" id="21">
 			<DataPath>StoreVersions</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Track versions</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>Right</TitleLocation>
 			<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 			<CheckBoxType>Auto</CheckBoxType>
@@ -247,7 +271,13 @@
 				<Button name="SelectEncoding" id="37">
 					<Type>Hyperlink</Type>
 					<CommandName>Form.Command.SelectEncoding</CommandName>
-					<ExtendedTooltip name="SelectEncoding1ExtendedTooltip" id="52"/>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Select encoding</v8:content>
+						</v8:item>
+					</Title>
+					<ExtendedTooltip name="SelectEncodingExtendedTooltip" id="52"/>
 				</Button>
 			</ChildItems>
 		</UsualGroup>
@@ -270,6 +300,12 @@
 					<TextColor>style:ButtonTextColor</TextColor>
 					<BackColor>style:ButtonBackColor</BackColor>
 					<BorderColor>style:BorderColor</BorderColor>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Upload files</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="ImportFilesExtendedTooltip" id="54"/>
 				</Button>
 				<Button name="Cancel" id="20">
@@ -360,7 +396,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Delete files after adding</v8:content>
+					<v8:content>Delete uploaded files</v8:content>
 				</v8:item>
 			</Title>
 			<Type>

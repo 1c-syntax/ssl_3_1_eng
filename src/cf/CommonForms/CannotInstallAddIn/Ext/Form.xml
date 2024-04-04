@@ -7,10 +7,16 @@
 		<HorizontalAlign>Right</HorizontalAlign>
 		<Autofill>false</Autofill>
 		<ChildItems>
-			<Button name="FormContinueInstallationAttempt" id="102">
+			<Button name="FormResumeInstallationAttempt" id="102">
 				<Type>CommandBarButton</Type>
-				<CommandName>Form.Command.ContinueInstallationAttempt</CommandName>
-				<ExtendedTooltip name="FormContinueInstallationAttemptExtendedTooltip" id="103"/>
+				<CommandName>Form.Command.ResumeInstallationAttempt</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Install anyway</v8:content>
+					</v8:item>
+				</Title>
+				<ExtendedTooltip name="FormResumeInstallationAttemptExtendedTooltip" id="103"/>
 			</Button>
 			<Button name="Close" id="100">
 				<Type>CommandBarButton</Type>
@@ -28,6 +34,7 @@
 	</AutoCommandBar>
 	<Events>
 		<Event name="OnOpen">OnOpen</Event>
+		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
 	</Events>
 	<ChildItems>
 		<UsualGroup name="Header" id="90">
@@ -51,8 +58,8 @@
 						</v8:item>
 					</Title>
 					<Picture>
-						<xr:Ref>CommonPicture.Warning32</xr:Ref>
-						<xr:LoadTransparent>false</xr:LoadTransparent>
+						<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</Picture>
 					<FileDragMode>AsFile</FileDragMode>
 					<ContextMenu name="Warning32ContextMenu" id="96"/>
@@ -84,14 +91,14 @@ Use a &lt;link about:blank&gt;supported client application&lt;/&gt; or contact t
 	</ChildItems>
 	<Attributes/>
 	<Commands>
-		<Command name="ContinueInstallationAttempt" id="1">
+		<Command name="ResumeInstallationAttempt" id="1">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Continue trying to install</v8:content>
+					<v8:content>Install anyway</v8:content>
 				</v8:item>
 			</Title>
-			<Action>ContinueInstallationAttempt</Action>
+			<Action>ResumeInstallationAttempt</Action>
 		</Command>
 	</Commands>
 	<Parameters>
@@ -108,6 +115,11 @@ Use a &lt;link about:blank&gt;supported client application&lt;/&gt; or contact t
 		<Parameter name="SupportedClients">
 			<Type/>
 			<KeyParameter>true</KeyParameter>
+		</Parameter>
+		<Parameter name="AfterConnectionErrorOccurred">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
 		</Parameter>
 	</Parameters>
 </Form>

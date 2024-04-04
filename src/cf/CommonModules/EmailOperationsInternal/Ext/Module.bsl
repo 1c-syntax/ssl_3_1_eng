@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -13,12 +14,13 @@
 // 
 // Parameters:
 //  Account - CatalogRef.EmailAccounts
-//
+//  ForReceiving  - Boolean
+//  
 // Returns:
 //  InternetMailProfile - an account profile.
 //  Undefined - cannot get the account by reference.
 //
-Function InternetMailProfile(Account, ForReceiving = False) Export
+Function InternetMailProfile(Account, Val ForReceiving = False) Export
 	
 	QueryText =
 	"SELECT ALLOWED
@@ -48,64 +50,73 @@ Function InternetMailProfile(Account, ForReceiving = False) Export
 	Query.SetParameter("Ref", Account);
 	Selection = Query.Execute().Select();
 	
-	Result = Undefined;
-	If Selection.Next() Then
-		IMAPPropertyList = "IMAPUseSSL,IMAPServerAddress,IMAPPort,IMAPUser";
-		POP3PropertyList = "POP3ServerAddress,POP3Port,POP3UseSSL,User";
-		SMTPPropertyList = "SMTPServerAddress,SMTPPort,SMTPUseSSL";
-		
-		SetPrivilegedMode(True);
-		Passwords = Common.ReadDataFromSecureStorage(Account, 
-			"Password,SMTPPassword,AccessToken,AccessTokenValidity,UpdateToken");
-		SetPrivilegedMode(False);
-		
-		Result = New InternetMailProfile;
-
-		If Selection.EmailServiceAuthorization Then
-			If ValueIsFilled(Passwords.AccessTokenValidity) And Passwords.AccessTokenValidity - 60 <= CurrentSessionDate() Then
-				Passwords.AccessToken = RefreshAccessToken(Account, Passwords.UpdateToken);
-			EndIf;
-			Result.AccessToken = Passwords.AccessToken;
+	If Not Selection.Next() Then
+		Return Undefined;
+	EndIf;
+	
+	SetPrivilegedMode(True);
+	Passwords = Common.ReadDataFromSecureStorage(Account, 
+		"Password,SMTPPassword,AccessToken,AccessTokenValidity,UpdateToken");
+	SetPrivilegedMode(False);
+	
+	Result = New InternetMailProfile;
+	RequiredProperties = New Array;
+	
+	If Not ForReceiving Then
+		RequiredProperties.Add("SMTPServerAddress");
+		RequiredProperties.Add("SMTPPort");
+		RequiredProperties.Add("SMTPUseSSL");
+	
+		If Selection.AuthorizationRequiredOnSendEmails And Not Selection.POP3BeforeSMTP Then
+			RequiredProperties.Add("SMTPUser");
 		EndIf;
+	
+		Result.SMTPPassword = Passwords.SMTPPassword;
+	EndIf;
+	
+	If Selection.Protocol = "IMAP" Then
+		RequiredProperties.Add("IMAPUseSSL");
+		RequiredProperties.Add("IMAPServerAddress");
+		RequiredProperties.Add("IMAPPort");
+		RequiredProperties.Add("IMAPUser");
 		
-		If ForReceiving Then
-			If Selection.Protocol = "IMAP" Then
-				RequiredProperties = IMAPPropertyList;
-				Result.IMAPPassword = Passwords.Password;
-			Else
-				RequiredProperties = POP3PropertyList;
-				Result.Password = Passwords.Password;
-			EndIf;
-		Else
-			RequiredProperties = SMTPPropertyList;
-			If Selection.AuthorizationRequiredOnSendEmails And Not Selection.POP3BeforeSMTP Then
-				RequiredProperties = RequiredProperties + ",SMTPUser";
-			EndIf;
-			Result.SMTPPassword = Passwords.SMTPPassword;
-			If Selection.Protocol <> "IMAP" And Selection.POP3BeforeSMTP Then
-				RequiredProperties = RequiredProperties + ",POP3BeforeSMTP," + POP3PropertyList;
-				Result.Password = Passwords.Password;
-			EndIf;
-			If Selection.Protocol = "IMAP" Then
-				RequiredProperties = RequiredProperties + "," + IMAPPropertyList;
-				Result.IMAPPassword =Passwords.Password;
-			EndIf;
+		Result.IMAPPassword =Passwords.Password;
+	ElsIf ForReceiving Then
+		RequiredProperties.Add("POP3ServerAddress");
+		RequiredProperties.Add("POP3Port");
+		RequiredProperties.Add("POP3UseSSL");
+		RequiredProperties.Add("User");
+		
+		Result.Password = Passwords.Password;
+	EndIf;
+	
+	RequiredProperties.Add("Timeout");
+	
+	If ValueIsFilled(RequiredProperties) Then
+		FillPropertyValues(Result, Selection, StrConcat(RequiredProperties, ","));
+	EndIf;
+	
+	If Selection.EmailServiceAuthorization Then
+		If ValueIsFilled(Passwords.AccessTokenValidity) And Passwords.AccessTokenValidity - 60 <= CurrentSessionDate() Then
+			Passwords.AccessToken = RefreshAccessToken(Account, Passwords.UpdateToken);
 		EndIf;
-		RequiredProperties = RequiredProperties + ",Timeout";
-		
-		StructureOfRequiredProperties = New Structure(RequiredProperties);
-		FillPropertyValues(StructureOfRequiredProperties, Selection);
-		For Each ProfileProperty In StructureOfRequiredProperties Do
-			If StrFind(ProfileProperty.Key, "Server") <> 0
-				Or StrStartsWith(ProfileProperty.Key, "User") Then
-				StructureOfRequiredProperties.Insert(ProfileProperty.Key, StringIntoPunycode(ProfileProperty.Value));
-			EndIf;
-		EndDo;
-		
-		FillPropertyValues(Result, StructureOfRequiredProperties);
-		If Result.SMTPUser = "" Then
-			Result.SMTPPassword = "";
-		EndIf;
+		Result.AccessToken = Passwords.AccessToken;
+	EndIf;
+	
+	ConvertibleValues = New Array;
+	ConvertibleValues.Add("POP3ServerAddress");
+	ConvertibleValues.Add("IMAPServerAddress");
+	ConvertibleValues.Add("SMTPServerAddress");
+	ConvertibleValues.Add("User");
+	ConvertibleValues.Add("IMAPUser");
+	ConvertibleValues.Add("SMTPUser");
+	
+	For Each PropertyName In ConvertibleValues Do
+		Result[PropertyName] = StringIntoPunycode(Result[PropertyName]);
+	EndDo;
+	
+	If Result.SMTPUser = "" Then
+		Result.SMTPPassword = "";
 	EndIf;
 	
 	If Result.IMAPPassword = "" Then
@@ -255,11 +266,11 @@ Function AccountSettingsForSendingMail(Account) Export
 	
 EndFunction
 
-Function ImportanceOfInternetMailMessageFromString(Importance) Export
+Function InternetMailMessageImportanceFromString(Importance) Export
 	
-	If StrCompare(Importance, EmailOperationsInternalClientServer.HighImportanceOfInternetMailCommunication()) = 0 Then
+	If StrCompare(Importance, EmailOperationsInternalClientServer.InternetMailMessageImportanceHigh()) = 0 Then
 		Return InternetMailMessageImportance.High;
-	ElsIf StrCompare(Importance, EmailOperationsInternalClientServer.LowImportanceOfInternetMail()) = 0 Then
+	ElsIf StrCompare(Importance, EmailOperationsInternalClientServer.InternetMailMessageImportanceLow()) = 0 Then
 		Return InternetMailMessageImportance.Low;
 	Else
 		Return InternetMailMessageImportance.Normal;
@@ -623,6 +634,7 @@ Procedure DetermineSentEmailsFolder(Join)
 		If Lower(Mailbox) = "sentmessages"
 			Or Lower(Mailbox) = "inbox.sent"
 			Or Lower(Mailbox) = "sent"
+			Or Lower(Mailbox) = "sentbox"
 			Or Lower(Mailbox) = "sent items" Then
 			
 			Join.CurrentMailbox = Mailbox;
@@ -644,13 +656,12 @@ Function UseIMAPOnSendingEmails(Profile)
 EndFunction
 
 // Parameters:
-//  Account - See EmailOperations.DownloadEmailMessages.Account
 //  ImportParameters - See EmailOperations.DownloadEmailMessages.ImportParameters
 //
 // Returns:
 //   See EmailOperations.DownloadEmailMessages
 //
-Function DownloadMessages(Val Account, Val ImportParameters = Undefined) Export
+Function DownloadMessages(Val UserAccountOrConnection, Val ImportParameters = Undefined) Export
 	
 	// Used to check whether authorization at the mail server can be performed.
 	Var TestMode;
@@ -664,6 +675,14 @@ Function DownloadMessages(Val Account, Val ImportParameters = Undefined) Export
 	// Headers or IDs of messages whose full texts are to be retrieved.
 	Var HeadersIDs;
 	
+	Var Account, Join;
+	
+	If TypeOf(UserAccountOrConnection) = Type("InternetMail") Then
+		Join = UserAccountOrConnection;
+	Else
+		Account = UserAccountOrConnection;
+	EndIf;
+	
 	If ImportParameters.Property("TestMode") Then
 		TestMode = ImportParameters.TestMode;
 	Else
@@ -675,10 +694,6 @@ Function DownloadMessages(Val Account, Val ImportParameters = Undefined) Export
 	Else
 		GetHeaders = False;
 	EndIf;
-	
-	SetSafeModeDisabled(True);
-	Profile = InternetMailProfile(Account, True);
-	SetSafeModeDisabled(False);
 	
 	If ImportParameters.Property("HeadersIDs") Then
 		HeadersIDs = ImportParameters.HeadersIDs;
@@ -694,19 +709,19 @@ Function DownloadMessages(Val Account, Val ImportParameters = Undefined) Export
 	
 	MessageSetToDelete = New Array;
 	
-	Protocol = InternetMailProtocol.POP3;
-	TransportSettings = Common.ObjectAttributesValues(Account, "ProtocolForIncomingMail,KeepMessageCopiesAtServer,KeepMailAtServerPeriod");
-	If TransportSettings.ProtocolForIncomingMail = "IMAP" Then
-		TransportSettings.KeepMessageCopiesAtServer = True;
-		TransportSettings.KeepMailAtServerPeriod = 0;
-		Protocol = InternetMailProtocol.IMAP;
-	EndIf;
-	
 	SetSafeModeDisabled(True);
-	Join = New InternetMail;
-	Join.Logon(Profile, Protocol);
 	
-	If TestMode Then	
+	If Account <> Undefined Then
+		TransportSettings = Common.ObjectAttributesValues(Account, "ProtocolForIncomingMail,KeepMessageCopiesAtServer,KeepMailAtServerPeriod");
+		If TransportSettings.ProtocolForIncomingMail = "IMAP" Then
+			TransportSettings.KeepMessageCopiesAtServer = True;
+			TransportSettings.KeepMailAtServerPeriod = 0;
+		EndIf;
+		
+		Join = ConnectToEmailAccount(Account, True);
+	EndIf;
+		
+	If Account <> Undefined And TestMode Then	
 		Join.Logoff();
 		Return True;
 	EndIf;
@@ -740,15 +755,19 @@ Function DownloadMessages(Val Account, Val ImportParameters = Undefined) Export
 				Join.DeleteMessages(MessageSetToDelete);
 			EndIf;
 		EndIf;
-	
-		Join.Logoff();
-	Except
-		Try
+		
+		If Account <> Undefined Then
 			Join.Logoff();
-		Except 
-			 
-			
-		EndTry;
+		EndIf;
+	Except
+		If Account <> Undefined Then
+			Try
+				Join.Logoff();
+			Except // 
+				//  
+				// 
+			EndTry;
+		EndIf;
 		Raise;
 	EndTry;
 	SetSafeModeDisabled(False);
@@ -988,13 +1007,13 @@ Procedure DisableAccounts()
 	|	EmailAccounts.UseForSending";
 	
 	Query = New Query(QueryText);
-	Selection = Query.Execute().Select(); 
+	Selection = Query.Execute().Select(); // ACC:1328 data lock is not required upon initial setup of a DIB node.
 	While Selection.Next() Do
 		Account = Selection.Ref.GetObject();
 		Account.UseForSending = False;
 		Account.UseForReceiving = False;
 		Account.DataExchange.Load = True;
-		Account.Write(); 
+		Account.Write(); // 
 	EndDo;
 	
 EndProcedure
@@ -1003,7 +1022,7 @@ EndProcedure
 // during data exchange in a distributed infobase.
 //
 // Parameters:
-//   see descriptions of the relevant event handlers in the Syntax Assistant.
+//   see descriptions of the relevant event handlers in Syntax Assistant.
 //
 Procedure OnDataGet(DataElement, ItemReceive, SendBack, Sender)
 	
@@ -1161,6 +1180,7 @@ EndProcedure
 Function SubsystemSettings() Export
 	Settings = New Structure;
 	Settings.Insert("CanReceiveEmails", Not StandardSubsystemsServer.IsBaseConfigurationVersion());
+	Settings.Insert("ShouldUsePOP3Protocol", True);
 	EmailOperationsOverridable.OnDefineSettings(Settings);
 	Return Settings;
 EndFunction
@@ -1432,43 +1452,49 @@ Function SendMail(Account, MailMessage) Export
 EndFunction
 
 // See EmailOperations.SendEmails
-Function SendEmails(Account, Emails, ExceptionText = Undefined) Export
+Function SendEmails(UserAccountOrConnection, Emails, ExceptionText = Undefined) Export
+	Var Account, Join;
 	
-	SenderAttributes = Common.ObjectAttributesValues(Account, "UserName,Email,SendBCCToThisAddress,UseForReceiving");
-	
-	SetSafeModeDisabled(True);
-	Profile = InternetMailProfile(Account);
-	SetSafeModeDisabled(False);
-	
-	SetSafeModeDisabled(True);
-	
-	ReceivingProtocol = InternetMailProtocol.POP3;
-	If UseIMAPOnSendingEmails(Profile) Then
-		ReceivingProtocol = InternetMailProtocol.IMAP;
+	If TypeOf(UserAccountOrConnection) = Type("InternetMail") Then
+		Join = UserAccountOrConnection;
+	Else
+		Account = UserAccountOrConnection;
 	EndIf;
 	
-	ErrorText = "";
-	Try
-		Join = New InternetMail;
-		Join.Logon(Profile, ReceivingProtocol);
-		If ReceivingProtocol = InternetMailProtocol.IMAP Then
-			DetermineSentEmailsFolder(Join);
-		EndIf;
-	Except
-		ErrorText = ExtendedErrorPresentation(ErrorInfo(), Common.DefaultLanguageCode());
-		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot connect to IMAP server:
-			|%1';", Common.DefaultLanguageCode()), ErrorText);
+	If Account <> Undefined Then
+		SenderAttributes = Common.ObjectAttributesValues(Account, "UserName,Email,SendBCCToThisAddress,UseForReceiving");
 		
-		If ReceivingProtocol = InternetMailProtocol.IMAP And Not SenderAttributes.UseForReceiving Then
-			WriteLogEvent(EventNameSendEmail(), EventLogLevel.Error, 
-				Metadata.Catalogs.EmailAccounts, Account, ErrorText);
-			ReceivingProtocol = InternetMailProtocol.POP3;
-			Join.Logon(Profile, ReceivingProtocol);
-		Else
-			Raise;
+		SetSafeModeDisabled(True);
+		Profile = InternetMailProfile(Account);
+	
+		ReceivingProtocol = InternetMailProtocol.POP3;
+		If UseIMAPOnSendingEmails(Profile) Then
+			ReceivingProtocol = InternetMailProtocol.IMAP;
 		EndIf;
-	EndTry;
+	
+		ErrorText = "";
+		Try
+			Join = ConnectToEmailAccount(Account);
+			If ReceivingProtocol = InternetMailProtocol.IMAP Then
+				DetermineSentEmailsFolder(Join);
+			EndIf;
+		Except
+			ErrorText = ExtendedErrorPresentation(ErrorInfo(), Common.DefaultLanguageCode());
+			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Cannot connect to IMAP server:
+				|%1';", Common.DefaultLanguageCode()), ErrorText);
+			
+			If ReceivingProtocol = InternetMailProtocol.IMAP And Not SenderAttributes.UseForReceiving Then
+				WriteLogEvent(EventNameSendEmail(), EventLogLevel.Error, 
+					Metadata.Catalogs.EmailAccounts, Account, ErrorText);
+				ReceivingProtocol = InternetMailProtocol.POP3;
+				Join = New InternetMail;
+				Join.Logon(Profile, ReceivingProtocol);
+			Else
+				Raise;
+			EndIf;
+		EndTry;
+	EndIf;
 	
 	EmailsSendingResults = New Map;
 	
@@ -1537,12 +1563,14 @@ Function SendEmails(Account, Emails, ExceptionText = Undefined) Export
 			EmailsSendingResults.Insert(MailMessage, EmailSendingResult);
 		EndDo;
 	Except
-		Try
-			Join.Logoff();
-		Except 
-			 
-			
-		EndTry;
+		If Account <> Undefined Then
+			Try
+				Join.Logoff();
+			Except // 
+				//  
+				// 
+			EndTry;
+		EndIf;
 
 		ErrorText = ExtendedErrorPresentation(ErrorInfo(), Common.DefaultLanguageCode());
 
@@ -1556,7 +1584,9 @@ Function SendEmails(Account, Emails, ExceptionText = Undefined) Export
 		EndIf;
 	EndTry;
 	
-	Join.Logoff();
+	If Account <> Undefined Then
+		Join.Logoff();
+	EndIf;
 	SetSafeModeDisabled(False);
 	
 	Return EmailsSendingResults;
@@ -1665,7 +1695,15 @@ Function PrepareEmail(Account, EmailParameters) Export
 	EndDo;
 	
 	If EmailParameters.Property("BasisIDs") Then
-		MailMessage.SetField("References", EmailParameters.BasisIDs);
+		MailMessage.SetField("References", 
+		                               EmailParameters.BasisIDs, 
+		                               InternetMailMessageNonASCIISymbolsEncodingMode.None);
+	EndIf;
+	
+	If EmailParameters.Property("BasisID") Then
+		MailMessage.SetField("In-Reply-To", 
+		                               EmailParameters.BasisID, 
+		                               InternetMailMessageNonASCIISymbolsEncodingMode.None);
 	EndIf;
 	
 	Body = "";
@@ -2291,6 +2329,10 @@ Procedure GetStatusesOfEmailMessages() Export
 	ColumnsOfMessagesTable.Add(InternetMailMessageFields.Texts);
 	ColumnsOfMessagesTable.Add(InternetMailMessageFields.From);
 	MessagesImportParameters.Insert("Columns", ColumnsOfMessagesTable);
+	
+	MessagesFilter = New Structure;
+	MessagesFilter.Insert("AfterDateOfPosting", BegOfDay(CurrentSessionDate()) - 86400);
+	MessagesImportParameters.Insert("Filter", MessagesFilter);
 
 	DeliveryStatuses = New ValueTable;
 	DeliveryStatuses.Columns.Add("Sender",        	 New TypeDescription("CatalogRef.EmailAccounts"));
@@ -2454,6 +2496,25 @@ Procedure AfterGetEmailMessagesStatuses(DeliveryStatuses)
 	EmailOperationsOverridable.AfterGetEmailMessagesStatuses(DeliveryStatuses);  
 	
 EndProcedure
+
+Function ConnectToEmailAccount(Val Account, Val ForReceiving = False) Export
+	
+	SetSafeModeDisabled(True);
+	InternetMailProfile = InternetMailProfile(Account, ForReceiving);
+	SetSafeModeDisabled(False);
+	
+	Protocol = InternetMailProtocol.POP3;
+	If ForReceiving And ValueIsFilled(InternetMailProfile.IMAPServerAddress)
+		Or Not ForReceiving And UseIMAPOnSendingEmails(InternetMailProfile) Then
+		Protocol = InternetMailProtocol.IMAP;
+	EndIf;
+	
+	InternetMail = New InternetMail;
+	InternetMail.Logon(InternetMailProfile, Protocol);
+	
+	Return InternetMail;
+	
+EndFunction
 
 #Region Punycode
 

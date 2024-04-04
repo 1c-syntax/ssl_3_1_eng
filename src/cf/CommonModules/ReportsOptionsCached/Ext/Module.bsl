@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -147,7 +148,7 @@ Function CurrentUserSubsystems() Export
 		If TreeRowsFullNames[TreeRow.FullName] = Undefined Then
 			TreeRowsFullNames.Insert(TreeRow.FullName, TreeRow);
 		Else
-			TreeRowsFullNames.Insert(TreeRow.FullName, True); 
+			TreeRowsFullNames.Insert(TreeRow.FullName, True); // 
 		EndIf;
 		
 		TreeRow.SectionFullName = TreeRow.FullName;
@@ -322,7 +323,6 @@ Function InsertRight1() Export
 	
 EndFunction
 
-// Subsystem parameters cached during the update (See ReportsOptions.ЗаписатьТаблицуФункциональныхОпций)
 // .
 //
 // Returns:

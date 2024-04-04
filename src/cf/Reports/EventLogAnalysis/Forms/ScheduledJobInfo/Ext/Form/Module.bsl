@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 
 #Region FormEventHandlers
 
@@ -83,7 +82,7 @@ Procedure ConfigureJobSchedule(Command)
 		Dialog.Show(NotifyDescription);
 		
 	Else
-		ShowMessageBox(,NStr("en = 'Cannot change the scheduled job schedule: the scheduled job does not exist in this application version.';"));
+		ShowMessageBox(,NStr("en = 'Cannot change the job''s schedule: The scheduled job does not exist in this app version.';"));
 	EndIf;
 	
 EndProcedure

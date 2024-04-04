@@ -31,11 +31,23 @@
 				<DefaultButton>true</DefaultButton>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.InstallAndContinue</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Install and continue</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormInstallAndContinueExtendedTooltip" id="11"/>
 			</Button>
 			<Button name="FormCancel" id="15">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.Cancel</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Cancel</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormCancelExtendedTooltip" id="16"/>
 			</Button>
 		</ChildItems>

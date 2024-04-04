@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -340,7 +341,7 @@ Procedure Write(ConfigurationStatistics, Area) Export
 	OperationsRefs = New Map;
 	For Each CurObject In ConfigurationStatistics Do
 		If CurObject.Value["StatisticsKind"] = 0 Then
-			QueryResult = GetResult(CurObject.Value["Query"]);  
+			QueryResult = GetResult(CurObject.Value["Query"]);  // @skip-check query-in-loop - Getting a large amount of data from multiple tables.
 			StatisticsOperations = GetStatisticsOperationResult(CurObject.Key, QueryResult);
 		ElsIf CurObject.Value["StatisticsKind"] = 1 Then
 			Value = ?(Constants[CurObject.Value["Query"].Name].Get(), 1, 0);
@@ -409,7 +410,7 @@ Procedure WriteSeparated(ConfigurationStatistics)
 				
 			EndTry;
 			
-			Write(ConfigurationStatistics, DataAreaRef); 
+			Write(ConfigurationStatistics, DataAreaRef); // @skip-check query-in-loop - Reading and writing data in different data areas.
 			
 			If CoreSaaSAvailable Then
 				ModuleSaaSOperations.SignOutOfDataArea();

@@ -7,6 +7,12 @@
 				<Type>CommandBarButton</Type>
 				<Representation>PictureAndText</Representation>
 				<CommandName>Form.Command.Refresh</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Update containers</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="ContainersRefreshExtendedTooltip" id="33"/>
 			</Button>
@@ -14,6 +20,12 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.Set</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Install</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormSetExtendedTooltip" id="37"/>
 			</Button>
 			<Button name="FormClose" id="34">
@@ -103,6 +115,12 @@
 						<InputField name="CertificateDataDetails1Property" id="68">
 							<DataPath>DetailsOfCertificateData.Property</DataPath>
 							<SkipOnInput>true</SkipOnInput>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Property</v8:content>
+								</v8:item>
+							</Title>
 							<EditMode>EnterOnInput</EditMode>
 							<Width>13</Width>
 							<HorizontalStretch>false</HorizontalStretch>
@@ -112,6 +130,12 @@
 						<InputField name="CertificateDataDetails1Value" id="71">
 							<DataPath>DetailsOfCertificateData.Value</DataPath>
 							<SkipOnInput>true</SkipOnInput>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Value</v8:content>
+								</v8:item>
+							</Title>
 							<EditMode>EnterOnInput</EditMode>
 							<ContextMenu name="CertificateDataDetails1ValueContextMenu" id="72"/>
 							<ExtendedTooltip name="CertificateDataDetails1ValueExtendedTooltip" id="73"/>
@@ -123,6 +147,12 @@
 					<Representation>PictureAndText</Representation>
 					<SkipOnInput>true</SkipOnInput>
 					<CommandName>Form.Command.ShowCertificateData</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>All certificate properties</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="ShowCertificateDataExtendedTooltip" id="75"/>
 				</Button>
 			</ChildItems>
@@ -131,7 +161,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Group Installation option</v8:content>
+					<v8:content>Installation option</v8:content>
 				</v8:item>
 			</Title>
 			<Width>45</Width>
@@ -141,8 +171,15 @@
 			<ChildItems>
 				<InputField name="InstallationOption" id="29">
 					<DataPath>InstallationOption</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Install in</v8:content>
+						</v8:item>
+					</Title>
 					<ToolTipRepresentation>Button</ToolTipRepresentation>
 					<ListChoiceMode>true</ListChoiceMode>
+					<TextEdit>false</TextEdit>
 					<ChoiceList>
 						<xr:Item>
 							<xr:Presentation/>
@@ -293,6 +330,12 @@ To perform operations with a private key, such as data signing and decryption, e
 							<ChildItems>
 								<InputField name="ContainersReadingTool" id="50">
 									<DataPath>Containers.ReadingTool</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Reader</v8:content>
+										</v8:item>
+									</Title>
 									<Width>10</Width>
 									<HorizontalStretch>false</HorizontalStretch>
 									<ContextMenu name="ContainersReadingToolContextMenu" id="51"/>
@@ -300,6 +343,12 @@ To perform operations with a private key, such as data signing and decryption, e
 								</InputField>
 								<InputField name="ContainersFriendlyName" id="17">
 									<DataPath>Containers.FriendlyName</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Name</v8:content>
+										</v8:item>
+									</Title>
 									<ContextMenu name="ContainersFriendlyNameContextMenu" id="18"/>
 									<ExtendedTooltip name="ContainersFriendlyNameExtendedTooltip" id="19"/>
 								</InputField>
@@ -458,6 +507,7 @@ To perform operations with a private key, such as data signing and decryption, e
 					<v8:AllowedLength>Variable</v8:AllowedLength>
 				</v8:StringQualifiers>
 			</Type>
+			<FillCheck>ShowError</FillCheck>
 		</Attribute>
 		<Attribute name="Certificate" id="11">
 			<Type>

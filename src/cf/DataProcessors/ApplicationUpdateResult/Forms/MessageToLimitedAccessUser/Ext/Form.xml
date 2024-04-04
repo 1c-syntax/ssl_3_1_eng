@@ -101,8 +101,8 @@
 								</v8:item>
 							</Title>
 							<Picture>
-								<xr:Ref>CommonPicture.Error32</xr:Ref>
-								<xr:LoadTransparent>false</xr:LoadTransparent>
+								<xr:Ref>StdPicture.DialogStop</xr:Ref>
+								<xr:LoadTransparent>true</xr:LoadTransparent>
 							</Picture>
 							<ContextMenu name="ErrorDecorationContextMenu" id="14"/>
 							<ExtendedTooltip name="ErrorDecorationExtendedTooltip" id="15"/>

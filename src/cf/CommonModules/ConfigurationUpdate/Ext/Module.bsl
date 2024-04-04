@@ -1,18 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #Region Public
 
-// 
-// 
-//  (See InfobaseUpdate.UpdateInfobase)
-// 
+// Uninstalls obsolete patches and sets correct properties to new patches.
+// It must be called before starting a batch update of the configuration
+// . (See InfobaseUpdate.UpdateInfobase)
+// NOTE: The changes will apply after a session restart.
 //
 // Parameters:
 //  IsCheckOnly - Boolean - if True, obsolete patches will not be deleted.
@@ -68,7 +69,7 @@ Function PatchesChanged(IsCheckOnly = False) Export
 			DeletePatch = True;
 			PatchProperties = PatchProperties(Patch.Name);
 			
-			ThisIsLibraryPatch = False;
+			IsLibraryPatch = False;
 			LibraryName     = "";
 			ListOfAssemblies = Undefined;
 			If PatchProperties = Undefined Then
@@ -87,7 +88,7 @@ Function PatchesChanged(IsCheckOnly = False) Export
 						Continue;
 					EndIf;
 					If ApplicabilityInformation.ConfigurationName <> Metadata.Name Then
-						ThisIsLibraryPatch = True;
+						IsLibraryPatch = True;
 						LibraryName     = ApplicabilityInformation.ConfigurationName;
 						LibraryVersion  = ConfigurationLibraryVersion;
 					EndIf;
@@ -128,15 +129,15 @@ Function PatchesChanged(IsCheckOnly = False) Export
 			EndIf;
 			
 			If DeletePatch Then
-				ListOfAssembliesByLine = "";
+				BuildsListAsString = "";
 				If ListOfAssemblies <> Undefined Then
-					Assemblies = New Array;
+					Builds = New Array;
 					For Each Item In ListOfAssemblies Do
-						Assemblies.Add(Item.Presentation);
+						Builds.Add(Item.Presentation);
 					EndDo;
-					ListOfAssembliesByLine = StrConcat(Assemblies, ", ");
+					BuildsListAsString = StrConcat(Builds, ", ");
 					
-					If ThisIsLibraryPatch Then
+					If IsLibraryPatch Then
 						MessageText = NStr("en = 'The ""%1"" patch is outdated and will be deleted.
 							|You can use the patch for the ""%2"" builds of the ""%3"" library. Current library version: ""%4"".';");
 					Else
@@ -150,7 +151,7 @@ Function PatchesChanged(IsCheckOnly = False) Export
 				
 				MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText,
 					Patch.Name,
-					ListOfAssembliesByLine,
+					BuildsListAsString,
 					LibraryName,
 					LibraryVersion);
 				WriteLogEvent(NStr("en = 'Patch.Delete';", Common.DefaultLanguageCode()),
@@ -334,7 +335,7 @@ EndProcedure
 // Returns details of patches installed in the configuration.
 //
 // Returns:
-//  Array - :
+//  Array - Structures with the following keys:
 //     * Id - String - a patch UUID.
 //                     - Undefined - if a patch was installed
 //                                in the current session and the application has not been restarted yet.
@@ -369,10 +370,11 @@ EndFunction
 //  Corrections - Structure:
 //     * Set - Array - patch files in a temporary storage.
 //     * Delete    - Array - UUIDs of patches to be deleted (String).
-//  InBackground       - Boolean - if a function is called in
-//                         the background job, set True.
-//  UpdateExtensionParameters - Boolean - True by default, when calling from the application update script,
-//                         set to False.
+//  PatchesInstallationParameters - See PatchesInstallationParameters
+//                                
+//  ShouldDeleteUpdateExtensionsOperationParameters - Boolean -  by default, True, when calling from the configuration update script
+//                         , it must be set to False.
+//  DeleteShouldCheckApplicabilityByManifest - Boolean - 
 //
 // Returns:
 //  Structure:
@@ -384,7 +386,17 @@ EndFunction
 //          * Event    - String - an event that caused an error. Installation or Deletion.
 //          * Cause    - String - detailed error description.
 //
-Function InstallAndDeletePatches(Corrections, InBackground = False, UpdateExtensionParameters = True) Export
+Function InstallAndDeletePatches(Corrections, Val PatchesInstallationParameters = Undefined, ShouldDeleteUpdateExtensionsOperationParameters = True, DeleteShouldCheckApplicabilityByManifest = False) Export
+	
+	If PatchesInstallationParameters = Undefined Then
+		PatchesInstallationParameters = PatchesInstallationParameters();
+	ElsIf TypeOf(PatchesInstallationParameters) = Type("Boolean") Then
+		InBackground = PatchesInstallationParameters;
+		PatchesInstallationParameters = PatchesInstallationParameters();
+		PatchesInstallationParameters.InBackground = InBackground;
+		PatchesInstallationParameters.UpdateExtensionParameters = ShouldDeleteUpdateExtensionsOperationParameters;
+		PatchesInstallationParameters.ShouldCheckApplicabilityByManifest = DeleteShouldCheckApplicabilityByManifest;
+	EndIf;
 	
 	ToInstall = Undefined;
 	Unspecified   = 0;
@@ -404,11 +416,11 @@ Function InstallAndDeletePatches(Corrections, InBackground = False, UpdateExtens
 				// Reading a patch from an archive.
 				If TypeOf(FixPatch) = Type("Structure") Then
 					If StrEndsWith(FixPatch.Name, ".zip") Then
-						PatchFromArchive = ExtractPatchFromArchive(FixPatch.Location);
+						PatchFromArchive = ExtractPatchFromArchive(FixPatch.Location, PatchesInstallationParameters.ShouldCheckApplicabilityByManifest);
 						If PatchFromArchive.Property("PatchesArchives") Then
 							PatchesFromArchive = New Structure;
 							PatchesFromArchive.Insert("Set", PatchFromArchive.PatchesArchives);
-							Result = InstallAndDeletePatches(PatchesFromArchive, InBackground);
+							Result = InstallAndDeletePatches(PatchesFromArchive, PatchesInstallationParameters);
 							ExecutionResult.Unspecified = ExecutionResult.Unspecified + Result.Unspecified;
 							CommonClientServer.SupplementArray(ExecutionResult.Installed, Result.Installed);
 							Continue;
@@ -423,7 +435,7 @@ Function InstallAndDeletePatches(Corrections, InBackground = False, UpdateExtens
 						PatchName = FixPatch.Name;
 					EndIf;
 				Else
-					PatchFromArchive = ExtractPatchFromArchive(FixPatch);
+					PatchFromArchive = ExtractPatchFromArchive(FixPatch, PatchesInstallationParameters.ShouldCheckApplicabilityByManifest);
 					PatchName = PatchFromArchive.PatchName1;
 					If ValueIsFilled(PatchFromArchive.ErrorText) Then
 						Raise PatchFromArchive.ErrorText;
@@ -435,7 +447,7 @@ Function InstallAndDeletePatches(Corrections, InBackground = False, UpdateExtens
 				Catalogs.ExtensionsVersions.DisableSecurityWarnings(Extension);
 				Catalogs.ExtensionsVersions.DisableMainRolesUsageForAllUsers(Extension);
 				Extension.SafeMode = False;
-				Extension.UsedInDistributedInfoBase = True;
+				Extension.UsedInDistributedInfoBase = PatchesInstallationParameters.UsedInDistributedInfoBase;
 				Extension.Write(Data);
 				
 				InstalledPatch = ExtensionByID(Extension.UUID);
@@ -535,12 +547,12 @@ Function InstallAndDeletePatches(Corrections, InBackground = False, UpdateExtens
 	IsBackgroundJob = (CurrentSession <> Undefined);
 	
 	AsynchronousCallText = "";
-	If Common.FileInfobase() And (InBackground Or IsBackgroundJob) Then
+	If Common.FileInfobase() And (PatchesInstallationParameters.InBackground Or IsBackgroundJob) Then
 		AsynchronousCallText = NStr("en = 'Failed to update extension parameters
 			|after some patches were installed or deleted.';")
 	EndIf;
 	
-	If UpdateExtensionParameters Then
+	If PatchesInstallationParameters.UpdateExtensionParameters Then
 		InformationRegisters.ExtensionVersionParameters.UpdateExtensionParameters(Undefined, "", AsynchronousCallText);
 	EndIf;
 	
@@ -556,6 +568,29 @@ Function InstallAndDeletePatches(Corrections, InBackground = False, UpdateExtens
 	EndIf;
 	
 	Return ExecutionResult;
+	
+EndFunction
+
+// 
+// 
+// Returns:
+//   Structure:
+//     * InBackground - Boolean - 
+//     * UpdateExtensionParameters - Boolean -  by default, True, when calling from the configuration update script
+//                                                    , it must be set to False.
+//     * ShouldCheckApplicabilityByManifest - Boolean - 
+//     * UsedInDistributedInfoBase - Boolean - 
+//
+Function PatchesInstallationParameters() Export
+	
+	PatchesInstallationParameters = New Structure;
+	
+	PatchesInstallationParameters.Insert("InBackground", False);
+	PatchesInstallationParameters.Insert("UpdateExtensionParameters", True);
+	PatchesInstallationParameters.Insert("ShouldCheckApplicabilityByManifest", False);
+	PatchesInstallationParameters.Insert("UsedInDistributedInfoBase", True);
+	
+	Return PatchesInstallationParameters;
 	
 EndFunction
 
@@ -587,6 +622,21 @@ EndFunction
 #EndRegion
 
 #Region Internal
+
+Function CurVersionRequiresSuccessfulEndOfHandlers() Export
+	
+	CurrentStatus = ConfigurationUpdateStatus();
+	If CurrentStatus = Undefined Then
+		Return False;
+	EndIf;
+	
+	If Not CurrentStatus.Property("VersionsThatRequireSuccessfulUpdate") Then
+		Return False;
+	EndIf;
+	
+	Return CurrentStatus.VersionsThatRequireSuccessfulUpdate.Find(Metadata.Version) <> Undefined;
+	
+EndFunction
 
 Procedure CheckObsoletePatchesExist() Export
 	Result = PatchesChanged(True);
@@ -657,14 +707,20 @@ Procedure CompleteUpdate(Val UpdateResult, Val Email, Val UpdateAdministratorNam
 	If Not HasRightsToInstallUpdate() Then
 		MessageText = NStr("en = 'Insufficient rights to complete the application update.';");
 		WriteLogEvent(EventLogEvent(), EventLogLevel.Error,,,MessageText);
-		Raise MessageText;
+		Raise(MessageText, ErrorCategory.AccessViolation);
 	EndIf;
 	
 	If ScriptDirectory = Undefined Then 
 		ScriptDirectory = ScriptDirectory();
 	EndIf;
 	
-	WriteUpdateStatus(UpdateAdministratorName, False, True, UpdateResult, ScriptDirectory);
+	ParametersOfUpdate = ConfigurationUpdateServerCall.ParametersOfUpdate();
+	ParametersOfUpdate.UpdateAdministratorName = UpdateAdministratorName;
+	ParametersOfUpdate.UpdateScheduled = False;
+	ParametersOfUpdate.UpdateComplete = True;
+	ParametersOfUpdate.ConfigurationUpdateResult = UpdateResult;
+	ParametersOfUpdate.ScriptDirectory = ScriptDirectory;
+	WriteUpdateStatus(ParametersOfUpdate);
 	
 	If Common.SubsystemExists("StandardSubsystems.EmailOperations")
 		And Not IsBlankString(Email) Then
@@ -767,7 +823,7 @@ Procedure UpdatePatchesFromScript(NewPatches, PatchesToDelete) Export
 	If Not HasRightsToInstallUpdate() Then
 		MessageText = NStr("en = 'Insufficient rights to update patches.';");
 		WriteLogEvent(EventLogEvent(), EventLogLevel.Error,,, MessageText);
-		Raise MessageText;
+		Raise(MessageText, ErrorCategory.AccessViolation);
 	EndIf;
 	
 	PatchesChanged();
@@ -795,7 +851,9 @@ Procedure UpdatePatchesFromScript(NewPatches, PatchesToDelete) Export
 	EndIf;
 	
 	Corrections = New Structure("Set, Delete", PatchesToInstall1, PatchesToDeleteArray);
-	Result = InstallAndDeletePatches(Corrections, , False);
+	PatchesInstallationParameters = PatchesInstallationParameters();
+	PatchesInstallationParameters.UpdateExtensionParameters = False;
+	Result = InstallAndDeletePatches(Corrections, PatchesInstallationParameters);
 	Result.Insert("TotalPatchCount", PatchesToInstall1.Count());
 	
 	Status = ConfigurationUpdateStatus();
@@ -918,27 +976,20 @@ EndFunction
 // Sets a new value to the update settings constant
 // based on the success of the last configuration update attempt.
 //
-Procedure WriteUpdateStatus(Val UpdateAdministratorName, Val UpdateScheduled,
-	Val UpdateComplete, Val UpdateResult, ScriptDirectory = "", MessagesForEventLog = Undefined) Export
+Procedure WriteUpdateStatus(UpdateStatus, MessagesForEventLog = Undefined) Export
 	
 	EventLog.WriteEventsToEventLog(MessagesForEventLog);
 	
-	Status = New Structure;
-	Status.Insert("UpdateAdministratorName", UpdateAdministratorName);
-	Status.Insert("UpdateScheduled", UpdateScheduled);
-	Status.Insert("UpdateComplete", UpdateComplete);
-	Status.Insert("ConfigurationUpdateResult", UpdateResult);
-	Status.Insert("ScriptDirectory", ScriptDirectory);
-	Status.Insert("PatchInstallationResult", Undefined);
+	UpdateStatus.Insert("PatchInstallationResult", Undefined);
 	
 	OldStatus = ConfigurationUpdateStatus();
 	If OldStatus <> Undefined
 		And OldStatus.Property("PatchInstallationResult")
 		And OldStatus.PatchInstallationResult <> Undefined Then
-		Status.PatchInstallationResult = OldStatus.PatchInstallationResult;
+		UpdateStatus.PatchInstallationResult = OldStatus.PatchInstallationResult;
 	EndIf;
 	
-	SetConfigurationUpdateStatus(Status);
+	SetConfigurationUpdateStatus(UpdateStatus);
 	
 EndProcedure
 
@@ -1008,7 +1059,7 @@ Function ExecuteDeferredHandlers() Export
 	
 EndFunction
 
-Function ExtractPatchFromArchive(Val FileThatWasPut)
+Function ExtractPatchFromArchive(Val FileThatWasPut, ShouldCheckApplicabilityByManifest = False)
 	
 	ArchiveName = GetTempFileName("zip");
 	Data = Undefined;
@@ -1048,10 +1099,12 @@ Function ExtractPatchFromArchive(Val FileThatWasPut)
 			Raise NStr("en = 'This is not a patch file.';");
 		EndIf;
 		
-		// Applicability check.
-		PatchApplicable = PatchApplicable(ZIPReader, TempDirectory);
-		If Not PatchApplicable Then
-			Raise NStr("en = 'Cannot apply the patch to this configuration version.';");
+		If ShouldCheckApplicabilityByManifest Then
+			// Applicability check.
+			PatchApplicable = PatchApplicable(ZIPReader, TempDirectory);
+			If Not PatchApplicable Then
+				Raise NStr("en = 'Cannot apply the patch to this configuration version.';");
+			EndIf;
 		EndIf;
 		
 		ZIPReader.Extract(ArchiveItem, TempDirectory);

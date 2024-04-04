@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Private
@@ -18,7 +19,7 @@ Procedure ShowPutFileOnAttachFileSystemExtension(ExtensionAttached, Context) Exp
 	
 	If Not ExtensionAttached
 		And Not Interactively Then
-		Raise NStr("en = 'Cannot import the file as the 1C:Enterprise extension is not installed.';");
+		Raise NStr("en = 'Cannot upload the file because 1C:Enterprise Extension is not installed.';");
 	EndIf;
 		
 	Try
@@ -46,7 +47,7 @@ Procedure ShowPutFileOnAttachFileSystemExtension(ExtensionAttached, Context) Exp
 
 EndProcedure
 
-// 
+// Runs after a warning about an unavailable file.
 // 
 // Parameters:
 //  ProcessingResultsParameters - Structure:
@@ -200,8 +201,8 @@ EndProcedure
 // Continuation of procedure FileSystemClient.ShowDownloadFiles procedure.
 Procedure ShowDownloadFilesToDirectory(Context)
 	
-	CompletionNotification2 = New NotifyDescription("NotifyGetFilesCompletion", ThisObject, Context);
-	BeginGettingFiles(CompletionNotification2, Context.FilesToObtain,
+	CallbackOnCompletion = New NotifyDescription("NotifyGetFilesCompletion", ThisObject, Context);
+	BeginGettingFiles(CallbackOnCompletion, Context.FilesToObtain,
 		Context.Dialog, Context.Interactively);
 	
 EndProcedure
@@ -241,14 +242,14 @@ Procedure OpenFileAfterSaving(SavedFiles, OpeningParameters) Export
 	
 EndProcedure
 
-// 
-// 
-// 
+// Continues the FileSystemClient.OpenFile procedure.
+// Opens the file in the application associated with the file type.
+// Prevents executable files from opening.
 //
 // Parameters:
-//  PathToFile        - String - 
-//  Notification        - NotifyDescription - 
-//                    :
+//  PathToFile        - String - The full path to the file to open.
+//  Notification        - NotifyDescription - Notifies about file opening attempt.
+//                    If not specified and an error occurs, the method returns a warning.:
 //   * ApplicationStarted      - Boolean - True if the external application opened successfully.
 //   * AdditionalParameters - Arbitrary - a value that was specified on creating the NotifyDescription object.
 //  ForEditing - Boolean - True to open the file for editing, False otherwise.
@@ -501,8 +502,8 @@ Function IsExecutableFileExtension(Val Extension)
 		Or Extension = ".APP" // Executable file.
 		Or Extension = ".COMMAND" // Terminal Command
 		Or Extension = ".OSX" // Executable file.
-		Or Extension = ".WORKFLOW" 
-	
+		Or Extension = ".WORKFLOW" // 
+	// 
 		Or Extension = ".AIR" // Adobe AIR distribution package
 		Or Extension = ".COFFIE" // CoffeeScript (JavaScript) script.
 		Or Extension = ".JAR" // Java archive.
@@ -617,7 +618,7 @@ Procedure OpenURLAfterCheckFileSystemExtension(ExtensionAttached, Context) Expor
 		
 	Else
 		ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot follow the link ""%1"" as the 1C:Enterprise extension is not installed.';"),
+			NStr("en = 'Cannot follow link ""%1"" because 1C:Enterprise Extension is not installed.';"),
 			URL);
 		OpenURLNotifyOnError(ErrorDescription, Context);
 	EndIf;
@@ -737,7 +738,7 @@ Procedure StartApplicationAfterCheckFileSystemExtension(ExtensionAttached, Conte
 		EndIf;
 		
 	Else
-		ErrorDescription = NStr("en = 'Cannot start the application as the 1C:Enterprise extension is not installed.';");
+		ErrorDescription = NStr("en = 'Cannot start the app because 1C:Enterprise Extension is not installed.';");
 		StartApplicationNotifyOnError(ErrorDescription, Context);
 	EndIf;
 	
@@ -758,10 +759,9 @@ Procedure StartApplicationAfterCheckIfExists(Exists, Context) Export
 		CommandString = Context.CommandString;
 		
 		ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot start the application
-			           |%1
+			NStr("en = 'Couldn''t start %1
 			           | as the folder does not exist:
-					   |%2';"),
+			           |%2';"),
 			CommandString, CurrentDirectory);
 		StartApplicationNotifyOnError(ErrorDescription, Context);
 	EndIf;
@@ -779,10 +779,9 @@ Procedure StartApplicationAfterCheckIsDirectory(IsDirectory, Context) Export
 		CurrentDirectory = Context.CurrentDirectory;
 		
 		ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot start the application
-			           |%1
+			NStr("en = 'Couldn''t start %1
 			           | as the specified object is not a folder:
-					   |%2';"),
+			           |%2';"),
 			CommandString, CurrentDirectory);
 		StartApplicationNotifyOnError(ErrorDescription, Context);
 	EndIf;
@@ -859,18 +858,14 @@ Procedure StartApplicationBeginRunning(Context)
 	
 EndProcedure
 
-// Returns encoding of standard output and error threads for the current operating system.
+// 
 //
 // Returns:
 //  TextEncoding
 //
 Function StandardStreamEncoding()
 	
-	If CommonClient.IsWindowsClient() Then
-		Return "CP866";
-	Else
-		Return "UTF-8";
-	EndIf;
+	Return ?(CommonClient.IsWindowsClient(), "CP866", "UTF-8");
 	
 EndFunction
 
@@ -882,15 +877,30 @@ Procedure StartApplicationAfterStartApplication(ReturnCode, Context) Export
 		Return;
 	EndIf;
 		
+	Result = ApplicationStartResult();
 	If Context.WaitForCompletion And ReturnCode = Undefined Then
-		ErrorDescription = NStr("en = 'An unexpected error occurred upon the application startup.';");
-		StartApplicationNotifyOnError(ErrorDescription, Context);
-		Return;
+		Result.ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Возникла непредвиденная ситуация при запуске приложения
+				|%1';"),
+			Context.CommandString);
+		ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Возникла непредвиденная ситуация при запуске приложения:
+				|Строка запуска: %1
+				|Текущий каталог: %2
+				|Код возврата: %3
+				|Дождаться завершения: %4';"),
+			Context.CommandString,
+			Context.CurrentDirectory,
+			Context.ReturnCode,
+			Context.WaitForCompletion);
+		EventLogClient.AddMessageForEventLog(
+			NStr("en = 'Стандартные подсистемы';", CommonClient.DefaultLanguageCode()),
+			"Error", ErrorDescription);
+	Else
+		Result.ApplicationStarted = True;
 	EndIf;
 	
-	Result = ApplicationStartResult();
-	Result.ApplicationStarted = True;
-	Result.ReturnCode = ReturnCode;
+	Result.ReturnCode = ?(ReturnCode <> Undefined, ReturnCode, -1);
 	If Context.WaitForCompletion Then
 		FillThreadResult(Result, Context);
 	EndIf;
@@ -946,18 +956,16 @@ Procedure StartApplicationWithFullRights(Context)
 	
 #If WebClient Then
 	ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Cannot start the application
-		           |%1.
+		NStr("en = 'Cannot start %1.
 		           |Reason:
-		           |The web client does not support starting applications with elevated privileges.';"),
+		           |The web client does not support starting apps with elevated privileges.';"),
 		Context.CommandString);
 	StartApplicationNotifyOnError(ErrorDescription, Context);
 #ElsIf MobileClient Then
 	ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Cannot start the application
-		           |%1.
+		NStr("en = 'Couldn''t start %1.
 		           |Reason:
-		           |The web client does not support starting applications with elevated privileges.';"),
+		           |The web client does not support starting apps with elevated privileges.';"),
 		Context.CommandString);
 	StartApplicationNotifyOnError(ErrorDescription, Context);
 #Else
@@ -968,10 +976,9 @@ Procedure StartApplicationWithFullRights(Context)
 		StartApplicationWithFullLinuxRights(Context);
 	Else
 		ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot start the application
-			           |%1.
+			NStr("en = 'Coudn''t start %1.
 			           |Reason:
-			           |Starting applications with elevated privileges is supported for Windows and Linux only.';"),
+			           |Starting apps with elevated privileges is supported for Windows and Linux only.';"),
 			Context.CommandString);
 		StartApplicationNotifyOnError(ErrorDescription, Context);
 	EndIf;
@@ -1158,7 +1165,7 @@ Procedure StartFileSystemExtensionAttachingOnSetExtension(Attached, Context) Exp
 		Return;
 	EndIf;
 	
-	
+	// In macOS, the extension's web client supports only Google Chrome.
 	If CommonClient.IsMacOSClient() 
 			And Not AnExtensionForWorkingWithFilesIsAvailable() Then
 		ExecuteNotifyProcessing(Context.NotifyDescriptionCompletion);

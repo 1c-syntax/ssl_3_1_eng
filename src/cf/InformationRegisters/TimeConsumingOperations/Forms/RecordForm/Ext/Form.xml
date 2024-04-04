@@ -6,6 +6,12 @@
 			<Button name="FormEnableEditing" id="45">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.EnableEditing</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Allow editing</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormEnableEditingExtendedTooltip" id="46"/>
 			</Button>
@@ -42,12 +48,24 @@
 						<InputField name="ProcessID" id="36">
 							<DataPath>ProcessID</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Process ID</v8:content>
+								</v8:item>
+							</Title>
 							<ContextMenu name="ProcessIDContextMenu" id="37"/>
 							<ExtendedTooltip name="ProcessIDExtendedTooltip" id="38"/>
 						</InputField>
 						<InputField name="ThreadID" id="39">
 							<DataPath>ThreadID</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Thread ID</v8:content>
+								</v8:item>
+							</Title>
 							<ContextMenu name="ThreadIDContextMenu" id="40"/>
 							<ExtendedTooltip name="ThreadIDExtendedTooltip" id="41"/>
 						</InputField>
@@ -64,6 +82,12 @@
 						<InputField name="JobID" id="42">
 							<DataPath>JobID</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Job ID</v8:content>
+								</v8:item>
+							</Title>
 							<ContextMenu name="JobIDContextMenu" id="43"/>
 							<ExtendedTooltip name="JobIDExtendedTooltip" id="44"/>
 						</InputField>
@@ -197,7 +221,7 @@
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Allow editing for troubleshooting. This feature is for advanced users only.</v8:content>
+					<v8:content>Allow editing for troubleshooting. Recommended for advanced users only.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>EnableEditing</Action>

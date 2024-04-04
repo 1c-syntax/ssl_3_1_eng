@@ -84,7 +84,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Group availability</v8:content>
+									<v8:content>Availability</v8:content>
 								</v8:item>
 							</Title>
 							<Group>Vertical</Group>
@@ -94,6 +94,12 @@
 							<ChildItems>
 								<RadioButtonField name="Available" id="98">
 									<DataPath>Available</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Available to</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>Left</TitleLocation>
 									<RadioButtonType>RadioButtons</RadioButtonType>
 									<ChoiceList>
@@ -277,6 +283,12 @@
 								</Table>
 								<CheckBoxField name="NotifyUsers" id="247">
 									<DataPath>NotifyUsers</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Notify chat members about this report option</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>Right</TitleLocation>
 									<ToolTip>
 										<v8:item>
@@ -446,12 +458,24 @@ Enter another name or select an option from the list.</v8:content>
 					<ExtendedTooltip name="MoreExtendedTooltip" id="130"/>
 					<ChildItems>
 						<UsualGroup name="HeaderGroup" id="261">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Header</v8:content>
+								</v8:item>
+							</Title>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
 							<ExtendedTooltip name="HeaderGroupExtendedTooltip" id="262"/>
 							<ChildItems>
 								<CheckBoxField name="ResetSettings" id="225">
 									<DataPath>ResetSettings</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Reset settings</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>Right</TitleLocation>
 									<ToolTip>
 										<v8:item>
@@ -562,6 +586,12 @@ This option is recommended if you made significant changes to the report option.
 									<ChildItems>
 										<CheckBoxField name="SubsystemsTreeUse" id="78">
 											<DataPath>SubsystemsTree.Use</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Use</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<HorizontalAlign>Left</HorizontalAlign>
 											<EditMode>EnterOnInput</EditMode>
@@ -575,6 +605,12 @@ This option is recommended if you made significant changes to the report option.
 										<InputField name="SubsystemsTreePresentation" id="80">
 											<DataPath>SubsystemsTree.Presentation</DataPath>
 											<ReadOnly>true</ReadOnly>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Section, Group</v8:content>
+												</v8:item>
+											</Title>
 											<HorizontalAlign>Left</HorizontalAlign>
 											<EditMode>EnterOnInput</EditMode>
 											<ContextMenu name="SubsystemsTreePresentationContextMenu" id="81"/>
@@ -584,6 +620,12 @@ This option is recommended if you made significant changes to the report option.
 								</ColumnGroup>
 								<InputField name="SubsystemsTreeImportance" id="82">
 									<DataPath>SubsystemsTree.Importance</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Importance</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<Width>8</Width>
 									<ClearButton>true</ClearButton>
@@ -602,6 +644,12 @@ This option is recommended if you made significant changes to the report option.
 									<DataPath>SubsystemsTree.UsersPresentation</DataPath>
 									<Visible>false</Visible>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Default visibility</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>Directly</EditMode>
 									<CellHyperlink>true</CellHyperlink>
 									<Hiperlink>true</Hiperlink>
@@ -641,6 +689,12 @@ This option is recommended if you made significant changes to the report option.
 							<Type>CommandBarButton</Type>
 							<Enabled>false</Enabled>
 							<CommandName>Form.Command.Back</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>&lt; Back</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="BackExtendedTooltip" id="107"/>
 						</Button>
 					</ChildItems>
@@ -658,12 +712,24 @@ This option is recommended if you made significant changes to the report option.
 						<Button name="Next" id="15">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.Next</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Next &gt;</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="NextExtendedTooltip" id="108"/>
 						</Button>
 						<Button name="Save" id="55" DisplayImportance="VeryHigh">
 							<Type>CommandBarButton</Type>
 							<DefaultButton>true</DefaultButton>
 							<CommandName>Form.Command.Save</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Save</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="SaveExtendedTooltip" id="109"/>
 						</Button>
 						<Button name="Cancel" id="16">
@@ -672,6 +738,12 @@ This option is recommended if you made significant changes to the report option.
 							<ExtendedTooltip name="CancelExtendedTooltip" id="110"/>
 						</Button>
 						<ButtonGroup name="CommandBarGroupHelp" id="151">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Help command bar</v8:content>
+								</v8:item>
+							</Title>
 							<CommandSource>Form</CommandSource>
 							<ExtendedTooltip name="CommandBarGroupHelpExtendedTooltip" id="152"/>
 						</ButtonGroup>
@@ -1027,7 +1099,7 @@ This option is recommended if you made significant changes to the report option.
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Notify about this report option in the chat</v8:content>
+					<v8:content>Notify chat members about this report option</v8:content>
 				</v8:item>
 			</Title>
 			<Type>

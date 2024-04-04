@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -119,8 +120,8 @@ EndProcedure
 //	Parameters:
 //  Form - ClientApplicationForm:
 //   * Object - FormDataStructure, DocumentObject - Form's main attribute.
-//  Source - FormTable - 
-//                              
+//  Source - FormTable - A form's list or decoration where a drop-down list should be opened.
+//                            If not specified, the "OriginalStateDecoration" element opens.  
 //
 Procedure OpenStateSelectionMenu(Val Form, Val Source = Undefined) Export 
 	
@@ -284,10 +285,10 @@ Procedure NotifyUserOfStatesSetting(ProcessedItemsCount, DocumentRef = Undefined
 		TitleText = NStr("en = 'The ""%StateName%"" original state is set';");
 		TitleText = StrReplace(TitleText, "%StateName%", StateName);
 
-		ShowUserNotification(TitleText,, MessageText, PictureLib.Information32,UserNotificationStatus.Important);
+		ShowUserNotification(TitleText,, MessageText, PictureLib.DialogInformation,UserNotificationStatus.Important);
 	Else
 		NotifyDescription = New NotifyDescription("ProcessNotificationClick",ThisObject,DocumentRef);
-		ShowUserNotification(NStr("en = 'Original state changed:';"),NotifyDescription,DocumentRef,PictureLib.Information32,UserNotificationStatus.Important);
+		ShowUserNotification(NStr("en = 'Original state changed:';"),NotifyDescription,DocumentRef,PictureLib.DialogInformation,UserNotificationStatus.Important);
 	EndIf;
 
 EndProcedure
@@ -404,7 +405,7 @@ Procedure SetOriginalStateCompletion(Response, AdditionalParameters) Export
 		Return;
 	EndIf;
 
-	WritingObjects = New Array; // See SourceDocumentsOriginalsRecordingServerCall.SetNewOriginalState.ОбъектыЗаписи
+	WritingObjects = New Array; 
 	For Each ListLine In List.SelectedRows Do
 		RowData = List.RowData(ListLine);
 		Ref = CommonClientServer.StructureProperty(RowData, "Ref");
@@ -414,7 +415,7 @@ Procedure SetOriginalStateCompletion(Response, AdditionalParameters) Export
 	EndDo;
 	
 	IsChanged = SourceDocumentsOriginalsRecordingServerCall.SetNewOriginalState(WritingObjects, StateName);
-	If IsChanged = "NotCarriedOut" Then
+	If IsChanged = "NotPosted" Then
 		ShowMessageBox(, NStr("en = 'To set the original state, post the selected documents first.';"));
 		Return;
 	ElsIf IsChanged = "NotIsChanged" Then
@@ -463,7 +464,7 @@ Procedure OpenStateSelectionMenuCompletion(SelectedStateFromList, AdditionalPara
 	If IsChanged = "IsChanged" Then
 		NotifyUserOfStatesSetting(1, Ref, SelectedStateFromList.Value);
 		Notify("SourceDocumentOriginalStateChange");
-	ElsIf IsChanged = "NotCarriedOut" Then
+	ElsIf IsChanged = "NotPosted" Then
 		ShowMessageBox(, NStr("en = 'To set the original state, post the selected documents first.';"));
 	EndIf;
 

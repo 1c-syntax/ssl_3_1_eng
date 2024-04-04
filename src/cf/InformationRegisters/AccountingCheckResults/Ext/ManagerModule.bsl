@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -60,7 +61,7 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 			|	UniqueKey";
 		
 		Query.SetParameter("UniqueKey", UniqueKey);
-		Result = Query.Execute().Unload(); 
+		Result = Query.Execute().Unload(); // @skip-check query-in-loop - Batch-wise data registration for update.
 	
 		InfobaseUpdate.MarkForProcessing(Parameters, Result, AdditionalParameters);
 		
@@ -83,6 +84,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
 	RegisterMetadata    = Metadata.InformationRegisters.AccountingCheckResults;
 	FullRegisterName     = RegisterMetadata.FullName();
+	RegisterPresentation = RegisterMetadata.Presentation();
 	FilterPresentation   = NStr("en = 'Object with issues = ""%1""
 		|Check rule = ""%2""
 		|Check kind = ""%3""
@@ -146,11 +148,15 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			RollbackTransaction();
 			
 			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
+			
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Couldn''t process  data integrity check results with filter %2. Reason:
-				|%3';"), FilterPresentation, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-			WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Warning,
-				RegisterMetadata, , MessageText);
+				NStr("en = 'Couldn''t process data integrity check results with filter %1. Reason:
+				|%2';"), FilterPresentation, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+			
+			InfobaseUpdate.WriteErrorToEventLog(
+				RegisterMetadata,
+				RegisterPresentation,
+				MessageText);
 			
 		EndTry;
 		

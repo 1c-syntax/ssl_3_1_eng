@@ -17,7 +17,6 @@
 				<xr:Object>DataProcessor.IBBackup</xr:Object>
 				<xr:Object>DataProcessor.InstallUpdates</xr:Object>
 				<xr:Object>DataProcessor.IBBackupSetup</xr:Object>
-				<xr:Object>Report.EventLogAnalysis</xr:Object>
 				<xr:Object>DataProcessor.TotalsAndAggregatesManagement</xr:Object>
 				<xr:Object>DataProcessor.ShiftTotalsBoundary</xr:Object>
 				<xr:Object>DataProcessor.AutoTextExtraction</xr:Object>

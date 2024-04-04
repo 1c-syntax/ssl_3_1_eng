@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -38,15 +39,15 @@
 //                                    number to the configuration version number. Parallel - once the first data batch is processed,
 //                                    the deferred handler passes control to another handler;
 //                                    once the last handler finishes work, the cycle is repeated.
-//   * FillDataNewSubsystemsWhenSwitchingFromAnotherProgram - Boolean - 
-//                                    
-//                                    
-//                                    
+//   * FillDataNewSubsystemsWhenSwitchingFromAnotherProgram - Boolean - If set to True, initial subsystem population handlers
+//                                    will run automatically during a migration from another app.
+//                                    To disable a custom update handler, provide the property
+//                                    "DoNotExecuteWhenSwitchingFromAnotherProgram".
 //
 Procedure OnAddSubsystem(LongDesc) Export
 	
 	LongDesc.Name    = "StandardSubsystems";
-	LongDesc.Version = "3.1.9.237";
+	LongDesc.Version = "3.1.10.122";
 	LongDesc.OnlineSupportID = "SSL";
 	LongDesc.DeferredHandlersExecutionMode = "Parallel";
 	LongDesc.ParallelDeferredUpdateFromVersion = "2.3.3.0";
@@ -127,13 +128,13 @@ EndProcedure
 //                                      and not required for others. Full names of objects separated by commas. 
 //                                      These names must be locked from changing until data processing procedure is finalized.
 //                                      If it is not empty, then the CheckProcedure property must also be filled in.
-//     * CheckProcedure   - String - 
-//                                       
-//                                       
-//                                       
-//                                      
-//                                      :
-//                                          See InfobaseUpdate.MetadataAndFilterByData.
+//     * CheckProcedure   - String - It must be filled in only for deferred update handlers
+//                                      and not required for others. Name of a function that defines if data processing procedure is finalized 
+//                                      for the passed object. 
+//                                      If the passed object is fully processed, it must acquire the True value. 
+//                                      Called from the InfobaseUpdate.CheckObjectProcessed procedure.
+//                                      Parameters that are passed to the function:
+//                                         Parameters - See InfobaseUpdate.MetadataAndFilterByData.
 //     * UpdateDataFillingProcedure - String - the procedure for registering data
 //                                      to be updated by this handler must be specified.
 //     * ExecuteInMasterNodeOnly  - Boolean - only for deferred update handlers with a Parallel execution mode.
@@ -154,29 +155,29 @@ EndProcedure
 //                                      in the group by changing their priorities.
 //     * Priority           - Number  - for internal use.
 //     * ExclusiveMode    - Undefined
-//                           - Boolean -  
-//                                      
-//                                      :
-//                                        
-//                                        
-//                                      
-//                                        
-//                                        
-//                                                 
-//                                                 
-//                                                 
-//                                                 
-//                                                 
-//                                                 
-//                                                 
-//                                                 
-//                                                 
-//                                                 
-//                                                 
-//                                                 
-//                                                 
-//                                                 
-//                                                 
+//                           - Boolean - if Undefined, the handler 
+//                                      is executed unconditionally in the exclusive mode.
+//                                      For handlers that execute migration to a specific version (Version <> *):
+//                                        False - handler execution does not require an exclusive mode.
+//                                        True - handler execution requires an exclusive mode.
+//                                      For required update handlers (Version = "*"):
+//                                        False - handler execution does not require an exclusive mode.
+//                                        True - handler execution may require an exclusive mode.
+//                                                 A parameter of structure type
+//                                                 with ExclusiveMode property (of Boolean type) is passed to such handlers.
+//                                                 To execute the handler in exclusive mode, set
+//                                                 this parameter to True. In this case the handler must perform
+//                                                 the required update operations. Changing the parameter
+//                                                 in the handler body is ignored.
+//                                                 To execute the handler in nonexclusive mode, set this parameter to
+//                                                 False. In this case the handler must not make any
+//                                                 changes to the infobase.
+//                                                 If the analysis reveals that a handler needs to
+//                                                 change infobase data, set the parameter value to the True,
+//                                                 and stop handler execution.
+//                                                 In this case nonexclusive infobase update is
+//                                                 canceled and an error message with a recommendation to perform the update in
+//                                                 exclusive mode is displayed.
 //   OutputUpdatesDetails - Boolean - if False s set, a form
 //                                containing description of new version updates will not be opened at first launch of a program. True by default.
 //   ExclusiveMode           - Boolean - indicates that an update was executed in an exclusive mode.

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -105,20 +106,10 @@ Procedure Apply(Command)
 	EndIf;
 	
 	TimeConsumingOperation = ApplyRulesAtServer();
-	If TimeConsumingOperation = Undefined Then
-		Return;
-	EndIf;
 	
-	If TimeConsumingOperation.Status = "Completed2" Then
-		Notify("MessageProcessingRulesApplied");
-		If Not IsBlankString(MessageToUserText) Then
-			ShowUserNotification(NStr("en = 'Running mailbox rules';"), ,MessageToUserText, PictureLib.Information32);
-		EndIf;
-	ElsIf TimeConsumingOperation.Status = "Running" Then
-		IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
-		CompletionNotification2 = New NotifyDescription("ApplyRulesCompletion", ThisObject);
-		TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CompletionNotification2, IdleParameters);
-	EndIf;
+	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
+	CallbackOnCompletion = New NotifyDescription("ApplyRulesCompletion", ThisObject);
+	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
 	
 EndProcedure
 
@@ -157,29 +148,30 @@ Function ApplyRulesAtServer()
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Running mailbox rules';") + " ";
 	
-	TimeConsumingOperation = TimeConsumingOperations.ExecuteInBackground(
-			"Catalogs.EmailProcessingRules.ApplyRules",
-			ProcedureParameters,
-			ExecutionParameters);
+	Return TimeConsumingOperations.ExecuteInBackground("Catalogs.EmailProcessingRules.ApplyRules",
+		ProcedureParameters, 	ExecutionParameters);
 			
-	If TimeConsumingOperation.Status = "Completed2" Then
-		ImportResult(TimeConsumingOperation.ResultAddress);
-	EndIf;
-	
-	Return TimeConsumingOperation;
-	
 EndFunction
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
 Procedure ApplyRulesCompletion(Result, AdditionalParameters) Export
 	
 	If Result = Undefined Then
 		Return;
 	ElsIf Result.Status = "Error" Then
-		Raise Result.BriefErrorDescription;
+		StandardSubsystemsClient.OutputErrorInfo(
+			Result.ErrorInfo);
 	ElsIf Result.Status = "Completed2" Then
 		ImportResult(Result.ResultAddress);
 		Notify("MessageProcessingRulesApplied");
+		If Not IsBlankString(MessageToUserText) Then
+			ShowUserNotification(NStr("en = 'Running mailbox rules';"),,
+				MessageToUserText, PictureLib.DialogInformation);
+		EndIf;
 	EndIf;
 	
 EndProcedure

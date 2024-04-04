@@ -147,6 +147,12 @@
 				<LabelField name="DataToProcess" id="97">
 					<DataPath>DataToProcess</DataPath>
 					<Visible>false</Visible>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Data to process</v8:content>
+						</v8:item>
+					</Title>
 					<Hiperlink>true</Hiperlink>
 					<ContextMenu name="DataToProcessContextMenu" id="98"/>
 					<ExtendedTooltip name="DataToProcessExtendedTooltip" id="99"/>

@@ -28,11 +28,23 @@
 					<Button name="PropertiesCreate" id="62">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.Create</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>New</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="PropertiesCreateExtendedTooltip" id="107"/>
 					</Button>
 					<Button name="AddFromSet" id="165">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.AddFromSet</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>From set…</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="AddFromSetExtendedTooltip" id="166"/>
 					</Button>
 				</ChildItems>
@@ -49,18 +61,36 @@
 					<Button name="PropertiesCopy" id="65">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.Copy</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Copy</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="PropertiesCopyExtendedTooltip" id="111"/>
 					</Button>
 					<Button name="PropertiesEdit" id="66">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.Change</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Edit</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="PropertiesEditExtendedTooltip" id="112"/>
 					</Button>
 					<Button name="PropertiesMarkForDeletion" id="67">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.MarkToDelete</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Mark for deletion</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="PropertiesMarkForDeletionExtendedTooltip" id="113"/>
 					</Button>
@@ -78,12 +108,24 @@
 					<Button name="PropertiesMoveUp" id="63">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.MoveUp</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Move up</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="PropertiesMoveUpExtendedTooltip" id="115"/>
 					</Button>
 					<Button name="PropertiesMoveDown" id="64">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.MoveDown</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Move down</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="PropertiesMoveDownExtendedTooltip" id="116"/>
 					</Button>
@@ -92,6 +134,12 @@
 			<Button name="DuplicateObjectsDetection" id="169">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.DuplicateObjectsDetection</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Clean up duplicates…</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="DuplicateObjectsDetectionExtendedTooltip" id="170"/>
 			</Button>
@@ -107,11 +155,23 @@
 					<Button name="CopyAttribute" id="183">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.CopyAttribute</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Copy</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="CopyAttributeExtendedTooltip" id="184"/>
 					</Button>
 					<Button name="PasteAttribute" id="181">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.PasteAttribute</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Insert</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="PasteAttributeExtendedTooltip" id="182"/>
 					</Button>
 				</ChildItems>
@@ -119,7 +179,7 @@
 			<Button name="FormCustomizeForm" id="79">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.CustomizeForm</CommandName>
-				<ExtendedTooltip name="FormChangeFormExtendedTooltip" id="119"/>
+				<ExtendedTooltip name="FormCustomizeFormExtendedTooltip" id="119"/>
 			</Button>
 			<Button name="FormHelp" id="78">
 				<Type>CommandBarButton</Type>
@@ -135,6 +195,12 @@
 	<ChildItems>
 		<InputField name="PropertyKind" id="71">
 			<DataPath>PropertyKind</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Show</v8:content>
+				</v8:item>
+			</Title>
 			<Shortcut>Ctrl+S</Shortcut>
 			<Width>30</Width>
 			<ListChoiceMode>true</ListChoiceMode>
@@ -233,6 +299,12 @@
 							<ChildItems>
 								<InputField name="FieldForSearch" id="213">
 									<DataPath>FieldForSearch</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Search field</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<AutoMaxWidth>false</AutoMaxWidth>
 									<ClearButton>true</ClearButton>
@@ -500,11 +572,23 @@
 									<Button name="PropertiesContextMenuCreate" id="83">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.Create</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>New (Ins)</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="PropertiesContextMenuCreateExtendedTooltip" id="126"/>
 									</Button>
 									<Button name="PropertiesContextMenuAddFromSet" id="167">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.AddFromSet</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>From set…</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="PropertiesContextMenuAddFromSetExtendedTooltip" id="168"/>
 									</Button>
 								</ChildItems>
@@ -521,28 +605,58 @@
 									<Button name="PropertiesContextMenuCopy" id="74">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.Copy</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Copy</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="PropertiesContextMenuCopyExtendedTooltip" id="130"/>
 									</Button>
 									<Button name="PropertiesContextMenuChange" id="89">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.Change</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Edit</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="PropertiesContextMenuChangeExtendedTooltip" id="131"/>
 									</Button>
 									<Button name="PropertiesContextMenuMarkToDelete" id="75">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.MarkToDelete</CommandName>
-										<ExtendedTooltip name="PropertiesContextMenuMarkForDeletionExtendedTooltip" id="132"/>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Mark for deletion</v8:content>
+											</v8:item>
+										</Title>
+										<ExtendedTooltip name="PropertiesContextMenuMarkToDeleteExtendedTooltip" id="132"/>
 									</Button>
 								</ChildItems>
 							</ButtonGroup>
 							<Button name="PropertiesContextMenuCopyAttribute" id="175">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.CopyAttribute</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Copy</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="PropertiesContextMenuCopyAttributeExtendedTooltip" id="176"/>
 							</Button>
 							<Button name="PropertiesContextMenuPasteAttribute" id="173">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.PasteAttribute</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Insert</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="PropertiesContextMenuPasteAttributeExtendedTooltip" id="174"/>
 							</Button>
 						</ChildItems>
@@ -599,6 +713,12 @@
 						</InputField>
 						<InputField name="PropertiesValueType" id="93">
 							<DataPath>Properties.ValueType</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Value type</v8:content>
+								</v8:item>
+							</Title>
 							<ToolTip>
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -615,6 +735,12 @@
 								<xr:Common>false</xr:Common>
 							</UserVisible>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Required</v8:content>
+								</v8:item>
+							</Title>
 							<ToolTip>
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -632,6 +758,12 @@
 								<xr:Common>false</xr:Common>
 							</UserVisible>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>From master</v8:content>
+								</v8:item>
+							</Title>
 							<ToolTip>
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -649,6 +781,12 @@
 								<xr:Common>false</xr:Common>
 							</UserVisible>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Common</v8:content>
+								</v8:item>
+							</Title>
 							<ToolTip>
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -665,6 +803,12 @@
 							<UserVisible>
 								<xr:Common>false</xr:Common>
 							</UserVisible>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Reference</v8:content>
+								</v8:item>
+							</Title>
 							<EditMode>EnterOnInput</EditMode>
 							<ContextMenu name="PropertiesRefContextMenu" id="143"/>
 							<ExtendedTooltip name="PropertiesRefExtendedTooltip" id="144"/>
@@ -675,6 +819,12 @@
 		</UsualGroup>
 		<CheckBoxField name="ShowUnusedAttributes" id="185">
 			<DataPath>ShowUnusedAttributes</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Show unused attributes</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>Right</TitleLocation>
 			<CheckBoxType>Auto</CheckBoxType>
 			<ContextMenu name="ShowUnusedAttributesContextMenu" id="186"/>
@@ -704,7 +854,6 @@
 				<Field>PropertiesSets.Parent</Field>
 				<Field>PropertiesSets.PropertyKind</Field>
 				<Field>PropertiesSets.Ref</Field>
-				<Field>~PropertiesSets.ЭтоСведения</Field>
 			</UseAlways>
 			<Settings xsi:type="DynamicList">
 				<ManualQuery>true</ManualQuery>
@@ -778,10 +927,22 @@ WHERE
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>Presentation</dcssch:dataPath>
 					<dcssch:field>Presentation</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Presentation</v8:content>
+						</v8:item>
+					</dcssch:title>
 				</Field>
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>PictureNumber</dcssch:dataPath>
 					<dcssch:field>PictureNumber</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Picture number</v8:content>
+						</v8:item>
+					</dcssch:title>
 				</Field>
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>AttributesCount</dcssch:dataPath>
@@ -826,14 +987,27 @@ WHERE
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>PropertyKind</dcssch:dataPath>
 					<dcssch:field>PropertyKind</dcssch:field>
+					<dcssch:title xsi:type="xs:string">Показать</dcssch:title>
 				</Field>
 				<Parameter>
 					<dcssch:name>Sets</dcssch:name>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Sets</v8:content>
+						</v8:item>
+					</dcssch:title>
 					<dcssch:useRestriction>true</dcssch:useRestriction>
 					<dcssch:valueListAllowed>true</dcssch:valueListAllowed>
 				</Parameter>
 				<Parameter>
 					<dcssch:name>PropertyKind</dcssch:name>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Property type</v8:content>
+						</v8:item>
+					</dcssch:title>
 					<dcssch:value xsi:nil="true"/>
 					<dcssch:useRestriction>true</dcssch:useRestriction>
 				</Parameter>
@@ -1060,13 +1234,31 @@ WHERE
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>Presentation</dcssch:dataPath>
 					<dcssch:field>Presentation</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Presentation</v8:content>
+						</v8:item>
+					</dcssch:title>
 				</Field>
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>PictureNumber</dcssch:dataPath>
 					<dcssch:field>PictureNumber</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Picture number</v8:content>
+						</v8:item>
+					</dcssch:title>
 				</Field>
 				<Parameter>
 					<dcssch:name>ListPresentation</dcssch:name>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>List presentation</v8:content>
+						</v8:item>
+					</dcssch:title>
 					<dcssch:value xsi:nil="true"/>
 					<dcssch:useRestriction>true</dcssch:useRestriction>
 				</Parameter>
@@ -1213,7 +1405,7 @@ WHERE
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>New (Ins)</v8:content>
+					<v8:content>New attribute</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
@@ -1295,6 +1487,11 @@ WHERE
 		<Parameter name="Current_Set">
 			<Type>
 				<v8:Type>cfg:CatalogRef.AdditionalAttributesAndInfoSets</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="PropertyKind">
+			<Type>
+				<v8:Type>cfg:EnumRef.PropertiesKinds</v8:Type>
 			</Type>
 		</Parameter>
 	</Parameters>

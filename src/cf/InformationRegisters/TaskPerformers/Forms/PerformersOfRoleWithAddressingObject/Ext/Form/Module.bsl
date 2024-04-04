@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -31,10 +32,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndIf;
 		Items.AdditionalAddressingObject.Visible = Not AdditionalAddressingObject.IsEmpty();
 		If Not AdditionalAddressingObject.IsEmpty() Then 
-			PropertiesOfAddressingObject = Common.ObjectAttributesValues(AdditionalAddressingObject, 
+			AddressingObjectProperties = Common.ObjectAttributesValues(AdditionalAddressingObject, 
 				"Description,ValueType");
-			Items.AdditionalAddressingObject.Title = PropertiesOfAddressingObject.Description;
-			AdditionalAddressingObjectTypes = PropertiesOfAddressingObject.ValueType;
+			Items.AdditionalAddressingObject.Title = AddressingObjectProperties.Description;
+			AdditionalAddressingObjectTypes = AddressingObjectProperties.ValueType;
 		EndIf;
 	EndIf;
 	
@@ -119,9 +120,9 @@ Procedure SetRecordSetFilter()
 	ValueToFormAttribute(RecordSetObject, "RecordSet");
 	
 	RolePerformers = RecordSetObject.UnloadColumn("Performer");
-	PropertiesOfRolePerformers = Common.ObjectsAttributeValue(RolePerformers, "Invalid");
+	RolesAssigneesProperties = Common.ObjectsAttributeValue(RolePerformers, "Invalid");
 	For Each Record In RecordSet Do
-		Record.Invalid = PropertiesOfRolePerformers[Record.Performer];
+		Record.Invalid = RolesAssigneesProperties[Record.Performer];
 	EndDo;
 
 EndProcedure

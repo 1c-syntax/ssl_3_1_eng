@@ -47,8 +47,8 @@
 						</v8:item>
 					</Title>
 					<Picture>
-						<xr:Ref>CommonPicture.Warning32</xr:Ref>
-						<xr:LoadTransparent>false</xr:LoadTransparent>
+						<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</Picture>
 					<FileDragMode>AsFile</FileDragMode>
 					<ContextMenu name="WarningPicture1ContextMenu" id="1169"/>
@@ -68,6 +68,34 @@
 					<ShowTitle>false</ShowTitle>
 					<ExtendedTooltip name="WarningColumnExtendedTooltip" id="1167"/>
 					<ChildItems>
+						<LabelDecoration name="IncompleteHandlersLabel" id="1247">
+							<AutoMaxWidth>false</AutoMaxWidth>
+							<Title formatted="true">
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Some of the additional data processors are running.
+Wait till they finish before starting the update.
+&lt;link Ref&gt;View update result&lt;/&gt;</v8:content>
+								</v8:item>
+							</Title>
+							<ToolTipRepresentation>Button</ToolTipRepresentation>
+							<ContextMenu name="IncompleteHandlersLabelContextMenu" id="1248"/>
+							<ExtendedTooltip name="IncompleteHandlersLabelExtendedTooltip" id="1249">
+								<Title formatted="false">
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>When updating to a new patch release (that is, the 4th version number has changed), you can continue the update while additional data processors are running.
+
+For other releases (1st, 2d, or 3d version number has changed), we recommend waiting until additional data processors are finished. Otherwise, you might lose some data as such releases could update the datasets.
+
+If a data processor fails, contact technical support and after fixing the error, restart the update.</v8:content>
+									</v8:item>
+								</Title>
+							</ExtendedTooltip>
+							<Events>
+								<Event name="URLProcessing">DeferredHandlersLabelURLProcessing</Event>
+							</Events>
+						</LabelDecoration>
 						<LabelDecoration name="IssuesDiscoveredLabel" id="1175">
 							<AutoMaxWidth>false</AutoMaxWidth>
 							<SkipOnInput>false</SkipOnInput>
@@ -75,7 +103,7 @@
 								<v8:item>
 									<v8:lang>en</v8:lang>
 									<v8:content>Data integrity issues have been identified in the application. It is recommended that you resolve them before the update.
-&lt;link Go to the problem report&gt;View the report&lt;/&gt;</v8:content>
+&lt;link View the report&gt;View the report&lt;/&gt;</v8:content>
 								</v8:item>
 							</Title>
 							<ToolTipRepresentation>Button</ToolTipRepresentation>
@@ -84,7 +112,7 @@
 								<Title formatted="false">
 									<v8:item>
 										<v8:lang>en</v8:lang>
-										<v8:content>One of the common reasons of data locks during the update is data integrity issues, such as dead links to objects that do not exist, blank required document attributes, and so on. In this case, it is recommended that you fix the issues before the update. To fix the issues, open the report and follow the recommendations that it provides.</v8:content>
+										<v8:content>One of the common reasons for critical errors to occur during updates is data integrity issues, such as references to non-existing objects and empty required attributes. In this case, we recommend that you fix the issues before the update. To do so, open the report and follow the recommendations that it provides.</v8:content>
 									</v8:item>
 								</Title>
 							</ExtendedTooltip>
@@ -148,7 +176,7 @@ It is recommended that you test the update on a backup.
 						<Title formatted="false">
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>One of the common reasons of data locks during the update is data integrity issues, such as dead links to objects that do not exist, blank required document attributes, and so on. In this case, it is recommended that you fix the issues before the update. </v8:content>
+								<v8:content>One of the common reasons for critical errors to occur during updates is data integrity issues, such as references to non-existing objects and empty required attributes. In this case, we recommend that you fix the issues before the update.</v8:content>
 							</v8:item>
 						</Title>
 					</ExtendedTooltip>
@@ -191,6 +219,12 @@ It is recommended that you test the update on a backup.
 							<ChildItems>
 								<RadioButtonField name="UpdateFileRequiredRadioButtons" id="286">
 									<DataPath>UpdateFileRequired</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Update file is required</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<RadioButtonType>Auto</RadioButtonType>
 									<ColumnsCount>1</ColumnsCount>
@@ -230,6 +264,12 @@ It is recommended that you test the update on a backup.
 								</RadioButtonField>
 								<InputField name="UpdateFileField" id="296">
 									<DataPath>SelectedFiles</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Selected files</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<AutoMaxWidth>false</AutoMaxWidth>
 									<ChoiceButton>true</ChoiceButton>
@@ -378,6 +418,12 @@ It is recommended that you perform an update from the main configuration.</v8:co
 									<Type>Hyperlink</Type>
 									<GroupVerticalAlign>Bottom</GroupVerticalAlign>
 									<CommandName>Form.Command.FindAndInstallUpdates</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Find and install updates</v8:content>
+										</v8:item>
+									</Title>
 									<ToolTipRepresentation>ShowRight</ToolTipRepresentation>
 									<ExtendedTooltip name="FindAndInstallUpdatesExtendedTooltip" id="1153">
 										<Title formatted="false">
@@ -560,8 +606,8 @@ Do not turn off your computer until the update is completed.</v8:content>
 												<PictureDecoration name="Picture1" id="180">
 													<SkipOnInput>false</SkipOnInput>
 													<Picture>
-														<xr:Ref>CommonPicture.Warning32</xr:Ref>
-														<xr:LoadTransparent>false</xr:LoadTransparent>
+														<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+														<xr:LoadTransparent>true</xr:LoadTransparent>
 													</Picture>
 													<FileDragMode>AsFile</FileDragMode>
 													<ContextMenu name="Picture1ContextMenu" id="181"/>
@@ -964,8 +1010,8 @@ Ensure that the computer will be turned on at the scheduled time.</v8:content>
 														<PictureDecoration name="Picture2" id="221">
 															<SkipOnInput>false</SkipOnInput>
 															<Picture>
-																<xr:Ref>CommonPicture.Warning32</xr:Ref>
-																<xr:LoadTransparent>false</xr:LoadTransparent>
+																<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+																<xr:LoadTransparent>true</xr:LoadTransparent>
 															</Picture>
 															<FileDragMode>AsFile</FileDragMode>
 															<ContextMenu name="Picture2ContextMenu" id="222"/>
@@ -1079,7 +1125,7 @@ Their sessions will be terminated automatically.</v8:content>
 									<Behavior>Usual</Behavior>
 									<Representation>NormalSeparation</Representation>
 									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="BackupServerGroupExtendedTooltip" id="911"/>
+									<ExtendedTooltip name="BackupGroupServerExtendedTooltip" id="911"/>
 									<ChildItems>
 										<PictureDecoration name="Decoration13" id="540">
 											<SkipOnInput>false</SkipOnInput>
@@ -1116,22 +1162,6 @@ Their sessions will be terminated automatically.</v8:content>
 													<VerticalAlign>Center</VerticalAlign>
 													<ContextMenu name="BackupServerLabelContextMenu" id="538"/>
 													<ExtendedTooltip name="BackupServerLabelExtendedTooltip" id="913"/>
-												</LabelDecoration>
-												<LabelDecoration name="DeferredHandlersLabel" id="1092">
-													<AutoMaxWidth>false</AutoMaxWidth>
-													<Title formatted="true">
-														<v8:item>
-															<v8:lang>en</v8:lang>
-															<v8:content>There are &lt;link DeferredHandlers&gt;additional data processing procedures&lt;/&gt; that were not completed during the migration
-from the previous application version. They will be automatically completed during the update.
-This might significantly increase the update time.</v8:content>
-														</v8:item>
-													</Title>
-													<ContextMenu name="DeferredHandlersLabelContextMenu" id="1093"/>
-													<ExtendedTooltip name="DeferredHandlersLabelExtendedTooltip" id="1094"/>
-													<Events>
-														<Event name="URLProcessing">DeferredHandlersLabelURLProcessing</Event>
-													</Events>
 												</LabelDecoration>
 											</ChildItems>
 										</UsualGroup>
@@ -1177,8 +1207,8 @@ This might significantly increase the update time.</v8:content>
 									<ChildItems>
 										<PictureDecoration name="PatchInstallationErrorDecoration" id="1202">
 											<Picture>
-												<xr:Ref>CommonPicture.Error32</xr:Ref>
-												<xr:LoadTransparent>false</xr:LoadTransparent>
+												<xr:Ref>StdPicture.DialogStop</xr:Ref>
+												<xr:LoadTransparent>true</xr:LoadTransparent>
 											</Picture>
 											<FileDragMode>AsFile</FileDragMode>
 											<ContextMenu name="PatchInstallationErrorDecorationContextMenu" id="1203"/>
@@ -1264,6 +1294,9 @@ See the &lt;link EventLog&gt;event log&lt;/&gt; for details.</v8:content>
 											<CheckBoxType>Auto</CheckBoxType>
 											<ContextMenu name="RestartApplication1ContextMenu" id="1191"/>
 											<ExtendedTooltip name="RestartApplication1ExtendedTooltip" id="1192"/>
+											<Events>
+												<Event name="OnChange">RestartApplicationOnChange</Event>
+											</Events>
 										</CheckBoxField>
 									</ChildItems>
 								</UsualGroup>
@@ -1285,8 +1318,8 @@ See the &lt;link EventLog&gt;event log&lt;/&gt; for details.</v8:content>
 											<Title formatted="true">
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>&lt;link 1&gt;Other users&lt;/&gt; are working with the application.
-The patches will take effect for them next time they sign in to the application.</v8:content>
+													<v8:content>&lt;link 1&gt;Other users&lt;/&gt; are working with the app.
+The patches will take effect for them next time they sign in to the app.</v8:content>
 												</v8:item>
 											</Title>
 											<ContextMenu name="ActiveUsersDecorationContextMenu" id="1196"/>
@@ -1350,8 +1383,8 @@ The patches will take effect for them next time they sign in to the application.
 												<PictureDecoration name="Picture27" id="1132">
 													<SkipOnInput>false</SkipOnInput>
 													<Picture>
-														<xr:Ref>CommonPicture.Information32</xr:Ref>
-														<xr:LoadTransparent>false</xr:LoadTransparent>
+														<xr:Ref>StdPicture.DialogInformation</xr:Ref>
+														<xr:LoadTransparent>true</xr:LoadTransparent>
 													</Picture>
 													<FileDragMode>AsFile</FileDragMode>
 													<ContextMenu name="Picture27ContextMenu" id="1133"/>
@@ -1375,6 +1408,12 @@ The patches will take effect for them next time they sign in to the application.
 										</UsualGroup>
 										<LabelField name="CurrentConfigurationVersion" id="1224">
 											<DataPath>CurrentConfigurationVersion</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Current application version</v8:content>
+												</v8:item>
+											</Title>
 											<ContextMenu name="CurrentConfigurationVersionContextMenu" id="1225"/>
 											<ExtendedTooltip name="CurrentConfigurationVersionExtendedTooltip" id="1226"/>
 										</LabelField>
@@ -1419,6 +1458,12 @@ The patches will take effect for them next time they sign in to the application.
 							<Type>CommandBarButton</Type>
 							<SkipOnInput>false</SkipOnInput>
 							<CommandName>Form.Command.Back</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>&lt; Back</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="BackButtonExtendedTooltip" id="654"/>
 						</Button>
 					</ChildItems>
@@ -1450,7 +1495,7 @@ The patches will take effect for them next time they sign in to the application.
 									<v8:content>Next &gt;</v8:content>
 								</v8:item>
 							</Title>
-							<ExtendedTooltip name="NextButtonExtendedTooltip" id="655"/>
+							<ExtendedTooltip name="NextButton1ExtendedTooltip" id="655"/>
 						</Button>
 						<Button name="CloseButton" id="364">
 							<Type>CommandBarButton</Type>
@@ -1541,7 +1586,7 @@ The patches will take effect for them next time they sign in to the application.
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Restart application</v8:content>
+					<v8:content>Restart app</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -1616,6 +1661,11 @@ The patches will take effect for them next time they sign in to the application.
 			</Type>
 		</Attribute>
 		<Attribute name="LoadExtensions" id="7">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="ShowInstalledPatches" id="8">
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>

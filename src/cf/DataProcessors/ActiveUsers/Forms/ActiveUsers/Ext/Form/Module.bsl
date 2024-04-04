@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -103,7 +104,7 @@ Procedure TerminateSession(Command)
 		Return;
 	ElsIf SelectedLinesNumber = 1 Then
 		If Items.UsersList.CurrentData.Session = InfoBaseSessionNumber Then
-			ShowMessageBox(,NStr("en = 'Cannot close the current session. To exit the application, close its main window.';"));
+			ShowMessageBox(,NStr("en = 'Cannot close the current session. To exit the app, close its main window.';"));
 			Return;
 		EndIf;
 	EndIf;
@@ -391,7 +392,7 @@ EndFunction
 //  UsersRefs - Map of KeyAndValue:
 //    * Key - UUID
 //    * Value - FormDataCollectionItem:
-//      ** UserRef - 
+//      ** UserRef - CatalogRef.Users, CatalogRef.ExternalUsers
 //  UsersIDs - Array of UUID
 //
 &AtServerNoContext

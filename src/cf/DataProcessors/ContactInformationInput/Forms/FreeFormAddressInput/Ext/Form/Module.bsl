@@ -1,13 +1,14 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
-
+// 
 //
 //      
 //       
@@ -68,7 +69,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndIf;
 	EndIf;
 	
-	FillInPredefinedAddressOptions(Parameters);
+	FillInPredefinedAddressOptions();
 	SetAttributesValueByContactInformation(ThisObject, LocalityDetailed);
 	
 	If ValueIsFilled(LocalityDetailed.Comment) Then
@@ -174,7 +175,7 @@ Procedure ForeignAddressPresentationOnChange(Item)
 	
 EndProcedure
 
-
+// 
 
 &AtClient
 Procedure AddressOnDateAutoComplete(Item, Text, ChoiceData, DataGetParameters, Waiting, StandardProcessing)
@@ -654,27 +655,27 @@ Procedure SetAttributesValueByContactInformation(AddressInfo3, AddressData)
 EndProcedure
 
 &AtServer
-Procedure FillInPredefinedAddressOptions(Var_Parameters)
+Procedure FillInPredefinedAddressOptions()
 	
-	If Var_Parameters.Property("IndexOf") And ValueIsFilled(Var_Parameters.IndexOf) Then
-		IndexOf = Var_Parameters.IndexOf;
+	If ValueIsFilled(Parameters.IndexOf) Then
+		IndexOf = Parameters.IndexOf;
 		LocalityDetailed.ZipCode = IndexOf;
 	EndIf;
 	
-	If Var_Parameters.Property("Country") And IsBlankString(LocalityDetailed.Country) Then
+	If ValueIsFilled(Parameters.Country) And IsBlankString(LocalityDetailed.Country) Then
 		
-		If TypeOf(Var_Parameters.Country) = Type("CatalogRef.WorldCountries") Then
-			If ValueIsFilled(Var_Parameters.Country) Then
-				Country = Var_Parameters.Country;
-				LocalityDetailed.Country = Common.ObjectAttributeValue(Var_Parameters.Country, "Description");
+		If TypeOf(Parameters.Country) = Type("CatalogRef.WorldCountries") Then
+			If ValueIsFilled(Parameters.Country) Then
+				Country = Parameters.Country;
+				LocalityDetailed.Country = Common.ObjectAttributeValue(Parameters.Country, "Description");
 			Else
 				Country = MainCountry();
 				LocalityDetailed.Country = Common.ObjectAttributeValue(Country, "Description");
 			EndIf;
 		Else
-			Country = ContactsManager.WorldCountryByCodeOrDescription(Var_Parameters.Country);
+			Country = ContactsManager.WorldCountryByCodeOrDescription(Parameters.Country);
 			If Country <> Catalogs.WorldCountries.EmptyRef() Then
-				LocalityDetailed.Country = Var_Parameters.Country;
+				LocalityDetailed.Country = Parameters.Country;
 			Else
 				Country = MainCountry();
 				LocalityDetailed.Country = Common.ObjectAttributeValue(Country, "Description");
@@ -813,7 +814,7 @@ EndProcedure
 Procedure OnCreateAtServerStoreChangeHistory()
 	
 	If ContactInformationKind.StoreChangeHistory Then
-		If Parameters.Property("ContactInformationAdditionalAttributesDetails") Then
+		If ValueIsFilled(Parameters.ContactInformationAdditionalAttributesDetails) Then
 			For Each CIRow In Parameters.ContactInformationAdditionalAttributesDetails Do
 				NewRow = ContactInformationAdditionalAttributesDetails.Add();
 				FillPropertyValues(NewRow, CIRow);
@@ -822,8 +823,7 @@ Procedure OnCreateAtServerStoreChangeHistory()
 			Items.ChangeHistory.Visible           = False;
 		EndIf;
 		Items.ChangeHistoryHyperlink.Visible = Not Parameters.Property("FromHistoryForm");
-		EnterNewAddress = ?(Parameters.Property("EnterNewAddress"), Parameters.EnterNewAddress, False);
-		If EnterNewAddress Then
+		If Parameters.EnterNewAddress Then
 			ValidFrom = Parameters.ValidFrom;
 		Else
 			ValidFrom = ?(ValueIsFilled(Parameters.ValidFrom), Parameters.ValidFrom, CurrentSessionDate());
@@ -839,15 +839,12 @@ EndProcedure
 &AtServer
 Function DefineAddressValue(Var_Parameters)
 	
-	If Var_Parameters.Property("Value") Then
-		If IsBlankString(Var_Parameters.Value) And ValueIsFilled(Var_Parameters.FieldValues) Then
-			FieldValues = Var_Parameters.FieldValues;
-		Else
-			FieldValues = Var_Parameters.Value;
-		EndIf;
+	If ValueIsFilled(Var_Parameters.Value) Then
+		FieldValues = Var_Parameters.Value;
 	Else
 		FieldValues = Var_Parameters.FieldValues;
 	EndIf;
+	
 	Return FieldValues;
 
 EndFunction

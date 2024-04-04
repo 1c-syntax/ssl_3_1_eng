@@ -25,7 +25,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.AccessManagementOverridable</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">SessionParameter.AccessRestrictionTemplatesVersions</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.AccessManagement</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">EventSubscription.UpdateAccessValuesGroups</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">EventSubscription.UpdateAccessValuesGroupsBeforeWrite</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">EventSubscription.WriteAccessValuesSets</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">ScheduledJob.AccessUpdateOnRecordsLevel</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.AccessManagementInternalServerCall</xr:Item>
@@ -48,7 +48,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">DefinedType.RightsSettingsOwnerObject</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">SessionParameter.RecordLevelAccessRestrictionInUse</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Report.AccessRights</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">EventSubscription.CheckAccessBeforeWrite</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">EventSubscription.ShouldCheckAccessBeforeWrite</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonCommand.AccessRights</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">DefinedType.OwnerLimitedByAccessValuesSetsObject</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.RolesRights</xr:Item>
@@ -117,7 +117,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">EventSubscription.CheckAccessBeforeDeleteDocument</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">EventSubscription.CheckAccessBeforeDelete</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Constant.FirstAccessUpdateCompleted</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">EventSubscription.UpdateAccessGroupsValues</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">EventSubscription.UpdateAccessValuesGroupsOnWrite</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Report.AccessRightsAnalysis</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.AccessLevelCreate</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.AccessLevelEdit</xr:Item>
@@ -146,6 +146,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">StyleItem.CalculatedAccessRightColor</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">StyleItem.UnassignedAccessRightColor</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">StyleItem.AllowedAccessRightColor</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">Report.AccessGroupsMembers</xr:Item>
 			</Content>
 		</Properties>
 		<ChildObjects/>

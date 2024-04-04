@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -314,6 +315,8 @@ EndProcedure
 &AtServer
 Procedure CalculateDeletableFilesInfo()
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
+	ExecutionParameters.RefinementErrors =
+		NStr("en = 'Cannot calculate the total size of files to delete:';");
 	TotalsCalculationDetails = TimeConsumingOperations.ExecuteFunction(ExecutionParameters, 
 		"FilesOperationsInternal.InformationAboutFilesToBeCleaned");
 EndProcedure
@@ -327,24 +330,28 @@ Procedure WaitDeletableFilesInfoCalculationEnd()
 	TimeConsumingOperationsClient.WaitCompletion(TotalsCalculationDetails, Handler, IdleParameters);
 EndProcedure
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
 Procedure OnFinishCalculatingDetailsAboutFilesToDelete(Result, AdditionalParameters) Export
+	
+	Items.PagesTotalsFilesToDelete.CurrentPage = Items.PageTotalsDisplayFilesToDelete;
+	
 	If Result = Undefined Then
 		Return;
 	EndIf; 
 	
-	If Result.Status = "Completed2" Then
-		Totals = GetFromTempStorage(Result.ResultAddress); // See FilesOperationsInternal.InformationAboutFilesToBeCleaned
-		DisplayTotals(Totals.TheAmountOfFilesBeingDeleted, Totals.IrrelevantFilesVolume);
-	Else
+	If Result.Status = "Error" Then
 		DisplayTotals(0, 0);
-		WarningText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot calculate the total size of files to delete:
-			|%1';"),
-			Result.BriefErrorDescription);
-		ShowMessageBox(, WarningText);
+		StandardSubsystemsClient.OutputErrorInfo(
+			Result.ErrorInfo);
 	EndIf;
-	Items.PagesTotalsFilesToDelete.CurrentPage = Items.PageTotalsDisplayFilesToDelete;
+	
+	Totals = GetFromTempStorage(Result.ResultAddress); // See FilesOperationsInternal.InformationAboutFilesToBeCleaned
+	DisplayTotals(Totals.TheAmountOfFilesBeingDeleted, Totals.IrrelevantFilesVolume);
+	
 EndProcedure
 
 &AtClient
@@ -451,7 +458,7 @@ Procedure FillObjectTypesInValueTree()
 				NewRow.DetailedInfoAvailable = True;
 			EndIf;
 			
-			If Not StrEndsWith(Catalog.Name, FilesOperationsClientServer.CatalogSuffixAttachedFiles()) Then
+			If Not StrEndsWith(Catalog.Name, FilesOperationsInternal.CatalogSuffixAttachedFiles()) Then
 				NewRow.IsFile = True;
 			EndIf;
 			

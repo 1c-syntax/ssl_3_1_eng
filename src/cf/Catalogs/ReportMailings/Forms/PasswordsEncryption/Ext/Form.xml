@@ -11,6 +11,12 @@
 				<Representation>Text</Representation>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.WriteAndClose</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save and close</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="WriteAndCloseExtendedTooltip" id="115"/>
 			</Button>
 			<Button name="Close" id="108">
@@ -73,6 +79,12 @@
 							<ChildItems>
 								<CheckBoxField name="UseFilterPasswordSet" id="74">
 									<DataPath>UseFilterPasswordSet</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Use filter "Password is set"</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<CheckBoxType>Auto</CheckBoxType>
 									<ContextMenu name="UseFilterPasswordSetContextMenu" id="75"/>
@@ -83,6 +95,12 @@
 								</CheckBoxField>
 								<InputField name="FilterPasswordIsSet" id="80">
 									<DataPath>FilterPasswordIsSet</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Password is set</v8:content>
+										</v8:item>
+									</Title>
 									<ContextMenu name="FilterPasswordIsSetContextMenu" id="81"/>
 									<ExtendedTooltip name="FilterPasswordIsSetExtendedTooltip" id="82"/>
 									<Events>
@@ -106,6 +124,12 @@
 							<ChildItems>
 								<CheckBoxField name="UseFilterPasswordChanged" id="90">
 									<DataPath>UseFilterPasswordChanged</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Use filter "Password is changed"</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<CheckBoxType>Auto</CheckBoxType>
 									<ContextMenu name="UseFilterPasswordChangedContextMenu" id="91"/>
@@ -116,6 +140,12 @@
 								</CheckBoxField>
 								<InputField name="FilterPasswordChanged" id="87">
 									<DataPath>FilterPasswordChanged</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Password is changed</v8:content>
+										</v8:item>
+									</Title>
 									<ContextMenu name="FilterPasswordChangedContextMenu" id="88"/>
 									<ExtendedTooltip name="FilterPasswordChangedExtendedTooltip" id="89"/>
 									<Events>
@@ -154,6 +184,12 @@
 							<ChildItems>
 								<CheckBoxField name="UseFilterCertificateSpecified" id="71">
 									<DataPath>UseFilterCertificateSpecified</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Use filter "Certificate is specified"</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<CheckBoxType>Auto</CheckBoxType>
 									<ContextMenu name="UseFilterCertificateSpecifiedContextMenu" id="72"/>
@@ -164,6 +200,12 @@
 								</CheckBoxField>
 								<InputField name="FilterCertificateSpecified" id="77">
 									<DataPath>FilterCertificateSpecified</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Certificate is specified</v8:content>
+										</v8:item>
+									</Title>
 									<ContextMenu name="FilterCertificateSpecifiedContextMenu" id="78"/>
 									<ExtendedTooltip name="FilterCertificateSpecifiedExtendedTooltip" id="79"/>
 									<Events>
@@ -187,6 +229,12 @@
 							<ChildItems>
 								<CheckBoxField name="UseFilterCertificateChanged" id="93">
 									<DataPath>UseFilterCertificateChanged</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Use filter "Certificate is changed"</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<CheckBoxType>Auto</CheckBoxType>
 									<ContextMenu name="UseFilterCertificateChangedContextMenu" id="94"/>
@@ -197,6 +245,12 @@
 								</CheckBoxField>
 								<InputField name="FilterIsCertificateChanged" id="96">
 									<DataPath>FilterIsCertificateChanged</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Certificate is changed</v8:content>
+										</v8:item>
+									</Title>
 									<ContextMenu name="FilterIsCertificateChangedContextMenu" id="97"/>
 									<ExtendedTooltip name="FilterIsCertificateChangedExtendedTooltip" id="98"/>
 									<Events>
@@ -222,28 +276,58 @@
 				<Button name="PopulateCertificates" id="52">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.PopulateCertificates</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Fill certificates</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="PopulateCertificatesExtendedTooltip" id="53"/>
 				</Button>
 				<Button name="SetPasswords" id="54">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.SetPasswords</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Set passwords</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="SetPasswordsExtendedTooltip" id="55"/>
 				</Button>
 				<Button name="PrintPasswordsList" id="58">
 					<Type>CommandBarButton</Type>
 					<Representation>PictureAndText</Representation>
 					<CommandName>Form.Command.PrintPasswordsList</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Password list</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="PrintPasswordsListExtendedTooltip" id="59"/>
 				</Button>
 				<Button name="DeliverPasswordsViaSMS" id="60">
 					<Type>CommandBarButton</Type>
 					<Representation>PictureAndText</Representation>
 					<CommandName>Form.Command.DeliverPasswordsViaSMS</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Send passwords</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="DeliverPasswordsViaSMSExtendedTooltip" id="61"/>
 				</Button>
 				<Button name="TogglePasswordsMasking" id="56">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.TogglePasswordsMasking</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Hide/show passwords</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="TogglePasswordsMaskingExtendedTooltip" id="57"/>
 				</Button>
 				<Button name="OutputList" id="36">
@@ -359,6 +443,12 @@
 				<InputField name="RecipientsRecipient" id="14">
 					<DataPath>Recipients.Recipient</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Recipient</v8:content>
+						</v8:item>
+					</Title>
 					<Width>31</Width>
 					<ContextMenu name="RecipientsRecipientContextMenu" id="15"/>
 					<ExtendedTooltip name="RecipientsRecipientExtendedTooltip" id="16"/>
@@ -366,12 +456,24 @@
 				<InputField name="RecipientsEmail" id="17">
 					<DataPath>Recipients.Email</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Email address</v8:content>
+						</v8:item>
+					</Title>
 					<Width>30</Width>
 					<ContextMenu name="RecipientsEmailContextMenu" id="18"/>
 					<ExtendedTooltip name="RecipientsEmailExtendedTooltip" id="19"/>
 				</InputField>
 				<InputField name="RecipientsArchivePassword" id="23">
 					<DataPath>Recipients.ArchivePassword</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Archive password</v8:content>
+						</v8:item>
+					</Title>
 					<HeaderPicture>
 						<xr:Ref>StdPicture.Change</xr:Ref>
 						<xr:LoadTransparent>true</xr:LoadTransparent>
@@ -388,6 +490,12 @@
 				<InputField name="RecipientsArchivePassword2" id="103">
 					<DataPath>Recipients.ArchivePassword</DataPath>
 					<Visible>false</Visible>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Archive password</v8:content>
+						</v8:item>
+					</Title>
 					<HeaderPicture>
 						<xr:Ref>StdPicture.Change</xr:Ref>
 						<xr:LoadTransparent>true</xr:LoadTransparent>

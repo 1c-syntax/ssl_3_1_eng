@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -345,12 +346,12 @@ Function PrepareDataToCreateInitialImage(JobParameters, InfobaseKind)
 	EndIf;
 	
 	If InfobaseKind = 0 Then
-		
-		
+		// 
+		// 
 		Result = FilesOperationsInternal.PrepareDataToCreateFileInitialImage(JobParameters);
 	Else
-		
-		
+		// 
+		// 
 		Result = FilesOperationsInternal.PrepareDataToCreateServerInitialImage(JobParameters);
 	EndIf;
 	
@@ -378,25 +379,12 @@ Procedure StartInitialImageCreation()
 		Return;
 	EndIf;
 	
-	If Result.Status = "Running" Then
-		CompletionNotification2 = New NotifyDescription("CreateInitialImageAtServerCompletion", ThisObject);
-		IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
-		IdleParameters.OutputIdleWindow = False;
-		IdleParameters.OutputProgressBar = True;
-		IdleParameters.ExecutionProgressNotification = New NotifyDescription("CreateInitialImageAtServerProgress", ThisObject);
-		TimeConsumingOperationsClient.WaitCompletion(Result, CompletionNotification2, IdleParameters);
-	ElsIf Result.Status = "Completed2" Then
-		GoToWaitPage();
-		ProgressPercent = 100;
-		ProgressAdditionalInformation = "";
-		// Go to the page with the result with a 1 sec delay.
-		AttachIdleHandler("ExecuteGoResult", 1, True);
-	Else
-		ProgressPercent = 0;
-		Items.StatusError.Title = NStr("en = 'Cannot create an initial image. Reason:';") + "
-			|" + Result.BriefErrorDescription;
-		ExecuteGoResult();
-	EndIf;
+	CallbackOnCompletion = New NotifyDescription("CreateInitialImageAtServerCompletion", ThisObject);
+	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
+	IdleParameters.OutputIdleWindow = False;
+	IdleParameters.OutputProgressBar = True;
+	IdleParameters.ExecutionProgressNotification = New NotifyDescription("CreateInitialImageAtServerProgress", ThisObject);
+	TimeConsumingOperationsClient.WaitCompletion(Result, CallbackOnCompletion, IdleParameters);
 
 EndProcedure
 
@@ -422,12 +410,18 @@ Function CreateInitialImageAtServer(Val Action)
 	
 EndFunction
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
 Procedure CreateInitialImageAtServerCompletion(Result, AdditionalParameters) Export
 	
+	ProgressAdditionalInformation = "";
+	
 	If Result = Undefined Then
 		ProgressPercent = 0;
-		ProgressAdditionalInformation = NStr("en = 'The operation is canceled by administrator.';");
+		Items.StatusError.Title = NStr("en = 'The operation is canceled by administrator.';");
 		ExecuteGoResult();
 		Return;
 	EndIf;
@@ -437,26 +431,28 @@ Procedure CreateInitialImageAtServerCompletion(Result, AdditionalParameters) Exp
 		Items.StatusError.Title = NStr("en = 'Cannot create an initial image. Reason:';") + "
 			|" + Result.BriefErrorDescription;
 		ExecuteGoResult();
+		StandardSubsystemsClient.OutputErrorInfo(
+			Result.ErrorInfo);
 		Return;
 	EndIf;
 	
 	ProgressPercent = 100;
-	ProgressAdditionalInformation = "";
 	ExecuteGoResult();
 	
 EndProcedure
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.LongRunningOperationNewState
+//  AdditionalParameters - Undefined
+//
 &AtClient
-Procedure CreateInitialImageAtServerProgress(Progress, AdditionalParameters) Export
+Procedure CreateInitialImageAtServerProgress(Result, AdditionalParameters) Export
 	
-	If Progress = Undefined Then
-		Return;
-	EndIf;
-	
-	If Progress.Progress <> Undefined Then
-		ProgressStructure = Progress.Progress;
-		ProgressPercent = ProgressStructure.Percent;
-		ProgressAdditionalInformation = ProgressStructure.Text;
+	If Result.Status = "Running"
+	   And Result.Progress <> Undefined Then
+		
+		ProgressPercent = Result.Progress.Percent;
+		ProgressAdditionalInformation = Result.Progress.Text;
 	EndIf;
 	
 EndProcedure

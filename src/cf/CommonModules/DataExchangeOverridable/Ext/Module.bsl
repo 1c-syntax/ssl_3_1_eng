@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -249,8 +250,8 @@ Procedure OnGetAvailableFormatExtensions(FormatExtensions) Export
 	
 EndProcedure
 
-// 
-// 
+// Intended for being called by "OnWrite" event of the "IsStandaloneWorkplace" constant.
+// It allows to override the standard data processor when the constant value is modified.
 //
 // Parameters:
 //   PreviousValue - Boolean - Value of constant IsStandaloneWorkplace before change.
@@ -264,8 +265,8 @@ Procedure WhenChangingOfflineModeOption(PreviousValue, NewCurrent, StandardProce
 	
 EndProcedure
 
-//  
-// (See InformationRegisters.DataExchangeResults.RecordIssueResolved)
+// Populates an array of types that must be excluded from the scope of the troubleshooting check 
+// (See InformationRegisters.DataExchangeResults.RecordIssueResolved).
 //
 // Parameters:
 //  Types - Array of MetadataObject 
@@ -278,17 +279,17 @@ EndProcedure
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. 
-// 
-// 
-// 
+// Deprecated. Obsolete. Instead, use the "Global" parameter to search for an exchange plan. 
+// See the "OnGetSettings" in the universal exchange plan manager.
+// It is called when an IFDE exchange plan's name is being checked.
+// It allows the setup of synchronization between "EnterpriseData" exchange plans with unmatched names.
 // 
 // Parameters:
-//   ExchangePlanName - String -  
-//                             
-//   SettingsMode - String - 
-//                               
-//   ExchangePlanIsRecognized - Boolean - 
+//   ExchangePlanName - String - The name of the IFDE exchange plan whose 
+//                             counterpart is being searched for in the configuration metadata.
+//   SettingsMode - String - A setting option id. Intended for search refining. It is optional.
+//                               (For example, you can skip it in case of checking the format of an exchange message).
+//   ExchangePlanIsRecognized - Boolean - Flag indicating whether the passed exchange plan's name is recognized and you can proceed further.
 //
 Procedure WhenCheckingCorrectnessOfNameOfEnterpriseDataExchangePlan(ExchangePlanName, SettingsMode, ExchangePlanIsRecognized) Export
 	

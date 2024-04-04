@@ -18,6 +18,12 @@
 					<xr:Ref>StdPicture.Write</xr:Ref>
 					<xr:LoadTransparent>true</xr:LoadTransparent>
 				</Picture>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="ExchangeNodesTreeChangeRegistrationExtendedTooltip" id="58"/>
 			</Button>
 			<ButtonGroup name="Group1" id="48">
@@ -32,12 +38,24 @@
 					<Button name="FormSelectAllNodes" id="36">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.CheckAllNodes</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Select all</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="FormSelectAllNodesExtendedTooltip" id="60"/>
 					</Button>
 					<Button name="FormUncheckAllNodes" id="37">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.UncheckAllNodes</CommandName>
-						<ExtendedTooltip name="FormClearAllNodesExtendedTooltip" id="61"/>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Clear all</v8:content>
+							</v8:item>
+						</Title>
+						<ExtendedTooltip name="FormUncheckAllNodesExtendedTooltip" id="61"/>
 					</Button>
 				</ChildItems>
 			</ButtonGroup>
@@ -70,6 +88,12 @@
 						<Type>CommandBarButton</Type>
 						<Representation>PictureAndText</Representation>
 						<CommandName>Form.Command.OpenSettingsForm</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Settings</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="FormOpenSettingsFormExtendedTooltip" id="64"/>
 					</Button>
 				</ChildItems>
@@ -138,6 +162,12 @@
 									<xr:Ref>StdPicture.CheckAll</xr:Ref>
 									<xr:LoadTransparent>true</xr:LoadTransparent>
 								</Picture>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Select all</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="ExchangeNodesTreeContextMenuCheckAllNodesExtendedTooltip" id="66"/>
 							</Button>
 							<Button name="ExchangeNodesTreeContextMenuUncheckAllNodes" id="42">
@@ -147,6 +177,12 @@
 									<xr:Ref>StdPicture.UncheckAll</xr:Ref>
 									<xr:LoadTransparent>true</xr:LoadTransparent>
 								</Picture>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Clear all</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="ExchangeNodesTreeContextMenuUncheckAllNodesExtendedTooltip" id="67"/>
 							</Button>
 							<Button name="ExchangeNodesTreeContextMenuInvertAllNodesChecks" id="43">
@@ -156,6 +192,12 @@
 									<xr:Abs>Picture.png</xr:Abs>
 									<xr:LoadTransparent>false</xr:LoadTransparent>
 								</Picture>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Invert selection</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="ExchangeNodesTreeContextMenuInvertAllNodesChecksExtendedTooltip" id="68"/>
 							</Button>
 						</ChildItems>
@@ -314,7 +356,7 @@
 							</Title>
 							<EditMode>EnterOnInput</EditMode>
 							<ContextMenu name="ExchangeNodesTreeMessageNumberContextMenu" id="55"/>
-							<ExtendedTooltip name="ExchangeNodesTreeMessageNumberExtendedTooltip" id="80"/>
+							<ExtendedTooltip name="ExchangeNodesTreeMessageNoExtendedTooltip" id="80"/>
 						</InputField>
 					</ChildItems>
 				</ColumnGroup>

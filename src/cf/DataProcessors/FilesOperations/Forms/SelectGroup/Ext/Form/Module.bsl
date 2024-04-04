@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -100,8 +101,8 @@ Procedure ListValueChoice(Item, Value, StandardProcessing)
 	
 	MoveFilesToGroup(Parameters.FilesToMove, Value);
 	NotifyChanged(TypeOf(Parameters.FilesToMove[0]));
-	FileRecordingNotificationParameters = FilesOperationsInternalClient.FileRecordingNotificationParameters();
-	Notify("Write_File", FileRecordingNotificationParameters, Parameters.FilesToMove);
+	FileWriteNotificationParameters = FilesOperationsInternalClient.FileWriteNotificationParameters();
+	Notify("Write_File", FileWriteNotificationParameters, Parameters.FilesToMove);
 	Close();
 	
 EndProcedure

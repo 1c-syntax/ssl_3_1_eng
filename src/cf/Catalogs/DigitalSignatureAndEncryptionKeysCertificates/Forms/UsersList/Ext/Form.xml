@@ -42,6 +42,12 @@
 					<ChildItems>
 						<RadioButtonField name="ChoiceMode" id="36">
 							<DataPath>ChoiceMode</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Selection method</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<RadioButtonType>Auto</RadioButtonType>
 							<ChoiceList>
@@ -82,6 +88,12 @@
 					<ChildItems>
 						<RadioButtonField name="SelectionMethodList" id="39">
 							<DataPath>ChoiceMode</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Selection method</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<RadioButtonType>Auto</RadioButtonType>
 							<ChoiceList>
@@ -140,7 +152,7 @@
 										<Title>
 											<v8:item>
 												<v8:lang>en</v8:lang>
-												<v8:content>Button group</v8:content>
+												<v8:content>Buttons</v8:content>
 											</v8:item>
 										</Title>
 										<Representation>Compact</Representation>
@@ -149,11 +161,23 @@
 											<Button name="UsersSelectAll" id="26">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.SelectAllItems</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Select all</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="UsersMarkAllExtendedTooltip" id="27"/>
 											</Button>
 											<Button name="UsersCancelCheck" id="28">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.CancelCheck</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Clear all</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="UsersCancelTaggingExtendedTooltip" id="29"/>
 											</Button>
 										</ChildItems>
@@ -188,6 +212,12 @@
 							<ChildItems>
 								<CheckBoxField name="UsersCheck" id="23">
 									<DataPath>UsersTable.Check</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Checkmark</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<CheckBoxType>Auto</CheckBoxType>
 									<ContextMenu name="UsersTaggingContextMenu" id="24"/>
@@ -196,6 +226,12 @@
 								<InputField name="UsersUser" id="20">
 									<DataPath>UsersTable.User</DataPath>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>User</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ContextMenu name="UsersUserContextMenu" id="21"/>
 									<ExtendedTooltip name="UsersUserExtendedTooltip" id="22"/>
@@ -208,7 +244,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Group Pick</v8:content>
+							<v8:content>Pick</v8:content>
 						</v8:item>
 					</Title>
 					<ShowTitle>false</ShowTitle>
@@ -218,6 +254,12 @@
 							<Representation>List</Representation>
 							<Header>false</Header>
 							<DataPath>SelectedUsers</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Selected users</v8:content>
+								</v8:item>
+							</Title>
 							<RowFilter xsi:nil="true"/>
 							<ContextMenu name="SelectedUsersContextMenu" id="53"/>
 							<AutoCommandBar name="SelectedUsersCommandBar" id="52"/>
@@ -252,6 +294,12 @@
 							<ChildItems>
 								<InputField name="SelectedUsersUser" id="67">
 									<DataPath>SelectedUsers.User</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>User</v8:content>
+										</v8:item>
+									</Title>
 									<ContextMenu name="SelectedUsersUserContextMenu" id="68"/>
 									<ExtendedTooltip name="SelectedUsersUserExtendedTooltip" id="69"/>
 								</InputField>
@@ -287,6 +335,12 @@
 					<DefaultButton>true</DefaultButton>
 					<DefaultItem>true</DefaultItem>
 					<CommandName>Form.Command.OK</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>OK</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="OKExtendedTooltip" id="31"/>
 				</Button>
 				<Button name="Cancel" id="5">

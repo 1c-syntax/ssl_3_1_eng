@@ -13,11 +13,23 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.CloseForm</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Close form</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormClose3ExtendedTooltip" id="24"/>
 			</Button>
 			<Button name="FormRefresh" id="25">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.Refresh</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Refresh</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormRefreshExtendedTooltip" id="26"/>
 			</Button>
 		</ChildItems>
@@ -72,6 +84,12 @@
 			<ChildItems>
 				<InputField name="CircuitName" id="17">
 					<DataPath>Circuit.Name</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Name</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<HorizontalStretch>false</HorizontalStretch>
 					<ContextMenu name="CircuitNameContextMenu" id="18"/>
@@ -79,6 +97,12 @@
 				</InputField>
 				<InputField name="CircuitCode" id="14">
 					<DataPath>Circuit.Code</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Code</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<HorizontalStretch>false</HorizontalStretch>
 					<ContextMenu name="CircuitCodeContextMenu" id="15"/>
@@ -86,6 +110,12 @@
 				</InputField>
 				<InputField name="CircuitLatestUpdate" id="20">
 					<DataPath>Circuit.LatestUpdate</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Last update</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<HorizontalStretch>false</HorizontalStretch>
 					<ContextMenu name="CircuitLatestUpdateContextMenu" id="21"/>
@@ -93,6 +123,12 @@
 				</InputField>
 				<CheckBoxField name="CircuitLooping" id="30">
 					<DataPath>Circuit.Looping</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Loop</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<CheckBoxType>Auto</CheckBoxType>
 					<ContextMenu name="CircuitLoopingContextMenu" id="31"/>

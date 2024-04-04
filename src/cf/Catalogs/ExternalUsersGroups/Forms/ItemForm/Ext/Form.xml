@@ -159,6 +159,12 @@
 										<Button name="SelectPurpose" id="234">
 											<Type>Hyperlink</Type>
 											<CommandName>Form.Command.SelectPurpose</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>&lt;Not specified&gt;</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="SelectPurposeExtendedTooltip" id="235"/>
 										</Button>
 									</ChildItems>
@@ -198,6 +204,12 @@
 										<Type>CommandBarButton</Type>
 										<SkipOnInput>false</SkipOnInput>
 										<CommandName>Form.Command.PickExternalUsers</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Pick</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="CompositionContextMenuPickExtendedTooltip" id="159"/>
 									</Button>
 									<Button name="ContentContextMenuAdd" id="45">
@@ -220,11 +232,23 @@
 									<Button name="ContentContextMenuMoveUp" id="206">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.MoveUp</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Move up</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ContentContextMenuMoveUpExtendedTooltip" id="207"/>
 									</Button>
 									<Button name="ContentContextMenuMoveDown" id="208">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.MoveDown</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Move down</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ContentContextMenuMoveDownExtendedTooltip" id="209"/>
 									</Button>
 									<ButtonGroup name="CompositionContextMenuStandardCommands" id="186">
@@ -246,6 +270,12 @@
 										<Type>CommandBarButton</Type>
 										<SkipOnInput>false</SkipOnInput>
 										<CommandName>Form.Command.PickExternalUsers</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Pick</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="CompositionPickExtendedTooltip" id="163"/>
 									</Button>
 									<Button name="ContentAdd" id="32">
@@ -270,12 +300,24 @@
 									<Button name="ContentMoveUp" id="202">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.MoveUp</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Move up</v8:content>
+											</v8:item>
+										</Title>
 										<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 										<ExtendedTooltip name="ContentMoveUpExtendedTooltip" id="203"/>
 									</Button>
 									<Button name="ContentMoveDown" id="204">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.MoveDown</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Move down</v8:content>
+											</v8:item>
+										</Title>
 										<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 										<ExtendedTooltip name="ContentMoveDownExtendedTooltip" id="205"/>
 									</Button>
@@ -292,11 +334,23 @@
 											<Button name="ContentSortAsc" id="198">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.SortAsc</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Sort ascending</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ContentSortAscExtendedTooltip" id="199"/>
 											</Button>
 											<Button name="ContentSortDesc" id="200">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.SortDesc</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Sort descending</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ContentSortDescExtendedTooltip" id="201"/>
 											</Button>
 										</ChildItems>
@@ -314,8 +368,14 @@
 											<Button name="ShowInvalidUsers" id="149">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.ShowInvalidUsers</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Show inactive users</v8:content>
+													</v8:item>
+												</Title>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-												<ExtendedTooltip name="ShowInvalidUsersExtendedTooltip" id="152"/>
+												<ExtendedTooltip name="ShowInvalidUsers1ExtendedTooltip" id="152"/>
 											</Button>
 										</ChildItems>
 									</ButtonGroup>
@@ -465,12 +525,24 @@
 														<Type>CommandBarButton</Type>
 														<SkipOnInput>false</SkipOnInput>
 														<CommandName>Form.Command.AddRoles</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Add roles</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="RolesSelectAllExtendedTooltip" id="176"/>
 													</Button>
 													<Button name="RolesClearAll" id="140">
 														<Type>CommandBarButton</Type>
 														<SkipOnInput>false</SkipOnInput>
 														<CommandName>Form.Command.RemoveRoles</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Remove roles</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="RolesClearAllExtendedTooltip" id="177"/>
 													</Button>
 												</ChildItems>
@@ -479,12 +551,24 @@
 												<Type>CommandBarButton</Type>
 												<SkipOnInput>false</SkipOnInput>
 												<CommandName>Form.Command.ShowSelectedRolesOnly</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Selected roles only</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="RolesShowSelectedRolesOnlyExtendedTooltip" id="178"/>
 											</Button>
 											<Button name="RolesShowRolesSubsystems" id="146">
 												<Type>CommandBarButton</Type>
 												<Representation>Picture</Representation>
 												<CommandName>Form.Command.RolesBySubsystemsGroup</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Group by subsystem</v8:content>
+													</v8:item>
+												</Title>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 												<ExtendedTooltip name="RolesShowRolesSubsystemsExtendedTooltip" id="179"/>
 											</Button>
@@ -552,6 +636,12 @@
 											<ChildItems>
 												<CheckBoxField name="RolesCheck" id="142">
 													<DataPath>Roles.Check</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Checkmark</v8:content>
+														</v8:item>
+													</Title>
 													<EditMode>Directly</EditMode>
 													<ShowInHeader>false</ShowInHeader>
 													<CheckBoxType>Auto</CheckBoxType>
@@ -564,6 +654,12 @@
 												<InputField name="RolesSynonym" id="144">
 													<DataPath>Roles.Synonym</DataPath>
 													<ReadOnly>true</ReadOnly>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Allowed action (role)</v8:content>
+														</v8:item>
+													</Title>
 													<EditMode>EnterOnInput</EditMode>
 													<ContextMenu name="RolesSynonymContextMenu" id="145"/>
 													<ExtendedTooltip name="RolesSynonymExtendedTooltip" id="183"/>

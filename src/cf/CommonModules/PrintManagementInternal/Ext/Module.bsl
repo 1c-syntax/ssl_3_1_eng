@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Private
@@ -74,22 +75,22 @@ Function GeneratePrintForms(TableOfPrintedForms, GenerationParameters, OfficeDoc
 EndFunction
 
 //////////////////////////////////////////////////////////////////////////////////
-
+// 
 //
-
+// 
 //
-
+// 
 //  
 //  
 //                                     
 //
-
+// 
 //  
 //                           
 //  
 //                                     
 //
-
+// 
 //  
 //  
 //  
@@ -103,18 +104,18 @@ EndFunction
 //  
 //  
 //
-
+// 
 //  
 //                                 
 //  
 //  
 //
-
+// 
 //  
 //  
 //  
 //
-
+// 
 //  
 //  
 //  
@@ -241,11 +242,8 @@ Function TemplateFromDCSBinaryData(BinaryTemplateData) Export
 	
 EndFunction
 
-
-// Initialize the DCS document.
-// 
 // Returns:
-//  Structure - :
+//  Structure:
 //   * HeaderFooter - Map 
 //   * ContentTypes1 - See DocumentTree
 //   * ContentRelations - See DocumentTree
@@ -297,9 +295,9 @@ Function TableOfTemplateAreas()
 	TableOfAreas.Columns.Add("IndexOf");
 	TableOfAreas.Columns.Add("AreaTree");
 	TableOfAreas.Columns.Add("Parameters");
+	TableOfAreas.Columns.Add("NestedAreas");
 	Return TableOfAreas
 EndFunction
-
 
 // Convert parameters.
 // 
@@ -1371,24 +1369,27 @@ Procedure FindAreas(DocumentStructure, ObjectTablePartNames) Export
 	Areas = DocumentStructure.Areas;
 	DocumentTree = DocumentStructure.DocumentTree;
 	
-	FoundAreasStart = New Array;
-	FoundAreasEnd = New Array;
-	FindNodes(DocumentTree, "{"+TagNameCondition(), FoundAreasStart);
-	FindNodes(DocumentTree, "{/"+TagNameCondition(), FoundAreasEnd);
+	BeginningsOfConditionalAreas = New Array;
+	ConditionalAreasEnds = New Array;
+	FindNodes(DocumentTree, "{"+TagNameCondition(), BeginningsOfConditionalAreas);
+	FindNodes(DocumentTree, "{/"+TagNameCondition(), ConditionalAreasEnds);
 	
 	For Each TabularSectionName In ObjectTablePartNames Do
 		FoundAreas = New Array;
 		FindNodes(DocumentTree, "["+TabularSectionName+".", FoundAreas);
 		For Each Area In FoundAreas Do
-			If FoundAreasStart.Find(Area) <> Undefined Then
+			If BeginningsOfConditionalAreas.Find(Area) <> Undefined Then
 				Continue;
 			EndIf;
 			TableAreaStartNode = FindTableAreaRoot(Area);
-			If Areas.Find(TableAreaStartNode, "DocTreeNode") = Undefined Then
+			AddedTabularSectionBeginningNode = Areas.Find(TableAreaStartNode, "DocTreeNode");
+			If AddedTabularSectionBeginningNode = Undefined Then
 				NewArea = Areas.Add();
 				NewArea.DocTreeNode = TableAreaStartNode;
 				NewArea.Collection = TabularSectionName;
 				NewArea.IndexOf = NewArea.DocTreeNode.IndexOf;
+			Else
+				AddedTabularSectionBeginningNode.Collection = TabularSectionName;
 			EndIf;
 			
 			TableAreaEndNode = GetNextNode(TableAreaStartNode);
@@ -1400,77 +1401,98 @@ Procedure FindAreas(DocumentStructure, ObjectTablePartNames) Export
 		EndDo;
 	EndDo;
 	
-	FoundAreasIndexesStart = GetIndexesOfNodesArray(FoundAreasStart);
-	FoundAreasIndexesEnd = GetIndexesOfNodesArray(FoundAreasEnd);
+	IndicesOfBeginningsOfConditionalAreas = GetIndexesOfNodesArray(BeginningsOfConditionalAreas);
+	IndexesOfEndingsOfConditionalAreas = GetIndexesOfNodesArray(ConditionalAreasEnds);
 	
-	For Each FoundAreaIndexStart In FoundAreasIndexesStart Do
-		StartArea = DocumentTree.Rows.Find(FoundAreaIndexStart, "IndexOf", True);
-		For Each FoundAreaIndexEnd In FoundAreasIndexesEnd Do
-			EndArea = DocumentTree.Rows.Find(FoundAreaIndexEnd, "IndexOf", True);
-			If FoundAreaIndexStart < FoundAreaIndexEnd Then
+	For Each IndexOfStartOfConditionalArea In IndicesOfBeginningsOfConditionalAreas Do
+		BeginningOfConditionalArea = DocumentTree.Rows.Find(IndexOfStartOfConditionalArea, "IndexOf", True);
+		For Each IndexOfEndOfConditionalArea In IndexesOfEndingsOfConditionalAreas Do
+			EndOfConditionalArea = DocumentTree.Rows.Find(IndexOfEndOfConditionalArea, "IndexOf", True);
+			If IndexOfStartOfConditionalArea < IndexOfEndOfConditionalArea Then
 				Break;
 			EndIf;
 		EndDo;
 		
-		AreaCondition = AreaCondition(StartArea);
-		If EndArea = Undefined Then
+		AreaCondition = AreaCondition(BeginningOfConditionalArea);
+		If EndOfConditionalArea = Undefined Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'In the document template, the end of the %1 conditional area is not specified.';"), AreaCondition);
 		EndIf;
-		
+		AddConditionalAreas = True;
 		CollectionArea = Undefined;
 		ConditionalAreasEnds = New Array;
 		AreasToRemove = New Array;
-		For Each Area In Areas Do
-			If Area.IndexOf >= FoundAreaIndexEnd Or FoundAreaIndexStart >= Area.IndexOf Then
-				Continue;
-			EndIf;
-			If ValueIsFilled(Area.Collection) Then
-				CollectionArea = Area;
-			EndIf;
-			IsConditionEndParent = 
-				Area.DocTreeNode.Rows.Find(FoundAreaIndexEnd, "IndexOf", True) <> Undefined;
-			If Not IsConditionEndParent Then
-				Area.AreaCondition = AreaCondition;
-				Continue;
-			EndIf;
+		If Areas.Count() > 0 Then
+			For AreaIndex = 0 To Areas.Count() - 1 Do
+				Area = Areas[AreaIndex];
+				NextArea = ?(AreaIndex+1 < Areas.Count(), Areas[AreaIndex+1], Undefined);
 				
-			If CollectionArea <> Undefined Then
-				NextAreaNode = NextAreaBorder(CollectionArea.DocTreeNode, Areas);
-				If NextAreaNode <> Undefined And NextAreaNode.IndexOf < FoundAreaIndexEnd Then
-					AreaProperties = New Structure("DocTreeNode, AreaCondition");
-					AreaProperties.DocTreeNode = NextAreaNode;
-					AreaProperties.AreaCondition = AreaCondition;
-					ConditionalAreasEnds.Add(AreaProperties);
+				If IndexOfStartOfConditionalArea >= Area.IndexOf And Area.IndexOf >= IndexOfEndOfConditionalArea Then
+					If ValueIsFilled(Area.Collection) Then
+						CollectionArea = Area;
+					EndIf;
+					IsConditionEndParent = 
+						Area.DocTreeNode.Rows.Find(IndexOfEndOfConditionalArea, "IndexOf", True) <> Undefined;
+					If Not IsConditionEndParent Then
+						Area.AreaCondition = AreaCondition;
+						Continue;
+					EndIf;
+						
+					If CollectionArea <> Undefined Then
+						NextAreaNode = NextAreaBorder(CollectionArea.DocTreeNode, Areas);
+						If NextAreaNode <> Undefined And NextAreaNode.IndexOf < IndexOfEndOfConditionalArea Then
+							AreaProperties = New Structure("DocTreeNode, AreaCondition");
+							AreaProperties.DocTreeNode = NextAreaNode;
+							AreaProperties.AreaCondition = AreaCondition;
+							ConditionalAreasEnds.Add(AreaProperties);
+						EndIf;
+					EndIf;
+					
+					NextAreaNode = NextAreaBorder(EndOfConditionalArea, Areas);
+					If NextAreaNode = Undefined Then
+						AreasToRemove.Add(Area);
+						Continue;
+					EndIf;
+					Area.DocTreeNode = NextAreaNode;
+					Area.IndexOf = Area.DocTreeNode.IndexOf;
+				ElsIf NextArea <> Undefined And IndexOfStartOfConditionalArea >= Area.IndexOf
+					And NextArea.IndexOf >= IndexOfEndOfConditionalArea Then
+					If Area.NestedAreas = Undefined Then
+						Area.NestedAreas = TableOfTemplateAreas();
+					EndIf;
+					For IndexOfSUBAsset = IndexOfStartOfConditionalArea + 1 To IndexOfEndOfConditionalArea - 1 Do
+						SubAssetWithCondition = Area.DocTreeNode.Rows.Find(IndexOfSUBAsset, "IndexOf", True);
+						If SubAssetWithCondition <> Undefined Then
+							NestedCondition = Area.NestedAreas.Add();
+							NestedCondition.DocTreeNode = SubAssetWithCondition;
+							NestedCondition.AreaCondition = AreaCondition;
+							NestedCondition.IndexOf = IndexOfSUBAsset;
+						EndIf;
+						AddConditionalAreas = False;
+					EndDo;
 				EndIf;
-			EndIf;
-			
-			NextAreaNode = NextAreaBorder(EndArea, Areas);
-			If NextAreaNode = Undefined Then
-				AreasToRemove.Add(Area);
-				Continue;
-			EndIf;
-			Area.DocTreeNode = NextAreaNode;
-			Area.IndexOf = Area.DocTreeNode.IndexOf;
-		EndDo;
+			EndDo;
 		
-		For Each Area In AreasToRemove Do
-			Areas.Delete(Area);
-		EndDo;
+			For Each Area In AreasToRemove Do
+				Areas.Delete(Area);
+			EndDo;
 		
-		For Each AreaProperties In ConditionalAreasEnds Do
-			NewArea = Areas.Add();
-			FillPropertyValues(NewArea, AreaProperties);
-			NewArea.IndexOf = NewArea.DocTreeNode.IndexOf;
-		EndDo;
+			For Each AreaProperties In ConditionalAreasEnds Do
+				NewArea = Areas.Add();
+				FillPropertyValues(NewArea, AreaProperties);
+				NewArea.IndexOf = NewArea.DocTreeNode.IndexOf;
+			EndDo;
+		EndIf;
 		
-		AddAreaWithCondition(Areas, StartArea);
-		EndArea = DocumentTree.Rows.Find(FoundAreaIndexEnd, "IndexOf", True);
-		AddAreaWithCondition(Areas, EndArea);
+		If AddConditionalAreas Then
+			AddAreaWithCondition(Areas, BeginningOfConditionalArea);
+			EndOfConditionalArea = DocumentTree.Rows.Find(IndexOfEndOfConditionalArea, "IndexOf", True);
+			AddAreaWithCondition(Areas, EndOfConditionalArea);
+		EndIf;
 	EndDo;
 	
-	DeleteConditionalAreasTags(FoundAreasIndexesStart, DocumentTree);
-	DeleteConditionalAreasTags(FoundAreasIndexesEnd, DocumentTree);
+	DeleteConditionalAreasTags(IndicesOfBeginningsOfConditionalAreas, DocumentTree);
+	DeleteConditionalAreasTags(IndexesOfEndingsOfConditionalAreas, DocumentTree);
 	
 	StartNode = DocumentTree.Rows[0];
 	If Areas.Find(StartNode, "DocTreeNode") = Undefined Then
@@ -1682,7 +1704,6 @@ Procedure FindNodesByContent(TreeRow, NameTag, NodesArray, SearchParameters = Un
 	EndDo;
 	
 EndProcedure
-
 
 Procedure RestoreFullText(XMLTree, Hyperlinks) Export
 	For Each String In XMLTree.Rows Do
@@ -2145,7 +2166,6 @@ EndFunction
 // Compile an office document file.
 // 
 // Parameters:
-//  TreeOfTemplate - See PrintManagementInternal.ИнициализироватьДокументСКД.
 //  Encoding - String - Encoding
 // 
 // Returns:
@@ -2297,7 +2317,7 @@ Procedure AssignValToDoc(Node, ReplacementCompliance, TreeOfTemplate, ShouldAddL
 			ValueStrings_ = StrSplit(ReplacementCompliance.Value, Chars.LF, True);
 			LinesOfText = New Array;
 			NodeText = Node.Text;
-			KeyLength = StrLen(ReplacementCompliance.Key);
+			KeyLngth = StrLen(ReplacementCompliance.Key);
 			OccurrencePosition = StrFind(NodeText, ReplacementCompliance.Key);
 			While OccurrencePosition <> 0 Do
 				If OccurrencePosition > 1 Then
@@ -2305,7 +2325,7 @@ Procedure AssignValToDoc(Node, ReplacementCompliance, TreeOfTemplate, ShouldAddL
 				EndIf;
 				
 				LinesOfText.Add(ReplacementCompliance.Key);
-				NodeText = Mid(NodeText, OccurrencePosition + KeyLength);
+				NodeText = Mid(NodeText, OccurrencePosition + KeyLngth);
 				OccurrencePosition = StrFind(NodeText, ReplacementCompliance.Key);
 			EndDo;
 			
@@ -2313,21 +2333,21 @@ Procedure AssignValToDoc(Node, ReplacementCompliance, TreeOfTemplate, ShouldAddL
 				LinesOfText.Add(NodeText);
 			EndIf;
 			Node.Text = "";
-			ParentOfSUBAsset = Node.Parent;
+			ParentOfNode = Node.Parent;
 			
 			For Each TextString In LinesOfText Do
 				If TextString = ReplacementCompliance.Key Then
-					For IndexOfValueString = 0 To ValueStrings_.UBound() Do
-						ValueRow = ValueStrings_[IndexOfValueString];
-						If IndexOfValueString = 0 Then
+					For ValueRowIndex = 0 To ValueStrings_.UBound() Do
+						ValueRow = ValueStrings_[ValueRowIndex];
+						If ValueRowIndex = 0 Then
 							Node.Text = Node.Text + ValueRow;
 						Else
-							NewlineSubAsset = ParentOfSUBAsset.Rows.Insert(ParentOfSUBAsset.Rows.IndexOf(Node)+1);
-							NewlineSubAsset.IndexOf = Node.IndexOf + (1 - Node.IndexOf + Int(Node.IndexOf))/2; 
-							NewlineSubAsset.NameTag = "w:br";
+							NewLineNode = ParentOfNode.Rows.Insert(ParentOfNode.Rows.IndexOf(Node)+1);
+							NewLineNode.IndexOf = Node.IndexOf + (1 - Node.IndexOf + Int(Node.IndexOf))/2; 
+							NewLineNode.NameTag = "w:br";
 							
-							Node = MakeCopyNode(ParentOfSUBAsset, ParentOfSUBAsset.Rows.IndexOf(Node)+2, Node);
-							Node.IndexOf = NewlineSubAsset.IndexOf + (1 - NewlineSubAsset.IndexOf + Int(NewlineSubAsset.IndexOf))/2;
+							Node = MakeCopyNode(ParentOfNode, ParentOfNode.Rows.IndexOf(Node)+2, Node);
+							Node.IndexOf = NewLineNode.IndexOf + (1 - NewLineNode.IndexOf + Int(NewLineNode.IndexOf))/2;
 							Node.Text = ValueRow;
 						EndIf;
 					EndDo;
@@ -2395,8 +2415,8 @@ Procedure AssignValToDoc(Node, ReplacementCompliance, TreeOfTemplate, ShouldAddL
 				TableCellWidth = 0;
 			ElsIf PCTType And Not TableWidth = 0 Then
 				
-				
-				
+				// 
+				// 
 				
 				TableCellWidth = TableWidth * TableCellWidth / 50 / 100;
 				
@@ -2616,6 +2636,32 @@ Procedure AddAreaWithCondition(Areas, Area)
 	EndIf;
 	
 	FoundArea.AreaCondition = AreaCondition(Area);
+EndProcedure
+
+Procedure ExcludeNestedTables(ObjectTablePartNames) Export
+	For NameIndex = 0 To ObjectTablePartNames.UBound() Do
+		IndexOfSearchName = ObjectTablePartNames.UBound();
+		If NameIndex = IndexOfSearchName Then
+			Break;
+		EndIf;
+		While True Do
+			If StrStartsWith(ObjectTablePartNames[IndexOfSearchName], 
+				ObjectTablePartNames[NameIndex]) Then
+				
+				ObjectTablePartNames.Delete(IndexOfSearchName);
+				IndexOfSearchName = ObjectTablePartNames.UBound();
+			Else
+				IndexOfSearchName = IndexOfSearchName - 1;
+			EndIf;    
+			
+			If NameIndex = IndexOfSearchName Then
+				Break;
+			EndIf;
+		EndDo;
+		If NameIndex = ObjectTablePartNames.UBound() Then
+			Return;
+		EndIf;
+	EndDo;
 EndProcedure
 
 #EndRegion
@@ -2884,7 +2930,7 @@ Function AssembleDOCXDocumentFile(PrintForm)
 		
 	EndDo;
 	
-	XMLWriter.WriteEndElement(); 
+	XMLWriter.WriteEndElement(); // 
 	XMLWriter.WriteEndElement(); // Closing the </w:document> tag
 	
 	XMLWriter.Close();
@@ -3402,8 +3448,8 @@ Procedure SetFieldWidth(XMLReader, Width, Val TableWidth = 0)
 		Width = 0;
 	ElsIf PCTType And Not TableWidth = 0 Then
 		
-		
-		
+		// 
+		// 
 		
 		Width = TableWidth * Width / 50 / 100;
 		
@@ -3469,14 +3515,14 @@ EndFunction
 
 Procedure PreparePictureTemplate(TemplatePicture, StructurePicture)
 	
-	
-	
-	
-	
-	
-	
-	
-	
+	// 
+	// 
+	// 
+	// 
+	// 
+	// 
+	// 
+	// 
 	ProcessedPictureTemplate = StringFunctionsClientServer.SubstituteParametersToString(TemplatePicture, 
 		"0",
 		StructurePicture.IconName,
@@ -4819,13 +4865,13 @@ EndProcedure
 
 Procedure AnalyzeParametersInString(Val String, XMLParseStructure)
 	
+	// 
+	// 
+	// 
 	
-	
-	
-	
-	
-	
-	
+	// 
+	// 
+	// 
 	
 	FlagOf1CTagStart = "{v8 ";
 	FlagOf1CTagEnd  = "{/v8 ";

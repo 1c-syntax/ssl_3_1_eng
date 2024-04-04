@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -28,10 +29,17 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	CanReceiveEmails = EmailOperationsInternal.SubsystemSettings().CanReceiveEmails;
+	ShouldUsePOP3Protocol = EmailOperationsInternal.SubsystemSettings().ShouldUsePOP3Protocol;
+	
+	If Not ShouldUsePOP3Protocol Then
+		Protocol = "IMAP";
+	EndIf;
+	
 	ContextMode = Parameters.ContextMode;
 	Reconfigure = Parameters.Reconfigure;
 	Items.UseAccount.Visible = Not ContextMode And CanReceiveEmails;
 	Items.Protocol.Enabled = CanReceiveEmails;
+	Items.Protocol.Visible = ShouldUsePOP3Protocol;
 	Items.KeepMessagesOnServer.Visible = CanReceiveEmails;
 	
 	Items.AccountSettingsTitle.Title = ?(ContextMode,
@@ -49,7 +57,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	AuthenticationMethod = "Password";
 	
-	If Parameters.Property("Key") Then
+	If ValueIsFilled(Parameters.Key) Then
 		AccountRef = Parameters.Key;
 		PopulateUserAccountProperties();
 	Else
@@ -940,6 +948,10 @@ Function StartSearchAccountSettings()
 	
 EndFunction
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
 Procedure OnCompleteSettingsSearch(Result, AdditionalParameters) Export
 	

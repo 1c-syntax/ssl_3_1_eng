@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -53,7 +54,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 	EndIf;
 	
-	If Metadata.DefinedTypes.Individual.Type.ContainsType(Type("String")) Then
+	If Not DigitalSignature.CommonSettings().IndividualUsed Then
 		Items.CertificatesIndividual.Visible = False;
 	Else
 		Items.CertificatesIndividual.ToolTip =
@@ -83,10 +84,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	Items.FilesAreNotCertificates.Visible = FilesAreNotCertificates.Count() > 0;
 	
-	If Metadata.DefinedTypes.Organization.Type.ContainsType(Type("String")) Then
+	If Not DigitalSignature.CommonSettings().IsCompanyUsed Then
 		Items.Organization.Visible = False;
 	Else
-		If Parameters.Property("Organization") Then
+		If ValueIsFilled(Parameters.Organization) Then
 			Organization = Parameters.Organization;
 		EndIf;
 		
@@ -266,7 +267,7 @@ Procedure PopulateCertificatesInTable()
 EndProcedure
 
 &AtServerNoContext
-Function IndividualOfCertificate(Certificate)
+Function IndividualOfCertificate(Val Certificate)
 	
 	Return Common.ObjectAttributeValue(Certificate, "Individual");
 	
@@ -412,7 +413,7 @@ Async Procedure FillCertificateDataDetails(Result, CertificateAddress) Export
 EndProcedure
 
 &AtServer
-Procedure PopulateCertificateDataDetailsAtServer(CertificateAddress)
+Procedure PopulateCertificateDataDetailsAtServer(Val CertificateAddress)
 	
 	CryptoCertificate = New CryptoCertificate(GetFromTempStorage(CertificateAddress));
 	CertificateProperties = DigitalSignature.CertificateProperties(CryptoCertificate);

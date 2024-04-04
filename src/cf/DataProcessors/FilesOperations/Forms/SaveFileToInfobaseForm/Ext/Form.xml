@@ -23,6 +23,12 @@
 	<ChildItems>
 		<LabelField name="FullDescr" id="10">
 			<DataPath>File</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>File</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>None</TitleLocation>
 			<ContextMenu name="FullDescrContextMenu" id="11"/>
 			<ExtendedTooltip name="FullDescrExtendedTooltip" id="12"/>
@@ -30,6 +36,12 @@
 		<InputField name="VersionComment" id="2">
 			<DataPath>VersionComment</DataPath>
 			<DefaultItem>true</DefaultItem>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Version comment</v8:content>
+				</v8:item>
+			</Title>
 			<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 			<Height>5</Height>
 			<MultiLine>true</MultiLine>
@@ -69,6 +81,12 @@
 					<TextColor>style:ButtonTextColor</TextColor>
 					<BackColor>style:ButtonBackColor</BackColor>
 					<BorderColor>style:BorderColor</BorderColor>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Save</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="SaveExtendedTooltip" id="16"/>
 				</Button>
 				<Button name="Close" id="9">

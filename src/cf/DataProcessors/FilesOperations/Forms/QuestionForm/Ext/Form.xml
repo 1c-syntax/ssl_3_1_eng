@@ -17,9 +17,15 @@
 	<ChildItems>
 		<LabelField name="MessageTitle" id="2">
 			<DataPath>MessageTitle</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Message title</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>None</TitleLocation>
 			<ContextMenu name="MessageTitle1ContextMenu" id="3"/>
-			<ExtendedTooltip name="MessageTitle1ExtendedTooltip" id="17"/>
+			<ExtendedTooltip name="MessageTitleExtendedTooltip" id="17"/>
 		</LabelField>
 		<Table name="Files" id="4">
 			<Representation>List</Representation>
@@ -86,6 +92,12 @@
 		</Table>
 		<LabelField name="MessageQuestion" id="11">
 			<DataPath>MessageQuestion</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Message question</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>None</TitleLocation>
 			<ContextMenu name="MessageQuestionContextMenu" id="12"/>
 			<ExtendedTooltip name="MessageQuestionExtendedTooltip" id="20"/>

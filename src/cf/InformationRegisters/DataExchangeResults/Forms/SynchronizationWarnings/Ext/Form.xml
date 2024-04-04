@@ -40,6 +40,12 @@
 			<ChildItems>
 				<InputField name="FilterByPeriodPresentation" id="84">
 					<DataPath>FilterByPeriodPresentation</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Period</v8:content>
+						</v8:item>
+					</Title>
 					<AutoMaxWidth>false</AutoMaxWidth>
 					<MaxWidth>20</MaxWidth>
 					<ChoiceButton>true</ChoiceButton>
@@ -53,6 +59,12 @@
 				</InputField>
 				<InputField name="SynchronizationsFilterPresentation" id="135">
 					<DataPath>SynchronizationsFilterPresentation</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Synchronization</v8:content>
+						</v8:item>
+					</Title>
 					<ChoiceButton>true</ChoiceButton>
 					<TextEdit>false</TextEdit>
 					<ContextMenu name="ViewOfSynchronizationSelectionContextMenu" id="136"/>
@@ -64,6 +76,12 @@
 				</InputField>
 				<InputField name="WarningsTypesFilterPresentation" id="79">
 					<DataPath>WarningsTypesFilterPresentation</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Type</v8:content>
+						</v8:item>
+					</Title>
 					<ChoiceButton>true</ChoiceButton>
 					<TextEdit>false</TextEdit>
 					<ContextMenu name="RepresentationOfSelectionOfWarningTypesContextMenu" id="80"/>
@@ -107,6 +125,12 @@
 							<UseAlternationRowColor>true</UseAlternationRowColor>
 							<DataPath>List</DataPath>
 							<RowPictureDataPath>List.DefaultPicture</RowPictureDataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>List</v8:content>
+								</v8:item>
+							</Title>
 							<CommandSet>
 								<ExcludedCommand>LoadDynamicListSettings</ExcludedCommand>
 								<ExcludedCommand>SaveDynamicListSettings</ExcludedCommand>
@@ -131,24 +155,54 @@
 									<Button name="ListContextMenuOpenObject" id="173">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.OpenObject</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Open object</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ListContextMenuOpenObjectExtendedTooltip" id="174"/>
 									</Button>
 									<ButtonGroup name="ListContextMenuGroup1" id="124">
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Context menu group 1</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ListContextMenuGroup1ExtendedTooltip" id="125"/>
 										<ChildItems>
 											<Button name="ListContextMenuHideWarningsFromTheList" id="171">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.WarningsHideFromList</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Hide from list</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ListContextMenuHideWarningsFromTheListExtendedTooltip" id="172"/>
 											</Button>
 											<Button name="ListContextMenuShowWarningsInTheList" id="167">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.WarningsShowInList</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Show in list</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ListContextMenuShowWarningsInTheListExtendedTooltip" id="168"/>
 											</Button>
 											<Button name="ListContextMenuWarningsShowHidden" id="169">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.WarningsShowHiddenWarnings</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Show warnings hidden in the list</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ListContextMenuWarningsShowHiddenExtendedTooltip" id="170"/>
 											</Button>
 										</ChildItems>
@@ -156,6 +210,12 @@
 									<Button name="ListContextMenuLogOfRegistrationAtTheSpecifiedTime" id="175">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.EventLogAtSpecifiedTime</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Event log at the specified time</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ListContextMenuLogOfRegistrationAtTheSpecifiedTimeExtendedTooltip" id="176"/>
 									</Button>
 								</ChildItems>
@@ -177,6 +237,12 @@
 										<Type>CommandBarButton</Type>
 										<DefaultButton>true</DefaultButton>
 										<CommandName>Form.Command.OpenObject</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Open object</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="ListOpenObjectExtendedTooltip" id="142"/>
 									</Button>
 									<ButtonGroup name="ListWarningsRelevanceGroup" id="108">
@@ -197,17 +263,35 @@
 											<Button name="ListHideWarningsFromTheList" id="183">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.WarningsHideFromList</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Hide from list</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="WarningListHideFromListExtendedTooltip" id="184"/>
 											</Button>
 											<Button name="ListShowWarningsInTheList" id="179">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.WarningsShowInList</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Show in list</v8:content>
+													</v8:item>
+												</Title>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 												<ExtendedTooltip name="ListOfWarningsShowInListExtendedTooltip" id="180"/>
 											</Button>
 											<Button name="ListWarningsShowHidden" id="181">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.WarningsShowHiddenWarnings</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Show warnings hidden in the list</v8:content>
+													</v8:item>
+												</Title>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 												<ExtendedTooltip name="ListOfWarningsShowHiddenExtendedTooltip" id="182"/>
 											</Button>
@@ -225,23 +309,47 @@
 											<Button name="ListPostDocument" id="236">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.PostDocument</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Post documents</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ListToHoldADocumentExtendedTooltip" id="237"/>
 											</Button>
 											<Button name="ListBatchEditAttributes" id="242">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.BatchEditAttributes</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Bulk attribute editing</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ListBatchEditAttributesExtendedTooltip" id="243"/>
 											</Button>
 											<Button name="ListConflicts" id="238">
 												<Type>CommandBarButton</Type>
 												<Visible>false</Visible>
 												<CommandName>Form.Command.Conflicts</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Conflicts</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ListConflictsExtendedTooltip" id="239"/>
 											</Button>
 											<Button name="ListBlockingDownloadsByDate" id="240">
 												<Type>CommandBarButton</Type>
 												<Visible>false</Visible>
 												<CommandName>Form.Command.ImportRestrictionByDate</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Import restriction by date</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="ListBlockingDownloadsByDateExtendedTooltip" id="241"/>
 											</Button>
 										</ChildItems>
@@ -280,7 +388,7 @@
 												<Title>
 													<v8:item>
 														<v8:lang>en</v8:lang>
-														<v8:content>List commands group1</v8:content>
+														<v8:content>Commands group 1</v8:content>
 													</v8:item>
 												</Title>
 												<ExtendedTooltip name="ListOfTeamGroup1ExtendedTooltip" id="225"/>
@@ -303,7 +411,7 @@
 										<Title>
 											<v8:item>
 												<v8:lang>en</v8:lang>
-												<v8:content>List additional commands group</v8:content>
+												<v8:content>Group "Additional commands"</v8:content>
 											</v8:item>
 										</Title>
 										<ToolTip>
@@ -317,18 +425,36 @@
 											<Button name="ListDisableAutomaticFormUpdates" id="185">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.DisableAutomaticFormUpdate</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Disable automatic form update</v8:content>
+													</v8:item>
+												</Title>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 												<ExtendedTooltip name="DisableAutomaticFormUpdateListExtendedTooltip" id="186"/>
 											</Button>
 											<Button name="ListDeletingOutdatedRecords" id="232">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.ObsoleteRecordsDeletion</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Delete obsolete records</v8:content>
+													</v8:item>
+												</Title>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 												<ExtendedTooltip name="ListDeletingOutdatedRecordsExtendedTooltip" id="233"/>
 											</Button>
 											<Button name="ListPreviousWarningForm" id="204">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.PreviousWarningsForm</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Previous warnings form</v8:content>
+													</v8:item>
+												</Title>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 												<ExtendedTooltip name="ListOfPreviousWarningsFormExtendedTooltip" id="205"/>
 											</Button>
@@ -502,7 +628,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Version of this application</v8:content>
+											<v8:content>Version from this app</v8:content>
 										</v8:item>
 									</Title>
 									<ContextMenu name="VersionOfThisProgramContextMenu" id="191"/>
@@ -556,6 +682,12 @@
 						<Button name="EventLog" id="82">
 							<Type>Hyperlink</Type>
 							<CommandName>Form.Command.EventLog</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Go to event log</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="EventLogExtendedTooltip" id="83"/>
 						</Button>
 					</ChildItems>
@@ -579,6 +711,12 @@
 						<Button name="ObsoleteRecordsDeletion" id="198">
 							<Type>Hyperlink</Type>
 							<CommandName>Form.Command.ObsoleteRecordsDeletion</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Delete obsolete records</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="DeletingOutdatedRecordsExtendedTooltip" id="199"/>
 						</Button>
 					</ChildItems>

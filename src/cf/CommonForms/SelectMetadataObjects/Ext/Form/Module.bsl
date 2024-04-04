@@ -1,38 +1,38 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 ////////////////////////////////////////////////////////////////////////////////
 //                          
 //
-
-
+// 
+// 
 //
-
-
-//				
+// 
+//  
 //				
 //					
 //					
 //					
 //				
-
+// 
 //				
 //				
 //				
-
+// 
 // 				 
- 
+//  
 //				
-
+// 
 //              
 //              
-
+// 
 //              
 //
 
@@ -57,12 +57,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	FilterByMetadataObjects              = Parameters.FilterByMetadataObjects;
 	UUIDSource         = Parameters.UUIDSource;
 	ObjectsGroupMethod               = Parameters.ObjectsGroupMethod;
+	ShouldSelectExternalDataSourceTables  = Parameters.ShouldSelectExternalDataSourceTables;
 	SelectedMetadataObjects              = Common.CopyRecursive(Parameters.SelectedMetadataObjects);
 	
-	ChooseRefs          = CommonClientServer.StructureProperty(Parameters, "ChooseRefs", False);
-	SubsystemsWithCIOnly     = CommonClientServer.StructureProperty(Parameters, "SubsystemsWithCIOnly", False);
-	SelectSingle      = CommonClientServer.StructureProperty(Parameters, "SelectSingle", False);
-	ChoiceInitialValue = CommonClientServer.StructureProperty(Parameters, "ChoiceInitialValue", False);
+	ChooseRefs          = Parameters.ChooseRefs;
+	SubsystemsWithCIOnly     = Parameters.SubsystemsWithCIOnly;
+	SelectSingle      = Parameters.SelectSingle;
+	ChoiceInitialValue = Parameters.ChoiceInitialValue;
 	
 	FillSelectedMetadataObjects();
 	
@@ -263,28 +264,23 @@ Procedure FillSelectedMetadataObjects()
 	References = New Array;
 	
 	For Each MetadataObject In MetadataObjects Do 
-		
 		If TypeOf(MetadataObject) = Type("CatalogRef.MetadataObjectIDs")
 			Or TypeOf(MetadataObject) = Type("CatalogRef.ExtensionObjectIDs") Then 
 			
 			References.Add(MetadataObject);
 		EndIf;
-		
 	EndDo;
 	
 	If References.Count() = 0 Then 
 		Return;
 	EndIf;
 	
-	MetadataObjectNames = Common.ObjectsAttributeValue(References, "FullName");
-	
+	MetadataObjects = Common.MetadataObjectsByIDs(References, False);
 	For Each ListItem In SelectedMetadataObjects Do 
-		
-		MetadataObjectName = MetadataObjectNames[ListItem.Value];
-		If MetadataObjectName <> Undefined Then 
-			ListItem.Value = MetadataObjectName;
+		MetadataObject = MetadataObjects[ListItem.Value];
+		If MetadataObject <> Undefined And MetadataObject <> Null Then 
+			ListItem.Value = MetadataObject.FullName();
 		EndIf;
-		
 	EndDo;
 	
 EndProcedure
@@ -313,56 +309,56 @@ Procedure MetadataObjectTreeFill()
 	
 	MetadataObjectsTree.GetItems().Clear();
 	
-	MetadataObjectsCollections = New ValueTable;
-	MetadataObjectsCollections.Columns.Add("Name");
-	MetadataObjectsCollections.Columns.Add("Synonym");
-	MetadataObjectsCollections.Columns.Add("Picture");
-	MetadataObjectsCollections.Columns.Add("IsCommonCollection");
-	MetadataObjectsCollections.Columns.Add("FullName");
-	MetadataObjectsCollections.Columns.Add("Parent");
+	MetadataObjects = New ValueTable;
+	MetadataObjects.Columns.Add("Name");
+	MetadataObjects.Columns.Add("Synonym");
+	MetadataObjects.Columns.Add("Picture");
+	MetadataObjects.Columns.Add("IsCommonCollection");
+	MetadataObjects.Columns.Add("FullName");
+	MetadataObjects.Columns.Add("Parent");
 	
-	MetadataObjectCollectionsNewRow("Subsystems",                   NStr("en = 'Subsystems';"),                     PictureLib.MetadataSubsystems,                   True, MetadataObjectsCollections);
-	MetadataObjectCollectionsNewRow("CommonModules",                  NStr("en = 'Common modules';"),                   PictureLib.MetadataCommonModules,                  True, MetadataObjectsCollections);
-	MetadataObjectCollectionsNewRow("SessionParameters",              NStr("en = 'Session parameters';"),               PictureLib.MetadataSessionParameters,              True, MetadataObjectsCollections);
-	MetadataObjectCollectionsNewRow("Roles",                         NStr("en = 'Roles';"),                           PictureLib.RoleMetadata,                         True, MetadataObjectsCollections);
-	MetadataObjectCollectionsNewRow("CommonAttributes",               NStr("en = 'Common attributes';"),                PictureLib.MetadataCommonAttributes,               True, MetadataObjectsCollections);
-	MetadataObjectCollectionsNewRow("ExchangePlans",                  NStr("en = 'Exchange plans';"),                   PictureLib.MetadataExchangePlans,                  True, MetadataObjectsCollections);
-	MetadataObjectCollectionsNewRow("FilterCriteria",               NStr("en = 'Filter criteria';"),                PictureLib.MetadataFilterCriteria,               True, MetadataObjectsCollections);
-	MetadataObjectCollectionsNewRow("EventSubscriptions",            NStr("en = 'Event subscriptions';"),            PictureLib.MetadataEventSubscriptions,            True, MetadataObjectsCollections);
-	MetadataObjectCollectionsNewRow("ScheduledJobs",          NStr("en = 'Scheduled jobs';"),           PictureLib.MetadataScheduledJobs,          True, MetadataObjectsCollections);
-	MetadataObjectCollectionsNewRow("FunctionalOptions",          NStr("en = 'Functional options';"),           PictureLib.MetadataFunctionalOptions,          True, MetadataObjectsCollections);
-	MetadataObjectCollectionsNewRow("FunctionalOptionsParameters", NStr("en = 'Functional option parameters';"), PictureLib.MetadataFunctionalOptionsParameters, True, MetadataObjectsCollections);
-	MetadataObjectCollectionsNewRow("SettingsStorages",            NStr("en = 'Settings storages';"),             PictureLib.MetadataSettingsStorage,            True, MetadataObjectsCollections);
-	MetadataObjectCollectionsNewRow("CommonForms",                   NStr("en = 'Common forms';"),                    PictureLib.MetadataCommonForms,                   True, MetadataObjectsCollections);
-	MetadataObjectCollectionsNewRow("CommonCommands",                 NStr("en = 'Common commands';"),                  PictureLib.MetadataCommonCommands,                 True, MetadataObjectsCollections);
-	MetadataObjectCollectionsNewRow("CommandGroups",                 NStr("en = 'Command groups';"),                  PictureLib.MetadataCommandGroups,                 True, MetadataObjectsCollections);
-	MetadataObjectCollectionsNewRow("Interfaces",                   NStr("en = 'Interfaces';"),                     Undefined,                                              True, MetadataObjectsCollections);
-	MetadataObjectCollectionsNewRow("CommonTemplates",                  NStr("en = 'Common templates';"),                   PictureLib.MetadataCommonTemplates,                  True, MetadataObjectsCollections);
-	MetadataObjectCollectionsNewRow("CommonPictures",                NStr("en = 'Common pictures';"),                 PictureLib.MetadataCommonPictures,                True, MetadataObjectsCollections);
-	MetadataObjectCollectionsNewRow("XDTOPackages",                   NStr("en = 'XDTO packages';"),                    PictureLib.MetadataXDTOPackages,                   True, MetadataObjectsCollections);
-	MetadataObjectCollectionsNewRow("WebServices",                   NStr("en = 'Web services';"),                    PictureLib.MetadataWebServices,                   True, MetadataObjectsCollections);
-	MetadataObjectCollectionsNewRow("HTTPServices",                  NStr("en = 'HTTP services';"),                   PictureLib.MetadataHTTPServices,                  True, MetadataObjectsCollections);
-	MetadataObjectCollectionsNewRow("WSReferences",                     NStr("en = 'WS references';"),                      PictureLib.MetadataWSReferences,                     True, MetadataObjectsCollections);
-	MetadataObjectCollectionsNewRow("Styles",                        NStr("en = 'Styles';"),                          PictureLib.MetadataStyles,                        True, MetadataObjectsCollections);
-	MetadataObjectCollectionsNewRow("Languages",                        NStr("en = 'Languages';"),                          PictureLib.MetadataLanguages,                        True, MetadataObjectsCollections);
+	CollectionNewRow("Subsystems",                   NStr("en = 'Subsystems';"),                     PictureLib.MetadataSubsystems,                   True, MetadataObjects);
+	CollectionNewRow("CommonModules",                  NStr("en = 'Common modules';"),                   PictureLib.MetadataCommonModules,                  True, MetadataObjects);
+	CollectionNewRow("SessionParameters",              NStr("en = 'Session parameters';"),               PictureLib.MetadataSessionParameters,              True, MetadataObjects);
+	CollectionNewRow("Roles",                         NStr("en = 'Roles';"),                           PictureLib.RoleMetadata,                         True, MetadataObjects);
+	CollectionNewRow("CommonAttributes",               NStr("en = 'Common attributes';"),                PictureLib.MetadataCommonAttributes,               True, MetadataObjects);
+	CollectionNewRow("ExchangePlans",                  NStr("en = 'Exchange plans';"),                   PictureLib.MetadataExchangePlans,                  True, MetadataObjects);
+	CollectionNewRow("FilterCriteria",               NStr("en = 'Filter criteria';"),                PictureLib.MetadataFilterCriteria,               True, MetadataObjects);
+	CollectionNewRow("EventSubscriptions",            NStr("en = 'Event subscriptions';"),            PictureLib.MetadataEventSubscriptions,            True, MetadataObjects);
+	CollectionNewRow("ScheduledJobs",          NStr("en = 'Scheduled jobs';"),           PictureLib.MetadataScheduledJobs,          True, MetadataObjects);
+	CollectionNewRow("FunctionalOptions",          NStr("en = 'Functional options';"),           PictureLib.MetadataFunctionalOptions,          True, MetadataObjects);
+	CollectionNewRow("FunctionalOptionsParameters", NStr("en = 'Functional option parameters';"), PictureLib.MetadataFunctionalOptionsParameters, True, MetadataObjects);
+	CollectionNewRow("SettingsStorages",            NStr("en = 'Settings storages';"),             PictureLib.MetadataSettingsStorage,            True, MetadataObjects);
+	CollectionNewRow("CommonForms",                   NStr("en = 'Common forms';"),                    PictureLib.MetadataCommonForms,                   True, MetadataObjects);
+	CollectionNewRow("CommonCommands",                 NStr("en = 'Common commands';"),                  PictureLib.MetadataCommonCommands,                 True, MetadataObjects);
+	CollectionNewRow("CommandGroups",                 NStr("en = 'Command groups';"),                  PictureLib.MetadataCommandGroups,                 True, MetadataObjects);
+	CollectionNewRow("Interfaces",                   NStr("en = 'Interfaces';"),                     Undefined,                                              True, MetadataObjects);
+	CollectionNewRow("CommonTemplates",                  NStr("en = 'Common templates';"),                   PictureLib.MetadataCommonTemplates,                  True, MetadataObjects);
+	CollectionNewRow("CommonPictures",                NStr("en = 'Common pictures';"),                 PictureLib.MetadataCommonPictures,                True, MetadataObjects);
+	CollectionNewRow("XDTOPackages",                   NStr("en = 'XDTO packages';"),                    PictureLib.MetadataXDTOPackages,                   True, MetadataObjects);
+	CollectionNewRow("WebServices",                   NStr("en = 'Web services';"),                    PictureLib.MetadataWebServices,                   True, MetadataObjects);
+	CollectionNewRow("HTTPServices",                  NStr("en = 'HTTP services';"),                   PictureLib.MetadataHTTPServices,                  True, MetadataObjects);
+	CollectionNewRow("WSReferences",                     NStr("en = 'WS references';"),                      PictureLib.MetadataWSReferences,                     True, MetadataObjects);
+	CollectionNewRow("Styles",                        NStr("en = 'Styles';"),                          PictureLib.MetadataStyles,                        True, MetadataObjects);
+	CollectionNewRow("Languages",                        NStr("en = 'Languages';"),                          PictureLib.MetadataLanguages,                        True, MetadataObjects);
 	
-	MetadataObjectCollectionsNewRow("Constants",                    NStr("en = 'Constants';"),                      PictureLib.MetadataConstants,               False, MetadataObjectsCollections);
-	MetadataObjectCollectionsNewRow("Catalogs",                  NStr("en = 'Catalogs';"),                    PictureLib.MetadataCatalogs,             False, MetadataObjectsCollections);
-	MetadataObjectCollectionsNewRow("Documents",                    NStr("en = 'Documents';"),                      PictureLib.MetadataDocuments,               False, MetadataObjectsCollections);
-	MetadataObjectCollectionsNewRow("DocumentJournals",            NStr("en = 'Document journals';"),             PictureLib.MetadataDocumentJournals,       False, MetadataObjectsCollections);
-	MetadataObjectCollectionsNewRow("Enums",                 NStr("en = 'Enumerations';"),                   PictureLib.EnumerationMetadata,            False, MetadataObjectsCollections);
-	MetadataObjectCollectionsNewRow("Reports",                       NStr("en = 'Reports';"),                         PictureLib.MetadataReports,                  False, MetadataObjectsCollections);
-	MetadataObjectCollectionsNewRow("DataProcessors",                    NStr("en = 'Data processors';"),                      PictureLib.MetadataDataProcessors,               False, MetadataObjectsCollections);
-	MetadataObjectCollectionsNewRow("ChartsOfCharacteristicTypes",      NStr("en = 'Charts of characteristic types';"),      PictureLib.MetadataChartsOfCharacteristicTypes, False, MetadataObjectsCollections);
-	MetadataObjectCollectionsNewRow("ChartsOfAccounts",                  NStr("en = 'Charts of accounts';"),                   PictureLib.MetadataChartsOfAccounts,             False, MetadataObjectsCollections);
-	MetadataObjectCollectionsNewRow("ChartsOfCalculationTypes",            NStr("en = 'Charts of calculation types';"),            PictureLib.MetadataChartsOfCalculationTypes,       False, MetadataObjectsCollections);
-	MetadataObjectCollectionsNewRow("InformationRegisters",             NStr("en = 'Information registers';"),              PictureLib.MetadataInformationRegisters,        False, MetadataObjectsCollections);
-	MetadataObjectCollectionsNewRow("AccumulationRegisters",           NStr("en = 'Accumulation registers';"),            PictureLib.MetadataAccumulationRegisters,      False, MetadataObjectsCollections);
-	MetadataObjectCollectionsNewRow("AccountingRegisters",          NStr("en = 'Accounting registers';"),           PictureLib.MetadataAccountingRegisters,     False, MetadataObjectsCollections);
-	MetadataObjectCollectionsNewRow("CalculationRegisters",              NStr("en = 'Calculation registers';"),               PictureLib.MetadataCalculationRegisters,         False, MetadataObjectsCollections);
-	MetadataObjectCollectionsNewRow("BusinessProcesses",               NStr("en = 'Business processes';"),                PictureLib.MetadataBusinessProcesses,          False, MetadataObjectsCollections);
-	MetadataObjectCollectionsNewRow("Tasks",                       NStr("en = 'Tasks';"),                         PictureLib.MetadataTasks,                  False, MetadataObjectsCollections);
-	MetadataObjectCollectionsNewRow("ExternalDataSources",       NStr("en = 'External data sources';"),       PictureLib.MetadataExternalDataSources,  False, MetadataObjectsCollections);
+	CollectionNewRow("Constants",                    NStr("en = 'Constants';"),                      PictureLib.MetadataConstants,               False, MetadataObjects);
+	CollectionNewRow("Catalogs",                  NStr("en = 'Catalogs';"),                    PictureLib.MetadataCatalogs,             False, MetadataObjects);
+	CollectionNewRow("Documents",                    NStr("en = 'Documents';"),                      PictureLib.MetadataDocuments,               False, MetadataObjects);
+	CollectionNewRow("DocumentJournals",            NStr("en = 'Document journals';"),             PictureLib.MetadataDocumentJournals,       False, MetadataObjects);
+	CollectionNewRow("Enums",                 NStr("en = 'Enumerations';"),                   PictureLib.EnumerationMetadata,            False, MetadataObjects);
+	CollectionNewRow("Reports",                       NStr("en = 'Reports';"),                         PictureLib.MetadataReports,                  False, MetadataObjects);
+	CollectionNewRow("DataProcessors",                    NStr("en = 'Data processors';"),                      PictureLib.MetadataDataProcessors,               False, MetadataObjects);
+	CollectionNewRow("ChartsOfCharacteristicTypes",      NStr("en = 'Charts of characteristic types';"),      PictureLib.MetadataChartsOfCharacteristicTypes, False, MetadataObjects);
+	CollectionNewRow("ChartsOfAccounts",                  NStr("en = 'Charts of accounts';"),                   PictureLib.MetadataChartsOfAccounts,             False, MetadataObjects);
+	CollectionNewRow("ChartsOfCalculationTypes",            NStr("en = 'Charts of calculation types';"),            PictureLib.MetadataChartsOfCalculationTypes,       False, MetadataObjects);
+	CollectionNewRow("InformationRegisters",             NStr("en = 'Information registers';"),              PictureLib.MetadataInformationRegisters,        False, MetadataObjects);
+	CollectionNewRow("AccumulationRegisters",           NStr("en = 'Accumulation registers';"),            PictureLib.MetadataAccumulationRegisters,      False, MetadataObjects);
+	CollectionNewRow("AccountingRegisters",          NStr("en = 'Accounting registers';"),           PictureLib.MetadataAccountingRegisters,     False, MetadataObjects);
+	CollectionNewRow("CalculationRegisters",              NStr("en = 'Calculation registers';"),               PictureLib.MetadataCalculationRegisters,         False, MetadataObjects);
+	CollectionNewRow("BusinessProcesses",               NStr("en = 'Business processes';"),                PictureLib.MetadataBusinessProcesses,          False, MetadataObjects);
+	CollectionNewRow("Tasks",                       NStr("en = 'Tasks';"),                         PictureLib.MetadataTasks,                  False, MetadataObjects);
+	CollectionNewRow("ExternalDataSources",       NStr("en = 'External data sources';"),       PictureLib.MetadataExternalDataSources,  False, MetadataObjects);
 	
 	// Create predefined items.
 	ItemParameters = MetadataObjectTreeItemParameters();
@@ -380,7 +376,7 @@ Procedure MetadataObjectTreeFill()
 	ItemCommon = NewTreeRow(ItemParameters);
 	
 	// FIlling the metadata object tree.
-	For Each String In MetadataObjectsCollections Do
+	For Each String In MetadataObjects Do
 		If MetadataObjectsToSelectCollection.Count() = 0
 			Or MetadataObjectsToSelectCollection.FindByValue(String.Name) <> Undefined Then
 			String.Parent = ?(String.IsCommonCollection, ItemCommon, ConfigurationItem);
@@ -394,29 +390,29 @@ Procedure MetadataObjectTreeFill()
 	
 EndProcedure
 
-// Returns a new metadata object tree item parameter structure.
+// Returns a metadata object tree item parameter structure.
 //
 // Returns:
 //   Structure:
-//     Name - String - Name of the parent item.
-//     Synonym - String - Synonym of the parent item.
-//     Mark - Boolean - Initial mark of a collection or metadata object.
-//     Picture - Picture - Code of the parent item picture.
-//     Parent - Reference to the value tree item that is a root of the item to be added.
-//                       
+//     * Name           - String - Parent item name.
+//     * FullName     - String
+//     * Synonym       - String - Parent item synonym.
+//     * Check       - Number - Initial mark of a collection or metadata object.
+//     * Picture      - Picture - Parent item picture.
+//     * Parent      - ValueTreeRow
 //
 &AtServer
 Function MetadataObjectTreeItemParameters()
 	
-	ParametersStructure = New Structure;
-	ParametersStructure.Insert("Name", "");
-	ParametersStructure.Insert("FullName", "");
-	ParametersStructure.Insert("Synonym", "");
-	ParametersStructure.Insert("Check", 0);
-	ParametersStructure.Insert("Picture", Undefined);
-	ParametersStructure.Insert("Parent", Undefined);
+	Result = New Structure;
+	Result.Insert("Name", "");
+	Result.Insert("FullName", "");
+	Result.Insert("Synonym", "");
+	Result.Insert("Check", 0);
+	Result.Insert("Picture", Undefined);
+	Result.Insert("Parent", Undefined);
 	
-	Return ParametersStructure;
+	Return Result;
 	
 EndFunction
 
@@ -426,18 +422,7 @@ EndFunction
 // If the Subsystems parameter is filled, the function is called recursively for all child subsystems.
 //
 // Parameters:
-//   ItemParameters - Structure:
-//     * Name           - String - Parent item name.
-//     * Synonym       - String - Parent item synonym.
-//     * Check       - Boolean - Initial mark of a collection or metadata object.
-//     * Picture      - Picture - Parent item picture.
-//     * Parent      - FormDataTreeItem:
-//         ** Name - String
-//         ** Presentation - String
-//         ** Picture - Picture
-//         ** FullName - String
-//         ** IsMetadataObject - Boolean
-//         ** Check - Boolean
+//   ItemParameters - See MetadataObjectTreeItemParameters
 //   Subsystems - MetadataObjectCollection - If filled, it contains Metadata.Subsystems value (an item collection).
 //   Check       - Boolean - Flag indicating whether a check for subordination to parent subsystems is required.
 // 
@@ -445,22 +430,28 @@ EndFunction
 //  FormDataTreeItem
 //
 &AtServer
-Function AddMetadataObjectTreeItem(ItemParameters, Subsystems = Undefined, Check = True)
+Function AddMetadataObjectTreeItem(ItemParameters, Subsystems = Undefined, Check = True,
+			ExternalDataSourceTableCollection = Undefined)
 	
 	// Checking whether command interface is available in tree leaves only.
-	If Subsystems <> Undefined  And Parameters.Property("SubsystemsWithCIOnly") 
+	If Subsystems <> Undefined And SubsystemsWithCIOnly 
 		And Not IsBlankString(ItemParameters.FullName) 
 		And ItemsOfSubsystemsWithCommandInterface.FindByValue(ItemParameters.FullName) = Undefined Then
 		Return Undefined;
 	EndIf;
 	
 	If Subsystems = Undefined Then
+		If ExternalDataSourceTableCollection = Undefined Then
+			MetadataCollection = Metadata[ItemParameters.Name];
+		Else
+			MetadataCollection = ExternalDataSourceTableCollection;
+		EndIf;
 		
-		If Metadata[ItemParameters.Name].Count() = 0 Then
+		If MetadataCollection.Count() = 0 Then
 			
-			 
-			
-			
+			//  
+			// 
+			// 
 			Return Undefined;
 			
 		EndIf;
@@ -468,7 +459,10 @@ Function AddMetadataObjectTreeItem(ItemParameters, Subsystems = Undefined, Check
 		NewRow = NewTreeRow(ItemParameters, Subsystems <> Undefined And Subsystems <> Metadata.Subsystems);
 		NewRow.ThisCollectionObjects = True;
 		
-		For Each MetadataCollectionItem In Metadata[ItemParameters.Name] Do
+		AddExternalDataSourceTables = ShouldSelectExternalDataSourceTables
+			And ItemParameters.Name = "ExternalDataSources";
+		
+		For Each MetadataCollectionItem In MetadataCollection Do
 			
 			If FilterByMetadataObjects.Count() > 0
 				And FilterByMetadataObjects.FindByValue(MetadataCollectionItem.FullName()) = Undefined Then
@@ -480,9 +474,18 @@ Function AddMetadataObjectTreeItem(ItemParameters, Subsystems = Undefined, Check
 			ItemParameters.FullName = MetadataCollectionItem.FullName();
 			ItemParameters.Synonym = MetadataCollectionItem.Synonym;
 			ItemParameters.Parent = NewRow;
-			ItemParameters.Picture = ?(ItemParameters.Parent.Picture <> Undefined,
-				ItemParameters.Parent.Picture, PictureInDesigner(MetadataCollectionItem));
-			NewTreeRow(ItemParameters, True);
+			If ExternalDataSourceTableCollection <> Undefined Then
+				ItemParameters.Picture = PictureLib.ExternalDataSourceTable;
+			Else
+				ItemParameters.Picture = ?(ItemParameters.Parent.Picture <> Undefined,
+					ItemParameters.Parent.Picture, PictureInDesigner(MetadataCollectionItem));
+			EndIf;
+			
+			If AddExternalDataSourceTables Then
+				AddMetadataObjectTreeItem(ItemParameters,,, MetadataCollectionItem.Tables);
+			Else
+				NewTreeRow(ItemParameters, True);
+			EndIf;
 		EndDo;
 		
 		Return NewRow;
@@ -558,12 +561,12 @@ EndFunction
 //   Picture - Number - picture referring to the metadata object
 //                      or to the metadata object type.
 //   IsCommonCollection - Boolean - Flag indicating whether the current item has subitems.
-//   Tab - ValueTable
+//   Table - ValueTable
 //
 &AtServer
-Procedure MetadataObjectCollectionsNewRow(Name, Synonym, Picture, IsCommonCollection, Tab)
+Procedure CollectionNewRow(Name, Synonym, Picture, IsCommonCollection, Table)
 	
-	NewRow = Tab.Add();
+	NewRow = Table.Add();
 	NewRow.Name               = Name;
 	NewRow.Synonym           = Synonym;
 	NewRow.Picture          = Picture;
@@ -601,11 +604,7 @@ Function ItemMarkValues(ParentItems1)
 		If HasUnmarkedItems Then
 			Return 2;
 		Else
-			If SubsystemsWithCIOnly Then
-				Return 2;
-			Else
-				Return 1;
-			EndIf;
+			Return ?(SubsystemsWithCIOnly, 2, 1);
 		EndIf;
 	Else
 		Return 0;
@@ -851,14 +850,14 @@ Function MetadataObjectAvailable(MetadataObject)
 	FillPropertyValues(MetadataProperties, MetadataObject);
 	
 	If MetadataProperties.FullTextSearch = Undefined Then 
-		FullTextSearchUsing = True; 
+		FullTextSearchUsing = True; // Ignore if the property is missing.
 	Else 
 		FullTextSearchUsing = (MetadataProperties.FullTextSearch = 
 			Metadata.ObjectProperties.FullTextSearchUsing.Use);
 	EndIf;
 	
 	If MetadataProperties.IncludeInCommandInterface = Undefined Then 
-		IncludeInCommandInterface = True; 
+		IncludeInCommandInterface = True; // Ignore if the property is missing.
 	Else 
 		IncludeInCommandInterface = MetadataProperties.IncludeInCommandInterface;
 	EndIf;
@@ -1007,46 +1006,46 @@ EndFunction
 &AtClientAtServerNoContext
 Function NextItemCheckMarkValue(TreeItem)
 	
-	
-	
-	
+	// 
+	// 
+	// 
 	//
-	
+	// 
 	//
-	
-	
-	
+	// 
+	// 
+	// 
 	//
 	//    
 	//   
 	//  
 	//
-	
+	// 
 	//
-	
-	
+	// 
+	// 
 	//
-	
+	// 
 	//
-	
+	// 
 	//
-	
-	
-	
-	//
-	//      
-	
-	//
-	
-	//
-	
-	
-	
+	// 
+	// 
+	// 
 	//
 	//      
-	
+	// 
 	//
-	
+	// 
+	//
+	// 
+	// 
+	// 
+	//
+	//      
+	// 
+	//
+	// 
 	
 	// At the time of checking, the platform has already changed the check box value.
 	
@@ -1109,9 +1108,9 @@ Function CheckMarkValueRelativeToNestedItems(TreeItem)
 	
 	If TreeItem.IsMetadataObject Then 
 		
-		
-		
-		
+		// 
+		// 
+		// 
 		
 		If TreeItem.Check = MarkCheckBoxIsSelected() Then 
 			// Leave the check box selected, regardless of nested items.
@@ -1130,8 +1129,8 @@ Function CheckMarkValueRelativeToNestedItems(TreeItem)
 		
 	Else 
 		
-		 
-		
+		//  
+		// 
 		
 		If HasMarkedItems Then
 			
@@ -1174,9 +1173,9 @@ Function NestedItemsState(TreeItem)
 			
 			If NestedItem.IsMetadataObject Then 
 				
-				
-				
-				
+				// 
+				// 
+				// 
 				
 				State = NestedItemsState(NestedItem);
 				HasMarkedItems   = HasMarkedItems   Or State.HasMarkedItems;
@@ -1212,8 +1211,8 @@ Function RequiredToMarkNestedItems(TreeItem)
 	
 	If TreeItem.IsMetadataObject Then 
 		
-		
-		
+		// 
+		// 
 		
 		NestedItemsState = NestedItemsState(TreeItem);
 		
@@ -1288,9 +1287,12 @@ Procedure SetConditionalAppearance()
 EndProcedure
 
 &AtClient
-Function SelectedItems(Branch1)
+Procedure UpdateSelectedMetadataObjectsCollection(Branch1 = Undefined)
 	
-	Result = New Map;
+	If Branch1 = Undefined Then
+		SelectedMetadataObjects.Clear();
+		Branch1 = MetadataObjectsTree;
+	EndIf;
 	
 	For Each Item In Branch1.GetItems() Do
 		If ObjectsGroupMethod = "ByKinds"
@@ -1300,31 +1302,17 @@ Function SelectedItems(Branch1)
 		      Or Branch1 = MetadataObjectsTree) Then
 			
 			If Item.ThisCollectionObjects Then
-				Result.Insert(Item.Name, Item.Presentation);
+				SelectedMetadataObjects.Add(Item.Name, Item.Presentation, True);
 			Else
-				Result.Insert("Configuration", NStr("en = 'Configuration';"));
+				SelectedMetadataObjects.Add("Configuration", NStr("en = 'Configuration';"), True);
 			EndIf;
 			Continue;
 		EndIf;
 		If Item.Check = 1 And Not IsBlankString(Item.FullName) And Item.IsMetadataObject Then
-			Result.Insert(Item.FullName, ?(RememberSelectedObjectsSections
-				And ObjectsGroupMethod = "BySections", Item.Address, Item.Presentation));
+			SelectedMetadataObjects.Add(Item.FullName, ?(RememberSelectedObjectsSections
+				And ObjectsGroupMethod = "BySections", Item.Address, Item.Presentation), True);
 		EndIf;
-		For Each SelectedElement In SelectedItems(Item) Do
-			Result.Insert(SelectedElement.Key, SelectedElement.Value);
-		EndDo;
-	EndDo;
-	
-	Return Result;
-	
-EndFunction
-
-&AtClient
-Procedure UpdateSelectedMetadataObjectsCollection()
-	
-	SelectedMetadataObjects.Clear();
-	For Each SelectedElement In SelectedItems(MetadataObjectsTree) Do
-		SelectedMetadataObjects.Add(SelectedElement.Key, SelectedElement.Value, True);
+		UpdateSelectedMetadataObjectsCollection(Item)
 	EndDo;
 	
 EndProcedure

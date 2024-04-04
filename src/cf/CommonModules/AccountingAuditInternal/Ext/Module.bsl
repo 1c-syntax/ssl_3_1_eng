@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -119,8 +120,8 @@ EndProcedure
 // See ExportImportDataOverridable.OnFillTypesExcludedFromExportImport.
 Procedure OnFillTypesExcludedFromExportImport(Types) Export
 	
-	 
-	
+	//  
+	// 
 	Types.Add(Metadata.InformationRegisters.AccountingCheckResults);
 	
 EndProcedure
@@ -243,7 +244,7 @@ Function LastAccountingCheckInformation(ChecksGroup = Undefined) Export
 		Result.WarnSecondCheckRequired = True;
 	Else
 		TimeFromLastStart = (CurrentSessionDate() - Result.LastCheckDate) / (1000 * 60 * 60 * 30);
-		Result.WarnSecondCheckRequired = TimeFromLastStart > 1; 
+		Result.WarnSecondCheckRequired = TimeFromLastStart > 1; // 
 	EndIf;
 	
 	Return Result;
@@ -283,7 +284,7 @@ EndFunction
 //     CheckExecutionParameters - Structure
 //                                 - Array - Custom additional check parameters that define the check procedure and object.
 //                                    
-//                                 - Structure -  See AccountingAudit.CheckExecutionParameters.
+//                                 - Structure - A single check parameter. For the properties, See AccountingAudit.CheckExecutionParameters.
 //                                 - Array - several check parameters (array elements of the Structure type, as
 //                                            described above).
 //
@@ -984,7 +985,7 @@ EndProcedure
 //  ScheduledJobID - String - a field to connect to the current background job.
 //
 // Returns:
-//   Structure - :
+//   Structure - with properties, Undefined:
 //       * Id - String - Check string ID.
 //
 Function CheckByScheduledJobIDParameters(ScheduledJobID)
@@ -1054,9 +1055,9 @@ EndFunction
 
 Procedure AddChecksGroups(ChecksGroups)
 	
-	InformationAboutInspections = InformationAboutAccountingChecks(ChecksGroups);
+	ChecksInfoRecords = DataIntegrityChecksInfoRecords(ChecksGroups);
 	
-	For Each ChecksGroup In InformationAboutInspections Do
+	For Each ChecksGroup In ChecksInfoRecords Do
 		
 		ChecksGroupByID = ChecksGroup.Validation;
 		
@@ -1081,14 +1082,14 @@ Procedure AddChecksGroups(ChecksGroups)
 		ChecksGroupObject.Parent = CheckGroupParent;
 		
 		If ValueIsFilled(CheckGroupParent) Then
-			ChecksGroupObject.AccountingChecksContext = ChecksGroup.ContextOfParentSRecordkeepingChecks;
+			ChecksGroupObject.AccountingChecksContext = ChecksGroup.DataIntegrityCheckParentContext;
 		Else
 			ChecksGroupObject.AccountingChecksContext = ChecksGroup.AccountingChecksContext;
 		EndIf;
 		
 		// ACC:1327-off A lock is set upper in the stack.
 		InfobaseUpdate.WriteData(ChecksGroupObject);
-		
+		// 
 	EndDo;
 	
 	Query = New Query(
@@ -1130,11 +1131,11 @@ EndProcedure
 
 Procedure AddChecks(Checks)
 	
-	InformationAboutInspections = InformationAboutAccountingChecks(Checks);
+	ChecksInfoRecords = DataIntegrityChecksInfoRecords(Checks);
 	
-	For Each VerificationInformation In InformationAboutInspections Do
+	For Each CheckInfoRecords In ChecksInfoRecords Do
 		
-		If Not ValueIsFilled(VerificationInformation.Validation) Then
+		If Not ValueIsFilled(CheckInfoRecords.Validation) Then
 			
 			CheckObject1 = Catalogs.AccountingCheckRules.CreateItem();
 			CheckObject1.RunMethod = Enums.CheckMethod.ByCommonSchedule;
@@ -1142,43 +1143,43 @@ Procedure AddChecks(Checks)
 			
 		Else
 			
-			If VerificationInformation.AccountingCheckIsChanged Then
+			If CheckInfoRecords.AccountingCheckIsChanged Then
 				Continue;
 			EndIf;
 			
-			CheckObject1 = VerificationInformation.Validation.GetObject();
+			CheckObject1 = CheckInfoRecords.Validation.GetObject();
 			If CheckObject1.DeletionMark Then
 				CheckObject1.SetDeletionMark(False);
 			EndIf;
 			
 		EndIf;
 		
-		FillPropertyValues(CheckObject1, VerificationInformation);
+		FillPropertyValues(CheckObject1, CheckInfoRecords);
 		
-		CheckParent1        = VerificationInformation.CheckParent1;
+		CheckParent1        = CheckInfoRecords.CheckParent1;
 		CheckObject1.Parent = CheckParent1;
 		
 		If ValueIsFilled(CheckParent1) Then
-			CheckObject1.AccountingChecksContext = VerificationInformation.ContextOfParentSRecordkeepingChecks;
+			CheckObject1.AccountingChecksContext = CheckInfoRecords.DataIntegrityCheckParentContext;
 		Else
-			CheckObject1.AccountingChecksContext = VerificationInformation.AccountingChecksContext;
+			CheckObject1.AccountingChecksContext = CheckInfoRecords.AccountingChecksContext;
 		EndIf;
 		
-		CheckObject1.Use = Not VerificationInformation.isDisabled;
+		CheckObject1.Use = Not CheckInfoRecords.isDisabled;
 		
-		If ValueIsFilled(VerificationInformation.IssuesLimit) Then
-			CheckObject1.IssuesLimit = VerificationInformation.IssuesLimit;
+		If ValueIsFilled(CheckInfoRecords.IssuesLimit) Then
+			CheckObject1.IssuesLimit = CheckInfoRecords.IssuesLimit;
 		Else
 			CheckObject1.IssuesLimit = 1000;
 		EndIf;
 		
-		If ValueIsFilled(VerificationInformation.CheckStartDate) Then
-			CheckObject1.CheckStartDate = VerificationInformation.CheckStartDate;
+		If ValueIsFilled(CheckInfoRecords.CheckStartDate) Then
+			CheckObject1.CheckStartDate = CheckInfoRecords.CheckStartDate;
 		EndIf;
 		
 		// ACC:1327-off A lock is set upper in the stack.
 		InfobaseUpdate.WriteData(CheckObject1);
-		
+		// 
 	EndDo;
 	
 	Query = New Query(
@@ -1394,7 +1395,7 @@ Procedure CheckReferenceIntegrity(Validation, CheckParameters) Export
 			If ObjectsToExcludeFromCheck.Find(FullName) <> Undefined Then
 				Continue;
 			EndIf;
-			FindDeadRefs(MetadataObject, CheckParameters, CheckedRefs); 
+			FindDeadRefs(MetadataObject, CheckParameters, CheckedRefs); // @skip-check query-in-loop - A batch-wise data integrity check
 		EndDo;
 	EndDo;
 	
@@ -1407,7 +1408,7 @@ Procedure CheckReferenceIntegrity(Validation, CheckParameters) Export
 			If ObjectsToExcludeFromCheck.Find(FullName) <> Undefined Then
 				Continue;
 			EndIf;
-			FindDeadRefsInRegisters(MetadataObject, CheckParameters, CheckedRefs); 
+			FindDeadRefsInRegisters(MetadataObject, CheckParameters, CheckedRefs); // @skip-check query-in-loop - A batch-wise data integrity check
 		EndDo;
 	EndDo;
 	
@@ -1456,7 +1457,7 @@ Procedure CheckUnfilledRequiredAttributes(Validation, CheckParameters) Export
 				 Or StrStartsWith(MetadataObject.Name, "Delete") Then
 					Continue;
 			EndIf;
-			FindNotFilledRequiredAttributes(MetadataObject, CheckParameters); 
+			FindNotFilledRequiredAttributes(MetadataObject, CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 		EndDo;
 		
 	EndDo;
@@ -1474,7 +1475,7 @@ Procedure CheckUnfilledRequiredAttributes(Validation, CheckParameters) Export
 				 Or StrStartsWith(MetadataObject.Name, "Delete") Then
 					Continue;
 			EndIf;
-			FindNotFilledRequiredAttributesInRegisters(MetadataObject, CheckParameters); 
+			FindNotFilledRequiredAttributesInRegisters(MetadataObject, CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 		EndDo;
 	EndDo;
 	
@@ -1492,7 +1493,7 @@ Procedure CheckCircularRefs(Validation, CheckParameters) Export
 			If Not HasHierarchy(MetadataObject.StandardAttributes) Then
 				Continue;
 			EndIf;
-			FindCircularRefs(MetadataObject, CheckParameters); 
+			FindCircularRefs(MetadataObject, CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 		EndDo;
 	EndDo;
 	
@@ -1533,7 +1534,7 @@ Procedure CheckMissingPredefinedItems(Validation, CheckParameters) Export
 			If StrStartsWith(MetadataObject.Name, "Delete") Then
 				Continue;
 			EndIf;
-			FindMissingPredefinedItems(MetadataObject, CheckParameters); 
+			FindMissingPredefinedItems(MetadataObject, CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 		EndDo;
 	EndDo;
 	
@@ -1555,7 +1556,7 @@ Procedure CheckDuplicatePredefinedItems(Validation, CheckParameters) Export
 			Continue;
 		EndIf;
 		
-		FindPredefinedItemsDuplicates(MetadataKind, CheckParameters); 
+		FindPredefinedItemsDuplicates(MetadataKind, CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 		
 	EndDo;
 	
@@ -1575,9 +1576,9 @@ Procedure CheckPredefinedExchangePlanNodeAvailability(Validation, CheckParameter
 			Continue;
 		EndIf;
 		
-		Issue1 = IssueDetails(Common.MetadataObjectID(MetadataExchangePlan.FullName()), CheckParameters); 
+		Issue1 = IssueDetails(Common.MetadataObjectID(MetadataExchangePlan.FullName()), CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 		Issue1.IssueSummary = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Predefined node is missing from exchange plan ""%1"" (%2 = Undefined).';"), MetadataExchangePlan.Name, "ThisNode()");
-		WriteIssue(Issue1, CheckParameters); 
+		WriteIssue(Issue1, CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 		
 	EndDo;
 	
@@ -1810,7 +1811,7 @@ EndProcedure
 //
 Procedure CheckObject(ObjectsToCheck, Checks) Export
 	For Each Validation In Checks Do
-		ExecuteCheck(Validation, , ObjectsToCheck); 
+		ExecuteCheck(Validation, , ObjectsToCheck); // @skip-check query-in-loop - A batch-wise data integrity check
 	EndDo;
 EndProcedure
 
@@ -1845,7 +1846,7 @@ Procedure CheckAccounting(ScheduledJobID = Undefined) Export
 		
 		Result = Query.Execute().Select();
 		While Result.Next() Do
-			ExecuteCheck(Result.Id); 
+			ExecuteCheck(Result.Id); // @skip-check query-in-loop - A batch-wise data integrity check
 		EndDo;
 		
 	EndIf;
@@ -1855,7 +1856,7 @@ EndProcedure
 Procedure ExecuteChecks(Val Checks) Export
 	
 	For Each Validation In Checks Do
-		ExecuteCheck(Validation); 
+		ExecuteCheck(Validation); // @skip-check query-in-loop - A batch-wise data integrity check
 	EndDo;
 	
 EndProcedure
@@ -1883,7 +1884,7 @@ Function CheckByID(Id) Export
 	
 EndFunction
 
-Function InformationAboutAccountingChecks(Checks)
+Function DataIntegrityChecksInfoRecords(Checks)
 	
 	ColumnsNames = New Array;
 	For Each Column In Checks.Columns Do
@@ -1899,7 +1900,7 @@ Function InformationAboutAccountingChecks(Checks)
 	|	Checks.Id AS Id,
 	|	Checks.GroupID AS GroupID,
 	|	&ColumnsToSelect
-	|INTO TTOfVerification
+	|INTO VTChecks
 	|FROM
 	|	&Checks AS Checks
 	|;
@@ -1911,16 +1912,16 @@ Function InformationAboutAccountingChecks(Checks)
 	|	&ColumnsToSelect,
 	|	ISNULL(AccountingChecks_.Ref, VALUE(Catalog.AccountingCheckRules.EmptyRef)) AS Validation,
 	|	AccountingChecks_.AccountingCheckIsChanged AS AccountingCheckIsChanged,
-	|	ParentsOfAccountingChecks.Ref AS CheckParent1,
-	|	ParentsOfAccountingChecks.AccountingChecksContext AS ContextOfParentSRecordkeepingChecks
+	|	DataIntegrityCheckParents.Ref AS CheckParent1,
+	|	DataIntegrityCheckParents.AccountingChecksContext AS DataIntegrityCheckParentContext
 	|FROM
-	|	TTOfVerification AS Checks
+	|	VTChecks AS Checks
 	|		LEFT JOIN Catalog.AccountingCheckRules AS AccountingChecks_
 	|		ON Checks.Id = AccountingChecks_.Id
 	|			AND (NOT AccountingChecks_.DeletionMark)
-	|		LEFT JOIN Catalog.AccountingCheckRules AS ParentsOfAccountingChecks
-	|		ON Checks.GroupID = ParentsOfAccountingChecks.Id
-	|			AND (NOT ParentsOfAccountingChecks.DeletionMark)");
+	|		LEFT JOIN Catalog.AccountingCheckRules AS DataIntegrityCheckParents
+	|		ON Checks.GroupID = DataIntegrityCheckParents.Id
+	|			AND (NOT DataIntegrityCheckParents.DeletionMark)");
 	Query.Text = StrReplace(Query.Text, "&ColumnsToSelect", StrConcat(ColumnsNames, ","));
 	
 	Query.SetParameter("Checks", Checks);
@@ -2248,12 +2249,12 @@ Procedure FindDeadRefs(MetadataObject, CheckParameters, CheckedRefs)
 				Continue;
 			EndIf;
 			
-			Issue1 = IssueDetails(ObjectReference, CheckParameters); 
+			Issue1 = IssueDetails(ObjectReference, CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 			Issue1.IssueSummary = NStr("en = 'Reference integrity violation:';") + Chars.LF + IssueSummary;
 			If HasEmployeeResponsible Then
 				Issue1.EmployeeResponsible = Common.ObjectAttributeValue(ObjectReference, "EmployeeResponsible");
 			EndIf;
-			WriteIssue(Issue1, CheckParameters); 
+			WriteIssue(Issue1, CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 			
 		EndDo;
 		
@@ -2262,7 +2263,7 @@ Procedure FindDeadRefs(MetadataObject, CheckParameters, CheckedRefs)
 		EndIf;
 		
 		Query.SetParameter("Ref", ResultString1.ObjectWithIssue);
-		Result = Query.Execute().Unload(); 
+		Result = Query.Execute().Unload(); // 
 		
 	EndDo;
 	
@@ -2450,7 +2451,7 @@ Procedure FindDeadRefsInAccumulationRegisters(MetadataObject, CheckParameters, C
 		
 		For Each ResultString1 In Result Do
 			
-			CurrentRecordSet = RegisterManager.CreateRecordSet();// InformationRegisterRecordSet
+			CurrentRecordSet = RegisterManager.CreateRecordSet(); // AccumulationRegisterRecordSet
 			CurrentRecordSet.Filter.Recorder.Set(ResultString1.RecorderAttributeRef);
 			CurrentRecordSet.Read();
 			
@@ -2472,7 +2473,7 @@ Procedure FindDeadRefsInAccumulationRegisters(MetadataObject, CheckParameters, C
 				Continue;
 			EndIf;
 			
-			Issue1 = IssueDetails(Common.MetadataObjectID(MetadataObject), CheckParameters); 
+			Issue1 = IssueDetails(Common.MetadataObjectID(MetadataObject), CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 			Issue1.IssueSummary = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Records ""%2"" in recorder ""%3"" for accumulation register ""%1"" reference data that does not exist.';"),
 				MetadataObject.Presentation(), ProblemRecordsNumbers, ResultString1.RecorderAttributeRef);
@@ -2481,12 +2482,12 @@ Procedure FindDeadRefsInAccumulationRegisters(MetadataObject, CheckParameters, C
 			AdditionalInformation.Insert("Recorder", ResultString1.RecorderAttributeRef);
 			Issue1.AdditionalInformation = New ValueStorage(AdditionalInformation);
 			
-			WriteIssue(Issue1, CheckParameters); 
+			WriteIssue(Issue1, CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 			
 		EndDo;
 		
 		Query.SetParameter("CheckStartDate", ResultString1.Period);
-		Result = Query.Execute().Unload(); 
+		Result = Query.Execute().Unload(); // 
 		
 	EndDo;
 	
@@ -2562,7 +2563,7 @@ Procedure FindDeadRefsInSubordinateInformationRegisters(MetadataObject, CheckPar
 		
 		For Each ResultString1 In Result Do
 			
-			CurrentRecordSet = RegisterManager.CreateRecordSet();// InformationRegisterRecordSet
+			CurrentRecordSet = RegisterManager.CreateRecordSet(); // InformationRegisterRecordSet
 			CurrentRecordSet.Filter.Recorder.Set(ResultString1.RecorderAttributeRef);
 			CurrentRecordSet.Read();
 			
@@ -2584,7 +2585,7 @@ Procedure FindDeadRefsInSubordinateInformationRegisters(MetadataObject, CheckPar
 				Continue;
 			EndIf;
 			
-			Issue1 = IssueDetails(Common.MetadataObjectID(MetadataObject), CheckParameters); 
+			Issue1 = IssueDetails(Common.MetadataObjectID(MetadataObject), CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 			Issue1.IssueSummary = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Records ""%2"" in recorder ""%3"" for information register ""%1"" reference data that does not exist.';"),
 				MetadataObject.Presentation(), ProblemRecordsNumbers, ResultString1.RecorderAttributeRef);
@@ -2593,7 +2594,7 @@ Procedure FindDeadRefsInSubordinateInformationRegisters(MetadataObject, CheckPar
 			AdditionalInformation.Insert("Recorder", ResultString1.RecorderAttributeRef);
 			Issue1.AdditionalInformation = New ValueStorage(AdditionalInformation);
 			
-			WriteIssue(Issue1, CheckParameters); 
+			WriteIssue(Issue1, CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 			
 		EndDo;
 		
@@ -2603,7 +2604,7 @@ Procedure FindDeadRefsInSubordinateInformationRegisters(MetadataObject, CheckPar
 			Query.SetParameter("Recorder", ResultString1.RecorderAttributeRef);
 		EndIf;
 		
-		Result = Query.Execute().Unload(); 
+		Result = Query.Execute().Unload(); // 
 		
 	EndDo;
 	
@@ -2683,7 +2684,7 @@ Procedure FindDeadRefsInIndependentPeriodicalInformationRegisters(MetadataObject
 				EndDo;
 				
 				BrokenRef = ResultString1[AttributeInformation.NameOfMetadataObjects + AttributeInformation.MetadataTypeInNominativeCase + "Ref"];
-				Issue1 = IssueDetails(Common.MetadataObjectID(MetadataObject), CheckParameters); 
+				Issue1 = IssueDetails(Common.MetadataObjectID(MetadataObject), CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 				Issue1.IssueSummary = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'The ""%1"" information register in %2, the ""%3"" combination of dimensions, references an item that does not exist: ""%4"" (%5).';"),
 					MetadataObject.Presentation(), AttributeInformation.MetadataTypeInInstrumentalCase,
@@ -2691,7 +2692,7 @@ Procedure FindDeadRefsInIndependentPeriodicalInformationRegisters(MetadataObject
 					BrokenRef,
 					TypeOf(BrokenRef));
 				Issue1.AdditionalInformation = New ValueStorage(AdditionalInformation);
-				WriteIssue(Issue1, CheckParameters); 
+				WriteIssue(Issue1, CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 				
 			EndDo;
 			
@@ -2712,13 +2713,13 @@ Procedure FindDeadRefsInIndependentPeriodicalInformationRegisters(MetadataObject
 		For Each Dimension In Dimensions Do
 			Query.SetParameter(Dimension.Name, ResultString1[Dimension.Name + "DimensionRef"]);
 		EndDo;
-		Result = Query.Execute().Unload(); 
-		
+		Result = Query.Execute().Unload(); // 
+		// 
 		If Result.Count() = 0 Or Result.Count() = 1 Then
 			Query.Text = FirstQueryText;
 			Query.SetParameter("Period", ResultString1["Period"]);
 			Query.SetParameter("OnlySpecifiedPeriod", False);
-			Result = Query.Execute().Unload(); 
+			Result = Query.Execute().Unload(); // @skip-check query-in-loop - A batch-wise data integrity check
 			IsFirstPass = True;
 		EndIf;
 		
@@ -2799,7 +2800,7 @@ Procedure FindDeadRefsInIndependentNonPeriodicalInformationRegisters(MetadataObj
 				EndDo;
 				
 				BrokenRef = ResultString1[AttributeInformation.NameOfMetadataObjects + AttributeInformation.MetadataTypeInNominativeCase + "Ref"];
-				Issue1 = IssueDetails(Common.MetadataObjectID(MetadataObject), CheckParameters); 
+				Issue1 = IssueDetails(Common.MetadataObjectID(MetadataObject), CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 				Issue1.IssueSummary = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'The ""%1"" information register in ""%2"", the ""%3"" combination of dimensions, references an item that does not exist: ""%4"" (%5).';"),
 					MetadataObject.Presentation(), AttributeInformation.MetadataTypeInInstrumentalCase,
@@ -2807,7 +2808,7 @@ Procedure FindDeadRefsInIndependentNonPeriodicalInformationRegisters(MetadataObj
 					BrokenRef,
 					TypeOf(BrokenRef));
 				Issue1.AdditionalInformation = New ValueStorage(AdditionalInformation);
-				WriteIssue(Issue1, CheckParameters); 
+				WriteIssue(Issue1, CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 				
 			EndDo;
 			
@@ -2826,7 +2827,7 @@ Procedure FindDeadRefsInIndependentNonPeriodicalInformationRegisters(MetadataObj
 			Query.SetParameter(Dimension.Name, ResultString1[Dimension.Name + "DimensionRef"]);
 		EndDo;
 		
-		Result = Query.Execute().Unload(); 
+		Result = Query.Execute().Unload(); // 
 		
 	EndDo;
 	
@@ -2900,7 +2901,7 @@ Procedure FindDeadRefsInAccountingRegisters(MetadataObject, CheckParameters, Ext
 		
 		For Each ResultString1 In Result Do
 			
-			CurrentRecordSet = RegisterManager.CreateRecordSet();
+			CurrentRecordSet = RegisterManager.CreateRecordSet(); // AccountingRegisterRecordSet
 			CurrentRecordSet.Filter.Recorder.Set(ResultString1.RecorderAttributeRef);
 			CurrentRecordSet.Read();
 			
@@ -2939,7 +2940,7 @@ Procedure FindDeadRefsInAccountingRegisters(MetadataObject, CheckParameters, Ext
 				Continue;
 			EndIf;
 			
-			Issue1 = IssueDetails(Common.MetadataObjectID(MetadataObject), CheckParameters); 
+			Issue1 = IssueDetails(Common.MetadataObjectID(MetadataObject), CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 			Issue1.IssueSummary = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Records ""%2"" in recorder ""%3"" for accounting register ""%1"" reference data that does not exist.';"),
 				MetadataObject.Presentation(), ProblemRecordsNumbers, ResultString1.RecorderAttributeRef);
@@ -2948,12 +2949,12 @@ Procedure FindDeadRefsInAccountingRegisters(MetadataObject, CheckParameters, Ext
 			AdditionalInformation.Insert("Recorder", ResultString1.RecorderAttributeRef);
 			Issue1.AdditionalInformation = New ValueStorage(AdditionalInformation);
 			
-			WriteIssue(Issue1, CheckParameters); 
+			WriteIssue(Issue1, CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 			
 		EndDo;
 		
 		Query.SetParameter("CheckStartDate", ResultString1.Period);
-		Result = Query.Execute().Unload(); 
+		Result = Query.Execute().Unload(); // 
 		
 	EndDo;
 	
@@ -2996,7 +2997,7 @@ Procedure FindDeadRefsInCalculationRegisters(MetadataObject, CheckParameters, Ch
 		
 		For Each ResultString1 In Result Do
 			
-			CurrentRecordSet = RegisterManager.CreateRecordSet();
+			CurrentRecordSet = RegisterManager.CreateRecordSet(); // CalculationRegisterRecordSet
 			CurrentRecordSet.Filter.Recorder.Set(ResultString1.RecorderAttributeRef);
 			CurrentRecordSet.Read();
 			
@@ -3019,7 +3020,7 @@ Procedure FindDeadRefsInCalculationRegisters(MetadataObject, CheckParameters, Ch
 				Continue;
 			EndIf;
 			
-			Issue1 = IssueDetails(Common.MetadataObjectID(MetadataObject), CheckParameters); 
+			Issue1 = IssueDetails(Common.MetadataObjectID(MetadataObject), CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 			
 			Issue1.IssueSummary = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Records ""%2"" in recorder ""%3"" for calculation register ""%1"" reference data that does not exist.';"),
@@ -3029,12 +3030,12 @@ Procedure FindDeadRefsInCalculationRegisters(MetadataObject, CheckParameters, Ch
 			AdditionalInformation.Insert("Recorder", ResultString1.RecorderAttributeRef);
 			Issue1.AdditionalInformation = New ValueStorage(AdditionalInformation);
 			
-			WriteIssue(Issue1, CheckParameters); 
+			WriteIssue(Issue1, CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 			
 		EndDo;
 		
 		Query.SetParameter("CheckStartDate", ResultString1.Period);
-		Result = Query.Execute().Unload(); 
+		Result = Query.Execute().Unload(); // 
 		
 	EndDo;
 	
@@ -3257,14 +3258,14 @@ Procedure FindNotFilledRequiredAttributes(MetadataObject, CheckParameters)
 				Continue;
 			EndIf;
 			
-			Issue1 = IssueDetails(ObjectReference, CheckParameters); 
+			Issue1 = IssueDetails(ObjectReference, CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 			
 			Issue1.IssueSummary = NStr("en = 'Attributes required:';") + Chars.LF + ObjectFillingErrors();
 			If Attributes.Find("EmployeeResponsible") <> Undefined Then
 				Issue1.Insert("EmployeeResponsible", Common.ObjectAttributeValue(ObjectReference, "EmployeeResponsible"));
 			EndIf;
 			
-			WriteIssue(Issue1, CheckParameters); 
+			WriteIssue(Issue1, CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 			
 		EndDo;
 		
@@ -3278,7 +3279,7 @@ Procedure FindNotFilledRequiredAttributes(MetadataObject, CheckParameters)
 		EndIf;
 		
 		Query.SetParameter("Ref", ResultString1.ObjectWithIssue);
-		Result = Query.Execute().Unload(); 
+		Result = Query.Execute().Unload(); // 
 		
 	EndDo;
 	
@@ -3412,7 +3413,7 @@ Procedure FindNotFilledRequiredAttributesInSubordinatePeriodicalRegisters(Metada
 		
 		For Each ResultString1 In Result Do
 			
-			CurrentRecordSet = RegisterManager.CreateRecordSet();
+			CurrentRecordSet = RegisterManager.CreateRecordSet(); // InformationRegisterRecordSet
 			CurrentRecordSet.Filter.Recorder.Set(ResultString1.RecorderAttributeRef);
 			CurrentRecordSet.Read();
 			
@@ -3423,7 +3424,7 @@ Procedure FindNotFilledRequiredAttributesInSubordinatePeriodicalRegisters(Metada
 			AdditionalInformation = New Structure;
 			AdditionalInformation.Insert("Recorder", ResultString1.RecorderAttributeRef);
 			
-			Issue1 = IssueDetails(Common.MetadataObjectID(MetadataObject), CheckParameters); 
+			Issue1 = IssueDetails(Common.MetadataObjectID(MetadataObject), CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 			
 			Issue1.IssueSummary = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Error in record with the following fields:
 				|%1
@@ -3431,7 +3432,7 @@ Procedure FindNotFilledRequiredAttributesInSubordinatePeriodicalRegisters(Metada
 				" • " + NStr("en = 'Recorder:';") + " = """ + ResultString1.RecorderAttributeRef, Chars.LF + ObjectFillingErrors());
 			Issue1.AdditionalInformation = New ValueStorage(AdditionalInformation);
 			
-			WriteIssue(Issue1, CheckParameters); 
+			WriteIssue(Issue1, CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 			
 		EndDo;
 		
@@ -3442,7 +3443,7 @@ Procedure FindNotFilledRequiredAttributesInSubordinatePeriodicalRegisters(Metada
 		EndIf;
 		
 		Query.SetParameter("CheckStartDate", ResultString1.Period);
-		Result = Query.Execute().Unload(); 
+		Result = Query.Execute().Unload(); // 
 		
 	EndDo;
 	
@@ -3496,7 +3497,7 @@ Procedure FindNotFilledRequiredAttributesInSubordinateNonPeriodicalRegisters(Met
 		EndIf;
 		For Each ResultString1 In Result Do
 			
-			CurrentRecordSet = RegisterManager.CreateRecordSet();
+			CurrentRecordSet = RegisterManager.CreateRecordSet(); // InformationRegisterRecordSet
 			CurrentRecordSet.Filter.Recorder.Set(ResultString1.RecorderAttributeRef);
 			CurrentRecordSet.Read();
 			
@@ -3507,7 +3508,7 @@ Procedure FindNotFilledRequiredAttributesInSubordinateNonPeriodicalRegisters(Met
 			AdditionalInformation = New Structure;
 			AdditionalInformation.Insert("Recorder", ResultString1.RecorderAttributeRef);
 			
-			Issue1 = IssueDetails(Common.MetadataObjectID(MetadataObject), CheckParameters); 
+			Issue1 = IssueDetails(Common.MetadataObjectID(MetadataObject), CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 			
 			Issue1.IssueSummary = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Error in record with the following fields:
 				|%1
@@ -3515,7 +3516,7 @@ Procedure FindNotFilledRequiredAttributesInSubordinateNonPeriodicalRegisters(Met
 				" • " + NStr("en = 'Recorder:';") + " = """ + ResultString1.RecorderAttributeRef, Chars.LF + ObjectFillingErrors());
 			Issue1.AdditionalInformation = New ValueStorage(AdditionalInformation);
 			
-			WriteIssue(Issue1, CheckParameters); 
+			WriteIssue(Issue1, CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 			
 		EndDo;
 		
@@ -3525,7 +3526,7 @@ Procedure FindNotFilledRequiredAttributesInSubordinateNonPeriodicalRegisters(Met
 		EndIf;
 		
 		Query.SetParameter("Recorder", ResultString1.RecorderAttributeRef);
-		Result = Query.Execute().Unload(); 
+		Result = Query.Execute().Unload(); // 
 		
 	EndDo;
 	
@@ -3639,14 +3640,14 @@ Procedure FindNotFilledRequiredAttributesInIndependentNonPeriodicalInformationRe
 				AdditionalInformation.Insert(Dimension.Name, DimensionRef);
 			EndDo;
 			
-			Issue1 = IssueDetails(Common.MetadataObjectID(MetadataObject), CheckParameters); 
+			Issue1 = IssueDetails(Common.MetadataObjectID(MetadataObject), CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 			
 			Issue1.IssueSummary        = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Error in record with the following fields:
 				|%1
 				|Some values are required: %2';"), RecordSetFilterPresentation, Chars.LF + ObjectFillingErrors());
 			Issue1.AdditionalInformation = New ValueStorage(AdditionalInformation);
 			
-			WriteIssue(Issue1, CheckParameters); 
+			WriteIssue(Issue1, CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 			
 		EndDo;
 		
@@ -3664,7 +3665,7 @@ Procedure FindNotFilledRequiredAttributesInIndependentNonPeriodicalInformationRe
 			ModulePerformanceMonitor.EndTimeConsumingOperationMeasurement(MeasurementDetails, DataCountTotal);
 		EndIf;
 		
-		Result = Query.Execute().Unload(); 
+		Result = Query.Execute().Unload(); // 
 		
 	EndDo;
 	
@@ -3777,13 +3778,13 @@ Procedure FindNotFilledRequiredAttributesInIndependentPeriodicalInformationRegis
 				RecordSetStructure.Insert(Dimension.Name, DimensionRef);
 			EndDo;
 			
-			Issue1 = IssueDetails(Common.MetadataObjectID(MetadataObject), CheckParameters); 
+			Issue1 = IssueDetails(Common.MetadataObjectID(MetadataObject), CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 			
 			Issue1.IssueSummary        = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Error in record with the following fields:
 				|%1
 				|Some values are required: %2';"), RecordSetFilterPresentation, Chars.LF + IssueSummary);
 			Issue1.AdditionalInformation = New ValueStorage(RecordSetStructure);
-			WriteIssue(Issue1, CheckParameters); 
+			WriteIssue(Issue1, CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 			
 		EndDo;
 		
@@ -3798,13 +3799,13 @@ Procedure FindNotFilledRequiredAttributesInIndependentPeriodicalInformationRegis
 		For Each Dimension In Dimensions Do
 			Query.SetParameter(Dimension.Name, ResultString1[Dimension.Name + "DimensionRef"]);
 		EndDo;
-		Result = Query.Execute().Unload(); 
-		
+		Result = Query.Execute().Unload(); // 
+		// 
 		If Result.Count() = 0 Or Result.Count() = 1 Then
 			Query.Text = FirstQueryText;
 			Query.SetParameter("Period", ResultString1.Period);
 			Query.SetParameter("OnlySpecifiedPeriod", False);
-			Result = Query.Execute().Unload(); 
+			Result = Query.Execute().Unload(); // @skip-check query-in-loop - A batch-wise data integrity check
 			IsFirstPass = True;
 		EndIf;
 		
@@ -3874,21 +3875,21 @@ Procedure FindCircularRefs(MetadataObject, CheckParameters)
 					IssueSummary = ObjectPresentation + " -> " + ObjectPresentation;
 				EndIf;
 				
-				Issue1 = IssueDetails(ObjectReference, CheckParameters); 
+				Issue1 = IssueDetails(ObjectReference, CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 				
 				Issue1.IssueSummary = IssueSummary;
 				If Attributes.Find("EmployeeResponsible") <> Undefined Then
 					Issue1.Insert("EmployeeResponsible", Common.ObjectAttributeValue(ObjectReference, "EmployeeResponsible"));
 				EndIf;
 				
-				WriteIssue(Issue1, CheckParameters); 
+				WriteIssue(Issue1, CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 				
 			EndIf;
 			
 		EndDo;
 		
 		Query.SetParameter("Ref", ResultString1.ObjectWithIssue);
-		Result = Query.Execute().Unload(); 
+		Result = Query.Execute().Unload(); // 
 		
 	EndDo;
 	
@@ -3975,8 +3976,8 @@ Procedure CorrectCircularRefsProblem(Validation)
 					
 				LoopLastObject = ItemsToCheck[ItemsToCheck.Count() - 1];
 				
-				FirstLoopChildrenCount = ChildItemsCount(ProblemObjectRef, Parent); 
-				SecondLoopChildrenCount = ChildItemsCount(LoopLastObject, Parent); 
+				FirstLoopChildrenCount = ChildItemsCount(ProblemObjectRef, Parent); // @skip-check query-in-loop - A batch-wise data integrity check
+				SecondLoopChildrenCount = ChildItemsCount(LoopLastObject, Parent); // @skip-check query-in-loop - A batch-wise data integrity check
 				
 				ObjectWithIssue = ?(FirstLoopChildrenCount > SecondLoopChildrenCount, ProblemObjectRef, LoopLastObject);
 				ObjectWithIssue = ObjectWithIssue.GetObject();
@@ -4001,7 +4002,7 @@ Function ChildItemsCount(ObjectReference, SelectionExclusion, Val InitialValue =
 	Upload0 = SubordinateParentItems(ObjectReference, SelectionExclusion);
 	ChildrenCount = ChildrenCount + Upload0.Count();
 	For Each DescendantItem In Upload0 Do
-		ChildrenCount = ChildItemsCount(DescendantItem.Ref, SelectionExclusion, ChildrenCount); 
+		ChildrenCount = ChildItemsCount(DescendantItem.Ref, SelectionExclusion, ChildrenCount); // 
 	EndDo;
 	Return ChildrenCount;
 	
@@ -4055,9 +4056,9 @@ Procedure FindMissingPredefinedItems(MetadataObject, CheckParameters)
 			Continue;
 		EndIf;
 			
-		Issue1 = IssueDetails(Common.MetadataObjectID(MetadataObject), CheckParameters); 
+		Issue1 = IssueDetails(Common.MetadataObjectID(MetadataObject), CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 		Issue1.IssueSummary = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Predefined item ""%1"" missing in information database.';"), PredefinedItem);
-		WriteIssue(Issue1, CheckParameters); 
+		WriteIssue(Issue1, CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 		
 	EndDo;
 	
@@ -4167,9 +4168,9 @@ Procedure FindPredefinedItemsDuplicates(MetadataKind, CheckParameters)
 			Continue;
 		EndIf;
 		
-		Issue1 = IssueDetails(Result.ObjectWithIssue, CheckParameters); 
+		Issue1 = IssueDetails(Result.ObjectWithIssue, CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 		Issue1.IssueSummary = IssueSummary;
-		WriteIssue(Issue1, CheckParameters); 
+		WriteIssue(Issue1, CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 		
 	EndDo;
 	
@@ -4380,7 +4381,7 @@ Procedure ClearPreviousCheckResults(Validation, CheckExecutionParameters) Export
 	
 	For Each CheckExecutionParameter In CheckExecutionParameters Do
 		
-		CheckKind = CheckKind(CheckExecutionParameter, True); 
+		CheckKind = CheckKind(CheckExecutionParameter, True); // @skip-check query-in-loop - A batch-wise data integrity check
 		If Not ValueIsFilled(CheckKind) Then
 			Continue;
 		EndIf;
@@ -4560,7 +4561,7 @@ Function CheckParametersPropertiesExpectedTypes() Export
 	
 EndFunction
 
-//  
+// Returns the valid property types for the given check kind. See the Property1, Property2, ... attributes of the ChecksKinds catalog. 
 //
 // Returns:
 //   TypeDescription - all reference types as well as the Boolean, String, Number, and Date types.

@@ -70,6 +70,12 @@
 							<ChildItems>
 								<RadioButtonField name="UseForDefaultEmailClient" id="69">
 									<DataPath>UseInDefaultEmailClient</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Added to System Email Client</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<VerticalAlign>Top</VerticalAlign>
 									<RadioButtonType>Auto</RadioButtonType>
@@ -279,6 +285,12 @@
 								</RadioButtonField>
 								<RadioButtonField name="EmailsBeingProcessedInCurrentEmailClient" id="129">
 									<DataPath>MailHandlingInOtherMailClient</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Mail is handled by a third-party email client</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 									<RadioButtonType>Auto</RadioButtonType>
@@ -436,6 +448,12 @@
 												</CommandBar>
 												<FormattedDocumentField name="NewMessageFormattedDocument" id="11">
 													<DataPath>NewMessageFormattedDocument</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>New HTML message</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>None</TitleLocation>
 													<Width>10</Width>
 													<AutoMaxWidth>false</AutoMaxWidth>

@@ -31,8 +31,8 @@
 			<ChildItems>
 				<PictureDecoration name="WarningUniversalRestrictionDisabledPicture" id="201">
 					<Picture>
-						<xr:Ref>CommonPicture.Warning32</xr:Ref>
-						<xr:LoadTransparent>false</xr:LoadTransparent>
+						<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</Picture>
 					<FileDragMode>AsFile</FileDragMode>
 					<ContextMenu name="WarningUniversalRestrictionDisabledPictureContextMenu" id="202"/>
@@ -69,8 +69,8 @@ See the access restriction mode in the "Users and rights settings" panel.</v8:co
 			<ChildItems>
 				<PictureDecoration name="InitialAccessUpdateInProgressWarningPicture" id="209">
 					<Picture>
-						<xr:Ref>CommonPicture.Warning32</xr:Ref>
-						<xr:LoadTransparent>false</xr:LoadTransparent>
+						<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</Picture>
 					<FileDragMode>AsFile</FileDragMode>
 					<ContextMenu name="InitialAccessUpdateInProgressWarningPictureContextMenu" id="210"/>
@@ -169,6 +169,12 @@ See the "First access update completed" constant).
 									<ChildItems>
 										<InputField name="AccessUpdateThreadsCount1" id="313">
 											<DataPath>AccessUpdateThreadsCount</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Number of access update threads</v8:content>
+												</v8:item>
+											</Title>
 											<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 											<ClearButton>true</ClearButton>
 											<SpinButton>true</SpinButton>
@@ -201,6 +207,13 @@ See the "First access update completed" constant).
 									<ChildItems>
 										<InputField name="DiskLoadBalancing1" id="321">
 											<DataPath>DiskLoadBalancing</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Optimize for a database stored
+on a hard drive</v8:content>
+												</v8:item>
+											</Title>
 											<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 											<Width>12</Width>
 											<HorizontalStretch>false</HorizontalStretch>
@@ -214,7 +227,7 @@ See the "First access update completed" constant).
 														<Presentation>
 															<v8:item>
 																<v8:lang>en</v8:lang>
-																<v8:content>Fast hard drive</v8:content>
+																<v8:content>Faster storage (SSD)</v8:content>
 															</v8:item>
 														</Presentation>
 														<Value xsi:type="xs:boolean">false</Value>
@@ -227,7 +240,7 @@ See the "First access update completed" constant).
 														<Presentation>
 															<v8:item>
 																<v8:lang>en</v8:lang>
-																<v8:content>Slow hard drive</v8:content>
+																<v8:content>Slower storage (HDD)</v8:content>
 															</v8:item>
 														</Presentation>
 														<Value xsi:type="xs:boolean">true</Value>
@@ -377,6 +390,12 @@ See the "First access update completed" constant).
 									<ChildItems>
 										<InputField name="AccessUpdateThreadsCount2" id="328">
 											<DataPath>AccessUpdateThreadsCount</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Number of access update threads</v8:content>
+												</v8:item>
+											</Title>
 											<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 											<ClearButton>true</ClearButton>
 											<SpinButton>true</SpinButton>
@@ -398,7 +417,7 @@ See the "First access update completed" constant).
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Hard drive load balancing tooltip 2</v8:content>
+											<v8:content>Hard drive load balancing tooltip 1</v8:content>
 										</v8:item>
 									</Title>
 									<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
@@ -409,6 +428,13 @@ See the "First access update completed" constant).
 									<ChildItems>
 										<InputField name="DiskLoadBalancing2" id="336">
 											<DataPath>DiskLoadBalancing</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Optimize for a database stored
+on a hard drive</v8:content>
+												</v8:item>
+											</Title>
 											<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 											<Width>12</Width>
 											<HorizontalStretch>false</HorizontalStretch>
@@ -422,7 +448,7 @@ See the "First access update completed" constant).
 														<Presentation>
 															<v8:item>
 																<v8:lang>en</v8:lang>
-																<v8:content>Fast hard drive</v8:content>
+																<v8:content>Faster storage (SSD)</v8:content>
 															</v8:item>
 														</Presentation>
 														<Value xsi:type="xs:boolean">false</Value>
@@ -435,7 +461,7 @@ See the "First access update completed" constant).
 														<Presentation>
 															<v8:item>
 																<v8:lang>en</v8:lang>
-																<v8:content>Slow hard drive</v8:content>
+																<v8:content>Slower storage (HDD)</v8:content>
 															</v8:item>
 														</Presentation>
 														<Value xsi:type="xs:boolean">true</Value>
@@ -644,12 +670,24 @@ scheduled job is disabled.</v8:content>
 							<Type>CommandBarButton</Type>
 							<DefaultItem>true</DefaultItem>
 							<CommandName>Form.Command.ManualControl</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Configure access manually…</v8:content>
+								</v8:item>
+							</Title>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 							<ExtendedTooltip name="FormManualControlExtendedTooltip" id="4"/>
 						</Button>
 						<Button name="FormStopAndProhibitAccessUpdate" id="275">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.StopAndProhibitAccessUpdate</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Stop and deny access update</v8:content>
+								</v8:item>
+							</Title>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 							<ExtendedTooltip name="FormStopAndProhibitAccessUpdateExtendedTooltip" id="276"/>
 						</Button>
@@ -721,6 +759,12 @@ scheduled job is disabled.</v8:content>
 									<Height>1</Height>
 									<CommandName>Form.Command.RefreshProgressBar</CommandName>
 									<Font ref="style:SmallTextFont" kind="StyleItem"/>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Refresh progress bar</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="RefreshProgressBarExtendedTooltip" id="85"/>
 								</Button>
 							</ChildItems>
@@ -956,6 +1000,12 @@ clear the check box.</v8:content>
 							<ChildItems>
 								<CheckBoxField name="ShowItemsCount" id="279">
 									<DataPath>ShowItemsCount</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Show number of items</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>Right</TitleLocation>
 									<CheckBoxType>Auto</CheckBoxType>
 									<ContextMenu name="ShowItemsCountContextMenu" id="280"/>
@@ -966,6 +1016,12 @@ clear the check box.</v8:content>
 								</CheckBoxField>
 								<CheckBoxField name="ShowAccessKeysCount" id="287">
 									<DataPath>ShowAccessKeysCount</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Show number of access keys</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>Right</TitleLocation>
 									<CheckBoxType>Auto</CheckBoxType>
 									<ContextMenu name="ShowAccessKeysCountContextMenu" id="288"/>
@@ -976,6 +1032,12 @@ clear the check box.</v8:content>
 								</CheckBoxField>
 								<CheckBoxField name="ShowProcessingDelay" id="306">
 									<DataPath>ShowProcessingDelay</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Show processing delay</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>Right</TitleLocation>
 									<CheckBoxType>Auto</CheckBoxType>
 									<ContextMenu name="ShowProcessingDelayContextMenu" id="307"/>
@@ -986,6 +1048,12 @@ clear the check box.</v8:content>
 								</CheckBoxField>
 								<CheckBoxField name="ShowTableName" id="290">
 									<DataPath>ShowTableName</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Show table name</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>Right</TitleLocation>
 									<CheckBoxType>Auto</CheckBoxType>
 									<ContextMenu name="ShowTableNameContextMenu" id="291"/>
@@ -996,6 +1064,12 @@ clear the check box.</v8:content>
 								</CheckBoxField>
 								<CheckBoxField name="ShowProcessedLists" id="284">
 									<DataPath>ShowProcessedLists</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Show processed lists</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>Right</TitleLocation>
 									<CheckBoxType>Auto</CheckBoxType>
 									<ContextMenu name="ShowProcessedListsContextMenu" id="285"/>
@@ -1052,11 +1126,23 @@ clear the check box.</v8:content>
 							<Button name="ListsContextMenuSortListAsc" id="102">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.SortListAsc</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Sort list in ascending order</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="ListsContextMenuSortListAscExtendedTooltip" id="103"/>
 							</Button>
 							<Button name="ListsContextMenuSortListDesc" id="104">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.SortListDesc</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Sort list in ascending order</v8:content>
+									</v8:item>
+								</Title>
 								<ExtendedTooltip name="ListsContextMenuSortListDescExtendedTooltip" id="105"/>
 							</Button>
 							<Button name="ListsContextMenuOutputList" id="100">

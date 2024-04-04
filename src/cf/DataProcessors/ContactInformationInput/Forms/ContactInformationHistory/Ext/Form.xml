@@ -68,6 +68,12 @@
 						<Type>CommandBarButton</Type>
 						<Visible>false</Visible>
 						<CommandName>Form.Command.Select</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Select</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="HistorySelectExtendedTooltip" id="51"/>
 					</Button>
 					<Button name="HistoryAdd" id="22" DisplayImportance="Usual">
@@ -136,6 +142,12 @@
 			<ChildItems>
 				<InputField name="HistoryValidFrom" id="14">
 					<DataPath>History.ValidFrom</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Valid from</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ContextMenu name="HistoryEffectiveFromContextMenu" id="15"/>
 					<ExtendedTooltip name="HistoryEffectiveFromExtendedTooltip" id="16"/>
@@ -145,6 +157,12 @@
 				</InputField>
 				<InputField name="HistoryPresentation" id="17">
 					<DataPath>History.Presentation</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Presentation</v8:content>
+						</v8:item>
+					</Title>
 					<ChoiceButton>true</ChoiceButton>
 					<ChooseType>false</ChooseType>
 					<TextEdit>false</TextEdit>
@@ -161,6 +179,12 @@
 						<xr:Common>false</xr:Common>
 					</UserVisible>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Comment</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<TextEdit>false</TextEdit>
 					<ContextMenu name="HistoryCommentContextMenu" id="53"/>
@@ -183,11 +207,23 @@
 					<DefaultButton>true</DefaultButton>
 					<DefaultItem>true</DefaultItem>
 					<CommandName>Form.Command.OK</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>OK</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="OKExtendedTooltip" id="41"/>
 				</Button>
 				<Button name="Cancel" id="38">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.Cancel</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Cancel</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="CancelExtendedTooltip" id="39"/>
 				</Button>
 			</ChildItems>
@@ -409,6 +445,19 @@
 		<Parameter name="ContactInformationKind">
 			<Type>
 				<v8:Type>cfg:CatalogRef.ContactInformationKinds</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="FromAddressEntryForm">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="ValidFrom">
+			<Type>
+				<v8:Type>xs:dateTime</v8:Type>
+				<v8:DateQualifiers>
+					<v8:DateFractions>Date</v8:DateFractions>
+				</v8:DateQualifiers>
 			</Type>
 		</Parameter>
 	</Parameters>

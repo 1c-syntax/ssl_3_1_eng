@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -32,23 +33,23 @@ EndProcedure
 
 #Region Private
 
-// Records the new state of the original document.
+// Saves the new state of a source document.
 //	
 // Parameters:
-//  RecordData - Array of Structure - :
+//  RecordData - Array of Structure - Information on the current document state:
 //                 * OverallState 						- Boolean - True if the current state is overall;
-//                 * Ref 								- DocumentRef -  link to the document for which you want to change the state of the original;
+//                 * Ref 								- DocumentRef - A reference to the document whose source document's state should be changed.
 //                 * SourceDocumentOriginalState - CatalogRef.SourceDocumentsOriginalsStates -
 //                                                           a current state of the source document original.
 //                 * SourceDocument 					- String - a source document ID. It is specified if this state is not overall;
 //                 * FromOutside 								- Boolean - True if the source document was added by the user manually. Specified if this state is not overall. 
-//               - DocumentRef -  a link to the document for which you want to change the state of the original.
-//  StateName - String -  set state.
+//               - DocumentRef - A reference to the document whose source document's state should be changed.
+//  StateName - String - The state to be applied.
 // 
 // Returns:
-//  String - 
-//            
-//            
+//  String - "IsChanged" is the source document state is not repeated and was saved.
+//           "NotIsChanged" 
+//           "NotCarriedOut" 
 //
 Function SetNewOriginalState(Val RecordData, Val StateName) Export
 
@@ -73,7 +74,7 @@ EndProcedure
 //  DocumentRef - DocumentRef - a reference to the document whose overall state details must be received. 
 //
 //  Returns:
-//    Structure - :
+//    Structure - General information about the source document state:
 //    * Ref - DocumentRef - document reference;
 //    * SourceDocumentOriginalState - CatalogRef.SourceDocumentsOriginalsStates - the current
 //        state of a document original.

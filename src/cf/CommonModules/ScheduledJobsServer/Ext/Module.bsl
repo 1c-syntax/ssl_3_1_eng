@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -14,8 +15,8 @@
 // 
 //
 // Parameters:
-//  Filter - Structure - : 
-//          
+//  Filter - Structure - Has the following properties: 
+//          1. Common for all run modes:
 //             * UUID - UUID - a scheduled job ID in the local
 //                                         mode or an ID of the queue job reference in SaaS mode.
 //                                       - String - a string of the scheduled job UUID in the local
@@ -24,7 +25,7 @@
 //                                            
 //                                       - ValueTableRow of See FindJobs
 //             * Metadata              - MetadataObjectScheduledJob - a scheduled job metadata.
-//                                       - String - 
+//                                       - String - Name of the scheduled job metadata object.
 //             * Use           - Boolean - If True, a job is enabled.
 //             * Key                    - String - an applied ID of a job.
 //          2) Allowed keys only for local mode:
@@ -38,8 +39,8 @@
 //                                            for separated queue jobs only.
 //
 // Returns:
-//     Array of ScheduledJob - 
-//     :
+//     Array of ScheduledJob - In the local mode, a scheduled job array.
+//     ValueTable - In SaaS mode, has the following columns:
 //        * Use                - Boolean - If True, a job is enabled.
 //        * Key                         - String - an applied ID of a job.
 //        * Parameters                    - Array - parameters to be passed to job handler.
@@ -79,7 +80,7 @@ Function FindJobs(Filter) Export
 			EndIf;
 			
 			If Common.SeparatedDataUsageAvailable() Then
-				
+				// ACC:1386-off - The module is included in the CloudTechnology.Core subsystem.
 				ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 				// ACC:1386-on
 				DataArea = ModuleSaaSOperations.SessionSeparatorValue();
@@ -150,9 +151,9 @@ EndFunction
 //                - ValueTableRow of See FindJobs
 // 
 // Returns:
-//  ScheduledJob - 
-//   See FindJobs
-//  
+//  ScheduledJob - The local mode.
+//  ValueTableRow from See FindJobs
+//  Undefined - Job is not found.
 //
 Function Job(Val Id) Export
 	
@@ -211,8 +212,8 @@ EndFunction
 //   * RestartCountOnFailure - Number - number of retries after job abnormal termination.
 //
 // Returns:
-//  ScheduledJob - 
-//   See FindJobs
+//  ScheduledJob - The local mode.
+//  ValueTableRow from See FindJobs
 // 
 Function AddJob(Parameters) Export
 	
@@ -225,7 +226,7 @@ Function AddJob(Parameters) Export
 			JobParameters = Common.CopyRecursive(Parameters);
 			
 			If Common.SeparatedDataUsageAvailable() Then
-				
+				// ACC:1386-off - The module is included in the CloudTechnology.Core subsystem.
 				ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 				// ACC:1386-on
 				DataArea = ModuleSaaSOperations.SessionSeparatorValue();
@@ -309,7 +310,7 @@ EndProcedure
 // and not saved for every area separately.
 // 
 // Parameters: 
-//  Id - MetadataObject - 
+//  Id - MetadataObject - Scheduled job metadata object for searching.
 //                - String - a name of the predefined scheduled job metadata in any mode or
 //                           a string of the scheduled job UUID in the local mode, or
 //                           a string of the queue job reference UUID in SaaS mode.
@@ -352,8 +353,8 @@ Procedure ChangeJob(Val Id, Val Parameters) Export
 				JobsList = FindJobs(Filter);
 			EndIf;
 			
-			
-			
+			// 
+			// 
 			PredefinedJobParameters = New Structure;
 			If JobParameters.Property("Use") Then
 				PredefinedJobParameters.Insert("Use",
@@ -515,8 +516,8 @@ EndProcedure
 //                - ScheduledJob - a scheduled job.
 //
 //  Schedule    - JobSchedule - a schedule.
-//                - Structure - the value returned by the ScheduleToStructure function
-//                  of the CommonUseClientServer common module.
+//                - Structure - The value returned by the ScheduleToStructure function
+//                  of the CommonClientServer common module.
 // 
 Procedure SetJobSchedule(Val Id, Val Schedule) Export
 	
@@ -591,30 +592,40 @@ Function GetScheduledJob(Val Id) Export
 	
 EndFunction
 
-// 
-// 
+// Returns the result of the last run of the given scheduled job.
+// Including when it was run manually from the "Scheduled and background jobs" data processor.
 // 
 // Parameters:
-//  Job - ScheduledJob - 
+//  Job - ScheduledJob - Scheduled job whose last run results are to be obtained.
 //                                  
-//          - String - 
+//          - String - Scheduled job's UUID
 //
 // Returns:
 //  Undefined
-//  :
-//     
-//     
-//     
-//     
-//     
-//     
-//     
-//     
-//     
-//     
-//     
-//     
-//     
+//  * Description - String:
+//     * Key - String
+//  * End - Date
+//  * ScheduledJobID - String
+//  * State - BackgroundJobState
+//  * MethodName - String
+//  * Placement - String
+//  ErrorDetailsDescription - String
+//  * StartAttempt - Number
+//  * MessagesToUser - Array
+//  * SessionNumber - Number
+//  * SessionStart - Date
+//     * Description - String
+//     * Key - String
+//     * End - Date
+//     * ScheduledJobID - String
+//     * State - BackgroundJobState
+//     * MethodName - String
+//     * Placement - String
+//     ErrorDetailsDescription - String
+//     * StartAttempt - Number
+//     * MessagesToUser - Array
+//     * SessionNumber - Number
+//     * SessionStart - Date
 //
 Function PropertiesOfLastJob(Val Job) Export
 	
@@ -822,7 +833,7 @@ EndFunction
 //
 // Parameters:
 //  Id - UUID - a scheduled job ID.
-//                - MetadataObjectScheduledJob - 
+//                - MetadataObjectScheduledJob - Before adding a new metadata object without duplicates.
 //
 Procedure BlockARoutineTask(Id) Export 
 	
@@ -912,7 +923,7 @@ Function AddARoutineTask(Parameters) Export
 	
 EndFunction
 
-// 
+// Deletes a custom scheduled job (ignoring the SaaS job queue).
 //
 // Parameters:
 //  Id - MetadataObject - a metadata object of a scheduled job to search for

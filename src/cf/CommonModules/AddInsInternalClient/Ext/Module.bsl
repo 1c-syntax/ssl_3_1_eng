@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -48,11 +49,11 @@ Procedure CheckAddInAvailability(Notification, Context) Export
 	
 	Context.Location = Information.Location;
 	
-	
-	
-	
-	
-	
+	// 
+	// 
+	// 
+	// 
+	// 
 	
 	Result = AddInAvailabilityResult();
 	Result.TheComponentOfTheLatestVersion = Information.TheLatestVersionOfComponentsFromTheLayout;
@@ -88,15 +89,17 @@ Procedure CheckAddInAvailability(Notification, Context) Export
 	Else
 		
 		Result.Insert("Version", Information.Attributes.Version);
-			
+		ShouldAttachAddInFromTemplate = False;
 		If SearchForAComponentOfTheLatestVersion Then
 			VersionParts = StrSplit(Result.Version, ".");
 			If VersionParts.Count() = 4 Then
-				// The component version is later than the template version.
+				// The add-in version is later than the template version.
 				If CommonClientServer.CompareVersions(Result.Version,
 					Result.TheComponentOfTheLatestVersion.Version) > 0 Then
 					Result.TheComponentOfTheLatestVersion = New Structure("Id, Version, Location",
 						Context.Id, Result.Version, Information.Location);
+				Else
+					ShouldAttachAddInFromTemplate = True;
 				EndIf;
 			Else
 				// If the add-in version mismatch the template, take an add-in from the catalog.
@@ -105,8 +108,9 @@ Procedure CheckAddInAvailability(Notification, Context) Export
 			EndIf;
 		EndIf;
 		
-		
-		If Not Information.TargetPlatformsAreFull Or CurrentClientIsSupportedByAddIn(Information.Attributes.TargetPlatforms) Then
+		If ShouldAttachAddInFromTemplate
+			Or Not Information.IsTargetPlatformsFilled
+			Or CurrentClientIsSupportedByAddIn(Information.Attributes.TargetPlatforms) Then
 			
 			Result.Available = True;
 			ExecuteNotifyProcessing(Notification, Result);
@@ -156,11 +160,11 @@ Async Function AddInAvailabilityCheckResult(Context) Export
 	
 	Context.Location = Information.Location;
 	
-	
-	
-	
-	
-	
+	// 
+	// 
+	// 
+	// 
+	// 
 	
 	Result = AddInAvailabilityResult();
 	Result.TheComponentOfTheLatestVersion = Information.TheLatestVersionOfComponentsFromTheLayout;
@@ -184,7 +188,7 @@ Async Function AddInAvailabilityCheckResult(Context) Export
 		If SearchForAComponentOfTheLatestVersion Then
 			VersionParts = StrSplit(Result.Version, ".");
 			If VersionParts.Count() = 4 Then
-				// The component version is later than the template version.
+				// The add-in version is later than the template version.
 				If CommonClientServer.CompareVersions(Result.Version,
 					Result.TheComponentOfTheLatestVersion.Version) > 0 Then
 					Result.TheComponentOfTheLatestVersion = New Structure("Id, Version, Location",
@@ -197,7 +201,7 @@ Async Function AddInAvailabilityCheckResult(Context) Export
 			EndIf;
 		EndIf;
 		
-		If Not Information.TargetPlatformsAreFull Or CurrentClientIsSupportedByAddIn(Information.Attributes.TargetPlatforms) Then
+		If Not Information.IsTargetPlatformsFilled Or CurrentClientIsSupportedByAddIn(Information.Attributes.TargetPlatforms) Then
 			
 			Result.Available = True;
 			Return Result;
@@ -205,8 +209,8 @@ Async Function AddInAvailabilityCheckResult(Context) Export
 		Else
 			
 			ErrorDescription = StringFunctionsClient.FormattedString(
-				NStr("en = 'The add-in is not designed to work 
-					 |in the <b>%1</b> client application.
+				NStr("en = 'Client application <b>%1</b>
+					 |does not support the add-in.
 					 |Contact the add-in developer.';"), PresentationOfCurrentClient());
 
 			If Not Context.SuggestInstall Then
@@ -215,7 +219,7 @@ Async Function AddInAvailabilityCheckResult(Context) Export
 			Else
 				QuestionButtons = New ValueList;
 				QuestionButtons.Add("Close", NStr("en = 'Close';"));
-				QuestionButtons.Add("ContinueInstallationAttempt", NStr("en = 'Continue trying to install';"));
+				QuestionButtons.Add("ResumeInstallationAttempt", NStr("en = 'Install anyway';"));
 
 				QuestionTitle = Context.ExplanationText;
 				If IsBlankString(QuestionTitle) Then
@@ -224,7 +228,7 @@ Async Function AddInAvailabilityCheckResult(Context) Export
 
 				Response = Await DoQueryBoxAsync(ErrorDescription, QuestionButtons,, "Close", QuestionTitle);
 
-				If Response = "ContinueInstallationAttempt" Then
+				If Response = "ResumeInstallationAttempt" Then
 					Result.Available = True;
 				Else
 					Result.Available = False;
@@ -255,11 +259,82 @@ Procedure OnReceiptServerNotification(NameOfAlert, Result) Export
 	
 EndProcedure
 
+// 
+// 
+// Parameters:
+//  Location - String - 
+// 
+// Returns:
+//  String - 
+//
+Function TemplateAddInCompatibilityError(Location) Export
+	
+	AddInInfo = AddInsInternalServerCall.TemplateAddInInfo(Location);
+		 
+	If AddInInfo <> Undefined 
+		And Not CurrentClientIsSupportedByAddIn(AddInInfo.Attributes.TargetPlatforms) Then
+			Return AddInCompatibilityErrorDetails();
+	EndIf;
+	
+	Return "";
+	
+EndFunction
+
+// 
+// 
+// Parameters:
+//  Notification - NotifyDescription - 
+//  AddInAttachmentContext - See CommonInternalClient.AddInAttachmentContext
+//
+Procedure CheckTemplateAddInForCompatibility(Notification, AddInAttachmentContext) Export
+	
+	AddInInfo = AddInsInternalServerCall.TemplateAddInInfo(
+		AddInAttachmentContext.Location);
+		
+	Context = New Structure;
+	Context.Insert("Notification", Notification);
+	Context.Insert("ErrorDescription", "");
+		 
+	If AddInInfo <> Undefined 
+		And Not CurrentClientIsSupportedByAddIn(AddInInfo.Attributes.TargetPlatforms) Then
+		
+		Context.ErrorDescription = AddInCompatibilityErrorDetails();
+		
+		If AddInAttachmentContext.SuggestInstall Then
+			NotifyDescription = New NotifyDescription("AfterCompatibilityInfoDisplayed", ThisObject, Context);
+			
+			FormParameters = New Structure;
+			FormParameters.Insert("ExplanationText", AddInAttachmentContext.ExplanationText);
+			FormParameters.Insert("SupportedClients", AddInInfo.Attributes.TargetPlatforms);
+			FormParameters.Insert("AfterConnectionErrorOccurred", True);
+			
+			OpenForm("CommonForm.CannotInstallAddIn",
+				FormParameters,,,,, NotifyDescription);
+			Return;
+		EndIf;
+	EndIf;
+	
+	AfterCompatibilityInfoDisplayed(Undefined, Context);
+	
+EndProcedure
+
 #EndRegion
 
 #Region Private
 
 #Region CheckAddInAvailability
+
+Procedure AfterCompatibilityInfoDisplayed(Result, Context) Export
+	
+	ExecuteNotifyProcessing(Context.Notification, Context.ErrorDescription);
+	
+EndProcedure
+
+Function AddInCompatibilityErrorDetails()
+	Return StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Client application %1 does not support the add-in. Contact the add-in developer.';"),
+			CommonInternalClient.ApplicationKind());
+EndFunction
 
 Procedure CheckAddInAvailabilityAfterSearchingAddInOnPortal(Imported1, SearchContext) Export
 	
@@ -304,13 +379,12 @@ Function AddInAvailabilityResult() Export
 	
 EndFunction
 
-// 
+// The add-in supports the client.
 // 
 // Parameters:
-//  Attributes - See AddInsInternal.РеквизитыКомпоненты
 // 
 // Returns:
-//  Boolean - 
+//  Boolean - Flag indicating whether the add-in supports the client.
 //
 Function CurrentClientIsSupportedByAddIn(Attributes)
 	
@@ -612,9 +686,9 @@ Function PresentationOfCurrentClient()
 		Platform = NStr("en = 'WinRT x86-64';");
 	EndIf;
 	
-	
-	
-	
+	// 
+	// 
+	// 
 	Return StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 %2';"), Package, Platform);
 	
 EndFunction
@@ -626,12 +700,12 @@ EndFunction
 // Parameters:
 //  Context - See CommonInternalClient.AddInAttachmentContext
 //
-Async Function AttachExtAddInAsync(Context) Export 
+Async Function AttachAddInSSLAsync(Context) Export 
 	
 	Result = Await AddInAvailabilityCheckResult(Context);
 	
 	If Result.Available Then 
-		Return Await CommonInternalClient.AttachExtAddInAsync(Context);
+		Return Await CommonInternalClient.AttachAddInSSLAsync(Context);
 	Else
 		If Not IsBlankString(Result.ErrorDescription) Then 
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -707,12 +781,12 @@ Function ConnectionContextComponentsFromTheWindowsRegistry() Export
 		
 EndFunction
 
-// 
+// Intended to be called from AddInClient.AttachAddInFromWindowsRegisterAsync.
 // 
 // Parameters:
 //  Context - See ConnectionContextComponentsFromTheWindowsRegistry.
 //
-Async Function AttachAddInFromWindowsRegisterAsync(Context) Export
+Async Function AttachAddInFromWindowsRegistryAsync(Context) Export
 	
 	If AttachAddInFromWindowsRegistryAttachmentAvailable() Then
 		
@@ -794,7 +868,7 @@ Async Function AttachAddInFromWindowsRegisterAsync(Context) Export
 	
 EndFunction
 
-//  See AddInsClient.AttachAddInFromWindowsRegistry.
+// For calls from See AddInsClient.AttachAddInFromWindowsRegistry.
 // 
 // Parameters:
 //  Context - See ConnectionContextComponentsFromTheWindowsRegistry.
@@ -922,12 +996,12 @@ EndFunction
 // Parameters:
 //  Context - See CommonInternalClient.AddInAttachmentContext
 //
-Async Function InstallExtAddInAsync(Context) Export
+Async Function InstallAddInSSLAsync(Context) Export
 	
 	CheckResult = Await AddInAvailabilityCheckResult(Context);
 	
 	If CheckResult.Available Then 
-		Return Await CommonInternalClient.InstallExtAddInAsync(Context);
+		Return Await CommonInternalClient.InstallAddInSSLAsync(Context);
 	Else
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot attach the ""%1"" add-in
@@ -1040,7 +1114,7 @@ Procedure ImportAddInFromFile(Context) Export
 	
 EndProcedure
 
-// ImportAComponentFromAFile procedure continuation.
+// Continues the ImportAddInFromFile procedure.
 Procedure ImportAddInFromFileAfterAvailabilityWarnings(Context) Export
 	
 	Result = AddInImportResult();
@@ -1049,10 +1123,10 @@ Procedure ImportAddInFromFileAfterAvailabilityWarnings(Context) Export
 	
 EndProcedure
 
-// ImportAComponentFromAFile procedure continuation.
+// Continues the ImportAddInFromFile procedure.
 Procedure ImportAddInFromFileAfterImport(Result, Context) Export
 	
-	 
+	//  
 	// 
 	//  
 	
@@ -1069,7 +1143,7 @@ Procedure ImportAddInFromFileAfterImport(Result, Context) Export
 	
 EndProcedure
 
-// ImportAComponentFromAFile procedure continuation.
+// Continues the ImportAddInFromFile procedure.
 Function AddInImportResult() Export
 	
 	Result = New Structure;
@@ -1089,7 +1163,7 @@ EndFunction
 
 Procedure AddInSearchOnPortalOnGenerateResult(Result, Notification) Export
 	
-	Imported1 = (Result = True); 
+	Imported1 = (Result = True); // When the form is closed, it is set to "Undefined".
 	ExecuteNotifyProcessing(Notification, Imported1);
 	
 EndProcedure

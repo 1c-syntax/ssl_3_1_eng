@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -771,16 +772,14 @@ Procedure GetEmails(Val AccountData, HasErrors, ReceivedEmails, EmailsReceived)
 		Return;
 	EndIf;
 	
-	Profile = EmailOperationsInternal.InternetMailProfile(AccountData.Ref, True);
 	Protocol = InternetMailProtocol.POP3;
 	If AccountData.ProtocolForIncomingMail = "IMAP" Then
 		Protocol = InternetMailProtocol.IMAP;
 	EndIf;
 	
-	Mail = New InternetMail;
 	Try
-		Mail.Logon(Profile, Protocol);
-	Except		
+		Mail = EmailOperations.ConnectToEmailAccount(AccountData.Ref, True);
+	Except
 		UnlockAccountForReceiving(AccountData.Ref);
 		
 		HasErrors = True;
@@ -1115,8 +1114,8 @@ Procedure GetEmailByPOP3Protocol(AccountData, Mail, EmailsReceived1, EmailsRecei
 
 	IDs = Mail.GetUIDL();
 	If IDs.Count() = 0 And (Not AccountData.KeepCopies) Then
-		
-		
+		// 
+		// 
 		DeleteIDsOfAllPreviouslyReceivedEmails(AccountData.Ref);
 		Return;
 	EndIf;
@@ -1548,9 +1547,9 @@ Function WriteEmail(AccountData, Message, EmployeeResponsibleForProcessingEmails
 			
 		FillEmailDocument(MailMessage, Message, IsOutgoingEmail1);
 		MailMessage.Account = AccountData.Ref;
-		SubjectAndFolder = SubjectAndFolderOfMessageBeingUploaded(MailMessage, AccountData.Ref,
+		SubjectAndFolder = ImportedEmailSubjectAndFolder(MailMessage, AccountData.Ref,
 		                                                IsOutgoingEmail1, PutEmailInBaseEmailFolder);
-		FillInContactsInUploadedEmail(MailMessage, IsOutgoingEmail1);
+		FillContactsInImportedEmail(MailMessage, IsOutgoingEmail1);
 		MailMessage.EmployeeResponsible = EmployeeResponsibleForProcessingEmails;
 		MailMessage.Write();
 	
@@ -1701,8 +1700,8 @@ Procedure FillEmailDocument(MailMessage, Message, IsOutgoingEmail1)
 		FillInternetEmailAddresses(MailMessage.ReadReceiptAddresses, Message.ReadReceiptAddresses);
 	EndIf;
 	
-	MailMessage.BasisID    = GetBaseIDFromEmail(Message);
-	MailMessage.BasisIDs   = Message.GetField("References", "String");
+	MailMessage.BasisID    = StringFieldFromEmailHeader(Message, "In-Reply-To");
+	MailMessage.BasisIDs   = StringFieldFromEmailHeader(Message, "References");
 	MailMessage.HashSum                  = EmailMessageHashSum(Message);
 	
 	For Each Attachment In Message.Attachments Do
@@ -1720,7 +1719,7 @@ Function EmailMessageHashSum(Message)
 	
 EndFunction
 
-Function SubjectAndFolderOfMessageBeingUploaded(MailMessage, Account, IsOutgoingEmail1, PutEmailInBaseEmailFolder)
+Function ImportedEmailSubjectAndFolder(MailMessage, Account, IsOutgoingEmail1, PutEmailInBaseEmailFolder)
 	
 	Result = New Structure("SubjectOf,Folder", MailMessage.Ref, Undefined);
 	
@@ -1855,15 +1854,15 @@ Function SubjectAndFolderOfMessageBeingUploaded(MailMessage, Account, IsOutgoing
 	
 	RequestExecutionStarts = CurrentUniversalDateInMilliseconds();
 	Selection = Query.Execute().Select();
-	RequestCompletionTime =  Round((CurrentUniversalDateInMilliseconds() - RequestExecutionStarts)/1000, 2);
+	QueryExecutionTime =  Round((CurrentUniversalDateInMilliseconds() - RequestExecutionStarts)/1000, 2);
 	
-	If RequestCompletionTime > 1 Then
+	If QueryExecutionTime > 1 Then
 		
-		TextOfLogEntry = StringFunctionsClientServer.SubstituteParametersToString(
+		LogRecordText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'The request to retrieve parent email data for the loaded email took more than %1 seconds, which is longer than expected.';"),
-			RequestCompletionTime);
+			QueryExecutionTime);
 		WriteLogEvent(EventLogEvent(), EventLogLevel.Information,
-			MailMessage, TextOfLogEntry);
+			MailMessage, LogRecordText);
 		
 	EndIf;
 	
@@ -1883,7 +1882,7 @@ Function SubjectAndFolderOfMessageBeingUploaded(MailMessage, Account, IsOutgoing
 	
 EndFunction
 
-Procedure FillInContactsInUploadedEmail(MailMessage, IsOutgoingEmail1)
+Procedure FillContactsInImportedEmail(MailMessage, IsOutgoingEmail1)
 	
 	ContactsMap = ContactsInEmailMap(MailMessage.InteractionBasis);
 
@@ -2113,10 +2112,16 @@ Procedure WriteReceivedEmailID(Account, Id, DateReceived)
 
 EndProcedure
 
-Function GetBaseIDFromEmail(Message)
-
-	IDsString = TrimAll(Message.GetField("In-Reply-To", "String"));
+Function StringFieldFromEmailHeader(Message, TitleName)
 	
+	IDsString = TrimAll(Message.GetField(TitleName, "String"));
+	
+	If IsBlankString(IDsString) Then 
+		
+		IDsString = EmailHeaderField(Message.Header, TitleName); 
+		
+	EndIf;
+
 	Position = StrFind(IDsString, "<");
 	If Position <> 0 Then
 		IDsString = Mid(IDsString, Position+1);
@@ -2126,9 +2131,25 @@ Function GetBaseIDFromEmail(Message)
 	If Position <> 0 Then
 		IDsString = Left(IDsString, Position-1);
 	EndIf;
-
+	
 	Return IDsString;
+	
+EndFunction
 
+Function EmailHeaderField(MessageTitle, TitleField)
+	
+	TitleField = TitleField + ":";
+	
+	RowsArray = StrSplit(MessageTitle, Chars.LF);
+	
+	For Each TitleLine In RowsArray Do
+		
+		If StrStartsWith(TitleLine, TitleField) Then
+			Return TrimAll(Right(TitleLine, StrLen(TitleLine) - StrLen(TitleField))); 
+		EndIf;
+		
+	EndDo;
+	
 EndFunction
 
 Procedure SetEmailText(MailMessage, Message) Export
@@ -2970,7 +2991,14 @@ Function TheNameOfThePredefinedFolderByType(PredefinedFolderType)
 	
 EndFunction
 
-// ACC:1391-off For an update handler on filling the PredefinedFolderType attribute.
+// APK:1391-off For the update handler for filling in the details of the type-defined folder.
+
+// Parameters:
+//  PredefinedFolderName - String
+// 
+// Returns:
+//  EnumRef.PredefinedEmailsFoldersTypes
+//
 Function TheTypeOfThePredefinedFolderByName(PredefinedFolderName) Export
 		
 	PredefinedFolderType = Enums.PredefinedEmailsFoldersTypes.EmptyRef();

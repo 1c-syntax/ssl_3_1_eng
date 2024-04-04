@@ -96,7 +96,7 @@
 							<AutoMaxWidth>false</AutoMaxWidth>
 							<ChoiceButton>true</ChoiceButton>
 							<ContextMenu name="BackupDirectory2ContextMenu" id="25"/>
-							<ExtendedTooltip name="PathToBackupDirectoryExtendedTooltip" id="299"/>
+							<ExtendedTooltip name="BackupDirectory2ExtendedTooltip" id="299"/>
 							<Events>
 								<Event name="StartChoice">BackupDirectory2StartChoice</Event>
 							</Events>
@@ -143,6 +143,12 @@ another computer or an external storage media.</v8:content>
 								</InputField>
 								<InputField name="IBAdministratorPassword" id="266">
 									<DataPath>IBAdministratorPassword</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Password</v8:content>
+										</v8:item>
+									</Title>
 									<HorizontalStretch>false</HorizontalStretch>
 									<PasswordMode>true</PasswordMode>
 									<ContextMenu name="IBAdministratorPasswordContextMenu" id="267"/>
@@ -193,8 +199,8 @@ another computer or an external storage media.</v8:content>
 												</v8:item>
 											</Title>
 											<Picture>
-												<xr:Ref>CommonPicture.Warning32</xr:Ref>
-												<xr:LoadTransparent>false</xr:LoadTransparent>
+												<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+												<xr:LoadTransparent>true</xr:LoadTransparent>
 											</Picture>
 											<FileDragMode>AsFile</FileDragMode>
 											<ContextMenu name="WarningPictureContextMenu" id="36"/>
@@ -261,8 +267,8 @@ Their sessions will be terminated automatically.</v8:content>
 										<PictureDecoration name="Picture12" id="221">
 											<SkipOnInput>false</SkipOnInput>
 											<Picture>
-												<xr:Ref>CommonPicture.Warning32</xr:Ref>
-												<xr:LoadTransparent>false</xr:LoadTransparent>
+												<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+												<xr:LoadTransparent>true</xr:LoadTransparent>
 											</Picture>
 											<FileDragMode>AsFile</FileDragMode>
 											<ContextMenu name="Picture12ContextMenu" id="222"/>
@@ -279,7 +285,7 @@ Their sessions will be terminated automatically.</v8:content>
 											<Behavior>Usual</Behavior>
 											<Representation>None</Representation>
 											<ShowTitle>false</ShowTitle>
-											<ExtendedTooltip name="GroupErrorExtendedHint" id="360"/>
+											<ExtendedTooltip name="ErrorGroupExtendedTooltip" id="360"/>
 											<ChildItems>
 												<InputField name="ConnectionErrorFound" id="223">
 													<DataPath>ConnectionErrorFound</DataPath>
@@ -301,6 +307,12 @@ Their sessions will be terminated automatically.</v8:content>
 												<Button name="GoToEventLog" id="403">
 													<Type>Hyperlink</Type>
 													<CommandName>Form.Command.GoToEventLog</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>View error details</v8:content>
+														</v8:item>
+													</Title>
 													<ExtendedTooltip name="GoToEventLogExtendedTooltip" id="404"/>
 												</Button>
 												<LabelDecoration name="UpdateComponentVersionLabel" id="437">
@@ -347,7 +359,7 @@ Do not turn off your computer.</v8:content>
 							<Group>Vertical</Group>
 							<Behavior>Usual</Behavior>
 							<Representation>NormalSeparation</Representation>
-							<ExtendedTooltip name="ActiveUsersGroup1ExtendedTooltip" id="334"/>
+							<ExtendedTooltip name="ActiveUsersGroupExtendedTooltip" id="334"/>
 							<ChildItems>
 								<UsualGroup name="ActiveSessionsGroup" id="420">
 									<Title>
@@ -441,7 +453,7 @@ Please wait.</v8:content>
 																			<Hyperlink>true</Hyperlink>
 																			<VerticalAlign>Center</VerticalAlign>
 																			<ContextMenu name="UsersList1ContextMenu" id="92"/>
-																			<ExtendedTooltip name="UsersList1ExtendedTooltip" id="338"/>
+																			<ExtendedTooltip name="UsersListExtendedTooltip" id="338"/>
 																			<Events>
 																				<Event name="Click">UsersListClick</Event>
 																			</Events>
@@ -498,6 +510,12 @@ that cannot be closed:
 												<Button name="DonTWaitForSessionsToEnd" id="440">
 													<Type>UsualButton</Type>
 													<CommandName>Form.Command.DonTWaitForSessionsToEnd</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Do not wait for sessions to end (debug mode)</v8:content>
+														</v8:item>
+													</Title>
 													<ExtendedTooltip name="DonTWaitForSessionsToEndExtendedTooltip" id="441"/>
 												</Button>
 											</ChildItems>
@@ -672,8 +690,8 @@ set up &lt;link e1cib/app/Processing.Setting up a Backup Copyib/&gt;automatic ba
 							<ChildItems>
 								<PictureDecoration name="WarningDecoration" id="111">
 									<Picture>
-										<xr:Ref>CommonPicture.Warning32</xr:Ref>
-										<xr:LoadTransparent>false</xr:LoadTransparent>
+										<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
 									<ContextMenu name="WarningDecorationContextMenu" id="112"/>
@@ -708,6 +726,12 @@ Try to create the backup manually.</v8:content>
 										<Button name="GoToEventLog1" id="405">
 											<Type>Hyperlink</Type>
 											<CommandName>Form.Command.GoToEventLog</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>View error details</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="GoToEventLog1ExtendedTooltip" id="406"/>
 										</Button>
 									</ChildItems>
@@ -793,6 +817,11 @@ Try to create the backup manually.</v8:content>
 			</Type>
 		</Attribute>
 		<Attribute name="PasswordRequired" id="7">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="AutomaticRun" id="4">
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>

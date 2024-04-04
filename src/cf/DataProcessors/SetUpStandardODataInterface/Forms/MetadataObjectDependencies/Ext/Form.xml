@@ -37,8 +37,8 @@
 						</v8:item>
 					</Title>
 					<Picture>
-						<xr:Ref>CommonPicture.DoQueryBox32</xr:Ref>
-						<xr:LoadTransparent>false</xr:LoadTransparent>
+						<xr:Ref>StdPicture.DialogQuestion</xr:Ref>
+						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</Picture>
 					<FileDragMode>AsFile</FileDragMode>
 					<ContextMenu name="QuestionDecorationContextMenu" id="2"/>
@@ -260,6 +260,12 @@ However, this object must be accessible if you want third-party applications to 
 										</PictureField>
 										<InputField name="MetadataObjectsPresentation" id="33">
 											<DataPath>MetadataObjects.Presentation</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Dependent object</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<EditMode>EnterOnInput</EditMode>
 											<ContextMenu name="MetadataObjectsPresentationContextMenu" id="34"/>

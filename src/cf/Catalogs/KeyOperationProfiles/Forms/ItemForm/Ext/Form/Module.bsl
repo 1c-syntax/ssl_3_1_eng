@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -98,7 +99,7 @@ Procedure DialogueFileSelectionShow(Result, AdditionalParameters) Export
 		EndIf;
 		
 	Else
-		MessageToUser(NStr("en = 'To manage files, install the 1C:Enterprise extension.';"), "Object");
+		MessageToUser(NStr("en = 'To manage files, install 1C:Enterprise Extension.';"), "Object");
 	EndIf;
 EndProcedure
 
@@ -183,14 +184,14 @@ Function SaveKeyOperationsProfileToServer()
 		|FROM
 		|	Catalog.KeyOperations AS KeyOperations
 		|WHERE
-		|	KeyOperations.Ref IN (&SelectedKeyOperationsOfOperations)";
-	Query.SetParameter("SelectedKeyOperationsOfOperations", 
+		|	KeyOperations.Ref IN (&SelectedKeyOperations)";
+	Query.SetParameter("SelectedKeyOperations", 
 		Object.ProfileKeyOperations.Unload().UnloadColumn("KeyOperation"));
     
     Selection = Query.Execute().Select();
-    SelectedKeyOperationsOfOperations = New Map;
+    SelectedKeyOperations = New Map;
     While Selection.Next() Do
-    		SelectedKeyOperationsOfOperations[Selection.Ref] = Selection.Name;
+    		SelectedKeyOperations[Selection.Ref] = Selection.Name;
     EndDo;
 
     TempFileName = GetTempFileName("xml");
@@ -204,7 +205,7 @@ Function SaveKeyOperationsProfileToServer()
     
     For Each CurRow In Object.ProfileKeyOperations Do
         XMLWriter.WriteStartElement("Item");
-        XMLWriter.WriteAttribute("Name", SelectedKeyOperationsOfOperations[CurRow.KeyOperation]);
+        XMLWriter.WriteAttribute("Name", SelectedKeyOperations[CurRow.KeyOperation]);
         XMLWriter.WriteAttribute("ResponseTimeThreshold", Format(CurRow.ResponseTimeThreshold, "NG=0"));
         XMLWriter.WriteAttribute("Importance", Format(CurRow.Priority, "NG=0"));
         XMLWriter.WriteEndElement();

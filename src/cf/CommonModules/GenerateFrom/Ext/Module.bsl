@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -74,7 +75,7 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 	
 	GenerationCommands.FillValues(True, "Processed1");
 	
-	AllowedTypes = New Array; 
+	AllowedTypes = New Array; // 
 	If StandardProcessing Then
 		ObjectsWithCreationBasedOnCommands = ObjectsWithCreationBasedOnCommands();
 		For Each Source In Sources.Rows Do
@@ -237,10 +238,10 @@ EndFunction
 
 // Parameters:
 //  Form - ClientApplicationForm
-//  CommandsKind - ValueTableRow of See AttachableCommandsOverridable.OnDefineAttachableCommandsKinds.AttachableCommandsKinds
+//   See AttachableCommandsOverridable.OnDefineAttachableCommandsKinds.AttachableCommandsKinds
 //  SubmenuInfoByDefault - ValueTableRow:
 //   * Popup - FormGroup 
-//   * CommandsShown - Number
+//   * CommandsCount - Number
 //   * HasCommandsWithVisibilityConditions - Boolean
 //   * HasCommandsWithoutVisibilityConditions - Boolean
 //   * Groups - Structure:
@@ -252,9 +253,9 @@ EndFunction
 //   * CommandsWithVisibilityConditions - Array  
 //  PlacementParameters - See AttachableCommands.PlacementParameters
 //
-Procedure OnOutputCommands(Form, CommandsKind, SubmenuInfoByDefault, PlacementParameters) Export
+Procedure OnOutputCommands(Form, SubmenuInfoByDefault, PlacementParameters) Export
 	
-	If CommandsKind.Name <> "GenerateFrom" Then
+	If SubmenuInfoByDefault = Undefined Then
 		Return;
 	EndIf;
 		
@@ -292,7 +293,7 @@ Procedure HideStandardInputBasedOnSubmenu(Form, DynamicCreationBasedOnSubmenu)
 	
 	For Each Item In MovingElements Do
 		Form.Items.Move(Item, DynamicCreationBasedOnSubmenu.Groups.Ordinary);
-		DynamicCreationBasedOnSubmenu.CommandsShown = DynamicCreationBasedOnSubmenu.CommandsShown + 1;
+		DynamicCreationBasedOnSubmenu.CommandsCount = DynamicCreationBasedOnSubmenu.CommandsCount + 1;
 	EndDo;
 	
 EndProcedure

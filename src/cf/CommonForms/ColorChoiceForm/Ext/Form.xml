@@ -34,6 +34,12 @@
 				<Button name="ClearUpColor" id="9">
 					<Type>UsualButton</Type>
 					<CommandName>Form.Command.ClearUpColor</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Clear color</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="ClearUpColorExtendedTooltip" id="10"/>
 				</Button>
 				<LabelDecoration name="OtherColors" id="6">

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -280,7 +281,7 @@ Procedure FillObjectTypesInValueTree()
 			NewRow.FileOwnerType      = Catalog;
 			NewRow.FileOwnerName      = OwnerMetadata.FullName();
 			NewRow.DetailedInfoAvailable = True;
-			NewRow.IsFile                = Not StrEndsWith(Catalog.Name, FilesOperationsClientServer.CatalogSuffixAttachedFiles());
+			NewRow.IsFile                = Not StrEndsWith(Catalog.Name, FilesOperationsInternal.CatalogSuffixAttachedFiles());
 			
 		EndDo;
 		
@@ -595,7 +596,9 @@ Procedure ClearSettingDataCompletion(Result, AdditionalParameters) Export
 		Return;
 	EndIf;
 	If Result.Status <> "Completed2" Then
-		Raise Result.BriefErrorDescription;
+		StandardSubsystemsClient.OutputErrorInfo(
+			Result.ErrorInfo);
+		Return;
 	EndIf;
 	
 	ClearSettingDataAtServer(AdditionalParameters.CurrentRow);

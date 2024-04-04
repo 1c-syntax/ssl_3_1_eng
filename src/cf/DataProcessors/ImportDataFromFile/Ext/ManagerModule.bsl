@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -89,12 +90,9 @@ Procedure CreateCatalogsListForImport(CatalogsListForImport) Export
 	CatalogsInformation.Columns.Add("ImportTypeInformation");
 	
 	For Each CatalogInformation In CatalogsInformation Do
-		ImportTypeInformation = New Structure;
-		If CatalogInformation.AppliedImport Then
-			ImportTypeInformation.Insert("Type", "AppliedImport");
-		Else
-			ImportTypeInformation.Insert("Type", "UniversalImport");
-		EndIf;
+		ImportTypeInformation = NewInfoOnImportType();
+		
+		ImportTypeInformation.Type = ?(CatalogInformation.AppliedImport, "AppliedImport", "UniversalImport");
 		ImportTypeInformation.Insert("FullMetadataObjectName", CatalogInformation.FullName);
 		CatalogInformation.ImportTypeInformation = ImportTypeInformation;
 	EndDo;
@@ -106,11 +104,13 @@ Procedure CreateCatalogsListForImport(CatalogsListForImport) Export
 		CommandsTable = Query.Execute().Unload(); // See AdditionalReportsAndDataProcessors.NewQueryByAvailableCommands
 		
 		For Each TableRow In CommandsTable Do
-			ImportTypeInformation = New Structure("Type", "ExternalImport");
-			ImportTypeInformation.Insert("FullMetadataObjectName", TableRow.Modifier);
-			ImportTypeInformation.Insert("Ref", TableRow.Ref);
-			ImportTypeInformation.Insert("Id", TableRow.Id);
-			ImportTypeInformation.Insert("Presentation", TableRow.Presentation);
+			
+			ImportTypeInformation = NewInfoOnImportType();
+			ImportTypeInformation.Type = "ExternalImport";
+			ImportTypeInformation.FullMetadataObjectName  = TableRow.Modifier;
+			ImportTypeInformation.Ref = TableRow.Ref;
+			ImportTypeInformation.Id = TableRow.Id;
+			ImportTypeInformation.Presentation = TableRow.Presentation;
 			
 			String = CatalogsInformation.Add();
 			String.FullName = MetadataObjectForOutput.FullName();
@@ -122,13 +122,17 @@ Procedure CreateCatalogsListForImport(CatalogsListForImport) Export
 	CatalogsListForImport.Clear();
 	For Each CatalogInformation In CatalogsInformation Do 
 		
+		Presentation = "";
 		If CatalogInformation.AppliedImport Then
 			Presentation = CatalogPresentation(CatalogInformation.FullName);
-			If IsBlankString(Presentation) Then
-				Presentation = CatalogInformation.Presentation;
-			EndIf;
-		Else
+		EndIf;
+				
+		If IsBlankString(Presentation) Then
 			Presentation = CatalogInformation.Presentation;
+		EndIf;
+		
+		If IsBlankString(CatalogInformation.ImportTypeInformation.Presentation) Then
+			CatalogInformation.ImportTypeInformation.Presentation = Presentation;
 		EndIf;
 		
 		CatalogsListForImport.Add(CatalogInformation.ImportTypeInformation, Presentation);
@@ -138,6 +142,27 @@ Procedure CreateCatalogsListForImport(CatalogsListForImport) Export
 	CatalogsListForImport.SortByPresentation();
 	
 EndProcedure 
+
+// Returns:
+//  Structure:
+//   * Type - String
+//   * FullMetadataObjectName - String 
+//   * Ref - Undefined, CatalogRef
+//   * Id - String 
+//   * Presentation - String
+// 
+Function NewInfoOnImportType() Export
+	
+	ImportTypeInformation = New Structure;
+	ImportTypeInformation.Insert("Type",                        "");
+	ImportTypeInformation.Insert("FullMetadataObjectName", "");
+	ImportTypeInformation.Insert("Ref",                     Undefined);
+	ImportTypeInformation.Insert("Id",              "");
+	ImportTypeInformation.Insert("Presentation",              "");
+	
+	Return ImportTypeInformation;
+	
+EndFunction
 
 Function CatalogPresentation(MappingObjectName)
 	
@@ -337,12 +362,12 @@ Procedure MapAutoColumnValue(MappingTable, ColumnName) Export
 
 		If FoundOptions.Count() = 1 Then
 			DataString1.MappingObject = FoundOptions[0];
-			DataString1.RowMappingResult =  ImportDataFromFileClientServer.StatusMatched();
+			DataString1.RowMappingResult =  ImportDataFromFileClientServer.StatusMapped();
 		ElsIf FoundOptions.Count() > 1 Then
 			DataString1.ConflictsList.LoadValues(FoundOptions);
 			DataString1.RowMappingResult = ImportDataFromFileClientServer.StatusAmbiguity();
 		Else
-			DataString1.RowMappingResult = ImportDataFromFileClientServer.StatusIsNotMatched();
+			DataString1.RowMappingResult = ImportDataFromFileClientServer.StatusUnmapped();
 		EndIf;
 		
 	EndDo;
@@ -480,7 +505,7 @@ Procedure FillMappingTableWithDataToImport(TemplateWithData, TableColumnsInforma
 		EmptyTableRow = True;
 		NewRow = MappingTable.Add();
 		NewRow.Id = LineNumber - 1 - IDAdjustment;
-		NewRow.RowMappingResult = ImportDataFromFileClientServer.StatusIsNotMatched();
+		NewRow.RowMappingResult = ImportDataFromFileClientServer.StatusUnmapped();
 		
 		For ColumnNumber = 1 To TemplateWithData.TableWidth Do
 			
@@ -495,12 +520,13 @@ Procedure FillMappingTableWithDataToImport(TemplateWithData, TableColumnsInforma
 				DataType = TypeOf(NewRow[ColumnName]);
 				
 				If DataType <> Type("String") And DataType <> Type("Boolean") And DataType <> Type("Number") And DataType <> Type("Date")  And DataType <> Type("UUID") Then 
+					//@skip-check query-in-loop - Row-by-row import of heterogeneous data.
 					CellData = CellValue(Column, Cell.Text);
 				Else
 					If DataType = Type("Boolean") Then
 						CellValue = Upper(TrimAll(Cell.Text));
 						If CellValue = "1" 
-						   Or StrCompare(CellValue, ImportDataFromFileClientServer.PresentationOfTextYesForBoolean()) = 0
+						   Or StrCompare(CellValue, ImportDataFromFile.PresentationOfTextYesForBoolean()) = 0
 						   Or StrCompare(CellValue, "TRUE") = 0 Then
 							CellData = True;
 						Else
@@ -550,13 +576,18 @@ Function CellValue(Column, CellValue)
 		
 		ObjectDetails = SplitFullObjectName(MetadataObject.FullName());
 		If ObjectDetails.ObjectType = "Catalog" Then
-			If Not MetadataObject.Autonumbering And MetadataObject.CodeLength > 0 Then 
+			If Not MetadataObject.Autonumbering 
+			   And MetadataObject.CodeLength > 0 Then 
 				CellData = Catalogs[ObjectDetails.NameOfObject].FindByCode(CellValue, True);
 			EndIf;
-			If Not ValueIsFilled(CellData) And ValueIsFilled(CellValue) Then
+			If Not ValueIsFilled(CellData)
+			   And ValueIsFilled(CellValue)
+			   And MetadataObject.DescriptionLength > 0 Then
+				//@skip-check query-in-loop - Individual queries for heterogeneous data.
 				CellData = FindByDescription(CellValue, MetadataObject, Column);
 			EndIf;
-			If Not ValueIsFilled(CellData) Then 
+			If Not ValueIsFilled(CellData)
+			   And MetadataObject.CodeLength > 0 Then 
 				CellData = Catalogs[ObjectDetails.NameOfObject].FindByCode(CellValue, True);
 			EndIf;
 		ElsIf ObjectDetails.ObjectType = "Enum" Then 
@@ -731,7 +762,7 @@ Procedure ColumnsInformationFromCatalogAttributes(ImportParameters, ColumnsInfor
 		
 		If Attribute.Type.ContainsType(Type("Boolean")) Then 
 			ColumnTypeDetails = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Check box, %1 or 1 / No or 0';"), ImportDataFromFileClientServer.PresentationOfTextYesForBoolean());
+				NStr("en = 'Check box, %1 or 1 / No or 0';"), ImportDataFromFile.PresentationOfTextYesForBoolean());
 		ElsIf Attribute.Type.ContainsType(Type("Number")) Then 
 			ColumnTypeDetails =  StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Digit, Length: %1, Precision: %2';"),
 				String(Attribute.Type.NumberQualifiers.Digits),
@@ -1302,6 +1333,7 @@ Procedure SpreadsheetDocumentIntoValuesTable(TemplateWithData, ColumnsInformatio
 				ColumnName = FoundColumn.ColumnName;
 				NewRow[ColumnName] = AdjustValueToType(Cell.Text, FoundColumn.ColumnType);
 				If Not ValueIsFilled(NewRow[ColumnName]) And ValueIsFilled(Cell.Text) Then
+					//@skip-check query-in-loop - Row-by-row import of heterogeneous data.
 					NewRow[ColumnName] = CellValue(FoundColumn, Cell.Text);
 				EndIf;
 				If EmptyTableRow Then
@@ -1607,8 +1639,32 @@ Procedure ImportFileToTable(ServerCallParameters, StorageAddress) Export
 		If Extension = "csv" Then
 			ImportCSVFileToTable(TempFileName, TemplateWithData, ColumnsInformation);
 		Else
+			
+			// 
+			BinaryDataFromFile = New BinaryData(TempFileName);
+			BinaryDataFromFile = Undefined;
+			
 			ImportedTemplateWithData = New SpreadsheetDocument;
-			ImportedTemplateWithData.Read(TempFileName);
+			Try
+				ImportedTemplateWithData.Read(TempFileName);
+			Except
+				
+				ErrorInfo = ErrorInfo();
+				
+				If Not ErrorInfo.IsErrorOfCategory(ErrorCategory.LocalFileAccessError, True) Then
+					Raise;
+				EndIf;
+				
+				// 
+				Refinement = CommonClientServer.ExceptionClarification(ErrorInfo);
+				ClarifiedText = StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = '%1
+					           |
+					           |Make sure the file data is valid.';"), Refinement.Text);
+				
+				Raise(ClarifiedText,,,, ErrorInfo);
+				
+			EndTry;
 			
 			RowNumberWithTableHeader = ?(ImportDataFromFileClientServer.ColumnsHaveGroup(ColumnsInformation), 2, 1);
 			
@@ -1760,8 +1816,6 @@ EndProcedure
 
 #Region TimeConsumingOperations
 
-// Recording mapped data to the application.
-//
 Procedure WriteMappedData(ExportingParameters, StorageAddress) Export
 	
 	MappedData = ExportingParameters.MappedData;
@@ -1943,7 +1997,7 @@ Procedure GenerateReportOnBackgroundImport(ExportingParameters, StorageAddress) 
 		String = MappedData.Get(LineNumber - 1);
 		
 		Cell = TableReport.GetArea(LineNumber + 1, 1, LineNumber + 1, 1);
-		Cell.CurrentArea.Text = PresentationOfDownloadStatus(String.RowMappingResult);
+		Cell.CurrentArea.Text = ImportStatusPresentation(String.RowMappingResult);
 		Cell.CurrentArea.Details = String.MappingObject;
 		Cell.CurrentArea.Comment.Text = String.ErrorDescription;
 		If String.RowMappingResult = "Created" Then 
@@ -2022,7 +2076,7 @@ Procedure GenerateReportTemplate(TableReport, TemplateWithData)
 	TableReport.FixedTop = 1;
 EndProcedure
 
-Function PresentationOfDownloadStatus(Status)
+Function ImportStatusPresentation(Status)
 	
 	If Status = "Created" Then
 		Return NStr("en = 'Created';");

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -96,10 +97,10 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	EndDo;
 	
 	References = StateOfOrder.UnloadColumn("Ref");
-	AttributesOfOrder = Common.ObjectsAttributeValue(References, "AddlOrderingAttribute"); 
+	AttributesOrder = Common.ObjectsAttributeValue(References, "AddlOrderingAttribute"); 
 	
 	For Each State In StateOfOrder Do
-		CrntOrder = AttributesOfOrder.Get(State.Ref);
+		CrntOrder = AttributesOrder.Get(State.Ref);
 		State.Order = CrntOrder;
 	EndDo;
 	
@@ -133,12 +134,10 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			// If procession failed, try again.
 			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
 			
-			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Couldn''t process %1 due to:
-					|%2';"), 
-					RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-			WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Warning,
-				Metadata.Catalogs.SourceDocumentsOriginalsStates, IsmStatus.Ref, MessageText);
+			InfobaseUpdate.WriteErrorToEventLog(
+				IsmStatus.Ref,
+				RepresentationOfTheReference,
+				ErrorInfo());
 		EndTry;
 		
 	EndDo;

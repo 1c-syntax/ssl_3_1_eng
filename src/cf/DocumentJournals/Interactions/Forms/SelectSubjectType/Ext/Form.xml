@@ -16,6 +16,12 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.Select</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Select</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormChooseExtendedTooltip" id="22"/>
 			</Button>
 			<Button name="FormHelp" id="17">
@@ -91,6 +97,12 @@
 				<InputField name="SubjectsTypesTableTypePresentation" id="14">
 					<DataPath>SubjectsTypesTable.TypePresentation</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Type presentation</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ContextMenu name="SubjectsTypesTableTypePresentationContextMenu" id="15"/>
 					<ExtendedTooltip name="SubjectsTypesTableTypePresentationExtendedTooltip" id="16"/>
@@ -99,6 +111,12 @@
 		</Table>
 		<CheckBoxField name="DontDisplayInteractions" id="23">
 			<DataPath>DontDisplayInteractions</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Hide interactions</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>Right</TitleLocation>
 			<CheckBoxType>Auto</CheckBoxType>
 			<ContextMenu name="DontDisplayInteractionsContextMenu" id="24"/>

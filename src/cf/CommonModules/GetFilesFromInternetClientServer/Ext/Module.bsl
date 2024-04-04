@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -21,9 +22,10 @@
 //     * Timeout                      - Number        - the file download timeout, in seconds.
 //     * SecureConnection         - Boolean       - indicates the use of secure ftps or https connection.
 //                                    - OpenSSLSecureConnection
-//                                    - Undefined - in case the secure connection is not used.
+//                                    - Undefined - In case secure connection is not used.
+//     * IsPackageDeliveryCheckOnErrorEnabled - Boolean - If failed to access the URL, include a PING command in the diagnostics.
 //
-//    Parameters only for HTTP (HTTPS) connection:
+//    The parameters for HTTP (HTTPS) connection only:
 //     * Headers                    - Map - see details of the Headers parameter of the HTTPRequest object in Syntax Assistant.
 //     * UseOSAuthentication - Boolean       - see Syntax Assistant for details of
 //                                                     the UseOSAuthentication parameter of the HTTPConnection object.
@@ -46,6 +48,7 @@ Function FileGettingParameters() Export
 	ReceivingParameters.Insert("Headers", New Map);
 	ReceivingParameters.Insert("UseOSAuthentication", False);
 	ReceivingParameters.Insert("SecureConnectionUsageLevel", Undefined);
+	ReceivingParameters.Insert("IsPackageDeliveryCheckOnErrorEnabled", True);
 	
 	Return ReceivingParameters;
 	
@@ -53,9 +56,9 @@ EndFunction
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. Obsolete. Use GetFilesFromInternet.GetProxy instead.
-// Returns InternetProxy object for Internet access.
-// The following protocols are acceptable for creating InternetProxy: http, https, ftp, and ftps.
+// Deprecated. Instead, use GetFilesFromInternet.GetProxy.
+// Returns an InternetProxy object for Internet access.
+// Valid protocols to create InternetProxy: HTTP, HTTPS, FTP, and FTPS.
 //
 // Parameters:
 //    URLOrProtocol - String - URL in the following format: [Protocol://]<Server>/<Path to the file on the server>,
@@ -69,7 +72,7 @@ EndFunction
 Function GetProxy(Val URLOrProtocol) Export
 	
 #If WebClient Then
-	Raise NStr("en = 'Proxy is not available in the web client.';");
+	Raise NStr("en = 'Web client does not support proxy server.';");
 #Else
 	
 	AcceptableProtocols = New Map();
@@ -96,8 +99,8 @@ Function GetProxy(Val URLOrProtocol) Export
 	
 EndFunction
 
-// Deprecated. Obsolete. Use CommonUseClientServer.URIStructure.
-// Splits URL: protocol, server, path to resource.
+// Deprecated. Instead, use CommonClientServer.URIStructure.
+// Splits the URL into protocol, server, and path to resource.
 //
 // Parameters:
 //    URL - String - link to a web resource.
@@ -121,8 +124,8 @@ Function SplitURL(Val URL) Export
 	
 EndFunction
 
-// Deprecated. Obsolete. Use CommonUseClientServer.URIStructure.
-// Splits URL: protocol, server, path to resource. Splits the URI string and returns it as a structure.
+// Deprecated. Instead, use CommonClientServer.URIStructure.
+// Splits the URL into protocol, server, and path to resource. Splits the URI string and returns it as a structure.
 // The following normalizations are described based on RFC 3986.
 //
 // Parameters:
@@ -166,7 +169,7 @@ Function ProxySettingsState() Export
 	
 	Result = New Structure;
 	Result.Insert("ProxyConnection", False);
-	Result.Insert("Presentation", NStr("en = 'Proxy is not available in the web client.';"));
+	Result.Insert("Presentation", NStr("en = 'Web client does not support proxy server.';"));
 	Return Result;
 	
 #Else

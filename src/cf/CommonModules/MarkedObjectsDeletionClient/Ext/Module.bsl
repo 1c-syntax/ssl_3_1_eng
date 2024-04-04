@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -17,17 +18,15 @@
 // 		
 //   Owner - ClientApplicationForm
 //            - Undefined - — the form from which deletion was started.
-// 														  If not specified, the detailed information on the deletion results
-// 														  will not be passed to the processing notification about closing.
-// 														   
-//   OnCloseNotifyDescription - NotifyDescription - if specified, after deleting or
-//														  when closing a form, the result
-//														  with fields will be passed to the notification processing:
-//                              * Success - Boolean - True if all the objects were deleted successfully.
-//                              * DeletedItemsCount1 - Number - a number of deleted objects.
-//                              * NotDeletedItemsCount1 - Number - a number of not deleted objects.
-//                              * ResultAddress - String - the temporary storage address.
-//								- Undefined - a default value.
+// 							   If not specified, the detailed information on the deletion results
+// 							   will not be passed to the processing notification about closing.
+//   OnCloseNotifyDescription - NotifyDescription - 
+//								
+//								:
+//                              
+//                              
+//                              
+//                              
 //
 Procedure StartMarkedObjectsDeletion(ObjectsToDelete, DeletionParameters = Undefined, Owner = Undefined,
 	OnCloseNotifyDescription = Undefined) Export

@@ -1,16 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #Region Internal
 
-// 
-// 
+// A handler of double click, "Enter" button, and hyperlink activation in report spreadsheets.
+// See "Form field extension for a spreadsheet document field.Choice" in Syntax Assistant.
 //
 // Parameters:
 //   ReportForm          - ClientApplicationForm - a report form.
@@ -160,7 +161,7 @@ Procedure OnProcessCommand(ReportForm, Command, Result) Export
 			Filter = New Structure;
 			Filter.Insert("Data", Result.Ref);
 			Filter.Insert("EventLogEvent", Events);
-			Filter.Insert("StartDate", BegOfMonth(CurrentDate())); 
+			Filter.Insert("StartDate", BegOfMonth(CurrentDate())); // 
 			EventLogClient.OpenEventLog(Filter);
 		EndIf;
 	ElsIf Command.Name = "AccountingAuditIgnoreIssue" Then
@@ -349,7 +350,7 @@ Procedure NotifyOfAccountingIssuesCases() Export
 		NStr("en = 'Data integrity check';"),
 		"e1cib/app/Report.AccountingCheckResults",
 		NStr("en = 'Data integrity issues found';") + " (" + IssuesCount + ")",
-		PictureLib.Warning32);
+		PictureLib.DialogExclamation);
 	
 EndProcedure
 

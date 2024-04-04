@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 // Obsolete API for module ClusterAdministrationClientServer.
@@ -156,7 +157,7 @@ EndProcedure
 // Parameters:
 //  ClusterAdministrationParameters - See ClusterAdministrationClientServer.ClusterAdministrationParameters
 //  IBAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters
-//  Filter - See ClusterAdministration.SessionsFilter See ClusterAdministration.SessionsFilter
+//  Filter - See ClusterAdministration.SessionsFilter, Array of See ClusterAdministration.SessionsFilter
 //
 // Returns:
 //   Array of See ClusterAdministrationClientServer.SessionProperties
@@ -174,7 +175,7 @@ EndFunction
 // Parameters:
 //  ClusterAdministrationParameters - See ClusterAdministrationClientServer.ClusterAdministrationParameters
 //  IBAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters
-//  Filter - See ClusterAdministration.SessionsFilter See ClusterAdministration.SessionsFilter
+//  Filter - See ClusterAdministration.SessionsFilter, Array of See ClusterAdministration.SessionsFilter
 //
 Procedure DeleteInfobaseSessions(Val ClusterAdministrationParameters, Val IBAdministrationParameters, Val Filter = Undefined) Export
 	
@@ -241,7 +242,7 @@ EndProcedure
 // Parameters:
 //  ClusterAdministrationParameters - See ClusterAdministrationClientServer.ClusterAdministrationParameters
 //  IBAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters
-//  Filter - See ClusterAdministration.JoinsFilters See ClusterAdministration.JoinsFilters
+//  Filter - See ClusterAdministration.JoinsFilters, Array of See ClusterAdministration.JoinsFilters
 //
 // Returns:
 //   Array of See ClusterAdministrationClientServer.ConnectionProperties
@@ -259,7 +260,7 @@ EndFunction
 // Parameters:
 //  ClusterAdministrationParameters - See ClusterAdministrationClientServer.ClusterAdministrationParameters
 //  IBAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters
-//  Filter - See ClusterAdministration.JoinsFilters See ClusterAdministration.JoinsFilters
+//  Filter - See ClusterAdministration.JoinsFilters, Array of See ClusterAdministration.JoinsFilters
 //
 Procedure TerminateInfobaseConnections(Val ClusterAdministrationParameters, Val IBAdministrationParameters, Val Filter = Undefined) Export
 	
@@ -276,7 +277,7 @@ Procedure TerminateInfobaseConnections(Val ClusterAdministrationParameters, Val 
 	FillIBAuthenticationParameters(IBAdministrationParameters, Parameters);
 	
 	Value = New Array;
-	Value.Add("1CV8");               
+	Value.Add("1CV8");               // 
 	Value.Add("1CV8C");              // ID of 1C:Enterprise application running in thin client mode.
 	Value.Add("WebClient");          // ID of 1C:Enterprise application running in web client mode.
 	Value.Add("Designer");           // Designer ID.
@@ -741,9 +742,9 @@ EndFunction
 // Parameters:
 //  ClusterID - String - Internal server cluster ID,
 //  ClusterAdministrationParameters - See ClusterAdministrationClientServer.ClusterAdministrationParameters
-//  InfoBaseID - String -  internal ID of the information base,
-//  Parameteradministrationinformation database -  See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters
-//  Filter - See ClusterAdministration.SessionsFilter See ClusterAdministration.SessionsFilter
+//  InfoBaseID - String - Internal infobase ID.
+//  InfobaseAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters
+//  Filter - See ClusterAdministration.SessionsFilter, Array of See ClusterAdministration.SessionsFilter
 //  UseDictionary - Boolean - If True, the return value is generated using a dictionary.
 //
 // Returns:
@@ -781,7 +782,7 @@ EndFunction
 //  ClusterAdministrationParameters - See ClusterAdministrationClientServer.ClusterAdministrationParameters
 //  InfoBaseID - String - Internal infobase ID.
 //  InfobaseAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters
-//  Filter - See ClusterAdministration.JoinsFilters See ClusterAdministration.JoinsFilters
+//  Filter - See ClusterAdministration.JoinsFilters, Array of See ClusterAdministration.JoinsFilters
 //  UseDictionary - Boolean - If True, the return value is generated using a dictionary.
 //
 // Returns:
@@ -1276,8 +1277,8 @@ Function CastOutputItem(OutputItem)
 	Try
 		Return XMLValue(Type("Date"), OutputItem);
 	Except
-		
-		
+		// 
+		// 
 		Return OutputItem;
 	EndTry;
 	
@@ -1658,7 +1659,7 @@ Function AddInPropertiesDictionary()
 	Result = New Structure();
 	Result.Insert("Name", "name");
 	Result.Insert("LongDesc", "descr");
-	Result.Insert("HashSum", "hash"); 
+	Result.Insert("HashSum", "hash"); // 
 	Return New FixedStructure(Result);
 	
 EndFunction
@@ -1668,7 +1669,7 @@ Function ExternalModulePropertiesDictionary()
 	Result = New Structure();
 	Result.Insert("Name", "name");
 	Result.Insert("LongDesc", "descr");
-	Result.Insert("HashSum", "hash"); 	
+	Result.Insert("HashSum", "hash"); // 	
 	Return New FixedStructure(Result);
 	
 EndFunction

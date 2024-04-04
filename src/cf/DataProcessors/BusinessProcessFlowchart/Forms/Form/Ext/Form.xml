@@ -22,6 +22,12 @@
 			<ChildItems>
 				<InputField name="BusinessProcess" id="1">
 					<DataPath>BusinessProcess</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Business process</v8:content>
+						</v8:item>
+					</Title>
 					<Wrap>false</Wrap>
 					<ContextMenu name="BusinessProcessContextMenu" id="2"/>
 					<ExtendedTooltip name="BusinessProcessExtendedTooltip" id="33"/>
@@ -46,6 +52,12 @@
 						<InputField name="Author" id="9">
 							<DataPath>Author</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Author</v8:content>
+								</v8:item>
+							</Title>
 							<ContextMenu name="AuthorContextMenu" id="10"/>
 							<ExtendedTooltip name="AuthorExtendedTooltip" id="35"/>
 						</InputField>
@@ -64,6 +76,12 @@
 								<InputField name="Date" id="24">
 									<DataPath>Date</DataPath>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Date</v8:content>
+										</v8:item>
+									</Title>
 									<HorizontalStretch>false</HorizontalStretch>
 									<ContextMenu name="DateContextMenu" id="25"/>
 									<ExtendedTooltip name="DateExtendedTooltip" id="37"/>
@@ -90,9 +108,15 @@
 											<ChildItems>
 												<LabelField name="Status" id="26">
 													<DataPath>Status</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Status</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>None</TitleLocation>
 													<ContextMenu name="StatusContextMenu" id="27"/>
-													<ExtendedTooltip name="StatusExtendedTooltip_SSLs" id="40"/>
+													<ExtendedTooltip name="StatusExtendedTooltip" id="40"/>
 												</LabelField>
 											</ChildItems>
 										</Page>
@@ -110,6 +134,12 @@
 												<InputField name="CompletedOn" id="28">
 													<DataPath>CompletedOn</DataPath>
 													<ReadOnly>true</ReadOnly>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Completed</v8:content>
+														</v8:item>
+													</Title>
 													<HorizontalStretch>false</HorizontalStretch>
 													<ContextMenu name="CompletedOnContextMenu" id="29"/>
 													<ExtendedTooltip name="CompletedOnExtendedTooltip" id="43"/>
@@ -138,6 +168,12 @@
 					<Type>CommandBarButton</Type>
 					<SkipOnInput>false</SkipOnInput>
 					<CommandName>Form.Command.ShowTasksCommand</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Show route point tasks</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="TasksInRoutePointExtendedTooltip" id="45"/>
 				</Button>
 				<ButtonGroup name="FlowchartGroup" id="49">
@@ -171,6 +207,12 @@
 					<Type>CommandBarButton</Type>
 					<SkipOnInput>false</SkipOnInput>
 					<CommandName>Form.Command.Refresh</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Refresh</v8:content>
+						</v8:item>
+					</Title>
 					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 					<ExtendedTooltip name="RefreshExtendedTooltip" id="46"/>
 				</Button>
@@ -179,6 +221,12 @@
 		<GraphicalSchemaField name="Flowchart" id="3">
 			<DataPath>Flowchart</DataPath>
 			<ReadOnly>true</ReadOnly>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Flowchart</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>None</TitleLocation>
 			<Width>80</Width>
 			<Height>25</Height>
@@ -189,6 +237,12 @@
 						<Type>CommandBarButton</Type>
 						<SkipOnInput>false</SkipOnInput>
 						<CommandName>Form.Command.ShowTasksCommand</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Show route point tasks</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="TasksExtendedTooltip" id="47"/>
 					</Button>
 				</ChildItems>

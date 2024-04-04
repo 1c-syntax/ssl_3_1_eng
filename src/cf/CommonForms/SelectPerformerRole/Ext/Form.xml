@@ -12,6 +12,12 @@
 				<DefaultButton>true</DefaultButton>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.OK</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>OK</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="OKExtendedTooltip" id="19"/>
 			</Button>
 			<Button name="Cancel" id="2">
@@ -29,6 +35,12 @@
 	<ChildItems>
 		<InputField name="Role" id="3">
 			<DataPath>Role</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Assignee's role</v8:content>
+				</v8:item>
+			</Title>
 			<ToolTipRepresentation>Button</ToolTipRepresentation>
 			<Wrap>false</Wrap>
 			<DropListButton>false</DropListButton>
@@ -80,6 +92,12 @@
 					<ChildItems>
 						<InputField name="MainAddressingObject" id="13">
 							<DataPath>MainAddressingObject</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Main business object</v8:content>
+								</v8:item>
+							</Title>
 							<ToolTipRepresentation>Button</ToolTipRepresentation>
 							<Wrap>false</Wrap>
 							<ContextMenu name="MainAddressingObjectContextMenu" id="14"/>
@@ -87,6 +105,12 @@
 						</InputField>
 						<InputField name="AdditionalAddressingObject" id="15">
 							<DataPath>AdditionalAddressingObject</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Additional business object</v8:content>
+								</v8:item>
+							</Title>
 							<Wrap>false</Wrap>
 							<ContextMenu name="AdditionalAddressingObjectContextMenu" id="16"/>
 							<ExtendedTooltip name="AdditionalAddressingObjectExtendedTooltip" id="23"/>

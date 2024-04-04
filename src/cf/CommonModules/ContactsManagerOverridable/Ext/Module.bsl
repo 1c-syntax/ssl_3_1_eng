@@ -1,77 +1,56 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #Region Public
 
-// 
-// 
-// 
-// 
-// 
+// Changes, adds, or deletes contact information standard commands displayed in catalogs and documents.
+// Toggles contact information icons on the left of the contact information kind title.
+// Changes the position of the button "Add additional contact information field".
+// Changes the width of the comment field for the contact information of the kinds
+// "Phone", "Email", "Skype", "WebPage", and "Fax".
 //
 // Parameters:
 //  Settings - Structure:
 //    * ShouldShowIcons - Boolean
 //    * DetailsOfCommands - See ContactsManager.DetailsOfCommands
-//    * PositionOfAddButton - ItemHorizontalLocation - 
-//                                                                  
-//                                                                  
-//                                                                  
+//    * PositionOfAddButton - ItemHorizontalLocation - Valid values are Left, Right, or Auto.
+//                                                                  If set to Left, it always appears on the left.
+//                                                                  If set to Right, it always appears on the right.
+//                                                                  If set to Auto, it is positioned on the right if
+//                                                                         contact information is a field
+//                                                                         and on the left if contact information is a hyperlink
+//                                                                         or if there is no contact information field.
 //                                                                         
-//                                                                         
-//                                                                         
-//                                                                         
-//    * CommentFieldWidth - Number - 
-//                                      
-//                                      
+//    * CommentFieldWidth - Number - Comment field width for contact information fields of the following types: Phone, Email,
+//                                      Skype, WebPage, and Fax. This parameter is set only if the contact
+//                                      information group is limited in width.
 //
-//  Пример:
-//     Настройки.ОтображатьИконки = Истина;
-//     Настройки.ШиринаПоляКомментарий = 10;
-//     Настройки.ПоложениеКнопкиДобавить = ГоризонтальноеПоложениеЭлемента.Авто;
 //
-//     Адрес = Перечисления.ТипыКонтактнойИнформации.Адрес;
-//     Настройки.ОписаниеКоманд[Адрес].ЗапланироватьВстречу.Заголовок  = НСтр("ru='Встреча'");
-//     Настройки.ОписаниеКоманд[Адрес].ЗапланироватьВстречу.Подсказка  = НСтр("ru='Создать событие встречи'");
-//     Настройки.ОписаниеКоманд[Адрес].ЗапланироватьВстречу.Картинка   = БиблиотекаКартинок.ЗапланированноеВзаимодействие;
-//     Настройки.ОписаниеКоманд[Адрес].ЗапланироватьВстречу.Действие   = "_ДемоStandardSubsystemsКлиент.ОткрытьФормуДокументаВстреча";
 //    
-//     _ДемоФактическийАдресОрганизации = УправлениеКонтактнойИнформацией.ВидКонтактнойИнформацииПоИмени("_ДемоФактическийАдресОрганизации");
-//      Настройки.ОписаниеКоманд[_ДемоФактическийАдресОрганизации] = 
-//    	ОбщегоНазначения.СкопироватьРекурсивно(УправлениеКонтактнойИнформацией.КомандыТипаКонтактнойИнформации(Перечисления.ТипыКонтактнойИнформации.Адрес));
-//      Настройки.ОписаниеКоманд[_ДемоФактическийАдресОрганизации].ЗапланироватьВстречу.Действие = ""; // Отключение действия команды для вида
 //
-//   Процедурам, указанных в свойстве Действие, передаются 2 параметра:
-//       КонтактнаяИнформация - Структура:
-//         * Представление - Строка
-//         * Значение      - Строка
-//         * Тип           - ПеречислениеСсылка.ТипыКонтактнойИнформации
-//         * Вид           - СправочникСсылка.ВидыКонтактнойИнформации
-//       ДополнительныеПараметры - Структура:        
-//         * ВладелецКонтактнойИнформации - ОпределяемыйТип.ВладелецКонтактнойИнформации.
-//         * Форма - ФормаКлиентскогоПриложения - форма объекта-владельца, предназначенная для вывода контактной информации.
 //
 //   Example: 
-//     
-//		  
-//		  
-//		  
-//		    	
-//		    	
-//		  
-//		    	
-//		    	
-//		  
+//     Procedure OpenMeetingDocForm(ContactInformation, AdditionalParameters) Export
+//		  FillingValues = New Structure;
+//		  FillingValues.Insert("MeetingPlace", ContactInformation.Presentation);
+//		  If TypeOf(AdditionalParameters.ContactInformationOwner) = Type("DocumentRef._DemoSalesOrder") Then
+//		    	FillingValues.Insert("SubjectOf", AdditionalParameters.ContactInformationOwner);
+//		    	FillingValues.Insert("Contact", "");
+//		  Else
+//		    	FillingValues.Insert("Contact", AdditionalParameters.ContactInformationOwner);
+//		    	FillingValues.Insert("SubjectOf", "");
+//		  EndIf;
 //
-//		  
-//			
-//	   
+//		  OpenForm("Document.Meeting.ObjectForm", New Structure("FillingValues", FillingValues),
+//			AdditionalParameters.Form);
+//	   EndProcedure
 //
 Procedure OnDefineSettings(Settings) Export
 
@@ -88,7 +67,6 @@ EndProcedure
 //  LanguageCode - String - a language code. For example, "en".
 //
 // Example:
-//  Descriptions["_DemoPartnerAddress"] = NStr("ru='Адрес'; en='Address';", LanguageCode);
 //
 Procedure OnGetContactInformationKindsDescriptions(Descriptions, LanguageCode) Export
 	

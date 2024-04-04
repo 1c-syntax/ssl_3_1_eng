@@ -113,7 +113,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Response type</v8:content>
+					<v8:content>Answer type</v8:content>
 				</v8:item>
 			</Title>
 			<Behavior>Usual</Behavior>
@@ -123,6 +123,12 @@
 			<ChildItems>
 				<InputField name="ReplyType" id="9">
 					<DataPath>ReplyType</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Answer type</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<Width>43</Width>
 					<HorizontalStretch>false</HorizontalStretch>
@@ -370,7 +376,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Group Slider</v8:content>
+									<v8:content>Slider</v8:content>
 								</v8:item>
 							</Title>
 							<Group>AlwaysHorizontal</Group>
@@ -424,7 +430,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Group Hint range</v8:content>
+									<v8:content>Range</v8:content>
 								</v8:item>
 							</Title>
 							<Group>Vertical</Group>
@@ -529,6 +535,12 @@
 					<ChildItems>
 						<InputField name="StringLength" id="91">
 							<DataPath>StringLength</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Answer max length</v8:content>
+								</v8:item>
+							</Title>
 							<AutoMarkIncomplete>true</AutoMarkIncomplete>
 							<MinValue xsi:type="xs:decimal">0</MinValue>
 							<ContextMenu name="StringLengthContextMenu" id="92"/>
@@ -540,7 +552,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Response options</v8:content>
+							<v8:content>Answer choices</v8:content>
 						</v8:item>
 					</Title>
 					<ExtendedTooltip name="AnswersOptionsExtendedTooltip" id="116"/>
@@ -549,7 +561,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Response options information</v8:content>
+									<v8:content>Answer choices information</v8:content>
 								</v8:item>
 							</Title>
 							<HorizontalStretch>true</HorizontalStretch>
@@ -561,6 +573,12 @@
 							<ChildItems>
 								<LabelField name="AnswersOptionsInfo" id="80">
 									<DataPath>AnswersOptionsInfo</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Information answer choices</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<Width>72</Width>
 									<HorizontalStretch>false</HorizontalStretch>
@@ -584,7 +602,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Response options table</v8:content>
+									<v8:content>Answer choices table</v8:content>
 								</v8:item>
 							</Title>
 							<AutoRefresh>false</AutoRefresh>
@@ -657,7 +675,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Response</v8:content>
+											<v8:content>Answer</v8:content>
 										</v8:item>
 									</Title>
 									<Width>20</Width>
@@ -751,7 +769,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Response options</v8:content>
+					<v8:content>Answer choices</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -793,7 +811,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Response type</v8:content>
+					<v8:content>Answer type</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -805,7 +823,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Information response options</v8:content>
+					<v8:content>Information answer choices</v8:content>
 				</v8:item>
 			</Title>
 			<Type>

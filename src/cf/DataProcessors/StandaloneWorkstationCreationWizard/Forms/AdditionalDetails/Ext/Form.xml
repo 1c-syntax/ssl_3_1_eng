@@ -29,7 +29,7 @@
 				<Representation>PictureAndText</Representation>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.StandardCommand.Close</CommandName>
-				<ExtendedTooltip name="FormCloseExtendedTooltip" id="4"/>
+				<ExtendedTooltip name="FormClose3ExtendedTooltip" id="4"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
@@ -40,6 +40,12 @@
 		<HTMLDocumentField name="HTMLDocumentField" id="1">
 			<DataPath>HTMLDocumentField</DataPath>
 			<SkipOnInput>true</SkipOnInput>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>HTML document field</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>None</TitleLocation>
 			<AutoMaxWidth>false</AutoMaxWidth>
 			<ContextMenu name="HTMLDocumentFieldContextMenu" id="2"/>

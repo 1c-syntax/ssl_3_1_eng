@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -125,7 +126,7 @@ Procedure SelectRecipient(ResultHandler, Object, MultipleChoice, ReturnsMap) Exp
 	If ExecutionResult.HadCriticalErrors Then
 		QuestionToUserParameters = StandardSubsystemsClient.QuestionToUserParameters();
 		QuestionToUserParameters.PromptDontAskAgain = False;
-		QuestionToUserParameters.Picture = PictureLib.Warning32;
+		QuestionToUserParameters.Picture = PictureLib.DialogExclamation;
 		StandardSubsystemsClient.ShowQuestionToUser(Undefined, ExecutionResult.Text, 
 			QuestionDialogMode.OK, QuestionToUserParameters);
 		Return;
@@ -240,6 +241,11 @@ Procedure ExecuteNowInBackground(Recipients, Parameters) Export
 EndProcedure
 
 // Accepts the background job result.
+//
+// Parameters:
+//  Job - See TimeConsumingOperationsClient.NewResultLongOperation
+//  Parameters - Arbitrary
+//
 Procedure ExecuteNowInBackgroundCompletion(Job, Parameters) Export
 	
 	If Job = Undefined Then
@@ -255,8 +261,8 @@ Procedure ExecuteNowInBackgroundCompletion(Job, Parameters) Export
 		ShowUserNotification(,, Result.Text, PictureLib.ReportMailing, UserNotificationStatus.Information);
 		
 	Else
-		Raise NStr("en = 'Report distributions failed:';")
-			+ Chars.LF + Job.BriefErrorDescription;
+		StandardSubsystemsClient.OutputErrorInfo(
+			Job.ErrorInfo);
 	EndIf;
 	
 EndProcedure
@@ -417,7 +423,7 @@ EndProcedure
 // Accepts the background job result.
 //
 // Parameters:
-//   Job - See TimeConsumingOperations.ExecuteInBackground
+//   Job - See TimeConsumingOperationsClient.NewResultLongOperation
 //   Parameters - Structure:
 //     * UnsentCount - Number
 //     * PreparedSMSMessages - Array of Structure:
@@ -457,8 +463,8 @@ Procedure SendBulkSMSMessagesInBackgroundCompletion(Job, Parameters) Export
 		Form.Items.Pages.CurrentPage = Form.Items.InformationPage;
 	Else
 		Form.Items.Pages.CurrentPage = Form.Items.InformationPage;
-		Raise NStr("en = 'Cannot send text messages with archive passwords to receive the report distribution.';")
-			+ Chars.LF + Job.BriefErrorDescription;
+		StandardSubsystemsClient.OutputErrorInfo(
+			Job.ErrorInfo);
 	EndIf;
 	
 EndProcedure
@@ -489,6 +495,10 @@ Procedure ClearUpReportDistributionHistoryInBackground(Parameters, AdditionalPar
 
 EndProcedure
 
+// Parameters:
+//  Job - See TimeConsumingOperationsClient.NewResultLongOperation
+//  Parameters - Arbitrary
+//
 Procedure ClearUpReportDistributionHistoryCompletion(Job, Parameters) Export
 	
 	If Job = Undefined Then
@@ -499,8 +509,8 @@ Procedure ClearUpReportDistributionHistoryCompletion(Job, Parameters) Export
 		Result = GetFromTempStorage(Job.ResultAddress);
 		ShowUserNotification(,, Result.Text, , UserNotificationStatus.Information);	
 	Else
-		Raise NStr("en = 'Cannot clear the report distribution history.';")
-			+ Chars.LF + Job.BriefErrorDescription;
+		StandardSubsystemsClient.OutputErrorInfo(
+			Job.ErrorInfo);
 	EndIf;	
 	
 EndProcedure

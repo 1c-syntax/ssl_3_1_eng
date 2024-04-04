@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -63,7 +64,7 @@ Procedure AfterRecurringReceiptOfClientDataOnServer(Results) Export
 	EndIf;
 	If Result.Get("DumpsSendingRequest") = True Then
 		DumpsInformation = Result.Get("DumpsInformation");
-		
+		// Check if the message was displayed earlier.
 		If DumpsInformation <> ApplicationParametersMonitoringCenter["DumpsInformation"] Then
 			NotifyRequestForSendingDumps();
 			SetApplicationParametersMonitoringCenter("DumpsInformation", DumpsInformation);
@@ -230,7 +231,7 @@ Procedure NotifyRequestForReceivingDumps() Export
 	ShowUserNotification(NStr("en = 'Error reports';"),
 			"e1cib/app/DataProcessor.MonitoringCenterSettings.Form.RequestForErrorReportsCollectionAndSending",
 			NStr("en = 'Provide reports on occurred errors';"),
-			PictureLib.Warning32,
+			PictureLib.DialogExclamation,
 			UserNotificationStatus.Important, "RequestForGettingDumps");		
 EndProcedure
 
@@ -238,7 +239,7 @@ Procedure NotifyRequestForSendingDumps() Export
 	ShowUserNotification(NStr("en = 'Error reports';"),
 				"e1cib/app/DataProcessor.MonitoringCenterSettings.Form.RequestForSendingErrorReports",
 				NStr("en = 'Send reports on occurred errors';"),
-				PictureLib.Warning32,
+				PictureLib.DialogExclamation,
 				UserNotificationStatus.Important, "DumpsSendingRequest");
 EndProcedure
 
@@ -248,7 +249,7 @@ Procedure NotifyContactInformationRequest() Export
 						"OnClickNotifyContactInformationRequest",
 						ThisObject, True),
 				NStr("en = 'Inform of performance issues';"),
-				PictureLib.Warning32,
+				PictureLib.DialogExclamation,
 				UserNotificationStatus.Important, "ContactInformationRequest");
 EndProcedure
 			

@@ -9,6 +9,12 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.ChangeEmailAddress</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Change email address</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormChangeEmailAddressExtendedTooltip" id="4"/>
 			</Button>
 		</ChildItems>
@@ -19,6 +25,12 @@
 	<ChildItems>
 		<InputField name="NewEmailAddress" id="1">
 			<DataPath>NewEmailAddress</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>New email address</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>Top</TitleLocation>
 			<Width>40</Width>
 			<ContextMenu name="NewEmailAddressContextMenu" id="2"/>

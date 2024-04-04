@@ -10,11 +10,23 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.OK</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>OK</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormOKExtendedTooltip" id="36"/>
 			</Button>
 			<Button name="FormDisableAll" id="56">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.Reset</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Reset</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="TurnOffAllFormExtendedTooltip" id="57"/>
 			</Button>
 			<Button name="FormCancel" id="30">
@@ -32,7 +44,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Group1</v8:content>
+					<v8:content>Group</v8:content>
 				</v8:item>
 			</Title>
 			<Group>AlwaysHorizontal</Group>
@@ -88,6 +100,12 @@
 					<ChildItems>
 						<CheckBoxField name="SyncsListUse" id="53">
 							<DataPath>SynchronizationsList.Use</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>...</v8:content>
+								</v8:item>
+							</Title>
 							<EditMode>EnterOnInput</EditMode>
 							<FixingInTable>Left</FixingInTable>
 							<CheckBoxType>Auto</CheckBoxType>
@@ -97,6 +115,12 @@
 						<InputField name="SyncsListSynchronization" id="50">
 							<DataPath>SynchronizationsList.Synchronization</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Synchronization</v8:content>
+								</v8:item>
+							</Title>
 							<EditMode>EnterOnInput</EditMode>
 							<ContextMenu name="SyncsListSynchronizationContextMenu" id="51"/>
 							<ExtendedTooltip name="SyncsListSynchronizationExtendedTooltip" id="52"/>

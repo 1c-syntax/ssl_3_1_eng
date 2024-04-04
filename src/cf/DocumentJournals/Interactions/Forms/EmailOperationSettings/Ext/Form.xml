@@ -16,6 +16,12 @@
 				<DefaultButton>true</DefaultButton>
 				<DefaultItem>true</DefaultItem>
 				<CommandName>Form.Command.WriteAndClose</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save and close</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="WriteAndCloseExtendedTooltip" id="54"/>
 			</Button>
 			<Button name="FormHelp" id="49">
@@ -42,7 +48,7 @@
 				</v8:item>
 			</Title>
 			<PagesRepresentation>TabsOnTop</PagesRepresentation>
-			<ExtendedTooltip name="SettingPagesExtendedTooltip" id="57"/>
+			<ExtendedTooltip name="SettingsPagesExtendedTooltip" id="57"/>
 			<ChildItems>
 				<Page name="SignatureForNewMessage" id="42">
 					<Title>
@@ -132,6 +138,12 @@
 											<ChildItems>
 												<InputField name="SignatureForNewMessagesPlainText" id="5">
 													<DataPath>SignatureForNewMessagesPlainText</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Plain text signature on new messages</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>None</TitleLocation>
 													<AutoMaxWidth>false</AutoMaxWidth>
 													<MultiLine>true</MultiLine>
@@ -161,6 +173,12 @@
 												</CommandBar>
 												<FormattedDocumentField name="NewMessageFormattedDocument" id="11">
 													<DataPath>NewMessageFormattedDocument</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>New HTML message</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>None</TitleLocation>
 													<AutoMaxHeight>false</AutoMaxHeight>
 													<ContextMenu name="NewMessageFormattedDocumentContextMenu" id="12"/>
@@ -249,6 +267,12 @@
 											<ChildItems>
 												<InputField name="ReplyForwardSignaturePlainText" id="27">
 													<DataPath>ReplyForwardSignaturePlainText</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Plain text signature on replies and forwards</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>None</TitleLocation>
 													<AutoMaxWidth>false</AutoMaxWidth>
 													<MultiLine>true</MultiLine>
@@ -340,6 +364,12 @@
 								</CheckBoxField>
 								<RadioButtonField name="ReplyToReadReceiptPolicies" id="40">
 									<DataPath>ReplyToReadReceiptPolicies</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>When a sender requests a read receipt, your email client should</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>Top</TitleLocation>
 									<RadioButtonType>Auto</RadioButtonType>
 									<ColumnsCount>1</ColumnsCount>
@@ -398,10 +428,16 @@
 							<v8:content>Other</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="OthersExtendedTooltip" id="83"/>
+					<ExtendedTooltip name="OtherExtendedTooltip" id="83"/>
 					<ChildItems>
 						<CheckBoxField name="DisplaySourceEmailBody" id="50">
 							<DataPath>DisplaySourceEmailBody</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Show the original message on replies and forwards</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<CheckBoxType>Auto</CheckBoxType>
 							<ContextMenu name="DisplaySourceEmailBodyContextMenu" id="51"/>
@@ -409,6 +445,12 @@
 						</CheckBoxField>
 						<CheckBoxField name="IncludeOriginalEmailBody" id="52">
 							<DataPath>IncludeOriginalEmailBody</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Include the original message on replies and forwards</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<CheckBoxType>Auto</CheckBoxType>
 							<ContextMenu name="IncludeOriginalEmailBodyContextMenu" id="53"/>

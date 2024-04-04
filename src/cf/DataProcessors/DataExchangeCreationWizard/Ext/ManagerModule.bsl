@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -506,7 +507,7 @@ Procedure OnCompleteGettingDataExchangeSettingsOptions(HandlerParameters, Result
 	If HandlerParameters.Property("HandlerParameterExternalSystems") Then
 		
 		SettingsExternalSystems = New Structure;
-		SettingsExternalSystems.Insert("ErrorCode"); 
+		SettingsExternalSystems.Insert("ErrorCode"); // 
 		SettingsExternalSystems.Insert("ErrorMessage");
 		SettingsExternalSystems.Insert("SettingVariants");
 		
@@ -899,13 +900,15 @@ Procedure TestCorrespondentConnection(Parameters, ResultAddress) Export
 				EndIf;
 				
 				InfoBaseAdmParams = ExternalConnection.DataExchangeExternalConnection.GetInfobaseParameters_3_0_2_2(
-					ConnectionSettings.ExchangePlanName,
+					ConnectionSettings.CorrespondentExchangePlanName,
 					ConnectionSettings.SourceInfobaseID,
 					ErrorMessage,
 					AdditionalParameters);
 			Else
 				InfoBaseAdmParams = ExternalConnection.DataExchangeExternalConnection.GetInfobaseParameters_2_0_1_6(
-					ConnectionSettings.ExchangePlanName, ConnectionSettings.SourceInfobaseID, ErrorMessage);
+					ConnectionSettings.CorrespondentExchangePlanName,
+					ConnectionSettings.SourceInfobaseID,
+					ErrorMessage);
 			EndIf;
 				
 			CorrespondentParameters = Common.ValueFromXMLString(InfoBaseAdmParams);
@@ -915,7 +918,7 @@ Procedure TestCorrespondentConnection(Parameters, ResultAddress) Export
 					|Ensure that the following data is correct:
 					|- The application type selected in the exchange settings.
 					|- The application location specified in the connection settings.';"),
-					ConnectionSettings.ExchangePlanName);
+					ConnectionSettings.CorrespondentExchangePlanName);
 					
 				PutToTempStorage(CheckResult, ResultAddress);
 				Return;
@@ -1134,7 +1137,7 @@ Procedure SaveConnectionSettings1(Parameters, ResultAddress) Export
 	
 	Result = New Structure;
 	Result.Insert("ConnectionSettingsSaved", False);
-	Result.Insert("HasDataToMap",    False); 
+	Result.Insert("HasDataToMap",    False); // 
 	Result.Insert("ExchangeNode",                    Undefined);
 	Result.Insert("ErrorMessage",             "");
 	Result.Insert("XMLConnectionSettingsString",  "");
@@ -1247,7 +1250,7 @@ Procedure SaveConnectionSettings1(Parameters, ResultAddress) Export
 		EndIf;
 	EndIf;
 	
-	
+	// 
 	//    
 	If ConnectionSettings.ExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.COM Then
 		
@@ -1403,16 +1406,16 @@ Procedure SaveConnectionSettings1(Parameters, ResultAddress) Export
 				ExchangeParameters.ExecuteExport2 = False;
 				ExchangeParameters.ExchangeMessagesTransportKind = ConnectionSettings.ExchangeMessagesTransportKind;
 				
-				
-				
+				// 
+				// 
 				CancelReceipt = False;
 				AdditionalParameters = New Structure;
 				Try
 					DataExchangeServer.ExecuteDataExchangeForInfobaseNode(
 						ConnectionSettings.InfobaseNode, ExchangeParameters, CancelReceipt, AdditionalParameters);
 				Except
-					
-					
+					// 
+					// 
 					Cancel = True; 
 					Result.ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 					

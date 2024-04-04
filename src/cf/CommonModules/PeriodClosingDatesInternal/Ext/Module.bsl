@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -178,14 +179,14 @@ Procedure OnFillListsWithAccessRestriction(Lists) Export
 	
 EndProcedure
 
-// Events handlers of the SaaSTechnology library.
+// Events handlers of the CloudTechnology library.
 
 // See ExportImportDataOverridable.OnFillCommonDataTypesSupportingRefMappingOnExport
 Procedure OnFillCommonDataTypesSupportingRefMappingOnExport(Types) Export
 	
-	
-	
-	
+	// 
+	// 
+	// 
 	Types.Add(Metadata.ChartsOfCharacteristicTypes.PeriodClosingDatesSections);
 	
 EndProcedure
@@ -220,7 +221,7 @@ Procedure SessionParametersSetting(ParameterName, SpecifiedParameters) Export
 		
 	ElsIf ParameterName = "AccessRightsToRestrictionDates" Then
 		Rights = New Array;
-		
+		// ACC:515-off - No. 737.4 Role check (as the right is always granted).
 		If Users.RolesAvailable("ReadPeriodEndClosingDates, AddEditPeriodClosingDates",, False) Then
 			Rights.Add("ReadPeriodEndClosingDates");
 		EndIf;
@@ -250,8 +251,8 @@ EndProcedure
 //
 Procedure UpdatingVersionDatesPreventsChangesAfterLoadingDataOnWrite(Source, Cancel) Export
 	
-	
-	
+	// 
+	// 
 	
 	SetPrivilegedMode(True);
 	
@@ -454,10 +455,10 @@ Function CheckDataImportRestrictionDates1(Source, SourceRegister, Replacing, Del
 		EndIf;
 		
 	Else
-		
+		// 
 		//     
-		
-		
+		// 
+		// 
 		If ObjectVersion <> "OldVersion"
 		   And DataChangesDenied(Source, Undefined,	Result.ErrorDescription, ImportRestrictionCheckNode) Then
 			
@@ -530,8 +531,8 @@ Function DataChangesDenied(Data, DataID, ErrorDescription, ImportRestrictionChec
 		PeriodEndMessageParameters = PeriodClosingDates.PeriodEndMessageParameters();
 		PeriodEndMessageParameters.NewVersion = False;
 		
-		
-		
+		// 
+		// 
 		
 		If TypeOf(DataID) = Type("Filter") Then
 			FilterStructure = New Structure;
@@ -666,29 +667,29 @@ Function PeriodEndClosingFound(Val DataToCheck, PeriodEndMessageParameters,
 	EndDo;
 	DataToCheck = SectionsAndObjects;
 	
-	
-	
+	// 
+	// 
+	//    
+	// 
+	//    
+	//    
+	//    
+	// 
 	//    
 	
+	// 
+	// 
 	//    
+	// 
 	//    
-	//    
-	
-	//    
-	
-	
-	
+	// 
 	//    
 	
-	//    
-	
-	//    
-	
-	
-	
-	
-	
-	
+	// 
+	// 
+	// 
+	// 
+	// 
 	
 	PeriodEndClosing = DataToCheck.Copy(New Array);
 	PeriodEndClosing.Columns.Add("Addressee");
@@ -821,7 +822,7 @@ EndFunction
 Function ErrorTextImportRestrictionDatesNotImplemented() Export
 	
 	Return NStr("en = 'No exchange plan is subject to data import restrictions
-	                   |from other applications for the past period.';");
+	                   |from other apps for the past period.';");
 	
 EndFunction
 
@@ -1138,7 +1139,7 @@ Procedure ReplaceClosingDatesSectionsWithNewOnes() Export
 	
 EndProcedure
 
-// 
+// Supplements settings for users, groups, nodes, and exchange plans.
 Procedure AppendSettingsForGivenAddressees() Export
 	
 	Query = New Query;
@@ -1266,7 +1267,7 @@ Function DataToCheckFromDatabase(Data, DataID, EffectiveDates, ImportRestriction
 	For Each DataSource In DataSources.Content Do
 		Selection = QueryResults[DataSources.Content.Find(DataSource)].Select();
 		While Selection.Next() Do
-			
+			// @skip-check query-in-loop - Loop to avoid the dereferencing of the flexible type (Standard No. 654)
 			AddDataStringFromDatabase(Selection, DataSource, DataToCheck, NoObject);
 		EndDo;
 	EndDo;
@@ -1333,7 +1334,7 @@ Function DataForCheckFromObject(Data, EffectiveDates, ImportRestrictionCheckNode
 		EndIf;
 		For Each String In FieldValues Do
 			For Each DataSource In DataSources.Content Do
-				
+				// @skip-check query-in-loop - Loop to avoid the dereferencing of the flexible type (Standard No. 654)
 				AddDataString(String, String, DataSource, DataToCheck, NoObject);
 			EndDo;
 		EndDo;
@@ -1342,22 +1343,22 @@ Function DataForCheckFromObject(Data, EffectiveDates, ImportRestrictionCheckNode
 			
 			If Not ValueIsFilled(DataSource.DateField.TabularSection)
 			   And Not ValueIsFilled(DataSource.ObjectField.TabularSection) Then
-				
+				// @skip-check query-in-loop - Loop to avoid the dereferencing of the flexible type (Standard No. 654)
 				AddDataString(Data, Data, DataSource, DataToCheck, NoObject);
 				
 			ElsIf Not ValueIsFilled(DataSource.DateField.TabularSection) Then
 				
 				If NoObject Then
-					
+					// @skip-check query-in-loop - Loop to avoid the dereferencing of the flexible type (Standard No. 654)
 					AddDataString(Data, Undefined, DataSource, DataToCheck, NoObject);
 				Else
-					
+					// @skip-check query-in-loop - Loop to avoid the dereferencing of the flexible type (Standard No. 654)
 					DateString = New Structure("Value", Simple(Data, DataSource.DateField));
 					Field = DataSource.ObjectField.Name;
 					ObjectValues = Data[DataSource.ObjectField.TabularSection].Unload(, Field); // ValueTable
 					ObjectValues.GroupBy(Field);
 					For Each ObjectString In ObjectValues Do
-						
+						// @skip-check query-in-loop - Loop to avoid the dereferencing of the flexible type (Standard No. 654)
 						AddDataString(DateString, ObjectString, DataSource, DataToCheck);
 					EndDo;
 				EndIf;
@@ -1365,14 +1366,14 @@ Function DataForCheckFromObject(Data, EffectiveDates, ImportRestrictionCheckNode
 			ElsIf Not ValueIsFilled(DataSource.ObjectField.TabularSection) Then
 				
 				If Not NoObject Then
-					
+					// @skip-check query-in-loop - Loop to avoid the dereferencing of the flexible type (Standard No. 654)
 					ObjectString = New Structure("Value", Simple(Data, DataSource.ObjectField));
 				EndIf;
 				Field = DataSource.DateField.Name;
 				DateValues = Data[DataSource.DateField.TabularSection].Unload(, Field); // ValueTable
 				DateValues.GroupBy(Field);
 				For Each DateString In DateValues Do
-					
+					// @skip-check query-in-loop - Loop to avoid the dereferencing of the flexible type (Standard No. 654)
 					AddDataString(DateString, ObjectString, DataSource, DataToCheck, NoObject);
 				EndDo;
 			
@@ -1386,7 +1387,7 @@ Function DataForCheckFromObject(Data, EffectiveDates, ImportRestrictionCheckNode
 				Values = Data[DataSource.DateField.TabularSection].Unload(, Fields); // ValueTable
 				Values.GroupBy(Fields);
 				For Each String In Values Do
-					
+					// @skip-check query-in-loop - Loop to avoid the dereferencing of the flexible type (Standard No. 654)
 					AddDataString(String, String, DataSource, DataToCheck, NoObject);
 				EndDo;
 			Else
@@ -1401,14 +1402,14 @@ Function DataForCheckFromObject(Data, EffectiveDates, ImportRestrictionCheckNode
 				EndIf;
 				
 				For Each DateString In DateValues Do
-					
+					// @skip-check query-in-loop - Loop to avoid the dereferencing of the flexible type (Standard No. 654)
 					DateString = New Structure("Value", Simple(DateString, DataSource.DateField));
 					If NoObject Then
-						
+						// @skip-check query-in-loop - Loop to avoid the dereferencing of the flexible type (Standard No. 654)
 						AddDataString(DateString, Undefined, DataSource, DataToCheck, NoObject);
 					Else
 						For Each ObjectString In ObjectValues Do
-							
+							// @skip-check query-in-loop - Loop to avoid the dereferencing of the flexible type (Standard No. 654)
 							AddDataString(DateString, ObjectString, DataSource, DataToCheck);
 						EndDo;
 					EndIf;
@@ -1523,7 +1524,7 @@ Function Simple(FieldValues, Field)
 		Query.Text = StrReplace(QueryText, "PathsField", PathsField);
 		Query.Text = StrReplace(Query.Text, "&CurrentTable", Table);
 		Query.SetParameter("CurrentRef", CurrentRef);
-		
+		// @skip-check query-in-loop - Loop to avoid the dereferencing of the flexible type (Standard No. 654)
 		Selection = Query.Execute().Select();
 		If Not Selection.Next() Then
 			Return Undefined;
@@ -1551,8 +1552,8 @@ EndFunction
 // 
 Function SessionParameterValueEffectivePeriodClosingDates() Export
 	
-	
-	
+	// 
+	// 
 	
 	BegOfDay = BegOfDay(CurrentSessionDate());
 	
@@ -2100,8 +2101,8 @@ EndFunction
 
 Function PeriodClosingDatesRequest()
 	
-	
-	
+	// 
+	// 
 	Query = New Query;
 	Query.Text =
 	"SELECT
@@ -2182,12 +2183,12 @@ EndFunction
 //  FixedStructure:
 //   * ClosingDatesByObjectsNotSpecified - Boolean
 //   * SMSMessageRecipients - FixedMap of KeyAndValue:
-//      ** Key     - DefinedType.PeriodClosingTarget - 
+//      ** Key     - DefinedType.PeriodClosingTarget - Recipient.
 //      ** Value - FixedMap of KeyAndValue:
-//          *** Key     - String - 
+//          *** Key     - String - Section name.
 //          *** Value - FixedMap of KeyAndValue:
-//               **** Key     - Characteristic.PeriodClosingDatesSections -  object.
-//               **** Value - Date - 
+//               **** Key     - Characteristic.PeriodClosingDatesSections - Object.
+//               **** Value - Date - Calculated period-end closing date.
 //  
 Function SetDates(QueryResult, BegOfDay)
 	
@@ -2253,7 +2254,7 @@ EndFunction
 //
 // Returns:
 //  FixedMap of KeyAndValue:
-//   * Key - String - 
+//   * Key - String - Table name
 //   * Value - See ReceiveDataSources
 //
 Function CurrentDataSourceForPeriodClosingCheck(SectionsProperties)
@@ -2667,7 +2668,7 @@ Function RecordSetOnlyWithImportRestrictionDates(DataElement)
 	
 EndFunction
 
-// 
+// Intended for the AppendSettingsForGivenAddressees procedure.
 Procedure AddSettings(RecordSet, Settings, SettingsAddressees, UserGroups, GroupsSettings)
 	
 	For Each SettingsAddressee In SettingsAddressees Do
@@ -2739,7 +2740,7 @@ Procedure AddSettings(RecordSet, Settings, SettingsAddressees, UserGroups, Group
 	
 EndProcedure
 
-// 
+// Intended for the AddSettings procedure.
 Function IsRestrictionDateEarlier(FirstSetting, SecondSetting)
 	
 	If ValueIsFilled(FirstSetting.PeriodEndClosingDateDetails)
@@ -2754,7 +2755,7 @@ Function IsRestrictionDateEarlier(FirstSetting, SecondSetting)
 	
 EndFunction
 
-// 
+// Intended for the IsRestrictionDateEarlier function.
 Function IntervalOfRelativeClosingDate(PeriodEndClosingDateDetails)
 	
 	PeriodEndClosingDateOption    = StrGetLine(PeriodEndClosingDateDetails, 1);

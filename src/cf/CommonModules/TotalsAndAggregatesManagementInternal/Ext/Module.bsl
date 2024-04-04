@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -13,8 +14,8 @@
 Procedure CalculateTotals() Export
 	
 	SessionDate = CurrentSessionDate();
-	AccumulationRegisterPeriod  = EndOfMonth(AddMonth(SessionDate, -1)); 
-	AccountingRegisterPeriod = EndOfMonth(SessionDate); 
+	AccumulationRegisterPeriod  = EndOfMonth(AddMonth(SessionDate, -1)); // End of the last month.
+	AccountingRegisterPeriod = EndOfMonth(SessionDate); // End of the last month.
 	
 	Cache = SplitCheckCache();
 	
@@ -76,9 +77,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Procedure           = "TotalsAndAggregatesManagementInternal.UpdateScheduledJobUsage";
 	Handler.ExecutionMode     = "Seamless";
 	Handler.Id       = New UUID("16ec32f9-d68f-4283-9e6f-924a8655d2e4");
-	Handler.Comment         =
-		NStr("en = 'Enables or disables update and rebuilding of aggregates according to schedule,
-		|depending on whether there are registers with aggregates in the application.';");
+	Handler.Comment         = NStr("en = 'Toggles the update and rebuild schedule for aggregates.';");
 	
 EndProcedure
 
@@ -90,8 +89,8 @@ Procedure AfterUpdateInfobase(Val PreviousVersion, Val CurrentVersion,
 		Return;
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	
 	GenerateTotalsAndAggregatesParameters();
 	
@@ -128,7 +127,7 @@ Procedure OnFillToDoList(ToDoList) Export
 	Prototype.HasToDoItems = MustMoveTotalsBorder();
 	Prototype.Important   = True;
 	Prototype.Form    = ProcessFullName + ".Form";
-	Prototype.Presentation = NStr("en = 'Optimize application';");
+	Prototype.Presentation = NStr("en = 'Optimize performance';");
 	Prototype.ToolTip     = NStr("en = 'Speed up document posting and report generation.
 		|Required monthly procedure, this might take a while. ';");
 	
@@ -251,7 +250,7 @@ EndFunction
 Function GenerateTotalsAndAggregatesParameters()
 	Parameters = New Structure;
 	Parameters.Insert("HasTotalsRegisters", False);
-	Parameters.Insert("TotalsCalculationDate",  '39991231235959'); 
+	Parameters.Insert("TotalsCalculationDate",  '39991231235959'); // 
 	
 	KindBalance = Metadata.ObjectProperties.AccumulationRegisterType.Balance;
 	For Each MetadataRegister In Metadata.AccumulationRegisters Do

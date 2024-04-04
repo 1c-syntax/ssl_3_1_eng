@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -58,8 +59,8 @@ EndProcedure
 // If there are code or description duplicates, returns its list.
 //
 //  Returns:
-//      Array of See NewErrorMessage - — if duplicates were found in the application, contains details of the items
-//        existing in the infobase.
+//      Array of See NewErrorMessage - 
+//        
 //
 Function CheckTheUniquenessOfTheElements()
 	

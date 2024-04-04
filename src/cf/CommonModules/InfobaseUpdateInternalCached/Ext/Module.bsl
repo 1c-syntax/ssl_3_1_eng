@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Internal
@@ -118,6 +119,27 @@ EndFunction
 Function CacheForCheckingRegisteredObjects() Export
 	
 	Return New Map;
+	
+EndFunction
+
+// 
+
+// Returns:
+//  FixedMap of KeyAndValue:
+//   * Key - MetadataObject
+//   * Value - String
+//
+Function ObjectsWithInitialFilling() Export
+	
+	Result = New Map();
+	
+	SubsystemSettings = InfobaseUpdateInternal.SubsystemSettings();
+	ObjectsWithInitialFilling = SubsystemSettings.ObjectsWithInitialFilling;
+	For Each ObjectWithInitialPopulation In ObjectsWithInitialFilling Do
+		Result.Insert(ObjectWithInitialPopulation, ObjectWithInitialPopulation.FullName());
+	EndDo;
+	
+	Return New FixedMap(Result);
 	
 EndFunction
 

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -18,7 +19,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	ContactInformationType = Enums.ContactInformationTypes.WebPage;
 	
-	Title = ?(Not Parameters.Property("Title") Or IsBlankString(Parameters.Title), String(ContactInformationKind), Parameters.Title);
+	Title = ?(IsBlankString(Parameters.Title), String(ContactInformationKind), Parameters.Title);
 	
 	FieldValues = DefineAddressValue(Parameters);
 	
@@ -73,15 +74,8 @@ EndProcedure
 &AtServer
 Function DefineAddressValue(Var_Parameters)
 	
-	FieldValues = "";
-	If Var_Parameters.Property("Value") Then
-		If IsBlankString(Var_Parameters.Value) Then
-			If Var_Parameters.Property("FieldValues") Then
-				FieldValues = Var_Parameters.FieldValues;
-			EndIf;
-		Else
-			FieldValues = Var_Parameters.Value;
-		EndIf;
+	If ValueIsFilled(Var_Parameters.Value) Then
+		FieldValues = Var_Parameters.Value;
 	Else
 		FieldValues = Var_Parameters.FieldValues;
 	EndIf;

@@ -17,11 +17,23 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.SelectCommand</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Select</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormSelectCommandExtendedTooltip" id="18"/>
 			</Button>
 			<Button name="FormCancelCommand" id="19">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.CancelCommand</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Cancel</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormCancelCommandExtendedTooltip" id="20"/>
 			</Button>
 		</ChildItems>
@@ -108,6 +120,12 @@
 			<ChildItems>
 				<InputField name="ObjectAttributesPresentation" id="14">
 					<DataPath>ObjectAttributes.Presentation</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Presentation</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<ContextMenu name="ObjectAttributesPresentationContextMenu" id="15"/>
 					<ExtendedTooltip name="ObjectAttributesPresentationExtendedTooltip" id="16"/>

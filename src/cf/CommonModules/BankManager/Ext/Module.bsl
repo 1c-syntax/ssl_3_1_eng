@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -85,45 +86,6 @@ Function BICInformation(Val BIC, Val CorrAccount = Undefined, CurrentOnly = True
 	
 EndFunction
 
-// Gets data from the BankClassifier catalog by BIC and a correspondent bank account number values.
-// 
-// Parameters:
-//  BIC          - String - Bank ID.
-//  CorrAccount     - String - Bank's correspondent account.
-//  RecordAboutBank - CatalogRef
-//               - String - a found bank (returned).
-//
-Procedure GetClassifierData(BIC = "", CorrAccount = "", RecordAboutBank = "") Export
-	
-	DataProcessorName = "ImportBankClassifier";
-	If Metadata.DataProcessors.Find(DataProcessorName) <> Undefined Then
-		Parameters = New Structure;
-		Parameters.Insert("BIC", BIC);
-		Parameters.Insert("CorrAccount", CorrAccount);
-		Parameters.Insert("RecordAboutBank", RecordAboutBank);
-		StandardProcessing = True;
-		DataProcessors[DataProcessorName].WhenReceivingClassifierData(Parameters, StandardProcessing);
-		If Not StandardProcessing Then
-			BIC = Parameters.BIC;
-			CorrAccount = Parameters.CorrAccount;
-			RecordAboutBank = Parameters.RecordAboutBank;
-			Return;
-		EndIf;
-	EndIf;
-	
-	If Not IsBlankString(BIC) Then
-		RecordAboutBank = Catalogs.BankClassifier.FindByCode(BIC);
-	ElsIf Not IsBlankString(CorrAccount) Then
-		RecordAboutBank = Catalogs.BankClassifier.FindByAttribute("CorrAccount", CorrAccount);
-	Else
-		RecordAboutBank = "";
-	EndIf;
-	If RecordAboutBank = Catalogs.BankClassifier.EmptyRef() Then
-		RecordAboutBank = "";
-	EndIf;
-	
-EndProcedure
-
 // Returns text comment on a reason a bank is marked as inactive.
 //
 // Parameters:
@@ -168,6 +130,50 @@ Function InvalidBankNote(Bank) Export
 	Return StringFunctions.FormattedString(Result);
 	
 EndFunction
+
+#Region ObsoleteProceduresAndFunctions
+
+// Deprecated.
+// 
+// 
+// Parameters:
+//  BIC          - String - Bank ID.
+//  CorrAccount     - String - Bank's correspondent account.
+//  RecordAboutBank - CatalogRef
+//               - String - a found bank (returned).
+//
+Procedure GetClassifierData(BIC = "", CorrAccount = "", RecordAboutBank = "") Export
+	
+	DataProcessorName = "ImportBankClassifier";
+	If Metadata.DataProcessors.Find(DataProcessorName) <> Undefined Then
+		Parameters = New Structure;
+		Parameters.Insert("BIC", BIC);
+		Parameters.Insert("CorrAccount", CorrAccount);
+		Parameters.Insert("RecordAboutBank", RecordAboutBank);
+		StandardProcessing = True;
+		DataProcessors[DataProcessorName].WhenReceivingClassifierData(Parameters, StandardProcessing);
+		If Not StandardProcessing Then
+			BIC = Parameters.BIC;
+			CorrAccount = Parameters.CorrAccount;
+			RecordAboutBank = Parameters.RecordAboutBank;
+			Return;
+		EndIf;
+	EndIf;
+	
+	If Not IsBlankString(BIC) Then
+		RecordAboutBank = Catalogs.BankClassifier.FindByCode(BIC);
+	ElsIf Not IsBlankString(CorrAccount) Then
+		RecordAboutBank = Catalogs.BankClassifier.FindByAttribute("CorrAccount", CorrAccount);
+	Else
+		RecordAboutBank = "";
+	EndIf;
+	If RecordAboutBank = Catalogs.BankClassifier.EmptyRef() Then
+		RecordAboutBank = "";
+	EndIf;
+	
+EndProcedure
+
+#EndRegion
 
 #EndRegion
 
@@ -232,8 +238,8 @@ Procedure OnFillToDoList(ToDoList) Export
 	
 	Result = DataProcessors[DataProcessorName].RelevanceOfBankClassifier();
 	
-	
-	
+	// 
+	// 
 	Sections = ModuleToDoListServer.SectionsForObject(Metadata.Catalogs.BankClassifier.FullName());
 	
 	For Each Section In Sections Do

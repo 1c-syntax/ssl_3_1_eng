@@ -66,6 +66,12 @@
 			<ChildItems>
 				<RadioButtonField name="SavingOption" id="67" DisplayImportance="VeryHigh">
 					<DataPath>SavingOption</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Save option</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<RadioButtonType>RadioButtons</RadioButtonType>
 					<ChoiceList>
@@ -104,6 +110,12 @@
 				</RadioButtonField>
 				<InputField name="FolderToSaveFiles" id="42">
 					<DataPath>SelectedFolder</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Save to local folder</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<Width>40</Width>
 					<AutoMaxWidth>false</AutoMaxWidth>
@@ -229,7 +241,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>NormalSeparation</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="AdditionalParametersGroupExtendedTooltip" id="93"/>
+			<ExtendedTooltip name="GroupAdditionalParametersExtendedTooltip" id="93"/>
 			<ChildItems>
 				<CheckBoxField name="PackToArchive" id="14">
 					<DataPath>PackToArchive</DataPath>
@@ -246,6 +258,12 @@
 				</CheckBoxField>
 				<CheckBoxField name="TransliterateFilesNames" id="104">
 					<DataPath>TransliterateFilesNames</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Transliterate file names</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Right</TitleLocation>
 					<ToolTip>
 						<v8:item>
@@ -260,6 +278,12 @@
 				</CheckBoxField>
 				<CheckBoxField name="Sign" id="107">
 					<DataPath>Sign</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Sign</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Right</TitleLocation>
 					<CheckBoxType>Auto</CheckBoxType>
 					<ContextMenu name="SignContextMenu" id="108"/>

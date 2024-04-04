@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -103,7 +104,7 @@ Procedure ExtractAll(Command)
 	#If Not WebClient And Not MobileClient Then
 		UnextractedTextFileCountBeforeOperation = UnextractedTextFileCount;
 		Status = "";
-		PortionSize = 0; 
+		PortionSize = 0; // Extract all
 		TextExtractionClient(PortionSize);
 		
 		ShowMessageBox(, StringFunctionsClientServer.SubstituteParametersToString(
@@ -180,20 +181,25 @@ Procedure StartUpdateInformationOnFileCountWithUnextractedText()
 	
 EndProcedure
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
 Procedure OnCompleteUpdateUnextractedTextFilesCountInformation(Result, AdditionalParameters) Export
+	
+	BackgroundJobIdentifier = "";
 	
 	If Result = Undefined Then
 		Return;
 	EndIf;
 	
 	If Result.Status = "Error" Then
-		EventLogClient.AddMessageForEventLog(NStr("en = 'Search of files with text extraction pending';", CommonClient.DefaultLanguageCode()),
-			"Error", Result.DetailErrorDescription, , True);
-		Raise Result.BriefErrorDescription;
+		StandardSubsystemsClient.OutputErrorInfo(
+			Result.ErrorInfo);
+		Return;
 	EndIf;
 
-	BackgroundJobIdentifier = "";
 	OutputInformationOnNonExtractedTextFilesCount();
 	
 EndProcedure

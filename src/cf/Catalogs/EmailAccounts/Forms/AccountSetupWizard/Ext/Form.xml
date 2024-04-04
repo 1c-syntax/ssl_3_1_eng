@@ -76,8 +76,8 @@
 										</v8:item>
 									</Title>
 									<Picture>
-										<xr:Ref>CommonPicture.Warning32</xr:Ref>
-										<xr:LoadTransparent>false</xr:LoadTransparent>
+										<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
 									<ContextMenu name="WarningPictureContextMenu" id="161"/>
@@ -99,6 +99,12 @@
 										<InputField name="ErrorsMessages" id="238">
 											<DataPath>ErrorsMessages</DataPath>
 											<ReadOnly>true</ReadOnly>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Error messages</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<AutoMaxWidth>false</AutoMaxWidth>
 											<Height>2</Height>
@@ -193,7 +199,7 @@
 												<Title formatted="false">
 													<v8:item>
 														<v8:lang>en</v8:lang>
-														<v8:content>Account for service notifications.</v8:content>
+														<v8:content>Set up an account to send out service notifications.</v8:content>
 													</v8:item>
 												</Title>
 											</ExtendedTooltip>
@@ -206,6 +212,12 @@
 								<RadioButtonField name="AuthenticationMethod" id="362">
 									<DataPath>AuthenticationMethod</DataPath>
 									<Visible>false</Visible>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Authentication method</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<RadioButtonType>RadioButtons</RadioButtonType>
 									<ColumnsCount>1</ColumnsCount>
@@ -254,6 +266,12 @@
 									<ChildItems>
 										<RadioButtonField name="AuthenticationPassword" id="302">
 											<DataPath>AuthenticationMethod</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Authentication method</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<RadioButtonType>Auto</RadioButtonType>
 											<ColumnsCount>1</ColumnsCount>
@@ -291,7 +309,7 @@
 											<ToolTip>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>For safety reasons, create a separate application password on the email service website and use it in the application instead of the main password.</v8:content>
+													<v8:content>For safety reasons, create a separate password on the email service website and use it in the app instead of the main password.</v8:content>
 												</v8:item>
 											</ToolTip>
 											<ToolTipRepresentation>Button</ToolTipRepresentation>
@@ -316,6 +334,12 @@
 								</UsualGroup>
 								<RadioButtonField name="AuthenticationMethodMailService" id="305">
 									<DataPath>AuthenticationMethod</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Authentication method</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<Shortcut>Ctrl+S</Shortcut>
 									<RadioButtonType>Auto</RadioButtonType>
@@ -397,6 +421,12 @@
 							<ChildItems>
 								<RadioButtonField name="UserAccountKind" id="249">
 									<DataPath>UserAccountKind</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Account type</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<RadioButtonType>Auto</RadioButtonType>
 									<ChoiceList>
@@ -575,6 +605,12 @@
 								</InputField>
 								<RadioButtonField name="EncryptOnReceiveMail" id="265">
 									<DataPath>EncryptOnReceiveMail</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Encryption</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>Top</TitleLocation>
 									<RadioButtonType>Auto</RadioButtonType>
 									<ChoiceList>
@@ -655,6 +691,12 @@
 								</InputField>
 								<RadioButtonField name="EncryptOnSendMail" id="262">
 									<DataPath>EncryptOnSendMail</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Encryption</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>Top</TitleLocation>
 									<RadioButtonType>Auto</RadioButtonType>
 									<ChoiceList>
@@ -736,6 +778,12 @@
 									<ChildItems>
 										<CheckBoxField name="DeleteMailFromServer" id="244">
 											<DataPath>DeleteMailFromServer</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Delete messages from server after:</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>Right</TitleLocation>
 											<CheckBoxType>Auto</CheckBoxType>
 											<ContextMenu name="DeleteMailFromServerContextMenu" id="245"/>
@@ -746,6 +794,12 @@
 										</CheckBoxField>
 										<InputField name="KeepMailAtServerPeriod" id="241">
 											<DataPath>KeepMailAtServerPeriod</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Mail retention period</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<SpinButton>true</SpinButton>
 											<AutoMarkIncomplete>true</AutoMarkIncomplete>
@@ -904,6 +958,12 @@ Fill in the following fields from the application registration settings:
 									<ChildItems>
 										<HTMLDocumentField name="WebPage" id="327">
 											<DataPath>WebPage</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Web page</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<ContextMenu name="WebPageContextMenu" id="328"/>
 											<ExtendedTooltip name="WebPageExtendedTooltip" id="329"/>
@@ -934,6 +994,12 @@ Fill in the following fields from the application registration settings:
 										</LabelDecoration>
 										<InputField name="ConfirmationCode" id="356">
 											<DataPath>ConfirmationCode</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Confirmation code</v8:content>
+												</v8:item>
+											</Title>
 											<ContextMenu name="ConfirmationCodeContextMenu" id="357"/>
 											<ExtendedTooltip name="ConfirmationCodeExtendedTooltip" id="358"/>
 										</InputField>
@@ -1008,8 +1074,8 @@ This might take a while.</v8:content>
 								</v8:item>
 							</Title>
 							<Picture>
-								<xr:Ref>CommonPicture.Warning32</xr:Ref>
-								<xr:LoadTransparent>false</xr:LoadTransparent>
+								<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+								<xr:LoadTransparent>true</xr:LoadTransparent>
 							</Picture>
 							<FileDragMode>AsFile</FileDragMode>
 							<ContextMenu name="PictureTechnicalDetailsOfErrorContextMenu" id="280"/>
@@ -1031,6 +1097,12 @@ This might take a while.</v8:content>
 								<InputField name="TextTechnicalDetailsOfError" id="284">
 									<DataPath>ErrorsMessages</DataPath>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Error messages</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<AutoMaxWidth>false</AutoMaxWidth>
 									<Height>7</Height>
@@ -1162,8 +1234,8 @@ This might take a while.</v8:content>
 										</v8:item>
 									</Title>
 									<Picture>
-										<xr:Ref>CommonPicture.Warning32</xr:Ref>
-										<xr:LoadTransparent>false</xr:LoadTransparent>
+										<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
 									<ContextMenu name="ErrorsFoundOnCheckPictureContextMenu" id="398"/>
@@ -1172,6 +1244,12 @@ This might take a while.</v8:content>
 								<InputField name="TextOfErrorMessage" id="402">
 									<DataPath>ErrorsMessages</DataPath>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Error messages</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<Width>40</Width>
 									<AutoMaxWidth>false</AutoMaxWidth>
@@ -1298,6 +1376,12 @@ This might take a while.</v8:content>
 						<Button name="BackButton" id="20">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.Back</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>&lt; Back</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="BackButtonExtendedTooltip" id="21"/>
 						</Button>
 					</ChildItems>
@@ -1315,6 +1399,12 @@ This might take a while.</v8:content>
 						<Button name="GoToSettingsButton" id="156">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.GoToSettings</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Settings</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="GoToSettingsButtonExtendedTooltip" id="157"/>
 						</Button>
 						<Button name="NextButton" id="22">
@@ -1332,6 +1422,12 @@ This might take a while.</v8:content>
 						<Button name="CancelButton" id="268">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.Cancel</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Cancel</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="CancelButtonExtendedTooltip" id="269"/>
 						</Button>
 					</ChildItems>
@@ -1959,6 +2055,11 @@ This might take a while.</v8:content>
 		<Parameter name="OnlyAuthorization">
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="Key">
+			<Type>
+				<v8:Type>cfg:CatalogRef.EmailAccounts</v8:Type>
 			</Type>
 		</Parameter>
 	</Parameters>

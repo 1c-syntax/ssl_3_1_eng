@@ -183,11 +183,23 @@
 											<Button name="CertificatesContextMenuRefresh" id="737">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.Refresh</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Refresh</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="CertificatesContextMenuRefreshExtendedTooltip" id="738"/>
 											</Button>
 											<Button name="CertificatesContextMenuShowCurrentCertificateData" id="746">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.ShowCurrentCertificateData</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Show certificate data</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="CertificatesContextMenuShowCurrentCertificateDataExtendedTooltip" id="747"/>
 											</Button>
 											<ButtonGroup name="CertificatesContextMenuStandardCommands" id="739">
@@ -222,12 +234,24 @@
 											<Button name="Refresh" id="821">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.Refresh</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Refresh</v8:content>
+													</v8:item>
+												</Title>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 												<ExtendedTooltip name="RefreshExtendedTooltip" id="822"/>
 											</Button>
 											<Button name="ShowCurrentCertificateData" id="819">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.ShowCurrentCertificateData</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Show certificate data</v8:content>
+													</v8:item>
+												</Title>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 												<ExtendedTooltip name="ShowCurrentCertificateDataExtendedTooltip" id="820"/>
 											</Button>
@@ -270,6 +294,12 @@
 									<ChildItems>
 										<InputField name="CertificatesPresentation" id="221">
 											<DataPath>Certificates.Presentation</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Presentation</v8:content>
+												</v8:item>
+											</Title>
 											<EditMode>EnterOnInput</EditMode>
 											<Width>35</Width>
 											<ContextMenu name="CertificatesPresentationContextMenu" id="222"/>
@@ -277,6 +307,12 @@
 										</InputField>
 										<InputField name="CertificatesIssuedBy" id="224">
 											<DataPath>Certificates.IssuedBy</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Issued by</v8:content>
+												</v8:item>
+											</Title>
 											<EditMode>EnterOnInput</EditMode>
 											<Width>13</Width>
 											<ContextMenu name="CertificatesIssuedByContextMenu" id="225"/>
@@ -286,6 +322,12 @@
 								</Table>
 								<CheckBoxField name="ShowAll" id="816">
 									<DataPath>ShowAll</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Show all certificates</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>Right</TitleLocation>
 									<ToolTip>
 										<v8:item>
@@ -305,7 +347,7 @@
 									<Title formatted="false">
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>How to work with digital signature and encryption applications</v8:content>
+											<v8:content>How to use digital signature and encryption apps</v8:content>
 										</v8:item>
 									</Title>
 									<Hyperlink>true</Hyperlink>
@@ -331,6 +373,12 @@
 									<Type>CommandBarButton</Type>
 									<DefaultButton>true</DefaultButton>
 									<CommandName>Form.Command.Next</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Next &gt;</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="NextExtendedTooltip" id="371"/>
 								</Button>
 								<Button name="Cancel1" id="372">
@@ -446,6 +494,12 @@
 												<InputField name="CertificateDataDetails1Property" id="755">
 													<DataPath>DetailsOfCertificateData.Property</DataPath>
 													<SkipOnInput>true</SkipOnInput>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Property</v8:content>
+														</v8:item>
+													</Title>
 													<EditMode>EnterOnInput</EditMode>
 													<Width>13</Width>
 													<HorizontalStretch>false</HorizontalStretch>
@@ -455,6 +509,12 @@
 												<InputField name="CertificateDataDetails1Value" id="758">
 													<DataPath>DetailsOfCertificateData.Value</DataPath>
 													<SkipOnInput>true</SkipOnInput>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Value</v8:content>
+														</v8:item>
+													</Title>
 													<EditMode>EnterOnInput</EditMode>
 													<ContextMenu name="CertificateDataDetails1ValueContextMenu" id="759"/>
 													<ExtendedTooltip name="CertificateDataDetails1ValueExtendedTooltip" id="760"/>
@@ -466,12 +526,24 @@
 											<Representation>PictureAndText</Representation>
 											<SkipOnInput>true</SkipOnInput>
 											<CommandName>Form.Command.ShowCertificateData</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>All certificate properties</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="ShowCertificateDataExtendedTooltip" id="745"/>
 										</Button>
 									</ChildItems>
 								</UsualGroup>
 								<InputField name="DescriptionCertificate" id="247">
 									<DataPath>DescriptionCertificate</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Presentation</v8:content>
+										</v8:item>
+									</Title>
 									<ToolTipRepresentation>Button</ToolTipRepresentation>
 									<EditMode>EnterOnInput</EditMode>
 									<ContextMenu name="CertificateDescription1ContextMenu" id="248"/>
@@ -497,6 +569,12 @@ the purpose description is used instead of the certificate presentation, for exa
 								</InputField>
 								<InputField name="CertificateUser1" id="779">
 									<DataPath>CertificateUser1</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>User</v8:content>
+										</v8:item>
+									</Title>
 									<ToolTip>
 										<v8:item>
 											<v8:lang>en</v8:lang>
@@ -508,6 +586,12 @@ the purpose description is used instead of the certificate presentation, for exa
 								</InputField>
 								<InputField name="CertificateCompany" id="782">
 									<DataPath>CertificateCompany</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Company</v8:content>
+										</v8:item>
+									</Title>
 									<ToolTip>
 										<v8:item>
 											<v8:lang>en</v8:lang>
@@ -521,7 +605,7 @@ the purpose description is used instead of the certificate presentation, for exa
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Group Individual</v8:content>
+											<v8:content>Individual</v8:content>
 										</v8:item>
 									</Title>
 									<Width>30</Width>
@@ -532,6 +616,12 @@ the purpose description is used instead of the certificate presentation, for exa
 									<ChildItems>
 										<InputField name="CertificateIndividual" id="825">
 											<DataPath>CertificateIndividual</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Individual</v8:content>
+												</v8:item>
+											</Title>
 											<ContextMenu name="CertificateIndividualContextMenu" id="826"/>
 											<ExtendedTooltip name="CertificateIndividualExtendedTooltip" id="827"/>
 										</InputField>
@@ -539,6 +629,12 @@ the purpose description is used instead of the certificate presentation, for exa
 											<Type>UsualButton</Type>
 											<Representation>Picture</Representation>
 											<CommandName>Form.Command.PickIndividual</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Select individual</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="PickIndividualExtendedTooltip" id="829"/>
 										</Button>
 									</ChildItems>
@@ -558,6 +654,12 @@ the purpose description is used instead of the certificate presentation, for exa
 								<Button name="Back" id="537">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.Back</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>&lt; Back</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="BackExtendedTooltip" id="538"/>
 								</Button>
 								<Button name="Add" id="539">
@@ -997,6 +1099,11 @@ the purpose description is used instead of the certificate presentation, for exa
 		</Parameter>
 		<Parameter name="ExecuteAtServer">
 			<Type/>
+		</Parameter>
+		<Parameter name="Organization">
+			<Type>
+				<v8:TypeSet>cfg:CatalogRef</v8:TypeSet>
+			</Type>
 		</Parameter>
 	</Parameters>
 </Form>

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -34,7 +35,7 @@ EndFunction
 //  ExchangeDirection - String - an exchange direction: "Sending" | "Receiving".
 //
 // Returns:
-//   Structure - :
+//   Structure - Exchange rules and parameters:
 //     * ExchangeFormatVersion - String - exchange format version number.
 //     * XMLSchema - String - an exchange format namespace.
 //     * ExchangeManager - CommonModule - a module with conversion rules.
@@ -96,7 +97,9 @@ Function InitializeExchangeComponents(ExchangeDirection) Export
 	ExchangeComponents.Insert("CorrespondentID",  "");
 	
 	ExchangeComponents.Insert("XDTOSettingsOnly", False);
-	
+	// 
+	// 
+	// 
 	ExchangeComponents.Insert("SupportedXDTOObjects", New Array);
 	
 	DataExchangeState = New Structure;
@@ -116,6 +119,9 @@ Function InitializeExchangeComponents(ExchangeDirection) Export
 	
 	ExchangeComponents.Insert("UseTransactions", True);
 	
+	// 
+	// 
+	// 
 	ExchangeComponents.Insert("XDTOSettings", SettingsStructureXTDO());
 	
 	If ExchangeDirection = "Send" Then
@@ -197,7 +203,7 @@ EndFunction
 // Initializes value tables with exchange rules and puts them to ExchangeComponents.
 //
 // Parameters:
-//  ExchangeComponents - Structure - contains all exchange rules and parameters.
+//  ExchangeComponents - Structure - Exchange rules and parameters.
 //
 Procedure InitializeExchangeRulesTables(ExchangeComponents) Export
 	
@@ -225,7 +231,7 @@ EndProcedure
 // Initializes a value table to store object property conversion rules.
 //
 // Returns:
-//   ValueTable - :
+//   ValueTable - A table storing property conversion rules:
 //     * ConfigurationProperty - String
 //     * FormatProperty - String
 //     * PropertyConversionRule - String
@@ -334,10 +340,10 @@ EndProcedure
 //  ExchangeComponents - Structure - contains all exchange rules and parameters.
 //  ErrorCode        - Number
 //                   - String
-//                   - Structure - 
-//                        See DataExchangeCached.ErrorsMessages
-//                       
-//                       :
+//                   - Structure - Error information.
+//                       Number - The error code. See DataExchangeCached.ErrorsMessages
+//                       String - The error details.
+//                       Structure - Contains the brief and extended error details.:
 //                         * BriefErrorDescription - error details for end users.
 //                         * DetailErrorDescription - error details for the event log.
 //                         * Level - EventLogLevel - Error severity level.
@@ -567,8 +573,8 @@ Procedure ExecuteDataExport(ExchangeComponents) Export
 	
 	If ExchangeComponents.FlagErrors Then
 		
-		
-		
+		// 
+		// 
 		If ExchangeComponents.ExportedByRefObjects.Count() > 0 Then
 			
 			InformationRegisters.ObjectsDataToRegisterInExchanges.DeleteInformationAboutUploadingObjects(ExchangeComponents.ExportedByRefObjects, ExchangeComponents.CorrespondentNode);
@@ -722,8 +728,8 @@ Procedure ExportSelectionObject(ExchangeComponents, Object, ProcessingRule = Und
 			EndIf;
 			
 			If Not CurrentOCR.Value Then
-				
-				
+				// 
+				// 
 				If SeveralOCR
 					And ReferenceTypeObject 
 					And (Not HasDataCleanupColumn
@@ -930,7 +936,7 @@ Function XDTODataObjectFromXDTOData(ExchangeComponents, Val Source, Val XDTOType
 						
 					ElsIf PropertyValueType.Facets <> Undefined
 						And PropertyValueType.Facets.Enumerations <> Undefined
-						And PropertyValueType.Facets.Enumerations.Count() > 0 Then 
+						And PropertyValueType.Facets.Enumerations.Count() > 0 Then // 
 						XDTODataValue = ConvertEnumToXDTO(ExchangeComponents, PropertyValue, PropertyValueType);
 					Else // Convert a common value.
 						XDTODataValue = XDTOFactory.Create(PropertyValueType, PropertyValue);
@@ -1335,7 +1341,7 @@ EndFunction
 // Exports an infobase object property according to the rules.
 //
 // Parameters:
-//  ExchangeComponents   - Structure - contains all exchange rules and parameters.
+//  ExchangeComponents   - Structure - Exchange rules and parameters.
 //  IBData           - AnyRef - a reference to an infobase object being exported.
 //  PropertyRecipient - Structure - a recipient of data of the Structure type, in which the exported property value is to be stored.
 //                     - ValueTableRow
@@ -1571,6 +1577,9 @@ Procedure OpenExportFile(ExchangeComponents, ExchangeFileName = "") Export
 		
 		If Not ExchangeComponents.DataExchangeWithExternalSystem Then
 			HeaderParameters.ExchangePlanName = DataExchangeCached.GetExchangePlanName(ExchangeComponents.CorrespondentNode);
+			HeaderParameters.CorrespondentExchangePlanName = 
+				DataExchangeCached.GetNameOfCorrespondentExchangePlan(ExchangeComponents.CorrespondentNode);
+				
 			HeaderParameters.PredefinedNodeAlias = DataExchangeServer.PredefinedNodeAlias(ExchangeComponents.CorrespondentNode);
 			
 			HeaderParameters.RecipientIdentifier  = DataExchangeServer.CorrespondentNodeIDForExchange(ExchangeComponents.CorrespondentNode);
@@ -1595,7 +1604,7 @@ Procedure OpenExportFile(ExchangeComponents, ExchangeFileName = "") Export
 	
 EndProcedure
 
-// 
+// Identifies the format object type before converting the property
 //
 Procedure PropertyTypeByPropertyNameAndValue(XDTOType, PropertyFound, Property, PropertyValue, PropertyType1)
 	
@@ -1666,9 +1675,9 @@ EndProcedure
 //   XDTOData       - Structure - a structure simulating XDTO object.
 //
 //   ConversionRule - ValueTableRow
-//                      - Structure - :
-//                        
-//                        
+//                      - Structure - Parameters of the current conversion rule:
+//                        ValueTableRow - A row of the object conversion rules table.
+//                        Structure - Describes the object conversion rule:
 //                          * ConversionRule - ValueTableRow - a row of object conversion rule table.
 //                                                 Required property.
 //                          * DeleteObjectsCreatedByKeyProperties - Boolean - indicates that you need to delete objects
@@ -1680,7 +1689,6 @@ EndProcedure
 //                       "ConvertAndWrite" - a full object import.
 //
 // Returns:
-//   - Объект - a reference to an infobase object or a blank reference of the specified type if the GetRef action is passed
 //              and the object is not created while receiving it.
 //   - AnyRef - a reference to an infobase object or a blank reference of the specified type if the GetRef action is passed
 //                   and the object is not created while receiving it.
@@ -1721,9 +1729,9 @@ Function XDTOObjectStructureToIBData(ExchangeComponents, XDTOData, Val Conversio
 			If Action = "GetRef" Then
 				
 				If IBData <> Undefined Then
-					
-					
-					
+					// 
+					// 
+					// 
 					WritePublicIDIfNecessary(
 						IBData,
 						ReceivedDataRef,
@@ -1733,9 +1741,9 @@ Function XDTOObjectStructureToIBData(ExchangeComponents, XDTOData, Val Conversio
 						
 					Return IBData.Ref;
 				ElsIf IdentificationOption = "ByUUID" Then
-					
-					
-					
+					// 
+					// 
+					// 
 					
 					Return ReceivedDataRef;
 				EndIf;
@@ -1803,8 +1811,8 @@ Function XDTOObjectStructureToIBData(ExchangeComponents, XDTOData, Val Conversio
 				IBData = Undefined;
 			EndIf;
 			
-			
-			
+			// 
+			// 
 			If ConversionRule.HasHandlerSearchAlgorithm Then
 				SearchAlgorithm(
 					IBData,
@@ -1815,9 +1823,9 @@ Function XDTOObjectStructureToIBData(ExchangeComponents, XDTOData, Val Conversio
 			
 			If IBData <> Undefined And ConversionRule.IsReferenceType Then
 				If Action = "GetRef" Then
-					
-					
-					
+					// 
+					// 
+					// 
 					If XDTODataContainRef Then
 						WritePublicIDIfNecessary(
 							IBData.GetObject(),
@@ -1842,8 +1850,8 @@ Function XDTOObjectStructureToIBData(ExchangeComponents, XDTOData, Val Conversio
 	If ExchangeComponents.DataImportToInfobaseMode
 		And (IdentificationOption = "BySearchFields"
 			Or IdentificationOption = "FirstByUUIDThenBySearchFields") Then
-		
-		
+		// 
+		// 
 		WriteObjectToIB1 = True;
 	EndIf;
 	
@@ -2003,11 +2011,11 @@ Function XDTOObjectStructureToIBData(ExchangeComponents, XDTOData, Val Conversio
 	EndIf;
 	
 	If ConversionRule.IsReferenceType Then
-		
-		 
-		
-		
-		
+		// 
+		//  
+		// 
+		// 
+		// 
 		ObjectsCreatedByRefsTable = ExchangeComponents.ObjectsCreatedByRefsTable;
 			
 		If Action = "GetRef"
@@ -2600,9 +2608,9 @@ Function UndoObjectPostingInIB(Object, Sender, ExchangeComponents = Undefined) E
 	// Checking for import restriction date conflicts.
 	Object.AdditionalProperties.Insert("SkipPeriodClosingCheck");
 	
-	 
-	
-	
+	//  
+	// 
+	// 
 	If Not Object.AdditionalProperties.Property("DataSynchronizationViaAUniversalFormatDeletingRegisteredRecords") Then
 		
 		Object.AdditionalProperties.Insert("DataSynchronizationViaAUniversalFormatDeletingRegisteredRecords", True);
@@ -2711,7 +2719,7 @@ EndProcedure
 //                 - Undefined - an exchange plan node matching the correspondent.
 //
 // Returns:
-//  ValueTable - :
+//  ValueTable - A set of the supported format objects broken down by version.:
 //    * Version    - String - a format version. For example "1.5".
 //    * Object    - String - a format object name. For example, "Catalog.Products".
 //    * Send  - Boolean - shows whether sending of the current format object is supported.
@@ -2803,7 +2811,7 @@ EndFunction
 //                            "SendingReceiving" by default.
 //
 // Returns:
-//  ValueTable - :
+//  ValueTable - A set of the supported format objects broken down by version.:
 //    * Version    - String - a format version. For example "1.5".
 //    * Object    - String - a format object name. For example, "Catalog.Products".
 //    * Send  - Boolean - shows whether sending of the current format object is supported by the correspondent.
@@ -2915,10 +2923,10 @@ Function KeyPropertiesClass() Export
 	
 EndFunction 
 
-//  
+// Returns the name of the property that contains the key properties of the XDTO package object 
 //
 // Returns:
-//   String - 
+//   String - "KeyProperties".
 //
 Function ClassKeyFormatProperties() Export
 	
@@ -2935,7 +2943,7 @@ EndFunction
 // Creates a value table to store a data batch title.
 //
 // Returns:
-//  ValueTable - :
+//  ValueTable - A dataset of the package header:
 //    * ObjectTypeString - String
 //    * ObjectCountInSource - Number
 //    * SearchFields - String
@@ -2972,7 +2980,7 @@ EndFunction
 // Gets object registration rules for the exchange plan.
 //
 // Parameters:
-//  ExchangePlanNode - ExchangePlanRef - 
+//  ExchangePlanNode - ExchangePlanRef - A reference to the exchange plan node
 //
 // Returns:
 //  ValueTable
@@ -2991,10 +2999,10 @@ EndFunction
 // Gets properties of an exchange plan node.
 //
 // Parameters:
-//  Node - ExchangePlanRef - 
+//  Node - ExchangePlanRef - A reference to the exchange plan node
 //
 // Returns:
-//  Structure - 
+//  Structure - Key - The property name. Value - The property value.
 //
 Function ExchangePlanNodeProperties(Node) Export
 	
@@ -3020,10 +3028,10 @@ EndFunction
 // The function checks whether the exchange message format complies with the EnterpriseData exchange format.
 //
 // Parameters:
-//  XMLReader - XMLReader - 
+//  XMLReader - XMLReader - An exchange message.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - If True, the message format complies with the EnterpriseData format.
 //
 Function CheckExchangeMessageFormat(XMLReader) Export
 	
@@ -3268,7 +3276,7 @@ EndFunction
 
 // The procedure adds an infobase object to the allowed object filter.
 // Parameters:
-//  Data     - 
+//  Data     - A reference to the infobase object that should be added to the allowed object filter.
 //  Recipient - ExchangePlanRef - a reference to the exchange plan the object is being checked for.
 //
 Procedure AddObjectToAllowedObjectsFilter(Data, Recipient) Export
@@ -3280,11 +3288,10 @@ EndProcedure
 // Returns an array of nodes the object was exported to earlier.
 //
 // Parameters:
-//  Ref            - 
+//  Ref            - A reference to the infobase object that requires the nodes array.
 //  ExchangePlanName    - String - a name of the exchange plan as a metadata object used to determine nodes.
 //  FlagAttributeName - String - a name of the exchange plan attribute used to set a node selection filter.
 // Returns:
-//  МассивУзлов - an array of exchange plan nodes with the "Export when needed" check box selected,
 //                empty by default.
 //
 Function NodesArrayToRegisterExportIfNecessary(Ref, ExchangePlanName, FlagAttributeName) Export
@@ -3314,7 +3321,7 @@ Function NodesArrayToRegisterExportIfNecessary(Ref, ExchangePlanName, FlagAttrib
 	
 	Query = New Query;
 	Query.Text = QueryText;
-	Query.SetParameter("Object",   Ref);
+	Query.SetParameter("Object", Ref);
 	Query.SetParameter("DeletionMark", Ref.DeletionMark);
 	
 	NodesArray = Query.Execute().Unload().UnloadColumn("Node");
@@ -3327,8 +3334,8 @@ EndFunction
 //
 // Parameters:
 //  Comment      - String - comment to write to the event log.
-//  Level          - 
-//  
+//  Level          - The logging level. By default, "Error".
+//  ExchangeComponents - Structure - Exchange rules and parameters.
 //
 Procedure WriteEventLogDataExchange1(Comment, ExchangeComponents, Level = Undefined, ObjectReference = Undefined) Export
 	
@@ -3364,7 +3371,7 @@ Procedure FillSupportedXDTOObjects(ExchangeComponents) Export
 	
 	If ExchangeComponents.ExchangeDirection = "Send" Then
 		
-		
+		// 
 		// 
 		// 
 		
@@ -3372,7 +3379,7 @@ Procedure FillSupportedXDTOObjects(ExchangeComponents) Export
 		
 	ElsIf ExchangeComponents.ExchangeDirection = "Receive" Then
 		
-		
+		// 
 		// 
 		// 
 		
@@ -3404,7 +3411,7 @@ Procedure FillSupportedXDTOObjects(ExchangeComponents) Export
 EndProcedure
 
 // Returns:
-//   ValueTable - :
+//   ValueTable - A processing rules table (DPR):
 //     * Name - String
 //     * FilterObjectFormat - String
 //     * XDTORefType - XDTOValueType
@@ -3504,7 +3511,7 @@ EndFunction
 //   * ExchangeManagerFormatVersion - String
 // 
 // Returns:
-//   ValueTable - :
+//   ValueTable - A conversion rules table:
 //     * OCRName - String
 //     * DataObject - Arbitrary
 //     * FormatObject - String
@@ -3576,13 +3583,13 @@ Function ConversionRulesTable(ExchangeComponents)
 		FilterParameters = New Structure("AllowCreateObjectFromStructure", Undefined);
 		StringsToProcess = ConversionRules.FindRows(FilterParameters);
 		
-		
-		
-		
-		 
-		 
-		
-		
+		// 
+		// 
+		// 
+		//  
+		//  
+		// 
+		// 
 		For Each ProcessingString In StringsToProcess Do
 			ProcessingString.AllowCreateObjectFromStructure = True;
 			DataProcessingRulesString = ExchangeComponents.DataProcessingRules.Find(ProcessingString.FormatObject, "FilterObjectFormat");
@@ -3656,7 +3663,7 @@ Function ConversionRulesTable(ExchangeComponents)
 		
 		If ExchangeComponents.ExchangeDirection = "Receive" Then
 			
-			ObjectMetadata = ConversionRule.DataObject; 
+			ObjectMetadata = ConversionRule.DataObject; // MetadataObjectCatalog, etc.
 		
 			ConversionRule.ReceivedDataTableName = ObjectMetadata.FullName();
 			ConversionRule.ReceivedDataTypePresentation = ObjectMetadata.Presentation();
@@ -3858,7 +3865,7 @@ Function PredefinedDataConversionRulesTable(ExchangeComponents)
 EndFunction
 
 Function ConversionParametersStructure(ExchangeManager)
-	
+	// 
 	//	
 	//	
 	ConversionParameters_SSLy = New Structure();
@@ -3874,9 +3881,9 @@ Procedure AfterInitializationOfTheExchangeComponents(ExchangeComponents) Export
 		
 	EndIf;
 	
-	
-	
-	
+	// 
+	// 
+	// 
 	If ExchangeComponents.Property("IsExchangeViaExchangePlan")
 		And ExchangeComponents.Property("CorrespondentNode")
 		And ExchangeComponents.Property("CorrespondentNodeObject") Then
@@ -4093,7 +4100,7 @@ Procedure ExecuteRegisteredDataExport(ExchangeComponents, MessageNo)
 	NodeForExchange = ExchangeComponents.CorrespondentNode;
 	NodeForExchangeObject = NodeForExchange.GetObject();
 	
-	
+	// Preliminary registration clean up.
 	MetadataObjectNames = DataExchangeServerCall.NotExportedNodeObjectsMetadataNames(NodeForExchange);
 	For Each Name In MetadataObjectNames Do
 		MetadataObject = Metadata.FindByFullName(Name);
@@ -4107,12 +4114,12 @@ Procedure ExecuteRegisteredDataExport(ExchangeComponents, MessageNo)
 	ExchangeComponents.Insert("ObjectsToExportCount", ObjectsToExportCount);
 		
 	//  
-	
-	
-	
-	
-	
-	
+	// 
+	// 
+	// 
+	// 
+	// 
+	// 
 	For Each ChangesRow In ChangesTable Do
 		
 		PDParameters = DataExchangeEvents.BatchRegistrationParameters();
@@ -4186,8 +4193,8 @@ Procedure ExecuteRegisteredDataExport(ExchangeComponents, MessageNo)
 					If ItemSend = DataItemSend.Delete Then
 						ExportDeletion(ExchangeComponents, Data.Ref);
 					ElsIf ItemSend = DataItemSend.Ignore Then
-						
-						
+						// 
+						// 
 						ExchangePlans.DeleteChangeRecords(NodeForExchange, Data);
 						Continue;
 					Else
@@ -4411,7 +4418,7 @@ EndProcedure
 // Parameters:
 //   ExchangeComponents - Structure - contains all key data for exchange (such as OCR, PDCR, DPR.).
 //   Ref - a deleted object.
-//   ConversionRule  - 
+//   ConversionRule  - The row in the conversion rules table that contains the object conversion rule.
 //
 Procedure ExportDeletion(ExchangeComponents, Ref, ConversionRule = Undefined)
 	
@@ -4766,12 +4773,13 @@ EndProcedure
 // A default structure of the message heading parameters.
 // 
 // Returns:
-//   Structure - :
+//   Structure - The details of the exchange message header parameters:
 //     * ExchangeFormat - String - exchange format name.
 //     * IsExchangeViaExchangePlan - Boolean - indicates an exchange via the exchange plan.
 //     * DataExchangeWithExternalSystem - Boolean - indicates the exchange with the external system.
 //     * ExchangeFormatVersion - String - exchange format version number.
 //     * ExchangePlanName - String - name of the exchange plan metadata.
+//     * CorrespondentExchangePlanName - String - The name of the peer infobase's exchange plan.
 //     * PredefinedNodeAlias - String - a predefined node code before recoding.
 //     * RecipientIdentifier - String - a message recipient node ID.
 //     * SenderID - String - a message sender node ID.
@@ -4792,6 +4800,7 @@ Function ExchangeMessageHeaderParameters() Export
 	HeaderParameters.Insert("ExchangeFormatVersion",     "");
 	
 	HeaderParameters.Insert("ExchangePlanName",                 "");
+	HeaderParameters.Insert("CorrespondentExchangePlanName",   "");
 	HeaderParameters.Insert("PredefinedNodeAlias", "");
 	
 	HeaderParameters.Insert("RecipientIdentifier", "");
@@ -4852,7 +4861,7 @@ Procedure WriteExchangeMessageHeader(ExchangeFile, HeaderParameters) Export
 			ExportSupportedFormatObjects(TitleXDTOMessages,
 				HeaderParameters.SupportedObjects, HeaderParameters.CorrespondentNode);
 		Else
-			ExchangePlanName = BroadcastName(HeaderParameters.ExchangePlanName, "ru");
+			ExchangePlanName = BroadcastName(HeaderParameters.CorrespondentExchangePlanName, "ru");
 			XDTOConfirmation.ExchangePlan = ExchangePlanName;
 			XDTOConfirmation.To           = HeaderParameters.RecipientIdentifier;
 			
@@ -4873,8 +4882,8 @@ Procedure WriteExchangeMessageHeader(ExchangeFile, HeaderParameters) Export
 			EndDo;
 			
 			If ValueIsFilled(HeaderParameters.PredefinedNodeAlias) Then
-				
-				
+				// 
+				// 
 				TitleXDTOMessages.NewFrom = HeaderParameters.SenderID;
 			EndIf;
 			
@@ -5086,7 +5095,7 @@ Procedure ConvertXDTOPropertyToStructureItem(Source, Property, Receiver,
 			
 		ElsIf TypeOf(XDTODataValue) = Type("XDTODataObject") Then
 			
-			
+			// 
 			// 
 			// 
 			// 
@@ -5210,8 +5219,8 @@ Function XDTOPropertyValueType(Val ExchangeComponents, Val XDTOProperty, XDTODat
 	Result = XDTODataValue.Type();
 	If XDTOProperty.OwnerObject = Undefined Then
 		
-		
-		
+		// 
+		// 
 		Return Result;
 		
 	EndIf;
@@ -5352,8 +5361,8 @@ Procedure ConvertCommonProperty(Receiver, Val ExchangeComponents, Val PropertyNa
 			PropertyDetails = XDTOValueType.Properties.Get(SubProperty.Name);
 			If PropertyDetails = Undefined Then
 				
-				
-				
+				// 
+				// 
 				CheckIfThereIsCommonPropertyInExtensions(ExchangeComponents, SubProperty, XDTOValueType, PropertyDetails);
 				If PropertyDetails = Undefined Then
 					
@@ -5369,8 +5378,8 @@ Procedure ConvertCommonProperty(Receiver, Val ExchangeComponents, Val PropertyNa
 		
 		Receiver.Insert(PropertyName, PropertiesGroupDestination);
 		
-		
-		
+		// 
+		// 
 		HasKeyProperties = Receiver.Property(KeyPropertiesClass());
 		For Each GroupProperty In PropertiesGroupDestination Do
 			SubpropertyName = GroupProperty.Key;
@@ -5387,8 +5396,8 @@ Procedure ConvertCommonProperty(Receiver, Val ExchangeComponents, Val PropertyNa
 			PropertyDetails = XDTOValueType.Properties.Get(SubProperty.Name);
 			If PropertyDetails = Undefined Then
 				
-				
-				
+				// 
+				// 
 				CheckIfThereIsCommonPropertyInExtensions(ExchangeComponents, SubProperty, XDTOValueType, PropertyDetails);
 				If PropertyDetails = Undefined Then
 					
@@ -5528,7 +5537,7 @@ Procedure ConversionOfXDTOObjectStructureProperties(
 			
 			If StageNumber = 1 And ValueIsFilled(TS.TSConfigurations) And ValueIsFilled(TS.FormatTS) Then
 				
-				
+				// Convert the tables directly.
 				FormatTS = Undefined; // ValueTable
 				If Not XDTOData.Property(TS.FormatTS, FormatTS) Then
 					Continue;
@@ -5679,10 +5688,10 @@ Procedure ConversionOfXDTOObjectStructureProperty(
 				Return;
 			EndIf;
 			
-			
-			
-			
-			
+			// 
+			// 
+			// 
+			// 
 			If ValueIsFilled(TSName) Then
 				DataSource = AdditionalProperties[TSName][DataTarget.LineNumber - 1];
 			Else
@@ -5757,7 +5766,7 @@ Function ObjectRefByXDTOObjectProperties(ConversionRule, ReceivedData, XDTODataC
 	ExchangeNode = ExchangeComponents.CorrespondentNode;
 	
 	Result = Undefined;
-	
+	// 
 	//	
 	If ConversionRule.SearchFields = Undefined
 		Or TypeOf(ConversionRule.SearchFields) <> Type("Array") Then
@@ -5768,11 +5777,11 @@ Function ObjectRefByXDTOObjectProperties(ConversionRule, ReceivedData, XDTODataC
 		SearchFields = New Structure(SearchAttempt);
 		FillPropertyValues(SearchFields, ReceivedData);
 		
-		
-		
-		
-		
-		
+		// 
+		// 
+		// 
+		// 
+		// 
 		HasBlankFields = False;
 		For Each FieldForSearch In SearchFields Do
 			If Not ValueIsFilled(FieldForSearch.Value) Then
@@ -6318,7 +6327,7 @@ Procedure ExtendObjectTableProperties(ObjectTable, Val ObjectName, Val ObjectTab
 		EndIf;
 		
 		For Each FieldFromExtension In TypeTablePartString.Properties Do
-		
+			
 			If StrFind(FieldFromExtension.Type.Name, CommonPropertiesClass()) > 0 Then
 				
 				For Each SubordinateFieldFromTheExtension In FieldFromExtension.Type.Properties Do
@@ -6374,16 +6383,16 @@ Procedure ReadExchangeMessage(ExchangeComponents, Results, TablesToImport = Unde
 		UpdateImportedObjectsCounter(ExchangeComponents);
 		
 		XDTOObjectType = XDTOFactory.Type(ExchangeComponents.ExchangeFile.NamespaceURI, ExchangeComponents.ExchangeFile.LocalName);
-		XDTODataObject     = XDTOFactory.ReadXML(ExchangeComponents.ExchangeFile, XDTOObjectType); 
+		XDTODataObject     = XDTOFactory.ReadXML(ExchangeComponents.ExchangeFile, XDTOObjectType); // Read the object in any case.
 		
 		If XDTOObjectType = Undefined Then
 			
-			
-			
-			
-			 
-			 
-			
+			// 
+			// 
+			// 
+			//  
+			//  
+			// 
 			Continue;
 			
 		ElsIf XDTOObjectType.Name = "ObjectDeletion" Then
@@ -6891,7 +6900,7 @@ Procedure ApplyObjectsDeletion(ExchangeComponents, ArrayOfObjectsToDelete, Array
 			If ExchangeComponents.IsExchangeViaExchangePlan
 				And DataExchangeEvents.ImportRestricted(Object, ExchangeComponents.CorrespondentNodeObject) Then
 				
-				Continue; 
+				Continue; // If the object modification is restricted due to a period-end closing date, then resume the loop
 				
 			EndIf;
 			
@@ -6973,9 +6982,9 @@ EndProcedure
 // Sets deletion mark.
 //
 // Parameters:
-//  Object          - 
-//  
-//  
+//  Object          - The object to be marked for deletion.
+//  DeletionMark - Boolean - The deletion flag.
+//  ObjectTypeName - String - The object type.
 //
 Procedure SetObjectDeletionMark(Object)
 	
@@ -7018,8 +7027,8 @@ EndFunction
 // Removes the flag of document register records activity.
 //
 // Parameters:
-//  Object      - DocumentObject - 
-//  
+//  Object      - DocumentObject - The document whose register records should be processed.
+//  Sender - ExchangePlanRef - A reference to the exchange plan that sent data.
 //
 // Returns:
 //   Boolean - shows that the activity flag is removed from register records.
@@ -7189,11 +7198,11 @@ Procedure FillCorrespondentXDTOSettingsStructure(SettingsStructure,
 	If Not Header.IsSet("AvailableObjectTypes")
 		And Not ExchangeNode = Undefined
 		And FormatContainsVersion Then
-		
-		
-		
-		
-		
+		// 
+		// 
+		// 
+		// 
+		// 
 		
 		ExchangePlanName = DataExchangeCached.GetExchangePlanName(ExchangeNode);
 		
@@ -7425,9 +7434,9 @@ EndProcedure
 // Parameters:
 //  ExchangeComponents - Structure - contains all exchange rules and parameters.
 //  ProcessingRule - a row of the data processing rules table that corresponds the DPR to process.
-//  DataProcessorObject2  - 
-//                      
-//                     
+//  DataProcessorObject2  - Either a reference to the object to be processed, or
+//                     a structure associated with the XDTO object (when importing), or 
+//                     a reference to an infobase object (when exporting).
 //  UsageOCR - Structure - that determines which OCRs are used to export the object.
 //                     Keys correspond the OCR names, 
 //                     values indicate whether an OCR is used for a specific processing object.
@@ -7481,7 +7490,7 @@ EndProcedure
 // Wrapper function for DPR DataSelection handler call.
 //
 // Parameters:
-//  ExchangeComponents - Structure - contains all exchange rules and parameters.
+//  ExchangeComponents - Structure - Exchange rules and parameters.
 //  ProcessingRule - ValueTableRow - a row of data processing rules that corresponds the DPR to process.
 //
 // Returns:
@@ -7542,8 +7551,8 @@ EndFunction
 // Wrapper function for calling OCR handler OnSendData.
 //
 // Parameters:
-//  IBData         - 
-//                     
+//  IBData         - A reference to the infobase object being exported.
+//                     Or a key properties structure in case a reference is being imported.
 //  XDTOData       - Structure - to which data is exported. Its content is identical to XDTO object content.
 //  HandlerName   - String - a handler procedure name in the manager module.
 //  ExchangeComponents - Structure - contains all exchange rules and parameters.
@@ -7647,9 +7656,9 @@ EndProcedure
 // Wrapper function for calling OCR handler BeforeWriteReceivedData.
 //
 // Parameters:
-//  ReceivedData   - 
-//  IBData           - 
-//                       
+//  ReceivedData   - The infobase object the data is imported to.
+//  IBData           - An infobase object found upon the import data identification.
+//                       If no matching infobase objects is found, then "InfobaseData" is set to "Undefined".
 //  ExchangeComponents   - Structure - contains all exchange rules and parameters.
 //  HandlerName     - String - a handler procedure name in the manager module.
 //  PropertiesConversion - ValueTable - object properties conversion rules.
@@ -7802,7 +7811,6 @@ EndFunction
 //
 // Parameters:
 //   Object - AnyRef - a reference to any MDO;
-//          - Объект - MDO;
 //          - XDTODataObject - an XDTO object;
 //          - Structure
 //   StructurePresentationMetadata - MetadataObject - metadata of the object the presentation is generated for.
@@ -8163,7 +8171,6 @@ EndFunction
 
 // Receives an array of exchange format versions sorted in descending order.
 // Parameters:
-//  InfobaseNode - ссылка на узел-correspondent.
 //
 Function ExhangeFormatVersionsArray(Val InfobaseNode) Export
 	
@@ -8257,13 +8264,11 @@ EndFunction
 //
 // Parameters:
 //  Page1          - a string to split;
-//  Separator  - подстрока-separator:
 //  Mode        - 0 - separator is not included in the returned substrings;
 //                 1 - separator is included in the left substring;
 //                 2 - separator is included in the right substring.
 //
 // Returns:
-//  Правая часть строки - before the separator character.
 // 
 Function SplitWithSeparator(Page1, Val Separator, Mode=0)
 
@@ -8560,6 +8565,8 @@ Function FindNameOfExchangePlanThroughUniversalFormat(ExchangeComponents, XDTOCo
 		ExchangePlanName = BroadcastName(XDTOConfirmation.ExchangePlan, "en");
 		ExchangePlanName = Metadata.ExchangePlans.Find(ExchangePlanName);
 		
+		Return ExchangePlanName;
+		
 	EndIf;
 	
 EndFunction
@@ -8725,7 +8732,7 @@ Procedure FillInCacheOfPublicIdentifiers(ExchangeComponents, ExchangeFileName, X
 	DOMBuilder = New DOMBuilder;
 	DOMDocument = DOMBuilder.Read(ExchangeComponents.ExchangeFile);
 	
-	
+	// Get the exchange format.
 	Dereferencer = New DOMNamespaceResolver(DOMDocument);
 	Expression = "//msg:Format";
 	Result = DOMDocument.EvaluateXPathExpression(Expression, DOMDocument, Dereferencer);
@@ -8737,7 +8744,7 @@ Procedure FillInCacheOfPublicIdentifiers(ExchangeComponents, ExchangeFileName, X
 		Format = FieldNode_.TextContent;
 	EndIf;
 	
-	
+	// Get the references.
 	Dereferencer = New DOMNamespaceResolver("ref", Format);
 	Expression = "//ref:Ref";
 	
@@ -8930,12 +8937,12 @@ Procedure AddPackagePropertiesFromExtensions(XDTOType, SourceProperties, Exchang
 		
 	EndIf;
 	
-	
-	
+	// 
+	// 
 	//
-	
-	
-	
+	// 
+	// 
+	// 
 	
 	For Each Extension In Extensions Do
 		
@@ -9078,9 +9085,7 @@ Procedure FormatExtensionsToExchangeComponents(ExchangeComponents) Export
 	AvailableFormatExtensions = AvailableFormatExtensions(ExchangeComponents.ExchangeFormatVersion);
 	For Each ExpandingTheExchangeFormat In AvailableFormatExtensions Do
 		
-		IncludeNamespace(ExchangeComponents,
-			ExpandingTheExchangeFormat.Key,
-			ExpandingTheExchangeFormat.Value);
+		IncludeNamespace(ExchangeComponents, ExpandingTheExchangeFormat.Key, ExpandingTheExchangeFormat.Value);
 		
 	EndDo;
 	

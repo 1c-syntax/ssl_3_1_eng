@@ -43,7 +43,7 @@
 						</v8:item>
 					</Title>
 					<PagesRepresentation>None</PagesRepresentation>
-					<ExtendedTooltip name="MainPanel1ExtendedTooltip" id="103"/>
+					<ExtendedTooltip name="PanelMainExtendedTooltip" id="103"/>
 					<ChildItems>
 						<Page name="StartPage" id="328">
 							<Title>
@@ -679,6 +679,12 @@ Please wait...</v8:content>
 											<Type>CommandBarButton</Type>
 											<Visible>false</Visible>
 											<CommandName>Form.Command.BackCommand</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>&lt; Back</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="BackCommandExtendedTooltip" id="125"/>
 										</Button>
 									</ChildItems>
@@ -699,11 +705,23 @@ Please wait...</v8:content>
 											<DefaultButton>true</DefaultButton>
 											<DefaultItem>true</DefaultItem>
 											<CommandName>Form.Command.NextCommand</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Next &gt;</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="NextCommandExtendedTooltip" id="126"/>
 										</Button>
 										<Button name="CancelCommand" id="73">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.CancelCommand</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Cancel</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="CancelCommandExtendedTooltip" id="127"/>
 										</Button>
 									</ChildItems>
@@ -733,6 +751,12 @@ Please wait...</v8:content>
 											<Type>CommandBarButton</Type>
 											<Enabled>false</Enabled>
 											<CommandName>Form.Command.BackCommand</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>&lt; Back</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="BackCommand3ExtendedTooltip" id="143"/>
 										</Button>
 									</ChildItems>
@@ -765,6 +789,12 @@ Please wait...</v8:content>
 											<Type>CommandBarButton</Type>
 											<Enabled>false</Enabled>
 											<CommandName>Form.Command.CancelCommand</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Cancel</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="CancelCommand3ExtendedTooltip" id="145"/>
 										</Button>
 									</ChildItems>
@@ -804,12 +834,24 @@ Please wait...</v8:content>
 										<Button name="DoneCommand" id="90">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.DoneCommand</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Finish</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="DoneCommandExtendedTooltip" id="138"/>
 										</Button>
 										<Button name="CancelCommand2" id="83">
 											<Type>CommandBarButton</Type>
 											<Enabled>false</Enabled>
 											<CommandName>Form.Command.CancelCommand</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Cancel</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="CancelCommand2ExtendedTooltip" id="139"/>
 										</Button>
 									</ChildItems>

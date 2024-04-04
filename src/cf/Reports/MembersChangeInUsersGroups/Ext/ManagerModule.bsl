@@ -1,0 +1,93 @@
+﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
+// 
+//  
+// 
+// 
+// 
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
+
+#Region Public
+
+#Region ForCallsFromOtherSubsystems
+
+// 
+
+// See ReportsOptionsOverridable.BeforeAddReportCommands.
+Procedure BeforeAddReportCommands(ReportsCommands, Parameters, StandardProcessing) Export
+	
+	If Not Common.SubsystemExists("StandardSubsystems.ReportsOptions")
+	 Or Not AccessRight("View", Metadata.Reports.MembersChangeInUsersGroups)
+	 Or StandardSubsystemsServer.IsBaseConfigurationVersion() Then
+		Return;
+	EndIf;
+	
+	Presentation = Undefined;
+	
+	If Parameters.FormName = "Catalog.Users.Form.ListForm" Then
+		Presentation = NStr("en = 'Changes in user group membership';");
+		VariantKey = "MembersChangeInUsersGroups";
+		
+	ElsIf Parameters.FormName = "Catalog.Users.Form.ItemForm" Then
+		Presentation = NStr("en = 'Change in user group membership';");
+		VariantKey = "MembersChangeInUsersGroups";
+		
+	ElsIf Parameters.FormName = "Catalog.ExternalUsers.Form.ListForm" Then
+		Presentation = NStr("en = 'Changes in external user group membership';");
+		VariantKey = "MembersChangeInExternalUsersGroups";
+		
+	ElsIf Parameters.FormName = "Catalog.ExternalUsers.Form.ItemForm" Then
+		Presentation = NStr("en = 'Change in external user group membership';");
+		VariantKey = "MembersChangeInExternalUsersGroups";
+	EndIf;
+	
+	If Presentation = Undefined Then
+		Return;
+	EndIf;
+	
+	Command = ReportsCommands.Add();
+	Command.Presentation = Presentation;
+	Command.Manager = "Report.MembersChangeInUsersGroups";
+	Command.VariantKey = VariantKey;
+	Command.OnlyInAllActions = True;
+	Command.Importance = "SeeAlso";
+	
+	If VariantKey = "MembersChangeInExternalUsersGroups" Then
+		Command.FunctionalOptions = "UseExternalUsers";
+	EndIf;
+	
+EndProcedure
+
+// Parameters:
+//   Settings - See ReportsOptionsOverridable.CustomizeReportsOptions.Settings.
+//   ReportSettings - See ReportsOptions.DescriptionOfReport.
+//
+Procedure CustomizeReportOptions(Settings, ReportSettings) Export
+	
+	If Not Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
+		Return;
+	EndIf;
+	
+	ModuleReportsOptions = Common.CommonModule("ReportsOptions");
+	ReportSettings.DefineFormSettings = True;
+	ReportSettings.GroupByReport = False;
+	
+	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "MembersChangeInUsersGroups");
+	OptionSettings.LongDesc =
+		NStr("en = 'Reads the event log and shows you the changes in the membership of user groups for the given time period considering the group hierarchy.';");
+	
+	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "MembersChangeInExternalUsersGroups");
+	OptionSettings.FunctionalOptions.Add("UseExternalUsers");
+	OptionSettings.LongDesc =
+		NStr("en = 'Reads the event log and shows you the changes in the membership of external user groups for the given time period considering the group hierarchy.';");
+	
+EndProcedure
+
+// End StandardSubsystems.ReportsOptions
+
+#EndRegion
+
+#EndRegion
+
+#EndIf

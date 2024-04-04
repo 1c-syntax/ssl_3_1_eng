@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Private
@@ -184,8 +185,8 @@ Function MoveItem(ItemList, CurrentItemRef, Direction) Export
 	Information = ItemOrderSetup.GetInformationForMoving(CurrentItemRef.Metadata());
 	DataCompositionSettings = ItemList.GetPerformingDataCompositionSettings();
 	
-	
-	
+	// 
+	// 
 	RepresentedAsList = ItemList.Representation = TableRepresentation.List;
 	If Information.HasParent And RepresentedAsList And Not ListContainsFilterByParent(DataCompositionSettings) Then
 		Return NStr("en = 'To change the item sequence, set the view mode to Tree or Hierarchical list.';");
@@ -246,7 +247,7 @@ Function MoveItem(ItemList, CurrentItemRef, Direction) Export
 	
 	CurrentItemIndex = Parent.Rows.IndexOf(ValueTreeRow);
 	NeighborItemIndex = CurrentItemIndex;
-	If Direction = ItemOrderSetup.DirectionOfMovingElementUp() Then
+	If Direction = ItemOrderSetup.ItemMovementDirectionUp() Then
 		If CurrentItemIndex > 0 Then
 			NeighborItemIndex = CurrentItemIndex - 1;
 		EndIf;
@@ -263,7 +264,7 @@ Function MoveItem(ItemList, CurrentItemRef, Direction) Export
 		If Not Information.HasGroups Or Information.ForGroups Or Not NeighborItemRef.IsFolder Then
 			ErrorText = "";
 			StandardProcessing = True;
-			SSLSubsystemsIntegration.BeforeMovingItem(CurrentItemRef, NeighborItemRef, Direction, ErrorText, StandardProcessing);
+			SSLSubsystemsIntegration.BeforeItemMoved(CurrentItemRef, NeighborItemRef, Direction, ErrorText, StandardProcessing);
 			
 			If StandardProcessing Then
 				SwapItems(CurrentItemRef, NeighborItemRef, Information.FullName);

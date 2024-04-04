@@ -13,27 +13,57 @@
 			<Button name="FormOpenExistingFile" id="25">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.OpenExistingFile</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Open local copy</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormOpenExistingFileExtendedTooltip" id="37"/>
 			</Button>
 			<Button name="FormINTO" id="23">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.Into</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Commit</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormINTOExtendedTooltip" id="38"/>
 			</Button>
 			<Button name="FormGetFromStorage" id="26">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.GetFromApplication</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Get app file</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormGetFromStorageExtendedTooltip" id="39"/>
 			</Button>
 			<Button name="FormDontPut" id="24">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.DontPut</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Do not commit</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormDontPutExtendedTooltip" id="40"/>
 			</Button>
 			<Button name="Cancel" id="11">
 				<Type>CommandBarButton</Type>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.Cancel</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Cancel</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="CancelExtendedTooltip" id="41"/>
 			</Button>
 		</ChildItems>
@@ -52,7 +82,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="UserMessage2ExtendedTooltip" id="42"/>
+			<ExtendedTooltip name="MessageForUserExtendedTooltip" id="42"/>
 			<ChildItems>
 				<PictureDecoration name="MessageIcon" id="21">
 					<SkipOnInput>false</SkipOnInput>
@@ -63,8 +93,8 @@
 						</v8:item>
 					</Title>
 					<Picture>
-						<xr:Ref>CommonPicture.Warning32</xr:Ref>
-						<xr:LoadTransparent>false</xr:LoadTransparent>
+						<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</Picture>
 					<FileDragMode>AsFile</FileDragMode>
 					<ContextMenu name="MessageIconContextMenu" id="22"/>
@@ -72,6 +102,12 @@
 				</PictureDecoration>
 				<LabelField name="Message" id="14">
 					<DataPath>Message</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Message</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<AutoMaxWidth>false</AutoMaxWidth>
 					<Height>6</Height>
@@ -99,6 +135,12 @@
 				<InputField name="FullFileNameInWorkingDirectory" id="1">
 					<DataPath>FullFileNameInWorkingDirectory</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Local copy</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Top</TitleLocation>
 					<AutoMaxWidth>false</AutoMaxWidth>
 					<MaxWidth>60</MaxWidth>
@@ -109,6 +151,12 @@
 					<Type>UsualButton</Type>
 					<SkipOnInput>false</SkipOnInput>
 					<CommandName>Form.Command.OpenDirectory</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Open directory</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="OpenDirectoryExtendedTooltip" id="49"/>
 				</Button>
 			</ChildItems>
@@ -117,7 +165,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>File properties</v8:content>
+					<v8:content>File info</v8:content>
 				</v8:item>
 			</Title>
 			<Group>Vertical</Group>
@@ -160,12 +208,24 @@
 					<ChildItems>
 						<InputField name="ChangeDateInWorkingDirectory" id="60">
 							<DataPath>ChangeDateInWorkingDirectory</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Modified on</v8:content>
+								</v8:item>
+							</Title>
 							<ContextMenu name="ChangeDateInWorkingDirectoryContextMenu" id="61"/>
 							<ExtendedTooltip name="ChangeDateInWorkingDirectoryExtendedTooltip" id="62"/>
 						</InputField>
 						<InputField name="SizeInWorkingDirectory" id="32">
 							<DataPath>SizeInWorkingDirectory</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Size (bytes)</v8:content>
+								</v8:item>
+							</Title>
 							<HorizontalStretch>true</HorizontalStretch>
 							<ContextMenu name="SizeInWorkingDirectoryContextMenu" id="33"/>
 							<ExtendedTooltip name="SizeInWorkingDirectoryExtendedTooltip" id="55"/>
@@ -176,7 +236,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Stored file</v8:content>
+							<v8:content>File in app</v8:content>
 						</v8:item>
 					</Title>
 					<Behavior>Usual</Behavior>
@@ -184,12 +244,24 @@
 					<ChildItems>
 						<InputField name="ChangeDateInFileStorage" id="57">
 							<DataPath>ChangeDateInFileStorage</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Modified on</v8:content>
+								</v8:item>
+							</Title>
 							<ContextMenu name="ChangeDateInFileStorageContextMenu" id="58"/>
 							<ExtendedTooltip name="ChangeDateInFileStorageExtendedTooltip" id="59"/>
 						</InputField>
 						<InputField name="SizeInFileStorage" id="34">
 							<DataPath>SizeInFileStorage</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Size (bytes)</v8:content>
+								</v8:item>
+							</Title>
 							<HorizontalStretch>true</HorizontalStretch>
 							<ContextMenu name="SizeInFileStorageContextMenu" id="35"/>
 							<ExtendedTooltip name="SizeInFileStorageExtendedTooltip" id="56"/>
@@ -314,13 +386,13 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Get stored file</v8:content>
+					<v8:content>Get app file</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Replace the local file with the file stored in the application and open it.</v8:content>
+					<v8:content>Replace the local file with the file stored in the app and open it.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>GetFromApplication</Action>
@@ -357,7 +429,7 @@
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Store the file to the application.</v8:content>
+					<v8:content>Store the file to the app.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>Into</Action>
@@ -373,7 +445,7 @@
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Do not store the local file to the application.</v8:content>
+					<v8:content>Do not store the local file to the app.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>DontPut</Action>
@@ -396,4 +468,15 @@
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 	</Commands>
+	<Parameters>
+		<Parameter name="FileOperation">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Parameter>
+	</Parameters>
 </Form>

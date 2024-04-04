@@ -13,6 +13,12 @@
 				<Representation>PictureAndText</Representation>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.WriteAndClose</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save and close</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormWriteAndCloseExtendedTooltip" id="392"/>
 			</Button>
 			<ButtonGroup name="FormCommands" id="393">
@@ -29,12 +35,24 @@
 				<Type>CommandBarButton</Type>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.RestoreByInitialFilling</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Restore to default</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="RestoreByInitialFillingExtendedTooltip" id="249"/>
 			</Button>
 			<Button name="SnowUnusedAccessKinds" id="248">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.SnowUnusedAccessKinds</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Show unused access kinds</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="SnowUnusedAccessKindsExtendedTooltip" id="251"/>
 			</Button>
@@ -78,8 +96,8 @@
 						</v8:item>
 					</Title>
 					<Picture>
-						<xr:Ref>CommonPicture.Warning32</xr:Ref>
-						<xr:LoadTransparent>false</xr:LoadTransparent>
+						<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</Picture>
 					<FileDragMode>AsFile</FileDragMode>
 					<ContextMenu name="SuppliedProfileChangedPictureContextMenu" id="349"/>
@@ -139,6 +157,12 @@ The displayed details might differ from the current profile settings.</v8:conten
 				<Button name="SelectPurpose" id="383">
 					<Type>Hyperlink</Type>
 					<CommandName>Form.Command.SelectPurpose</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Select</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="SelectPurposeExtendedTooltip" id="384"/>
 				</Button>
 			</ChildItems>
@@ -220,12 +244,24 @@ The displayed details might differ from the current profile settings.</v8:conten
 												<Type>CommandBarButton</Type>
 												<SkipOnInput>false</SkipOnInput>
 												<CommandName>Form.Command.AddRoles</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Add roles</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="RolesSelectAllExtendedTooltip" id="257"/>
 											</Button>
 											<Button name="RolesClearAll" id="213">
 												<Type>CommandBarButton</Type>
 												<SkipOnInput>false</SkipOnInput>
 												<CommandName>Form.Command.RemoveRoles</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Remove roles</v8:content>
+													</v8:item>
+												</Title>
 												<ExtendedTooltip name="RolesClearAllExtendedTooltip" id="258"/>
 											</Button>
 										</ChildItems>
@@ -234,11 +270,23 @@ The displayed details might differ from the current profile settings.</v8:conten
 										<Type>CommandBarButton</Type>
 										<SkipOnInput>false</SkipOnInput>
 										<CommandName>Form.Command.ShowSelectedRolesOnly</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Selected roles only</v8:content>
+											</v8:item>
+										</Title>
 										<ExtendedTooltip name="RolesShowSelectedRolesOnlyExtendedTooltip" id="259"/>
 									</Button>
 									<Button name="RolesShowRolesSubsystems" id="243">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.RolesBySubsystemsGroup</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Group by subsystem</v8:content>
+											</v8:item>
+										</Title>
 										<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 										<ExtendedTooltip name="RolesShowRolesSubsystemsExtendedTooltip" id="260"/>
 									</Button>
@@ -306,6 +354,12 @@ The displayed details might differ from the current profile settings.</v8:conten
 									<ChildItems>
 										<CheckBoxField name="RolesCheck" id="228">
 											<DataPath>Roles.Check</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Checkmark</v8:content>
+												</v8:item>
+											</Title>
 											<EditMode>Directly</EditMode>
 											<ShowInHeader>false</ShowInHeader>
 											<CheckBoxType>Auto</CheckBoxType>
@@ -318,6 +372,12 @@ The displayed details might differ from the current profile settings.</v8:conten
 										<InputField name="RolesSynonym" id="230">
 											<DataPath>Roles.Synonym</DataPath>
 											<ReadOnly>true</ReadOnly>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Allowed action (role)</v8:content>
+												</v8:item>
+											</Title>
 											<EditMode>EnterOnInput</EditMode>
 											<ContextMenu name="RolesSynonymContextMenu" id="231"/>
 											<ExtendedTooltip name="RolesSynonymExtendedTooltip" id="264"/>
@@ -330,6 +390,12 @@ The displayed details might differ from the current profile settings.</v8:conten
 										<xr:Common>false</xr:Common>
 									</UserVisible>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Role name</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ContextMenu name="RolesNameContextMenu" id="401"/>
 									<ExtendedTooltip name="RolesNameExtendedTooltip" id="402"/>
@@ -340,6 +406,12 @@ The displayed details might differ from the current profile settings.</v8:conten
 										<xr:Common>false</xr:Common>
 									</UserVisible>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Unavailable role</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<CheckBoxType>Auto</CheckBoxType>
 									<ContextMenu name="RolesIsUnavailableRoleContextMenu" id="407"/>
@@ -351,6 +423,12 @@ The displayed details might differ from the current profile settings.</v8:conten
 										<xr:Common>false</xr:Common>
 									</UserVisible>
 									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Non-existing role</v8:content>
+										</v8:item>
+									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<CheckBoxType>Auto</CheckBoxType>
 									<ContextMenu name="RolesIsNonExistingRoleContextMenu" id="410"/>
@@ -649,6 +727,12 @@ The displayed details might differ from the current profile settings.</v8:conten
 						<InputField name="SuppliedProfileDetails" id="334">
 							<DataPath>SuppliedProfileDetails</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Built-in profile details</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<ToolTip>
 								<v8:item>

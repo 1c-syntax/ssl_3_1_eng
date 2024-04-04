@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -12,8 +13,8 @@
 #Region ForCallsFromOtherSubsystems
 
 #Region CTLEventHandlers
-
-
+// 
+// 
 
 // Defines events, to which this library is subscribed.
 //
@@ -28,8 +29,8 @@ EndProcedure
 #EndRegion
 
 #Region OSLEventHandlers
-
-
+// 
+// 
 
 // Defines events, to which this library is subscribed.
 //
@@ -45,8 +46,8 @@ EndProcedure
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated.
-// 
+// Deprecated. For proper integration with 1C-Connect, use the "Connect integration" subsystem
+// (see Online Support Library version 2.4.2 or later).
 //
 Procedure IntegrationOnlineSupportCallClientNotificationProcessing(EventName, Item) Export
 	
@@ -133,7 +134,7 @@ Procedure BeforeStart(Parameters) Export
 	// Handling the UpdateAndExit startup key.
 	Parameters.Modules.Add(New Structure("Module, Number", InfobaseUpdateClient, 5));
 	
-	
+	// Change password or check the old password's strength if needed.
 	Parameters.Modules.Add(New Structure("Module, Number", UsersInternalClient, 3));
 	
 	If SSLSubsystemsIntegrationClientCached.SubscriptionsCTL().BeforeStart Then
@@ -192,6 +193,11 @@ Procedure OnStart(Parameters) Export
 	If CommonClient.SubsystemExists("StandardSubsystems.MonitoringCenter") Then
 		ModuleMonitoringCenterClientInternal = CommonClient.CommonModule("MonitoringCenterClientInternal");
 		Parameters.Modules.Add(ModuleMonitoringCenterClientInternal);
+	EndIf;
+	
+	If CommonClient.SubsystemExists("StandardSubsystems.Conversations") Then
+		ModuleConversationsInternalClient = CommonClient.CommonModule("ConversationsInternalClient");
+		Parameters.Modules.Add(ModuleConversationsInternalClient);
 	EndIf;
 	
 	If SSLSubsystemsIntegrationClientCached.SubscriptionsCTL().OnStart Then
@@ -413,29 +419,35 @@ EndProcedure
 // See ReportsClientOverridable.DetailProcessing.
 Procedure OnProcessDetails(ReportForm, Item, Details, StandardProcessing) Export
 	
-	If CommonClient.SubsystemExists("StandardSubsystems.EventLogAnalysis") Then
-		ModuleEventLogAnalysisClient = CommonClient.CommonModule("EventLogAnalysisClient");
-		ModuleEventLogAnalysisClient.ReportFormDetailProcessing(ReportForm, Item, Details, StandardProcessing);
+	If CommonClient.SubsystemExists("StandardSubsystems.UserMonitoring") Then
+		UserExperienceMonitoringModuleInternalClient =
+			CommonClient.CommonModule("UserMonitoringInternalClient");
+		UserExperienceMonitoringModuleInternalClient.OnProcessDetails(ReportForm,
+			Item, Details, StandardProcessing);
 	EndIf;
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.AccountingAudit") Then
 		ModuleAccountingAuditInternalClient = CommonClient.CommonModule("AccountingAuditInternalClient");
-		ModuleAccountingAuditInternalClient.OnProcessDetails(ReportForm, Item, Details, StandardProcessing);
+		ModuleAccountingAuditInternalClient.OnProcessDetails(ReportForm,
+			Item, Details, StandardProcessing);
 	EndIf;
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagementInternalClient = CommonClient.CommonModule("AccessManagementInternalClient");
-		ModuleAccessManagementInternalClient.OnProcessDetails(ReportForm, Item, Details, StandardProcessing);
+		ModuleAccessManagementInternalClient.OnProcessDetails(ReportForm,
+			Item, Details, StandardProcessing);
 	EndIf;
 	
 	If SSLSubsystemsIntegrationClientCached.SubscriptionsCTL().OnProcessDetails Then
 		ModuleCTLSubsystemsIntegrationClient = CommonClient.CommonModule("CTLSubsystemsIntegrationClient");
-		ModuleCTLSubsystemsIntegrationClient.OnProcessDetails(ReportForm, Item, Details, StandardProcessing);
+		ModuleCTLSubsystemsIntegrationClient.OnProcessDetails(ReportForm,
+			Item, Details, StandardProcessing);
 	EndIf;
 	
 	If SSLSubsystemsIntegrationClientCached.SubscriptionsOSL().OnProcessDetails Then
 		ModuleOSLSubsystemsIntegrationClient = CommonClient.CommonModule("OSLSubsystemsIntegrationClient");
-		ModuleOSLSubsystemsIntegrationClient.OnProcessDetails(ReportForm, Item, Details, StandardProcessing);
+		ModuleOSLSubsystemsIntegrationClient.OnProcessDetails(ReportForm,
+			Item, Details, StandardProcessing);
 	EndIf;
 	
 EndProcedure
@@ -443,14 +455,23 @@ EndProcedure
 // See ReportsClientOverridable.AdditionalDetailProcessing.
 Procedure OnProcessAdditionalDetails(ReportForm, Item, Details, StandardProcessing) Export
 	
+	If CommonClient.SubsystemExists("StandardSubsystems.UserMonitoring") Then
+		UserExperienceMonitoringModuleInternalClient =
+			CommonClient.CommonModule("UserMonitoringInternalClient");
+		UserExperienceMonitoringModuleInternalClient.OnProcessAdditionalDetails(ReportForm,
+			Item, Details, StandardProcessing);
+	EndIf;
+	
 	If SSLSubsystemsIntegrationClientCached.SubscriptionsCTL().OnProcessAdditionalDetails Then
 		ModuleCTLSubsystemsIntegrationClient = CommonClient.CommonModule("CTLSubsystemsIntegrationClient");
-		ModuleCTLSubsystemsIntegrationClient.OnProcessAdditionalDetails(ReportForm, Item, Details, StandardProcessing);
+		ModuleCTLSubsystemsIntegrationClient.OnProcessAdditionalDetails(ReportForm,
+			Item, Details, StandardProcessing);
 	EndIf;
 	
 	If SSLSubsystemsIntegrationClientCached.SubscriptionsOSL().OnProcessAdditionalDetails Then
 		ModuleOSLSubsystemsIntegrationClient = CommonClient.CommonModule("OSLSubsystemsIntegrationClient");
-		ModuleOSLSubsystemsIntegrationClient.OnProcessAdditionalDetails(ReportForm, Item, Details, StandardProcessing);
+		ModuleOSLSubsystemsIntegrationClient.OnProcessAdditionalDetails(ReportForm,
+			Item, Details, StandardProcessing);
 	EndIf;
 	
 EndProcedure
@@ -533,6 +554,11 @@ Procedure OnProcessSpreadsheetDocumentSelection(ReportForm, Item, Area, Standard
 	If CommonClient.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagementInternalClient = CommonClient.CommonModule("AccessManagementInternalClient");
 		ModuleAccessManagementInternalClient.SpreadsheetDocumentSelectionHandler(ReportForm, Item, Area, StandardProcessing);
+	EndIf;
+	
+	If CommonClient.SubsystemExists("StandardSubsystems.FilesOperations") Then
+		ModuleFilesOperationsInternalClient= CommonClient.CommonModule("FilesOperationsInternalClient");
+		ModuleFilesOperationsInternalClient.SpreadsheetDocumentSelectionHandler(ReportForm, Item, Area, StandardProcessing);
 	EndIf;
 	
 	If SSLSubsystemsIntegrationClientCached.SubscriptionsCTL().OnProcessSpreadsheetDocumentSelection Then
@@ -664,6 +690,12 @@ Procedure PrintDocumentsExecuteCommand(Form, Command, ContinueExecutionAtServer,
 	If SSLSubsystemsIntegrationClientCached.SubscriptionsOSL().PrintDocumentsExecuteCommand Then
 		ModuleOSLSubsystemsIntegrationClient = CommonClient.CommonModule("OSLSubsystemsIntegrationClient");
 		ModuleOSLSubsystemsIntegrationClient.PrintDocumentsExecuteCommand(
+			Form, Command, ContinueExecutionAtServer, AdditionalParameters);
+	EndIf;
+	
+	If SSLSubsystemsIntegrationClientCached.EDLSubscriptions().PrintDocumentsExecuteCommand Then
+		ModuleEDLSubsystemsIntegrationClient = CommonClient.CommonModule("EDLSubsystemsIntegrationClient");
+		ModuleEDLSubsystemsIntegrationClient.PrintDocumentsExecuteCommand(
 			Form, Command, ContinueExecutionAtServer, AdditionalParameters);
 	EndIf;
 	

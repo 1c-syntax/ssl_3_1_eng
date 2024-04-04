@@ -1,16 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Common and personal file operation settings.
+// Common and personal file management settings.
 
 // Returns a structure that contains CommonSettings and PersonalSettings.
 Function FilesOperationSettings() Export
@@ -57,7 +58,7 @@ Procedure AddFilesOperationsSettings(CommonSettings, PersonalSettings)
 	LocalFileCacheMaxSize = Common.CommonSettingsStorageLoad(
 		"LocalFileCache", "LocalFileCacheMaxSize");
 	If LocalFileCacheMaxSize = Undefined Then
-		LocalFileCacheMaxSize = 100*1024*1024; 
+		LocalFileCacheMaxSize = 100*1024*1024; // 
 		Common.CommonSettingsStorageSave("LocalFileCache",
 			"LocalFileCacheMaxSize", LocalFileCacheMaxSize);
 	EndIf;
@@ -66,8 +67,8 @@ Procedure AddFilesOperationsSettings(CommonSettings, PersonalSettings)
 	
 	PathToLocalFileCache = Common.CommonSettingsStorageLoad(
 		"LocalFileCache", "PathToLocalFileCache");
-	
-	
+	// 
+	// 
 	PersonalSettings.Insert("PathToLocalFileCache", PathToLocalFileCache);
 	
 	DeleteFileFromLocalFileCacheOnCompleteEdit =
@@ -212,6 +213,24 @@ EndFunction
 //
 Function VolumePathIgnoreRegionalSettings() Export
 	Return Constants.VolumePathIgnoreRegionalSettings.Get();
+EndFunction
+
+// Returns the flag indicating whether data migrated to a new register.
+//
+//  Returns:
+//    Boolean - If "True", data was migrated. Otherwise, "False".
+// 
+Function IsDeduplicationCompleted() Export
+	
+	Query = New Query;
+	Query.Text = 
+	"SELECT TOP 1
+	|	TRUE AS Validation
+	|FROM
+	|	InformationRegister.DeleteFilesBinaryData AS DeleteFilesBinaryData";
+	
+	Return Query.Execute().IsEmpty();
+	
 EndFunction
 
 #EndRegion

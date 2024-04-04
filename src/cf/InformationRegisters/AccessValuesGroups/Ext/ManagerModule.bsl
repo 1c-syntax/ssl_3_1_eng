@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -46,8 +47,8 @@
 //  Authorization object - for example, CatalogRef.Individuals.
 //
 // Parameters:
-//  Parameters     - Undefined - 
-//                  
+//  Parameters     - Undefined - Update everything without applying filters.
+//                  See options above.
 //
 //  HasChanges - Boolean - (return value) - if recorded,
 //                  True is set, otherwise, it does not change.
@@ -173,77 +174,25 @@ EndProcedure
 // Updates access value groups in the InformationRegister.AccessValuesGroups.
 //
 // Parameters:
-//  AccessValues - CatalogObject
-//                  - CatalogRef
-//                  - Array - array of values of the types specified above.
-//                  - Undefined - without filter.
-//                    Value type must be included in the AccessValue dimension types
-//                    of the AccessValuesGroups information register.
-//                    If Object is passed, the update is performed only when it is changed.
+//  AccessValue - DefinedType.AccessValueObject - 
+//                      
+//                      
+//                  - DefinedType.AccessValue - 
+//                      
+//                      
+//                  - Array of DefinedType.AccessValue
+//                  - Undefined - 
 //
 //  HasChanges   - Boolean - (return value) - if recorded,
 //                    True is set, otherwise, it does not change.
 //
-Procedure UpdateAccessValuesGroups(AccessValues = Undefined,
+Procedure UpdateAccessValuesGroups(AccessValue = Undefined,
                                         HasChanges   = Undefined) Export
 	
-	ValuesWithChangesByTypes = New Map;
-	
-	If AccessValues = Undefined Then
-		
-		AccessKindsProperties = AccessManagementInternal.AccessKindsProperties();
-		AccessValuesWithGroups = AccessKindsProperties.AccessValuesWithGroups;
-		
-		Query = New Query;
-		QueryText =
-		"SELECT
-		|	CurrentTable.Ref
-		|FROM
-		|	&CurrentTable AS CurrentTable";
-		
-		For Each TableName In AccessValuesWithGroups.NamesOfTablesToUpdate Do
-			
-			Query.Text = StrReplace(QueryText, "&CurrentTable", TableName);
-			
-			Selection = Query.Execute().Select();
-			
-			ObjectManager = Common.ObjectManagerByFullName(TableName);
-			UpdateAccessValueGroups(ObjectManager.EmptyRef(), HasChanges, ValuesWithChangesByTypes);
-			
-			While Selection.Next() Do
-				UpdateAccessValueGroups(Selection.Ref, HasChanges, ValuesWithChangesByTypes);
-			EndDo;
-		EndDo;
-		
-	ElsIf TypeOf(AccessValues) = Type("Array") Then
-		
-		For Each AccessValue In AccessValues Do
-			UpdateAccessValueGroups(AccessValue, HasChanges, ValuesWithChangesByTypes);
-		EndDo;
-	Else
-		UpdateAccessValueGroups(AccessValues, HasChanges, ValuesWithChangesByTypes);
+	If AccessValue = Undefined Then
+		UpdateEmptyAccessValuesGroups(HasChanges);
 	EndIf;
-	
-	AccessManagementInternal.ScheduleUpdateOfDependentListsByValuesWithGroups(
-		ValuesWithChangesByTypes);
-	
-EndProcedure
-
-// Fills groups for blank references to the access value types in use.
-Procedure UpdateEmptyAccessValuesGroups()
-	
-	AccessKindsProperties = AccessManagementInternal.AccessKindsProperties();
-	AccessValuesWithGroups = AccessKindsProperties.AccessValuesWithGroups;
-	
-	ValuesWithChangesByTypes = New Map;
-	
-	For Each TableName In AccessValuesWithGroups.NamesOfTablesToUpdate Do
-		EmptyRef = PredefinedValue(TableName + ".EmptyRef");
-		UpdateAccessValueGroups(EmptyRef, Undefined, ValuesWithChangesByTypes);
-	EndDo;
-	
-	AccessManagementInternal.ScheduleUpdateOfDependentListsByValuesWithGroups(
-		ValuesWithChangesByTypes);
+	UpdateAccessGroupsWithFilledValues(AccessValue, HasChanges);
 	
 EndProcedure
 
@@ -287,12 +236,12 @@ Procedure DeleteUnusedRecords(HasChanges = Undefined)
 		String.ValuesGroupsType = KeyAndValue.Value;
 	EndDo;
 	
-	
-	
-	
-	
-	
-	
+	// 
+	// 
+	// 
+	// 
+	// 
+	// 
 	
 	
 	Query = New Query;
@@ -511,81 +460,387 @@ Procedure DeleteUnusedRecords(HasChanges = Undefined)
 	
 EndProcedure
 
-// Updates access value groups in InformationRegister.AccessValuesGroups.
+// Fills groups for blank references to the access value types in use.
 //
 // Parameters:
-//  AccessValue - CatalogRef
-//                    CatalogObject.
-//                    If Object is passed, the update is performed only when it is changed.
+//  HasChanges - See UpdateAccessValuesGroups.HasChanges
 //
-//  HasChanges   - Boolean - (return value) - if recorded,
-//                    True is set, otherwise, it does not change.
-//
-Procedure UpdateAccessValueGroups(AccessValue, HasChanges, ValuesWithChangesByTypes)
+Procedure UpdateEmptyAccessValuesGroups(HasChanges = Undefined)
 	
-	SetPrivilegedMode(True);
+	QueryTemplateForRedundant =
+	"SELECT
+	|	VALUE(Catalog.Users.EmptyRef) AS AccessValue,
+	|	AccessValuesGroups.AccessValuesGroup AS AccessValuesGroup
+	|FROM
+	|	InformationRegister.AccessValuesGroups AS AccessValuesGroups
+	|WHERE
+	|	AccessValuesGroups.DataGroup = 0
+	|	AND AccessValuesGroups.AccessValue = VALUE(Catalog.Users.EmptyRef)
+	|	AND AccessValuesGroups.AccessValuesGroup <> VALUE(Catalog.UserGroups.EmptyRef)";
 	
-	AccessValueType = TypeOf(AccessValue);
+	QueryTemplateForMissing =
+	"SELECT
+	|	VALUE(Catalog.Users.EmptyRef) AS AccessValue,
+	|	VALUE(Catalog.UserGroups.EmptyRef) AS AccessValuesGroup
+	|WHERE
+	|	NOT TRUE IN
+	|				(SELECT TOP 1
+	|					TRUE
+	|				FROM
+	|					InformationRegister.AccessValuesGroups AS AccessValuesGroups
+	|				WHERE
+	|					AccessValuesGroups.DataGroup = 0
+	|					AND AccessValuesGroups.AccessValue = VALUE(Catalog.Users.EmptyRef)
+	|					AND AccessValuesGroups.AccessValuesGroup = VALUE(Catalog.UserGroups.EmptyRef))";
 	
 	AccessKindsProperties = AccessManagementInternal.AccessKindsProperties();
 	AccessValuesWithGroups = AccessKindsProperties.AccessValuesWithGroups;
 	
-	AccessKindProperties = AccessValuesWithGroups.ByTypesForUpdate.Get(AccessValueType);
+	ByRefTypesForUpdate = AccessValuesWithGroups.ByRefTypesForUpdate;
+	QueriesTextsForMissing = New Array;
+	QueriesTextsForRedundant = New Array;
+	
+	// 
+	Block = New DataLock;
+	// 
+	
+	For Each TableName In AccessValuesWithGroups.NamesOfTablesToUpdate Do
+		RefType = Type(StrReplace(TableName, ".", "Ref."));
+		Properties = ByRefTypesForUpdate.Get(RefType);
+		GroupsTableName = TableName;
+		If Properties.ValuesGroupsType <> Type("Undefined") Then
+			GroupsTableName = Metadata.FindByType(Properties.ValuesGroupsType).FullName();
+		EndIf;
+		QueryTextForRedundant = StrReplace(QueryTemplateForRedundant,
+			"Catalog.Users", TableName);
+		QueryTextForRedundant = StrReplace(QueryTextForRedundant,
+			"Catalog.UserGroups", GroupsTableName);
+		QueriesTextsForRedundant.Add(QueryTextForRedundant);
+		
+		QueryTextForMissing = StrReplace(QueryTemplateForMissing,
+			"Catalog.Users", TableName);
+		QueryTextForMissing = StrReplace(QueryTextForMissing,
+			"Catalog.UserGroups", GroupsTableName);
+		QueriesTextsForMissing.Add(QueryTextForMissing);
+		
+		LockItem = Block.Add("InformationRegister.AccessValuesGroups");
+		LockItem.SetValue("DataGroup", 0);
+		LockItem.SetValue("AccessValue", Properties.Ref);
+	EndDo;
+	
+	UnionAllText = Common.UnionAllText();
+	
+	Query = New Query;
+	Query.Text = StrConcat(QueriesTextsForRedundant, UnionAllText)
+		+ Common.QueryBatchSeparator()
+		+ StrConcat(QueriesTextsForMissing, UnionAllText);
+	
+	QueryResults = Query.ExecuteBatch();
+	
+	If QueryResults[0].IsEmpty() And QueryResults[1].IsEmpty() Then
+		Return;
+	EndIf;
+	
+	UpdateFromQueryResult(Query,
+		Block, ByRefTypesForUpdate, New Array, HasChanges);
+	
+EndProcedure
+
+// 
+//
+// Parameters:
+//  AccessValue - See UpdateAccessValuesGroups.AccessValue
+//  HasChanges   - See UpdateAccessValuesGroups.HasChanges
+//
+Procedure UpdateAccessGroupsWithFilledValues(AccessValue, HasChanges)
+	
+	SetPrivilegedMode(True);
+	
+	AccessKindsProperties = AccessManagementInternal.AccessKindsProperties();
+	AccessValuesWithGroups = AccessKindsProperties.AccessValuesWithGroups;
+	ByRefTypesForUpdate = AccessValuesWithGroups.ByRefTypesForUpdate;
+	Object = Undefined;
+	
+	If AccessValue = Undefined Then
+		NamesOfTablesToUpdate = AccessValuesWithGroups.NamesOfTablesToUpdate;
+	Else
+		If TypeOf(AccessValue) = Type("Array") Then
+			CurLinks = AccessValue;
+		Else
+			AccessValueType = TypeOf(AccessValue);
+			AccessKindProperties = AccessValuesWithGroups.ByTypesForUpdate.Get(AccessValueType);
+			If AccessKindProperties = Undefined Then
+				Raise ErrorTextTypeNotConfigured(AccessValueType);
+			EndIf;
+			If ByRefTypesForUpdate.Get(AccessValueType) = Undefined Then
+				Ref = UsersInternal.ObjectRef2(AccessValue);
+				Object = AccessValue;
+			Else
+				Ref = AccessValue;
+			EndIf;
+			CurLinks = CommonClientServer.ValueInArray(Ref);
+		EndIf;
+		
+		NamesOfTablesToUpdate = New Array;
+		ValuesByTypes = New Map;
+		For Each CurrentRef In CurLinks Do
+			RefType = TypeOf(CurrentRef);
+			Values = ValuesByTypes.Get(RefType);
+			If Values = Undefined Then
+				AccessKindProperties = ByRefTypesForUpdate.Get(RefType);
+				If AccessKindProperties = Undefined Then
+					Raise ErrorTextTypeNotConfigured(RefType);
+				EndIf;
+				Values = New Array;
+				ValuesByTypes.Insert(RefType, Values);
+				NamesOfTablesToUpdate.Add(Metadata.FindByType(RefType).FullName());
+			EndIf;
+			If Not ValueIsFilled(CurrentRef) Then
+				Continue;
+			EndIf;
+			If Values.Find(CurrentRef) = Undefined Then
+				Values.Add(CurrentRef);
+			EndIf;
+		EndDo;
+	EndIf;
+	
+	QueryTemplateForRedundant =
+	"SELECT
+	|	AccessValuesGroups.AccessValue AS AccessValue,
+	|	AccessValuesGroups.AccessValuesGroup AS AccessValuesGroup
+	|FROM
+	|	InformationRegister.AccessValuesGroups AS AccessValuesGroups
+	|		LEFT JOIN CurrentValueTable AS CurrentTable
+	|		ON (CurrentTable.Ref = AccessValuesGroups.AccessValue)
+	|			AND (CurrentTable.AccessGroup = AccessValuesGroups.AccessValuesGroup)
+	|WHERE
+	|	AccessValuesGroups.DataGroup = 0
+	|	AND CurrentTable.Ref IS NULL
+	|	AND &Filter1";
+	
+	QueryTemplateForMissing =
+	"SELECT
+	|	CurrentTable.Ref AS AccessValue,
+	|	CurrentTable.AccessGroup AS AccessValuesGroup
+	|FROM
+	|	CurrentValueTable AS CurrentTable
+	|		LEFT JOIN InformationRegister.AccessValuesGroups AS AccessValuesGroups
+	|		ON (AccessValuesGroups.DataGroup = 0)
+	|			AND CurrentTable.Ref = AccessValuesGroups.AccessValue
+	|			AND CurrentTable.AccessGroup = AccessValuesGroups.AccessValuesGroup
+	|WHERE
+	|	AccessValuesGroups.AccessValue IS NULL
+	|	AND &Filter2";
+	
+	QueriesTextsForMissing = New Array;
+	QueriesTextsForRedundant = New Array;
+	Query = New Query;
+	
+	For Each TableName In NamesOfTablesToUpdate Do
+		RefType = Type(StrReplace(TableName, ".", "Ref."));
+		Properties = ByRefTypesForUpdate.Get(RefType);
+		CurrentTableName = TableName;
+		If Properties.ValuesGroupsType <> Type("Undefined") Then
+			If Properties.MultipleValuesGroups Then
+				CurrentTableName = TableName + ".AccessGroups";
+			EndIf;
+			FieldName = StrReplace("ISNULL(CAST(CurrentTable.AccessGroup AS %1),
+				|				VALUE(%1.EmptyRef))",
+				"%1", Metadata.FindByType(Properties.ValuesGroupsType).FullName());
+		Else
+			FieldName = "CurrentTable.Ref";
+		EndIf;
+		
+		If AccessValue = Undefined Then
+			Filter1 = "VALUETYPE(AccessValuesGroups.AccessValue) = TYPE(Catalog.Users)
+			|	AND AccessValuesGroups.AccessValue <> VALUE(Catalog.Users.EmptyRef)";
+			Filter2 = "TRUE";
+		Else
+			Filter1 = "CAST(AccessValuesGroups.AccessValue AS Catalog.Users) IN (&Values)";
+			Filter2 = "CurrentTable.Ref IN (&Values)";
+			ParameterName = StrReplace(TableName, ".", "_") + "_" + "Values";
+			Query.SetParameter(ParameterName, ValuesByTypes.Get(RefType));
+			Filter1 = StrReplace(Filter1, "&Values", "&" + ParameterName);
+			Filter2 = StrReplace(Filter2, "&Values", "&" + ParameterName);
+		EndIf;
+		
+		QueryTextForRedundant = StrReplace(QueryTemplateForRedundant, "&Filter1", Filter1);
+		QueryTextForRedundant = StrReplace(QueryTextForRedundant, "CurrentValueTable", CurrentTableName);
+		QueryTextForRedundant = StrReplace(QueryTextForRedundant, "CurrentTable.AccessGroup", FieldName);
+		QueryTextForRedundant = StrReplace(QueryTextForRedundant, "Catalog.Users", TableName);
+		QueriesTextsForRedundant.Add(QueryTextForRedundant);
+		
+		QueryTextForMissing = StrReplace(QueryTemplateForMissing, "&Filter2", Filter2);
+		QueryTextForMissing = StrReplace(QueryTextForMissing, "CurrentValueTable", CurrentTableName);
+		QueryTextForMissing = StrReplace(QueryTextForMissing, "CurrentTable.AccessGroup", FieldName);
+		QueriesTextsForMissing.Add(QueryTextForMissing);
+	EndDo;
+	
+	UnionAllText = Common.UnionAllText();
+	
+	Query.Text = StrConcat(QueriesTextsForRedundant, UnionAllText)
+		+ Common.QueryBatchSeparator()
+		+ StrConcat(QueriesTextsForMissing, UnionAllText);
+	
+	Try
+		QueryResults = Query.ExecuteBatch();
+	Except
+		CheckTablesMetadata(NamesOfTablesToUpdate, ByRefTypesForUpdate);
+		Raise;
+	EndTry;
+	
+	If QueryResults[0].IsEmpty() And QueryResults[1].IsEmpty() Then
+		Return;
+	EndIf;
+	
+	// 
+	Block = New DataLock;
+	// 
+	
+	If TypeOf(AccessValue) = Type("Array") And AccessValue.Count() <= 1000 Then
+		For Each CurrentRef In AccessValue Do
+			LockItem = Block.Add("InformationRegister.AccessValuesGroups");
+			LockItem.SetValue("DataGroup", 0);
+			LockItem.SetValue("AccessValue", CurrentRef);
+		EndDo;
+	Else
+		LockItem = Block.Add("InformationRegister.AccessValuesGroups");
+		LockItem.SetValue("DataGroup", 0);
+		If AccessValue <> Undefined And TypeOf(AccessValue) <> Type("Array") Then
+			LockItem.SetValue("AccessValue", Ref);
+		EndIf;
+	EndIf;
+	
+	IsNew = Object <> Undefined
+		And Object.AdditionalProperties.Property("IsAccessValueNewObject");
+	
+	UpdateFromQueryResult(Query,
+		Block, ByRefTypesForUpdate, NamesOfTablesToUpdate, HasChanges, IsNew);
+	
+EndProcedure
+
+// 
+Procedure UpdateFromQueryResult(Query, Block,
+			ByRefTypesForUpdate, NamesOfTablesToUpdate, HasChanges, IsNew = False)
+	
+	ValuesWithChangesByTypes = New Map;
+	ProcessedTypes = New Map;
+	
+	BeginTransaction();
+	Try
+		Block.Lock();
+		QueryResults = Query.ExecuteBatch();
+		
+		If Not QueryResults[0].IsEmpty() Then
+			RecordSet = InformationRegisters.AccessValuesGroups.CreateRecordSet();
+			Selection = QueryResults[0].Select();
+			
+			While Selection.Next() Do
+				RecordSet.Filter.DataGroup.Set(0);
+				RecordSet.Filter.AccessValue.Set(Selection.AccessValue);
+				RecordSet.Filter.AccessValuesGroup.Set(Selection.AccessValuesGroup);
+				RecordSet.Write(); // 
+				
+				ValueType = TypeOf(Selection.AccessValue);
+				IsTypeProcessed = ProcessedTypes.Get(ValueType);
+				If IsTypeProcessed <> True Then
+					DoAddChanges(Selection.AccessValue,
+						IsNew, ByRefTypesForUpdate, ValuesWithChangesByTypes, IsTypeProcessed);
+					ProcessedTypes.Insert(ValueType, IsTypeProcessed);
+				EndIf;
+			EndDo;
+			HasChanges = True;
+		EndIf;
+		
+		If Not QueryResults[1].IsEmpty() Then
+			RecordSet = InformationRegisters.AccessValuesGroups.CreateRecordSet();
+			Record = RecordSet.Add();
+			Selection = QueryResults[1].Select();
+			
+			While Selection.Next() Do
+				RecordSet.Filter.AccessValue.Set(Selection.AccessValue);
+				RecordSet.Filter.AccessValuesGroup.Set(Selection.AccessValuesGroup);
+				RecordSet.Filter.DataGroup.Set(0);
+				FillPropertyValues(Record, Selection);
+				RecordSet.Write(); // 
+				
+				ValueType = TypeOf(Selection.AccessValue);
+				IsTypeProcessed = ProcessedTypes.Get(ValueType);
+				If IsTypeProcessed <> True Then
+					DoAddChanges(Selection.AccessValue,
+						IsNew, ByRefTypesForUpdate, ValuesWithChangesByTypes, IsTypeProcessed);
+					ProcessedTypes.Insert(ValueType, IsTypeProcessed);
+				EndIf;
+			EndDo;
+			HasChanges = True;
+		EndIf;
+		
+		AccessManagementInternal.ScheduleUpdateOfDependentListsByValuesWithGroups(
+			ValuesWithChangesByTypes);
+		
+		CommitTransaction();
+	Except
+		RollbackTransaction();
+		CheckTablesMetadata(NamesOfTablesToUpdate, ByRefTypesForUpdate);
+		Raise;
+	EndTry;
+	
+EndProcedure
+
+// 
+Procedure DoAddChanges(Ref, IsNew, ByRefTypesForUpdate, ValuesWithChangesByTypes, IsTypeProcessed)
+	
+	AccessKindProperties = ByRefTypesForUpdate.Get(TypeOf(Ref));
+	IsTypeProcessed = True;
+	
+	If AccessKindProperties.ValuesGroupsType <> Type("Undefined") And Not IsNew Then
+		CurrentRef = ValuesWithChangesByTypes.Get(AccessKindProperties.ValuesType);
+		
+		If CurrentRef = Undefined Then
+			ValuesWithChangesByTypes.Insert(AccessKindProperties.ValuesType, Ref);
+			IsTypeProcessed = False;
+			
+		ElsIf CurrentRef <> Ref Then
+			ValuesWithChangesByTypes.Insert(AccessKindProperties.ValuesType, True);
+		Else
+			IsTypeProcessed = False;
+		EndIf;
+	EndIf;
+	
+EndProcedure
+
+// 
+Function ErrorTextTypeNotConfigured(AccessValueType)
 	
 	ErrorTitle =
 		NStr("en = 'An error occurred when updating Access Value Groups.';")
 		+ Chars.LF
 		+ Chars.LF;
 	
-	If AccessKindProperties = Undefined Then
-		ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'For type ""%1""
-			           |usage of access value groups is not configured.';"),
-			String(AccessValueType));
-		Raise ErrorText;
-	EndIf;
+	ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
+		NStr("en = 'For type ""%1""
+		           |usage of access value groups is not configured.';"),
+		String(AccessValueType));
 	
-	If AccessValuesWithGroups.ByRefTypesForUpdate.Get(AccessValueType) = Undefined Then
-		Ref = UsersInternal.ObjectRef2(AccessValue);
-		Object = AccessValue;
-	Else
-		Ref = AccessValue;
-		Object = Undefined;
-	EndIf;
+	Return ErrorText;
 	
-	// Preparing previous field values.
-	AttributeName      = "AccessGroup";
-	TabularSectionName = "AccessGroups";
+EndFunction
+
+// 
+Procedure CheckTablesMetadata(NamesOfTablesToUpdate, ByRefTypesForUpdate)
 	
-	If AccessKindProperties.ValuesGroupsType = Type("Undefined") Then
-		FieldForQuery = "Ref";
-	ElsIf AccessKindProperties.MultipleValuesGroups Then
-		FieldForQuery = TabularSectionName;
-	Else
-		FieldForQuery = AttributeName;
-	EndIf;
+	ErrorTitle =
+		NStr("en = 'An error occurred when updating Access Value Groups.';")
+		+ Chars.LF
+		+ Chars.LF;
 	
-	Try
-		If ValueIsFilled(Ref) Then
-			PreviousValues1 = Common.ObjectAttributesValues(Ref, FieldForQuery);
-		Else
-			PreviousValues1 = New Structure(FieldForQuery, Undefined);
-		EndIf;
-	Except
-		Error = ErrorInfo();
+	For Each TableName In NamesOfTablesToUpdate Do
+		AccessValueType = Type(StrReplace(TableName, ".", "Ref."));
+		AccessKindProperties = ByRefTypesForUpdate.Get(AccessValueType);
 		TypeMetadata = Metadata.FindByType(AccessValueType);
 		
 		If AccessKindProperties.ValuesGroupsType = Type("Undefined") Then
-			ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot read attribute ""%3"" of access value ""%1""
-				           |of type ""%2""
-				           | due to:
-				           |%4';"),
-				String(AccessValue),
-				String(AccessValueType),
-				"Ref",
-				ErrorProcessing.BriefErrorDescription(Error));
-			Raise ErrorText;
+			Continue;
 			
 		ElsIf AccessKindProperties.MultipleValuesGroups Then
 			TabularSectionMetadata1 = TypeMetadata.TabularSections.Find("AccessGroups");
@@ -601,165 +856,16 @@ Procedure UpdateAccessValueGroups(AccessValue, HasChanges, ValuesWithChangesByTy
 					"AccessGroups",
 					"AccessGroup");
 				Raise ErrorText;
-			Else
-				ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Cannot read tabular section ""%3""
-					           |with attribute ""%4"" of access value ""%1""
-					           |of type ""%2""
-					           | due to:
-					           |%5';"),
-					String(AccessValue),
-					String(AccessValueType),
-					"AccessGroups",
-					"AccessGroup",
-					ErrorProcessing.BriefErrorDescription(Error));
-				Raise ErrorText;
-			EndIf;
-		Else
-			If TypeMetadata.Attributes.Find("AccessGroup") = Undefined Then
-				ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Special attribute ""%2""
-					           |is not created for access value type ""%1"".';"),
-					String(AccessValueType), "AccessGroup");
-				Raise ErrorText;
-			Else
-				ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Cannot read attribute ""%3"" of access value ""%1""
-					           |of type ""%2""
-					           | due to:
-					           |%4';"),
-					String(AccessValue),
-					String(AccessValueType),
-					"AccessGroup",
-					ErrorProcessing.BriefErrorDescription(Error));
-				Raise ErrorText;
-			EndIf;
-		EndIf;
-	EndTry;
-	
-	// Check for object modifications.
-	UpdateRequired = False;
-	If Object <> Undefined Then
-		
-		If Object.IsNew() Then
-			UpdateRequired = True;
-			
-		ElsIf AccessKindProperties.ValuesGroupsType <> Type("Undefined") Then
-			
-			If AccessKindProperties.MultipleValuesGroups Then
-				Value = Object[TabularSectionName].Unload();
-				Value.Sort(AttributeName);
-				If PreviousValues1[TabularSectionName] <> Undefined Then
-					PreviousValues1[TabularSectionName] = PreviousValues1[TabularSectionName].Unload();
-					PreviousValues1[TabularSectionName].Sort(AttributeName);
-				EndIf;
-			Else
-				Value = Object[AttributeName];
 			EndIf;
 			
-			If Not Common.DataMatch(Value, PreviousValues1[FieldForQuery]) Then
-				UpdateRequired = True;
-			EndIf;
+		ElsIf TypeMetadata.Attributes.Find("AccessGroup") = Undefined Then
+			ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Special attribute ""%2""
+				           |is not created for access value type ""%1"".';"),
+				String(AccessValueType), "AccessGroup");
+			Raise ErrorText;
 		EndIf;
-		NewValues = Object;
-	Else
-		UpdateRequired = True;
-		NewValues = PreviousValues1;
-	EndIf;
-	
-	// Preparing new records for update.
-	NewRecords = CreateRecordSet().Unload();
-	
-	If Constants.LimitAccessAtRecordLevel.Get() Then
-		
-		// Add value groups.
-		If AccessKindProperties.ValuesGroupsType = Type("Undefined") Then
-			Record = NewRecords.Add();
-			Record.AccessValue       = Ref;
-			Record.AccessValuesGroup = Ref;
-		Else
-			AccessKindsProperties = AccessManagementInternal.AccessKindsProperties();
-			ValuesGroupsTypes = AccessKindsProperties.AccessValuesWithGroups.ValueGroupTypesForUpdate;
-			
-			AccessValuesGroupsEmptyRef = ValuesGroupsTypes.Get(TypeOf(Ref));
-			
-			If AccessKindProperties.MultipleValuesGroups Then
-				If NewValues[TabularSectionName] = Undefined Then
-					AccessValuesGroups = New ValueTable;
-					AccessValuesGroups.Columns.Add("AccessGroup");
-				Else
-					AccessValuesGroups = NewValues[TabularSectionName].Unload();
-				EndIf;
-				If AccessValuesGroups.Count() = 0 Then
-					AccessValuesGroups.Add();
-				Else
-					AccessValuesGroups.GroupBy("AccessGroup");
-				EndIf;
-				For Each String In AccessValuesGroups Do
-					Record = NewRecords.Add();
-					Record.AccessValue       = Ref;
-					Record.AccessValuesGroup = String[AttributeName];
-					If TypeOf(Record.AccessValuesGroup) <> TypeOf(AccessValuesGroupsEmptyRef) Then
-						Record.AccessValuesGroup = AccessValuesGroupsEmptyRef;
-					EndIf;
-				EndDo;
-			Else
-				Record = NewRecords.Add();
-				Record.AccessValue       = Ref;
-				Record.AccessValuesGroup = NewValues[AttributeName];
-				If TypeOf(Record.AccessValuesGroup) <> TypeOf(AccessValuesGroupsEmptyRef) Then
-					Record.AccessValuesGroup = AccessValuesGroupsEmptyRef;
-				EndIf;
-			EndIf;
-		EndIf;
-		
-	EndIf;
-	
-	If Object = Undefined Then
-		AdditionalProperties = Undefined;
-	Else
-		AdditionalProperties = New Structure("LeadingObjectBeforeWrite", Object);
-	EndIf;
-	
-	FixedFilter = New Structure;
-	FixedFilter.Insert("AccessValue", Ref);
-	FixedFilter.Insert("DataGroup", 0);
-	
-	Data = New Structure;
-	Data.Insert("RegisterManager",       InformationRegisters.AccessValuesGroups);
-	Data.Insert("NewRecords",            NewRecords);
-	Data.Insert("FixedFilter",     FixedFilter);
-	Data.Insert("AdditionalProperties", AdditionalProperties);
-	
-	HasCurrentChanges = False;
-	BeginTransaction();
-	Try
-		AccessManagementInternal.UpdateRecordSets(Data, HasCurrentChanges);
-		If HasCurrentChanges Then
-			HasChanges = True;
-		EndIf;
-		CommitTransaction();
-	Except
-		RollbackTransaction();
-		Raise;
-	EndTry;
-	
-	If Not UpdateRequired And Not HasCurrentChanges Then
-		Return;
-	EndIf;
-	
-	If AccessKindProperties.ValuesGroupsType <> Type("Undefined")
-	   And (Object = Undefined Or Not Object.IsNew()) Then
-		
-		CurrentRef = ValuesWithChangesByTypes.Get(AccessKindProperties.ValuesType);
-		
-		If CurrentRef = Undefined Then
-			ValuesWithChangesByTypes.Insert(AccessKindProperties.ValuesType, Ref);
-			
-		ElsIf TypeOf(CurrentRef) = AccessKindProperties.ValuesType Then
-			ValuesWithChangesByTypes.Insert(AccessKindProperties.ValuesType, True);
-		EndIf;
-	EndIf;
+	EndDo;
 	
 EndProcedure
 
@@ -985,8 +1091,8 @@ Procedure UpdatePerformersGroups(PerformersGroups = Undefined,
 	
 	SetPrivilegedMode(True);
 	
-	
-	
+	// 
+	// 
 	
 	Query = New Query;
 	Query.TempTablesManager = New TempTablesManager;
@@ -1091,8 +1197,8 @@ Procedure UpdatePerformersGroups(PerformersGroups = Undefined,
 	If PerformersGroups = Undefined
 	   And Assignees <> Undefined Then
 		
-		
-		
+		// 
+		// 
 		QueryText =
 		"SELECT
 		|	AssigneeGroupsUsers.PerformersGroup
@@ -1244,9 +1350,9 @@ Procedure UpdateAuthorizationObjects(AuthorizationObjects = Undefined, HasChange
 	
 	// Preparing the selected fields with optional filter.
 	Fields = New Array; 
-	Fields.Add(New Structure("AccessValue",         "&AuthorizationObjectFilterCriterion2"));
+	Fields.Add(New Structure("AccessValue", "&AuthorizationObjectFilterCriterion2"));
 	Fields.Add(New Structure("AccessValuesGroup"));
-	Fields.Add(New Structure("DataGroup",            "&UpdatedDataGroupFilterCriterion"));
+	Fields.Add(New Structure("DataGroup",    "&UpdatedDataGroupFilterCriterion"));
 	
 	Query.Text = AccessManagementInternal.ChangesSelectionQueryText(
 		QueryText, Fields, "InformationRegister.AccessValuesGroups", TemporaryTablesQueriesText);

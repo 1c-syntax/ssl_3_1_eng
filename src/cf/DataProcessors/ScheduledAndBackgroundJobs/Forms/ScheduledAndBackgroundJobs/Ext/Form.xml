@@ -59,8 +59,8 @@
 							<ChildItems>
 								<PictureDecoration name="ExternalResourcesOperationsLockPicture" id="288">
 									<Picture>
-										<xr:Ref>CommonPicture.Warning32</xr:Ref>
-										<xr:LoadTransparent>false</xr:LoadTransparent>
+										<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
 									<ContextMenu name="ExternalResourcesOperationsLockPictureContextMenu" id="289"/>
@@ -164,21 +164,45 @@
 														<Type>CommandBarButton</Type>
 														<Visible>false</Visible>
 														<CommandName>Form.Command.ExecuteNotInBackground</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Don't run in the background</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="ScheduledJobsTableContextMenuExecuteNotInBackgroundExtendedTooltip" id="278"/>
 													</Button>
 													<Button name="ScheduledJobsTableContextMenuRefreshData" id="165">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.UpdateScheduledJobs</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Refresh</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="ScheduledJobsTableContextMenuRefreshDataExtendedTooltip" id="178"/>
 													</Button>
 													<Button name="ScheduledJobsTableContextMenuEnableScheduledJob" id="234">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.EnableScheduledJob</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Enable</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="ScheduledJobsTableContextMenuEnableScheduledJobExtendedTooltip" id="235"/>
 													</Button>
 													<Button name="ScheduledJobsTableContextMenuDisableScheduledJob" id="236">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.DisableScheduledJob</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Disable</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="ScheduledJobsTableContextMenuDisableScheduledJobExtendedTooltip" id="237"/>
 													</Button>
 													<Button name="ScheduledJobsTableContextMenuOutputList" id="170">
@@ -189,6 +213,12 @@
 													<Button name="ScheduledJobsTableContextMenuEventLogEvents" id="308">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.EventLogEvents</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Event log records</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="ScheduledJobsTableContextMenuEventLogEventsExtendedTooltip" id="309"/>
 													</Button>
 													<Button name="ScheduledJobsTableContextMenuCopyToClipboard" id="171">
@@ -241,6 +271,12 @@
 														<Type>CommandBarButton</Type>
 														<SkipOnInput>false</SkipOnInput>
 														<CommandName>Form.Command.SetUpSchedule</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Set schedule…</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="ScheduledJobsTableSetUpScheduleExtendedTooltip" id="190"/>
 													</Button>
 													<Button name="ScheduledJobsTableCopy" id="158">
@@ -268,17 +304,35 @@
 																<Type>CommandBarButton</Type>
 																<SkipOnInput>false</SkipOnInput>
 																<CommandName>Form.Command.ExecuteScheduledJobManually</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Run now</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="ScheduledJobsTableExecuteNowExtendedTooltip" id="191"/>
 															</Button>
 															<Button name="ScheduledJobsTableExecuteNotInBackground" id="279">
 																<Type>CommandBarButton</Type>
 																<Visible>false</Visible>
 																<CommandName>Form.Command.ExecuteNotInBackground</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Don't run in the background</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="ScheduledJobsTableExecuteInForegroundExtendedTooltip" id="280"/>
 															</Button>
 															<Button name="ScheduledJobsTableEventLogEvents" id="306">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.EventLogEvents</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Event log records</v8:content>
+																	</v8:item>
+																</Title>
 																<ExtendedTooltip name="ScheduledJobsTableEventLogEventsExtendedTooltip" id="307"/>
 															</Button>
 														</ChildItems>
@@ -288,11 +342,23 @@
 														<Representation>Text</Representation>
 														<SkipOnInput>false</SkipOnInput>
 														<CommandName>Form.Command.UpdateScheduledJobs</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Refresh</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="ScheduledJobsTableRefreshDataExtendedTooltip" id="185"/>
 													</Button>
 													<Button name="ScheduledJobsTableShowAllJobs" id="275">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.ShowAllJobs</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Show all scheduled jobs</v8:content>
+															</v8:item>
+														</Title>
 														<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 														<ExtendedTooltip name="ScheduledJobsTableShowAllJobsExtendedTooltip" id="276"/>
 													</Button>
@@ -399,12 +465,24 @@
 													<UserVisible>
 														<xr:Common>false</xr:Common>
 													</UserVisible>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Start date</v8:content>
+														</v8:item>
+													</Title>
 													<EditMode>EnterOnInput</EditMode>
 													<ContextMenu name="StartDateContextMenu" id="304"/>
 													<ExtendedTooltip name="StartDateExtendedTooltip" id="305"/>
 												</InputField>
 												<InputField name="EndDate" id="52">
 													<DataPath>ScheduledJobsTable.EndDate</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>End date</v8:content>
+														</v8:item>
+													</Title>
 													<ToolTip>
 														<v8:item>
 															<v8:lang>en</v8:lang>
@@ -420,6 +498,12 @@
 													<UserVisible>
 														<xr:Common>false</xr:Common>
 													</UserVisible>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Username</v8:content>
+														</v8:item>
+													</Title>
 													<ToolTip>
 														<v8:item>
 															<v8:lang>en</v8:lang>
@@ -435,6 +519,12 @@
 													<UserVisible>
 														<xr:Common>false</xr:Common>
 													</UserVisible>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Schedule</v8:content>
+														</v8:item>
+													</Title>
 													<EditMode>EnterOnInput</EditMode>
 													<ContextMenu name="JobScheduleContextMenu" id="317"/>
 													<ExtendedTooltip name="JobScheduleExtendedTooltip" id="318"/>
@@ -454,7 +544,7 @@
 													<ToolTip>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Predefined jobs are part of the application. They cannot be deleted.</v8:content>
+															<v8:content>Predefined jobs are part of the app. They cannot be deleted.</v8:content>
 														</v8:item>
 													</ToolTip>
 													<CheckBoxType>Auto</CheckBoxType>
@@ -516,6 +606,12 @@
 										</LabelDecoration>
 										<CheckBoxField name="FilterByCompletedState" id="100">
 											<DataPath>FilterByCompletedState</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Completed</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>Right</TitleLocation>
 											<ToolTip>
 												<v8:item>
@@ -529,6 +625,12 @@
 										</CheckBoxField>
 										<CheckBoxField name="FilterByFailedState" id="102">
 											<DataPath>FilterByFailedState</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Completed with errors</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>Right</TitleLocation>
 											<ToolTip>
 												<v8:item>
@@ -542,6 +644,12 @@
 										</CheckBoxField>
 										<CheckBoxField name="FilterByStateCanceled" id="104">
 											<DataPath>FilterByStateCanceled</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Canceled</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>Right</TitleLocation>
 											<ToolTip>
 												<v8:item>
@@ -551,10 +659,16 @@
 											</ToolTip>
 											<CheckBoxType>Auto</CheckBoxType>
 											<ContextMenu name="FilterByCanceledStateContextMenu" id="105"/>
-											<ExtendedTooltip name="FilterByCanceledStateExtendedTooltip" id="209"/>
+											<ExtendedTooltip name="FilterByStateCanceledExtendedTooltip" id="209"/>
 										</CheckBoxField>
 										<CheckBoxField name="FilterByActiveState" id="98">
 											<DataPath>FilterByActiveState</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Running</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>Right</TitleLocation>
 											<ToolTip>
 												<v8:item>
@@ -593,6 +707,12 @@
 										</LabelDecoration>
 										<InputField name="FilterKindByPeriod" id="110">
 											<DataPath>FilterKindByPeriod</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Filter by period</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<ListChoiceMode>true</ListChoiceMode>
 											<ChoiceList>
@@ -683,15 +803,27 @@
 											<ChildItems>
 												<InputField name="FilterPeriodFrom" id="113">
 													<DataPath>FilterPeriodFrom</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>from</v8:content>
+														</v8:item>
+													</Title>
 													<Wrap>false</Wrap>
 													<ContextMenu name="FilterPeriodFromContextMenu" id="114"/>
 													<ExtendedTooltip name="FilterPeriodFromExtendedTooltip" id="217"/>
 												</InputField>
 												<InputField name="FilterPeriodFor" id="115">
 													<DataPath>FilterPeriodFor</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>to</v8:content>
+														</v8:item>
+													</Title>
 													<Wrap>false</Wrap>
 													<ContextMenu name="FilterPeriodForContextMenu" id="116"/>
-													<ExtendedTooltip name="FilterPeriodToExtendedTooltip" id="218"/>
+													<ExtendedTooltip name="FilterPeriodForExtendedTooltip" id="218"/>
 												</InputField>
 											</ChildItems>
 										</UsualGroup>
@@ -711,6 +843,12 @@
 									<ChildItems>
 										<CheckBoxField name="FilterByScheduledJob" id="94">
 											<DataPath>FilterByScheduledJob</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Filter by scheduled job:</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>Right</TitleLocation>
 											<ToolTip>
 												<v8:item>
@@ -728,6 +866,12 @@
 										<InputField name="ScheduledJobForFilter" id="56">
 											<DataPath>ScheduledJobForFilterID</DataPath>
 											<Enabled>false</Enabled>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Scheduled job ID</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<ToolTip>
 												<v8:item>
@@ -802,6 +946,12 @@
 													<Button name="BackgroundJobsTableContextMenuEventLogEvents" id="312">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.EventLogEvents</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Event log records</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="BackgroundJobsTableContextMenuEventLogEventsExtendedTooltip" id="313"/>
 													</Button>
 												</ChildItems>
@@ -813,11 +963,23 @@
 														<SkipOnInput>false</SkipOnInput>
 														<DefaultItem>true</DefaultItem>
 														<CommandName>Form.Command.OpenBackgroundJob</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Open…</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="BackgroundJobsTableOpenExtendedTooltip" id="223"/>
 													</Button>
 													<Button name="BackgroundJobsTableEventLogEvents" id="310">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.EventLogEvents</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Event log records</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="BackgroundJobsTableEventLogEventsExtendedTooltip" id="311"/>
 													</Button>
 													<Button name="BackgroundJobsTableCancel" id="122">
@@ -836,6 +998,12 @@
 														<Type>CommandBarButton</Type>
 														<Representation>Text</Representation>
 														<CommandName>Form.Command.UpdateScheduledJobs</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Refresh</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="BackgroundJobsTableUpdateScheduledJobsExtendedTooltip" id="282"/>
 													</Button>
 													<Button name="BackgroundJobsTableHelp" id="154">
@@ -877,6 +1045,12 @@
 											<ChildItems>
 												<InputField name="State" id="76">
 													<DataPath>BackgroundJobsTable.State</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Status</v8:content>
+														</v8:item>
+													</Title>
 													<Width>15</Width>
 													<HorizontalStretch>false</HorizontalStretch>
 													<Wrap>false</Wrap>
@@ -885,12 +1059,24 @@
 												</InputField>
 												<InputField name="BackgroundJobDescription" id="139">
 													<DataPath>BackgroundJobsTable.Description</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Description</v8:content>
+														</v8:item>
+													</Title>
 													<Wrap>false</Wrap>
 													<ContextMenu name="BackgroundJobDescriptionContextMenu" id="140"/>
 													<ExtendedTooltip name="BackgroundJobDescriptionExtendedTooltip" id="227"/>
 												</InputField>
 												<InputField name="Begin" id="78">
 													<DataPath>BackgroundJobsTable.Begin</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Start</v8:content>
+														</v8:item>
+													</Title>
 													<Width>15</Width>
 													<HorizontalStretch>false</HorizontalStretch>
 													<Wrap>false</Wrap>

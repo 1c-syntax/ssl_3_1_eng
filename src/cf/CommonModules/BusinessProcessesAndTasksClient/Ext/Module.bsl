@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -82,7 +83,7 @@ EndProcedure
 //
 // Parameters:
 //  Form - ClientApplicationForm
-//        - ManagedFormExtensionForObjects - :
+//        - ManagedFormExtensionForObjects - a business process form, where:
 //   * Object - DefinedType.BusinessProcessObject - business process. 
 //
 Procedure StopBusinessProcessFromObjectForm(Form) Export
@@ -93,7 +94,7 @@ Procedure StopBusinessProcessFromObjectForm(Form) Export
 		NStr("en = 'The business process is suspended.';"),
 		GetURL(Form.Object.Ref),
 		String(Form.Object.Ref),
-		PictureLib.Information32);
+		PictureLib.DialogInformation);
 	NotifyChanged(Form.Object.Ref);
 	
 EndProcedure
@@ -157,7 +158,7 @@ EndProcedure
 //
 // Parameters:
 //  Form - ClientApplicationForm
-//        - ManagedFormExtensionForObjects - :
+//        - ManagedFormExtensionForObjects - a business process form, where:
 //   * Object - DefinedType.BusinessProcessObject - business process.
 //
 Procedure ContinueBusinessProcessFromObjectForm(Form) Export
@@ -169,7 +170,7 @@ Procedure ContinueBusinessProcessFromObjectForm(Form) Export
 		NStr("en = 'The business process is activated';"),
 		GetURL(Form.Object.Ref),
 		String(Form.Object.Ref),
-		PictureLib.Information32);
+		PictureLib.DialogInformation);
 	NotifyChanged(Form.Object.Ref);
 	
 EndProcedure
@@ -204,18 +205,18 @@ EndProcedure
 //
 // Parameters:
 //  Form               - ClientApplicationForm
-//                      - ManagedFormExtensionForObjects - :
+//                      - ManagedFormExtensionForObjects - a task form, where:
 //   * Object - TaskObject - task.
 //  CurrentUser - CatalogRef.ExternalUsers
-//                      - CatalogRef.Users - a reference to the current
-//                                                        application user.
+//                      - CatalogRef.Users - 
+//                                                        
 //
 Procedure AcceptTaskForExecution(Form, CurrentUser) Export
 	
 	Form.Object.AcceptedForExecution = True;
 	
-	 
-	
+	//  
+	// 
 	Form.Object.AcceptForExecutionDate = Date('00010101');
 	If Not ValueIsFilled(Form.Object.Performer) Then
 		Form.Object.Performer = CurrentUser;
@@ -260,7 +261,7 @@ EndProcedure
 //
 // Parameters:
 //  Form - ClientApplicationForm
-//        - ManagedFormExtensionForObjects - :
+//        - ManagedFormExtensionForObjects - a task form, where:
 //   * Object - TaskObject - task.
 //
 Procedure CancelAcceptTaskForExecution(Form) Export
@@ -423,7 +424,7 @@ Function WriteAndCloseExecute(Form, ExecuteTask = False, NotificationParameters 
 	ShowUserNotification(NotificationText1,
 		GetURL(Form.Object.Ref),
 		String(Form.Object.Ref),
-		PictureLib.Information32);
+		PictureLib.DialogInformation);
 	Form.Close();
 	Return True;
 	

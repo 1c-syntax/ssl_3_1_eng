@@ -7,17 +7,35 @@
 			<Button name="FormExecuteCheck" id="17">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.ExecuteCheck</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Scan for issue</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormExecuteCheckExtendedTooltip" id="18"/>
 			</Button>
 			<Button name="FormCustomizeStandardSettings" id="208">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.CustomizeStandardSettings</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Reset to default settings</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormCustomizeStandardSettingsExtendedTooltip" id="209"/>
 			</Button>
 			<Button name="FormClearCheckResults" id="227">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.ClearCheckResults</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Clear scan results</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormClearCheckResultsExtendedTooltip" id="228"/>
 			</Button>
@@ -159,6 +177,12 @@
 							<ChildItems>
 								<CheckBoxField name="RunsInBackgroundOnSchedule" id="217">
 									<DataPath>RunsInBackgroundOnSchedule</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Run in background on schedule</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>Right</TitleLocation>
 									<CheckBoxType>Auto</CheckBoxType>
 									<ContextMenu name="RunsInBackgroundOnScheduleContextMenu" id="218"/>
@@ -180,6 +204,12 @@
 									<ChildItems>
 										<RadioButtonField name="ScheduleSelector" id="222">
 											<DataPath>ScheduleSelector</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Schedule selector</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<RadioButtonType>Auto</RadioButtonType>
 											<ColumnsCount>1</ColumnsCount>
@@ -413,13 +443,13 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Run check</v8:content>
+					<v8:content>Scan for issue</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Run the check.</v8:content>
+					<v8:content>Scan for issue</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>
@@ -460,40 +490,4 @@
 			<Action>ClearCheckResults</Action>
 		</Command>
 	</Commands>
-	<CommandInterface>
-		<NavigationPanel>
-			<Item>
-				<Command>0</Command>
-				<Type>Auto</Type>
-				<DefaultVisible>false</DefaultVisible>
-				<Visible>
-					<xr:Common>false</xr:Common>
-				</Visible>
-			</Item>
-			<Item>
-				<Command>0</Command>
-				<Type>Auto</Type>
-				<DefaultVisible>false</DefaultVisible>
-				<Visible>
-					<xr:Common>false</xr:Common>
-				</Visible>
-			</Item>
-			<Item>
-				<Command>0</Command>
-				<Type>Auto</Type>
-				<DefaultVisible>false</DefaultVisible>
-				<Visible>
-					<xr:Common>false</xr:Common>
-				</Visible>
-			</Item>
-			<Item>
-				<Command>0</Command>
-				<Type>Auto</Type>
-				<DefaultVisible>false</DefaultVisible>
-				<Visible>
-					<xr:Common>false</xr:Common>
-				</Visible>
-			</Item>
-		</NavigationPanel>
-	</CommandInterface>
 </Form>

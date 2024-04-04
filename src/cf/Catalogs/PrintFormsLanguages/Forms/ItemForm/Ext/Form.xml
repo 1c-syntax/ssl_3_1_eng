@@ -9,6 +9,12 @@
 	<ChildItems>
 		<InputField name="Language" id="4">
 			<DataPath>Language</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Language</v8:content>
+				</v8:item>
+			</Title>
 			<ChoiceButton>true</ChoiceButton>
 			<BackColor>style:MasterFieldBackground</BackColor>
 			<ContextMenu name="LanguageContextMenu" id="5"/>

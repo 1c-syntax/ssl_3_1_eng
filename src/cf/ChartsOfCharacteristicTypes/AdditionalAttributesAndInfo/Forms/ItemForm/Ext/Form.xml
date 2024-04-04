@@ -11,6 +11,12 @@
 			<Button name="FormSetClearDeletionMark" id="453">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.SetClearDeletionMark</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Toggle deletion mark</v8:content>
+					</v8:item>
+				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormSetClearDeletionMarkExtendedTooltip" id="454"/>
 			</Button>
@@ -95,6 +101,12 @@
 												<Button name="UnusedAttributes" id="412">
 													<Type>CommandBarButton</Type>
 													<CommandName>Form.Command.UnusedAttributes</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Unused attributes</v8:content>
+														</v8:item>
+													</Title>
 													<ExtendedTooltip name="UnusedAttributesExtendedTooltip" id="413"/>
 												</Button>
 											</ChildItems>
@@ -408,6 +420,12 @@
 													<Button name="PropertiesContextMenuChange" id="382">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.Change</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Change</v8:content>
+															</v8:item>
+														</Title>
 														<ExtendedTooltip name="PropertiesContextMenuChangeExtendedTooltip" id="383"/>
 													</Button>
 												</ChildItems>
@@ -446,6 +464,12 @@
 											<ChildItems>
 												<InputField name="PropertiesTitle" id="379">
 													<DataPath>Properties.Title</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Attribute</v8:content>
+														</v8:item>
+													</Title>
 													<EditMode>EnterOnInput</EditMode>
 													<ContextMenu name="PropertiesTitleContextMenu" id="380"/>
 													<ExtendedTooltip name="PropertiesTitleExtendedTooltip" id="381"/>
@@ -615,6 +639,12 @@ to display in value edit forms. </v8:content>
 								<RadioButtonField name="PropertyKind" id="20">
 									<DataPath>PropertyKind</DataPath>
 									<Visible>false</Visible>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Property type</v8:content>
+										</v8:item>
+									</Title>
 									<TitleLocation>None</TitleLocation>
 									<RadioButtonType>Auto</RadioButtonType>
 									<ColumnsCount>1</ColumnsCount>
@@ -677,6 +707,12 @@ to display in value edit forms. </v8:content>
 										<Button name="EditValueFormat" id="37">
 											<Type>Hyperlink</Type>
 											<CommandName>Form.Command.EditValueFormat</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Format</v8:content>
+												</v8:item>
+											</Title>
 											<ExtendedTooltip name="EditValueFormatExtendedTooltip" id="127"/>
 										</Button>
 									</ChildItems>
@@ -745,6 +781,12 @@ to display in value edit forms. </v8:content>
 									<ChildItems>
 										<RadioButtonField name="SingleLineKind" id="442">
 											<DataPath>AttributeRepresentation</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Attribute presentation</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<GroupVerticalAlign>Top</GroupVerticalAlign>
 											<RadioButtonType>RadioButtons</RadioButtonType>
@@ -795,6 +837,12 @@ to display in value edit forms. </v8:content>
 									<ChildItems>
 										<RadioButtonField name="MultilineKind" id="450">
 											<DataPath>AttributeRepresentation</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Attribute presentation</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<GroupVerticalAlign>Top</GroupVerticalAlign>
 											<RadioButtonType>RadioButtons</RadioButtonType>
@@ -904,7 +952,7 @@ to display in value edit forms. </v8:content>
 															<Title>
 																<v8:item>
 																	<v8:lang>en</v8:lang>
-																	<v8:content>Group colors</v8:content>
+																	<v8:content>Color</v8:content>
 																</v8:item>
 															</Title>
 															<Representation>Compact</Representation>
@@ -913,51 +961,111 @@ to display in value edit forms. </v8:content>
 																<Button name="PropertyGray" id="507">
 																	<Type>CommandBarButton</Type>
 																	<CommandName>Form.Command.PropertyGray</CommandName>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Property gray</v8:content>
+																		</v8:item>
+																	</Title>
 																	<ExtendedTooltip name="PropertyGrayExtendedTooltip" id="508"/>
 																</Button>
 																<Button name="PropertyGreen" id="517">
 																	<Type>CommandBarButton</Type>
 																	<CommandName>Form.Command.PropertyGreen</CommandName>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Property green</v8:content>
+																		</v8:item>
+																	</Title>
 																	<ExtendedTooltip name="PropertyGreenExtendedTooltip" id="518"/>
 																</Button>
 																<Button name="PropertyYellow" id="515">
 																	<Type>CommandBarButton</Type>
 																	<CommandName>Form.Command.PropertyYellow</CommandName>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Property yellow</v8:content>
+																		</v8:item>
+																	</Title>
 																	<ExtendedTooltip name="PropertyYellowExtendedTooltip" id="516"/>
 																</Button>
 																<Button name="PropertyOrange" id="513">
 																	<Type>CommandBarButton</Type>
 																	<CommandName>Form.Command.PropertyOrange</CommandName>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Property orange</v8:content>
+																		</v8:item>
+																	</Title>
 																	<ExtendedTooltip name="PropertyOrangeExtendedTooltip" id="514"/>
 																</Button>
 																<Button name="PropertyRed" id="511">
 																	<Type>CommandBarButton</Type>
 																	<CommandName>Form.Command.PropertyRed</CommandName>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Property red</v8:content>
+																		</v8:item>
+																	</Title>
 																	<ExtendedTooltip name="PropertyRedExtendedTooltip" id="512"/>
 																</Button>
 																<Button name="PropertyPurple" id="523">
 																	<Type>CommandBarButton</Type>
 																	<CommandName>Form.Command.PropertyPurple</CommandName>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Property purple</v8:content>
+																		</v8:item>
+																	</Title>
 																	<ExtendedTooltip name="PropertyPurpleExtendedTooltip" id="524"/>
 																</Button>
 																<Button name="PropertyBlue" id="519">
 																	<Type>CommandBarButton</Type>
 																	<CommandName>Form.Command.PropertyBlue</CommandName>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Property blue</v8:content>
+																		</v8:item>
+																	</Title>
 																	<ExtendedTooltip name="PropertyBlueExtendedTooltip" id="520"/>
 																</Button>
 																<Button name="PropertyLime" id="509">
 																	<Type>CommandBarButton</Type>
 																	<CommandName>Form.Command.PropertyLime</CommandName>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Property lime</v8:content>
+																		</v8:item>
+																	</Title>
 																	<ExtendedTooltip name="PropertyLimeExtendedTooltip" id="510"/>
 																</Button>
 																<Button name="PropertyPink" id="525">
 																	<Type>CommandBarButton</Type>
 																	<CommandName>Form.Command.PropertyPink</CommandName>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Property pink</v8:content>
+																		</v8:item>
+																	</Title>
 																	<ExtendedTooltip name="PropertyPinkExtendedTooltip" id="526"/>
 																</Button>
 																<Button name="PropertyLightBlue" id="521">
 																	<Type>CommandBarButton</Type>
 																	<CommandName>Form.Command.PropertyLightBlue</CommandName>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Property light blue</v8:content>
+																		</v8:item>
+																	</Title>
 																	<ExtendedTooltip name="PropertyLightBlueExtendedTooltip" id="522"/>
 																</Button>
 															</ChildItems>
@@ -1140,6 +1248,12 @@ to display in value edit forms. </v8:content>
 														<Button name="FillIDForFormulas" id="486">
 															<Type>UsualButton</Type>
 															<CommandName>Form.Command.FillIDForFormulas</CommandName>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Fill in ID for formulas</v8:content>
+																</v8:item>
+															</Title>
 															<ExtendedTooltip name="FillIDForFormulasExtendedTooltip" id="487"/>
 														</Button>
 													</ChildItems>
@@ -1248,6 +1362,12 @@ to display in value edit forms. </v8:content>
 												<Button name="SetsAdjustmentChange" id="106">
 													<Type>UsualButton</Type>
 													<CommandName>Form.Command.SetsAdjustmentChange</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Edit…</v8:content>
+														</v8:item>
+													</Title>
 													<ExtendedTooltip name="SetsAdjustmentChangeExtendedTooltip" id="162"/>
 												</Button>
 											</ChildItems>
@@ -1386,7 +1506,7 @@ to display in value edit forms. </v8:content>
 																			<Button name="ValuesCreateFolder" id="68">
 																				<Type>CommandBarButton</Type>
 																				<CommandName>Form.Item.Values.StandardCommand.CreateFolder</CommandName>
-																				<ExtendedTooltip name="ValuesCreateGroupExtendedTooltip" id="142"/>
+																				<ExtendedTooltip name="ValuesCreateFolderExtendedTooltip" id="142"/>
 																			</Button>
 																			<Button name="ValuesChange" id="64">
 																				<Type>CommandBarButton</Type>
@@ -1443,6 +1563,12 @@ to display in value edit forms. </v8:content>
 																	<Button name="FormDuplicateObjectsDetection" id="322">
 																		<Type>CommandBarButton</Type>
 																		<CommandName>Form.Command.DuplicateObjectsDetection</CommandName>
+																		<Title>
+																			<v8:item>
+																				<v8:lang>en</v8:lang>
+																				<v8:content>Clean up duplicates…</v8:content>
+																			</v8:item>
+																		</Title>
 																		<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 																		<ExtendedTooltip name="FormDuplicateObjectsDetectionExtendedTooltip" id="323"/>
 																	</Button>
@@ -1579,14 +1705,14 @@ to display in value edit forms. </v8:content>
 															<AutoCommandBar name="AdditionalAttributeValuesCommandBar" id="293">
 																<Autofill>false</Autofill>
 																<ChildItems>
-																	<ButtonGroup name="ValuesOfAdditionalAttributesGroup" id="310">
+																	<ButtonGroup name="AdditionalAttributesValuesGroup" id="310">
 																		<Title>
 																			<v8:item>
 																				<v8:lang>en</v8:lang>
 																				<v8:content>Group</v8:content>
 																			</v8:item>
 																		</Title>
-																		<ExtendedTooltip name="ValuesOfAdditionalAttributesGroupExtendedTooltip" id="311"/>
+																		<ExtendedTooltip name="AdditionalAttributesValuesGroupExtendedTooltip" id="311"/>
 																		<ChildItems>
 																			<Button name="AdditionalAttributeValuesCreate" id="312">
 																				<Type>CommandBarButton</Type>
@@ -1631,6 +1757,12 @@ to display in value edit forms. </v8:content>
 																<InputField name="AdditionalAttributeValuesDescription" id="304">
 																	<DataPath>AdditionalAttributesValues.Description</DataPath>
 																	<ReadOnly>true</ReadOnly>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Description</v8:content>
+																		</v8:item>
+																	</Title>
 																	<EditMode>EnterOnInput</EditMode>
 																	<ContextMenu name="AdditionalAttributeValuesDescriptionContextMenu" id="305"/>
 																	<ExtendedTooltip name="AdditionalAttributeValuesDescriptionExtendedTooltip" id="306"/>
@@ -1700,6 +1832,12 @@ to display in value edit forms. </v8:content>
 												<Button name="ValueListAdjustmentChange" id="105">
 													<Type>UsualButton</Type>
 													<CommandName>Form.Command.ValueListAdjustmentChange</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Edit…</v8:content>
+														</v8:item>
+													</Title>
 													<ExtendedTooltip name="ValueListAdjustmentChangeExtendedTooltip" id="153"/>
 												</Button>
 											</ChildItems>
@@ -1767,6 +1905,12 @@ Unless specified, the name is generated automatically. </v8:content>
 						<Button name="BackCommand" id="233">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.BackCommand</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>&lt; Back</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="BackCommandExtendedTooltip" id="234"/>
 						</Button>
 					</ChildItems>
@@ -1784,11 +1928,23 @@ Unless specified, the name is generated automatically. </v8:content>
 						<Button name="NextCommand" id="235">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.NextCommand</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Next &gt;</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="NextCommandExtendedTooltip" id="236"/>
 						</Button>
 						<Button name="Close" id="242">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.CloseForm</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Close</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="CloseExtendedTooltip" id="243"/>
 						</Button>
 					</ChildItems>
@@ -1808,7 +1964,7 @@ Unless specified, the name is generated automatically. </v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Property kind</v8:content>
+					<v8:content>Property type</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -2176,6 +2332,12 @@ WHERE
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>PictureNumber</dcssch:dataPath>
 					<dcssch:field>PictureNumber</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Picture number</v8:content>
+						</v8:item>
+					</dcssch:title>
 				</Field>
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>AttributesCount</dcssch:dataPath>
@@ -2220,19 +2382,43 @@ WHERE
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>Presentation</dcssch:dataPath>
 					<dcssch:field>Presentation</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Presentation</v8:content>
+						</v8:item>
+					</dcssch:title>
 				</Field>
 				<Parameter>
 					<dcssch:name>SetsToExclude</dcssch:name>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Sets to exclude</v8:content>
+						</v8:item>
+					</dcssch:title>
 					<dcssch:useRestriction>true</dcssch:useRestriction>
 					<dcssch:valueListAllowed>true</dcssch:valueListAllowed>
 				</Parameter>
 				<Parameter>
 					<dcssch:name>Sets</dcssch:name>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Sets</v8:content>
+						</v8:item>
+					</dcssch:title>
 					<dcssch:useRestriction>true</dcssch:useRestriction>
 					<dcssch:valueListAllowed>true</dcssch:valueListAllowed>
 				</Parameter>
 				<Parameter>
 					<dcssch:name>PropertyKind</dcssch:name>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Property type</v8:content>
+						</v8:item>
+					</dcssch:title>
 					<dcssch:valueType>
 						<v8:Type>cfg:EnumRef.PropertiesKinds</v8:Type>
 					</dcssch:valueType>
@@ -2410,13 +2596,31 @@ WHERE
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>Presentation</dcssch:dataPath>
 					<dcssch:field>Presentation</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Presentation</v8:content>
+						</v8:item>
+					</dcssch:title>
 				</Field>
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>PictureNumber</dcssch:dataPath>
 					<dcssch:field>PictureNumber</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Picture number</v8:content>
+						</v8:item>
+					</dcssch:title>
 				</Field>
 				<Parameter>
 					<dcssch:name>ListPresentation</dcssch:name>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>List presentation</v8:content>
+						</v8:item>
+					</dcssch:title>
 					<dcssch:value xsi:nil="true"/>
 					<dcssch:useRestriction>true</dcssch:useRestriction>
 				</Parameter>

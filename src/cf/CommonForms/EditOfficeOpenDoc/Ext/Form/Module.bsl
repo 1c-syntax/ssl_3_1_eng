@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -107,6 +108,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.Translate.Visible = AutomaticTranslationAvailable;
 	Items.ButtonShowOriginal.Visible = Items.Translate.Visible;
 	Items.ButtonShowOriginal.Enabled = CurrentLanguage <> Common.DefaultLanguageCode();
+	
+	Items.LanguageAllActions.Enabled = Items.Language.Enabled;
+	Items.TranslateAllActions.Visible = Items.Translate.Visible;
+	Items.ShowOriginalAllActionsButton.Visible = Items.ButtonShowOriginal.Visible;
+	Items.ShowOriginalAllActionsButton.Enabled = Items.ButtonShowOriginal.Enabled;
 	
 	If Common.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
 		ModuleConstructorFormula = Common.CommonModule("FormulasConstructor");
@@ -606,6 +612,9 @@ Procedure ImportOfficeDocFromMetadata(Val LanguageCode = Undefined)
 		AutomaticTranslationAvailable = PrintManagementModuleNationalLanguageSupport.AutomaticTranslationAvailable(CurrentLanguage);
 		Items.Translate.Visible = AutomaticTranslationAvailable;
 		Items.ButtonShowOriginal.Visible = Items.Translate.Visible;
+
+		Items.TranslateAllActions.Visible = Items.Translate.Visible;
+		Items.ShowOriginalAllActionsButton.Visible = Items.ButtonShowOriginal.Visible;
 	EndIf;
 	
 EndProcedure
@@ -1553,7 +1562,31 @@ Procedure DeleteLayoutInCurrentLanguage()
 		EndIf;
 	EndDo;
 	
+	MenuLanguageAllActions = Items.LanguageAllActions;
+	LanguagesToAddAllActions = Items.LanguagesToAddAllActions;
+	For Each LangButton In MenuLanguageAllActions.ChildItems Do
+		If TypeOf(LangButton) = Type("FormButton") Then
+			If StrEndsWith(LangButton.CommandName, LangOfFormToDelete) Then
+				LangButton.Check = False;
+				LangButton.Visible = False;
+			EndIf;
+			
+			If StrEndsWith(LangButton.CommandName, CurrentLanguage) Then
+				LangButton.Check = True;
+			EndIf;
+		EndIf;
+	EndDo;
+	
+	For Each ButtonForAddedLang In LanguagesToAddAllActions.ChildItems Do
+		If TypeOf(ButtonForAddedLang) = Type("FormButton") Then
+			If StrEndsWith(ButtonForAddedLang.CommandName, LangOfFormToDelete) Then
+				ButtonForAddedLang.Visible = True;
+			EndIf;
+		EndIf;
+	EndDo;
+	
 	Items.Language.Title = Items["Language_"+CurrentLanguage].Title;
+	Items.LanguageAllActions.Title = Items["Language_"+CurrentLanguage].Title;
 	
 	ImportOfficeDocFromMetadata(CurrentLanguage);
 	PreparedTemplate = GetFromTempStorage(TemplateFileAddress);
@@ -2039,7 +2072,7 @@ Procedure Attachable_FormulaEditorHandlerServer(Parameter, AdditionalParameters)
 EndProcedure
 
 &AtClient
-Procedure Attachable_FormulaEditorHandlerClient(Parameter, AdditionalParameters = Undefined) Export  // ACC:78 - Procedure is called from FormulaConstructorClient.StartSearchInFieldsList.
+Procedure Attachable_FormulaEditorHandlerClient(Parameter, AdditionalParameters = Undefined) Export  // ACC:78 - The procedure is called from "FormulaConstructorClient.StartSearchInFieldsList".
 	If CommonClient.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
 		ModuleConstructorFormulaClient = CommonClient.CommonModule("FormulasConstructorClient");
 		ModuleConstructorFormulaClient.FormulaEditorHandler(ThisObject, Parameter, AdditionalParameters);
@@ -2234,9 +2267,9 @@ Procedure Attachable_OperatorsDragStart(Item, DragParameters, Perform)
 		DragParameters.Value = ModuleConstructorFormulaClient.ExpressionToInsert(Operator);
 		
 		If Operator.DataPath = "PrintControl_NumberofLines" Then
-			PresentationOfCurrentTable = PresentationOfCurrentTable();
-			Perform = PresentationOfCurrentTable <> Undefined;
-			DragParameters.Value = StrReplace(DragParameters.Value, "()", "(["+PresentationOfCurrentTable+"])");
+			CurrentTablePresentation = CurrentTablePresentation();
+			Perform = CurrentTablePresentation <> Undefined;
+			DragParameters.Value = StrReplace(DragParameters.Value, "()", "(["+CurrentTablePresentation+"])");
 		EndIf;
 	EndIf;
 	
@@ -2312,7 +2345,7 @@ Function GetPrintForm()
 EndFunction
 
 &AtClient
-Function PresentationOfCurrentTable()
+Function CurrentTablePresentation()
 	For Each AttachedFieldList In ThisObject["ConnectedFieldLists"] Do
 		If AttachedFieldList.NameOfTheFieldList <> NameOfTheListOfOperators() Then
 			If Items[AttachedFieldList.NameOfTheFieldList].CurrentData <> Undefined
@@ -2488,6 +2521,7 @@ Procedure SetUpCommandPresentation()
 	Items.Close.Visible = EditingDenied;
 	Items.Write.Enabled = Not EditingDenied;
 	Items.Translate.Enabled = Not EditingDenied;
+	Items.TranslateAllActions.Enabled = Items.Translate.Enabled;
 	Items.Rename.Enabled = Not EditingDenied;
 	Items.DeleteLayoutLanguage.Enabled = Not EditingDenied;
 	Items.LoadFromFile.Enabled = Not EditingDenied;

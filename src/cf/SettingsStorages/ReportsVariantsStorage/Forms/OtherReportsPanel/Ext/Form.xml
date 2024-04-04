@@ -47,7 +47,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Group no other reports</v8:content>
+					<v8:content>No other reports</v8:content>
 				</v8:item>
 			</Title>
 			<Group>AlwaysHorizontal</Group>
@@ -96,6 +96,12 @@
 			<ChildItems>
 				<CheckBoxField name="CloseAfterChoice" id="7">
 					<DataPath>CloseAfterChoice</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Close this dialog when navigating to report</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Right</TitleLocation>
 					<CheckBoxType>Auto</CheckBoxType>
 					<ContextMenu name="CloseAfterChoiceContextMenu" id="8"/>

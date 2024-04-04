@@ -197,6 +197,72 @@
 	END AS QuestionnaireTemplate
 FROM
 	Document.Questionnaire AS DocumentQuestionnaire</QueryText>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>QuestionnaireTemplate</dcssch:dataPath>
+					<dcssch:field>QuestionnaireTemplate</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Questionnaire template</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Content</dcssch:dataPath>
+					<dcssch:field>Content</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>PointInTime</dcssch:dataPath>
+					<dcssch:field>PointInTime</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Ref</dcssch:dataPath>
+					<dcssch:field>Ref</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DeletionMark</dcssch:dataPath>
+					<dcssch:field>DeletionMark</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Number</dcssch:dataPath>
+					<dcssch:field>Number</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Date</dcssch:dataPath>
+					<dcssch:field>Date</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Posted</dcssch:dataPath>
+					<dcssch:field>Posted</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Survey</dcssch:dataPath>
+					<dcssch:field>Survey</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Respondent</dcssch:dataPath>
+					<dcssch:field>Respondent</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>EditDate</dcssch:dataPath>
+					<dcssch:field>EditDate</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>SectionToEdit</dcssch:dataPath>
+					<dcssch:field>SectionToEdit</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Comment</dcssch:dataPath>
+					<dcssch:field>Comment</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Interviewer</dcssch:dataPath>
+					<dcssch:field>Interviewer</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>SurveyMode</dcssch:dataPath>
+					<dcssch:field>SurveyMode</dcssch:field>
+				</Field>
 				<MainTable>Document.Questionnaire</MainTable>
 				<ListSettings>
 					<dcsset:filter>

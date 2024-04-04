@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -144,13 +145,13 @@ Procedure SetAddressingObjectTypes()
 	UsedWithoutAddressingObjects = False;
 	
 	If Not Role.IsEmpty() Then
-		RoleInformation = Common.ObjectAttributesValues(Role, 
+		InfoAboutRole = Common.ObjectAttributesValues(Role, 
 			"UsedByAddressingObjects,UsedWithoutAddressingObjects,MainAddressingObjectTypes,AdditionalAddressingObjectTypes");
-		UsedByAddressingObjects = RoleInformation.UsedByAddressingObjects;
-		UsedWithoutAddressingObjects = RoleInformation.UsedWithoutAddressingObjects;
+		UsedByAddressingObjects = InfoAboutRole.UsedByAddressingObjects;
+		UsedWithoutAddressingObjects = InfoAboutRole.UsedWithoutAddressingObjects;
 		If UsedByAddressingObjects Then
-			MainAddressingObjectTypes = Common.ObjectAttributeValue(RoleInformation.MainAddressingObjectTypes, "ValueType");
-			AdditionalAddressingObjectTypes = Common.ObjectAttributeValue(RoleInformation.AdditionalAddressingObjectTypes, "ValueType");
+			MainAddressingObjectTypes = Common.ObjectAttributeValue(InfoAboutRole.MainAddressingObjectTypes, "ValueType");
+			AdditionalAddressingObjectTypes = Common.ObjectAttributeValue(InfoAboutRole.AdditionalAddressingObjectTypes, "ValueType");
 		EndIf;
 	EndIf;
 	
@@ -172,11 +173,11 @@ Procedure SetItemsState()
 	TypesOfAditionalAddressingObjectAreSet = UsedByAddressingObjects 
 		And ValueIsFilled(AdditionalAddressingObjectTypes);
 		
-	RoleInformation = Common.ObjectAttributesValues(Role, 
+	InfoAboutRole = Common.ObjectAttributesValues(Role, 
 		"MainAddressingObjectTypes,AdditionalAddressingObjectTypes");
-	Items.MainAddressingObject.Title = String(RoleInformation.MainAddressingObjectTypes);
-	Items.OneMainAddressingObject.Title = String(RoleInformation.MainAddressingObjectTypes);
-	Items.AdditionalAddressingObject.Title = String(RoleInformation.AdditionalAddressingObjectTypes);
+	Items.MainAddressingObject.Title = String(InfoAboutRole.MainAddressingObjectTypes);
+	Items.OneMainAddressingObject.Title = String(InfoAboutRole.MainAddressingObjectTypes);
+	Items.AdditionalAddressingObject.Title = String(InfoAboutRole.AdditionalAddressingObjectTypes);
 	
 	If MainAddressingObjectTypesAreSet And TypesOfAditionalAddressingObjectAreSet Then
 		Items.OneAddressingObjectGroup.Visible = False;

@@ -42,7 +42,7 @@
 					<Title formatted="true">
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>After the settings are changed, &lt;link RefreshInterface&gt;reopen all opened windows&lt;/&gt; or sign in to the application again.</v8:content>
+							<v8:content>After the settings are changed, &lt;link RefreshInterface&gt;refresh all tabs&lt;/&gt; or restart the app.</v8:content>
 						</v8:item>
 					</Title>
 					<ContextMenu name="HowToApplySettingsContextMenu" id="2108"/>
@@ -54,6 +54,12 @@
 			</ChildItems>
 		</UsualGroup>
 		<UsualGroup name="Group" id="2092">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Group</v8:content>
+				</v8:item>
+			</Title>
 			<Group>Horizontal</Group>
 			<Behavior>Usual</Behavior>
 			<Representation>NormalSeparation</Representation>
@@ -91,7 +97,7 @@
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="DataSynchronizationGroup1ExtendedTooltip" id="2054"/>
+							<ExtendedTooltip name="DataSynchronizationGroupExtendedTooltip" id="2054"/>
 							<ChildItems>
 								<UsualGroup name="GroupDataSynchronizationFlag" id="2035">
 									<Title>
@@ -104,7 +110,7 @@
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
 									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="DataSynchronizationGroupFlagExtendedTooltip" id="2055"/>
+									<ExtendedTooltip name="GroupDataSynchronizationFlagExtendedTooltip" id="2055"/>
 									<ChildItems>
 										<CheckBoxField name="UseDataSynchronization" id="2029">
 											<DataPath>ConstantsSet.UseDataSynchronization</DataPath>
@@ -157,6 +163,12 @@ and other information systems.</v8:content>
 									<ExtendedTooltip name="Decoration2ExtendedTooltip" id="2059"/>
 								</LabelDecoration>
 								<UsualGroup name="Group1" id="2032">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Group</v8:content>
+										</v8:item>
+									</Title>
 									<Group>Vertical</Group>
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
@@ -362,6 +374,12 @@ and other information systems.</v8:content>
 						<Button name="DataSynchronizationMonitor" id="2037">
 							<Type>Hyperlink</Type>
 							<CommandName>Form.Command.DataSynchronizationMonitor</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Data synchronization monitor</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="DataSynchronizationMonitorExtendedTooltip" id="2071"/>
 						</Button>
 						<LabelDecoration name="DataSynchronizationMonitorNote" id="2040">
@@ -393,6 +411,12 @@ and other information systems.</v8:content>
 									<Type>Hyperlink</Type>
 									<AutoMaxWidth>false</AutoMaxWidth>
 									<CommandName>Form.Command.ExchangeTransportSettings</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Connection settings</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="ExchangeTransportSettingsExtendedTooltip" id="2074"/>
 								</Button>
 								<LabelDecoration name="ExchangeTransportSettingsNote" id="2045">
@@ -410,6 +434,12 @@ and other information systems.</v8:content>
 								<Button name="DataAreasExchangeTransportSettings" id="2043">
 									<Type>Hyperlink</Type>
 									<CommandName>Form.Command.DataAreasExchangeTransportSettings</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Connection settings for data areas</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="DataAreasExchangeTransportSettingsExtendedTooltip" id="2076"/>
 								</Button>
 								<LabelDecoration name="DataAreasExchangeTransportSettingsNote" id="2047">
@@ -429,6 +459,12 @@ and other information systems.</v8:content>
 						<Button name="DataExchangeRules" id="2050">
 							<Type>Hyperlink</Type>
 							<CommandName>Form.Command.DataExchangeRules</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Data exchange rules</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="DataExchangeRulesExtendedTooltip" id="2078"/>
 						</Button>
 						<LabelDecoration name="DataExchangeRulesNote" id="2051">

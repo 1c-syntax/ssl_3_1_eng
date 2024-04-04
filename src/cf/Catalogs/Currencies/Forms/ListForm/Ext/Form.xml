@@ -50,6 +50,12 @@
 						<Button name="FormPickFromClassifier" id="44">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.PickFromClassifier</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>From classifier…</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="FormPickFromClassifierExtendedTooltip" id="51"/>
 						</Button>
 						<Button name="CreateCurrency" id="85">
@@ -87,7 +93,13 @@
 						<Button name="FormImportCurrenciesRates" id="43">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.ImportCurrenciesRates</CommandName>
-							<ExtendedTooltip name="FormImportExchangeRatesExtendedTooltip" id="50"/>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Import exchange rates…</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="FormImportCurrenciesRatesExtendedTooltip" id="50"/>
 						</Button>
 					</ChildItems>
 				</ButtonGroup>

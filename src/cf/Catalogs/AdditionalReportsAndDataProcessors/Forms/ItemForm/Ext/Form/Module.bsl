@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Variables
@@ -44,11 +45,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	InsertRight1 = AdditionalReportsAndDataProcessors.InsertRight1();
 	If Not InsertRight1 Then
 		If IsNew Then
-			Raise NStr("en = 'Insufficient rights to add additional reports and data processors.';");
-		Else
-			Items.LoadFromFile.Visible = False;
-			Items.ExportToFile.Visible = False;
+			Raise(NStr("en = 'Insufficient rights to add additional reports and data processors.';"),
+				ErrorCategory.AccessViolation);
 		EndIf;
+		Items.LoadFromFile.Visible = False;
+		Items.ExportToFile.Visible = False;
 	EndIf;
 	
 	// Restrict available publication options as specified in the infobase settings.
@@ -83,7 +84,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	If ShowImportFromFileDialogOnOpen And Not Items.LoadFromFile.Visible Then
-		Raise NStr("en = 'Insufficient rights to import additional reports and data processors.';");
+		Raise(NStr("en = 'Insufficient rights to import additional reports and data processors.';"),
+			ErrorCategory.AccessViolation);
 	EndIf;
 	
 	FillInCommands();
@@ -814,13 +816,13 @@ Procedure UpdateFromFileConflictDecision(Response, RegistrationParameters) Expor
 		RegistrationParameters.DisableConflicts = True;
 		UpdateFromFileAndMessage(RegistrationParameters);
 	ElsIf Response = "CancelAndOpen" Then
-		
-		
+		// 
+		// 
 		ShowList = (RegistrationParameters.ConflictsCount > 1);
 		If RegistrationParameters.OldObjectName = RegistrationParameters.ObjectName And Not IsNew Then
-			
-			
-			
+			// 
+			// 
+			// 
 			ShowList = True;
 		EndIf;
 		If ShowList Then // List form with a filter by conflicting items.
@@ -1049,36 +1051,40 @@ Procedure ExecuteCommandAfterWriteConfirmed(Response, Context) Export
 		IdleParameters.UserNotification.Show = True;
 		IdleParameters.OutputIdleWindow = True;
 		
-		CompletionNotification2 = New NotifyDescription("AfterCompleteExecutingServerCommandInBackground", ThisObject, CommandToExecute);
-		TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CompletionNotification2, IdleParameters);
+		CallbackOnCompletion = New NotifyDescription("AfterCompleteExecutingServerCommandInBackground", ThisObject, CommandToExecute);
+		TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
 		
 	EndIf;
 	
 EndProcedure
 
+// Parameters:
+//  Job - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
-Procedure AfterCompleteExecutingServerCommandInBackground(Job, CommandToExecute) Export
+Procedure AfterCompleteExecutingServerCommandInBackground(Job, AdditionalParameters) Export
 	
 	If Job = Undefined Then
 		Return;
 	EndIf;
 	
 	If Job.Status = "Error" Then
-		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot execute the command. Reason:
-				|%1.';"), Job.BriefErrorDescription);
-	Else
-		Result = GetFromTempStorage(Job.ResultAddress);
-		NotifyForms = CommonClientServer.StructureProperty(Result, "NotifyForms");
-		If NotifyForms <> Undefined Then
-			StandardSubsystemsClient.NotifyFormsAboutChange(NotifyForms);
-		EndIf;
+		StandardSubsystemsClient.OutputErrorInfo(
+			Job.ErrorInfo);
+		Return;
+	EndIf;
+	
+	Result = GetFromTempStorage(Job.ResultAddress);
+	NotifyForms = CommonClientServer.StructureProperty(Result, "NotifyForms");
+	If NotifyForms <> Undefined Then
+		StandardSubsystemsClient.NotifyFormsAboutChange(NotifyForms);
 	EndIf;
 	
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtClientAtServerNoContext
 Function UsersQuickAccessPresentation(UsersCount)
@@ -1095,7 +1101,7 @@ Function UsersQuickAccessPresentation(UsersCount)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServerNoContext
 Function StartExecuteServerCommandInBackground(CommandToExecute, UUID)
@@ -1107,7 +1113,10 @@ Function StartExecuteServerCommandInBackground(CommandToExecute, UUID)
 	ProcedureParameters.RelatedObjects             = CommandToExecute.RelatedObjects;
 	
 	StartSettings1 = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	StartSettings1.BackgroundJobDescription = NStr("en = 'Additional reports and data processors: executing data processor server method.';");
+	StartSettings1.BackgroundJobDescription =
+		NStr("en = 'Additional reports and data processors: executing data processor server method.';");
+	StartSettings1.RefinementErrors =
+		NStr("en = 'Cannot execute the command. Reason:';");
 	
 	Return TimeConsumingOperations.ExecuteInBackground(ProcedureName, ProcedureParameters, StartSettings1);
 EndFunction
@@ -1161,8 +1170,8 @@ Function PrepareMetadataObjectsSelectionFormParameters()
 		EndIf;
 	EndDo;
 	
-	FullNamesOfDestinationObjects = Common.ObjectsAttributeValue(RelatedObjects, "FullName");
-	For Each KeyAndValue In FullNamesOfDestinationObjects Do
+	AssignmentObjectsFullNames = Common.ObjectsAttributeValue(RelatedObjects, "FullName");
+	For Each KeyAndValue In AssignmentObjectsFullNames Do
 		SelectedMetadataObjects.Add(KeyAndValue.Value);
 	EndDo;
 	
@@ -1645,7 +1654,7 @@ Function CommandsPageName()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
 Procedure PropertiesExecuteDeferredInitialization()

@@ -34,7 +34,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="GroupHeaderExtendedTooltip" id="1829"/>
+			<ExtendedTooltip name="TitleGroup1ExtendedTooltip" id="1829"/>
 			<ChildItems>
 				<LabelDecoration name="SectionDetails" id="1763">
 					<AutoMaxWidth>false</AutoMaxWidth>
@@ -85,7 +85,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Application name</v8:content>
+							<v8:content>Application title</v8:content>
 						</v8:item>
 					</Title>
 					<TitleLocation>Left</TitleLocation>
@@ -95,11 +95,81 @@
 						<Event name="OnChange">ApplicationTitleOnChange</Event>
 					</Events>
 				</InputField>
-				<Button name="RegionalSettings" id="2094">
-					<Type>Hyperlink</Type>
-					<CommandName>Form.Command.RegionalSettings</CommandName>
-					<ExtendedTooltip name="RegionalSettingsExtendedTooltip" id="2095"/>
-				</Button>
+				<UsualGroup name="GroupRegionalSettings" id="2262">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Regional settings</v8:content>
+						</v8:item>
+					</Title>
+					<Group>Vertical</Group>
+					<Behavior>Collapsible</Behavior>
+					<ControlRepresentation>Picture</ControlRepresentation>
+					<Representation>NormalSeparation</Representation>
+					<ExtendedTooltip name="GroupRegionalSettingsExtendedTooltip" id="2263"/>
+					<ChildItems>
+						<UsualGroup name="GroupTimeZoneSetup" id="2267">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group4</v8:content>
+								</v8:item>
+							</Title>
+							<Group>Vertical</Group>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="GroupTimeZoneSetupExtendedTooltip" id="2268"/>
+							<ChildItems>
+								<UsualGroup name="GroupTimeZone" id="2274">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Time zone</v8:content>
+										</v8:item>
+									</Title>
+									<Representation>None</Representation>
+									<ShowTitle>false</ShowTitle>
+									<ExtendedTooltip name="GroupTimeZoneExtendedTooltip" id="2275"/>
+									<ChildItems>
+										<InputField name="AppTimeZone" id="2264">
+											<DataPath>AppTimeZone</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Application time zone</v8:content>
+												</v8:item>
+											</Title>
+											<Width>20</Width>
+											<HorizontalStretch>false</HorizontalStretch>
+											<ListChoiceMode>true</ListChoiceMode>
+											<ContextMenu name="ApplicationTimeZoneContextMenu" id="2265"/>
+											<ExtendedTooltip name="AppTimeZoneExtendedTooltip" id="2266"/>
+											<Events>
+												<Event name="OnChange">ApplicationTimeZoneOnChange</Event>
+											</Events>
+										</InputField>
+										<Button name="CommonCommandCurrentSessionTime" id="2269">
+											<Type>Hyperlink</Type>
+											<CommandName>CommonCommand.TimeInApp</CommandName>
+											<ExtendedTooltip name="CommonCommandCurrentSessionTimeExtendedTooltip" id="2270"/>
+										</Button>
+									</ChildItems>
+								</UsualGroup>
+							</ChildItems>
+						</UsualGroup>
+						<Button name="AccountingLanguages" id="2094">
+							<Type>Hyperlink</Type>
+							<CommandName>Form.Command.RegionalSettings</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Accounting languages</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="AccountingLanguagesExtendedTooltip" id="2095"/>
+						</Button>
+					</ChildItems>
+				</UsualGroup>
 			</ChildItems>
 		</UsualGroup>
 		<UsualGroup name="InfobasePublishingGroup" id="2038">
@@ -441,6 +511,12 @@
 								<Button name="AdditionalInfo" id="2053">
 									<Type>Hyperlink</Type>
 									<CommandName>Form.Command.AdditionalInfo</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Additional information records</v8:content>
+										</v8:item>
+									</Title>
 									<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 									<ExtendedTooltip name="AdditionalInfoExtendedTooltip" id="2054">
 										<AutoMaxWidth>false</AutoMaxWidth>
@@ -483,11 +559,17 @@
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="AdditionalAttributesGroupExtendedTooltip" id="1859"/>
+							<ExtendedTooltip name="GroupAdditionalAttributesExtendedTooltip" id="1859"/>
 							<ChildItems>
 								<Button name="AdditionalAttributes" id="2051">
 									<Type>Hyperlink</Type>
 									<CommandName>Form.Command.AdditionalAttributes</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Additional attributes</v8:content>
+										</v8:item>
+									</Title>
 									<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 									<ExtendedTooltip name="AdditionalAttributesExtendedTooltip" id="2052">
 										<AutoMaxWidth>false</AutoMaxWidth>
@@ -517,6 +599,12 @@
 								<Button name="Labels" id="2260">
 									<Type>Hyperlink</Type>
 									<CommandName>Form.Command.Labels</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Labels</v8:content>
+										</v8:item>
+									</Title>
 									<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 									<ExtendedTooltip name="LabelsExtendedTooltip" id="2261">
 										<AutoMaxWidth>false</AutoMaxWidth>
@@ -572,6 +660,12 @@
 					<ChildItems>
 						<CheckBoxField name="StoreChangeHistory" id="2087">
 							<DataPath>StoreChangeHistory</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Store change history</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<CheckBoxType>Auto</CheckBoxType>
 							<ContextMenu name="StoreChangeHistoryContextMenu" id="2088"/>
@@ -583,6 +677,12 @@
 						<Button name="ConfigureChangesHistoryStorage" id="2090">
 							<Type>Hyperlink</Type>
 							<CommandName>Form.Command.ConfigureChangesHistoryStorage</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Configure</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="ConfigureChangesHistoryStorageExtendedTooltip" id="2091"/>
 						</Button>
 					</ChildItems>
@@ -624,6 +724,12 @@
 					<ChildItems>
 						<CheckBoxField name="UseFullTextSearch" id="2078">
 							<DataPath>UseFullTextSearch</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Full-text search</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<ThreeState>true</ThreeState>
 							<ContextMenu name="UseFullTextSearchContextMenu" id="2079"/>
@@ -635,6 +741,12 @@
 						<Button name="ConfigureFullTextSearch" id="2085">
 							<Type>Hyperlink</Type>
 							<CommandName>Form.Command.ConfigureFullTextSearch</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Configure</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="ConfigureFullTextSearchExtendedTooltip" id="2086"/>
 						</Button>
 					</ChildItems>
@@ -800,6 +912,12 @@
 										<LabelField name="CryptoSignatureTypeDefault1" id="2245">
 											<DataPath>ConstantCryptoSignatureTypeDefault</DataPath>
 											<Visible>false</Visible>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Signature type for documents</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>Top</TitleLocation>
 											<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 											<ContextMenu name="CryptoSignatureTypeDefault1ContextMenu" id="2246"/>
@@ -820,6 +938,12 @@
 										</LabelField>
 										<RadioButtonField name="CryptoSignatureTypeDefault" id="2175">
 											<DataPath>ConstantCryptoSignatureTypeDefault</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Signature type for documents</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>Top</TitleLocation>
 											<ToolTipRepresentation>None</ToolTipRepresentation>
 											<GroupHorizontalAlign>Left</GroupHorizontalAlign>
@@ -871,7 +995,7 @@
 												<Title formatted="false">
 													<v8:item>
 														<v8:lang>en</v8:lang>
-														<v8:content>In SaaS mode, the archival timestamp is unavailable by default. You can select this signature type when signing by a certificate installed on the computer that also has a digital signature application installed.</v8:content>
+														<v8:content>In SaaS mode, the archival timestamp is unavailable by default. You can select this signature type when signing by a certificate installed by a digital signing app.</v8:content>
 													</v8:item>
 												</Title>
 												<Events>
@@ -899,6 +1023,12 @@
 									<ChildItems>
 										<InputField name="TimestampServersAddresses" id="2191">
 											<DataPath>ConstantTimestampServersAddresses</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Timestamp server addresses</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>Top</TitleLocation>
 											<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 											<AutoMaxHeight>false</AutoMaxHeight>
@@ -1097,6 +1227,12 @@
 														</LabelDecoration>
 														<InputField name="RefineSignaturesDates" id="2220">
 															<DataPath>ConstantRefineSignaturesDates</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Starting from the signature creation date</v8:content>
+																</v8:item>
+															</Title>
 															<ContextMenu name="RefineSignaturesDatesContextMenu" id="2221"/>
 															<ExtendedTooltip name="RefineSignaturesDatesExtendedTooltip" id="2222"/>
 															<Events>
@@ -1166,6 +1302,12 @@
 					<ChildItems>
 						<CheckBoxField name="VerifyDigitalSignaturesOnTheServer" id="2239">
 							<DataPath>ConstantVerifyDigitalSignaturesOnTheServer</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Verify digital signatures on server</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 							<CheckBoxType>Auto</CheckBoxType>
@@ -1175,7 +1317,7 @@
 								<Title formatted="false">
 									<v8:item>
 										<v8:lang>en</v8:lang>
-										<v8:content>Allows verifying digital signatures and certificates without installing a digital signature application on the user computer.</v8:content>
+										<v8:content>Allows verifying digital signatures and certificates without installing a digital signing app on the user's computer.</v8:content>
 									</v8:item>
 								</Title>
 								<Events>
@@ -1188,6 +1330,12 @@
 						</CheckBoxField>
 						<CheckBoxField name="GenerateDigitalSignaturesAtServer" id="2242">
 							<DataPath>ConstantGenerateDigitalSignaturesAtServer</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Create digital signatures on server</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 							<CheckBoxType>Auto</CheckBoxType>
@@ -1197,7 +1345,7 @@
 								<Title formatted="false">
 									<v8:item>
 										<v8:lang>en</v8:lang>
-										<v8:content>Allows signing, encryption, and decryption without installing a digital signature application and a certificate on the user computer.</v8:content>
+										<v8:content>Allows encryption decryption, and signing without installing a digital signing app and a certificate on the user's computer.</v8:content>
 									</v8:item>
 								</Title>
 								<Events>
@@ -1244,8 +1392,8 @@
 							<Title formatted="true">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>If you plan to use an advanced qualified digital signature, install a certified application (a cryptographic information protection tool) on your computer. 
-&lt;link CheckCryptographyAppsInstallation&gt;Check and install&lt;/&gt;</v8:content>
+									<v8:content>If you expect to use advanced qualified digital signatures, install a certified data encryption tool.
+&lt;link CheckCryptographyAppsInstallation&gt;Click to install&lt;/&gt;</v8:content>
 								</v8:item>
 							</Title>
 							<ContextMenu name="DecorationCheckCryptoProviderInstallationContextMenu" id="2251"/>
@@ -1281,12 +1429,6 @@
 							<CheckBoxType>Auto</CheckBoxType>
 							<ContextMenu name="UseCloudSignatureServiceContextMenu" id="2116"/>
 							<ExtendedTooltip name="UseCloudSignatureServiceExtendedTooltip" id="2117">
-								<Title formatted="false">
-									<v8:item>
-										<v8:lang>en</v8:lang>
-										<v8:content>In program code</v8:content>
-									</v8:item>
-								</Title>
 								<Events>
 									<Event name="URLProcessing">UseCloudSignatureServiceExtendedTooltipURLProcessing</Event>
 								</Events>
@@ -1354,17 +1496,7 @@
 			<Behavior>Collapsible</Behavior>
 			<Collapsed>true</Collapsed>
 			<ControlRepresentation>Picture</ControlRepresentation>
-			<ExtendedTooltip name="Group2ExtendedTooltip" id="2097">
-				<Title formatted="false">
-					<v8:item>
-						<v8:lang>en</v8:lang>
-						<v8:content>The greater the value is, the faster long-running operations (such as address classifier import) are executed. The default value is 4.
-
-See also &lt;link http://1c.ru/news/info.jsp?id=25491&gt;restriction of 12 cores per server for 1C:Enterprise PROF version (in Russian)&lt;/&gt; and "&lt;link https://v8.1c.ru/priobretenie-i-vnedrenie/otvety-na-tipovye-voprosy-po-litsenzirovaniyu-1s-predpriyatiya-8&gt;Which processor cores to count — real or virtual? (in Russian)&lt;/&gt;".
-</v8:content>
-					</v8:item>
-				</Title>
-			</ExtendedTooltip>
+			<ExtendedTooltip name="MarkedObjectsDeletionGroupExtendedTooltip" id="2097"/>
 			<ChildItems>
 				<UsualGroup name="SubgroupDeleteMarked" id="2111">
 					<Title>
@@ -1391,7 +1523,7 @@ See also &lt;link http://1c.ru/news/info.jsp?id=25491&gt;restriction of 12 cores
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="Group2ExtendedTooltip1" id="2102">
+							<ExtendedTooltip name="ScheduledMarkedObjectsDeletionGroupExtendedTooltip" id="2102">
 								<Title formatted="false">
 									<v8:item>
 										<v8:lang>en</v8:lang>
@@ -1410,8 +1542,8 @@ See also &lt;link http://1c.ru/news/info.jsp?id=25491&gt;restriction of 12 cores
 									</Title>
 									<TitleLocation>Right</TitleLocation>
 									<CheckBoxType>Auto</CheckBoxType>
-									<ContextMenu name="ContextMenu" id="2099"/>
-									<ExtendedTooltip name="ExtendedTooltip" id="2100"/>
+									<ContextMenu name="DeleteMarkedObjectsUsageContextMenu" id="2099"/>
+									<ExtendedTooltip name="DeleteMarkedObjectsUsageExtendedTooltip" id="2100"/>
 									<Events>
 										<Event name="OnChange">DeleteMarkedObjectsUsageOnChange</Event>
 									</Events>
@@ -1419,6 +1551,12 @@ See also &lt;link http://1c.ru/news/info.jsp?id=25491&gt;restriction of 12 cores
 								<Button name="SetUpSchedule" id="2103">
 									<Type>Hyperlink</Type>
 									<CommandName>Form.Command.SetUpSchedule</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Set schedule</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="SetUpScheduleExtendedTooltip" id="2104"/>
 								</Button>
 							</ChildItems>
@@ -1443,7 +1581,7 @@ See also &lt;link http://1c.ru/news/info.jsp?id=25491&gt;restriction of 12 cores
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="Group2ExtendedTooltip2" id="2110"/>
+					<ExtendedTooltip name="ViewObjectsMarkedForDeletionGroupExtendedTooltip" id="2110"/>
 					<ChildItems>
 						<Button name="ViewObjectsMarkedForDeletion" id="2105">
 							<Type>Hyperlink</Type>
@@ -1454,7 +1592,7 @@ See also &lt;link http://1c.ru/news/info.jsp?id=25491&gt;restriction of 12 cores
 									<v8:content>View objects marked for deletion</v8:content>
 								</v8:item>
 							</Title>
-							<ExtendedTooltip name="ViewExtendedTooltip" id="2106"/>
+							<ExtendedTooltip name="ViewObjectsMarkedForDeletionExtendedTooltip" id="2106"/>
 						</Button>
 					</ChildItems>
 				</UsualGroup>
@@ -1474,36 +1612,36 @@ See also &lt;link http://1c.ru/news/info.jsp?id=25491&gt;restriction of 12 cores
 			<Representation>NormalSeparation</Representation>
 			<ExtendedTooltip name="GroupPerformanceExtendedTooltip" id="2125"/>
 			<ChildItems>
-				<UsualGroup name="Group1" id="2236">
+				<UsualGroup name="GroupPerformanceAppearance" id="2236">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Group1</v8:content>
+							<v8:content>Group</v8:content>
 						</v8:item>
 					</Title>
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="Group1ExtendedTooltip" id="2237"/>
+					<ExtendedTooltip name="GroupPerformanceAppearanceExtendedTooltip" id="2237"/>
 					<ChildItems>
-						<UsualGroup name="Group2" id="2144">
+						<UsualGroup name="GroupNumberOfThreadsOfLongRunningOperations" id="2144">
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Group2</v8:content>
+									<v8:content>Group</v8:content>
 								</v8:item>
 							</Title>
 							<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="Group2ExtendedTooltip" id="2145">
+							<ExtendedTooltip name="GroupNumberOfThreadsOfLongRunningOperationsExtendedTooltip" id="2145">
 								<Title formatted="true">
 									<v8:item>
 										<v8:lang>en</v8:lang>
-										<v8:content>The greater the value is, the faster long-running operations (such as address classifier import) are executed. The default value is 4.
-
-See also &lt;link http://1c.ru/news/info.jsp?id=25491&gt;restriction of 12 cores per server for 1C:Enterprise PROF version (in Russian)&lt;/&gt; and "&lt;link https://v8.1c.ru/priobretenie-i-vnedrenie/otvety-na-tipovye-voprosy-po-litsenzirovaniyu-1s-predpriyatiya-8&gt;Which processor cores to count — real or virtual? (in Russian)&lt;/&gt;".
+										<v8:content>More threads lead to faster execution of long-running operations (such as importing address classifiers). The default value is "4".&lt;plch id="1"&gt;&lt;plch id="1"&gt;&lt;plch id="1"&gt;
+&lt;plch id="1"&gt;&lt;plch id="1"&gt;&lt;plch id="1"&gt;
+See also &lt;plch id="3"&gt;&lt;plch id="3"&gt;&lt;link http://1c.ru/news/info.jsp?id=25491&gt;Restrictions on using 12-core servers with 1C:Enterprise PROF&lt;plch id="4"&gt;&lt;/&gt; and &lt;plch id="3"&gt;&lt;plch id="3"&gt;&lt;plch id="3"&gt;&lt;link https://v8.1c.ru/priobretenie-i-vnedrenie/otvety-na-tipovye-voprosy-po-litsenzirovaniyu-1s-predpriyatiya-8&gt;Physical vs virtual: which CPU cores are counted?&lt;plch id="4"&gt;&lt;plch id="4"&gt;&lt;plch id="4"&gt;&lt;plch id="4"&gt;&lt;plch id="4"&gt;&lt;/&gt;.
 </v8:content>
 									</v8:item>
 								</Title>
@@ -1520,11 +1658,11 @@ See also &lt;link http://1c.ru/news/info.jsp?id=25491&gt;restriction of 12 cores
 								</InputField>
 							</ChildItems>
 						</UsualGroup>
-						<UsualGroup name="Group3" id="2146">
+						<UsualGroup name="GroupIndent" id="2146">
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Group3</v8:content>
+									<v8:content>Group</v8:content>
 								</v8:item>
 							</Title>
 							<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
@@ -1532,13 +1670,13 @@ See also &lt;link http://1c.ru/news/info.jsp?id=25491&gt;restriction of 12 cores
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="Group3ExtendedTooltip" id="2147">
+							<ExtendedTooltip name="IndentGroupExtendedTooltip" id="2147">
 								<Title formatted="true">
 									<v8:item>
 										<v8:lang>en</v8:lang>
 										<v8:content>Recommended value:
-• For regular operations, up to 50-75% of the number of cores available to the server cluster. 
-• For forced execution within a period of minimum user activity, as many cores as available to the server cluster.
+• 50%–75% of the cores available cores to the cluster.
+• For faster execution during low user activity periods,  up to 100% of the cores available to the cluster.
 
 </v8:content>
 									</v8:item>
@@ -1771,6 +1909,30 @@ See also &lt;link http://1c.ru/news/info.jsp?id=25491&gt;restriction of 12 cores
 				</v8:DateQualifiers>
 			</Type>
 		</Attribute>
+		<Attribute name="AppTimeZone" id="17">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Application time zone</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="SelectedTimeZoneTime" id="18">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
 	</Attributes>
 	<Commands>
 		<Command name="SecurityProfilesUsage" id="5">
@@ -1783,7 +1945,7 @@ See also &lt;link http://1c.ru/news/info.jsp?id=25491&gt;restriction of 12 cores
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Use security profiles to manage the use of resources that are external to the application (relative to the 1C:Enterprise server cluster).</v8:content>
+					<v8:content>Security profile options to control how the app uses resources external to the 1C:Enterprise server cluster.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>SecurityProfilesUsage</Action>

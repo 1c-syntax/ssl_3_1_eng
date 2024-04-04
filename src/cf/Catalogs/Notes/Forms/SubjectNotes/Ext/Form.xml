@@ -155,10 +155,16 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="Filters1ExtendedTooltip" id="38"/>
+			<ExtendedTooltip name="DisplayFiltersExtendedTooltip" id="38"/>
 			<ChildItems>
 				<CheckBoxField name="ShowNotesByOtherUsers" id="23">
 					<DataPath>ShowNotesByOtherUsers</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Share with me other users' notes</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Right</TitleLocation>
 					<CheckBoxType>Auto</CheckBoxType>
 					<ContextMenu name="ShowNotesByOtherUsersContextMenu" id="24"/>
@@ -169,6 +175,12 @@
 				</CheckBoxField>
 				<CheckBoxField name="ShowDeleted" id="28">
 					<DataPath>ShowDeleted</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Show deleted ones</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Right</TitleLocation>
 					<CheckBoxType>Auto</CheckBoxType>
 					<ContextMenu name="ShowDeletedContextMenu" id="29"/>
@@ -274,4 +286,9 @@ WHERE
 			</Save>
 		</Attribute>
 	</Attributes>
+	<Parameters>
+		<Parameter name="SubjectOf">
+			<Type/>
+		</Parameter>
+	</Parameters>
 </Form>

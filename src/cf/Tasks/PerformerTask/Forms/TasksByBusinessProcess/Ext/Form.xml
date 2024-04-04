@@ -195,12 +195,24 @@
 					<Button name="TasksTreeContextMenuChange" id="35">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.Change</CommandName>
-						<ExtendedTooltip name="TaskTreeContextMenuChangeExtendedTooltip" id="64"/>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Edit</v8:content>
+							</v8:item>
+						</Title>
+						<ExtendedTooltip name="TasksTreeContextMenuChangeExtendedTooltip" id="64"/>
 					</Button>
 					<Button name="TasksTreeContextMenuRefresh" id="39">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.Refresh</CommandName>
-						<ExtendedTooltip name="TaskTreeContextMenuRefreshExtendedTooltip" id="65"/>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Refresh</v8:content>
+							</v8:item>
+						</Title>
+						<ExtendedTooltip name="TasksTreeContextMenuRefreshExtendedTooltip" id="65"/>
 					</Button>
 					<Button name="TasksTreeContextMenuCopyToClipboard" id="36">
 						<Type>CommandBarButton</Type>
@@ -220,11 +232,23 @@
 					<Button name="TasksTreeChange" id="34">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.Change</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Edit</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="TasksTreeChangeExtendedTooltip" id="68"/>
 					</Button>
 					<Button name="TasksTreeRefresh" id="38">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.Refresh</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Refresh</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="TasksTreeRefreshExtendedTooltip" id="69"/>
 					</Button>
@@ -271,6 +295,12 @@
 			<ChildItems>
 				<PictureField name="TasksTreeImportance" id="40">
 					<DataPath>TasksTree.Importance</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Priority</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<ToolTip>
 						<v8:item>
@@ -298,6 +328,12 @@
 					<UserVisible>
 						<xr:Common>false</xr:Common>
 					</UserVisible>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Completed</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<ToolTip>
 						<v8:item>
@@ -316,6 +352,12 @@
 				</CheckBoxField>
 				<PictureField name="TasksTreeStopped" id="42">
 					<DataPath>TasksTree.Suspended</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Suspended</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<ToolTip>
 						<v8:item>
@@ -350,6 +392,12 @@
 					<ChildItems>
 						<PictureField name="TasksTreeType" id="44">
 							<DataPath>TasksTree.Type</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Type</v8:content>
+								</v8:item>
+							</Title>
 							<TitleLocation>None</TitleLocation>
 							<EditMode>EnterOnInput</EditMode>
 							<ShowInHeader>false</ShowInHeader>
@@ -363,6 +411,12 @@
 						</PictureField>
 						<InputField name="TasksTreeDescription" id="30">
 							<DataPath>TasksTree.Description</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Description</v8:content>
+								</v8:item>
+							</Title>
 							<ToolTip>
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -378,6 +432,12 @@
 				</ColumnGroup>
 				<InputField name="TasksTreePerformer" id="32">
 					<DataPath>TasksTree.Performer</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Assignee</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<Width>1</Width>
 					<ContextMenu name="TasksTreePerformerContextMenu" id="33"/>
@@ -385,15 +445,27 @@
 				</InputField>
 				<InputField name="TaskDueDate" id="47">
 					<DataPath>TasksTree.TaskDueDate</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Due date</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<Width>8</Width>
 					<ContextMenu name="DueDateContextMenu" id="48"/>
-					<ExtendedTooltip name="DueDateExtendedTooltip" id="80"/>
+					<ExtendedTooltip name="TaskDueDateExtendedTooltip" id="80"/>
 				</InputField>
 			</ChildItems>
 		</Table>
 		<CheckBoxField name="ShowExecuted" id="21">
 			<DataPath>ShowExecuted</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Show completed tasks</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>Right</TitleLocation>
 			<CheckBoxType>Auto</CheckBoxType>
 			<ContextMenu name="ShowExecutedContextMenu" id="22"/>

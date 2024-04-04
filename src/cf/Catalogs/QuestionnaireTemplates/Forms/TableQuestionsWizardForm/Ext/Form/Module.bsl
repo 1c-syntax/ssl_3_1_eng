@@ -1,13 +1,14 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
-
+// 
 //   
 //    
 //    
@@ -15,19 +16,12 @@
 
 #Region FormEventHandlers
 
-&AtClient
-Procedure OnOpen(Cancel)
-
-	AvailabilityControl();
-	SetHelpTexts();
-	
-EndProcedure
-
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	For Each MetadataItem In Metadata.Enums.TabularQuestionTypes.EnumValues Do
-		Items.TabularQuestionType.ChoiceList.Add(Enums.TabularQuestionTypes[MetadataItem.Name],MetadataItem.Synonym);
+		Items.TabularQuestionType.ChoiceList.Add(Enums.TabularQuestionTypes[MetadataItem.Name],
+			MetadataItem.Synonym);
 	EndDo;
 		
 	ProcessOwnerFormParameters();
@@ -38,6 +32,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		GenerateResultingTable();
 		Items.Pages.CurrentPage = Items.ResultTablePage;
 	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure OnOpen(Cancel)
+
+	AvailabilityControl();
+	SetHelpTexts();
 	
 EndProcedure
 
@@ -517,7 +519,8 @@ EndProcedure
 &AtServer
 Procedure GenerateResultingTable()
 	
-	Surveys.UpdateTabularQuestionPreview(FormAttributeToValue("Questions"),Replies,TabularQuestionType,ThisObject,"ResultingTable","");
+	Surveys.UpdateTabularQuestionPreview(FormAttributeToValue("Questions"), Replies, TabularQuestionType,
+		ThisObject, "ResultingTable", "");
 	Items.NextPageButton.Title = NStr("en = 'Finish';");
 	
 EndProcedure
@@ -671,7 +674,7 @@ Procedure SetLinkOfAnswersAndQuestionsChoiceParameter(AnswerFieldName, QuestionA
 EndProcedure
 
 // Parameters:
-//   Item - FormTable - 
+//   Item - FormTable - Item that caused the change.
 //
 &AtClient
 Procedure OnChangeAnswers(Item)

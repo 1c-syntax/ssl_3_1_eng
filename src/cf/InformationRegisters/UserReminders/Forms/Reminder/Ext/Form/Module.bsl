@@ -1,16 +1,27 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
+	
+	If Parameters.KeyData <> Undefined Then
+		RecordKey = InformationRegisters.UserReminders.CreateRecordKey(Parameters.KeyData);
+		
+		Record = InformationRegisters.UserReminders.CreateRecordManager();
+		FillPropertyValues(Record, Parameters.KeyData);
+		Record.Read();
+		
+		ValueToFormAttribute(Record, "Object");
+	EndIf;
 	
 	SubsystemSettings = UserRemindersInternal.SubsystemSettings();
 	
@@ -21,7 +32,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Object.LongDesc = Common.SubjectString(Object.Source);
 	EndIf;
 	
-	If Parameters.Property("Key") Then
+	If Parameters.KeyData <> Undefined Then
+		InitialParameters = New Structure("User,EventTime,Source");
+		FillPropertyValues(InitialParameters, Parameters.KeyData);
+		InitialParameters = New FixedStructure(InitialParameters);
+	ElsIf Parameters.Property("Key") Then
 		InitialParameters = New Structure("User,EventTime,Source");
 		FillPropertyValues(InitialParameters, Parameters.Key);
 		InitialParameters = New FixedStructure(InitialParameters);
@@ -35,14 +50,41 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	DetermineSelectedPeriodicityOption();	
 	
 	IsNew = Not ValueIsFilled(Object.SourceRecordKey);
-	Items.Delete.Visible = Not IsNew;
+	Items.Dismiss.Visible = Not IsNew;
 	
-	Items.SubjectOf.Visible = ValueIsFilled(Object.Source);
-	Items.ReminderSubject.Title = Common.SubjectString(Object.Source);
-	If ValueIsFilled(Object.Source) Then
-		WindowOptionsKey = "ReminderOnSubject";
+	If UserRemindersClientServer.IsMessageURL(Object.Id) Then
+		Items.Text.Visible = False;
+		Items.Message.Visible = True;
+		MessageID = New CollaborationSystemMessageID(StrReplace(Object.Id, "e1ccs/data/msg?id=",""));
+		Message = CollaborationSystem.GetMessage(MessageID);
+		Author = CollaborationSystem.GetUser(Message.Author);
+		
+		If BegOfDay(Message.Date) = BegOfDay(CurrentSessionDate()) Then
+			DataAsText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'today %1';"), Format(Message.Date, NStr("en = 'DF=HH:mm';")));
+		Else
+			DataAsText = Format(Message.Date, NStr("en = 'DF=MM/dd/yyyy HH:mm';"));
+		EndIf;
+		
+		MessageDetails = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Message from %1 received on %2';"),
+			Author.FullName, DataAsText);
+		
+		Items.MessageDetails.Title = StringFunctions.FormattedString(MessageDetails);
+		
+		LinkRepresentation = GetURLsPresentations(CommonClientServer.ValueInArray(Object.Id));
+		
+		HyperlinkAnchorText = StringFunctionsClientServer.SubstituteParametersToString("<a href=""%1"">%2</a>",
+		Object.Id, LinkRepresentation[0].Text);
+		Items.RefToMessage.Title = StringFunctions.FormattedString(HyperlinkAnchorText);
+		Items.SubjectOf.Visible = False;
+	Else
+		Items.Message.Visible = False;
+		Items.SubjectOf.Visible = ValueIsFilled(Object.Source);
+		Items.ReminderSubject.Title = Common.SubjectString(Object.Source);
+		If ValueIsFilled(Object.Source) Then
+			WindowOptionsKey = "ReminderOnSubject";
+		EndIf;
 	EndIf;
-	
 EndProcedure
 
 &AtServer
@@ -77,7 +119,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	ElsIf CurrentObject.ReminderTimeSettingMethod = Enums.ReminderTimeSettingMethods.AtSpecifiedTime Then
 		CurrentObject.ReminderTime = Object.EventTime;
 	ElsIf CurrentObject.ReminderTimeSettingMethod = Enums.ReminderTimeSettingMethods.Periodically Then
-		ClosestReminderTime = UserRemindersInternal.GetClosestEventDateOnSchedule(Schedule);
+		ClosestReminderTime = UserRemindersInternal.NearestEventDateOnSchedule(Schedule);
 		If ClosestReminderTime = Undefined Then
 			ClosestReminderTime = CurrentSessionDate();
 		EndIf;
@@ -149,6 +191,7 @@ EndProcedure
 Procedure AfterWrite(WriteParameters)
 	// For the cache update purposes.
 	ParametersStructure = UserRemindersClientServer.ReminderDetails(Object, True);
+	ParametersStructure.URL = WriteParameters.URL;
 	ParametersStructure.Insert("PictureIndex", 2);
 	
 	UserRemindersClient.UpdateRecordInNotificationsCache(ParametersStructure);
@@ -179,6 +222,8 @@ Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 	EndIf;
 	// End StandardSubsystems.AccessManagement
 
+	WriteParameters.Insert("URL", 
+		UserRemindersInternal.ReminderURL(CurrentObject));
 EndProcedure
 
 #EndRegion
@@ -263,11 +308,11 @@ EndProcedure
 Procedure Delete(Command)
 	
 	DialogButtons = New ValueList;
-	DialogButtons.Add(DialogReturnCode.Yes, NStr("en = 'Delete';"));
-	DialogButtons.Add(DialogReturnCode.Cancel, NStr("en = 'Do not delete';"));
+	DialogButtons.Add(DialogReturnCode.Yes, NStr("en = 'Dismiss';"));
+	DialogButtons.Add(DialogReturnCode.Cancel, NStr("en = 'Not now';"));
 	
 	NotifyDescription = New NotifyDescription("DeleteReminder", ThisObject);
-	ShowQueryBox(NotifyDescription, NStr("en = 'Delete the reminder?';"), DialogButtons);
+	ShowQueryBox(NotifyDescription, NStr("en = 'Dismiss the reminder?';"), DialogButtons);
 	
 EndProcedure
 

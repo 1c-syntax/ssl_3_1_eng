@@ -9,6 +9,12 @@
 	<ChildItems>
 		<CheckBoxField name="ShowOnlyItemsProcessedInDesigner" id="91">
 			<DataPath>ShowOnlyItemsProcessedInDesigner</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Show only users added, modified, or deleted in Designer</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>Right</TitleLocation>
 			<CheckBoxType>Auto</CheckBoxType>
 			<ContextMenu name="ShowOnlyItemsProcessedInDesignerContextMenu" id="92"/>
@@ -30,16 +36,34 @@
 				<Button name="MapUser" id="94">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.MapUser</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Map</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="MapUserExtendedTooltip" id="95"/>
 				</Button>
 				<Button name="MapToNewUser" id="98">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.MapToNewUser</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Map to new user</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="MapToNewUserExtendedTooltip" id="99"/>
 				</Button>
 				<Button name="CancelMapping" id="102">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.CancelMapping</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Clear mapping</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="CancelMappingExtendedTooltip" id="103"/>
 				</Button>
 				<Button name="Find" id="20">
@@ -58,6 +82,12 @@
 					<Type>CommandBarButton</Type>
 					<SkipOnInput>false</SkipOnInput>
 					<CommandName>Form.Command.Refresh</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Refresh</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="RefreshExtendedTooltip" id="58"/>
 				</Button>
 				<Button name="Delete" id="40">
@@ -71,6 +101,12 @@
 				<Button name="GoToUser" id="96">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.GoToUser</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Go to user</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="GoToUserExtendedTooltip" id="97"/>
 				</Button>
 				<Button name="OutputList" id="120">
@@ -132,12 +168,24 @@
 					<Button name="ContextMenuNavigateToUser" id="104">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.GoToUser</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Go to user</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="ContextMenuNavigateToUserExtendedTooltip" id="105"/>
 					</Button>
 					<Button name="ContextMenuRefresh" id="39">
 						<Type>CommandBarButton</Type>
 						<SkipOnInput>false</SkipOnInput>
 						<CommandName>Form.Command.Refresh</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Refresh</v8:content>
+							</v8:item>
+						</Title>
 						<ExtendedTooltip name="ContextMenuRefreshExtendedTooltip" id="64"/>
 					</Button>
 					<Button name="ContextMenuOutputList" id="118">
@@ -181,6 +229,12 @@
 				<InputField name="FullName" id="6">
 					<DataPath>IBUsers.FullName</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Full name</v8:content>
+						</v8:item>
+					</Title>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -195,6 +249,12 @@
 				<InputField name="Name" id="8">
 					<DataPath>IBUsers.Name</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Username</v8:content>
+						</v8:item>
+					</Title>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -209,6 +269,12 @@
 				<LabelField name="StandardAuthentication" id="10">
 					<DataPath>IBUsers.StandardAuthentication</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>1C authentication</v8:content>
+						</v8:item>
+					</Title>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -230,6 +296,13 @@ username and password.</v8:content>
 				<LabelField name="OpenIDAuthentication" id="88">
 					<DataPath>IBUsers.OpenIDAuthentication</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>OpenID
+authentication</v8:content>
+						</v8:item>
+					</Title>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -252,6 +325,13 @@ Only for a web server connection (the service address must be configured)</v8:co
 				<LabelField name="OpenIDConnectAuthentication" id="131">
 					<DataPath>IBUsers.OpenIDConnectAuthentication</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>OpenID-Connect
+authentication</v8:content>
+						</v8:item>
+					</Title>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -274,6 +354,13 @@ Only for a web server connection (service address must be configured)</v8:conten
 				<LabelField name="AccessTokenAuthentication" id="134">
 					<DataPath>IBUsers.AccessTokenAuthentication</DataPath>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Access token
+authentication</v8:content>
+						</v8:item>
+					</Title>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -305,6 +392,12 @@ This is a more advanced form of authentication than OpenID and OpenID Connect.</
 						<LabelField name="OSAuthentication" id="12">
 							<DataPath>IBUsers.OSAuthentication</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>OS authentication</v8:content>
+								</v8:item>
+							</Title>
 							<ToolTip>
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -320,6 +413,12 @@ associated with the 1C:Enterprise user.</v8:content>
 						<LabelField name="OSUser" id="14">
 							<DataPath>IBUsers.OSUser</DataPath>
 							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>OS user</v8:content>
+								</v8:item>
+							</Title>
 							<ToolTip>
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -339,6 +438,13 @@ associated with the 1C:Enterprise user.</v8:content>
 						<xr:Common>false</xr:Common>
 					</UserVisible>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Mapped to
+external user</v8:content>
+						</v8:item>
+					</Title>
 					<HorizontalAlign>Center</HorizontalAlign>
 					<EditMode>EnterOnInput</EditMode>
 					<Format>
@@ -356,6 +462,13 @@ associated with the 1C:Enterprise user.</v8:content>
 						<xr:Common>false</xr:Common>
 					</UserVisible>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Added
+in Designer</v8:content>
+						</v8:item>
+					</Title>
 					<HorizontalAlign>Center</HorizontalAlign>
 					<EditMode>EnterOnInput</EditMode>
 					<Format>
@@ -373,6 +486,13 @@ associated with the 1C:Enterprise user.</v8:content>
 						<xr:Common>false</xr:Common>
 					</UserVisible>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Modified
+in Designer</v8:content>
+						</v8:item>
+					</Title>
 					<HorizontalAlign>Center</HorizontalAlign>
 					<EditMode>EnterOnInput</EditMode>
 					<Format>
@@ -390,6 +510,13 @@ associated with the 1C:Enterprise user.</v8:content>
 						<xr:Common>false</xr:Common>
 					</UserVisible>
 					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Deleted
+in Designer</v8:content>
+						</v8:item>
+					</Title>
 					<HorizontalAlign>Center</HorizontalAlign>
 					<EditMode>EnterOnInput</EditMode>
 					<Format>

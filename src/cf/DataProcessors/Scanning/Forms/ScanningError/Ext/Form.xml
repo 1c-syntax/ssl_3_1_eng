@@ -36,8 +36,8 @@
 						</v8:item>
 					</Title>
 					<Picture>
-						<xr:Ref>CommonPicture.Warning32</xr:Ref>
-						<xr:LoadTransparent>false</xr:LoadTransparent>
+						<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</Picture>
 					<ContextMenu name="ErrorPictureContextMenu" id="8"/>
 					<ExtendedTooltip name="ErrorPictureExtendedTooltip" id="9"/>
@@ -48,9 +48,10 @@
 						<v8:item>
 							<v8:lang>en</v8:lang>
 							<v8:content>Scanner %1 not found or not connected.
-Try any of the following:
+Try the following:
  • Check whether the scanner is connected and try again.
  • Specify the available scanner in the &lt;link Settings&gt;scanner settings&lt;/&gt;.
+ • Open &lt;link Settings&gt;scanner settings&lt;/&gt; and select "Advanced settings".
  • If the issue persists, contact technical support.</v8:content>
 						</v8:item>
 					</Title>
@@ -77,12 +78,18 @@ Try any of the following:
 			<ShowTitle>false</ShowTitle>
 			<ExtendedTooltip name="CommandGroupExtendedTooltip" id="17"/>
 			<ChildItems>
-				<Button name="RepeatScan" id="20">
+				<Button name="RedoScanning" id="20">
 					<Type>UsualButton</Type>
 					<DefaultButton>true</DefaultButton>
 					<DefaultItem>true</DefaultItem>
-					<CommandName>Form.Command.RepeatScan</CommandName>
-					<ExtendedTooltip name="RepeatScanExtendedTooltip" id="21"/>
+					<CommandName>Form.Command.RedoScanning</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Scan again</v8:content>
+						</v8:item>
+					</Title>
+					<ExtendedTooltip name="RedoScanningExtendedTooltip" id="21"/>
 				</Button>
 				<Button name="Cancel" id="14">
 					<Type>UsualButton</Type>
@@ -117,16 +124,21 @@ Try any of the following:
 				<v8:Type>v8ui:FormattedString</v8:Type>
 			</Type>
 		</Attribute>
+		<Attribute name="ShowScannerDialog" id="3">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
 	</Attributes>
 	<Commands>
-		<Command name="RepeatScan" id="3">
+		<Command name="RedoScanning" id="3">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
 					<v8:content>Scan again</v8:content>
 				</v8:item>
 			</Title>
-			<Action>RepeatScan</Action>
+			<Action>RedoScanning</Action>
 		</Command>
 	</Commands>
 	<Parameters>
@@ -160,6 +172,11 @@ Try any of the following:
 					<v8:Length>0</v8:Length>
 					<v8:AllowedLength>Variable</v8:AllowedLength>
 				</v8:StringQualifiers>
+			</Type>
+		</Parameter>
+		<Parameter name="ShowScannerDialog">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Parameter>
 	</Parameters>

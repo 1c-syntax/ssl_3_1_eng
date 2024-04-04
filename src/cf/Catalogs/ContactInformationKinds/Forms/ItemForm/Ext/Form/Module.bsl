@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -30,7 +31,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndIf;
 	EndIf;
 	
-	If Object.Ref.IsEmpty() Then
+	KindBasis = Parameters.CopyingValue;
+	CreatedByCopying = Not KindBasis.IsEmpty();
+
+	If Object.Ref.IsEmpty() And Not CreatedByCopying Then
 		Object.EditingOption = "InputFieldAndDialog";
 	EndIf;
 	
@@ -145,8 +149,8 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 	
 	If Not WriteParameters.Property("WhenIDForFormulasIsAlreadyUsed")
 		And ValueIsFilled(Object.IDForFormulas) Then
-		
-		
+		// 
+		// 
 		QueryText = IDForFormulasAlreadyUsed(
 			Object.IDForFormulas, Object.Ref, Object.Parent);
 		
@@ -155,11 +159,11 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 			Buttons.Add("ContinueWrite",              NStr("en = 'Continue';"));
 			Buttons.Add("BackToIDInput", NStr("en = 'Cancel';"));
 			
+			Cancel = True;
+			
 			ShowQueryBox(
 				New NotifyDescription("AfterResponseOnQuestionWhenIDForFormulasIsAlreadyUsed", ThisObject, WriteParameters),
 				QueryText, Buttons, , "ContinueWrite");
-			
-			Cancel = True;
 			
 		Else
 			WriteParameters.Insert("IDCheckForFormulasCompleted");
@@ -639,9 +643,9 @@ Function IDForFormulasAlreadyUsed(Val IDForFormulas, Val CurrentContactInformati
 	                          |""%1"" already exists.
 	                          |
 	                          |It is recommended that you use another ID for formulas.
-	                          |Otherwise, the application might function incorrectly.
+	                          |Otherwise, the app might malfunction.
 	                          |
-	                          |Do you want to create a new ID for formulas and continue saving?';");
+	                          |Create a new ID for the formulas and continue saving?';");
 	QueryText = StringFunctionsClientServer.SubstituteParametersToString(
 		QueryText,
 		IDForFormulas);

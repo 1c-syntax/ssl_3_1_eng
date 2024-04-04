@@ -9,12 +9,24 @@
 				<DefaultButton>true</DefaultButton>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.OK</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Save and close</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="OKExtendedTooltip" id="32"/>
 			</Button>
 			<Button name="Validate" id="17">
 				<Type>CommandBarButton</Type>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.Validate</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Validate formula</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="ValidateExtendedTooltip" id="33"/>
 			</Button>
 		</ChildItems>
@@ -150,6 +162,12 @@
 															<ChildItems>
 																<PictureField name="OperandsTreePictureCode" id="79">
 																	<DataPath>OperandsTree.PictureCode</DataPath>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Picture code</v8:content>
+																		</v8:item>
+																	</Title>
 																	<EditMode>EnterOnInput</EditMode>
 																	<FileDragMode>AsFile</FileDragMode>
 																	<ContextMenu name="OperandsTreePictureCodeContextMenu" id="80"/>
@@ -158,6 +176,12 @@
 																<InputField name="OperandsTreePresentation" id="76">
 																	<DataPath>OperandsTree.Presentation</DataPath>
 																	<ReadOnly>true</ReadOnly>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Presentation</v8:content>
+																		</v8:item>
+																	</Title>
 																	<EditMode>EnterOnInput</EditMode>
 																	<ContextMenu name="OperandsTreePresentationContextMenu" id="77"/>
 																	<ExtendedTooltip name="OperandsTreePresentationExtendedTooltip" id="78"/>
@@ -167,6 +191,12 @@
 														<InputField name="OperandsTreeId" id="73">
 															<DataPath>OperandsTree.Id</DataPath>
 															<Visible>false</Visible>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>ID</v8:content>
+																</v8:item>
+															</Title>
 															<EditMode>EnterOnInput</EditMode>
 															<ContextMenu name="OperandsTreeIDContextMenu" id="74"/>
 															<ExtendedTooltip name="OperandsTreeIDExtendedTooltip" id="75"/>
@@ -257,9 +287,15 @@
 														</InputField>
 														<InputField name="OperandsId" id="21">
 															<DataPath>Operands.Id</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>ID</v8:content>
+																</v8:item>
+															</Title>
 															<EditMode>EnterOnInput</EditMode>
 															<ContextMenu name="OperandsIDContextMenu" id="22"/>
-															<ExtendedTooltip name="OperandsIDExtendedTooltip" id="40"/>
+															<ExtendedTooltip name="OperandsIdExtendedTooltip" id="40"/>
 														</InputField>
 														<InputField name="OperandsValue" id="53">
 															<DataPath>Operands.Value</DataPath>
@@ -355,7 +391,7 @@
 							</Title>
 							<Group>Vertical</Group>
 							<Behavior>Usual</Behavior>
-							<ExtendedTooltip name="OperatorsGroup1ExtendedTooltip" id="43"/>
+							<ExtendedTooltip name="GroupOperatorsExtendedTooltip" id="43"/>
 							<ChildItems>
 								<Table name="Operators" id="8">
 									<Representation>Tree</Representation>
@@ -408,6 +444,12 @@
 									<ChildItems>
 										<InputField name="OperatorsOperator" id="11">
 											<DataPath>Operators.Description</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Operators</v8:content>
+												</v8:item>
+											</Title>
 											<EditMode>EnterOnInput</EditMode>
 											<ContextMenu name="OperatorsOperatorContextMenu" id="12"/>
 											<ExtendedTooltip name="OperatorsOperatorExtendedTooltip" id="45"/>
@@ -420,6 +462,12 @@
 				</UsualGroup>
 				<TextDocumentField name="Formula" id="13">
 					<DataPath>Formula</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Formula</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<Height>5</Height>
 					<ContextMenu name="FormulaContextMenu" id="14"/>
@@ -752,6 +800,15 @@
 		</Parameter>
 		<Parameter name="Operands">
 			<Type/>
+		</Parameter>
+		<Parameter name="OperandsTitle">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
 		</Parameter>
 	</Parameters>
 </Form>

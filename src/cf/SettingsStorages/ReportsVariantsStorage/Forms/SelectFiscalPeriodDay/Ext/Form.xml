@@ -17,6 +17,12 @@
 	<ChildItems>
 		<CalendarField name="Day" id="1">
 			<DataPath>Day</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Day</v8:content>
+				</v8:item>
+			</Title>
 			<TitleLocation>None</TitleLocation>
 			<ShowMonthsPanel>true</ShowMonthsPanel>
 			<ContextMenu name="DayContextMenu" id="2"/>

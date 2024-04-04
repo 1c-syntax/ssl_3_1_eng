@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region Public
@@ -153,8 +154,8 @@ Function ForwardTasks(Val RedirectedTasks_SSLs, Val ForwardingInfo, Val IsCheckO
 				RedirectedTasks = New Array();
 			EndIf;
 			
-			 
-			
+			//  
+			// 
 			TaskObject = Task.Key.GetObject();
 			
 			SetPrivilegedMode(True);
@@ -262,7 +263,7 @@ Procedure ActivateBusinessProcess(BusinessProcess) Export
 			
 		Object.Lock();
 		Object.State = Enums.BusinessProcessStates.Running;
-		Object.Write(); 
+		Object.Write(); // 
 		CommitTransaction();
 	Except
 		RollbackTransaction();
@@ -326,7 +327,7 @@ Procedure StopBusinessProcess(BusinessProcess) Export
 		
 		Object.Lock();
 		Object.State = Enums.BusinessProcessStates.Suspended;
-		Object.Write(); 
+		Object.Write(); // 
 		CommitTransaction();
 	Except
 		RollbackTransaction();
@@ -365,7 +366,7 @@ Procedure AcceptTasksForExecution(Var_Tasks) Export
 			If Not ValueIsFilled(TaskObject.Performer) Then
 				TaskObject.Performer = Users.AuthorizedUser();
 			EndIf;
-			TaskObject.Write(); 
+			TaskObject.Write(); // 
 			
 			NewTaskArray.Add(Task);
 			
@@ -410,7 +411,7 @@ Procedure CancelAcceptTasksForExecution(Var_Tasks) Export
 			If Not TaskObject.PerformerRole.IsEmpty() Then
 				TaskObject.Performer = Undefined;
 			EndIf;
-			TaskObject.Write(); 
+			TaskObject.Write(); // 
 			
 			NewTaskArray.Add(Task);
 			
@@ -441,7 +442,7 @@ Function IsHeadTask(TaskRef) Export
 	
 EndFunction
 
-// 
+// Generates a choice list for picking assignees in input fields of flexible type ("User" and "Role").
 //
 // Parameters:
 //  Text - String - a text fragment to search for possible assignees.

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -30,27 +31,15 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.FormShowContextTemplates.Visible = Users.IsFullUser();
 	
 	If Not Common.SubsystemExists("StandardSubsystems.SendSMSMessage") Then
-		
-		HideElementsWhenOneOfTheSubsystemsIsUnavailable();
-		
-		Title = NStr("en = 'Mail templates';");
+		Items.FormCreateGroup.Type = FormGroupType.ButtonGroup;
 		Items.FormCreateSMSMessageTemplate.Visible       = False;
 		Items.FormCreateEmailTemplate.Title = NStr("en = 'Create';");
-		TemplateFor = MessageTemplatesClientServer.EmailTemplateName();
-		SetSelectionInTheListOfTemplates(List, TemplateFor);
-		
 	EndIf;
 	
 	If Not Common.SubsystemExists("StandardSubsystems.EmailOperations") Then
-		
-		HideElementsWhenOneOfTheSubsystemsIsUnavailable();
-		
-		Title = NStr("en = 'Text templates';");
+		Items.FormCreateGroup.Type = FormGroupType.ButtonGroup;
 		Items.FormCreateEmailTemplate.Visible = False;
 		Items.FormCreateSMSMessageTemplate.Title       = NStr("en = 'Create';");
-		TemplateFor = MessageTemplatesClientServer.SMSTemplateName();
-		SetSelectionInTheListOfTemplates(List, TemplateFor);
-		
 	EndIf;
 	
 	If Common.IsMobileClient() Then
@@ -136,7 +125,7 @@ EndProcedure
 
 &AtClient
 Procedure CreateEmailTemplate(Command)
-	CreateTemplate("EmailMessage");
+	CreateTemplate("MailMessage");
 EndProcedure
 
 &AtClient
@@ -201,11 +190,14 @@ Procedure InitializeFilters()
 	List.Parameters.SetParameterValue("Purpose", "");
 	
 	TemplatesKinds = MessageTemplatesInternal.TemplatesKinds();
-	TemplatesKinds.Insert(0, NStr("en = 'All';"), NStr("en = 'All';"));
+	TemplatesKinds.Insert(0,
+		NStr("en = 'All messages';"),
+		NStr("en = 'All messages';"));
 	
 	List.Parameters.SetParameterValue("SMSMessage", TemplatesKinds.FindByValue("SMS").Presentation);
 	List.Parameters.SetParameterValue("Email", TemplatesKinds.FindByValue("Email").Presentation);
 	List.Parameters.SetParameterValue("ShowContextTemplates", ShowContextTemplates);
+	List.Parameters.SetParameterValue("Arbitrary", NStr("en = 'Arbitrary message';"));
 	
 	For Each TemplateKind In TemplatesKinds Do
 		Items.TemplateForFilter.ChoiceList.Add(TemplateKind.Value, TemplateKind.Presentation);
@@ -248,17 +240,7 @@ Procedure InitializeFilters()
 	EndDo;
 	
 	Purpose = "";
-	TemplateFor = NStr("en = 'All';");
-	
-EndProcedure
-
-&AtServer
-Procedure HideElementsWhenOneOfTheSubsystemsIsUnavailable()
-	
-	Items.TemplateForFilter.Visible                = False;
-	Items.TemplateFor.Visible                      = False;
-	AutoTitle                                     = False;
-	Items.FormCreateGroup.Type = FormGroupType.ButtonGroup;
+	TemplateFor = NStr("en = 'All messages';");
 	
 EndProcedure
 

@@ -10,6 +10,12 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.OK</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>OK</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormOKExtendedTooltip" id="17"/>
 			</Button>
 			<Button name="FormCancel" id="18">
@@ -50,6 +56,12 @@ having two versions. The conflict has been resolved automatically. If the confli
 		</PictureDecoration>
 		<LabelField name="OccurrenceDate" id="35">
 			<DataPath>OccurrenceDate</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Issue date</v8:content>
+				</v8:item>
+			</Title>
 			<Width>40</Width>
 			<Format>
 				<v8:item>
@@ -62,6 +74,12 @@ having two versions. The conflict has been resolved automatically. If the confli
 		</LabelField>
 		<LabelField name="InfobaseNode" id="13">
 			<DataPath>InfobaseNode</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Synchronization</v8:content>
+				</v8:item>
+			</Title>
 			<Hiperlink>true</Hiperlink>
 			<ContextMenu name="InfobaseNodeContextMenu" id="14"/>
 			<ExtendedTooltip name="InfobaseNodeExtendedTooltip" id="15"/>
@@ -82,6 +100,12 @@ having two versions. The conflict has been resolved automatically. If the confli
 				<LabelField name="ObjectWithIssue" id="10">
 					<DataPath>ObjectWithIssue</DataPath>
 					<DefaultItem>true</DefaultItem>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Object</v8:content>
+						</v8:item>
+					</Title>
 					<Hiperlink>true</Hiperlink>
 					<ContextMenu name="ObjectWithIssueContextMenu" id="11"/>
 					<ExtendedTooltip name="ObjectWithIssueExtendedTooltip" id="12"/>
@@ -103,21 +127,45 @@ having two versions. The conflict has been resolved automatically. If the confli
 				<Button name="ShowDifferences" id="28">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.ShowDifferences</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Show diff</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="ShowDifferencesExtendedTooltip" id="29"/>
 				</Button>
 				<Button name="OpenVersionInThisApplication" id="26">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.OpenVersionInThisApplication</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Show version from this app</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="OpenVersionInThisProgramExtendedTooltip" id="27"/>
 				</Button>
 				<Button name="OpenVersion" id="24">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.OpenOtherApplicationVersion</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Show version from another app</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="OpenVersionExtendedTooltip" id="25"/>
 				</Button>
 				<Button name="ReviseConflictResolutionResult" id="30">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.ReviseConflictResolutionResult</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Revise result</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="ReviewResultOfSolvingCollisionExtendedTooltip" id="31"/>
 				</Button>
 			</ChildItems>
@@ -125,6 +173,12 @@ having two versions. The conflict has been resolved automatically. If the confli
 		<InputField name="LongDesc" id="4">
 			<DataPath>LongDesc</DataPath>
 			<ReadOnly>true</ReadOnly>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Details</v8:content>
+				</v8:item>
+			</Title>
 			<AutoMaxWidth>false</AutoMaxWidth>
 			<Height>9</Height>
 			<MultiLine>true</MultiLine>
@@ -133,6 +187,12 @@ having two versions. The conflict has been resolved automatically. If the confli
 		</InputField>
 		<InputField name="WarningComment" id="32">
 			<DataPath>WarningComment</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Administrator comment on synchronization warning</v8:content>
+				</v8:item>
+			</Title>
 			<AutoMaxWidth>false</AutoMaxWidth>
 			<MultiLine>true</MultiLine>
 			<ClearButton>true</ClearButton>
@@ -157,6 +217,12 @@ having two versions. The conflict has been resolved automatically. If the confli
 			<ChildItems>
 				<CheckBoxField name="HideWarning" id="40">
 					<DataPath>HideWarning</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Hide warning</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Right</TitleLocation>
 					<ToolTipRepresentation>Button</ToolTipRepresentation>
 					<CheckBoxType>Auto</CheckBoxType>
@@ -317,7 +383,7 @@ having two versions. The conflict has been resolved automatically. If the confli
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Show version from another application</v8:content>
+					<v8:content>Show version from another app</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
@@ -338,7 +404,7 @@ having two versions. The conflict has been resolved automatically. If the confli
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Show version from this application.</v8:content>
+					<v8:content>Show version from this app</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>

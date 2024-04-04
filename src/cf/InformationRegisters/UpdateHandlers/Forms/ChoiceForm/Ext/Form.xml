@@ -9,21 +9,45 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.Done</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Finish</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormDoneExtendedTooltip" id="26"/>
 			</Button>
 			<Button name="FormSelect" id="27">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.Select</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Select</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormChooseExtendedTooltip" id="28"/>
 			</Button>
 			<Button name="FormCancelSelect" id="29">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.CancelSelect</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Cancel</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormCancelSelectExtendedTooltip" id="30"/>
 			</Button>
 			<Button name="FormCancelAll" id="53">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.CancelAll</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Cancel all</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="FormCancelAllExtendedTooltip" id="54"/>
 			</Button>
 		</ChildItems>
@@ -104,6 +128,12 @@
 			<ChildItems>
 				<CheckBoxField name="Selected" id="55">
 					<DataPath>HandlerList.Selected</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Selected</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<EditMode>EnterOnInput</EditMode>
 					<CheckBoxType>Auto</CheckBoxType>
@@ -112,6 +142,12 @@
 				</CheckBoxField>
 				<InputField name="HandlerName" id="44">
 					<DataPath>HandlerList.HandlerName</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Handler name</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<AutoMaxWidth>false</AutoMaxWidth>
 					<HorizontalStretch>true</HorizontalStretch>
@@ -120,6 +156,12 @@
 				</InputField>
 				<InputField name="Status" id="47">
 					<DataPath>HandlerList.Status</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Status</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<Width>5</Width>
 					<ContextMenu name="StatusContextMenu" id="48"/>
@@ -127,6 +169,12 @@
 				</InputField>
 				<InputField name="Version" id="50">
 					<DataPath>HandlerList.Version</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Version</v8:content>
+						</v8:item>
+					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<Width>5</Width>
 					<ContextMenu name="VersionContextMenu" id="51"/>

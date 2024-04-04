@@ -1,38 +1,51 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Variables
 
-Var IBUserProcessingParameters; 
-                                        
-
-Var IsNew; 
-                
-
-Var PreviousAuthorizationObject; 
-                               
+// 
+Var IsNew, PreviousAuthorizationObject;
+Var IBUserProcessingParameters; // Parameters to be populated when processing a user.
 
 #EndRegion
 
-
+// 
 //
-
+// 
 //
-
+// 
 //
-
+// 
 
 #Region EventHandlers
 
 Procedure BeforeWrite(Cancel)
+	
+	// ACC:75-off - A "DataExchange" check. Import should start on demand after the infobase user is handled.
+	UsersInternal.UserObjectBeforeWrite(ThisObject, IBUserProcessingParameters);
+	// ACC:75-on
+	
+	// 
+	If Common.FileInfobase() Then
+		// 
+		// 
+		// 
+		Block = New DataLock;
+		Block.Add("InformationRegister.UserGroupsHierarchy");
+		Block.Add("InformationRegister.UserGroupCompositions");
+		Block.Add("InformationRegister.UsersInfo");
+		Block.Lock();
+	EndIf;
+	// ACC:75-on
 	
 	If DataExchange.Load Then
 		Return;
@@ -41,19 +54,19 @@ Procedure BeforeWrite(Cancel)
 	IsNew = IsNew();
 	
 	If Not ValueIsFilled(AuthorizationObject) Then
-		Raise NStr("en = 'No authorization object is set for the external user.';");
+		ErrorText = NStr("en = 'No authorization object is set for the external user.';");
+		Raise ErrorText;
 	Else
 		ErrorText = "";
 		If UsersInternal.AuthorizationObjectIsInUse(
 		         AuthorizationObject, Ref, , , ErrorText) Then
-			
 			Raise ErrorText;
 		EndIf;
 	EndIf;
 	
 	// Checking whether the authorization object was not changed.
 	If IsNew Then
-		PreviousAuthorizationObject = NULL;
+		PreviousAuthorizationObject = Null;
 	Else
 		PreviousAuthorizationObject = Common.ObjectAttributeValue(
 			Ref, "AuthorizationObject");
@@ -61,20 +74,21 @@ Procedure BeforeWrite(Cancel)
 		If ValueIsFilled(PreviousAuthorizationObject)
 		   And PreviousAuthorizationObject <> AuthorizationObject Then
 			
-			Raise NStr("en = 'Cannot change a previously specified authorization object.';");
+			ErrorText = NStr("en = 'Cannot change a previously specified authorization object.';");
+			Raise ErrorText;
 		EndIf;
 	EndIf;
-	
-	UsersInternal.StartIBUserProcessing(ThisObject, IBUserProcessingParameters);
-	
-	SetPrivilegedMode(True);
-	InformationRegisters.UsersInfo.UpdateUserInfoRecords(
-		UsersInternal.ObjectRef2(ThisObject), ThisObject);
-	SetPrivilegedMode(False);
 	
 EndProcedure
 
 Procedure OnWrite(Cancel)
+	
+	// ACC:75-off - A "DataExchange" check. Import should start on demand after the infobase user is handled.
+	If DataExchange.Load And IBUserProcessingParameters <> Undefined Then
+		UsersInternal.EndIBUserProcessing(
+			ThisObject, IBUserProcessingParameters);
+	EndIf;
+	// ACC:75-on
 	
 	If DataExchange.Load Then
 		Return;
@@ -85,7 +99,8 @@ Procedure OnWrite(Cancel)
 	   And ValueIsFilled(AdditionalProperties.NewExternalUserGroup) Then
 		
 		Block = New DataLock;
-		Block.Add("Catalog.ExternalUsersGroups");
+		LockItem = Block.Add("Catalog.ExternalUsersGroups");
+		LockItem.SetValue("Ref", AdditionalProperties.NewExternalUserGroup);
 		Block.Lock();
 		
 		GroupObject1 = AdditionalProperties.NewExternalUserGroup.GetObject(); // CatalogObject.ExternalUsersGroups
@@ -93,29 +108,29 @@ Procedure OnWrite(Cancel)
 		GroupObject1.Write();
 	EndIf;
 	
-	// Updating the content of the "All external users" automatic group.
-	ItemsToChange = New Map;
-	ModifiedGroups   = New Map;
+	// 
+	// 
+	ChangesInComposition = UsersInternal.GroupsCompositionNewChanges();
+	UsersInternal.UpdateUserGroupCompositionUsage(Ref, ChangesInComposition);
+	UsersInternal.UpdateAllUsersGroupComposition(Ref, ChangesInComposition);
+	UsersInternal.UpdateGroupCompositionsByAuthorizationObjectType(Undefined,
+		Ref, ChangesInComposition);
 	
-	UsersInternal.UpdateExternalUserGroupCompositions(
-		Catalogs.ExternalUsersGroups.AllExternalUsers,
-		Ref,
-		ItemsToChange,
-		ModifiedGroups);
+	UsersInternal.EndIBUserProcessing(ThisObject,
+		IBUserProcessingParameters);
 	
-	UsersInternal.UpdateUserGroupCompositionUsage(
-		Ref, ItemsToChange, ModifiedGroups);
+	UsersInternal.AfterUserGroupsUpdate(ChangesInComposition);
 	
-	UsersInternal.EndIBUserProcessing(
-		ThisObject, IBUserProcessingParameters);
-	
-	UsersInternal.AfterUpdateExternalUserGroupCompositions(
-		ItemsToChange,
-		ModifiedGroups);
-	
-	If PreviousAuthorizationObject <> AuthorizationObject Then
-		SSLSubsystemsIntegration.AfterChangeExternalUserAuthorizationObject(
-			Ref, PreviousAuthorizationObject, AuthorizationObject);
+	If PreviousAuthorizationObject <> AuthorizationObject
+	   And Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
+		
+		AuthorizationObjects = New Array;
+		If PreviousAuthorizationObject <> Null Then
+			AuthorizationObjects.Add(PreviousAuthorizationObject);
+		EndIf;
+		AuthorizationObjects.Add(AuthorizationObject);
+		ModuleAccessManagementInternal = Common.CommonModule("AccessManagementInternal");
+		ModuleAccessManagementInternal.AfterChangeExternalUserAuthorizationObject(AuthorizationObjects);
 	EndIf;
 	
 	SSLSubsystemsIntegration.AfterAddChangeUserOrGroup(Ref, IsNew);
@@ -124,11 +139,15 @@ EndProcedure
 
 Procedure BeforeDelete(Cancel)
 	
+	// ACC:75-off - A "DataExchange" check. Import should start on demand after the infobase user is handled.
+	UsersInternal.UserObjectBeforeDelete(ThisObject);
+	// ACC:75-on
+	
 	If DataExchange.Load Then
 		Return;
 	EndIf;
 	
-	CommonActionsBeforeDeleteInNormalModeAndDuringDataExchange();
+	UsersInternal.UpdateGroupsCompositionBeforeDeleteUserOrGroup(Ref);
 	
 EndProcedure
 
@@ -141,25 +160,6 @@ Procedure OnCopy(CopiedObject)
 	Prepared = False;
 	
 	Comment = "";
-	
-EndProcedure
-
-#EndRegion
-
-#Region Private
-
-// For internal use only.
-Procedure CommonActionsBeforeDeleteInNormalModeAndDuringDataExchange() Export
-	
-	
-	
-	
-	IBUserDetails = New Structure;
-	IBUserDetails.Insert("Action", "Delete");
-	AdditionalProperties.Insert("IBUserDetails", IBUserDetails);
-	
-	UsersInternal.StartIBUserProcessing(ThisObject, IBUserProcessingParameters, True);
-	UsersInternal.EndIBUserProcessing(ThisObject, IBUserProcessingParameters);
 	
 EndProcedure
 

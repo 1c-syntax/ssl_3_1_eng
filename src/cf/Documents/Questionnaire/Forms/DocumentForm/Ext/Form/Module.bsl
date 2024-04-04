@@ -1,11 +1,13 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
+// Copyright (c) 2024, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//
+
 #Region FormEventHandlers
 
 &AtServer
@@ -76,7 +78,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 
 	Items.SectionsTreeGroup.Visible = False;
 	TitleSectionsCommand = NStr("en = 'Show sections';");
-	Items.HideShowSectionsTreeDocument.Title = TitleSectionsCommand;
+	Items.HideShowSectionsTree.Title = TitleSectionsCommand;
 
 	ChangeFormItemsVisibility(ThisObject);
 		
@@ -138,7 +140,7 @@ EndProcedure
 &AtClient
 Procedure AfterWrite(WriteParameters)
 
-	ShowUserNotification(NStr("en = 'Edited';"),, String(Object.Ref), PictureLib.Information32);
+	ShowUserNotification(NStr("en = 'Edited';"),, String(Object.Ref), PictureLib.DialogInformation);
 
 	Notify("Write_Questionnaire", New Structure, Object.Ref);
 
@@ -272,7 +274,7 @@ Procedure ResponseFormWrite(Command)
 	If Not Cancel Then
 
 		ShowUserNotification(NStr("en = 'Edited';"),, String(Object.Ref),
-			PictureLib.Information32);
+			PictureLib.DialogInformation);
 
 		Notify("Write_Questionnaire", New Structure, Object.Ref);
 
@@ -325,7 +327,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
 Procedure SetSectionFillingFormAttributesValues()
@@ -704,7 +706,7 @@ Procedure SetAttributeValuesComplexQuestion(DoQueryBox, SelectionQuestion, TreeR
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// 
 
 &AtServer
 Function EndEditFillingForm(WriteMode)
@@ -1104,13 +1106,13 @@ EndProcedure
 Procedure FillAnswersComplexQuestion(TreeRow)
 
 	QuestionName = SurveysClientServer.QuestionName(TreeRow.Composite);
-	TypesOfResponses = Common.ObjectsAttributeValue(
+	AnswersTypes = Common.ObjectsAttributeValue(
 		TreeRow.ComplexQuestionComposition.Unload().UnloadColumn("ElementaryQuestion"), "ReplyType");
 
 	For Each ComplexQuestionRow In TreeRow.ComplexQuestionComposition Do
 
 		AttributeName =  QuestionName + "_Response_" + Format(ComplexQuestionRow.LineNumber, "NG=");
-		ReplyType = TypesOfResponses[ComplexQuestionRow.ElementaryQuestion];
+		ReplyType = AnswersTypes[ComplexQuestionRow.ElementaryQuestion];
 		If ReplyType <> Enums.TypesOfAnswersToQuestion.MultipleOptionsFor Then
 
 			NewRow = Object.Content.Add();
@@ -1443,7 +1445,7 @@ Procedure AvailabilityControlSubordinateQuestions(SetModification = True)
 				Try
 					ItemOfSubordinateQuestion.AutoMarkIncomplete = ValueAutoMarkUnfilled;
 				Except
-					
+					// ACC:280 The check box and radio buttons do not have the AutoMarkIncomplete property.
 				EndTry;
 			EndIf;
 		EndDo;
@@ -1634,7 +1636,7 @@ Procedure ChangeSectionsTreeVisibility()
 	Items.SectionsTreeGroup.Visible = Not Items.SectionsTreeGroup.Visible;
 	TitleSectionsCommand = ?(Items.SectionsTreeGroup.Visible, NStr("en = 'Hide sections';"), 
 		NStr("en = 'Show sections';"));
-	Items.HideShowSectionsTreeDocument.Title = TitleSectionsCommand;
+	Items.HideShowSectionsTree.Title = TitleSectionsCommand;
 
 EndProcedure
 
@@ -1674,7 +1676,7 @@ Procedure PromptForAcceptingQuestionnaireAfterCompletion(QuestionResult, Additio
 
 	Cancel = EndEditFillingForm(DocumentWriteMode.Posting);
 	If Not Cancel Then
-		ShowUserNotification(NStr("en = 'Edited';"),, String(Object.Ref), PictureLib.Information32);
+		ShowUserNotification(NStr("en = 'Edited';"),, String(Object.Ref), PictureLib.DialogInformation);
 		Notify("PostingQuestionnaire", New Structure, Object.Ref);
 		Modified = False;
 		Close();
