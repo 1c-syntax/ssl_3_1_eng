@@ -12,8 +12,8 @@
 
 #Region UserNotification
 
-//  
-// 
+// ACC:142-off - 4 optional parameters intended for compatibility 
+// with the obsolete procedure "CommonClientServer.ReportToUser".
 
 // Generates and displays the message that can relate to a form item.
 //
@@ -139,10 +139,12 @@ EndFunction
 // Procedures and functions for calling optional subsystems.
 
 // Returns True if the functional subsystem exists in the configuration.
-// Intended for calling an optional subsystem (conditional call).
+// Intended for calling an optional subsystem (conditional call) alongside "CommonClient.SubsystemExists". 
 // A subsystem is considered functional if its "Include in command interface" check box is cleared.
+//
 // See also: CommonOverridable.OnDetermineDisabledSubsystems
 // and Common.SubsystemExists to call from server-side code.
+// 
 //
 // Parameters:
 //  FullSubsystemName - String - the full name of the subsystem metadata object
@@ -150,10 +152,10 @@ EndFunction
 //                        Example: "StandardSubsystems.ReportsOptions".
 //
 // Example:
-//  
-//  	
-//  	
-//  
+//  If CommonClient.SubsystemExists("StandardSubsystems.ReportsOptions") Then
+//  	ModuleReportsOptionsClient = CommonClient.CommonModule("ReportsOptionsClient");
+//  	ModuleReportsOptionsClient.<Procedure name>();
+//  EndIf;
 //
 // Returns:
 //  Boolean
@@ -170,25 +172,21 @@ Function SubsystemExists(FullSubsystemName) Export
 	
 EndFunction
 
-// Returns a reference to a common module or manager module by name.
-//
-// See Common.CommonModule
+// Returns a reference to a common module by name. 
+// Intended for conditionally calling procedures and functions alongside "CommonClient.SubsystemExists".
+// See also "CommonClient.CommonModule" for calling the server-side code.
 //
 // Parameters:
-//  Name - String - name of a common module.
+//  Name - String - The name of a common module. For example, "ConfigurationUpdateClient", "ReportsServerCall".
 //
 // Returns:
 //  CommonModule
-//  CatalogManager,
-//  DocumentManager,
-//  DataProcessorManager,
-//  InformationRegisterManager.
 //
 // Example:
-//	
-//		
-//		
-//	
+//	If CommonClient.SubsystemExists("StandardSubsystems.ConfigurationUpdate") Then
+//		ModuleConfigurationUpdateClient = CommonClient.CommonModule("ConfigurationUpdateClient");
+//		ModuleConfigurationUpdateClient.<Procedure name>();
+//	EndIf;
 //
 Function CommonModule(Name) Export
 	
@@ -196,9 +194,8 @@ Function CommonModule(Name) Export
 	
 #If Not WebClient Then
 	
-	// 
-	// 
-	
+	// Skip for the web client (it has no modules of this type
+	// when contacting the modules with a server call).
 	If TypeOf(Module) <> Type("CommonModule") Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Common module ""%1"" does not exist.';"), 
@@ -779,8 +776,8 @@ EndProcedure
 #Region EditingForms
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
-// 
+// Functions handling user actions related to
+// multiline text edition (for example, document comments).
 
 // Opens the multiline text edit form.
 //
@@ -941,7 +938,8 @@ EndFunction
 //                 If Undefined, the add-in is executed according to the default 1C:Enterprise settings
 //                 Isolatedly if the add-in supports only isolated execution; otherwise, non-isolatedly.:
 //                 By default, Undefined.
-//                 See https://its.1c.eu/db/v83doc#bookmark:dev:TI000001866
+//                 See https://its.1c.eu/db/v83doc
+//                                              #bookmark:dev:TI000001866
 //      * AutoUpdate - Boolean - Flag indicating whether UpdateFrom1CITSPortal will be set to True, 
 //                 if SuggestToImport is set to True. By default, True.
 //

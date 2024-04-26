@@ -93,8 +93,8 @@ Procedure NotificationOneMinuteBeforeRestart() Export
 
 EndProcedure
 
-Procedure RestartControlWhenAccessRightsAreReduced() Export
-	UsersInternalClient.WhenMonitoringRestartsWithReducedAccessRights();
+Procedure ControlRestartWhenAccessRightsReduced() Export
+	UsersInternalClient.OnControlRestartWhenAccessRightsReduced();
 EndProcedure
 
 #EndRegion

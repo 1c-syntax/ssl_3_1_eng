@@ -606,9 +606,9 @@ Settings made (for example, report options) will be lost.</v8:content>
 								<Title formatted="true">
 									<v8:item>
 										<v8:lang>en</v8:lang>
-										<v8:content>If you need to…
-• update an extension, click &lt;b&gt;Update&lt;/&gt; instead of deleting and adding it.
-• Temporarily disable an extension, clear the &lt;b&gt;Attach the extension when a user signs in&lt;/&gt; check box.</v8:content>
+										<v8:content>
+• To update an extension, click &lt;b&gt;Update&lt;/&gt; instead of deleting and adding it.
+• To temporarily disable an extension, clear the &lt;b&gt;Attach the extension when a user logs in&lt;/&gt; checkbox.</v8:content>
 									</v8:item>
 								</Title>
 							</ExtendedTooltip>
@@ -711,9 +711,9 @@ before deleting the extension.</v8:content>
 									<v8:item>
 										<v8:lang>en</v8:lang>
 										<v8:content>Read the extension documentation available from the extension provider.
-If you need to 
-update an extension, click &lt;b&gt;Update&lt;/&gt; instead of deleting and adding it again.
-If you need to temporarily disable an extension, clear the &lt;b&gt;Attach the extension when a user signs in&lt;/&gt; check box.</v8:content>
+
+• To update an extension, click &lt;b&gt;Update&lt;/&gt; instead of deleting and adding it again.
+• To temporarily disable an extension, clear the &lt;b&gt;Attach the extension when a user logs in&lt;/&gt; checkbox.</v8:content>
 									</v8:item>
 								</Title>
 							</ExtendedTooltip>

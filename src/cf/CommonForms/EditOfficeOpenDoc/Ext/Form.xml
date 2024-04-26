@@ -297,40 +297,76 @@
 												</Button>
 											</ChildItems>
 										</ButtonGroup>
-										<ButtonGroup name="TranslationOfAllActions" id="144">
+										<ButtonGroup name="TranslationAllActions" id="144">
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Translation</v8:content>
+												</v8:item>
+											</Title>
 											<HorizontalStretch>false</HorizontalStretch>
-											<ExtendedTooltip name="TranslationOfAllActionsExtendedTooltip" id="145"/>
+											<ExtendedTooltip name="TranslationAllActionsExtendedTooltip" id="145"/>
 											<ChildItems>
 												<Popup name="LanguageAllActions" id="146">
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Language</v8:content>
+														</v8:item>
+													</Title>
 													<ExtendedTooltip name="LanguageAllActionsExtendedTooltip" id="147"/>
 													<ChildItems>
-														<ButtonGroup name="LanguagesToAddAllActions" id="148">
-															<ExtendedTooltip name="LanguagesToAddAllActionsExtendedTooltip" id="149"/>
+														<ButtonGroup name="LangsToAddAllActions" id="148">
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Translation</v8:content>
+																</v8:item>
+															</Title>
+															<ExtendedTooltip name="LangsToAddAllActionsExtendedTooltip" id="149"/>
 														</ButtonGroup>
 													</ChildItems>
 												</Popup>
 												<Button name="TranslateAllActions" id="150">
 													<Type>CommandBarButton</Type>
 													<CommandName>Form.Command.Translate</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Translate</v8:content>
+														</v8:item>
+													</Title>
 													<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 													<ExtendedTooltip name="TranslateAllActionsExtendedTooltip" id="151"/>
 												</Button>
-												<Button name="ShowOriginalAllActionsButton" id="152">
+												<Button name="ButtonShowOriginalAllActions" id="152">
 													<Type>CommandBarButton</Type>
 													<CommandName>Form.Command.ShowOriginal</CommandName>
 													<Picture>
 														<xr:Ref>StdPicture.Document</xr:Ref>
 														<xr:LoadTransparent>true</xr:LoadTransparent>
 													</Picture>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Show template</v8:content>
+														</v8:item>
+													</Title>
 													<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-													<ExtendedTooltip name="ShowOriginalAllActionsButtonExtendedTooltip" id="153"/>
+													<ExtendedTooltip name="ButtonShowOriginalAllActionsExtendedTooltip" id="153"/>
 												</Button>
-												<Button name="ViewPrintedFormOfAllActions" id="154">
+												<Button name="ViewPrintFormAllActions" id="154">
 													<Type>CommandBarButton</Type>
 													<Representation>Picture</Representation>
 													<CommandName>Form.Command.ViewPrintableForm</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>View print form</v8:content>
+														</v8:item>
+													</Title>
 													<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-													<ExtendedTooltip name="ViewPrintedFormOfAllActionsExtendedTooltip" id="155"/>
+													<ExtendedTooltip name="ViewPrintFormAllActionsExtendedTooltip" id="155"/>
 												</Button>
 											</ChildItems>
 										</ButtonGroup>

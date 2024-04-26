@@ -59,20 +59,20 @@ Procedure OpenAttachmentsFormatSelectionForm(FormatSettings, Notification) Expor
 	OpenForm("CommonForm.SelectAttachmentFormat", FormParameters,,,,, Notification, FormWindowOpeningMode.LockOwnerWindow);
 EndProcedure
 
-// 
+// Opens the email message composition form.
 // 
 // Parameters:
 //  OwnerForm  - ClientApplicationForm 
 //  FormParameters - Structure:
-//    * Recipient - String - :
-//                           
+//    * Recipient - String - list of addresses in the following format:
+//                           [RecipientPresentation1] <Address1>; [[RecipientPresentation2] <Address2>;…]
 //                 - ValueList:
-//                     ** Presentation - String - 
-//                     ** Value      - String -  postal address.
-//                 - Array - :
-//                     ** Address                        - String -  email address of the message recipient;
-//                     ** Presentation                - String -  representation of the addressee;
-//                     ** ContactInformationSource - CatalogRef -  owner of the contact information. 
+//                     ** Presentation - String - Recipient's presentation.
+//                     ** Value      - String - Email address.
+//                 - Array - Array of structures with the recipient details:
+//                     ** Address                        - String - Recipient's address.
+//                     ** Presentation                - String - Recipient's presentation.
+//                     ** ContactInformationSource - CatalogRef - Contact information owner. 
 //  NotifyDescriptionOnCompletion - NotifyDescription
 //
 Procedure OpenNewMailPreparationForm(OwnerForm, FormParameters, NotifyDescriptionOnCompletion) Export

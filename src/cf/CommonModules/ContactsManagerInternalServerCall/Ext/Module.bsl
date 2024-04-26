@@ -10,14 +10,14 @@
 
 #Region Private
 
-// 
+// Parses contact information presentation and returns a JSON string containing parsed field values.
 //
 //  Parameters:
 //      Text        - String - a contact information presentation
 //      ExpectedType - CatalogRef.ContactInformationKinds
 //                   - EnumRef.ContactInformationTypes - to
 //                     control types.
-//      Comment  - String - 
+//      Comment  - String - User's comment to the contact information.
 //
 //  Returns:
 //      String - JSON

@@ -32,11 +32,32 @@
 //                                      Skype, WebPage, and Fax. This parameter is set only if the contact
 //                                      information group is limited in width.
 //
+//  Example:
+//     Settings.ShouldShowIcons = True;
+//     Settings.CommentFieldWidth = 10;
+//     Settings.PositionOfAddButton = ItemHorizontalLocation.Auto;
 //
+//     Address = Enum.ContactInformationTypes.Address;
+//     Settings.CommandDetails[Address].PlanMeeting.Title = NStr("ru='Meeting'");
+//     Settings.CommandDetails[Address].PlanMeeting.ToolTip = NStr("en='Schedule a meeting.'");
+//     Settings.CommandDetails[Address].PlanMeeting.Picture = PictureLib.PlannedInteraction;
+//     Settings.CommandDetails[Address].PlanMeeting.Action = "_DemoStandardSubsystemsClient.OpenMeetingDocForm";
 //    
+//     _DemoCompanyPhysicalAddress = ContactsManager.ContactInformationKindByName("_DemoCompanyPhysicalAddress");
+//      Settings.CommandDetails[_DemoCompanyPhysicalAddress] = 
+//    	Common.CopyRecursive(ContactsManager.CommandsOfContactInfoType(Enums.ContactInformationTypes.Address));
+//      Settings.CommandDetails[_DemoCompanyPhysicalAddress].PlanMeeting.Action = ""; // Disable the command for the contact information kind.
 //
-//
-//   Example: 
+//   2 parameters are passed to the procedures specfied in "Action":
+//       ContactInformation - Structure:
+//         * Presentation - String
+//         * Value - String
+//         * Type - EnumRef.ContactInformationTypes
+//         * Kind - CatalogRef.ContactInformationKinds
+//       AdditionalParameters - Structure:        
+//         * ContactInformationOwner - DefinedType.ContactInformationOwner.
+//         * Form - ClientApplicationForm - Form of the owner object, where the contact information is to be displayed.
+// 
 //     Procedure OpenMeetingDocForm(ContactInformation, AdditionalParameters) Export
 //		  FillingValues = New Structure;
 //		  FillingValues.Insert("MeetingPlace", ContactInformation.Presentation);
@@ -48,7 +69,7 @@
 //		    	FillingValues.Insert("SubjectOf", "");
 //		  EndIf;
 //
-//		  OpenForm("Document.Meeting.ObjectForm", New Structure("FillingValues", FillingValues),
+//		  OpenForm("Document.Meeting.ObjectForm", New Srtucture("FillingValues", FillingValues),
 //			AdditionalParameters.Form);
 //	   EndProcedure
 //
@@ -67,6 +88,7 @@ EndProcedure
 //  LanguageCode - String - a language code. For example, "en".
 //
 // Example:
+//  Descriptions["_DemoPartnerAddress"] = NStr("ru='Адрес'; en='Address';", LanguageCode);
 //
 Procedure OnGetContactInformationKindsDescriptions(Descriptions, LanguageCode) Export
 	

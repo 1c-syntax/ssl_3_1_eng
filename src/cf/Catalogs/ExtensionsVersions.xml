@@ -415,7 +415,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>The attribute is updated at sign-in if it is earlier than the session start date rounded up to an hour.
+							<v8:content>The attribute is updated at login if it is earlier than the session start date rounded up to an hour.
 The attribute is used in the job of deleting obsolete extension versions with the date of last use earlier than the minimum date of active session start rounded up to an hour.</v8:content>
 						</v8:item>
 					</ToolTip>

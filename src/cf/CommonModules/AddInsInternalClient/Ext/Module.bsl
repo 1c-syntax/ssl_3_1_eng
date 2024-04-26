@@ -259,13 +259,13 @@ Procedure OnReceiptServerNotification(NameOfAlert, Result) Export
 	
 EndProcedure
 
-// 
+// Compatibility error with add-in from template.
 // 
 // Parameters:
-//  Location - String - 
+//  Location - String - Template that contains the add-in.
 // 
 // Returns:
-//  String - 
+//  String - Compatibility error with add-in from template
 //
 Function TemplateAddInCompatibilityError(Location) Export
 	
@@ -280,10 +280,10 @@ Function TemplateAddInCompatibilityError(Location) Export
 	
 EndFunction
 
-// 
+// Check if the add-in from template is compatible.
 // 
 // Parameters:
-//  Notification - NotifyDescription - 
+//  Notification - NotifyDescription - Notify on the compatibility check and show a warning.
 //  AddInAttachmentContext - See CommonInternalClient.AddInAttachmentContext
 //
 Procedure CheckTemplateAddInForCompatibility(Notification, AddInAttachmentContext) Export
@@ -382,6 +382,7 @@ EndFunction
 // The add-in supports the client.
 // 
 // Parameters:
+//  Attributes - See AddInsInternal.AddInAttributes
 // 
 // Returns:
 //  Boolean - Flag indicating whether the add-in supports the client.

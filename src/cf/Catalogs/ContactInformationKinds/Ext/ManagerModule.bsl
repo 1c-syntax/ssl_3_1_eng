@@ -734,7 +734,6 @@ Procedure SetContactInformationKindsDescriptions(ContactInformationKind, KindNam
 					
 					Filter = New Structure;
 					Filter.Insert("LanguageCode",     Language.LanguageCode);
-					Filter.Insert("Description", Presentation);
 					FoundRows = ContactInformationKind.Presentations.FindRows(Filter);
 					If FoundRows.Count() > 0 Then
 						NewRow = FoundRows[0];

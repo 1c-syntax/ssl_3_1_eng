@@ -116,13 +116,11 @@ Function IsWordSeparator(CharCode, WordSeparators = Undefined) Export
 	EndIf;
 		
 	Ranges = New Array;
-	Ranges.Add(New Structure("Min,Max", 48, 57)); 		// Digits
-	Ranges.Add(New Structure("Min,Max", 65, 90)); 		// Uppercase Latin characters.
-	Ranges.Add(New Structure("Min,Max", 97, 122)); 		// Lowercase Latin characters.
-	Ranges.Add(New Structure("Min,Max", 1040, 1103)); 	// Cyrillic characters.
-	Ranges.Add(New Structure("Min,Max", 1025, 1025)); 	
-	Ranges.Add(New Structure("Min,Max", 1105, 1105)); 	
-	Ranges.Add(New Structure("Min,Max", 95, 95)); 		// Underline ( _ ) character.
+	StringFunctionsClientServerLocalization.WhenDefiningCharactersOfWords(Ranges);
+	Ranges.Add(New Structure("Min,Max", 48, 57)); 	// Digits
+	Ranges.Add(New Structure("Min,Max", 65, 90)); 	// Uppercase Latin characters.
+	Ranges.Add(New Structure("Min,Max", 97, 122)); 	// Lowercase Latin characters.
+	Ranges.Add(New Structure("Min,Max", 95, 95)); 	// Underline ( _ ) character.
 	
 	For Each Span In Ranges Do
 		If CharCode >= Span.Min And CharCode <= Span.Max Then
@@ -279,7 +277,8 @@ EndFunction
 //
 // Example:
 //  Values = New Structure("LastName,Name", "Smith", "John");
-//  - Returns: "Hello, John Doe".
+//  Result = StringFunctionsClientServer.InsertParametersIntoString("Hello, [Name] [LastName].", Values);
+//  - Returns: "Hello, John Smith".
 //
 Function InsertParametersIntoString(Val StringPattern, Val Parameters) Export
 	Result = StringPattern;
@@ -370,8 +369,8 @@ Function OnlyNumbersInString(Val Value, Val Obsolete1 = True, Val SpacesProhibit
 		Return True;
 	EndIf;
 	
-	// 
-	// 
+	// If it contains only digits, its replacement will result in an empty string.
+	// However, it cannot be validated using "IsBlankString" since the source string may contain whitespaces.
 	Return StrLen(
 		StrReplace( StrReplace( StrReplace( StrReplace( StrReplace(
 		StrReplace( StrReplace( StrReplace( StrReplace( StrReplace( 
@@ -419,18 +418,18 @@ Function OnlyRomanInString(Val CheckString, Val WithWordSeparators = True, Allow
 	
 EndFunction
 
-// 
+// Validates strings by finding invalid characters.
 //
 // Parameters:
-//  RowToValidate - String -  the string to check.
-//  AdditionalValidChars - Undefined, String - 
-//                                                           
-//  	 
+//  RowToValidate - String - String to validate.
+//  AdditionalValidChars - Undefined, String - Additional valid characters.
+//                                                           If left blank, only non-printing characters are valid:
+//  	whitespace, non-breaking space, tab, line feed, and form feed. 
 //  	
 //
 // Returns:
-//  Boolean - 
-//           
+//  Boolean - "True" if the string contains only the valid characters.
+//           Otherwise, "False".
 //
 Function IsStringContainsOnlyNationalAlphabetChars(Val RowToValidate, Val AdditionalValidChars = Undefined) Export
 	
@@ -514,14 +513,17 @@ EndFunction
 //
 // Parameters:
 //  Char      - String - a character used to generated a string.
-//  StringLength - Number  - required length of a resulting row.
+//  StringLength - Number  - required length of a resulting row. 
 //
 // Returns:
-//  String - a string filled with the repeating character.
+//  String
 //
 Function GenerateCharacterString(Val Char, Val StringLength) Export
 	
-	Return StrConcat(New Array(StringLength+1), Char);
+	If StringLength <= 0 Then
+		Return "";
+	EndIf;
+	Return StrConcat(New Array(StringLength + 1), Char);
 	
 EndFunction
 
@@ -1041,6 +1043,7 @@ EndFunction
 //  │ Card.│      │ %1 day left │                │ %1 days left   │ %1 days left      │ %1 days left│
 //  │      │      │ see %1 fish    │                │ see %1 fish     │ see %5 fish           │ see %1 fish  │
 //  ├──────┼──────┼─────────────────┼────────────────┼───────────────────┼───────────────────────┼────────────────┤
+//  │ ru   │      │                 │                │                   │                       │ no others     │
 //  │ Ord. │      │                 │                │                   │                       │ %1th day      │
 //  ├──────┼──────┼─────────────────┼────────────────┼───────────────────┼───────────────────────┼────────────────┤
 //  │ en   │      │ for 1           │                │                   │                       │ the rest      │
@@ -1092,14 +1095,14 @@ EndFunction
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. See StringFunctions.FormattedString
-//  See StringFunctionsClient.FormattedString.
+// Deprecated. Instead, use See StringFunctions.FormattedString
+// or See StringFunctionsClient.FormattedString.
 //
-// 
-// 
-// 
-// 
-// 
+// Generates a string according to the specified pattern.
+// The possible tag values in the template:
+// - String - Applies the bold formatting.
+// - String - Adds a hyperlink.
+// For example, "Lowest supported version is <b>1.1</b>. <a href = "Update">Update</a> the app."
 //
 // Parameters:
 //  StringWithTags - String - a string containing formatting tags.
@@ -1176,7 +1179,7 @@ Function FormattedString(Val StringWithTags) Export
 		
 	EndDo;
 	
-	Return New FormattedString(RowArray);	// 
+	Return New FormattedString(RowArray);	// ACC:1356 - A compound format string can be used as the string array consists of the passed text.
 														// 
 	
 EndFunction
@@ -1250,48 +1253,6 @@ Function InPlural(FormFor1, FormFor2, FormFor5, Val Value) Export
 	Return NumberInDigitsUnitOfMeasurementInWords(Value, FormFor1 + "," + FormFor2 + "," + FormFor5, False);
 EndFunction
 
-// Deprecated. Instead, use StringFunctionsClientServerRussia.OnlyCyrillicInString.
-// Checks whether the string contains Cyrillic letters only.
-//
-// Parameters:
-//  CheckString - String - a string to check.
-//  WithWordSeparators - Boolean - If True, treat word separators as legit characters.
-//  AllowedChars - String - additional allowed characters except Cyrillic.
-//
-// Returns:
-//  Boolean - True if the string contains Cyrillic or allowed chars only or is empty;
-//           False otherwise.
-//
-Function OnlyLatinInString(Val CheckString, Val WithWordSeparators = True, AllowedChars = "") Export
-	
-	If TypeOf(CheckString) <> Type("String") Then
-		Return False;
-	EndIf;
-	
-	If Not ValueIsFilled(CheckString) Then
-		Return True;
-	EndIf;
-	
-	ValidCharCodes = New Array;
-	ValidCharCodes.Add(1105); // 
-	ValidCharCodes.Add(1025); 
-	
-	For IndexOf = 1 To StrLen(AllowedChars) Do
-		ValidCharCodes.Add(CharCode(Mid(AllowedChars, IndexOf, 1)));
-	EndDo;
-	
-	For IndexOf = 1 To StrLen(CheckString) Do
-		CharCode = CharCode(Mid(CheckString, IndexOf, 1));
-		If ((CharCode < 1040) Or (CharCode > 1103)) 
-			And (ValidCharCodes.Find(CharCode) = Undefined) 
-			And Not (Not WithWordSeparators And IsWordSeparator(CharCode)) Then
-			Return False;
-		EndIf;
-	EndDo;
-	
-	Return True;
-	
-EndFunction
 
 // Deprecated. Instead, use See StringFunctions.LatinString
 // or See StringFunctionsClient.LatinString.

@@ -3,7 +3,12 @@
 	<Form uuid="9de12434-34a3-4f73-848e-d0798f6d6c83">
 		<Properties>
 			<Name>AllReminders</Name>
-			<Synonym/>
+			<Synonym>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>All reminders</v8:content>
+				</v8:item>
+			</Synonym>
 			<Comment/>
 			<FormType>Managed</FormType>
 			<IncludeHelpInContents>false</IncludeHelpInContents>

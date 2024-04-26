@@ -195,7 +195,7 @@ timeout</v8:content>
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Sign-in
+							<v8:content>Login
 allowed on
 </v8:content>
 						</v8:item>
@@ -224,7 +224,7 @@ active on
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Sign-in
+							<v8:content>Login
 auto-denied on
 </v8:content>
 						</v8:item>

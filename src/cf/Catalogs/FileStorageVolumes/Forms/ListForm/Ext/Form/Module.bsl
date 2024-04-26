@@ -73,14 +73,8 @@ Procedure StartDeletionMarkChange(CurrentData)
 		QueryText = NStr("en = 'Do you want to mark ""%1"" for deletion?';");
 	EndIf;
 	
-	QuestionContent = New Array;
-	QuestionContent.Add(PictureLib.DoQueryBox32);
-	QuestionContent.Add(StringFunctionsClientServer.SubstituteParametersToString(
-		QueryText, CurrentData.Description));
-	
-	ShowQueryBox(
-		New NotifyDescription("ContinueDeletionMarkChange", ThisObject, CurrentData),
-		New FormattedString(QuestionContent),
+	ShowQueryBox(New NotifyDescription("ContinueDeletionMarkChange", ThisObject, CurrentData),
+		StringFunctionsClientServer.SubstituteParametersToString(QueryText, CurrentData.Description),
 		QuestionDialogMode.YesNo);
 	
 EndProcedure

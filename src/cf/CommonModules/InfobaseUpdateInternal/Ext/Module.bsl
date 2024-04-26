@@ -568,7 +568,7 @@ Procedure ExecuteDeferredUpdateNow(ParametersOfUpdate = Undefined) Export
 	SyncedUpdate = ParametersOfUpdate <> Undefined
 		And (Not ParametersOfUpdate.OnClientStart
 			Or StrFind(StartupParameters, "UpdateAndExit") > 0);
-	ScriptUpdate = StrFind(StartupParameters, "UpdateAndExit") > 0;
+	IsScriptedUpdate = StrFind(StartupParameters, "UpdateAndExit") > 0;
 	
 	If UpdateInfo.DeferredUpdatesEndTime <> Undefined Then
 		RunActionAfterDeferredInfobaseUpdate(SyncedUpdate);
@@ -602,7 +602,7 @@ Procedure ExecuteDeferredUpdateNow(ParametersOfUpdate = Undefined) Export
 		EndIf;
 	EndDo;
 	
-	RunActionAfterDeferredInfobaseUpdate(SyncedUpdate, ScriptUpdate);
+	RunActionAfterDeferredInfobaseUpdate(SyncedUpdate, IsScriptedUpdate);
 	
 EndProcedure
 
@@ -1918,7 +1918,7 @@ EndFunction
 // Returns:
 //  FixedMap of KeyAndValue:
 //   * Key - MetadataObject
-//   * Value - String -  full name of the metadata object
+//   * Value - String - The full name of the metadata object.
 //
 Function ObjectsWithInitialFilling() Export
 	
@@ -2073,7 +2073,7 @@ Procedure InitialFillingOfPredefinedData(UpdateMultilanguageStrings = False,
 			Continue;
 		EndIf;
 		
-		// 
+		// @skip-check query-in-loop - An update mechanism.
 		UpdateObjectPredefinedItems(ObjectMetadata,ParametersOfUpdate);
 
 	EndDo;
@@ -2226,7 +2226,11 @@ Procedure UpdateObjectPredefinedItems(ObjectMetadata, ParametersOfUpdate) Export
 					ObjectExceptionFields.Insert(EditedAttribute, True);
 				EndDo;
 				
-				FillingData = DefineTheFillingData(PredefinedData, TableRow, ObjectExceptionFields, DetailsToFillIn);
+				If ObjectReference <> Undefined Then
+					FillingData = DefineTheFillingData(PredefinedData, TableRow, ObjectExceptionFields, DetailsToFillIn);
+				Else
+					FillingData = DefineTheFillingData(PredefinedData, TableRow, ObjectExceptionFields);
+				EndIf;
 				
 				FillPropertyValues(ItemToFill, FillingData);
 				
@@ -2503,9 +2507,50 @@ EndFunction
 
 #Region Private
 
-Function DefineTheFillingData(Val PredefinedData, Val TableRow, Val ExceptionFields, Val DetailsToFillIn)
+Function ManualCheckForFixIsAvailable() Export
+	
+	If Common.SubsystemExists("OnlineUserSupport")
+		And Common.SubsystemExists("StandardSubsystems.ConfigurationUpdate")
+		And Not Common.DataSeparationEnabled()
+		And Not Common.IsSubordinateDIBNode() Then
+		ModuleOnlineUserSupport = Common.CommonModule("OnlineUserSupport");
+		ModuleOnlineUserSupportClientServer = Common.CommonModule("OnlineUserSupportClientServer");
+		ISLVersion = ModuleOnlineUserSupportClientServer.LibraryVersion();
+		If CommonClientServer.CompareVersions(ISLVersion, "2.6.3.0") < 0
+			Or Not Users.IsFullUser() Then
+			Return False;
+		Else
+			AuthenticationData = ModuleOnlineUserSupport.OnlineSupportUserAuthenticationData();
+			If AuthenticationData = Undefined Then
+				Return False;
+			Else
+				Return True;
+			EndIf;
+		EndIf;
+	Else
+		Return False
+	EndIf;
+	
+EndFunction
 
-	AreOnlyAttributesToFill = DetailsToFillIn.Count() > 0;
+Function FixesAvailableForInstallation() Export
+	Result = Undefined;
+	If Common.SubsystemExists("OnlineUserSupport.GetApplicationUpdates") Then
+		ModuleGetApplicationUpdates = Common.CommonModule("GetApplicationUpdates");
+		Result = ModuleGetApplicationUpdates.InfoAboutAvailablePatches();
+		If Result <> Undefined Then
+			Corrections = Result.Corrections.UnloadColumn("Description");
+			Result.Insert("NumberOfCorrections", Result.Corrections.Count());
+			Result.Insert("Corrections", Corrections);
+		EndIf;
+	EndIf;
+	
+	Return Result;
+EndFunction
+
+Function DefineTheFillingData(Val PredefinedData, Val TableRow, Val ExceptionFields, Val DetailsToFillIn = Undefined)
+
+	AreOnlyAttributesToFill = ?(TypeOf(DetailsToFillIn) = Type("Map"), DetailsToFillIn.Count() > 0, False);
 	
 	FillingData = New Structure;
 	For Each Column In PredefinedData.Columns Do
@@ -2844,13 +2889,13 @@ Procedure ExecuteActionsAfterUpdateInfobase(ParametersOfUpdate, AdditionalParame
 	
 EndProcedure
 
-Procedure RunActionAfterDeferredInfobaseUpdate(SyncedUpdate = False, ScriptUpdate = False)
+Procedure RunActionAfterDeferredInfobaseUpdate(SyncedUpdate = False, IsScriptedUpdate = False)
 	
 	If Not DeferredUpdateCompleted() Then
-		If ScriptUpdate And Common.SubsystemExists("StandardSubsystems.ConfigurationUpdate") Then
+		If IsScriptedUpdate And Common.SubsystemExists("StandardSubsystems.ConfigurationUpdate") Then
 			ModuleConfigurationUpdate = Common.CommonModule("ConfigurationUpdate");
-			AbortUpdate = ModuleConfigurationUpdate.CurVersionRequiresSuccessfulEndOfHandlers();
-			If AbortUpdate Then
+			ShouldAbortUpdate = ModuleConfigurationUpdate.IsCurrentVersionRequiresSuccessfulHandlersCompletion();
+			If ShouldAbortUpdate Then
 				Raise NStr("en = 'The deferred update is completed with errors. See the event log for details.';");
 			EndIf;
 		EndIf;
@@ -5992,13 +6037,13 @@ Function SelectBatchData(SelectionParameters, Queue, RefObject1, TabularObject)
 	
 EndFunction
 
-// 
+// Determines whether a data batch or a data page is being processed.
 //
 // Parameters:
 //  SearchParameters - See NewBatchSearchParameters
 //
 // Returns:
-//  Boolean - 
+//  Boolean - "True" if a data batch is being processed. "False" if a page is being processed.
 //
 Function IsBatchProcessing(SearchParameters)
 	
@@ -6065,13 +6110,13 @@ Function DataIterationParametersForUpdate(SearchParameters)
 	
 EndFunction
 
-// 
+// Determines whether the first data page is being processed.
 //
 // Parameters:
 //  SearchParameters - See NewBatchSearchParameters
 //
 // Returns:
-//  Boolean - 
+//  Boolean - "True" if the first data page is being processed. Otherwise, "False".
 //           
 //
 Function SearchFromBegin(SearchParameters)
@@ -8245,7 +8290,7 @@ Function ObsoleteDataPurgePlan(CleanUpDeleteable, TablesToClearUp = Undefined, S
 		SeparatedTables = AllTables.Copy(AllTables.FindRows(Filter));
 		SetTablesCleaningOrder(SeparatedTables);
 		Rows.Add(NStr("en = '2. The following separated tables will be processed in data areas
-		                           |   (the full cleanup plan is available only when you sign in to a data area).';"));
+		                           |   (the full cleanup plan is available only when you log in to a data area).';"));
 		AddTablesDetailsToCleanUpPlan(Rows, SeparatedTables);
 	EndIf;
 	
@@ -12325,7 +12370,7 @@ Procedure WriteProgressProgressHandler(HandlerParameters) Export
 	
 EndProcedure
 
-// 
+// The mechanism that performs the initial population of predefined items.
 
 Function EditedAttributes(ItemToFill, FullMetadataObjectName)
 	

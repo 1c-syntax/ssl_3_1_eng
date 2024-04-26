@@ -287,7 +287,8 @@ Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSe
 EndProcedure
 
 // Called after defining form element properties associated with the user settings.
-// See ReportsServer.SettingsFormItemsProperties()
+// See ReportsServer.SettingsFormItemsProperties
+// ()
 // Allows to override properties to customize reports.
 //
 // Parameters:
@@ -359,7 +360,7 @@ Procedure OnComposeResult(ResultDocument, DetailsData, StandardProcessing)
 	ReplaceParametersValues(DetailsData.Settings, Settings.AdditionalProperties.AvailableValues, ParametersInitialValues);
 	
 	CompositionProcessor = New DataCompositionProcessor;
-	CompositionProcessor.Initialize(CompositionTemplate,, DetailsData);
+	CompositionProcessor.Initialize(CompositionTemplate,, DetailsData, True);
 	
 	OutputProcessor = New DataCompositionResultSpreadsheetDocumentOutputProcessor;
 	OutputProcessor.SetDocument(ResultDocument);

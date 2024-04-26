@@ -26,7 +26,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	OnlyClassifierData = Parameters.OnlyClassifierData;
-	Parameters.Property("ChoiceMode", ChoiceMode);
+	ChoiceMode = Parameters.ChoiceMode;
 	
 	// Allow elements.
 	Items.List.ChoiceMode = ChoiceMode;

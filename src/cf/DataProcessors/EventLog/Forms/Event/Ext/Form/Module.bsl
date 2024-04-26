@@ -192,7 +192,23 @@ EndProcedure
 &AtClient
 Procedure DataTableChoice(Item, RowSelected, Field, StandardProcessing)
 	
-	ShowValue(, Item.CurrentData[Mid(Field.Name, StrLen(Item.Name)+1)]);
+	Value = Item.CurrentData[Mid(Field.Name, StrLen(Item.Name)+1)];
+	
+	If StrStartsWith(Value, "{""#"",")
+	   And StrEndsWith(Value, "}")
+	   And StrSplit(Value, ",").Count() = 3 Then
+		
+		Ref = SourceRef1(Value);
+		If ValueIsFilled(Ref) Then
+			Value = Ref;
+		Else
+			Value = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Failed to retrieve the reference from the row. The reference type might be invalid:
+				           |%1';"), Value);
+		EndIf;
+	EndIf;
+	
+	ShowValue(, Value);
 	
 EndProcedure
 
@@ -284,5 +300,22 @@ Procedure SetConditionalAppearance()
 	Item.Appearance.SetParameterValue("Visible", False);
 	
 EndProcedure
+
+&AtServerNoContext
+Function SourceRef1(SerializedLink)
+	
+	Try
+		Ref = ValueFromStringInternal(SerializedLink);
+	Except
+		Ref = Undefined;
+	EndTry;
+	
+	If Not Common.IsReference(TypeOf(Ref)) Then
+		Ref = Undefined;
+	EndIf;
+	
+	Return Ref;
+	
+EndFunction
 
 #EndRegion

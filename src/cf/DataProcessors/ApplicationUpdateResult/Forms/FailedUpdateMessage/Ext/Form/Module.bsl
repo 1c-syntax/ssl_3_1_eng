@@ -66,26 +66,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		ScriptDirectory = ModuleConfigurationUpdate.ScriptDirectory();
 	EndIf;
 	
-	If Common.SubsystemExists("OnlineUserSupport")
-		And Common.SubsystemExists("StandardSubsystems.ConfigurationUpdate")
-		And Not Common.DataSeparationEnabled()
-		And Not Common.IsSubordinateDIBNode() Then
-		ModuleOnlineUserSupport = Common.CommonModule("OnlineUserSupport");
-		ModuleOnlineUserSupportClientServer = Common.CommonModule("OnlineUserSupportClientServer");
-		ISLVersion = ModuleOnlineUserSupportClientServer.LibraryVersion();
-		If CommonClientServer.CompareVersions(ISLVersion, "2.6.3.0") < 0
-			Or Not Users.IsFullUser() Then
-			Items.FormCheckPatches.Visible = False;
-		Else
-			AuthenticationData = ModuleOnlineUserSupport.OnlineSupportUserAuthenticationData();
-			
-			If AuthenticationData = Undefined Then
-				Items.FormCheckPatches.Visible = False;
-			EndIf;
-		EndIf;
-	Else
-		Items.FormCheckPatches.Visible = False;
-	EndIf;
+	Items.FormCheckPatches.Visible = InfobaseUpdateInternal.ManualCheckForFixIsAvailable();
 	
 EndProcedure
 
@@ -187,34 +168,8 @@ EndProcedure
 Procedure CheckPatches(Command)
 	Result = AvailableFixesOnServer();
 	
-	If Result = Undefined Then
-		Return;
-	EndIf;
-	
-	If Result.Error Then
-		ShowMessageBox(, Result.BriefErrorDetails);
-		Return;
-	EndIf;
-	
-	QuestionParameters = StandardSubsystemsClient.QuestionToUserParameters();
-	QuestionParameters.PromptDontAskAgain = False;
-	QuestionParameters.Title = NStr("en = 'Check whether patches are available';");
-	QuestionParameters.Picture = PictureLib.Information;
-	
-	If Result.NumberOfCorrections = 0 Then
-		Message = NStr("en = 'No available patch is found.';");
-		StandardSubsystemsClient.ShowQuestionToUser(Undefined, Message, QuestionDialogMode.OK, QuestionParameters);
-		Return;
-	EndIf;
-	
-	Message = NStr("en = 'Found %1 patches. Do you want to install them?';");
-	Message = StringFunctionsClientServer.SubstituteParametersToString(Message, Result.NumberOfCorrections);
-	
 	NotifyDescription = New NotifyDescription("CheckAvailableFixesContinued", ThisObject, Result);
-	
-	QuestionParameters.Picture = PictureLib.DialogQuestion;
-	QuestionParameters.DefaultButton = DialogReturnCode.Yes;
-	StandardSubsystemsClient.ShowQuestionToUser(NotifyDescription, Message, QuestionDialogMode.YesNo, QuestionParameters);
+	InfobaseUpdateClient.ProcessResultOfManuallyCheckingAvailablePatches(Result, NotifyDescription);
 EndProcedure
 
 &AtClient
@@ -228,18 +183,7 @@ EndProcedure
 
 &AtServer
 Function AvailableFixesOnServer()
-	Result = Undefined;
-	If Common.SubsystemExists("OnlineUserSupport.GetApplicationUpdates") Then
-		ModuleGetApplicationUpdates = Common.CommonModule("GetApplicationUpdates");
-		Result = ModuleGetApplicationUpdates.InfoAboutAvailablePatches();
-		If Result <> Undefined Then
-			Corrections = Result.Corrections.UnloadColumn("Description");
-			Result.Insert("NumberOfCorrections", Result.Corrections.Count());
-			Result.Insert("Corrections", Corrections);
-		EndIf;
-	EndIf;
-	
-	Return Result;
+	Return InfobaseUpdateInternal.FixesAvailableForInstallation();
 EndFunction
 
 &AtClient
@@ -255,7 +199,7 @@ Procedure CheckAvailableFixesContinued(Result, AdditionalParameters) Export
 	
 	TimeConsumingOperation    = StartingPatchInstallation();
 	IdleParameters     = TimeConsumingOperationsClient.IdleParameters(ThisObject);
-	CallbackOnCompletion = New NotifyDescription("ProcessResult", ThisObject, AdditionalParameters);
+	CallbackOnCompletion = New NotifyDescription("ProcessResultOfManualPatchInstallation", InfobaseUpdateClient, AdditionalParameters);
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
 	
 EndProcedure
@@ -268,61 +212,6 @@ Function StartingPatchInstallation()
 	Return TimeConsumingOperations.ExecuteFunction(ExecutionParameters, "GetApplicationUpdates.DownloadAndInstallFixes");
 	
 EndFunction
-
-// Parameters:
-//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
-//  AdditionalParameters - Undefined
-//
-&AtClient
-Procedure ProcessResult(Result, AdditionalParameters) Export
-	If Result = Undefined Then
-		Return;
-	EndIf;
-	
-	QuestionParameters = StandardSubsystemsClient.QuestionToUserParameters();
-	QuestionParameters.PromptDontAskAgain = False;
-	QuestionParameters.Title = NStr("en = 'Installing patches';");
-	
-	If Result.Status = "Error" Then
-		StandardSubsystemsClient.OutputErrorInfo(
-			Result.ErrorInfo);
-		Return;
-	EndIf;
-	
-	InstallResult = GetFromTempStorage(Result.ResultAddress);
-	If InstallResult.Error Then
-		ErrorText = InstallResult.BriefErrorDetails
-			+ Chars.LF + Chars.LF + NStr("en = 'For technical error details, see the event log.';");
-		
-		Buttons = New ValueList;
-		Buttons.Add("EventLog", NStr("en = 'Event log';"));
-		Buttons.Add("Close", NStr("en = 'Close';"));
-		QuestionParameters.Picture = PictureLib.DialogExclamation;
-		QuestionParameters.DefaultButton = "Close";
-		NotifyDescription = New NotifyDescription("HandlePatchInstallationError", ThisObject);
-		StandardSubsystemsClient.ShowQuestionToUser(NotifyDescription, ErrorText, Buttons, QuestionParameters);
-		
-		Return;
-	EndIf;
-	
-	OpeningParameters = New Structure;
-	OpeningParameters.Insert("Corrections", AdditionalParameters.Corrections);
-	OpeningParameters.Insert("OnUpdate", True);
-	ModuleConfigurationUpdateClient = CommonClient.CommonModule("ConfigurationUpdateClient");
-	ModuleConfigurationUpdateClient.ShowInstalledPatches(OpeningParameters, FormWindowOpeningMode.LockOwnerWindow);
-	
-EndProcedure
-
-&AtClient
-Procedure HandlePatchInstallationError(Result, AdditionalParameters) Export
-	If Result = Undefined Then
-		Return;
-	EndIf;
-	
-	If Result.Value = "EventLog" Then
-		EventLogClient.OpenEventLog();
-	EndIf;
-EndProcedure
 
 &AtServer
 Function AttachExternalDataProcessor(AddressInTempStorage)

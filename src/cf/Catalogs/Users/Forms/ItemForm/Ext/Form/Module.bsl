@@ -13,6 +13,9 @@
 &AtClient
 Var WriteParametersOnFirstAdministratorCheck;
 
+&AtClient
+Var SkipNameWhenChanging, SkipNameOfCarSelection;
+
 #EndRegion
 
 #Region FormEventHandlers
@@ -629,7 +632,7 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	   And ValidityPeriod <= BegOfDay(CurrentSessionDate()) Then
 		
 		Common.MessageToUser(
-			NStr("en = 'The password expiration date must be tomorrow or later.';"),, "CanSignIn",, Cancel);
+			NStr("en = 'The expiration date must be tomorrow or later.';"),, "CanSignIn",, Cancel);
 	EndIf;
 	
 	// Checking whether the metadata contains roles.
@@ -702,9 +705,55 @@ EndProcedure
 &AtClient
 Procedure DescriptionOnChange(Item)
 	
+	If SkipNameWhenChanging = True Then
+		Return;
+	EndIf;
+	
 	UpdateUsername(ThisObject, True);
 	
 	DetermineNecessityForSynchronizationWithService(ThisObject);
+	
+EndProcedure
+
+&AtClient
+Procedure DescriptionAutoComplete(Item, Text, ChoiceData,
+			DataGetParameters, Waiting, StandardProcessing)
+	
+	If Not ValueIsFilled(Text)
+	 Or Not CommonClient.SubsystemExists("OnlineUserSupport.PickName")
+	 Or SkipNameOfCarSelection = True Then
+		SkipNameOfCarSelection = False;
+		Return;
+	EndIf;
+	ModuleNameHintClient = CommonClient.CommonModule("PickNameClient");
+	
+	FullNameData = New Structure("Presentation", Text);
+	ClassifierData = ModuleNameHintClient.Pick("LASTFIRSTNAME", FullNameData);
+	
+	If ClassifierData.Count() > 0 Then
+		StandardProcessing = False;
+		ChoiceData = New ValueList;
+		ChoiceData.LoadValues(ClassifierData);
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure DescriptionChoiceProcessing(Item, ValueSelected, StandardProcessing)
+	
+	StandardProcessing = False;
+	SkipNameWhenChanging = True;
+	
+	GivenNames = StrSplit(ValueSelected, " ", False);
+	Items.Description.UpdateEditText();
+	If GivenNames.Count() < 3 Then
+		Items.Description.SelectedText = ValueSelected + " ";
+	Else
+		Items.Description.SelectedText = ValueSelected;
+		SkipNameOfCarSelection = True;
+	EndIf;
+	
+	SkipNameWhenChanging = False;
 	
 EndProcedure
 
@@ -761,8 +810,7 @@ Procedure CanSignIn1OnChange(Item)
 	If Object.DeletionMark And CanSignIn Then
 		CanSignIn = False;
 		ShowMessageBox(,
-			NStr("en = 'To allow signing in to the application, clear the
-				|deletion mark from the user.';"));
+			NStr("en = 'To allow logging in to the application, clear the deletion mark from the user.';"));
 		Return;
 	EndIf;
 	
@@ -799,7 +847,7 @@ Procedure CanSignIn1OnChange(Item)
 	   And Not CanSignIn Then
 		
 		ShowMessageBox(,
-			NStr("en = 'Once you save the changes, only administrator can allow signing in to the application.';"));
+			NStr("en = 'Once you save the changes, only the administrator can allow login to the application.';"));
 	EndIf;
 	
 	CanSignInDirectChangeValue = CanSignIn;
@@ -2519,7 +2567,7 @@ Procedure SetPropertiesAvailability(Form)
 	AccessLevel = Form.AccessLevel;
 	ActionsWithSaaSUser = Form.ActionsWithSaaSUser;
 	
-	// Note to the "Sign-in blocked" state.
+	// Note to the "Login blocked" state.
 	If Form.CanSignIn Then
 		Items.GroupNoRights.Visible         = Form.WhetherRightsAreAssigned.HasNoRights;
 		Items.GroupNoStartupRights.Visible = Not Form.WhetherRightsAreAssigned.HasNoRights
@@ -2725,5 +2773,6 @@ Procedure ProcessRolesInterface(Action, MainParameter = Undefined)
 	EndIf;
 	
 EndProcedure
+
 
 #EndRegion

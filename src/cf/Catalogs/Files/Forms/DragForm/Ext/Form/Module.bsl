@@ -154,7 +154,7 @@ Procedure FillFileList(FilePath, Val TreeItems, TopLevelItem, DirectoriesOnly = 
 	If MovedFile.IsDirectory() Then
 		NewItem.PictureIndex = 2; // Folder
 	Else
-		NewItem.PictureIndex = FilesOperationsInternalClientServer.GetFileIconIndex(MovedFile.Extension);
+		NewItem.PictureIndex = FilesOperationsInternalClientServer.IndexOfFileIcon(MovedFile.Extension);
 	EndIf;
 		
 	If MovedFile.IsDirectory() Then

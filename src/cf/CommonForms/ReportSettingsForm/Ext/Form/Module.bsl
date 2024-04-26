@@ -1246,8 +1246,8 @@ Procedure FiltersUserSettingPresentationOnChange(Item)
 	
 	If Not String.IsParameter Then
 		If String.DisplayModePicture = 1 Or String.DisplayModePicture = 3 Then
-			// 
-			// 
+			// If "UserSettingPresentation" is assigned a value, "Presentation" behaves as a switch,
+			// but it can also be used for importing to a spreadsheet.
 			// 
 			SettingItem.Presentation = String.UserSettingPresentation;
 		Else
@@ -4034,11 +4034,15 @@ Procedure DragSelectedFieldsToSorting(Rows)
 				Continue;
 			EndIf;
 			
+			SettingDetails = StructureItemSorting.OrderAvailableFields.FindField(SettingItemSource.Field);
+			
+			If SettingDetails = Undefined Then
+				Continue;
+			EndIf;
+			
 			SettingItemDestination = StructureItemSorting.Items.Add(Type("DataCompositionOrderItem"));
 			FillPropertyValues(SettingItemDestination, SettingItemSource);
 			SettingItemDestination.Use = True;
-			
-			SettingDetails = StructureItemSorting.OrderAvailableFields.FindField(SettingItemSource.Field);
 			
 			DestinationRow = Section.GetItems().Add();
 			FillPropertyValues(DestinationRow, SettingItemDestination);
@@ -5263,6 +5267,7 @@ Function ListFillingParameters(Var_CloseOnChoice = False, MultipleChoice = True,
 	FillParameters.Insert("CloseOnChoice", Var_CloseOnChoice);
 	FillParameters.Insert("CloseOnOwnerClose", True);
 	FillParameters.Insert("Filter", New Structure);
+	// Standard parameters of the choice form. See "Managed form extension for dynamic lists".
 	FillParameters.Insert("MultipleChoice", MultipleChoice);
 	FillParameters.Insert("ChoiceMode", True);
 	// Expected attributes.
@@ -6036,9 +6041,9 @@ Procedure ShiftRows(Context)
 	UpperRowsBound = ParentRows.Count() - 1;
 	RowsSelectedCount = Context.TreeRows.Count();
 	
-	// 
-	// 
-	// 
+	// An array of selected rows against the movement:
+	// When moved toward "+", iterate from lesser to greater.
+	// When moved toward "-", iterate from greater to lesser.
 	MoveAsc = (Context.Direction < 0);
 	
 	For Number = 1 To RowsSelectedCount Do
@@ -6260,8 +6265,8 @@ Procedure SetDisplayMode(CollectionName, String, SettingItem, DisplayModePicture
 	
 	If CollectionName = "Filters" And Not String.IsParameter Then
 		If DisplayModePicture = 1 Or DisplayModePicture = 3 Then
-			// 
-			// 
+			// If "UserSettingPresentation" is assigned a value, "Presentation" behaves as a switch,
+			// but it can also be used for importing to a spreadsheet.
 			// 
 			SettingItem.Presentation = String.Title;
 		Else
@@ -6275,16 +6280,16 @@ Procedure SetDisplayMode(CollectionName, String, SettingItem, DisplayModePicture
 		// CA feature: UserSettingPresentation can be cleared after GetSettings().
 		If String.IsPredefinedTitle Then
 			If DisplayModePicture = 1 Or DisplayModePicture = 3 Then
-				// 
-				// 
+				// If "UserSettingPresentation" is assigned a value, "Presentation" behaves as a switch,
+				// but it can also be used for importing to a spreadsheet.
 				// 
 				SettingItem.Presentation = String.Title;
 			Else
 				SettingItem.Presentation = "";
 			EndIf;
 		Else
-			// 
-			// 
+			// If "UserSettingPresentation" is assigned a value, "Presentation" behaves as a switch,
+			// but it can also be used for importing to a spreadsheet.
 			// 
 			SettingItem.Presentation = String.Title;
 		EndIf;
@@ -7541,8 +7546,8 @@ Procedure ImportSettingsToComposer(ImportParameters)
 		AvailableSettings.UserSettings,
 		AvailableSettings.FixedSettings);
 	
-	// 
-	// 
+	// Fixed filters are set using the composer because it has the widest range of settings.
+	// "BeforeImport" might be missing the parameters whose settings were not overridden.
 	If SettingsImported
 	   And ReportsOptions.ItIsAcceptableToSetContext(ThisObject)
 	   And TypeOf(ParametersForm.Filter) = Type("Structure") Then

@@ -216,7 +216,9 @@ EndFunction
 
 // Constructor of the PrintFormsCollection parameter for procedures and functions in this module.
 // See PrintDocuments
-// See PrintFormDetails.
+// See PrintFormDetails
+// 
+// .
 //
 // Parameters:
 //  IDs - String - Print form IDs.
@@ -460,6 +462,7 @@ EndFunction
 //	
 //						
 //						
+//	
 //	
 //							
 ////////////////////////////////////////////////////////////////////////////////
@@ -900,7 +903,7 @@ Procedure SwitchLanguage(Form, Command) Export
 	FormButton = Form.Items[Command.Name]; // FormButton
 	Parameters.Insert("Title", Form.Items["Language_"+TheSelectedLanguage].Title);
 	Parameters.Insert("FormButton", FormButton);
-	Parameters.Insert("AllActionsFormButton", Form.Items.Find(Command.Name+"AllActions"));
+	Parameters.Insert("FormButtonAllActions", Form.Items.Find(Command.Name+"AllActions"));
 	
 	If Form.Modified Then
 		NotifyDescription = New NotifyDescription("WhenSwitchingTheLanguage", ThisObject, Parameters);
@@ -1009,11 +1012,11 @@ Procedure WhenSwitchingTheLanguage(Response, Parameters) Export
 	Items = Form.Items;
 	TheSelectedLanguage = Parameters.TheSelectedLanguage;
 	Title = Parameters.Title;
-	ProcessSubmenuElementsMore = Parameters.AllActionsFormButton <> Undefined;
+	ProcessMoreActionsSubmenuItems = Parameters.FormButtonAllActions <> Undefined;
 	
 	Items.Language.Title = Title;
 	FormButton = Parameters.FormButton;
-	AllActionsFormButton = Parameters.AllActionsFormButton;
+	FormButtonAllActions = Parameters.FormButtonAllActions;
 	
 	IsEditorForm = StrStartsWith(Form.FormName, "CommonForm.Edit");
 	
@@ -1042,7 +1045,7 @@ Procedure WhenSwitchingTheLanguage(Response, Parameters) Export
 		FormButton.Visible = False;
 	EndIf;
 	
-	If ProcessSubmenuElementsMore Then
+	If ProcessMoreActionsSubmenuItems Then
 		Items.LanguageAllActions.Title = Title;
 		MenuLanguageAllActions = Items.LanguageAllActions;
 	
@@ -1056,10 +1059,10 @@ Procedure WhenSwitchingTheLanguage(Response, Parameters) Export
 			EndIf;
 		EndDo;
 		
-		If AllActionsFormButton.Parent = MenuLanguageAllActions Then
-			AllActionsFormButton.Check = True;
+		If FormButtonAllActions.Parent = MenuLanguageAllActions Then
+			FormButtonAllActions.Check = True;
 		Else
-			AllActionsFormButton.Visible = False;
+			FormButtonAllActions.Visible = False;
 		EndIf;
 
 	EndIf;
@@ -1086,9 +1089,9 @@ Procedure WhenSwitchingTheLanguage(Response, Parameters) Export
 				EndIf;
 			EndDo;
 			
-			If ProcessSubmenuElementsMore Then
-				LanguagesToAddAllActions = Items.LanguagesToAddAllActions;
-				For Each LangButton In LanguagesToAddAllActions.ChildItems Do
+			If ProcessMoreActionsSubmenuItems Then
+				LangsToAddAllActions = Items.LangsToAddAllActions;
+				For Each LangButton In LangsToAddAllActions.ChildItems Do
 					If TypeOf(LangButton) = Type("FormButton") Then
 						If StrEndsWith(LangButton.CommandName, LangSwitchFrom) Then
 							LangButton.Visible = True;

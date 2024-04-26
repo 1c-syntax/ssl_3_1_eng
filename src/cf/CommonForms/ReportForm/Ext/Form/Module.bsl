@@ -167,8 +167,8 @@ Procedure OnOpen(Cancel)
 #EndIf
 	RunMeasurements = False;
 	
-	// 
-	// 
+	// In the save mode, additional reports are generated directly as they cannot
+	// attach themselves and use native methods in background jobs.
 	Directly = ReportSettings.External Or ReportSettings.Safe;
 	GeneratingOnOpen = False;
 	IdleInterval = ?(GetClientConnectionSpeed() = ClientConnectionSpeed.Low, 1, 0.2);
@@ -251,8 +251,13 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 
 		ReportSettings.SchemaKey = "";
 
-		If ValueIsFilled(Parameter.VariantKey) Then
-			SetCurrentVariant(Parameter.VariantKey);
+		VariantKey = "";
+		If TypeOf(Parameter) = Type("Structure") Then
+			VariantKey = CommonClientServer.StructureProperty(Parameter, "VariantKey", "");
+		EndIf;
+
+		If ValueIsFilled(VariantKey) Then
+			SetCurrentVariant(VariantKey);
 		Else
 			PanelOptionsCurrentOptionKey = BlankOptionKey();
 		EndIf;
@@ -356,8 +361,8 @@ Procedure OnLoadVariantAtServer(NewDCSettings)
 		EndIf;
 	EndIf;
 	
-	// 
-	// 
+	// Fixed filters are set using the composer because it has the widest range of settings.
+	// "BeforeImport" might be missing the parameters whose settings were not overridden.
 	If ReportsOptions.ItIsAcceptableToSetContext(ThisObject) And TypeOf(ParametersForm.Filter) = Type("Structure") Then
 
 		ReportsServer.SetFixedFilters(ParametersForm.Filter, Report.SettingsComposer.Settings,
@@ -691,8 +696,8 @@ Procedure ReportSpreadsheetDocumentSelection(Item, Area, StandardProcessing)
 			DetailsValue = Area.Details;
 		Except
 			DetailsValue = Undefined;
-			// 
-			// 
+			// Some spreadsheet area types (the property "AreaType") don't support reading drill-downs.
+			// Therefore, a try–except clause is used.
 		EndTry;
 
 		If DetailsValue <> Undefined And GoToLink(DetailsValue) Then
@@ -2513,8 +2518,8 @@ Procedure FindSuitableValuesBooleanUniversalSearch(SuitableValues, SearchFieldsB
 		EndIf;
 	EndDo;
 	
-	// 
-	// 
+	// Search by Boolean values.
+	// ACC:1391-off - Validate user imput.
 	If StrCompare(SearchParameters.SearchString, NStr("en = 'Yes';")) = 0 
 		Or StrCompare(SearchParameters.SearchString, NStr("en = 'True';")) = 0 
 		Or StrCompare(SearchParameters.SearchString, NStr("en = 'Enabled';")) = 0 Then
@@ -2551,7 +2556,7 @@ Procedure FindSuitableValuesStringUniversalSearch(SuitableValues, SearchFieldsBy
 		Return;
 	EndIf;
 	
-	// ACC:1391-off. Validate user entries.
+	// ACC:1391-off - Validate user imput.
 	If StrCompare(SearchParameters.SearchString, NStr("en = 'Yes';")) = 0 
 		Or StrCompare(SearchParameters.SearchString, NStr("en = 'True';")) = 0 
 		Or StrCompare(SearchParameters.SearchString, NStr("en = 'Enabled';")) = 0
@@ -3798,7 +3803,6 @@ Procedure AfterSaveFormatSelected(SelectedElement, Context) Export
 
 	SaveFormats = ReportSavingFormats(FullNameOfTheReportFile, Context.IndexOfReportSavingFormats);
 	ResultProperties = ReportSettings.ResultProperties; // See ReportsOptionsInternal.PropertiesOfTheReportResult
-
 	ReportResult = ReportResultToSave(ReportSpreadsheetDocument, ResultProperties.Headers);
 	ReportResult.BeginWriting(Handler, FullNameOfTheReportFile, SaveFormats);
 EndProcedure
@@ -4227,7 +4231,8 @@ Procedure SetCurrentOptionKey(ReportFullName, ReportObject)
 
 	EndIf;
 	
-	// 
+	// Save the key of the contextual report option, which is usually hidden from the UI.
+	//  (That is, "Enabled" is set to '"False".) (See Catalog.PredefinedReportsOptions.Enabled=  False)
 	If ValueIsFilled(OptionContext) Then
 		ContextOption = ?(ValueIsFilled(Parameters.VariantKey), Parameters.VariantKey, CurrentVariantKey);
 		ContextOptions.Add(ContextOption);
@@ -4486,8 +4491,8 @@ Procedure ImportSettingsToComposer(ImportParameters)
 	SettingsImported = ReportsClientServer.LoadSettings(Report.SettingsComposer, AvailableSettings.Settings, 
 		AvailableSettings.UserSettings, AvailableSettings.FixedSettings);
 	
-	// 
-	// 
+	// Fixed filters are set using the composer because it has the widest range of settings.
+	// "BeforeImport" might be missing the parameters whose settings were not overridden.
 	If SettingsImported And ReportsOptions.ItIsAcceptableToSetContext(ThisObject) 
 		And TypeOf(ParametersForm.Filter) = Type("Structure") Then
 

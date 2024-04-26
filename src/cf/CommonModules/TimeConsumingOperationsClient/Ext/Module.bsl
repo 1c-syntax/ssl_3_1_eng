@@ -18,12 +18,12 @@
 // 
 // Parameters:
 //  TimeConsumingOperation     - See TimeConsumingOperations.ExecuteInBackground
-//  CallbackOnCompletion  - NotifyDescription - 
-//                           
-//                           : 
+//  CallbackOnCompletion  - NotifyDescription - Notification that is called upon the completion of a long-running operation
+//                           (including cases when the idle dialog is closed).
+//                           Notification handler parameters: 
 //   * Result - See NewResultLongOperation
-//               - Undefined - 
-//    
+//               - Undefined - In case the job is canceled.
+//   * AdditionalParameters - Arbitrary data passed in the notification. 
 //  IdleParameters      - See TimeConsumingOperationsClient.IdleParameters
 //
 Procedure WaitCompletion(Val TimeConsumingOperation, Val CallbackOnCompletion = Undefined, 
@@ -103,17 +103,17 @@ EndProcedure
 //                                       The default value is "Please wait…".
 //   * OutputIdleWindow   - Boolean - If True, open the idle window with visual indication of a long-running operation. 
 //                                       Set the value to False if you use your own indication engine.
-//   * OpeningModeForWaitDialog - FormWindowOpeningMode - 
-//                               - Undefined -  default.
+//   * OpeningModeForWaitDialog - FormWindowOpeningMode - The idle form's "WindowOpenMode" parameter.
+//                               - Undefined - Default value.
 //   * OutputProgressBar - Boolean - show execution progress as percentage in the idle form.
 //                                      The handler procedure of a long-running operation can report the progress of its execution
 //                                      by calling the TimeConsumingOperations.ReportProgress procedure.
 //   * OutputMessages          - Boolean - Flag indicating whether to output messages generated in long-running operation handler
 //                                       from the wait form to the message's OwnerForm.
 //   * CancelButtonTitle  - String - Title of the "Cancel" button. If not specified, "Canceled".
-//   * ExecutionProgressNotification - NotifyDescription -  
-//                                      
-//                                      :
+//   * ExecutionProgressNotification - NotifyDescription - The notification called repeatedly to check if the background job is completed. 
+//                                      Applies if "OutputIdleWindow" is set to "False".
+//                                      The parameters of the event handler are::
 //      ** Result - See LongRunningOperationNewState
 //      ** AdditionalParameters - Arbitrary - arbitrary data that was passed in the notification details. 
 //
@@ -166,37 +166,37 @@ Function IdleParameters(OwnerForm) Export
 	
 EndFunction
 
-//  
-// 
+// Returns the result of the notification specified in the "NotificationOfCompletion" parameter 
+// of "TimeConsumingOperationsClient.WaitForCompletion".
 //
 // Returns:
-//  Undefined - 
-//  :
+//  Undefined - Passed in the result of "NotificationOfCompletion" if the user canceled the job.
+//  Structure:
 //   * Status - String - "Completed " if the job has completed.
 //                       "Error" if the job has completed with error.
 //
-//   * ResultAddress  - String - 
-//                         
+//   * ResultAddress  - String - Address of the temporary storage where the result
+//                         of the long-running operation should be (or already is) stored.
 //
-//   * AdditionalResultAddress - String -  
-//                         
-//                         
+//   * AdditionalResultAddress - String - If "AdditionalResult" is specified, 
+//                         it contains the address of the additional temporary storage
+//                         where the procedure's additional result should be (or already is) stored.
 //
 //   * ErrorInfo - ErrorInfo - If Status = "Error".
 //                        - Undefined - If Status <> "Error".
 //
-//   * Messages - FixedArray -  
-//                   
-//                   
-//                   
-//                   
+//   * Messages - FixedArray - Array of MessageToUser objects, 
+//                   generated in the long-running operation handler.
+//                   The array is empty if in the "TimeConsumingOperationsClient.WaitCompletion" procedure,
+//                   the OutputIdleWindow property of "IdleParameters" is set to "False"
+//                   and the "ExecutionProgressNotification" property is assigned a value.
 //                   
 //
-//   * JobID - UUID - 
-//                          - Undefined - 
+//   * JobID - UUID - Background job id (if it was started).
+//                          - Undefined - If the job wasn't started (foreground execution).
 //
-//   * BriefErrorDescription   - String - 
-//   * DetailErrorDescription - String - 
+//   * BriefErrorDescription   - String - Obsolete.
+//   * DetailErrorDescription - String - Obsolete.
 //
 Function NewResultLongOperation() Export
 	
@@ -214,23 +214,23 @@ Function NewResultLongOperation() Export
 	
 EndFunction
 
-// 
-// 
-// 
+// Returns an empty structure to be passed as the result of the notification
+// specified in the property "LongRunningOperationNewState" of the parameter "IdleParameters"
+// in the procedure "TimeConsumingOperationsClient.WaitCompletion".
 //
 // Returns:
 //  Structure:
-//   * Status - String - 
-//                       
-//                       
+//   * Status - String - "Running" if the job is running.
+//                       "Completed " if the job is completed.
+//                       "Error" if the job is completed with error.
 //
 //   * Progress   - See TimeConsumingOperations.ReadProgress
-//   * Messages  - Undefined - 
-//                - FixedArray -  
-//                    
+//   * Messages  - Undefined - No messages
+//                - FixedArray - An array of "UserMessage" objects. 
+//                    A batch of messages sent from the long-running operation.
 //
-//   * JobID - UUID - 
-//                          - Undefined - 
+//   * JobID - UUID - Background job id (if it was started).
+//                          - Undefined - If the job wasn't started (foreground execution).
 //
 Function LongRunningOperationNewState() Export
 	
@@ -324,6 +324,7 @@ EndProcedure
 // Configuration subsystems event handlers.
 
 // Parameters:
+//  Parameters - See CommonOverridable.BeforeRecurringClientDataSendToServer.Parameters
 //  AreChatsActive - Boolean - Flag indicating whether the "Business interactions" subsystem delivers messages.
 //  Interval - Number - Timeout in seconds before the next check.
 //
@@ -613,8 +614,8 @@ Function ProcessActiveOperationResult(AdvancedOptions_, TimeConsumingOperation)
 		         And ValueIsFilled(AdvancedOptions_.ResultAddress)
 		       Or AdvancedOptions_.Property("AdditionalResultAddress")
 		         And ValueIsFilled(AdvancedOptions_.AdditionalResultAddress))
-		 // 
-		 // 
+		 // The check is required as the notification is sent before the background job is over,
+		 // and the outcome data cannot be accessed by address in the temp storage.
 		 Or TimeConsumingOperationsServerCall.IsBackgroundJobCompleted(AdvancedOptions_.JobID) Then
 		 
 			FinishLongRunningOperation(AdvancedOptions_, TimeConsumingOperation);

@@ -147,7 +147,7 @@ Function ThereareMultilingualDetailsintheHeaderoftheObject(MetadataObjectFullNam
 	
 EndFunction
 
-// 
+// Returns the names of the multi-language attributes of the "Presentations" table.
 // 
 // Parameters:
 //  FullMetadataObjectName - String

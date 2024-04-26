@@ -498,7 +498,7 @@ EndFunction
 //                          all external user roles will be updated.
 //                          Otherwise, all user roles will be updated.
 //
-//  ServiceUserPassword - String - Password to sign in the Service Manager.
+//  ServiceUserPassword - String - Password used to log in to Service Manager.
 //
 //  HasChanges - Boolean - a return value). True is returned
 //                  to this parameter if changes are saved. Otherwise, not modified.
@@ -697,7 +697,7 @@ EndProcedure
 // Returns:
 //  Boolean
 //
-Function RegistrationOfAccessRightsChangesIsSupported() Export
+Function IsAccessRightsChangeLoggingSupported() Export
 	Return False;
 EndFunction
 
@@ -3191,7 +3191,7 @@ Procedure CheckAdministratorsAccessGroupForIBUser(GroupUsers, ErrorDescription) 
 	
 	If Not ValidAdministratorFound Then
 		ErrorDescription =
-			NStr("en = 'At least one user authorized to sign in
+			NStr("en = 'At least one user authorized to log in
 			           |must be included in
 			           |the ""Administrators"" access group.';");
 	EndIf;
@@ -12916,6 +12916,14 @@ Procedure CheckUpdateActiveAccessRestrictionParameters()
 	|	Version DESC,
 	|	CreationDate DESC";
 	
+	//  
+	// 
+	// 
+	// 
+	// 
+	// 
+	// 
+	// 
 	QueryResult = Query.Execute();
 	// ACC:1328-on.
 	If QueryResult.IsEmpty() Then
@@ -13240,6 +13248,7 @@ EndProcedure
 //   * MainSessionDetails - See MainSessionDetails
 //   * CurrentBackgroundJob - BackgroundJob
 //   * Jobs - See UpdateJobsTable
+//   * JobsForStartup - Array of ValueTableRow: See UpdateJobsTable
 //   * LockedThreads - Map of KeyAndValue:
 //      ** Key - UUID
 //      ** Value - See NewThread
@@ -37964,7 +37973,7 @@ Function LanguageWords()
 	                                          "Undefined", "ComparisonValue");
 	AddLanguageWord(Words, "Null",         // @Non-NLS
 	                                          "Null",      "ComparisonValue");
-	AddLanguageWord(Words, "Ложь",         // @Non-NLS
+	AddLanguageWord(Words, " False",         // @Non-NLS
 	                                          "False",     "ClarificationValue");
 	AddLanguageWord(Words, "Истина",       // @Non-NLS
 	                                          "True",      "ClarificationValue");
@@ -38502,7 +38511,7 @@ Function RestrictionParts(InternalData)
 	PartsProperties = New Array; // Array of See NewPartProperties
 	RowIndex = 0;
 	For Each SeparatorRowIndex In SeparatorRowsIndexes Do
-		PartRows = New Array; 
+		PartRows = New Array; // Array of ValueTableRow: See CharsetsTable
 		While RowIndex < SeparatorRowIndex Do
 			PartRow = CharsetsTable[RowIndex];
 			If PartRow.Kind <> "InvalidChar" Then
@@ -38691,6 +38700,7 @@ EndFunction
 
 // Returns:
 //   Structure:
+//     * Rows                   - Array of ValueTableRow: See CharsetsTable
 //     * SeparatorRow        - ValueTableRow of See CharsetsTable
 //     * Name                      - String
 //     * Presentation            - String
@@ -38881,6 +38891,7 @@ EndProcedure
 
 // For the ParseConnection procedure.
 //  Parameters:
+//   Rows - Array of ValueTableRow: See CharsetsTable
 //   RowIndex - Number
 //   ErrorText - String
 //
@@ -38936,7 +38947,7 @@ EndProcedure
 // For the ParseRestrictionPart procedure.
 Procedure ParseAdditionalTables(PartProperties, InternalData)
 	
-	PartRows = PartProperties.Rows; 
+	PartRows = PartProperties.Rows; // Array of ValueTableRow: See CharsetsTable
 	
 	If PartRows.Count() < 2
 	 Or PartRows[1].Kind <> "Keyword"
@@ -38978,7 +38989,7 @@ Procedure ParseAdditionalTables(PartProperties, InternalData)
 	
 	// Dividing description into groups of left connections.
 	Joins = New Array;
-	CurrentConnection = New Array; 
+	CurrentConnection = New Array; // Array of ValueTableRow: See CharsetsTable
 	
 	For IndexOf = 4 To PartRows.Count()-1 Do
 		PartRow = PartRows[IndexOf];
@@ -39033,6 +39044,7 @@ EndProcedure
 // For the ParseAdditionalTables procedure.
 //
 // Parameters:
+//    Join - Array of ValueTableRow: See CharsetsTable
 //
 Procedure ParseConnection(Join, PartProperties, InternalData)
 	
@@ -39936,7 +39948,7 @@ Procedure ParseConnectorIn(Context)
 	// The parameter missing error is already set in the FunctionsWithExpressionsInParentheses function.
 	
 	For Each ParameterDetails In ParametersContent Do
-		ParameterDescriptionLines = ParameterDetails.Rows; 
+		ParameterDescriptionLines = ParameterDetails.Rows; // Array of ValueTableRow: See CharsetsTable
 		For Each Substring In ParameterDescriptionLines Do
 			
 			ParseConnectorValueIn(Context, Substring, NewDetails);
@@ -40210,6 +40222,7 @@ EndProcedure
 //
 // Parameters:
 //  FirstParameter - Structure:
+//   * Rows - Array of ValueTableRow: See CharsetsTable
 //
 Procedure ParseFirstCheckingFunctionParameter(Context, FirstParameter, NewDetails)
 	
@@ -40316,6 +40329,7 @@ EndProcedure
 // 
 // Parameters:
 //  Parameter - Structure:
+//    * Rows - Array of ValueTableRow: See CharsetsTable
 //
 Procedure ParseAdditionalCheckingFunctionParameter(Context, Parameter, NewDetails)
 	
@@ -40775,6 +40789,7 @@ EndFunction
 //
 // Returns:
 //   Array of Structure:
+//   * Rows - Array of ValueTableRow: See CharsetsTable
 //
 Function CommaSeparatedParameters(RowDescription, Context)
 	
@@ -40832,6 +40847,7 @@ EndFunction
 // Parameters:
 //    Context - Structure:
 //    * String - Structure:
+//       ** Rows - Array of ValueTableRow: See CharsetsTable
 //
 Procedure ParseChoice(Context)
 	
@@ -41089,6 +41105,7 @@ EndFunction
 // For the ParseCondition procedure.
 //
 // Parameters:
+//    Rows - Array of ValueTableRow: See CharsetsTable
 //
 Function ExpressionsSelectionWhenThenInAttachments(Rows, Context)
 	
@@ -41471,6 +41488,7 @@ EndFunction
 // For the ParseAdditionalTables and ParseRestrictionCondition procedures.
 //
 // Parameters:
+//    PartRows - Array of ValueTableRow: See CharsetsTable
 //
 Procedure ChangeKeywordTypeListToName(PartRows, RowToExclude = Undefined)
 	

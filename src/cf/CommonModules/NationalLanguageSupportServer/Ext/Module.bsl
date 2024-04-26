@@ -16,11 +16,13 @@
 // Parameters:
 //  Item        - ValueTableRow - A row that takes the value.
 //  AttributeName   - String - An attribute name. For example, "Description".
+//  InitialString - String - An NStr string. For example, "en = 'An English message'; ru = 'Сообщение на русском'".
 //  LanguagesCodes     - Array - The codes of the target languages.
 // 
 // Example:
 //
 //  NationalLanguageSupportServer.FillMultilingualAttribute(Item, "Description", "en = 'An English message';
+//  ru = 'Сообщение на русском'", LanguageCodes);
 //
 Procedure FillMultilanguageAttribute(Item, AttributeName, InitialString, LanguagesCodes = Undefined) Export
 	
@@ -190,17 +192,17 @@ Procedure BeforeWriteAtServer(CurrentObject) Export
 			
 		EndIf;
 		
-		If CurrentLanguage().LanguageCode = Common.DefaultLanguageCode() Then
-			Return;
+		If CurrentLanguage().LanguageCode <> Common.DefaultLanguageCode() Then
+			
+			For Each Attribute In NamesOfMultiLangAttributesInHeader Do
+				
+				Value = CurrentObject[Attribute.Key];
+				CurrentObject[Attribute.Key] = CurrentObject[Attribute.Key + CurrentLanguageSuffix];
+				CurrentObject[Attribute.Key + CurrentLanguageSuffix] = Value;
+				
+			EndDo;
+			
 		EndIf;
-		
-		For Each Attribute In NamesOfMultiLangAttributesInHeader Do
-			
-			Value = CurrentObject[Attribute.Key];
-			CurrentObject[Attribute.Key] = CurrentObject[Attribute.Key + CurrentLanguageSuffix];
-			CurrentObject[Attribute.Key + CurrentLanguageSuffix] = Value;
-			
-		EndDo;
 		
 	EndIf;
 	
@@ -242,6 +244,8 @@ Procedure BeforeWriteAtServer(CurrentObject) Export
 		EndIf;
 		
 	EndDo;
+	
+	FillInMultilingualAttributesOfTabularPartOfPresentation(CurrentObject, Attributes);
 	
 	Filter.LanguageCode = Common.DefaultLanguageCode();
 	FoundRows = Presentations.FindRows(Filter);
@@ -437,11 +441,11 @@ Procedure ChangeRequestFieldUnderCurrentLanguage(QueryText, FieldName) Export
 	
 EndProcedure
 
-// 
+// Returns the additional language postfix for the current UI language.
 // 
 // Returns:
-//  String - 
-//           
+//  String - Postfix added to the name of the attribute that stores the attribute value in the given language.
+//           For example, "Lang1" for the attribute "DescriptionLang2".
 //
 Function CurrentLanguageSuffix() Export
 
@@ -450,14 +454,14 @@ Function CurrentLanguageSuffix() Export
 EndFunction
 
 
-// 
+// Returns the additional language postfix by the passed language code.
 // 
 // Parameters:
-//  LanguageCode - String - 
+//  LanguageCode - String - Short language presentation. For example, "en" for English.
 // 
 // Returns:
-//  String - 
-//           
+//  String - Postfix added to the name of the attribute that stores the attribute value in the given language.
+//           For example, "Lang1" for the attribute "DescriptionLang2".
 //
 Function LanguageSuffix(LanguageCode) Export
 	
@@ -469,13 +473,13 @@ Function LanguageSuffix(LanguageCode) Export
 
 EndFunction
 
-// 
+// Determines whether the passed language is used in the app.
 // 
 // Parameters:
-//  LanguageSuffix - String - 
+//  LanguageSuffix - String - Additional language postfix. For example, "Lang1".
 // 
 // Returns:
-//  Boolean -  
+//  Boolean - If "True", the additional language is used in the app. 
 //
 Function IsAdditionalLangUsed(LanguageSuffix) Export
 
@@ -483,16 +487,16 @@ Function IsAdditionalLangUsed(LanguageSuffix) Export
 
 EndFunction
 
-// 
+// Returns attribute names considering the passed language code.
 // 
 // Parameters:
-//  AttributesNames - String - 
-//  LanguageCode - String - 
+//  AttributesNames - String - A comma-delimited list of attributes. For example, "Description,Comment".
+//  LanguageCode - String - Language code. If unspecified, the current app language is passed.
 // 
 // Returns:
 //  Map of KeyAndValue:
-//   * Key - String -  
-//   * Value - String - 
+//   * Key - String - An attribute name. For example, "Description". 
+//   * Value - String - Attribute name followed by the language code. For example, "DescriptionsLang2"
 //
 Function AttributesNamesConsideringLangCode(AttributesNames, LanguageCode = "") Export
 	
@@ -1863,6 +1867,51 @@ Procedure FillInEmptyMultilingualDetailsWithTheValueOfTheMainLanguage(Selection,
 	EndIf;
 	
 EndProcedure
+
+Procedure FillInMultilingualAttributesOfTabularPartOfPresentation(CurrentObject, Val Attributes)
+	
+	Presentations = CurrentObject.Presentations; // TabularSection
+	CurrentLanguageSuffix = CurrentLanguageSuffix();
+	
+	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport.Print") Then
+		PrintManagementModuleNationalLanguageSupport = Common.CommonModule("PrintManagementNationalLanguageSupport");
+		AvailableLanguages = PrintManagementModuleNationalLanguageSupport.AvailableLanguages();
+	Else
+		AvailableLanguages = New Array;
+		For Each Language In Metadata.Languages Do
+			AvailableLanguages.Add(Language.LanguageCode);
+		EndDo;
+	EndIf;
+
+	For Each LanguageOfPrintedForm In AvailableLanguages Do
+		
+		If CurrentLanguage().LanguageCode = LanguageOfPrintedForm Then
+			Continue;
+		EndIf;
+		
+		Filter = New Structure();
+		Filter.Insert("LanguageCode", LanguageOfPrintedForm);
+		FoundRows = Presentations.FindRows(Filter);
+		
+		If FoundRows.Count() > 0 Then
+			Presentation = FoundRows[0];
+		Else
+			Presentation = Presentations.Add();
+			Presentation.LanguageCode = LanguageOfPrintedForm;
+		EndIf;
+		
+		For Each AttributeName In Attributes Do
+			If IsBlankString(Presentation[AttributeName]) Then
+				ValueInCurrentLanguage = CurrentObject[AttributeName + CurrentLanguageSuffix];
+				Presentation[AttributeName] = ValueInCurrentLanguage;
+			EndIf;
+			
+		EndDo;
+		
+	EndDo;
+
+EndProcedure
+
 
 // Parameters:
 //  Attribute - MetadataObjectAttribute

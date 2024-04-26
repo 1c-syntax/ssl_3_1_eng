@@ -27,7 +27,7 @@
 //
 // Parameters:
 //  MessageToUserText - String - message text.
-//  DataKey - Arbitrary - 
+//  DataKey - Arbitrary - Infobase record key, object, or object reference associated with the message.
 //  Field - String - a form attribute description.
 //  DataPath - String - a data path (a path to a form attribute).
 //  Cancel - Boolean - an output parameter. Always True.
@@ -147,8 +147,8 @@ Function ObjectAttributesValues(Ref, Val Attributes, SelectAllowedItems = False,
 		
 		FullNameOfPredefinedItem = Ref;
 		
-		// 
-		// 
+		// Calculate a reference by the name of a predefined item.
+		// - Preliminary verify the item's metadata.
 		Try
 			Ref = PredefinedItem(FullNameOfPredefinedItem);
 		Except
@@ -163,8 +163,8 @@ Function ObjectAttributesValues(Ref, Val Attributes, SelectAllowedItems = False,
 		FullNameParts1 = StrSplit(FullNameOfPredefinedItem, ".");
 		FullMetadataObjectName = FullNameParts1[0] + "." + FullNameParts1[1];
 		
-		// 
-		// 
+		// If the predefined item was not created in the infobase, check access to the object.
+		// In other cases, the check is performed when executing the query.
 		If Ref = Undefined Then 
 			ObjectMetadata = MetadataObjectByFullName(FullMetadataObjectName);
 			If Not AccessRight("Read", ObjectMetadata) Then 
@@ -278,8 +278,8 @@ Function ObjectAttributesValues(Ref, Val Attributes, SelectAllowedItems = False,
 		
 	EndDo;
 	
-	// 
-	// 
+	// In case the predefined item is missing from the infobase.
+	// - Translate the result to either a missing object or passing an empty Ref.
 	If Ref = Undefined Then 
 		Return Result;
 	EndIf;
@@ -348,10 +348,10 @@ Function ObjectAttributesValues(Ref, Val Attributes, SelectAllowedItems = False,
 		Selection = Query.Execute().Select();
 	Except
 		
-		// 
-		// 
-		// 
-		// 
+		// Attributes passed as String are already converted into Array.
+		// If the attributes are passed as Array, do nothing.
+		// If the attributes are passed as Structure, convert them into Array.
+		// Other cases already caused an exception.
 		If Type("Structure") = TypeOf(Attributes)
 			Or Type("FixedStructure") = TypeOf(Attributes) Then
 			Attributes = New Array;
@@ -1210,14 +1210,14 @@ EndFunction
 //       * Ref - AnyRef - a reference that was replaced.
 //       * ErrorObject - Arbitrary - an object that has caused an error.
 //       * ErrorObjectPresentation - String - string representation of an error object.
-//       * ErrorType - String - :
-//           
-//           
-//           
-//           
-//           
+//       * ErrorType - String - An error type. Valid values are::
+//           LockError - The object is locked by another user.
+//           DataChanged - Another user is modifying the object data.
+//           WritingError - Failed to write the object, or the "CanReplaceItems" method returned a failure.
+//           DeletionError - Failed to delete the object.
+//           UnknownData - Data that was not intended for replacement is found.
 //       * ErrorInfo - ErrorInfo
-//       * ErrorText - String - 
+//       * ErrorText - String - Contains the error cause if "ErrorInfo" is set to "Undefined".
 //
 Function ReplaceReferences(Val ReplacementPairs, Val ReplacementParameters = Undefined) Export
 	
@@ -1252,8 +1252,8 @@ Function ReplaceReferences(Val ReplacementPairs, Val ReplacementParameters = Und
 	Duplicates = GenerateDuplicates(ExecutionParameters, ReplacementParameters, ReplacementPairs, Result);	
 	SearchTable = UsageInstances(Duplicates,, ExecutionParameters.UsageInstancesSearchParameters);
 	
-	// 
-	// 
+	// For each object reference, make replacements in "Constant", "Object", and "Set" (in this order).
+	// An empty row in this column signifies that replacement is not required or has been made.
 	SearchTable.Columns.Add("ReplacementKey", StringType);
 	SearchTable.Indexes.Add("Ref, ReplacementKey");
 	SearchTable.Indexes.Add("Data, ReplacementKey");
@@ -1408,10 +1408,10 @@ Function UsageInstances(Val RefSet, Val ResultAddress = "", AdditionalParameters
 	UsageInstances = FindByRef(RefSet); // See UsageInstances.
 	SetPrivilegedMode(False);
 	
-	// 
-	// 
-	// 
-	// 
+	// UsageInstances - ValueTable - A table where:
+	// * Ref - AnyRef - The reference being analyzed.
+	// * Data - Arbitrary - Data containing the reference.
+	// * Metadata - MetadataObject - Metadata object of the data.
 	
 	UsageInstances.Columns.Add("DataPresentation", New TypeDescription("String"));
 	UsageInstances.Columns.Add("RefType");
@@ -1606,14 +1606,14 @@ Function RefSearchExclusions() Export
 				PathsToAttributes = New Array;
 				Result.Insert(MetadataObject, PathsToAttributes);
 			EndIf;
-			// 
-			//   
-			//   
-			//     
-			//     
-			//     
-			// 
-			//   
+			// Attribute format is:
+			//   "<Object type>.<Object name>.<Type of attribute or table>.<Name of attribute or table>[.<Attrbiute type>.<Table attribute name>]".
+			//   Examples:
+			//     "InformationRegister.ObjectsVersions.Attribute.VersionAuthor",
+			//     "Document._DemoSalesOrder.TabularSection.ProformaInvoices.Attribute.Account",
+			//     "ChartOfCalculationTypes._DemoBaseEarnings.StandardTabularSection.BaseCalculationTypes.StandardAttribute.CalculationType".
+			// The relative path to the attribute should be such that is can be used in query conditions:
+			//   "<Name of attribute or table>[.<Table attribute name>]".
 			If SubstringCount = 4 Then
 				RelativePathToAttribute = SubstringsArray[3];
 			Else
@@ -1715,10 +1715,11 @@ EndFunction
 // Procedures and functions for calling optional subsystems.
 
 // Returns True if the functional subsystem exists in the configuration.
-// Intended for calling an optional subsystem (conditional call).
+// Intended for calling an optional subsystem (making a conditional call) alongside "Common.CommonModule".
+//
 // A subsystem is considered functional if its "Include in command interface" check box is cleared.
-// See also CommonOverridable.OnDetermineDisabledSubsystems
-// and CommonClient.SubsystemExists to call from client-side code.
+// See also "CommonOverridable.OnDetermineDisabledSubsystems"
+// and "CommonClient.SubsystemExists" to call from client-side code.
 //
 // Parameters:
 //  FullSubsystemName - String - the full name of the subsystem metadata object
@@ -1728,11 +1729,11 @@ EndFunction
 // Example:
 //  If Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
 //  	ModuleReportOptions = Common.CommonModule("ReportsOptions");
-//  	ModuleReportOptions.<Method name>();
+//  	ModuleReportOptions.<Procedure name>();
 //  EndIf;
 //
 // Returns:
-//  Boolean - True if a subsystem exists.
+//  Boolean
 //
 Function SubsystemExists(FullSubsystemName) Export
 	
@@ -1742,9 +1743,12 @@ Function SubsystemExists(FullSubsystemName) Export
 EndFunction
 
 // Returns a reference to a common module or manager module by name.
+// Intended for conditionally calling procedures and functions alongside "Common.SubsystemExists".
+// See also "CommonClient.CommonModule" for calling the client-side code.
 //
 // Parameters:
-//  Name - String - name of a common module.
+//  Name - String - The name of a common module or manager module. For example: 
+//                 "ConfigurationUpdate", "DataProcessor.FullTextSearch".
 //
 // Returns:
 //   CommonModule
@@ -1753,12 +1757,12 @@ EndFunction
 // Example:
 //	If Common.SubsystemExists("StandardSubsystems.ConfigurationUpdate") Then
 //		ModuleSoftwareUpdate = Common.CommonModule("ConfigurationUpdate");
-//		ModuleSoftwareUpdate.<Method name>();
+//		ModuleSoftwareUpdate.<Procedure name>();
 //	EndIf;
 //
-//	If Common.SubsystemExists("StandardSubsystems.FullTextSearch") then
-//		ModuleFullTextSearchServer = Common.CommonModule("FullTextSearchServer");
-//		ModuleFullTextSearchServer.<Method name>();
+//	If Common.SubsystemExists("StandardSubsystems.FullTextSearch") Then
+//		ModuleDataProcessorFullTextSearch = Common.CommonModule("DataProcessor.FullTextSearch");
+//		ModuleDataProcessorFullTextSearch.<Procedure name>();
 //	EndIf;
 //
 Function CommonModule(Name) Export
@@ -2178,8 +2182,8 @@ EndFunction
 // Generates the application access address for the specified user.
 //
 // Parameters:
-//  User - String - user's sign-in name;
-//  Password - String - user's sign-in password;
+//  User - String - Username to log in with.
+//  Password - String - Password to use when logging in.
 //  IBPublicationType - String - publication used by the user to access the application:
 //                           "OnInternet" or "OnLocalNetwork".
 //
@@ -2213,12 +2217,12 @@ Function ProgrammAuthorizationAddress(User, Password, IBPublicationType) Export
 	
 EndFunction
 
-// Returns the configuration revision number.
-// The revision number is two first digits of a full configuration version.
-// Example: revision number for version 1.2.3.4 is 1.2.
+// Returns the configuration version number.
+// The version number includes the major and minor versions.
+// For example, 1.2 for 1.2.3.4.
 //
 // Returns:
-//  String - configuration revision number.
+//  String - Configuration version number.
 //
 Function ConfigurationRevision() Export
 	
@@ -2245,10 +2249,10 @@ Function ConfigurationRevision() Export
 	
 EndFunction
 
-// 
+// Returns the general functional parameters.
 // 
 // Parameters:
-//   ShouldReturnCachedValue - Boolean -  the service parameter.
+//   ShouldReturnCachedValue - Boolean - Internal parameter.
 //
 // Returns:
 //   See CommonOverridable.OnDetermineCommonCoreParameters.CommonParameters
@@ -3897,7 +3901,7 @@ EndFunction
 //  FullName - String - a full name of metadata object. Example: "Catalog.Company".
 //
 // Returns:
-//  
+//  CatalogManager, DocumentManager, DataProcessorManager, InformationRegisterManager, ChartOfCharacteristicTypesManager
 // 
 // Example:
 //  CatalogManager = Common.ObjectManagerByFullName("Catalog.Companies");
@@ -5925,8 +5929,8 @@ EndFunction
 #Region ExternalCodeSecureExecution
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
-// 
+// Functions that provide support of security profiles that
+// restrict attaching external modules in unsafe mode.
 //
 
 // Executes the export procedure by the name with the configuration privilege level.
@@ -6187,7 +6191,7 @@ Function QueryBatchSeparator() Export
 		
 EndFunction
 
-// 
+// Returns a piece of a query text that combines multiple queries into a single query.
 //
 // Returns:
 //  String
@@ -6459,18 +6463,19 @@ EndProcedure
 // Parameters:
 //   Id   - String - the add-in identification code.
 //   FullTemplateName - String - full name of the configuration template with a ZIP archive.
-//   Isolated    - Boolean -  
-//                              
+//   Isolated    - Boolean - If set to "True", the add-in is attached isolatedly. 
+//                              That is, it runs in a separate OS process.
+//                              If set to "False", the add-in runs in the same OS process that runs 1C:Enterprise scripts. 
 //                               
-//                               
-//                   - Undefined - :
-//                               
-//                              
+//                   - Undefined - Defines the 1C:Enterprise behavior.:
+//                              Non-isolatedly if the add-in supports only this mode. 
+//                              Isolatedly, in other cases. By default, "Undefined".
 //                              See https://its.1c.eu/db/v83doc
+//                                    #bookmark:dev:TI000001866
 //
 // Returns:
-//   - AddInObject -  an instance of an external component object.
-//   - Undefined - 
+//   - AddInObject - Add-in instance.
+//   - Undefined - Add-in instance.
 //
 // Example:
 //
@@ -6489,7 +6494,7 @@ Function AttachAddInFromTemplate(Val Id, Val FullTemplateName, Val Isolated = Nu
 	ResultOfCheckingTheExternalComponent = Undefined;
 	
 	If Isolated = Null Then
-		Isolated = ConnectionTypeDefaultComponents();
+		Isolated = IsDefaultAddInAttachmentMethod();
 	EndIf;
 	
 	If SubsystemExists("StandardSubsystems.AddIns") Then
@@ -6657,7 +6662,7 @@ EndFunction
 //       * Text     - String - query text.
 //       * Parameters - Structure - query parameters.
 //
-Function QueryToXMLString(Query) Export 
+Function QueryToXMLString(Query) Export // ACC:299 - Intended for debugging queries. See the function comments.
 	Structure = New Structure("Text, Parameters");
 	FillPropertyValues(Structure, Query);
 	Return ValueToXMLString(Structure);
@@ -6678,7 +6683,7 @@ Function AttachAddInSSLByID(Val Id, Val Location, Val Isolated = Null) Export
 		ConnectionResult = AttachAddIn(Location, Id + "SymbolicName");
 #Else
 		If Isolated = Null Then
-			Isolated = ConnectionTypeDefaultComponents();
+			Isolated = IsDefaultAddInAttachmentMethod();
 		EndIf;
 		ConnectionResult = AttachAddIn(Location, Id + "SymbolicName",,
 			CommonInternalClientServer.AddInAttachType(Isolated));
@@ -6687,7 +6692,7 @@ Function AttachAddInSSLByID(Val Id, Val Location, Val Isolated = Null) Export
 	Except
 		ErrorInfo = ErrorInfo();
 		ErrorTitle = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Не удалось подключить внешнюю компоненту ""%1"" на сервере по причине:';"),
+			NStr("en = 'Cannot attach the ""%1"" add-in on the server due to:';"),
 			Id);
 		
 		Result.ErrorDescription = ErrorTitle + Chars.LF
@@ -6695,7 +6700,7 @@ Function AttachAddInSSLByID(Val Id, Val Location, Val Isolated = Null) Export
 		
 		CommentForLog = ErrorTitle + Chars.LF
 			+ ErrorProcessing.DetailErrorDescription(ErrorInfo)
-			+ SystemInformationForLogbook();
+			+ SystemInformationForLogging();
 		
 		WriteLogEvent(NStr("en = 'Attaching add-in on the server';", DefaultLanguageCode()),
 			EventLogLevel.Error,,, CommentForLog);
@@ -6716,18 +6721,18 @@ Function AttachAddInSSLByID(Val Id, Val Location, Val Isolated = Null) Export
 				"AttachAddIn");
 		Else
 			Result.ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Не удалось подключить внешнюю компоненту ""%1"" на сервере.
-					 |Техническая информация:
+				NStr("en = 'Cannot attach the ""%1"" add-in on the server.
+					 |Technical information:
 					 |%2
-					 |Метод %3 вернул Ложь.';"), Id, Location, "AttachAddIn");
+					 |The method ""%3"" returned ""False"".';"), Id, Location, "AttachAddIn");
 		EndIf;
 		
 		Try
-			Raise NStr("en = 'Стек вызовов:';")
+			Raise NStr("en = 'Call stack:';")
 		Except
 			CommentForLog = Result.ErrorDescription + Chars.LF + Chars.LF
 				+ ErrorProcessing.DetailErrorDescription(ErrorInfo())
-				+ SystemInformationForLogbook();
+				+ SystemInformationForLogging();
 		EndTry;
 		
 		WriteLogEvent(NStr("en = 'Attaching add-in on the server';", DefaultLanguageCode()),
@@ -6753,10 +6758,10 @@ Function AttachAddInSSLByID(Val Id, Val Location, Val Isolated = Null) Export
 			Id, ErrorProcessing.BriefErrorDescription(ErrorInfo));
 		
 		CommentForLog = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Не удалось создать объект внешней компоненты ""%1"", подключенной на сервере, по причине:
+			NStr("en = 'Cannot create an object of the %1 add-in on the server due to:
 			           |%2';"),
 			Id, ErrorProcessing.DetailErrorDescription(ErrorInfo)
-				+ SystemInformationForLogbook());
+				+ SystemInformationForLogging());
 		
 		WriteLogEvent(NStr("en = 'Attaching add-in on the server';", DefaultLanguageCode()),
 			EventLogLevel.Error,,, CommentForLog);
@@ -6769,7 +6774,7 @@ Function AttachAddInSSLByID(Val Id, Val Location, Val Isolated = Null) Export
 	
 EndFunction
 
-Function ConnectionTypeDefaultComponents() Export
+Function IsDefaultAddInAttachmentMethod() Export
 	
 #If Not WebClient And Not MobileClient And Not MobileAppServer Then
 	
@@ -6873,10 +6878,9 @@ Function CurrentUserLanguageSuffix() Export
 	
 EndFunction
 
-// Shortens a filename.
-// Applicable to filenames whose size with extension exceeds 255 B.
-// The procedure replaces a part of the filename with this part's hash, followed by the file extension. 
-// 
+// Truncates a filename if its size exceeds 255 bytes. 
+// It replaces the end part of the filename (without the extension) with a unique MD5 hash. 
+//  
 // 
 // Parameters:
 //  FileName - String - File name including the extension.
@@ -6899,30 +6903,28 @@ Procedure ShortenFileName(FileName) Export
 	ShouldReduce = True;
 	While True Do
 		If ShouldReduce Then
-			NumberOfCharsUsed = FewerChars + Int((NumberOfCharsUsed-FewerChars)/2);
+			NumberOfCharsUsed = FewerChars + Int((NumberOfCharsUsed - FewerChars)/2);
 		Else
 			NumberOfCharsUsed = NumberOfCharsUsed + Int((MoreChars - NumberOfCharsUsed)/2);
 		EndIf;
 		
-		StringSizeInBytes = StringSizeInBytes(BaseName)+32;
+		StringSizeInBytes = StringSizeInBytes(BaseName) + 32;
 		
 		If StringSizeInBytes = BytesLimit Or MoreChars - FewerChars = 1 Then
 			Break;
 		EndIf;
 		
-		If StringSizeInBytes > BytesLimit Then
-			ShouldReduce = True;
-			MoreChars = NumberOfCharsUsed;	
+		ShouldReduce = (StringSizeInBytes > BytesLimit);
+		If ShouldReduce Then
+			MoreChars = NumberOfCharsUsed;
 		Else 
-			ShouldReduce = False;
 			FewerChars = NumberOfCharsUsed;
 		EndIf;
 
 	EndDo;
 	
-	ShortenedString = TrimStringUsingChecksum(BaseName, NumberOfCharsUsed+32);
-	
-	FileName = ShortenedString+File.Extension;
+	ShortenedString = TrimStringUsingChecksum(BaseName, NumberOfCharsUsed + 32);
+	FileName = ShortenedString + File.Extension;
 	
 EndProcedure
 
@@ -7039,8 +7041,8 @@ Function CheckIfObjectAttributesExist(FullMetadataObjectName, ExpressionsToCheck
 				NStr("en = 'Non-existing metadata object: ""%1"".';"), FullMetadataObjectName));
 	EndIf;
 
-	// 
-	// 
+	// Allow a call from the safe mode of an external data processor or extension.
+	// The information on the availability of the schema's source fields is not considered private when checking metadata.
 	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
 	
@@ -7213,7 +7215,7 @@ Procedure ReplaceInConstant(Result, Val UsageInstance1, Val WriteParameters)
 	
 	// Performing all replacement of the data in the same time.
 	Filter = New Structure("Data, ReplacementKey", Data, "Constant");
-	RowsToProcess = UsageInstance1.Owner().FindRows(Filter); 
+	RowsToProcess = UsageInstance1.Owner().FindRows(Filter); // See UsageInstances
 	// 
 	For Each String In RowsToProcess Do
 		String.ReplacementKey = "";
@@ -7492,18 +7494,18 @@ Procedure ReplaceInInformationRegister(Result, Val UsageInstance1, Val Execution
 	EndIf;
 	UsageInstance1.Processed = True;
 	
-	// 
-	//     
-	//     
-	//     
-	//         
-	//         
-	//     
+	// If a duplicate is specified in the set's dimensions, two sets of records are used:
+	//     "DuplicateRecordSet" for reading values from the old dimensions and deleting them.
+	//     "OriginalRecordSet" for reading values in the new dimensions and writing them.
+	//     The following rules apply for merging the original and duplicate items:
+	//         The original item's data has a higher priority.
+	//         If the original item has no data, it's copied from the duplicate.
+	//     The original item is written, and the duplicate is deleted.
 	//
-	// 
-	//     
+	// If no duplicate is specified in the set's dimensions, a single set of records is used:
+	//     "DuplicateRecordSet" for reading values from the old dimensions and writing new values.
 	//
-	// 
+	// In both cases, the references in resources and attributes are replaced.
 	
 	SetPrivilegedMode(True);
 	
@@ -7545,9 +7547,9 @@ Procedure ReplaceInInformationRegister(Result, Val UsageInstance1, Val Execution
 		For Each KeyValue In Information.Dimensions Do
 			DuplicateDimensionValue = RegisterRecordKey[KeyValue.Key];
 			
-			// 
-			//   
-			//   
+			// To resolve the uniqueness issue, the old values of the dimension record keys
+			//   are replaced with new ones. The "SuccessfulReplacements" map stores the old and new values.
+			//   The map updates after a new value–old value pair is processed and the transaction is committed.
 			//   
 			//   
 			NewDuplicateDimensionValue = ExecutionParameters.SuccessfulReplacements[DuplicateDimensionValue];
@@ -7596,7 +7598,7 @@ Procedure ReplaceInInformationRegister(Result, Val UsageInstance1, Val Execution
 				OriginalRecord = OriginalRecordSet[0];
 			EndIf;
 		Else
-			// 
+			// Write to the source.
 			OriginalRecordSet = DuplicateRecordSet;
 			OriginalRecord = DuplicateRecord; // 
 		EndIf;
@@ -8076,8 +8078,8 @@ Function RegisterRecordsDetails(Val MetadataObject)
 			Continue;
 		EndIf;
 		
-		// 
-		// 
+		// Ref fields and candidate dimensions.
+		// @skip-check query-in-loop - An empty request to obtain a list of table fields.
 		LongDesc = ObjectFieldLists(RecordSet, Movement.Dimensions, ExcludeFields);
 		If LongDesc.FieldList.Count() = 0 Then
 			// No need to process.
@@ -8251,8 +8253,8 @@ Function RecordKeyDetails(Val MetadataTables)
 	
 	TableName = MetadataTables.FullName();
 	
-	// 
-	// 
+	// Candidate Ref fields and a dimension set.
+	// @skip-check query-in-loop - An empty request to obtain a list of table fields.
 	KeyDetails = ObjectFieldLists(TableName, MetadataTables.Dimensions, "Period, Recorder");
 	
 	If Metadata.InformationRegisters.Contains(MetadataTables) Then
@@ -8415,7 +8417,7 @@ EndProcedure
 
 Procedure WriteObjectWithMessageInterception(Val Object, Val Action, Val WriteMode, Val WriteParameters)
 	
-	// 
+	// Save the current messages before the exception.
 	PreviousMessages = GetUserMessages(True);
 	ReportAgain    = CurrentRunMode() <> Undefined;
 	
@@ -8558,7 +8560,7 @@ EndProcedure
 //    * ErrorType - String
 //    * ErrorObject - AnyRef
 //    * ErrorObjectPresentation - String
-//    * ErrorInfo - 
+//    * ErrorInfo - ErrorInfo, String
 //
 Function ReplacementErrorDescription(Val ErrorType, Val ErrorObject, Val ErrorObjectPresentation, Val ErrorInfo)
 
@@ -8778,10 +8780,10 @@ EndFunction
 //   AttributeMetadata - MetadataObjectAttribute
 // 
 Function AttributeInformation1(AttributeMetadata)
-	// 
-	// 
-	// 
-	// 
+	// StandardAttributeDetails
+	// MetadataObject: Dimension
+	// MetadataObject: Resource
+	// MetadataObject: Attribute
 	Information = New Structure("Master, Presentation, Format, Type, DefaultValue, FillFromFillingValue");
 	FillPropertyValues(Information, AttributeMetadata);
 	Information.Presentation = AttributeMetadata.Presentation();
@@ -9238,7 +9240,7 @@ Function SequenceSensitiveToCompare(Val RowsCollection1, Val RowsCollection2, Va
 		Collection2RowCount = Collection2RowCount + 1;
 	EndDo;
 	
-	//  
+	// If the first collection has no rows, they shouldn't be present in the other one. 
 	// 
 	If Collection1RowCount = 0 Then
 		For Each CollectionRow2 In RowsCollection2 Do
@@ -9258,9 +9260,9 @@ EndFunction
 
 Function SequenceIgnoreSensitiveToCompare(Val RowsCollection1, Val RowsCollection2, Val ColumnsToCompare)
 	
-	// 
-	//  
-	//  
+	// Accumulate selection rows by the first collection to:
+	//  - Save time on searching for duplicates.
+	//  - Make sure the other collection has only the rows that have been accumulated.
 	
 	FilterRows = New ValueTable;
 	FilterParameters = New Structure;
@@ -9306,8 +9308,8 @@ Function SequenceIgnoreSensitiveToCompare(Val RowsCollection1, Val RowsCollectio
 			EndDo;
 			If RowFits Then
 				Collection2RowsFound = Collection2RowsFound + 1;
-				//  
-				// 
+				// If the number of rows in the other collection exceeds the number of the same rows 
+				// in the first collection, the collections are not identical.
 				If Collection2RowsFound > Collection1RowsFound Then
 					Return False;
 				EndIf;
@@ -9323,7 +9325,7 @@ Function SequenceIgnoreSensitiveToCompare(Val RowsCollection1, Val RowsCollectio
 		
 	EndDo;
 	
-	//  
+	// If the first collection has no rows, they shouldn't be present in the other one. 
 	// 
 	If Not HasCollection1Rows Then
 		For Each CollectionRow2 In RowsCollection2 Do
@@ -9760,8 +9762,8 @@ Procedure CheckConfigurationProcedureName(Val ProcedureName)
 	ObjectMethodName = NameParts[NameParts.UBound()];
 	TempStructure = New Structure;
 	Try
-		// 
-		// 
+		// Check if "ProcedureName" is a valid identifier name.
+		// For example, "MyProcedure".
 		TempStructure.Insert(ObjectMethodName);
 	Except
 		WriteLogEvent(NStr("en = 'Executing method in safe mode';", DefaultLanguageCode()),
@@ -10059,16 +10061,16 @@ Function TemplateAddInCompatibilityError(Location)
 	
 EndFunction
 
-Function SystemInformationForLogbook()
+Function SystemInformationForLogging()
 	
 	SystemInfo = New SystemInfo;
 	
 	Return Chars.LF + Chars.LF + StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Платформа 1C:Enterprise: %1
-		           |Тип платформы: %2
-		           |Версия ОС: %3
-		           |Процессор: %4
-		           |Оперативная память: %5';",
+		NStr("en = '1C:Enterprise: %1
+		           |Type: %2
+		           |OS version: %3
+		           |CPU: %4
+		           |RAM: %5';",
 		           DefaultLanguageCode()),
 		SystemInfo.AppVersion,
 		SystemInfo.PlatformType,
@@ -10155,8 +10157,8 @@ Function IsMinRecommended1CEnterpriseVersionInvalid(Min, Recommended)
 		Return True;
 	EndIf;
 	
-	// 
-	// 
+	// The minimal 1C:Enterprise version required in the configuration must be
+	// equal to or greater than the minimal 1C:Enterprise version required in the library.
 	MinimalSSL = BuildNumberForTheCurrentPlatformVersion(MinPlatformVersion());
 	If Not IsVersionOfProtectedComplexITSystem(Min)
 		And CommonClientServer.CompareVersions(MinimalSSL, Min) > 0 Then

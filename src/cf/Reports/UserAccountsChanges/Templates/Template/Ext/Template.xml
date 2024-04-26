@@ -1318,7 +1318,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Deny sign-in after inactivity (days)</v8:content>
+					<v8:content>Deny login after inactivity (days)</v8:content>
 				</v8:item>
 			</title>
 			<valueType>
@@ -1336,7 +1336,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Deny sign-in after inactivity (days) (changed)</v8:content>
+					<v8:content>Deny login after inactivity (days) (changed)</v8:content>
 				</v8:item>
 			</title>
 			<valueType>

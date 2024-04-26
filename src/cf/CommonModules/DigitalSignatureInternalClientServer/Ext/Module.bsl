@@ -126,28 +126,45 @@ EndFunction
 Function CryptoProvidersSearchResult(CryptoProvidersResult, ServerName = "") Export
 	
 	If ServerName = "" Then
-		ServerName = NStr("en = 'On computer';");
-	Else
-		ServerName = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'On the %1 server';"), ServerName);
-	EndIf;
-	
-	If CryptoProvidersResult = Undefined Then
-		
-		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 couldn''t auto-determine digital signing and encryption app.';"), ServerName);
-	ElsIf CryptoProvidersResult.CheckCompleted Then
-		If CryptoProvidersResult.Cryptoproviders.Count() > 0 Then
-			Return CryptoProvidersResult.Cryptoproviders;
+
+		If CryptoProvidersResult = Undefined Then
+			ErrorText = NStr(
+				"en = 'Couldn''t find digital signing and encryption apps on your computer.';");
+		ElsIf CryptoProvidersResult.CheckCompleted Then
+			If CryptoProvidersResult.Cryptoproviders.Count() > 0 Then
+				Return CryptoProvidersResult.Cryptoproviders;
+			Else
+				ErrorText = NStr("en = 'No digital signing and encryption apps are installed on your computer.';");
+			EndIf;
 		Else
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '%1 no installed digital signing and encryption apps are found.';"), ServerName);
+			NStr("en = 'Couldn''t find digital signing and encryption apps on your computer:
+				 |%1';"), CryptoProvidersResult.Error);
 		EndIf;
+
 	Else
-		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 couldn''t auto-determine installed digital signing and encryption app:
-				|%2';"), ServerName, CryptoProvidersResult.Error);
+		
+		If CryptoProvidersResult = Undefined Then
+
+			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr(
+				"en = 'Couldn''t find digital signing and encryption apps installed on the server %1.';"),
+				ServerName);
+		ElsIf CryptoProvidersResult.CheckCompleted Then
+			If CryptoProvidersResult.Cryptoproviders.Count() > 0 Then
+				Return CryptoProvidersResult.Cryptoproviders;
+			Else
+				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'No digital signing and encryption apps are installed on the server %1.';"), ServerName);
+			EndIf;
+		Else
+			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Couldn''t find digital signing and encryption apps installed on the server %1:
+				 |%2';"), ServerName, CryptoProvidersResult.Error);
+		EndIf;
+		
 	EndIf;
-	
+
 	Return ErrorText;
 	
 EndFunction
@@ -2319,7 +2336,7 @@ Function SignaturePropertiesFromBinaryData(Data, UTCOffset = Undefined, ShouldRe
 	
 EndFunction
 
-Function ReadDateFromClipboard(Buffer, Offset) Export
+Function ReadDateFromClipboard(Buffer, Offset)
 	
 	Date_Type = GetHexStringFromBinaryDataBuffer(Buffer.Read(Offset, 2));
 	If Date_Type = "170D" Then // UTCTime
@@ -3468,6 +3485,70 @@ Function NewExtendedApplicationDetails() Export
 
 EndFunction
 
+Function DataToSupplementErrorFromClassifier(AdditionalData) Export
+	
+	Structure = New Structure("CertificateData, SignatureData");
+	
+	If Not ValueIsFilled(AdditionalData) Then
+		Return Structure;
+	EndIf;
+	
+	CertificateData = CommonClientServer.StructureProperty(AdditionalData, "CertificateData", Undefined);
+	If ValueIsFilled(CertificateData) Then
+		If TypeOf(CertificateData) = Type("String") Then
+			CertificateData = GetFromTempStorage(CertificateData);
+		EndIf;
+	Else
+		Certificate = CommonClientServer.StructureProperty(AdditionalData, "Certificate", Undefined);
+		If ValueIsFilled(Certificate) Then
+			If TypeOf(Certificate) = Type("Array") Then
+				If Certificate.Count() > 0 Then
+					If TypeOf(Certificate[0]) = Type("CatalogRef.DigitalSignatureAndEncryptionKeysCertificates") Then
+						CertificateData = DigitalSignatureInternalServerCall.CertificateData(Certificate[0]);
+					Else
+						CertificateData = GetFromTempStorage(Certificate[0]);
+					EndIf;
+				EndIf;
+			ElsIf TypeOf(Certificate) = Type("CatalogRef.DigitalSignatureAndEncryptionKeysCertificates") Then
+				CertificateData = DigitalSignatureInternalServerCall.CertificateData(DigitalSignatureInternalServerCall.CertificateData(Certificate));
+			ElsIf TypeOf(Certificate) = Type("BinaryData") Then
+				CertificateData = Certificate;
+			Else
+				CertificateData = GetFromTempStorage(Certificate);
+			EndIf;
+		EndIf;
+	EndIf;
+	
+	Structure.CertificateData = CertificateData;
+	Structure.SignatureData = CommonClientServer.StructureProperty(AdditionalData, "SignatureData", Undefined);
+	
+	Return Structure;
+	
+EndFunction
+
+Function CertificateInLocalStorageSolutionText() Export
+
+	Return StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '<a href = ""%1"">Удалите сертификат</a> из локального хранилища компьютера.';"),
+		"DeleteCertificateFromLocalStorage");
+
+EndFunction
+
+Function CertificateInLocalStorageTextOfReason() Export
+	
+	Return NStr(
+		"en = 'На компьютере сертификат установлен в локальное хранилище вместо текущего хранилища пользователя.';");
+	
+EndFunction
+
+Function ParametersForCompletingTextOfClassifierErrorSolution() Export
+	
+	Structure = New Structure;
+	Structure.Insert("VerifyCertificateInClientSLocalStorage", False);
+	
+	Return Structure;
+	
+EndFunction
+
 #Region XMLScope
 
 // Parameters:
@@ -3995,6 +4076,86 @@ Function HashAlgorithm(Data, IncludingOID = False) Export
 	Algorithm = AlgorithmByOID(HashingAlgorithmOID, AlgorithmsIDs, IncludingOID);
 	
 	Return Algorithm;
+	
+EndFunction
+
+// Intended for: DownloadRevocationListFileAtServer procedure and the BeforeWrite check in the CertificateRevocationLists register.
+Function PropertiesOfReviewList(Data) Export
+	
+	BinaryData = BinaryDataFromTheData(
+		Data, "DigitalSignatureInternal.PropertiesOfReviewList");
+	
+	DataAnalysis = NewDataAnalysis(BinaryData);
+	
+	Result = New Structure("StartDate, EndDate, CertificateAuthorityKeyID");
+	
+	// SEQUENCE (CertificateList).
+		SkipBlockStart(DataAnalysis, 0, 16);
+			// SEQUENCE (TBSCertList).
+			SkipBlockStart(DataAnalysis, 0, 16);
+				// INTEGER  (version          Version).
+				SkipBlock(DataAnalysis, 0, 2);
+				// SEQUENCE (signature            AlgorithmIdentifier).
+				SkipBlock(DataAnalysis, 0, 16);
+				// SEQUENCE (issuer               Name).
+				SkipBlock(DataAnalysis, 0, 16);
+				
+				If DataAnalysis.HasError Then
+					Return Undefined;
+				EndIf;
+				
+				// UTC TIME (thisUpdate).
+				Result.StartDate = ReadDateFromClipboard(DataAnalysis.Buffer, DataAnalysis.Offset);
+				// UTC TIME (nextUpdate).
+				Result.EndDate = ReadDateFromClipboard(DataAnalysis.Buffer, DataAnalysis.Offset + 15);
+				
+				// SEQUENCE (thisUpdate              Time).
+				SkipBlock(DataAnalysis, 0, 23);
+				// SEQUENCE (nextUpdate              Time).
+				SkipBlock(DataAnalysis, 0, 23, False);
+				// SEQUENCE (revokedCertificates).
+				SkipBlock(DataAnalysis, 0, 16);
+				// [0]crlExtensions                  contentType OPTIONAL).
+				SkipBlockStart(DataAnalysis, 2, 0);
+				
+				If DataAnalysis.HasError Then
+					Return Result;
+				EndIf;
+
+				// SEQUENCE OF
+				SkipBlockStart(DataAnalysis, 0, 16);
+				OffsetOfTheFollowing = DataAnalysis.Parents[0].OffsetOfTheFollowing;
+				While DataAnalysis.Offset < OffsetOfTheFollowing Do
+					// SEQUENCE (extension).
+					SkipBlockStart(DataAnalysis, 0, 16);
+					If DataAnalysis.HasError Then
+						Return Result;
+					EndIf;
+					
+						// OBJECT IDENTIFIER
+						SkipBlockStart(DataAnalysis, 0, 6);
+							
+						DataSize = DataAnalysis.Parents[0].DataSize;
+						If DataSize = 0 Then
+							Return Result;
+						EndIf;
+						
+						If DataSize = 3 Then
+							Buffer = DataAnalysis.Buffer.Read(DataAnalysis.Offset, DataSize); // BinaryDataBuffer
+							BufferString = GetHexStringFromBinaryDataBuffer(Buffer);
+							SkipTheParentBlock(DataAnalysis); // OBJECT IDENTIFIER
+							If BufferString = "551D23" Then // 2.5.29.35 authorityKeyIdentifier
+								FillCertificateAuthorityKeyID(BlockRead(DataAnalysis, 0, 4, True), Result);
+								Return Result;
+							EndIf;
+						Else
+							SkipTheParentBlock(DataAnalysis); // OBJECT IDENTIFIER
+						EndIf;
+						
+					SkipTheParentBlock(DataAnalysis); // SEQUENCE
+				EndDo;
+	
+	Return Result;
 	
 EndFunction
 

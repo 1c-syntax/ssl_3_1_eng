@@ -405,7 +405,7 @@ Procedure SetOriginalStateCompletion(Response, AdditionalParameters) Export
 		Return;
 	EndIf;
 
-	WritingObjects = New Array; 
+	WritingObjects = New Array; // See SourceDocumentsOriginalsRecordingServerCall.SetNewOriginalState.WritingObjects
 	For Each ListLine In List.SelectedRows Do
 		RowData = List.RowData(ListLine);
 		Ref = CommonClientServer.StructureProperty(RowData, "Ref");

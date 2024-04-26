@@ -235,6 +235,15 @@ Function UserNewProperties(User, Selection, UserObject = Undefined,
 	CurrentProperties.Insert("Invalid", False);
 	CurrentProperties.Insert("IBUserID",
 		CommonClientServer.BlankUUID());
+	CurrentProperties.Insert("Department");
+	CurrentProperties.Insert("Individual");
+	CurrentProperties.Insert("PreviousValues1", Undefined);
+	
+	If Selection <> Undefined And Selection.DeletionMark <> Null Then
+		CurrentProperties.PreviousValues1 = New Structure("DeletionMark,
+			|Invalid, IBUserID, Department, Individual");
+		FillPropertyValues(CurrentProperties.PreviousValues1, Selection);
+	EndIf;
 	
 	Properties = NewProperties();
 	
@@ -505,6 +514,8 @@ Function PropertiesQuery(User) Export
 	|	Users.IBUserID AS IBUserID,
 	|	Users.DeletionMark AS DeletionMark,
 	|	Users.Invalid AS Invalid,
+	|	Users.Department AS Department,
+	|	Users.Individual AS Individual,
 	|	UsersInfo.UserMustChangePasswordOnAuthorization AS UserMustChangePasswordOnAuthorization,
 	|	UsersInfo.UnlimitedValidityPeriod AS UnlimitedValidityPeriod,
 	|	UsersInfo.ValidityPeriod AS ValidityPeriod,
@@ -538,7 +549,10 @@ Function PropertiesQuery(User) Export
 	
 	If User = Undefined Then
 		QueryText = StrReplace(QueryText, "&FilterByUser", "TRUE");
-		Query.Text = QueryText + Chars.LF + Chars.LF
+		Query.Text = QueryText;
+		QueryText = StrReplace(QueryText, "Users.Department", "UNDEFINED");
+		QueryText = StrReplace(QueryText, "Users.Individual", "UNDEFINED");
+		Query.Text = Query.Text + Chars.LF + Chars.LF
 			+ "UNION ALL" + Chars.LF + Chars.LF
 			+ StrReplace(QueryText, "Catalog.Users",
 				"Catalog.ExternalUsers");
@@ -551,6 +565,8 @@ Function PropertiesQuery(User) Export
 		If TypeOf(User) = Type("CatalogRef.Users") Then
 			Query.Text = QueryText;
 		Else
+			QueryText = StrReplace(QueryText, "Users.Department", "UNDEFINED");
+			QueryText = StrReplace(QueryText, "Users.Individual", "UNDEFINED");
 			Query.Text = StrReplace(QueryText, "Catalog.Users",
 				"Catalog.ExternalUsers");
 		EndIf;

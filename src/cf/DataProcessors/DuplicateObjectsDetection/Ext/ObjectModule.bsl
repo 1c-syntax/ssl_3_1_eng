@@ -51,16 +51,16 @@ EndFunction
 //
 // Returns:
 //   Structure:
-//       * DuplicatesTable - ValueTable:
-//           ** Ref       - AnyRef - an item reference.
-//           ** Code          - String
-//                           - Number - item code.
-//           ** Description - String - an item description.
-//           ** Parent     - AnyRef - a parent of the duplicates group. If the Parent is empty, the item is
-//                                           parent for the duplicates group.
-//           ** OtherFields - Arbitrary - a value of the corresponding filter fields and criteria for comparing duplicates.
-//       * ErrorDescription - Undefined - No errors occurred.
-//                        - String - details of error occurred during the search for duplicates.
+//     * DuplicatesTable - ValueTable:
+//       ** Ref       - AnyRef - an item reference.
+//       ** Code          - String
+//                       - Number - item code.
+//       ** Description - String - an item description.
+//       ** Parent     - AnyRef - a parent of the duplicates group. If the Parent is empty, the item is
+//                                       parent for the duplicates group.
+//       ** OtherFields - Arbitrary - a value of the corresponding filter fields and criteria for comparing duplicates.
+//     * ErrorDescription - Undefined - No errors occurred.
+//                      - String - details of error occurred during the search for duplicates.
 //     * ReturnedLessThanFound - Boolean - True if the size of the returned batch exceeds the limit.
 //     * UsageInstances - See Common.UsageInstances
 //
@@ -311,6 +311,7 @@ EndProcedure
 //
 // Parameters:
 //     Parameters - Structure - data to be analyzed.
+//     
 // Returns:
 //   See Common.ReplaceReferences
 //
@@ -402,21 +403,19 @@ EndProcedure
 
 // Adds a row to the candidates table for an applied duplicate search option.
 //
-// Details are
-// 
 // Parameters:
 //   CandidatesTable - See CandidatesTable
 //   MainItemData - Structure:
-//   * Ref - AnyRef
-//   * Description - String
-//   * Code - String
-//   * DeletionMark - Boolean
+//     * Ref - AnyRef
+//     * Description - String
+//     * Code - String
+//     * DeletionMark - Boolean
 //   CandidateData - Structure:
-//   * Ref - AnyRef
-//   * Description - String
-//   * Code - String
-//   * DeletionMark - Boolean
-//   RequestStructure - Structure
+//     * Ref - AnyRef
+//     * Description - String
+//     * Code - String
+//     * DeletionMark - Boolean
+//   RequestStructure - See QueryTextForDuplicatesSearch
 //
 // Returns:
 //   ValueTableRow
@@ -454,8 +453,6 @@ Function AddCandidatesRow(CandidatesTable,  Val MainItemData, Val CandidateData,
 	Return String;
 EndFunction
 
-// Add the found duplicate to the result tree.
-//
 Procedure RegisterDuplicate(DuplicatesCollection, Val Item1, Val Item2, Val RequestStructure)
 	
 	DuplicatesTable = DuplicatesCollection.DuplicatesTable;
@@ -479,7 +476,7 @@ Procedure RegisterDuplicate(DuplicatesCollection, Val Item1, Val Item2, Val Requ
 		Return;
 	EndIf;
 	
-	// Before registering a duplicate, determine a reference to the group of duplicates.
+	// Before registering a duplicate, determine the group of duplicates.
 	If Duplicate1Registered Then
 		DuplicatesGroupsRef = ?(ValueIsFilled(DuplicatesRow1.Parent), DuplicatesRow1.Parent, DuplicatesRow1.Ref);
 	ElsIf Duplicate2Registered Then
@@ -534,7 +531,7 @@ EndFunction
 // Miscellaneous.
 
 // Parameters:
-//  MetadataObject Metadata object
+//  MetadataObject - MetadataObject
 // 
 // Returns:
 //  Structure:
@@ -891,23 +888,25 @@ Procedure DeleteNotSignificantDuplicates(DuplicatesCollection)
 		
 		UsageInstances = SearchForReferences(DuplicatesToCheck);
 		UsageInstances.Indexes.Add("Ref, AuxiliaryData");
-		
+		DuplicatesFilter = New Structure("Ref", Undefined);
+		FilterUsageInstancesCount = New Structure("Ref, AuxiliaryData", Undefined, False);
+		 
 		For Cnt = 0 To DuplicatesToCheck.UBound() Do
 			
-			DuplicatesToCheck1 = DuplicatesTable.FindRows(New Structure("Ref", DuplicatesToCheck[Cnt]));	
+			DuplicatesFilter.Ref = DuplicatesToCheck[Cnt];
+			DuplicatesToCheck1 = DuplicatesTable.FindRows(DuplicatesFilter);
 			For Each Duplicate1 In DuplicatesToCheck1 Do
 				
 				If Duplicate1.Parent = Undefined Then
 					Continue;
 				EndIf;
 				
-				UsageInstancesInternal = UsageInstances.FindRows(New Structure("Ref, AuxiliaryData", Duplicate1.Ref, False));
+				FilterUsageInstancesCount.Ref = Duplicate1.Ref;
+				UsageInstancesInternal = UsageInstances.FindRows(FilterUsageInstancesCount);
 				If UsageInstancesInternal.Count() = 0 And Duplicate1.DeletionMark Then
-					
 					FillPropertyValues(DuplicatesCollection.NotSignificantDuplicates.Add(), Duplicate1);	
 					DuplicatesCollection.ProcessedGroups.Insert(Duplicate1.Parent);
 					DuplicatesTable.Delete(Duplicate1);
-					
 				EndIf;
 				
 			EndDo;
@@ -920,20 +919,22 @@ Procedure DeleteNotSignificantDuplicates(DuplicatesCollection)
 
 EndProcedure
 
-// Deletes groups and their items if there is only one item in the group
+// Deletes groups (and their items) that contain a single item.
 Procedure DeleteNotSignificantGroups(DuplicatesCollection)
 
 	DuplicatesTable = DuplicatesCollection.DuplicatesTable;
+	DuplicatesFilter = New Structure("Parent", Undefined);
 	For Each DuplicatesGroup In DuplicatesCollection.ProcessedGroups Do
 		
-		Duplicates = DuplicatesTable.FindRows(New Structure("Parent", DuplicatesGroup.Key));
+		DuplicatesFilter.Parent = DuplicatesGroup.Key;
+		Duplicates = DuplicatesTable.FindRows(DuplicatesFilter);
 		If Duplicates.Count() = 1 Then
 			DuplicatesTable.Delete(Duplicates[0]);
 		EndIf;
 		
 		Group = DuplicatesTable.Find(DuplicatesGroup.Key, "Ref");
 		If Group <> Undefined Then
-			DuplicatesTable.Delete(Group);	
+			DuplicatesTable.Delete(Group);
 		EndIf;
 		
 	EndDo;
@@ -942,7 +943,11 @@ EndProcedure
 
 // Returns:
 //   ValueTable:
-//   * Ref - AnyRef 
+//     * Ref - AnyRef 
+//     * Parent - AnyRef 
+//     * Description - String 
+//     * IsFolder - Boolean 
+//     * DeletionMark - Boolean 
 //
 Function DuplicatesTable(FieldsNamesToCompareForSimilarity, FieldsNamesToCompareForEquality)
 	
@@ -976,17 +981,17 @@ EndFunction
 
 // Returns:
 //   Structure:
-//   * NotSignificantDuplicates - ValueTable:
-//   ** Ref - AnyRef
-//   ** Parent - AnyRef
-//   ** Ref - AnyRef
-//   ** Parent - AnyRef
-//   * ProcessedGroups - Map
-//   * HideInsignificantDuplicates - Boolean
-//   * DuplicatesToCheck - Array
-//   * ItemsCountToCompare - Arbitrary
-//                                     - Undefined
-//   * DuplicatesTable - See DuplicatesTable
+//     * NotSignificantDuplicates - ValueTable:
+//       ** Ref - AnyRef
+//       ** Parent - AnyRef
+//       ** Ref - AnyRef
+//       ** Parent - AnyRef
+//     * ProcessedGroups - Map
+//     * HideInsignificantDuplicates - Boolean
+//     * DuplicatesToCheck - Array
+//     * ItemsCountToCompare - Arbitrary
+//                                       - Undefined
+//     * DuplicatesTable - See DuplicatesTable
 //
 Function DuplicatesCollection(Val SearchParameters, FieldsNamesToCompareForSimilarity, FieldsNamesToCompareForEquality)
 	
@@ -996,22 +1001,19 @@ Function DuplicatesCollection(Val SearchParameters, FieldsNamesToCompareForSimil
 		CommonClientServer.StructureProperty(SearchParameters, "MaxDuplicates", 0));
 	DuplicatesCollection.Insert("DuplicatesToCheck", New Array);
 	
-	 DuplicatesCollection.Insert("HideInsignificantDuplicates", False);
+	DuplicatesCollection.Insert("HideInsignificantDuplicates", False);
 	If SearchParameters.Property("HideInsignificantDuplicates")
 		And SearchParameters.HideInsignificantDuplicates = True
 			Or DuplicatesCollection.ItemsCountToCompare = 0 Then
 	
-	    DuplicatesCollection.HideInsignificantDuplicates = True;
+		DuplicatesCollection.HideInsignificantDuplicates = True;
 	EndIf;
 	 
 	DuplicatesCollection.Insert("ProcessedGroups", New Map);	
 	
-	NotSignificantDuplicates = Undefined;
-	
 	NotSignificantDuplicates = New ValueTable;
 	NotSignificantDuplicates.Columns.Add("Ref");
 	NotSignificantDuplicates.Columns.Add("Parent");
-	
 	NotSignificantDuplicates.Indexes.Add("Ref");	
 	
 	DuplicatesCollection.Insert("NotSignificantDuplicates", NotSignificantDuplicates);
@@ -1021,15 +1023,15 @@ EndFunction
 
 // Returns:
 //   ValueTable:
-//   * Ref1 - AnyRef
-//   * Fields1 - Structure:
-//   ** Description - String
-//   ** Code - String
-//   * Ref2 - AnyRef
-//   * Fields2 - Structure:
-//   ** Description - String
-//   ** Code - String
-//   * IsDuplicates - Boolean
+//     * Ref1 - AnyRef
+//     * Fields1 - Structure:
+//       ** Description - String
+//       ** Code - String
+//     * Ref2 - AnyRef
+//     * Fields2 - Structure:
+//       ** Description - String
+//       ** Code - String
+//     * IsDuplicates - Boolean
 //
 Function CandidatesTable()
 	CandidatesTable = New ValueTable;

@@ -778,7 +778,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Email address used to sign in to email account.</v8:content>
+							<v8:content>Email address used to log in to email account.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -827,7 +827,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Email address used to sign in to email account.</v8:content>
+							<v8:content>Email address used to log in to email account.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>

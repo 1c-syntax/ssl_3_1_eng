@@ -2044,7 +2044,7 @@ Function ReportFormUpdateParameters(Val EventName = "") Export
 	Result.Insert("ReportObjectOrFullName", "");
 	Result.Insert("Regenerate", False);
 	Result.Insert("Directly", False);
-	// 
+	// Intended for the "SettingsForm" event
 	Result.Insert("SettingsFormAdvancedMode", 0);
 	Result.Insert("SettingsFormPageName", "");
 	// ReportSettingsForm

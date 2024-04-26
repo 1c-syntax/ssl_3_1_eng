@@ -61,7 +61,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 	ElsIf Not PasswordIsSet Then
 		Items.AuthorizationNote.Title =
-			NStr("en = 'To sign in, set a password.';")
+			NStr("en = 'To log in, set a password.';")
 	EndIf;
 	
 	StandardSubsystemsServer.ResetWindowLocationAndSize(ThisObject);

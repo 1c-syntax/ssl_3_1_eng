@@ -29,7 +29,7 @@ Procedure BeforeWrite(Cancel)
 	EndIf;
 	
 	// Setting an icon index upon object write.
-	PictureIndex = FilesOperationsInternalClientServer.GetFileIconIndex(Extension);
+	PictureIndex = FilesOperationsInternalClientServer.IndexOfFileIcon(Extension);
 	
 	If TextExtractionStatus.IsEmpty() Then
 		TextExtractionStatus = Enums.FileTextExtractionStatuses.NotExtracted;

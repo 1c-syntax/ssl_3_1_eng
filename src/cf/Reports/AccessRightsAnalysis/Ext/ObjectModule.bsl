@@ -557,7 +557,6 @@ Function UsersRights()
 	|	ExtensionsRolesRights AS ExtensionsRolesRights
 	|WHERE
 	|	ExtensionsRolesRights.LineChangeType = 1
-	|	AND ExtensionsRolesRights.ViewRight = TRUE
 	|
 	|UNION ALL
 	|
@@ -577,7 +576,6 @@ Function UsersRights()
 	|			AND RolesRights.Role = ExtensionsRolesRights.Role
 	|WHERE
 	|	ExtensionsRolesRights.MetadataObject IS NULL
-	|	AND RolesRights.ViewRight = TRUE
 	|
 	|INDEX BY
 	|	Role
@@ -605,6 +603,9 @@ Function UsersRights()
 	|GROUP BY
 	|	AccessGroupProfilesRoles.Ref,
 	|	RolesRights.MetadataObject
+	|
+	|HAVING
+	|	MAX(RolesRights.ViewRight) = TRUE
 	|
 	|INDEX BY
 	|	Table";

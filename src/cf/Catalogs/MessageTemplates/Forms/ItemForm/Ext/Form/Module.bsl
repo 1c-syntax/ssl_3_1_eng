@@ -1399,7 +1399,7 @@ Function GetFileIconIndex(Extension)
 	
 	If Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperationsInternalClientServer = Common.CommonModule("FilesOperationsInternalClientServer");
-		Return ModuleFilesOperationsInternalClientServer.GetFileIconIndex(Extension);
+		Return ModuleFilesOperationsInternalClientServer.IndexOfFileIcon(Extension);
 	EndIf;
 	
 	Return 0;
@@ -1411,7 +1411,7 @@ Function GetFileIconIndexClient(Extension)
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperationsInternalClientServer = CommonClient.CommonModule("FilesOperationsInternalClientServer");
-		Return ModuleFilesOperationsInternalClientServer.GetFileIconIndex(Extension);
+		Return ModuleFilesOperationsInternalClientServer.IndexOfFileIcon(Extension);
 	EndIf;
 	
 	Return 0;

@@ -18,28 +18,28 @@
 Var RequestsIDs;
 
 // 
-Var AdministrationOperations; // ValueTable:
+Var AdministrationOperations; // See AdministrationOperations
 
 // 
-Var RequestsApplicationPlan; // Structure:
+Var RequestsApplicationPlan; // See RequestsApplicationPlan
 
 // 
-Var SourcePermissionSliceByOwners; // ValueTable:
+Var SourcePermissionSliceByOwners; // See InformationRegisters.PermissionsToUseExternalResources.NewSectionOfPermissionsInSectionOfOwners
 
 // 
-Var SourcePermissionSliceIgnoringOwners; // ValueTable:
+Var SourcePermissionSliceIgnoringOwners; // See InformationRegisters.PermissionsToUseExternalResources.NewPermissionSlice
 
 // 
-Var RequestsApplicationResultByOwners; // ValueTable:
+Var RequestsApplicationResultByOwners; // See InformationRegisters.PermissionsToUseExternalResources.NewSectionOfPermissionsInSectionOfOwners
 
 // 
-Var RequestsApplicationResultIgnoringOwners; // ValueTable:
+Var RequestsApplicationResultIgnoringOwners; // See InformationRegisters.PermissionsToUseExternalResources.NewPermissionSlice
 
 // 
-Var DeltaByOwners; // Structure:
+Var DeltaByOwners; // See DeltaByOwners
 
 // 
-Var DeltaIgnoringOwners; // Structure:
+Var DeltaIgnoringOwners; // See DeltaIgnoringOwners
 
 // 
 Var ClearingPermissionsBeforeApply; // Boolean
@@ -720,29 +720,64 @@ Procedure CalculateRequestsApplicationResultIgnoringOwners()
 	
 EndProcedure
 
+// Returns:
+//  Structure:
+//   * ItemsToAdd - ValueTable - :
+//    ** ProgramModuleType - CatalogRef.MetadataObjectIDs,
+//    ** ModuleID - UUID,
+//    ** OwnerType - CatalogRef.MetadataObjectIDs,
+//    ** OwnerID - UUID,
+//    ** Type - String -  name of the XDTO type that describes permissions,
+//    ** Permissions - Map of KeyAndValue:
+//      *** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
+//      *** Value - XDTODataObject - 
+//    ** PermissionsAdditions - Map of KeyAndValue - :
+//      *** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
+//      *** Value - See InformationRegister.PermissionsToUseExternalResources.PermissionAddition
+//   * ItemsToDelete - ValueTable - :
+//    ** ProgramModuleType - CatalogRef.MetadataObjectIDs,
+//    ** ModuleID - UUID,
+//    ** OwnerType - CatalogRef.MetadataObjectIDs,
+//    ** OwnerID - UUID,
+//    ** Type - String -  name of the XDTO type that describes permissions,
+//    ** Permissions - Map of KeyAndValue:
+//      *** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
+//      *** Value - XDTODataObject - 
+//    ** PermissionsAdditions - Map of KeyAndValue:
+//      *** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
+//      *** Value - See InformationRegister.PermissionsToUseExternalResources.PermissionAddition
+//
+Function DeltaByOwners()
+		
+	Result = New Structure();
+	
+	Result.Insert("ItemsToAdd", New ValueTable);
+	Result.ItemsToAdd.Columns.Add("ProgramModuleType", New TypeDescription("CatalogRef.MetadataObjectIDs"));
+	Result.ItemsToAdd.Columns.Add("ModuleID", New TypeDescription("UUID"));
+	Result.ItemsToAdd.Columns.Add("OwnerType", New TypeDescription("CatalogRef.MetadataObjectIDs"));
+	Result.ItemsToAdd.Columns.Add("OwnerID", New TypeDescription("UUID"));
+	Result.ItemsToAdd.Columns.Add("Type", New TypeDescription("String"));
+	Result.ItemsToAdd.Columns.Add("Permissions", New TypeDescription("Map"));
+	Result.ItemsToAdd.Columns.Add("PermissionsAdditions", New TypeDescription("Map"));
+	
+	Result.Insert("ItemsToDelete", New ValueTable);
+	Result.ItemsToDelete.Columns.Add("ProgramModuleType", New TypeDescription("CatalogRef.MetadataObjectIDs"));
+	Result.ItemsToDelete.Columns.Add("ModuleID", New TypeDescription("UUID"));
+	Result.ItemsToDelete.Columns.Add("OwnerType", New TypeDescription("CatalogRef.MetadataObjectIDs"));
+	Result.ItemsToDelete.Columns.Add("OwnerID", New TypeDescription("UUID"));
+	Result.ItemsToDelete.Columns.Add("Type", New TypeDescription("String"));
+	Result.ItemsToDelete.Columns.Add("Permissions", New TypeDescription("Map"));
+	Result.ItemsToDelete.Columns.Add("PermissionsAdditions", New TypeDescription("Map"));
+	
+	Return Result;
+	
+EndFunction
+
 // Calculates a delta between two permission slices by owners.
 //
 Procedure CalculateDeltaByOwners()
 	
-	DeltaByOwners = New Structure();
-	
-	DeltaByOwners.Insert("ItemsToAdd", New ValueTable);
-	DeltaByOwners.ItemsToAdd.Columns.Add("ProgramModuleType", New TypeDescription("CatalogRef.MetadataObjectIDs"));
-	DeltaByOwners.ItemsToAdd.Columns.Add("ModuleID", New TypeDescription("UUID"));
-	DeltaByOwners.ItemsToAdd.Columns.Add("OwnerType", New TypeDescription("CatalogRef.MetadataObjectIDs"));
-	DeltaByOwners.ItemsToAdd.Columns.Add("OwnerID", New TypeDescription("UUID"));
-	DeltaByOwners.ItemsToAdd.Columns.Add("Type", New TypeDescription("String"));
-	DeltaByOwners.ItemsToAdd.Columns.Add("Permissions", New TypeDescription("Map"));
-	DeltaByOwners.ItemsToAdd.Columns.Add("PermissionsAdditions", New TypeDescription("Map"));
-	
-	DeltaByOwners.Insert("ItemsToDelete", New ValueTable);
-	DeltaByOwners.ItemsToDelete.Columns.Add("ProgramModuleType", New TypeDescription("CatalogRef.MetadataObjectIDs"));
-	DeltaByOwners.ItemsToDelete.Columns.Add("ModuleID", New TypeDescription("UUID"));
-	DeltaByOwners.ItemsToDelete.Columns.Add("OwnerType", New TypeDescription("CatalogRef.MetadataObjectIDs"));
-	DeltaByOwners.ItemsToDelete.Columns.Add("OwnerID", New TypeDescription("UUID"));
-	DeltaByOwners.ItemsToDelete.Columns.Add("Type", New TypeDescription("String"));
-	DeltaByOwners.ItemsToDelete.Columns.Add("Permissions", New TypeDescription("Map"));
-	DeltaByOwners.ItemsToDelete.Columns.Add("PermissionsAdditions", New TypeDescription("Map"));
+	DeltaByOwners = DeltaByOwners();
 	
 	// Comparing source permissions with the resulting ones.
 	
@@ -832,25 +867,56 @@ Procedure CalculateDeltaByOwners()
 	
 EndProcedure
 
+// Returns:
+//  Structure:
+//   * ItemsToAdd - ValueTable - :
+//    ** ProgramModuleType - CatalogRef.MetadataObjectIDs,
+//    ** ModuleID - UUID,
+//    ** Type - String -  name of the XDTO type that describes permissions,
+//    ** Permissions - Map of KeyAndValue:
+//      *** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
+//      *** Value - XDTODataObject - 
+//    ** PermissionsAdditions - Map of KeyAndValue:
+//      *** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
+//      *** Value - See InformationRegister.PermissionsToUseExternalResources.PermissionAddition
+//   * ItemsToDelete - ValueTable - :
+//    ** ProgramModuleType - CatalogRef.MetadataObjectIDs,
+//    ** ModuleID - UUID,
+//    ** Type - String -  name of the XDTO type that describes permissions,
+//    ** Permissions - Map of KeyAndValue:
+//      *** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
+//      *** Value - XDTODataObject - 
+//    ** PermissionsAdditions - Map of KeyAndValue:
+//      *** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
+//      *** Value - See InformationRegister.PermissionsToUseExternalResources.PermissionAddition
+//
+Function DeltaIgnoringOwners()
+	
+	Result = New Structure();
+	
+	Result.Insert("ItemsToAdd", New ValueTable);
+	Result.ItemsToAdd.Columns.Add("ProgramModuleType", New TypeDescription("CatalogRef.MetadataObjectIDs"));
+	Result.ItemsToAdd.Columns.Add("ModuleID", New TypeDescription("UUID"));
+	Result.ItemsToAdd.Columns.Add("Type", New TypeDescription("String"));
+	Result.ItemsToAdd.Columns.Add("Permissions", New TypeDescription("Map"));
+	Result.ItemsToAdd.Columns.Add("PermissionsAdditions", New TypeDescription("Map"));
+	
+	Result.Insert("ItemsToDelete", New ValueTable);
+	Result.ItemsToDelete.Columns.Add("ProgramModuleType", New TypeDescription("CatalogRef.MetadataObjectIDs"));
+	Result.ItemsToDelete.Columns.Add("ModuleID", New TypeDescription("UUID"));
+	Result.ItemsToDelete.Columns.Add("Type", New TypeDescription("String"));
+	Result.ItemsToDelete.Columns.Add("Permissions", New TypeDescription("Map"));
+	Result.ItemsToDelete.Columns.Add("PermissionsAdditions", New TypeDescription("Map"));
+	
+	Return Result;
+	
+EndFunction 
+
 // Calculates a delta between two permission slices ignoring owners.
 //
 Procedure CalculateDeltaIgnoringOwners()
 	
-	DeltaIgnoringOwners = New Structure();
-	
-	DeltaIgnoringOwners.Insert("ItemsToAdd", New ValueTable);
-	DeltaIgnoringOwners.ItemsToAdd.Columns.Add("ProgramModuleType", New TypeDescription("CatalogRef.MetadataObjectIDs"));
-	DeltaIgnoringOwners.ItemsToAdd.Columns.Add("ModuleID", New TypeDescription("UUID"));
-	DeltaIgnoringOwners.ItemsToAdd.Columns.Add("Type", New TypeDescription("String"));
-	DeltaIgnoringOwners.ItemsToAdd.Columns.Add("Permissions", New TypeDescription("Map"));
-	DeltaIgnoringOwners.ItemsToAdd.Columns.Add("PermissionsAdditions", New TypeDescription("Map"));
-	
-	DeltaIgnoringOwners.Insert("ItemsToDelete", New ValueTable);
-	DeltaIgnoringOwners.ItemsToDelete.Columns.Add("ProgramModuleType", New TypeDescription("CatalogRef.MetadataObjectIDs"));
-	DeltaIgnoringOwners.ItemsToDelete.Columns.Add("ModuleID", New TypeDescription("UUID"));
-	DeltaIgnoringOwners.ItemsToDelete.Columns.Add("Type", New TypeDescription("String"));
-	DeltaIgnoringOwners.ItemsToDelete.Columns.Add("Permissions", New TypeDescription("Map"));
-	DeltaIgnoringOwners.ItemsToDelete.Columns.Add("PermissionsAdditions", New TypeDescription("Map"));
+	DeltaIgnoringOwners = DeltaIgnoringOwners();
 	
 	// Comparing source permissions with the resulting ones.
 	
@@ -1145,43 +1211,98 @@ Function Semaphore()
 	
 EndFunction
 
+// Returns:
+//   ValueTable:
+//   * ProgramModuleType - CatalogRef.MetadataObjectIDs
+//   * ModuleID - UUID
+//   * Operation - EnumRef.SecurityProfileAdministrativeOperations
+//   * Name - String - 
+//
+Function AdministrationOperations()
+	
+	AdministrationOperations = New ValueTable;
+	AdministrationOperations.Columns.Add("ProgramModuleType", New TypeDescription("CatalogRef.MetadataObjectIDs"));
+	AdministrationOperations.Columns.Add("ModuleID", New TypeDescription("UUID"));
+	AdministrationOperations.Columns.Add("Operation", New TypeDescription("EnumRef.SecurityProfileAdministrativeOperations"));
+	AdministrationOperations.Columns.Add("Name", New TypeDescription("String"));
+	
+	Return AdministrationOperations;
+	
+EndFunction
+
+// Returns:
+//  Structure:
+//   * PermissionsToReplace - ValueTable - :
+//      ** ProgramModuleType - CatalogRef.MetadataObjectIDs,
+//      ** ModuleID - UUID,
+//      ** OwnerType - CatalogRef.MetadataObjectIDs,
+//      ** OwnerID - UUID,
+//   * ItemsToAdd - ValueTable - :
+//      ** ProgramModuleType - CatalogRef.MetadataObjectIDs,
+//      ** ModuleID - UUID,
+//      ** OwnerType - CatalogRef.MetadataObjectIDs,
+//      ** OwnerID - UUID,
+//      ** Type - String -  name of the XDTO type that describes permissions,
+//      ** Permissions - Map of KeyAndValue - :
+//         *** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
+//         *** Value - XDTODataObject - 
+//      ** PermissionsAdditions - Map of KeyAndValue - :
+//         *** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
+//         *** Value - See InformationRegister.PermissionsToUseExternalResources.PermissionAddition
+//   * ItemsToDelete - ValueTable - :
+//      * ProgramModuleType - CatalogRef.MetadataObjectIDs,
+//      * ModuleID - UUID,
+//      * OwnerType - CatalogRef.MetadataObjectIDs,
+//      * OwnerID - UUID,
+//      * Type - String -  name of the XDTO type that describes permissions,
+//      * Permissions - Map of KeyAndValue - :
+//         * Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
+//         * Value - XDTODataObject - 
+//      * PermissionsAdditions - Map of KeyAndValue - :
+//         * Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
+//         * Value - See InformationRegister.PermissionsToUseExternalResources.PermissionAddition
+//
+Function RequestsApplicationPlan()
+	
+	RequestsApplicationPlan = New Structure();
+
+	RequestsApplicationPlan.Insert("PermissionsToReplace", New ValueTable);
+	RequestsApplicationPlan.PermissionsToReplace.Columns.Add("ProgramModuleType", New TypeDescription("CatalogRef.MetadataObjectIDs"));
+	RequestsApplicationPlan.PermissionsToReplace.Columns.Add("ModuleID", New TypeDescription("UUID"));
+	RequestsApplicationPlan.PermissionsToReplace.Columns.Add("OwnerType", New TypeDescription("CatalogRef.MetadataObjectIDs"));
+	RequestsApplicationPlan.PermissionsToReplace.Columns.Add("OwnerID", New TypeDescription("UUID"));
+	
+	RequestsApplicationPlan.Insert("ItemsToAdd", New ValueTable);
+	RequestsApplicationPlan.ItemsToAdd.Columns.Add("ProgramModuleType", New TypeDescription("CatalogRef.MetadataObjectIDs"));
+	RequestsApplicationPlan.ItemsToAdd.Columns.Add("ModuleID", New TypeDescription("UUID"));
+	RequestsApplicationPlan.ItemsToAdd.Columns.Add("OwnerType", New TypeDescription("CatalogRef.MetadataObjectIDs"));
+	RequestsApplicationPlan.ItemsToAdd.Columns.Add("OwnerID", New TypeDescription("UUID"));
+	RequestsApplicationPlan.ItemsToAdd.Columns.Add("Type", New TypeDescription("String"));
+	RequestsApplicationPlan.ItemsToAdd.Columns.Add("Permissions", New TypeDescription("Map"));
+	RequestsApplicationPlan.ItemsToAdd.Columns.Add("PermissionsAdditions", New TypeDescription("Map"));
+	
+	RequestsApplicationPlan.Insert("ItemsToDelete", New ValueTable);
+	RequestsApplicationPlan.ItemsToDelete.Columns.Add("ProgramModuleType", New TypeDescription("CatalogRef.MetadataObjectIDs"));
+	RequestsApplicationPlan.ItemsToDelete.Columns.Add("ModuleID", New TypeDescription("UUID"));
+	RequestsApplicationPlan.ItemsToDelete.Columns.Add("OwnerType", New TypeDescription("CatalogRef.MetadataObjectIDs"));
+	RequestsApplicationPlan.ItemsToDelete.Columns.Add("OwnerID", New TypeDescription("UUID"));
+	RequestsApplicationPlan.ItemsToDelete.Columns.Add("Type", New TypeDescription("String"));
+	RequestsApplicationPlan.ItemsToDelete.Columns.Add("Permissions", New TypeDescription("Map"));
+	RequestsApplicationPlan.ItemsToDelete.Columns.Add("PermissionsAdditions", New TypeDescription("Map"));
+	
+	Return RequestsApplicationPlan;
+	
+EndFunction
+
 #EndRegion
 
 #Region Initialize
 
 RequestsIDs = New Array();
 
-RequestsApplicationPlan = New Structure();
+RequestsApplicationPlan = RequestsApplicationPlan();
 
-RequestsApplicationPlan.Insert("PermissionsToReplace", New ValueTable);
-RequestsApplicationPlan.PermissionsToReplace.Columns.Add("ProgramModuleType", New TypeDescription("CatalogRef.MetadataObjectIDs"));
-RequestsApplicationPlan.PermissionsToReplace.Columns.Add("ModuleID", New TypeDescription("UUID"));
-RequestsApplicationPlan.PermissionsToReplace.Columns.Add("OwnerType", New TypeDescription("CatalogRef.MetadataObjectIDs"));
-RequestsApplicationPlan.PermissionsToReplace.Columns.Add("OwnerID", New TypeDescription("UUID"));
-
-RequestsApplicationPlan.Insert("ItemsToAdd", New ValueTable);
-RequestsApplicationPlan.ItemsToAdd.Columns.Add("ProgramModuleType", New TypeDescription("CatalogRef.MetadataObjectIDs"));
-RequestsApplicationPlan.ItemsToAdd.Columns.Add("ModuleID", New TypeDescription("UUID"));
-RequestsApplicationPlan.ItemsToAdd.Columns.Add("OwnerType", New TypeDescription("CatalogRef.MetadataObjectIDs"));
-RequestsApplicationPlan.ItemsToAdd.Columns.Add("OwnerID", New TypeDescription("UUID"));
-RequestsApplicationPlan.ItemsToAdd.Columns.Add("Type", New TypeDescription("String"));
-RequestsApplicationPlan.ItemsToAdd.Columns.Add("Permissions", New TypeDescription("Map"));
-RequestsApplicationPlan.ItemsToAdd.Columns.Add("PermissionsAdditions", New TypeDescription("Map"));
-
-RequestsApplicationPlan.Insert("ItemsToDelete", New ValueTable);
-RequestsApplicationPlan.ItemsToDelete.Columns.Add("ProgramModuleType", New TypeDescription("CatalogRef.MetadataObjectIDs"));
-RequestsApplicationPlan.ItemsToDelete.Columns.Add("ModuleID", New TypeDescription("UUID"));
-RequestsApplicationPlan.ItemsToDelete.Columns.Add("OwnerType", New TypeDescription("CatalogRef.MetadataObjectIDs"));
-RequestsApplicationPlan.ItemsToDelete.Columns.Add("OwnerID", New TypeDescription("UUID"));
-RequestsApplicationPlan.ItemsToDelete.Columns.Add("Type", New TypeDescription("String"));
-RequestsApplicationPlan.ItemsToDelete.Columns.Add("Permissions", New TypeDescription("Map"));
-RequestsApplicationPlan.ItemsToDelete.Columns.Add("PermissionsAdditions", New TypeDescription("Map"));
-
-AdministrationOperations = New ValueTable;
-AdministrationOperations.Columns.Add("ProgramModuleType", New TypeDescription("CatalogRef.MetadataObjectIDs"));
-AdministrationOperations.Columns.Add("ModuleID", New TypeDescription("UUID"));
-AdministrationOperations.Columns.Add("Operation", New TypeDescription("EnumRef.SecurityProfileAdministrativeOperations"));
-AdministrationOperations.Columns.Add("Name", New TypeDescription("String"));
+AdministrationOperations = AdministrationOperations();
 
 ClearingPermissionsBeforeApply = False;
 

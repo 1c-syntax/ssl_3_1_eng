@@ -560,6 +560,7 @@ Function NamesOfFormulaEditingCommands()
 EndFunction
 
 // Parameters:
+//  SelectedField - See ListOfAvailableFields.Field
 // 
 // Returns:
 //  Boolean

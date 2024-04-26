@@ -32,10 +32,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Parameters.Picture.Type <> PictureType.Empty Then
 		Items.Warning.Picture = Parameters.Picture;
 	Else
-		// 
-		// 
-		// 
-		// 
+		// In this case, you can hide the picture.
+		// For backward compatibility, the "ShowPicture" parameter is implemented.
+		// It is intended for cases where a customer bypasses the API and opens a form with custom parameters.
+		// For example, "StandardSubsystemsClient.ShowQuestionToUser".
 		ShowPicture = CommonClientServer.StructureProperty(Parameters, "ShowPicture", True);
 		If Not ShowPicture Then
 			Items.Warning.Visible = False;

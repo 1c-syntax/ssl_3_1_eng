@@ -119,7 +119,7 @@ EndProcedure
 &AtServerNoContext
 Procedure PrepareSubordinateCurrencyChoiceData(ChoiceData, Ref)
 	
-	// 
+	// Prepare a choice list for the child currency so that the child currency itself is excluded from the list.
 	// 
 
 	ChoiceData = New ValueList;
@@ -221,7 +221,7 @@ Procedure FillInTheCurrencyRegistrationParametersSubmenu()
 			Command.Title = StringFunctionsClientServer.SubstituteParametersToString("%1...", 
 				CurrencyRateOperationsInternal.LanguagePresentation(LanguageCode));
 		Else
-			Command.Title = NStr("en = 'In other languages…';");
+			Command.Title = NStr("en = 'исиIn other languages…';");
 		EndIf;
 
 		Command.Action = "Attachable_OpenCurrencyRegistrationParametersForm";

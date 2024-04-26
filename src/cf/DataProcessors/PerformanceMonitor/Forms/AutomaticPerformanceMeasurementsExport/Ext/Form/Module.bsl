@@ -221,13 +221,13 @@ EndProcedure
 Function SetScheduledJobUsage(NewValue)
 	
 	Job = PerformanceMonitorInternal.PerformanceMonitorDataExportScheduledJob();
-	CurrentState = Job.Use;
-	If CurrentState <> NewValue Then
+	CurrentStatus = Job.Use;
+	If CurrentStatus <> NewValue Then
 		Job.Use = NewValue;
 		CommitScheduledJob(Job);
 	EndIf;
 	
-	Return CurrentState;
+	Return CurrentStatus;
 	
 EndFunction
 

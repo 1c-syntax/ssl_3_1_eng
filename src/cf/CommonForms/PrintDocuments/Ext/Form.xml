@@ -431,7 +431,7 @@
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 							<ExtendedTooltip name="PreviewButtonAllActionsExtendedTooltip" id="217"/>
 						</Button>
-						<Button name="GoToDocumentAllActionsButton" id="301">
+						<Button name="ButtonGoToDocumentAllActions" id="301">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.GoToDocument</CommandName>
 							<Title>
@@ -441,7 +441,7 @@
 								</v8:item>
 							</Title>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-							<ExtendedTooltip name="GoToDocumentAllActionsButtonExtendedTooltip" id="302"/>
+							<ExtendedTooltip name="ButtonGoToDocumentAllActionsExtendedTooltip" id="302"/>
 						</Button>
 						<Button name="AllActionsPageParametersButton" id="218">
 							<Type>CommandBarButton</Type>
@@ -470,12 +470,18 @@
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="SaveButtonAllActionsExtendedTooltip" id="197"/>
 								</Button>
-								<Popup name="SubmitAllActionsSubmenu" id="309">
+								<Popup name="SubmenuSendAllActions" id="309">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Send</v8:content>
+										</v8:item>
+									</Title>
 									<Picture>
 										<xr:Ref>StdPicture.SendMessage</xr:Ref>
 										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
-									<ExtendedTooltip name="SubmitAllActionsSubmenuExtendedTooltip" id="310"/>
+									<ExtendedTooltip name="SubmenuSendAllActionsExtendedTooltip" id="310"/>
 									<ChildItems>
 										<Button name="SendButtonAllActions" id="198">
 											<Type>CommandBarButton</Type>
@@ -493,7 +499,7 @@
 								</Popup>
 							</ChildItems>
 						</ButtonGroup>
-						<Button name="SwitchEditAllActionsButton" id="297">
+						<Button name="ButtonToggleEditingAllActions" id="297">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.ToggleEditing</CommandName>
 							<Title>
@@ -503,7 +509,7 @@
 								</v8:item>
 							</Title>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-							<ExtendedTooltip name="SwitchEditAllActionsButtonExtendedTooltip" id="298"/>
+							<ExtendedTooltip name="ButtonToggleEditingAllActionsExtendedTooltip" id="298"/>
 						</Button>
 						<ButtonGroup name="EditTemplateGroup" id="137">
 							<Title>
@@ -540,6 +546,12 @@
 									<ExtendedTooltip name="GoToTemplateManagementButtonExtendedTooltip" id="165"/>
 								</Button>
 								<Popup name="LanguageAllActions" id="307">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Language</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="LanguageAllActionsExtendedTooltip" id="308"/>
 								</Popup>
 							</ChildItems>
@@ -553,7 +565,7 @@
 							</Title>
 							<ExtendedTooltip name="GroupAppearanceExtendedTooltip" id="306"/>
 							<ChildItems>
-								<Button name="ShowHideKitSetupAllActionsButton" id="295">
+								<Button name="ButtonShowHideSetSettingsAllActions" id="295">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.ShowHideSetSettingsButton</CommandName>
 									<Title>
@@ -563,9 +575,9 @@
 										</v8:item>
 									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-									<ExtendedTooltip name="ShowHideKitSetupAllActionsButtonExtendedTooltip" id="296"/>
+									<ExtendedTooltip name="ButtonShowHideSetSettingsAllActionsExtendedTooltip" id="296"/>
 								</Button>
-								<Button name="CalculateAllIndicatorsButton" id="303">
+								<Button name="ButtonCalculateAllIndicators" id="303">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.CalculateAllIndicators</CommandName>
 									<Title>
@@ -575,15 +587,15 @@
 										</v8:item>
 									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-									<ExtendedTooltip name="CalculateAllIndicatorsButtonExtendedTooltip" id="304"/>
+									<ExtendedTooltip name="ButtonCalculateAllIndicatorsExtendedTooltip" id="304"/>
 								</Button>
 							</ChildItems>
 						</ButtonGroup>
-						<Button name="ChangeFormAllActionsButton" id="299">
+						<Button name="ButtonChangeFormAllActions" id="299">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.StandardCommand.CustomizeForm</CommandName>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-							<ExtendedTooltip name="ChangeFormAllActionsButtonExtendedTooltip" id="300"/>
+							<ExtendedTooltip name="ButtonChangeFormAllActionsExtendedTooltip" id="300"/>
 						</Button>
 						<Button name="Help" id="277">
 							<Type>CommandBarButton</Type>

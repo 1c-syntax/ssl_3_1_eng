@@ -169,8 +169,9 @@ EndProcedure
 //                  RightsManagement is a right to change rights by the owner checked
 //                  upon opening CommonForm.ObjectsRightsSettings.
 //
-//   * Title    - String - a right title, for example, in the ObjectsRightsSettings form:
-//                  "Folders.
+//   * Title    - String - Access right title. For example, in the ObjectsRightsSettings form:
+//                  "Edit
+//                  |folders".
 //
 //   * ToolTip    - String - a tooltip of the right title.
 //                  For example, "Add, change, and mark folders for deletion".

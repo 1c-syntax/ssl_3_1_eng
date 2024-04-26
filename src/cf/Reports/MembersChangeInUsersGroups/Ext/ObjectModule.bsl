@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -12,7 +13,7 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// To set up a report form.
+// Configure report form.
 //
 // Parameters:
 //   Form - ClientApplicationForm
@@ -27,7 +28,7 @@ Procedure DefineFormSettings(Form, VariantKey, Settings) Export
 	
 EndProcedure
 
-// 
+// Called before importing new settings. Used for modifying DCS reports.
 //
 // Parameters:
 //   Context - Arbitrary
@@ -138,6 +139,7 @@ EndFunction
 
 Function ChangesInComposition(Settings)
 	
+	NameOfConnectionColumn = UserMonitoringInternal.NameOfConnectionColumn();
 	Filter = New Structure;
 	
 	TransStatuses = New Array;
@@ -196,7 +198,7 @@ Function ChangesInComposition(Settings)
 	Columns.Add("Package",                StringType20);
 	Columns.Add("Computer",                 StringType);
 	Columns.Add("Session",                     NumberType);
-	Columns.Add("Join",                NumberType);
+	Columns.Add(NameOfConnectionColumn,        NumberType);
 	Columns.Add("GroupID",       StringType36);
 	Columns.Add("UserIdentificator", StringType36);
 	Columns.Add("IsBelongToLowerLevelGroup",       BooleanType);
@@ -206,7 +208,7 @@ Function ChangesInComposition(Settings)
 	Columns.Add("UserPresentation2", StringType1024);
 	
 	LogColumns = "Date,User,UserName,
-	|ApplicationName,Computer,Session,Join,Data";
+	|ApplicationName,Computer,Session,Data," + NameOfConnectionColumn;
 	
 	SetPrivilegedMode(True);
 	Events = New ValueTable;
@@ -237,17 +239,17 @@ Function ChangesInComposition(Settings)
 		LinePresentation.Add(Event.Session);
 		
 		NewRow = Changes.Add();
-		NewRow.EventNumber        = EventNumber;
-		NewRow.IsEvent          = True;
-		NewRow.RowID = EventIdentifier;
-		NewRow.LinePresentation = StrConcat(LinePresentation,  ", ");
-		NewRow.Date                = Event.Date;
-		NewRow.Author               = Event.UserName;
-		NewRow.AuthorID = Event.User;
-		NewRow.Package          = Event.ApplicationName;
-		NewRow.Computer           = Event.Computer;
-		NewRow.Session               = Event.Session;
-		NewRow.Join          = Event.Join;
+		NewRow.EventNumber          = EventNumber;
+		NewRow.IsEvent            = True;
+		NewRow.RowID   = EventIdentifier;
+		NewRow.LinePresentation   = StrConcat(LinePresentation,  ", ");
+		NewRow.Date                  = Event.Date;
+		NewRow.Author                 = Event.UserName;
+		NewRow.AuthorID   = Event.User;
+		NewRow.Package            = Event.ApplicationName;
+		NewRow.Computer             = Event.Computer;
+		NewRow.Session                 = Event.Session;
+		NewRow[NameOfConnectionColumn] = Event[NameOfConnectionColumn];
 		
 		Prefix = EventIdentifier + "_";
 		
@@ -337,7 +339,7 @@ EndFunction
 //   * Ref - CatalogRef.Users
 //            - CatalogRef.ExternalUsers
 //   * Name    - String
-//   * UUID - String - 
+//   * UUID - String - UUID in the lower case.
 //   * Invalid - Boolean
 //   * DeletionMark - Boolean
 //   * UserMustChangePasswordOnAuthorization - Boolean

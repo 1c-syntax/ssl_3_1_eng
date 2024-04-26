@@ -1124,12 +1124,6 @@ Submit it to 1C technical support.</v8:content>
 					<v8:content>OK</v8:content>
 				</v8:item>
 			</Title>
-			<ToolTip>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>OK</v8:content>
-				</v8:item>
-			</ToolTip>
 			<Action>OK</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>

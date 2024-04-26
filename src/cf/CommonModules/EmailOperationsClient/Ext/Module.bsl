@@ -220,10 +220,10 @@ Procedure CreateNewEmailMessageAttachmentsPrepared(AttachmentsPrepared, SendOpti
 	FormParameters = New Structure;
 	FormParameters.Insert("Recipients", SendOptions.Recipient);
 	
-	If SendOptions.Recipient = Undefined Or (SendOptions.Recipient <> Undefined 
-		And (SendOptions.Recipient.Count() <= 1 Or Not SendOptions.IsInteractiveRecipientSelection)) Then
-		AfterRecipientsSelected(FormParameters, SendOptions);
-	ElsIf CommonClient.SubsystemExists("StandardSubsystems.Print") Then
+	If CommonClient.SubsystemExists("StandardSubsystems.Print")
+		And SendOptions.IsInteractiveRecipientSelection And ValueIsFilled(SendOptions.Recipient)
+		And SendOptions.Recipient.Count() > 1 Then
+		
 		FormParameters.Insert("ShouldSkipAttachmentFormatSelection", True);
 		
 		NotifyDescription = New NotifyDescription("AfterRecipientsSelected", ThisObject, SendOptions);
@@ -231,10 +231,11 @@ Procedure CreateNewEmailMessageAttachmentsPrepared(AttachmentsPrepared, SendOpti
 		
 		ModulePrintManagerInternalClient.OpenNewMailPreparationForm(ThisObject, 
 			FormParameters, NotifyDescription);
-
-	Else
-		AfterRecipientsSelected(FormParameters, SendOptions);
+		
+		Return;
 	EndIf;
+
+	AfterRecipientsSelected(FormParameters, SendOptions);
 	
 EndProcedure
 

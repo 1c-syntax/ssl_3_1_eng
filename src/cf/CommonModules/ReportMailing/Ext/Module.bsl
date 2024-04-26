@@ -662,11 +662,12 @@ EndFunction
 //           Undefined
 //
 //     Optional properties if UseEmail = True:
-//       * Personalized - Boolean - a mailing personalized by recipients.
-//           The default value is False.
-//           If True value is set, each recipient will receive a report with a filter by it.
-//           Applies only to delivery by mail,
-//           so when setting to the True, other delivery methods are disabled.
+//       * Personalized - Boolean - Personalized report distribution.
+//           By default, False.
+//           If True, each recipient receives an individual report.
+//           To do this, in reports, set the [Recipient] filter by the attribute that matches the recipient type.
+//           Applies only to email distributions,
+//           so setting to True disables other distribution methods.
 //       * NotifyOnly - Boolean - False - send notifications only (do not attach generated reports).
 //       * BCCs    - Boolean - False - if True, when sending fill BCCs instead of To.
 //       * SubjectTemplate      - String -       an email subject.
@@ -3436,8 +3437,15 @@ Procedure SendEmailMessage(DeliveryParameters, EmailParameters, RecipientRow, Lo
 			SenderSRepresentation = String(DeliveryParameters.Account);
 			
 			If DeliveryParameters.Recipient <> Undefined Then
+				If DeliveryParameters.BCCs Then
+					RecipientAddresses = ?(TypeOf(EmailParameters.BCCs) = Type("String"),
+					CommonClientServer.ParseStringWithEmailAddresses(EmailParameters.BCCs), EmailParameters.BCCs);
+				Else
+					RecipientAddresses = ?(TypeOf(EmailParameters.Whom) = Type("String"),
+					CommonClientServer.ParseStringWithEmailAddresses(EmailParameters.Whom), EmailParameters.Whom);
+				EndIf;
 				
-				For Each Whom In EmailParameters.Whom Do
+				For Each Whom In RecipientAddresses Do
 					RecipientPresentation1 = String(DeliveryParameters.Recipient) + " (" + Whom.Address + ")";
 					
 					HistoryFields = ReportDistributionHistoryFields(LogParameters.Data, DeliveryParameters.Recipient, DeliveryParameters.ExecutionDate);  
@@ -3752,7 +3760,8 @@ EndFunction
 //
 // Parameters:
 //   Attachments - Map
-//            - ValueTreeRow - See CreateReportsTree, the return value, level 3.
+//            - ValueTreeRow - See CreateReportsTree
+//                                     , the return value, level 3.
 //   DeliveryParameters - See ExecuteBulkEmail.DeliveryParameters
 //   TempFilesDir - String - a directory for archiving.
 //

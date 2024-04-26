@@ -286,10 +286,10 @@ EndFunction
 
 Function UseStandardGettingPredefinedItemFunction(FullPredefinedItemName) Export
 	
-	// 
-	//   
-	//  
-	//  
+	// A standard 1C:Enterprise function is used to obtain:
+	//  - Empty references 
+	//  - Enumeration members
+	//  - Business process route points
 	
 	Return StrEndsWith(Upper(FullPredefinedItemName), ".EMPTYREF")
 		Or StrStartsWith(Upper(FullPredefinedItemName), "ENUM.")
@@ -643,11 +643,12 @@ Function OnlyUppercaseInString(Value)
 	
 EndFunction
 
-// Returns a period presentation in low case or with an uppercase letter
+// Returns a period presentation in lowcase or with an uppercase letter
 //  if a phrase or a sentence starts with the period presentation.
 //  For example, if the period presentation must be displayed in the report heading
+//  as "Sales for [StartDate] - [EndDate]",
 //  the result will look like this: "Sales for February 2020 - March 2020".
-//  The period is in low case because it is not the beginning of the sentence.
+//  The period is in lowcase because it is not the beginning of the sentence.
 //
 // Parameters:
 //  StartDate - Date - period start.

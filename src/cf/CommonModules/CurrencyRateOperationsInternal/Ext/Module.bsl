@@ -147,10 +147,10 @@ Procedure UpdateCurrencyRates() Export
 	|	Currencies.RateSource = VALUE(Enum.RateSources.DownloadFromInternet)";
 	Selection = Query.Execute().Select();
 	
-	// 
-	//  
-	// 
-	// 
+	// Copy the exchange rates synchronously. That is, the call to "UpdateCurrencyRates" is followed by
+	// an infobase update, which tries to lock the infobase. Note that 
+	// the copying takes a while, and in asynchronous mode can start
+	// at a random moment and prevent setting a lock.
 	While Selection.Next() Do
 		CopyCurrencyRates(Selection.Code);
 	EndDo;
@@ -170,16 +170,16 @@ EndProcedure
 //
 Procedure NewDataAvailable(Val Descriptor, ToImport) Export
 	
-	// 
-	// 
-	// 
+	// When importing "CurrencyRatesForDay", the file data is appended to all stored exchanged rates and
+	// written to all data areas for the currencies mentioned in the area.
+	// Only the exchange rate for the current date is written.
 	//
 	If Descriptor.DataType = "CurrencyRatesForDay" Then
 		ToImport = True;
-	//  
-	//  
-	// 
-	// 
+	// The data of "ExchangeRates" is obtained when: 
+	// - The infobase connects to the Service Manager. 
+	// The infobase was updated and it requires missing currencies.
+	// In either case, restore the cache and rewrite exchange rates in all data areas.
 	// 
 	ElsIf Descriptor.DataType = "ExchangeRates" Then
 		ToImport = True;

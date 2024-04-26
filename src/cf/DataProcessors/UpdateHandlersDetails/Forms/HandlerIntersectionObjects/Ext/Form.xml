@@ -100,8 +100,8 @@ or other handlers modify objects readable by this handler.</v8:content>
 									</ToolTip>
 									<EditMode>EnterOnInput</EditMode>
 									<HeaderPicture>
-										<xr:Ref>CommonPicture.ArchiveQuestionnaire</xr:Ref>
-										<xr:LoadTransparent>false</xr:LoadTransparent>
+										<xr:Ref>StdPicture.AppearanceExclamationMark</xr:Ref>
+										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</HeaderPicture>
 									<CheckBoxType>Auto</CheckBoxType>
 									<ContextMenu name="IntersectionsDataToReadWriterContextMenu" id="24"/>
@@ -148,12 +148,6 @@ or other handlers modify objects readable by this handler.</v8:content>
 								<InputField name="IntersectionsWriteProcedure" id="14">
 									<DataPath>Intersections.WriteProcedure</DataPath>
 									<ReadOnly>true</ReadOnly>
-									<Title>
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>Write handler</v8:content>
-										</v8:item>
-									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ContextMenu name="IntersectionsWriteProcedureContextMenu" id="15"/>
 									<ExtendedTooltip name="IntersectionsWriteProcedureExtendedTooltip" id="16"/>
@@ -161,12 +155,6 @@ or other handlers modify objects readable by this handler.</v8:content>
 								<InputField name="IntersectionsReadOrWriteProcedure2" id="17">
 									<DataPath>Intersections.ReadOrWriteProcedure2</DataPath>
 									<ReadOnly>true</ReadOnly>
-									<Title>
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>Read handler (or write handler 2)</v8:content>
-										</v8:item>
-									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ContextMenu name="IntersectionsReadOrWriteProcedure2ContextMenu" id="18"/>
 									<ExtendedTooltip name="IntersectionsReadOrWriteProcedure2ExtendedTooltip" id="19"/>

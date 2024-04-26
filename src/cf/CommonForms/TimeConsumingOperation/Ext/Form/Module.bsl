@@ -11,7 +11,7 @@
 #Region Variables
 
 &AtClient
-Var FormClosing, FinishAfterClosing, AccumulatedMessages;
+Var FormClosing, ShouldCompleteAfterClose, AccumulatedMessages;
 
 &AtClient
 Var StandardCloseAlert;
@@ -71,7 +71,7 @@ Procedure OnOpen(Cancel)
 	
 	If Parameters.OutputIdleWindow Then
 		FormClosing = False;
-		FinishAfterClosing = False;
+		ShouldCompleteAfterClose = False;
 		Status = "Running";
 		AccumulatedMessages = New Array;
 		
@@ -196,7 +196,7 @@ EndProcedure
 Procedure OnCompleteTimeConsumingOperation(Result, AdditionalParameters) Export
 	
 	If (FormClosing Or Not IsOpen())
-	   And Not FinishAfterClosing Then
+	   And Not ShouldCompleteAfterClose Then
 		
 		Return;
 	EndIf;
@@ -216,7 +216,7 @@ Procedure FinishLongRunningOperationAndCloseForm(TimeConsumingOperation)
 	
 	If Status = "Canceled" Then
 		If StandardCloseAlert Then
-			PerformStandardClosingNotification(Undefined);
+			RunStandardCloseAlert(Undefined);
 		Else
 			Close(Undefined);
 		EndIf;
@@ -240,7 +240,7 @@ Procedure FinishLongRunningOperationAndCloseForm(TimeConsumingOperation)
 		EndIf;
 		Result = ExecutionResult(TimeConsumingOperation);
 		If StandardCloseAlert Then
-			PerformStandardClosingNotification(Result);
+			RunStandardCloseAlert(Result);
 		Else
 			Close(Result);
 		EndIf;
@@ -249,7 +249,7 @@ Procedure FinishLongRunningOperationAndCloseForm(TimeConsumingOperation)
 		
 		Result = ExecutionResult(TimeConsumingOperation);
 		If StandardCloseAlert Then
-			PerformStandardClosingNotification(Result);
+			RunStandardCloseAlert(Result);
 		Else
 			Close(Result);
 		EndIf;
@@ -264,8 +264,8 @@ Procedure FinishLongRunningOperationAndCloseForm(TimeConsumingOperation)
 		
 		Result = ExecutionResult(TimeConsumingOperation);
 		OnCloseNotifyDescription.AdditionalParameters.Result = Result;
-		If FinishAfterClosing <> Undefined Then
-			FinishAfterClosing = True;
+		If ShouldCompleteAfterClose <> Undefined Then
+			ShouldCompleteAfterClose = True;
 		EndIf;
 		
 	EndIf;
@@ -273,15 +273,15 @@ Procedure FinishLongRunningOperationAndCloseForm(TimeConsumingOperation)
 EndProcedure
 
 &AtClient
-Procedure PerformStandardClosingNotification(Result)
+Procedure RunStandardCloseAlert(Result)
 	
 	OnCloseNotifyDescription.AdditionalParameters.Result = Result;
 	
 	If Not FormClosing Then
 		Close();
 		
-	ElsIf FinishAfterClosing Then
-		FinishAfterClosing = Undefined;
+	ElsIf ShouldCompleteAfterClose Then
+		ShouldCompleteAfterClose = Undefined;
 		ExecuteNotifyProcessing(OnCloseNotifyDescription, Undefined);
 	EndIf;
 	

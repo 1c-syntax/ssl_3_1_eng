@@ -539,9 +539,13 @@ Procedure AddProperty(Owner, Parameters, IsInfoRecord = False) Export
 		MissingParameters.Add("Description");
 	EndIf;
 	
-	If Not Parameters.Property("Type") 
-	 Or Not ValueIsFilled(Parameters.Type) Then
-		MissingParameters.Add("Type");
+	If Not Parameters.Property("ValueType")
+	 Or Not ValueIsFilled(Parameters.ValueType) Then
+		If Parameters.Property("Type") And ValueIsFilled(Parameters.Type) Then
+			Parameters.ValueType = Parameters.Type;
+		Else
+			MissingParameters.Add("ValueType");
+		EndIf;
 	EndIf;
 	
 	If MissingParameters.Count() > 0 Then
@@ -718,7 +722,7 @@ EndFunction
 // Returns:
 //  Structure:
 //     * Description - String - required.
-//     * Type          - TypeDescription - required.
+//     * ValueType  - TypeDescription - 
 //     * Name          - String
 //     * Comment  - String
 //     * ValueFormTitle       - String
@@ -731,7 +735,7 @@ Function PropertyAdditionParameters() Export
 	
 	Parameters = New Structure;
 	Parameters.Insert("Description", "");
-	Parameters.Insert("Type");
+	Parameters.Insert("ValueType");
 	Parameters.Insert("Name", "");
 	Parameters.Insert("Comment", "");
 	Parameters.Insert("ValueFormTitle", "");
@@ -739,6 +743,7 @@ Function PropertyAdditionParameters() Export
 	Parameters.Insert("IDForFormulas", "");
 	Parameters.Insert("MultilineInputField", False);
 	Parameters.Insert("ToolTip", "");
+	Parameters.Insert("Type"); // 
 	
 	Return Parameters;
 	

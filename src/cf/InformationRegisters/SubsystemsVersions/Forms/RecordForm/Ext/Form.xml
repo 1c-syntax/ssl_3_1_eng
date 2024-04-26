@@ -47,18 +47,18 @@
 						<Title formatted="true">
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>&lt;b&gt;{R|RR}.{S|SS}.{V|VV}.{B|BB}  &lt;/&gt;
+								<v8:content>&lt;b&gt;&lt;Major&gt;.&lt;Minor&gt;.&lt;Revision&gt;.&lt;Build&gt;&lt;/&gt;
 
-where:
-&lt;b&gt;R&lt;/&gt; is the revision number (1 or more digits) 
-&lt;b&gt;S&lt;/&gt; is the subrevision number (1 or more digits) 
-&lt;b&gt;V&lt;/&gt; is the version number (1 or more digits) 
-&lt;b&gt;B&lt;/&gt; is the build number (1 or more digits)  
+Where:
+&lt;b&gt;Major&lt;/&gt; is the major version number (1 or more digits).
+&lt;b&gt;Minor&lt;/&gt; is the minor version number (1 or more digits).
+&lt;b&gt;Revision&lt;/&gt; is the revision number (1 or more digits).
+&lt;b&gt;Build&lt;/&gt; is the build number (1 or more digits).
 
 Example:
-&lt;b&gt;1.6.4.7&lt;/&gt; stands for revision 1.6, version 4, build 7.
+&lt;b&gt;1.6.4.7&lt;/&gt; — major version 1, minor version 6, revision 4, and build 7.
 
-For more details, see &lt;link https://kb.1ci.com/1C_Enterprise_Platform/Guides/Developer_Guides/1C_Enterprise_Development_Standards/Creating_and_modifying_metadata_objects/Configuration_version_management/Version_numbering/&gt;Version and revision numbering&lt;/&gt;.</v8:content>
+For more details, see &lt;link https://kb.1ci.com/1C_Enterprise_Platform/Guides/Developer_Guides/1C_Enterprise_Development_Standards/Creating_and_modifying_metadata_objects/Configuration_version_management/Version_numbering/&gt;Version numbering&lt;/&gt;.</v8:content>
 							</v8:item>
 						</Title>
 					</ExtendedTooltip>

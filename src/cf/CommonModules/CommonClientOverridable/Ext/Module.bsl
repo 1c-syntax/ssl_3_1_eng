@@ -34,8 +34,8 @@
 //                              assign the parameter to the details of the notification handler
 //                              that opens the window. 
 //
-//   * ContinuationHandler   - NotifyDescription - If there is a window that prevents signing in to the app, the closure handler
-//                              of this window must execute the ContinuationHandler notification. 
+//   * ContinuationHandler   - NotifyDescription - If there is a window that blocks logging in to the application, the closure handler
+//                              of that window must execute the ContinuationHandler notification. 
 //
 //   * Modules                 - Array - references to the modules that will run the procedure after the return.
 //                              You can add modules only by calling an overridable module procedure.
@@ -43,7 +43,7 @@
 //                              are made to a number of subsystems. See the example for SSLSubsystemsIntegrationClient.BeforeStart.
 //
 // Example:
-//  The below code opens a window that blocks signing in to an application.
+//  The below code opens a window that blocks the login to the application.
 //
 //		If OpenWindowOnStart Then
 //			Parameter.InteractiveHandler = New NotificationDetails("OpenWindow", ThisObject);
@@ -90,8 +90,8 @@ EndProcedure
 //                              start, pass the notification description handler
 //                              that opens the window. See the BeforeStart for an example.
 //
-//   * ContinuationHandler   - NotifyDescription - If there is a window that prevents signing in to the app, the closure handler
-//                              of this window must execute the ContinuationHandler notification.
+//   * ContinuationHandler   - NotifyDescription - If there is a window that blocks logging in to the application, the closure handler
+//                              of that window must execute the ContinuationHandler notification.
 //                              
 //   * Modules                 - Array - references to the modules that will run the procedure after the return.
 //                              You can add modules only by calling an overridable module procedure.

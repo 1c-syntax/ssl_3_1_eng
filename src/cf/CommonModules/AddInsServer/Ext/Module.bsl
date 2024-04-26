@@ -17,21 +17,22 @@
 //    * ObjectsCreationIDs - Array of String - IDs of object module instances.
 //              Use it only for add-ins with several object creation IDs.
 //              When specified, the ID parameter is used only to determine an add-in.
-//    * Isolated - Boolean  -  
-//                               
+//    * Isolated - Boolean  - If set to "True", the add-in is attached isolatedly. 
+//                               That is, it runs in a separate OS process.
+//                               If set to "False", the add-in runs in the same OS process that runs 1C:Enterprise scripts. 
 //                                
-//                                
-//              - Undefined - :
-//                                
-//                               
+//              - Undefined - Defines the 1C:Enterprise behavior.:
+//                               Non-isolatedly if the add-in supports only this mode. 
+//                               Isolatedly, in other cases. By default, "Undefined".
 //                               See https://its.1c.eu/db/v83doc
-//    * FullTemplateName - String - 
+//                               #bookmark:dev:TI000001866
+//    * FullTemplateName - String - Full name of the template with a ZIP archive containing the add-in.
 //
 Function ConnectionParameters() Export
 	
 	Parameters = New Structure;
 	Parameters.Insert("ObjectsCreationIDs", New Array);
-	Parameters.Insert("Isolated", Common.ConnectionTypeDefaultComponents());
+	Parameters.Insert("Isolated", Common.IsDefaultAddInAttachmentMethod());
 	Parameters.Insert("FullTemplateName");
 	
 	Return Parameters;
@@ -60,7 +61,7 @@ EndFunction
 Function AttachAddInSSL(Val Id, Version = Undefined, ConnectionParameters = Undefined) Export
 	
 	If ConnectionParameters = Undefined Then
-		Isolated = Common.ConnectionTypeDefaultComponents();
+		Isolated = Common.IsDefaultAddInAttachmentMethod();
 	Else
 		Isolated = ConnectionParameters.Isolated;
 	EndIf;
@@ -94,13 +95,13 @@ EndFunction
 //
 // Returns:
 //   - ValueTable:
-//     * Id - String -  contains a unique identifier of the external
-//                    component, which is specified by the user in the publication database;
-//     * Version        - String - 
-//     * Description  - String - 
-//     * VersionDate    - Date - 
-//     * AutoUpdate - Boolean - 
-//   - Array - 
+//     * Id - String - The add-in UUID manually specified in the publication base.
+//                    
+//     * Version        - String - The add-in version.
+//     * Description  - String - The add-in description.
+//     * VersionDate    - Date - The date the add-in version (build) was released.
+//     * AutoUpdate - Boolean - The add-in auto-update flag.
+//   - Array - "Option" is set to "Supplied1", the ids of 1C-supplied add-ins.
 //
 Function ComponentsToUse(Variant) Export
 	
@@ -362,12 +363,12 @@ EndProcedure
 //
 // Returns:
 //  ValueTable:
-//    * Id - String -  contains a unique identifier of the external
-//                   component, which is specified by the user in the publication database;
-//    * Version        - String - 
-//    * Description  - String - 
-//    * VersionDate    - Date - 
-//    * AutoUpdate - Boolean - 
+//    * Id - String - The add-in UUID manually specified in the publication base.
+//                   
+//    * Version        - String - The add-in version.
+//    * Description  - String - The add-in description.
+//    * VersionDate    - Date - The date the add-in version (build) was released.
+//    * AutoUpdate - Boolean - The add-in auto-update flag.
 //
 Function AutomaticallyUpdatedAddIns() Export
 	

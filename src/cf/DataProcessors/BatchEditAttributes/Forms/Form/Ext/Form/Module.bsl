@@ -13,6 +13,9 @@
 &AtClient
 Var CurrentSelectedAttribute;
 
+&AtClient
+Var ErrorInformation;
+
 #EndRegion
 
 #Region FormEventHandlers
@@ -22,8 +25,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 
 	SetConditionalAppearance();
 	CheckPlatformVersionAndCompatibilityMode();
-	Parameters.Property("AdditionalDataProcessorRef", AdditionalDataProcessorRef);
-	
+	SSLVersionMatchesRequirements = SSLVersionMatchesRequirements();
+	AdditionalDataProcessorRef = Parameters.AdditionalDataProcessorRef;
+
 	ContextCall = TypeOf(Parameters.ObjectsArray) = Type("Array");
 	
 	Items.FormBack.Visible = False;
@@ -33,7 +37,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		ExecuteActionsOnContextOpen();
 	Else
 		If Not IsFullUser() Then
-			Raise NStr("en = 'To open a data processor, you must have the administration right.';")
+			Raise(NStr("en = 'Insufficient rights.';"), ErrorCategory.AccessViolation);
 		EndIf;
 		Title = NStr("en = 'Bulk attribute edit';");
 		FillObjectsTypesList();
@@ -53,13 +57,15 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	ObjectStructure = New Structure("UsedFileName", Undefined);
 	FillPropertyValues(ObjectStructure, DataProcessorObject);
 	
-	// If the UsedFileName field is present, this is an external data processor.
+	// If the "UsedFileName" field is present, this is an external data processor.
 	If Not ValueIsFilled(AdditionalDataProcessorRef)
 	   And ValueIsFilled(ObjectStructure.UsedFileName)
 	   And Not StrStartsWith(ObjectStructure.UsedFileName, "e1cib/")
 	   And Not StrStartsWith(ObjectStructure.UsedFileName, "e1cib\") Then
 		ExternalProcessorFilePathAtClient = ObjectStructure.UsedFileName;
 	EndIf;
+
+	Items.GenerateErrorReport.Visible = False;
 	
 EndProcedure
 
@@ -67,10 +73,17 @@ EndProcedure
 Procedure OnOpen(Cancel)
 #If WebClient Then
 	If ValueIsFilled(ExternalProcessorFilePathAtClient) Then
-		ErrorText = NStr("en = 'For this action, start the client application';");
+		ErrorText = NStr("en = 'To perform this action, start the client app.';");
 		Raise ErrorText;
 	EndIf;
 #EndIf
+EndProcedure
+
+&AtClient
+Procedure OnClose(Exit)
+	
+	SendErrorReport();
+	
 EndProcedure
 
 &AtClient
@@ -177,6 +190,27 @@ Procedure ObjectCompositionOnCurrentPageChange(Item, CurrentPage)
 	Items.AttributesSearchString.Visible = (CurrentPage = Items.Attributes);
 EndProcedure
 
+&AtClient
+Procedure GenerateErrorReportClick(Item)
+	
+	If Not SSLVersionMatchesRequirements Then
+		Return;
+	EndIf;
+	
+	ModuleStandardClientSubsystems = CommonModule("StandardSubsystemsClient");
+	
+	CurrentData = Items.ObjectsThatCouldNotBeChanged.CurrentData;
+	If CurrentData = Undefined Then
+		Return;
+	EndIf;
+	
+	ErrorReport = ErrorInformation_(CurrentData.Object).ErrorReport;
+	If ErrorReport <> Undefined Then
+		ModuleStandardClientSubsystems.ShowErrorReport(ErrorReport);
+	EndIf;
+	
+EndProcedure
+
 #EndRegion
 
 #Region FormTableItemsEventHandlersSettingsComposerSettingsFilter
@@ -199,17 +233,52 @@ EndProcedure
 
 &AtClient
 Procedure ObjectsThatCouldNotBeChangedBeforeRowChange(Item, Cancel)
-	Cancel = True;
-	If TypeOf(Item.CurrentData.Object) <> Type("String") Then
+	If TypeOf(Item.CurrentData.Object) <> Type("String")
+		And Item.CurrentItem = Items.ObjectsThatCouldNotBeChangedObject Then
+		Cancel = True;
 		ShowValue(, Item.CurrentData.Object);
 	EndIf;
 EndProcedure
 
 &AtClient
 Procedure ObjectsThatCouldNotBeChangedOnActivateRow(Item)
-	If Item.CurrentData <> Undefined Then
+	If Item.CurrentData = Undefined Then
+		Cause = "";
+	Else
 		Cause = Item.CurrentData.Cause;
 	EndIf;
+	
+	ConfigureVisibilityAndTitleForURLSendErrorReport();
+
+EndProcedure
+
+&AtClient
+Procedure ConfigureVisibilityAndTitleForURLSendErrorReport()
+	
+	If Not SSLVersionMatchesRequirements Then
+		Return;
+	EndIf;
+	
+	ModuleStandardClientSubsystems = CommonModule("StandardSubsystemsClient");
+	
+	Items.GenerateErrorReport.Visible = False;
+	
+	If Items.Pages.CurrentPage <> Items.ObjectsChange 
+		Or Not Items.ObjectsThatCouldNotBeChangedGroup.Visible Then
+		Return;
+	EndIf;
+	
+	CurrentData = Items.ObjectsThatCouldNotBeChanged.CurrentData;
+	If CurrentData = Undefined Then
+		Return;
+	EndIf;
+	
+	ErrorInfo = ErrorInformation_(CurrentData.Object).ErrorInfo;
+	If ErrorInfo <> Undefined Then
+		ModuleStandardClientSubsystems.ConfigureVisibilityAndTitleForURLSendErrorReport(
+			Items.GenerateErrorReport, ErrorInfo);
+	EndIf;
+	
 EndProcedure
 
 #EndRegion
@@ -256,7 +325,8 @@ Function ExpressionsHaveErrors()
 	Result = False;
 	For IndexOf = 0 To ObjectAttributes.Count() - 1 Do
 		AttributeDetails = ObjectAttributes[IndexOf];
-		If AttributeDetails.Change And TypeOf(AttributeDetails.Value) = Type("String") And StrStartsWith(AttributeDetails.Value, "=") Then
+		If AttributeDetails.Change And TypeOf(AttributeDetails.Value) = Type("String") 
+			And StrStartsWith(AttributeDetails.Value, "=") Then
 			ErrorText = "";
 			If ExpressionHasErrors(AttributeDetails.Value, ErrorText) Then
 				Result = True;
@@ -277,6 +347,7 @@ EndFunction
 &AtClient
 Procedure Change(Command)
 	
+	SendErrorReport();
 	If Object.OperationType = "ExecuteAlgorithm" Then
 		
 		CodeExecutionRights = AvailableCodeExecutionRights();
@@ -348,6 +419,7 @@ EndProcedure
 &AtClient
 Procedure Back(Command)
 	
+	SendErrorReport();
 	BackServer();
 	
 EndProcedure
@@ -584,7 +656,7 @@ Procedure ExecuteChangeFilterCheckCompleted(QuestionResult = Undefined, Addition
 	EndIf;
 	
 	If Not AvailableConfiguredChanges() And Object.OperationType = "EnterValues" Then
-		QueryText = NStr("en = 'No changes found. Do you want to save the items without changes?';");
+		QueryText = NStr("en = 'No changes found. Overwrite the items without introducing changes?';");
 		NotifyDescription = New NotifyDescription("ExecuteChangeChecksCompleted", ThisObject);
 		ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.OKCancel, , , NStr("en = 'Edit items';"));
 	Else
@@ -669,6 +741,7 @@ Procedure ExecuteChangeChecksCompleted(QuestionResult = Undefined, AdditionalPar
 	SettButtonsDuringChange(True);
 	GoToChangeObjectsPage();
 	ObjectsThatCouldNotBeChanged.Clear();
+	ErrorInformation = Undefined;
 	
 	AttachIdleHandler("ChangeObjects1", 0.1, True);
 	
@@ -1021,7 +1094,8 @@ Procedure ChangeObjects1()
 	CurrentChangeStatus = New Structure;
 	ObjectsCountForProcessing = SelectedObjectsCount(True, True);
 	
-	ShowUserNotification(NStr("en = 'Edit selected items';"), ,NStr("en = 'Please wait. Processing may take some time…';"));
+	ShowUserNotification(NStr("en = 'Edit selected items';"),, 
+		NStr("en = 'Please wait. Processing may take some time…';"));
 	ShowProcessedItemsPercentage = False;
 	
 	CurrentChangeStatus.Insert("ItemsAvailableForProcessing", True);
@@ -1095,9 +1169,7 @@ Procedure OnCompleteChange(Result, AdditionalParameters) Export
 	
 	If Result.Status <> "Completed2" Then
 		BackServer();
-		ModuleStandardClientSubsystems = CommonModule("StandardSubsystemsClient");
-		ModuleStandardClientSubsystems.OutputErrorInfo(
-			Result.ErrorInfo);
+		OutputErrorInfo(Result.ErrorInfo);
 		Return;
 	EndIf;
 	
@@ -1114,9 +1186,7 @@ Procedure OnCompleteChange(Result, AdditionalParameters) Export
 		
 		ResultOfBatchExecution = ChangeResult.Value;
 		If ResultOfBatchExecution.Status = StatusError Then
-			ModuleStandardClientSubsystems = CommonModule("StandardSubsystemsClient");
-			ModuleStandardClientSubsystems.OutputErrorInfo(
-				ResultOfBatchExecution.ErrorInfo);
+			OutputErrorInfo(ResultOfBatchExecution.ErrorInfo);
 		Else
 			ResultOfBatchChange = GetFromTempStorage(ResultOfBatchExecution.ResultAddress);
 			If TypeOf(ResultOfBatchChange) <> Type("Structure") Then
@@ -1140,7 +1210,6 @@ Procedure ProcessChangeResult(ChangeResult = Undefined, ContinueProcessing = Und
 	EndIf;
 	
 	While ContinueProcessing Do
-		// Updating the table for already processed objects.
 		FillProcessedObjectsStatus(ChangeResult, ErrorsCount, ChangedCount);
 		
 		CurrentChangeStatus.ErrorsCount = ErrorsCount + CurrentChangeStatus.ErrorsCount;
@@ -1163,8 +1232,10 @@ Procedure ProcessChangeResult(ChangeResult = Undefined, ContinueProcessing = Und
 		Buttons.Add(DialogReturnCode.Ignore, NStr("en = 'Continue';"));
 		Buttons.Add(DialogReturnCode.No, NStr("en = 'Do not ask again';"));
 		
-		NotifyDescription = New NotifyDescription("ProcessChangeResultResponseReceived", ThisObject, ChangeResult);
-		ShowQueryBox(NotifyDescription, QueryText, Buttons, , DialogReturnCode.Abort, NStr("en = 'Editing errors';"));
+		NotifyDescription = New NotifyDescription("ProcessChangeResultResponseReceived", 
+			ThisObject, ChangeResult);
+		ShowQueryBox(NotifyDescription, QueryText, Buttons, , DialogReturnCode.Abort, 
+			NStr("en = 'Editing errors';"));
 		Return;
 	EndDo;
 	
@@ -1434,9 +1505,19 @@ Procedure FillProcessedObjectsStatus(ChangeResult, ErrorsCount, ChangedCount)
 		If Not IsBlankString(ProcessedObjectStatus.Value.ErrorCode) Then
 			ErrorsCount = ErrorsCount + 1;
 			
+			ErrorInfo = ProcessedObjectStatus.Value.ErrorMessage;
+			
+			ErrorReport = New ErrorReport(ErrorInfo);
+			
+			ErrorInformation_ = ErrorInformation_();
+			ErrorInformation_.ErrorReport = ErrorReport;
+			ErrorInformation_.ErrorInfo = ErrorInfo;
+			
+			ErrorInformation().Insert(ProcessedObjectStatus.Key, ErrorInformation_);
+			
 			ErrorRecord = ObjectsThatCouldNotBeChanged.Add();
 			ErrorRecord.Object = ProcessedObjectStatus.Key;
-			ErrorRecord.Cause = ProcessedObjectStatus.Value.ErrorMessage;
+			ErrorRecord.Cause = ErrorProcessing.ErrorMessageForUser(ErrorInfo);
 		Else
 			ChangedCount = ChangedCount + 1;
 		EndIf;
@@ -1532,7 +1613,6 @@ Function AddressOfChangeableObjectsArray()
 	
 	SelectedObjects = SelectedObjects();
 	References = SelectedObjects.Rows.UnloadColumn("Ref");
-	
 	Return PutToTempStorage(References, UUID);
 	
 EndFunction
@@ -1541,13 +1621,8 @@ EndFunction
 Function HierarchicalMetadataObject1(FirstObjectReference)
 	
 	ObjectKindByRef = ObjectKindByRef(FirstObjectReference);
-	
-	If ((ObjectKindByRef = "Catalog" Or ObjectKindByRef = "ChartOfCharacteristicTypes") And FirstObjectReference.Metadata().Hierarchical)
-	 Or (ObjectKindByRef = "ChartOfAccounts") Then
-		Return True;
-	EndIf;
-	
-	Return False;
+	Return ((ObjectKindByRef = "Catalog" Or ObjectKindByRef = "ChartOfCharacteristicTypes") And FirstObjectReference.Metadata().Hierarchical)
+	 	Or (ObjectKindByRef = "ChartOfAccounts");
 	
 EndFunction
 
@@ -1555,7 +1630,6 @@ EndFunction
 Function HierarchyFoldersAndItems(FirstObjectReference)
 	
 	ObjectKindByRef = ObjectKindByRef(FirstObjectReference);
-	
 	Return (ObjectKindByRef = "Catalog" And FirstObjectReference.Metadata().Hierarchical
 		And FirstObjectReference.Metadata().HierarchyType = Metadata.ObjectProperties.HierarchyType.HierarchyFoldersAndItems)
 		Or (ObjectKindByRef = "ChartOfCharacteristicTypes" And FirstObjectReference.Metadata().Hierarchical);
@@ -1601,16 +1675,15 @@ Function Filter_Settings()
 EndFunction
 
 // Parameters:
-//   Filter_Settings - Undefined
-//                   - Structure:
-//   * RestrictSelection - Boolean
-//   * IncludeTabularSectionsInSelection - Boolean
-//   * UpdateList - Boolean
+//   Filter_Settings - Structure:
+//     * RestrictSelection - Boolean
+//     * IncludeTabularSectionsInSelection - Boolean
+//     * UpdateList - Boolean
 //   ErrorMessageText - String
 //
 // Returns:
 //   ValueTree:
-//   * Ref - AnyRef
+//     * Ref - AnyRef
 //
 &AtServer
 Function SelectedObjects(Filter_Settings = Undefined, ErrorMessageText = "")
@@ -1804,7 +1877,8 @@ Procedure InitializeSettingsComposer()
 	DataProcessorObject1 = FormAttributeToValue("Object");
 	QueryText = DataProcessorObject1.QueryText(KindsOfObjectsToChange);
 	DataCompositionSchema = DataCompositionSchema(QueryText);
-	SettingsComposer.Initialize(New DataCompositionAvailableSettingsSource(PutToTempStorage(DataCompositionSchema, UUID)));
+	SettingsComposer.Initialize(New DataCompositionAvailableSettingsSource(
+		PutToTempStorage(DataCompositionSchema, UUID)));
 	SettingsComposer.LoadSettings(DataCompositionSchema.DefaultSettings);
 	
 	If SelectedObjectsInContext.Count() > 0 Then
@@ -1872,18 +1946,21 @@ Procedure LoadObjectMetadata(SaveCurrentChangeSettings = False, SavedSettings = 
 	
 	ClearObjectDetails();
 	
-	LockedAttributes = LockedAttributes();
-	AttributesToSkip = AttributesToSkip();
-	DisabledAttributes = DisabledAttributes();
-	
+	InformationAboutAttributes = New Structure;
+	InformationAboutAttributes.Insert("AttributesToSkip", AttributesToSkip());
+	InformationAboutAttributes.Insert("DisabledAttributes", DisabledAttributes());
+	InformationAboutAttributes.Insert("LockedAttributes", LockedAttributes());
+	InformationAboutAttributes.Insert("ExcludedTypesOfAttributes", ExcludedTypesOfAttributes());
+
 	DataProcessorObject = FormAttributeToValue("Object");
 	CommonObjectsAttributes = DataProcessorObject.CommonObjectsAttributes(KindsOfObjectsToChange);
 	
-	FillObjectAttributes(LockedAttributes, AttributesToSkip, DisabledAttributes, CommonObjectsAttributes.Attributes);
-	FillObjectsTabularSections(LockedAttributes, AttributesToSkip, DisabledAttributes, CommonObjectsAttributes.TabularSections);
+	FillObjectAttributes(InformationAboutAttributes, CommonObjectsAttributes.Attributes);
+	FillObjectsTabularSections(InformationAboutAttributes, CommonObjectsAttributes.TabularSections);
 	
 	GenerateNoteAboutAutonumbering();
 	SetConditionalAppearance();
+	
 EndProcedure
 
 &AtServer
@@ -1939,7 +2016,7 @@ Function LockedAttributes()
 	Result = New Array;
 	
 	For Each ObjectsKind In StrSplit(KindsOfObjectsToChange, ",", False) Do
-		If SSLVersionMatchesRequirements() Then
+		If SSLVersionMatchesRequirements Then
 			For Each Attribute In ObjectAttributesToLock(ObjectsKind) Do
 				If Result.Find(Attribute) = Undefined Then
 					Result.Add(Attribute);
@@ -1987,55 +2064,56 @@ Function AttributesToSkip()
 	For Each KindOfObjectsToChange In StrSplit(KindsOfObjectsToChange, ",", False) Do
 		MetadataObject = Metadata.FindByFullName(KindOfObjectsToChange);
 		AttributesEditingSettings = DataProcessorObject.AttributesEditingSettings(MetadataObject);
-		ToEdit = AttributesEditingSettings.ToEdit;
-		NotToEdit = AttributesEditingSettings.NotToEdit;
+		AttributesToEdit = AttributesEditingSettings.ToEdit;
+		AttributesToSkip = AttributesEditingSettings.NotToEdit;
 		
-		If ValueIsFilled(NotToEdit) Then
-			If NotToEdit.Find("*") = Undefined Then
-				For Each AttributeName In NotToEdit Do
+		If ValueIsFilled(AttributesToSkip) Then
+			If AttributesToSkip.Find("*") = Undefined Then
+				For Each AttributeName In AttributesToSkip Do
 					AttributesNames.Insert(AttributeName);
 				EndDo;
 				Continue;
 			Else
-				ToEdit = New Array;
+				AttributesToEdit = New Array;
 			EndIf;
 		Else
-			If ToEdit = Undefined Or TypeOf(ToEdit) = Type("Array") And ToEdit.Find("*") <> Undefined Then
+			If AttributesToEdit = Undefined 
+				Or TypeOf(AttributesToEdit) = Type("Array") And AttributesToEdit.Find("*") <> Undefined Then
 				Continue;
 			EndIf;
 		EndIf;
 		
-		NotToEdit = New Array;
+		AttributesToSkip = New Array;
 		MetadataObject = Metadata.FindByFullName(KindOfObjectsToChange);
-		StandardAttributesDetails = MetadataObject.StandardAttributes;// Array of StandardAttributeDescription
+		StandardAttributesDetails = MetadataObject.StandardAttributes; // Array of StandardAttributeDescription
 		For Each AttributeDetails In StandardAttributesDetails Do
-			NotToEdit.Add(AttributeDetails.Name);
+			AttributesToSkip.Add(AttributeDetails.Name);
 		EndDo;
 		
-		AttributesDetails1 = MetadataObject.Attributes;// Array of MetadataObjectAttribute
+		AttributesDetails1 = MetadataObject.Attributes; // Array of MetadataObjectAttribute
 		For Each AttributeDetails In AttributesDetails1 Do
-			NotToEdit.Add(AttributeDetails.Name);
+			AttributesToSkip.Add(AttributeDetails.Name);
 		EndDo;
 		
 		For Each TabularSection In MetadataObject.TabularSections Do
-			If ToEdit.Find(TabularSection.Name + ".*") <> Undefined Then
+			If AttributesToEdit.Find(TabularSection.Name + ".*") <> Undefined Then
 				Break;
 			EndIf;
-			TabularSectionAttributesDetails = TabularSection.Attributes;// Array of MetadataObjectAttribute
+			TabularSectionAttributesDetails = TabularSection.Attributes; // Array of MetadataObjectAttribute
 			For Each Attribute In TabularSectionAttributesDetails Do
-				NotToEdit.Add(TabularSection.Name + "." + Attribute.Name);
+				AttributesToSkip.Add(TabularSection.Name + "." + Attribute.Name);
 			EndDo;
 		EndDo;
 		
-		For Each NameOfAttributeToEdit In ToEdit Do
-			IndexOf = NotToEdit.Find(NameOfAttributeToEdit);
+		For Each AttributeName In AttributesToEdit Do
+			IndexOf = AttributesToSkip.Find(AttributeName);
 			If IndexOf = Undefined Then
 				Continue;
 			EndIf;
-			NotToEdit.Delete(IndexOf);
+			AttributesToSkip.Delete(IndexOf);
 		EndDo;
 		
-		For Each AttributeName In NotToEdit Do
+		For Each AttributeName In AttributesToSkip Do
 			AttributesNames.Insert(AttributeName);
 		EndDo;
 	EndDo;
@@ -2064,24 +2142,24 @@ Function DisabledAttributes()
 		
 		AttributesDisabledByFunctionalOptions = New Map;
 		
-		AttributesDetails1 = MetadataObject.Attributes;// Array of MetadataObjectAttribute
+		AttributesDetails1 = MetadataObject.Attributes; // Array of MetadataObjectAttribute
 		For Each Attribute In AttributesDetails1 Do
 			If ObjectsEnabled[Attribute] = False Then
 				AttributesDisabledByFunctionalOptions.Insert(Attribute.Name, True);
 			EndIf;
 		EndDo;
 		
-		TabularSectionsDetails = MetadataObject.TabularSections;// Array of MetadataObjectTabularSection
+		TabularSectionsDetails = MetadataObject.TabularSections; // Array of MetadataObjectTabularSection
 		For Each TabularSection In TabularSectionsDetails Do
 			If ObjectsEnabled[TabularSection] = False Then
 				AttributesDisabledByFunctionalOptions.Insert(TabularSection.Name + ".*", True);
-			Else
-				For Each Attribute In TabularSection.Attributes Do
-					If ObjectsEnabled[Attribute] = False Then
-						AttributesDisabledByFunctionalOptions.Insert(TabularSection.Name + "." + Attribute.Name, True);
-					EndIf;
-				EndDo;
+				Continue;
 			EndIf;
+			For Each Attribute In TabularSection.Attributes Do
+				If ObjectsEnabled[Attribute] = False Then
+					AttributesDisabledByFunctionalOptions.Insert(TabularSection.Name + "." + Attribute.Name, True);
+				EndIf;
+			EndDo;
 		EndDo;
 		
 		For Each PropsClosedWithFunctionalOptions In AttributesDisabledByFunctionalOptions Do
@@ -2100,20 +2178,43 @@ Function DisabledAttributes()
 EndFunction
 
 &AtServer
-Procedure FillObjectsTabularSections(LockedAttributes, AttributesToSkip, DisabledAttributes, AvailableTabularSections)
+Function ExcludedTypesOfAttributes()
+	
+	Result = Undefined;
+	KindsOfObjectsToChangeList = StrSplit(KindsOfObjectsToChange, ",", False);
+	If KindsOfObjectsToChangeList.Count() = 0 Then
+		Return Result;
+	EndIf;
+	
+	If SubsystemExists("StandardSubsystems.FilesOperations") Then
+		ModuleFilesOperationsInternal = CommonModule("FilesOperationsInternal");
+		ObjectName = KindsOfObjectsToChangeList[0];
+		Result = New Map;
+		For Each CatalogName In ModuleFilesOperationsInternal.FileStorageCatalogNames(
+			ObjectManagerByFullName(ObjectName).EmptyRef(), True) Do
+			Result[Type("CatalogRef." + CatalogName.Key)] = True;
+		EndDo;
+	EndIf;
+	Return Result;
+	
+EndFunction
+
+&AtServer
+Procedure FillObjectsTabularSections(InformationAboutAttributes, AvailableTabularSections)
 	
 	KindsOfObjectsToChangeList = StrSplit(KindsOfObjectsToChange, ",", False);
+	If KindsOfObjectsToChangeList.Count() = 0 Then
+		Return;
+	EndIf;
+
 	ObjectName = KindsOfObjectsToChangeList[0];
-	
 	MetadataObject = Metadata.FindByFullName(ObjectName);
 	
-	// Creating attributes for tabular sections.
 	NewFormAttributes = New Array;
-	
 	TableColumns = AttributesTableColumnDescriptions();
-	
 	ObjectTables = New Structure;
 	ObjectTabularSections.Clear();
+
 	For Each TabularSectionDetails In MetadataObject.TabularSections Do
 		If Not AvailableTabularSections.Property(TabularSectionDetails.Name) Then
 			Continue;
@@ -2122,17 +2223,16 @@ Procedure FillObjectsTabularSections(LockedAttributes, AttributesToSkip, Disable
 		If Not AccessRight("Edit", TabularSectionDetails) Then
 			Continue;
 		EndIf;
-		// Table filters.
-		If AttributesToSkip.Find(TabularSectionDetails.Name + ".*") <> Undefined Then
+
+		If InformationAboutAttributes.AttributesToSkip.Find(TabularSectionDetails.Name + ".*") <> Undefined Then
 			Continue;
 		EndIf;
-		If DisabledAttributes.Find(TabularSectionDetails.Name + ".*") <> Undefined Then
+		If InformationAboutAttributes.DisabledAttributes.Find(TabularSectionDetails.Name + ".*") <> Undefined Then
 			Continue;
 		EndIf;
 		
-		EditableAttributes = EditableAttributes(TabularSectionDetails, AttributesToSkip,
-			DisabledAttributes, AvailableTabularSections[TabularSectionDetails.Name]);
-			
+		EditableAttributes = EditableAttributes(TabularSectionDetails, InformationAboutAttributes, 
+			AvailableTabularSections[TabularSectionDetails.Name]);
 		If EditableAttributes.Count() = 0 Then
 			Continue;
 		EndIf;
@@ -2159,7 +2259,6 @@ Procedure FillObjectsTabularSections(LockedAttributes, AttributesToSkip, Disable
 		TabularSectionDetails = ObjectTable.Value;
 		Page.Title = TabularSectionDetails.Presentation();
 		
-		// Creating items for tabular sections.
 		FormTable = Items.Add(AttributeName, Type("FormTable"), Page);
 		FormTable.TitleLocation = FormItemTitleLocation.None;
 		FormTable.DataPath = AttributeName;
@@ -2194,19 +2293,20 @@ Procedure FillObjectsTabularSections(LockedAttributes, AttributesToSkip, Disable
 			EndIf;
 		EndDo;
 		
-		EditableAttributes = EditableAttributes(TabularSectionDetails, AttributesToSkip,
-			DisabledAttributes, AvailableTabularSections[TabularSectionDetails.Name]);	
-			
+		EditableAttributes = EditableAttributes(TabularSectionDetails, InformationAboutAttributes,
+			AvailableTabularSections[TabularSectionDetails.Name]);	
 		For Each AttributeDetails In EditableAttributes Do
-			FormDataTable = ThisObject[ObjectTable.Key];// See AttributesTableColumnDescriptions
+			FormDataTable = ThisObject[ObjectTable.Key]; // See AttributesTableColumnDescriptions
 			Attribute = FormDataTable.Add();
 			Attribute.Name = AttributeDetails.Name;
-			Attribute.Presentation = ?(IsBlankString(AttributeDetails.Presentation()), AttributeDetails.Name, AttributeDetails.Presentation());
+			Attribute.Presentation = ?(IsBlankString(AttributeDetails.Presentation()), AttributeDetails.Name, 
+				AttributeDetails.Presentation());
 			Attribute.AllowedTypes = AttributeDetails.Type;
 			Attribute.ChoiceParameterLinks = ChoiceParameterLinksAsString(AttributeDetails.ChoiceParameterLinks);
 			Attribute.ChoiceParameters = ChoiceParametersAsString(AttributeDetails.ChoiceParameters);
 			Attribute.OperationKind = 1;
-			Attribute.ChoiceParameterLinksPresentation = ChoiceParameterLinksPresentation(AttributeDetails.ChoiceParameterLinks, MetadataObject);
+			Attribute.ChoiceParameterLinksPresentation = ChoiceParameterLinksPresentation(
+				AttributeDetails.ChoiceParameterLinks, MetadataObject);
 		EndDo;
 	EndDo;
 	
@@ -2214,15 +2314,15 @@ EndProcedure
 
 // Parameters:
 //   TabularSectionDetails - Structure:
-//   * Attributes - Array of MetadataObjectAttribute
-//   AttributesToSkip - Array of String
-//   DisabledAttributes - Array
+//     * Attributes - Array of MetadataObjectAttribute
+//   InformationAboutAttributes - Structure
 //   AvailableAttributes - Array
+//
 // Returns:
 //   Array of MetadataObjectAttribute
 //
 &AtServer
-Function EditableAttributes(TabularSectionDetails, AttributesToSkip, DisabledAttributes, AvailableAttributes)
+Function EditableAttributes(TabularSectionDetails, InformationAboutAttributes, AvailableAttributes)
 	
 	Result = New Array;
 	
@@ -2234,12 +2334,15 @@ Function EditableAttributes(TabularSectionDetails, AttributesToSkip, DisabledAtt
 		If Not AccessRight("Edit", AttributeDetails) Then
 			Continue;
 		EndIf;
-		// Tabular section attribute filters.
-		If AttributesToSkip.Find(TabularSectionDetails.Name + "." + AttributeDetails.Name) <> Undefined Then
+		
+		If InformationAboutAttributes.AttributesToSkip.Find(TabularSectionDetails.Name + "." + AttributeDetails.Name) <> Undefined Then
 			Continue;
 		EndIf;
-		If DisabledAttributes.Find(TabularSectionDetails.Name + "." + AttributeDetails.Name) <> Undefined Then
+		If InformationAboutAttributes.DisabledAttributes.Find(TabularSectionDetails.Name + "." + AttributeDetails.Name) <> Undefined Then
 			Continue;
+		EndIf;
+		If ThisIsExcludedTypeOfAttribute(AttributeDetails, InformationAboutAttributes.ExcludedTypesOfAttributes) Then
+			Continue;	
 		EndIf;
 		
 		Result.Add(AttributeDetails);
@@ -2249,7 +2352,6 @@ Function EditableAttributes(TabularSectionDetails, AttributesToSkip, DisabledAtt
 	
 EndFunction
 
-
 // Returns:
 //   ValueTable:
 //   * Name - String
@@ -2257,8 +2359,8 @@ EndFunction
 //   * Presentation - String 
 //   * FieldKind - String
 //   * Actions - Structure:
-//   ** OnChange - Boolean
-//   ** Attachable_OnCheckChange - Boolean
+//     ** OnChange - Boolean
+//     ** Attachable_OnCheckChange - Boolean
 //   * ReadOnly - Boolean
 //   * Picture - Picture
 //
@@ -2465,7 +2567,7 @@ Procedure UpdateItemsVisibility()
 EndProcedure
 
 &AtServer
-Procedure FillObjectAttributes(AttributesToLock, NotToEdit, DisabledAttributes, AvailableAttributes)
+Procedure FillObjectAttributes(InformationAboutAttributes, AvailableAttributes)
 	
 	ObjectAttributes.Clear();
 	
@@ -2474,20 +2576,11 @@ Procedure FillObjectAttributes(AttributesToLock, NotToEdit, DisabledAttributes, 
 		Return;
 	EndIf;
 	
-	AttributesSets = New Structure;
-	AttributesSets.Insert("NotToEdit", NotToEdit);
-	AttributesSets.Insert("Disabled2", DisabledAttributes);
-	AttributesSets.Insert("ToLock", AttributesToLock);
-	AttributesSets.Insert("Available2", AvailableAttributes);
-	
 	ObjectName = KindsOfObjectsToChangeList[0];
 	MetadataObject = Metadata.FindByFullName(ObjectName);
-	AttributesSets.Insert("AttributesDetails2", MetadataObject.StandardAttributes);
-	AddAttributesToSet(AttributesSets, MetadataObject);
-	
-	AttributesSets.Insert("AttributesDetails2", MetadataObject.Attributes);
-	AddAttributesToSet(AttributesSets, MetadataObject);
-	
+
+	AddAttributesToSet(InformationAboutAttributes, MetadataObject, AvailableAttributes, MetadataObject.StandardAttributes);
+	AddAttributesToSet(InformationAboutAttributes, MetadataObject, AvailableAttributes, MetadataObject.Attributes);
 	ObjectAttributes.Sort("Presentation Asc");
 	
 	If SubsystemExists("StandardSubsystems.Properties") Then
@@ -2506,7 +2599,7 @@ Procedure FillObjectAttributes(AttributesToLock, NotToEdit, DisabledAttributes, 
 		EndIf;
 	EndIf;
 	
-	AddExternalAttributesToSet(AttributesSets, KindsOfObjectsToChangeList);
+	AddExternalAttributesToSet(InformationAboutAttributes, KindsOfObjectsToChangeList);
 	
 EndProcedure
 
@@ -2598,16 +2691,10 @@ Function PropertiesListForObjectsKind(ObjectsKind)
 EndFunction
 
 &AtServer
-Procedure AddAttributesToSet(AttributesSets, MetadataObject)
+Procedure AddAttributesToSet(InformationAboutAttributes, MetadataObject, AvailableAttributes, AttributesDetails2)
 	
-	Attributes = AttributesSets.AttributesDetails2;
-	NotToEdit = AttributesSets.NotToEdit;
-	DisabledAttributes = AttributesSets.Disabled2;
-	AttributesToLock = AttributesSets.ToLock;
-	ListAvailableAttributes = AttributesSets.Available2;
-	
-	For Each AttributeDetails In Attributes Do
-		If ListAvailableAttributes.Find(AttributeDetails.Name) = Undefined Then
+	For Each AttributeDetails In AttributesDetails2 Do
+		If AvailableAttributes.Find(AttributeDetails.Name) = Undefined Then
 			Continue;
 		EndIf;
 		
@@ -2621,12 +2708,14 @@ Procedure AddAttributesToSet(AttributesSets, MetadataObject)
 			EndIf;
 		EndIf;
 		
-		If NotToEdit.Find(AttributeDetails.Name) <> Undefined Then
+		If InformationAboutAttributes.AttributesToSkip.Find(AttributeDetails.Name) <> Undefined Then
 			Continue;
 		EndIf;
-		
-		If DisabledAttributes.Find(AttributeDetails.Name) <> Undefined Then
+		If InformationAboutAttributes.DisabledAttributes.Find(AttributeDetails.Name) <> Undefined Then
 			Continue;
+		EndIf;
+		If ThisIsExcludedTypeOfAttribute(AttributeDetails, InformationAboutAttributes.ExcludedTypesOfAttributes) Then
+			Continue;	
 		EndIf;
 		
 		ChoiceFoldersAndItems = "";
@@ -2685,7 +2774,7 @@ Procedure AddAttributesToSet(AttributesSets, MetadataObject)
 		ObjectAttribute.ChoiceFoldersAndItems = ChoiceFoldersAndItems;
 		ObjectAttribute.OperationKind = 1;
 		
-		If AttributesToLock.Find(AttributeDetails.Name) <> Undefined Then
+		If InformationAboutAttributes.LockedAttributes.Find(AttributeDetails.Name) <> Undefined Then
 			ObjectAttribute.LockedAttribute = True;
 		EndIf;
 		
@@ -2700,11 +2789,11 @@ Procedure AddExternalAttributesToSet(AttributesSets, KindsOfObjectsToChangeList)
 	
 	ModuleUsersInternal = CommonModule("UsersInternal");
 	If ModuleUsersInternal = Undefined
-	 Or Not IsSSLVersionSupportsUserExternalAttributes() Then
+	 Or Not SSLVersionMatchesRequirements Then
 		Return;
 	EndIf;
 	
-	ExternalAttributes = New Array; 
+	ExternalAttributes = New Array; // Array of See UsersInternal.ExternalAttribute
 	ModuleUsersInternal.OnFillExternalAttributes(KindsOfObjectsToChangeList, ExternalAttributes);
 	
 	For Each ExternalAttribute In ExternalAttributes Do
@@ -2722,6 +2811,24 @@ Procedure AddExternalAttributesToSet(AttributesSets, KindsOfObjectsToChangeList)
 	ObjectAttributes.Sort("Presentation");
 	
 EndProcedure
+
+&AtServer
+Function ThisIsExcludedTypeOfAttribute(AttributeDetails, ExcludedTypesOfAttributes)
+
+	If ExcludedTypesOfAttributes = Undefined Then
+		Return False;
+	EndIf;
+
+	Result = False;
+	For Each AttributeType In AttributeDetails.Type.Types() Do
+		If ExcludedTypesOfAttributes[AttributeType] = True Then 
+			Result = True;
+			Continue;
+		EndIf;
+	EndDo;
+	Return Result;
+	
+EndFunction
 
 &AtServer
 Function FilterAttributes()
@@ -2868,8 +2975,6 @@ Function FilterAttributes()
 	Return Result;
 EndFunction
 	
-// Gets an array of attributes not editable at the configuration level.
-//
 // Parameters:
 //   MetadataObject - MetadataObject
 // 
@@ -4278,7 +4383,7 @@ EndFunction
 &AtServer
 Function SubsystemExists(FullSubsystemName)
 	
-	If Not SSLVersionMatchesRequirements() Then
+	If Not SSLVersionMatchesRequirements Then
 		Return False;
 	EndIf;
 	
@@ -4428,9 +4533,10 @@ EndFunction
 // Generates a string according to the specified pattern.
 // The following tags are available:
 //	<b> String </b> - formats the string as bold.
+//	<a href = "Ref"> String </a>
 //
 // Example:
-//	
+//	The lowest supported version is <b>1.1</b>. <a href = "Update">Update</a> the app.
 //
 // Returns:
 //  FormattedString
@@ -4527,6 +4633,7 @@ EndFunction
 // Example:
 //  
 //  String = StringFunctionsClientServer.StringWithNumberForAnyLanguage(
+//		NStr("ru=';остался %1 день;;осталось %1 дня;осталось %1 дней;осталось %1 дня';
 //		     |en=';%1 day left;;;;%1 days left'"), 
 //		0.05,,"NFD=1);
 // 
@@ -4600,12 +4707,6 @@ Function SSLVersionMatchesRequirements()
 EndFunction
 
 &AtServer
-Function IsSSLVersionSupportsUserExternalAttributes()
-	DataProcessorObject = FormAttributeToValue("Object");
-	Return DataProcessorObject.IsSSLVersionSupportsUserExternalAttributes();
-EndFunction
-
-&AtServer
 Procedure CheckPlatformVersionAndCompatibilityMode()
 	
 	Information = New SystemInfo;
@@ -4626,7 +4727,7 @@ EndProcedure
 
 &AtServer
 Function OperationsKindsPicture()
-	If SSLVersionMatchesRequirements() Then
+	If SSLVersionMatchesRequirements Then
 		Return PictureLib["OperationKinds"];
 	Else
 		Return New Picture;
@@ -4727,7 +4828,7 @@ EndFunction
 &AtServer
 Function IsFullUser()
 	
-	If SSLVersionMatchesRequirements() Then
+	If SSLVersionMatchesRequirements Then
 		ModuleUsers = CommonModule("Users");
 		Return ModuleUsers.IsFullUser();
 	EndIf;
@@ -4742,6 +4843,66 @@ Procedure EditFormula()
 	NotifyDescription = New NotifyDescription("ObjectAttributesValueChoiceCompletion", ThisObject, CurrentData);
 	OpenForm(FullFormName("FormulaEdit"), ComposerParameters(CurrentData.Value), , , , ,
 		NotifyDescription);
+EndProcedure
+
+&AtClient
+Function ErrorInformation()
+	
+	If ErrorInformation = Undefined Then
+		ErrorInformation = New Map;
+	EndIf;
+	
+	Return ErrorInformation;
+	
+EndFunction
+
+&AtClient
+Function ErrorInformation_(Val Var_Key = Undefined)
+	
+	ErrorInformation_ = Undefined;
+	
+	If Var_Key <> Undefined Then
+		ErrorInformation_ = ErrorInformation()[Var_Key];
+	EndIf;
+	
+	If ErrorInformation_ = Undefined Then
+		ErrorInformation_ = New Structure;
+		ErrorInformation_.Insert("ErrorReport");
+		ErrorInformation_.Insert("ErrorInfo");
+	EndIf;
+	
+	Return ErrorInformation_;
+	
+EndFunction
+
+&AtClient
+Procedure SendErrorReport()
+	
+	If Not SSLVersionMatchesRequirements Then
+		Return;
+	EndIf;
+	
+	ModuleStandardClientSubsystems = CommonModule("StandardSubsystemsClient");
+	
+	For Each Item In ErrorInformation() Do
+		ErrorInformation_ = Item.Value;
+		ModuleStandardClientSubsystems.SendErrorReport(ErrorInformation_.ErrorReport, ErrorInformation_.ErrorInfo);
+	EndDo;
+	
+	ErrorInformation = Undefined;
+	
+EndProcedure
+
+&AtClient
+Procedure OutputErrorInfo(ErrorInfo)
+	
+	If SSLVersionMatchesRequirements Then
+		ModuleStandardClientSubsystems = CommonModule("StandardSubsystemsClient");
+		ModuleStandardClientSubsystems.OutputErrorInfo(ErrorInfo);
+	Else
+		Raise ErrorProcessing.BriefErrorDescription(ErrorInfo);
+	EndIf;
+	
 EndProcedure
 
 #EndRegion

@@ -226,29 +226,30 @@ Function IsTrainingPlatform() Export
 	
 EndFunction
 
-// 
-// 
-//  
+// Calls the method "ShowErrorInfo" (object "ErrorProcessing").
+// Intended for catching errors with the extension
+// during automatic testing. 
 //
 // Parameters:
 //  ErrorInfo - ErrorInfo
 //
 // Example:
-//	
-//	 See TimeConsumingOperationsClient.NewResultLongOperation
-//	
+//	Parameters:
+//	Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//	AdditionalParameters - Undefined
 //	//
 //	
-//	
-//		
-//			
-//		
-//		
-//			
-//			
-//		
-//		
-//	
+//	&AtClient
+//		Procedure RefreshCurrentListCompletion(Result, AdditionalParameters) Export
+//			If Result = Undefined Then
+//		Return;
+//		EndIf;
+//			If Result.Status = "Error" Then
+//			 StandardSubsystemsClient.OutputErrorInfo(Result.ErrorInfo);
+//		Return;
+//		EndIf;
+//	... // Status = "Completed2"
+// EndProcedure
 //
 Procedure OutputErrorInfo(ErrorInfo) Export
 	
@@ -256,48 +257,48 @@ Procedure OutputErrorInfo(ErrorInfo) Export
 	
 EndProcedure
 
-// 
-// 
-// 
-// 
-// 
+// Hides the form element if the error category allows it
+// considering the "IsErrorRequiresRestart" parameter.
+// Sets the text of mandatory reporting if "ErrorInformationSendingMode" is set to "Send".
+// If it is set to "AskUser" or "Auto", it sets the text of optional reporting.
+// We recommend that you call "OnOpen" in custom error forms.
 // 
 // 
 //
 // Parameters:
-//  Item - FormField, FormButton - 
-//  ErrorInfo  - ErrorInfo - 
-//  IsErrorRequiresRestart - Boolean - 
-//    
+//  Item - FormField, FormButton - Form element the visibility and title applies to.
+//  ErrorInfo  - ErrorInfo - Error whose category is used to determine the reporting.
+//  IsErrorRequiresRestart - Boolean - The flag is considered when determining the link visibility.
+//    Usually, if an error invokes exit or reboot, its reporting is mandatory.
 //
 // Example:
-//	
-//	
-//	
-//	
-//	
-//	
-//	
-//		
-//			
-//			
-//			
-//				
-//		
-//	
-//	
-//	
-//		
-//			
-//		
-//	
-//	
-//	
-//	
-//	
-//		
-//	
-//	
+//	#Region Variables
+//	&AtClient
+//	Var ErrorReport, ErrorInfoReport;
+//	#EndRegion
+//	#Region EventHandlersForm
+//	&AtClient
+//	Procedure OnOpen(Cancel)
+//		If Parameters.ErrorInfo <> Undefined Then
+//			ErrorInfoReport = Parameters.ErrorInfo;
+//			ErrorReport = New ErrorReport(ErrorInfoReport);
+//			StandardSubsystemsClient.ConfigureVisibilityAndTitleForURLSendErrorReport(
+//				Items.GenerateErrorReport, ErrorInfoReport);
+//		EndIf;
+//	EndProcedure
+//	&AtClient
+//	Procedure OnClose(Exit)
+//		If ErrorReport <> Undefined Then
+//			StandardSubsystemsClient.SendErrorReport(ErrorReport, ErrorInfoReport);
+//		EndIf;
+//	EndProcedure
+//	#EndRegion
+//	#Region FormHeaderItemsEventHandlers
+//	&AtClient
+//	Procedure GenerateErrorReport(Item)
+//		StandardSubsystemsClient.ShowErrorReport(ErrorReport);
+//	EndProcedure
+//	#EndRegion
 //
 Procedure ConfigureVisibilityAndTitleForURLSendErrorReport(Item, ErrorInfo, IsErrorRequiresRestart = False) Export
 	
@@ -318,42 +319,42 @@ Procedure ConfigureVisibilityAndTitleForURLSendErrorReport(Item, ErrorInfo, IsEr
 	
 EndProcedure
 
-// 
-// 
-// 
+// Opens an error report for the user to review and configure.
+// The report will be either saved to a file or sent to support
+// (if a service address is specified and "DontSend" is not configured in "ErrorReportingMode").
 // 
 //
 // Parameters:
 //  ReportToSend - ErrorReport
 //
 // Example:
-//	
-//	
-//	
-//	
-//	
-//	
-//	
-//		
-//			
-//			
-//			
-//				
-//		
-//	
-//	
-//	
-//		
-//			
-//		
-//	
-//	
-//	
-//	
-//	
-//		
-//	
-//	
+//	#Region Variables
+//	&AtClient
+//	Var ErrorReport, ErrorInfoReport;
+//	#EndRegion
+//	#Region EventHandlersForm
+//	&AtClient
+//	Procedure OnOpen(Cancel)
+//		If Parameters.ErrorInfo <> Undefined Then
+//			ErrorInfoReport = Parameters.ErrorInfo;
+//			ErrorReport = New ErrorReport(ErrorInfoReport);
+//			StandardSubsystemsClient.ConfigureVisibilityAndTitleForURLSendErrorReport(
+//				Items.GenerateErrorReport, ErrorInfoReport);
+//		EndIf;
+//	EndProcedure
+//	&AtClient
+//	Procedure OnClose(Exit)
+//		If ErrorReport <> Undefined Then
+//			StandardSubsystemsClient.SendErrorReport(ErrorReport, ErrorInfoReport);
+//		EndIf;
+//	EndProcedure
+//	#EndRegion
+//	#Region FormHeaderItemsEventHandlers
+//	&AtClient
+//	Procedure GenerateErrorReport(Item)
+//		StandardSubsystemsClient.ShowErrorReport(ErrorReport);
+//	EndProcedure
+//	#EndRegion
 //
 Procedure ShowErrorReport(ReportToSend) Export
 	
@@ -369,46 +370,46 @@ Procedure ShowErrorReport(ReportToSend) Export
 	
 EndProcedure
 
-// 
-// 
-// 
+// Non-interactively sends an error report if the category allows it
+// (considering the "Exit" parameter) and the admin configured "Send" in "ErrorInformationSendingMode".
+// We recommend that you call "OnOpen" in custom error forms.
 // 
 //
 // Parameters:
 //  ReportToSend - ErrorReport
-//  ErrorInfo  - ErrorInfo - 
-//  IsErrorRequiresRestart - Boolean - 
-//    
-//    
+//  ErrorInfo  - ErrorInfo - Error whose category is used to determine the reporting.
+//  IsErrorRequiresRestart - Boolean - The flag is considered when determining error reporting.
+//    Usually, if an error invokes exit or reboot, reporting is mandatory.
+//    Should be assigned the same value as in "ConfigureVisibilityAndTitleForURLSendErrorReport".
 //
 // Example:
-//	
-//	
-//	
-//	
-//	
-//	
-//	
-//		
-//			
-//			
-//			
-//				
-//		
-//	
-//	
-//	
-//		
-//			
-//		
-//	
-//	
-//	
-//	
-//	
-//		
-//	
-//	
+//	#Region Variables
+//	&AtClient
+//	Var ErrorReport, ErrorInfoReport;
+//	#EndRegion
+//	#Region EventHandlersForm
+//	&AtClient
+//	Procedure OnOpen(Cancel)
+//		If Parameters.ErrorInfo <> Undefined Then
+//			ErrorInfoReport = Parameters.ErrorInfo;
+//			ErrorReport = New ErrorReport(ErrorInfoReport);
+//			StandardSubsystemsClient.ConfigureVisibilityAndTitleForURLSendErrorReport(
+//				Items.GenerateErrorReport, ErrorInfoReport);
+//		EndIf;
+//	EndProcedure
+//	&AtClient
+//	Procedure OnClose(Exit)
+//		If ErrorReport <> Undefined Then
+//			StandardSubsystemsClient.SendErrorReport(ErrorReport, ErrorInfoReport);
+//		EndIf;
+//	EndProcedure
+//	#EndRegion
+//	#Region FormHeaderItemsEventHandlers
+//	&AtClient
+//	Procedure GenerateErrorReport(Item)
+//		StandardSubsystemsClient.ShowErrorReport(ErrorReport);
+//	EndProcedure
+//	#EndRegion
 //
 Procedure SendErrorReport(ReportToSend, ErrorInfo, IsErrorRequiresRestart = False) Export
 	
@@ -490,8 +491,8 @@ Procedure BeforeStart(Val CompletionNotification = Undefined) Export
 	EndTry;
 	
 	ISLVersion = ModuleOnlineUserSupportClientServer.LibraryVersion();
-	// 
-	// 
+	// Attach the settings request handler for the licensing client
+	// to validate the update's legitimacy.
 	If CommonClientServer.CompareVersions(ISLVersion, "2.7.1.0") > 0 Then
 		ModuleLicensingClientClient = CommonClient.CommonModule("LicensingClientClient");
 		ModuleLicensingClientClient.AttachLicensingClientSettingsRequest();
@@ -548,7 +549,8 @@ EndProcedure
 //                         for the BeforeExit event handler, both for program
 //                         or for interactive cases. If the user
 //                         interaction was successful, the application exit can be continued.
-//  WarningText  - String - See BeforeExit() in Syntax Assistant.
+//  WarningText  - String - See BeforeExit
+//                                  () in Syntax Assistant.
 //
 Procedure BeforeExit(Cancel = False, WarningText = "") Export
 	
@@ -610,20 +612,20 @@ EndProcedure
 //
 // Returns:
 //  Structure:
-//    
-//                                    
-//                                    
-//                                    
-//     
-//                                    
-//    
-//                                    
-//    
-//                                    
-//    
-//                                     
-//                                    
-//    
+//    WarningText - String - Dialog text displayed upon exiting the web or thin client.
+//                                    For example: "Unsaved changes will be lost."
+//                                    The other parameters affect the dialog appearance:
+//                                    CheckBoxText - String - Displays a checkbox with the passed text.
+//    For example: "Finish editing files (5)." 
+//                                    NoteText - String - Text displayed above the control (checkbox or hyperlink).
+//    For example: "Unsaved files".
+//                                    HyperlinkText - String - Text of the hyperlink displayed on the form.
+//    For example: "Files being edited (5)."
+//                                    ExtendedTooltip - String - Text of the tooltip displayed to the right from the control.
+//    For example: "View the list of files being edited".
+//                                    Priorities - Number - Warning's position in the list (the greater, the higher). 
+//                                    OutputSingleWarning - Boolean - If set to "True", other warnings are hidden from the list.
+//    ActionIfFlagSet - Structure with the following fields:
 //    
 //                                         
 //    
@@ -1137,17 +1139,17 @@ EndProcedure
 //
 Function SupportInformation() Export
 	
-	Text = NStr("en = '[ApplicationName1], [ApplicationVersion];
-	                   |Платформа 1C:Enterprise: [PlatformVersion] [PlatformBitness]; 
-	                   |Библиотека стандартных подсистем: [SSLVersion];
-	                   |Приложение: [Viewer]
-	                   |Операционная система: [OperatingSystem];
-	                   |Размер оперативной памяти: [RAM];
-	                   |Имя COM-соединителя: [COMConnectorName];
-	                   |Базовая: [IsBaseConfigurationVersion]
-	                   |Полноправный пользователь: [IsFullUser]
-	                   |Учебная: [IsTrainingPlatform]
-	                   |Конфигурация изменена: [ConfigurationChanged]';") + Chars.LF;
+	Text = NStr("en = '[ApplicationName1], [ApplicationVersion]
+	                   |1C:Enterprise: [PlatformVersion] [PlatformBitness]
+	                   |Standard Subsystem Library: [SSLVersion]
+	                   |App: [Viewer]
+	                   |OS: [OperatingSystem]
+	                   |RAM: [RAM]
+	                   |COM connector: [COMConnectorName]
+	                   |Basic configuration: [IsBaseConfigurationVersion]
+	                   |Full-access user: [IsFullUser]
+	                   |Sandbox: [IsTrainingPlatform]
+	                   |Configuration modified: [ConfigurationChanged]';") + Chars.LF;
 	
 	Parameters = ?(ApplicationStartCompleted(), ClientRunParameters(), ClientParametersOnStart());
 	SystemInfo = New SystemInfo;
@@ -1188,8 +1190,8 @@ Function SystemApplicationsDirectory() Export
 	
 	SystemInfo = New SystemInfo;
 	If SystemInfo.PlatformType = PlatformType.Windows_x86 Then 
-		// 
-		// 
+		// For 32-bit OS: "C:\Windows\System32".
+		// For 64-bit OS: "C:\Windows\SysWOW64".
 		FolderObject = ShellObject.Namespace(41);
 	ElsIf SystemInfo.PlatformType = PlatformType.Windows_x86_64 Then 
 		// For any system: "C:WindowsSystem32".
@@ -1285,8 +1287,8 @@ Procedure ActionsBeforeStart(CompletionNotification)
 		Return;
 	EndIf;
 	
-	// 
-	// 
+	// The standard initial server call in order to
+	// pre-populate the client operating parameters on the server.
 	Try
 		CommonClient.SubsystemExists("StandardSubsystems.Core");
 	Except
@@ -1976,10 +1978,10 @@ EndProcedure
 // See CommonClientOverridable.BeforeStart.
 Procedure BeforeStart2(Parameters) Export
 	
-	// 
-	// 
-	// 
-	// 
+	// Checks the minimal required 1C:Enterprise version.
+	// If the current version is earlier than "RecommendedPlatformVersion",
+	// the user is shown a warning.
+	// If "ClientParameters.MustExit" is set to "True", the session will be terminated.
 	
 	ClientParameters = ClientParametersOnStart();
 	
@@ -2101,8 +2103,8 @@ EndProcedure
 // See CommonClientOverridable.BeforeStart.
 Procedure BeforeStart3(Parameters) Export
 	
-	// 
-	// 
+	// Checks if the connection with the master node is broken.
+	// If case it is, the procedure restores it.
 	
 	ClientParameters = ClientParametersOnStart();
 	
@@ -2118,8 +2120,8 @@ EndProcedure
 // See CommonClientOverridable.BeforeStart.
 Procedure BeforeStart4(Parameters) Export
 	
-	// 
-	// 
+	// Checks if the main language and timezone are set up.
+	// If they are not set up, the procedure opens the regional settings form.
 	
 	ClientParameters = ClientParametersOnStart();
 	
@@ -2141,7 +2143,7 @@ Procedure MasterNodeReconnectionInteractiveHandler(Parameters, Context) Export
 		Parameters.Cancel = True;
 		ShowMessageBox(
 			NotificationWithoutResult(Parameters.ContinuationHandler),
-			NStr("en = 'Cannot sign in because the connection to the master node is lost.
+			NStr("en = 'Cannot log in because the connection to the master node is lost.
 			           |Please contact the administrator.';"),
 			15);
 		Return;
@@ -2165,8 +2167,8 @@ Procedure InteractiveInitialRegionalInfobaseSettingsProcessing(Parameters, Conte
 		Parameters.Cancel = True;
 		ShowMessageBox(
 			NotificationWithoutResult(Parameters.ContinuationHandler),
-			NStr("en = 'Cannot sign in because configuring the regional settings is required.
-			           |Please contact the administrator.';"),
+			NStr("en = 'Cannot start the application. Regional settings need to be configured.
+			           |Contact the administrator.';"),
 			15);
 		Return;
 	EndIf;
@@ -2313,7 +2315,7 @@ Procedure AfterStart() Export
 	EndIf;
 	
 	If DisplayWarningsBeforeShuttingDownTheSystem(False) Then
-		// 
+		// Pre-compilate the client modules to avoid implicit server calls in the "BeforeExit" handler.
 		// 
 		WarningsBeforeSystemShutdown(False); 
 	EndIf;
@@ -2329,14 +2331,14 @@ Function DisplayWarningsBeforeShuttingDownTheSystem(Cancel)
 	ApplicationStartParameters = ApplicationParameters["StandardSubsystems.ApplicationStartParameters"];
 	
 	If ApplicationStartParameters.Property("HideDesktopOnStart") Then
-		// 
-		// 
-		// 
-		// 
-		// 
-		// 
-		// 
-		// 
+		// An exit attempt had been made before the startup was completed.
+		// For the web client, it can be a standard behavior if the user closes the browser tab.
+		// Therefore, the closure is blocked since it can be force-closed if needed.
+		// And in case the user closes the tab by accident, they should be able to stay on that tab.
+		// For other clients, it can be caused by errors in the modeless startup sequence.
+		// That is, there are no windows that overlap the entire UI.
+		// In this case, the closure should be allowed without the standard exit procedures
+		// as they may cause errors since the startup process is not completed.
 #If Not WebClient Then
 		Cancel = True;
 #EndIf
@@ -2788,23 +2790,23 @@ Function BeforeStartInteractiveHandler(Parameters)
 		ExecuteNotifyProcessing(InteractiveHandler, Parameters);
 		
 	Else
+		// The UI should be prepared before starting the interactive data processor requested
+		// in the "BeforeStart" handler runtime. The preparation hides the desktop and refreshes the IU
 		// 
-		// 
-		// 
-		// 
+		//  proceeding with the first call to "OnAppStart".
 		ApplicationStartParameters.Insert("ProcessingParameters", Parameters);
 		HideDesktopOnStart();
 		ApplicationStartParameters.Insert("SkipClearingDesktopHiding");
 		
 		If Parameters.CompletionNotification = Undefined Then
-			// 
-			// 
+			// "BeforeExit" was called by 1C:Enterprise as an event handler
+			// before opening the main 1C:Enterprise window.
 			If Not ApplicationStartupLogicDisabled() Then
 				SetInterfaceFunctionalOptionParametersOnStart();
 			EndIf;
 		Else
-			// 
-			// 
+			// "BeforeExit" was called programmatically as access to a data area.
+			// Therefore, after refreshing the UI, use an idle handler to resume.
 			AttachIdleHandler("OnStartIdleHandler", 0.1, True);
 		EndIf;
 	EndIf;
@@ -2983,8 +2985,8 @@ Function InteractiveHandlerBeforeExit(Parameters)
 		ExecuteNotifyProcessing(InteractiveHandler, Parameters);
 		
 	Else
-		// 
-		// 
+		// The "BeforeExit" event handler made a call to prepare for running
+		// the interactive data processor via the idle handler.
 		ApplicationParameters["StandardSubsystems.ApplicationStartParameters"].Insert("ExitProcessingParameters", Parameters);
 		Parameters.ContinuousExecution = False;
 		AttachIdleHandler(

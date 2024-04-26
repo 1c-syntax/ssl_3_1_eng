@@ -102,16 +102,16 @@ EndFunction
 // See InformationRegisters.UsersInfo.ProcessAnswerOnDisconnectingOpenIDConnect
 Procedure ProcessAnswerOnDisconnectingOpenIDConnect(Disconnect) Export
 	
-	// 
-	// 
+	// ACC:277-off - The "StandardSubsystemsServerCall" is used to
+	// avoid creating "UsersServerCall" for one procedure.
 	InformationRegisters.UsersInfo.ProcessAnswerOnDisconnectingOpenIDConnect(Disconnect);
 	// ACC:277-on
 	
 EndProcedure
 
-// See UsersInternal.CurUserSRolesHaveBeenReduced
-Function CurUserSRolesHaveBeenReduced() Export
-	Return UsersInternal.CurUserSRolesHaveBeenReduced();
+// See UsersInternal.AreCurrentUserRolesReduced
+Function AreCurrentUserRolesReduced() Export
+	Return UsersInternal.AreCurrentUserRolesReduced();
 EndFunction
 
 #EndRegion
@@ -134,8 +134,8 @@ Function ClientParametersOnStart(Parameters) Export
 	
 	If Parameters.RetrievedClientParameters <> Undefined Then
 		If Not Parameters.Property("SkipClearingDesktopHiding") Then
-			// 
-			// 
+			// Update the desktop's hide state if the previous startup crashed
+			// before running a restoration with the built-in mechanisms.
 			HideDesktopOnStart(Undefined);
 		EndIf;
 	EndIf;
@@ -368,9 +368,9 @@ Procedure HandleClientParametersAtServer(Val Parameters)
 		If Not Common.DataSeparationEnabled() Then
 			If ExchangePlans.MasterNode() <> Undefined
 				Or ValueIsFilled(Constants.MasterNode.Get()) Then
-				// 
-				// 
-				// 
+				// Prevent an unwanted update of predefined data in a child node during:
+				// - A startup with the master node temporarily disabled.
+				// - A data restructuring when restoring the node.
 				If GetInfoBasePredefinedData()
 					<> PredefinedDataUpdate.DontAutoUpdate Then
 					SetInfoBasePredefinedDataUpdate(

@@ -205,7 +205,7 @@
 										<Title formatted="false">
 											<v8:item>
 												<v8:lang>en</v8:lang>
-												<v8:content>Sign-in assistance and password recovery.</v8:content>
+												<v8:content>Login assistance and password recovery.</v8:content>
 											</v8:item>
 										</Title>
 									</ExtendedTooltip>
@@ -815,7 +815,7 @@ will speed up viewing lists and generating reports compared to the standard mode
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Configure personal data access logging</v8:content>
+									<v8:content>Personal data access logging settings</v8:content>
 								</v8:item>
 							</Title>
 							<Width>43</Width>
@@ -995,7 +995,7 @@ will speed up viewing lists and generating reports compared to the standard mode
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Registration settings of data access events</v8:content>
+									<v8:content>Data access logging settings</v8:content>
 								</v8:item>
 							</Title>
 							<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>

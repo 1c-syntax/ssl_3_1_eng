@@ -303,6 +303,42 @@
 				</v8:NumberQualifiers>
 			</valueType>
 		</field>
+		<field xsi:type="DataSetFieldField">
+			<dataPath>Department</dataPath>
+			<field>Department</field>
+			<title xsi:type="v8:LocalStringType">
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Department</v8:content>
+				</v8:item>
+			</title>
+			<presentationExpression>DepartmentPresentation</presentationExpression>
+			<valueType>
+				<v8:Type>xs:string</v8:Type>
+				<v8:TypeSet xmlns:d5p1="http://v8.1c.ru/8.1/data/enterprise/current-config">d5p1:AnyRef</v8:TypeSet>
+				<v8:StringQualifiers>
+					<v8:Length>150</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</valueType>
+		</field>
+		<field xsi:type="DataSetFieldField">
+			<dataPath>DepartmentPresentation</dataPath>
+			<field>DepartmentPresentation</field>
+			<title xsi:type="v8:LocalStringType">
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Department presentation</v8:content>
+				</v8:item>
+			</title>
+			<valueType>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>150</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</valueType>
+		</field>
 		<dataSource>DataSource1</dataSource>
 		<objectName>UsersActivityAnalysis</objectName>
 	</dataSet>
@@ -399,16 +435,6 @@
 			<v8:item>
 				<v8:lang>en</v8:lang>
 				<v8:content>Changed</v8:content>
-			</v8:item>
-		</title>
-	</calculatedField>
-	<calculatedField>
-		<dataPath>Department</dataPath>
-		<expression>User.Department</expression>
-		<title xsi:type="v8:LocalStringType">
-			<v8:item>
-				<v8:lang>en</v8:lang>
-				<v8:content>Department</v8:content>
 			</v8:item>
 		</title>
 	</calculatedField>
@@ -1705,6 +1731,13 @@
 			<dcsset:item xsi:type="dcsset:StructureItemTable">
 				<dcsset:row>
 					<dcsset:groupItems>
+						<dcsset:item xsi:type="dcsset:GroupItemField">
+							<dcsset:field>DepartmentPresentation</dcsset:field>
+							<dcsset:groupType>Items</dcsset:groupType>
+							<dcsset:periodAdditionType>None</dcsset:periodAdditionType>
+							<dcsset:periodAdditionBegin xsi:type="xs:dateTime">0001-01-01T00:00:00</dcsset:periodAdditionBegin>
+							<dcsset:periodAdditionEnd xsi:type="xs:dateTime">0001-01-01T00:00:00</dcsset:periodAdditionEnd>
+						</dcsset:item>
 						<dcsset:item xsi:type="dcsset:GroupItemField">
 							<dcsset:field>Department</dcsset:field>
 							<dcsset:groupType>Items</dcsset:groupType>

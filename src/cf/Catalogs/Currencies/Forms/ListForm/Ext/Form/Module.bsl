@@ -108,7 +108,7 @@ EndProcedure
 &AtClient
 Procedure ImportCurrenciesRates(Command)
 
-	FormParameters = New Structure("OpeningFromList");
+	FormParameters = New Structure("OpeningFromList", True);
 
 	CurrencyRateOperationsClient.ShowExchangeRatesImport(FormParameters);
 

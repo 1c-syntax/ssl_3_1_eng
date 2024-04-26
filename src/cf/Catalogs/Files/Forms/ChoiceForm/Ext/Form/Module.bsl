@@ -14,37 +14,37 @@
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If ValueIsFilled(Parameters.FileOwner) Then 
-		List.Parameters.SetParameterValue(
-			"Owner", Parameters.FileOwner);
-	
-		If TypeOf(Parameters.FileOwner) = Type("CatalogRef.FilesFolders") Then
-			Items.Folders.CurrentRow = Parameters.FileOwner;
-			Items.Folders.SelectedRows.Clear();
-			Items.Folders.SelectedRows.Add(Items.Folders.CurrentRow);
-		Else
-			Items.Folders.Visible = False;
-		EndIf;
+		FilesStorageCatalogName = Parameters.FileOwner.Metadata().Name;
+		FileOwner = Parameters.FileOwner;
+		List.Parameters.SetParameterValue("Owner", Parameters.FileOwner);
+		Items.Folders.Visible = (TypeOf(Parameters.FileOwner) = Type("CatalogRef.FilesFolders"));
 	Else
+		FilesStorageCatalogName = "Files";
+		FileOwner = Catalogs.FilesFolders.EmptyRef();
+	EndIf;
+	If TypeOf(FileOwner) = Type("CatalogRef.FilesFolders") Then
 		If Parameters.SelectTemplate1 Then
-			
+			FileOwner = Catalogs.FilesFolders.Templates;
 			DefinePossibilityAddFilesTemplates();
-			
 			TemplateSelectionMode = Parameters.SelectTemplate1;
-			
 			CommonClientServer.SetDynamicListFilterItem(
 				Folders, "Ref", Catalogs.FilesFolders.Templates,
 				DataCompositionComparisonType.InHierarchy, , True);
-			
-			Items.Folders.CurrentRow = Catalogs.FilesFolders.Templates;
-			Items.Folders.SelectedRows.Clear();
-			Items.Folders.SelectedRows.Add(Items.Folders.CurrentRow);
-		EndIf;
+		ElsIf ValueIsFilled(Parameters.CurrentRow) And FileOwner.IsEmpty() Then
+			 NewValue = Common.ObjectAttributeValue(Parameters.CurrentRow, "FileOwner", True);
+			 If NewValue <> Undefined Then
+			 	FileOwner = NewValue;
+			 EndIf;
+		EndIf;	
+		Items.Folders.CurrentRow = FileOwner;
+		Items.Folders.SelectedRows.Clear();
+		Items.Folders.SelectedRows.Add(Items.Folders.CurrentRow);
 		
 		List.Parameters.SetParameterValue("Owner", Items.Folders.CurrentRow);
 	EndIf;
-	
+		
 	If ValueIsFilled(Parameters.CurrentRow) Then 
-		Items.Folders.CurrentRow = Parameters.CurrentRow;
+		Items.List.CurrentRow = Parameters.CurrentRow;
 	EndIf;
 	
 	OnChangeUseSignOrEncryptionAtServer();
@@ -52,6 +52,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Common.IsMobileClient() Then
 		Items.Folders.TitleLocation = FormItemTitleLocation.Auto;
 	EndIf;
+	
+	SSLSubsystemsIntegration.OnCreateFilesListForm(ThisObject);
+	FilesOperationsOverridable.OnCreateFilesListForm(ThisObject);
 	
 EndProcedure
 
@@ -193,14 +196,12 @@ EndProcedure
 &AtServer
 Procedure DefinePossibilityAddFilesTemplates()
 	
-	Var HasRightAddFiles, ModuleAccessManagement;
-	
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
-		
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		HasRightAddFiles = ModuleAccessManagement.HasRight("AddFilesAllowed", Catalogs.FilesFolders.Templates);
 	Else
-		HasRightAddFiles = AccessRight("Insert", Metadata.Catalogs.Files) And AccessRight("Read", Metadata.Catalogs.FilesFolders);
+		HasRightAddFiles = AccessRight("Insert", Metadata.Catalogs.Files) 
+			And AccessRight("Read", Metadata.Catalogs.FilesFolders);
 	EndIf;
 	
 	If Not HasRightAddFiles Then

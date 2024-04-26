@@ -873,7 +873,7 @@ Procedure ShowInstalledPatches()
 		OpeningParameters.Insert("Corrections", Corrections);
 		
 		ModuleConfigurationUpdateClient = CommonClient.CommonModule("ConfigurationUpdateClient");
-		ModuleConfigurationUpdateClient.ShowInstalledPatches(Corrections);
+		ModuleConfigurationUpdateClient.ShowInstalledPatches(OpeningParameters);
 	EndIf;
 	
 EndProcedure

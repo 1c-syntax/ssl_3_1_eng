@@ -1131,6 +1131,7 @@ EndFunction
 // Calls the BeforeExport and AfterExport rules to export the register.
 //
 // Parameters:
+//         RecordSetForExport - НаборЗаписейРегистра - it might also be Structure containing filter.
 //         Rule - ValueTableRow - object conversion rules tables.
 //         IncomingData - Arbitrary - incoming data for the conversion rule.
 //         DontExportPropertyObjectsByRefs - Boolean - a flag for property export by references.
@@ -2085,6 +2086,7 @@ EndFunction
 //	 - exchange data (exchange plan name, node codes, message numbers (confirmation)).
 //
 // Parameters:
+//      DataProcessorForDataImport - ОбработкаОбъект.КонвертацияОбъектовИнформационныхБаз в COM-connection.
 //
 Procedure RunDataExport(DataProcessorForDataImport = Undefined) Export
 	
@@ -3470,11 +3472,13 @@ EndFunction
 //
 // Parameters:
 //  Page1          - a string to split;
+//  Separator  - подстрока-separator:
 //  Mode        - 0 - separator is not included in the returned substrings;
 //                 1 - separator is included in the left substring;
 //                 2 - separator is included in the right substring.
 //
 // Returns:
+//  Правая часть строки - before the separator character.
 // 
 Function SplitWithSeparator(Page1, Val Separator, Mode=0)
 
@@ -3692,6 +3696,7 @@ EndFunction
 // Returns the TypeDescription object that contains the specified type.
 //
 // Parameters:
+//  TypeValue - строка с именем типа или значение Тип - the Type type.
 //
 // Returns:
 //  TypeDescription
@@ -3721,6 +3726,7 @@ EndFunction
 // Returns the blank (default) value of the specified type.
 //
 // Parameters:
+//  Type          - строка с именем типа или значение Тип - the Type type.
 //
 // Returns:
 //  A blank value of the specified type.
@@ -4294,6 +4300,7 @@ EndProcedure
 // Parameters:
 //  Object      - An XMLReader object positioned at the beginning of the element whose attribute should be obtained."
 //                
+//  Type         - значение Тип - the Type type. Attribute type.
 //  Name         - String - attribute name.
 //
 // Returns:
@@ -4371,6 +4378,7 @@ EndProcedure
 //                     to be used for searching the object: Code, Description, <AttributeName>, Name (predefined value).
 //
 // Returns:
+//  Значение xml--element converted to the relevant type.
 //
 Function deElementValue(Object, Type, SearchByProperty = "", CutStringRight = True)
 
@@ -4674,6 +4682,7 @@ EndFunction
 // Parameters:
 //  Code               - Number - message code.
 //  RecordStructure   - Structure - protocol record structure.
+//  SetErrorFlag1 - если истина, то - it is an error message. Setting ErrorFlag.
 // 
 Function WriteToExecutionProtocol(Code = "",
 									RecordStructure=Undefined,
@@ -5566,7 +5575,9 @@ EndProcedure
 //
 // Parameters:
 //  ExchangeRules  - XMLReader - an object of the XMLReader type.
+//  Values       - соответствие значений объекта источника - destination
 //                   object presentation strings.
+//  SourceType   - значение Тип - the Type type - source object type.
 //
 Procedure ImportVCR(ExchangeRules, Values, SourceType)
 	
@@ -5596,7 +5607,9 @@ EndProcedure
 //
 // Parameters:
 //  ExchangeRules  - XMLReader - an object of the XMLReader type.
+//  Values       - соответствие значений объекта источника - destination
 //                   object presentation strings.
+//  SourceType   - значение Тип - the Type type - source object type.
 //
 Procedure LoadValues(ExchangeRules, Values, SourceType)
 

@@ -13,7 +13,7 @@
 &AtServer
 Procedure OnReadAtServer(CurrentObject)
 	
-	// 
+	// StandardSubsystems.Properties
 	If Common.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManager = Common.CommonModule("PropertyManager");
 		ModulePropertyManager.OnReadAtServer(ThisObject, CurrentObject);
@@ -34,7 +34,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		AutoTitle = False;
 	EndIf;
 	
-	// 
+	// StandardSubsystems.Properties
 	If Common.SubsystemExists("StandardSubsystems.Properties") Then
 		AdditionalParameters = New Structure;
 		AdditionalParameters.Insert("ItemForPlacementName", "GroupAdditionalAttributes");
@@ -48,7 +48,7 @@ EndProcedure
 &AtClient
 Procedure OnOpen(Cancel)
 
-	// 
+	// StandardSubsystems.Properties
 	If CommonClient.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManagerClient = CommonClient.CommonModule("PropertyManagerClient");
 		ModulePropertyManagerClient.AfterImportAdditionalAttributes(ThisObject);
@@ -60,7 +60,7 @@ EndProcedure
 &AtClient
 Procedure NotificationProcessing(EventName, Parameter, Source)
 	
-	// 
+	// StandardSubsystems.Properties
 	If CommonClient.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManagerClient = CommonClient.CommonModule("PropertyManagerClient");
 		If ModulePropertyManagerClient.ProcessNotifications(ThisObject, EventName, Parameter) Then
@@ -75,7 +75,7 @@ EndProcedure
 &AtServer
 Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	
-	// 
+	// StandardSubsystems.Properties
 	If Common.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManager = Common.CommonModule("PropertyManager");
 		ModulePropertyManager.FillCheckProcessing(ThisObject, Cancel, CheckedAttributes);
@@ -87,7 +87,7 @@ EndProcedure
 &AtServer
 Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	
-	// 
+	// StandardSubsystems.Properties
 	If Common.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManager = Common.CommonModule("PropertyManager");
 		ModulePropertyManager.BeforeWriteAtServer(ThisObject, CurrentObject);

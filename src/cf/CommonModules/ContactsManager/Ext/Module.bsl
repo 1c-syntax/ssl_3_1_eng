@@ -905,7 +905,7 @@ EndFunction
 //                         - XDTODataObject - the ContactInformation or Address XDTO object.
 //                         - Structure - see AddressManager.AddressInfo
 //                         - Structure - See ContactsManager.InfoAboutPhone
-//    Transliterate - Boolean - 
+//    Transliterate - Boolean - If set to "True", the contact information presentation will be converted from Cyrillic into Latin.
 //
 // Returns:
 //    String - a contact information presentation.
@@ -2613,17 +2613,19 @@ EndProcedure
 //
 Procedure ExecuteDeferredInitialization(Form, Object, ItemForPlacementName = "ContactInformationGroup") Export
 	
-	ContactInformationStub = Form.Items.Find("ContactInformationStub"); // A temporary item
+		ContactInformationStub = Form.Items.Find("ContactInformationStub"); // A temporary item
 	If ContactInformationStub <> Undefined Then
 		Form.Items.Delete(ContactInformationStub);
 	EndIf;
 	
 	ContactInformationParameters = FormContactInformationParameters(Form.ContactInformationParameters, ItemForPlacementName);
 	
-	ContactInformationAdditionalAttributesDetails = ContactsManagerClientServer.DescriptionOfTheContactInformationOnTheForm(Form).Unload(, "Kind, Presentation, Value, Comment");
+	ContactInformationAdditionalAttributesDetails = ContactsManagerClientServer.DescriptionOfTheContactInformationOnTheForm(Form).Unload(,
+		"Kind, Presentation, Value, Comment, AttributeName");
 	ContactsManagerClientServer.DescriptionOfTheContactInformationOnTheForm(Form).Clear();
 	
-	CITitleLocation = ?(ValueIsFilled(ContactInformationParameters.TitleLocation), PredefinedValue(ContactInformationParameters.TitleLocation), FormItemTitleLocation.Left);
+	CITitleLocation = ?(ValueIsFilled(ContactInformationParameters.TitleLocation), 
+		PredefinedValue(ContactInformationParameters.TitleLocation), FormItemTitleLocation.Left);
 	
 	AdditionalContactInformationParameters = ContactInformationParameters();
 	AdditionalContactInformationParameters.ItemForPlacementName = ItemForPlacementName;
@@ -2638,16 +2640,29 @@ Procedure ExecuteDeferredInitialization(Form, Object, ItemForPlacementName = "Co
 		Filter = New Structure("Kind", ContactInformationKind.Key);
 		RowsArray = ContactsManagerClientServer.DescriptionOfTheContactInformationOnTheForm(Form).FindRows(Filter);
 		
-		If RowsArray.Count() > 0 Then
-			SavedValue = ContactInformationAdditionalAttributesDetails.FindRows(Filter)[0];
+		For Each CurrentValue In RowsArray Do 
+			If IsBlankString(CurrentValue.AttributeName) Then
+				Continue;
+			EndIf;
+
+			Filter = New Structure("AttributeName",CurrentValue.AttributeName);
+			StoredValues = ContactInformationAdditionalAttributesDetails.FindRows(Filter);
+			
+			If StoredValues.Count() = 0 Then
+				Continue;
+			EndIf;
+			
+			SavedValue = StoredValues[0];
+			
 			If SavedValue <> Undefined And IsBlankString(SavedValue.Value)
 				And IsBlankString(SavedValue.Comment) Then
 				Continue;
 			EndIf;
-			CurrentValue = RowsArray[0];
+			
 			FillPropertyValues(CurrentValue, SavedValue);
 			Form[CurrentValue.AttributeName] = SavedValue.Presentation;
-		EndIf;
+		EndDo;
+		
 	EndDo;
 	
 	If Form.Items.Find("EmptyDecorationContactInformation") <> Undefined Then
@@ -2655,6 +2670,7 @@ Procedure ExecuteDeferredInitialization(Form, Object, ItemForPlacementName = "Co
 	EndIf;
 	
 	ContactInformationParameters.DeferredInitializationExecuted = True;
+
 	
 EndProcedure
 
@@ -3930,16 +3946,16 @@ Function Email(Val ContactInformationValue) Export
 	
 EndFunction
 
-// 
-// 
-// 
+// Updates a password recovery address in the contact information owner.
+// For the "Users" catalog, in the user object (before writing the changes).
+// For the "ExternalUsers" catalog, in the authentication object.
 // 
 // Parameters:
-//  UserObject - CatalogObject.Users - 
+//  UserObject - CatalogObject.Users - Object before writing.
 //                     - CatalogObject.ExternalUsers
 //  NewAddress  - String
 //  OldAddress - String
-//              - Undefined - 
+//              - Undefined - If an old infobase user does not exist
 //
 Procedure ChangePasswordRecoveryEmail(UserObject, NewAddress, OldAddress) Export
 	

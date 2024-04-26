@@ -869,7 +869,7 @@ Procedure WriteChangesAtServer(Cancel)
 								CancelOnWriteChanges = True;
 								Cancel = True;
 								Raise
-									NStr("en = 'At least one user authorized to sign in
+									NStr("en = 'At least one user authorized to log in
 									           |must have the Administrator profile.';");
 							EndIf;
 						EndIf;

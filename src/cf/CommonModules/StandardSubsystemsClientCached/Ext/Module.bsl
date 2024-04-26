@@ -10,7 +10,8 @@
 
 #Region Private
 
-// See StandardSubsystemsClient.ClientParametersOnStart().
+// See StandardSubsystemsClient.ClientParametersOnStart
+// ().
 Function ClientParametersOnStart() Export
 	
 	CheckIfAppStartupFinished(True);
@@ -58,7 +59,8 @@ Function ClientParametersOnStart() Export
 	
 EndFunction
 
-// See StandardSubsystemsClient.ClientRunParameters().
+// See StandardSubsystemsClient.ClientRunParameters
+// ().
 Function ClientRunParameters() Export
 	
 	CheckIfAppStartupFinished();

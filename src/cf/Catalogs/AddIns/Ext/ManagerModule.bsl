@@ -122,7 +122,7 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 		
 		InfobaseUpdate.MarkForProcessing(Parameters, Query.Execute().Unload().UnloadColumn("Ref"));
 
-	ElsIf UpdateScanComponentSettings(Parameters.SubsystemVersionAtStartUpdates) Then
+	ElsIf ShouldUpdateScanAddInParameters(Parameters.SubsystemVersionAtStartUpdates) Then
 	
 		QueryText ="SELECT
 		|	AddIns.Ref AS Ref
@@ -238,9 +238,9 @@ Procedure ProcessExternalComponents(Selection, SubsystemVersionAtStartUpdates)
 	ObjectsWithIssuesCount = 0;
 	
 	ShouldUpdateSupportedPlatforms = CommonClientServer.CompareVersions(SubsystemVersionAtStartUpdates, "3.1.9.221") < 0;
-	UpdateScanComponentSettings = UpdateScanComponentSettings(SubsystemVersionAtStartUpdates);
+	ShouldUpdateScanAddInParameters = ShouldUpdateScanAddInParameters(SubsystemVersionAtStartUpdates);
 		
-	If UpdateScanComponentSettings Then
+	If ShouldUpdateScanAddInParameters Then
 		ModuleFilesOperationsInternalClientServer = Common.CommonModule("FilesOperationsInternalClientServer");
 		ComponentDetails = ModuleFilesOperationsInternalClientServer.ComponentDetails();
 		ScanAddInID = ComponentDetails.ObjectName;
@@ -255,7 +255,7 @@ Procedure ProcessExternalComponents(Selection, SubsystemVersionAtStartUpdates)
 			ReceivedDetails.Add("TargetPlatforms");
 		EndIf;
 		
-		If UpdateScanComponentSettings Then
+		If ShouldUpdateScanAddInParameters Then
 			ReceivedDetails.Add("Id");
 			ReceivedDetails.Add("Version");
 		EndIf;
@@ -296,7 +296,7 @@ Procedure ProcessExternalComponents(Selection, SubsystemVersionAtStartUpdates)
 		EndIf;
 		
 		If Not ShouldUpdateAddInSupportedPlatforms 
-			And Not (UpdateScanComponentSettings And (AddInAttributes.Id = "AddInNativeExtension")
+			And Not (ShouldUpdateScanAddInParameters And (AddInAttributes.Id = "AddInNativeExtension")
 			Or AddInAttributes.Version = "3.1.0.1013") Then
 			Continue;
 		EndIf;
@@ -316,11 +316,11 @@ Procedure ProcessExternalComponents(Selection, SubsystemVersionAtStartUpdates)
 				ComponentObject_SSLs.TargetPlatforms = New ValueStorage(Attributes.TargetPlatforms);
 			EndIf;
 			
-			If UpdateScanComponentSettings And AddInAttributes.Id = "AddInNativeExtension" Then
+			If ShouldUpdateScanAddInParameters And AddInAttributes.Id = "AddInNativeExtension" Then
 				ComponentObject_SSLs.Id = ScanAddInID;
 			EndIf;
 			
-			If UpdateScanComponentSettings And AddInAttributes.Version = "3.1.0.1013" Then
+			If ShouldUpdateScanAddInParameters And AddInAttributes.Version = "3.1.0.1013" Then
 				ComponentObject_SSLs.Version = "3.0.1.1013";
 			EndIf;
 			
@@ -363,7 +363,7 @@ EndProcedure
 
 #EndRegion
 
-Function UpdateScanComponentSettings(SubsystemVersionAtStartUpdates)
+Function ShouldUpdateScanAddInParameters(SubsystemVersionAtStartUpdates)
 	Return CommonClientServer.CompareVersions(SubsystemVersionAtStartUpdates, "3.1.9.230") < 0
 		And Common.SubsystemExists("StandardSubsystems.FilesOperations")
 EndFunction

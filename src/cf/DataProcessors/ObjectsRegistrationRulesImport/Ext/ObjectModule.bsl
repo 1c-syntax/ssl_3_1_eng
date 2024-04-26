@@ -852,7 +852,7 @@ Function GetPropertyConditionText(Rule, ObjectProperties)
 		
 		If ConstantValueType = BooleanType Then // Boolean
 			
-			QueryParameterLiteral = Format(Rule.ConstantValue, "BF=Ложь; BT=Истина");
+			QueryParameterLiteral = Format(Rule.ConstantValue, "BF= False; BT=Истина");
 			
 		ElsIf ConstantValueType = NumberType Then // Number
 			

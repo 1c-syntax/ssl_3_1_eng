@@ -10,7 +10,7 @@
 
 #Region Public
 
-// 
+// Redefines the standard behavior of the DigitalSignature subsystem.
 //
 // Parameters:
 //  Settings - Structure:

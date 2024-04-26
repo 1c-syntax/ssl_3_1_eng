@@ -122,7 +122,7 @@ Function CacheForCheckingRegisteredObjects() Export
 	
 EndFunction
 
-// 
+// The initial population of predefined data.
 
 // Returns:
 //  FixedMap of KeyAndValue:

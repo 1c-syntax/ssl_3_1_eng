@@ -357,23 +357,30 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 			DiagnosticsResult = GetFilesFromInternet.ConnectionDiagnostics(URL, WriteError1,
 				IsPackageDeliveryCheckOnErrorEnabled);
 			
-			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot establish HTTP connection to server %1:%2.
-				           |Reason:
-				           |%3
-				           |
-				           |Diagnostics result:
-				           |%4';"),
-				Server, Format(Port, "NG="),
-				ErrorProcessing.BriefErrorDescription(ErrorInfo()),
-				DiagnosticsResult.ErrorDescription);
+			ErrorTemplate = NStr("en = 'Cannot establish HTTP connection to server %1:%2.
+				|Reason:
+				|%3
+				|
+				|Diagnostics result:
+				|%4';");
 			
-			AddRedirectionsPresentation(Redirections, ErrorText);
+			PresentationsOfRedirects = PresentationsOfRedirects(Redirections);
+			If Not IsBlankString(PresentationsOfRedirects) Then
+				ErrorTemplate = ErrorTemplate + Chars.LF + Chars.LF + PresentationsOfRedirects;
+			EndIf;
 			
 			If WriteError1 Then
+				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorTemplate,
+					Server, Format(Port, "NG="),
+					ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+					DiagnosticsResult.ErrorDescription);
 				WriteErrorToEventLog(ErrorText);
 			EndIf;
 				
+			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorTemplate,
+				Server, Format(Port, "NG="),
+				ErrorProcessing.BriefErrorDescription(ErrorInfo()),
+				DiagnosticsResult.ErrorDescription);
 			Return FileGetResult(False, ErrorText);
 			
 		EndTry;
@@ -387,40 +394,38 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 				Or HTTPResponse.StatusCode = 308 Then // 308 Permanent Redirect
 				
 				If Redirections.Count() > 7 Then
-					Raise 
-						NStr("en = 'Redirections limit exceeded.';");
-				Else 
-					
-					NewURL1 = StandardSubsystemsServer.HTTPHeadersInLowercase(HTTPResponse.Headers)["location"];
-					If NewURL1 = Undefined Then 
-						Raise 
-							NStr("en = 'Invalid redirection: no ""Location"" header in the HTTP response.';");
-					EndIf;
-					
-					NewURL1 = TrimAll(NewURL1);
-					If IsBlankString(NewURL1) Then
-						Raise 
-							NStr("en = 'Invalid redirection: blank ""Location"" header in the HTTP response.';");
-					EndIf;
-					
-					If Redirections.Find(NewURL1) <> Undefined Then
-						Raise StringFunctionsClientServer.SubstituteParametersToString(
-							NStr("en = 'Circular redirect.
-							           |Redirect to %1 was attempted earlier.';"),
-							NewURL1);
-					EndIf;
-					
-					Redirections.Add(URL);
-					If Not StrStartsWith(NewURL1, "http") Then
-						// <scheme>://<host>:<port>/<path>
-						NewURL1 = StringFunctionsClientServer.SubstituteParametersToString(
-							"%1://%2:%3/%4", Protocol, Server, Format(Port, "NG="), NewURL1);
-					EndIf;
-					
-					Return GetFileFromInternet(NewURL1, SavingSetting, ConnectionSetting,
-						ProxySettings, WriteError1, Redirections);
-					
+					Raise(NStr("en = 'Redirections limit exceeded.';"), ErrorCategory.NetworkError);
 				EndIf;
+					
+				NewURL1 = StandardSubsystemsServer.HTTPHeadersInLowercase(HTTPResponse.Headers)["location"];
+				If NewURL1 = Undefined Then 
+					Raise(NStr("en = 'Invalid redirection: no ""Location"" header in the HTTP response.';"),
+						ErrorCategory.NetworkError);
+				EndIf;
+				
+				NewURL1 = TrimAll(NewURL1);
+				If IsBlankString(NewURL1) Then
+					Raise(NStr("en = 'Invalid redirection: blank ""Location"" header in the HTTP response.';"),
+						ErrorCategory.NetworkError);
+				EndIf;
+				
+				If Redirections.Find(NewURL1) <> Undefined Then
+					Raise(StringFunctionsClientServer.SubstituteParametersToString(
+						NStr("en = 'Circular redirect.
+									|Redirect to %1 was attempted earlier.';"),
+						NewURL1),
+						ErrorCategory.NetworkError);
+				EndIf;
+				
+				Redirections.Add(URL);
+				If Not StrStartsWith(NewURL1, "http") Then
+					// <scheme>://<host>:<port>/<path>
+					NewURL1 = StringFunctionsClientServer.SubstituteParametersToString(
+						"%1://%2:%3/%4", Protocol, Server, Format(Port, "NG="), NewURL1);
+				EndIf;
+				
+				Return GetFileFromInternet(NewURL1, SavingSetting, ConnectionSetting,
+					ProxySettings, WriteError1, Redirections);
 				
 			EndIf;
 			
@@ -434,47 +439,43 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 					EndIf;
 					
 					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'The server response has not changed since your last request:
+						NStr("en = 'Web server response has not changed since your last request:
 						           |%1';"),
 						HTTPConnectionCodeDetails(HTTPResponse.StatusCode));
 					
 					AddServerResponseBody(PathForSaving, ErrorText);
-					
-					Raise ErrorText;
+					Raise(ErrorText, ErrorCategory.NetworkError);
 					
 				ElsIf HTTPResponse.StatusCode < 200
 					Or HTTPResponse.StatusCode >= 300 And HTTPResponse.StatusCode < 400 Then
 					
 					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'Unsupported server response:
+						NStr("en = 'Unsupported web server response:
 						           |%1';"),
 						HTTPConnectionCodeDetails(HTTPResponse.StatusCode));
 					
 					AddServerResponseBody(PathForSaving, ErrorText);
-					
-					Raise ErrorText;
+					Raise(ErrorText, ErrorCategory.NetworkError);
 					
 				ElsIf HTTPResponse.StatusCode >= 400 And HTTPResponse.StatusCode < 500 Then 
 					
 					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'Request error:
+						NStr("en = 'Web server request failed:
 						           |%1';"),
 						HTTPConnectionCodeDetails(HTTPResponse.StatusCode));
 					
 					AddServerResponseBody(PathForSaving, ErrorText);
-					
-					Raise ErrorText;
+					Raise(ErrorText, ErrorCategory.NetworkError);
 					
 				Else 
 					
 					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'A server error occurred while processing a request:
+						NStr("en = 'Web server is overwhelmed, disconnected, or under maintenance:
 						           |%1';"),
 						HTTPConnectionCodeDetails(HTTPResponse.StatusCode));
 					
 					AddServerResponseBody(PathForSaving, ErrorText);
-					
-					Raise ErrorText;
+					Raise(ErrorText, ErrorCategory.NetworkError);
 					
 				EndIf;
 				
@@ -482,16 +483,19 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 			
 		Except
 			
-			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot get file %1 from server %2.%3
-				           |Reason:
-				           |%4';"),
-				URL, Server, Format(Port, "NG="),
-				ErrorProcessing.BriefErrorDescription(ErrorInfo()));
+			ErrorTemplate = NStr("en = 'Cannot get file %1 from server %2.%3
+				|Reason:
+				|%4';");
 			
-			AddRedirectionsPresentation(Redirections, ErrorText);
-			
+			PresentationsOfRedirects = PresentationsOfRedirects(Redirections);
+			If Not IsBlankString(PresentationsOfRedirects) Then
+				ErrorTemplate = ErrorTemplate + Chars.LF + Chars.LF + PresentationsOfRedirects;
+			EndIf;
+				
 			If WriteError1 Then
+				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorTemplate,
+					URL, Server, Format(Port, "NG="),
+					ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 				ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = '%1
 					           |
@@ -510,6 +514,10 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 				WriteErrorToEventLog(ErrorMessage);
 			EndIf;
 			
+			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorTemplate,
+				URL, Server, Format(Port, "NG="),
+				ErrorProcessing.BriefErrorDescription(ErrorInfo()));
+			
 			Return FileGetResult(False, ErrorText, HTTPResponse);
 			
 		EndTry;
@@ -524,7 +532,9 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 	ElsIf SavingSetting["StorageLocation"] = "Server" Then
 		Return FileGetResult(True, PathForSaving, HTTPResponse);
 	Else
-		Raise NStr("en = 'The file storage location is not specified.';");
+		Raise(StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'File save location is not specified for ""%1"".';"), "GetFileFromInternet"),
+			ErrorCategory.ConfigurationError);
 	EndIf;
 	
 EndFunction
@@ -678,20 +688,19 @@ Function HTTPConnectionCodeDetails(StatusCode)
 	
 EndFunction
 
-Procedure AddRedirectionsPresentation(Redirections, ErrorText)
+Function PresentationsOfRedirects(Redirections)
 	
-	If Redirections.Count() > 0 Then 
-		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1
-			           |
-			           |Redirections (%2):
-			           |%3';"),
-			ErrorText,
-			Redirections.Count(),
-			StrConcat(Redirections, Chars.LF));
+	If Redirections.Count() = 0 Then 
+		Return "";
 	EndIf;
-	
-EndProcedure
+
+	Return StringFunctionsClientServer.SubstituteParametersToString(
+		NStr("en = 'Redirected (%1):
+					|%2';"),
+		Redirections.Count(),
+		StrConcat(Redirections, Chars.LF));
+
+EndFunction
 
 Procedure AddServerResponseBody(PathToFile, ErrorText)
 	
@@ -701,7 +710,7 @@ Procedure AddServerResponseBody(PathToFile, ErrorText)
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = '%1
 			           |
-			           |Message from the server:
+			           |Message from web server:
 			           |%2';"),
 			ErrorText,
 			ServerResponseBody);
@@ -912,9 +921,7 @@ EndFunction
 // 
 Procedure WriteErrorToEventLog(Val ErrorMessage)
 	
-	WriteLogEvent(
-		EventLogEvent(),
-		EventLogLevel.Error, , ,
+	WriteLogEvent(EventLogEvent(), EventLogLevel.Error,,,
 		ErrorMessage);
 	
 EndProcedure

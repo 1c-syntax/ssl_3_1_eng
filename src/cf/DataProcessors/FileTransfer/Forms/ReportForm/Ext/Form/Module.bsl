@@ -15,24 +15,54 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	Explanation = Parameters.Explanation;
 	
-	TabDoc = New SpreadsheetDocument;
-	TabTemplate = DataProcessors.FileTransfer.GetTemplate("ReportTemplate");
+	SpreadsheetDocument = New SpreadsheetDocument;
+	Template = DataProcessors.FileTransfer.GetTemplate("ReportTemplate");
 	
-	HeaderArea_ = TabTemplate.GetArea("Title");
-	HeaderArea_.Parameters.LongDesc = NStr("en = 'File';");
-	TabDoc.Put(HeaderArea_);
+	HeaderArea_ = Template.GetArea("Title");
+	SpreadsheetDocument.Put(HeaderArea_);
 	
-	AreaRow = TabTemplate.GetArea("String");
+	AreaRow = Template.GetArea("String");
 	
-	For Each Selection In Parameters.FilesArrayWithErrors Do
-		AreaRow.Parameters.Name1 = Selection.FileName;
-		AreaRow.Parameters.Version = Selection.Version;
-		AreaRow.Parameters.Error = Selection.Error;
-		TabDoc.Put(AreaRow);
+	For Each Error In Parameters.FilesWithErrors Do
+		AreaRow.Parameters.Name1 = Error.FileName;
+		AreaRow.Parameters.Version = Error.Version;
+		AreaRow.Parameters.Error = Error.Error;
+		AreaRow.Parameters.Location = FileOwnerPresentation(Error.Version);
+		
+		Area = SpreadsheetDocument.Put(AreaRow);
+		Area.AutoRowHeight = True;
 	EndDo;
 	
-	Report.Put(TabDoc);
+	Report.Put(SpreadsheetDocument);
 	
 EndProcedure
+
+#EndRegion
+
+#Region FormHeaderItemsEventHandlers
+
+&AtClient
+Procedure ReportSelection(Item, Area, StandardProcessing)
+	
+	StandardProcessing = False;
+	
+	If Not ValueIsFilled(Area.Details) Then
+		Return;
+	EndIf;
+	ShowValue(Undefined, Area.Details);
+	
+EndProcedure
+
+#EndRegion
+
+#Region Private
+
+&AtServer
+Function FileOwnerPresentation(File)
+	FileOwner = Common.ObjectAttributeValue(File, "FileOwner");
+	Return ?(FileOwner.IsEmpty(), 
+		Common.ListPresentation(FileOwner.Metadata()),
+		Common.SubjectString(FileOwner));
+EndFunction	
 
 #EndRegion

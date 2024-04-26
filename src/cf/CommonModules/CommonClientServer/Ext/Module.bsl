@@ -734,7 +734,10 @@ EndFunction
 //  Array - a difference between two arrays.
 //
 // Example:
-//	//Result = [1, 5];
+//	A = [1, 3, 5, 7];
+//	B = [3, 7, 9];
+//	Result = CommonClientServer.ArraysDifference(A, B);
+//	Result = [1, 5];
 //
 Function ArraysDifference(Val Array, Val SubtractionArray) Export
 	
@@ -755,10 +758,10 @@ EndFunction
 //          - ValueList - the first item collection to compare.
 //  List2 - Array
 //          - ValueList - the first item collection to compare.
-//  ShouldCompareValuesCount - Boolean - :
-//                                          
-//                                           
-//                                          
+//  ShouldCompareValuesCount - Boolean - Clarifies the comparison mode.:
+//                                          If "False", it will check if the collection elements are present in the other collection.
+//                                          If "True", it will check if the collection elements are present in the other collection 
+//                                          considering the element count. By default, it is set to "False".
 //
 // Returns:
 //  Boolean - True if the collections are identical.
@@ -1262,8 +1265,8 @@ Function AddCompositionItem(AreaToAddTo,
 		Item.Use = Use;
 	EndIf;
 	
-	// 
-	// 
+	// NOTE: The ID must be assigned at the end of the configuration process.
+	// Otherwise, only a part of it will be copied to the user settings.
 	// 
 	If UserSettingID <> Undefined Then
 		Item.UserSettingID = UserSettingID;
@@ -2005,8 +2008,8 @@ EndFunction
 //    * NameOfInfobaseOn1CEnterpriseServer - String - Infobase name on the server-side (for client/server infobases) 
 //    * OperatingSystemAuthentication - Boolean - If True, then the operating system authentication is used.
 //                                          If False, pass the properties UserName and UserPassword.
-//    * UserName - String - Username for signing in to the infobase.
-//    * UserPassword - String - User password for signing in to the infobase.
+//    * UserName - String - Username for logging in to the infobase.
+//    * UserPassword - String - User password for logging in to the infobase.
 //
 Function ParametersStructureForExternalConnection() Export
 	
@@ -2089,8 +2092,8 @@ Function DistributeAmountInProportionToCoefficients(Val AmountToDistribute, Val 
 	EndIf;
 	
 	If AbsoluteCoefficients.Count() = 0 Then 
-		// 
-		// 
+		// Invalid "Coefficient" parameter value.
+		// Expected that at least one coefficient is set.
 		Return Undefined;
 	EndIf;
 	
@@ -2103,8 +2106,8 @@ Function DistributeAmountInProportionToCoefficients(Val AmountToDistribute, Val 
 		ZoomRatio = AbsoluteCoefficients[IndexOf];
 		
 		If NegativeCoefficients And ZoomRatio > 0 Then 
-			// 
-			// 
+			// Invalid "Coefficient" parameter value.
+			// Expected that all the numbers are either negative or positive.
 			Return Undefined;
 		EndIf;
 		
@@ -2123,8 +2126,8 @@ Function DistributeAmountInProportionToCoefficients(Val AmountToDistribute, Val 
 	EndDo;
 	
 	If CoefficientsSum = 0 Then
-		// 
-		// 
+		// Invalid "Coefficient" parameter value.
+		// Expected that at least one coefficient is not zero.
 		Return Undefined;
 	EndIf;
 	
@@ -2132,7 +2135,7 @@ Function DistributeAmountInProportionToCoefficients(Val AmountToDistribute, Val 
 	
 	Invert = (AmountToDistribute < 0);
 	If Invert Then 
-		// 
+		// If the original amount is negative, distribute its absolute value and inverse the result.
 		// 
 		AmountToDistribute = -AmountToDistribute; // Abs(AmountToDistribute).
 	EndIf;
@@ -2210,8 +2213,8 @@ Function ReplaceProhibitedXMLChars(Val Text, ReplacementChar = " ") Export
 	
 	Return Text;
 #Else
-	// 
-	// 
+	// The codes (in the range from 0 to 2^16-1) of the characters that
+	// "FindDisallowedXMLCharacters" considers invalid: 0–8, 11, 12, 14–31, 55296–57343.
 	Total = "";
 	StringLength = StrLen(Text);
 	
@@ -2837,7 +2840,8 @@ EndFunction
 #Region ConvertDateForHTTP
 
 // Converts a universal date into a rfc1123-date format.
-// See https://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html, item 3.3.1.
+// See https://www.w3.org/Protocols/rfc2616/rfc2616
+// -sec3.html, item 3.3.1.
 // 
 // Parameters:
 //  Date - Date
@@ -2871,7 +2875,8 @@ Function HTTPDate(Val Date) Export
 EndFunction
 
 // Returns a date converted from rfc1123-date to Date data type.
-// See https://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html, item 3.3.1.
+// See https://www.w3.org/Protocols/rfc2616/rfc2616
+// -sec3.html, item 3.3.1.
 // 
 // Parameters:
 //  HTTPDateAsString - String
@@ -3738,10 +3743,10 @@ EndFunction
 //
 Function PredefinedItem(FullPredefinedItemName) Export
 	
-	// 
-	//   
-	//  
-	//  
+	// A standard 1C:Enterprise function is used to obtain:
+	//  - Empty references 
+	//  - Enumeration members
+	//  - Business process route points
 	
 	If StrEndsWith(Upper(FullPredefinedItemName), ".EMPTYREF")
 		Or StrStartsWith(Upper(FullPredefinedItemName), "ENUM.")
@@ -3998,8 +4003,8 @@ Function StartApplication(Val StartupCommand, ApplicationStartupParameters = Und
 		
 	Else
 		
-		// 
-		// 
+		// For MacOS, run the command as is. The parameter
+		// "ApplicationStartupParameters.ExecuteWithFullRights" will be ignored.
 		RunApp(CommandString, CurrentDirectory, WaitForCompletion, ReturnCode);
 		
 	EndIf;
@@ -4227,25 +4232,25 @@ EndFunction
 
 #Region Internal
 
-// 
+// Returned the clarified text of the user message and the exception category.
 // 
 //
 // Parameters:
-//  ErrorInfo - ErrorInfo - 
-//  Title          - String - 
+//  ErrorInfo - ErrorInfo - The original error details.
+//  Title          - String - If empty, returns the exception text without clarifications.
 //
-//  ErrorAtClient - Boolean - 
-//      
-//      
+//  ErrorAtClient - Boolean - Set to "True" if the error occurred on the client.
+//      The reason is that 1C:Enterprise handles some server-side and client-side errors differently.
+//      For example, the error "LocalFileAccessError" is clarified on the client (unlike the server).
 //      
 //      
 //      
 //
 // Returns:
 //  Structure:
-//   * Text - String - 
-//   * Category - ErrorCategory - 
-//               - Undefined - 
+//   * Text - String - Clarified error text. (Or unclarified if "Title" is empty.)
+//   * Category - ErrorCategory - The category of the clarified exception.
+//               - Undefined - Keeps the category unspecified.
 //                   
 //
 Function ExceptionClarification(ErrorInfo, Title = "", ErrorAtClient = False) Export
@@ -4343,16 +4348,16 @@ EndFunction
 
 #Region ValueListsAreEqual
 
-// 
+// Converts Array or ValueList into Map.
 // 
 // Parameters:
-//  Collection - 
+//  Collection - Array, ValueList
 //  ShouldCompareValuesCount - Boolean
 // 
 // Returns:
 //  Map of KeyAndValue:
-//   * Key - Arbitrary - 
-//   * Value - Number, Boolean - 
+//   * Key - Arbitrary - Collection value.
+//   * Value - Number, Boolean - If the values are counter, returns the counter. Otherwise, returns "True".
 //
 Function CollectionIntoMap(Collection, ShouldCompareValuesCount)
 	
@@ -4587,10 +4592,10 @@ EndFunction
 
 #If Not WebClient Then
 
-// Returns encoding of standard output and error threads for the current operating system.
+// Returns encoding of standard output and error streams for the current operating system.
 //
 // Returns:
-//  TextEncoding - encoding of standard output and error threads.
+//  TextEncoding - Encoding of the standard output and error streams.
 //
 Function StandardStreamEncoding()
 	
@@ -4694,9 +4699,9 @@ Function CheckServerAvailability(ServerAddress)
 	
 	Result = StartApplication(CommandString, ApplicationStartupParameters);
 	
-	// 
-	// 
-	// 
+	// Error handling differs between OS:
+	// - Windows sends errors to the output stream.
+	// - Debian and RHEL send errors to the error stream.
 	AvailabilityLog = Result.OutputStream + Result.ErrorStream;
 	
 	// ACC:1297-disable not localized fragment left for backward compatibility
@@ -4748,9 +4753,9 @@ Function ServerRouteTraceLog(ServerAddress)
 	If IsWindows Then
 		CommandTemplate = "tracert -w 100 -h 15 %1";
 	Else 
-		// 
-		// 
-		// 
+		// If traceroute is not installed, the output stream will have an error.
+		// You can ignore that since the output is not parseable.
+		// For the administrator, it will be clear what utility should be installed.
 		CommandTemplate = "traceroute -w 100 -m 100 %1";
 	EndIf;
 	

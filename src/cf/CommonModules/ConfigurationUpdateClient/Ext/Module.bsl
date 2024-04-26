@@ -371,16 +371,16 @@ EndProcedure
 
 #Region Private
 
-Function VersionsThatRequireSuccessfulUpdate(TransmittedUpdateFiles)
+Function VersionsRequiringSuccessfulUpdate(TransferredUpdateFiles)
 	FilesOfUpdate = New Array;
-	For Each UpdateFile In TransmittedUpdateFiles Do
+	For Each UpdateFile In TransferredUpdateFiles Do
 		InformationRecords = New Structure;
 		InformationRecords.Insert("BinaryData", New BinaryData(UpdateFile.UpdateFileFullName));
 		InformationRecords.Insert("Required", UpdateFile.RunUpdateHandlers);
 		FilesOfUpdate.Add(InformationRecords);
 	EndDo;
 	
-	Return ConfigurationUpdateServerCall.VersionsThatRequireSuccessfulUpdate(FilesOfUpdate);
+	Return ConfigurationUpdateServerCall.VersionsRequiringSuccessfulUpdate(FilesOfUpdate);
 EndFunction
 
 Function UpdateInstallationPossible(Parameters, AdministrationParameters)
@@ -935,9 +935,9 @@ Function GenerateUpdateScriptFiles(Val InteractiveMode, Parameters, Administrati
 	ParametersArea = StrReplace(ParametersArea, "[DeletedChangesNames]", PatchesInformation.Delete);
 	
 	If Parameters.Property("FilesOfUpdate") Then
-		Parameters.Insert("VersionsThatRequireSuccessfulUpdate", VersionsThatRequireSuccessfulUpdate(Parameters.FilesOfUpdate));
+		Parameters.Insert("VersionsRequiringSuccessfulUpdate", VersionsRequiringSuccessfulUpdate(Parameters.FilesOfUpdate));
 	Else
-		Parameters.Insert("VersionsThatRequireSuccessfulUpdate", New Array);
+		Parameters.Insert("VersionsRequiringSuccessfulUpdate", New Array);
 	EndIf;
 	
 	TemplatesTexts.ConfigurationUpdateFileTemplate = ParametersArea + TemplatesTexts.ConfigurationUpdateFileTemplate;
@@ -1109,9 +1109,9 @@ Procedure RunUpdateScriptCompletion(Parameters, AdministrationParameters)
 	EventLogClient.AddMessageForEventLog(EventLogEvent(), "Information",
 		NStr("en = 'Updating the configuration:';") + " " + MainScriptFileName);
 	
-	VersionsThatRequireSuccessfulUpdate = New Array;
-	If Parameters.Property("VersionsThatRequireSuccessfulUpdate") Then
-		VersionsThatRequireSuccessfulUpdate = Parameters.VersionsThatRequireSuccessfulUpdate;
+	VersionsRequiringSuccessfulUpdate = New Array;
+	If Parameters.Property("VersionsRequiringSuccessfulUpdate") Then
+		VersionsRequiringSuccessfulUpdate = Parameters.VersionsRequiringSuccessfulUpdate;
 	EndIf;
 	
 	ParametersOfUpdate = ConfigurationUpdateServerCall.ParametersOfUpdate();
@@ -1120,7 +1120,7 @@ Procedure RunUpdateScriptCompletion(Parameters, AdministrationParameters)
 	ParametersOfUpdate.UpdateComplete = False;
 	ParametersOfUpdate.ConfigurationUpdateResult = False;
 	ParametersOfUpdate.MainScriptFileName = MainScriptFileName;
-	ParametersOfUpdate.VersionsThatRequireSuccessfulUpdate = VersionsThatRequireSuccessfulUpdate;
+	ParametersOfUpdate.VersionsRequiringSuccessfulUpdate = VersionsRequiringSuccessfulUpdate;
 	ConfigurationUpdateServerCall.WriteUpdateStatus(ParametersOfUpdate,
 		ApplicationParameters["StandardSubsystems.MessagesForEventLog"]);
 	

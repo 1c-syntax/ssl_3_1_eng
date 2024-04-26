@@ -841,6 +841,20 @@ EndFunction
 
 #Region DigitalSignatureDiagnostics
 
+Function ToSupplementDecisionOfErrorClassifierWithDetails(Val ClassifierError,
+	Val AdditionalData, Val ParametersForCompletingTextOfClassifierErrorSolutionOnClient, Val ErrorLocation = Undefined) Export
+	
+	Return DigitalSignatureInternal.ToSupplementDecisionOfErrorClassifierWithDetails(ClassifierError,
+		AdditionalData, ParametersForCompletingTextOfClassifierErrorSolutionOnClient, ErrorLocation);
+		
+EndFunction
+
+Function CertificateData(Certificate) Export
+	
+	Return Common.ObjectAttributeValue(Certificate, "CertificateData").Get();
+	
+EndFunction
+
 Function ClassifierError(ErrorText) Export
 	
 	Return DigitalSignatureInternal.ClassifierError(ErrorText);

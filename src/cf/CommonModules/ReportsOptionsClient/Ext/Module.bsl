@@ -107,6 +107,7 @@ EndProcedure
 //
 // Parameters:
 //  SubsystemPath - String - Section name or a path to the subsystem for which the report panel is opened.
+//                    Conforms to the following format: "[.NestedSubsystemName1][.NestedSubsystemName2][...]".
 //                    Section must be described in ReportsOptionsOverridable.DefineSectionsWithReportsOptions.
 //  CommandExecuteParameters - CommandExecuteParameters - Parameters of the common command handler.
 //
@@ -137,7 +138,7 @@ EndProcedure
 // Notifies opened report panels, list forms, and item forms about report option changes.
 //
 // Parameters:
-//  VariantKey - String - 
+//  VariantKey - String - If the report form is open, set in it the given report option.
 //  Source - CatalogRef.ReportsOptions
 //
 Procedure UpdateOpenForms(Val VariantKey = "", Val Source = Undefined) Export
@@ -175,7 +176,7 @@ Procedure OnStart(Parameters) Export
 	
 EndProcedure
 
-// 
+// Opens a report option card that contains placement settings.
 //
 // Parameters:
 //  Variant - CatalogRef.ReportsOptions - Report option reference.

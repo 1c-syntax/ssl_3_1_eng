@@ -157,7 +157,8 @@ EndProcedure
 // Parameters:
 //  ClusterAdministrationParameters - See ClusterAdministrationClientServer.ClusterAdministrationParameters
 //  IBAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters
-//  Filter - See ClusterAdministration.SessionsFilter, Array of See ClusterAdministration.SessionsFilter
+//  Filter - See ClusterAdministration.SessionsFilter See ClusterAdministration.SessionsFilter
+//           , Array of
 //
 // Returns:
 //   Array of See ClusterAdministrationClientServer.SessionProperties
@@ -175,7 +176,8 @@ EndFunction
 // Parameters:
 //  ClusterAdministrationParameters - See ClusterAdministrationClientServer.ClusterAdministrationParameters
 //  IBAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters
-//  Filter - See ClusterAdministration.SessionsFilter, Array of See ClusterAdministration.SessionsFilter
+//  Filter - See ClusterAdministration.SessionsFilter See ClusterAdministration.SessionsFilter
+//           , Array of
 //
 Procedure DeleteInfobaseSessions(Val ClusterAdministrationParameters, Val IBAdministrationParameters, Val Filter = Undefined) Export
 	
@@ -242,7 +244,8 @@ EndProcedure
 // Parameters:
 //  ClusterAdministrationParameters - See ClusterAdministrationClientServer.ClusterAdministrationParameters
 //  IBAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters
-//  Filter - See ClusterAdministration.JoinsFilters, Array of See ClusterAdministration.JoinsFilters
+//  Filter - See ClusterAdministration.JoinsFilters See ClusterAdministration.JoinsFilters
+//           , Array of
 //
 // Returns:
 //   Array of See ClusterAdministrationClientServer.ConnectionProperties
@@ -260,7 +263,8 @@ EndFunction
 // Parameters:
 //  ClusterAdministrationParameters - See ClusterAdministrationClientServer.ClusterAdministrationParameters
 //  IBAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters
-//  Filter - See ClusterAdministration.JoinsFilters, Array of See ClusterAdministration.JoinsFilters
+//  Filter - See ClusterAdministration.JoinsFilters See ClusterAdministration.JoinsFilters
+//           , Array of
 //
 Procedure TerminateInfobaseConnections(Val ClusterAdministrationParameters, Val IBAdministrationParameters, Val Filter = Undefined) Export
 	
@@ -744,7 +748,8 @@ EndFunction
 //  ClusterAdministrationParameters - See ClusterAdministrationClientServer.ClusterAdministrationParameters
 //  InfoBaseID - String - Internal infobase ID.
 //  InfobaseAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters
-//  Filter - See ClusterAdministration.SessionsFilter, Array of See ClusterAdministration.SessionsFilter
+//  Filter - See ClusterAdministration.SessionsFilter See ClusterAdministration.SessionsFilter
+//           , Array of
 //  UseDictionary - Boolean - If True, the return value is generated using a dictionary.
 //
 // Returns:
@@ -782,7 +787,8 @@ EndFunction
 //  ClusterAdministrationParameters - See ClusterAdministrationClientServer.ClusterAdministrationParameters
 //  InfoBaseID - String - Internal infobase ID.
 //  InfobaseAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters
-//  Filter - See ClusterAdministration.JoinsFilters, Array of See ClusterAdministration.JoinsFilters
+//  Filter - See ClusterAdministration.JoinsFilters See ClusterAdministration.JoinsFilters
+//           , Array of
 //  UseDictionary - Boolean - If True, the return value is generated using a dictionary.
 //
 // Returns:
@@ -1277,8 +1283,8 @@ Function CastOutputItem(OutputItem)
 	Try
 		Return XMLValue(Type("Date"), OutputItem);
 	Except
-		// 
-		// 
+		// Skip exception handling.
+		// Expected exception is an error casting to Date.
 		Return OutputItem;
 	EndTry;
 	

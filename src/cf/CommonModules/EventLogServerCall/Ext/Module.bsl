@@ -10,11 +10,11 @@
 
 #Region Private
 
-// 
-// 
+// The procedure adds messages to the event log in bulk.
+// After the logging is done, the "EventsForEventLog" constant is cleared.
 //
-// 
-// 
+// To add records on the client, use the procedure "EventLogClient.AddMessageForEventLog".
+// To instantly write messages on the client, use "EventLogClient.WriteEventsToEventLog".
 //
 // 
 // 

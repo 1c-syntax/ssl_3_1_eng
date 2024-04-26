@@ -50,9 +50,9 @@
 							<v8:content>Scanner %1 not found or not connected.
 Try the following:
  • Check whether the scanner is connected and try again.
- • Specify the available scanner in the &lt;link Settings&gt;scanner settings&lt;/&gt;.
- • Open &lt;link Settings&gt;scanner settings&lt;/&gt; and select "Advanced settings".
- • If the issue persists, contact technical support.</v8:content>
+ • Specify an available scanner in the &lt;link Settings&gt;scanner settings&lt;/&gt;.
+ • In the scanner settings, select &lt;b&gt;Advanced settings&lt;/&gt;.
+ • In the scanner settings, configure a scan profile and set it as default.</v8:content>
 						</v8:item>
 					</Title>
 					<ContextMenu name="ErrorTextContextMenu" id="5"/>

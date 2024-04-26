@@ -474,7 +474,7 @@ EndProcedure
 //                          if the date cannot be extracted from the signature or XMLEnvelope is to be checked.
 //   CheckParameters    - See SignatureVerificationParameters
 //                        - Undefined - Flag indicating whether to
-//                        display a cryptographic manager creation error (when it's not specified).
+//                          display a cryptographic manager creation error (when it's not specified).
 //
 Procedure VerifySignature(Notification, RawData, Signature,
 	CryptoManager = Undefined,
@@ -1056,15 +1056,7 @@ EndProcedure
 Procedure OpenDigitalSignatureAndEncryptionSettings(Page = "Certificates") Export
 	
 	FormParameters = New Structure;
-	If Page = "Certificates" Then
-		FormParameters.Insert("ShowCertificatesPage");
-		
-	ElsIf Page = "Settings" Then
-		FormParameters.Insert("ShowSettingsPage");
-		
-	ElsIf Page = "Programs" Then
-		FormParameters.Insert("ShowApplicationsPage");
-	EndIf;
+	FormParameters.Insert("ShowPage", Page);
 	
 	Form = OpenForm("CommonForm.DigitalSignatureAndEncryptionSettings", FormParameters);
 	
@@ -1142,6 +1134,7 @@ EndProcedure
 // Parameters:
 //   Certificate   - CryptoCertificate - Cryptographic certificate.
 //                - Structure:
+//                   * ValidBefore - See DigitalSignature.CertificateProperties.ValidBefore
 //                   * Certificate   - CryptoCertificate - Cryptographic certificate.
 //
 // Returns:
@@ -1413,6 +1406,7 @@ EndFunction
 //	|      <getProductDetailsResult>
 //	|       <productID>12345</productID>
 //	|       <productName>Faceted glass</productName>
+//	|       <description>Faceted glass. 250 ml.</description>
 //	|       <price>9.95</price>
 //	|       <currency>
 //	|         <code>840</code>
@@ -1823,18 +1817,19 @@ EndProcedure
 // See GetCertificatesThumbprints.
 // 
 // Parameters:
-//  ClientSide - Boolean - 
-//  ServerSide - Boolean - 
-//  Service - Boolean - 
-// 
+//   ClientSide - Boolean, Undefined - 
+//     
+//   ServerSide  - Boolean, Undefined - 
+//     
+//   Service     - Boolean, Undefined -  
+//     
+//
 // Returns:
-//  Structure - :
-//   * ClientSide - Boolean, Undefined - 
-//   
-//   * ServerSide - Boolean, Undefined - 
-//   
-//   * Service - Boolean, Undefined - 
-//   
+//  Structure:
+//   * ClientSide - 
+//   * ServerSide  - 
+//   * Service     - 
+//   * ShouldReturnSource - Boolean - 
 //
 Function CertificateThumbprintsReceiptParameters(ClientSide = True, ServerSide = True, Service = True) Export
 	
@@ -2061,6 +2056,7 @@ EndProcedure
 // Parameters:
 //   Certificate           - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates - the certificate
 //                        for which a check was executed.
+//   Result            - See DigitalSignatureClient.CheckCatalogCertificate.AdditionalParameters.Result
 //   FormOwner        - ClientApplicationForm - the owner of the certificate check form that is being opened.
 //   Title            - String - the title of the certificate check form that is being opened.
 //   MergeResults - String - determines the method of the check result representation in the client/server
@@ -2154,6 +2150,12 @@ EndProcedure
 //  Notification - NotifyDescription - 
 //   
 //   :
+//     See DigitalSignatureClientServer.NewSignatureProperties.IsAdditionalAttributesCheckedManually
+//     See DigitalSignatureClientServer.NewSignatureProperties.AdditionalAttributesManualCheckAuthor
+//     See DigitalSignatureClientServer.NewSignatureProperties.AdditionalAttributesManualCheckJustification
+//     See DigitalSignatureClientServer.NewSignatureProperties.CheckDate
+//     See DigitalSignatureClientServer.NewSignatureProperties.SignatureCorrect
+//     See DigitalSignatureClientServer.NewSignatureProperties.IsVerificationRequired
 //
 Procedure EnterSignatureAuthenticityJustification(FormOwner, Notification) Export
 	

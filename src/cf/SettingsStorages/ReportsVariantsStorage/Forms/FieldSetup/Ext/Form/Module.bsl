@@ -414,13 +414,12 @@ EndProcedure
 &AtClient
 Procedure OutputAllValuesOfTheReportSectionClick(Item)
 	
-	Handler = New NotifyDescription("AfterFillingInTheValues", ThisObject);
 	FillingResult = StartFillingInTheValues(UUID);
 	
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
 	
-	Handler = New NotifyDescription("WhenFillingInTheValues", ThisObject);
+	Handler = New NotifyDescription("AfterFillingInTheValues", ThisObject);
 	TimeConsumingOperationsClient.WaitCompletion(FillingResult, Handler, IdleParameters);
 	
 EndProcedure
@@ -682,6 +681,7 @@ Function StartFillingInTheValues(JobID)
 	
 	MethodParameters = TimeConsumingOperations.FunctionExecutionParameters(JobID);
 	MethodParameters.BackgroundJobDescription = NStr("en = 'Fill in filter by value';");
+	MethodParameters.RefinementErrors = NStr("en = 'Cannot fill in filter by value due to:';");
 	
 	FillingResult = TimeConsumingOperations.ExecuteFunction(
 		MethodParameters,
@@ -691,21 +691,6 @@ Function StartFillingInTheValues(JobID)
 	Return FillingResult;
 	
 EndFunction
-
-&AtClient
-Procedure WhenFillingInTheValues(Result, AdditionalParameters) Export
-	
-	If Result = Undefined Then
-		Return;
-	EndIf;
-	
-	If Result.Status = "Error"
-		Or Result.Status = "Completed2" Then
-		
-		AfterFillingInTheValues(Result, AdditionalParameters);
-	EndIf;
-	
-EndProcedure
 
 &AtServer
 Procedure FillValues()
@@ -750,6 +735,10 @@ Procedure FinishFillingInTheValues(FillingResult = Undefined)
 	
 EndProcedure
 
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
 &AtClient
 Procedure AfterFillingInTheValues(Result, AdditionalParameters) Export
 	
@@ -759,7 +748,12 @@ Procedure AfterFillingInTheValues(Result, AdditionalParameters) Export
 	
 	If Result.Status = "Error" Then
 		
-		HandleTheErrorOfFillingInValues(Result.BriefErrorDescription, Result.DetailErrorDescription);
+		CommentTemplate = NStr("en = 'Cannot fill in filter by value due to: %1';");	
+		Items.WaitingStatuses.CurrentPage = Items.FillError;
+		Items.FillErrorDescription.Title = StringFunctionsClientServer.SubstituteParametersToString(
+			CommentTemplate, Result.BriefErrorDescription);
+		StandardSubsystemsClient.OutputErrorInfo(Result.ErrorInfo);
+		Return;
 		
 	ElsIf Result.Status = "Completed2" Then 
 		
@@ -769,25 +763,6 @@ Procedure AfterFillingInTheValues(Result, AdditionalParameters) Export
 		Items.FilterByPageValue.CurrentPage = Items.FilterValues;
 		
 	EndIf;
-	
-EndProcedure
-
-&AtServer
-Procedure HandleTheErrorOfFillingInValues(BriefErrorDescription, DetailErrorDescription)
-	
-	CommentTemplate = NStr("en = 'Cannot fill in filter by value due to: %1';");
-	
-	Items.WaitingStatuses.CurrentPage = Items.FillError;
-	Items.FillErrorDescription.Title = StringFunctionsClientServer.SubstituteParametersToString(
-		CommentTemplate, BriefErrorDescription);
-	
-	Comment = StringFunctionsClientServer.SubstituteParametersToString(CommentTemplate, DetailErrorDescription);
-	
-	WriteLogEvent(
-		NStr("en = 'Set up report field. Fill in filter by value';", Common.DefaultLanguageCode()),
-		EventLogLevel.Error,,
-		ReportSettings.OptionRef,
-		Comment);
 	
 EndProcedure
 

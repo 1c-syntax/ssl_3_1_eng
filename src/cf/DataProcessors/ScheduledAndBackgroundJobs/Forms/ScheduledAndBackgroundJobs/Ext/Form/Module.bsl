@@ -647,6 +647,7 @@ Procedure FillFormSettings(Val Settings)
 	EndIf;
 	
 	// 
+	//  
 	If Settings.Get("FilterKindByPeriod") = Undefined
 	 Or Settings.Get("FilterPeriodFrom")       = Undefined
 	 Or Settings.Get("FilterPeriodFor")      = Undefined Then

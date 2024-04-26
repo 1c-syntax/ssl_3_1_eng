@@ -16,12 +16,12 @@
 // Parameters:
 //  EventsForEventLog - ValueList:
 //    * Value - Structure:
-//        ** EventName  - String -  name of the event to record.
-//        ** LevelPresentation  - String -  representation of the values of the log level collection.
-//                                    Available values: "Information", "Error", "Warning", "note".
-//        ** Comment - String -  review of the event.
-//        ** EventDate - Date   -  date of the event, inserted in the comment when writing.
-//     * Presentation - String -  not use.
+//        ** EventName  - String - Name of the logging event.
+//        ** LevelPresentation  - String - Presentation of the "EventLogLevel" collection members.
+//                                    Valid values are Information, Error, Warning, and Note.
+//        ** Comment - String - Event comment.
+//        ** EventDate - Date   - Event date. It is added to the comment upon logging.
+//     * Presentation - String - Not used.
 //
 Procedure WriteEventsToEventLog(EventsForEventLog) Export
 	
@@ -551,8 +551,8 @@ EndFunction
 //  EventData - String
 //
 // Returns:
-//  Structure - 
-//  
+//  Structure - If the conversion is successful.
+//  Undefined - If the conversion failed.
 //
 Function DataFromXMLString(EventData) Export
 	
@@ -1187,10 +1187,10 @@ Function StructuresKeysPresentation()
 	Result.Insert(Lower("FirstDayOfWeek"),
 		NStr("en = 'First day of the week';"));
 	
-	Result.Insert(Lower("BooleanTrueProp"),
+	Result.Insert(Lower("BooleanTruePresentation"),
 		NStr("en = 'Logical ""True"" presentation';"));
 	
-	Result.Insert(Lower("BooleanFalse"),
+	Result.Insert(Lower("BooleanFalsePresentation"),
 		NStr("en = 'Logical ""False"" presentation';"));
 	
 	Result.Insert(Lower("NegativeNumberPresentation"),
@@ -1273,7 +1273,7 @@ Function StructuresKeysPresentation()
 	Result.Insert(Lower("FileSystemFullAccess"),
 		NStr("en = 'Full access to file system';"));
 	
-	Result.Insert(Lower("PrivilegedModeAllowed"),
+	Result.Insert(Lower("FullPrivilegedMode"),
 		NStr("en = 'Unlimited privileged mode';"));
 	
 	Result.Insert(Lower("SafeModeProfile"),
@@ -1572,8 +1572,8 @@ EndProcedure
 Procedure FilterItemTransform(Filter, FilterElement)
 	
 	FilterStructureKey = FilterElement.Key;
-	// 
-	// 
+	// The procedure is called when the filter item is a value list
+	// (the filter should take an array). Convert the list into an array.
 	If Upper(FilterStructureKey) = Upper("SessionDataSeparation") Then
 		NewValue = New Structure;
 	Else

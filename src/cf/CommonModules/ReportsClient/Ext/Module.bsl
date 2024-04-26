@@ -42,7 +42,8 @@ Function ValueTypeRestrictedByLinkByType(Settings, UserSettings, SettingItem, Se
 		ValueType = SettingItemDetails.ValueType;
 	EndIf;
 
-	If ValueType = New TypeDescription("Date") And Not ReportsClientServer.IsListComparisonKind(SettingItem.ComparisonType) Then
+	If TypeOf(SettingItem) = Type("DataCompositionFilterItem") And ValueType = New TypeDescription("Date")
+		And Not ReportsClientServer.IsListComparisonKind(SettingItem.ComparisonType) Then
 		ValueType = New TypeDescription("StandardBeginningDate");
 	EndIf;
 

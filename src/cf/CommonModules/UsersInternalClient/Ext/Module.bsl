@@ -109,8 +109,8 @@ Procedure ShowSecurityWarning() Export
 	
 EndProcedure
 
-Procedure WhenMonitoringRestartsWithReducedAccessRights() Export
-	InformAboutRestartOfApplication();
+Procedure OnControlRestartWhenAccessRightsReduced() Export
+	NotifyAboutAppRestart();
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -183,14 +183,14 @@ EndProcedure
 Procedure OnReceiptServerNotification(NameOfAlert, Result) Export
 	
 	If Result = "AuthorizationDenied" Then
-		StopRestartingApp();
+		StopAppRestart();
 		OpenForm("CommonForm.AuthorizationDenied");
 		
-	ElsIf Result = "RolesAreReduced" Then
-		StartRestartingApp();
+	ElsIf Result = "RolesReduced" Then
+		InitiateAppRestart();
 		
-	ElsIf Result = "RolesExpanded" Then
-		StopRestartingApp();
+	ElsIf Result = "RolesIncreased" Then
+		StopAppRestart();
 		ShowUserNotification(
 			NStr("en = 'Access rights updated';"),
 			"e1cib/app/CommonForm.InfobaseUserRoleChangeControl",
@@ -527,7 +527,7 @@ EndFunction
 ///////////////////////////////////////////////////////////////////////////////
 // 
 
-Procedure StartRestartingApp()
+Procedure InitiateAppRestart()
 	
 	Parameters = RestartNotificationParameters();
 	If ValueIsFilled(Parameters.RestartDate) Then
@@ -536,28 +536,28 @@ Procedure StartRestartingApp()
 	
 	Parameters.RestartDate = CommonClient.SessionDate() + 15*60; // 
 	
-	AttachIdleHandler("RestartControlWhenAccessRightsAreReduced", 60);
-	InformAboutRestartOfApplication();
+	AttachIdleHandler("ControlRestartWhenAccessRightsReduced", 60);
+	NotifyAboutAppRestart();
 	
 EndProcedure
 
-Procedure StopRestartingApp()
+Procedure StopAppRestart()
 	
-	DetachIdleHandler("RestartControlWhenAccessRightsAreReduced");
+	DetachIdleHandler("ControlRestartWhenAccessRightsReduced");
 	ClearRestartAlert();
 	RestartNotificationParameters().RestartDate = '00010101';
 	
 EndProcedure
 
-Procedure InformAboutRestartOfApplication()
+Procedure NotifyAboutAppRestart()
 	
 	Parameters = RestartNotificationParameters();
 	If Not ValueIsFilled(Parameters.RestartDate) Then
 		Return;
 	EndIf;
 	
-	If Not StandardSubsystemsServerCall.CurUserSRolesHaveBeenReduced() Then
-		StopRestartingApp();
+	If Not StandardSubsystemsServerCall.AreCurrentUserRolesReduced() Then
+		StopAppRestart();
 		Return;
 	EndIf;
 	
@@ -570,28 +570,28 @@ Procedure InformAboutRestartOfApplication()
 		Return;
 	EndIf;
 	
-	MinutesLeft = ThereAreMinutesLeftBeforeRestart(Parameters.RestartDate, CurrentMoment);
-	PresentationIsMinutesAway = PresentationIsMinutesAwayFromRestart(MinutesLeft);
+	MinutesLeft = MinutesBeforeRestart(Parameters.RestartDate, CurrentMoment);
+	MinutesLeftPresentation = MinutesBeforeRestartPresentation(MinutesLeft);
 	
-	ShowRestartNotification(StringFunctionsClientServer.SubstituteParametersToString(
+	ShowRestartAlert(StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'App will restart in %1. Save the changes.';"),
-		PresentationIsMinutesAway));
+		MinutesLeftPresentation));
 	
 	If MinutesLeft <= ExitWithConfirmationTimeout Then
 		AskOnTermination(StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'App will restart in %1. Save the changes.
 			           |Restart now?';"),
-			PresentationIsMinutesAway));
+			MinutesLeftPresentation));
 		
 	ElsIf MinutesLeft <= WaitTimeout Then
 		ShowWarningOnExit(StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'App will restart in %1. Save the changes.';"),
-			PresentationIsMinutesAway));
+			MinutesLeftPresentation));
 	EndIf;
 	
 EndProcedure
 
-Function ThereAreMinutesLeftBeforeRestart(RestartDate, CurrentMoment = Undefined) Export
+Function MinutesBeforeRestart(RestartDate, CurrentMoment = Undefined) Export
 	
 	If CurrentMoment = Undefined Then
 		CurrentMoment = CommonClient.SessionDate();
@@ -603,7 +603,7 @@ Function ThereAreMinutesLeftBeforeRestart(RestartDate, CurrentMoment = Undefined
 	
 EndFunction
 
-Function PresentationIsMinutesAwayFromRestart(MinutesLeft) Export
+Function MinutesBeforeRestartPresentation(MinutesLeft) Export
 	
 	Return StringFunctionsClientServer.StringWithNumberForAnyLanguage(
 		NStr("en = ';%1 minute;;;;%1 minutes';"),
@@ -612,7 +612,7 @@ Function PresentationIsMinutesAwayFromRestart(MinutesLeft) Export
 EndFunction
 
 // Parameters:
-//  UpdateDateOfLastWarningOrQuestion - Boolean
+//  ShouldUpdateLastWarningOrQuestionDate - Boolean
 //
 // Returns:
 //  Structure:
@@ -621,7 +621,7 @@ EndFunction
 //   * LastQuestionOrWarningDate - Date
 //   * RestartDate - Date
 //
-Function RestartNotificationParameters(UpdateDateOfLastWarningOrQuestion = False) Export
+Function RestartNotificationParameters(ShouldUpdateLastWarningOrQuestionDate = False) Export
 	
 	ParameterName = "StandardSubsystems.Users.RestartNotificationParameters";
 	Properties = ApplicationParameters[ParameterName];
@@ -634,7 +634,7 @@ Function RestartNotificationParameters(UpdateDateOfLastWarningOrQuestion = False
 		ApplicationParameters.Insert(ParameterName, Properties);
 	EndIf;
 	
-	If UpdateDateOfLastWarningOrQuestion Then
+	If ShouldUpdateLastWarningOrQuestionDate Then
 		SessionDate = CommonClient.SessionDate();
 		If Properties.LastQuestionOrWarningDate + 50 < SessionDate Then
 			Properties.LastQuestionOrWarningDate = SessionDate;
@@ -648,7 +648,7 @@ Function RestartNotificationParameters(UpdateDateOfLastWarningOrQuestion = False
 	
 EndFunction
 
-Procedure ShowRestartNotification(MessageText)
+Procedure ShowRestartAlert(MessageText)
 	
 	Parameters = RestartNotificationParameters();
 	If Parameters.IsNotificationDisplayed Then
@@ -661,7 +661,7 @@ Procedure ShowRestartNotification(MessageText)
 		MessageText,
 		PictureLib.DialogExclamation,
 		UserNotificationStatus.Important,
-		"RestartControlWhenAccessRightsAreReduced");
+		"ControlRestartWhenAccessRightsReduced");
 	
 	Parameters.IsNotificationDisplayed = True;
 	
@@ -676,7 +676,7 @@ Procedure ClearRestartAlert()
 	Parameters.IsNotificationDisplayed = False;
 	
 	ShowUserNotification(NStr("en = 'Restart canceled';"),,,,
-		UserNotificationStatus.Important, "RestartControlWhenAccessRightsAreReduced");
+		UserNotificationStatus.Important, "ControlRestartWhenAccessRightsReduced");
 	
 EndProcedure
 

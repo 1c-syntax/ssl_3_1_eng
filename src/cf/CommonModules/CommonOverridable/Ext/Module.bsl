@@ -14,32 +14,32 @@
 //
 // Parameters:
 //  CommonParameters - Structure:
-//      * ShouldIncludeFullStackInLongRunningOperationErrors  - Boolean -  
-//               
-//              
-//              
-//              
-//      * AskConfirmationOnExit - Boolean -  
-//              
-//              
+//      * ShouldIncludeFullStackInLongRunningOperationErrors  - Boolean - If set to "True", the error information for developers includes 
+//              a fragment of the long-running operation's call stack (before the background job was called). 
+//              It is intended to increase the descriptiveness of errors that occur in
+//              long-running operations started by "TimeConsumingOperations.ExecuteFunction", "ExecuteProcedure", etc.
+//              By default, it is set to "False" to facilitate debugging.
+//      * AskConfirmationOnExit - Boolean - By default, it is set to "True". 
+//              If set to "False", the user is not prompted to confirm the exit
+//              (unless otherwise is explicitly specified in the personal user settings).
 //      * PersonalSettingsFormName  - String - Name of the user settings edit form.
-//      * MinPlatformVersion    - String - 
-//              
-//              
-//              
-//               
+//      * MinPlatformVersion    - String - The minimum 1C:Enterprise version required by the app.
+//              Startup on earlier versions will be aborted. Example value: "8.3.6.1650".
+//              Can take a list of semicolon-separated values: "8.3.14.1694; 8.3.15.2107; 8.3.16.1791".
+//              In this case, when trying to run the app on earlier builds of 1C:Enterprise v.8.3.14, the user
+//              will be prompted to update to v.8.3.14.1694, and so on. 
 //               
 //              
 //      * DisableMetadataObjectsIDs - Boolean - disables completing the MetadataObjectIDs 
 //              and ExtensionObjectIDs catalogs, as well as the export/import procedure for DIB nodes.
 //              For partial embedding certain library functions into the configuration without enabling support.
-//      * RecommendedPlatformVersion              - String - 
-//               
-//              
-//      * RecommendedRAM       - Number -  
-//               
+//      * RecommendedPlatformVersion              - String - The 1C:Enterprise version recommended for the app.
+//              Example value: "8.3.8.2137". Can take a list of semicolon-separated values. 
+//              See examples in "MinPlatformVersion".
+//      * RecommendedRAM       - Number - Obsolete. Recommended RAM size (GB). 
+//               The default value is "4".
 //
-//    :
+//    Instead, use "MinPlatformVersion" and "RecommendedPlatformVersion".:
 //      * MinPlatformVersion1    - String - Full platform version required to start the application.
 //                                                           For example, "8.3.4.365".
 //      * MustExit               - Boolean - the initial value is False.

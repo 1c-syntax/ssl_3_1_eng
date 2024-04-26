@@ -12,11 +12,11 @@
 
 #Region Private
 
-// 
+// Returns the UUID of the predefined group "AllUsers".
 // 
 //
 // Returns:
-//  String - 
+//  String - UUID string.
 //
 Function AllUsersGroupID()
 	
@@ -25,11 +25,11 @@ Function AllUsersGroupID()
 EndFunction
 
 // Parameters:
-//  GroupName - String - 
+//  GroupName - String - AllExternalUsers, AllUsers.
 //
 // Returns:
 //  CatalogRef.UserGroups
-//  
+//  CatalogRef.ExternalUsersGroups
 //
 Function StandardUsersGroup(GroupName) Export
 	
@@ -140,7 +140,7 @@ Function StandardUsersGroup(GroupName) Export
 	
 EndFunction
 
-// 
+// Intended for function "StandardUsersGroup".
 Function GroupFromPredefinedItemDuplicates(Selection, GroupDescription, RefToNew)
 	
 	GroupInOrder = Undefined;
@@ -184,7 +184,7 @@ Function GroupFromPredefinedItemDuplicates(Selection, GroupDescription, RefToNew
 	
 EndFunction
 
-// 
+// Intended for function "StandardUsersGroup".
 Function GroupByDescription(Description, FullCatalogName)
 	
 	Query = New Query;

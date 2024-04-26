@@ -907,7 +907,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Sign-in restricted</v8:content>
+							<v8:content>Login restricted</v8:content>
 						</v8:item>
 					</Title>
 					<Group>AlwaysHorizontal</Group>
@@ -920,7 +920,7 @@
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Sign-in restricted picture</v8:content>
+									<v8:content>Login restricted picture</v8:content>
 								</v8:item>
 							</Title>
 							<Picture>
@@ -934,14 +934,14 @@
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Sign-in restricted</v8:content>
+									<v8:content>Login restricted</v8:content>
 								</v8:item>
 							</Title>
 							<ToolTip>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>User will be blocked from signing in
-after a certain date or a period of inactivity.</v8:content>
+									<v8:content>User will be blocked from logging in
+after a specified date or period of inactivity.</v8:content>
 								</v8:item>
 							</ToolTip>
 							<ContextMenu name="LabelLogonRestrictredContextMenu" id="263"/>
@@ -957,7 +957,7 @@ after a certain date or a period of inactivity.</v8:content>
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Sign-in blocked</v8:content>
+							<v8:content>Login blocked</v8:content>
 						</v8:item>
 					</Title>
 					<Group>AlwaysHorizontal</Group>
@@ -970,7 +970,7 @@ after a certain date or a period of inactivity.</v8:content>
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Sign-in blocked picture</v8:content>
+									<v8:content>Login blocked picture</v8:content>
 								</v8:item>
 							</Title>
 							<Picture>
@@ -984,14 +984,14 @@ after a certain date or a period of inactivity.</v8:content>
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Sign-in blocked</v8:content>
+									<v8:content>Login blocked</v8:content>
 								</v8:item>
 							</Title>
 							<ToolTip>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Authorization is disabled, no authorization rights or
-no startup rights (thin client or web client).</v8:content>
+									<v8:content>User is not allowed to log in, or is not granted login rights or
+startup rights (thin client or web client).</v8:content>
 								</v8:item>
 							</ToolTip>
 							<ContextMenu name="LabelLogonForbiddenContextMenu" id="274"/>

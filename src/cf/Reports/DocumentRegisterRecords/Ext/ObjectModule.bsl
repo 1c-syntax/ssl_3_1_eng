@@ -14,6 +14,7 @@
 
 Var CurrentVariantKey; // String
                             // 
+                            // 
 Var ParentOptionKey; // String
 Var RegistersProperties; // See NewRegisterProperties
 Var Remarks; // See NotesPropertiesPalette

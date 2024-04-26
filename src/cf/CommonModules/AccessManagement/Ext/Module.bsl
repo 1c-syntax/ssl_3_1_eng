@@ -1638,6 +1638,8 @@ EndProcedure
 //                     ** Presentation - String - Name of a predefined item.
 //                          For example, "Catalog.UserGroups.AllUsers".
 //
+//   * Is_Directory - Boolean - 
+//
 // Example:
 // 
 //	// User profile.
@@ -1696,6 +1698,7 @@ Function NewAccessGroupProfileDescription() Export
 	NewDetails.Insert("Purpose",      New Array);
 	NewDetails.Insert("AccessKinds",     New ValueList);
 	NewDetails.Insert("AccessValues", New ValueList);
+	NewDetails.Insert("Is_Directory",        False);
 	
 	Return NewDetails;
 	
@@ -1713,6 +1716,7 @@ EndFunction
 //                       and to get a reference UUID. Do not specify IDs
 //                       received using an arbitrary method as this might violate the uniqueness of the references.
 //   * Description  - String - a built-in profile folder description.
+//   * Is_Directory      - Boolean - 
 //
 // Example:
 //	// The "Additional profiles" profile folder.
@@ -1730,6 +1734,7 @@ Function NewDescriptionOfTheAccessGroupProfilesFolder() Export
 	NewDetails.Insert("Parent",      "");
 	NewDetails.Insert("Id", "");
 	NewDetails.Insert("Description",  "");
+	NewDetails.Insert("Is_Directory",      True);
 	
 	Return NewDetails;
 	
@@ -2132,7 +2137,7 @@ EndProcedure
 //     If Type = Catalog.ExternalUsers, all external user roles are updated,
 //     otherwise, all user roles are updated.
 //
-//  ServiceUserPassword - String - Password to sign in the Service Manager.
+//  ServiceUserPassword - String - Password used to log in to Service Manager.
 //
 Procedure UpdateUserRoles(Val UsersArray = Undefined, Val ServiceUserPassword = Undefined) Export
 	
@@ -3264,7 +3269,7 @@ Procedure EnableDisableUserProfile(User, Profile, Enable, Source = Undefined) Ex
 					
 					If ValueIsFilled(ErrorDescription) Then
 						ErrorText =
-							NStr("en = 'At least one user authorized to sign in
+							NStr("en = 'At least one user authorized to log in
 							           |must have the Administrator profile.';");
 						Raise ErrorText;
 					EndIf;

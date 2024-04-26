@@ -801,7 +801,7 @@ Function CreateFile(Val Owner, Val FileInfo1)
 	File.ChangedBy = File.Author;
 	File.CreationDate = CurrentSessionDate();
 	File.LongDesc = FileInfo1.Comment;
-	File.PictureIndex = FilesOperationsInternalClientServer.GetFileIconIndex(Undefined);
+	File.PictureIndex = FilesOperationsInternalClientServer.IndexOfFileIcon(Undefined);
 	File.StoreVersions = FileInfo1.StoreVersions;
 	File.Extension = FileInfo1.ExtensionWithoutPoint;
 	File.Size = FileInfo1.Size;
@@ -2269,13 +2269,13 @@ Procedure AddSignatureToFile(FileRef, SignatureProperties, FormIdentifier) Expor
 
 	BeingEditedBy = AttributesStructure1.BeingEditedBy;
 	If ValueIsFilled(BeingEditedBy) Then
-		Raise FilesOperationsInternalClientServer.FileUsedByAnotherProcessCannotBeSignedMessageString(
+		Raise FilesOperationsInternalClientServer.MessageAboutInadmissibilityOfSigningBusyFile(
 			FileRef);
 	EndIf;
 
 	Encrypted = AttributesStructure1.Encrypted;
 	If Encrypted Then
-		ExceptionString = FilesOperationsInternalClientServer.EncryptedFileCannotBeSignedMessageString(
+		ExceptionString = FilesOperationsInternalClientServer.MessageAboutInadmissibilityOfSigningEncryptedFile(
 			FileRef);
 		Raise ExceptionString;
 	EndIf;

@@ -15,8 +15,8 @@
 // 
 // Parameters:
 //  Parameters - Structure:
-//    * UpdateResultNotes - String - 
-//                                          
+//    * UpdateResultNotes - String - The tooltip that indicates the path to the form
+//                                          "Application update results".
 //    * UncompletedDeferredHandlersMessageParameters - Structure - message on
 //                                          availability of uncompleted deferred handlers that perform an update
 //                                          to a previous version; displayed on attempting migration:

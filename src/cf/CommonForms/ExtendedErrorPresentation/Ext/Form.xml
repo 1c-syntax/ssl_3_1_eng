@@ -6,6 +6,7 @@
 	<CommandBarLocation>None</CommandBarLocation>
 	<AutoCommandBar name="FormCommandBar" id="-1"/>
 	<Events>
+		<Event name="OnOpen">OnOpen</Event>
 		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
 	</Events>
 	<ChildItems>
@@ -640,6 +641,14 @@ If you didn't find a solution, contact the 1C support team and provide &lt;link 
 					<v8:AllowedLength>Variable</v8:AllowedLength>
 				</v8:StringQualifiers>
 			</Type>
+		</Attribute>
+		<Attribute name="SignatureVerificationError" id="10">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="ParametersForCompletingTextOfClassifierErrorSolution" id="11">
+			<Type/>
 		</Attribute>
 	</Attributes>
 	<Commands>

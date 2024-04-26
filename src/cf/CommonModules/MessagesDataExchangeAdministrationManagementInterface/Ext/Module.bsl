@@ -208,6 +208,7 @@ EndFunction
 //    the message type is being received.
 //
 // Returns:
+//  XDTOObjectType 
 //
 Function MessageDisableSyncOverSM(Val PackageToUse = Undefined) Export
 	

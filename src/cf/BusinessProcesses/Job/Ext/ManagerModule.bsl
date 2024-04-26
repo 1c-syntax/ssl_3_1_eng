@@ -75,8 +75,8 @@ EndFunction
 //
 Procedure OnForwardTask(TaskRef, NewTaskRef) Export
 	
-	// 
-	// 
+	// ACC:1327-off - The business process was locked in the calling function
+	// "BusinessProcessesAndTasksServerCall.ForwardTasks".
 	TaskInfo = Common.ObjectAttributesValues(TaskRef, 
 		"Ref,BusinessProcess,ExecutionResult,CompletionDate,Performer");
 	BusinessProcessObject = TaskInfo.BusinessProcess.GetObject();

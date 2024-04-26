@@ -3,7 +3,12 @@
 	<Form uuid="64c4af68-7657-458e-a129-14a3dd8a0262">
 		<Properties>
 			<Name>RecordForm</Name>
-			<Synonym/>
+			<Synonym>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Record form</v8:content>
+				</v8:item>
+			</Synonym>
 			<Comment/>
 			<FormType>Managed</FormType>
 			<IncludeHelpInContents>false</IncludeHelpInContents>

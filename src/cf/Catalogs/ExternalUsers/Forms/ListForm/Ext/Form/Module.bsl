@@ -31,7 +31,7 @@ Var LastItem;
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
 		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
@@ -476,7 +476,7 @@ Procedure ExternalUsersListOnActivateRow(Item)
 	Items.FormSetPassword.Enabled = CanChangePassword;
 	Items.ExternalUsersListContextMenuSetPassword.Enabled = CanChangePassword;
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If Not StoredParameters.AdvancedPick Then
 		If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 			ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");

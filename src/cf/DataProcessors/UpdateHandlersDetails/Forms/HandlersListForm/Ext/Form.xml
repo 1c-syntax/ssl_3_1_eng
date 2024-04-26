@@ -861,8 +861,8 @@ or other handlers modify objects readable by this handler.</v8:content>
 					</ToolTip>
 					<EditMode>EnterOnInput</EditMode>
 					<HeaderPicture>
-						<xr:Ref>CommonPicture.ArchiveQuestionnaire</xr:Ref>
-						<xr:LoadTransparent>false</xr:LoadTransparent>
+						<xr:Ref>StdPicture.AppearanceExclamationMark</xr:Ref>
+						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</HeaderPicture>
 					<CheckBoxType>Auto</CheckBoxType>
 					<ContextMenu name="UpdateHandlersDataToReadWriterContextMenu" id="144"/>
@@ -927,8 +927,8 @@ or other handlers modify objects readable by this handler.</v8:content>
 					</ToolTip>
 					<EditMode>EnterOnInput</EditMode>
 					<HeaderPicture>
-						<xr:Ref>CommonPicture.ComparisonKinds</xr:Ref>
-						<xr:LoadTransparent>false</xr:LoadTransparent>
+						<xr:Ref>StdPicture.AppearanceFlagRed</xr:Ref>
+						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</HeaderPicture>
 					<CheckBoxType>Auto</CheckBoxType>
 					<ContextMenu name="UpdateHandlersChangedCheckProcedureContextMenu" id="263"/>
@@ -1290,8 +1290,8 @@ or other handlers modify objects readable by this handler.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>
-				<xr:Ref>StdPicture.SaveFile</xr:Ref>
-				<xr:LoadTransparent>true</xr:LoadTransparent>
+				<xr:Ref>CommonPicture.SaveFileAs</xr:Ref>
+				<xr:LoadTransparent>false</xr:LoadTransparent>
 			</Picture>
 			<Action>SaveToRepository</Action>
 		</Command>

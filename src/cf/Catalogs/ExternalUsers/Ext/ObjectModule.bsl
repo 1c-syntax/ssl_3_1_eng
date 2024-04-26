@@ -34,7 +34,7 @@ Procedure BeforeWrite(Cancel)
 	UsersInternal.UserObjectBeforeWrite(ThisObject, IBUserProcessingParameters);
 	// ACC:75-on
 	
-	// 
+	// ACC:75-off - The check "DataExchange.Import" should run after the register is locked.
 	If Common.FileInfobase() Then
 		// 
 		// 

@@ -545,7 +545,7 @@ Procedure OnAddClientParametersOnStart(Parameters) Export
 	Parameters.Insert("DataAreaSessionsLocked", MessageText + Chars.LF + Chars.LF + NStr("en = 'The application is temporarily unavailable.';"));
 	LogonMessageText = "";
 	If Users.IsFullUser() Then
-		LogonMessageText = MessageText + Chars.LF + Chars.LF + NStr("en = 'Do you want to sign in to the locked application?';");
+		LogonMessageText = MessageText + Chars.LF + Chars.LF + NStr("en = 'Do you want to log in to the locked application?';");
 	EndIf;
 	Parameters.Insert("PromptToAuthorize", LogonMessageText);
 	If (Users.IsFullUser() And Not CurrentMode.Exclusive) 

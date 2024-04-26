@@ -73,6 +73,7 @@ EndProcedure
 //
 // Parameters:
 //  ExchangePlanName - String - a name of the exchange plan, for which the registration is carried out.
+//  Source       - НаборЗаписейРегистра - an event source.
 //  Cancel          - Boolean - a flag of canceling the handler.
 //  Replacing      - Boolean - a flag showing whether the existing record set is replaced.
 // 
@@ -311,6 +312,7 @@ EndFunction
 //                        AccountingRegisterRecordSet.<Name>,
 //                        CalculationRegisterRecordSet.<Name> - a record set.
 //
+//  ExchangePlanNode     - ПланыОбменаОбъект - a node
 //                        to be checked.
 //
 // Returns:
@@ -386,6 +388,7 @@ EndProcedure
 //                 - CatalogObject
 //                 - DocumentObject
 //                 - InformationRegisterRecordSet
+//                 - и т.п. -
 //                   a data item.
 //   ItemSend - DataItemSend - see the "ItemSend" parameter description in Syntax Assistant
 //                      for methods OnSendDataToMaster() and OnSendDataToSubordinate().
@@ -596,6 +599,7 @@ EndProcedure
 //  Object - an infobase object to be written.
 //  RefExists - Boolean - indicates whether the referenced object exists in the infobase.
 //  ObjectVersionInfo - Structure:
+//    * VersionAuthor - Пользователь, УзелПланаОбмена - a version source.
 //        Optional, the default value is Undefined.
 //    * ObjectVersionType - String - a type of a version to be created.
 //        Optional, the default value is ChangedByUser.
@@ -1160,6 +1164,7 @@ EndProcedure
 //        Optional, the default value is False.
 //    * IsConstant - Boolean - True means that the constant is being processed.
 //        Optional, the default value is False.
+//    * WriteMode - см. в синтакс-Assistant for DocumentWriteMode - a document write mode (for documents only).
 //        Optional, the default value is Undefined.
 //    * Replacing - Boolean - a register write mode (for registers only).
 //        Optional, the default value is Undefined.
@@ -1385,7 +1390,8 @@ EndProcedure
 #Region ObjectsRegistrationRules
 
 // A wrapper procedure that executes the code for the main procedure in an attempt mode
-// (See ExecuteObjectsRegistrationRulesForExchangePlanAttemptException).
+// (See ExecuteObjectsRegistrationRulesForExchangePlanAttemptException)
+// .
 //
 // Parameters:
 //  NodesArrayResult - Array - an array of recipient nodes of the ExchangePlanName exchange plan
@@ -1398,6 +1404,7 @@ EndProcedure
 //        Optional, the default value is False.
 //    * IsObjectDeletion - Boolean - True means that the object deletion is being processed.
 //        Optional, the default value is False.
+//    * WriteMode - см. в синтакс-Assistant for DocumentWriteMode - a document write mode (for documents only).
 //        Optional, the default value is Undefined.
 //    * Replacing - Boolean - a register write mode (for registers only).
 //        Optional, the default value is Undefined.
@@ -1449,6 +1456,7 @@ EndProcedure
 //    * MetadataObject - MetadataObject - a metadata object that matches the data being changed. IsRequired.
 //    * IsRegister - Boolean - True means that the register is being processed. IsRequired.
 //    * IsObjectDeletion - Boolean - True means that the object deletion is being processed. IsRequired.
+//    * WriteMode - см. в синтакс-Assistant for DocumentWriteMode - a document write mode (for documents only).
 //                    IsRequired.
 //    * Replacing - Boolean - a register write mode (for registers only). IsRequired.
 //    * CheckRef1 - Boolean - a flag showing whether it is necessary to consider a data version before this data change.
@@ -1684,6 +1692,7 @@ EndProcedure
 //  ExchangePlanName - String - a name of the exchange plan, for which the registration is carried out.
 //  AdditionalParameters - Structure - additional information on data to change:
 //    * IsObjectDeletion - Boolean - True means that the object deletion is being processed. IsRequired.
+//    * WriteMode - см. в синтакс-Assistant for DocumentWriteMode - a document write mode (for documents only).
 //                    IsRequired.
 //    * CheckRef1 - Boolean - a flag showing whether it is necessary to consider a data version before this data change.
 //                                 IsRequired.
@@ -1734,6 +1743,7 @@ EndProcedure
 //  AdditionalParameters - Structure - additional information on data to change:
 //    * MetadataObject - MetadataObject - a metadata object that matches the data being changed. IsRequired.
 //    * IsObjectDeletion - Boolean - True means that the object deletion is being processed. IsRequired.
+//    * WriteMode - см. в синтакс-Assistant for DocumentWriteMode - a document write mode (for documents only).
 //                    IsRequired.
 //    * CheckRef1 - Boolean - a flag showing whether it is necessary to consider a data version before this data change.
 //                                 IsRequired.
@@ -2205,6 +2215,7 @@ EndFunction
 //  MetadataObject MetadataObject - to get a record set.
 //
 // Returns:
+//  НаборЗаписей - If a record set cannot be created for the metadata object,
 //    an exception is raised.
 //
 Function RecordSetByType(MetadataObject)
@@ -3491,6 +3502,7 @@ EndProcedure
 //  Data - a register record set.
 //
 // Returns:
+//  НаборЗаписей - containing the current value in the infobase.
 //
 Function RecordSet(Val Data)
 	
@@ -3874,6 +3886,7 @@ Procedure RegisterDataImportRestrictionByDate(DataElement, Sender, ErrorMessage)
 EndProcedure
 
 // Parameters:
+//   Object - CatalogObject, DocumentObject, и т.п - a data item.
 //   ObjectMetadata - MetadataObject - data item metadata.
 //   WriteObject - Boolean - True if this infobase object is replaced by the received object.
 //   IsReferenceType - Boolean - True if the object is a reference type object.

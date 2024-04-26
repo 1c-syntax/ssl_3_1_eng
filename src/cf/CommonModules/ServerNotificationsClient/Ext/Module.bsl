@@ -132,8 +132,8 @@ EndFunction
 
 // Parameters:
 //  Interval - Number
-//  ShouldReceiveImmediately - Boolean - 
-//                     
+//  ShouldReceiveImmediately - Boolean - If set to "True", the next check will make a server call
+//                     that returns the notification stack.
 //
 Procedure AttachServerNotificationReceiptCheckHandler(Interval = 1, ShouldReceiveImmediately = False) Export
 	
@@ -580,6 +580,7 @@ EndFunction
 //   * ShouldRegisterIndicators - Boolean
 //   * ServiceAdministratorSession - Boolean
 //   * IsRecurringDataSendEnabled - Boolean - Is set to True in the AfterStart procedure.
+//   * RepeatedDateExportMinInterval - See ServerNotifications.RepeatedDateExportMinInterval
 //   * SessionKey - See ServerNotifications.SessionKey
 //   * IBUserID - UUID
 //   * StatusUpdateDate - Date
@@ -604,7 +605,7 @@ EndFunction
 //   * WaitCounters - Map of KeyAndValue:
 //      ** Key - String - Counter name
 //      ** Value - Date - Last time the counter triggered.
-//   * ShouldReceiveImmediately - Boolean - 
+//   * ShouldReceiveImmediately - Boolean - If set to "True", the server call is made unconditionally.
 //
 Function NewReceiptStatus()
 	

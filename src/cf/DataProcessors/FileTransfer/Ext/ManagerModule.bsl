@@ -35,7 +35,7 @@ EndFunction
 Function ExecuteFileTransfer(FilesToTransfer, Parameters) Export
 
 	TransferErrors = New Array;
-	
+
 	If Parameters.Action = "MoveBetweenVolumes" Then
 		ActionForLog = NStr("en = 'between volumes on a server.';");
 	ElsIf Parameters.Action = "MoveToVolumes" Then
@@ -126,24 +126,23 @@ Procedure TransferFile(File, VolumeProperties, Parameters, TransferErrors, Files
 	Except
 	
 		RollbackTransaction();
-		Error = TransferError(FileRef, ErrorInfo());
-		
-		NameForLog = CommonClientServer.GetNameWithExtension(
-							FileProperties.Description,
-							FileProperties.Extension);
 
+		NameForLog = CommonClientServer.GetNameWithExtension(FileProperties.Description,
+			FileProperties.Extension);
+		
+		Error = TransferError(FileRef, ErrorInfo());
 		Error.FileName = NameForLog;
 		TransferErrors.Add(Error);
 		
 		WriteLogEvent(NStr("en = 'Files.File moving error.';", Common.DefaultLanguageCode()),
 			EventLogLevel.Error,, FileRef,
 			StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'An error occurred when moving file
-				|""%1""
-				|to a volume. Reason:
-				|%2';"),
-				NameForLog,
-				Error.DetailErrorDescription));
+				NStr("en = 'Не удалось перенести файл %1
+				|%2
+				|по причине:
+				|%3"".';"),
+				Common.SubjectString(FileRef), 
+				NameForLog, Error.DetailErrorDescription));
 
 	EndTry;
 	

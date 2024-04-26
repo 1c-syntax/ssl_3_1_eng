@@ -332,12 +332,18 @@
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="SaveButtonAllActionsExtendedTooltip" id="48"/>
 								</Button>
-								<Popup name="SubmitAllActionsSubmenu" id="159">
+								<Popup name="SubmenuSendAllActions" id="159">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Send</v8:content>
+										</v8:item>
+									</Title>
 									<Picture>
 										<xr:Ref>StdPicture.SendMessage</xr:Ref>
 										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
-									<ExtendedTooltip name="SubmitAllActionsSubmenuExtendedTooltip" id="160"/>
+									<ExtendedTooltip name="SubmenuSendAllActionsExtendedTooltip" id="160"/>
 									<ChildItems>
 										<Button name="SendButtonAllActions" id="49">
 											<Type>CommandBarButton</Type>
@@ -356,6 +362,12 @@
 							</ChildItems>
 						</ButtonGroup>
 						<Popup name="LanguageAllActions" id="157">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Language</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="LanguageAllActionsExtendedTooltip" id="158"/>
 						</Popup>
 						<ButtonGroup name="EditTemplateGroup" id="51">

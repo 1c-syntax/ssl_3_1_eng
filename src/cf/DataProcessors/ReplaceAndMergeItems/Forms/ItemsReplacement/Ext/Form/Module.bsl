@@ -951,7 +951,7 @@ Procedure AfterCompletionReplacingLinks(Job, AdditionalParameters) Export
 	EndIf;
 	
 	If Job.Status <> "Completed2" Then
-		// 
+		// Background job is completed with error.
 		Brief1 = NStr("en = 'Items were not replaced due to:';") + Chars.LF + Job.BriefErrorDescription;
 		More = Brief1 + Chars.LF + Chars.LF + Job.DetailErrorDescription;
 		Items.ErrorTextLabel.Title = Brief1;
@@ -963,11 +963,11 @@ Procedure AfterCompletionReplacingLinks(Job, AdditionalParameters) Export
 	
 	HasUnsuccessfulReplacements = FillUnsuccessfulReplacements(Job.ResultAddress);
 	If HasUnsuccessfulReplacements Then
-		// 
+		// Partially successful: display the details.
 		GoToWizardStep1(Items.RetryReplacementStep);
 		Activate();
 	Else
-		// 
+		// Completely successful: display the notification and close the form.
 		Count = RefsToReplace.Count();
 		If Count = 1 Then
 			ResultingText = StringFunctionsClientServer.SubstituteParametersToString(

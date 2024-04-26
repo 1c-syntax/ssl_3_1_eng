@@ -1484,9 +1484,9 @@ Function StartDatesQueryText(InitialDates)
 	
 EndFunction
 
-// Determines the nearest working day to the provided date based on the data
-// of the default business calendar in the Russian Federation.
-// Intended for cases, when no custom business calendar is filled.
+// 
+// 
+// 
 // 
 // Parameters:
 //  InitialDate - Date
@@ -1509,13 +1509,18 @@ Function NearestBusinessDateFromDefaultCalendar(InitialDate, DefaultCalendarData
 	If DefaultCalendarData.Find(Year, "Year") = Undefined Then
 		SupplementDefaultCalendarData(DefaultCalendarData, Year, GetPreviousOne);
 	EndIf;
+	
 	TableRow = DefaultCalendarData.Find(InitialDate, "Date");
 	If TableRow = Undefined Then
 		Return Undefined;
 	EndIf;
+	If TableRow.DayKind = Enums.BusinessCalendarDaysKinds.Work
+		Or TableRow.DayKind = Enums.BusinessCalendarDaysKinds.Preholiday Then
+		Return TableRow.Date;
+	EndIf;
+	
 	IndexOf = DefaultCalendarData.IndexOf(TableRow);
 	ValueToAdd = ?(GetPreviousOne, -1, 1);
-	
 	While True Do
 		IndexOf = IndexOf + 1;
 		If IndexOf >= DefaultCalendarData.Count() Then

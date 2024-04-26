@@ -21,13 +21,13 @@ Procedure OnOpen(Cancel)
 	Items.FormRemindMeTomorrow.Visible = False;
 	Items.Picture.Picture = PictureLib.DialogExclamation;
 	
-	PresentationIsMinutesAway = UsersInternalClient.PresentationIsMinutesAwayFromRestart(
-		UsersInternalClient.ThereAreMinutesLeftBeforeRestart(InformParameters.RestartDate));
+	MinutesLeftPresentation = UsersInternalClient.MinutesBeforeRestartPresentation(
+		UsersInternalClient.MinutesBeforeRestart(InformParameters.RestartDate));
 		
 	Items.Label.Title = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'The administrator changed access rights.
 		           |To apply the changes, the app will restart in %1.';"),
-		PresentationIsMinutesAway);
+		MinutesLeftPresentation);
 	
 EndProcedure
 

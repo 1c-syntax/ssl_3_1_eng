@@ -156,9 +156,9 @@ Function ShouldRegisterChangesInAccessRights() Export
 		Return False;
 	EndIf;
 	
-	UserExperienceMonitoringModuleInternal = Common.CommonModule("UserMonitoringInternal");
+	ModuleUserMonitoringInternal = Common.CommonModule("UserMonitoringInternal");
 	
-	Return UserExperienceMonitoringModuleInternal.ShouldRegisterChangesInAccessRights();
+	Return ModuleUserMonitoringInternal.ShouldRegisterChangesInAccessRights();
 	
 EndFunction
 

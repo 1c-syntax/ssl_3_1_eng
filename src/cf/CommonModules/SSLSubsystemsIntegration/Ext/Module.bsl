@@ -99,7 +99,7 @@ Function SSLEvents() Export
 	// Print
 	Events.Insert("OnDefinePrintSettings", False);
 	Events.Insert("OnPrepareTemplateListInOfficeDocumentServerFormat", False);
-	Events.Insert("OnDefineObjectsWithPrintCommands", False); 
+	Events.Insert("OnDefineObjectsWithPrintCommands", False); // Deprecated. Obsolete. Use OnDefinePrintSettings instead. 
 	Events.Insert("BeforeAddPrintCommands", False);
 	Events.Insert("OnGetPrintCommandListSettings", False);
 	Events.Insert("OnPrint", False);
@@ -130,7 +130,7 @@ Function SSLEvents() Export
 	Events.Insert("OnEndIBUserProcessing", False);
 	Events.Insert("OnDefineRegistrationSettingsForDataAccessEvents", False);
 	
-	//SecurityProfiles
+	// SecurityProfiles
 	Events.Insert("OnCheckCanSetupSecurityProfiles", False);
 	Events.Insert("OnRequestPermissionsToUseExternalResources", False);
 	Events.Insert("OnRequestToCreateSecurityProfile", False);
@@ -144,7 +144,10 @@ Function SSLEvents() Export
 	Events.Insert("AfterGetEmailMessagesStatuses", False);	
 	
 	// FilesOperations
+	Events.Insert("OnCreateFilesListForm", False);
+	Events.Insert("OnCreateFilesItemForm", False);
 	Events.Insert("OnDefineFileSynchronizationExceptionObjects", False);
+	Events.Insert("OnSendFilesViaEmail", False);
 	
 	// ScheduledJobs
 	Events.Insert("OnDefineScheduledJobSettings", False);
@@ -180,8 +183,8 @@ EndFunction
 
 #Region CTLEventHandlers
 
-// 
-// 
+// Handle software events that occur in CTL subsystems.
+// Intended only for calls from CTL to SSL.
 
 // Defines events, to which this library is subscribed.
 //
@@ -830,8 +833,8 @@ EndProcedure
 #EndRegion
 
 #Region OSLEventHandlers
-// 
-// 
+// Handle software events that occur in Online Support subsystems.
+// Intended only for calls from Online Support to SSL.
 
 // Defines events, to which this library is subscribed.
 //
@@ -1212,8 +1215,8 @@ Procedure OnAddMetadataObjectsRenaming(Total) Export
 	StandardSubsystemsServer.OnAddMetadataObjectsRenaming(Total);
 
 	If Common.SubsystemExists("StandardSubsystems.UserMonitoring") Then
-		UserExperienceMonitoringModuleInternal = Common.CommonModule("UserMonitoringInternal");
-		UserExperienceMonitoringModuleInternal.OnAddMetadataObjectsRenaming(Total);
+		ModuleUserMonitoringInternal = Common.CommonModule("UserMonitoringInternal");
+		ModuleUserMonitoringInternal.OnAddMetadataObjectsRenaming(Total);
 	EndIf;
 
 	If Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
@@ -1284,6 +1287,7 @@ Procedure OnAddMetadataObjectsRenaming(Total) Export
 
 EndProcedure
 
+// See InformationRegister.ExtensionVersionParameters.FillAllExtensionParameters.
 Procedure OnFillAllExtensionParameters() Export
 
 	UsersInternal.OnFillAllExtensionParameters();
@@ -1320,6 +1324,7 @@ Procedure OnFillAllExtensionParameters() Export
 
 EndProcedure
 
+// See InformationRegister.ExtensionVersionParameters.ClearAllExtensionParameters.
 Procedure OnClearAllExtemsionParameters() Export
 
 	If Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
@@ -2106,8 +2111,8 @@ EndProcedure
 Procedure OnSetUpReportsOptions(Settings) Export
 
 	If Common.SubsystemExists("StandardSubsystems.UserMonitoring") Then
-		UserExperienceMonitoringModuleInternal = Common.CommonModule("UserMonitoringInternal");
-		UserExperienceMonitoringModuleInternal.OnSetUpReportsOptions(Settings);
+		ModuleUserMonitoringInternal = Common.CommonModule("UserMonitoringInternal");
+		ModuleUserMonitoringInternal.OnSetUpReportsOptions(Settings);
 	EndIf;
 
 	If Common.SubsystemExists("StandardSubsystems.Surveys") Then
@@ -2258,8 +2263,8 @@ Procedure BeforeAddReportCommands(ReportsCommands, Parameters, StandardProcessin
 	EndIf;
 
 	If Common.SubsystemExists("StandardSubsystems.UserMonitoring") Then
-		UserExperienceMonitoringModuleInternal = Common.CommonModule("UserMonitoringInternal");
-		UserExperienceMonitoringModuleInternal.BeforeAddReportCommands(ReportsCommands, Parameters,
+		ModuleUserMonitoringInternal = Common.CommonModule("UserMonitoringInternal");
+		ModuleUserMonitoringInternal.BeforeAddReportCommands(ReportsCommands, Parameters,
 			StandardProcessing);
 	EndIf;
 
@@ -3197,6 +3202,11 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	If Common.SubsystemExists("StandardSubsystems.AccountingAudit") Then
 		ModuleAccountingAuditInternal = Common.CommonModule("AccountingAuditInternal");
 		ModuleAccountingAuditInternal.OnAddUpdateHandlers(Handlers);
+	EndIf;
+	
+	If Common.SubsystemExists("StandardSubsystems.MachineReadableLettersOfAuthority") Then
+		ModuleMachineReadableLettersOfAuthorityFTSInternal = Common.CommonModule("MachineReadableLettersOfAuthorityFTSInternal");
+		ModuleMachineReadableLettersOfAuthorityFTSInternal.OnAddUpdateHandlers(Handlers);
 	EndIf;
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
@@ -4183,8 +4193,8 @@ Procedure OnDefineRegistrationSettingsForDataAccessEvents(Settings) Export
 	EndIf;
 	
 	If Common.SubsystemExists("StandardSubsystems.UserMonitoring") Then
-		UserExperienceMonitoringModuleInternal = Common.CommonModule("UserMonitoringInternal");
-		UserExperienceMonitoringModuleInternal.OnDefineRegistrationSettingsForDataAccessEvents(Settings);
+		ModuleUserMonitoringInternal = Common.CommonModule("UserMonitoringInternal");
+		ModuleUserMonitoringInternal.OnDefineRegistrationSettingsForDataAccessEvents(Settings);
 	EndIf;
 	
 	If SSLSubsystemsIntegrationCached.SubscriptionsCTL().OnDefineRegistrationSettingsForDataAccessEvents Then
@@ -4400,8 +4410,8 @@ Procedure AfterAddChangeUserOrGroup(Ref, IsNew) Export
 
 EndProcedure
 
-// 
-// 
+// Redefines the actions required after completing link updates
+// in the registers "UserGroupCompositions" and "UserGroupsHierarchy".
 //
 // Parameters:
 //  ItemsToChange - Array of CatalogRef.Users
@@ -4410,7 +4420,7 @@ EndProcedure
 //
 //  ModifiedGroups   - Array of CatalogRef.UserGroups
 //                     - Array of CatalogRef.ExternalUsersGroups -
-//                       
+//                       New groups and groups whose content or parents were changes.
 //                       
 //
 Procedure AfterUserGroupsUpdate(ItemsToChange, ModifiedGroups) Export
@@ -4761,7 +4771,9 @@ EndProcedure
 
 #Region FilesOperations
 
-// See FilesOperationsInternal.OnDefineFileSynchronizationExceptionObjects.
+// Parameters:
+//   Objects - Array of MetadataObject
+//
 Procedure OnDefineFileSynchronizationExceptionObjects(Objects) Export
 
 	If Common.SubsystemExists("StandardSubsystems.Interactions") Then
@@ -4781,15 +4793,53 @@ Procedure OnDefineFileSynchronizationExceptionObjects(Objects) Export
 
 EndProcedure
 
-// Allows you to change the file standard form
-//
-// Parameters:
-//    Form - ClientApplicationForm - a file form.
-//
+// See FilesOperationsOverridable.OnCreateFilesListForm
+Procedure OnCreateFilesListForm(Form) Export
+
+	If SSLSubsystemsIntegrationCached.SubscriptionsCTL().OnCreateFilesListForm Then
+		ModuleCTLSubsystemsIntegration = Common.CommonModule("CTLSubsystemsIntegration");
+		ModuleCTLSubsystemsIntegration.OnCreateFilesListForm(Form);
+	EndIf;
+
+	If SSLSubsystemsIntegrationCached.SubscriptionsOSL().OnCreateFilesListForm Then
+		ModuleOSLSubsystemsIntegration = Common.CommonModule("OSLSubsystemsIntegration");
+		ModuleOSLSubsystemsIntegration.OnCreateFilesListForm(Form);
+	EndIf;
+
+EndProcedure
+
+// See FilesOperationsOverridable.OnCreateFilesItemForm
 Procedure OnCreateFilesItemForm(Form) Export
+
 	If Common.SubsystemExists("StandardSubsystems.Interactions") Then
 		ModuleInteractions = Common.CommonModule("Interactions");
 		ModuleInteractions.OnCreateFilesItemForm(Form);
+	EndIf;
+
+	If SSLSubsystemsIntegrationCached.SubscriptionsCTL().OnCreateFilesItemForm Then
+		ModuleCTLSubsystemsIntegration = Common.CommonModule("CTLSubsystemsIntegration");
+		ModuleCTLSubsystemsIntegration.OnCreateFilesItemForm(Form);
+	EndIf;
+
+	If SSLSubsystemsIntegrationCached.SubscriptionsOSL().OnCreateFilesItemForm Then
+		ModuleOSLSubsystemsIntegration = Common.CommonModule("OSLSubsystemsIntegration");
+		ModuleOSLSubsystemsIntegration.OnCreateFilesItemForm(Form);
+	EndIf;
+
+EndProcedure
+
+// See FilesOperationsOverridable.OnSendFilesViaEmail.
+Procedure OnSendFilesViaEmail(SendOptions, FilesToSend, FilesOwner, UUID) Export
+	If SSLSubsystemsIntegrationCached.SubscriptionsCTL().OnSendFilesViaEmail Then
+		ModuleCTLSubsystemsIntegration = Common.CommonModule("CTLSubsystemsIntegration");
+		ModuleCTLSubsystemsIntegration.OnSendFilesViaEmail(SendOptions, FilesToSend, FilesOwner,
+			UUID);
+	EndIf;
+
+	If SSLSubsystemsIntegrationCached.SubscriptionsOSL().OnSendFilesViaEmail Then
+		ModuleOSLSubsystemsIntegration = Common.CommonModule("OSLSubsystemsIntegration");
+		ModuleOSLSubsystemsIntegration.OnSendFilesViaEmail(SendOptions, FilesToSend, FilesOwner,
+			UUID);
 	EndIf;
 EndProcedure
 
@@ -5117,8 +5167,8 @@ EndProcedure
 Procedure OnFillToDoList(ToDoList) Export
 
 	If Common.SubsystemExists("StandardSubsystems.UserMonitoring") Then
-		UserExperienceMonitoringModuleInternal = Common.CommonModule("UserMonitoringInternal");
-		UserExperienceMonitoringModuleInternal.OnFillToDoList(ToDoList);
+		ModuleUserMonitoringInternal = Common.CommonModule("UserMonitoringInternal");
+		ModuleUserMonitoringInternal.OnFillToDoList(ToDoList);
 	EndIf;
 
 	If Common.SubsystemExists("StandardSubsystems.MarkedObjectsDeletion") Then

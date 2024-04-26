@@ -15,7 +15,7 @@ Procedure CommandProcessing(CommandParameter, CommandExecuteParameters)
 	
 	ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient = Undefined;
 	UseEDIToStoreObjectFiles =
-		FilesOperationsInternalClient._1CDocumentManagementIsUsedToStoreObjectFiles(
+		FilesOperationsInternalClient.Is1CDocumentManagementUsedForFileStorage(
 			CommandParameter,
 			ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient,
 			CommandExecuteParameters.Source,

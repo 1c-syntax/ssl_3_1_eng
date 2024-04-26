@@ -193,7 +193,7 @@ Function AvailableLanguages() Export
 	
 EndFunction
 
-// 
+// Returns "True" if the auto-translation settings is enabled.
 //
 // Returns:
 //  Boolean

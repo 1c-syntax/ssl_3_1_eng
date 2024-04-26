@@ -367,7 +367,7 @@ Function AddressFieldsStructure() Export
 	
 EndFunction
 
-// Returns a structure describing the commands to be displayed for the given contact information kind
+// 
 //
 // Parameters:
 //   ContactInformationParameters - Structure:

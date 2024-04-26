@@ -53,7 +53,7 @@
 		</valueType>
 		<value xsi:type="xs:dateTime">0001-01-01T00:00:00</value>
 		<useRestriction>true</useRestriction>
-		<expression>&amp;Period.EndDate</expression>
+		<expression>Reports.UniversalReport.PeriodEndDate_2(&amp;Period, &amp;MetadataObjectType, &amp;TableName)</expression>
 	</parameter>
 	<parameter>
 		<name>DataSource</name>

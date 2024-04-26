@@ -13,8 +13,8 @@
 #Region ForCallsFromOtherSubsystems
 
 #Region CTLEventHandlers
-// 
-// 
+// Handle software events that occur in CTL subsystems.
+// Intended only for calls from CTL to SSL.
 
 // Defines events, to which this library is subscribed.
 //
@@ -29,8 +29,8 @@ EndProcedure
 #EndRegion
 
 #Region OSLEventHandlers
-// 
-// 
+// Handle software events that occur in Online Support subsystems.
+// Intended only for calls from Online Support to SSL.
 
 // Defines events, to which this library is subscribed.
 //
@@ -420,9 +420,9 @@ EndProcedure
 Procedure OnProcessDetails(ReportForm, Item, Details, StandardProcessing) Export
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.UserMonitoring") Then
-		UserExperienceMonitoringModuleInternalClient =
+		ModuleUserMonitoringInternalClient =
 			CommonClient.CommonModule("UserMonitoringInternalClient");
-		UserExperienceMonitoringModuleInternalClient.OnProcessDetails(ReportForm,
+		ModuleUserMonitoringInternalClient.OnProcessDetails(ReportForm,
 			Item, Details, StandardProcessing);
 	EndIf;
 	
@@ -456,9 +456,9 @@ EndProcedure
 Procedure OnProcessAdditionalDetails(ReportForm, Item, Details, StandardProcessing) Export
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.UserMonitoring") Then
-		UserExperienceMonitoringModuleInternalClient =
+		ModuleUserMonitoringInternalClient =
 			CommonClient.CommonModule("UserMonitoringInternalClient");
-		UserExperienceMonitoringModuleInternalClient.OnProcessAdditionalDetails(ReportForm,
+		ModuleUserMonitoringInternalClient.OnProcessAdditionalDetails(ReportForm,
 			Item, Details, StandardProcessing);
 	EndIf;
 	

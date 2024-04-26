@@ -10,8 +10,8 @@
 
 #Region Public
 
-// 
-// 
+// ACC:142-off - 3+ optional parameters to support application functions.
+// ACC:134-off - 7+ parameters to support application functions.
 
 // Starts the function execution in a background job if possible.
 // The function to call can have the arbitrary number of parameters, but not more than 7.
@@ -55,46 +55,46 @@
 //                           - Undefined - If Status <> "Error".
 //   * Messages - FixedArray - If Status <> "Running", then the MessageToUser array of objects
 //                                      that were generated in the background job.
-//   * BriefErrorDescription   - String - 
-//   * DetailErrorDescription - String - 
+//   * BriefErrorDescription   - String - Obsolete.
+//   * DetailErrorDescription - String - Obsolete.
 //
 // Example:
-//  
+//  In general, the process of starting and processing the result of a long-running operation in the form module looks like this:
 //
-//   
-//    
-//     
-//     
-//    
+//   1) The function that will be executed in the background is located in the object manager module or in the server common module:
+//    Function CalculateValue(Val MyParameter1, Val MyParameter2) Export
+//     …
+//     Return Result;
+//    EndFunction
 //
-//   
-//    
-//    
-//     
-//     
-//     
-//     
-//    
+//   2) Starting the operation on the server and attaching the idle handler:
+//    &AtClient
+//    Procedure CalculateValue()
+//     TimeConsumingOperation = StartExecutionAtServer();
+//     NotificationOfCompletion = New NotifyDescription("ProcessResult", ThisObject);
+//     IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
+//     TimeConsumingOperationsClient.WaitForCompletion(TimeConsumingOperation, NotificationOfCompletion, IdleParameters);
+//    EndProcedure
 //
+//    &AtServer
+//    Function StartExecutionAtServer()
+//     ExecutionParameters = TimeConsumingOperations.FunctionExecutionParameters(UUID);
+//     Return TimeConsumingOperations.ExecuteFunction(ExecutionParameters, "DataProcessor.MyDataProcessor.CalculateValue", 
+//      MyParameter1, MyParameter2);
+//    EndFunction
 //    
-//    
-//     
-//      
-//      
-//    
-//    
-//   
-//    
-//    
-//     
-//      
-//     
-//     
-//      
-//      
-//     
-//     
-//     
+//   3) The result processing of a long-running operation:
+//    &AtClient
+//    Procedure ProcessResult(Result, AdditionalParameters) Export
+//     If Result = Undefined Then
+//      Return;
+//     EndIf;
+//     If Result.Status = "Error" Then
+//      StandardSubsystemsClient.OutputErrorInfo(Result.ErrorInfo);
+//      Return;
+//     EndIf;
+//     OutputResult(Result.ResultAddress);
+//    EndProcedure 
 //  
 Function ExecuteFunction(Val ExecutionParameters, FunctionName, Val Parameter1 = Undefined,
 	Val Parameter2 = Undefined, Val Parameter3 = Undefined, Val Parameter4 = Undefined,
@@ -109,8 +109,8 @@ Function ExecuteFunction(Val ExecutionParameters, FunctionName, Val Parameter1 =
 	
 EndFunction
 
-// 
-// 
+// ACC:141-off - The first optional parameter followed by a required parameter is selected
+// to keep the parameter order the same as in the "ExecuteFunction" function.
 
 // Starts the procedure execution in a background job if possible.
 // The procedure to call can have the arbitrary number of parameters, but not more than 7.
@@ -152,46 +152,46 @@ EndFunction
 //                           - Undefined - If Status <> "Error".
 //   * Messages - FixedArray - If Status <> "Running", then the MessageToUser array of objects
 //                                      that were generated in the background job.
-//   * BriefErrorDescription   - String - 
-//   * DetailErrorDescription - String - 
+//   * BriefErrorDescription   - String - Obsolete.
+//   * DetailErrorDescription - String - Obsolete.
 //
 // Example:
-//  
+//  In general, running a long-running operation in the form module and processing its results is organized as follows:
 //
-//   
-//    
-//     
-//    
+//   1) The procedure to run in the background is added to the object manager module or common server module
+//    Procedure ExecuteCalculation(Val MyParameter1, Val MyParameter2) Export
+//     …
+//    EndProcedure
 //
-//   
-//    
-//    
-//     
-//     
-//     
-//     
-//    
+//   2) The operation is started on the server, and the idle handler is attached (if necessary)
+//    &AtClient
+//    Procedure ExecuteCalculation()
+//     TimeConsumingOperation = StartExecuteAtServer();
+//     NotificationOfCompletion = New NotifyDescription("ProcessResult", ThisObject);
+//     IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
+//     TimeConsumingOperationsClient.WaitForCompletion(TimeConsumingOperation, NotificationOfCompletion, IdleParameters);
+//    EndProcedure
 //
+//    &AtServer
+//    Function StartExecuteAtServer()
+//     Return TimeConsumingOperations.ExecuteProcedure(, "DataProcessor.MyDataProcessor.ExecuteCalculation", 
+//      MyParameter1, MyParameter2);
+//    EndFunction
 //    
-//    
-//      
-//      
-//    
-//    
+//   3) The result of a long-running operation is processed
+//    &AtClient
+//    Procedure ProcessResult(Result, AdditionalParameters) Export
+//     If Result = Undefined Then
+//      Return;
+//     EndIf;
+//     If Result.Status = "Error" Then
+//      StandardSubsystemsClient.OutputErrorInfo(Result.ErrorInfo);
+//      Return;
+//     EndIf;
+//     OnCalculaionCompletion();
+//    EndProcedure 
 //   
-//    
-//    
-//     
-//      
-//     
-//     
-//      
-//      
-//     
-//     
-//     
-//   
-//
+//@skip-check method-optional-parameter-before-required
 //
 Function ExecuteProcedure(Val ExecutionParameters = Undefined, ProcedureName, Val Parameter1 = Undefined,
 	Val Parameter2 = Undefined, Val Parameter3 = Undefined, Val Parameter4 = Undefined,
@@ -206,9 +206,9 @@ Function ExecuteProcedure(Val ExecutionParameters = Undefined, ProcedureName, Va
 	
 EndFunction
 
-// 
-// 
-// 
+// ACC:141-on
+// ACC:134-on
+// ACC:142-on
 
 // Starts the function execution in a multi-threaded background job if possible.
 // The procedure to call can have the arbitrary number of parameters, but not more than 7.
@@ -246,8 +246,8 @@ EndFunction
 //                           - Undefined - If Status <> "Error".
 //   * Messages - FixedArray - If Status <> "Running", then the MessageToUser array of objects
 //                                      that were generated in the background job.
-//   * BriefErrorDescription   - String - 
-//   * DetailErrorDescription - String - 
+//   * BriefErrorDescription   - String - Obsolete.
+//   * DetailErrorDescription - String - Obsolete.
 //
 Function ExecuteFunctionInMultipleThreads(FunctionName, Val ExecutionParameters, Val FunctionSettings = Undefined) Export
 	
@@ -330,8 +330,8 @@ EndFunction
 //                           - Undefined - If Status <> "Error".
 //   * Messages - FixedArray - If Status <> "Running", then the MessageToUser array of objects
 //                                      that were generated in the background job.
-//   * BriefErrorDescription   - String - 
-//   * DetailErrorDescription - String - 
+//   * BriefErrorDescription   - String - Obsolete.
+//   * DetailErrorDescription - String - Obsolete.
 //
 Function ExecuteProcedureinMultipleThreads(ProcedureName, Val ExecutionParameters, Val ProcedureSettings = Undefined) Export
 	
@@ -406,8 +406,9 @@ EndFunction
 //                               If "0", don't wait till the background job is completed.
 //                               By default, "0.8" ("4" for low-speed connections).
 //     * BackgroundJobDescription - String - the description of the background job. The default value is the procedure name.
-//     * BackgroundJobKey - String - the unique key for active background jobs that have the same procedure name.
-//                                      Not set by default.
+//     * BackgroundJobKey - String - 
+//                                      
+//                                      
 //     * ResultAddress     - String - an address of the temporary storage where the procedure
 //                                      result must be stored. If the address is not set, it is generated automatically.
 //     * RunInBackground           - Boolean - If True, the job always runs in the background, except for the following cases:
@@ -433,9 +434,9 @@ EndFunction
 //                                  The running child jobs will be aborted.
 //                                  Applicable to function RunFunctionInMultithreading.
 //                                  
-//     * RefinementErrors          - String - 
-//                                   :
-//                                   
+//     * RefinementErrors          - String - If a non-empty string is passed, the error is prefixed with the passed string.
+//                                   For example::
+//                                   NStr("en = 'Failed to clear the address classifier due to:'")
 //
 Function FunctionExecutionParameters(Val FormIdentifier) Export
 	
@@ -487,9 +488,9 @@ EndFunction
 //                                  The running child jobs will be aborted.
 //                                  Applicable to function RunProcedureInMultithreading.
 //                                  
-//     * RefinementErrors          - String - 
-//                                   :
-//                                   
+//     * RefinementErrors          - String - If a non-empty string is passed, the error is prefixed with the passed string.
+//                                   For example::
+//                                   NStr("en = 'Failed to clear the address classifier due to:'")
 //
 Function ProcedureExecutionParameters() Export
 	
@@ -540,50 +541,52 @@ EndFunction
 //                           - Undefined - If Status <> "Error".
 //   * Messages - FixedArray - If Status <> "Running", then the MessageToUser array of objects
 //                                      that were generated in the background job.
-//   * BriefErrorDescription   - String - 
-//   * DetailErrorDescription - String - 
+//   * BriefErrorDescription   - String - Obsolete.
+//   * DetailErrorDescription - String - Obsolete.
 // 
 // Example:
-//  
+//  In general, running a long-running operation and processing its results is organized as follows:
 //
-//   
-//    
-//     
-//     
-//    
+//   1) The procedure to run in the background is added to the object manager module or common server module:
+//    Procedure ExecuteAction(Parameters, ResultAddress) Export
+//     …
+//     PutToTempStorage(Result, ResultAddress);
+//    EndProcedure
 //
-//   
-//    
-//    
-//     
-//     
-//     
-//     
-//     
-//    
+//   2) The operation is started on the server, and the idle handler is attached:
+//    &AtClient
+//    Procedure ExecuteAction()
+//     TimeConsumingOperation = StartExecuteAtServer();
+//     IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
+//     …
+//     NotificationOfCompletion = New NotifyDescription("ExecuteActionCompletion", ThisObject);
+//     TimeConsumingOperationsClient.WaitForCompletion(TimeConsumingOperation, NotificationOfCompletion, IdleParameters);
+//    EndProcedure
 //
+//    &AtServer
+//    Function StartExecuteAtServer()
+//     ProcedureParameters = New Structure;
+//     …
+//     ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
+//     …
+//     Return TimeConsumingOperations.ExecuteInBackground("DataProcessors.MyDataProcessor.ExecuteAction", 
+//     ProcedureParameters, ExecutionParameters);
+//    EndFunction
 //    
-//    
-//     
-//     
-//     
-//     
-//      
-//     
-//    
-//    
-//   
-//    
-//    
-//     
-//      
-//     
-//     
-//      
-//      
-//     
-//     
-//     
+//   3) The operation result is processed:
+//    &AtClient
+//    Process the output:
+//     &AtClient
+//      Procedure ExecuteActionCompletion(Result, AdditionalParameters) Export
+//     If Result = Undefined Then
+//     Return;
+//      EndIf;
+//      If Result.Status = "Error" Then
+//     StandardSubsystemClient.OutputErrorInfo(Result.ErrorInfo);
+//     Return;
+//    EndIf; 
+//  OutputResult(Result);
+//  EndProcedure
 //  
 Function ExecuteInBackground(Val ProcedureName, Val ProcedureParameters, Val ExecutionParameters) Export
 		
@@ -826,9 +829,9 @@ EndFunction
 //                                    external data processors respectively. External reports and
 //                                    external data processors are attached with the unsafe action protection enabled.
 //                                    
-//     * RefinementErrors          - String - 
-//                                   :
-//                                   
+//     * RefinementErrors          - String - If a non-empty string is passed, the error is prefixed with the passed string.
+//                                   For example::
+//                                   NStr("en = 'Failed to clear the address classifier due to:'")
 //
 Function BackgroundExecutionParameters(Val FormIdentifier = Undefined) Export
 	
@@ -891,8 +894,8 @@ EndProcedure
 //   JobID - UUID - a background job ID.
 //
 // Returns:
-//  Undefined -  
-//  :
+//  Undefined - Progress detailes are not obtained. 
+//  Structure:
 //    * Percent                 - Number  - optional. Progress percentage.
 //    * Text                   - String - optional. Details on the current action.
 //    * AdditionalParameters - Arbitrary - optional. Any additional information.
@@ -962,8 +965,8 @@ EndProcedure
 //                            "Error" if the job has completed with error;
 //                            "Canceled" if job is canceled by a user or by an administrator.
 //
-//   * ErrorInfo - ErrorInfo - 
-//                        - Undefined - 
+//   * ErrorInfo - ErrorInfo - If Status = "Error" or Status = "Canceled".
+//                        - Undefined - If Status <> "Error" and Status <> "Canceled".
 //
 //   * JobID - UUID - The last job ID if restarts occurred
 //                              (for example, for long-running operations).
@@ -972,9 +975,9 @@ EndProcedure
 //   * Job - Undefined   - Job was not found.
 //             - BackgroundJob - Job is found.
 //
-//   * ErrorText                  - String - 
-//   * BriefErrorDescription   - String - 
-//   * DetailErrorDescription - String - 
+//   * ErrorText                  - String - Obsolete.
+//   * BriefErrorDescription   - String - Obsolete.
+//   * DetailErrorDescription - String - Obsolete.
 //
 Function JobCompleted(Val JobID, ExtendedResult = False) Export
 	
@@ -1463,8 +1466,8 @@ EndProcedure
 //   * Messages - Undefined
 //               - FixedArray of UserMessage
 //
-//   * BriefErrorDescription   - String - 
-//   * DetailErrorDescription - String - 
+//   * BriefErrorDescription   - String - Obsolete.
+//   * DetailErrorDescription - String - Obsolete.
 //   
 Function OperationNewRuntimeResult() Export
 	
@@ -1585,7 +1588,7 @@ EndFunction
 // See CommonOverridable.OnReceiptRecurringClientDataOnServer
 Procedure OnReceiptRecurringClientDataOnServer(Parameters, Results) Export
 	
-	CheckParameters = Parameters.Get( 
+	CheckParameters = Parameters.Get( // See TimeConsumingOperationsClient.LongRunningOperationCheckParameters
 		"StandardSubsystems.Core.LongRunningOperationCheckParameters");
 	
 	If CheckParameters = Undefined Then
@@ -1598,6 +1601,7 @@ Procedure OnReceiptRecurringClientDataOnServer(Parameters, Results) Export
 EndProcedure
 
 // Parameters:
+//  Parameters - See TimeConsumingOperationsClient.LongRunningOperationCheckParameters
 //
 // Returns:
 //  Map of KeyAndValue:
@@ -2065,11 +2069,11 @@ EndFunction
 //
 Function ShouldSkipNotification(Data) Export
 	
-	// 
-	// 
-	// 
-	// 
-	// 
+	// If the Collaboration System is not integrated, skip the completion notification
+	// as it will make an extra call to "TimeConsumingOperationsServerCall.IsBackgroundJobCompleted".
+	// Without the Collaboration System, it is excessive as this is managed by the function
+	// "ActionCompleted", which is part of the operation completion management run by the function
+	// "LongRunningOperationCheckResult".
 	// 
 	// 
 	// 
@@ -3139,8 +3143,8 @@ EndFunction
 //                           - Undefined - If Status <> "Error".
 //   * Messages - FixedArray - If Status <> "Running", then the MessageToUser array of objects
 //                                      that were generated in the background job.
-//   * BriefErrorDescription   - String - 
-//   * DetailErrorDescription - String - 
+//   * BriefErrorDescription   - String - Obsolete.
+//   * DetailErrorDescription - String - Obsolete.
 //
 Function ThreadExecutionNewResult()
 	
@@ -3410,8 +3414,8 @@ Function IsThreadOfControlRestarted(JobID, Job)
 		
 		ExecutionParameters = OperationParametersList.ExecutionParameters;
 		ExecutionParameters.WaitCompletion = 0;
-		// 
-		// 
+		// Restarting a background job requires starting a new background job.
+		// Therefore, always start it in the background (in the job queue in file infobases).
 		ExecutionParameters.RunInBackground = True;
 		ExecutionParameters.Insert("IsThreadOfControlRestart");
 		

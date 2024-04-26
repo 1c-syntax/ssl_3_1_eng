@@ -2948,7 +2948,7 @@ EndFunction
 
 // Parameters:
 //  Result - See TimeConsumingOperationsClient.NewResultLongOperation
-//  
+//  AdditionalParameters - Undefined
 //
 &AtClient
 Procedure AfterCreateReport(Result, AdditionalResults) Export

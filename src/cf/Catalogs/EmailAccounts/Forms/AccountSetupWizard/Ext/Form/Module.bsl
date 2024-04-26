@@ -965,6 +965,9 @@ Procedure OnCompleteSettingsSearch(Result, AdditionalParameters) Export
 	If Result.Status = "Error" Then
 		ValidationCompletedWithErrors = True;
 		GotoNextPage();
+		
+		StandardSubsystemsClient.OutputErrorInfo(Result.ErrorInfo);
+		
 		Return;
 	EndIf;
 	

@@ -173,8 +173,8 @@ Procedure SetEditorParameters(ListToEdit, ParametersToSelect)
 	// Selecting marks of tree items that are mapped to ListToEdit items.
 	SelectFoundItems(List.GetItems(), ListToEdit);
 	
-	// 
-	// 
+	// Check if the list has child items.
+	// If it has, change the control to "List".
 	IsTree = False;
 	For Each TreeItem In List.GetItems() Do
 		If TreeItem.GetItems().Count() > 0 Then 

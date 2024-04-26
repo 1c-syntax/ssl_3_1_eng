@@ -502,8 +502,8 @@ Function IsExecutableFileExtension(Val Extension)
 		Or Extension = ".APP" // Executable file.
 		Or Extension = ".COMMAND" // Terminal Command
 		Or Extension = ".OSX" // Executable file.
-		Or Extension = ".WORKFLOW" // 
-	// 
+		Or Extension = ".WORKFLOW" // Automator Workflow
+	// Other OS
 		Or Extension = ".AIR" // Adobe AIR distribution package
 		Or Extension = ".COFFIE" // CoffeeScript (JavaScript) script.
 		Or Extension = ".JAR" // Java archive.
@@ -858,7 +858,7 @@ Procedure StartApplicationBeginRunning(Context)
 	
 EndProcedure
 
-// 
+// Returns the encoding of the standard output and error streams for the current OS.
 //
 // Returns:
 //  TextEncoding
@@ -880,21 +880,21 @@ Procedure StartApplicationAfterStartApplication(ReturnCode, Context) Export
 	Result = ApplicationStartResult();
 	If Context.WaitForCompletion And ReturnCode = Undefined Then
 		Result.ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Возникла непредвиденная ситуация при запуске приложения
+			NStr("en = 'An unexpected error occurred upon the startup of
 				|%1';"),
 			Context.CommandString);
 		ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Возникла непредвиденная ситуация при запуске приложения:
-				|Строка запуска: %1
-				|Текущий каталог: %2
-				|Код возврата: %3
-				|Дождаться завершения: %4';"),
+			NStr("en = 'An unexpected error occurred upon the startup:
+				|Command line: %1
+				|Directory: %2
+				|Return code: %3
+				|Wait for completion: %4';"),
 			Context.CommandString,
 			Context.CurrentDirectory,
 			Context.ReturnCode,
 			Context.WaitForCompletion);
 		EventLogClient.AddMessageForEventLog(
-			NStr("en = 'Стандартные подсистемы';", CommonClient.DefaultLanguageCode()),
+			NStr("en = 'Standard subsystems';", CommonClient.DefaultLanguageCode()),
 			"Error", ErrorDescription);
 	Else
 		Result.ApplicationStarted = True;

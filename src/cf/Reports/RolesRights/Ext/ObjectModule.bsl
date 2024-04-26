@@ -204,7 +204,7 @@ Procedure AfterLoadSettingsInLinker(AdditionalParameters) Export
 	ConfigureParameterRight(Variant, SettingsComposer.Settings);
 	
 	If Variant = "RolesRights" Then
-		DescriptionOption = NStr("en = 'Rights of roles';");
+		DescriptionOption = NStr("en = 'Role rights';");
 		
 	ElsIf Variant = "RightsRolesOnMetadataObjects" Then
 		If SetSelectionByProfile(FormParametersSelection, SettingsComposer.Settings)

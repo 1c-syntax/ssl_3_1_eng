@@ -281,12 +281,12 @@ Procedure StartSearchInFieldsList(Form) Export
 	
 	If FilterStringLength >= AttachedFieldList.NumberOfCharsToAllowSearching Then
 		
-		UsePreSelection = True;
+		ShouldPreSelect = True;
 		SearchResultsString = FormulasConstructorClientServer.SearchResultsString(TreeOnForm);
 		If SearchResultsString.Title <> "" And StrStartsWith(Filter, SearchResultsString.Title)
 			And StrSplit(Filter, ".").Count() = 1 Then
 			SetPreSelection(SearchResultsString, Filter, SearchResultsString);
-			UsePreSelection = False;
+			ShouldPreSelect = False;
 		Else
 			SearchResultsString.GetItems().Clear();
 		EndIf;
@@ -305,7 +305,7 @@ Procedure StartSearchInFieldsList(Form) Export
 			
 			If TimeConsumingOperation.Status = "Completed2" Then
 				CompletionChangeBorderColor(TimeConsumingOperation, CompletionParameters);
-				UsePreSelection = False;
+				ShouldPreSelect = False;
 			Else
 				CompletionNotification = New NotifyDescription("CompletionChangeBorderColor", ThisObject, CompletionParameters);
 				ExecutionProgressNotification = New NotifyDescription("HandleSearchInFieldsList", ThisObject, Form); 
@@ -322,7 +322,7 @@ Procedure StartSearchInFieldsList(Form) Export
 			EndIf;
 		EndIf;
 		
-		If UsePreSelection Then
+		If ShouldPreSelect Then
 			SearchResultsString = FormulasConstructorClientServer.SearchResultsString(TreeOnForm);
 			SetPreSelection(TreeOnForm, Filter, SearchResultsString);
 		EndIf;

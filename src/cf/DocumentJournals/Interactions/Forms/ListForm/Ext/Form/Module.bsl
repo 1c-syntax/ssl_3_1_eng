@@ -190,6 +190,13 @@ Procedure OnOpen(Cancel)
 		
 	EndIf;
 	
+	#If MobileClient Then
+		
+		Items.ListStatus.Type            = FormGroupType.ButtonGroup;
+		Items.InteractionTypeList.Type = FormGroupType.ButtonGroup;
+		
+	#EndIf
+	
 EndProcedure
 
 &AtServer
@@ -423,31 +430,37 @@ EndProcedure
 &AtClient
 Procedure FoldersSelection(Item, RowSelected, Field, StandardProcessing)
 	
-	StandardProcessing = False;
-	CurrentData = Item.CurrentData;
-	ShowValue(, CurrentData.Value);
+	#If Not MobileClient Then
+		StandardProcessing = False;
+		CurrentData = Item.CurrentData;
+		ShowValue(, CurrentData.Value);
+	#EndIf
 	
 EndProcedure
 
 &AtClient
 Procedure NavigationPanelContactsSelection(Item, RowSelected, Field, StandardProcessing)
 	
-	StandardProcessing = False;
-	CurrentData = Item.CurrentData;
-	If Not TypeOf(CurrentData.Contact) = Type("CatalogRef.StringContactInteractions") Then
-		ShowValue( ,CurrentData.Contact);
-	EndIf;
+	#If Not MobileClient Then
+		StandardProcessing = False;
+		CurrentData = Item.CurrentData;
+		If Not TypeOf(CurrentData.Contact) = Type("CatalogRef.StringContactInteractions") Then
+			ShowValue( ,CurrentData.Contact);
+		EndIf;
+	#EndIf
 	
 EndProcedure
 
 &AtClient
 Procedure NavigationPanelSubjectsSelection(Item, RowSelected, Field, StandardProcessing)
 	
-	CurrentData = Item.CurrentData;
-	If CurrentData <> Undefined Then
-		StandardProcessing = False;
-		ShowValue( ,CurrentData.SubjectOf);
-	EndIf;
+	#If Not MobileClient Then
+		CurrentData = Item.CurrentData;
+		If CurrentData <> Undefined Then
+			StandardProcessing = False;
+			ShowValue( ,CurrentData.SubjectOf);
+		EndIf;
+	#EndIf
 	
 EndProcedure
 
@@ -2106,6 +2119,10 @@ Procedure SetNavigationPanelViewTitle(FilterValue = Undefined)
 		Items.SelectNavigationOption.ToolTip = NStr("en = 'Select navigation option';");
 		
 	EndIf;
+	
+	Items.NavigationPanelGroup.Title = ?(IsBlankString(NavigationPanelTitle), 
+	                                           NStr("en = 'Filter not set';"),
+	                                           NStr("en = 'Filter set';"));
 	
 EndProcedure
 

@@ -876,7 +876,12 @@
 			<Attribute uuid="6593baab-fce0-49ed-867e-be242bfc08d7">
 				<Properties>
 					<Name>Application</Name>
-					<Synonym/>
+					<Synonym>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>App</v8:content>
+						</v8:item>
+					</Synonym>
 					<Comment/>
 					<Type>
 						<v8:TypeSet>cfg:DefinedType.DigitalSignatureApplication</v8:TypeSet>
@@ -884,7 +889,13 @@
 					<PasswordMode>false</PasswordMode>
 					<Format/>
 					<EditFormat/>
-					<ToolTip/>
+					<ToolTip>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>App required for signing and decrypting documents
+using a secret key (the same key that was used to issue the certificate).</v8:content>
+						</v8:item>
+					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
 					<Mask/>
 					<MultiLine>false</MultiLine>

@@ -224,7 +224,7 @@ Procedure FillGroupTree(OnlyClearAll = False)
 	EndIf;
 	
 	UserGroups = Undefined;
-	SubordinateGroups = New Array; 
+	SubordinateGroups = New Array; // Array of ValueTableRow: See GetExternalUserGroups.UserGroups
 	ParentArray = New Array;
 	
 	If ThisisExternalUsers Then
@@ -362,6 +362,7 @@ EndProcedure
 // 
 // Parameters:
 //  UserGroups - See GetExternalUserGroups.UserGroups
+//  SubordinateGroups - Array of ValueTableRow: See GetExternalUserGroups.UserGroups
 //  ParentGroup1 - CatalogRef.UserGroups
 //                 - CatalogRef.ExternalUsersGroups
 //

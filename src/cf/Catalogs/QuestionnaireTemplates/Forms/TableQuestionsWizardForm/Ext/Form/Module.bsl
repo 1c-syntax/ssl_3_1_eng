@@ -8,10 +8,10 @@
 //
 //
 
-// 
-//   
-//    
-//    
+// Form parameters:
+//   TableQuestionComposition - FormDataCollection:
+//    * ElementaryQuestion - ChartOfCharacteristicTypesRef.QuestionsForSurvey
+//    * LineNumber - Number
 //
 
 #Region FormEventHandlers

@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -154,7 +155,7 @@ EndProcedure
 //
 Function EventLogData1(ReportParameters) Export
 	
-	// 
+	// Prepare report parameters.
 	StartDate = ReportParameters.StartDate;
 	EndDate = ReportParameters.EndDate;
 	User = ReportParameters.User;
@@ -181,6 +182,8 @@ Function EventLogData1(ReportParameters) Export
 	RawData.Columns.Add("Date", New TypeDescription("Date", , , New DateQualifiers(DateFractions.Date)));
 	RawData.Columns.Add("Week", New TypeDescription("String", , New StringQualifiers(10)));
 	RawData.Columns.Add("User");
+	RawData.Columns.Add("Department");
+	RawData.Columns.Add("DepartmentPresentation");
 	RawData.Columns.Add("WorkHours", New TypeDescription("Number", New NumberQualifiers(15,4)));
 	RawData.Columns.Add("StartsCount", New TypeDescription("Number", New NumberQualifiers(10)));
 	RawData.Columns.Add("DocumentsCreated", New TypeDescription("Number", New NumberQualifiers(10)));
@@ -211,9 +214,9 @@ Function EventLogData1(ReportParameters) Export
 	
 	Events = New Array;
 	Events.Add("_$Session$_.Start"); //  
-	Events.Add("_$Session$_.Finish"); //    
-	Events.Add("_$Data$_.New"); // 
-	Events.Add("_$Data$_.Update"); // 
+	Events.Add("_$Session$_.Finish"); //  End session.  
+	Events.Add("_$Data$_.New"); // Add data
+	Events.Add("_$Data$_.Update"); // Modify data.
 	
 	ApplicationName = New Array;
 	ApplicationName.Add("1CV8C");
@@ -221,22 +224,34 @@ Function EventLogData1(ReportParameters) Export
 	ApplicationName.Add("1CV8");
 	ApplicationName.Add("BackgroundJob");
 	
+	DatesInServerTimeZone = CommonClientServer.StructureProperty(ReportParameters,
+		"DatesInServerTimeZone", False);
+	If DatesInServerTimeZone Then
+		ServerTimeOffset = 0;
+	Else
+		ServerTimeOffset = EventLog.ServerTimeOffset();
+	EndIf;
+	
 	UserFilter = New Array;
+	SelectedDivisions = Undefined;
+	UserDivisions = Undefined;
 	
 	// 
 	If ReportVariant = "UserActivity" Then
 		UserFilter.Add(UserForSelection(User));
 	ElsIf ReportVariant = "DepartmentActivityAnalysis" Then
-		FillUsersForAnalysisFromDepartment(UserFilter, Department);
+		SelectedDivisions = SelectedDivisions(Department);
+		UserDivisions = UserDivisions(StartDate,
+			ServerTimeOffset, SelectedDivisions);
+		FillUsersForAnalysisFromDepartment(UserFilter,
+			SelectedDivisions, UserDivisions);
 	Else
 		FillUsersForAnalysis(UserFilter, UsersAndGroups);
 	EndIf;
 	
-	DatesInServerTimeZone = CommonClientServer.StructureProperty(ReportParameters, "DatesInServerTimeZone", False);
-	If DatesInServerTimeZone Then
-		ServerTimeOffset = 0;
-	Else
-		ServerTimeOffset = EventLog.ServerTimeOffset();
+	If UserFilter.Count() = 0 Then
+		Return New Structure("UsersActivityAnalysis, ConcurrentSessionsData, ReportIsBlank",
+			RawData, ConcurrentSessionsData, True);
 	EndIf;
 	
 	EventLogFilter = New Structure;
@@ -245,10 +260,6 @@ Function EventLogData1(ReportParameters) Export
 	EventLogFilter.Insert("ApplicationName", ApplicationName);
 	EventLogFilter.Insert("Level", Levels);
 	EventLogFilter.Insert("Event", Events);
-	
-	If UserFilter.Count() = 0 Then
-		Return New Structure("UsersActivityAnalysis, ConcurrentSessionsData, ReportIsBlank", RawData, ConcurrentSessionsData, True);
-	EndIf;
 	
 	If UserFilter.Find("AllUsers") = Undefined Then
 		EventLogFilter.Insert("User", UserFilter);
@@ -262,38 +273,23 @@ Function EventLogData1(ReportParameters) Export
 	
 	ReportIsBlank = (EventLogData.Count() = 0);
 	
-	// 
+	// Add a UUID—UserRef map for future use.
 	UsersIDsMap = UsersUUIDs(EventLogData,
 		ShouldOutputUtilityUsers);
-	
-	CurrentSession        = Undefined;
-	WorkHours         = 0;
-	StartsCount  = 0;
-	DocumentsCreated   = 0;
-	CatalogsCreated = 0;
-	DocumentsChanged  = 0;
-	CatalogsChanged= 0;
 	
 	Sessions = New ValueTable;
 	Sessions.Columns.Add("SessionNumber");
 	Sessions.Columns.Add("StartingEvent");
 	Sessions.Columns.Add("FinishingEvent");
 	Sessions.Columns.Add("User");
+	Sessions.Columns.Add("Department");
+	Sessions.Columns.Add("DepartmentPresentation");
 	Sessions.Columns.Add("SessionFirstEventDate");
 	Sessions.Columns.Add("SessionLastEventDate");
 	Sessions.Indexes.Add("SessionNumber");
 	
 	// 
 	For Each EventLogDataRow In EventLogData Do
-		DocumentsCreated       = 0;
-		CatalogsCreated     = 0;
-		DocumentsChanged      = 0;
-		CatalogsChanged    = 0;
-		BusinessProcessesCreated  = 0;
-		BusinessProcessesChanged = 0;
-		TasksChanged           = 0;
-		TasksCreated            = 0;
-		
 		EventLogDataRow.Date = EventLogDataRow.Date - ServerTimeOffset;
 		
 		If Not ValueIsFilled(EventLogDataRow.Session)
@@ -305,9 +301,19 @@ Function EventLogData1(ReportParameters) Export
 		If UsernameRef = Undefined Then
 			Continue;
 		EndIf;
+		InformationSecurityUserDivision = New Structure("Department, DepartmentPresentation");
+		If UserDivisions <> Undefined Then
+			FillInInformationSecurityUserSDivision(InformationSecurityUserDivision, EventLogDataRow.Date,
+				EventLogDataRow.User, UserDivisions);
+			If SelectedDivisions <> Undefined
+			   And SelectedDivisions.Find(InformationSecurityUserDivision.Department) = Undefined Then
+				Continue;
+			EndIf;
+		EndIf;
 		
-		// 
+		// Prepare for estimating user session time and the number of app startups.
 		Session = Sessions.Find(EventLogDataRow.Session, "SessionNumber");
+		SessionAdded = False;
 		If EventLogDataRow.Event = "_$Session$_.Start" Then
 			If Session <> Undefined Then
 				Session.SessionNumber = Undefined;
@@ -315,154 +321,86 @@ Function EventLogData1(ReportParameters) Export
 			Session = Sessions.Add();
 			Session.SessionNumber   = EventLogDataRow.Session;
 			Session.StartingEvent = EventLogDataRow;
-			Session.User  = UsernameRef;
+			SessionAdded = True;
 			
 		ElsIf EventLogDataRow.Event = "_$Session$_.Finish" Then
 			If Session = Undefined Then
 				Session = Sessions.Add();
-				Session.User = UsernameRef;
+				SessionAdded = True;
 			EndIf;
 			Session.SessionNumber = Undefined;
 			Session.FinishingEvent = EventLogDataRow;
 		Else
 			If Session = Undefined Then
 				Session = Sessions.Add();
-				Session.User = UsernameRef;
-				Session.SessionFirstEventDate = EventLogDataRow.Date
+				Session.SessionFirstEventDate = EventLogDataRow.Date;
+				SessionAdded = True;
 			EndIf;
 			Session.SessionLastEventDate = EventLogDataRow.Date;
 		EndIf;
+		If SessionAdded Then
+			Session.User = UsernameRef;
+			FillPropertyValues(Session, InformationSecurityUserDivision);
+		EndIf;
+
+		EventMetadata = EventLogDataRow.Metadata;
+		SourceDataString = Undefined;
 		
 		// 
 		If EventLogDataRow.Event = "_$Data$_.New" Then
-			
-			If StrFind(EventLogDataRow.Metadata, "Document.") > 0 
-				And OutputDocuments Then
-				ObjectKind = EventLogDataRow.MetadataPresentation;
-				CatalogDocumentObject = EventLogDataRow.Data;
-				DocumentsCreated = DocumentsCreated + 1;
+			If StrFind(EventMetadata, "Document.") > 0 And OutputDocuments Then
 				SourceDataString = RawData.Add();
-				SourceDataString.Date		  = EventLogDataRow.Date;
-				SourceDataString.User = UsernameRef;
-				SourceDataString.ObjectKind = ObjectKind;
-				SourceDataString.DocumentsCreated = DocumentsCreated;
-				SourceDataString.CatalogDocumentObject = CatalogDocumentObject;
-				SourceDataString.Week 	  = WeekOfYearString(EventLogDataRow.Date); 
+				SourceDataString.DocumentsCreated = 1;
 			EndIf;
-			
-			If StrFind(EventLogDataRow.Metadata, "Catalog.") > 0
-				And OutputCatalogs Then
-				ObjectKind = EventLogDataRow.MetadataPresentation;
-				CatalogDocumentObject = EventLogDataRow.Data;
-				CatalogsCreated = CatalogsCreated + 1;
+			If StrFind(EventMetadata, "Catalog.") > 0 And OutputCatalogs Then
 				SourceDataString = RawData.Add();
-				SourceDataString.Date		  = EventLogDataRow.Date;
-				SourceDataString.User = UsernameRef;
-				SourceDataString.ObjectKind = ObjectKind;
-				SourceDataString.CatalogsCreated = CatalogsCreated;
-				SourceDataString.CatalogDocumentObject = CatalogDocumentObject;
-				SourceDataString.Week 	  = WeekOfYearString(EventLogDataRow.Date);
+				SourceDataString.CatalogsCreated = 1;
 			EndIf;
-			
 		EndIf;
 		
 		// 
 		If EventLogDataRow.Event = "_$Data$_.Update" Then
-			
-			If StrFind(EventLogDataRow.Metadata, "Document.") > 0
-				And OutputDocuments Then
-				ObjectKind = EventLogDataRow.MetadataPresentation;
-				CatalogDocumentObject = EventLogDataRow.Data;
-				DocumentsChanged = DocumentsChanged + 1;
+			If StrFind(EventMetadata, "Document.") > 0 And OutputDocuments Then
 				SourceDataString = RawData.Add();
-				SourceDataString.Date		  = EventLogDataRow.Date;
-				SourceDataString.User = UsernameRef;
-				SourceDataString.DocumentsChanged = DocumentsChanged;  	
-				SourceDataString.ObjectKind = ObjectKind;
-				SourceDataString.CatalogDocumentObject = CatalogDocumentObject;
-				SourceDataString.Week 	  = WeekOfYearString(EventLogDataRow.Date);
+				SourceDataString.DocumentsChanged = 1;
 			EndIf;
-			
-			If StrFind(EventLogDataRow.Metadata, "Catalog.") > 0
-				And OutputCatalogs Then
-				ObjectKind = EventLogDataRow.MetadataPresentation;
-				CatalogDocumentObject = EventLogDataRow.Data;
-				CatalogsChanged = CatalogsChanged + 1;
+			If StrFind(EventMetadata, "Catalog.") > 0 And OutputCatalogs Then
 				SourceDataString = RawData.Add();
-				SourceDataString.Date		  = EventLogDataRow.Date;
-				SourceDataString.User = UsernameRef;
-				SourceDataString.CatalogsChanged = CatalogsChanged;
-				SourceDataString.ObjectKind = ObjectKind;
-				SourceDataString.CatalogDocumentObject = CatalogDocumentObject;
-				SourceDataString.Week 	  = WeekOfYearString(EventLogDataRow.Date);
+				SourceDataString.CatalogsChanged = 1;
 			EndIf;
-			
 		EndIf;
 		
 		// 
 		If EventLogDataRow.Event = "_$Data$_.New" Then
-			
-			If StrFind(EventLogDataRow.Metadata, "BusinessProcess.") > 0 
-				And OutputBusinessProcesses Then
-				ObjectKind = EventLogDataRow.MetadataPresentation;
-				CatalogDocumentObject = EventLogDataRow.Data;
-				BusinessProcessesCreated = BusinessProcessesCreated + 1;
+			If StrFind(EventMetadata, "BusinessProcess.") > 0  And OutputBusinessProcesses Then
 				SourceDataString = RawData.Add();
-				SourceDataString.Date		  = EventLogDataRow.Date;
-				SourceDataString.User = UsernameRef;
-				SourceDataString.ObjectKind = ObjectKind;
-				SourceDataString.BusinessProcessesCreated = BusinessProcessesCreated;
-				SourceDataString.CatalogDocumentObject = CatalogDocumentObject;
-				SourceDataString.Week 	  = WeekOfYearString(EventLogDataRow.Date); 
+				SourceDataString.BusinessProcessesCreated = 1;
 			EndIf;
-			
-			If StrFind(EventLogDataRow.Metadata, "Task.") > 0 
-				And OutputTasks Then
-				ObjectKind = EventLogDataRow.MetadataPresentation;
-				CatalogDocumentObject = EventLogDataRow.Data;
-				TasksCreated = TasksCreated + 1;
+			If StrFind(EventMetadata, "Task.") > 0 And OutputTasks Then
 				SourceDataString = RawData.Add();
-				SourceDataString.Date		  = EventLogDataRow.Date;
-				SourceDataString.User = UsernameRef;
-				SourceDataString.ObjectKind = ObjectKind;
-				SourceDataString.TasksCreated = TasksCreated;
-				SourceDataString.CatalogDocumentObject = CatalogDocumentObject;
-				SourceDataString.Week 	  = WeekOfYearString(EventLogDataRow.Date);
+				SourceDataString.TasksCreated = 1;
 			EndIf;
-			
 		EndIf;
 		
 		// 
 		If EventLogDataRow.Event = "_$Data$_.Update" Then
-			
-			If StrFind(EventLogDataRow.Metadata, "BusinessProcess.") > 0
-				And OutputBusinessProcesses Then
-				ObjectKind = EventLogDataRow.MetadataPresentation;
-				CatalogDocumentObject = EventLogDataRow.Data;
-				BusinessProcessesChanged = BusinessProcessesChanged + 1;
+			If StrFind(EventMetadata, "BusinessProcess.") > 0 And OutputBusinessProcesses Then
 				SourceDataString = RawData.Add();
-				SourceDataString.Date		  = EventLogDataRow.Date;
-				SourceDataString.User = UsernameRef;
-				SourceDataString.ObjectKind = ObjectKind;
-				SourceDataString.BusinessProcessesChanged = BusinessProcessesChanged;
-				SourceDataString.CatalogDocumentObject = CatalogDocumentObject;
-				SourceDataString.Week 	  = WeekOfYearString(EventLogDataRow.Date);
+				SourceDataString.BusinessProcessesChanged = 1;
 			EndIf;
-			
-			If StrFind(EventLogDataRow.Metadata, "Task.") > 0 
-				And OutputTasks Then
-				ObjectKind = EventLogDataRow.MetadataPresentation;
-				CatalogDocumentObject = EventLogDataRow.Data;
-				TasksChanged = TasksChanged + 1;
+			If StrFind(EventMetadata, "Task.") > 0 And OutputTasks Then
 				SourceDataString = RawData.Add();
-				SourceDataString.Date		  = EventLogDataRow.Date;
-				SourceDataString.User = UsernameRef;
-				SourceDataString.ObjectKind = ObjectKind;
-				SourceDataString.TasksChanged = TasksChanged;
-				SourceDataString.CatalogDocumentObject = CatalogDocumentObject;
-				SourceDataString.Week 	  = WeekOfYearString(EventLogDataRow.Date);
+				SourceDataString.TasksChanged = 1;
 			EndIf;
-			
+		EndIf;
+		
+		If SourceDataString <> Undefined Then
+			SourceDataString.Date = EventLogDataRow.Date;
+			SourceDataString.Week = WeekOfYearString(EventLogDataRow.Date); 
+			SourceDataString.ObjectKind = EventLogDataRow.MetadataPresentation;
+			SourceDataString.CatalogDocumentObject = EventLogDataRow.Data;
+			SourceDataString.User = UsernameRef;
+			FillPropertyValues(SourceDataString, InformationSecurityUserDivision);
 		EndIf;
 		
 	EndDo;
@@ -498,6 +436,8 @@ Function EventLogData1(ReportParameters) Export
 			SourceDataString.Date = Date;
 			SourceDataString.Week = WeekOfYearString(Date);
 			SourceDataString.User = Session.User;
+			SourceDataString.Department = Session.Department;
+			SourceDataString.DepartmentPresentation = Session.DepartmentPresentation;
 			SourceDataString.StartsCount = StartsCount;
 			SourceDataString.WorkHours = ?(WorkHours = 0, 0.0001, WorkHours);
 			StartsCount = 0;
@@ -566,9 +506,6 @@ Function EventLogData1(ReportParameters) Export
 		EndIf;
 		
 		// 
-		EventLogData = Undefined;
-		Errors1 					 = 0;
-		Warnings			 = 0;
 		EventLogData = EventLogErrorsInformation(StartDate,
 			EndDate, ServerTimeOffset, UserFilter);
 		
@@ -582,30 +519,31 @@ Function EventLogData1(ReportParameters) Export
 			EndIf;
 			
 			If EventLogDataRow.Level = EventLogLevel.Error Then
-				Errors1 = Errors1 + 1;
 				SourceDataString = RawData.Add();
-				SourceDataString.Date = EventLogDataRow.Date;
-				SourceDataString.Week 	  = WeekOfYearString(EventLogDataRow.Date);
-				SourceDataString.User = UsernameRef;
-				SourceDataString.Errors1 = Errors1;
+				SourceDataString.Errors1 = 1;
 			EndIf;
 			
 			If EventLogDataRow.Level = EventLogLevel.Warning Then
-				Warnings = Warnings + 1;
 				SourceDataString = RawData.Add();
-				SourceDataString.Date = EventLogDataRow.Date;
-				SourceDataString.Week 	  = WeekOfYearString(EventLogDataRow.Date);
-				SourceDataString.User = UsernameRef;
-				SourceDataString.Warnings = Warnings;
+				SourceDataString.Warnings = 1;
 			EndIf;
 			
-			Errors1         = 0;
-			Warnings = 0;
+			If SourceDataString <> Undefined Then
+				SourceDataString.Date = EventLogDataRow.Date;
+				SourceDataString.Week = WeekOfYearString(EventLogDataRow.Date); 
+				SourceDataString.User = UsernameRef;
+				If UserDivisions <> Undefined Then
+					FillInInformationSecurityUserSDivision(SourceDataString, EventLogDataRow.Date,
+						EventLogDataRow.User, UserDivisions);
+				EndIf;
+			EndIf;
+			
 		EndDo;
 		
 	EndIf;
 	
-	Return New Structure("UsersActivityAnalysis, ConcurrentSessionsData, ReportIsBlank", RawData, ConcurrentSessionsData, ReportIsBlank);
+	Return New Structure("UsersActivityAnalysis, ConcurrentSessionsData, ReportIsBlank",
+		RawData, ConcurrentSessionsData, ReportIsBlank);
 	
 EndFunction
 
@@ -670,41 +608,335 @@ Procedure FillUsersForAnalysis(UserFilter, FilterValue)
 	
 EndProcedure
 
-Procedure FillUsersForAnalysisFromDepartment(UserFilter, FilterValue)
+// Returns:
+//  Structure:
+//   * Cur - Map of KeyAndValue:
+//      ** Key - UUID - 
+//      ** Value - See DescriptionOfDivision
+//   * Changes - Map of KeyAndValue:
+//      ** Key - UUID - 
+//      ** Value - Array of See DescriptionOfDivisionChange
+//   * UsersOfSelectedDivisions - Map of KeyAndValue:
+//      ** Key - UUID
+//      ** Value - Undefined
+//
+Function UserDivisions(StartDate, ServerTimeOffset, Val SelectedDivisions)
 	
-	If FilterValue = Undefined Then
-		UserFilter.Add("AllUsers");
-		Return;
+	LogFilter = New Structure;
+	LogFilter.Insert("StartDate", StartDate + ServerTimeOffset);
+	LogFilter.Insert("Event", UsersInternal.EventNameChangeAdditionalForLogging());
+	
+	LogData = New ValueTable;
+	UnloadEventLog(LogData, LogFilter, "Date, Data");
+	
+	ChangesToDivisions = New Map;
+	UsersOfSelectedDivisions = New Map;
+	If SelectedDivisions = Undefined Then
+		SelectedDivisions = New Array;
 	EndIf;
 	
-	If TypeOf(FilterValue) = Type("ValueList") Then
-		SelectedDivisions = FilterValue.UnloadValues();
-	Else
-		SelectedDivisions = CommonClientServer.ValueInArray(FilterValue);
+	For Each TableRow In LogData Do
+		EventData = TableRow.Data;
+		If Not ValueIsFilled(EventData) Then
+			Continue;
+		EndIf;
+		TableRow.Date = TableRow.Date - ServerTimeOffset;
+		Try
+			Data = Common.ValueFromXMLString(EventData);
+		Except
+			Continue;
+		EndTry;
+		If TypeOf(Data) <> Type("Structure") Then
+			Continue;
+		EndIf;
+		VersionStorage = New Structure;
+		VersionStorage.Insert("DataStructureVersion");
+		FillPropertyValues(VersionStorage, Data);
+		If VersionStorage.DataStructureVersion <> 2 Then
+			Continue;
+		EndIf;
+		DescriptionOfOldDivision = Undefined;
+		OldInformationSecurityUserId = Undefined;
+		Try
+			IBUserID = New UUID(
+				Data.IBUserID);
+			DescriptionOfDivision = DescriptionOfDivision(Data);
+			If Data.OldPropertyValues.Property("Department") Then
+				DescriptionOfOldDivision = DescriptionOfDivision(Data.OldPropertyValues);
+				If Data.OldPropertyValues.Property("IBUserID") Then
+					OldInformationSecurityUserId = New UUID(
+						Data.OldPropertyValues.IBUserID);
+				EndIf;
+				If Not ValueIsFilled(OldInformationSecurityUserId) Then
+					OldInformationSecurityUserId = IBUserID;
+				EndIf;
+			EndIf;
+		Except
+			Continue;
+		EndTry;
+		If Not ValueIsFilled(IBUserID) Then
+			Continue;
+		EndIf;
+		CurCurrentChanges = ChangesToDivisions.Get(IBUserID);
+		If CurCurrentChanges = Undefined Then
+			CurCurrentChanges = New Array;
+			ChangesToDivisions.Insert(IBUserID, CurCurrentChanges);
+		EndIf;
+		ChangeDescription = DescriptionOfDivisionChange(TableRow.Date, DescriptionOfDivision);
+		CurCurrentChanges.Add(ChangeDescription);
+		If SelectedDivisions.Find(DescriptionOfDivision.Department) <> Undefined
+		   And (DescriptionOfDivision.Department <> Undefined
+		      Or Not ValueIsFilled(DescriptionOfDivision.DivisionLine)) Then
+			UsersOfSelectedDivisions.Insert(IBUserID);
+		EndIf;
+		If DescriptionOfOldDivision = Undefined Then
+			Continue;
+		EndIf;
+		If SelectedDivisions.Find(DescriptionOfOldDivision.Department) <> Undefined
+		   And (DescriptionOfOldDivision.Department <> Undefined
+		      Or Not ValueIsFilled(DescriptionOfOldDivision.DivisionLine)) Then
+			UsersOfSelectedDivisions.Insert(OldInformationSecurityUserId);
+		EndIf;
+		If IBUserID = OldInformationSecurityUserId Then
+			ChangeDescription.Old = DescriptionOfOldDivision;
+			Continue;
+		EndIf;
+		CurCurrentChanges = ChangesToDivisions.Get(OldInformationSecurityUserId);
+		If CurCurrentChanges = Undefined Then
+			CurCurrentChanges = New Array;
+			ChangesToDivisions.Insert(OldInformationSecurityUserId, CurCurrentChanges);
+		EndIf;
+		ChangeDescription = DescriptionOfDivisionChange(TableRow.Date,, DescriptionOfOldDivision);
+		CurCurrentChanges.Add(ChangeDescription);
+	EndDo;
+	
+	Result = New Structure;
+	Result.Insert("Cur", New Map);
+	Result.Insert("Changes", ChangesToDivisions);
+	Result.Insert("UsersOfSelectedDivisions", UsersOfSelectedDivisions);
+	
+	Return Result;
+	
+EndFunction
+
+// Parameters:
+//  Data - Structure:
+//   * Department - String - 
+//   * DepartmentPresentation - String
+//
+// Returns:
+//  Structure:
+//   * Department - 
+//   * DivisionLine - String - 
+//   * DepartmentPresentation - String
+//
+Function DescriptionOfDivision(Data)
+	
+	Department = ?(TypeOf(Data.Department) = Type("String"),
+		Data.Department, Undefined);
+	
+	Result = New Structure;
+	Result.Insert("Department", ?(ValueIsFilled(Department),
+		ValueFromStringInternal(Department), Undefined));
+	Result.Insert("DivisionLine", Department);
+	Result.Insert("DepartmentPresentation", Data.DepartmentPresentation);
+	
+	Return Result;
+	
+EndFunction
+
+// Parameters:
+//  Date   - Date
+//  Var_New  - See DescriptionOfDivision
+//         - Undefined
+//  Old - See DescriptionOfDivision
+//         - Undefined
+//
+// Returns:
+//  Structure:
+//   * Date   - Date
+//   * New  - See DescriptionOfDivision
+//            - Undefined
+//    See DescriptionOfDivision
+//            - Undefined
+//
+Function DescriptionOfDivisionChange(Date, Var_New = Undefined, Old = Undefined)
+	
+	Return New Structure("Date, New, Old", Date, Var_New, Old);
+	
+EndFunction
+
+Procedure FillUsersForAnalysisFromDepartment(UserFilter,
+			SelectedDivisions, UserDivisions)
+	
+	If SelectedDivisions = Undefined Then
+		UserFilter.Add("AllUsers");
+		AddUsersCurCurrentDivisions(UserDivisions);
+		Return;
 	EndIf;
 	
 	Query = New Query;
 	Query.SetParameter("Department", SelectedDivisions);
-	Query.Text = 
+	Query.SetParameter("BlankUUID",
+		CommonClientServer.BlankUUID());
+	Query.Text =
 	"SELECT DISTINCT
 	|	Users.IBUserID AS IBUserID
 	|FROM
 	|	Catalog.Users AS Users
 	|WHERE
-	|	Users.Department IN(&Department)";
+	|	Users.Department IN(&Department)
+	|	AND Users.IBUserID <> &BlankUUID";
 	
-	Selection = Query.Execute().Select();
+	Upload0 = Query.Execute().Unload();
+	Upload0.Indexes.Add("IBUserID");
+	
+	For Each KeyAndValue In UserDivisions.UsersOfSelectedDivisions Do
+		If Upload0.Find(KeyAndValue.Key, "IBUserID") = Undefined Then
+			Upload0.Add().IBUserID = KeyAndValue.Key;
+		EndIf;
+	EndDo;
 	
 	SetPrivilegedMode(True);
 	
-	While Selection.Next() Do
-		IBUser = InfoBaseUsers.FindByUUID(
-			Selection.IBUserID);
-		
-		If IBUser <> Undefined Then
-			UserFilter.Add(IBUser.Name);
+	For Each TableRow In Upload0 Do
+		UserFilter.Add(UserForSelection(,
+			TableRow.IBUserID));
+	EndDo;
+	
+EndProcedure
+
+Function SelectedDivisions(FilterValue)
+	
+	If FilterValue = Undefined Then
+		Return Undefined;
+	ElsIf TypeOf(FilterValue) = Type("ValueList") Then
+		Result = FilterValue.UnloadValues();
+	Else
+		Result = CommonClientServer.ValueInArray(FilterValue);
+	EndIf;
+	
+	BlankValues = New Array;
+	BlankValues.Add(Undefined);
+	For Each Type In Metadata.Catalogs.Users.Attributes.Department.Type.Types() Do
+		TypeDetails = New TypeDescription(CommonClientServer.ValueInArray(Type));
+		BlankValues.Add(TypeDetails.AdjustValue(Undefined));
+	EndDo;
+	
+	ThereIsEmptyValue = False;
+	For Each EmptyValue In BlankValues Do
+		If Result.Find(EmptyValue) <> Undefined Then
+			ThereIsEmptyValue = True;
+			Break;
 		EndIf;
 	EndDo;
+	
+	If Not ThereIsEmptyValue Then
+		Return Result;
+	EndIf;
+	
+	For Each EmptyValue In BlankValues Do
+		If Result.Find(EmptyValue) = Undefined Then
+			Result.Add(EmptyValue);
+		EndIf;
+	EndDo;
+	
+	Return Result;
+	
+EndFunction
+
+Procedure AddUsersCurCurrentDivisions(UserDivisions, IBUsersIDs = Undefined)
+	
+	Query = New Query;
+	Query.SetParameter("IBUsersIDs", IBUsersIDs);
+	Query.SetParameter("BlankUUID",
+		CommonClientServer.BlankUUID());
+	Query.Text =
+	"SELECT DISTINCT
+	|	Users.IBUserID AS IBUserID,
+	|	Users.Department AS Department
+	|FROM
+	|	Catalog.Users AS Users
+	|WHERE
+	|	Users.IBUserID IN(&IBUsersIDs)";
+	If IBUsersIDs = Undefined Then
+		Query.Text = StrReplace(Query.Text,
+			"Users.IBUserID IN(&IBUsersIDs)",
+			"Users.IBUserID <> &BlankUUID");
+	EndIf;
+	
+	Selection = Query.Execute().Select();
+	
+	ChangesToDivisions = UserDivisions.Changes;
+	While Selection.Next() Do
+		DescriptionOfDivision = New Structure;
+		DescriptionOfDivision.Insert("Department", Selection.Department);
+		DescriptionOfDivision.Insert("DivisionLine", "");
+		DescriptionOfDivision.Insert("DepartmentPresentation", String(Selection.Department));
+		CurCurrentChanges = ChangesToDivisions.Get(Selection.IBUserID);
+		If CurCurrentChanges = Undefined Then
+			CurCurrentChanges = New Array;
+			ChangesToDivisions.Insert(Selection.IBUserID, CurCurrentChanges);
+		EndIf;
+		ChangeDescription = DescriptionOfDivisionChange('39991231',, DescriptionOfDivision);
+		CurCurrentChanges.Add(ChangeDescription);
+	EndDo;
+	
+EndProcedure
+
+// Parameters:
+//  SourceDataString - ValueTable:
+//   * Department - 
+//   * DepartmentPresentation - String
+//  Date - Date - 
+//  IBUserID - UUID
+//  UserDivisions - See UserDivisions
+//
+Procedure FillInInformationSecurityUserSDivision(SourceDataString, Date, IBUserID,
+			UserDivisions)
+	
+	DescriptionOfDivision = UserDivisions.Cur.Get(IBUserID);
+	
+	CurCurrentChanges = UserDivisions.Changes.Get(IBUserID);
+	Refresh = False;
+	If CurCurrentChanges.Count() > 0 Then
+		While ValueIsFilled(CurCurrentChanges) And Date >= CurCurrentChanges[0].Date Do
+			PreviousDescriptionOfChange = CurCurrentChanges[0];
+			CurCurrentChanges.Delete(0);
+			Refresh = True;
+		EndDo;
+		If Refresh Then
+			If PreviousDescriptionOfChange.New <> Undefined
+			 Or Not ValueIsFilled(CurCurrentChanges) Then
+				DescriptionOfDivision = PreviousDescriptionOfChange.New;
+			Else
+				DescriptionOfDivision = CurCurrentChanges[0].Old;
+			EndIf;
+		ElsIf DescriptionOfDivision = Undefined Then
+			DescriptionOfDivision = CurCurrentChanges[0].Old;
+			Refresh = True;
+		EndIf;
+	EndIf;
+	
+	If Refresh Then
+		UserDivisions.Cur.Insert(IBUserID, DescriptionOfDivision);
+	EndIf;
+	
+	If DescriptionOfDivision = Undefined
+	 Or Not ValueIsFilled(DescriptionOfDivision.Department)
+	   And Not ValueIsFilled(DescriptionOfDivision.DepartmentPresentation) Then
+		
+		SourceDataString.DepartmentPresentation = "<" + NStr("en = 'Not specified';") + ">";
+		Return;
+	EndIf;
+	
+	If DescriptionOfDivision.Department <> Undefined Then
+		SourceDataString.Department = DescriptionOfDivision.Department;
+		SourceDataString.DepartmentPresentation = DescriptionOfDivision.DepartmentPresentation;
+	Else
+		SourceDataString.Department = DescriptionOfDivision.DivisionLine;
+		SourceDataString.DepartmentPresentation = DescriptionOfDivision.DepartmentPresentation;
+	EndIf;
 	
 EndProcedure
 
@@ -777,12 +1009,14 @@ Function UsersUUIDs(EventLogData, ShouldOutputUtilityUsers)
 	
 EndFunction
 
-Function UserForSelection(UserRef) Export
+Function UserForSelection(UserRef = "", IBUserID = Undefined) Export
 	
 	SetPrivilegedMode(True);
 	
-	IBUserID = Common.ObjectAttributeValue(UserRef,
-		"IBUserID");
+	If UserRef <> "" Then
+		IBUserID = Common.ObjectAttributeValue(UserRef,
+			"IBUserID");
+	EndIf;
 	
 	If ValueIsFilled(IBUserID) Then
 		Return EventLog.InfobaseUserForFilter(IBUserID);
@@ -1068,23 +1302,23 @@ Function GenerateScheduledJobsDurationReport(FillParameters) Export
 	Return Result;
 EndFunction
 
-// The function receives information on routine tasks from the registration log.
+// Gets scheduled jobs data from the Event log.
 //
 // Parameters:
-//   FillParameters - Structure - :
-//   * StartDate    - Date -  the beginning of the period for which information will be collected.
-//   * EndDate - Date -  the end of the period for which information will be collected.
-//   * ConcurrentSessionsSize	- Number -  the minimum number of concurrent scheduled
-// 		tasks to display in the table.
-//   * MinScheduledJobSessionDuration - Number -  minimum duration
-// 		of scheduled task sessions in seconds.
-//   * DisplayBackgroundJobs - Boolean -  if true, the Gantt chart will display a line with 
-// 		the intervals of sessions of background tasks.
-//   * HideScheduledJobs - ValueList -  a list of routine tasks that need to be excluded from the report.
+//   FillParameters - Structure - Set of parameters required for report generation.:
+//   * StartDate    - Date - Beginning of the reporting period.
+//   * EndDate - Date - End of the reporting period.
+//   * ConcurrentSessionsSize	- Number - Minimum number of concurrent scheduled jobs
+// 		to display in the table.
+//   * MinScheduledJobSessionDuration - Number - Minimal job session duration in seconds.
+// 		
+//   * DisplayBackgroundJobs - Boolean - If set to "True", display a line with intervals of background job sessions 
+// 		on the Gantt chart.
+//   * HideScheduledJobs - ValueList - List of scheduled jobs to exclude from the report.
 //
-// Return value
-//   Assignment table - a table containing information on the work of routine tasks
-//     from the registration log.
+// Returns
+//   ValueTable - Table of log entries on the scheduled jobs.
+//     
 //
 Function DataForScheduledJobsDurationsReport(FillParameters)
 	
@@ -1096,8 +1330,6 @@ Function DataForScheduledJobsDurationsReport(FillParameters)
 		FillParameters.MinScheduledJobSessionDuration;
 	HideScheduledJobs = FillParameters.HideScheduledJobs;
 	ServerTimeOffset = FillParameters.ServerTimeOffset;
-	
-	EventLogData = New ValueTable;
 	
 	Levels = New Array;
 	Levels.Add(EventLogLevel.Information);
@@ -1119,6 +1351,7 @@ Function DataForScheduledJobsDurationsReport(FillParameters)
 	LogFilter.Insert("EndDate", EndDate + ServerTimeOffset);
 	LogFilter.Insert("Event", ScheduledJobEvents);
 	
+	EventLogData = New ValueTable;
 	UnloadEventLog(EventLogData, LogFilter);
 	ReportIsBlank = (EventLogData.Count() = 0);
 	
@@ -1128,7 +1361,7 @@ Function DataForScheduledJobsDurationsReport(FillParameters)
 		EndDo;
 	EndIf;
 	
-	// 
+	// Generate data for the filter by scheduled jobs.
 	AllScheduledJobsList = ScheduledJobsServer.FindJobs(New Structure);
 	MetadataIDMap = New Map;
 	MetadataNameMap = New Map;
@@ -1145,7 +1378,7 @@ Function DataForScheduledJobsDurationsReport(FillParameters)
 		EndIf;
 	EndDo;
 	
-	// 
+	// Populate parameters required for defining concurrent scheduled jobs.
 	ConcurrentSessionsParameters = New Structure;
 	ConcurrentSessionsParameters.Insert("EventLogData", EventLogData);
 	ConcurrentSessionsParameters.Insert("DescriptionIDMap", DescriptionIDMap);
@@ -1155,10 +1388,10 @@ Function DataForScheduledJobsDurationsReport(FillParameters)
 	ConcurrentSessionsParameters.Insert("MinScheduledJobSessionDuration",
 		MinScheduledJobSessionDuration);
 	
-	// 
+	// The maximum number of concurrent scheduled job sessions.
 	ConcurrentSessionsData = ConcurrentScheduledJobs(ConcurrentSessionsParameters);
 	
-	// 
+	// Select values from the "ConcurrentSessions" table.
 	ConcurrentSessionsData.Sort("ConcurrentScheduledJobs Desc");
 	
 	TotalConcurrentScheduledJobsRow = Undefined;
@@ -1184,7 +1417,7 @@ Function DataForScheduledJobsDurationsReport(FillParameters)
 	
 	EventLogData.Sort("Metadata, Data, Date, Session");
 	
-	// 
+	// Populate parameters required for getting data by scheduled jobs session.
 	ScheduledJobsSessionsParameters = New Structure;
 	ScheduledJobsSessionsParameters.Insert("EventLogData", EventLogData);
 	ScheduledJobsSessionsParameters.Insert("DescriptionIDMap", DescriptionIDMap);
@@ -1193,7 +1426,7 @@ Function DataForScheduledJobsDurationsReport(FillParameters)
 	ScheduledJobsSessionsParameters.Insert("DisplayBackgroundJobs", DisplayBackgroundJobs);
 	ScheduledJobsSessionsParameters.Insert("HideScheduledJobs", HideScheduledJobs);
 	
-	// 
+	// Scheduled jobs
 	ScheduledJobsSessionsTable = 
 		ScheduledJobsSessions(ScheduledJobsSessionsParameters).ScheduledJobsSessionsTable;
 	StartsCount = ScheduledJobsSessions(ScheduledJobsSessionsParameters).StartsCount;

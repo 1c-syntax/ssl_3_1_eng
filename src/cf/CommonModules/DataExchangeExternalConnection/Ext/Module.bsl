@@ -44,6 +44,7 @@ EndFunction
 //  FullTableName - String - a name of the table that corresponds to the metadata object.
 // 
 // Returns:
+//  СтруктураНастроек - Structure - Metadata object properties:
 //    * Synonym - String - synonym.
 //    * Hierarchical - String - the Hierarchical flag.
 //

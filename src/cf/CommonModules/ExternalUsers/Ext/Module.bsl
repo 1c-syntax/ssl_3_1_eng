@@ -23,9 +23,9 @@ Function UseExternalUsers() Export
 EndFunction
 
 // Returns the current external user.
-// It is recommended that you use the function in a script fragment that supports external users only.
+// It is recommended that you use this function in code that supports external users only.
 //
-// If the current user is not external, throws an exception.
+// If the current user is not an external user, it throws an exception.
 //
 // Returns:
 //  CatalogRef.ExternalUsers - external user.

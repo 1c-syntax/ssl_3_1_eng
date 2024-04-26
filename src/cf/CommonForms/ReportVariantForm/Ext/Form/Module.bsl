@@ -31,14 +31,15 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Modify ""%1"" report option';"), Parameters.VariantPresentation);
 	EndIf;
 	
-	If Parameters.Property("ReportSettings", ReportSettings) Then
+	If Parameters.ReportSettings <> Undefined Then
+		ReportSettings = Parameters.ReportSettings;
 		If ReportSettings.SchemaModified Then
 			Report.SettingsComposer.Initialize(New DataCompositionAvailableSettingsSource(ReportSettings.SchemaURL));
 		EndIf;
 	EndIf;
 	
 	If Not ValueIsFilled(Parameters.VariantPresentation) Then
-		Parameters.Property("DescriptionOption", Parameters.VariantPresentation);
+		Parameters.VariantPresentation = Parameters.DescriptionOption;
 	EndIf;
 	
 	DCSettings = CommonClientServer.StructureProperty(Parameters, "Variant");

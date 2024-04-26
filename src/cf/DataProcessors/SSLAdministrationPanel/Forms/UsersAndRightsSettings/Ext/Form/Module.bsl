@@ -58,14 +58,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			Items.LimitAccessAtRecordLevel.Enabled = False;
 			Items.LimitAccessAtRecordLevelUniversally.Enabled = False;
 		EndIf;
-		RegistrationOfAccessRightsChangesIsSupported =
-			ModuleAccessManagementInternal.RegistrationOfAccessRightsChangesIsSupported();
+		IsAccessRightsChangeLoggingSupported =
+			ModuleAccessManagementInternal.IsAccessRightsChangeLoggingSupported();
 	Else
 		Items.AccessGroupsGroup.Visible = False;
-		RegistrationOfAccessRightsChangesIsSupported = False;
+		IsAccessRightsChangeLoggingSupported = False;
 	EndIf;
 	
-	If Not RegistrationOfAccessRightsChangesIsSupported Then
+	If Not IsAccessRightsChangeLoggingSupported Then
 		Items.ShouldRegisterChangesInAccessRights.Title =
 			NStr("en = 'Log changes in user group membership';");
 		Items.ShouldRegisterChangesInAccessRights.ExtendedTooltip.Title =
@@ -98,8 +98,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 		Items.GroupDataAccessManagementSettings.Visible = False;
 	Else
-		UserExperienceMonitoringModule = Common.CommonModule("UserMonitoring");
-		ShouldRegisterDataAccess = UserExperienceMonitoringModule.ShouldRegisterDataAccess();
+		ModuleUserMonitoring = Common.CommonModule("UserMonitoring");
+		ShouldRegisterDataAccess = ModuleUserMonitoring.ShouldRegisterDataAccess();
 	EndIf;
 	
 	If Common.DataSeparationEnabled() Then
@@ -435,8 +435,8 @@ Procedure RegisterDataAccessOnChangeAtServer(Val ShouldRegisterDataAccess)
 		Return;
 	EndIf;
 	
-	UserExperienceMonitoringModule = Common.CommonModule("UserMonitoring");
-	UserExperienceMonitoringModule.SetDataAccessRegistration(ShouldRegisterDataAccess);
+	ModuleUserMonitoring = Common.CommonModule("UserMonitoring");
+	ModuleUserMonitoring.SetDataAccessRegistration(ShouldRegisterDataAccess);
 	
 EndProcedure
 

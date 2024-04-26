@@ -98,7 +98,7 @@ Procedure OnFillToDoList(ToDoList) Export
 	ToDoItem.HasToDoItems       = True;
 	ToDoItem.Important         = True;
 	ToDoItem.Count     = UnfoundFields.Count();
-	ToDoItem.Presentation  = NStr("en = 'Update settings for data access event registration';");
+	ToDoItem.Presentation  = NStr("en = 'Update data access logging settings';");
 	ToDoItem.ToolTip      = NStr("en = 'Access control is disabled for outdated settings.';");
 	ToDoItem.Form          = "CommonForm.RegistrationSettingsForDataAccessEvents";
 	ToDoItem.Owner       = AdministrationSection;
@@ -235,7 +235,7 @@ EndFunction
 //    * Use - Boolean
 //    * Content - Array of EventLogAccessEventUseDescription
 //    * Comments - Map of KeyAndValue:
-//        * Key     - String - 
+//        * Key     - String - Full table name followed by field name. For example, "Catalog.Individuals.DocumentNumber".
 //        * Value - String - Arbitrary text
 //    * GeneralComment - String - Arbitrary text
 //
@@ -277,6 +277,12 @@ Function StoredRegistrationSettings(Store = Undefined) Export
 	
 	Return Result;
 	
+EndFunction
+
+// 
+//
+Function NameOfConnectionColumn() Export
+	Return "Connection";
 EndFunction
 
 #EndRegion

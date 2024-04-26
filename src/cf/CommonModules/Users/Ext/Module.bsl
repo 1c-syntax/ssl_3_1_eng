@@ -14,8 +14,8 @@
 // Main procedures and functions.
 
 // Returns the current user or the current external user,
-// depending on which one has signed in.
-//  It is recommended that you use the function in a script fragment that supports both sign in options.
+// depending on which one has logged in.
+//  It is recommended that you use this function in code that supports both login options.
 //
 // Returns:
 //  CatalogRef.Users, CatalogRef.ExternalUsers - a user
@@ -28,9 +28,9 @@ Function AuthorizedUser() Export
 EndFunction
 
 // Returns the current user.
-//  It is recommended that you use the function in a script fragment that does not support external users.
+//  It is recommended that you use this function in code that does not support external users.
 //
-//  If the current user is external, throws an exception.
+//  If the current user is an external user, it throws an exception.
 //
 // Returns:
 //  CatalogRef.Users - a user.
@@ -41,10 +41,10 @@ Function CurrentUser() Export
 	
 EndFunction
 
-// Returns True if the current user is external.
+// Returns True if the current user is an external user.
 //
 // Returns:
-//  Boolean - True if the current user is external.
+//  Boolean - True if the current user is an external user.
 //
 Function IsExternalUserSession() Export
 	
@@ -1151,7 +1151,7 @@ Procedure SetIBUserProperies(Val NameOrID, Val PropertiesToUpdate,
 			Raise ErrorText;
 		EndIf;
 		If UsersInternal.IsSettings8_3_26Available() Then
-			// 
+			// ACC:488-off - Support of new 1C:Enterprise methods (the executable code is safe)
 			IBUser.StoredPasswordValue =
 				Eval("EvaluateStoredUserPasswordValue(PropertiesToUpdate.Password)");
 			// 
@@ -2380,8 +2380,8 @@ Procedure UpdateRegistrationSettingsForDataAccessEvents() Export
 				           |%1';"),
 				StrConcat(UnfoundFields, Chars.LF));
 			If Common.SubsystemExists("StandardSubsystems.UserMonitoring") Then
-				UserExperienceMonitoringModuleInternal = Common.CommonModule("UserMonitoringInternal");
-				UserExperienceMonitoringModuleInternal.OnWriteErrorUpdatingRegistrationSettingsForDataAccessEvents(ErrorText);
+				ModuleUserMonitoringInternal = Common.CommonModule("UserMonitoringInternal");
+				ModuleUserMonitoringInternal.OnWriteErrorUpdatingRegistrationSettingsForDataAccessEvents(ErrorText);
 			EndIf;
 			WriteLogEvent(EventName, EventLogLevel.Error,,, ErrorText);
 		Else

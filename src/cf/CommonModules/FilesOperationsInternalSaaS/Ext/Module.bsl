@@ -101,6 +101,7 @@ Procedure OnFillTypesExcludedFromExportImport(Types) Export
 	ModuleExportImportData = Common.CommonModule("ExportImportData");
 	
 	Types.Add(Metadata.InformationRegisters.TextExtractionQueue);
+	Types.Add(Metadata.InformationRegisters.DeleteFilesBinaryData);
 	Types.Add(Metadata.Constants.VolumePathIgnoreRegionalSettings);
 	
 	TypesToExclude = FilesCatalogsAndStorageOptionObjects().StorageObjects;

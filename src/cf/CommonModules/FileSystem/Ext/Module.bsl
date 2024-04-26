@@ -117,7 +117,8 @@ EndFunction
 //    * GetErrorStream - Boolean - False - errors are passed to stderr stream.
 //         Ignored if WaitForCompletion is not specified.
 //    * ThreadsEncoding - TextEncoding
-//         "CP866" is default for Windows and "UTF-8" is default for others.
+//                       - String - The encoding used to read stdout and stderr.
+//         The default is "CP866" for Windows and "UTF-8" for other operating systems.
 //    * ExecutionEncoding - String
 //                          - Number - an encoding set in Windows using the chcp command,
 //             the possible values ​​are "OEM", "CP866", "UTF8" or the code page number.
@@ -386,8 +387,8 @@ EndProcedure
 
 Function IsTempFileName(Path)
 	
-	// 
-	// 
+	// It is expected that "Path" was obtained using the method "GetTempFileName".
+	// Before validating, normalize all the slashes/backslashes.
 	Return StrStartsWith(StrReplace(Path, "/", "\"), StrReplace(TempFilesDir(), "/", "\"));
 	
 EndFunction

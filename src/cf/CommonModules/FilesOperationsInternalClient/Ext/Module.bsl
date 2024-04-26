@@ -671,7 +671,7 @@ EndFunction
 // Returns:
 //   Boolean
 //
-Function _1CDocumentManagementIsUsedToStoreObjectFiles(AttachedFilesOwner,
+Function Is1CDocumentManagementUsedForFileStorage(AttachedFilesOwner,
 		ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient = Undefined, Form = Undefined,
 		Command = Undefined) Export
 	
@@ -1754,7 +1754,7 @@ Procedure UpdateFileSavingState(Val SelectedFiles,
 	
 	FileNameToSave = ?(IsBlankString(NameOfFileToCreate), File.Name, NameOfFileToCreate);
 	
-	SizeInMB = FilesOperationsInternalClientServer.GetStringWithFileSize(File.Size() / (1024 * 1024));
+	SizeInMB = FilesOperationsInternalClientServer.FileSizePresentation(File.Size() / (1024 * 1024));
 	
 	If SelectedFiles.Count() > 1 Then
 		If CurrentPosition = Undefined Then
@@ -1832,8 +1832,8 @@ Procedure PutSelectedFilesInStorageWebCompletion(Result, Address, SelectedFileNa
 			NStr("en = 'The size of file ""%1"" (%2 MB)
 			|exceeds the limit (%3 MB).';"),
 			SelectedFileName,
-			FilesOperationsInternalClientServer.GetStringWithFileSize(SizeInMB),
-			FilesOperationsInternalClientServer.GetStringWithFileSize(SizeInMBMax));
+			FilesOperationsInternalClientServer.FileSizePresentation(SizeInMB),
+			FilesOperationsInternalClientServer.FileSizePresentation(SizeInMBMax));
 		
 		Raise ErrorDescription;
 		
@@ -2071,8 +2071,8 @@ Function CheckCanImportFile(File, RaiseException1 = True, FilesWithErrors = Unde
 			NStr("en = 'The size of file ""%1"" (%2 MB)
 			           |exceeds the limit (%3 MB).';"),
 			File.Name,
-			FilesOperationsInternalClientServer.GetStringWithFileSize(SizeInMB),
-			FilesOperationsInternalClientServer.GetStringWithFileSize(SizeInMBMax));
+			FilesOperationsInternalClientServer.FileSizePresentation(SizeInMB),
+			FilesOperationsInternalClientServer.FileSizePresentation(SizeInMBMax));
 		
 		If RaiseException1 Then
 			Raise ErrorDescription;
@@ -8107,7 +8107,8 @@ EndProcedure
 // Creates a new file interactively calling the dialog box of selection the File creation mode.
 //
 // Parameters:
-//   See FilesOperationsClient.AppendFile().
+//   See FilesOperationsClient.AppendFile
+//   ().
 //
 Procedure AppendFile(
 	ResultHandler,
@@ -8808,12 +8809,12 @@ Function CheckSignPossibility(FileData, CompletionHandler, ResultHandler, Execut
 		Warnings = New Array;
 		For Each File In FileData Do
 			If ValueIsFilled(File.BeingEditedBy) Then
-				Warnings.Add(FilesOperationsInternalClientServer.FileUsedByAnotherProcessCannotBeSignedMessageString(File.Ref));
+				Warnings.Add(FilesOperationsInternalClientServer.MessageAboutInadmissibilityOfSigningBusyFile(File.Ref));
 				Continue;
 			EndIf;
 			
 			If File.Encrypted Then
-				Warnings.Add(FilesOperationsInternalClientServer.EncryptedFileCannotBeSignedMessageString(File.Ref));
+				Warnings.Add(FilesOperationsInternalClientServer.MessageAboutInadmissibilityOfSigningEncryptedFile(File.Ref));
 				Continue;
 			EndIf;
 		EndDo;
@@ -8826,13 +8827,13 @@ Function CheckSignPossibility(FileData, CompletionHandler, ResultHandler, Execut
 	Else
 	
 		If ValueIsFilled(FileData.BeingEditedBy) Then
-			WarningText = FilesOperationsInternalClientServer.FileUsedByAnotherProcessCannotBeSignedMessageString();
+			WarningText = FilesOperationsInternalClientServer.MessageAboutInadmissibilityOfSigningBusyFile();
 			ReturnResultAfterShowWarning(ResultHandler, WarningText, ExecutionParameters);
 			Return False;
 		EndIf;
 		
 		If FileData.Encrypted Then
-			WarningText = FilesOperationsInternalClientServer.EncryptedFileCannotBeSignedMessageString();
+			WarningText = FilesOperationsInternalClientServer.MessageAboutInadmissibilityOfSigningEncryptedFile();
 			ReturnResultAfterShowWarning(CompletionHandler, WarningText, ExecutionParameters);
 			Return False;
 		EndIf;
@@ -9075,7 +9076,7 @@ Procedure ImportFilesRecursivelyWithoutDialogBoxes(Val Owner, Val SelectedFiles,
 			LabelMore = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Processing file ""%1"" (%2 MB)…';"),
 				SelectedFile.Name, 
-				FilesOperationsInternalClientServer.GetStringWithFileSize(SizeInMB));
+				FilesOperationsInternalClientServer.FileSizePresentation(SizeInMB));
 				
 			StateText = NStr("en = 'Importing files from computer...';");
 			

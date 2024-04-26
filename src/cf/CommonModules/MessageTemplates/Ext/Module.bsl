@@ -217,11 +217,12 @@ EndFunction
 //                                        all its attributes available as parameters. For example, Document.SalesOrder.
 //   * EmailFormat1    - EnumRef.EmailEditingMethods- an HTML email format or a plain text.
 //                                         For email templates only.
-//   * PackToArchive - Boolean - if True, print forms and attachments will be compressed to an archive upon sending.
+//   * PackToArchive - Boolean - If True, forms and attachments are archived when sent.
 //                                For email templates only.
-//   * TransliterateFileNames - Boolean - names of print forms and files attached to an email will contain 
-//                                             only Latin letters and digits. This ensures compatibility between
-//                                             saved as "Schet na oplatu.pdf". For email templates only.
+//   * TransliterateFileNames - Boolean - Names of print forms and files attached to an email will contain 
+//                                             only Latin letters and digits to ensure compatibility
+//                                             with different operating systems.
+//                                             For email templates only.
 //   * AttachmentsFormats - ValueList - a list of attachment formats. For email templates only.
 //   * Attachments - Map of KeyAndValue:
 //      ** Key - String - Full filename. For example, "image.png". The description is the filename without the extension.

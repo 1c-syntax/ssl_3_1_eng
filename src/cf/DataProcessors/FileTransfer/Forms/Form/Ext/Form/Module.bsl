@@ -163,7 +163,7 @@ Procedure ExecuteTransferCompletion(Result, AdditionalParameters) Export
 		
 		FormParameters = New Structure;
 		FormParameters.Insert("Explanation", Explanation);
-		FormParameters.Insert("FilesArrayWithErrors", TransferResult.TransferErrors);
+		FormParameters.Insert("FilesWithErrors", TransferResult.TransferErrors);
 		OpenForm("DataProcessor.FileTransfer.Form.ReportForm", FormParameters);
 	EndIf;
 	

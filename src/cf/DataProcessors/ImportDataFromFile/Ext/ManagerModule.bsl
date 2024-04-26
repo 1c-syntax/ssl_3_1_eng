@@ -1382,7 +1382,7 @@ Function AdjustValueToType(Value, TypeDescription)
 			
 		ElsIf Type = Type("Number") Then
 			
-			NonNumericCharacters = StrConcat(StrSplit(Value, "1234567890,."));
+			NonNumericCharacters = StrConcat(StrSplit(Value, "-1234567890,."));
 			Value = StrConcat(StrSplit(Value, NonNumericCharacters));
 			TypeDescriptionNumber = New TypeDescription("Number");
 			Return TypeDescriptionNumber.AdjustValue(Value);
@@ -1640,7 +1640,7 @@ Procedure ImportFileToTable(ServerCallParameters, StorageAddress) Export
 			ImportCSVFileToTable(TempFileName, TemplateWithData, ColumnsInformation);
 		Else
 			
-			// 
+			// Check file availability.
 			BinaryDataFromFile = New BinaryData(TempFileName);
 			BinaryDataFromFile = Undefined;
 			
@@ -1655,7 +1655,7 @@ Procedure ImportFileToTable(ServerCallParameters, StorageAddress) Export
 					Raise;
 				EndIf;
 				
-				// 
+				// Replace unexpected error text with text for user message.
 				Refinement = CommonClientServer.ExceptionClarification(ErrorInfo);
 				ClarifiedText = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = '%1

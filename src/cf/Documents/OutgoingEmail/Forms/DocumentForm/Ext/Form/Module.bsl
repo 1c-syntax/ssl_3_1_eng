@@ -1327,7 +1327,7 @@ Procedure AddEmailAttachment(MailMessage)
 	NewRow = Attachments.Add();
 	NewRow.MailMessage               = MailMessage;
 	NewRow.FileName             = EmailPresentation;
-	NewRow.PictureIndex       = FilesOperationsInternalClientServer.GetFileIconIndex("eml");
+	NewRow.PictureIndex       = FilesOperationsInternalClientServer.IndexOfFileIcon("eml");
 	NewRow.FileNameOnComputer = "";
 	NewRow.SignedWithDS           = False;
 	NewRow.Size               = EmailAttributes.Size;
@@ -1348,7 +1348,7 @@ Procedure AddEmailsAttachments()
 		NewRow = Attachments.Add();
 		NewRow.MailMessage               = AttachmentEmail.MailMessage;
 		NewRow.FileName             = EmailPresentation;
-		NewRow.PictureIndex       = FilesOperationsInternalClientServer.GetFileIconIndex("eml");
+		NewRow.PictureIndex       = FilesOperationsInternalClientServer.IndexOfFileIcon("eml");
 		NewRow.FileNameOnComputer = "";
 		NewRow.SignedWithDS           = False;
 		NewRow.Size               = AttachmentEmail.Size;
@@ -1706,7 +1706,7 @@ Procedure FileSelectionDialogAfterChoice(SelectedFiles, AdditionalParameters) Ex
 		NewRow.FileName = FileName;
 		
 		Extension                      = CommonClientServer.GetFileNameExtension(FileName);
-		NewRow.PictureIndex      = FilesOperationsInternalClientServer.GetFileIconIndex(Extension);
+		NewRow.PictureIndex      = FilesOperationsInternalClientServer.IndexOfFileIcon(Extension);
 		AdditionalParameters = New Structure("AttachmentsTableRow", NewRow);
 		File = New File(SelectedFile.FullName);
 		File.BeginGettingSize(New NotifyDescription("ReceivingSizeCompletion", ThisObject, AdditionalParameters));
@@ -1735,7 +1735,7 @@ Procedure IsFileAfterCompletionCheck(IsFile, AdditionalParameters) Export
 	NewRow.FileName = FileName;
 	
 	Extension                      = CommonClientServer.GetFileNameExtension(FileName);
-	NewRow.PictureIndex      = FilesOperationsInternalClientServer.GetFileIconIndex(Extension);
+	NewRow.PictureIndex      = FilesOperationsInternalClientServer.IndexOfFileIcon(Extension);
 	AdditionalParameters         = New Structure("AttachmentsTableRow", NewRow);
 	File = New File(FullName);
 	File.BeginGettingSize(New NotifyDescription("ReceivingSizeCompletion", ThisObject, AdditionalParameters));
@@ -1985,7 +1985,7 @@ Procedure ProcessPassedParameters(PassedParameters)
 				EndIf;
 				AttachmentDetails.FileName = Attachment.Presentation;
 				Extension = CommonClientServer.GetFileNameExtension(AttachmentDetails.FileName);
-				AttachmentDetails.PictureIndex = FilesOperationsInternalClientServer.GetFileIconIndex(Extension);
+				AttachmentDetails.PictureIndex = FilesOperationsInternalClientServer.IndexOfFileIcon(Extension);
 			EndDo;
 		EndIf;
 		

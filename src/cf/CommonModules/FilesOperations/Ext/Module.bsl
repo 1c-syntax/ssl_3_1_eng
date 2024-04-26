@@ -1438,7 +1438,7 @@ Procedure OnCreateAtServer(Form, ItemsToAdd1 = Undefined, SettingsOfFileManageme
 		
 		ItemNumber = Format(IndexOf, "NZ=0; NG=");
 		GroupName = "AttachedFilesManagementGroup" + ItemNumber;
-		GroupTitle = NStr("en = 'Управление присоединенными файлами';") + " "+ ItemNumber;
+		GroupTitle = NStr("en = 'Attachment management';") + " "+ ItemNumber;
 		
 		FormItemParameters = New Structure;
 		FormItemParameters.Insert("GroupName",          GroupName);
@@ -1641,11 +1641,11 @@ Procedure AddSignatureToFile(AttachedFile, SignatureProperties, FormIdentifier =
 		AttachedFileRef, Metadata.DefinedTypes.AttachedFile.Type);
 		
 	If ValueIsFilled(AttributesStructure1.BeingEditedBy) Then
-		Raise FilesOperationsInternalClientServer.FileUsedByAnotherProcessCannotBeSignedMessageString(AttachedFileRef);
+		Raise FilesOperationsInternalClientServer.MessageAboutInadmissibilityOfSigningBusyFile(AttachedFileRef);
 	EndIf;
 	
 	If AttributesStructure1.Encrypted Then
-		Raise FilesOperationsInternalClientServer.EncryptedFileCannotBeSignedMessageString(AttachedFileRef);
+		Raise FilesOperationsInternalClientServer.MessageAboutInadmissibilityOfSigningEncryptedFile(AttachedFileRef);
 	EndIf;
 	
 	If Common.SubsystemExists("StandardSubsystems.DigitalSignature") Then
@@ -2471,7 +2471,7 @@ Procedure ExecuteActionsBeforeWriteAttachedFile(Source, Cancel) Export
 	If Source.IsFolder Then
 		Source.PictureIndex = 2;
 	Else
-		Source.PictureIndex = FilesOperationsInternalClientServer.GetFileIconIndex(Source.Extension);
+		Source.PictureIndex = FilesOperationsInternalClientServer.IndexOfFileIcon(Source.Extension);
 	EndIf;
 	
 	If Source.IsNew() And Not ValueIsFilled(Source.Author) Then
@@ -2807,7 +2807,7 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 	
 	HeaderGroup = Form.Items.Add("AttachedFilesManagementGroupHeader" + ItemNumber,
 		Type("FormGroup"), PlacementOnFormGroup); // FormGroup
-	HeaderGroup.Title = NStr("en = 'Управление присоединенными файлами';") + " " + ItemNumber;
+	HeaderGroup.Title = NStr("en = 'Attachment management';") + " " + ItemNumber;
 	
 	FillPropertyValues(HeaderGroup, GroupPropertiesWithoutDisplay);
 	HeaderGroup.Group = ChildFormItemsGroup.AlwaysHorizontal;
@@ -2817,7 +2817,7 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 		PreviewItem = Form.Items.Add("AttachedFilePictureField" + ItemNumber,
 			Type("FormField"), PlacementOnFormGroup); // FormFieldExtensionForInputField
 		
-		PreviewItem.Title                  = NStr("en = 'Картинка присоединенного файла';") + " " + ItemNumber;
+		PreviewItem.Title                  = NStr("en = 'Attachment picture';") + " " + ItemNumber;
 		PreviewItem.Type                        = FormFieldType.PictureField;
 		PreviewItem.TextColor                 = StyleColors.NotSelectedPictureTextColor;
 		PreviewItem.DataPath                = ItemToAdd.PathToPictureData;
@@ -2837,7 +2837,7 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 		
 		ContextMenuAddGroup = Form.Items.Add("FileAddingGroupContextMenu" + ItemNumber,
 			Type("FormGroup"), PreviewContextMenu); // FormGroup
-		ContextMenuAddGroup.Title = NStr("en = 'Контекстное меню добавления файла';") + " " + ItemNumber;
+		ContextMenuAddGroup.Title = NStr("en = 'Context menu ""Add file""';") + " " + ItemNumber;
 		ContextMenuAddGroup.Type = FormGroupType.ButtonGroup;
 		
 		If ValueIsFilled(PlacementAttribute)
@@ -2924,7 +2924,7 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 			Form.Items.Move(GroupCommandBar, HeaderGroup);
 			SuppliedItemsGroup = Form.Items.Add("AttachmentsManagement1CSuppliedCommandsGroup" + ItemNumber,
 				Type("FormGroup"), GroupCommandBar); // FormGroup
-			SuppliedItemsGroup.Title = NStr("en = 'Команды управления присоединенными файлами';") 
+			SuppliedItemsGroup.Title = NStr("en = 'Attachment management command';") 
 				+ " " + ItemNumber;
 			SuppliedItemsGroup.Type = FormGroupType.ButtonGroup;
 			For Each SuppliedItem In GroupCommandBar.ChildItems Do
@@ -2942,7 +2942,7 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 		
 		SubmenuGroup = Form.Items.Add("FileAddingGroup" + ItemNumber,
 			Type("FormGroup"), SubmenuAdd); // FormGroup
-		ContextMenuAddGroup.Title = NStr("en = 'Добавление файла';") + " " + ItemNumber;
+		ContextMenuAddGroup.Title = NStr("en = 'Add files';") + " " + ItemNumber;
 		SubmenuGroup.Type = FormGroupType.ButtonGroup;
 		
 	EndIf;

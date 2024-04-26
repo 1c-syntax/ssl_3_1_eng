@@ -176,10 +176,19 @@ Procedure OpenErrorDescription(ErrorText)
 	FormParameters.Insert("WarningTitle", NStr("en = 'SIgnature validation error';"));
 	FormParameters.Insert("ErrorTextClient", ErrorText);
 	
+	AdditionalParameters = New Structure;
+	
 	If ValueIsFilled(CertificateAddress) Then
-		AdditionalParameters = New Structure("CertificateData",
+		AdditionalParameters.Insert("CertificateData",
 			CertificateAddress);
 	EndIf;
+	
+	If ValueIsFilled(SignatureAddress) Then
+		AdditionalParameters.Insert("SignatureData",
+			SignatureAddress);
+	EndIf;
+		
+	FormParameters.Insert("AdditionalData", AdditionalParameters);
 	
 	OpenForm("CommonForm.ExtendedErrorPresentation",
 		FormParameters, ThisObject,,,,, FormWindowOpeningMode.LockOwnerWindow);

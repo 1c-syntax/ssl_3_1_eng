@@ -154,7 +154,7 @@ Function ForwardTasks(Val RedirectedTasks_SSLs, Val ForwardingInfo, Val IsCheckO
 				RedirectedTasks = New Array();
 			EndIf;
 			
-			//  
+			// Don't set a deadlock on "Task" to allow forwarding the task from its form. 
 			// 
 			TaskObject = Task.Key.GetObject();
 			

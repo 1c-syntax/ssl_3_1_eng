@@ -16,34 +16,34 @@
 //   Structure:
 //   * Width - Number - width of a barcode image.
 //   * Height - Number - height of a barcode image.
-//   * CodeType - Number - 
-//       :
-//      
-//      
-//      
-//      
-//      
-//      
-//      
-//      
-//      
-//      
-//      
-//      
-//      
-//      
-//      
-//      
-//      
-//      
-//      
-//      
-//      
-//      
-//      
-//      
-//            
-//            
+//   * CodeType - Number - The barcode format.
+//       Valid values are:
+//      99 - Identify automatically
+//      0 - EAN8
+//      1 - EAN13
+//      2 - EAN128
+//      3 - Code39
+//      4 - Code128
+//      5 - Code16k
+//      6 - PDF417
+//      7 - Standart (Industrial) 2 of 5
+//      8 - Interleaved 2 of 5
+//      9 - Code39 extension
+//      10 - Code93
+//      11 - ITF14
+//      12 - RSS14
+//      14 - EAN13AddOn2
+//      15 - EAN13AddOn5
+//      16 - QR
+//      17 - GS1DataBarExpandedStacked
+//      18 - Datamatrix ASCII
+//      19 - Datamatrix BASE256
+//      20 - Datamatrix TEXT
+//      21 - Datamatrix C40
+//      22 - Datamatrix X12
+//      23 - Datamatrix EDIFACT
+//      24 - Datamatrix GS1ASCII      
+//      25 - Aztec      
 //   * ShowText - Boolean - display the HRI text for a barcode.
 //   * FontSize - Number - font size of the HRI text for a barcode.
 //   * CanvasRotation - Number - rotation angle.
@@ -202,7 +202,7 @@ Function ToConnectAComponentGeneratingAnImageOfTheBarcode() Export
 	
 	ModuleCommon = ModuleCommon();
 	If ModuleCommon.SubsystemExists("EquipmentSupport") Then
-		// 
+		// Attach the add-in via PEL.
 		ModuleExternalComponentsOfBPO = ModuleCommon.CommonModule("AddInsCEL");
 		AddIn = ModuleExternalComponentsOfBPO.AttachAddInSSL(ObjectName, FullTemplateName);
 	Else
@@ -224,7 +224,7 @@ Function ToConnectAComponentGeneratingAnImageOfTheBarcode() Export
 			AddIn = ModuleCommon.AttachAddInFromTemplate(ObjectName, FullTemplateName);
 		EndIf;
 #EndIf
-		// 
+		// End Call SSL
 	EndIf;
 	
 	If AddIn = Undefined Then 
@@ -257,7 +257,7 @@ Function ToConnectAComponentGeneratingAnImageOfTheBarcode() Export
 	
 EndFunction
 
-// 
+// Details of attaching the barcode print add-in.
 //
 // Returns:
 //  Structure:
@@ -297,43 +297,43 @@ Function PrepareABarcodeImage(AddIn, BarcodeParameters)
 	XMLWriter.WriteStartElement("MakeBarcode");
 	XMLWriter.WriteStartElement("Parameters");   
 	
-	// 
+	// Default font.
 	XMLWriter.WriteStartElement("Font");   
 	XMLWriter.WriteText(AddIn.Font);
 	XMLWriter.WriteEndElement();
-	// 	  
+	// Image width in pixels.	  
 	TheWidthOfTheBarcode = ?(BarcodeParameters.Width <= 0, 1, Round(BarcodeParameters.Width));
 	XMLWriter.WriteStartElement("Width");   
 	XMLWriter.WriteText(String(TheWidthOfTheBarcode));
 	XMLWriter.WriteEndElement();
-	// 
+	// Image height in pixels.
 	TheHeightOfTheBarcode = ?(BarcodeParameters.Height <= 0, 1, Round(BarcodeParameters.Height));
 	XMLWriter.WriteStartElement("Height");   
 	XMLWriter.WriteText(String(TheHeightOfTheBarcode));
 	XMLWriter.WriteEndElement();
-	// 
+	// Transparent background flag.
 	XMLWriter.WriteStartElement("BgTransparent");   
 	XMLWriter.WriteText(XMLString(BarcodeParameters.BgTransparent));
 	XMLWriter.WriteEndElement();
-	// 
+	// Indicates if the generator should crop the image border.
 	XMLWriter.WriteStartElement("RemoveExeedBackgroud");   
 	XMLWriter.WriteText(XMLString(BarcodeParameters.RemoveExtraBackgroud));
 	XMLWriter.WriteEndElement();
-	//      
+	// Rotation angle.     
 	CanvasRotation = Number(?(BarcodeParameters.Property("CanvasRotation"), BarcodeParameters.CanvasRotation, 0));
 	XMLWriter.WriteStartElement("CanvasRotation");   
 	XMLWriter.WriteText(XMLString(CanvasRotation));
 	XMLWriter.WriteEndElement();
-	//     
+	// QR code error correction levels: 0 - L, 1 - M, 2 - Q, 3 - H.    
 	QRErrorCorrectionLevel = Number(?(BarcodeParameters.Property("QRErrorCorrectionLevel"), BarcodeParameters.QRErrorCorrectionLevel, 1));
 	XMLWriter.WriteStartElement("QRErrorCorrectionLevel");   
 	XMLWriter.WriteText(XMLString(QRErrorCorrectionLevel));
 	XMLWriter.WriteEndElement();
-	// 
+	// Barcode title display flag.
 	XMLWriter.WriteStartElement("TextVisible");   
 	XMLWriter.WriteText(XMLString(BarcodeParameters.ShowText));
 	XMLWriter.WriteEndElement();
-	// 
+	// Font size in pixels.
 	XMLWriter.WriteStartElement("FontSize");   
 	XMLWriter.WriteText(XMLString(Number(BarcodeParameters.FontSize)));
 	XMLWriter.WriteEndElement();
@@ -342,11 +342,11 @@ Function PrepareABarcodeImage(AddIn, BarcodeParameters)
 	XMLWriter.WriteStartElement("CodeVerticalAlign");   
 	XMLWriter.WriteText(XMLString(Number(BarcodeParameters.VerticalAlignment)));
 	XMLWriter.WriteEndElement();   
-	// 
+	// Number of rows in GS1 Databar Expanded Stacked.
 	XMLWriter.WriteStartElement("GS1DatabarRowCount");   
 	XMLWriter.WriteText(XMLString(Number(BarcodeParameters.GS1DatabarRowsCount)));
 	XMLWriter.WriteEndElement();
-	// 
+	// Barcode type is QR code.
 	If BarcodeParameters.CodeType = 16 Then 
 		If ValueIsFilled(BarcodeParameters.LogoImage) Then 
 			XMLWriter.WriteStartElement("LogoImageBase64");   
@@ -359,7 +359,7 @@ Function PrepareABarcodeImage(AddIn, BarcodeParameters)
 			XMLWriter.WriteEndElement();
 		EndIf;
 	EndIf;                            
-	// 
+	// Define a barcode type.
 	AutoBarcodeType = (BarcodeParameters.CodeType = 99);
 	XMLWriter.WriteStartElement("CodeAuto");   
 	XMLWriter.WriteText(XMLString(AutoBarcodeType));
@@ -373,11 +373,11 @@ Function PrepareABarcodeImage(AddIn, BarcodeParameters)
 	XMLWriter.WriteStartElement("ECL");   
 	XMLWriter.WriteText("1");
 	XMLWriter.WriteEndElement();
-	// 
+	// Barcode data type.
 	XMLWriter.WriteStartElement("InputDataType");   
 	XMLWriter.WriteText(XMLString(Number(BarcodeParameters.InputDataType)));
 	XMLWriter.WriteEndElement();
-	// 
+	// Barcode value
 	XMLWriter.WriteStartElement("CodeValue");   
 	XMLWriter.WriteText(XMLString(String(BarcodeParameters.Barcode)));
 	XMLWriter.WriteEndElement();
@@ -422,7 +422,7 @@ Function PrepareABarcodeImage(AddIn, BarcodeParameters)
 	
 EndFunction
 
-// Prepare barcode images.
+// Prepare a barcode image.
 //
 // Parameters: 
 //   AddIn - See BarcodeGenerationServerCached.ToConnectAComponentGeneratingAnImageOfTheBarcode
@@ -430,19 +430,19 @@ EndFunction
 //
 // Returns: 
 //   Structure:
-//      The result is a Boolean-the result of barcode generation.
-//      Binary Data-Binary Data - Binary barcode image data.
-//      Picture-Picture - picture with the generated barcode or UNDEFINED.
+//      Result - Boolean - Generation success flag.
+//      BinaryData - BinaryData - Binary data of a barcode image.
+//      Picture - Picture - Barcode image or "Undefined".
 //
 Function PrepareBarcodeImageOfProperty(AddIn, BarcodeParameters)
 	
-	// Result 
+	// Result. 
 	OperationResult = New Structure();
 	OperationResult.Insert("Result", False);
 	OperationResult.Insert("BinaryData");
 	OperationResult.Insert("Picture");
 	
-	// 
+	// Specify the size of the picture being generated.
 	TheWidthOfTheBarcode = Round(BarcodeParameters.Width);
 	TheHeightOfTheBarcode = Round(BarcodeParameters.Height);
 	If TheWidthOfTheBarcode <= 0 Then
@@ -455,7 +455,7 @@ Function PrepareBarcodeImageOfProperty(AddIn, BarcodeParameters)
 	AddIn.Height = TheHeightOfTheBarcode;
 	AddIn.AutoType = False;
 	
-	TimeBarcode = String(BarcodeParameters.Barcode); // 
+	TimeBarcode = String(BarcodeParameters.Barcode); // Convert into a string explicitly.
 	
 	If BarcodeParameters.CodeType = 99 Then
 		AddIn.AutoType = True;
@@ -481,36 +481,36 @@ Function PrepareBarcodeImageOfProperty(AddIn, BarcodeParameters)
 	EndIf;
 	
 	AddIn.TextVisible = BarcodeParameters.ShowText;
-	// 
+	// Generate a barcode picture.
 	AddIn.CodeValue = TimeBarcode;
-	// 
+	// Barcode rotation angle.
 	AddIn.CanvasRotation = ?(BarcodeParameters.Property("CanvasRotation"), BarcodeParameters.CanvasRotation, 0);
-	// 
+	// QR code error correction levels (L=0, M=1, Q=2, H=3).
 	AddIn.QRErrorCorrectionLevel = ?(BarcodeParameters.Property("QRErrorCorrectionLevel"), BarcodeParameters.QRErrorCorrectionLevel, 1);
 	
-	// 
+	// Intended for compatibility with the previous versions of Peripheral Equipment Library.
 	If Not BarcodeParameters.Property("Zoomable")
 		Or (BarcodeParameters.Property("Zoomable") And BarcodeParameters.Zoomable) Then
 		
 		If Not BarcodeParameters.Property("MaintainAspectRatio")
 				Or (BarcodeParameters.Property("MaintainAspectRatio") And Not BarcodeParameters.MaintainAspectRatio) Then
-			// 
+			// If the specified width is less than the minimal for this barcode.
 			If AddIn.Width < AddIn.CodeMinWidth Then
 				AddIn.Width = AddIn.CodeMinWidth;
 			EndIf;
-			// 
+			// If the specified height is less than the minimal for this barcode.
 			If AddIn.Height < AddIn.CodeMinHeight Then
 				AddIn.Height = AddIn.CodeMinHeight;
 			EndIf;
 		ElsIf BarcodeParameters.Property("MaintainAspectRatio") And BarcodeParameters.MaintainAspectRatio Then
 			While AddIn.Width < AddIn.CodeMinWidth 
 				Or AddIn.Height < AddIn.CodeMinHeight Do
-				// 
+				// If the specified width is less than the minimal for this barcode.
 				If AddIn.Width < AddIn.CodeMinWidth Then
 					AddIn.Width = AddIn.CodeMinWidth;
 					AddIn.Height = Round(AddIn.CodeMinWidth / TheWidthOfTheBarcode) * TheHeightOfTheBarcode;
 				EndIf;
-				// 
+				// If the specified height is less than the minimal for this barcode.
 				If AddIn.Height < AddIn.CodeMinHeight Then
 					AddIn.Height = AddIn.CodeMinHeight;
 					AddIn.Width = Round(AddIn.CodeMinHeight / TheHeightOfTheBarcode) * TheWidthOfTheBarcode;
@@ -519,7 +519,7 @@ Function PrepareBarcodeImageOfProperty(AddIn, BarcodeParameters)
 		EndIf;
 	EndIf;
 	
-	// 
+	// CodeVerticalAlignment: 1 - top, 2 - center, 3 - bottom.
 	If BarcodeParameters.Property("VerticalAlignment") And (BarcodeParameters.VerticalAlignment > 0) Then
 		AddIn.CodeVerticalAlign = BarcodeParameters.VerticalAlignment;
 	EndIf;
@@ -540,10 +540,10 @@ Function PrepareBarcodeImageOfProperty(AddIn, BarcodeParameters)
 		EndIf;
 	EndIf;
 		
-	// 
+	// Generate a picture.
 	BinaryPictureData = AddIn.GetBarcode();
 	OperationResult.Result = AddIn.Result = 0;
-	// 
+	// If the picture is generated successfully.
 	If BinaryPictureData <> Undefined Then
 		OperationResult.BinaryData = BinaryPictureData;
 		OperationResult.Picture = New Picture(BinaryPictureData); // 
@@ -556,9 +556,9 @@ EndFunction
 Function ModuleCommon()
 	
 	If Metadata.Subsystems.Find("EquipmentSupport") = Undefined Then
-		// 
+		// Call SSL
 		Return Eval("Common");
-		// 
+		// End Call SSL
 	Else
 		Return Eval("CommonCEL");
 	EndIf;

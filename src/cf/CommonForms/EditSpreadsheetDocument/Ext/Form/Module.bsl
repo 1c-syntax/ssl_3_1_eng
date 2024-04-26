@@ -1950,7 +1950,7 @@ Procedure Attachable_SearchStringClearing(Item, StandardProcessing)
 EndProcedure
 
 &AtServer
-Procedure Attachable_FormulaEditorHandlerServer(Val Parameter, Val AdditionalParameters)
+Procedure Attachable_FormulaEditorHandlerServer(Parameter, AdditionalParameters) // ACC:1412 - The parameters return to the client.
 	If Common.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
 		ModuleConstructorFormula = Common.CommonModule("FormulasConstructor");
 		ModuleConstructorFormula.FormulaEditorHandler(ThisObject, Parameter, AdditionalParameters);
@@ -2888,7 +2888,7 @@ Procedure DeleteLayoutInCurrentLanguage()
 	EndDo;
 	
 	MenuLanguageAllActions = Items.LanguageAllActions;
-	LanguagesToAddAllActions = Items.LanguagesToAddAllActions;
+	LangsToAddAllActions = Items.LangsToAddAllActions;
 	For Each LangButton In MenuLanguageAllActions.ChildItems Do
 		If TypeOf(LangButton) = Type("FormButton") Then
 			If StrEndsWith(LangButton.CommandName, LangOfFormToDelete) Then
@@ -2902,7 +2902,7 @@ Procedure DeleteLayoutInCurrentLanguage()
 		EndIf;
 	EndDo;
 	
-	For Each ButtonForAddedLang In LanguagesToAddAllActions.ChildItems Do
+	For Each ButtonForAddedLang In LangsToAddAllActions.ChildItems Do
 		If TypeOf(ButtonForAddedLang) = Type("FormButton") Then
 			If StrEndsWith(ButtonForAddedLang.CommandName, LangOfFormToDelete) Then
 				ButtonForAddedLang.Visible = True;

@@ -520,8 +520,8 @@ EndProcedure
 //              -- ApplicationStarted - Boolean - True if the external application opened successfully.
 //              -- ErrorDescription - String - a brief error description. Empty string on cancel by user.
 //              -- ReturnCode - Number - the application return code.
-//              -- OutputStream - String - the application result passed to stdout.
-//                             Always takes a value "" in a web client.
+//              -- OutputStream - String - App result passed to stdout.
+//                             In the web client, it is always "".
 //              -- ErrorStream - String - App errors passed to stderr.
 //                             In the web client, always set to "".
 //          AdditionalParameters - Arbitrary - The value specified when creating the NotifyDescription object:
@@ -531,7 +531,8 @@ EndProcedure
 //    * GetErrorStream - Boolean - False - errors are passed to stderr stream.
 //         Ignored if WaitForCompletion is not specified.
 //    * ThreadsEncoding - TextEncoding
-//         "CP866" is default for Windows and "UTF-8" is default for others.
+//                       - String - The encoding used to read stdout and stderr.
+//         The default is "CP866" for Windows and "UTF-8" for other operating systems.
 //    * ExecutionEncoding - String
 //                          - Number - an encoding set in Windows using the chcp command,
 //         the possible values ​​are "OEM", "CP866", "UTF8" or the code page number.
@@ -583,14 +584,24 @@ EndFunction
 //      An array matches the one that the called application in argv will get.
 //  ApplicationStartupParameters - See FileSystemClient.ApplicationStartupParameters.
 //
+// Example: 
+//	Ordinary startup
+//  FileSystemClient.StartApplication("calc");
 //
+//  Startup with waiting for exit and obtaining the return code:
+//  ApplicationStartupParameters = FileSystemClient.ApplicationStartupParameters ();
+//  ApplicationStartupParameters .WaitForCompletion = True;
+//  ApplicationStartupParameters.GetOutputStream = True;
+//  ApplicationStartupParameters.GetErrorStream = True;
+//  ApplicationStartupParameters.Notification = New NotifyDescription("OnGetAppStartupResult", ThisObject);
 //
+//  FileSystemClient.StartApplication("ping 127.0.0.1 -n 5", ApplicationStartupParameters );
 //   
-// Example:
+//  Example of notification handling
 //  &AtClient
 //  Procedure OnGetAppStartupResult(Result, AdditionalParameters) Export
 //      ReturnCode = Result.ReturnCode;
-//      OutputStream = Result.OutputStream;
+//      ErrorStream = Result.OutputStream;
 //      ErrorStream = Result.ErrorStream;
 //  EndProcedure
 //
@@ -845,7 +856,8 @@ Function OperationContext(DialogMode)
 EndFunction
 
 // Puts the selected files to a temporary storage.
-// See FileSystemClient.ImportFile_and FileSystemClient.ImportFiles
+// See FileSystemClient.ImportFile_
+// and FileSystemClient.ImportFiles
 //
 Procedure ShowPutFile(CompletionHandler, PutParameters)
 	
@@ -857,7 +869,8 @@ Procedure ShowPutFile(CompletionHandler, PutParameters)
 EndProcedure
 
 // Saves files from temporary storage to the file system.
-// See FileSystemClient.SaveFileand FileSystemClient.SaveFiles
+// See FileSystemClient.SaveFile
+// and FileSystemClient.SaveFiles
 //
 Procedure ShowDownloadFiles(CompletionHandler, FilesToSave, ReceivingParameters)
 	

@@ -68,6 +68,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 	EndIf;
 	
+	SSLSubsystemsIntegration.OnCreateFilesItemForm(ThisObject);
+	FilesOperationsOverridable.OnCreateFilesItemForm(ThisObject);
+	
 EndProcedure
 
 &AtClient
@@ -938,9 +941,9 @@ EndProcedure
 &AtClient
 Procedure Send(Command)
 	
-	If ValueIsFilled(Object.Ref)
-		Or Write() Then
+	If ValueIsFilled(Object.Ref) Or Write() Then
 		Files = CommonClientServer.ValueInArray(Object.Ref);
+		OnSendFilesViaEmail(SendOptions, Files, Object.FileOwner, UUID);
 		FilesOperationsInternalClient.SendFilesViaEmail(Files, UUID, SendOptions, True);
 	EndIf;
 	
@@ -1686,5 +1689,11 @@ Procedure Attachable_UpdateCommands()
 EndProcedure
 
 // End StandardSubsystems.AttachableCommands
+
+&AtServerNoContext
+Procedure OnSendFilesViaEmail(SendOptions, Val FilesToSend, FilesOwner, UUID)
+	SSLSubsystemsIntegration.OnSendFilesViaEmail(SendOptions, FilesToSend, FilesOwner, UUID);
+	FilesOperationsOverridable.OnSendFilesViaEmail(SendOptions, FilesToSend, FilesOwner, UUID);
+EndProcedure
 
 #EndRegion

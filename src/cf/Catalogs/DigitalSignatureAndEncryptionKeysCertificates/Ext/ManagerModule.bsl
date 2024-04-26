@@ -68,7 +68,7 @@ Procedure FormGetProcessing(FormType, Parameters, SelectedForm, AdditionalInform
 	
 	If FormType = "ListForm" Then
 		StandardProcessing = False;
-		Parameters.Insert("ShowCertificatesPage");
+		Parameters.Insert("ShowPage", "Certificates");
 		SelectedForm = Metadata.CommonForms.DigitalSignatureAndEncryptionSettings;
 	EndIf;
 	

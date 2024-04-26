@@ -770,6 +770,7 @@ EndProcedure
 //      * IsConstant - Boolean - a constant flag.
 //      * IsReference - Boolean - a flag indicating a reference data type.
 //      * IsRecordsSet - Boolean - a flag indicating a register record set
+//      * Manager - CatalogManager, DocumentManager, и т.п. - table value manager.
 //      * TableName - String - table name.
 //
 Function MetadataCharacteristics(MetadataTableName) Export
@@ -1055,8 +1056,10 @@ EndFunction
 // Adds columns to the FormTable.
 //
 // Parameters:
+//    FormTable   - ЭлементФормы - an item linked to an attribute. The data columns are added to this attribute.
 //    SaveNames - String - a list of column names, separated by commas.
 //    Add      - Array - contains structures that describe columns to be added (Name, ValueType, Title).
+//    ColumnGroup  - ЭлементФормы - a column group where the columns are added.
 //
 Procedure AddColumnsToFormTable(FormTable, SaveNames, Add, ColumnGroup = Undefined) Export
 	

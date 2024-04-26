@@ -1913,19 +1913,6 @@ Function VerifySignature(CryptoManager, RawData, Signature, ErrorDescription = N
 			DateToVerifySignatureCertificate = OnDate;
 		EndIf;
 		
-		SystemInfo = New SystemInfo;
-		If SignatureProperties.SignatureType <> Enums.CryptographySignatureTypes.NormalCMS
-			And SignatureProperties.SignatureType <> Enums.CryptographySignatureTypes.BasicCAdESBES
-			And CommonClientServer.CompareVersions(SystemInfo.AppVersion, "8.3.24.0") >= 0 Then
-			
-			// Additional signature attributes passed the check. Certificate validation is not required.
-			SignatureCertificateAdditionalCheckResult = DigitalSignatureInternal.SignatureCertificateAdditionalCheckResult(
-				Certificate, DateToVerifySignatureCertificate, CertificateProperties);
-			FillSignatureVerificationResult(SignatureCertificateAdditionalCheckResult, ResultStructure);
-			
-			Return SignatureCertificateAdditionalCheckResult = True;
-		EndIf;
-		
 	EndIf;
 	
 	If RaiseException1 Then
@@ -1987,7 +1974,7 @@ EndFunction
 // Parameters:
 //
 //  OnlyPersonal - Boolean - if False, recipient certificates are added to the personal certificates.
-//  ErrorDescription - Null -  throw an exception when a validation error occurs.
+//  ErrorDescription - Null - raise an exception if an error occurs during the check.
 //                 - String - Contains error details (if occurred).
 //  Service - Boolean - 
 //

@@ -850,8 +850,8 @@ Procedure MoveUsersOptionsFromStandardStorage(ReportsNames = "") Export
 			EndIf;
 		EndIf;
 		
-		// 
-		// 
+		// All external report options are moved as it's impossible to determine
+		// whether they are connected to the subsystem's storage.
 		ArrayOfObjectsKeysToDelete.Add(StorageSelection.ObjectKey);
 		
 		IBUser = InfoBaseUsers.FindByName(StorageSelection.User);
@@ -1012,8 +1012,8 @@ Procedure ImportUserOptions(UserOptions1 = Undefined) Export
 			OptionStorage.Settings = New ValueStorage(OptionDetails.Settings);
 		EndIf;
 		
-		// 
-		// 
+		// As custom report options are being moved,
+		// the location settings are obtained only from the report's metadata.
 		FoundSubsystems = ReportsSubsystems.FindRows(New Structure("ReportFullName", OptionDetails.ReportFullName));
 		For Each SubsystemDetails In FoundSubsystems Do
 			Subsystem = Common.MetadataObjectID(SubsystemDetails.SubsystemMetadata1);
@@ -3776,9 +3776,9 @@ Procedure UpdateKeysOfPredefinedItems(Mode, Result)
 	// Generate a table of replacements of old option keys for relevant ones.
 	Changes = KeysChanges();
 	
-	// 
-	// 
-	// 
+	// Get the references to the report options for key replacement.
+	// Don't include the report options whose current keys are registered
+	// or whose old keys are vacant.
 	// 
 	QueryText =
 	"SELECT
@@ -4694,7 +4694,7 @@ Procedure RegisterOptionMeasurementsForUpdate(Val OldKey, Val UpdatedKey, Val Up
 		NStr("en = 'Report %1 (settings)';"), UpdatedDescription);
 EndProcedure
 
-// 
+// Write report option parameters (metadata cache for application speed).
 //
 // Parameters:
 //   Mode - String - Update mode: ConfigurationCommonData or ExtensionsCommonData.
@@ -5169,8 +5169,8 @@ Procedure SubsystemsTreeWrite(OptionObject, ChangedSubsystems) Export
 	For Each Subsystem In ChangedSubsystems Do 
 		LineOfATabularSection = OptionObject.Location.Find(Subsystem.Ref, "Subsystem");
 		If LineOfATabularSection = Undefined Then
-			// 
-			// 
+			// Register the report option's location setting unconditionally ("Use" is cleared).
+			// - Only in this case, the setting will replace the predefined one (from the shared catalog).
 			LineOfATabularSection = OptionObject.Location.Add();
 			LineOfATabularSection.Subsystem = Subsystem.Ref;
 		EndIf;
@@ -5560,8 +5560,9 @@ Function FillFieldsForSearch(OptionObject, ReportInfo = Undefined) Export
 	ReportsClientServer.LoadSettings(ReportObject.SettingsComposer, DCSettings);
 	
 	If FillFields Then
-		// 
-		//   
+		// Convert all autogrouping settings into field sets.
+		//   See the Syntax Assistant for "DataCompositionAutoSelectedField",
+		//   "DataCompositionAutoGroupField", and "DataCompositionAutoOrderItem".
 		ReportObject.SettingsComposer.ExpandAutoFields();
 		FieldsForSearch.FieldDescriptions = GenerateFiledsPresentations(ReportObject.SettingsComposer);
 	EndIf;
@@ -5677,8 +5678,11 @@ Function PresentationsFilled(Val Mode = "") Export
 	ElsIf Mode = "SeparatedConfigurationData" Then
 		Parameters = StandardSubsystemsServer.ExtensionParameter(ParameterName);
 	Else
-		CommonResult1 = PresentationsFilled("ConfigurationCommonData");
 		SeparatedResult = PresentationsFilled("SeparatedConfigurationData");
+		If Common.DataSeparationEnabled() Then
+			Return SeparatedResult;
+		EndIf;
+		CommonResult1 = PresentationsFilled("ConfigurationCommonData");
 		If CommonResult1 = "NotFilled1" Or SeparatedResult = "NotFilled1" Then
 			Return "NotFilled1";
 		ElsIf CommonResult1 = "ToFill" Or SeparatedResult = "ToFill" Then
@@ -9811,6 +9815,7 @@ EndFunction
 //        ** Parent - CatalogRef.ReportsOptions
 //        ** TopLevel - Boolean
 //        ** MeasurementsKey - String
+//    * SectionOptions - See ReportOptionsToShow.Variants
 //    * UseHighlighting - Boolean
 //    * SearchResult - See FindReportsOptions
 //    * WordArray - Array

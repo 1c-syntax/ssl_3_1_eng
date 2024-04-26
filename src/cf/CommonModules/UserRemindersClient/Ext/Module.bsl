@@ -25,8 +25,8 @@ EndProcedure
 // Parameters:
 //  Text - String - Reminder text;
 //  Time - Date - Reminder's due date and time.
-//  SubjectOf - AnyRef -  the subject of the reminder;
-//  Id - String -  specifies the subject of the reminder, for example, "Birthday".
+//  SubjectOf - AnyRef - Reminder's subject.
+//  Id - String - Describes the reminder's subject. For example, "Birthday".
 //
 Procedure RemindInSpecifiedTime(Text, Time, SubjectOf = Undefined, Id = Undefined) Export
 	
@@ -157,7 +157,7 @@ Procedure NotificationProcessing(Form, EventName, Parameter, Source) Export
 	
 EndProcedure
 
-// 
+// Opens the reminder settings form.
 Procedure OpenSettings() Export
 	OpenForm("InformationRegister.UserReminders.Form.Settings");
 EndProcedure

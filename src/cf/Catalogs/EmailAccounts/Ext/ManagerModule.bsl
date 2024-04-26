@@ -1225,7 +1225,20 @@ EndFunction
 
 Function AttributesRequiringPasswordToChange() Export
 	
-	Return "UseForSending,UseForReceiving,IncomingMailServer,OutgoingMailServer,AccountOwner,UseSecureConnectionForIncomingMail,UseSecureConnectionForOutgoingMail,User,SMTPUser";
+	Attributes = New Array;
+	Attributes.Add("UseForSending");
+	Attributes.Add("UseForReceiving");
+	Attributes.Add("IncomingMailServer");
+	Attributes.Add("OutgoingMailServer");
+	Attributes.Add("AccountOwner");
+	Attributes.Add("UseSecureConnectionForIncomingMail");
+	Attributes.Add("UseSecureConnectionForOutgoingMail");
+	Attributes.Add("User");
+	Attributes.Add("SMTPUser");
+	Attributes.Add("AuthorizationRequiredOnSendEmails");
+	Attributes.Add("UserName");
+	
+	Return StrConcat(Attributes, ",");
 	
 EndFunction
 

@@ -90,11 +90,11 @@ Procedure OnInitialItemsFilling(LanguagesCodes, Items, TabularSections) Export
 	
 EndProcedure
 
-// 
+// Returns the UUID of the predefined group "AllExternalUsers".
 // 
 //
 // Returns:
-//  String - 
+//  String - UUID string.
 //
 Function AllExternalUsersGroupID() Export
 	

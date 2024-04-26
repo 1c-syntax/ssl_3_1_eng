@@ -41,7 +41,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	If Common.DataSeparationEnabled() And Not Common.SeparatedDataUsageAvailable() Then
-		ErrorText = NStr("en = 'To delete marked objects, sign in to the data area.';");
+		ErrorText = NStr("en = 'To delete marked objects, log in to the data area.';");
 		Return; // Cancel is set in OnOpen.
 	EndIf;
 	
@@ -139,6 +139,7 @@ EndProcedure
 
 &AtClient
 Procedure DetailsRefClick(Item)
+
 	If IsExclusiveModeSettingError(BackgroundJobErrorInfo) Then
 		ToOpenTheFormCompleteTheUserExperience();
 		Return;
@@ -2124,9 +2125,12 @@ Procedure FillFormDataTreeItemCollection(FormData1, ValueTree)
 EndProcedure
 
 &AtClientAtServerNoContext
-Function IsExclusiveModeSettingError(BackgroundJobErrorInfo)
-	ErrorTextExclusive = NStr("en = 'Error of separated infobase access';");	
-	Return StrFind(ErrorProcessing.BriefErrorDescription(BackgroundJobErrorInfo), ErrorTextExclusive) <> 0;
+Function IsExclusiveModeSettingError(ErrorInfo)
+	If ErrorInfo = Undefined Then
+		Return False;
+	EndIf;
+	ErrorTextExclusive = NStr("en = 'Error of separated infobase access';");
+	Return StrFind(ErrorProcessing.BriefErrorDescription(ErrorInfo), ErrorTextExclusive) <> 0;
 EndFunction
 
 &AtClient

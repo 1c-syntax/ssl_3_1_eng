@@ -72,7 +72,7 @@ EndProcedure
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 Procedure FormGetProcessing(FormType, Parameters, SelectedForm, AdditionalInformation, StandardProcessing)
-	// 
+	// Override for Favorites: It will open the main report form (instead of the card with report location settings).
 	// 
 	If FormType = "ObjectForm" Then
 		OptionRef1 = CommonClientServer.StructureProperty(Parameters, "Key");

@@ -127,10 +127,10 @@ Procedure UpdateLifetimeRestriction(Form) Export
 	
 	If ValueIsFilled(TitleWithRestriction) Then
 		Items.CanSignIn.Title = TitleWithRestriction;
-		Items.ChangeAuthorizationRestriction.Title = NStr("en = 'Edit authentication restrictions';");
+		Items.ChangeAuthorizationRestriction.Title = NStr("en = 'Change time restriction';");
 	Else
 		Items.CanSignIn.Title = "";
-		Items.ChangeAuthorizationRestriction.Title = NStr("en = 'Set authentication restriction';");
+		Items.ChangeAuthorizationRestriction.Title = NStr("en = 'Set up time restriction';");
 	EndIf;
 	
 EndProcedure
@@ -151,11 +151,11 @@ Procedure CheckPasswordSet(Form, PasswordIsSet, AuthorizedUser) Export
 	If PasswordIsSet Then
 		Items.PasswordExistsLabel.Title = NStr("en = 'The password is set.';");
 		Items.UserMustChangePasswordOnAuthorization.Title =
-			NStr("en = 'User must change password at next logon';");
+			NStr("en = 'User must change password on next login';");
 	Else
 		Items.PasswordExistsLabel.Title = NStr("en = 'Blank password';");
 		Items.UserMustChangePasswordOnAuthorization.Title =
-			NStr("en = 'User must set password at next logon';");
+			NStr("en = 'User must set password on next login';");
 	EndIf;
 	
 	If PasswordIsSet

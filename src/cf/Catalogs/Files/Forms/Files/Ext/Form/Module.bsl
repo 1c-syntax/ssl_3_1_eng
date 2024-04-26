@@ -42,8 +42,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	SendOptions = ?(Parameters.SendOptions <> Undefined, Parameters.SendOptions,
 		FilesOperationsInternal.PrepareSendingParametersStructure());
-	
 	Items.Folders.CurrentRow = InitialFolder;
+	FilesStorageCatalogName = "Files";
+	FileOwner = InitialFolder;
 	
 	CurrentUser = Users.AuthorizedUser();
 	If TypeOf(CurrentUser) = Type("CatalogRef.ExternalUsers") Then
@@ -102,7 +103,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
 	EndIf;
 	// End StandardSubsystems.AttachableCommands
-
+	
+	SSLSubsystemsIntegration.OnCreateFilesListForm(ThisObject);
+	FilesOperationsOverridable.OnCreateFilesListForm(ThisObject);
+	
 EndProcedure
 
 &AtClient
@@ -1247,9 +1251,9 @@ Procedure SetFoldersTreeTitle()
 EndProcedure
 
 &AtServerNoContext
-Function SynchronizationInfo(FileOwner)
+Function SynchronizationInfo(FilesOwner)
 	
-	Return FilesOperationsInternal.SynchronizationInfo(FileOwner);
+	Return FilesOperationsInternal.SynchronizationInfo(FilesOwner);
 	
 EndFunction
 
@@ -1536,6 +1540,7 @@ EndProcedure
 
 &AtServerNoContext
 Procedure OnSendFilesViaEmail(SendOptions, Val FilesToSend, FilesOwner, UUID)
+	SSLSubsystemsIntegration.OnSendFilesViaEmail(SendOptions, FilesToSend, FilesOwner, UUID);
 	FilesOperationsOverridable.OnSendFilesViaEmail(SendOptions, FilesToSend, FilesOwner, UUID);
 EndProcedure
 
@@ -1580,13 +1585,13 @@ Procedure UpdatePreview1()
 EndProcedure
 
 &AtServer
-Function SynchronizationSettingsParameters(FileOwner)
+Function SynchronizationSettingsParameters(FilesOwner)
 	
 	FileOwnerType = Common.MetadataObjectID(Type("CatalogRef.Files"));
 	
 	Filter = New Structure(
 	"FileOwner, FileOwnerType, Account",
-		FileOwner,
+		FilesOwner,
 		FileOwnerType,
 		Catalogs.FileSynchronizationAccounts.EmptyRef());
 	
@@ -1602,7 +1607,7 @@ Function SynchronizationSettingsParameters(FileOwner)
 		|	FileSynchronizationSettings.FileOwner = &FileOwner
 		|	AND FileSynchronizationSettings.FileOwnerType = &FileOwnerType";
 	
-	Query.SetParameter("FileOwner", FileOwner);
+	Query.SetParameter("FileOwner", FilesOwner);
 	Query.SetParameter("FileOwnerType", FileOwnerType);
 	
 	QueryResult = Query.Execute();

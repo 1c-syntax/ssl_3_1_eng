@@ -68,7 +68,7 @@
 					<ShowTitle>false</ShowTitle>
 					<ExtendedTooltip name="WarningColumnExtendedTooltip" id="1167"/>
 					<ChildItems>
-						<LabelDecoration name="IncompleteHandlersLabel" id="1247">
+						<LabelDecoration name="LabelUnfinishedHandlers" id="1247">
 							<AutoMaxWidth>false</AutoMaxWidth>
 							<Title formatted="true">
 								<v8:item>
@@ -79,8 +79,8 @@ Wait till they finish before starting the update.
 								</v8:item>
 							</Title>
 							<ToolTipRepresentation>Button</ToolTipRepresentation>
-							<ContextMenu name="IncompleteHandlersLabelContextMenu" id="1248"/>
-							<ExtendedTooltip name="IncompleteHandlersLabelExtendedTooltip" id="1249">
+							<ContextMenu name="LabelUnfinishedHandlersContextMenu" id="1248"/>
+							<ExtendedTooltip name="LabelUnfinishedHandlersExtendedTooltip" id="1249">
 								<Title formatted="false">
 									<v8:item>
 										<v8:lang>en</v8:lang>
@@ -1318,8 +1318,8 @@ See the &lt;link EventLog&gt;event log&lt;/&gt; for details.</v8:content>
 											<Title formatted="true">
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>&lt;link 1&gt;Other users&lt;/&gt; are working with the app.
-The patches will take effect for them next time they sign in to the app.</v8:content>
+													<v8:content>&lt;link 1&gt;Other users&lt;/&gt; are working with the application.
+They will see the patches applied the next time they log in.</v8:content>
 												</v8:item>
 											</Title>
 											<ContextMenu name="ActiveUsersDecorationContextMenu" id="1196"/>

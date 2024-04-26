@@ -191,12 +191,12 @@ EndProcedure
 // Returns:
 //  Structure:
 //   * Title - String
-//   * ErrorMessageText - String - 
-//   * ErrorTextExitFailed - String - 
-//   * ShouldCloseDesignerSession - Boolean - 
+//   * ErrorMessageText - String - Text of an error that occurs on form opening.
+//   * ErrorTextExitFailed - String - Text of an error that occurs when trying to terminate user sessions.
+//   * ShouldCloseDesignerSession - Boolean - If "True", the Designer session will be considered during the exclusive mode availability check.
 //   * ShouldCloseAllSessionsButCurrent - Boolean
 //   * LoginMessage - String
-//   * BlockingPeriod - Number - 
+//   * BlockingPeriod - Number - Lock time in seconds.
 //
 Function ExclusiveModeSetErrorFormOpenParameters() Export
 	
@@ -267,6 +267,7 @@ Procedure OnReceiptServerNotification(NameOfAlert, Result) Export
 EndProcedure
 
 // Parameters:
+//  Parameters - See CommonOverridable.BeforeRecurringClientDataSendToServer.Parameters
 //  AreNotificationsReceived - Boolean - Indicates that all notifications are received for the given period of time
 //                                (via either the Collaboration System or the common server call).
 //
@@ -621,7 +622,7 @@ EndProcedure
 ///////////////////////////////////////////////////////////////////////////////
 // Notification handlers.
 
-// Suggests to remove the application lock and sign in, or to shut down the application.
+// Prompts users to unlock and log in, or close the application.
 Procedure BeforeStartInteractiveHandler(Parameters, Context) Export
 	
 	ClientParameters = StandardSubsystemsClient.ClientParametersOnStart();
@@ -631,9 +632,9 @@ Procedure BeforeStartInteractiveHandler(Parameters, Context) Export
 	
 	If Not IsBlankString(QueryText) Then
 		Buttons = New ValueList();
-		Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Sign in';"));
+		Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Log in';"));
 		If ClientParameters.CanUnlock Then
-			Buttons.Add(DialogReturnCode.No, NStr("en = 'Remove lock and sign in';"));
+			Buttons.Add(DialogReturnCode.No, NStr("en = 'Remove lock and log in';"));
 		EndIf;
 		Buttons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel';"));
 		
@@ -808,6 +809,7 @@ Function ProcessStartParameters(Val StartupParameters)
 		
 	//  
 	// 
+	//  
 	ElsIf TheKeyIsContainedInTheStartupParameters(StartupParameters, ParameterNameShutdownUsers) Then
 		
 		AdditionalParameters = AdditionalParametersForUserShutdown();

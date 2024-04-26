@@ -242,7 +242,7 @@ Procedure FillAttachmentsAndGenerateHTMLTextBasedOnAttachmentEmail(AttachmentEma
 		Extension = CommonClientServer.GetFileNameExtension(NewRow.FileName);
 		If TypeOf(Attachment.Data) = Type("BinaryData") Then
 			
-			NewRow.PictureIndex    = FilesOperationsInternalClientServer.GetFileIconIndex(Extension);
+			NewRow.PictureIndex    = FilesOperationsInternalClientServer.IndexOfFileIcon(Extension);
 			AttachmentData                = Attachment.Data;
 			NewRow.IsAttachmentEmail = EmailManagement.FileIsEmail(NewRow.FileName, AttachmentData);
 			
@@ -250,7 +250,7 @@ Procedure FillAttachmentsAndGenerateHTMLTextBasedOnAttachmentEmail(AttachmentEma
 			
 			AttachmentData                = Attachment.Data.GetSourceData();
 			NewRow.FileName          = Attachment.Data.Subject + ".eml";
-			NewRow.PictureIndex    = FilesOperationsInternalClientServer.GetFileIconIndex("eml");
+			NewRow.PictureIndex    = FilesOperationsInternalClientServer.IndexOfFileIcon("eml");
 			NewRow.IsAttachmentEmail = True;
 			
 		EndIf;
@@ -352,7 +352,7 @@ Procedure GenerateAttachmensTableForStoredEmail(MailMessage)
 			NewRow = Attachments.Add();
 			NewRow.Ref               = AttachmentEmail.MailMessage;
 			NewRow.FileName             = EmailPresentation;
-			NewRow.PictureIndex       = FilesOperationsInternalClientServer.GetFileIconIndex("eml");
+			NewRow.PictureIndex       = FilesOperationsInternalClientServer.IndexOfFileIcon("eml");
 			NewRow.SignedWithDS           = False;
 			NewRow.Size               = AttachmentEmail.Size;
 			NewRow.SizePresentation  = InteractionsClientServer.GetFileSizeStringPresentation(NewRow.Size)

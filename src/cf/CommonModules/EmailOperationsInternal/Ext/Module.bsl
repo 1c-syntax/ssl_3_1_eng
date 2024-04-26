@@ -656,6 +656,7 @@ Function UseIMAPOnSendingEmails(Profile)
 EndFunction
 
 // Parameters:
+//  UserAccountOrConnection - See EmailOperations.DownloadEmailMessages.Account
 //  ImportParameters - See EmailOperations.DownloadEmailMessages.ImportParameters
 //
 // Returns:
@@ -1886,6 +1887,7 @@ Function ExplanationOnError(ErrorText, Val LanguageCode = Undefined, ForSetupAss
 			PossibleReasons.Add(NStr("en = 'No Internet connection.';"));
 		EndIf;
 		PossibleReasons.Add(NStr("en = 'Invalid email server connection settings.';"));
+		PossibleReasons.Add(NStr("en = 'Неполадки на почтовом сервере.';"));
 	EndIf;
 	
 	If Not ValueIsFilled(MethodsToFixError) Then
@@ -1900,7 +1902,8 @@ Function ExplanationOnError(ErrorText, Val LanguageCode = Undefined, ForSetupAss
 				"en = 'Try reconfiguring your account (click <a href=\""%1\"">Reconfigure</a> in account settings).';"),
 				"Readjust"));
 		EndIf;
-		
+	
+		MethodsToFixError.Add(NStr("en = 'Повторите действие еще раз через некоторое время.';"));
 		MethodsToFixError.Add(NStr("en = 'Contact the network administrator.';"));
 		MethodsToFixError.Add(NStr("en = 'Contact the email server administrator.';"));
 	EndIf;
@@ -1940,7 +1943,7 @@ Function FormattedList(Rows) Export
 		List.Add("• ");
 		List.Add(String);
 		If IndexOf < Rows.UBound() Then
-			List.Add(Chars.LF + Chars.LF);
+			List.Add(Chars.LF);
 		EndIf;
 	EndDo;
 	

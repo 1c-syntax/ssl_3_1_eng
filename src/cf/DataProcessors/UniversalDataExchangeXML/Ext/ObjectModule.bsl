@@ -349,6 +349,7 @@ EndFunction
 // and
 // number is filled with zeros.
 // Can be used in the event handlers whose script 
+// is stored in data exchange rules. м.
 // The "No links to function found" message during the configuration check 
 // is not an error.
 //

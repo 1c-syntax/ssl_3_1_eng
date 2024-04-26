@@ -233,16 +233,19 @@ Function ModelOfDataToProvideForStandardODataInterface() Export
 	Result.Columns.Add("Dependencies", New TypeDescription("Array"));
 	Result.Indexes.Add("FullName");
 	
+	DataSeparationProperties = Undefined;
+	
 	For Each Items In ODataInterfaceInternalCached.ConfigurationDataModelDetails() Do
 		For Each KeyAndValue In Items.Value Do
 			ObjectDetails = KeyAndValue.Value;
 			If ToExclude[ObjectDetails.FullName] <> Undefined Then
 				Continue;
 			EndIf;
-			If Not IsSeparatedObject(ObjectDetails) Then
+			If Not IsSeparatedObject(ObjectDetails, DataSeparationProperties) Then
 				Continue;
 			EndIf;
-			FillModelOfDataToProvideForStandardODataInterface(Result, ObjectDetails.FullName, ToExclude);
+			FillModelOfDataToProvideForStandardODataInterface(Result, ObjectDetails.FullName, 
+				ToExclude, DataSeparationProperties);
 		EndDo;
 	EndDo;
 	
@@ -380,29 +383,49 @@ EndFunction
 
 #Region Private
 
-Function IsSeparatedObject(ObjectDetails)
-	IsSeparatedMetadataObject = False;
+Function IsSeparatedObject(Val ObjectDetails, DataSeparationProperties = Undefined)
 	
 	If Common.SubsystemExists("CloudTechnology") Then
-		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
-		IsSeparatedMetadataObject = ObjectDetails.DataSeparation.Property(ModuleSaaSOperations.MainDataSeparator());
-	Else
-		MetadataObject = Common.MetadataObjectByFullName(ObjectDetails.FullName);
-		If IsRefData(MetadataObject) 
-				Or Common.IsRegister(MetadataObject) 
-				Or Common.IsConstant(MetadataObject) Then
-			
-			IsSeparatedMetadataObject = AccessRight("Update", MetadataObject, Metadata.Roles.RemoteODataAccess);
+		If DataSeparationProperties = Undefined Then
+			ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+			ModuleUnloadingLoadingDataServiceEvents = Common.CommonModule("ExportImportDataInternalEvents");
+
+			DataSeparationProperties = New Structure("MainDataSeparator,AuxiliaryDataSeparator,ServiceData");
+			DataSeparationProperties.MainDataSeparator = ModuleSaaSOperations.MainDataSeparator();
+			DataSeparationProperties.AuxiliaryDataSeparator = ModuleSaaSOperations.AuxiliaryDataSeparator();
+			DataSeparationProperties.ServiceData = FullTypeNames(
+				ModuleUnloadingLoadingDataServiceEvents.GetTypesExcludedFromUploadUpload());
 		EndIf;
 		
-		If Common.IsDocumentJournal(MetadataObject)
-				Or Common.IsEnum(MetadataObject) Then
-				
-			IsSeparatedMetadataObject = AccessRight("Read", MetadataObject, Metadata.Roles.RemoteODataAccess);
-		EndIf;
+		Return DataSeparationProperties.ServiceData[ObjectDetails.FullName] = Undefined 
+			And (ObjectDetails.DataSeparation.Property(DataSeparationProperties.MainDataSeparator)
+				Or ObjectDetails.DataSeparation.Property(DataSeparationProperties.AuxiliaryDataSeparator));
+	EndIf;
+
+	MetadataObject = Common.MetadataObjectByFullName(ObjectDetails.FullName);
+	If IsRefData(MetadataObject) 
+		Or Common.IsRegister(MetadataObject) 
+		Or Common.IsConstant(MetadataObject) Then
+		
+		Return AccessRight("Update", MetadataObject, Metadata.Roles.RemoteODataAccess);
 	EndIf;
 	
-	Return IsSeparatedMetadataObject;
+	If Common.IsDocumentJournal(MetadataObject)
+			Or Common.IsEnum(MetadataObject) Then
+			
+		Return AccessRight("Read", MetadataObject, Metadata.Roles.RemoteODataAccess);
+	EndIf;
+	
+	Return False;
+	
+EndFunction
+
+Function FullTypeNames(Types)
+	Result = New Map();
+	For Each Type In Types Do
+		Result[Type.FullName()] = True;
+	EndDo;
+	Return Result;
 EndFunction
 
 Function StandardODataInterfaceCompositionSetupParameters() Export
@@ -483,7 +506,8 @@ Function RightsKindsForStandardODataInterface(Val MetadataObject, Val AllowReadi
 	
 EndFunction
 
-Procedure FillModelOfDataToProvideForStandardODataInterface(Val Result, Val FullName, Val ToExclude)
+Procedure FillModelOfDataToProvideForStandardODataInterface(Val Result, Val FullName, 
+	Val ToExclude, DataSeparationProperties)
 	
 	MetadataObject = Common.MetadataObjectByFullName(FullName);
 	If Not IsValidODataMetadataObject(MetadataObject) Then
@@ -499,7 +523,7 @@ Procedure FillModelOfDataToProvideForStandardODataInterface(Val Result, Val Full
 	MetadataObjectProperties = ODataInterfaceInternal.ConfigurationModelObjectProperties(
 		ConfigurationDataModelDetails, FullName);
 	
-	IsSeparatedMetadataObject = IsSeparatedObject(MetadataObjectProperties);
+	IsSeparatedMetadataObject = IsSeparatedObject(MetadataObjectProperties, DataSeparationProperties);
 	
 	String.Read = True;
 	String.FullName = FullName;
@@ -532,7 +556,8 @@ Procedure FillModelOfDataToProvideForStandardODataInterface(Val Result, Val Full
 			Continue;
 		EndIf;
 
-		FillModelOfDataToProvideForStandardODataInterface(Result, FullDependencyName, ToExclude);
+		FillModelOfDataToProvideForStandardODataInterface(Result, FullDependencyName, 
+			ToExclude, DataSeparationProperties);
 		
 	EndDo;
 	

@@ -337,7 +337,7 @@ Function ErrorInsufficientRightsForAuthorization(RegisterInLog = True) Export
 	// ACC:336-on
 	
 	Return AuthorizationErrorBriefPresentationAfterRegisterInLog(
-		NStr("en = 'Insufficient rights to sign in.
+		NStr("en = 'Insufficient rights to log in.
 		           |
 		           |Please contact the administrator.';"),
 		, RegisterInLog);
@@ -1096,7 +1096,7 @@ EndFunction
 // Returns:
 //  Boolean
 //
-Function CurUserSRolesHaveBeenReduced() Export
+Function AreCurrentUserRolesReduced() Export
 	
 	SetPrivilegedMode(True);
 	
@@ -1108,7 +1108,7 @@ Function CurUserSRolesHaveBeenReduced() Export
 		Return True;
 	EndIf;
 	
-	Return RolesAreReduced(InfobaseOldUser, InfobaseNewUser);
+	Return RolesReduced(InfobaseOldUser, InfobaseNewUser);
 	
 EndFunction
 
@@ -1761,7 +1761,7 @@ Procedure OnAddServerNotifications(Notifications) Export
 	Notification.NotificationSendModuleName  = "UsersInternal";
 	Notification.NotificationReceiptModuleName = "UsersInternalClient";
 	If Common.FileInfobase() Then
-		Notification.Parameters = IBUserRoleKeys(
+		Notification.Parameters = InfobaseUserRoleKeys(
 			InfoBaseUsers.CurrentUser());
 	EndIf;
 	
@@ -1775,14 +1775,14 @@ EndProcedure
 //  NameOfAlert - See StandardSubsystemsServer.OnSendServerNotification.NameOfAlert
 //  ProcedureParameters - Structure:
 //   * ParametersVariants - See StandardSubsystemsServer.OnSendServerNotification.ParametersVariants
-//   * ActiveSessionsByKey - Map of KeyAndValue:
+//   * ActiveSessionsByKeys - Map of KeyAndValue:
 //      ** Key - See ServerNotifications.SessionKey
 //      ** Value - InfoBaseSession
 //
 Procedure OnSendServerNotification(NameOfAlert, ProcedureParameters) Export
 	
 	ParametersVariants     = ProcedureParameters.ParametersVariants;
-	ActiveSessionsByKey = ProcedureParameters.ActiveSessionsByKey;
+	ActiveSessionsByKeys = ProcedureParameters.ActiveSessionsByKeys;
 	
 	FileInfobase = Common.FileInfobase();
 	BegOfDay = BegOfDay(CurrentSessionDate());
@@ -1798,8 +1798,8 @@ Procedure OnSendServerNotification(NameOfAlert, ProcedureParameters) Export
 	
 	LockAddressees = New Map;
 	ValidityPeriodRecipients = New Map;
-	RecipientsOfRoleExtensions = New Map;
-	RecipientsOfRoleAbbreviations = New Map;
+	RolesIncreaseRecipients = New Map;
+	RolesReductionRecipients = New Map;
 	
 	For Each ParametersVariant In ParametersVariants Do
 		For Each Addressee In ParametersVariant.SMSMessageRecipients Do
@@ -1811,7 +1811,7 @@ Procedure OnSendServerNotification(NameOfAlert, ProcedureParameters) Export
 			   And IBUser.AccessTokenAuthentication = False
 			   And IBUser.OSAuthentication             = False Then
 			
-				AddAddresseeSessions(LockAddressees, Addressee);
+				AddRecipientSessions(LockAddressees, Addressee);
 				Continue;
 			EndIf;
 			
@@ -1824,7 +1824,7 @@ Procedure OnSendServerNotification(NameOfAlert, ProcedureParameters) Export
 					CurrentPeriodRecipients = New Map;
 					ValidityPeriodRecipients.Insert(RemainingValidityPeriod, CurrentPeriodRecipients);
 				EndIf;
-				AddAddresseeSessions(CurrentPeriodRecipients, Addressee);
+				AddRecipientSessions(CurrentPeriodRecipients, Addressee);
 			EndIf;
 			
 			IsFullUser = Users.IsFullUser(IBUser);
@@ -1834,13 +1834,13 @@ Procedure OnSendServerNotification(NameOfAlert, ProcedureParameters) Export
 				And CurrentSessionDate() < DateRemindTomorrow;
 			
 			If FileInfobase Then
-				NewRoleKeys = IBUserRoleKeys(IBUser);
+				NewRoleKeys = InfobaseUserRoleKeys(IBUser);
 				If ParametersVariant.Parameters <> NewRoleKeys Then
 					If Not IsFullUser
-					   And RoleKeysAreReduced(ParametersVariant.Parameters, NewRoleKeys) Then
-						AddAddresseeSessions(RecipientsOfRoleAbbreviations, Addressee);
+					   And AreRoleKeysReduced(ParametersVariant.Parameters, NewRoleKeys) Then
+						AddRecipientSessions(RolesReductionRecipients, Addressee);
 					ElsIf Not RemindMeTomorrow Then
-						AddAddresseeSessions(RecipientsOfRoleExtensions, Addressee);
+						AddRecipientSessions(RolesIncreaseRecipients, Addressee);
 					EndIf;
 				EndIf;
 				Continue;
@@ -1848,7 +1848,7 @@ Procedure OnSendServerNotification(NameOfAlert, ProcedureParameters) Export
 			
 			RolesAsString = ValueToStringInternal(IBUser.Roles);
 			For Each SessionKey In Addressee.Value Do
-				CurrentSession = ActiveSessionsByKey.Get(SessionKey);
+				CurrentSession = ActiveSessionsByKeys.Get(SessionKey);
 				If CurrentSession = Undefined Then
 					Continue;
 				EndIf;
@@ -1860,10 +1860,10 @@ Procedure OnSendServerNotification(NameOfAlert, ProcedureParameters) Export
 					Continue;
 				EndIf;
 				If Not IsFullUser
-				   And RolesAreReduced(InfobaseOldUser, IBUser) Then
-					AddAddresseeSessions(RecipientsOfRoleAbbreviations, Addressee, SessionKey);
+				   And RolesReduced(InfobaseOldUser, IBUser) Then
+					AddRecipientSessions(RolesReductionRecipients, Addressee, SessionKey);
 				ElsIf Not RemindMeTomorrow Then
-					AddAddresseeSessions(RecipientsOfRoleExtensions, Addressee, SessionKey);
+					AddRecipientSessions(RolesIncreaseRecipients, Addressee, SessionKey);
 				EndIf;
 			EndDo;
 		EndDo;
@@ -1877,11 +1877,11 @@ Procedure OnSendServerNotification(NameOfAlert, ProcedureParameters) Export
 			ServerNotifications.SendServerNotification(NameOfAlert, LongDesc.Key, LongDesc.Value);
 		EndDo;
 	EndIf;
-	If ValueIsFilled(RecipientsOfRoleAbbreviations) Then
-		ServerNotifications.SendServerNotification(NameOfAlert, "RolesAreReduced", RecipientsOfRoleAbbreviations);
+	If ValueIsFilled(RolesReductionRecipients) Then
+		ServerNotifications.SendServerNotification(NameOfAlert, "RolesReduced", RolesReductionRecipients);
 	EndIf;
-	If ValueIsFilled(RecipientsOfRoleExtensions) Then
-		ServerNotifications.SendServerNotification(NameOfAlert, "RolesExpanded", RecipientsOfRoleExtensions);
+	If ValueIsFilled(RolesIncreaseRecipients) Then
+		ServerNotifications.SendServerNotification(NameOfAlert, "RolesIncreased", RolesIncreaseRecipients);
 	EndIf;
 	
 EndProcedure
@@ -2356,7 +2356,7 @@ Procedure OnFillExternalAttributes(KindsOfObjectsToChange, ExternalAttributes) E
 		RegisterMetadata.Resources.ValidityPeriod.Type));
 	
 	ExternalAttributes.Add(NewExternalAttribute(Prefix + "InactivityPeriodBeforeDenyingAuthorization",
-		NStr("en = 'Deny sign-in after inactivity (days)';"),
+		NStr("en = 'Deny login after inactivity (days)';"),
 		RegisterMetadata.Resources.InactivityPeriodBeforeDenyingAuthorization.Type));
 	
 EndProcedure
@@ -3505,7 +3505,7 @@ Function CanChangePassword(User, AdditionalParameters = Undefined) Export
 	   And UserAttributes.Invalid <> False Then
 		
 		AdditionalParameters.Insert("ErrorText", StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'User ""%1"" is invalid.';"), User));
+			NStr("en = 'User ""%1"" is inactive.';"), User));
 		Return False;
 	EndIf;
 	
@@ -4131,11 +4131,17 @@ EndFunction
 //
 Procedure UserObjectBeforeWrite(Object, ProcessingParameters) Export
 	
+	IsExternalUser = TypeOf(Object.Ref) = Type("CatalogRef.ExternalUsers");
 	Properties = Common.ObjectAttributesValues(Object.Ref,
-		"DeletionMark, Invalid, IBUserID");
+		"DeletionMark, Invalid, IBUserID"
+		+ ?(IsExternalUser, "", ", Department, Individual"));
+	
 	ShouldLogChanges = Properties.DeletionMark <> Object.DeletionMark
 		Or Properties.Invalid <> Object.Invalid
-		Or Properties.IBUserID <> Object.IBUserID;
+		Or Properties.IBUserID <> Object.IBUserID
+		Or Not IsExternalUser
+		  And (    Properties.Department <> Object.Department
+		     Or Properties.Individual <> Object.Individual);
 	
 	If Not Object.DataExchange.Load
 	 Or Object.AdditionalProperties.Property("WriteDuringDataExchange")
@@ -5014,6 +5020,41 @@ Procedure UpdateGroupsHierarchy(Group, ChangesInComposition, Check = True) Expor
 		UpdateGroupsHierarchy(EmptyGroup1, ChangesInComposition);
 	EndIf;
 	
+	Query = New Query;
+	Query.Text =
+	"SELECT TOP 1
+	|	UserGroupsHierarchy.UsersGroup AS UsersGroup
+	|FROM
+	|	InformationRegister.UserGroupsHierarchy AS UserGroupsHierarchy
+	|WHERE
+	|	UserGroupsHierarchy.UsersGroup = UNDEFINED
+	|
+	|UNION ALL
+	|
+	|SELECT TOP 1
+	|	UserGroupsHierarchy.UsersGroup
+	|FROM
+	|	InformationRegister.UserGroupsHierarchy AS UserGroupsHierarchy
+	|WHERE
+	|	UserGroupsHierarchy.UsersGroup = VALUE(Catalog.UserGroups.EmptyRef)
+	|
+	|UNION ALL
+	|
+	|SELECT TOP 1
+	|	UserGroupsHierarchy.UsersGroup
+	|FROM
+	|	InformationRegister.UserGroupsHierarchy AS UserGroupsHierarchy
+	|WHERE
+	|	UserGroupsHierarchy.UsersGroup = VALUE(Catalog.ExternalUsersGroups.EmptyRef)";
+	
+	Selection = Query.Execute().Select();
+	While Selection.Next() Do
+		RecordSet = InformationRegisters.UserGroupsHierarchy.CreateRecordSet();
+		RecordSet.Filter.UsersGroup.Set(Selection.UsersGroup);
+		RecordSet.Write(); // 
+		ChangesInComposition.ModifiedGroups.Insert(Selection.UsersGroup);
+	EndDo;
+	
 EndProcedure
 
 // 
@@ -5070,18 +5111,67 @@ Procedure UpdateAllUsersGroupComposition(User, ChangesInComposition) Export
 	|	&FilterUser
 	|	AND (UserGroupCompositions.User IS NULL
 	|			OR ISNULL(UserGroupCompositions.Used, FALSE) <> (NOT Users.DeletionMark
-	|				AND NOT Users.Invalid))";
+	|				AND NOT Users.Invalid))
+	|
+	|UNION ALL
+	|
+	|SELECT
+	|	UserGroupCompositions.UsersGroup,
+	|	UserGroupCompositions.User,
+	|	NULL,
+	|	UserGroupCompositions.Used
+	|FROM
+	|	InformationRegister.UserGroupCompositions AS UserGroupCompositions
+	|WHERE
+	|	UserGroupCompositions.UsersGroup = UNDEFINED
+	|
+	|UNION ALL
+	|
+	|SELECT
+	|	UserGroupCompositions.UsersGroup,
+	|	UserGroupCompositions.User,
+	|	NULL,
+	|	UserGroupCompositions.Used
+	|FROM
+	|	InformationRegister.UserGroupCompositions AS UserGroupCompositions
+	|WHERE
+	|	UserGroupCompositions.User = UNDEFINED
+	|
+	|UNION ALL
+	|
+	|SELECT
+	|	UserGroupCompositions.UsersGroup,
+	|	UserGroupCompositions.User,
+	|	NULL,
+	|	UserGroupCompositions.Used
+	|FROM
+	|	InformationRegister.UserGroupCompositions AS UserGroupCompositions
+	|WHERE
+	|	UserGroupCompositions.UsersGroup = VALUE(Catalog.UserGroups.EmptyRef)
+	|
+	|UNION ALL
+	|
+	|SELECT
+	|	UserGroupCompositions.UsersGroup,
+	|	UserGroupCompositions.User,
+	|	NULL,
+	|	UserGroupCompositions.Used
+	|FROM
+	|	InformationRegister.UserGroupCompositions AS UserGroupCompositions
+	|WHERE
+	|	UserGroupCompositions.User = VALUE(Catalog.Users.EmptyRef)";
 	
 	ForExternalUsers = Type("CatalogRef.ExternalUsers")
 		= TypeOf(?(TypeOf(User) = Type("Array"), User[0], User));
 	
 	If ForExternalUsers Then
-		Query.Text = StrReplace(Query.Text, "Catalog.Users", "Catalog.ExternalUsers");
+		Query.Text = StrReplace(Query.Text,
+			"Catalog.Users", "Catalog.ExternalUsers");
+		Query.Text = StrReplace(Query.Text,
+			"Catalog.UserGroups", "Catalog.ExternalUsersGroups");
 		AllUsersGroup = ExternalUsers.AllExternalUsersGroup();
-		FullCatalogName = "Catalog.ExternalUsers";
 	Else
 		AllUsersGroup = Users.AllUsersGroup();
-		FullCatalogName = "Catalog.Users";
 	EndIf;
 	
 	Query.SetParameter("AllUsersGroup", AllUsersGroup);
@@ -5122,18 +5212,24 @@ Procedure UpdateAllUsersGroupComposition(User, ChangesInComposition) Export
 			Selection = QueryResult.Select();
 			
 			While Selection.Next() Do
-				RecordSet.Filter.UsersGroup.Set(Selection.UsersGroup);
-				RecordSet.Filter.User.Set(Selection.User);
-				FillPropertyValues(Record, Selection);
-				RecordSet.Write(); // 
+				If Selection.Used = Null Then
+					RecordSetIsEmpty = InformationRegisters.UserGroupCompositions.CreateRecordSet();
+					RecordSetIsEmpty.Filter.UsersGroup.Set(Selection.UsersGroup);
+					RecordSetIsEmpty.Filter.User.Set(Selection.User);
+					RecordSetIsEmpty.Write(); // 
+				Else
+					RecordSet.Filter.UsersGroup.Set(Selection.UsersGroup);
+					RecordSet.Filter.User.Set(Selection.User);
+					FillPropertyValues(Record, Selection);
+					RecordSet.Write(); // 
+				EndIf;
 				
+				ModifiedGroups.Insert(Selection.UsersGroup);
 				ItemsToChange.Insert(Selection.User);
 				If ForRegistration <> Undefined Then
 					AddCompositionChange(ForRegistration, Selection);
 				EndIf;
 			EndDo;
-			
-			ModifiedGroups.Insert(AllUsersGroup);
 		EndIf;
 		
 		CommitTransaction();
@@ -5184,6 +5280,7 @@ Procedure UpdateHierarchicalUserGroupCompositions(UsersGroup, ChangesInCompositi
 		|				AND (GroupsToUpdate2.UsersGroup = &UsersGroup)
 		|			INNER JOIN Catalog.UserGroups.Content AS UserGroupsComposition
 		|			ON (UserGroupsComposition.Ref = LowerLevelGroups.UsersGroup)
+		|				AND (UserGroupsComposition.User <> VALUE(Catalog.Users.EmptyRef))
 		|				AND (NOT UserGroupsComposition.Ref IN
 		|						(SELECT
 		|							CAST(LowerLevelGroups.UsersGroup AS Catalog.UserGroups) AS UsersGroup
@@ -5221,6 +5318,7 @@ Procedure UpdateHierarchicalUserGroupCompositions(UsersGroup, ChangesInCompositi
 		|				AND (GroupsToUpdate2.UsersGroup IN (&UsersGroup))
 		|			INNER JOIN Catalog.UserGroups.Content AS UserGroupsComposition
 		|			ON (UserGroupsComposition.Ref = LowerLevelGroups.UsersGroup)
+		|				AND (UserGroupsComposition.User <> VALUE(Catalog.Users.EmptyRef))
 		|		ON (GroupsToUpdate2.Parent = UserGroupCompositions.UsersGroup)
 		|			AND (UserGroupsComposition.User = UserGroupCompositions.User)
 		|WHERE
@@ -5242,6 +5340,7 @@ Procedure UpdateHierarchicalUserGroupCompositions(UsersGroup, ChangesInCompositi
 		|			AND (GroupsToUpdate.UsersGroup IN (&UsersGroup))
 		|		INNER JOIN Catalog.UserGroups.Content AS UserGroupsComposition
 		|		ON (UserGroupsComposition.Ref = LowerLevelGroups.UsersGroup)
+		|			AND (UserGroupsComposition.User <> VALUE(Catalog.Users.EmptyRef))
 		|		LEFT JOIN InformationRegister.UserGroupCompositions AS UserGroupCompositions
 		|		ON (UserGroupCompositions.UsersGroup = GroupsToUpdate.Parent)
 		|			AND (UserGroupCompositions.User = UserGroupsComposition.User)
@@ -5268,6 +5367,7 @@ Procedure UpdateHierarchicalUserGroupCompositions(UsersGroup, ChangesInCompositi
 		|				AND (&FilterForExternalUserGroups2)
 		|			INNER JOIN Catalog.UserGroups.Content AS UserGroupsComposition
 		|			ON (UserGroupsComposition.Ref = LowerLevelGroups.UsersGroup)
+		|				AND (UserGroupsComposition.User <> VALUE(Catalog.Users.EmptyRef))
 		|		ON (GroupsToUpdate2.Ref = UserGroupCompositions.UsersGroup)
 		|			AND (UserGroupsComposition.User = UserGroupCompositions.User)
 		|WHERE
@@ -5290,6 +5390,7 @@ Procedure UpdateHierarchicalUserGroupCompositions(UsersGroup, ChangesInCompositi
 		|			AND (&FilterForExternalUserGroups0)
 		|		INNER JOIN Catalog.UserGroups.Content AS UserGroupsComposition
 		|		ON (UserGroupsComposition.Ref = LowerLevelGroups.UsersGroup)
+		|			AND (UserGroupsComposition.User <> VALUE(Catalog.Users.EmptyRef))
 		|		LEFT JOIN InformationRegister.UserGroupCompositions AS UserGroupCompositions
 		|		ON (UserGroupCompositions.UsersGroup = GroupsToUpdate.Ref)
 		|			AND (UserGroupCompositions.User = UserGroupsComposition.User)
@@ -5311,6 +5412,8 @@ Procedure UpdateHierarchicalUserGroupCompositions(UsersGroup, ChangesInCompositi
 		Query.SetParameter("AllUsersGroup", ExternalUsers.AllExternalUsersGroup());
 		Query.Text = StrReplace(Query.Text, "Catalog.UserGroups",
 			"Catalog.ExternalUsersGroups");
+		Query.Text = StrReplace(Query.Text, "Catalog.Users",
+			"Catalog.ExternalUsers");
 		Query.Text = StrReplace(Query.Text, "UserGroupsComposition.User",
 			"UserGroupsComposition.ExternalUser");
 	EndIf;
@@ -5509,6 +5612,10 @@ Procedure UpdateUserGroupCompositionUsage(User, ChangesInComposition) Export
 		Block.Lock();
 		Selection = Query.Execute().Select();
 		While Selection.Next() Do
+			If Not ValueIsFilled(Selection.UsersGroup)
+			 Or Not ValueIsFilled(Selection.User) Then
+				Continue;
+			EndIf;
 			
 			SetOfOneRecord.Filter.UsersGroup.Set(Selection.UsersGroup);
 			SetOfOneRecord.Filter.User.Set(Selection.User);
@@ -7277,13 +7384,13 @@ Procedure ChangePasswordRecoveryEmail(UserObject, NewAddress, OldAddress)
 	
 EndProcedure
 
-// 
-Procedure AddAddresseeSessions(AddresseeSessions, Addressee, SessionKey = Undefined);
+// Intended for procedure "OnSendServerNotification".
+Procedure AddRecipientSessions(RecipientsSessions, Addressee, SessionKey = Undefined);
 	
-	SessionsKeys = AddresseeSessions.Get(Addressee.Key);
+	SessionsKeys = RecipientsSessions.Get(Addressee.Key);
 	If SessionsKeys = Undefined Then
 		SessionsKeys = New Array;
-		AddresseeSessions.Insert(Addressee.Key, SessionsKeys);
+		RecipientsSessions.Insert(Addressee.Key, SessionsKeys);
 	EndIf;
 	
 	If SessionKey <> Undefined Then
@@ -7298,9 +7405,9 @@ Procedure AddAddresseeSessions(AddresseeSessions, Addressee, SessionKey = Undefi
 EndProcedure
 
 // 
-Function RoleKeysAreReduced(OldRoleKeysAreString, NewRoleKeysAsString)
+Function AreRoleKeysReduced(OldRoleKeysAsString, NewRoleKeysAsString)
 	
-	OldKeys = StrSplit(OldRoleKeysAreString, ",", False);
+	OldKeys = StrSplit(OldRoleKeysAsString, ",", False);
 	NewKeys = StrSplit(NewRoleKeysAsString, ",", False);
 	
 	If OldKeys.Count() > NewKeys.Count() Then
@@ -7318,7 +7425,7 @@ Function RoleKeysAreReduced(OldRoleKeysAreString, NewRoleKeysAsString)
 EndFunction
 
 // 
-Function RolesAreReduced(InfobaseOldUser, InfobaseNewUser)
+Function RolesReduced(InfobaseOldUser, InfobaseNewUser)
 	
 	For Each Role In InfobaseOldUser.Roles Do
 		If Not InfobaseNewUser.Roles.Contains(Role) Then
@@ -7338,7 +7445,7 @@ EndFunction
 // Returns:
 //  String
 //
-Function IBUserRoleKeys(IBUser)
+Function InfobaseUserRoleKeys(IBUser)
 	
 	List = New ValueList;
 	
@@ -7647,6 +7754,7 @@ EndProcedure
 //   * Name - String - Collection name.
 //   * FieldsCollectionName - String - An empty string if "Name" is a field collection.
 //   * Fields - Undefined - Get fields from the metadata.
+//          - Array of
 //
 //  Undefined - The object type has no tables.
 //
@@ -8473,14 +8581,14 @@ Function EventNameLoginErrorForTheLogLog()
 	
 EndFunction
 
-// 
+// Intended for procedure "UpdateGroupsHierarchy".
 Procedure WriteNewGroupParents(TreeRows, NewParents, Val LevelOfParent,
 			ChangesInComposition, Check, HigherLevelGroup = Undefined)
 	
 	LevelOfParent = LevelOfParent + 1;
 	NewRow = NewParents.Add();
 	
-	// 
+	// ACC:1327-off - A lock is already set in the calling procedure "UpdateGroupsHierarchy".
 	For Each TreeRow In TreeRows Do
 		If TreeRow.Ref = HigherLevelGroup Then
 			Continue;
@@ -8518,7 +8626,7 @@ Procedure WriteNewGroupParents(TreeRows, NewParents, Val LevelOfParent,
 		WriteNewGroupParents(TreeRow.Rows,
 			NewParents, LevelOfParent, ChangesInComposition, Check, TreeRow.Ref);
 	EndDo;
-	// 
+	// ACC:1327-on
 	
 	NewParents.Delete(NewRow);
 	
@@ -9611,7 +9719,7 @@ Function PasswordChangeRequired(ErrorDescription = "", OnStart = False, Register
 		Return False;
 	EndIf;
 	
-	// Updating the date of the last sign-in of a user.
+	// Update the user's last login date.
 	SetPrivilegedMode(True);
 	CurrentUser = Users.AuthorizedUser();
 	
@@ -10431,7 +10539,7 @@ Procedure CheckUserAttributeChanges(UserObject, ProcessingParameters)
 		
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Couldn''t save user ""%1"".
-			           |Cannot mark for deletion users who are allowed to sign in.';"),
+			           |Cannot mark for deletion users who are allowed to log in.';"),
 			UserObject.Ref);
 		Raise ErrorText;
 	EndIf;
@@ -10442,7 +10550,7 @@ Procedure CheckUserAttributeChanges(UserObject, ProcessingParameters)
 		
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Couldn''t save user ""%1"".
-			           |Cannot mark users who are allowed to sign in as ""Invalid"".';"),
+			           |Cannot mark users who are allowed to log in as ""Inactive"".';"),
 			UserObject.Ref);
 		Raise ErrorText;
 	EndIf;
@@ -10453,7 +10561,7 @@ Procedure CheckUserAttributeChanges(UserObject, ProcessingParameters)
 		
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Couldn''t save user ""%1"".
-			           |Cannot mark users who are allowed to sign in as ""Requires approval"".';"),
+			           |Cannot mark users who are allowed to log in as ""Requires approval"".';"),
 			UserObject.Ref);
 		Raise ErrorText;
 	EndIf;
@@ -11280,6 +11388,7 @@ EndProcedure
 //
 // Parameters:
 //  Parameters - See ProcessRolesInterface.Parameters
+//  Collection - See ProcessRolesInterface.Parameters.Form.Items.Roles
 //  Add  - Boolean
 //
 Procedure AddDeleteSubsystemRoles(Parameters, Val Collection, Val Add)
@@ -11296,6 +11405,7 @@ EndProcedure
 
 // Parameters:
 //  Parameters - See ProcessRolesInterface.Parameters
+//  Collection - See ProcessRolesInterface.Parameters.Form.Items.Roles
 //
 Procedure UpdateSelectedRoleMarks(Parameters, Val Collection)
 	

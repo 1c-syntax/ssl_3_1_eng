@@ -204,8 +204,8 @@ EndProcedure
 Procedure RefreshTasksListOnServer()
 	
 	BusinessProcessesAndTasksServer.SetMyTasksListParameters(List);
-	// 
-	// 
+	// The color of the overdue tasks depends on the current date.
+	// Therefore, refresh the conditional appearance.
 	SetConditionalAppearance();
 	Items.List.Refresh();
 	

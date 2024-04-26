@@ -10,11 +10,12 @@
 
 #Region Public
 
-// 
-// 
-// 
-// 
-// 
+// Adds a message to the Event log.
+// If "WriteEvents" is set to "True", the message is written immediately through a server call.
+// If "WriteEvents" is set to "False" (the default value), the message is queued.
+// The queue will be written to the log either within 60 seconds,
+// or when this procedure is called with "WriteEvents" set to "True",
+// or then the "WriteEventsToEventLog" procedure is called.
 //
 //  Parameters: 
 //   EventName          - String - an event name for the event log;
@@ -93,8 +94,8 @@ Procedure OpenEventLog(Val Filter = Undefined, Owner = Undefined) Export
 	
 EndProcedure
 
-// 
-// 
+// Writes the message queue to the Event log through a server call.
+// The messages are queued by the procedure "AddMessageForEventLog".
 //
 Procedure WriteEventsToEventLog() Export
 	
@@ -342,6 +343,7 @@ EndFunction
 // For internal use only.
 // 
 // Parameters:
+//  Data - FormDataCollectionItem: See DataProcessor.EventLog.Form.EventLog.Log
 // 
 // Returns:
 //  Structure

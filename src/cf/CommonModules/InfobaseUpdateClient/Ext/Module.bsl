@@ -418,4 +418,88 @@ Procedure InitiateAreaUpdate(Parameters, WarningDetails) Export
 	OpenForm("DataProcessor.ApplicationUpdateResult.Form.MessageToLimitedAccessUser");
 EndProcedure
 
+Procedure ProcessResultOfManuallyCheckingAvailablePatches(Result, NotifyDescription) Export
+	
+	If Result = Undefined Then
+		Return;
+	EndIf;
+	
+	If Result.Error Then
+		ShowMessageBox(, Result.BriefErrorDetails);
+		Return;
+	EndIf;
+	
+	QuestionParameters = StandardSubsystemsClient.QuestionToUserParameters();
+	QuestionParameters.PromptDontAskAgain = False;
+	QuestionParameters.Title = NStr("en = 'Check for patches';");
+	QuestionParameters.Picture = PictureLib.Information;
+	
+	If Result.NumberOfCorrections = 0 Then
+		Message = NStr("en = 'No applicable patches found.';");
+		StandardSubsystemsClient.ShowQuestionToUser(Undefined, Message, QuestionDialogMode.OK, QuestionParameters);
+		Return;
+	EndIf;
+	
+	Message = NStr("en = 'Found %1 patches. Do you want to install them?';");
+	Message = StringFunctionsClientServer.SubstituteParametersToString(Message, Result.NumberOfCorrections);
+	
+	QuestionParameters.Picture = PictureLib.DialogQuestion;
+	QuestionParameters.DefaultButton = DialogReturnCode.Yes;
+	StandardSubsystemsClient.ShowQuestionToUser(NotifyDescription, Message, QuestionDialogMode.YesNo, QuestionParameters);
+	
+EndProcedure
+
+// Parameters:
+//  Result - See TimeConsumingOperationsClient.NewResultLongOperation
+//  AdditionalParameters - Undefined
+//
+Procedure ProcessResultOfManualPatchInstallation(Result, AdditionalParameters) Export
+	If Result = Undefined Then
+		Return;
+	EndIf;
+	
+	QuestionParameters = StandardSubsystemsClient.QuestionToUserParameters();
+	QuestionParameters.PromptDontAskAgain = False;
+	QuestionParameters.Title = NStr("en = 'Installing patches';");
+	
+	If Result.Status = "Error" Then
+		StandardSubsystemsClient.OutputErrorInfo(
+			Result.ErrorInfo);
+		Return;
+	EndIf;
+	
+	InstallResult = GetFromTempStorage(Result.ResultAddress);
+	If InstallResult.Error Then
+		ErrorText = InstallResult.BriefErrorDetails
+			+ Chars.LF + Chars.LF + NStr("en = 'For technical error details, see the event log.';");
+		
+		Buttons = New ValueList;
+		Buttons.Add("EventLog", NStr("en = 'Event log';"));
+		Buttons.Add("Close", NStr("en = 'Close';"));
+		QuestionParameters.Picture = PictureLib.DialogExclamation;
+		QuestionParameters.DefaultButton = "Close";
+		NotifyDescription = New NotifyDescription("HandlePatchInstallationError", ThisObject);
+		StandardSubsystemsClient.ShowQuestionToUser(NotifyDescription, ErrorText, Buttons, QuestionParameters);
+		
+		Return;
+	EndIf;
+	
+	OpeningParameters = New Structure;
+	OpeningParameters.Insert("Corrections", AdditionalParameters.Corrections);
+	OpeningParameters.Insert("OnUpdate", True);
+	ModuleConfigurationUpdateClient = CommonClient.CommonModule("ConfigurationUpdateClient");
+	ModuleConfigurationUpdateClient.ShowInstalledPatches(OpeningParameters, FormWindowOpeningMode.LockOwnerWindow);
+	
+EndProcedure
+
+Procedure HandlePatchInstallationError(Result, AdditionalParameters) Export
+	If Result = Undefined Then
+		Return;
+	EndIf;
+	
+	If Result.Value = "EventLog" Then
+		EventLogClient.OpenEventLog();
+	EndIf;
+EndProcedure
+
 #EndRegion

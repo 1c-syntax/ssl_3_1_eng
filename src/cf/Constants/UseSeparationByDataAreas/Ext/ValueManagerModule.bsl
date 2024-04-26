@@ -32,13 +32,13 @@ Procedure OnWrite(Cancel)
 		
 	EndIf;
 	
-	// 
+	// The following constants are mutually exclusive as they belong to different functional options:
 	//
-	// 
-	// 
-	// 
+	// "IsStandaloneWorkplace" ("StandaloneWorkplace")
+	// "DoNotUseSeparationByDataAreas" ("LocalMode")
+	// "UseSeparationByDataAreas" ("SaaSOperations")
 	//
-	// 
+	// The constant names are retained for backward compatibility.
 	
 	If Value Then
 		

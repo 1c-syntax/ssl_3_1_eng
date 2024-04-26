@@ -249,6 +249,7 @@ Procedure OnlineSupportAndServicesMonitoringCenterOnChange(Form, Item) Export
 			AddressStructure1.Port = ?(AddressStructure1.Schema = "https", 443, 80);
 		EndIf;
 	Except
+		//  
 		ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Service address %1 is not a valid web service address for sending usage reports.';"),
 			Form.MonitoringCenterServiceAddress);

@@ -442,12 +442,12 @@ Procedure PerformCompleteStatesRecalculation() Export
 	
 EndProcedure
 
-// 
+// Returns a list of topic participants by the specified contact information type.
 // 
 // Parameters:
-//  SubjectOf - DefinedType.InteractionSubject - 
-//  ContactInformationTypes - Array of EnumRef.ContactInformationTypes -  
-//                             
+//  SubjectOf - DefinedType.InteractionSubject - Topic whose contacts should be obtained.
+//  ContactInformationTypes - Array of EnumRef.ContactInformationTypes - Contact information types that 
+//                             should be obtained with the contacts.
 // 
 // Returns:
 //  Array of Structure:
@@ -1240,7 +1240,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 EndProcedure
 
 // Parameters:
-//   Objects - Array of MetadataObject - for FilesOperationsOverridable.OnDefineSettings.
+//   Objects - Array of MetadataObject
 //
 Procedure OnDefineFileSynchronizationExceptionObjects(Objects) Export
 	
@@ -1250,12 +1250,7 @@ Procedure OnDefineFileSynchronizationExceptionObjects(Objects) Export
 	
 EndProcedure
 
-// Allows you to change the file standard form
-//
-// Parameters:
-//    Form - ClientApplicationForm - a file form:
-//    * Object - DefinedType.AttachedFile
-//
+// See FilesOperationsOverridable.OnCreateFilesItemForm
 Procedure OnCreateFilesItemForm(Form) Export
 	
 	Types = New Array;
@@ -4494,7 +4489,7 @@ EndFunction
 // based on the system settings and the format of the last letter sent by the user.
 // 
 // Parameters:
-//   User - CatalogRef.Users -  user.
+//   User - CatalogRef.Users - User.
 //
 // Returns:
 //   EnumRef.EmailEditingMethods

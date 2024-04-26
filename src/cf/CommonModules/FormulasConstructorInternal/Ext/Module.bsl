@@ -368,7 +368,7 @@ Function RunSearchInListOfFields(ShapeStructure) Export
 		CacheTable.Columns.Add("NameOfTheFieldList", New TypeDescription("String"));
 		CacheTable.Columns.Add("FieldType", New TypeDescription("TypeDescription"));
 		CacheTable.Columns.Add("AvailableFields", New TypeDescription("ValueTable"));
-		ShapeStructure.Insert("CacheForDCS", CacheTable);
+		ShapeStructure.Insert("CacheForDCS_", CacheTable);
 		SearchResult = SetFilter(ShapeStructure, NameOfTheFieldList, Filter, ShapeStructure[NameOfTheFieldList]);
 	EndIf;
 	
@@ -567,16 +567,16 @@ Procedure AddAListOfFieldsToTheForm(Form, Parameters) Export
 		AttributesToBeAdded.Add(New FormAttribute("UseBackgroundSearch", New TypeDescription("Boolean"), TheNameOfThePropsConnectedFieldLists));
 		AttributesToBeAdded.Add(New FormAttribute("NumberOfCharsToAllowSearching", New TypeDescription("Number"), TheNameOfThePropsConnectedFieldLists));
 		AttributesToBeAdded.Add(New FormAttribute("AddressOfLongRunningOperationDetails", New TypeDescription("String")));
-		AttributesToBeAdded.Add(New FormAttribute("CacheForDCS", New TypeDescription("ValueTable")));
-		AttributesToBeAdded.Add(New FormAttribute("NameOfTheFieldList", New TypeDescription("String"), "CacheForDCS"));
-		AttributesToBeAdded.Add(New FormAttribute("FieldType", New TypeDescription("TypeDescription"), "CacheForDCS"));
-		AttributesToBeAdded.Add(New FormAttribute("AvailableFields", New TypeDescription("ValueTable"), "CacheForDCS"));
+		AttributesToBeAdded.Add(New FormAttribute("CacheForDCS_", New TypeDescription("ValueTable")));
+		AttributesToBeAdded.Add(New FormAttribute("NameOfTheFieldList", New TypeDescription("String"), "CacheForDCS_"));
+		AttributesToBeAdded.Add(New FormAttribute("FieldType", New TypeDescription("TypeDescription"), "CacheForDCS_"));
+		AttributesToBeAdded.Add(New FormAttribute("AvailableFields", New TypeDescription("ValueTable"), "CacheForDCS_"));
 		For Each AttributeDetails In DetailsOfTheConnectedList() Do
 			AttributeName = AttributeDetails.Key;
 			AttributeType = AttributeDetails.Value;
-			AttributesToBeAdded.Add(New FormAttribute(AttributeName, AttributeType, "CacheForDCS.AvailableFields"));
+			AttributesToBeAdded.Add(New FormAttribute(AttributeName, AttributeType, "CacheForDCS_.AvailableFields"));
 		EndDo;
-		AttributesToBeAdded.Add(New FormAttribute("HasSubordinateItems", New TypeDescription("Boolean"), "CacheForDCS.AvailableFields"));
+		AttributesToBeAdded.Add(New FormAttribute("HasSubordinateItems", New TypeDescription("Boolean"), "CacheForDCS_.AvailableFields"));
 	EndIf;
 	
 	If FindFormAttribute(Form, NameOfTheFieldList) = Undefined Then
@@ -977,8 +977,8 @@ Procedure FillInTheListOfAvailableDetails(Parameters, SourcesOfAvailableFields, 
 	AvailableAttributes = Undefined;
 	TypeSpecified = TypeOf(CurrentAttribute) = Type("ValueTreeRow") And CurrentAttribute.Type <> New TypeDescription();
 	If DCSCache_ <> Undefined And TypeSpecified Then
-		CacheSelection_ = New Structure("NameOfTheFieldList, FieldType", NameOfTheFieldList, CurrentAttribute.Type);
-		CacheData = DCSCache_.FindRows(CacheSelection_);
+		CacheFilter = New Structure("NameOfTheFieldList, FieldType", NameOfTheFieldList, CurrentAttribute.Type);
+		CacheData = DCSCache_.FindRows(CacheFilter);
 		If CacheData.Count() > 0 Then
 			AvailableAttributes = CacheData[0].AvailableFields;
 		EndIf;
@@ -2150,17 +2150,17 @@ Procedure ExpandAttribute(RowID, ListName, Form)
 		Form[NameOfTheSourceList] = SourcesOfAvailableFields;
 	EndIf;
 	
-	CacheForDCS = ?(TypeOf(Form) = Type("Structure"), Form.CacheForDCS, Form.FormAttributeToValue("CacheForDCS"));
+	CacheForDCS_ = ?(TypeOf(Form) = Type("Structure"), Form.CacheForDCS_, Form.FormAttributeToValue("CacheForDCS_"));
 	
 	FillingParametersForAvailableAttributesList = FillingParametersForAvailableAttributesList(CurrentData);
 	FillingParametersForAvailableAttributesList.NameOfTheFieldList = ListName;
 	FillingParametersForAvailableAttributesList.ListSettings = ListSettings;
-	FillInTheListOfAvailableDetails(FillingParametersForAvailableAttributesList, SourcesOfAvailableFields, CacheForDCS);
+	FillInTheListOfAvailableDetails(FillingParametersForAvailableAttributesList, SourcesOfAvailableFields, CacheForDCS_);
 	
 	If TypeOf(Form) = Type("Structure") Then
-		Form.CacheForDCS = CacheForDCS;
+		Form.CacheForDCS_ = CacheForDCS_;
 	Else
-		Form.ValueToFormAttribute(CacheForDCS, "CacheForDCS");
+		Form.ValueToFormAttribute(CacheForDCS_, "CacheForDCS_");
 	EndIf;
 	
 	If TypeOf(CurrentData) = Type("ValueTreeRow") Then

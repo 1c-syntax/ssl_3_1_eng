@@ -733,9 +733,9 @@ Function AssignOptionsToSubsystem(PlacementParameters)
 				DestinationRow.Subsystem = Receiver.Ref;
 			EndIf;
 			
-			// 
-			// 
-			// 
+			// Delete the row from the source subsystem.
+			// NOTE: To exclude a predefined report option from a subsystem,
+			// clear the subsystem flag in the report option.
 			If PlacementParameters.Action = "Move" Then
 				For Each SubsystemToExclude In SubsystemsToExclude Do
 					SourceRow = OptionObject.Location.Find(SubsystemToExclude, "Subsystem");

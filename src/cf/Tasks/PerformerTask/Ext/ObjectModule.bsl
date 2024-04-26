@@ -65,9 +65,9 @@ Procedure BeforeWrite(Cancel)
 			Raise NStr("en = 'Cannot perform tasks of suspended business processes.';");
 		EndIf;
 		
-		// 
-		// 
-		// 
+		// If the task is completed, assign the "Performer" attribute to the user who fulfilled it.
+		// This is required for reporting.
+		// (Assign only if it wasn't completed in the infobase and was in the object.)
 		// 
 		If Not ValueIsFilled(Performer) Then
 			Performer = Users.AuthorizedUser();

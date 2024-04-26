@@ -822,8 +822,9 @@ Procedure OnCreateAtServerStoreChangeHistory()
 		Else
 			Items.ChangeHistory.Visible           = False;
 		EndIf;
-		Items.ChangeHistoryHyperlink.Visible = Not Parameters.Property("FromHistoryForm");
-		If Parameters.EnterNewAddress Then
+		EnterNewAddress = Parameters.EnterNewAddress;
+		Items.ChangeHistoryHyperlink.Visible = Not Parameters.FromHistoryForm;
+		If EnterNewAddress Then
 			ValidFrom = Parameters.ValidFrom;
 		Else
 			ValidFrom = ?(ValueIsFilled(Parameters.ValidFrom), Parameters.ValidFrom, CurrentSessionDate());

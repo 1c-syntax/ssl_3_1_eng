@@ -267,8 +267,8 @@ Procedure ChangeUncompletedTasksAttributes() Export
 			TaskObject.Description = ?(TaskObject.RoutePoint = BusinessProcesses.Job.RoutePoints.Execute,
 				TaskDescriptionForExecution(), TaskDescriptionForCheck());
 			TaskObject.Author = Author;
-			// 
-			// 
+			// Don't check for the preliminary data edit lock:
+			// this change has a higher priority than the opened task forms.
 			TaskObject.Write();
 		EndDo;
 
@@ -303,8 +303,8 @@ Procedure ChangeTaskSubject()
 		While SelectionDetailRecords.Next() Do
 			TaskObject = SelectionDetailRecords.Ref.GetObject(); // TaskObject
 			TaskObject.SubjectOf = SubjectOf;
-			// 
-			// 
+			// Don't check for the preliminary data edit lock:
+			// this change has a higher priority than the opened task forms.
 			TaskObject.Write();
 		EndDo;
 		CommitTransaction();
@@ -386,9 +386,9 @@ EndFunction
 
 Procedure FillDefaultAccessValuesSets(Table)
 	
-	// 
-	// 
-	// 
+	// The default access rights
+	// - Read: Author OR Performer (addressing-wise) OR Supervisor (addressing-wise).
+	// - Update: Author.
 	
 	// If the subject is not specified (the business process is not based on another subject), then the subject is not involved in the restriction logic.
 	

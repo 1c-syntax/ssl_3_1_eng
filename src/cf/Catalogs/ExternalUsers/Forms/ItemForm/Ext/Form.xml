@@ -282,7 +282,7 @@ Click "Save" to resolve the issue and hide this message.</v8:content>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Allow external users to sign in
+							<v8:content>Allow external user to log in
 with the specified authentication methods.</v8:content>
 						</v8:item>
 					</ToolTip>
@@ -391,7 +391,7 @@ with the specified authentication methods.</v8:content>
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>No rights to sign in</v8:content>
+							<v8:content>No rights to log in</v8:content>
 						</v8:item>
 					</Title>
 					<Group>AlwaysHorizontal</Group>
@@ -404,7 +404,7 @@ with the specified authentication methods.</v8:content>
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>No rights to sign in picture</v8:content>
+									<v8:content>No rights to log in picture</v8:content>
 								</v8:item>
 							</Title>
 							<Picture>
@@ -418,7 +418,7 @@ with the specified authentication methods.</v8:content>
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>No rights to sign in</v8:content>
+									<v8:content>No rights to log in</v8:content>
 								</v8:item>
 							</Title>
 							<ToolTip>
@@ -436,7 +436,7 @@ with the specified authentication methods.</v8:content>
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Edit authentication restrictions</v8:content>
+							<v8:content>Change time restriction</v8:content>
 						</v8:item>
 					</Title>
 					<Group>Vertical</Group>
@@ -451,7 +451,7 @@ with the specified authentication methods.</v8:content>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Edit authentication restrictions</v8:content>
+									<v8:content>Change time restriction</v8:content>
 								</v8:item>
 							</Title>
 							<ExtendedTooltip name="ChangeAuthorizationRestrictionExtendedTooltip" id="345"/>
@@ -774,7 +774,7 @@ Only for a web server connection (the service address must be configured)</v8:co
 														<Title formatted="false">
 															<v8:item>
 																<v8:lang>en</v8:lang>
-																<v8:content>OpenID Connect enables the 1C:Enterprise system to verify a user's identity through third-party authentication. Users can sign in to the 1C:Enterprise application with their account credentials from other websites that support OpenID Connect authentication, such as Google.
+																<v8:content>OpenID Connect enables the 1C:Enterprise system to verify a user's identity through third-party authentication. Users can log in to the 1C:Enterprise application with their account credentials from other websites that support OpenID Connect authentication, such as Google.
 
 This authentication applies only to web server connections and requires the service address to be configured accordingly.</v8:content>
 															</v8:item>
@@ -1709,7 +1709,7 @@ It is widely used by many public digital services.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Edit authentication restrictions</v8:content>
+					<v8:content>Change time restriction</v8:content>
 				</v8:item>
 			</Title>
 			<Action>ChangeAuthorizationRestriction</Action>

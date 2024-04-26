@@ -129,11 +129,13 @@ Procedure InitializeReportHeaders(Form) Export
 	
 EndProcedure
 
+// See NationalLanguageSupportServer.ObjectsSCHRepresentations
 Procedure OnDefineObjectsWithTablePresentation(Objects) Export
 	Objects.Add("Catalog.ReportsOptions");
 	Objects.Add("Catalog.PredefinedExtensionsReportsOptions");
 EndProcedure
 
+// See NationalLanguageSupportServer.ObjectsSCHRepresentations
 Procedure OnDefineObjectsWithTablePresentationCommonData(Objects) Export
 	Objects.Add("Catalog.PredefinedReportsOptions");
 EndProcedure

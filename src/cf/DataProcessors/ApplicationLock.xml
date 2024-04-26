@@ -129,7 +129,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>The code that allows administrators to sign in to a locked infobase.</v8:content>
+							<v8:content>The code that allows administrators to log in to a locked application.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -256,7 +256,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>The message explaining the lock reason that is displayed when users attempt to sign in to a locked infobase.</v8:content>
+							<v8:content>The message explaining the lock reason that is displayed when users attempt to log in to a locked infobase.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>

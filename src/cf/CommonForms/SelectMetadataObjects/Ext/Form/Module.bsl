@@ -9,26 +9,26 @@
 //
 
 ////////////////////////////////////////////////////////////////////////////////
-//                          
+//                          FORM DESCRIPTION                               //
 //
-// 
-// 
+// The form is intended for choosing metadata objects and
+// passing them into the calling environment.
 //
-// 
-//  
-//				
-//					
-//					
-//					
-//				
-// 
-//				
-//				
-//				
-// 
-// 				 
-//  
-//				
+// Calling parameters:
+// MetadataObjectsToSelectCollection - ValueList - Filter by selectable metadata types. For example: 
+//				FilterByRefMetadata = New ValueList;
+//					FilterByRefMetadata.Add("Catalogs");
+//					FilterByRefMetadata.Add("Documents");
+//					This filter provides only catalogs and documents for selection.
+//				SelectedMetadataObjects - ValueList - Selected metadata objects.
+// These objects are flagged in the metadata tree.
+//				It's intended for setting default metadata objects or resetting a list.
+//				ParentSubsystems - ValueList - Subsystems whose child subsystems will be displayed on the form.
+//				SubsystemsWithCIOnly - Boolean - Indicates that the list should contain only the subsystems present in the UI.
+// SelectSingle - Boolean - Indicates that only one metadata object can be selected.
+// 				Double-clicking a line results in choosing the object on this line. 
+// ChoiceInitialValue - String - The full name of the object on which the cursor 
+//				is positioned when the list opens.
 // 
 //              
 //              
@@ -449,9 +449,9 @@ Function AddMetadataObjectTreeItem(ItemParameters, Subsystems = Undefined, Check
 		
 		If MetadataCollection.Count() = 0 Then
 			
-			//  
-			// 
-			// 
+			// In case there's no metadata object from the given branch. 
+			// For example, if no accounting register is present,
+			// the "Accounting registers" should be skipped.
 			Return Undefined;
 			
 		EndIf;
@@ -1006,46 +1006,46 @@ EndFunction
 &AtClientAtServerNoContext
 Function NextItemCheckMarkValue(TreeItem)
 	
-	// 
-	// 
-	// 
+	// 0 - Cleared Flag.
+	// 1 - Raised Flag.
+	// 2 - Raised Square.
 	//
-	// 
+	// Override the graph of a finite-state machine.
 	//
-	// 
-	// 
-	// 
+	// 1C:Enterprise runs a closed cycle when a mark is changed.
+	// That is, it has a strong connectivity component:
+	// 0-1-2-0-1-2-0-1...
 	//
-	//    
-	//   
-	//  
+	//    0
+	//   / \
+	//  2 - 1
 	//
-	// 
+	// Cycle: Cleared Flag - Raised Flag - Raised Square - Cleared Flag.
 	//
-	// 
-	// 
+	// The required behavior is a nondeterministic finite automaton with a strong connectivity component:
+	// 0-1-0-1-0...
 	//
-	// 
+	// That is, a Cleared Flag should transit into a Raised Flag, which transits into a Cleared Flag.
 	//
-	// 
+	// Also:
 	//
-	// 
-	// 
-	// 
+	// Cycles for sections:
+	// a) 1-0-1-0-1...
+	// b) 2-0-1-0-1-0-...
 	//
-	//      
-	// 
+	//      /\
+	// 2 - 0 -1
 	//
-	// 
+	// That is a Raised Square transits into a Cleared Flag.
 	//
-	// 
-	// 
-	// 
+	// Cycles for metadata objects:
+	// a) 1-0-1-0-1-0...
+	// b) 2-1-0-1-0-1-0...
 	//
-	//      
-	// 
+	//      /\
+	// 2 - 1 -0
 	//
-	// 
+	// That is, a Raised Square transits into a Raised Flag.
 	
 	// At the time of checking, the platform has already changed the check box value.
 	
@@ -1108,8 +1108,8 @@ Function CheckMarkValueRelativeToNestedItems(TreeItem)
 	
 	If TreeItem.IsMetadataObject Then 
 		
-		// 
-		// 
+		// Since the object should be returned, its status matters.
+		// Do not reset the current flag.
 		// 
 		
 		If TreeItem.Check = MarkCheckBoxIsSelected() Then 
@@ -1129,7 +1129,7 @@ Function CheckMarkValueRelativeToNestedItems(TreeItem)
 		
 	Else 
 		
-		//  
+		// Sections' status is ignored as they depend on their children. 
 		// 
 		
 		If HasMarkedItems Then
@@ -1173,9 +1173,9 @@ Function NestedItemsState(TreeItem)
 			
 			If NestedItem.IsMetadataObject Then 
 				
-				// 
-				// 
-				// 
+				// Metadata objects marked for deletion can have
+				// child items that are not marked for deletion.
+				// To deal with this, elevate the child items to the parent's level.
 				
 				State = NestedItemsState(NestedItem);
 				HasMarkedItems   = HasMarkedItems   Or State.HasMarkedItems;
@@ -1211,8 +1211,8 @@ Function RequiredToMarkNestedItems(TreeItem)
 	
 	If TreeItem.IsMetadataObject Then 
 		
-		// 
-		// 
+		// If not all of the object's child items are selected, that indicates a user's choice.
+		// Skip these items to avoid affecting the user's choice.
 		
 		NestedItemsState = NestedItemsState(TreeItem);
 		

@@ -886,7 +886,8 @@ EndProcedure
 //                                     in the queue. Source name format: <AttributeName> or
 //                                     <TabularSectionName>.<TabularSectionAttributeName>. 
 //                                     For a seamless population,
-//                                     See SetDataSource.
+//                                     See SetDataSource
+//                                                                     .
 //   * OrderFields  - Array - the name of independent information register fields used to organize
 //                                    a query result.
 //   * MaxSelection - Number - the maximum number of selecting records.
@@ -3045,7 +3046,7 @@ Function NewUpdateHandlerTable() Export
 	// For initial population handlers.
 	Handlers.Columns.Add("DoNotExecuteWhenSwitchingFromAnotherProgram", New TypeDescription("Boolean"));
 	
-	// Obsolete. Reverse compatibility with edition 2.2.
+	// Obsolete. Backward compatibility with version 2.2.
 	Handlers.Columns.Add("Optional");
 	Handlers.Columns.Add("ExclusiveMode");
 	
@@ -3967,12 +3968,12 @@ Procedure FillObjectInitialData(ObjectToFillIn, PopulationSettings) Export
 	
 EndProcedure
 
-// 
+// Updates the predefined data with the data from the initial population code.
 // 
 // Parameters:
-//  MetadataObject - MetadataObject - 
+//  MetadataObject - MetadataObject - The objects containing the predefined items.
 //  ParametersOfUpdate - See PredefinedItemsUpdateParameters
-//                      
+//                      - Undefined - Update all the predefined items.
 //
 Procedure DoUpdatePredefinedItems(MetadataObject, ParametersOfUpdate = Undefined) Export
 	
@@ -3982,15 +3983,15 @@ Procedure DoUpdatePredefinedItems(MetadataObject, ParametersOfUpdate = Undefined
 	
 EndProcedure
 
-// 
+// The parameter constructor used in the "DoUpdatePredefinedItems" procedure.
 //
 // Returns:
 //  Structure:
-//    * Attributes - String - 
-//    * Items - Array - 
-//                          
-//    * UpdateMultilingualStringsOnly - Boolean - 
-//                                                   
+//    * Attributes - String - Comma-delimited list of attributes that should be force-updated.
+//    * Items - Array - A list of predefined items that should be updated.
+//                          If an empty list is passed, all predefined items will be updated.
+//    * UpdateMultilingualStringsOnly - Boolean - If set to "True", update only multi-language attributes.
+//                                                   By default, "False". Applicable only to multi-language configurations.
 //                                                    
 //
 Function PredefinedItemsUpdateParameters() Export
@@ -4023,18 +4024,18 @@ EndFunction
 
 #EndRegion
 
-// 
-// 
-// 
+// Logs an event when update handler is running.
+// When writing an error or warning, saves it to the update handler information.
+// This records are used in update mechanics interfaces.
 //
 // Parameters:
-//  Ref_Metadata - AnyRef, MetadataObject - 
-//  Presentation    - String - 
+//  Ref_Metadata - AnyRef, MetadataObject - A reference for Ref data. A metadata object for other data types.
+//  Presentation    - String - The String presentation of the data. For Ref data, it should be obtained prior to processing.
+//                                 (If it is obtained in the Except clause, it might cause en error.)
+//  ErrorInfo - ErrorInfo, String - To log an error, pass the "ErrorInfo" object.
+//                                 To clarify the issue, pass a String comment.
 //                                 
-//  ErrorInfo - ErrorInfo, String - 
-//                                 
-//                                 
-//  Level - EventLogLevel - 
+//  Level - EventLogLevel - A log level. If not specified, set the level to "Error".
 //
 Procedure WriteErrorToEventLog(Ref_Metadata, Val Presentation, ErrorInfo = Undefined, Level = Undefined) Export
 	
@@ -5323,7 +5324,7 @@ EndFunction
 //   * TableName - String - the name of the table from which the data is selected.
 //   * SelectionFields1 - Array - fields that are placed in the request selection list.
 //   * OrderFields - Array - fields that are placed in request of ordering section.
-//   * UsedOrderingFields - Map - 
+//   * UsedOrderingFields - Map - Cache of the passwords that were used for ordering.
 //   * Aliases - Array - name aliases of fields being selected that are inserted in selection request.
 //   * Directions - Array - ordering directions (ASC, and DESC).
 //
@@ -5767,14 +5768,14 @@ Procedure SetSelectionByPageConditions(Query, Conditions, Table, Parameters, Top
 	
 EndProcedure
 
-// 
+// Appends a set of conditions with another one, joined with "AND".
 //
 // Parameters:
 //  Conditions - ValueTableRow of See NewConditionsOfSelectionByPage
-//  SelectionFields1 - Array -  fields selected by the query.
-//  Count - Number - 
-//  Operator - String - 
-//  ForRange - Boolean - 
+//  SelectionFields1 - Array - Fields to be retrieved by the query.
+//  Count - Number - The number of the starting fields that should be used when generating conditions.
+//  Operator - String - The operator to be added to the last condition.
+//  ForRange - Boolean - If set to "False", a condition for the range start is expected. If set to "True", a condition for the range end is expected.
 //
 // Returns:
 //  ValueTableRow of See NewConditionsOfSelectionByPage
@@ -5789,14 +5790,14 @@ Function AppendCondition(Conditions, SelectionFields1, Count, Operator, ForRange
 	
 EndFunction
 
-// 
+// Add conditions for the boundaries (such as " = " or " >= ").
 //
 // Parameters:
 //  AllConditions - See NewConditionsOfSelectionByPage
-//  SelectionFields1 - Array -  fields selected by the query.
-//  Count - Number - 
-//  Operator - String - 
-//  ForRange - Boolean - 
+//  SelectionFields1 - Array - Fields to be retrieved by the query.
+//  Count - Number - The number of the starting fields that should be used when generating conditions.
+//  Operator - String - The operator to be added to the last condition.
+//  ForRange - Boolean - If set to "False", a condition for the range start is expected. If set to "True", a condition for the range end is expected.
 //
 // Returns:
 //  ValueTableRow of See NewConditionsOfSelectionByPage
@@ -5820,7 +5821,7 @@ EndFunction
 // Get conditions to filter records larger than the specified one (similar to the dynamic list).
 //
 // Parameters:
-//  SelectionFields1 - Array - fields selected by query.
+//  SelectionFields1 - Array - Fields to be retrieved by the query.
 //  Parameters - See InfobaseUpdate.AdditionalProcessingMarkParameters.
 //  Directions - Array - ordering directions (ASC, and DESC) in the quantity equal to the SelectionFields quantity.
 //              - Undefined - order is not specified (always ASC).
@@ -5858,7 +5859,7 @@ EndFunction
 // Get the conditions to select the records between two specified records, inclusively.
 //
 // Parameters:
-//  SelectionFields1 - Array - fields selected by query.
+//  SelectionFields1 - Array - Fields to be retrieved by the query.
 //  Parameters - See InfobaseUpdate.AdditionalProcessingMarkParameters.
 //  Directions - Array - ordering directions (ASC, and DESC) in the quantity equal to the SelectionFields quantity.
 //              - Undefined - order is not specified (always ASC).
@@ -5889,7 +5890,7 @@ Function PageRangeConditions(SelectionFields1, Parameters, Directions)
 		IsPreviousColumnsIdentical = RecordsAreEqual(FirstRecord, LatestRecord, FieldsCount - 1);
 		
 		If FirstRecord <> Undefined Then
-			If FieldsCount = FieldsTotal Then // 
+			If FieldsCount = FieldsTotal Then // All columns of the range start.
 				Operator = OperatorGreaterOrEqual(Direction);
 				Conditions = AddTerms(AllConditions, SelectionFields1, FieldsCount, Operator);
 				
@@ -5897,7 +5898,7 @@ Function PageRangeConditions(SelectionFields1, Parameters, Directions)
 					Operator = OperatorLessOrEqual(Direction);
 					AppendCondition(Conditions, SelectionFields1, FieldsCount, Operator, True);
 				EndIf;
-			Else // 
+			Else // Some columns of the range start.
 				If Not IsCurrentColumnsIdentical Then
 					Operator = OperatorGreater(Direction);
 					Conditions = AddTerms(AllConditions, SelectionFields1, FieldsCount, Operator);
@@ -5911,12 +5912,12 @@ Function PageRangeConditions(SelectionFields1, Parameters, Directions)
 		EndIf;
 		
 		If LatestRecord <> Undefined Then
-			If FieldsCount = FieldsTotal Then // 
+			If FieldsCount = FieldsTotal Then // All columns of the range end.
 				If Not IsPreviousColumnsIdentical Then
 					Operator = OperatorLessOrEqual(Direction);
 					Conditions = AddTerms(AllConditions, SelectionFields1, FieldsCount, Operator, True);
 				EndIf;
-			Else // 
+			Else // Some columns of the range end.
 				If Not IsCurrentColumnsIdentical And Not IsPreviousColumnsIdentical Then
 					Operator = OperatorLess(Direction);
 					Conditions = AddTerms(AllConditions, SelectionFields1, FieldsCount, Operator, True);
@@ -5964,7 +5965,7 @@ EndFunction
 // Returns the value table with the conditions of selection by page.
 //
 // Parameters:
-//  SelectionFields1 - Array - fields selected by query.
+//  SelectionFields1 - Array - Fields to be retrieved by the query.
 //  ForRange - Boolean - True if the table will be used to restrict the range.
 //                 In this case, additional columns are added for the lower range condition.
 //

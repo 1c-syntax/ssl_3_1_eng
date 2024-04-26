@@ -3372,6 +3372,12 @@
 					<dcsset:left xsi:type="dcscor:Field">CanSignIn</dcsset:left>
 					<dcsset:comparisonType>Equal</dcsset:comparisonType>
 					<dcsset:right xsi:type="xs:boolean">true</dcsset:right>
+					<dcsset:presentation xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Hide users with restricted login</v8:content>
+						</v8:item>
+					</dcsset:presentation>
 					<dcsset:viewMode>Normal</dcsset:viewMode>
 					<dcsset:userSettingID>685f8653-1edd-40d3-9129-5dbc8bab6e90</dcsset:userSettingID>
 				</dcsset:item>
@@ -3777,6 +3783,12 @@
 					<dcsset:left xsi:type="dcscor:Field">CanSignIn</dcsset:left>
 					<dcsset:comparisonType>Equal</dcsset:comparisonType>
 					<dcsset:right xsi:type="xs:boolean">true</dcsset:right>
+					<dcsset:presentation xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Hide users with restricted login</v8:content>
+						</v8:item>
+					</dcsset:presentation>
 					<dcsset:viewMode>Normal</dcsset:viewMode>
 					<dcsset:userSettingID>98ef20f5-9394-4a5b-bd98-61d4fdfc5707</dcsset:userSettingID>
 				</dcsset:item>
@@ -4444,6 +4456,12 @@
 					<dcsset:left xsi:type="dcscor:Field">CanSignIn</dcsset:left>
 					<dcsset:comparisonType>Equal</dcsset:comparisonType>
 					<dcsset:right xsi:type="xs:boolean">true</dcsset:right>
+					<dcsset:presentation xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Hide users with restricted login</v8:content>
+						</v8:item>
+					</dcsset:presentation>
 					<dcsset:viewMode>Normal</dcsset:viewMode>
 					<dcsset:userSettingID>0c68038c-5afb-41d4-8210-50ddfee8fb65</dcsset:userSettingID>
 				</dcsset:item>
@@ -5549,6 +5567,12 @@
 					<dcsset:left xsi:type="dcscor:Field">CanSignIn</dcsset:left>
 					<dcsset:comparisonType>Equal</dcsset:comparisonType>
 					<dcsset:right xsi:type="xs:boolean">true</dcsset:right>
+					<dcsset:presentation xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Hide users with restricted login</v8:content>
+						</v8:item>
+					</dcsset:presentation>
 					<dcsset:viewMode>Normal</dcsset:viewMode>
 					<dcsset:userSettingID>e4741d14-20fa-466f-9e8d-892ca655c087</dcsset:userSettingID>
 				</dcsset:item>

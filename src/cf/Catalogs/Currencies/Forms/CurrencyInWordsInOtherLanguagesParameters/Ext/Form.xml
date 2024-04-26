@@ -3,7 +3,7 @@
 	<Title>
 		<v8:item>
 			<v8:lang>en</v8:lang>
-			<v8:content>Parameters for writing amounts in words</v8:content>
+			<v8:content>Number-to-words conversion rules</v8:content>
 		</v8:item>
 	</Title>
 	<Height>15</Height>

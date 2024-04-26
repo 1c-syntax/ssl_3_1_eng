@@ -393,14 +393,14 @@ EndFunction
 Procedure ContactInformationAttibutesValues(InformationToEdit)
 	
 	// Common attributes.
-	Presentation = InformationToEdit.value;
-	Comment   = InformationToEdit.comment;
+	Presentation = InformationToEdit.Value;
+	Comment   = InformationToEdit.Comment;
 	
 	// Comment copy used to analyze changes.
 	CommentCopy = Comment;
 	
 	If EnterNumberByMask Then 
-		PhoneNumberByMask = InformationToEdit.value;	
+		PhoneNumberByMask = InformationToEdit.Value;	
 	Else	
 		CountryCode     = InformationToEdit.CountryCode;
 		CityCode     = InformationToEdit.AreaCode;

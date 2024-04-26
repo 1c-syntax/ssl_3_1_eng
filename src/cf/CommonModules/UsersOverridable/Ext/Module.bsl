@@ -256,26 +256,26 @@ EndProcedure
 //   * UsersGroupsSelection - Boolean - allows you to select user groups.
 // 										 If user groups are used and the parameter is not supported,
 // 										 you cannot assign rights to a user group via the choice form.
-//   * UsersToHide - ValueList -  users who are not displayed in the selection form.
+//   * UsersToHide - ValueList - Users that are not displayed in the pick form.
 //                            - Undefined
-//   * CurrentRow - CatalogRef.UserGroups - 
-//                       
-//                   - Undefined - 
+//   * CurrentRow - CatalogRef.UserGroups - The line in the user group dynamic list
+//                       where the cursor will be placed on the form opening.
+//                   - Undefined - The cursor is placed at the "All users" group.
 //
 //   * AdvancedPick - Boolean - If True, viewing user groups is available.
 //   * ExtendedPickFormParameters - String - temporary storage address with the structure:
-//   ** SelectedUsers - Array of CatalogRef.Users - 
-//                                
-//   ** PickFormHeader - String - 
-//   ** PickingCompletionButtonTitle - String - 
+//   ** SelectedUsers - Array of CatalogRef.Users - Users to be displayed
+//                                in the pick form.
+//   ** PickFormHeader - String - Overrides the pick form title (if specified).
+//   ** PickingCompletionButtonTitle - String - Overrides the button title (if specified).
 //
 Procedure OnDefineUsersSelectionForm(SelectedForm, FormParameters) Export
 
 EndProcedure
 
-// Allows to add custom access event registration settings to the data
-// when either getting them using the "Users.RegistrationSettingsForDataAccessEvents" function
-// or setting them using the "Users.UpdateRegistrationSettingsForDataAccessEvents" procedure.
+// Allows you to add custom data access logging settings,
+// either when retrieving them with the "Users.RegistrationSettingsForDataAccessEvents" function
+// or when setting them with the "Users.UpdateRegistrationSettingsForDataAccessEvents" procedure.
 // 
 // 
 //

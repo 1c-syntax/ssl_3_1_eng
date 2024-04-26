@@ -51,7 +51,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	UncompletedHandlersStatus = InfobaseUpdateInternal.UncompletedHandlersStatus();
-	Items.IncompleteHandlersLabel.Visible = ValueIsFilled(UncompletedHandlersStatus);
+	Items.LabelUnfinishedHandlers.Visible = ValueIsFilled(UncompletedHandlersStatus);
 	
 	Items.IssuesDiscoveredLabel.Visible = SystemCheckIssues();
 	Items.ExtensionsAvailableLabel.Visible     = ConfigurationUpdate.WarnAboutExistingExtensions();

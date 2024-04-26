@@ -215,7 +215,7 @@ Procedure Save(Command)
 	If ShouldSaveAsPDF Then
 		
 #If Not WebClient And Not MobileClient Then
-		ExecutionParameters.ResultFile = GetTempFileName("pdf"); 
+		ExecutionParameters.ResultFile = GetTempFileName("pdf"); //  See AcceptCompletion.
 #EndIf
 		
 		GraphicDocumentConversionParameters = FilesOperationsClient.GraphicDocumentConversionParameters();
@@ -296,7 +296,7 @@ Procedure SaveAllAsSingleFile(Command)
 #If Not WebClient And Not MobileClient Then
 	ResultExtension = String(MultipageStorageFormat);
 	ResultExtension = Lower(ResultExtension); 
-	ExecutionParameters.ResultFile = GetTempFileName(ResultExtension); 
+	ExecutionParameters.ResultFile = GetTempFileName(ResultExtension); //  See AcceptAllAsOneFileCompletion
 	GraphicDocumentConversionParameters.ResultFormat = ResultExtension;
 #EndIf
 		

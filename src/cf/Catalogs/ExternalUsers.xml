@@ -954,7 +954,7 @@ Inactive external users are hidden from the user lists.
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>External user (to sign in to the application).</v8:content>
+							<v8:content>External user (to log in to the application).</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Picture>

@@ -1678,8 +1678,8 @@ EndFunction
 &AtServer
 Procedure FillOutputOrder(OutputOrder, ParentLevelRow, TreeRow, Recursion, FillParameters)
 	
-	If Not Recursion.IsLastColumn And Recursion.FreeRows <= 0 Then // 
-		// 
+	If Not Recursion.IsLastColumn And Recursion.FreeRows <= 0 Then // Reached the end of the column.
+		// Move to the next one.
 		Recursion.TotaItemsLeftToOutput = Recursion.TotaItemsLeftToOutput - 1; // Empty group that shouldn't be output.
 		Recursion.CurrentColumnNumber = Recursion.CurrentColumnNumber + 1;
 		Recursion.IsLastColumn = (Recursion.CurrentColumnNumber = Recursion.ColumnsCount);
@@ -1688,8 +1688,8 @@ Procedure FillOutputOrder(OutputOrder, ParentLevelRow, TreeRow, Recursion, FillP
 		Recursion.Level3GroupCutoff = Max(Int(Recursion.TotaItemsLeftToOutput / FreeColumns), 2);
 		Recursion.FreeRows = Recursion.Level3GroupCutoff; // Number of options to output per column.
 		
-		// 
-		// 
+		// Output/Repeat the hierarchy with the " (continued)" postfix
+		// if some of the parent's rows are output in the previous column.
 		CurrentParent = ParentLevelRow;
 		While CurrentParent <> Undefined And CurrentParent.SubsystemRef <> FillParameters.SectionReference Do
 			
@@ -1763,10 +1763,10 @@ Procedure FillOutputOrder(OutputOrder, ParentLevelRow, TreeRow, Recursion, FillP
 		OutputOptionsCount = 0;
 		VisibleOptionsCount = 0;
 		For Each Variant In TreeRow.Variants Do
-			// 
-			// 
-			// 
-			// 
+			// TreeRow.Variants - Search result.
+			// The code logic assumes that the search result sort is a row sort.
+			// If that's not the case, copy the source table
+			// with the applied filter by subsystem and sort it by name.
 			
 			If CanContinue
 				And Not Recursion.IsLastColumn
@@ -1803,8 +1803,8 @@ Procedure FillOutputOrder(OutputOrder, ParentLevelRow, TreeRow, Recursion, FillP
 					CurrentParent = CurrentParent.Parent;
 				EndDo;
 				
-				// 
-				// 
+				// Output a group with the " (continued)" postfix.
+				// "Recursion.TotalObjectsToOutput" will not decrease as continuation output increases the number of rows.
 				OutputSubsystem = OutputOrder.Add();
 				OutputSubsystem.ColumnNumber        = Recursion.CurrentColumnNumber;
 				OutputSubsystem.IsSubsystem       = True;
@@ -1937,7 +1937,7 @@ Function AddSubsystemsGroup(FillParameters, OutputOrderRow, ToGroup)
 	
 	If HighlightingIsRequired Then
 		If OutputOrderRow.IsFollowUp Then
-			Suffix = NStr("en = '(continue)';");
+			Suffix = NStr("en = '(continued)';");
 			If Not StrEndsWith(PresentationHighlighting.Value, Suffix) Then
 				PresentationHighlighting.Value = PresentationHighlighting.Value + " " + Suffix;
 			EndIf;
@@ -1957,7 +1957,7 @@ Function AddSubsystemsGroup(FillParameters, OutputOrderRow, ToGroup)
 		
 	Else
 		If OutputOrderRow.IsFollowUp Then
-			SubsystemPresentation = SubsystemPresentation + " " + NStr("en = '(continue)';");
+			SubsystemPresentation = SubsystemPresentation + " " + NStr("en = '(continued)';");
 		EndIf;
 		
 		SubsystemsGroup1.ShowTitle = True;

@@ -81,7 +81,7 @@ EndProcedure
 
 Procedure BeforeWrite(Cancel)
 	
-	// 
+	// ACC:75-off - The check "DataExchange.Import" should run after the register is locked.
 	If Common.FileInfobase() Then
 		// 
 		// 

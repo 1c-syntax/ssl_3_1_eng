@@ -59,6 +59,57 @@ Function PermissionAddition(Val Resolution) Export
 	
 EndFunction
 
+// Returns:
+//   ValueTable:
+//   * ProgramModuleType - CatalogRef.MetadataObjectIDs
+//   * ModuleID - UUID
+//   * Type - String -  name of the XDTO type that describes permissions.
+//   * Permissions - Map of KeyAndValue:
+//       ** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
+//       ** Value - XDTODataObject -  XDTO - description of the permission.
+//   * PermissionsAdditions - Map of KeyAndValue - :
+//       ** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
+//       ** Value - See InformationRegister.PermissionsToUseExternalResources.PermissionAddition
+//
+Function NewPermissionSlice() Export
+	
+	Result = New ValueTable();
+	
+	Result.Columns.Add("ProgramModuleType", New TypeDescription("CatalogRef.MetadataObjectIDs"));
+	Result.Columns.Add("ModuleID", New TypeDescription("UUID"));
+	Result.Columns.Add("Type", New TypeDescription("String"));
+	Result.Columns.Add("Permissions", New TypeDescription("Map"));
+	Result.Columns.Add("PermissionsAdditions", New TypeDescription("Map"));
+	
+	Return Result;
+	
+EndFunction
+
+// Returns:
+//   ValueTable:
+//   * ProgramModuleType - CatalogRef.MetadataObjectIDs
+//   * ModuleID - UUID
+//   * OwnerType - CatalogRef.MetadataObjectIDs
+//   * OwnerID - UUID
+//   * Type - String -  name of the XDTO type that describes permissions.
+//   * Permissions - Map of KeyAndValue:
+//       ** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
+//       ** Value - XDTODataObject -  XDTO - description of the permission.
+//   * PermissionsAdditions - Map of KeyAndValue - :
+//       ** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
+//       ** Value - See InformationRegister.PermissionsToUseExternalResources.PermissionAddition
+//
+Function NewSectionOfPermissionsInSectionOfOwners() Export
+	
+	Result = NewPermissionSlice();
+	
+	Result.Columns.Add("OwnerType", New TypeDescription("CatalogRef.MetadataObjectIDs"));
+	Result.Columns.Add("OwnerID", New TypeDescription("UUID"));
+	
+	Return Result;
+	
+EndFunction
+
 // Returns the current slice of granted permissions.
 //
 // Parameters:
@@ -82,18 +133,8 @@ EndFunction
 //
 Function PermissionsSlice(Val ByOwners = True, Val NoDetails1 = False) Export
 	
-	Result = New ValueTable();
-	
-	Result.Columns.Add("ProgramModuleType", New TypeDescription("CatalogRef.MetadataObjectIDs"));
-	Result.Columns.Add("ModuleID", New TypeDescription("UUID"));
-	If ByOwners Then
-		Result.Columns.Add("OwnerType", New TypeDescription("CatalogRef.MetadataObjectIDs"));
-		Result.Columns.Add("OwnerID", New TypeDescription("UUID"));
-	EndIf;
-	Result.Columns.Add("Type", New TypeDescription("String"));
-	Result.Columns.Add("Permissions", New TypeDescription("Map"));
-	Result.Columns.Add("PermissionsAdditions", New TypeDescription("Map"));
-	
+	Result = ?(ByOwners, NewSectionOfPermissionsInSectionOfOwners(), NewPermissionSlice());
+
 	Selection = Select();
 	
 	While Selection.Next() Do

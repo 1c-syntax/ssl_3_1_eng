@@ -115,9 +115,12 @@ Procedure DoLogChanges(RecordSet, Replacing, OldRecords)
 		UsersProperties.Columns.Add("IBUserID");
 		UsersProperties.Columns.Add("DeletionMark");
 		UsersProperties.Columns.Add("Invalid");
+		UsersProperties.Columns.Add("Department");
+		UsersProperties.Columns.Add("Individual");
 		NewRow = UsersProperties.Add();
-		FillPropertyValues(NewRow, RecordSet.AdditionalProperties.UserProperties);
+		FillPropertyValues(NewRow, UserProperties);
 		NewRow.User = RecordSet[0].User;
+		PreviousValues1 = UserProperties.PreviousValues1;
 	Else
 		Query = New Query;
 		Query.SetParameter("UsersList", Table.UnloadColumn("User"));
@@ -126,7 +129,9 @@ Procedure DoLogChanges(RecordSet, Replacing, OldRecords)
 		|	Users.Ref AS User,
 		|	Users.IBUserID AS IBUserID,
 		|	Users.DeletionMark AS DeletionMark,
-		|	Users.Invalid AS Invalid
+		|	Users.Invalid AS Invalid,
+		|	Users.Department AS Department,
+		|	Users.Individual AS Individual
 		|FROM
 		|	Catalog.Users AS Users
 		|WHERE
@@ -138,7 +143,9 @@ Procedure DoLogChanges(RecordSet, Replacing, OldRecords)
 		|	ExternalUsers.Ref,
 		|	ExternalUsers.IBUserID,
 		|	ExternalUsers.DeletionMark,
-		|	ExternalUsers.Invalid
+		|	ExternalUsers.Invalid,
+		|	UNDEFINED,
+		|	UNDEFINED
 		|FROM
 		|	Catalog.ExternalUsers AS ExternalUsers
 		|WHERE
@@ -146,9 +153,12 @@ Procedure DoLogChanges(RecordSet, Replacing, OldRecords)
 		
 		UsersProperties = Query.Execute().Unload();
 		UsersProperties.Indexes.Add("User");
+		PreviousValues1 = Undefined;
 	EndIf;
 	
 	ProcessedUsers = New Map;
+	AdditionalInformationSecurityUserProperties = "UserMustChangePasswordOnAuthorization,
+		|UnlimitedValidityPeriod, ValidityPeriod, InactivityPeriodBeforeDenyingAuthorization";
 	
 	For Each String In Table Do
 		If Not ValueIsFilled(String.User)
@@ -158,8 +168,8 @@ Procedure DoLogChanges(RecordSet, Replacing, OldRecords)
 		ProcessedUsers.Insert(String.User, True);
 		
 		Data = New Structure;
-		Data.Insert("DataStructureVersion", 1);
-		Data.Insert("Ref", ValueToStringInternal(String.User));
+		Data.Insert("DataStructureVersion", 2);
+		Data.Insert("Ref", SerializedLink(String.User));
 		Data.Insert("RefType", String.User.Metadata().FullName());
 		Data.Insert("LinkID", Lower(String.User.UUID()));
 		Data.Insert("IBUserID");
@@ -170,26 +180,64 @@ Procedure DoLogChanges(RecordSet, Replacing, OldRecords)
 		Data.Insert("InactivityPeriodBeforeDenyingAuthorization", 0);
 		Data.Insert("DeletionMark");
 		Data.Insert("Invalid");
+		Data.Insert("Department");
+		Data.Insert("DepartmentPresentation");
+		Data.Insert("Individual");
+		Data.Insert("IndividualPresentation");
+		Data.Insert("OldPropertyValues", New Structure);
 		
-		NewRecord = NewRecords.Find(String.User, "User");
-		UserProperties = UsersProperties.Find(String.User, "User");
-		If UserProperties <> Undefined Then
-			Data.IBUserID = Lower(UserProperties.IBUserID);
-			Data.DeletionMark = UserProperties.DeletionMark;
-			Data.Invalid  = UserProperties.Invalid;
+		CurrentValues = UsersProperties.Find(String.User, "User");
+		If CurrentValues <> Undefined Then
+			Data.IBUserID = Lower(CurrentValues.IBUserID);
+			Data.DeletionMark = CurrentValues.DeletionMark;
+			Data.Invalid  = CurrentValues.Invalid;
+			Data.Department   = SerializedLink(CurrentValues.Department);
+			Data.Individual  = SerializedLink(CurrentValues.Individual);
+			Data.DepartmentPresentation  = RepresentationOfTheReference(CurrentValues.Department);
+			Data.IndividualPresentation = RepresentationOfTheReference(CurrentValues.Individual);
 			IBUser = InfoBaseUsers.FindByUUID(
-				UserProperties.IBUserID);
+				CurrentValues.IBUserID);
 			If IBUser <> Undefined Then
 				Data.Name = IBUser.Name;
 			EndIf;
 		EndIf;
+		If PreviousValues1 <> Undefined Then
+			If CurrentValues.IBUserID <> PreviousValues1.IBUserID Then
+				Data.OldPropertyValues.Insert("IBUserID",
+					Lower(PreviousValues1.IBUserID));
+			EndIf;
+			If CurrentValues.DeletionMark <> PreviousValues1.DeletionMark Then
+				Data.OldPropertyValues.Insert("DeletionMark", PreviousValues1.DeletionMark);
+			EndIf;
+			If CurrentValues.Invalid <> PreviousValues1.Invalid Then
+				Data.OldPropertyValues.Insert("Invalid", PreviousValues1.Invalid);
+			EndIf;
+			If CurrentValues.Department <> PreviousValues1.Department Then
+				Data.OldPropertyValues.Insert("Department",
+					SerializedLink(PreviousValues1.Department));
+				Data.OldPropertyValues.Insert("DepartmentPresentation",
+					RepresentationOfTheReference(PreviousValues1.Department));
+			EndIf;
+			If CurrentValues.Individual <> PreviousValues1.Individual Then
+				Data.OldPropertyValues.Insert("Individual",
+					SerializedLink(PreviousValues1.Individual));
+				Data.OldPropertyValues.Insert("IndividualPresentation",
+					RepresentationOfTheReference(PreviousValues1.Individual));
+			EndIf;
+		EndIf;
 		
-		If String.LineChangeType = 1 Then
-			FillPropertyValues(Data, NewRecord,
-				"UserMustChangePasswordOnAuthorization,
-				|UnlimitedValidityPeriod,
-				|ValidityPeriod,
-				|InactivityPeriodBeforeDenyingAuthorization");
+		If String.LineChangeType >= 0 Then
+			NewRecord = NewRecords.Find(String.User, "User");
+			FillPropertyValues(Data, NewRecord, AdditionalInformationSecurityUserProperties);
+		EndIf;
+		If String.LineChangeType <> 0 Then
+			OldRecord = OldRecords.Find(String.User, "User");
+			PropertyStructure = New Structure(AdditionalInformationSecurityUserProperties);
+			For Each KeyAndValue In PropertyStructure Do
+				If Data[KeyAndValue.Key] <> OldRecord[KeyAndValue.Key] Then
+					Data.OldPropertyValues.Insert(KeyAndValue.Key, OldRecord[KeyAndValue.Key]);
+				EndIf;
+			EndDo;
 		EndIf;
 		
 		WriteLogEvent(
@@ -205,6 +253,28 @@ Procedure DoLogChanges(RecordSet, Replacing, OldRecords)
 	SetSafeModeDisabled(False);
 	
 EndProcedure
+
+// 
+Function SerializedLink(Ref)
+	
+	If Ref = Null Or Ref = Undefined Then
+		Return Ref;
+	EndIf;
+	
+	Return ValueToStringInternal(Ref);
+	
+EndFunction
+
+// 
+Function RepresentationOfTheReference(Ref)
+	
+	If Ref = Null Or Ref = Undefined Then
+		Return "";
+	EndIf;
+	
+	Return String(Ref);
+	
+EndFunction
 
 #EndRegion
 

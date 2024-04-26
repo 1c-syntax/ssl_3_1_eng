@@ -27,7 +27,7 @@
 //     :
 //     * SignatureValidationDate - Date - Date when the signature was last verified.
 //     * SignatureCorrect        - Boolean - Last signature check result.
-//     * IsVerificationRequired   - Boolean - 
+//     * IsVerificationRequired   - Boolean - Signature verification failure flag.
 //     * IsSignatureMathematicallyValid - Boolean - 
 //     * SignatureMathValidationError - String - 
 //                                                      
@@ -51,9 +51,9 @@
 //
 //     Derived signature properties:
 //     * SignatureType          - EnumRef.CryptographySignatureTypes
-//     * DateActionLastTimestamp - Date - 
-//                                           
-//                                           
+//     * DateActionLastTimestamp - Date - Validity period of the certificate that the last timestamp was signed with.
+//                                           Empty date if there's no timestamp.
+//                                           Applicable if the period was determined using CryptoManager.
 //     * Certificate          - ValueStorage - contains export of the certificate
 //                             that was used for signing (it is in the signature).
 //                           - BinaryData
@@ -126,8 +126,8 @@ EndFunction
 //                                                      
 //
 //   * SignatureType          - EnumRef.CryptographySignatureTypes - Not filled when checking XML envelope signatures.
-//   * DateActionLastTimestamp - Date - 
-//    
+//   * DateActionLastTimestamp - Date - Validity period of the certificate that the last timestamp was signed with.
+//    Empty date if there's no timestamp. Applicable if the period was determined using CryptoManager.
 //   * UnverifiedSignatureDate - Date - Unconfirmed signature data.
 //                                 - Undefined - Unconfirmed signature data is missing from the signature data
 //                                                and for the XML envelope.
@@ -160,9 +160,23 @@ EndFunction
 // 
 // Returns:
 //  Structure - :
+//   * SequenceNumber - See NewSignatureProperties.SequenceNumber
+//   * Object - See NewSignatureProperties.SignedObject
+//   * SignatureDate - See NewSignatureProperties.SignatureDate
+//   * Comment - See NewSignatureProperties.Comment
 //   * SignatureAddress - String - Signature address in temporary storage.
+//   * Thumbprint - See NewSignatureProperties.Thumbprint
 //   * CertificateAddress - String - Certificate address in a temporary storage.
+//   * SignatureCorrect - See NewSignatureProperties.SignatureCorrect
+//   * SignatureValidationDate - See NewSignatureProperties.
+//   * CertificateOwner - See NewSignatureProperties.CertificateOwner
+//   * IsVerificationRequired - See NewSignatureProperties.IsVerificationRequired
+//   * SignatureSetBy - See NewSignatureProperties
+//   * SignatureType - See NewSignatureProperties
+//   * DateActionLastTimestamp - See NewSignatureProperties
+//   * MachineReadableLetterOfAuthority - See CatalogRef.MachineReadablePowersAttorney
 //   * MachineReadableLOAValid - Boolean
+//   * ResultOfSignatureVerificationByMRLOA - See NewSignatureProperties.ResultCryptoProviders
 //   * CheckResult - Structure - :
 //     ** IsSignatureMathematicallyValid - Boolean
 //     ** SignatureMathValidationError - String -  error text.

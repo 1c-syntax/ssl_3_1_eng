@@ -1343,7 +1343,7 @@ to display in value edit forms. </v8:content>
 													<Title formatted="false">
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Shared attribute belongs to set: Cash voucher</v8:content>
+															<v8:content>Shared attribute belongs to set: Outgoing payment — Cash account</v8:content>
 														</v8:item>
 													</Title>
 													<ToolTip>

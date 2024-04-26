@@ -211,7 +211,9 @@ EndFunction
 
 &AtServer
 Function SectionsFillingQueryText()
-
+	
+	// ACC:70-off - The full join with "SeparatedSettings" just slightly slows down the query 
+	// since the combined tables don't have many records.
 	Return "SELECT ALLOWED
 			|	ReportsOptions.Ref,
 			|	ReportsOptions.PredefinedOption,
@@ -318,7 +320,7 @@ Function SectionsFillingQueryText()
 			|			THEN &SeeAlsoPresentation
 			|		ELSE """"
 			|	END";
-
+	// ACC:70-on
 EndFunction
 
 &AtServer

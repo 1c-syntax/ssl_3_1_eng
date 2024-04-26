@@ -28,7 +28,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			MovedFile = New File(FilePath);
 			NewItem = SelectedFiles.Add();
 			NewItem.Path = FilePath;
-			NewItem.PictureIndex = FilesOperationsInternalClientServer.GetFileIconIndex(MovedFile.Extension);
+			NewItem.PictureIndex = FilesOperationsInternalClientServer.IndexOfFileIcon(MovedFile.Extension);
 		EndDo;
 	EndIf;
 	
@@ -192,7 +192,7 @@ Procedure SelectFilesExecuteAfterInstallExtension(ExtensionInstalled, ExecutionP
 			MovedFile = New File(FileName);
 			NewItem = SelectedFiles.Add();
 			NewItem.Path = FileName;
-			NewItem.PictureIndex = FilesOperationsInternalClientServer.GetFileIconIndex(MovedFile.Extension);
+			NewItem.PictureIndex = FilesOperationsInternalClientServer.IndexOfFileIcon(MovedFile.Extension);
 		EndDo;
 	EndIf;
 	

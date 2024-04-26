@@ -210,11 +210,13 @@ Procedure UpdateSuppliedProfilesByConfigurationChanges() Export
 		
 		If LastChanges <> Undefined Then
 			For Each ChangesPart In LastChanges Do
-				If TypeOf(ChangesPart) = Type("FixedStructure")
-				   And ChangesPart.Property("Trash")
-				   And TypeOf(ChangesPart.Trash) = Type("FixedArray") Then
-					
-					For Each Deleted In ChangesPart.Trash Do
+				If TypeOf(ChangesPart) <> Type("FixedStructure") Then
+					Continue;
+				EndIf;
+				CurPartOfChanges = New Structure("Trash");
+				FillPropertyValues(CurPartOfChanges, ChangesPart);
+				If TypeOf(CurPartOfChanges.Trash) = Type("FixedArray") Then
+					For Each Deleted In CurPartOfChanges.Trash Do
 						Trash.Add(Deleted);
 					EndDo;
 				EndIf;
@@ -1169,7 +1171,7 @@ Procedure WhenChangingTheLanguageOfTheInformationBase(ChangingLanguages) Export
 		New StringQualifiers(Metadata.Catalogs.AccessGroupProfiles.DescriptionLength)));
 	
 	For Each ProfileDetails In ProfilesDetails Do
-		Description = ?(ProfileDetails.Property("Description"), ProfileDetails.Description, "");
+		Description = ProfileDetails.Description;
 		If Not ValueIsFilled(Description)
 		 Or Not StringFunctionsClientServer.IsUUID(ProfileDetails.Id) Then
 			Continue;
@@ -1657,6 +1659,9 @@ Procedure DeleteExtensionsRolesInAllAccessGroupsProfiles() Export
 	
 	HasChanges = False;
 	
+	//  
+	// 
+	// 
 	Selection = Query.Execute().Select();
 	// ACC:1328-on.
 	
@@ -1991,7 +1996,7 @@ Function VerifiedSuppliedSessionProfiles(AccessKindsProperties = Undefined, Hash
 	
 	For Each ProfileDetails In ProfilesDetails Do
 		ProfileDetails.Delete("LongDesc");
-		IsFolder = Not ProfileDetails.Property("Roles");
+		IsFolder = ProfileDetails.Is_Directory;
 		
 		If Not ValueIsFilled(ProfileDetails.Id) Then
 			ErrorTemplate = ?(IsFolder,
@@ -2071,8 +2076,7 @@ Function VerifiedSuppliedSessionProfiles(AccessKindsProperties = Undefined, Hash
 		If ProfileFolderNames.Get(Upper(ProfileDetails.Parent)) <> Undefined Then
 			Continue;
 		EndIf;
-		IsFolder = Not ProfileDetails.Property("Roles");
-		ErrorTemplate = ?(IsFolder,
+		ErrorTemplate = ?(ProfileDetails.Is_Directory,
 			NStr("en = 'In the details of profile folder ""%1"",
 			           |property ""%2"" contains a non-existent name ""%3"".';"),
 			NStr("en = 'In the details of profile ""%1"",
@@ -2085,8 +2089,7 @@ Function VerifiedSuppliedSessionProfiles(AccessKindsProperties = Undefined, Hash
 	
 	FoldersByParents = New Map;
 	For Each ProfileDetails In ProfilesDetails Do
-		IsFolder = Not ProfileDetails.Property("Roles");
-		If Not IsFolder Then
+		If Not ProfileDetails.Is_Directory Then
 			Continue;
 		EndIf;
 		ParentFolders = FoldersByParents.Get(ProfileDetails.Parent);
@@ -2529,13 +2532,16 @@ EndFunction
 //
 Function SuppliedProfilesNote() Export
 	
-	ProfilesDetails = FilledSuppliedProfiles().ProfilesDetails;
+	ProfilesDetails = FilledSuppliedProfiles().ProfilesDetails; // Array of See AccessManagement.NewAccessGroupProfileDescription
 	
 	AccessKindsPresentation = New Map;
 	
 	For Each ProfileDetails In ProfilesDetails Do
-		LongDesc = ?(ProfileDetails.Property("LongDesc"), ProfileDetails.LongDesc, "");
-		AccessKindsPresentation.Insert(ProfileDetails.Id, LongDesc);
+		If ProfileDetails.Is_Directory Then
+			AccessKindsPresentation.Insert(ProfileDetails.Id, "");
+		Else
+			AccessKindsPresentation.Insert(ProfileDetails.Id, ProfileDetails.LongDesc);
+		EndIf;
 	EndDo;
 	
 	Return New FixedMap(AccessKindsPresentation);

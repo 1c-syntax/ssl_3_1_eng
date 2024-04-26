@@ -383,6 +383,7 @@ EndFunction
 //                   - String
 //                   - Date - Check's third parameter.
 //       ...                                              
+//       *  - AnyRef
 //                   - Boolean
 //                   - Number
 //                   - String

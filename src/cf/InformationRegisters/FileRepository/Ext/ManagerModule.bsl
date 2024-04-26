@@ -12,12 +12,20 @@
 
 #Region Internal
 
-Procedure WriteBinaryData(File, BinaryData) Export
+Procedure WriteBinaryData(Val File, Val BinaryData) Export
 	
 	Hashing = New DataHashing(HashFunction.SHA256);
-	Hashing.Append(BinaryData);
+
+	ThisIsEmptyBinaryData = (BinaryData = Undefined);
+	If ThisIsEmptyBinaryData Then
+		EmptyBinaryData = GetBinaryDataFromString("");
+		Hashing.Append(EmptyBinaryData);
+		Size = EmptyBinaryData.Size();
+	Else
+		Hashing.Append(BinaryData);
+		Size = BinaryData.Size();
+	EndIf;
 	Hash = GetBase64StringFromBinaryData(Hashing.HashSum);
-	Size = BinaryData.Size();
 	
 	BeginTransaction();
 	Try
@@ -47,7 +55,8 @@ Procedure WriteBinaryData(File, BinaryData) Export
 			BinaryDataStorageObject = Catalogs.BinaryDataStorage.CreateItem();
 			BinaryDataStorageObject.Size = Size;
 			BinaryDataStorageObject.Hash = Hash;
-			BinaryDataStorageObject.BinaryData = New ValueStorage(BinaryData, New Deflation(9));
+			BinaryDataStorageObject.BinaryData = ?(ThisIsEmptyBinaryData,
+				Undefined, New ValueStorage(BinaryData, New Deflation(9)));
 			BinaryDataStorageObject.Write();
 			BinaryDataStorageRef = BinaryDataStorageObject.Ref;
 		EndIf;
@@ -257,7 +266,6 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
 EndProcedure
 
-// Update register records.
 Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
 	Selection = InfobaseUpdate.SelectRefsToProcess(Parameters.Queue, "Catalog.FilesVersions");
@@ -302,10 +310,9 @@ Procedure TransferFilesBinaryDataToFileStorageInfoRegister(Selection)
 			WriteFileVersionManager.Read();
 			
 			BinaryData = WriteFileVersionManager.StoredFile.Get();
-			
-			//@skip-check query-in-loop
+			//  
 			WriteBinaryData(Selection.Ref, BinaryData);
-			
+
 			InfobaseUpdate.MarkProcessingCompletion(Selection.Ref);
 			ObjectsProcessed = ObjectsProcessed + 1;
 			CommitTransaction();
@@ -318,8 +325,9 @@ Procedure TransferFilesBinaryDataToFileStorageInfoRegister(Selection)
 				NStr("en = 'Couldn''t process binary data of file %1. Reason:
 				|%2';"), 
 				Selection.Ref, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-			WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Warning,
-				Selection.Ref.Metadata(), Selection.Ref, MessageText);
+			WriteLogEvent(InfobaseUpdate.EventLogEvent(), 
+				EventLogLevel.Warning, Selection.Ref.Metadata(), Selection.Ref, 
+				MessageText);
 		EndTry;
 		
 	EndDo;
@@ -330,8 +338,8 @@ Procedure TransferFilesBinaryDataToFileStorageInfoRegister(Selection)
 			ObjectsWithIssuesCount);
 		Raise MessageText;
 	Else
-		WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Information,
-			Metadata.Catalogs.FilesVersions,,
+		WriteLogEvent(InfobaseUpdate.EventLogEvent(), 
+			EventLogLevel.Information, Metadata.Catalogs.FilesVersions,,
 			StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Another batch of file binary data is processed: %1';"),
 				ObjectsProcessed));
@@ -368,7 +376,8 @@ Procedure ToCreateTheMissingVersionFile(Selection)
 				Version.SetNewCode();
 				
 				PropertiesSet = "Author,Owner,UniversalModificationDate,CreationDate,PictureIndex,
-				|Description,DeletionMark, PathToFile,Size,Extension,TextExtractionStatus, TextStorage, FileStorageType, Volume";
+				|Description,DeletionMark, PathToFile,Size,Extension,TextExtractionStatus,
+				|TextStorage, FileStorageType, Volume";
 				
 				FillPropertyValues(Version, FileObject1, PropertiesSet);
 				Version.VersionNumber = 1;
@@ -383,7 +392,7 @@ Procedure ToCreateTheMissingVersionFile(Selection)
 				BinaryFilesData.File = FileRef;
 				BinaryFilesData.Read();
 				If BinaryFilesData.Selected() Then
-					//@skip-check query-in-loop
+					//  
 					WriteBinaryData(Version.Ref, BinaryFilesData.FileBinaryData.Get());
 					BinaryFilesData.Delete();
 				EndIf;

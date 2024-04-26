@@ -61,7 +61,7 @@ EndProcedure
 
 // StandardSubsystems.MessagesTemplates
 
-// It is called when preparing message templates and allows you to override a list of attributes and attachments.
+// Called when preparing message templates. Overrides the list of attributes and attachments.
 //
 // Parameters:
 //  Attributes - See MessageTemplatesOverridable.OnPrepareMessageTemplate.Attributes
@@ -72,18 +72,18 @@ Procedure OnPrepareMessageTemplate(Attributes, Attachments, AdditionalParameters
 	
 EndProcedure
 
-// It is called upon creating messages from template to fill in values of attributes and attachments.
+// Called when creating a message from a template. Populates values in attributes and attachments.
 //
 // Parameters:
 //  Message - Structure:
-//    * AttributesValues - Map of KeyAndValue - a list of attributes used in the template.:
-//      ** Key     - String - an attribute name in the template.
-//      ** Value - String - a filling value in the template.
-//    * CommonAttributesValues - Map of KeyAndValue - a list of common attributes used in the template:
-//      ** Key     - String - an attribute name in the template.
-//      ** Value - String - a filling value in the template.
+//    * AttributesValues - Map of KeyAndValue - List of template's attributes:
+//      ** Key     - String - Template's attribute name.
+//      ** Value - String - Template's filling value.
+//    * CommonAttributesValues - Map of KeyAndValue - List of template's common attributes:
+//      ** Key     - String - Template's attribute name.
+//      ** Value - String - Template's filling value.
 //    * Attachments - Map of KeyAndValue:
-//      ** Key     - String - an attachment name in the template.
+//      ** Key     - String - Template's attachment name.
 //      ** Value - BinaryData
 //                  - String - binary data or an address in a temporary storage of the attachment.
 //  MessageSubject - AnyRef - a reference to an object that is a data source.
@@ -101,7 +101,7 @@ EndProcedure
 //     * Presentation - String - a text message recipient presentation.
 //     * Contact       - Arbitrary - a contact that owns the phone number.
 //  MessageSubject - AnyRef - a reference to an object that is a data source.
-//                   - Structure  - a structure describing template parameters:
+//                   - Structure  - Structure that describes template parameters:
 //    * SubjectOf               - AnyRef - a reference to an object that is a data source.
 //    * MessageKind - String - a kind of a message being generated: Email or SMSMessage.
 //    * ArbitraryParameters - Map - a filled list of arbitrary parameters.
@@ -121,7 +121,7 @@ EndProcedure
 //     * Presentation   - String - an email recipient presentation.
 //     * Contact         - Arbitrary - a contact that owns the email address.
 //  MessageSubject - AnyRef - a reference to an object that is a data source.
-//                   - Structure  - a structure describing template parameters.:
+//                   - Structure  - Structure that describes template parameters:
 //    * SubjectOf               - AnyRef - a reference to an object that is a data source.
 //    * MessageKind - String - a kind of a message being generated: Email or SMSMessage.
 //    * ArbitraryParameters - Map - a filled list of arbitrary parameters.

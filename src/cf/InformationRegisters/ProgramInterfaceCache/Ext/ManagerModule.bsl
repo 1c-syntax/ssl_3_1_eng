@@ -486,10 +486,10 @@ Function GetWSDL(Val Address, Val UserName, Val Password, Val Timeout, Val Secur
 	EndIf;
 	
 	If Not FileDetails.Status Then
-		Raise StringFunctionsClientServer.SubstituteParametersToString(
+		Raise(StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot get web service details file %1 due to:
 				|%2';"),
-			Address, FileDetails.ErrorMessage);
+			Address, FileDetails.ErrorMessage), ErrorCategory.NetworkError);
 	EndIf;
 	
 	InternetProxy = ModuleNetworkDownload.GetProxy(Address);
@@ -519,16 +519,17 @@ Function GetWSDL(Val Address, Val UserName, Val Password, Val Timeout, Val Secur
 			
 		WriteLogEvent(NStr("en = 'Getting WSDL';", Common.DefaultLanguageCode()),
 			EventLogLevel.Error, , , ErrorMessage);
-		Raise ErrorText;
+		Raise(ErrorText, ErrorCategory.NetworkError);
 	EndTry;
 	
 	If Definitions.Services.Count() = 0 Then
-		Raise StringFunctionsClientServer.SubstituteParametersToString(
+		Raise(StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot get the web service description file.
 			           |Reason: the file does not contain web service descriptions.
 			           |Probably the file address is incorrect:
 			           |%1';"),
-			Address);
+			Address),
+			ErrorCategory.NetworkError);
 	EndIf;
 	Definitions = Undefined;
 	

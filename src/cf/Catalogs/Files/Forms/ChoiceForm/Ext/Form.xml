@@ -563,6 +563,20 @@ FROM
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
+		<Attribute name="FilesStorageCatalogName" id="5">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="FileOwner" id="6">
+			<Type>
+				<v8:TypeSet>cfg:DefinedType.AttachedFilesOwner</v8:TypeSet>
+			</Type>
+		</Attribute>
 	</Attributes>
 	<Commands>
 		<Command name="AppendFile" id="1">

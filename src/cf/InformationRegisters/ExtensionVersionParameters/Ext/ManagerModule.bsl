@@ -43,7 +43,7 @@ Function ExtensionParameter(ParameterName, IgnoreExtensionsVersion = False, IsAl
 	Try
 		Content = Selection.ParameterStorage.Get();
 	Except
-		// 
+		// If a data extraction error occurs, the data processor runs the same way as if the parameter is empty.
 		// 
 		ErrorInfo = ErrorInfo();
 		Comment = StringFunctionsClientServer.SubstituteParametersToString(
@@ -615,9 +615,9 @@ Procedure LockForChangeInFileIB() Export
 	If TransactionActive() And Common.FileInfobase() Then
 		Block = New DataLock;
 		Block.Add("InformationRegister.ExtensionVersionParameters");
-		// 
-		// 
-		// 
+		// ACC:1320:off - No.783.1.3. It's acceptable to call a lock in a transaction external to the file infobase.
+		// It is intended to avoid deadlocks caused by an automatic shared
+		// lock set to the table when it is read by a query within a transaction.
 		Block.Lock();
 		// ACC:1320-on
 	EndIf;
@@ -1093,8 +1093,8 @@ Procedure StartFillingWorkParametersExtensions(Comment, WaitForCompletion = Fals
 	   And Not WaitForCompletion
 	 Or DataBaseConfigurationChangedDynamically()
 	   And Common.FileInfobase() Then
-		// 
-		// 
+		// For file infobases, a background job with database extensions is executed
+		// with the same version of the dynamic configuration generation.
 		Return;
 	EndIf;
 	

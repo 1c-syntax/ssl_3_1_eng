@@ -1008,7 +1008,7 @@ Procedure SetUpFormItemsVisibility()
 	EndIf;
 	
 	Items.ShowHideSetSettingsButton.Visible = IsSetPrinting();
-	Items.ShowHideKitSetupAllActionsButton.Visible = IsSetPrinting();
+	Items.ButtonShowHideSetSettingsAllActions.Visible = IsSetPrinting();
 	Items.PrintFormsSettings.Visible = IsSetPrinting();
 	
 	SetSettingsAvailable = True;

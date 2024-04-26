@@ -245,7 +245,7 @@ Procedure FillInTheLanguageSubmenu(Form, CurrentLanguage = Undefined, Val Filter
 	AvailableLanguages = AvailableLanguages(UseRegionalLanguageRepresentations);
 		
 	IsEditorForm = StrStartsWith(Form.FormName, "CommonForm.Edit");
-	PlaceMoreInSubmenu = Items.Find("LanguageAllActions") <> Undefined;
+	ShouldPlaceInMoreActionsSubmenu = Items.Find("LanguageAllActions") <> Undefined;
 		
 	IsMobileClient = Common.IsMobileClient();
 	If Not IsMobileClient Then
@@ -267,7 +267,7 @@ Procedure FillInTheLanguageSubmenu(Form, CurrentLanguage = Undefined, Val Filter
 		EndIf;                   
 		
 		Items.Language.Title = "";
-		If PlaceMoreInSubmenu Then
+		If ShouldPlaceInMoreActionsSubmenu Then
 			Items.LanguageAllActions.Title = Items.Language.Title;
 		EndIf;
 	EndIf;
@@ -281,7 +281,7 @@ Procedure FillInTheLanguageSubmenu(Form, CurrentLanguage = Undefined, Val Filter
 		LanguagePresentation = LanguagePresentation(LocalizationCode);
 		If Not ValueIsFilled(Items.Language.Title) And LanguageCode = CurrentLanguage Then
 			Items.Language.Title = LanguagePresentation;
-			If PlaceMoreInSubmenu Then
+			If ShouldPlaceInMoreActionsSubmenu Then
 				Items.LanguageAllActions.Title = Items.Language.Title;
 			EndIf;
 		EndIf;
@@ -301,7 +301,7 @@ Procedure FillInTheLanguageSubmenu(Form, CurrentLanguage = Undefined, Val Filter
 			ButtonLocationInCommandBar.InAdditionalSubmenu, ButtonLocationInCommandBar.InCommandBar);
 		FormButton.Visible = TemplateInCurrLang Or Not IsEditorForm;
 		
-		If PlaceMoreInSubmenu And Not IsMobileClient Then
+		If ShouldPlaceInMoreActionsSubmenu And Not IsMobileClient Then
 			FormButton = Items.Add(Command.Name+"AllActions", Type("FormButton"), Items.LanguageAllActions);
 			FormButton.Type = FormButtonType.CommandBarButton;
 			FormButton.Check = LanguageCode = CurrentLanguage;
@@ -324,8 +324,8 @@ Procedure FillInTheLanguageSubmenu(Form, CurrentLanguage = Undefined, Val Filter
 			ButtonLocationInCommandBar.InAdditionalSubmenu, ButtonLocationInCommandBar.InCommandBar);
 			FormButton.Visible = Not TemplateInCurrLang;
 			
-			If PlaceMoreInSubmenu And Not IsMobileClient Then
-				FormButton = Items.Add(Command.Name+"AllActions", Type("FormButton"), Items.LanguagesToAddAllActions);
+			If ShouldPlaceInMoreActionsSubmenu And Not IsMobileClient Then
+				FormButton = Items.Add(Command.Name+"AllActions", Type("FormButton"), Items.LangsToAddAllActions);
 				FormButton.Type = FormButtonType.CommandBarButton;
 				FormButton.CommandName = Command.Name;
 				FormButton.Title = NStr("en = 'Add:';") + " " + LanguagePresentation;

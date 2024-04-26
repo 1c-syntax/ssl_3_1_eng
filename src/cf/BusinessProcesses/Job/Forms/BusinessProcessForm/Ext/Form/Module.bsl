@@ -26,8 +26,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 
 	SetConditionalAppearance();
 	
-	// 
-	// 
+	// For new objects, run the form initializer in "OnCreateAtServer".
+	// For existing objects, in "OnReadAtServer".
 	If Object.Ref.IsEmpty() Then
 		InitializeTheForm();
 	EndIf;

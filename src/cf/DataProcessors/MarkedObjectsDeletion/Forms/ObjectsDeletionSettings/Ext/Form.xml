@@ -322,7 +322,7 @@ Use it to clear linked objects.
 						<Title formatted="false">
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>Block users from sign-in.
+								<v8:content>Block users from logging in.
 Use it to promptly delete large data volumes.</v8:content>
 							</v8:item>
 						</Title>

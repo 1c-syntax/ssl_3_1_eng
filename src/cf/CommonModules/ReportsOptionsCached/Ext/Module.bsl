@@ -323,6 +323,7 @@ Function InsertRight1() Export
 	
 EndFunction
 
+// Subsystem parameters cached during the update (See ReportsOptions.WriteFunctionalOptionsTable)
 // .
 //
 // Returns:

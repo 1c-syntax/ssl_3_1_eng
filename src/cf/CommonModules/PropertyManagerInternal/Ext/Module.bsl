@@ -466,6 +466,7 @@ Procedure OnDefineSubordinateObjects(SubordinateObjects) Export
 
 EndProcedure
 
+// See NationalLanguageSupportServer.ObjectsSCHRepresentations
 Procedure OnDefineObjectsWithTablePresentation(Objects) Export
 	Objects.Add("Catalog.ObjectsPropertiesValues");
 	Objects.Add("Catalog.ObjectPropertyValueHierarchy");

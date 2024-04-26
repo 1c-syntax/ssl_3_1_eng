@@ -21,24 +21,29 @@
 // 
 // Returns:
 //  Structure - Structure containing column details:
-//    * Name                       - String - Column name.
-//    * Title                 - String - Column header displayed in the template for import.
-//    * Type                       - TypeDescription - column type.
-//    * Width                    - Number - column width.
-//    * ToolTip                 - String - a tooltip displayed in the column header.
-//    * RequiredForm - Boolean - True if a column must contain values.
-//    * Group                    - String - Column group name.
-//    * Parent                  - String - used to connect a dynamic column with an attribute of the object tabular section.
+//    * Name                      - String - Column name.
+//    * Title                - String - Column header displayed in the template for import.
+//    * Type                      - TypeDescription - column type.
+//    * Width                   - Number  - column width.
+//    * Position                  - Number  - 
+//    * ToolTip                - String - a tooltip displayed in the column header.
+//    * IsRequiredInfo - Boolean -  true if the column must contain values.
+//    * Group                   - String - Column group name.
+//    * Parent                 - String - used to connect a dynamic column with an attribute of the object tabular section.
 //
 Function TemplateColumnDetails(Name, Type, Title = Undefined, Width = 0, ToolTip = "") Export
 	
-	TemplateColumn = New Structure("Name, Type, Title, Width, Position, ToolTip, IsRequiredInfo, Group, Parent");
-	TemplateColumn.Name = Name;
-	TemplateColumn.Type = Type;
-	TemplateColumn.Title = ?(ValueIsFilled(Title), Title, Name);
-	TemplateColumn.Width = ?(Width = 0, 30, Width);
-	TemplateColumn.ToolTip = ToolTip;
-	TemplateColumn.Parent = Name;
+	TemplateColumn = New Structure;
+	
+	TemplateColumn.Insert("Name",       Name);
+	TemplateColumn.Insert("Title", ?(ValueIsFilled(Title), String(Title), Name));
+	TemplateColumn.Insert("Type",       Type);
+	TemplateColumn.Insert("Position",   0);
+	TemplateColumn.Insert("Width",    ?(Width = 0, 30, Width));
+	TemplateColumn.Insert("ToolTip", ToolTip);
+	TemplateColumn.Insert("IsRequiredInfo", False);
+	TemplateColumn.Insert("Group",    "");
+	TemplateColumn.Insert("Parent",  Name);
 	
 	Return TemplateColumn;
 	
@@ -51,8 +56,8 @@ EndFunction
 //  ColumnsList	 - Array of See ImportDataFromFileClientServer.TemplateColumnDetails
 // 
 // Returns:
-//   See TemplateColumnDetails
-//            - — Undefined — if the column does not exist.
+//   - See TemplateColumnDetails
+//   - — Undefined — if the column does not exist.
 //
 Function TemplateColumn(Name, ColumnsList) Export
 	For Each Column In ColumnsList Do

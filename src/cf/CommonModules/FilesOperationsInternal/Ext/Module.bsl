@@ -349,10 +349,11 @@ Function FileUpdateContext(AttachedFile, FileData, FileRef = Undefined, FileStor
 	FillPropertyValues(Context.FileAddingOptions, AttachedFile);
 	Context.FileAddingOptions.FileStorageType = FileStorageType;
 	
+	If TypeOf(Context.AttachedFile) = Type("CatalogRef.FilesVersions") Then
+		Context.FileAddingOptions.FileOwner = AttachedFile.Owner.FileOwner;
+	EndIf;
 	If TypeOf(FileData) = Type("String") And IsTempStorageURL(FileData) Then
 		FileData = GetFromTempStorage(FileData);
-	Else
-		// No changes.
 	EndIf;
 	
 	Context.Insert("FileData", FileData);
@@ -697,12 +698,16 @@ Procedure MarkForDeletionFileVersions(Val FileRef, Val VersionException) Export
 	
 EndProcedure
 
-// Returns the map of catalog names and Boolean values
-// for the specified owner.
+// 
 // 
 // Parameters:
 //  FilesOwner - AnyRef - an object for adding the file.
 // 
+// Returns:
+//   Map of KeyAndValue:
+//      * Key - String
+//      * Value - Boolean
+//
 Function FileStorageCatalogNames(FilesOwner, NotRaiseException1 = False) Export
 	
 	If TypeOf(FilesOwner) = Type("Type") Then
@@ -2185,7 +2190,6 @@ EndFunction
 
 Function ConvertScanSettings(Val Settings) Export
 
-	Settings.Resolution = -1;
 	If Settings.Resolution = Enums.ScannedImageResolutions.dpi200 Then
 		Settings.Resolution = 200;
 	ElsIf Settings.Resolution = Enums.ScannedImageResolutions.dpi300 Then
@@ -2194,27 +2198,30 @@ Function ConvertScanSettings(Val Settings) Export
 		Settings.Resolution = 600;
 	ElsIf Settings.Resolution = Enums.ScannedImageResolutions.dpi1200 Then
 		Settings.Resolution = 1200;
+	Else
+		Settings.Resolution = -1;
 	EndIf;
 
-	Settings.Chromaticity = -1;
 	If Settings.Chromaticity = Enums.ImageColorDepths.Monochrome Then
 		Settings.Chromaticity = 0;
 	ElsIf Settings.Chromaticity = Enums.ImageColorDepths.Grayscale Then
 		Settings.Chromaticity = 1;
 	ElsIf Settings.Chromaticity = Enums.ImageColorDepths.Colored Then
 		Settings.Chromaticity = 2;
+	Else
+		Settings.Chromaticity = -1;
 	EndIf;
 
-	Settings.Rotation = 0;
 	If Settings.Rotation = Enums.PictureRotationOptions.Right90 Then
 		Settings.Rotation = 90;
 	ElsIf Settings.Rotation = Enums.PictureRotationOptions.Right180 Then
 		Settings.Rotation = 180;
 	ElsIf Settings.Rotation = Enums.PictureRotationOptions.Left90 Then
 		Settings.Rotation = 270;
+	Else
+		Settings.Rotation = 0;
 	EndIf;
 
-	Settings.PaperSize = 0;
 	If Settings.PaperSize = Enums.PaperSizes.NotDefined Then
 		Settings.PaperSize = 0;
 	ElsIf Settings.PaperSize = Enums.PaperSizes.A3 Then
@@ -2241,9 +2248,10 @@ Function ConvertScanSettings(Val Settings) Export
 		Settings.PaperSize = 4;
 	ElsIf Settings.PaperSize = Enums.PaperSizes.USExecutive Then
 		Settings.PaperSize = 10;
+	Else
+		Settings.PaperSize = 0;
 	EndIf;
 
-	Settings.TIFFDeflation = 6; // NoCompression
 	If Settings.TIFFDeflation = Enums.TIFFCompressionTypes.LZW Then
 		Settings.TIFFDeflation = 2;
 	ElsIf Settings.TIFFDeflation = Enums.TIFFCompressionTypes.RLE Then
@@ -2252,6 +2260,8 @@ Function ConvertScanSettings(Val Settings) Export
 		Settings.TIFFDeflation = 3;
 	ElsIf Settings.TIFFDeflation = Enums.TIFFCompressionTypes.CCITT4 Then
 		Settings.TIFFDeflation = 4;
+	Else
+		Settings.TIFFDeflation = 6; // NoCompression
 	EndIf;
 
 	Return Settings;
@@ -2952,6 +2962,7 @@ Procedure OnDefineUsedAddIns(Components) Export
 	
 EndProcedure
 
+// See MarkedObjectsDeletionInternal.IsTechnicalObject
 Function IsTechnicalObject(FullObjectName) Export
 	Return FullObjectName = Upper(Metadata.Catalogs.FilesVersions.FullName());
 EndFunction
@@ -4916,7 +4927,7 @@ Function CreateVersion(FileRef, FileInfo1, Context = Undefined) Export
 	Version.FileModificationDate         = FileInfo1.Modified;
 	Version.Comment                  = FileInfo1.NewVersionComment;
 	
-	Version.PictureIndex = FilesOperationsInternalClientServer.GetFileIconIndex(FileInfo1.ExtensionWithoutPoint);
+	Version.PictureIndex = FilesOperationsInternalClientServer.IndexOfFileIcon(FileInfo1.ExtensionWithoutPoint);
 	
 	If FileInfo1.NewVersionAuthor = Undefined Then
 		Version.Author = Users.AuthorizedUser();
@@ -5443,8 +5454,8 @@ Procedure CheckFileSizeForImport(File) Export
 			NStr("en = 'The size of file ""%1"" (%2 MB)
 			           |exceeds the limit (%3 MB).';"),
 			Name,
-			FilesOperationsInternalClientServer.GetStringWithFileSize(SizeInMB),
-			FilesOperationsInternalClientServer.GetStringWithFileSize(SizeInMBMax));
+			FilesOperationsInternalClientServer.FileSizePresentation(SizeInMB),
+			FilesOperationsInternalClientServer.FileSizePresentation(SizeInMBMax));
 	EndIf;
 	
 EndProcedure
@@ -7838,7 +7849,7 @@ Procedure UploadFileSignatures(FileRef, Signatures, SynchronizationParameters)
 
 	ModuleDigitalSignature = Common.CommonModule("DigitalSignature");
 	ModuleDigitalSignatureClientServer = Common.CommonModule("DigitalSignatureClientServer");
-	FileSignatures = ModuleDigitalSignature.SetSignatures(FileRef);
+	FileSignatures_ = ModuleDigitalSignature.SetSignatures(FileRef);
 	
 	ErrorSignatureDataCouldNotBeRead = "";
 	
@@ -7879,7 +7890,7 @@ Procedure UploadFileSignatures(FileRef, Signatures, SynchronizationParameters)
 			Signature = GetFromTempStorage(ImportedFileAddress);
 			
 			SignatureAdded = False;
-			For Each FileSignature In FileSignatures Do
+			For Each FileSignature In FileSignatures_ Do
 				If FileSignature.Signature = Signature Then
 					SignatureAdded = True;
 					Break;
@@ -7909,7 +7920,7 @@ Procedure UploadFileSignatures(FileRef, Signatures, SynchronizationParameters)
 			
 			SignaturesToAdd.Add(SignatureData);
 
-			UID1CFile = UID1C + PostfixForCaption(FileSignatures.Count() + SignaturesToAdd.UBound());
+			UID1CFile = UID1C + PostfixForCaption(FileSignatures_.Count() + SignaturesToAdd.UBound());
 			UpdateFileUID1C(FileAddress, UID1CFile, SynchronizationParameters);
 
 			MessageText = NStr("en = 'The signature from the cloud service is imported: ""%1""';");

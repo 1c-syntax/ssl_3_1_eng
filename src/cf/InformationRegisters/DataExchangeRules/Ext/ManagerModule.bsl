@@ -806,6 +806,7 @@ EndProcedure
 //  ExchangePlanName - String - a name of the exchange plan as a metadata object.
 // 
 // Returns:
+//  ПравилаЗачитанные - ValueStorage - read object conversion rules.
 //  Undefined - if conversion rules were not imported to the base for an exchange plan.
 //
 Function ParsedRulesOfObjectConversion(Val ExchangePlanName, GetCorrespondentRules = False) Export

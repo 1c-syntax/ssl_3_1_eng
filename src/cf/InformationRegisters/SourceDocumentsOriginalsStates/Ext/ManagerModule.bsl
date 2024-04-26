@@ -22,83 +22,51 @@
 Procedure WriteDocumentOriginalsStatesAfterPrintForm(PrintObjects, PrintForms, Written1 = False) Export
 	
 	State = PredefinedValue("Catalog.SourceDocumentsOriginalsStates.FormPrinted");
-	If ValueIsFilled(PrintObjects) Then
-		If PrintObjects.Count() > 1 Then
-			If PrintForms.Count() > 1 Then
-				For Each Document In PrintObjects Do
-					If SourceDocumentsOriginalsRecording.IsAccountingObject(Document.Value) Then
-						WriteCommonDocumentOriginalState(Document.Value,State);
-						TS = SourceDocumentsOriginalsRecording.TableOfEmployees(Document.Value); 
-						If TS <> "" Then
-							For Each Employee In Document.Value[TS] Do
-								For Each Form In PrintForms Do 
-									WriteDocumentOriginalStateByPrintForms(Document.Value, 
-										Form.Value, Form.Presentation, State, False, Employee.Employee);
-								EndDo;
-							EndDo;
-						Else
-							For Each Form In PrintForms Do
-								WriteDocumentOriginalStateByPrintForms(Document.Value, Form.Value, 
-									Form.Presentation, State, False);
-							EndDo;
-						EndIf;
-						Written1 = True;
-					EndIf;
-				EndDo;
-			Else
-				For Each Document In PrintObjects Do
-					If SourceDocumentsOriginalsRecording.IsAccountingObject(Document.Value) Then
-						TS = SourceDocumentsOriginalsRecording.TableOfEmployees(Document.Value); 
-						If TS <> "" Then
-							For Each Employee In Document.Value[TS] Do
-								WriteDocumentOriginalStateByPrintForms(Document.Value, 
-									PrintForms[0].Value,PrintForms[0].Presentation, State, False,
-									Employee.Employee);
-							EndDo;
-						Else
-							WriteDocumentOriginalStateByPrintForms(Document.Value, 
-								PrintForms[0].Value, PrintForms[0].Presentation, State, False);	
-						EndIf;
-					WriteCommonDocumentOriginalState(Document.Value,State);
-					Written1 = True;
-					EndIf;
-				EndDo;
+	If Not ValueIsFilled(PrintObjects) Then 
+		Return;
+	EndIf;
+	
+	Block = New DataLock();
+
+	BeginTransaction();
+	Try
+		
+		For Each Document In PrintObjects Do
+			If SourceDocumentsOriginalsRecording.IsAccountingObject(Document.Value) Then 
+				LockItem = Block.Add("InformationRegister.SourceDocumentsOriginalsStates");
+				LockItem.SetValue("Owner", Document.Value); 
 			EndIf;
-		Else
-			Document = PrintObjects[0].Value;
-			If SourceDocumentsOriginalsRecording.IsAccountingObject(Document) Then
-				If PrintForms.Count() > 1 Then
-					TS = SourceDocumentsOriginalsRecording.TableOfEmployees(Document); 
-					If TS <> "" Then
-						For Each Employee In Document[TS] Do
-							For Each Form In PrintForms Do
-								WriteDocumentOriginalStateByPrintForms(Document, Form.Value,
-									Form.Presentation, State, False,Employee.Employee);
-							EndDo;
+		EndDo;
+		Block.Lock();
+		
+		For Each Document In PrintObjects Do
+			If SourceDocumentsOriginalsRecording.IsAccountingObject(Document.Value) Then 
+				TS = SourceDocumentsOriginalsRecording.TableOfEmployees(Document.Value);
+				If TS <> "" Then
+					For Each Employee In Document.Value[TS] Do
+						For Each Form In PrintForms Do 
+							WriteDocumentOriginalStateByPrintForms(Document.Value, 
+								Form.Value, Form.Presentation, State, False, Employee.Employee);
 						EndDo;
-					Else
-						For Each Form In PrintForms Do
-							WriteDocumentOriginalStateByPrintForms(Document, Form.Value,
-								Form.Presentation, State, False);
-						EndDo;
-					EndIf;
+					EndDo;
 				Else
-					TS = SourceDocumentsOriginalsRecording.TableOfEmployees(Document); 
-					If TS <> "" Then
-						For Each Employee In Document[TS] Do
-							WriteDocumentOriginalStateByPrintForms(Document, PrintForms[0].Value,
-								PrintForms[0].Presentation, State, False, Employee.Employee);
-						EndDo;
-					Else
-						WriteDocumentOriginalStateByPrintForms(Document, PrintForms[0].Value,
-							PrintForms[0].Presentation, State, False);
-					EndIf;
+					For Each Form In PrintForms Do
+						WriteDocumentOriginalStateByPrintForms(Document.Value, Form.Value,
+							Form.Presentation, State, False);
+					EndDo;
 				EndIf;
-				WriteCommonDocumentOriginalState(Document,State);
+				WriteCommonDocumentOriginalState(Document.Value, State);
 				Written1 = True;
 			EndIf;
-		EndIf;
-	EndIf;
+		EndDo;
+		
+		CommitTransaction();
+		
+	Except	
+		
+		RollbackTransaction();
+		Raise;
+	EndTry;
 	
 EndProcedure
 
@@ -118,40 +86,29 @@ Procedure WriteDocumentOriginalStateByPrintForms(Document, PrintForm, Presentati
 	
 	SetPrivilegedMode(True);
 	
-	BeginTransaction();	
-	Try
-
-		OriginalStateRecord = InformationRegisters.SourceDocumentsOriginalsStates.CreateRecordManager();
-		OriginalStateRecord.Owner = Document.Ref;
-		OriginalStateRecord.SourceDocument = PrintForm;
-		If ValueIsFilled(Employee) Then
-			LastFirstName = Employee.Description;
-			Values = New Structure("Presentation, LASTFIRSTNAME", Presentation, LastFirstName);
-			EmployeeView = StrFind(Presentation, LastFirstName);
-			If EmployeeView = 0 Then
-				OriginalStateRecord.SourceDocumentPresentation = StringFunctionsClientServer.InsertParametersIntoString(
-					NStr("en = '[Presentation] [LastFirstName]';"), Values);
-			Else
-				OriginalStateRecord.SourceDocumentPresentation = Presentation;
-			EndIf;
+	OriginalStateRecord = InformationRegisters.SourceDocumentsOriginalsStates.CreateRecordManager();
+	OriginalStateRecord.Owner = Document;
+	OriginalStateRecord.SourceDocument = PrintForm;
+	If ValueIsFilled(Employee) Then
+		LastFirstName = Employee.Description;
+		Values = New Structure("Presentation, LASTFIRSTNAME", Presentation, LastFirstName);
+		EmployeeView = StrFind(Presentation, LastFirstName);
+		If EmployeeView = 0 Then
+			OriginalStateRecord.SourceDocumentPresentation = StringFunctionsClientServer.InsertParametersIntoString(
+				NStr("en = '[Presentation] [LastFirstName]';"), Values);
 		Else
 			OriginalStateRecord.SourceDocumentPresentation = Presentation;
 		EndIf;
-		OriginalStateRecord.State = Catalogs.SourceDocumentsOriginalsStates.FindByDescription(State);
-		OriginalStateRecord.ChangeAuthor = Users.AuthorizedUser();
-		OriginalStateRecord.OverallState = False;
-		OriginalStateRecord.ExternalForm = FromOutside;
-		OriginalStateRecord.LastChangeDate = CurrentSessionDate();
-		OriginalStateRecord.Employee = Employee;
-		OriginalStateRecord.Write();
-		
-		CommitTransaction();
-		
-	Except	
-		
-		RollbackTransaction();
-		Raise;
-	EndTry;
+	Else
+		OriginalStateRecord.SourceDocumentPresentation = Presentation;
+	EndIf;
+	OriginalStateRecord.State = Catalogs.SourceDocumentsOriginalsStates.FindByDescription(State);
+	OriginalStateRecord.ChangeAuthor = Users.CurrentUser();
+	OriginalStateRecord.OverallState = False;
+	OriginalStateRecord.ExternalForm = FromOutside;
+	OriginalStateRecord.LastChangeDate = CurrentSessionDate();
+	OriginalStateRecord.Employee = Employee;
+	OriginalStateRecord.Write();
 
 EndProcedure
 
@@ -164,56 +121,35 @@ EndProcedure
 Procedure WriteCommonDocumentOriginalState(Document, State) Export
 
 	SetPrivilegedMode(True);
-	
-	BeginTransaction();	
-	Try
 		
-		Block = New DataLock();
-		Block.Add("InformationRegister.SourceDocumentsOriginalsStates");
-		Block.Lock();
-
-		OriginalStateRecord = InformationRegisters.SourceDocumentsOriginalsStates.CreateRecordManager();
-		OriginalStateRecord.Owner = Document.Ref;
-		OriginalStateRecord.SourceDocument = "";
+	OriginalStateRecord = InformationRegisters.SourceDocumentsOriginalsStates.CreateRecordManager();
+	OriginalStateRecord.Owner = Document;
+	OriginalStateRecord.SourceDocument = "";
 		
-		CheckOriginalStateRecord = InformationRegisters.SourceDocumentsOriginalsStates.CreateRecordSet();
-		CheckOriginalStateRecord.Filter.Owner.Set(Document.Ref);
-		CheckOriginalStateRecord.Filter.OverallState.Set(False);
-		CheckOriginalStateRecord.Read();
-		If CheckOriginalStateRecord.Count() > 1 Then
-			For Each Record In CheckOriginalStateRecord Do
-				If Record.ChangeAuthor <> Users.CurrentUser() Then
-					OriginalStateRecord.ChangeAuthor = Undefined;
-				Else
-					OriginalStateRecord.ChangeAuthor = Users.CurrentUser();
-				EndIf;
-			EndDo;
-		Else
-			OriginalStateRecord.ChangeAuthor = Users.CurrentUser();
-		EndIf;
-		
-		If CheckOriginalStateRecord.Count() > 0 Then
-			If SourceDocumentsOriginalsRecording.PrintFormsStateSame(Document,State) Then
-				OriginalStateRecord.State = Catalogs.SourceDocumentsOriginalsStates.FindByDescription(State);
+	CheckOriginalStateRecord = InformationRegisters.SourceDocumentsOriginalsStates.CreateRecordSet();
+	CheckOriginalStateRecord.Filter.Owner.Set(Document.Ref);
+	CheckOriginalStateRecord.Filter.OverallState.Set(False);
+	CheckOriginalStateRecord.Read();
+	If CheckOriginalStateRecord.Count() Then
+		For Each Record In CheckOriginalStateRecord Do
+			If Record.ChangeAuthor <> Users.CurrentUser() Then
+				OriginalStateRecord.ChangeAuthor = Undefined;
 			Else
-				OriginalStateRecord.State = Catalogs.SourceDocumentsOriginalsStates.OriginalsNotAll;
+				OriginalStateRecord.ChangeAuthor = Users.CurrentUser();
 			EndIf;
-		Else
+		EndDo;
+		If SourceDocumentsOriginalsRecording.PrintFormsStateSame(Document, State) Then
 			OriginalStateRecord.State = Catalogs.SourceDocumentsOriginalsStates.FindByDescription(State);
+		Else
+				OriginalStateRecord.State = Catalogs.SourceDocumentsOriginalsStates.OriginalsNotAll;
 		EndIf;
+	Else
+		OriginalStateRecord.State = Catalogs.SourceDocumentsOriginalsStates.FindByDescription(State);
+	EndIf;
 		
-
-		OriginalStateRecord.OverallState = True;
-		OriginalStateRecord.LastChangeDate = CurrentSessionDate();
-		OriginalStateRecord.Write();
-		
-		CommitTransaction();
-		
-	Except	
-		
-		RollbackTransaction();
-		Raise;
-	EndTry;
+	OriginalStateRecord.OverallState = True;
+	OriginalStateRecord.LastChangeDate = CurrentSessionDate();
+	OriginalStateRecord.Write();
 
 EndProcedure
 

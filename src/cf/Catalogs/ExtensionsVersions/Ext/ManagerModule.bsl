@@ -110,8 +110,8 @@ Function InstalledExtensions(OnStart = False) Export
 		ModuleConfigurationUpdate = Undefined;
 	EndIf;
 	
-	// 
-	// 
+	// Exclude the extensions for shared mode users as they are not attached in data areas
+	// and cannot amend the configuration code (which is possible only by using the service administrator tools).
 	// 
 	SharedMode = Common.DataSeparationEnabled()
 		And Not Common.SeparatedDataUsageAvailable();
@@ -315,8 +315,8 @@ Procedure RegisterExtensionsVersionUsage(OnFirstSetSessionParameters = False) Ex
 	|	AND ExtensionsVersions.Ref = &ExtensionsVersion
 	|	AND ExtensionsVersions.DateOfLastUse < &DateOfLastUse";
 	
-	// 
-	// 
+	// If another user is updating the last use date,
+	// wait till the it's finished to avoid exclusive locks.
 	Block = New DataLock;
 	LockItem = Block.Add("Catalog.ExtensionsVersions");
 	LockItem.SetValue("Ref", ExtensionsVersion);
@@ -803,8 +803,8 @@ Function ExtensionsVersion()
 	|WHERE
 	|	NOT ExtensionsVersions.DeletionMark";
 	
-	// 
-	// 
+	// If another user is creating an extension version,
+	// wait till they finish to avoid exclusive locks.
 	Block = New DataLock;
 	LockItem = Block.Add("Catalog.ExtensionsVersions");
 	LockItem.SetValue("Ref", FlagOfAddingNewVersion());
@@ -830,8 +830,8 @@ Function ExtensionsVersion()
 		BeginTransaction();
 		Try
 			Block.Lock();
-			// 
-			// 
+			// Double check that the version is not yet created
+			// (which is unlikely but possible in between transactions).
 			QueryResult = Query.Execute();
 			Selection = QueryResult.Select();
 			If VersionFound(Selection, ExtensionsDetails) Then
@@ -939,8 +939,8 @@ Function OtherExtensionsVersion(MinSessionStartDate = '39991231')
 	|	AND ExtensionsVersions.DateOfLastUse < &MinSessionStartDate
 	|	AND NOT ExtensionsVersions.DeletionMark";
 	
-	// 
-	// 
+	// If another user is editing the "ExtensionsVersions" catalog,
+	// wait till it's finished.
 	Block = New DataLock;
 	LockItem = Block.Add("Catalog.ExtensionsVersions");
 	LockItem.Mode = DataLockMode.Shared;

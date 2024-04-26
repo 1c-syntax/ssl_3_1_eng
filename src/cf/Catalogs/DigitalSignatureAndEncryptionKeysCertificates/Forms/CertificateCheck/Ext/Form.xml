@@ -2228,6 +2228,15 @@ If you didn't find a solution, contact the 1C support team and provide &lt;link 
 		<Attribute name="AppAutoAtServer" id="30">
 			<Type/>
 		</Attribute>
+		<Attribute name="VerifyCertificateInClientSLocalStorage" id="33">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
 	</Attributes>
 	<Commands>
 		<Command name="Validate" id="1">

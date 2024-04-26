@@ -36,7 +36,7 @@ Procedure OnDefineSettings(Settings) Export
 	
 EndProcedure
 
-// It is called when preparing message templates and allows you to override a list of attributes and attachments.
+// Called when preparing message templates. Overrides the list of attributes and attachments.
 //
 // Parameters:
 //  Attributes - ValueTreeRowCollection - a list of template attributes.:
@@ -61,18 +61,18 @@ Procedure OnPrepareMessageTemplate(Attributes, Attachments, TemplateAssignment, 
 
 EndProcedure
 
-// It is called upon creating messages from template to fill in values of attributes and attachments.
+// Called when creating a message from a template. Populates values in attributes and attachments.
 //
 // Parameters:
 //  Message - Structure:
-//    * AttributesValues - Map of KeyAndValue - a list of attributes used in the template.:
-//      ** Key     - String - an attribute name in the template.
-//      ** Value - String - a filling value in the template.
-//    * CommonAttributesValues - Map of KeyAndValue - a list of common attributes used in the template.:
-//      ** Key     - String - an attribute name in the template.
-//      ** Value - String - a filling value in the template.
+//    * AttributesValues - Map of KeyAndValue - List of template's attributes:
+//      ** Key     - String - Template's attribute name.
+//      ** Value - String - Template's filling value.
+//    * CommonAttributesValues - Map of KeyAndValue - List of template's common attributes:
+//      ** Key     - String - Template's attribute name.
+//      ** Value - String - Template's filling value.
 //    * Attachments - Map of KeyAndValue:
-//      ** Key     - String - an attachment name in the template.
+//      ** Key     - String - Template's attachment name.
 //      ** Value - BinaryData
 //                  - String - binary data or an address in a temporary storage of the attachment.
 //    * AdditionalParameters - Structure - additional message parameters. 
@@ -95,7 +95,7 @@ EndProcedure
 //     * Contact       - Arbitrary - a contact that owns the phone number.
 //  TemplateAssignment - String - a template assignment ID.
 //  MessageSubject - AnyRef - a reference to an object that is a data source.
-//                   - Structure  - Describes template parameters:
+//                   - Structure  - Structure that describes template parameters:
 //    * SubjectOf               - AnyRef - a reference to an object that is a data source.
 //    * MessageKind - String - Message type: "Email", "SMSMessage".
 //    * ArbitraryParameters - Map - a filled list of arbitrary parameters.
@@ -116,7 +116,7 @@ EndProcedure
 //     * Contact         - Arbitrary - a contact that owns the email address.
 //  TemplateAssignment - String - a template assignment ID.
 //  MessageSubject - AnyRef - a reference to an object that is a data source.
-//                   - Structure  - Describes template parameters:
+//                   - Structure  - Structure that describes template parameters:
 //    * SubjectOf               - AnyRef - a reference to an object that is a data source.
 //    * MessageKind - String - Message type: "Email", "SMSMessage".
 //    * ArbitraryParameters - Map - a filled list of arbitrary parameters.

@@ -859,6 +859,7 @@ EndProcedure
 Procedure SetTheVisibilityOfTheFormCommands()
 	
 	// 
+	//  
 	For Each Command In NamesOfCommandsForChangingFileData() Do
 		For Each FormCommand In Command.Value Do
 			Items[FormCommand].Visible = Not OnlyFileDataReader And Items[FormCommand].Visible;	
@@ -1696,6 +1697,7 @@ EndProcedure
 
 &AtServerNoContext
 Procedure OnSendFilesViaEmail(SendOptions, Val FilesToSend, FilesOwner, UUID)
+	SSLSubsystemsIntegration.OnSendFilesViaEmail(SendOptions, FilesToSend, FilesOwner, UUID);
 	FilesOperationsOverridable.OnSendFilesViaEmail(SendOptions, FilesToSend, FilesOwner, UUID);
 EndProcedure
 

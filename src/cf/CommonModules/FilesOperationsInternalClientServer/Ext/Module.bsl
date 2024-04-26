@@ -133,9 +133,9 @@ EndFunction
 ////////////////////////////////////////////////////////////////////////////////
 // For user interface.
 
-// Returns the row of the message that it is forbidden to sign a locked file.
+// 
 //
-Function FileUsedByAnotherProcessCannotBeSignedMessageString(FileRef = Undefined) Export
+Function MessageAboutInadmissibilityOfSigningBusyFile(FileRef = Undefined) Export
 	
 	If FileRef = Undefined Then
 		Return NStr("en = 'Cannot sign the file because it is locked.';");
@@ -147,9 +147,9 @@ Function FileUsedByAnotherProcessCannotBeSignedMessageString(FileRef = Undefined
 	
 EndFunction
 
-// Returns the row of the message that it is forbidden to sign an encrypted file.
+// 
 //
-Function EncryptedFileCannotBeSignedMessageString(FileRef = Undefined) Export
+Function MessageAboutInadmissibilityOfSigningEncryptedFile(FileRef = Undefined) Export
 	
 	If FileRef = Undefined Then
 		Return NStr("en = 'Cannot sign the file because it is encrypted.';");
@@ -161,8 +161,8 @@ Function EncryptedFileCannotBeSignedMessageString(FileRef = Undefined) Export
 	
 EndFunction
 
-// Receive a row representing the file size, for example, to display in the Status when the file is transferred.
-Function GetStringWithFileSize(Val SizeInMB) Export
+// 
+Function FileSizePresentation(Val SizeInMB) Export
 	
 	If SizeInMB < 0.1 Then
 		SizeInMB = 0.1;
@@ -173,8 +173,8 @@ Function GetStringWithFileSize(Val SizeInMB) Export
 	
 EndFunction	
 
-// The index of the file icon is being received. It is the index in the FileIconCollection picture.
-Function GetFileIconIndex(Val FileExtention) Export
+// 
+Function IndexOfFileIcon(Val FileExtention) Export
 	
 	If TypeOf(FileExtention) <> Type("String")
 		Or IsBlankString(FileExtention) Then
@@ -186,58 +186,58 @@ Function GetFileIconIndex(Val FileExtention) Export
 	Extension = "." + Lower(FileExtention) + ";";
 	
 	If StrFind(".dt;.1cd;.cf;.cfu;", Extension) <> 0 Then
-		Return 6; // 1C:Enterprise files.
+		Return 6; // 
 		
 	ElsIf Extension = ".mxl;" Then
-		Return 8; // Spreadsheet file.
+		Return 8; // 
 		
 	ElsIf StrFind(".txt;.log;.ini;", Extension) <> 0 Then
-		Return 10; // Text file.
+		Return 10; // 
 		
 	ElsIf Extension = ".epf;" Then
-		Return 12; // External data processors.
+		Return 12; // 
 		
 	ElsIf StrFind(".ico;.wmf;.emf;",Extension) <> 0 Then
-		Return 14; // Pictures.
+		Return 14; // 
 		
 	ElsIf StrFind(".htm;.html;.url;.mht;.mhtml;",Extension) <> 0 Then
 		Return 16; // HTML.
 		
 	ElsIf StrFind(".doc;.dot;.rtf;",Extension) <> 0 Then
-		Return 18; // Microsoft Word file.
+		Return 18; // 
 		
 	ElsIf StrFind(".xls;.xlw;",Extension) <> 0 Then
-		Return 20; // Microsoft Excel file.
+		Return 20; // 
 		
 	ElsIf StrFind(".ppt;.pps;",Extension) <> 0 Then
-		Return 22; // Microsoft PowerPoint file.
+		Return 22; // 
 		
 	ElsIf StrFind(".vsd;",Extension) <> 0 Then
-		Return 24; // Microsoft Visio file.
+		Return 24; // 
 		
 	ElsIf StrFind(".mpp;",Extension) <> 0 Then
-		Return 26; // Microsoft Visio file.
+		Return 26; // 
 		
 	ElsIf StrFind(".mdb;.adp;.mda;.mde;.ade;",Extension) <> 0 Then
-		Return 28; // Microsoft Access database.
+		Return 28; // 
 		
 	ElsIf StrFind(".xml;",Extension) <> 0 Then
 		Return 30; // xml.
 		
 	ElsIf StrFind(".msg;.eml;",Extension) <> 0 Then
-		Return 32; // Email.
+		Return 32; // 
 		
 	ElsIf StrFind(".zip;.rar;.arj;.cab;.lzh;.ace;",Extension) <> 0 Then
-		Return 34; // Archives.
+		Return 34; // 
 		
 	ElsIf StrFind(".exe;.com;.bat;.cmd;",Extension) <> 0 Then
-		Return 36; // Files being executed.
+		Return 36; // 
 		
 	ElsIf StrFind(".grs;",Extension) <> 0 Then
-		Return 38; // Graphical schema.
+		Return 38; // 
 		
 	ElsIf StrFind(".geo;",Extension) <> 0 Then
-		Return 40; // Geographical schema.
+		Return 40; // 
 		
 	ElsIf StrFind(".jpg;.jpeg;.jp2;.jpe;",Extension) <> 0 Then
 		Return 42; // jpg.
@@ -276,22 +276,22 @@ Function GetFileIconIndex(Val FileExtention) Export
 		Return 64;
 		
 	ElsIf StrFind(".erf;",Extension) <> 0 Then
-		Return 66; // External reports.
+		Return 66; // 
 		
 	ElsIf StrFind(".docx;",Extension) <> 0 Then
-		Return 68; // Microsoft Word docx file.
+		Return 68; // 
 		
 	ElsIf StrFind(".xlsx;",Extension) <> 0 Then
-		Return 70; // Microsoft Excel xlsx file.
+		Return 70; // 
 		
 	ElsIf StrFind(".pptx;",Extension) <> 0 Then
-		Return 72; // Microsoft PowerPoint pptx file.
+		Return 72; // 
 		
 	ElsIf StrFind(".p7s;",Extension) <> 0 Then
-		Return 74; // Signature file.
+		Return 74; // 
 		
 	ElsIf StrFind(".p7m;",Extension) <> 0 Then
-		Return 76; // Encrypted message.
+		Return 76; // 
 	Else
 		Return 4;
 	EndIf;

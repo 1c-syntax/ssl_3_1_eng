@@ -208,15 +208,15 @@ EndProcedure
 //                      - ManagedFormExtensionForObjects - a task form, where:
 //   * Object - TaskObject - task.
 //  CurrentUser - CatalogRef.ExternalUsers
-//                      - CatalogRef.Users - 
+//                      - CatalogRef.Users - Reference to the current user.
 //                                                        
 //
 Procedure AcceptTaskForExecution(Form, CurrentUser) Export
 	
 	Form.Object.AcceptedForExecution = True;
 	
-	//  
-	// 
+	// Keep "AcceptForExecutionDate" empty. 
+	// It will be initialized with the current session date before writing the task.
 	Form.Object.AcceptForExecutionDate = Date('00010101');
 	If Not ValueIsFilled(Form.Object.Performer) Then
 		Form.Object.Performer = CurrentUser;

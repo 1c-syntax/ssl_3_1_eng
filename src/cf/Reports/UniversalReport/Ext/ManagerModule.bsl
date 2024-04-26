@@ -366,7 +366,7 @@ Function AvailableTables(MetadataObjectType, MetadataObjectName)
 	
 	MetadataObject = Metadata[MetadataObjectType][MetadataObjectName];
 	
-	AvailableValues.Add("", NStr("en = 'Main data';"));
+	AvailableValues.Add("", PresentationOfTableNameBasicData());
 	
 	If MetadataObjectType = "Catalogs" 
 		Or MetadataObjectType = "Documents" 
@@ -1807,6 +1807,29 @@ Procedure SetTheDisplayModesOfFixedParameters(Settings, DisplayMode)
 	EndDo;
 	
 EndProcedure
+
+Function PeriodEndDate_2(Period, MetadataObjectType, TableName) Export
+	
+	If Period = Undefined Then
+		Return Date(1, 1, 1);
+	EndIf;
+	
+	EndDate = ?(TypeOf(Period) = Type("StandardPeriod"), Period.EndDate, Period);
+	
+	If StrFind(Upper(MetadataObjectType), "REGISTER") = 0
+		Or StrCompare(TableName, PresentationOfTableNameBasicData()) = 0 Then
+		Return EndDate;
+	EndIf;
+	
+	Return New Boundary(EndDate, BoundaryType.Including);
+	
+EndFunction
+
+Function PresentationOfTableNameBasicData()
+	
+	Return NStr("en = 'Main data';");
+	
+EndFunction
 
 #EndRegion
 

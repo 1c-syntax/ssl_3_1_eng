@@ -1597,20 +1597,19 @@ Function WriteEmail(AccountData, Message, EmployeeResponsibleForProcessingEmails
 	
 	If Common.SubsystemExists("StandardSubsystems.DigitalSignature") Then
 		ModuleDigitalSignatureInternal = Common.CommonModule("DigitalSignatureInternal");
-		AttachmentsAndSignaturesMap =
-			ModuleDigitalSignatureInternal.SignaturesFilesNamesOfDataFilesNames(NamesOfAttachments);
+		AttachmentsAndSignatures = ModuleDigitalSignatureInternal.SignaturesFilesNamesOfDataFilesNames(NamesOfAttachments);
 	Else
-		AttachmentsAndSignaturesMap = New Map;
+		AttachmentsAndSignatures = New Map;
 		For Each AttachmentFileName In NamesOfAttachments Do
-			AttachmentsAndSignaturesMap.Insert(AttachmentFileName, New Array);
+			AttachmentsAndSignatures.Insert(AttachmentFileName, New Array);
 		EndDo;
 	EndIf;
 	
 	CountOfBlankNamesInAttachments = 0;
-	For Each MapItem In AttachmentsAndSignaturesMap Do
+	For Each MapItem In AttachmentsAndSignatures Do
 		
 		AttachmentFound = Undefined;
-		SignaturesArray    = New Array;
+		FileSignatures    = New Array;
 		
 		For Each Attachment In Message.Attachments Do
 			If Attachment.FileName = MapItem.Key Then
@@ -1622,13 +1621,13 @@ Function WriteEmail(AccountData, Message, EmployeeResponsibleForProcessingEmails
 		If AttachmentFound <> Undefined And MapItem.Value.Count() > 0 Then
 			For Each Attachment In Message.Attachments Do
 				If MapItem.Value.Find(Attachment.FileName) <> Undefined Then
-					SignaturesArray.Add(Attachment);
+					FileSignatures.Add(Attachment);
 				EndIf;
 			EndDo;
 		EndIf;
 		
 		If AttachmentFound <> Undefined Then
-			WriteEmailAttachment(MailMessage, AttachmentFound, SignaturesArray, CountOfBlankNamesInAttachments);
+			WriteEmailAttachment(MailMessage, AttachmentFound, FileSignatures, CountOfBlankNamesInAttachments);
 		EndIf;
 		
 	EndDo;
@@ -2444,7 +2443,7 @@ Function InternetEmailMessageFromBinaryData(BinaryData)
 	
 EndFunction
 
-Procedure WriteEmailAttachment(Object, Attachment,SignaturesArray,CountOfBlankNamesInAttachments)
+Procedure WriteEmailAttachment(Object, Attachment, AttachmentSignatures, CountOfBlankNamesInAttachments)
 	
 	EmailRef = Object.Ref;
 	Size = 0;
@@ -2480,7 +2479,7 @@ Procedure WriteEmailAttachment(Object, Attachment,SignaturesArray,CountOfBlankNa
 		
 	EndIf;
 	
-	HasSignatures = (SignaturesArray.Count() > 0)
+	HasSignatures = (AttachmentSignatures.Count() > 0)
 		And Common.SubsystemExists("StandardSubsystems.DigitalSignature");
 		
 	IsDisplayedFile = Not IsBlankString(Attachment.CID);
@@ -2524,7 +2523,7 @@ Procedure WriteEmailAttachment(Object, Attachment,SignaturesArray,CountOfBlankNa
 		ModuleDigitalSignature = Common.CommonModule("DigitalSignature");
 		ModuleDigitalSignatureClientServer= Common.CommonModule("DigitalSignatureClientServer");
 		
-		For Each AttachmentsSignature In SignaturesArray Do
+		For Each AttachmentsSignature In AttachmentSignatures Do
 			
 			Try
 				AttachmentSignatureData = ModuleDigitalSignature.DERSignature(AttachmentsSignature.Data);
@@ -2668,11 +2667,8 @@ EndFunction
 //  CatalogRef.IncomingEmailAttachedFiles
 //  CatalogRef.OutgoingEmailAttachedFiles
 //
-Function WriteEmailAttachmentFromTempStorage(
-	MailMessage,
-	AddressInTempStorage,
-	AttachmentParameters,
-	CountOfBlankNamesInAttachments = 0) Export
+Function WriteEmailAttachmentFromTempStorage(MailMessage, AddressInTempStorage,
+	AttachmentParameters, CountOfBlankNamesInAttachments = 0) Export
 	
 	FileNameToParse = AttachmentParameters.FileName;
 	BaseName   = CommonClientServer.ReplaceProhibitedCharsInFileName(FileNameToParse);
@@ -2680,14 +2676,12 @@ Function WriteEmailAttachmentFromTempStorage(
 	
 	If IsBlankString(BaseName) Then
 		
-		BaseName =
-			NStr("en = 'Untitled attachment';") + ?(CountOfBlankNamesInAttachments = 0, ""," " + String(CountOfBlankNamesInAttachments + 1));
+		BaseName = NStr("en = 'Untitled attachment';") 
+			+ ?(CountOfBlankNamesInAttachments = 0, ""," " + String(CountOfBlankNamesInAttachments + 1));
 		CountOfBlankNamesInAttachments = CountOfBlankNamesInAttachments + 1;
 		
 	Else
-		BaseName =
-			?(ExtensionWithoutPoint = "",
-			BaseName,
+		BaseName = ?(ExtensionWithoutPoint = "", BaseName,
 			Left(BaseName, StrLen(BaseName) - StrLen(ExtensionWithoutPoint) - 1));
 	EndIf;
 	
@@ -2991,7 +2985,7 @@ Function TheNameOfThePredefinedFolderByType(PredefinedFolderType)
 	
 EndFunction
 
-// APK:1391-off For the update handler for filling in the details of the type-defined folder.
+// ACC:1391-off For the update handler that fills the "PredefinedFolderType" attribute.
 
 // Parameters:
 //  PredefinedFolderName - String

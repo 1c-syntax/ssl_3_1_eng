@@ -100,6 +100,7 @@ Function InitializeExchangeComponents(ExchangeDirection) Export
 	// 
 	// 
 	// 
+	//  See DataExchangeXDTOServer.FillSupportedXDTOObjects
 	ExchangeComponents.Insert("SupportedXDTOObjects", New Array);
 	
 	DataExchangeState = New Structure;
@@ -119,6 +120,7 @@ Function InitializeExchangeComponents(ExchangeDirection) Export
 	
 	ExchangeComponents.Insert("UseTransactions", True);
 	
+	// 
 	// 
 	// 
 	// 
@@ -1689,6 +1691,7 @@ EndProcedure
 //                       "ConvertAndWrite" - a full object import.
 //
 // Returns:
+//   - Объект - a reference to an infobase object or a blank reference of the specified type if the GetRef action is passed
 //              and the object is not created while receiving it.
 //   - AnyRef - a reference to an infobase object or a blank reference of the specified type if the GetRef action is passed
 //                   and the object is not created while receiving it.
@@ -3292,6 +3295,7 @@ EndProcedure
 //  ExchangePlanName    - String - a name of the exchange plan as a metadata object used to determine nodes.
 //  FlagAttributeName - String - a name of the exchange plan attribute used to set a node selection filter.
 // Returns:
+//  МассивУзлов - an array of exchange plan nodes with the "Export when needed" check box selected,
 //                empty by default.
 //
 Function NodesArrayToRegisterExportIfNecessary(Ref, ExchangePlanName, FlagAttributeName) Export
@@ -7811,6 +7815,7 @@ EndFunction
 //
 // Parameters:
 //   Object - AnyRef - a reference to any MDO;
+//          - Объект - MDO;
 //          - XDTODataObject - an XDTO object;
 //          - Structure
 //   StructurePresentationMetadata - MetadataObject - metadata of the object the presentation is generated for.
@@ -8171,6 +8176,7 @@ EndFunction
 
 // Receives an array of exchange format versions sorted in descending order.
 // Parameters:
+//  InfobaseNode - ссылка на узел-correspondent.
 //
 Function ExhangeFormatVersionsArray(Val InfobaseNode) Export
 	
@@ -8264,11 +8270,13 @@ EndFunction
 //
 // Parameters:
 //  Page1          - a string to split;
+//  Separator  - подстрока-separator:
 //  Mode        - 0 - separator is not included in the returned substrings;
 //                 1 - separator is included in the left substring;
 //                 2 - separator is included in the right substring.
 //
 // Returns:
+//  Правая часть строки - before the separator character.
 // 
 Function SplitWithSeparator(Page1, Val Separator, Mode=0)
 

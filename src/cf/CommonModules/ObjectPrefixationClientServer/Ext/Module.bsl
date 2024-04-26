@@ -14,6 +14,7 @@
 //    CC - a company prefix.
 //    IB - an infobase prefix.
 //    "-" - a separator.
+//    XXX...XX - an object number/code.
 // Also removes insignificant prefix characters (zeros).
 //
 // Parameters:
@@ -43,6 +44,7 @@ EndFunction
 // CC - a company prefix.
 // IB - an infobase prefix.
 // "-" - a separator.
+// XXX...XX - an object number/code.
 //
 // Parameters:
 //    ObjectNumber - String - an object number or code from which leading zeroes are to be removed.
@@ -61,6 +63,7 @@ EndFunction
 // CC - a company prefix.
 // IB - an infobase prefix.
 // "-" - a separator.
+// XXX...XX - an object number/code.
 //
 // Parameters:
 //     ObjectNumber - String - an object number or code from which leading zeroes are to be removed.

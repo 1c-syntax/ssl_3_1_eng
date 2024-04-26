@@ -111,8 +111,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	Items.LanguageAllActions.Enabled = Items.Language.Enabled;
 	Items.TranslateAllActions.Visible = Items.Translate.Visible;
-	Items.ShowOriginalAllActionsButton.Visible = Items.ButtonShowOriginal.Visible;
-	Items.ShowOriginalAllActionsButton.Enabled = Items.ButtonShowOriginal.Enabled;
+	Items.ButtonShowOriginalAllActions.Visible = Items.ButtonShowOriginal.Visible;
+	Items.ButtonShowOriginalAllActions.Enabled = Items.ButtonShowOriginal.Enabled;
 	
 	If Common.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
 		ModuleConstructorFormula = Common.CommonModule("FormulasConstructor");
@@ -614,7 +614,7 @@ Procedure ImportOfficeDocFromMetadata(Val LanguageCode = Undefined)
 		Items.ButtonShowOriginal.Visible = Items.Translate.Visible;
 
 		Items.TranslateAllActions.Visible = Items.Translate.Visible;
-		Items.ShowOriginalAllActionsButton.Visible = Items.ButtonShowOriginal.Visible;
+		Items.ButtonShowOriginalAllActions.Visible = Items.ButtonShowOriginal.Visible;
 	EndIf;
 	
 EndProcedure
@@ -1563,7 +1563,7 @@ Procedure DeleteLayoutInCurrentLanguage()
 	EndDo;
 	
 	MenuLanguageAllActions = Items.LanguageAllActions;
-	LanguagesToAddAllActions = Items.LanguagesToAddAllActions;
+	LangsToAddAllActions = Items.LangsToAddAllActions;
 	For Each LangButton In MenuLanguageAllActions.ChildItems Do
 		If TypeOf(LangButton) = Type("FormButton") Then
 			If StrEndsWith(LangButton.CommandName, LangOfFormToDelete) Then
@@ -1577,7 +1577,7 @@ Procedure DeleteLayoutInCurrentLanguage()
 		EndIf;
 	EndDo;
 	
-	For Each ButtonForAddedLang In LanguagesToAddAllActions.ChildItems Do
+	For Each ButtonForAddedLang In LangsToAddAllActions.ChildItems Do
 		If TypeOf(ButtonForAddedLang) = Type("FormButton") Then
 			If StrEndsWith(ButtonForAddedLang.CommandName, LangOfFormToDelete) Then
 				ButtonForAddedLang.Visible = True;

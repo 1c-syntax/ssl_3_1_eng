@@ -782,7 +782,7 @@ EndProcedure
 Procedure AddAttributesComplexQuestion(TreeRow, AttributesToBeAdded, Form)
 
 	QuestionName = SurveysClientServer.QuestionName(TreeRow.Composite);
-	For Each ComplexQuestionRow In TreeRow.ComplexQuestionComposition Do 
+	For Each ComplexQuestionRow In TreeRow.ComplexQuestionComposition Do // LineOfATabularSection of See CatalogTabularSection.QuestionnaireTemplateQuestions.CatalogTabularSection.QuestionnaireTemplateQuestions.ComplexQuestionComposition
 
 		FoundRows = Form.QuestionsPresentationTypes.FindRows(New Structure("DoQueryBox",
 			ComplexQuestionRow.ElementaryQuestion));
@@ -1327,8 +1327,8 @@ Procedure AddTabularQuestionItems(TableRow, GroupItem1, Form)
 		Else
 			Item.Type = FormFieldType.InputField;
 			
-			// 
-			// 
+			// Set a choice list for the columns with the answer type "Questionnaire answer choice"
+			// and numeric question caps.
 			If TableRow.TabularQuestionType = Enums.TabularQuestionTypes.Composite Or TableRow.TabularQuestionType
 				= Enums.TabularQuestionTypes.PredefinedAnswersInRows Then
 
@@ -1442,7 +1442,7 @@ EndProcedure
 Procedure AddComplexQuestionItems(TableRow, GroupItem1, Form)
 
 	QuestionName = SurveysClientServer.QuestionName(TableRow.Composite);
-	For Each ComplexQuestionRow In TableRow.ComplexQuestionComposition Do 
+	For Each ComplexQuestionRow In TableRow.ComplexQuestionComposition Do // LineOfATabularSection of See CatalogTabularSection.QuestionnaireTemplateQuestions.CatalogTabularSection.QuestionnaireTemplateQuestions.ComplexQuestionComposition
 
 		FoundRows = Form.QuestionsPresentationTypes.FindRows(New Structure("DoQueryBox",
 			ComplexQuestionRow.ElementaryQuestion));

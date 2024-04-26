@@ -37,13 +37,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	IsFullUser = Users.IsFullUser();
 	
-	If Parameters.Property("ShowCertificatesPage") Then
+	If Parameters.ShowPage = "Certificates" Then
 		Items.Pages.CurrentPage = Items.CertificatesPage;
 		
-	ElsIf Parameters.Property("ShowSettingsPage") Then
+	ElsIf Parameters.ShowPage = "Settings" Then
 		Items.Pages.CurrentPage = Items.SettingsPage;
 		
-	ElsIf Parameters.Property("ShowApplicationsPage") Then
+	ElsIf Parameters.ShowPage = "Programs" Then
 		Items.Pages.CurrentPage = Items.ApplicationPage;
 	EndIf;
 	
@@ -82,9 +82,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			NStr("en = 'A list of apps the administrator authorized for your computer.';");
 	Else
 		SetPrivilegedMode(True);
-		ThisIsMultiUserBase = InfoBaseUsers.GetUsers().Count() > 1;
+		IsMultiUserInfobase = InfoBaseUsers.GetUsers().Count() > 1;
 		SetPrivilegedMode(False);
-		If Not ThisIsMultiUserBase Then
+		If Not IsMultiUserInfobase Then
 			Items.Programs.Title = NStr("en = 'Digital signing and encryption app settings';");
 		EndIf;
 	EndIf;

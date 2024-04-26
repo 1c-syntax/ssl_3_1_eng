@@ -279,7 +279,7 @@ Function ScriptMessages()
 	
 EndFunction
 
-Function VersionsThatRequireSuccessfulUpdate(FilesOfUpdate) Export
+Function VersionsRequiringSuccessfulUpdate(FilesOfUpdate) Export
 	
 	Table = New ValueTable;
 	Table.Columns.Add("Version");
@@ -308,7 +308,7 @@ Function VersionsThatRequireSuccessfulUpdate(FilesOfUpdate) Export
 		EndIf;
 		
 		If String = LastRow Then
-			// 
+			// Ignore the latest version.
 			Continue;
 		EndIf;
 		
@@ -341,7 +341,7 @@ Function ParametersOfUpdate() Export
 	ParametersOfUpdate.Insert("ScriptDirectory", "");
 	ParametersOfUpdate.Insert("MainScriptFileName", "");
 	ParametersOfUpdate.Insert("PatchInstallationResult", Undefined);
-	ParametersOfUpdate.Insert("VersionsThatRequireSuccessfulUpdate", Undefined);
+	ParametersOfUpdate.Insert("VersionsRequiringSuccessfulUpdate", Undefined);
 	
 	Return ParametersOfUpdate;
 	

@@ -167,8 +167,8 @@ Function SessionKey(Session = Undefined) Export
 		Session = GetCurrentInfoBaseSession();
 	EndIf;
 	
-	// 
-	// 
+	// ACC:1367-off - No.763.1.1. Arbitrary formats are acceptable
+	// as they are intended for internal use only and hidden from the user.
 	Return Format(Session.SessionStarted, "DF='yyyy.MM.dd HH:mm:ss'") + " "
 		+ Format(Session.SessionNumber, "NZ=0; NG=");
 	// ACC:1367-on
@@ -893,14 +893,14 @@ Procedure PrepareServerNotifications(SendStatus, MaxIntervalByUser = Undefined)
 	SendStatus.LastCheckDate = CurrentSessionDate();
 	SendStatus.MinCheckInterval = 60*20;
 	
-	ActiveSessionsByKey = New Map;
+	ActiveSessionsByKeys = New Map;
 	Sessions = GetInfoBaseSessions();
 	For Each Session In Sessions Do
-		ActiveSessionsByKey.Insert(SessionKey(Session), Session);
+		ActiveSessionsByKeys.Insert(SessionKey(Session), Session);
 	EndDo;
 	
 	RecurringNotifications = PeriodicServerNotifications(MaxIntervalByUser,
-		ActiveSessionsByKey);
+		ActiveSessionsByKeys);
 	
 	For Each KeyAndValue In RecurringNotifications Do
 		NameOfAlert = KeyAndValue.Key;
@@ -922,7 +922,7 @@ Procedure PrepareServerNotifications(SendStatus, MaxIntervalByUser = Undefined)
 		If SendingModule = UsersInternal Then
 			ProcedureParameters = New Structure;
 			ProcedureParameters.Insert("ParametersVariants", KeyAndValue.Value.ParametersVariants);
-			ProcedureParameters.Insert("ActiveSessionsByKey", ActiveSessionsByKey);
+			ProcedureParameters.Insert("ActiveSessionsByKeys", ActiveSessionsByKeys);
 		Else
 			ProcedureParameters = KeyAndValue.Value.ParametersVariants;
 		EndIf;
@@ -1326,7 +1326,7 @@ EndFunction
 //      ** VerificationPeriod - Number - See NewServerNotification.VerificationPeriod
 //      ** ParametersVariants - See StandardSubsystemsServer.OnSendServerNotification.ParametersVariants
 //
-Function PeriodicServerNotifications(MaxIntervalByUser, ActiveSessionsByKey)
+Function PeriodicServerNotifications(MaxIntervalByUser, ActiveSessionsByKeys)
 	
 	Query = New Query;
 	Query.Text =
@@ -1342,7 +1342,7 @@ Function PeriodicServerNotifications(MaxIntervalByUser, ActiveSessionsByKey)
 	
 	Selection = Query.Execute().Select();
 	While Selection.Next() Do
-		If ActiveSessionsByKey.Get(Selection.SessionKey) = Undefined Then
+		If ActiveSessionsByKeys.Get(Selection.SessionKey) = Undefined Then
 			RecordSet = ServiceRecordSet(InformationRegisters.PeriodicServerNotifications);
 			RecordSet.Filter.SessionKey.Set(Selection.SessionKey);
 			RecordSet.Write();
@@ -1507,9 +1507,9 @@ Function ServerNotificationsSendStatus()
 	Value = ?(Selection.Next(), Selection.Value, Undefined);
 	
 	If TypeOf(Value) = Type("ValueStorage") Then
-		CurrentState = Value.Get();
-		If TypeOf(CurrentState) = Type("Structure") Then
-			For Each KeyAndValue In CurrentState Do
+		CurrentStatus = Value.Get();
+		If TypeOf(CurrentStatus) = Type("Structure") Then
+			For Each KeyAndValue In CurrentStatus Do
 				If State.Property(KeyAndValue.Key)
 				   And TypeOf(State[KeyAndValue.Key]) = TypeOf(KeyAndValue.Value) Then
 					State[KeyAndValue.Key] = KeyAndValue.Value;
@@ -1978,8 +1978,8 @@ EndFunction
 
 Function CurrSessionStartInCurrSessionDateTimeZone()
 	
-	// 
-	// 
+	// ACC:143-off - No.643.2.1. "CurrentDate" is required instead of "CurrentSessionDate"
+	// as the current date is used in the "SessionStart" property of the "InfoBaseSession" object.
 	TimeShift = CurrentSessionDate() - CurrentDate();
 	// ACC:143-on
 	
@@ -2454,10 +2454,10 @@ Function InfobaseDummyUser()
 		FillPropertyValues(IBUser, Properties);
 		NewPassword = String(New UUID);
 		If UsersInternal.IsSettings8_3_26Available() Then
-			// 
+			// ACC:488-off - Support of new 1C:Enterprise methods (the executable code is safe)
 			IBUser.StoredPasswordValue =
 				Eval("EvaluateStoredUserPasswordValue(NewPassword)");
-			// 
+			// ACC:488-on
 		Else
 			IBUser.StoredPasswordValue =
 				Users.PasswordHashString(NewPassword);

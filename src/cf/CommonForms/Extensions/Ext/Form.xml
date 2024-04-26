@@ -408,7 +408,7 @@
 										<v8:item>
 											<v8:lang>en</v8:lang>
 											<v8:content>To start using data area extensions, run a session with separators.
-New extensions for data area users will be applied next time they sign in to the app.</v8:content>
+New extensions for data area users will be applied next time they log in to the application.</v8:content>
 										</v8:item>
 									</Title>
 									<ContextMenu name="WarningDetails2ContextMenu" id="223"/>
@@ -605,7 +605,7 @@ New extensions for data area users will be applied next time they sign in to the
 									<ToolTip>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Attach the patch when a user signs in</v8:content>
+											<v8:content>Attach the extension when a user logs in</v8:content>
 										</v8:item>
 									</ToolTip>
 									<EditMode>EnterOnInput</EditMode>
@@ -1557,7 +1557,7 @@ New extensions for data area users will be applied next time they sign in to the
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Set the "Attach the extension when a user signs in" flag for the selected extensions.</v8:content>
+					<v8:content>Set the "Attach the extension when a user logs in" flag for the selected extensions.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>EnableExtensions</Action>
@@ -1572,7 +1572,7 @@ New extensions for data area users will be applied next time they sign in to the
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Clear the "Attach the extension when a user signs in" flag for the selected extensions.</v8:content>
+					<v8:content>Clear the "Attach the extension when a user logs in" flag for the selected extensions.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>DisableExtensions</Action>

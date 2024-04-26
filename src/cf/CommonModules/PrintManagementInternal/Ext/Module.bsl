@@ -122,15 +122,15 @@ EndFunction
 //  
 //
 
-// Returns a print form structure to generate the final document.
+// Returns the structure of the printed form for generating the final document.
 //
 // Parameters:
-//  Template - Structure - a print form template.
+//  Template - Structure -  layout of the printed form.
 //
 // Returns:
 //  Structure:
-//   * DirectoryName        - String - a path, where a directory structure of the final document is placed for further
-//                                   assembly of the DOCX container.
+//   * DirectoryName        - String -  the path where the directory structure of the final document is placed for the subsequent
+//                                   build of the DOCX container.
 //   * DocumentStructure - See InitializeDocument
 //
 Function InitializePrintForm(Template) Export
@@ -155,14 +155,14 @@ Function InitializePrintForm(Template) Export
 	
 EndFunction
 
-// Returns a structure of a print form template.
-// The template file is filled based on the binary data passed in the function parameters.
+// Returns the layout structure of the printed form.
+// The layout file is populated based on the binary data passed in the function parameters.
 //
 // Parameters:
-//  BinaryTemplateData - BinaryData - a binary template data.
+//  BinaryTemplateData - BinaryData -  binary layout data.
 //
 // Returns:
-//  Structure - a print form template.
+//  Structure -  layout of the printed form.
 //
 Function TemplateFromBinaryData(BinaryTemplateData) Export
 	
@@ -206,7 +206,7 @@ EndFunction
 // 
 // Returns:
 //  Structure:
-//    * DirectoryName - String - Temporary directory
+//    * DirectoryName - String - 
 //    * DocumentStructure - See InitializeDCSDoc
 //
 Function TemplateFromDCSBinaryData(BinaryTemplateData) Export
@@ -275,7 +275,7 @@ Function InitializeDCSDoc()
 	
 EndFunction
 
-// Table of template areas.
+// 
 // 
 // Returns:
 //  ValueTable:
@@ -299,7 +299,7 @@ Function TableOfTemplateAreas()
 	Return TableOfAreas
 EndFunction
 
-// Convert parameters.
+// 
 // 
 // Parameters:
 //  DocumentTree - See PrintManagementInternal.ReadXMLIntoTree
@@ -361,9 +361,9 @@ EndProcedure
 
 #EndRegion
 
-// Clears all files connected to the print form or its template.
+// Clears all files associated with the print form or layout of the print form.
 // Parameters:
-//  PrintForm - Structure - a print form or its template.
+//  PrintForm - Structure -  printed form or layout of the printed form.
 //
 Procedure CloseConnection(PrintForm) Export
 	
@@ -381,14 +381,14 @@ Procedure CloseConnection(PrintForm) Export
 	
 EndProcedure
 
-// Generates a final document from the print form structure and generates a data file of the DOCX format.
-// The data file is placed to a temporary storage.
+// Collects the final document from the printed form structure and generates a DOCX data file.
+// The data file is placed in temporary storage.
 //
 // Parameters:
 //  PrintForm - Structure
 //
 // Returns:
-//  String - Address of the generated document in a temporary storage.
+//  String - 
 //
 Function GenerateDocument(PrintForm) Export
 	
@@ -417,16 +417,16 @@ Function GenerateDocument(PrintForm) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Functions for getting areas from a template.
+// 
 
-// Gets an area from the template.
+// Gets the area from the layout.
 //
 // Parameters:
-//  Template      - Structure - a print form template.
-//  AreaName - String - an area name in the template.
+//  Template      - Structure -  layout of the printed form.
+//  AreaName - String -  name of the area in the layout.
 //
 // Returns:
-//  Structure - Template area.
+//  Structure - 
 //
 Function GetTemplateArea(Template, Val AreaName) Export
 	
@@ -434,15 +434,15 @@ Function GetTemplateArea(Template, Val AreaName) Export
 	
 EndFunction
 
-// Gets a header area of the first template area.
+// Gets the header area of the first layout area.
 //
 // Parameters:
-//  Template          - Structure - a print form template;
-//  AreaName - String - an area name in the template;
-//  SectionNumber   - Number - a number of the section, to which the header belongs.
+//  Template          - Structure -  layout of the printed form;
+//  AreaName - String -  name of the area in the layout;
+//  SectionNumber   - Number -  number of the section that includes the header.
 //
 // Returns:
-//  Structure - Header area.
+//  Structure - 
 //
 Function GetHeaderArea(Template, Val AreaName = "Header", Val SectionNumber = 1) Export
 	
@@ -460,15 +460,15 @@ Function GetHeaderArea(Template, Val AreaName = "Header", Val SectionNumber = 1)
 	
 EndFunction
 
-// Gets a footer area of the first template area.
+// Gets the footer area of the first layout area.
 //
 // Parameters:
-//  Template          - Structure - a print form template;
-//  AreaName - String - an area name in the template;
-//  SectionNumber   - Number - a number of the section, to which the footer belongs.
+//  Template          - Structure -  layout of the printed form;
+//  AreaName - String -  name of the area in the layout;
+//  SectionNumber   - Number -  number of the section that includes the footer.
 //
 // Returns:
-//  Structure - a footer area.
+//  Structure -  the footer area.
 //
 Function GetFooterArea(Template, Val AreaName = "Footer", Val SectionNumber = 1) Export
 	
@@ -487,16 +487,16 @@ Function GetFooterArea(Template, Val AreaName = "Footer", Val SectionNumber = 1)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Functions for adding areas to the print form.
+// 
 
-// Adds a footer from a template to a print form.
+// Adds a footer to the printed form from the layout.
 //
 // Parameters:
 //  PrintForm - Structure
-//  Footer - Structure - a footer area.
+//  Footer - Structure -  the footer area.
 //
 // Returns:
-//  Structure - Area the header/footer is added to.
+//  Structure - 
 //
 Function AddFooter(PrintForm, Footer) Export
 	
@@ -507,12 +507,12 @@ Function AddFooter(PrintForm, Footer) Export
 	
 EndFunction
 
-// Fills in parameters of a footer in the print form from a template.
+// Fills in the footer parameters in the printed form from the layout.
 //
 // Parameters:
 //  PrintForm - See InitializePrintForm
-//  Footer    - Structure - a footer area;
-//  ObjectData - Structure - object data to fill in.
+//  Footer    - Structure -  the footer area;
+//  ObjectData - Structure -  object data to fill in.
 //
 Procedure FillFooterParameters(PrintForm, Footer, ObjectData = Undefined) Export
 	
@@ -525,14 +525,14 @@ Procedure FillFooterParameters(PrintForm, Footer, ObjectData = Undefined) Export
 	
 EndProcedure
 
-// Adds a header from a template to a print form.
+// Adds a header to the printed form from the layout.
 //
 // Parameters:
 //  PrintForm - Structure
-//  Header - Structure - a header or a footer area.
+//  Header - Structure -  header and footer area.
 //
 // Returns:
-//  Structure - Area the header/footer is added to.
+//  Structure - 
 //
 Function AddHeader(PrintForm, Header) Export
 	
@@ -543,12 +543,12 @@ Function AddHeader(PrintForm, Header) Export
 	
 EndFunction
 
-// Fills in parameters of the header in the print form from the template.
+// Fills in the header parameters in the printed form from the layout.
 //
 // Parameters:
 //  PrintForm - See InitializePrintForm
-//  Header    - Structure - a header or a footer area;
-//  ObjectData - Structure - object data to fill in.
+//  Header    - Structure -  the header and footer area;
+//  ObjectData - Structure -  object data to fill in.
 //
 Procedure FillHeaderParameters(PrintForm, Header, ObjectData = Undefined) Export
 	
@@ -561,17 +561,17 @@ Procedure FillHeaderParameters(PrintForm, Header, ObjectData = Undefined) Export
 	
 EndProcedure
 
-// Adds an area from a template to a print form, replacing
-// the area parameters with the object data values.
-// The procedure is used upon output of a single area.
+// Adds an area to the print form from the layout, while replacing
+// the parameters in the area with values from the object data.
+// Used for single output of an area.
 //
 // Parameters:
 //  PrintForm       - See InitializePrintForm
 //  TemplateArea       - Structure
-//  GoToNextRow - Boolean - determines whether you need to add a line break after the area output.
+//  GoToNextRow - Boolean -  determines whether to insert a break after the area is displayed.
 //
 // Returns:
-//  Structure - Attached area.
+//  Structure - 
 //
 Function AttachArea(PrintForm, TemplateArea, Val GoToNextRow = False) Export
 	
@@ -586,12 +586,12 @@ Function AttachArea(PrintForm, TemplateArea, Val GoToNextRow = False) Export
 	
 EndFunction
 
-// Replaces parameters in the area with the object data values.
+// Replaces parameters in the scope with values from object data.
 //
 // Parameters:
 //  PrintForm - See InitializePrintForm
 //  TemplateArea - Structure
-//  ObjectData - Structure - object data to fill in.
+//  ObjectData - Structure -  object data to fill in.
 //
 Procedure FillParameters_(PrintForm, TemplateArea, ObjectData = Undefined) Export
 	
@@ -604,15 +604,15 @@ Procedure FillParameters_(PrintForm, TemplateArea, ObjectData = Undefined) Expor
 	
 EndProcedure
 
-// Adds a collection area from a template to a print form, replacing
-// the area parameters with the object data values.
-// Applied upon output of list data (bullet or numbered) or a table.
+// Adds the collection area to the print form from the layout, while replacing
+// the parameters in the area with values from the object data.
+// Used when displaying data from a list (bulleted or numbered) or a table.
 //
 // Parameters:
 //  PrintForm       - Structure
 //  TemplateArea       - Structure
-//  ObjectData       - Structure - object data to fill in.
-//  GoToNextRow - Boolean - determines whether you need to add a line break after the output of the whole collection areas.
+//  ObjectData       - Structure -  object data to fill in.
+//  GoToNextRow - Boolean -  determines whether to insert a break after displaying areas of the entire collection.
 //
 Procedure JoinAndFillSet(PrintForm, TemplateArea, ObjectData = Undefined,
 	Val GoToNextRow = False) Export
@@ -642,7 +642,7 @@ Procedure JoinAndFillSet(PrintForm, TemplateArea, ObjectData = Undefined,
 	
 EndProcedure
 
-// Inserts a line break to the next line.
+// Inserts a break on the next line.
 //
 // Parameters:
 //  PrintForm - Structure
@@ -1045,10 +1045,10 @@ Function ReadXMLStringToTree(XMLLine)
 	Return ReadXMLIntoTree(XMLReader);
 EndFunction
 
-// Put the tree to the XML record.
+// 
 // 
 // Parameters:
-//  XMLWriter - XMLWriter - XML record
+//  XMLWriter - XMLWriter - 
 //  Tree - ValueTree:
 //   * NameTag - String
 //   * Text - String
@@ -1151,18 +1151,18 @@ EndProcedure
 
 #EndRegion
 
-// Builds a tree value from XML.
+// 
 // 
 // Parameters:
 //  XMLReader - XMLReader
 // 
 // Returns:
 //  ValueTree:
-//   * NameTag - String - XML tag name.
-//   * Text - String - Tag text value.
-//   * WholeText - String - Text of all child nodes
-//   * Attributes - Map - Node attributes
-//  Hyperlinks - Map
+//   * NameTag - String - 
+//   * Text - String - 
+//   * WholeText - String - 
+//   * Attributes - Map - 
+//  
 //
 Function ReadXMLIntoTree(XMLReader, Hyperlinks = Undefined) Export
 	XMLReader.IgnoreWhitespace = False;
@@ -1176,11 +1176,11 @@ EndFunction
 
 // Returns:
 //  ValueTree:
-//   * NameTag - String - XML tag name
-//   * Text - String - Text the XML tag contains
-//   * WholeText - String - Text of all child nodes
-//   * Attributes - Map - XML node attributes
-//   * IndexOf - Number - Field to be indexed 
+//   * NameTag - String - 
+//   * Text - String - 
+//   * WholeText - String - 
+//   * Attributes - Map - 
+//   * IndexOf - Number -  
 //
 Function DocumentTree()
 	Var Tree;
@@ -1369,16 +1369,16 @@ Procedure FindAreas(DocumentStructure, ObjectTablePartNames) Export
 	Areas = DocumentStructure.Areas;
 	DocumentTree = DocumentStructure.DocumentTree;
 	
-	BeginningsOfConditionalAreas = New Array;
+	ConditionalAreasStarts = New Array;
 	ConditionalAreasEnds = New Array;
-	FindNodes(DocumentTree, "{"+TagNameCondition(), BeginningsOfConditionalAreas);
+	FindNodes(DocumentTree, "{"+TagNameCondition(), ConditionalAreasStarts);
 	FindNodes(DocumentTree, "{/"+TagNameCondition(), ConditionalAreasEnds);
 	
 	For Each TabularSectionName In ObjectTablePartNames Do
 		FoundAreas = New Array;
 		FindNodes(DocumentTree, "["+TabularSectionName+".", FoundAreas);
 		For Each Area In FoundAreas Do
-			If BeginningsOfConditionalAreas.Find(Area) <> Undefined Then
+			If ConditionalAreasStarts.Find(Area) <> Undefined Then
 				Continue;
 			EndIf;
 			TableAreaStartNode = FindTableAreaRoot(Area);
@@ -1401,24 +1401,24 @@ Procedure FindAreas(DocumentStructure, ObjectTablePartNames) Export
 		EndDo;
 	EndDo;
 	
-	IndicesOfBeginningsOfConditionalAreas = GetIndexesOfNodesArray(BeginningsOfConditionalAreas);
-	IndexesOfEndingsOfConditionalAreas = GetIndexesOfNodesArray(ConditionalAreasEnds);
+	ConditionalAreasStartIndexes = GetIndexesOfNodesArray(ConditionalAreasStarts);
+	ConditionalAreasEndIndexes = GetIndexesOfNodesArray(ConditionalAreasEnds);
 	
-	For Each IndexOfStartOfConditionalArea In IndicesOfBeginningsOfConditionalAreas Do
-		BeginningOfConditionalArea = DocumentTree.Rows.Find(IndexOfStartOfConditionalArea, "IndexOf", True);
-		For Each IndexOfEndOfConditionalArea In IndexesOfEndingsOfConditionalAreas Do
-			EndOfConditionalArea = DocumentTree.Rows.Find(IndexOfEndOfConditionalArea, "IndexOf", True);
-			If IndexOfStartOfConditionalArea < IndexOfEndOfConditionalArea Then
+	For Each ConditionalAreaStartIndex In ConditionalAreasStartIndexes Do
+		ConditionalAreaStart = DocumentTree.Rows.Find(ConditionalAreaStartIndex, "IndexOf", True);
+		For Each ConditionalAreaEndIndex In ConditionalAreasEndIndexes Do
+			ConditionalAreaEnd = DocumentTree.Rows.Find(ConditionalAreaEndIndex, "IndexOf", True);
+			If ConditionalAreaStartIndex < ConditionalAreaEndIndex Then
 				Break;
 			EndIf;
 		EndDo;
 		
-		AreaCondition = AreaCondition(BeginningOfConditionalArea);
-		If EndOfConditionalArea = Undefined Then
+		AreaCondition = AreaCondition(ConditionalAreaStart);
+		If ConditionalAreaEnd = Undefined Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'In the document template, the end of the %1 conditional area is not specified.';"), AreaCondition);
 		EndIf;
-		AddConditionalAreas = True;
+		ShouldAddConditionalAreas = True;
 		CollectionArea = Undefined;
 		ConditionalAreasEnds = New Array;
 		AreasToRemove = New Array;
@@ -1427,12 +1427,12 @@ Procedure FindAreas(DocumentStructure, ObjectTablePartNames) Export
 				Area = Areas[AreaIndex];
 				NextArea = ?(AreaIndex+1 < Areas.Count(), Areas[AreaIndex+1], Undefined);
 				
-				If IndexOfStartOfConditionalArea >= Area.IndexOf And Area.IndexOf >= IndexOfEndOfConditionalArea Then
+				If ConditionalAreaStartIndex >= Area.IndexOf And Area.IndexOf >= ConditionalAreaEndIndex Then
 					If ValueIsFilled(Area.Collection) Then
 						CollectionArea = Area;
 					EndIf;
 					IsConditionEndParent = 
-						Area.DocTreeNode.Rows.Find(IndexOfEndOfConditionalArea, "IndexOf", True) <> Undefined;
+						Area.DocTreeNode.Rows.Find(ConditionalAreaEndIndex, "IndexOf", True) <> Undefined;
 					If Not IsConditionEndParent Then
 						Area.AreaCondition = AreaCondition;
 						Continue;
@@ -1440,7 +1440,7 @@ Procedure FindAreas(DocumentStructure, ObjectTablePartNames) Export
 						
 					If CollectionArea <> Undefined Then
 						NextAreaNode = NextAreaBorder(CollectionArea.DocTreeNode, Areas);
-						If NextAreaNode <> Undefined And NextAreaNode.IndexOf < IndexOfEndOfConditionalArea Then
+						If NextAreaNode <> Undefined And NextAreaNode.IndexOf < ConditionalAreaEndIndex Then
 							AreaProperties = New Structure("DocTreeNode, AreaCondition");
 							AreaProperties.DocTreeNode = NextAreaNode;
 							AreaProperties.AreaCondition = AreaCondition;
@@ -1448,27 +1448,27 @@ Procedure FindAreas(DocumentStructure, ObjectTablePartNames) Export
 						EndIf;
 					EndIf;
 					
-					NextAreaNode = NextAreaBorder(EndOfConditionalArea, Areas);
+					NextAreaNode = NextAreaBorder(ConditionalAreaEnd, Areas);
 					If NextAreaNode = Undefined Then
 						AreasToRemove.Add(Area);
 						Continue;
 					EndIf;
 					Area.DocTreeNode = NextAreaNode;
 					Area.IndexOf = Area.DocTreeNode.IndexOf;
-				ElsIf NextArea <> Undefined And IndexOfStartOfConditionalArea >= Area.IndexOf
-					And NextArea.IndexOf >= IndexOfEndOfConditionalArea Then
+				ElsIf NextArea <> Undefined And ConditionalAreaStartIndex >= Area.IndexOf
+					And NextArea.IndexOf >= ConditionalAreaEndIndex Then
 					If Area.NestedAreas = Undefined Then
 						Area.NestedAreas = TableOfTemplateAreas();
 					EndIf;
-					For IndexOfSUBAsset = IndexOfStartOfConditionalArea + 1 To IndexOfEndOfConditionalArea - 1 Do
-						SubAssetWithCondition = Area.DocTreeNode.Rows.Find(IndexOfSUBAsset, "IndexOf", True);
-						If SubAssetWithCondition <> Undefined Then
+					For IndexOfNode = ConditionalAreaStartIndex + 1 To ConditionalAreaEndIndex - 1 Do
+						NodeWithCondition = Area.DocTreeNode.Rows.Find(IndexOfNode, "IndexOf", True);
+						If NodeWithCondition <> Undefined Then
 							NestedCondition = Area.NestedAreas.Add();
-							NestedCondition.DocTreeNode = SubAssetWithCondition;
+							NestedCondition.DocTreeNode = NodeWithCondition;
 							NestedCondition.AreaCondition = AreaCondition;
-							NestedCondition.IndexOf = IndexOfSUBAsset;
+							NestedCondition.IndexOf = IndexOfNode;
 						EndIf;
-						AddConditionalAreas = False;
+						ShouldAddConditionalAreas = False;
 					EndDo;
 				EndIf;
 			EndDo;
@@ -1484,15 +1484,15 @@ Procedure FindAreas(DocumentStructure, ObjectTablePartNames) Export
 			EndDo;
 		EndIf;
 		
-		If AddConditionalAreas Then
-			AddAreaWithCondition(Areas, BeginningOfConditionalArea);
-			EndOfConditionalArea = DocumentTree.Rows.Find(IndexOfEndOfConditionalArea, "IndexOf", True);
-			AddAreaWithCondition(Areas, EndOfConditionalArea);
+		If ShouldAddConditionalAreas Then
+			AddAreaWithCondition(Areas, ConditionalAreaStart);
+			ConditionalAreaEnd = DocumentTree.Rows.Find(ConditionalAreaEndIndex, "IndexOf", True);
+			AddAreaWithCondition(Areas, ConditionalAreaEnd);
 		EndIf;
 	EndDo;
 	
-	DeleteConditionalAreasTags(IndicesOfBeginningsOfConditionalAreas, DocumentTree);
-	DeleteConditionalAreasTags(IndexesOfEndingsOfConditionalAreas, DocumentTree);
+	DeleteConditionalAreasTags(ConditionalAreasStartIndexes, DocumentTree);
+	DeleteConditionalAreasTags(ConditionalAreasEndIndexes, DocumentTree);
 	
 	StartNode = DocumentTree.Rows[0];
 	If Areas.Find(StartNode, "DocTreeNode") = Undefined Then
@@ -1610,14 +1610,14 @@ Function ArrayIntoMap(Array)
 	Return Map;
 EndFunction 
 
-// Searches for the first node in a value tree or row.
+// 
 // 
 // Parameters:
 //  TreeRow - See DocumentTree
-//  NameTag - String - Tag name
-//  NodesArray - See DocumentTree
-//  AttributeName - Undefined, String - Attribute name
-//  ValuesOfAttribute - Undefined, String, Array, Arbitrary - Attribute value
+//  NameTag - String - 
+//   See DocumentTree
+//  AttributeName - Undefined, String - 
+//  ValuesOfAttribute - Undefined, String, Array, Arbitrary - 
 // 
 // Returns:
 //   See DocumentTree
@@ -1636,7 +1636,7 @@ Function FindNodeByContent(TreeRow, NameTag, AttributeName = Undefined, Val Valu
 	EndIf;	
 EndFunction
 
-// Node search parameters.
+// 
 // 
 // Returns:
 //  Structure:
@@ -1654,11 +1654,11 @@ Function NodesSearchParameters() Export
 	Return ParametersStructure;
 EndFunction
 
-// Searches for nodes in a value tree or row.
+// 
 // 
 // Parameters:
 //  TreeRow - See DocumentTree
-//  NameTag - String - Tag name
+//  NameTag - String - 
 //  NodesArray - See DocumentTree
 //  SearchParameters - See NodesSearchParameters
 //
@@ -1777,7 +1777,7 @@ Function FindParentNode(Node, Name)
 	EndIf;
 EndFunction
 
-// Copy the node.
+// 
 // 
 // Parameters:
 //  NodeOfParent - ValueTreeRow:
@@ -1785,12 +1785,12 @@ EndFunction
 //   * Text - String
 //   * WholeText - String
 //   * Attributes - Map
-//  IndexOf - Number - Index.
-//  Node - Undefined, ValueTreeRow:
-//   * TagName - String
-//   * Text - String
-//   * FullText - String
-//   * Attributes - Map
+//  IndexOf - Number - IndexOf
+//  Node - 
+//   
+//   
+//   
+//   
 // 
 // Returns:
 //  ValueTreeRow:
@@ -1812,11 +1812,11 @@ Function MakeCopyNode(NodeOfParent, IndexOf, Node) Export
 	Return NodeOfClone;
 EndFunction
 
-// Creates copies of the child nodes in the destination node. 
+//  
 // 
 // Parameters:
-//  Destination - See PrintManagementInternal.ReadXMLIntoTree
-//  Source - See PrintManagementInternal.ReadXMLIntoTree
+//   See PrintManagementInternal.ReadXMLIntoTree
+//   See PrintManagementInternal.ReadXMLIntoTree
 //
 Procedure CreateLowerLevelNodes(NewRow, CurrentRow, LowerIndex = Undefined) Export
 	
@@ -1841,7 +1841,7 @@ Procedure GetAreasFromTree(TreePointer, Areas, TabularSectionNames, EndRegion = 
 				GetAreasFromTree(String, Areas, TabularSectionNames, IsAreaEnd);
 			EndIf;
 			
-			// Search for area conditions.
+			// 
 			EdgeArea = Areas[Areas.Count()-1];
 			If EdgeArea <> Undefined And StrFind(String.WholeText, "{"+TagNameCondition()) And StrFind(String.WholeText, "}") And EdgeArea.AreaCondition = Undefined Then
 				ConditionArrayStart = StrSplit(String.WholeText, "{", False);
@@ -2163,13 +2163,14 @@ Function GetPrintForm(TreeOfTemplate, StorageAddress = Undefined) Export
 	Return PrintFormStorageAddress;
 EndFunction
 
-// Compile an office document file.
+// 
 // 
 // Parameters:
+//  TreeOfTemplate - See PrintManagementInternal.InitializeDCSDoc.
 //  Encoding - String - Encoding
 // 
 // Returns:
-//  String - Path to the generated document
+//  String - 
 //
 Function CollectOfficeDocumentFile(TreeOfTemplate, Encoding = "UTF-8") Export
 	DocumentStructure = TreeOfTemplate.DocumentStructure;
@@ -2203,13 +2204,13 @@ Function CollectOfficeDocumentFile(TreeOfTemplate, Encoding = "UTF-8") Export
 		HeadersOrFootersFilesArray.Add(HeaderOrFooter.Key);
 	EndDo;
 	
-	// Process content links.
+	// 
 	
 	XMLWriter = InitializeXMLRecord("", FilesToChange.Get("ContentRelations"));
 	PutTreeToXMLEntry(XMLWriter, DocumentStructure.ContentRelations);
 	XMLWriter.Close();
 	
-	// Process content types.
+	// 
 	
 	XMLWriter = InitializeXMLRecord("", FilesToChange.Get("ContentTypes1"));
 	PutTreeToXMLEntry(XMLWriter, DocumentStructure.ContentTypes1);
@@ -2721,7 +2722,7 @@ Function AssembleDOCXDocumentFile(PrintForm)
 	FilesToChange.Insert("ContentTypes1",  PrintForm.DirectoryName + SetPathSeparator("\[Content_Types].xml"));
 	FilesToChange.Insert("Document",      PrintForm.DirectoryName + SetPathSeparator("\word\document.xml"));
 	
-	// Deleting files of blank headers and footers
+	// 
 	HeaderOrFooterOutput = New Map;
 	
 	For Each Section In PrintForm.DocumentStructure.Sections Do
@@ -2762,7 +2763,7 @@ Function AssembleDOCXDocumentFile(PrintForm)
 		
 	EndDo;
 	
-	// Process content links.
+	// 
 	
 	XMLReader = InitializeXMLReader(PrintForm.DocumentStructure.ContentRelations);
 	XMLWriter = InitializeXMLRecord("", FilesToChange.Get("ContentRelations"));
@@ -2807,7 +2808,7 @@ Function AssembleDOCXDocumentFile(PrintForm)
 	
 	PrintForm.DocumentStructure.ContentRelations = XMLWriter.Close(); 
 	
-	// Process content types.
+	// 
 	
 	XMLReader = InitializeXMLReader(PrintForm.DocumentStructure.ContentTypes1);
 	XMLWriter = InitializeXMLRecord("", FilesToChange.Get("ContentTypes1"));
@@ -2852,7 +2853,7 @@ Function AssembleDOCXDocumentFile(PrintForm)
 	
 	PrintForm.DocumentStructure.ContentTypes1 = XMLWriter.Close(); 
 	
-	// Generating a print form document
+	// 
 	
 	SequenceNumber = 1;
 	
@@ -2872,7 +2873,7 @@ Function AssembleDOCXDocumentFile(PrintForm)
 		
 		IsLastArea = ?(SequenceNumber = AreasCount, True, False);
 		
-		// Write an intermediate section.
+		// 
 		
 		If OutputIntermediateSection = True And IsLastArea = False Then
 			
@@ -2891,7 +2892,7 @@ Function AssembleDOCXDocumentFile(PrintForm)
 			
 		EndIf;
 		
-		// Write the body.
+		// 
 		
 		XMLReader = InitializeXMLReader(Area.Text);
 		
@@ -2913,7 +2914,7 @@ Function AssembleDOCXDocumentFile(PrintForm)
 			
 		EndDo;
 		
-		// Write the final section.
+		// 
 		
 		If IsLastArea Then
 			
@@ -2931,7 +2932,7 @@ Function AssembleDOCXDocumentFile(PrintForm)
 	EndDo;
 	
 	XMLWriter.WriteEndElement(); // 
-	XMLWriter.WriteEndElement(); // Closing the </w:document> tag
+	XMLWriter.WriteEndElement(); // 
 	
 	XMLWriter.Close();
 	
@@ -3040,7 +3041,7 @@ Procedure InitializeTemplateStructure(Template)
 		EndDo;
 	EndIf;
 	
-	// Receiving a table of resource numbers
+	// 
 	
 	DirectoryWithFileStructure = DirectoryName + "word" + GetPathSeparator();
 	
@@ -3123,7 +3124,7 @@ Procedure InitializePrintFormStructure(PrintForm, Template)
 		EndIf;
 	EndDo;
 	
-	// Copying text of headers or footers and sections from the template
+	// 
 	For Each Section In Template.DocumentStructure.Sections Do
 		AddSectionToDocumentStructure(DocumentStructure, Section.Value);
 	EndDo;
@@ -3327,7 +3328,7 @@ EndProcedure
 //   * Text - String
 //   * SectionNumber - Number
 //   * Hyperlinks - Array of See HyperlinkStructure
-//  ObjectData - Structure, Undefined, KeyAndValue
+//  ObjectData - 
 //
 Procedure PopulateHyperlinkParameters(PrintForm, Area, ObjectData)
 	
@@ -3545,7 +3546,7 @@ Procedure IncludePictureToDocumentLibrary(DocumentStructure, StructurePicture)
 		CreateDirectory(StructurePicture.PicturesDirectory);
 	EndIf;
 	
-	// Adding a row to the rels file
+	// 
 	XMLReader = InitializeXMLReader(DocumentStructure.ContentRelations);
 	XMLWriter = InitializeXMLRecord("");
 	
@@ -3585,7 +3586,7 @@ Procedure IncludePictureToDocumentLibrary(DocumentStructure, StructurePicture)
 	XMLReader.Close();
 	DocumentStructure.ContentRelations = XMLWriter.Close();
 	
-	// Writing a picture to the media directory
+	// 
 	BinaryData = StructurePicture.BinaryData;
 	BinaryData.Write(StructurePicture.PicturesDirectory + StructurePicture.IconName + "." + StructurePicture.PictureExtension);
 	
@@ -3593,7 +3594,7 @@ EndProcedure
 
 Procedure IncludePictureTextToDocument(XMLWriter, StructurePicture)
 	
-	XMLWriter.WriteEndElement(); // Closing a text tag of the w:t parameter.
+	XMLWriter.WriteEndElement(); // 
 	XMLWriter.WriteRaw(StructurePicture.PictureText);
 	XMLWriter.WriteStartElement("w:t");
 	
@@ -4610,7 +4611,7 @@ Procedure SplitTemplateTextToAreas(XMLReader, DocumentStructure, AnalysisParamet
 	
 	While XMLReader.Read() Do
 		
-		// name space description tag in a temporary xml
+		// 
 		If XMLReader.Name = "w:next" Then
 			Continue;
 		EndIf;
@@ -5066,9 +5067,9 @@ EndFunction
 #Region ImagesOperations
 
 ////////////////////////////////////////////////////////////////////////////////
-// Functions of image files processing
+// 
 
-// Returns a width, a height, and a type of image for GIF, JPG, PNG, BMP, and TIFF files
+// Returns the width, height, and image type for GIF, JPG, PNG, BMP, and TIFF files
 Function GetImageAttributes(ReadingData)
 	
 	ImageAttributes = New Structure;
@@ -5338,7 +5339,7 @@ EndFunction
 #EndRegion
 
 ////////////////////////////////////////////////////////////////////////////////
-// Other procedures and functions
+// 
 
 Function EventLogEvent()
 	
@@ -5372,10 +5373,10 @@ Procedure CopyDirectoryContent(From, Where_SSLy) Export
 EndProcedure
 
 // Parameters:
-//   EventName  - String - a name of the event to write.
-//   LevelPresentation  - String - a presentation of the EventLogLevel collection values.
-//                                     Possible values: Information, Error, Warning, and Note.
-//   Comment - String - an event comment.
+//   EventName  - String -  name of the event to record.
+//   LevelPresentation  - String -  representation of the values of the log level collection.
+//                                     Available values: "Information", "Error", "Warning", "note".
+//   Comment - String -  review of the event.
 //
 Procedure WriteEventsToEventLog(EventName, LevelPresentation, Comment)
 	
@@ -5392,16 +5393,16 @@ Procedure WriteEventsToEventLog(EventName, LevelPresentation, Comment)
 	
 EndProcedure
 
-// Defines a data file extension according to its signature. Files are analyzed
-// by the first 8 bytes according to docx, doc, and odt types.
-// To call printing forms by templates of office documents from client and server modules.
+// Defines the extension of the data file based on its signature. The file is analyzed
+// by the first 8 bytes in relation to the docx, doc, and odt types.
+// To call from client and server modules to print forms based on office document layouts.
 //
 // Parameters:
 //  DataOrStructure - BinaryData
-//                     - Structure - Document file or a command table row.
+//                     - Structure - 
 //
 // Returns:
-//  String, Undefined - Extension of binary data file. Or Undefined, if cannot define the extension. 
+//  String, Undefined -  
 //
 Function DefineDataFileExtensionBySignature(DataOrStructure) Export
 	

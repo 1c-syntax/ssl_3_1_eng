@@ -1817,6 +1817,7 @@ EndProcedure
 
 &AtServerNoContext
 Procedure OnSendFilesViaEmail(SendOptions, Val FilesToSend, FilesOwner, UUID)
+	SSLSubsystemsIntegration.OnSendFilesViaEmail(SendOptions, FilesToSend, FilesOwner, UUID);
 	FilesOperationsOverridable.OnSendFilesViaEmail(SendOptions, FilesToSend, FilesOwner, UUID);
 EndProcedure
 

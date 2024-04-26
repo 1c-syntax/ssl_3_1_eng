@@ -28,7 +28,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.DisableSelectionParameterConnections.Visible = CanShowInternalAttributes;
 	
 	If CanShowInternalAttributes Then
-		Parameters.Property("ShowInternalAttributes", ShowInternalAttributes);
+		ShowInternalAttributes = Parameters.ShowInternalAttributes;
 	EndIf;
 	
 	Items.ProcessRecursivelyGroup.Visible = Parameters.ContextCall And Parameters.IncludeHierarchy;

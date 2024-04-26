@@ -254,7 +254,7 @@ Function CryptoErrorsClassifier() Export
 	
 EndFunction
 
-Function ClassifierError(TextToSearchInClassifier, ErrorAtServer) Export
+Function ClassifierError(TextToSearchInClassifier, ErrorAtServer, SignatureVerificationError) Export
 	
 	ErrorsClassifier = DigitalSignatureInternalCached.CryptoErrorsClassifier();
 	
@@ -264,32 +264,50 @@ Function ClassifierError(TextToSearchInClassifier, ErrorAtServer) Export
 	
 	SearchText = Lower(TextToSearchInClassifier);
 	
-	If ErrorAtServer Then 
+	If SignatureVerificationError Then
+		If ErrorAtServer Then
+			Filter = New Structure("OnlyClient, ErrorVerifyingSignature", False, True);
+		Else
+			Filter = New Structure("OnlyServer, ErrorVerifyingSignature", False, True);
+		EndIf;
+
+		ErrorString = FindErrorLine(ErrorsClassifier, Filter, SearchText, ErrorAtServer);
+		If ErrorString <> Undefined Then
+			Return ErrorString;
+		EndIf;
+	EndIf;
+
+	If ErrorAtServer Then
 		Filter = New Structure("OnlyClient", False);
 	Else
 		Filter = New Structure("OnlyServer", False);
 	EndIf;
+
+	Return FindErrorLine(ErrorsClassifier, Filter, SearchText, ErrorAtServer);
+
+EndFunction
+
+Function FindErrorLine(ErrorsClassifier, Filter, SearchText, ErrorAtServer)
 	
 	Rows = ErrorsClassifier.FindRows(Filter);
-	
 	For Each ClassifierRow In Rows Do
-	
+
 		If StrFind(SearchText, ClassifierRow.ErrorTextLowerCase) <> 0 Then
-			
+
 			ErrorPresentation = DigitalSignatureInternal.ErrorPresentation();
 			FillPropertyValues(ErrorPresentation, ClassifierRow);
 			ErrorPresentation.RemedyActions = ActionsToFixErrorsRead(
 				ErrorPresentation.Remedy);
 			If Not ErrorAtServer Then
-				SupplementSolutionWithAutomaticActions(ErrorPresentation.Decision, ErrorPresentation.RemedyActions);
+				SupplementSolutionWithAutomaticActions(ErrorPresentation.Decision,
+					ErrorPresentation.RemedyActions);
 			EndIf;
 			ErrorPresentation.Cause = StringFunctions.FormattedString(ErrorPresentation.Cause);
 			ErrorPresentation.Decision = StringFunctions.FormattedString(ErrorPresentation.Decision);
-			
+
 			Return New FixedStructure(ErrorPresentation);
-			
+
 		EndIf;
-		
 	EndDo;
 	
 	Return Undefined;

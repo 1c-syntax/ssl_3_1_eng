@@ -151,9 +151,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If IsNew And Not CreatedByCopying Then
 		DefineDistributionKind();
-		ScheduleOption1_ = Undefined;
-		Parameters.Property("ScheduleOption1_", ScheduleOption1_);
-		FillScheduleByOption(ScheduleOption1_);
+		FillScheduleByOption(Undefined);
 	Else
 		ReadJobSchedule();
 	EndIf;
@@ -472,7 +470,7 @@ Procedure AfterWrite(WriteParameters)
 	EndIf;
 	// End StandardSubsystems.AttachableCommands
 	
-	AttachIdleHandler("UpdateValueOfParameterOfRecipientOfPersonalizedMailing", 0.1, True);
+	AttachIdleHandler("UpdatePersonalizedDistributionRecipientParameterValue", 0.1, True);
 EndProcedure
 
 &AtServer
@@ -1267,7 +1265,7 @@ Procedure ReportsTableRowActivationHandler()
 		ShowMessageBox(, WarningText);
 	EndIf;
 	
-	UpdateValueOfParameterOfRecipientOfPersonalizedMailing();
+	UpdatePersonalizedDistributionRecipientParameterValue();
 	
 EndProcedure
 
@@ -1705,10 +1703,10 @@ Procedure SpecifyMailingRecipient(Command)
 		Else
 			AvailableParameter = DCSettingsComposer.Settings.DataParameters.AvailableParameters.FindParameter(Setting.SettingsString.Parameter);
 			If AvailableParameter <> Undefined And AvailableParameter.ValueListAllowed Then
-				ListValue = New ValueList;
-				ListValue.Add(MailingRecipientValueTemplate(FilesAndEmailTextParameters),
+				ValueAsList = New ValueList;
+				ValueAsList.Add(MailingRecipientValueTemplate(FilesAndEmailTextParameters),
 					MailingRecipientValueTemplate(FilesAndEmailTextParameters));
-				Setting.SettingsString.Value = ListValue;
+				Setting.SettingsString.Value = ValueAsList;
 			Else	
 				Setting.SettingsString.Value = MailingRecipientValueTemplate(FilesAndEmailTextParameters);
 			EndIf;
@@ -3708,15 +3706,15 @@ Function AdditionOfSaaSSchedulePresentation()
 EndFunction
 
 &AtClient
-Procedure UpdateValueOfParameterOfRecipientOfPersonalizedMailing()
+Procedure UpdatePersonalizedDistributionRecipientParameterValue()
 	
 	If Not Object.Personalized Then
 		Return;
 	EndIf;
 	
 	RecipientValueTemplate = MailingRecipientValueTemplate(FilesAndEmailTextParameters);
-	ListValue = New ValueList;
-	ListValue.Add(RecipientValueTemplate, RecipientValueTemplate);
+	ValueAsList = New ValueList;
+	ValueAsList.Add(RecipientValueTemplate, RecipientValueTemplate);
 
 	For Each SettingItem In DCSettingsComposer.UserSettings.Items Do
 		If Not TypeOf(SettingItem) = Type("DataCompositionSettingsParameterValue") Then
@@ -3727,7 +3725,7 @@ Procedure UpdateValueOfParameterOfRecipientOfPersonalizedMailing()
 			And SettingItem.Value.FindByValue(RecipientValueTemplate) <> Undefined Then
 			AvailableParameter = DCSettingsComposer.Settings.DataParameters.AvailableParameters.FindParameter(SettingItem.Parameter);
 			If AvailableParameter <> Undefined And AvailableParameter.ValueListAllowed Then
-				SettingItem.Value = ListValue;
+				SettingItem.Value = ValueAsList;
 				Items.Reports.CurrentData.ChangesMade = True;
 			EndIf;
 		EndIf;
@@ -4630,8 +4628,7 @@ EndFunction
 Procedure AddReportsSettings(ReportsToAttach)
 	
 	For Each ReportsParametersRow In ReportsToAttach Do
-		If ReportsParametersRow.Property("OptionRef")
-			And TypeOf(ReportsParametersRow.OptionRef) = Type("CatalogRef.ReportsOptions")
+		If TypeOf(ReportsParametersRow.OptionRef) = Type("CatalogRef.ReportsOptions")
 			And ReportsParametersRow.OptionRef <> Catalogs.ReportsOptions.EmptyRef() Then
 			OptionRef = ReportsParametersRow.OptionRef;
 		Else

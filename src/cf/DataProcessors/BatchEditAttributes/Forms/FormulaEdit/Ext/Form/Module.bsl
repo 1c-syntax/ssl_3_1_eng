@@ -16,7 +16,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Formula         = Parameters.Formula;
 	SourceFormula = Parameters.Formula;
 	
-	Parameters.Property("UsesOperandTree", UsesOperandTree);
+	UsesOperandTree = Parameters.UsesOperandTree;
 	
 	Items.OperandsPagesGroup.CurrentPage = Items.NumericOperandsPage;
 	Operands.Load(GetFromTempStorage(Parameters.Operands));

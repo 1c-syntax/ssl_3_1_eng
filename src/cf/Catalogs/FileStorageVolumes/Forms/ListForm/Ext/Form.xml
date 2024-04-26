@@ -48,12 +48,6 @@
 				<Button name="FormMarkForDeletion1" id="28">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.SetMarkForDeletion</CommandName>
-					<Title>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Set deletion mark</v8:content>
-						</v8:item>
-					</Title>
 					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 					<ExtendedTooltip name="FormMarkForDeletionExtendedTooltip" id="29"/>
 				</Button>
@@ -304,18 +298,6 @@
 	</Attributes>
 	<Commands>
 		<Command name="SetMarkForDeletion" id="1">
-			<Title>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Set deletion mark</v8:content>
-				</v8:item>
-			</Title>
-			<ToolTip>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Set deletion mark</v8:content>
-				</v8:item>
-			</ToolTip>
 			<Picture>
 				<xr:Ref>StdPicture.MarkToDelete</xr:Ref>
 				<xr:LoadTransparent>true</xr:LoadTransparent>

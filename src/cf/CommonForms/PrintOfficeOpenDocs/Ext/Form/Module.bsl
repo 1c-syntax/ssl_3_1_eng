@@ -719,7 +719,7 @@ EndFunction
 
 // Parameters:
 //  Result - See TimeConsumingOperationsClient.NewResultLongOperation
-//  ContinuationHandler - 
+//  ContinuationHandler - NotifyDescription, Undefined
 //
 &AtClient
 Procedure OnCompleteGeneratingPrintForms(Result, ContinuationHandler) Export

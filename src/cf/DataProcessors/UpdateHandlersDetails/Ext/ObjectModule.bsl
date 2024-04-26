@@ -534,6 +534,7 @@ Function ConflictsDataUpdateQueryText()
 	DestructionText = "DROP HandlersConflicts";
 	
 	#Region TextOfHandlersIntersection
+	// 
 	TextOfHandlersIntersection = 
 	"SELECT
 	|	T.MetadataObject AS MetadataObject,
@@ -548,6 +549,7 @@ Function ConflictsDataUpdateQueryText()
 	|INTO HandlersIntersections
 	|FROM 
 	|(
+	|
 	|	SELECT
 	|		ObjectsToChange.Ref AS HandlerWriter,
 	|		ObjectsToReadByOtherHandlers.Ref AS ReadOrWriteHandler2,
@@ -571,6 +573,7 @@ Function ConflictsDataUpdateQueryText()
 	|		
 	|	UNION ALL
 	|
+	|	
 	|	SELECT
 	|		ObjectsToChange.Ref AS HandlerWriter,
 	|		ObjectsChangedByOtherHandlers.Ref AS ReadOrWriteHandler2,
@@ -2180,7 +2183,8 @@ Procedure SetQueueNumber(UpdateIterations)
 		
 		Filter = New Structure("ExecutionMode", "Deferred");
 		Filter.Insert("DeferredProcessingQueue", 0);
-		DeferredHandlers = Library.Handlers.FindRows(Filter); // See InfobaseUpdate.NewUpdateHandlerTable()
+		DeferredHandlers = Library.Handlers.FindRows(Filter); // See InfobaseUpdate.NewUpdateHandlerTable
+// ()
 		For Each Handler In DeferredHandlers Do
 			Filter = New Structure;
 			Filter.Insert("Version", Handler.Version);
@@ -2231,6 +2235,7 @@ EndFunction
 // Returns a number presentation of a version.
 //
 // Parameters:
+//   Version - String - Version number in the X.X.XX.XXX format 
 //
 // Returns:
 //   Number - a version number converted into an integer

@@ -59,7 +59,7 @@ EndProcedure
 // If there are code or description duplicates, returns its list.
 //
 //  Returns:
-//      Array of See NewErrorMessage - 
+//      Array of See NewErrorMessage - Details of duplicate items (if found).
 //        
 //
 Function CheckTheUniquenessOfTheElements()

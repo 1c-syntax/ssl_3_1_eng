@@ -205,15 +205,15 @@ EndFunction
 // Returns parameters for the "FindSimilarStrings" function.
 // 
 // Parameters:
-//  AttachAddInSSL - Boolean - 
-//                                  
+//  AttachAddInSSL - Boolean - If set to "True", the string search add-in will be attached.
+//                                  Intended for optimization in cases where searching for similar strings is expected.
 //                                  
 // 
 // Returns:
 //  Structure:
-//     * StringsMatchPercentage          - Number - 
-//     * SmallStringsMatchPercentage - Number - 
-//     * SmallStringsLength             - Number - 
+//     * StringsMatchPercentage          - Number - The default value is "90".
+//     * SmallStringsMatchPercentage - Number - The default value is "80".
+//     * SmallStringsLength             - Number - The default value is "30".
 //     * ExceptionWords - Array of String
 //     * SearchAddIn - AddInObject
 //

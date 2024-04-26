@@ -104,7 +104,7 @@ Procedure OnReadAtServer(CurrentObject)
 		
 		NewAttachment = Attachments.Add();
 		NewAttachment.FileName = DeletedAttachment.NameAttachment;
-		NewAttachment.PictureIndex = FilesOperationsInternalClientServer.GetFileIconIndex(".msg") + 1;
+		NewAttachment.PictureIndex = FilesOperationsInternalClientServer.IndexOfFileIcon(".msg") + 1;
 		
 	EndDo;
 	

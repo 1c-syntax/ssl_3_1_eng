@@ -41,7 +41,8 @@ EndProcedure
 
 // Identifies objects whose list forms will display commands
 // for duplicate merging, reference replacement, and the
-// See DuplicateObjectsDetectionClient.MergeSelectedItems"DuplicateObjectsDetectionClient.ReplaceSelected" command
+// See DuplicateObjectsDetectionClient.MergeSelectedItems
+// "DuplicateObjectsDetectionClient.ReplaceSelected" command
 // 
 // Parameters:
 //     Objects - Array of MetadataObject

@@ -14,8 +14,9 @@
 //
 // Parameters:
 //  Table - ValueTable - TabularSectionDetails with columns.
-//          - String - to receive a column list of the tabular section,
-//              specify its full name as a string as in metadata, for example "Documents.ProformaInvoice.TabularSections.Goods".
+//          - FormDataCollection - 
+//          - String - 
+//              
 //  Columns - String - a list of comma-separated extracted columns. For example: "Number, Goods, Quantity".
 // 
 // Returns:
@@ -65,10 +66,11 @@ Function GenerateColumnDetails(Table, Columns = Undefined) Export
 			EndDo;
 			
 			NewColumn = ImportDataFromFileClientServer.TemplateColumnDetails(Column.Name, Column.ValueType, Column.Title, Column.Width, ToolTip);
-			
 			NewColumn.Position = Position;
 			ColumnsList.Add(NewColumn);
+			
 			Position = Position + 1;
+		
 		EndDo;
 	ElsIf TypeOf(InternalTable) = Type("String") Then
 		Object = Common.MetadataObjectByFullName(InternalTable); // MetadataObjectCatalog, MetadataObjectDocument 
@@ -76,14 +78,17 @@ Function GenerateColumnDetails(Table, Columns = Undefined) Export
 			If DontExtractAllColumns And ColumnsListForExtraction.Find(Column.Name) = Undefined Then
 				Continue;
 			EndIf;
+			
 			NewColumn = ImportDataFromFileClientServer.TemplateColumnDetails(Column.Name, Column.Type, Column.Presentation());
 			NewColumn.ToolTip = Column.Tooltip;
-			NewColumn.Width = 30;
-			NewColumn.Position = Position;
+			NewColumn.Width    = 30;
+			NewColumn.Position   = Position;
 			ColumnsList.Add(NewColumn);
+			
 			Position = Position + 1;
 		EndDo;
 	EndIf;
+	
 	Return ColumnsList;
 EndFunction
 
@@ -148,9 +153,9 @@ Function ANewListOfAmbiguities() Export
 	Return ConflictsList;
 EndFunction
 
-// 
-// 
-// 
+// Returns a table from the temporary storage to map imported and app data.
+// The dynamic list of table columns is generated based on the imported data template.
+// The return value describes only the internal column that is always present.
 // 
 // Parameters:
 //  ResultAddress - String - address in temporary storage 

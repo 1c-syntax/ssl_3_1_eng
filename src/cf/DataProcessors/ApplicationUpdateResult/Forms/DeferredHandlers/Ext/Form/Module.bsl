@@ -290,6 +290,14 @@ Procedure RunSelectedHandler(Command)
 	
 EndProcedure
 
+&AtClient
+Procedure CheckPatches(Command)
+	Result = AvailableFixesOnServer();
+	
+	NotifyDescription = New NotifyDescription("CheckAvailableFixesContinued", ThisObject, Result);
+	InfobaseUpdateClient.ProcessResultOfManuallyCheckingAvailablePatches(Result, NotifyDescription);
+EndProcedure
+
 #EndRegion
 
 #Region Private
@@ -553,6 +561,9 @@ Procedure GenerateDeferredHandlerTable(AllHandlersExecuted = True, InitialFillin
 	EndDo;
 	
 	Items.UpdateInProgress.Visible = UpdateInProgress;
+	
+	Items.CheckPatches.Visible = UpdateInfo.DeferredUpdateCompletedSuccessfully <> True
+		And InfobaseUpdateInternal.ManualCheckForFixIsAvailable();
 	
 EndProcedure
 
@@ -847,5 +858,37 @@ Procedure ChangePriority(Priority, Handler, Queue)
 	EndTry;
 	
 EndProcedure
+
+&AtServer
+Function AvailableFixesOnServer()
+	Return InfobaseUpdateInternal.FixesAvailableForInstallation();
+EndFunction
+
+&AtClient
+Procedure CheckAvailableFixesContinued(Result, AdditionalParameters) Export
+	
+	If Result = Undefined Then
+		Return;
+	EndIf;
+	
+	If Result.Value = DialogReturnCode.No Then
+		Return;
+	EndIf;
+	
+	TimeConsumingOperation    = StartingPatchInstallation();
+	IdleParameters     = TimeConsumingOperationsClient.IdleParameters(ThisObject);
+	CallbackOnCompletion = New NotifyDescription("ProcessResultOfManualPatchInstallation", InfobaseUpdateClient, AdditionalParameters);
+	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
+	
+EndProcedure
+
+&AtServer
+Function StartingPatchInstallation()
+	
+	ExecutionParameters = TimeConsumingOperations.FunctionExecutionParameters(UUID);
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Install patches following an update error.';");
+	Return TimeConsumingOperations.ExecuteFunction(ExecutionParameters, "GetApplicationUpdates.DownloadAndInstallFixes");
+	
+EndFunction
 
 #EndRegion

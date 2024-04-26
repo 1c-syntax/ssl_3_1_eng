@@ -757,24 +757,7 @@ Function SSLVersionMatchesRequirements() Export
 	EndIf;
 	
 	SSLVersion = ModuleStandardSubsystemsServer.LibraryVersion();
-	Return CompareVersions(SSLVersion, "3.1.8.240") >= 0;
-	
-EndFunction
-
-Function IsSSLVersionSupportsUserExternalAttributes() Export
-	
-	Try
-		ModuleStandardSubsystemsServer = CommonModule("StandardSubsystemsServer");
-	Except
-		// Module doesn't exist.
-		ModuleStandardSubsystemsServer = Undefined;
-	EndTry;
-	If ModuleStandardSubsystemsServer = Undefined Then 
-		Return False;
-	EndIf;
-	
-	SSLVersion = ModuleStandardSubsystemsServer.LibraryVersion();
-	Return CompareVersions(SSLVersion, "3.1.10.32") >= 0;
+	Return CompareVersions(SSLVersion, "3.1.10.127") >= 0;
 	
 EndFunction
 
@@ -1453,7 +1436,7 @@ Function ObjectsBatchChangeResult(ObjectsToProcess, ChangeResult, ModificationSe
 	
 	ModuleUsersInternal = CommonModule("UsersInternal");
 	If ModuleUsersInternal = Undefined
-	 Or Not IsSSLVersionSupportsUserExternalAttributes() Then
+	 Or Not SSLVersionMatchesRequirements() Then
 		ModuleUsersInternal = Undefined;
 	EndIf;
 	
@@ -1550,8 +1533,7 @@ Function ObjectsBatchChangeResult(ObjectsToProcess, ChangeResult, ModificationSe
 					UnlockDataForEdit(Ref);
 				EndIf;
 				
-				BriefErrorDescription = ErrorProcessing.BriefErrorDescription(ErrorInfo());
-				FillChangeResult(ChangeResult, Ref, BriefErrorDescription);
+				FillChangeResult(ChangeResult, Ref, ErrorInfo());
 				If ModificationSettings.StopChangeOnError Or ModificationSettings.ChangeInTransaction Then
 					WriteError = False;
 					Raise;

@@ -1034,32 +1034,25 @@ Function ObjectPrintingSettings(ObjectManager) Export
 	ObjectSettings.Insert("OnSpecifyingRecipients", False);
 	ObjectSettings.Insert("OnAddPrintCommands", False);
 	
-	PrintSettings = PrintSettings(); 
+	PrintSettings = PrintManagementRepeatIsp.PrintSettings(); 
 	
-	If PrintSettings.PrintObjects.Find(ObjectManager) <> Undefined Then
+	If PrintSettings.PrintObjects.Get(ObjectManager) <> Undefined Then
 		ObjectManager.OnDefinePrintSettings(ObjectSettings);
 		Return ObjectSettings;
 	EndIf;
 	
 	// For backward compatibility.
 	
-	ObjectsWithPrintCommands = New Array;
+	ObjectsWithPrintCommands = PrintManagementRepeatIsp.ObjectsWithPrintCommands();
 	
-	ListOfObjects = New Array;
-	SSLSubsystemsIntegration.OnDefineObjectsWithPrintCommands(ListOfObjects); // ACC:222 - Call the obsolete procedure (for backward compatibility).
-	CommonClientServer.SupplementArray(ObjectsWithPrintCommands, ListOfObjects, True);
-	
-	ListOfObjects = New Array;
-	PrintManagementOverridable.OnDefineObjectsWithPrintCommands(ListOfObjects); // ACC:222 - Call the obsolete procedure (for backward compatibility).
-	CommonClientServer.SupplementArray(ObjectsWithPrintCommands, ListOfObjects, True);
-	
-	If ObjectsWithPrintCommands.Find(ObjectManager) <> Undefined Then
+	If ObjectsWithPrintCommands.Get(ObjectManager) <> Undefined Then
 		ObjectSettings.OnAddPrintCommands = True;
 	EndIf;
 	
 	Return ObjectSettings;
 	
 EndFunction
+
 
 #Region OperationsWithOfficeDocumentsTemplates
 
@@ -1077,6 +1070,7 @@ EndFunction
 //	
 //						
 //						
+//	
 //	
 //						
 ////////////////////////////////////////////////////////////////////////////////
@@ -1579,8 +1573,8 @@ EndFunction
 // Parameters:
 //  TreeOfTemplate -  See PrintManagementInternal.ReadXMLIntoTree
 //  ParameterValues - Map of KeyAndValue:
-//                        ** 
-//                        ** 
+//                        ** Value - String - Value to be set.
+//                        ** Value - String - Value to be set.
 //  AreaPopulationParameters - See AreaPopulationParameters
 //
 Procedure SpecifyParameters(TreeOfTemplate, ParameterValues, AreaPopulationParameters) Export
@@ -1702,25 +1696,18 @@ EndFunction
 //  Array - List of items of the MetadataObject type.
 //
 Function PrintCommandsSources() Export
-	ObjectsWithPrintCommands = New Array;
 	
 	Settings = PrintSettings();
-	CommonClientServer.SupplementArray(ObjectsWithPrintCommands, Settings.PrintObjects, True);
-
-	ListOfObjects = New Array;
-	SSLSubsystemsIntegration.OnDefineObjectsWithPrintCommands(ListOfObjects); // ACC:222 - Call the obsolete procedure (for backward compatibility).
-	CommonClientServer.SupplementArray(ObjectsWithPrintCommands, ListOfObjects, True);
-	
-	ListOfObjects = New Array;
-	PrintManagementOverridable.OnDefineObjectsWithPrintCommands(ListOfObjects); // ACC:222 - Call the obsolete procedure (for backward compatibility).
-	CommonClientServer.SupplementArray(ObjectsWithPrintCommands, ListOfObjects, True);
+	SSLSubsystemsIntegration.OnDefineObjectsWithPrintCommands(Settings.PrintObjects); // ACC:222 - Call the obsolete procedure (for backward compatibility).
+	PrintManagementOverridable.OnDefineObjectsWithPrintCommands(Settings.PrintObjects); // ACC:222 - Call the obsolete procedure (for backward compatibility).
 	
 	Result = New Array;
-	For Each ObjectManager1 In ObjectsWithPrintCommands Do
+	For Each ObjectManager1 In Settings.PrintObjects Do
 		Result.Add(Metadata.FindByType(TypeOf(ObjectManager1)));
 	EndDo;
 	
 	Return Result;
+	
 EndFunction
 
 
@@ -3810,7 +3797,7 @@ Function TemplateNameParts(FullTemplateName)
 EndFunction
 
 Function SpreadsheetDocumentPropertiesToCopy() Export
-	Return "FitToPage,Output,PageHeight,DuplexPrinting,Protection,PrinterName,LanguageCode,
+	Return "PrintParametersKey,FitToPage,Output,PageHeight,DuplexPrinting,Protection,PrinterName,LanguageCode,
 	|Copies,PrintScale,FirstPageNumber,PageOrientation,TopMargin,LeftMargin,
 	|BottomMargin,RightMargin,Collate,HeaderSize,FooterSize,PageSize,
 	|PrintAccuracy,BackgroundPicture,BlackAndWhite,PageWidth,PerPage";
@@ -4160,10 +4147,10 @@ Function DefaultPrintFormFileName(PrintObject, PrintFormName)
 		
 		If DocumentContainsNumber Then
 			AttributesList = "Date,Number";
-			Template = NStr("en = '[PrintFormName] #[Number], [Date]';");
+			Template = NStr("en = '[PrintFormName] #[Number] dated [Date]';");
 		Else
 			AttributesList = "Date";
-			Template = NStr("en = '[PrintFormName], [Date]';");
+			Template = NStr("en = '[PrintFormName] dated [Date]';");
 		EndIf;
 		
 		ParametersToInsert = Common.ObjectAttributesValues(PrintObject, AttributesList);
@@ -5488,8 +5475,8 @@ EndFunction
 
 // Parameters:
 //   FieldList - Map of KeyAndValue:
-//    ** 
-//    ** 
+//    ** Value - Arbitrary
+//    ** Value - Arbitrary
 //   DetailsItem - DataCompositionFieldDetailsItem
 //                      - DataCompositionGroupDetailsItem
 //
@@ -5777,7 +5764,6 @@ Function TableNameINLayoutArea(Template, Area, Tables)
 	
 	ProcessedCells = New Map;
 	
-	TableName = "";
 	For LineNumber = Area.Top To Area.Bottom Do
 		For ColumnNumber = 1 To Template.TableWidth Do
 			TableCellArea = Template.Area(LineNumber, ColumnNumber, LineNumber, ColumnNumber);
@@ -5787,26 +5773,25 @@ Function TableNameINLayoutArea(Template, Area, Tables)
 				Continue;
 			EndIf;
 			ProcessedCells[AreaID] = True;
-
-			For Each Table In Tables Do
-				SearchString = "[" + Table + ".";
-				If StrFind(TableCellArea.Text, SearchString) Then
-					TableName = Table;
-					Break;
-				EndIf;
+			
+			ParametersInText = FindParametersInText(TableCellArea.Text);
+			
+			For Each Parameter In ParametersInText Do
+				Expression = ClearSquareBrackets(Parameter);
+				FormulaElements =FormulasConstructorInternal.FormulaElements(Expression);
+				For Each Item In FormulaElements.AllItems Do
+					For Each Table In Tables Do
+						SearchString = Table + ".";
+						If StrStartsWith(Item, SearchString) Then
+							Return Table;
+						EndIf;
+					EndDo;
+				EndDo;
 			EndDo;
-
-			If ValueIsFilled(TableName) Then
-				Break;
-			EndIf;
 		EndDo;
-		
-		If ValueIsFilled(TableName) Then
-			Break;
-		EndIf;
 	EndDo;
 	
-	Return TableName;
+	Return "";
 	
 EndFunction
 
@@ -7251,27 +7236,27 @@ EndProcedure
 
 Procedure ProcessNestedAreas(RowAreaStructure, CurrentArea, CollectionItem, ObjectData, FieldFormatSettings, LanguageCode);
 	If CurrentArea.NestedAreas <> Undefined Then
-		ConditionValues = New Map;
-		LinePrintingData_ = New Map;
-		For Each LinePrintingData In CollectionItem Do
-			LinePrintingData_.Insert(ClearSquareBrackets(LinePrintingData.Key), LinePrintingData.Value);
+		ConditionsValue = New Map;
+		RowsPrintData = New Map;
+		For Each RowPrintData In CollectionItem Do
+			RowsPrintData.Insert(ClearSquareBrackets(RowPrintData.Key), RowPrintData.Value);
 		EndDo;
 		
 		SetSafeMode(True);
 		For Each AreaCondition In CurrentArea.NestedAreas.UnloadColumn("AreaCondition") Do
-			If ConditionValues[AreaCondition] = Undefined Then
-				OutputRegion = EvalExpression(AreaCondition, LinePrintingData_, FieldFormatSettings, LanguageCode, False);
-				ConditionValues.Insert(AreaCondition, OutputRegion);
+			If ConditionsValue[AreaCondition] = Undefined Then
+				OutputRegion = EvalExpression(AreaCondition, RowsPrintData, FieldFormatSettings, LanguageCode, False);
+				ConditionsValue.Insert(AreaCondition, OutputRegion);
 			EndIf;
 		EndDo;
 		SetSafeMode(False);
 		
-		SUBAssetsToDelete = New Array;
+		NodesToDelete = New Array;
 		For Each NestedArea In CurrentArea.NestedAreas Do
-			If ConditionValues[NestedArea.AreaCondition] = False Then
-				SubAssetOfRegion = RowAreaStructure.AreaTree.Rows.Find(NestedArea.IndexOf, "IndexOf", True);
-				If SubAssetOfRegion <> Undefined Then
-					SubAssetOfRegion.Parent.Rows.Delete(SubAssetOfRegion);
+			If ConditionsValue[NestedArea.AreaCondition] = False Then
+				AreaNode = RowAreaStructure.AreaTree.Rows.Find(NestedArea.IndexOf, "IndexOf", True);
+				If AreaNode <> Undefined Then
+					AreaNode.Parent.Rows.Delete(AreaNode);
 				EndIf;
 			EndIf;
 		EndDo;
@@ -7310,9 +7295,9 @@ Procedure ProcessSendingCommands(Form)
 		Items.Move(ButtonSend, Items.SubmenuSend.Parent, Items.SubmenuSend);
 	EndIf;
 	
-	ButtonSend = SingleSendButton(Items.SubmitAllActionsSubmenu.ChildItems);
+	ButtonSend = SingleSendButton(Items.SubmenuSendAllActions.ChildItems);
 	If ButtonSend <> Undefined Then
-		Items.Move(ButtonSend, Items.SubmitAllActionsSubmenu.Parent, Items.SubmitAllActionsSubmenu);
+		Items.Move(ButtonSend, Items.SubmenuSendAllActions.Parent, Items.SubmenuSendAllActions);
 	EndIf;
 	
 EndProcedure

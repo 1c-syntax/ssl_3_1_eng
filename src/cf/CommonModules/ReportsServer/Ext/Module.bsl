@@ -570,6 +570,7 @@ Function AvailableSettings(ImportParameters, ReportSettings) Export
 				Settings = Common.ValueFromXMLString(ReportSettings.NewXMLSettings);
 				
 				// 
+				//  
 				SettingsComposer = New DataCompositionSettingsComposer;
 				InitializeSettingsComposer(SettingsComposer, ReportSettings.SchemaURL);
 				SettingsComposer.LoadSettings(Settings);
@@ -3141,19 +3142,20 @@ Procedure AddListCommands(Form, SettingItem, SettingsItems, ListName)
 	CommandTitle = NStr("en = 'Pick';");
 	AddListCommand(Form, TitleGroup, CommandName, CommandTitle, "Attachable_List_Pick");
 	
-	If Not Common.SubsystemExists("StandardSubsystems.ImportDataFromFile") Then 
+	If TypeOf(SettingItem.ValueType) <> Type("TypeDescription")
+	 Or Not Common.SubsystemExists("StandardSubsystems.ImportDataFromFile") Then 
 		Return;
 	EndIf;
 	
-	ThereIsReferenceType = False;
+	HasReferenceType = False;
 	For Each Current_Type In SettingItem.ValueType.Types() Do
 		If Common.IsReference(Current_Type) Then
-			ThereIsReferenceType = True;
+			HasReferenceType = True;
 			Break;
 		EndIf;
 	EndDo;
 	
-	If ThereIsReferenceType Then
+	If HasReferenceType Then
 		
 		CommandName = ListName + "PasteFromClipboard1";
 		CommandTitle = NStr("en = 'Paste from clipboard…';");

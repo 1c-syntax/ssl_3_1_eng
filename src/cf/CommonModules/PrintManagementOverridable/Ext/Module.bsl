@@ -101,9 +101,11 @@ EndProcedure
 //                         ** Key - String - an address in the temporary storage of binary data of the print form;
 //                         ** Value - String - a print form file name.
 //
-//   * PrintFormFileName - String - a print form file name upon saving to a file or sending as
-//                                      an email attachment. Do not use for print forms in the office document format.
-//                                      By default, a file name is set as
+//   * PrintFormFileName - String - Name of a print form when saved to a file or attached to an email.
+//                                      Not to be used for office document print forms.
+//                                      The default format is
+//                                      "[PrintFormName] #[Number] dated [Date]" for documents and
+//                                      "[PrintFormName] - [ObjectPresentation] - [CurrentDate]" for objects.
 //                           - Map of KeyAndValue - Filenames for each object:
 //                              ** Key - AnyRef - a reference to a print object from the ObjectsArray collection;
 //                              ** Value - String - file name;
@@ -123,6 +125,9 @@ EndProcedure
 //  OutputParameters - Structure - Print form output settings:
 //   * SendOptions - Structure - Interned for autofilling fields in the message creation form upon sending generated print forms by email 
 //                                     :
+//     ** Recipient - See EmailOperationsClient.EmailSendOptions.Recipient
+//     ** Subject       - See EmailOperationsClient.EmailSendOptions.Subject
+//     ** Text      - See EmailOperationsClient.EmailSendOptions.Text
 //   * LanguageCode - String - a language in which the print form needs to be generated.
 //                         Consists of the ISO 639-1 language code and the ISO 3166-1 country code (optional)
 //                         separated by the underscore character. Examples: "en", "en_US", "en_GB", "ru", "ru_RU".
@@ -295,10 +300,10 @@ Procedure PrintDocumentsOnExecuteCommand(Form, AdditionalParameters) Export
 	
 EndProcedure
 
-// 
-// 
-// 
-// 
+// Determines the used print data template for metadata objects and individual fields.
+// By default, the "PrintData" template is used for Ref data.
+// If the template is missing in metadata, 1C:Enterprise generates it based on the set of the selected object attributes.
+// The procedure allows for overriding the printable fields for the entire object or individual fields.
 //
 // Parameters:
 //  Object - String - Full name of a metadata object.

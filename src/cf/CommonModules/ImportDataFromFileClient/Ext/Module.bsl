@@ -18,19 +18,22 @@
 //                                           formatted as DocumentName.TabularSectionName.
 //    * Title               - String   - a header of the form for importing data from a file.
 //    * DataStructureTemplateName      - String   - a data input template name.
-//    * Presentation           - String   - a window header in the data import form.
-//    * AdditionalParameters - Arbitrary - any additional information that will be passed
+//    * AdditionalParameters - Structure - any additional information that will be passed
 //                                           to the data mapping procedure.
+//    * TemplateColumns - Array of See ImportDataFromFileClientServer.TemplateColumnDetails
+//                    - Undefined - 
 //
 Function DataImportParameters() Export
-	ImportParameters = New Structure();
-	ImportParameters.Insert("FullTabularSectionName");
-	ImportParameters.Insert("Title");
-	ImportParameters.Insert("DataStructureTemplateName");
-	ImportParameters.Insert("AdditionalParameters");
-	ImportParameters.Insert("TemplateColumns");
+	
+	ImportParameters = New Structure;
+	ImportParameters.Insert("FullTabularSectionName", "");
+	ImportParameters.Insert("Title", "");
+	ImportParameters.Insert("DataStructureTemplateName", "");
+	ImportParameters.Insert("AdditionalParameters", New Structure);
+	ImportParameters.Insert("TemplateColumns", Undefined);
 	
 	Return ImportParameters;
+	
 EndFunction
 
 // Opens the data import form for filling the tabular section.

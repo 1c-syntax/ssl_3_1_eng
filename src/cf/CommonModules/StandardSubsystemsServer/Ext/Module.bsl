@@ -26,9 +26,9 @@
 //
 Function SessionParametersSetting(SessionParametersNames) Export
 	
-	// 
-	// 
-	// 
+	// Session parameters that access the same data for initialization should be initialized as a batch.
+	// To avoid re-initialization, the names of the initialized session parameters
+	// are saved to the array "InitializedParameters".
 	SpecifiedParameters = New Array;
 	
 #If Not MobileStandaloneServer Then
@@ -292,8 +292,8 @@ Procedure SetDateFieldConditionalAppearance(Form,
 	FullNameParts1 = StrSplit(FullAttributeName, ".");
 	
 	If FullNameParts1.Count() <> 2 Then 
-		// 
-		// 
+		// Invalid name of "FullAttributeName" parameter.
+		// Valid attribute name format is ""<ListName>.<FieldName>""'");
 		Return;
 	EndIf;
 	
@@ -301,16 +301,16 @@ Procedure SetDateFieldConditionalAppearance(Form,
 	AttributeList = Form[ListName];
 	
 	If TypeOf(AttributeList) = Type("DynamicList") Then 
-		// 
-		// 
-		//  
-		// 
+		// "DynamicList" allows the setting of a conditional appearance using the built-in composer.
+		// The "TagName" parameter is ignored as the dynamic list 
+		// composer cannot know how the list attributes will be displayed. 
+		// Therefore, the attribute path, filter value, and appearance value are the attribute name.
 		ConditionalAppearance = AttributeList.ConditionalAppearance;
 		AttributePath1 = FullNameParts1[1];
 		FormattedFieldName = AttributePath1;
 	Else 
-		// 
-		// 
+		// The other lists (for example, "FormDataTree") don't have built-in composers.
+		// Instead, they use the form's composer.
 		ConditionalAppearance = Form.ConditionalAppearance;
 		AttributePath1 = FullAttributeName;
 		FormattedFieldName = TagName;
@@ -398,6 +398,14 @@ Function SpreadsheetDocumentSaveFormatsSettings() Export
 	NewFormat.Picture = PictureLib.PDFFormat;
 	NewFormat.Presentation = FileTypeRepresentationOfATabularPDFDocument();
 	
+	// PDF document (*.PDF) (obsolete)
+	NewFormat = FormatsTable.Add();
+	NewFormat.SpreadsheetDocumentFileType = SpreadsheetDocumentFileType.PDF;
+	NewFormat.Ref = Enums.ReportSaveFormats.PDF;
+	NewFormat.Extension = "PDF";
+	NewFormat.Picture = PictureLib.PDFFormat;
+	NewFormat.Presentation = NStr("en = 'PDF (obsolete format)';");
+	
 	// Spreadsheet document (.mxl)
 	NewFormat = FormatsTable.Add();
 	NewFormat.SpreadsheetDocumentFileType = SpreadsheetDocumentFileType.MXL;
@@ -464,10 +472,10 @@ Function SpreadsheetDocumentSaveFormatsSettings() Export
 	
 EndFunction
 
-// Returns the compatibility mode version as the numbering of revisions and versions. For example: 8.3.15.0.
+// Returns the compatibility mode version in the <Major>.<Minor>.<Revision>.<Build> format. For example: 8.3.15.0.
 //
 // Returns:
-//   String - the compatibility mode version as the numbering of revisions and versions.
+//   String - The compatibility mode version in the <Major>.<Minor>.<Revision>.<Build> format.
 //
 Function CompatibilityModeVersion() Export 
 	
@@ -638,8 +646,8 @@ Function ClientParametersAtServer(RaiseException1 = True) Export
 	EndIf;
 	
 	If CurrentRunMode() <> Undefined Then
-		// 
-		// 
+		// Reset the client caches used when accessing the client operating parameters
+		// to repopulate the client parameters on the server side.
 		RefreshReusableValues();
 	EndIf;
 	
@@ -713,13 +721,13 @@ Function ApplicationVersionUpdatedDynamically() Export
 		Return False;
 	EndIf;
 	
-	// 
-	// 
+	// If the database configuration is changed dynamically while an
+	// infobase update is running, keep updating despite the change.
 	// 
 	
 	If Common.DataSeparationEnabled() Then
-		// 
-		// 
+		// App operation parameters are always shared.
+		// Therefore, they are updated if all shared data is updated.
 		Return Not InfobaseUpdateInternal.SharedInfobaseDataUpdateRequired();
 	EndIf;
 	
@@ -744,7 +752,7 @@ Procedure RequireSessionRestartDueToDynamicUpdateOfProgramExtensions() Export
 			NStr("en = 'To perform the required actions,
 			           |start a session with the specified separators.
 			           |
-			           |Data area extensions are not applied when you sign in to a data area in a session
+			           |Data area extensions are not applied when you log in to a data area in a session
 			           |that is started without separators.';");
 	Else
 		ErrorText = NStr("en = 'Extensions are updated. Restart the app.';");
@@ -1021,8 +1029,8 @@ EndFunction
 
 Function ThisIsPredefinedData(Val Item, AttributeName = "", AttributeValue = "") Export // ACC:581 - An export function for auto-testing purposes.
 	
-	// 
-	// 
+	// For the subsystems "Properties", "ContactInformation", and "Interactions", to define predefined items,
+	// read the following attributes: "PredefinedSetName", "PredefinedKindName", "PredefinedFolderType".
 	AttributesValues = PredefinedDataAttributes();
 	FillPropertyValues(AttributesValues, Item);
 	If AttributesValues.PredefinedDataName = ""
@@ -1767,9 +1775,9 @@ EndFunction
 //
 Function CurrentUser() Export
 	
-	// 
-	// 
-	// 
+	// Calculate the up-to-date username even if it was changed in the current session.
+	// (For example, when the infobase is accessed via an external session.)
+	// In other cases, get "InfobaseUsers.CurrentUser".
 	CurrentUser = InfoBaseUsers.FindByUUID(
 		InfoBaseUsers.CurrentUser().UUID);
 	
@@ -2756,8 +2764,8 @@ Function AddClientParametersOnStart(Parameters) Export
 		Return True;
 	EndIf;
 	
-	// 
-	// 
+	// Parameters for the hosted mode and
+	// for sessions in the SaaS mode with separators.
 	
 	If InfobaseUpdate.InfobaseUpdateRequired() Then
 		Parameters.Insert("InfobaseUpdateRequired");
@@ -2793,8 +2801,8 @@ Function AddClientParametersOnStart(Parameters) Export
 	If IsCallBeforeStart
 	   And (Parameters.Property("InfobaseUpdateRequired")
 	      Or InfobaseUpdate.InfobaseUpdateInProgress()) Then
-		// 
-		// 
+		// Do not add the other parameters until the update is completed
+		// as those parameters may assume that the infobase is updated.
 		Return False;
 	EndIf;
 	
@@ -3102,7 +3110,7 @@ EndProcedure
 ////////////////////////////////////////////////////////////////////////////////
 // Event subscription handlers.
 
-// Event handler Before recording predefined elements.
+// "BeforeWrite" event handler for predefined items.
 //
 Procedure ProcessPredefinedItemsBeforeWrite(Source, Cancel) Export
 	
@@ -3179,7 +3187,7 @@ Procedure DenyPredefinedItemDeletionBeforeDelete(Source, Cancel) Export
 	If ValueIsFilled(AttributesValues.Owner) Then
 		OwnerDetailsValues = New Structure("DeletionMark");
 		OwnerDeletionMark = Common.ObjectAttributeValue(AttributesValues.Owner, "DeletionMark");
-		If OwnerDeletionMark <> False Then // 
+		If OwnerDeletionMark <> False Then // Undefined if the owner is deleted.
 			Return;
 		EndIf;
 	EndIf;
@@ -3396,8 +3404,8 @@ Procedure CreateMissingPredefinedData(MetadataObjects)
 				"ISNULL(SpecifiedTableAlias.Parent.PredefinedDataName, """")", """""");
 		EndIf;
 		
-		// 
-		// 
+		// ACC:1328-off - No.648.1.1. An exclusive lock is set in the calling procedure.
+		// @skip-check query-in-loop - Batch-wise data processing
 		NameTable = Query.Execute().Unload();
 		// ACC:1328-on.
 		NameTable.Indexes.Add("Name");
@@ -3413,8 +3421,8 @@ Procedure CreateMissingPredefinedData(MetadataObjects)
 		InitializePredefinedData();
 		
 		Query.Text = SavedItemsDescription.QueryText;
-		// 
-		// 
+		// ACC:1328-off - No.648.1.1. An exclusive lock is set in the calling procedure.
+		// @skip-check query-in-loop - Batch-wise data processing
 		NameTable = Query.Execute().Unload();
 		// ACC:1328-on.
 		NameTable.Indexes.Add("Name");
@@ -3752,6 +3760,7 @@ Function SecureSoftwareSystemVersions() Export  // ACC:581 - An export function 
 	Versions = New Array;
 	Versions.Add("8.3.21.1676");
 	Versions.Add("8.3.21.1901");
+	Versions.Add("8.3.24.1440");
 	
 	Return Versions;
 
@@ -3798,7 +3807,7 @@ Procedure CorrectSharedUserHomePage()
 	
 	PreviousFormCompositionInMetadata = CommonSettingsStorage.Load(ObjectKey, SettingsKey);
 	If PreviousFormCompositionInMetadata = Undefined Then
-		// Clearing the home page on the first sign-in.
+		// Clear the home page on the first login.
 		SetBlankFormOnHomePage();
 	Else
 		SetBlankFormOnBlankHomePage();
@@ -3852,8 +3861,8 @@ EndFunction
 // This method is required by CorrectSharedUserHomePage procedure.
 Procedure CompensateChangesOfFormCompositionInHomePageMetadata(PreviousFormCompositionInMetadata)
 	
-	// 
-	// 
+	// The compensation takes into account that the home page settings
+	// might have been saved when hiding the desktop.
 	
 	ObjectKey         = "Common/HomePageSettings";
 	StorageObjectKey = "Common/HomePageSettingsBeforeClear";
@@ -3938,8 +3947,8 @@ EndProcedure
 
 Procedure ExecuteSessionParameterSettingHandlers(SessionParametersNames, Handlers, SpecifiedParameters)
 	
-	// 
-	// 
+	// An array with session parameter keys, which are set with the
+	// parameter name start word followed by the asterisk ( * ).
 	SessionParameterKeys = New Array;
 	
 	For Each Record In Handlers Do
@@ -4123,8 +4132,8 @@ Procedure CheckIfCanStart()
 	
 	If ValueIsFilled(InfobaseProfile) Then
 		
-		// 
-		// 
+		// The infobase is configured so that the security profile
+		// prohibits unlimited access to external modules.
 		
 		SetSafeMode(InfobaseProfile);
 		If SafeMode() <> InfobaseProfile Then
@@ -4167,8 +4176,8 @@ Procedure CheckIfCanStart()
 		
 	Else
 		
-		// 
-		// 
+		// The infobase is configured so that the security profile
+		// cannot prohibit unlimited access to external modules.
 		
 		Try
 			PrivilegedModeAvailable = CanExecuteHandlersWithoutSafeMode();
@@ -4193,8 +4202,8 @@ EndProcedure
 //
 Function CanExecuteHandlersWithoutSafeMode()
 	
-	// 
-	// 
+	// Do not call "Common.CalculateInSafeMode" since the privileged
+	// mode usage in the "Evaluate" function is checked in unsafe mode.
 	Return Eval("SwichingToPrivilegedModeAvailable()"); // ACC:488
 		
 EndFunction
@@ -4308,8 +4317,8 @@ Procedure SetFormWindowOptionsSaveKey(Form, Var_Key, SetSettings)
 	SettingsTypes1.Add("/ThinClientWindowSettings"); // @Non-NLS
 	SettingsTypes1.Add("/Taxi/ThinClientWindowSettings"); // @Non-NLS
 	SettingsTypes1.Add("/WebClientWindowSettings"); // @Non-NLS
-	SettingsTypes1.Add("/Taxi/WebClientWindowSettings"); // 
-	// 
+	SettingsTypes1.Add("/Taxi/WebClientWindowSettings"); // @Non-NLS
+	// The English version.
 	SettingsTypes1.Add("/ThinClientWindowSettings");
 	SettingsTypes1.Add("/Taxi/ThinClientWindowSettings");
 	SettingsTypes1.Add("/WebClientWindowSettings");

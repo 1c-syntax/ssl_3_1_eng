@@ -25,9 +25,7 @@
 			</Title>
 			<TitleLocation>None</TitleLocation>
 			<AutoMaxWidth>false</AutoMaxWidth>
-			<Height>2</Height>
 			<VerticalStretch>false</VerticalStretch>
-			<Font ref="style:ImportantLabelFont" kind="StyleItem"/>
 			<ContextMenu name="ExplanationContextMenu" id="5"/>
 			<ExtendedTooltip name="ExplanationExtendedTooltip" id="6"/>
 		</LabelField>
@@ -48,6 +46,9 @@
 			<SelectionShowMode>WhenActive</SelectionShowMode>
 			<ContextMenu name="ReportContextMenu" id="3"/>
 			<ExtendedTooltip name="ReportExtendedTooltip" id="7"/>
+			<Events>
+				<Event name="Selection">ReportSelection</Event>
+			</Events>
 		</SpreadSheetDocumentField>
 	</ChildItems>
 	<Attributes>
@@ -88,7 +89,7 @@
 				</v8:StringQualifiers>
 			</Type>
 		</Parameter>
-		<Parameter name="FilesArrayWithErrors">
+		<Parameter name="FilesWithErrors">
 			<Type/>
 		</Parameter>
 	</Parameters>

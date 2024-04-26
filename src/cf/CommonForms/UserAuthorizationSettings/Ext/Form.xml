@@ -513,7 +513,7 @@ when the user cannot change the password.</v8:content>
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Notification lead time:</v8:content>
+															<v8:content>Notification lead time before password expires:</v8:content>
 														</v8:item>
 													</Title>
 													<TitleLocation>Right</TitleLocation>
@@ -1046,7 +1046,7 @@ when the user cannot change the password.</v8:content>
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Notification lead time:</v8:content>
+															<v8:content>Notification lead time before password expires:</v8:content>
 														</v8:item>
 													</Title>
 													<TitleLocation>Right</TitleLocation>
@@ -1168,7 +1168,7 @@ Not applicable to administrators.</v8:content>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Notify user these many days before access expire</v8:content>
+									<v8:content>Notify users on access expiration</v8:content>
 								</v8:item>
 							</Title>
 							<Behavior>Usual</Behavior>
@@ -1182,7 +1182,7 @@ Not applicable to administrators.</v8:content>
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Notify user these many days before access expire:</v8:content>
+											<v8:content>Notify user this many days before access expires:</v8:content>
 										</v8:item>
 									</Title>
 									<TitleLocation>Right</TitleLocation>
@@ -1198,7 +1198,7 @@ Not applicable to administrators.</v8:content>
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Notify user these many days before access expire</v8:content>
+											<v8:content>Notify users on access expiration</v8:content>
 										</v8:item>
 									</Title>
 									<TitleLocation>None</TitleLocation>
@@ -1220,7 +1220,7 @@ Not applicable to administrators.</v8:content>
 									<ToolTip>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>The user is shown the warning if either the restriction is enabled individually in the user card or the checkbox "Inactivity period before the user is blocked from signing in: &lt;&gt; days" is selected in the app settings.</v8:content>
+											<v8:content>The user is shown the warning if either the login time restriction is enabled in the user card or the checkbox "User inactivity timeout: &lt;&gt; days" is selected in the common settings.</v8:content>
 										</v8:item>
 									</ToolTip>
 									<ToolTipRepresentation>Button</ToolTipRepresentation>
@@ -1385,7 +1385,7 @@ Not applicable to administrators.</v8:content>
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Allow users to save password on sign-in:</v8:content>
+											<v8:content>Allow users to save password on login:</v8:content>
 										</v8:item>
 									</Title>
 									<TitleLocation>Right</TitleLocation>
@@ -2039,7 +2039,7 @@ the app without requiring manual password entry each time.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Use separate login settings for external users</v8:content>
+					<v8:content>Use different login settings for external users</v8:content>
 				</v8:item>
 			</Title>
 			<TitleLocation>Right</TitleLocation>
@@ -2273,7 +2273,7 @@ the app without requiring manual password entry each time.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Use separate login settings for external users</v8:content>
+					<v8:content>Use different login settings for external users</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -2284,7 +2284,7 @@ the app without requiring manual password entry each time.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Notification lead time:</v8:content>
+					<v8:content>Notification lead time before password expires:</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -2403,7 +2403,7 @@ the app without requiring manual password entry each time.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Notification lead time:</v8:content>
+					<v8:content>Notification lead time before password expires:</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -2524,7 +2524,7 @@ the app without requiring manual password entry each time.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Notify user these many days before access expire</v8:content>
+					<v8:content>Notify users on access expiration</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -2540,7 +2540,7 @@ the app without requiring manual password entry each time.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Notify user these many days before access expire:</v8:content>
+					<v8:content>Notify user this many days before access expires:</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -2837,7 +2837,7 @@ was sent to the current user's email.</v8:content>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Check whether the invitation to sign in
+					<v8:content>Check whether the invitation to log in
 was sent to the current user's email.</v8:content>
 				</v8:item>
 			</ToolTip>

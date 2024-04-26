@@ -132,7 +132,9 @@ EndProcedure
 // Allows you to change the standard form of the file list.
 //
 // Parameters:
-//    Form - ClientApplicationForm - a file list form.
+//    Form - ClientApplicationForm - :
+//      * FilesStorageCatalogName - String
+//      * FileOwner - DefinedType.FilesOwner
 //
 Procedure OnCreateFilesListForm(Form) Export
 	
@@ -141,7 +143,8 @@ EndProcedure
 // Allows you to change the standard file form.
 //
 // Parameters:
-//    Form - ClientApplicationForm - a file form.
+//    Form - ClientApplicationForm - :
+//      * Object - DefinedType.AttachedFile
 //
 Procedure OnCreateFilesItemForm(Form) Export
 	

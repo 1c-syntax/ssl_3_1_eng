@@ -795,7 +795,7 @@ Procedure OutputCommands(Form, Commands, PlacementParameters)
 	InfoOnGenerateSubmenu = Undefined;
 	
 	For Each CommandsKind In CommandsKinds Do
-		KindCommands = Commands.FindRows(New Structure("Kind", CommandsKind.Name)); 
+		KindCommands = Commands.FindRows(New Structure("Kind", CommandsKind.Name)); // Array of ValueTableRow: See CommandsTable
 		
 		If KindCommands.Count() = 0 And CommandsKind.Name <> "GenerateFrom" Then
 			Continue;
@@ -834,7 +834,7 @@ Procedure OutputCommands(Form, Commands, PlacementParameters)
 		EndDo;
 	EndDo;
 	
-	BusyNames = New Map;
+	TakenNames = New Map;
 	
 	For Each CommandSubmenuInfo In InfoOnAllSubmenus Do
 		For Each CommandIndex In CommandSubmenuInfo.Commands Do
@@ -847,15 +847,15 @@ Procedure OutputCommands(Form, Commands, PlacementParameters)
 			EndIf;
 			
 			Command.NameOnForm = DefineCommandName(Form, FormGroup.Name, Command.Id, 
-				CommandsCounterWithAutonaming, CommandsPrefix, BusyNames);
+				CommandsCounterWithAutonaming, CommandsPrefix, TakenNames);
 			Command.PlacementParametersKey = PlacementParametersKey;
 			
 			Popup = CommandSubmenuInfo.Popup; // FormGroup
-			CommandOfCommandPanelType = Command.Kind = "CommandBar";
-			RootItemName = ?(CommandOfCommandPanelType, Command.NameOnForm, Popup.Name);
+			IsCommandOfCommandBarType = Command.Kind = "CommandBar";
+			RootItemName = ?(IsCommandOfCommandBarType, Command.NameOnForm, Popup.Name);
 					
 			FormCommand = Form.Commands.Add(Command.NameOnForm);
-			BusyNames.Insert(Command.NameOnForm, True);
+			TakenNames.Insert(Command.NameOnForm, True);
 			FormCommand.Action = "Attachable_ExecuteCommand";
 			FormCommand.Title = Command.Presentation;
 			FormCommand.ToolTip   = FormCommand.Title;
@@ -876,12 +876,12 @@ Procedure OutputCommands(Form, Commands, PlacementParameters)
 				And PlacementParameters.IsObjectForm And Form.ReadOnly;
 				
 			If CommandSubmenuInfo.CommandsCount = 1 And TypeOf(FormGroup.Parent) <> Type("ClientApplicationForm") 
-				And Not CommandOfCommandPanelType Then
+				And Not IsCommandOfCommandBarType Then
 				FormButton = Items.Insert(Command.NameOnForm, Type("FormButton"), CommandSubmenuInfo.Popup.Parent, FormGroup.Parent);
 			Else
 				FormButton = Items.Add(Command.NameOnForm, Type("FormButton"), FormGroup);
 			EndIf;
-			BusyNames.Insert(Command.NameOnForm, True);
+			TakenNames.Insert(Command.NameOnForm, True);
 			
 			FormButton.Type = FormButtonType.CommandBarButton;
 			FormButton.CommandName = Command.NameOnForm;
@@ -1264,7 +1264,7 @@ Function GroupCommandsCount(Group)
 	Return Result;
 EndFunction
 
-Function DefineCommandName(Form, GroupName, CommandID, CommandsCounterWithAutonaming, CommandsPrefix, BusyNames)
+Function DefineCommandName(Form, GroupName, CommandID, CommandsCounterWithAutonaming, CommandsPrefix, TakenNames)
 	If CommonClientServer.NameMeetPropertyNamingRequirements(CommandID) Then
 		CommandName = GroupName + "_" + CommandsPrefix + "_" +  CommandID;
 	Else
@@ -1272,7 +1272,7 @@ Function DefineCommandName(Form, GroupName, CommandID, CommandsCounterWithAutona
 		CommandName = GroupName + "_" + CommandsPrefix + "_" + Format(CommandsCounterWithAutonaming, "NZ=; NG=");
 	EndIf;
 		
-	While BusyNames[CommandName] = True Do
+	While TakenNames[CommandName] = True Do
 		CommandsCounterWithAutonaming = CommandsCounterWithAutonaming + 1;
 		CommandName = GroupName + "_" + CommandsPrefix + "_" + Format(CommandsCounterWithAutonaming, "NZ=; NG=");
 	EndDo;

@@ -199,26 +199,6 @@ Function CheckCertificate(CryptoManager, Certificate, ErrorDescription = Null, O
 	
 EndFunction
 
-Function SignatureCertificateAdditionalCheckResult(Certificate, SigningDate, SignatureProperties) Export
-	
-	ResultofCertificateAuthorityVerification = ResultofCertificateAuthorityVerification(
-		Certificate, SigningDate, True, SignatureProperties);
-	
-	If Not ResultofCertificateAuthorityVerification.Valid_SSLyf Then
-		
-		CertificateCustomSettings = DigitalSignatureInternalServerCall.CertificateCustomSettings(
-				Certificate.Thumbprint);
-		If CertificateCustomSettings.SigningAllowed <> True Then
-			
-			Return ResultofCertificateAuthorityVerification.Warning.ErrorText;
-
-		EndIf;
-	EndIf;
-		
-	Return True;
-	
-EndFunction
-
 Function AdditionalCertificateVerificationParameters() Export
 	
 	AdditionalParameters = New Structure;
@@ -626,6 +606,7 @@ EndProcedure
 // For the form of the Administration subsystem's common settings.
 // 
 // Parameters:
+//  Form - ClientApplicationForm - See DataProcessor.SSLAdministrationPanel.
 //  DataPathAttribute - String - Attribute data path that was modified in the form.
 //
 Procedure ConfigureCommonSettingsForm(Form, DataPathAttribute) Export
@@ -6460,10 +6441,10 @@ EndProcedure
 
 #Region CryptoErrorsClassifier
 
-Function ClassifierError(TextToSearchInClassifier, ErrorAtServer = False) Export
+Function ClassifierError(TextToSearchInClassifier, ErrorAtServer = False, SignatureVerificationError = False) Export
 	
 	ClassifierError = DigitalSignatureInternalCached.ClassifierError(
-		TextToSearchInClassifier, ErrorAtServer);
+		TextToSearchInClassifier, ErrorAtServer, SignatureVerificationError);
 		
 	If ClassifierError = Undefined Then
 		Return Undefined;
@@ -6590,6 +6571,7 @@ Function NewClassifierOfCryptoErrors()
 	Result.Columns.Add("IsCheckRequired", New TypeDescription("Boolean"));
 	Result.Columns.Add("CertificateRevoked",  New TypeDescription("Boolean"));
 	Result.Columns.Add("IsInvalidSignatureHash", New TypeDescription("Boolean"));
+	Result.Columns.Add("ErrorVerifyingSignature", New TypeDescription("Boolean"));
 	
 	Return Result;
 	
@@ -6637,6 +6619,7 @@ Function RepresentationOfErrorClassifier(ClassifierData) Export
 		NewError.Decision          = KnownError.Solution;
 		NewError.OnlyServer     = CommonClientServer.StructureProperty(KnownError, "Server", False);
 		NewError.OnlyClient     = CommonClientServer.StructureProperty(KnownError, "Client", False);
+		NewError.ErrorVerifyingSignature     = CommonClientServer.StructureProperty(KnownError, "Sign", False);
 		Category = CommonClientServer.StructureProperty(KnownError, "Category", Undefined);
 		If ValueIsFilled(Category) Then
 			NewError.IsInvalidSignatureHash = ErrorInvalidSignatureHash(Category);
@@ -6993,7 +6976,7 @@ Function DownloadRevocationListFileAtServer(Val Addresses, InternalAddress = Und
 				
 			Else
 				
-				RevocationListValidityPeriod = RevocationListValidityPeriod(ImportResult1.FileData);
+				RevocationListValidityPeriod = DigitalSignatureInternalClientServer.PropertiesOfReviewList(ImportResult1.FileData);
 				
 				If RevocationListValidityPeriod = Undefined Then
 					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -7173,40 +7156,6 @@ Function RevocationListDataFromDatabase(InternalAddress)
 	
 EndFunction
 
-// Intended for: DownloadRevocationListFileAtServer procedure and the BeforeWrite check in the CertificateRevocationLists register.
-Function RevocationListValidityPeriod(Data) Export
-	
-	BinaryData = DigitalSignatureInternalClientServer.BinaryDataFromTheData(
-		Data, "DigitalSignatureInternal.RevocationListValidityPeriod");
-	
-	DataAnalysis = DigitalSignatureInternalClientServer.NewDataAnalysis(BinaryData);
-	
-	Result = New Structure("StartDate, EndDate");
-	
-	// SEQUENCE (CertificateList).
-		DigitalSignatureInternalClientServer.SkipBlockStart(DataAnalysis, 0, 16);
-			// SEQUENCE (TBSCertList).
-			DigitalSignatureInternalClientServer.SkipBlockStart(DataAnalysis, 0, 16);
-				// INTEGER  (version          Version).
-				DigitalSignatureInternalClientServer.SkipBlock(DataAnalysis, 0, 2);
-				// SEQUENCE (signature            AlgorithmIdentifier).
-				DigitalSignatureInternalClientServer.SkipBlock(DataAnalysis, 0, 16);
-				// SEQUENCE (issuer               Name).
-				DigitalSignatureInternalClientServer.SkipBlock(DataAnalysis, 0, 16);
-				
-				If DataAnalysis.HasError Then
-					Return Undefined;
-				EndIf;
-				
-				// UTC TIME (thisUpdate).
-				Result.StartDate = DigitalSignatureInternalClientServer.ReadDateFromClipboard(DataAnalysis.Buffer, DataAnalysis.Offset);
-				// UTC TIME (nextUpdate).
-				Result.EndDate = DigitalSignatureInternalClientServer.ReadDateFromClipboard(DataAnalysis.Buffer, DataAnalysis.Offset + 15);
-	
-	Return Result;
-	
-EndFunction
-
 // Intended for: DownloadRevocationListFileAtServer procedure
 Procedure PopulateResultOfRevocationListImportFromCacheData(ImportResult1, DataFromCache)
 	
@@ -7372,6 +7321,144 @@ Function FileLastModifiedDate(ImportResult1) Export
 	
 	Return Undefined;
 
+EndFunction
+
+Function ToSupplementDecisionOfErrorClassifierWithDetails(ClassifierError,
+	AdditionalData, ParametersForCompletingTextOfClassifierErrorSolutionOnClient, ErrorLocation = Undefined) Export
+
+	Result = New Structure("ClassifierError, ParametersForCompletingTextOfClassifierErrorSolutionOnClient",
+		ClassifierError, ParametersForCompletingTextOfClassifierErrorSolutionOnClient);
+
+	If Not ValueIsFilled(ClassifierError.RemedyActions) Then
+		Return Result;
+	EndIf;
+
+	Decision = New Array;
+	Cause = New Array;
+	If ClassifierError.RemedyActions.Find(
+					"MentionLinkToCAInSolution") <> Undefined Then
+		CertificateIssuer = CertificateIssuer(AdditionalData.CertificateData);
+		If ValueIsFilled(CertificateIssuer) Then
+
+			Decision.Add(ClassifierError.Decision);
+			Decision.Add(Chars.LF);
+			Decision.Add(StringFunctionsClientServer.SubstituteParametersToString(
+							NStr("en = 'Удостоверяющий центр, выдавший сертификат: %1.';"), CertificateIssuer));
+		EndIf;
+	EndIf;
+
+#If Not MobileAppServer And Not MobileClient Then
+	If ClassifierError.RemedyActions.Find(
+					"VerifyCertificateInLocalStorage") <> Undefined Then
+
+		SystemInfo = New SystemInfo;
+		AppVersion = SystemInfo.AppVersion;
+		If CommonClientServer.CompareVersions(AppVersion, "8.3.24.0") < 0 Then
+			If ErrorLocation = "Server" Then
+				If DigitalSignature.CommonSettings().VerifyDigitalSignaturesOnTheServer
+					Or DigitalSignature.CommonSettings().GenerateDigitalSignaturesAtServer Then
+					CertificateInLocalStorage = CertificateInLocalStorage(
+						AdditionalData.CertificateData);
+					If CertificateInLocalStorage = True Then
+						Decision = New Array;
+						Decision.Add(StringFunctions.FormattedString(
+							CertificateInLocalStorageSolutionText(ErrorLocation)));
+							
+						Cause = New Array;
+						Cause.Add(StringFunctions.FormattedString(
+							CertificateInLocalStorageTextOfReason(ErrorLocation)));
+					EndIf;
+				EndIf;
+			Else
+				Result.ParametersForCompletingTextOfClassifierErrorSolutionOnClient.VerifyCertificateInClientSLocalStorage = True;
+			EndIf;
+		EndIf;
+	EndIf;
+#EndIf
+
+	If Decision.Count() > 0 Then
+		Result.ClassifierError.Decision = New FormattedString(Decision);
+	EndIf;
+	
+	If Cause.Count() > 0 Then
+		Result.ClassifierError.Cause = New FormattedString(Cause);
+	EndIf;
+
+	Return Result;
+
+EndFunction
+
+Function CertificateInLocalStorageSolutionText(Location)
+	
+	If Location = "Server" Then
+
+		Return StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Удалите сертификат из локального хранилища сервера %1.';"), ComputerName());
+
+	EndIf;
+
+	Return DigitalSignatureInternalClientServer.CertificateInLocalStorageSolutionText();
+
+EndFunction
+
+Function CertificateInLocalStorageTextOfReason(Location) Export
+	
+	If Location = "Server" Then
+
+		Return StringFunctionsClientServer.SubstituteParametersToString(
+				NStr(
+			"en = 'На сервере %1 сертификат установлен в локальное хранилище, вместо текущего хранилища пользователя, под которым работает сервер.';"),
+			ComputerName());
+
+	EndIf;
+
+	Return DigitalSignatureInternalClientServer.CertificateInLocalStorageTextOfReason();
+	
+EndFunction
+
+Function CertificateIssuer(CertificateData)
+	
+	If Not ValueIsFilled(CertificateData) Then
+		Return Undefined;
+	EndIf;
+	
+	If ValueIsFilled(CertificateData) Then
+		CertificateAuthorityProperties = DigitalSignature.CertificateIssuerProperties(New CryptoCertificate(CertificateData));
+		Return CertificateAuthorityProperties.CommonName;
+	EndIf;
+	
+	Return Undefined;
+EndFunction
+
+Function CertificateInLocalStorage(CertificateData)
+	
+	#If Not MobileAppServer And Not MobileClient Then
+	
+	If Not ValueIsFilled(CertificateData) Then
+		Return Undefined;
+	EndIf;
+	
+	CryptoManager = CryptoManager("GetCertificates");
+	Try
+		LocalComputerStorage = CryptoManager.GetCertificateStore(
+			CryptoCertificateStoreType.PersonalCertificates,
+			CryptoCertificateStorePlacement.ComputerData);
+		CryptoCertificate = New CryptoCertificate(CertificateData);
+	Except
+		WriteLogEvent(NStr("en = 'Электронная подпись.Диагностика ошибок';",
+			Common.DefaultLanguageCode()), EventLogLevel.Error,,,
+			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+		Return Undefined;
+	EndTry;
+	
+	If LocalComputerStorage.FindByThumbprint(CryptoCertificate.Thumbprint) <> Undefined Then
+		Return True;
+	EndIf;
+	
+	#EndIf
+	
+	Return Undefined;
+	
 EndFunction
 
 

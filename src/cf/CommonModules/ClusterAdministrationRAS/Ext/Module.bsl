@@ -165,7 +165,8 @@ EndProcedure
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
-//   Filter - See ClusterAdministration.SessionsFilter, Array of See ClusterAdministration.SessionsFilter
+//   Filter - See ClusterAdministration.SessionsFilter See ClusterAdministration.SessionsFilter
+//            , Array of
 //
 // Returns: 
 //   Array of See ClusterAdministration.SessionProperties
@@ -249,7 +250,8 @@ EndFunction
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
-//   Filter - See ClusterAdministration.SessionsFilter, Array of See ClusterAdministration.SessionsFilter
+//   Filter - See ClusterAdministration.SessionsFilter See ClusterAdministration.SessionsFilter
+//            , Array of
 //
 Procedure DeleteInfobaseSessions(Val ClusterAdministrationParameters, Val IBAdministrationParameters, Val Filter = Undefined) Export
 	
@@ -312,7 +314,8 @@ EndProcedure
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
-//   Filter - See ClusterAdministration.JoinsFilters, Array of See ClusterAdministration.JoinsFilters
+//   Filter - See ClusterAdministration.JoinsFilters See ClusterAdministration.JoinsFilters
+//            , Array of
 //
 // Returns:
 //   Array of See ClusterAdministration.ConnectionProperties
@@ -330,7 +333,8 @@ EndFunction
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
-//   Filter - See ClusterAdministration.JoinsFilters, Array of See ClusterAdministration.JoinsFilters
+//   Filter - See ClusterAdministration.JoinsFilters See ClusterAdministration.JoinsFilters
+//            , Array of
 //
 Procedure TerminateInfobaseConnections(Val ClusterAdministrationParameters, Val IBAdministrationParameters, Val Filter = Undefined) Export
 	
@@ -785,7 +789,8 @@ EndFunction
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   InfoBaseID - String - Internal infobase ID.
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
-//   Filter - See ClusterAdministration.SessionsFilter, Array of See ClusterAdministration.SessionsFilter
+//   Filter - See ClusterAdministration.SessionsFilter See ClusterAdministration.SessionsFilter
+//            , Array of
 //   UseDictionary - Boolean - If True, the return value is generated using a dictionary.
 //
 // Returns: 
@@ -817,7 +822,8 @@ EndFunction
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   InfoBaseID - String - Internal infobase ID.
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
-//   Filter - See ClusterAdministration.SessionsFilter, Array of See ClusterAdministration.SessionsFilter
+//   Filter - See ClusterAdministration.SessionsFilter See ClusterAdministration.SessionsFilter
+//            , Array of
 //   UseDictionary - Boolean - If True, the return value is generated using a dictionary.
 //
 // Returns: 
@@ -1283,8 +1289,8 @@ Function AdjustValue(Val Value)
 		
 	ElsIf TypeOf(Value) = Type("String") Then
 		
-		// 
-		// 
+		// The documentation stipulates:
+		// Arbitrary strings are enclosed in double quotation marks, and double quotation marks within such strings should be duplicated.
 		Digits = "0123456789";
 		LatinCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 		CyrillicCharacters = "ABVGDEZHZIYKLMNOPRSTUFKHTSCHSHSHYEYUYaabvgdezhziyklmnoprstufkhtschshyeyu"; // ACC:1036 - Orthography check is not required.
@@ -1360,9 +1366,9 @@ Function CastOutputItem(OutputItem, ElementType)
 		
 	ElsIf ElementType = Undefined Then
 		
-		//  
-		//  
-		// 
+		// Skip identifying the data type in the string as 
+		// an empty string may be an empty date, and 
+		// the string can contain only numbers (for example, a process PID).
 		
 		If IsBlankString(OutputItem) Then
 			Return Undefined;

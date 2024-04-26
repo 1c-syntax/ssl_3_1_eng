@@ -65,6 +65,7 @@ Procedure OpenAddRecipientsForm(IsPick)
 	
 	ChoiceFormParameters = New Structure;
 	
+	// 
 	ChoiceFormParameters.Insert("ChoiceFoldersAndItems", FoldersAndItemsUse.FoldersAndItems);
 	ChoiceFormParameters.Insert("CloseOnChoice", ?(IsPick, False, True));
 	ChoiceFormParameters.Insert("CloseOnOwnerClose", True);
@@ -77,6 +78,7 @@ Procedure OpenAddRecipientsForm(IsPick)
 	ChoiceFormParameters.Insert("UsersGroupsSelection", True);
 	
 	// 
+	//  
 	If IsPick Then
 		ChoiceFormParameters.Insert("AdvancedPick", True);
 		ChoiceFormParameters.Insert("PickFormHeader", NStr("en = 'Pick recipients';"));

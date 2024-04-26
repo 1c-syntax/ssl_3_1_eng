@@ -176,7 +176,7 @@ Function StandardSchedulesForReminder()
 	
 	Result = New Map;
 		
-	// 
+	// On Mondays at 9 a.m.
 	Schedule = New JobSchedule;
 	Schedule.DaysRepeatPeriod = 1;
 	Schedule.WeeksPeriod = 1;
@@ -186,7 +186,7 @@ Function StandardSchedulesForReminder()
 	Schedule.WeekDays = WeekDays;
 	Result.Insert(NStr("en = 'on Mondays at 9.00 AM';"), Schedule);
 	
-	// 
+	// On Fridays at 3 p.m.
 	Schedule = New JobSchedule;
 	Schedule.DaysRepeatPeriod = 1;
 	Schedule.WeeksPeriod = 1;
@@ -196,7 +196,7 @@ Function StandardSchedulesForReminder()
 	Schedule.WeekDays = WeekDays;
 	Result.Insert(NStr("en = 'on Fridays at 3.00 PM';"), Schedule);
 	
-	// 
+	// Every day at 9:00 a.m.
 	Schedule = New JobSchedule;
 	Schedule.DaysRepeatPeriod = 1;
 	Schedule.WeeksPeriod = 1;
@@ -228,7 +228,7 @@ EndFunction
 //   SearchForFutureDatesOnly - Boolean
 // 
 // Returns:
-//   
+//   Undefined, Date
 //
 Function NearestEventDateOnSchedule(Schedule, PreviousDate = '000101010000', SearchForFutureDatesOnly = True) Export
 

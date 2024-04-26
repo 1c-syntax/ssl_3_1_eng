@@ -135,14 +135,8 @@ EndProcedure
 
 &AtClient
 Procedure CheckIndex(Command)
-	Try
-		CheckIndexServer();
-	Except
-		ErrorMessageText = 
-			NStr("en = 'Cannot check index status. The index is being updated or cleaned up.';");
-		CommonClient.MessageToUser(ErrorMessageText);
-	EndTry;
-	
+	ClearMessages();
+	CheckIndexServer();
 	ShowUserNotification(NStr("en = 'Full-text search';"),, NStr("en = 'Index is up to date';"));
 EndProcedure
 
@@ -264,7 +258,15 @@ EndProcedure
 
 &AtServer
 Procedure CheckIndexServer()
-	IndexContainsCorrectData = FullTextSearch.CheckIndex();
+	Try
+		IndexContainsCorrectData = FullTextSearch.CheckIndex();
+	Except
+		ErrorMessageText = 
+			NStr("en = 'В настоящее время проверка индекса невозможна, так как выполняется его очистка или обновление.';");
+		Common.MessageToUser(ErrorMessageText);
+		FullTextSearchServer.LogRecord(EventLogLevel.Warning, 
+			"", ErrorInfo());
+	EndTry;
 	SetAvailability("Command.CheckIndex", True);
 EndProcedure
 

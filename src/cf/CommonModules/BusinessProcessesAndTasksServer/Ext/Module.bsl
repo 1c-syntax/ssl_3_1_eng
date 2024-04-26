@@ -875,8 +875,8 @@ Procedure NotifyPerformersOnNewTasks() Export
 	NotificationDate3 = CurrentSessionDate();
 	LatestNotificationDate = Constants.NewTasksNotificationDate.Get();
 	
-	// 
-	// 
+	// If the notification was not sent or was sent more than 24 hours ago,
+	// select the tasks created in the last 24 hours.
 	If (LatestNotificationDate = '00010101000000') 
 		Or (NotificationDate3 - LatestNotificationDate > 24*60*60) Then
 		LatestNotificationDate = NotificationDate3 - 24*60*60;
@@ -1189,15 +1189,15 @@ Procedure AfterGetData(Sender, Cancel, GetFromMasterNode) Export
 	
 EndProcedure
 
-// See the description in the procedure
-// to fill in the Extension Work Parameters of the Information Register Manager module Extension Work Parameters.
+// See description in the "FillAllExtensionsParameters" procedure
+// of the "ExtensionVersionParameters" information register manager module.
 //
 Procedure OnFillAllExtensionParameters() Export
 	
 	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
 	
-	// 
+	// If exceptions occured and the update is not completed.
 	UpdateAuxiliaryDataOfItemsModifiedUponDataImport();
 	
 EndProcedure
@@ -1273,9 +1273,9 @@ EndProcedure
 // See AccessManagementOverridable.OnFillAccessRightsDependencies.
 Procedure OnFillAccessRightsDependencies(RightsDependencies) Export
 	
-	// 
-	// 
-	// 
+	// The assignee's task can be modified even if its business process is read-only.
+	// Therefore, don't check for the "Update" access right.
+	// Instead, check if the "Read" right is granted.
 	
 	String = RightsDependencies.Add();
 	String.SubordinateTable = "Task.PerformerTask";
@@ -1348,8 +1348,8 @@ Procedure OnFillToDoList(ToDoList) Export
 	
 	PerformerTaskQuantity = PerformerTaskQuantity();
 	
-	// 
-	// 
+	// The procedure can be called only if the "To-do list" subsystem is integrated.
+	// Therefore, don't check if the subsystem is integrated.
 	Sections = ModuleToDoListServer.SectionsForObject(Metadata.Tasks.PerformerTask.FullName());
 	
 	If Users.IsExternalUserSession()
@@ -2521,12 +2521,12 @@ EndFunction
 // StandardSubsystems.AccessManagement
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Procedures used for data exchange in DIB.
 
-// 
+// Overrides the standard behavior on data import.
 Procedure OnDataGet(DataElement, ItemReceive)
 	
-	// 
+	// Standard data processor cannot be overridden.
 	If ItemReceive = DataItemReceive.Ignore Then
 		Return;
 	EndIf;
@@ -2537,7 +2537,7 @@ Procedure OnDataGet(DataElement, ItemReceive)
 	
 EndProcedure
 
-// 
+// Intended for "OnGetData".
 Procedure RegisterTaskAssigneesChangeUponDataImport(DataElement)
 	
 	If Not Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
@@ -2555,7 +2555,7 @@ Procedure RegisterTaskAssigneesChangeUponDataImport(DataElement)
 	
 EndProcedure
 
-// 
+// Intended for procedure "AfterGetData".
 Procedure UpdateAuxiliaryDataOfItemsModifiedUponDataImport()
 	
 	RefsKindName = "ModifiedTasksAssigneesGroups";
@@ -2623,6 +2623,7 @@ EndFunction
 
 // Parameters:
 //   Recipients - Array of CatalogRef.Users
+//              - Array of CatalogRef.ExternalUsers
 //   
 // Returns:
 //   See ContactsManager.ObjectsContactInformation

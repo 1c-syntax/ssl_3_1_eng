@@ -353,8 +353,8 @@ Procedure ChangeJob(Val Id, Val Parameters) Export
 				JobsList = FindJobs(Filter);
 			EndIf;
 			
-			// 
-			// 
+			// If a scheduled job is predefined and there's a queue tempalte,
+			// then only "Use" can be modified.
 			PredefinedJobParameters = New Structure;
 			If JobParameters.Property("Use") Then
 				PredefinedJobParameters.Insert("Use",

@@ -74,7 +74,8 @@ EndFunction
 //                If Undefined, the add-in is executed according to the default 1C:Enterprise settings
 //                Isolatedly if the add-in supports only isolated execution; otherwise, non-isolatedly.:
 //                By default, Undefined.
-//                See https://its.1c.eu/db/v83doc#bookmark:dev:TI000001866
+//                See https://its.1c.eu/db/v83doc
+//                                           #bookmark:dev:TI000001866
 //    * AutoUpdate - Boolean - Flag indicating whether UpdateFrom1CITSPortal will be set to True, 
 //                if SuggestToImport is set to True. By default, True.
 //
@@ -115,8 +116,8 @@ Async Function AttachAddInSSLAsync(Context) Export
 				           |Either %2 or %3 must be specified.';"), 
 				Context.Location, "Id", "ObjectsCreationIDs");
 		Else
-			// 
-			// 
+			// If an add-in has multiple object classes, "Id" is used only to
+			// display the add-in in the error text. In this case, build an ID.
 			// 
 			Context.Id = StrConcat(Context.ObjectsCreationIDs, ", ");
 		EndIf;
@@ -237,8 +238,8 @@ Procedure AttachAddInSSL(Context) Export
 				           |Either %2 or %3 must be specified.';"), 
 				Context.Location, "Id", "ObjectsCreationIDs");
 		Else
-			// 
-			// 
+			// If an add-in has multiple object classes, "Id" is used only to
+			// display the add-in in the error text. In this case, build an ID.
 			// 
 			Context.Id = StrConcat(Context.ObjectsCreationIDs, ", ");
 		EndIf;
@@ -393,8 +394,8 @@ Procedure InstallAddInSSL(Context) Export
 		
 	Else 
 		
-		// 
-		// 
+		// If the cache already has a symbolic name, it means that the add-in
+		// has already been attached to this session and, therefore, to this configuration.
 		Result = AddInInstallationResult();
 		Result.Insert("IsSet", True);
 		ExecuteNotifyProcessing(Context.Notification, Result);
@@ -463,8 +464,8 @@ Async Function InstallAddInSSLAsync(Context) Export
 		EndIf;
 	Else 
 		
-		// 
-		// 
+		// If the cache already has a symbolic name, it means that the add-in
+		// has already been attached to this session and, therefore, to this configuration.
 		
 		Result = AddInInstallationResult();
 		Result.IsSet = True;
@@ -1009,13 +1010,13 @@ EndProcedure
 Procedure AttachAddInSSLAfterInstallation(Result, Context) Export 
 	
 	If Result.IsSet Then 
-		// 
-		// 
+		// An atttempt to attach the add-in was made.
+		// If it failed, don't prompt the user to try again.
 		Context.WasInstallationAttempt = True;
 		AttachAddInSSL(Context);
 	Else 
-		// 
-		// 
+		// No need to drill down "ErrorDetails", its text was generated when attaching the add-in.
+		// If the user terminated the process, "ErrorDetails" is an empty string.
 		AttachAddInSSLNotifyOnError(Result.ErrorDescription, Context);
 	EndIf;
 	
@@ -1119,10 +1120,10 @@ EndFunction
 // Continue the InstallAddInSSL procedure.
 Procedure InstallAddInSSLAfterAnswerToInstallationQuestion(Response, Context) Export
 	
-	//  
-	// 
-	// 
-	// 
+	// Result: 
+	// - DialogReturnCode.Yes - Attach the add-in.
+	// - DialogReturnCode.Cancel - Cancel attachment.
+	// - Undefined - Close the dialog.
 	If Response = DialogReturnCode.Yes Then
 		InstallAddInSSLStartInstallation(Context);
 	Else
@@ -1234,8 +1235,7 @@ Async Function AttachAddInSSLAfterAttachmentAttemptAsync(Attached, Context)
 		
 #If WebClient Then
 		SystemInfo = New SystemInfo;
-		If CommonClientServer.CompareVersions(SystemInfo.AppVersion, "8.3.24.0") >= 0
-			And Not CommonClient.DataSeparationEnabled() Then
+		If CommonClientServer.CompareVersions(SystemInfo.AppVersion, "8.3.24.0") >= 0 Then
 			Await PauseAsync(2);
 		EndIf;
 #EndIf
@@ -1260,13 +1260,13 @@ Async Function AttachAddInSSLAfterAttachmentAttemptAsync(Attached, Context)
 			InstallResult = Await InstallAddInSSLAsync(InstallationContext);
 			
 			If InstallResult.IsSet Then 
-				// 
-				// 
+				// An atttempt to attach the add-in was made.
+				// If it failed, don't prompt the user to try again.
 				Context.WasInstallationAttempt = True;
 				Return AttachAddInSSLAsync(Context);
 			Else 
-				// 
-				// 
+				// No need to drill down "ErrorDetails", its text was generated when attaching the add-in.
+				// If the user terminated the process, "ErrorDetails" is an empty string.
 				
 				Return AddInAttachmentError(InstallResult.ErrorDescription);
 			EndIf;
@@ -1701,9 +1701,6 @@ EndProcedure
 
 // Returns the MD5 hash of the passed string.
 //
-//
-////
-//
 // Parameters:
 //  String - String - Arbitrary string of any length.
 //
@@ -1926,7 +1923,7 @@ EndFunction
 
 #Region ObsoleteProceduresAndFunctions
 
-// 
+// Used in the obsolete function "CommonClient.CheckFileSystemExtensionAttached".
 Procedure CheckFileSystemExtensionAttachedCompletion(ExtensionAttached, AdditionalParameters) Export
 	
 	If ExtensionAttached Then

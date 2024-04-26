@@ -133,6 +133,7 @@ Function UpdateReportsSnapshotsAtServer(RowsIDs)
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Update user report snapshots';");
+	ExecutionParameters.RefinementErrors = NStr("en = 'Cannot update the report snapshots due to:';");
 	
 	ExecutionResult = TimeConsumingOperations.ExecuteInBackground(
 		"InformationRegisters.ReportsSnapshots.UpdateUserReportsSnapshots",
@@ -156,13 +157,15 @@ Procedure AfterReportsSnapshotsUpdated(Result, AdditionalParameters) Export
 	EndIf;
 	
 	If Result.Status = "Error" Then
-		NotificationText1 = NStr("en = 'Cannot update the report snapshots due to: %1';");
-		NotificationText1 = StringFunctionsClientServer.SubstituteParametersToString(NotificationText1, Chars.LF
-			+ Result.BriefErrorDescription);
-	Else
-		NotificationText1 = NStr("en = 'Report snapshots are updated.';");
+#If MobileClient Then
+		Execute("StandardSubsystemsClient.OutputErrorInfo(Result.ErrorInfo)");
+#Else
+		StandardSubsystemsClient.OutputErrorInfo(Result.ErrorInfo);
+#EndIf
+		Return;
 	EndIf;
-	
+
+	NotificationText1 = NStr("en = 'Report snapshots are updated.';");
 	ShowUserNotification(NStr("en = 'Snapshots updated';"), , NotificationText1);
 	
 	FillReportsSnapshots();

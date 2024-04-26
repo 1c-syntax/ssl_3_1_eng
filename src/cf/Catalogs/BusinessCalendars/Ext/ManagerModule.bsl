@@ -985,6 +985,7 @@ EndFunction
 // Parameters:
 //  BusinessCalendar - CatalogRef.BusinessCalendars - a current catalog item.
 //  YearNumber - Number - a number of the year for which the business calendar is to be recorded.
+//  BusinessCalendarData - See Catalog.BusinessCalendars..
 //
 Procedure WriteBusinessCalendarData(BusinessCalendar, YearNumber, BusinessCalendarData) Export
 	

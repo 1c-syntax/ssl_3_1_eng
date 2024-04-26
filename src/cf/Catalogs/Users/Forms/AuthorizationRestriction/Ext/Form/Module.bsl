@@ -76,7 +76,7 @@ Procedure OK(Command)
 			
 		ElsIf DueDate <= BegOfDay(CommonClient.SessionDate()) Then
 			CommonClient.MessageToUser(
-				NStr("en = 'The password expiration date must be tomorrow or later.';"),, "DueDate");
+				NStr("en = 'The expiration date must be tomorrow or later.';"),, "DueDate");
 			Return;
 		EndIf;
 	EndIf;

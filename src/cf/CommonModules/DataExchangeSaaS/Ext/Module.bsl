@@ -109,6 +109,8 @@ EndProcedure
 //
 // Parameters:
 //   ParametersTable - ValueTable - Table of parameter details. For column details, 
+//                                         See SaaSOperations.GetTableParametersIB
+//                                         .
 //
 Procedure OnFillIIBParametersTable(Val ParametersTable) Export
 	
@@ -252,6 +254,7 @@ EndProcedure
 
 // Deletes exchange message files that are not deleted due to system failures.
 // Files placed more than 24 hours ago are deleted (the files are calculated based on the universal current date)
+// Analyzing IR.DataAreasDataExchangeMessages.
 //
 Procedure OnDeleteObsoleteExchangeMessages() Export
 	

@@ -13,7 +13,7 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
 		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
@@ -194,7 +194,7 @@ EndProcedure
 &AtClient
 Procedure OnOpen(Cancel)
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
@@ -244,7 +244,7 @@ Procedure OnReadAtServer(CurrentObject)
 	EndIf;
 	// End StandardSubsystems.AccessManagement
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClientServer = Common.CommonModule("AttachableCommandsClientServer");
 		ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, Object);
@@ -482,7 +482,7 @@ EndProcedure
 &AtClient
 Procedure AfterWrite(WriteParameters)
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.AfterWrite(ThisObject, Object, WriteParameters);
@@ -543,7 +543,7 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	   And ValidityPeriod <= BegOfDay(CurrentSessionDate()) Then
 		
 		Common.MessageToUser(
-			NStr("en = 'The password expiration date must be tomorrow or later.';"),, "CanSignIn",, Cancel);
+			NStr("en = 'The expiration date must be tomorrow or later.';"),, "CanSignIn",, Cancel);
 	EndIf;
 	
 	If IBUserWritingRequired(ThisObject) Then
@@ -656,8 +656,8 @@ Procedure CanSignIn1OnChange(Item)
 	If Object.DeletionMark And CanSignIn Then
 		CanSignIn = False;
 		ShowMessageBox(,
-			NStr("en = 'To allow signing in to the application, clear the
-			           |deletion mark from the external user.';"));
+			NStr("en = 'To allow logging in to the application, clear
+			           |the deletion mark from the external user.';"));
 		Return;
 	EndIf;
 	
@@ -688,7 +688,7 @@ Procedure CanSignIn1OnChange(Item)
 	   And Not CanSignIn Then
 		
 		ShowMessageBox(,
-			NStr("en = 'Once you save the changes, only administrator can allow signing in to the application.';"));
+			NStr("en = 'Once you save the changes, only the administrator can allow login to the application.';"));
 	EndIf;
 	
 	CanSignInDirectChangeValue = CanSignIn;
@@ -1853,7 +1853,7 @@ Procedure SetPropertiesAvailability(Form)
 	ActionsOnForm = Form.ActionsOnForm;
 	AccessLevel = Form.AccessLevel;
 	
-	// Note to the "Sign-in blocked" state.
+	// Note to the "Login blocked" state.
 	If Form.CanSignIn Then
 		Items.GroupNoRights.Visible         = Form.WhetherRightsAreAssigned.HasNoRights;
 		Items.GroupNoStartupRights.Visible = Not Form.WhetherRightsAreAssigned.HasNoRights

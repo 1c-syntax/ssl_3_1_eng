@@ -133,8 +133,8 @@ EndFunction
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated.
-// 
+// Deprecated. Instead, use "BICInfo".
+// Gets data from the "BankClassifier" catalog by the passed BIC and correspondent bank account.
 // 
 // Parameters:
 //  BIC          - String - Bank ID.
@@ -238,8 +238,8 @@ Procedure OnFillToDoList(ToDoList) Export
 	
 	Result = DataProcessors[DataProcessorName].RelevanceOfBankClassifier();
 	
-	// 
-	// 
+	// The procedure can be called only if the "To-do list" subsystem is integrated.
+	// Therefore, don't check if the subsystem is integrated.
 	Sections = ModuleToDoListServer.SectionsForObject(Metadata.Catalogs.BankClassifier.FullName());
 	
 	For Each Section In Sections Do

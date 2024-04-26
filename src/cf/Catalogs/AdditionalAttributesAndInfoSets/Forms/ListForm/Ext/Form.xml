@@ -1422,13 +1422,13 @@ WHERE
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Add from another set…</v8:content>
+					<v8:content>From set…</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Add an attribute that belongs to another set.</v8:content>
+					<v8:content>Add an item that belongs to another set.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>AddFromSet</Action>

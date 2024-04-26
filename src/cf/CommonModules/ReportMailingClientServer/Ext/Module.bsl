@@ -117,11 +117,12 @@ EndFunction
 //                                - Undefined
 //
 //     If UseEmail = True, the following optional properties are used:
-//       * Personalized - Boolean - a mailing personalized by recipients.
-//           The default value is False.
-//           If True value is set, each recipient will receive a report with a filter by it.
-//           Applies only to delivery by mail,
-//           so when setting to the True, other delivery methods are disabled.
+//       * Personalized - Boolean - Personalized report distribution.
+//           By default, False.
+//           If True, each recipient receives an individual report.
+//           To do this, in reports, set the [Recipient] filter by the attribute that matches the recipient type.
+//           Applies only to email distributions,
+//           so setting to True disables other distribution methods.
 //       * NotifyOnly - Boolean - False - send notifications only (do not attach generated reports).
 //       * BCCs    - Boolean - False - if True, when sending fill BCCs instead of To.
 //       * SubjectTemplate      - String -       an email subject.

@@ -70,7 +70,7 @@ EndProcedure
 // Cancels actions that cannot be performed on the "All users" group.
 Procedure BeforeWrite(Cancel)
 	
-	// 
+	// ACC:75-off - The check "DataExchange.Import" should run after the register is locked.
 	If Common.FileInfobase() Then
 		// 
 		// 
@@ -199,7 +199,7 @@ Procedure CheckChangeCompositionRight(CompositionChange)
 		           |
 		           |Only new users who have not yet been approved by the administrator
 		           |can be included in or excluded from user groups
-		           |(that is, the administrator has not yet allowed users to sign in).';"),
+		           |(that is, the administrator has not yet allowed users to log in).';"),
 		StrConcat(UsersContent, Chars.LF));
 	Raise(ErrorText, ErrorCategory.AccessViolation);
 	

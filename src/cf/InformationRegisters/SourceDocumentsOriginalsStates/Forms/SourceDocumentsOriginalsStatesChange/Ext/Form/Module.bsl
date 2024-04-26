@@ -640,43 +640,50 @@ EndProcedure
 &AtServer
 Procedure WriteSourceDocumentsOriginalsStates()
 
-	CheckOriginalStateRecord = InformationRegisters.SourceDocumentsOriginalsStates.CreateRecordSet();
-	CheckOriginalStateRecord.Filter.Owner.Set(Record.Owner);
-	CheckOriginalStateRecord.Read(); 
+	Block = New DataLock();
+	LockItem = Block.Add("InformationRegister.SourceDocumentsOriginalsStates"); 
+	LockItem.SetValue("Owner", Record.Owner); 
 
-	If CheckOriginalStateRecord.Count() = 0 Then
-		InformationRegisters.SourceDocumentsOriginalsStates.WriteCommonDocumentOriginalState(Record.Owner,Record.State);
-	EndIf;
+	BeginTransaction();
+	Try
+	 
+		Block.Lock();
 
-	For Each PrintForm In PrintFormsSet Do
+		RecordSet = InformationRegisters.SourceDocumentsOriginalsStates.CreateRecordSet();
+		RecordSet.Filter.Owner.Set(Record.Owner);
 		
-		If ValueIsFilled(PrintForm.State) Then
-			TS = SourceDocumentsOriginalsRecording.TableOfEmployees(Record.Owner); 
-			If TS = "" Then
-				CheckOriginalStateRecord.Filter.SourceDocument.Set(PrintForm.TemplateName);
-				CheckOriginalStateRecord.Read();
-			Else
-			 	CheckOriginalStateRecord.Filter.SourceDocument.Set(PrintForm.TemplateName);
-				CheckOriginalStateRecord.Filter.Employee.Set(PrintForm.Employee);
-				CheckOriginalStateRecord.Read();
-			EndIf;
-			If CheckOriginalStateRecord.Count() > 0 Then
+		TabularSectionName = SourceDocumentsOriginalsRecording.TableOfEmployees(Record.Owner);
 
-				If CheckOriginalStateRecord[0].State <> PrintForm.State Then
-					InformationRegisters.SourceDocumentsOriginalsStates.WriteDocumentOriginalStateByPrintForms(Record.Owner,
-						PrintForm.TemplateName,PrintForm.Presentation,PrintForm.State,PrintForm.FromOutside, PrintForm.Employee);
-				EndIf;
-			Else
-					InformationRegisters.SourceDocumentsOriginalsStates.WriteDocumentOriginalStateByPrintForms(Record.Owner,
-						PrintForm.TemplateName,PrintForm.Presentation,PrintForm.State,PrintForm.FromOutside,PrintForm.Employee);
+		For Each PrintForm In PrintFormsSet Do
 			
+			If ValueIsFilled(PrintForm.State) Then 
+				If TabularSectionName = "" Then
+					RecordSet.Filter.Employee.Set(PrintForm.Employee);
+				EndIf;
+				RecordSet.Filter.SourceDocument.Set(PrintForm.TemplateName);
+				RecordSet.Read();
+				If RecordSet.Count() > 0 Then
+					If RecordSet[0].State <> PrintForm.State Then
+						InformationRegisters.SourceDocumentsOriginalsStates.WriteDocumentOriginalStateByPrintForms(Record.Owner,
+							PrintForm.TemplateName, PrintForm.Presentation, PrintForm.State, PrintForm.FromOutside, PrintForm.Employee);
+					EndIf;
+				Else
+					InformationRegisters.SourceDocumentsOriginalsStates.WriteDocumentOriginalStateByPrintForms(Record.Owner,
+						PrintForm.TemplateName, PrintForm.Presentation, PrintForm.State, PrintForm.FromOutside, PrintForm.Employee);
+				EndIf;
 			EndIf;
-		EndIf;
 
-	EndDo;
+		EndDo;
 
-	InformationRegisters.SourceDocumentsOriginalsStates.WriteCommonDocumentOriginalState(Record.Owner,
-		Record.State);
+		InformationRegisters.SourceDocumentsOriginalsStates.WriteCommonDocumentOriginalState(Record.Owner, 
+			Record.State);
+		CommitTransaction();
+		
+	Except
+		RollbackTransaction(); 
+		Raise;  
+	EndTry;
+	
 EndProcedure
 
 &AtServer
@@ -702,7 +709,9 @@ Procedure ShouldSaveSettings()
 	Settings = New Structure(AttributesToSaveNames);
 	FillPropertyValues(Settings, ThisObject);
 
-	Common.CommonSettingsStorageSave("InformationRegister.SourceDocumentsOriginalsStates.Form.SourceDocumentsOriginalsStatesChange","PrintFormsFilter",Settings);
+	Common.CommonSettingsStorageSave(
+		"InformationRegister.SourceDocumentsOriginalsStates.Form.SourceDocumentsOriginalsStatesChange",
+		"PrintFormsFilter", Settings);
 
 EndProcedure
 

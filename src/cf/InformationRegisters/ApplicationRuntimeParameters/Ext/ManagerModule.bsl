@@ -46,7 +46,7 @@ Function UpdateRequired1(SubordinateDIBNodeSetup = False) Export
 	If Common.SubsystemExists("StandardSubsystems.DataExchange") Then
 		ModuleDataExchangeServer = Common.CommonModule("DataExchangeServer");
 		
-		// 
+		// When running a child node's initial image, no import is required (only an update).
 		// 
 		If ModuleDataExchangeServer.SubordinateDIBNodeSetup() Then
 			SubordinateDIBNodeSetup = True;
@@ -142,8 +142,8 @@ Function ApplicationParameterChanges(ParameterName) Export
 	If Common.DataSeparationEnabled()
 	   And Not Common.SeparatedDataUsageAvailable() Then
 		
-		// 
-		// 
+		// The update plan covers only the areas whose version is equal to or greater than the shared data version.
+		// For the rest of the areas, all update handlers should be run.
 		// 
 		
 		// Version of shared (common) data.
@@ -172,9 +172,9 @@ Function ApplicationParameterChanges(ParameterName) Export
 	NextVersion = NextVersion(Version);
 	UpdateOutsideIBUpdate = CommonClientServer.CompareVersions(IBVersion, Version) = 0;
 	
-	// 
-	// 
-	// 
+	// Changes for later versions are ignored unless the update is not part of the configuration upgrade
+	// (the infobase version matches the configuration version).
+	// In this case, changes for the next version are included in the scope.
 	// 
 	
 	IndexOf = LastChanges.Count()-1;
@@ -244,8 +244,8 @@ Procedure AddApplicationParameterChanges(ParameterName, Val Changes) Export
 		
 		If ValueIsFilled(Changes) Then
 			
-			// 
-			// 
+			// If the update is not part of the infobase upgrade, add the changes to the next version
+			// so that they are applied when the configuration version is upgraded.
 			// 
 			// 
 			Version = Metadata.Version;
@@ -265,7 +265,7 @@ Procedure AddApplicationParameterChanges(ParameterName, Val Changes) Export
 		
 		EarliestIBVersion = InfobaseUpdateInternalCached.EarliestIBVersion();
 		
-		// 
+		// Delete the changes intended for the infobase versions that are earlier than the minimal version
 		// 
 		// 
 		IndexOf = LastChanges.Count()-1;
@@ -362,9 +362,9 @@ Function ImportApplicationParametersInBackground(WaitCompletion, FormIdentifier,
 	
 	OperationParametersList = TimeConsumingOperations.BackgroundExecutionParameters(FormIdentifier);
 	OperationParametersList.BackgroundJobDescription = NStr("en = 'Background import of app parameters';");
-	// 
-	// 
-	// 
+	// To view the process bar, the update should run in the background.
+	// In the update mode, the launch of a background job is intermitted by a block of code,
+	// which mitigates the launch delay event without the exclusive mode set.
 	OperationParametersList.RunInBackground = True;
 	OperationParametersList.WaitCompletion = WaitCompletion;
 	
@@ -426,9 +426,9 @@ Function UpdateExtensionVersionParametersInBackground(WaitCompletion, FormIdenti
 	
 	OperationParametersList = TimeConsumingOperations.BackgroundExecutionParameters(FormIdentifier);
 	OperationParametersList.BackgroundJobDescription = NStr("en = 'Update extension version parameters in background';");
-	// 
-	// 
-	// 
+	// To view the process bar, the update should run in the background.
+	// In the update mode, the launch of a background job is intermitted by a block of code,
+	// which mitigates the launch delay event without the exclusive mode set.
 	OperationParametersList.RunInBackground = True;
 	OperationParametersList.WaitCompletion = WaitCompletion;
 	
@@ -770,8 +770,8 @@ Procedure ApplicationParametersImportLongRunningOperationHandler(ReportProgress,
 		ExecutionResult.ErrorInfo = ErrorInfo;
 		ExecutionResult.BriefErrorDescription   = ErrorProcessing.BriefErrorDescription(ErrorInfo);
 		ExecutionResult.DetailErrorDescription = ErrorProcessing.DetailErrorDescription(ErrorInfo);
-		// 
-		// 
+		// Switch to opening the data re-sync form before a startup with the options
+		// "Sync and continue" and "Continue".
 		If Common.SubsystemExists("StandardSubsystems.DataExchange")
 		   And Common.IsSubordinateDIBNode() Then
 			ModuleDataExchangeServer = Common.CommonModule("DataExchangeServer");
@@ -798,8 +798,8 @@ Procedure ApplicationParametersUpdateLongRunningOperationHandler(ReportProgress,
 		ExecutionResult.ErrorInfo = ErrorInfo;
 		ExecutionResult.BriefErrorDescription   = ErrorProcessing.BriefErrorDescription(ErrorInfo);
 		ExecutionResult.DetailErrorDescription = ErrorProcessing.DetailErrorDescription(ErrorInfo);
-		// 
-		// 
+		// Switch to opening the data re-sync form before a startup with the options
+		// "Sync and continue" and "Continue".
 		If Common.SubsystemExists("StandardSubsystems.DataExchange")
 		   And Common.IsSubordinateDIBNode() Then
 			ModuleDataExchangeServer = Common.CommonModule("DataExchangeServer");
@@ -826,8 +826,8 @@ Procedure ExtensionsVersionsParametersUpdateLongRunningOperationHandler(ReportPr
 		ExecutionResult.ErrorInfo = ErrorInfo;
 		ExecutionResult.BriefErrorDescription   = ErrorProcessing.BriefErrorDescription(ErrorInfo);
 		ExecutionResult.DetailErrorDescription = ErrorProcessing.DetailErrorDescription(ErrorInfo);
-		// 
-		// 
+		// Switch to opening the data re-sync form before a startup with the options
+		// "Sync and continue" and "Continue".
 		If Common.SubsystemExists("StandardSubsystems.DataExchange")
 		   And Common.IsSubordinateDIBNode() Then
 			ModuleDataExchangeServer = Common.CommonModule("DataExchangeServer");
@@ -898,7 +898,7 @@ Procedure LoadProgramOperationParametersTakingIntoAccountExecutionMode(ReportPro
 	Try
 		Catalogs.MetadataObjectIDs.RunDataUpdate(False, False, True, , ListOfCriticalChanges);
 	Except
-		// 
+		// Switch to opening the data re-sync form before a startup with the option "Sync and continue".
 		// 
 		If Not SubordinateDIBNodeSetup
 		   And Common.SubsystemExists("StandardSubsystems.DataExchange") Then
@@ -914,7 +914,7 @@ Procedure LoadProgramOperationParametersTakingIntoAccountExecutionMode(ReportPro
 		
 		WriteLogEvent(EventName, EventLogLevel.Error, , , ListOfCriticalChanges);
 		
-		// 
+		// Switch to opening the data re-sync form before a startup with the option "Sync and continue".
 		// 
 		If Not SubordinateDIBNodeSetup
 		   And Common.SubsystemExists("StandardSubsystems.DataExchange") Then
@@ -985,9 +985,9 @@ Procedure UpdateProgramOperationParametersBasedOnExecutionMode(ReportProgress)
 		BeginTime = ModulePerformanceMonitor.StartTimeMeasurement();
 	EndIf;
 	
-	// 
-	// 
-	// 
+	// Either there's no DIB data exchange, an update in the master node,
+	// an initial update in the child node, or an update following
+	// an import of the "Metadata object IDs" catalog from the master node.
 	// 
 	UpdateApplicationParameters(ReportProgress);
 	
@@ -1138,7 +1138,7 @@ Function ApplicationParameterStoredData(ParameterName)
 		Try
 			Content = Selection.ParameterStorage.Get();
 		Except
-			// 
+			// If a data extraction error occurs, the data processor runs the same way as if the parameter is empty.
 			// 
 			Content = Undefined;
 			ErrorInfo = ErrorInfo();
@@ -1316,7 +1316,7 @@ Function ServiceRecordSet(RegisterManager) Export
 	
 EndFunction
 
-// 
+// Intended to be called from "ProcessedTimeConsumingOperationResult".
 Function InfoOnLongRunningOperationError(ErrorPresentation)
 	
 	If Not ValueIsFilled(ErrorPresentation) Then

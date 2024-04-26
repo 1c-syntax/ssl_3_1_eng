@@ -344,6 +344,7 @@ Procedure OnDefineHandlerAliases(NamesAndAliasesMap) Export
 	NamesAndAliasesMap.Insert("ContactsManagerInternal.ObsoleteAddressesCorrection");
 EndProcedure
 
+// See NationalLanguageSupportServer.ObjectsSCHRepresentations
 Procedure OnDefineObjectsWithTablePresentation(Objects) Export
 	Objects.Add("Catalog.ContactInformationKinds");
 EndProcedure
@@ -1294,7 +1295,7 @@ Procedure DistributeAddressToFieldsWithoutClassifier(Address, AnalysisData)
 	
 EndProcedure
 
-// 
+// Splits an address string into address lines.
 //
 // Returns:
 //   See AddressParts

@@ -2886,7 +2886,7 @@ Function RegisterDataProcessor(Val Object, Val RegistrationParameters) Export
 			Container = Resolution.GetXDTO(XDTOProperty.Name);
 			
 			If Container <> Undefined Then
-				Parameters.Insert(XDTOProperty.Name, Container.Значение);
+				Parameters.Insert(XDTOProperty.Name, Container.Value);
 			Else
 				Parameters.Insert(XDTOProperty.Name);
 			EndIf;

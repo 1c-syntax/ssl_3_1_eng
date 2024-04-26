@@ -366,7 +366,7 @@ Procedure OpenFileListForm(Val FilesOwner) Export
 	
 	ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient = Undefined;
 	UseEDIToStoreObjectFiles =
-		FilesOperationsInternalClient._1CDocumentManagementIsUsedToStoreObjectFiles(
+		FilesOperationsInternalClient.Is1CDocumentManagementUsedForFileStorage(
 			FilesOwner,
 			ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient);
 	
@@ -734,6 +734,9 @@ EndProcedure
 //                       
 //   * PaperSize - Number - Valid values:
 //     0 - Not specified
+//     11 - A3
+//     1 - A4
+//     5 - A5
 //     6 - B4
 //     2 - B5
 //     7 - B6
@@ -1631,7 +1634,7 @@ Procedure AttachmentsControlCommandCompletion(Form, Command, AttachedFilesOwner)
 	
 	ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient = Undefined;
 	UseEDIToStoreObjectFiles =
-		FilesOperationsInternalClient._1CDocumentManagementIsUsedToStoreObjectFiles(
+		FilesOperationsInternalClient.Is1CDocumentManagementUsedForFileStorage(
 			AttachedFilesOwner,
 			ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient,
 			Form,

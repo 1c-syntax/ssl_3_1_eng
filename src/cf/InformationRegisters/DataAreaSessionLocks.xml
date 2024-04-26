@@ -292,7 +292,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>The lock reason displayed to a user who is attempting to sign in to a locked data area.</v8:content>
+							<v8:content>The lock reason displayed to a user who is attempting to log in to a locked data area.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>

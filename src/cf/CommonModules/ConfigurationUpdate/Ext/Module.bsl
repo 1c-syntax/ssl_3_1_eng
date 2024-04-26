@@ -371,10 +371,10 @@ EndFunction
 //     * Set - Array - patch files in a temporary storage.
 //     * Delete    - Array - UUIDs of patches to be deleted (String).
 //  PatchesInstallationParameters - See PatchesInstallationParameters
-//                                
-//  ShouldDeleteUpdateExtensionsOperationParameters - Boolean -  by default, True, when calling from the configuration update script
-//                         , it must be set to False.
-//  DeleteShouldCheckApplicabilityByManifest - Boolean - 
+//                                - Boolean - Obsolete.
+//  ShouldDeleteUpdateExtensionsOperationParameters - Boolean - The default value is "True".
+//                         If the function is called from a configuration update script, set it to "False".
+//  DeleteShouldCheckApplicabilityByManifest - Boolean - Set to "True" if the patch is installed manually.
 //
 // Returns:
 //  Structure:
@@ -571,15 +571,15 @@ Function InstallAndDeletePatches(Corrections, Val PatchesInstallationParameters 
 	
 EndFunction
 
-// 
+// A constructor for preparing parameters for "InstallAndDeletePatches"
 // 
 // Returns:
 //   Structure:
-//     * InBackground - Boolean - 
-//     * UpdateExtensionParameters - Boolean -  by default, True, when calling from the configuration update script
-//                                                    , it must be set to False.
-//     * ShouldCheckApplicabilityByManifest - Boolean - 
-//     * UsedInDistributedInfoBase - Boolean - 
+//     * InBackground - Boolean - Set to "True" if the function is called in a background job.
+//     * UpdateExtensionParameters - Boolean - The default value is "True".
+//                                                    If the function is called from a configuration update script, set it to "False".
+//     * ShouldCheckApplicabilityByManifest - Boolean - Set to "True" if the patch is installed manually.
+//     * UsedInDistributedInfoBase - Boolean - The default value is "True"
 //
 Function PatchesInstallationParameters() Export
 	
@@ -623,18 +623,18 @@ EndFunction
 
 #Region Internal
 
-Function CurVersionRequiresSuccessfulEndOfHandlers() Export
+Function IsCurrentVersionRequiresSuccessfulHandlersCompletion() Export
 	
 	CurrentStatus = ConfigurationUpdateStatus();
 	If CurrentStatus = Undefined Then
 		Return False;
 	EndIf;
 	
-	If Not CurrentStatus.Property("VersionsThatRequireSuccessfulUpdate") Then
+	If Not CurrentStatus.Property("VersionsRequiringSuccessfulUpdate") Then
 		Return False;
 	EndIf;
 	
-	Return CurrentStatus.VersionsThatRequireSuccessfulUpdate.Find(Metadata.Version) <> Undefined;
+	Return CurrentStatus.VersionsRequiringSuccessfulUpdate.Find(Metadata.Version) <> Undefined;
 	
 EndFunction
 

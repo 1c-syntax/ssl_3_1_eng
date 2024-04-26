@@ -108,6 +108,7 @@ EndProcedure
 
 Function ChangeOfUserAccounts(Settings)
 	
+	NameOfConnectionColumn = UserMonitoringInternal.NameOfConnectionColumn();
 	Filter = New Structure;
 	
 	TransStatuses = New Array;
@@ -138,7 +139,7 @@ Function ChangeOfUserAccounts(Settings)
 	EndIf;
 	
 	LogColumns = "Date,User,UserName,Computer,
-	|ApplicationName,Event,EventPresentation,Data,Session,Join";
+	|ApplicationName,Event,EventPresentation,Data,Session," + NameOfConnectionColumn;
 	
 	BooleanType     = New TypeDescription("Boolean");
 	DateType       = New TypeDescription("Date");
@@ -199,7 +200,7 @@ Function ChangeOfUserAccounts(Settings)
 	Columns.Add("Computer",           StringType);
 	Columns.Add("SessionStarted",        DateType);
 	Columns.Add("Session",               NumberType);
-	Columns.Add("Join",          NumberType);
+	Columns.Add(NameOfConnectionColumn,  NumberType);
 	
 	TypeChanged = New TypeDescription("Number",,, New NumberQualifiers(1, 0, AllowedSign.Nonnegative));
 	For Each KeyAndValue In UserProperties Do
@@ -410,14 +411,14 @@ Function ChangeOfUserAccounts(Settings)
 		EndIf;
 		LastEvents.Insert(Upper(NewRow.Name), NewRow);
 		
-		NewRow.Date                = Event.Date;
-		NewRow.EventKind          = EventKind;
-		NewRow.Author               = Event.UserName;
-		NewRow.AuthorID = Event.User;
-		NewRow.Package          = Event.ApplicationName;
-		NewRow.Computer           = Event.Computer;
-		NewRow.Session               = Event.Session;
-		NewRow.Join          = Event.Join;
+		NewRow.Date                  = Event.Date;
+		NewRow.EventKind            = EventKind;
+		NewRow.Author                 = Event.UserName;
+		NewRow.AuthorID   = Event.User;
+		NewRow.Package            = Event.ApplicationName;
+		NewRow.Computer             = Event.Computer;
+		NewRow.Session                 = Event.Session;
+		NewRow[NameOfConnectionColumn] = Event[NameOfConnectionColumn];
 	EndDo;
 	
 	Filter = New Structure("Id", "");
@@ -627,7 +628,8 @@ Function ExtendedChangeData(EventData)
 	VersionStorage = New Structure;
 	VersionStorage.Insert("DataStructureVersion");
 	FillPropertyValues(VersionStorage, Data);
-	If VersionStorage.DataStructureVersion <> 1 Then
+	If VersionStorage.DataStructureVersion <> 1
+	   And VersionStorage.DataStructureVersion <> 2 Then
 		Return Undefined;
 	EndIf;
 	

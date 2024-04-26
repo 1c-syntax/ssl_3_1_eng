@@ -269,7 +269,7 @@ Please wait…</v8:content>
 									<Title formatted="false">
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Enter the password to sign in to the web application.</v8:content>
+											<v8:content>Enter the password to log in to the web application.</v8:content>
 										</v8:item>
 									</Title>
 									<ContextMenu name="Decoration2ContextMenu" id="64"/>

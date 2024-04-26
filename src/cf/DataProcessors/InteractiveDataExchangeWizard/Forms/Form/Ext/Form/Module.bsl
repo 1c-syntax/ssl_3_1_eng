@@ -11,7 +11,12 @@
 // There are two ways to parameterize a form:
 //
 // Option 1
+//     Параметры: 
+//         УзелИнформационнойБазы             - ПланОбменаСсылка - узел плана обмена, для которого выполняется помощник.
+//         РасширенныйРежимДополненияВыгрузки - Булево           - флаг включения механизма настройки дополнения
+//                                                                 выгрузки по сценарию узла.
 //
+// Вариант 2:
 //     Parameters: 
 //         InfobaseNodeCode - String - Exchange plan node code, for which the wizard will be opened.
 //         ExchangePlanName - String - Name of an exchange plan to use for searching an exchange plan node whose code is specified in the InfobaseNodeCode parameter.

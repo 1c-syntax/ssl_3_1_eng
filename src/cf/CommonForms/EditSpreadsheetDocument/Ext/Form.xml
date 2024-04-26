@@ -1345,14 +1345,32 @@
 								</Button>
 							</ChildItems>
 						</ButtonGroup>
-						<ButtonGroup name="TranslationOfAllActions" id="743">
-							<ExtendedTooltip name="TranslationOfAllActionsExtendedTooltip" id="744"/>
+						<ButtonGroup name="TranslationAllActions" id="743">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Translation</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="TranslationAllActionsExtendedTooltip" id="744"/>
 							<ChildItems>
 								<Popup name="LanguageAllActions" id="745">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Language</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="LanguageAllActionsExtendedTooltip" id="746"/>
 									<ChildItems>
-										<ButtonGroup name="LanguagesToAddAllActions" id="747">
-											<ExtendedTooltip name="LanguagesToAddAllActionsExtendedTooltip" id="748"/>
+										<ButtonGroup name="LangsToAddAllActions" id="747">
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Languages to add</v8:content>
+												</v8:item>
+											</Title>
+											<ExtendedTooltip name="LangsToAddAllActionsExtendedTooltip" id="748"/>
 										</ButtonGroup>
 									</ChildItems>
 								</Popup>
@@ -1364,18 +1382,30 @@
 										<xr:Ref>CommonPicture.ApplicationUsageInServiceLocalMode</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Translate</v8:content>
+										</v8:item>
+									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="TranslateAllActionsExtendedTooltip" id="750"/>
 								</Button>
-								<Button name="ShowHideOriginalAllActionsButton" id="751">
+								<Button name="ButtonShowHideOriginalAllActions" id="751">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.ShowHideOriginal</CommandName>
 									<Picture>
 										<xr:Ref>StdPicture.Document</xr:Ref>
 										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Show template</v8:content>
+										</v8:item>
+									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-									<ExtendedTooltip name="ShowHideOriginalAllActionsButtonExtendedTooltip" id="752"/>
+									<ExtendedTooltip name="ButtonShowHideOriginalAllActionsExtendedTooltip" id="752"/>
 								</Button>
 							</ChildItems>
 						</ButtonGroup>

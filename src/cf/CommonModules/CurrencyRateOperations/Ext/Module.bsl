@@ -94,7 +94,7 @@ Function GenerateAmountInWords(AmountAsNumber, Currency, OmitFractionalPart = Fa
 	
 	Sum = ?(AmountAsNumber < 0, -AmountAsNumber, AmountAsNumber);
 	Format = StrTemplate("L=%1;DP=%2", LanguageCode, ?(IsFractionalPartInWords, "True", "False"));
-	Result = NumberInWords(Sum, Format, AmountInWordsParameters); // 
+	Result = NumberInWords(Sum, Format, AmountInWordsParameters); // ACC:1297 ACC:1357
 	If OmitFractionalPart And Int(Sum) = Sum Then
 		Result = Left(Result, StrFind(Result, "0") - 1);
 	EndIf;
@@ -183,8 +183,8 @@ Procedure OnFillToDoList(ToDoList) Export
 	
 	RatesUpToDate = RatesUpToDate();
 	
-	// 
-	// 
+	// The procedure can be called only if the "To-do list" subsystem is integrated.
+	// Therefore, don't check if the subsystem is integrated.
 	Sections = ModuleToDoListServer.SectionsForObject(MetadataObject.FullName());
 	
 	For Each Section In Sections Do

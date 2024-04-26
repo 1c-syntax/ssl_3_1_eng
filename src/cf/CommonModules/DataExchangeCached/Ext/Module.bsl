@@ -12,7 +12,7 @@
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. Instead, use the new function (See DataExchangeServer.IsStandaloneWorkplace)
+// Deprecated. Instead, use the new function (See DataExchangeServer.IsStandaloneWorkplace).
 // .
 //
 Function IsStandaloneWorkplace() Export
@@ -21,7 +21,7 @@ Function IsStandaloneWorkplace() Export
 	
 EndFunction
 
-// Deprecated. Instead, use the new function (See DataExchangeServer.ExchangePlanNodeByCode)
+// Deprecated. Instead, use the new function (See DataExchangeServer.ExchangePlanNodeByCode).
 // .
 //
 Function FindExchangePlanNodeByCode(ExchangePlanName, NodeCode) Export
@@ -432,6 +432,7 @@ EndFunction
 //  ExchangePlanNode - ExchangePlanRef - an exchange plan node.
 // 
 // Returns:
+//  Имя - String - a name of the exchange plan as a metadata object.
 //
 Function GetExchangePlanName(ExchangePlanNode) Export
 	
@@ -564,7 +565,7 @@ EndFunction
 //  ExchangePlanName - String - an exchange plan name, as it is set in Designer.
 //
 //  Returns:
-//    Boolean - 
+//    Boolean - If "True", the cache was used. If "False", requests to ""SynchronizedObjectPublicIDs" were used.
 // 
 Function UseCacheOfPublicIdentifiers(Val ExchangePlanName) Export
 	
@@ -809,6 +810,7 @@ EndFunction
 //  ExchangePlanName - String - an exchange plan name, as it is set in Designer.
 // 
 // Returns:
+//  ЭтотУзел - ExchangePlanRef - a predefined exchange plan node.
 //
 Function GetThisExchangePlanNode(ExchangePlanName) Export
 	
@@ -923,6 +925,7 @@ EndFunction
 //  ExchangePlanName - String - an exchange plan name, as it is set in Designer.
 // 
 // Returns:
+//  СписокПравил - ValueList - a list of templates of standard exchange rules.
 //
 Function ConversionRulesForExchangePlanFromConfiguration(ExchangePlanName) Export
 	
@@ -937,6 +940,7 @@ EndFunction
 //  ExchangePlanName - String - an exchange plan name, as it is set in Designer.
 // 
 // Returns:
+//  СписокПравил - ValueList - a list of templates of standard registration rules.
 //
 Function RegistrationRulesForExchangePlanFromConfiguration(ExchangePlanName) Export
 	
@@ -951,6 +955,7 @@ EndFunction
 //  No.
 // 
 // Returns:
+//  СписокПлановОбмена - ValueList - a list of configuration exchange plans.
 //
 Function SSLExchangePlansList() Export
 	
@@ -1397,6 +1402,7 @@ EndFunction
 //  ExchangePlanName - String - an exchange plan name, as it is set in Designer.
 // 
 // Returns:
+//  СписокПравил - ValueList - a list of templates of standard rules for data exchange.
 //
 Function RulesForExchangePlanFromConfiguration(ExchangePlanName, TemplateNameLiteral)
 	
@@ -1424,6 +1430,7 @@ EndFunction
 // Parameters:
 //    ExchangePlanName - String - an exchange plan to analyze.
 //    Periodic2  - Flag indicating that the result must include objects with dates (such as documents).
+//    Regulatory     - флаг того, что надо включать в результат нормативно-reference objects.
 //
 // Returns:
 //    ValueTable:

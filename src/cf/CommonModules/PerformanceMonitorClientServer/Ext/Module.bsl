@@ -434,7 +434,7 @@ Function OnlyLatinInString(Val CheckString, Val WithWordSeparators = True, Allow
 	
 	ValidCharCodes = New Array;
 	ValidCharCodes.Add(1105); // 
-	ValidCharCodes.Add(1025); 
+	ValidCharCodes.Add(1025); // ""
 	
 	For IndexOf = 1 To StrLen(AllowedChars) Do
 		ValidCharCodes.Add(CharCode(Mid(AllowedChars, IndexOf, 1)));
@@ -512,8 +512,8 @@ Function IsWordSeparator(CharCode, WordSeparators = Undefined)
 	Ranges.Add(New Structure("Min,Max", 65, 90)); 		// Uppercase Latin characters.
 	Ranges.Add(New Structure("Min,Max", 97, 122)); 		// Lowercase Latin characters.
 	Ranges.Add(New Structure("Min,Max", 1040, 1103)); 	// Cyrillic characters.
-	Ranges.Add(New Structure("Min,Max", 1025, 1025)); 	
-	Ranges.Add(New Structure("Min,Max", 1105, 1105)); 	
+	Ranges.Add(New Structure("Min,Max", 1025, 1025)); 	// Cyrillic letter "".
+	Ranges.Add(New Structure("Min,Max", 1105, 1105)); 	// Cyrillic letter "".
 	Ranges.Add(New Structure("Min,Max", 95, 95)); 		// Underline ( _ ) character.
 	
 	For Each Span In Ranges Do

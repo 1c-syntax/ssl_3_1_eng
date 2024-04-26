@@ -96,7 +96,7 @@ Procedure FormGetProcessing(FormType, Parameters, SelectedForm, AdditionalInform
 				"NewExternalUserAuthorizationObject", Parameters.AuthorizationObject);
 		Else
 			ErrorAsWarningDetails =
-				NStr("en = 'The right to sign in is not granted.';");
+				NStr("en = 'The right to log in is not granted.';");
 				
 			Raise ErrorAsWarningDetails;
 		EndIf;

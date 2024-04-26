@@ -102,8 +102,8 @@ EndFunction
 //
 // Parameters:
 //   AttachedFile  - See FilesOperationsInVolumesInternal.FileAddingOptions
-//                       - TypeToDefine.AttachedFileObject is an attachment catalog
-//                         item or a structure with properties whose data is saved to a volume.
+//                       
+//                         
 //   BinaryDataOrPath - BinaryData
 //                         - String - binary data of the file or the full file path.
 //   FileDateInVolume - Date - if not specified, set it so the current session date.
@@ -159,11 +159,11 @@ Procedure FillInTheFileDetails(AttachedFile, BinaryDataOrPath,
 	If TypeOf(AttachedFile) = Type("Structure")
 		And Not ValueIsFilled(AttachedFile.Ref) Then
 		
-		Raise StringFunctionsClientServer.SubstituteParametersToString(
+		Raise(StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Blank value of the %1 property the %2 parameter (Structure) of the %3 procedure.';"),
 			"Ref",
 			"AttachedFile",
-			"FilesOperationsInVolumesInternal.AppendFile");
+			"FilesOperationsInVolumesInternal.AppendFile"), ErrorCategory.ConfigurationError);
 		
 	EndIf;
 	
@@ -224,7 +224,8 @@ Procedure FillInTheFileDetails(AttachedFile, BinaryDataOrPath,
 		
 		FileProperties = FilePropertiesInVolume();
 		FillPropertyValues(FileProperties, AttachedFile);
-		If TypeOf(AttachedFile) = Type("CatalogObject.FilesVersions") Then
+		If FileProperties.FileOwner = Undefined 
+			And TypeOf(AttachedFile.Ref) = Type("CatalogRef.FilesVersions") Then
 			FileProperties.FileOwner = Common.ObjectAttributeValue(
 				AttachedFile.Owner, "FileOwner");
 		EndIf;
@@ -1525,6 +1526,7 @@ Procedure AfterUpdatingTheFileData(Context, Success) Export
 			
 		// 
 		//  
+		// See FilesOperationsInternal.WriteEncryptionInformation
 		If ThisIsAnEncryptedFile Or Not TransactionActive() Then
 			
 			FileProperties = FilePropertiesInVolume(AttachedFile);
@@ -1641,6 +1643,7 @@ Procedure AddFilesToVolumes(WindowsArchivePath, PathToArchiveLinux) Export
 	
 	For Each ZIPItem In ZipFile.Items Do
 		FullFilePath1 = DirectoryName + "\" + ZIPItem.Name;
+		// For filename generation, See FilesOperationsInternal.WhenSendingAFileCreateTheInitialImage
 		CatalogUUID = ZIPItem.Name;
 		
 		FilesPathsMap.Insert(CatalogUUID, FullFilePath1);

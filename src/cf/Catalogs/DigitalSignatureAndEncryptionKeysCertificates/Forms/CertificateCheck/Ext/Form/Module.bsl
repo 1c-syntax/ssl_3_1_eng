@@ -355,7 +355,7 @@ EndProcedure
 // Continues the Check procedure.
 &AtClient
 Procedure ValidateCompletion(NotDefined, Context) Export
-	
+		
 	Items.FormValidate.Enabled = True;
 	Items.FormValidate.Representation = ButtonRepresentation.Text;
 	
@@ -509,6 +509,50 @@ EndProcedure
 &AtClient
 Procedure CheckCertificateAfterCheckAtClient(Result, Context) Export
 	
+	If ValueIsFilled(VerifyCertificateInClientSLocalStorage) Then
+	
+		ClassifierError = New Structure;
+		ClassifierError.Insert("ErrorText", Items[VerifyCertificateInClientSLocalStorage + "ErrorClientInscription"].Title);
+		ClassifierError.Insert("Cause", "");
+		ClassifierError.Insert("Decision", Items[VerifyCertificateInClientSLocalStorage + "DecisionClientLabel"].Title);
+				
+		DataToSupplement = DigitalSignatureInternalClientServer.DataToSupplementErrorFromClassifier(Undefined);
+		DataToSupplement.CertificateData = GetFromTempStorage(CertificateAddress);
+		
+		ExtensionParameters_ = New Structure("Result, Context, Item",
+			Result, Context, VerifyCertificateInClientSLocalStorage);
+			
+		ParametersForAddingSolutionText = DigitalSignatureInternalClientServer.ParametersForCompletingTextOfClassifierErrorSolution();
+		ParametersForAddingSolutionText.VerifyCertificateInClientSLocalStorage = True;
+			
+		DigitalSignatureInternalClient.ToSupplementDecisionOfErrorClassifierWithDetails(
+			New NotifyDescription("AfterCompletingSolutionOfErrorClassifier", ThisObject, ExtensionParameters_),
+			ClassifierError, ParametersForAddingSolutionText, DataToSupplement);
+		VerifyCertificateInClientSLocalStorage = "";
+		Return;
+		
+	EndIf;
+	
+	VerifyCertificateAfterCheckingOnClientAndAddOns(Result, Context);
+		
+EndProcedure
+
+// Continue the procedure to check the Certificate.
+&AtClient
+Procedure AfterCompletingSolutionOfErrorClassifier(ClassifierError, ExtensionParameters_) Export
+	
+	If Items[ExtensionParameters_.Item + "DecisionClientLabel"].Title <> ClassifierError.Decision Then
+		Items[ExtensionParameters_.Item + "DecisionClientLabel"].Title = ClassifierError.Decision;
+	EndIf;
+	
+	VerifyCertificateAfterCheckingOnClientAndAddOns(ExtensionParameters_.Result, ExtensionParameters_.Context);
+
+EndProcedure
+
+// Continue the procedure to check the Certificate.
+&AtClient
+Procedure VerifyCertificateAfterCheckingOnClientAndAddOns(Result, Context)
+	
 	If IsBuiltInCryptoProvider Or ThisServiceAccount Then
 		
 		If OperationsAtServer Then
@@ -562,7 +606,7 @@ Procedure CheckCertificateAfterCheckAtClient(Result, Context) Export
 		EndIf;
 		
 	EndIf;
-		
+	
 EndProcedure
 
 &AtClient
@@ -2005,6 +2049,7 @@ Procedure SetItem(Form, StartElement, AtServer,
 		EndIf;
 		
 		If Not CheckResult Then
+			
 			ErrorGroup = Form.Items[StartElement + ?(AtServer, "ErrorServer", "ErrorClient")];
 			ErrorGroup.Visible = True;
 			ItemPicture1.Picture = ?(IsError,
@@ -2016,15 +2061,41 @@ Procedure SetItem(Form, StartElement, AtServer,
 			
 			ElementInscriptionError = Form.Items[StartElement + ?(AtServer, "ErrorServer", "ErrorClient") + "Label"]; // FormDecoration, FormDecorationExtensionForALabel
 			ElementInscriptionError.Title = ErrorDescription;
-		
+			
 			If WarningAfterCheckingUC = Undefined Then
-				KnownErrorDescription = ClassifierError(ErrorDescription, AtServer);
-				IsKnownError = KnownErrorDescription <> Undefined;
 				
 				LabelNameSolution = StartElement + ?(AtServer, "DecisionServerLabel", "DecisionClientLabel");
-				Form.Items[LabelNameSolution].Visible = IsKnownError;
-				If IsKnownError Then
-					Form.Items[LabelNameSolution].Title = KnownErrorDescription.Decision;
+				
+				If StartElement = "Details" And ElementInscriptionError.Title = Form.Items["Signing" + ?(
+					AtServer, "ErrorServer", "ErrorClient") + "Label"].Title Then
+					
+					Form.Items[LabelNameSolution].Visible = Form.Items["Signing" + ?(AtServer, "DecisionServerLabel", "DecisionClientLabel")].Visible;
+					Form.Items[LabelNameSolution].Title = NStr("en = 'См. пункт Подписание данных.';");
+					
+				Else
+					KnownErrorDescription = ClassifierError(ErrorDescription, AtServer);
+					IsKnownError = KnownErrorDescription <> Undefined;
+				
+					Form.Items[LabelNameSolution].Visible = IsKnownError;
+					If IsKnownError Then
+						
+						If ValueIsFilled(KnownErrorDescription.RemedyActions) Then
+							DataToSupplement = DigitalSignatureInternalClientServer.DataToSupplementErrorFromClassifier(Undefined);
+							DataToSupplement.CertificateData = GetFromTempStorage(Form.CertificateAddress);
+							
+							ParametersForCompletingTextOfClassifierErrorSolution = DigitalSignatureInternalClientServer.ParametersForCompletingTextOfClassifierErrorSolution();
+							
+							AddOn = DigitalSignatureInternalServerCall.ToSupplementDecisionOfErrorClassifierWithDetails(
+								KnownErrorDescription, DataToSupplement, 
+								ParametersForCompletingTextOfClassifierErrorSolution, ?(AtServer, "Server", "Client"));
+							KnownErrorDescription = AddOn.ClassifierError;
+							ParametersForCompletingTextOfClassifierErrorSolution = AddOn.ParametersForCompletingTextOfClassifierErrorSolutionOnClient;
+							If ParametersForCompletingTextOfClassifierErrorSolution.VerifyCertificateInClientSLocalStorage Then
+								Form.VerifyCertificateInClientSLocalStorage = StartElement;
+							EndIf;
+						EndIf;
+						Form.Items[LabelNameSolution].Title = KnownErrorDescription.Decision;
+					EndIf;
 				EndIf;
 			Else
 				LabelNameSolution = StartElement + ?(AtServer, "DecisionServerLabel", "DecisionClientLabel");

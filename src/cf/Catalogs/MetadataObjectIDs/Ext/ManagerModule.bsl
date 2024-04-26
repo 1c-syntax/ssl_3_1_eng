@@ -271,16 +271,16 @@ Procedure ImportDataToSubordinateNode(Objects) Export
 				If ItemToImportProperties.MetadataObjectByKey = Undefined
 				   And ItemToImportProperties.MetadataObjectByFullName = Undefined
 				   And Object.DeletionMark <> True Then
-					// 
-					// 
+					// If an imported object is missing from metadata,
+					// it is marked for deletion.
 					Object.DeletionMark = True;
 				EndIf;
 			EndIf;
 			
 			If Object.DeletionMark Then
-				// 
-				// 
-				// 
+				// Objects marked for deletion cannot have "proper" full names.
+				// Therefore, to meet this condition, the procedure that updates the object's properties
+				// is applied prior to the import.
 				UpdateMarkedForDeletionItemProperties(Object);
 			EndIf;
 			
@@ -1377,9 +1377,9 @@ Procedure BeforeDeleteObject(Object) Export
 	ExtensionsObjects = IsExtensionsObject(Object);
 	StandardSubsystemsCached.MetadataObjectIDsUsageCheck(, ExtensionsObjects);
 	
-	// 
-	// 
-	// 
+	// Disable the object registration mechanism.
+	// ID references are deleted independently in all nodes
+	// by the marked object deletion mechanism.
 	Object.AdditionalProperties.Insert("DisableObjectChangeRecordMechanism");
 	
 	If Object.DataExchange.Load Then
@@ -1493,14 +1493,14 @@ Procedure UpdateData1(HasChanges, HasDeletedItems, IsCheckOnly,
 	// Found - this status indicates that ID is found for the metadata object.
 	MetadataObjectProperties1.Columns.Add("Found", New TypeDescription("Boolean"));
 	
-	// 
-	// 
-	// 
-	// 
-	// 
-	// 
-	// 
-	// 
+	// Update procedure:
+	// 1. Rename metadata objects considering the child subsystems.
+	// 2. Update the IDs of predefined metadata object collections.
+	// 3. Update the IDs of metadata objects that have metadata object keys.
+	// 4. Update the IDs of metadata objects that don't have metadata object keys.
+	// 5. Mark the duplicate IDs from steps 3 and 4 for deletion (by the objects' full names).
+	// 6. Assign new IDs.
+	// 7. Update the parents of the IDs and write them.
 	
 	ExtensionsVersion = SessionParameters.ExtensionsVersion;
 	
@@ -1523,8 +1523,8 @@ Procedure UpdateData1(HasChanges, HasDeletedItems, IsCheckOnly,
 		MetadataObjectRenamingList = "";
 		If Not ExtensionsObjects
 		   And Not Common.IsSubordinateDIBNode() Then
-			// 
-			// 
+			// Change the full names before processing (for DIB, it applies to the master node only).
+			// Not supported for extensions.
 			RenameFullNames(Upload0, MetadataObjectRenamingList, HasCriticalChanges);
 		EndIf;
 		
@@ -1790,8 +1790,8 @@ Procedure ProcessMetadataObjectIDs(Upload0, MetadataObjectProperties1, Extension
 		If ExtensionsObjects
 		   And (    ExtensionProperties.UnattachedExtensionsNames[Lower(Properties.ExtensionName)] <> Undefined
 		      Or ExtensionProperties.UnattachedExtensionsNames[Lower(Properties.ExtensionID)] <> Undefined)Then
-			// 
-			// 
+			// In case the extension is disabled and then enabled, make sure
+			// the objects marked for deletion are the related data are not deleted.
 			Continue;
 		EndIf;
 		
@@ -1819,9 +1819,9 @@ Procedure ProcessMetadataObjectIDs(Upload0, MetadataObjectProperties1, Extension
 				EndIf;
 			EndIf;
 		Else
-			// 
-			// 
-			// 
+			// If a metadata object was deleted in the course of restucturing,
+			// then use the old ID for the new metadata object.
+			// And create new IDs for old metadata objects.
 			If Upper(Left(MetadataObject.Name, StrLen("Delete"))) =  Upper("Delete")
 			   And Upper(Left(Properties.Name,         StrLen("Delete"))) <> Upper("Delete") Then
 				
@@ -1833,8 +1833,8 @@ Procedure ProcessMetadataObjectIDs(Upload0, MetadataObjectProperties1, Extension
 			EndIf;
 		EndIf;
 		
-		// 
-		// 
+		// If the metadata object is found by key or full name,
+		// prepare a string with the metadata object's properties.
 		If MetadataObject <> Undefined Then
 			ObjectProperties = MetadataObjectProperties1.Find(MetadataObject.FullName(), "FullName");
 			If ObjectProperties = Undefined Then
@@ -1845,8 +1845,8 @@ Procedure ProcessMetadataObjectIDs(Upload0, MetadataObjectProperties1, Extension
 		EndIf;
 		
 		If MetadataObject = Undefined Or ObjectProperties.Found Then
-			// 
-			// 
+			// If the object is not found or re-found,
+			// mark its ID for deletion.
 			IsDuplicate = MetadataObject <> Undefined And ObjectProperties.Found;
 			PropertiesUpdated = False;
 			UpdateMarkedForDeletionItemProperties(Properties, PropertiesUpdated, HasDeletedItems, IsDuplicate);
@@ -1907,8 +1907,8 @@ Function ExtensionMetadataFindByFullName(Properties)
 		Return Undefined;
 	EndIf;
 	
-	// 
-	// 
+	// Restore the link with the metadata object ID of the extension
+	// that is being reinstalled.
 	OriginalFullName = FullNameOfDeletedItem(Properties.FullName);
 	MetadataObject = MetadataFindByFullName(OriginalFullName);
 	
@@ -2065,8 +2065,8 @@ Procedure UpdateMetadataObjectIDs(Upload0, MetadataObjectProperties1, Extensions
 		EndIf;
 		If RecordsTable.Count() = 0
 		   And ValueIsFilled(ExtensionsVersion) Then
-			// 
-			// 
+			// In case the extension has no metadata object, add one record
+			// so that the cache check returns "True".
 			RecordsTable.Add().ExtensionsVersion = ExtensionsVersion;
 			UpdateRecordSet = True;
 		EndIf;
@@ -3480,8 +3480,8 @@ Function MetadataObjectsByIDsWithRetryAttempt(IDs, RaiseException1)
 		Except
 			If Not Common.DataSeparationEnabled()
 			 Or Not Common.SeparatedDataUsageAvailable() Then
-				// 
-				// 
+				// If an error occurs, update the catalog (if possible),
+				// and retry to receive the ID.
 				MetadataObjects = Undefined;
 			Else
 				Raise;
@@ -3988,13 +3988,15 @@ EndProcedure
 // Changes:
 // - operations with the progress bar form are no longer supported;
 // - the UserInterruptProcessing procedure is deleted;
+// - the InformationRegisters[TableRow.Metadata.Name] is replaced with
 //   Common.ObjectManagerByFullName(TableRow.Metadata.FullName()).
 //
 Function ExecuteItemReplacement(Val Replaceable, Val RefsTable, Val DisableWriteControl = False, Val ExtensionsObjects = False)
 	
-	// 
-	// 
-	// 
+	// ACC:1327-off - No.783.1.4.1
+	// 1. It's not a transaction since it can be long-running.
+	// 2. The execution follows a data import (infobase update) from the master node.
+// 3. It's executed when duplicates of metadata object IDs are found (a rare occurrence).
 	Parameters = ItemsReplacementParameters();
 	
 	For Each AccountingRegister In Metadata.AccountingRegisters Do

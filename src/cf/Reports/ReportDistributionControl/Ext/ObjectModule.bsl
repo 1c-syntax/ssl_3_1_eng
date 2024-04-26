@@ -121,12 +121,12 @@ Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSe
 	
 	DataParametersStructure = New Structure;
 
-	If LastDistributionParameters <> Undefined Then
+	If LastDistributionParameters <> Undefined And Not ValueIsFilled(Context.Period1) Then
 		Period  = New StandardPeriod;
 		Period.StartDate = LastDistributionParameters.StartDate;
 		Period.EndDate = LastDistributionParameters.EndDate;
 		DataParametersStructure.Insert("Period", DataParameter(Period));
-	EndIf;  	
+	EndIf;
 	
 	DataParametersStructure.Insert("Recipients", DataParameter(New ValueList(), False));
 		

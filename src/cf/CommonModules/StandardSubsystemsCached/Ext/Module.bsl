@@ -388,8 +388,8 @@ Function ExchangePlanDataRegistrationMode(FullObjectName, ExchangePlanName) Expo
 		Return "AutoRecordEnabled";
 	EndIf;
 	
-	// 
-	// 
+	// Analyze event subscriptions for more complex use cases when
+	// the 1C:Enterprise auto-registration is disabled for the metadata object.
 	For Each Subscription In Metadata.EventSubscriptions Do
 		SubscriptionTitleBeginning = ExchangePlanName + "Registration";
 		If Upper(Left(Subscription.Name, StrLen(SubscriptionTitleBeginning))) = Upper(SubscriptionTitleBeginning) Then
@@ -551,7 +551,7 @@ EndFunction
 
 #Region Private
 
-// 
+// Caches the common operating parameters between server calls.
 //
 // Returns:
 //   See CommonOverridable.OnDetermineCommonCoreParameters.CommonParameters
@@ -893,16 +893,16 @@ Function NewSubsystemDescription() Export
 	// The property is set automatically.
 	LongDesc.Insert("IsConfiguration", False);
 	
-	// 
-	// 
+	// The name of the library's main module.
+	// Can be empty for applied configurations.
 	LongDesc.Insert("MainServerModule", "");
 	
-	// 
-	// 
+	// The operation mode for deferred update handlers.
+	// By default, "Sequentially".
 	LongDesc.Insert("DeferredHandlersExecutionMode", "Sequentially");
 	LongDesc.Insert("ParallelDeferredUpdateFromVersion", "");
 	
-	// 
+	// The operation mode for initial population handlers when migrating from another app.
 	// 
 	LongDesc.Insert("FillDataNewSubsystemsWhenSwitchingFromAnotherProgram", False);
 	

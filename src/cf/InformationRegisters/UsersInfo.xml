@@ -189,7 +189,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Ask the user to change the password when they try to sign in.
+							<v8:content>Ask the user to change the password when they try to log in.
 
 You can toggle this option in the user card.
 When the user changes the password, this setting is cleared.
@@ -285,7 +285,7 @@ When the user changes the password, this setting is cleared.
 						<v8:item>
 							<v8:lang>en</v8:lang>
 							<v8:content>The date the user will be blocked
-from signing in.</v8:content>
+from logging in.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -466,7 +466,7 @@ The date is set when the user logs in and updates every 20 minutes.
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Sign-in auto-denied on</v8:content>
+							<v8:content>Login auto-denied on</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -482,9 +482,9 @@ The date is set when the user logs in and updates every 20 minutes.
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>The date when the user sign-in was denied due to the expired access or user inactivity.
+							<v8:content>The date when the user login was denied due to the expired access or user inactivity.
 
-The date is set when sign-in is denied and cleared when sign-in is allowed.
+The date is set when login is denied and cleared when login is allowed.
 
 
 </v8:content>
@@ -722,7 +722,7 @@ The date is set when the user creates a password and updated when the password i
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>The user can sign in to the app using the specified authentication methods</v8:content>
+							<v8:content>The user can log in to the application using the specified authentication methods.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -753,7 +753,7 @@ The date is set when the user creates a password and updated when the password i
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Sign-in restricted</v8:content>
+							<v8:content>Login restricted</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -766,7 +766,7 @@ The date is set when the user creates a password and updated when the password i
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>User will be blocked from signing in after a certain date or a period of inactivity.</v8:content>
+							<v8:content>User will be blocked from logging in after a certain date or period of inactivity.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -841,7 +841,7 @@ The date is set when the user creates a password and updated when the password i
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Insufficient rights to sign in</v8:content>
+							<v8:content>Insufficient rights to log in</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>

@@ -340,8 +340,10 @@ EndFunction
 // Parameters:
 //  Cancel                        - Boolean - a cancellation flag. True if
 //                                 errors occurred when running the procedure.
+//  InfobaseNode       - УзелОбменаСсылка - ExchangePlanRef - an exchange plan node,
 //                                 for which data is being exchanged.
 //  ActionOnExchange            - EnumRef.ActionsOnExchange - a running data exchange action.
+//  ExchangeMessagesTransportKind - ПеречислениеСсылка.Перечисления.ВидыТранспортаСообщенийОбмена - a transport kind
 //                                 that will be used in the data exchange. If it is not specified, 
 //                                 it is determined from transport parameters specified for the exchange plan node on
 //                                 exchange setup. Optional, the default value is Undefined.
@@ -523,11 +525,16 @@ EndFunction
 //
 // Returns:
 //  String - Presentation for the relative sync date:
+//    *Never             (Т = blank date).
+//    *Now              (Т < 5 min)
 //    *5 minutes ago       (5 min  < T < 15 min).
 //    *15 minutes ago      (15 min  < T < 30 min).
 //    *30 minutes ago      (30 min  < T < 1 hour).
 //    *1 1 hour ago         (1 hour  < T < 2 hours).
 //    *2 hours ago        (2 hours  < T < 3 hours).
+//    *Today, 12:44:12   (3 hours  < Т < yesterday).
+//    *Yesterday, 22:30:45     (yesterday  < Т < one day ago).
+//    *DayBeforeYesterday, 21:22:54 (one day ago  < Т < two days ago).
 //    *<12 March 2012>   (two days ago < T).
 //
 Function RelativeSynchronizationDate(Val SynchronizationDate) Export
@@ -975,8 +982,8 @@ EndProcedure
 //      *RulesForRegisteringInManager              - Boolean - Indicates the usage of the registration rules 
 //                                                   located in the common module (registration manager)
 //      *RegistrationManagerName                   - String - The name of the module containing registration rules
-//      *UseCacheOfPublicIdentifiers   - Boolean - 
-//                                                   
+//      *UseCacheOfPublicIdentifiers   - Boolean - Indicates that cache should be used for searching
+//                                                   references during data import
 //      *Global                                - Boolean - If set to True, the exchange plan supports exchange with 
 //                                                   exchange plans that have a different name.
 //                                                   Intended for EnterpriseData exchange only
@@ -1160,7 +1167,7 @@ Function ContextParametersOfSettingOptionDetailsReceipt(CorrespondentName, Corre
 	
 EndFunction
 
-// 
+// Returns a flag indicating whether a data import is running in the subordinate node.
 //
 // Returns:
 //   Boolean
@@ -2512,7 +2519,8 @@ Procedure UpdateDataExchangeRules() Export
 	
 EndProcedure
 
-// See DataExchangeCached.TempFilesStorageDirectory()
+// See DataExchangeCached.TempFilesStorageDirectory
+// ()
 Function TempFilesStorageDirectory() Export
 	
 	SafeMode = SafeMode();
@@ -2592,6 +2600,7 @@ EndProcedure
 // if the distributed infobase is created based on the exchange plan that is supported in the SSL data exchange subsystem.
 //
 // Returns:
+//  ПланОбменаСсылка.<ИмяПланаОбмена>, Undefined - this method returns Undefined in the following cases: - the current infobase is not
 //   a DIB node, -
 //   the master node is not defined (this infobase is the master node), -
 //   distributed infobase is created based on an exchange plan that is not supported in the SSL data
@@ -3157,6 +3166,7 @@ EndFunction
 //                                        connection in a passive mode
 //
 // Returns:
+//  ИмяФайла - String - a file name.
 //
 Function GetFileFromStorage(Val FileID, WSPassiveModeFileIB = False) Export
 	
@@ -5257,6 +5267,7 @@ EndProcedure
 //
 // Parameters:
 //     ExportAddition     - Structure
+//                            - РеквизитФормыКоллекция - export parameters details.
 //     SettingPresentation - String                            - a name of the setting to save.
 //
 Procedure InteractiveExportChangeSaveSettings(ExportAddition, Val SettingPresentation) Export
@@ -7783,6 +7794,7 @@ EndFunction
 //  No.
 // 
 // Returns:
+//  СостоянияОбменовДанными - Structure - a structure with the last exchange data for the specified infobase node.
 //
 Function DataExchangesStatesForInfobaseNode(Val InfobaseNode) Export
 	
@@ -7886,6 +7898,7 @@ EndFunction
 //  No.
 // 
 // Returns:
+//  СостоянияОбменовДанными - Structure - a structure with the last exchange data for the specified infobase node.
 //
 Function DataExchangesStates(Val InfobaseNode, ActionOnExchange) Export
 	
@@ -7940,6 +7953,7 @@ EndFunction
 //  No.
 // 
 // Returns:
+//  МассивПлановОбмена - Array - an array of strings (names) of all exchange plans that take part in the data exchange.
 //
 Function GetExchangePlansInUse() Export
 	
@@ -7966,6 +7980,7 @@ EndFunction
 //  No.
 // 
 // Returns:
+//  ПравилаРегистрацииОбъектов - ValueTable - a table of common object registration rules for ORM.
 // 
 Function GetObjectsRegistrationRules() Export
 	
@@ -8331,6 +8346,7 @@ EndProcedure
 // Registers errors upon deferred object writing in the exchange issue monitor.
 //
 // Parameters:
+//   Object - CatalogObject, ДокументОбъект и т.п. - errors occurred during deferred writing of this object.
 //   ExchangeNode - ExchangePlanRef - The infobase node the object was received from.
 //   ErrorMessage - String - Logging text.
 //     It is recommended that this parameter takes the result of BriefErrorDescription(ErrorInfo()).
@@ -9948,6 +9964,7 @@ EndFunction
 // Parameters:
 // 
 // Returns:
+//  СтруктураНастроекОбмена - Structure - a structure with all necessary data and objects to execute exchange.
 //
 Function DataExchangeSettings(ExchangeExecutionSettings, LineNumber)
 	
@@ -11725,6 +11742,7 @@ EndFunction
 //  ArchivePassword          - String - a password for unpacking the archive. Default value: empty string.
 // 
 // Returns:
+//  Результат - Boolean - True if it is successful. Otherwise, False.
 //
 Function UnpackZipFile(Val FullArchiveFileName, Val FilesUnpackPath, Val ArchivePassword = "") Export
 	
@@ -11767,6 +11785,7 @@ EndFunction
 //  ArchivePassword          - String - a password for the archive. Default value: empty string.
 // 
 // Returns:
+//  Результат - Boolean - True if it is successful. Otherwise, False.
 //
 Function PackIntoZipFile(Val FullArchiveFileName, Val FilesPackingMask, Val ArchivePassword = "") Export
 	
@@ -12946,6 +12965,7 @@ EndFunction
 // Checks whether the exchange message size exceed the maximum allowed size.
 //
 //  Returns:
+//   Истина - if the file size exceeds the maximum allowed size. Otherwise, False.
 //
 Function ExchangeMessageSizeExceedsAllowed(Val FileName, Val MaxMessageSize) Export
 	
@@ -13138,6 +13158,7 @@ EndFunction
 // Returns an array of version numbers supported by correspondent API for the DataExchange subsystem.
 // 
 // Parameters:
+//   ExternalConnection - объект COM-connection that is used for working with the correspondent.
 //
 // Returns:
 //   Array of version numbers that are supported by correspondent API.
@@ -13236,6 +13257,7 @@ EndProcedure
 // For internal use.
 //
 // Parameters:
+//   Object - CatalogObject, ДокументОбъект и т.п. - a data object.
 // 
 // Returns:
 //   Structure - the data object as a structure. Keys match the names of attributes and tables.
@@ -13653,6 +13675,7 @@ EndFunction
 //     * RegisterTableName - String - a full name of a register table.
 //     * RecordSet - InformationRegisterRecordSet
 //                    - AccumulationRegisterRecordSet
+//                    - и т.п. - record set.
 //     * ForceDelete - Boolean - indicates that records are deleted unconditionally.
 //
 Function DetermineDocumentHasRegisterRecords(DocumentRef)
@@ -13891,6 +13914,7 @@ EndFunction
 //  ExchangePlanName - String - an exchange plan name, as it is set in Designer.
 // 
 // Returns:
+//  МассивУзлов - Array - an array of all nodes of the specified exchange plan but the predefined node.
 //
 Function ExchangePlanNodes(ExchangePlanName) Export
 	
@@ -14160,6 +14184,7 @@ EndProcedure
 //
 // Parameters:
 //     ExportAddition - Structure
+//                        - РеквизитФормыКоллекция - export parameters details.
 //
 Procedure InteractiveExportChangeDetailsClearing(ExportAddition) Export
 	ExportAddition.AdditionalRegistration.Clear();
@@ -14169,6 +14194,7 @@ EndProcedure
 //
 // Parameters:
 //     ExportAddition - Structure
+//                        - РеквизитФормыКоллекция - export parameters details.
 //
 // Returns:
 //     String - filter details.
@@ -14189,6 +14215,7 @@ EndFunction
 //
 // Parameters:
 //     ExportAddition - Structure
+//                        - РеквизитФормыКоллекция - export parameters details.
 //
 // Returns:
 //     String - filter details.
@@ -14201,8 +14228,10 @@ EndFunction
 //
 // Parameters:
 //     ExportAddition - Structure
+//                        - РеквизитФормыКоллекция - export parameters details.
 //
 // Returns:
+//     Список значений, где представление - a setting name and value is setting data.
 //
 Function InteractiveExportChangeSettingsHistory(Val ExportAddition) Export
 	AdditionDataProcessor = DataProcessors.InteractiveExportChange.Create();
@@ -14216,6 +14245,7 @@ EndFunction
 //
 // Parameters:
 //     ExportAddition     - Structure
+//                            - РеквизитФормыКоллекция - export parameters details.
 //     SettingPresentation - String                            - a name of a setting to restore.
 //
 // Returns:

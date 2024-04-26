@@ -92,11 +92,23 @@
 					<ExtendedTooltip name="StandardCommandsExtendedTooltip" id="20"/>
 				</ButtonGroup>
 				<ButtonGroup name="AdditionalCommands" id="48">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Additional commands</v8:content>
+						</v8:item>
+					</Title>
 					<ExtendedTooltip name="AdditionalCommandsExtendedTooltip" id="49"/>
 					<ChildItems>
 						<Button name="AllReminders" id="46">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.AllReminders</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>All reminders</v8:content>
+								</v8:item>
+							</Title>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 							<ExtendedTooltip name="AllRemindersExtendedTooltip" id="47"/>
 						</Button>
@@ -345,6 +357,12 @@ WHERE
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 		<Command name="AllReminders" id="4">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>All reminders</v8:content>
+				</v8:item>
+			</Title>
 			<Action>AllReminders</Action>
 		</Command>
 	</Commands>

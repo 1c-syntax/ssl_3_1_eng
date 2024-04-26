@@ -244,10 +244,9 @@ EndProcedure
 
 #EndRegion
 
-// Sets a value of the UseFullTextSearch constant.
-//   Used to synchronize a value
-//   of the UseFullTextSearch functional option
-//   with the FullTextSearch.GetFullTextSearchMode() function value.
+// 
+// 
+// 
 //
 Procedure InitializeFullTextSearchFunctionalOption() Export
 	
@@ -591,8 +590,6 @@ Procedure UpdateIndex(ProcedurePresentation, EnableJoining = False, InPortions =
 	
 EndProcedure
 
-// Creates a record in the event log and in messages to a user;
-//
 // Parameters:
 //   LogLevel - EventLogLevel - message importance for the administrator.
 //   CommentWithParameters - String - a comment that can contain parameters %1.
@@ -600,13 +597,9 @@ EndProcedure
 //                      - String - error information placed after the comment.
 //   Parameter - String - replaces %1 in CommentWithParameters.
 //
-Procedure LogRecord(
-	LogLevel,
-	CommentWithParameters,
-	ErrorInfo = Undefined,
-	Parameter = Undefined)
+Procedure LogRecord(LogLevel, CommentWithParameters, ErrorInfo = Undefined,
+	Parameter = Undefined) Export
 	
-	// Determine the event log level based on the type of the passed error message.
 	If TypeOf(LogLevel) <> Type("EventLogLevel") Then
 		If TypeOf(ErrorInfo) = Type("ErrorInfo") Then
 			LogLevel = EventLogLevel.Error;
@@ -617,7 +610,6 @@ Procedure LogRecord(
 		EndIf;
 	EndIf;
 	
-	// Comment for the event log.
 	TextForLog = CommentWithParameters;
 	If Parameter <> Undefined Then
 		TextForLog = StringFunctionsClientServer.SubstituteParametersToString(TextForLog, Parameter);
@@ -629,11 +621,8 @@ Procedure LogRecord(
 	EndIf;
 	TextForLog = TrimAll(TextForLog);
 	
-	// Record to the event log.
-	WriteLogEvent(
-		NStr("en = 'Full-text indexing';", Common.DefaultLanguageCode()), 
-		LogLevel, , , 
-		TextForLog);
+	WriteLogEvent(NStr("en = 'Full-text indexing';", Common.DefaultLanguageCode()), 
+		LogLevel, , , TextForLog);
 	
 EndProcedure
 

@@ -268,7 +268,7 @@ Function ConnectionDiagnostics(URL, WriteError1 = True, IsPackageDeliveryCheckEn
 						NStr("en = 'No Internet access. Possible reasons:
 						           |- Computer is not connected to the Internet.
 						           | - Internet provider issues.
-						           |- Access blocked by firewall, antivirus, or another software.';"));
+						           |- Access blocked by firewall, antivirus, or other software.';"));
 					
 				Else 
 					
@@ -295,7 +295,7 @@ Function ConnectionDiagnostics(URL, WriteError1 = True, IsPackageDeliveryCheckEn
 						NStr("en = 'No Internet access. Possible reasons:
 						           |- Computer is not connected to the Internet.
 						           | - Internet provider issues.
-						           |- Access blocked by firewall, antivirus, or another software.';"));
+						           |- Access blocked by firewall, antivirus, or other software.';"));
 					
 				Else 
 					
