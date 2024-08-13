@@ -285,22 +285,22 @@ select the file that contains the data.</v8:content>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="FormatVersionGroupUploadExtendedTooltip" id="263"/>
+							<ExtendedTooltip name="FormatVersionImportGroupExtendedTooltip" id="263"/>
 							<ChildItems>
 								<InputField name="FormatVersionImport" id="264">
 									<DataPath>Object.FormatVersion</DataPath>
 									<ListChoiceMode>true</ListChoiceMode>
-									<ContextMenu name="FormatVersionDownloadContextMenu" id="265"/>
-									<ExtendedTooltip name="FormatVersionDownloadExtendedTooltip" id="266"/>
+									<ContextMenu name="FormatVersionImportContextMenu" id="265"/>
+									<ExtendedTooltip name="FormatVersionImportExtendedTooltip" id="266"/>
 									<Events>
-										<Event name="OnChange">FormatVersionDownloadOnChange</Event>
+										<Event name="OnChange">FormatVersionImportOnChange</Event>
 									</Events>
 								</InputField>
 								<InputField name="FormatExtensionImport" id="267">
 									<DataPath>Object.FormatExtension</DataPath>
 									<ListChoiceMode>true</ListChoiceMode>
-									<ContextMenu name="FormatExtensionDownloadContextMenu" id="268"/>
-									<ExtendedTooltip name="FormatExtensionDownloadExtendedTooltip" id="269"/>
+									<ContextMenu name="FormatExtensionImportContextMenu" id="268"/>
+									<ExtendedTooltip name="FormatExtensionImportExtendedTooltip" id="269"/>
 								</InputField>
 							</ChildItems>
 						</UsualGroup>
@@ -605,7 +605,7 @@ select the file that contains the data.</v8:content>
 															<v8:content>Save settings</v8:content>
 														</v8:item>
 													</Title>
-													<ExtendedTooltip name="SaveSettingsExtendedTooltip" id="175"/>
+													<ExtendedTooltip name="ShouldSaveSettingsExtendedTooltip" id="175"/>
 												</Button>
 												<Button name="RestoreSettings" id="176">
 													<Type>UsualButton</Type>
@@ -618,7 +618,7 @@ select the file that contains the data.</v8:content>
 															<v8:content>Restore settings</v8:content>
 														</v8:item>
 													</Title>
-													<ExtendedTooltip name="RestoreSettings1ExtendedTooltip" id="177"/>
+													<ExtendedTooltip name="RestoreSettingsExtendedTooltip" id="177"/>
 												</Button>
 												<InputField name="AllDocumentsFilterPeriod" id="140">
 													<DataPath>Object.AllDocumentsFilterPeriod</DataPath>
@@ -680,10 +680,10 @@ select the file that contains the data.</v8:content>
 													<TitleLocation>None</TitleLocation>
 													<EditMode>EnterOnInput</EditMode>
 													<CheckBoxType>Auto</CheckBoxType>
-													<ContextMenu name="TableOfUploadRulesIncludeContextMenu" id="132"/>
-													<ExtendedTooltip name="TableOfUploadRulesIncludeExtendedTooltip" id="133"/>
+													<ContextMenu name="ExportRulesTableEnableContextMenu" id="132"/>
+													<ExtendedTooltip name="ExportRulesTableEnableExtendedTooltip" id="133"/>
 													<Events>
-														<Event name="OnChange">TableOfUploadRulesIncludeOnChange</Event>
+														<Event name="OnChange">ExportRulesTableEnableOnChange</Event>
 													</Events>
 												</CheckBoxField>
 												<InputField name="ExportRulesTableDescription" id="128">
@@ -705,8 +705,8 @@ select the file that contains the data.</v8:content>
 													<DataPath>Object.ExportRulesTable.FilterPresentation</DataPath>
 													<ReadOnly>true</ReadOnly>
 													<EditMode>EnterOnInput</EditMode>
-													<ContextMenu name="ExportRulesTableFilterPresentation1ContextMenu" id="144"/>
-													<ExtendedTooltip name="ExportRulesTableFilterPresentation1ExtendedTooltip" id="145"/>
+													<ContextMenu name="ExportRulesTableFilterPresentationContextMenu" id="144"/>
+													<ExtendedTooltip name="ExportRulesTableFilterPresentationExtendedTooltip" id="145"/>
 												</InputField>
 											</ChildItems>
 										</Table>

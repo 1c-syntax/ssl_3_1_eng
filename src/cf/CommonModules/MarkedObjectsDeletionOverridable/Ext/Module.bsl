@@ -20,8 +20,8 @@
 //                                         objects for deletion command will be added.
 //
 // Example:
-//	Objects.Add(Metadata.Catalogs._DemoProducts);
-//	Objects.Add(Metadata.Catalogs._DemoPartners);
+//	Objects.Add(Metadata.Catalogs.Products);
+//	Objects.Add(Metadata.Catalogs.Partners);
 //
 Procedure OnDefineObjectsWithShowMarkedObjectsCommand(Objects) Export
 	

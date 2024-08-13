@@ -122,15 +122,15 @@ Function TransportSettingsWS(Val Peer) Export
 	
 	TransportSettingManager = Common.ObjectManagerByFullName("InformationRegister."
 		+ MessagesExchangeTransportSettingsRegisterName);
-	SettingsStructure = TransportSettingManager.TransportSettingsWS(Endpoint);
+	SettingsStructure_ = TransportSettingManager.TransportSettingsWS(Endpoint);
 	
-	If Not ValueIsFilled(SettingsStructure.WSWebServiceURL) Then
+	If Not ValueIsFilled(SettingsStructure_.WSWebServiceURL) Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Peer infobase ""%1"" connection is not set up.';"),
 			String(Peer));
 	EndIf;
 	
-	Return SettingsStructure;
+	Return SettingsStructure_;
 	
 EndFunction
 

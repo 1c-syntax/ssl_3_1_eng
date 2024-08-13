@@ -73,7 +73,7 @@ Procedure SettingsToClearRadioButtonOnChange(Item)
 EndProcedure
 
 &AtClient
-Procedure SelectUsers2Click(Item)
+Procedure SelectUsersClick(Item)
 	
 	If UseExternalUsers Then
 		UsersTypeSelection = New ValueList;

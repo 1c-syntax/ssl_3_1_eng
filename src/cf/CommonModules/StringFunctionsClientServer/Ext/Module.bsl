@@ -116,8 +116,8 @@ Function IsWordSeparator(CharCode, WordSeparators = Undefined) Export
 	EndIf;
 		
 	Ranges = New Array;
-	StringFunctionsClientServerLocalization.WhenDefiningCharactersOfWords(Ranges);
-	Ranges.Add(New Structure("Min,Max", 48, 57)); 	// Digits
+	StringFunctionsClientServerLocalization.OnDefineWordChars(Ranges);
+	Ranges.Add(New Structure("Min,Max", 48, 57)); 	// Digits.
 	Ranges.Add(New Structure("Min,Max", 65, 90)); 	// Uppercase Latin characters.
 	Ranges.Add(New Structure("Min,Max", 97, 122)); 	// Lowercase Latin characters.
 	Ranges.Add(New Structure("Min,Max", 95, 95)); 	// Underline ( _ ) character.
@@ -1170,7 +1170,7 @@ Function FormattedString(Val StringWithTags) Export
 	For Each RowPart In StringsWithLinks Do
 		
 		If RowPart.Check Then
-			RowArray.Add(New FormattedString(RowPart.Value, New Font(,,True))); // 
+			RowArray.Add(New FormattedString(RowPart.Value, New Font(,,True))); // ACC:1345 - Obsolete code.
 		ElsIf Not IsBlankString(RowPart.Presentation) Then
 			RowArray.Add(New FormattedString(RowPart.Value,,,, RowPart.Presentation));
 		Else
@@ -1419,7 +1419,7 @@ Function GenerateFormattedString(StringPattern, StyleItems,
 		
 	EndDo;
 	
-	Return New FormattedString(RowsSet);	// 
+	Return New FormattedString(RowsSet);	// ACC:1356 - A compound format string can be used as the string array consists of the passed text.
 														// 
 
 EndFunction

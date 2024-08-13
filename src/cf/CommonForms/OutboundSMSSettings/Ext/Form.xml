@@ -34,8 +34,8 @@
 						<xr:LoadTransparent>false</xr:LoadTransparent>
 					</Picture>
 					<FileDragMode>AsFile</FileDragMode>
-					<ContextMenu name="InformationPicture7ContextMenu" id="35"/>
-					<ExtendedTooltip name="InformationPicture7ExtendedTooltip" id="36"/>
+					<ContextMenu name="PictureOfInformationContextMenu" id="35"/>
+					<ExtendedTooltip name="PictureOfInformationExtendedTooltip" id="36"/>
 				</PictureDecoration>
 				<LabelDecoration name="AdditionalInformation" id="37">
 					<Width>40</Width>

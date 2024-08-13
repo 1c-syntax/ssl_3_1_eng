@@ -74,7 +74,7 @@ Please wait…</v8:content>
 							<v8:content>Start page</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="StartPage1ExtendedTooltip" id="6"/>
+					<ExtendedTooltip name="StartPageExtendedTooltip" id="6"/>
 					<ChildItems>
 						<UsualGroup name="GroupBegin" id="47">
 							<Title>
@@ -87,7 +87,7 @@ Please wait…</v8:content>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="StartGroup1ExtendedTooltip" id="48"/>
+							<ExtendedTooltip name="GroupBeginExtendedTooltip" id="48"/>
 							<ChildItems>
 								<PictureDecoration name="Decoration5" id="49">
 									<Width>6</Width>
@@ -167,7 +167,7 @@ Please wait…</v8:content>
 							<v8:content>Wait page</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="WaitPageExtendedTooltip" id="8"/>
+					<ExtendedTooltip name="PageWaitExtendedTooltip" id="8"/>
 					<ChildItems>
 						<UsualGroup name="WaitGroup" id="17">
 							<Title>
@@ -276,7 +276,7 @@ Please wait…</v8:content>
 							<v8:content>Navigation start page</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="NavigationStartPage1ExtendedTooltip" id="12"/>
+					<ExtendedTooltip name="PageNavigationStartExtendedTooltip" id="12"/>
 					<ChildItems>
 						<CommandBar name="StartNavigationRightCommandBar" id="25">
 							<Title>
@@ -322,7 +322,7 @@ Please wait…</v8:content>
 							<v8:content>Navigation waiting page</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="NavigationWaitPage1ExtendedTooltip" id="14"/>
+					<ExtendedTooltip name="PageNavigationWaitExtendedTooltip" id="14"/>
 					<ChildItems>
 						<CommandBar name="WaitNavigationCommandBarRight" id="31">
 							<Title>
@@ -356,7 +356,7 @@ Please wait…</v8:content>
 							<v8:content>Navigation completion page</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="NavigationEndPage1ExtendedTooltip" id="16"/>
+					<ExtendedTooltip name="PageNavigationEndExtendedTooltip" id="16"/>
 					<ChildItems>
 						<CommandBar name="EndNavigationRightCommandBar" id="35">
 							<Title>

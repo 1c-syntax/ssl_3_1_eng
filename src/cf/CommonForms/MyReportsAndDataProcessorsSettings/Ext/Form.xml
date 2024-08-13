@@ -54,8 +54,8 @@
 							<v8:content>Used commands:</v8:content>
 						</v8:item>
 					</Title>
-					<ContextMenu name="TableTitleContextMenu" id="53"/>
-					<ExtendedTooltip name="TableTitleExtendedTooltip" id="54"/>
+					<ContextMenu name="TableHeadingContextMenu" id="53"/>
+					<ExtendedTooltip name="TableHeadingExtendedTooltip" id="54"/>
 				</LabelDecoration>
 				<CommandBar name="TableButtons" id="48">
 					<Title>

@@ -78,13 +78,13 @@ EndProcedure
 
 #Region Private
 
-// 
+// This procedure updates data of the registers "UserGroupsHierarchy" and "UserGroupCompositions".
 //
 // Parameters:
-//  HasHierarchyChanges - Boolean -  (return value) - if a record was made,
-//                            it is set to True, otherwise it is not changed.
-//  HasChangesInComposition - Boolean -  (return value) - if a record was made,
-//                            it is set to True, otherwise it is not changed.
+//  HasHierarchyChanges - Boolean - (return value) - If recorded, "True".
+//                            Otherwise, it does not change.
+//  HasChangesInComposition - Boolean - (return value) - If recorded, "True".
+//                            Otherwise, it does not change.
 //
 Procedure UpdateHierarchyAndComposition(HasHierarchyChanges = Undefined, HasChangesInComposition = Undefined) Export
 

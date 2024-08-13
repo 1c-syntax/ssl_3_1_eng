@@ -224,7 +224,7 @@
 									<v8:item>
 										<v8:lang>en</v8:lang>
 										<v8:content>The list contains objects that can be accessed through the automatic REST service.
-The required composition of objects can be checked with the developer of a third-party application that will connect to the application through the automatic REST service. &lt;link https://its.1c.eu/db/v8323doc#bookmark:dev:ti000001358&gt;Information for developers&lt;/&gt;</v8:content>
+The required composition of objects can be checked with the developer of a third-party application that will connect to the application through the automatic REST service. &lt;link https://kb.1ci.com/1C_Enterprise_Platform/Guides/Developer_Guides/1C_Enterprise_8.3.22_Developer_Guide/17._Integration_with_instant_messaging_systems/17.4._Standard_OData_interface/&gt;Information for developers&lt;/&gt;</v8:content>
 									</v8:item>
 								</Title>
 							</ExtendedTooltip>
@@ -369,9 +369,9 @@ The required composition of objects can be checked with the developer of a third
 											</Title>
 											<HorizontalStretch>true</HorizontalStretch>
 											<Group>InCell</Group>
-											<ExtendedTooltip name="NoteGroup1ExtendedTooltip" id="115"/>
+											<ExtendedTooltip name="NoteGroupExtendedTooltip" id="115"/>
 											<ChildItems>
-												<LabelField name="MetadataObjectsSubordinateItem3" id="95">
+												<LabelField name="MetadataObjectsSubordinated" id="95">
 													<DataPath>MetadataObjects.Subordinated</DataPath>
 													<ReadOnly>true</ReadOnly>
 													<Title>
@@ -387,8 +387,8 @@ The required composition of objects can be checked with the developer of a third
 															<v8:content>BF=; BT='Subordinate object'</v8:content>
 														</v8:item>
 													</Format>
-													<ContextMenu name="MetadataObjectsSubordinateItem3ContextMenu" id="96"/>
-													<ExtendedTooltip name="MetadataObjectsSubordinateItem3ExtendedTooltip" id="97"/>
+													<ContextMenu name="MetadataObjectsSubordinatedContextMenu" id="96"/>
+													<ExtendedTooltip name="MetadataObjectsSubordinatedExtendedTooltip" id="97"/>
 												</LabelField>
 												<LabelField name="MetadataObjectsReadOnly" id="101">
 													<DataPath>MetadataObjects.ReadOnly</DataPath>

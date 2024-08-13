@@ -44,7 +44,7 @@ Procedure OnReadAtServer(CurrentObject)
 	EndDo;
 	
 	CreateAttributeItemEncryptionCertificate();
-	VisibilityAvailabilityOfCertificatesPasswords(ThisObject);
+	SetCertificatePasswordsVisibilityAndAvailability(ThisObject);
 	
 	If GetFunctionalOption("RetainReportDistributionHistory") And Not Object.Personal And Object.UseEmail Then
 		MailoutStatus = ReportMailing.GetReportDistributionState(Object.Ref);
@@ -233,10 +233,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	// Allows you to see and control some protected mailing parameters.
 	MailingBeingEditedByAuthor = (Object.Author = Users.CurrentUser());
 	
-	// Add additional report button availability.
+	// Add additional report button availability.
 	Items.ReportsAddAdditionalReport.Enabled = ?(Cache.EmptyReportValue = Undefined, True, False);
-	//  
-	//   
+	// "Cache.EmptyReportValue" is set to "Undefined" is the "Report" attribute type is flexible. 
+	//   Therefore, the "Additional reports and data processors" subsystem is integrated.
 	
 	// Report distribution author availability.
 	Items.Author.Enabled = Users.IsFullUser();
@@ -280,7 +280,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	// Selection list of author postal addresses.
 	ConnectEmailSettingsCache();
 	
-	// Read object settings from object to be copied.
+	// Read report settings from the object being copied.
 	If CreatedByCopying Then
 		ReadObjectSettingsOfObjectToCopy();
 		ConvertTextParameters(Object, "ParametersInPresentation");
@@ -297,7 +297,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndIf;
 	EndIf;
 	
-	VisibilityAvailabilityCorrectness(ThisObject);
+	SetVisibilityAvailabilityAndCorrectness(ThisObject);
 	AddCommandsAddTextAdditionalParameters();
 	
 	FixAttributesValuesBeforeChange();
@@ -480,15 +480,15 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 		WriteReportsRowSettings(CurrentRowIDOfReportsTable);
 	EndIf;
 	
-	// 
-	// 
-	//     
-	//     
-	// 
-	//     
+	// The follow-up actions:
+	// [1] Save the custom settings. Put the modified settings rows
+	//     to the settings of the object being written (to the value storage).
+	//     Analyze all reports if the user changes the settings.
+	// [2] Search for unfilled mandatory settings.
+	//     Analyze DCS reports if the distribution is prepared.
 	CheckRequired1 = Object.IsPrepared;
-	// 
-	//     
+	// [3] Search for personalized fields if the distribution is not personalized.
+	//     Analyze all reports if the user switched the type from personalized to any other type.
 	//     
 	MailingIsNotPersonalized = (Not Object.Personalized And MailingWasPersonalized);
 	For Each ReportsRow In Object.Reports Do
@@ -631,8 +631,10 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	EndIf;
 	CurrentObject.AdditionalProperties.Insert("Schedule", Schedule);
 	
-	ConvertTextParameters(CurrentObject, "PresentationInParameters");
-	ConvertReportsSettingsParameters(CurrentObject, "PresentationInParameters");
+	If Not Cancel Then
+		ConvertTextParameters(CurrentObject, "PresentationInParameters");
+		ConvertReportsSettingsParameters(CurrentObject, "PresentationInParameters");
+	EndIf;
 	
 EndProcedure
 
@@ -713,15 +715,15 @@ EndProcedure
 
 &AtClient
 Procedure IsPreparedOnChange(Item)
-	VisibilityAvailabilityCorrectness(ThisObject, "IsPrepared");
+	SetVisibilityAvailabilityAndCorrectness(ThisObject, "IsPrepared");
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Schedule page.
 
 &AtClient
 Procedure ExecuteOnScheduleOnChange(Item)
-	VisibilityAvailabilityCorrectness(ThisObject, "ExecuteOnSchedule");
+	SetVisibilityAvailabilityAndCorrectness(ThisObject, "ExecuteOnSchedule");
 EndProcedure
 
 &AtClient
@@ -729,7 +731,7 @@ Procedure MonthsOnChange(Item)
 	If Item <> Undefined Then
 		Schedule.Months = ChangeArrayContent(ThisObject[Item.Name], Cache.Maps1.Months[Item.Name], Schedule.Months);
 	EndIf;
-	VisibilityAvailabilityCorrectness(ThisObject, "Months");
+	SetVisibilityAvailabilityAndCorrectness(ThisObject, "Months");
 EndProcedure
 
 &AtClient
@@ -737,7 +739,7 @@ Procedure WeekDaysOnChange(Item)
 	If Item <> Undefined Then
 		Schedule.WeekDays = ChangeArrayContent(ThisObject[Item.Name], Cache.Maps1.WeekDays[Item.Name], Schedule.WeekDays);
 	EndIf;
-	VisibilityAvailabilityCorrectness(ThisObject, "WeekDays");
+	SetVisibilityAvailabilityAndCorrectness(ThisObject, "WeekDays");
 EndProcedure
 
 &AtClient
@@ -755,7 +757,7 @@ EndProcedure
 &AtClient
 Procedure SchedulePeriodicityOnChange(Item)
 	
-	VisibilityAvailabilityCorrectness(ThisObject, "SchedulePeriodicity");
+	SetVisibilityAvailabilityAndCorrectness(ThisObject, "SchedulePeriodicity");
 	If Object.SchedulePeriodicity = PredefinedValue("Enum.ReportMailingSchedulePeriodicities.CustomValue") 
 	   And Not CommonClient.DataSeparationEnabled() Then
 		ChangeScheduleInDialog();
@@ -771,13 +773,13 @@ Procedure BegEndOfMonthHyperlinkClick(Item)
 		Schedule.DayInMonth = -Schedule.DayInMonth;
 	EndIf;
 	Modified = True;
-	VisibilityAvailabilityCorrectness(ThisObject, "MonthBeginEnd");
+	SetVisibilityAvailabilityAndCorrectness(ThisObject, "MonthBeginEnd");
 EndProcedure
 
 &AtClient
 Procedure BeginTimeOnChange(Item)
 	Schedule.BeginTime = BeginTime;
-	VisibilityAvailabilityCorrectness(ThisObject, "BeginTime");
+	SetVisibilityAvailabilityAndCorrectness(ThisObject, "BeginTime");
 EndProcedure
 
 &AtClient
@@ -786,35 +788,35 @@ Procedure UseHourlyRepeatPeriodOnChange(Item)
 	EndTime = ?(UseHourlyRepeatPeriod, BeginTime + HoursToSeconds(4), '00010101');
 	Schedule.EndTime = EndTime;
 	Schedule.RepeatPeriodInDay = HoursToSeconds(RepeatPeriodInDay);
-	VisibilityAvailabilityCorrectness(ThisObject, "RepeatPeriodInDay");
+	SetVisibilityAvailabilityAndCorrectness(ThisObject, "RepeatPeriodInDay");
 EndProcedure
 
 &AtClient
 Procedure RepeatPeriodInDayOnChange(Item)
 	Schedule.RepeatPeriodInDay = HoursToSeconds(RepeatPeriodInDay);
-	VisibilityAvailabilityCorrectness(ThisObject, "RepeatPeriodInDay");
+	SetVisibilityAvailabilityAndCorrectness(ThisObject, "RepeatPeriodInDay");
 EndProcedure
 
 &AtClient
 Procedure EndTimeOnChange(Item)
 	Schedule.EndTime = EndTime;
-	VisibilityAvailabilityCorrectness(ThisObject, "EndTime");
+	SetVisibilityAvailabilityAndCorrectness(ThisObject, "EndTime");
 EndProcedure
 
 &AtClient
 Procedure DaysRepeatPeriodOnChange(Item)
 	Schedule.DaysRepeatPeriod = DaysRepeatPeriod;
-	VisibilityAvailabilityCorrectness(ThisObject, "DaysRepeatPeriod");
+	SetVisibilityAvailabilityAndCorrectness(ThisObject, "DaysRepeatPeriod");
 EndProcedure
 
 &AtClient
 Procedure MonthDayOnChange(Item)
 	Schedule.DayInMonth = ?(Schedule.DayInMonth >= 0, DayInMonth, -DayInMonth);
-	VisibilityAvailabilityCorrectness(ThisObject, "DayInMonth");
+	SetVisibilityAvailabilityAndCorrectness(ThisObject, "DayInMonth");
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Delivery page.
 
 &AtClient
 Procedure MailingRecipientTypeChoiceProcessing(Item, ValueSelected, StandardProcessing)
@@ -845,6 +847,9 @@ Procedure MailingRecipientTypeChoiceProcessing(Item, ValueSelected, StandardProc
 		
 		ShowQueryBox(Handler, QuestionRow, Buttons, 60, DialogReturnCode.Yes);
 	EndIf;
+	
+	SetVisibilityAvailabilityAndCorrectness(ThisObject, "BulkEmailRecipients");
+
 EndProcedure
 
 &AtClient
@@ -904,7 +909,7 @@ Procedure FTPServerAndDirectoryChoiceProcessing(Item, ValueSelected, StandardPro
 		EndIf;
 	EndDo;
 	
-	VisibilityAvailabilityCorrectness(ThisObject, "FTPServerAndDirectory");
+	SetVisibilityAvailabilityAndCorrectness(ThisObject, "FTPServerAndDirectory");
 	Modified = True;
 EndProcedure
 
@@ -932,19 +937,28 @@ Procedure BulkEmailTypeOnChange(Item)
 		Object.ShouldAttachReports = True;
 	EndIf;
 	
-	VisibilityAvailabilityCorrectness(ThisObject, "BulkEmailType");
+	If Object.Personal Then
+		Object.Recipients.Clear();
+	ElsIf Not ValueIsFilled(MailingRecipientType) Then
+		If Items.MailingRecipientType.ChoiceList.Count() > 0 Then
+			MailingRecipientType = Items.MailingRecipientType.ChoiceList[0].Value;
+			MailingRecipientTypeOnChange(Items.MailingRecipientType);
+		EndIf;
+	EndIf;
+	
+	SetVisibilityAvailabilityAndCorrectness(ThisObject, "BulkEmailType");
 	AddCommandsAddTextAdditionalParameters();
 	
 EndProcedure
 
 &AtClient
 Procedure UseEmailOnChange(Item)
-	VisibilityAvailabilityCorrectness(ThisObject, "UseEmail");
+	SetVisibilityAvailabilityAndCorrectness(ThisObject, "UseEmail");
 	
 	If Not Publish And Not Object.UseEmail Then
 		Publish = True;
 		EvaluateAdditionalDeliveryMethodsCheckBoxes();
-		VisibilityAvailabilityCorrectness(ThisObject, "Publish");
+		SetVisibilityAvailabilityAndCorrectness(ThisObject, "Publish");
 	ElsIf Object.UseEmail And Not Object.ShouldInsertReportsIntoEmailBody And Not Object.NotifyOnly Then
 		Object.ShouldAttachReports = True;
 	EndIf;
@@ -961,13 +975,13 @@ Procedure NotifyOnlyOnChange(Item)
 		Object.ShouldAttachReports = True;
 	EndIf;
 	
-	VisibilityAvailabilityCorrectness(ThisObject, "NotifyOnly");
+	SetVisibilityAvailabilityAndCorrectness(ThisObject, "NotifyOnly");
 EndProcedure
 
 &AtClient
 Procedure OtherDeliveryMethodOnChange(Item)
 	EvaluateAdditionalDeliveryMethodsCheckBoxes();
-	VisibilityAvailabilityCorrectness(ThisObject, "OtherDeliveryMethod");
+	SetVisibilityAvailabilityAndCorrectness(ThisObject, "OtherDeliveryMethod");
 EndProcedure
 
 &AtClient
@@ -980,12 +994,12 @@ EndProcedure
 &AtClient
 Procedure PublishOnChange(Item)
 	EvaluateAdditionalDeliveryMethodsCheckBoxes();
-	VisibilityAvailabilityCorrectness(ThisObject, "Publish");
+	SetVisibilityAvailabilityAndCorrectness(ThisObject, "Publish");
 	
 	If Not Publish And Not Object.UseEmail Then
 		Object.UseEmail = True;
 		Object.ShouldAttachReports  = True;
-		VisibilityAvailabilityCorrectness(ThisObject, "UseEmail");
+		SetVisibilityAvailabilityAndCorrectness(ThisObject, "UseEmail");
 	ElsIf Object.UseEmail And Not Object.ShouldInsertReportsIntoEmailBody And Not Object.NotifyOnly Then
 		Object.ShouldAttachReports = True;
 	EndIf;
@@ -1027,7 +1041,7 @@ Procedure NetworkDirectoryLinuxOnChange(Item)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Additional page.
 
 &AtClient
 Procedure DefaultFormatsClick(Item, StandardProcessing)
@@ -1038,7 +1052,7 @@ EndProcedure
 
 &AtClient
 Procedure ArchiveOnChange(Item)
-	VisibilityAvailabilityCorrectness(ThisObject, "Archive");
+	SetVisibilityAvailabilityAndCorrectness(ThisObject, "Archive");
 	CheckOnSetArchivePasswordInsertReportsToEmailText();
 EndProcedure
 
@@ -1126,7 +1140,7 @@ EndProcedure
 &AtClient
 Procedure ShouldSetPasswordsAndEncryptOnChange(Item)
 
-	VisibilityAvailabilityOfCertificatesPasswords(ThisObject);
+	SetCertificatePasswordsVisibilityAndAvailability(ThisObject);
 	
 	If Not Object.ShouldInsertReportsIntoEmailBody And Object.ShouldSetPasswordsAndEncrypt Then
 		OpenFormPasswordsEncryption();
@@ -1240,7 +1254,7 @@ Procedure ReportsChoiceProcessing(Item, ValueSelected, StandardProcessing)
 		
 	EndIf;
 	CheckPeriodsInReports(ChoiceStructure.Success.RowsArray);
-	VisibilityAvailabilityCorrectness(ThisObject, "Reports");
+	SetVisibilityAvailabilityAndCorrectness(ThisObject, "Reports");
 EndProcedure
 
 &AtClient
@@ -1281,7 +1295,7 @@ EndProcedure
 
 &AtClient
 Procedure ReportsAfterDeleteRow(Item)
-	VisibilityAvailabilityCorrectness(ThisObject, "Reports");
+	SetVisibilityAvailabilityAndCorrectness(ThisObject, "Reports");
 EndProcedure
 
 #EndRegion
@@ -1455,7 +1469,7 @@ EndProcedure
 #Region FormCommandsEventHandlers
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Command bar
 
 &AtClient
 Procedure CommandSaveAndClose(Command)
@@ -1522,7 +1536,7 @@ Procedure Redistribution(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Reports page.
 
 &AtClient
 Procedure AddReport(Command)
@@ -1769,7 +1783,7 @@ Function IdentifySetting()
 		Initiator = Items.CurrentReportSettings;
 	EndIf;
 	
-	// Get details of the types available for selection.
+	// Get details of the types available for selection.
 	If DCS Then
 		
 		// User setting ID.
@@ -1871,7 +1885,7 @@ Function DetermineFieldFromComposer(SettingID, Collection)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Schedule page.
 
 &AtClient
 Procedure SelectCheckBoxes(Command)
@@ -1881,7 +1895,7 @@ Procedure SelectCheckBoxes(Command)
 		AllMonths.Add(KeyAndValue.Value);
 	EndDo;
 	Schedule.Months = AllMonths;
-	VisibilityAvailabilityCorrectness(ThisObject, "Months");
+	SetVisibilityAvailabilityAndCorrectness(ThisObject, "Months");
 EndProcedure
 
 &AtClient
@@ -1891,7 +1905,7 @@ Procedure ClearCheckBoxes(Command)
 		ThisObject[KeyAndValue.Key] = False;
 	EndDo;
 	Schedule.Months = AllMonths;
-	VisibilityAvailabilityCorrectness(ThisObject, "Months");
+	SetVisibilityAvailabilityAndCorrectness(ThisObject, "Months");
 EndProcedure
 
 &AtClient
@@ -1903,7 +1917,7 @@ Procedure FillScheduleByTemplate(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Delivery page.
 
 &AtClient
 Procedure AddChangeMailingDateTemplate(Command)
@@ -1999,7 +2013,7 @@ Procedure AddDefaultTemplate(Command)
 	AdditionalParameters.Insert("DefaultTemplate", DefaultTemplate);
 	
 	If SubjectValue = "" Then
-		// Empty subject  - required to be filled without questions.
+		// If the subject is empty, fill it in.
 		AddDefaultTemplateCompletion(1, AdditionalParameters);
 		
 	ElsIf SubjectValue = DefaultTemplate Then
@@ -2065,7 +2079,7 @@ Procedure ChangeTextTypeToHTML(Command)
 		EmailTextFormattedDocument.Add(Object.EmailText, FormattedDocumentItemType.Text);
 	EndIf;
 	CurrentItem = Items.EmailTextFormattedDocument;
-	VisibilityAvailabilityCorrectness(ThisObject, "HTMLFormatEmail");
+	SetVisibilityAvailabilityAndCorrectness(ThisObject, "HTMLFormatEmail");
 EndProcedure
 
 &AtClient
@@ -2077,7 +2091,7 @@ Procedure ChangeTextTypeToPlain(Command)
 		Object.EmailText = EmailTextFromHTML;
 	EndIf;
 	CurrentItem = Items.EmailText;
-	VisibilityAvailabilityCorrectness(ThisObject, "HTMLFormatEmail");
+	SetVisibilityAvailabilityAndCorrectness(ThisObject, "HTMLFormatEmail");
 EndProcedure
 
 &AtClient
@@ -2130,7 +2144,7 @@ Procedure ShouldInsertReportsIntoEmailBodyOnChange(Item)
 		EndIf;
 	Else
 		Object.ShouldAttachReports = True;
-		VisibilityAvailabilityCorrectness(ThisObject, "ShouldAttachReports");
+		SetVisibilityAvailabilityAndCorrectness(ThisObject, "ShouldAttachReports");
 	EndIf;
 
 EndProcedure
@@ -2147,19 +2161,19 @@ Procedure ShouldAttachReportsOnChange(Item)
 		Object.ShouldInsertReportsIntoEmailBody = True;
 	EndIf;
 
-	VisibilityAvailabilityCorrectness(ThisObject, "ShouldAttachReports");
+	SetVisibilityAvailabilityAndCorrectness(ThisObject, "ShouldAttachReports");
 	
 
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Additional page.
 
 &AtClient
 Procedure ResetDefaultFormat(Command)
 	ClearFormat(Cache.EmptyReportValue);
 	DefaultFormats = DefaultFormatsListPresentation;
-	VisibilityAvailabilityCorrectness(ThisObject, "DefaultFormats");
+	SetVisibilityAvailabilityAndCorrectness(ThisObject, "DefaultFormats");
 EndProcedure
 
 &AtClient
@@ -2258,7 +2272,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Client.
 
 &AtClient
 Procedure UserSettingStartChoice(StandardProcessing)
@@ -2293,10 +2307,7 @@ EndProcedure
 // Parameters:
 //   Result - Structure:
 //     * Recipients - ValueTable:
-//         * Recipient - CatalogRef.UserGroups,
-//                      - CatalogRef._DemoCounterparties,
-//                      - CatalogRef._DemoPartners,
-//                      - CatalogRef.Users
+//         * Recipient - DefinedType.BulkEmailRecipient
 //         * Excluded - Boolean
 //         * Address - String
 //         * PictureIndex - Number
@@ -2318,7 +2329,7 @@ Procedure BulkEmailRecipientsClickCompletion(Result, Parameter) Export
 		NewRow.Excluded = Item.Excluded;
 	EndDo;
 	
-	VisibilityAvailabilityCorrectness(ThisObject, "BulkEmailRecipients");
+	SetVisibilityAvailabilityAndCorrectness(ThisObject, "BulkEmailRecipients");
 	Modified = True;
 EndProcedure
 
@@ -2329,7 +2340,7 @@ Procedure MailingRecipientTypeChoiceProcessingCompletion(Response, AdditionalPar
 		MailingRecipientType = AdditionalParameters.ValueSelected;
 		Modified = True;
 		MailingRecipientTypeOnChange(Undefined);
-		VisibilityAvailabilityCorrectness(ThisObject, "BulkEmailRecipients");
+		SetVisibilityAvailabilityAndCorrectness(ThisObject, "BulkEmailRecipients");
 	EndIf;
 EndProcedure
 
@@ -2486,7 +2497,7 @@ Procedure AddChangeMailingDateTemplateCompletion(ResultRow, Variables1) Export
 		EndIf; // Variable.PreviousFragmentFound
 		If Not ReplacementExecuted Then
 			If TrimAll(Variables1.PreviousText1) = PreviousFragment Then
-				// 
+				// The "SelectedText" property is rarely used in formatted documents (in case it's safe).
 				//  
 				Variables1.Item.SelectedText = NewFragment;
 			Else
@@ -2558,7 +2569,7 @@ Procedure DefaultFormatsSelectionCompletion(FormatPresentation, Variables1) Expo
 	If FormatPresentation <> Undefined Then
 		DefaultFormats = FormatPresentation;
 	EndIf;
-	VisibilityAvailabilityCorrectness(ThisObject, "DefaultFormats");
+	SetVisibilityAvailabilityAndCorrectness(ThisObject, "DefaultFormats");
 EndProcedure
 
 &AtClient
@@ -2566,7 +2577,7 @@ Procedure AfterChangeSchedule(ScheduleResult, AdditionalParameters) Export
 	If ScheduleResult <> Undefined Then
 		Modified = True;
 		Schedule = ScheduleResult;
-		VisibilityAvailabilityCorrectness(ThisObject, "Schedule");
+		SetVisibilityAvailabilityAndCorrectness(ThisObject, "Schedule");
 	EndIf;
 EndProcedure
 
@@ -2576,7 +2587,7 @@ Function ChoicePickupDragItemToTabularSection(PickingItem, TabularSection, Var_A
 	// (CatalogRef.*) drag from the pickup or selection form.
 	AttributeValue = PickingItem;
 	
-	// Attributes uniqueness in the table borders is required.
+	// The attribute must be unique within the table.
 	FoundItems = TabularSection.FindRows(New Structure(Var_AttributeName, AttributeValue));
 	
 	If Uniqueness And FoundItems.Count() > 0 Then
@@ -2613,9 +2624,9 @@ EndFunction
 
 &AtClient
 Procedure ChooseFormat(ReportRef1, ResultHandler)
-	// 
-	// 
-	// 
+	// The "ReportFormats" table is used to store all user-selected formats.
+	// To store the default formats, an empty value of the "Report" attribute is used.
+	// Depending on the implementation, the "Report" attribute can be "Undefined" or "EmptyRef".
 	IsDefaultFormat = Not ValueIsFilled(ReportRef1);
 	
 	FoundItems = Object.ReportFormats.FindRows(New Structure("Report", ReportRef1));
@@ -2685,8 +2696,8 @@ Procedure AddLayout(TextTemplate = Undefined, SkipEmailSubject = False)
 	EndIf;
 	
 	If CurrentItem.SelectedText = "" Then
-		// 
-		//  
+		// Formatted documents mishandle changes of the "SelectedText" property if no text is selected.
+		//  Therefore, use the alternative method for adding text.
 		//  
 		If CurrentItem = Items.EmailTextFormattedDocument Then
 			EmailTextFormattedDocument.Add(TextTemplate, FormattedDocumentItemType.Text);
@@ -2870,9 +2881,11 @@ Procedure CheckEncryptionBeforeIncludeReportsToEmailBody()
 			QueryText = NStr("en = 'To insert reports into the email body, disable passwords.';");
 			QuestionParameters.DefaultButton = "DisablePasswords";
 		EndIf;
-		StandardSubsystemsClient.ShowQuestionToUser(
-			New NotifyDescription("AfterQuestionAnsweredReportsInEmailTextEncryption", ThisObject), QueryText,
-			QuestionButtons, QuestionParameters);
+		If CanEncryptAttachments Or Object.Archive Then
+			StandardSubsystemsClient.ShowQuestionToUser(
+				New NotifyDescription("AfterQuestionAnsweredReportsInEmailTextEncryption", ThisObject), QueryText,
+				QuestionButtons, QuestionParameters);
+		EndIf;
 
 	ElsIf Object.Personal Then
 
@@ -3108,7 +3121,7 @@ Procedure OnOpenTemplatePreview()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Client, Server.
 
 &AtClientAtServerNoContext
 Function PasswordHidden()
@@ -3121,7 +3134,7 @@ EndFunction
 //  Changes - String 
 //
 &AtClientAtServerNoContext
-Procedure VisibilityAvailabilityCorrectness(Form, Changes = "")
+Procedure SetVisibilityAvailabilityAndCorrectness(Form, Changes = "")
 	
 	Object = Form.Object;
 	Items = Form.Items;
@@ -3161,7 +3174,7 @@ Procedure VisibilityAvailabilityCorrectness(Form, Changes = "")
 	EndIf;
 	
 	If Changes = "" Or Changes = "BulkEmailType" Then
-		// Valid.
+		// Validity
 		If Object.Personal And Object.Personalized Then
 			Object.Personal = False;
 		EndIf;
@@ -3200,7 +3213,7 @@ Procedure VisibilityAvailabilityCorrectness(Form, Changes = "")
 		If Object.Personal Then
 			Items.BulkEmailRecipients.Visible = False;
 		Else
-			Items.BulkEmailRecipients.Visible = True;
+			Items.BulkEmailRecipients.Visible = ValueIsFilled(Form.MailingRecipientType);
 			If Not CommonMailing Then
 				Items.BulkEmailRecipients.TitleLocation = FormItemTitleLocation.Auto;
 			Else
@@ -3208,7 +3221,7 @@ Procedure VisibilityAvailabilityCorrectness(Form, Changes = "")
 			EndIf;
 		EndIf;
 		
-		// Restore parameters.
+		// Restore parameters
 		If Object.UseFolder Then
 			Form.OtherDeliveryMethod = "UseFolder";
 			Form.Publish = True;
@@ -3228,7 +3241,7 @@ Procedure VisibilityAvailabilityCorrectness(Form, Changes = "")
 		Items.UseMailingRecipientInReport3Setting.Visible = Object.Personalized;
 		Items.UseMailingRecipientInReport4Setting.Visible = Object.Personalized;
 		
-		VisibilityAvailabilityOfCertificatesPasswords(Form);
+		SetCertificatePasswordsVisibilityAndAvailability(Form);
 	EndIf;
 	
 	If Changes = "" Or Changes = "Reports" Then
@@ -3266,8 +3279,9 @@ Procedure VisibilityAvailabilityCorrectness(Form, Changes = "")
 		Items.ReportsFilesSettings.Enabled = Object.ShouldAttachReports Or Form.Publish;
 	EndIf;
 	
-	If Changes = "" Or Changes = "BulkEmailRecipients" Then
+	If Changes = "" Or Changes = "BulkEmailRecipients" Or Changes = "BulkEmailType" Then
 		If Form.BulkEmailType <> "Personal" Then
+			Items.BulkEmailRecipients.Visible = True;
 			RecipientsPresentation1 = RecipientsPresentation1(Form);
 			Form.BulkEmailRecipients = RecipientsPresentation1.Short;
 		EndIf;
@@ -3313,7 +3327,7 @@ Procedure VisibilityAvailabilityCorrectness(Form, Changes = "")
 		Items.ArchiveName.Enabled           = Object.Archive;
 		Items.ArchivePassword.Enabled        = Object.Archive;
 		Items.CreateArchivePassword.Enabled = Object.Archive;
-		VisibilityAvailabilityOfCertificatesPasswords(Form);
+		SetCertificatePasswordsVisibilityAndAvailability(Form);
 	EndIf;
 	
 	If Changes = "" Or Changes = "ExecuteOnSchedule" Then
@@ -3360,7 +3374,7 @@ Procedure VisibilityAvailabilityCorrectness(Form, Changes = "")
 			Or EnumerationName = "Weekly"
 			Or EnumerationName = "Monthly") Then
 			
-			// Common parameters.
+			// Common parameters
 			Form.Schedule.BeginDate = '00010101';
 			Form.Schedule.EndDate  = '00010101';
 			Form.Schedule.CompletionTime = '00010101';
@@ -3419,7 +3433,7 @@ Procedure VisibilityAvailabilityCorrectness(Form, Changes = "")
 
 		Form.UseHourlyRepeatPeriod = ValueIsFilled(Form.RepeatPeriodInDay);
 		
-	EndIf; // Changes = Or Changes = SchedulePeriodicity
+	EndIf; // Changes = "" Or Changes = "SchedulePeriodicity"
 
 	If Changes = "" Or Changes = "RepeatPeriodInDay" Or Changes = "SchedulePeriodicity" Then
 		Items.RepeatPeriodInDay.Enabled = Form.UseHourlyRepeatPeriod;
@@ -3446,7 +3460,7 @@ Procedure VisibilityAvailabilityCorrectness(Form, Changes = "")
 EndProcedure
 
 &AtClientAtServerNoContext
-Procedure VisibilityAvailabilityOfCertificatesPasswords(Form)
+Procedure SetCertificatePasswordsVisibilityAndAvailability(Form)
 	Object = Form.Object;
 	Items = Form.Items;
 
@@ -3515,12 +3529,12 @@ EndFunction
 &AtClientAtServerNoContext
 Function RecipientsPresentation1(Form)
 	Recipients  = Form.Object.Recipients;
-	Included_SSLy  = Recipients.FindRows(New Structure("Excluded", False));
+	Included  = Recipients.FindRows(New Structure("Excluded", False));
 	Disabled1 = Recipients.FindRows(New Structure("Excluded", True));
 	
 	DisabledPresentation = ReportMailingClientServer.ListPresentation(Disabled1, "Recipient", 0);
 	Balance       = 75 - DisabledPresentation.LengthOfShort;
-	Presentation = ReportMailingClientServer.ListPresentation(Included_SSLy, "Recipient", Balance);
+	Presentation = ReportMailingClientServer.ListPresentation(Included, "Recipient", Balance);
 	
 	RecipientsParameters = ReportMailingClientServer.RecipientsParameters();
 	RecipientsParameters.Ref = Form.Object.Ref;
@@ -3632,7 +3646,7 @@ Function SecondsToHours(Seconds)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Server call, Server.
 
 &AtServerNoContext
 Function RecipientMailAddresses(Recipient, ValueList)
@@ -3708,7 +3722,7 @@ EndFunction
 &AtClient
 Procedure UpdatePersonalizedDistributionRecipientParameterValue()
 	
-	If Not Object.Personalized Then
+	If Not Object.Personalized Or Items.Reports.CurrentData = Undefined Then
 		Return;
 	EndIf;
 	
@@ -3936,7 +3950,7 @@ Procedure FillScheduleByOption(Variant, RefreshVisibility = False)
 	Schedule.WeekDays = SelectedWeekDays;
 	
 	If RefreshVisibility Then
-		VisibilityAvailabilityCorrectness(ThisObject);
+		SetVisibilityAvailabilityAndCorrectness(ThisObject);
 	EndIf;
 EndProcedure
 
@@ -3947,8 +3961,8 @@ EndProcedure
 //     * SelectedItemsCount   - Structure - rows selected by the user.
 //     * Success   - Structure - rows initialized and added to the list.
 //     * WithErrors - Structure - rows not added to the list due to errors:
-//         ** RowsArray - Array - an array of rows IDs.
-//         ** Count - Number - a number of strings.
+//         ** RowsArray - Array - Array of row IDs.
+//         ** Count - Number - Number of rows.
 //         ** ReportsPresentations - String - presentation of all reports of the specified rows.
 //         ** Text - String - an error text.
 //
@@ -4200,7 +4214,7 @@ Function ReportsPlannedListInAttachments()
 			FullFileName = ReportMailing.FullFileNameFromTemplate(
 			"", RowReport.Presentation, FormatParameters, DeliveryParameters, RowReport.DescriptionTemplate, Period);
 
-			//  Extension mechanism.
+			// Extension mechanism.
 			ReportMailingOverridable.BeforeSaveSpreadsheetDocumentToFormat(
 			True,
 			New SpreadsheetDocument,
@@ -4246,7 +4260,7 @@ Function IsMemberOfPersonalReportGroup(Group)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Server
+// Server.
 
 &AtServer
 Procedure SetConditionalAppearance()
@@ -5023,7 +5037,7 @@ Function TemplatePreviewFormParameters()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Write object.
 
 &AtClient
 Procedure WriteAtClient(Result, WriteParameters) Export
@@ -5061,7 +5075,7 @@ Procedure WriteAtClient(Result, WriteParameters) Export
 	If WriteParameters.Step = 3 And PreferablyDisableArchiving() Then
 		WriteParameters.Step = 4;
 		// Question.
-		QuestionTitle = NStr("en = 'Disable backup';");
+		QuestionTitle = NStr("en = 'Disable archiving';");
 		QueryText = NStr("en = 'Disable archiving to ZIP when publishing reports into a folder.';");
 		
 		Buttons = New ValueList;
@@ -5132,7 +5146,7 @@ Function PreferablyDisableArchiving()
 	If Object.UseFolder
 		And Object.Archive
 		And (Object.NotifyOnly Or Not Object.UseEmail) Then
-		// Publish into the notification distribution folder. We recommend that you disable archivation.
+		// Publish into the notification distribution folder. We recommend that you disable archiving.
 		If AttributesValuesChanged("UseFolder, UseEmail, NotifyOnly, Archive") Then
 			// User changed the values of the attributes to be checked.
 			Return True;
@@ -5208,7 +5222,7 @@ EndProcedure
 // End StandardSubsystems.AttachableCommands
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Copy the ExecuteNow command to support asynchrony.
 
 &AtClient
 Procedure ExecuteNow()
@@ -5224,7 +5238,7 @@ Procedure ExecuteNow()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Copy the Mailing events command to support asynchrony.
 
 &AtClient
 Procedure MailingEvents()

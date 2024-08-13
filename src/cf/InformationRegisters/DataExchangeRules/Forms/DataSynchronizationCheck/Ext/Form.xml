@@ -38,7 +38,7 @@
 						<v8:content>Close</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="FormClose3ExtendedTooltip" id="6"/>
+				<ExtendedTooltip name="FormCloseExtendedTooltip" id="6"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>

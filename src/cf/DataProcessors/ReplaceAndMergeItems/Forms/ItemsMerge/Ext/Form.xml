@@ -63,8 +63,8 @@
 								<xr:LoadTransparent>false</xr:LoadTransparent>
 							</Picture>
 							<FileDragMode>AsFile</FileDragMode>
-							<ContextMenu name="TimeConsumingOperationPicture31ContextMenu" id="77"/>
-							<ExtendedTooltip name="TimeConsumingOperationPicture31ExtendedTooltip" id="78"/>
+							<ContextMenu name="TimeConsumingOperationPic1ContextMenu" id="77"/>
+							<ExtendedTooltip name="TimeConsumingOperationPic1ExtendedTooltip" id="78"/>
 						</PictureDecoration>
 						<LabelDecoration name="TimeConsumingOperationDetails1" id="81">
 							<AutoMaxWidth>false</AutoMaxWidth>
@@ -431,7 +431,7 @@ Searching for occurrences…</v8:content>
 									<Width>7</Width>
 									<HorizontalStretch>false</HorizontalStretch>
 									<Group>Horizontal</Group>
-									<ExtendedTooltip name="UsageInstancesUsageInstancesCountExtendedTooltip" id="190"/>
+									<ExtendedTooltip name="UsageInstancesCountUsageInstancesExtendedTooltip" id="190"/>
 									<ChildItems>
 										<InputField name="UsageInstancesUsageInstancesCount" id="11">
 											<DataPath>UsageInstances.UsageInstancesCount</DataPath>
@@ -454,8 +454,8 @@ Searching for occurrences…</v8:content>
 											<Width>7</Width>
 											<HorizontalStretch>false</HorizontalStretch>
 											<TextColor>style:ModifiedAttributeValueColor</TextColor>
-											<ContextMenu name="UsageInstancesUsageInstancesContextMenu" id="12"/>
-											<ExtendedTooltip name="UsageInstancesUsageInstancesExtendedTooltip" id="13"/>
+											<ContextMenu name="UsageInstancesUsageInstancesCountContextMenu" id="12"/>
+											<ExtendedTooltip name="UsageInstancesUsageInstancesCountExtendedTooltip" id="13"/>
 										</InputField>
 										<InputField name="UsageInstancesNotUsed" id="191">
 											<DataPath>UsageInstances.NotUsed</DataPath>
@@ -543,8 +543,8 @@ Searching for occurrences…</v8:content>
 								<xr:LoadTransparent>false</xr:LoadTransparent>
 							</Picture>
 							<FileDragMode>AsFile</FileDragMode>
-							<ContextMenu name="TimeConsumingOperationPicture3ContextMenu" id="92"/>
-							<ExtendedTooltip name="TimeConsumingOperationPicture3ExtendedTooltip" id="93"/>
+							<ContextMenu name="TimeConsumingOperationPicContextMenu" id="92"/>
+							<ExtendedTooltip name="TimeConsumingOperationPicExtendedTooltip" id="93"/>
 						</PictureDecoration>
 						<LabelDecoration name="TimeConsumingOperationDetails" id="94">
 							<AutoMaxWidth>false</AutoMaxWidth>
@@ -789,7 +789,7 @@ Merging items…</v8:content>
 											<Group>InCell</Group>
 											<ExtendedTooltip name="UnsuccessfulReplacementsGroupExtendedTooltip" id="179"/>
 											<ChildItems>
-												<PictureField name="UnsuccessfulReplacementsIcon1" id="175">
+												<PictureField name="UnsuccessfulReplacementsPictogram" id="175">
 													<DataPath>UnsuccessfulReplacements.Pictogram</DataPath>
 													<Title>
 														<v8:item>
@@ -804,8 +804,8 @@ Merging items…</v8:content>
 														<xr:LoadTransparent>false</xr:LoadTransparent>
 													</ValuesPicture>
 													<FileDragMode>AsFile</FileDragMode>
-													<ContextMenu name="UnsuccessfulReplacementsIcon1ContextMenu" id="176"/>
-													<ExtendedTooltip name="UnsuccessfulReplacementsIcon1ExtendedTooltip" id="177"/>
+													<ContextMenu name="UnsuccessfulReplacementsPictogramContextMenu" id="176"/>
+													<ExtendedTooltip name="UnsuccessfulReplacementsPictogramExtendedTooltip" id="177"/>
 												</PictureField>
 												<InputField name="UnsuccessfulReplacementsData" id="144">
 													<DataPath>UnsuccessfulReplacements.Data</DataPath>

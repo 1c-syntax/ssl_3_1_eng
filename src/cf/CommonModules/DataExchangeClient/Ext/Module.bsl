@@ -470,8 +470,8 @@ Procedure BeforeStart(Parameters) Export
 				
 	EndIf;
 	
-	// 
-	// 
+	// When launching the infobase on a child node and reimporting exchange messages
+	// is required, let the user decide if the import starts or skip it and resume.
 	// 
 	// 
 	
@@ -650,7 +650,7 @@ Procedure ExecuteDataExchangeCommandProcessing(InfobaseNode, Owner,
 	
 EndProcedure
 
-// Starts receiving file from server interactively without extension for file operations.
+// Starts receiving a file from the server interactively without using 1C:Enterprise Extension.
 //
 // Parameters:
 //     FileToReceive   - Structure - details of the file to be received. It contains the Name and Location properties.
@@ -867,7 +867,7 @@ Procedure FileOrDirectoryOpenHandler(Object, PropertyName, StandardProcessing = 
 	
 EndProcedure
 
-// Opens dialog box to select file directory and requests installation of extension for file operations.
+// Opens a dialog box to select a file directory and prompts to install 1C:Enterprise Extension.
 //
 // Parameters:
 //     Object                - Arbitrary       - an object to set the property being selected in.
@@ -918,7 +918,7 @@ Procedure FileDirectoryChoiceHandlerCompletionAfterChoiceInDialog(PathToDirector
 	
 EndProcedure
 
-// Opens a file selection dialog box and requests the installation of extension for file operations.
+// Opens a file selection dialog box and prompts to install 1C:Enterprise Extension.
 //
 // Parameters:
 //     Object                - Arbitrary       - an object to set the property being selected in.
@@ -990,7 +990,7 @@ Procedure FileSelectionHandlerCompletion(SelectedFiles, AdditionalParameters) Ex
 	
 EndProcedure
 
-// Sends file to the server interactively without extension for file operations.
+// Sends a file to the server interactively without using 1C:Enterprise Extension.
 //
 // Parameters:
 //     CompletionNotification - NotifyDescription - an export procedure that is called with the following
@@ -1106,7 +1106,7 @@ EndFunction
 Procedure OpenObjectsMappingWizardCommandProcessing(InfobaseNode,
 		Owner, AdditionalParameters = Undefined) Export
 	
-	// 
+	// Open the object mapping form and pass the node as the form parameter.
 	// 
 	FormParameters = New Structure("InfobaseNode", InfobaseNode);
 	FormParameters.Insert("AdvancedExportAdditionMode", True);
@@ -1412,10 +1412,10 @@ EndFunction
 Procedure FillStructureData(Form)
 	
 	// Saving the values entered in this application.
-	SettingsStructure = Form.Context.NodeFiltersSetting;
+	SettingsStructure_ = Form.Context.NodeFiltersSetting;
 	MatchingAttributes = Form.AttributesNames;
 	
-	For Each SettingItem In SettingsStructure Do
+	For Each SettingItem In SettingsStructure_ Do
 		
 		If MatchingAttributes.Property(SettingItem.Key) Then
 			
@@ -1445,23 +1445,23 @@ Procedure FillStructureData(Form)
 				
 			EndDo;
 			
-			SettingsStructure.Insert(TableName, Table);
+			SettingsStructure_.Insert(TableName, Table);
 			
 		Else
 			
-			SettingsStructure.Insert(SettingItem.Key, Form[AttributeName]);
+			SettingsStructure_.Insert(SettingItem.Key, Form[AttributeName]);
 			
 		EndIf;
 		
 	EndDo;
 	
-	Form.Context.NodeFiltersSetting = SettingsStructure;
+	Form.Context.NodeFiltersSetting = SettingsStructure_;
 	
 	// Saving values entered in another application.
-	SettingsStructure = Form.Context.CorrespondentInfobaseNodeFilterSetup;
+	SettingsStructure_ = Form.Context.CorrespondentInfobaseNodeFilterSetup;
 	MatchingAttributes = Form.NamesOfCorrespondentsDatabaseDetails;
 	
-	For Each SettingItem In SettingsStructure Do
+	For Each SettingItem In SettingsStructure_ Do
 		
 		If MatchingAttributes.Property(SettingItem.Key) Then
 			
@@ -1491,17 +1491,17 @@ Procedure FillStructureData(Form)
 				
 			EndDo;
 			
-			SettingsStructure.Insert(TableName, Table);
+			SettingsStructure_.Insert(TableName, Table);
 			
 		Else
 			
-			SettingsStructure.Insert(SettingItem.Key, Form[AttributeName]);
+			SettingsStructure_.Insert(SettingItem.Key, Form[AttributeName]);
 			
 		EndIf;
 		
 	EndDo;
 	
-	Form.Context.CorrespondentInfobaseNodeFilterSetup = SettingsStructure;
+	Form.Context.CorrespondentInfobaseNodeFilterSetup = SettingsStructure_;
 	
 	Form.Context.Insert("ContextDetails", Form.ContextDetails);
 	

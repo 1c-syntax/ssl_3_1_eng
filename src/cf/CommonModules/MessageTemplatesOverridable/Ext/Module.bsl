@@ -42,18 +42,26 @@ EndProcedure
 //  Attributes - ValueTreeRowCollection - a list of template attributes.:
 //    * Name            - String - a unique attribute name.
 //    * Presentation  - String - an attribute presentation.
+//    * FullPresentation - String - Attribute's extended presentation.
 //    * Type            - Type    - an attribute type.
 //    * ToolTip      - String - extended attribute information.
+//    * ArbitraryParameter - Boolean - Flag indicating that the attribute was added interactively.
 //    * Format         - String - Output format for numbers, dates, strings, and boolean values. 
 //                                For example, "DLF=D" for dates.
+//    * Parent - ValueTreeRow, Undefined - Row that contains the given row collection.
 //  Attachments - ValueTable - print forms and attachments, where:
-//    * Name           - String - a unique attachment name.
-//    * Id - String - an attachment ID.
-//    * Presentation - String - an option presentation.
-//    * ToolTip     - String - extended attachment information.
-//    * FileType      - String - an attachment type that matches the file extension: pdf, png, jpg, mxl, and so on.
-//  TemplateAssignment       - String  - a message template assignment. For example, "CustomerNotificationChangeOrder".
-//  AdditionalParameters - Structure - additional information on a message template.
+//    * Name            - String - a unique attachment name.
+//    * Id  - String - an attachment ID.
+//    * Presentation  - String - an option presentation.
+//    * ToolTip      - String - extended attachment information.
+//    * FileType       - String - an attachment type that matches the file extension: pdf, png, jpg, mxl, and so on.
+//    * ParameterName   - String - For internal use only.
+//    * Attribute       - String - For internal use only.
+//    * Status         - String - For internal use only.
+//    * PrintManager - String - For internal use only.
+//    * PrintParameters - Structure - For internal use only.
+//  TemplateAssignment  - String  - a message template assignment. For example, "CustomerNotificationChangeOrder".
+//  AdditionalParameters - See MessageTemplates.TemplateParametersDetails
 //
 Procedure OnPrepareMessageTemplate(Attributes, Attachments, TemplateAssignment, AdditionalParameters) Export
 	
@@ -75,15 +83,28 @@ EndProcedure
 //      ** Key     - String - Template's attachment name.
 //      ** Value - BinaryData
 //                  - String - binary data or an address in a temporary storage of the attachment.
-//    * AdditionalParameters - Structure - additional message parameters. 
+//    * AdditionalParameters - Structure:
+//       ** MessageKind - String - The template type: "MailMessage", "SMS", or "Arbitrary".
+//       ** DCSParametersValues - Structure - The values of DCS parameters. (The list of parameters is determined by the DCS means).
+//       ** SendImmediately - Boolean - If set to "True", the message will be sent immediately after the user finished composing it.
+//       ** MessageParameters - Structure - Additional parameters passed in functions "GenerateMessage" or 
+//                               "GenerateMessageAndSend" (an API function of the "MessageTemplates" common module).
+//       ** Account - CatalogRef.EmailAccounts, Undefined - The account on whose behalf 
+//                         the email message will be sent. If empty, the system account is used.
+//       ** ArbitraryParameters - Map - Used-added parameters.
+//       ** PrintForms - Array - A list of message template print forms.
+//       ** ConvertHTMLForFormattedDocument - Boolean - Indicates whether to convert the HTML text of a message containing images. 
+//                                                    Intended to address the specifics of displaying images in formatted documents. 
+//                                                    
+//       ** SettingsForSaving - See PrintManagement.SettingsForSaving.
 //  TemplateAssignment - String -  a full name of a message template assignment.
 //  MessageSubject - AnyRef - a reference to an object that is a data source.
-//  TemplateParameters - Structure -  a full name of a message template assignment.
+//  TemplateParameters - See MessageTemplates.TemplateParametersDetails
 //
 Procedure OnCreateMessage(Message, TemplateAssignment, MessageSubject, TemplateParameters) Export
 	
 	
-	
+
 EndProcedure
 
 // Fills in a list of text message recipients when sending a message generated from template.
@@ -163,7 +184,7 @@ EndProcedure
 //  Object                  - CatalogObject.PerformerRoles - Object to populate.
 //  Data                  - ValueTableRow - Object fill data.
 //  AdditionalParameters - Structure:
-//   * PredefinedData - ValueTable - Data filled in the OnInitialItemsFilling procedure.
+//   * PredefinedData - ValueTable - Data populated in the OnInitialItemsFilling procedure.
 //
 Procedure OnInitialItemFilling(Object, Data, AdditionalParameters) Export
 	

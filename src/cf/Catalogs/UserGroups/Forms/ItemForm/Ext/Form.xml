@@ -255,7 +255,7 @@
 											</v8:item>
 										</Title>
 										<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-										<ExtendedTooltip name="ShowInvalidUsers1ExtendedTooltip" id="54"/>
+										<ExtendedTooltip name="ShowInvalidUsersExtendedTooltip" id="54"/>
 									</Button>
 									<ButtonGroup name="CompositionStandardCommands" id="76">
 										<Title>
@@ -341,7 +341,7 @@
 							<v8:content>Comment</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="CommentGroupExtendedTooltip" id="83"/>
+					<ExtendedTooltip name="GroupCommentExtendedTooltip" id="83"/>
 					<ChildItems>
 						<InputField name="Comment" id="38">
 							<DataPath>Object.Comment</DataPath>

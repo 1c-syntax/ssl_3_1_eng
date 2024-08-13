@@ -147,14 +147,14 @@ EndProcedure
 #Region FormTableItemsEventHandlersReportsOptionsDetails
 
 &AtClient
-Procedure DescriptionOfReportOptionsBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group, Parameter)
+Procedure ReportsOptionsDetailsBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group, Parameter)
 	
 	Cancel = True;
 	
 EndProcedure
 
 &AtClient
-Procedure DescriptionOfReportOptionsAfterDeleteRow(Item)
+Procedure ReportsOptionsDetailsAfterDeleteRow(Item)
 	
 	SetFileNames();
 	
@@ -488,8 +488,8 @@ Procedure AddSettingsToArchive(Archive, Settings, TempDirectoryName, SettingsTyp
 EndProcedure
 
 // Adds an XML file of details of report option settings to a ZIP archive with the following specification:
-//  <SettingsDescription ReportName=Report._DemoFiles">
-//  	<Settings Key="50a4127a-7646-49b3-9d09-51681e6e16b9" Presentation="Demo: File versions"/>
+//  <SettingsDescription ReportName="Отчет.Файлы">
+//  	<Settings Key="50a4127a-7646-49b3-9d09-51681e6e16b9" Presentation="Версии файлов"/>
 //  	<UserSettings Key="a61e745b-ac46-46d3-92a6-5bba4969b7d2" Presentation="Files > 100 KB" isCurrent="true"/>
 //  	<UserSettings Key="6895ac09-f02d-4b17-82b6-79dd76c7b2a3" Presentation="Files > 10 MB" isCurrent="false"/>
 //  </SettingsDescription>

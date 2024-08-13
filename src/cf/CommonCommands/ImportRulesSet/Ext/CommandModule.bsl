@@ -17,7 +17,7 @@ Procedure CommandProcessing(CommandParameter, CommandExecuteParameters)
 	
 	If ExchangePlanInfo.SeparatedMode Then
 		CommonClient.MessageToUser(
-			NStr("en = 'Cannot load data exchange rules in shared mode.';"));
+			NStr("en = 'Cannot load data exchange rules in separated mode.';"));
 		Return;
 	EndIf;
 	

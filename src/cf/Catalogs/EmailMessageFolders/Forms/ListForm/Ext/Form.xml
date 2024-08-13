@@ -59,29 +59,29 @@
 			<ContextMenu name="ListContextMenu" id="2"/>
 			<AutoCommandBar name="ListCommandBar" id="3"/>
 			<ExtendedTooltip name="ListExtendedTooltip" id="6"/>
-			<SearchStringAddition name="ListSearchString_SSLy" id="13">
+			<SearchStringAddition name="ListSearchString" id="13">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchStringRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchString_SSLyContextMenu" id="14"/>
-				<ExtendedTooltip name="ListSearchString_SSLyExtendedTooltip" id="15"/>
+				<ContextMenu name="ListSearchStringContextMenu" id="14"/>
+				<ExtendedTooltip name="ListSearchStringExtendedTooltip" id="15"/>
 			</SearchStringAddition>
-			<ViewStatusAddition name="ListViewStatus_SSLy" id="16">
+			<ViewStatusAddition name="ListViewStatus" id="16">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>ViewStatusRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListViewStatus_SSLyContextMenu" id="17"/>
-				<ExtendedTooltip name="ListViewStatus_SSLyExtendedTooltip" id="18"/>
+				<ContextMenu name="ListViewStatusContextMenu" id="17"/>
+				<ExtendedTooltip name="ListViewStatusExtendedTooltip" id="18"/>
 			</ViewStatusAddition>
-			<SearchControlAddition name="ListSearchControl_SSLy" id="19">
+			<SearchControlAddition name="ListSearchControl" id="19">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchControl</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchControl_SSLyContextMenu" id="20"/>
-				<ExtendedTooltip name="ListSearchControl_SSLyExtendedTooltip" id="21"/>
+				<ContextMenu name="ListSearchControlContextMenu" id="20"/>
+				<ExtendedTooltip name="ListSearchControlExtendedTooltip" id="21"/>
 			</SearchControlAddition>
 			<ChildItems>
 				<LabelField name="Description" id="4">

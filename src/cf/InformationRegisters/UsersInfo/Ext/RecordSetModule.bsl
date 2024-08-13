@@ -157,7 +157,7 @@ Procedure DoLogChanges(RecordSet, Replacing, OldRecords)
 	EndIf;
 	
 	ProcessedUsers = New Map;
-	AdditionalInformationSecurityUserProperties = "UserMustChangePasswordOnAuthorization,
+	IBUserAdditionalProperties = "UserMustChangePasswordOnAuthorization,
 		|UnlimitedValidityPeriod, ValidityPeriod, InactivityPeriodBeforeDenyingAuthorization";
 	
 	For Each String In Table Do
@@ -169,7 +169,7 @@ Procedure DoLogChanges(RecordSet, Replacing, OldRecords)
 		
 		Data = New Structure;
 		Data.Insert("DataStructureVersion", 2);
-		Data.Insert("Ref", SerializedLink(String.User));
+		Data.Insert("Ref", SerializedRef(String.User));
 		Data.Insert("RefType", String.User.Metadata().FullName());
 		Data.Insert("LinkID", Lower(String.User.UUID()));
 		Data.Insert("IBUserID");
@@ -191,8 +191,8 @@ Procedure DoLogChanges(RecordSet, Replacing, OldRecords)
 			Data.IBUserID = Lower(CurrentValues.IBUserID);
 			Data.DeletionMark = CurrentValues.DeletionMark;
 			Data.Invalid  = CurrentValues.Invalid;
-			Data.Department   = SerializedLink(CurrentValues.Department);
-			Data.Individual  = SerializedLink(CurrentValues.Individual);
+			Data.Department   = SerializedRef(CurrentValues.Department);
+			Data.Individual  = SerializedRef(CurrentValues.Individual);
 			Data.DepartmentPresentation  = RepresentationOfTheReference(CurrentValues.Department);
 			Data.IndividualPresentation = RepresentationOfTheReference(CurrentValues.Individual);
 			IBUser = InfoBaseUsers.FindByUUID(
@@ -214,13 +214,13 @@ Procedure DoLogChanges(RecordSet, Replacing, OldRecords)
 			EndIf;
 			If CurrentValues.Department <> PreviousValues1.Department Then
 				Data.OldPropertyValues.Insert("Department",
-					SerializedLink(PreviousValues1.Department));
+					SerializedRef(PreviousValues1.Department));
 				Data.OldPropertyValues.Insert("DepartmentPresentation",
 					RepresentationOfTheReference(PreviousValues1.Department));
 			EndIf;
 			If CurrentValues.Individual <> PreviousValues1.Individual Then
 				Data.OldPropertyValues.Insert("Individual",
-					SerializedLink(PreviousValues1.Individual));
+					SerializedRef(PreviousValues1.Individual));
 				Data.OldPropertyValues.Insert("IndividualPresentation",
 					RepresentationOfTheReference(PreviousValues1.Individual));
 			EndIf;
@@ -228,11 +228,11 @@ Procedure DoLogChanges(RecordSet, Replacing, OldRecords)
 		
 		If String.LineChangeType >= 0 Then
 			NewRecord = NewRecords.Find(String.User, "User");
-			FillPropertyValues(Data, NewRecord, AdditionalInformationSecurityUserProperties);
+			FillPropertyValues(Data, NewRecord, IBUserAdditionalProperties);
 		EndIf;
 		If String.LineChangeType <> 0 Then
 			OldRecord = OldRecords.Find(String.User, "User");
-			PropertyStructure = New Structure(AdditionalInformationSecurityUserProperties);
+			PropertyStructure = New Structure(IBUserAdditionalProperties);
 			For Each KeyAndValue In PropertyStructure Do
 				If Data[KeyAndValue.Key] <> OldRecord[KeyAndValue.Key] Then
 					Data.OldPropertyValues.Insert(KeyAndValue.Key, OldRecord[KeyAndValue.Key]);
@@ -254,26 +254,14 @@ Procedure DoLogChanges(RecordSet, Replacing, OldRecords)
 	
 EndProcedure
 
-// 
-Function SerializedLink(Ref)
-	
-	If Ref = Null Or Ref = Undefined Then
-		Return Ref;
-	EndIf;
-	
-	Return ValueToStringInternal(Ref);
-	
+// See UsersInternal.SerializedRef
+Function SerializedRef(Ref)
+	Return UsersInternal.SerializedRef(Ref);
 EndFunction
 
-// 
+// See UsersInternal.RepresentationOfTheReference
 Function RepresentationOfTheReference(Ref)
-	
-	If Ref = Null Or Ref = Undefined Then
-		Return "";
-	EndIf;
-	
-	Return String(Ref);
-	
+	Return UsersInternal.RepresentationOfTheReference(Ref);
 EndFunction
 
 #EndRegion

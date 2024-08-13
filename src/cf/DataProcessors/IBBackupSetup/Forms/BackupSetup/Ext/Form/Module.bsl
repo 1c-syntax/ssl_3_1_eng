@@ -129,7 +129,7 @@ Procedure BackupDirectoryRestrictionTypeOnChange(Item)
 EndProcedure
 
 &AtClient
-Procedure BackupDirectory2StartChoice(Item, ChoiceData, StandardProcessing)
+Procedure PathToBackupDirectoryStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	OpenFileDialog = New FileDialog(FileDialogMode.ChooseDirectory);
 	OpenFileDialog.Title= NStr("en = 'Choose a directory to save backups to';");
@@ -393,7 +393,7 @@ Procedure ModifyScheduleCompletion(ScheduleResult, AdditionalParameters) Export
 EndProcedure
 
 /////////////////////////////////////////////////////////
-// 
+// Data presentation on the form.
 
 &AtServer
 Procedure SetVisibilityAvailability()

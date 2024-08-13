@@ -28,6 +28,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	SetConditionalAppearance();
 	
+	AutoTitle = False;
+	If Common.IsMobileClient() Then
+		Title = NStr("en = 'Add digital signature from device''s files';");
+		Items.SignaturesAdd.Title = NStr("en = 'Select files on disk…';");
+	Else
+		Title = NStr("en = 'Add digital signatures from device''s files';");
+	EndIf;
+	
 	If ValueIsFilled(Parameters.DataTitle) Then
 		Items.DataPresentation.Title = Parameters.DataTitle;
 	Else
@@ -58,6 +66,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		CryptographyManagerOnServerErrorDescription = CreationParameters.ErrorDescription;
 		
 	EndIf;
+	
+	DigitalSignatureLocalization.OnCreateAtServer(ThisObject);
 	
 EndProcedure
 
@@ -97,7 +107,7 @@ Procedure SignaturesBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group, Paramete
 	Cancel = True;
 	
 	If DataRepresentationRefreshed = True Then
-		SelectFile(True);
+		SelectFiles(True);
 	EndIf;
 	
 EndProcedure
@@ -106,13 +116,60 @@ EndProcedure
 Procedure SignaturesPathToFileStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	StandardProcessing = False;
-	SelectFile();
+	SelectFiles();
 	
+EndProcedure
+
+&AtClient
+Procedure SignaturesMachineReadableLetterOfAuthorityStartChoice(Item, ChoiceData, StandardProcessing)
+	
+	StandardProcessing = False;
+	SignaturesMRLOAStartChoiceFollowUp(Item, ChoiceData);
+	
+EndProcedure
+
+&AtClient
+Async Procedure SignaturesMRLOAStartChoiceFollowUp(Item, ChoiceData)
+	
+	CurrentData = Items.Signatures.CurrentData;
+	
+	ChoiceList = New ValueList;
+	DigitalSignatureClientLocalization.OnGetChoiceListWithMRLOAs(
+		ThisObject, CurrentData, ChoiceList);
+	
+	If ChoiceList.Count() > 0 Then
+		ChoiceList.Add("ChooseFromCatalog", NStr("en = 'Select from catalog…';"));
+		Result = Await ChooseFromListAsync(ChoiceList, Items.SignaturesMachineReadableLetterOfAuthority);
+		If Result <> Undefined Then
+			If Result.Value = "ChooseFromCatalog" Then
+				MRLOASelectFromCatalog();
+				Return;
+			EndIf;
+			
+			CurrentData.MachineReadableLetterOfAuthority = Result.Presentation;
+			CurrentData.PowerOfAttorneyNumber_ = Result.Value;
+			AttachIdleHandler("SignaturesMRLOAOnChange", 0.1, True);
+		EndIf;
+	Else
+		MRLOASelectFromCatalog();
+	EndIf;
+
 EndProcedure
 
 #EndRegion
 
 #Region FormCommandsEventHandlers
+
+&AtClient
+Procedure PickLOAs(Command)
+	
+	If DataDetails.Property("Object") And TypeOf(DataDetails.Object) <> Type("NotifyDescription") Then
+		FillMRLOAs(DataDetails.Object);
+	Else
+		FillMRLOAs();
+	EndIf;
+	
+EndProcedure
 
 &AtClient
 Procedure OK(Command)
@@ -122,8 +179,10 @@ Procedure OK(Command)
 		Return;
 	EndIf;
 	
+	ImportMRLOAs();
+		
 	If Not DataDetails.Property("Object") Then
-		DataDetails.Insert("Signatures", SignaturesArray());
+		DataDetails.Insert("Signatures", SignaturesToBeAdded());
 		Close(True);
 		Return;
 	EndIf;
@@ -131,9 +190,8 @@ Procedure OK(Command)
 	If TypeOf(DataDetails.Object) <> Type("NotifyDescription") Then
 		ObjectVersion = Undefined;
 		DataDetails.Property("ObjectVersion", ObjectVersion);
-		SignaturesArray = Undefined;
 		Try
-			AddSignature(DataDetails.Object, ObjectVersion, SignaturesArray);
+			SignaturesArray = AddSignature(DataDetails.Object, ObjectVersion);
 		Except
 			ErrorInfo = ErrorInfo();
 			OKCompletion(New Structure("ErrorDescription", ErrorProcessing.BriefErrorDescription(ErrorInfo)));
@@ -142,7 +200,7 @@ Procedure OK(Command)
 		DataDetails.Insert("Signatures", SignaturesArray);
 		NotifyChanged(DataDetails.Object);
 	Else
-		DataDetails.Insert("Signatures", SignaturesArray());
+		DataDetails.Insert("Signatures", SignaturesToBeAdded());
 		
 		ExecutionParameters = New Structure;
 		ExecutionParameters.Insert("DataDetails", DataDetails);
@@ -194,6 +252,7 @@ EndProcedure
 Procedure AfterOpen()
 	
 	DataRepresentationRefreshed = True;
+	SelectFiles(True);
 	
 EndProcedure
 
@@ -215,61 +274,164 @@ Procedure SetConditionalAppearance()
 EndProcedure
 
 &AtClient
-Procedure SelectFile(AddNewRow = False)
+Procedure SelectFiles(MultipleChoice = False)
+	
+	ErrorOnLOAsImport = "";
+	LettersOfAuthority.Clear();
 	
 	Context = New Structure;
-	Context.Insert("AddNewRow", AddNewRow);
+	Context.Insert("AddNewRows", MultipleChoice);
 	
-	Notification = New NotifyDescription("SelectFileAfterPutFiles", ThisObject, Context);
+	Notification = New NotifyDescription("SelectFilesAfterPutFiles", ThisObject, Context);
 	
 	ImportParameters = FileSystemClient.FileImportParameters();
 	ImportParameters.FormIdentifier = UUID;
-	ImportParameters.Dialog.Title = NStr("en = 'Select a digital signature file';");
-	ImportParameters.Dialog.Filter = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Signature files (*.%1)|*.%1';"),
-		DigitalSignatureClient.PersonalSettings().SignatureFilesExtension);
+	
+	If MultipleChoice Then
+		ImportParameters.Dialog.Title = NStr("en = 'Select digital signature files';");
+	Else
+		ImportParameters.Dialog.Title = NStr("en = 'Select a digital signature file';");
+	EndIf;
+	ImportParameters.Dialog.Multiselect = MultipleChoice;
+	
+	FilterForSelectingSignatures = NStr("en = 'SIgnature files (*.p7s, *.sig%1)|*.p7s;*.sig%2';");
+	DigitalSignatureClientLocalization.OnGetFilterForSelectingSignatures(FilterForSelectingSignatures);
+		
+	SignatureFilesExtension = DigitalSignatureClient.PersonalSettings().SignatureFilesExtension;
+	If StrFind(FilterForSelectingSignatures, SignatureFilesExtension) = 0 Then
+		FilterForSelectingSignatures= StringFunctionsClientServer.SubstituteParametersToString(FilterForSelectingSignatures,
+			", *." + SignatureFilesExtension, ";*." + SignatureFilesExtension);
+	Else		
+		FilterForSelectingSignatures= StringFunctionsClientServer.SubstituteParametersToString(FilterForSelectingSignatures, "", "");
+	EndIf;
+	
+	ImportParameters.Dialog.Filter = FilterForSelectingSignatures;
 	ImportParameters.Dialog.Filter = ImportParameters.Dialog.Filter + "|" + StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1';"), GetAllFilesMask());
 	
-	If Not AddNewRow Then
+	If Not MultipleChoice Then
 		ImportParameters.Dialog.FullFileName = Items.Signatures.CurrentData.PathToFile;
 	EndIf;
 	
-	FileSystemClient.ImportFile_(Notification, ImportParameters);
+	FileSystemClient.ImportFiles(Notification, ImportParameters);
 	
 EndProcedure
 
 // Continues the SelectFile procedure.
 &AtClient
-Procedure SelectFileAfterPutFiles(FileThatWasPut, Context) Export
+Procedure SelectFilesAfterPutFiles(PlacedFiles, Context) Export
 	
-	If FileThatWasPut = Undefined Then
+	If PlacedFiles = Undefined Then
 		Return;
 	EndIf;
 	
+	If TypeOf(PlacedFiles) = Type("File") Then
+		PlacedFiles = CommonClientServer.ValueInArray(PlacedFiles);
+	EndIf;
+		
+	Result = AddRowsOnServer(PlacedFiles, Context.AddNewRows);
+	
+	Context.Insert("PlacedFiles", PlacedFiles);
+	Context.Insert("DataToValidateSignature", Undefined);
+	Context.Insert("SignaturesAdditionResult", Result);
+	Context.Insert("OtherFiles", Result);
+	Context.Insert("Errors", New Structure("ErrorsAtClient, ErrorsAtServer", New Map, New Map));
+	Context.Insert("IndexOf", -1);
+	SelectFilesLoopStart(Context);
+	
+EndProcedure
+
+&AtClient
+Procedure SelectFilesLoopStart(Context)
+	
+	If Context.PlacedFiles.Count() <= Context.IndexOf + 1 Then
+		SelectFilesAfterLoop(Context);
+		Return;
+	EndIf;
+	
+	Context.IndexOf = Context.IndexOf + 1;
+	
+	FileThatWasPut = Context.PlacedFiles[Context.IndexOf];
+	
 	NameContent = CommonClientServer.ParseFullFileName(FileThatWasPut.Name);
+
+	SignatureAdditionResult = Context.SignaturesAdditionResult.Get(FileThatWasPut.Name);
 	
-	Context.Insert("Address",               FileThatWasPut.Location);
-	Context.Insert("FileName",            NameContent.Name);
-	Context.Insert("ErrorAtServer",     New Structure);
-	Context.Insert("SignatureData",       Undefined);
-	Context.Insert("SignatureDate",         Undefined);
-	Context.Insert("SignaturePropertiesAddress", Undefined);
+	If SignatureAdditionResult = Undefined Then
+		SelectFilesLoopStart(Context);
+		Return;
+	EndIf;
 	
-	Success = AddRowAtServer(Context.Address, Context.FileName, Context.AddNewRow,
-		Context.ErrorAtServer, Context.SignatureData, Context.SignatureDate, Context.SignaturePropertiesAddress);
+	Context.Insert("SignatureAdditionResult", SignatureAdditionResult);
 	
-	If Success Then
+	If SignatureAdditionResult.Success Then
 		SelectFileAfterAddRow(Context);
 		Return;
 	EndIf;
 	
 	CreationParameters = DigitalSignatureInternalClient.CryptoManagerCreationParameters();
-	CreationParameters.SignAlgorithm = DigitalSignatureInternalClientServer.GeneratedSignAlgorithm(Context.SignatureData);
+	CreationParameters.SignAlgorithm = DigitalSignatureInternalClientServer.GeneratedSignAlgorithm(
+			Context.SignatureAdditionResult.SignatureData);
 	CreationParameters.ShowError = Undefined;
+
+	DigitalSignatureInternalClient.CreateCryptoManager(
+			New NotifyDescription("ChooseFileAfterCreateCryptoManager", ThisObject, Context), "",
+		CreationParameters);
 	
-	DigitalSignatureInternalClient.CreateCryptoManager(New NotifyDescription(
-			"ChooseFileAfterCreateCryptoManager", ThisObject, Context),
-		"", CreationParameters);
+EndProcedure
+
+&AtClient
+Procedure SelectFilesAfterLoop(Context)
+	
+	FillMRLOAs();
+	
+	If Context.Errors.ErrorsAtClient.Count() = 0
+		And Context.Errors.ErrorsAtServer.Count() = 0
+		And ErrorOnLOAsImport = "" Then
+		Return;
+	EndIf;
+	
+	ErrorAtClient = DigitalSignatureInternalClientServer.NewErrorsDescription();
+	ErrorAtClient.ErrorTitle = NStr("en = 'Couldn''t add files';");
+	
+	For Each KeyAndValue In Context.Errors.ErrorsAtClient Do
+		
+		ErrorProperties = DigitalSignatureInternalClientServer.NewErrorProperties();
+		If ValueIsFilled(KeyAndValue.Value.AdditionalParameters) Then
+			FillPropertyValues(ErrorProperties, KeyAndValue.Value.AdditionalParameters);
+		EndIf;
+		
+		ErrorProperties.LongDesc = StrTemplate("%1:
+			|%2", KeyAndValue.Key, StrConcat(KeyAndValue.Value.Files, Chars.LF));
+		ErrorAtClient.Errors.Add(ErrorProperties);
+		
+	EndDo;
+	
+	ErrorAtServer = DigitalSignatureInternalClientServer.NewErrorsDescription();
+	ErrorAtServer.ErrorTitle = NStr("en = 'Couldn''t add files';");
+	
+	If ErrorOnLOAsImport <> "" Then
+		
+		ErrorProperties = DigitalSignatureInternalClientServer.NewErrorProperties();
+		ErrorProperties.LongDesc = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Couldn''t import the LOAs:
+			|%1';"), ErrorOnLOAsImport);
+		ErrorAtServer.Errors.Add(ErrorProperties);
+	EndIf;
+	
+	For Each KeyAndValue In Context.Errors.ErrorsAtServer Do
+		
+		ErrorProperties = DigitalSignatureInternalClientServer.NewErrorProperties();
+		If ValueIsFilled(KeyAndValue.Value.AdditionalParameters) Then
+			FillPropertyValues(ErrorProperties, KeyAndValue.Value.AdditionalParameters);
+		EndIf;
+		
+		ErrorProperties.LongDesc = StrTemplate("%1:
+			|%2", KeyAndValue.Key, StrConcat(KeyAndValue.Value.Files, Chars.LF));
+		ErrorAtServer.Errors.Add(ErrorProperties);
+		
+	EndDo;
+	
+	ShowError(ErrorAtClient, ErrorAtServer);
 	
 EndProcedure
 
@@ -282,7 +444,7 @@ Procedure ChooseFileAfterCreateCryptoManager(CryptoManager, Context) Export
 		CreationParameters.ShowError = Undefined;
 		DigitalSignatureInternalClient.ReadSignatureProperties(New NotifyDescription(
 			"SelectFileAfterSignaturePropertiesRead", ThisObject, Context),
-			Context.SignatureData, True, False);
+			Context.SignatureAdditionResult.SignatureData, True, False);
 		Return;
 	EndIf;
 	
@@ -291,14 +453,14 @@ Procedure ChooseFileAfterCreateCryptoManager(CryptoManager, Context) Export
 	If DigitalSignatureClient.CommonSettings().AvailableAdvancedSignature Then
 		CryptoManager.BeginGettingCryptoSignaturesContainer(New NotifyDescription(
 			"SelectFileAfterGettingContainerSignature", ThisObject, Context,
-			"SelectFileAfterReceivingSignatureContainerError", ThisObject), Context.SignatureData);
+			"SelectFileAfterReceivingSignatureContainerError", ThisObject), Context.SignatureAdditionResult.SignatureData);
 		Return;
 	EndIf;
 	
 	Context.Insert("SignatureParameters", Undefined);
 	CryptoManager.BeginGettingCertificatesFromSignature(New NotifyDescription(
 		"ChooseFilesAfterGetCertificatesFromSignature", ThisObject, Context,
-		"SelectFileAfterGetCertificateFromSignatureError", ThisObject), Context.SignatureData);
+		"SelectFileAfterGetCertificateFromSignatureError", ThisObject), Context.SignatureAdditionResult.SignatureData);
 	
 EndProcedure
 
@@ -307,7 +469,7 @@ EndProcedure
 Procedure SelectFileAfterSignaturePropertiesRead(Result, Context) Export
 	
 	If Result.Success = False Then
-		ShowError(Result.ErrorText, Context.ErrorAtServer);
+		AddError(New Structure("ErrorDescription", Result.ErrorText), Context);
 		Return;
 	EndIf;
 	
@@ -321,18 +483,19 @@ Procedure SelectFileAfterSignaturePropertiesRead(Result, Context) Export
 		CertificateProperties.Insert("Thumbprint", Result.Thumbprint);
 		CertificateProperties.Insert("IssuedTo", Result.CertificateOwner);
 		
-		SignatureProperties = DigitalSignatureInternalClientServer.SignatureProperties(Context.SignatureData,
-			CertificateProperties, "", UsersClient.AuthorizedUser(), Context.FileName,
+		SignatureProperties = DigitalSignatureInternalClientServer.SignatureProperties(Context.SignatureAdditionResult.SignatureData,
+			CertificateProperties, "", UsersClient.AuthorizedUser(), Context.SignatureAdditionResult.FileName,
 			Context.SignatureParameters, True);
 
-		AddRow(ThisObject, Context.AddNewRow, SignatureProperties, Context.FileName,
-			Context.SignaturePropertiesAddress);
+		AddRow(ThisObject, Context.AddNewRows, SignatureProperties, Context.SignatureAdditionResult.FileName,
+			Context.SignatureAdditionResult.SignaturePropertiesAddress);
 
 		SelectFileAfterAddRow(Context);
 	Else
 		ErrorAtClient = New Structure("ErrorDescription", NStr("en = 'The signature file contains no certificates.';"));
 
-		ShowError(ErrorAtClient, Context.ErrorAtServer);
+		AddError(ErrorAtClient, Context);
+		
 	EndIf;
 	
 EndProcedure
@@ -350,10 +513,10 @@ Procedure SelectFileAfterReceivingSignatureContainerError(ErrorInfo, StandardPro
 	
 	AdditionalParameters = New Structure;
 	AdditionalParameters.Insert("ShowInstruction", True);
-	AdditionalParameters.Insert("Signature", Context.SignatureData);
+	AdditionalParameters.Insert("Signature", Context.SignatureAdditionResult.SignatureData);
 	
-	ShowError(ErrorAtClient, Context.ErrorAtServer, AdditionalParameters);
-	
+	AddError(ErrorAtClient, Context, AdditionalParameters);
+		
 EndProcedure
 
 // Continues the SelectFile procedure.
@@ -368,7 +531,7 @@ Async Procedure SelectFileAfterGettingContainerSignature(ContainerSignatures, Co
 	Context.Insert("SignatureParameters", SignatureParameters);
 	SignatureDate = SignatureParameters.UnverifiedSignatureDate;
 	If ValueIsFilled(SignatureDate) Then
-		Context.Insert("SignatureDate", SignatureDate);
+		Context.SignatureAdditionResult.SignatureDate = SignatureDate;
 	EndIf;
 	
 	Certificates = New Array;
@@ -393,9 +556,9 @@ Procedure SelectFileAfterGetCertificateFromSignatureError(ErrorInfo, StandardPro
 	
 	AdditionalParameters = New Structure;
 	AdditionalParameters.Insert("ShowInstruction", True);
-	AdditionalParameters.Insert("Signature", Context.SignatureData);
+	AdditionalParameters.Insert("Signature", Context.SignatureAdditionResult.SignatureData);
 	
-	ShowError(ErrorAtClient, Context.ErrorAtServer, AdditionalParameters);
+	AddError(ErrorAtClient, Context, AdditionalParameters);
 	
 EndProcedure
 
@@ -407,7 +570,7 @@ Procedure ChooseFilesAfterGetCertificatesFromSignature(Certificates, Context) Ex
 		ErrorAtClient = New Structure("ErrorDescription",
 			NStr("en = 'The signature file contains no certificates.';"));
 		
-		ShowError(ErrorAtClient, Context.ErrorAtServer);
+		AddError(ErrorAtClient, Context);
 		Return;
 	EndIf;
 	
@@ -420,7 +583,7 @@ Procedure ChooseFilesAfterGetCertificatesFromSignature(Certificates, Context) Ex
 	Except
 		ErrorAtClient = New Structure("ErrorDescription",
 			ErrorProcessing.BriefErrorDescription(ErrorInfo()));
-		ShowError(ErrorAtClient, Context.ErrorAtServer);
+		AddError(ErrorAtClient, Context);
 		Return;
 	EndTry;
 	
@@ -439,11 +602,12 @@ Async Procedure ChooseFileAfterCertificateExport(CertificateData, Context) Expor
 	CertificateProperties = Await DigitalSignatureInternalClient.CertificateProperties(Context.Certificate);
 	CertificateProperties.Insert("BinaryData", CertificateData);
 	
-	SignatureProperties = DigitalSignatureInternalClientServer.SignatureProperties(Context.SignatureData,
-		CertificateProperties, "", UsersClient.AuthorizedUser(), Context.FileName, Context.SignatureParameters);
+	SignatureProperties = DigitalSignatureInternalClientServer.SignatureProperties(Context.SignatureAdditionResult.SignatureData,
+		CertificateProperties, "", UsersClient.AuthorizedUser(), 
+		Context.SignatureAdditionResult.FileName, Context.SignatureParameters, True);
 	
-	AddRow(ThisObject, Context.AddNewRow, SignatureProperties,
-		Context.FileName, Context.SignaturePropertiesAddress);
+	AddRow(ThisObject, Context.AddNewRows, SignatureProperties,
+		Context.SignatureAdditionResult.FileName, Context.SignatureAdditionResult.SignaturePropertiesAddress);
 	
 	SelectFileAfterAddRow(Context);
 	
@@ -453,13 +617,18 @@ EndProcedure
 &AtClient
 Procedure SelectFileAfterAddRow(Context)
 	
-	If Not DataDetails.Property("Data") Then
+	If Not DataDetails.Property("Data") Or Context.DataToValidateSignature = False Then
+		SelectFilesLoopStart(Context);
 		Return; // If data is not specified, the signature cannot be checked.
 	EndIf;
 	
-	DigitalSignatureInternalClient.GetDataFromDataDetails(New NotifyDescription(
+	If Context.DataToValidateSignature = Undefined Then
+		DigitalSignatureInternalClient.GetDataFromDataDetails(New NotifyDescription(
 			"ChooseFileAfterGetData", ThisObject, Context),
 		ThisObject, DataDetails, DataDetails.Data, True);
+	Else
+		ChooseFileAfterGetData(Context.DataToValidateSignature, Context);
+	EndIf;
 	
 EndProcedure
 
@@ -468,100 +637,150 @@ EndProcedure
 Procedure ChooseFileAfterGetData(Result, Context) Export
 	
 	If TypeOf(Result) = Type("Structure") Then
+		Context.DataToValidateSignature = False;
+		SelectFilesLoopStart(Context);
 		Return; // Cannot get data. Signature check is impossible.
 	EndIf;
 	
+	If Context.DataToValidateSignature = Undefined Then
+		Context.DataToValidateSignature = Result;
+	EndIf;
+	
+	ParametersForCheck = DigitalSignatureClient.SignatureVerificationParameters();
+	ParametersForCheck.ShowCryptoManagerCreationError = False;
+	ParametersForCheck.ResultAsStructure = True;
 	DigitalSignatureInternalClient.VerifySignature(New NotifyDescription(
 			"ChooseFileAfterCheckSignature", ThisObject, Context),
-		Result, Context.SignatureData, , Context.SignatureDate, False);
+		Context.DataToValidateSignature, Context.SignatureAdditionResult.SignatureData, ,
+		Context.SignatureAdditionResult.SignatureDate, ParametersForCheck);
 	
 EndProcedure
 
 // Continues the SelectFile procedure.
 &AtClient
-Procedure ChooseFileAfterCheckSignature(Result, Context) Export
+Procedure ChooseFileAfterCheckSignature(CheckResult, Context) Export
 	
-	If Result = Undefined Then
+	If CheckResult.Result = Undefined Then
+		SelectFilesLoopStart(Context);
 		Return; // Cannot check the signature.
 	EndIf;
 	
-	UpdateCheckSignatureResult(Context.SignaturePropertiesAddress, Result = True);
+	UpdateCheckSignatureResult(Context.SignatureAdditionResult.SignaturePropertiesAddress, CheckResult);
+	SelectFilesLoopStart(Context);
 	
 EndProcedure
 
 &AtServer
-Procedure UpdateCheckSignatureResult(SignaturePropertiesAddress, SignatureCorrect)
+Procedure UpdateCheckSignatureResult(SignaturePropertiesAddress, CheckResult)
 	
-	CurrentSessionDate = CurrentSessionDate();
+	CurrentSessionDate = CurrentSessionDate(); 
+	
 	SignatureProperties = GetFromTempStorage(SignaturePropertiesAddress);
 	
-	If ValueIsFilled(CommonClientServer.StructureProperty(
-		SignatureProperties, "UnverifiedSignatureDate", Undefined)) Then
-		SignatureDate = SignatureProperties.UnverifiedSignatureDate;
-	EndIf;
+	NewSignatureProperties = DigitalSignatureClientServer.NewSignatureProperties();
+	FillPropertyValues(NewSignatureProperties, SignatureProperties);
+	FillPropertyValues(NewSignatureProperties, CheckResult);
+	NewSignatureProperties.SignatureValidationDate = CurrentSessionDate;
 	
-	If Not ValueIsFilled(SignatureDate) Then
-		If Not ValueIsFilled(SignatureProperties.SignatureDate) Then
-			SignatureProperties.SignatureDate = CurrentSessionDate;
-		EndIf;
-	Else
-		SignatureProperties.SignatureDate = SignatureDate;
-	EndIf;
-
-	SignatureProperties.SignatureValidationDate = CurrentSessionDate;
-	SignatureProperties.SignatureCorrect = SignatureCorrect;
-	
-	PutToTempStorage(SignatureProperties, SignaturePropertiesAddress);
+	PutToTempStorage(NewSignatureProperties, SignaturePropertiesAddress);
 	
 EndProcedure
 
 &AtServer
-Function AddRowAtServer(Address, FileName, AddNewRow, ErrorAtServer,
-			SignatureData, SignatureDate, SignaturePropertiesAddress)
+Function AddRowsOnServer(PlacedFiles, AddNewRows)
+	
+	Map = New Map;
+	OtherFiles = New Map;
+	
+	DigitalSignatureLocalization.OnAddRowsAtServer(
+		ThisObject, PlacedFiles, OtherFiles, ErrorOnLOAsImport, UUID);
+	
+	For Each FileThatWasPut In PlacedFiles Do
+		
+		NameContent = CommonClientServer.ParseFullFileName(FileThatWasPut.Name);
+		
+		If OtherFiles.Get(NameContent.Name) <> Undefined Then
+			Continue;
+		EndIf;
+
+		RowAdditionResult = New Structure;
+
+		RowAdditionResult.Insert("Success", False);
+		RowAdditionResult.Insert("Address", FileThatWasPut.Location);
+		RowAdditionResult.Insert("FileName", NameContent.Name);
+		RowAdditionResult.Insert("ErrorAtServer", New Structure);
+		RowAdditionResult.Insert("SignatureData", Undefined);
+		RowAdditionResult.Insert("SignatureDate", Undefined);
+		RowAdditionResult.Insert("SignaturePropertiesAddress", Undefined);
+		
+		RowAdditionResult = AddRowAtServer(RowAdditionResult, AddNewRows);
+		Map.Insert(FileThatWasPut.Name, RowAdditionResult);
+		
+	EndDo;
+	
+	Return Map;
+	
+EndFunction
+
+&AtServer
+Function AddRowAtServer(Val RowAdditionResult, AddNewRow)
 	
 	Try
-		SignatureData = DigitalSignature.DERSignature(Address);
+		RowAdditionResult.SignatureData = DigitalSignature.DERSignature(RowAdditionResult.Address);
 	Except
 		ErrorInfo = ErrorInfo();
-		ErrorAtServer.Insert("ErrorDescription", ErrorProcessing.BriefErrorDescription(ErrorInfo));
-		Return False;
+		RowAdditionResult.ErrorAtServer.Insert("ErrorDescription", ErrorProcessing.BriefErrorDescription(ErrorInfo));
+		Return RowAdditionResult;
 	EndTry;
 	
-	SignatureDate = DigitalSignature.SigningDate(SignatureData);
+	RowAdditionResult.SignatureDate = DigitalSignature.SigningDate(RowAdditionResult.SignatureData);
 	
 	If Not DigitalSignature.VerifyDigitalSignaturesOnTheServer()
 		And Not DigitalSignature.GenerateDigitalSignaturesAtServer() Then
 		
-		Return False;
+		Return RowAdditionResult;
 	EndIf;
 	
 	CreationParameters = DigitalSignatureInternal.CryptoManagerCreationParameters();
-	CreationParameters.ErrorDescription = ErrorAtServer;
-	CreationParameters.SignAlgorithm = DigitalSignatureInternalClientServer.GeneratedSignAlgorithm(SignatureData);
+	CreationParameters.ErrorDescription = RowAdditionResult.ErrorAtServer;
+	CreationParameters.SignAlgorithm = DigitalSignatureInternalClientServer.GeneratedSignAlgorithm(
+		RowAdditionResult.SignatureData);
 	
 	CryptoManager = DigitalSignatureInternal.CryptoManager("", CreationParameters);
 	
-	ErrorAtServer = CreationParameters.ErrorDescription;
+	RowAdditionResult.ErrorAtServer = CreationParameters.ErrorDescription;
 	If CryptoManager = Undefined Then
-		Return False;
+		Return RowAdditionResult;
 	EndIf;
 	
 	SignatureParameters = Undefined;
 	If DigitalSignature.CommonSettings().AvailableAdvancedSignature Then
-		ContainerSignatures = CryptoManager.GetCryptoSignaturesContainer(SignatureData);
+		
+		Try
+			ContainerSignatures = CryptoManager.GetCryptoSignaturesContainer(RowAdditionResult.SignatureData);
+		Except
+			ErrorInfo = ErrorInfo();
+			RowAdditionResult.ErrorAtServer.Insert("ErrorDescription", StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Couldn''t receive the signature container from the signature file due to:
+				|%1';"),
+				ErrorProcessing.BriefErrorDescription(ErrorInfo)));
+			Return RowAdditionResult;
+		EndTry;
+		
 		SignatureParameters = DigitalSignatureInternal.ParametersCryptoSignatures(ContainerSignatures,
 			DigitalSignatureInternal.UTCOffset(), CurrentSessionDate());
 		
 		If ValueIsFilled(SignatureParameters.UnverifiedSignatureDate) Then
-			SignatureDate = SignatureParameters.UnverifiedSignatureDate;
+			RowAdditionResult.SignatureDate = SignatureParameters.UnverifiedSignatureDate;
 		EndIf;
+		
 	EndIf;
 	
 	If SignatureParameters = Undefined Then
 		
 		Try
 			
-			Certificates = CryptoManager.GetCertificatesFromSignature(SignatureData);
+			Certificates = CryptoManager.GetCertificatesFromSignature(RowAdditionResult.SignatureData);
 			
 			If Certificates.Count() = 0 Then
 				Raise NStr("en = 'The signature file contains no certificates.';");
@@ -582,11 +801,11 @@ Function AddRowAtServer(Address, FileName, AddNewRow, ErrorAtServer,
 			
 		Except
 			ErrorInfo = ErrorInfo();
-			ErrorAtServer.Insert("ErrorDescription", StringFunctionsClientServer.SubstituteParametersToString(
+			RowAdditionResult.ErrorAtServer.Insert("ErrorDescription", StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot receive the certificates from the signature file due to:
 				           |%1';"),
 				ErrorProcessing.BriefErrorDescription(ErrorInfo)));
-			Return False;
+			Return RowAdditionResult;
 		EndTry;
 		
 		CertificateProperties = DigitalSignature.CertificateProperties(Certificate);
@@ -599,19 +818,24 @@ Function AddRowAtServer(Address, FileName, AddNewRow, ErrorAtServer,
 	
 	CertificateProperties.Insert("BinaryData", Certificate.Unload());
 	
-	SignatureProperties = DigitalSignatureInternalClientServer.SignatureProperties(SignatureData,
-		CertificateProperties, "", Users.AuthorizedUser(), FileName, SignatureParameters);
+	SignatureProperties = DigitalSignatureInternalClientServer.SignatureProperties(RowAdditionResult.SignatureData,
+		CertificateProperties, "", Users.AuthorizedUser(), RowAdditionResult.FileName, SignatureParameters, True);
 	
-	AddRow(ThisObject, AddNewRow, SignatureProperties, FileName, SignaturePropertiesAddress);
+	AddRow(ThisObject, AddNewRow, SignatureProperties, RowAdditionResult.FileName,
+		RowAdditionResult.SignaturePropertiesAddress);
+	RowAdditionResult.Success = True;
 	
-	Return True;
+	Return RowAdditionResult;
 	
 EndFunction
 
 &AtClientAtServerNoContext
 Procedure AddRow(Form, AddNewRow, SignatureProperties, FileName, SignaturePropertiesAddress)
 	
-	SignaturePropertiesAddress = PutToTempStorage(SignatureProperties, Form.UUID);
+	NewSignatureProperties = DigitalSignatureClientServer.NewSignatureProperties();
+	FillPropertyValues(NewSignatureProperties, SignatureProperties);
+	
+	SignaturePropertiesAddress = PutToTempStorage(NewSignatureProperties, Form.UUID);
 	
 	If AddNewRow Then
 		CurrentData = Form.Signatures.Add();
@@ -625,29 +849,57 @@ Procedure AddRow(Form, AddNewRow, SignatureProperties, FileName, SignatureProper
 EndProcedure
 
 &AtServer
-Function SignaturesArray()
+Function SignaturesToBeAdded()
 	
-	SignaturesArray = New Array;
-	
-	For Each String In Signatures Do
-		
-		SignatureProperties = GetFromTempStorage(String.SignaturePropertiesAddress);
-		SignatureProperties.Insert("Comment", String.Comment);
-		
-		SignaturesArray.Add(PutToTempStorage(SignatureProperties, UUID));
+	Result = New Array;
+	For Each Signature In Signatures Do
+		SignatureProperties = GetFromTempStorage(Signature.SignaturePropertiesAddress);
+		SignatureProperties.Insert("Comment", Signature.Comment);
+		Result.Add(PutToTempStorage(SignatureProperties, UUID));
 	EndDo;
 	
-	Return SignaturesArray;
+	Return Result;
 	
 EndFunction
 
 &AtServer
-Procedure AddSignature(ObjectReference, ObjectVersion, SignaturesArray)
+Function AddSignature(ObjectReference, ObjectVersion)
 	
-	SignaturesArray = SignaturesArray();
+	Result = SignaturesToBeAdded();
+	DigitalSignature.AddSignature(ObjectReference, Result, UUID, ObjectVersion);
+	Return Result;
 	
-	DigitalSignature.AddSignature(ObjectReference,
-		SignaturesArray, UUID, ObjectVersion);
+EndFunction
+
+&AtClient
+Procedure AddError(ErrorAtClient, Context, AdditionalParameters = Undefined)
+	
+	If ValueIsFilled(ErrorAtClient.ErrorDescription) Then
+		Found4 = Context.Errors.ErrorsAtClient.Get(ErrorAtClient.ErrorDescription);
+		If Found4 = Undefined Then
+			Found4 = New Structure("Files, AdditionalParameters", New Array);
+		EndIf;
+
+		Found4.Files.Add(Context.SignatureAdditionResult.FileName);
+		Found4.AdditionalParameters = AdditionalParameters;
+		Context.Errors.ErrorsAtClient.Insert(ErrorAtClient.ErrorDescription, Found4);
+	EndIf;
+
+	If ValueIsFilled(Context.SignatureAdditionResult.ErrorAtServer) Then
+		ErrorAtServer = Context.SignatureAdditionResult.ErrorAtServer;
+		If ErrorAtServer.ErrorDescription <> ErrorAtClient.ErrorDescription Then
+			Found4 = Context.Errors.ErrorsAtServer.Get(ErrorAtServer.ErrorDescription);
+			If Found4 = Undefined Then
+				Found4 = New Structure("Files, AdditionalParameters", New Array);
+			EndIf;
+
+			Found4.Files.Add(Context.SignatureAdditionResult.FileName);
+			Found4.AdditionalParameters = AdditionalParameters;
+			Context.Errors.ErrorsAtServer.Insert(ErrorAtServer.ErrorDescription, Found4);
+		EndIf;
+	EndIf;
+
+	SelectFilesLoopStart(Context);
 	
 EndProcedure
 
@@ -658,6 +910,64 @@ Procedure ShowError(ErrorAtClient, ErrorAtServer, AdditionalParameters = Undefin
 		NStr("en = 'Cannot receive a signature from the file';"),
 		"", ErrorAtClient, ErrorAtServer, AdditionalParameters);
 	
+EndProcedure
+
+&AtServer
+Procedure ImportMRLOAs()
+	
+	DigitalSignatureLocalization.OnImportMRLOAs(ThisObject);
+	
+EndProcedure
+
+&AtServer
+Procedure FillMRLOAs(SignedObject = Undefined)
+	
+	DigitalSignatureLocalization.OnFillMRLOAs(ThisObject);
+	
+EndProcedure
+
+&AtClient
+Procedure MRLOASelectFromCatalog()
+	
+	CurrentData = Items.Signatures.CurrentData;
+	CompletionHandler = New NotifyDescription("MRLOAEndOfSelection", ThisObject);
+	DigitalSignatureClientLocalization.OnSelectMRLOA(CompletionHandler, CurrentData);
+	
+EndProcedure
+
+&AtClient
+Procedure MRLOAEndOfSelection(Result, AdditionalParameters) Export
+	
+	If Result = Undefined Then
+		Return;
+	EndIf;
+	CurrentData = Items.Signatures.CurrentData;
+	CurrentData.MachineReadableLetterOfAuthority = Result;
+	SignaturesMRLOAOnChange();
+	
+EndProcedure
+
+&AtClient
+Procedure SignaturesMRLOAOnChange()
+	
+	If DataDetails.Property("Object") And TypeOf(DataDetails.Object) <> Type("NotifyDescription") Then
+		FillMRLOAInRow(Items.Signatures.CurrentRow, DataDetails.Object);
+	Else
+		FillMRLOAInRow(Items.Signatures.CurrentRow);
+	EndIf;
+	
+EndProcedure
+
+&AtServer
+Procedure FillMRLOAInRow(RowID, SignedObject = Undefined)
+	
+	DigitalSignatureLocalization.OnFillMRLOAInRow(ThisObject, RowID, SignedObject);
+		
+EndProcedure
+
+&AtClient
+Procedure SignaturesMachineReadableLetterOfAuthorityAutoComplete(Item, Text, ChoiceData, DataGetParameters, Waiting, StandardProcessing)
+	StandardProcessing = False;
 EndProcedure
 
 #EndRegion

@@ -187,8 +187,8 @@ Function DateDiffByCalendar(Val WorkScheduleCalendar, Val StartDate, Val EndDate
 		EndDate = Vrem;
 	EndIf;
 	
-	//  
-	// 
+	// Check if the calendar is populated for all the years. 
+	// If there's a year with no days, calculation fails.
 	Years = New Array();
 	Year = Year(StartDate);
 	While Year <= Year(EndDate) Do
@@ -473,7 +473,7 @@ EndFunction
 
 #Region ForCallsFromOtherSubsystems
 
-// OnlineUserSupport.ClassifiersOperations 
+// OnlineUserSupport.ClassifiersOperations
 
 // The event occurs upon collecting information on classifiers. Registering business calendars.
 // 
@@ -704,78 +704,31 @@ EndFunction
 // Returns:
 //  Structure:
 //   * BusinessCalendars - Structure:
-//     * TableName - String          - a table name.
-//     * Data     - ValueTable - A calendar table converted from XML.
+//     ** TableName - String          - Table name.
+//     ** Data     - ValueTable - A calendar table converted from XML.
 //   * BusinessCalendarsData - Structure:
-//     * TableName - String          - a table name.
-//     * Data     - ValueTable - A calendar table converted from XML.
+//     ** TableName - String          - Table name.
+//     ** Data     - ValueTable - A calendar data table converted from XML.
+//   * NonWorkDaysPeriods - Structure:
+//     ** TableName - String          - Table name.
+//     ** Data     - ValueTable - A calendar data table converted from XML.
 //
 Function ClassifierData() Export
 	
-	FilesData = Undefined;
+	ClassifierData      = New Structure;
 	
-	IDs = CommonClientServer.ValueInArray(ClassifierID());
-	If Common.SubsystemExists("OnlineUserSupport.ClassifiersOperations") Then
-		ModuleClassifiersOperations = Common.CommonModule("ClassifiersOperations");
-		FilesData = ModuleClassifiersOperations.GetClassifierFiles(IDs);
-	EndIf;
+	BusinessCalendars = New Structure;
+	BusinessCalendars.Insert("TableName", "");
+	BusinessCalendars.Insert("Data",     New ValueTable());
 	
-	If FilesData = Undefined Then
-		MessageText = NStr("en = 'Cannot get calendar data.
-                               |Classifiers are not supported, or the Classifiers subsystem is missing.';");
-		Raise MessageText;
-	EndIf;
+	BusinessCalendarsData = New Structure(New FixedStructure(BusinessCalendars));
+	NonWorkDaysPeriods             = New Structure(New FixedStructure(BusinessCalendars));
+
+	ClassifierData.Insert("BusinessCalendarsData", BusinessCalendarsData);	
+	ClassifierData.Insert("BusinessCalendars",        BusinessCalendars);
+	ClassifierData.Insert("NonWorkDaysPeriods",             NonWorkDaysPeriods);
 	
-	If Not IsBlankString(FilesData.ErrorCode) Then
-		EventName = NStr("en = 'Calendar schedules.Get classifier file';", Common.DefaultLanguageCode());
-		WriteLogEvent(
-			EventName, 
-			EventLogLevel.Error,,, 
-			StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot get calendar data.
-                      |%1';"), 
-				FilesData.ErrorInfo));
-		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot get calendar data.
-                               |%1.';"), 
-			FilesData.ErrorMessage);
-		Raise MessageText;
-	EndIf;
-	
-	RowFilter = New Structure("Id");
-	RowFilter.Id = ClassifierID();
-	FoundRows = FilesData.ClassifiersData.FindRows(RowFilter);
-	If FoundRows.Count() = 0 Then
-		MessageText = NStr("en = 'Cannot get calendar data.
-                               |The retrieved classifiers do not contain calendars.';");
-		Raise MessageText;
-	EndIf;
-	
-	FileInfo2 = FoundRows[0];
-	
-	If FileInfo2.Version < CalendarsVersion() Then
-		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot process the retrieved calendar data due to the version conflict.
-                  |Calendar versions:
-                  |- In the retrieved classifier: %1.
-                  |- In the configuration: %2.
-                  |- In the previously imported classifier: %3.
-                  |Update the classifiers.';"),
-			FileInfo2.Version,
-			CalendarsVersion(),
-			LoadedCalendarsVersion());
-		Raise MessageText;
-	EndIf;
-	
-	Try
-		ClassifierData = ClassifierFileData(FileInfo2.FileAddress);
-	Except
-		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t process retrieved calendar data.
-                  |%1.';"),
-			ErrorProcessing.BriefErrorDescription(ErrorInfo()));
-		Raise MessageText;
-	EndTry;
+	CalendarSchedulesLocalization.WhenReceivingClassifierData(ClassifierData);
 	
 	Return ClassifierData;
 	
@@ -956,7 +909,7 @@ Procedure LoadBusinessCalendarsData(Version, Address, Processed, AdditionalParam
 	
 EndProcedure
 
-Function ClassifierFileData(Address)
+Function ClassifierFileData(Address) Export
 	
 	ClassifierData = New Structure(
 		"BusinessCalendars,
@@ -1471,7 +1424,7 @@ Function StartDatesQueryText(InitialDates)
 			|	&InitialDate AS Date
 			|INTO TTInitialDates";
 		QueryText = StrReplace(
-			QueryText, "&InitialDate", StrTemplate("DATETIME(%1)", Format(InitialDate, "DF=yyyy,MM,dd"))); // 
+			QueryText, "&InitialDate", StrTemplate("DATETIME(%1)", Format(InitialDate, "DF=yyyy,MM,dd"))); // ACC:456 Not localizable.
 		If QueriesTexts.Count() > 0 Then
 			QueryText = StrReplace(QueryText, "INTO TTInitialDates", "");
 		EndIf;
@@ -1484,8 +1437,8 @@ Function StartDatesQueryText(InitialDates)
 	
 EndFunction
 
-// 
-// 
+// Determines the nearest working day to the provided date based on the data of the default business calendar in the Russian Federation.
+// If "InitialDate" is a working day, return it. Intended for cases, when no custom business calendar is filled.
 // 
 // 
 // Parameters:

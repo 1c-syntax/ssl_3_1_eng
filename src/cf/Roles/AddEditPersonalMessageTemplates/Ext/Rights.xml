@@ -20,45 +20,45 @@
 			<name>Read</name>
 			<value>true</value>
 			<restrictionByCondition>
-				<condition>#IF &amp;RecordLevelAccessRestrictionIsUniversal #THEN
+				<condition>#If &amp;RecordLevelAccessRestrictionIsUniversal #Then
 #ForObject("FileOwner")
-#ELSE
+#Else
 #ByValuesExtended( "Catalog.MessageTemplatesAttachedFiles", "","",
 "",
 "",
 "Users", "T.FileOwner.Author", "Or",
 "Condition","NOT ISNULL (I.E.The owner of the file.Only for the author, the truth)", "", "", "", "", "","", "", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","")
-#ENDIF</condition>
+#EndIf</condition>
 			</restrictionByCondition>
 		</right>
 		<right>
 			<name>Insert</name>
 			<value>true</value>
 			<restrictionByCondition>
-				<condition>#IF &amp;RecordLevelAccessRestrictionIsUniversal #THEN
+				<condition>#If &amp;RecordLevelAccessRestrictionIsUniversal #Then
 #ForObject("FileOwner")
-#ELSE
+#Else
 #ByValuesExtended( "Catalog.MessageTemplatesAttachedFiles", "","",
 "",
 "",
 "Users", "T.FileOwner.Author", "Or",
 "Condition","NOT ISNULL (I.E.The owner of the file.Only for the author, the truth)", "", "", "", "", "","", "", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","")
-#ENDIF</condition>
+#EndIf</condition>
 			</restrictionByCondition>
 		</right>
 		<right>
 			<name>Update</name>
 			<value>true</value>
 			<restrictionByCondition>
-				<condition>#IF &amp;RecordLevelAccessRestrictionIsUniversal #THEN
+				<condition>#If &amp;RecordLevelAccessRestrictionIsUniversal #Then
 #ForObject("FileOwner")
-#ELSE
+#Else
 #ByValuesExtended( "Catalog.MessageTemplatesAttachedFiles", "","",
 "",
 "",
 "Users", "T.FileOwner.Author", "Or",
 "Condition","NOT ISNULL (I.E.The owner of the file.Only for the author, the truth)", "", "", "", "", "","", "", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","")
-#ENDIF</condition>
+#EndIf</condition>
 			</restrictionByCondition>
 		</right>
 		<right>
@@ -92,45 +92,45 @@
 			<name>Read</name>
 			<value>true</value>
 			<restrictionByCondition>
-				<condition>#IF &amp;RecordLevelAccessRestrictionIsUniversal #THEN
+				<condition>#If &amp;RecordLevelAccessRestrictionIsUniversal #Then
 #ForObject("")
-#ELSE
+#Else
 #ByValuesExtended( "Catalog.MessageTemplates", "","",
 "",
 "",
 "Users", "T.Author", "Or",
 "Condition","Not T.AuthorOnly", "", "", "", "", "","", "", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","")
-#ENDIF</condition>
+#EndIf</condition>
 			</restrictionByCondition>
 		</right>
 		<right>
 			<name>Insert</name>
 			<value>true</value>
 			<restrictionByCondition>
-				<condition>#IF &amp;RecordLevelAccessRestrictionIsUniversal #THEN
+				<condition>#If &amp;RecordLevelAccessRestrictionIsUniversal #Then
 #ForObject("")
-#ELSE
+#Else
 #ByValuesExtended( "Catalog.MessageTemplates", "","",
 "",
 "",
 "Users", "T.Author", "Or",
 "Condition","Not T.AuthorOnly", "", "", "", "", "","", "", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","")
-#ENDIF</condition>
+#EndIf</condition>
 			</restrictionByCondition>
 		</right>
 		<right>
 			<name>Update</name>
 			<value>true</value>
 			<restrictionByCondition>
-				<condition>#IF &amp;RecordLevelAccessRestrictionIsUniversal #THEN
+				<condition>#If &amp;RecordLevelAccessRestrictionIsUniversal #Then
 #ForObject("")
-#ELSE
+#Else
 #ByValuesExtended( "Catalog.MessageTemplates", "","",
 "",
 "",
 "Users", "T.Author", "Or",
 "Condition","Not T.AuthorOnly", "", "", "", "", "","", "", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","")
-#ENDIF</condition>
+#EndIf</condition>
 			</restrictionByCondition>
 		</right>
 		<right>
@@ -155,6 +155,33 @@
 		</right>
 		<right>
 			<name>InputByString</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>Configuration.StandardSubsystemsLibrary</name>
+		<right>
+			<name>MainWindowModeNormal</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeEmbeddedWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeFullscreenWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeKiosk</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>AnalyticsSystemClient</name>
 			<value>true</value>
 		</right>
 	</object>
@@ -191,33 +218,6 @@
 		</right>
 		<right>
 			<name>View</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
-		<name>Configuration.StandardSubsystemsLibrary</name>
-		<right>
-			<name>MainWindowModeNormal</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeEmbeddedWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeFullscreenWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeKiosk</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>AnalyticsSystemClient</name>
 			<value>true</value>
 		</right>
 	</object>

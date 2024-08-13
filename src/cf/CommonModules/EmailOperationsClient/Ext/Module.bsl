@@ -84,7 +84,9 @@ EndProcedure
 //   
 //   * DeleteFilesAfterSending - Boolean - delete temporary files after sending the message.
 //   * SubjectOf - AnyRef - an email subject.
-//   * IsInteractiveRecipientSelection - Boolean -  False by default.
+//   * IsInteractiveRecipientSelection - Boolean - If set to "True", when a user composes an email message, the app prompts to choose recipients. 
+// 				If set to "False", the app auto-selects recipients from the document's contacts. 
+// 				This might result in poor UX if the document is associated with a lot of contacts. 
 //
 Function EmailSendOptions() Export
 	EmailParameters = New Structure;
@@ -180,7 +182,7 @@ Procedure CreateNewEmailMessageAccountChecked(AccountSetUp, SendOptions) Export
 	
 	If SendOptions.ShowAttachmentSaveFormatSelectionDialog Then
 		NotifyDescription = New NotifyDescription("CreateNewEmailMessagePrepareAttachments", ThisObject, SendOptions);
-		OpenForm("CommonForm.SelectAttachmentFormat", , , , , , NotifyDescription);
+		CommonClient.ShowAttachmentsFormatSelection(NotifyDescription, Undefined);
 		Return;
 	EndIf;
 	
@@ -221,8 +223,9 @@ Procedure CreateNewEmailMessageAttachmentsPrepared(AttachmentsPrepared, SendOpti
 	FormParameters.Insert("Recipients", SendOptions.Recipient);
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.Print")
-		And SendOptions.IsInteractiveRecipientSelection And ValueIsFilled(SendOptions.Recipient)
-		And SendOptions.Recipient.Count() > 1 Then
+		And SendOptions.IsInteractiveRecipientSelection 
+		And (SendOptions.Property("DisableRecipientSelection") = False Or SendOptions.DisableRecipientSelection = False)   
+		And ValueIsFilled(SendOptions.Recipient) And SendOptions.Recipient.Count() > 1 Then
 		
 		FormParameters.Insert("ShouldSkipAttachmentFormatSelection", True);
 		
@@ -269,13 +272,6 @@ EndProcedure
 
 Procedure CheckAccountForSendingEmailExistsCompletion(ResultHandler) Export
 	ExecuteNotifyProcessing(ResultHandler, False);
-EndProcedure
-
-Procedure ValidateAccountSettings(Account, Form) Export
-	
-	Parameters = New Structure("Account", Account);
-	OpenForm("Catalog.EmailAccounts.Form.ValidatingAccountSettings", Parameters, Form);
-	
 EndProcedure
 
 Function ListOfRecipientsFromString(Val Recipients)

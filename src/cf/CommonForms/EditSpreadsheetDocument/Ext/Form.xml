@@ -28,7 +28,7 @@
 			<HorizontalStretch>true</HorizontalStretch>
 			<Behavior>Usual</Behavior>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="CommandBarGroupExtendedTooltip" id="488"/>
+			<ExtendedTooltip name="GroupCommandBarExtendedTooltip" id="488"/>
 			<ChildItems>
 				<CommandBar name="CommandBar" id="3">
 					<Title>
@@ -209,7 +209,7 @@
 										</v8:item>
 									</Title>
 									<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
-									<ExtendedTooltip name="ButtonToShowHideTheOriginalExtendedTooltip" id="275"/>
+									<ExtendedTooltip name="ButtonShowHideOriginalExtendedTooltip" id="275"/>
 								</Button>
 							</ChildItems>
 						</ButtonGroup>
@@ -1528,7 +1528,7 @@
 						<xr:LoadTransparent>false</xr:LoadTransparent>
 					</Picture>
 					<FileDragMode>AsFile</FileDragMode>
-					<ContextMenu name="WarningPicture1ContextMenu" id="93"/>
+					<ContextMenu name="WarningPicContextMenu" id="93"/>
 					<ExtendedTooltip name="WarningPicExtendedTooltip" id="142"/>
 				</PictureDecoration>
 				<LabelDecoration name="WarningText" id="89">
@@ -1683,10 +1683,10 @@
 													<ShowHeaders>true</ShowHeaders>
 													<ShowCellNames>true</ShowCellNames>
 													<ShowRowAndColumnNames>true</ShowRowAndColumnNames>
-													<ContextMenu name="SuppliedLayoutContextMenu" id="270"/>
-													<ExtendedTooltip name="SuppliedLayoutExtendedTooltip" id="271"/>
+													<ContextMenu name="SuppliedTemplateContextMenu" id="270"/>
+													<ExtendedTooltip name="SuppliedTemplateExtendedTooltip" id="271"/>
 													<Events>
-														<Event name="OnActivate">SuppliedLayoutOnActivate</Event>
+														<Event name="OnActivate">SuppliedTemplateOnActivate</Event>
 													</Events>
 												</SpreadSheetDocumentField>
 												<SpreadSheetDocumentField name="SpreadsheetDocument" id="1">
@@ -2007,7 +2007,7 @@
 					<Representation>None</Representation>
 					<ShowLeftMargin>false</ShowLeftMargin>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="GroupFieldsAndOperatorsExtendedTooltip" id="327"/>
+					<ExtendedTooltip name="FieldsAndOperatorsGroupExtendedTooltip" id="327"/>
 					<ChildItems>
 						<UsualGroup name="AvailableFieldsGroup" id="575">
 							<Title>
@@ -2020,7 +2020,7 @@
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="GroupAvailableFieldsExtendedTooltip" id="576"/>
+							<ExtendedTooltip name="AvailableFieldsGroupExtendedTooltip" id="576"/>
 						</UsualGroup>
 						<UsualGroup name="OperatorsAndFunctionsGroup" id="543">
 							<Title>
@@ -2033,7 +2033,7 @@
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="GroupOperatorsAndFunctionsExtendedTooltip" id="544"/>
+							<ExtendedTooltip name="OperatorsAndFunctionsGroupExtendedTooltip" id="544"/>
 						</UsualGroup>
 						<UsualGroup name="GroupTextToCopy" id="553">
 							<Title>

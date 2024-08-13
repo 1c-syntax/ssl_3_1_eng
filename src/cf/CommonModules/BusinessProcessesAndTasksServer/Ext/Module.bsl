@@ -39,7 +39,7 @@ Procedure TaskFormOnCreateAtServer(BusinessTaskForm, TaskObject,
 		If Item = Undefined Then
 			Item = BusinessTaskForm.Items.Add("__TaskState", Type("FormDecoration"), Parent);
 			Item.Type = FormDecorationType.Label;
-			Item.Height = 0; // 
+			Item.Height = 0; // Auto height.
 			Item.AutoMaxWidth = False;
 		EndIf;
 		UseDateAndTimeInTaskDeadlines = GetFunctionalOption("UseDateAndTimeInTaskDeadlines");
@@ -102,7 +102,7 @@ Procedure SetTaskAppearance(Val TaskListOrItsConditionalAppearance) Export
 		Items.Delete(ConditionalAppearanceItem);
 	EndDo;
 		
-	// Setting appearance for overdue tasks.
+	// Set the appearance for overdue tasks.
 	ConditionalAppearanceItem = ConditionalTaskListAppearance.Items.Add();
 	ConditionalAppearanceItem.ViewMode = DataCompositionSettingsItemViewMode.Inaccessible;
 	
@@ -127,7 +127,7 @@ Procedure SetTaskAppearance(Val TaskListOrItsConditionalAppearance) Export
 	AppearanceColorItem.Value =  Metadata.StyleItems.OverdueDataColor.Value;   
 	AppearanceColorItem.Use = True;
 	
-	// Setting appearance for completed tasks.
+	// Set the appearance for completed tasks.
 	ConditionalAppearanceItem = ConditionalTaskListAppearance.Items.Add();
 	ConditionalAppearanceItem.ViewMode = DataCompositionSettingsItemViewMode.Inaccessible;
 	
@@ -141,7 +141,7 @@ Procedure SetTaskAppearance(Val TaskListOrItsConditionalAppearance) Export
 	AppearanceColorItem.Value = Metadata.StyleItems.ExecutedTask.Value; 
 	AppearanceColorItem.Use = True;
 	
-	// Setting appearance for tasks that are not accepted for execution.
+	// Set the appearance for unaccepted tasks.
 	ConditionalAppearanceItem = ConditionalTaskListAppearance.Items.Add();
 	ConditionalAppearanceItem.ViewMode = DataCompositionSettingsItemViewMode.Inaccessible;
 	
@@ -155,7 +155,7 @@ Procedure SetTaskAppearance(Val TaskListOrItsConditionalAppearance) Export
 	AppearanceColorItem.Value = Metadata.StyleItems.NotAcceptedForExecutionTasks.Value; 
 	AppearanceColorItem.Use = True;
 	
-	// Setting appearance for tasks with unfilled Deadline.
+	// Set the appearance for tasks with an empty due date.
 	ConditionalAppearanceItem = ConditionalTaskListAppearance.Items.Add();
 	ConditionalAppearanceItem.ViewMode = DataCompositionSettingsItemViewMode.Inaccessible;
 	
@@ -177,7 +177,7 @@ Procedure SetTaskAppearance(Val TaskListOrItsConditionalAppearance) Export
 	AppearanceColorItem.Value = NStr("en = 'Due date is not specified';");
 	AppearanceColorItem.Use = True;
 	
-	// Setting appearance for external users. The Author field is empty.
+	// Set the appearance for external users. The Author field is empty.
 	If Users.IsExternalUserSession() Then
 			ConditionalAppearanceItem = ConditionalTaskListAppearance.Items.Add();
 			ConditionalAppearanceItem.ViewMode = DataCompositionSettingsItemViewMode.Inaccessible;
@@ -244,11 +244,11 @@ EndProcedure
 //  AdditionalAddressingObject - AnyRef - a reference to the additional business object.
 //
 // Returns:
-//  String - a string representation of the task assignee, for example:
-//           "John Smith" - assignee as specified in the Performer parameter.
-//           "Chief Accountant" - an assignee role specified in the PerformerRole parameter.
-//           "Chief Accountant (Sun LLC)" - if a role is specified along with the main addressing object.
-//           "Chief Accountant (Sun LLC, New York branch)" - if a role is specified along with both addressing
+//  String - String representation of the task assignee, for example:
+//           "John Smith" - an assignee as specified in the Performer parameter.
+//           "Chief accountant" - a business role specified in the PerformerRole parameter.
+//           "Chief accountant (Sun LLC)" - if a role is specified along with the main business object.
+//           "Chief accountant (Sun LLC, New York branch)" - if a role is specified along with both business
 //                                                                   objects.
 //
 Function PerformerString(Val Performer, Val PerformerRole,
@@ -271,10 +271,10 @@ EndFunction
 //  AdditionalAddressingObject - AnyRef - a reference to the additional business object.
 // 
 // Returns:
-//  String - a string representation of a role. For example:
-//            "Chief Accountant" - an assignee role specified in the PerformerRole parameter.
-//            "Chief Accountant (Sun LLC)" - if a role is specified along with the main addressing object.
-//            "Chief Accountant (Sun LLC, New York branch)" - if a role is specified along with both addressing
+//  String - String representation of the role, for example:
+//            "Chief accountant" - a business role specified in the PerformerRole parameter.
+//            "Chief accountant (Sun LLC)" - if a role is specified along with the main business object.
+//            "Chief accountant (Sun LLC, New York branch)" - if a role is specified along with both business
 //                                                                    objects.
 //
 Function RoleString(Val PerformerRole,
@@ -313,11 +313,11 @@ Procedure MarkTasksForDeletion(BusinessProcessRef, DeletionMark) Export
 		Block.Lock();
 		
 		Query = New Query("SELECT
-			|	Tasks.Ref AS Ref 
+			|	PerformerTasks.Ref AS Ref 
 			|FROM
-			|	Task.PerformerTask AS Tasks
+			|	Task.PerformerTask AS PerformerTasks
 			|WHERE
-			|	Tasks.BusinessProcess = &BusinessProcess");
+			|	PerformerTasks.BusinessProcess = &BusinessProcess");
 		Query.SetParameter("BusinessProcess", BusinessProcessRef);
 		Selection = Query.Execute().Select();
 		
@@ -666,7 +666,7 @@ Function TaskPerformersGroup(PerformerRole, MainAddressingObject, AdditionalAddr
 			LockItem.SetValue("AdditionalAddressingObject", AdditionalAddressingObject);
 			Block.Lock();
 			
-			Selection = Query.Execute().Select(); // 
+			Selection = Query.Execute().Select(); // A locking read.
 			If Selection.Next() Then
 				
 				PerformersGroup = Selection.Ref;
@@ -756,7 +756,7 @@ Procedure StartDeferredProcess(BusinessProcess) Export
 		LockDataForEdit(BusinessProcess);
 		
 		BusinessProcessObject = BusinessProcess.GetObject();
-		// Starting a business process and registering it in the register.
+		// Start the business process and record this in the register.
 		BusinessProcessObject.Start();
 		InformationRegisters.ProcessesToStart.RegisterProcessStart(BusinessProcess);
 		
@@ -778,7 +778,7 @@ Procedure StartDeferredProcess(BusinessProcess) Export
 	
 EndProcedure
 
-// Returns information on the business process start.
+// Returns information on the business process start.
 //
 // Parameters:
 //  Process_ - DefinedType.BusinessProcess
@@ -1197,7 +1197,7 @@ Procedure OnFillAllExtensionParameters() Export
 	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
 	
-	// If exceptions occured and the update is not completed.
+	// If exceptions occurred and the update is not completed.
 	UpdateAuxiliaryDataOfItemsModifiedUponDataImport();
 	
 EndProcedure
@@ -1246,8 +1246,8 @@ EndProcedure
 // See CommonOverridable.OnAddReferenceSearchExceptions.
 Procedure OnAddReferenceSearchExceptions(RefSearchExclusions) Export
 	
-	RefSearchExclusions.Add(Metadata.InformationRegisters.TaskPerformers.FullName());
 	RefSearchExclusions.Add(Metadata.InformationRegisters.BusinessProcessesData.FullName());
+	RefSearchExclusions.Add(Metadata.Catalogs.TaskPerformersGroups.FullName());
 	
 EndProcedure
 

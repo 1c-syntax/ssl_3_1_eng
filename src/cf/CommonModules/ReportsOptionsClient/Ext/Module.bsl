@@ -298,17 +298,14 @@ Function ClientParameters()
 	Return ClientParameters;
 EndFunction
 
-// Notification event name to change a report option.
 Function EventNameChangingOption() Export
-	Return "Write_ReportsOptions";
+	Return "Change_ReportOptions";
 EndFunction
 
-// Notification event name to change common settings.
 Function EventNameChangingCommonSettings() Export
 	Return ReportsOptionsClientServer.FullSubsystemName() + ".CommonSettingsEdit";
 EndFunction
 
-// Returns an additional report reference type.
 Function AdditionalReportRefType()
 	If CommonClient.SubsystemExists("StandardSubsystems.AdditionalReportsAndDataProcessors") Then
 		Return Type("CatalogRef.AdditionalReportsAndDataProcessors");
@@ -604,15 +601,15 @@ Procedure RegisterReportOptionUsers(Form, ResetUsageFlag = True) Export
 	EndIf;
 	
 	MarkedItemCount = 0;
-	For Each String In Form.OptionUsers Do 
-		If String.Value = OptionAuthor Then
+	For Each TableRow In Form.OptionUsers Do 
+		If TableRow.Value = OptionAuthor Then
 			AuthorFlag = "[IsReportOptionAuthor]";
 		Else
 			AuthorFlag = "";
-			MarkedItemCount = MarkedItemCount + Boolean(String.Check);
+			MarkedItemCount = MarkedItemCount + Boolean(TableRow.Check);
 		EndIf;
-		If String.Presentation <> AuthorFlag Then
-			String.Presentation = AuthorFlag;
+		If TableRow.Presentation <> AuthorFlag Then
+			TableRow.Presentation = AuthorFlag;
 		EndIf;
 	EndDo;
 	

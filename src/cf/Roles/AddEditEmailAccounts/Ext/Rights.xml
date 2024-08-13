@@ -4,14 +4,41 @@
 	<setForAttributesByDefault>true</setForAttributesByDefault>
 	<independentRightsOfChildObjects>false</independentRightsOfChildObjects>
 	<object>
+		<name>Configuration.StandardSubsystemsLibrary</name>
+		<right>
+			<name>MainWindowModeNormal</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeEmbeddedWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeFullscreenWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeKiosk</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>AnalyticsSystemClient</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
 		<name>Catalog.EmailAccounts</name>
 		<right>
 			<name>Read</name>
 			<value>true</value>
 			<restrictionByCondition>
-				<condition>#IF &amp;RecordLevelAccessRestrictionIsUniversal #THEN
+				<condition>#If &amp;RecordLevelAccessRestrictionIsUniversal #Then
 #ForObject("")
-#ELSE
+#Else
 #ByValuesExtended("Catalog.EmailAccounts", "", "",
 "",
 "",
@@ -19,37 +46,37 @@
 "Users", "T.AccountOwner", "And",
 "Condition", "T. The owner of the accounting record &lt;&gt; Value(Reference.Users.Empty link)", ")",
 "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
-#ENDIF</condition>
+#EndIf</condition>
 			</restrictionByCondition>
 		</right>
 		<right>
 			<name>Insert</name>
 			<value>true</value>
 			<restrictionByCondition>
-				<condition>#IF &amp;RecordLevelAccessRestrictionIsUniversal #THEN
+				<condition>#If &amp;RecordLevelAccessRestrictionIsUniversal #Then
 #ForObject("")
-#ELSE
+#Else
 #ByValuesExtended("Catalog.EmailAccounts", "", "",
 "",
 "",
 "Users", "T.AccountOwner", "And",
 "Condition", "T. The owner of the accounting record &lt;&gt; Value(Reference.Users.Empty link)", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
-#ENDIF</condition>
+#EndIf</condition>
 			</restrictionByCondition>
 		</right>
 		<right>
 			<name>Update</name>
 			<value>true</value>
 			<restrictionByCondition>
-				<condition>#IF &amp;RecordLevelAccessRestrictionIsUniversal #THEN
+				<condition>#If &amp;RecordLevelAccessRestrictionIsUniversal #Then
 #ForObject("")
-#ELSE
+#Else
 #ByValuesExtended("Catalog.EmailAccounts", "", "",
 "",
 "",
 "Users", "T.AccountOwner", "And",
 "Condition", "T. The owner of the accounting record &lt;&gt; Value(Reference.Users.Empty link)", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
-#ENDIF</condition>
+#EndIf</condition>
 			</restrictionByCondition>
 		</right>
 		<right>
@@ -74,33 +101,6 @@
 		</right>
 		<right>
 			<name>InputByString</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
-		<name>Configuration.StandardSubsystemsLibrary</name>
-		<right>
-			<name>MainWindowModeNormal</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeEmbeddedWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeFullscreenWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeKiosk</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>AnalyticsSystemClient</name>
 			<value>true</value>
 		</right>
 	</object>

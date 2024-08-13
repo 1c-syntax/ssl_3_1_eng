@@ -98,7 +98,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	
 EndProcedure
 
-// 
+// Idle handlers.
 
 &AtClient
 Procedure TimeConsumingOperationIdleHandler()
@@ -149,7 +149,7 @@ EndProcedure
 
 #Region FormCommandsEventHandlers
 
-// 
+// Built-in part.
 
 &AtClient
 Procedure NextCommand(Command)
@@ -181,7 +181,7 @@ Procedure CancelCommand(Command)
 	
 EndProcedure
 
-// 
+// Overridable part.
 
 &AtClient
 Procedure SetUpDataTransferRestrictions(Command)
@@ -375,7 +375,7 @@ Function ExtensionsThatChangeDataStructure()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Built-in part.
 
 &AtClient
 Procedure ChangeNavigationNumber(Iterator_SSLy)
@@ -406,10 +406,10 @@ EndProcedure
 &AtClient
 Procedure NavigationNumberOnChange(Val IsMoveNext)
 	
-	// Executing navigation event handlers
+	// Run navigation event handlers.
 	ExecuteNavigationEventHandlers(IsMoveNext);
 	
-	// Setting page display
+	// Set up page view.
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
@@ -421,7 +421,7 @@ Procedure NavigationNumberOnChange(Val IsMoveNext)
 	Items.PanelMain.CurrentPage  = Items[NavigationRowCurrent.MainPageName];
 	Items.NavigationPanel.CurrentPage = Items[NavigationRowCurrent.NavigationPageName];
 	
-	// Setting the default button
+	// Set the default button.
 	NextButton = GetFormButtonByCommandName(Items.NavigationPanel.CurrentPage, "NextCommand");
 	
 	If NextButton <> Undefined Then
@@ -684,7 +684,7 @@ Procedure CancelStandaloneWorkstationGeneration(Result, AdditionalParameters) Ex
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Overridable part - internal procedures and functions
 
 &AtServer
 Procedure CreateStandaloneWorkstationInitialImageAtServer(Cancel)
@@ -823,7 +823,7 @@ EndFunction
 Function SynchronizationUsers()
 	
 	Result = New ValueTable;
-	Result.Columns.Add("User"); // 
+	Result.Columns.Add("User"); // Type: CatalogRef.Users
 	Result.Columns.Add("DataSynchronizationPermitted", New TypeDescription("Boolean"));
 	Result.Columns.Add("PermitDataSynchronization", New TypeDescription("Boolean"));
 	
@@ -869,7 +869,7 @@ Function SynchronizationUsers()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Overridable part - navigation event handlers
 
 &AtClient
 Function Attachable_ExportSettingsOnGoNext(Cancel)
@@ -964,7 +964,7 @@ Function Attachable_PresenceOfExtensionsThatChangeDataStructure_WhenOpened(Cance
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Overridable part - wizard navigation initialization
 
 &AtServer
 Procedure StandaloneWorkstationCreatingScript()

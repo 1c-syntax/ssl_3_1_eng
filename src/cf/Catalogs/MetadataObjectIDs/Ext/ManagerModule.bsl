@@ -303,7 +303,7 @@ Procedure ImportDataToSubordinateNode(Objects) Export
 			EndIf;
 			
 			If Properties <> Undefined Then
-				Upload0.Delete(Properties); // 
+				Upload0.Delete(Properties); // Renaming items to be imported is not required.
 			EndIf;
 		EndDo;
 		ItemsToImportTable.Indexes.Add("Ref");
@@ -1220,6 +1220,7 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	String.SingularName     = "DocumentJournal";
 	String.SingularSynonym = NStr("en = 'Document journal';");
 	String.NoData       = True;
+	String.ExtensionsObjects = True;
 	
 	String = Result.Add();
 	String.Id   = New UUID("706cf832-0ae5-45b5-8a4a-1f251d054f3b");
@@ -1301,6 +1302,7 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	String.Synonym         = NStr("en = 'Business processes';");
 	String.SingularName     = "BusinessProcess";
 	String.SingularSynonym = NStr("en = 'Business process';");
+	String.ExtensionsObjects = True;
 	
 	String = Result.Add();
 	String.Id   = New UUID("8d9153ad-7cea-4e25-9542-a557ee59fd16");
@@ -1308,6 +1310,7 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	String.Synonym         = NStr("en = 'Tasks';");
 	String.SingularName     = "Task";
 	String.SingularSynonym = NStr("en = 'Task';");
+	String.ExtensionsObjects = True;
 	
 	For Each String In Result Do
 		String.CollectionOrder = Result.IndexOf(String);
@@ -1358,11 +1361,51 @@ Procedure BeforeWriteObject(Object) Export
 	SetPrivilegedMode(False);
 	SetSafeModeDisabled(False);
 	
+	// ACC:75-off - "DataExchange.Import" check must follow the change records in the Event log.
+	If Common.SeparatedDataUsageAvailable()
+	   And UsersInternalCached.ShouldRegisterChangesInAccessRights()
+	   And Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
+		
+		Object.AdditionalProperties.Insert("StandardSubsystemsOldValues",
+			Common.ObjectAttributesValues(Object.Ref,
+				"DeletionMark, Name, Synonym"));
+	EndIf;
+	// ACC:75-on
+	
 	If Object.DataExchange.Load Then
 		Return;
 	EndIf;
 	
 	CheckObjectBeforeWrite(Object);
+	
+EndProcedure
+
+// Parameters:
+//   Object - CatalogObject.MetadataObjectIDs
+//          - CatalogObject.ExtensionObjectIDs
+//
+Procedure AtObjectWriting(Object) Export
+	
+	// ACC:75-off - "DataExchange.Import" check must follow the logging of changes.
+	If Common.SeparatedDataUsageAvailable()
+	   And UsersInternalCached.ShouldRegisterChangesInAccessRights()
+	   And Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
+		
+		SetSafeModeDisabled(True);
+		SetPrivilegedMode(True);
+		
+		ModuleAccessGroupsProfiles = Common.CommonModule("Catalogs.AccessGroupProfiles");
+		ModuleAccessGroupsProfiles.RegisterChangeInProfilesRoles(Object,
+			Object.AdditionalProperties.StandardSubsystemsOldValues);
+		
+		SetPrivilegedMode(False);
+		SetSafeModeDisabled(False);
+	EndIf;
+	// ACC:75-on
+	
+	If Object.DataExchange.Load Then
+		Return;
+	EndIf;
 	
 EndProcedure
 
@@ -1819,7 +1862,7 @@ Procedure ProcessMetadataObjectIDs(Upload0, MetadataObjectProperties1, Extension
 				EndIf;
 			EndIf;
 		Else
-			// If a metadata object was deleted in the course of restucturing,
+			// If a metadata object was deleted in the course of restructuring,
 			// then use the old ID for the new metadata object.
 			// And create new IDs for old metadata objects.
 			If Upper(Left(MetadataObject.Name, StrLen("Delete"))) =  Upper("Delete")
@@ -1828,7 +1871,7 @@ Procedure ProcessMetadataObjectIDs(Upload0, MetadataObjectProperties1, Extension
 				NewMetadataObject = MetadataFindByFullName(Properties.FullName);
 				If NewMetadataObject <> Undefined Then
 					MetadataObject = NewMetadataObject;
-					MetadataObjectKey = Undefined; // 
+					MetadataObjectKey = Undefined; // Required for the ID update.
 				EndIf;
 			EndIf;
 		EndIf;
@@ -1952,18 +1995,18 @@ Procedure AddNewMetadataObjectsIDs(Upload0, MetadataObjectProperties1, Extension
 	
 	ObjectProperties = MetadataObjectProperties1.FindRows(New Structure("Found", False));
 	
-	For Each Var_155_ObjectProperties In ObjectProperties Do
+	For Each Var_156_ObjectProperties In ObjectProperties Do
 		Properties = Upload0.Add();
-		FillPropertyValues(Properties, Var_155_ObjectProperties);
+		FillPropertyValues(Properties, Var_156_ObjectProperties);
 		Properties.IsNew = True;
 		Properties.Ref = NewCatalogRef(ExtensionsObjects);
 		Properties.DeletionMark  = False;
-		Properties.MetadataObject = Var_155_ObjectProperties.MetadataObject;
+		Properties.MetadataObject = Var_156_ObjectProperties.MetadataObject;
 		Properties.MetadataObjectKey = MetadataObjectKey(Properties.FullName);
 		HasCriticalChanges = True;
 		NewMetadataObjectsList = NewMetadataObjectsList
 			+ ?(ValueIsFilled(NewMetadataObjectsList), "," + Chars.LF, "")
-			+ Var_155_ObjectProperties.FullName;
+			+ Var_156_ObjectProperties.FullName;
 	EndDo;
 	
 EndProcedure
@@ -2886,7 +2929,7 @@ Function CollectionName(FullName)
 	
 EndFunction
 
-// This method is required by UpdateData and BeforeWriteObject procedures.
+// For the RunDataUpdate and BeforeWriteObject procedures.
 Procedure CheckObjectBeforeWrite(Object, AutoUpdate = False)
 	
 	ExtensionsObjects = IsExtensionsObject(Object);
@@ -3265,10 +3308,10 @@ Function MetadataObjectIDsWithoutRetryAttempt(FullMetadataObjectsNames,
 			
 			ErrorTemplate = ?(ExtensionObjectIDsAvailable,
 				NStr("en = 'For metadata object ""%1"",
-				           |multiple IDs are found in the ""Metadata object IDs"" catalog
+				           |multiple IDs are found in the ""Metadata object IDs"" catalog
 				           |and the ""Extension version object IDs"" information register.';"),
 				NStr("en = 'For metadata object ""%1"",
-				           |multiple IDs are found in the ""Metadata object IDs"" catalog.';"));
+				           |multiple IDs are found in the ""Metadata object IDs"" catalog.';"));
 			ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(ErrorTemplate, FullMetadataObjectName);
 			AddApplicationDeveloperParametersErrorClarification = True;
 			Errors.Add(ErrorDescription);
@@ -4085,7 +4128,7 @@ Function ExecuteItemReplacement(Val Replaceable, Val RefsTable, Val DisableWrite
 					
 					ColumnsNames = New Array;
 					
-					// 
+					// Getting names of dimensions that might contain references.
 					For Each Dimension In Movement.Dimensions Do
 						
 						If Dimension.Type.ContainsType(TypeOf(Ref)) Then

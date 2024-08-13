@@ -189,7 +189,7 @@ Procedure RefreshApplicationInterface()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Server call.
 
 &AtServer
 Function OnChangeAttributeServer(TagName)

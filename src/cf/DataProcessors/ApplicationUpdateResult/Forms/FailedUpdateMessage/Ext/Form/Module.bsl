@@ -20,8 +20,8 @@ Var ErrorReport;
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	// 
-	// 
+	// Switch to opening the data re-sync form before a startup with the options
+	// "Sync and continue" and "Continue".
 	If Parameters.ErrorInfo <> Undefined Then
 		BriefErrorDescription   = ErrorProcessing.BriefErrorDescription(Parameters.ErrorInfo);
 		DetailErrorDescription = ErrorProcessing.DetailErrorDescription(Parameters.ErrorInfo);
@@ -66,7 +66,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		ScriptDirectory = ModuleConfigurationUpdate.ScriptDirectory();
 	EndIf;
 	
-	Items.FormCheckPatches.Visible = InfobaseUpdateInternal.ManualCheckForFixIsAvailable();
+	Items.FormCheckPatches.Visible = InfobaseUpdateInternal.CanCheckForPatchesManually();
 	
 EndProcedure
 
@@ -169,7 +169,7 @@ Procedure CheckPatches(Command)
 	Result = AvailableFixesOnServer();
 	
 	NotifyDescription = New NotifyDescription("CheckAvailableFixesContinued", ThisObject, Result);
-	InfobaseUpdateClient.ProcessResultOfManuallyCheckingAvailablePatches(Result, NotifyDescription);
+	InfobaseUpdateClient.ProcessManualPatchCheckResult(Result, NotifyDescription);
 EndProcedure
 
 &AtClient
@@ -183,7 +183,7 @@ EndProcedure
 
 &AtServer
 Function AvailableFixesOnServer()
-	Return InfobaseUpdateInternal.FixesAvailableForInstallation();
+	Return InfobaseUpdateInternal.PatchesAvailableForInstall();
 EndFunction
 
 &AtClient
@@ -199,7 +199,7 @@ Procedure CheckAvailableFixesContinued(Result, AdditionalParameters) Export
 	
 	TimeConsumingOperation    = StartingPatchInstallation();
 	IdleParameters     = TimeConsumingOperationsClient.IdleParameters(ThisObject);
-	CallbackOnCompletion = New NotifyDescription("ProcessResultOfManualPatchInstallation", InfobaseUpdateClient, AdditionalParameters);
+	CallbackOnCompletion = New NotifyDescription("ProcessManualPatchInstallationResult", InfobaseUpdateClient, AdditionalParameters);
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
 	
 EndProcedure
@@ -220,14 +220,14 @@ Function AttachExternalDataProcessor(AddressInTempStorage)
 		Raise NStr("en = 'Insufficient access rights.';");
 	EndIf;
 	
-	// 
-	// 
+	// ACC:552-off - The infobase repair scenario with update errors for the full-rights administrator.
+	// ACC:556-off
 	Manager = ExternalDataProcessors;
 	DataProcessorName = Manager.Connect(AddressInTempStorage, , False,
 		Common.ProtectionWithoutWarningsDetails());
 	Return Manager.Create(DataProcessorName, False).Metadata().FullName();
-	// 
-	// 
+	// ACC:556-on
+	// ACC:552-on
 	
 EndFunction
 

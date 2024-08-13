@@ -61,41 +61,41 @@
 				<ExcludedCommand>SortListDesc</ExcludedCommand>
 			</CommandSet>
 			<RowFilter xsi:nil="true"/>
-			<ContextMenu name="ContactsTableContextMenu" id="14"/>
+			<ContextMenu name="TableOfContactsContextMenu" id="14"/>
 			<AutoCommandBar name="TableOfContactsCommandBar" id="15">
 				<Autofill>false</Autofill>
 			</AutoCommandBar>
 			<ExtendedTooltip name="TableOfContactsExtendedTooltip" id="34"/>
-			<SearchStringAddition name="ContactsTableSearchString" id="40">
+			<SearchStringAddition name="TableOfContactsSearchString" id="40">
 				<AdditionSource>
 					<Item>TableOfContacts</Item>
 					<Type>SearchStringRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ContactsTableSearchStringContextMenu" id="41"/>
-				<ExtendedTooltip name="ContactsTableSearchStringExtendedTooltip" id="42"/>
+				<ContextMenu name="TableOfContactsSearchStringContextMenu" id="41"/>
+				<ExtendedTooltip name="TableOfContactsSearchStringExtendedTooltip" id="42"/>
 			</SearchStringAddition>
-			<ViewStatusAddition name="ContactsTableViewStatus" id="43">
+			<ViewStatusAddition name="TableOfContactsViewStatus" id="43">
 				<AdditionSource>
 					<Item>TableOfContacts</Item>
 					<Type>ViewStatusRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ContactsTableViewStatusContextMenu" id="44"/>
-				<ExtendedTooltip name="ContactsTableViewStatusExtendedTooltip" id="45"/>
+				<ContextMenu name="TableOfContactsViewStatusContextMenu" id="44"/>
+				<ExtendedTooltip name="TableOfContactsViewStatusExtendedTooltip" id="45"/>
 			</ViewStatusAddition>
-			<SearchControlAddition name="ContactsTableSearchControl" id="46">
+			<SearchControlAddition name="TableOfContactsSearchControl" id="46">
 				<AdditionSource>
 					<Item>TableOfContacts</Item>
 					<Type>SearchControl</Type>
 				</AdditionSource>
-				<ContextMenu name="ContactsTableSearchControlContextMenu" id="47"/>
-				<ExtendedTooltip name="ContactsTableSearchControlExtendedTooltip" id="48"/>
+				<ContextMenu name="TableOfContactsSearchControlContextMenu" id="47"/>
+				<ExtendedTooltip name="TableOfContactsSearchControlExtendedTooltip" id="48"/>
 			</SearchControlAddition>
 			<Events>
-				<Event name="BeforeDeleteRow">ContactsTableBeforeDeleteRow</Event>
-				<Event name="OnActivateCell">ContactsTableOnActivateCell</Event>
+				<Event name="BeforeDeleteRow">TableOfContactsBeforeDeleteRow</Event>
+				<Event name="OnActivateCell">TableOfContactsOnActivateCell</Event>
 			</Events>
 			<ChildItems>
-				<CheckBoxField name="ContactsTableChange" id="26">
+				<CheckBoxField name="TableOfContactsChange" id="26">
 					<DataPath>TableOfContacts.Change</DataPath>
 					<Title>
 						<v8:item>
@@ -112,10 +112,10 @@
 					</ToolTip>
 					<EditMode>EnterOnInput</EditMode>
 					<CheckBoxType>Auto</CheckBoxType>
-					<ContextMenu name="ContactsTableChangeContextMenu" id="27"/>
-					<ExtendedTooltip name="ContactsTableChangeExtendedTooltip" id="35"/>
+					<ContextMenu name="TableOfContactsChangeContextMenu" id="27"/>
+					<ExtendedTooltip name="TableOfContactsChangeExtendedTooltip" id="35"/>
 				</CheckBoxField>
-				<InputField name="ContactsTableFullPresentation" id="24">
+				<InputField name="TableOfContactsFullPresentation" id="24">
 					<DataPath>TableOfContacts.FullPresentation</DataPath>
 					<ReadOnly>true</ReadOnly>
 					<Title>
@@ -127,8 +127,8 @@
 					<EditMode>EnterOnInput</EditMode>
 					<Width>30</Width>
 					<AutoMaxWidth>false</AutoMaxWidth>
-					<ContextMenu name="ContactsTableFullPresentationContextMenu" id="25"/>
-					<ExtendedTooltip name="ContactsTableFullPresentationExtendedTooltip" id="36"/>
+					<ContextMenu name="TableOfContactsFullPresentationContextMenu" id="25"/>
+					<ExtendedTooltip name="TableOfContactsFullPresentationExtendedTooltip" id="36"/>
 				</InputField>
 				<ColumnGroup name="ContactsTableGroupContactEmailKind" id="32">
 					<Title>
@@ -141,7 +141,7 @@
 					<ShowInHeader>true</ShowInHeader>
 					<ExtendedTooltip name="ContactsTableGroupContactEmailKindExtendedTooltip" id="37"/>
 					<ChildItems>
-						<InputField name="ContactsTableContact" id="20">
+						<InputField name="TableOfContactsContact" id="20">
 							<DataPath>TableOfContacts.Contact</DataPath>
 							<Title>
 								<v8:item>
@@ -151,13 +151,13 @@
 							</Title>
 							<EditMode>EnterOnInput</EditMode>
 							<Width>30</Width>
-							<ContextMenu name="ContactsTableContactContextMenu" id="21"/>
-							<ExtendedTooltip name="ContactsTableContactExtendedTooltip" id="38"/>
+							<ContextMenu name="TableOfContactsContactContextMenu" id="21"/>
+							<ExtendedTooltip name="TableOfContactsContactExtendedTooltip" id="38"/>
 							<Events>
-								<Event name="OnChange">ContactsTableContactOnChange</Event>
-								<Event name="StartChoice">ContactsTableContactStartChoice</Event>
-								<Event name="Clearing">ContactsTableContactClearing</Event>
-								<Event name="ChoiceProcessing">ContactsTableContactChoiceProcessing</Event>
+								<Event name="OnChange">TableOfContactsContactOnChange</Event>
+								<Event name="StartChoice">TableOfContactsContactStartChoice</Event>
+								<Event name="Clearing">TableOfContactsContactClearing</Event>
+								<Event name="ChoiceProcessing">TableOfContactsContactChoiceProcessing</Event>
 							</Events>
 						</InputField>
 						<InputField name="ContactsTableContactCurrentAddress" id="28">

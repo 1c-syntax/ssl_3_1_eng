@@ -35,7 +35,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 &AtClient
-Procedure TypeOfFilterElementGroupOnChange(Item)
+Procedure FilterItemsGroupTypeOnChange(Item)
 	
 	GroupUse = True;
 	Use2 = True;
@@ -64,7 +64,7 @@ Procedure RightValue1ChoiceProcessing(Item, ValueSelected, StandardProcessing)
 EndProcedure
 
 &AtClient
-Procedure UsingAGroupOnChange(Item)
+Procedure GroupUseOnChange(Item)
 	
 	Use2 = GroupUse;
 	
@@ -399,7 +399,7 @@ Procedure AddFilters()
 	
 	If GroupUse Then 
 		
-		Var_Group = FilterGroup_SSLy(DisplayFilters);
+		Var_Group = FilterGroup(DisplayFilters);
 		AddAFilter(Var_Group, LeftValue1, ComparisonType1, RightValue1);
 		AddAFilter(Var_Group, LeftValue2, ComparisonType2, RightValue2, 1);
 		
@@ -444,7 +444,7 @@ Procedure RemoveFilters(DisplayFilters)
 EndProcedure
 
 &AtClient
-Function FilterGroup_SSLy(Filter)
+Function FilterGroup(Filter)
 	
 	Var_Group = Filter.Items.Add(Type("DataCompositionFilterItemGroup"));
 	Var_Group.GroupType = DataCompositionFilterItemsGroupType[FilterItemsGroupType];

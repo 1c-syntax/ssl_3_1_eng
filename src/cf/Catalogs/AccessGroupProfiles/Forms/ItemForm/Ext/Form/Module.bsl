@@ -321,26 +321,26 @@ Procedure AccessKindsOnEditEnd(Item, NewRow, CancelEdit)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Event handlers of the AccessKindPresentation item of the AccessKinds form table.
 
 &AtClient
-Procedure AccessKindsAccessTypePresentationOnChange(Item)
+Procedure AccessKindsAccessKindPresentationOnChange(Item)
 	
-	AccessManagementInternalClient.AccessKindsAccessTypePresentationOnChange(
+	AccessManagementInternalClient.AccessKindsAccessKindPresentationOnChange(
 		ThisObject, Item);
 	
 EndProcedure
 
 &AtClient
-Procedure AccessKindsAccessTypePresentationChoiceProcessing(Item, ValueSelected, StandardProcessing)
+Procedure AccessKindsAccessKindPresentationChoiceProcessing(Item, ValueSelected, StandardProcessing)
 	
-	AccessManagementInternalClient.AccessKindsAccessTypePresentationChoiceProcessing(
+	AccessManagementInternalClient.AccessKindsAccessKindPresentationChoiceProcessing(
 		ThisObject, Item, ValueSelected, StandardProcessing);
 		
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Event handlers of the AllAllowedPresentation item of the AccessKinds form table.
 
 &AtClient
 Procedure AccessKindsAllAllowedPresentationOnChange(Item)
@@ -431,7 +431,7 @@ EndProcedure
 #Region FormTableItemsEventHandlersRoles
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Required by a role interface.
 
 &AtClient
 Procedure RolesCheckOnChange(Item)
@@ -443,8 +443,8 @@ Procedure RolesCheckOnChange(Item)
 	
 	If TableRow.Check And TableRow.Name = "InteractiveOpenExtReportsAndDataProcessors" Then
 		Notification = New NotifyDescription("RolesMarkOnChangeAfterConfirm", ThisObject);
-		FormParameters = New Structure("Key", "BeforeSelectRole");
-		OpenForm("CommonForm.SecurityWarning", FormParameters, , , , , Notification);
+		UsersInternalClient.ShowSecurityWarning(Notification,
+			UsersInternalClientServer.TypesOfSafetyWarnings().BeforeSelectRole);
 		
 	ElsIf StandardExtensionRoles.Get(TableRow.Name) <> Undefined Then
 		TableRow.Check = Not TableRow.Check;
@@ -497,7 +497,7 @@ Procedure SnowUnusedAccessKinds(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Required by a role interface.
 
 &AtClient
 Procedure ShowSelectedRolesOnly(Command)
@@ -725,7 +725,7 @@ EndProcedure
 // End StandardSubsystems.AttachableCommands
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Required by a role interface.
 
 &AtServer
 Procedure ProcessRolesInterface(Action, MainParameter = Undefined)

@@ -102,15 +102,15 @@ Function FullTextSearchStatus() Export
 			EndIf;
 			
 		Else 
-			// 
-			// 
+			// Desyncing of the "UseFullTextSearch" constant
+			// and the full-text search mode set in the infobase.
 			Return "SearchSettingsError";
 		EndIf;
 		
 	Else
 		If FullTextSearch.GetFullTextSearchMode() = FullTextSearchMode.Enable Then
-			// 
-			// 
+			// Desyncing of the "UseFullTextSearch" constant
+			// and the full-text search mode set in the infobase.
 			Return "SearchSettingsError";
 		Else 
 			Return "SearchProhibited";
@@ -244,9 +244,10 @@ EndProcedure
 
 #EndRegion
 
-// 
-// 
-// 
+// Sets a value to the UseFullTextSearch constant.
+// Used to synchronize a value
+// of the "UseFullTextSearch" functional option
+// with the value of the "FullTextSearch.GetFullTextSearchMode" function.
 //
 Procedure InitializeFullTextSearchFunctionalOption() Export
 	
@@ -427,12 +428,9 @@ EndFunction
 
 Function FullTextSearchResults(SearchResultsList)
 	
-	// Parse the list by separating an HTML details block.
-	HTMLSearchStrings = HTMLSearchResultStrings(SearchResultsList);
-	
 	Result = New Array;
-	
-	// Bypass search list strings.
+
+	HTMLSearchStrings = HTMLSearchResultStrings(SearchResultsList);
 	For IndexOf = 0 To SearchResultsList.Count() - 1 Do
 		
 		HTMLDetails  = HTMLSearchStrings.HTMLDetails1.Get(IndexOf);
@@ -442,13 +440,13 @@ Function FullTextSearchResults(SearchResultsList)
 		ObjectMetadata = SearchListString.Metadata;
 		Value = SearchListString.Value;
 		
-		OverridableOnGetByFullTextSearch(ObjectMetadata, Value, Presentation);
+		SSLSubsystemsIntegration.OnGetFullTextSearchResults(ObjectMetadata, Value, Presentation);
 		
 		Ref = "";
 		Try
 			Ref = GetURL(Value);
 		Except
-			Ref = "#"; // 
+			Ref = "#"; // Unintended to be opened.
 		EndTry;
 		
 		ResultString1 = New Structure;
@@ -468,8 +466,8 @@ Function HTMLSearchResultStrings(SearchResultsList)
 	
 	HTMLListDisplay = SearchResultsList.GetRepresentation(FullTextSearchRepresentationType.HTMLText);
 	
-	// 
-	// 
+	// Get the DOM to display the list. NOTE: DOM getter cannot be implemented as a dedicated function:
+	// 1C:Enterprise throws an error in the call stack of the DOM read stream.
 	HTMLReader = New HTMLReader;
 	HTMLReader.SetString(HTMLListDisplay);
 	DOMBuilder = New DOMBuilder;
@@ -526,35 +524,6 @@ Function PresentationStrings(AnchorDOMItemsList)
 	Return PresentationStrings;
 	
 EndFunction
-
-// Allows to override:
-// - Value
-// - Presentation
-//
-// See the data type "FullTextSearchListItem" 
-//
-Procedure OverridableOnGetByFullTextSearch(ObjectMetadata, Value, Presentation)
-	
-	If Common.SubsystemExists("StandardSubsystems.Properties") Then 
-		
-		// 
-		// 
-		
-		If ObjectMetadata = Metadata.InformationRegisters["AdditionalInfo"] Then 
-			
-			Value = Value.Object;
-			ObjectMetadata = Value.Metadata();
-			
-			Presentation = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '%1: %2';"), 
-				Common.ObjectPresentation(ObjectMetadata), 
-				String(Value));
-			
-		EndIf;
-		
-	EndIf;
-	
-EndProcedure
 
 #EndRegion
 

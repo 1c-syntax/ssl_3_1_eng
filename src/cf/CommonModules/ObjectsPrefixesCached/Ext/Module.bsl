@@ -22,8 +22,8 @@ Function PrefixGeneratingAttributes() Export
 	
 	ObjectsAttributes = New Map;
 	
-	For Each String In Objects Do
-		ObjectsAttributes.Insert(String.Object.FullName(), String.Attribute);
+	For Each ObjectAttribute In Objects Do
+		ObjectsAttributes.Insert(ObjectAttribute.Object.FullName(), ObjectAttribute.Attribute);
 	EndDo;
 	
 	Return New FixedMap(ObjectsAttributes);

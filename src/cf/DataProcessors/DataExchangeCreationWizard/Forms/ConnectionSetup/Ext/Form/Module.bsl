@@ -194,7 +194,7 @@ Procedure RegularCommunicationChannelsArchiveFilesOnChange(Item)
 EndProcedure
 
 &AtClient
-Procedure RegularCommunicationChannelsProtectArchiveWithPasswordOnChange(Item)
+Procedure RegularCommunicationChannelsProtectArchivesWithPasswordOnChange(Item)
 	
 	OnChangeRegularCommunicationChannelsUseArchivePassword();
 	
@@ -800,12 +800,12 @@ Procedure OnStartTestConnectionAtServer(TransportKind, ContinueWait)
 	
 	ModuleSetupWizard = DataExchangeServer.ModuleDataExchangeCreationWizard();
 	
-	SettingsStructure = New Structure;
-	FillWizardConnectionParametersStructure(SettingsStructure, True);
-	SettingsStructure.ExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes[TransportKind];
+	SettingsStructure_ = New Structure;
+	FillWizardConnectionParametersStructure(SettingsStructure_, True);
+	SettingsStructure_.ExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes[TransportKind];
 	
 	ModuleSetupWizard.OnStartTestConnection(
-		SettingsStructure, ConnectionCheckHandlerParameters, ContinueWait);
+		SettingsStructure_, ConnectionCheckHandlerParameters, ContinueWait);
 	
 EndProcedure
 
@@ -1631,7 +1631,7 @@ Procedure FillAvailableTransportKinds()
 		ExchangePlans[ExchangePlanName].EmptyRef(), SettingID);
 		
 	For Each CurrentTransportKind In UsedExchangeMessagesTransports Do
-		// 
+		// In SaaS, only XDTO exchange plans support exchange over the internet (including passive connection).
 		// 	
 		If SaaSModel Then
 			If CurrentTransportKind <> Enums.ExchangeMessagesTransportTypes.WS
@@ -1905,8 +1905,8 @@ Procedure InitializeFormAttributes()
 		RegularCommunicationChannelsFTPPassiveMode = True;
 	EndIf;
 	
-	// 
-	// 
+	// Check if the Service Manager supports setup via internal publication.
+	// Applies only to Interim Format Data Exchange.
 	If XDTOSetup 
 		And Common.SubsystemExists("StandardSubsystems.SaaSOperations.DataExchangeSaaS") Then 
 		
@@ -2734,7 +2734,7 @@ Function Attachable_GeneralSynchronizationSettingsPageOnGoNext(Cancel)
 	If CorrespondentDescriptionChangeAvailable
 		And IsBlankString(CorrespondentDescription) Then
 		CommonClient.MessageToUser(
-			NStr("en = 'Please specify the description of the peer application.';"),
+			NStr("en = 'Please specify the description of the peer application.';"),
 			, "CorrespondentDescription", , Cancel);
 	EndIf;
 		
@@ -2803,10 +2803,10 @@ EndProcedure
 &AtClient
 Procedure NavigationNumberOnChange(Val IsMoveNext)
 	
-	// Executing navigation event handlers.
+	// Run navigation event handlers.
 	ExecuteNavigationEventHandlers(IsMoveNext);
 	
-	// Setting page view.
+	// Set up page view.
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
@@ -2820,7 +2820,7 @@ Procedure NavigationNumberOnChange(Val IsMoveNext)
 	
 	Items.NavigationPanel.CurrentPage.Enabled = Not (IsMoveNext And NavigationRowCurrent.TimeConsumingOperation);
 	
-	// Setting the default button.
+	// Set the default button.
 	NextButton = GetFormButtonByCommandName(Items.NavigationPanel.CurrentPage, "NextCommand");
 	
 	If NextButton <> Undefined Then

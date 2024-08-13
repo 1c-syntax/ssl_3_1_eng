@@ -23,7 +23,7 @@
 						<v8:content>Save</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="FormSaveSettingsExtendedTooltip" id="26"/>
+				<ExtendedTooltip name="FormShouldSaveSettingsExtendedTooltip" id="26"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>

@@ -10,7 +10,87 @@
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
-#Region EventHandlers  
+#Region EventHandlers
+
+// 
+//
+// Parameters:
+//   Form - ClientApplicationForm, Undefined - 
+//       
+//   VariantKey - String, Undefined - 
+//       
+//       
+//   Settings - See ReportsClientServer.GetDefaultReportSettings.
+//
+Procedure DefineFormSettings(Form, VariantKey, Settings) Export
+	Settings.Events.OnCreateAtServer = True;
+	Settings.Events.BeforeImportSettingsToComposer = True;
+	Settings.Events.BeforeLoadVariantAtServer    = True;
+	Settings.GenerateImmediately = True;
+EndProcedure
+
+// 
+// 
+//
+// Parameters:
+//   Form - ClientApplicationForm - 
+//   Cancel - Boolean - 
+//   StandardProcessing - Boolean - 
+//
+Procedure OnCreateAtServer(Form, Cancel, StandardProcessing) Export
+	Volume = CommonClientServer.StructureProperty(Form.Parameters, "CommandParameter");
+	If ValueIsFilled(Volume) Then
+		DataParametersStructure = New Structure("Volume", Volume);
+		SetDataParameters(SettingsComposer.Settings, DataParametersStructure);
+	EndIf;
+EndProcedure
+
+// See ReportsOverridable.BeforeLoadVariantAtServer.
+Procedure BeforeLoadVariantAtServer(Form, NewDCSettings) Export
+	
+	FoundParameter = SettingsComposer.Settings.DataParameters.Items.Find("Volume");
+	If FoundParameter = Undefined Then
+		Return;
+	EndIf;
+	
+	Volume = FoundParameter.Value;
+	If Not ValueIsFilled(Volume) Then 
+		Return;
+	EndIf;
+	
+	DataParametersStructure = New Structure("Volume", Volume);
+	SetDataParameters(NewDCSettings, DataParametersStructure);
+	
+EndProcedure
+
+// 
+//
+// Parameters:
+//   Context - Arbitrary
+//   SchemaKey - String
+//   VariantKey - String
+//                - Undefined
+//   NewDCSettings - DataCompositionSettings
+//                    - Undefined
+//   NewDCUserSettings - DataCompositionUserSettings
+//                                    - Undefined
+//
+Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSettings, NewDCUserSettings) Export
+	
+	FoundParameter = SettingsComposer.Settings.DataParameters.Items.Find("Volume");
+	If FoundParameter = Undefined Then
+		Return;
+	EndIf;
+	
+	Volume = FoundParameter.Value;
+	If Not ValueIsFilled(Volume) Then
+		Return;
+	EndIf;
+	
+	DataParametersStructure = New Structure("Volume", Volume);
+	SetDataParameters(NewDCSettings, DataParametersStructure, NewDCUserSettings);
+	
+EndProcedure
 
 Procedure OnComposeResult(ResultDocument, DetailsData, StandardProcessing)
 	
@@ -25,19 +105,20 @@ Procedure OnComposeResult(ResultDocument, DetailsData, StandardProcessing)
 	StandardProcessing = False;
 		
 	ExternalDataSets = New Structure;
-	ExternalDataSets.Insert("VolumeCheckTable", FilesTableOnHardDrive);	
-	TemplateComposer = New DataCompositionTemplateComposer;	
+	ExternalDataSets.Insert("VolumeCheckTable", FilesTableOnHardDrive);
+	TemplateComposer = New DataCompositionTemplateComposer;
 	CompositionTemplate = TemplateComposer.Execute(DataCompositionSchema, Settings, DetailsData);
 	
 	CompositionProcessor = New DataCompositionProcessor;
 	CompositionProcessor.Initialize(CompositionTemplate, ExternalDataSets, DetailsData, True);
 	
-	ResultDocument.Clear();	
+	ResultDocument.Clear();
 	OutputProcessor = New DataCompositionResultSpreadsheetDocumentOutputProcessor;
 	OutputProcessor.SetDocument(ResultDocument);
-	OutputProcessor.Output(CompositionProcessor);                                                        
+	OutputProcessor.Output(CompositionProcessor);
 	
-	If Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
+	If Common.SubsystemExists("StandardSubsystems.ReportsOptions")
+		And FilesTableOnHardDrive.Find("FixingPossible", "CheckStatus") <> Undefined Then 
 		Cell = ResultDocument.Area(ResultDocument.TableHeight + 2, 1, ResultDocument.TableHeight + 2, 2);
 		Cell.Merge();
 		ModuleReportsServer = Common.CommonModule("ReportsServer");
@@ -58,6 +139,40 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 		Cancel = True;
 		Return;
 	EndIf;
+	
+EndProcedure
+
+#EndRegion
+
+#Region Private
+
+Procedure SetDataParameters(Settings, ParameterValues, UserSettings = Undefined)
+	
+	DataParameters = Settings.DataParameters.Items;
+	
+	For Each ParameterValue In ParameterValues Do 
+		
+		DataParameter = DataParameters.Find(ParameterValue.Key);
+		
+		If DataParameter = Undefined Then
+			Continue;
+		EndIf;
+		
+		DataParameter.Value = ParameterValue.Value;
+		
+		If Not ValueIsFilled(DataParameter.UserSettingID)
+			Or TypeOf(UserSettings) <> Type("DataCompositionUserSettings") Then 
+			Continue;
+		EndIf;
+		
+		MatchingParameter = UserSettings.Items.Find(
+			DataParameter.UserSettingID);
+		
+		If MatchingParameter <> Undefined Then 
+			FillPropertyValues(MatchingParameter, DataParameter, "Value");
+		EndIf;
+		
+	EndDo;
 	
 EndProcedure
 

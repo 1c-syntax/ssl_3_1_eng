@@ -235,7 +235,7 @@ EndProcedure
 
 Procedure OpenNotificationForm() Export
 	
-	// 
+	// The form is stored in a variable to prevent opening its duplicates and make fewer server calls.
 	// 
 	ParameterName = "StandardSubsystems.NotificationForm";
 	If ApplicationParameters[ParameterName] = Undefined Then

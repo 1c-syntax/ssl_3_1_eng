@@ -8,26 +8,26 @@
 //
 //
 
-// 
+// Form parameterization:
 //
-//      
-//       
-//                                
-//      
-//      
-//                                
-//      
+//      Title - String  - Form's title.
+//      FieldValues - String - Serialized value of the contact information. 
+//                                Or an empty string for a new input.
+//      Presentation - String  - Address presentation (used for managing old data).
+//      ContactInformationKind - CatalogRef.ContactInformationKinds, Structure - Details of the contact information to edit.
+//                                Comment - String - Optional text for the "Comment" field.
+//      ReturnValueList - Boolean - Optional flag indicating if the return value of the "ContactInformation" field
 //
-//      
-//                                 
+//      has the "ValueList" data type (intended for compatibility).
+//                                 Selection result:
 //
-//  
-//      
-//          
-//          
-//          
+//  Structure - Has the following fields:
+//      * ContactInformation - String - XML data of the contact information.
+//          * Presentation - String - Data presentation.
+//          * Comment - String - Comment to the contact information.
+//          * EnteredInFreeFormat - Boolean - Arbitrary input flag.
 //
-// 
+// -------------------------------------------------------------------------------------------------
 
 #Region FormEventHandlers
 
@@ -206,7 +206,7 @@ Procedure PhoneNumberOnChange(Item)
 EndProcedure
 
 &AtClient
-Procedure ExtraOnChange(Item)
+Procedure PhoneExtensionOnChange(Item)
 	
 	FillPhonePresentation();
 	
@@ -393,14 +393,14 @@ EndFunction
 Procedure ContactInformationAttibutesValues(InformationToEdit)
 	
 	// Common attributes.
-	Presentation = InformationToEdit.Value;
-	Comment   = InformationToEdit.Comment;
+	Presentation = InformationToEdit.value;
+	Comment   = InformationToEdit.comment;
 	
 	// Comment copy used to analyze changes.
 	CommentCopy = Comment;
 	
 	If EnterNumberByMask Then 
-		PhoneNumberByMask = InformationToEdit.Value;	
+		PhoneNumberByMask = InformationToEdit.value;	
 	Else	
 		CountryCode     = InformationToEdit.CountryCode;
 		CityCode     = InformationToEdit.AreaCode;

@@ -77,7 +77,7 @@
 						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</Picture>
 					<FileDragMode>AsFile</FileDragMode>
-					<ContextMenu name="WarningPicture1ContextMenu" id="19"/>
+					<ContextMenu name="WarningPicContextMenu" id="19"/>
 					<ExtendedTooltip name="WarningPicExtendedTooltip" id="34"/>
 				</PictureDecoration>
 				<UsualGroup name="MainGroup" id="3">

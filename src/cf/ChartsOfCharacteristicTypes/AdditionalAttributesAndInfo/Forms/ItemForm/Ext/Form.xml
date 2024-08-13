@@ -66,7 +66,7 @@
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="TitleGroup1ExtendedTooltip" id="337"/>
+							<ExtendedTooltip name="TitleGroupExtendedTooltip" id="337"/>
 							<ChildItems>
 								<LabelDecoration name="TitleDecoration" id="338">
 									<AutoMaxWidth>false</AutoMaxWidth>
@@ -126,7 +126,7 @@
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="ContentGroup1ExtendedTooltip" id="342"/>
+							<ExtendedTooltip name="ContentGroupExtendedTooltip" id="342"/>
 							<ChildItems>
 								<UsualGroup name="PropertiesSetsGroup" id="343">
 									<Title>
@@ -372,7 +372,7 @@
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
 									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="DetailsAttributeExtendedTooltip" id="365"/>
+									<ExtendedTooltip name="AttributeDetailsExtendedTooltip" id="365"/>
 									<ChildItems>
 										<Table name="Properties" id="366" DisplayImportance="VeryLow">
 											<Representation>List</Representation>
@@ -1632,8 +1632,8 @@ to display in value edit forms. </v8:content>
 																	<UserVisible>
 																		<xr:Common>false</xr:Common>
 																	</UserVisible>
-																	<ContextMenu name="ValuesLinkContextMenu" id="461"/>
-																	<ExtendedTooltip name="ValuesLinkExtendedTooltip" id="462"/>
+																	<ContextMenu name="ValuesRefContextMenu" id="461"/>
+																	<ExtendedTooltip name="ValuesRefExtendedTooltip" id="462"/>
 																</LabelField>
 															</ChildItems>
 														</Table>

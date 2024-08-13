@@ -41,14 +41,14 @@
 //     Settings.CommandDetails[Address].PlanMeeting.Title = NStr("ru='Meeting'");
 //     Settings.CommandDetails[Address].PlanMeeting.ToolTip = NStr("en='Schedule a meeting.'");
 //     Settings.CommandDetails[Address].PlanMeeting.Picture = PictureLib.PlannedInteraction;
-//     Settings.CommandDetails[Address].PlanMeeting.Action = "_DemoStandardSubsystemsClient.OpenMeetingDocForm";
+//     Settings.CommandDetails[Address].PlanMeeting.Action = "StandardSubsystemsClient.OpenMeetingDocForm";
 //    
-//     _DemoCompanyPhysicalAddress = ContactsManager.ContactInformationKindByName("_DemoCompanyPhysicalAddress");
-//      Settings.CommandDetails[_DemoCompanyPhysicalAddress] = 
+//     CompanyPhysicalAddress = ContactsManager.ContactInformationKindByName("_DemoCompanyPhysicalAddress");
+//      Settings.CommandDetails[CompanyPhysicalAddress] = 
 //    	Common.CopyRecursive(ContactsManager.CommandsOfContactInfoType(Enums.ContactInformationTypes.Address));
-//      Settings.CommandDetails[_DemoCompanyPhysicalAddress].PlanMeeting.Action = ""; // Disable the command for the contact information kind.
+//      Settings.CommandDetails[CompanyPhysicalAddress].PlanMeeting.Action = ""; // Disable the command for the contact information kind.
 //
-//   2 parameters are passed to the procedures specfied in "Action":
+//   2 parameters are passed to the procedures specified in "Action":
 //       ContactInformation - Structure:
 //         * Presentation - String
 //         * Value - String
@@ -61,7 +61,7 @@
 //     Procedure OpenMeetingDocForm(ContactInformation, AdditionalParameters) Export
 //		  FillingValues = New Structure;
 //		  FillingValues.Insert("MeetingPlace", ContactInformation.Presentation);
-//		  If TypeOf(AdditionalParameters.ContactInformationOwner) = Type("DocumentRef._DemoSalesOrder") Then
+//		  If TypeOf(AdditionalParameters.ContactInformationOwner) = Type("DocumentRef.SalesOrder") Then
 //		    	FillingValues.Insert("SubjectOf", AdditionalParameters.ContactInformationOwner);
 //		    	FillingValues.Insert("Contact", "");
 //		  Else
@@ -69,7 +69,7 @@
 //		    	FillingValues.Insert("SubjectOf", "");
 //		  EndIf;
 //
-//		  OpenForm("Document.Meeting.ObjectForm", New Srtucture("FillingValues", FillingValues),
+//		  OpenForm("Document.Meeting.ObjectForm", New Structure("FillingValues", FillingValues),
 //			AdditionalParameters.Form);
 //	   EndProcedure
 //
@@ -83,12 +83,12 @@ EndProcedure
 //
 // Parameters:
 //  Descriptions - Map of KeyAndValue - a presentation of a contact information kind in the passed language:
-//     * Key     - String - a name of a contact information kind. For example, _DemoPartnerAddress.
+//     * Key     - String - The name of a contact information kind. For example, "PartnerAddress".
 //     * Value - String - a description of a contact information kind for the passed language code.
 //  LanguageCode - String - a language code. For example, "en".
 //
 // Example:
-//  Descriptions["_DemoPartnerAddress"] = NStr("ru='Адрес'; en='Address';", LanguageCode);
+//  Descriptions["PartnerAddress"] = NStr("ru='Адрес'; en='Address';", LanguageCode);
 //
 Procedure OnGetContactInformationKindsDescriptions(Descriptions, LanguageCode) Export
 	
@@ -105,7 +105,7 @@ Procedure OnSetUpInitialItemsFilling(Settings) Export
 	
 EndProcedure
 
-// See also InfobaseUpdateOverridable.OnInitialItemFilling
+// See also InfobaseUpdateOverridable.OnInitialItemsFilling
 //
 // Parameters:
 //  LanguagesCodes - See InfobaseUpdateOverridable.OnInitialItemsFilling.LanguagesCodes
@@ -124,7 +124,7 @@ EndProcedure
 //  Object                  - CatalogObject.PerformerRoles - Object to populate.
 //  Data                  - ValueTableRow - Object fill data.
 //  AdditionalParameters - Structure:
-//   * PredefinedData - ValueTable - Data filled in the OnInitialItemsFilling procedure.
+//   * PredefinedData - ValueTable - Data populated in the OnInitialItemsFilling procedure.
 //
 Procedure OnInitialItemFilling(Object, Data, AdditionalParameters) Export
 	

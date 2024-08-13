@@ -619,7 +619,7 @@ Procedure GoToWebLink(Val FieldValues, Val Presentation = "", ExpectedKind = Und
 	EndIf;
 EndProcedure
 
-// Shows an address in a browser on Yandex.Maps or Google Maps.
+// Shows Yandex.Maps or Google Maps address in a browser.
 //
 // Parameters:
 //  Address                       - String - a text presentation of an address.
@@ -638,7 +638,7 @@ Procedure ShowAddressOnMap(Address, MapServiceName) Export
 	
 EndProcedure
 
-// Displays a form with history of contact information changes.
+// Displays a form with a history of changes to contact information.
 //
 // Parameters:
 //  Form                         - ClientApplicationForm - a form with contact information.
@@ -1356,7 +1356,7 @@ EndProcedure
 // Miscellaneous.
 
 // Processes entering a comment using the context menu.
-Procedure EnterComment(Val Form, Val AttributeName, Val FoundRow, Val Result, AsynchronousCall)
+Procedure EnterAComment(Val Form, Val AttributeName, Val FoundRow, Val Result, AsynchronousCall)
 	Comment = FoundRow.Comment;
 	
 	AdditionalParameters = New Structure;
@@ -1368,14 +1368,14 @@ Procedure EnterComment(Val Form, Val AttributeName, Val FoundRow, Val Result, As
 	AdditionalParameters.Insert("ItemForPlacementName", FoundRow.ItemForPlacementName);
 	AdditionalParameters.Insert("AsynchronousCall", AsynchronousCall);
 	
-	Notification = New NotifyDescription("EnterCommentCompletion", ThisObject, AdditionalParameters);
+	Notification = New NotifyDescription("EnterACommentCompletion", ThisObject, AdditionalParameters);
 	
 	CommonClient.ShowMultilineTextEditingForm(Notification, Comment,
 		NStr("en = 'Comment';"));
 EndProcedure
 
 // Completes a nonmodal dialog.
-Procedure EnterCommentCompletion(Val Comment, Val AdditionalParameters) Export
+Procedure EnterACommentCompletion(Val Comment, Val AdditionalParameters) Export
 	If Comment = Undefined Or Comment = AdditionalParameters.PreviousComment Then
 		// Canceling entry or no changes.
 		Return;
@@ -1598,8 +1598,8 @@ Function TelephonyApplicationInstalled(ProtocolName = Undefined)
 		EndIf;
 	EndIf;
 	
-	// 
-	// 
+	// Assume MacOS and Linux have a VoIP app.
+	// Errors  will handled at the startup.
 	Return ProtocolName;
 EndFunction
 
@@ -1705,10 +1705,10 @@ Function PresentationStartChoiceCompletionAdditionalParameters()
 EndFunction 
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
-// 
-// 
-// 
+// Returns a string in which all special characters (except for the hyphen, underscore, and dot)
+// are replaced with the percent sign ( % ) followed by 2 hexadecimal digits
+// and whitespaces encoded as the plus sign.
+// That is, the string is encoded as POST data in the content type "application/x-www-form-urlencoded."
 
 Function StringDecoding(String)
 	Result = "";
@@ -1974,7 +1974,7 @@ EndFunction
 
 // Parameters:
 //   HandlerName - String - The full path to the function to be executed.
-//                             For example, "_DemoStandardSubsystemsClient.OpenMeetingDocForm".
+//                             For example, "StandardSubsystemsClient.OpenMeetingDocForm".
 //   Parameters - Structure:
 //     * ContactInformation    - See ParameterContactInfoForCommandExecution
 //     * AdditionalParameters - See CommandRuntimeAdditionalParameters
@@ -2079,7 +2079,7 @@ Procedure BeforeEnterComment(ContactInformation, AdditionalParameters) Export
 	Result.Insert("ItemForPlacementName", FoundRow.ItemForPlacementName);
 	Result.Insert("ContactInformationType", FoundRow.Type);
 	
-	EnterComment(AdditionalParameters.Form, AdditionalParameters.AttributeName, FoundRow, Result, 
+	EnterAComment(AdditionalParameters.Form, AdditionalParameters.AttributeName, FoundRow, Result, 
 		AdditionalParameters.AsynchronousCall);
 
 EndProcedure

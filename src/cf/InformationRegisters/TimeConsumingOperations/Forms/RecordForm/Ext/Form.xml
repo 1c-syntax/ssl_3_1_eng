@@ -38,7 +38,7 @@
 							<v8:content>Main</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="GeneralPageExtendedTooltip" id="31"/>
+					<ExtendedTooltip name="PageGeneralExtendedTooltip" id="31"/>
 					<ChildItems>
 						<InputField name="CreationDate" id="4">
 							<DataPath>Record.CreationDate</DataPath>

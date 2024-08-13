@@ -22,7 +22,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="TitleGroup1ExtendedTooltip" id="86"/>
+			<ExtendedTooltip name="TitleGroupExtendedTooltip" id="86"/>
 			<ChildItems>
 				<LabelField name="BusinessProcessLine" id="55">
 					<DataPath>BusinessProcessLine</DataPath>
@@ -117,10 +117,10 @@
 							</xr:Value>
 						</xr:Item>
 					</ChoiceList>
-					<ContextMenu name="ShowTasks1ContextMenu" id="50"/>
+					<ContextMenu name="ShowTasksContextMenu" id="50"/>
 					<ExtendedTooltip name="ShowTasksExtendedTooltip" id="90"/>
 					<Events>
-						<Event name="OnChange">ShowTasks1OnChange</Event>
+						<Event name="OnChange">ShowTasksOnChange</Event>
 					</Events>
 				</InputField>
 				<InputField name="ByAuthor" id="18">
@@ -223,7 +223,7 @@
 							<v8:content>Search</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="SearchGroupExtendedTooltip" id="160"/>
+					<ExtendedTooltip name="GroupSearchExtendedTooltip" id="160"/>
 					<ChildItems>
 						<Button name="Find" id="151">
 							<Type>CommandBarButton</Type>
@@ -237,7 +237,7 @@
 						</Button>
 					</ChildItems>
 				</ButtonGroup>
-				<ButtonGroup name="ListCommandBar" id="45">
+				<ButtonGroup name="CommandBarOfList" id="45">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -245,7 +245,7 @@
 						</v8:item>
 					</Title>
 					<CommandSource>Form</CommandSource>
-					<ExtendedTooltip name="ListCommandBarExtendedTooltip" id="99"/>
+					<ExtendedTooltip name="CommandBarOfListExtendedTooltip" id="99"/>
 				</ButtonGroup>
 				<ButtonGroup name="AcceptForExecutionGroup" id="157">
 					<Title>
@@ -464,29 +464,29 @@
 			</ContextMenu>
 			<AutoCommandBar name="ListCommandBar" id="3"/>
 			<ExtendedTooltip name="ListExtendedTooltip" id="115"/>
-			<SearchStringAddition name="ListSearchString_SSLy" id="171">
+			<SearchStringAddition name="ListSearchString" id="171">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchStringRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchString_SSLyContextMenu" id="172"/>
-				<ExtendedTooltip name="ListSearchString_SSLyExtendedTooltip" id="173"/>
+				<ContextMenu name="ListSearchStringContextMenu" id="172"/>
+				<ExtendedTooltip name="ListSearchStringExtendedTooltip" id="173"/>
 			</SearchStringAddition>
-			<ViewStatusAddition name="ListViewStatus_SSLy" id="174">
+			<ViewStatusAddition name="ListViewStatus" id="174">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>ViewStatusRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListViewStatus_SSLyContextMenu" id="175"/>
-				<ExtendedTooltip name="ListViewStatus_SSLyExtendedTooltip" id="176"/>
+				<ContextMenu name="ListViewStatusContextMenu" id="175"/>
+				<ExtendedTooltip name="ListViewStatusExtendedTooltip" id="176"/>
 			</ViewStatusAddition>
-			<SearchControlAddition name="ListSearchControl_SSLy" id="177">
+			<SearchControlAddition name="ListSearchControl" id="177">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchControl</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchControl_SSLyContextMenu" id="178"/>
-				<ExtendedTooltip name="ListSearchControl_SSLyExtendedTooltip" id="179"/>
+				<ContextMenu name="ListSearchControlContextMenu" id="178"/>
+				<ExtendedTooltip name="ListSearchControlExtendedTooltip" id="179"/>
 			</SearchControlAddition>
 			<Events>
 				<Event name="BeforeAddRow">ListBeforeAddRow</Event>
@@ -557,7 +557,7 @@
 								<xr:LoadTransparent>false</xr:LoadTransparent>
 							</ValuesPicture>
 							<FileDragMode>AsFile</FileDragMode>
-							<ContextMenu name="Stopped1ContextMenu" id="60"/>
+							<ContextMenu name="StoppedContextMenu" id="60"/>
 							<ExtendedTooltip name="StoppedExtendedTooltip" id="118"/>
 						</PictureField>
 					</ChildItems>
@@ -723,7 +723,7 @@
 									<Width>10</Width>
 									<HorizontalStretch>false</HorizontalStretch>
 									<Wrap>false</Wrap>
-									<ContextMenu name="DueDateContextMenu" id="31"/>
+									<ContextMenu name="TaskDueDateContextMenu" id="31"/>
 									<ExtendedTooltip name="TaskDueDateExtendedTooltip" id="130"/>
 								</InputField>
 								<CheckBoxField name="Executed" id="10">

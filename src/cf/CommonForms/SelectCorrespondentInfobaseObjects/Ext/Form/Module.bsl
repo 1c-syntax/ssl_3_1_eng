@@ -150,9 +150,9 @@ Procedure ValueChoiceProcessing1()
 		Return
 	EndIf;
 	
-	// 
-	//     
-	//     
+	// Indirectly determine the group flag:
+	//     0 - The group is not marked for deletion.
+	//     1 - The group is marked for deletion.
 	
 	IsFolder = CurrentData.PictureIndex=0 Or CurrentData.PictureIndex=1;
 	If (IsFolder And ChoiceFoldersAndItems=FoldersAndItems.Items) 

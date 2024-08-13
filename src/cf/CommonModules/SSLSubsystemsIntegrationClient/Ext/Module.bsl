@@ -506,6 +506,11 @@ EndProcedure
 // See ReportsClientOverridable.AtStartValueSelection.
 Procedure AtStartValueSelection(ReportForm, SelectionConditions, ClosingNotification1, StandardProcessing) Export
 	
+	If CommonClient.SubsystemExists("StandardSubsystems.UserMonitoring") Then
+		ModuleUserMonitoringInternalClient = CommonClient.CommonModule("UserMonitoringInternalClient");
+		ModuleUserMonitoringInternalClient.AtStartValueSelection(ReportForm, SelectionConditions, ClosingNotification1, StandardProcessing);
+	EndIf;
+	
 	If CommonClient.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagementInternalClient = CommonClient.CommonModule("AccessManagementInternalClient");
 		ModuleAccessManagementInternalClient.AtStartValueSelection(ReportForm, SelectionConditions, ClosingNotification1, StandardProcessing);

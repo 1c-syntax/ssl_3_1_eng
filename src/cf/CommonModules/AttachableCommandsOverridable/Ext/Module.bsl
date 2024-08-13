@@ -49,22 +49,22 @@ EndProcedure
 //
 // Parameters:
 //  InterfaceSettings4 - ValueTable:
-//   * Key              - String        - a setting name, for example, AddMotivators.
-//   * TypeDescription     - TypeDescription - the setting type, for example, New TypesDetails("Boolean").
-//   * AttachableObjectsKinds - String - a name of metadata object kinds, for which this setting will be available,
-//                                             comma-separated. For example, "Report" or "Report, Data processor".
+//   * Key              - String        - Setting name. For example, AddMotivators.
+//   * TypeDescription     - TypeDescription - Setting type. For example, New TypeDescription("Boolean").
+//   * AttachableObjectsKinds - String - Comma-separated metadata object types for which this setting will be available.
+//                                             For example, "Report" or "Report, Data processor".
 //
 // Example:
-//  To provide your own flag AddMotivators in the OnDefineSettings of the data processor module:
+//  To provide a custom AddMotivators flag in the OnDefineSettings of the data processor module:
 //  Procedure OnDefineSettings(Settings) Export
-//    Settings.AddMotivators = True; // the procedure AddMotivators is called
-//    Settings.Placement.Add(Metadata.Documents.Questionnaires);
+//    Settings.AddMotivators = True; // Call the AddMotivators procedure.
+//    Settings.Location.Add(Metadata.Documents.Questionnaires);
 //  EndProcedure
 //
-//  implement the following code:
-//  Setting = InterfaceSettings.Add();
+//  Implement the following code:
+//  Setting = InterfaceSettings4.Add();
 //  Setting.Key = "AddMotivators";
-//  Setting.TypesDetails = New TypesDetails("Boolean");
+//  Setting.TypeDescription = New TypeDescription("Boolean");
 //  Setting.AttachableObjectsKinds = "DataProcessor";
 //
 Procedure OnDefineAttachableObjectsSettingsComposition(InterfaceSettings4) Export

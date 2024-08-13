@@ -105,7 +105,7 @@ Remember to specify bot details and picture as described at: &lt;link https://tl
 			<Behavior>Usual</Behavior>
 			<Representation>NormalSeparation</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="ParametersGroupExtendedTooltip" id="4"/>
+			<ExtendedTooltip name="GroupParametersExtendedTooltip" id="4"/>
 			<ChildItems>
 				<InputField name="BotName" id="11">
 					<DataPath>Description</DataPath>

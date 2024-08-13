@@ -27,7 +27,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Submit an application for certificate issuance…</v8:content>
+							<v8:content>Submit certificate application...</v8:content>
 						</v8:item>
 					</Title>
 					<ExtendedTooltip name="AddCertificateIssueRequestExtendedTooltip" id="101"/>
@@ -152,7 +152,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Submit an application for certificate issuance...</v8:content>
+					<v8:content>Submit certificate application...</v8:content>
 				</v8:item>
 			</Title>
 			<Picture>

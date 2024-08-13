@@ -47,8 +47,8 @@
 </v8:content>
 						</v8:item>
 					</Title>
-					<ContextMenu name="NoteDecorationContextMenu" id="5"/>
-					<ExtendedTooltip name="NoteDecorationExtendedTooltip" id="6"/>
+					<ContextMenu name="DecorationNoteContextMenu" id="5"/>
+					<ExtendedTooltip name="DecorationNoteExtendedTooltip" id="6"/>
 				</LabelDecoration>
 				<InputField name="AdditionalAttributesManualCheckJustification" id="1">
 					<DataPath>AdditionalAttributesManualCheckJustification</DataPath>

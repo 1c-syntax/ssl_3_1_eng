@@ -242,7 +242,7 @@
 													<v8:content>Obsolete settings</v8:content>
 												</v8:item>
 											</Title>
-											<ExtendedTooltip name="ClearOutdatedSettingsExtendedTooltip" id="234"/>
+											<ExtendedTooltip name="ClearObsoleteSettingsExtendedTooltip" id="234"/>
 										</Button>
 										<Button name="ClearReportAndInterfaceSettings" id="100">
 											<Type>CommandBarButton</Type>
@@ -298,7 +298,7 @@
 														</v8:item>
 													</Title>
 													<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-													<ExtendedTooltip name="ClearOutdatedSettingsOfAllUsersExtendedTooltip" id="236"/>
+													<ExtendedTooltip name="ClearObsoleteSettingsOfAllUsersExtendedTooltip" id="236"/>
 												</Button>
 											</ChildItems>
 										</ButtonGroup>
@@ -356,8 +356,8 @@
 												<xr:LoadTransparent>false</xr:LoadTransparent>
 											</Picture>
 											<FileDragMode>AsFile</FileDragMode>
-											<ContextMenu name="TimeConsumingOperationPicture2ContextMenu" id="218"/>
-											<ExtendedTooltip name="TimeConsumingOperationPicture2ExtendedTooltip" id="219"/>
+											<ContextMenu name="PictureTimeConsumingOperationContextMenu" id="218"/>
+											<ExtendedTooltip name="PictureTimeConsumingOperationExtendedTooltip" id="219"/>
 										</PictureDecoration>
 										<LabelDecoration name="TimeConsumingOperationNote" id="220">
 											<Title formatted="false">
@@ -367,8 +367,8 @@
 												</v8:item>
 											</Title>
 											<GroupVerticalAlign>Center</GroupVerticalAlign>
-											<ContextMenu name="TimeConsumingOperationNote1ContextMenu" id="221"/>
-											<ExtendedTooltip name="TimeConsumingOperationNote1ExtendedTooltip" id="222"/>
+											<ContextMenu name="TimeConsumingOperationNoteContextMenu" id="221"/>
+											<ExtendedTooltip name="TimeConsumingOperationNoteExtendedTooltip" id="222"/>
 										</LabelDecoration>
 									</ChildItems>
 								</Page>
@@ -571,7 +571,7 @@
 																			</Title>
 																			<TitleLocation>None</TitleLocation>
 																			<EditMode>EnterOnInput</EditMode>
-																			<ContextMenu name="InterfaceSettingsContextMenu" id="33"/>
+																			<ContextMenu name="InterfacePreferencesContextMenu" id="33"/>
 																			<ExtendedTooltip name="InterfacePreferencesExtendedTooltip" id="153"/>
 																		</LabelField>
 																	</ChildItems>
@@ -989,8 +989,8 @@
 										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
-									<ContextMenu name="InformationPicture7ContextMenu" id="70"/>
-									<ExtendedTooltip name="InformationPicture7ExtendedTooltip" id="182"/>
+									<ContextMenu name="PictureOfInformationContextMenu" id="70"/>
+									<ExtendedTooltip name="PictureOfInformationExtendedTooltip" id="182"/>
 								</PictureDecoration>
 								<LabelDecoration name="InfoText" id="71">
 									<Title formatted="false">
@@ -1001,7 +1001,7 @@ that are allowed to access the infobase.</v8:content>
 										</v8:item>
 									</Title>
 									<VerticalAlign>Center</VerticalAlign>
-									<ContextMenu name="InfoText1ContextMenu" id="72"/>
+									<ContextMenu name="InfoTextContextMenu" id="72"/>
 									<ExtendedTooltip name="InfoTextExtendedTooltip" id="183"/>
 								</LabelDecoration>
 							</ChildItems>
@@ -1041,8 +1041,8 @@ that are allowed to access the infobase.</v8:content>
 										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
-									<ContextMenu name="InformationPicture71ContextMenu" id="228"/>
-									<ExtendedTooltip name="InformationPicture71ExtendedTooltip" id="229"/>
+									<ContextMenu name="PictureOfInformation1ContextMenu" id="228"/>
+									<ExtendedTooltip name="PictureOfInformation1ExtendedTooltip" id="229"/>
 								</PictureDecoration>
 								<LabelDecoration name="InsufficientRightsText" id="230">
 									<Title formatted="false">

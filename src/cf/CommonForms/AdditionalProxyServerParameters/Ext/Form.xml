@@ -13,7 +13,7 @@
 		<HorizontalAlign>Right</HorizontalAlign>
 		<Autofill>false</Autofill>
 		<ChildItems>
-			<Button name="FormOKButton1" id="25">
+			<Button name="FormOKButton" id="25">
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.OKButton</CommandName>
@@ -23,7 +23,7 @@
 						<v8:content>OK</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="FormOKButton1ExtendedTooltip" id="30"/>
+				<ExtendedTooltip name="FormOKButtonExtendedTooltip" id="30"/>
 			</Button>
 			<Button name="FormCancel" id="29">
 				<Type>CommandBarButton</Type>
@@ -69,7 +69,7 @@
 									<v8:content>HTTP</v8:content>
 								</v8:item>
 							</Title>
-							<ContextMenu name="ServerHTTPContextMenu" id="5"/>
+							<ContextMenu name="HTTPServerContextMenu" id="5"/>
 							<ExtendedTooltip name="HTTPServerExtendedTooltip" id="35"/>
 							<Events>
 								<Event name="OnChange">HTTPServerOnChange</Event>
@@ -91,7 +91,7 @@
 							</EditFormat>
 							<MinValue xsi:type="xs:decimal">0</MinValue>
 							<MaxValue xsi:type="xs:decimal">65535</MaxValue>
-							<ContextMenu name="PortHTTPContextMenu" id="7"/>
+							<ContextMenu name="HTTPPortContextMenu" id="7"/>
 							<ExtendedTooltip name="HTTPPortExtendedTooltip" id="36"/>
 						</InputField>
 					</ChildItems>
@@ -116,7 +116,7 @@
 									<v8:content>HTTPS</v8:content>
 								</v8:item>
 							</Title>
-							<ContextMenu name="ServerHTTPSContextMenu" id="9"/>
+							<ContextMenu name="HTTPSServerContextMenu" id="9"/>
 							<ExtendedTooltip name="HTTPSServerExtendedTooltip" id="38"/>
 							<Events>
 								<Event name="OnChange">HTTPServerOnChange</Event>
@@ -138,7 +138,7 @@
 							</EditFormat>
 							<MinValue xsi:type="xs:decimal">0</MinValue>
 							<MaxValue xsi:type="xs:decimal">65535</MaxValue>
-							<ContextMenu name="PortHTTPSContextMenu" id="11"/>
+							<ContextMenu name="HTTPSPortContextMenu" id="11"/>
 							<ExtendedTooltip name="HTTPSPortExtendedTooltip" id="39"/>
 						</InputField>
 					</ChildItems>
@@ -169,7 +169,7 @@
 									<v8:content>FTP</v8:content>
 								</v8:item>
 							</Title>
-							<ContextMenu name="ServerFTPContextMenu" id="13"/>
+							<ContextMenu name="FTPServerContextMenu" id="13"/>
 							<ExtendedTooltip name="FTPServerExtendedTooltip" id="41"/>
 							<Events>
 								<Event name="OnChange">HTTPServerOnChange</Event>
@@ -191,7 +191,7 @@
 							</EditFormat>
 							<MinValue xsi:type="xs:decimal">0</MinValue>
 							<MaxValue xsi:type="xs:decimal">65535</MaxValue>
-							<ContextMenu name="PortFTPContextMenu" id="15"/>
+							<ContextMenu name="FTPPortContextMenu" id="15"/>
 							<ExtendedTooltip name="FTPPortExtendedTooltip" id="42"/>
 						</InputField>
 					</ChildItems>

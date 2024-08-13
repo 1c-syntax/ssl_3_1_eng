@@ -272,8 +272,8 @@ EndProcedure
 
 #Region Private
 
-// 
-// 
+// ACC:361-off - The preprocessor command wraps only the function implementation
+// (rather than the entire function) to make it return a "ValueList" type value.
 
 // Returns a list of user report options.
 //
@@ -283,13 +283,10 @@ Function GetList(ReportKey, Val User = Undefined) Export // CAC:307 - Same as th
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 	AuthorReportsOptions = AuthorReportsOptions(ReportKey, User);
-	
 	If AuthorReportsOptions <> Undefined Then
-		
-		For Each String In AuthorReportsOptions Do
-			List.Add(String.VariantKey, String.Description);
+		For Each ReportVariant In AuthorReportsOptions Do
+			List.Add(ReportVariant.VariantKey, ReportVariant.Description);
 		EndDo;
-		
 	EndIf;
 
 #EndIf

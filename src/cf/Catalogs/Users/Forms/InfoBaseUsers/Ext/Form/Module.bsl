@@ -347,7 +347,7 @@ Procedure FillIBUsers()
 		String = Upload0.Find(IBUser.UUID, "IBUserID");
 		PropertiesIBUser = Users.IBUserProperies(IBUser.UUID);
 		If PropertiesIBUser = Undefined Then
-			PropertiesIBUser = Users.NewIBUserDetails();
+			PropertiesIBUser = Users.NewIBUserDetails(False);
 		EndIf;
 		
 		If String <> Undefined Then
@@ -375,44 +375,44 @@ Procedure FillIBUsers()
 			Continue;
 		EndIf;
 		
-		NewRow = IBUsers.Add();
-		NewRow.FullName                    = PropertiesIBUser.FullName;
-		NewRow.Name                          = PropertiesIBUser.Name;
-		NewRow.IBUserID  = PropertiesIBUser.UUID;
-		NewRow.StandardAuthentication    = PropertiesIBUser.StandardAuthentication;
-		NewRow.OpenIDAuthentication         = PropertiesIBUser.OpenIDAuthentication;
-		NewRow.OpenIDConnectAuthentication  = PropertiesIBUser.OpenIDConnectAuthentication;
-		NewRow.AccessTokenAuthentication = PropertiesIBUser.AccessTokenAuthentication;
-		NewRow.OSAuthentication             = PropertiesIBUser.OSAuthentication;
-		NewRow.OSUser               = PropertiesIBUser.OSUser;
+		IBUser = IBUsers.Add();
+		IBUser.FullName                    = PropertiesIBUser.FullName;
+		IBUser.Name                          = PropertiesIBUser.Name;
+		IBUser.IBUserID  = PropertiesIBUser.UUID;
+		IBUser.StandardAuthentication    = PropertiesIBUser.StandardAuthentication;
+		IBUser.OpenIDAuthentication         = PropertiesIBUser.OpenIDAuthentication;
+		IBUser.OpenIDConnectAuthentication  = PropertiesIBUser.OpenIDConnectAuthentication;
+		IBUser.AccessTokenAuthentication = PropertiesIBUser.AccessTokenAuthentication;
+		IBUser.OSAuthentication             = PropertiesIBUser.OSAuthentication;
+		IBUser.OSUser               = PropertiesIBUser.OSUser;
 		
 		If String = Undefined Then
 			// The infobase user is not in the catalog.
-			NewRow.AddedInDesigner = True;
+			IBUser.AddedInDesigner = True;
 		Else
-			NewRow.Ref                           = String.Ref;
-			NewRow.MappedToExternalUser = String.IsExternalUser;
+			IBUser.Ref                           = String.Ref;
+			IBUser.MappedToExternalUser = String.IsExternalUser;
 			
-			NewRow.ModifiedInDesigner = ModifiedInDesigner;
+			IBUser.ModifiedInDesigner = ModifiedInDesigner;
 		EndIf;
 		
 	EndDo;
 	
 	Filter = New Structure("Mapped", False);
-	Rows = Upload0.FindRows(Filter);
-	For Each String In Rows Do
-		NewRow = IBUsers.Add();
-		NewRow.FullName                        = String.FullName;
-		NewRow.Ref                           = String.Ref;
-		NewRow.MappedToExternalUser = String.IsExternalUser;
-		NewRow.DeletedInDesigner             = True;
-		NonExistingIBUsersIDs.Add(String.IBUserID);
+	UsersUnmapped = Upload0.FindRows(Filter);
+	For Each TableRow In UsersUnmapped Do
+		IBUser = IBUsers.Add();
+		IBUser.FullName                        = TableRow.FullName;
+		IBUser.Ref                           = TableRow.Ref;
+		IBUser.MappedToExternalUser = TableRow.IsExternalUser;
+		IBUser.DeletedInDesigner             = True;
+		NonExistingIBUsersIDs.Add(TableRow.IBUserID);
 	EndDo;
 	
 	Filter = New Structure("IBUserID", IBUserCurrentID);
-	Rows = IBUsers.FindRows(Filter);
-	If Rows.Count() > 0 Then
-		Items.IBUsers.CurrentRow = Rows[0].GetID();
+	CurrentUser = IBUsers.FindRows(Filter);
+	If CurrentUser.Count() > 0 Then
+		Items.IBUsers.CurrentRow = CurrentUser[0].GetID();
 	EndIf;
 	
 EndProcedure

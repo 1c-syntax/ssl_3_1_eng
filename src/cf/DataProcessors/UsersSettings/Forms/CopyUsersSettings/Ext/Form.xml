@@ -51,7 +51,7 @@
 				<Type>CommandBarButton</Type>
 				<Representation>Text</Representation>
 				<CommandName>Form.StandardCommand.Close</CommandName>
-				<ExtendedTooltip name="FormClose3ExtendedTooltip" id="71"/>
+				<ExtendedTooltip name="FormCloseExtendedTooltip" id="71"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
@@ -167,7 +167,7 @@
 								</v8:item>
 							</Title>
 							<Hyperlink>true</Hyperlink>
-							<ContextMenu name="SelectUsers2ContextMenu" id="59"/>
+							<ContextMenu name="SelectUsersContextMenu" id="59"/>
 							<ExtendedTooltip name="SelectUsersExtendedTooltip" id="76"/>
 							<Events>
 								<Event name="Click">SelectUsers</Event>

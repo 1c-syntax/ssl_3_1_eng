@@ -230,7 +230,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// StartPage page
 
 &AtClient
 Procedure ExchangeMessagesTransportKindOnChange(Item)
@@ -254,7 +254,7 @@ Procedure DataExchangeDirectoryClick(Item)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// StatisticsPage page
 
 &AtClient
 Procedure EndDataMappingOnChange(Item)
@@ -271,7 +271,7 @@ Procedure LoadMessageAfterMappingOnChange(Item)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// QuestionAboutExportContentPage page
 
 &AtClient
 Procedure ExportAdditionExportVariantOnChange(Item)
@@ -378,7 +378,7 @@ EndProcedure
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// StartPage page
 
 &AtClient
 Procedure OpenDataExchangeDirectory(Command)
@@ -400,7 +400,7 @@ Procedure ConfigureExchangeMessagesTransportParameters(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// StatisticsPage page
 
 &AtClient
 Procedure RefreshAllMappingInformation(Command)
@@ -514,7 +514,7 @@ Procedure OpenMappingForm(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// MappingCompletePage page
 
 &AtClient
 Procedure GoToDataImportEventLog(Command)
@@ -531,7 +531,7 @@ Procedure GoToDataExportEventLog(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// QuestionAboutExportContentPage page
 
 &AtClient
 Procedure ExportAdditionGeneralDocumentsFilter(Command)
@@ -590,8 +590,9 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// 1C-SUPPLIED SECTION
 ////////////////////////////////////////////////////////////////////////////////
+//
 
 #Region PartToSupply
 
@@ -663,10 +664,10 @@ EndProcedure
 &AtClient
 Procedure NavigationNumberOnChange(Val IsMoveNext)
 	
-	// Executing navigation event handlers.
+	// Run navigation event handlers.
 	ExecuteNavigationEventHandlers(IsMoveNext);
 	
-	// Setting page view.
+	// Set up page view.
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
@@ -680,7 +681,7 @@ Procedure NavigationNumberOnChange(Val IsMoveNext)
 	
 	Items.NavigationPanel.CurrentPage.Enabled = Not (IsMoveNext And NavigationRowCurrent.TimeConsumingOperation);
 	
-	// Setting the default button.
+	// Set the default button.
 	NextButton = GetFormButtonByCommandName(Items.NavigationPanel.CurrentPage, "NextCommand");
 	
 	If NextButton <> Undefined Then
@@ -903,8 +904,9 @@ EndProcedure
 #EndRegion
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// OVERRIDABLE SECTION
 ////////////////////////////////////////////////////////////////////////////////
+//
 
 #Region OverridablePart
 
@@ -1193,11 +1195,11 @@ Procedure InitializeExchangeMessagesTransportSettings()
 	DefaultTransportKind = TransportSettings.DefaultExchangeMessagesTransportKind;
 	CorrespondentEndpoint = TransportSettings.WSCorrespondentEndpoint;
 	
-	ConfiguredTransportTypes = InformationRegisters.DataExchangeTransportSettings.ConfiguredTransportTypes(Object.InfobaseNode);
+	ConfiguredTransportKinds = InformationRegisters.DataExchangeTransportSettings.ConfiguredTransportKinds(Object.InfobaseNode);
 	
 	SkipTransportPage = True;
 	
-	If ConfiguredTransportTypes.Count() > 1
+	If ConfiguredTransportKinds.Count() > 1
 		And Not ValueIsFilled(Object.ExchangeMessagesTransportKind) Then
 		SkipTransportPage = ExportAdditionExtendedMode;
 	EndIf;
@@ -1216,19 +1218,19 @@ Procedure InitializeExchangeMessagesTransportSettings()
 		And Object.ExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.WS
 		And ValueIsFilled(CorrespondentEndpoint);
 		
-	OnChangeExchangeMessagesTransportKind(True, ConfiguredTransportTypes);
+	OnChangeExchangeMessagesTransportKind(True, ConfiguredTransportKinds);
 	
 EndProcedure
 
 &AtServer
-Procedure OnChangeExchangeMessagesTransportKind(Initialize = False, ConfiguredTransportTypes = Undefined)
+Procedure OnChangeExchangeMessagesTransportKind(Initialize = False, ConfiguredTransportKinds = Undefined)
 	
 	ExchangeOverExternalConnection = (Object.ExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.COM);
 	ExchangeOverWebService         = (Object.ExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.WS);
 	
 	If ExchangeOverWebService Then
-		SettingsStructure = InformationRegisters.DataExchangeTransportSettings.TransportSettingsWS(Object.InfobaseNode);
-		FillPropertyValues(ThisObject, SettingsStructure, "WSRememberPassword");
+		SettingsStructure_ = InformationRegisters.DataExchangeTransportSettings.TransportSettingsWS(Object.InfobaseNode);
+		FillPropertyValues(ThisObject, SettingsStructure_, "WSRememberPassword");
 		If WSRememberPassword Then
 			WSPassword = String(ThisObject.UUID);
 		EndIf;
@@ -1243,7 +1245,7 @@ Procedure OnChangeExchangeMessagesTransportKind(Initialize = False, ConfiguredTr
 		Items.ConfigureExchangeMessagesTransportParameters.Visible = DataExchangeServer.HasRightsToAdministerExchanges();
 		
 		DataExchangeServer.FillChoiceListWithAvailableTransportTypes(Object.InfobaseNode,
-			Items.ExchangeMessagesTransportKind, ConfiguredTransportTypes);
+			Items.ExchangeMessagesTransportKind, ConfiguredTransportKinds);
 			
 		TransportChoiceList = Items.ExchangeMessagesTransportKind.ChoiceList;
 	
@@ -1392,8 +1394,8 @@ Procedure InitializeExportAdditionAttributes()
 	ExportAdditionSettings = DataExchangeServer.InteractiveExportChange(
 		Object.InfobaseNode, ThisObject.UUID, ExportAdditionExtendedMode);
 		
-	// 
-	// 
+	// Configure the form.
+	// Convert it into the form attribute of the type "DataProcessorObject" (to access the form seamlessly).
 	DataExchangeServer.InteractiveExportChangeAttributeBySettings(ThisObject, ExportAdditionSettings, "ExportAddition");
 	
 	AdditionScenarioParameters = ExportAddition.AdditionScenarioParameters;
@@ -1709,7 +1711,7 @@ EndFunction
 #EndRegion
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Idle handlers.
 
 &AtClient
 Procedure TimeConsumingOperationIdleHandler()
@@ -1752,7 +1754,7 @@ Procedure TimeConsumingOperationIdleHandler()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Procedures and function of the master.
 
 &AtClient
 Function GetSelectedRowKeys(SelectedRows)
@@ -1848,7 +1850,7 @@ Procedure ExpandStatisticsTree(Composite = "")
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// SECTION OF PROCESSING BACKGROUND JOBS
 
 &AtClient
 Function BackgroundJobParameters()
@@ -2130,7 +2132,7 @@ Procedure TestConnectionAndSaveSettings(Cancel)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Pages for checking running synchronizations.
 
 &AtClient
 Function Attachable_PageDataExchangeJobCheck_OnOpen(Cancel, SkipPage, IsMoveNext)
@@ -2190,7 +2192,7 @@ Procedure CancelQueueAndResumeOnServer()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Pages of data receipt processing (exchange message transport).
 
 &AtClient
 Function Attachable_DataAnalysisWaitingPageOnOpen(Cancel, SkipPage, IsMoveNext)
@@ -2366,7 +2368,7 @@ Procedure GetDataToTemporaryDirectoryAtServerCompletion()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Data analysis pages (automatic data mapping).
 
 &AtClient
 Function Attachable_DataAnalysisPageOnOpen(Cancel, SkipPage, IsMoveNext)
@@ -2501,7 +2503,7 @@ Procedure AtalyzeDataAtServerCompletion()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Pages of data mapping processing (interactive data mapping).
 
 &AtClient
 Function Attachable_StatisticsInformationPageOnOpen(Cancel, SkipPage, IsMoveNext)
@@ -2575,7 +2577,7 @@ Procedure Attachable_GoStepForwardWithDeferredProcessing()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Pages of data import processing
 
 &AtClient
 Function Attachable_DataImportOnOpen(Cancel, SkipPage, IsMoveNext)
@@ -2653,7 +2655,7 @@ Procedure DataImportCompletion()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Additional export pages (registration to additional data export).
 
 &AtClient
 Function Attachable_QuestionAboutExportCompositionPageOnOpen(Cancel, SkipPage, IsMoveNext)
@@ -2797,7 +2799,7 @@ Procedure OnCompleteDataRecordingAtServer(HandlerParameters, DataRegistered, Err
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Data export processing pages
 
 &AtClient
 Function Attachable_DataExportOnOpen(Cancel, SkipPage, IsMoveNext)
@@ -3102,7 +3104,7 @@ Procedure OnCompleteDataExportViaInternalPublication()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Summary information pages.
 
 &AtClient
 Function Attachable_MappingCompletePageOnOpen(Cancel, SkipPage, Val IsMoveNext)
@@ -3120,7 +3122,7 @@ EndFunction
 #EndRegion
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// NAVIGATION INITIALIZATION SECTION
 
 &AtServer
 Procedure FillNavigationTable()

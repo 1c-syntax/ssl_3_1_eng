@@ -57,7 +57,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 				AllProtocolsThroughSingleProxy = True;
 			Else
 			
-				// 
+				// If the settings contain additional proxy servers, read them from the settings.
 				// 				
 				ParameterValue = AdditionalProxy.Get("http");
 				If TypeOf(ParameterValue) = Type("Structure") Then
@@ -83,11 +83,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 	EndIf;
 	
-	// 
-	// 
-	// 
-	// 
-	// 
+	// Proxy server options:
+	// 0 - Do not use proxy (default). Corresponds to "New InternetProxy(False))".
+	// 1 - Use the system proxy settings. Same as "New InternetProxy(True))".
+	// 2 - Use the custom proxy settings.
+	// This option allows for manual proxy configuration.
 	ProxyServerUseCase = ?(UseProxy, ?(UseSystemSettings = True, 1, 2), 0);
 	If ProxyServerUseCase = 0 Then
 		InitializeFormItems(ThisObject, EmptyProxyServerSettings());
@@ -163,11 +163,11 @@ Procedure ProxyServerUseCasesOnChange(Item)
 	UseSystemSettings = (ProxyServerUseCase = 1);
 	
 	ProxySettings = Undefined;
-	// 
-	// 
-	// 
-	// 
-	// 
+	// Proxy server options:
+	// 0 - Do not use proxy (default). Corresponds to "New InternetProxy(False))".
+	// 1 - Use the system proxy settings. Same as "New InternetProxy(True))".
+	// 2 - Use the custom proxy settings.
+	// This option allows for manual proxy configuration.
 	If ProxyServerUseCase = 0 Then
 		ProxySettings = EmptyProxyServerSettings();
 	ElsIf ProxyServerUseCase = 1 Then
@@ -211,8 +211,8 @@ EndProcedure
 &AtClient
 Procedure OKButton(Command)
 	
-	// 
-	// 
+	// Saves the proxy server settings, closes the form,
+	// and returns the proxy parameters.
 	SaveProxyServerSettings();
 	
 EndProcedure
@@ -248,8 +248,8 @@ Procedure InitializeFormItems(Form, ProxySettings)
 		Form.ExceptionServers.LoadValues(ProxySettings.BypassProxyOnAddresses);
 		Form.UseOSAuthentication = ?(ProxySettings.UseOSAuthentication, 1, 0);
 		
-		// 
-		// 
+		// If settings for all protocols match the default proxy settings,
+		// assume that the same proxy is used for all the protocols.
 		Form.AllProtocolsThroughSingleProxy = (Form.Server = Form.HTTPServer
 			And Form.HTTPServer = Form.HTTPSServer
 			And Form.HTTPSServer = Form.FTPServer
@@ -266,8 +266,8 @@ EndProcedure
 &AtClientAtServerNoContext
 Procedure SetVisibilityAvailability(Form)
 	
-	// 
-	// 
+	// Toggle the availability of the proxy parameter editor group
+	// depending on the given proxy setup option.
 	Form.EditingAvailable = (Form.ProxyServerUseCase = 2);
 	
 	Form.Items.ServerAddressGroup.Enabled = Form.EditingAvailable;
@@ -437,8 +437,8 @@ Function NormalizedProxyServerAddress(Val ProxyServerAddress)
 	ProxyServerAddress = TrimAll(ProxyServerAddress);
 	SpacePosition = StrFind(ProxyServerAddress, " ");
 	If SpacePosition > 0 Then
-		// 
-		// 
+		// If the server address contains the whitespace characters,
+		// take the part before the first whitespace.
 		ProxyServerAddress = Left(ProxyServerAddress, SpacePosition - 1);
 	EndIf;
 	

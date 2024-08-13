@@ -47,10 +47,10 @@
 					</xr:Value>
 				</xr:Item>
 			</ChoiceList>
-			<ContextMenu name="ReportOptionContextMenu" id="4"/>
+			<ContextMenu name="ReportVariantContextMenu" id="4"/>
 			<ExtendedTooltip name="ReportVariantExtendedTooltip" id="5"/>
 			<Events>
-				<Event name="OnChange">ReportOptionOnChange</Event>
+				<Event name="OnChange">ReportVariantOnChange</Event>
 			</Events>
 		</InputField>
 		<SpreadSheetDocumentField name="ReportTable" id="1">
@@ -64,7 +64,7 @@
 			<TitleLocation>None</TitleLocation>
 			<VerticalScrollBar>true</VerticalScrollBar>
 			<HorizontalScrollBar>true</HorizontalScrollBar>
-			<ContextMenu name="ReportTable1ContextMenu" id="2"/>
+			<ContextMenu name="ReportTableContextMenu" id="2"/>
 			<ExtendedTooltip name="ReportTableExtendedTooltip" id="6"/>
 		</SpreadSheetDocumentField>
 	</ChildItems>

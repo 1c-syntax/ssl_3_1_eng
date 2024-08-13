@@ -330,7 +330,7 @@
 			<HorizontalStretch>true</HorizontalStretch>
 			<VerticalStretch>false</VerticalStretch>
 			<MultiLine>true</MultiLine>
-			<ContextMenu name="OptionDetails1ContextMenu" id="12"/>
+			<ContextMenu name="OptionDetailsContextMenu" id="12"/>
 			<ExtendedTooltip name="OptionDetailsExtendedTooltip" id="46"/>
 		</InputField>
 	</ChildItems>

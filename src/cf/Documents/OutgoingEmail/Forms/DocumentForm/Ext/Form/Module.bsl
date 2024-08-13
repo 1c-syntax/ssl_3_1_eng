@@ -1017,7 +1017,7 @@ Procedure ImportanceLow(Command)
 	
 EndProcedure
 
-// 
+// StandardSubsystems.Properties
 
 &AtClient
 Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined, StandardProcessing = Undefined)
@@ -1031,7 +1031,7 @@ EndProcedure
 
 // End StandardSubsystems.Properties
 
-// 
+// StandardSubsystems.MessagesTemplates
 
 &AtClient
 Procedure GenerateFromTemplate(Command)
@@ -1206,7 +1206,7 @@ Procedure DoDisplayImportance()
 EndProcedure
 
 /////////////////////////////////////////////////////////////////////////////////
-//  
+//  Managing form item availability.
 
 &AtClient
 Procedure AvailabilityControl()
@@ -1852,9 +1852,9 @@ Procedure DetermineEmailEditMethod()
 		
 		MessageFormat = Interactions.DefaultMessageFormat(Users.CurrentUser());
 		
-		// 
-		// 
-		// 
+		// If the text type is not specified, the format might mismatch. Therefore:
+		// - If plain text is filled and HTML is not filled, set the format to plain text.
+		// - If HTML is filled and plain text is not, set the format to HTML.
 		If MessageFormat = Enums.EmailEditingMethods.NormalText 
 			And TrimAll(Object.Text) = "" And TrimAll(Object.HTMLText) <> "" Then
 			MessageFormat = Enums.EmailEditingMethods.HTML;
@@ -1912,8 +1912,8 @@ Procedure DetermineEmailEditMethod()
 				HTMLText = "";
 				EmailTextFormattedDocument.GetHTML(HTMLText, AttachmentsStructure);
 				
-				// 
-				// 
+				// If "EmailTextFormattedDocument" was filled using the passed parameters when composing the email message,
+				// do not read the HTML text from the message.
 				HTMLTextToCheck = EmailTextFormattedDocument.GetText();
 				If IsBlankString(HTMLTextToCheck) And ValueIsFilled(Object.HTMLText) Then
 					Object.HTMLText = Interactions.ProcessHTMLTextForFormattedDocument(
@@ -2116,11 +2116,11 @@ Procedure SetTheMessageTextAccordingToThePassedParameters(PassedParameters)
 				EndDo;
 			EndIf;
 			
+			EmailTextFormattedDocument.SetHTML(Text, Images);
+			
 			Object.TextType = Enums.EmailTextTypes.HTMLWithPictures;
 			Object.Text = EmailTextFormattedDocument.GetText();
 			Object.HTMLText = Text;
-			
-			EmailTextFormattedDocument.SetHTML(Text, Images);
 			
 		ElsIf Interactions.DefaultMessageFormat(Object.Author) = Enums.EmailEditingMethods.HTML Then
 			
@@ -2743,13 +2743,13 @@ Procedure OpenAttachmentProperties(CurrentIndexInCollection)
 	If CurrentData = Undefined Then
 		Return;
 	EndIf;
+
 	Items.Attachments.CurrentRow = CurrentData.GetID();
-		
+
 	FileAvailableForEditing = 
 		(Object.EmailStatus = PredefinedValue("Enum.OutgoingEmailStatuses.Draft"));
-	FormParameters = New Structure("AttachedFile, ReadOnly", 
-		CurrentData.Ref,Not FileAvailableForEditing);
-	OpenForm("DataProcessor.FilesOperations.Form.AttachedFile", FormParameters,, CurrentData.Ref);
+	FormParameters = New Structure("ReadOnly", Not FileAvailableForEditing);
+	FilesOperationsClient.OpenFileForm(CurrentData.Ref,, FormParameters);
 	
 EndProcedure
 
@@ -3026,7 +3026,7 @@ Procedure FillTabularSectionsByRecipientsList()
 	
 EndProcedure
 
-// 
+// StandardSubsystems.Properties
 
 &AtServer
 Procedure PropertiesExecuteDeferredInitialization()
@@ -3070,7 +3070,7 @@ EndProcedure
 
 // End StandardSubsystems.Properties
 
-// 
+// StandardSubsystems.MessagesTemplates
 
 &AtClient
 Procedure FillByTemplateAfterTemplateChoice(Result, AdditionalParameters) Export
@@ -3102,7 +3102,7 @@ Procedure DeterminePossibilityToFillEmailByTemplate()
 	
 EndProcedure
 
-// End StandardSubsystems.MessageTemplates
+// End StandardSubsystems.MessagesTemplates
 
 &AtServer
 Procedure SetSecurityWarningVisiblity()

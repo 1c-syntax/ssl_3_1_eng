@@ -29,13 +29,13 @@
 //	SectionMain.Section = "Main";
 //	SectionMain.Picture = PictureLib.SectionMain;
 //	
-//	ProformaInvoice = Metadata.Documents._DemoCustomerProformaInvoice;
+//	ProformaInvoice = Metadata.Documents.CustomerProformaInvoice;
 //	If AccessRight("View", ProformaInvoice)
 //		And Common.MetadataObjectAvailableByFunctionalOptions(ProformaInvoice) Then 
 //		
 //		SectionObject = SectionMain.Rows.Add();
-//		SectionObject.Section = ProformaInvoice.ListPresentation;
-//		SectionObject.MetadataObject = Common.MetadataObjectID(ProformaInvoice);
+//		SectionObject.Section= ProformaInvoice.ListPresentation;
+//		SectionObject.MetadataObject= Common.MetadataObjectID(ProformaInvoice);
 //	EndIf;
 //
 Procedure OnGetFullTextSearchSections(SearchSections) Export

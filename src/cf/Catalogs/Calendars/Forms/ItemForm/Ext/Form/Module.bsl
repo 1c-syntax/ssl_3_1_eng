@@ -60,8 +60,8 @@ Procedure OnWriteAtServer(Cancel, CurrentObject, WriteParameters)
 		YearNumber = CurrentYearNumber;
 	EndIf;
 	
-	//  
-	// 
+	// If the current year data was manually edited, write it "as is," 
+	// and update the periods from the template.
 	
 	If ResultModified Then
 		InformationRegisters.CalendarSchedules.WriteScheduleDataToRegister(CurrentObject.Ref, ScheduleDays, 
@@ -243,7 +243,7 @@ Procedure CurrentYearNumberOnChange(Item)
 EndProcedure
 
 &AtClient
-Procedure WorkHoursOnPeriodOutput(Item, PeriodAppearance)
+Procedure WorkScheduleCalendarOnPeriodOutput(Item, PeriodAppearance)
 	
 	For Each PeriodAppearanceString In PeriodAppearance.Dates Do
 		If ScheduleDays.Get(PeriodAppearanceString.Date) = Undefined Then
@@ -264,7 +264,7 @@ Procedure WorkHoursOnPeriodOutput(Item, PeriodAppearance)
 EndProcedure
 
 &AtClient
-Procedure WorkHoursSelection(Item, SelectedDate)
+Procedure WorkScheduleCalendarSelection(Item, SelectedDate)
 	
 	If ScheduleDays.Get(SelectedDate) = Undefined Then
 		// Include in the schedule.
@@ -567,7 +567,7 @@ Function DayPartPresentation(Val DayPart, TwelveHourTimeFormat)
 	EndIf;
 	
 	TimeFormat = ?(TwelveHourTimeFormat,
-		NStr("en = 'DF=''hh:mm tt''';"), NStr("en = 'DF=hh:mm; DE=';"));
+		NStr("en = 'DF=''hh:mm tt''';"), NStr("en = 'DF=HH:mm; DE=';"));
 		
 	Return Format(DayPart, TimeFormat);
 	
@@ -727,8 +727,8 @@ Procedure FillByTemplateAtServer(PreserveManualEditing = False)
 		EndIf;
 	EndIf;
 	
-	//  
-	// 
+	// Move the result to the original filling map to prevent overwriting 
+	// the dates that stand outside of the filling time period.
 	ScheduleDaysMap = New Map(ScheduleDays);
 	DayDate = Object.StartDate;
 	EndDate = Object.EndDate;
@@ -1057,7 +1057,7 @@ Procedure CompleteDayScheduleFilling(ValueSelected, ChoiceContext) Export
 	
 	If ChoiceContext.TemplateRowID <> Undefined Then
 		TemplateRow = Object.FillingTemplate.FindByID(ChoiceContext.TemplateRowID);
-		TemplateRow.DayAddedToSchedule = ValueSelected.WorkSchedule.Count() > 0; // 
+		TemplateRow.DayAddedToSchedule = ValueSelected.WorkSchedule.Count() > 0; // Schedule is filled.
 		TemplateRow.SchedulePresentation = DaySchedulePresentation(ThisObject, ChoiceContext.DayNumber);
 	EndIf;
 	

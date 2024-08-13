@@ -218,7 +218,7 @@
 										</Title>
 										<ExtendedTooltip name="VersionsTreeContextMenuCompareVersionsExtendedTooltip" id="113"/>
 									</Button>
-									<Button name="VersionsTreeContextMenuGoToVersion" id="110">
+									<Button name="VersionsTreeContextMenuRestoreVersion" id="110">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.RestoreVersion</CommandName>
 										<Title>
@@ -227,7 +227,7 @@
 												<v8:content>Set as active version</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="VersionsTreeContextMenuGoToVersionExtendedTooltip" id="111"/>
+										<ExtendedTooltip name="VersionsTreeContextMenuRestoreVersionExtendedTooltip" id="111"/>
 									</Button>
 								</ChildItems>
 							</ContextMenu>

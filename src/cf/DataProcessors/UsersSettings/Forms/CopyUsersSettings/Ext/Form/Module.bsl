@@ -244,8 +244,8 @@ Procedure Copy(Command)
 		Return;
 	EndIf;
 	
-	// 
-	// 
+	// XnWhen copying external type settings or all settings to other users,
+	// check if the app supports them. And if it does, inform the user in a user message.
 	OpenFormsToCopy = OpenFormsToCopy();
 	CheckActiveUsers();
 	If CheckResult = "HasActiveUsersRecipients"

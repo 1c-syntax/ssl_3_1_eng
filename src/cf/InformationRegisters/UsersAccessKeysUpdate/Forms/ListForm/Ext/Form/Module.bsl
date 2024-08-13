@@ -28,4 +28,11 @@ Procedure EnableEditing(Command)
 	
 EndProcedure
 
+&AtClient
+Procedure AccessUpdateOnRecordsLevel(Command)
+	
+	AccessManagementInternalClient.OpenUpdateAccessFormAtRecordLevel(, True);
+	
+EndProcedure
+
 #EndRegion

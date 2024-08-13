@@ -178,7 +178,7 @@ Procedure PrintDocuments(PrintFormsCollection, Val PrintObjects = Undefined,
 		FormOwner = PrintParameters.FormOwner;
 		PrintParameters.Delete("FormOwner");
 	ElsIf TypeOf(AdditionalParameters) = Type("ClientApplicationForm") Then 
-		FormOwner = AdditionalParameters; // 
+		FormOwner = AdditionalParameters; // For backward compatibility with version 3.0.2.
 	EndIf;
 	
 	If PrintObjects = Undefined Then
@@ -192,6 +192,11 @@ Procedure PrintDocuments(PrintFormsCollection, Val PrintObjects = Undefined,
 	OpeningParameters.Insert("PrintFormsCollection", PrintFormsCollection);
 	OpeningParameters.Insert("PrintObjects", PrintObjects);
 	OpeningParameters.Insert("PrintParameters", PrintParameters);
+	OpeningParameters.Insert("TemplatesNames", New Array);
+	
+	For Each PrintFormDetails In PrintFormsCollection Do
+		OpeningParameters.TemplatesNames.Add(PrintFormDetails.TemplateName);
+	EndDo;
 	
 	OpenForm("CommonForm.PrintDocuments", OpeningParameters, FormOwner, UniqueKey);
 	
@@ -370,7 +375,7 @@ EndFunction
 //                                        The"<ProcedureName>" format is used when the procedure is placed
 //                                        in the main form module of a report or a data processor specified in PrintManager.
 //                                        For example:
-//                                          PrintCommand.Handler = "_DemoStandardSubsystemsClient.PrintProformaInvoices";
+//                                          PrintCommand.Handler = "StandardSubsystemsClient.PrintProformaInvoices";
 //                                        An example of handler in the form module::
 //                                          Generates a print form <print form presentation>.
 //                                          //
@@ -379,7 +384,7 @@ EndFunction
 //                                          PrintParameters - Structure - Print form info.
 //                                          * PrintObjects - Array - Array of selected object references.
 //                                          * Form - ClientApplicationForm - Form, from which the
-//                                          print command is called from.
+//                                          print command is called.
 //                                          * AdditionalParameters - Structure - Additional print parameters.
 //                                          Other structure keys match the columns of the PrintCommands table,
 //                                          //
@@ -391,7 +396,7 @@ EndFunction
 //                                        EndFunction
 //                                        Remember that the handler is called using the Calculate method,
 //                                         so only a function can act as a handler.
-//                                         The return value of the function is not used by the subsystem.
+//                                         The subsystem does not use the return value of the function.
 //
 //   * SkipPreview - Boolean           - (Optional) Flag indicating whether the documents must be sent to a printer without a preview.
 //                                        If not specified, the print command opens the "Print documents" preview form.
@@ -452,27 +457,27 @@ EndFunction
 ////////////////////////////////////////////////////////////////////////////////
 // Operations with office document templates.
 
-//	
-//	
+//	This section contains API functions used for creating office document print forms.
+//	Currently, print forms based on MS Office templates and Open Office Writer are supported.
 //
 ////////////////////////////////////////////////////////////////////////////////
 //	
-//	
-//	
-//	
-//						
-//						
-//	
-//	
+//	Valid data types (depends on the implementation):
+//	RefPrintForm	- A print form reference.
+//	RefTemplate - A template reference.
+//						Area - A reference to an area in a print form or template (Structure).
+//						It is additionally defined with the region's internal info in the API module.
+//	AreaDetails - Template area details (see below).
+//	FillingData - A structure or an array of structures (for lists and tables).
 //							
 ////////////////////////////////////////////////////////////////////////////////
-//	
-//	
-//	
-//							
-//							
-//							
-//							
+//	AreaDetails - A structure describing the user-defined template areas.
+//	Key AreaName - An area name.
+//	Key AreaTypeType - Header
+//							Footer
+//							Shared3
+//							TableRow
+//							List
 //
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -601,7 +606,7 @@ Procedure ShowDocument(Val PrintForm) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Functions for getting template areas, outputting them to print forms, and filling their parameters.
 // 
 
 // Deprecated. Obsolete. Use PrintManagement.TemplateArea.

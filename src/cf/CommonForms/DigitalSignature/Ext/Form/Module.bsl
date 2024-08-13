@@ -190,8 +190,7 @@ Procedure OpenErrorDescription(ErrorText)
 		
 	FormParameters.Insert("AdditionalData", AdditionalParameters);
 	
-	OpenForm("CommonForm.ExtendedErrorPresentation",
-		FormParameters, ThisObject,,,,, FormWindowOpeningMode.LockOwnerWindow);
+	DigitalSignatureInternalClient.OpenExtendedErrorPresentationForm(FormParameters, ThisObject);
 
 EndProcedure
 
@@ -311,17 +310,17 @@ Async Procedure OpenCertificateRead()
 	If Count > 1 Then
 		
 		ValueList = New ValueList();
-		For Each String In CertificatesToVerifySignature Do
+		For Each Certificate In CertificatesToVerifySignature Do
 			
-			If String.IsSignatureCertificate Then
+			If Certificate.IsSignatureCertificate Then
 				Presentation = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Signer''s certificate: %1';"), String.IssuedTo);
+					NStr("en = 'Signer''s certificate: %1';"), Certificate.IssuedTo);
 			Else
 				Presentation = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Certificate for signature verification: %1';"), String.IssuedTo);
+					NStr("en = 'Certificate for signature verification: %1';"), Certificate.IssuedTo);
 			EndIf;
 			
-			ValueList.Add(String.CertificateData, Presentation);
+			ValueList.Add(Certificate.CertificateData, Presentation);
 				
 		EndDo;
 		

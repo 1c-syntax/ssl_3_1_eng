@@ -453,7 +453,7 @@ Please wait…</v8:content>
 							<v8:content>Left command bar</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="LeftCommandBar6ExtendedTooltip" id="82"/>
+					<ExtendedTooltip name="LeftCommandBarExtendedTooltip" id="82"/>
 					<ChildItems>
 						<Button name="Back" id="79">
 							<Type>CommandBarButton</Type>
@@ -477,7 +477,7 @@ Please wait…</v8:content>
 						</v8:item>
 					</Title>
 					<HorizontalLocation>Right</HorizontalLocation>
-					<ExtendedTooltip name="RightCommandBar6ExtendedTooltip" id="84"/>
+					<ExtendedTooltip name="RightCommandBarExtendedTooltip" id="84"/>
 					<ChildItems>
 						<Button name="CreateAccount" id="24">
 							<Type>CommandBarButton</Type>
@@ -489,7 +489,7 @@ Please wait…</v8:content>
 									<v8:content>Register &gt;</v8:content>
 								</v8:item>
 							</Title>
-							<ExtendedTooltip name="Register1ExtendedTooltip" id="25"/>
+							<ExtendedTooltip name="CreateAccountExtendedTooltip" id="25"/>
 						</Button>
 						<Button name="Close" id="47">
 							<Type>CommandBarButton</Type>

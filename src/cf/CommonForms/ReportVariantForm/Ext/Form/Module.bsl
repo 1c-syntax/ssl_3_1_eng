@@ -320,7 +320,7 @@ Procedure OutputParametersUnavailable()
 EndProcedure
 
 &AtClient
-Procedure SettingsComposerSettingsOnActivateField(Item)
+Procedure SettingSettingsComposerOnActivateField(Item)
 	
 	Var SelectedPage;
 	
@@ -355,7 +355,7 @@ Procedure SettingsComposerSettingsOnActivateField(Item)
 EndProcedure
 
 &AtClient
-Procedure SettingsComposerSettingsOnActivateRow(Item)
+Procedure SettingSettingsComposerOnActivateRow(Item)
 	
 	StructureItem = Report.SettingsComposer.Settings.GetObjectByID(Items.SettingSettingsComposer.CurrentRow);
 	ElementType = TypeOf(StructureItem); 

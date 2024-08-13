@@ -1868,7 +1868,7 @@ Function MetadataTree(WithFields)
 	Tree.Columns.Add("HasHierarchy",         New TypeDescription("Boolean"));
 	Tree.Columns.Add("WithoutDecryption",       New TypeDescription("Boolean"));
 	Tree.Columns.Add("PathToObject",         StringType(255));
-	Tree.Columns.Add("ParentMetadataAttachments"); // 
+	Tree.Columns.Add("ParentMetadataAttachments"); // Populated automatically.
 	
 	// Configuration
 	ConfigurationString = Tree.Rows.Add();
@@ -3098,7 +3098,7 @@ EndProcedure
 Function Images()
 	
 	Images = New ValueList;
-	Images.Add(""); // 
+	Images.Add(""); // No picture.
 	Images.Add("Configuration",,,              PictureLib.MetadataConfiguration);
 	Images.Add("Overall",,,                     PictureLib.MetadataCommon);
 	Images.Add("Subsystems",,,                PictureLib.MetadataSubsystems);

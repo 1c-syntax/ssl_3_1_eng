@@ -757,7 +757,7 @@
 													</Title>
 													<ShowInHeader>false</ShowInHeader>
 													<Width>10</Width>
-													<ContextMenu name="HostNameContextMenu" id="57"/>
+													<ContextMenu name="ComputerContextMenu" id="57"/>
 													<ExtendedTooltip name="ComputerExtendedTooltip" id="150"/>
 												</LabelField>
 											</ChildItems>
@@ -1041,7 +1041,7 @@
 														<v8:content>Clear filter</v8:content>
 													</v8:item>
 												</Title>
-												<ExtendedTooltip name="LogContextMenuClearFilter2ExtendedTooltip" id="435"/>
+												<ExtendedTooltip name="LogContextMenuDisableSelection2ExtendedTooltip" id="435"/>
 											</Button>
 										</ChildItems>
 									</ButtonGroup>

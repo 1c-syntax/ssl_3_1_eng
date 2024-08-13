@@ -322,7 +322,7 @@
 																		<v8:content>Don't run in the background</v8:content>
 																	</v8:item>
 																</Title>
-																<ExtendedTooltip name="ScheduledJobsTableExecuteInForegroundExtendedTooltip" id="280"/>
+																<ExtendedTooltip name="ScheduledJobsTableExecuteNotInBackgroundExtendedTooltip" id="280"/>
 															</Button>
 															<Button name="ScheduledJobsTableEventLogEvents" id="306">
 																<Type>CommandBarButton</Type>
@@ -526,8 +526,8 @@
 														</v8:item>
 													</Title>
 													<EditMode>EnterOnInput</EditMode>
-													<ContextMenu name="JobScheduleContextMenu" id="317"/>
-													<ExtendedTooltip name="JobScheduleExtendedTooltip" id="318"/>
+													<ContextMenu name="TaskScheduleContextMenu" id="317"/>
+													<ExtendedTooltip name="TaskScheduleExtendedTooltip" id="318"/>
 												</InputField>
 												<CheckBoxField name="Predefined" id="34">
 													<DataPath>ScheduledJobsTable.Predefined</DataPath>
@@ -658,7 +658,7 @@
 												</v8:item>
 											</ToolTip>
 											<CheckBoxType>Auto</CheckBoxType>
-											<ContextMenu name="FilterByCanceledStateContextMenu" id="105"/>
+											<ContextMenu name="FilterByStateCanceledContextMenu" id="105"/>
 											<ExtendedTooltip name="FilterByStateCanceledExtendedTooltip" id="209"/>
 										</CheckBoxField>
 										<CheckBoxField name="FilterByActiveState" id="98">

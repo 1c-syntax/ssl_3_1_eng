@@ -149,7 +149,7 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 	
 	If Not WriteParameters.Property("WhenIDForFormulasIsAlreadyUsed")
 		And ValueIsFilled(Object.IDForFormulas) Then
-		// 
+		// Fill formula ID and check if there's a property with the same name.
 		// 
 		QueryText = IDForFormulasAlreadyUsed(
 			Object.IDForFormulas, Object.Ref, Object.Parent);

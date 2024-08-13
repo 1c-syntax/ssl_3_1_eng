@@ -186,7 +186,7 @@ EndProcedure
 
 #Region Private
 
-// 
+// Continues the AddFromDirectory procedure.
 
 &AtClient
 Procedure AddAddInsFromDirectoryAfterExtensionsAttached(Result, CreationParameters) Export
@@ -201,7 +201,7 @@ Procedure AddAddInsFromDirectoryAfterExtensionsAttached(Result, CreationParamete
 	
 EndProcedure
 
-// 
+// Continues the AddFromDirectory procedure.
 
 &AtClient
 Async Procedure AddAddInsAfterDirectorySelected(SelectedDirectory, AdditionalParameters) Export
@@ -317,8 +317,8 @@ Procedure AddAddInsAfterFilesPut(PlacedFiles, AdditionalParameters) Export
 	EndIf;
 	
 	Notification = New NotifyDescription("DownloadAddInsAfterSafetyWarning", ThisObject, PlacedFiles);
-	FormParameters = New Structure("Key", "BeforeAddAddIn");
-	OpenForm("CommonForm.SecurityWarning", FormParameters,,,,, Notification);
+	UsersInternalClient.ShowSecurityWarning(Notification,
+		UsersInternalClientServer.TypesOfSafetyWarnings().BeforeAddAddIn);
 	
 EndProcedure
 
@@ -330,7 +330,7 @@ Procedure AfterUpdateAddInFromPortal(Result, AdditionalParameters) Export
 EndProcedure
 
 /////////////////////////////////////////////////////////
-// 
+// Data presentation on the form.
 
 &AtServer
 Procedure SetFilter()

@@ -18,8 +18,8 @@
 //  Objects - Array of MetadataObject
 //
 // Example:
-//	Objects.Add(Metadata.Catalogs._DemoProducts);
-//	Objects.Add(Metadata.Catalogs._DemoCounterparties);
+//	Objects.Add(Metadata.Catalogs.Products);
+//	Objects.Add(Metadata.Catalogs.Partners);
 //
 Procedure OnDefineObjectsWithBatchObjectsModificationCommand(Objects) Export
 

@@ -241,22 +241,23 @@ EndProcedure
 //
 Procedure ChangeUncompletedTasksAttributes() Export
 
+	Block = New DataLock;
+	LockItem = Block.Add("Task.PerformerTask");
+	LockItem.SetValue("BusinessProcess", Ref);
+
+	Query = New Query("SELECT
+	  |	PerformerTasks.Ref AS Ref
+	  |FROM
+	  |	Task.PerformerTask AS PerformerTasks
+	  |WHERE
+	  |	PerformerTasks.BusinessProcess = &BusinessProcess
+	  |	AND PerformerTasks.DeletionMark = FALSE
+	  |	AND PerformerTasks.Executed = FALSE");
+	Query.SetParameter("BusinessProcess", Ref);
+
 	BeginTransaction();
 	Try
-		Block = New DataLock;
-		LockItem = Block.Add("Task.PerformerTask");
-		LockItem.SetValue("BusinessProcess", Ref);
 		Block.Lock();
-
-		Query = New Query("SELECT
-							  |	Tasks.Ref AS Ref
-							  |FROM
-							  |	Task.PerformerTask AS Tasks
-							  |WHERE
-							  |	Tasks.BusinessProcess = &BusinessProcess
-							  |	AND Tasks.DeletionMark = FALSE
-							  |	AND Tasks.Executed = FALSE");
-		Query.SetParameter("BusinessProcess", Ref);
 		SelectionDetailRecords = Query.Execute().Select();
 
 		While SelectionDetailRecords.Next() Do
@@ -282,22 +283,23 @@ EndProcedure
 
 Procedure ChangeTaskSubject()
 
+	Block = New DataLock;
+	LockItem = Block.Add("Task.PerformerTask");
+	LockItem.SetValue("BusinessProcess", Ref);
+
+	Query = New Query("SELECT
+	  |	PerformerTasks.Ref AS Ref
+	  |FROM
+	  |	Task.PerformerTask AS PerformerTasks
+	  |WHERE
+	  |	PerformerTasks.BusinessProcess = &BusinessProcess");
+
+	Query.SetParameter("BusinessProcess", Ref);
+
 	SetPrivilegedMode(True);
 	BeginTransaction();
 	Try
-		Block = New DataLock;
-		LockItem = Block.Add("Task.PerformerTask");
-		LockItem.SetValue("BusinessProcess", Ref);
 		Block.Lock();
-
-		Query = New Query("SELECT
-							  |	Tasks.Ref AS Ref
-							  |FROM
-							  |	Task.PerformerTask AS Tasks
-							  |WHERE
-							  |	Tasks.BusinessProcess = &BusinessProcess");
-
-		Query.SetParameter("BusinessProcess", Ref);
 		SelectionDetailRecords = Query.Execute().Select();
 
 		While SelectionDetailRecords.Next() Do
@@ -392,20 +394,20 @@ Procedure FillDefaultAccessValuesSets(Table)
 	
 	// If the subject is not specified (the business process is not based on another subject), then the subject is not involved in the restriction logic.
 	
-	// Reading, Changing: set No.1.
+	// Read, Update: Set #1.
 	String = Table.Add();
 	String.SetNumber     = 1;
 	String.Read          = True;
 	String.Update       = True;
 	String.AccessValue = Author;
 	
-	// Reading: set No. 2.
+	// Read: Set #2.
 	String = Table.Add();
 	String.SetNumber     = 2;
 	String.Read          = True;
 	String.AccessValue = TaskPerformersGroup;
 	
-	// Reading: set No. 3.
+	// Read: Set #3.
 	String = Table.Add();
 	String.SetNumber     = 3;
 	String.Read          = True;

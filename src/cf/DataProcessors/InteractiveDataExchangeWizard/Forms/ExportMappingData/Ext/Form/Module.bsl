@@ -813,10 +813,10 @@ EndProcedure
 &AtClient
 Procedure NavigationNumberOnChange(Val IsMoveNext)
 	
-	// Executing navigation event handlers.
+	// Run navigation event handlers.
 	ExecuteNavigationEventHandlers(IsMoveNext);
 	
-	// Setting page view.
+	// Set up page view.
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
@@ -830,7 +830,7 @@ Procedure NavigationNumberOnChange(Val IsMoveNext)
 	
 	Items.NavigationPanel.CurrentPage.Enabled = Not (IsMoveNext And NavigationRowCurrent.TimeConsumingOperation);
 	
-	// Setting the default button.
+	// Set the default button.
 	NextButton = GetFormButtonByCommandName(Items.NavigationPanel.CurrentPage, "NextCommand");
 	
 	If NextButton <> Undefined Then

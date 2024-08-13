@@ -14,9 +14,9 @@
 
 // Shows a file selection dialog box and places the selected file into a temporary storage.
 // This method provides the functionality of both BeginPutFile and BeginPuttingFiles global context methods.
-// Its return value is not affected by availability of the extension to work with 1C:Enterprise.
+// Its return value is not affected by the availability of 1C:Enterprise Extension.
 // Restrictions:
-//   Not used to select catalogs -this option is not supported in the web client mode.
+//   Not used to select catalogs. This option is not supported in the web client mode.
 //
 // Parameters:
 //   CompletionHandler - NotifyDescription - contains details of the procedure that will be called after
@@ -26,7 +26,7 @@
 //                           ** Location  - String - data location in a temporary storage.
 //                           ** Name       - String - The local path used to receive the file
 //                                        (in the thin client and in the web client with 1C:Enterprise Extension installed).
-//                                        Or the filename with the extension (in the web client without the 1C:Enterprise Extension installed).
+//                                        Or the filename with the extension (in the web client without 1C:Enterprise Extension installed).
 //                                        
 //      * AdditionalParameters - Arbitrary - a value that was specified on creating
 //                                the NotifyDescription object.
@@ -70,10 +70,10 @@ EndProcedure
 
 // Shows a file selection dialog and puts the selected files to a temporary storage.
 // This method provides the functionality of both BeginPutFile and BeginPuttingFiles global context methods.
-// Its return value is not affected by availability of the extension to work with 1C:Enterprise.
+// Its return value is not affected by the availability of 1C:Enterprise Extension.
 // Restrictions:
-//   Not used to select catalogs -this option is not supported in the web client mode.
-//   Multiple selection in the web client is only supported if the extension to work with 1C:Enterprise is available.
+//   Not used to select catalogs. This option is not supported in the web client mode.
+//   Multiple selection in the web client is only supported if 1C:Enterprise Extension is installed.
 //
 // Parameters:
 //   CompletionHandler - NotifyDescription - contains the description of the procedure that will be called after
@@ -83,13 +83,13 @@ EndProcedure
 //                           ** Location  - String - data location in a temporary storage.
 //                           ** Name       - String - The local path used to receive the file
 //                                        (in the thin client and in the web client with 1C:Enterprise Extension installed).
-//                                        Or the filename with the extension (in the web client without the 1C:Enterprise Extension installed).
+//                                        Or the filename with the extension (in the web client without 1C:Enterprise Extension installed).
 //                                        
 //                           ** FullName - String - The local path used to receive the file
 //                                         (in the thin client and in the web client with 1C:Enterprise Extension installed).
-//                                         Or "" (in the web client without the 1C:Enterprise Extension installed).
+//                                         Or "" (in the web client without 1C:Enterprise Extension installed).
 //                                         
-//                           ** FileName  - String - a name of a file with extension.
+//                           ** FileName  - String - File name with the extension.
 //      * AdditionalParameters - Arbitrary - a value that was specified on creating the NotifyDescription object.
 //   ImportParameters    - See FileSystemClient.FileImportParameters.
 //   FilesToUpload     - Array - contains objects of the TransferableFileDetails type. Can be filled completely.
@@ -223,12 +223,12 @@ EndProcedure
 //                                          the DeleteFromTempStorage global context method is to be called
 //                                          after completing the operation with the binary data. Default
 //                                          value is Undefined.
-//    * Interactively                        - Boolean - Indicates interactive mode usage when a file selection dialog is showed to
-//                                          the user. Default
+//    * Interactively                        - Boolean - Indicates interactive mode usage when a file selection dialog is shown to
+//                                          the user. The default
 //                                          value is True.
 //    * Dialog                              - FileDialog - See the properties in Syntax Assistant.
 //                                          It is used if the "Interactively" property is set to True,
-//                                          and the 1C:Enterprise Extension is attached.
+//                                          and 1C:Enterprise Extension is attached.
 //    * SuggestionText                    - String - a text of a suggestion to install the extension. If the parameter
 //                                          takes the value "", the standard suggestion text will be output.
 //                                          Default value - "".
@@ -265,12 +265,12 @@ EndFunction
 //
 // Returns:
 //  Structure:
-//    * Interactively     - Boolean - Indicates interactive mode usage when a file selection dialog is showed to
-//                       the user. Default
+//    * Interactively     - Boolean - Indicates interactive mode usage when a file selection dialog is shown to
+//                       the user. The default
 //                       value is True.
 //    * Dialog           - FileDialog - See the properties in Syntax Assistant.
 //                       It is used if the "Interactively" property is set to True,
-//                       and the 1C:Enterprise Extension is attached.
+//                       and 1C:Enterprise Extension is attached.
 //    * SuggestionText - String - a text of a suggestion to install the extension. If the parameter
 //                       takes the value "", the standard suggestion text will be output.
 //                       Default value - "".
@@ -292,12 +292,12 @@ EndFunction
 //
 // Returns:
 //  Structure:
-//    * Interactively     - Boolean - Indicates interactive mode usage when a file selection dialog is showed to
-//                       the user. Default
+//    * Interactively     - Boolean - Indicates interactive mode usage when a file selection dialog is shown to
+//                       the user. The default
 //                       value is True.
 //    * Dialog           - FileDialog - See the properties in Syntax Assistant.
 //                       It is used if the "Interactively" property is set to True,
-//                       and the 1C:Enterprise Extension is attached.
+//                       and 1C:Enterprise Extension is attached.
 //    * SuggestionText - String - a text of a suggestion to install the extension. If the parameter
 //                       takes the value "", the standard suggestion text will be output.
 //                       Default value - "".
@@ -584,26 +584,35 @@ EndFunction
 //      An array matches the one that the called application in argv will get.
 //  ApplicationStartupParameters - See FileSystemClient.ApplicationStartupParameters.
 //
-// Example: 
-//	Ordinary startup
-//  FileSystemClient.StartApplication("calc");
-//
+// Пример: 
+//	// Простой запуск
+//  ФайловаяСистемаКлиент.ЗапуститьПрограмму("calc");
+//  
+// Example:
+//  Passing arguments as an array:
+//  Setup.exe -args "PIDKEY=***":
+//  StartupCommand = New Array;
+//  StartupCommand.Add("-args);
+//  StartupCommand.Add("PIDKEY =***);
+//  FileSystemClient.StartApplication(StartupCommand);
 //  Startup with waiting for exit and obtaining the return code:
+//
 //  ApplicationStartupParameters = FileSystemClient.ApplicationStartupParameters ();
 //  ApplicationStartupParameters .WaitForCompletion = True;
 //  ApplicationStartupParameters.GetOutputStream = True;
 //  ApplicationStartupParameters.GetErrorStream = True;
 //  ApplicationStartupParameters.Notification = New NotifyDescription("OnGetAppStartupResult", ThisObject);
-//
 //  FileSystemClient.StartApplication("ping 127.0.0.1 -n 5", ApplicationStartupParameters );
-//   
+//
 //  Example of notification handling
+//   
 //  &AtClient
 //  Procedure OnGetAppStartupResult(Result, AdditionalParameters) Export
-//      ReturnCode = Result.ReturnCode;
+//  ReturnCode = Result.ReturnCode;
 //      ErrorStream = Result.OutputStream;
 //      ErrorStream = Result.ErrorStream;
-//  EndProcedure
+//      EndProcedure
+//  
 //
 Procedure StartApplication(Val StartupCommand, Val ApplicationStartupParameters = Undefined) Export
 	
@@ -694,8 +703,8 @@ EndProcedure
 // Parameters:
 //   CompletionHandler - NotifyDescription - contains the description of the procedure that will be called after
 //                        the selection dialog box is closed, with the following parameters:
-//      -- PathToDirectory - String - the full path to a directory. If the extension to work with 1C:Enterprise is not set up,
-//                        or the user canceled the selection, it returns a blank string.
+//      -- PathToDirectory - String - Full path to a directory. Returns an empty string if 1C:Enterprise Extension is not installed
+//                        or if the user canceled the selection action.
 //      -- AdditionalParameters - a value that was specified on creating the NotifyDescription object.
 //   Title - String - a title of the directory selection dialog.
 //   Directory   - String - the initial default directory value.
@@ -714,8 +723,8 @@ Procedure SelectDirectory(CompletionHandler, Title = "", Directory = "") Export
 EndProcedure
 
 // Shows a file selection dialog.
-// In the web client, a user will see the dialog box for installing a file system
-// extension if it is required.
+// In the web client, a user will see a dialog box prompting to install
+//  1C:Enterprise Extension if required.
 //
 // Parameters:
 //   CompletionHandler - NotifyDescription - contains the description of the procedure that will be called after
@@ -759,8 +768,8 @@ Procedure CreateTemporaryDirectory(Val Notification, Extension = "") Export
 	
 EndProcedure
 
-// Suggests the user to install the extension to work with 1C:Enterprise in the web client.
-// The function to be incorporated in the beginning of code areas that process files.
+// Prompts the user to install 1C:Enterprise Extension in the web client.
+// Incorporate the procedure at the beginning of code areas that process files.
 //
 // Parameters:
 //  OnCloseNotifyDescription - NotifyDescription - the description of the procedure to be called once a form
@@ -774,15 +783,15 @@ EndProcedure
 // Example:
 //
 //  Notification = New NotifyDescription("PrintDocumentCompletion", ThisObject);
-//  MessageText = NStr("en = 'To print the document, install the system extension to work with 1C:Enterprise.'");
+//  MessageText = NStr("en = 'To print the document, install 1C:Enterprise Extension.'");
 //  FileSystemClient.AttachFileOperationsExtension(Notification, MessageText);
 //
 //  Procedure PrintDocumentCompletion(ExtensionAttached, AdditionalParameters) Export
 //    If ExtensionAttached Then
-//     // Script that print a document only if the file system extension is attached.
+//     // Script that prints a document only if 1C:Enterprise Extension is attached.
 //     // …
 //    Else
-//     // Script that print a document if the file system extension is not attached.
+//     // Script that prints a document if 1C:Enterprise Extension is not attached.
 //     // …
 //    EndIf;
 //
@@ -978,7 +987,16 @@ Procedure PrintFromTheApplicationByTheLinuxFileName(Result, Parameters) Export
 	EndIf;
 	
 	If Result = False Then
-		ShowMessageBox(, NStr("en = 'Install ""Unoconv"" on your computer.';"));
+		ShowMessageBox(, StringFunctionsClient.FormattedString(
+			NStr("en = 'To print out the document, install <a href=""%1"">Unoconv</a>.
+			|
+			|To do so, open the terminal and run:
+			|%2
+			|
+			|Alternatively, send a request to the administrator.';"),
+			"https://docs.moodle.org/404/en/Universal_Office_Converter_%28unoconv%29", 
+			"sudo apt update
+			|sudo apt install unoconv"));
 		Return;
 	EndIf;
 	
@@ -1038,14 +1056,46 @@ Procedure PrintFromTheApplicationByTheLinuxFileNameCompletion(Result, Parameters
 		Return;
 	EndIf;
 	
+	// ACC:566-off - Applicable only for Linux
 	File = New File(Parameters.TheFileOfTheConvertedData);
-	If File.Exists() Then// ACC:566 - Applicable only for Linux
-		DeleteFiles(Parameters.TheFileOfTheConvertedData);// ACC:566 - Applicable only for Linux
+	If File.Exists() Then
+		DeleteFiles(Parameters.TheFileOfTheConvertedData);
 	EndIf;
+	// ACC:566-on
 	
-	If Not Result.ApplicationStarted Or ValueIsFilled(Result.ErrorDescription) Or ValueIsFilled(Result.ErrorStream) Then
-		ShowMessageBox(, ?(ValueIsFilled(Result.ErrorDescription), 
+	If Not Result.ApplicationStarted Or ValueIsFilled(Result.ErrorDescription) 
+		Or ValueIsFilled(Result.ErrorStream) Then
+
+		ErrorDescription = TrimAll(?(ValueIsFilled(Result.ErrorDescription), 
 			Result.ErrorDescription + Chars.LF, "") + Result.ErrorStream);
+		
+		Recommendation = ""; 
+		If StrFind(Lower(ErrorDescription), "no default destination") > 0 Then
+			Recommendation = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Set the default printer:
+					|1. In the terminal window, run ""%1"" and select a printer from the list.
+					|2. In the terminal window, run: %2 ""printer name"".
+					|Alternatively, send a request to the administrator.';"),
+					"lpstat -p -d",
+					"lpoptions -d");
+		EndIf;
+		
+		ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Couldn''t print the file. Reason:
+				|%1';"),
+			ErrorDescription, Result.ReturnCode);
+		If Result.ReturnCode <> 0 Then
+			ErrorDescription = ErrorDescription 
+				+ StringFunctionsClientServer.SubstituteParametersToString(" (%1)", Result.ReturnCode);
+		EndIf;
+		If Not IsBlankString(Recommendation) Then
+			ErrorDescription = ErrorDescription + Chars.LF + Chars.LF + Recommendation;
+		EndIf;
+		
+		EventLogClient.AddMessageForEventLog(NStr("en = 'Standard subsystems';", 
+				CommonClient.DefaultLanguageCode()),
+			"Warning",,, True);
+		ShowMessageBox(, ErrorDescription);
 	EndIf;
 	
 EndProcedure
@@ -1093,7 +1143,8 @@ Procedure GetTheNameOfATemporaryFileAfterCheckingTheFileExtension(ExtensionAttac
 		GetTheNameOfTheTemporaryFileAfterGettingTheTemporaryDirectory("", Context);
 #EndIf
 	Else
-		GetTheNameOfTheTemporaryFileNotifyAboutTheError(NStr("en = 'Cannot install 1C:Enterprise Extension.';"), Context);
+		GetTheNameOfTheTemporaryFileNotifyAboutTheError(NStr("en = 'Cannot install 1C:Enterprise Extension.';"), 
+			Context);
 	EndIf;
 	
 EndProcedure

@@ -70,8 +70,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Title = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Synchronize data with %1';"), CorrespondentDescription);
 	
-	// 
-	// 
+	// For DIB data exchange over a web service, always override the authentication parameters (username and password) saved in the infobase.
+	// For non-DIB data exchange, override (prompt for) the authentication parameters (password) only if they aren't saved in the infobase.
 	// 
 	// 
 	UseCurrentUserForAuthentication = False;
@@ -243,8 +243,9 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// 1C-SUPPLIED SECTION
 ////////////////////////////////////////////////////////////////////////////////
+//
 
 &AtClient
 Function GetFormButtonByCommandName(FormItem, CommandName)
@@ -311,10 +312,10 @@ EndProcedure
 &AtClient
 Procedure NavigationNumberOnChange(Val IsMoveNext)
 	
-	// Executing navigation event handlers.
+	// Run navigation event handlers.
 	ExecuteNavigationEventHandlers(IsMoveNext);
 	
-	// Setting page view.
+	// Set up page view.
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
@@ -528,11 +529,12 @@ Function NavigationTableNewRow(MainPageName,
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// OVERRIDABLE SECTION
 ////////////////////////////////////////////////////////////////////////////////
+//
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// PROCEDURES AND FUNCTIONS SECTION
 
 &AtClient
 Procedure RunMoveNext()
@@ -1189,7 +1191,7 @@ Function Attachable_ExchangeCompletionTimeConsumingOperationProcessing(Cancel, G
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Pages of exchange over a web service
 
 &AtClient
 Function Attachable_UserPasswordRequestOnOpen(Cancel, SkipPage, IsMoveNext)
@@ -1239,7 +1241,7 @@ Function Attachable_ConnectionTestWaitingTimeConsumingOperationProcessing(Cancel
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// SECTION OF PROCESSING BACKGROUND JOBS
 
 &AtClient
 Procedure BackgroundJobStartClient(Action, JobName, Cancel)
@@ -1322,7 +1324,7 @@ Procedure BackgroundJobExecutionResult()
 	
 	BackgroundJobGetResultAtServer();
 	
-	// 
+	// For a data exchange with a web app, wait till the sync is over on the peer infobase's side.
 	// 
 	If TimeConsumingOperation Then
 		RetryCountOnConnectionError = 0;
@@ -1389,8 +1391,8 @@ Procedure TimeConsumingOperationCompletion()
 			ErrorMessage);
 	Else
 		
-		// 
-		// 
+		// If the data has been obtained from a web app for a while,
+		// import the file with data to the infobase.
 		If BackgroundJobCurrentAction = 1 
 			And ValueIsFilled(MessageFileIDInService) Then
 				
@@ -1593,7 +1595,7 @@ Function TimeConsumingOperationStateForInfobaseNode(
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// NAVIGATION INITIALIZATION SECTION
 
 &AtServer
 Procedure FillNavigationTable()
@@ -1661,7 +1663,7 @@ Procedure FillNavigationTable()
 EndProcedure
 
 &AtClient
-Procedure DecorationErrorAssigningAnIdToANodeURLProcessing(Item, FormattedStringURL, StandardProcessing)
+Procedure DecorationErrorIDAssignmentForNodeURLProcessing(Item, FormattedStringURL, StandardProcessing)
 	
 	StandardProcessing = False;
 	
@@ -1671,13 +1673,13 @@ Procedure DecorationErrorAssigningAnIdToANodeURLProcessing(Item, FormattedString
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// SECTION OF STEP CHANGE HANDLERS
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Common exchange pages.
 
 &AtClient
-Procedure StatusOfUnavailableSynchronizationURLProcessing(Item, FormattedStringURL, StandardProcessing)
+Procedure StatusSynchronizationUnavailabilityURLProcessing(Item, FormattedStringURL, StandardProcessing)
 	
 	StandardProcessing = False;
 	If FormattedStringURL = "ExpectSynchronizationCapability" Then

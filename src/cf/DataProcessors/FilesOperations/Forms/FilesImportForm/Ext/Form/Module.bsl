@@ -94,7 +94,7 @@ Procedure AddExecute()
 		Files.Add(LongDesc);
 		CallDetails.Add(Files);
 		
-		CallDetails.Add(Undefined); // 
+		CallDetails.Add(Undefined); // Obsolete.
 		CallDetails.Add(Undefined); // Obsolete.
 		CallDetails.Add(False);         // Interactively = False
 		

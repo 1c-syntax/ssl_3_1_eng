@@ -24,10 +24,8 @@ EndProcedure
 &AtServer
 Procedure ConfigureRoleListRepresentation()
 	
-	Var GroupingField, RoleProperties;
-	
 	CommonClientServer.SetDynamicListFilterItem(Assignees, 
-	"PerformerRole", Parameters.PerformerRole, DataCompositionComparisonType.Equal);
+		"PerformerRole", Parameters.PerformerRole, DataCompositionComparisonType.Equal);
 	RoleProperties = Common.ObjectAttributesValues(Parameters.PerformerRole, "UsedByAddressingObjects,AdditionalAddressingObjectTypes,MainAddressingObjectTypes");
 	If RoleProperties.UsedByAddressingObjects Then
 		GroupingField = Assignees.Group.Items.Add(Type("DataCompositionGroupField"));

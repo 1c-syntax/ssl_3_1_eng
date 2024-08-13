@@ -24,7 +24,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 &AtClient
-Procedure ActiveUserListClick(Item)
+Procedure ActiveUsersListClick(Item)
 	
 	StandardSubsystemsClient.OpenActiveUserList();
 	

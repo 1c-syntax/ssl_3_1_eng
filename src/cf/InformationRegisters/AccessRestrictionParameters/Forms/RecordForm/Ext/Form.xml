@@ -37,13 +37,13 @@
 		</InputField>
 		<InputField name="PersistentParametersHashSum" id="12">
 			<DataPath>Record.PersistentParametersHashSum</DataPath>
-			<ContextMenu name="HashSumOfConstantParametersContextMenu" id="13"/>
-			<ExtendedTooltip name="HashSumOfConstantParametersExtendedTooltip" id="14"/>
+			<ContextMenu name="PersistentParametersHashSumContextMenu" id="13"/>
+			<ExtendedTooltip name="PersistentParametersHashSumExtendedTooltip" id="14"/>
 		</InputField>
 		<InputField name="TemplatesParametersHashSum" id="15">
 			<DataPath>Record.TemplatesParametersHashSum</DataPath>
-			<ContextMenu name="HashSumOfTemplateParametersContextMenu" id="16"/>
-			<ExtendedTooltip name="HashSumOfTemplateParametersExtendedTooltip" id="17"/>
+			<ContextMenu name="TemplatesParametersHashSumContextMenu" id="16"/>
+			<ExtendedTooltip name="TemplatesParametersHashSumExtendedTooltip" id="17"/>
 		</InputField>
 	</ChildItems>
 	<Attributes>

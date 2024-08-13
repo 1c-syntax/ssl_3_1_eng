@@ -75,29 +75,29 @@
 				</ChildItems>
 			</AutoCommandBar>
 			<ExtendedTooltip name="SettingsComposerSettingsFilterExtendedTooltip" id="18"/>
-			<SearchStringAddition name="SettingsComposerSettingsFilterSearchString_SSLy" id="19">
+			<SearchStringAddition name="SettingsComposerSettingsFilterSearchString" id="19">
 				<AdditionSource>
 					<Item>SettingsComposerSettingsFilter</Item>
 					<Type>SearchStringRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="SettingsComposerSettingsFilterSearchString_SSLyContextMenu" id="20"/>
-				<ExtendedTooltip name="SettingsComposerSettingsFilterSearchString_SSLyExtendedTooltip" id="21"/>
+				<ContextMenu name="SettingsComposerSettingsFilterSearchStringContextMenu" id="20"/>
+				<ExtendedTooltip name="SettingsComposerSettingsFilterSearchStringExtendedTooltip" id="21"/>
 			</SearchStringAddition>
-			<ViewStatusAddition name="SettingsComposerSettingsFilterViewStatus_SSLy" id="22">
+			<ViewStatusAddition name="SettingsComposerSettingsFilterViewStatus" id="22">
 				<AdditionSource>
 					<Item>SettingsComposerSettingsFilter</Item>
 					<Type>ViewStatusRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="SettingsComposerSettingsFilterViewStatus_SSLyContextMenu" id="23"/>
-				<ExtendedTooltip name="SettingsComposerSettingsFilterViewStatus_SSLyExtendedTooltip" id="24"/>
+				<ContextMenu name="SettingsComposerSettingsFilterViewStatusContextMenu" id="23"/>
+				<ExtendedTooltip name="SettingsComposerSettingsFilterViewStatusExtendedTooltip" id="24"/>
 			</ViewStatusAddition>
-			<SearchControlAddition name="SettingsComposerSettingsFilterSearchControl_SSLy" id="25">
+			<SearchControlAddition name="SettingsComposerSettingsFilterSearchControl" id="25">
 				<AdditionSource>
 					<Item>SettingsComposerSettingsFilter</Item>
 					<Type>SearchControl</Type>
 				</AdditionSource>
-				<ContextMenu name="SettingsComposerSettingsFilterSearchControl_SSLyContextMenu" id="26"/>
-				<ExtendedTooltip name="SettingsComposerSettingsFilterSearchControl_SSLyExtendedTooltip" id="27"/>
+				<ContextMenu name="SettingsComposerSettingsFilterSearchControlContextMenu" id="26"/>
+				<ExtendedTooltip name="SettingsComposerSettingsFilterSearchControlExtendedTooltip" id="27"/>
 			</SearchControlAddition>
 			<Events>
 				<Event name="OnChange">SettingsComposerSettingsFilterOnChange</Event>

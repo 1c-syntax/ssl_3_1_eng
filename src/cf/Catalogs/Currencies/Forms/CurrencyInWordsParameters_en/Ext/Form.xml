@@ -54,7 +54,7 @@
 				</v8:item>
 			</Title>
 			<Behavior>Usual</Behavior>
-			<ExtendedTooltip name="WholePartExtendedTooltip" id="101"/>
+			<ExtendedTooltip name="IntegerPartExtendedTooltip" id="101"/>
 			<ChildItems>
 				<InputField name="IntegerPartSingularForm" id="104">
 					<DataPath>IntegerPartSingularForm</DataPath>
@@ -65,8 +65,8 @@
 						</v8:item>
 					</Title>
 					<HorizontalStretch>false</HorizontalStretch>
-					<ContextMenu name="WholePartOfASingleNumberContextMenu" id="105"/>
-					<ExtendedTooltip name="WholePartOfASingleNumberExtendedTooltip" id="106"/>
+					<ContextMenu name="IntegerPartSingularFormContextMenu" id="105"/>
+					<ExtendedTooltip name="IntegerPartSingularFormExtendedTooltip" id="106"/>
 					<Events>
 						<Event name="OnChange">InputFieldOnChange</Event>
 						<Event name="EditTextChange">InputFieldEditTextChange</Event>
@@ -81,8 +81,8 @@
 						</v8:item>
 					</Title>
 					<HorizontalStretch>false</HorizontalStretch>
-					<ContextMenu name="APartOfThePluralContextMenu" id="108"/>
-					<ExtendedTooltip name="APartOfThePluralExtendedTooltip" id="109"/>
+					<ContextMenu name="IntegerPartPluralFormContextMenu" id="108"/>
+					<ExtendedTooltip name="IntegerPartPluralFormExtendedTooltip" id="109"/>
 					<Events>
 						<Event name="OnChange">InputFieldOnChange</Event>
 						<Event name="EditTextChange">InputFieldEditTextChange</Event>
@@ -109,8 +109,8 @@
 						</v8:item>
 					</Title>
 					<HorizontalStretch>false</HorizontalStretch>
-					<ContextMenu name="TheFractionalPartOfASingleNumberContextMenu" id="111"/>
-					<ExtendedTooltip name="TheFractionalPartOfASingleNumberExtendedTooltip" id="112"/>
+					<ContextMenu name="FractionalPartSingularFormContextMenu" id="111"/>
+					<ExtendedTooltip name="FractionalPartSingularFormExtendedTooltip" id="112"/>
 					<Events>
 						<Event name="OnChange">InputFieldOnChange</Event>
 						<Event name="EditTextChange">InputFieldEditTextChange</Event>
@@ -125,8 +125,8 @@
 						</v8:item>
 					</Title>
 					<HorizontalStretch>false</HorizontalStretch>
-					<ContextMenu name="TheFractionalPartIsPluralContextMenu" id="114"/>
-					<ExtendedTooltip name="TheFractionalPartIsPluralExtendedTooltip" id="115"/>
+					<ContextMenu name="FractionalPartPluralFormContextMenu" id="114"/>
+					<ExtendedTooltip name="FractionalPartPluralFormExtendedTooltip" id="115"/>
 					<Events>
 						<Event name="OnChange">InputFieldOnChange</Event>
 						<Event name="EditTextChange">InputFieldEditTextChange</Event>

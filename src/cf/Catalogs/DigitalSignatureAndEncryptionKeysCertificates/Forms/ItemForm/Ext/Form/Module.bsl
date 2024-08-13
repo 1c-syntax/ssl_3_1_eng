@@ -59,6 +59,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		StandardSubsystemsServer.SetFormAssignmentKey(ThisObject, "CustomCertificate");
 	EndIf;
 	
+	// StandardSubsystems.AttachableCommands
+	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
+		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
+	EndIf;
+	// End StandardSubsystems.AttachableCommands
+	
 EndProcedure
 
 &AtClient
@@ -77,6 +84,13 @@ Procedure OnOpen(Cancel)
 		Return;
 	EndIf;
 	
+	// StandardSubsystems.AttachableCommands
+	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
+		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
+	EndIf;
+	// End StandardSubsystems.AttachableCommands
+	
 	CreateAListOfUsers();
 	
 	AttachIdleHandler("WaitHandlerShowCertificateStatus", 0.1, True);
@@ -85,6 +99,13 @@ EndProcedure
 
 &AtServer
 Procedure OnReadAtServer(CurrentObject)
+	
+	// StandardSubsystems.AttachableCommands
+	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommandsClientServer = Common.CommonModule("AttachableCommandsClientServer");
+		ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, Object);
+	EndIf;
+	// End StandardSubsystems.AttachableCommands
 	
 	If CertificateAddress <> Undefined Then
 		OnCreateAtServerOnReadAtServer();
@@ -101,6 +122,13 @@ EndProcedure
 
 &AtClient
 Procedure AfterWrite(WriteParameters)
+	
+	// StandardSubsystems.AttachableCommands
+	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
+		ModuleAttachableCommandsClient.AfterWrite(ThisObject, Object, WriteParameters);
+	EndIf;
+	// End StandardSubsystems.AttachableCommands
 	
 	AdditionalParameters = DigitalSignatureInternalClient.ParametersNotificationWhenWritingCertificate();
 	If WriteParameters.IsNew Then
@@ -143,7 +171,7 @@ EndProcedure
 &AtServer
 Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	
-	// Checking description for uniqueness.
+	// Check the description for uniqueness.
 	If Not Items.Description.ReadOnly Then
 		DigitalSignatureInternal.CheckPresentationUniqueness(
 			Object.Description, Object.Ref, "Object.Description", Cancel);
@@ -266,8 +294,7 @@ Async Procedure ApplicationOpening(Item, StandardProcessing)
 		If ValueIsFilled(AppAuto.Ref) Then
 			ShowValue(,AppAuto.Ref);
 		Else
-			OpenForm("Catalog.DigitalSignatureAndEncryptionApplications.Form.AutoDeterminedApp",
-				New Structure("Application", AppAuto), ThisObject,,,,,FormWindowOpeningMode.LockOwnerWindow);
+			DigitalSignatureInternalClient.OpenAppForm(AppAuto, ThisObject);
 		EndIf;
 		Return;
 	EndIf;
@@ -277,8 +304,8 @@ Async Procedure ApplicationOpening(Item, StandardProcessing)
 	FormParameters.Insert("ErrorTextClient", ErrorAtClient);
 	FormParameters.Insert("ErrorTextServer", ErrorAtServer);
 	
-	OpenForm("CommonForm.ExtendedErrorPresentation", FormParameters, ThisObject);
-
+	DigitalSignatureInternalClient.OpenExtendedErrorPresentationForm(FormParameters, ThisObject);
+	
 EndProcedure
 
 #EndRegion
@@ -306,8 +333,8 @@ Procedure ShowCertificateData(Command)
 	FormParameters.Insert("OpeningFromCertificateItemForm");
 	FormParameters.Insert("CertificateAddress", CertificateAddress);
 	
-	OpenForm("CommonForm.Certificate", FormParameters, ThisObject);
-	
+	DigitalSignatureInternalClient.OpenCertificateForm(FormParameters, ThisObject);
+
 EndProcedure
 
 &AtClient
@@ -334,7 +361,7 @@ Procedure CheckCertificate(Command)
 	EndIf;
 	
 	DigitalSignatureClient.CheckCatalogCertificate(Object.Ref,
-		New Structure("NoConfirmation", True));
+		New Structure("NoConfirmation, SignatureType", True, SignatureTypeByDefault()));
 	
 EndProcedure
 
@@ -411,6 +438,37 @@ Procedure PickIndividual(Command)
 	
 EndProcedure
 
+// StandardSubsystems.AttachableCommands
+&AtClient
+Procedure Attachable_ExecuteCommand(Command)
+	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
+		ModuleAttachableCommandsClient.StartCommandExecution(ThisObject, Command, Object);
+	EndIf;
+EndProcedure
+
+&AtClient
+Procedure Attachable_ContinueCommandExecutionAtServer(ExecutionParameters, AdditionalParameters) Export
+    ExecuteCommandAtServer(ExecutionParameters);
+EndProcedure
+
+&AtServer
+Procedure ExecuteCommandAtServer(ExecutionParameters)
+	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
+		ModuleAttachableCommands.ExecuteCommand(ThisObject, ExecutionParameters, Object);
+	EndIf;
+EndProcedure
+
+&AtClient
+Procedure Attachable_UpdateCommands()
+	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommandsClientServer = CommonClient.CommonModule("AttachableCommandsClientServer");
+		ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, Object);
+	EndIf;
+EndProcedure
+// End StandardSubsystems.AttachableCommands
+
 #EndRegion
 
 #Region Private
@@ -472,8 +530,8 @@ Procedure OnCreateAtServerOnReadAtServer()
 			Items.Individual.ReadOnly       =  ValueIsFilled(Object.Individual);
 			Items.PickIndividual.Enabled =  Not Items.Individual.ReadOnly;
 			If Not ThisIsTheAuthor Then
-				// 
-				// 
+				// An ordinary user cannot change the "User" attribute
+				// unless the user added the certificate.
 				Items.Users.ReadOnly = True;
 				Items.Users.OpenButton = True;
 			EndIf;
@@ -627,7 +685,7 @@ Procedure UpdateItemVisibilityEnterPasswordInElectronicSignatureProgram(Form)
 	Form.Items.EnterPasswordInDigitalSignatureApplication.Visible = Not Form.CloudSignatureCertificate.CloudSignature
 		And Not (ValueIsFilled(Form.BuiltinCryptoprovider) And Form.Object.Application = Form.BuiltinCryptoprovider);
 
-	Form.Items.FormChangePINCode.Visible = Form.CloudSignatureCertificate.CloudSignature;
+	Form.Items.FormChangePIN.Visible = Form.CloudSignatureCertificate.CloudSignature;
 	
 EndProcedure
 
@@ -675,7 +733,9 @@ Procedure RefreshVisibilityWarnings(Val CryptoCertificate = Undefined)
 				EndIf;
 				Items.Warning.Title = New FormattedString(RowsArray);
 				
-				If DigitalSignature.AddEditDigitalSignatures() Then
+				If DataWarnings.AllowSigning
+					And DigitalSignature.AddEditDigitalSignatures() Then
+					
 					SettingAllowSigning = Common.CommonSettingsStorageLoad(
 						Object.Ref, "AllowSigning", Undefined);
 					Items.SigningAllowed.Visible = True;
@@ -875,6 +935,7 @@ Function FillApplicationsList(Val SelectedProgram)
 	EndIf;
 	
 	Result = New ValueList;
+	Result.Add(Catalogs.DigitalSignatureAndEncryptionApplications.EmptyRef(), NStr("en = 'Default';"));
 	
 	QueryText = 
 	"SELECT
@@ -961,6 +1022,13 @@ Function AppForCertificate(CertificateAddress, ErrorAtServer)
 	EndIf;
 	
 	Return CertificateApplicationResult.Application;
+	
+EndFunction
+
+&AtServerNoContext
+Function SignatureTypeByDefault()
+	
+	Return Constants.CryptoSignatureTypeDefault.Get();
 	
 EndFunction
 

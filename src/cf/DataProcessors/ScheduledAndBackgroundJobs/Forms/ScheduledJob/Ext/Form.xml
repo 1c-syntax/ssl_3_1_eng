@@ -277,7 +277,7 @@
 							<v8:content>No messages</v8:content>
 						</v8:item>
 					</InputHint>
-					<ContextMenu name="MessagesAndErrorInformationDetailsContextMenu" id="28"/>
+					<ContextMenu name="MessagesAndErrorDescriptionContextMenu" id="28"/>
 					<ExtendedTooltip name="MessagesAndErrorDescriptionExtendedTooltip" id="70"/>
 				</InputField>
 			</ChildItems>
@@ -330,7 +330,7 @@ They cannot be deleted.
 						</v8:item>
 					</Title>
 					<Wrap>false</Wrap>
-					<ContextMenu name="MetadataName1ContextMenu" id="20"/>
+					<ContextMenu name="NameOfMetadataObjectsContextMenu" id="20"/>
 					<ExtendedTooltip name="NameOfMetadataObjectsExtendedTooltip" id="66"/>
 				</InputField>
 				<InputField name="MetadataSynonym" id="21">

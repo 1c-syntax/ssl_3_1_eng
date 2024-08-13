@@ -70,7 +70,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Server call.
 
 &AtServerNoContext
 Procedure ResetUserSettingsServer(Val OptionsToAssign)
@@ -93,7 +93,7 @@ Procedure ResetUserSettingsServer(Val OptionsToAssign)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Server
+// Server.
 
 &AtServer
 Procedure DefineBehaviorInMobileClient()

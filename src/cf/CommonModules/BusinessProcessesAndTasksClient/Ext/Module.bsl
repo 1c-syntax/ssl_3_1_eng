@@ -495,6 +495,46 @@ Procedure OpenRolesAndTaskPerformersList() Export
 	
 EndProcedure
 
+// Opens the assignee role selection form.
+// 
+// Parameters:
+//  FormParameters - See PerformerRoleChoiceFormParameters
+//  Owner - Undefined
+//           - ClientApplicationForm - The form where the assignee selection form opens.
+//
+Procedure OpenPerformerRoleChoiceForm(FormParameters, Owner) Export
+
+	OpenForm("CommonForm.SelectPerformerRole", FormParameters, Owner);
+
+EndProcedure
+
+// The form opening parameters.
+// 
+// Parameters:
+//  PerformerRole - CatalogRef.PerformerRoles - A role for role-based assignment of the task to business process members. 
+//  MainAddressingObject - Arbitrary - The main business object for forwarding the task.
+//  AdditionalAddressingObject - Arbitrary - An additional business object for forwarding the task.
+// 
+// Returns:
+//  Structure:
+//   * PerformerRole  - CatalogRef.PerformerRoles - A role for role-based assignment of the task to business process members.
+//   * MainAddressingObject - Arbitrary - The main business object for forwarding the task.
+//   * AdditionalAddressingObject - Arbitrary - An additional business object for forwarding the task.
+//   * SelectAddressingObject - Boolean - If set to "True", the main business object is selected in the list.
+// 
+Function PerformerRoleChoiceFormParameters(PerformerRole, MainAddressingObject = Undefined, 
+		AdditionalAddressingObject = Undefined) Export
+
+	FormParameters = New Structure;
+	FormParameters.Insert("PerformerRole",               PerformerRole);
+	FormParameters.Insert("MainAddressingObject",       MainAddressingObject);
+	FormParameters.Insert("AdditionalAddressingObject", AdditionalAddressingObject);
+	FormParameters.Insert("SelectAddressingObject",         False);
+	
+	Return FormParameters;
+
+EndFunction
+
 #EndRegion
 
 #Region Private

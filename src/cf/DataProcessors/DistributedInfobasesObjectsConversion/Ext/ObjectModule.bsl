@@ -148,9 +148,9 @@ Procedure ReadExchangeMessageFile(Cancel, XMLReader, Val ImportOnlyParameters, V
 	Try
 		MessageReader.BeginRead(XMLReader, AllowedMessageNo.Greater);
 	Except
-		// 
-		// 
-		// 
+		// Unknown exchange plan specified.
+		// Node outside of the exchange plan specified.
+		// Unexpected message number.
 		ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		WriteExchangeFinish(Cancel, ErrorMessage, ErrorStartRedingTheExchangeMessageFile());
 		Return;
@@ -327,8 +327,8 @@ Procedure WriteChangesToExchangeMessageFile(Cancel, XMLWriter, ErrorMessage = ""
 		// Writing configuration changes and data changes to the exchange message.
 		ExchangePlans.WriteChanges(WriteMessage1, TransactionItemsCount);
 		
-		// 
-		// 
+		// Append top-priority data to the exchange message
+		// (predefined items and metadata object IDs).
 		WritePriorityChangesToExchangeMessage(WriteMessage1);
 		
 		WriteMessage1.EndWrite();
@@ -481,8 +481,8 @@ Procedure ReadPriorityChangesFromExchangeMessage(Val MessageReader, CommonDataNo
 					
 				Else // Type("ObjectDeletion")
 					
-					// 
-					//    
+					// 1. ID references are deleted independently in each node using Marked object deletion.
+					//    2. Deleted predefined objects are not exported.
 					// 
 					Continue;
 				EndIf;

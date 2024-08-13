@@ -13,6 +13,9 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
+	If Parameters.Deduplication Then
+		Title = NStr("en = 'Invalid data found when deduplicating files';");
+	EndIf;
 	Explanation = Parameters.Explanation;
 	
 	SpreadsheetDocument = New SpreadsheetDocument;
@@ -30,6 +33,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		AreaRow.Parameters.Location = FileOwnerPresentation(Error.Version);
 		
 		Area = SpreadsheetDocument.Put(AreaRow);
+		Area.RowHeight = 0;
 		Area.AutoRowHeight = True;
 	EndDo;
 	
@@ -58,7 +62,11 @@ EndProcedure
 #Region Private
 
 &AtServer
-Function FileOwnerPresentation(File)
+Function FileOwnerPresentation(Val File)
+	If TypeOf(File) = Type("CatalogRef.FilesVersions") Then
+		File = Common.ObjectAttributeValue(File, "Owner");
+	EndIf;
+	
 	FileOwner = Common.ObjectAttributeValue(File, "FileOwner");
 	Return ?(FileOwner.IsEmpty(), 
 		Common.ListPresentation(FileOwner.Metadata()),

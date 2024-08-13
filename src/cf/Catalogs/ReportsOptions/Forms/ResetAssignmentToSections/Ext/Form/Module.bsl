@@ -65,7 +65,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Server call.
 
 &AtServerNoContext
 Function ResetAssignmentSettingsServer(Val OptionsToAssign)
@@ -95,7 +95,7 @@ Function ResetAssignmentSettingsServer(Val OptionsToAssign)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Server
+// Server.
 
 &AtServer
 Procedure DefineBehaviorInMobileClient()

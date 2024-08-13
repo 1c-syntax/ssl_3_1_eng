@@ -115,27 +115,27 @@ Function IsFullUser(User = Undefined,
 	EndIf;
 	
 	If StandardSubsystemsCached.PrivilegedModeSetOnStart() Then
-		// 
-		// 
+		// If the client app was launched with the "UsePrivilegedMode" parameter
+		// and the privileged mode is set, the user has full rights.
 		Return True;
 	EndIf;
 	
 	If Not ValueIsFilled(IBUserProperies.Name) And Metadata.DefaultRoles.Count() = 0 Then
-		// 
-		// 
+		// If the main roles are not specified, an unspecified user
+		// has full rights (the same as in the privileged mode).
 		Return True;
 	EndIf;
 	
 	If Not ValueIsFilled(IBUserProperies.Name)
 	   And PrivilegedModeSet
 	   And IBUserProperies.AdministrationRight Then
-		// 
-		// 
+		// If an unspecified user has the "Administration" right, the privileged mode is always considered
+		// to support the startup parameter "UsePrivilegedMode" for non-client apps.
 		// 
 		Return True;
 	EndIf;
 	
-	// 
+	// Check the current user's roles in the current session (not in the saved infobase user).
 	// 
 	If CheckFullAccessRole
 	   And Not IBUserProperies.RoleAvailableFullAccess Then
@@ -208,7 +208,8 @@ Function RolesAvailable(RolesNames,
 	
 	If IBUserProperies.IsCurrentIBUser Then
 		For Each NameOfRole In RolesNamesArray Do
-			// 
+			// ACC:336-off - Do not replace with "RolesAvailable". Roles are validated in the "RolesAvailable" function.
+			//@skip-check using-isinrole
 			If IsInRole(TrimAll(NameOfRole)) Then
 				Return True;
 			EndIf;
@@ -313,8 +314,8 @@ Function HasRightsToLogIn(IBUser, Interactively = True, AreStartupRightsOnly = T
 	
 	If Not AreStartupRightsOnly Then
 		// ACC:515-off - No.737.4 Check the role as it is indicates the minimal logon rights.
-		Result = Result And RolesAvailable("BasicSSLRights,
-			|BasicSSLRightsForExternalUsers", IBUser, False);
+		Result = Result And RolesAvailable("BasicAccessSSL,
+			|BasicAccessExternalUserSSL", IBUser, False);
 		// ACC:515-on
 	EndIf;
 	
@@ -539,29 +540,29 @@ Procedure FillUserPictureNumbers(Val TableOrTree,
 	SetPrivilegedMode(True);
 	
 	If RowID = Undefined Then
-		RowsArray = Undefined;
+		TableRows = Undefined;
 		
 	ElsIf TypeOf(RowID) = Type("Array") Then
-		RowsArray = New Array;
+		TableRows = New Array;
 		For Each Id In RowID Do
-			RowsArray.Add(TableOrTree.FindByID(Id));
+			TableRows.Add(TableOrTree.FindByID(Id));
 		EndDo;
 	Else
-		RowsArray = New Array;
-		RowsArray.Add(TableOrTree.FindByID(RowID));
+		TableRows = New Array;
+		TableRows.Add(TableOrTree.FindByID(RowID));
 	EndIf;
 	
 	If TypeOf(TableOrTree) = Type("FormDataTree") Then
-		If RowsArray = Undefined Then
-			RowsArray = TableOrTree.GetItems();
+		If TableRows = Undefined Then
+			TableRows = TableOrTree.GetItems();
 		EndIf;
 		UsersTable = New ValueTable;
 		UsersTable.Columns.Add(UserFieldName,
 			Metadata.InformationRegisters.UserGroupCompositions.Dimensions.UsersGroup.Type);
-		For Each String In RowsArray Do
-			UsersTable.Add()[UserFieldName] = String[UserFieldName];
+		For Each TableRow In TableRows Do
+			UsersTable.Add()[UserFieldName] = TableRow[UserFieldName];
 			If ProcessSecondAndThirdLevelHierarchy Then
-				For Each String2 In String.GetItems() Do
+				For Each String2 In TableRow.GetItems() Do
 					UsersTable.Add()[UserFieldName] = String2[UserFieldName];
 					For Each String3 In String2.GetItems() Do
 						UsersTable.Add()[UserFieldName] = String3[UserFieldName];
@@ -570,28 +571,28 @@ Procedure FillUserPictureNumbers(Val TableOrTree,
 			EndIf;
 		EndDo;
 	ElsIf TypeOf(TableOrTree) = Type("FormDataCollection") Then
-		If RowsArray = Undefined Then
-			RowsArray = TableOrTree;
+		If TableRows = Undefined Then
+			TableRows = TableOrTree;
 		EndIf;
 		UsersTable = New ValueTable;
 		UsersTable.Columns.Add(UserFieldName,
 			Metadata.InformationRegisters.UserGroupCompositions.Dimensions.UsersGroup.Type);
-		For Each String In RowsArray Do
-			UsersTable.Add()[UserFieldName] = String[UserFieldName];
+		For Each TableRow In TableRows Do
+			UsersTable.Add()[UserFieldName] = TableRow[UserFieldName];
 		EndDo;
 	ElsIf TypeOf(TableOrTree) = Type("Array") Then
-		RowsArray = TableOrTree;
+		TableRows = TableOrTree;
 		UsersTable = New ValueTable;
 		UsersTable.Columns.Add(UserFieldName,
 			Metadata.InformationRegisters.UserGroupCompositions.Dimensions.UsersGroup.Type);
-		For Each String In TableOrTree Do
-			UsersTable.Add()[UserFieldName] = String[UserFieldName];
+		For Each TableRow In TableOrTree Do
+			UsersTable.Add()[UserFieldName] = TableRow[UserFieldName];
 		EndDo;
 	Else
-		If RowsArray = Undefined Then
-			RowsArray = TableOrTree;
+		If TableRows = Undefined Then
+			TableRows = TableOrTree;
 		EndIf;
-		UsersTable = TableOrTree.Unload(RowsArray, UserFieldName);
+		UsersTable = TableOrTree.Unload(TableRows, UserFieldName);
 	EndIf;
 	
 	Query = New Query;
@@ -636,11 +637,11 @@ Procedure FillUserPictureNumbers(Val TableOrTree,
 	Query.SetParameter("Users", UsersTable);
 	PicturesNumbers = Query.Execute().Unload();
 	
-	For Each String In RowsArray Do
-		FoundRow = PicturesNumbers.Find(String[UserFieldName], "User");
-		String[PictureNumberFieldName] = ?(FoundRow = Undefined, -2, FoundRow.PictureNumber);
+	For Each TableRow In TableRows Do
+		FoundRow = PicturesNumbers.Find(TableRow[UserFieldName], "User");
+		TableRow[PictureNumberFieldName] = ?(FoundRow = Undefined, -2, FoundRow.PictureNumber);
 		If ProcessSecondAndThirdLevelHierarchy Then
-			For Each String2 In String.GetItems() Do
+			For Each String2 In TableRow.GetItems() Do
 				FoundRow = PicturesNumbers.Find(String2[UserFieldName], "User");
 				String2[PictureNumberFieldName] = ?(FoundRow = Undefined, -2, FoundRow.PictureNumber);
 				For Each String3 In String2.GetItems() Do
@@ -703,7 +704,7 @@ Function CreateAdministrator(IBUser = Undefined) Export
 			EndIf;
 			IBUser.Write();
 		Else
-			// 
+			// Do not create the first administrator if a user with administrator rights exists.
 			// 
 			For Each CurrentIBUser In IBUsers Do
 				If UsersInternal.AdministratorRolesAvailable(CurrentIBUser) Then
@@ -722,9 +723,9 @@ Function CreateAdministrator(IBUser = Undefined) Export
 	Else
 		If Not UsersInternal.AdministratorRolesAvailable(IBUser) Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot create a user in the catalog
+				NStr("en = 'Cannot create a user in the catalog
 				           |mapped to the infobase user""%1""
-				           |because it does not have ""Full access"" and ""System administrator"" roles.
+				           |because it does not have ""Full access"" and ""System administrator"" roles.
 				           |
 				           |The user was probably created in Designer.
 				           |To have a user created in the catalog automatically,
@@ -834,7 +835,7 @@ Procedure IfUserGroupsExistSetUsage() Export
 	
 EndProcedure
 
-// 
+// Returns the reference to the standard "AllUsers" group.
 //
 // Returns:
 //  CatalogRef.UserGroups
@@ -921,51 +922,71 @@ EndFunction
 // Returns an empty structure that describes infobase user properties.
 // The purpose of the structure properties corresponds to the properties of the InfobaseUser object.
 //
+// Parameters:
+//  IsIntendedForSetting - Boolean - If set to "False", the method returns property values for the new infobase user.
+//    If set to "True", the structure properties take "Undefined" to avoid changing properties of
+//    the object "InfobaseUser" when calling the "SetIBUserProperies" procedure.
+//    The default value is "True".
+//
 // Returns:
 //  Structure:
-//   * UUID   - UUID - an infobase user UUID.
-//   * Name                       - String - the name of an infobase user. For example, "Smith".
+//   * UUID   - UUID - Infobase user's UID.
+//                                 The UID is empty after initialization, and non-empty after a successful reading.
+//   * Name                       - String - Infobase user's name. For example, "Smith".
+//                               - Undefined - Indicates that the property mustn't be changed when a property set is specified.
 //   * FullName                 - String - Full name of an infobase user. 
-//                                          For example, "John Smith (Sales Manager)".
+//                                   For example, "John Smith (Sales Manager)".
+//                               - Undefined - Indicates that the property mustn't be changed when a property set is specified.
 //   * Email     - String - Email address (for example, for password recovery).
+//                               - Undefined - Indicates that the property mustn't be changed when a property set is specified.
 //
-//   * StandardAuthentication      - Boolean - the flag that indicates whether user name and password authentication is allowed.
+//   * StandardAuthentication      - Boolean - Indicates whether user authentication with credentials is allowed.
+//                                    - Undefined - Indicates that the property mustn't be changed when a property set is specified.
 //   * ShowInList        - Boolean - the flag that indicates whether to show the full user name in the list at startup.
 //   * Password                         - String - Password used for standard authentication.
-//                                    - Undefined - User password is not changed.
+//                                    - Undefined - The value after reading and initialization.
+//                                        (Indicates that the property mustn't be changed when a property set is specified.)
 //   * StoredPasswordValue      - String - Password hash.
-//                                    - Undefined - Password hash is not changed.
-//   * PasswordIsSet               - Boolean - the flag that indicates whether the user has a password.
-//   * CannotChangePassword        - Boolean - the flag that indicates whether the user can change the password.
+//                                    - Undefined - Indicates that the property mustn't be changed when a property set is specified.
+//   * PasswordIsSet               - Boolean - After reading, indicates that the user has a password set.
+//                                      It is ignored when a property set is specified.
+//                                    - Undefined - Initialization value.
+//   * CannotChangePassword        - Boolean - Indicates whether the user can change their password.
+//                                    - Undefined - Indicates that the property mustn't be changed when a property set is specified.
 //   * CannotRecoveryPassword - Boolean - Indicates whether the user can recover their password.
+//                                    - Undefined - Indicates that the property mustn't be changed when a property set is specified.
 //
 //   * OpenIDAuthentication         - Boolean - Indicates whether OpenID authentication is allowed.
+//                                  - Undefined - Indicates that the property mustn't be changed when a property set is specified.
 //   * OpenIDConnectAuthentication  - Boolean - Indicates whether OpenID-Connect authentication is allowed.
+//                                  - Undefined - Indicates that the property mustn't be changed when a property set is specified.
 //   * AccessTokenAuthentication - Boolean - Indicates whether JWT authentication is allowed.
+//                                  - Undefined - Indicates that the property mustn't be changed when a property set is specified.
 //
-//   * OSAuthentication          - Boolean - the flag that indicates whether authentication by the means of OS is allowed.
-//   * OSUser            - String - the name of the OS user associated to the application user. 
-//                                          Not applicable for the training version of the platform.
+//   * OSAuthentication          - Boolean - Indicates whether OS authentication is allowed.
+//                               - Undefined - Indicates that the property mustn't be changed when a property set is specified.
+//   * OSUser            - String - The name of the OS user associated with the app user. 
+//                                          Not applicable to 1C:Enterprise sandbox.
+//                               - Undefined - Indicates that the property mustn't be changed when a property set is specified.
 //
 //   * DefaultInterface         - String - Name of the main infobase user interface
 //                                         (a member of the "Metadata.Interfaces" collection).
-//                               - Undefined
+//                               - Undefined - Indicates that the property mustn't be changed when a property set is specified.
 //   * RunMode              - String - Valid values are: "Auto", "OrdinaryApplication", "ManagedApplication".
-//                               - Undefined
+//                               - Undefined - Indicates that the property mustn't be changed when a property set is specified.
 //   * Language                      - String - A language name (a member of the "Metadata.Languages" collection).
-//                               - Undefined
-//   * Roles                      - Array - A collection of infobase user's role names.
-//                               - Undefined - roles are not specified.
+//                               - Undefined - Indicates that the property mustn't be changed when a property set is specified.
+//   * Roles                      - Array of String - A collection of infobase user's role names.
+//                               - Undefined - Indicates that the property mustn't be changed when a property set is specified.
 //
-//   * UnsafeActionProtection   - Boolean - Same as the property
-//                                   "UnsafeOperationWarnings" of the "UnsafeOperationProtection" type. By default, True.
+//   * UnsafeActionProtection   - Boolean - Same as the property "WarnAboutUnsafeActions"
+//                                   with the type "UnsafeOperationProtection".
+//                               - Undefined - Indicates that the property mustn't be changed when a property set is specified.
 //
-Function NewIBUserDetails() Export
+Function NewIBUserDetails(IsIntendedForSetting = True) Export
 	
 	// Preparing the data structure for storing the return value.
 	Properties = New Structure;
-	
-	Properties.Insert("UUID", CommonClientServer.BlankUUID());
 	
 	Properties.Insert("Name",                            "");
 	Properties.Insert("FullName",                      "");
@@ -987,14 +1008,22 @@ Function NewIBUserDetails() Export
 	Properties.Insert("DefaultInterface",
 		?(Metadata.DefaultInterface = Undefined, "", Metadata.DefaultInterface.Name));
 	
-	Properties.Insert("RunMode",              "Auto");
+	Properties.Insert("RunMode", "Auto");
 	
 	Properties.Insert("Language",
 		?(Metadata.DefaultLanguage = Undefined, "", Metadata.DefaultLanguage.Name));
 	
-	Properties.Insert("Roles", Undefined);
+	Properties.Insert("Roles", New Array);
 	
 	Properties.Insert("UnsafeActionProtection", True);
+	
+	If IsIntendedForSetting Then
+		For Each KeyAndValue In Properties Do
+			Properties[KeyAndValue.Key] = Undefined;
+		EndDo;
+	EndIf;
+	
+	Properties.Insert("UUID", CommonClientServer.BlankUUID());
 	
 	Return Properties;
 	
@@ -1008,16 +1037,15 @@ EndFunction
 //                       - UUID - name or ID of the infobase user.
 //
 // Returns:
-//  Structure, Undefined - User properties, See Users.NewIBUserDetails.
-//                            Returns "Undefined" if no user with the given id or name does not exist.
+//  Structure - See Users.NewIBUserDetails
+//  Undefined - No user with the given id or name does not exist.
 //
 Function IBUserProperies(Val NameOrID) Export
 	
 	CommonClientServer.CheckParameter("Users.IBUserProperies", "NameOrID",
 		NameOrID, New TypeDescription("String, UUID"));
-		 
-	Properties = NewIBUserDetails();
-	Properties.Roles = New Array;
+	
+	Properties = NewIBUserDetails(False);
 	
 	If TypeOf(NameOrID) = Type("UUID") Then
 		IBUser = UsersInternal.InfobaseUserByID(NameOrID);
@@ -1038,14 +1066,14 @@ Function IBUserProperies(Val NameOrID) Export
 	
 EndFunction
 
-// Writes new property values of the specified infobase user or creates a new infobase user.
-// An exception will be called if a user does not exist and also on attempts to create an existing user.
+// Applies new property values to the specified infobase user or creates a new infobase user.
+// Throws an exception if a user does not exist or when attempting to create an existing user.
 //
 // Parameters:
 //  NameOrID - String
 //                      - UUID - a name or ID of the user 
 //                                                  whose properties require setting. Or name of a new infobase user.
-//  PropertiesToUpdate - See Users.NewIBUserDetails.
+//  PropertiesToUpdate - See Users.NewIBUserDetails
 //
 //  CreateNewOne - Boolean - specify True to create a new infobase user called NameOrID.
 //
@@ -1077,7 +1105,7 @@ Procedure SetIBUserProperies(Val NameOrID, Val PropertiesToUpdate,
 	Else
 		IBUser = Undefined;
 		OldInfobaseUserString = Undefined;
-		PreviousProperties = NewIBUserDetails();
+		PreviousProperties = NewIBUserDetails(False);
 	EndIf;
 		
 	If Not UserExists Then
@@ -1154,7 +1182,7 @@ Procedure SetIBUserProperies(Val NameOrID, Val PropertiesToUpdate,
 			// ACC:488-off - Support of new 1C:Enterprise methods (the executable code is safe)
 			IBUser.StoredPasswordValue =
 				Eval("EvaluateStoredUserPasswordValue(PropertiesToUpdate.Password)");
-			// 
+			// ACC:488-on
 		Else
 			IBUser.StoredPasswordValue =
 				UsersInternal.PasswordHashString(PropertiesToUpdate.Password, True);
@@ -1242,17 +1270,16 @@ EndProcedure
 // (or the other way) for the default interface, language, run mode, and roles.
 // It a property is missing from either the source or the target, it won't be copied.
 //
-//  Properties "Password" and "PasswordHash" are not copied if their value in the source is "Undefined".
+//  Properties whose values are "Undefined" are not copied
+//  (except for when the source type is "InfobaseUser").
+// Properties "OSAuthentication", "StandardAuthentication", "AuthenticationWithOpenIDConnect",
 //
-//  Properties "OSAuthentication", "StandardAuthentication", "AuthenticationWithOpenIDConnect",
-// "AuthenticationWithAccessToken", "OpenIDAuthentication", "PasswordHash", and "OSUser"
-//
-//  are not reset if they match and the type of "Receiver" is "InfoBaseUser".
+//  "AuthenticationWithAccessToken", "OpenIDAuthentication", "PasswordHash", and "OSUser"
+// are not reset if they match and the type of "Receiver" is "InfoBaseUser".
 // Properties "UUID", "PasswordSet", and "PreviousPassword"
 // are not copied if the type of "Receiver" is "InfobaseUser".
-// Conversion is executed only if the type of the "Source" and "Receiver" is "InfobaseUser".
 //
-//  
+//  Conversion is executed only if the type of the "Source" and "Receiver" is "InfobaseUser".
 // 
 //
 //  
@@ -1272,7 +1299,10 @@ EndProcedure
 // 
 //  PropertiesToCopy  - String - the list of comma-separated properties to copy (without the prefix).
 //  PropertiesToExclude - String - the list of comma-separated properties to exclude from copying (without the prefix).
-//  PropertyPrefix      - String - the initial name for Source or Target if its type is NOT structure.
+//  PropertyPrefix      - String - The initial name for Source or Target if its type is NOT Structure.
+//                      - Map:
+//                         * Key - The property's name without the prefix.
+//                         * Value - The property's full name with the prefix.
 //
 Procedure CopyIBUserProperties(Receiver,
                                             Source,
@@ -1342,8 +1372,7 @@ Procedure CopyIBUserProperties(Receiver,
 				
 			ElsIf Property = "DefaultInterface" Then
 				PropertyValue = ?(Source.DefaultInterface = Undefined,
-				                     "",
-				                     Source.DefaultInterface.Name);
+					"", Source.DefaultInterface.Name);
 			
 			ElsIf Property = "RunMode" Then
 				ValueFullName = GetPredefinedValueFullName(Source.RunMode);
@@ -1351,8 +1380,7 @@ Procedure CopyIBUserProperties(Receiver,
 				
 			ElsIf Property = "Language" Then
 				PropertyValue = ?(Source.Language = Undefined,
-				                     "",
-				                     Source.Language.Name);
+					"", Source.Language.Name);
 				
 			ElsIf Property = "UnsafeActionProtection" Then
 				PropertyValue =
@@ -1364,7 +1392,8 @@ Procedure CopyIBUserProperties(Receiver,
 				FillPropertyValues(TempStructure, Receiver);
 				If TypeOf(TempStructure.Roles) = Type("ValueTable") Then
 					Continue;
-				ElsIf TempStructure.Roles = Undefined Then
+				ElsIf TempStructure.Roles = Undefined
+				      Or TypeOf(TempStructure.Roles) = Type("Array") Then
 					Receiver.Roles = New Array;
 				Else
 					Receiver.Roles.Clear();
@@ -1379,7 +1408,14 @@ Procedure CopyIBUserProperties(Receiver,
 				PropertyValue = Source[Property];
 			EndIf;
 			
-			PropertyFullName = PropertyPrefix + Property;
+			If TypeOf(PropertyPrefix) = Type("Map") Then
+				PropertyFullName = PropertyPrefix.Get(Property);
+				If Not ValueIsFilled(PropertyFullName) Then
+					Continue;
+				EndIf;
+			Else
+				PropertyFullName = PropertyPrefix + Property;
+			EndIf;
 			TempStructure = New Structure(PropertyFullName, PropertyValue);
 			FillPropertyValues(Receiver, TempStructure);
 		Else
@@ -1390,13 +1426,23 @@ Procedure CopyIBUserProperties(Receiver,
 					Continue;
 				EndIf;
 			Else
-				PropertyFullName = PropertyPrefix + Property;
+				If TypeOf(PropertyPrefix) = Type("Map") Then
+					PropertyFullName = PropertyPrefix.Get(Property);
+					If Not ValueIsFilled(PropertyFullName) Then
+						Continue;
+					EndIf;
+				Else
+					PropertyFullName = PropertyPrefix + Property;
+				EndIf;
 				TempStructure = New Structure(PropertyFullName, New ValueTable);
 				FillPropertyValues(TempStructure, Source);
 				PropertyValue = TempStructure[PropertyFullName];
 				If TypeOf(PropertyValue) = Type("ValueTable") Then
 					Continue;
 				EndIf;
+			EndIf;
+			If PropertyValue = Undefined Then
+				Continue;
 			EndIf;
 			
 			If TypeOf(Receiver) = Type("InfoBaseUser") Then
@@ -1419,14 +1465,11 @@ Procedure CopyIBUserProperties(Receiver,
 					EndIf;
 					
 				ElsIf Property = "Password" Then
-					If PropertyValue <> Undefined Then
-						Receiver.Password = PropertyValue;
-						PasswordIsSet = True;
-					EndIf;
+					Receiver.Password = PropertyValue;
+					PasswordIsSet = True;
 					
 				ElsIf Property = "StoredPasswordValue" Then
-					If PropertyValue <> Undefined
-					   And Not PasswordIsSet
+					If Not PasswordIsSet
 					   And Receiver.StoredPasswordValue <> PropertyValue Then
 						Receiver.StoredPasswordValue = PropertyValue;
 					EndIf;
@@ -1461,14 +1504,12 @@ Procedure CopyIBUserProperties(Receiver,
 					
 				ElsIf Property = "Roles" Then
 					Receiver.Roles.Clear();
-					If PropertyValue <> Undefined Then
-						For Each NameOfRole In PropertyValue Do
-							Role = Metadata.Roles.Find(NameOfRole);
-							If Role <> Undefined Then
-								Receiver.Roles.Add(Role);
-							EndIf;
-						EndDo;
-					EndIf;
+					For Each NameOfRole In PropertyValue Do
+						Role = Metadata.Roles.Find(NameOfRole);
+						If Role <> Undefined Then
+							Receiver.Roles.Add(Role);
+						EndIf;
+					EndDo;
 				Else
 					If Property = "Name"
 					   And Receiver[Property] <> PropertyValue Then
@@ -1494,12 +1535,12 @@ Procedure CopyIBUserProperties(Receiver,
 				EndIf;
 			Else
 				If Property = "Roles" Then
-					
 					TempStructure = New Structure("Roles", New ValueTable);
 					FillPropertyValues(TempStructure, Receiver);
 					If TypeOf(TempStructure.Roles) = Type("ValueTable") Then
 						Continue;
-					ElsIf TempStructure.Roles = Undefined Then
+					ElsIf TempStructure.Roles = Undefined
+					      Or TypeOf(TempStructure.Roles) = Type("Array") Then
 						Receiver.Roles = New Array;
 					Else
 						Receiver.Roles.Clear();
@@ -1513,7 +1554,14 @@ Procedure CopyIBUserProperties(Receiver,
 					Continue;
 					
 				ElsIf TypeOf(Source) = Type("Structure") Then
-					PropertyFullName = PropertyPrefix + Property;
+					If TypeOf(PropertyPrefix) = Type("Map") Then
+						PropertyFullName = PropertyPrefix.Get(Property);
+						If Not ValueIsFilled(PropertyFullName) Then
+							Continue;
+						EndIf;
+					Else
+						PropertyFullName = PropertyPrefix + Property;
+					EndIf;
 				Else
 					PropertyFullName = Property;
 				EndIf;
@@ -1799,14 +1847,14 @@ Procedure FindAmbiguousIBUsers(Val User,
 	|	AmbiguousIDs.AmbiguousID,
 	|	AmbiguousIDs.User";
 	
-	Upload0 = Query.Execute().Unload();
+	Result = Query.Execute().Unload();
 	
 	ErrorDescription = "";
 	CurrentAmbiguousID = Undefined;
 	
-	For Each String In Upload0 Do
-		If String.AmbiguousID <> CurrentAmbiguousID Then
-			CurrentAmbiguousID = String.AmbiguousID;
+	For Each TableRow In Result Do
+		If TableRow.AmbiguousID <> CurrentAmbiguousID Then
+			CurrentAmbiguousID = TableRow.AmbiguousID;
 			If TypeOf(FoundIDs) = Type("Map") Then
 				CurrentUsers = New Array;
 				FoundIDs.Insert(CurrentAmbiguousID, CurrentUsers);
@@ -1842,13 +1890,13 @@ Procedure FindAmbiguousIBUsers(Val User,
 		EndIf;
 		
 		If TypeOf(FoundIDs) = Type("Map") Then
-			CurrentUsers.Add(String.User);
+			CurrentUsers.Add(TableRow.User);
 		Else
 			ErrorDescription = ErrorDescription + "- "
 				+ StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = '""%1"" %2';"),
-					String.User,
-					GetURL(String.User)) + Chars.LF;
+					TableRow.User,
+					GetURL(TableRow.User)) + Chars.LF;
 		EndIf;
 	EndDo;
 	
@@ -1858,10 +1906,10 @@ Procedure FindAmbiguousIBUsers(Val User,
 	
 EndProcedure
 
-// 
-// 
-// 
-// 
+// Returns the password hash calculated using the SHA-1 algorithm.
+// On 1C:Enterprise 8.3.26 and later, use the method "CalculateUserPasswordHash".
+// To verify a password, use the method "VerifyUserPasswordAgainstHash".
+// The "equal to" comparison supports only SHA-1 hash.
 // 
 // 
 //
@@ -1872,16 +1920,16 @@ EndProcedure
 //  String - password value to save.
 //
 // Example:
-//	
-//	
-//	
-//		
-//		
-//		
-//	
-//		
-//			
-//	
+//	Properties = New Structure("PasswordHashAlgorithmType", Null);
+//	FillPropertyValues(Properties, InfoBaseUsers.CurrentUser());
+//	If Properties.PasswordHashAlgorithmType <> Null Then
+//		ACC:488-off - Support of new 1C:Enterprise methods (the executable code is safe).
+//		PasswordMatches = Evaluate("VerifyUserPasswordAgainstHash(Password, IBUser)");
+//		ACC:488-off
+//	Else
+//		PasswordMatches = IBUser.StoredPasswordValue
+//			= Users.PasswordHashString(Password);
+//	EndIf;
 //
 Function PasswordHashString(Val Password) Export
 	
@@ -2343,6 +2391,7 @@ EndFunction
 Procedure UpdateRegistrationSettingsForDataAccessEvents() Export
 	
 	Settings = RegistrationSettingsForDataAccessEvents();
+	UsersInternal.CollapseSettingsForIdenticalTables(Settings);
 	
 	NewUse = New EventLogEventUse;
 	NewUse.Use = ValueIsFilled(Settings);

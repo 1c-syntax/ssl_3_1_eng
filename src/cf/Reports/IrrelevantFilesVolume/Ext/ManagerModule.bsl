@@ -30,6 +30,13 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 	
 EndProcedure
 
+// See ReportsOptionsOverridable.DefineObjectsWithReportCommands.
+Procedure OnDefineObjectsWithReportCommands(Objects) Export
+	
+	Objects.Add(Metadata.InformationRegisters.FilesClearingSettings);
+	
+EndProcedure
+
 // End StandardSubsystems.ReportsOptions
 
 #EndRegion

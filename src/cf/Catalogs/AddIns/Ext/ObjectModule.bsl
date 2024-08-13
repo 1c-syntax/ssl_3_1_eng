@@ -33,7 +33,7 @@ Procedure BeforeWrite(Cancel)
 		UpdateFrom1CITSPortal = False;
 	EndIf;
 	
-	// Uniqueness control of the add-in ID and version.
+	// Check the add-in ID and version for uniqueness.
 	If Not ThisIsTheUniqueComponent() Then 
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'The add-in with ID ""%1"" and date ""%2"" is already attached to the app.';"),
@@ -55,8 +55,8 @@ Procedure OnWrite(Cancel)
 		Return;
 	EndIf;
 	
-	// 
-	// 
+	// If a newer version add-in is being attached, and an old version has the flag "UpdateFrom1CITSPortal" set,
+	// clear the add-in flag when overwriting the old versions.
 	If ThisIsTheLatestVersionComponent() Then
 		RewriteComponentsOfEarlierVersions();
 	EndIf;

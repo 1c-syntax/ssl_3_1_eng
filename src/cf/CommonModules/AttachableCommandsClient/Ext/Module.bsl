@@ -95,12 +95,16 @@ Procedure AfterWrite(Form, Object, WriteParameters) Export
 		Context = WriteParameters.AttachableCommandExecutionParameters;
 		Context.Insert("Form", Form);
 		Context.Insert("Source", Object);
-		ContinueCommandExecution(Context);
-		Context.Form.AttachableCommandsParameters.Delete("TheCommandIsExecuted")
+		
+		Context.Form.AttachableCommandsParameters.Delete("TheCommandIsExecuted");
+		
+		ParameterName = "StandardSubsystems.AttachableCommands.AttachableCommandExecutionParameters";
+		ApplicationParameters[ParameterName] = Context;
+		AttachIdleHandler("ResumeAttachableCommandAfterWrittenOnForm", 0.1, True);
 	EndIf;
 	
 EndProcedure
-	
+
 // Properties of the second handler parameter of the attachable command executed on the client.
 //
 // Returns:
@@ -368,7 +372,7 @@ Procedure ContinueCommandExecutionAfterConfirmContinuation(Response, Context) Ex
 	ContinueCommandExecution(Context);
 EndProcedure
 
-// Branch of the procedure that triggers after the 1C:Enterprise Extension is installed.
+// Branch of the procedure that triggers after 1C:Enterprise Extension is installed.
 Procedure ContinueExecutionCommandAfterSetFileExtension(FileSystemExtensionAttached1, Context) Export
 	If Not FileSystemExtensionAttached1 Then
 		Return;
@@ -478,5 +482,17 @@ Function SelectedObjects(Source, CommandDetails)
 	Return Result;
 	
 EndFunction
+
+Procedure AfterWriteFollowUp() Export
+	
+	ParameterName = "StandardSubsystems.AttachableCommands.AttachableCommandExecutionParameters";
+	Context = ApplicationParameters[ParameterName];
+	ApplicationParameters[ParameterName] = Undefined;
+	
+	If Context <> Undefined Then
+		ContinueCommandExecution(Context);
+	EndIf;
+	
+EndProcedure
 
 #EndRegion

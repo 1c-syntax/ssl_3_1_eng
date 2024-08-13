@@ -133,7 +133,7 @@ EndProcedure
 //                       will be called, similar to the first two parameters of the ReportsClientOverridable.CommandHandler procedure.
 //                     - Array - Set of commands (FormCommand) that will be output to the given group.
 //   GroupType - String - Conditional name of the group that will host the button.
-//               "Main" - Group with the "Generate" and "Generate now" buttons.
+//               "Main" - Group with the "Generate" and "Generate on open" buttons.
 //               "Settings" - Group with buttons "Settings", "Change report options", and so on.
 //               "SpreadsheetDocumentOperations" - Group with buttons "Find", "Expand all groups", and so on.
 //               "Integration" - Group with such buttons as "Print," "Save", and "Send".
@@ -308,7 +308,7 @@ Function ReportIsBlank(ReportObject, DCProcessor = Undefined) Export
 			Try
 				ValueIsFilled = ValueIsFilled(DCTemplateParameterValue.Value);
 			Except
-				ValueIsFilled = False; // 
+				ValueIsFilled = False; // Line, Border, Color and other DC objects which can appear on the output.
 			EndTry;
 			If ValueIsFilled Then
 				DCResultOutputProcessor.EndOutput();
@@ -569,8 +569,8 @@ Function AvailableSettings(ImportParameters, ReportSettings) Export
 			Try
 				Settings = Common.ValueFromXMLString(ReportSettings.NewXMLSettings);
 				
-				// 
-				//  
+				// Connects to the schema to restore parameters' unused values that are lost during serialization.
+				//  See the Syntax Assistant for "DataCompositionDataParameterValues".
 				SettingsComposer = New DataCompositionSettingsComposer;
 				InitializeSettingsComposer(SettingsComposer, ReportSettings.SchemaURL);
 				SettingsComposer.LoadSettings(Settings);
@@ -1126,7 +1126,7 @@ Function UserSettingsItemProperties(SettingsComposer, UserSettingItem, SettingIt
 		Properties.Value = SettingItem.RightValue;
 	EndIf;
 	
-	Properties.Type = SettingTypeAsString(SettingItemType);
+	Properties.Type = ReportsClientServer.SettingTypeAsString(SettingItemType);
 	
 	If SettingDetails = Undefined Then 
 		Return Properties;
@@ -1152,7 +1152,7 @@ Function UserSettingsItemPropertiesPalette()
 	Properties.Insert("OutputInMainSettingsGroup", False);
 	Properties.Insert("OutputFlagOnly", False);
 	Properties.Insert("OutputFlag", True);
-	Properties.Insert("Global_SSLy", True);
+	Properties.Insert("Global", True);
 	Properties.Insert("AvailableDCSetting", Undefined);
 	Properties.Insert("SelectionValuesQuery", New Query);
 	Properties.Insert("Value", Undefined);
@@ -2808,7 +2808,7 @@ Procedure OutputSettingsPeriods(Form, SettingsItems, AttributesNames)
 			Separator = Items.Add(TagName, Type("FormDecoration"), Group);
 		EndIf;
 		Separator.Type = FormDecorationType.Label;
-		Separator.Title = Char(8211); // 
+		Separator.Title = Char(8211); // En dash.
 		Separator.Visible = ThisIsTheStandardRepresentation;
 		
 		AddAPeriodField(Items, Group, ItemNameTemplate, "EndDate", Field.Title, ThisIsTheStandardRepresentation, ShouldOutputPeriodTitles);
@@ -3157,7 +3157,7 @@ Procedure AddListCommands(Form, SettingItem, SettingsItems, ListName)
 	
 	If HasReferenceType Then
 		
-		CommandName = ListName + "PasteFromClipboard1";
+		CommandName = ListName + ReportsClientServer.PasteFromClipboardCommandName();
 		CommandTitle = NStr("en = 'Paste from clipboard…';");
 		AddListCommand(Form, TitleGroup, CommandName, CommandTitle,
 			"Attachable_List_PasteFromClipboard", PictureLib.PasteFromClipboard);
@@ -3213,8 +3213,8 @@ Procedure InitializeList(Form, IndexOf, Field, SettingItem)
 	Else
 		SelectedValues = ReportsClientServer.ValuesByList(SettingItem[ValueFieldName]);
 		If SelectedValues.Count() > 0 Then 
-			// 
-			// 
+			// The user setting value is restored during runtime of the method
+			// "CreateUserSettingsFormItems".
 			SettingItem[ValueFieldName] = SelectedValues;
 		EndIf;
 	EndIf;
@@ -3506,7 +3506,7 @@ EndProcedure
 // Adds the selected data composition field.
 //
 // Parameters:
-//   Where_SSLy - DataCompositionSettingsComposer
+//   Where - DataCompositionSettingsComposer
 //        - DataCompositionSettings
 //        - DataCompositionSelectedFields -
 //       Collection to add the selected field to.
@@ -3517,14 +3517,14 @@ EndProcedure
 // Returns:
 //   DataCompositionSelectedField - Selected added field.
 //
-Function AddSelectedField(Where_SSLy, DCNameOrField, Title = "") Export
+Function AddSelectedField(Where, DCNameOrField, Title = "") Export
 	
-	If TypeOf(Where_SSLy) = Type("DataCompositionSettingsComposer") Then
-		SelectedDCFields = Where_SSLy.Settings.Selection;
-	ElsIf TypeOf(Where_SSLy) = Type("DataCompositionSettings") Then
-		SelectedDCFields = Where_SSLy.Selection;
+	If TypeOf(Where) = Type("DataCompositionSettingsComposer") Then
+		SelectedDCFields = Where.Settings.Selection;
+	ElsIf TypeOf(Where) = Type("DataCompositionSettings") Then
+		SelectedDCFields = Where.Selection;
 	Else
-		SelectedDCFields = Where_SSLy;
+		SelectedDCFields = Where;
 	EndIf;
 	
 	If TypeOf(DCNameOrField) = Type("String") Then
@@ -3685,81 +3685,6 @@ Function ExtendedTypesDetails(SourceDescriptionOfTypes, CastToForm, PickingParam
 	EndIf;
 	
 	Return Result;
-EndFunction
-
-Function SettingTypeAsString(Type)
-	If Type = Type("DataCompositionSettings") Then
-		Return "Settings";
-	ElsIf Type = Type("DataCompositionNestedObjectSettings") Then
-		Return "NestedObjectSettings";
-	
-	ElsIf Type = Type("DataCompositionFilter") Then
-		Return "Filter";
-	ElsIf Type = Type("DataCompositionFilterItem") Then
-		Return "FilterElement";
-	ElsIf Type = Type("DataCompositionFilterItemGroup") Then
-		Return "FilterItemsGroup";
-	
-	ElsIf Type = Type("DataCompositionSettingsParameterValue") Then
-		Return "SettingsParameterValue";
-	
-	ElsIf Type = Type("DataCompositionGroup") Then
-		Return "Group";
-	ElsIf Type = Type("DataCompositionGroupFields") Then
-		Return "GroupFields";
-	ElsIf Type = Type("DataCompositionGroupFieldCollection") Then
-		Return "GroupFieldsCollection";
-	ElsIf Type = Type("DataCompositionGroupField") Then
-		Return "GroupingField";
-	ElsIf Type = Type("DataCompositionAutoGroupField") Then
-		Return "AutoGroupField";
-	
-	ElsIf Type = Type("DataCompositionSelectedFields") Then
-		Return "SelectedFields";
-	ElsIf Type = Type("DataCompositionSelectedField") Then
-		Return "SelectedField";
-	ElsIf Type = Type("DataCompositionSelectedFieldGroup") Then
-		Return "SelectedFieldsGroup";
-	ElsIf Type = Type("DataCompositionAutoSelectedField") Then
-		Return "AutoSelectedField";
-	
-	ElsIf Type = Type("DataCompositionOrder") Then
-		Return "Order";
-	ElsIf Type = Type("DataCompositionOrderItem") Then
-		Return "OrderItem";
-	ElsIf Type = Type("DataCompositionAutoOrderItem") Then
-		Return "AutoOrderItem";
-	
-	ElsIf Type = Type("DataCompositionConditionalAppearance") Then
-		Return "ConditionalAppearance";
-	ElsIf Type = Type("DataCompositionConditionalAppearanceItem") Then
-		Return "ConditionalAppearanceItem";
-	
-	ElsIf Type = Type("DataCompositionSettingStructure") Then
-		Return "SettingsStructure";
-	ElsIf Type = Type("DataCompositionSettingStructureItemCollection") Then
-		Return "SettingsStructureItemCollection";
-	
-	ElsIf Type = Type("DataCompositionTable") Then
-		Return "Table";
-	ElsIf Type = Type("DataCompositionTableGroup") Then
-		Return "TableGroup";
-	ElsIf Type = Type("DataCompositionTableStructureItemCollection") Then
-		Return "TableStructureItemCollection";
-	
-	ElsIf Type = Type("DataCompositionChart") Then
-		Return "Chart";
-	ElsIf Type = Type("DataCompositionChartGroup") Then
-		Return "ChartGroup";
-	ElsIf Type = Type("DataCompositionChartStructureItemCollection") Then
-		Return "ChartStructureItemCollection";
-	
-	ElsIf Type = Type("DataCompositionDataParameterValues") Then
-		Return "DataParametersValues";
-	
-	Else
-		Return "";
-	EndIf;
 EndFunction
 
 Function ValueToArray(Value) Export

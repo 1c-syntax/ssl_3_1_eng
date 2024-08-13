@@ -33,11 +33,15 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	InstallationOption = ChoiceList[0].Value;
 	
+	Items.InstallationOption.ReadOnly = ChoiceList.Count() = 1;
+	
 	CertificateBinaryData_ = Undefined;
 	If IsTempStorageURL(Parameters.Certificate) Then
 		CertificateBinaryData_ = GetFromTempStorage(Parameters.Certificate);
+		CertificateAddress = Parameters.Certificate;
 	ElsIf ValueIsFilled(Parameters.Certificate) Then
 		CertificateBinaryData_ = Base64Value(Parameters.Certificate);
+		CertificateAddress = PutToTempStorage(CertificateBinaryData_, UUID);
 	EndIf;
 	
 	If CertificateBinaryData_ <> Undefined Then
@@ -47,6 +51,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			DetailsOfCertificateData, CertificateProperties);
 	EndIf;
 	
+	Items.ShowCertificateData.Visible = ValueIsFilled(CertificateAddress);
 	Items.DecorationCurrentContainer.Visible = False;
 
 EndProcedure
@@ -129,7 +134,7 @@ EndProcedure
 &AtClient
 Procedure ShowCertificateData(Command)
 	
-	DigitalSignatureClient.OpenCertificate(Parameters.Certificate, True);
+	DigitalSignatureClient.OpenCertificate(CertificateAddress, True);
 	
 EndProcedure
 
@@ -147,8 +152,8 @@ Procedure AfterInstallingTheCertificate(Result, Context) Export
 		FormParameters.Insert("WarningTitle", NStr("en = 'Cannot install the certificate.';"));
 		FormParameters.Insert("ErrorTextClient", Result.Message);
 		
-		OpenForm("CommonForm.ExtendedErrorPresentation",
-			FormParameters, Context.Form,,,,, FormWindowOpeningMode.LockOwnerWindow);
+		DigitalSignatureInternalClient.OpenExtendedErrorPresentationForm(FormParameters, Context.Form);
+		
 	EndIf;
 	
 EndProcedure

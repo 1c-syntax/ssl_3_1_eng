@@ -205,7 +205,21 @@ Procedure CheckAndReceiveServerNotifications() Export
 		ApplicationParameters.Insert(NestedIndicatorsParameterName(), New Array);
 	EndIf;
 	
-	CheckGetServerNotificationsWithIndicators(DataReceiptStatus, Indicators);
+	Try
+		CheckGetServerNotificationsWithIndicators(DataReceiptStatus, Indicators);
+	Except
+		AreServerCallsAllowed = True;
+		Try
+			StandardSubsystemsServerCall.MetadataObjectName(Type("Undefined"));
+		Except
+			AreServerCallsAllowed = False;
+		EndTry;
+		If Not AreServerCallsAllowed Then
+			AttachServerNotificationReceiptCheckHandler(15);
+			Return;
+		EndIf;
+		Raise;
+	EndTry;
 	
 	AddMainIndicator(Indicators, StartMoment,
 		"ServerNotificationsClient.CheckAndReceiveServerNotifications", True);
@@ -580,7 +594,7 @@ EndFunction
 //   * ShouldRegisterIndicators - Boolean
 //   * ServiceAdministratorSession - Boolean
 //   * IsRecurringDataSendEnabled - Boolean - Is set to True in the AfterStart procedure.
-//   * RepeatedDateExportMinInterval - See ServerNotifications.RepeatedDateExportMinInterval
+//   * RepeatedDateExportMinInterval - 
 //   * SessionKey - See ServerNotifications.SessionKey
 //   * IBUserID - UUID
 //   * StatusUpdateDate - Date

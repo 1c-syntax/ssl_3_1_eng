@@ -205,9 +205,10 @@ Procedure OnChangeFlagDoNotAnswerQuestion(Form, Item) Export
 EndProcedure
 
 Procedure OnChangeQuestionWithAnswerOptions(Form, QuestionName)
-
-	FoundRows = Form.SectionQuestionsTable.FindRows(New Structure("Composite",
-		New UUID(StrReplace(Right(Left(QuestionName, 43), 36), "_", "-"))));
+	
+	NumberOfCharactersBeforePostfix = SurveysClientServer.NumberOfCharactersInQuestionNameWithoutPostfix();
+	RowID = New UUID(StrReplace(Right(Left(QuestionName, NumberOfCharactersBeforePostfix), 36), "_", "-"));
+	FoundRows = Form.SectionQuestionsTable.FindRows(New Structure("Composite", RowID));
 
 	If FoundRows.Count() > 0 Then
 		DoQueryBox = FoundRows[0];
@@ -223,16 +224,20 @@ EndProcedure
 Procedure OnChangeSingleChoiceQuestion(Form, DoQueryBox, QuestionName)
 
 	AnswersOptions = Form.PossibleAnswers.FindRows(New Structure("DoQueryBox", DoQueryBox.ElementaryQuestion));
+	NumberOfCharactersBeforePostfix = SurveysClientServer.NumberOfCharactersInQuestionNameWithoutPostfix();
+	
 	For Indus = 1 To AnswersOptions.Count() Do
 		If Form[QuestionName] = AnswersOptions[Indus - 1].Response Then
-			Form.Items[Left(QuestionName, 43) + "_TooltipBreakdown"].Title = AnswersOptions[Indus - 1].ToolTip;
+			TagName = Left(QuestionName, NumberOfCharactersBeforePostfix) + "_TooltipBreakdown";
+			Form.Items[TagName].Title = AnswersOptions[Indus - 1].ToolTip;
 		Else
-			Form[Left(QuestionName, 43) + "_Attribute_" + Indus] = Undefined;
+			AttributeName = Left(QuestionName, NumberOfCharactersBeforePostfix) + "_Attribute_" + Indus;
+			Form[AttributeName] = Undefined;
 		EndIf;
 	EndDo;
 
 	If DoQueryBox.IsRequired Then
-		GroupDescription = Left(QuestionName, 43) + "_Group";
+		GroupDescription = Left(QuestionName, NumberOfCharactersBeforePostfix) + "_Group";
 		ChangeMandatoryQuestionGroupBackgroundColor(Form.Items[GroupDescription].BackColor, True);
 	EndIf;
 
@@ -241,16 +246,17 @@ EndProcedure
 Procedure OnChangeMultipleChoiceQuestion(Form, DoQueryBox, QuestionName)
 
 	AnswersOptions = Form.PossibleAnswers.FindRows(New Structure("DoQueryBox", DoQueryBox.ElementaryQuestion));
+	NumberOfCharactersBeforePostfix = SurveysClientServer.NumberOfCharactersInQuestionNameWithoutPostfix();
 	AnswerExists = False;
 	For Indus = 1 To AnswersOptions.Count() Do
-		If Form[Left(QuestionName, 43) + "_Attribute_" + Indus] Then
+		If Form[Left(QuestionName, NumberOfCharactersBeforePostfix) + "_Attribute_" + Indus] Then
 			AnswerExists = True;
 			Break;
 		EndIf;
 	EndDo;
 
 	If DoQueryBox.IsRequired Then
-		GroupDescription = Left(QuestionName, 43) + "_Group";
+		GroupDescription = Left(QuestionName, NumberOfCharactersBeforePostfix) + "_Group";
 		ChangeMandatoryQuestionGroupBackgroundColor(Form.Items[GroupDescription].BackColor, AnswerExists);
 	EndIf;
 
@@ -314,18 +320,20 @@ EndProcedure
 Function HasAnswerToQuestionWithAnswerOptions(Form, DoQueryBox, QuestionName)
 
 	AnswersOptions = Form.PossibleAnswers.FindRows(New Structure("DoQueryBox", DoQueryBox.ElementaryQuestion));
-
+	NumberOfCharactersBeforePostfix = SurveysClientServer.NumberOfCharactersInQuestionNameWithoutPostfix();
 	If DoQueryBox.ReplyType = PredefinedValue("Enum.TypesOfAnswersToQuestion.OneVariantOf") Then
 		For Indus = 1 To AnswersOptions.Count() Do
 			If ValueIsFilled(Form[QuestionName + "_Attribute_" + Indus]) Then
-				Form.Items[Left(QuestionName, 43) + "_TooltipBreakdown"].Title = AnswersOptions[Indus
+				TagName = Left(QuestionName, NumberOfCharactersBeforePostfix) + "_TooltipBreakdown";
+				Form.Items[TagName].Title = AnswersOptions[Indus
 					- 1].ToolTip;
 				Return True;
 			EndIf;
 		EndDo;
 	ElsIf DoQueryBox.ReplyType = PredefinedValue("Enum.TypesOfAnswersToQuestion.MultipleOptionsFor") Then
 		For Indus = 1 To AnswersOptions.Count() Do
-			If Form[Left(QuestionName, 43) + "_Attribute_" + Indus] Then
+			AttributeName = Left(QuestionName, NumberOfCharactersBeforePostfix) + "_Attribute_" + Indus;
+			If Form[AttributeName] Then
 				Return True;
 			EndIf;
 		EndDo;

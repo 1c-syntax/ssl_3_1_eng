@@ -16,7 +16,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="SpreadsheetDocumentsGroupExtendedTooltip" id="133"/>
+			<ExtendedTooltip name="GroupSpreadsheetDocumentsExtendedTooltip" id="133"/>
 			<ChildItems>
 				<UsualGroup name="LeftSpreadsheetDocumentGroup" id="134">
 					<Title>

@@ -60,14 +60,14 @@ Function HasRole(Val Role, Val ObjectReference = Undefined, Val User = Undefined
 		"SELECT TOP 1
 		|	TRUE AS TrueValue
 		|FROM
-		|	Catalog.AccessGroups.Users AS AccessGroupsUsers_SSLy
+		|	Catalog.AccessGroups.Users AS AccessGroups_Users
 		|		INNER JOIN InformationRegister.UserGroupCompositions AS UserGroupCompositions
 		|		ON (UserGroupCompositions.User = &AuthorizedUser)
-		|			AND (UserGroupCompositions.UsersGroup = AccessGroupsUsers_SSLy.User)
+		|			AND (UserGroupCompositions.UsersGroup = AccessGroups_Users.User)
 		|			AND (UserGroupCompositions.Used)
-		|			AND (NOT AccessGroupsUsers_SSLy.Ref.DeletionMark)
+		|			AND (NOT AccessGroups_Users.Ref.DeletionMark)
 		|		INNER JOIN Catalog.AccessGroupProfiles.Roles AS AccessGroupProfilesRoles
-		|		ON AccessGroupsUsers_SSLy.Ref.Profile = AccessGroupProfilesRoles.Ref
+		|		ON AccessGroups_Users.Ref.Profile = AccessGroupProfilesRoles.Ref
 		|			AND (AccessGroupProfilesRoles.Role = &Role)
 		|			AND (NOT AccessGroupProfilesRoles.Ref.DeletionMark)";
 		Return Not Query.Execute().IsEmpty();
@@ -160,7 +160,7 @@ Function HasRole(Val Role, Val ObjectReference = Undefined, Val User = Undefined
 	// Adding internal fields to an access value set.
 	AccessManagementInternal.PrepareAccessValuesSetsForWrite(Undefined, AccessValuesSets, True);
 	
-	// 
+	// Check that the user is assigned the role via the access group by a profile with an allowed access value set.
 	// 
 	
 	Query = New Query;
@@ -185,17 +185,17 @@ Function HasRole(Val Role, Val ObjectReference = Undefined, Val User = Undefined
 	|
 	|////////////////////////////////////////////////////////////////////////////////
 	|SELECT DISTINCT
-	|	AccessGroupsUsers_SSLy.Ref AS Ref
+	|	AccessGroups_Users.Ref AS Ref
 	|INTO AccessGroups
 	|FROM
-	|	Catalog.AccessGroups.Users AS AccessGroupsUsers_SSLy
+	|	Catalog.AccessGroups.Users AS AccessGroups_Users
 	|		INNER JOIN InformationRegister.UserGroupCompositions AS UserGroupCompositions
 	|		ON (UserGroupCompositions.User = &AuthorizedUser)
-	|			AND (UserGroupCompositions.UsersGroup = AccessGroupsUsers_SSLy.User)
+	|			AND (UserGroupCompositions.UsersGroup = AccessGroups_Users.User)
 	|			AND (UserGroupCompositions.Used)
-	|			AND (NOT AccessGroupsUsers_SSLy.Ref.DeletionMark)
+	|			AND (NOT AccessGroups_Users.Ref.DeletionMark)
 	|		INNER JOIN Catalog.AccessGroupProfiles.Roles AS AccessGroupProfilesRoles
-	|		ON AccessGroupsUsers_SSLy.Ref.Profile = AccessGroupProfilesRoles.Ref
+	|		ON AccessGroups_Users.Ref.Profile = AccessGroupProfilesRoles.Ref
 	|			AND (AccessGroupProfilesRoles.Role = &Role)
 	|			AND (NOT AccessGroupProfilesRoles.Ref.DeletionMark)
 	|;
@@ -794,7 +794,7 @@ Procedure OnCreateAccessValueForm(Form, AdditionalParameters = Undefined,
 	
 	If TypeOf(ValueType) <> Type("Type") Then
 		Try
-			FormObject = Form.Object; // DefinedType.AccessValue - Object's actual "FormDataStructure".
+			FormObject = Form.Object; // DefinedType.AccessValue - 
 			AccessValueType = TypeOf(FormObject.Ref);
 		Except
 			ErrorInfo = ErrorInfo();
@@ -1048,12 +1048,12 @@ Function AccessValuesGroupsAllowingAccessValuesChange(AccessValuesType, ReturnAl
 	|				TRUE
 	|			FROM
 	|				InformationRegister.UserGroupCompositions AS UserGroupCompositions
-	|					INNER JOIN Catalog.AccessGroups.Users AS AccessGroupsUsers_SSLy
+	|					INNER JOIN Catalog.AccessGroups.Users AS AccessGroups_Users
 	|					ON
 	|						UserGroupCompositions.Used
 	|							AND UserGroupCompositions.User = &CurrentUser
-	|							AND AccessGroupsUsers_SSLy.User = UserGroupCompositions.UsersGroup
-	|							AND AccessGroupsUsers_SSLy.Ref = AccessGroups.Ref)
+	|							AND AccessGroups_Users.User = UserGroupCompositions.UsersGroup
+	|							AND AccessGroups_Users.Ref = AccessGroups.Ref)
 	|;
 	|
 	|////////////////////////////////////////////////////////////////////////////////
@@ -1246,7 +1246,7 @@ EndFunction
 //  Map of KeyAndValue:
 //    * Key     - CatalogRef.MetadataObjectIDs - an access right name (Read, Update, or Insert).
 //    * Value - Structure:
-//        ** Key     - String - Name of the access right ("Read", "Update", "Add").
+//        ** Key     - String - Name of the access right ("Read", "Update", "Insert").
 //        ** Value - Boolean - if True, there is the right, otherwise, there is not.
 //
 Function RightsByIDs(IDs = Undefined) Export
@@ -1320,42 +1320,43 @@ Function AccessValuesSetsTable() Export
 	
 EndFunction
 
-// Fills the access value sets for the passed Object value by calling
-// the FillAccessValuesSets procedure defined in the module of this object
+// 
+// Populates access value sets for the passed Object value by calling
+// the FillAccessValuesSets procedure defined in the module of this object,
+//
 // and returns them in the Table parameter.
+// Objects are to be included in the event subscription WriteAccessValuesSets
 //
-// Objects are to be included in the subscription to the WriteAccessValuesSets
-// or WriteDependentAccessValuesSets event.
+// or WriteDependentAccessValuesSets.
+//  In the object modules, place a handler procedure with the following parameters:
 //
-// In the object modules, there must be a handler procedure, where the following parameters are being passed to:
-//  Table - ValueTable - returned by the AccessValuesSetsTable function.
-//
-// The following is an example of a handler procedure for copying to object modules.
+// Table - ValueTable - Returned by the AccessValuesSetsTable function.
 //
 //// See AccessManagement.FillAccessValuesSets.
-//// 
+//Here is an example of a handler procedure for copying to object modules.
 //	
+//	// 
 //	Procedure FillAccessValuesSets(Table) Export
 //	// Restriction logic:
-//	// Reading: Company.
 //	
-//	// Changes: Company And Employee responsible.
-//	// Reading: set #1.
+//	// Read: Organization.
+//	// Update: Organization And EmployeeResponsible.
+//	// Read: Set #1.
 //	String = Table.Add();
 //	String.SetNumber = 1;
+//	
 //	String.Read = True;
-//	
-//	String.AccessValue = Company;
-//	// Change: set #2.
-//	String = Table.Add();
-//	String.SetNumber = 2;
-//	String.Change = True;
-//	
-//	String.AccessValue = Company;
+//	String.AccessValue = Organization;
+//	// Update: Set #2.
 //	String = Table.Add();
 //	String.SetNumber = 2;
 //	
-//String.AccessValue = EmployeeResponsible;
+//	String.Update = True;
+//	String.AccessValue = Organization;
+//	String = Table.Add();
+//	
+//String.SetNumber = 2;
+// String.AccessValue = EmployeeResponsible;
 // EndProcedure
 //
 // Parameters:
@@ -1376,8 +1377,8 @@ Procedure FillAccessValuesSets(Val Object, Table, Val SubordinateObjectRef = Und
 	
 	SetPrivilegedMode(True);
 	
-	// 
-	// 
+	// Get the object if a Ref is passed.
+	// The object is not modified. It is used to call "FillAccessValuesSets".
 	Object = ?(Object = Object.Ref, Object.GetObject(), Object);
 	ObjectReference = Object.Ref;
 	ValueTypeObject = TypeOf(Object);
@@ -1413,8 +1414,8 @@ Procedure FillAccessValuesSets(Val Object, Table, Val SubordinateObjectRef = Und
 	EndTry;
 	
 	If Table.Count() = 0 Then
-		// 
-		// 
+		// If this condition is disabled, the scheduled job that populates data
+		// for access restriction will get stuck in a loop.
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = '%1 ""%2""
 			           |generated a blank access value set.';"),
@@ -1429,11 +1430,11 @@ Procedure FillAccessValuesSets(Val Object, Table, Val SubordinateObjectRef = Und
 		Return;
 	EndIf;
 	
-	// 
-	// 
-	// 
+	// Add sets to check the "Read" and "Update" rights on the main owner object
+	// when generating child value sets in procedures prepared by the developer.
+	// This doesn't apply to cases where the end-set is being filled, even if it has child sets.
 	//
-	// 
+	// The reason is that standard templates have access right checks embedded into the "Object" access logic.
 	// 
 	
 	// Adding a blank set to set all rights check boxes and arrange set rows.
@@ -1486,16 +1487,16 @@ Procedure FillAccessValuesSets(Val Object, Table, Val SubordinateObjectRef = Und
 		
 		// Adding sets by a standard rule.
 		
-		// 
-		// 
+		// Check if the user has the "Read" right on the set's parent object when
+		// checking the "Read" right on a child object.
 		String = Table.Add();
 		String.SetNumber     = 1;
 		String.AccessKind      = "ReadRight1";
 		String.AccessValue = Id;
 		String.Read          = True;
 		
-		// 
-		// 
+		// Check if the user has the "Update" right on the set's parent object when
+		// checking the "Insert", "Update" and "Delete" rights on a child object.
 		String = Table.Add();
 		String.SetNumber     = 2;
 		String.AccessKind      = "EditRight";
@@ -1512,8 +1513,8 @@ Procedure FillAccessValuesSets(Val Object, Table, Val SubordinateObjectRef = Und
 	Else
 		// Adding sets by a nonstandard rule: check the read rights instead of update rights.
 		
-		// 
-		// 
+		// Check if the user has the "Read" right on the set's parent object when
+		// checking the "Read" right on a child object.
 		String = Table.Add();
 		String.SetNumber     = 1;
 		String.AccessKind      = "ReadRight1";
@@ -1560,15 +1561,15 @@ Procedure AddAccessValuesSets(Receiver, Val Source, Val Multiplication = False, 
 	
 	If Simplify Then
 		
-		// 
-		// 
+		// Determine duplicates of sets and their rows within access rights caused by additions and multiplications.
+		// Duplication happens due to removed parentheses in logical expressions:
 		//
-		// 
-		//  
-		//     
-		//     
-		//  
-		//     
+		// For sets within a right and sets that belong to different rights:
+		//  X AND X = X,
+		//     X OR X = X, where X is a set or argument rows.
+		//     Only for sets within an access right:
+		//  (a AND b AND c) OR (a AND b) = (a AND b), where a, b, c are set rows.
+		//     Based on these rules, you can delete duplicate rights within a set and duplicate sets.
 		// 
 		
 		If Multiplication Then
@@ -1624,9 +1625,9 @@ EndProcedure
 //   * Description  - String - a built-in profile description.
 //   * LongDesc      - String - a built-in profile details.
 //   * Roles          - Array of String - names of the built-in profile roles.
-//   * Purpose    - Array of Type - types of user references and external
-//                       user authorization objects. If blank, then the assignment is for users.
-//                       They must be within the content of the defined User type.
+//   * Purpose    - Array of Type - Types of user references and external
+//                       user authorization objects. If empty, then it is intended for users.
+//                       They must be part of the User type collection.
 //   * AccessKinds   - ValueList:
 //                     ** Value      - String - Access kind name specified in procedure
 //                          OnFillAccessKinds of overridable module AccessManagementOverridable.
@@ -1638,7 +1639,7 @@ EndProcedure
 //                     ** Presentation - String - Name of a predefined item.
 //                          For example, "Catalog.UserGroups.AllUsers".
 //
-//   * Is_Directory - Boolean - 
+//   * Is_Directory - Boolean - Always set to "False". Must not be modified.
 //
 // Example:
 // 
@@ -1659,7 +1660,7 @@ EndProcedure
 //	ProfileDetails.Roles.Add("SaveUserData");
 //	// …
 //	// Using the application.
-//	ProfileDetails.Roles.Add("BasicSSLRights");
+//	ProfileDetails.Roles.Add("BasicAccessSSL");
 //	ProfileDetails.Roles.Add("ViewApplicationChangeLog");
 //	ProfileDetails.Roles.Add("EditCurrentUser");
 //	// …
@@ -1716,7 +1717,7 @@ EndFunction
 //                       and to get a reference UUID. Do not specify IDs
 //                       received using an arbitrary method as this might violate the uniqueness of the references.
 //   * Description  - String - a built-in profile folder description.
-//   * Is_Directory      - Boolean - 
+//   * Is_Directory      - Boolean - Always set to "True". Must not be modified.
 //
 // Example:
 //	// The "Additional profiles" profile folder.
@@ -1954,8 +1955,8 @@ EndFunction
 //  
 Procedure ReplaceRightsInObjectsRightsSettings(RenamedTable) Export
 	
-	// 
-	// 
+	// ACC:96-off - No.434. Using JOIN is acceptable as the rows should be unique and
+	// this is a one-time operation in an update handler.
 	Query = New Query;
 	Query.Parameters.Insert("RenamedTable", RenamedTable);
 	Query.Text =
@@ -3069,7 +3070,7 @@ Procedure FillDestinationByResultSets(Receiver, ResultSets)
 	
 EndProcedure
 
-// For the OnCreateAccessValueForm and AccessValuesGroupsAllowingAccessValuesChange procedures.
+// For the OnCreateAccessValueForm and AccessValuesGroupsAllowingAccessValuesChange procedures.
 Function AccessValueGroupsProperties(AccessValueType, ErrorTitle)
 	
 	SetPrivilegedMode(True);

@@ -579,7 +579,7 @@ Function LogParameters(BulkEmail = Undefined) Export
 	LogParameters.Insert("EventName", NStr("en = 'Report distribution. Manual start';", Common.DefaultLanguageCode()));
 	LogParameters.Insert("Data", BulkEmail);
 	LogParameters.Insert("Metadata", ?(BulkEmail <> Undefined, BulkEmail.Metadata(), Undefined));
-	LogParameters.Insert("ErrorsArray", Undefined); // 
+	LogParameters.Insert("ErrorsArray", Undefined); // Service property.
 	Return LogParameters;
 	
 EndFunction
@@ -905,7 +905,7 @@ Procedure SendBulkEmailsInBackgroundJob(ExecutionParameters, ResultAddress) Expo
 		TableRow.WithErrors = (LogParameters.ErrorsArray.Count() > 0);
 		
 		If TableRow.WithErrors Then
-			ArrayOfMessages.Add("---" + Chars.LF + Chars.LF + TableRow.Presentation + ":"); // Title
+			ArrayOfMessages.Add("---" + Chars.LF + Chars.LF + TableRow.Presentation + ":"); // Title.
 			For Each Message In LogParameters.ErrorsArray Do
 				ArrayOfMessages.Add(Message);
 			EndDo;
@@ -1170,10 +1170,10 @@ EndProcedure
 
 // See ScheduledJobsOverridable.OnDefineScheduledJobSettings
 Procedure OnDefineScheduledJobSettings(Settings) Export
-	Dependence = Settings.Add();
-	Dependence.ScheduledJob = Metadata.ScheduledJobs.ReportMailing;
-	Dependence.UseExternalResources = True;
-	Dependence.IsParameterized = True;
+	Setting = Settings.Add();
+	Setting.ScheduledJob = Metadata.ScheduledJobs.ReportMailing;
+	Setting.UseExternalResources = True;
+	Setting.IsParameterized = True;
 EndProcedure 
 
 // See JobsQueueOverridable.OnDefineHandlerAliases.
@@ -1253,7 +1253,7 @@ Procedure BeforeGetEmailMessagesStatuses(EmailMessagesIDs) Export
 		|	AND ReportsDistributionHistory.Period >= &VerificationPeriod
 		|	AND ReportsDistributionHistory.EmailID <> """"";
 	
-	Query.SetParameter("VerificationPeriod", CurrentSessionDate() - 259200); // 
+	Query.SetParameter("VerificationPeriod", CurrentSessionDate() - 259200); // Check the emails sent within the last 3 days.
 	Query.SetParameter("EmptyStatus", Enums.EmailMessagesStatuses.EmptyRef());
 	
 	QueryResult = Query.Execute();
@@ -1530,7 +1530,7 @@ Function GenerateMailingRecipientsList(BulkEmail, LogParameters = Undefined) Exp
 	ErrorMessageTextForEventLog = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Cannot generate recipient list ""%1"" due to:';"), String(RecipientsType));
 	
-	//  Extension mechanism.
+	// Extension mechanism.
 	Try
 		StandardProcessing = True;
 		ReportMailingOverridable.BeforeGenerateMailingRecipientsList(BulkEmail, Query, StandardProcessing, RecipientsList);
@@ -1710,7 +1710,7 @@ Function GenerateArrayOfDistributionRecipients(BulkEmail, LogParameters)
 	ErrorMessageTextForEventLog = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Cannot generate recipient list ""%1"" due to:';"), String(RecipientsType));
 	
-	//  Extension mechanism.
+	// Extension mechanism.
 	RecipientsList = New Map;
 	Try
 		StandardProcessing = True;
@@ -1913,9 +1913,9 @@ Function InitializeReport(LogParameters, ReportParameters, PersonalizationAvaila
 		
 		If ValueIsFilled(ReportParameters.Settings) Then
 			
-			// 
-			// 
-			// 
+			// Check if the attributes exist.
+			// Prepare custom filter maps.
+			// Assign values to the static attributes.
 			For Each SettingDetails In ReportParameters.Settings Do
 				If TypeOf(SettingDetails) = Type("ValueTableRow") Then
 					AttributeName = SettingDetails.Attribute;
@@ -2300,15 +2300,15 @@ Function ExecuteDelivery(LogParameters, DeliveryParameters, Attachments) Export
 				   And TypeOf(LogParameters.Data) = Type("CatalogRef.ReportMailings") Then
 					For Each RecipientRow In DeliveryParameters.Recipients Do
 						RecipientAddresses = CommonClientServer.ParseStringWithEmailAddresses(RecipientRow.Value);
-						For Each EMAddress In RecipientAddresses Do							
+						For Each EMAddress In RecipientAddresses Do
 							HistoryFields = ReportDistributionHistoryFields(LogParameters.Data, RecipientRow.Key, DeliveryParameters.ExecutionDate); 
-							HistoryFields.Account = DeliveryParameters.Account;    
-							HistoryFields.EMAddress = EMAddress;
+							HistoryFields.Account = DeliveryParameters.Account;
+							HistoryFields.EMAddress = EMAddress.Address;
 							HistoryFields.Comment = StringFunctionsClientServer.SubstituteParametersToString(
 							"%1 %2", ErrorMessageTemplate, ExtendedErrorPresentation);
 							HistoryFields.Executed = False;
 							HistoryFields.MethodOfObtaining = DistributionReceiptMethod(DeliveryParameters, RecipientRow.Key,
-							EMAddress);
+							EMAddress.Address);
 							HistoryFields.EmailID = "";
 							
 							InformationRegisters.ReportsDistributionHistory.CommitResultOfDistributionToRecipient(HistoryFields); 
@@ -2577,7 +2577,7 @@ Function ReportRedistributionRecipients(BulkEmail, LastRunStart, SessionNumber) 
 	
 EndFunction
 
-// Generates a representation of delivery methods according to the delivery parameters.
+// Generates the delivery methods presentation according to delivery parameters.
 //
 // Parameters:
 //   DeliveryParameters - See ExecuteBulkEmail.DeliveryParameters.
@@ -2685,13 +2685,13 @@ Function DeliveryMethodsPresentation(DeliveryParameters) Export
 	Return PresentationText;
 EndFunction
 
-// 
+// Inserts the passed parameters into the template.
 //
 // Parameters:
-//   Template - String -  the original template. For example, " Good afternoon, [full name]".
+//   Template - String - Initial template. For example, "Welcome, [ФИО]".
 //   Parameters - Structure:
-//      * Key - String - 
-//      * Value - Arbitrary - 
+//      * Key - String - Parameter name. For example, "FullName".
+//      * Value - Arbitrary - Substitution string. For example, "John Smith".
 //
 // Returns: 
 //   String
@@ -2701,17 +2701,17 @@ Function FillTemplate(Template, Parameters) Export
 	ParameterEnd = "]";
 	StartOfFormat = "("; 
 	EndOfFormat = ")"; 
-	CutBorders = True; // 
+	CutBorders = True; // Debug parameter
 	
 	Result = Template;
 	For Each KeyAndValue In Parameters Do
-		// 
+		// Replace "[ключ]" with "value".
 		Result = StrReplace(
 			Result,
 			ParameterStart + KeyAndValue.Key + ParameterEnd, 
 			?(CutBorders, "", ParameterStart) + KeyAndValue.Value + ?(CutBorders, "", ParameterEnd));
 		LengthLeftFormat = StrLen(ParameterStart + KeyAndValue.Key + StartOfFormat);
-		// 
+		// Replace [key(format)] to value in the format.
 		Position1 = StrFind(Result, ParameterStart + KeyAndValue.Key + StartOfFormat);
 		While Position1 > 0 Do
 			Position2 = StrFind(Result, EndOfFormat + ParameterEnd);
@@ -2764,11 +2764,11 @@ EndFunction
 //
 Procedure GenerateAndSaveReport(LogParameters, ReportParameters, ReportsTree, DeliveryParameters, RecipientRef)
 	
-	// 
-	//  
-	//   
-	//   
-	//   
+	// Determine the root row corresponding to the recipient.
+	// 1 - Recipients 
+	//   Key - Reference
+	//   Value - Recipient's directory.
+	//   Settings - Presentation of the generated reports.
 	RecipientRow = DefineTreeRowForRecipient(ReportsTree, RecipientRef, DeliveryParameters);
 	RecipientsDirectory = RecipientRow.Value;
 
@@ -2825,20 +2825,20 @@ Procedure GenerateAndSaveReport(LogParameters, ReportParameters, ReportsTree, De
 		
 	EndIf;
 	
-	// 
-	// 
-	//   
-	//   
-	//   
+	// Register the intermediate result.
+	// 2 - Recipients' spreadsheets.
+	//   Key -  Report name.
+	//   Value - Spreadsheet.
+	//   Settings - All report parameters.
 	RowReport = RecipientRow.Rows.Add();
 	RowReport.Level   = 2;
 	RowReport.Key      = String(ReportParameters.Report);
 	RowReport.Value  = Result.TabDoc;
 	RowReport.Settings = Common.CopyRecursive(ReportParameters);
 	
-	// 
-	// 
-	// 
+	// Prepare a tree row to properly pass data in a long-running operation. Otherwise, the error occurs:
+	// "The passed value cannot be saved to "ValueStorage".
+	// The value is non-serializable or contains a non-serializable item.
 	RowReport.Settings.Delete("Object");
 	RowReport.Settings.Delete("DCSettingsComposer");
 	If RowReport.Settings.Property("Metadata") Then
@@ -2875,7 +2875,7 @@ Procedure GenerateAndSaveReport(LogParameters, ReportParameters, ReportsTree, De
 
 			StandardProcessing = True;
 		
-		//  Extension mechanism.
+		// Extension mechanism.
 			ReportMailingOverridable.BeforeSaveSpreadsheetDocumentToFormat(
 			StandardProcessing, RowReport.Value, Format, FullFileName);
 		
@@ -2912,11 +2912,11 @@ Procedure GenerateAndSaveReport(LogParameters, ReportParameters, ReportsTree, De
 				Continue;
 			EndIf;
 		
-		// 
-		// 
-		//   
-		//   
-		//   
+		// Register the final result: the report saved to a temp directory.
+		// 3 - Recipients' files
+		//   Key - Filename
+		//   Value - Full file path.
+		//   Settings - File settings.
 			FileRow = RowReport.Rows.Add();
 			FileRow.Level = 3;
 			FileRow.Key      = TempFile.Name;
@@ -3382,6 +3382,8 @@ Procedure SendReportsToRecipient(Attachments, DeliveryParameters, LogParameters,
 				EndIf;
 			EndDo;
 			EmailParameters.Body = EmailParameters.Body + Chars.LF + TextOfAllReports;
+		ElsIf DeliveryParameters.EmailParameters.Attachments.Count() = 0 Then
+			Return;
 		EndIf;
 	EndIf;
 	
@@ -3893,8 +3895,8 @@ Function WriteSpreadsheetDocumentToFormatParameters(Format) Export
 		Result.FileType = SpreadsheetDocumentFileType.ANSITXT;
 		
 	Else 
-		// 
-		// 
+		// A blueprint for all formats added during the app implementation and
+		// whose saving handler should be located in the overridable module.
 		Result.Extension = Undefined;
 		Result.FileType = Undefined;
 		
@@ -3918,7 +3920,7 @@ Function FullFileNameFromTemplate(Directory, ReportDescription1, Format, Deliver
 		EndIf;
 		FileName = FillTemplate(FileNameTemplate, FileNameParameters);
 	Else
-		FileNameTemplate = "[ReportDescription1] ([ReportFormat])[FileExtention]"; // 
+		FileNameTemplate = "[ReportDescription1] ([ReportFormat])[FileExtention]"; // ACC:1297 - This is a template.
 		FileName = StringFunctionsClientServer.InsertParametersIntoString(FileNameTemplate, FileNameParameters);
 	EndIf;
 	
@@ -3974,21 +3976,21 @@ EndFunction
 
 // Value tree required for generating and delivering reports.
 Function CreateReportsTree()
-	// 
+	// Levels of a tree structure:
 	//
-	// 
-	//   
-	//   
+	// 1 - Recipients:
+	//   Key - Reference.
+	//   Value - Recipient's directory.
 	//
-	// 
-	//   
-	//   
-	//   
+	// 2 - Recipients' spreadsheets:
+	//   Key - Report nname.
+	//   Value - Spreadsheet.
+	//   Settings - All report parameters.
 	//
-	// 
-	//   
-	//   
-	//   
+	// 3 - Recipients' files:
+	//   Key - Filename.
+	//   Value - File full path.
+	//   Settings - "FileWithDirectory", "FileName", "FullFileName", "DirectoryName", "FullDirectoryName", "Format", "Name", "Extension", "FileType".
 	
 	ReportsTree = New ValueTree;
 	ReportsTree.Columns.Add("Level", New TypeDescription("Number"));
@@ -4385,7 +4387,7 @@ EndFunction
 //       * PreparedSMSMessages - Array of Structure:
 //         ** PhoneNumbers - Array of String
 //         ** SMSMessageText - String
-//         ** Recipient - TypeToDefine.BulkEmailRecipient									
+//         ** Recipient - DefinedType.BulkEmailRecipient									
 //   ResultAddress - String - an address in the temporary storage where the result will be placed.
 //
 Procedure SendBulkSMSMessagesWithReportDistributionArchivePasswordsInBackgroundJob(Parameters, ResultAddress) Export

@@ -175,8 +175,8 @@
 									<DataPath>Record.CanSignIn</DataPath>
 									<TitleLocation>Right</TitleLocation>
 									<CheckBoxType>Auto</CheckBoxType>
-									<ContextMenu name="CanSignIn1ContextMenu" id="52"/>
-									<ExtendedTooltip name="CanSignIn1ExtendedTooltip" id="53"/>
+									<ContextMenu name="CanSignInContextMenu" id="52"/>
+									<ExtendedTooltip name="CanSignInExtendedTooltip" id="53"/>
 								</CheckBoxField>
 								<CheckBoxField name="IsAppLogonRestricted" id="54">
 									<DataPath>Record.IsAppLogonRestricted</DataPath>

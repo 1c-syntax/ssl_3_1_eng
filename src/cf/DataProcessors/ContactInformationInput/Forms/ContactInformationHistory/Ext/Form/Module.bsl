@@ -165,7 +165,7 @@ Procedure HistorySelection(Item, RowSelected, Field, StandardProcessing)
 EndProcedure
 
 &AtClient
-Procedure HistoryEffectiveFromOnChange(Item)
+Procedure HistoryValidFromOnChange(Item)
 	Modified = True;
 EndProcedure
 

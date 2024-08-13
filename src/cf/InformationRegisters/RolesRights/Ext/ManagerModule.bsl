@@ -346,9 +346,9 @@ Procedure AddFieldOfMetadataObjectAccessRestriction(MetadataObject, FieldName,
 		EndIf;
 		CanGetAccessParameters = True;
 	Except
-		// 
-		// 
-		// 
+		// Some fields that cannot be used to configure read restrictions might cause errors
+		// when trying to get access parameters.
+		// Such fields must be excluded as they shouldn't be checked for access restrictions.
 		CanGetAccessParameters = False;
 	EndTry;
 	
@@ -529,8 +529,8 @@ Function RolesRightsTable(ExtensionsObjects = False, LineChangeType = False, AsQ
 	EndIf;
 	
 	If ExtensionsObjects Then
-		// 
-		// 
+		// If a table is used for extension objects, extend the type of the columns "Role" and
+		// "MetadataObject" with the type "CatalogRef.ExtensionObjectIDs".
 		
 		Types = New Array;
 		Types.Add(Type("CatalogRef.MetadataObjectIDs"));

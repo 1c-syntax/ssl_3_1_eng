@@ -26,13 +26,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	ObjectReference = Parameters.Ref;
 	
-	// Getting the list of available property sets.
 	PropertiesSets = PropertyManagerInternal.GetObjectPropertySets(Parameters.Ref);
-	For Each String In PropertiesSets Do
-		AvailablePropertySets.Add(String.Set);
+	For Each TableRow In PropertiesSets Do
+		AvailablePropertySets.Add(TableRow.Set);
 	EndDo;
 	
-	// Filling the property value table.
 	FillPropertiesValuesTable(True);
 	
 EndProcedure
@@ -115,7 +113,7 @@ EndProcedure
 &AtClient
 Procedure PropertyValueTableSelection(Item, RowSelected, Field, StandardProcessing)
 	
-	If Field.Name <> Items.PropertyValueTableQuestionColumn.Name Then
+	If Field.Name <> Items.PropertyValueTableColumnQuestion.Name Then
 		Return;
 	EndIf;
 	
@@ -208,11 +206,10 @@ EndProcedure
 &AtServer
 Procedure FillPropertiesValuesTable(FromOnCreateHandler)
 	
-	// Filling the tree with property values.
 	If FromOnCreateHandler Then
 		PropertiesValues = ReadPropertiesValuesFromInfoRegister(Parameters.Ref);
 	Else
-		PropertiesValues = GetCurrentPropertiesValues();
+		PropertiesValues = CurrentPropertiesValues();
 		PropertyValueTable.Clear();
 	EndIf;
 	
@@ -231,85 +228,90 @@ Procedure FillPropertiesValuesTable(FromOnCreateHandler)
 		If Not UniversalRestriction Then
 			PropertiesToCheck = Table.UnloadColumn("Property");
 			AllowedProperties = ModuleAccessManagementInternal.AllowedDynamicListValues(
-				TableToCheck,
-				AccessValue,
-				PropertiesToCheck, , True);
+				TableToCheck, AccessValue, PropertiesToCheck, , True);
 		EndIf;
 	EndIf;
 	
-	For Each String In Table Do
-		If Not CheckRights1 Then
-			IsEditable = True;
-		Else
-			If UniversalRestriction Then
-				Set = InformationRegisters.AdditionalInfo.CreateRecordSet();
-				Set.Filter.Object.Set(Parameters.Ref);
-				Set.Filter.Property.Set(String.Property);
-				Record = Set.Add();
-				Record.Property = String.Property;
-				Record.Object = Parameters.Ref;
-				IsEditable = ModuleAccessManagement.EditionAllowed(Set);
-				If Not IsEditable
-				   And Not ModuleAccessManagement.ReadingAllowed(Set) Then
-					
-					Continue;
-				EndIf;
-			Else
-				IsEditable = False;
-				// Check whether the property is read.
-				If AllowedProperties <> Undefined And AllowedProperties.Find(String.Property) = Undefined Then
-					Continue;
-				EndIf;
-				
-				// Check whether the property is written.
-				BeginTransaction();
-				Try
-					Set = InformationRegisters.AdditionalInfo.CreateRecordSet();
-					Set.Filter.Object.Set(Parameters.Ref);
-					Set.Filter.Property.Set(String.Property);
-					
-					Record = Set.Add();
-					Record.Property = String.Property;
-					Record.Object = Parameters.Ref;
-					Set.DataExchange.Load = True;
-					Set.Write(True);
-					IsEditable = True;
-					
-					RollbackTransaction();
-				Except
-					ErrorInfo = ErrorInfo();
-					ErrorProcessing.DetailErrorDescription(ErrorInfo);
-					RollbackTransaction();
-				EndTry;
+	For Each TableRow In Table Do
+		
+		If CheckRights1 Then
+			PropertyAccessRights = PropertyAccessRights(TableRow.Property, UniversalRestriction, 
+				AllowedProperties, ModuleAccessManagement);
+			If Not PropertyAccessRights.CanBeRead Then
+				Continue;
 			EndIf;
 		EndIf;
 		
 		NewRow = PropertyValueTable.Add();
-		FillPropertyValues(NewRow, String);
+		FillPropertyValues(NewRow, TableRow);
 		
 		If ValueIsFilled(NewRow.ToolTip) Then
 			NewRow.ColumnQuestion = "?";
 		EndIf;
 		
-		NewRow.PictureNumber = ?(String.Deleted, 0, -1);
-		NewRow.IsEditable = IsEditable;
+		NewRow.PictureNumber = ?(TableRow.Deleted, 0, -1);
+		NewRow.IsEditable = ?(CheckRights1, PropertyAccessRights.IsEditable, True);
 		
-		If String.Value = Undefined
-			And Common.TypeDetailsContainsType(String.ValueType, Type("Boolean")) Then
+		If TableRow.Value = Undefined
+			And Common.TypeDetailsContainsType(TableRow.ValueType, Type("Boolean")) Then
 			NewRow.Value = False;
 		EndIf;
 	EndDo;
 	
 EndProcedure
 
+&AtServer
+Function PropertyAccessRights(Property, UniversalRestriction, AllowedProperties, ModuleAccessManagement)
+
+	Result = New Structure("CanBeRead,IsEditable", False, False);
+	If UniversalRestriction Then
+		RecordSet = TestRecordSet(Property);
+		
+		Result.CanBeRead = ModuleAccessManagement.ReadingAllowed(RecordSet);
+		Result.IsEditable = ModuleAccessManagement.EditionAllowed(RecordSet);
+		Return Result;
+	EndIf;
+
+	If AllowedProperties <> Undefined And AllowedProperties.Find(Property) = Undefined Then
+		Return Result;
+	EndIf;
+	
+	Result.CanBeRead = True;
+	BeginTransaction(); // ACC:326 - Commit of the transaction is not required; this is a check for write permissions.
+	Try
+		RecordSet = TestRecordSet(Property);
+		RecordSet.DataExchange.Load = True;
+		RecordSet.Write(True);
+
+		Result.IsEditable = True;
+		
+		RollbackTransaction();
+	Except
+		RollbackTransaction();
+	EndTry;
+	Return Result;
+
+EndFunction
+
+&AtServer
+Function TestRecordSet(Property)
+	RecordSet = InformationRegisters.AdditionalInfo.CreateRecordSet();
+	RecordSet.Filter.Object.Set(Parameters.Ref);
+	RecordSet.Filter.Property.Set(Property);
+	
+	Record = RecordSet.Add();
+	Record.Property = Property;
+	Record.Object = Parameters.Ref;
+	
+	Return RecordSet;
+EndFunction
+
 &AtClient
 Procedure WritePropertiesValues()
 	
-	// Writing property values in the information register.
 	PropertiesValues = New Array;
-	
-	For Each String In PropertyValueTable Do
-		Value = New Structure("Property, Value", String.Property, String.Value);
+	For Each TableRow In PropertyValueTable Do
+		Value = New Structure("Property, Value", TableRow.Property, TableRow.Value);
 		PropertiesValues.Add(Value);
 	EndDo;
 	
@@ -337,15 +339,15 @@ Procedure WritePropertySetInRegister(Val Ref, Val PropertiesValues)
 		Set.Filter.Object.Set(Ref);
 		Set.Read();
 		CurrentValues = Set.Unload();
-		For Each String In PropertiesValues Do
-			Record = CurrentValues.Find(String.Property, "Property");
+		For Each TableRow In PropertiesValues Do
+			Record = CurrentValues.Find(TableRow.Property, "Property");
 			If Record = Undefined Then
 				Record = CurrentValues.Add();
-				Record.Property = String.Property;
-				Record.Value = String.Value;
+				Record.Property = TableRow.Property;
+				Record.Value = TableRow.Value;
 				Record.Object   = Ref;
 			EndIf;
-			Record.Value = String.Value;
+			Record.Value = TableRow.Value;
 			
 			If Not ValueIsFilled(Record.Value)
 				Or Record.Value = False Then
@@ -381,18 +383,18 @@ Function ReadPropertiesValuesFromInfoRegister(Ref)
 EndFunction
 
 &AtServer
-Function GetCurrentPropertiesValues()
+Function CurrentPropertiesValues()
 	
 	PropertiesValues = New ValueTable;
 	PropertiesValues.Columns.Add("Property");
 	PropertiesValues.Columns.Add("Value");
 	
-	For Each String In PropertyValueTable Do
+	For Each TableRow In PropertyValueTable Do
 		
-		If ValueIsFilled(String.Value) And (String.Value <> False) Then
+		If ValueIsFilled(TableRow.Value) And (TableRow.Value <> False) Then
 			NewRow = PropertiesValues.Add();
-			NewRow.Property = String.Property;
-			NewRow.Value = String.Value;
+			NewRow.Property = TableRow.Property;
+			NewRow.Value = TableRow.Value;
 		EndIf;
 	EndDo;
 	

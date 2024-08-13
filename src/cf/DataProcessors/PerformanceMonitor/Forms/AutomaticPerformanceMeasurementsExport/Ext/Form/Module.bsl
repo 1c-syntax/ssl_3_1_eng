@@ -148,7 +148,7 @@ Procedure FTPExportDirectoryOnChange(Item)
 EndProcedure
 
 ///////////////////////////////////////////////////////////////////////
-// 
+// COMMAND HANDLERS
 
 &AtClient
 Procedure SetExportSchedule(Command)

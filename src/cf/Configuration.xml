@@ -1,34 +1,34 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
-	<Configuration uuid="c083a67d-279c-475e-a83c-b59e68d8a26c">
+	<Configuration uuid="2477f9a6-2378-4464-ab82-f30090b80229">
 		<InternalInfo>
 			<xr:ContainedObject>
 				<xr:ClassId>9cd510cd-abfc-11d4-9434-004095e12fc7</xr:ClassId>
-				<xr:ObjectId>d1206ec7-fb1c-40ee-91f2-d54f18c20a3d</xr:ObjectId>
+				<xr:ObjectId>4a93c56b-bfcf-4891-a32a-97fa39462056</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>9fcd25a0-4822-11d4-9414-008048da11f9</xr:ClassId>
-				<xr:ObjectId>a1d36af1-2fb8-4ce1-b05b-ae3019e8b9ac</xr:ObjectId>
+				<xr:ObjectId>5faff53a-b759-4713-817a-547c54ff1df5</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>e3687481-0a87-462c-a166-9f34594f9bba</xr:ClassId>
-				<xr:ObjectId>fd72e717-63f0-4d19-b448-a8c6ededf10f</xr:ObjectId>
+				<xr:ObjectId>1fb7c836-c605-4451-8303-2266b93c5f99</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>9de14907-ec23-4a07-96f0-85521cb6b53b</xr:ClassId>
-				<xr:ObjectId>d88d750d-220f-4c19-b572-d17329207822</xr:ObjectId>
+				<xr:ObjectId>d12b8174-2c45-4436-9684-3d43fbd34a14</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>51f2d5d8-ea4d-4064-8892-82951750031e</xr:ClassId>
-				<xr:ObjectId>5599d801-806d-4b61-842d-52bad3054ced</xr:ObjectId>
+				<xr:ObjectId>0b156fa5-e44f-4ca4-b250-a0f047ebf54d</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>e68182ea-4237-4383-967f-90c1e3370bc7</xr:ClassId>
-				<xr:ObjectId>ddbb6dca-0ec7-4995-9b64-bfd93c6f2d34</xr:ObjectId>
+				<xr:ObjectId>20fc9394-ab78-454d-b72a-0ab5c4447e71</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>fb282519-d103-4dd3-bc12-cb271d631dfc</xr:ClassId>
-				<xr:ObjectId>779be15e-d5dc-4cc7-9bdd-aae2f2a78ec3</xr:ObjectId>
+				<xr:ObjectId>4be8c882-7b4c-42a3-b9ed-7e3bb387f93e</xr:ObjectId>
 			</xr:ContainedObject>
 		</InternalInfo>
 		<Properties>
@@ -53,7 +53,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">Role.InteractiveOpenExtReportsAndDataProcessors</xr:Item>
 			</DefaultRoles>
 			<Vendor>1C Company</Vendor>
-			<Version>3.1.10.146</Version>
+			<Version>3.1.10.271</Version>
 			<UpdateCatalogAddress/>
 			<IncludeHelpInContents>true</IncludeHelpInContents>
 			<UseManagedFormInOrdinaryApplication>false</UseManagedFormInOrdinaryApplication>
@@ -238,7 +238,7 @@
 			<VendorInformationAddress>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>http://www.1c.ru</v8:content>
+					<v8:content>https://1c-dn.com</v8:content>
 				</v8:item>
 			</VendorInformationAddress>
 			<ConfigurationInformationAddress/>
@@ -335,6 +335,7 @@
 			<StyleItem>TotalsGroupBackground</StyleItem>
 			<StyleItem>UnacceptedVersion</StyleItem>
 			<StyleItem>UnassignedAccessRightColor</StyleItem>
+			<StyleItem>VeryLargeFont</StyleItem>
 			<StyleItem>ViewRightBackground</StyleItem>
 			<StyleItem>WarningBackColor</StyleItem>
 			<StyleItem>WarningTextColor</StyleItem>
@@ -947,8 +948,8 @@
 			<Role>AddEditUsers</Role>
 			<Role>AddEditWorkSchedules</Role>
 			<Role>Administration</Role>
-			<Role>BasicSSLRights</Role>
-			<Role>BasicSSLRightsForExternalUsers</Role>
+			<Role>BasicAccessExternalUserSSL</Role>
+			<Role>BasicAccessSSL</Role>
 			<Role>DataDecryption</Role>
 			<Role>DataSynchronizationInProgress</Role>
 			<Role>EditAccessGroupMembers</Role>
@@ -1005,7 +1006,7 @@
 			<Role>ViewEventLog</Role>
 			<Role>ViewRelatedDocuments</Role>
 			<CommonTemplate>BarcodePrintingAddIn</CommonTemplate>
-			<CommonTemplate>DocumentScanningAddIn_3_0_1_1030</CommonTemplate>
+			<CommonTemplate>DocumentScanningAddIn_3_0_1_1032</CommonTemplate>
 			<CommonTemplate>EmptyDOCXTemplate</CommonTemplate>
 			<CommonTemplate>GetUpdateHandlersTree</CommonTemplate>
 			<CommonTemplate>GuideHowToSetUpOpenOfficeTemplate</CommonTemplate>
@@ -1072,6 +1073,7 @@
 			<CommonModule>AttachableCommandsClient</CommonModule>
 			<CommonModule>AttachableCommandsClientCached</CommonModule>
 			<CommonModule>AttachableCommandsClientServer</CommonModule>
+			<CommonModule>AttachableCommandsGlobal</CommonModule>
 			<CommonModule>AttachableCommandsOverridable</CommonModule>
 			<CommonModule>AttachableCommandsServerCall</CommonModule>
 			<CommonModule>BankManager</CommonModule>
@@ -1094,6 +1096,7 @@
 			<CommonModule>BusinessProcessesAndTasksServerCall</CommonModule>
 			<CommonModule>CalendarSchedules</CommonModule>
 			<CommonModule>CalendarSchedulesInternal</CommonModule>
+			<CommonModule>CalendarSchedulesLocalization</CommonModule>
 			<CommonModule>CalendarSchedulesOverridable</CommonModule>
 			<CommonModule>ClusterAdministration</CommonModule>
 			<CommonModule>ClusterAdministrationClientServer</CommonModule>
@@ -1168,6 +1171,7 @@
 			<CommonModule>DataExchangeXDTOServer</CommonModule>
 			<CommonModule>DigitalSignature</CommonModule>
 			<CommonModule>DigitalSignatureClient</CommonModule>
+			<CommonModule>DigitalSignatureClientLocalization</CommonModule>
 			<CommonModule>DigitalSignatureClientOverridable</CommonModule>
 			<CommonModule>DigitalSignatureClientServer</CommonModule>
 			<CommonModule>DigitalSignatureClientServerLocalization</CommonModule>
@@ -1177,6 +1181,7 @@
 			<CommonModule>DigitalSignatureInternalClientCached</CommonModule>
 			<CommonModule>DigitalSignatureInternalClientServer</CommonModule>
 			<CommonModule>DigitalSignatureInternalServerCall</CommonModule>
+			<CommonModule>DigitalSignatureLocalization</CommonModule>
 			<CommonModule>DigitalSignatureOverridable</CommonModule>
 			<CommonModule>DocumentRecordsReportInternalClient</CommonModule>
 			<CommonModule>DocumentRecordsReportOverridable</CommonModule>
@@ -1359,6 +1364,7 @@
 			<CommonModule>PersonsClientServer</CommonModule>
 			<CommonModule>PersonsClientServerLocalization</CommonModule>
 			<CommonModule>PrintManagement</CommonModule>
+			<CommonModule>PrintManagementCached</CommonModule>
 			<CommonModule>PrintManagementClient</CommonModule>
 			<CommonModule>PrintManagementClientOverridable</CommonModule>
 			<CommonModule>PrintManagementClientServer</CommonModule>
@@ -1371,7 +1377,6 @@
 			<CommonModule>PrintManagementNationalLanguageSupportOverridable</CommonModule>
 			<CommonModule>PrintManagementOOWriterClient</CommonModule>
 			<CommonModule>PrintManagementOverridable</CommonModule>
-			<CommonModule>PrintManagementRepeatIsp</CommonModule>
 			<CommonModule>PrintManagementServerCall</CommonModule>
 			<CommonModule>PropertyManager</CommonModule>
 			<CommonModule>PropertyManagerCached</CommonModule>
@@ -1437,10 +1442,12 @@
 			<CommonModule>StandardSubsystemsCached</CommonModule>
 			<CommonModule>StandardSubsystemsClient</CommonModule>
 			<CommonModule>StandardSubsystemsClientCached</CommonModule>
+			<CommonModule>StandardSubsystemsClientServer</CommonModule>
 			<CommonModule>StandardSubsystemsClientServerLocalization</CommonModule>
 			<CommonModule>StandardSubsystemsGlobal</CommonModule>
 			<CommonModule>StandardSubsystemsServer</CommonModule>
 			<CommonModule>StandardSubsystemsServerCall</CommonModule>
+			<CommonModule>StandardSubsystemsServerLocalization</CommonModule>
 			<CommonModule>StringFunctions</CommonModule>
 			<CommonModule>StringFunctionsClient</CommonModule>
 			<CommonModule>StringFunctionsClientServer</CommonModule>
@@ -1593,8 +1600,8 @@
 			<EventSubscription>ExecuteActionsBeforeWriteAttachedFile</EventSubscription>
 			<EventSubscription>ExecuteActionsOnWriteAttachedFile</EventSubscription>
 			<EventSubscription>FillAccessValuesSetsForTabularSections</EventSubscription>
-			<EventSubscription>FillAccessValuesSetsForTabularSectionsDocuments_SSLy</EventSubscription>
 			<EventSubscription>FillContactInformation</EventSubscription>
+			<EventSubscription>FillDocumentsTabularSectionsAccessValueSets</EventSubscription>
 			<EventSubscription>FillOrderingAttributeValue</EventSubscription>
 			<EventSubscription>GetBusinessProcessPresentation</EventSubscription>
 			<EventSubscription>GetBusinessProcessPresentationFields</EventSubscription>
@@ -2281,7 +2288,6 @@
 			<Enum>ScannedImageFormats</Enum>
 			<Enum>ScannedImageResolutions</Enum>
 			<Enum>SecurityProfileAdministrativeOperations</Enum>
-			<Enum>SinglePageFileStorageFormats</Enum>
 			<Enum>SMSDocumentStatuses</Enum>
 			<Enum>SMSMessagesState</Enum>
 			<Enum>SMSProviders</Enum>
@@ -2295,6 +2301,7 @@
 			<Enum>UpdateHandlersStatuses</Enum>
 			<Enum>VersionsLifetimes</Enum>
 			<Enum>WorkScheduleFillingMethods</Enum>
+			<Report>AccessGroupsAllowedValuesChange</Report>
 			<Report>AccessGroupsMembers</Report>
 			<Report>AccessRights</Report>
 			<Report>AccessRightsAnalysis</Report>
@@ -2303,7 +2310,9 @@
 			<Report>DataAreasUpdateProgress</Report>
 			<Report>DeferredUpdateDuration</Report>
 			<Report>DeferredUpdateProgress</Report>
+			<Report>DigitalSignatureCertificates</Report>
 			<Report>DocumentRegisterRecords</Report>
+			<Report>EditAccessGroupMembers</Report>
 			<Report>EventLogAnalysis</Report>
 			<Report>ExpiringTasksOnDate</Report>
 			<Report>ExternalResourcesInUse</Report>
@@ -2317,6 +2326,7 @@
 			<Report>PerformanceMonitor</Report>
 			<Report>PeriodClosingDates</Report>
 			<Report>PollStatistics</Report>
+			<Report>ProfilesRolesChanges</Report>
 			<Report>RenewDigitalSignatures</Report>
 			<Report>ReportDistributionControl</Report>
 			<Report>RolesRights</Report>

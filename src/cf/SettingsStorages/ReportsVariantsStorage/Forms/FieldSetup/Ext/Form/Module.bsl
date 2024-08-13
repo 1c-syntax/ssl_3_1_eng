@@ -188,7 +188,7 @@ Procedure ValuesSelection(Item, RowSelected, Field, StandardProcessing)
 EndProcedure
 
 &AtClient
-Procedure ValuesTaggingOnChange(Item)
+Procedure ValuesCheckOnChange(Item)
 	
 	ClearFilterByCondition = False;
 	
@@ -412,7 +412,7 @@ EndProcedure
 #Region Common
 
 &AtClient
-Procedure OutputAllValuesOfTheReportSectionClick(Item)
+Procedure OutputAllReportSectionValuesClick(Item)
 	
 	FillingResult = StartFillingInTheValues(UUID);
 	
@@ -1290,15 +1290,15 @@ EndProcedure
 Function TypeOfGroupingFields()
 	
 	TypeOfGroupingFields = DataCompositionGroupType.Items;
-	CurrentGroup = SettingsComposer.Settings.GetObjectByID(TitleProperties.GroupingID);
+	DataCompositionGroup = SettingsComposer.Settings.GetObjectByID(TitleProperties.GroupingID);
 	
-	If TypeOf(CurrentGroup) <> Type("DataCompositionGroup")
-		And TypeOf(CurrentGroup) <> Type("DataCompositionTableGroup") Then 
+	If TypeOf(DataCompositionGroup) <> Type("DataCompositionGroup")
+		And TypeOf(DataCompositionGroup) <> Type("DataCompositionTableGroup") Then 
 		
 		Return TypeOfGroupingFields;
 	EndIf;
 	
-	GroupingField = ReportsOptionsInternalClientServer.ReportField(CurrentGroup.GroupFields, TitleProperties.Field);
+	GroupingField = ReportsOptionsInternalClientServer.ReportField(DataCompositionGroup.GroupFields, TitleProperties.Field);
 	
 	If GroupingField = Undefined Then 
 		Return TypeOfGroupingFields;

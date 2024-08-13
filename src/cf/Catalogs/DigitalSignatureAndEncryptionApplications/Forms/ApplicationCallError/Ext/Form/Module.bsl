@@ -126,7 +126,7 @@ EndProcedure
 Procedure ErrorsSelection(Item, RowSelected, Field, StandardProcessing)
 	
 	StandardProcessing = False;
-	If Field = Items.ErrorsDetails Then
+	If Field = Items.ErrorsMoreDetails Then
 		
 		CurrentData = Items.Errors.CurrentData;
 		
@@ -139,7 +139,7 @@ Procedure ErrorsSelection(Item, RowSelected, Field, StandardProcessing)
 			ErrorParameters.Insert("AdditionalData", AdditionalData);
 		EndIf;
 		
-		OpenForm("CommonForm.ExtendedErrorPresentation", ErrorParameters, ThisObject);
+		DigitalSignatureInternalClient.OpenExtendedErrorPresentationForm(ErrorParameters, ThisObject);
 		
 	EndIf;
 	
@@ -192,7 +192,8 @@ Procedure OnOpenFollowUp(Result, Context) Export
 	
 	ContinuationHandler = OnCloseNotifyDescription;
 	OnCloseNotifyDescription = Undefined;
-	OpenForm("CommonForm.ExtendedErrorPresentation", ErrorParameters, ThisObject,,,, ContinuationHandler);
+	
+	DigitalSignatureInternalClient.OpenExtendedErrorPresentationForm(ErrorParameters, ThisObject, ContinuationHandler);
 	
 EndProcedure
 

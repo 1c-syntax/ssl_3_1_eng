@@ -51,7 +51,7 @@ Procedure OnOpen(Cancel)
 	UpdateDirectoryPattern = NStr("en = 'the %1 application directory';");
 	UpdateDirectoryPattern = StringFunctionsClientServer.SubstituteParametersToString(UpdateDirectoryPattern, ApplicationName);
 	
-	UserSitePattern = NStr("en = '1C:Enterprise 8 user support website';");
+	UserSitePattern = NStr("en = '1C:Enterprise support website';");
 	If Not IsBlankString(RuleSetLocation.PathToRulesSetFileOnUserSite) Then
 		UserSitePattern = New FormattedString(UserSitePattern,,,, RuleSetLocation.PathToRulesSetFileOnUserSite);
 	EndIf;
@@ -312,7 +312,7 @@ Procedure EnableDebuggingOnChange(Item)
 EndProcedure
 
 &AtClient
-Procedure DoNotStopOnErrorOnChange(Item)
+Procedure NotStopByMistakeOnChange(Item)
 	DebuggingSettingsChanged = True;
 EndProcedure
 

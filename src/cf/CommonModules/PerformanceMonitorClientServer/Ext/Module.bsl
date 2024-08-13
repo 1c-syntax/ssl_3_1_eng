@@ -165,8 +165,8 @@ Function AddCompositionItem(AreaToAddTo,
 		Item.Use = Use;
 	EndIf;
 	
-	// 
-	// 
+	// NOTE: The ID must be assigned at the end of the configuration process.
+	// Otherwise, only a part of it will be copied to the user settings.
 	// 
 	If UserSettingID <> Undefined Then
 		Item.UserSettingID = UserSettingID;
@@ -403,8 +403,8 @@ Function OnlyNumbersInString(Val CheckString, Val IncludingLeadingZeros = True, 
 		CheckString = Mid(CheckString, Position);
 	EndIf;
 	
-	// 
-	// 
+	// If it contains only digits, its replacement will result in an empty string.
+	// However, it cannot be validated using "IsBlankString" since the source string may contain whitespaces.
 	Return StrLen(
 		StrReplace( StrReplace( StrReplace( StrReplace( StrReplace(
 		StrReplace( StrReplace( StrReplace( StrReplace( StrReplace( 
@@ -433,7 +433,7 @@ Function OnlyLatinInString(Val CheckString, Val WithWordSeparators = True, Allow
 	EndIf;
 	
 	ValidCharCodes = New Array;
-	ValidCharCodes.Add(1105); // 
+	ValidCharCodes.Add(1105); // ""
 	ValidCharCodes.Add(1025); // ""
 	
 	For IndexOf = 1 To StrLen(AllowedChars) Do
@@ -508,7 +508,7 @@ Function IsWordSeparator(CharCode, WordSeparators = Undefined)
 	EndIf;
 		
 	Ranges = New Array;
-	Ranges.Add(New Structure("Min,Max", 48, 57)); 		// Digits
+	Ranges.Add(New Structure("Min,Max", 48, 57)); 		// Numerics.
 	Ranges.Add(New Structure("Min,Max", 65, 90)); 		// Uppercase Latin characters.
 	Ranges.Add(New Structure("Min,Max", 97, 122)); 		// Lowercase Latin characters.
 	Ranges.Add(New Structure("Min,Max", 1040, 1103)); 	// Cyrillic characters.

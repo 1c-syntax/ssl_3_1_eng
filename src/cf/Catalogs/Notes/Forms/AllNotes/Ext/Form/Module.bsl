@@ -42,7 +42,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 &AtClient
-Procedure FilterBySubject1OnChange(Item)
+Procedure FilterBySubjectOnChange(Item)
 	List.Parameters.SetParameterValue("SubjectOf", "%" + SelectedSubject + "%");
 EndProcedure
 

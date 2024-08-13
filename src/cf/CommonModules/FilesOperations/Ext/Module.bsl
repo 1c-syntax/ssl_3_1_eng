@@ -63,9 +63,9 @@ Function FileBinaryData(Val AttachedFile, Val RaiseException1 = True) Export
 	If FileObject1.FileStorageType = Enums.FileStorageTypes.InInfobase Then
 		
 		Result = FileFromInfobaseStorage(FileObject1.Ref);
-		If Result <> Undefined Then
+		If TypeOf(Result) = Type("ValueStorage") Then
 			Result = Result.Get();
-			If Result <> Undefined Then
+			If TypeOf(Result) = Type("BinaryData") Then
 				Return Result;
 			EndIf;
 		EndIf;
@@ -292,7 +292,7 @@ EndFunction
 //    * UniversalModificationDate       - Date   - Date and time the file was edited, in UTC time.
 //    * FileName                           - String - File name. For example "Document.txt".
 //    * Description                       - String - File description in the file storage catalog.
-//    * Extension                         - String - a file extension without fullstop.
+//    * Extension                         - String - File extension without a dot.
 //    * Size                             - Number  - File size in bytes.
 //    * BeingEditedBy                        - CatalogRef.Users
 //                                         - CatalogRef.ExternalUsers
@@ -696,9 +696,9 @@ EndProcedure
 //      * FilesOwner              - DefinedType.AttachedFilesOwner - an object, to which
 //                                    you need to attach the file.
 //                                    The default value is Undefined.
-//      * BaseName            - String - a file name without extension.
+//      * BaseName            - String - File name without the extension.
 //                                    The default value is "".
-//      * ExtensionWithoutPoint          - String - a file extension (without a dot at the beginning).
+//      * ExtensionWithoutPoint          - String - File extension (without a dot).
 //                                    The default value is "".
 //      * ModificationTimeUniversal - Date - date and time of file modification (UTC+0:00). If the parameter value is
 //                                    Undefined, when adding a file, the modification time will be set equal to
@@ -765,6 +765,13 @@ Function AppendFile(FileParameters,
 			ExtensionWithoutPoint = FileNameParts[FileNameParts.Count() - 1];
 			BaseName = Left(BaseName, StrLen(BaseName) - (StrLen(ExtensionWithoutPoint) + 1));
 		EndIf;
+	EndIf; 
+
+	If Lower(ExtensionWithoutPoint) = Lower(EncryptedFilesExtension()) Then
+		ForUnencryptedFile = New File(BaseName);
+		ExtensionWithoutPoint = ForUnencryptedFile.Extension;
+		BaseName = ForUnencryptedFile.BaseName;
+		FileParameters.Insert("Encrypted", True);
 	EndIf;
 	
 	BaseName = CommonClientServer.ReplaceProhibitedCharsInFileName(BaseName);
@@ -814,6 +821,9 @@ Function AppendFile(FileParameters,
 		AttachedFile.Extension);
 	AttachedFile.ChangedBy                      = FileParameters.Author;
 	AttachedFile.StoreVersions                = StoreVersions;
+	If FileParameters.Property("Encrypted") Then
+		AttachedFile.Encrypted                   = FileParameters.Encrypted;
+	EndIf;
 	
 	If FilesGroup <> Undefined Then
 		AttachedFile.Parent = FilesGroup;
@@ -975,7 +985,7 @@ Function MaxFileSize() Export
 	MaxFileSize = Constants[ConstantName].Get();
 	
 	If Not ValueIsFilled(MaxFileSize) Then
-		MaxFileSize = 52428800; // 
+		MaxFileSize = 52428800; // 50*1024*1024 = 50 MB
 	EndIf;
 	
 	If SeparationEnabledAndAvailableUsage Then
@@ -1004,7 +1014,7 @@ Function MaxFileSizeCommon() Export
 	If MaxFileSize = Undefined
 	 Or MaxFileSize = 0 Then
 		
-		MaxFileSize = 50*1024*1024; // 
+		MaxFileSize = 50*1024*1024; // 50 MB
 	EndIf;
 	
 	Return MaxFileSize;
@@ -1641,11 +1651,11 @@ Procedure AddSignatureToFile(AttachedFile, SignatureProperties, FormIdentifier =
 		AttachedFileRef, Metadata.DefinedTypes.AttachedFile.Type);
 		
 	If ValueIsFilled(AttributesStructure1.BeingEditedBy) Then
-		Raise FilesOperationsInternalClientServer.MessageAboutInadmissibilityOfSigningBusyFile(AttachedFileRef);
+		Raise FilesOperationsInternalClientServer.MessageAboutInvalidSigningOfLockedFile(AttachedFileRef);
 	EndIf;
 	
 	If AttributesStructure1.Encrypted Then
-		Raise FilesOperationsInternalClientServer.MessageAboutInadmissibilityOfSigningEncryptedFile(AttachedFileRef);
+		Raise FilesOperationsInternalClientServer.MessageAboutInvalidSigningOfEncryptedFile(AttachedFileRef);
 	EndIf;
 	
 	If Common.SubsystemExists("StandardSubsystems.DigitalSignature") Then
@@ -1696,127 +1706,122 @@ EndFunction
 //
 Function GetUserScanSettings(ClientID) Export
 	
-	UserScanSettings = FilesOperationsClientServer.UserScanSettings();
+	Result = FilesOperationsClientServer.UserScanSettings();
 	
-	UserScanSettings.ShowScannerDialog = Common.CommonSettingsStorageLoad(
+	Result.ShowScannerDialog = Common.CommonSettingsStorageLoad(
 		"ScanningSettings1/ShowScannerDialog", 
 		ClientID, True);
 	
-	UserScanSettings.DeviceName = Common.CommonSettingsStorageLoad(
+	Result.DeviceName = Common.CommonSettingsStorageLoad(
 		"ScanningSettings1/DeviceName", 
 		ClientID, "");
 	
-	UserScanSettings.ScannedImageFormat = Common.CommonSettingsStorageLoad(
+	Result.ScannedImageFormat = Common.CommonSettingsStorageLoad(
 		"ScanningSettings1/ScannedImageFormat", 
 		ClientID, Enums.ScannedImageFormats.PNG);
+	If Result.ScannedImageFormat = Enums.ScannedImageFormats.EmptyRef() Then
+		Result.ScannedImageFormat = Enums.ScannedImageFormats.PNG;	
+	EndIf;
 	
-	UserScanSettings.ShouldSaveAsPDF = Common.CommonSettingsStorageLoad(
+	Result.ShouldSaveAsPDF = Common.CommonSettingsStorageLoad(
 		"ScanningSettings1/ShouldSaveAsPDF", 
 		ClientID, False);
 	
-	UserScanSettings.MultipageStorageFormat = Common.CommonSettingsStorageLoad(
+	Result.MultipageStorageFormat = Common.CommonSettingsStorageLoad(
 		"ScanningSettings1/MultipageStorageFormat", 
 		ClientID, Enums.MultipageFileStorageFormats.TIF);
 	
-	UserScanSettings.Resolution = Common.CommonSettingsStorageLoad(
+	Result.Resolution = Common.CommonSettingsStorageLoad(
 		"ScanningSettings1/Resolution", 
 		ClientID);
 	
-	UserScanSettings.Chromaticity = Common.CommonSettingsStorageLoad(
+	Result.Chromaticity = Common.CommonSettingsStorageLoad(
 		"ScanningSettings1/Chromaticity", 
 		ClientID);
 	
-	UserScanSettings.Rotation = Common.CommonSettingsStorageLoad(
+	Result.Rotation = Common.CommonSettingsStorageLoad(
 		"ScanningSettings1/Rotation", 
 		ClientID);
 	
-	UserScanSettings.PaperSize = Common.CommonSettingsStorageLoad(
+	Result.PaperSize = Common.CommonSettingsStorageLoad(
 		"ScanningSettings1/PaperSize", 
 		ClientID);
 	
-	UserScanSettings.DuplexScanning = Common.CommonSettingsStorageLoad(
+	Result.DuplexScanning = Common.CommonSettingsStorageLoad(
 		"ScanningSettings1/DuplexScanning", 
 		ClientID);
 	
-	UserScanSettings.UseImageMagickToConvertToPDF =  Common.CommonSettingsStorageLoad(
+	Result.UseImageMagickToConvertToPDF =  Common.CommonSettingsStorageLoad(
 		"ScanningSettings1/UseImageMagickToConvertToPDF", 
 		ClientID, False);
 		
-	UserScanSettings.JPGQuality = Common.CommonSettingsStorageLoad(
+	Result.JPGQuality = Common.CommonSettingsStorageLoad(
 		"ScanningSettings1/JPGQuality", 
 		ClientID, 100);
 	
-	UserScanSettings.TIFFDeflation = Common.CommonSettingsStorageLoad(
+	Result.TIFFDeflation = Common.CommonSettingsStorageLoad(
 		"ScanningSettings1/TIFFDeflation", 
 		ClientID, Enums.TIFFCompressionTypes.NoCompression);
 	
-	UserScanSettings.PathToConverterApplication = Common.CommonSettingsStorageLoad(
+	Result.PathToConverterApplication = Common.CommonSettingsStorageLoad(
 		"ScanningSettings1/PathToConverterApplication", 
 		ClientID, ""); // ImageMagick
 		
-	UserScanSettings.ScanLogCatalog = Common.CommonSettingsStorageLoad(
+	Result.ScanLogCatalog = Common.CommonSettingsStorageLoad(
 		"ScanningSettings1/ScanLogCatalog", 
 		ClientID, ""); 
 		
-	UserScanSettings.UseScanLogDirectory = Common.CommonSettingsStorageLoad(
+	Result.UseScanLogDirectory = Common.CommonSettingsStorageLoad(
 		"ScanningSettings1/UseScanLogDirectory", 
 		ClientID, False);
 		
-	Return UserScanSettings;
+	Return Result;
 EndFunction
 
 // Saves user scanning settings.
+//
 // Parameters:
 //  UserScanSettings - See FilesOperationsClientServer.UserScanSettings
-//  ClientID - UUID - client iD
+//  ClientID - UUID
 //
 Procedure SaveUserScanSettings(UserScanSettings, ClientID) Export
 
-	ScanningSettings1 = New Array;
+	Result = New Array;
 	
-	ScanningSettings1.Add(FilesOperationsInternal.GenerateScanSetting("ShowScannerDialog",
+	Result.Add(FilesOperationsInternal.ScanningSettings("ShowScannerDialog",
 		UserScanSettings.ShowScannerDialog, ClientID));
-	ScanningSettings1.Add(FilesOperationsInternal.GenerateScanSetting("DeviceName",
+	Result.Add(FilesOperationsInternal.ScanningSettings("DeviceName",
 		UserScanSettings.DeviceName, ClientID));
-	ScanningSettings1.Add(FilesOperationsInternal.GenerateScanSetting("ScannedImageFormat",
+	Result.Add(FilesOperationsInternal.ScanningSettings("ScannedImageFormat",
 		UserScanSettings.ScannedImageFormat, ClientID));
-	ScanningSettings1.Add(FilesOperationsInternal.GenerateScanSetting("ShouldSaveAsPDF",
+	Result.Add(FilesOperationsInternal.ScanningSettings("ShouldSaveAsPDF",
 		UserScanSettings.ShouldSaveAsPDF, ClientID));
-	ScanningSettings1.Add(FilesOperationsInternal.GenerateScanSetting("MultipageStorageFormat",
+	Result.Add(FilesOperationsInternal.ScanningSettings("MultipageStorageFormat",
 		UserScanSettings.MultipageStorageFormat, ClientID));
-	ScanningSettings1.Add(FilesOperationsInternal.GenerateScanSetting("Resolution",
+	Result.Add(FilesOperationsInternal.ScanningSettings("Resolution",
 		UserScanSettings.Resolution, ClientID));
-	ScanningSettings1.Add(FilesOperationsInternal.GenerateScanSetting("Chromaticity",
+	Result.Add(FilesOperationsInternal.ScanningSettings("Chromaticity",
 		UserScanSettings.Chromaticity, ClientID));
-	ScanningSettings1.Add(FilesOperationsInternal.GenerateScanSetting("Rotation",
+	Result.Add(FilesOperationsInternal.ScanningSettings("Rotation",
 		UserScanSettings.Rotation, ClientID));
-	ScanningSettings1.Add(FilesOperationsInternal.GenerateScanSetting("PaperSize",
+	Result.Add(FilesOperationsInternal.ScanningSettings("PaperSize",
 		UserScanSettings.PaperSize, ClientID));
-	ScanningSettings1.Add(FilesOperationsInternal.GenerateScanSetting("DuplexScanning",
+	Result.Add(FilesOperationsInternal.ScanningSettings("DuplexScanning",
 		UserScanSettings.DuplexScanning, ClientID));
-	ScanningSettings1.Add(FilesOperationsInternal.GenerateScanSetting("UseImageMagickToConvertToPDF",
+	Result.Add(FilesOperationsInternal.ScanningSettings("UseImageMagickToConvertToPDF",
 		UserScanSettings.UseImageMagickToConvertToPDF, ClientID));
-	ScanningSettings1.Add(FilesOperationsInternal.GenerateScanSetting("JPGQuality",
+	Result.Add(FilesOperationsInternal.ScanningSettings("JPGQuality",
 		UserScanSettings.JPGQuality, ClientID));
-	ScanningSettings1.Add(FilesOperationsInternal.GenerateScanSetting("TIFFDeflation",
+	Result.Add(FilesOperationsInternal.ScanningSettings("TIFFDeflation",
 		UserScanSettings.TIFFDeflation, ClientID));
-	ScanningSettings1.Add(FilesOperationsInternal.GenerateScanSetting("PathToConverterApplication",
+	Result.Add(FilesOperationsInternal.ScanningSettings("PathToConverterApplication",
 		UserScanSettings.PathToConverterApplication, ClientID));
-	ScanningSettings1.Add(FilesOperationsInternal.GenerateScanSetting("ScanLogCatalog",
+	Result.Add(FilesOperationsInternal.ScanningSettings("ScanLogCatalog",
 		UserScanSettings.ScanLogCatalog, ClientID));
-	ScanningSettings1.Add(FilesOperationsInternal.GenerateScanSetting("UseScanLogDirectory",
+	Result.Add(FilesOperationsInternal.ScanningSettings("UseScanLogDirectory",
 		UserScanSettings.UseScanLogDirectory, ClientID));
 	
-	If ValueIsFilled(UserScanSettings.SinglePageStorageFormat) Then
-		SinglePageStorageFormat = UserScanSettings.SinglePageStorageFormat;
-	Else
-		SinglePageStorageFormat = FilesOperationsInternal.ConvertScanningFormatToStorageFormat(UserScanSettings.ScannedImageFormat,
-			UserScanSettings.ShouldSaveAsPDF);
-	EndIf;
-	
-	ScanningSettings1.Add(FilesOperationsInternal.GenerateScanSetting("SinglePageStorageFormat", SinglePageStorageFormat, ClientID));
-	
-	CommonServerCall.CommonSettingsStorageSaveArray(ScanningSettings1, True);
+	CommonServerCall.CommonSettingsStorageSaveArray(Result, True);
 EndProcedure
 
 #Region ForCallsFromOtherSubsystems
@@ -1830,7 +1835,7 @@ EndProcedure
 // Parameters:
 //   Parameters - Structure - parameters of executing the deferred update handler.
 //
-Procedure MoveDigitalSignaturesAndEncryptionCertificatesToInformationRegisters(Parameters) Export
+Procedure MoveDigitalSignaturesAndEncryptionCertificatesToInformationRegisters(Parameters) Export  // ACC:530 - Processing tables of attachments (not data from other subsystems).
 	
 	FilesOperationsInternal.MoveDigitalSignaturesAndEncryptionCertificatesToInformationRegisters(Parameters);
 	
@@ -2046,6 +2051,17 @@ EndFunction
 
 #Region Private
 
+Function EncryptedFilesExtension() Export
+	
+	If Common.SubsystemExists("StandardSubsystems.DigitalSignature") Then
+		ModuleDigitalSignature = Common.CommonModule("DigitalSignature");
+		Return ModuleDigitalSignature.PersonalSettings().EncryptedFilesExtension;
+	Else
+		Return "p7m";
+	EndIf;
+	
+EndFunction
+
 // Internal function for the ConvertFilesToAttachedFiles
 //
 Function CreateAttachedFileBasedOnFile(Val FilesOwner, Val AttachedFilesManager, 
@@ -2114,8 +2130,8 @@ Function CreateAttachedFileBasedOnFile(Val FilesOwner, Val AttachedFilesManager,
 	If AttachedFile.FileStorageType = Enums.FileStorageTypes.InInfobase Then
 		FileStorage1 = FileFromInfobaseStorage(CurrentVersionObject.Ref);
 		
-		// 
-		// 
+		// If binary file data is missing from the infobase, skip it but keep the file card.
+		// It can be done after garbage files are cleaned up or due to exchange or import errors.
 		If FileStorage1 <> Undefined Then
 			SetPrivilegedMode(True);
 			InformationRegisters.FileRepository.WriteBinaryData(RefToNew, FileStorage1.Get());
@@ -2424,8 +2440,8 @@ Procedure ExecuteActionsBeforeWriteAttachedFile(Source, Cancel) Export
 			
 			CurrentVersionAttributes = Common.ObjectAttributesValues(Source.CurrentVersion, "Description");
 			
-			// 
-			// 
+			// Check if the filename matches its current version.
+			// If they mismatch, rename the file after the file card.
 			If CurrentVersionAttributes.Description <> Source.Description
 			   And ValueIsFilled(Source.CurrentVersion) Then
 				
@@ -2681,7 +2697,7 @@ Procedure CreateFilesHyperlink(Form, ItemToAdd, AttachedFilesOwner, HyperlinkPar
 		
 		ImportFile_           = Form.Commands.Add(CommandPrefix + ImportFileCommandName + "_" + ItemNumber);
 		ImportFile_.Action  = "Attachable_AttachedFilesPanelCommand";
-		CommandTitle = NStr("en = 'Import a file from a computer';");
+		CommandTitle = NStr("en = 'Upload local file';");
 		ImportFile_.ToolTip = CommandTitle;
 		ImportFile_.Title = CommandTitle + "...";
 		
@@ -2955,7 +2971,7 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 		
 		ImportFile_ = Form.Commands.Add(CommandNameWithPrefix + "_" + OneFileOnlyText + ItemNumber);
 		ImportFile_.Action  = "Attachable_AttachedFilesPanelCommand";
-		ImportFile_.ToolTip = NStr("en = 'Import a file from a computer';");
+		ImportFile_.ToolTip = NStr("en = 'Upload local file';");
 		
 		If ItemToAdd.ShowCommandBar Then
 			

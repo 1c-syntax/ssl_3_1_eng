@@ -135,8 +135,8 @@ Procedure AfterStart() Export
 	If LockMode.Use 
 		 And (Not ValueIsFilled(LockMode.Begin) Or CurrentTime >= LockMode.Begin) 
 		 And (Not ValueIsFilled(LockMode.End) Or CurrentTime <= LockMode.End) Then
-		// 
-		// 
+		// If a user logged in to the infobase despite the lock, they used the "/UC" startup option.
+		// It is assumed that such a user session should not be closed.
 		Return;
 	EndIf;
 	
@@ -267,7 +267,7 @@ Procedure OnReceiptServerNotification(NameOfAlert, Result) Export
 EndProcedure
 
 // Parameters:
-//  Parameters - See CommonOverridable.BeforeRecurringClientDataSendToServer.Parameters
+//  Parameters - 
 //  AreNotificationsReceived - Boolean - Indicates that all notifications are received for the given period of time
 //                                (via either the Collaboration System or the common server call).
 //
@@ -408,9 +408,9 @@ Procedure SessionTerminationModeManagement(CurrentMode)
 	LockBeginTime = CurrentMode.Begin;
 	LockEndTime = CurrentMode.End;
 	
-	// 
-	// 
-	// 
+	// "ExitWithConfirmationTimeout" and "StopTimeout" are negative.
+	// Therefore, when comparing them to (LockBeginTime – CurrentMoment), the " less than or equal to"
+	// comparison is used ( <= ) as the difference tends towards zero.
 	WaitTimeout    = CurrentMode.SessionTerminationTimeout;
 	ExitWithConfirmationTimeout = WaitTimeout / 3;
 	StopTimeoutSaaS = 60; // One minute before the lock is set.
@@ -476,9 +476,9 @@ Procedure EndUserSessions(CurrentMode)
 	EndIf;
 	
 	If SessionCount <= 1 Then
-		// 
-		// 
-		// 
+		// All user sessions, except for the current one, are closed.
+		// Last of all, offer to close the session started with the "EndUserSessions" parameter.
+		// The closure order is driven by the need to update the configuration from a file.
 		SetUserTerminationInProgressFlag(False);
 		Notify("UsersSessions",
 			New Structure("Status, SessionCount", "Done", SessionCount));
@@ -498,8 +498,8 @@ Procedure EndUserSessions(CurrentMode)
 		Return;
 	EndIf;
 	
-	// 
-	// 
+	// After the lock is started, all user sessions must be closed.
+	// If failed to do so, try to force-close them.
 	
 	Try
 		AdministrationParameters = SavedAdministrationParameters();
@@ -807,9 +807,9 @@ Function ProcessStartParameters(Val StartupParameters)
 		Exit(False);
 		Return True;
 		
-	//  
-	// 
-	//  
+	// The parameter can contain two additional semicolon-delimited ( ; ) parts: 
+	// The credentials of the admin on whose behalf the cluster is connected in the client/server mode.
+	// See the comments to the "EndUserSessions" procedure.
 	ElsIf TheKeyIsContainedInTheStartupParameters(StartupParameters, ParameterNameShutdownUsers) Then
 		
 		AdditionalParameters = AdditionalParametersForUserShutdown();

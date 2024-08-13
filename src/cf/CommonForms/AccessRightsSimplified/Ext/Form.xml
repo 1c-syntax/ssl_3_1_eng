@@ -239,7 +239,7 @@
 										<Event name="OnChange">ProfilesCheckOnChange</Event>
 									</Events>
 								</CheckBoxField>
-								<InputField name="ProfilesProfilePresentation1" id="9">
+								<InputField name="ProfilesProfilePresentation" id="9">
 									<DataPath>Profiles.ProfilePresentation</DataPath>
 									<ReadOnly>true</ReadOnly>
 									<Title>
@@ -249,8 +249,8 @@
 										</v8:item>
 									</Title>
 									<EditMode>EnterOnInput</EditMode>
-									<ContextMenu name="ProfilesProfilePresentation1ContextMenu" id="10"/>
-									<ExtendedTooltip name="ProfilesProfilePresentation1ExtendedTooltip" id="81"/>
+									<ContextMenu name="ProfilesProfilePresentationContextMenu" id="10"/>
+									<ExtendedTooltip name="ProfilesProfilePresentationExtendedTooltip" id="81"/>
 								</InputField>
 							</ChildItems>
 						</Table>
@@ -357,7 +357,7 @@
 								<Event name="OnActivateCell">AccessKindsOnActivateCell</Event>
 							</Events>
 							<ChildItems>
-								<InputField name="AccessKindsAccessTypePresentation" id="56">
+								<InputField name="AccessKindsAccessKindPresentation" id="56">
 									<DataPath>AccessKinds.AccessKindPresentation</DataPath>
 									<ReadOnly>true</ReadOnly>
 									<Title>
@@ -375,8 +375,8 @@
 									<Width>17</Width>
 									<Wrap>false</Wrap>
 									<ListChoiceMode>true</ListChoiceMode>
-									<ContextMenu name="AccessKindsAccessTypePresentationContextMenu" id="57"/>
-									<ExtendedTooltip name="AccessKindsAccessTypePresentationExtendedTooltip" id="89"/>
+									<ContextMenu name="AccessKindsAccessKindPresentationContextMenu" id="57"/>
+									<ExtendedTooltip name="AccessKindsAccessKindPresentationExtendedTooltip" id="89"/>
 								</InputField>
 								<InputField name="AccessKindsAllAllowedPresentation" id="58">
 									<DataPath>AccessKinds.AllAllowedPresentation</DataPath>

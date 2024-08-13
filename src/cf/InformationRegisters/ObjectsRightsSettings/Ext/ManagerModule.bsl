@@ -1024,8 +1024,8 @@ Function CheckedPossibleSessionPermissions(AccessKindsProperties = Undefined, Ha
 		OwnerRightsArray = New FixedArray(OwnerProperties.OwnerRightsArray);
 		ByFullNames.Insert(ListItem.Presentation, OwnerRights);
 		ByRefsTypes.Insert(OwnerProperties.RefType, OwnerRightsArray);
-		ByTypes.Insert(RefType,  OwnerRights);
-		ByTypes.Insert(ObjectType, OwnerRights);
+		ByTypes.Insert(OwnerProperties.RefType,  OwnerRights);
+		ByTypes.Insert(OwnerProperties.ObjectType, OwnerRights);
 		
 		VersionDetails.VersionProperties.Add("");
 		IsRightsOwnerAdded = False;

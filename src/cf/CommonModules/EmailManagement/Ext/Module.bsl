@@ -197,7 +197,9 @@ Procedure SendEmails(EmailsToDefineFolders, AllRecievedEmails)
 	|			ELSE FALSE
 	|		END
 	|		ELSE TRUE
-	|	END
+	|	END 
+	|ORDER BY
+	|	ISNULL(OutgoingMailNotAcceptedByMailServer.AttemptsNumber, 0)
 	|TOTALS BY
 	|	Account";
 	
@@ -227,8 +229,8 @@ Procedure SendEmailsInternal(Query, AllRecievedEmails, EmailsToDefineFolders, Se
 			InformationRegisters.EmailAccountSettings.UpdateTheAccountUsageDate(Account);
 		EndIf;
 		
-		Emails = New Array;
-		EmailsHyperlinks = New Map;
+		Emails      = New Array;
+		EmailsData = New Map;
 		
 		EmailSelection = AccountsSelection.Select();
 		While EmailSelection.Next() Do
@@ -259,7 +261,13 @@ Procedure SendEmailsInternal(Query, AllRecievedEmails, EmailsToDefineFolders, Se
 			EndTry;
 			
 			Emails.Add(MailMessage);
-			EmailsHyperlinks.Insert(EmailSelection.Ref, MailMessage);
+			
+			EmailData = New Structure;
+			EmailData.Insert("MailMessage",              MailMessage);
+			EmailData.Insert("AttemptsNumber",   EmailSelection.AttemptsNumber);
+			EmailData.Insert("EmailPresentation", EmailSelection.EmailPresentation);
+			
+			EmailsData.Insert(EmailSelection.Ref, EmailData);
 			
 		EndDo;
 		
@@ -276,20 +284,44 @@ Procedure SendEmailsInternal(Query, AllRecievedEmails, EmailsToDefineFolders, Se
 			ErrorMessageText = StringFunctionsClientServer.SubstituteParametersToString(ErrorMessageTemplate, 
 				Account, EmailOperations.ExtendedErrorPresentation(ErrorInfo(), Common.DefaultLanguageCode()));
 			WriteLogEvent(EventLogEvent(), EventLogLevel.Error, , , ErrorMessageText);
-			If Not ValueIsFilled(SendingResult) Then
-				Continue;
-			EndIf;
+			
+			If Not ValueIsFilled(SendingResult) Then 
+				
+				If Emails.Count() <> 0 Then
+					FirstEmailData = RefToEmailByOutgoingMailMessage(EmailsData, Emails[0]); 
+					
+					If FirstEmailData <> Undefined Then
+						
+						ErrorProcessingParameters = SendErrorProcessingParameters();
+						ErrorProcessingParameters.EmailObject                      = FirstEmailData.Key.GetObject();
+						ErrorProcessingParameters.Ref                            = FirstEmailData.Key;
+						ErrorProcessingParameters.EmailPresentation               = FirstEmailData.Value.EmailPresentation;
+						ErrorProcessingParameters.AttemptsNumber                 = FirstEmailData.Value.AttemptsNumber;
+						ErrorProcessingParameters.IncrementAttemptsCount = True;
+						ErrorProcessingParameters.InformUser              = Interactively;
+						ErrorProcessingParameters.ErrorText                       = ErrorProcessing.BriefErrorDescription(ErrorInfo());
+						
+						ErrorProcessingResult = ProcessEmailSendingError(ErrorProcessingParameters, New Array);
+						
+					EndIf;
+					
+					Continue;
+					
+				EndIf;
+			EndIf; 
+			
 		EndTry;
 		
 		ErrorsTexts = New Array;
 		EmailSelection = AccountsSelection.Select();
 		While EmailSelection.Next() Do
 			EmailRef = EmailSelection.Ref;
-			EmailSendingResult = SendingResult[EmailsHyperlinks[EmailRef]];
+			EmailSendingResult = SendingResult[EmailsData[EmailRef].MailMessage];
 			WrongRecipients = Undefined;
 			If EmailSendingResult <> Undefined Then
 				WrongRecipients = EmailSendingResult.WrongRecipients;
-				If ValueIsFilled(WrongRecipients) Then
+				If ValueIsFilled(WrongRecipients) Then 
+					
 					ErrorProcessingParameters = SendErrorProcessingParameters();
 					ErrorProcessingParameters.EmailObject                      = EmailSelection.Ref.GetObject();
 					ErrorProcessingParameters.Ref                            = EmailSelection.Ref;
@@ -301,7 +333,8 @@ Procedure SendEmailsInternal(Query, AllRecievedEmails, EmailsToDefineFolders, Se
 					ErrorProcessingResult = ProcessEmailSendingError(ErrorProcessingParameters, WrongRecipients);
 					If Not ErrorProcessingResult.EmailSent Then
 						Continue;
-					EndIf;
+					EndIf; 
+					
 				EndIf;
 				
 				SentEmails1 = SentEmails1 + 1;
@@ -322,7 +355,37 @@ Procedure SendEmailsInternal(Query, AllRecievedEmails, EmailsToDefineFolders, Se
 					AllRecievedEmails.Add(EmailSelection.Ref);
 				EndIf;
 			EndIf;
-		EndDo;
+		EndDo; 
+		
+		If SendingResult.Count() <> Emails.Count() Then
+			
+			For Each EmailToSend In Emails Do
+				
+				If SendingResult[EmailToSend] = Undefined Then
+					
+					DataFromFirstUnsentEmail = RefToEmailByOutgoingMailMessage(EmailsData, EmailToSend);
+					
+					If DataFromFirstUnsentEmail <> Undefined Then
+						
+						ErrorProcessingParameters = SendErrorProcessingParameters();
+						ErrorProcessingParameters.EmailObject                      = DataFromFirstUnsentEmail.Key.GetObject();
+						ErrorProcessingParameters.Ref                            = DataFromFirstUnsentEmail.Key;
+						ErrorProcessingParameters.EmailPresentation               = DataFromFirstUnsentEmail.Value.EmailPresentation;
+						ErrorProcessingParameters.AttemptsNumber                 = DataFromFirstUnsentEmail.Value.AttemptsNumber;
+						ErrorProcessingParameters.IncrementAttemptsCount = True;
+						ErrorProcessingParameters.InformUser              = Interactively;
+						ErrorProcessingParameters.ErrorText                       = NStr("en = 'Unknown error when sending the email message';");
+						ErrorProcessingParameters.ShouldLogEvents = False;
+						
+						ErrorProcessingResult = ProcessEmailSendingError(ErrorProcessingParameters, New Array);
+						
+					EndIf;
+					
+				EndIf;
+				
+			EndDo;
+			
+		EndIf;
 		
 		If ValueIsFilled(ErrorsTexts) Then
 			Raise StrConcat(ErrorsTexts, Chars.LF);
@@ -331,6 +394,33 @@ Procedure SendEmailsInternal(Query, AllRecievedEmails, EmailsToDefineFolders, Se
 	EndDo;
 	
 EndProcedure
+
+Function RefToEmailByOutgoingMailMessage(EmailsData, EmailToSend)
+	
+	For Each EmailData In EmailsData Do
+		
+		If EmailData.Value.MailMessage = EmailToSend Then
+			
+			Return EmailData;
+			
+		EndIf;
+		
+	EndDo;
+	
+	Return Undefined;
+	
+EndFunction
+
+Function EncryptedFilesExtension()
+	
+	If Common.SubsystemExists("StandardSubsystems.DigitalSignature") Then
+		ModuleDigitalSignature = Common.CommonModule("DigitalSignature");
+		Return ModuleDigitalSignature.PersonalSettings().EncryptedFilesExtension;
+	Else
+		Return "p7m";
+	EndIf;
+	
+EndFunction
 
 Function AfterExecuteSendEmail(Ref, MessageID, MessageIDIMAPSending, DeleteAfterSend, RaiseException1 = True)
 
@@ -389,6 +479,8 @@ Function SendErrorProcessingParameters() Export
 	Parameters.Insert("AttemptsNumber",                  0);
 	Parameters.Insert("IncrementAttemptsCount" , False);
 	Parameters.Insert("InformUser",               False);
+	Parameters.Insert("ErrorText",                        "");
+	Parameters.Insert("ShouldLogEvents",  True);
 	
 	Return Parameters;
 	
@@ -412,20 +504,43 @@ Function ProcessEmailSendingError(ErrorProcessingParameters, Val WrongRecipients
 	AnalysisResult = WrongRecipientsAnalysisResult(ErrorProcessingParameters.EmailObject, WrongRecipients);
 	AllEmailAddresseesRejectedByServer           = AnalysisResult.AllEmailAddresseesRejectedByServer;
 	WrongAddresseesPresentation               = AnalysisResult.WrongAddresseesPresentation;
+	IsIssueOfEmailAddressesServerRejection = AnalysisResult.IsIssueOfEmailAddressesServerRejection;
 	
-	If Not AllEmailAddresseesRejectedByServer Then
-		ErrorMessageTemplate = NStr("en = 'Some recipients of the message ""%1"" were rejected by the server:
-			|%2. The message was sent to other recipients.';", Common.DefaultLanguageCode());
+	If IsIssueOfEmailAddressesServerRejection Then
+		
+		If Not AllEmailAddresseesRejectedByServer Then
+			ErrorMessageTemplate = NStr("en = 'Some recipients of the message ""%1"" were rejected by the server:
+				|%2. The message was sent to other recipients.';", Common.DefaultLanguageCode());
+		Else
+			ErrorMessageTemplate = NStr("en = 'Cannot send message ""%1"".
+				|The following recipients were rejected by the server:
+				|%2.';", Common.DefaultLanguageCode());
+		EndIf;
+		
+		ErrorMessageText = StringFunctionsClientServer.SubstituteParametersToString(ErrorMessageTemplate,
+		                                                                                 ErrorProcessingParameters.EmailPresentation,
+		                                                                                 WrongAddresseesPresentation);
+		
 	Else
-		ErrorMessageTemplate = NStr("en = 'Cannot send message ""%1"".
-		|The following recipients were rejected by the server:
-			|%2.';", Common.DefaultLanguageCode());
+		
+		ErrorMessageTemplate = NStr("en = 'Cannot send the email message ""%1"".
+			|Reason: %2.';", Common.DefaultLanguageCode());
+		
+		ErrorMessageText = StringFunctionsClientServer.SubstituteParametersToString(ErrorMessageTemplate,
+		                                                                                 ErrorProcessingParameters.EmailPresentation,
+		                                                                                 ErrorProcessingParameters.ErrorText)
+		
 	EndIf;
-	ErrorMessageText = StringFunctionsClientServer.SubstituteParametersToString(ErrorMessageTemplate,
-		ErrorProcessingParameters.EmailPresentation, WrongAddresseesPresentation);
 	
-	WriteLogEvent(EventLogEvent(), EventLogLevel.Error,,
-		ErrorProcessingParameters.Ref, ErrorMessageText);
+	If ErrorProcessingParameters.ShouldLogEvents Then
+	
+		WriteLogEvent(EventLogEvent(),
+		                        EventLogLevel.Error, 
+		                        ErrorProcessingParameters.Ref.Metadata(), 
+		                        ErrorProcessingParameters.Ref, 
+		                        ErrorMessageText);
+		
+	EndIf;
 	
 	Result.MessageText = ErrorMessageText;
 	
@@ -433,15 +548,8 @@ Function ProcessEmailSendingError(ErrorProcessingParameters, Val WrongRecipients
 		Common.MessageToUser(ErrorMessageText, ErrorProcessingParameters.Ref);
 	EndIf;
 	
-	If AllEmailAddresseesRejectedByServer Then
-		
-		EmailObject = ErrorProcessingParameters.EmailObject; // DocumentObject.OutgoingEmail
-		
-		WriteLogEvent(EventLogEvent(),
-		                        EventLogLevel.Error, 
-		                        EmailObject.Ref.Metadata(), 
-		                        ErrorProcessingParameters.Ref, 
-		                        ErrorMessageText);
+	If AllEmailAddresseesRejectedByServer
+		Or Not IsIssueOfEmailAddressesServerRejection Then
 		
 		If ErrorProcessingParameters.IncrementAttemptsCount Then
 			
@@ -665,7 +773,9 @@ Procedure SendUserEmail(Result)
 	|				THEN TRUE
 	|			ELSE OutgoingEmail.EmailSendingRelevanceDate > &CurrentDate
 	|		END
-	|	AND ISNULL(OutgoingMailNotAcceptedByMailServer.AttemptsNumber, 0) < 5
+	|	AND ISNULL(OutgoingMailNotAcceptedByMailServer.AttemptsNumber, 0) < 5 
+	|ORDER BY
+	|	ISNULL(OutgoingMailNotAcceptedByMailServer.AttemptsNumber, 0)
 	|TOTALS BY
 	|	Account";
 	
@@ -784,14 +894,14 @@ Procedure GetEmails(Val AccountData, HasErrors, ReceivedEmails, EmailsReceived)
 		
 		HasErrors = True;
 		ErrorMessageText = EmailOperations.ExtendedErrorPresentation(
-			ErrorInfo(), Common.DefaultLanguageCode());			
+			ErrorInfo(), Common.DefaultLanguageCode());
 		ErrorMessageText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot connect to the %1 account due to:
 				|%2';", Common.DefaultLanguageCode()),
 				AccountData.Ref,
-				ErrorMessageText);			
+				ErrorMessageText);
 		WriteLogEvent(EventLogEvent(),
-			EventLogLevel.Error, , , ErrorMessageText);		
+			EventLogLevel.Error, , , ErrorMessageText);
 		Return;
 		
 	EndTry;
@@ -1000,7 +1110,7 @@ Procedure GetEmailByIMAPProtocol(AccountData, Mail, EmailsReceived1, EmailsRecei
 			Continue;
 		EndTry;
 		
-		FilterParameters = New Structure;		
+		FilterParameters = New Structure;
 		If Not AccountData.EmailsImportDate = Date(1,1,1) Then 
 			FilterParameters.Insert("AfterDateOfPosting", 
 				DateOfSelectionOfIMAPMessageUpload(AccountData.EmailsImportDate));
@@ -1011,8 +1121,24 @@ Procedure GetEmailByIMAPProtocol(AccountData, Mail, EmailsReceived1, EmailsRecei
 		Try
 			EmailsHeadersForImport = Mail.GetHeaders(FilterParameters);
 		Except
+			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Couldn''t get the email headers. Folder: %1. Account: %2. Reason: %3';"),
+				ActiveFolderName, AccountData.Email, 
+				EmailOperations.ExtendedErrorPresentation(ErrorInfo(), Common.DefaultLanguageCode(), False)); 
+			WriteLogEvent(EventLogEvent(), EventLogLevel.Error,
+				Metadata.Catalogs.EmailMessageFolders,, MessageText);
 			Continue;
 		EndTry;
+		
+		ReceivableEmailsCount = EmailsHeadersForImport.Count();
+		If ReceivableEmailsCount = 0 Then
+			Continue;
+		EndIf;
+		
+		MessageText = StrTemplate(NStr("en = 'Receiving emails from folder ""%1"" for %2. Pending messages: %3';"),
+		                ActiveFolderName, AccountData.Email, ReceivableEmailsCount); 
+		WriteLogEvent(EventLogEvent(), EventLogLevel.Information,
+			Metadata.Catalogs.EmailMessageFolders,, MessageText);
 		
 		TitlesWithEmptyIDs = New Array;
 		IDsTable.Clear();
@@ -1100,8 +1226,20 @@ Procedure GetEmailByIMAPProtocol(AccountData, Mail, EmailsReceived1, EmailsRecei
 			
 			// @skip-check query-in-loop - Batch receipt of email messages from mail folders.
 			MessagesToImportIDs = Query.Execute().Unload().UnloadColumn("IDAtServer");
-			EmailsReceived1 = EmailsReceived1 + GetEmailMessagesByIDs(Mail, AccountData, 
-				MessagesToImportIDs, EmailsReceived);
+			
+			EmailsImportedByIDCount = GetEmailMessagesByIDs(Mail, AccountData, 
+			                                                                MessagesToImportIDs, EmailsReceived);
+			
+			EmailsReceived1 = EmailsReceived1 + EmailsImportedByIDCount;
+			
+			MessageText = StrTemplate(NStr("en = 'Messages received from folder ""%1"" for %2: %3';"),
+			                ActiveFolderName, AccountData.Email, EmailsImportedByIDCount); 
+		
+			WriteLogEvent(EventLogEvent(),
+			                         EventLogLevel.Information,
+			                         Metadata.Catalogs.EmailMessageFolders,
+			                         ,
+			                         MessageText);
 		
 		EndIf;
 	EndDo;
@@ -1114,8 +1252,8 @@ Procedure GetEmailByPOP3Protocol(AccountData, Mail, EmailsReceived1, EmailsRecei
 
 	IDs = Mail.GetUIDL();
 	If IDs.Count() = 0 And (Not AccountData.KeepCopies) Then
-		// 
-		// 
+		// If there are no messages on the server, delete all account records from
+		// the information register "ReceivedEmailIDs".
 		DeleteIDsOfAllPreviouslyReceivedEmails(AccountData.Ref);
 		Return;
 	EndIf;
@@ -1609,7 +1747,7 @@ Function WriteEmail(AccountData, Message, EmployeeResponsibleForProcessingEmails
 	For Each MapItem In AttachmentsAndSignatures Do
 		
 		AttachmentFound = Undefined;
-		FileSignatures    = New Array;
+		SignaturesOfFile    = New Array;
 		
 		For Each Attachment In Message.Attachments Do
 			If Attachment.FileName = MapItem.Key Then
@@ -1621,13 +1759,13 @@ Function WriteEmail(AccountData, Message, EmployeeResponsibleForProcessingEmails
 		If AttachmentFound <> Undefined And MapItem.Value.Count() > 0 Then
 			For Each Attachment In Message.Attachments Do
 				If MapItem.Value.Find(Attachment.FileName) <> Undefined Then
-					FileSignatures.Add(Attachment);
+					SignaturesOfFile.Add(Attachment);
 				EndIf;
 			EndDo;
 		EndIf;
 		
 		If AttachmentFound <> Undefined Then
-			WriteEmailAttachment(MailMessage, AttachmentFound, FileSignatures, CountOfBlankNamesInAttachments);
+			WriteEmailAttachment(MailMessage, AttachmentFound, SignaturesOfFile, CountOfBlankNamesInAttachments);
 		EndIf;
 		
 	EndDo;
@@ -2203,17 +2341,22 @@ EndFunction
 
 Procedure ChangeDomainInEmailAddressIfRequired(MailAddress)
 	
+	EmailDomainsSynonyms = New Map;
+	
+	InteractionsLocalization.OnDefineEmailDomainSynonyms(EmailDomainsSynonyms);
+	
+	If EmailDomainsSynonyms.Count() = 0 Then
+		Return;
+	EndIf;
+	
 	AddressStructure1 =  EmailAddressStructure(MailAddress);
 	If AddressStructure1 = Undefined Then
 		Return;
 	EndIf;
-	If Metadata.CommonModules.Find("InteractionsLocalization") <> Undefined Then 
-		ModuleInteractionsLocalization = Common.CommonModule("InteractionsLocalization");
-		EmailDomainsSynonyms = ModuleInteractionsLocalization.EmailDomainsSynonyms();
-		DomainToReplaceWith = EmailDomainsSynonyms[AddressStructure1.Domain];
-		If DomainToReplaceWith <> Undefined Then
-			MailAddress = AddressStructure1.MailboxName + "@" + DomainToReplaceWith;
-		EndIf;
+	
+	DomainToReplaceWith = EmailDomainsSynonyms[AddressStructure1.Domain];
+	If DomainToReplaceWith <> Undefined Then
+		MailAddress = AddressStructure1.MailboxName + "@" + DomainToReplaceWith;
 	EndIf;
 
 EndProcedure
@@ -2234,7 +2377,7 @@ Function ActiveFoldersNames(Mail)
 		// ACC:280 - Some email servers do not support this command.
 	EndTry;
 	
-	IgnorableNamesArray  = EmailFoldersExcludedFromMessageImport();
+	IgnorableNamesArray  = FolderNamesIgnoredOnEmailsReceipt();
 	
 	For Each ActiveFolderName In ActiveFoldersNames Do
 		
@@ -2276,21 +2419,20 @@ Function ActiveFoldersNames(Mail)
 	
 EndFunction
 
-Function EmailFoldersExcludedFromMessageImport()
+Function FolderNamesIgnoredOnEmailsReceipt()
 
-	Result = New Array;
-	Result.Add("spam");
-	Result.Add("trash");
-	Result.Add("drafts");
-	Result.Add("junk");
-	Result.Add("spam");
-	Result.Add("trash");
-	Result.Add("drafts");
-	Result.Add("draftBox");
-	Result.Add("deleted");
-	Result.Add("junk");
-	Result.Add("bulk mail");
-	Return Result;
+	FoldersNames = New Array;
+	FoldersNames.Add("spam");
+	FoldersNames.Add("trash");
+	FoldersNames.Add("drafts");
+	FoldersNames.Add("draftBox");
+	FoldersNames.Add("deleted");
+	FoldersNames.Add("junk");
+	FoldersNames.Add("bulk mail");
+	
+	InteractionsLocalization.OnDefineFolderNamesIgnoredOnEmailsReceipt(FoldersNames); 
+	
+	Return FoldersNames;
 
 EndFunction
 
@@ -2497,7 +2639,7 @@ Procedure WriteEmailAttachment(Object, Attachment, AttachmentSignatures, CountOf
 		AttachmentParameters.Insert("SignedWithDS", True);
 	EndIf;
 	
-	If StrEndsWith(FileName, ".p7m") Then
+	If StrEndsWith(Lower(FileName), "." + Lower(EncryptedFilesExtension())) Then
 		
 		Encrypted = True;
 		If Common.SubsystemExists("StandardSubsystems.DigitalSignature") Then
@@ -2697,6 +2839,29 @@ Function WriteEmailAttachmentFromTempStorage(MailMessage, AddressInTempStorage,
 	EndIf;
 	If AttachmentParameters.Property("Encrypted") Then
 		AdditionalParameters.Add("Encrypted");
+	Else
+		If StrEndsWith(Lower(FileNameToParse), "." + Lower(EncryptedFilesExtension())) Then
+			
+			Encrypted = True;
+			If Common.SubsystemExists("StandardSubsystems.DigitalSignature") Then
+				ModuleDigitalSignatureInternalClientServer = Common.CommonModule("DigitalSignatureInternalClientServer");
+				DataType = ModuleDigitalSignatureInternalClientServer.DefineDataType(AddressInTempStorage);
+				If DataType <> "EncryptedData" Then
+					Encrypted = False;
+				EndIf;
+			EndIf;
+			
+			If Encrypted Then
+				AdditionalParameters.Add("Encrypted");
+				AttachmentParameters.Insert("Encrypted", Encrypted);
+				
+				ExtensionWithoutPoint = CommonClientServer.GetFileNameExtension(BaseName);
+				BaseName = ?(ExtensionWithoutPoint = "", BaseName,
+					Left(BaseName, StrLen(BaseName) - StrLen(ExtensionWithoutPoint) - 1));
+
+			EndIf;
+			
+		EndIf;
 	EndIf;
 	
 	FileParameters = FilesOperations.FileAddingOptions(AdditionalParameters);
@@ -2722,7 +2887,7 @@ Function WriteEmailAttachmentFromTempStorage(MailMessage, AddressInTempStorage,
 		FileParameters,
 		AddressInTempStorage,
 		"");
-	
+
 EndFunction
 
 Function WriteEmailAttachmentByCopyOtherEmailAttachment(

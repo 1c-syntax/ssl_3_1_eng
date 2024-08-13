@@ -26,7 +26,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 EndProcedure
 
 &AtClient
-Procedure ReportOptionOnChange(Item)
+Procedure ReportVariantOnChange(Item)
 	
 	GenerateReport();
 	

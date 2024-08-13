@@ -200,7 +200,7 @@
 											</ToolTip>
 											<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 											<HorizontalStretch>false</HorizontalStretch>
-											<ContextMenu name="DueDateContextMenu" id="13"/>
+											<ContextMenu name="TaskDueDateContextMenu" id="13"/>
 											<ExtendedTooltip name="TaskDueDateExtendedTooltip" id="180"/>
 										</InputField>
 									</ChildItems>
@@ -314,7 +314,7 @@
 									<v8:content>Main</v8:content>
 								</v8:item>
 							</Title>
-							<ExtendedTooltip name="TheMainThingExtendedTooltip" id="204"/>
+							<ExtendedTooltip name="Main_PageExtendedTooltip" id="204"/>
 							<ChildItems>
 								<UsualGroup name="ContentsGroup" id="94">
 									<Title>

@@ -80,8 +80,8 @@ Function IntervalsSettingsTable()
 	IntervalsSettingsTable.Columns.Add("UpperBound", New TypeDescription("Number",,, New NumberQualifiers(10, 3, AllowedSign.Nonnegative)));
 	IntervalsSettingsTable.Columns.Add("Step", New TypeDescription("Number",,, New NumberQualifiers(10, 3, AllowedSign.Nonnegative)));
 	
-	// 
-	// 
+	// If the step and lower boundary are both zero, it forms an infinite interval with no lower limit (X <= "UpperBound").
+	// If the step and upper boundary are both zero, it forms an infinite interval with no upper limit (X > "UpperBound").
 	
 	// Less than 0.5 sec.
 	NewSettingsRow = IntervalsSettingsTable.Add();
@@ -193,8 +193,8 @@ Function IntervalsTableForSettings(SettingsTable)
 	IntervalsTable.Columns.Add("LowerBound", New TypeDescription("Number",,, New NumberQualifiers(10, 3, AllowedSign.Nonnegative)));
 	IntervalsTable.Columns.Add("UpperBound", New TypeDescription("Number",,, New NumberQualifiers(10, 3, AllowedSign.Nonnegative)));
 	
-	// 
-	// 
+	// Limits the number of intervals. Intervals that exceed the limit are excluded from the table.
+	// The limitation prevents infinite growth of intervals as they are used to dynamically generate columns.
 	// 
 	// 
 	MaxIntervalsCount = 80;
@@ -202,8 +202,8 @@ Function IntervalsTableForSettings(SettingsTable)
 		
 	For Each SettingsString In SettingsTable Do
 		
-		// 
-		// 
+		// Validate the interval. If the step isn't zero, the upper
+		// boundary must be greater than the lower one.
 		If SettingsString.LowerBound >= SettingsString.UpperBound And SettingsString.Step <> 0
 			Or SettingsString.LowerBound = SettingsString.UpperBound Then
 			Continue;		
@@ -278,8 +278,8 @@ Function QueryTextSubstringForIntervals(IntervalsTable, SourceTableName, SourceC
 		
 	EndDo;
 	
-	// 
-	// 
+	// @query-part-1
+	// ACC:1297-off - Queries are not localizable.
 	QueryText = "CASE " + QueryText + ?(IsBlankString(QueryText), "", Chars.LF) + " Else 0 End" + ?(WithName, " AS ExecutionTime, ", ",");
 	// ACC:1297-on
 	

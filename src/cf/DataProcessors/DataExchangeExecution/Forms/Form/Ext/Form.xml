@@ -45,7 +45,7 @@
 							<v8:content>Data synchronization is not available</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="DataSynchronizationPageIsNotAvailableExtendedTooltip" id="203"/>
+					<ExtendedTooltip name="PageDataSynchronizationUnavailableExtendedTooltip" id="203"/>
 					<ChildItems>
 						<UsualGroup name="Group2" id="204">
 							<Title>
@@ -71,8 +71,8 @@
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
-									<ContextMenu name="DataSynchronizationIsNotAvailableContextMenu" id="207"/>
-									<ExtendedTooltip name="DataSynchronizationIsNotAvailableExtendedTooltip" id="208"/>
+									<ContextMenu name="DataSynchronizationUnavailableContextMenu" id="207"/>
+									<ExtendedTooltip name="DataSynchronizationUnavailableExtendedTooltip" id="208"/>
 								</PictureDecoration>
 								<LabelDecoration name="StatusSynchronizationUnavailability" id="209">
 									<AutoMaxWidth>false</AutoMaxWidth>
@@ -86,10 +86,10 @@ Try again later or &lt;link ExpectSynchronizationCapability&gt;wait for synchron
 										</v8:item>
 									</Title>
 									<VerticalAlign>Center</VerticalAlign>
-									<ContextMenu name="StatusOfUnavailableSynchronizationContextMenu" id="210"/>
-									<ExtendedTooltip name="StatusOfUnavailableSynchronizationExtendedTooltip" id="211"/>
+									<ContextMenu name="StatusSynchronizationUnavailabilityContextMenu" id="210"/>
+									<ExtendedTooltip name="StatusSynchronizationUnavailabilityExtendedTooltip" id="211"/>
 									<Events>
-										<Event name="URLProcessing">StatusOfUnavailableSynchronizationURLProcessing</Event>
+										<Event name="URLProcessing">StatusSynchronizationUnavailabilityURLProcessing</Event>
 									</Events>
 								</LabelDecoration>
 							</ChildItems>
@@ -189,7 +189,7 @@ Try again later or &lt;link ExpectSynchronizationCapability&gt;wait for synchron
 							<v8:content>Waiting for synchronization to start</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="WaitingForSynchronizationToStartExtendedTooltip" id="193"/>
+					<ExtendedTooltip name="WaitForSynchronizationToStartExtendedTooltip" id="193"/>
 					<ChildItems>
 						<UsualGroup name="Group1" id="200">
 							<Title>
@@ -229,8 +229,8 @@ Please wait…</v8:content>
 										</v8:item>
 									</Title>
 									<VerticalAlign>Center</VerticalAlign>
-									<ContextMenu name="ThePendingStatusOfTheSynchronizationToRunContextMenu" id="198"/>
-									<ExtendedTooltip name="ThePendingStatusOfTheSynchronizationToRunExtendedTooltip" id="199"/>
+									<ContextMenu name="SynchronizationStartWaitingStatusContextMenu" id="198"/>
+									<ExtendedTooltip name="SynchronizationStartWaitingStatusExtendedTooltip" id="199"/>
 								</LabelDecoration>
 							</ChildItems>
 						</UsualGroup>
@@ -376,7 +376,7 @@ Please wait…</v8:content>
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
 									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="WarningTextGroupExtendedTooltip" id="142"/>
+									<ExtendedTooltip name="GroupWarningTextExtendedTooltip" id="142"/>
 									<ChildItems>
 										<LabelDecoration name="Decoration1" id="133">
 											<AutoMaxWidth>false</AutoMaxWidth>
@@ -645,8 +645,8 @@ To stop it, click "Finish synchronization".</v8:content>
 							</Title>
 							<TitleLocation>None</TitleLocation>
 							<AutoMaxWidth>false</AutoMaxWidth>
-							<ContextMenu name="ProgressAdditionalInformation1ContextMenu" id="179"/>
-							<ExtendedTooltip name="ProgressAdditionalInformation1ExtendedTooltip" id="180"/>
+							<ContextMenu name="ImportProgressAdditionalInformationContextMenu" id="179"/>
+							<ExtendedTooltip name="ImportProgressAdditionalInformationExtendedTooltip" id="180"/>
 						</LabelField>
 					</ChildItems>
 				</Page>
@@ -681,8 +681,8 @@ To stop it, click "Finish synchronization".</v8:content>
 							</Title>
 							<TitleLocation>None</TitleLocation>
 							<ShowPercent>true</ShowPercent>
-							<ContextMenu name="ExportProgressPercent1ContextMenu" id="187"/>
-							<ExtendedTooltip name="ExportProgressPercent1ExtendedTooltip" id="188"/>
+							<ContextMenu name="DataExportProgressBarContextMenu" id="187"/>
+							<ExtendedTooltip name="DataExportProgressBarExtendedTooltip" id="188"/>
 						</ProgressBarField>
 						<LabelField name="AdditionalInformationExportProgress" id="189">
 							<DataPath>ProgressAdditionalInformation</DataPath>
@@ -900,7 +900,7 @@ Please contact the administrator.</v8:content>
 											<TitleLocation>None</TitleLocation>
 											<AutoMaxWidth>false</AutoMaxWidth>
 											<MultiLine>true</MultiLine>
-											<ContextMenu name="UserErrorMessageContextMenu" id="87"/>
+											<ContextMenu name="ErrorMessageToUserContextMenu" id="87"/>
 											<ExtendedTooltip name="ErrorMessageToUserExtendedTooltip" id="115"/>
 										</InputField>
 									</ChildItems>
@@ -1011,8 +1011,8 @@ Please install the update, then the data synchronization will continue.</v8:cont
 										</PictureDecoration>
 										<LabelDecoration name="DecorationVersionsDifferenceError" id="153">
 											<AutoMaxWidth>false</AutoMaxWidth>
-											<ContextMenu name="VersionsDifferenceErrorDecorationContextMenu" id="154"/>
-											<ExtendedTooltip name="VersionsDifferenceErrorDecorationExtendedTooltip" id="155"/>
+											<ContextMenu name="DecorationVersionsDifferenceErrorContextMenu" id="154"/>
+											<ExtendedTooltip name="DecorationVersionsDifferenceErrorExtendedTooltip" id="155"/>
 										</LabelDecoration>
 									</ChildItems>
 								</Page>
@@ -1024,7 +1024,7 @@ Please install the update, then the data synchronization will continue.</v8:cont
 										</v8:item>
 									</Title>
 									<Group>HorizontalIfPossible</Group>
-									<ExtendedTooltip name="ErrorAssigningAnIdToANodeExtendedTooltip" id="213"/>
+									<ExtendedTooltip name="ErrorIDAssignmentForNodeExtendedTooltip" id="213"/>
 									<ChildItems>
 										<PictureDecoration name="PictureErrorIDAssignmentForNode" id="214">
 											<Title formatted="false">
@@ -1038,10 +1038,10 @@ Please install the update, then the data synchronization will continue.</v8:cont
 												<xr:LoadTransparent>false</xr:LoadTransparent>
 											</Picture>
 											<FileDragMode>AsFile</FileDragMode>
-											<ContextMenu name="PictureErrorAssigningAnIDToANodeContextMenu" id="215"/>
-											<ExtendedTooltip name="PictureErrorAssigningAnIDToANodeExtendedTooltip" id="216"/>
+											<ContextMenu name="PictureErrorIDAssignmentForNodeContextMenu" id="215"/>
+											<ExtendedTooltip name="PictureErrorIDAssignmentForNodeExtendedTooltip" id="216"/>
 										</PictureDecoration>
-										<LabelDecoration name="DecorationErrorAssigningAnIdToANode" id="217">
+										<LabelDecoration name="DecorationErrorIDAssignmentForNode" id="217">
 											<AutoMaxWidth>false</AutoMaxWidth>
 											<Title formatted="true">
 												<v8:item>
@@ -1052,10 +1052,10 @@ For a correction method, see the &lt;link 1&gt;instruction&lt;/&gt;
 </v8:content>
 												</v8:item>
 											</Title>
-											<ContextMenu name="DecorationErrorAssigningAnIdToANodeContextMenu" id="218"/>
-											<ExtendedTooltip name="DecorationErrorAssigningAnIdToANodeExtendedTooltip" id="219"/>
+											<ContextMenu name="DecorationErrorIDAssignmentForNodeContextMenu" id="218"/>
+											<ExtendedTooltip name="DecorationErrorIDAssignmentForNodeExtendedTooltip" id="219"/>
 											<Events>
-												<Event name="URLProcessing">DecorationErrorAssigningAnIdToANodeURLProcessing</Event>
+												<Event name="URLProcessing">DecorationErrorIDAssignmentForNodeURLProcessing</Event>
 											</Events>
 										</LabelDecoration>
 									</ChildItems>
@@ -1134,7 +1134,7 @@ To continue with the changes made, restart the application.</v8:content>
 													<Type>CommandBarButton</Type>
 													<Representation>Text</Representation>
 													<CommandName>Form.StandardCommand.Close</CommandName>
-													<ExtendedTooltip name="FormClose3ExtendedTooltip" id="126"/>
+													<ExtendedTooltip name="FormCloseExtendedTooltip" id="126"/>
 												</Button>
 											</ChildItems>
 										</CommandBar>
@@ -1254,7 +1254,7 @@ To continue with the changes made, restart the application.</v8:content>
 															<v8:content>Restart app</v8:content>
 														</v8:item>
 													</Title>
-													<ExtendedTooltip name="RestartApplication1ExtendedTooltip" id="262"/>
+													<ExtendedTooltip name="RestartApplicationExtendedTooltip" id="262"/>
 												</Button>
 												<Button name="FormClose3" id="259">
 													<Type>CommandBarButton</Type>

@@ -63,7 +63,7 @@
 								<v8:content>Select all</v8:content>
 							</v8:item>
 						</Title>
-						<ExtendedTooltip name="FormSelectAllExtendedTooltip" id="20"/>
+						<ExtendedTooltip name="FormCheckAllExtendedTooltip" id="20"/>
 					</Button>
 					<Button name="FormUncheckAll" id="21">
 						<Type>CommandBarButton</Type>
@@ -74,7 +74,7 @@
 								<v8:content>Clear all</v8:content>
 							</v8:item>
 						</Title>
-						<ExtendedTooltip name="FormClearAllExtendedTooltip" id="22"/>
+						<ExtendedTooltip name="FormUncheckAllExtendedTooltip" id="22"/>
 					</Button>
 				</ChildItems>
 			</ButtonGroup>
@@ -179,7 +179,7 @@
 						</v8:item>
 					</Title>
 					<Group>InCell</Group>
-					<ExtendedTooltip name="PrintCommandsVisiblePresentationExtendedTooltip" id="33"/>
+					<ExtendedTooltip name="PrintCommandsVisibilityPresentationExtendedTooltip" id="33"/>
 					<ChildItems>
 						<CheckBoxField name="PrintCommandsVisible" id="11">
 							<DataPath>PrintCommands.Visible</DataPath>

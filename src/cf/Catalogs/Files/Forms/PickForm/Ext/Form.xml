@@ -113,29 +113,29 @@
 					<ContextMenu name="FoldersContextMenu" id="12"/>
 					<AutoCommandBar name="FoldersCommandBar" id="13"/>
 					<ExtendedTooltip name="FoldersExtendedTooltip" id="46"/>
-					<SearchStringAddition name="FoldersSearchString_SSLy" id="65">
+					<SearchStringAddition name="FoldersSearchString" id="65">
 						<AdditionSource>
 							<Item>Folders</Item>
 							<Type>SearchStringRepresentation</Type>
 						</AdditionSource>
-						<ContextMenu name="FoldersSearchString_SSLyContextMenu" id="66"/>
-						<ExtendedTooltip name="FoldersSearchString_SSLyExtendedTooltip" id="67"/>
+						<ContextMenu name="FoldersSearchStringContextMenu" id="66"/>
+						<ExtendedTooltip name="FoldersSearchStringExtendedTooltip" id="67"/>
 					</SearchStringAddition>
-					<ViewStatusAddition name="FoldersViewStatus_SSLy" id="68">
+					<ViewStatusAddition name="FoldersViewStatus" id="68">
 						<AdditionSource>
 							<Item>Folders</Item>
 							<Type>ViewStatusRepresentation</Type>
 						</AdditionSource>
-						<ContextMenu name="FoldersViewStatus_SSLyContextMenu" id="69"/>
-						<ExtendedTooltip name="FoldersViewStatus_SSLyExtendedTooltip" id="70"/>
+						<ContextMenu name="FoldersViewStatusContextMenu" id="69"/>
+						<ExtendedTooltip name="FoldersViewStatusExtendedTooltip" id="70"/>
 					</ViewStatusAddition>
-					<SearchControlAddition name="FoldersSearchControl_SSLy" id="71">
+					<SearchControlAddition name="FoldersSearchControl" id="71">
 						<AdditionSource>
 							<Item>Folders</Item>
 							<Type>SearchControl</Type>
 						</AdditionSource>
-						<ContextMenu name="FoldersSearchControl_SSLyContextMenu" id="72"/>
-						<ExtendedTooltip name="FoldersSearchControl_SSLyExtendedTooltip" id="73"/>
+						<ContextMenu name="FoldersSearchControlContextMenu" id="72"/>
+						<ExtendedTooltip name="FoldersSearchControlExtendedTooltip" id="73"/>
 					</SearchControlAddition>
 					<Events>
 						<Event name="OnActivateRow">FoldersOnActivateRow</Event>
@@ -178,8 +178,8 @@
 									<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 									<Wrap>false</Wrap>
 									<BorderColor>style:BorderColor</BorderColor>
-									<ContextMenu name="FoldersNameContextMenu" id="15"/>
-									<ExtendedTooltip name="FoldersNameExtendedTooltip" id="49"/>
+									<ContextMenu name="FoldersDescriptionContextMenu" id="15"/>
+									<ExtendedTooltip name="FoldersDescriptionExtendedTooltip" id="49"/>
 								</InputField>
 							</ChildItems>
 						</ColumnGroup>
@@ -188,8 +188,8 @@
 							<UserVisible>
 								<xr:Common>false</xr:Common>
 							</UserVisible>
-							<ContextMenu name="FoldersLinkContextMenu" id="59"/>
-							<ExtendedTooltip name="FoldersLinkExtendedTooltip" id="60"/>
+							<ContextMenu name="FoldersRefContextMenu" id="59"/>
+							<ExtendedTooltip name="FoldersRefExtendedTooltip" id="60"/>
 						</LabelField>
 					</ChildItems>
 				</Table>
@@ -331,8 +331,8 @@
 							<HorizontalStretch>false</HorizontalStretch>
 							<Wrap>false</Wrap>
 							<BorderColor>style:BorderColor</BorderColor>
-							<ContextMenu name="ListCreationDate1ContextMenu" id="24"/>
-							<ExtendedTooltip name="ListCreationDate1ExtendedTooltip" id="56"/>
+							<ContextMenu name="ListCreationDateContextMenu" id="24"/>
+							<ExtendedTooltip name="ListCreationDateExtendedTooltip" id="56"/>
 						</InputField>
 						<LabelField name="ListRef" id="41" DisplayImportance="VeryLow">
 							<DataPath>List.Ref</DataPath>

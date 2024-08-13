@@ -47,7 +47,7 @@ EndProcedure
 Procedure OnClose(Exit)
 	
 	If Not ClosingInProgress And IsNewLine Then
-		Notify("CancelEnterNewQuestionnaireTemplateLine");
+		Notify("CancelEnterNewQuestionnaireTemplateLine", , FormOwner);
 	EndIf;
 	
 EndProcedure
@@ -64,7 +64,7 @@ Procedure TabularQuestionTypeOnChange(Item)
 EndProcedure
 
 &AtClient
-Procedure QuestionsQuestionChoiceProcessing(Item, ValueSelected, StandardProcessing)
+Procedure QuestionsDoQueryBoxChoiceProcessing(Item, ValueSelected, StandardProcessing)
 	
 	StandardProcessing = False;
 	
@@ -109,28 +109,28 @@ Procedure AnswersColumnsAnswersInColumnsBeforeAddRow(Item, Cancel, Copy, Parent,
 EndProcedure
 
 &AtClient
-Procedure AnswersColumnsAnswersInRowsAndColumnsResponse1StartChoice(Item, ChoiceData, StandardProcessing)
+Procedure AnswersColumnsAnswersInRowsAndColumnsResponseStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	ListsChoiceStart(Item,StandardProcessing, QuestionValueType(QuestionForColumns));
 	
 EndProcedure
 
 &AtClient
-Procedure AnswersRowsAnswersInRowsResponse1StartChoice(Item, ChoiceData, StandardProcessing)
+Procedure AnswersRowsAnswersInRowsResponseStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	ListsChoiceStart(Item,StandardProcessing, QuestionValueType(QuestionForRows));
 	
 EndProcedure
 
 &AtClient
-Procedure AnswersRowsAnswersInRowsAndColumnsResponse1StartChoice(Item, ChoiceData, StandardProcessing)
+Procedure AnswersRowsAnswersInRowsAndColumnsResponseStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	ListsChoiceStart(Item,StandardProcessing, QuestionValueType(QuestionForRows));
 	
 EndProcedure
 
 &AtClient
-Procedure AnswersColumnsAnswersInColumnsResponse1StartChoice(Item, ChoiceData, StandardProcessing)
+Procedure AnswersColumnsAnswersInColumnsResponseStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	ListsChoiceStart(Item,StandardProcessing, QuestionValueType(QuestionForColumns));
 	
@@ -729,7 +729,8 @@ Procedure EndEditAndClose()
 	EndIf;
 	
 	ClosingInProgress = True;
-	Notify("EndEditTableQuestionParameters",GenerateParametersStructureToPassToOwner());
+	Notify("EndEditTableQuestionParameters",
+		GenerateParametersStructureToPassToOwner(), FormOwner);
 	Close();
 	
 EndProcedure

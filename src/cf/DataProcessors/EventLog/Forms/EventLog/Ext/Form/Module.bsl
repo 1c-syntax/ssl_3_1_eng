@@ -599,7 +599,7 @@ Function ReadEventLog()
 	ReportParameters = ReportParameters();
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.WaitCompletion = 0; // 
+	ExecutionParameters.WaitCompletion = 0; // Run immediately.
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Updating event log';");
 	ExecutionParameters.RunNotInBackground1 = ShouldNotRunInBackground;
 	

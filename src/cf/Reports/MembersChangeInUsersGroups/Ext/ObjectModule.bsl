@@ -139,7 +139,7 @@ EndFunction
 
 Function ChangesInComposition(Settings)
 	
-	NameOfConnectionColumn = UserMonitoringInternal.NameOfConnectionColumn();
+	ConnectionColumnName = UserMonitoringInternal.ConnectionColumnName();
 	Filter = New Structure;
 	
 	TransStatuses = New Array;
@@ -159,12 +159,12 @@ Function ChangesInComposition(Settings)
 		ParameterNameUser = "ExternalUser";
 		ParameterNameUsersGroup = "ExternalUsersGroup";
 		Filter.Insert("Event",
-			UsersInternal.EventNameChangeMembersChangeInExternalUserGroupsForEventLog());
+			UsersInternal.NameOfLogEventExternalUserGroupsMembersChanged());
 	Else
 		ParameterNameUser = "User";
 		ParameterNameUsersGroup = "UsersGroup";
 		Filter.Insert("Event",
-			UsersInternal.EventNameChangeMembersChangeInUserGroupsForEventLog());
+			UsersInternal.NameOfLogEventUserGroupsMembersChanged());
 	EndIf;
 	
 	Author = ParameterValue(Settings, "Author", Null);
@@ -198,7 +198,7 @@ Function ChangesInComposition(Settings)
 	Columns.Add("Package",                StringType20);
 	Columns.Add("Computer",                 StringType);
 	Columns.Add("Session",                     NumberType);
-	Columns.Add(NameOfConnectionColumn,        NumberType);
+	Columns.Add(ConnectionColumnName,        NumberType);
 	Columns.Add("GroupID",       StringType36);
 	Columns.Add("UserIdentificator", StringType36);
 	Columns.Add("IsBelongToLowerLevelGroup",       BooleanType);
@@ -208,7 +208,7 @@ Function ChangesInComposition(Settings)
 	Columns.Add("UserPresentation2", StringType1024);
 	
 	LogColumns = "Date,User,UserName,
-	|ApplicationName,Computer,Session,Data," + NameOfConnectionColumn;
+	|ApplicationName,Computer,Session,Data," + ConnectionColumnName;
 	
 	SetPrivilegedMode(True);
 	Events = New ValueTable;
@@ -249,7 +249,7 @@ Function ChangesInComposition(Settings)
 		NewRow.Package            = Event.ApplicationName;
 		NewRow.Computer             = Event.Computer;
 		NewRow.Session                 = Event.Session;
-		NewRow[NameOfConnectionColumn] = Event[NameOfConnectionColumn];
+		NewRow[ConnectionColumnName] = Event[ConnectionColumnName];
 		
 		Prefix = EventIdentifier + "_";
 		
@@ -276,8 +276,8 @@ Function ChangesInComposition(Settings)
 			NewRow.UserIdentificator = String.UserIdentificator;
 			NewRow.IsBelongToLowerLevelGroup       = String.IsBelongToLowerLevelGroup;
 			NewRow.Used              = String.Used;
-			NewRow.ChangeType = ?(String.ChangeType = "Removed", "-",
-				?(String.ChangeType = "Added", "+", ?(String.ChangeType = "UsageChanged", "*", "?")));
+			NewRow.ChangeType = ?(String.ChangeType = "Deleted", "-",
+				?(String.ChangeType = "Added2", "+", ?(String.ChangeType = "IsChanged", "*", "?")));
 			
 			FoundRow = Data.PresentationUsers.Find(
 				String.UserIdentificator, "UserIdentificator");
@@ -335,17 +335,7 @@ EndFunction
 //  EventData - String
 //
 // Returns:
-//  Structure:
-//   * Ref - CatalogRef.Users
-//            - CatalogRef.ExternalUsers
-//   * Name    - String
-//   * UUID - String - UUID in the lower case.
-//   * Invalid - Boolean
-//   * DeletionMark - Boolean
-//   * UserMustChangePasswordOnAuthorization - Boolean
-//   * UnlimitedValidityPeriod - Boolean
-//   * ValidityPeriod - Date
-//   * InactivityPeriodBeforeDenyingAuthorization - Number
+//  Structure
 //
 Function ExtendedChangeData(EventData, Filterdata_)
 	
@@ -369,7 +359,8 @@ Function ExtendedChangeData(EventData, Filterdata_)
 	Location.Insert("GroupsPresentation");
 	Location.Insert("PresentationUsers");
 	FillPropertyValues(Location, Data);
-	If Location.DataStructureVersion <> 1 Then
+	If Location.DataStructureVersion <> 1
+	   And Location.DataStructureVersion <> 2 Then
 		Return Undefined;
 	EndIf;
 	
@@ -384,15 +375,16 @@ Function ExtendedChangeData(EventData, Filterdata_)
 	If Not ValueIsFilled(ChangesInComposition) Then
 		Return Undefined;
 	EndIf;
-	
-	Properties = New Structure;
-	Properties.Insert("ParentID", "");
-	Properties.Insert("GroupID", "");
-	Properties.Insert("GroupPresentation", "");
-	
-	GroupsPresentation = StoredTable(Location.GroupsPresentation, Properties);
-	If GroupsPresentation = Undefined Then
-		Return Undefined;
+	If Location.DataStructureVersion = 1 Then
+		For Each String In ChangesInComposition Do
+			If String.ChangeType = "Removed" Then
+				String.ChangeType = "Deleted";
+			ElsIf String.ChangeType = "Added" Then
+				String.ChangeType = "Added2";
+			ElsIf String.ChangeType = "UsageChanged" Then
+				String.ChangeType = "IsChanged";
+			EndIf;
+		EndDo;
 	EndIf;
 	
 	Properties = New Structure;
@@ -442,20 +434,20 @@ Function ExtendedChangeData(EventData, Filterdata_)
 		ParentsOfGroup = ParentsOfGroups.Get(String.GroupID);
 		If ParentsOfGroup = Undefined Then
 			ParentsOfGroup = New Map;
-			CurrentGroup_SSLy = String.GroupID;
+			CurrentGroup = String.GroupID;
 			While True Do
-				FoundRow = GroupsPresentation.Find(CurrentGroup_SSLy, "GroupID");
+				FoundRow = GroupsPresentation.Find(CurrentGroup, "GroupID");
 				If FoundRow = Undefined Then
 					Break;
 				EndIf;
 				If ParentsOfGroup.Get(FoundRow.GroupID) <> Undefined Then
 					Break;
 				EndIf;
-				ParentsOfGroup.Insert(CurrentGroup_SSLy, True);
+				ParentsOfGroup.Insert(CurrentGroup, True);
 				If Not ValueIsFilled(FoundRow.ParentID) Then
 					Break;
 				EndIf;
-				CurrentGroup_SSLy = FoundRow.ParentID;
+				CurrentGroup = FoundRow.ParentID;
 			EndDo;
 		EndIf;
 		If Filterdata_.UserGroups <> Undefined Then

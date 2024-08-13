@@ -24,8 +24,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	SectionsProperties = PeriodClosingDatesInternal.SectionsProperties();
 	
-	// 
-	// 
+	// Check access rights.
+	// ACC:515-off - No. 737.4. Role check (as the right is always granted).
 	HasRightToViewPeriodEndClosingDates =
 		Users.RolesAvailable("ReadPeriodEndClosingDates, AddEditPeriodClosingDates",, False);
 	
@@ -303,7 +303,7 @@ Procedure OnChangeOfRestrictionDatesUsageAtServer()
 EndProcedure
 
 &AtClient
-Procedure SetPeriodEndClosingDate1OnChange(Item)
+Procedure SetPeriodEndClosingDatesOnChange(Item)
 	
 	ValueSelected = SetPeriodEndClosingDateNew;
 	If SetPeriodEndClosingDates = ValueSelected Then
@@ -357,7 +357,7 @@ Procedure PeriodEndClosingDateSettingMethodChoiceProcessing(Item, ValueSelected,
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Identical event handlers of PeriodClosingDates and PeriodEndClosingDateEdit forms.
 
 &AtClient
 Procedure PeriodEndClosingDateDetailsOnChange(Item)
@@ -495,8 +495,8 @@ Procedure UsersBeforeRowChange(Item, Cancel)
 	Field          = Item.CurrentItem;
 	
 	If Field <> Items.UsersFullPresentation And Not ValueIsFilled(CurrentData.Presentation) Then
-		// 
-		// 
+		// All values should be set before applying a period-end closing date or details
+		// (except for the predefined value "<For all users>").
 		Item.CurrentItem = Items.UsersFullPresentation;
 	EndIf;
 	
@@ -626,7 +626,7 @@ Procedure UsersChoiceProcessingAtServer(ValueSelected)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Event handlers of the FullPresentation item of the Users form table.
 
 &AtClient
 Procedure UsersFullPresentationOnChange(Item)
@@ -709,7 +709,7 @@ Procedure UsersFullPresentationTextEditEnd(Item, Text, ChoiceData, StandardProce
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Event handlers of the Comment item of the Users form table.
 
 &AtClient
 Procedure UsersCommentOnChange(Item)
@@ -819,8 +819,8 @@ Procedure ClosingDatesBeforeRowChange(Item, Cancel)
 	OpenPeriodEndClosingDateEditForm = False;
 	
 	If Not ValueIsFilled(CurrentData.Presentation) Then
-		// 
-		// 
+		// Before changing the period-end closing date or details,
+		// fill the object (otherwise, the register record cannot be written).
 		CurrentItem = Items.ClosingDatesFullPresentation;
 		
 	ElsIf CurrentData.PeriodEndClosingDateDetails <> "Custom"
@@ -1037,7 +1037,7 @@ Procedure ClosingDatesChoiceProcessing(Item, ValueSelected, StandardProcessing)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Event handlers of the FullPresentation item of the ClosingDates form table.
 
 &AtClient
 Procedure ClosingDatesFullPresentationStartChoice(Item, ChoiceData, StandardProcessing)
@@ -1066,7 +1066,7 @@ Procedure ClosingDatesFullPresentationChoiceProcessing(Item, ValueSelected, Stan
 		Return;
 	EndIf;
 	
-	// Object can be replaced only with another object, which is not in the list.
+	// An object can be replaced only with another object that is not on the list.
 	If ShowCurrentUserSections Then
 		ObjectCollection1 = CurrentData.GetParent().GetItems();
 	Else
@@ -1125,7 +1125,7 @@ Procedure ClosingDatesFullPresentationChoiceProcessing(Item, ValueSelected, Stan
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Event handlers of the PeriodEndClosingDate item of the ClosingDates form table.
 
 &AtClient
 Procedure ClosingDatesPeriodEndClosingDateOnChange(Item)
@@ -1435,7 +1435,7 @@ Procedure UsersFullPresentationChoiceProcessingIdleHandler()
 	EndIf;
 	ValueSelected = SelectedUser;
 	
-	// 
+	// A user can be replaced only with another user that is not on the list.
 	// 
 	Filter = New Structure("User", ValueSelected);
 	Rows = ClosingDatesUsers.FindRows(Filter);
@@ -1652,10 +1652,10 @@ Procedure UpdateAtServer()
 	
 	OnChangeOfRestrictionDatesUsageAtServer();
 	
-	// Calculating a restriction date setting.
+	// Calculate an import restriction date setting.
 	SetPeriodEndClosingDates = CurrentSettingOfPeriodEndClosingDate(Parameters.DataImportRestrictionDates);
 	SetPeriodEndClosingDateNew = SetPeriodEndClosingDates;
-	// Setting visibility according to the calculated import restriction date setting.
+	// Set visibility according to the calculated import restriction date setting.
 	SetVisibility1();
 	
 	// Caching the current date on the server.
@@ -1823,8 +1823,8 @@ Procedure ReadUsers()
 	|		ELSE &DataImportRestrictionDates = TRUE
 	|	END";
 	
-	// 
-	// 
+	// Invalid records are excluded using the following condition:
+	// - An object of type "PVC.PeriodClosingDatesSections" can be equal to a section only.
 	Upload0 = Query.Execute().Unload();
 	
 	// Filling full presentation of users.
@@ -1998,12 +1998,12 @@ Procedure ReadUserData(Form, ErrorText, CurrentIndicationMethod = Undefined, Dat
 		EndIf;
 	EndDo;
 	
-	// Setting the field of the ClosingDates form.
+	// Set up the fields of the ClosingDates form.
 	If Form.ShowCurrentUserSections Then
 		If Form.AllSectionsWithoutObjects Then
-			// 
-			// 
-			// 
+			// Only the "Section" dimension date is used.
+			// The "Object" dimension value repeats the "Section" dimension value.
+			// The object is hidden.
 			Form.Items.ClosingDatesFullPresentation.Title = NStr("en = 'Section';");
 			Form.Items.ClosingDates.Representation = TableRepresentation.List;
 			
@@ -2096,7 +2096,7 @@ Function ReadUserDataWithSections(Val User,
                                               Val BegOfDay,
                                               Val DataImportRestrictionDates)
 	
-	// 
+	// Prepare a value tree with period-end closing dates with the first level by sections.
 	// 
 	Query = New Query;
 	Query.SetParameter("User",              User);
@@ -2240,8 +2240,8 @@ Function ReadUserDataWithoutSections(Val User, Val SingleSection)
 		Query.SetParameter("User",           User);
 		Query.SetParameter("SingleSection",     SingleSection);
 		Query.SetParameter("SingleDatePresentation", CommonDatePresentationText());
-		// 
-		// 
+		// ACC:494-off - No.656. A join with a nested query is acceptable
+		// since the dataset is small (from units to hundreds).
 		Query.Text =
 		"SELECT ALLOWED
 		|	VALUE(ChartOfCharacteristicTypes.PeriodClosingDatesSections.EmptyRef) AS Section,
@@ -2311,8 +2311,8 @@ Function HasInvalidObjectsByUsers(DataImportRestrictionDates)
 	
 	Query = New Query;
 	Query.SetParameter("DataImportRestrictionDates", DataImportRestrictionDates);
-	// 
-	// 
+	// ACC-1377-off - No.654.2.1. Two comma-delimited types are required and acceptable
+	// since the dataset is small (from units to hundreds).
 	Query.Text =
 	"SELECT ALLOWED
 	|	ISNULL(SUM(CASE
@@ -2350,8 +2350,8 @@ EndFunction
 &AtServerNoContext
 Function UnavailableObjects(User)
 	
-	// 
-	// 
+	// ACC-1377-off - No.654.2.1. Two comma-delimited types are required and acceptable
+	// since the dataset is small (from units to hundreds).
 	Query = New Query;
 	Query.SetParameter("User", User);
 	Query.Text =
@@ -3906,7 +3906,7 @@ Function CurrentUserComment(Form)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Auxiliary functions of user interface lines.
 
 &AtClientAtServerNoContext
 Function PresentationTextForAllUsers(Form)

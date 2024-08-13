@@ -192,7 +192,7 @@ Function InfobaseSessions(Val ClusterAdministrationParameters, Val IBAdministrat
 	For Each Process_ In RunCommand(Command, ClusterAdministrationParameters, , , WorkingProcessPropertyTypes()) Do
 		Process_.Insert("license", ProcessLicenses[Process_["process"]]);
 		Process_.Insert("running", ?(Process_["running"], 1, 0));
-		Process_.Insert("use", ?(Process_["use"] = "used", 1, ?(Process_["use"] = "not-used", 0, 2)));  // 
+		Process_.Insert("use", ?(Process_["use"] = "used", 1, ?(Process_["use"] = "not-used", 0, 2)));  // "not-used" is inaccurate value.
 		Processes.Insert(Process_["process"], Process_);
 	EndDo;
 	
@@ -344,7 +344,7 @@ Procedure TerminateInfobaseConnections(Val ClusterAdministrationParameters, Val 
 	ClusterParameters = ClusterParameters(ClusterAdministrationParameters, ClusterID);
 	
 	Value = New Array;
-	Value.Add("1CV8");               // 
+	Value.Add("1CV8");               // ID of 1C:Enterprise application running in thick client mode.
 	Value.Add("1CV8C");              // ID of 1C:Enterprise application running in thin client mode.
 	Value.Add("WebClient");          // ID of 1C:Enterprise application running in web client mode.
 	Value.Add("Designer");           // Designer ID.

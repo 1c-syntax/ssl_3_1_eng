@@ -22,7 +22,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="FiltersGroup2ExtendedTooltip" id="81"/>
+			<ExtendedTooltip name="GroupFiltersExtendedTooltip" id="81"/>
 			<ChildItems>
 				<InputField name="FilterByTemplateUsage" id="52">
 					<DataPath>FilterByTemplateUsage</DataPath>
@@ -121,10 +121,10 @@
 					<ClearButton>true</ClearButton>
 					<ListChoiceMode>true</ListChoiceMode>
 					<TextEdit>false</TextEdit>
-					<ContextMenu name="SelectionByLanguageContextMenu" id="112"/>
-					<ExtendedTooltip name="SelectionByLanguageExtendedTooltip" id="113"/>
+					<ContextMenu name="FilterByLanguageContextMenu" id="112"/>
+					<ExtendedTooltip name="FilterByLanguageExtendedTooltip" id="113"/>
 					<Events>
-						<Event name="OnChange">SelectionByLanguageOnChange</Event>
+						<Event name="OnChange">FilterByLanguageOnChange</Event>
 					</Events>
 				</InputField>
 				<InputField name="SearchString" id="47">
@@ -302,7 +302,7 @@
 						<Representation>Compact</Representation>
 						<ExtendedTooltip name="PrintFormsTemplatesSwitchUsedTemplateGroupExtendedTooltip" id="155"/>
 						<ChildItems>
-							<Button name="PrintFormTemplatesUseModifiedTemplate" id="156">
+							<Button name="PrintFormsTemplatesUseModifiedTemplate" id="156">
 								<Type>CommandBarButton</Type>
 								<Representation>PictureAndText</Representation>
 								<CommandName>Form.Command.UseModifiedTemplate</CommandName>
@@ -312,9 +312,9 @@
 										<v8:content>Use edited template</v8:content>
 									</v8:item>
 								</Title>
-								<ExtendedTooltip name="PrintFormTemplatesUseModifiedTemplateExtendedTooltip" id="157"/>
+								<ExtendedTooltip name="PrintFormsTemplatesUseModifiedTemplateExtendedTooltip" id="157"/>
 							</Button>
-							<Button name="PrintFormTemplatesUseStandardTemplate" id="158">
+							<Button name="PrintFormsTemplatesUseStandardTemplate" id="158">
 								<Type>CommandBarButton</Type>
 								<Representation>PictureAndText</Representation>
 								<CommandName>Form.Command.UseStandardTemplate</CommandName>
@@ -324,7 +324,7 @@
 										<v8:content>Use standard template</v8:content>
 									</v8:item>
 								</Title>
-								<ExtendedTooltip name="PrintFormTemplatesUseStandardTemplateExtendedTooltip" id="159"/>
+								<ExtendedTooltip name="PrintFormsTemplatesUseStandardTemplateExtendedTooltip" id="159"/>
 							</Button>
 						</ChildItems>
 					</ButtonGroup>
@@ -339,7 +339,7 @@
 						</Title>
 						<ExtendedTooltip name="FormShowInListExtendedTooltip" id="205"/>
 					</Button>
-					<Button name="PrintFormTemplatesDeleteModifiedTemplate" id="160">
+					<Button name="PrintFormsTemplatesDeleteModifiedTemplate" id="160">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.DeleteModifiedTemplate</CommandName>
 						<Title>
@@ -349,7 +349,7 @@
 							</v8:item>
 						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-						<ExtendedTooltip name="PrintFormTemplatesDeleteModifiedTemplateExtendedTooltip" id="161"/>
+						<ExtendedTooltip name="PrintFormsTemplatesDeleteModifiedTemplateExtendedTooltip" id="161"/>
 					</Button>
 					<ButtonGroup name="PrintFormsTemplatesAllActionsGroup" id="164">
 						<Title>
@@ -366,10 +366,10 @@
 						</ToolTip>
 						<ExtendedTooltip name="PrintFormsTemplatesAllActionsGroupExtendedTooltip" id="165"/>
 						<ChildItems>
-							<Button name="PrintFormTemplatesCustomizeForm" id="168">
+							<Button name="PrintFormsTemplatesChangeForm" id="168">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.StandardCommand.CustomizeForm</CommandName>
-								<ExtendedTooltip name="PrintFormTemplatesCustomizeFormExtendedTooltip" id="169"/>
+								<ExtendedTooltip name="PrintFormsTemplatesChangeFormExtendedTooltip" id="169"/>
 							</Button>
 						</ChildItems>
 					</ButtonGroup>
@@ -642,8 +642,8 @@
 						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</Picture>
 					<FileDragMode>AsFile</FileDragMode>
-					<ContextMenu name="InformationPicture7ContextMenu" id="117"/>
-					<ExtendedTooltip name="InformationPicture7ExtendedTooltip" id="118"/>
+					<ContextMenu name="PictureOfInformationContextMenu" id="117"/>
+					<ExtendedTooltip name="PictureOfInformationExtendedTooltip" id="118"/>
 				</PictureDecoration>
 				<LabelDecoration name="AdditionalInformation" id="119">
 					<AutoMaxWidth>false</AutoMaxWidth>

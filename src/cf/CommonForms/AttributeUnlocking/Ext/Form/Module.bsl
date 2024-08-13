@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 
 #Region FormEventHandlers
 
@@ -319,8 +320,8 @@ Function AreObjectsUsed()
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Unlock attributes: Check the object reference usage';");
-	// 
-	// 
+	// In file mode, the job queue always runs in the background. The result is of low priority, the operation runs rarely.
+	// Therefore, locking the UI is excessive as the search for object references takes a long time.
 	ExecutionParameters.RunInBackground = True;
 	ExecutionParameters.WaitCompletion = 0;
 	

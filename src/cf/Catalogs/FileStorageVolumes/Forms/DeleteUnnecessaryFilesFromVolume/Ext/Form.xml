@@ -34,7 +34,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Extraneous files</v8:content>
+					<v8:content>Unreferenced files</v8:content>
 				</v8:item>
 			</Title>
 			<Group>Horizontal</Group>
@@ -64,10 +64,10 @@
 						</v8:item>
 					</Title>
 					<Hyperlink>true</Hyperlink>
-					<ContextMenu name="DetailsDecoration1ContextMenu" id="19"/>
-					<ExtendedTooltip name="DetailsDecoration1ExtendedTooltip" id="20"/>
+					<ContextMenu name="DecorationMoreContextMenu" id="19"/>
+					<ExtendedTooltip name="DecorationMoreExtendedTooltip" id="20"/>
 					<Events>
-						<Event name="Click">DetailsDecoration1Click</Event>
+						<Event name="Click">DecorationMoreClick</Event>
 					</Events>
 				</LabelDecoration>
 			</ChildItems>
@@ -84,7 +84,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="CommentGroupExtendedTooltip" id="6"/>
+			<ExtendedTooltip name="GroupCommentExtendedTooltip" id="6"/>
 			<ChildItems>
 				<PictureDecoration name="IconDecoration1" id="7">
 					<SkipOnInput>false</SkipOnInput>

@@ -18,7 +18,7 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.StandardCommand.Choose</CommandName>
-				<ExtendedTooltip name="FormChooseExtendedTooltip" id="221"/>
+				<ExtendedTooltip name="FormSelectExtendedTooltip" id="221"/>
 			</Button>
 			<Button name="Add" id="261" DisplayImportance="VeryHigh">
 				<Type>CommandBarButton</Type>
@@ -27,7 +27,7 @@
 				<Title>
 					<v8:item>
 						<v8:lang>en</v8:lang>
-						<v8:content>Add file from computer....</v8:content>
+						<v8:content>Add local file...</v8:content>
 					</v8:item>
 				</Title>
 				<ExtendedTooltip name="AddExtendedTooltip" id="262"/>
@@ -52,7 +52,7 @@
 						<Title>
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>File from computer...</v8:content>
+								<v8:content>Local file...</v8:content>
 							</v8:item>
 						</Title>
 						<ExtendedTooltip name="AddFromFileOnHardDriveExtendedTooltip" id="103"/>
@@ -364,7 +364,7 @@
 						<v8:content>Form additional commands group</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="FormAdditionalCommandsGroup1ExtendedTooltip" id="117"/>
+				<ExtendedTooltip name="FormCommandsGroupAdditionalExtendedTooltip" id="117"/>
 			</ButtonGroup>
 			<Button name="SyncSettings" id="283">
 				<Type>CommandBarButton</Type>
@@ -386,7 +386,7 @@
 					</v8:item>
 				</Title>
 				<ToolTipRepresentation>None</ToolTipRepresentation>
-				<ExtendedTooltip name="FormMoreGroupExtendedTooltip" id="217"/>
+				<ExtendedTooltip name="FormGroupMoreExtendedTooltip" id="217"/>
 				<ChildItems>
 					<Button name="FormCopy" id="19">
 						<Type>CommandBarButton</Type>
@@ -452,9 +452,9 @@
 							</v8:item>
 						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-						<ExtendedTooltip name="MoveToGroup1ExtendedTooltip" id="339"/>
+						<ExtendedTooltip name="MoveToGroupCommandExtendedTooltip" id="339"/>
 					</Button>
-					<Button name="FormUnlock" id="49">
+					<Button name="FormRelease" id="49">
 						<Type>CommandBarButton</Type>
 						<Representation>Text</Representation>
 						<CommandName>Form.Command.Release</CommandName>
@@ -580,7 +580,7 @@
 							<Button name="FormLoadDynamicListSettings" id="224">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.StandardCommand.LoadDynamicListSettings</CommandName>
-								<ExtendedTooltip name="FormImportDynamicListSettingsExtendedTooltip" id="225"/>
+								<ExtendedTooltip name="FormLoadDynamicListSettingsExtendedTooltip" id="225"/>
 							</Button>
 							<Button name="FormSaveDynamicListSettings" id="226">
 								<Type>CommandBarButton</Type>
@@ -840,8 +840,8 @@
 								</v8:item>
 							</Title>
 							<ToolTipRepresentation>Button</ToolTipRepresentation>
-							<ContextMenu name="NoteDecorationContextMenu" id="293"/>
-							<ExtendedTooltip name="NoteDecorationExtendedTooltip" id="294"/>
+							<ContextMenu name="DecorationNoteContextMenu" id="293"/>
+							<ExtendedTooltip name="DecorationNoteExtendedTooltip" id="294"/>
 						</LabelDecoration>
 						<PictureDecoration name="DecorationPictureSyncStatus" id="342">
 							<Title formatted="false">
@@ -898,7 +898,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="FilesGroup1ExtendedTooltip" id="271"/>
+			<ExtendedTooltip name="GroupFilesExtendedTooltip" id="271"/>
 			<ChildItems>
 				<Table name="List" id="6">
 					<CommandBarLocation>None</CommandBarLocation>
@@ -1005,7 +1005,7 @@
 												<v8:content>From template…</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="ListContextMenuAddFileFromTemplateExtendedTooltip" id="331"/>
+										<ExtendedTooltip name="ListContextMenuAddFileByTemplateExtendedTooltip" id="331"/>
 									</Button>
 									<Button name="ListContextMenuAddFileFromScanner" id="278">
 										<Type>CommandBarButton</Type>
@@ -1082,7 +1082,7 @@
 												<v8:content>Commit</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="ListContextMenuFinishEditingExtendedTooltip" id="137"/>
+										<ExtendedTooltip name="ListContextMenuEndEditExtendedTooltip" id="137"/>
 									</Button>
 								</ChildItems>
 							</ButtonGroup>
@@ -1242,7 +1242,7 @@
 										</Title>
 										<ExtendedTooltip name="ListContextMenuMoveToGroupExtendedTooltip" id="341"/>
 									</Button>
-									<Button name="ListContextMenuUnlock" id="60">
+									<Button name="ListContextMenuRelease" id="60">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.Release</CommandName>
 										<Title>
@@ -1251,7 +1251,7 @@
 												<v8:content>Undo edits</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="ListContextMenuUnlockExtendedTooltip" id="138"/>
+										<ExtendedTooltip name="ListContextMenuReleaseExtendedTooltip" id="138"/>
 									</Button>
 									<Button name="ListContextMenuUpdateFromFileOnHardDrive" id="66">
 										<Type>CommandBarButton</Type>
@@ -1262,7 +1262,7 @@
 												<v8:content>Update from local file…</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="ListContextMenuUpdateFromFileOnDiskExtendedTooltip" id="143"/>
+										<ExtendedTooltip name="ListContextMenuUpdateFromFileOnHardDriveExtendedTooltip" id="143"/>
 									</Button>
 									<Button name="ListContextMenuOpenFileDirectory" id="68">
 										<Type>CommandBarButton</Type>
@@ -1297,29 +1297,29 @@
 					</ContextMenu>
 					<AutoCommandBar name="ListCommandBar" id="8"/>
 					<ExtendedTooltip name="ListExtendedTooltip" id="156"/>
-					<SearchStringAddition name="ListSearchString_SSLy" id="248">
+					<SearchStringAddition name="ListSearchString" id="248">
 						<AdditionSource>
 							<Item>List</Item>
 							<Type>SearchStringRepresentation</Type>
 						</AdditionSource>
-						<ContextMenu name="ListSearchString_SSLyContextMenu" id="249"/>
-						<ExtendedTooltip name="ListSearchString_SSLyExtendedTooltip" id="250"/>
+						<ContextMenu name="ListSearchStringContextMenu" id="249"/>
+						<ExtendedTooltip name="ListSearchStringExtendedTooltip" id="250"/>
 					</SearchStringAddition>
-					<ViewStatusAddition name="ListViewStatus_SSLy" id="251">
+					<ViewStatusAddition name="ListViewStatus" id="251">
 						<AdditionSource>
 							<Item>List</Item>
 							<Type>ViewStatusRepresentation</Type>
 						</AdditionSource>
-						<ContextMenu name="ListViewStatus_SSLyContextMenu" id="252"/>
-						<ExtendedTooltip name="ListViewStatus_SSLyExtendedTooltip" id="253"/>
+						<ContextMenu name="ListViewStatusContextMenu" id="252"/>
+						<ExtendedTooltip name="ListViewStatusExtendedTooltip" id="253"/>
 					</ViewStatusAddition>
-					<SearchControlAddition name="ListSearchControl_SSLy" id="254">
+					<SearchControlAddition name="ListSearchControl" id="254">
 						<AdditionSource>
 							<Item>List</Item>
 							<Type>SearchControl</Type>
 						</AdditionSource>
-						<ContextMenu name="ListSearchControl_SSLyContextMenu" id="255"/>
-						<ExtendedTooltip name="ListSearchControl_SSLyExtendedTooltip" id="256"/>
+						<ContextMenu name="ListSearchControlContextMenu" id="255"/>
+						<ExtendedTooltip name="ListSearchControlExtendedTooltip" id="256"/>
 					</SearchControlAddition>
 					<Events>
 						<Event name="DragCheck">ListDragCheck</Event>
@@ -1442,8 +1442,8 @@
 									</ToolTip>
 									<Width>15</Width>
 									<HorizontalStretch>false</HorizontalStretch>
-									<ContextMenu name="ListChangeDate1ContextMenu" id="101"/>
-									<ExtendedTooltip name="ListChangeDate1ExtendedTooltip" id="162"/>
+									<ContextMenu name="ListChangeDateContextMenu" id="101"/>
+									<ExtendedTooltip name="ListChangeDateExtendedTooltip" id="162"/>
 								</LabelField>
 								<LabelField name="ListWasEditedBy" id="191">
 									<DataPath>List.WasEditedBy</DataPath>
@@ -1531,8 +1531,8 @@
 							</ToolTip>
 							<Width>15</Width>
 							<HorizontalStretch>false</HorizontalStretch>
-							<ContextMenu name="ListCreationDate1ContextMenu" id="180"/>
-							<ExtendedTooltip name="ListCreationDate1ExtendedTooltip" id="181"/>
+							<ContextMenu name="ListCreationDateContextMenu" id="180"/>
+							<ExtendedTooltip name="ListCreationDateExtendedTooltip" id="181"/>
 						</LabelField>
 						<LabelField name="ListAuthor" id="182">
 							<DataPath>List.Author</DataPath>
@@ -2063,7 +2063,7 @@ FROM
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Import a file from a computer</v8:content>
+					<v8:content>Upload a local file.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>Add</Action>

@@ -184,7 +184,7 @@ Procedure SyncSettings(Command)
 	
 EndProcedure
 
-// 
+// StandardSubsystems.Properties
 
 &AtClient
 Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined, StandardProcessing = Undefined)
@@ -301,7 +301,7 @@ Procedure UpdateCommandsAvailabilityByRightsSetting()
 	
 EndProcedure
 
-// 
+// StandardSubsystems.Properties
 
 &AtServer
 Procedure UpdateAdditionalAttributesItems()

@@ -26,7 +26,7 @@
 							<v8:content>Start page</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="StartPage1ExtendedTooltip" id="164"/>
+					<ExtendedTooltip name="StartPageExtendedTooltip" id="164"/>
 					<ChildItems>
 						<UsualGroup name="GroupBegin" id="165">
 							<Title>
@@ -38,7 +38,7 @@
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="StartGroup1ExtendedTooltip" id="166"/>
+							<ExtendedTooltip name="GroupBeginExtendedTooltip" id="166"/>
 							<ChildItems>
 								<PictureDecoration name="Decoration14" id="179">
 									<Width>6</Width>
@@ -147,7 +147,7 @@ If you cancel the operation, you can run it again from the list of configured da
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="ConnectionCheckErrorGroup1ExtendedTooltip" id="249"/>
+							<ExtendedTooltip name="GroupConnectionCheckErrorExtendedTooltip" id="249"/>
 							<ChildItems>
 								<PictureDecoration name="Decoration9" id="250">
 									<Width>6</Width>
@@ -496,8 +496,8 @@ Please wait…</v8:content>
 											</Title>
 											<TitleLocation>None</TitleLocation>
 											<ShowPercent>true</ShowPercent>
-											<ContextMenu name="ExportProgressPercent1ContextMenu" id="132"/>
-											<ExtendedTooltip name="ExportProgressPercent1ExtendedTooltip" id="133"/>
+											<ContextMenu name="DataExportProgressBarContextMenu" id="132"/>
+											<ExtendedTooltip name="DataExportProgressBarExtendedTooltip" id="133"/>
 										</ProgressBarField>
 									</ChildItems>
 								</UsualGroup>
@@ -831,7 +831,7 @@ Data export is canceled.</v8:content>
 						</v8:item>
 					</Title>
 					<Group>AlwaysHorizontal</Group>
-					<ExtendedTooltip name="NavigationStartPage1ExtendedTooltip" id="114"/>
+					<ExtendedTooltip name="PageNavigationStartExtendedTooltip" id="114"/>
 					<ChildItems>
 						<CommandBar name="StartNavigationRightCommandBar" id="115">
 							<Title>
@@ -946,7 +946,7 @@ Data export is canceled.</v8:content>
 						</v8:item>
 					</Title>
 					<Group>AlwaysHorizontal</Group>
-					<ExtendedTooltip name="NavigationWaitPage1ExtendedTooltip" id="10"/>
+					<ExtendedTooltip name="PageNavigationWaitExtendedTooltip" id="10"/>
 					<ChildItems>
 						<CommandBar name="WaitNavigationCommandBarRight" id="13">
 							<Title>
@@ -981,7 +981,7 @@ Data export is canceled.</v8:content>
 						</v8:item>
 					</Title>
 					<Group>AlwaysHorizontal</Group>
-					<ExtendedTooltip name="NavigationEndPage1ExtendedTooltip" id="12"/>
+					<ExtendedTooltip name="PageNavigationEndExtendedTooltip" id="12"/>
 					<ChildItems>
 						<CommandBar name="EndNavigationRightCommandBar" id="17">
 							<Title>

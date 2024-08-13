@@ -659,7 +659,10 @@ Procedure OnCreateListFormAtServer(Form, ListsNames, AdditionalProperties = Unde
 			EndIf;
 		EndIf;
 		
-		FormTable.SetAction("Selection", "Attachable_Selection");
+		CurrentAction1 = FormTable.GetAction("Selection");
+		If Not ValueIsFilled(CurrentAction1) Then
+			FormTable.SetAction("Selection", "Attachable_Selection");
+		EndIf;
 		
 	EndDo;
 	

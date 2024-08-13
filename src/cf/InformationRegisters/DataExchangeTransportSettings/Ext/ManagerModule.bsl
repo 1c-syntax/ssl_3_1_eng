@@ -63,8 +63,8 @@ Function TransportSettingsWS(Peer, AuthenticationParameters = Undefined) Export
 	
 	SetPrivilegedMode(True);
 	
-	SettingsStructure = ExchangeTransportSettingsContent("WS");
-	Result = GetRegisterDataByStructure(Peer, SettingsStructure);
+	SettingsStructure_ = ExchangeTransportSettingsContent("WS");
+	Result = GetRegisterDataByStructure(Peer, SettingsStructure_);
 	
 	Result.Insert("SourceInfobaseID", "");
 	
@@ -101,7 +101,7 @@ Function TransportSettingsWS(Peer, AuthenticationParameters = Undefined) Export
 		Password = Undefined;
 		
 		If AuthenticationParameters.Property("Password", Password)
-			And Password <> Undefined Then // 
+			And Password <> Undefined Then // The password is specified on the client
 			
 			Result.WSPassword = Password;
 			
@@ -274,9 +274,9 @@ EndProcedure
 ////////////////////////////////////////////////////////////////////////////////
 // The functions of receiving setting values for exchange plan node.
 
-// Retrieves settings of the specified transport kind.
-// If the transport kind is not specified (ExchangeTransportKind = Undefined),
-// it receives settings of all transport kinds existing in the system.
+// Gets settings for the specified transport type.
+// If the transport type is not specified (ExchangeTransportKind = Undefined),
+// it retrieves settings for all transport types in the system.
 //
 Function TransportSettings(Val Peer, Val ExchangeTransportKind = Undefined) Export
 	
@@ -358,7 +358,7 @@ Function DataExchangeDirectoryName(ExchangeMessagesTransportKind, InfobaseNode) 
 	Return Result;
 EndFunction
 
-Function ConfiguredTransportTypes(InfobaseNode) Export
+Function ConfiguredTransportKinds(InfobaseNode) Export
 	
 	Result = New Array;
 	
@@ -407,9 +407,9 @@ EndFunction
 ////////////////////////////////////////////////////////////////////////////////
 // Local internal procedures and functions.
 
-// Retrieves settings of the specified transport kind.
-// If the transport kind is not specified (ExchangeTransportKind = Undefined),
-// it receives settings of all transport kinds existing in the system.
+// Gets settings for the specified transport type.
+// If the transport type is not specified (ExchangeTransportKind = Undefined),
+// it retrieves settings for all transport types in the system.
 //
 // Parameters:
 //  No.
@@ -419,10 +419,10 @@ EndFunction
 //
 Function ExchangeTransportSettings(Peer, ExchangeTransportKind)
 	
-	SettingsStructure = New Structure;
+	SettingsStructure_ = New Structure;
 	
-	// Common settings for all transport kinds.
-	SettingsStructure.Insert("DefaultExchangeMessagesTransportKind");
+	// Common settings for all transport types.
+	SettingsStructure_.Insert("DefaultExchangeMessagesTransportKind");
 	PasswordsList = "ArchivePasswordExchangeMessages";
 	
 	If ExchangeTransportKind = Undefined Then
@@ -431,14 +431,14 @@ Function ExchangeTransportSettings(Peer, ExchangeTransportKind)
 			
 			TransportSettingsStructure = ExchangeTransportSettingsContent(Common.EnumerationValueName(TransportKind));
 			
-			SettingsStructure = MergeCollections(SettingsStructure, TransportSettingsStructure);
+			SettingsStructure_ = MergeCollections(SettingsStructure_, TransportSettingsStructure);
 			
 		EndDo;
 		
 	Else
 		
 		TransportSettingsStructure = ExchangeTransportSettingsContent(Common.EnumerationValueName(ExchangeTransportKind));
-		SettingsStructure = MergeCollections(SettingsStructure, TransportSettingsStructure);
+		SettingsStructure_ = MergeCollections(SettingsStructure_, TransportSettingsStructure);
 		
 		If ExchangeTransportKind = Enums.ExchangeMessagesTransportTypes.COM Then
 			PasswordsList = PasswordsList + ",COMUserPassword";
@@ -449,7 +449,7 @@ Function ExchangeTransportSettings(Peer, ExchangeTransportKind)
 		EndIf;
 	EndIf;
 	
-	Result = GetRegisterDataByStructure(Peer, SettingsStructure);
+	Result = GetRegisterDataByStructure(Peer, SettingsStructure_);
 	Result.Insert("UseTempDirectoryToSendAndReceiveMessages", True);
 	
 	SetPrivilegedMode(True);
@@ -469,20 +469,20 @@ Function ExchangeTransportSettings(Peer, ExchangeTransportKind)
 	Return Result;
 EndFunction
 
-Function GetRegisterDataByStructure(Peer, SettingsStructure)
+Function GetRegisterDataByStructure(Peer, SettingsStructure_)
 	
 	If Not ValueIsFilled(Peer) Then
-		Return SettingsStructure;
+		Return SettingsStructure_;
 	EndIf;
 	
-	If SettingsStructure.Count() = 0 Then
-		Return SettingsStructure;
+	If SettingsStructure_.Count() = 0 Then
+		Return SettingsStructure_;
 	EndIf;
 	
-	// 
+	// Generate a query text only for the fields (parameters) required for the given transport.
 	// 
 	SelectedFields = "";
-	For Each SettingItem In SettingsStructure Do
+	For Each SettingItem In SettingsStructure_ Do
 		
 		SelectedFields = SelectedFields + SettingItem.Key + ", ";
 		
@@ -508,15 +508,15 @@ Function GetRegisterDataByStructure(Peer, SettingsStructure)
 	// Filling the structure if settings for the node are filled.
 	If Selection.Next() Then
 		
-		For Each SettingItem In SettingsStructure Do
+		For Each SettingItem In SettingsStructure_ Do
 			
-			SettingsStructure[SettingItem.Key] = Selection[SettingItem.Key];
+			SettingsStructure_[SettingItem.Key] = Selection[SettingItem.Key];
 			
 		EndDo;
 		
 	EndIf;
 	
-	Return SettingsStructure;
+	Return SettingsStructure_;
 	
 EndFunction
 
@@ -562,107 +562,6 @@ Procedure SupplementCollection(Source, Receiver)
 EndProcedure
 
 #Region UpdateHandlers
-
-Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
-	
-	If Not Common.SeparatedDataUsageAvailable() Then
-		Return;
-	EndIf;
-	
-	AdditionalParameters = InfobaseUpdate.AdditionalProcessingMarkParameters();
-	AdditionalParameters.IsIndependentInformationRegister = True;
-	AdditionalParameters.FullRegisterName             = "InformationRegister.DeleteExchangeTransportSettings";
-	
-	QueryOptions = New Structure;
-	QueryOptions.Insert("ExchangePlansArray1",                 New Array);
-	QueryOptions.Insert("AdditionalExchangePlanProperties", "");
-	QueryOptions.Insert("ResultToTemporaryTable",       True);
-	
-	TempTablesManager = New TempTablesManager;
-	
-	ExchangeNodesQuery = New Query(DataExchangeServer.ExchangePlansForMonitorQueryText(QueryOptions, False));
-	ExchangeNodesQuery.TempTablesManager = TempTablesManager;
-	ExchangeNodesQuery.Execute();
-	
-	Query = New Query(
-	"SELECT
-	|	TransportSettings.InfobaseNode AS InfobaseNode
-	|FROM
-	|	ConfigurationExchangePlans AS ConfigurationExchangePlans
-	|		INNER JOIN InformationRegister.DeleteExchangeTransportSettings AS TransportSettings
-	|		ON (TransportSettings.InfobaseNode = ConfigurationExchangePlans.InfobaseNode)");
-	
-	Query.TempTablesManager = TempTablesManager;
-	
-	Result = Query.Execute().Unload();
-	
-	InfobaseUpdate.MarkForProcessing(Parameters, Result, AdditionalParameters);
-	
-EndProcedure
-
-Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
-	
-	If Not Common.SeparatedDataUsageAvailable() Then
-		Return;
-	EndIf;
-	
-	ProcessingCompleted = True;
-	
-	RegisterMetadata    = Metadata.InformationRegisters.DeleteExchangeTransportSettings;
-	FullRegisterName     = RegisterMetadata.FullName();
-	RegisterPresentation = RegisterMetadata.Presentation();
-	
-	AdditionalProcessingDataSelectionParameters = InfobaseUpdate.AdditionalProcessingDataSelectionParameters();
-	
-	Selection = InfobaseUpdate.SelectStandaloneInformationRegisterDimensionsToProcess(
-		Parameters.Queue, FullRegisterName, AdditionalProcessingDataSelectionParameters);
-	
-	Processed = 0;
-	RecordsWithIssuesCount = 0;
-	
-	While Selection.Next() Do
-		RepresentationOfTheReference = String(Selection.InfobaseNode);
-		Try
-			
-			TransferSettingsOfCorrespondentDataExchangeTransport(Selection.InfobaseNode);
-			Processed = Processed + 1;
-			
-		Except
-			
-			RecordsWithIssuesCount = RecordsWithIssuesCount + 1;
-			
-			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Couldn''t process a set of ""%1"" register records with filter ""InfobaseNode = %2"" due to:
-				|%3';"), RegisterPresentation, RepresentationOfTheReference,
-				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-				
-			WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Warning,
-				RegisterMetadata, , MessageText);
-			
-		EndTry;
-		
-	EndDo;
-	
-	If Not InfobaseUpdate.DataProcessingCompleted(Parameters.Queue, FullRegisterName) Then
-		ProcessingCompleted = False;
-	EndIf;
-	
-	If Processed = 0 And RecordsWithIssuesCount <> 0 Then
-		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Procedure InformationRegisters.DataExchangeTransportSettings.ProcessDataForMigrationToNewVersion failed to process (skipped) some exchange node records: %1';"), 
-			RecordsWithIssuesCount);
-		Raise MessageText;
-	Else
-		WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Information,
-			, ,
-			StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The InformationRegisters.DataExchangeTransportSettings.ProcessDataForMigrationToNewVersion procedure processed records: %1';"),
-			Processed));
-	EndIf;
-	
-	Parameters.ProcessingCompleted = ProcessingCompleted;
-	
-EndProcedure
 
 Procedure TransferSettingsOfCorrespondentDataExchangeTransport(InfobaseNode) Export
 	

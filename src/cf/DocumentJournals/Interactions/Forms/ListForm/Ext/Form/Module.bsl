@@ -689,7 +689,7 @@ EndProcedure
 
 
 ////////////////////////////////////////////////////////////////////////////////////
-// 
+// Drag-and-drop handler.
 
 &AtClient
 Procedure SubjectsDragCheck(Item, DragParameters, StandardProcessing, String, Field)
@@ -1571,7 +1571,7 @@ Procedure SetConditionalAppearance()
 EndProcedure
 
 /////////////////////////////////////////////////////////////////////////////////
-// 
+// Processing quick filter change.
 
 &AtServer
 Procedure ChangeFilterInteractionTypeServer(Val CommandName)
@@ -1657,7 +1657,7 @@ Procedure OnChangeTypeServer(UpdateNavigationPanel = True)
 EndProcedure
 
 /////////////////////////////////////////////////////////////////////////////////
-//    
+//    Processing activation of list rows and navigation panel.
 
 &AtClient
 Procedure ProcessListRowActivation()
@@ -1983,7 +1983,7 @@ Procedure DisplayInteractionPreview(InteractionsDocumentRef, CurrentPageName)
 EndProcedure
 
 /////////////////////////////////////////////////////////////////////////////////
-//    
+//    Switching and filling navigation panels.
 
 &AtServer
 Procedure SwitchNavigationPanelServer(CommandName)
@@ -3245,7 +3245,7 @@ Procedure AddToNavigationPanel()
 EndProcedure
 
 ///////////////////////////////////////////////////////////////////////////////
-//    
+//    Saving node statuses and navigation panel tree values.
 
 &AtClientAtServerNoContext
 Function GetSavedSettingsOfNavigationPanelTree(
@@ -3419,7 +3419,7 @@ Procedure PositionOnRowAccordingToSavedValue(CurrentRowValue,
 EndProcedure
 
 ///////////////////////////////////////////////////////////////////////////////
-// 
+// Procedures and functions of command processing.
 
 // Set a responsible person for selected interactions - the server part.
 // Parameters:
@@ -3819,7 +3819,7 @@ Procedure ExecuteTransferToEmailsArrayFolder(Val EmailsArray, Val Folder)
 EndProcedure
 
 /////////////////////////////////////////////////////////////////////////////////////////
-// 
+// Full-text search.
 
 &AtServer
 Procedure DetermineAvailabilityFullTextSearch() 
@@ -4031,7 +4031,7 @@ Procedure FillInTheDescriptionFoundByFullTextSearch(Interaction)
 EndProcedure 
 
 ///////////////////////////////////////////////////////////////////////////////
-// Other
+// Miscellaneous.
 
 &AtServer
 Function FindRowInCollectionFormData(WhereToFind, Value, Column)

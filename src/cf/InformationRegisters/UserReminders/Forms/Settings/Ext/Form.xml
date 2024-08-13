@@ -3,7 +3,7 @@
 	<Title>
 		<v8:item>
 			<v8:lang>en</v8:lang>
-			<v8:content>Delivery reminders</v8:content>
+			<v8:content>Deliver reminders</v8:content>
 		</v8:item>
 	</Title>
 	<WindowOpeningMode>LockOwnerWindow</WindowOpeningMode>
@@ -36,7 +36,7 @@
 						<v8:content>Test</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="FormCheckExtendedTooltip" id="36"/>
+				<ExtendedTooltip name="FormValidateExtendedTooltip" id="36"/>
 			</Button>
 			<Button name="Cancel" id="5">
 				<Type>CommandBarButton</Type>
@@ -63,7 +63,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Delivery reminders</v8:content>
+					<v8:content>Deliver reminders</v8:content>
 				</v8:item>
 			</Title>
 			<Group>Vertical</Group>
@@ -74,7 +74,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>In Notification сenter</v8:content>
+							<v8:content>In Notification center</v8:content>
 						</v8:item>
 					</Title>
 					<HorizontalStretch>true</HorizontalStretch>
@@ -88,7 +88,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Menu option "In Notification сenter"</v8:content>
+									<v8:content>"In Notification center" menu item</v8:content>
 								</v8:item>
 							</Title>
 							<Group>AlwaysHorizontal</Group>
@@ -114,7 +114,7 @@
 												<Presentation>
 													<v8:item>
 														<v8:lang>en</v8:lang>
-														<v8:content>In Notification сenter</v8:content>
+														<v8:content>In Notification center</v8:content>
 													</v8:item>
 												</Presentation>
 												<Value xsi:type="xs:decimal">1</Value>

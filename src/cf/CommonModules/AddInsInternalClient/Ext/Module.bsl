@@ -49,11 +49,11 @@ Procedure CheckAddInAvailability(Notification, Context) Export
 	
 	Context.Location = Information.Location;
 	
-	// 
-	// 
-	// 
-	// 
-	// 
+	// Information.State:
+	// * IsNotFound
+	// * FoundInStorage
+	// * FoundInSharedStorage
+	// * DisabledByAdministrator
 	
 	Result = AddInAvailabilityResult();
 	Result.TheComponentOfTheLatestVersion = Information.TheLatestVersionOfComponentsFromTheLayout;
@@ -91,21 +91,7 @@ Procedure CheckAddInAvailability(Notification, Context) Export
 		Result.Insert("Version", Information.Attributes.Version);
 		ShouldAttachAddInFromTemplate = False;
 		If SearchForAComponentOfTheLatestVersion Then
-			VersionParts = StrSplit(Result.Version, ".");
-			If VersionParts.Count() = 4 Then
-				// The add-in version is later than the template version.
-				If CommonClientServer.CompareVersions(Result.Version,
-					Result.TheComponentOfTheLatestVersion.Version) > 0 Then
-					Result.TheComponentOfTheLatestVersion = New Structure("Id, Version, Location",
-						Context.Id, Result.Version, Information.Location);
-				Else
-					ShouldAttachAddInFromTemplate = True;
-				EndIf;
-			Else
-				// If the add-in version mismatch the template, take an add-in from the catalog.
-				Result.TheComponentOfTheLatestVersion = New Structure("Id, Version, Location",
-					Context.Id, Result.Version, Information.Location);
-			EndIf;
+			ReplaceWithCurrentComponentFromCatalog(Result, Context.Id, Information.Location, ShouldAttachAddInFromTemplate);
 		EndIf;
 		
 		If ShouldAttachAddInFromTemplate
@@ -160,11 +146,11 @@ Async Function AddInAvailabilityCheckResult(Context) Export
 	
 	Context.Location = Information.Location;
 	
-	// 
-	// 
-	// 
-	// 
-	// 
+	// Information.State:
+	// * IsNotFound
+	// * FoundInStorage
+	// * FoundInSharedStorage
+	// * DisabledByAdministrator
 	
 	Result = AddInAvailabilityResult();
 	Result.TheComponentOfTheLatestVersion = Information.TheLatestVersionOfComponentsFromTheLayout;
@@ -185,23 +171,14 @@ Async Function AddInAvailabilityCheckResult(Context) Export
 		
 		Result.Insert("Version", Information.Attributes.Version);
 			
+		ShouldAttachAddInFromTemplate = False;
 		If SearchForAComponentOfTheLatestVersion Then
-			VersionParts = StrSplit(Result.Version, ".");
-			If VersionParts.Count() = 4 Then
-				// The add-in version is later than the template version.
-				If CommonClientServer.CompareVersions(Result.Version,
-					Result.TheComponentOfTheLatestVersion.Version) > 0 Then
-					Result.TheComponentOfTheLatestVersion = New Structure("Id, Version, Location",
-						Context.Id, Result.Version, Information.Location);
-				EndIf;
-			Else
-				// If the add-in version mismatch the template, take an add-in from the catalog.
-				Result.TheComponentOfTheLatestVersion = New Structure("Id, Version, Location",
-					Context.Id, Result.Version, Information.Location);
-			EndIf;
+			ReplaceWithCurrentComponentFromCatalog(Result, Context.Id, Information.Location, ShouldAttachAddInFromTemplate);
 		EndIf;
 		
-		If Not Information.IsTargetPlatformsFilled Or CurrentClientIsSupportedByAddIn(Information.Attributes.TargetPlatforms) Then
+		If ShouldAttachAddInFromTemplate
+			Or Not Information.IsTargetPlatformsFilled
+			Or CurrentClientIsSupportedByAddIn(Information.Attributes.TargetPlatforms) Then
 			
 			Result.Available = True;
 			Return Result;
@@ -379,10 +356,27 @@ Function AddInAvailabilityResult() Export
 	
 EndFunction
 
+Procedure ReplaceWithCurrentComponentFromCatalog(Result, Id, Location, ShouldAttachAddInFromTemplate)
+	
+	If StringFunctionsClientServer.OnlyNumbersInString(StrReplace(Result.Version, ".", "")) Then
+		VersionParts = StrSplit(Result.Version, ".");
+		If VersionParts.Count() = 4 And CommonClientServer.CompareVersions(Result.Version,
+			Result.TheComponentOfTheLatestVersion.Version) <= 0 Then
+				ShouldAttachAddInFromTemplate = True;
+			Return;
+		EndIf;
+	EndIf;
+		
+	// Use the add-in from the catalog if the add-in version is greater than the template version or it mismatches the template.
+	Result.TheComponentOfTheLatestVersion = New Structure("Id, Version, Location", Id,
+		Result.Version, Location);
+		
+EndProcedure
+
 // The add-in supports the client.
 // 
 // Parameters:
-//  Attributes - See AddInsInternal.AddInAttributes
+//  Attributes - 
 // 
 // Returns:
 //  Boolean - Flag indicating whether the add-in supports the client.
@@ -687,9 +681,9 @@ Function PresentationOfCurrentClient()
 		Platform = NStr("en = 'WinRT x86-64';");
 	EndIf;
 	
-	// 
-	// 
-	// 
+	// Example:
+	// Firefox Windows x86 web client
+	// Windows x86-64 thin client
 	Return StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 %2';"), Package, Platform);
 	
 EndFunction
@@ -1127,9 +1121,9 @@ EndProcedure
 // Continues the ImportAddInFromFile procedure.
 Procedure ImportAddInFromFileAfterImport(Result, Context) Export
 	
-	//  
-	// 
-	//  
+	// Result: 
+	// - Structure - Add-in attached.
+	// - Undefined - Close the dialog. 
 	
 	UserClosedDialogBox = (Result = Undefined);
 	

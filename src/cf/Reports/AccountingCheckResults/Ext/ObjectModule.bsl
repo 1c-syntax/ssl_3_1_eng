@@ -99,10 +99,15 @@ Procedure OnCreateAtServer(Form, Cancel, StandardProcessing) Export
 		
 	ElsIf FormParameters.Property("CheckKind") Then
 		
+		ExactMap = True;
+		If FormParameters.Property("ExactMap") Then
+			ExactMap = FormParameters.ExactMap;
+		EndIf;
+		
 		CommonClientServer.CheckParameter("AccountingAuditClient.OpenIssuesReport", "CheckKind", 
 			FormParameters.CheckKind, AccountingAuditInternal.TypeDetailsCheckKind());
 		
-		DetailedInformationOnChecksKinds = AccountingAudit.DetailedInformationOnChecksKinds(FormParameters.CheckKind);
+		DetailedInformationOnChecksKinds = AccountingAudit.DetailedInformationOnChecksKinds(FormParameters.CheckKind, ExactMap);
 		If DetailedInformationOnChecksKinds.Count() = 0 Then
 			Cancel = True;
 		Else
@@ -1049,7 +1054,7 @@ Function RegisterOptionTreeNode(DCSettings, DCNode, TreeRowsSet, DPRType = "")
 	
 	TreeRow = TreeRowsSet.Add();
 	TreeRow.DCNode = DCNode;
-	TreeRow.Type    = SettingTypeAsString(TypeOf(DCNode));
+	TreeRow.Type    = ReportsClientServer.SettingTypeAsString(TypeOf(DCNode));
 	TreeRow.Subtype = DPRType;
 	
 	If StrSplit("Settings,Group,ChartGroup,TableGroup", ",").Find(TreeRow.Type) <> Undefined Then
@@ -1082,81 +1087,6 @@ Function RegisterOptionTreeNode(DCSettings, DCNode, TreeRowsSet, DPRType = "")
 	
 	Return TreeRow;
 	
-EndFunction
-
-Function SettingTypeAsString(Type) Export
-	If Type = Type("DataCompositionSettings") Then
-		Return "Settings";
-	ElsIf Type = Type("DataCompositionNestedObjectSettings") Then
-		Return "NestedObjectSettings";
-	
-	ElsIf Type = Type("DataCompositionFilter") Then
-		Return "Filter";
-	ElsIf Type = Type("DataCompositionFilterItem") Then
-		Return "FilterElement";
-	ElsIf Type = Type("DataCompositionFilterItemGroup") Then
-		Return "FilterItemsGroup";
-	
-	ElsIf Type = Type("DataCompositionSettingsParameterValue") Then
-		Return "SettingsParameterValue";
-	
-	ElsIf Type = Type("DataCompositionGroup") Then
-		Return "Group";
-	ElsIf Type = Type("DataCompositionGroupFields") Then
-		Return "GroupFields";
-	ElsIf Type = Type("DataCompositionGroupFieldCollection") Then
-		Return "GroupFieldsCollection";
-	ElsIf Type = Type("DataCompositionGroupField") Then
-		Return "GroupingField";
-	ElsIf Type = Type("DataCompositionAutoGroupField") Then
-		Return "AutoGroupField";
-	
-	ElsIf Type = Type("DataCompositionSelectedFields") Then
-		Return "SelectedFields";
-	ElsIf Type = Type("DataCompositionSelectedField") Then
-		Return "SelectedField";
-	ElsIf Type = Type("DataCompositionSelectedFieldGroup") Then
-		Return "SelectedFieldsGroup";
-	ElsIf Type = Type("DataCompositionAutoSelectedField") Then
-		Return "AutoSelectedField";
-	
-	ElsIf Type = Type("DataCompositionOrder") Then
-		Return "Order";
-	ElsIf Type = Type("DataCompositionOrderItem") Then
-		Return "OrderItem";
-	ElsIf Type = Type("DataCompositionAutoOrderItem") Then
-		Return "AutoOrderItem";
-	
-	ElsIf Type = Type("DataCompositionConditionalAppearance") Then
-		Return "ConditionalAppearance";
-	ElsIf Type = Type("DataCompositionConditionalAppearanceItem") Then
-		Return "ConditionalAppearanceItem";
-	
-	ElsIf Type = Type("DataCompositionSettingStructure") Then
-		Return "SettingsStructure";
-	ElsIf Type = Type("DataCompositionSettingStructureItemCollection") Then
-		Return "SettingsStructureItemCollection";
-	
-	ElsIf Type = Type("DataCompositionTable") Then
-		Return "Table";
-	ElsIf Type = Type("DataCompositionTableGroup") Then
-		Return "TableGroup";
-	ElsIf Type = Type("DataCompositionTableStructureItemCollection") Then
-		Return "TableStructureItemCollection";
-	
-	ElsIf Type = Type("DataCompositionChart") Then
-		Return "Chart";
-	ElsIf Type = Type("DataCompositionChartGroup") Then
-		Return "ChartGroup";
-	ElsIf Type = Type("DataCompositionChartStructureItemCollection") Then
-		Return "ChartStructureItemCollection";
-	
-	ElsIf Type = Type("DataCompositionDataParameterValues") Then
-		Return "DataParametersValues";
-	
-	Else
-		Return "";
-	EndIf;
 EndFunction
 
 #EndRegion

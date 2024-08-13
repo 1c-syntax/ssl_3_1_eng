@@ -39,8 +39,6 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	Items.PathToConverterApplication.Enabled = UseImageMagickToConvertToPDF;
 	
-	SinglePageStorageFormatPrevious = SinglePageStorageFormat;
-	
 	InstallHints();
 	
 	Rescanning = Parameters.Rescanning;
@@ -152,7 +150,7 @@ Procedure DeviceNameStartChoice(Item, StandardProcessing)
 		Item.ChoiceList.LoadValues(DeviceArray);
 	Else
 		StandardProcessing = False;
-		ShowMessageBox(,NStr("en = 'No connected scanners are found. Check scanner connection.';"));
+		ShowMessageBox(,NStr("en = 'No scanners were detected. Check the scanner connection.';"));
 	EndIf;
 EndProcedure 
 
@@ -271,8 +269,9 @@ Procedure RefreshStatus()
 	Items.Rotation.Enabled = False;
 	Items.PaperSize.Enabled = False;
 	Items.DuplexScanning.Enabled = False;
+	Items.DocumentAutoFeeder.Enabled = False;
 	Items.CustomizeStandardSettings.Enabled = False;
-	Items.ShouldSaveAsPDF.Enabled = False;
+	Items.ConvertToPDF.Enabled = False;
 	Items.JPGQuality.Enabled = False;
 	Items.TIFFDeflation.Enabled = False;
 	Items.MultipageStorageFormat.Enabled = False;
@@ -304,29 +303,7 @@ Procedure UpdateStateAfterInitialization(InitializationCheckResult, Context) Exp
 		Return;
 	EndIf;
 	
-	Items.ScannedImageFormat.Enabled = True;
-	Items.Resolution.Enabled = True;
-	Items.Chromaticity.Enabled = True;
-	Items.CustomizeStandardSettings.Enabled = True;
-	Items.ShouldSaveAsPDF.Enabled = True;
-	Items.JPGQuality.Enabled = True;
-	Items.TIFFDeflation.Enabled = True;
-	Items.MultipageStorageFormat.Enabled = True;
-	Items.MethodOfConversionToPDF.Enabled = True;
-	Items.ShowScannerDialog.Enabled = True;
-	
-	DuplexScanningNumber = FilesOperationsInternalClient.ScannerSetting(ThisObject, Attachable_Module, 
-		DeviceName, "DUPLEX");
-	PermissionNumber = FilesOperationsInternalClient.ScannerSetting(ThisObject, Attachable_Module, 
-		DeviceName, "XRESOLUTION");
-	RotationNumber = FilesOperationsInternalClient.ScannerSetting(ThisObject, Attachable_Module, 
-		DeviceName, "ROTATION");
-	PaperSizeNumber  = FilesOperationsInternalClient.ScannerSetting(ThisObject, Attachable_Module, 
-		DeviceName, "SUPPORTEDSIZES");
-	
-	Items.DuplexScanning.Enabled = (DuplexScanningNumber <> -1);
-	Items.Rotation.Enabled = (RotationNumber <> -1);
-	Items.PaperSize.Enabled = (PaperSizeNumber <> -1);
+	ReadScannerSettingsAndUpdateValues(False);
 	
 EndProcedure
 
@@ -334,23 +311,31 @@ EndProcedure
 Procedure ReadScannerSettings()
 	Modified = True;
 	Items.DuplexScanning.Enabled = False;
+	Items.DocumentAutoFeeder.Enabled = False;
 	
 	If IsBlankString(DeviceName) Then
 		Items.Rotation.Enabled = False;
 		Items.PaperSize.Enabled = False;
 		Return;
-	Else
-		Items.ScannedImageFormat.Enabled = True;
-		Items.Resolution.Enabled = True;
-		Items.Chromaticity.Enabled = True;
-		Items.CustomizeStandardSettings.Enabled = True;
-		Items.ShouldSaveAsPDF.Enabled = True;
-		Items.JPGQuality.Enabled = True;
-		Items.TIFFDeflation.Enabled = True;
-		Items.MultipageStorageFormat.Enabled = True;
-		Items.MethodOfConversionToPDF.Enabled = True;
-		Items.ShowScannerDialog.Enabled = True;
 	EndIf;
+
+	ReadScannerSettingsAndUpdateValues(True);
+	
+EndProcedure
+
+&AtClient
+Procedure ReadScannerSettingsAndUpdateValues(ShouldUpdateValues)
+
+	Items.ScannedImageFormat.Enabled = True;
+	Items.Resolution.Enabled = True;
+	Items.Chromaticity.Enabled = True;
+	Items.CustomizeStandardSettings.Enabled = True;
+	Items.ConvertToPDF.Enabled = True;
+	Items.JPGQuality.Enabled = True;
+	Items.TIFFDeflation.Enabled = True;
+	Items.MultipageStorageFormat.Enabled = True;
+	Items.MethodOfConversionToPDF.Enabled = True;
+	Items.ShowScannerDialog.Enabled = True;
 	
 	PermissionNumber = FilesOperationsInternalClient.ScannerSetting(ThisObject, Attachable_Module,
 		DeviceName, "XRESOLUTION");
@@ -362,17 +347,25 @@ Procedure ReadScannerSettings()
 		DeviceName, "SUPPORTEDSIZES");
 	DuplexScanningNumber = FilesOperationsInternalClient.ScannerSetting(ThisObject, Attachable_Module,
 		DeviceName, "DUPLEX");
+	DocumentAutoFeederNumber = FilesOperationsInternalClient.ScannerSetting(ThisObject, Attachable_Module, 
+		DeviceName, "FEEDER");
 	
 	Items.Rotation.Enabled = (RotationNumber <> -1);
 	Items.PaperSize.Enabled = (PaperSizeNumber <> -1);
 	
 	Items.DuplexScanning.Enabled = (DuplexScanningNumber <> -1);
-	UpdateValue(DuplexScanning, ?((DuplexScanningNumber = 1), True, False), Modified);
-	
-	ConvertScannerParametersToEnums(
-		PermissionNumber, ChromaticityNumber, RotationNumber, PaperSizeNumber);
+	If ShouldUpdateValues Then
+		UpdateValue(DuplexScanning, ?((DuplexScanningNumber = 1), True, False), Modified);
+	EndIf;
+	Items.DocumentAutoFeeder.Enabled = (DocumentAutoFeederNumber <> -1);
+	If ShouldUpdateValues Then
+		UpdateValue(DocumentAutoFeeder, ?((DocumentAutoFeederNumber = 1), True, False), Modified);
+		ConvertScannerParametersToEnums(
+			PermissionNumber, ChromaticityNumber, RotationNumber, PaperSizeNumber);
 		
-	ProcessScanDialogUsage();
+		ProcessScanDialogUsage();
+	EndIf;
+
 EndProcedure
 
 &AtServer
@@ -398,7 +391,7 @@ EndProcedure
 Procedure InstallHints()
 	
 	FormatTooltip = "";
-	ExtendedTooltip = String(Items.ShouldSaveAsPDF.ExtendedTooltip.Title); 
+	ExtendedTooltip = String(Items.ConvertToPDF.ExtendedTooltip.Title); 
 	Hints = StrSplit(ExtendedTooltip, Chars.LF);
 	CurFormat = String(ScannedImageFormat);
 	For Each ToolTip In Hints Do

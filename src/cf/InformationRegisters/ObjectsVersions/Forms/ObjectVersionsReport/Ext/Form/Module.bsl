@@ -68,7 +68,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 &AtClient
-Procedure ReportTable1Selection(Item, Area, StandardProcessing)
+Procedure ReportTableSelection(Item, Area, StandardProcessing)
 	
 	Details = Area.Details;
 	
@@ -115,7 +115,8 @@ Function GenerateVersionsReport()
 	ReportParameters = New Structure;
 	ReportParameters.Insert("ObjectReference", ObjectReference);
 	ReportParameters.Insert("VersionsList", VersionsToCompare);
-	Return TimeConsumingOperations.ExecuteInBackground("InformationRegisters.ObjectsVersions.GenerateReportOnChanges", ReportParameters, ExecutionParameters);
+	Return TimeConsumingOperations.ExecuteInBackground("InformationRegisters.ObjectsVersions.GenerateReportOnChanges", 
+		ReportParameters, ExecutionParameters);
 EndFunction
 
 // Parameters:
@@ -131,8 +132,7 @@ Procedure OnCompleteGenerateReport(Result, AdditionalParameters) Export
 	If Result.Status = "Completed2" Then
 		ReportTable = GetFromTempStorage(Result.ResultAddress);
 	Else
-		StandardSubsystemsClient.OutputErrorInfo(
-			Result.ErrorInfo);
+		StandardSubsystemsClient.OutputErrorInfo(Result.ErrorInfo);
 	EndIf;
 EndProcedure
 
@@ -147,14 +147,16 @@ Procedure OpenSpreadsheetDocumentsComparisonForm(SpreadsheetDocumentName, Versio
 	TitleLayout = NStr("en = 'Version #%1';");
 	VersionNumber0 = Format(VersionsToCompare[Version0], "NG=0");
 	VersionNumber1 = Format(VersionsToCompare[Version1], "NG=0");
-	TitleLeft = StringFunctionsClientServer.SubstituteParametersToString(TitleLayout, VersionNumber1);
-	TitleRight = StringFunctionsClientServer.SubstituteParametersToString(TitleLayout, VersionNumber0);
 	
-	SpreadsheetDocumentsAddress = SpreadsheetDocumentsAddress(SpreadsheetDocumentName, Version1, Version0);
-	FormOpenParameters = New Structure("SpreadsheetDocumentsAddress, TitleLeft, TitleRight", 
-		SpreadsheetDocumentsAddress, TitleLeft, TitleRight);
-	OpenForm("CommonForm.CompareSpreadsheetDocuments",
-		FormOpenParameters, ThisObject);
+	FormOpenParameters = StandardSubsystemsClient.SpreadsheetComparisonParameters();
+	FormOpenParameters.SpreadsheetDocumentsAddress = SpreadsheetDocumentsAddress(SpreadsheetDocumentName, Version1, 
+		Version0);
+	FormOpenParameters.TitleLeft = StringFunctionsClientServer.SubstituteParametersToString(TitleLayout, 
+		VersionNumber1);
+	FormOpenParameters.TitleRight = StringFunctionsClientServer.SubstituteParametersToString(TitleLayout, 
+		VersionNumber0);
+	StandardSubsystemsClient.ShowSpreadsheetComparison(Undefined, Undefined, 
+		FormOpenParameters);
 	
 EndProcedure
 

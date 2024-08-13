@@ -78,7 +78,7 @@ Function FilterByExchangePlanPropertiesTableInitialization() Export
 	Columns.Add("NodeParameter",                New TypeDescription("String"));
 	Columns.Add("NodeParameterTabularSection", New TypeDescription("String"));
 	
-	Columns.Add("ConstantValue"); // 
+	Columns.Add("ConstantValue"); // Arbitrary type.
 	
 	Return TreePattern;
 	
@@ -104,7 +104,7 @@ Function FilterByObjectPropertiesTableInitialization() Export
 	Columns.Add("ObjectPropertyType",  New TypeDescription("String"));
 	Columns.Add("FilterItemKind",   New TypeDescription("String"));
 	
-	Columns.Add("ConstantValue"); // 
+	Columns.Add("ConstantValue"); // Arbitrary type.
 	Columns.Add("PropertyValue");  // Arbitrary type.
 	
 	Return TreePattern;

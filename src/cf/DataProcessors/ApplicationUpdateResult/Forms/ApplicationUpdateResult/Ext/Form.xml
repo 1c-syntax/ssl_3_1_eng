@@ -37,7 +37,7 @@
 						<v8:content>Close</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="FormClose3ExtendedTooltip" id="127"/>
+				<ExtendedTooltip name="FormCloseExtendedTooltip" id="127"/>
 			</Button>
 			<Button name="FormRelaunchDeferredUpdate" id="291">
 				<Type>CommandBarButton</Type>
@@ -147,8 +147,8 @@ Such actions can lead to various errors when the application is running and when
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
-									<ContextMenu name="InformationPicture8ContextMenu" id="84"/>
-									<ExtendedTooltip name="InformationPicture8ExtendedTooltip" id="129"/>
+									<ContextMenu name="PictureInformationContextMenu" id="84"/>
+									<ExtendedTooltip name="PictureInformationExtendedTooltip" id="129"/>
 								</PictureDecoration>
 								<LabelDecoration name="UpdateCompletedInformation" id="86">
 									<AutoMaxWidth>false</AutoMaxWidth>
@@ -870,7 +870,7 @@ Access to this data is temporary restricted.</v8:content>
 											<Behavior>Usual</Behavior>
 											<Representation>None</Representation>
 											<ShowTitle>false</ShowTitle>
-											<ExtendedTooltip name="IndentGroupExtendedTooltip" id="287"/>
+											<ExtendedTooltip name="GroupIndentExtendedTooltip" id="287"/>
 											<ChildItems>
 												<LabelDecoration name="OffsetVertical" id="288">
 													<ContextMenu name="OffsetVerticalContextMenu" id="289"/>
@@ -933,8 +933,8 @@ Access to this data is temporary restricted.</v8:content>
 														<Title formatted="true">
 															<v8:item>
 																<v8:lang>en</v8:lang>
-																<v8:content>&lt;b&gt;• &lt;/&gt;&lt;b&gt;User experience&lt;/&gt;. Data processing takes longer, but server load and user experience degradation are less significant. 
-&lt;b&gt;• &lt;/&gt;&lt;b&gt;Data processing&lt;/&gt;. Data processing takes less time, but server load is higher and user experience degradation is significant. It is recommended that you use this mode when availability of the processed data is critical.</v8:content>
+																<v8:content>&lt;b&gt;• &lt;/&gt;&lt;b&gt;User experience&lt;/&gt;: Data processing takes longer, but server load and user experience degradation are minimal. 
+&lt;b&gt;• &lt;/&gt;&lt;b&gt;Data processing&lt;/&gt;: Data processing is faster, but server load is higher and user experience degradation is significant. Use this mode when the availability of processed data is critical.</v8:content>
 															</v8:item>
 														</Title>
 													</ExtendedTooltip>
@@ -958,13 +958,11 @@ Access to this data is temporary restricted.</v8:content>
 														<Title formatted="true">
 															<v8:item>
 																<v8:lang>en</v8:lang>
-																<v8:content>&lt;b&gt;● &lt;/&gt;&lt;b&gt;User experience&lt;/&gt;. Data processing takes longer, but server load and user experience degradation are less significant.
-&lt;b&gt;● &lt;/&gt;&lt;b&gt;Data processing&lt;/&gt;. Data processing takes less time, but server load is higher and user experience degradation is significant. It is recommended that you use this mode when availability of the processed data is critical.
-&lt;b&gt;● &lt;/&gt;&lt;b&gt;&lt;fontsize 8&gt;Number&lt;/&gt;&lt;/&gt;&lt;b&gt; of threads&lt;/&gt;. The number of concurrent update handlers. The default value is 8. Recommended value:
-&lt;b&gt;    •&lt;/&gt;For regular operations, up to 50-75% of the number of server cluster processor cores. 
-&lt;b&gt;    •&lt;/&gt;For the forced update within a period of minimum activity, as many cores as available to the server cluster.
-See also restriction of 12 cores per server for 1C:Enterprise PROF version (in Russian)&lt;/&gt; and Which processor cores to count - real or virtual? (in Russian)&lt;/&gt;
-</v8:content>
+																<v8:content>&lt;b&gt;● &lt;/&gt;&lt;b&gt;User experience&lt;/&gt;: Data processing takes longer, but server load and user experience degradation are minimal.
+&lt;b&gt;● &lt;/&gt;&lt;b&gt;Data processing&lt;/&gt;: Data processing is faster, but server load is higher and user experience degradation is significant. Use this mode when the availability of processed data is critical.
+&lt;b&gt;● &lt;/&gt;&lt;b&gt;&lt;fontsize 8&gt;Number&lt;/&gt;&lt;/&gt;&lt;b&gt; of threads&lt;/&gt;: The number of concurrent update handlers. The default value is 8. Recommended values:
+&lt;b&gt;    •&lt;/&gt;For regular operations, use up to 50-75% of the server cluster's processor cores. 
+&lt;b&gt;    •&lt;/&gt;For forced updates during periods of low activity, use as many cores as available in the server cluster.</v8:content>
 															</v8:item>
 														</Title>
 													</ExtendedTooltip>

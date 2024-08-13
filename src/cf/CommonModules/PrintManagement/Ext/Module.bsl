@@ -84,7 +84,7 @@ EndFunction
 //  If PrintForm <> Undefined Then
 //    PrintForm.SpreadsheetDocument = PrintReceipt (ObjectsArray);
 //    PrintForm.TemplateSynonym = NStr("en = Receipt (with QR code)'")
-//    PrintForm.FullTemplatePath = "Document._DemoCustomerProformaInvoice.PF_MXL_Receipt";
+//    PrintForm.FullTemplatePath = "Document.CustomerProformaInvoice.PF_MXL_Receipt";
 //  EndIf;
 //
 Function PrintFormInfo(PrintFormsCollection, Id) Export
@@ -348,11 +348,11 @@ EndFunction
 //                              For example: "InvoiceOrder,Processing.PrintForm.LetterOfGuarantee".
 //                              In this example, LetterOfGuarantee is generated in print manager
 //
-//                              Processing.PrintForm, and InvoiceOrder is generated in the print manager specified in
+//                              Processing.PrintForm, and InvoiceOrder are generated in the print manager specified in
 //                              the PrintManager parameter.
 //                              For print forms whose print manager is the PrintManagement common module, set the full template path as its ID.
 //
-//                              For example, "Document._DemoCustomerProformaInvoice.PF_MXL_ProformaInvoice".
+//                              For example, "Document.CustomerProformaInvoice.PF_MXL_ProformaInvoice".
 //                              
 //                              
 //                              
@@ -386,7 +386,7 @@ EndFunction
 //                                        The"<ProcedureName>" format is used when the procedure is placed
 //                                        in the main form module of a report or a data processor specified in PrintManager.
 //                                        For example:
-//                                          PrintCommand.Handler = "_DemoStandardSubsystemsClient.PrintProformaInvoices";
+//                                          PrintCommand.Handler = "StandardSubsystemsClient.PrintProformaInvoices";
 //                                        An example of handler in the form module::
 //                                          Generates a print form <print form presentation>.
 //                                          //
@@ -530,8 +530,8 @@ Function CreatePrintCommandsCollection() Export
 	// Additional parameters.
 	Result.Columns.Add("AdditionalParameters", New TypeDescription("Structure"));
 	
-	// 
-	// 
+	// A special command execution mode.
+	// By default, the modified object is written before executing the command.
 	Result.Columns.Add("DontWriteToForm", New TypeDescription("Boolean"));
 	
 	// For using office document templates in the web client.
@@ -717,7 +717,7 @@ Function TemplatesAndObjectsDataToPrint(Val PrintManagerName, Val TemplatesNames
 	
 	ObjectManager = Common.ObjectManagerByFullName(PrintManagerName);
 	TemplatesAndData = ObjectManager.GetPrintInfo(DocumentsComposition, TemplatesNamesArray);
-	TemplatesAndData.Insert("LocalPrintFileFolder", Undefined); // 
+	TemplatesAndData.Insert("LocalPrintFileFolder", Undefined); // For backward compatibility purposes.
 	
 	If Not TemplatesAndData.Templates.Property("TemplateTypes") Then
 		TemplatesAndData.Templates.Insert("TemplateTypes", New Map); // For backward compatibility purposes.
@@ -1034,7 +1034,7 @@ Function ObjectPrintingSettings(ObjectManager) Export
 	ObjectSettings.Insert("OnSpecifyingRecipients", False);
 	ObjectSettings.Insert("OnAddPrintCommands", False);
 	
-	PrintSettings = PrintManagementRepeatIsp.PrintSettings(); 
+	PrintSettings = PrintManagementCached.PrintSettings(); 
 	
 	If PrintSettings.PrintObjects.Get(ObjectManager) <> Undefined Then
 		ObjectManager.OnDefinePrintSettings(ObjectSettings);
@@ -1043,7 +1043,7 @@ Function ObjectPrintingSettings(ObjectManager) Export
 	
 	// For backward compatibility.
 	
-	ObjectsWithPrintCommands = PrintManagementRepeatIsp.ObjectsWithPrintCommands();
+	ObjectsWithPrintCommands = PrintManagementCached.ObjectsWithPrintCommands();
 	
 	If ObjectsWithPrintCommands.Get(ObjectManager) <> Undefined Then
 		ObjectSettings.OnAddPrintCommands = True;
@@ -1059,31 +1059,31 @@ EndFunction
 ////////////////////////////////////////////////////////////////////////////////
 // Operations with office document templates.
 
-//	
-//	
+//	This section contains API functions used for creating office document print forms.
+//	Currently, Office Open XML-based packages are supported (MS Office, Open Office, Google Docs).
 //	
 //
 ////////////////////////////////////////////////////////////////////////////////
+//	Valid data types (depends on the implementation):
+//	RefPrintForm	- A print form reference.
+//	RefTemplate - A template reference.
+//	Area - A reference to an area in a print form or template (Structure).
+//						It is additionally defined with the region's internal info in the API module.
+//						AreaDetails - Template area details (see below).
+//	FillingData - A structure or an array of structures (for lists and tables).
 //	
-//	
-//	
-//	
-//						
-//						
-//	
-//	
-//						
+//						AreaDetails - A structure describing the user-defined template areas.
 ////////////////////////////////////////////////////////////////////////////////
-//	
-//	
-//	
-//							
-//							
-//							
-//							
-//							
-//							
-//							
+//	Key AreaName - An area name.
+//	Key AreaTypeType - Header
+//	Footer
+//							FirstHeader
+//							FirstFooter
+//							EvenHeader
+//							EvenFooter
+//							Shared3
+//							TableRow
+//							List
 //							
 //
 
@@ -1182,7 +1182,7 @@ Function GenerateDocument(Val PrintForm) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Functions for getting template areas, outputting them to print forms, and filling their parameters.
 // 
 
 // Gets a print form template area.
@@ -1698,8 +1698,8 @@ EndFunction
 Function PrintCommandsSources() Export
 	
 	Settings = PrintSettings();
-	SSLSubsystemsIntegration.OnDefineObjectsWithPrintCommands(Settings.PrintObjects); // ACC:222 - Call the obsolete procedure (for backward compatibility).
-	PrintManagementOverridable.OnDefineObjectsWithPrintCommands(Settings.PrintObjects); // ACC:222 - Call the obsolete procedure (for backward compatibility).
+	SSLSubsystemsIntegration.OnDefineObjectsWithPrintCommands(Settings.PrintObjects); // ACC:222 - A call to an obsolete procedure (for backward compatibility).
+	PrintManagementOverridable.OnDefineObjectsWithPrintCommands(Settings.PrintObjects); // ACC:222 - A call to an obsolete procedure (for backward compatibility).
 	
 	Result = New Array;
 	For Each ObjectManager1 In Settings.PrintObjects Do
@@ -2129,7 +2129,7 @@ Procedure OnFillToDoList(ToDoList) Export
 		ArrayVersion  = StrSplit(Metadata.Version, ".");
 		CurrentVersion = ArrayVersion[0] + ArrayVersion[1] + ArrayVersion[2];
 		If VersionChecked = CurrentVersion Then
-			OutputToDoItem = False; // 
+			OutputToDoItem = False; // Current version print forms are checked.
 		EndIf;
 	EndIf;
 	
@@ -2263,7 +2263,7 @@ Function CommonFieldsOfDataSources(DataSources) Export
 			EndDo;
 		EndDo;
 		If Result = Undefined Then
-			Result = SetIntersection(CollectionFields, CollectionFields); // 
+			Result = SetIntersection(CollectionFields, CollectionFields); // Roll up repeated items.
 		Else
 			Result = SetIntersection(Result, CollectionFields);
 		EndIf;
@@ -3102,7 +3102,7 @@ EndFunction
 
 #Region Private
 
-// Adds the PrintFormsEdit role to all profiles that contain the BasicSSLRights role.
+// Adds the PrintFormsEdit role to all profiles that contain the BasicAccessSSL role.
 Procedure AddEditPrintFormsRoleToBasicRightsProfiles() Export
 	
 	If Not Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
@@ -3112,11 +3112,11 @@ Procedure AddEditPrintFormsRoleToBasicRightsProfiles() Export
 	ModuleAccessManagement = Common.CommonModule("AccessManagement");
 	
 	NewRoles = New Array;
-	NewRoles.Add(Metadata.Roles.BasicSSLRights.Name);
+	NewRoles.Add(Metadata.Roles.BasicAccessSSL.Name);
 	NewRoles.Add(Metadata.Roles.PrintFormsEdit.Name);
 	
 	RolesToReplace = New Map;
-	RolesToReplace.Insert(Metadata.Roles.BasicSSLRights.Name, NewRoles);
+	RolesToReplace.Insert(Metadata.Roles.BasicAccessSSL.Name, NewRoles);
 	
 	ModuleAccessManagement.ReplaceRolesInProfiles(RolesToReplace);
 	
@@ -3310,7 +3310,7 @@ Function GeneratePrintForms(Val PrintManagerName, Val TemplatesNames, Val Object
 			EndIf;
 		EndIf;
 		
-		// 
+		// Verify the print form collection received from a print manager.
 		For Each PrintFormDetails In TempCollectionForSinglePrintForm Do
 			CommonClientServer.Validate(
 				TypeOf(PrintFormDetails.Copies2) = Type("Number") And PrintFormDetails.Copies2 > 0,
@@ -3363,7 +3363,7 @@ Function GeneratePrintForms(Val PrintManagerName, Val TemplatesNames, Val Object
 		CheckSpreadsheetDocumentLayoutByPrintObjects(PrintForm.SpreadsheetDocument, 
 			PrintObjects, PrintManagerName, PrintForm.TemplateName);
 		If AddedExternalPrintForms.Find(PrintForm.TemplateName) <> Undefined Then
-			PrintForm.Copies2 = 0; // 
+			PrintForm.Copies2 = 0; // For the forms that are automatically added.
 		EndIf;
 		If PrintForm.SpreadsheetDocument <> Undefined Then
 			PrintForm.SpreadsheetDocument.Copies = PrintForm.Copies2;
@@ -3602,8 +3602,6 @@ EndFunction
 
 Procedure SetPrintCommandsSettings(PrintCommands, Owner)
 	
-	SetPrivilegedMode(True);
-	
 	QueryText =
 	"SELECT
 	|	PrintCommandsSettings.UUID AS UUID
@@ -3620,7 +3618,7 @@ Procedure SetPrintCommandsSettings(PrintCommands, Owner)
 	ListOfDisabledItems = New Map;
 	While Selection.Next() Do
 		ListOfDisabledItems.Insert(Selection.UUID, True);
-	EndDo;     
+	EndDo;
 	
 	CheckPostingBeforePrint = PrintSettings().CheckPostingBeforePrint;
 	
@@ -4298,7 +4296,7 @@ Function PrepareOutputParametersStructure() Export
 	
 	OutputParameters = New Structure;
 	OutputParameters.Insert("FormCaption", "");
-	OutputParameters.Insert("PrintingBySetsIsAvailable", False); // 
+	OutputParameters.Insert("PrintingBySetsIsAvailable", False); // Obsolete.
 	OutputParameters.Insert("LanguageCode", Common.DefaultLanguageCode());
 	
 	EmailParametersStructure = New Structure("Recipient,Subject,Text", Undefined, "", "");
@@ -4588,8 +4586,8 @@ Procedure Print(ObjectsArray, PrintParameters, PrintFormsCollection, PrintObject
 		PrintForm.OutputInOtherLanguagesAvailable = True;
 		PrintForm.FullTemplatePath = PrintForm.TemplateName;
 		PrintForm.TemplateSynonym = TemplatePresentation(PrintForm.FullTemplatePath, LanguageCode);
-		//  
-		// 
+		// @skip-check query-in-loop - A few loop iterations that query the table 
+		// "InformationRegister.UserPrintTemplates", which contains just a handful of records.
 		Template = PrintFormTemplate(PrintForm.FullTemplatePath, LanguageCode); 
 		
 		If TypeOf(Template) = Type("BinaryData") Then
@@ -5285,17 +5283,17 @@ Function ComposeData(Parameters)
 	
 	ComposerSettings.Structure.Clear();
 	
-	KeyField_SSLy = Undefined;
+	KeyField = Undefined;
 	For Each FieldName In StrSplit("Ref", ",") Do
-		KeyField_SSLy = New DataCompositionField(FieldName);
-		If ComposerSettings.GroupAvailableFields.FindField(KeyField_SSLy) <> Undefined Then
+		KeyField = New DataCompositionField(FieldName);
+		If ComposerSettings.GroupAvailableFields.FindField(KeyField) <> Undefined Then
 			Break;
 		Else
-			KeyField_SSLy = Undefined;
+			KeyField = Undefined;
 		EndIf;
 	EndDo;
 	
-	If KeyField_SSLy = Undefined Then
+	If KeyField = Undefined Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr(
 			"en = 'The ""%1"" key field is not found in the list of fields of the data composition schema for printing ""%2"".
 			|See the ""%3"" parameter details in the ""%4"" procedure.';"),
@@ -5308,7 +5306,7 @@ Function ComposeData(Parameters)
 	Group = ComposerSettings.Structure.Add(Type("DataCompositionGroup"));
 
 	Field = Group.GroupFields.Items.Add(Type("DataCompositionGroupField"));
-	Field.Field = KeyField_SSLy;
+	Field.Field = KeyField;
 	Field.Use = True;
 	
 	Group.Selection.Items.Add(Type("DataCompositionAutoSelectedField"));
@@ -5377,7 +5375,7 @@ Function ComposeData(Parameters)
 	Group.Structure.Add(Type("DataCompositionTable"));
 	
 	FilterElement = ComposerSettings.Filter.Items.Add(Type("DataCompositionFilterItem"));
-	FilterElement.LeftValue = KeyField_SSLy;
+	FilterElement.LeftValue = KeyField;
 	FilterElement.ComparisonType = DataCompositionComparisonType.InList;
 	FilterElement.RightValue = New ValueList;
 	FilterElement.RightValue.LoadValues(Objects);
@@ -5541,7 +5539,7 @@ Function EvalExpression(Val OriginalExpression, PrintData, FieldFormatSettings, 
 		DataCollection = PrintData;
 		
 		If Not IsFunction Then
-			If StrFind("And,OR,NOT,TRUE,FALSE", Upper(Operand)) Then
+			If StrFind(Upper("And,OR,NOT,TRUE,FALSE"), Upper(Operand)) Then
 				Continue;
 			EndIf;
 			
@@ -5764,6 +5762,8 @@ Function TableNameINLayoutArea(Template, Area, Tables)
 	
 	ProcessedCells = New Map;
 	
+	FunctionsWithParametersSeparation = FunctionsWithParametersSeparation();
+	
 	For LineNumber = Area.Top To Area.Bottom Do
 		For ColumnNumber = 1 To Template.TableWidth Do
 			TableCellArea = Template.Area(LineNumber, ColumnNumber, LineNumber, ColumnNumber);
@@ -5779,11 +5779,24 @@ Function TableNameINLayoutArea(Template, Area, Tables)
 			For Each Parameter In ParametersInText Do
 				Expression = ClearSquareBrackets(Parameter);
 				FormulaElements =FormulasConstructorInternal.FormulaElements(Expression);
+				
+				IsTotalsFunctionFound = False;
+				
 				For Each Item In FormulaElements.AllItems Do
+					If StrStartsWith(Item, PrintModuleName() + CommandSeparator())
+						And FunctionsWithParametersSeparation.Find(Item) <> Undefined Then
+						IsTotalsFunctionFound = True;
+						Continue;
+					EndIf;
+					
 					For Each Table In Tables Do
 						SearchString = Table + ".";
 						If StrStartsWith(Item, SearchString) Then
-							Return Table;
+							If IsTotalsFunctionFound Then
+								IsTotalsFunctionFound = False;
+							Else
+								Return Table;
+							EndIf;
 						EndIf;
 					EndDo;
 				EndDo;
@@ -6957,7 +6970,7 @@ Function GetAreaData(PrintData, PrintObject, Area, TreeOfTemplate, LanguageCode,
 				EndDo;
 			EndIf;
 			
-			MatchingOfString = New Map();
+			MatchingOfString = Common.CopyRecursive(DataSource);
 			For Each AreaParameter In ArrayOfAreaParameters Do
 				
 				Presentation = SetPresentationPicture(LanguageCode, AreaParameter, FieldFormatSettings, DataSource, PrintParameters);

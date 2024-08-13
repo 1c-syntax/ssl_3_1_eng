@@ -113,7 +113,7 @@
 							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<CheckBoxType>Auto</CheckBoxType>
-							<ContextMenu name="DoNotAskAgainContextMenu" id="4"/>
+							<ContextMenu name="NeverAskAgainContextMenu" id="4"/>
 							<ExtendedTooltip name="NeverAskAgainExtendedTooltip" id="22"/>
 						</CheckBoxField>
 					</ChildItems>

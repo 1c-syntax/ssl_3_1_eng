@@ -113,16 +113,19 @@ Procedure SelectRole(CurrentData)
 		Return;
 	EndIf;
 	
-	If CurrentData.UsedByAddressingObjects Then 
-		FormParameters = New Structure;
-		FormParameters.Insert("PerformerRole",               CurrentData.Ref);
-		FormParameters.Insert("MainAddressingObject",       Undefined);
-		FormParameters.Insert("AdditionalAddressingObject", Undefined);
-		FormParameters.Insert("SelectAddressingObject",         True);
-		OpenForm("CommonForm.SelectPerformerRole", FormParameters, ThisObject);
+	If CurrentData.UsedByAddressingObjects Then
+		
+		FormParameters = BusinessProcessesAndTasksClient.PerformerRoleChoiceFormParameters(CurrentData.Ref);
+		FormParameters.SelectAddressingObject = True;
+	
+		BusinessProcessesAndTasksClient.OpenPerformerRoleChoiceForm(FormParameters, ThisObject);
+		
 	Else
-		ValueSelected = New Structure("PerformerRole, MainAddressingObject, AdditionalAddressingObject", CurrentData.Ref, Undefined, Undefined);
+		
+		ValueSelected = New Structure("PerformerRole, MainAddressingObject, AdditionalAddressingObject", 
+			CurrentData.Ref, Undefined, Undefined);
 		NotifyChoice(ValueSelected);
+		
 	EndIf;
 	
 EndProcedure

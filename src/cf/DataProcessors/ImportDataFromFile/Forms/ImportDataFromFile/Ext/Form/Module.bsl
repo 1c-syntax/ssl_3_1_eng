@@ -129,7 +129,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 &AtClient
-Procedure ReportFilter1OnChange(Item)
+Procedure FilterReportOnChange(Item)
 
 	ReportAtClientBackgroundJob(False);
 	
@@ -236,7 +236,7 @@ Procedure DataImportKindBeforeRowChange(Item, Cancel)
 EndProcedure
 
 &AtClient
-Procedure ReportTableOnActivate(Item)
+Procedure TableReportOnActivate(Item)
 	If TableReport.CurrentArea.Bottom = 1 And TableReport.CurrentArea.Top = 1 Then
 		Items.ChangeAttributes.Enabled = False;
 	Else
@@ -363,9 +363,9 @@ EndProcedure
 Procedure CloseFormAndReturnRefArray()
 	FormClosingConfirmation = True;
 	ReferencesArrray = New Array;
-	For Each String In DataMappingTable Do
-		If ValueIsFilled(String.MappingObject) Then
-			ReferencesArrray.Add(String.MappingObject);
+	For Each TableRow In DataMappingTable Do
+		If ValueIsFilled(TableRow.MappingObject) Then
+			ReferencesArrray.Add(TableRow.MappingObject);
 		EndIf;
 	EndDo;
 	
@@ -458,6 +458,7 @@ EndProcedure
 
 #Region Private
 
+//CLIENT ///////////////////////////////////////////
 
 // Ending the form closing dialog.
 &AtClient
@@ -664,6 +665,7 @@ Procedure NotifyFormsAboutChange(ReferencesArrray)
 	StandardSubsystemsClient.NotifyFormsAboutChange(ReferencesArrray);
 EndProcedure
 
+//SERVER ///////////////////////////////////////////
 
 &AtServer
 Procedure InsertFromClipboardInitialization()
@@ -1328,9 +1330,9 @@ Procedure MapDataAppliedImport(DataMappingTableServer)
 	ManagerObject = ObjectManager(MappingObjectName);
 	
 	ManagerObject.MatchUploadedDataFromFile(DataMappingTableServer);
-	For Each String In DataMappingTableServer Do 
-		If ValueIsFilled(String.MappingObject) Then 
-			String.RowMappingResult = ImportDataFromFileClientServer.StatusMapped();
+	For Each TableRow In DataMappingTableServer Do 
+		If ValueIsFilled(TableRow.MappingObject) Then 
+			TableRow.RowMappingResult = ImportDataFromFileClientServer.StatusMapped();
 		EndIf;
 	EndDo;
 	
@@ -1829,18 +1831,18 @@ Procedure PutDataInMappingTable(ImportedDataAddress, TabularSectionCopyAddress, 
 	TablePartPrefix = ImportDataFromFileClientServer.TablePartPrefix() + "_";
 	
 	TemporarySpecification = FormAttributeToValue("DataMappingTable"); // See DataProcessor.ImportDataFromFile.Form.ImportDataFromFile.DataMappingTable
-	For Each String In TabularSection Do
+	For Each TableRow In TabularSection Do
 		NewRow = TemporarySpecification.Add();
-		NewRow.Id = String.Id;
+		NewRow.Id = TableRow.Id;
 		AllRequiredColumnsFilled = True;
 		For Each Column In TabularSection.Columns Do
 			If Column.Name <> "Id" Then
-				NewRow[TablePartPrefix + Column.Name] = String[Column.Name];
+				NewRow[TablePartPrefix + Column.Name] = TableRow[Column.Name];
 			EndIf;
 			
 			If ValueIsFilled(RequiredColumns1.Get(Column.Name))
 				And AllRequiredColumnsFilled
-				And Not ValueIsFilled(String[Column.Name]) Then
+				And Not ValueIsFilled(TableRow[Column.Name]) Then
 					AllRequiredColumnsFilled = False;
 			EndIf;
 		EndDo;
@@ -1848,7 +1850,7 @@ Procedure PutDataInMappingTable(ImportedDataAddress, TabularSectionCopyAddress, 
 		NewRow["RowMappingResult"] = ?(AllRequiredColumnsFilled, 
 			ImportDataFromFileClientServer.StatusMapped(), ImportDataFromFileClientServer.StatusUnmapped());
 		
-		Filter = New Structure("Id", String.Id); 
+		Filter = New Structure("Id", TableRow.Id); 
 		
 		Conflicts2 = ConflictsList.FindRows(Filter);
 		If Conflicts2.Count() > 0 Then 
@@ -1872,14 +1874,14 @@ Procedure PutDataInMappingTable(ImportedDataAddress, TabularSectionCopyAddress, 
 	EndDo;
 	
 	TemporarySpecification.Indexes.Add("Id");
-	For Each String In DataToImport Do
-		Filter = New Structure("Id", String.Id);
+	For Each TableRow In DataToImport Do
+		Filter = New Structure("Id", TableRow.Id);
 		Rows = TemporarySpecification.FindRows(Filter);
 		If Rows.Count() > 0 Then 
 			NewRow = Rows[0];
 			For Each Column In DataToImport.Columns Do
 				If Column.Name <> "Id" And Column.Name <> "RowMappingResult" And Column.Name <> "ErrorDescription" Then
-					NewRow["PL_" + Column.Name] = String[Column.Name];
+					NewRow["PL_" + Column.Name] = TableRow[Column.Name];
 				EndIf;
 			EndDo;
 		EndIf;
@@ -1903,13 +1905,13 @@ Function MappingTableAddressInStorage()
 		EndIf;
 	EndDo;
 	
-	For Each String In Table Do
+	For Each TableRow In Table Do
 		NewRow = TableForTS.Add();
 		For Each Column In TableForTS.Columns Do
 			If Column.Name = "Id" Then 
-				NewRow[Column.Name] = String[Column.Name];
+				NewRow[Column.Name] = TableRow[Column.Name];
 			ElsIf Column.Name <> "RowMappingResult" And Column.Name <> "ErrorDescription" Then
-				NewRow[Column.Name] = String[TablePartPrefix + Column.Name];
+				NewRow[Column.Name] = TableRow[TablePartPrefix + Column.Name];
 			EndIf;
 		EndDo;
 	EndDo;
@@ -2007,9 +2009,9 @@ Procedure MapDataExternalDataProcessor(DataMappingTableServer )
 		ExternalObject = ModuleAdditionalReportsAndDataProcessors.ExternalDataProcessorObject(ExternalDataProcessorRef);
 		ExternalObject.MatchUploadedDataFromFile(CommandID, DataMappingTableServer);
 		
-		For Each String In DataMappingTableServer Do
-			If ValueIsFilled(String.MappingObject) Then
-				String.RowMappingResult = ImportDataFromFileClientServer.StatusMapped();
+		For Each TableRow In DataMappingTableServer Do
+			If ValueIsFilled(TableRow.MappingObject) Then
+				TableRow.RowMappingResult = ImportDataFromFileClientServer.StatusMapped();
 			EndIf;
 		EndDo;
 	EndIf;
@@ -2560,6 +2562,7 @@ Function BatchAttributesModificationAtServer(UpperPosition, LowerPosition)
 	Return ReferencesArrray;
 EndFunction
 
+//File management //////////////////////
 
 &AtClient
 Procedure AfterFileChoiceForSaving(Result, AdditionalParameters) Export
@@ -2734,10 +2737,10 @@ Procedure UpdateMappingTableColumnsDescriptions()
 EndProcedure
 
 &AtServer
-Procedure ChangeTemplateByColumnsInformation(Form_SSLy = Undefined, ShouldSaveSettings = False)
+Procedure ChangeTemplateByColumnsInformation(Form = Undefined, ShouldSaveSettings = False)
 
-	If Form_SSLy = Undefined Then 
-		Form_SSLy = TemplateWithData;
+	If Form = Undefined Then 
+		Form = TemplateWithData;
 	EndIf;
 	
 	ColumnsTable1 = FormAttributeToValue("ColumnsInformation");
@@ -2745,9 +2748,9 @@ Procedure ChangeTemplateByColumnsInformation(Form_SSLy = Undefined, ShouldSaveSe
 		Common.CommonSettingsStorageSave("ImportDataFromFile", MappingObjectName, ColumnsTable1,, UserName());
 	EndIf;
 	
-	Form_SSLy.Clear();
+	Form.Clear();
 	Header = DataProcessors.ImportDataFromFile.HeaderOfTemplateForFillingColumnsInformation(ColumnsTable1);
-	Form_SSLy.Put(Header);
+	Form.Put(Header);
 	ShowInfoBarAboutRequiredColumns();
 	
 EndProcedure
@@ -2759,7 +2762,7 @@ EndProcedure
 
 #Region BackgroundJobs
 
-// 
+// Background import of file with data
 
 &AtServer
 Function ImportFileWithDataToSpreadsheetDocumentAtServer(TempStorageAddress, Extension)
@@ -2816,7 +2819,7 @@ Procedure AfterImportDataFileToSpreadsheetDocument(Result, AdditionalParameters)
 	
 EndProcedure
 
-// 
+// Background mapping of imported data
 
 &AtServer
 Function MapDataToImportAtServerUniversalImport()
@@ -2864,7 +2867,7 @@ Procedure AfterMapImportedData(Result, AdditionalParameters) Export
 	
 EndProcedure
 
-// 
+// Background recording of imported data
 
 &AtServer
 Function RecordDataToImportReportUniversalImport()
@@ -2921,7 +2924,7 @@ Procedure FillMappingTableFromTempStorage(AddressInTempStorage, RefsToNotificati
 	
 EndProcedure
 
-// 
+// Background report generation.
 
 &AtServer
 Function GenerateReportOnImport(ReportType = "AllItems",  CalculateProgressPercent = False)

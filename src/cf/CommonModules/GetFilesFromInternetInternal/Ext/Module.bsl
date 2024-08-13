@@ -39,8 +39,8 @@ Procedure OnFillPermissionsToAccessExternalResources(PermissionsRequests) Export
 	
 	Permissions = New Array();
 	
-	// 
-	// 
+	// Permissions for running the procedures "GetFilesFromInternetInternal.CheckServerAvailability"
+	// and "GetFilesFromInternetInternal.ServerRouteTraceLog".
 	If Common.IsWindowsServer() Then
 		Permissions.Add(ModuleSafeModeManager.PermissionToUseOperatingSystemApplications("cmd /S /C ""%(ping %)%""",
 			NStr("en = 'Permission for ping';", Common.DefaultLanguageCode())));
@@ -227,7 +227,7 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 	If SavingSetting["Path"] <> Undefined Then
 		PathForSaving = SavingSetting["Path"];
 	Else
-		PathForSaving = GetTempFileName(); // 
+		PathForSaving = GetTempFileName(); // ACC:441 The temporary file must be deleted by the calling code.
 	EndIf;
 	
 	If Timeout = Undefined Then 
@@ -300,7 +300,7 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 					           |Secure connection: %2
 					           |Timeout: %3';"),
 					ErrorText,
-					Format(Join.SecureConnection, NStr("en = 'BF=No; BT=Yes';")),
+					Format(Join.SecureConnection <> Undefined, NStr("en = 'BF=No; BT=Yes';")),
 					Format(Join.Timeout, "NG=0"));
 					
 				WriteErrorToEventLog(ErrorMessage);
@@ -364,9 +364,9 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 				|Diagnostics result:
 				|%4';");
 			
-			PresentationsOfRedirects = PresentationsOfRedirects(Redirections);
-			If Not IsBlankString(PresentationsOfRedirects) Then
-				ErrorTemplate = ErrorTemplate + Chars.LF + Chars.LF + PresentationsOfRedirects;
+			RedirectionPresentations = RedirectionPresentations(Redirections);
+			If Not IsBlankString(RedirectionPresentations) Then
+				ErrorTemplate = ErrorTemplate + Chars.LF + Chars.LF + RedirectionPresentations;
 			EndIf;
 			
 			If WriteError1 Then
@@ -487,9 +487,9 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 				|Reason:
 				|%4';");
 			
-			PresentationsOfRedirects = PresentationsOfRedirects(Redirections);
-			If Not IsBlankString(PresentationsOfRedirects) Then
-				ErrorTemplate = ErrorTemplate + Chars.LF + Chars.LF + PresentationsOfRedirects;
+			RedirectionPresentations = RedirectionPresentations(Redirections);
+			If Not IsBlankString(RedirectionPresentations) Then
+				ErrorTemplate = ErrorTemplate + Chars.LF + Chars.LF + RedirectionPresentations;
 			EndIf;
 				
 			If WriteError1 Then
@@ -504,7 +504,7 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 					           |Timeout: %3
 					           |OS authentication: %4';"),
 					ErrorText,
-					Format(Join.SecureConnection, NStr("en = 'BF=No; BT=Yes';")),
+					Format(Join.SecureConnection <> Undefined, NStr("en = 'BF=No; BT=Yes';")),
 					Format(Join.Timeout, "NG=0"),
 					Format(Join.UseOSAuthentication, NStr("en = 'BF=No; BT=Yes';")));
 				
@@ -688,7 +688,7 @@ Function HTTPConnectionCodeDetails(StatusCode)
 	
 EndFunction
 
-Function PresentationsOfRedirects(Redirections)
+Function RedirectionPresentations(Redirections)
 	
 	If Redirections.Count() = 0 Then 
 		Return "";
@@ -1036,9 +1036,9 @@ Function CheckServerAvailability(ServerAddress) Export
 		Return Result; 
 	EndTry;	
 	
-	// 
-	// 
-	// 
+	// Error handling differs between OS:
+	// - Windows sends errors to the output stream.
+	// - Debian and RHEL send errors to the error stream.
 	AvailabilityLog = RunResult.OutputStream + RunResult.ErrorStream;
 	
 	If Common.IsWindowsServer() Then
@@ -1082,9 +1082,9 @@ Function ServerRouteTraceLog(ServerAddress) Export
 	If Common.IsWindowsServer() Then
 		CommandTemplate = "tracert -w 100 -h 15 %1";
 	Else 
-		// 
-		// 
-		// 
+		// If traceroute is not installed, the output stream will have an error.
+		// You can ignore that since the output is not parseable.
+		// For the administrator, it will be clear what utility should be installed.
 		CommandTemplate = "traceroute -w 100 -m 100 %1";
 	EndIf;
 	

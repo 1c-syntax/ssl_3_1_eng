@@ -28,7 +28,7 @@ Procedure BeforeWrite(Cancel)
 		ParentVersion = DetailsOfOwner.CurrentVersion;
 	EndIf;
 	
-	// Setting an icon index upon object write.
+	// Set an icon index during object write.
 	PictureIndex = FilesOperationsInternalClientServer.IndexOfFileIcon(Extension);
 	
 	If TextExtractionStatus.IsEmpty() Then
@@ -44,8 +44,8 @@ Procedure BeforeWrite(Cancel)
 			Raise NStr("en = 'Cannot delete the first version.';");
 		EndIf;
 	ElsIf DeletionMark = True And DetailsOfOwner.DeletionMark <> True Then
-		//  
-		// 
+		// For the versions that are children of the marked one, 
+		// replace the reference with the reference of the parent version.
 		Query = New Query;
 		Query.Text = 
 			"SELECT

@@ -161,7 +161,7 @@
 							<Type>CommandBarButton</Type>
 							<Visible>false</Visible>
 							<CommandName>Form.StandardCommand.Choose</CommandName>
-							<ExtendedTooltip name="FormChooseExtendedTooltip" id="228"/>
+							<ExtendedTooltip name="FormSelectExtendedTooltip" id="228"/>
 						</Button>
 						<Button name="FormCopy" id="203">
 							<Type>CommandBarButton</Type>
@@ -270,7 +270,7 @@
 								</v8:item>
 							</Title>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-							<ExtendedTooltip name="FormEditSelectedItemsExtendedTooltip" id="198"/>
+							<ExtendedTooltip name="FormChangeSelectedItemsExtendedTooltip" id="198"/>
 						</Button>
 					</ChildItems>
 				</ButtonGroup>
@@ -320,7 +320,7 @@
 			<Representation>None</Representation>
 			<ChildItemsWidth>Equal</ChildItemsWidth>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="ContentGroup1ExtendedTooltip" id="109"/>
+			<ExtendedTooltip name="ContentGroupExtendedTooltip" id="109"/>
 			<ChildItems>
 				<UsualGroup name="GroupsAndUsers" id="77">
 					<Title>
@@ -447,8 +447,8 @@
 											<UserVisible>
 												<xr:Common>false</xr:Common>
 											</UserVisible>
-											<ContextMenu name="GroupRef1ContextMenu" id="159"/>
-											<ExtendedTooltip name="GroupRef1ExtendedTooltip" id="160"/>
+											<ContextMenu name="GroupReferenceContextMenu" id="159"/>
+											<ExtendedTooltip name="GroupReferenceExtendedTooltip" id="160"/>
 										</LabelField>
 									</ChildItems>
 								</Table>
@@ -873,10 +873,10 @@
 					</Title>
 					<TitleLocation>Right</TitleLocation>
 					<CheckBoxType>Auto</CheckBoxType>
-					<ContextMenu name="ShowInvalidUsers1ContextMenu" id="168"/>
-					<ExtendedTooltip name="ShowInvalidUsers1ExtendedTooltip" id="169"/>
+					<ContextMenu name="ShowInvalidUsersContextMenu" id="168"/>
+					<ExtendedTooltip name="ShowInvalidUsersExtendedTooltip" id="169"/>
 					<Events>
-						<Event name="OnChange">ShowInvalidUsers1OnChange</Event>
+						<Event name="OnChange">ShowInvalidUsersOnChange</Event>
 					</Events>
 				</CheckBoxField>
 			</ChildItems>
@@ -1072,7 +1072,7 @@ startup rights (thin client or web client).</v8:content>
 						</v8:item>
 					</Title>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="GroupCommentExtendedTooltip" id="151"/>
+					<ExtendedTooltip name="CommentOfGroupExtendedTooltip" id="151"/>
 					<ChildItems>
 						<UsualGroup name="GroupCommentTitle" id="154">
 							<Title>

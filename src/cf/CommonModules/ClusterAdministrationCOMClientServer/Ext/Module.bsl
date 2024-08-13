@@ -439,7 +439,7 @@ Procedure TerminateInfobaseConnections(Val ClusterAdministrationParameters, Val 
 		ClusterAdministrationParameters.ClusterAdministratorPassword);
 		
 	Value = New Array;
-	Value.Add("1CV8");               // 
+	Value.Add("1CV8");               // ID of 1C:Enterprise application running in thick client mode.
 	Value.Add("1CV8C");              // ID of 1C:Enterprise application running in thin client mode.
 	Value.Add("WebClient");          // ID of 1C:Enterprise application running in web client mode.
 	Value.Add("Designer");           // Designer ID.
@@ -1047,7 +1047,7 @@ Function GetConnections(COMConnector, IServerAgentConnection, Cluster, IBAdminis
 		WorkingProcessConnectionString = IWorkingProcessInfo.HostName + ":" + Format(IWorkingProcessInfo.MainPort, "NG=");
 		IWorkingProcessConnection = COMConnector.ConnectWorkingProcess(WorkingProcessConnectionString);
 		
-		// 
+		// Getting infobases (no authentication required).
 		For Each InfoBase In IWorkingProcessConnection.GetInfoBases() Do
 			
 			// This is a required infobase.
@@ -1487,7 +1487,7 @@ Function AddInPropertiesDictionary()
 	Result = New Structure();
 	Result.Insert("Name", "Name");
 	Result.Insert("LongDesc", "Descr");
-	Result.Insert("HashSum", "AddInHash"); // 
+	Result.Insert("HashSum", "AddInHash"); // ACC:1036 for backward compatibility.
 	Return New FixedStructure(Result);
 	
 EndFunction
@@ -1498,7 +1498,7 @@ Function ExternalModulePropertiesDictionary()
 	
 	Result.Insert("Name", "Name");
 	Result.Insert("LongDesc", "Descr");
-	Result.Insert("HashSum", "ExternalModuleHash"); // 
+	Result.Insert("HashSum", "ExternalModuleHash"); // ACC:1036 for backward compatibility.
 	Return New FixedStructure(Result);
 	
 EndFunction

@@ -33,7 +33,7 @@
 						<v8:content>Restart</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="RestartApplication1ExtendedTooltip" id="14"/>
+				<ExtendedTooltip name="RestartApplicationExtendedTooltip" id="14"/>
 			</Button>
 			<Button name="FormOpenExternalDataProcessor" id="21">
 				<Type>CommandBarButton</Type>
@@ -96,7 +96,7 @@
 					<Group>Vertical</Group>
 					<Representation>NormalSeparation</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="ContentGroup1ExtendedTooltip" id="28"/>
+					<ExtendedTooltip name="ContentGroupExtendedTooltip" id="28"/>
 					<ChildItems>
 						<LabelDecoration name="ErrorMessageText" id="1">
 							<AutoMaxWidth>false</AutoMaxWidth>

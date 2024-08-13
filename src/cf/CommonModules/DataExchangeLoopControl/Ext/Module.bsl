@@ -304,8 +304,8 @@ Procedure CheckLooping(ExchangePlanName, Mode = "CircuitImport") Export
 			
 	If Mode = "CircuitImport" Then
 		
-		//  
-		// 
+		// If looping was defined in another infobase and the current infobase is part of it, 
+		// do not set the loop flag in the current node.
 
 		Query.Text = 
 			"SELECT TOP 1

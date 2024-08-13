@@ -102,7 +102,7 @@ Function DefaultJobSchedule() Export
 	
 	Schedule = New JobSchedule;
 	Schedule.WeekDays                = WeekDays;
-	Schedule.RepeatPeriodInDay = 900; // 
+	Schedule.RepeatPeriodInDay = 900; // 15 minutes.
 	Schedule.DaysRepeatPeriod        = 1; // Every day.
 	Schedule.Months                   = Months;
 	

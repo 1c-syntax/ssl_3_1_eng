@@ -67,7 +67,7 @@ Function TaskExecutionForm(TaskRef, BusinessProcessRoutePoint) Export
 
 EndFunction
 
-// The function is called when forwarding a task.
+// Runs when a task is forwarded.
 //
 // Parameters:
 //   TaskRef  - TaskRef.PerformerTask - a forwarded task.
@@ -89,7 +89,7 @@ Procedure OnForwardTask(TaskRef, NewTaskRef) Export
 
 EndProcedure
 
-// The function is called when a task is executed from a list form.
+// Runs when a task is started from a list form.
 //
 // Parameters:
 //   TaskRef  - TaskRef.PerformerTask - Task.
@@ -119,7 +119,7 @@ Procedure DefaultCompletionHandler(TaskRef, BusinessProcessRef, BusinessProcessR
 			JobObject.Completed2 = True;
 			JobObject.Accepted = True;
 		EndIf;
-		JobObject.Write(); // 
+		JobObject.Write(); // CAC:1327 The lock is set in the BusinessProcessesAndTasksServer.LockBusinessProcesses.
 
 		CommitTransaction();
 	Except
@@ -172,7 +172,7 @@ EndProcedure
 
 // StandardSubsystems.AttachableCommands
 
-// Defined the list of commands for creating on the basis.
+// Defines the list of generation commands.
 //
 // Parameters:
 //  GenerationCommands - See GenerateFromOverridable.BeforeAddGenerationCommands.GenerationCommands
@@ -182,8 +182,8 @@ Procedure AddGenerationCommands(GenerationCommands, Parameters) Export
 
 EndProcedure
 
-// For use in the AddCreateOnBasisCommands procedure of other object manager modules.
-// Adds this object to the list of commands of creation on basis.
+// Intended for use by the AddGenerationCommands procedure in other object manager modules.
+// Adds this object to the list of generation commands.
 //
 // Parameters:
 //  GenerationCommands - See GenerateFromOverridable.BeforeAddGenerationCommands.GenerationCommands

@@ -130,7 +130,7 @@
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="ContainerGroupExtendedTooltip" id="539"/>
+							<ExtendedTooltip name="GroupContainerExtendedTooltip" id="539"/>
 						</UsualGroup>
 						<UsualGroup name="EncryptionCertificatesGroup" id="489">
 							<Title>
@@ -411,7 +411,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="FormTeamGroupExtendedTooltip" id="527"/>
+			<ExtendedTooltip name="GroupFormCommandsExtendedTooltip" id="527"/>
 			<ChildItems>
 				<UsualGroup name="ConfirmationCommandsGroup" id="528">
 					<Title>
@@ -424,7 +424,7 @@
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="ConfirmationTeamGroupExtendedTooltip" id="529"/>
+					<ExtendedTooltip name="ConfirmationCommandsGroupExtendedTooltip" id="529"/>
 				</UsualGroup>
 				<CommandBar name="BasicCommandsGroup" id="530">
 					<Title>
@@ -435,7 +435,7 @@
 					</Title>
 					<HorizontalStretch>false</HorizontalStretch>
 					<GroupHorizontalAlign>Right</GroupHorizontalAlign>
-					<ExtendedTooltip name="GroupMainCommandsExtendedTooltip" id="531"/>
+					<ExtendedTooltip name="BasicCommandsGroupExtendedTooltip" id="531"/>
 					<ChildItems>
 						<Button name="FormEncrypt" id="532">
 							<Type>CommandBarButton</Type>
@@ -460,7 +460,7 @@
 									<v8:content>Cancel</v8:content>
 								</v8:item>
 							</Title>
-							<ExtendedTooltip name="FormClose3ExtendedTooltip" id="535"/>
+							<ExtendedTooltip name="FormCloseExtendedTooltip" id="535"/>
 						</Button>
 						<Button name="FormHelp" id="536">
 							<Type>CommandBarButton</Type>

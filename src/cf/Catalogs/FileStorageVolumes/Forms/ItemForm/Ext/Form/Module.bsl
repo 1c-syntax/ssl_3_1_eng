@@ -18,6 +18,18 @@ Var CurrentWriteParameters;
 #Region FormEventHandlers
 
 &AtServer
+Procedure OnReadAtServer(CurrentObject)
+
+	// StandardSubsystems.AttachableCommands
+		If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+			ModuleAttachableCommandsClientServer = Common.CommonModule("AttachableCommandsClientServer");
+			ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, Object);
+		EndIf;
+	// End StandardSubsystems.AttachableCommands
+
+EndProcedure
+
+&AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Object.Ref.IsEmpty() Then
@@ -49,6 +61,28 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Common.IsMobileClient() Then
 		Items.Description.TitleLocation = FormItemTitleLocation.Top;
 	EndIf;
+	
+	// StandardSubsystems.AttachableCommands
+	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
+		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
+	EndIf;
+	// End StandardSubsystems.AttachableCommands
+	
+	Items.FormCheckVolumeIntegrity.Visible = Not Common.SubsystemExists("StandardSubsystems.AttachableCommands")
+		Or Not Common.SubsystemExists("StandardSubsystems.ReportsOptions");
+	
+EndProcedure
+
+&AtClient
+Procedure OnOpen(Cancel)
+	
+	// StandardSubsystems.AttachableCommands
+	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
+		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
+	EndIf;
+	// End StandardSubsystems.AttachableCommands
 	
 EndProcedure
 
@@ -82,6 +116,13 @@ EndProcedure
 
 &AtClient
 Procedure AfterWrite(WriteParameters)
+	
+	// StandardSubsystems.AttachableCommands
+	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
+		ModuleAttachableCommandsClient.AfterWrite(ThisObject, Object, WriteParameters);
+	EndIf;
+	// End StandardSubsystems.AttachableCommands
 	
 	If WriteParameters.Property("WriteAndClose") Then
 		Close();
@@ -191,6 +232,37 @@ Procedure DeleteUnnecessaryFiles(Command)
 	OpeningParameters = New Structure("FileStorageVolume", Object.Ref);
 	OpenForm("Catalog.FileStorageVolumes.Form.DeleteUnnecessaryFilesFromVolume", OpeningParameters, ThisObject);
 EndProcedure
+
+// StandardSubsystems.AttachableCommands
+&AtClient
+Procedure Attachable_ExecuteCommand(Command)
+	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
+		ModuleAttachableCommandsClient.StartCommandExecution(ThisObject, Command, Object);
+	EndIf;
+EndProcedure
+
+&AtClient
+Procedure Attachable_ContinueCommandExecutionAtServer(ExecutionParameters, AdditionalParameters) Export
+    ExecuteCommandAtServer(ExecutionParameters);
+EndProcedure
+
+&AtServer
+Procedure ExecuteCommandAtServer(ExecutionParameters)
+	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
+		ModuleAttachableCommands.ExecuteCommand(ThisObject, ExecutionParameters, Object);
+	EndIf;
+EndProcedure
+
+&AtClient
+Procedure Attachable_UpdateCommands()
+	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommandsClientServer = CommonClient.CommonModule("AttachableCommandsClientServer");
+		ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, Object);
+	EndIf;
+EndProcedure
+// End StandardSubsystems.AttachableCommands
 
 #EndRegion
 

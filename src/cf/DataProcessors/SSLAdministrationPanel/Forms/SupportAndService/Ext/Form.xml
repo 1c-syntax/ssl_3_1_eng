@@ -34,7 +34,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="TitleGroup1ExtendedTooltip" id="1632"/>
+			<ExtendedTooltip name="TitleGroupExtendedTooltip" id="1632"/>
 			<ChildItems>
 				<LabelDecoration name="SectionDetails" id="1575">
 					<AutoMaxWidth>false</AutoMaxWidth>
@@ -450,7 +450,7 @@ Rebuild, populate, and optimize aggregates.</v8:content>
 											<Behavior>Usual</Behavior>
 											<Representation>None</Representation>
 											<ShowTitle>false</ShowTitle>
-											<ExtendedTooltip name="BackupGroup1ExtendedTooltip" id="1659"/>
+											<ExtendedTooltip name="GroupBackupExtendedTooltip" id="1659"/>
 											<ChildItems>
 												<Button name="IBBackupDataProcessorOpen" id="2097">
 													<Type>Hyperlink</Type>
@@ -1191,8 +1191,8 @@ Rebuild, populate, and optimize aggregates.</v8:content>
 													</xr:Value>
 												</xr:Item>
 											</ChoiceList>
-											<ContextMenu name="DataProcessingPriorityContextMenu" id="2240"/>
-											<ExtendedTooltip name="DataProcessingPriorityExtendedTooltip" id="2241"/>
+											<ContextMenu name="DataProcessPriorityContextMenu" id="2240"/>
+											<ExtendedTooltip name="DataProcessPriorityExtendedTooltip" id="2241"/>
 											<Events>
 												<Event name="OnChange">DeferredDataProcessingPriorityOnChange</Event>
 											</Events>

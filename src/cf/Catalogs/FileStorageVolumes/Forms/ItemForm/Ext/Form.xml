@@ -34,11 +34,6 @@
 				<CommandSource>Form</CommandSource>
 				<ExtendedTooltip name="StandardCommandsExtendedTooltip" id="39"/>
 			</ButtonGroup>
-			<Button name="FormHelp" id="40">
-				<Type>CommandBarButton</Type>
-				<CommandName>Form.StandardCommand.Help</CommandName>
-				<ExtendedTooltip name="FormHelpExtendedTooltip" id="41"/>
-			</Button>
 			<Button name="FormCheckVolumeIntegrity" id="48">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.CheckVolumeIntegrity</CommandName>
@@ -61,10 +56,17 @@
 				</Title>
 				<ExtendedTooltip name="FormDeleteUnnecessaryFilesExtendedTooltip" id="51"/>
 			</Button>
+			<Button name="FormHelp" id="40">
+				<Type>CommandBarButton</Type>
+				<CommandName>Form.StandardCommand.Help</CommandName>
+				<ExtendedTooltip name="FormHelpExtendedTooltip" id="41"/>
+			</Button>
 		</ChildItems>
 	</AutoCommandBar>
 	<Events>
 		<Event name="AfterWrite">AfterWrite</Event>
+		<Event name="OnReadAtServer">OnReadAtServer</Event>
+		<Event name="OnOpen">OnOpen</Event>
 		<Event name="BeforeClose">BeforeClose</Event>
 		<Event name="BeforeWrite">BeforeWrite</Event>
 		<Event name="OnCreateAtServer">OnCreateAtServer</Event>

@@ -21,7 +21,7 @@
 //    * AdditionalParameters - Structure - any additional information that will be passed
 //                                           to the data mapping procedure.
 //    * TemplateColumns - Array of See ImportDataFromFileClientServer.TemplateColumnDetails
-//                    - Undefined - 
+//                    - Undefined - In case the column details are missing from the template for importing data from a file.
 //
 Function DataImportParameters() Export
 	

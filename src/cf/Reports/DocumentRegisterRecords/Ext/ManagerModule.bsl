@@ -41,7 +41,7 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 	
 EndProcedure
 
-// It is used for calling from the ReportsOptionsOverridable.BeforeAddReportsCommands procedure.
+// To be called from ReportsOptionsOverridable.BeforeAddReportCommands.
 // 
 // Parameters:
 //  ReportsCommands - ValueTable - Table of commands to add to a submenu:
@@ -62,8 +62,8 @@ EndProcedure
 //             In this case, the parameter passes a list of references.
 //             By default, True.
 //       * WriteMode - String - actions associated with object writing that are executed before the command handler.
-//       * FilesOperationsRequired - Boolean - if True, in the web client, users are prompted
-//             to install the extension for 1C:Enterprise operation.
+//       * FilesOperationsRequired - Boolean - If True, in the web client, users are prompted
+//             to install 1C:Enterprise Extension.
 //       * Manager - String - a full name of the metadata object responsible for executing the command.
 //       * FormName - String - a name of the form to be open or retrieved for the command execution.
 //       * VariantKey - String - Name of the report option the command will open.

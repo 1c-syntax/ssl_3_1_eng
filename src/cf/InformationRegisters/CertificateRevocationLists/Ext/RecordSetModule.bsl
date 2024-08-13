@@ -23,7 +23,7 @@ Procedure BeforeWrite(Cancel, Replacing)
 		If RevocationListData = Undefined Then
 			Continue;
 		EndIf;
-		If DigitalSignatureInternalClientServer.PropertiesOfReviewList(RevocationListData) = Undefined Then
+		If DigitalSignatureInternalClientServer.RevocationListProperties(RevocationListData) = Undefined Then
 			Raise NStr("en = 'Data is not a revocation list.';");
 		EndIf;
 	EndDo;

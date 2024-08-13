@@ -100,7 +100,7 @@ Function AddFromFileSystemWithExtensionSynchronous(ExecutionParameters) Export
 		ExecutionParameters.SelectionDialogFilter, StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1';"), GetAllFilesMask()));
 		
 	If Not ExecutionParameters.Property("FullFileName") Then
-		// Import from the file system with file operation extension.
+		// Import from the file system with 1C:Enterprise Extension.
 		FileDialog = New FileDialog(FileDialogMode.Open);
 		FileDialog.Multiselect = False;
 		FileDialog.Title = NStr("en = 'Select file';");
@@ -165,15 +165,19 @@ Function AddFromFileSystemWithExtensionSynchronous(ExecutionParameters) Export
 		TempFileStorageAddress = PlacedFiles[0].Location;
 	EndIf;
 	
-#If MobileClient Then
-	PresentationOnMobileDevice = FileToAdd.GetMobileDeviceLibraryFilePresentation();
-	FileExtention = CommonClientServer.GetFileNameExtension(PresentationOnMobileDevice);
-	FileNameWithoutExtension = StrReplace(PresentationOnMobileDevice, "." + FileExtention, "");
-#Else
-	FileExtention = CommonClientServer.ExtensionWithoutPoint(FileToAdd.Extension);
-	FileNameWithoutExtension = FileToAdd.BaseName;
-#EndIf
+	FileNameAndExtension = FileNameAndExtension(FileToAdd);
+	FileExtention = FileNameAndExtension.FileExtention;
+	FileNameWithoutExtension = FileNameAndExtension.FileNameWithoutExtension;
 	
+	FileEncrypted = Lower(FileExtention) = Lower(EncryptedFilesExtension());
+	
+	If FileEncrypted Then
+		ForUnencryptedFile = New File(FileNameWithoutExtension);
+		FileNameAndExtension = FileNameAndExtension(ForUnencryptedFile);
+		FileExtention = FileNameAndExtension.FileExtention;
+		FileNameWithoutExtension = FileNameAndExtension.FileNameWithoutExtension;
+	EndIf;
+
 	If ExecutionParameters.NameOfFileToCreate <> Undefined Then
 		CreationName = ExecutionParameters.NameOfFileToCreate;
 	Else
@@ -191,6 +195,7 @@ Function AddFromFileSystemWithExtensionSynchronous(ExecutionParameters) Export
 			FileInfo1.WriteToHistory = True;
 			FileInfo1.BaseName = CreationName;
 			FileInfo1.ExtensionWithoutPoint = FileExtention;
+			FileInfo1.Encrypted = FileEncrypted;
 			Result.FileRef = FilesOperationsInternalServerCall.CreateFileWithVersion(ExecutionParameters.FileOwner, FileInfo1);
 			
 		Else
@@ -323,7 +328,7 @@ EndProcedure
 // Parameters:
 //  ResultHandler - NotifyDescription
 //                       - Undefined - description of the procedure that receives the method result.
-//  CommandPresentation - String - the name of the command that requires the file system extension.
+//  CommandPresentation - String - Name of the command that requires 1C:Enterprise Extension.
 //
 Procedure ShowFileSystemExtensionRequiredMessageBox(ResultHandler, CommandPresentation = "") Export
 	If Not ClientSupportsSynchronousCalls() Then
@@ -412,8 +417,8 @@ EndFunction
 //
 Procedure CorrectFileName(FileName, DeleteInvalidCharacters = False) Export
 	
-	// 
-	// 
+	// The source of the illegal character list: https://learn.microsoft.com/en-us/troubleshoot/windows-client/backup-and-storage/fat-hpfs-and-ntfs-file-systems
+	// The illegal characters for FAT and NTFS are combined.
 	
 	ExceptionStr = CommonClientServer.GetProhibitedCharsInFileName();
 	
@@ -659,27 +664,29 @@ Function ExtensionsByFileType(FileType) Export
 	
 EndFunction
 
-// 
+////////////////////////////////////////////////////////////////////////////////
+// Integration with 1C:Document Management.
+
+// Checks if 1C:Document Exchange is used to store object attachments.
 //
 // Parameters:
-//   AttachedFilesOwner - AnyRef -  owner of the attached files.
-//   ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient - CommonModule - 
-//     
-//   Form - ClientApplicationForm -  form of the file owner.
-//   Command - FormCommand - 
+//   AttachedFilesOwner - AnyRef - Attachment owner.
+//   Form - ClientApplicationForm - File owner form.
+//   Command - FormCommand - The executable command for attachment management.
+//   ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient - CommonModule - Implicitly returned value,
+//     a module for accessing the functionality for integrating 1C:Document Exchange.
 //
 // Returns:
 //   Boolean
 //
-Function Is1CDocumentManagementUsedForFileStorage(AttachedFilesOwner,
-		ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient = Undefined, Form = Undefined,
-		Command = Undefined) Export
+Function Is1CDocumentManagementUsedForFileStorage(AttachedFilesOwner, Form = Undefined,
+		Command = Undefined, ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient = Undefined) Export
 	
 	UseEDIToStoreObjectFiles = False;
 	
-	// IntegrationWith1CDocumentManagementSubsystem
+	// IntegrationWith1CDocumentManagement
 	If CommonClient.SubsystemExists("IntegrationWith1CDocumentManagementSubsystem") Then
-		DMILVersion = "1.0.0.0";
+		DMILVersion = "0.0.0.0";
 		StandardSubsystemsClient.ClientRunParameters().Property("DMILVersion", DMILVersion);
 		If CommonClientServer.CompareVersions(DMILVersion, "3.0.2.4") >= 0 Then
 			ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient = CommonClient.CommonModule(
@@ -694,11 +701,44 @@ Function Is1CDocumentManagementUsedForFileStorage(AttachedFilesOwner,
 					AttachedFilesOwner);
 		EndIf;
 	EndIf;
-	// End IntegrationWith1CDocumentManagementSubsystem
+	// End IntegrationWith1CDocumentManagement
 	
 	Return UseEDIToStoreObjectFiles;
 	
 EndFunction
+
+// Opens a form for searching files stored in 1C:Document Management.
+//
+// Parameters:
+//   AttachedFilesOwner - AnyRef - Attachment owner.
+//   Form - ClientApplicationForm - File owner form.
+//   CommandExecuteParameters - CommandExecuteParameters - Opens the structure being passed to the command handler.
+//
+Procedure OpenFormAttachedFiles1CDocumentManagement(AttachedFilesOwner, Form = Undefined,
+		CommandExecuteParameters = Undefined) Export
+	
+	// IntegrationWith1CDocumentManagement
+	DMILVersion = "0.0.0.0";
+	StandardSubsystemsClient.ClientRunParameters().Property("DMILVersion", DMILVersion);
+	ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient = CommonClient.CommonModule(
+		"Integration1CDocumentManagementCommonClient");
+	
+	If CommonClientServer.CompareVersions(DMILVersion, "3.0.2.7") >= 0 Then
+		Parameters = ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient.ParametrsOpeningFileList(Form);
+		If CommandExecuteParameters <> Undefined Then
+			Parameters.Uniqueness = CommandExecuteParameters.Uniqueness;
+			Parameters.Window = CommandExecuteParameters.Window;
+		EndIf;
+		ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient.OpenFormAttachedFiles(
+			AttachedFilesOwner,
+			Parameters);
+	Else
+		ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient.OpenAttachedFiles(
+			AttachedFilesOwner);
+	EndIf;
+	// End IntegrationWith1CDocumentManagement
+	
+EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
 // Procedures and functions for cryptography operations.
@@ -725,8 +765,8 @@ EndFunction
 //
 Procedure VerifySignatures(Form, RefToBinaryData, SelectedRows = Undefined, FileData = Undefined) Export
 	
-	// 
-	// 
+	// 1. Get the addresses of the binary data and signature binary data.
+	// 2. If the file is encrypted, decrypt and verify it.
 	
 	If FileData = Undefined Then
 		FileData = Form.Object; // TypeToDefine.AttachedFileObject
@@ -752,6 +792,7 @@ Procedure VerifySignatures(Form, RefToBinaryData, SelectedRows = Undefined, File
 	DataDetails.Insert("DataTitle",       NStr("en = 'File';"));
 	DataDetails.Insert("Data",                RefToBinaryData);
 	DataDetails.Insert("Presentation",         FileData.Ref);
+	DataDetails.Insert("Object",                FileData.Ref);
 	DataDetails.Insert("EncryptionCertificates", FileData.Ref);
 	DataDetails.Insert("NotifyOnCompletion",   False);
 	
@@ -838,8 +879,8 @@ Procedure SetCommandsAvailabilityOfDigitalSignaturesList(Form, IsNew) Export
 	DigitalSignaturesCheck = Items.DigitalSignaturesCheck; // FormButton
 	DigitalSignaturesCheck.Enabled = HasSignatures And Not IsNew;
 	
-	DigitalSignaturesCheckAll = Items.DigitalSignaturesCheckAll; // FormButton
-	DigitalSignaturesCheckAll.Enabled = HasSignatures And Not IsNew;
+	DigitalSignaturesCheckEverything = Items.DigitalSignaturesCheckEverything; // FormButton
+	DigitalSignaturesCheckEverything.Enabled = HasSignatures And Not IsNew;
 	
 	DigitalSignaturesSave = Items.DigitalSignaturesSave; // FormButton
 	DigitalSignaturesSave.Enabled = HasSignatures;
@@ -1036,7 +1077,7 @@ Function FileWriteNotificationParameters(Event = "") Export
 	EventParameters.Insert("Event", Event);
 	EventParameters.Insert("IsNew", False);
 	EventParameters.Insert("Owner");
-	EventParameters.Insert("FileOwner"); // 
+	EventParameters.Insert("FileOwner"); // Intended for compatibility purposes
 	EventParameters.Insert("File");
 	Return EventParameters;
 EndFunction
@@ -1107,8 +1148,8 @@ Procedure ExtractVersionText(FileOrFileVersion, FileAddress, Extension, UUID,
 				EndTry;	
 			EndIf;
 		Else
-			// 
-			// 
+			// If there's no one to extract "Text", it's considered standard behavior.
+			// Do not generate an error report.
 			ExtractionResult = "FailedExtraction";
 		EndIf;
 		
@@ -1142,6 +1183,11 @@ Procedure CheckDirAvailability(NotificationOfResult, DirectoryName) Export
 EndProcedure
 
 Procedure SpreadsheetDocumentSelectionHandler(ReportForm, Item, Area, StandardProcessing) Export
+	
+	If ReportForm.ReportSettings.FullName <> "Report.VolumeIntegrityCheck" Then
+		Return;
+	EndIf;
+	
 	If Area.Details = "VolumeIntegrityCheck.RecoverFiles" Then
 		StandardProcessing = False;
 		Volume = ReportForm.Report.SettingsComposer.Settings.DataParameters.Items.Find("Volume").Value;
@@ -1158,6 +1204,7 @@ Procedure SpreadsheetDocumentSelectionHandler(ReportForm, Item, Area, StandardPr
 		
 		TimeConsumingOperationsClient.WaitCompletion(Job, CallbackOnCompletion, IdleParameters);
 	EndIf;
+
 EndProcedure
 
 #EndRegion
@@ -1197,6 +1244,17 @@ Function CheckExtentionOfFileToDownload(FileExtention, RaiseException1 = True)
 	EndIf;
 	
 	Return True;
+	
+EndFunction
+
+Function EncryptedFilesExtension()
+	
+	If CommonClient.SubsystemExists("StandardSubsystems.DigitalSignature") Then
+		ModuleDigitalSignatureClient = CommonClient.CommonModule("DigitalSignatureClient");
+		Return ModuleDigitalSignatureClient.PersonalSettings().EncryptedFilesExtension;
+	Else
+		Return "p7m";
+	EndIf;
 	
 EndFunction
 
@@ -1509,8 +1567,8 @@ Procedure GetUserWorkingDirectoryAfterGetDataDirectory(Result, Context) Export
 			CreateDirectory(TestDirectoryName);
 			DeleteFiles(TestDirectoryName);
 		Except
-			// 
-			// 
+			// Insufficient rights to create a directory, or this path does not exist.
+			// Set the default settings.
 			Context.Directory = Undefined;
 			EventLogClient.AddMessageForEventLog(EventLogEvent(),
 				"Warning", ErrorProcessing.DetailErrorDescription(ErrorInfo()),, True);
@@ -1711,14 +1769,9 @@ Procedure PutSelectedFilesInStorage(Val SelectedFiles,
 		
 		TempFileStorageAddress = PlacedFiles[0].Location;
 		
-	#If MobileClient Then
-		PresentationOnMobileDevice = File.GetMobileDeviceLibraryFilePresentation();
-		FileExtention = CommonClientServer.GetFileNameExtension(PresentationOnMobileDevice);
-		FileNameWithoutExtension = StrReplace(PresentationOnMobileDevice, "." + FileExtention, "");
-	#Else
-		FileExtention = CommonClientServer.ExtensionWithoutPoint(File.Extension);
-		FileNameWithoutExtension = File.BaseName;
-	#EndIf
+		FileNameAndExtension = FileNameAndExtension(File);
+		FileExtention = FileNameAndExtension.FileExtention;
+		FileNameWithoutExtension = FileNameAndExtension.FileNameWithoutExtension;
 	
 		BaseName = ?(IsBlankString(NameOfFileToCreate), FileNameWithoutExtension, NameOfFileToCreate);
 		
@@ -2145,9 +2198,9 @@ EndProcedure
 
 // Continuation of the procedure (see above).
 Procedure FinishEditWithExtension(ExecutionParameters)
-	// 
-	// 
-	// 
+	// Web client with 1C:Enterprise Extension
+	// Thin client
+	// Thick client
 	
 	FileData = FilesOperationsInternalServerCall.FileDataAndWorkingDirectory(ExecutionParameters.ObjectRef);
 	ExecutionParameters.FileData = FileData;
@@ -2220,8 +2273,8 @@ Procedure FinishEditWithExtension(ExecutionParameters)
 		
 		ExecutionParameters.CreateNewVersion = FileData.StoreVersions;
 		If FileData.StoreVersions Then
-			// 
-			// 
+			// If the current version author is not the current user, then
+			// the "Do not create new version" checkbox is unavailable.
 			CreateNewVersionAvailability = FileData.CurrentVersionAuthor = FileData.BeingEditedBy;
 			
 			ReturnFile = New Structure;
@@ -2241,8 +2294,8 @@ Procedure FinishEditWithExtension(ExecutionParameters)
 		
 		If FileData.StoreVersions Then
 			
-			// 
-			// 
+			// If the current version author is not the current user, then
+			// the "Do not create new version" checkbox is unavailable.
 			If FileData.CurrentVersionAuthor <> FileData.BeingEditedBy Then
 				ExecutionParameters.CreateNewVersion = True;
 			EndIf;
@@ -2494,7 +2547,7 @@ EndProcedure
 
 // Continuation of the procedure (see above).
 Procedure FinishEditWithoutExtension(ExecutionParameters)
-	// Web client without the file system extension for working with 1C:Enterprise Extension.
+	// Web client without 1C:Enterprise Extension.
 	
 	If ExecutionParameters.FileData = Undefined Then
 		FileDataParameters = FilesOperationsClientServer.FileDataParameters();
@@ -2530,8 +2583,8 @@ Procedure FinishEditWithoutExtension(ExecutionParameters)
 		If ExecutionParameters.StoreVersions Then
 			ExecutionParameters.CreateNewVersion = True;
 			
-			// 
-			// 
+			// If the current version author is not the current user, then
+			// the "Do not create new version" checkbox is unavailable.
 			If ExecutionParameters.CurrentVersionAuthor <> ExecutionParameters.BeingEditedBy Then
 				CreateNewVersionAvailability = False;
 			Else
@@ -2556,8 +2609,8 @@ Procedure FinishEditWithoutExtension(ExecutionParameters)
 		
 		If ExecutionParameters.StoreVersions Then
 			
-			// 
-			// 
+			// If the current version author is not the current user, then
+			// the "Do not create new version" checkbox is unavailable.
 			If ExecutionParameters.CurrentVersionAuthor <> ExecutionParameters.BeingEditedBy Then
 				ExecutionParameters.CreateNewVersion = True;
 			EndIf;
@@ -3951,8 +4004,8 @@ Procedure SaveFileChangesWithExtension(ExecutionParameters)
 		If FileData.StoreVersions Then
 			ExecutionParameters.CreateNewVersion = True;
 			
-			// 
-			// 
+			// If the current version author is not the current user, then
+			// the "Do not create new version" checkbox is unavailable.
 			If FileData.CurrentVersionAuthor <> FileData.BeingEditedBy Then
 				CreateNewVersionAvailability = False;
 			Else
@@ -3979,8 +4032,8 @@ Procedure SaveFileChangesWithExtension(ExecutionParameters)
 		
 		If ExecutionParameters.StoreVersions Then
 			
-			// 
-			// 
+			// If the current version author is not the current user, then
+			// the "Do not create new version" checkbox is unavailable.
 			If ExecutionParameters.CurrentVersionAuthor <> ExecutionParameters.BeingEditedBy Then
 				ExecutionParameters.CreateNewVersion = True;
 			EndIf;
@@ -4172,8 +4225,8 @@ Procedure SaveFileChangesWithoutExtension(ExecutionParameters)
 		If ExecutionParameters.StoreVersions Then
 			ExecutionParameters.CreateNewVersion = True;
 			
-			// 
-			// 
+			// If the current version author is not the current user, then
+			// the "Do not create new version" checkbox is unavailable.
 			If ExecutionParameters.CurrentVersionAuthor <> ExecutionParameters.BeingEditedBy Then
 				CreateNewVersionAvailability = False;
 			Else
@@ -4198,8 +4251,8 @@ Procedure SaveFileChangesWithoutExtension(ExecutionParameters)
 		
 		If ExecutionParameters.StoreVersions Then
 			
-			// 
-			// 
+			// If the current version author is not the current user, then
+			// the "Do not create new version" checkbox is unavailable.
 			If ExecutionParameters.CurrentVersionAuthor <> ExecutionParameters.BeingEditedBy Then
 				ExecutionParameters.CreateNewVersion = True;
 			EndIf;
@@ -4639,8 +4692,8 @@ Procedure GetVersionFileToLocalFilesCache(ResultHandler, FileData, ForReading,
 		Return;
 	EndIf;
 	
-	// 
-	// 
+	// "File" is found in the working directory.
+	// Check the change date and decide what to do next.
 	Handler = New NotifyDescription("GetVersionFileToLocalFilesCacheAfterActionChoice", 
 		ThisObject, ExecutionParameters);
 	ActionOnOpenFileInWorkingDirectory(Handler, ExecutionParameters.FullFileName, FileData);
@@ -4728,8 +4781,8 @@ Function CanAccessWorkingDirectory(OwnerWorkingDirectory, Owner)
 	Result = False;
 	// Create a directory for files.
 	Try
-		// 
-		// 
+		// If a directory is passed whose name is illegal in this file system,
+		// no exception is thrown (however, the directory will be unavailable).
 		InformationAboutTheCatalog = New File(OwnerWorkingDirectory);
 		If Not InformationAboutTheCatalog.Exists() Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The directory of the %1 file folder does not exist.';"), 
@@ -4741,8 +4794,8 @@ Function CanAccessWorkingDirectory(OwnerWorkingDirectory, Owner)
 		DeleteFiles(TestDirectoryName);
 		Result = True;
 	Except
-		// 
-		// 
+		// Insufficient rights to create a directory, or this path does not exist.
+		// Set the default settings.
 		EventLogMessage = NStr("en = 'Working directory %1 for file folder %2 is not found or there is no save permission. Default settings are restored.';");
 		EventLogMessage = StringFunctionsClientServer.SubstituteParametersToString(EventLogMessage, 
 			OwnerWorkingDirectory, Owner);
@@ -5227,7 +5280,7 @@ Procedure DeleteFileFromWorkingDirectory(ResultHandler, Ref, DeleteInWorkingDire
 				RegisterCompletionHandler(ExecutionParameters, CompletionHandler);
 				
 				DeleteFile(ExecutionParameters, ExecutionParameters.FullFileNameFromRegister);
-				If ExecutionParameters.AsynchronousDialog.Open_SSLy = True Then
+				If ExecutionParameters.AsynchronousDialog.Open = True Then
 					Return;
 				EndIf;
 				
@@ -5308,8 +5361,8 @@ Procedure ClearSpaceInWorkingDirectory(ResultHandler, VersionAttributes)
 	
 	MaxSize1 = PersonalFilesOperationsSettings().LocalFileCacheMaxSize;
 	
-	// 
-	// 
+	// If the size of "WorkingDirectory" is set to 0, assume that there's no limit
+	// (the default limit is 10 MB).
 	If MaxSize1 = 0 Then
 		Return;
 	EndIf;
@@ -5366,8 +5419,8 @@ Procedure ClearWorkingDirectoryStart(ExecutionParameters)
 	FilesArray = FindFiles(DirectoryName, "*");
 	ProcessFilesTable(DirectoryName, FilesArray, TableOfFiles);
 	
-	// 
-	//  
+	// Server call intended for sorting.
+	//  Sorting by date means that in the beginning, there will be items placed in the working directory long ago.
 	FilesOperationsInternalServerCall.SortStructuresArray(TableOfFiles);
 	
 	PersonalSettings = PersonalFilesOperationsSettings();
@@ -5631,7 +5684,7 @@ Procedure GetFromServerAndRegisterInLocalFilesCacheFollowUp(ExecutionParameters)
 	Position = StrFind(ExecutionParameters.FullFileName, NameAndExtensionInPath);
 	PathToFile = "";
 	If Position <> 0 Then
-		PathToFile = Left(ExecutionParameters.FullFileName, Position - 1); // -
+		PathToFile = Left(ExecutionParameters.FullFileName, Position - 1); // -"-1" is for reducing the length by one slash sign.
 	EndIf;
 	
 	PathToFile = CommonClientServer.AddLastPathSeparator(PathToFile);
@@ -5727,7 +5780,7 @@ Procedure GetFromServerAndRegisterInLocalFilesCacheFileSending(ExecutionParamete
 		CallDetails = New Array;
 		CallDetails.Add("GetFiles");
 		CallDetails.Add(TransmittedFiles);
-		CallDetails.Add(Undefined);  // 
+		CallDetails.Add(Undefined);  // Obsolete.
 		CallDetails.Add(ExecutionParameters.ParameterFilePath);
 		CallDetails.Add(False);          // Interactively = False.
 		OperationArray.Add(CallDetails);
@@ -5905,9 +5958,9 @@ Procedure GetVersionFileToFolderWorkingDirectoryFollowUp(ExecutionParameters)
 	If ExecutionParameters.FileIsInRegister And Version <> ExecutionParameters.FileData.CurrentVersion Then
 		
 		If Owner = ExecutionParameters.FileData.Ref And InRegisterForReading = True Then
-			// 
-			// 
-			// 
+			// If the file versions have the same owner, and
+			// the file in the working directory is registered for reading,
+			// replace it with the file from the storage.
 			GetFromServerAndRegisterInFolderWorkingDirectory(
 				ExecutionParameters.ResultHandler,
 				ExecutionParameters.FileData,
@@ -5942,8 +5995,8 @@ Procedure GetVersionFileToFolderWorkingDirectoryFollowUp(ExecutionParameters)
 		Return;
 	EndIf;
 	
-	// 
-	// 
+	// The working directory contains "File".
+	// It's either unregistered or registered and the version matches.
 	
 	// Checking the modification date and deciding what to do next.
 	Handler = New NotifyDescription("GetVersionsFileToFolderWorkingDirectoryAfterActionChoice", ThisObject, ExecutionParameters);
@@ -6039,8 +6092,8 @@ Procedure GetFromServerAndRegisterInFolderWorkingDirectory(ResultHandler, FileDa
 		Return;
 	EndIf;
 	
-	// 
-	// 
+	// "File" is found in the working directory.
+	// Check the change date and decide what to do next.
 	Handler = New NotifyDescription("GetFromServerAndRegisterInFolderWorkingDirectoryAfterActionChoice", 
 		ThisObject, ExecutionParameters);
 	ActionOnOpenFileInWorkingDirectory(Handler, ExecutionParameters.FullFileName,
@@ -6136,8 +6189,8 @@ Procedure CheckFullPathMaxLengthInWorkingDirectory(ResultHandler, FileData,
 		Return;
 	EndIf;
 	
-	// 
-	// 
+	// If the directory structure (path to the current directory's working directory) exceeds 260-5 (1.txt), display the user message:
+	// "Rename the directories or move the directory to a different location."
 	If StrLen(FileData.OwnerWorkingDirectory) > ExecutionParameters.FullPathMaxSize - 5 Then
 		MessageText = MessageText + Chars.CR + Chars.CR
 			+ NStr("en = 'Please rename the folders or move the current folder to another one.';");
@@ -6196,9 +6249,9 @@ EndProcedure
 Procedure CheckFullPathMaxLengthInWorkingDirectoryAfterMoveWorkingDirectoryContent(ContentMoved, ExecutionParameters) Export
 	
 	If ContentMoved Then
-		// 
-		// 
-		// 
+		// The information register "FilesInWorkingDirectory": it has the full file path.
+		// Change it by replacing the common part with an SQL request
+		// for the current user.
 		FilesOperationsInternalServerCall.SaveFolderWorkingDirectoryAndReplacePathsInRegister(
 			ExecutionParameters.FileData.Owner,
 			ExecutionParameters.FileData.OwnerWorkingDirectory,
@@ -6572,7 +6625,7 @@ Procedure FilesImportLoop(ExecutionParameters)
 				Return;
 			EndIf;
 			FilesImportLoopContinueImport(ExecutionParameters);
-			If ExecutionParameters.AsynchronousDialog.Open_SSLy = True Then
+			If ExecutionParameters.AsynchronousDialog.Open = True Then
 				Return;
 			EndIf;
 		Else
@@ -6585,7 +6638,7 @@ Procedure FilesImportLoop(ExecutionParameters)
 		RegisterCompletionHandler(ExecutionParameters, CompletionHandler);
 		ImportFilesRecursively(ExecutionParameters.Owner, ExecutionParameters.FilesArray, ExecutionParameters);
 		
-		If ExecutionParameters.AsynchronousDialog.Open_SSLy = True Then
+		If ExecutionParameters.AsynchronousDialog.Open = True Then
 			Return;
 		EndIf;
 	EndIf;
@@ -6628,7 +6681,7 @@ Procedure FilesImportLoopContinueImport(ExecutionParameters)
 	
 	// File import.
 	ImportFilesRecursively(ExecutionParameters.FolderForAddingCurrent, ExecutionParameters.FilesArrayOfThisDirectory, ExecutionParameters);
-	If ExecutionParameters.AsynchronousDialog.Open_SSLy = True Then
+	If ExecutionParameters.AsynchronousDialog.Open = True Then
 		Return;
 	EndIf;
 	
@@ -6644,7 +6697,7 @@ EndProcedure
 //
 Procedure ImportFilesLoopContinueImportAfterRecurringQuestions(Result, ExecutionParameters) Export
 	
-	ExecutionParameters.AsynchronousDialog.Open_SSLy = False;
+	ExecutionParameters.AsynchronousDialog.Open = False;
 	ExecutionParameters.AllFoldersArray.Add(ExecutionParameters.Path);
 	FilesImportLoop(ExecutionParameters);
 	
@@ -6696,7 +6749,7 @@ Procedure FilesImportAfterLoopFollowUp(ExecutionParameters)
 	
 EndProcedure
 
-// Deletes files after import or download.
+// Deletes files after import or export.
 Procedure DeleteFilesAfterAdd(AllFilesStructureArray, AllFoldersArray)
 	
 	For Each Item In AllFilesStructureArray Do
@@ -6869,6 +6922,7 @@ Procedure SaveAsWithExtensionAfterSaveModeChoice(Result, ExecutionParameters) Ex
 	DataDetails.Insert("DataTitle",       NStr("en = 'File';"));
 	DataDetails.Insert("Data",                ReturnStructure.BinaryData);
 	DataDetails.Insert("Presentation",         ExecutionParameters.FileData.Ref);
+	DataDetails.Insert("Object",                ExecutionParameters.FileData.Ref);
 	DataDetails.Insert("EncryptionCertificates", ExecutionParameters.FileData.Ref);
 	DataDetails.Insert("NotifyOnCompletion",   False);
 	
@@ -7219,7 +7273,7 @@ Procedure ShowInformationFileWasNotModified(ResultHandler)
 	
 	PersonalSettings = PersonalFilesOperationsSettings();
 	If PersonalSettings.ShowFileNotModifiedFlag Then
-		ReminderText = NStr("en = 'Cannot create a version as the file is not changed. The comment is discarded.';");
+		ReminderText = NStr("en = 'Cannot create a new version because the file has not been modified. The comment is discarded.';");
 		Buttons = QuestionDialogMode.OK;
 		ReminderParameters = New Structure;
 		ReminderParameters.Insert("LockWholeInterface", True);
@@ -7640,6 +7694,7 @@ Procedure OpenFileWithoutExtension(Notification, FileData, FormIdentifier,
 		DataDetails.Insert("DataTitle",       NStr("en = 'File';"));
 		DataDetails.Insert("Data",                ReturnStructure.BinaryData);
 		DataDetails.Insert("Presentation",         FileData.Ref);
+		DataDetails.Insert("Object",                FileData.Ref);
 		DataDetails.Insert("EncryptionCertificates", FileData.Ref);
 		DataDetails.Insert("NotifyOnCompletion",   False);
 		
@@ -8170,11 +8225,12 @@ EndProcedure
 //       1 - from a template (by copying another file)
 //       2 - from a computer (from the file system)
 //       3 - from a scanner.
-//   ExecutionParameters - Structure -  For types of values and descriptions, see the Workfile Client.Add a file().
-//       * Result handler.
-//       
-//       
-//       
+//   ExecutionParameters - Structure - * FileOwner.
+//       * OwnerForm
+//                                     * DontOpenCardAfterCreateFromFIle.
+//       * FileOwner.
+//       * OwnerForm
+//       * DontOpenCardAfterCreateFromFIle.
 //
 Procedure AddAfterCreationModeChoice(CreateMode, ExecutionParameters) Export
 	
@@ -8234,7 +8290,7 @@ EndProcedure
 // Continuation of the procedure (see above).
 Procedure AddFromFileSystemWithoutExtension(ExecutionParameters)
 	
-	// Import from file system without the file system extension for working with 1C:Enterprise Extension (web client).
+	// Import from file system without 1C:Enterprise Extension (web client).
 	ChoiceDialog = New FileDialog(FileDialogMode.Open);
 	If ExecutionParameters.Property("SelectionDialogFilter") Then
 		ChoiceDialog.Filter = ExecutionParameters.SelectionDialogFilter;
@@ -8809,12 +8865,12 @@ Function CheckSignPossibility(FileData, CompletionHandler, ResultHandler, Execut
 		Warnings = New Array;
 		For Each File In FileData Do
 			If ValueIsFilled(File.BeingEditedBy) Then
-				Warnings.Add(FilesOperationsInternalClientServer.MessageAboutInadmissibilityOfSigningBusyFile(File.Ref));
+				Warnings.Add(FilesOperationsInternalClientServer.MessageAboutInvalidSigningOfLockedFile(File.Ref));
 				Continue;
 			EndIf;
 			
 			If File.Encrypted Then
-				Warnings.Add(FilesOperationsInternalClientServer.MessageAboutInadmissibilityOfSigningEncryptedFile(File.Ref));
+				Warnings.Add(FilesOperationsInternalClientServer.MessageAboutInvalidSigningOfEncryptedFile(File.Ref));
 				Continue;
 			EndIf;
 		EndDo;
@@ -8827,13 +8883,13 @@ Function CheckSignPossibility(FileData, CompletionHandler, ResultHandler, Execut
 	Else
 	
 		If ValueIsFilled(FileData.BeingEditedBy) Then
-			WarningText = FilesOperationsInternalClientServer.MessageAboutInadmissibilityOfSigningBusyFile();
+			WarningText = FilesOperationsInternalClientServer.MessageAboutInvalidSigningOfLockedFile();
 			ReturnResultAfterShowWarning(ResultHandler, WarningText, ExecutionParameters);
 			Return False;
 		EndIf;
 		
 		If FileData.Encrypted Then
-			WarningText = FilesOperationsInternalClientServer.MessageAboutInadmissibilityOfSigningEncryptedFile();
+			WarningText = FilesOperationsInternalClientServer.MessageAboutInvalidSigningOfEncryptedFile();
 			ReturnResultAfterShowWarning(CompletionHandler, WarningText, ExecutionParameters);
 			Return False;
 		EndIf;
@@ -8928,9 +8984,9 @@ Procedure ImportFilesRecursively(Owner, SelectedFiles, ExecutionParameters)
 		Return;
 	EndIf;
 	
-	//  
-	// 
-	// 
+	// When the user answers the questions, write to "ExecutionParameters.SelectedFiles" the folders 
+	// from "ExecutionParameters.FoldersArrayForQuestionWhetherFolderAlreadyExists".
+	// Then, recursion is restarted.
 	InternalParameters.SelectedFiles = New Array;
 	InternalParameters.Insert("FolderToAddToSelectedFiles", Undefined);
 	ImportFilesRecursivelySetNextQuestion(InternalParameters);
@@ -9044,14 +9100,14 @@ Procedure ImportFilesRecursivelyWithoutDialogBoxes(Val Owner, Val SelectedFiles,
 						
 						FilesFolderRef = FilesOperationsInternalServerCall.CreateFilesFolder(FileName, Owner,,ExecutionParameters.FilesGroup);
 						If FilesOperationsInternalClientCached.IsDirectoryFiles(FilesFolderRef) Then
-							// 
-							// 
+							// The parameter "AskQuestionFolderAlreadyExists" prevents asking the user on the 1st recursion level,
+							// when it goes through folders for which the positive response was provided.
 							ImportFilesRecursivelyWithoutDialogBoxes(FilesFolderRef, FilesArray, ExecutionParameters, True);
 						Else
 							CurrentFilesGroup = ExecutionParameters.FilesGroup;
 							ExecutionParameters.FilesGroup = FilesFolderRef;
-							// 
-							// 
+							// The parameter "AskQuestionFolderAlreadyExists" prevents asking the user on the 1st recursion level,
+							// when it goes through folders for which the positive response was provided.
 							ImportFilesRecursivelyWithoutDialogBoxes(Owner, FilesArray, ExecutionParameters, True);
 							ExecutionParameters.FilesGroup = CurrentFilesGroup;
 						EndIf;
@@ -9078,7 +9134,7 @@ Procedure ImportFilesRecursivelyWithoutDialogBoxes(Val Owner, Val SelectedFiles,
 				SelectedFile.Name, 
 				FilesOperationsInternalClientServer.FileSizePresentation(SizeInMB));
 				
-			StateText = NStr("en = 'Importing files from computer...';");
+			StateText = NStr("en = 'Uploading files from your computer...';");
 			
 			Status(StateText,
 				ExecutionParameters.Indicator,
@@ -9302,18 +9358,14 @@ Procedure OpenFileWithApplication(FileData, FileToOpenName, OwnerID = Undefined)
 		EndIf;
 		SpreadsheetDocument = PlacedFiles[0].Location;
 		
-		FormCaption = CommonClientServer.GetNameWithExtension(
+		FormParameters = StandardSubsystemsClient.SpreadsheetEditorParameters();
+		FormParameters.DocumentName = CommonClientServer.GetNameWithExtension(
 			FileData.FullVersionDescription, FileData.Extension);
-			
-		OpeningParameters = New Structure;
-		OpeningParameters.Insert("DocumentName", FormCaption);
-		OpeningParameters.Insert("PathToFile", FileToOpenName);
-		OpeningParameters.Insert("SpreadsheetDocument", SpreadsheetDocument);
+		FormParameters.PathToFile = FileToOpenName;
 		If Not FileData.ForReading Then
-			OpeningParameters.Insert("AttachedFile", FileData.Ref);
+			FormParameters.Insert("AttachedFile", FileData.Ref);
 		EndIf;
-		
-		OpenForm("CommonForm.EditSpreadsheetDocument", OpeningParameters);
+		StandardSubsystemsClient.ShowSpreadsheetEditor(SpreadsheetDocument, FormParameters);
 		
 		Return;
 		
@@ -9442,8 +9494,8 @@ Procedure ProcessFilesTable(Val Path, Val FilesArray, Val TableOfFiles)
 	For Each FileInfoKey In FilesInfo Do
 		RelativePath = FileInfoKey.Key;
 		FileInfo1 = FileInfoKey.Value;
-		// 
-		// 
+		// The minimal data is considered the oldest if not found on the computer.
+		// It will be deleted when cleaning up the oldest files from the working directory.
 		PutFileDate = ?(FileInfo1.FileIsInRegister, FileInfo1.PutFileDate, Date('00010101'));
 		
 		// If it is not locked by the current user, you can delete it.
@@ -9539,8 +9591,8 @@ Function CommonFilesOperationsSettings()
 	
 	CommonSettings = StandardSubsystemsClient.ClientRunParameters().CommonFilesOperationsSettings;
 	
-	// 
-	// 
+	// Verify and update the settings that are saved on the server
+	// and that are calculated on the client.
 	
 	Return CommonSettings;
 	
@@ -10058,19 +10110,14 @@ Procedure CompareSpreadsheetDocuments1(PathToFile1, PathToFile2, TitleLeft, Titl
 	If Not PutFiles(Files, PlacedFiles, , False) Then
 		Return;
 	EndIf;
-	SpreadsheetDocumentLeft  = PlacedFiles[0].Location;
-	SpreadsheetDocumentRight = PlacedFiles[1].Location;
 	
-	ComparableDocuments = New Structure("Left_1, Right", SpreadsheetDocumentLeft, SpreadsheetDocumentRight);
-	SpreadsheetDocumentsAddress = PutToTempStorage(ComparableDocuments, Undefined);
-	
-	FormOpenParameters = New Structure;
-	FormOpenParameters.Insert("SpreadsheetDocumentsAddress", SpreadsheetDocumentsAddress);
-	FormOpenParameters.Insert("TitleLeft", TitleLeft);
-	FormOpenParameters.Insert("TitleRight", TitleRight);
-	FormOpenParameters.Insert("Title", StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Compare %1 to %2';"), TitleLeft, TitleRight));
-	OpenForm("CommonForm.CompareSpreadsheetDocuments", FormOpenParameters, ThisObject);
+	FormOpenParameters = StandardSubsystemsClient.SpreadsheetComparisonParameters();
+	FormOpenParameters.TitleLeft = TitleLeft;
+	FormOpenParameters.TitleRight = TitleRight;
+	FormOpenParameters.Title = StringFunctionsClientServer.SubstituteParametersToString(
+		NStr("en = 'Compare %1 to %2';"), TitleLeft, TitleRight);
+	StandardSubsystemsClient.ShowSpreadsheetComparison(PlacedFiles[0].Location, 
+		PlacedFiles[1].Location, FormOpenParameters);
 	
 EndProcedure
 
@@ -10124,24 +10171,24 @@ Procedure OpenDragFormFromOutside(FolderForAdding, FileNamesArray) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Internal procedures and functions for async methods.
 //
-// 
-//   
-//       
-//       
-//     
-//     
-//     
-//     
-//     
-//       
-//            
-//               
-//               
-//               
-//             
-//             
+// Parameters:
+//   Handler - NotifyDescription, Undefined, Structure - The procedure that handles the given async method.
+//       * Undefined - Do not process.
+//       * NotifyDescription - Describes the handler procedure.
+//     Rarely, the runtime should be interrupted to display an async dialog.
+//     In this case, "Handler" takes Structure of the calling code parameters
+//     with the mandatory "AsynchronousDialog" used for the interruption and dialog opening:
+//     * Structure - Structure of the calling code parameters.
+//     ** AsynchronousDialog - Structure -
+//       *** Open - Boolean - Set to "True" if the dialog is open.
+//           *** ProcedureName - String - The name of the procedure that handles the calling code. 
+//               *** Module - CommonModule, ClientApplicationForm - Module of the calling code handler.
+//               In this case, "NotifyDescription" is generated from "ProcedureName" and "Module".
+//               NOTE: Some async methods don't support passing Structure.
+//             See the list of types in the method comments.
+//             Result - Arbitrary - Result to be returned to "Handler".
 //
 //   
 //
@@ -10201,7 +10248,7 @@ Procedure RegisterCompletionHandler(ExecutionParameters, CompletionHandler) Expo
 	AsynchronousDialog = New Structure;
 	AsynchronousDialog.Insert("Module",                 CompletionHandler.Module);
 	AsynchronousDialog.Insert("ProcedureName",           CompletionHandler.ProcedureName);
-	AsynchronousDialog.Insert("Open_SSLy",                 False);
+	AsynchronousDialog.Insert("Open",                 False);
 	AsynchronousDialog.Insert("ResultWhenNotOpen", Undefined);
 	ExecutionParameters.Insert("AsynchronousDialog", AsynchronousDialog);
 	
@@ -10233,7 +10280,7 @@ Procedure SetLockingFormFlag(ExecutionParameters, Value) Export
 	EndIf;
 	AsynchronousDialog = Undefined;
 	If ExecutionParameters.Property("AsynchronousDialog", AsynchronousDialog) Then
-		AsynchronousDialog.Open_SSLy = Value;
+		AsynchronousDialog.Open = Value;
 	EndIf;
 	
 EndProcedure
@@ -10242,7 +10289,7 @@ Function LockingFormOpen(ExecutionParameters) Export
 	
 	AsynchronousDialog = Undefined;
 	If ExecutionParameters.Property("AsynchronousDialog", AsynchronousDialog) Then
-		Return AsynchronousDialog.Open_SSLy;
+		Return AsynchronousDialog.Open;
 	EndIf;
 	Return False;
 	
@@ -10865,10 +10912,69 @@ EndFunction
 ///////////////////////////////////////////////////////////////////////////////////
 // Print a spreadsheet or office document with a digital signature stamp.
 
-Procedure PrintFileWithStamp(Document, FileDescription) Export
+Procedure DoPrintFileWithStamp(Ref, UUID) Export
+	
+	FileData = FilesOperationsInternalServerCall.GetFileData(
+		Ref, UUID, True);
+	
+	If FileData.Encrypted Then
+		EncryptionCertificatesArray = FileData.EncryptionCertificatesArray;
+		GetDecryptedDataForPrinting(FileData, UUID);
+	Else
+		PrintFileWithStamp(FileData);
+	EndIf;
+	
+EndProcedure
+
+Procedure GetDecryptedDataForPrinting(FileData, UUID)
+	
+	FollowUpHandler = New NotifyDescription("PrintFileWithStampAfterDecryption", ThisObject,
+		New Structure("FileData, UUID", FileData, UUID));
+		
+	If Not CommonClient.SubsystemExists("StandardSubsystems.DigitalSignature") Then
+		ExecuteNotifyProcessing(FollowUpHandler, False);
+		Return;
+	EndIf;
+	
+	DataDetails = New Structure;
+	DataDetails.Insert("Operation", NStr("en = 'Decrypt file';"));
+	DataDetails.Insert("DataTitle", NStr("en = 'File';"));
+	DataDetails.Insert("Data", FileData.RefToBinaryFileData);
+	DataDetails.Insert("Presentation", FileData.Ref);
+	DataDetails.Insert("EncryptionCertificates",
+		PutToTempStorage(FileData.EncryptionCertificatesArray, UUID));
+	DataDetails.Insert("NotifyOnCompletion", False);
+
+	ModuleDigitalSignatureClient = CommonClient.CommonModule("DigitalSignatureClient");
+	ModuleDigitalSignatureClient.Decrypt(DataDetails,, FollowUpHandler);
+	
+EndProcedure
+
+Procedure PrintFileWithStampAfterDecryption(DataDetails, Context) Export
+	
+	If Not DataDetails.Success Then
+		Return;
+	EndIf;
+	
+	If TypeOf(DataDetails.DecryptedData) = Type("BinaryData") Then
+		FileAddress = PutToTempStorage(DataDetails.DecryptedData,
+			Context.UUID);
+	Else
+		FileAddress = DataDetails.DecryptedData;
+	EndIf;
+	
+	Context.FileData.RefToBinaryFileData = FileAddress;
+		
+	PrintFileWithStamp(Context.FileData);
+	
+EndProcedure
+
+Procedure PrintFileWithStamp(FileData)
+	
+	Document = FilesOperationsInternalServerCall.DocumentWithStamp(FileData);
 	
 	DocumentName3 = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (with stamp)';"), 
-				FileDescription);
+				FileData.Description);
 	
 	If TypeOf(Document) = Type("SpreadsheetDocument") Then
 		If CommonClient.SubsystemExists("StandardSubsystems.Print") Then
@@ -11045,8 +11151,8 @@ Procedure ShowDialogNeedToGetFileFromServer(ResultHandler, Val FileNameWithPath,
 	StandardFileData.Insert("InWorkingDirectoryForRead",     Not ForEditing);
 	StandardFileData.Insert("BeingEditedBy",                  FileData.BeingEditedBy);
 	
-	// 
-	// 
+	// "File" is found in the working directory.
+	// Check the change date and decide what to do next.
 	
 	Parameters = New Structure;
 	Parameters.Insert("ResultHandler", ResultHandler);
@@ -11320,14 +11426,14 @@ Procedure WriteScanLog(Event, Comment = "", IsError = False) Export
 	
 EndProcedure
 
-Procedure ShowScanError(Form, Title, DetailErrorDescription, 
-	ErrorText = "", AssistanceRequiredMode = False) Export
+Procedure ShowScanError(Form, Title, DetailErrorDescription, AssistanceRequiredMode = False) Export
 
 	FormOpenParameters = New Structure("Title, DetailErrorDescription", 
 		Title, DetailErrorDescription);
-	FormOpenParameters.Insert("ErrorText", ErrorText);
 	FormOpenParameters.Insert("ScannerName", Form.ScannerName);
 	FormOpenParameters.Insert("ShowScannerDialog", Form.ShowScannerDialog);
+	FormOpenParameters.Insert("AssistanceRequiredMode", AssistanceRequiredMode);
+	FormOpenParameters.Insert("Resolution", Form.ResolutionEnum);
 	
 	Context = New Structure("AssistanceRequiredMode", AssistanceRequiredMode);
 	AfterErrorFormClosed = New NotifyDescription("AfterErrorFormClosed", Form, Context);
@@ -11349,9 +11455,9 @@ Procedure DeleteScanError(Attachable_Module, CompletionNotification = Undefined,
 	
 EndProcedure
 
-Procedure GetTechnicalInformation(DetailErrorDescription, NotificationAfterTechnicalInfoObtained) Export
-	Mode = FileDialogMode.Save;
-	OpenFileDialog = New FileDialog(Mode);
+Procedure GetTechnicalInformation(DetailErrorDescription, NotificationOnCompletion = Undefined) Export
+	
+	OpenFileDialog = New FileDialog(FileDialogMode.Save);
 	OpenFileDialog.FullFileName = NStr("en = 'Technical information';");
 	Filter = NStr("en = 'Issue report';") + "(*.zip)|*.zip";
 	OpenFileDialog.Filter = Filter;
@@ -11360,31 +11466,27 @@ Procedure GetTechnicalInformation(DetailErrorDescription, NotificationAfterTechn
 	If Not OpenFileDialog.Choose() Then
 		Return;
 	EndIf;
-	FilesArray = OpenFileDialog.SelectedFiles;
-	If FilesArray.Count() = 0 Then
+	FilesNames = OpenFileDialog.SelectedFiles;
+	If FilesNames.Count() = 0 Then
 		Return;
 	EndIf;
 		
 	Context = New Structure();
 	Context.Insert("DetailErrorDescription", DetailErrorDescription);
-	Context.Insert("NotificationAfterTechnicalInfoObtained", NotificationAfterTechnicalInfoObtained);
-	Context.Insert("FileName", FilesArray[0]);
-	NotificationAfterLogFilesTempDirectoryCreated = New NotifyDescription("AfterLogFilesTempDirectoryCreated", ThisObject, Context);
-	FileSystemClient.CreateTemporaryDirectory(NotificationAfterLogFilesTempDirectoryCreated);
+	Context.Insert("NotificationAfterTechnicalInfoObtained", NotificationOnCompletion);
+	Context.Insert("FileName", FilesNames[0]);
+	NotifyDescription = New NotifyDescription("AfterLogFilesTempDirectoryCreated", ThisObject, Context);
+	FileSystemClient.CreateTemporaryDirectory(NotifyDescription);
 
 EndProcedure
 
 Procedure AfterLogFilesTempDirectoryCreated(DirectoryName, Context) Export
 #If Not WebClient Then	
-	DetailErrorDescription = Context.DetailErrorDescription;
-	NotificationAfterTechnicalInfoObtained = Context.NotificationAfterTechnicalInfoObtained;
-	FileName = Context.FileName;
-	
 	TempFilesDir = DirectoryName + GetPathSeparator();
 	TechnicalInformation = FilesOperationsInternalServerCall.TechnicalInformation();
 	
 	FilesForDeletion = New Array;
-	RecordZIP = New ZipFileWriter(FileName);
+	RecordZIP = New ZipFileWriter(Context.FileName);
 	NameOfLogFile = TechnicalInformation.NameOfLogFile;
 	If NameOfLogFile = Undefined Then
 		WriteScanLog("ComponentFile", NStr("en = 'Specify the name of the scanning add-in log file.';"), True);
@@ -11406,8 +11508,6 @@ Procedure AfterLogFilesTempDirectoryCreated(DirectoryName, Context) Export
 	ContextOutgoing = New Structure;
 	Context.Insert("RecordZIP", RecordZIP);
 	Context.Insert("FilesForDeletion", FilesForDeletion);
-	Context.Insert("DetailErrorDescription", DetailErrorDescription);
-	Context.Insert("NotificationAfterTechnicalInfoObtained", NotificationAfterTechnicalInfoObtained);
 	Context.Insert("TempFilesDir", TempFilesDir);
 	Context.Insert("TechnicalInformation", TechnicalInformation);
 	
@@ -11457,7 +11557,7 @@ Procedure SummaryInfoAfterAddInObtained(InitializationResult, Context) Export
 	SummaryInfoFileName = Context.TempFilesDir + "SummaryInformation.txt";
 	
 	SummaryInfoText = SummaryInfoText + Chars.LF 
-		+TechnicalInformation.TechnicalInfoOnExtensionsAndSubsystemsVersions + Chars.LF;
+		+ TechnicalInformation.TechnicalInfoOnExtensionsAndSubsystemsVersions + Chars.LF;
 	SummaryInformation = GetBinaryDataFromString(SummaryInfoText);
 	SummaryInformation.Write(SummaryInfoFileName);
 	FilesForDeletion.Add(SummaryInfoFileName);
@@ -11471,8 +11571,6 @@ Procedure SummaryInfoAfterAddInObtained(InitializationResult, Context) Export
 	
 	CompletionContext = New Structure;
 	CompletionContext.Insert("SummaryInfoFileName", SummaryInfoFileName);
-	CompletionContext.Insert("FilesForDeletion", Context.FilesForDeletion);
-	CompletionContext.Insert("NotificationAfterTechnicalInfoObtained", Context.NotificationAfterTechnicalInfoObtained);
 	RecordZIP.Write();
 	For Each FileToDelete In FilesForDeletion Do
 		DeleteFiles(FileToDelete);
@@ -11672,23 +11770,23 @@ EndProcedure
 
 Procedure CheckDirAvailabilityCreationError(ErrorInfo, StandardProcessing, Context) Export
 	
-    Result = DirAvailabilityCheckResult();
+	Result = DirAvailabilityCheckResult();
 	Result.ErrorInfo = ErrorInfo;
 	StandardProcessing = False;
 	
 	ExecuteNotifyProcessing(Context.NotificationOfResult, Result);
-   
+
 EndProcedure
 
 Procedure CheckDirAvailabilityDeletionError(ErrorInfo, StandardProcessing, Context) Export
 	
-    Result = DirAvailabilityCheckResult();
+	Result = DirAvailabilityCheckResult();
 	Result.Create = True;
 	Result.ErrorInfo = ErrorInfo;
 	StandardProcessing = False;
 	
 	ExecuteNotifyProcessing(Context.NotificationOfResult, Result);
-   
+
 EndProcedure
 
 // Parameters:
@@ -11709,20 +11807,36 @@ Procedure AfterFilesRecovered(Result, AdditionalParameters) Export
 				ProgressDetailedInfo.Processed, ProgressDetailedInfo.Total);
 			ShowUserNotification(NStr("en = 'Restore file info';"),,
 				Message, PictureLib.DialogExclamation, UserNotificationStatus.Important);
-		Else
+		ElsIf ProgressDetailedInfo.Total > 0 Then
 			ShowUserNotification(NStr("en = 'Restore file info';"),,
 				NStr("en = 'File info is restored. Updating the report…';"));
+		Else
+			ShowMessageBox(, NStr("en = 'No corrupted files to recover.';"));
+			Return;
 		EndIf;
 		
 		AdditionalParameters.ReportForm.ComposeResult();
 		
 	ElsIf Result.Status = "Error" Then
-		
-		StandardSubsystemsClient.OutputErrorInfo(
-			Result.ErrorInfo);
-		
+		StandardSubsystemsClient.OutputErrorInfo(Result.ErrorInfo);
 	EndIf;
 	
 EndProcedure
+
+Function FileNameAndExtension(File)
+#If MobileClient Then
+	PresentationOnMobileDevice = File.GetMobileDeviceLibraryFilePresentation();
+	FileExtention = CommonClientServer.GetFileNameExtension(PresentationOnMobileDevice);
+	FileNameWithoutExtension = StrReplace(PresentationOnMobileDevice, "." + FileExtention, "");
+#Else
+	FileExtention = CommonClientServer.ExtensionWithoutPoint(File.Extension);
+	FileNameWithoutExtension = File.BaseName;
+#EndIf
+	Result = New Structure;
+	Result.Insert("FileExtention", FileExtention);
+	Result.Insert("FileNameWithoutExtension", FileNameWithoutExtension);
+	
+	Return Result;
+EndFunction
 
 #EndRegion

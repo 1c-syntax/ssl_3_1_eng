@@ -64,15 +64,15 @@ Function GetExchangeServiceWSProxy() Export
 		TransportSettings = ModuleMessagesExchangeTransportSettings.TransportSettingsWS(
 			ModuleSaaSOperationsCTLCached.ServiceManagerEndpoint());
 		
-		SettingsStructure = New Structure;
-		SettingsStructure.Insert("WSWebServiceURL",   TransportSettings.WSWebServiceURL);
-		SettingsStructure.Insert("WSUserName", TransportSettings.WSUserName);
-		SettingsStructure.Insert("WSPassword",          TransportSettings.WSPassword);
-		SettingsStructure.Insert("WSServiceName",      "ManageApplicationExchange_1_0_6_5");
-		SettingsStructure.Insert("WSServiceNamespaceURL", "http://www.1c.ru/SaaS/1.0/WS/ManageApplicationExchange_1_0_6_5");
-		SettingsStructure.Insert("WSTimeout", 20);
+		SettingsStructure_ = New Structure;
+		SettingsStructure_.Insert("WSWebServiceURL",   TransportSettings.WSWebServiceURL);
+		SettingsStructure_.Insert("WSUserName", TransportSettings.WSUserName);
+		SettingsStructure_.Insert("WSPassword",          TransportSettings.WSPassword);
+		SettingsStructure_.Insert("WSServiceName",      "ManageApplicationExchange_1_0_6_5");
+		SettingsStructure_.Insert("WSServiceNamespaceURL", "http://www.1c.ru/SaaS/1.0/WS/ManageApplicationExchange_1_0_6_5");
+		SettingsStructure_.Insert("WSTimeout", 20);
 		
-		Result = DataExchangeWebService.GetWSProxyByConnectionParameters(SettingsStructure);
+		Result = DataExchangeWebService.GetWSProxyByConnectionParameters(SettingsStructure_);
 	EndIf;
 	
 	If Result = Undefined Then
@@ -93,12 +93,12 @@ EndFunction
 //
 Function GetWSProxyOfCorrespondent(InfobaseNode, ErrorMessageString = "") Export
 	
-	SettingsStructure = InformationRegisters.DataAreaExchangeTransportSettings.TransportSettingsWS(InfobaseNode);
-	SettingsStructure.Insert("WSServiceName", "RemoteAdministrationOfExchange");
-	SettingsStructure.Insert("WSServiceNamespaceURL", "http://www.1c.ru/SaaS/1.0/WS/RemoteAdministrationOfExchange");
-	SettingsStructure.Insert("WSTimeout", 20);
+	SettingsStructure_ = InformationRegisters.DataAreaExchangeTransportSettings.TransportSettingsWS(InfobaseNode);
+	SettingsStructure_.Insert("WSServiceName", "RemoteAdministrationOfExchange");
+	SettingsStructure_.Insert("WSServiceNamespaceURL", "http://www.1c.ru/SaaS/1.0/WS/RemoteAdministrationOfExchange");
+	SettingsStructure_.Insert("WSTimeout", 20);
 	
-	Return DataExchangeWebService.GetWSProxyByConnectionParameters(SettingsStructure, ErrorMessageString);
+	Return DataExchangeWebService.GetWSProxyByConnectionParameters(SettingsStructure_, ErrorMessageString);
 	
 EndFunction
 
@@ -113,36 +113,36 @@ EndFunction
 //
 Function GetWSProxyOfCorrespondent_2_0_1_6(InfobaseNode, ErrorMessageString = "") Export
 	
-	SettingsStructure = InformationRegisters.DataAreaExchangeTransportSettings.TransportSettingsWS(InfobaseNode);
-	SettingsStructure.Insert("WSServiceName", "RemoteAdministrationOfExchange_2_0_1_6");
-	SettingsStructure.Insert("WSServiceNamespaceURL", "http://www.1c.ru/SaaS/1.0/WS/RemoteAdministrationOfExchange_2_0_1_6");
-	SettingsStructure.Insert("WSTimeout", 20);
+	SettingsStructure_ = InformationRegisters.DataAreaExchangeTransportSettings.TransportSettingsWS(InfobaseNode);
+	SettingsStructure_.Insert("WSServiceName", "RemoteAdministrationOfExchange_2_0_1_6");
+	SettingsStructure_.Insert("WSServiceNamespaceURL", "http://www.1c.ru/SaaS/1.0/WS/RemoteAdministrationOfExchange_2_0_1_6");
+	SettingsStructure_.Insert("WSTimeout", 20);
 	
-	Return DataExchangeServer.GetWSProxyByConnectionParameters(SettingsStructure, ErrorMessageString);
+	Return DataExchangeServer.GetWSProxyByConnectionParameters(SettingsStructure_, ErrorMessageString);
 EndFunction
 
 // Returns a reference to WSProxy object 2.1.6.1 of the correspondent identified by the exchange plan node.
 //
 Function GetWSProxyOfCorrespondent_2_1_6_1(InfobaseNode, ErrorMessageString = "") Export
 	
-	SettingsStructure = InformationRegisters.DataAreaExchangeTransportSettings.TransportSettingsWS(InfobaseNode);
-	SettingsStructure.Insert("WSServiceName", "RemoteAdministrationOfExchange_2_1_6_1");
-	SettingsStructure.Insert("WSServiceNamespaceURL", "http://www.1c.ru/SaaS/1.0/WS/RemoteAdministrationOfExchange_2_1_6_1");
-	SettingsStructure.Insert("WSTimeout", 20);
+	SettingsStructure_ = InformationRegisters.DataAreaExchangeTransportSettings.TransportSettingsWS(InfobaseNode);
+	SettingsStructure_.Insert("WSServiceName", "RemoteAdministrationOfExchange_2_1_6_1");
+	SettingsStructure_.Insert("WSServiceNamespaceURL", "http://www.1c.ru/SaaS/1.0/WS/RemoteAdministrationOfExchange_2_1_6_1");
+	SettingsStructure_.Insert("WSTimeout", 20);
 	
-	Return DataExchangeServer.GetWSProxyByConnectionParameters(SettingsStructure, ErrorMessageString);
+	Return DataExchangeServer.GetWSProxyByConnectionParameters(SettingsStructure_, ErrorMessageString);
 EndFunction
 
 // Returns a reference to WSProxy object 2.4.5.1 of the correspondent identified by the exchange plan node.
 //
 Function GetWSProxyOfCorrespondent_2_4_5_1(InfobaseNode, ErrorMessageString = "") Export
 	
-	SettingsStructure = InformationRegisters.DataAreaExchangeTransportSettings.TransportSettingsWS(InfobaseNode);
-	SettingsStructure.Insert("WSServiceName", "RemoteAdministrationOfExchange_2_4_5_1");
-	SettingsStructure.Insert("WSServiceNamespaceURL", "http://www.1c.ru/SaaS/1.0/WS/RemoteAdministrationOfExchange_2_4_5_1");
-	SettingsStructure.Insert("WSTimeout", 20);
+	SettingsStructure_ = InformationRegisters.DataAreaExchangeTransportSettings.TransportSettingsWS(InfobaseNode);
+	SettingsStructure_.Insert("WSServiceName", "RemoteAdministrationOfExchange_2_4_5_1");
+	SettingsStructure_.Insert("WSServiceNamespaceURL", "http://www.1c.ru/SaaS/1.0/WS/RemoteAdministrationOfExchange_2_4_5_1");
+	SettingsStructure_.Insert("WSTimeout", 20);
 	
-	Return DataExchangeServer.GetWSProxyByConnectionParameters(SettingsStructure, ErrorMessageString);
+	Return DataExchangeServer.GetWSProxyByConnectionParameters(SettingsStructure_, ErrorMessageString);
 EndFunction
 
 // Returns True if this exchange plan is used to synchronize data in SaaS mode.

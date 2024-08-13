@@ -264,6 +264,8 @@ EndProcedure
 //                        - Undefined - Optional. If True, the command supports multiple option choices.
 //                                         In this case, the parameter passes a list of references.
 //                                         By default, True.
+//   * IsNonContextual - Boolean - If set to "True", users can do the following:
+//                              access the report's options, add it to favorites, and get the report's reference.
 //   * WriteMode - String - Object-writing-associated actions that run before the command handler::
 //                 DoNotWrite - Do not write the object and pass the full form in the handler parameters instead of references.
 //                                  In this mode, we recommend that you operate directly with a form that is passed in the structure of parameter 2
@@ -277,7 +279,7 @@ EndProcedure
 //                                        to install 1C:Enterprise Extension.
 //                                        Optional. The default value is False.
 //   * Manager - String - Full name of the metadata object where the command was indicated.
-//                         For example, "Report._DemoPurchaseLedger".
+//                         For example, "Report.PurchaseLedger".
 //   * FormName - String - Name of the form the command will open or receive.
 //                         If Handler is not specified, the "Open" method is called.
 //   * VariantKey - String - Name of the report option the command will open.

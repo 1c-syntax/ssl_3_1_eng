@@ -44,7 +44,7 @@
 						</v8:item>
 					</Title>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="ThePresenceOfExtensionsThatChangeTheDataStructureExtendedTooltip" id="328"/>
+					<ExtendedTooltip name="HasExtensionsThatChangeDataStructureExtendedTooltip" id="328"/>
 					<ChildItems>
 						<UsualGroup name="Group1" id="329">
 							<Title>
@@ -123,34 +123,34 @@ Note that the data added by the extensions will be permanently deleted along wit
 									<v8:content>Extensions that change the data structure</v8:content>
 								</v8:item>
 							</Title>
-							<ContextMenu name="ExtensionsThatChangeTheDataStructureContextMenu" id="341"/>
+							<ContextMenu name="ExtensionsThatChangeDataStructureContextMenu" id="341"/>
 							<AutoCommandBar name="ExtensionsThatChangeDataStructureCommandBar" id="342">
 								<Autofill>false</Autofill>
 							</AutoCommandBar>
-							<ExtendedTooltip name="ExtensionsThatChangeTheDataStructureExtendedTooltip" id="343"/>
-							<SearchStringAddition name="ExtensionsThatChangeTheDataStructureSearchString" id="344">
+							<ExtendedTooltip name="ExtensionsThatChangeDataStructureExtendedTooltip" id="343"/>
+							<SearchStringAddition name="ExtensionsThatChangeDataStructureSearchString" id="344">
 								<AdditionSource>
 									<Item>ExtensionsThatChangeDataStructure</Item>
 									<Type>SearchStringRepresentation</Type>
 								</AdditionSource>
-								<ContextMenu name="ExtensionsThatChangeTheDataStructureSearchStringContextMenu" id="345"/>
-								<ExtendedTooltip name="ExtensionsThatChangeTheDataStructureSearchStringExtendedTooltip" id="346"/>
+								<ContextMenu name="ExtensionsThatChangeDataStructureSearchStringContextMenu" id="345"/>
+								<ExtendedTooltip name="ExtensionsThatChangeDataStructureSearchStringExtendedTooltip" id="346"/>
 							</SearchStringAddition>
-							<ViewStatusAddition name="ExtensionsThatChangeTheDataStructureViewStatus" id="347">
+							<ViewStatusAddition name="ExtensionsThatChangeDataStructureViewStatus" id="347">
 								<AdditionSource>
 									<Item>ExtensionsThatChangeDataStructure</Item>
 									<Type>ViewStatusRepresentation</Type>
 								</AdditionSource>
-								<ContextMenu name="ExtensionsThatChangeTheDataStructureViewStatusContextMenu" id="348"/>
-								<ExtendedTooltip name="ExtensionsThatChangeTheDataStructureViewStatusExtendedTooltip" id="349"/>
+								<ContextMenu name="ExtensionsThatChangeDataStructureViewStatusContextMenu" id="348"/>
+								<ExtendedTooltip name="ExtensionsThatChangeDataStructureViewStatusExtendedTooltip" id="349"/>
 							</ViewStatusAddition>
-							<SearchControlAddition name="ExtensionsThatChangeTheDataStructureSearchControl" id="350">
+							<SearchControlAddition name="ExtensionsThatChangeDataStructureSearchControl" id="350">
 								<AdditionSource>
 									<Item>ExtensionsThatChangeDataStructure</Item>
 									<Type>SearchControl</Type>
 								</AdditionSource>
-								<ContextMenu name="ExtensionsThatChangeTheDataStructureSearchControlContextMenu" id="351"/>
-								<ExtendedTooltip name="ExtensionsThatChangeTheDataStructureSearchControlExtendedTooltip" id="352"/>
+								<ContextMenu name="ExtensionsThatChangeDataStructureSearchControlContextMenu" id="351"/>
+								<ExtendedTooltip name="ExtensionsThatChangeDataStructureSearchControlExtendedTooltip" id="352"/>
 							</SearchControlAddition>
 							<ChildItems>
 								<InputField name="ExtensionsThatChangeDataStructureValue" id="353">
@@ -162,8 +162,8 @@ Note that the data added by the extensions will be permanently deleted along wit
 										</v8:item>
 									</Title>
 									<EditMode>EnterOnInput</EditMode>
-									<ContextMenu name="ExtensionsThatChangeTheDataStructureValueContextMenu" id="354"/>
-									<ExtendedTooltip name="ExtensionsThatChangeTheDataStructureValueExtendedTooltip" id="355"/>
+									<ContextMenu name="ExtensionsThatChangeDataStructureValueContextMenu" id="354"/>
+									<ExtendedTooltip name="ExtensionsThatChangeDataStructureValueExtendedTooltip" id="355"/>
 								</InputField>
 							</ChildItems>
 						</Table>
@@ -188,7 +188,7 @@ Note that the data added by the extensions will be permanently deleted along wit
 							<Group>Vertical</Group>
 							<Behavior>Usual</Behavior>
 							<Representation>NormalSeparation</Representation>
-							<ExtendedTooltip name="StartGroup1ExtendedTooltip" id="315"/>
+							<ExtendedTooltip name="GroupBeginExtendedTooltip" id="315"/>
 							<ChildItems>
 								<PictureDecoration name="LocalWorkstationCreationPicture" id="91">
 									<Width>64</Width>
@@ -868,7 +868,7 @@ When contacting the technical support, attach the error text below.</v8:content>
 											<v8:content>Command bar left 1</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="LeftCommandBar51ExtendedTooltip" id="298"/>
+									<ExtendedTooltip name="LeftSideCommandBar1ExtendedTooltip" id="298"/>
 									<ChildItems>
 										<Button name="BackCommand" id="59">
 											<Type>CommandBarButton</Type>
@@ -893,7 +893,7 @@ When contacting the technical support, attach the error text below.</v8:content>
 										</v8:item>
 									</Title>
 									<HorizontalLocation>Right</HorizontalLocation>
-									<ExtendedTooltip name="RightCommandBar51ExtendedTooltip" id="271"/>
+									<ExtendedTooltip name="RightSideCommandBar1ExtendedTooltip" id="271"/>
 									<ChildItems>
 										<Button name="NextCommand" id="60">
 											<Type>CommandBarButton</Type>
@@ -946,7 +946,7 @@ When contacting the technical support, attach the error text below.</v8:content>
 											<v8:content>Command bar left 2</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="LeftCommandBar52ExtendedTooltip" id="303"/>
+									<ExtendedTooltip name="LeftSideCommandBar2ExtendedTooltip" id="303"/>
 									<ChildItems>
 										<Button name="BackCommand1" id="65">
 											<Type>CommandBarButton</Type>
@@ -970,7 +970,7 @@ When contacting the technical support, attach the error text below.</v8:content>
 										</v8:item>
 									</Title>
 									<HorizontalLocation>Right</HorizontalLocation>
-									<ExtendedTooltip name="RightCommandBar52ExtendedTooltip" id="277"/>
+									<ExtendedTooltip name="RightSideCommandBar2ExtendedTooltip" id="277"/>
 									<ChildItems>
 										<Button name="NextCommand1" id="66">
 											<Type>CommandBarButton</Type>
@@ -1027,7 +1027,7 @@ When contacting the technical support, attach the error text below.</v8:content>
 											<v8:content>Command bar left 3</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="LeftCommandBar53ExtendedTooltip" id="308"/>
+									<ExtendedTooltip name="LeftSideCommandBar3ExtendedTooltip" id="308"/>
 									<ChildItems>
 										<Button name="BackCommand2" id="71">
 											<Type>CommandBarButton</Type>
@@ -1052,7 +1052,7 @@ When contacting the technical support, attach the error text below.</v8:content>
 										</v8:item>
 									</Title>
 									<HorizontalLocation>Right</HorizontalLocation>
-									<ExtendedTooltip name="RightCommandBar53ExtendedTooltip" id="283"/>
+									<ExtendedTooltip name="RightSideCommandBar3ExtendedTooltip" id="283"/>
 									<ChildItems>
 										<Button name="DoneCommand" id="72">
 											<Type>CommandBarButton</Type>
@@ -1106,7 +1106,7 @@ When contacting the technical support, attach the error text below.</v8:content>
 											<v8:content>Command bar left 4</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="LeftCommandBar54ExtendedTooltip" id="313"/>
+									<ExtendedTooltip name="LeftSideCommandBar4ExtendedTooltip" id="313"/>
 									<ChildItems>
 										<Button name="BackCommand3" id="77">
 											<Type>CommandBarButton</Type>
@@ -1131,7 +1131,7 @@ When contacting the technical support, attach the error text below.</v8:content>
 										</v8:item>
 									</Title>
 									<HorizontalLocation>Right</HorizontalLocation>
-									<ExtendedTooltip name="RightCommandBar54ExtendedTooltip" id="289"/>
+									<ExtendedTooltip name="RightSideCommandBar4ExtendedTooltip" id="289"/>
 									<ChildItems>
 										<Button name="NextCommand3" id="78">
 											<Type>CommandBarButton</Type>

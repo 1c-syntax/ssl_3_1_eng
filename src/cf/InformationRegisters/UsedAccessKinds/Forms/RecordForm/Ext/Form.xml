@@ -29,6 +29,12 @@
 			<ContextMenu name="AccessValuesTypeContextMenu" id="12"/>
 			<ExtendedTooltip name="AccessValuesTypeExtendedTooltip" id="13"/>
 		</InputField>
+		<CheckBoxField name="Used" id="14">
+			<DataPath>Record.Used</DataPath>
+			<CheckBoxType>Auto</CheckBoxType>
+			<ContextMenu name="UsedContextMenu" id="15"/>
+			<ExtendedTooltip name="UsedExtendedTooltip" id="16"/>
+		</CheckBoxField>
 	</ChildItems>
 	<Attributes>
 		<Attribute name="Record" id="1">

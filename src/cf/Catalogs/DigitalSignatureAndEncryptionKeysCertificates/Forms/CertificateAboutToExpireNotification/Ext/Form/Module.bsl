@@ -137,10 +137,10 @@ Function Decision()
 		ModuleDigitalSignatureClientServerLocalization = Common.CommonModule(
 			"DigitalSignatureClientServerLocalization");
 		Return StringFunctions.FormattedString(
-				NStr("en = 'Get a new certificate from <a href = ""%1"">respective certificate authority</a>.';"),
+				NStr("en = 'Request a new certificate from the <a href = ""%1"">appropriate CA</a>.';"),
 					ModuleDigitalSignatureClientServerLocalization.LinktothearticleonCAs());
 	Else
-		Return NStr("en = 'Get a new certificate.';");
+		Return NStr("en = 'Request a new certificate.';");
 	EndIf;
 	
 EndFunction

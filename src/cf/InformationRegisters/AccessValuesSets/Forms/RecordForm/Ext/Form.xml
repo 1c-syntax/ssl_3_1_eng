@@ -41,8 +41,8 @@
 		</InputField>
 		<InputField name="Refinement" id="51">
 			<DataPath>Record.Refinement</DataPath>
-			<ContextMenu name="AdjustmentContextMenu" id="52"/>
-			<ExtendedTooltip name="AdjustmentExtendedTooltip" id="53"/>
+			<ContextMenu name="RefinementContextMenu" id="52"/>
+			<ExtendedTooltip name="RefinementExtendedTooltip" id="53"/>
 		</InputField>
 		<CheckBoxField name="Read" id="9">
 			<DataPath>Record.Read</DataPath>

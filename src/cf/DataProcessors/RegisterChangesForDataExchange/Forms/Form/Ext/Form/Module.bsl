@@ -8,21 +8,21 @@
 //
 //
 
+// A form for customizing the registration of object changes on the given node.
+// Form parameters:
 // 
-// 
-// 
-// 
-// 
-//                                                  
-// 
-//                                                  
+// ExchangeNode - ExchangePlanRef - Reference to the exchange node.
+// SelectExchangeNodeProhibited - Boolean - Flag indicating whether the user is not allowed to edit the node.
+//                                                  Requires the "ExchangeNode" parameter.
+// NamesOfMetadataToHide - ValueList - Names of metadata objects to hide from the registration tree.
+//                                                  The subsystem "AdditionalReportsAndDataProcessors" supports additional parameters:
 //
-// 
+// AdditionalDataProcessorRef - Arbitrary - Reference to a catalog item that is calling the form.
 //
-// 
-//                                                
-//                                                
-// 
+// Requires the "RelatedObjects" parameter.
+//                                                RelatedObjects - Array - Objects to be processed. The first array element will be used to
+//                                                open the form for registering the object on the nodes.
+// Requires the "CommandID" parameter.
 //                                                
 //                                                
 //
@@ -38,9 +38,9 @@ Var MetadataCurrentRow;
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// StandardSubsystems.AdditionalReportsAndDataProcessors
 
-// 
+// ACC:78-on additional data processor.
 
 // Command export handler for the additional reports and data processors subsystem.
 //
@@ -294,7 +294,7 @@ EndProcedure
 //
 
 &AtClient
-Procedure ExchangeNodeRef1StartChoice(Item, ChoiceData, StandardProcessing)
+Procedure ExchangeNodeReferenceStartChoice(Item, ChoiceData, StandardProcessing)
 	StandardProcessing = False;
 	CurFormName = ThisFormName + "Form.SelectExchangePlanNode";
 	CurParameters = New Structure("MultipleChoice, ChoiceInitialValue", False, ExchangeNodeReference);
@@ -302,7 +302,7 @@ Procedure ExchangeNodeRef1StartChoice(Item, ChoiceData, StandardProcessing)
 EndProcedure
 
 &AtClient
-Procedure ExchangeNodeRef1ChoiceProcessing(Item, ValueSelected, StandardProcessing)
+Procedure ExchangeNodeReferenceChoiceProcessing(Item, ValueSelected, StandardProcessing)
 	If ExchangeNodeReference <> ValueSelected Then
 		ExchangeNodeReference = ValueSelected;
 		AttachIdleHandler("ExchangeNodeChoiceProcessing", 0.1, True);
@@ -310,14 +310,14 @@ Procedure ExchangeNodeRef1ChoiceProcessing(Item, ValueSelected, StandardProcessi
 EndProcedure
 
 &AtClient
-Procedure ExchangeNodeRef1OnChange(Item)
+Procedure ExchangeNodeReferenceOnChange(Item)
 	ExchangeNodeChoiceProcessingServer();
 	ExpandMetadataTree();
 	UpdatePageContent();
 EndProcedure
 
 &AtClient
-Procedure ExchangeNodeRef1Clearing(Item, StandardProcessing)
+Procedure ExchangeNodeReferenceClearing(Item, StandardProcessing)
 	StandardProcessing = False;
 EndProcedure
 
@@ -338,7 +338,7 @@ EndProcedure
 //
 
 &AtClient
-Procedure MetadataTreeTaggingOnChange(Item)
+Procedure MetadataTreeCheckOnChange(Item)
 	ChangeMark(Items.MetadataTree.CurrentRow);
 EndProcedure
 
@@ -845,7 +845,7 @@ Procedure SetConditionalAppearance()
 	Item = ConditionalAppearance.Items.Add();
 
 	ItemField = Item.Fields.Items.Add();
-	ItemField.Field = New DataCompositionField(Items.ConstantsListMessageNumber.Name);
+	ItemField.Field = New DataCompositionField(Items.ConstantsListMessageNo.Name);
 
 	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	ItemFilter.LeftValue = New DataCompositionField("ConstantsList.NotExported");
@@ -1103,7 +1103,7 @@ Procedure ExchangeNodeChoiceProcessingServer()
 	
 	If Object.DIBModeAvailable                             // Current SSL version supports MOID.
 		And (ExchangePlans.MasterNode() = Undefined)          // Current infobase is a master node.
-		And MetaNodeExchangePlan.DistributedInfoBase Then // 
+		And MetaNodeExchangePlan.DistributedInfoBase Then // Current node is DIB.
 		Items.FormRegisterMOIDAndPredefinedItems.Visible = True;
 	Else
 		Items.FormRegisterMOIDAndPredefinedItems.Visible = False;
@@ -1970,7 +1970,7 @@ Procedure FillRegistrationCountInTreeRows()
 			
 			NodesList = Var_Group.GetItems();
 			If NodesList.Count() = 0 And MetadataNamesStructure.Property(Var_Group.MetaFullName) Then
-				// Node collection without nodes, sum manually and take auto record from structure.
+				// Node collection without nodes, sum manually, and take autoregistration from structure.
 				For Each MetaName1 In MetadataNamesStructure[Var_Group.MetaFullName] Do
 					Filter.MetaFullName = MetaName1;
 					Found4 = Data.FindRows(Filter);
@@ -2947,7 +2947,7 @@ EndFunction
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Base-functionality procedures and functions for standalone mode support.
 
 &AtServer
 Function SubstituteParametersToString(Val SubstitutionString, Val Parameter1, Val Parameter2 = Undefined, Val Parameter3 = Undefined)

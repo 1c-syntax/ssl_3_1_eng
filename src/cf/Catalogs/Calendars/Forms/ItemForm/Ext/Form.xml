@@ -968,13 +968,13 @@ will be excluded from workdays.</v8:content>
 											<ShowCurrentDate>false</ShowCurrentDate>
 											<WidthInMonths>0</WidthInMonths>
 											<HeightInMonths>0</HeightInMonths>
-											<ContextMenu name="WorkHoursContextMenu" id="254"/>
+											<ContextMenu name="WorkScheduleCalendarContextMenu" id="254"/>
 											<ExtendedTooltip name="WorkScheduleCalendarExtendedTooltip" id="358">
 												<AutoMaxWidth>false</AutoMaxWidth>
 											</ExtendedTooltip>
 											<Events>
-												<Event name="OnPeriodOutput">WorkHoursOnPeriodOutput</Event>
-												<Event name="Selection">WorkHoursSelection</Event>
+												<Event name="OnPeriodOutput">WorkScheduleCalendarOnPeriodOutput</Event>
+												<Event name="Selection">WorkScheduleCalendarSelection</Event>
 											</Events>
 										</CalendarField>
 									</ChildItems>

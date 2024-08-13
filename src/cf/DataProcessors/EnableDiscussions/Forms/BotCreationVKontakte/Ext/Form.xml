@@ -100,7 +100,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>NormalSeparation</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="ParametersGroupExtendedTooltip" id="98"/>
+			<ExtendedTooltip name="GroupParametersExtendedTooltip" id="98"/>
 			<ChildItems>
 				<InputField name="Description" id="30">
 					<DataPath>Description</DataPath>
@@ -150,8 +150,8 @@
 							<v8:content>Key displayed on the Callback API tab</v8:content>
 						</v8:item>
 					</InputHint>
-					<ContextMenu name="GroupIDContextMenu" id="37"/>
-					<ExtendedTooltip name="GroupIDExtendedTooltip" id="38"/>
+					<ContextMenu name="GroupIdentifierContextMenu" id="37"/>
+					<ExtendedTooltip name="GroupIdentifierExtendedTooltip" id="38"/>
 				</InputField>
 			</ChildItems>
 		</UsualGroup>

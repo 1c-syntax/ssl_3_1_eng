@@ -32,7 +32,7 @@
 							<Title formatted="true">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Click &lt;b&gt;Send&lt;/&gt; to send a text message with archive passwords to report distribution recipients.</v8:content>
+									<v8:content>Click &lt;b&gt;Send&lt;/&gt; to send a text message with archive passwords to report distribution recipients.</v8:content>
 								</v8:item>
 							</Title>
 							<ToolTip>
@@ -88,7 +88,7 @@
 											<v8:content>Command bar</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="CommandBarGroupExtendedTooltip" id="43"/>
+									<ExtendedTooltip name="GroupCommandBarExtendedTooltip" id="43"/>
 									<ChildItems>
 										<Button name="OutputList" id="50">
 											<Type>CommandBarButton</Type>

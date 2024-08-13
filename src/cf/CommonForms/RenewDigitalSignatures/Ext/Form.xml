@@ -64,7 +64,7 @@
 					<Group>Vertical</Group>
 					<Behavior>Usual</Behavior>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="DataGroupExtendedTooltip" id="26"/>
+					<ExtendedTooltip name="GroupDataExtendedTooltip" id="26"/>
 					<ChildItems>
 						<LabelField name="SignedObject" id="9">
 							<DataPath>SignedObject</DataPath>
@@ -159,7 +159,7 @@
 			</Title>
 			<HorizontalStretch>false</HorizontalStretch>
 			<GroupHorizontalAlign>Right</GroupHorizontalAlign>
-			<ExtendedTooltip name="GroupMainCommandsExtendedTooltip" id="15"/>
+			<ExtendedTooltip name="BasicCommandsGroupExtendedTooltip" id="15"/>
 			<ChildItems>
 				<Button name="ExecuteActions" id="12">
 					<Type>CommandBarButton</Type>

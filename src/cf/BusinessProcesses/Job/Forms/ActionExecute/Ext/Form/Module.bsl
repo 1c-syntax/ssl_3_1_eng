@@ -6,7 +6,6 @@
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//
 
 #Region FormEventHandlers
 
@@ -306,7 +305,7 @@ Procedure WriteBusinessProcessAttributes(TaskObject)
 		LockDataForEdit(BusinessProcessObject.Ref);
 
 		BusinessProcessObject.Completed2 = JobCompleted;
-		BusinessProcessObject.Write(); // 
+		BusinessProcessObject.Write(); // ACC:1327 - A lock is set in "BusinessProcessesAndTasksServer.LockBusinessProcesses".
 
 		CommitTransaction();
 	Except

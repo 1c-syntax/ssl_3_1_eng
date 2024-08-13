@@ -16,7 +16,7 @@
 						<v8:content>Save and close</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="CommandWriteAndCloseExtendedTooltip" id="241"/>
+				<ExtendedTooltip name="CommandSaveAndCloseExtendedTooltip" id="241"/>
 			</Button>
 			<Button name="CommandWrite" id="242">
 				<Type>CommandBarButton</Type>
@@ -585,7 +585,7 @@ and set the Availability to "Available."</v8:content>
 											<v8:content>Customize visibility…</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="SetVisibilityExtendedTooltip" id="401"/>
+									<ExtendedTooltip name="SetPrintCommandVisibilityExtendedTooltip" id="401"/>
 								</Button>
 							</ChildItems>
 						</UsualGroup>
@@ -810,7 +810,7 @@ and set the Availability to "Available."</v8:content>
 										<Event name="OnChange">ObjectCommandsScheduledJobUsageOnChange</Event>
 									</Events>
 								</CheckBoxField>
-								<InputField name="ObjectCommandsScheduledJobPresentation1" id="162">
+								<InputField name="ObjectCommandsScheduledJobPresentation" id="162">
 									<DataPath>Object.Commands.ScheduledJobPresentation</DataPath>
 									<ToolTip>
 										<v8:item>
@@ -822,11 +822,11 @@ and set the Availability to "Available."</v8:content>
 									<Width>12</Width>
 									<ChoiceButton>true</ChoiceButton>
 									<IncompleteChoiceMode>OnActivate</IncompleteChoiceMode>
-									<ContextMenu name="ObjectCommandsScheduledJobPresentation1ContextMenu" id="163"/>
-									<ExtendedTooltip name="ObjectCommandsScheduledJobPresentation1ExtendedTooltip" id="217"/>
+									<ContextMenu name="ObjectCommandsScheduledJobPresentationContextMenu" id="163"/>
+									<ExtendedTooltip name="ObjectCommandsScheduledJobPresentationExtendedTooltip" id="217"/>
 									<Events>
-										<Event name="StartChoice">ObjectCommandsScheduledJobPresentation1StartChoice</Event>
-										<Event name="Clearing">ObjectCommandsScheduledJobPresentation1Clearing</Event>
+										<Event name="StartChoice">ObjectCommandsScheduledJobPresentationStartChoice</Event>
+										<Event name="Clearing">ObjectCommandsScheduledJobPresentationClearing</Event>
 									</Events>
 								</InputField>
 								<InputField name="ObjectCommandsComment" id="386">
@@ -984,7 +984,7 @@ with additional permissions:</v8:content>
 											<v8:content>Permissions ("Version 2.2.3" permission compatibility mode)</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="PermissionsPageVersion222ExtendedTooltip" id="251"/>
+									<ExtendedTooltip name="PermissionsPageVersion_2_2_2ExtendedTooltip" id="251"/>
 									<ChildItems>
 										<SpreadSheetDocumentField name="PermissionsPresentation_2_2_2" id="252">
 											<DataPath>PermissionsPresentation_2_2_2</DataPath>
@@ -999,8 +999,8 @@ with additional permissions:</v8:content>
 											<Height>1</Height>
 											<VerticalScrollBar>true</VerticalScrollBar>
 											<HorizontalScrollBar>true</HorizontalScrollBar>
-											<ContextMenu name="PermissionsPresentation222ContextMenu" id="253"/>
-											<ExtendedTooltip name="PermissionsPresentation222ExtendedTooltip" id="254"/>
+											<ContextMenu name="PermissionsPresentation_2_2_2ContextMenu" id="253"/>
+											<ExtendedTooltip name="PermissionsPresentation_2_2_2ExtendedTooltip" id="254"/>
 										</SpreadSheetDocumentField>
 									</ChildItems>
 								</Page>
@@ -1205,7 +1205,7 @@ application without setting the safe mode.</v8:content>
 							<Representation>NormalSeparation</Representation>
 							<ShowTitle>false</ShowTitle>
 							<ThroughAlign>Use</ThroughAlign>
-							<ExtendedTooltip name="IndentGroupExtendedTooltip" id="410"/>
+							<ExtendedTooltip name="GroupIndentExtendedTooltip" id="410"/>
 							<ChildItems>
 								<InputField name="Group" id="45">
 									<DataPath>Object.Parent</DataPath>

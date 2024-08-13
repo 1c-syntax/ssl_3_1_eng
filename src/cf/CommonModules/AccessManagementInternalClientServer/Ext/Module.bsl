@@ -243,15 +243,12 @@ Procedure OnChangeCurrentAccessKind(Form, ProcessingAtClient = True) Export
 			Items.AccessKindsTypes.CurrentPage = Items.NormalAccessKind;
 		EndIf;
 		
-		If CurrentData.AccessKind = Form.AccessKindUsers Then
+		If CurrentData.AccessKind = Form.AccessKindUsers
+		 Or CurrentData.AccessKind = Form.AccessKindExternalUsers Then
+			
 			LabelPattern = ?(CurrentData.AllAllowed,
-				NStr("en = 'Denied values (%1), the current user is always allowed';"),
-				NStr("en = 'Allowed values (%1), the current user is always allowed';") );
-		
-		ElsIf CurrentData.AccessKind = Form.AccessKindExternalUsers Then
-			LabelPattern = ?(CurrentData.AllAllowed,
-				NStr("en = 'Denied values (%1), the current external user is always allowed';"),
-				NStr("en = 'Allowed values (%1), the current external user is always allowed';") );
+				NStr("en = 'Forbidden values (%1): Authorized user and their groups are always allowed';"),
+				NStr("en = 'Allowed values (%1): Authorized user and their groups are always allowed';") );
 		Else
 			LabelPattern = ?(CurrentData.AllAllowed,
 				NStr("en = 'Denied values (%1)';"),

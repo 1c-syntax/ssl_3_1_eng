@@ -145,29 +145,29 @@
 				<Autofill>false</Autofill>
 			</AutoCommandBar>
 			<ExtendedTooltip name="ListExtendedTooltip" id="12"/>
-			<SearchStringAddition name="ListSearchString_SSLy" id="19">
+			<SearchStringAddition name="ListSearchString" id="19">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchStringRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchString_SSLyContextMenu" id="20"/>
-				<ExtendedTooltip name="ListSearchString_SSLyExtendedTooltip" id="21"/>
+				<ContextMenu name="ListSearchStringContextMenu" id="20"/>
+				<ExtendedTooltip name="ListSearchStringExtendedTooltip" id="21"/>
 			</SearchStringAddition>
-			<ViewStatusAddition name="ListViewStatus_SSLy" id="22">
+			<ViewStatusAddition name="ListViewStatus" id="22">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>ViewStatusRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListViewStatus_SSLyContextMenu" id="23"/>
-				<ExtendedTooltip name="ListViewStatus_SSLyExtendedTooltip" id="24"/>
+				<ContextMenu name="ListViewStatusContextMenu" id="23"/>
+				<ExtendedTooltip name="ListViewStatusExtendedTooltip" id="24"/>
 			</ViewStatusAddition>
-			<SearchControlAddition name="ListSearchControl_SSLy" id="25">
+			<SearchControlAddition name="ListSearchControl" id="25">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchControl</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchControl_SSLyContextMenu" id="26"/>
-				<ExtendedTooltip name="ListSearchControl_SSLyExtendedTooltip" id="27"/>
+				<ContextMenu name="ListSearchControlContextMenu" id="26"/>
+				<ExtendedTooltip name="ListSearchControlExtendedTooltip" id="27"/>
 			</SearchControlAddition>
 			<Events>
 				<Event name="BeforeAddRow">ListBeforeAddRow</Event>
@@ -220,7 +220,7 @@
 									</Title>
 									<AutoCellHeight>true</AutoCellHeight>
 									<Width>15</Width>
-									<ContextMenu name="ScheduledJobPresentation1ContextMenu" id="9"/>
+									<ContextMenu name="ScheduledJobPresentationContextMenu" id="9"/>
 									<ExtendedTooltip name="ScheduledJobPresentationExtendedTooltip" id="14"/>
 								</LabelField>
 							</ChildItems>

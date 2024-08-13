@@ -370,20 +370,16 @@ Procedure ActivateTheAvailableField()
 	
 	FieldsCollection = FieldsCollection(ThisObject);
 	AvailableField = FieldsCollection.FindField(Field);
-	
 	If AvailableField = Undefined Then
 		Return;
 	EndIf;
 	
 	FieldOfAvailableFields = Items.AvailableFields; // ACC:275 - Items are generated programmatically.
 	DataOfAvailableFields = ThisObject[FieldOfAvailableFields.DataPath].GetItems();
-	
-	For Each String In DataOfAvailableFields Do 
-		
-		If String.Field = Field Then 
-			FieldOfAvailableFields.CurrentRow = String.GetID();
+	For Each ListLine In DataOfAvailableFields Do 
+		If ListLine.Field = Field Then 
+			FieldOfAvailableFields.CurrentRow = ListLine.GetID();
 		EndIf;
-		
 	EndDo;
 	
 EndProcedure
@@ -560,7 +556,7 @@ Function NamesOfFormulaEditingCommands()
 EndFunction
 
 // Parameters:
-//  SelectedField - See ListOfAvailableFields.Field
+//  SelectedField - 
 // 
 // Returns:
 //  Boolean

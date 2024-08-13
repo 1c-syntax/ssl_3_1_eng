@@ -26,26 +26,45 @@ Procedure BeforeAddReportCommands(ReportsCommands, Parameters, StandardProcessin
 		Return;
 	EndIf;
 	
-	Command = ReportsCommands.Add();
-	Command.Presentation = NStr("en = 'User rights';");
-	Command.MultipleChoice = True;
-	Command.Manager = "Report.AccessRightsAnalysis";
+	VariantPresentation = NStr("en = 'User rights';");
+	OnlyInAllActions = False;
+	OptionImportance = "";
 	
 	If Parameters.FormName = "Catalog.Users.Form.ListForm"
 	 Or Parameters.FormName = "Catalog.ExternalUsers.Form.ListForm" Then
 		
-		Command.VariantKey = "UsersRightsToTables";
+		If Not Users.IsFullUser() Then
+			Return;
+		EndIf;
+		VariantKey = "UsersRightsToTables";
 		
 	ElsIf Parameters.FormName = "Catalog.Users.Form.ItemForm"
 	      Or Parameters.FormName = "Catalog.ExternalUsers.Form.ItemForm" Then
 		
-		Command.Presentation = NStr("en = 'User rights';");
-		Command.VariantKey = "UserRightsToTables";
+		If Not Users.IsFullUser() Then
+			Return;
+		EndIf;
+		VariantKey = "UserRightsToTables";
+		VariantPresentation = NStr("en = 'User rights';");
+		
+	ElsIf Not Users.IsFullUser() Then
+		VariantKey = "UserRightsToTable";
+		VariantPresentation = NStr("en = 'User rights';");
+		OnlyInAllActions = True;
+		OptionImportance = "SeeAlso";
 	Else
-		Command.VariantKey = "UsersRightsToTable";
-		Command.OnlyInAllActions = True;
-		Command.Importance = "SeeAlso";
+		VariantKey = "UsersRightsToTable";
+		OnlyInAllActions = True;
+		OptionImportance = "SeeAlso";
 	EndIf;
+	
+	Command = ReportsCommands.Add();
+	Command.VariantKey = VariantKey;
+	Command.Presentation = VariantPresentation;
+	Command.OnlyInAllActions = OnlyInAllActions;
+	Command.MultipleChoice = True;
+	Command.Importance = OptionImportance;
+	Command.Manager = "Report.AccessRightsAnalysis";
 	
 EndProcedure
 
@@ -136,6 +155,55 @@ Function DetailsParameters(DetailsDataAddress, Details) Export
 	Result.Insert("DetailsFieldName1", DetailsFieldName1);
 	Result.Insert("FieldList", FieldList);
 	
+	AccessGroup = FieldList.Get("AccessGroup");
+	If Not AccessRight("View", Metadata.Catalogs.AccessGroups)
+	 Or ValueIsFilled(AccessGroup)
+	   And TypeOf(AccessGroup) = Type("CatalogRef.AccessGroups")
+	   And Not AccessManagement.ReadingAllowed(AccessGroup) Then
+		
+		FieldList.Delete("AccessGroup");
+	EndIf;
+	
+	AccessValue = FieldList.Get("AccessValue");
+	If TypeOf(AccessValue) = Type("String") Then
+		BlankRefs = AccessManagementInternal.EmptyAccessValueReferences();
+		FoundRow = BlankRefs.Find(AccessValue, "Presentation");
+		If FoundRow <> Undefined Then
+			FieldList.Insert("AccessValue", FoundRow.EmptyRef);
+		EndIf;
+	EndIf;
+	
+	DetailsValue = FieldList.Get(DetailsFieldName1);
+	
+	If DetailsFieldName1 = "ReportTitleMetadataObject" Then
+		If ValueIsFilled(DetailsValue) Then
+			MetadataObject = Common.MetadataObjectByID(DetailsValue, False);
+			If TypeOf(MetadataObject) = Type("MetadataObject")
+			   And AccessRight("View", MetadataObject) Then
+				FieldList.Insert("MetadataObjectURL",
+					GetURL(MetadataObject));
+			EndIf;
+		EndIf;
+	EndIf;
+	
+	ValueMetadata = Metadata.FindByType(TypeOf(DetailsValue));
+	If ValueMetadata = Undefined
+	 Or Not AccessRight("View", ValueMetadata)
+	 Or ValueIsFilled(DetailsValue)
+	   And Not AccessManagement.ReadingAllowed(DetailsValue) Then
+		
+		FieldList.Delete(DetailsFieldName1);
+		DetailsValue = Undefined;
+	EndIf;
+	
+	If ValueIsFilled(DetailsValue)
+	   And DetailsFieldName1 = "OwnerOrUserSettings"
+	   And Metadata.DefinedTypes.RightsSettingsOwner.Type.ContainsType(TypeOf(DetailsValue))
+	   And Not AccessManagement.HasRight("RightsManagement", DetailsValue) Then
+		
+		FieldList.Delete(DetailsFieldName1);
+	EndIf;
+	
 	Return Result;
 	
 EndFunction
@@ -183,7 +251,7 @@ EndProcedure
 //                   - CatalogRef.ExtensionObjectIDs - Table ID.
 //   * AccessKind    - AnyRef - Empty reference of the main access kind value type.
 //   * Presentation - String - Access kind presentation.
-//   * Right         - String - Read, Modify.
+//   * Right         - String - Read, Update.
 //
 Function AccessRestrictionKinds(ForExternalUsers = Undefined,
 			AccessTypeForTablesWithDisabledUse = False) Export
@@ -313,8 +381,8 @@ Function AccessRestrictionKinds(ForExternalUsers = Undefined,
 		Query.SetParameter("AccessKindsValuesTypes", AccessKindsValuesTypes);
 		Query.SetParameter("UsedAccessKinds",
 			AccessTypesWithView(AccessKindsValuesTypes, True));
-		// 
-		// 
+		// ACC:96-off - No.434. Using JOIN is acceptable as the rows should be unique and
+		// the result will be cached.
 		Query.Text =
 		"SELECT
 		|	PermanentRestrictionKinds.Table AS Table,

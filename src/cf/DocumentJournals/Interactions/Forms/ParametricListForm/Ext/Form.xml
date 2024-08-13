@@ -627,7 +627,7 @@
 												<v8:content>List commands</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="ListCommandsGroup1ExtendedTooltip" id="171"/>
+										<ExtendedTooltip name="GroupListCommandsExtendedTooltip" id="171"/>
 										<ChildItems>
 											<ButtonGroup name="FindGroup" id="89">
 												<Title>
@@ -725,29 +725,29 @@
 								</ChildItems>
 							</AutoCommandBar>
 							<ExtendedTooltip name="ListExtendedTooltip" id="186"/>
-							<SearchStringAddition name="ListSearchString_SSLy" id="236">
+							<SearchStringAddition name="ListSearchString" id="236">
 								<AdditionSource>
 									<Item>List</Item>
 									<Type>SearchStringRepresentation</Type>
 								</AdditionSource>
-								<ContextMenu name="ListSearchString_SSLyContextMenu" id="237"/>
-								<ExtendedTooltip name="ListSearchString_SSLyExtendedTooltip" id="238"/>
+								<ContextMenu name="ListSearchStringContextMenu" id="237"/>
+								<ExtendedTooltip name="ListSearchStringExtendedTooltip" id="238"/>
 							</SearchStringAddition>
-							<ViewStatusAddition name="ListViewStatus_SSLy" id="239">
+							<ViewStatusAddition name="ListViewStatus" id="239">
 								<AdditionSource>
 									<Item>List</Item>
 									<Type>ViewStatusRepresentation</Type>
 								</AdditionSource>
-								<ContextMenu name="ListViewStatus_SSLyContextMenu" id="240"/>
-								<ExtendedTooltip name="ListViewStatus_SSLyExtendedTooltip" id="241"/>
+								<ContextMenu name="ListViewStatusContextMenu" id="240"/>
+								<ExtendedTooltip name="ListViewStatusExtendedTooltip" id="241"/>
 							</ViewStatusAddition>
-							<SearchControlAddition name="ListSearchControl_SSLy" id="242">
+							<SearchControlAddition name="ListSearchControl" id="242">
 								<AdditionSource>
 									<Item>List</Item>
 									<Type>SearchControl</Type>
 								</AdditionSource>
-								<ContextMenu name="ListSearchControl_SSLyContextMenu" id="243"/>
-								<ExtendedTooltip name="ListSearchControl_SSLyExtendedTooltip" id="244"/>
+								<ContextMenu name="ListSearchControlContextMenu" id="243"/>
+								<ExtendedTooltip name="ListSearchControlExtendedTooltip" id="244"/>
 							</SearchControlAddition>
 							<Events>
 								<Event name="BeforeAddRow">ListBeforeAddRow</Event>
@@ -958,7 +958,7 @@
 												</Title>
 												<ExtendedTooltip name="CreateScheduledInteractionTreeListExtendedTooltip" id="194"/>
 											</Button>
-											<Button name="InteractionsTreeCreateSMSMessage1" id="219">
+											<Button name="InteractionsTreeCreateSMSMessage" id="219">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.CreateSMSMessage</CommandName>
 												<Title>

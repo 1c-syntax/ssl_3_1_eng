@@ -71,15 +71,9 @@ Procedure BeforeWrite(Cancel, WriteMode, PostingMode)
 	Subject = Interactions.SubjectByMessageText(MessageText);
 	Interactions.GenerateParticipantsList(ThisObject);
 	
-	If Metadata.CommonModules.Find("InteractionsLocalization") <> Undefined Then 
-		
-		ModuleInteractionsLocalization = Common.CommonModule("InteractionsLocalization");
-		
-		For Each AddresseesRow In SMSMessageRecipients Do
-			ModuleInteractionsLocalization.FormatPhoneNumberToSend(AddresseesRow.HowToContact, AddresseesRow.SendingNumber);
-		EndDo;
-		
-	EndIf;
+	For Each AddresseesRow In SMSMessageRecipients Do
+		InteractionsLocalization.OnFormatPhoneNumberToSend(AddresseesRow.HowToContact, AddresseesRow.SendingNumber);
+	EndDo;
 	
 EndProcedure
 

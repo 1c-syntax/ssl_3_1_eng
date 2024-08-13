@@ -27,7 +27,7 @@ Procedure UpdateRegisterData(HasChanges = Undefined, WithoutUpdatingDependentDat
 	InformationRegisters.ExtensionVersionParameters.LockForChangeInFileIB();
 	AccessKindsProperties = AccessManagementInternal.AccessKindsProperties();
 	
-	UsedAccessKinds = CreateRecordSet().Unload();
+	RecordSet = CreateRecordSet();
 	
 	For Each AccessKindProperties In AccessKindsProperties.Array Do
 		
@@ -41,37 +41,16 @@ Procedure UpdateRegisterData(HasChanges = Undefined, WithoutUpdatingDependentDat
 			AccessManagementOverridable.OnFillAccessKindUsage(AccessKindProperties.Name, Used);
 		EndIf;
 		
-		If Used Then
-			UsedAccessKinds.Add().AccessValuesType = AccessKindProperties.Ref;
+		NewRecord = RecordSet.Add();
+		NewRecord.AccessValuesType = AccessKindProperties.Ref;
+		NewRecord.Used = Used;
+		
+		If NewRecord.AccessValuesType <> AccessKindProperties.Ref Then
+			RecordSet.Delete(NewRecord);
 		EndIf;
 	EndDo;
 	
-	TemporaryTablesQueriesText =
-	"SELECT
-	|	NewData.AccessValuesType
-	|INTO NewData
-	|FROM
-	|	&UsedAccessKinds AS NewData";
-	
-	QueryText =
-	"SELECT
-	|	NewData.AccessValuesType,
-	|	&RowChangeKindFieldSubstitution
-	|FROM
-	|	NewData AS NewData";
-	
-	// Preparing the selected fields with optional filter.
-	Fields = New Array;
-	Fields.Add(New Structure("AccessValuesType"));
-	
-	Query = New Query;
-	UsedAccessKinds.GroupBy("AccessValuesType");
-	Query.SetParameter("UsedAccessKinds", UsedAccessKinds);
-	
-	Query.Text = AccessManagementInternal.ChangesSelectionQueryText(
-		QueryText, Fields, "InformationRegister.UsedAccessKinds", TemporaryTablesQueriesText);
-	
-	If Query.Execute().IsEmpty() Then
+	If Not HasChangesInAccessKindsUsage(RecordSet) Then
 		Return;
 	EndIf;
 	
@@ -82,14 +61,8 @@ Procedure UpdateRegisterData(HasChanges = Undefined, WithoutUpdatingDependentDat
 	Try
 		Block.Lock();
 		
-		Data = New Structure;
-		Data.Insert("RegisterManager",      InformationRegisters.UsedAccessKinds);
-		Data.Insert("EditStringContent", Query.Execute().Unload());
-		
-		HasCurrentChanges = False;
-		AccessManagementInternal.UpdateInformationRegister(Data, HasCurrentChanges);
-		
-		If HasCurrentChanges Then
+		If HasChangesInAccessKindsUsage(RecordSet) Then
+			RecordSet.Write();
 			HasChanges = True;
 			If Not WithoutUpdatingDependentData Then
 				WhenChangingTheUseOfAccessTypes(True);
@@ -105,13 +78,16 @@ Procedure UpdateRegisterData(HasChanges = Undefined, WithoutUpdatingDependentDat
 EndProcedure
 
 // Parameters:
-//  DataElement - InformationRegisterRecordSet.UsedAccessKinds
+//  RecordSet - InformationRegisterRecordSet.UsedAccessKinds
 //
-Procedure RegisterChangeUponDataImport(DataElement) Export
+// Returns:
+//  Boolean
+//
+Function HasChangesInAccessKindsUsage(RecordSet)
 	
 	PreviousValues1 = CreateRecordSet();
-	If DataElement.Filter.AccessValuesType.Use Then
-		PreviousValues1.Filter.AccessValuesType.Set(DataElement.Filter.AccessValuesType.Value);
+	If RecordSet.Filter.AccessValuesType.Use Then
+		PreviousValues1.Filter.AccessValuesType.Set(RecordSet.Filter.AccessValuesType.Value);
 	EndIf;
 	
 	PreviousValues1.Read();
@@ -120,28 +96,39 @@ Procedure RegisterChangeUponDataImport(DataElement) Export
 	Table.Columns.Add("LineChangeType", New TypeDescription("Number"));
 	Table.FillValues(-1, "LineChangeType");
 	
-	For Each Record In DataElement Do
+	For Each Record In RecordSet Do
 		NewRow = Table.Add();
 		NewRow.LineChangeType = 1;
 		NewRow.AccessValuesType = Record.AccessValuesType;
+		NewRow.Used       = Record.Used;
 	EndDo;
-	Table.GroupBy("AccessValuesType", "LineChangeType");
+	Table.GroupBy("AccessValuesType,Used", "LineChangeType");
 	
-	Changes = New Array;
+	HasChanges = False;
 	For Each String In Table Do
 		If String.LineChangeType = 0 Then
 			Continue;
 		EndIf;
-		Changes.Add(String.AccessValuesType);
+		HasChanges = True;
+		Break;
 	EndDo;
 	
-	If Not ValueIsFilled(Changes) Then
+	Return HasChanges;
+	
+EndFunction
+
+// Parameters:
+//  DataElement - InformationRegisterRecordSet.UsedAccessKinds
+//
+Procedure RegisterChangeUponDataImport(DataElement) Export
+	
+	If Not HasChangesInAccessKindsUsage(DataElement) Then
 		Return;
 	EndIf;
 	
 	SetPrivilegedMode(True);
 	
-	UsersInternal.RegisterRefs("UsedAccessKinds", Changes);
+	UsersInternal.RegisterRefs("UsedAccessKinds", Undefined);
 	
 EndProcedure
 
@@ -149,7 +136,7 @@ EndProcedure
 Procedure ProcessChangeRegisteredUponDataImport() Export
 	
 	If Common.DataSeparationEnabled() Then
-		// 
+		// SWP right settings are locked for editing. Cannot import them into the data area.
 		Return;
 	EndIf;
 	
@@ -158,10 +145,14 @@ Procedure ProcessChangeRegisteredUponDataImport() Export
 		Return;
 	EndIf;
 	
-	WhenChangingTheUseOfAccessTypes(True);
+	WhenChangingTheUseOfAccessTypes(Changes.Count() = 1 And Changes[0] <> Undefined);
 	
 	UsersInternal.RegisterRefs("UsedAccessKinds", Null);
 	
+EndProcedure
+
+Procedure ScheduleUpdateOnChangeAccessKindsUsage() Export
+	UsersInternal.RegisterRefs("UsedAccessKinds", Undefined);
 EndProcedure
 
 // For the UpdateRegisterData, ProcessChangeRecordedOnImport procedures.

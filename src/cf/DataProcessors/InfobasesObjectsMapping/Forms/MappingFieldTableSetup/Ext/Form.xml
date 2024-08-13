@@ -116,7 +116,7 @@
 						</v8:item>
 					</Title>
 					<EditMode>EnterOnInput</EditMode>
-					<ContextMenu name="FieldsListPresentationContextMenu" id="17"/>
+					<ContextMenu name="FieldListPresentationContextMenu" id="17"/>
 					<ExtendedTooltip name="FieldListPresentationExtendedTooltip" id="24"/>
 				</InputField>
 			</ChildItems>

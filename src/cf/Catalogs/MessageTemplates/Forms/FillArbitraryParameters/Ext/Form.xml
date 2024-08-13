@@ -33,7 +33,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="TemplateParameters2ExtendedTooltip" id="8"/>
+			<ExtendedTooltip name="TemplateParametersExtendedTooltip" id="8"/>
 		</UsualGroup>
 		<CommandBar name="FormCommandBarGroup" id="1">
 			<Title>

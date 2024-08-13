@@ -32,7 +32,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="TitleGroup1ExtendedTooltip" id="1600"/>
+			<ExtendedTooltip name="TitleGroupExtendedTooltip" id="1600"/>
 			<ChildItems>
 				<LabelDecoration name="SectionDetails" id="1581">
 					<AutoMaxWidth>false</AutoMaxWidth>
@@ -431,8 +431,8 @@ The collected data does not contain any personal information; it only contains s
 </v8:content>
 								</v8:item>
 							</Title>
-							<ContextMenu name="NoteDecorationContextMenu" id="1668"/>
-							<ExtendedTooltip name="NoteDecorationExtendedTooltip" id="1669"/>
+							<ContextMenu name="DecorationNoteContextMenu" id="1668"/>
+							<ExtendedTooltip name="DecorationNoteExtendedTooltip" id="1669"/>
 						</LabelDecoration>
 						<UsualGroup name="RadioButtonsGroup" id="1670">
 							<Title>
@@ -512,7 +512,7 @@ The collected data does not contain any personal information; it only contains s
 											<v8:content>Monitoring center settings</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="MonitoringCenterSettings1ExtendedTooltip" id="1841"/>
+									<ExtendedTooltip name="MonitoringCenter_SettingsExtendedTooltip" id="1841"/>
 								</Button>
 							</ChildItems>
 						</UsualGroup>

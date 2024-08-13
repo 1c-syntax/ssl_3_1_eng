@@ -34,7 +34,7 @@
 						<v8:content>Add formula</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="AddAFormulaExtendedTooltip" id="97"/>
+				<ExtendedTooltip name="AddFormulaExtendedTooltip" id="97"/>
 			</Button>
 			<Button name="ChangeFormula" id="98">
 				<Type>CommandBarButton</Type>
@@ -56,7 +56,7 @@
 						<v8:content>Delete formula</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="DeleteAFormulaExtendedTooltip" id="101"/>
+				<ExtendedTooltip name="DeleteFormulaExtendedTooltip" id="101"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
@@ -75,7 +75,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="GroupAvailableFieldsExtendedTooltip" id="95"/>
+			<ExtendedTooltip name="AvailableFieldsGroupExtendedTooltip" id="95"/>
 		</UsualGroup>
 	</ChildItems>
 	<Attributes>

@@ -344,7 +344,7 @@ Procedure OnDefineHandlerAliases(NamesAndAliasesMap) Export
 	NamesAndAliasesMap.Insert("ContactsManagerInternal.ObsoleteAddressesCorrection");
 EndProcedure
 
-// See NationalLanguageSupportServer.ObjectsSCHRepresentations
+// 
 Procedure OnDefineObjectsWithTablePresentation(Objects) Export
 	Objects.Add("Catalog.ContactInformationKinds");
 EndProcedure
@@ -468,6 +468,7 @@ Procedure AutoCompleteAddress(Val Text, ChoiceData) Export
 	
 	AdditionalParameters = AddressAutoSelectionParameters();
 	AdditionalParameters.OnlyWebService = True;
+	AdditionalParameters.IsDirectOrder = True;
 	
 	Result = DataProcessors["AdvancedContactInformationInput"].ListOfAutoSelectionLocalities(Text, AdditionalParameters);
 	If Result.Cancel Then
@@ -485,6 +486,7 @@ Function AddressAutoSelectionParameters() Export
 	AdditionalParameters.Insert("OnlyWebService", False);
 	AdditionalParameters.Insert("Levels", "");
 	AdditionalParameters.Insert("AddressType", "");
+	AdditionalParameters.Insert("IsDirectOrder", False);
 	
 	Return AdditionalParameters;
 	
@@ -1635,7 +1637,7 @@ Function AddressPresentation(Val Address, Val InformationKind)
 				For IndexOf = 0 To PresentationAsArray.UBound() Do
 					PresentationAsArray[IndexOf] = TrimAll(PresentationAsArray[IndexOf]);
 				EndDo;
-				PresentationAsArray.Delete(0); // 
+				PresentationAsArray.Delete(0); // Remove the country.
 				Presentation = StrConcat(PresentationAsArray, ", ");
 			EndIf;
 		EndIf;
@@ -2197,12 +2199,11 @@ Procedure SetObjectContactInformation(Object, ContactInformation, MetadataObject
 		For Each ObjectContactInformationRow In ContactInformation Do
 			
 			FilterDate = ?(Periodic, ObjectContactInformationRow.Date, Undefined);
-			FoundRows = FindContactInformationStrings(ObjectContactInformationRow.Kind, FilterDate, Object.ContactInformation, Periodic);
-			
-			For Each String In FoundRows Do
-				Object.ContactInformation.Delete(String);
+			ContactInformationRows = FindContactInformationStrings(ObjectContactInformationRow.Kind, 
+				FilterDate, Object.ContactInformation, Periodic);
+			For Each TableRow In ContactInformationRows Do
+				Object.ContactInformation.Delete(TableRow);
 			EndDo;
-			
 		EndDo;
 		
 	EndIf;
@@ -2226,18 +2227,18 @@ Procedure SetObjectContactInformation(Object, ContactInformation, MetadataObject
 			
 			If StoreChangeHistory Then
 				Filter.Insert("ValidFrom", ObjectContactInformationRow.Date);
-				FoundRows = Object.ContactInformation.FindRows(Filter);
+				ContactInformationRows = Object.ContactInformation.FindRows(Filter);
 			ElsIf ValueIsFilled(ObjectContactInformationRow.Value) Then
 				Filter.Insert("Value", ObjectContactInformationRow.Value);
-				FoundRows = Object.ContactInformation.FindRows(Filter);
+				ContactInformationRows = Object.ContactInformation.FindRows(Filter);
 			Else
 				Filter.Insert("FieldValues", ObjectContactInformationRow.FieldValues);
-				FoundRows = Object.ContactInformation.FindRows(Filter);
+				ContactInformationRows = Object.ContactInformation.FindRows(Filter);
 			EndIf;
 			
 			If Not StoreChangeHistory
 				And MultipleValuesInputProhibited(ObjectContactInformationRow.Kind, Object.ContactInformation, ObjectContactInformationRow.Date, StoreChangeHistory)
-				Or FoundRows.Count() > 0 Then
+				Or ContactInformationRows.Count() > 0 Then
 				Continue;
 			EndIf;
 			
@@ -2751,8 +2752,8 @@ Function PhoneFaxDeserializationInJSON(FieldValues, Presentation = "", ExpectedT
 	
 	// Parsing from the presentation.
 	
-	//  
-	// 
+	// Digit groups separated by non-digits: country code, area code, phone number, and extension. 
+	// The extension includes leading and trailing non-whitespace characters.
 	Position = 1;
 	Data.CountryCode  = FindDigitSubstring(Presentation, Position);
 	CityBeginning = Position;

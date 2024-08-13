@@ -55,8 +55,8 @@ Procedure GetExchangeMessageToTemporaryDirectory(Parameters, TempStorageAddress)
 			
 			File = New File(TempFileName);			
 			If File.Exists() And File.IsFile() Then
-				// 
-				// 
+				// Put the message info for mapping back to the storage.
+				// Intended to restore the data in case of abnormal analysis termination.
 				DataExchangeServer.PutFileInStorage(TempFileName, CommonSettings.MessageForDataMapping);
 				
 				DataPackageFileID = File.GetModificationTime();
@@ -631,8 +631,8 @@ Function AutomaticDataMappingResult(Val Peer,
 	Result.Insert("ErrorMessage",         "");
 	Result.Insert("ExchangeExecutionResult", Undefined);
 	
-	// 
-	// 
+	// Auto-map the data received from the peer infobase.
+	// Gather the mapping statistics.
 	SetPrivilegedMode(True);
 	
 	DataExchangeServer.InitializeVersionDifferenceCheckParameters(CheckVersionDifference);

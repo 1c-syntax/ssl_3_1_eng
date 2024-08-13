@@ -116,8 +116,8 @@ EndProcedure
 &AtClient
 Procedure ApplyAllRules(Command)
 	
-	For Each String In EmailRules Do
-		String.Apply = True;
+	For Each ProcessingRule In EmailRules Do
+		ProcessingRule.Apply = True;
 	EndDo;
 	
 EndProcedure
@@ -125,8 +125,8 @@ EndProcedure
 &AtClient
 Procedure DontApplyAllRules(Command)
 	
-	For Each String In EmailRules Do
-		String.Apply = False;
+	For Each ProcessingRule In EmailRules Do
+		ProcessingRule.Apply = False;
 	EndDo;
 	
 EndProcedure

@@ -31,7 +31,7 @@ EndProcedure
 &AtClient
 Procedure AccessUpdateOnRecordsLevel(Command)
 	
-	OpenForm("InformationRegister.DataAccessKeysUpdate.Form.AccessUpdateOnRecordsLevel");
+	AccessManagementInternalClient.OpenUpdateAccessFormAtRecordLevel(, True);
 	
 EndProcedure
 

@@ -45,14 +45,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Else
 			Data = ContactsManager.NewContactInformationDetails(ContactInformationType);
 			Data.value = FieldValues;
-			Data.Comment = Parameters.Comment;
+			Data.comment = Parameters.Comment;
 		EndIf;
 		
 	EndIf;
 	
-	Address        = Data.Value;
+	Address        = Data.value;
 	Description = TrimAll(Parameters.Presentation);
-	Comment  = Data.Comment;
+	Comment  = Data.comment;
 	
 EndProcedure
 

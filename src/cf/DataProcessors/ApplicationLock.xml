@@ -239,7 +239,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Message for users</v8:content>
+							<v8:content>Logon message</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -256,7 +256,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>The message explaining the lock reason that is displayed when users attempt to log in to a locked infobase.</v8:content>
+							<v8:content>The message explaining the lock reason. It is displayed when the user attempts to log in to the locked app.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>

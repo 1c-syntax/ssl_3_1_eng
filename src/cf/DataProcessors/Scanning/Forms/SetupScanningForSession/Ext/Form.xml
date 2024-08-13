@@ -102,8 +102,8 @@
 						<Title formatted="true">
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>&lt;b&gt;Basic&lt;/&gt;&lt;b&gt; &lt;/&gt;&lt;b&gt;&lt;/&gt;&lt;b&gt; &lt;/&gt;&lt;b&gt;settings:&lt;/&gt;&lt;b&gt;&lt;/&gt;&lt;b&gt;&lt;/&gt; Do not display the scanner dialog box and apply the settings specified in the application. 
-&lt;b&gt;Advanced&lt;/&gt;&lt;b&gt; &lt;/&gt;&lt;b&gt;&lt;/&gt;&lt;b&gt; &lt;/&gt;&lt;b&gt;settings:&lt;/&gt;&lt;b&gt;&lt;/&gt;&lt;b&gt;&lt;/&gt; Display the scanner dialog box to configure additional device-specific settings.
+								<v8:content>&lt;b&gt;Basic&lt;/&gt;&lt;b&gt; &lt;/&gt;&lt;b&gt;&lt;/&gt;&lt;b&gt;&lt;/&gt;&lt;b&gt;settings:&lt;/&gt;&lt;b&gt;&lt;/&gt;&lt;b&gt;&lt;/&gt; Do not display the scanner dialog box and apply the settings specified in the application. 
+&lt;b&gt;Advanced&lt;/&gt;&lt;b&gt; &lt;/&gt;&lt;b&gt;&lt;/&gt;&lt;b&gt;&lt;/&gt;&lt;b&gt;settings:&lt;/&gt;&lt;b&gt;&lt;/&gt;&lt;b&gt;&lt;/&gt; Display the scanner dialog box to configure additional device-specific settings.
 </v8:content>
 							</v8:item>
 						</Title>
@@ -153,7 +153,7 @@
 								<Title formatted="true">
 									<v8:item>
 										<v8:lang>en</v8:lang>
-										<v8:content>&lt;b&gt;200&lt;/&gt;&lt;b&gt; &lt;/&gt;&lt;b&gt;dpi&lt;/&gt; is enough to send images by email or fax, post them on the website, or view them on the screen.
+										<v8:content>&lt;b&gt;200&lt;/&gt;&lt;b&gt; &lt;/&gt;&lt;b&gt;dpi&lt;/&gt; is enough to send images by email or fax, post them on the website, or view them on the screen.
 &lt;b&gt;300&lt;/&gt;&lt;b&gt; &lt;/&gt;&lt;b&gt;dpi&lt;/&gt; is suitable for most documents and images and for text recognition.
 &lt;b&gt;600&lt;/&gt;&lt;b&gt; &lt;/&gt;&lt;b&gt;dpi&lt;/&gt; is suitable for scanning color images of publication quality. You can later print them on a high-quality or large-format printer. Such images take up a large amount of space.
 &lt;b&gt;1200&lt;/&gt;&lt;b&gt; &lt;/&gt;&lt;b&gt;dpi&lt;/&gt; is suitable for scanning professional photos of publication quality. Such images take up a large amount of space.
@@ -269,7 +269,7 @@
 												<Event name="OnChange">ScannedImageFormatOnChange</Event>
 											</Events>
 										</InputField>
-										<CheckBoxField name="ShouldSaveAsPDF" id="84">
+										<CheckBoxField name="ConvertToPDF" id="84">
 											<DataPath>ShouldSaveAsPDF</DataPath>
 											<Title>
 												<v8:item>
@@ -280,18 +280,17 @@
 											<TitleLocation>Right</TitleLocation>
 											<ToolTipRepresentation>Button</ToolTipRepresentation>
 											<CheckBoxType>Auto</CheckBoxType>
-											<ContextMenu name="ShouldSaveAsPDFContextMenu" id="85"/>
-											<ExtendedTooltip name="ShouldSaveAsPDFExtendedTooltip" id="86">
+											<ContextMenu name="ConvertToPDFContextMenu" id="85"/>
+											<ExtendedTooltip name="ConvertToPDFExtendedTooltip" id="86">
 												<Title formatted="true">
 													<v8:item>
 														<v8:lang>en</v8:lang>
-														<v8:content>&lt;b&gt;JPG&lt;/&gt; is suitable for most documents and images. It uses lossy compression, and the compression ratio can be adjusted. 
-&lt;b&gt;PNG&lt;/&gt; is suitable for most documents and images. It offers lossless compression and small file sizes. 
-&lt;b&gt;TIF&lt;/&gt; offers lossless image compression and is commonly used to store images for printing purposes. It also supports multipage images.
-&lt;b&gt;GIF&lt;/&gt; is an outdated format for storing low-quality images with small file sizes.
-&lt;b&gt;BMP&lt;/&gt; is an outdated format for storing high-quality images with large file sizes.
+														<v8:content>&lt;b&gt;JPG&lt;/&gt; is suitable for most documents and images. It uses lossy compression, and the compression ratio can be adjusted.
+&lt;b&gt;PNG&lt;/&gt;is suitable for most documents and images. It offers lossless compression and small file sizes.
+&lt;b&gt;TIF&lt;/&gt;offers lossless image compression and is commonly used to store images for printing purposes. It also supports multipage images.
+&lt;b&gt;GIF&lt;/&gt;is an outdated format for storing low-quality images with small file sizes.
 
-&lt;b&gt;Convert&lt;/&gt;&lt;b&gt; &lt;/&gt;&lt;b&gt;to&lt;/&gt;&lt;b&gt; &lt;/&gt;&lt;b&gt;PDF&lt;/&gt; allows you to place scanned images into a PDF file and supports multipage images.</v8:content>
+&lt;b&gt;Convert to PDF&lt;/&gt; allows you to place scanned images into a PDF file and supports multipage images.</v8:content>
 													</v8:item>
 												</Title>
 											</ExtendedTooltip>

@@ -73,7 +73,7 @@ Procedure StartFooterFromPageOnChange(Item)
 EndProcedure
 
 &AtClient
-Procedure PagePreviewOnChange(Item)
+Procedure PageSampleOnChange(Item)
 	
 	UpdatePreview();
 	

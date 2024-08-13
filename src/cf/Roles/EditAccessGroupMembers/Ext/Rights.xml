@@ -11,13 +11,6 @@
 		</right>
 	</object>
 	<object>
-		<name>CommonForm.AccessRights</name>
-		<right>
-			<name>View</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
 		<name>Configuration.StandardSubsystemsLibrary</name>
 		<right>
 			<name>MainWindowModeNormal</name>
@@ -45,14 +38,21 @@
 		</right>
 	</object>
 	<object>
+		<name>CommonForm.AccessRights</name>
+		<right>
+			<name>View</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
 		<name>Catalog.AccessGroups</name>
 		<right>
 			<name>Read</name>
 			<value>true</value>
 			<restrictionByCondition>
-				<condition>#IF &amp;RecordLevelAccessRestrictionIsUniversal #THEN
+				<condition>#If &amp;RecordLevelAccessRestrictionIsUniversal #Then
 #ForObject("")
-#ELSE
+#Else
 AccessGroups
 WHERE
     AccessGroups.IsFolder
@@ -63,27 +63,27 @@ WHERE
             InformationRegister.UserGroupCompositions AS UserGroupCompositions
                 WHERE
                       UserGroupCompositions.UsersGroup = AccessGroups.EmployeeResponsible
-                #IF &amp;CurrentExternalUser = Value(Catalog.ExternalUser.EmptyRef) #THEN
+                #If &amp;CurrentExternalUser = Value(Catalog.ExternalUser.EmptyRef) #Then
                     AND UserGroupCompositions.User        = &amp;CurrentUser
-                #ELSE
+                #Else
                     AND UserGroupCompositions.User        = &amp;CurrentExternalUser
-                #ENDIF
+                #EndIf
          )
     AND CASE
         WHERE AccessGroups.Ref  =  Value(Catalog.AccessGroups.Administrators)
         THEN AccessGroups.Profile =  Value(Catalog.AccessGroupProfiles.Administrator)
         ELSE AccessGroups.Profile &lt;&gt; Value(Catalog.AccessGroupProfiles.Administrator)
     END
-#ENDIF</condition>
+#EndIf</condition>
 			</restrictionByCondition>
 		</right>
 		<right>
 			<name>Update</name>
 			<value>true</value>
 			<restrictionByCondition>
-				<condition>#IF &amp;RecordLevelAccessRestrictionIsUniversal #THEN
+				<condition>#If &amp;RecordLevelAccessRestrictionIsUniversal #Then
 #ForObject("")
-#ELSE
+#Else
 AccessGroups
 WHERE
     AccessGroups.IsFolder
@@ -94,18 +94,18 @@ WHERE
             InformationRegister.UserGroupCompositions AS UserGroupCompositions
                 WHERE
                       UserGroupCompositions.UsersGroup = AccessGroups.EmployeeResponsible
-                #IF &amp;CurrentExternalUser = Value(Catalog.ExternalUser.EmptyRef) #THEN
+                #If &amp;CurrentExternalUser = Value(Catalog.ExternalUser.EmptyRef) #Then
                     AND UserGroupCompositions.User        = &amp;CurrentUser
-                #ELSE
+                #Else
                     AND UserGroupCompositions.User        = &amp;CurrentExternalUser
-                #ENDIF
+                #EndIf
          )
     AND CASE
         WHERE AccessGroups.Ref  =  Value(Catalog.AccessGroups.Administrators)
         THEN AccessGroups.Profile =  Value(Catalog.AccessGroupProfiles.Administrator)
         ELSE AccessGroups.Profile &lt;&gt; Value(Catalog.AccessGroupProfiles.Administrator)
     END
-#ENDIF</condition>
+#EndIf</condition>
 			</restrictionByCondition>
 		</right>
 		<right>
@@ -127,9 +127,9 @@ WHERE
 			<name>Read</name>
 			<value>true</value>
 			<restrictionByCondition>
-				<condition>#IF &amp;RecordLevelAccessRestrictionIsUniversal #THEN
+				<condition>#If &amp;RecordLevelAccessRestrictionIsUniversal #Then
 #ForObject("")
-#ELSE
+#Else
 AccessGroupProfiles
 WHERE
     AccessGroupProfiles.IsFolder
@@ -142,18 +142,18 @@ WHERE
                 ON
                       AccessGroups.Profile = AccessGroupProfiles.Ref
                     AND UserGroupCompositions.UsersGroup = AccessGroups.EmployeeResponsible
-                #IF &amp;CurrentExternalUser = VALUE(Catalog.ExternalUsers.EmptyRef) #THEN
+                #If &amp;CurrentExternalUser = VALUE(Catalog.ExternalUsers.EmptyRef) #Then
                     AND UserGroupCompositions.User        = &amp;CurrentUser
-                #ELSE
+                #Else
                     AND UserGroupCompositions.User        = &amp;CurrentExternalUser
-                #ENDIF
+                #EndIf
                     AND CASE
                         THEN AccessGroups.Ref  =  VALUE(Catalog.AccessGroups.Administrators)
                         THEN AccessGroups.Profile =  VALUE(Catalog.AccessGroupProfiles.Administrator)
                         ELSE AccessGroups.Profile &lt;&gt; VALUE(Catalog.AccessGroupProfiles.Administrator)
                       END
          )
-#ENDIF</condition>
+#EndIf</condition>
 			</restrictionByCondition>
 		</right>
 		<right>

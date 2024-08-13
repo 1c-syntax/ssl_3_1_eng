@@ -477,9 +477,9 @@ Function PutMessageForDataMatching(ExchangePlanName, NodeID, FileID, DataArea)
 	
 	DataExchangeInternal.PutMessageForDataMapping(ExchangeNode, FileID);
 	
-	//  
-	// 
-	// 
+	// The web client and the thin client have dedicated temporary directories. 
+	// Configuring syncing from the thin client will result in an error due to the missing file
+	// in the temporary directory.
 	// 
 	MoveTheMessageFileForTheFileIB(FileID);
 	
@@ -1006,7 +1006,7 @@ Procedure SignInToDataArea(DataArea)
 	CTLVersion = ModuleSaaSTechnology.LibraryVersion();
 
 	If CommonClientServer.CompareVersions(CTLVersion, "2.0.7.46") >= 0 Then
-		ModuleSaaSOperations.SignInToDataArea(DataArea);
+		ModuleSaaSOperations.SignInToDataArea(DataArea); //ACC:287
 	Else
 		ModuleSaaSOperations.SetSessionSeparation(True, DataArea); //ACC:222
 	EndIf;
@@ -1026,7 +1026,7 @@ Procedure SignOutOfDataArea(DataArea)
 	CTLVersion = ModuleSaaSTechnology.LibraryVersion();
 
 	If CommonClientServer.CompareVersions(CTLVersion, "2.0.7.46") >= 0 Then
-		ModuleSaaSOperations.SignOutOfDataArea();
+		ModuleSaaSOperations.SignOutOfDataArea(); //ACC:287
 	Else
 		ModuleSaaSOperations.SetSessionSeparation(False); //ACC:222
 	EndIf;

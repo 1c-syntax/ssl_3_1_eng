@@ -486,8 +486,8 @@ This option is recommended if you made significant changes to the report option.
 									</ToolTip>
 									<ToolTipRepresentation>Button</ToolTipRepresentation>
 									<CheckBoxType>Auto</CheckBoxType>
-									<ContextMenu name="ClearSettings1ContextMenu" id="226"/>
-									<ExtendedTooltip name="ClearSettings1ExtendedTooltip" id="227"/>
+									<ContextMenu name="ResetSettingsContextMenu" id="226"/>
+									<ExtendedTooltip name="ResetSettingsExtendedTooltip" id="227"/>
 								</CheckBoxField>
 								<CommandBar name="CommandBarSubsystemsTree" id="263">
 									<Title>
@@ -674,7 +674,7 @@ This option is recommended if you made significant changes to the report option.
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="CommandBarGroupExtendedTooltip" id="146"/>
+			<ExtendedTooltip name="GroupCommandBarExtendedTooltip" id="146"/>
 			<ChildItems>
 				<CommandBar name="CommandBarGroupLeft" id="147">
 					<Title>

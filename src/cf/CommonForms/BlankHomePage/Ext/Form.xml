@@ -22,7 +22,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="TestMode1ExtendedTooltip" id="2"/>
+			<ExtendedTooltip name="TestModeExtendedTooltip" id="2"/>
 			<ChildItems>
 				<PictureDecoration name="Picture" id="3">
 					<Title formatted="false">

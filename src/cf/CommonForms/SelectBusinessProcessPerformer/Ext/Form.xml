@@ -242,8 +242,8 @@
 									<UserVisible>
 										<xr:Common>false</xr:Common>
 									</UserVisible>
-									<ContextMenu name="ListOfRolesLinkContextMenu" id="87"/>
-									<ExtendedTooltip name="ListOfRolesLinkExtendedTooltip" id="88"/>
+									<ContextMenu name="ListRolesRefContextMenu" id="87"/>
+									<ExtendedTooltip name="ListRolesRefExtendedTooltip" id="88"/>
 								</LabelField>
 							</ChildItems>
 						</Table>

@@ -35,7 +35,7 @@
 						<v8:content>Done</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="OKButton1ExtendedTooltip" id="238"/>
+				<ExtendedTooltip name="OKButtonExtendedTooltip" id="238"/>
 			</Button>
 			<Button name="CancelButton" id="239">
 				<Type>CommandBarButton</Type>
@@ -145,10 +145,10 @@
 							<DropListButton>false</DropListButton>
 							<ChoiceButton>true</ChoiceButton>
 							<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>
-							<ContextMenu name="QuestionsQuestionContextMenu" id="140"/>
+							<ContextMenu name="QuestionsDoQueryBoxContextMenu" id="140"/>
 							<ExtendedTooltip name="QuestionsDoQueryBoxExtendedTooltip" id="178"/>
 							<Events>
-								<Event name="ChoiceProcessing">QuestionsQuestionChoiceProcessing</Event>
+								<Event name="ChoiceProcessing">QuestionsDoQueryBoxChoiceProcessing</Event>
 							</Events>
 						</InputField>
 					</ChildItems>

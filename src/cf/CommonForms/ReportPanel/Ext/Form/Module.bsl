@@ -144,7 +144,7 @@ Procedure NotificationProcessing(EventName, Changes, Source)
 		ClientParameters.Insert("ShouldUpdate", False)
 	EndIf;
 	If EventName = ReportsOptionsClient.EventNameChangingOption()
-		Or EventName = "Write_ConstantsSet" Then
+		Or EventName = "Write_ConstantsSet" Or EventName = "Write_ReportsOptions" Then
 		ClientParameters.ShouldUpdate = True;
 	ElsIf EventName = ReportsOptionsClient.EventNameChangingCommonSettings() Then
 		If Changes.ShowTooltips <> ShowTooltips
@@ -209,7 +209,7 @@ EndProcedure
 Function SearchStringIsTooShort(Text)
 	Text = TrimAll(Text);
 	If StrLen(Text) < 2 Then
-		ShowMessageBox(, NStr("en = 'Search string is too short.';"));
+		ShowMessageBox(, NStr("en = 'Search text is too short.';"));
 		Return True;
 	EndIf;
 	
@@ -434,7 +434,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Client
+// Client.
 
 &AtClient
 Procedure ShowHideOption(Variant, Item, Show)
@@ -584,7 +584,7 @@ Function FindOptionByItemName(LabelName)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Server call.
 
 &AtClientAtServerNoContext
 Function FindSubsystemByRef(Form, Ref)
@@ -601,7 +601,7 @@ Function FindSubsystemByRef(Form, Ref)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Server call.
 
 &AtServer
 Procedure MoveQuickAccessOption(Val OptionID, Val QuickAccess)
@@ -745,7 +745,7 @@ Function UpdateReportPanelAtServer(Val Event = "")
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Server
+// Server.
 
 &AtServer
 Procedure DefineBehaviorInMobileClient()
@@ -943,7 +943,7 @@ Procedure SaveSettingsOfThisReportPanel()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Server / filling in a report panel.
 
 &AtServer
 Function FillReportPanelInBackground()
@@ -1478,36 +1478,36 @@ Procedure OutputOptionsWithGroup(FillParameters)
 		If CurrentColumnNumber <> OutputOrderRow.ColumnNumber Then
 			CurrentColumnNumber = OutputOrderRow.ColumnNumber;
 			CurrentNestingLevel = 0;
-			CurrentGroup_SSLy = Level2Group.ChildItems.Get(CurrentColumnNumber - 1);
+			CurrentGroup = Level2Group.ChildItems.Get(CurrentColumnNumber - 1);
 			CurrentGroupsByNestingLevels = New Map;
-			CurrentGroupsByNestingLevels.Insert(0, CurrentGroup_SSLy);
+			CurrentGroupsByNestingLevels.Insert(0, CurrentGroup);
 		EndIf;
 		
 		If OutputOrderRow.IsSubsystem Then
 			
 			If OutputOrderRow.SubsystemRef = FillParameters.SectionReference Then
 				CurrentNestingLevel = 0;
-				CurrentGroup_SSLy = CurrentGroupsByNestingLevels.Get(0);
+				CurrentGroup = CurrentGroupsByNestingLevels.Get(0);
 			Else
 				CurrentNestingLevel = OutputOrderRow.NestingLevel;
 				ToGroup = CurrentGroupsByNestingLevels.Get(OutputOrderRow.NestingLevel - 1);
-				CurrentGroup_SSLy = AddSubsystemsGroup(FillParameters, OutputOrderRow, ToGroup);
-				CurrentGroupsByNestingLevels.Insert(CurrentNestingLevel, CurrentGroup_SSLy);
+				CurrentGroup = AddSubsystemsGroup(FillParameters, OutputOrderRow, ToGroup);
+				CurrentGroupsByNestingLevels.Insert(CurrentNestingLevel, CurrentGroup);
 			EndIf;
 			
 		ElsIf OutputOrderRow.IsOption Then
 			
 			If CurrentNestingLevel <> OutputOrderRow.NestingLevel Then
 				CurrentNestingLevel = OutputOrderRow.NestingLevel;
-				CurrentGroup_SSLy = CurrentGroupsByNestingLevels.Get(CurrentNestingLevel);
+				CurrentGroup = CurrentGroupsByNestingLevels.Get(CurrentNestingLevel);
 			EndIf;
 			
-			AddReportOptionItems(FillParameters, OutputOrderRow.Variant, CurrentGroup_SSLy, OutputOrderRow.NestingLevel);
+			AddReportOptionItems(FillParameters, OutputOrderRow.Variant, CurrentGroup, OutputOrderRow.NestingLevel);
 			
 			If OutputOrderRow.Variant.SubordinateCount > 0 Then
 				CurrentNestingLevel = CurrentNestingLevel + 1;
-				CurrentGroup_SSLy = AddGroupWithIndent(FillParameters, OutputOrderRow, CurrentGroup_SSLy);
-				CurrentGroupsByNestingLevels.Insert(CurrentNestingLevel, CurrentGroup_SSLy);
+				CurrentGroup = AddGroupWithIndent(FillParameters, OutputOrderRow, CurrentGroup);
+				CurrentGroupsByNestingLevels.Insert(CurrentNestingLevel, CurrentGroup);
 			EndIf;
 			
 		ElsIf OutputOrderRow.IsBlankRow Then
@@ -2258,7 +2258,7 @@ Function GenerateRowWithHighlighting(SearchArea, Content = Undefined)
 	HighlightStartPosition = 0;
 	For Each ListItem In SearchArea.WordHighlighting Do
 		If TextIsShortened And ListItem.Value > TextLength Then
-			ListItem.Value = TextLength; // 
+			ListItem.Value = TextLength; // If a text was shortened, adjusting highlighting.
 		EndIf;
 		Highlight = (ListItem.Presentation = "+");
 		CountOpen = CountOpen + ?(Highlight, 1, -1);

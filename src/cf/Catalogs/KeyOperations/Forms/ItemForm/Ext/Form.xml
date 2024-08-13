@@ -10,8 +10,8 @@
 		<InputField name="Name1" id="15">
 			<DataPath>Object.Name</DataPath>
 			<ReadOnly>true</ReadOnly>
-			<ContextMenu name="Name3ContextMenu" id="16"/>
-			<ExtendedTooltip name="Name3ExtendedTooltip" id="17"/>
+			<ContextMenu name="Name1ContextMenu" id="16"/>
+			<ExtendedTooltip name="Name1ExtendedTooltip" id="17"/>
 		</InputField>
 		<InputField name="Description" id="3">
 			<DataPath>Object.Description</DataPath>

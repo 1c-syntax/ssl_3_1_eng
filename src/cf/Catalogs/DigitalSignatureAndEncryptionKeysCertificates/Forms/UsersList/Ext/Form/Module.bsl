@@ -61,12 +61,12 @@ Procedure SelectedUsersBeforeAddRow(Item, Cancel, Copy, Parent, IsFolder, Parame
 	PickingParameters.Insert("AdvancedPick", True);
 	PickingParameters.Insert("HideUsersWithoutMatchingIBUsers", True);
 	
-	SelectedItems = New Array;
+	Selected_ = New Array;
 	For Each String In SelectedUsers Do
-		SelectedItems.Add(String.User);
+		Selected_.Add(String.User);
 	EndDo;
 	
-	PickingParameters.Insert("SelectedUsers", SelectedItems);
+	PickingParameters.Insert("SelectedUsers", Selected_);
 	PickingParameters.Insert("PickFormHeader",
 		NStr("en = 'Select users who will see the certificate in the choice list';"));
 	PickingParameters.Insert("PickingCompletionButtonTitle", NStr("en = 'Select';"));

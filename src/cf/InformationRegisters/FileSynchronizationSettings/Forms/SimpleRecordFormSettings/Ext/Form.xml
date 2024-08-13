@@ -12,7 +12,7 @@
 						<v8:content>Command bar</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="CommandBarGroupExtendedTooltip" id="35"/>
+				<ExtendedTooltip name="GroupCommandBarExtendedTooltip" id="35"/>
 				<ChildItems>
 					<Button name="WriteAndClose" id="36">
 						<Type>CommandBarButton</Type>

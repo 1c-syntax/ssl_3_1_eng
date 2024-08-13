@@ -1380,8 +1380,16 @@ Procedure FilterCommand(Form, Var_ComparisonType, TitleProperties, DetailsData)
 	
 	Settings = SettingsUsed(Form, TitleProperties.IDOfTheSettings);
 	
-	DisplayFilters = ReportsOptionsInternalClientServer.ReportSectionFilters(Settings, TitleProperties, ThisIsAGrouping);
+	DisplayFilters = Settings.Filter;
 	Filter = ReportsOptionsInternalClientServer.ReportSectionFilter(DisplayFilters, TitleProperties.Field);
+	
+	If Settings.Structure.Count() > 1 Then
+		If Filter = Undefined
+		   Or Filter <> Undefined And Filter.ComparisonType <> Var_ComparisonType Or Filter.RightValue <> DetailsData.Value Then
+			DisplayFilters = ReportsOptionsInternalClientServer.ReportSectionFilters(Settings, TitleProperties, ThisIsAGrouping);
+			Filter = ReportsOptionsInternalClientServer.ReportSectionFilter(DisplayFilters, TitleProperties.Field);
+		EndIf;
+	EndIf;
 	
 	If Filter = Undefined Then 
 		

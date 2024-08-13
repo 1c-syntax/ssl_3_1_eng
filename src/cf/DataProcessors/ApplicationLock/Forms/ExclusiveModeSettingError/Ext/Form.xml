@@ -235,7 +235,7 @@ The users will be prompted to save their data before signing out.</v8:content>
 												</v8:item>
 											</Title>
 											<TitleHeight>1</TitleHeight>
-											<ContextMenu name="NoteText1ContextMenu" id="27"/>
+											<ContextMenu name="ExplanationTextContextMenu" id="27"/>
 											<ExtendedTooltip name="ExplanationTextExtendedTooltip" id="60"/>
 										</LabelDecoration>
 										<LabelDecoration name="ActiveUsersWait" id="29">

@@ -24,8 +24,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		SpecifiedImmutableCertificateSet = True;
 		FillEncryptionCertificatesFromSet(Parameters.CertificatesSet);
 		If CertificatesSet.Count() = 0 And Parameters.ChangeSet Then
-			// 
-			// 
+			// If all certificates in the set have the Ref type and the set is editable,
+			// then the user can manage them like they added the certificate.
 			SpecifiedImmutableCertificateSet = False;
 		EndIf;
 	EndIf;
@@ -959,7 +959,7 @@ Async Procedure EncryptData(Notification)
 	ExecutionParameters.Insert("DataDetails",     DataDetails);
 	ExecutionParameters.Insert("Form",              ThisObject);
 	ExecutionParameters.Insert("FormIdentifier", Context.FormIdentifier);
-	ExecutionParameters.Insert("AddressOfCertificate",    AddressOfCertificate); // 
+	ExecutionParameters.Insert("AddressOfCertificate",    AddressOfCertificate); // Intended for automatically detecting the app.
 	
 	Context.Insert("ExecutionParameters", ExecutionParameters);
 	
@@ -1067,8 +1067,8 @@ EndProcedure
 Procedure EncryptDataAfterExecute(Result)
 	
 	If Result.Property("HasProcessedDataItems") Then
-		// 
-		// 
+		// Cannot change the certificates once the encryption has started.
+		// Otherwise, the dataset will be processed in different ways.
 		Items.Certificate.ReadOnly = True;
 		Items.EncryptionCertificates.ReadOnly = True;
 	EndIf;
@@ -1226,14 +1226,28 @@ Procedure HandleError(Notification, ErrorAtClient, ErrorAtServer)
 		EndIf;
 		
 		AllCertificates = New Array;
-		AllCertificates.Add(Certificate);
-		For Each String In EncryptionCertificates Do
-			If Not ValueIsFilled(String.Certificate)
-			 Or AllCertificates.Find(String.Certificate) <> Undefined Then
-				Continue;
-			EndIf;
-			AllCertificates.Add(String.Certificate);
-		EndDo;
+		If ValueIsFilled(Certificate) Then
+			AllCertificates.Add(Certificate);
+		EndIf;
+		
+		If EncryptionCertificates.Count() > 0 Then
+			For Each String In EncryptionCertificates Do
+				If Not ValueIsFilled(String.Certificate)
+					Or AllCertificates.Find(String.Certificate) <> Undefined Then
+					Continue;
+				EndIf;
+				AllCertificates.Add(String.Certificate);
+			EndDo;
+		ElsIf CertificatesSet.Count() > 0 Then
+			For Each String In CertificatesSet Do
+				If Not ValueIsFilled(String.DataAddress)
+					Or AllCertificates.Find(String.DataAddress) <> Undefined Then
+					Continue;
+				EndIf;
+				AllCertificates.Add(String.DataAddress);
+			EndDo;
+		EndIf;
+
 		AdditionalParameters = New Structure("Certificate", AllCertificates);
 		
 		DigitalSignatureInternalClient.ShowApplicationCallError(

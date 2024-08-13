@@ -188,8 +188,8 @@ Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSe
 	ElsIf Not NewDCSettings.AdditionalProperties.Property("ReportInitialized")
 	        And TypeOf(NewDCUserSettings) = Type("DataCompositionUserSettings") Then
 		
-		// 
-		// 
+		// Reconfigure the schema when importing the main report option.
+		// Including cases where the settings are reset to the default values.
 		SchemaKey = "";
 	EndIf;
 	

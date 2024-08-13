@@ -747,10 +747,8 @@ EndProcedure
 &AtClient
 Procedure ExecuteHandlersImport()
 	
-	FormParameters = New Structure("MessageText", NStr("en = 'Importing handlers';"));
-	TimeConsumingOperationForm = OpenForm("CommonForm.TimeConsumingOperation", FormParameters);
 	ImportHandlers(Undefined);
-	TimeConsumingOperationForm.Close();
+	Items.Pages.CurrentPage = Items.HandlersPage;
 	
 EndProcedure
 
@@ -936,8 +934,8 @@ Function AddModuleProcedure(Code)
 		Return ProcedureAdded;
 	EndIf;
 	
-	// 
-	// 
+	// If either "#Region NewInfobaseVersionsUpdate" or "#Region InfobaseUpdate" is present,
+	// then insert this code right at the top of the region.
 	IndexOf = ModuleStrings.Find("#Area InfobaseUpdate");
 	If IndexOf <> Undefined Then
 		IndexOf = IndexOf + 1;
@@ -2557,8 +2555,8 @@ Function HandlerDetailsText(Handler, CodeLayout, HandlerTags)
 	EndIf;
 	
 	If Not IsBlankString(Handler.Id) Then
-		ID_SSLy = New UUID(Handler.Id);
-		If ValueIsFilled(ID_SSLy) Then
+		ID = New UUID(Handler.Id);
+		If ValueIsFilled(ID) Then
 			HandlerRows.Add("Handler.Id = New UUID(""" + Handler.Id + """);");
 		EndIf;
 	EndIf;
@@ -3655,7 +3653,7 @@ Function RussianClassesNames()
 	Result.Insert("ChartOfCalculationTypes", "ChartOfCalculationTypes");
 	Result.Insert("ChartOfCharacteristicTypes", "ChartOfCharacteristicTypes");
 	Result.Insert("Constant", "Constant");
-	Result.Insert("CommonModule", "CommonModule");// 
+	Result.Insert("CommonModule", "CommonModule");// Specified in other handlers' priority lists.
 	Result.Insert("Document", "Document");
 	Result.Insert("ExchangePlan", "ExchangePlan");
 	Result.Insert("InformationRegister", "InformationRegister");
@@ -3882,7 +3880,7 @@ Function CreateErrorDescription()
 	Error.Insert("PlaybackOrder", "");
 	Error.Insert("ExpectedBehavior", "");
 	Error.Insert("EmployeeResponsible", "");
-	Error.Insert("DetectionCredibility", "Low"); // 
+	Error.Insert("DetectionCredibility", "Low"); // High or Low.
 	Error.Insert("RepositoryAddress", "");
 	
 	#If Client Or ThickClientManagedApplication Or ThinClient Or WebClient  Then
@@ -3899,8 +3897,8 @@ Function CreateErrorDescription()
 	#EndIf
 	
 	Error.Insert("DetectionDate",   Date(1,1,1));
-	Error.Insert("MetadataObjects", New Array); // 
-	// 
+	Error.Insert("MetadataObjects", New Array); // To allow adding an array of metadata objects.
+	// Register for a metadata object.
 	Error.Insert("MetadataObject", "");
 	Error.Insert("LocationClarification", "");
 	Error.Insert("ScenarioCode", "");

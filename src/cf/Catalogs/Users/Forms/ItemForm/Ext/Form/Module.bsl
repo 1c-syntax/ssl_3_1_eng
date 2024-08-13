@@ -14,7 +14,7 @@
 Var WriteParametersOnFirstAdministratorCheck;
 
 &AtClient
-Var SkipNameWhenChanging, SkipNameOfCarSelection;
+Var ShouldSkipDescriptionOnChange, ShouldSkipDescriptionAutoComplete;
 
 #EndRegion
 
@@ -63,7 +63,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.IBUserStandardAuthentication.Visible = False;
 		Items.UserMustChangePasswordOnAuthorization.Visible = False;
 		Items.IBUserCannotChangePassword.Visible = False;
-		Items.IBUserCannotRecoverPassword.Visible = False;
+		Items.IBUserCannotRecoveryPassword.Visible = False;
 		Items.OSAuthenticationProperties.Visible  = False;
 		Items.IBUserRunMode.Visible = False;
 	EndIf;
@@ -434,7 +434,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 		If UsersInternal.PasswordRecoverySettingsAreAvailable(AccessLevel) Then
 			
 			If IBUserCannotChangePassword Then
-				IBUserCannotRecoverPassword = True;
+				IBUserCannotRecoveryPassword = True;
 			EndIf;
 			
 			If Common.SubsystemExists("StandardSubsystems.ContactInformation") Then
@@ -639,25 +639,25 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	If Not Items.Roles.ReadOnly Then
 		Errors = Undefined;
 		TreeItems = Roles.GetItems();
-		For Each String In TreeItems Do
-			If Not String.Check Then
+		For Each Item In TreeItems Do
+			If Not Item.Check Then
 				Continue;
 			EndIf;
-			If String.IsNonExistingRole Then
+			If Item.IsNonExistingRole Then
 				CommonClientServer.AddUserError(Errors,
 					"Roles[%1].RolesSynonym",
-					StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Role ""%1"" does not exist.';"), String.Synonym),
+					StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Role ""%1"" does not exist.';"), Item.Synonym),
 					"Roles",
-					TreeItems.IndexOf(String),
-					StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Non-existent role ""%1"" in line %2.';"), String.Synonym, "%1"));
+					TreeItems.IndexOf(Item),
+					StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Non-existent role ""%1"" in line %2.';"), Item.Synonym, "%1"));
 			EndIf;
-			If String.IsUnavailableRole Then
+			If Item.IsUnavailableRole Then
 				CommonClientServer.AddUserError(Errors,
 					"Roles[%1].RolesSynonym",
-					StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Role ""%1"" is unavailable to users.';"), String.Synonym),
+					StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Role ""%1"" is unavailable to users.';"), Item.Synonym),
 					"Roles",
-					TreeItems.IndexOf(String),
-					StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Role ""%1"" in line %2 is unavailable to users.';"), String.Synonym, "%1"));
+					TreeItems.IndexOf(Item),
+					StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Role ""%1"" in line %2 is unavailable to users.';"), Item.Synonym, "%1"));
 			EndIf;
 		EndDo;
 		CommonClientServer.ReportErrorsToUser(Errors, Cancel);
@@ -705,7 +705,7 @@ EndProcedure
 &AtClient
 Procedure DescriptionOnChange(Item)
 	
-	If SkipNameWhenChanging = True Then
+	If ShouldSkipDescriptionOnChange = True Then
 		Return;
 	EndIf;
 	
@@ -721,8 +721,8 @@ Procedure DescriptionAutoComplete(Item, Text, ChoiceData,
 	
 	If Not ValueIsFilled(Text)
 	 Or Not CommonClient.SubsystemExists("OnlineUserSupport.PickName")
-	 Or SkipNameOfCarSelection = True Then
-		SkipNameOfCarSelection = False;
+	 Or ShouldSkipDescriptionAutoComplete = True Then
+		ShouldSkipDescriptionAutoComplete = False;
 		Return;
 	EndIf;
 	ModuleNameHintClient = CommonClient.CommonModule("PickNameClient");
@@ -742,18 +742,22 @@ EndProcedure
 Procedure DescriptionChoiceProcessing(Item, ValueSelected, StandardProcessing)
 	
 	StandardProcessing = False;
-	SkipNameWhenChanging = True;
+	ShouldSkipDescriptionOnChange = True;
 	
-	GivenNames = StrSplit(ValueSelected, " ", False);
+	DataOfDescription = StrSplit(ValueSelected, " ", False);
 	Items.Description.UpdateEditText();
-	If GivenNames.Count() < 3 Then
-		Items.Description.SelectedText = ValueSelected + " ";
+	If DataOfDescription.Count() < 3 Then
+		NewValue = ValueSelected + " ";
 	Else
-		Items.Description.SelectedText = ValueSelected;
-		SkipNameOfCarSelection = True;
+		NewValue = ValueSelected;
+		ShouldSkipDescriptionAutoComplete = True;
+	EndIf;
+	Items.Description.SelectedText = NewValue;
+	If Object.Description <> NewValue Then
+		Object.Description = ValueSelected;
 	EndIf;
 	
-	SkipNameWhenChanging = False;
+	ShouldSkipDescriptionOnChange = False;
 	
 EndProcedure
 
@@ -796,7 +800,7 @@ Procedure InvalidOnChange(Item)
 EndProcedure
 
 &AtClient
-Procedure CanSignIn1OnChange(Item)
+Procedure CanSignInOnChange(Item)
 	
 	If DataSeparationEnabled
 	   And Not CanSignIn Then
@@ -902,7 +906,7 @@ Procedure IBUserCannotChangePasswordOnChange(Item)
 	
 	If IBUserCannotChangePassword Then
 		UserMustChangePasswordOnAuthorization               = False;
-		IBUserCannotRecoverPassword = True;
+		IBUserCannotRecoveryPassword = True;
 	EndIf;
 	
 	SetPropertiesAvailability(ThisObject);
@@ -1035,7 +1039,7 @@ Procedure PhotoClickCompletion(Result, AdditionalParameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Provide contact information support.
 
 &AtClient
 Procedure Attachable_EMailOnChange(Item)
@@ -1215,7 +1219,7 @@ EndProcedure
 #Region FormTableItemsEventHandlersRoles
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Required by a role interface.
 
 &AtClient
 Procedure RolesCheckOnChange(Item)
@@ -1226,8 +1230,8 @@ Procedure RolesCheckOnChange(Item)
 	EndIf;
 	If TableRow.Check And TableRow.Name = "InteractiveOpenExtReportsAndDataProcessors" Then
 		Notification = New NotifyDescription("RolesMarkOnChangeAfterConfirm", ThisObject);
-		FormParameters = New Structure("Key", "BeforeSelectRole");
-		OpenForm("CommonForm.SecurityWarning", FormParameters, , , , , Notification);
+		UsersInternalClient.ShowSecurityWarning(Notification,
+			UsersInternalClientServer.TypesOfSafetyWarnings().BeforeSelectRole);
 	Else
 		If TableRow.Name = "FullAccess" Then
 			DetermineNecessityForSynchronizationWithService(ThisObject);
@@ -1287,7 +1291,7 @@ Procedure ClearPhoto(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Required by a role interface.
 
 &AtClient
 Procedure ShowSelectedRolesOnly(Command)
@@ -1490,7 +1494,7 @@ Procedure CustomizeForm(CurrentObject, OnCreateAtServer = False, WriteParameters
 	// Viewability settings.
 	Items.ContactInformation.Visible   = ValueIsFilled(ActionsOnForm.ContactInformation);
 	Items.IBUserProperies.Visible = ValueIsFilled(ActionsOnForm.IBUserProperies);
-	Items.GroupName_SSLy.Visible              = ValueIsFilled(ActionsOnForm.IBUserProperies);
+	Items.GroupName.Visible              = ValueIsFilled(ActionsOnForm.IBUserProperies);
 	
 	OutputRolesList = ValueIsFilled(ActionsOnForm.Roles);
 	Items.RolesRepresentation.Visible = OutputRolesList;
@@ -1537,7 +1541,7 @@ Procedure CustomizeForm(CurrentObject, OnCreateAtServer = False, WriteParameters
 	Items.IBUserProperies.ReadOnly =
 		Not (  ActionsOnForm.IBUserProperies = "Edit"
 		    And (AccessLevel.ListManagement Or AccessLevel.ChangeCurrent));
-	Items.GroupName_SSLy.ReadOnly = Items.IBUserProperies.ReadOnly;
+	Items.GroupName.ReadOnly = Items.IBUserProperies.ReadOnly;
 	
 	Items.IBUserName.ReadOnly                          = Not AccessLevel.AuthorizationSettings2;
 	Items.IBUserStandardAuthentication.ReadOnly    = Not AccessLevel.AuthorizationSettings2;
@@ -1550,7 +1554,7 @@ Procedure CustomizeForm(CurrentObject, OnCreateAtServer = False, WriteParameters
 	Items.IBUserShowInList.ReadOnly        = Not AccessLevel.ListManagement;
 	Items.UserMustChangePasswordOnAuthorization.ReadOnly               = Not AccessLevel.ListManagement;
 	Items.IBUserCannotChangePassword.ReadOnly        = Not AccessLevel.ListManagement;
-	Items.IBUserCannotRecoverPassword.ReadOnly = Not AccessLevel.ListManagement;
+	Items.IBUserCannotRecoveryPassword.ReadOnly = Not AccessLevel.ListManagement;
 	Items.IBUserRunMode.ReadOnly                   = Not AccessLevel.ListManagement;
 	
 	Items.Comment.ReadOnly =
@@ -1661,7 +1665,7 @@ Procedure AuthenticationOnChange()
 	   And Not IBUserOSAuthentication Then
 	
 		CanSignIn                       = False;
-		IBUserCannotRecoverPassword = True;
+		IBUserCannotRecoveryPassword = True;
 		
 		If DataSeparationEnabled Then
 			Object.Invalid = True;
@@ -1674,7 +1678,7 @@ Procedure AuthenticationOnChange()
 		
 		If ValueIsFilled(AttributeWithEmailForPasswordRecoveryName)
 			And ValueIsFilled(ThisObject[AttributeWithEmailForPasswordRecoveryName]) Then
-				IBUserCannotRecoverPassword = False;
+				IBUserCannotRecoveryPassword = False;
 		EndIf;
 		
 	EndIf;
@@ -1810,9 +1814,9 @@ Procedure DefineActionsOnForm()
 		EndIf;
 		
 		If AccessLevel.ListManagement Then
-			// 
-			// 
-			//  
+			// The person responsible for the user list and user groups.
+			// (The HR manager responsible for recruitment, transfers, reassignments,
+			//  and establishment of departments and teams.)
 			ActionsOnForm.IBUserProperies = "Edit";
 			ActionsOnForm.ContactInformation   = "Edit";
 			ActionsOnForm.ItemProperties       = "Edit";
@@ -1899,7 +1903,7 @@ Function IBUserDetails(ForFirstAdministratorCheck = False)
 			,
 			"UUID,
 			|Roles",
-			"IBUser");
+			UsersInternal.PrefixedNamesForInfobaseUserProperties());
 		
 		Result.Insert("CanSignIn", CanSignIn);
 	Else
@@ -1917,7 +1921,7 @@ Function IBUserDetails(ForFirstAdministratorCheck = False)
 			Result.Insert("ShowInList",        IBUserShowInList
 				And Not ExternalUsers.UseExternalUsers());
 			Result.Insert("CannotChangePassword",        IBUserCannotChangePassword);
-			Result.Insert("CannotRecoveryPassword", IBUserCannotRecoverPassword);
+			Result.Insert("CannotRecoveryPassword", IBUserCannotRecoveryPassword);
 			Result.Insert("Language",                           IBUserLanguage);
 			Result.Insert("RunMode",                   IBUserRunMode);
 			
@@ -2080,7 +2084,7 @@ Procedure CloseForm()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Provide contact information support.
 
 &AtServer
 Procedure UpdateContactInformation(Result)
@@ -2150,7 +2154,7 @@ Function ContactInformationKindUserEmail()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Support of additional attributes.
 
 &AtServer
 Procedure PropertiesExecuteDeferredInitialization()
@@ -2193,7 +2197,7 @@ Procedure UpdateAdditionalAttributesItems()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Processes an infobase user.
 
 &AtServer
 Function InitialIBUserDetails()
@@ -2205,7 +2209,7 @@ Function InitialIBUserDetails()
 		Return InitialIBUserDetails;
 	EndIf;
 	
-	IBUserDetails = Users.NewIBUserDetails();
+	IBUserDetails = Users.NewIBUserDetails(False);
 	
 	If Common.DataSeparationEnabled()
 	 Or ExternalUsers.UseExternalUsers() Then
@@ -2327,7 +2331,7 @@ Procedure ReadIBUser(OnCopyItem = False, OnCreateAtServer = True)
 		"UUID,
 		|Roles" + ?(ExternalUsers.UseExternalUsers(), ",
 		|ShowInList", ""),
-		"IBUser");
+		UsersInternal.PrefixedNamesForInfobaseUserProperties());
 	
 	If IBUserMain And Not CanSignIn Then
 		StoredProperties = UsersInternal.StoredIBUserProperties(Object.Ref);
@@ -2352,7 +2356,7 @@ EndProcedure
 &AtServer
 Procedure FindUserAndIBUserDifferences(WriteParameters = Undefined)
 	
-	// 
+	// Check if the infobase user's "FullName" property matches the user's "Description" attribute.
 	// 
 	
 	ShowDifference = True;
@@ -2557,7 +2561,7 @@ Procedure FillInTheMailFieldForPasswordRecoveryFromTheInformationSecuritySystem(
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Initial filling, fill checks, and availability of properties.
 
 &AtClientAtServerNoContext
 Procedure SetPropertiesAvailability(Form)
@@ -2598,14 +2602,14 @@ Procedure SetPropertiesAvailability(Form)
 	// Setting availability of related items.
 	Items.CanSignIn.Enabled    = Not Object.Invalid;
 	Items.IBUserProperies.Enabled    = Not Object.Invalid;
-	Items.GroupName_SSLy.Enabled                 = Not Object.Invalid;
+	Items.GroupName.Enabled                 = Not Object.Invalid;
 	Items.ChangeRestrictionGroup.Enabled = Not Object.Invalid
 	                                               And Not Items.Description.ReadOnly;
 	
 	Items.OneCEnterpriseAuthenticationParameters.Enabled = Form.IBUserStandardAuthentication;
 	Items.IBUserOSUser.Enabled         = Form.IBUserOSAuthentication;
 	
-	Items.IBUserCannotRecoverPassword.Enabled = Not Form.IBUserCannotChangePassword;
+	Items.IBUserCannotRecoveryPassword.Enabled = Not Form.IBUserCannotChangePassword;
 	
 	// Adjusting SaaS settings.
 	If ActionsWithSaaSUser <> Undefined Then
@@ -2710,7 +2714,7 @@ Function IBUserWritingRequired(Form, UseStandardName = True)
 	
 	// Supported in the latest 1C:Enterprise versions.
 	If Template.Property("CannotRecoveryPassword")
-		 And Form.IBUserCannotRecoverPassword <> Template.CannotRecoveryPassword Then
+		 And Form.IBUserCannotRecoveryPassword <> Template.CannotRecoveryPassword Then
 			Return True;
 	EndIf;
 	
@@ -2718,7 +2722,7 @@ Function IBUserWritingRequired(Form, UseStandardName = True)
 	
 EndFunction
 
-// Standard subsystems.Pluggable commands
+// StandardSubsystems.AttachableCommands
 
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)
@@ -2746,7 +2750,7 @@ EndProcedure
 // End StandardSubsystems.AttachableCommands
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Required by a role interface.
 
 &AtServer
 Procedure ProcessRolesInterface(Action, MainParameter = Undefined)

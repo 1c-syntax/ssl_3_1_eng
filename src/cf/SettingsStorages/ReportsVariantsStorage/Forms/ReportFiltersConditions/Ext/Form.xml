@@ -126,7 +126,7 @@
 				</v8:item>
 			</Title>
 			<HorizontalLocation>Right</HorizontalLocation>
-			<ExtendedTooltip name="CommandBarGroupExtendedTooltip" id="48"/>
+			<ExtendedTooltip name="GroupCommandBarExtendedTooltip" id="48"/>
 			<ChildItems>
 				<Button name="FormSelect" id="26">
 					<Type>CommandBarButton</Type>
@@ -138,7 +138,7 @@
 							<v8:content>OK</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="FormChooseExtendedTooltip" id="27"/>
+					<ExtendedTooltip name="FormSelectExtendedTooltip" id="27"/>
 				</Button>
 				<Button name="Cancel" id="49">
 					<Type>CommandBarButton</Type>

@@ -12,7 +12,6 @@
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
-	FillPropertyValues(ThisObject, Parameters, "ScannerName, ErrorText, DetailErrorDescription");
 	Title = Parameters.Title;
 EndProcedure
 
@@ -33,6 +32,9 @@ Procedure ErrorTextURLProcessing(Item, FormattedStringURL, StandardProcessing)
 	ElsIf FormattedStringURL = "TechnicalInformation" Then
 		StandardProcessing = False;
 		GetTechnicalInformation();
+	ElsIf FormattedStringURL = "Run32BitClient" Then
+		StandardProcessing = False;
+		Run32BitClient();
 	EndIf;
 EndProcedure
 
@@ -51,36 +53,69 @@ EndProcedure
 
 &AtClient
 Procedure SetErrorText()
-	If Not ValueIsFilled(ErrorText) Then
-		If Not ShowScannerDialog And Not CommonClient.IsLinuxClient() Then
-			ErrorTextOnUseAppSettings = Chars.LF + " • "
-				+ StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Open <a href = ""%1"">scanner settings</> and select ""Advanced settings"".';"), "OpenSettings");
-		Else
-			ErrorTextOnUseAppSettings = "";
-		EndIf;
-		
-		ErrorText = StringFunctionsClient.FormattedString(StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Scanner %1 not found or not connected.
-						|Try the following:
-						| • Check whether the scanner is connected and try again.
-						| • Specify the available scanner in the <a href = ""%2"">scanner settings</a>.%4
-						| • If the issue persists, contact 1C technical support and 
-						| provide <a href = ""%3"">technical information about the issue</a>.';"), 
-			ScannerName, "OpenSettings", "TechnicalInformation", ErrorTextOnUseAppSettings));
-  	EndIf;
-  	Items.ErrorText.Title = ErrorText;
+	Recommendations = New Array;
+	Recommendations.Add(NStr("en = 'Check scanner connection and try again.';"));
+	Recommendations.Add(StringFunctionsClientServer.SubstituteParametersToString(
+		NStr("en = 'Specify an available scanner in the <a href = ""%1"">scanning settings</a>.';"),
+		"OpenSettings"));
+
+	If Not Parameters.ShowScannerDialog And Not CommonClient.IsLinuxClient() Then
+		Recommendations.Add(NStr("en = 'Switch to the <b>advanced settings</b>.';"));
+	EndIf;
+	
+	If Parameters.ShowScannerDialog 
+		Or Parameters.Resolution = PredefinedValue("Enum.ScannedImageResolutions.dpi1200") Then
+		Recommendations.Add(NStr("en = 'Reduce the scanner resolution to <b>600 dpi</b>.';"));
+	EndIf;
+
+	SystemInfo = New SystemInfo();
+	If SystemInfo.PlatformType = PlatformType.Windows_x86_64 Then
+		Recommendations.Add(StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Install the <a href = ""%1"">1C:Enterprise thin client for Windows x86</a>.
+				|It supports more scanners and settings.';"), 
+				"Run32BitClient"));
+	EndIf;
+
+	If Parameters.AssistanceRequiredMode Then
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Scanning is performed by %1.';"), 
+			Parameters.ScannerName);
+	Else
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Scanner ""%1"" is not found or disconnected.';"), 
+			Parameters.ScannerName);
+	EndIf;		
+
+	ErrorText = ErrorText + Chars.LF + Chars.LF 
+		+ NStr("en = 'Try the following solutions:';") + Chars.LF
+		+ " • " + StrConcat(Recommendations, Chars.LF + " • ");
+	ErrorText = ErrorText + Chars.LF + Chars.LF 
+		+ StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'If the issue persists, contact 1C technical support
+				|and provide <a href = ""%1"">technical information</a> about the issue.';"), 
+		"TechnicalInformation");
+	
+	Items.ErrorText.Title = StringFunctionsClient.FormattedString(ErrorText);
 EndProcedure
 
 &AtClient
 Procedure GetTechnicalInformation()
-	AfterTechnicalInfoReceived = New NotifyDescription("AfterTechnicalInfoReceived", ThisObject);
-	FilesOperationsInternalClient.GetTechnicalInformation(DetailErrorDescription, AfterTechnicalInfoReceived);
+	FilesOperationsInternalClient.GetTechnicalInformation(Parameters.DetailErrorDescription);
 EndProcedure
 
 &AtClient
-Procedure AfterTechnicalInfoReceived(Result, Context) Export
-	NotifyChoice("RefreshErrorDisplay");
+Procedure Run32BitClient()
+#If Not WebClient Then
+	BinDir32 = StrReplace(BinDir(), "\Program Files\", "\Program Files (x86)\");
+	ApplicationName = BinDir32 + "1cv8.exe";
+	AppFile = New File(ApplicationName);
+	If AppFile.Exists() Then 
+		FileSystemClient.StartApplication(ApplicationName);
+	Else
+		SystemInfo = New SystemInfo();
+		FileSystemClient.OpenURL("https://releases.1c.ru/version_files?nick=Platform83&ver=" + SystemInfo.AppVersion);
+	EndIf;
+#EndIf
 EndProcedure
 
 #EndRegion

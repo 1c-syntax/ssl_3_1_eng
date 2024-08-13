@@ -8,25 +8,25 @@
 //
 //
 
-// 
+// Expected parameters:
 //
-//     
-//     
-//     
-//                                  
+//     DuplicatesSearchArea - String - The full name of the metadata table for the given search area.
+//     FilterAreaPresentation - String - Presentation used to generate the title.
+//     AppliedRuleDetails - String, Undefined - Applied rule text. If set to "Undefined", there are no applied rules.
+//                                  SettingsAddress - String - Address of settings in the temporary storage. Expected structure fields:
 //
-//     
-//         
-//         
-//             
-//             
-//             
-//                                 
-//             
-//                                                  
+//     TakeAppliedRulesIntoAccount - Boolean - Previous setting flag. By default, "True".
+//         SearchRules - ValueTable - Settings being edited. Expected columns:
+//         Attribute - String  - Attribute name for comparison.
+//             AttributePresentation - String - Attribute presentation for comparison.
+//             Rule - String - Comparison option:
+//             "Equal" looks for perfect matches. "Like" looks for fuzzy matches. "" looks for nothing.
+//                                 ComparisonOptions - ValueList - Available comparison options, where a value is a rule.
+//             Return value (as a selection result):
+//                                                  Undefined - Editing is canceled.
 //
-// 
-//     
+// String - Address of the new composer settings in the temp storage.
+//     Points at a structure similar to the "SettingsAddress" parameter.
 //     
 //                    
 //

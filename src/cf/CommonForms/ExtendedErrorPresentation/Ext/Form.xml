@@ -54,6 +54,7 @@
 							<ExtendedTooltip name="TitleClientPictureExtendedTooltip" id="5"/>
 						</PictureDecoration>
 						<LabelDecoration name="TitleClientLabel" id="6">
+							<Font ref="style:ImportantLabelFont" kind="StyleItem"/>
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -92,7 +93,7 @@
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="PossibleReasonsAndDecisionsClientExtendedTooltip" id="54"/>
+					<ExtendedTooltip name="PossibleReasonsAndSolutionsClientExtendedTooltip" id="54"/>
 					<ChildItems>
 						<UsualGroup name="PossibleReasonsClient" id="12">
 							<Title>
@@ -130,7 +131,7 @@
 							</Title>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
-							<ExtendedTooltip name="PossibleDecisionsClientExtendedTooltip" id="18"/>
+							<ExtendedTooltip name="PossibleSolutionsClientExtendedTooltip" id="18"/>
 							<ChildItems>
 								<LabelDecoration name="DecisionsClientText" id="19">
 									<AutoMaxWidth>false</AutoMaxWidth>
@@ -216,6 +217,7 @@
 							<ExtendedTooltip name="TitleServerPictureExtendedTooltip" id="33"/>
 						</PictureDecoration>
 						<LabelDecoration name="TitleServerLabel" id="34">
+							<Font ref="style:ImportantLabelFont" kind="StyleItem"/>
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -254,7 +256,7 @@
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="PossibleReasonsAndDecisionsServerExtendedTooltip" id="56"/>
+					<ExtendedTooltip name="PossibleReasonsAndSolutionsServerExtendedTooltip" id="56"/>
 					<ChildItems>
 						<UsualGroup name="PossibleReasonsServer" id="40">
 							<Title>
@@ -292,7 +294,7 @@
 							</Title>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
-							<ExtendedTooltip name="PossibleDecisionsServerExtendedTooltip" id="46"/>
+							<ExtendedTooltip name="PossibleSolutionsServerExtendedTooltip" id="46"/>
 							<ChildItems>
 								<LabelDecoration name="DecisionsServerText" id="47">
 									<AutoMaxWidth>false</AutoMaxWidth>
@@ -478,7 +480,7 @@
 							<Title formatted="true">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Facing issues? Learn to &lt;link %1&gt;troubleshoot digital signing apps&lt;/&gt; (in Russian).
+									<v8:content>Facing issues? Learn how to &lt;link %1&gt;troubleshoot digital signing apps&lt;/&gt; (in Russian).
 
 If you didn't find a solution, contact the 1C support team and provide &lt;link %2&gt;technical information&lt;/&gt; about the issue.</v8:content>
 								</v8:item>
@@ -521,7 +523,7 @@ If you didn't find a solution, contact the 1C support team and provide &lt;link 
 									<v8:content>Configure apps</v8:content>
 								</v8:item>
 							</Title>
-							<ExtendedTooltip name="FormOpenApplicationSettingsExtendedTooltip" id="75"/>
+							<ExtendedTooltip name="FormOpenApplicationsSettingsExtendedTooltip" id="75"/>
 						</Button>
 						<Button name="FormClose" id="76">
 							<Type>CommandBarButton</Type>
@@ -535,7 +537,7 @@ If you didn't find a solution, contact the 1C support team and provide &lt;link 
 									<v8:content>Close</v8:content>
 								</v8:item>
 							</Title>
-							<ExtendedTooltip name="FormClose3ExtendedTooltip" id="77"/>
+							<ExtendedTooltip name="FormCloseExtendedTooltip" id="77"/>
 						</Button>
 					</ChildItems>
 				</CommandBar>
@@ -647,7 +649,7 @@ If you didn't find a solution, contact the 1C support team and provide &lt;link 
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
-		<Attribute name="ParametersForCompletingTextOfClassifierErrorSolution" id="11">
+		<Attribute name="ClassifierErrorSolutionTextSupplementOptions" id="11">
 			<Type/>
 		</Attribute>
 	</Attributes>

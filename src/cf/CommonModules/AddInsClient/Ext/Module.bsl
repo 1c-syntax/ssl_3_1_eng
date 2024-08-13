@@ -132,8 +132,8 @@ EndProcedure
 //          ** ErrorDescription - String - brief error message.
 //      * AdditionalParameters - Structure - a value that was specified on creating the NotifyDescription object.
 //  Id - String - the add-in identification code.
-//  ObjectCreationID - String - object creation ID of object module instance
-//          (only for add-ins with object creation ID different from ProgID).
+//  ObjectCreationID - String - Creation ID of object module instance
+//          (only for add-ins with object creation ID different from ProgID).
 //
 // Example:
 //
@@ -426,8 +426,8 @@ EndFunction
 //
 // Parameters:
 //  Id - String - the add-in identification code.
-//  ObjectCreationID - String - object creation ID of object module instance
-//          (only for add-ins with object creation ID different from ProgID).
+//  ObjectCreationID - String - Creation ID of object module instance
+//          (only for add-ins with object creation ID different from ProgID).
 //
 //  Returns:
 //  	Structure - Add-in attachment result:

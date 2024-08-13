@@ -26,7 +26,7 @@
 				</Title>
 				<ExtendedTooltip name="FormSendExtendedTooltip" id="7"/>
 			</Button>
-			<Button name="FormCancel13" id="16">
+			<Button name="FormDoNotSend" id="16">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.DoNotSend</CommandName>
 				<Title>
@@ -35,12 +35,12 @@
 						<v8:content>Cancel</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="FormCancel13ExtendedTooltip" id="17"/>
+				<ExtendedTooltip name="FormDoNotSendExtendedTooltip" id="17"/>
 			</Button>
 			<Button name="FormClose" id="4">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.Close</CommandName>
-				<ExtendedTooltip name="FormClose3ExtendedTooltip" id="5"/>
+				<ExtendedTooltip name="FormCloseExtendedTooltip" id="5"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
@@ -53,7 +53,7 @@
 			<Title formatted="false">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>If you are willing to provide a copy of your infobase (you can impersonalize the data) to investigate performance issues, specify your contacts so that 1C specialists can contact you.</v8:content>
+					<v8:content>If you are willing to provide a copy of your infobase (you can impersonalize the data) to investigate performance issues, specify your contacts so that 1C specialists can contact you.</v8:content>
 				</v8:item>
 			</Title>
 			<ContextMenu name="TitleContextMenu" id="11"/>

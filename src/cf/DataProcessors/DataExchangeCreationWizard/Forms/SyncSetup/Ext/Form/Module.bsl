@@ -181,7 +181,7 @@ Procedure ConfigureDataExportImportRules(Command)
 	
 	ContinueNotification = New NotifyDescription("SetDataSendingAndReceivingRulesFollowUp", ThisObject);
 	
-	// 
+	// For XDTO exchange plans, get the peer infobase's settings before configuring the exchange rules.
 	// 
 	If XDTOSetup Then
 		AbortSetup = False;
@@ -270,8 +270,8 @@ Procedure BeforePerformingTheInitialUpload(Cancel)
 	ArrayOfValues = New Array(3);
 	ArrayOfValues[0] = PredefinedValue("Enum.ExchangeMessagesTransportTypes.COM");
 	ArrayOfValues[1] = PredefinedValue("Enum.ExchangeMessagesTransportTypes.WS");
-	// 
-	//                    
+	// Skip the check for "WSPassiveMode".
+	//                    The peer infobase can get the info when establishing a passive connection.
 	
 	ModeOfTransportSupportsDirectConnection = (ArrayOfValues.Find(TransportKind) <> Undefined);
 	If Not ModeOfTransportSupportsDirectConnection

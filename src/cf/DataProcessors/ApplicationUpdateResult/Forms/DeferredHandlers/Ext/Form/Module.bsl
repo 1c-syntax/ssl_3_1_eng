@@ -13,6 +13,8 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
+	SetConditionalAppearance();
+	
 	UpdateInfo = InfobaseUpdateInternal.InfobaseUpdateInfo();
 	DeferredUpdateStartTime = UpdateInfo.DeferredUpdateStartTime;
 	DeferredUpdateEndTime = UpdateInfo.DeferredUpdatesEndTime;
@@ -129,6 +131,13 @@ Procedure DeferredHandlersSelection(Item, RowSelected, Field, StandardProcessing
 	StandardProcessing = False;
 	
 	If Item.CurrentData = Undefined Then
+		Return;
+	EndIf;
+	
+	If Field = Items.DeferredHandlersHandlerAddOn
+	   And Item.CurrentData.ThisIsOutOfDateDataCleanupHandler Then
+		
+		OpenForm("DataProcessor.ApplicationUpdateResult.Form.ClearObsoleteData");
 		Return;
 	EndIf;
 	
@@ -295,12 +304,32 @@ Procedure CheckPatches(Command)
 	Result = AvailableFixesOnServer();
 	
 	NotifyDescription = New NotifyDescription("CheckAvailableFixesContinued", ThisObject, Result);
-	InfobaseUpdateClient.ProcessResultOfManuallyCheckingAvailablePatches(Result, NotifyDescription);
+	InfobaseUpdateClient.ProcessManualPatchCheckResult(Result, NotifyDescription);
 EndProcedure
 
 #EndRegion
 
 #Region Private
+
+&AtServer
+Procedure SetConditionalAppearance()
+
+	ConditionalAppearance.Items.Clear();
+
+	//
+
+	Item = ConditionalAppearance.Items.Add();
+	
+	ItemField = Item.Fields.Items.Add();
+	ItemField.Field = New DataCompositionField(Items.DeferredHandlersHandlerAddOn.Name);
+	
+	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
+	ItemFilter.LeftValue = New DataCompositionField("DeferredHandlers.HandlerAddOn");
+	ItemFilter.ComparisonType = DataCompositionComparisonType.NotFilled;
+
+	Item.Appearance.SetParameterValue("Visible", False);
+	
+EndProcedure
 
 &AtServer
 Procedure StartSelectedProcedureForDebug(HandlerName)
@@ -492,6 +521,7 @@ Procedure GenerateDeferredHandlerTable(AllHandlersExecuted = True, InitialFillin
 	|WHERE
 	|	UpdateHandlers.ExecutionMode = &ExecutionMode";
 	Handlers = Query.Execute().Unload();
+	LineOfOutOfDateDataCleanupHandler = Undefined;
 	For Each Handler In Handlers Do
 		If Not UseParallelMode Then
 			UseParallelMode = (Handler.DeferredHandlerExecutionMode = Enums.DeferredHandlersExecutionModes.Parallel);
@@ -503,7 +533,8 @@ Procedure GenerateDeferredHandlerTable(AllHandlersExecuted = True, InitialFillin
 				Continue;
 			EndIf;
 		EndIf;
-		AddDeferredHandler(Handler, HandlersNotExecuted, AllHandlersExecuted, InitialFilling, ChangingPriority);
+		AddDeferredHandler(Handler, HandlersNotExecuted, AllHandlersExecuted,
+			InitialFilling, ChangingPriority, LineOfOutOfDateDataCleanupHandler);
 		
 		If Handler.DeferredHandlerExecutionMode <> Enums.DeferredHandlersExecutionModes.Parallel Then
 			Continue;
@@ -549,9 +580,17 @@ Procedure GenerateDeferredHandlerTable(AllHandlersExecuted = True, InitialFillin
 	EndIf;
 	
 	If HandlersNotExecuted Then
-		Items.ExplanationText.Title = NStr("en = 'It is recommended that you restore the data processing procedures that have not been executed.';");
+		Items.ExplanationText.Title = NStr("en = 'It is recommended that you start the data processing procedures that have not been completed.';");
 	Else
-		Items.ExplanationText.Title = NStr("en = 'It is recommended that you restore the procedures that have not been completed.';");
+		Items.ExplanationText.Title = NStr("en = 'It is recommended that you restart the procedures that have not been completed.';");
+	EndIf;
+	
+	If LineOfOutOfDateDataCleanupHandler <> Undefined Then
+		RowIndex = DeferredHandlers.IndexOf(LineOfOutOfDateDataCleanupHandler);
+		DeferredHandlers.Move(RowIndex, DeferredHandlers.Count() - 1 - RowIndex);
+		LineOfOutOfDateDataCleanupHandler.ThisIsOutOfDateDataCleanupHandler = True;
+		LineOfOutOfDateDataCleanupHandler.HandlerAddOn =
+			NStr("en = 'View and clear obsolete data manually.';");
 	EndIf;
 	
 	ItemNumber = 1;
@@ -563,12 +602,13 @@ Procedure GenerateDeferredHandlerTable(AllHandlersExecuted = True, InitialFillin
 	Items.UpdateInProgress.Visible = UpdateInProgress;
 	
 	Items.CheckPatches.Visible = UpdateInfo.DeferredUpdateCompletedSuccessfully <> True
-		And InfobaseUpdateInternal.ManualCheckForFixIsAvailable();
+		And InfobaseUpdateInternal.CanCheckForPatchesManually();
 	
 EndProcedure
 
 &AtServer
-Procedure AddDeferredHandler(HandlerRow, HandlersNotExecuted, AllHandlersExecuted, InitialFilling, ChangingPriority)
+Procedure AddDeferredHandler(HandlerRow, HandlersNotExecuted, AllHandlersExecuted,
+			InitialFilling, ChangingPriority, LineOfOutOfDateDataCleanupHandler)
 	
 	If InitialFilling Then
 		ListLine = DeferredHandlers.Add();
@@ -576,6 +616,9 @@ Procedure AddDeferredHandler(HandlerRow, HandlersNotExecuted, AllHandlersExecute
 		FilterParameters = New Structure;
 		FilterParameters.Insert("Id", HandlerRow.HandlerName);
 		ListLine = DeferredHandlers.FindRows(FilterParameters)[0];
+	EndIf;
+	If InfobaseUpdateInternal.ThisIsOutOfDateDataCleanupHandler(HandlerRow) Then
+		LineOfOutOfDateDataCleanupHandler = ListLine;
 	EndIf;
 	
 	ExecutionStatistics = HandlerRow.ExecutionStatistics.Get();
@@ -861,7 +904,7 @@ EndProcedure
 
 &AtServer
 Function AvailableFixesOnServer()
-	Return InfobaseUpdateInternal.FixesAvailableForInstallation();
+	Return InfobaseUpdateInternal.PatchesAvailableForInstall();
 EndFunction
 
 &AtClient
@@ -877,7 +920,7 @@ Procedure CheckAvailableFixesContinued(Result, AdditionalParameters) Export
 	
 	TimeConsumingOperation    = StartingPatchInstallation();
 	IdleParameters     = TimeConsumingOperationsClient.IdleParameters(ThisObject);
-	CallbackOnCompletion = New NotifyDescription("ProcessResultOfManualPatchInstallation", InfobaseUpdateClient, AdditionalParameters);
+	CallbackOnCompletion = New NotifyDescription("ProcessManualPatchInstallationResult", InfobaseUpdateClient, AdditionalParameters);
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
 	
 EndProcedure

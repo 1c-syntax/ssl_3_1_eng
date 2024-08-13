@@ -292,7 +292,7 @@
 							<DataPath>Object.ShowInQuestionnaireArchive</DataPath>
 							<TitleLocation>Right</TitleLocation>
 							<CheckBoxType>Auto</CheckBoxType>
-							<ContextMenu name="HideFromArchivedQuestionnairesContextMenu" id="39"/>
+							<ContextMenu name="NotShowInQuestionnaireArchiveContextMenu" id="39"/>
 							<ExtendedTooltip name="NotShowInQuestionnaireArchiveExtendedTooltip" id="57"/>
 						</CheckBoxField>
 						<CheckBoxField name="AllowSavingQuestionnaireDraft" id="13">

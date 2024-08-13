@@ -151,7 +151,7 @@ EndProcedure
 //
 //  Example:
 //	If BulkEmailType = "Personalized" And MailingRecipientType
-//		= New TypesDetails("CatalogRef.Persons") Then
+//		= New TypeDescription("CatalogRef.Individuals") Then
 //		AdditionalTextParameters.Insert("Name", NStr("ru='Name'"));
 //		AdditionalTextParameters.Insert("MiddleName", NStr("ru='Middle name'"));
 //	EndIf;
@@ -176,7 +176,7 @@ EndProcedure
 // 
 // Example:
 //	If BulkEmailType = "Personalized" And MailingRecipientType
-//		= New TypesDetails("CatalogRef.Persons") And Recipient <> Undefined Then
+//		= New TypeDescription("CatalogRef.Individuals") And Recipient <> Undefined Then
 //		AttributesOfIndividual = Common.ObjectAttributesValues(Recipient, "Name, MiddleName");
 //		AdditionalTextParameters.Name = AttributesOfIndividual.Name;
 //		AdditionalTextParameters.MiddleName = AttributesOfIndividual.MiddleName;

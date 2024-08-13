@@ -612,9 +612,8 @@ EndProcedure
 &AtClient
 Procedure ExpandValueTree()
 	
-	Rows = GroupsTree.GetItems();
-	For Each String In Rows Do
-		Items.GroupsTree.Expand(String.GetID(), True);
+	For Each Item In GroupsTree.GetItems() Do
+		Items.GroupsTree.Expand(Item.GetID(), True);
 	EndDo;
 	
 EndProcedure

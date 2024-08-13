@@ -133,8 +133,8 @@
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
-									<ContextMenu name="TimeConsumingOperationPicture2ContextMenu" id="177"/>
-									<ExtendedTooltip name="TimeConsumingOperationPicture2ExtendedTooltip" id="178"/>
+									<ContextMenu name="PictureTimeConsumingOperationContextMenu" id="177"/>
+									<ExtendedTooltip name="PictureTimeConsumingOperationExtendedTooltip" id="178"/>
 								</PictureDecoration>
 								<LabelDecoration name="TimeConsumingOperationNote" id="179">
 									<Title formatted="false">
@@ -144,8 +144,8 @@
 										</v8:item>
 									</Title>
 									<GroupVerticalAlign>Center</GroupVerticalAlign>
-									<ContextMenu name="TimeConsumingOperationNote1ContextMenu" id="180"/>
-									<ExtendedTooltip name="TimeConsumingOperationNote1ExtendedTooltip" id="181"/>
+									<ContextMenu name="TimeConsumingOperationNoteContextMenu" id="180"/>
+									<ExtendedTooltip name="TimeConsumingOperationNoteExtendedTooltip" id="181"/>
 								</LabelDecoration>
 							</ChildItems>
 						</Page>
@@ -332,7 +332,7 @@
 																	<TitleLocation>None</TitleLocation>
 																	<HorizontalAlign>Left</HorizontalAlign>
 																	<EditMode>EnterOnInput</EditMode>
-																	<ContextMenu name="InterfaceSettingsContextMenu" id="33"/>
+																	<ContextMenu name="InterfacePreferencesContextMenu" id="33"/>
 																	<ExtendedTooltip name="InterfacePreferencesExtendedTooltip" id="122"/>
 																</LabelField>
 															</ChildItems>

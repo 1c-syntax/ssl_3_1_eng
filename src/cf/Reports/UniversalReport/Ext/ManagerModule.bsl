@@ -66,7 +66,8 @@ EndFunction
 //    * DataSource - CatalogRef.MetadataObjectIDs
 // 
 Function FixedParameters(Settings, UserSettings, AvailableValues, Context) Export 
-	FixedParameters = New Structure("Period, DataSource, MetadataObjectType, MetadataObjectName, TableName");
+	FixedParameters = New Structure("Period, DataSource, MetadataObjectType, MetadataObjectName, TableName, 
+		| MetadataObjectTypeName, MetadataObjectTableName");
 	AvailableValues = New Structure("MetadataObjectType, MetadataObjectName, TableName");
 	
 	SetFixedParameter("Period", FixedParameters, Settings, UserSettings);
@@ -78,6 +79,8 @@ Function FixedParameters(Settings, UserSettings, AvailableValues, Context) Expor
 		FixedParameters,
 		Settings, UserSettings,
 		AvailableValues.MetadataObjectType, Context);
+		
+	FixedParameters.MetadataObjectTypeName = FixedParameters.MetadataObjectType;
 	
 	AvailableValues.MetadataObjectName = AvailableMetadataObjects(
 		FixedParameters.MetadataObjectType);
@@ -93,10 +96,12 @@ Function FixedParameters(Settings, UserSettings, AvailableValues, Context) Expor
 	SetFixedParameter(
 		"TableName", FixedParameters, Settings, UserSettings, AvailableValues.TableName);
 	
+	FixedParameters.MetadataObjectTableName = FixedParameters.TableName;
+	
 	FixedParameters.DataSource = DataSource(
 		FixedParameters.MetadataObjectType, FixedParameters.MetadataObjectName);
 	
-	IDs = StrSplit("MetadataObjectType, MetadataObjectName, TableName", ", ", False);
+	IDs = StrSplit("MetadataObjectType, MetadataObjectName, TableName, MetadataObjectTypeName, MetadataObjectTableName", ", ", False);
 	DataParameters = Settings.DataParameters.Items;
 	For Each Id In IDs Do 
 		SettingItem = DataParameters.Find(Id);
@@ -237,6 +242,8 @@ Function TextOfQueryByMetadata(ReportParameters)
 		FilterSource1 = "({&EndOfPeriod},)";
 	ElsIf ReportParameters.TableName = "SliceFirst" Then
 		FilterSource1 = "({&BeginOfPeriod},)";
+	ElsIf  ReportParameters.TableName = "RecordsWithExtDimensions" Then
+		FilterSource1 = "({&BeginOfPeriod}, {&EndOfPeriod})";
 	ElsIf ReportParameters.MetadataObjectType = "Documents" 
 		Or ReportParameters.MetadataObjectType = "Tasks"
 		Or ReportParameters.MetadataObjectType = "BusinessProcesses" Then
@@ -366,7 +373,7 @@ Function AvailableTables(MetadataObjectType, MetadataObjectName)
 	
 	MetadataObject = Metadata[MetadataObjectType][MetadataObjectName];
 	
-	AvailableValues.Add("", PresentationOfTableNameBasicData());
+	AvailableValues.Add("", MainDataTableNamePresentation());
 	
 	If MetadataObjectType = "Catalogs" 
 		Or MetadataObjectType = "Documents" 
@@ -520,7 +527,6 @@ Procedure AddRegisterTotals(Val ReportParameters, Val DataCompositionSchema)
 		DataSetField.Title = NStr("en = 'Recorder';");
 		DataSetField.DataPath = "Recorder";
 		DataSetField.Role.PeriodType = DataCompositionPeriodType.Main;
-		DataSetField.Role.PeriodNumber = 1;
 		DataSetField.Role.IgnoreNULLValues = True;
 		
 		Order_Period = DataSetField.OrderExpressions.Add();
@@ -555,7 +561,7 @@ Procedure AddRegisterTotals(Val ReportParameters, Val DataCompositionSchema)
 		For ExtDimensionNumber = 1 To ExtDimensionCount Do
 			ExtDimensionField = AddDataSetField(DataCompositionSchema.DataSets[0], "ExtDimension" + ExtDimensionNumber, NStr("en = 'Extra dimension';") + " " + ExtDimensionNumber);
 			ExtDimensionField.Role.Dimension = True;
-			ExtDimensionField.Role.IgnoreNULLValues = True;
+			ExtDimensionField.Role.IgnoreNULLValues = False;
 		EndDo;
 		
 	EndIf;
@@ -813,7 +819,7 @@ Function AddPeriodFieldsInDataSet(DataSet, ThereIsFieldLogger)
 	FolderName = "TimeIntervals";
 	DataSetFieldsList = New ValueList;
 	DataSetFieldsFolder = DataSet.Fields.Add(Type("DataCompositionSchemaDataSetFieldFolder"));
-	DataSetFieldsFolder.Title   = FolderName;
+	DataSetFieldsFolder.Title   = NStr("en = 'Periods';");
 	DataSetFieldsFolder.DataPath = FolderName;
 	
 	PeriodType = DataCompositionPeriodType.Main;
@@ -1030,7 +1036,7 @@ Procedure AddIndicators(ReportParameters, DCSettings)
 	
 EndProcedure
 
-// Generates the structure of data composition settings
+// Generates the structure of data composition settings.
 //
 // Parameters:
 //  ReportParameters - Structure - Description of a metadata object that is a data source
@@ -1233,8 +1239,8 @@ Function OptionSettings(Variant) Export
 	Try
 		OptionSettings = Variant.Settings.Get(); // DataCompositionSettings
 	Except
-		// 
-		//  
+		// Couldn't deserialize the value storage:
+		//  Perhaps, a reference to a non-existent type is found.
 		Return Undefined;
 	EndTry;
 	
@@ -1817,7 +1823,8 @@ Function PeriodEndDate_2(Period, MetadataObjectType, TableName) Export
 	EndDate = ?(TypeOf(Period) = Type("StandardPeriod"), Period.EndDate, Period);
 	
 	If StrFind(Upper(MetadataObjectType), "REGISTER") = 0
-		Or StrCompare(TableName, PresentationOfTableNameBasicData()) = 0 Then
+		Or IsBlankString(TableName)
+		Or StrCompare(MetadataObjectType, "CalculationRegisters") = 0 Then
 		Return EndDate;
 	EndIf;
 	
@@ -1825,7 +1832,7 @@ Function PeriodEndDate_2(Period, MetadataObjectType, TableName) Export
 	
 EndFunction
 
-Function PresentationOfTableNameBasicData()
+Function MainDataTableNamePresentation()
 	
 	Return NStr("en = 'Main data';");
 	

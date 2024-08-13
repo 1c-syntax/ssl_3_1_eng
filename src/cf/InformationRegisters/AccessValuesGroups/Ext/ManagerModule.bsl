@@ -174,14 +174,12 @@ EndProcedure
 // Updates access value groups in the InformationRegister.AccessValuesGroups.
 //
 // Parameters:
-//  AccessValue - DefinedType.AccessValueObject - 
-//                      
-//                      
-//                  - DefinedType.AccessValue - 
-//                      
-//                      
+//  AccessValue - DefinedType.AccessValueObject - Object before writing.
+//                  - DefinedType.AccessValue - Empty references are ignored.
+//                      The value type must be included in the type list of the "AccessValue"
+//                      dimension in the "AccessValuesGroups" information register.
 //                  - Array of DefinedType.AccessValue
-//                  - Undefined - 
+//                  - Undefined - Update for all values of any type.
 //
 //  HasChanges   - Boolean - (return value) - if recorded,
 //                    True is set, otherwise, it does not change.
@@ -236,12 +234,12 @@ Procedure DeleteUnusedRecords(HasChanges = Undefined)
 		String.ValuesGroupsType = KeyAndValue.Value;
 	EndDo;
 	
-	// 
-	// 
-	// 
-	// 
-	// 
-	// 
+	// Data groups in the register.
+	// 0 - Standard access values.
+	// 1 - Internal or external users.
+	// 2 - Internal or external user groups.
+	// 3 - Assignee groups.
+	// 4 - Authorization objects.
 	
 	
 	Query = New Query;
@@ -500,9 +498,9 @@ Procedure UpdateEmptyAccessValuesGroups(HasChanges = Undefined)
 	QueriesTextsForMissing = New Array;
 	QueriesTextsForRedundant = New Array;
 	
-	// 
+	// ACC:1319-off - The lock is set in the called procedure "UpdateFromQueryResult".
 	Block = New DataLock;
-	// 
+	// ACC:1319-on
 	
 	For Each TableName In AccessValuesWithGroups.NamesOfTablesToUpdate Do
 		RefType = Type(StrReplace(TableName, ".", "Ref."));
@@ -546,7 +544,7 @@ Procedure UpdateEmptyAccessValuesGroups(HasChanges = Undefined)
 	
 EndProcedure
 
-// 
+// Updates access value groups in "InformationRegister.AccessValuesGroups".
 //
 // Parameters:
 //  AccessValue - See UpdateAccessValuesGroups.AccessValue
@@ -604,6 +602,42 @@ Procedure UpdateAccessGroupsWithFilledValues(AccessValue, HasChanges)
 		EndDo;
 	EndIf;
 	
+	Query = New Query;
+	
+	If Object <> Undefined Then
+		ObjectGroups = New ValueTable;
+		ObjectGroups.Columns.Add("Ref", Metadata.DefinedTypes.AccessValue.Type);
+		ObjectGroups.Columns.Add("AccessGroup", Metadata.DefinedTypes.AccessValue.Type);
+		Query.SetParameter("CurrentTable", ObjectGroups);
+		Query.Text =
+		"SELECT
+		|	CurrentTable.Ref AS Ref,
+		|	CurrentTable.AccessGroup AS AccessGroup
+		|INTO CurrentValueTable
+		|FROM
+		|	&CurrentTable AS CurrentTable";
+		Query.Text = Query.Text + Common.QueryBatchSeparator();
+		Properties = ByRefTypesForUpdate.Get(TypeOf(Ref));
+		Try
+			If Properties.ValuesGroupsType = Type("Undefined") Then
+				ObjectGroups.Add().Ref = Ref;
+			ElsIf Properties.MultipleValuesGroups Then
+				For Each TSRow In Object.AccessGroups Do
+					NewRow = ObjectGroups.Add();
+					NewRow.Ref = Ref;
+					NewRow.AccessGroup = TSRow.AccessGroup;
+				EndDo;
+			Else
+				NewRow = ObjectGroups.Add();
+				NewRow.Ref = Ref;
+				NewRow.AccessGroup = Object.AccessGroup;
+			EndIf;
+		Except
+			CheckTablesMetadata(NamesOfTablesToUpdate, ByRefTypesForUpdate);
+			Raise;
+		EndTry;
+	EndIf;
+	
 	QueryTemplateForRedundant =
 	"SELECT
 	|	AccessValuesGroups.AccessValue AS AccessValue,
@@ -634,7 +668,6 @@ Procedure UpdateAccessGroupsWithFilledValues(AccessValue, HasChanges)
 	
 	QueriesTextsForMissing = New Array;
 	QueriesTextsForRedundant = New Array;
-	Query = New Query;
 	
 	For Each TableName In NamesOfTablesToUpdate Do
 		RefType = Type(StrReplace(TableName, ".", "Ref."));
@@ -649,6 +682,9 @@ Procedure UpdateAccessGroupsWithFilledValues(AccessValue, HasChanges)
 				"%1", Metadata.FindByType(Properties.ValuesGroupsType).FullName());
 		Else
 			FieldName = "CurrentTable.Ref";
+		EndIf;
+		If Object <> Undefined Then
+			CurrentTableName = "CurrentValueTable";
 		EndIf;
 		
 		If AccessValue = Undefined Then
@@ -678,7 +714,8 @@ Procedure UpdateAccessGroupsWithFilledValues(AccessValue, HasChanges)
 	
 	UnionAllText = Common.UnionAllText();
 	
-	Query.Text = StrConcat(QueriesTextsForRedundant, UnionAllText)
+	Query.Text = Query.Text
+		+ StrConcat(QueriesTextsForRedundant, UnionAllText)
 		+ Common.QueryBatchSeparator()
 		+ StrConcat(QueriesTextsForMissing, UnionAllText);
 	
@@ -689,13 +726,15 @@ Procedure UpdateAccessGroupsWithFilledValues(AccessValue, HasChanges)
 		Raise;
 	EndTry;
 	
-	If QueryResults[0].IsEmpty() And QueryResults[1].IsEmpty() Then
+	IndexOf = QueryResults.Count() - 2;
+	If QueryResults[IndexOf].IsEmpty()
+	   And QueryResults[IndexOf + 1].IsEmpty() Then
 		Return;
 	EndIf;
 	
-	// 
+	// ACC:1319-off - The lock is set in the called procedure "UpdateFromQueryResult".
 	Block = New DataLock;
-	// 
+	// ACC:1319-on
 	
 	If TypeOf(AccessValue) = Type("Array") And AccessValue.Count() <= 1000 Then
 		For Each CurrentRef In AccessValue Do
@@ -711,15 +750,14 @@ Procedure UpdateAccessGroupsWithFilledValues(AccessValue, HasChanges)
 		EndIf;
 	EndIf;
 	
-	IsNew = Object <> Undefined
-		And Object.AdditionalProperties.Property("IsAccessValueNewObject");
+	IsNew = Object <> Undefined And Object.IsNew();
 	
 	UpdateFromQueryResult(Query,
 		Block, ByRefTypesForUpdate, NamesOfTablesToUpdate, HasChanges, IsNew);
 	
 EndProcedure
 
-// 
+// Intended for procedures "UpdateAccessValueGroups" and "UpdateEmptyAccessValuesGroups".
 Procedure UpdateFromQueryResult(Query, Block,
 			ByRefTypesForUpdate, NamesOfTablesToUpdate, HasChanges, IsNew = False)
 	
@@ -730,16 +768,17 @@ Procedure UpdateFromQueryResult(Query, Block,
 	Try
 		Block.Lock();
 		QueryResults = Query.ExecuteBatch();
+		IndexOf = QueryResults.Count() - 2;
 		
-		If Not QueryResults[0].IsEmpty() Then
+		If Not QueryResults[IndexOf].IsEmpty() Then
 			RecordSet = InformationRegisters.AccessValuesGroups.CreateRecordSet();
-			Selection = QueryResults[0].Select();
+			Selection = QueryResults[IndexOf].Select();
 			
 			While Selection.Next() Do
 				RecordSet.Filter.DataGroup.Set(0);
 				RecordSet.Filter.AccessValue.Set(Selection.AccessValue);
 				RecordSet.Filter.AccessValuesGroup.Set(Selection.AccessValuesGroup);
-				RecordSet.Write(); // 
+				RecordSet.Write(); // Delete unnecessary linkage records.
 				
 				ValueType = TypeOf(Selection.AccessValue);
 				IsTypeProcessed = ProcessedTypes.Get(ValueType);
@@ -752,17 +791,17 @@ Procedure UpdateFromQueryResult(Query, Block,
 			HasChanges = True;
 		EndIf;
 		
-		If Not QueryResults[1].IsEmpty() Then
+		If Not QueryResults[IndexOf + 1].IsEmpty() Then
 			RecordSet = InformationRegisters.AccessValuesGroups.CreateRecordSet();
 			Record = RecordSet.Add();
-			Selection = QueryResults[1].Select();
+			Selection = QueryResults[IndexOf + 1].Select();
 			
 			While Selection.Next() Do
 				RecordSet.Filter.AccessValue.Set(Selection.AccessValue);
 				RecordSet.Filter.AccessValuesGroup.Set(Selection.AccessValuesGroup);
 				RecordSet.Filter.DataGroup.Set(0);
 				FillPropertyValues(Record, Selection);
-				RecordSet.Write(); // 
+				RecordSet.Write(); // Add missing linkage records.
 				
 				ValueType = TypeOf(Selection.AccessValue);
 				IsTypeProcessed = ProcessedTypes.Get(ValueType);
@@ -787,7 +826,7 @@ Procedure UpdateFromQueryResult(Query, Block,
 	
 EndProcedure
 
-// 
+// Intended for procedure "UpdateAccessGroupsWithFilledValues".
 Procedure DoAddChanges(Ref, IsNew, ByRefTypesForUpdate, ValuesWithChangesByTypes, IsTypeProcessed)
 	
 	AccessKindProperties = ByRefTypesForUpdate.Get(TypeOf(Ref));
@@ -809,7 +848,7 @@ Procedure DoAddChanges(Ref, IsNew, ByRefTypesForUpdate, ValuesWithChangesByTypes
 	
 EndProcedure
 
-// 
+// Intended for procedure "UpdateAccessGroupsWithFilledValues".
 Function ErrorTextTypeNotConfigured(AccessValueType)
 	
 	ErrorTitle =
@@ -826,8 +865,8 @@ Function ErrorTextTypeNotConfigured(AccessValueType)
 	
 EndFunction
 
-// 
-Procedure CheckTablesMetadata(NamesOfTablesToUpdate, ByRefTypesForUpdate)
+// Intended for procedure "UpdateAccessValueGroups".
+Procedure CheckTablesMetadata(NamesOfTablesToUpdate, ByRefTypesForUpdate) Export
 	
 	ErrorTitle =
 		NStr("en = 'An error occurred when updating Access Value Groups.';")
@@ -1091,7 +1130,7 @@ Procedure UpdatePerformersGroups(PerformersGroups = Undefined,
 	
 	SetPrivilegedMode(True);
 	
-	// 
+	// Prepare a table with additional user (assignee) groups.
 	// 
 	
 	Query = New Query;
@@ -1197,8 +1236,8 @@ Procedure UpdatePerformersGroups(PerformersGroups = Undefined,
 	If PerformersGroups = Undefined
 	   And Assignees <> Undefined Then
 		
-		// 
-		// 
+		// ACC:96-off - No.434. Using JOIN is acceptable as the rows should be unique and
+		// the dataset is small (from units to hundreds).
 		QueryText =
 		"SELECT
 		|	AssigneeGroupsUsers.PerformersGroup

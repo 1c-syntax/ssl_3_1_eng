@@ -184,7 +184,7 @@ EndProcedure
 // Example:
 //   RefsSearchExclusions.Add(Metadata.InformationRegisters.ObjectsVersions);
 //   RefsSearchExclusions.Add(Metadata.InformationRegisters.ObjectsVersions.Dimensions.Object);
-//   RefsSearchExclusions.Add("ChartOfCalculationTypes._DemoBaseEarnings.StandardTabularSection.BaseCalculationTypes.StandardAttribute.CalculationType");
+//   RefsSearchExclusions.Add("ChartOfCalculationTypes.BaseEarnings.StandardTabularSection.BaseCalculationTypes.StandardAttribute.CalculationType");
 //
 Procedure OnAddReferenceSearchExceptions(RefSearchExclusions) Export
 	
@@ -252,8 +252,8 @@ EndProcedure
 //
 // Example:
 //	Common.AddRenaming(Total, "2.1.2.14",
-//		"Subsystem._DemoSubsystems",
-//		"Subsystem._DemoUtilitySubsystems");
+//		"Subsystem.ServiceSubsystems",
+//		"Subsystem.UtilitySubsystems");
 //
 Procedure OnAddMetadataObjectsRenaming(Total) Export
 	

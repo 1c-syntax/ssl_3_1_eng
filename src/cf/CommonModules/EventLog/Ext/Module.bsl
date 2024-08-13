@@ -600,8 +600,8 @@ Function TableDataPresentation(EventData)
 			NewColumn.Title = NewColumn.Name;
 		EndIf;
 	EndDo;
-	For Each String In Data Do
-		FillPropertyValues(Table.Add(), String);
+	For Each TableRow In Data Do
+		FillPropertyValues(Table.Add(), TableRow);
 	EndDo;
 	
 	Copy = Table.Copy();
@@ -621,10 +621,10 @@ Function TableDataPresentation(EventData)
 	EndDo;
 	Rows.Add("| " + StrConcat(StringParts1, " | ") + " |");
 	
-	For Each String In Table Do
+	For Each TableRow In Table Do
 		StringParts1 = New Array;
 		For Each Column In Table.Columns Do
-			StringParts1.Add(Mid(String[Column.Name] + IndentChars, 1, Column.Width));
+			StringParts1.Add(Mid(TableRow[Column.Name] + IndentChars, 1, Column.Width));
 		EndDo;
 		Rows.Add("| " + StrConcat(StringParts1, " | ") + " |");
 	EndDo;
@@ -1286,7 +1286,7 @@ Function StructuresKeysPresentation()
 		NStr("en = 'Allow extension of access rights';"));
 	
 	Result.Insert(Lower("AccessRightsExtensionLimitingRoles"),
-		NStr("en = 'Roles preventing extension of access rights';"));
+		NStr("en = 'Roles that restrict extension of access rights';"));
 	
 	Result.Insert(Lower("PrivilegedModeRoles"),
 		NStr("en = 'Privileged mode roles';"));

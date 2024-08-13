@@ -112,7 +112,7 @@ Procedure WriteDocumentOriginalStateByPrintForms(Document, PrintForm, Presentati
 
 EndProcedure
 
-// Records the overall state of the document original to the register.
+// Records the source document's aggregated state to the register.
 //
 //	Parameters:
 //  Document - DocumentRef - document reference.

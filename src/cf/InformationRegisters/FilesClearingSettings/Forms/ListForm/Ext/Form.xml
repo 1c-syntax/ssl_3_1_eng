@@ -31,7 +31,7 @@
 						<v8:content>Select action</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="ActionGroup2ExtendedTooltip" id="40"/>
+				<ExtendedTooltip name="GroupActionExtendedTooltip" id="40"/>
 				<ChildItems>
 					<Button name="FormSetActionCleanUpFilesAndVersions" id="41">
 						<Type>CommandBarButton</Type>
@@ -123,12 +123,14 @@
 					</Button>
 				</ChildItems>
 			</Popup>
-			<Button name="FormHelp" id="105">
-				<Type>CommandBarButton</Type>
-				<CommandName>Form.StandardCommand.Help</CommandName>
-				<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
-				<ExtendedTooltip name="FormHelpExtendedTooltip" id="106"/>
-			</Button>
+			<Popup name="ReportsSubmenu" id="156">
+				<Picture>
+					<xr:Ref>CommonPicture.Reports</xr:Ref>
+					<xr:LoadTransparent>false</xr:LoadTransparent>
+				</Picture>
+				<Representation>PictureAndText</Representation>
+				<ExtendedTooltip name="ReportsSubmenuExtendedTooltip" id="157"/>
+			</Popup>
 			<SearchStringAddition name="SearchString" id="153">
 				<AdditionSource>
 					<Item>MetadataObjectsTree</Item>
@@ -161,7 +163,7 @@
 			<Group>Vertical</Group>
 			<Behavior>Usual</Behavior>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="ListSettingsComposerUserSettingsExtendedTooltip" id="2"/>
+			<ExtendedTooltip name="SettingsComposerUserSettingsListExtendedTooltip" id="2"/>
 		</UsualGroup>
 		<Table name="MetadataObjectsTree" id="3">
 			<Representation>Tree</Representation>
@@ -242,6 +244,7 @@
 				<Event name="Selection">MetadataObjectsTreeSelection</Event>
 				<Event name="BeforeAddRow">MetadataObjectsTreeBeforeAddRow</Event>
 				<Event name="BeforeDeleteRow">MetadataObjectsTreeBeforeDeleteRow</Event>
+				<Event name="OnActivateRow">MetadataObjectsTreeOnActivateRow</Event>
 				<Event name="ChoiceProcessing">MetadataObjectsTreeChoiceProcessing</Event>
 				<Event name="BeforeRowChange">MetadataObjectsTreeBeforeRowChange</Event>
 			</Events>
@@ -340,7 +343,7 @@
 			</Title>
 			<GroupVerticalAlign>Center</GroupVerticalAlign>
 			<PagesRepresentation>None</PagesRepresentation>
-			<ExtendedTooltip name="PagesTotalsDeletedFilesExtendedTooltip" id="115"/>
+			<ExtendedTooltip name="PagesTotalsFilesToDeleteExtendedTooltip" id="115"/>
 			<ChildItems>
 				<Page name="PageTotalsCalculationFilesToDelete" id="116">
 					<Title>
@@ -352,7 +355,7 @@
 					<Group>AlwaysHorizontal</Group>
 					<VerticalAlign>Center</VerticalAlign>
 					<BackColor>style:TotalsGroupBackground</BackColor>
-					<ExtendedTooltip name="PageCountingTotalsDeletedFilesExtendedTooltip" id="117"/>
+					<ExtendedTooltip name="PageTotalsCalculationFilesToDeleteExtendedTooltip" id="117"/>
 					<ChildItems>
 						<PictureDecoration name="PictureTotalsCalculation" id="120">
 							<Title formatted="false">
@@ -365,8 +368,8 @@
 								<xr:Ref>CommonPicture.CheckInProgress</xr:Ref>
 								<xr:LoadTransparent>false</xr:LoadTransparent>
 							</Picture>
-							<ContextMenu name="PictureCalculationOfTotalsContextMenu" id="121"/>
-							<ExtendedTooltip name="PictureCalculationOfTotalsExtendedTooltip" id="122"/>
+							<ContextMenu name="PictureTotalsCalculationContextMenu" id="121"/>
+							<ExtendedTooltip name="PictureTotalsCalculationExtendedTooltip" id="122"/>
 						</PictureDecoration>
 						<LabelDecoration name="TotalsCalculationsLabel" id="125">
 							<Title formatted="false">
@@ -375,8 +378,8 @@
 									<v8:content>Calculating the size of files being deleted…</v8:content>
 								</v8:item>
 							</Title>
-							<ContextMenu name="InscriptionOfTheCalculationsOfTotalsContextMenu" id="126"/>
-							<ExtendedTooltip name="InscriptionOfTheCalculationsOfTotalsExtendedTooltip" id="127"/>
+							<ContextMenu name="TotalsCalculationsLabelContextMenu" id="126"/>
+							<ExtendedTooltip name="TotalsCalculationsLabelExtendedTooltip" id="127"/>
 						</LabelDecoration>
 					</ChildItems>
 				</Page>
@@ -388,7 +391,7 @@
 						</v8:item>
 					</Title>
 					<BackColor>style:TotalsGroupBackground</BackColor>
-					<ExtendedTooltip name="PageDisplayingTotalsDeletedFilesExtendedTooltip" id="119"/>
+					<ExtendedTooltip name="PageTotalsDisplayFilesToDeleteExtendedTooltip" id="119"/>
 					<ChildItems>
 						<UsualGroup name="CleanUpUnusedFiles" id="57">
 							<Title>
@@ -483,7 +486,7 @@
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
 									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="FileSizeInformationExtendedTooltip" id="131"/>
+									<ExtendedTooltip name="FilesSizeInformationExtendedTooltip" id="131"/>
 									<ChildItems>
 										<Button name="DeletedFilesVolume" id="128">
 											<Type>Hyperlink</Type>
@@ -494,7 +497,7 @@
 													<v8:content>Size of deleted files </v8:content>
 												</v8:item>
 											</Title>
-											<ExtendedTooltip name="VolumeOfDeletedFilesExtendedTooltip" id="129"/>
+											<ExtendedTooltip name="DeletedFilesVolumeExtendedTooltip" id="129"/>
 										</Button>
 										<Button name="IrrelevantFilesVolume" id="74">
 											<Type>Hyperlink</Type>

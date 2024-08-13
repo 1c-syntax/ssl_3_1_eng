@@ -165,9 +165,9 @@ Procedure LoadRecord(Rules, InformationOnly)
 			
 			Registration.FormatVersion = deElementValue(Rules, StringType);
 			
-		ElsIf NodeName = "ID_SSLy" Then
+		ElsIf NodeName = "ID" Then
 			
-			Registration.ID_SSLy = deElementValue(Rules, StringType);
+			Registration.ID = deElementValue(Rules, StringType);
 			
 		ElsIf NodeName = "Description" Then
 			
@@ -461,9 +461,9 @@ Procedure LoadExchangePlanFilterItem(Rules, NewRow)
 			
 		ElsIf NodeName = "ExchangePlanProperty" Then
 			
-			// 
-			// 
-			// 
+			// The property can be a header property or a table property. If it is a table property, the
+			// "FullPropertyDescription" variable contains the table name [in square brackets] followed by the property name.
+			// Example: "[Company].Company".
 			// 
 			// 
 			FullPropertyDescription = deElementValue(Rules, StringType);
@@ -828,9 +828,9 @@ Function GetPropertyConditionText(Rule, ObjectProperties)
 	
 	RuleComparisonKind = Rule.ComparisonType;
 	
-	// 
-	// 
-	// 
+	// Invert the comparison type as the tables of exchange plan and registered object
+	// are located differently in Data Conversion 2.0 (when configuring ORR) and
+	// in queries to exchange plans in this module.
 	InvertComparisonType(RuleComparisonKind);
 	
 	TextOperator = GetCompareOperatorText(RuleComparisonKind);
@@ -1215,7 +1215,7 @@ Function RecordInitialization()
 	
 	Registration = New Structure;
 	Registration.Insert("FormatVersion",       "");
-	Registration.Insert("ID_SSLy",                  "");
+	Registration.Insert("ID",                  "");
 	Registration.Insert("Description",        "");
 	Registration.Insert("CreationDateTime",   BlankDateValue1);
 	Registration.Insert("ExchangePlan",          "");
@@ -1232,7 +1232,7 @@ Function RecordInitialization()
 	
 EndFunction
 
-// Initializes a variable that contains mapping of message codes and their description.
+// Initializes a variable that contains mapping of message codes and their description.
 //
 // Parameters:
 //  No.

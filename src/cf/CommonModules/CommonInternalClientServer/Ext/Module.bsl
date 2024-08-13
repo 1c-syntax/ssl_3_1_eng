@@ -643,16 +643,16 @@ Function OnlyUppercaseInString(Value)
 	
 EndFunction
 
-// Returns a period presentation in lowcase or with an uppercase letter
-//  if a phrase or a sentence starts with the period presentation.
-//  For example, if the period presentation must be displayed in the report heading
+// Returns a lowercase period presentation, or uppercase
+//  if a phrase or a sentence starts with the period.
+//  For example, if the period must be displayed in the report heading
 //  as "Sales for [StartDate] - [EndDate]",
 //  the result will look like this: "Sales for February 2020 - March 2020".
-//  The period is in lowcase because it is not the beginning of the sentence.
+//  
 //
 // Parameters:
-//  StartDate - Date - period start.
-//  EndDate - Date - period end.
+//  StartDate - Date - Period start.
+//  EndDate - Date - Period end.
 //  FormatString - String - determines a period formatting method.
 //  Capitalize - Boolean - True if the period presentation is the beginning of a sentence.
 //                    The default value is False.
@@ -738,7 +738,7 @@ Function TheTextOfACellOfTheFormForScientificNotation(Val CellText)
 	CellText = StrReplace(CellText, Char(46), ""); // Dot ( . ).
 	
 	ExponentCharacterCodes = New Array;
-	ExponentCharacterCodes.Add(1045); // 
+	ExponentCharacterCodes.Add(1045); // Cyrillic "Е".
 	ExponentCharacterCodes.Add(69);   // Latin "E".
 	
 	For Each Code In ExponentCharacterCodes Do 

@@ -63,6 +63,30 @@ Procedure GenerateDataAreaUpdatePlan(LibraryID, AllHandlers,
 			Block.Lock();
 			
 			RecordManager.Read();
+			
+			If ShouldSaveExchangePlanChanges() Then
+				PreviousUpdatePlan = RecordManager.UpdatePlan.Get();
+				CurrentAsteriskHandlers = New Array;
+				If PreviousUpdatePlan <> Undefined Then
+					FilterParameters = New Structure;
+					FilterParameters.Insert("RegistrationVersion", "*");
+					CurrentAsteriskHandlers = PreviousUpdatePlan.Plan.Rows.FindRows(FilterParameters, True);
+				EndIf;
+				
+				For Each Version In PlanDetails.Plan.Rows Do
+					If Version.Version <> "*" Then
+						Continue;
+					EndIf;
+					
+					For Each Handler In CurrentAsteriskHandlers Do
+						FoundHandler = Version.Rows.Find(Handler.Procedure, "Procedure");
+						If FoundHandler = Undefined Then
+							FillPropertyValues(Version.Rows.Add(), Handler);
+						EndIf;
+					EndDo;
+				EndDo;
+			EndIf;
+			
 			RecordManager.UpdatePlan = New ValueStorage(PlanDetails);
 			RecordManager.Write();
 			
@@ -75,8 +99,8 @@ Procedure GenerateDataAreaUpdatePlan(LibraryID, AllHandlers,
 		UpdatePlanEmpty = DataAreaUpdatePlan.Rows.Count() = 0;
 		
 		If LibraryID = Metadata.Name Then
-			// 
-			// 
+			// The configuration version can be set only if all the libraries are up-to-date.
+			// Otherwise, the area update mechanism doesn't start and the libraries won't be updated.
 			UpdatePlanEmpty = False;
 			
 			// Checking whether each plan is empty.
@@ -203,8 +227,8 @@ Procedure GenerateDataAreaUpdatePlan(LibraryID, AllHandlers,
 		
 		If UpdatePlanEmpty Then
 			
-			// 
-			// 
+			// The update plan has no separated real-time or exclusive handlers.
+			// Search for deferred separated handlers.
 			DeferredFilterParameters = InfobaseUpdateInternal.HandlerFIlteringParameters();
 			DeferredFilterParameters.GetSeparated = True;
 			DeferredFilterParameters.UpdateMode = "Deferred";
@@ -680,8 +704,8 @@ Procedure OnSendSubsystemVersions(DataElement, ItemSend, Val InitialImageCreatin
 				|FROM
 				|	InformationRegister.DataAreasSubsystemsVersions AS DataAreasSubsystemsVersions";
 			Result = Query.Execute().Unload();
-			For Each String In Result Do
-				SubsystemsVersions.Insert(String.SubsystemName, String.Version);
+			For Each TableRow In Result Do
+				SubsystemsVersions.Insert(TableRow.SubsystemName, TableRow.Version);
 			EndDo;
 			
 			For Each SetRow In DataElement Do
@@ -751,7 +775,7 @@ Procedure AfterUpdateInfobase(Val PreviousVersion, Val CurrentVersion,
 		Try
 			BackgroundJobs.Execute(Job.Metadata.MethodName, , Job.Key, Job.Description);
 		Except
-			// 
+			// Meaning that the job is running. Do not handle exceptions.
 			// 
 		EndTry;
 		// ACC:280-on
@@ -917,7 +941,7 @@ Procedure ScheduleDataAreaUpdate()
 	
 	SharedDataVersion = InfobaseUpdateInternal.IBVersion(Metadata.Name, True);
 	If InfobaseUpdateInternal.UpdateRequired(MetadataVersion, SharedDataVersion) Then
-		// 
+		// Shared data is not updated. There's no point in planning the area update.
 		// 
 		Return;
 	EndIf;
@@ -963,8 +987,8 @@ Procedure ScheduleDataAreaUpdate()
 	Query.SetParameter("DataArea", DataAreas);
 	AreasVersions = New Map;
 	ConfigurationVersionsInAreas = Query.Execute().Unload();
-	For Each String In ConfigurationVersionsInAreas Do
-		AreasVersions.Insert(String.DataArea, String.Version);
+	For Each TableRow In ConfigurationVersionsInAreas Do
+		AreasVersions.Insert(TableRow.DataArea, TableRow.Version);
 	EndDo;
 	
 	YouNeedToSetTheScheduledStartTime = False;
@@ -1132,7 +1156,7 @@ Procedure DataAreasUpdate() Export
 		Return;
 	EndIf;
 	
-	// 
+	// Do not call "OnStartExecuteScheduledJob" as all required actions are performed ad-hoc.
 	// 
 	
 	ScheduleDataAreaUpdate();
@@ -1233,6 +1257,34 @@ EndProcedure
 
 #EndRegion
 
+Function ShouldSaveExchangePlanChanges()
+	Query = New Query;
+	Query.SetParameter("SubsystemName", Metadata.Name);
+	Query.Text =
+		"SELECT
+		|	SubsystemsVersions.UpdatePlan AS UpdatePlan
+		|FROM
+		|	InformationRegister.SubsystemsVersions AS SubsystemsVersions
+		|WHERE
+		|	SubsystemsVersions.SubsystemName = &SubsystemName";
+	Result = Query.Execute().Unload();
+	
+	If Result.Count() = 0 Then
+		Return False;
+	EndIf;
+	
+	UpdatePlan = Result[0].UpdatePlan.Get();
+	If UpdatePlan = Undefined Then
+		Return False;
+	EndIf;
+	
+	If UpdatePlan.VersionTo1 = Metadata.Version Then
+		Return True;
+	EndIf;
+	
+	Return False;
+EndFunction
+
 Function DataAreaLockResult(RecordKey, AttemptNumber)
 	
 	Try
@@ -1306,9 +1358,9 @@ Function ExecuteQueryOutsideTransaction(Val Query)
 	Result = Undefined;
 	While True Do
 		Try
-			Result = Query.Execute(); // 
-			                                // 
-			                                // 
+			Result = Query.Execute(); // Reading outside a transaction. This might cause the following error:
+			                                // "Could not continue scan with NOLOCK due to data movement"
+			                                // In case of the error, try to read again.
 			Break;
 		Except
 			AttemptsNumber = AttemptsNumber + 1;

@@ -42,7 +42,7 @@
 							<Behavior>Usual</Behavior>
 							<Representation>NormalSeparation</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="ObjectsFilterExtendedTooltip" id="111"/>
+							<ExtendedTooltip name="FilterObjects_ExtendedTooltip" id="111"/>
 							<ChildItems>
 								<InputField name="PresentationOfObjectsToChange" id="167">
 									<DataPath>PresentationOfObjectsToChange</DataPath>
@@ -917,7 +917,7 @@ Edit failed: 0</v8:content>
 										</InputField>
 									</ChildItems>
 								</Table>
-								<UsualGroup name="ReasonGroup" id="376">
+								<UsualGroup name="GroupReason" id="376">
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
@@ -928,9 +928,9 @@ Edit failed: 0</v8:content>
 									<Group>Vertical</Group>
 									<Representation>None</Representation>
 									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="ReasonGroupExtendedTooltip" id="377"/>
+									<ExtendedTooltip name="GroupReasonExtendedTooltip" id="377"/>
 									<ChildItems>
-										<UsualGroup name="GenerateErrorReportGroup" id="369">
+										<UsualGroup name="GroupGenerateErrorReport" id="369">
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
@@ -941,7 +941,7 @@ Edit failed: 0</v8:content>
 											<Group>AlwaysHorizontal</Group>
 											<Representation>None</Representation>
 											<ShowTitle>false</ShowTitle>
-											<ExtendedTooltip name="GenerateErrorReportGroupExtendedTooltip" id="370"/>
+											<ExtendedTooltip name="GroupGenerateErrorReportExtendedTooltip" id="370"/>
 											<ChildItems>
 												<LabelDecoration name="ReasonInscription" id="371">
 													<Title formatted="false">
@@ -1067,7 +1067,7 @@ Edit failed: 0</v8:content>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="DoneGroupExtendedTooltip" id="218"/>
+							<ExtendedTooltip name="DoneSuccessfullyGroupExtendedTooltip" id="218"/>
 							<ChildItems>
 								<PictureDecoration name="DonePicture" id="219">
 									<Picture>
@@ -1116,7 +1116,7 @@ Total items edited: %1.</v8:content>
 							<v8:content>Left-side buttons</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="ButtonsOnLeftExtendedTooltip" id="210"/>
+					<ExtendedTooltip name="ButtonsOnTheLeftExtendedTooltip" id="210"/>
 					<ChildItems>
 						<Button name="FormBack" id="203">
 							<Type>CommandBarButton</Type>
@@ -1139,7 +1139,7 @@ Total items edited: %1.</v8:content>
 						</v8:item>
 					</Title>
 					<HorizontalLocation>Right</HorizontalLocation>
-					<ExtendedTooltip name="ButtonsOnRightExtendedTooltip" id="212"/>
+					<ExtendedTooltip name="ButtonsOnTheRightExtendedTooltip" id="212"/>
 					<ChildItems>
 						<Button name="FormChange" id="22">
 							<Type>CommandBarButton</Type>

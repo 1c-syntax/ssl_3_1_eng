@@ -459,7 +459,7 @@ Procedure JoinAndFillTableArea(Val PrintForm,
 	
 	ActiveDocument = PrintForm.COMJoin.ActiveDocument;
 	
-	// 
+	// Insert the first row (the following rows will inherit its formatting).
 	// 
 	InsertBreakAtNewLine(PrintForm); 
 	InsertPosition = ActiveDocument.Range().End;

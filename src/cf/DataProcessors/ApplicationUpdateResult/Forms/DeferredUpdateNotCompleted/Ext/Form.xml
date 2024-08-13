@@ -87,7 +87,7 @@ Otherwise, the update might fail or the application might malfunction.</v8:conte
 			<Behavior>Usual</Behavior>
 			<Representation>NormalSeparation</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="NoteGroupExtendedTooltip" id="17"/>
+			<ExtendedTooltip name="GroupRemarkExtendedTooltip" id="17"/>
 			<ChildItems>
 				<LabelDecoration name="ToolTip" id="13">
 					<AutoMaxWidth>false</AutoMaxWidth>
@@ -115,7 +115,7 @@ go to &lt;b&gt;Administration&lt;/&gt; — &lt;b&gt;Support and service&lt;/&gt;
 					<CommandSource>Form</CommandSource>
 					<ExtendedTooltip name="CommandBarExtendedTooltip" id="19"/>
 					<ChildItems>
-						<Button name="FormComplete" id="11">
+						<Button name="FormExitApp" id="11">
 							<Type>CommandBarButton</Type>
 							<DefaultButton>true</DefaultButton>
 							<AutoMaxWidth>false</AutoMaxWidth>
@@ -127,7 +127,7 @@ go to &lt;b&gt;Administration&lt;/&gt; — &lt;b&gt;Support and service&lt;/&gt;
 									<v8:content>Exit</v8:content>
 								</v8:item>
 							</Title>
-							<ExtendedTooltip name="FormCloseExtendedTooltip" id="12"/>
+							<ExtendedTooltip name="FormExitAppExtendedTooltip" id="12"/>
 						</Button>
 						<Button name="FormContinue" id="9">
 							<Type>CommandBarButton</Type>

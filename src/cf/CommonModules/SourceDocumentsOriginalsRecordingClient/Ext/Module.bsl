@@ -327,7 +327,7 @@ EndProcedure
 // Opens a form to refine states of the document print forms.
 //
 //	Parameters:
-//  DocumentRef - DocumentRef - a reference to the document for which a record key of overall state must be received.
+//  DocumentRef - DocumentRef - The reference to the document whose aggregated state record key should be received.
 //
 Procedure OpenPrintFormsStatesChangeForm(DocumentRef) Export
 
@@ -405,7 +405,7 @@ Procedure SetOriginalStateCompletion(Response, AdditionalParameters) Export
 		Return;
 	EndIf;
 
-	WritingObjects = New Array; // See SourceDocumentsOriginalsRecordingServerCall.SetNewOriginalState.WritingObjects
+	WritingObjects = New Array; // 
 	For Each ListLine In List.SelectedRows Do
 		RowData = List.RowData(ListLine);
 		Ref = CommonClientServer.StructureProperty(RowData, "Ref");

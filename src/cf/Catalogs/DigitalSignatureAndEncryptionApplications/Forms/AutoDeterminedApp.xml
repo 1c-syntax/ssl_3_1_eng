@@ -3,12 +3,7 @@
 	<Form uuid="80641554-046e-4c4a-8544-a35b4c554dad">
 		<Properties>
 			<Name>AutoDeterminedApp</Name>
-			<Synonym>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Application determined automatically</v8:content>
-				</v8:item>
-			</Synonym>
+			<Synonym/>
 			<Comment/>
 			<FormType>Managed</FormType>
 			<IncludeHelpInContents>false</IncludeHelpInContents>

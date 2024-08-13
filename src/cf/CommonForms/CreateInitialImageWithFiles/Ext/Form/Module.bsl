@@ -92,7 +92,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 &AtClient
-Procedure InfobaseTypeOnChange(Item)
+Procedure InfobaseKindOnChange(Item)
 	
 	// Switch the parameters page.
 	Pages = Items.Find("Pages");
@@ -327,11 +327,12 @@ Function PrepareDataToCreateInitialImage(JobParameters, InfobaseKind)
 		
 		Cancel = False;
 		
-		DataExchangeCreationWizard = DataProcessors["DataExchangeCreationWizard"].Create();
+		ModuleDataExchangeCreationWizard = Common.CommonModule("DataProcessors.DataExchangeCreationWizard");
+		DataExchangeCreationWizard = ModuleDataExchangeCreationWizard.Create();
 		DataExchangeCreationWizard.Initialize(JobParameters.Node);
 		
 		Try
-			DataProcessors["DataExchangeCreationWizard"].ExportConnectionSettingsForSubordinateDIBNode(
+			ModuleDataExchangeCreationWizard.ExportConnectionSettingsForSubordinateDIBNode(
 				DataExchangeCreationWizard);
 		Except
 			Cancel = True;
@@ -346,12 +347,12 @@ Function PrepareDataToCreateInitialImage(JobParameters, InfobaseKind)
 	EndIf;
 	
 	If InfobaseKind = 0 Then
-		// 
-		// 
+		// The initial file image.
+		// A function for processing, validating, and preparing parameters.
 		Result = FilesOperationsInternal.PrepareDataToCreateFileInitialImage(JobParameters);
 	Else
-		// 
-		// 
+		// The initial server image.
+		// A function for processing, validating, and preparing parameters.
 		Result = FilesOperationsInternal.PrepareDataToCreateServerInitialImage(JobParameters);
 	EndIf;
 	

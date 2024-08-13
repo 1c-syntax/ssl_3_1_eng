@@ -148,7 +148,7 @@ Function CurrentUserSubsystems() Export
 		If TreeRowsFullNames[TreeRow.FullName] = Undefined Then
 			TreeRowsFullNames.Insert(TreeRow.FullName, TreeRow);
 		Else
-			TreeRowsFullNames.Insert(TreeRow.FullName, True); // 
+			TreeRowsFullNames.Insert(TreeRow.FullName, True); // A search in the tree is required.
 		EndIf;
 		
 		TreeRow.SectionFullName = TreeRow.FullName;
@@ -323,7 +323,7 @@ Function InsertRight1() Export
 	
 EndFunction
 
-// Subsystem parameters cached during the update (See ReportsOptions.WriteFunctionalOptionsTable)
+// Subsystem parameters cached during the update
 // .
 //
 // Returns:

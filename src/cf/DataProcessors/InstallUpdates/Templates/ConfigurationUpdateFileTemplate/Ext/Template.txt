@@ -47,6 +47,7 @@ var taskNameScheduleService = [TaskSchedulerTaskName] //
 var runAppAdditionalParams = [OneCEnterpriseStartupParameters] //
 var updateConfiguration = [PerformAConfigurationUpdate]
 var loadExtentions = [DownloadExtensions]
+var notificationInterval = [UserNotificationInterval]
 
 #EndRegion
 
@@ -706,7 +707,7 @@ function doDisconnectAndBlockUsers () {
   }
   try {
     log('[TheMessageBlockingTheWorkOfUsersLogging]')
-    connection.IBConnections.SetConnectionLock('[TheMessageBlockingTheWorkOfUsers]', unlockCode)
+    connection.IBConnections.SetConnectionLock('[TheMessageBlockingTheWorkOfUsers]', unlockCode, notificationInterval)
 
     var interval = connection.IBConnections.SessionLockParameters().SessionTerminationTimeout * 1000
 
@@ -1071,6 +1072,9 @@ oShell.CurrentDirectory = thisFileDir
 var oFileSystemObject = new ActiveXObject('Scripting.FileSystemObject')
 var oADODBStream = new ActiveXObject('ADODB.Stream')
 oADODBStream.CharSet = 'utf-8'
+
+var oADODBStreamUnicode = new ActiveXObject('ADODB.Stream')
+oADODBStreamUnicode.CharSet = 'unicode'
 
 clearLogFile()
 appendLog('ASCII')

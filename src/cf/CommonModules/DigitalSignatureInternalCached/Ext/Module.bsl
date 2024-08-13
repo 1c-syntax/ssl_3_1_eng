@@ -266,12 +266,12 @@ Function ClassifierError(TextToSearchInClassifier, ErrorAtServer, SignatureVerif
 	
 	If SignatureVerificationError Then
 		If ErrorAtServer Then
-			Filter = New Structure("OnlyClient, ErrorVerifyingSignature", False, True);
+			Filter = New Structure("OnlyClient, IsSignatureVerificationError", False, True);
 		Else
-			Filter = New Structure("OnlyServer, ErrorVerifyingSignature", False, True);
+			Filter = New Structure("OnlyServer, IsSignatureVerificationError", False, True);
 		EndIf;
 
-		ErrorString = FindErrorLine(ErrorsClassifier, Filter, SearchText, ErrorAtServer);
+		ErrorString = FindErrorString(ErrorsClassifier, Filter, SearchText, ErrorAtServer);
 		If ErrorString <> Undefined Then
 			Return ErrorString;
 		EndIf;
@@ -283,11 +283,11 @@ Function ClassifierError(TextToSearchInClassifier, ErrorAtServer, SignatureVerif
 		Filter = New Structure("OnlyServer", False);
 	EndIf;
 
-	Return FindErrorLine(ErrorsClassifier, Filter, SearchText, ErrorAtServer);
+	Return FindErrorString(ErrorsClassifier, Filter, SearchText, ErrorAtServer);
 
 EndFunction
 
-Function FindErrorLine(ErrorsClassifier, Filter, SearchText, ErrorAtServer)
+Function FindErrorString(ErrorsClassifier, Filter, SearchText, ErrorAtServer)
 	
 	Rows = ErrorsClassifier.FindRows(Filter);
 	For Each ClassifierRow In Rows Do
@@ -328,7 +328,7 @@ Procedure SupplementSolutionWithAutomaticActions(Decision, RemedyActions)
 		
 		If Action = "SetListOfCertificateRevocation" Then
 			Decision = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '- <a href=%1>Install a revocation list</a> of a certificate authority automatically.
+				NStr("en = '• <a href=%1>Install a revocation list</a> of a certificate authority automatically.
 				|%2';"), Action, Decision);
 		ElsIf Action = "InstallRootCertificate" Then
 			Decision = StringFunctionsClientServer.SubstituteParametersToString(
@@ -336,11 +336,11 @@ Procedure SupplementSolutionWithAutomaticActions(Decision, RemedyActions)
 				|%2';"), Action, Decision);
 		ElsIf Action = "InstallCertificate" Then
 			Decision = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '- <a href=%1>Install the certificate</a> in the Personal certificate store of an operating system user automatically.
+				NStr("en = '- <a href=%1>Install the certificate</a> in the Current user/Personal certificate store automatically.
 				|%2';"), Action, Decision);
 		ElsIf Action = "InstallCertificateIntoContainer" Then
 			Decision = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '- <a href=%1>Install certificate on container</a> from the app.
+				NStr("en = '• <a href=%1>Install certificate on container</a> from the app.
 				|%2';"), Action, Decision);
 		EndIf;
 		

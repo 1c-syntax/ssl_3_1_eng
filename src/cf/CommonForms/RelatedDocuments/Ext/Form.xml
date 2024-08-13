@@ -101,7 +101,7 @@
 										<v8:content>Cancel posting</v8:content>
 									</v8:item>
 								</Title>
-								<ExtendedTooltip name="UndoPostingExtendedTooltip" id="28"/>
+								<ExtendedTooltip name="CancelPostingExtendedTooltip" id="28"/>
 							</Button>
 						</ChildItems>
 					</ButtonGroup>
@@ -150,7 +150,7 @@
 					<HorizontalScrollBar>true</HorizontalScrollBar>
 					<EnableStartDrag>false</EnableStartDrag>
 					<EnableDrag>false</EnableDrag>
-					<ContextMenu name="ReportTable1ContextMenu" id="16"/>
+					<ContextMenu name="ReportTableContextMenu" id="16"/>
 					<ExtendedTooltip name="ReportTableExtendedTooltip" id="20"/>
 				</SpreadSheetDocumentField>
 			</ChildItems>

@@ -17,7 +17,7 @@ Procedure BeforeWrite(Cancel, Replacing)
 	// Disabling standard object registration mechanism.
 	AdditionalProperties.Insert("DisableObjectChangeRecordMechanism");
 	
-	// Deleting all nodes that was added by AutoRecord if the AutoRecord flag is wrongly set to True.
+	// Delete all nodes that were added automatically if the autoregistration flag was incorrectly set to True.
 	DataExchange.Recipients.Clear();
 	
 	// Filling the SourceUUIDString by the source reference.

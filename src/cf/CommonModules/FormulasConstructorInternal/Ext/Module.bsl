@@ -386,11 +386,11 @@ EndFunction
 #Region Private
 
 Procedure SetTreeRowsIDs(Collection)
-	For Each String In Collection.Rows Do
-		If Not ValueIsFilled(String.Id) Then
-			String.Id = New UUID();
+	For Each TableRow In Collection.Rows Do
+		If Not ValueIsFilled(TableRow.Id) Then
+			TableRow.Id = New UUID();
 		EndIf;
-		SetTreeRowsIDs(String);
+		SetTreeRowsIDs(TableRow);
 	EndDo;
 EndProcedure
 
@@ -432,8 +432,8 @@ Function CancelBackgroundSearchJob(Form)
 	If BackgroundSearchJobs[NameOfTheSearchString] <> Undefined Then
 		JobID = BackgroundSearchJobs[NameOfTheSearchString];
 		TimeConsumingOperations.CancelJobExecution(JobID);
-		WaitForEndOfTask = Common.FileInfobase();
-		While WaitForEndOfTask Do
+		WaitForJobCompletion = Common.FileInfobase();
+		While WaitForJobCompletion Do
 			ExecutionResult = TimeConsumingOperations.JobCompleted(JobID, True);
 			If ExecutionResult.Status <> "Running" Then
 				Break;
@@ -966,7 +966,7 @@ Function FillingParametersForAvailableAttributesList(CurrentAttribute)
 	Return Parameters;
 EndFunction
 
-Procedure FillInTheListOfAvailableDetails(Parameters, SourcesOfAvailableFields, DCSCache_ = Undefined)
+Procedure FillInTheListOfAvailableDetails(Parameters, SourcesOfAvailableFields, DCSCache = Undefined)
 	
 	NameOfTheFieldList = Parameters.NameOfTheFieldList;
 	FormUniqueID = Parameters.FormUniqueID;
@@ -976,9 +976,9 @@ Procedure FillInTheListOfAvailableDetails(Parameters, SourcesOfAvailableFields, 
 	CacheData = Undefined;
 	AvailableAttributes = Undefined;
 	TypeSpecified = TypeOf(CurrentAttribute) = Type("ValueTreeRow") And CurrentAttribute.Type <> New TypeDescription();
-	If DCSCache_ <> Undefined And TypeSpecified Then
+	If DCSCache <> Undefined And TypeSpecified Then
 		CacheFilter = New Structure("NameOfTheFieldList, FieldType", NameOfTheFieldList, CurrentAttribute.Type);
-		CacheData = DCSCache_.FindRows(CacheFilter);
+		CacheData = DCSCache.FindRows(CacheFilter);
 		If CacheData.Count() > 0 Then
 			AvailableAttributes = CacheData[0].AvailableFields;
 		EndIf;
@@ -987,8 +987,8 @@ Procedure FillInTheListOfAvailableDetails(Parameters, SourcesOfAvailableFields, 
 	If AvailableAttributes = Undefined Then
 		CollectionsOfAvailableFields = CollectionsOfAvailableFields(CurrentAttribute, SourcesOfAvailableFields, ListSettings, FormUniqueID);
 		AvailableAttributes = AvailableAttributes(CollectionsOfAvailableFields);
-		If DCSCache_ <> Undefined And TypeSpecified And CacheData.Count() = 0 Then
-			CacheData = DCSCache_.Add();
+		If DCSCache <> Undefined And TypeSpecified And CacheData.Count() = 0 Then
+			CacheData = DCSCache.Add();
 			CacheData.NameOfTheFieldList = NameOfTheFieldList;
 			CacheData.FieldType = CurrentAttribute.Type;
 			CacheData.AvailableFields = AvailableAttributes;
@@ -1040,6 +1040,7 @@ Function AvailableAttributes(CollectionsOfAvailableFields)
 	AvailableAttributes = NewCollectionOfAvailableProps();
 	AvailableAttributes.Columns.Add("HasSubordinateItems", New TypeDescription("Boolean"));
 	AvailableAttributes.Columns.Add("Order", New TypeDescription("Number"));
+	AvailableAttributes.Columns.Add("DotsInFieldCount", New TypeDescription("Number"));
 	AvailableAttributes.Indexes.Add("Field");
 	
 	ServiceFields = ServiceFields();
@@ -1071,6 +1072,7 @@ Function AvailableAttributes(CollectionsOfAvailableFields)
 			
 			Attribute.Field = FieldDetails.Field;
 			Attribute.Name = FieldName(FieldDetails.Field);
+			Attribute.DotsInFieldCount = StrOccurrenceCount(Attribute.Field, ".");
 			
 			If Not FieldDetails.Type.ContainsType(Type("ValueTable")) Then
 				Attribute.Type = FieldDetails.Type;
@@ -1147,7 +1149,7 @@ Function AvailableAttributes(CollectionsOfAvailableFields)
 		EndDo;
 	EndDo;
 	
-	AvailableAttributes.Sort("Order, Title");
+	AvailableAttributes.Sort("Order, Title, DotsInFieldCount");
 	Return AvailableAttributes;
 	
 EndFunction
@@ -1864,7 +1866,7 @@ Procedure PerformASearchInTheListOfFields(Form) Export
 				SearchResultsString = SearchResultsRoot.GetItems().Add();
 				FillPropertyValues(SearchResultsString, FoundItem);
 			EndDo;
-			FormulasConstructorClientServer.SortByColumn(SearchResultsRoot, "Weight");
+			FormulasConstructorClientServer.DoSortByColumn(SearchResultsRoot, "Weight");
 		EndIf;
 	Else
 		SearchResultsRoot = FormulasConstructorClientServer.SearchResultsString(Form[NameOfTheFieldList], False);
@@ -2480,7 +2482,7 @@ Function ExpressionToCheck(Form, FormulaPresentation, NameOfTheListOfOperands) E
 						Operand = """" + Operand + """";
 					EndIf;
 					If TypeOf(Operand) = Type("Boolean") Then
-						Operand = Format(Operand, "BF=False; BT=True"); // 
+						Operand = Format(Operand, "BF=False; BT=True"); // Must be in the configuration language.
 					EndIf;
 					If TypeOf(Operand) = Type("Date") Then
 						Operand = "'" + Format(CurrentSessionDate(), "DF=yyyyMMddHHmm") +  "'"; // Used in the Calculate() expression.
@@ -2558,33 +2560,23 @@ Function FindTheProps(Form, ListName, DataPath, AttributesCollection, SearchByVi
 		NameOfTheSearchField = "RepresentationOfTheDataPath";
 	EndIf;
 	
-	Owner = Undefined;
-	Folders = New Array;
+	Owners = New Array;
 	
 	For Each Attribute In AttributesCollection Do
 		If Lower(Attribute[NameOfTheSearchField]) = Lower(DataPath) Then
 			Return Attribute;
 		EndIf;
-		If Attribute.Folder Then
-			Folders.Add(Attribute);
-		Else
-			If StrStartsWith(Lower(DataPath), Lower(Attribute[NameOfTheSearchField]) + ".") Then
-				Owner = Attribute;
-			EndIf;
+		If Attribute.Folder Or StrStartsWith(Lower(DataPath), Lower(Attribute[NameOfTheSearchField]) + ".") Then
+			Owners.Add(Attribute);
 		EndIf;
 	EndDo;
 	
-	If Owner <> Undefined Then
+	For Each Owner In Owners Do
 		ExpandAttribute(Owner.GetID(), ListName, Form);
-		Return FindTheProps(Form, ListName, DataPath, Owner.GetItems(), SearchByView);
-	EndIf;
-	
-	For Each Folder In Folders Do
-		ExpandAttribute(Folder.GetID(), ListName, Form);
-		Attribute = FindTheProps(Form, ListName, DataPath, Folder.GetItems(), SearchByView);
+		FoundAttribute = FindTheProps(Form, ListName, DataPath, Owner.GetItems(), SearchByView);
 		
-		If Attribute <> Undefined Then
-			Return Attribute;
+		If FoundAttribute <> Undefined Then
+			Return FoundAttribute;
 		EndIf;
 	EndDo;
 	

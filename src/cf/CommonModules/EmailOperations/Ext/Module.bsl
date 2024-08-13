@@ -434,7 +434,7 @@ Function InternetMailMessageFields() Export
 	
 EndFunction
 
-// Generates a message based on the passed parameters.
+// Generates an email based on passed parameters.
 //
 // Parameters:
 //  Account - CatalogRef.EmailAccounts - reference to
@@ -533,12 +533,12 @@ Function PrepareEmail(Account, EmailParameters) Export
 	
 EndFunction
 
-// 
+// Establishes an open connection to the email server. If an exception is thrown, handle it.
 //
 // Parameters:
-//  Account - CatalogRef.EmailAccounts - 
-//  ForReceiving - Boolean - 
-//                          
+//  Account - CatalogRef.EmailAccounts - Email connection settings.
+//  ForReceiving - Boolean - If set to "True", connect to the incoming email server.
+//                          Otherwise, connect to the outgoing email server.
 //  
 // Returns:
 //   InternetMail
@@ -588,7 +588,7 @@ EndFunction
 //
 //   * ReplyToAddress - Map
 //                 - String - see the "To" field description.
-//   * BasisID  - String - 
+//   * BasisID  - String - ID of the message basis object.
 //   * BasisIDs - String - IDs of the message basis objects.
 //   * ProcessTexts  - Boolean - shows whether message text processing is required on sending.
 //   * RequestDeliveryReceipt  - Boolean - shows whether a delivery notification is required.

@@ -34,7 +34,7 @@ EndProcedure
 &AtClient
 Procedure OnOpen(Cancel)
 	
-	// 
+	// Use the last used export directory as the "My documents" export directory.
 	// 
 	FolderForExport = FilesOperationsInternalClient.DumpDirectory();
 	
@@ -232,12 +232,12 @@ EndProcedure
 //                 False if a question is asked every time a file in the infobase
 //                 has the same name as a file on the computer.
 //       * BaseAction - DialogReturnCode -
-//                 when performing one action for all conflicts
+//                 When performing one action for all conflicts
 //                 when writing a file (the ForAllFiles parameter is True),
-//                 the action specified by this parameter is performed).
-//                 DialogReturnCode.Yes - rewrite.
-//                 .DialogReturnCode.Skip - skip a file.
-//                 .DialogReturnCode.Cancel - cancel export.
+//                 performs the action specified by that parameter.
+//                 DialogReturnCode.Yes - Rewrite.
+//                 DialogReturnCode.Ignore - Skip a file.
+//                 DialogReturnCode.Abort - Cancel export.
 //
 &AtClient
 Procedure ProcessFilesTree(ResultHandler, TableOfFiles, BaseSaveDirectory, ParentFolder, CommonParameters)
@@ -748,8 +748,8 @@ Procedure ProcessFilesTree16(Response, ExecutionParameters) Export
 	If Response = DialogReturnCode.Abort Then
 		// Just exit with an error.
 		ExecutionParameters.Success = False;
-		ExecutionParameters.LoopStartRequired = False; // 
-		// 
+		ExecutionParameters.LoopStartRequired = False; // Do not restart the cycle.
+		// False.
 		FilesOperationsInternalClient.ReturnResult(ExecutionParameters.ResultHandler, ExecutionParameters);
 		Return;
 	ElsIf Response = DialogReturnCode.Ignore Then

@@ -304,7 +304,7 @@ EndProcedure
 //  Form - See AccessManagementInternalClientServer.AllowedValuesEditFormParameters
 //  Item - FormField
 //
-Procedure AccessKindsAccessTypePresentationOnChange(Form, Item) Export
+Procedure AccessKindsAccessKindPresentationOnChange(Form, Item) Export
 	
 	CurrentData = Form.Items.AccessKinds.CurrentData;
 	If CurrentData = Undefined Then
@@ -329,7 +329,7 @@ EndProcedure
 //  ValueSelected - Arbitrary
 //  StandardProcessing - Boolean
 // 
-Procedure AccessKindsAccessTypePresentationChoiceProcessing(Form, Item, ValueSelected, StandardProcessing) Export
+Procedure AccessKindsAccessKindPresentationChoiceProcessing(Form, Item, ValueSelected, StandardProcessing) Export
 	
 	CurrentData = Form.Items.AccessKinds.CurrentData;
 	If CurrentData = Undefined Then
@@ -519,6 +519,24 @@ Procedure ShowReportUsersRights(Report, TablesToUse) Export
 	
 EndProcedure
 
+// Opens the "AccessUpdateOnRecordsLevel" form.
+//
+// Parameters:
+//  DisableProgressAutoUpdate - Boolean
+//  ShowProgressPerLists - Boolean
+//
+Procedure OpenUpdateAccessFormAtRecordLevel(DisableProgressAutoUpdate = False,
+			ShowProgressPerLists = False) Export
+	
+	FormParameters = New Structure;
+	FormParameters.Insert("DisableProgressAutoUpdate",   DisableProgressAutoUpdate);
+	FormParameters.Insert("ShowProgressPerLists", ShowProgressPerLists);
+	
+	OpenForm("InformationRegister.DataAccessKeysUpdate.Form.AccessUpdateOnRecordsLevel",
+		FormParameters);
+	
+EndProcedure
+
 #EndRegion
 
 #Region Private
@@ -626,11 +644,8 @@ Procedure WhenProcessingReportDecryptionAccessPermissionAnalysis(ReportForm, Ite
 	
 	If DetailsParameters.DetailsFieldName1 = "RightsValue" Then
 		Return;
-	ElsIf DetailsParameters.DetailsFieldName1 = "OwnerOrUserSettings" Then
-		If DetailsParameters.FieldList.Get("ThisSettingsOwner") <> True Then
-			StandardProcessing = True;
-			Return;
-		EndIf;
+	ElsIf DetailsParameters.DetailsFieldName1 = "OwnerOrUserSettings"
+	        And DetailsParameters.FieldList.Get("ThisSettingsOwner") = True Then
 		SettingsOwner = DetailsParameters.FieldList.Get("OwnerOrUserSettings");
 		If Not ValueIsFilled(SettingsOwner) Then
 			Return;
@@ -653,6 +668,12 @@ Procedure WhenProcessingReportDecryptionAccessPermissionAnalysis(ReportForm, Ite
 		Form = OpenForm("Catalog.AccessGroups.ObjectForm", FormParameters);
 		FormParameters.Delete("Key");
 		FillPropertyValues(Form, FormParameters);
+		Return;
+	ElsIf DetailsParameters.DetailsFieldName1 = "ReportTitleMetadataObject" Then
+		URL = DetailsParameters.FieldList.Get("MetadataObjectURL");
+		If ValueIsFilled(URL) Then
+			FileSystemClient.OpenURL(URL);
+		EndIf;
 		Return;
 	EndIf;
 	
@@ -790,8 +811,7 @@ Procedure WhenProcessingReportDecryptionAccessPermissionAnalysis(ReportForm, Ite
 				Form = OpenForm("Catalog.Users.ObjectForm", New Structure("Key", User));
 				OpenForm(FormName, New Structure("User", User), Form, , Form.Window);
 			Else
-				ShowValue(Undefined,
-					DetailsParameters.FieldList[DetailsParameters.DetailsFieldName1]);
+				ShowValue(Undefined, DetailsValue);
 			EndIf;
 		EndIf;
 		
@@ -1162,22 +1182,22 @@ Procedure AttheStartofSelectingReportValuesAnalysisAccessPermissions(ReportForm,
 	Collections.Add("BusinessProcesses");
 	Collections.Add("Tasks");
 	
-	SelectedItems = CommonClient.CopyRecursive(SelectionConditions.Marked);
-	DeleteDisabledValues(SelectedItems);
+	Selected_ = CommonClient.CopyRecursive(SelectionConditions.Marked);
+	DeleteDisabledValues(Selected_);
 	
-	PickingParameters = New Structure;
-	PickingParameters.Insert("ChooseRefs", True);
-	PickingParameters.Insert("SelectedMetadataObjects", SelectedItems);
-	PickingParameters.Insert("MetadataObjectsToSelectCollection", Collections);
-	PickingParameters.Insert("ObjectsGroupMethod", "BySections,ByKinds");
-	PickingParameters.Insert("Title", NStr("en = 'Pick tables';"));
+	PickingParameters = StandardSubsystemsClientServer.MetadataObjectsSelectionParameters();
+	PickingParameters.ChooseRefs = True;
+	PickingParameters.SelectedMetadataObjects = Selected_;
+	PickingParameters.MetadataObjectsToSelectCollection = Collections;
+	PickingParameters.ObjectsGroupMethod = "BySections,ByKinds";
+	PickingParameters.Title = NStr("en = 'Pick tables';");
 	
 	Context = New Structure;
 	Context.Insert("SelectionConditions", SelectionConditions);
 	Context.Insert("ClosingNotification1", ClosingNotification1);
 	
 	Handler = New NotifyDescription("AfterSelectingMetadataObjects", ThisObject, Context);
-	OpenForm("CommonForm.SelectMetadataObjects", PickingParameters,,,,, Handler);
+	StandardSubsystemsClient.ChooseMetadataObjects(PickingParameters, Handler);
 	
 EndProcedure
 
@@ -1191,25 +1211,25 @@ Procedure AttheStartofSelectingReportValuesRoleRights(ReportForm, SelectionCondi
 	
 	StandardProcessing = False;
 	
-	SelectedItems = CommonClient.CopyRecursive(SelectionConditions.Marked);
-	DeleteDisabledValues(SelectedItems);
+	Selected_ = CommonClient.CopyRecursive(SelectionConditions.Marked);
+	DeleteDisabledValues(Selected_);
 	Collections = New ValueList;
 	
-	PickingParameters = New Structure;
-	PickingParameters.Insert("SelectedMetadataObjects", SelectedItems);
-	PickingParameters.Insert("MetadataObjectsToSelectCollection", Collections);
+	PickingParameters = StandardSubsystemsClientServer.MetadataObjectsSelectionParameters();
+	PickingParameters.SelectedMetadataObjects = Selected_;
+	PickingParameters.MetadataObjectsToSelectCollection = Collections;
 	
 	If SelectionConditions.FieldName = "Role" Then
-		For Each ListItem In SelectedItems Do
+		For Each ListItem In Selected_ Do
 			ListItem.Value = "Role." + ListItem.Value;
 		EndDo;
-		PickingParameters.Insert("ObjectsGroupMethod", "ByKinds");
-		PickingParameters.Insert("Title", NStr("en = 'Pick roles';"));
+		PickingParameters.ObjectsGroupMethod = "ByKinds";
+		PickingParameters.Title = NStr("en = 'Pick roles';");
 		Collections.Add("Roles");
 	Else
-		PickingParameters.Insert("ObjectsGroupMethod", "ByKinds,BySections");
-		PickingParameters.Insert("Title", NStr("en = 'Pick metadata objects';"));
-		PickingParameters.Insert("SelectCollectionsWhenAllObjectsSelected", True);
+		PickingParameters.ObjectsGroupMethod = "ByKinds,BySections";
+		PickingParameters.Title = NStr("en = 'Pick metadata objects';");
+		PickingParameters.SelectCollectionsWhenAllObjectsSelected = True;
 		AddMetadataObjectCollectionWithRights(Collections);
 	EndIf;
 	
@@ -1218,7 +1238,7 @@ Procedure AttheStartofSelectingReportValuesRoleRights(ReportForm, SelectionCondi
 	Context.Insert("ClosingNotification1", ClosingNotification1);
 	
 	Handler = New NotifyDescription("AfterSelectingMetadataObjects", ThisObject, Context);
-	OpenForm("CommonForm.SelectMetadataObjects", PickingParameters,,,,, Handler);
+	StandardSubsystemsClient.ChooseMetadataObjects(PickingParameters, Handler);
 	
 EndProcedure
 

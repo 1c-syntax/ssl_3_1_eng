@@ -2496,45 +2496,45 @@ Function UpdateContactInformation(Form, Object, Result = Undefined) Export
 		
 		ContactInformationDetails = ContactsManagerClientServer.DescriptionOfTheContactInformationOnTheForm(Form);
 		CIKindsWithHistory = New Array();
-		For Each String In ContactInformationDetails Do
-			If Not ValueIsFilled(String.AttributeName) Then
+		For Each TableRow In ContactInformationDetails Do
+			If Not ValueIsFilled(TableRow.AttributeName) Then
 				Continue;
 			EndIf;
-			Filter = New Structure("AttributeName", String.AttributeName);
+			Filter = New Structure("AttributeName", TableRow.AttributeName);
 			FoundRows = CopyOfContactInfoDetails.FindRows(Filter);
 			If FoundRows.Count() > 0 Then
 				FoundRow = FoundRows[0];
-				If String.Comment <> FoundRow.Comment And HasCommentFieldForContactInfoType(
-					String.Type, ContactInformationParameters.URLProcessing) Then
-					Form["Comment"+String.AttributeName] =  FoundRow.Comment;
+				If TableRow.Comment <> FoundRow.Comment And HasCommentFieldForContactInfoType(
+					TableRow.Type, ContactInformationParameters.URLProcessing) Then
+					Form["Comment"+TableRow.AttributeName] =  FoundRow.Comment;
 				EndIf;
-				String.ValidFrom = FoundRow.ValidFrom;
-				If String.Value <> FoundRow.Value Then
-					String.Value      =  FoundRow.Value;
-					String.Presentation =  FoundRow.Presentation;
-					String.Comment   =  FoundRow.Comment;
-					Form[String.AttributeName] = FoundRow.Presentation;
-					IsAddressAsHyperlink = String.Type = Enums.ContactInformationTypes.Address And TypeOf(
-						Form.Items[String.AttributeName].ExtendedTooltip.Title) = Type("FormattedString");
+				TableRow.ValidFrom = FoundRow.ValidFrom;
+				If TableRow.Value <> FoundRow.Value Then
+					TableRow.Value      =  FoundRow.Value;
+					TableRow.Presentation =  FoundRow.Presentation;
+					TableRow.Comment   =  FoundRow.Comment;
+					Form[TableRow.AttributeName] = FoundRow.Presentation;
+					IsAddressAsHyperlink = TableRow.Type = Enums.ContactInformationTypes.Address And TypeOf(
+						Form.Items[TableRow.AttributeName].ExtendedTooltip.Title) = Type("FormattedString");
 					If IsAddressAsHyperlink Then
-						Form[String.AttributeName] = ?(ValueIsFilled(FoundRow.Presentation),
+						Form[TableRow.AttributeName] = ?(ValueIsFilled(FoundRow.Presentation),
 							FoundRow.Presentation,
 							ContactsManagerClientServer.BlankAddressTextAsHyperlink());
 							
 						CommandsForOutput = ContactsManagerClientServer.CommandsToOutputToForm(
-							ContactInformationParameters, String.Type, String.Kind, String.StoreChangeHistory);		
-						Form.Items[String.AttributeName].ExtendedTooltip.Title = 
+							ContactInformationParameters, TableRow.Type, TableRow.Kind, TableRow.StoreChangeHistory);		
+						Form.Items[TableRow.AttributeName].ExtendedTooltip.Title = 
 							ContactsManagerClientServer.ExtendedTooltipForAddress(
-								CommandsForOutput, String.Presentation, String.Comment);	
+								CommandsForOutput, TableRow.Presentation, TableRow.Comment);	
 					Else
-						Form[String.AttributeName] = FoundRow.Presentation;
-						Form.Items[String.AttributeName].ExtendedTooltip.Title = String.Comment;
+						Form[TableRow.AttributeName] = FoundRow.Presentation;
+						Form.Items[TableRow.AttributeName].ExtendedTooltip.Title = TableRow.Comment;
 					EndIf;						
 				EndIf;
 			EndIf;
-			If String.StoreChangeHistory Then
-				If CIKindsWithHistory.Find(String.Kind) = Undefined Then
-					CIKindsWithHistory.Add(String.Kind);
+			If TableRow.StoreChangeHistory Then
+				If CIKindsWithHistory.Find(TableRow.Kind) = Undefined Then
+					CIKindsWithHistory.Add(TableRow.Kind);
 				EndIf;
 			EndIf;
 		EndDo;
@@ -3346,7 +3346,7 @@ Procedure UpdateContactInformationForLists(Object = Undefined) Export
 	
 EndProcedure
 
-// Executes deferred update of contact information for lists.
+// Executes deferred update of contact information for lists.
 //
 // Parameters:
 //  Parameters    - Structure - update handler parameters.
@@ -3767,7 +3767,7 @@ EndFunction
 //   ToolTip - String   - Command tooltip.
 //   Picture  - Picture - Command icon.
 //   Action  - String   - The full path to the procedure to be executed.
-//                            For example, "_DemoStandardSubsystemsClient.OpenMeetingDocForm".
+//                            For example, "StandardSubsystemsClient.OpenMeetingDocForm".
 //   ModifiesStoredData - Boolean 
 //
 // Returns:
@@ -3841,7 +3841,7 @@ Procedure SetContactInformationItemAvailability(Form, Items, ItemForPlacementNam
 	
 EndProcedure
 
-// Adds contact information columns to the list of columns for data import.
+// Adds contact information columns to the list of columns for data import.
 //
 // Parameters:
 //  CatalogMetadata  - MetadataObject - catalog metadata.
@@ -4110,7 +4110,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Initialization of items on the form of a contact information owner object.
+// Initialize items on the form of a contact information owner object.
 
 Procedure DefineContactInformationParametersByOwner(Form, Object, ContactInformationParameters, IsMainObjectParameters, HiddenKinds)
 	
@@ -4349,8 +4349,8 @@ Procedure AddAdditionalContactInformationFieldButton(Val Form, Val ItemForPlacem
 	ItemContactInformationParameters.AddedItems.Add(CommandName, 2, False);
 	
 	If Not Common.IsMobileClient() And ItemContactInformationParameters.PositionOfAddButton = "Auto" Then
-		// 
-		// 
+		// Determine the button display option (left side, indented, non-indented).
+		// Handle the scenario where the form contains both dynamic and static information.
 		ItemsOfPlacementGroup = Form.Items[ItemForPlacementName].ChildItems;
 		GroupCountInMain = ItemsOfPlacementGroup.Count();
 		ItemsOfContactInfoValGroup = Form.Items["GroupOfContactInfoValues"+ItemForPlacementName].ChildItems;
@@ -4388,8 +4388,8 @@ EndProcedure
 Procedure AddNoteOnFormSettingsReset(Val Form, Val ItemForPlacementName, Val DeferredInitialization)
 	
 	GroupForPlacement = Form.Items[ItemForPlacementName];
-	// 
-	// 
+	// In case of deferred initialization and the page has no elements, 1C:Enterprise hides the page.
+	// Therefore, create a temporary element that is deleted when the page opens.
 	If DeferredInitialization
 		And GroupForPlacement.Type = FormGroupType.Page 
 		And Form.Items.Find("ContactInformationStub") = Undefined Then
@@ -5776,7 +5776,7 @@ Function CheckContactInformationFilling(Presentation, Value, InformationKind, In
 	ElsIf InformationType = Enums.ContactInformationTypes.WebPage Then
 		ErrorsLevel = WebPageFillingErrors(Value, InformationKind, AttributeName);
 	Else
-		ErrorsLevel = 0; // 
+		ErrorsLevel = 0; // Skip other checks.
 	EndIf;
 	
 	Return ErrorsLevel;
@@ -6228,7 +6228,7 @@ Procedure RestoreEmptyValuePresentation(ContactInformationRow) Export
 			ContactInformationRow.Kind);
 	EndIf;
 	
-	// FieldValues may be absent in a contact information string.
+	// FieldValues may be absent in a contact information string.
 	FieldsInfo = New Structure("FieldValues", Undefined);
 	FillPropertyValues(FieldsInfo, ContactInformationRow);
 	HasFieldsValues = (FieldsInfo.FieldValues <> Undefined);
@@ -6609,7 +6609,7 @@ Function SettingsForCheckingContactInformationParameters(Val ContactInformationT
 		ValidationSettings.Insert("CheckValidity",        False);
 		ValidationSettings.Insert("IncludeCountryInPresentation", False);
 		ValidationSettings.Insert("SpecifyRNCMT",               False);
-		ValidationSettings.Insert("HideObsoleteAddresses",   False); // 
+		ValidationSettings.Insert("HideObsoleteAddresses",   False); // Obsolete. Keep for backward compatibility.
 		ValidationSettings.Insert("CheckByFIAS",              True); // Obsolete. Keep for backward compatibility.
 	ElsIf ContactInformationType = Enums.ContactInformationTypes.Email Then
 		ValidationSettings = New Structure;
@@ -6746,7 +6746,7 @@ Function ContactInformationParametersDetails(Val ContactInformationType)
 	KindParameters.Insert("Order", Undefined);
 	KindParameters.Insert("Type", ContactInformationType);
 	KindParameters.Insert("CanChangeEditMethod",    False);
-	KindParameters.Insert("EditInDialogOnly",         False);  // 
+	KindParameters.Insert("EditInDialogOnly",         False);  // Obsolete. Keep for backward compatibility.
 	KindParameters.Insert("Mandatory",               False);
 	KindParameters.Insert("AllowMultipleValueInput",      False);
 	KindParameters.Insert("DenyEditingByUser", False);

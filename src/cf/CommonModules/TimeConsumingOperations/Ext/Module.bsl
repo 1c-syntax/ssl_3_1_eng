@@ -384,14 +384,13 @@ Function ExecuteProcedureinMultipleThreads(ProcedureName, Val ExecutionParameter
 	
 EndFunction
 
-// Constructor of the FunctionExecutionParameters collection for the ExecuteFunction function.
+// The constructor for the "FunctionExecutionParameters" collection of the "ExecuteFunction" function.
 //
-// If RunInBackground = False and RunNotInBackground = False, the job will be executed in the background if possible.
-// A job runs in the main thread if any of the following conditions is met:
-//  * the procedure is called in a file infobase through an external connection (this mode has no background job support);
-//  * the application runs in debug mode (see /C DebugMode command-line parameter) for configuration debug purposes;
-//  * the file infobase already has active background jobs (to avoid slow application response to user actions);
-//  * the function belongs to an external data processor module or an external report module.
+// If "RunInBackground" and "RunNotInBackground" are set to "False", the job will be executed in the background if possible.
+// The job with the session extensions runs in the main thread if any of the following conditions are met:
+//  * the procedure is called in the file infobase through an external connection (this mode has no background job support);
+//  * the application runs in the debug mode (see /C DebugMode command-line parameter) for configuration debugging purposes;
+//  * the file infobase already has active background jobs (to avoid slow application response to user actions).
 //
 // Parameters:
 //   FormIdentifier - UUID - a UUID of the form 
@@ -406,9 +405,9 @@ EndFunction
 //                               If "0", don't wait till the background job is completed.
 //                               By default, "0.8" ("4" for low-speed connections).
 //     * BackgroundJobDescription - String - the description of the background job. The default value is the procedure name.
-//     * BackgroundJobKey - String - 
-//                                      
-//                                      
+//     * BackgroundJobKey - String - A unique key of active background jobs with the same procedure name.
+//                                      Intended to avoid running more than one job concurrently.
+//                                      By default, it is not assigned a value.
 //     * ResultAddress     - String - an address of the temporary storage where the procedure
 //                                      result must be stored. If the address is not set, it is generated automatically.
 //     * RunInBackground           - Boolean - If True, the job always runs in the background, except for the following cases:
@@ -447,14 +446,13 @@ Function FunctionExecutionParameters(Val FormIdentifier) Export
 	
 EndFunction
 
-// Constructor of the FunctionExecutionParameters collection for the ExecuteFunction function.
+// The constructor for the "ProcedureExecutionParameters" collection of the "ExecuteProcedure" function.
 //
-// If RunInBackground = False and RunNotInBackground = False, the job will be executed in the background if possible.
-// A job runs in the main thread if any of the following conditions is met:
-//  * the procedure is called in a file infobase through an external connection (this mode has no background job support);
-//  * the application runs in debug mode (see /C DebugMode command-line parameter) for configuration debug purposes;
-//  * the file infobase already has active background jobs (to avoid slow application response to user actions);
-//  * the function belongs to an external data processor module or an external report module.
+// If "RunInBackground" and "RunNotInBackground" are set to "False", the job will be executed in the background if possible.
+// The job with the session extensions runs in the main thread if any of the following conditions are met:
+//  * the procedure is called in the file infobase through an external connection (this mode has no background job support);
+//  * the application runs in the debug mode (see /C DebugMode command-line parameter) for configuration debugging purposes;
+//  * the file infobase already has active background jobs (to avoid slow application response to user actions).
 //
 // Returns:
 //   Structure - Long-running operation runtime parameters:
@@ -700,6 +698,7 @@ Function ExecuteInBackground(Val ProcedureName, Val ProcedureParameters, Val Exe
 
 	// Executing in the main thread.
 	If ExecuteWithoutBackgroundJob Then
+		MessagesBeforeCall = GetUserMessages(True);
 		Try
 			If ExecutionParameters.Property("IsFunction") And ExecutionParameters.IsFunction Then
 				CallFunction(ProcedureName, ExportProcedureParameters, ExecutionParameters);
@@ -723,15 +722,29 @@ Function ExecuteInBackground(Val ProcedureName, Val ProcedureParameters, Val Exe
 			WriteLogEvent(NStr("en = 'Long-running operations.Runtime error';", Common.DefaultLanguageCode()),
 				EventLogLevel.Error, , , Result.DetailErrorDescription);
 		EndTry;
+		Result.Messages = GetUserMessages(True);
+		For Each Message In MessagesBeforeCall Do
+			Message.Message();
+		EndDo;
 		Return Result;
 	EndIf;
 	
 	// Executing in background.
 	SafeMode = SafeMode();
 	SetSafeModeDisabled(True);
-	Job = RunBackgroundJobWithClientContext(ProcedureName,
-		ExecutionParameters, ExportProcedureParameters, SafeMode,
-		ExecutionParameters.WaitCompletion <> Undefined);
+	Try
+		Job = RunBackgroundJobWithClientContext(ProcedureName,
+			ExecutionParameters, ExportProcedureParameters, SafeMode,
+			ExecutionParameters.WaitCompletion <> Undefined);
+	Except
+		Result.Status = "Error";
+		If Job <> Undefined And Job.ErrorInfo <> Undefined Then
+			SetErrorProperties(Result, Job.ErrorInfo);
+		Else
+			SetErrorProperties(Result, ErrorInfo());
+		EndIf;
+		Return Result;
+	EndTry;
 	SetSafeModeDisabled(False);
 	
 	If Job <> Undefined And Job.ErrorInfo <> Undefined Then
@@ -781,11 +794,11 @@ EndFunction
 // Returns a new structure for the ExecutionParameters parameter of the ExecuteInBackground function.
 //
 // If RunInBackground = False and RunNotInBackground = False, the job will be executed in the background if possible.
-// A job runs in the main thread if any of the following conditions is met:
+// The job with the session extensions runs in the main thread if any of the following conditions are met:
 //  * the procedure is called in the file infobase through an external connection (this mode has no background job support);
-//  * the application runs in the debug mode (see /C DebugMode command-line parameter) for configuration debug purposes;
+//  * the application runs in the debug mode (see /C DebugMode command-line parameter) for configuration debugging purposes;
 //  * the file infobase already has active background jobs (to avoid slow application response to user actions);
-//  * the function belongs to an external data processor module or an external report module.
+// 
 //
 // Parameters:
 //   FormIdentifier - UUID - a UUID of the form to whose temporary storage 
@@ -894,7 +907,7 @@ EndProcedure
 //   JobID - UUID - a background job ID.
 //
 // Returns:
-//  Undefined - Progress detailes are not obtained. 
+//  Undefined - Progress details are not obtained. 
 //  Structure:
 //    * Percent                 - Number  - optional. Progress percentage.
 //    * Text                   - String - optional. Details on the current action.
@@ -1397,7 +1410,7 @@ Procedure OnAddServerNotifications(Notifications) Export
 	
 EndProcedure
 
-// Returns the maximum number of threads allowed for all multi-threaded long-running operations
+// Returns the maximum number of threads allowed for all multithreaded long-running operations
 // considering main threads.
 //
 // For example, if there are 10 threads and 2 operations,
@@ -1588,7 +1601,7 @@ EndFunction
 // See CommonOverridable.OnReceiptRecurringClientDataOnServer
 Procedure OnReceiptRecurringClientDataOnServer(Parameters, Results) Export
 	
-	CheckParameters = Parameters.Get( // See TimeConsumingOperationsClient.LongRunningOperationCheckParameters
+	CheckParameters = Parameters.Get( // 
 		"StandardSubsystems.Core.LongRunningOperationCheckParameters");
 	
 	If CheckParameters = Undefined Then
@@ -1601,7 +1614,7 @@ Procedure OnReceiptRecurringClientDataOnServer(Parameters, Results) Export
 EndProcedure
 
 // Parameters:
-//  Parameters - See TimeConsumingOperationsClient.LongRunningOperationCheckParameters
+//  Parameters - 
 //
 // Returns:
 //  Map of KeyAndValue:
@@ -2348,7 +2361,7 @@ Function CommonBackgroundExecutionParameters()
 	Result.Insert("NoExtensions", False);
 	Result.Insert("WithDatabaseExtensions", False);
 	Result.Insert("AbortExecutionIfError", False);
-	Result.Insert("WaitForCompletion", -1); // 
+	Result.Insert("WaitForCompletion", -1); // Backward compatibility.
 	Result.Insert("ExternalReportDataProcessor", Undefined);
 	Result.Insert("RefinementErrors", "");
 	
@@ -2723,7 +2736,7 @@ Function FirstIDOfThreadOfControlJob(ProcessID)
 	EndIf;
 	
 	ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Cannot find a record for the thread of control of the %1 multithreaded long-running operation';"),
+		NStr("en = 'Cannot find a record for the main thread of the %1 multithreaded long-running operation';"),
 		String(ProcessID));
 	
 	Raise ErrorText;
@@ -2829,7 +2842,7 @@ Function WaitForAvailableThread(ProcessID, EndEarlyIfError)
 			EndEarlyIfError, ProcessID);
 		
 		If EndEarlyIfError And HasCompletedThreads = Undefined Then 
-			ExecuteInBackground = Undefined; // 
+			ExecuteInBackground = Undefined; // Thread error.
 			Break;
 		EndIf;
 		
@@ -3309,7 +3322,7 @@ Procedure PrepareMultiThreadOperationForStartup(Val MethodName, AddressResults,
 			SetOfOneRecord.Read();
 			If SetOfOneRecord.Count() <> 1 Then
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Cannot find a record for the thread of control of the %1 multithreaded long-running operation';"),
+					NStr("en = 'Cannot find a record for the main thread of the %1 multithreaded long-running operation';"),
 					String(ProcessID));
 				Raise ErrorText;
 			EndIf;
@@ -3446,8 +3459,8 @@ Function IsThreadOfControlRestarted(JobID, Job)
 		UpdateInfoAboutThread(Stream, RunResult);
 	Except
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'An error occurred while restarting the %1 background job
-			           |of the %2 thread of control:
+			NStr("en = 'Error restarting the background job %1
+			           |of the main thread %2:
 			           |
 			           |%3';"),
 			String(JobID),

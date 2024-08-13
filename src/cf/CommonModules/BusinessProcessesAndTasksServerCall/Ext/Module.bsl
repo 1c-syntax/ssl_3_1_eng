@@ -110,7 +110,7 @@ EndProcedure
 //                                       the TasksToRedirect elements if some tasks cannot be forwarded.
 //
 // Returns:
-//   Boolean   - - True if the tasks are forwarded successfully.
+//   Boolean   - True if the tasks are forwarded successfully.
 //
 Function ForwardTasks(Val RedirectedTasks_SSLs, Val ForwardingInfo, Val IsCheckOnly = False,
 	RedirectedTasks = Undefined) Export
@@ -263,7 +263,7 @@ Procedure ActivateBusinessProcess(BusinessProcess) Export
 			
 		Object.Lock();
 		Object.State = Enums.BusinessProcessStates.Running;
-		Object.Write(); // 
+		Object.Write(); // CAC:1327 The lock is set earlier in the BusinessProcessesAndTasksServer.LockBusinessProcesses.
 		CommitTransaction();
 	Except
 		RollbackTransaction();
@@ -327,7 +327,7 @@ Procedure StopBusinessProcess(BusinessProcess) Export
 		
 		Object.Lock();
 		Object.State = Enums.BusinessProcessStates.Suspended;
-		Object.Write(); // 
+		Object.Write(); // CAC:1327 The lock is set earlier in the BusinessProcessesAndTasksServer.LockBusinessProcesses.
 		CommitTransaction();
 	Except
 		RollbackTransaction();
@@ -366,7 +366,7 @@ Procedure AcceptTasksForExecution(Var_Tasks) Export
 			If Not ValueIsFilled(TaskObject.Performer) Then
 				TaskObject.Performer = Users.AuthorizedUser();
 			EndIf;
-			TaskObject.Write(); // 
+			TaskObject.Write(); // CAC:1327 The lock is set earlier in the BusinessProcessesAndTasksServer.LockTasks.
 			
 			NewTaskArray.Add(Task);
 			
@@ -411,7 +411,7 @@ Procedure CancelAcceptTasksForExecution(Var_Tasks) Export
 			If Not TaskObject.PerformerRole.IsEmpty() Then
 				TaskObject.Performer = Undefined;
 			EndIf;
-			TaskObject.Write(); // 
+			TaskObject.Write(); // CAC:1327 The lock is set earlier in the BusinessProcessesAndTasksServer.LockTasks.
 			
 			NewTaskArray.Add(Task);
 			
@@ -511,10 +511,10 @@ Function UncompletedBusinessProcessesTasksCount(Var_BusinessProcesses) Export
 		"SELECT
 		|	COUNT(*) AS Count
 		|FROM
-		|	Task.PerformerTask AS Tasks
+		|	Task.PerformerTask AS PerformerTasks
 		|WHERE
-		|	Tasks.BusinessProcess IN (&BusinessProcesses)
-		|	AND Tasks.Executed = FALSE");
+		|	PerformerTasks.BusinessProcess IN (&BusinessProcesses)
+		|	AND PerformerTasks.Executed = FALSE");
 
 	Query.SetParameter("BusinessProcesses", BusinessProcessesArray);
 	Return Query.Execute().Unload()[0].Count;

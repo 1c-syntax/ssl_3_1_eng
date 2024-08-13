@@ -127,7 +127,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Scenario without infobase updating.
 
 &AtClient
 Procedure SynchronizeAndContinueWithoutIBUpdate()
@@ -149,15 +149,15 @@ EndProcedure
 &AtServer
 Procedure SynchronizeAndContinueWithoutIBUpdateCompletion()
 	
-	// 
-	// 
-	// 
-	// 
-	// 
-	// 
-	//   
-	// 
-	//   
+	// The repeat mode should be enabled in the following cases:
+	// 1. Metadata with a later configuration version is imported (an infobase update required).
+	// - If "Cancel" is set to "True", it cannot proceed as duplicates of generated data might occur.
+	// - If "Cancel" is set to "False", an infobase update error might occur requiring re-import of the message.
+	// 2. Metadata with the same configuration version is imported (no infobase update required).
+	// - If "Cancel" is set to "True" and the startup proceeds, an error might occur
+	//   (for example, because predefined items were not imported).
+	// - If "Cancel" is set to "False", you can proceed as the import can be done later
+	//   (if import fails, you can also import a new exchange message later).
 	
 	SetPrivilegedMode(True);
 	
@@ -174,7 +174,7 @@ Procedure SynchronizeAndContinueWithoutIBUpdateCompletion()
 		Try
 			ExportMessageAfterInfobaseUpdate();
 		Except
-			// 
+			// If import fails, resume the startup and run import in 1C:Enterprise mode.
 			// 
 			EventLogMessageKey = DataExchangeServer.DataExchangeEventLogEvent();
 			WriteLogEvent(EventLogMessageKey,
@@ -337,7 +337,7 @@ Procedure ImportMessageBeforeInfobaseUpdate()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Scenario that includes infobase update.
 
 &AtClient
 Procedure SynchronizeAndContinueWithIBUpdate()
@@ -486,7 +486,7 @@ Procedure ImportPriorityDataToSubordinateDIBNode()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Scenario that does not include synchronization.
 
 &AtServer
 Procedure DoNotSyncAndContinueAtServer()
@@ -506,7 +506,7 @@ Procedure DoNotSyncAndContinueAtServer()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Internal procedures and functions.
 
 &AtServer
 Procedure CheckUpdateRequired()
@@ -629,10 +629,10 @@ Procedure SetFormItemsView()
 	If DataExchangeServer.LoadDataExchangeMessage()
 		And InfobaseUpdate.InfobaseUpdateRequired() Then
 		
-		Items.FormDoNotSyncAndContinue.Visible = False;
+		Items.FormNotSyncAndContinue.Visible = False;
 		Items.DoNotSyncHelpText.Visible = False;
 	Else
-		Items.FormDoNotSyncAndContinue.Visible = True;
+		Items.FormNotSyncAndContinue.Visible = True;
 		Items.DoNotSyncHelpText.Visible = True;
 	EndIf;
 	

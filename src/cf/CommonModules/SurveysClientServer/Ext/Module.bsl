@@ -52,6 +52,15 @@ Function QuestionName(Val Var_Key) Export
 
 EndFunction
 
+Function NumberOfCharactersInQuestionNameWithoutPostfix() Export
+	
+	NumberOfCharactersInPrefix = StrLen(QuestionName(""));
+	NumberOfCharactersInId = 36;
+	
+	Return NumberOfCharactersInPrefix + NumberOfCharactersInId;
+	
+EndFunction
+
 Procedure GenerateTreeNumbering(QuestionnaireTree, ConvertFormulation = False) Export
 
 	If QuestionnaireTree.GetItems()[0].RowType = "Root" Then

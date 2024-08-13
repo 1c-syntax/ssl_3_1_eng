@@ -46,7 +46,7 @@
 				<Type>CommandBarButton</Type>
 				<Representation>Text</Representation>
 				<CommandName>Form.StandardCommand.Close</CommandName>
-				<ExtendedTooltip name="FormClose3ExtendedTooltip" id="24"/>
+				<ExtendedTooltip name="FormCloseExtendedTooltip" id="24"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
@@ -176,8 +176,8 @@ and grant them only the data synchronization privilege.
 </v8:content>
 								</v8:item>
 							</Title>
-							<ContextMenu name="NoteDecorationContextMenu" id="19"/>
-							<ExtendedTooltip name="NoteDecorationExtendedTooltip" id="32"/>
+							<ContextMenu name="DecorationNoteContextMenu" id="19"/>
+							<ExtendedTooltip name="DecorationNoteExtendedTooltip" id="32"/>
 						</LabelDecoration>
 					</ChildItems>
 				</UsualGroup>

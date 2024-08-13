@@ -49,7 +49,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="FiltersGroup2ExtendedTooltip" id="63"/>
+			<ExtendedTooltip name="GroupFiltersExtendedTooltip" id="63"/>
 			<ChildItems>
 				<UsualGroup name="GroupPasswordFilters" id="99">
 					<Title>
@@ -271,7 +271,7 @@
 				</v8:item>
 			</Title>
 			<CommandSource>Form</CommandSource>
-			<ExtendedTooltip name="CommandBarGroupExtendedTooltip" id="27"/>
+			<ExtendedTooltip name="GroupCommandBarExtendedTooltip" id="27"/>
 			<ChildItems>
 				<Button name="PopulateCertificates" id="52">
 					<Type>CommandBarButton</Type>

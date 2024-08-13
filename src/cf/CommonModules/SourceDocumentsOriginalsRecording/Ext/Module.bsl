@@ -96,6 +96,7 @@ Procedure OnCreateAtServerListForm(Form, List, Placement = Undefined) Export
 	AttributeListState.TitleLocation = FormItemTitleLocation.None; 
 	AttributeListState.ValuesPicture = PictureLib.IconsCollectionSourceDocumentOriginalAvailable;
 	AttributeListState.HeaderPicture = PictureLib.SourceDocumentOriginalStateOriginalReceived;
+	AttributeListState.Title = NStr("en = 'Status ""Hard copy received""';");
 	AttributeListState.DataPath = List.Name + ".StateOriginalReceived";
 	
 	AttributeListState = Form.Items.Insert("SourceDocumentOriginalState",Type("FormField"),List,Placement);
@@ -135,59 +136,62 @@ Procedure OnGetDataAtServer(ListRows) Export
 		Return;
 	EndIf;
 	
-	For Each String In ListRows Do
-		String = ListRows[String.Key];
-		If String.Appearance.Get("SourceDocumentOriginalState") = Undefined 
-		Or String.Appearance.Get("StateOriginalReceived") = Undefined Then
-			Return;
-		EndIf;
-		Break;
-	EndDo;
-
-	Keys = ListRows.GetKeys(); // Array of DocumentRef, Array of InformationRegisterRecordKey
 	References = New Array;
 	KeyFieldName = "Ref";
-	For Each Var_Key In Keys Do 
-		IsReference = Common.IsReference(TypeOf(Var_Key));
-		If IsReference Then
-			References.Add(Var_Key);
-		Else
-			References.Add(Var_Key[KeyFieldName]);
+	 
+	For Each ListLine In ListRows Do
+		ListLine = ListRows[ListLine.Key]; 
+		If Not ListLine.Data.Property("Ref")
+			Or (ListLine.Appearance.Get("SourceDocumentOriginalState") = Undefined 
+			And ListLine.Appearance.Get("StateOriginalReceived") = Undefined) Then
+			Return;
 		EndIf;
+		References.Add(ListLine.Data[KeyFieldName]);
 	EndDo;
 	
 	Query = New Query;
 	Query.Text = "SELECT
-		|	SourceDocumentsOriginalsStates.State AS SourceDocumentOriginalState,
-		|	SourceDocumentsOriginalsStates.OverallState AS OverallState,
-		|	CASE
-		|		WHEN SourceDocumentsOriginalsStates.State = VALUE(Catalog.SourceDocumentsOriginalsStates.OriginalReceived)
-		|			THEN 1
-		|		ELSE 0
-		|	END AS StateOriginalReceived,
-		|	SourceDocumentsOriginalsStates.Owner AS Ref
-		|FROM
-		|	InformationRegister.SourceDocumentsOriginalsStates AS SourceDocumentsOriginalsStates
-		|WHERE
-		|	SourceDocumentsOriginalsStates.OverallState
-		|	AND SourceDocumentsOriginalsStates.Owner IN(&Ref)";
-	Query.SetParameter("Ref",References);
+	               |	SourceDocumentsOriginalsStates.State AS SourceDocumentOriginalState,
+	               |	SourceDocumentsOriginalsStates.OverallState AS OverallState,
+	               |	CASE
+	               |		WHEN SourceDocumentsOriginalsStates.State = VALUE(Catalog.SourceDocumentsOriginalsStates.OriginalReceived)
+	               |			THEN 1
+	               |		ELSE 0
+	               |	END AS StateOriginalReceived,
+	               |	SourceDocumentsOriginalsStates.Owner AS Ref
+	               |FROM
+	               |	InformationRegister.SourceDocumentsOriginalsStates AS SourceDocumentsOriginalsStates
+	               |WHERE
+	               |	SourceDocumentsOriginalsStates.OverallState
+	               |	AND SourceDocumentsOriginalsStates.Owner IN(&Ref)"; 
+
+	Query.SetParameter("Ref", References);
 	
 	Selection = Query.Execute().Select();
-	For Each String In ListRows Do
-		String = ListRows[String.Key];
-		Selection.Reset();
-		If Selection.FindNext(String.Data["Ref"], "Ref") Then 
-			String.Data["SourceDocumentOriginalState"] = Selection.SourceDocumentOriginalState;
-			String.Appearance["SourceDocumentOriginalState"].SetParameterValue("TextColor", 
-				StyleColors.HyperlinkColor); 
-			String.Data["StateOriginalReceived"] = Selection.StateOriginalReceived;
-		Else
-			String.Data["SourceDocumentOriginalState"] = NStr("en = '<Unknown>';");
-			String.Appearance["SourceDocumentOriginalState"].SetParameterValue("TextColor", 
-				StyleColors.InaccessibleCellTextColor); 
-		EndIf;
-	EndDo;
+	If Not ListLine.Appearance.Get("SourceDocumentOriginalState") = Undefined Then
+		For Each String In ListRows Do
+			String = ListRows[String.Key];
+			Selection.Reset();
+			If Selection.FindNext(String.Data["Ref"], "Ref") Then 
+				
+				String.Data["SourceDocumentOriginalState"] = Selection.SourceDocumentOriginalState;
+				String.Appearance["SourceDocumentOriginalState"].SetParameterValue("TextColor", StyleColors.HyperlinkColor); 
+			Else
+				String.Data["SourceDocumentOriginalState"] = NStr("en = '<Unknown>';");
+				String.Appearance["SourceDocumentOriginalState"].SetParameterValue("TextColor", StyleColors.InaccessibleCellTextColor); 
+			EndIf;
+		EndDo;
+	EndIf;
+	
+	If Not ListLine.Appearance.Get("StateOriginalReceived") = Undefined Then
+		For Each String In ListRows Do
+			String = ListRows[String.Key];
+			Selection.Reset();
+			If Selection.FindNext(String.Data["Ref"], "Ref") Then 
+				String.Data["StateOriginalReceived"] = Selection.StateOriginalReceived;
+			EndIf;
+		EndDo;
+	EndIf;
 	
 EndProcedure
 
@@ -293,7 +297,7 @@ Procedure SupplementProfileWithRoleForDocumentsOriginalsStatesReading(ProfileDet
 
 EndProcedure
 
-// 
+// Returns an array of source document states.
 //
 //	Returns:
 //  Array of CatalogRef.SourceDocumentsOriginalsStates - all possible original states, including
@@ -325,7 +329,7 @@ EndFunction
 //  List - FormTable - the main form list.
 //  OriginalsStates - ValueTable - original states available to users and used when changing
 //                                          the original state:
-//              * Description 	- String -  name of the original state.
+//              * Description 	- String - The name of the source document state.
 //              * Ref		- CatalogRef.SourceDocumentsOriginalsStates
 //
 Procedure OutputOriginalStateCommandsToForm(Form, List, OriginalsStates) Export
@@ -481,7 +485,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	
 EndProcedure
 
-// 
+// See also "InfobaseUpdateOverridable.OnDefineSettings".
 //
 // Parameters:
 //  Objects - Array of MetadataObject
@@ -592,8 +596,8 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 		Order = Order + 1;
 	EndDo;
 	
-	// 
-	// 
+	// A command for navigating to the state settings in the command bar submenu of the "Set state" list.
+	// Applicable if the user is assigned the required role.
 	If AccessRight("Insert",Metadata.Catalogs.SourceDocumentsOriginalsStates) 
 		And AccessRight("Update",Metadata.Catalogs.SourceDocumentsOriginalsStates) Then
 		Command = Commands.Add();
@@ -689,11 +693,11 @@ Function SetNewOriginalState(Val RecordData, Val StateName) Export
 	WritingObjects = New Array;
 	DocsToCheck = New Array;
 	If TypeOf(RecordData) = Type("Array") Then
-		For Each String In RecordData Do
-			Ref = CommonClientServer.StructureProperty(String, "Ref"); 
+		For Each ListLine In RecordData Do
+			Ref = CommonClientServer.StructureProperty(ListLine, "Ref"); 
 			If IsAccountingObject(Ref) Then
 				DocsToCheck.Add(Ref);
-				WritingObjects.Add(String);
+				WritingObjects.Add(ListLine);
 			EndIf;
 		EndDo;
 	Else
@@ -718,14 +722,14 @@ EndFunction
 
 //	Parameters:
 //  RecordData - Array of Structure - Information on the current document state:
-//                 * OverallState    - Boolean - 
-//                 * Ref 		   - DocumentRef - 
+//                 * OverallState    - Boolean - "True" if the current state is aggregated.
+//                 * Ref 		   - DocumentRef - The document whose source document's state should be changed.
 //                 * SourceDocumentOriginalState - CatalogRef.SourceDocumentsOriginalsStates -
-//                                                           
-//                 * SourceDocument - String -  
+//                                                           The current state of a source document.
+//                 * SourceDocument - String - A source document ID. Required if the state is not aggregated. 
 //                                                
-//                 * FromOutside 			   - Boolean -  
-//                                                 
+//                 * FromOutside 			   - Boolean - "True" if the source document was added manually. 
+//                                                It's required if the current state is not aggregated. 
 //  StateName - String - a state to be set.
 //
 // Returns:  
@@ -973,10 +977,10 @@ Function UsedStates()Export
 
 EndFunction
 
-// Returns a record key of the register of overall document original state by reference.
+// Returns the record key of the source document's aggregated state by reference.
 //
 //	Parameters:
-//  DocumentRef - DocumentRef - 
+//  DocumentRef - DocumentRef - A reference to the document whose general state record key is to be received.
 //
 //	Returns:
 //  InformationRegisterRecordKey.SourceDocumentsOriginalsStates
@@ -1233,16 +1237,16 @@ Function PrintFormsStateSame(DocumentRef,StateName) Export
 
 EndFunction
 
-// 
+// Returns data on the current state of the source document by Ref.
 //
 //	Parameters:
-//  DocumentRef - DocumentRef - a reference to the document whose overall state details must be received. 
+//  DocumentRef - DocumentRef - The reference to the document whose aggregated state info should be received. 
 //
 //  Returns:
 //    Structure:
-//    * Ref - DocumentRef -  link to the document.
-//    * SourceDocumentOriginalState - CatalogRef.SourceDocumentsOriginalsStates -  the current
-//        state of the original document.
+//    * Ref - DocumentRef - Document reference.
+//    * SourceDocumentOriginalState - CatalogRef.SourceDocumentsOriginalsStates - Current source document state.
+//        
 //
 Function OriginalStateInfoByRef(DocumentRef) Export
 
@@ -1286,7 +1290,7 @@ Procedure WriteSourceDocumentOriginalState() Export
 	OriginalState = Catalogs.SourceDocumentsOriginalsStates.OriginalsNotAll.GetObject();
 	LockDataForEdit(OriginalState.Ref);
 	OriginalState.Description = NStr("en = 'Not all originals';", Common.DefaultLanguageCode());
-	OriginalState.LongDesc = NStr("en = 'Overall state of a document whose print form originals have different states.';", 
+	OriginalState.LongDesc = NStr("en = 'The aggregated state of a document whose print forms have different states.';", 
 		Common.DefaultLanguageCode());
 	OriginalState.AddlOrderingAttribute = 99998;
 	InfobaseUpdate.WriteObject(OriginalState);
@@ -1315,11 +1319,11 @@ Function ConvertDecimalToHexadecimalNotation(Val Decimal)
 	
 EndFunction
 
-// 
+// Overrides value lists of print objects and their templates.
 //
 // Parameters:
-//  PrintObjects - ValueList - 
-//  PrintList - ValueList - 
+//  PrintObjects - ValueList - Print object references.
+//  PrintList - ValueList - Template names and print form presentations.
 //
 Procedure WhenDeterminingTheListOfPrintedForms(PrintObjects, PrintList) Export
 	

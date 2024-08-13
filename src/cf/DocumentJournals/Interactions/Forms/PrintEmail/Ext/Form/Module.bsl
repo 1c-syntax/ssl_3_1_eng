@@ -186,7 +186,7 @@ Procedure FillAttachmentsAndGenerateHTMLTextBasedOnAttachmentEmail(AttachmentEma
 	Attachments.Clear();
 	AttachmentsWithIDs.Clear();
 	
-	MailMessage = New InternetMailMessage;
+	NewMailMessage = New InternetMailMessage;
 	
 	If IsTempStorageURL(AttachmentEmail) Then
 		RawData = GetFromTempStorage(AttachmentEmail);
@@ -194,24 +194,24 @@ Procedure FillAttachmentsAndGenerateHTMLTextBasedOnAttachmentEmail(AttachmentEma
 		RawData = FilesOperations.FileBinaryData(AttachmentEmail);
 	EndIf;
 	
-	MailMessage.SetSourceData(RawData);
+	NewMailMessage.SetSourceData(RawData);
 	
-	If MailMessage.ParseStatus = InternetMailMessageParseStatus.ErrorsDetected Then
+	If NewMailMessage.ParseStatus = InternetMailMessageParseStatus.ErrorsDetected Then
 		Common.MessageToUser(NStr("en = 'Cannot parse the message.';"));
 		Return;
 	EndIf;
 	
 	EmailRecipients = EmptyTableRecipients();
-	EmailManagement.FillInternetEmailAddresses(EmailRecipients, MailMessage.To);
+	EmailManagement.FillInternetEmailAddresses(EmailRecipients, NewMailMessage.To);
 	CCRecipients  = EmptyTableRecipients();
-	EmailManagement.FillInternetEmailAddresses(CCRecipients, MailMessage.To);
+	EmailManagement.FillInternetEmailAddresses(CCRecipients, NewMailMessage.To);
 	
 	EmailStructure = New Structure("TextType, HTMLText, Text");
-	EmailStructure.Insert("Encoding",                    MailMessage.Encoding);
-	EmailStructure.Insert("SenderPresentation",     MailMessage.SenderName);
-	EmailStructure.Insert("SenderAddress",             MailMessage.From.Address);
-	EmailStructure.Insert("Date",                         MailMessage.PostingDate);
-	EmailStructure.Insert("Subject",                         MailMessage.Subject);
+	EmailStructure.Insert("Encoding",                    NewMailMessage.Encoding);
+	EmailStructure.Insert("SenderPresentation",     NewMailMessage.SenderName);
+	EmailStructure.Insert("SenderAddress",             NewMailMessage.From.Address);
+	EmailStructure.Insert("Date",                         NewMailMessage.PostingDate);
+	EmailStructure.Insert("Subject",                         NewMailMessage.Subject);
 	EmailStructure.Insert("EmailRecipients",             EmailRecipients);
 	EmailStructure.Insert("CCRecipients",              CCRecipients);
 	UserAccountUsername = ?(IsBlankString(UserAccountUsername),
@@ -219,10 +219,10 @@ Procedure FillAttachmentsAndGenerateHTMLTextBasedOnAttachmentEmail(AttachmentEma
 	                                 UserAccountUsername);
 	EmailStructure.Insert("UserAccountUsername", UserAccountUsername);
 	
-	EmailSubject = MailMessage.Subject;
-	EmailDate = MailMessage.PostingDate;
+	EmailSubject = NewMailMessage.Subject;
+	EmailDate = NewMailMessage.PostingDate;
 	
-	For Each Attachment In MailMessage.Attachments Do
+	For Each Attachment In NewMailMessage.Attachments Do
 		
 		If Not IsBlankString(Attachment.CID) 
 			And StrFind(EmailStructure.HTMLText, Attachment.Name) = 0 Then
@@ -262,7 +262,7 @@ Procedure FillAttachmentsAndGenerateHTMLTextBasedOnAttachmentEmail(AttachmentEma
 	
 	EmailStructure.Insert("Attachments", AttachmentsWithIDs);
 	
-	EmailManagement.SetEmailText(EmailStructure, MailMessage);
+	EmailManagement.SetEmailText(EmailStructure, NewMailMessage);
 	
 	GenerationParameters = Interactions.HTMLDocumentGenerationParametersOnEmailBasis(EmailStructure);
 	GenerationParameters.MailMessage = EmailStructure;

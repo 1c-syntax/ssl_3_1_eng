@@ -54,7 +54,7 @@
 				</Button>
 			</ChildItems>
 		</CommandBar>
-		<UsualGroup name="MainItemsGroup" id="1">
+		<UsualGroup name="MainGroup3" id="1">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -64,7 +64,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="MainItemsGroupExtendedTooltip" id="109"/>
+			<ExtendedTooltip name="MainGroup3ExtendedTooltip" id="109"/>
 			<ChildItems>
 				<UsualGroup name="UserDateGroup" id="7">
 					<Title>
@@ -184,18 +184,18 @@
 							</Title>
 							<Wrap>false</Wrap>
 							<BorderColor>style:BorderColor</BorderColor>
-							<ContextMenu name="HostNameContextMenu" id="12"/>
+							<ContextMenu name="ComputerContextMenu" id="12"/>
 							<ExtendedTooltip name="ComputerExtendedTooltip" id="116"/>
 						</InputField>
 					</ChildItems>
 				</UsualGroup>
 			</ChildItems>
 		</UsualGroup>
-		<UsualGroup name="MainGroup3" id="44">
+		<UsualGroup name="AdditionalGroup" id="44">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Main</v8:content>
+					<v8:content>Additional</v8:content>
 				</v8:item>
 			</Title>
 			<Group>Vertical</Group>
@@ -204,7 +204,7 @@
 			<ChildItemsWidth>Equal</ChildItemsWidth>
 			<ShowTitle>false</ShowTitle>
 			<ThroughAlign>Use</ThroughAlign>
-			<ExtendedTooltip name="MainGroup3ExtendedTooltip" id="117"/>
+			<ExtendedTooltip name="AdditionalGroupExtendedTooltip" id="117"/>
 			<ChildItems>
 				<UsualGroup name="EventGroup" id="2">
 					<Title>
@@ -274,7 +274,7 @@
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ThroughAlign>Use</ThroughAlign>
-					<ExtendedTooltip name="DataGroupExtendedTooltip" id="118"/>
+					<ExtendedTooltip name="GroupDataExtendedTooltip" id="118"/>
 					<ChildItems>
 						<Pages name="DataPresentations" id="47">
 							<Title>
@@ -295,70 +295,196 @@
 									</Title>
 									<ExtendedTooltip name="StandardDataExtendedTooltip" id="120"/>
 									<ChildItems>
-										<InputField name="MetadataPresentation" id="21">
-											<DataPath>MetadataPresentation</DataPath>
-											<ReadOnly>true</ReadOnly>
+										<UsualGroup name="StandardDataProperties" id="264">
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Metadata</v8:content>
+													<v8:content>Standard property data</v8:content>
 												</v8:item>
 											</Title>
-											<ToolTip>
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>Metadata presentation</v8:content>
-												</v8:item>
-											</ToolTip>
-											<AutoMaxWidth>false</AutoMaxWidth>
-											<MaxWidth>60</MaxWidth>
-											<Wrap>false</Wrap>
-											<BorderColor>style:BorderColor</BorderColor>
-											<ContextMenu name="MetadataPresentationContextMenu" id="22"/>
-											<ExtendedTooltip name="MetadataPresentationExtendedTooltip" id="121"/>
-											<Events>
-												<Event name="Opening">MetadataPresentationOpening</Event>
-											</Events>
-										</InputField>
-										<InputField name="Data" id="23">
-											<DataPath>Data</DataPath>
-											<ReadOnly>true</ReadOnly>
+											<Group>Vertical</Group>
+											<Representation>None</Representation>
+											<ShowTitle>false</ShowTitle>
+											<ExtendedTooltip name="StandardDataPropertiesExtendedTooltip" id="265"/>
+											<ChildItems>
+												<InputField name="MetadataPresentation" id="21">
+													<DataPath>MetadataPresentation</DataPath>
+													<ReadOnly>true</ReadOnly>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Metadata</v8:content>
+														</v8:item>
+													</Title>
+													<ToolTip>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Metadata presentation</v8:content>
+														</v8:item>
+													</ToolTip>
+													<AutoMaxWidth>false</AutoMaxWidth>
+													<MaxWidth>60</MaxWidth>
+													<Wrap>false</Wrap>
+													<BorderColor>style:BorderColor</BorderColor>
+													<ContextMenu name="MetadataPresentationContextMenu" id="22"/>
+													<ExtendedTooltip name="MetadataPresentationExtendedTooltip" id="121"/>
+													<Events>
+														<Event name="Opening">MetadataPresentationOpening</Event>
+													</Events>
+												</InputField>
+												<InputField name="Data" id="23">
+													<DataPath>Data</DataPath>
+													<ReadOnly>true</ReadOnly>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Data</v8:content>
+														</v8:item>
+													</Title>
+													<HorizontalAlign>Left</HorizontalAlign>
+													<AutoMaxWidth>false</AutoMaxWidth>
+													<MaxWidth>60</MaxWidth>
+													<Wrap>false</Wrap>
+													<ChoiceButton>false</ChoiceButton>
+													<BorderColor>style:BorderColor</BorderColor>
+													<ContextMenu name="DataContextMenu" id="24"/>
+													<ExtendedTooltip name="DataExtendedTooltip" id="122"/>
+												</InputField>
+												<InputField name="DataPresentation" id="25">
+													<DataPath>DataPresentation</DataPath>
+													<ReadOnly>true</ReadOnly>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Presentation</v8:content>
+														</v8:item>
+													</Title>
+													<TitleLocation>Left</TitleLocation>
+													<AutoMaxWidth>false</AutoMaxWidth>
+													<MaxWidth>60</MaxWidth>
+													<Height>1</Height>
+													<MultiLine>true</MultiLine>
+													<BorderColor>style:BorderColor</BorderColor>
+													<ContextMenu name="DataPresentationContextMenu" id="26"/>
+													<ExtendedTooltip name="DataPresentationExtendedTooltip" id="123"/>
+												</InputField>
+											</ChildItems>
+										</UsualGroup>
+										<UsualGroup name="TableHeading" id="244">
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Data</v8:content>
+													<v8:content>Table header</v8:content>
 												</v8:item>
 											</Title>
-											<HorizontalAlign>Left</HorizontalAlign>
-											<AutoMaxWidth>false</AutoMaxWidth>
-											<MaxWidth>60</MaxWidth>
-											<Wrap>false</Wrap>
-											<ChoiceButton>false</ChoiceButton>
-											<BorderColor>style:BorderColor</BorderColor>
-											<ContextMenu name="DataContextMenu" id="24"/>
-											<ExtendedTooltip name="DataExtendedTooltip" id="122"/>
-										</InputField>
-										<InputField name="DataPresentation" id="25">
-											<DataPath>DataPresentation</DataPath>
-											<ReadOnly>true</ReadOnly>
-											<Title>
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>Presentation</v8:content>
-												</v8:item>
-											</Title>
-											<TitleLocation>Left</TitleLocation>
-											<AutoMaxWidth>false</AutoMaxWidth>
-											<MaxWidth>60</MaxWidth>
-											<Height>1</Height>
-											<MultiLine>true</MultiLine>
-											<BorderColor>style:BorderColor</BorderColor>
-											<ContextMenu name="DataPresentationContextMenu" id="26"/>
-											<ExtendedTooltip name="DataPresentationExtendedTooltip" id="123"/>
-										</InputField>
+											<Group>AlwaysHorizontal</Group>
+											<Representation>None</Representation>
+											<ShowTitle>false</ShowTitle>
+											<ExtendedTooltip name="TableHeadingExtendedTooltip" id="245"/>
+											<ChildItems>
+												<LabelDecoration name="LabelData_" id="246">
+													<Title formatted="false">
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Data:</v8:content>
+														</v8:item>
+													</Title>
+													<ContextMenu name="LabelData_ContextMenu" id="247"/>
+													<ExtendedTooltip name="LabelData_ExtendedTooltip" id="248"/>
+												</LabelDecoration>
+												<CommandBar name="DataTreeCommands" id="258">
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Data tree commands</v8:content>
+														</v8:item>
+													</Title>
+													<HorizontalLocation>Right</HorizontalLocation>
+													<CommandSource>Item.DataTree</CommandSource>
+													<ExtendedTooltip name="DataTreeCommandsExtendedTooltip" id="259"/>
+													<ChildItems>
+														<Button name="DataTreeDataCommandsExpandTable" id="260">
+															<Type>CommandBarButton</Type>
+															<CommandName>Form.Command.ExpandTable</CommandName>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Expand table</v8:content>
+																</v8:item>
+															</Title>
+															<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+															<ExtendedTooltip name="DataTreeDataCommandsExpandTableExtendedTooltip" id="261"/>
+														</Button>
+														<Button name="DataTreeDataCommandsCollapseTable" id="262">
+															<Type>CommandBarButton</Type>
+															<CommandName>Form.Command.CollapseTable</CommandName>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Collapse table</v8:content>
+																</v8:item>
+															</Title>
+															<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+															<ExtendedTooltip name="DataTreeDataCommandsCollapseTableExtendedTooltip" id="263"/>
+														</Button>
+														<SearchStringAddition name="DataTreeSearch" id="266">
+															<AdditionSource>
+																<Item>DataTree</Item>
+																<Type>SearchStringRepresentation</Type>
+															</AdditionSource>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Data tree search</v8:content>
+																</v8:item>
+															</Title>
+															<ContextMenu name="DataTreeSearchContextMenu" id="267"/>
+															<ExtendedTooltip name="DataTreeSearchExtendedTooltip" id="268"/>
+														</SearchStringAddition>
+													</ChildItems>
+												</CommandBar>
+												<CommandBar name="DataTableCommands" id="251">
+													<Visible>false</Visible>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Command table data</v8:content>
+														</v8:item>
+													</Title>
+													<HorizontalLocation>Right</HorizontalLocation>
+													<CommandSource>Item.DataTable</CommandSource>
+													<ExtendedTooltip name="DataTableCommandsExtendedTooltip" id="252"/>
+													<ChildItems>
+														<Button name="DataTableExpandTable" id="249">
+															<Type>CommandBarButton</Type>
+															<CommandName>Form.Command.ExpandTable</CommandName>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Expand table</v8:content>
+																</v8:item>
+															</Title>
+															<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+															<ExtendedTooltip name="DataTableExpandTableExtendedTooltip" id="250"/>
+														</Button>
+														<Button name="DataTableCollapseTable" id="253">
+															<Type>CommandBarButton</Type>
+															<CommandName>Form.Command.CollapseTable</CommandName>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Collapse table</v8:content>
+																</v8:item>
+															</Title>
+															<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+															<ExtendedTooltip name="DataTableCollapseTableExtendedTooltip" id="254"/>
+														</Button>
+													</ChildItems>
+												</CommandBar>
+											</ChildItems>
+										</UsualGroup>
 										<Table name="DataTree" id="217">
 											<Representation>Tree</Representation>
-											<TitleLocation>Top</TitleLocation>
 											<CommandBarLocation>None</CommandBarLocation>
 											<ReadOnly>true</ReadOnly>
 											<Height>2</Height>
@@ -373,7 +499,7 @@
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Data</v8:content>
+													<v8:content>Data tree</v8:content>
 												</v8:item>
 											</Title>
 											<CommandSet>
@@ -467,7 +593,6 @@
 										</Table>
 										<Table name="DataTable" id="202">
 											<Representation>List</Representation>
-											<TitleLocation>Top</TitleLocation>
 											<CommandBarLocation>None</CommandBarLocation>
 											<ReadOnly>true</ReadOnly>
 											<Height>2</Height>
@@ -602,9 +727,7 @@
 															</Button>
 														</ChildItems>
 													</ContextMenu>
-													<AutoCommandBar name="IBUserPropertiesTableCommandBar" id="96">
-														<Autofill>false</Autofill>
-													</AutoCommandBar>
+													<AutoCommandBar name="IBUserPropertiesTableCommandBar" id="96"/>
 													<ExtendedTooltip name="IBUserPropertiesTableExtendedTooltip" id="143"/>
 													<SearchStringAddition name="IBUserPropertiesTableSearchString" id="179">
 														<AdditionSource>
@@ -1193,6 +1316,38 @@
 			</Columns>
 		</Attribute>
 	</Attributes>
+	<Commands>
+		<Command name="ExpandTable" id="1">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Expand table</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Expand table</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>ExpandTable</Action>
+		</Command>
+		<Command name="CollapseTable" id="2">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Collapse table</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Collapse table</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>CollapseTable</Action>
+		</Command>
+	</Commands>
 	<Parameters>
 		<Parameter name="SyncPort">
 			<Type>

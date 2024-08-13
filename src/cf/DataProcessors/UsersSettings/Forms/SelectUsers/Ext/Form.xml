@@ -208,7 +208,7 @@
 						<ExcludedCommand>Tree</ExcludedCommand>
 					</CommandSet>
 					<CurrentRowUse>SelectionPresentation</CurrentRowUse>
-					<ContextMenu name="UsersGroupsContextMenu" id="13">
+					<ContextMenu name="UserGroupsContextMenu" id="13">
 						<Autofill>false</Autofill>
 						<ChildItems>
 							<Button name="UserGroupsContextMenuChange" id="42">
@@ -243,28 +243,28 @@
 							<Item>UserGroups</Item>
 							<Type>SearchStringRepresentation</Type>
 						</AdditionSource>
-						<ContextMenu name="UsersGroupsSearchStringContextMenu" id="78"/>
-						<ExtendedTooltip name="UsersGroupsSearchStringExtendedTooltip" id="79"/>
+						<ContextMenu name="UserGroupsSearchStringContextMenu" id="78"/>
+						<ExtendedTooltip name="UserGroupsSearchStringExtendedTooltip" id="79"/>
 					</SearchStringAddition>
 					<ViewStatusAddition name="UserGroupsViewStatus" id="80">
 						<AdditionSource>
 							<Item>UserGroups</Item>
 							<Type>ViewStatusRepresentation</Type>
 						</AdditionSource>
-						<ContextMenu name="UsersGroupsViewStatusContextMenu" id="81"/>
-						<ExtendedTooltip name="UsersGroupsViewStatusExtendedTooltip" id="82"/>
+						<ContextMenu name="UserGroupsViewStatusContextMenu" id="81"/>
+						<ExtendedTooltip name="UserGroupsViewStatusExtendedTooltip" id="82"/>
 					</ViewStatusAddition>
 					<SearchControlAddition name="UserGroupsSearchControl" id="83">
 						<AdditionSource>
 							<Item>UserGroups</Item>
 							<Type>SearchControl</Type>
 						</AdditionSource>
-						<ContextMenu name="UsersGroupsSearchControlContextMenu" id="84"/>
-						<ExtendedTooltip name="UsersGroupsSearchControlExtendedTooltip" id="85"/>
+						<ContextMenu name="UserGroupsSearchControlContextMenu" id="84"/>
+						<ExtendedTooltip name="UserGroupsSearchControlExtendedTooltip" id="85"/>
 					</SearchControlAddition>
 					<Events>
-						<Event name="Selection">UsersGroupsSelection</Event>
-						<Event name="OnActivateRow">UsersGroupsOnActivateRow</Event>
+						<Event name="Selection">UserGroupsSelection</Event>
+						<Event name="OnActivateRow">UserGroupsOnActivateRow</Event>
 					</Events>
 					<ChildItems>
 						<ColumnGroup name="GroupAndPicture" id="20">
@@ -277,7 +277,7 @@
 							<Group>InCell</Group>
 							<ExtendedTooltip name="GroupAndPictureExtendedTooltip" id="64"/>
 							<ChildItems>
-								<InputField name="UsersGroupsGroup" id="15">
+								<InputField name="UserGroupsGroup" id="15">
 									<DataPath>UserGroups.Group</DataPath>
 									<Title>
 										<v8:item>
@@ -292,9 +292,9 @@
 									<TextEdit>false</TextEdit>
 									<ChoiceListButton>false</ChoiceListButton>
 									<ContextMenu name="UserGroupsGroupContextMenu" id="16"/>
-									<ExtendedTooltip name="UsersGroupsGroupExtendedTooltip" id="65"/>
+									<ExtendedTooltip name="UserGroupsGroupExtendedTooltip" id="65"/>
 								</InputField>
-								<PictureField name="UsersGroupsPicture" id="18">
+								<PictureField name="UserGroupsPicture" id="18">
 									<DataPath>UserGroups.Picture</DataPath>
 									<Title>
 										<v8:item>
@@ -305,7 +305,7 @@
 									<EditMode>EnterOnInput</EditMode>
 									<FileDragMode>AsFile</FileDragMode>
 									<ContextMenu name="UserGroupsPictureContextMenu" id="19"/>
-									<ExtendedTooltip name="UsersGroupsPictureExtendedTooltip" id="66"/>
+									<ExtendedTooltip name="UserGroupsPictureExtendedTooltip" id="66"/>
 								</PictureField>
 							</ChildItems>
 						</ColumnGroup>
@@ -338,10 +338,10 @@
 						<ExcludedCommand>SortListDesc</ExcludedCommand>
 					</CommandSet>
 					<RowFilter xsi:nil="true"/>
-					<ContextMenu name="UsersList1ContextMenu" id="2">
+					<ContextMenu name="UsersListContextMenu" id="2">
 						<Autofill>false</Autofill>
 						<ChildItems>
-							<Button name="UsersList1ContextMenuChange" id="43">
+							<Button name="UsersListContextMenuChange" id="43">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.Change</CommandName>
 								<Title>
@@ -350,17 +350,17 @@
 										<v8:content>Edit</v8:content>
 									</v8:item>
 								</Title>
-								<ExtendedTooltip name="UsersList1ContextMenuChangeExtendedTooltip" id="67"/>
+								<ExtendedTooltip name="UsersListContextMenuChangeExtendedTooltip" id="67"/>
 							</Button>
-							<Button name="UsersList1ContextMenuCopyToClipboard" id="38">
+							<Button name="UsersListContextMenuCopyToClipboard" id="38">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Item.UsersList.StandardCommand.CopyToClipboard</CommandName>
-								<ExtendedTooltip name="UsersList1ContextMenuCopyToClipboardExtendedTooltip" id="68"/>
+								<ExtendedTooltip name="UsersListContextMenuCopyToClipboardExtendedTooltip" id="68"/>
 							</Button>
-							<Button name="UsersList1ContextMenuSelectAll" id="39">
+							<Button name="UsersListContextMenuSelectAll" id="39">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Item.UsersList.StandardCommand.SelectAll</CommandName>
-								<ExtendedTooltip name="UsersList1ContextMenuSelectAllExtendedTooltip" id="69"/>
+								<ExtendedTooltip name="UsersListContextMenuSelectAllExtendedTooltip" id="69"/>
 							</Button>
 						</ChildItems>
 					</ContextMenu>
@@ -368,29 +368,29 @@
 						<HorizontalAlign>Right</HorizontalAlign>
 					</AutoCommandBar>
 					<ExtendedTooltip name="UsersListExtendedTooltip" id="70"/>
-					<SearchStringAddition name="UsersListSearchString_SSLy" id="86">
+					<SearchStringAddition name="UsersListSearchString" id="86">
 						<AdditionSource>
 							<Item>UsersList</Item>
 							<Type>SearchStringRepresentation</Type>
 						</AdditionSource>
-						<ContextMenu name="UsersListSearchString_SSLyContextMenu" id="87"/>
-						<ExtendedTooltip name="UsersListSearchString_SSLyExtendedTooltip" id="88"/>
+						<ContextMenu name="UsersListSearchStringContextMenu" id="87"/>
+						<ExtendedTooltip name="UsersListSearchStringExtendedTooltip" id="88"/>
 					</SearchStringAddition>
-					<ViewStatusAddition name="UsersListViewStatus_SSLy" id="89">
+					<ViewStatusAddition name="UsersListViewStatus" id="89">
 						<AdditionSource>
 							<Item>UsersList</Item>
 							<Type>ViewStatusRepresentation</Type>
 						</AdditionSource>
-						<ContextMenu name="UsersListViewStatus_SSLyContextMenu" id="90"/>
-						<ExtendedTooltip name="UsersListViewStatus_SSLyExtendedTooltip" id="91"/>
+						<ContextMenu name="UsersListViewStatusContextMenu" id="90"/>
+						<ExtendedTooltip name="UsersListViewStatusExtendedTooltip" id="91"/>
 					</ViewStatusAddition>
-					<SearchControlAddition name="UsersListSearchControl_SSLy" id="92">
+					<SearchControlAddition name="UsersListSearchControl" id="92">
 						<AdditionSource>
 							<Item>UsersList</Item>
 							<Type>SearchControl</Type>
 						</AdditionSource>
-						<ContextMenu name="UsersListSearchControl_SSLyContextMenu" id="93"/>
-						<ExtendedTooltip name="UsersListSearchControl_SSLyExtendedTooltip" id="94"/>
+						<ContextMenu name="UsersListSearchControlContextMenu" id="93"/>
+						<ExtendedTooltip name="UsersListSearchControlExtendedTooltip" id="94"/>
 					</SearchControlAddition>
 					<Events>
 						<Event name="Selection">UsersListSelection</Event>
@@ -450,8 +450,8 @@
 										</v8:item>
 									</Title>
 									<EditMode>EnterOnInput</EditMode>
-									<ContextMenu name="UsersList1DepartmentContextMenu" id="96"/>
-									<ExtendedTooltip name="UsersList1DepartmentExtendedTooltip" id="97"/>
+									<ContextMenu name="UsersListDepartmentContextMenu" id="96"/>
+									<ExtendedTooltip name="UsersListDepartmentExtendedTooltip" id="97"/>
 								</InputField>
 								<InputField name="UsersListIndividual" id="98">
 									<DataPath>UsersList.Individual</DataPath>
@@ -466,8 +466,8 @@
 										</v8:item>
 									</Title>
 									<EditMode>EnterOnInput</EditMode>
-									<ContextMenu name="UsersList1IndividualContextMenu" id="99"/>
-									<ExtendedTooltip name="UsersList1IndividualExtendedTooltip" id="100"/>
+									<ContextMenu name="UsersListIndividualContextMenu" id="99"/>
+									<ExtendedTooltip name="UsersListIndividualExtendedTooltip" id="100"/>
 								</InputField>
 							</ChildItems>
 						</ColumnGroup>
@@ -885,7 +885,7 @@
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Open the list of users signed in to the application.</v8:content>
+					<v8:content>Open the list of users logged in to the application.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>ActiveUsers</Action>

@@ -95,10 +95,10 @@
 							<TitleLocation>Top</TitleLocation>
 							<AutoMaxWidth>false</AutoMaxWidth>
 							<ChoiceButton>true</ChoiceButton>
-							<ContextMenu name="BackupDirectory2ContextMenu" id="25"/>
-							<ExtendedTooltip name="BackupDirectory2ExtendedTooltip" id="299"/>
+							<ContextMenu name="PathToBackupDirectoryContextMenu" id="25"/>
+							<ExtendedTooltip name="PathToBackupDirectoryExtendedTooltip" id="299"/>
 							<Events>
-								<Event name="StartChoice">BackupDirectory2StartChoice</Event>
+								<Event name="StartChoice">PathToBackupDirectoryStartChoice</Event>
 							</Events>
 						</InputField>
 						<LabelDecoration name="DirectorySelectionRecommendationLabel" id="139">
@@ -173,7 +173,7 @@ another computer or an external storage media.</v8:content>
 											<v8:content>Blank page</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="BlankPage1ExtendedTooltip" id="397"/>
+									<ExtendedTooltip name="BlankPageExtendedTooltip" id="397"/>
 									<ChildItems>
 										<LabelDecoration name="Decoration1" id="400">
 											<ContextMenu name="Decoration1ContextMenu" id="401"/>
@@ -452,7 +452,7 @@ Please wait.</v8:content>
 																			</Title>
 																			<Hyperlink>true</Hyperlink>
 																			<VerticalAlign>Center</VerticalAlign>
-																			<ContextMenu name="UsersList1ContextMenu" id="92"/>
+																			<ContextMenu name="UsersListContextMenu" id="92"/>
 																			<ExtendedTooltip name="UsersListExtendedTooltip" id="338"/>
 																			<Events>
 																				<Event name="Click">UsersListClick</Event>

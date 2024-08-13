@@ -8,7 +8,7 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.StandardCommand.Close</CommandName>
-				<ExtendedTooltip name="FormClose3ExtendedTooltip" id="296"/>
+				<ExtendedTooltip name="FormCloseExtendedTooltip" id="296"/>
 			</Button>
 			<Button name="FormRefresh" id="232">
 				<Type>CommandBarButton</Type>
@@ -52,7 +52,7 @@
 				<Title>
 					<v8:item>
 						<v8:lang>en</v8:lang>
-						<v8:content>Install cryptography extension</v8:content>
+						<v8:content>Install 1C:Enterprise Extension</v8:content>
 					</v8:item>
 				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
@@ -363,6 +363,20 @@
 										</Title>
 									</ExtendedTooltip>
 								</Button>
+								<Popup name="ReportsSubmenu" id="478">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Reports</v8:content>
+										</v8:item>
+									</Title>
+									<Picture>
+										<xr:Ref>CommonPicture.Reports</xr:Ref>
+										<xr:LoadTransparent>false</xr:LoadTransparent>
+									</Picture>
+									<Representation>PictureAndText</Representation>
+									<ExtendedTooltip name="ReportsSubmenuExtendedTooltip" id="479"/>
+								</Popup>
 								<ButtonGroup name="CertificatesStandardCommands" id="98">
 									<Title>
 										<v8:item>
@@ -501,8 +515,8 @@
 								<LabelField name="CertificatesDescription" id="53">
 									<DataPath>Certificates.Description</DataPath>
 									<Width>35</Width>
-									<ContextMenu name="CertificatesNameContextMenu" id="54"/>
-									<ExtendedTooltip name="CertificatesNameExtendedTooltip" id="55"/>
+									<ContextMenu name="CertificatesDescriptionContextMenu" id="54"/>
+									<ExtendedTooltip name="CertificatesDescriptionExtendedTooltip" id="55"/>
 								</LabelField>
 								<LabelField name="CertificatesIssuedBy" id="80">
 									<DataPath>Certificates.IssuedBy</DataPath>
@@ -528,7 +542,7 @@
 									<ContextMenu name="CertificatesUserContextMenu" id="261"/>
 									<ExtendedTooltip name="CertificatesUserExtendedTooltip" id="262"/>
 								</LabelField>
-								<LabelField name="CertificatesApplicationState" id="337">
+								<LabelField name="CertificatesRequestStatus" id="337">
 									<DataPath>Certificates.RequestStatus</DataPath>
 									<Title>
 										<v8:item>
@@ -538,8 +552,8 @@
 									</Title>
 									<Width>16</Width>
 									<HorizontalStretch>false</HorizontalStretch>
-									<ContextMenu name="CertificatesApplicationStatusContextMenu" id="338"/>
-									<ExtendedTooltip name="CertificatesApplicationStatusExtendedTooltip" id="339"/>
+									<ContextMenu name="CertificatesRequestStatusContextMenu" id="338"/>
+									<ExtendedTooltip name="CertificatesRequestStatusExtendedTooltip" id="339"/>
 								</LabelField>
 								<LabelField name="CertificatesRef" id="142">
 									<DataPath>Certificates.Ref</DataPath>
@@ -547,8 +561,8 @@
 										<xr:Common>false</xr:Common>
 									</UserVisible>
 									<Width>1</Width>
-									<ContextMenu name="CertificatesLinkContextMenu" id="143"/>
-									<ExtendedTooltip name="CertificatesLinkExtendedTooltip" id="144"/>
+									<ContextMenu name="CertificatesRefContextMenu" id="143"/>
+									<ExtendedTooltip name="CertificatesRefExtendedTooltip" id="144"/>
 								</LabelField>
 							</ChildItems>
 						</Table>
@@ -900,7 +914,7 @@
 											<v8:content>App page</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="ApplicationsListPageExtendedTooltip" id="323"/>
+									<ExtendedTooltip name="AppsListPageExtendedTooltip" id="323"/>
 									<ChildItems>
 										<Table name="Programs" id="203">
 											<TitleLocation>Top</TitleLocation>
@@ -922,20 +936,20 @@
 												</v8:item>
 											</Title>
 											<RowFilter xsi:nil="true"/>
-											<ContextMenu name="ApplicationsContextMenu" id="204">
+											<ContextMenu name="ProgramsContextMenu" id="204">
 												<Autofill>false</Autofill>
 												<ChildItems>
-													<Button name="ApplicationsContextMenuAdd" id="284">
+													<Button name="ProgramsContextMenuAdd" id="284">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Item.Programs.StandardCommand.Add</CommandName>
-														<ExtendedTooltip name="ApplicationsContextMenuAddExtendedTooltip" id="285"/>
+														<ExtendedTooltip name="ProgramsContextMenuAddExtendedTooltip" id="285"/>
 													</Button>
-													<Button name="ApplicationsContextMenuChange" id="286">
+													<Button name="ProgramsContextMenuChange" id="286">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Item.Programs.StandardCommand.Change</CommandName>
-														<ExtendedTooltip name="ApplicationsContextMenuChangeExtendedTooltip" id="287"/>
+														<ExtendedTooltip name="ProgramsContextMenuChangeExtendedTooltip" id="287"/>
 													</Button>
-													<Button name="ApplicationsContextMenuApplicationsMarkForDeletion" id="278">
+													<Button name="ProgramsContextMenuApplicationsMarkForDeletion" id="278">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.ApplicationsMarkForDeletion</CommandName>
 														<Title>
@@ -944,9 +958,9 @@
 																<v8:content>Toggle deletion mark</v8:content>
 															</v8:item>
 														</Title>
-														<ExtendedTooltip name="ApplicationsContextMenuApplicationsMarkForDeletionExtendedTooltip" id="279"/>
+														<ExtendedTooltip name="ProgramsContextMenuApplicationsMarkForDeletionExtendedTooltip" id="279"/>
 													</Button>
-													<Button name="ApplicationsContextMenuRefresh" id="247">
+													<Button name="ProgramsContextMenuRefresh" id="247">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.Refresh</CommandName>
 														<Title>
@@ -955,62 +969,62 @@
 																<v8:content>Refresh</v8:content>
 															</v8:item>
 														</Title>
-														<ExtendedTooltip name="ApplicationsContextMenuRefreshExtendedTooltip" id="248"/>
+														<ExtendedTooltip name="ProgramsContextMenuRefreshExtendedTooltip" id="248"/>
 													</Button>
-													<Button name="ApplicationsContextMenuOutputList" id="249">
+													<Button name="ProgramsContextMenuOutputList" id="249">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Item.Programs.StandardCommand.OutputList</CommandName>
-														<ExtendedTooltip name="ApplicationsContextMenuOutputListExtendedTooltip" id="250"/>
+														<ExtendedTooltip name="ProgramsContextMenuOutputListExtendedTooltip" id="250"/>
 													</Button>
-													<Button name="ApplicationsContextMenuCopyToClipboard" id="251">
+													<Button name="ProgramsContextMenuCopyToClipboard" id="251">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Item.Programs.StandardCommand.CopyToClipboard</CommandName>
-														<ExtendedTooltip name="ApplicationsContextMenuCopyToClipboardExtendedTooltip" id="252"/>
+														<ExtendedTooltip name="ProgramsContextMenuCopyToClipboardExtendedTooltip" id="252"/>
 													</Button>
-													<Button name="ApplicationsContextMenuSelectAll" id="253">
+													<Button name="ProgramsContextMenuSelectAll" id="253">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Item.Programs.StandardCommand.SelectAll</CommandName>
-														<ExtendedTooltip name="ApplicationsContextMenuSelectAllExtendedTooltip" id="254"/>
+														<ExtendedTooltip name="ProgramsContextMenuSelectAllExtendedTooltip" id="254"/>
 													</Button>
 												</ChildItems>
 											</ContextMenu>
 											<AutoCommandBar name="ProgramsCommandBar" id="205">
 												<Autofill>false</Autofill>
 											</AutoCommandBar>
-											<ExtendedTooltip name="ApplicationsExtendedTooltip" id="206"/>
-											<SearchStringAddition name="ApplicationsSearchString" id="308">
+											<ExtendedTooltip name="ProgramsExtendedTooltip" id="206"/>
+											<SearchStringAddition name="ProgramsSearchString" id="308">
 												<AdditionSource>
 													<Item>Programs</Item>
 													<Type>SearchStringRepresentation</Type>
 												</AdditionSource>
-												<ContextMenu name="ApplicationsSearchStringContextMenu" id="309"/>
-												<ExtendedTooltip name="ApplicationsSearchStringExtendedTooltip" id="310"/>
+												<ContextMenu name="ProgramsSearchStringContextMenu" id="309"/>
+												<ExtendedTooltip name="ProgramsSearchStringExtendedTooltip" id="310"/>
 											</SearchStringAddition>
-											<ViewStatusAddition name="ApplicationsViewStatus" id="311">
+											<ViewStatusAddition name="ProgramsViewStatus" id="311">
 												<AdditionSource>
 													<Item>Programs</Item>
 													<Type>ViewStatusRepresentation</Type>
 												</AdditionSource>
-												<ContextMenu name="ApplicationsViewStatusContextMenu" id="312"/>
-												<ExtendedTooltip name="ApplicationsViewStatusExtendedTooltip" id="313"/>
+												<ContextMenu name="ProgramsViewStatusContextMenu" id="312"/>
+												<ExtendedTooltip name="ProgramsViewStatusExtendedTooltip" id="313"/>
 											</ViewStatusAddition>
-											<SearchControlAddition name="ApplicationsSearchControl" id="314">
+											<SearchControlAddition name="ProgramsSearchControl" id="314">
 												<AdditionSource>
 													<Item>Programs</Item>
 													<Type>SearchControl</Type>
 												</AdditionSource>
-												<ContextMenu name="ApplicationsSearchControlContextMenu" id="315"/>
-												<ExtendedTooltip name="ApplicationsSearchControlExtendedTooltip" id="316"/>
+												<ContextMenu name="ProgramsSearchControlContextMenu" id="315"/>
+												<ExtendedTooltip name="ProgramsSearchControlExtendedTooltip" id="316"/>
 											</SearchControlAddition>
 											<Events>
-												<Event name="Selection">ApplicationsSelection</Event>
-												<Event name="BeforeAddRow">ApplicationsBeforeAddRow</Event>
-												<Event name="BeforeDeleteRow">ApplicationsBeforeDeleteRow</Event>
-												<Event name="OnActivateRow">ApplicationsOnActivateRow</Event>
-												<Event name="BeforeRowChange">ApplicationsBeforeRowChange</Event>
+												<Event name="Selection">ProgramsSelection</Event>
+												<Event name="BeforeAddRow">ProgramsBeforeAddRow</Event>
+												<Event name="BeforeDeleteRow">ProgramsBeforeDeleteRow</Event>
+												<Event name="OnActivateRow">ProgramsOnActivateRow</Event>
+												<Event name="BeforeRowChange">ProgramsBeforeRowChange</Event>
 											</Events>
 											<ChildItems>
-												<InputField name="ApplicationsDescription" id="213">
+												<InputField name="ProgramsDescription" id="213">
 													<DataPath>Programs.Description</DataPath>
 													<Title>
 														<v8:item>
@@ -1021,8 +1035,8 @@
 													<EditMode>EnterOnInput</EditMode>
 													<AutoCellHeight>true</AutoCellHeight>
 													<Width>15</Width>
-													<ContextMenu name="ApplicationsDescriptionContextMenu" id="214"/>
-													<ExtendedTooltip name="ApplicationsDescriptionExtendedTooltip" id="215"/>
+													<ContextMenu name="ProgramsDescriptionContextMenu" id="214"/>
+													<ExtendedTooltip name="ProgramsDescriptionExtendedTooltip" id="215"/>
 												</InputField>
 												<PictureField name="ProgramsPictureUsageMode" id="452">
 													<DataPath>Programs.PictureUsageMode</DataPath>
@@ -1059,7 +1073,7 @@
 													<ShowInHeader>true</ShowInHeader>
 													<ExtendedTooltip name="AppsGroupCheckResultExtendedTooltip" id="446"/>
 													<ChildItems>
-														<InputField name="ApplicationsCheckResult" id="223">
+														<InputField name="ProgramsCheckResult" id="223">
 															<DataPath>Programs.CheckResult</DataPath>
 															<Title>
 																<v8:item>
@@ -1073,8 +1087,8 @@
 															<ShowInHeader>false</ShowInHeader>
 															<Width>40</Width>
 															<MultiLine>true</MultiLine>
-															<ContextMenu name="ApplicationsCheckResultContextMenu" id="224"/>
-															<ExtendedTooltip name="ApplicationsCheckResultExtendedTooltip" id="225"/>
+															<ContextMenu name="ProgramsCheckResultContextMenu" id="224"/>
+															<ExtendedTooltip name="ProgramsCheckResultExtendedTooltip" id="225"/>
 														</InputField>
 														<InputField name="ProgramsCheckResultAtServer" id="442">
 															<DataPath>Programs.CheckResultAtServer</DataPath>
@@ -1091,7 +1105,7 @@
 														</InputField>
 													</ChildItems>
 												</ColumnGroup>
-												<InputField name="ApplicationsDetails" id="358">
+												<InputField name="ProgramsMoreDetails" id="358">
 													<DataPath>Programs.MoreDetails</DataPath>
 													<ReadOnly>true</ReadOnly>
 													<Title>
@@ -1107,8 +1121,8 @@
 													<Width>10</Width>
 													<HorizontalStretch>false</HorizontalStretch>
 													<TextColor>style:HyperlinkColor</TextColor>
-													<ContextMenu name="ApplicationsDetailsContextMenu" id="359"/>
-													<ExtendedTooltip name="ApplicationsDetailsExtendedTooltip" id="360"/>
+													<ContextMenu name="ProgramsMoreDetailsContextMenu" id="359"/>
+													<ExtendedTooltip name="ProgramsMoreDetailsExtendedTooltip" id="360"/>
 												</InputField>
 											</ChildItems>
 										</Table>
@@ -1885,6 +1899,9 @@ WHERE
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
+		<Attribute name="AttachableCommandsParameters" id="5">
+			<Type/>
+		</Attribute>
 	</Attributes>
 	<Commands>
 		<Command name="Refresh" id="1">
@@ -1933,7 +1950,7 @@ WHERE
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Install cryptography extension</v8:content>
+					<v8:content>Install 1C:Enterprise Extension</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
@@ -1949,7 +1966,7 @@ WHERE
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Submit an application...</v8:content>
+					<v8:content>Submit application...</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>

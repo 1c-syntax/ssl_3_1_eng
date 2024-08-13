@@ -14,9 +14,9 @@
 //
 // Parameters:
 //  Table - ValueTable - TabularSectionDetails with columns.
-//          - FormDataCollection - 
-//          - String - 
-//              
+//          - FormDataCollection - Table of the form.
+//          - String - To receive a list of the table columns, specify the table's full name (String) from metadata.
+//              For example "Documents.ProformaInvoice.TabularSections.Goods".
 //  Columns - String - a list of comma-separated extracted columns. For example: "Number, Goods, Quantity".
 // 
 // Returns:

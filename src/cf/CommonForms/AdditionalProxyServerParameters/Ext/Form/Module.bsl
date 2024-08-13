@@ -66,7 +66,7 @@ EndProcedure
 Procedure OKButton(Command)
 	
 	If Not Modified Then
-		// 
+		// If the form's data is not modified, don't return it.
 		// 
 		NotifyChoice(Undefined);
 		Return;
@@ -76,7 +76,7 @@ Procedure OKButton(Command)
 		Return;
 	EndIf;
 	
-	// 
+	// If the check is passed, return the additional proxy settings as a structure.
 	// 
 	ReturnValueStructure = New Structure;
 	

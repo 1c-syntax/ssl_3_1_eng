@@ -514,8 +514,8 @@ Procedure OnAddClientParametersOnStart(Parameters) Export
 	// The following code is intended for locked data areas only.
 	If InfobaseUpdate.InfobaseUpdateInProgress() 
 		And Users.IsFullUser() Then
-		// 
-		// 
+		// The app administrator can sign in even if the data area is locked due to an incomplete update.
+		// By doing that, the administrator initiates the area update.
 		Return; 
 	EndIf;
 	
@@ -591,8 +591,8 @@ Procedure OnFillToDoList(ToDoList) Export
 		Return;
 	EndIf;
 	
-	// 
-	// 
+	// The procedure can be called only if the "To-do list" subsystem is integrated.
+	// Therefore, don't check if the subsystem is integrated.
 	Sections = ModuleToDoListServer.SectionsForObject(Metadata.DataProcessors.ApplicationLock.FullName());
 	
 	LockParameters = SessionLockParameters(False);
@@ -826,7 +826,7 @@ EndFunction
 //
 Function CurrentConnectionLockParameters(ShouldReturnUndefinedIfUnspecified = False)
 	
-	CurrentDate = CurrentDate(); // ACC:143 - CurrentSessionDate is not used since there's a lock in the server timezone.
+	CurrentDate = CurrentDate(); // ACC:143 - CurrentSessionDate is not used since there's a lock in the server time zone.
 	
 	SetPrivilegedMode(True);
 	CurrentIBMode = GetSessionsLock();

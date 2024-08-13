@@ -11,10 +11,10 @@
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
-// 
-// 
-// 
+// Only the Record Manager can access this information register.
+// Intended to update the existing records.
+// NOTE: Adding record sets to the register is forbidden.
+// It might lead to the loss of settings that were not included in the set.
 
 #Region Internal
 

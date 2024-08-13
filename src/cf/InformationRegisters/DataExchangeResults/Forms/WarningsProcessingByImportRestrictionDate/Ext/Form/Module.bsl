@@ -197,11 +197,11 @@ Procedure ConditionalFormDesign()
 	ErrorsInRed.Appearance.SetParameterValue("TextColor", WebColors.DarkRed);
 	
 	AppearanceField = ErrorsInRed.Fields.Items.Add();
-	AppearanceField.Field = New DataCompositionField("TableOfCorrectionObjectsObjectWithIssue");
+	AppearanceField.Field = New DataCompositionField("PatchObjectsTableObjectWithIssue");
 	AppearanceField = ErrorsInRed.Fields.Items.Add();
 	AppearanceField.Field = New DataCompositionField("TableOfObjectsOfCorrectionTheResultOfThe");
 	AppearanceField = ErrorsInRed.Fields.Items.Add();
-	AppearanceField.Field = New DataCompositionField("TableOfCorrectionObjectsFailedAttempt");
+	AppearanceField.Field = New DataCompositionField("PatchObjectsTableUnsuccessfulAttempt");
 	
 EndProcedure
 

@@ -87,18 +87,18 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 &AtClient
-Procedure ContactsTableOnActivateCell(Item)
+Procedure TableOfContactsOnActivateCell(Item)
 	
 	CurrentData = Items.TableOfContacts.CurrentData;
 	If CurrentData = Undefined Then
 		Return;
 	EndIf;
 	
-	If Item.CurrentItem.Name = "ContactsTableContact" Then
+	If Item.CurrentItem.Name = "TableOfContactsContact" Then
 		
-		Items.ContactsTableContact.ChoiceList.Clear();
+		Items.TableOfContactsContact.ChoiceList.Clear();
 		If CurrentData.FoundContactsList.Count() > 0 Then
-			Items.ContactsTableContact.ChoiceList.LoadValues(
+			Items.TableOfContactsContact.ChoiceList.LoadValues(
 			CurrentData.FoundContactsList.UnloadValues());
 		EndIf;
 		
@@ -150,7 +150,7 @@ Procedure ContactsTableContactCurrentAddressChoiceProcessing(Item, ValueSelected
 EndProcedure 
 
 &AtClient
-Procedure ContactsTableContactChoiceProcessing(Item, ValueSelected, StandardProcessing)
+Procedure TableOfContactsContactChoiceProcessing(Item, ValueSelected, StandardProcessing)
 	
 	StandardProcessing = False;
 	
@@ -183,7 +183,7 @@ Procedure ContactsTableContactChoiceProcessing(Item, ValueSelected, StandardProc
 EndProcedure
 
 &AtClient
-Procedure ContactsTableContactClearing(Item, StandardProcessing)
+Procedure TableOfContactsContactClearing(Item, StandardProcessing)
 	
 	CurrentData = Items.TableOfContacts.CurrentData;
 	If CurrentData = Undefined Then
@@ -197,7 +197,7 @@ Procedure ContactsTableContactClearing(Item, StandardProcessing)
 EndProcedure
 
 &AtClient
-Procedure ContactsTableContactOnChange(Item)
+Procedure TableOfContactsContactOnChange(Item)
 	
 	CurrentData = Items.TableOfContacts.CurrentData;
 	If CurrentData = Undefined Then
@@ -217,7 +217,7 @@ Procedure ContactsTableContactOnChange(Item)
 EndProcedure
 
 &AtClient
-Procedure ContactsTableContactStartChoice(Item, ChoiceData, StandardProcessing)
+Procedure TableOfContactsContactStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	StandardProcessing = False;
 	CurrentData = Items.TableOfContacts.CurrentData;
@@ -239,7 +239,7 @@ Procedure ContactsTableContactStartChoice(Item, ChoiceData, StandardProcessing)
 EndProcedure
 
 &AtClient
-Procedure ContactsTableBeforeDeleteRow(Item, Cancel)
+Procedure TableOfContactsBeforeDeleteRow(Item, Cancel)
 	
 	Cancel = True;
 	
@@ -270,7 +270,7 @@ Procedure SetConditionalAppearance()
 	Item = ConditionalAppearance.Items.Add();
 	
 	ItemField = Item.Fields.Items.Add();
-	ItemField.Field = New DataCompositionField(Items.ContactsTableChange.Name);
+	ItemField.Field = New DataCompositionField(Items.TableOfContactsChange.Name);
 	
 	FilterGroup1 = Item.Filter.Items.Add(Type("DataCompositionFilterItemGroup"));
 	FilterGroup1.GroupType = DataCompositionFilterItemsGroupType.OrGroup;
@@ -294,7 +294,7 @@ Procedure SetConditionalAppearance()
 	Item = ConditionalAppearance.Items.Add();
 	
 	ItemField = Item.Fields.Items.Add();
-	ItemField.Field = New DataCompositionField(Items.ContactsTableChange.Name);
+	ItemField.Field = New DataCompositionField(Items.TableOfContactsChange.Name);
 	
 	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	ItemFilter.LeftValue  = New DataCompositionField("TableOfContacts.AvailableUpdate");
@@ -385,8 +385,8 @@ Procedure FillFoundContactsListsByEmail()
 		Return;
 	EndIf;
 	
-	For Each String In FoundContacts.Rows Do
-		String.Presentation = Upper(String.Presentation);
+	For Each TableRow In FoundContacts.Rows Do
+		TableRow.Presentation = Upper(TableRow.Presentation);
 	EndDo;
 	
 	// Filling in each row with a found contact list.

@@ -32,7 +32,7 @@ Procedure OnAddTypesToExcludeFromPossibleDuplicates(TypesToExclude) Export
 
 EndProcedure
 
-// Used when exporting files to go to the service (CTL).
+// Used when exporting files for cloud migration (CTL).
 //
 // Parameters:
 //   FileObject    - CatalogObject
@@ -435,7 +435,7 @@ EndFunction
 
 // 
 // Returns:
-//  String - 
+//  String - Suffix of the "Attachments" catalog
 //
 Function CatalogSuffixAttachedFiles() Export
 	Return "AttachedFiles";
@@ -698,7 +698,7 @@ Procedure MarkForDeletionFileVersions(Val FileRef, Val VersionException) Export
 	
 EndProcedure
 
-// 
+// Returns the map of catalog names and Boolean values for the specified owner.
 // 
 // Parameters:
 //  FilesOwner - AnyRef - an object for adding the file.
@@ -1142,6 +1142,7 @@ Procedure CryptographyOnCreateFormAtServer(Form, IsListForm = True, RowsPictureO
 			Items.DigitalSignaturesGroup.Visible = DigitalSignatureAvailable;
 			Items.EncryptionCertificatesGroup.Visible = ViewEncrypted And DigitalSignatureAvailable;
 			Items.Instruction.Visible = Signing And GuideVisibility;
+			Items.FormSaveWithSignature.Visible = Form.DigitalSignatures.Count() <> 0;
 		EndIf;
 	EndIf;
 	
@@ -1256,13 +1257,13 @@ Procedure MoveSignaturesCheckResults(SignaturesInForm, SignedFile) Export
 		HasCheckResult = True;
 	EndIf;
 	
-	For Each String In SignaturesInForm Do
-		RowInObject = SignaturesInObject.Get(SignaturesInForm.IndexOf(String));
-		If String.SignatureDate         <> RowInObject.SignatureDate
-		 Or String.Comment         <> RowInObject.Comment
-		 Or String.CertificateOwner <> RowInObject.CertificateOwner And ValueIsFilled(RowInObject.CertificateOwner)
-		 Or String.Thumbprint           <> RowInObject.Thumbprint And ValueIsFilled(RowInObject.Thumbprint)
-		 Or String.SignatureSetBy <> RowInObject.SignatureSetBy Then
+	For Each Signature In SignaturesInForm Do
+		SignatureInObject = SignaturesInObject.Get(SignaturesInForm.IndexOf(Signature));
+		If Signature.SignatureDate         <> SignatureInObject.SignatureDate
+		 Or Signature.Comment         <> SignatureInObject.Comment
+		 Or Signature.CertificateOwner <> SignatureInObject.CertificateOwner And ValueIsFilled(SignatureInObject.CertificateOwner)
+		 Or Signature.Thumbprint           <> SignatureInObject.Thumbprint And ValueIsFilled(SignatureInObject.Thumbprint)
+		 Or Signature.SignatureSetBy <> SignatureInObject.SignatureSetBy Then
 			Return; // If the object was changed, the test results are not transferred.
 		EndIf;
 	EndDo;
@@ -1270,14 +1271,14 @@ Procedure MoveSignaturesCheckResults(SignaturesInForm, SignedFile) Export
 	Properties.Insert("Thumbprint");
 	Properties.Insert("CertificateOwner");
 	
-	For Each String In SignaturesInForm Do
-		RowInObject = SignaturesInObject.Get(SignaturesInForm.IndexOf(String));
-		FillPropertyValues(Properties, RowInObject);
+	For Each Signature In SignaturesInForm Do
+		SignatureInObject = SignaturesInObject.Get(SignaturesInForm.IndexOf(Signature));
+		FillPropertyValues(Properties, SignatureInObject);
 		HasChanges = False;
 		For Each KeyAndValue In Properties Do
 			
 			
-			If String[KeyAndValue.Key] <> Properties[KeyAndValue.Key] Then
+			If Signature[KeyAndValue.Key] <> Properties[KeyAndValue.Key] Then
 				HasChanges = True;
 			EndIf;
 		EndDo;
@@ -1286,12 +1287,12 @@ Procedure MoveSignaturesCheckResults(SignaturesInForm, SignedFile) Export
 			Continue; // Do not set the modification if the test results match.
 		EndIf;
 		
-		FillPropertyValues(Properties, String);
-		FillPropertyValues(RowInObject, Properties);
-		If HasCheckResult And ValueIsFilled(String.CheckResult) Then
-			FillPropertyValues(RowInObject, String.CheckResult);
+		FillPropertyValues(Properties, Signature);
+		FillPropertyValues(SignatureInObject, Properties);
+		If HasCheckResult And ValueIsFilled(Signature.CheckResult) Then
+			FillPropertyValues(SignatureInObject, Signature.CheckResult);
 		EndIf;
-		ModuleDigitalSignature.UpdateSignature(SignedFile, RowInObject);
+		ModuleDigitalSignature.UpdateSignature(SignedFile, SignatureInObject);
 	EndDo;
 	
 EndProcedure
@@ -1829,8 +1830,8 @@ Function PrepareDataToCreateFileInitialImage(ParametersStructure) Export
 				Result.ConfirmationRequired = True;
 			EndIf;
 			
-			// 
-			// 
+			// Create a temporary directory.
+			// ACC:441-off - The procedure "CreateFileInitialImageAtServer" clears up temporary files.
 			DirectoryName = GetTempFileName();
 			CreateDirectory(DirectoryName);
 			
@@ -1964,8 +1965,8 @@ Function PrepareDataToCreateServerInitialImage(ParametersStructure) Export
 				EndIf;
 			EndIf;
 
-			// 			
-			// 
+			// ACC:441-off - The procedure "CreateFileInitialImageAtServer" clears up temporary files.			
+			// Create a temporary directory.
 			DirectoryName = GetTempFileName();
 			CreateDirectory(DirectoryName);
 			
@@ -2166,24 +2167,6 @@ Function ScannerParametersInEnumerations(PermissionNumber, ChromaticityNumber, R
 	
 EndFunction
 
-Function ConvertScanningFormatToStorageFormat(ScanningFormat, ShouldSaveAsPDF) Export
-	
-	If ShouldSaveAsPDF Then
-		Return Enums.SinglePageFileStorageFormats.PDF;
-	ElsIf ScanningFormat = Enums.ScannedImageFormats.BMP Then
-		Return Enums.SinglePageFileStorageFormats.BMP;
-	ElsIf ScanningFormat = Enums.ScannedImageFormats.GIF Then
-		Return Enums.SinglePageFileStorageFormats.GIF;
-	ElsIf ScanningFormat = Enums.ScannedImageFormats.JPG Then
-		Return Enums.SinglePageFileStorageFormats.JPG;
-	ElsIf ScanningFormat = Enums.ScannedImageFormats.TIF Then
-		Return Enums.SinglePageFileStorageFormats.TIF;
-	EndIf;
-	
-	Return Enums.SinglePageFileStorageFormats.PNG; 
-	
-EndFunction
-
 Function CommandScanSheet() Export
 	Return "e1cib/command/DataProcessor.Scanning.Command.ScanSheet";
 EndFunction
@@ -2326,7 +2309,7 @@ Procedure OnSendDataToSlave(DataElement, ItemSend, InitialImageCreating, Recipie
 	
 EndProcedure
 
-// See StandardSubsystems.OnSendDataToMaster.
+// 
 Procedure OnSendDataToMaster(DataElement, ItemSend, Recipient) Export
 	
 	WhenSendingFile(DataElement, ItemSend);
@@ -2370,8 +2353,8 @@ Procedure OnFillToDoList(ToDoList) Export
 	
 	LockedFilesCount = LockedFilesCount();
 	
-	// 
-	// 
+	// The procedure can be called only if the "To-do list" subsystem is integrated.
+	// Therefore, don't check if the subsystem is integrated.
 	Sections = ModuleToDoListServer.SectionsForObject(Metadata.Catalogs.Files.FullName());
 	
 	For Each Section In Sections Do
@@ -2816,9 +2799,9 @@ EndProcedure
 // See ExportImportDataOverridable.OnFillCommonDataTypesThatDoNotRequireMappingRefsOnImport.
 Procedure OnFillCommonDataTypesThatDoNotRequireMappingRefsOnImport(Types) Export
 	
-	// 
-	// 
-	// 
+	// References to the "FileStorageVolumes" catalog are cleared during export.
+	// Import applies the volume settings in the destination infobase,
+	// while the volume settings in the source infobase are ignored.
 	Types.Add(Metadata.Catalogs.FileStorageVolumes);
 	
 EndProcedure
@@ -2962,7 +2945,7 @@ Procedure OnDefineUsedAddIns(Components) Export
 	
 EndProcedure
 
-// See MarkedObjectsDeletionInternal.IsTechnicalObject
+// 
 Function IsTechnicalObject(FullObjectName) Export
 	Return FullObjectName = Upper(Metadata.Catalogs.FilesVersions.FullName());
 EndFunction
@@ -3011,7 +2994,7 @@ Procedure AfterDeletingAGroupOfObjects(Context, Success) Export
 	EndDo;
 EndProcedure
 
-Function GenerateScanSetting(Name, Value, ClientID) Export
+Function ScanningSettings(Name, Value, ClientID) Export
 	
 	Item = New Structure;
 	Item.Insert("Object", "ScanningSettings1/" + Name);
@@ -3451,8 +3434,8 @@ EndProcedure
 //
 Procedure WhenSendingFile(DataElement, ItemSend, Val InitialImageCreating = False, Recipient = Undefined)
 	
-	// 
-	// 
+	// For non-DIB data exchanges, use a regular exchange session algorithm. Do not use the initial image creation algorithm
+	// because "InitialImageCreating" that is set to "True" means the initial data export.
 	If InitialImageCreating And Recipient <> Undefined 
 		And Not IsDistributedInfobaseNode(Recipient.Ref) Then
 		InitialImageCreating = False;
@@ -3482,8 +3465,8 @@ EndProcedure
 //
 Procedure WhenSendingAFileCreateTheInitialImage(DataElement, ItemSend, Recipient);
 
-	// 
-	// 
+	// Modifying objects during the initial image generation is prohibited.
+	// Therefore, export the files to a separate volume (unless they are stored in the infobase).
 	// 
 	
 	FileType = TypeOf(DataElement);
@@ -3492,8 +3475,8 @@ Procedure WhenSendingAFileCreateTheInitialImage(DataElement, ItemSend, Recipient
 	If FileType = Type("InformationRegisterRecordSet.FileRepository")
 		Or FileType = Type("CatalogObject.BinaryDataStorage") Then
 			
-		// 
-		// 
+		// Files are stored in the infobase.
+		// Do not override the standard data processor.
 		Return;
 		
 	ElsIf IsFilesOperationsItem 
@@ -3501,15 +3484,15 @@ Procedure WhenSendingAFileCreateTheInitialImage(DataElement, ItemSend, Recipient
 			
 		If DataElement.FileStorageType <> Enums.FileStorageTypes.InVolumesOnHardDrive Then
 			
-		// 
-		// 
+		// Files are stored in the infobase.
+		// Do not override the standard data processor.
 
 			Return;
 		Else
 			
-			// 
-			// 
-			// 
+			// Files with versions
+			// Files in the "AttachedFiles" catalogs
+			// Copy the files from the volume to the initial image directory.
 			NewFilePath1 = CommonClientServer.GetFullFileName(
 								String(CommonSettingsStorage.Load("FileExchange", "TempDirectory")),
 								DataElement.Ref.Metadata().Name + "." + DataElement.Ref.UUID());
@@ -3542,8 +3525,8 @@ Procedure WhenSendingAFileTheMessageIsExchanged(DataElement, ItemSend, Recipient
 
 	If TypeOf(DataElement) = Type("InformationRegisterRecordSet.FileRepository")
 		Or TypeOf(DataElement) = Type("CatalogObject.BinaryDataStorage") Then
-		// 
-		// 
+		// Files are stored in the register.
+		// Export the register if the initial image is being created.
 		ItemSend = DataItemSend.Ignore;
 
 	ElsIf IsFilesOperationsItem(DataElement)
@@ -3573,8 +3556,8 @@ Procedure WhenReceivingFile(DataElement, ItemReceive, Sender = Undefined)
 			Return;
 		EndIf;
 		
-		// 
-		// 
+		// Process the file data only if it has no versions.
+		// Otherwise, process binary data when handling file versions.
 		StoreVersions = DataElement.StoreVersions;
 		ProcessReceivedFiles = Not StoreVersions;
 		
@@ -3582,8 +3565,8 @@ Procedure WhenReceivingFile(DataElement, ItemReceive, Sender = Undefined)
 		Or (IsFilesOperationsItem(DataElement)
 			And TypeOf(DataElement) <> Type("CatalogObject.MetadataObjectIDs")) Then
 		
-		// 
-		// 
+		// The catalog "MetadataObjectIDs" can iterate through the results of "IsFilesOperationsItem".
+		// However, it should not be processed here.
 		If GetFileVersionProhibited(DataElement) Then
 			ItemReceive = DataItemReceive.Ignore;
 			Return;
@@ -3634,8 +3617,8 @@ Procedure WhenReceivingFile(DataElement, ItemReceive, Sender = Undefined)
 		
 		If NewFileStorageType = Enums.FileStorageTypes.InVolumesOnHardDrive Then
 			
-			// 
-			// 
+			// During the exchange, an item with the storage type "InInfobase," but the destination stores data in volumes.
+			// Put the file from the internal attribute to a volume and set "FileStorageType" to "InVolumesOnHardDrive".
 			MetadataType = Metadata.FindByType(TypeOf(DataElement));
 			
 			If BinaryData = Undefined Then
@@ -3721,9 +3704,9 @@ Function GetNextObjectID() Export
 			Return Result;
 		EndIf;
 		
-		//  
-		// 
-		// 
+		// The calculation rule is the same as for arithmetic addition: 
+		// When a position reaches its maximum and then increments, it resets to 0, and the next position increments by 1.
+		// A position can take values in the ranges [0…9] and [a…z], totaling 36 values.
 		// 
 		// 
 		// 
@@ -3819,7 +3802,7 @@ Procedure CleanUpWorkingDirectory(FolderRef) Export
 		RecordSet = InformationRegisters.FileWorkingDirectories.CreateRecordSet();
 		RecordSet.Filter.Folder.Set(FolderRef);
 		RecordSet.Filter.User.Set(CurrentUser);
-		RecordSet.Write(); // 
+		RecordSet.Write(); // delete records
 		
 		// Clear working directories for child folders.
 		Query = New Query;
@@ -4454,7 +4437,7 @@ Function GetNewNumberToScan(Owner) Export
 		
 		// Receive the max number from the register.
 		Number = ResourcesStructure.Number;
-		Number = Number + 1; // 
+		Number = Number + 1; // Increment by 1.
 		
 		SetSafeModeDisabled(True);
 		SetPrivilegedMode(True);
@@ -4734,8 +4717,8 @@ Procedure ProcessFileSendingByStorageType(DataElement)
 		FilesOperationsInVolumesInternal.PutFileInCatalogAttribute(DataElement);
 		
 	Else
-		// 
-		// 
+		// "Enums.FileStorageTypes.InInfobase"
+		// If file versions are stored, take the binary data from the current version.
 		If DataElement.Metadata().Attributes.Find("CurrentVersion") <> Undefined
 			And ValueIsFilled(DataElement.CurrentVersion) Then
 			BinaryDataSource = DataElement.CurrentVersion;
@@ -4747,8 +4730,8 @@ Procedure ProcessFileSendingByStorageType(DataElement)
 			AddressInTempStorage = GetTemporaryStorageURL(BinaryDataSource,,False);
 			DataElement.FileStorage = New ValueStorage(GetFromTempStorage(AddressInTempStorage), New Deflation(9));
 		Except
-			// 
-			// 
+			// The file is probably not found. Resume the data export.
+			// ACC:154-off - File data is missing (an ordinary situation).
 			WriteLogEvent(EventLogEventForExchange(), 
 				EventLogLevel.Warning,,, 
 				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
@@ -4954,8 +4937,8 @@ Function CreateVersion(FileRef, FileInfo1, Context = Undefined) Export
 		If TemplateFilesStorageType = Enums.FileStorageTypes.InInfobase
 			And FilesStorageTyoe = Enums.FileStorageTypes.InInfobase Then
 			
-			// 
-			// 
+			// Both the template and the new file are located in the infobase.
+			// When a "File" instance is created, the value is copied directly from the template storage.
 			BinaryDataOrPath = FileInfo1.TempFileStorageAddress.Get();
 			
 		ElsIf TemplateFilesStorageType = Enums.FileStorageTypes.InVolumesOnHardDrive
@@ -4971,8 +4954,8 @@ Function CreateVersion(FileRef, FileInfo1, Context = Undefined) Export
 		ElsIf TemplateFilesStorageType = Enums.FileStorageTypes.InInfobase
 			And FilesStorageTyoe = Enums.FileStorageTypes.InVolumesOnHardDrive Then
 			
-			// 
-			// 
+			// The template is located in the infobase, the new file is located in a volume.
+			// In this case, "TempFileStorageAddress" takes the value from the file's "ValueStorage".
 			FilesOperationsInVolumesInternal.AppendFile(Version, FileInfo1.TempFileStorageAddress.Get());
 			
 		ElsIf TemplateFilesStorageType = Enums.FileStorageTypes.InVolumesOnHardDrive
@@ -6140,7 +6123,7 @@ EndFunction
 // Returns:
 //  ValueTree:
 //    * FileRef - DefinedType.AttachedFile
-//    * FileOwner - Type - TypeToDefine.FilesOwner type.
+//    * FileOwner - Type - DefinedType.FilesOwner type.
 //    * Size - Number - size in MB. 
 //
 Function CollectUnusedFiles(ClearingSetup, ExceptionsArray) Export
@@ -7357,7 +7340,7 @@ Procedure RememberRefServerData(
 	RegisterRecord.Account               = Account;
 	RegisterRecord.IsSynchronized             = False;
 	RegisterRecord.SynchronizationDateStart     = CurrentSessionDate();
-	RegisterRecord.SynchronizationDateCompletion = CurrentSessionDate() + 1800; // 
+	RegisterRecord.SynchronizationDateCompletion = CurrentSessionDate() + 1800; // 30 minutes.
 	RegisterRecord.SessionNumber                 = InfoBaseSessionNumber();
 	RegisterRecord.Write(True);
 	
@@ -7634,8 +7617,8 @@ Procedure ImportNewAttachedFiles(FilesTreeRows, TableOfFiles, SynchronizationPar
 			
 			If (CurrentFilesFolder = Undefined) And (TableOfFiles.Find(FilesTreeRow.Href, "Href") = Undefined) Then
 				
-				// 
-				// 
+				// This is a new server directory. If it's located in the exchange directory root or
+				// sync metadata object type root, it doesn't relate to the owner. Ignore such directories.
 				// 
 				If OwnerObject = Undefined
 					Or TypeOf(OwnerObject) = Type("CatalogRef.MetadataObjectIDs") Then
@@ -7718,8 +7701,8 @@ Procedure ImportNewAttachedFiles(FilesTreeRows, TableOfFiles, SynchronizationPar
 					Continue;
 				EndIf;
 				
-				// 
-				// 
+				// The directory is found by "Href". Now, find the record in the "FilesSynchronizationWithCloudServiceStatuses" information register by "UID1C".
+				// @skip-check query-in-loop - A rare query in a cycle during batch data import.
 				CurrentFilesFolder = FileOwnerByUID(PreviousFIlesTableRow.UID1C);	
 				If Not ValueIsFilled(CurrentFilesFolder) Then
 					EventText = NStr("en = 'Cannot synchronize the %1 folder.
@@ -7849,7 +7832,7 @@ Procedure UploadFileSignatures(FileRef, Signatures, SynchronizationParameters)
 
 	ModuleDigitalSignature = Common.CommonModule("DigitalSignature");
 	ModuleDigitalSignatureClientServer = Common.CommonModule("DigitalSignatureClientServer");
-	FileSignatures_ = ModuleDigitalSignature.SetSignatures(FileRef);
+	FileSignatures = ModuleDigitalSignature.SetSignatures(FileRef);
 	
 	ErrorSignatureDataCouldNotBeRead = "";
 	
@@ -7890,7 +7873,7 @@ Procedure UploadFileSignatures(FileRef, Signatures, SynchronizationParameters)
 			Signature = GetFromTempStorage(ImportedFileAddress);
 			
 			SignatureAdded = False;
-			For Each FileSignature In FileSignatures_ Do
+			For Each FileSignature In FileSignatures Do
 				If FileSignature.Signature = Signature Then
 					SignatureAdded = True;
 					Break;
@@ -7920,7 +7903,7 @@ Procedure UploadFileSignatures(FileRef, Signatures, SynchronizationParameters)
 			
 			SignaturesToAdd.Add(SignatureData);
 
-			UID1CFile = UID1C + PostfixForCaption(FileSignatures_.Count() + SignaturesToAdd.UBound());
+			UID1CFile = UID1C + PostfixForCaption(FileSignatures.Count() + SignaturesToAdd.UBound());
 			UpdateFileUID1C(FileAddress, UID1CFile, SynchronizationParameters);
 
 			MessageText = NStr("en = 'The signature from the cloud service is imported: ""%1""';");
@@ -8018,10 +8001,10 @@ Procedure FillDataFromCloudService(FilesTreeRows, TableOfFiles, SynchronizationP
 	For Each FilesTreeRow In FilesTreeRows Do
 		
 		If FilesTreeRow.Is_Directory = True Then 
-			// 
-			// 
-			// 
-			// 
+			// Identify the directory using "UID1C". If not found, then retry using the old "Href"
+			// (UID could be lost during edit, and the new Href might not be found yet).
+			// If UID is lost and the directory is moved to another directory ("Href" changed), it will be loaded to
+			// the new folder card, which justifies search by "Href" as it is unique for each directory on the file server.
 			CurrentFilesFolder = Undefined;
 			If Not IsBlankString(FilesTreeRow.UID1C) Then
 				TableRow = Folders.Find(New UUID(FilesTreeRow.UID1C), "UUID1C");
@@ -8057,11 +8040,11 @@ Procedure FillDataFromCloudService(FilesTreeRows, TableOfFiles, SynchronizationP
 			
 		EndIf; 
 		
-		// 
-		// 
-		// 
-		// 
-		// 
+		// This is a file.
+		// Identify the file using "UID1C". If not found, then retry using the old "Href"
+		// (UID could be lost during edit, and the new Href might not be found yet).
+		// If UID is lost and the file is moved to another directory ("Href" changed), it will be loaded to
+		// the new file card, which justifies search by "Href" as it is unique for each file on the file server.
 		
 		CurrentFile = FindRowByURI(FilesTreeRow.Href, TableOfFiles, "Href");
 		If (CurrentFile <> Undefined) And (TableOfFiles.Find(CurrentFile.FileRef, "FileRef") <> Undefined) Then
@@ -8769,29 +8752,23 @@ Function SelectDataByRules(Account, Synchronize = True)
 	
 	LinesToDelete = New Array;
 	UnsynchronizedOwners = New Array;
-	For Each String In TableOfFiles Do
+	For Each TableRow In TableOfFiles Do
 		
-		If (Synchronize
-			And String.Synchronize > 0)
-			Or (Not Synchronize
-			And String.Synchronize = 0) Then
-			
+		If (Synchronize And TableRow.Synchronize > 0)
+			Or (Not Synchronize And TableRow.Synchronize = 0) Then
 			Break;
-			
 		EndIf;
 		
-		LinesToDelete.Add(String);
+		LinesToDelete.Add(TableRow);
 		If Not Synchronize
-			And UnsynchronizedOwners.Find(String.Parent) = Undefined Then
-			
-			UnsynchronizedOwners.Add(String.Parent);
-			
+			And UnsynchronizedOwners.Find(TableRow.Parent) = Undefined Then
+			UnsynchronizedOwners.Add(TableRow.Parent);
 		EndIf;
 		
 	EndDo;
 	
-	For Each String In LinesToDelete Do
-		TableOfFiles.Delete(String);
+	For Each TableRow In LinesToDelete Do
+		TableOfFiles.Delete(TableRow);
 	EndDo;
 	
 	OwnersTable = TableOfFiles.Copy(, "Parent");
@@ -9261,7 +9238,7 @@ Function EventLogFilterData(Account) Export
 	
 EndFunction
 
-Function SynchronizationInfo(FileOwner = Undefined) Export
+Function SynchronizationInfo(Val FileOwner = Undefined) Export
 	
 	Query = New Query;
 	Query.Text = "SELECT TOP 1
@@ -9467,7 +9444,7 @@ Function ExtractText1(Val TempTextStorageAddress, Val BinaryData = Undefined, Va
 	If ExtractTextFilesOnServer() Then
 		Result.TextExtractionStatus = Enums.FileTextExtractionStatuses.NotExtracted;
 		Result.TextStorage = New ValueStorage("");
-		Return Result; // 
+		Return Result; // The text will be extracted earlier in the scheduled job.
 	EndIf;
 	
 	If Not Common.IsWindowsServer() Or BinaryData = Undefined Then
@@ -10202,13 +10179,13 @@ Procedure MoveDigitalSignatureDataToInformationRegister(ObjectsArray, FullMetada
 		Query.SetParameter("ObjectsArray", ObjectsArray);
 		Upload0 = Query.Execute().Unload(QueryResultIteration.ByGroups);
 		
-		For Each String In Upload0.Rows Do
-			If Not ValueIsFilled(String.SignedObject) Then
+		For Each TableRow In Upload0.Rows Do
+			If Not ValueIsFilled(TableRow.SignedObject) Then
 				Continue;
 			EndIf;
 			RecordSet = InformationRegisters["DigitalSignatures"].CreateRecordSet(); // InformationRegisterRecordSet
-			RecordSet.Filter.SignedObject.Set(String.SignedObject);
-			For Each Substring In String.Rows Do
+			RecordSet.Filter.SignedObject.Set(TableRow.SignedObject);
+			For Each Substring In TableRow.Rows Do
 				FillPropertyValues(RecordSet.Add(), Substring);
 			EndDo;
 			RecordSet.DataExchange.Load = True;
@@ -10263,10 +10240,10 @@ Procedure MoveCertificatesDataToInformationRegister(ObjectsArray, FullMetadataOb
 		
 		Upload0 = Query.Execute().Unload(QueryResultIteration.ByGroups);
 		
-		For Each String In Upload0.Rows Do
+		For Each TableRow In Upload0.Rows Do
 			RecordSet = InformationRegisters["EncryptionCertificates"].CreateRecordSet(); // InformationRegisterRecordSet
-			RecordSet.Filter.EncryptedObject.Set(String.EncryptedObject);
-			For Each Substring In String.Rows Do
+			RecordSet.Filter.EncryptedObject.Set(TableRow.EncryptedObject);
+			For Each Substring In TableRow.Rows Do
 				FillPropertyValues(RecordSet.Add(), Substring);
 			EndDo;
 			RecordSet.DataExchange.Load = True;

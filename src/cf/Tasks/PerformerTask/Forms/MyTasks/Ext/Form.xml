@@ -172,7 +172,7 @@
 						</Button>
 					</ChildItems>
 				</ButtonGroup>
-				<ButtonGroup name="ListCommandBar" id="48">
+				<ButtonGroup name="CommandBarOfList" id="48">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -180,7 +180,7 @@
 						</v8:item>
 					</Title>
 					<CommandSource>Form</CommandSource>
-					<ExtendedTooltip name="ListCommandBarExtendedTooltip" id="91"/>
+					<ExtendedTooltip name="CommandBarOfListExtendedTooltip" id="91"/>
 					<ChildItems>
 						<Button name="FormFind" id="128">
 							<Type>CommandBarButton</Type>
@@ -411,29 +411,29 @@
 			</ContextMenu>
 			<AutoCommandBar name="ListCommandBar" id="11"/>
 			<ExtendedTooltip name="ListExtendedTooltip" id="113"/>
-			<SearchStringAddition name="ListSearchString_SSLy" id="146">
+			<SearchStringAddition name="ListSearchString" id="146">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchStringRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchString_SSLyContextMenu" id="147"/>
-				<ExtendedTooltip name="ListSearchString_SSLyExtendedTooltip" id="148"/>
+				<ContextMenu name="ListSearchStringContextMenu" id="147"/>
+				<ExtendedTooltip name="ListSearchStringExtendedTooltip" id="148"/>
 			</SearchStringAddition>
-			<ViewStatusAddition name="ListViewStatus_SSLy" id="149">
+			<ViewStatusAddition name="ListViewStatus" id="149">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>ViewStatusRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListViewStatus_SSLyContextMenu" id="150"/>
-				<ExtendedTooltip name="ListViewStatus_SSLyExtendedTooltip" id="151"/>
+				<ContextMenu name="ListViewStatusContextMenu" id="150"/>
+				<ExtendedTooltip name="ListViewStatusExtendedTooltip" id="151"/>
 			</ViewStatusAddition>
-			<SearchControlAddition name="ListSearchControl_SSLy" id="152">
+			<SearchControlAddition name="ListSearchControl" id="152">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchControl</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchControl_SSLyContextMenu" id="153"/>
-				<ExtendedTooltip name="ListSearchControl_SSLyExtendedTooltip" id="154"/>
+				<ContextMenu name="ListSearchControlContextMenu" id="153"/>
+				<ExtendedTooltip name="ListSearchControlExtendedTooltip" id="154"/>
 			</SearchControlAddition>
 			<Events>
 				<Event name="BeforeAddRow">ListBeforeAddRow</Event>
@@ -499,7 +499,7 @@
 					<DataPath>List.TaskDueDate</DataPath>
 					<Wrap>false</Wrap>
 					<BorderColor>style:BorderColor</BorderColor>
-					<ContextMenu name="DueDateContextMenu" id="37"/>
+					<ContextMenu name="TaskDueDateContextMenu" id="37"/>
 					<ExtendedTooltip name="TaskDueDateExtendedTooltip" id="118"/>
 				</InputField>
 				<InputField name="Author" id="40">

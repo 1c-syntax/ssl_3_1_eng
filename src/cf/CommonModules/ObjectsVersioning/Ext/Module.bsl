@@ -220,8 +220,8 @@ EndFunction
 //
 Procedure WriteObjectVersion(Val Source, WriteMode = Undefined) Export
 	
-	// 
-	// 
+	// No need to check for "DataExchange.Load" as when writing the versioned object during exchange,
+	// the current object version is saved.
 	If Not GetFunctionalOption("UseObjectsVersioning") Then
 		Return;
 	EndIf;
@@ -389,7 +389,7 @@ Procedure ChangeTheSyncWarning(RegisterEntryParameters, CheckForAnEntry) Export
 		RecordManager.Object = Ref;
 		RecordManager.VersionNumber = VersionNumber;
 		
-		RecordManager.Read(); // 
+		RecordManager.Read(); // Read data to save the attributes that won't be passed to the form.
 		If Not RecordManager.Selected() Then
 			
 			// Use case: A user opened the warning dialog and fixed the issue.
@@ -976,8 +976,8 @@ Procedure OnReceiveDataFromMaster(DataElement, ItemReceive, SendBack, Sender) Ex
 		
 		// Writing the resulting version and changing its number taking into account versions that will not be synchronized.
 		If Not HasConflict Then
-			// 
-			// 
+			// If the object wasn't modified, overwrite the versions without checking it
+			// (as it's unknown if the object was modified in the sender node).
 			If RecordSet.Count() = 0 Then
 				Record = RecordSet.Add();
 				Record.Object = Object;
@@ -1099,7 +1099,7 @@ Procedure OnSendDataToSlave(DataElement, ItemSend, InitialImageCreating, Recipie
 	
 EndProcedure
 
-// See StandardSubsystems.OnSendDataToMaster.
+// 
 Procedure OnSendDataToMaster(DataElement, ItemSend, Recipient) Export
 	
 	OnSendDataToRecipient1(DataElement, ItemSend, Recipient);
@@ -1208,8 +1208,8 @@ Procedure OnFillToDoList(ToDoList) Export
 		Return;
 	EndIf;
 	
-	// 
-	// 
+	// The procedure can be called only if the "To-do list" subsystem is integrated.
+	// Therefore, don't check if the subsystem is integrated.
 	Sections = ModuleToDoListServer.SectionsForObject(Metadata.InformationRegisters.ObjectVersioningSettings.FullName());
 	
 	ObsoleteVersionsInformation = ObsoleteVersionsInformation();
@@ -1413,7 +1413,7 @@ Procedure CreateObjectVersion(Object, ObjectVersionInfo, NormalVersionRecord = T
 		ObjectVersionInfo.Property("SynchronizationWarning", RecordManager.SynchronizationWarning);
 		
 		If Not Object.IsNew() Then
-			// 
+			// Before calculating the checksum, set the post status to the value expected after writing the document.
 			// 
 			If PostingChanged Then
 				Object.Posted = Not Object.Posted;
@@ -1999,8 +1999,8 @@ Function ObjectDeletionBoundaries()
 	AllTypes = Metadata.InformationRegisters.ObjectsVersions.Dimensions.Object.Type.Types();
 	VersionedTypes = Metadata.DefinedTypes.VersionedData.Type.Types();
 	
-	// 
-	// 
+	// Other objects with missing version retention setting.
+	// The retention period is fixed and equals 1 month.
 	
 	NonVersionableTypes = CommonClientServer.ArraysDifference(
 		AllTypes, VersionedTypes);
@@ -2014,8 +2014,8 @@ Function ObjectDeletionBoundaries()
 	BoundaryAndObjectTypesMap.DeletionBoundary = DeletionBoundary(Enums.VersionsLifetimes.LastMonth);
 	BoundaryAndObjectTypesMap.TypesList = TypesList;
 	
-	// 
-	// 
+	// The versions of the rejected objects.
+	// The retention period is fixed and equals 1 month.
 	
 	TypesList = New Array;
 	For Each Type In VersionedTypes Do
@@ -2332,12 +2332,12 @@ Function XMLObjectPresentationParsing(VersionData, Ref) Export
 	XMLReader = New FastInfosetReader;
 	XMLReader.SetBinaryData(BinaryData);
 	
-	// 
-	// 
-	// 
-	// 
-	// 
-	// 
+	// The marker position in the XML hierarchy:
+	// 0 - Level not specified.
+	// 1 - The first element (the object's name).
+	// 2 - Details of a table or attribute.
+	// 3 - Details of a table row details.
+	// 4 - Details of a table row field.
 	ReadingLevel = 0;
 	
 	ObjectMetadata = Ref.Metadata();
@@ -2347,8 +2347,8 @@ Function XMLObjectPresentationParsing(VersionData, Ref) Export
 	While XMLReader.Read() Do
 		If XMLReader.NodeType = XMLNodeType.StartElement Then
 			ReadingLevel = ReadingLevel + 1;
-			If ReadingLevel = 1 Then // 
-				// 
+			If ReadingLevel = 1 Then // The pointer points at the first XML element (root).
+				// The object's name is stored in "XMLReader.Name", but it's irrelevant here.
 			ElsIf ReadingLevel = 2 Then // Level-two pointer is an attribute or a tabular section name.
 				AttributeName = XMLReader.Name;
 				
@@ -2535,19 +2535,29 @@ EndFunction
 // Parameters:
 //  ObjectMetadata - MetadataObject
 //  AttributeName - String
+//
 // Returns:
 //  StandardAttributeDetails, MetadataObjectAttribute, Undefined
 //
 Function AttributeMetadata(ObjectMetadata, AttributeName)
+	
 	Result = ObjectMetadata.Attributes.Find(AttributeName);
-	If Result = Undefined Then
-		Try
-			Result = ObjectMetadata.StandardAttributes[AttributeName];
-		Except
-			Result = Undefined;
-		EndTry;
+	If Result <> Undefined Then
+		Return Result;
 	EndIf;
+
+	Result = ObjectMetadata.TabularSections.Find(AttributeName);
+	If Result <> Undefined Then
+		Return Undefined;
+	EndIf;
+
+	Try
+		Result = ObjectMetadata.StandardAttributes[AttributeName];
+	Except
+		Result = Undefined;
+	EndTry;
 	Return Result;
+	
 EndFunction
 
 Function TabularSectionMetadata(ObjectMetadata, TabularSectionName) Export
@@ -3594,7 +3604,7 @@ Procedure WriteVersionWithNumberChange(DataElement, ItemReceive, Sender, Version
 		Record = RecordSet[0];
 	EndIf;
 	FillPropertyValues(Record, DataElement[0], , "Object,VersionNumber");
-	RecordSet.Write(); // 
+	RecordSet.Write(); // ACC:1327 A lock is not necessary as the procedure is called from a transaction with a previously installed lock.
 	
 	ExchangePlans.DeleteChangeRecords(Sender.Ref, RecordSet);
 	ItemReceive = DataItemReceive.Ignore;

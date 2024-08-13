@@ -53,9 +53,9 @@ EndFunction
 // The overridable items are excluded from search results.
 // 
 // Parameters:
-//   MetadataFilter - ValueList of String - the list of full metadata names where
-// 												 the marked for deletion ones will be searched for.
-// 												 For example, "Catalog._DemoProducts".
+//   MetadataFilter - ValueList of String - A list of full names of metadata objects where
+// 												 the marked for deletion objects will be searched for.
+// 												 For example, "Catalog.Products".
 //                   - Undefined - — filter by metadata objects will not be applied.
 //
 //  SearchForTechnologicalObjects - Boolean - if True, the search will be carried out in the metadata objects
@@ -145,7 +145,7 @@ EndFunction
 // 	// Setting the main table is required to go to the marked objects list 
 // 	// with a predefined filter
 // 	MainListTables = New ValueList();
-// 	MainListTables.Add("Catalog._DemoProducts");
+// 	MainListTables.Add("Catalog.Products");
 // 	Setting.MetadataTypes = MainListTables;
 // 	MarkedObjectsDeletion.OnCreateAtServer(ThisObject, MarkedObjectsViewSettings);
 //

@@ -22,7 +22,7 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.StandardCommand.Close</CommandName>
-				<ExtendedTooltip name="FormClose3ExtendedTooltip" id="28"/>
+				<ExtendedTooltip name="FormCloseExtendedTooltip" id="28"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
@@ -54,8 +54,8 @@
 						<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
 						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</Picture>
-					<ContextMenu name="WarningPicture2ContextMenu" id="20"/>
-					<ExtendedTooltip name="WarningPicture2ExtendedTooltip" id="21"/>
+					<ContextMenu name="AttentionPictureContextMenu" id="20"/>
+					<ExtendedTooltip name="AttentionPictureExtendedTooltip" id="21"/>
 				</PictureDecoration>
 				<LabelDecoration name="TextWarning" id="24">
 					<AutoMaxWidth>false</AutoMaxWidth>

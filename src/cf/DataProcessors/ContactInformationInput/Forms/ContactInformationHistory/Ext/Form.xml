@@ -149,10 +149,10 @@
 						</v8:item>
 					</Title>
 					<EditMode>EnterOnInput</EditMode>
-					<ContextMenu name="HistoryEffectiveFromContextMenu" id="15"/>
-					<ExtendedTooltip name="HistoryEffectiveFromExtendedTooltip" id="16"/>
+					<ContextMenu name="HistoryValidFromContextMenu" id="15"/>
+					<ExtendedTooltip name="HistoryValidFromExtendedTooltip" id="16"/>
 					<Events>
-						<Event name="OnChange">HistoryEffectiveFromOnChange</Event>
+						<Event name="OnChange">HistoryValidFromOnChange</Event>
 					</Events>
 				</InputField>
 				<InputField name="HistoryPresentation" id="17">
@@ -200,7 +200,7 @@
 				</v8:item>
 			</Title>
 			<HorizontalLocation>Right</HorizontalLocation>
-			<ExtendedTooltip name="CommandBarGroupExtendedTooltip" id="37"/>
+			<ExtendedTooltip name="GroupCommandBarExtendedTooltip" id="37"/>
 			<ChildItems>
 				<Button name="OK" id="40" DisplayImportance="VeryHigh">
 					<Type>CommandBarButton</Type>

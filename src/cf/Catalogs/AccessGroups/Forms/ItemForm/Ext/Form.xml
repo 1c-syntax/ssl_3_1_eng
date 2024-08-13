@@ -421,7 +421,7 @@
 								<Event name="OnActivateCell">AccessKindsOnActivateCell</Event>
 							</Events>
 							<ChildItems>
-								<InputField name="AccessKindsAccessTypePresentation" id="191">
+								<InputField name="AccessKindsAccessKindPresentation" id="191">
 									<DataPath>Object.AccessKinds.AccessKindPresentation</DataPath>
 									<ReadOnly>true</ReadOnly>
 									<ToolTip>
@@ -435,8 +435,8 @@
 									<HorizontalStretch>false</HorizontalStretch>
 									<Wrap>false</Wrap>
 									<ListChoiceMode>true</ListChoiceMode>
-									<ContextMenu name="AccessKindsAccessTypePresentationContextMenu" id="192"/>
-									<ExtendedTooltip name="AccessKindsAccessTypePresentationExtendedTooltip" id="371"/>
+									<ContextMenu name="AccessKindsAccessKindPresentationContextMenu" id="192"/>
+									<ExtendedTooltip name="AccessKindsAccessKindPresentationExtendedTooltip" id="371"/>
 								</InputField>
 								<InputField name="AccessKindsAllAllowedPresentation" id="193">
 									<DataPath>Object.AccessKinds.AllAllowedPresentation</DataPath>

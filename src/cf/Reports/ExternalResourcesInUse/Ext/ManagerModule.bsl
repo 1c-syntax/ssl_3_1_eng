@@ -283,9 +283,8 @@ EndProcedure
 //
 // Parameters:
 //  SpreadsheetDocument - SpreadsheetDocument - a document, in which an operation presentation will be displayed,
-//  PermissionsSets - See DataProcessors.ExternalResourcesPermissionsSetup.PermissionsTable
-//  (),
-//                     Template - SpreadsheetDocument - a document received from the PermissionsPresentations report template,
+//  PermissionsSets - (),
+//  Template - SpreadsheetDocument - a document received from the PermissionsPresentations report template,
 //  AsRequired - Boolean - indicates whether terms of "the following resources are required" kind are used in the presentation instead of
 //                          "the following resources will be granted."
 //

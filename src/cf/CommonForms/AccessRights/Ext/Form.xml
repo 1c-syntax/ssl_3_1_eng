@@ -29,7 +29,7 @@
 				</Title>
 				<ExtendedTooltip name="FormRemoveFromGroupExtendedTooltip" id="110"/>
 			</Button>
-			<Button name="FormChangeGroup1" id="50">
+			<Button name="FormChangeGroup" id="50">
 				<Type>CommandBarButton</Type>
 				<Visible>false</Visible>
 				<CommandName>Form.Command.ChangeGroup</CommandName>
@@ -39,7 +39,7 @@
 						<v8:content>Change group</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="FormChangeGroup1ExtendedTooltip" id="111"/>
+				<ExtendedTooltip name="FormChangeGroupExtendedTooltip" id="111"/>
 			</Button>
 			<Button name="FormReportUserRights" id="158">
 				<Type>CommandBarButton</Type>
@@ -175,7 +175,7 @@
 							<ContextMenu name="AccessGroupsContextMenu" id="2">
 								<Autofill>false</Autofill>
 								<ChildItems>
-									<Button name="AccessGroupsContextMenuChangeGroup1" id="51">
+									<Button name="AccessGroupsContextMenuChangeGroup" id="51">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.ChangeGroup</CommandName>
 										<Picture>
@@ -188,7 +188,7 @@
 												<v8:content>Change group</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="AccessGroupsContextMenuChangeGroup1ExtendedTooltip" id="119"/>
+										<ExtendedTooltip name="AccessGroupsContextMenuChangeGroupExtendedTooltip" id="119"/>
 									</Button>
 									<ButtonGroup name="AccessGroupsContextAutoMenu" id="52">
 										<Title>
@@ -227,7 +227,7 @@
 										</Title>
 										<ExtendedTooltip name="AccessGroupsRemoveFromGroupExtendedTooltip" id="122"/>
 									</Button>
-									<Button name="AccessGroupsChangeGroup1" id="102">
+									<Button name="AccessGroupsChangeGroup" id="102">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.ChangeGroup</CommandName>
 										<Title>
@@ -236,7 +236,7 @@
 												<v8:content>Change group</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="AccessGroupsChangeGroup1ExtendedTooltip" id="123"/>
+										<ExtendedTooltip name="AccessGroupsChangeGroupExtendedTooltip" id="123"/>
 									</Button>
 									<SearchStringAddition name="AccessGroupsStringSearch" id="160">
 										<AdditionSource>
@@ -465,29 +465,29 @@ due to insufficient access rights.
 								</ChildItems>
 							</AutoCommandBar>
 							<ExtendedTooltip name="RolesExtendedTooltip" id="134"/>
-							<SearchStringAddition name="RolesSearchString_SSLy" id="147">
+							<SearchStringAddition name="RolesSearchString" id="147">
 								<AdditionSource>
 									<Item>Roles</Item>
 									<Type>SearchStringRepresentation</Type>
 								</AdditionSource>
-								<ContextMenu name="RolesSearchString_SSLyContextMenu" id="148"/>
-								<ExtendedTooltip name="RolesSearchString_SSLyExtendedTooltip" id="149"/>
+								<ContextMenu name="RolesSearchStringContextMenu" id="148"/>
+								<ExtendedTooltip name="RolesSearchStringExtendedTooltip" id="149"/>
 							</SearchStringAddition>
-							<ViewStatusAddition name="RolesViewStatus_SSLy" id="150">
+							<ViewStatusAddition name="RolesViewStatus" id="150">
 								<AdditionSource>
 									<Item>Roles</Item>
 									<Type>ViewStatusRepresentation</Type>
 								</AdditionSource>
-								<ContextMenu name="RolesViewStatus_SSLyContextMenu" id="151"/>
-								<ExtendedTooltip name="RolesViewStatus_SSLyExtendedTooltip" id="152"/>
+								<ContextMenu name="RolesViewStatusContextMenu" id="151"/>
+								<ExtendedTooltip name="RolesViewStatusExtendedTooltip" id="152"/>
 							</ViewStatusAddition>
-							<SearchControlAddition name="RolesSearchControl_SSLy" id="153">
+							<SearchControlAddition name="RolesSearchControl" id="153">
 								<AdditionSource>
 									<Item>Roles</Item>
 									<Type>SearchControl</Type>
 								</AdditionSource>
-								<ContextMenu name="RolesSearchControl_SSLyContextMenu" id="154"/>
-								<ExtendedTooltip name="RolesSearchControl_SSLyExtendedTooltip" id="155"/>
+								<ContextMenu name="RolesSearchControlContextMenu" id="154"/>
+								<ExtendedTooltip name="RolesSearchControlExtendedTooltip" id="155"/>
 							</SearchControlAddition>
 							<ChildItems>
 								<ColumnGroup name="ColumnsRoles" id="88">
@@ -822,13 +822,13 @@ due to insufficient access rights.
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Group by subsystems</v8:content>
+					<v8:content>Group by subsystem</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Group roles by subsystems.</v8:content>
+					<v8:content>Group roles by subsystem.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>

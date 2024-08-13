@@ -326,7 +326,7 @@
 			<Behavior>Collapsible</Behavior>
 			<Collapsed>true</Collapsed>
 			<Representation>None</Representation>
-			<ExtendedTooltip name="DebugGroup1ExtendedTooltip" id="68"/>
+			<ExtendedTooltip name="DebugGroupExtendedTooltip" id="68"/>
 			<ChildItems>
 				<CheckBoxField name="EnableDebugging" id="88">
 					<DataPath>Record.DebugMode</DataPath>
@@ -509,7 +509,7 @@
 									</Title>
 									<TitleLocation>Right</TitleLocation>
 									<CheckBoxType>Auto</CheckBoxType>
-									<ContextMenu name="DoNotStopOnErrorContextMenu" id="48"/>
+									<ContextMenu name="NotStopByMistakeContextMenu" id="48"/>
 									<ExtendedTooltip name="NotStopByMistakeExtendedTooltip" id="78"/>
 								</CheckBoxField>
 							</ChildItems>

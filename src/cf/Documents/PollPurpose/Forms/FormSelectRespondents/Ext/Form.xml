@@ -107,7 +107,7 @@
 							<v8:content>Respondent</v8:content>
 						</v8:item>
 					</Title>
-					<ContextMenu name="RespondentsNameContextMenu" id="10"/>
+					<ContextMenu name="RespondentsDescriptionContextMenu" id="10"/>
 					<ExtendedTooltip name="RespondentsDescriptionExtendedTooltip" id="52"/>
 				</LabelField>
 				<LabelField name="RespondentsRef" id="56">
@@ -115,8 +115,8 @@
 					<UserVisible>
 						<xr:Common>false</xr:Common>
 					</UserVisible>
-					<ContextMenu name="RespondentsLinkContextMenu" id="57"/>
-					<ExtendedTooltip name="RespondentsLinkExtendedTooltip" id="58"/>
+					<ContextMenu name="RespondentsRefContextMenu" id="57"/>
+					<ExtendedTooltip name="RespondentsRefExtendedTooltip" id="58"/>
 				</LabelField>
 			</ChildItems>
 		</Table>

@@ -85,7 +85,7 @@ Function RunBackgroundJobToClearUpReportDistributionHistory(Val MethodParameters
 	StartSettings1 = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	StartSettings1.BackgroundJobDescription = NStr("en = 'Report distributions: Clear the report distribution history';");
 	StartSettings1.RefinementErrors =
-		NStr("en = 'Cleaup of report distributions failed due to:';");
+		NStr("en = 'Cleanup of report distributions failed due to:';");
 	Return TimeConsumingOperations.ExecuteInBackground(MethodName, MethodParameters, StartSettings1);
 EndFunction
 

@@ -55,7 +55,7 @@
 							<v8:content>Main</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="MainPage2ExtendedTooltip" id="47"/>
+					<ExtendedTooltip name="MainDataPageExtendedTooltip" id="47"/>
 					<ChildItems>
 						<InputField name="Property1" id="29">
 							<DataPath>Object.Property1</DataPath>

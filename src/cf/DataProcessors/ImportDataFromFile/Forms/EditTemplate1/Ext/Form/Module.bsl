@@ -29,7 +29,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 &AtClient
-Procedure ColumnsList1OnActivateRow(Item)
+Procedure ColumnsListOnActivateRow(Item)
 	If Item.CurrentData <> Undefined Then 
 		ColumnDetails = Item.CurrentData.Note;
 	EndIf;
@@ -96,7 +96,7 @@ Procedure SetDataAppearance()
 	
 	ConditionalAppearanceItem = ConditionalAppearance.Items.Add();
 	AppearanceField = ConditionalAppearanceItem.Fields.Items.Add();
-	AppearanceField.Field = New DataCompositionField("ColumnsList1Visible");
+	AppearanceField.Field = New DataCompositionField("ColumnsListVisible");
 	AppearanceField.Use = True;
 	FilterElement = ConditionalAppearanceItem.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	FilterElement.LeftValue = New DataCompositionField("ColumnsList.IsRequiredInfo"); 
@@ -107,7 +107,7 @@ Procedure SetDataAppearance()
 	
 	ConditionalAppearanceItem = ConditionalAppearance.Items.Add();
 	AppearanceField = ConditionalAppearanceItem.Fields.Items.Add();
-	AppearanceField.Field = New DataCompositionField("ColumnsList1Synonym");
+	AppearanceField.Field = New DataCompositionField("ColumnsListSynonym");
 	AppearanceField.Use = True;
 	FilterElement = ConditionalAppearanceItem.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	FilterElement.LeftValue = New DataCompositionField("ColumnsList.Synonym");

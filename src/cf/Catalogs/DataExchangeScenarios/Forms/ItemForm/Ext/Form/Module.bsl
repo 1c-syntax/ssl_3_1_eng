@@ -41,8 +41,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 		Object.UseScheduledJob = True;
 	Else
-		// 
-		// 
+		// Get the schedule from the job. If it's not set, set it to "Undefined".
+		// In this case, it's created on the client side when the user sets the schedule.
 		JobSchedule = Catalogs.DataExchangeScenarios.GetDataExchangeExecutionSchedule(Object.Ref);
 	EndIf;
 	

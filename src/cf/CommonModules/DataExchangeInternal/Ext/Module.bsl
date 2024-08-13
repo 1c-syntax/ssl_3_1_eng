@@ -45,8 +45,8 @@ Procedure SessionParametersSetting(ParameterName, SpecifiedParameters) Export
 		// Procedure for updating cached values and session parameters.
 		RefreshObjectsRegistrationMechanismCache();
 		
-		// 
-		// 
+		// Register the names of the parameters set during the runtime of
+		// "DataExchangeServerCall.RefreshObjectsRegistrationMechanismCache".
 		SpecifiedParameters.Add("ObjectsRegistrationRules");
 		SpecifiedParameters.Add("ORMCachedValuesRefreshDate");
 
@@ -140,9 +140,9 @@ Procedure ResetObjectsRegistrationMechanismCache() Export
 	If Common.SeparatedDataUsageAvailable() Then
 
 		SetPrivilegedMode(True);
-		// 
-		// 
-		// 
+		// Write the server date and time in UTC using "CurrentUniversalDate".
+		// (Do not use "CurrentSessionDate".)
+		// The server time in UTC is used as a uniqueness key in the ORM cache.
 		// 
 		Constants.ORMCachedValuesRefreshDate.Set(CurrentUniversalDate());
 
@@ -773,7 +773,7 @@ Procedure PutMessageForDataMapping(ExchangeNode, MessageID) Export
 				Try
 					DeleteFiles(TempFileName);
 				Except
-					// 
+					// Return the file info to the temporary storage where it will be deleted by a schedule job.
 					// 
 					DataExchangeServer.PutFileInStorage(TempFileName,
 						CommonSettings.MessageForDataMapping);

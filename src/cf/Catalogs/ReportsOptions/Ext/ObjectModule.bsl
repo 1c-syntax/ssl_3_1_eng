@@ -317,7 +317,6 @@ EndProcedure
 Procedure FillInThePlacementByParent()
 
 	If Location.Count() > 0 Or Not ValueIsFilled(Parent) Then
-
 		Return;
 	EndIf;
 
@@ -325,9 +324,7 @@ Procedure FillInThePlacementByParent()
 		Parent, "PredefinedOption, Location");
 
 	Location.Load(ParentProperties.Location.Unload());
-
 	If Location.Count() > 0 Or Not ValueIsFilled(ParentProperties.PredefinedOption) Then
-
 		Return;
 	EndIf;
 
@@ -335,9 +332,8 @@ Procedure FillInThePlacementByParent()
 		ParentProperties.PredefinedOption, "Location");
 
 	Location.Load(PlacingAPredefinedOption.Unload());
-
-	For Each String In Location Do
-		String.Use = True;
+	For Each TableRow In Location Do
+		TableRow.Use = True;
 	EndDo;
 
 EndProcedure

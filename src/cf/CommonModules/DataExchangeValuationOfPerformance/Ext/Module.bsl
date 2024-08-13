@@ -23,7 +23,7 @@ Procedure Initialize(ExchangeComponents, Analysis = False) Export
 	
 	DefaultLanguageCode = Common.DefaultLanguageCode();
 	
-	DescriptionTemplate = NStr("en = '%1 on %2 for %3 (%4)';", DefaultLanguageCode); // Send to 18.07.2022 15:09 for "Enterprise accounting 3.0"
+	DescriptionTemplate = NStr("en = '%1 on %2 for %3 (%4)';", DefaultLanguageCode); // Send on 7/18/2022 3:09 PM for "Enterprise Accounting 3.0"
 	Description = StrTemplate(DescriptionTemplate,
 		ExchangeComponents.ExchangeDirection,
 		CurrentSessionDate(),

@@ -26,7 +26,7 @@
 						<v8:content>Select</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="FormChooseExtendedTooltip" id="28"/>
+				<ExtendedTooltip name="FormSelectExtendedTooltip" id="28"/>
 			</Button>
 			<Button name="FormCancelSelect" id="29">
 				<Type>CommandBarButton</Type>
@@ -67,7 +67,7 @@
 			<Group>Vertical</Group>
 			<Behavior>Usual</Behavior>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="ListSettingsComposerUserSettingsExtendedTooltip" id="2"/>
+			<ExtendedTooltip name="SettingsComposerUserSettingsListExtendedTooltip" id="2"/>
 		</UsualGroup>
 		<Table name="HandlerList" id="31">
 			<Representation>List</Representation>

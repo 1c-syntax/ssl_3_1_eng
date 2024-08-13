@@ -39,6 +39,9 @@ Procedure OnSetUpReportsOptions(Settings) Export
 	ModuleReportsOptions.CustomizeReportInManagerModule(Settings, Metadata.Reports.EventLogAnalysis);
 	ModuleReportsOptions.CustomizeReportInManagerModule(Settings, Metadata.Reports.UserAccountsChanges);
 	ModuleReportsOptions.CustomizeReportInManagerModule(Settings, Metadata.Reports.MembersChangeInUsersGroups);
+	ModuleReportsOptions.CustomizeReportInManagerModule(Settings, Metadata.Reports.EditAccessGroupMembers);
+	ModuleReportsOptions.CustomizeReportInManagerModule(Settings, Metadata.Reports.AccessGroupsAllowedValuesChange);
+	ModuleReportsOptions.CustomizeReportInManagerModule(Settings, Metadata.Reports.ProfilesRolesChanges);
 	
 EndProcedure
 
@@ -48,6 +51,9 @@ Procedure BeforeAddReportCommands(ReportsCommands, Parameters, StandardProcessin
 	Reports.EventLogAnalysis.BeforeAddReportCommands(ReportsCommands, Parameters, StandardProcessing);
 	Reports.UserAccountsChanges.BeforeAddReportCommands(ReportsCommands, Parameters, StandardProcessing);
 	Reports.MembersChangeInUsersGroups.BeforeAddReportCommands(ReportsCommands, Parameters, StandardProcessing);
+	Reports.EditAccessGroupMembers.BeforeAddReportCommands(ReportsCommands, Parameters, StandardProcessing);
+	Reports.AccessGroupsAllowedValuesChange.BeforeAddReportCommands(ReportsCommands, Parameters, StandardProcessing);
+	Reports.ProfilesRolesChanges.BeforeAddReportCommands(ReportsCommands, Parameters, StandardProcessing);
 	
 EndProcedure
 
@@ -89,8 +95,8 @@ Procedure OnFillToDoList(ToDoList) Export
 		Return;
 	EndIf;
 	
-	// 
-	// 
+	// The procedure can be called only if the "To-do list" subsystem is integrated.
+	// Therefore, don't check if the subsystem is integrated.
 	ModuleToDoListServer = Common.CommonModule("ToDoListServer");
 	
 	ToDoItem = ToDoList.Add();
@@ -172,8 +178,15 @@ EndProcedure
 //
 Function ShouldRegisterChangesInAccessRights() Export
 	
+	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
-	Return Constants.ShouldRegisterChangesInAccessRights.Get();
+	
+	Result = Constants.ShouldRegisterChangesInAccessRights.Get();
+	
+	SetPrivilegedMode(False);
+	SetSafeModeDisabled(False);
+	
+	Return Result;
 	
 EndFunction
 
@@ -279,9 +292,9 @@ Function StoredRegistrationSettings(Store = Undefined) Export
 	
 EndFunction
 
-// 
+// Intended for the correct translation of the log column name.
 //
-Function NameOfConnectionColumn() Export
+Function ConnectionColumnName() Export
 	Return "Connection";
 EndFunction
 

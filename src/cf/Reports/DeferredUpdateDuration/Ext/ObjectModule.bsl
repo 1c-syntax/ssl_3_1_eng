@@ -404,7 +404,7 @@ Function NextColor(Colors, HandlerName, Generator, Precise)
 			Red = Generator.RandomNumber(32, 192);
 			Green = Generator.RandomNumber(32, 192);
 			B = Generator.RandomNumber(32, 192);
-			Color = New Color(Red, Green, B);
+			Color = New Color(Red, Green, B); //@skip-check new-color - Intended for making the Gantt chart more visually informative.
 		Else
 			Gray = Generator.RandomNumber(32, 192);
 			Color = New Color(Gray, Gray, Gray); //@skip-check new-color - Intended for making the Gantt chart more visually informative.

@@ -57,7 +57,7 @@
 						</Title>
 						<ExtendedTooltip name="FormSaveCertificateDataToFileExtendedTooltip" id="236"/>
 					</Button>
-					<Button name="FormChangePINCode" id="269">
+					<Button name="FormChangePIN" id="269">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.ChangePIN</CommandName>
 						<Title>
@@ -66,9 +66,9 @@
 								<v8:content>Change PIN</v8:content>
 							</v8:item>
 						</Title>
-						<ExtendedTooltip name="FormChangePinCodeExtendedTooltip" id="270"/>
+						<ExtendedTooltip name="FormChangePINExtendedTooltip" id="270"/>
 					</Button>
-					<Button name="FormResetYourPassword" id="271">
+					<Button name="FormResetPassword" id="271">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.ResetPassword</CommandName>
 						<Title>
@@ -82,19 +82,30 @@
 					</Button>
 				</ChildItems>
 			</ButtonGroup>
-			<Button name="FormCertificateRevoked" id="63">
-				<Type>CommandBarButton</Type>
-				<Representation>PictureAndText</Representation>
-				<CommandName>Form.Command.CertificateRevoked</CommandName>
+			<ButtonGroup name="FormGroupRevoked" id="332">
 				<Title>
 					<v8:item>
 						<v8:lang>en</v8:lang>
-						<v8:content>Certificate revoked</v8:content>
+						<v8:content>Form group revoked</v8:content>
 					</v8:item>
 				</Title>
-				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-				<ExtendedTooltip name="FormCertificateRevokedExtendedTooltip" id="94"/>
-			</Button>
+				<ExtendedTooltip name="FormGroupRevokedExtendedTooltip" id="333"/>
+				<ChildItems>
+					<Button name="FormCertificateRevoked" id="63">
+						<Type>CommandBarButton</Type>
+						<Representation>PictureAndText</Representation>
+						<CommandName>Form.Command.CertificateRevoked</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Certificate revoked</v8:content>
+							</v8:item>
+						</Title>
+						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+						<ExtendedTooltip name="FormCertificateRevokedExtendedTooltip" id="94"/>
+					</Button>
+				</ChildItems>
+			</ButtonGroup>
 			<Button name="FormShowAutoPopulatedAttributes" id="219">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.ShowAutoPopulatedAttributes</CommandName>
@@ -171,8 +182,8 @@
 								<xr:Ref>CommonPicture.Warning</xr:Ref>
 								<xr:LoadTransparent>false</xr:LoadTransparent>
 							</Picture>
-							<ContextMenu name="WarningPicture2ContextMenu" id="316"/>
-							<ExtendedTooltip name="WarningPicture2ExtendedTooltip" id="317"/>
+							<ContextMenu name="AttentionPictureContextMenu" id="316"/>
+							<ExtendedTooltip name="AttentionPictureExtendedTooltip" id="317"/>
 						</PictureDecoration>
 						<LabelDecoration name="Warning" id="312">
 							<AutoMaxWidth>false</AutoMaxWidth>
@@ -532,8 +543,8 @@
 											<DataPath>Object.Firm</DataPath>
 											<Width>37</Width>
 											<HorizontalStretch>false</HorizontalStretch>
-											<ContextMenu name="CompanyContextMenu" id="187"/>
-											<ExtendedTooltip name="CompanyExtendedTooltip" id="188"/>
+											<ContextMenu name="FirmContextMenu" id="187"/>
+											<ExtendedTooltip name="FirmExtendedTooltip" id="188"/>
 										</InputField>
 										<InputField name="JobTitle" id="183">
 											<DataPath>Object.JobTitle</DataPath>

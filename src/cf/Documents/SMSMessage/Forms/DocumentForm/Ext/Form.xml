@@ -318,7 +318,7 @@
 														</Title>
 														<ExtendedTooltip name="CreateContactExtendedTooltip" id="142"/>
 													</Button>
-													<Button name="RecipientsCheckDeliveryStatuses" id="91">
+													<Button name="SMSMessageRecipientsCheckDeliveryStatuses" id="91">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.CheckDeliveryStatuses</CommandName>
 														<Title>
@@ -327,7 +327,7 @@
 																<v8:content>Track delivery status</v8:content>
 															</v8:item>
 														</Title>
-														<ExtendedTooltip name="RecipientsCheckDeliveryStatusesExtendedTooltip" id="143"/>
+														<ExtendedTooltip name="SMSMessageRecipientsCheckDeliveryStatusesExtendedTooltip" id="143"/>
 													</Button>
 												</ChildItems>
 											</AutoCommandBar>
@@ -357,9 +357,9 @@
 												<ExtendedTooltip name="SMSMessageRecipientsSearchControlExtendedTooltip" id="182"/>
 											</SearchControlAddition>
 											<Events>
-												<Event name="OnEditEnd">RecipientsOnEditEnd</Event>
-												<Event name="OnActivateRow">RecipientsOnActivateRow</Event>
-												<Event name="OnChange">RecipientsOnChange</Event>
+												<Event name="OnEditEnd">SMSMessageRecipientsOnEditEnd</Event>
+												<Event name="OnActivateRow">SMSMessageRecipientsOnActivateRow</Event>
+												<Event name="OnChange">SMSMessageRecipientsOnChange</Event>
 											</Events>
 											<ChildItems>
 												<InputField name="ContactPresentation" id="59">
@@ -383,7 +383,7 @@
 														<Event name="ChoiceProcessing">ContactPresentationChoiceProcessing</Event>
 													</Events>
 												</InputField>
-												<InputField name="RecipientsHowToContact" id="61">
+												<InputField name="SMSMessageRecipientsHowToContact" id="61">
 													<DataPath>Object.SMSMessageRecipients.HowToContact</DataPath>
 													<Title>
 														<v8:item>
@@ -399,10 +399,10 @@
 														</v8:item>
 													</FooterText>
 													<Width>15</Width>
-													<ContextMenu name="RecipientsHowToContactContextMenu" id="62"/>
-													<ExtendedTooltip name="RecipientsHowToContactExtendedTooltip" id="146"/>
+													<ContextMenu name="SMSMessageRecipientsHowToContactContextMenu" id="62"/>
+													<ExtendedTooltip name="SMSMessageRecipientsHowToContactExtendedTooltip" id="146"/>
 												</InputField>
-												<InputField name="RecipientsMessageState" id="96">
+												<InputField name="SMSMessageRecipientsMessageState" id="96">
 													<DataPath>Object.SMSMessageRecipients.MessageState</DataPath>
 													<ReadOnly>true</ReadOnly>
 													<Title>
@@ -413,8 +413,8 @@
 													</Title>
 													<EditMode>EnterOnInput</EditMode>
 													<Width>15</Width>
-													<ContextMenu name="RecipientsMessageStateContextMenu" id="97"/>
-													<ExtendedTooltip name="RecipientsMessageStateExtendedTooltip" id="148"/>
+													<ContextMenu name="SMSMessageRecipientsMessageStateContextMenu" id="97"/>
+													<ExtendedTooltip name="SMSMessageRecipientsMessageStateExtendedTooltip" id="148"/>
 												</InputField>
 											</ChildItems>
 										</Table>

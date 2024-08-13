@@ -27,7 +27,7 @@
 						<v8:content>Reset</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="TurnOffAllFormExtendedTooltip" id="57"/>
+				<ExtendedTooltip name="FormDisableAllExtendedTooltip" id="57"/>
 			</Button>
 			<Button name="FormCancel" id="30">
 				<Type>CommandBarButton</Type>
@@ -70,35 +70,35 @@
 						</v8:item>
 					</Title>
 					<RowFilter xsi:nil="true"/>
-					<ContextMenu name="SyncsListContextMenu" id="38"/>
+					<ContextMenu name="SynchronizationsListContextMenu" id="38"/>
 					<AutoCommandBar name="SynchronizationsListCommandBar" id="39"/>
-					<ExtendedTooltip name="SyncsListExtendedTooltip" id="40"/>
-					<SearchStringAddition name="SyncsListSearchString" id="41">
+					<ExtendedTooltip name="SynchronizationsListExtendedTooltip" id="40"/>
+					<SearchStringAddition name="SynchronizationsListSearchString" id="41">
 						<AdditionSource>
 							<Item>SynchronizationsList</Item>
 							<Type>SearchStringRepresentation</Type>
 						</AdditionSource>
-						<ContextMenu name="SyncsListSearchStringContextMenu" id="42"/>
-						<ExtendedTooltip name="SyncsListSearchStringExtendedTooltip" id="43"/>
+						<ContextMenu name="SynchronizationsListSearchStringContextMenu" id="42"/>
+						<ExtendedTooltip name="SynchronizationsListSearchStringExtendedTooltip" id="43"/>
 					</SearchStringAddition>
-					<ViewStatusAddition name="SyncsListViewStatus" id="44">
+					<ViewStatusAddition name="SynchronizationsListViewStatus" id="44">
 						<AdditionSource>
 							<Item>SynchronizationsList</Item>
 							<Type>ViewStatusRepresentation</Type>
 						</AdditionSource>
-						<ContextMenu name="SyncsListViewStatusContextMenu" id="45"/>
-						<ExtendedTooltip name="SyncsListViewStatusExtendedTooltip" id="46"/>
+						<ContextMenu name="SynchronizationsListViewStatusContextMenu" id="45"/>
+						<ExtendedTooltip name="SynchronizationsListViewStatusExtendedTooltip" id="46"/>
 					</ViewStatusAddition>
-					<SearchControlAddition name="SyncsListSearchControl" id="47">
+					<SearchControlAddition name="SynchronizationsListSearchControl" id="47">
 						<AdditionSource>
 							<Item>SynchronizationsList</Item>
 							<Type>SearchControl</Type>
 						</AdditionSource>
-						<ContextMenu name="SyncsListSearchControlContextMenu" id="48"/>
-						<ExtendedTooltip name="SyncsListSearchControlExtendedTooltip" id="49"/>
+						<ContextMenu name="SynchronizationsListSearchControlContextMenu" id="48"/>
+						<ExtendedTooltip name="SynchronizationsListSearchControlExtendedTooltip" id="49"/>
 					</SearchControlAddition>
 					<ChildItems>
-						<CheckBoxField name="SyncsListUse" id="53">
+						<CheckBoxField name="SynchronizationsListUse" id="53">
 							<DataPath>SynchronizationsList.Use</DataPath>
 							<Title>
 								<v8:item>
@@ -109,10 +109,10 @@
 							<EditMode>EnterOnInput</EditMode>
 							<FixingInTable>Left</FixingInTable>
 							<CheckBoxType>Auto</CheckBoxType>
-							<ContextMenu name="SyncsListUseContextMenu" id="54"/>
-							<ExtendedTooltip name="SyncsListUseExtendedTooltip" id="55"/>
+							<ContextMenu name="SynchronizationsListUseContextMenu" id="54"/>
+							<ExtendedTooltip name="SynchronizationsListUseExtendedTooltip" id="55"/>
 						</CheckBoxField>
-						<InputField name="SyncsListSynchronization" id="50">
+						<InputField name="SynchronizationsListSynchronization" id="50">
 							<DataPath>SynchronizationsList.Synchronization</DataPath>
 							<ReadOnly>true</ReadOnly>
 							<Title>
@@ -122,8 +122,8 @@
 								</v8:item>
 							</Title>
 							<EditMode>EnterOnInput</EditMode>
-							<ContextMenu name="SyncsListSynchronizationContextMenu" id="51"/>
-							<ExtendedTooltip name="SyncsListSynchronizationExtendedTooltip" id="52"/>
+							<ContextMenu name="SynchronizationsListSynchronizationContextMenu" id="51"/>
+							<ExtendedTooltip name="SynchronizationsListSynchronizationExtendedTooltip" id="52"/>
 						</InputField>
 					</ChildItems>
 				</Table>

@@ -151,7 +151,7 @@ Procedure SetSubordinateBusinessProcessesState(NewState)
 			BusinessProcessObject = SubordinateBusinessProcess.GetObject();
 			BusinessProcessObject.Lock();
 			BusinessProcessObject.State = NewState;
-			BusinessProcessObject.Write(); // 
+			BusinessProcessObject.Write(); // CAC:1327 The lock is set in the BusinessProcessesAndTasksServer.MainTaskBusinessProcesses.
 		EndDo;	
 		CommitTransaction();
 	Except
@@ -164,7 +164,7 @@ EndProcedure
 // Determines whether addressing attributes are filled in: assignee or business role
 // 
 // Returns:
-//  Boolean - returns True if an assignee or assignee role is specified in the task.
+//  Boolean - Returns True if an assignee or a business role is specified in the task.
 //
 Function AddressingAttributesAreFilled()
 	

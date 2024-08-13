@@ -76,7 +76,7 @@ You can release the lock later in &lt;b&gt;Administration&lt;/&gt;&lt;b&gt; &gt;
 								</v8:item>
 							</Title>
 							<HorizontalLocation>Center</HorizontalLocation>
-							<ExtendedTooltip name="CommandBarGroupExtendedTooltip" id="28"/>
+							<ExtendedTooltip name="GroupCommandBarExtendedTooltip" id="28"/>
 							<ChildItems>
 								<Button name="InfobaseMoved" id="6">
 									<Type>CommandBarButton</Type>
@@ -109,7 +109,7 @@ You can release the lock later in &lt;b&gt;Administration&lt;/&gt;&lt;b&gt; &gt;
 											<v8:content>More</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="FormMoreGroup1ExtendedTooltip" id="15"/>
+									<ExtendedTooltip name="FormMoreGroupExtendedTooltip" id="15"/>
 									<ChildItems>
 										<Button name="FormCheckServerName" id="10">
 											<Type>CommandBarButton</Type>

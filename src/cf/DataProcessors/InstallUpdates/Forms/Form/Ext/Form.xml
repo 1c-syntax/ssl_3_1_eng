@@ -51,7 +51,7 @@
 						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</Picture>
 					<FileDragMode>AsFile</FileDragMode>
-					<ContextMenu name="WarningPicture1ContextMenu" id="1169"/>
+					<ContextMenu name="WarningPicContextMenu" id="1169"/>
 					<ExtendedTooltip name="WarningPicExtendedTooltip" id="1170"/>
 				</PictureDecoration>
 				<UsualGroup name="WarningColumn" id="1166">
@@ -159,8 +159,8 @@ It is recommended that you test the update on a backup.
 						<xr:Ref>StdPicture.Information</xr:Ref>
 						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</Picture>
-					<ContextMenu name="InformationPicture8ContextMenu" id="1230"/>
-					<ExtendedTooltip name="InformationPicture8ExtendedTooltip" id="1231"/>
+					<ContextMenu name="PictureInformationContextMenu" id="1230"/>
+					<ExtendedTooltip name="PictureInformationExtendedTooltip" id="1231"/>
 				</PictureDecoration>
 				<LabelDecoration name="InformationLabel" id="1232">
 					<AutoMaxWidth>false</AutoMaxWidth>
@@ -816,7 +816,7 @@ Do not turn off your computer until the update is completed.</v8:content>
 							<Group>Vertical</Group>
 							<Behavior>Usual</Behavior>
 							<Representation>NormalSeparation</Representation>
-							<ExtendedTooltip name="GroupUpdateModeSelectionServerExtendedTooltip" id="1037"/>
+							<ExtendedTooltip name="UpdateModeSelectionGroupServerExtendedTooltip" id="1037"/>
 							<ChildItems>
 								<UsualGroup name="IndentFour" id="458">
 									<Title>
@@ -935,6 +935,55 @@ Ensure that the computer will be turned on at the scheduled time.</v8:content>
 													<ContextMenu name="Label51ContextMenu" id="241"/>
 													<ExtendedTooltip name="Label51ExtendedTooltip" id="895"/>
 												</LabelDecoration>
+												<UsualGroup name="PanelNotifyUsers" id="1250">
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>"Notify users" panel</v8:content>
+														</v8:item>
+													</Title>
+													<HorizontalSpacing>Half</HorizontalSpacing>
+													<Representation>None</Representation>
+													<ShowTitle>false</ShowTitle>
+													<ExtendedTooltip name="PanelNotifyUsersExtendedTooltip" id="1251"/>
+													<ChildItems>
+														<CheckBoxField name="ShouldNotifyUsers" id="1252">
+															<DataPath>ShouldNotifyUsers</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Notfiy users</v8:content>
+																</v8:item>
+															</Title>
+															<TitleLocation>None</TitleLocation>
+															<CheckBoxType>Auto</CheckBoxType>
+															<ContextMenu name="ShouldNotifyUsersContextMenu" id="1253"/>
+															<ExtendedTooltip name="ShouldNotifyUsersExtendedTooltip" id="1254"/>
+															<Events>
+																<Event name="OnChange">ShouldNotifyUsersOnChange</Event>
+															</Events>
+														</CheckBoxField>
+														<LabelDecoration name="DecorationNotifyUsers" id="1255">
+															<Enabled>false</Enabled>
+															<AutoMaxWidth>false</AutoMaxWidth>
+															<Title formatted="true">
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Notify users &lt;link Ref&gt;5 minutes&lt;/&gt; before update</v8:content>
+																</v8:item>
+															</Title>
+															<ContextMenu name="DecorationNotifyUsersContextMenu" id="1256"/>
+															<ExtendedTooltip name="DecorationNotifyUsersExtendedTooltip" id="1257"/>
+															<Events>
+																<Event name="URLProcessing">DecorationNotifyUsersURLProcessing</Event>
+															</Events>
+														</LabelDecoration>
+														<LabelDecoration name="DecorationForSubmenu" id="1258">
+															<ContextMenu name="DecorationForSubmenuContextMenu" id="1259"/>
+															<ExtendedTooltip name="DecorationForSubmenuExtendedTooltip" id="1260"/>
+														</LabelDecoration>
+													</ChildItems>
+												</UsualGroup>
 												<UsualGroup name="EmailPanel" id="248">
 													<Title>
 														<v8:item>
@@ -1292,8 +1341,8 @@ See the &lt;link EventLog&gt;event log&lt;/&gt; for details.</v8:content>
 											</Title>
 											<TitleLocation>Right</TitleLocation>
 											<CheckBoxType>Auto</CheckBoxType>
-											<ContextMenu name="RestartApplication1ContextMenu" id="1191"/>
-											<ExtendedTooltip name="RestartApplication1ExtendedTooltip" id="1192"/>
+											<ContextMenu name="RestartApplicationContextMenu" id="1191"/>
+											<ExtendedTooltip name="RestartApplicationExtendedTooltip" id="1192"/>
 											<Events>
 												<Event name="OnChange">RestartApplicationOnChange</Event>
 											</Events>
@@ -1452,7 +1501,7 @@ They will see the patches applied the next time they log in.</v8:content>
 							<v8:content>Command bar left</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="LeftCommandBar5ExtendedTooltip" id="1006"/>
+					<ExtendedTooltip name="LeftSideCommandBarExtendedTooltip" id="1006"/>
 					<ChildItems>
 						<Button name="BackButton" id="19">
 							<Type>CommandBarButton</Type>
@@ -1477,7 +1526,7 @@ They will see the patches applied the next time they log in.</v8:content>
 					</Title>
 					<HorizontalLocation>Right</HorizontalLocation>
 					<CommandSource>Form</CommandSource>
-					<ExtendedTooltip name="RightCommandBar5ExtendedTooltip" id="1011"/>
+					<ExtendedTooltip name="RightSideCommandBarExtendedTooltip" id="1011"/>
 					<ChildItems>
 						<Button name="NextButton" id="20">
 							<Type>CommandBarButton</Type>
@@ -1495,7 +1544,7 @@ They will see the patches applied the next time they log in.</v8:content>
 									<v8:content>Next &gt;</v8:content>
 								</v8:item>
 							</Title>
-							<ExtendedTooltip name="NextButton1ExtendedTooltip" id="655"/>
+							<ExtendedTooltip name="NextButtonExtendedTooltip" id="655"/>
 						</Button>
 						<Button name="CloseButton" id="364">
 							<Type>CommandBarButton</Type>
@@ -1668,6 +1717,27 @@ They will see the patches applied the next time they log in.</v8:content>
 		<Attribute name="ShowInstalledPatches" id="8">
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="ShouldNotifyUsers" id="36">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Notfiy users</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="NotificationInterval" id="37">
+			<Type>
+				<v8:Type>xs:decimal</v8:Type>
+				<v8:NumberQualifiers>
+					<v8:Digits>10</v8:Digits>
+					<v8:FractionDigits>0</v8:FractionDigits>
+					<v8:AllowedSign>Any</v8:AllowedSign>
+				</v8:NumberQualifiers>
 			</Type>
 		</Attribute>
 	</Attributes>

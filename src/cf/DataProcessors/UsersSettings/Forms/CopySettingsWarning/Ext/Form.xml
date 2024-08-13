@@ -116,10 +116,10 @@ Otherwise, the settings might not be applied.</v8:content>
 						</v8:item>
 					</Title>
 					<Hyperlink>true</Hyperlink>
-					<ContextMenu name="ActiveUserListContextMenu" id="9"/>
+					<ContextMenu name="ActiveUsersListContextMenu" id="9"/>
 					<ExtendedTooltip name="ActiveUsersListExtendedTooltip" id="22"/>
 					<Events>
-						<Event name="Click">ActiveUserListClick</Event>
+						<Event name="Click">ActiveUsersListClick</Event>
 					</Events>
 				</LabelDecoration>
 			</ChildItems>

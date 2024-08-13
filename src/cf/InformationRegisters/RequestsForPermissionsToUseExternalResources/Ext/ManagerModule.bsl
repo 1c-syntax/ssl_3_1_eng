@@ -274,12 +274,12 @@ EndFunction
 Function CanRequestForPermissionsToUseExternalResources()
 	
 	If Common.FileInfobase(InfoBaseConnectionString()) Or Not GetFunctionalOption("UseSecurityProfiles") Then
-		// 
-		// 
+		// In file infobases and infobases with disabled security profiles, administrators (regardless of the privileged mode)
+		// and ordinary users (with the privileged mode) can write permission requests.
 		Return PrivilegedMode() Or Users.IsFullUser();
 	Else
-		// 
-		// 
+		// For client/server infobases with enabled security profiles, only the administrators
+		// can write permission requests regardless of the privileged mode.
 		If Not Users.IsFullUser() Then
 			Raise(NStr("en = 'Insufficient access rights to request permissions to use external resources.';"),
 				ErrorCategory.AccessViolation);
@@ -358,8 +358,8 @@ Procedure ClearObsoleteRequests() Export
 				
 			Except
 				
-				// 
-				// 
+				// Do not handle exceptions. The expected exception:
+				// An attempt to delete the same register record in another session.
 				Continue;
 				
 			EndTry;

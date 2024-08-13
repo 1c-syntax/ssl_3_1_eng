@@ -358,19 +358,25 @@ EndProcedure
 &AtServer
 Procedure SetSignatureType(Val ParameterSignatureType)
 	
+	NewParameterSignatureType = New Structure;
+	NewParameterSignatureType.Insert("SignatureTypes", New Array);
+	NewParameterSignatureType.Insert("Visible", False);
+	NewParameterSignatureType.Insert("Enabled", False);
+	NewParameterSignatureType.Insert("CanSelectLetterOfAuthority", False);
+	NewParameterSignatureType.Insert("VerifyCertificate", DigitalSignatureInternalClientServer.CheckQualified());
+	
 	If Not TypeOf(ParameterSignatureType) = Type("Structure") Then
 		
-		NewParameterSignatureType = New Structure;
-		NewParameterSignatureType.Insert("SignatureTypes", New Array);
-		NewParameterSignatureType.Insert("Visible", False);
-		NewParameterSignatureType.Insert("Enabled", False);
-		NewParameterSignatureType.Insert("CanSelectLetterOfAuthority", False);
 		If ValueIsFilled(ParameterSignatureType) Then
 			NewParameterSignatureType.SignatureTypes.Add(ParameterSignatureType);
 		EndIf;
 		ParameterSignatureType = NewParameterSignatureType;
-		
+	Else
+		FillPropertyValues(NewParameterSignatureType, ParameterSignatureType);
 	EndIf;
+	
+	ParameterSignatureType  = NewParameterSignatureType;
+	VerifyCertificate = ParameterSignatureType.VerifyCertificate;
 	
 	If ParameterSignatureType.SignatureTypes.Count() = 0 Then
 		
@@ -690,26 +696,30 @@ Procedure SignData(Notification)
 	
 	If ValueIsFilled(CertificationAuthorityAuditResult)
 		And Not CertificationAuthorityAuditResult.Valid_SSLyf Then
-			
-		SigningAllowed = CommonServerCall.CommonSettingsStorageLoad(
-			Certificate, "AllowSigning", Undefined);
 		
-		If SigningAllowed = Undefined Then
-			Notification = New NotifyDescription("SignDataAfterCAQuestionAnswered", ThisObject, Context);
+		If CertificationAuthorityAuditResult.Warning.AllowSigning Then
+			SigningAllowed = CommonServerCall.CommonSettingsStorageLoad(
+				Certificate, "AllowSigning", Undefined);
 			
-			QuestionParameters = StandardSubsystemsClient.QuestionToUserParameters();
-			QuestionParameters.Picture = PictureLib.DialogExclamation;
-			QuestionParameters.Title = NStr("en = 'Request for permission to sign';");
-			QuestionParameters.CheckBoxText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Remember my choice for certificate ""%1""';"), Certificate);
-			
-			Buttons = New ValueList;
-			Buttons.Add(True, NStr("en = 'Allow signing';"));
-			Buttons.Add(False,   NStr("en = 'Cancel signing';"));
-			
-			ErrorWarning = CertificationAuthorityAuditResult.Warning; // See DigitalSignatureInternalClientServer.WarningWhileVerifyingCertificateAuthorityCertificate
-			StandardSubsystemsClient.ShowQuestionToUser(Notification, ErrorWarning.ErrorText, Buttons, QuestionParameters);
-			Return;
+			If SigningAllowed = Undefined Then
+				Notification = New NotifyDescription("SignDataAfterCAQuestionAnswered", ThisObject, Context);
+				
+				QuestionParameters = StandardSubsystemsClient.QuestionToUserParameters();
+				QuestionParameters.Picture = PictureLib.DialogExclamation;
+				QuestionParameters.Title = NStr("en = 'Request for permission to sign';");
+				QuestionParameters.CheckBoxText = StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'Remember my choice for certificate ""%1""';"), Certificate);
+				
+				Buttons = New ValueList;
+				Buttons.Add(True, NStr("en = 'Allow signing';"));
+				Buttons.Add(False,   NStr("en = 'Cancel signing';"));
+				
+				ErrorWarning = CertificationAuthorityAuditResult.Warning; // See DigitalSignatureInternalClientServer.WarningWhileVerifyingCertificateAuthorityCertificate
+				StandardSubsystemsClient.ShowQuestionToUser(Notification, ErrorWarning.ErrorText, Buttons, QuestionParameters);
+				Return;
+			EndIf;
+		Else
+			SigningAllowed = False;
 		EndIf;
 		
 		SignDataAfterCAQuestionAnswered(SigningAllowed, Context);
@@ -736,24 +746,28 @@ Procedure SignDataAfterCAQuestionAnswered(Result, Context) Export
 		
 	EndIf;
 	
-	If Result = Undefined Or Not Result Then
-		ErrorWarning = CertificationAuthorityAuditResult.Warning; // See DigitalSignatureInternalClientServer.WarningWhileVerifyingCertificateAuthorityCertificate
-		Context.ErrorAtClient.Insert("ErrorDescription", ErrorWarning.ErrorText);
-		AdditionalErrorData = New Structure("AdditionalDataChecksOnClient", ErrorWarning);
-		HandleError(Context.Notification, Context.ErrorAtClient, Context.ErrorAtServer, ,
-			AdditionalErrorData);
-		Return;
-	EndIf;
+	If VerifyCertificate = DigitalSignatureInternalClientServer.NotVerifyCertificate() Then
+		SignDataAfterSelectedCertificateVerified(True, Context);
+	Else
+		If Result = Undefined Or Not Result Then
+			ErrorWarning = CertificationAuthorityAuditResult.Warning; // See DigitalSignatureInternalClientServer.WarningWhileVerifyingCertificateAuthorityCertificate
+			Context.ErrorAtClient.Insert("ErrorDescription", ErrorWarning.ErrorText);
+			AdditionalErrorData = New Structure("AdditionalDataChecksOnClient", ErrorWarning);
+			HandleError(Context.Notification, Context.ErrorAtClient, Context.ErrorAtServer, ,
+				AdditionalErrorData);
+			Return;
+		EndIf;
+		
+		AdditionalInspectionParameters = DigitalSignatureInternalClient.AdditionalCertificateVerificationParameters();
+		AdditionalInspectionParameters.ShowError = False;
+		AdditionalInspectionParameters.ToVerifySignature = True;
+		AdditionalInspectionParameters.MergeCertificateDataErrors = False;
+		AdditionalInspectionParameters.PerformCAVerification = DigitalSignatureInternalClientServer.NotVerifyCertificate();
 	
-	AdditionalInspectionParameters = DigitalSignatureInternalClient.AdditionalCertificateVerificationParameters();
-	AdditionalInspectionParameters.ShowError = False;
-	AdditionalInspectionParameters.ToVerifySignature = True;
-	AdditionalInspectionParameters.MergeCertificateDataErrors = False;
-	AdditionalInspectionParameters.PerformCAVerification = False;
-
-	DigitalSignatureInternalClient.CheckCertificate(New NotifyDescription(
-			"SignDataAfterSelectedCertificateVerified", ThisObject, Context),
-		AddressOfCertificate,,, AdditionalInspectionParameters);
+		DigitalSignatureInternalClient.CheckCertificate(New NotifyDescription(
+				"SignDataAfterSelectedCertificateVerified", ThisObject, Context),
+			AddressOfCertificate,,, AdditionalInspectionParameters);
+	EndIf;
 	
 EndProcedure
 
@@ -998,8 +1012,8 @@ Procedure SignDataAfterExecute(Result)
 	EndIf;
 	
 	If Result.Property("HasProcessedDataItems") Then
-		// 
-		// 
+		// Cannot change the certificate once the signing has started.
+		// Otherwise, the dataset will be processed in different ways.
 		Items.Certificate.ReadOnly = True;
 		Items.Comment.ReadOnly = True;
 	EndIf;

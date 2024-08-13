@@ -32,7 +32,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="TitleGroup1ExtendedTooltip" id="2044"/>
+			<ExtendedTooltip name="TitleGroupExtendedTooltip" id="2044"/>
 			<ChildItems>
 				<LabelDecoration name="SectionDetails" id="2016">
 					<AutoMaxWidth>false</AutoMaxWidth>
@@ -101,7 +101,7 @@
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="FilesGroup1ExtendedTooltip" id="2209"/>
+							<ExtendedTooltip name="GroupFilesExtendedTooltip" id="2209"/>
 							<ChildItems>
 								<Button name="CatalogFiles" id="2212">
 									<Type>Hyperlink</Type>
@@ -206,7 +206,7 @@
 												<Presentation>
 													<v8:item>
 														<v8:lang>en</v8:lang>
-														<v8:content>in volume on server</v8:content>
+														<v8:content>Volumes on server</v8:content>
 													</v8:item>
 												</Presentation>
 												<Value xsi:type="xs:string">InVolumesOnHardDrive</Value>
@@ -219,7 +219,7 @@
 												<Presentation>
 													<v8:item>
 														<v8:lang>en</v8:lang>
-														<v8:content>in infobase and volumes on server</v8:content>
+														<v8:content>Infobase and volumes on server</v8:content>
 													</v8:item>
 												</Presentation>
 												<Value xsi:type="xs:string">InInfobaseAndVolumesOnHardDrive</Value>
@@ -257,7 +257,7 @@
 											<v8:content>Move files</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="TransferringFilesExtendedTooltip" id="2145"/>
+									<ExtendedTooltip name="FileTransferExtendedTooltip" id="2145"/>
 								</Button>
 							</ChildItems>
 						</UsualGroup>
@@ -460,7 +460,7 @@
 							<v8:item>
 								<v8:lang>en</v8:lang>
 								<v8:content>All files smaller than the specified size will be stored in the infobase.
-This setting overrides the list of file types to be stored in the infobase.</v8:content>
+This setting overrides the list of file types to be stored in the infobase.</v8:content>
 							</v8:item>
 						</Title>
 					</ExtendedTooltip>
@@ -531,8 +531,7 @@ This setting overrides the list of file types to be stored in the infobase.</v8
 							<v8:item>
 								<v8:lang>en</v8:lang>
 								<v8:content>Specify a blacklist of space-delimited file extension types.
-Users will not be able to import these files into the application.
-See also: &lt;link http://1c.ru/news/info.jsp?id=21537&gt;Example of a virus in an external data processor&lt;/&gt; (in Russian).</v8:content>
+Users will not be able to import these files into the application.</v8:content>
 							</v8:item>
 						</Title>
 					</ExtendedTooltip>
@@ -775,10 +774,10 @@ You will be able to search for text within such files.</v8:content>
 								</v8:item>
 							</Title>
 							<HorizontalStretch>true</HorizontalStretch>
-							<ContextMenu name="TestFilesExtensionsListContextMenu" id="1975"/>
+							<ContextMenu name="TextFilesExtensionsListContextMenu" id="1975"/>
 							<ExtendedTooltip name="TextFilesExtensionsListExtendedTooltip" id="2070"/>
 							<Events>
-								<Event name="OnChange">TestFilesExtensionsListOnChange</Event>
+								<Event name="OnChange">TextFilesExtensionsListOnChange</Event>
 							</Events>
 						</InputField>
 						<LabelDecoration name="TextFilesExtensionsListNote" id="1976">
@@ -1216,6 +1215,15 @@ You will be able to search for text within such files.</v8:content>
 					<v8:FractionDigits>0</v8:FractionDigits>
 					<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 				</v8:NumberQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="DeduplicationResultAddress" id="6">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
 			</Type>
 		</Attribute>
 	</Attributes>

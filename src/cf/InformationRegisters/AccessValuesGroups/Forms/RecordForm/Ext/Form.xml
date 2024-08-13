@@ -106,7 +106,7 @@
 				</xr:Item>
 			</ChoiceList>
 			<ContextMenu name="DataGroupContextMenu" id="17"/>
-			<ExtendedTooltip name="DataGroup1ExtendedTooltip" id="26"/>
+			<ExtendedTooltip name="DataGroupExtendedTooltip" id="26"/>
 		</InputField>
 	</ChildItems>
 	<Attributes>

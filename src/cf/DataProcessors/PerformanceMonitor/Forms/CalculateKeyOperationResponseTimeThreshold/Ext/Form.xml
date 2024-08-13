@@ -10,7 +10,7 @@
 	<AutoCommandBar name="FormCommandBar" id="-1">
 		<Autofill>false</Autofill>
 		<ChildItems>
-			<Button name="FormCalculateResponseTimeThreshold1" id="10">
+			<Button name="FormEvaluateResponseTimeThreshold" id="10">
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.EvaluateResponseTimeThreshold</CommandName>
@@ -20,7 +20,7 @@
 						<v8:content>Estimate threshold</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="FormCalculateResponseTimeThreshold1ExtendedTooltip" id="11"/>
+				<ExtendedTooltip name="FormEvaluateResponseTimeThresholdExtendedTooltip" id="11"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>

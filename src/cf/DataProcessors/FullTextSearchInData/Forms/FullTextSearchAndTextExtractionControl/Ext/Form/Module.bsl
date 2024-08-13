@@ -242,7 +242,7 @@ Procedure ClearTheIndexAfterAnsweringTheQuestion(Result, AdditionalParameters) E
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Server call.
 
 &AtServer
 Procedure UpdateIndexServer()
@@ -262,7 +262,7 @@ Procedure CheckIndexServer()
 		IndexContainsCorrectData = FullTextSearch.CheckIndex();
 	Except
 		ErrorMessageText = 
-			NStr("en = 'В настоящее время проверка индекса невозможна, так как выполняется его очистка или обновление.';");
+			NStr("en = 'Cannot check index status. The index is being updated or cleaned up.';");
 		Common.MessageToUser(ErrorMessageText);
 		FullTextSearchServer.LogRecord(EventLogLevel.Warning, 
 			"", ErrorInfo());

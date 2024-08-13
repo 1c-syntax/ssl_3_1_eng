@@ -9,14 +9,14 @@
 //
 
 ////////////////////////////////////////////////////////////////////////////////
-//                          
+//                          FORM USAGE                                         //
 //
-// 
+// Additional open parameters:
 //
-// 
-//  
-// 
-//  
+// AdvancedPick - Boolean - If set to "True", open the extended user pick form.
+//  It is used along with the "ExtendedPickFormParameters".
+// ExtendedPickFormParameters - String - Address in the temporary storage with the structure
+//  "UsersInternal.NewParametersOfExtendedPickForm".
 //
 
 #Region Variables
@@ -235,7 +235,7 @@ Procedure SelectHierarchyOnChange(Item)
 EndProcedure
 
 &AtClient
-Procedure ShowInvalidUsers1OnChange(Item)
+Procedure ShowInvalidUsersOnChange(Item)
 	ToggleInvalidUsersVisibility(ShowInvalidUsers);
 EndProcedure
 
@@ -671,7 +671,7 @@ Procedure ExternalUsersInfo(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Support of batch object change.
 
 &AtClient
 Procedure ChangeSelectedItems(Command)
@@ -1072,8 +1072,8 @@ Procedure ConfigureUserGroupsUsageForm(GroupUsageChanged = False,
 	
 	RefreshFormContentOnGroupChange(ThisObject);
 	
-	// 
-	// 
+	// Force-update the visibility after the functional option changed
+	// without employing the "RefreshInterface" command.
 	Items.ExternalUsersGroups.Visible = False;
 	Items.ExternalUsersGroups.Visible = True;
 	
@@ -1189,7 +1189,7 @@ Procedure ListOnChangeAtServer()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Drag-and-drop users.
 
 // A question handler.
 // 
@@ -1248,7 +1248,7 @@ Procedure UsersKindClearing(Item, StandardProcessing)
 	
 EndProcedure
 
-// Standard subsystems.Pluggable commands
+// StandardSubsystems.AttachableCommands
 
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)

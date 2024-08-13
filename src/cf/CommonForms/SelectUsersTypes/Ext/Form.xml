@@ -14,7 +14,7 @@
 						<v8:content>Select</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="FormChooseExtendedTooltip" id="22"/>
+				<ExtendedTooltip name="FormSelectExtendedTooltip" id="22"/>
 			</Button>
 			<ButtonGroup name="GroupOfCommandsFlags" id="72">
 				<Title>

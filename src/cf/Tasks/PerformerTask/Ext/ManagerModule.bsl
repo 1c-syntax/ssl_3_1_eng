@@ -79,7 +79,7 @@ EndProcedure
 
 // StandardSubsystems.AttachableCommands
 
-// Defined the list of commands for creating on the basis.
+// Defines the list of generation commands.
 //
 // Parameters:
 //  GenerationCommands - See GenerateFromOverridable.BeforeAddGenerationCommands.GenerationCommands
@@ -91,8 +91,8 @@ Procedure AddGenerationCommands(GenerationCommands, Parameters) Export
 	
 EndProcedure
 
-// For use in the AddCreateOnBasisCommands procedure of other object manager modules.
-// Adds this object to the list of commands of creation on basis.
+// Intended for use by the AddGenerationCommands procedure in other object manager modules.
+// Adds this object to the list of generation commands.
 //
 // Parameters:
 //  GenerationCommands - See GenerateFromOverridable.BeforeAddGenerationCommands.GenerationCommands

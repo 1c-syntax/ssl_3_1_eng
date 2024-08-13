@@ -36,7 +36,7 @@
 						<v8:content>OK</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="OKButton1ExtendedTooltip" id="39"/>
+				<ExtendedTooltip name="OKButtonExtendedTooltip" id="39"/>
 			</Button>
 			<Button name="CloseButton" id="21">
 				<Type>CommandBarButton</Type>

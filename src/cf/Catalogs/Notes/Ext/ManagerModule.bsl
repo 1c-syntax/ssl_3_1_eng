@@ -14,7 +14,7 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// StandardSubsystems.BatchObjectModification
+// StandardSubsystems.BatchEditObjects
 
 // Returns object attributes that can be edited using the bulk attribute modification data processor.
 // 
@@ -32,7 +32,7 @@ Function AttributesToEditInBatchProcessing() Export
 	
 EndFunction
 
-// End StandardSubsystems.BatchObjectModification
+// End StandardSubsystems.BatchEditObjects
 
 // StandardSubsystems.AccessManagement
 

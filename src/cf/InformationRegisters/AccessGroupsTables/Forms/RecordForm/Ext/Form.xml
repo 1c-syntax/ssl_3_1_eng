@@ -47,7 +47,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="RightGroupExtendedTooltip" id="49"/>
+			<ExtendedTooltip name="RightsGroupExtendedTooltip" id="49"/>
 			<ChildItems>
 				<UsualGroup name="FirstColumn" id="50">
 					<Title>
@@ -86,15 +86,15 @@
 							<DataPath>Record.RightUpdate</DataPath>
 							<TitleLocation>Right</TitleLocation>
 							<CheckBoxType>Auto</CheckBoxType>
-							<ContextMenu name="UpdateRightContextMenu" id="10"/>
-							<ExtendedTooltip name="UpdateRightExtendedTooltip" id="27"/>
+							<ContextMenu name="RightUpdateContextMenu" id="10"/>
+							<ExtendedTooltip name="RightUpdateExtendedTooltip" id="27"/>
 						</CheckBoxField>
 						<CheckBoxField name="AddRight" id="42">
 							<DataPath>Record.AddRight</DataPath>
 							<TitleLocation>Right</TitleLocation>
 							<CheckBoxType>Auto</CheckBoxType>
-							<ContextMenu name="InsertRightContextMenu" id="43"/>
-							<ExtendedTooltip name="InsertRightExtendedTooltip" id="44"/>
+							<ContextMenu name="AddRightContextMenu" id="43"/>
+							<ExtendedTooltip name="AddRightExtendedTooltip" id="44"/>
 						</CheckBoxField>
 					</ChildItems>
 				</UsualGroup>
@@ -115,22 +115,22 @@
 							<DataPath>Record.UnrestrictedReadRight</DataPath>
 							<TitleLocation>Right</TitleLocation>
 							<CheckBoxType>Auto</CheckBoxType>
-							<ContextMenu name="RightToReadWithoutRestrictionContextMenu" id="31"/>
-							<ExtendedTooltip name="RightToReadWithoutRestrictionExtendedTooltip" id="32"/>
+							<ContextMenu name="UnrestrictedReadRightContextMenu" id="31"/>
+							<ExtendedTooltip name="UnrestrictedReadRightExtendedTooltip" id="32"/>
 						</CheckBoxField>
 						<CheckBoxField name="UnrestrictedUpdateRight" id="33">
 							<DataPath>Record.UnrestrictedUpdateRight</DataPath>
 							<TitleLocation>Right</TitleLocation>
 							<CheckBoxType>Auto</CheckBoxType>
-							<ContextMenu name="RightToChangeWithoutRestrictionContextMenu" id="34"/>
-							<ExtendedTooltip name="RightToChangeWithoutRestrictionExtendedTooltip" id="35"/>
+							<ContextMenu name="UnrestrictedUpdateRightContextMenu" id="34"/>
+							<ExtendedTooltip name="UnrestrictedUpdateRightExtendedTooltip" id="35"/>
 						</CheckBoxField>
 						<CheckBoxField name="UnrestrictedAddRight" id="45">
 							<DataPath>Record.UnrestrictedAddRight</DataPath>
 							<TitleLocation>Right</TitleLocation>
 							<CheckBoxType>Auto</CheckBoxType>
-							<ContextMenu name="RightToAddWithoutRestrictionContextMenu" id="46"/>
-							<ExtendedTooltip name="RightToAddWithoutRestrictionExtendedTooltip" id="47"/>
+							<ContextMenu name="UnrestrictedAddRightContextMenu" id="46"/>
+							<ExtendedTooltip name="UnrestrictedAddRightExtendedTooltip" id="47"/>
 						</CheckBoxField>
 					</ChildItems>
 				</UsualGroup>

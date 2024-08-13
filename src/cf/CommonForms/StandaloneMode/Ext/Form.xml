@@ -534,7 +534,7 @@ Install the received update so that synchronization continues.</v8:content>
 									<ContextMenu name="Decoration6ContextMenu" id="121"/>
 									<ExtendedTooltip name="Decoration6ExtendedTooltip" id="122"/>
 								</PictureDecoration>
-								<LabelDecoration name="ExplanatoryInscriptionReceivedExtensions" id="123">
+								<LabelDecoration name="ExplanatoryLabelReceivedExtensions" id="123">
 									<AutoMaxWidth>false</AutoMaxWidth>
 									<Title formatted="false">
 										<v8:item>
@@ -544,8 +544,8 @@ To continue with the changes made, restart the application.</v8:content>
 										</v8:item>
 									</Title>
 									<VerticalAlign>Center</VerticalAlign>
-									<ContextMenu name="ExplanatoryInscriptionReceivedExtensionsContextMenu" id="124"/>
-									<ExtendedTooltip name="ExplanatoryInscriptionReceivedExtensionsExtendedTooltip" id="125"/>
+									<ContextMenu name="ExplanatoryLabelReceivedExtensionsContextMenu" id="124"/>
+									<ExtendedTooltip name="ExplanatoryLabelReceivedExtensionsExtendedTooltip" id="125"/>
 								</LabelDecoration>
 							</ChildItems>
 						</UsualGroup>
@@ -558,7 +558,7 @@ To continue with the changes made, restart the application.</v8:content>
 									<v8:content>Restart application</v8:content>
 								</v8:item>
 							</Title>
-							<ExtendedTooltip name="RestartApplication1ExtendedTooltip" id="136"/>
+							<ExtendedTooltip name="RestartApplicationExtendedTooltip" id="136"/>
 						</Button>
 						<UsualGroup name="Group12" id="128">
 							<Title>

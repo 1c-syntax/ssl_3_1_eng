@@ -175,7 +175,7 @@
 			<Collapsed>true</Collapsed>
 			<ControlRepresentation>Picture</ControlRepresentation>
 			<Representation>NormalSeparation</Representation>
-			<ExtendedTooltip name="CommentGroupExtendedTooltip" id="82"/>
+			<ExtendedTooltip name="GroupCommentExtendedTooltip" id="82"/>
 			<ChildItems>
 				<InputField name="Comment" id="34">
 					<DataPath>Record.Comment</DataPath>

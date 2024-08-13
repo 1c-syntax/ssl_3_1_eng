@@ -37,7 +37,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Not IBUserFull
 		And AccessRight("Edit", Metadata.Catalogs.AccessGroups);
 	
-	Items.AccessGroupsContextMenuChangeGroup1.Visible =
+	Items.AccessGroupsContextMenuChangeGroup.Visible =
 		IBUserFull
 		Or IBUserEmployeeResponsible;
 	
@@ -45,15 +45,25 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		IBUserFull
 		Or Parameters.User = Users.AuthorizedUser();
 	
+	If TypeOf(Parameters.User) = Type("CatalogRef.UserGroups")
+	 Or TypeOf(Parameters.User) = Type("CatalogRef.ExternalUsersGroups") Then
+		
+		Items.FormReportUserRights.Visible = False;
+	Else
+		Items.FormReportUserRights.Visible =
+			IBUserFull
+			Or Parameters.User = Users.AuthorizedUser();
+	EndIf;
+	
 	// Configuring commands for a limited user.
 	Items.FormAddToGroup.Visible   = IBUserEmployeeResponsible;
 	Items.FormRemoveFromGroup.Visible = IBUserEmployeeResponsible;
-	Items.FormChangeGroup1.Visible    = IBUserEmployeeResponsible;
+	Items.FormChangeGroup.Visible    = IBUserEmployeeResponsible;
 	
 	// Configuring commands for a full access user.
 	Items.AccessGroupsAddToGroup.Visible   = IBUserFull;
 	Items.AccessGroupsRemoveFromGroup.Visible = IBUserFull;
-	Items.AccessGroupsChangeGroup1.Visible    = IBUserFull;
+	Items.AccessGroupsChangeGroup.Visible    = IBUserFull;
 	
 	// Setting the page tab display.
 	Items.AccessGroupsAndRoles.PagesRepresentation =
@@ -92,11 +102,6 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.FormRemoveFromGroup.Enabled = False;
 		Items.AccessGroupsAddToGroup.Enabled   = False;
 		Items.AccessGroupsRemoveFromGroup.Enabled = False;
-	EndIf;
-	
-	If TypeOf(Parameters.User) = Type("CatalogRef.UserGroups")
-	 Or TypeOf(Parameters.User) = Type("CatalogRef.ExternalUsersGroups") Then
-		Items.FormReportUserRights.Visible = False;
 	EndIf;
 	
 EndProcedure
@@ -156,10 +161,10 @@ Procedure AccessGroupsSelection(Item, RowSelected, Field, StandardProcessing)
 	
 	If AccessGroups.FindByID(RowSelected) <> Undefined Then
 		
-		If Items.FormChangeGroup1.Visible
-		 Or Items.AccessGroupsChangeGroup1.Visible Then
+		If Items.FormChangeGroup.Visible
+		 Or Items.AccessGroupsChangeGroup.Visible Then
 			
-			ChangeGroup(Items.FormChangeGroup1);
+			ChangeGroup(Items.FormChangeGroup);
 		EndIf;
 	EndIf;
 	
@@ -173,13 +178,13 @@ EndProcedure
 Procedure AddToGroup(Command)
 	
 	FormParameters = New Structure;
-	SelectedItems = New Array;
+	Selected_ = New Array;
 	
 	For Each AccessGroupDetails In AccessGroups Do
-		SelectedItems.Add(AccessGroupDetails.AccessGroup);
+		Selected_.Add(AccessGroupDetails.AccessGroup);
 	EndDo;
 	
-	FormParameters.Insert("SelectedItems",         SelectedItems);
+	FormParameters.Insert("Selected_",         Selected_);
 	FormParameters.Insert("GroupsUser", Parameters.User);
 	
 	OpenForm("Catalog.AccessGroups.Form.SelectGroupsByEmployeeResponsible", FormParameters, ThisObject,
@@ -248,7 +253,7 @@ Procedure AccessRightsReport(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Required by a role interface.
 
 &AtClient
 Procedure RolesBySubsystemsGroup(Command)
@@ -382,8 +387,8 @@ Procedure OutputAccessGroups()
 	
 	AllAccessGroups = Query.Execute().Unload();
 	
-	// 
-	// 
+	// Set a presentation for the access group.
+	// Remove the current user from the group if they are a direct member.
 	HasProhibitedGroups = False;
 	IndexOf = AllAccessGroups.Count()-1;
 	
@@ -549,10 +554,10 @@ Function UserIncludedInAccessGroup(AccessGroup)
 	"SELECT
 	|	TRUE AS TrueValue
 	|FROM
-	|	Catalog.AccessGroups.Users AS AccessGroupsUsers_SSLy
+	|	Catalog.AccessGroups.Users AS AccessGroups_Users
 	|WHERE
-	|	AccessGroupsUsers_SSLy.Ref = &AccessGroup
-	|	AND AccessGroupsUsers_SSLy.User = &User";
+	|	AccessGroups_Users.Ref = &AccessGroup
+	|	AND AccessGroups_Users.User = &User";
 	
 	Return Not Query.Execute().IsEmpty();
 	
@@ -572,12 +577,12 @@ Procedure FillRoles()
 		|	Roles.Role AS Role
 		|FROM
 		|	Catalog.AccessGroupProfiles.Roles AS Roles
-		|		INNER JOIN Catalog.AccessGroups.Users AS AccessGroupsUsers_SSLy
+		|		INNER JOIN Catalog.AccessGroups.Users AS AccessGroups_Users
 		|			INNER JOIN InformationRegister.UserGroupCompositions AS UserGroupCompositions
 		|			ON (UserGroupCompositions.User = &User)
-		|				AND (UserGroupCompositions.UsersGroup = AccessGroupsUsers_SSLy.User)
-		|				AND (NOT AccessGroupsUsers_SSLy.Ref.DeletionMark)
-		|		ON Roles.Ref = AccessGroupsUsers_SSLy.Ref.Profile
+		|				AND (UserGroupCompositions.UsersGroup = AccessGroups_Users.User)
+		|				AND (NOT AccessGroups_Users.Ref.DeletionMark)
+		|		ON Roles.Ref = AccessGroups_Users.Ref.Profile
 		|			AND (NOT Roles.Ref.DeletionMark)";
 	Else
 		// User group or External user group.
@@ -586,10 +591,10 @@ Procedure FillRoles()
 		|	Roles.Role AS Role
 		|FROM
 		|	Catalog.AccessGroupProfiles.Roles AS Roles
-		|		INNER JOIN Catalog.AccessGroups.Users AS AccessGroupsUsers_SSLy
-		|		ON (AccessGroupsUsers_SSLy.User = &User)
-		|			AND (NOT AccessGroupsUsers_SSLy.Ref.DeletionMark)
-		|			AND Roles.Ref = AccessGroupsUsers_SSLy.Ref.Profile
+		|		INNER JOIN Catalog.AccessGroups.Users AS AccessGroups_Users
+		|		ON (AccessGroups_Users.User = &User)
+		|			AND (NOT AccessGroups_Users.Ref.DeletionMark)
+		|			AND Roles.Ref = AccessGroups_Users.Ref.Profile
 		|			AND (NOT Roles.Ref.DeletionMark)";
 	EndIf;
 	
@@ -620,7 +625,7 @@ Procedure FillRoles()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Required by a role interface.
 
 &AtServer
 Procedure ProcessRolesInterface(Action, MainParameter = Undefined)

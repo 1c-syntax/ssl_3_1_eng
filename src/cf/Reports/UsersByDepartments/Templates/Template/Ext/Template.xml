@@ -226,7 +226,7 @@ WHERE
 					<dcsset:lwsTitle>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Upper-level department is present in detailed recrods</v8:content>
+							<v8:content>Upper-level department is present in detailed records</v8:content>
 						</v8:item>
 					</dcsset:lwsTitle>
 					<dcsset:detailExpression>EvalExpression("Max(EvalExpression(""Department"", , ""NotResourceGroup"") = DepartmentParent)", , "Hierarchy")</dcsset:detailExpression>

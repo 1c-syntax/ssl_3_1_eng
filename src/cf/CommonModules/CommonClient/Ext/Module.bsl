@@ -385,7 +385,7 @@ EndFunction
 #Region Dates
 
 ////////////////////////////////////////////////////////////////////////////////
-// Functions to work with dates considering the session timezone
+// Functions to work with dates considering the session time zone
 
 // Returns current date in the session time zone.
 // It is designed to be used instead of CurrentDate() function in client-side code
@@ -1270,7 +1270,7 @@ EndFunction
 // Checks whether the backup can be done in the user mode.
 //
 // Returns:
-//  Boolean - True if the installation is suggested.
+//  Boolean - True if the installation prompt is on.
 //
 Function PromptToBackUp() Export
 	
@@ -1314,8 +1314,8 @@ Procedure GoToLink(Ref) Export
 EndProcedure
 
 // Deprecated. Instead, use FileSystemClient.AttachFileOperationsExtension
-// Suggests the user to install the extension to work with 1C:Enterprise in the web client.
-// The function to be incorporated in the beginning of code areas that process files.
+// Prompts the user to install 1C:Enterprise Extension in the web client.
+// Incorporate the procedure at the beginning of code areas that process files.
 //
 // Parameters:
 //   OnCloseNotifyDescription    - NotifyDescription - the description of the procedure
@@ -1330,15 +1330,15 @@ EndProcedure
 // Example:
 //
 //    Notification = New NotifyDescription("PrintDocumentCompletion", ThisObject);
-//    MessageText = NStr("en = 'To print the document, install the system extension to work with 1C:Enterprise.'");
+//    MessageText = NStr("en = 'To print the document, install 1C:Enterprise Extension.'");
 //    CommonClient.ShowFileSystemExtensionInstallationQuestion(Notification, MessageText);
 //
 //    Procedure PrintDocumentCompletion(ExtensionAttached, AdditionalParameters) Export
 //      If ExtensionAttached Then
-//        // Script that print a document only if the file system extension is attached.
+//        // Script that prints a document only if the extension is attached.
 //        // …
 //      Else
-//        // Script that print a document if the file system extension is not attached.
+//        // Script that prints a document if the extension is not attached.
 //        // …
 //      EndIf;
 //
@@ -1355,29 +1355,29 @@ Procedure ShowFileSystemExtensionInstallationQuestion(
 EndProcedure
 
 // Deprecated. Instead, use FileSystemClient.AttachFileOperationsExtension
-// Suggests the user to attach the system extension to work with 1C:Enterprise in the web client
-// and, in case of refuse, notifies that it it is impossible to continue.
-// Is intended to be used at the beginning of a script that can process files
-// only if the file system extension is attached.
+// Prompts the user to attach 1C:Enterprise Extension in the web client and, if the user refuses, displays a warning that it is impossible to proceed.
+// Incorporate the procedure at the beginning of code areas that process files only if the extension is attached.
+// 
+// 
 //
 // Parameters:
 //  OnCloseNotifyDescription - NotifyDescription - the description of the procedure to be called if the extension
 //                                                     is attached. Parameters:
 //                                                      Result - Boolean - always True.
 //                                                      AdditionalParameters - Undefined
-//  SuggestionText    - String - text of suggestion to attach the system extension to work with 1C:Enterprise. 
-//                                 If the text is not specified, the default text is displayed.
+//  SuggestionText    - String - Text of the prompt to attach 1C:Enterprise Extension. 
+//                                 If not specified, the default text appears.
 //  WarningText - String - warning text that notifies the user that the action cannot be continued. 
 //                                 If the text is not specified, the default text is displayed.
 //
 // Example:
 //
 //    Notification = New NotifyDescription("PrintDocumentCompletion", ThisObject);
-//    MessageText = NStr("en = 'To print the document, install the system extension to work with 1C:Enterprise.'");
+//    MessageText = NStr("en = 'To print the document, install 1C:Enterprise Extension.'");
 //    CommonClient.CheckFileSystemExtensionAttached(Notification, MessageText);
 //
 //    Procedure PrintDocumentCompletion(Result, AdditionalParameters) Export
-//        // Script that print a document only if the file system extension is attached.
+//        // Script that prints a document only if the extension is attached.
 //        // …
 //
 Procedure CheckFileSystemExtensionAttached(OnCloseNotifyDescription, Val SuggestionText = "", 
@@ -1392,10 +1392,10 @@ Procedure CheckFileSystemExtensionAttached(OnCloseNotifyDescription, Val Suggest
 EndProcedure
 
 // Deprecated. Instead, use FileSystemClient.AttachFileOperationsExtension
-// Returns the value of the "Suggest file system extension installation" user setting.
+// Returns the value of the "Prompt to install 1C:Enterprise Extension" user setting.
 //
 // Returns:
-//  Boolean - True if the installation is suggested.
+//  Boolean - True if the installation prompt is on.
 //
 Function SuggestFileSystemExtensionInstallation() Export
 	

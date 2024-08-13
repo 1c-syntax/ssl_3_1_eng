@@ -14,7 +14,7 @@
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	Query = New Query;
-	Query.SetParameter("SelectedItems",                 Parameters.SelectedItems);
+	Query.SetParameter("Selected_",                 Parameters.Selected_);
 	Query.SetParameter("GroupsUser",         Parameters.GroupsUser);
 	Query.SetParameter("EmployeeResponsible",             Users.AuthorizedUser());
 	Query.SetParameter("EmployeeResponsibleIsFullUser", Users.IsFullUser());
@@ -47,7 +47,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	|	CASE
 	|			WHEN AccessGroups.IsFolder
 	|				THEN TRUE
-	|			WHEN AccessGroups.Ref IN (&SelectedItems)
+	|			WHEN AccessGroups.Ref IN (&Selected_)
 	|				THEN FALSE
 	|			WHEN AccessGroups.DeletionMark
 	|				THEN FALSE

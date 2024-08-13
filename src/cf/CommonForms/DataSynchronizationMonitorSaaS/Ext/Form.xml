@@ -148,7 +148,7 @@
 							</Button>
 						</ChildItems>
 					</ButtonGroup>
-					<Button name="NodesStateListDetailed" id="49">
+					<Button name="NodesStateListMore" id="49">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.More</CommandName>
 						<Title>
@@ -157,7 +157,7 @@
 								<v8:content>Details</v8:content>
 							</v8:item>
 						</Title>
-						<ExtendedTooltip name="NodesStateListDetailedExtendedTooltip" id="66"/>
+						<ExtendedTooltip name="NodesStateListMoreExtendedTooltip" id="66"/>
 					</Button>
 					<ButtonGroup name="NodesStateListOutputListGroup" id="50">
 						<Title>

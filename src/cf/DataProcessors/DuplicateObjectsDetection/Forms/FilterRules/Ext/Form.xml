@@ -39,7 +39,7 @@
 								<v8:content>OK</v8:content>
 							</v8:item>
 						</Title>
-						<ExtendedTooltip name="FormChooseExtendedTooltip" id="6"/>
+						<ExtendedTooltip name="FormSelectExtendedTooltip" id="6"/>
 					</Button>
 					<Button name="FormCancel" id="9">
 						<Type>CommandBarButton</Type>
@@ -55,7 +55,7 @@
 						<v8:content>Form help group</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="FormHelpGroup1ExtendedTooltip" id="12"/>
+				<ExtendedTooltip name="FormGroupHelpExtendedTooltip" id="12"/>
 				<ChildItems>
 					<Button name="FormHelp" id="7">
 						<Type>CommandBarButton</Type>

@@ -221,7 +221,7 @@
 												</Title>
 												<ExtendedTooltip name="XDTOObjectErrorsContextMenuIgnoreErrorExtendedTooltip" id="712"/>
 											</Button>
-											<Button name="XDTOObjectErrorsContextMenuDontIgnoreError" id="713">
+											<Button name="XDTOObjectErrorsContextMenuNotIgnoreError" id="713">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.NotIgnoreError</CommandName>
 												<Title>
@@ -230,7 +230,7 @@
 														<v8:content>Do not ignore error</v8:content>
 													</v8:item>
 												</Title>
-												<ExtendedTooltip name="XDTOObjectErrorsContextMenuDontIgnoreErrorExtendedTooltip" id="714"/>
+												<ExtendedTooltip name="XDTOObjectErrorsContextMenuNotIgnoreErrorExtendedTooltip" id="714"/>
 											</Button>
 										</ChildItems>
 									</ButtonGroup>
@@ -287,7 +287,7 @@
 												</Title>
 												<ExtendedTooltip name="XDTOObjectErrorsIgnoreErrorExtendedTooltip" id="724"/>
 											</Button>
-											<Button name="XDTOObjectErrorsDontIgnoreError" id="725">
+											<Button name="XDTOObjectErrorsNotIgnoreError" id="725">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.NotIgnoreError</CommandName>
 												<Title>
@@ -297,7 +297,7 @@
 													</v8:item>
 												</Title>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-												<ExtendedTooltip name="XDTOObjectErrorsDontIgnoreErrorExtendedTooltip" id="726"/>
+												<ExtendedTooltip name="XDTOObjectErrorsNotIgnoreErrorExtendedTooltip" id="726"/>
 											</Button>
 											<Button name="XDTOObjectErrorsShowIgnored" id="727">
 												<Type>CommandBarButton</Type>
@@ -561,7 +561,7 @@ It is recommended that you open each document and eliminate the issues preventin
 												</Title>
 												<ExtendedTooltip name="UnpostedDocumentsContextMenuIgnoreDocumentExtendedTooltip" id="375"/>
 											</Button>
-											<Button name="UnpostedDocumentsContextMenuDontIgnoreDocument" id="66">
+											<Button name="UnpostedDocumentsContextMenuNotIgnoreDocument" id="66">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.NotIgnoreDocument</CommandName>
 												<Title>
@@ -570,7 +570,7 @@ It is recommended that you open each document and eliminate the issues preventin
 														<v8:content>Do not ignore</v8:content>
 													</v8:item>
 												</Title>
-												<ExtendedTooltip name="UnpostedDocumentsContextMenuDontIgnoreDocumentExtendedTooltip" id="376"/>
+												<ExtendedTooltip name="UnpostedDocumentsContextMenuNotIgnoreDocumentExtendedTooltip" id="376"/>
 											</Button>
 										</ChildItems>
 									</ButtonGroup>
@@ -638,7 +638,7 @@ It is recommended that you open each document and eliminate the issues preventin
 												</Title>
 												<ExtendedTooltip name="UnpostedDocumentsIgnoreDocumentExtendedTooltip" id="382"/>
 											</Button>
-											<Button name="UnpostedDocumentsDontIgnoreDocument" id="22">
+											<Button name="UnpostedDocumentsNotIgnoreDocument" id="22">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.NotIgnoreDocument</CommandName>
 												<Title>
@@ -648,7 +648,7 @@ It is recommended that you open each document and eliminate the issues preventin
 													</v8:item>
 												</Title>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-												<ExtendedTooltip name="UnpostedDocumentsDontIgnoreDocumentExtendedTooltip" id="383"/>
+												<ExtendedTooltip name="UnpostedDocumentsNotIgnoreDocumentExtendedTooltip" id="383"/>
 											</Button>
 											<Button name="UnpostedDocumentsShowIgnoredUnpostedItems" id="340">
 												<Type>CommandBarButton</Type>
@@ -993,7 +993,7 @@ It is recommended that you open the catalog item and fill in the attributes.</v8
 												</Title>
 												<ExtendedTooltip name="BlankAttributesContextMenuIgnoreObjectExtendedTooltip" id="408"/>
 											</Button>
-											<Button name="BlankAttributesContextMenuDontIgnoreObject" id="99">
+											<Button name="BlankAttributesContextMenuNotIgnoreObject" id="99">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.NotIgnoreObject</CommandName>
 												<Title>
@@ -1002,7 +1002,7 @@ It is recommended that you open the catalog item and fill in the attributes.</v8
 														<v8:content>Do not ignore</v8:content>
 													</v8:item>
 												</Title>
-												<ExtendedTooltip name="BlankAttributesContextMenuDontIgnoreObjectExtendedTooltip" id="409"/>
+												<ExtendedTooltip name="BlankAttributesContextMenuNotIgnoreObjectExtendedTooltip" id="409"/>
 											</Button>
 										</ChildItems>
 									</ButtonGroup>
@@ -1059,7 +1059,7 @@ It is recommended that you open the catalog item and fill in the attributes.</v8
 												</Title>
 												<ExtendedTooltip name="BlankAttributesIgnoreObjectExtendedTooltip" id="414"/>
 											</Button>
-											<Button name="BlankAttributesDontIgnoreObject" id="167">
+											<Button name="BlankAttributesNotIgnoreObject" id="167">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.NotIgnoreObject</CommandName>
 												<Title>
@@ -1069,7 +1069,7 @@ It is recommended that you open the catalog item and fill in the attributes.</v8
 													</v8:item>
 												</Title>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-												<ExtendedTooltip name="BlankAttributesDontIgnoreObjectExtendedTooltip" id="415"/>
+												<ExtendedTooltip name="BlankAttributesNotIgnoreObjectExtendedTooltip" id="415"/>
 											</Button>
 											<Button name="BlankAttributesShowIgnoredBlankItems" id="341">
 												<Type>CommandBarButton</Type>
@@ -1382,7 +1382,7 @@ This caused synchronization conflicts, which were resolved automatically.</v8:co
 										</Title>
 										<ExtendedTooltip name="ConflictsContextMenuSeparatorGroupExtendedTooltip" id="439"/>
 										<ChildItems>
-											<Button name="ConflictsContextMenuDoNotIgnoreConflict" id="317">
+											<Button name="ConflictsContextMenuNotIgnoreConflict" id="317">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.NotIgnoreConflict</CommandName>
 												<Title>
@@ -1391,7 +1391,7 @@ This caused synchronization conflicts, which were resolved automatically.</v8:co
 														<v8:content>Mark as Unreviewed</v8:content>
 													</v8:item>
 												</Title>
-												<ExtendedTooltip name="ConflictsContextMenuDoNotIgnoreConflictExtendedTooltip" id="440"/>
+												<ExtendedTooltip name="ConflictsContextMenuNotIgnoreConflictExtendedTooltip" id="440"/>
 											</Button>
 										</ChildItems>
 									</ButtonGroup>
@@ -1472,7 +1472,7 @@ This caused synchronization conflicts, which were resolved automatically.</v8:co
 												</Title>
 												<ExtendedTooltip name="ConflictsIgnoreConflictExtendedTooltip" id="447"/>
 											</Button>
-											<Button name="ConflictsDoNotIgnoreConflict" id="312">
+											<Button name="ConflictsNotIgnoreConflict" id="312">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.NotIgnoreConflict</CommandName>
 												<Title>
@@ -1482,7 +1482,7 @@ This caused synchronization conflicts, which were resolved automatically.</v8:co
 													</v8:item>
 												</Title>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-												<ExtendedTooltip name="ConflictsDoNotIgnoreConflictExtendedTooltip" id="448"/>
+												<ExtendedTooltip name="ConflictsNotIgnoreConflictExtendedTooltip" id="448"/>
 											</Button>
 										</ChildItems>
 									</ButtonGroup>
@@ -1827,7 +1827,7 @@ This caused synchronization conflicts, which were resolved automatically.</v8:co
 												</Title>
 												<ExtendedTooltip name="RejectedDueToDateContextMenuIgnoreDeclinedExtendedTooltip" id="474"/>
 											</Button>
-											<Button name="RejectedDueToDateContextMenuDoNotIgnoreDeclined" id="318">
+											<Button name="RejectedDueToDateContextMenuNotIgnoreDeclined" id="318">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.NotIgnoreDeclined</CommandName>
 												<Title>
@@ -1836,7 +1836,7 @@ This caused synchronization conflicts, which were resolved automatically.</v8:co
 														<v8:content>Do not ignore</v8:content>
 													</v8:item>
 												</Title>
-												<ExtendedTooltip name="RejectedDueToDateContextMenuDoNotIgnoreDeclinedExtendedTooltip" id="475"/>
+												<ExtendedTooltip name="RejectedDueToDateContextMenuNotIgnoreDeclinedExtendedTooltip" id="475"/>
 											</Button>
 										</ChildItems>
 									</ButtonGroup>
@@ -1917,7 +1917,7 @@ This caused synchronization conflicts, which were resolved automatically.</v8:co
 												</Title>
 												<ExtendedTooltip name="RejectedDueToDateIgnoreDeclinedExtendedTooltip" id="482"/>
 											</Button>
-											<Button name="RejectedDueToDateDoNotIgnoreDeclined" id="313">
+											<Button name="RejectedDueToDateNotIgnoreDeclined" id="313">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.NotIgnoreDeclined</CommandName>
 												<Title>
@@ -1927,7 +1927,7 @@ This caused synchronization conflicts, which were resolved automatically.</v8:co
 													</v8:item>
 												</Title>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-												<ExtendedTooltip name="RejectedDueToDateDoNotIgnoreDeclinedExtendedTooltip" id="483"/>
+												<ExtendedTooltip name="RejectedDueToDateNotIgnoreDeclinedExtendedTooltip" id="483"/>
 											</Button>
 											<Button name="RejectedDueToDateShowIgnoredRejectedItems" id="343">
 												<Type>CommandBarButton</Type>
@@ -2195,8 +2195,8 @@ This caused synchronization conflicts, which were resolved automatically.</v8:co
 								<CheckBoxField name="ErrorOnExecuteSendingHandlersCodeIsSkipped" id="785">
 									<DataPath>ErrorOnExecuteSendingHandlersCode.IsSkipped</DataPath>
 									<CheckBoxType>Auto</CheckBoxType>
-									<ContextMenu name="ErrorOnExecuteSendingHandlersCodeSkipped1ContextMenu" id="786"/>
-									<ExtendedTooltip name="ErrorOnExecuteSendingHandlersCodeSkipped1ExtendedTooltip" id="787"/>
+									<ContextMenu name="ErrorOnExecuteSendingHandlersCodeIsSkippedContextMenu" id="786"/>
+									<ExtendedTooltip name="ErrorOnExecuteSendingHandlersCodeIsSkippedExtendedTooltip" id="787"/>
 								</CheckBoxField>
 								<LabelField name="ErrorOnExecuteSendingHandlersCodeRef" id="788">
 									<DataPath>ErrorOnExecuteSendingHandlersCode.Ref</DataPath>
@@ -2324,8 +2324,8 @@ This caused synchronization conflicts, which were resolved automatically.</v8:co
 								<CheckBoxField name="ErrorOnExecuteGettingHandlersCodeIsSkipped" id="809">
 									<DataPath>ErrorOnExecuteGettingHandlersCode.IsSkipped</DataPath>
 									<CheckBoxType>Auto</CheckBoxType>
-									<ContextMenu name="ErrorOnExecuteGettingHandlersCodeSkipped1ContextMenu" id="810"/>
-									<ExtendedTooltip name="ErrorOnExecuteGettingHandlersCodeSkipped1ExtendedTooltip" id="811"/>
+									<ContextMenu name="ErrorOnExecuteGettingHandlersCodeIsSkippedContextMenu" id="810"/>
+									<ExtendedTooltip name="ErrorOnExecuteGettingHandlersCodeIsSkippedExtendedTooltip" id="811"/>
 								</CheckBoxField>
 								<LabelField name="ErrorOnExecuteGettingHandlersCodeRef" id="812">
 									<DataPath>ErrorOnExecuteGettingHandlersCode.Ref</DataPath>

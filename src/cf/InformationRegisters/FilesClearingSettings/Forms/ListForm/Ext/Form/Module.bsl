@@ -33,6 +33,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	FilesCleanupMode = FilesOperationsInternal.FilesCleanupMode();
 	ConfigureFilePurgeModes();
 	
+	// Standard subsystems.Pluggable commands
+	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
+		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
+	EndIf;
+	// End StandardSubsystems.AttachableCommands
+	
 EndProcedure
 
 &AtClient
@@ -104,6 +111,18 @@ Procedure MetadataObjectsTreeSelection(Item, RowSelected, Field, StandardProcess
 		StandardProcessing = False;
 		OpenSettingsForm();
 	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure MetadataObjectsTreeOnActivateRow(Item)
+	
+	// Standard subsystems.Pluggable commands
+	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
+		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
+	EndIf;
+	// End StandardSubsystems.AttachableCommands
 	
 EndProcedure
 
@@ -307,6 +326,44 @@ Procedure ShouldUpdateInfo(Command)
 	CalculateDeletableFilesInfo();
 	WaitDeletableFilesInfoCalculationEnd();
 EndProcedure
+
+// Standard subsystems.Pluggable commands
+&AtClient
+Procedure Attachable_ExecuteCommand(Command)
+	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
+		SelectedOwners = New Array;
+		SelectedRows = Items.MetadataObjectsTree.SelectedRows;
+		For Each RowID In SelectedRows Do
+			ObjectTreeString = MetadataObjectsTree.FindByID(RowID);
+			AddFileOwner(SelectedOwners, ObjectTreeString);
+		EndDo;
+		ModuleAttachableCommandsClient.StartCommandExecution(ThisObject, Command, SelectedOwners);
+	EndIf;
+EndProcedure
+
+&AtClient
+Procedure Attachable_ContinueCommandExecutionAtServer(ExecutionParameters, AdditionalParameters) Export
+	ExecuteCommandAtServer(ExecutionParameters);
+EndProcedure
+
+&AtServer
+Procedure ExecuteCommandAtServer(ExecutionParameters)
+	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
+		ModuleAttachableCommands.ExecuteCommand(ThisObject, ExecutionParameters, Items.MetadataObjectsTree);
+	EndIf;
+EndProcedure
+
+&AtClient
+Procedure Attachable_UpdateCommands()
+	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommandsClientServer = CommonClient.CommonModule("AttachableCommandsClientServer");
+		ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, Items.MetadataObjectsTree);
+	EndIf;
+EndProcedure
+
+// End StandardSubsystems.AttachableCommands
 
 #EndRegion
 
@@ -1018,6 +1075,22 @@ Procedure ConfigureFilePurgeModes()
 	Items.AutomaticallyCleanUpUnusedFiles.Title = ?(UseVolumes, 
 		NStr("en = 'Clean up automatically:';"), NStr("en = 'Clean up unused files automatically:';"));
 	
+EndProcedure
+
+&AtClient
+Procedure AddFileOwner(SelectedOwners, ObjectTreeString)
+	If TypeOf(ObjectTreeString.FileOwner) = Type("CatalogRef.MetadataObjectIDs")
+	   Or TypeOf(ObjectTreeString.FileOwner) = Type("CatalogRef.ExtensionObjectIDs")
+	   Or ObjectTreeString.FileOwner = Undefined Then
+		SubordinateRows = ObjectTreeString.GetItems();
+		For Each TreeRow In SubordinateRows Do
+			AddFileOwner(SelectedOwners, TreeRow);
+		EndDo;
+	Else
+		If SelectedOwners.Find(ObjectTreeString.FileOwner) = Undefined Then
+			SelectedOwners.Add(ObjectTreeString.FileOwner);
+		EndIf;
+	EndIf;
 EndProcedure
 
 #EndRegion

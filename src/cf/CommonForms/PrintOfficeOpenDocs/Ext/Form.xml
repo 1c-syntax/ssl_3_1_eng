@@ -35,7 +35,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="CommandBarGroupExtendedTooltip" id="37"/>
+			<ExtendedTooltip name="GroupCommandBarExtendedTooltip" id="37"/>
 			<ChildItems>
 				<CommandBar name="CommandBarLeftPart" id="30">
 					<Title>
@@ -473,8 +473,8 @@
 						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</Picture>
 					<FileDragMode>AsFile</FileDragMode>
-					<ContextMenu name="InformationPicture7ContextMenu" id="103"/>
-					<ExtendedTooltip name="InformationPicture7ExtendedTooltip" id="104"/>
+					<ContextMenu name="PictureOfInformationContextMenu" id="103"/>
+					<ExtendedTooltip name="PictureOfInformationExtendedTooltip" id="104"/>
 				</PictureDecoration>
 				<LabelDecoration name="AdditionalInformation" id="105">
 					<AutoMaxWidth>false</AutoMaxWidth>

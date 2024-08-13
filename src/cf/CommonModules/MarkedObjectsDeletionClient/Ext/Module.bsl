@@ -20,12 +20,12 @@
 //            - Undefined - — the form from which deletion was started.
 // 							   If not specified, the detailed information on the deletion results
 // 							   will not be passed to the processing notification about closing.
-//   OnCloseNotifyDescription - NotifyDescription - 
-//								
-//								:
-//                              
-//                              
-//                              
+//   OnCloseNotifyDescription - NotifyDescription - If specified, then when the deletion is over, or the form is closed,
+//								the result is passed to the notification handler as Structure with the properties
+//								# Success - Boolean - "True" if all objects are deleted.:
+//                              # DeletedItemsCount1 - Number - Number of deleted objects.
+//                              # NotDeletedItemsCount - Number - Number of objects that couldn't be deleted.
+//                              # ResultAddress- String - Address in the temporary storage.
 //                              
 //
 Procedure StartMarkedObjectsDeletion(ObjectsToDelete, DeletionParameters = Undefined, Owner = Undefined,

@@ -10,8 +10,8 @@
 
 #Region Public
 
-// 
-// 
+// Returns the flag indicating if the app allows external users
+// (the value of the "UseExternalUsers" functional option).
 //
 // Returns:
 //  Boolean - if True, external users are allowed.
@@ -37,7 +37,7 @@ Function CurrentExternalUser() Export
 	
 EndFunction
 
-// 
+// Returns the reference to the standard "AllExternalUsers" group.
 //
 // Returns:
 //  CatalogRef.ExternalUsersGroups
@@ -48,9 +48,9 @@ Function AllExternalUsersGroup() Export
 	
 EndFunction
 
-// Returns a reference to the external user authorization object obtained from the information database.
-// An authorization object is a reference to an information database object used
-// for communication with an external user, for example: a counterparty, an individual, etc.
+// Returns a reference to the authorization object of the external user obtained from the infobase.
+// The authorization object is a reference to an infobase object (for example, a counterparty, an individual, and others
+// associated with an external user.
 //
 // Parameters:
 //  ExternalUser - Undefined - Return for the current external user.

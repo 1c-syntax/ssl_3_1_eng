@@ -42,7 +42,7 @@ Procedure OnInitialItemsFilling(LanguagesCodes, Items, TabularSections) Export
 	Item = Items.Add();
 	Item.PredefinedDataName = "OriginalsNotAll";
 	Item.Description = NStr("en = 'Not all originals';", Common.DefaultLanguageCode());
-	Item.LongDesc = NStr("en = 'Overall state of a document whose print form originals have different states.';", Common.DefaultLanguageCode());
+	Item.LongDesc = NStr("en = 'The aggregated state of a document whose print forms have different states.';", Common.DefaultLanguageCode());
 	Item.Code = "000000002";
 	Item.AddlOrderingAttribute = "99998";
 

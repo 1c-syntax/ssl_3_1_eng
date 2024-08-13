@@ -159,7 +159,7 @@ Procedure FormMainPanelOnCurrentPageChange(Item, CurrentPage)
 EndProcedure
 
 &AtClient
-Procedure DebugModeFlagOnChange(Item)
+Procedure FlagDebugModeOnChange(Item)
 	
 	If Object.FlagDebugMode Then
 		
@@ -1230,8 +1230,8 @@ Procedure OpenImportFileAtServer(FileAddress)
 		
 		BinaryData = GetFromTempStorage(FileAddress); // BinaryData
 		AddressOnServer = GetTempFileName(".xml");
-		// 
-		// 
+		// The temp file is deleted by "DeleteFiles(Object.ExchangeFileName)"
+		// (not by "DeleteFiles(AddressOnServer)").
 		BinaryData.Write(AddressOnServer);
 		Object.ExchangeFileName = AddressOnServer;
 		
@@ -1408,8 +1408,8 @@ Procedure ExecuteImportAtServer(FileAddress, FileNameForExtension)
 		If IsTempStorageURL(ImportRulesFileAddressInStorage) Then
 			BinaryData = GetFromTempStorage(ImportRulesFileAddressInStorage); // BinaryData
 			AddressOnServer = GetTempFileName("xml");
-			// 
-			// 
+			// The temp file is deleted by "DeleteFiles(Object.ExchangeRulesFileName)"
+			// (not by "DeleteFiles(AddressOnServer)").
 			BinaryData.Write(AddressOnServer);
 			Object.ExchangeRulesFileName = AddressOnServer;
 		Else
@@ -1462,8 +1462,8 @@ Function FileNameAtServerOrClient(Var_AttributeName ,Val FileAddress, Val FileNa
 			Extension = FileExtention(FileNameForExtension);
 			BinaryData = GetFromTempStorage(FileAddress); // BinaryData
 			AddressOnServer = GetTempFileName(Extension);
-			// 
-			// 
+			// Instead of "DeleteFiles(AddressOnServer)", the temp file is deleted by
+			// "DeleteFiles(Object.ExchangeRulesFileName)" followed by "DeleteFiles(Object.ExchangeFileName)".
 			BinaryData.Write(AddressOnServer);
 			FileName = AddressOnServer;
 			

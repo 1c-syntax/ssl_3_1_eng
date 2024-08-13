@@ -28,8 +28,8 @@ EndProcedure
 //
 // Parameters:
 //  Sections - ValueTable:
-//   * Name - String - a name used in data source details
-//       in the FillDataSourcesForPeriodClosingCheck procedure.
+//   * Name - String - Name used in the data source details
+//       in the FillDataSourcesForPeriodClosingCheck procedure.
 //
 //   * Id - UUID - an item reference ID of chart of characteristic types.
 //       To get an ID, execute the platform method in 1C:Enterprise mode:

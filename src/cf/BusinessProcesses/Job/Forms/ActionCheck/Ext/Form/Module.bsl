@@ -317,7 +317,7 @@ Procedure WriteBusinessProcessAttributes(TaskObject)
 
 		JobObject.Completed2 = JobCompleted;
 		JobObject.Accepted = JobConfirmed;
-		JobObject.Write(); // 
+		JobObject.Write(); // CAC:1327 The lock is set in the BusinessProcessesAndTasksServer.LockBusinessProcesses.
 
 		CommitTransaction();
 	Except

@@ -128,10 +128,10 @@
 					<ContextMenu name="ListAccessValueContextMenu" id="11"/>
 					<ExtendedTooltip name="ListAccessValueExtendedTooltip" id="42"/>
 				</LabelField>
-				<LabelField name="ListAdjustment" id="46">
+				<LabelField name="ListRefinement" id="46">
 					<DataPath>List.Refinement</DataPath>
-					<ContextMenu name="ListAdjustmentContextMenu" id="47"/>
-					<ExtendedTooltip name="ListAdjustmentExtendedTooltip" id="48"/>
+					<ContextMenu name="ListRefinementContextMenu" id="47"/>
+					<ExtendedTooltip name="ListRefinementExtendedTooltip" id="48"/>
 				</LabelField>
 				<CheckBoxField name="ListRead" id="12">
 					<DataPath>List.Read</DataPath>

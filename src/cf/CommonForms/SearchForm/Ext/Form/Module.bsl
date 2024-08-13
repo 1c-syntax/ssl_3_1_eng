@@ -153,7 +153,7 @@ EndProcedure
 Procedure OnExecuteSearch(Val Var_SearchDirection)
 	
 	If IsBlankString(SearchString) Then
-		ShowMessageBox(, NStr("en = 'Enter search text.';"));
+		ShowMessageBox(, NStr("en = 'Please enter text to search for.';"));
 		Return;
 	EndIf;
 	

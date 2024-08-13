@@ -20,6 +20,7 @@
 				<v8:Type>cfg:DocumentObject.Meeting</v8:Type>
 				<v8:Type>cfg:DocumentObject.IncomingEmail</v8:Type>
 				<v8:Type>cfg:DocumentObject.PlannedInteraction</v8:Type>
+				<v8:Type>cfg:DocumentObject.Questionnaire</v8:Type>
 				<v8:Type>cfg:DocumentObject.SMSMessage</v8:Type>
 				<v8:Type>cfg:DocumentObject.PhoneCall</v8:Type>
 				<v8:Type>cfg:DocumentObject.OutgoingEmail</v8:Type>

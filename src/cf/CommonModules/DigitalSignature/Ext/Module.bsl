@@ -574,6 +574,7 @@ Procedure WriteEncryptionCertificates(Object, Val EncryptionCertificates, FormId
 			NewCertificate = RecordSet.Add();
 			NewCertificate.EncryptedObject = DataObject.Ref;
 			FillPropertyValues(NewCertificate, EncryptionCertificate);
+			NewCertificate.Certificate = New ValueStorage(EncryptionCertificate.Certificate);
 			NewCertificate.SequenceNumber = SequenceNumber;
 			SequenceNumber = SequenceNumber + 1;
 		EndDo;
@@ -1129,6 +1130,7 @@ EndFunction
 //
 // Parameters:
 //   Certificate - CryptoCertificate - Cryptographic certificate.
+//              - BinaryData - Certificate's binary data in DER encoding.
 //
 // Returns:
 //   Structure:
@@ -1148,16 +1150,20 @@ EndFunction
 //
 Function CertificateProperties(Certificate) Export
 	
+	CertificateData = Certificate;
 	If TypeOf(Certificate) = Type("CryptoCertificate") Then
 		CertificateBinaryData = Certificate.Unload();
 	ElsIf TypeOf(Certificate) = Type("FixedStructure") Then
 		CertificateBinaryData = Certificate.Certificate;
+	ElsIf TypeOf(Certificate) = Type("BinaryData") Then
+		CertificateBinaryData = Certificate;
+		CertificateData = New CryptoCertificate(Certificate);
 	Else
 		CertificateBinaryData = Undefined;
 	EndIf;
 	
 	Return DigitalSignatureInternalClientServer.CertificateProperties(
-		Certificate, DigitalSignatureInternal.UTCOffset(), CertificateBinaryData);
+		CertificateData, DigitalSignatureInternal.UTCOffset(), CertificateBinaryData);
 	
 EndFunction
 
@@ -1206,8 +1212,9 @@ Function ClassifierError(TextToSearchInClassifier, ErrorAtServer = False) Export
 	
 EndFunction
 
-// Upgrades the signature to the given type if possible.
-// Adds an archive timestamp to the archived signature (CAdES-A).
+// Enhances the signature to the given type if possible.
+// Adds an archive timestamp to the archived signature (CAdES-A). 
+// Returns only the modified signature properties.
 // 
 // Parameters:
 //  Signature                      - BinaryData - digital signature binary data.
@@ -1358,6 +1365,9 @@ Function EnhanceSignature(Signature, SignatureType, AddArchiveTimestamp = False,
 		SignatureProperties.SignatureType = ParametersCryptoSignatures.SignatureType;
 		SignatureProperties.DateActionLastTimestamp = ParametersCryptoSignatures.DateActionLastTimestamp;
 		SignatureProperties.CertificateDetails = ParametersCryptoSignatures.CertificateDetails;
+		SignatureProperties.SignatureDate = 
+			?(ValueIsFilled(ParametersCryptoSignatures.UnverifiedSignatureDate),
+			ParametersCryptoSignatures.UnverifiedSignatureDate, ParametersCryptoSignatures.DateSignedFromLabels);
 		Result.SignatureProperties = SignatureProperties;
 	Else
 		CertificateProperties = CertificateProperties(ParametersCryptoSignatures.CertificateLastTimestamp);
@@ -1365,7 +1375,7 @@ Function EnhanceSignature(Signature, SignatureType, AddArchiveTimestamp = False,
 				CertificateProperties);
 
 		ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The certificate of the received timestamp is invalid: %1
+				NStr("en = 'Не прошел проверку сертификат полученной метки времени: %1
 					 |%2';"), ErrorDescription, InformationAboutCertificate);
 
 		Raise ErrorDescription;
@@ -1566,7 +1576,7 @@ EndFunction
 //        ** Name           - String  - App presentation as specified in the supplied list.
 //             For example, NStr("en = 'ViPNet CSP'")
 //        ** Version        - String - Library version.
-//        ** ILicenseInfo      - Boolean - Licence presence flag
+//        ** ILicenseInfo      - Boolean - License presence flag
 //     * IsConflictPossible - Boolean - Flag indicating whether a few cryptographic apps are installed,
 //             which might conflict with each other.
 //
@@ -1664,8 +1674,18 @@ EndFunction
 //                   or an error specified in the ErrorDescription parameter has occurred.
 //
 Function VerifySignature(CryptoManager, RawData, Signature, ErrorDescription = Null, OnDate = Undefined, ResultStructure = Undefined) Export
+	
+	If ResultStructure <> Undefined Then
+		ExpectedValues = New Array;
+		ExpectedValues.Add(DigitalSignatureInternalClientServer.CheckQualified());
+		ExpectedValues.Add(DigitalSignatureInternalClientServer.OnlyQualified());
+		ExpectedValues.Add(DigitalSignatureInternalClientServer.NotVerifyCertificate());
+		CommonClientServer.CheckParameter("DigitalSignature.VerifySignature",
+			"ResultStructure.CertificateVerificationParameters", ResultStructure.CertificateVerificationParameters, Type("String"),, ExpectedValues);
+	EndIf;
 
 	CheckResult = False;
+	InvalidHash = Undefined;
 	
 	RaiseException1 = ErrorDescription = Null;
 	
@@ -1864,12 +1884,13 @@ Function VerifySignature(CryptoManager, RawData, Signature, ErrorDescription = N
 		Try
 			CryptoManagerToCheck.VerifySignature(SourceDataToCheck, SignatureToCheck, Certificate, False);
 		Except
+			InvalidHash = True;
 			SignatureVerificationError = ErrorProcessing.BriefErrorDescription(ErrorInfo());
 		EndTry;
 		
 		If CommonSettings().AvailableAdvancedSignature Then
 			SignatureProperties = DigitalSignatureInternal.SignaturePropertiesReadByCryptoManager(
-				SignatureToCheck, CryptoManagerToCheck, False);
+				SignatureToCheck, CryptoManagerToCheck, Certificate = Undefined);
 			If IsBlankString(SignatureVerificationError) And SignatureProperties.SignatureType <> Enums.CryptographySignatureTypes.NormalCMS
 				And SignatureProperties.SignatureType <> Enums.CryptographySignatureTypes.BasicCAdESBES Then
 				Try
@@ -1880,13 +1901,14 @@ Function VerifySignature(CryptoManager, RawData, Signature, ErrorDescription = N
 				EndTry;
 			EndIf;
 		Else
-			SignatureProperties = DigitalSignatureInternal.SignaturePropertiesFromBinaryData(SignatureToCheck, False);
+			SignatureProperties = DigitalSignatureInternal.SignaturePropertiesFromBinaryData(SignatureToCheck, Certificate = Undefined);
 		EndIf;
 		
 		CertificateProperties = Undefined;
 		If ResultStructure <> Undefined Then
 			FillPropertyValues(ResultStructure, SignatureProperties);
-			If DigitalSignatureInternalClientServer.IsCertificateExists(Certificate) Then
+			If Not ValueIsFilled(ResultStructure.Certificate)
+				And DigitalSignatureInternalClientServer.IsCertificateExists(Certificate) Then
 				CertificateProperties = CertificateProperties(Certificate);
 				ResultStructure.Certificate = Certificate.Unload();
 				ResultStructure.Thumbprint = CertificateProperties.Thumbprint;
@@ -1896,12 +1918,7 @@ Function VerifySignature(CryptoManager, RawData, Signature, ErrorDescription = N
 		
 		If Not IsBlankString(SignatureVerificationError) Then
 			ErrorDescription = SignatureVerificationError;
-			CertificateRevoked = IsSignatureCertificateRevoked(ErrorDescription, ResultStructure);
-			If CertificateRevoked Then
-				FillSignatureVerificationResult(ErrorDescription, ResultStructure, False, True);
-			Else
-				FillSignatureVerificationResult(ErrorDescription, ResultStructure, IsSignatureVerificationRequired(ErrorDescription, ResultStructure));
-			EndIf;
+			FillSignatureVerificationResult(ErrorDescription, ResultStructure, Undefined, InvalidHash);
 			If RaiseException1 Then
 				Raise ErrorDescription;
 			EndIf;
@@ -1919,24 +1936,31 @@ Function VerifySignature(CryptoManager, RawData, Signature, ErrorDescription = N
 		ErrorDescription = Null;
 	EndIf;
 	
-	AdditionalParameters = DigitalSignatureInternal.AdditionalCertificateVerificationParameters();
-	AdditionalParameters.ToVerifySignature = True;
-		
-	CertificateVerificationResult = DigitalSignatureInternal.CheckCertificate(
-		CryptoManagerToCheck, Certificate, ErrorDescription, DateToVerifySignatureCertificate, AdditionalParameters);
-	
-	If CertificateVerificationResult = True Then
-		FillSignatureVerificationResult(CertificateVerificationResult, ResultStructure);
-	Else
-		CertificateRevoked = IsSignatureCertificateRevoked(ErrorDescription, ResultStructure);
-		If Not CertificateRevoked Then
-			FillSignatureVerificationResult(ErrorDescription, ResultStructure, IsSignatureVerificationRequired(
-				ErrorDescription, ResultStructure));
+	If ResultStructure = Undefined 
+		Or ResultStructure.CertificateVerificationParameters <> DigitalSignatureInternalClientServer.NotVerifyCertificate() Then
+			
+		AdditionalParameters = DigitalSignatureInternal.AdditionalCertificateVerificationParameters();
+		AdditionalParameters.ToVerifySignature = True;
+		If ResultStructure = Undefined Then
+			AdditionalParameters.PerformCAVerification = DigitalSignatureInternalClientServer.CheckQualified();
 		Else
-			FillSignatureVerificationResult(CertificateVerificationResult, ResultStructure, False, True);
+			AdditionalParameters.PerformCAVerification = ResultStructure.CertificateVerificationParameters;
 		EndIf;
+		
+		CertificateVerificationResult = DigitalSignatureInternal.CheckCertificate(
+			CryptoManagerToCheck, Certificate, ErrorDescription, DateToVerifySignatureCertificate, AdditionalParameters);
+		
+		If CertificateVerificationResult = True Then
+			FillSignatureVerificationResult(True, ResultStructure);
+		Else
+			FillSignatureVerificationResult(ErrorDescription, ResultStructure, Undefined, False);
+		EndIf;
+		
+	Else
+		CertificateVerificationResult = True;
+		FillSignatureVerificationResult(True, ResultStructure);
 	EndIf;
-	
+		
 	Return CertificateVerificationResult;
 	
 EndFunction
@@ -1958,32 +1982,33 @@ EndFunction
 //   OnDate               - Date - check the certificate on the specified date.
 //                          If parameter is not specified or a blank date is specified,
 //                          check on the current session date.
+//   CheckParameters -  See DigitalSignatureClient.CertificateVerificationParameters
 //
 // Returns:
 //  Boolean - True if the check is completed successfully.
 //           False if the cryptographic manager is not received (because it is not specified).
 //
-Function CheckCertificate(CryptoManager, Certificate, ErrorDescription = Null, OnDate = Undefined) Export
+Function CheckCertificate(CryptoManager, Certificate, ErrorDescription = Null, OnDate = Undefined, CheckParameters = Undefined) Export
 	
-	Return DigitalSignatureInternal.CheckCertificate(CryptoManager, Certificate, ErrorDescription, OnDate);
+	Return DigitalSignatureInternal.CheckCertificate(CryptoManager, Certificate, ErrorDescription, OnDate, CheckParameters);
 	
 EndFunction
 
-// 
+// Gets certificate thumbprints of the OS user in the Base64 format.
 // 
 // Parameters:
 //
 //  OnlyPersonal - Boolean - if False, recipient certificates are added to the personal certificates.
 //  ErrorDescription - Null - raise an exception if an error occurs during the check.
 //                 - String - Contains error details (if occurred).
-//  Service - Boolean - 
+//  Service - Boolean - Flag indicating whether the service should return the thumbprints.
 //
 // Returns:
 //  Map of KeyAndValue:
-//    * Key - 
-//    * Value - 
-//                      
-//                       
+//    * Key - Certificate thumbprint in the Base64 format.
+//    * Value - Source.
+//                      "Server", "Service".
+//                       If the type of "ReceivingParameters" is Boolean, then "Value" is set to "True". Intended for backward compatibility.
 //
 Function CertificateThumbprints(OnlyPersonal, ErrorDescription = Null, Service = True) Export
 	
@@ -2013,8 +2038,8 @@ EndFunction
 //   InPersonalStorageOnly - Boolean - if True, search in the Personal store, otherwise, search everywhere.
 //
 // Returns:
-//   CryptoCertificate - certificate of digital signature and encryption.
-//   Undefined - the certificate does not exist in the storage.
+//   CryptoCertificate - Certificate for digital signing and encryption.
+//   Undefined - the certificate does not exist in the store.
 //
 Function GetCertificateByThumbprint(Thumbprint, InPersonalStorageOnly) Export
 	
@@ -2200,8 +2225,14 @@ EndFunction
 // Parameters:
 //  Certificate - CryptoCertificate
 //  OnDate - Undefined, Date - If not specified, the check uses the session date.
-//  ThisVerificationSignature - Boolean - Signature check flag. The warning (not an error) will not be filled.
-// 
+//  CheckParameters - Structure:
+//   * ThisVerificationSignature - Boolean - 
+//   * VerifyCertificate - String - 
+//        
+//                                      
+//       
+//                                   
+//
 // Returns:
 //  Structure - Result of the default CA check.:
 //   * Valid_SSLyf - Boolean - Flag indicating whether the CA is valid on the date or the check was not performed 
@@ -2217,9 +2248,9 @@ EndFunction
 //                       ** Cause - String - Error reason for display in the extended error form.
 //                       ** Decision - String - Solution for display in the extended error form.
 //
-Function ResultofCertificateAuthorityVerification(Certificate, OnDate = Undefined, ThisVerificationSignature = False) Export
+Function ResultofCertificateAuthorityVerification(Certificate, OnDate = Undefined, CheckParameters = Undefined) Export
 	
-	Return DigitalSignatureInternal.ResultofCertificateAuthorityVerification(Certificate, OnDate, ThisVerificationSignature);
+	Return DigitalSignatureInternal.ResultofCertificateAuthorityVerification(Certificate, OnDate, CheckParameters);
 	
 EndFunction
 
@@ -2344,8 +2375,8 @@ EndFunction
 //
 Function AddEditDigitalSignatures() Export
 	
-	// 
-	// 
+	// ACC:515-off
+	// The role has no rights to metadata objects except for the common form "AddDigitalSignatureFromFile".
 	Return UseDigitalSignature() And Users.RolesAvailable("AddEditDigitalSignatures");
 	// ACC:515-on
 	
@@ -2976,69 +3007,68 @@ Procedure CheckParameterObject(Object, ProcedureName, RefsOnly = False)
 EndProcedure
 
 Procedure FillSignatureVerificationResult(
-	Result, ResultStructure = Undefined, IsVerificationRequired = Undefined, CertificateRevoked = False)
+	Result, ResultStructure, IsVerificationRequired = Undefined, InvalidHash = Undefined)
 	
-	If ResultStructure <> Undefined Then
-				
-		ResultStructure.Result = Result;
-		
-		If Result = True Then
-			ResultStructure.SignatureCorrect = True;
-			ResultStructure.IsVerificationRequired = False;
-			Return;
-		EndIf;
-		
-		If IsVerificationRequired <> Undefined Then
-			ResultStructure.IsVerificationRequired = IsVerificationRequired;
-		EndIf;
-		
-		If ResultStructure.IsVerificationRequired = False Then
-			
-			If CertificateRevoked Then
-				ResultStructure.Result = DigitalSignatureInternalClientServer.ErrorTextForRevokedSignatureCertificate(
-					ResultStructure);
-			EndIf;
-			ResultStructure.CertificateRevoked = CertificateRevoked;
-			ResultStructure.IsVerificationRequired = IsVerificationRequired;
-			
-			ResultStructure.SignatureCorrect = False;
-		EndIf;
-		
-		If ResultStructure.IsVerificationRequired = Undefined Then
-			ResultStructure.IsVerificationRequired = False;
-			ResultStructure.SignatureCorrect = False;
-		EndIf;
-		
+	If ResultStructure = Undefined Then
+		Return;
 	EndIf;
 	
-EndProcedure
-
-Function IsSignatureVerificationRequired(ErrorDescription, ResultStructure)
+	ResultStructure.Result = Result;
 	
-	IsVerificationRequired = Undefined;
-	If ValueIsFilled(ErrorDescription) And ResultStructure <> Undefined Then
-		ClassifierError = DigitalSignatureInternal.ClassifierError(ErrorDescription, True);
-		If ClassifierError <> Undefined Then
+	If Result = True Then
+		ResultStructure.SignatureCorrect = True;
+		ResultStructure.IsVerificationRequired = False;
+		Return;
+	EndIf;
+	
+	ResultStructure.SignatureCorrect = False;
+	
+	If InvalidHash = True Then
+		ResultStructure.IsVerificationRequired = False;
+		ResultStructure.IsSignatureMathematicallyValid = False;
+		ResultStructure.SignatureMathValidationError = Result;
+		Return;
+	EndIf;
+	
+	CertificateRevoked = False;
+	ClassifierError = DigitalSignatureInternal.ClassifierError(Result, True);
+	If ClassifierError <> Undefined Then
+		CertificateRevoked = ClassifierError.CertificateRevoked;
+		If InvalidHash = Undefined Then
+			InvalidHash = ClassifierError.InvalidSignatureHash;
+		EndIf;
+		If IsVerificationRequired = Undefined Then
 			IsVerificationRequired = ClassifierError.IsCheckRequired;
 		EndIf;
 	EndIf;
+		
+	If InvalidHash = True Then
+		ResultStructure.SignatureCorrect = False;
+		ResultStructure.IsVerificationRequired = False;
+		ResultStructure.IsSignatureMathematicallyValid = False;
+		ResultStructure.SignatureMathValidationError = Result;
+		Return;
+	EndIf;
+		
+	ResultStructure.IsSignatureMathematicallyValid = True;
 	
-	Return IsVerificationRequired;
-	
-EndFunction
-
-Function IsSignatureCertificateRevoked(ErrorDescription, ResultStructure)
-	
-	CertificateRevoked = False;
-	If ValueIsFilled(ErrorDescription) And ResultStructure <> Undefined Then
-		ClassifierError = DigitalSignatureInternal.ClassifierError(ErrorDescription, True);
-		If ClassifierError <> Undefined Then
-			CertificateRevoked = ClassifierError.CertificateRevoked;
-		EndIf;
+	If CertificateRevoked = True Then
+		ResultStructure.Result = DigitalSignatureInternalClientServer.ErrorTextForRevokedSignatureCertificate(
+			ResultStructure);
+		ResultStructure.AdditionalAttributesCheckError = ResultStructure.Result;
+		ResultStructure.CertificateRevoked = True;
+		ResultStructure.IsVerificationRequired = False;
+		Return;
 	EndIf;
 	
-	Return CertificateRevoked;
+	If IsVerificationRequired <> Undefined Then
+		ResultStructure.IsVerificationRequired = IsVerificationRequired;
+	Else
+		ResultStructure.IsVerificationRequired = False;
+	EndIf;
 	
-EndFunction
+	ResultStructure.AdditionalAttributesCheckError = Result;
+	
+EndProcedure
 
 #EndRegion

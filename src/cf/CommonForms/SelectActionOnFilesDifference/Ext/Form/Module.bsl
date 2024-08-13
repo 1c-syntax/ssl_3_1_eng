@@ -37,11 +37,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 		Items.FormOpenExistingFile.Visible = False;
 		Items.FormGetFromStorage.Visible    = False;
-		Items.FormINTO.DefaultButton   = True;
+		Items.FormInto.DefaultButton   = True;
 		
 	ElsIf Parameters.FileOperation = "OpenInWorkingFolder" Then
 		
-		Items.FormINTO.Visible  = False;
+		Items.FormInto.Visible  = False;
 		Items.FormDontPut.Visible = False;
 		Items.FormOpenExistingFile.DefaultButton = True;
 	Else

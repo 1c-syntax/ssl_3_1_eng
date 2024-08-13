@@ -334,8 +334,8 @@ Procedure FillDefaultAccessValuesSets(Object, Table) Export
 		Or TypeOf(Object) = Type("DocumentObject.SMSMessage") 
 		Or TypeOf(Object) = Type("DocumentObject.PhoneCall") Then
 		
-		// 
-		// 
+		// The default access restriction logic: The object is available if "Author" or "Assignee" is available.
+		// Restriction by "EmailAccounts".
 		
 		SetNumber = 1;
 
@@ -352,8 +352,8 @@ Procedure FillDefaultAccessValuesSets(Object, Table) Export
 		
 	ElsIf TypeOf(Object) = Type("DocumentObject.IncomingEmail") Then
 		
-		// 
-		// 
+		// The default access restriction logic: The object is available if "Account" or "Assignee" is available.
+		// Restriction by "EmailAccounts".
 		
 		SetNumber = 1;
 
@@ -370,7 +370,7 @@ Procedure FillDefaultAccessValuesSets(Object, Table) Export
 		
 	ElsIf TypeOf(Object) = Type("DocumentObject.OutgoingEmail") Then
 		
-		// 
+		// The default access restriction logic: The object is available if "Account", "Assignee", or "Author" is available.
 		// 
 
 		SetNumber = 1;
@@ -1169,8 +1169,8 @@ Procedure OnFillToDoList(ToDoList) Export
 	
 	NewEmailsByAccounts = NewEmailsByAccounts();
 	
-	// 
-	// 
+	// The procedure can be called only if the "To-do list" subsystem is integrated.
+	// Therefore, don't check if the subsystem is integrated.
 	Sections = ModuleToDoListServer.SectionsForObject(Metadata.DocumentJournals.Interactions.FullName());
 	
 	For Each Section In Sections Do
@@ -1351,7 +1351,7 @@ EndProcedure
 // Parameters:
 //  ReplacementPairs - Map - contains the value pairs original and duplicate.
 //  UnprocessedOriginalsValues - Array of Structure:
-//    * ValueToReplace - AnyRef - the original value of the object to replace.
+//    * ValueToReplace - AnyRef - The original value of a replaceable object.
 //    * UsedLinks - See Common.SubordinateObjectsLinksByTypes.
 //    * KeyAttributesValue - Structure - Key is the attribute name. Value is the attribute value.
 //
@@ -2407,7 +2407,7 @@ Function GetSearchForContactsQueryTextByEmailString()
 	
 EndFunction
 
-// Gets contacts by an interaction subject, sets a contact search page by the subject
+// Gets contacts for a given interaction topic and sets a contact search page
 // as the current page of the search form.
 //
 // Parameters:
@@ -3277,6 +3277,7 @@ Function EmailSendingParameters(Object) Export
 	|	Files.Description               AS FullDescr,
 	|	Files.Extension                 AS Extension,
 	|	Files.Ref                     AS Ref,
+	|	&Encrypted,
 	|	Files.EmailFileID  AS EmailFileID
 	|FROM
 	|	&NameOfTheReferenceTable AS Files
@@ -3297,6 +3298,12 @@ Function EmailSendingParameters(Object) Export
 	
 	Query.Text = StrReplace(Query.Text, "&NameOfTheReferenceTable", "Catalog." + MetadataObjectName);
 	
+	If Metadata.Catalogs[MetadataObjectName].Attributes.Find("Encrypted") <> Undefined Then 
+		Query.Text = StrReplace(Query.Text, "&Encrypted", "Files.Encrypted                 AS Encrypted");
+	Else
+		Query.Text = StrReplace(Query.Text, "&Encrypted", "FALSE                 AS Encrypted");
+	EndIf;
+	
 	Query.SetParameter("FileOwner", FilesOwner);
 	QueryResult = Query.ExecuteBatch();
 	
@@ -3309,7 +3316,8 @@ Function EmailSendingParameters(Object) Export
 	While AttachmentsSelection.Next() Do
 		
 		AddAttachmentEmailIfRequired(AttachmentEmailTable, AttachmentsArray, DisplayedAttachmentNumber);
-		FileName = AttachmentsSelection.FullDescr + ?(AttachmentsSelection.Extension = "", "", "." + AttachmentsSelection.Extension);
+		FileName = AttachmentsSelection.FullDescr + ?(AttachmentsSelection.Extension = "", "", "." + AttachmentsSelection.Extension)
+			+ ?(AttachmentsSelection.Encrypted, "." + EncryptedFilesExtension(), "");
 		
 		If IsBlankString(AttachmentsSelection.EmailFileID) Then
 			AddAttachment(AttachmentsArray, FileName, FilesOperations.FileBinaryData(AttachmentsSelection.Ref));
@@ -4413,8 +4421,8 @@ Function ProcessHTMLText(MailMessage, DisableExternalResources = True, HasExtern
 	
 	If Not IsBlankString(HTMLText) Then
 		
-		//  
-		// 
+		// Add the HTML tag (if missing). Such email messages can be sent from, for example, Gmail. 
+		// Intended for displaying it properly in the form item.
 		If StrOccurrenceCount(HTMLText,"<html") = 0 Then
 			HTMLText = "<html>" + HTMLText + "</html>"
 		EndIf;
@@ -6275,7 +6283,7 @@ Function DefineDefaultFolderForEmail(MailMessage, IncludingBaseEmailChecks = Fal
 		|						THEN VALUE(Enum.PredefinedEmailsFoldersTypes.Outbox)
 		|				END
 		|		ELSE VALUE(Enum.PredefinedEmailsFoldersTypes.JunkMail)
-		|	END AS FolderType_SSLy
+		|	END AS FolderType
 		|INTO TypesOfDestinationFolders
 		|FROM
 		|	DocumentJournal.Interactions AS Interactions
@@ -6294,7 +6302,7 @@ Function DefineDefaultFolderForEmail(MailMessage, IncludingBaseEmailChecks = Fal
 		|FROM
 		|	TypesOfDestinationFolders AS TypesOfDestinationFolders
 		|		INNER JOIN MailFolders AS MailFolders
-		|		ON TypesOfDestinationFolders.FolderType_SSLy = MailFolders.PredefinedFolderType
+		|		ON TypesOfDestinationFolders.FolderType = MailFolders.PredefinedFolderType
 		|		LEFT JOIN FoldersByBasis AS FoldersByBasis
 		|		ON TypesOfDestinationFolders.Ref = FoldersByBasis.MailMessage";
 		
@@ -6336,7 +6344,7 @@ Function DefineDefaultFolderForEmail(MailMessage, IncludingBaseEmailChecks = Fal
 		|						THEN VALUE(Enum.PredefinedEmailsFoldersTypes.Outbox)
 		|				END
 		|		ELSE VALUE(Enum.PredefinedEmailsFoldersTypes.JunkMail)
-		|	END AS FolderType_SSLy
+		|	END AS FolderType
 		|INTO TypesOfDestinationFolders
 		|FROM
 		|	DocumentJournal.Interactions AS Interactions
@@ -6351,7 +6359,7 @@ Function DefineDefaultFolderForEmail(MailMessage, IncludingBaseEmailChecks = Fal
 		|FROM
 		|	TypesOfDestinationFolders AS TypesOfDestinationFolders
 		|		INNER JOIN MailFolders AS MailFolders
-		|		ON TypesOfDestinationFolders.FolderType_SSLy = MailFolders.PredefinedFolderType";
+		|		ON TypesOfDestinationFolders.FolderType = MailFolders.PredefinedFolderType";
 		
 	EndIf;
 	
@@ -6596,7 +6604,7 @@ Procedure DefineDefaultEmailFolders(Emails, EmailsTable)
 		|						THEN VALUE(Enum.PredefinedEmailsFoldersTypes.Outbox)
 		|				END
 		|		ELSE VALUE(Enum.PredefinedEmailsFoldersTypes.JunkMail) 
-		|	END AS FolderType_SSLy,
+		|	END AS FolderType,
 		|	Interactions.Account
 		|INTO TypesOfDestinationFolders
 		|FROM
@@ -6612,7 +6620,7 @@ Procedure DefineDefaultEmailFolders(Emails, EmailsTable)
 		|FROM
 		|	TypesOfDestinationFolders AS TypesOfDestinationFolders
 		|		INNER JOIN MailFolders AS MailFolders
-		|		ON TypesOfDestinationFolders.FolderType_SSLy = MailFolders.PredefinedFolderType
+		|		ON TypesOfDestinationFolders.FolderType = MailFolders.PredefinedFolderType
 		|			AND TypesOfDestinationFolders.Account = MailFolders.Account");
 	
 	Query.SetParameter("EmailsArray", Emails);
@@ -7363,7 +7371,7 @@ Procedure FillTimeSelectionList(FormInputField, Interval = 3600) Export
 		If Not ValueIsFilled(ListTime) Then
 			TimePresentation = "00:00";
 		Else
-			TimePresentation = Format(ListTime, NStr("en = 'DF=hh:mm';"));
+			TimePresentation = Format(ListTime, NStr("en = 'DF=HH:mm';"));
 		EndIf;
 
 		TimesList.Add(ListTime, TimePresentation);
@@ -8048,6 +8056,17 @@ Function SignatureFilesExtension()
 	
 EndFunction
 
+Function EncryptedFilesExtension()
+	
+	If Common.SubsystemExists("StandardSubsystems.DigitalSignature") Then
+		ModuleDigitalSignature = Common.CommonModule("DigitalSignature");
+		Return ModuleDigitalSignature.PersonalSettings().EncryptedFilesExtension;
+	Else
+		Return "p7m";
+	EndIf;
+	
+EndFunction
+
 Procedure ReplaceEmployeeResponsibleInDocument(Interaction, EmployeeResponsible) Export
 	
 	BeginTransaction();
@@ -8313,7 +8332,7 @@ Function StatusesList() Export
 	
 EndFunction
 
-// Receives chain interactions by an interaction subject.
+// Gets interactions from a topic chain.
 //
 // Parameters:
 //  Chain	  - AnyRef - an interaction subject to get interactions for.
@@ -8608,7 +8627,7 @@ Function HasDelayInExecutionOfJobOfReceivingAndSendingEmails()
 		Return False;
 	EndIf;
 	
-	Return Schedule.ExecutionRequired(CurrentDate() - Schedule.RepeatPeriodInDay, // 
+	Return Schedule.ExecutionRequired(CurrentDate() - Schedule.RepeatPeriodInDay, // ACC:143 Do not localize.
 		BackgroundJob.Begin, BackgroundJob.End);
 	
 EndFunction

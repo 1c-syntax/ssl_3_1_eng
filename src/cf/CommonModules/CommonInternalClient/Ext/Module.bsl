@@ -128,28 +128,48 @@ Async Function AttachAddInSSLAsync(Context) Export
 	If Not Context.ASearchForANewVersionHasBeenPerformed Then
 		
 		If Context.Cached Then
-			
-			Attachable_Module = GetAddInObjectFromCache(Context.Location);
-			
-			If Attachable_Module <> Undefined Then
-				Result = AddInAttachmentResult();
-				Result.Attached = True;
-				Result.Attachable_Module = Attachable_Module;
-				Return Result;
-			EndIf;
-			
-			// Checking the connection of the external add in in this session earlier.
-			SymbolicName = GetAddInSymbolicNameFromCache(Context.Location);
 
-			If SymbolicName <> Undefined Then
-			// If the cache already has a symbolic name, it means that the add-in has already been attached to this session.
-				Attached = True;
-				Context.Insert("SymbolicName", SymbolicName);
-				Return Await AttachAddInSSLAfterAttachmentAttemptAsync(Attached, Context);
+			Attachable_Module = GetAddInObjectFromCache(Context.Location);
+
+			ConnectionVerified = Undefined;
+
+			If Attachable_Module <> Undefined Then
+				ConnectionVerified = CheckAddInAttachment(Context.Location,
+					Context.Id);
+				If ConnectionVerified Then
+					Result = AddInAttachmentResult();
+					Result.Attached = True;
+					Result.Attachable_Module = Attachable_Module;
+					Return Result;
+				EndIf;
 			EndIf;
-			
+
+			If ConnectionVerified <> False Then
+			// Checking the connection of the external add in in this session earlier.
+				SymbolicName = GetAddInSymbolicNameFromCache(Context.Location);
+
+				If SymbolicName <> Undefined Then
+			// If the cache already has a symbolic name, it means that the add-in has already been attached to this session.
+
+					If ConnectionVerified = Undefined Then
+						ConnectionVerified = CheckAddInAttachment(Context.Location,
+							Context.Id);
+					EndIf;
+
+					If ConnectionVerified Then
+						Attached = True;
+						Context.Insert("SymbolicName", SymbolicName);
+						Return Await AttachAddInSSLAfterAttachmentAttemptAsync(Attached, Context);
+					EndIf;
+				EndIf;
+			EndIf;
+
+			If ConnectionVerified = False Then
+				ClearComponentsObjectInCache(Context.Location);
+			EndIf;
+
 		EndIf;
-	
+		
 		// Search templates and the catalog for a newer version of the add-in.
 		If IsTemplate(Context.Location) Then
 			
@@ -253,22 +273,41 @@ Procedure AttachAddInSSL(Context) Export
 			
 			Attachable_Module = GetAddInObjectFromCache(Context.Location);
 			
+			ConnectionVerified = Undefined;
+			
 			If Attachable_Module <> Undefined Then
-				AttachAddInSSLNotifyOnAttachment(Attachable_Module, Context);
-				Return;
+				ConnectionVerified = CheckAddInAttachment(Context.Location,
+					Context.Id);
+				If ConnectionVerified Then
+					AttachAddInSSLNotifyOnAttachment(Attachable_Module, Context);
+					Return;
+				EndIf;
+			EndIf;
+
+			If ConnectionVerified <> False Then
+				// Checking the connection of the external add in in this session earlier.
+				SymbolicName = GetAddInSymbolicNameFromCache(Context.Location);
+
+				If SymbolicName <> Undefined Then
+					If ConnectionVerified = Undefined Then
+						ConnectionVerified = CheckAddInAttachment(Context.Location,
+							Context.Id);
+					EndIf;
+				
+					If ConnectionVerified Then
+						// If the cache already has a symbolic name, it means that the add-in has already been attached to this session.
+						Attached = True;
+						Context.Insert("SymbolicName", SymbolicName);
+						AttachAddInSSLAfterAttachmentAttempt(Attached, Context);
+						Return;
+					EndIf;
+				EndIf;
 			EndIf;
 			
-			// Checking the connection of the external add in in this session earlier.
-			SymbolicName = GetAddInSymbolicNameFromCache(Context.Location);
-
-			If SymbolicName <> Undefined Then
-			// If the cache already has a symbolic name, it means that the add-in has already been attached to this session.
-				Attached = True;
-				Context.Insert("SymbolicName", SymbolicName);
-				AttachAddInSSLAfterAttachmentAttempt(Attached, Context);
-				Return;
+			If ConnectionVerified = False Then
+				ClearComponentsObjectInCache(Context.Location);
 			EndIf;
-		
+			
 		EndIf;
 		
 		// Search templates and the catalog for a newer version of the add-in.
@@ -584,47 +623,46 @@ EndProcedure
 //
 Procedure ShortenFileName(FileName) Export
 
-	BytesLimit =  255;  
-	If StringSizeInBytes(FileName) <= BytesLimit Then
+	BytesLimit = 127;
+	File = New File(FileName);
+	
+	If StringSizeInBytes(File.Name) <= BytesLimit Then
 		Return;
 	EndIf;
 	
-	File = New File(FileName);
-	BaseName = File.BaseName;
+	String = "";
+	RowBalance = "";
+	LineSize = 0;
+	MaximumRowSize = BytesLimit - 32;
 	
-	BytesLimit = BytesLimit - StringSizeInBytes(File.Extension);
+	ExtensionSize = StringSizeInBytes(File.Extension);
+	ShortenAlongWithExtension = ExtensionSize > 32;
 	
-	StringLength = StrLen(BaseName);
-	NumberOfCharsUsed = BytesLimit - 32;
-	MoreChars = Min(StringLength, BytesLimit);
-	FewerChars = Int((BytesLimit - 32)/4);
-	ShouldReduce = True;
-	While True Do
-		If ShouldReduce Then
-			NumberOfCharsUsed = FewerChars + Int((NumberOfCharsUsed-FewerChars)/2);
-		Else
-			NumberOfCharsUsed = NumberOfCharsUsed + Int((MoreChars - NumberOfCharsUsed)/2);
-		EndIf;
+	If ShortenAlongWithExtension Then
+		AbbreviatedName = File.Name;
+	Else
+		AbbreviatedName = File.BaseName;
+		LineSize = ExtensionSize;
+	EndIf;
+	
+	For CharacterNumber = 1 To StrLen(AbbreviatedName) Do
+		Char = Mid(AbbreviatedName, CharacterNumber, 1);
+		SymbolSize = StringSizeInBytes(Char);
 		
-		StringSizeInBytes = StringSizeInBytes(BaseName)+32;
-		
-		If StringSizeInBytes = BytesLimit Or MoreChars - FewerChars = 1 Then
+		If LineSize + SymbolSize > MaximumRowSize Then
+			RowBalance = Mid(AbbreviatedName, CharacterNumber);
 			Break;
 		EndIf;
 		
-		If StringSizeInBytes > BytesLimit Then
-			ShouldReduce = True;
-			MoreChars = NumberOfCharsUsed;	
-		Else 
-			ShouldReduce = False;
-			FewerChars = NumberOfCharsUsed;
-		EndIf;
-
+		String = String + Char;
+		LineSize = LineSize + SymbolSize;
 	EndDo;
 	
-	ShortenedString = ShortenString(BaseName, NumberOfCharsUsed);
-	FileName = ShortenedString + File.Extension;
-		
+	FileName = String;
+	
+	HashSum = CalculateStringHashByMD5Algorithm(RowBalance);
+	FileName = File.Path + FileName + HashSum + ?(ShortenAlongWithExtension, "", File.Extension);
+	
 EndProcedure
 
 #Region Other
@@ -1010,7 +1048,7 @@ EndProcedure
 Procedure AttachAddInSSLAfterInstallation(Result, Context) Export 
 	
 	If Result.IsSet Then 
-		// An atttempt to attach the add-in was made.
+		// An attempt to attach the add-in was made.
 		// If it failed, don't prompt the user to try again.
 		Context.WasInstallationAttempt = True;
 		AttachAddInSSL(Context);
@@ -1260,7 +1298,7 @@ Async Function AttachAddInSSLAfterAttachmentAttemptAsync(Attached, Context)
 			InstallResult = Await InstallAddInSSLAsync(InstallationContext);
 			
 			If InstallResult.IsSet Then 
-				// An atttempt to attach the add-in was made.
+				// An attempt to attach the add-in was made.
 				// If it failed, don't prompt the user to try again.
 				Context.WasInstallationAttempt = True;
 				Return AttachAddInSSLAsync(Context);
@@ -1427,6 +1465,43 @@ Procedure WriteAddInObjectToCache(ObjectKey, Attachable_Module)
 	
 	ApplicationParameters.Insert("StandardSubsystems.AddIns.Objects",
 		New FixedMap(Map));
+	
+EndProcedure
+
+Procedure ClearComponentsObjectInCache(ObjectKey)
+	
+	CachedObjects = ApplicationParameters["StandardSubsystems.AddIns.Objects"];
+	
+	If TypeOf(CachedObjects) = Type("FixedMap")
+		And CachedObjects.Get(ObjectKey) <> Undefined Then
+		
+		Map = New Map;
+		For Each Item In CachedObjects Do
+			If Item.Key = ObjectKey Then
+				Continue;
+			EndIf;
+			Map.Insert(Item.Key, Item.Value);
+		EndDo;
+		
+		ApplicationParameters.Insert("StandardSubsystems.AddIns.Objects",
+			New FixedMap(Map));
+	EndIf;
+	
+	CachedSymbolicNames = ApplicationParameters["StandardSubsystems.AddIns.SymbolicNames"];
+	
+	If TypeOf(CachedSymbolicNames) = Type("FixedMap")
+		And CachedSymbolicNames.Get(ObjectKey) <> Undefined Then
+		
+		Map = New Map;
+		For Each Item In CachedSymbolicNames Do
+			If Item.Key = ObjectKey Then
+				Continue;
+			EndIf;
+			Map.Insert(Item.Key, Item.Value);
+		EndDo;
+		ApplicationParameters.Insert("StandardSubsystems.AddIns.SymbolicNames",
+			New FixedMap(Map));
+	EndIf;
 	
 EndProcedure
 
@@ -1770,12 +1845,6 @@ Function CalculateStringHashByMD5Algorithm(Val String)
 	
 EndFunction
 
-Function ShortenString(String, NumberOfCharsUsed)
-	 Result = Left(String, NumberOfCharsUsed);
-	 Result = Result + CalculateStringHashByMD5Algorithm(Mid(String, NumberOfCharsUsed+1));
-	 Return Result;
-EndFunction
- 
 Function StringSizeInBytes(Val String)
 	
 	Return GetBinaryDataFromString(String, "UTF-8").Size();

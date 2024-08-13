@@ -8,34 +8,6 @@
 //
 //
 
-////////////////////////////////////////////////////////////////////////////////
-//                          FORM DESCRIPTION                               //
-//
-// The form is intended for choosing metadata objects and
-// passing them into the calling environment.
-//
-// Calling parameters:
-// MetadataObjectsToSelectCollection - ValueList - Filter by selectable metadata types. For example: 
-//				FilterByRefMetadata = New ValueList;
-//					FilterByRefMetadata.Add("Catalogs");
-//					FilterByRefMetadata.Add("Documents");
-//					This filter provides only catalogs and documents for selection.
-//				SelectedMetadataObjects - ValueList - Selected metadata objects.
-// These objects are flagged in the metadata tree.
-//				It's intended for setting default metadata objects or resetting a list.
-//				ParentSubsystems - ValueList - Subsystems whose child subsystems will be displayed on the form.
-//				SubsystemsWithCIOnly - Boolean - Indicates that the list should contain only the subsystems present in the UI.
-// SelectSingle - Boolean - Indicates that only one metadata object can be selected.
-// 				Double-clicking a line results in choosing the object on this line. 
-// ChoiceInitialValue - String - The full name of the object on which the cursor 
-//				is positioned when the list opens.
-// 
-//              
-//              
-// 
-//              
-//
-
 #Region Variables
 
 &AtServer
@@ -375,12 +347,11 @@ Procedure MetadataObjectTreeFill()
 	ItemParameters.Parent = ConfigurationItem;
 	ItemCommon = NewTreeRow(ItemParameters);
 	
-	// FIlling the metadata object tree.
-	For Each String In MetadataObjects Do
+	For Each MetadataObject In MetadataObjects Do
 		If MetadataObjectsToSelectCollection.Count() = 0
-			Or MetadataObjectsToSelectCollection.FindByValue(String.Name) <> Undefined Then
-			String.Parent = ?(String.IsCommonCollection, ItemCommon, ConfigurationItem);
-			AddMetadataObjectTreeItem(String, ?(String.Name = "Subsystems", Metadata.Subsystems, Undefined));
+			Or MetadataObjectsToSelectCollection.FindByValue(MetadataObject.Name) <> Undefined Then
+			MetadataObject.Parent = ?(MetadataObject.IsCommonCollection, ItemCommon, ConfigurationItem);
+			AddMetadataObjectTreeItem(MetadataObject, ?(MetadataObject.Name = "Subsystems", Metadata.Subsystems, Undefined));
 		EndIf;
 	EndDo;
 	

@@ -262,7 +262,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Client
+// Client.
 
 &AtClient
 Procedure Attachable_OnChangeAttribute(Item, InterfaceUpdateIsRequired = True)
@@ -292,7 +292,7 @@ Procedure RefreshApplicationInterface()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Server call.
 
 &AtServer
 Function OnChangeAttributeServer(TagName)
@@ -306,7 +306,7 @@ Function OnChangeAttributeServer(TagName)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Server
+// Server.
 
 &AtServer
 Procedure SetDeferredProcessingPriority(TagName)

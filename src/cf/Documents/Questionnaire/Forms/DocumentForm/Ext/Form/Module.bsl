@@ -94,7 +94,14 @@ Procedure OnReadAtServer(CurrentObject)
 	// StandardSubsystems.AttachableCommands
 	AttachableCommandsClientServer.UpdateCommands(ThisObject, Object);
 	// End StandardSubsystems.AttachableCommands
-
+	
+	// StandardSubsystems.AccessManagement
+	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
+		ModuleAccessManagement = Common.CommonModule("AccessManagement");
+		ModuleAccessManagement.OnReadAtServer(ThisObject, CurrentObject);
+	EndIf;
+	// End StandardSubsystems.AccessManagement
+	
 EndProcedure
 
 &AtClient
@@ -327,7 +334,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Setting form attributes values.
 
 &AtServer
 Procedure SetSectionFillingFormAttributesValues()
@@ -706,7 +713,7 @@ Procedure SetAttributeValuesComplexQuestion(DoQueryBox, SelectionQuestion, TreeR
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Convert questionnaire entry data into a document table.
 
 &AtServer
 Function EndEditFillingForm(WriteMode)
@@ -782,7 +789,7 @@ Procedure ConvertSectionFillingResultsToTabularSection()
 EndProcedure
 
 // Parameters:
-//   TreeRow - ValueTreeRow - a row of the questionnaire template tree.
+//   TreeRow - ValueTreeRow - Questionnaire template tree row.
 //
 &AtServer
 Procedure FillAnswersTableTabularQuestion(TreeRow)
@@ -819,7 +826,7 @@ EndProcedure
 // table of answers.
 //
 // Parameters:
-//  TreeRow - ValueTreeRow - a row of the questionnaire template tree.
+//  TreeRow - ValueTreeRow - Questionnaire template tree row.
 //  Table      - ValueTable - Chart the question belongs to.
 //
 &AtServer
@@ -848,14 +855,15 @@ EndProcedure
 // 
 //
 // Parameters:
-//  TreeRow - ValueTreeRow - a row of the questionnaire template tree.
+//  TreeRow - ValueTreeRow - Questionnaire template tree row.
 //  Table      - ValueTable - Chart the question belongs to.
 //
 &AtServer
 Procedure FillAnswersTabularQuestionAnswersInRows(TreeRow, Table)
 
 	QuestionFirstColumn = TreeRow.TableQuestionComposition[0].ElementaryQuestion;
-	NameOfColumnWithoutNumber = SurveysClientServer.QuestionName(TreeRow.Composite) + "TableColumn";
+	TableName          = SurveysClientServer.QuestionName(TreeRow.Composite) + "_Table";
+	NameOfColumnWithoutNumber = TableName + "_Column_";
 
 	For RowIndex = 0 To Table.Count() - 1 Do
 
@@ -901,7 +909,7 @@ EndProcedure
 // 
 //
 // Parameters:
-//  TreeRow - ValueTreeRow - a row of the questionnaire template tree.
+//  TreeRow - ValueTreeRow - Questionnaire template tree row.
 //  Table      - ValueTable - Chart the question belongs to.
 //
 &AtServer
@@ -916,7 +924,8 @@ Procedure FillAnswersTabularQuestionAnswersInRowsAndColumns(TreeRow, Table)
 	ColumnsAnswers = TreeRow.PredefinedAnswers.FindRows(New Structure("ElementaryQuestion",
 		QuestionForColumns));
 
-	NameOfColumnWithoutNumber = SurveysClientServer.QuestionName(TreeRow.Composite) + "TableColumn";
+	TableName          = SurveysClientServer.QuestionName(TreeRow.Composite) + "_Table";
+	NameOfColumnWithoutNumber = TableName + "_Column_";
 
 	For RowIndex = 0 To Table.Count() - 1 Do
 		For ColumnIndex = 1 To Table.Columns.Count() - 1 Do
@@ -954,14 +963,15 @@ EndProcedure
 // 
 //
 // Parameters:
-//  TreeRow - ValueTreeRow - a row of the questionnaire template tree.
+//  TreeRow - ValueTreeRow - Questionnaire template tree row.
 //  Table      - ValueTable - Chart the question belongs to.
 //
 &AtServer
 Procedure FillAnswersTabularQuestionAnswersInColumns(TreeRow, Table)
 
 	QuestionForColumns = TreeRow.TableQuestionComposition[0].ElementaryQuestion;
-	NameOfColumnWithoutNumber = SurveysClientServer.QuestionName(TreeRow.Composite) + "TableColumn";
+	TableName          = SurveysClientServer.QuestionName(TreeRow.Composite) + "_Table";
+	NameOfColumnWithoutNumber = TableName + "_Column_";
 
 	For ColumnIndex = 1 To Table.Columns.Count() - 1 Do
 
@@ -1002,7 +1012,7 @@ EndProcedure
 // 
 //
 // Parameters:
-//  TreeRow   - ValueTreeRow - a row of the questionnaire template tree.
+//  TreeRow   - ValueTreeRow - Questionnaire template tree row.
 //
 &AtServer
 Procedure FillAnswerSimpleQuestion(TreeRow)
@@ -1161,7 +1171,7 @@ Procedure FillAnswersComplexQuestion(TreeRow)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Other
+// Miscellaneous.
 
 &AtServer
 Procedure CreateFormAccordingToSection()
@@ -1748,6 +1758,18 @@ EndProcedure
 &AtClient
 Procedure Attachable_UpdateCommands()
 	AttachableCommandsClientServer.UpdateCommands(ThisObject, Object);
+EndProcedure
+
+&AtServer
+Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
+
+	// StandardSubsystems.AccessManagement
+	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
+		ModuleAccessManagement = Common.CommonModule("AccessManagement");
+		ModuleAccessManagement.AfterWriteAtServer(ThisObject, CurrentObject, WriteParameters);
+	EndIf;
+	// End StandardSubsystems.AccessManagement
+
 EndProcedure
 
 // End StandardSubsystems.AttachableCommands

@@ -111,8 +111,8 @@
 						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</Picture>
 					<FileDragMode>AsFile</FileDragMode>
-					<ContextMenu name="NotePicture1ContextMenu" id="133"/>
-					<ExtendedTooltip name="NotePicture1ExtendedTooltip" id="134"/>
+					<ContextMenu name="NotesPictureContextMenu" id="133"/>
+					<ExtendedTooltip name="NotesPictureExtendedTooltip" id="134"/>
 				</PictureDecoration>
 				<LabelDecoration name="NoteService" id="127">
 					<AutoMaxWidth>false</AutoMaxWidth>
@@ -211,7 +211,7 @@ For further assistance, contact provider's technical support.</v8:content>
 							<v8:content>Edit</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="ChangeGroupExtendedTooltip" id="104"/>
+					<ExtendedTooltip name="GroupChangeExtendedTooltip" id="104"/>
 					<ChildItems>
 						<Button name="ChangeDeletionMarkNoProfiles" id="105">
 							<Type>CommandBarButton</Type>
@@ -495,29 +495,29 @@ For further assistance, contact provider's technical support.</v8:content>
 				<Autofill>false</Autofill>
 			</AutoCommandBar>
 			<ExtendedTooltip name="ListExtendedTooltip" id="42"/>
-			<SearchStringAddition name="ListSearchString_SSLy" id="80">
+			<SearchStringAddition name="ListSearchString" id="80">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchStringRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchString_SSLyContextMenu" id="81"/>
-				<ExtendedTooltip name="ListSearchString_SSLyExtendedTooltip" id="82"/>
+				<ContextMenu name="ListSearchStringContextMenu" id="81"/>
+				<ExtendedTooltip name="ListSearchStringExtendedTooltip" id="82"/>
 			</SearchStringAddition>
-			<ViewStatusAddition name="ListViewStatus_SSLy" id="83">
+			<ViewStatusAddition name="ListViewStatus" id="83">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>ViewStatusRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListViewStatus_SSLyContextMenu" id="84"/>
-				<ExtendedTooltip name="ListViewStatus_SSLyExtendedTooltip" id="85"/>
+				<ContextMenu name="ListViewStatusContextMenu" id="84"/>
+				<ExtendedTooltip name="ListViewStatusExtendedTooltip" id="85"/>
 			</ViewStatusAddition>
-			<SearchControlAddition name="ListSearchControl_SSLy" id="86">
+			<SearchControlAddition name="ListSearchControl" id="86">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchControl</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchControl_SSLyContextMenu" id="87"/>
-				<ExtendedTooltip name="ListSearchControl_SSLyExtendedTooltip" id="88"/>
+				<ContextMenu name="ListSearchControlContextMenu" id="87"/>
+				<ExtendedTooltip name="ListSearchControlExtendedTooltip" id="88"/>
 			</SearchControlAddition>
 			<Events>
 				<Event name="BeforeAddRow">ListBeforeAddRow</Event>

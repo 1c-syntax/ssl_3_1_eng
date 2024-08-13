@@ -108,7 +108,7 @@ EndProcedure
 
 Function ChangeOfUserAccounts(Settings)
 	
-	NameOfConnectionColumn = UserMonitoringInternal.NameOfConnectionColumn();
+	ConnectionColumnName = UserMonitoringInternal.ConnectionColumnName();
 	Filter = New Structure;
 	
 	TransStatuses = New Array;
@@ -116,7 +116,7 @@ Function ChangeOfUserAccounts(Settings)
 	TransStatuses.Add(EventLogEntryTransactionStatus.NotApplicable);
 	Filter.Insert("TransactionStatus", TransStatuses);
 	
-	FilterUsers_SSLy = FilterUsers_SSLy(ParameterValue(Settings, "User", Undefined));
+	FilterUsers = FilterUsers(ParameterValue(Settings, "User", Undefined));
 	
 	Period = ParameterValue(Settings, "Period", New StandardPeriod);
 	If ValueIsFilled(Period.StartDate) Then
@@ -139,7 +139,7 @@ Function ChangeOfUserAccounts(Settings)
 	EndIf;
 	
 	LogColumns = "Date,User,UserName,Computer,
-	|ApplicationName,Event,EventPresentation,Data,Session," + NameOfConnectionColumn;
+	|ApplicationName,Event,EventPresentation,Data,Session," + ConnectionColumnName;
 	
 	BooleanType     = New TypeDescription("Boolean");
 	DateType       = New TypeDescription("Date");
@@ -200,7 +200,7 @@ Function ChangeOfUserAccounts(Settings)
 	Columns.Add("Computer",           StringType);
 	Columns.Add("SessionStarted",        DateType);
 	Columns.Add("Session",               NumberType);
-	Columns.Add(NameOfConnectionColumn,  NumberType);
+	Columns.Add(ConnectionColumnName,  NumberType);
 	
 	TypeChanged = New TypeDescription("Number",,, New NumberQualifiers(1, 0, AllowedSign.Nonnegative));
 	For Each KeyAndValue In UserProperties Do
@@ -368,8 +368,8 @@ Function ChangeOfUserAccounts(Settings)
 			EndIf;
 		EndIf;
 		
-		If FilterUsers_SSLy <> Undefined
-		   And FilterUsers_SSLy.Get(Upper(Data.Name)) = Undefined Then
+		If FilterUsers <> Undefined
+		   And FilterUsers.Get(Upper(Data.Name)) = Undefined Then
 			Continue;
 		EndIf;
 		
@@ -418,7 +418,7 @@ Function ChangeOfUserAccounts(Settings)
 		NewRow.Package            = Event.ApplicationName;
 		NewRow.Computer             = Event.Computer;
 		NewRow.Session                 = Event.Session;
-		NewRow[NameOfConnectionColumn] = Event[NameOfConnectionColumn];
+		NewRow[ConnectionColumnName] = Event[ConnectionColumnName];
 	EndDo;
 	
 	Filter = New Structure("Id", "");
@@ -489,8 +489,8 @@ Function ChangeOfUserAccounts(Settings)
 				String.Presentation = Properties.Ref;
 				If ValueIsFilled(String.Ref) Then
 					String.Ref = Properties.Ref;
-					String.Ref_Changed =
-						?(String.PreviousEvent = Undefined Or String.PreviousEvent.Ref_Changed = 2,
+					String.Ref_IsChanged =
+						?(String.PreviousEvent = Undefined Or String.PreviousEvent.Ref_IsChanged = 2,
 							0, Number(String.PreviousEvent.Ref <> String.Ref));
 				EndIf;
 				Continue;
@@ -524,7 +524,7 @@ Function ParameterValue(Settings, ParameterName, DefaultValue)
 	
 EndFunction
 
-Function FilterUsers_SSLy(SelectedValues)
+Function FilterUsers(SelectedValues)
 	
 	If SelectedValues = Undefined Then
 		Return Undefined;

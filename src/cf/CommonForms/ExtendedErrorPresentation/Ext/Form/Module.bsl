@@ -16,7 +16,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	AdditionalData = Parameters.AdditionalData;
 	
 	If ValueIsFilled(AdditionalData) Then
-		SignatureVerificationError = ValueIsFilled(CommonClientServer.StructureProperty(AdditionalData, "SignatureData", False));
+		SignatureVerificationError = CommonClientServer.StructureProperty(AdditionalData, "SignatureData", False) = True;
 	EndIf;
 	
 	If ValueIsFilled(Parameters.SupportInformation) Then
@@ -75,8 +75,8 @@ EndProcedure
 Procedure OnOpen(Cancel)
 	
 	#If Not MobileAppClient And Not MobileClient Then
-	If ParametersForCompletingTextOfClassifierErrorSolution <> Undefined Then
-		AttachIdleHandler("ToSupplementDecisionOfErrorClassifierWithDetails", 0.1, True);
+	If ClassifierErrorSolutionTextSupplementOptions <> Undefined Then
+		AttachIdleHandler("SupplementErrorClassifierSolutionWithDetails", 0.1, True);
 	EndIf;
 	#EndIf
 	
@@ -89,18 +89,26 @@ EndProcedure
 &AtClient
 Procedure InstructionClick(Item)
 	
-	ErrorAnchor = "";
-	If Item.Name = "InstructionClient"
-		And Not IsBlankString(ErrorAnchorClient) Then
-		
-		ErrorAnchor = ErrorAnchorClient;
-	ElsIf Item.Name = "InstructionServer"
-		And Not IsBlankString(ErrorAnchorServer) Then
-		
-		ErrorAnchor = ErrorAnchorServer;
+	ErrorAnchor = ""; SearchText = "";
+	If Item.Name = "InstructionClient" Then
+		If Not IsBlankString(ErrorAnchorClient) Then
+			ErrorAnchor = ErrorAnchorClient;
+		Else
+			SearchText = ErrorTextClient;
+		EndIf;
+	ElsIf Item.Name = "InstructionServer" Then
+		If Not IsBlankString(ErrorAnchorServer) Then
+			ErrorAnchor = ErrorAnchorServer;
+		Else
+			SearchText = ErrorTextServer;
+		EndIf;
 	EndIf;
 	
-	DigitalSignatureClient.OpenInstructionOnTypicalProblemsOnWorkWithApplications(ErrorAnchor);
+	If ValueIsFilled(SearchText) Then
+		DigitalSignatureClient.OpenSearchByErrorsWhenManagingDigitalSignature(SearchText);
+	Else
+		DigitalSignatureClient.OpenInstructionOnTypicalProblemsOnWorkWithApplications(ErrorAnchor);
+	EndIf;
 	
 EndProcedure
 
@@ -112,21 +120,67 @@ Procedure SupportInformationURLProcessing(Item, Var_URL, StandardProcessing)
 	If Var_URL = "TypicalIssues" Then
 		DigitalSignatureClient.OpenInstructionOnTypicalProblemsOnWorkWithApplications();
 	Else
-	
-		ErrorsText = "";
+		
 		FilesDetails = New Array;
+		ErrorsText = "";
 		If ValueIsFilled(AdditionalData) Then
 			DigitalSignatureInternalServerCall.AddADescriptionOfAdditionalData(
 				AdditionalData, FilesDetails, ErrorsText);
 		EndIf;
 		
-		ErrorsText = ErrorsText + ErrorDescription;
+		If ValueIsFilled(ErrorDescription) Then
+			MessageSubject1 = MessageSubject1(ErrorDescription);
+		ElsIf ValueIsFilled(ErrorText) Then
+			MessageSubject1 = MessageSubject1(ErrorText);
+		ElsIf ValueIsFilled(ErrorTextClient) Then
+			MessageSubject1 = MessageSubject1(ErrorTextClient);
+		ElsIf ValueIsFilled(ErrorTextServer) Then
+			MessageSubject1 = MessageSubject1(ErrorTextServer);
+		Else
+			MessageSubject1 = NStr("en = 'Technical details about the issue';");
+		EndIf;
+		
+		Array = New Array;
+		If ValueIsFilled(ErrorsText) Then
+			Array.Add(ErrorsText);
+		EndIf;
+		If ValueIsFilled(ErrorDescription) Then
+			Array.Add(ErrorDescription);
+		EndIf;
+		If ValueIsFilled(ErrorText) Then
+			Array.Add(ErrorText);
+		EndIf;
+		If ValueIsFilled(ErrorTextClient) Then
+			Array.Add(NStr("en = 'On the client:';"));
+			Array.Add(ErrorTextClient);
+		EndIf;
+		If ValueIsFilled(ErrorTextServer) Then
+			Array.Add(NStr("en = 'On the server:';"));
+			Array.Add(ErrorTextServer);
+		EndIf;
+		
+		ErrorsText = StrConcat(Array, Chars.LF);
+		
 		DigitalSignatureInternalClient.GenerateTechnicalInformation(
-			ErrorsText, New Structure("Subject, Message", Items.SupportInformation.Title), , FilesDetails);
+			ErrorsText, New Structure("Subject, Message", MessageSubject1), , FilesDetails);
 	
 	EndIf;
 	
 EndProcedure
+
+&AtClient
+Function MessageSubject1(Val Error)
+	
+	LineBreak = StrFind(Error, Chars.LF);
+	If LineBreak = 0 Then
+		MessageSubject1 = Left(Error, 100);
+	Else
+		MessageSubject1 = Left(Error, LineBreak - 1);
+	EndIf;
+	
+	Return MessageSubject1;
+	
+EndFunction
 
 &AtClient
 Procedure ReasonsClientTextURLProcessing(Item, FormattedStringURL, StandardProcessing)
@@ -177,7 +231,7 @@ EndProcedure
 #Region Private
 
 &AtClient
-Procedure ToSupplementDecisionOfErrorClassifierWithDetails()
+Procedure SupplementErrorClassifierSolutionWithDetails()
 	
 	ClassifierError = New Structure;
 	ClassifierError.Insert("ErrorText", Items.ErrorTextClient.Title);
@@ -185,14 +239,14 @@ Procedure ToSupplementDecisionOfErrorClassifierWithDetails()
 	ClassifierError.Insert("Decision", Items.DecisionsClientText.Title);
 	
 	DataToSupplement = DigitalSignatureInternalClientServer.DataToSupplementErrorFromClassifier(AdditionalData);
-	DigitalSignatureInternalClient.ToSupplementDecisionOfErrorClassifierWithDetails(
-		New NotifyDescription("AfterCompletingSolutionOfErrorClassifier", ThisObject),
-		ClassifierError, ParametersForCompletingTextOfClassifierErrorSolution, DataToSupplement);
+	DigitalSignatureInternalClient.SupplementErrorClassifierSolutionWithDetails(
+		New NotifyDescription("AfterErrorClassifierSolutionSupplemented", ThisObject),
+		ClassifierError, ClassifierErrorSolutionTextSupplementOptions, DataToSupplement);
 		
 EndProcedure
 
 &AtClient
-Procedure AfterCompletingSolutionOfErrorClassifier(ClassifierError, Context) Export
+Procedure AfterErrorClassifierSolutionSupplemented(ClassifierError, Context) Export
 	
 	If Items.DecisionsClientText.Title <> ClassifierError.Decision Then
 		Items.DecisionsClientText.Title = ClassifierError.Decision;
@@ -261,15 +315,15 @@ Procedure SetItems(ErrorText, TwoMistakes, ErrorLocation)
 		If IsKnownError Then
 			
 			If ValueIsFilled(ClassifierError.RemedyActions) Then
-				If ParametersForCompletingTextOfClassifierErrorSolution = Undefined Then
-					ParametersForCompletingTextOfClassifierErrorSolution = DigitalSignatureInternalClientServer.ParametersForCompletingTextOfClassifierErrorSolution();
+				If ClassifierErrorSolutionTextSupplementOptions = Undefined Then
+					ClassifierErrorSolutionTextSupplementOptions = DigitalSignatureInternalClientServer.ClassifierErrorSolutionTextSupplementOptions();
 				EndIf;
 				DataToSupplement = DigitalSignatureInternalClientServer.DataToSupplementErrorFromClassifier(AdditionalData);
-				AddOn = DigitalSignatureInternal.ToSupplementDecisionOfErrorClassifierWithDetails(
+				AddOn = DigitalSignatureInternal.SupplementErrorClassifierSolutionWithDetails(
 					ClassifierError, DataToSupplement, 
-					ParametersForCompletingTextOfClassifierErrorSolution, ErrorLocation);
+					ClassifierErrorSolutionTextSupplementOptions, ErrorLocation);
 				ClassifierError = AddOn.ClassifierError;
-				ParametersForCompletingTextOfClassifierErrorSolution = AddOn.ParametersForCompletingTextOfClassifierErrorSolutionOnClient;
+				ClassifierErrorSolutionTextSupplementOptions = AddOn.ClassifierErrorSolutionTextSupplementOptionsAtClient;
 			EndIf;
 				
 			CommonClientServer.SetFormItemProperty(Items,
@@ -302,8 +356,11 @@ Procedure SetItems(ErrorText, TwoMistakes, ErrorLocation)
 			Else
 				ErrorAnchor = ClassifierError.Ref;
 			EndIf;
-			
+		
 		EndIf;
+		
+		CommonClientServer.SetFormItemProperty(Items,
+				InstructionItem.Name, "Title", NStr("en = 'Details';"));
 		
 		RequiredNumberOfRows = 0;
 		MarginWidth = Int(?(Width < 20, 20, Width) * 1.4);
@@ -338,18 +395,22 @@ Function AdditionalData()
 		If TypeOf(Certificate) = Type("Array") Then
 			If Certificate.Count() > 0 Then
 				If TypeOf(Certificate[0]) = Type("CatalogRef.DigitalSignatureAndEncryptionKeysCertificates") Then
-					AdditionalDataForErrorClassifier.Certificate = Certificate[0];
-					AdditionalDataForErrorClassifier.CertificateData = CertificateData(Certificate[0], UUID);
-				Else
+					If ValueIsFilled(Certificate[0]) Then
+						AdditionalDataForErrorClassifier.Certificate = Certificate[0];
+						AdditionalDataForErrorClassifier.CertificateData = CertificateData(Certificate[0], UUID);
+					EndIf;
+				ElsIf IsTempStorageURL(Certificate[0]) Then
 					AdditionalDataForErrorClassifier.CertificateData = Certificate[0];
 				EndIf;
 			EndIf;
 		ElsIf TypeOf(Certificate) = Type("CatalogRef.DigitalSignatureAndEncryptionKeysCertificates") Then
-			AdditionalDataForErrorClassifier.Certificate = Certificate;
-			AdditionalDataForErrorClassifier.CertificateData = CertificateData(Certificate, UUID);
+			If ValueIsFilled(Certificate) Then
+				AdditionalDataForErrorClassifier.Certificate = Certificate;
+				AdditionalDataForErrorClassifier.CertificateData = CertificateData(Certificate, UUID);
+			EndIf;
 		ElsIf TypeOf(Certificate) = Type("BinaryData") Then
 			AdditionalDataForErrorClassifier.CertificateData = PutToTempStorage(Certificate, UUID);
-		Else
+		ElsIf IsTempStorageURL(Certificate) Then
 			AdditionalDataForErrorClassifier.CertificateData = Certificate;
 		EndIf;
 	EndIf;

@@ -18,8 +18,8 @@
 //
 Procedure CheckSharedObjectsOnWrite(Source, Cancel) Export
 	
-	// 
-	// 
+	// No need to run "DataExchange.Load".
+	// Writing shared data from a separated session is prohibited.
 	If Not Common.DataSeparationEnabled() Then
 		Return;
 	EndIf;
@@ -40,8 +40,8 @@ EndProcedure
 //
 Procedure CheckSharedRecordsSetsOnWrite(Source, Cancel, Replacing) Export
 	
-	// 
-	// 
+	// No need to run "DataExchange.Load".
+	// Writing shared data from a separated session is prohibited.
 	If Not Common.DataSeparationEnabled() Then
 		Return;
 	EndIf;

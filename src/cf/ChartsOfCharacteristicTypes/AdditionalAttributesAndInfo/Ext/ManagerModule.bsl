@@ -519,12 +519,12 @@ Procedure ChangePropertySetting(Parameters, StorageAddress) Export
 			LockItem = Block.Add("InformationRegister.AdditionalInfo");
 			LockItem.SetValue("Property", ObjectProperty.Ref);
 			
-			// 
-			// 
-			// 
+			// If the original property is common, then get the list of object's sets (for each reference).
+			// If the replaceable property belongs not exclusively to the target set, then add the new property and value.
+			// For common original properties, if their value owners have multiple property sets,
 			//
-			// 
-			// 
+			// the procedure runtime might take a while because sets in each owner are analyzed
+			// (the procedure "PropertyManagerOverridable.FillObjectPropertiesSets" overrides the list of sets).
 			// 
 			// 
 			
@@ -575,8 +575,8 @@ Procedure ChangePropertySetting(Parameters, StorageAddress) Export
 			Query = New Query;
 			
 			If Property = ObjectProperty.Ref Then
-				// 
-				// 
+				// If the property is not changed (it's already individual), and only the list of additional values is common,
+				// then replace only the additional values.
 				Query.TempTablesManager = New TempTablesManager;
 				
 				ValueTable = New ValueTable;
@@ -609,8 +609,8 @@ Procedure ChangePropertySetting(Parameters, StorageAddress) Export
 			// Replace additional information records.
 			
 			If Property = ObjectProperty.Ref Then
-				// 
-				// 
+				// If the property is not changed (it's already individual), and only the list of additional values is common,
+				// then replace only the additional values.
 				Query.Text =
 				"SELECT TOP 1000
 				|	AdditionalInfo.Object
@@ -622,8 +622,8 @@ Procedure ChangePropertySetting(Parameters, StorageAddress) Export
 				|			AND (AdditionalInfo.Property = &Property)
 				|			AND AdditionalInfo.Value = PreviousValues1.Value";
 			Else
-				// 
-				// 
+				// If the property is changed (a common property becomes individual and its additional values are copied),
+				// then replace the properties and the additional values.
 				Query.Text =
 				"SELECT TOP 1000
 				|	AdditionalInfo.Object
@@ -705,8 +705,8 @@ Procedure ChangePropertySetting(Parameters, StorageAddress) Export
 				EndIf;
 				
 				If Property = ObjectProperty.Ref Then
-					// 
-					// 
+					// If the property is not changed (it's already individual), and only the list of additional values is common,
+					// then replace only the additional values.
 					Query.Text =
 					"SELECT TOP 1000
 					|	CurrentTable.Ref AS Ref
@@ -717,8 +717,8 @@ Procedure ChangePropertySetting(Parameters, StorageAddress) Export
 					|			AND (CurrentTable.Property = &Property)
 					|			AND CurrentTable.Value = PreviousValues1.Value";
 				Else
-					// 
-					// 
+					// If the property is changed (a common property becomes individual and its additional values are copied),
+					// then replace the properties and the additional values.
 					Query.Text =
 					"SELECT TOP 1000
 					|	CurrentTable.Ref AS Ref

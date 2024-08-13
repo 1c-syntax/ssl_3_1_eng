@@ -33,6 +33,31 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
+// 
+
+// Defines a list of report commands.
+//
+// Parameters:
+//  ReportsCommands - See ReportsOptionsOverridable.BeforeAddReportCommands.ReportsCommands
+//  Parameters - See ReportsOptionsOverridable.BeforeAddReportCommands.Parameters
+//
+Procedure AddReportCommands(ReportsCommands, Parameters) Export
+	
+	If Not AccessRight("View", Metadata.Reports.VolumeIntegrityCheck) Then
+		Return;
+	EndIf;
+	
+	Command = ReportsCommands.Add();
+	Command.VariantKey       = "Main";
+	Command.Presentation      = NStr("en = 'Проверка целостности тома';");
+	Command.Id      = "VolumeIntegrityCheck";
+	Command.Manager           = "Report.VolumeIntegrityCheck";
+	Command.MultipleChoice = False;
+	
+EndProcedure
+
+// End StandardSubsystems.ReportsOptions
+
 #EndRegion
 
 #EndRegion

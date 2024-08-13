@@ -55,7 +55,7 @@ EndProcedure
 
 // StandardSubsystems.ReportsOptions
 
-// Determines a report command list.
+// Defines the list of report commands.
 //
 // Parameters:
 //   ReportsCommands - ValueTable - a table with report commands. For changing.
@@ -172,8 +172,8 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			
 			ReportDistributionObject = ReportsDistributionRef.Ref.GetObject(); // CatalogObject.ReportMailings
 			
-			// 
-			// 
+			// During a configuration update, predefined items might be registered in the exchange plan even if auto-registration is disabled.
+			// Therefore, explicitly skip groups (including the predefined group "PersonalMailings").
 			If ReportDistributionObject.IsFolder Then
 				InfobaseUpdate.MarkProcessingCompletion(ReportsDistributionRef.Ref);
 				ObjectsProcessed = ObjectsProcessed + 1;
@@ -277,7 +277,7 @@ Procedure OnSetUpInitialItemsFilling(Settings) Export
 	
 EndProcedure
 
-// See also InfobaseUpdateOverridable.OnInitialItemFilling
+// See also InfobaseUpdateOverridable.OnInitialItemsFilling
 // 
 // Parameters:
 //   LanguagesCodes - See InfobaseUpdateOverridable.OnInitialItemsFilling.LanguagesCodes

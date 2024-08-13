@@ -137,9 +137,9 @@ Procedure TransferFile(File, VolumeProperties, Parameters, TransferErrors, Files
 		WriteLogEvent(NStr("en = 'Files.File moving error.';", Common.DefaultLanguageCode()),
 			EventLogLevel.Error,, FileRef,
 			StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Не удалось перенести файл %1
+				NStr("en = 'Couldn''t move file %1
 				|%2
-				|по причине:
+				|due to:
 				|%3"".';"),
 				Common.SubjectString(FileRef), 
 				NameForLog, Error.DetailErrorDescription));

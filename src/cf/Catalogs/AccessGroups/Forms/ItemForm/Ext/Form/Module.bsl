@@ -22,7 +22,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	SetConditionalAppearance();
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
 		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
@@ -152,11 +152,11 @@ Procedure OnOpen(Cancel)
 		EndIf;
 	EndIf;
 	
-	If ValueIsFilled(JumpToAccessValue) Then
+	If JumpToAccessValue <> Undefined Then
 		AttachIdleHandler("JumpToAccessValue", 0.1, True);
 	EndIf;
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
@@ -185,7 +185,7 @@ Procedure OnReadAtServer(CurrentObject)
 		Return;
 	EndIf;
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClientServer = Common.CommonModule("AttachableCommandsClientServer");
 		ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, Object);
@@ -227,8 +227,8 @@ EndProcedure
 Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	
 	If Not Users.IsFullUser() Then
-		// 
-		// 
+		// Responsible persons can change only the membership.
+		// Re-read the object to prevent changes in access groups in restricted areas on the client.
 		// 
 		RestoreObjectWithoutGroupMembers(CurrentObject);
 	EndIf;
@@ -301,7 +301,7 @@ Procedure AfterWrite(WriteParameters)
 		AfterWriteCompletion(WriteParameters);
 	EndIf;
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.AfterWrite(ThisObject, Object, WriteParameters);
@@ -894,7 +894,7 @@ Procedure AccessKindsOnEditEnd(Item, NewRow, CancelEdit)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Event handlers of the "AllAllowedPresentation" item of the "AccessKinds" form table.
 
 &AtClient
 Procedure AccessKindsAllAllowedPresentationOnChange(Item)
@@ -1725,13 +1725,13 @@ EndProcedure
 &AtClient
 Procedure JumpToAccessValue()
 	
-	If ValueIsFilled(JumpToAccessValue) Then
+	If JumpToAccessValue <> Undefined Then
 		Items.UsersAndAccess.CurrentPage = Items.Access;
 		CurrentItem = Items.Access;
 		Filter = New Structure("AccessKind", GotoViewAccess);
 		FoundRows = Object.AccessKinds.FindRows(Filter);
 		If FoundRows.Count() = 1 Then
-			CurrentItem = Items.AccessKindsAccessTypePresentation;
+			CurrentItem = Items.AccessKindsAccessKindPresentation;
 			Items.AccessKinds.CurrentRow = FoundRows[0].GetID();
 			Filter.Insert("AccessValue", JumpToAccessValue);
 			FoundRows = Object.AccessValues.FindRows(Filter);
@@ -1747,7 +1747,7 @@ Procedure JumpToAccessValue()
 	
 EndProcedure
 
-// Standard subsystems.Pluggable commands
+// StandardSubsystems.AttachableCommands
 
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)

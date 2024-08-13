@@ -6,7 +6,7 @@
 		<HorizontalAlign>Right</HorizontalAlign>
 		<Autofill>false</Autofill>
 		<ChildItems>
-			<Button name="FormOKButton1" id="27">
+			<Button name="FormOKButton" id="27">
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.OKButton</CommandName>
@@ -16,7 +16,7 @@
 						<v8:content>OK</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="FormOKButton1ExtendedTooltip" id="28"/>
+				<ExtendedTooltip name="FormOKButtonExtendedTooltip" id="28"/>
 			</Button>
 			<Button name="FormCancelButton" id="29">
 				<Type>CommandBarButton</Type>
@@ -170,7 +170,7 @@
 												<Title>
 													<v8:item>
 														<v8:lang>en</v8:lang>
-														<v8:content>Display additionally in the notification center</v8:content>
+														<v8:content>Also display in the notification center</v8:content>
 													</v8:item>
 												</Title>
 												<ExtendedTooltip name="DisplayedToDoTreeDuplicateInNotificationCenterExtendedTooltip" id="68"/>
@@ -525,6 +525,11 @@
 						<v8:Type>v8ui:Picture</v8:Type>
 					</Type>
 				</Column>
+				<Column name="Important" id="10">
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Column>
 			</Columns>
 		</Attribute>
 		<Attribute name="OnlyImportantUserTasks" id="2">
@@ -664,13 +669,13 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Display additionally in the notification center</v8:content>
+					<v8:content>Also display in the notification center</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Display additionally in the notification center</v8:content>
+					<v8:content>Also display in the notification center</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>

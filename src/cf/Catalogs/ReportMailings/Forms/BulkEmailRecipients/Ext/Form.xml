@@ -32,7 +32,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Email account</v8:content>
+					<v8:content>Email</v8:content>
 				</v8:item>
 			</Title>
 			<CreateButton>false</CreateButton>
@@ -123,7 +123,7 @@
 						<Representation>Compact</Representation>
 						<ExtendedTooltip name="RecipientsSelectClearAllGroupExtendedTooltip" id="107"/>
 						<ChildItems>
-							<Button name="RecipientsSelectAll3" id="108">
+							<Button name="RecipientsSelectCheckBoxes" id="108">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.SelectCheckBoxes</CommandName>
 								<Title>
@@ -132,9 +132,9 @@
 										<v8:content>Select all</v8:content>
 									</v8:item>
 								</Title>
-								<ExtendedTooltip name="RecipientsSelectAllExtendedTooltip" id="109"/>
+								<ExtendedTooltip name="RecipientsSelectCheckBoxesExtendedTooltip" id="109"/>
 							</Button>
-							<Button name="RecipientsClearAll4" id="110">
+							<Button name="RecipientsClearCheckBoxes" id="110">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.ClearCheckBoxes</CommandName>
 								<Title>
@@ -143,7 +143,7 @@
 										<v8:content>Clear all</v8:content>
 									</v8:item>
 								</Title>
-								<ExtendedTooltip name="RecipientsClearAllExtendedTooltip" id="111"/>
+								<ExtendedTooltip name="RecipientsClearCheckBoxesExtendedTooltip" id="111"/>
 							</Button>
 						</ChildItems>
 					</ButtonGroup>
@@ -349,7 +349,7 @@
 					<HorizontalStretch>false</HorizontalStretch>
 					<GroupHorizontalAlign>Right</GroupHorizontalAlign>
 					<HorizontalLocation>Right</HorizontalLocation>
-					<ExtendedTooltip name="CommandBarGroupExtendedTooltip" id="48"/>
+					<ExtendedTooltip name="GroupCommandBarExtendedTooltip" id="48"/>
 					<ChildItems>
 						<Button name="OK" id="49">
 							<Type>CommandBarButton</Type>
@@ -373,7 +373,7 @@
 									<v8:content>Cancel</v8:content>
 								</v8:item>
 							</Title>
-							<ExtendedTooltip name="FormClose3ExtendedTooltip" id="40"/>
+							<ExtendedTooltip name="FormCloseExtendedTooltip" id="40"/>
 						</Button>
 					</ChildItems>
 				</CommandBar>

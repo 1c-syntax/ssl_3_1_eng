@@ -41,7 +41,7 @@
 								</v8:item>
 							</Title>
 							<PagesRepresentation>None</PagesRepresentation>
-							<ExtendedTooltip name="Modes1ExtendedTooltip" id="435"/>
+							<ExtendedTooltip name="ModesExtendedTooltip" id="435"/>
 							<ChildItems>
 								<Page name="Normal" id="436">
 									<Title>
@@ -133,8 +133,8 @@ only if you use third-party backup tools.</v8:content>
 																			</xr:Value>
 																		</xr:Item>
 																	</ChoiceList>
-																	<ContextMenu name="ScheduleOptionContextMenu" id="422"/>
-																	<ExtendedTooltip name="ScheduleOptionExtendedTooltip" id="423"/>
+																	<ContextMenu name="OptionScheduledContextMenu" id="422"/>
+																	<ExtendedTooltip name="OptionScheduledExtendedTooltip" id="423"/>
 																	<Events>
 																		<Event name="OnChange">BackupOptionOnChange</Event>
 																	</Events>
@@ -262,7 +262,7 @@ only if you use third-party backup tools.</v8:content>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="ParametersGroupExtendedTooltip" id="378"/>
+							<ExtendedTooltip name="GroupParametersExtendedTooltip" id="378"/>
 							<ChildItems>
 								<UsualGroup name="BackupDirectoryGroup" id="52">
 									<Title>
@@ -290,8 +290,8 @@ only if you use third-party backup tools.</v8:content>
 											<HorizontalAlign>Left</HorizontalAlign>
 											<AutoMaxWidth>false</AutoMaxWidth>
 											<ChoiceButton>true</ChoiceButton>
-											<ContextMenu name="BackupDirectory2ContextMenu" id="56"/>
-											<ExtendedTooltip name="BackupDirectory2ExtendedTooltip" id="292">
+											<ContextMenu name="PathToBackupDirectoryContextMenu" id="56"/>
+											<ExtendedTooltip name="PathToBackupDirectoryExtendedTooltip" id="292">
 												<Title formatted="false">
 													<v8:item>
 														<v8:lang>en</v8:lang>
@@ -300,7 +300,7 @@ only if you use third-party backup tools.</v8:content>
 												</Title>
 											</ExtendedTooltip>
 											<Events>
-												<Event name="StartChoice">BackupDirectory2StartChoice</Event>
+												<Event name="StartChoice">PathToBackupDirectoryStartChoice</Event>
 											</Events>
 										</InputField>
 									</ChildItems>

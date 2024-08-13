@@ -63,8 +63,8 @@ EndProcedure
 Procedure SetConditionalAppearance()
 	ConditionalAppearance.Items.Clear();
 	
-	// 
-	// 
+	// UserSettingPresentation - NotFilled.
+	// Presentation - Filled.
 	//
 	Item = ConditionalAppearance.Items.Add();
 	
@@ -81,9 +81,9 @@ Procedure SetConditionalAppearance()
 	ItemField = Item.Fields.Items.Add();
 	ItemField.Field = New DataCompositionField(Items.FiltersUserSettingPresentation.Name);
 	
-	// 
-	// 
-	// 
+	// UserSettingPresentation - NotFilled.
+	// Presentation - NotFilled.
+	// Title - Filled.
 	//
 	Item = ConditionalAppearance.Items.Add();
 	
@@ -159,10 +159,9 @@ EndProcedure
 Procedure SelectAndClose()
 	FiltersConditions = New Map;
 	
-	Rows = Filters.GetItems();
-	For Each String In Rows Do
-		If String.InitialComparisonType <> String.ComparisonType Then
-			FiltersConditions.Insert(String.Id, String.ComparisonType);
+	For Each Item In Filters.GetItems() Do
+		If Item.InitialComparisonType <> Item.ComparisonType Then
+			FiltersConditions.Insert(Item.Id, Item.ComparisonType);
 		EndIf;
 	EndDo;
 	

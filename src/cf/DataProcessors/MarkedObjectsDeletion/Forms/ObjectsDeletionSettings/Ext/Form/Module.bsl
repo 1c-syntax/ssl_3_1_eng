@@ -98,14 +98,13 @@ Procedure AddSetting(Command)
 		SelectedObjects.Add(SearchLocation.SearchLocationAttribute);
 	EndDo;
 
-	FormParameters = New Structure;
-	FormParameters.Insert("MetadataObjectsToSelectCollection", ObjectsToSelectCollection);
-	FormParameters.Insert("SubsystemsWithCIOnly", True);
-	FormParameters.Insert("SelectedMetadataObjects", SelectedObjects);
+	FormParameters = StandardSubsystemsClientServer.MetadataObjectsSelectionParameters();
+	FormParameters.MetadataObjectsToSelectCollection = ObjectsToSelectCollection;
+	FormParameters.SubsystemsWithCIOnly = True;
+	FormParameters.SelectedMetadataObjects = SelectedObjects;
 
 	ClosingNotification1 = New NotifyDescription("AddSettingCompletion", ThisObject);
-	OpenForm("CommonForm.SelectMetadataObjects", FormParameters, ThisObject, , , , ClosingNotification1,
-		FormWindowOpeningMode.LockOwnerWindow);
+	StandardSubsystemsClient.ChooseMetadataObjects(FormParameters, ClosingNotification1);
 EndProcedure
 
 &AtClient

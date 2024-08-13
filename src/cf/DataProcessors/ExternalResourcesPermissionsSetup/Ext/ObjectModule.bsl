@@ -24,16 +24,16 @@ Var AdministrationOperations; // See AdministrationOperations
 Var RequestsApplicationPlan; // See RequestsApplicationPlan
 
 // 
-Var SourcePermissionSliceByOwners; // See InformationRegisters.PermissionsToUseExternalResources.NewSectionOfPermissionsInSectionOfOwners
+Var SourcePermissionSliceByOwners; // See InformationRegisters.PermissionsToUseExternalResources.NewPermissionsSliceByOwner
 
 // 
-Var SourcePermissionSliceIgnoringOwners; // See InformationRegisters.PermissionsToUseExternalResources.NewPermissionSlice
+Var SourcePermissionSliceIgnoringOwners; // See InformationRegisters.PermissionsToUseExternalResources.NewPermissionsSlice
 
 // 
-Var RequestsApplicationResultByOwners; // See InformationRegisters.PermissionsToUseExternalResources.NewSectionOfPermissionsInSectionOfOwners
+Var RequestsApplicationResultByOwners; // See InformationRegisters.PermissionsToUseExternalResources.NewPermissionsSliceByOwner
 
 // 
-Var RequestsApplicationResultIgnoringOwners; // See InformationRegisters.PermissionsToUseExternalResources.NewPermissionSlice
+Var RequestsApplicationResultIgnoringOwners; // See InformationRegisters.PermissionsToUseExternalResources.NewPermissionsSlice
 
 // 
 Var DeltaByOwners; // See DeltaByOwners
@@ -667,7 +667,7 @@ Procedure CalculateRequestsApplicationResultIgnoringOwners()
 				
 				If ResultString1.Type = "FileSystemAccess" Then
 					
-					// 
+					// Search for nested or parent permissions in order to use the file system directory.
 					// 
 					
 					If SourcePermission.AllowedRead Then
@@ -722,27 +722,27 @@ EndProcedure
 
 // Returns:
 //  Structure:
-//   * ItemsToAdd - ValueTable - :
+//   * ItemsToAdd - ValueTable - Details of the permissions being added. Columns are:
 //    ** ProgramModuleType - CatalogRef.MetadataObjectIDs,
 //    ** ModuleID - UUID,
 //    ** OwnerType - CatalogRef.MetadataObjectIDs,
 //    ** OwnerID - UUID,
-//    ** Type - String -  name of the XDTO type that describes permissions,
+//    ** Type - String - Name of the XDTO type that describes permissions.
 //    ** Permissions - Map of KeyAndValue:
 //      *** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
-//      *** Value - XDTODataObject - 
-//    ** PermissionsAdditions - Map of KeyAndValue - :
+//      *** Value - XDTODataObject - Permission details in XDTO format.
+//    ** PermissionsAdditions - Map of KeyAndValue - Describes permission additions:
 //      *** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
 //      *** Value - See InformationRegister.PermissionsToUseExternalResources.PermissionAddition
-//   * ItemsToDelete - ValueTable - :
+//   * ItemsToDelete - ValueTable - Details of the permissions being deleted. Contains the following columns:
 //    ** ProgramModuleType - CatalogRef.MetadataObjectIDs,
 //    ** ModuleID - UUID,
 //    ** OwnerType - CatalogRef.MetadataObjectIDs,
 //    ** OwnerID - UUID,
-//    ** Type - String -  name of the XDTO type that describes permissions,
+//    ** Type - String - Name of the XDTO type that describes permissions.
 //    ** Permissions - Map of KeyAndValue:
 //      *** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
-//      *** Value - XDTODataObject - 
+//      *** Value - XDTODataObject - Permission details in XDTO format.
 //    ** PermissionsAdditions - Map of KeyAndValue:
 //      *** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
 //      *** Value - See InformationRegister.PermissionsToUseExternalResources.PermissionAddition
@@ -869,23 +869,23 @@ EndProcedure
 
 // Returns:
 //  Structure:
-//   * ItemsToAdd - ValueTable - :
+//   * ItemsToAdd - ValueTable - Details of the permissions being added. Columns are:
 //    ** ProgramModuleType - CatalogRef.MetadataObjectIDs,
 //    ** ModuleID - UUID,
-//    ** Type - String -  name of the XDTO type that describes permissions,
+//    ** Type - String - Name of the XDTO type that describes permissions.
 //    ** Permissions - Map of KeyAndValue:
 //      *** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
-//      *** Value - XDTODataObject - 
+//      *** Value - XDTODataObject - Permission details in XDTO format.
 //    ** PermissionsAdditions - Map of KeyAndValue:
 //      *** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
 //      *** Value - See InformationRegister.PermissionsToUseExternalResources.PermissionAddition
-//   * ItemsToDelete - ValueTable - :
+//   * ItemsToDelete - ValueTable - Details of the permissions being deleted. Contains the following columns:
 //    ** ProgramModuleType - CatalogRef.MetadataObjectIDs,
 //    ** ModuleID - UUID,
-//    ** Type - String -  name of the XDTO type that describes permissions,
+//    ** Type - String - Name of the XDTO type that describes permissions.
 //    ** Permissions - Map of KeyAndValue:
 //      *** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
-//      *** Value - XDTODataObject - 
+//      *** Value - XDTODataObject - Permission details in XDTO format.
 //    ** PermissionsAdditions - Map of KeyAndValue:
 //      *** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
 //      *** Value - See InformationRegister.PermissionsToUseExternalResources.PermissionAddition
@@ -1216,7 +1216,7 @@ EndFunction
 //   * ProgramModuleType - CatalogRef.MetadataObjectIDs
 //   * ModuleID - UUID
 //   * Operation - EnumRef.SecurityProfileAdministrativeOperations
-//   * Name - String - 
+//   * Name - String - Security profile name.
 //
 Function AdministrationOperations()
 	
@@ -1232,33 +1232,33 @@ EndFunction
 
 // Returns:
 //  Structure:
-//   * PermissionsToReplace - ValueTable - :
+//   * PermissionsToReplace - ValueTable - Operations that replace the existing permissions with permissions to use external resources.:
 //      ** ProgramModuleType - CatalogRef.MetadataObjectIDs,
 //      ** ModuleID - UUID,
 //      ** OwnerType - CatalogRef.MetadataObjectIDs,
 //      ** OwnerID - UUID,
-//   * ItemsToAdd - ValueTable - :
+//   * ItemsToAdd - ValueTable - Operations that add permissions to use external resources.:
 //      ** ProgramModuleType - CatalogRef.MetadataObjectIDs,
 //      ** ModuleID - UUID,
 //      ** OwnerType - CatalogRef.MetadataObjectIDs,
 //      ** OwnerID - UUID,
-//      ** Type - String -  name of the XDTO type that describes permissions,
-//      ** Permissions - Map of KeyAndValue - :
+//      ** Type - String - Name of the XDTO type that describes permissions.
+//      ** Permissions - Map of KeyAndValue - Describes the permissions being added:
 //         *** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
-//         *** Value - XDTODataObject - 
-//      ** PermissionsAdditions - Map of KeyAndValue - :
+//         *** Value - XDTODataObject - XDTO details of the permission being added
+//      ** PermissionsAdditions - Map of KeyAndValue - Describes the additions of the permissions being added:
 //         *** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
 //         *** Value - See InformationRegister.PermissionsToUseExternalResources.PermissionAddition
-//   * ItemsToDelete - ValueTable - :
+//   * ItemsToDelete - ValueTable - Operations that remove permissions on external resources:
 //      * ProgramModuleType - CatalogRef.MetadataObjectIDs,
 //      * ModuleID - UUID,
 //      * OwnerType - CatalogRef.MetadataObjectIDs,
 //      * OwnerID - UUID,
-//      * Type - String -  name of the XDTO type that describes permissions,
-//      * Permissions - Map of KeyAndValue - :
+//      * Type - String - Name of the XDTO type that describes permissions.
+//      * Permissions - Map of KeyAndValue - Describes the permissions being removed:
 //         * Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
-//         * Value - XDTODataObject - 
-//      * PermissionsAdditions - Map of KeyAndValue - :
+//         * Value - XDTODataObject - XDTP details of the permission being removed.
+//      * PermissionsAdditions - Map of KeyAndValue - Describes the additions of the permissions being removed:
 //         * Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
 //         * Value - See InformationRegister.PermissionsToUseExternalResources.PermissionAddition
 //

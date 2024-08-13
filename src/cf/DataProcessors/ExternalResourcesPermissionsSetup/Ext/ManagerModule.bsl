@@ -228,7 +228,7 @@ Procedure CommitRequests(Val State) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Managing registers used for storing granted permissions on using external resources.
 // 
 //
 

@@ -20,18 +20,24 @@ Var PreviousValues1; // See PreviousValues1
 
 Procedure BeforeWrite(Cancel)
 	
-	If DataExchange.Load Then
+	// ACC:75-off - "DataExchange.Import" check must follow the logging of changes.
+	If IsFolder Then
 		Return;
 	EndIf;
 	
-	If IsFolder Then
+	If UsersInternalCached.ShouldRegisterChangesInAccessRights()
+	 Or Not DataExchange.Load Then
+		
+		PreviousValues1 = PreviousValues1();
+	EndIf;
+	// ACC:75-on
+	
+	If DataExchange.Load Then
 		Return;
 	EndIf;
 	
 	InformationRegisters.RolesRights.CheckRegisterData();
 
-	PreviousValues1 = PreviousValues1();
-	
 	If Not Catalogs.ExtensionsVersions.AllExtensionsConnected() Then
 		Catalogs.AccessGroupProfiles.RestoreNonexistentViewsFromAccessValue(PreviousValues1, ThisObject);
 	EndIf;
@@ -125,18 +131,32 @@ EndProcedure
 
 Procedure OnWrite(Cancel)
 	
-	If DataExchange.Load Then
+	// ACC:75-off - "DataExchange.Import" check must follow the logging of changes.
+	If IsFolder Then
 		Return;
 	EndIf;
 	
-	If IsFolder Then
+	If UsersInternalCached.ShouldRegisterChangesInAccessRights() Then
+		SetSafeModeDisabled(True);
+		SetPrivilegedMode(True);
+		
+		Catalogs.AccessGroupProfiles.RegisterChangeInProfilesRoles(ThisObject, PreviousValues1);
+		Catalogs.AccessGroups.RegisterChangeInAccessGroupsMembers(ThisObject, PreviousValues1);
+		Catalogs.AccessGroups.RegisterChangeInAllowedValues(ThisObject, PreviousValues1);
+		
+		SetPrivilegedMode(False);
+		SetSafeModeDisabled(False);
+	EndIf;
+	// ACC:75-on
+	
+	If DataExchange.Load Then
 		Return;
 	EndIf;
 	
 	CheckSuppliedDataUniqueness();
 	
 	// When setting a deletion mark, the deletion mark is also set for the profile access groups.
-	If DeletionMark And PreviousValues1.DeletionMark = False Then
+	If Catalogs.AccessGroups.IsProfileMarkedForDeletion(ThisObject, PreviousValues1) Then
 		Query = New Query;
 		Query.SetParameter("Profile", Ref);
 		Query.Text =
@@ -160,17 +180,20 @@ Procedure OnWrite(Cancel)
 				EndDo;
 				Block.Lock();
 				
+				SetPrivilegedMode(True);
 				For Each AccessGroupRef In ChangedAccessGroups Do
 					AccessGroupObject = AccessGroupRef.GetObject();
+					AccessGroupObject.AdditionalProperties.Insert("MarkAccessGroupForDeletionWhenProfileMarkedForDeletion");
 					AccessGroupObject.DeletionMark = True;
 					AccessGroupObject.Write();
 				EndDo;
+				SetPrivilegedMode(False);
 			EndIf;
 			CommitTransaction();
 		Except
 			RollbackTransaction();
 			Raise;
-		EndTry;	
+		EndTry;
 	EndIf;
 	
 	If AdditionalProperties.Property("UpdateProfileAccessGroups") Then

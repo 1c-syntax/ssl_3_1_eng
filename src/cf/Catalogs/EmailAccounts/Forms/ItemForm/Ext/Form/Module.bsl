@@ -336,7 +336,7 @@ EndProcedure
 &AtClient
 Procedure AuthenticationModeOnChange(Item)
 	
-	Object.EmailServiceAuthorization = AuthenticationMethod = "OAuth";
+	Object.EmailServiceAuthorization = AuthenticationOption = "OAuth";
 	
 #If MobileClient Then
 	Items.Password.Visible = Not Object.EmailServiceAuthorization;
@@ -607,7 +607,7 @@ Procedure OnCompleteSetup(Result, OnlyAuthorization) Export
 	If OnlyAuthorization Then
 		If Result <> True Then
 			Object.EmailServiceAuthorization = False;
-			AuthenticationMethod = "Password";
+			AuthenticationOption = "Password";
 #If MobileClient Then
 			Items.Password.Visible = Not Object.EmailServiceAuthorization;
 #Else
@@ -676,9 +676,9 @@ Procedure FillSettings()
 	Items.FormOpenSetupWizard.Enabled = Not Object.Ref.IsEmpty() And Not ReadOnly;
 	
 	If Object.EmailServiceAuthorization Then
-		AuthenticationMethod = "OAuth";
+		AuthenticationOption = "OAuth";
 	Else
-		AuthenticationMethod = "Password";
+		AuthenticationOption = "Password";
 	EndIf;
 	
 	If Common.IsMobileClient() Then

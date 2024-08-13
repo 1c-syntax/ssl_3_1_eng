@@ -293,7 +293,7 @@ EndProcedure
 Procedure DeferActiveReminders()
 	TimeInterval = UserRemindersClient.GetTimeIntervalFromString(RepeatedNotificationPeriod);
 	If TimeInterval = 0 Then
-		TimeInterval = 5*60; // 
+		TimeInterval = 5*60; // 5 minutes.
 	EndIf;
 	For Each TableRow In Reminders Do
 		TableRow.ReminderTime = CommonClient.SessionDate() + TimeInterval;
@@ -347,9 +347,9 @@ Procedure FillRepeatedReminderPeriod()
 	
 	Items.RepeatedNotificationPeriod.ChoiceList.Clear();
 	SubsystemSettings = UserRemindersInternal.SubsystemSettings();
-	TimeIntervals_SSLy = SubsystemSettings.StandardIntervals;
+	TimeIntervals_ = SubsystemSettings.StandardIntervals;
 	
-	For Each Interval In TimeIntervals_SSLy Do
+	For Each Interval In TimeIntervals_ Do
 		Items.RepeatedNotificationPeriod.ChoiceList.Add(StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'in %1';"), Interval));
 	EndDo;
@@ -410,7 +410,7 @@ Function TimeIntervalPresentation(Val TimeCount)
 	ElsIf DaysCount > 1 Then
 		If BegOfDay(CurrentDate) - BegOfDay(CurrentDate - TimeCount) = 60*60*24 * 2 Then
 			If EventCame Then
-				Return NStr("en = 'the day before yesterday';");
+				Return NStr("en = 'the day before yesterday';");
 			Else
 				Return NStr("en = 'the day after tomorrow';");
 			EndIf;

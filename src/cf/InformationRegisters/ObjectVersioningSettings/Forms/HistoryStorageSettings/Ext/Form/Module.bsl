@@ -208,7 +208,7 @@ Procedure FillObjectTypesInValueTree()
 	MOTree = FormAttributeToValue("MetadataObjectsTree");
 	MOTree.Rows.Clear();
 	
-	//  
+	// The type of the "ChangeHistory" command's parameter contains a set of versioned objects. 
 	// 
 	TypesArray = Metadata.CommonCommands.ChangeHistory.CommandParameterType.Types();
 	HasBusinessProcesses = False;

@@ -36,13 +36,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	RefTemplate = Parameters.Ref;
 	If ValueIsFilled(RefTemplate) Then
 		KeyOfEditObject  = RefTemplate;
-		LockDataForEdit(KeyOfEditObject,,UUID);
+		LockDataForEdit(KeyOfEditObject,, UUID);
 	ElsIf ValueIsFilled(IdentifierOfTemplate) Then
 		If Common.SubsystemExists("StandardSubsystems.Print") Then
 			ModulePrintManager = Common.CommonModule("PrintManagement");
 			KeyOfEditObject = ModulePrintManager.GetTemplateRecordKey(IdentifierOfTemplate);
 			If KeyOfEditObject <> Undefined Then
-				LockDataForEdit(KeyOfEditObject,,UUID);
+				LockDataForEdit(KeyOfEditObject,, UUID);
 			EndIf;
 		EndIf;
 	EndIf;
@@ -50,6 +50,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	IsPrintForm = Parameters.IsPrintForm;
 	IsTemplate = Not IsBlankString(IdentifierOfTemplate) Or IsPrintForm;
 	
+	Items.ButtonShowHideOriginal.Visible = IsTemplate;
+	Items.ButtonShowHideOriginalAllActions.Visible = IsTemplate;
+	Items.DeleteStampEP.Visible = IsTemplate;
+
 	If IsTemplate Then
 		If Common.SubsystemExists("StandardSubsystems.Print") Then
 			ModulePrintManager = Common.CommonModule("PrintManagement");
@@ -86,7 +90,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		FillSpreadsheetDocument(SpreadsheetDocument, Parameters.SpreadsheetDocument);
 	Else
 		SpreadsheetDocument.LanguageCode = Undefined;
-		BinaryData = GetFromTempStorage(Parameters.SpreadsheetDocument); // BinaryData - 
+		BinaryData = GetFromTempStorage(Parameters.SpreadsheetDocument); // BinaryData
 		TempFileName = GetTempFileName("mxl");
 		BinaryData.Write(TempFileName);
 		SpreadsheetDocument.Read(TempFileName);
@@ -275,7 +279,7 @@ Procedure SpreadsheetDocumentOnActivate(Item)
 EndProcedure
 
 &AtClient
-Procedure SuppliedLayoutOnActivate(Item)
+Procedure SuppliedTemplateOnActivate(Item)
 	
 	SynchronizeTheLayoutViewport();
 	
@@ -284,14 +288,14 @@ EndProcedure
 &AtClient
 Procedure TemplateOwnersClick(Item)
 	
-	PickingParameters = New Structure;
-	PickingParameters.Insert("SelectedMetadataObjects", CommonClient.CopyRecursive(DataSources));
-	PickingParameters.Insert("ChooseRefs", True);
-	PickingParameters.Insert("Title", NStr("en = 'Template assignment';"));
-	PickingParameters.Insert("FilterByMetadataObjects", ObjectsWithPrintCommands());
+	PickingParameters = StandardSubsystemsClientServer.MetadataObjectsSelectionParameters();
+	PickingParameters.SelectedMetadataObjects = CommonClient.CopyRecursive(DataSources);
+	PickingParameters.ChooseRefs = True;
+	PickingParameters.Title = NStr("en = 'Template assignment';");
+	PickingParameters.FilterByMetadataObjects = ObjectsWithPrintCommands();
 	
 	NotifyDescription = New NotifyDescription("OnChooseTemplateOwners", ThisObject);
-	OpenForm("CommonForm.SelectMetadataObjects", PickingParameters, , , , , NotifyDescription);
+	StandardSubsystemsClient.ChooseMetadataObjects(PickingParameters, NotifyDescription);
 
 EndProcedure
 
@@ -299,7 +303,7 @@ EndProcedure
 
 #Region FormCommandsEventHandlers
 
-// 
+// Document actions
 
 &AtClient
 Procedure WriteAndClose(Command)
@@ -372,7 +376,7 @@ Procedure ChangeFont(Command)
 	
 EndProcedure
 
-// 
+// Formatting
 
 &AtClient
 Procedure IncreaseFontSize(Command)
@@ -380,7 +384,7 @@ Procedure IncreaseFontSize(Command)
 	For Each Area In AreaListForChangingFont() Do
 		Size = Area.Font.Size;
 		Size = Size + IncreaseFontSizeChangeStep(Size);
-		Area.Font = New Font(Area.Font,,Size); // 
+		Area.Font = New Font(Area.Font,,Size); // ACC:1345 - Don't apply styles.
 	EndDo;
 	
 EndProcedure
@@ -394,7 +398,7 @@ Procedure DecreaseFontSize(Command)
 		If Size < 1 Then
 			Size = 1;
 		EndIf;
-		Area.Font = New Font(Area.Font,,Size); // 
+		Area.Font = New Font(Area.Font,,Size); // ACC:1345 - Don't apply styles.
 	EndDo;
 	
 EndProcedure
@@ -407,7 +411,7 @@ Procedure Strikeout(Command)
 		If ValueToSet = Undefined Then
 			ValueToSet = Not Area.Font.Strikeout = True;
 		EndIf;
-		Area.Font = New Font(Area.Font,,,,,,ValueToSet); // 
+		Area.Font = New Font(Area.Font,,,,,,ValueToSet); // ACC:1345 - Don't apply styles.
 	EndDo;
 	
 	UpdateCommandBarButtonMarks();
@@ -750,8 +754,8 @@ Function AreaListForChangingFont()
 EndFunction
 
 &AtClient
-Procedure CloseFormAfterWriteSpreadsheetDocument(Close_SSLy, AdditionalParameters) Export
-	If Close_SSLy Then
+Procedure CloseFormAfterWriteSpreadsheetDocument(Close, AdditionalParameters) Export
+	If Close Then
 		Close();
 	EndIf;
 EndProcedure
@@ -787,7 +791,7 @@ Procedure WriteSpreadsheetDocumentFileNameSelected(Val CompletionHandler, Unlock
 			AfterWriteSpreadsheetDocument(AdditionalParameters.CompletionHandler, UnlockFile);
 		Else
 			NotifyDescription = New NotifyDescription("ContinueWritingTabularDocument", ThisObject, AdditionalParameters);
-			ShowQueryBox(NotifyDescription, NStr("en = 'Template contains errors. Do you want to continue saving?';"), QuestionDialogMode.YesNo, , DialogReturnCode.No);
+			ShowQueryBox(NotifyDescription, NStr("en = 'Some entries are invalid. Save the template anyway?';"), QuestionDialogMode.YesNo, , DialogReturnCode.No);
 		EndIf;
 	Else
 		SpreadsheetDocument.BeginWriting(
@@ -828,13 +832,14 @@ Procedure AfterWriteSpreadsheetDocument(CompletionHandler, UnlockFile)
 		If ValueIsFilled(Parameters.AttachedFile) Then
 			ModuleFilesOperationsInternalClient = CommonClient.CommonModule("FilesOperationsInternalClient");
 			If UnlockFile Then
-				FileUpdateParameters = ModuleFilesOperationsInternalClient.FileUpdateParameters(CompletionHandler, Parameters.AttachedFile, UUID);
+				FileUpdateParameters = ModuleFilesOperationsInternalClient.FileUpdateParameters(
+					CompletionHandler, Parameters.AttachedFile, UUID);
 				ModuleFilesOperationsInternalClient.EndEditAndNotify(FileUpdateParameters);
-				Return;
 			Else
-				ModuleFilesOperationsInternalClient.SaveFileChangesWithNotification(CompletionHandler, Parameters.AttachedFile, UUID);
-				Return;
+				ModuleFilesOperationsInternalClient.SaveFileChangesWithNotification(CompletionHandler, 
+					Parameters.AttachedFile, UUID);
 			EndIf;
+			Return;
 		EndIf;
 	EndIf;
 	
@@ -1466,7 +1471,8 @@ EndProcedure
 Procedure UpdateInputFieldCurrentCellValue()
 	
 	CurrentArea = SpreadsheetDocument.CurrentArea;
-	EditingAvailable = Items.SpreadsheetDocument.Edit And CurrentArea <> Undefined And TypeOf(CurrentArea) = Type("SpreadsheetDocumentRange");
+	EditingAvailable = Items.SpreadsheetDocument.Edit And CurrentArea <> Undefined 
+		And TypeOf(CurrentArea) = Type("SpreadsheetDocumentRange");
 	Items.CurrentValue.Enabled = EditingAvailable;
 	If EditingAvailable Then
 		CurrentValue = CurrentArea.Text;
@@ -2946,8 +2952,19 @@ EndProcedure
 &AtClient
 Procedure ResumeImportFromFileAfterDataObtained(BinaryData, AdditionalParameters) Export
 	
-	FillSpreadsheetDocument(SpreadsheetDocument, ReadLayout(BinaryData));
+	FinishImportFromFile(BinaryData);
 	Modified = True;
+	
+EndProcedure
+
+&AtServer
+Procedure FinishImportFromFile(Val BinaryData)
+	
+	LanguageCode = SpreadsheetDocument.LanguageCode;
+	Template = ReadLayout(BinaryData);
+	SpreadsheetDocument.LanguageCode = LanguageCode;
+	
+	FillSpreadsheetDocument(SpreadsheetDocument, Template);
 	
 EndProcedure
 

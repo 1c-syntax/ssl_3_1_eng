@@ -8,7 +8,7 @@
 //
 //
 
-// 
+// If the "FileOperations" subsystem is not integrated, delete the form from the configuration.
 // 
 
 #Region Variables
@@ -168,8 +168,8 @@ Procedure DenyUploadFilesByExtensionOnChange(Item)
 		
 		Notification = New NotifyDescription(
 			"ProhibitFilesImportByExtensionAfterConfirm", ThisObject, New Structure("Item", Item));
-		OpenForm("CommonForm.SecurityWarning",
-			New Structure("Key", "OnChangeDeniedExtensionsList"), , , , , Notification);
+		UsersInternalClient.ShowSecurityWarning(Notification,
+			UsersInternalClientServer.TypesOfSafetyWarnings().OnChangeDeniedExtensionsList);
 		Return;
 		
 	EndIf;
@@ -215,14 +215,14 @@ Procedure FilesExtensionsListDocumentDataAreasOnChange(Item)
 EndProcedure
 
 &AtClient
-Procedure TestFilesExtensionsListOnChange(Item)
+Procedure TextFilesExtensionsListOnChange(Item)
 	
 	Attachable_OnChangeAttribute(Item);
 	
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Parameters common to all data areas.
 
 &AtClient
 Procedure MaxFileSizeOnChange(Item)
@@ -542,7 +542,8 @@ EndFunction
 &AtServer
 Function StartDeduplicationAtServer()
 	
-	Return TimeConsumingOperations.ExecuteProcedure(, "InformationRegisters.FileRepository.TransferData_", True);
+	DeduplicationResultAddress = PutToTempStorage(Undefined, UUID);
+	Return TimeConsumingOperations.ExecuteProcedure(, "InformationRegisters.FileRepository.TransferData_", True, DeduplicationResultAddress);
 	
 EndFunction
 
@@ -564,11 +565,18 @@ Procedure FinishDeduplication(Result, AdditionalParameters) Export
 		Return;
 	EndIf;
 	
-	If IsDeduplicationCompleted() Then
+	DeduplicationErrors = GetFromTempStorage(DeduplicationResultAddress);
+	If IsDeduplicationCompleted() And DeduplicationErrors = Undefined Then
 		Items.GroupDeduplication.Visible = False;
 		ShowMessageBox(, NStr("en = 'File deduplication is completed.';"));
-	Else
+	ElsIf DeduplicationErrors = Undefined Then
 		ShowMessageBox(, NStr("en = 'Some files have not been processed. Start again.';"));
+	Else
+		FormParameters = New Structure;
+		FormParameters.Insert("Deduplication", True);
+		FormParameters.Insert("Explanation", NStr("en = 'Some of the files failed to be processed. To resume, fix the following issues:';"));
+		FormParameters.Insert("FilesWithErrors", DeduplicationErrors);
+		OpenForm("DataProcessor.FileTransfer.Form.ReportForm", FormParameters);
 	EndIf;
 EndProcedure 
 

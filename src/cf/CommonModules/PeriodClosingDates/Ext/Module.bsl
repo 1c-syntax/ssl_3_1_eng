@@ -341,8 +341,8 @@ Function PeriodEndMessageParameters() Export
 	
 EndFunction	
 
-// Returns a new value table with columns Date, Section, and Object
-// for filling in and passing to the PeriodClosingDates.PeriodEndClosingFound function.
+// Returns a new value table with the Date, Section, and Object columns
+// to populate and pass to the PeriodClosingDates.PeriodEndClosingFound function.
 //
 // Returns:
 //  ValueTable:

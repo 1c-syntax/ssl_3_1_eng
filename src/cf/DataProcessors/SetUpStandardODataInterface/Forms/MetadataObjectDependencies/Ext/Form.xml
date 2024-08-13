@@ -67,7 +67,7 @@
 							</Title>
 							<HorizontalStretch>true</HorizontalStretch>
 							<PagesRepresentation>None</PagesRepresentation>
-							<ExtendedTooltip name="PageGroupHeaderExtendedTooltip" id="62"/>
+							<ExtendedTooltip name="GroupPageHeaderExtendedTooltip" id="62"/>
 							<ChildItems>
 								<Page name="PageHeaderAddGroup" id="63">
 									<Title>

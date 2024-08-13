@@ -46,7 +46,7 @@ EndProcedure
 //
 // Example:
 //	 NewRow = OriginalsRecordingTable.Add();
-//	 NewRow.MetadataObject = Metadata.Documents._DemoGoodsSales;
+//	 NewRow.MetadataObject = Metadata.Documents.GoodsSales;
 //	 NewRow.ID = "SalesInvoice";
 //
 Procedure FillInTheOriginalAccountingTable(AccountingTableForOriginals) Export	

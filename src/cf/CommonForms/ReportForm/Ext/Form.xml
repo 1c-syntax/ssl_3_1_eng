@@ -94,7 +94,7 @@
 								</v8:item>
 							</Title>
 							<ShapeRepresentation>Always</ShapeRepresentation>
-							<ExtendedTooltip name="ChangeCompositionOfQuickSettingsExtendedTooltip" id="991"/>
+							<ExtendedTooltip name="ChangeQuickSettingsCompositionExtendedTooltip" id="991"/>
 						</Button>
 					</ChildItems>
 				</CommandBar>
@@ -139,7 +139,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Run report</v8:content>
+											<v8:content>Generate</v8:content>
 										</v8:item>
 									</Title>
 									<LocationInCommandBar>InCommandBar</LocationInCommandBar>
@@ -207,7 +207,7 @@
 														</v8:item>
 													</Title>
 													<Representation>Compact</Representation>
-													<ExtendedTooltip name="GroupSavingAReportVariantExtendedTooltip" id="997"/>
+													<ExtendedTooltip name="SaveReportOptionGroupExtendedTooltip" id="997"/>
 													<ChildItems>
 														<Button name="SaveVariant" id="994">
 															<Type>CommandBarButton</Type>
@@ -286,7 +286,7 @@
 										</v8:item>
 									</Title>
 									<Representation>Compact</Representation>
-									<ExtendedTooltip name="SearchGroupExtendedTooltip" id="1048"/>
+									<ExtendedTooltip name="GroupSearchExtendedTooltip" id="1048"/>
 									<ChildItems>
 										<Button name="Find" id="62">
 											<Type>CommandBarButton</Type>
@@ -341,7 +341,7 @@
 													<v8:content>Expand groupings to the selected level</v8:content>
 												</v8:item>
 											</ToolTip>
-											<ExtendedTooltip name="GroupLevelsOfGroupingsExtendedTooltip" id="1003"/>
+											<ExtendedTooltip name="GroupsLevelsGroupExtendedTooltip" id="1003"/>
 											<ChildItems>
 												<Button name="ShowGroupsLevel" id="1008">
 													<Type>CommandBarButton</Type>
@@ -353,7 +353,7 @@
 														</v8:item>
 													</Title>
 													<LocationInCommandBar>InCommandBar</LocationInCommandBar>
-													<ExtendedTooltip name="ShowTheGroupingLevelExtendedTooltip" id="1009"/>
+													<ExtendedTooltip name="ShowGroupsLevelExtendedTooltip" id="1009"/>
 												</Button>
 											</ChildItems>
 										</Popup>
@@ -368,7 +368,7 @@
 									<v8:content>Output</v8:content>
 								</v8:item>
 							</Title>
-							<ExtendedTooltip name="OutputGroupExtendedTooltip" id="535"/>
+							<ExtendedTooltip name="GroupOutputExtendedTooltip" id="535"/>
 							<ChildItems>
 								<ButtonGroup name="PrintGroup" id="826">
 									<Title>
@@ -543,10 +543,10 @@
 								<xr:Ref>CommonPicture.Sum</xr:Ref>
 								<xr:LoadTransparent>false</xr:LoadTransparent>
 							</Picture>
-							<ContextMenu name="SelectAnIndicatorContextMenu" id="1025"/>
-							<ExtendedTooltip name="SelectAnIndicatorExtendedTooltip" id="1026"/>
+							<ContextMenu name="SelectIndicatorContextMenu" id="1025"/>
+							<ExtendedTooltip name="SelectIndicatorExtendedTooltip" id="1026"/>
 							<Events>
-								<Event name="Click">SelectAnIndicatorClick</Event>
+								<Event name="Click">SelectIndicatorClick</Event>
 							</Events>
 						</PictureDecoration>
 						<InputField name="Factor" id="721">
@@ -650,7 +650,7 @@ Use:
 												</v8:item>
 											</Title>
 											<LocationInCommandBar>InCommandBar</LocationInCommandBar>
-											<ExtendedTooltip name="CalculateCount1ExtendedTooltip" id="691"/>
+											<ExtendedTooltip name="CalculateCountExtendedTooltip" id="691"/>
 										</Button>
 										<Button name="CalculateAverage" id="692">
 											<Type>CommandBarButton</Type>
@@ -743,7 +743,7 @@ Use:
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Run report</v8:content>
+											<v8:content>Generate</v8:content>
 										</v8:item>
 									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
@@ -755,7 +755,7 @@ Use:
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Run report on open</v8:content>
+											<v8:content>Generate on open</v8:content>
 										</v8:item>
 									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
@@ -794,7 +794,7 @@ Use:
 										</v8:item>
 									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-									<ExtendedTooltip name="ChangeCompositionOfQuickSettingsMoreExtendedTooltip" id="993"/>
+									<ExtendedTooltip name="ChangeQuickSettingsCompositionMoreExtendedTooltip" id="993"/>
 								</Button>
 								<Button name="ResetSettings" id="382">
 									<Type>CommandBarButton</Type>
@@ -806,7 +806,7 @@ Use:
 										</v8:item>
 									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-									<ExtendedTooltip name="ClearSettings1ExtendedTooltip" id="383"/>
+									<ExtendedTooltip name="ResetSettingsExtendedTooltip" id="383"/>
 								</Button>
 								<Popup name="GroupSaveSelectReportOptionMore" id="736">
 									<EnableContentChange>true</EnableContentChange>
@@ -827,7 +827,7 @@ Use:
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<Representation>Picture</Representation>
-									<ExtendedTooltip name="GroupSaveSelectAReportOptionMoreExtendedTooltip" id="737"/>
+									<ExtendedTooltip name="GroupSaveSelectReportOptionMoreExtendedTooltip" id="737"/>
 									<ChildItems>
 										<ButtonGroup name="MoreCommandBarSaveReportOptionGroup" id="1000">
 											<Title>
@@ -866,7 +866,7 @@ Use:
 														</v8:item>
 													</Title>
 													<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-													<ExtendedTooltip name="SaveOptionAsElseExtendedTooltip" id="739"/>
+													<ExtendedTooltip name="SaveOptionAsMoreExtendedTooltip" id="739"/>
 												</Button>
 											</ChildItems>
 										</ButtonGroup>
@@ -935,7 +935,7 @@ Use:
 														</v8:item>
 													</Title>
 													<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-													<ExtendedTooltip name="SaveReportOptionToFile1ExtendedTooltip" id="823"/>
+													<ExtendedTooltip name="SaveReportOptionToFileExtendedTooltip" id="823"/>
 												</Button>
 											</ChildItems>
 										</ButtonGroup>
@@ -1007,7 +1007,7 @@ Use:
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.StandardCommand.SaveReportSettings</CommandName>
 											<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-											<ExtendedTooltip name="SaveSettingsExtendedTooltip" id="461"/>
+											<ExtendedTooltip name="ShouldSaveSettingsExtendedTooltip" id="461"/>
 										</Button>
 										<Button name="ShareSettings" id="828">
 											<Type>CommandBarButton</Type>
@@ -1047,7 +1047,7 @@ Use:
 											<v8:content>Group management</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="GroupManageGroupsMoreExtendedTooltip" id="1005"/>
+									<ExtendedTooltip name="GroupsControlGroupMoreExtendedTooltip" id="1005"/>
 									<ChildItems>
 										<Button name="MoreCommandBarExpandAllGroups" id="746">
 											<Type>CommandBarButton</Type>
@@ -1074,7 +1074,7 @@ Use:
 													<v8:content>Expand groupings to the selected level</v8:content>
 												</v8:item>
 											</ToolTip>
-											<ExtendedTooltip name="GroupLevelsOfGroupingsMoreExtendedTooltip" id="1007"/>
+											<ExtendedTooltip name="GroupsLevelsGroupMoreExtendedTooltip" id="1007"/>
 											<ChildItems>
 												<Button name="ShowGroupsLevelMore" id="1010">
 													<Type>CommandBarButton</Type>
@@ -1086,7 +1086,7 @@ Use:
 														</v8:item>
 													</Title>
 													<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-													<ExtendedTooltip name="ShowLevelOfGroupingsMoreExtendedTooltip" id="1011"/>
+													<ExtendedTooltip name="ShowGroupsLevelMoreExtendedTooltip" id="1011"/>
 												</Button>
 											</ChildItems>
 										</Popup>
@@ -1169,7 +1169,7 @@ Use:
 										</v8:item>
 									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-									<ExtendedTooltip name="SaveReportAgainExtendedTooltip" id="1104"/>
+									<ExtendedTooltip name="SaveReportMoreExtendedTooltip" id="1104"/>
 								</Button>
 								<Popup name="MoreCommandBarSendGroup" id="754">
 									<Title>
@@ -1425,7 +1425,7 @@ Use:
 								<v8:content>Title area context menu</v8:content>
 							</v8:item>
 						</Title>
-						<ExtendedTooltip name="ContextMenuOfTheHeaderAreaExtendedTooltip" id="835"/>
+						<ExtendedTooltip name="HeadingAreaContextMenuExtendedTooltip" id="835"/>
 						<ChildItems>
 							<ButtonGroup name="HeadingAreaContextMenuChangeChangeFieldsComposition" id="836">
 								<Title>
@@ -1434,7 +1434,7 @@ Use:
 										<v8:content>Change field composition</v8:content>
 									</v8:item>
 								</Title>
-								<ExtendedTooltip name="ContextMenuOfTheHeaderAreaChangeTheCompositionOfFieldsExtendedTooltip" id="837"/>
+								<ExtendedTooltip name="HeadingAreaContextMenuChangeChangeFieldsCompositionExtendedTooltip" id="837"/>
 								<ChildItems>
 									<Button name="HeadingAreaContextMenuGroupBySelectedField" id="1045">
 										<Type>CommandBarButton</Type>
@@ -1445,7 +1445,7 @@ Use:
 												<v8:content>Group by field</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="ContextMenuOfHeaderAreaIsGroupedBySelectedFieldExtendedTooltip" id="1046"/>
+										<ExtendedTooltip name="HeadingAreaContextMenuGroupBySelectedFieldExtendedTooltip" id="1046"/>
 									</Button>
 									<ButtonGroup name="HeadingAreaContextMenuInsert" id="838">
 										<Title>
@@ -1454,7 +1454,7 @@ Use:
 												<v8:content>Insert</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="ContextMenuOfTheInsertHeaderAreaExtendedTooltip" id="839"/>
+										<ExtendedTooltip name="HeadingAreaContextMenuInsertExtendedTooltip" id="839"/>
 										<ChildItems>
 											<Button name="ContextMenuHeaderAreaInsertFieldLeft" id="1117">
 												<Type>CommandBarButton</Type>
@@ -1478,7 +1478,7 @@ Use:
 														<v8:content>Insert field to the right…</v8:content>
 													</v8:item>
 												</Title>
-												<ExtendedTooltip name="ContextMenuOfTheHeaderAreaInsertFieldOnTheRightExtendedTooltip" id="841"/>
+												<ExtendedTooltip name="HeadingAreaContextMenuInsertFieldRightExtendedTooltip" id="841"/>
 											</Button>
 											<Button name="ContextMenuHeaderAreaInsertGroupingAbove" id="1119">
 												<Type>CommandBarButton</Type>
@@ -1502,7 +1502,7 @@ Use:
 														<v8:content>Insert grouping below…</v8:content>
 													</v8:item>
 												</Title>
-												<ExtendedTooltip name="ContextMenuOfTheHeaderAreaInsertGroupingBelowExtendedTooltip" id="843"/>
+												<ExtendedTooltip name="HeadingAreaContextMenuInsertGroupBelowExtendedTooltip" id="843"/>
 											</Button>
 										</ChildItems>
 									</ButtonGroup>
@@ -1513,7 +1513,7 @@ Use:
 												<v8:content>Move</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="TheContextMenuOfTheHeaderToMoveExtendedTooltip" id="845"/>
+										<ExtendedTooltip name="HeadingAreaContextMenuMoveExtendedTooltip" id="845"/>
 										<ChildItems>
 											<Button name="HeadingAreaContextMenuMoveFieldLeft" id="846">
 												<Type>CommandBarButton</Type>
@@ -1524,7 +1524,7 @@ Use:
 														<v8:content>Move left</v8:content>
 													</v8:item>
 												</Title>
-												<ExtendedTooltip name="ContextMenuOfTheHeaderAreaMoveTheFieldToTheLeftExtendedTooltip" id="847"/>
+												<ExtendedTooltip name="HeadingAreaContextMenuMoveFieldLeftExtendedTooltip" id="847"/>
 											</Button>
 											<Button name="HeadingAreaContextMenuMoveFieldRight" id="848">
 												<Type>CommandBarButton</Type>
@@ -1535,7 +1535,7 @@ Use:
 														<v8:content>Move right</v8:content>
 													</v8:item>
 												</Title>
-												<ExtendedTooltip name="ContextMenuOfTheHeaderAreaMoveTheFieldToTheRightExtendedTooltip" id="849"/>
+												<ExtendedTooltip name="HeadingAreaContextMenuMoveFieldRightExtendedTooltip" id="849"/>
 											</Button>
 											<Button name="HeadingAreaContextMenuMoveFieldUp" id="850">
 												<Type>CommandBarButton</Type>
@@ -1546,7 +1546,7 @@ Use:
 														<v8:content>Move up</v8:content>
 													</v8:item>
 												</Title>
-												<ExtendedTooltip name="ContextMenuOfTheHeaderAreaMoveTheFieldAboveExtendedTooltip" id="851"/>
+												<ExtendedTooltip name="HeadingAreaContextMenuMoveFieldUpExtendedTooltip" id="851"/>
 											</Button>
 											<Button name="HeadingAreaContextMenuMoveFieldDown" id="852">
 												<Type>CommandBarButton</Type>
@@ -1557,7 +1557,7 @@ Use:
 														<v8:content>Move down</v8:content>
 													</v8:item>
 												</Title>
-												<ExtendedTooltip name="ContextMenuOfTheTitleAreaMoveTheFieldBelowExtendedTooltip" id="853"/>
+												<ExtendedTooltip name="HeadingAreaContextMenuMoveFieldDownExtendedTooltip" id="853"/>
 											</Button>
 										</ChildItems>
 									</ButtonGroup>
@@ -1570,7 +1570,7 @@ Use:
 												<v8:content>Hide</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="ContextMenuOfTheHeaderAreaHideTheFieldExtendedTooltip" id="855"/>
+										<ExtendedTooltip name="HeadingAreaContextMenuHideFieldExtendedTooltip" id="855"/>
 									</Button>
 									<Button name="HeadingAreaContextMenuRenameField" id="856">
 										<Type>CommandBarButton</Type>
@@ -1581,7 +1581,7 @@ Use:
 												<v8:content>Rename…</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="TheContextMenuOfTheHeaderToRenameAFieldExtendedTooltip" id="857"/>
+										<ExtendedTooltip name="HeadingAreaContextMenuRenameFieldExtendedTooltip" id="857"/>
 									</Button>
 								</ChildItems>
 							</ButtonGroup>
@@ -1592,7 +1592,7 @@ Use:
 										<v8:content>Filter</v8:content>
 									</v8:item>
 								</Title>
-								<ExtendedTooltip name="ContextMenuOfTheHeaderAreaOfTheFilterMenuExtendedTooltip" id="981"/>
+								<ExtendedTooltip name="MenuHeadingAreaContextMenuFilterExtendedTooltip" id="981"/>
 								<ChildItems>
 									<Button name="HeadingAreaContextMenuFilter" id="858">
 										<Type>CommandBarButton</Type>
@@ -1603,7 +1603,7 @@ Use:
 												<v8:content>Filter…</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="ContextMenuOfTheFilterHeaderAreaExtendedTooltip" id="859"/>
+										<ExtendedTooltip name="HeadingAreaContextMenuFilterExtendedTooltip" id="859"/>
 									</Button>
 									<Button name="HeadingAreaContextMenuClearFilter" id="982">
 										<Type>CommandBarButton</Type>
@@ -1614,7 +1614,7 @@ Use:
 												<v8:content>Clear filter</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="ContextMenuOfTheHeaderAreaRemoveTheFilterExtendedTooltip" id="983"/>
+										<ExtendedTooltip name="HeadingAreaContextMenuClearFilterExtendedTooltip" id="983"/>
 									</Button>
 								</ChildItems>
 							</ButtonGroup>
@@ -1625,7 +1625,7 @@ Use:
 										<v8:content>Sort</v8:content>
 									</v8:item>
 								</Title>
-								<ExtendedTooltip name="ContextMenuOfTheSortHeaderAreaExtendedTooltip" id="861"/>
+								<ExtendedTooltip name="HeadingAreaContextMenuSortExtendedTooltip" id="861"/>
 								<ChildItems>
 									<Button name="HeadingAreaContextMenuSortAsc" id="862">
 										<Type>CommandBarButton</Type>
@@ -1636,7 +1636,7 @@ Use:
 												<v8:content>Sort ascending</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="ContextMenuOfTheHeaderAreaSortInAscendingOrderExtendedTooltip" id="863"/>
+										<ExtendedTooltip name="HeadingAreaContextMenuSortAscExtendedTooltip" id="863"/>
 									</Button>
 									<Button name="HeadingAreaContextMenuSortDesc" id="864">
 										<Type>CommandBarButton</Type>
@@ -1647,7 +1647,7 @@ Use:
 												<v8:content>Sort descending</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="ContextMenuOfTheHeaderAreaSortInDescendingOrderExtendedTooltip" id="865"/>
+										<ExtendedTooltip name="HeadingAreaContextMenuSortDescExtendedTooltip" id="865"/>
 									</Button>
 								</ChildItems>
 							</ButtonGroup>
@@ -1662,7 +1662,7 @@ Use:
 									<xr:Ref>StdPicture.DataCompositionConditionalAppearance</xr:Ref>
 									<xr:LoadTransparent>true</xr:LoadTransparent>
 								</Picture>
-								<ExtendedTooltip name="ContextMenuInTheHeaderMenuToMakeExtendedTooltip" id="867"/>
+								<ExtendedTooltip name="MenuHeadingAreaContextMenuApplyAppearanceExtendedTooltip" id="867"/>
 								<ChildItems>
 									<Button name="TitleAreaContextMenuClearAppearance" id="1091">
 										<Type>CommandBarButton</Type>
@@ -1673,7 +1673,7 @@ Use:
 												<v8:content>Clear appearance</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="ContextMenuOfHeaderAreaClearLayoutExtendedTooltip" id="1092"/>
+										<ExtendedTooltip name="TitleAreaContextMenuClearAppearanceExtendedTooltip" id="1092"/>
 									</Button>
 									<ButtonGroup name="HeadingAreaContextMenuFormatNegativePositive" id="868">
 										<Title>
@@ -1682,7 +1682,7 @@ Use:
 												<v8:content>Format negative, positive</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="TheContextMenuOfTheTitleAreaFormalizeNegativePositiveExtendedTooltip" id="869"/>
+										<ExtendedTooltip name="HeadingAreaContextMenuFormatNegativePositiveExtendedTooltip" id="869"/>
 										<ChildItems>
 											<Button name="HeadingAreaContextMenuFormatNegativeValues" id="870">
 												<Type>CommandBarButton</Type>
@@ -1693,7 +1693,7 @@ Use:
 														<v8:content>Negative in red</v8:content>
 													</v8:item>
 												</Title>
-												<ExtendedTooltip name="TheContextMenuOfTheHeaderToIssueNegativeExtendedTooltip" id="871"/>
+												<ExtendedTooltip name="HeadingAreaContextMenuFormatNegativeValuesExtendedTooltip" id="871"/>
 											</Button>
 											<Button name="HeadingAreaContextMenuFormatPositiveValues" id="872">
 												<Type>CommandBarButton</Type>
@@ -1704,7 +1704,7 @@ Use:
 														<v8:content>Positive in green</v8:content>
 													</v8:item>
 												</Title>
-												<ExtendedTooltip name="heContextMenuOfTheTitleAreaFormalizePositiveExtendedTooltip" id="873"/>
+												<ExtendedTooltip name="HeadingAreaContextMenuFormatPositiveValuesExtendedTooltip" id="873"/>
 											</Button>
 										</ChildItems>
 									</ButtonGroup>
@@ -1715,7 +1715,7 @@ Use:
 												<v8:content>Set height, width</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="ContextMenuOfTheHeaderAreaSetHeightWidthExtendedTooltip" id="875"/>
+										<ExtendedTooltip name="HeadingAreaContextMenuSetHeightWidthExtendedTooltip" id="875"/>
 										<ChildItems>
 											<Button name="HeadingAreaContextMenuSetRowHeight" id="876">
 												<Type>CommandBarButton</Type>
@@ -1726,7 +1726,7 @@ Use:
 														<v8:content>Row height…</v8:content>
 													</v8:item>
 												</Title>
-												<ExtendedTooltip name="TheContextMenuOfTheHeaderToSetTheHeightOfRowsExtendedTooltip" id="877"/>
+												<ExtendedTooltip name="HeadingAreaContextMenuSetRowHeightExtendedTooltip" id="877"/>
 											</Button>
 											<Button name="HeadingAreaContextMenuSetColumnWidth" id="878">
 												<Type>CommandBarButton</Type>
@@ -1737,7 +1737,7 @@ Use:
 														<v8:content>Column width…</v8:content>
 													</v8:item>
 												</Title>
-												<ExtendedTooltip name="ContextMenuOfTheHeaderAreaSetColumnWidthExtendedTooltip" id="879"/>
+												<ExtendedTooltip name="HeadingAreaContextMenuSetColumnWidthExtendedTooltip" id="879"/>
 											</Button>
 										</ChildItems>
 									</ButtonGroup>
@@ -1750,7 +1750,7 @@ Use:
 												<v8:content>More…</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="ContextMenuInTheHeaderMenuToMakeMoreExtendedTooltip" id="881"/>
+										<ExtendedTooltip name="MenuHeadingAreaContextMenuApplyAppearanceMoreExtendedTooltip" id="881"/>
 									</Button>
 								</ChildItems>
 							</Popup>
@@ -1764,7 +1764,7 @@ Use:
 								<v8:content>Data area context menu</v8:content>
 							</v8:item>
 						</Title>
-						<ExtendedTooltip name="TheContextMenuOfTheDataAreaExtendedTooltip" id="883"/>
+						<ExtendedTooltip name="DataAreaContextMenuExtendedTooltip" id="883"/>
 						<ChildItems>
 							<ButtonGroup name="DataAreaContextMenuClipboard" id="1095">
 								<Title>
@@ -1773,17 +1773,17 @@ Use:
 										<v8:content>Clipboard</v8:content>
 									</v8:item>
 								</Title>
-								<ExtendedTooltip name="ContextMenuOfClipboardDataAreaExtendedTooltip" id="1096"/>
+								<ExtendedTooltip name="DataAreaContextMenuClipboardExtendedTooltip" id="1096"/>
 								<ChildItems>
 									<Button name="DataAreaContextMenuCopyToClipboard" id="1097">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Item.ReportSpreadsheetDocument.StandardCommand.CopyToClipboard</CommandName>
-										<ExtendedTooltip name="ContextMenuOfDataAreaCopyToClipboardExtendedTooltip" id="1098"/>
+										<ExtendedTooltip name="DataAreaContextMenuCopyToClipboardExtendedTooltip" id="1098"/>
 									</Button>
 									<Button name="DataAreaContextMenuPasteFromClipboard" id="1099">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Item.ReportSpreadsheetDocument.StandardCommand.PasteFromClipboard</CommandName>
-										<ExtendedTooltip name="ContextMenuOfDataAreaIsPasteFromClipboardExtendedTooltip" id="1100"/>
+										<ExtendedTooltip name="DataAreaContextMenuPasteFromClipboardExtendedTooltip" id="1100"/>
 									</Button>
 								</ChildItems>
 							</ButtonGroup>
@@ -1796,7 +1796,7 @@ Use:
 								<v8:content>Common area context menu</v8:content>
 							</v8:item>
 						</Title>
-						<ExtendedTooltip name="ContextMenuOfTheGeneralAreaExtendedTooltip" id="1028"/>
+						<ExtendedTooltip name="AreaContextMenuCommonExtendedTooltip" id="1028"/>
 						<ChildItems>
 							<ButtonGroup name="AreaContextMenuCommonCollapseExpand" id="1033">
 								<Title>
@@ -1805,21 +1805,21 @@ Use:
 										<v8:content>Collapse/Expand</v8:content>
 									</v8:item>
 								</Title>
-								<ExtendedTooltip name="ContextMenuOfTheGeneralAreaCollapseExpandExtendedTooltip" id="1034"/>
+								<ExtendedTooltip name="AreaContextMenuCommonCollapseExpandExtendedTooltip" id="1034"/>
 								<ChildItems>
 									<Button name="AreaContextMenuCommonCollapseAllGroups" id="1035">
 										<Type>CommandBarButton</Type>
 										<Visible>false</Visible>
 										<Representation>Picture</Representation>
 										<CommandName>Form.Item.ReportSpreadsheetDocument.StandardCommand.CollapseAllGroups</CommandName>
-										<ExtendedTooltip name="ContextMenuOfTheGeneralAreaCollapseAllGroupsExtendedTooltip" id="1036"/>
+										<ExtendedTooltip name="AreaContextMenuCommonCollapseAllGroupsExtendedTooltip" id="1036"/>
 									</Button>
 									<Button name="AreaContextMenuCommonExpandAllGroups" id="1037">
 										<Type>CommandBarButton</Type>
 										<Visible>false</Visible>
 										<Representation>Picture</Representation>
 										<CommandName>Form.Item.ReportSpreadsheetDocument.StandardCommand.ExpandAllGroups</CommandName>
-										<ExtendedTooltip name="ContextMenuOfTheGeneralAreaExpandAllGroupsExtendedTooltip" id="1038"/>
+										<ExtendedTooltip name="AreaContextMenuCommonExpandAllGroupsExtendedTooltip" id="1038"/>
 									</Button>
 									<Popup name="GroupsLevelsGroupContextMenu" id="1039">
 										<Title>
@@ -1828,7 +1828,7 @@ Use:
 												<v8:content>Grouping levels</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="GroupGroupingLevelsContextMenuExtendedTooltip" id="1040"/>
+										<ExtendedTooltip name="GroupsLevelsGroupContextMenuExtendedTooltip" id="1040"/>
 										<ChildItems>
 											<Button name="ShowGroupsLevelContextMenu" id="1041">
 												<Type>CommandBarButton</Type>
@@ -1839,7 +1839,7 @@ Use:
 														<v8:content>Default</v8:content>
 													</v8:item>
 												</Title>
-												<ExtendedTooltip name="ShowLevelOfGroupingsInContextMenuExtendedTooltip" id="1042"/>
+												<ExtendedTooltip name="ShowGroupsLevelContextMenuExtendedTooltip" id="1042"/>
 											</Button>
 										</ChildItems>
 									</Popup>
@@ -1852,7 +1852,7 @@ Use:
 										<v8:content>Edit</v8:content>
 									</v8:item>
 								</Title>
-								<ExtendedTooltip name="ContextMenuOfGeneralEditingAreaExtendedTooltip" id="1052"/>
+								<ExtendedTooltip name="AreaContextMenuCommonEditExtendedTooltip" id="1052"/>
 								<ChildItems>
 									<ButtonGroup name="AreaContextMenuCommonClipboard" id="1053">
 										<Title>
@@ -1861,22 +1861,22 @@ Use:
 												<v8:content>Clipboard</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="ContextMenuOfTheGeneralClipboardAreaExtendedTooltip" id="1054"/>
+										<ExtendedTooltip name="AreaContextMenuCommonClipboardExtendedTooltip" id="1054"/>
 										<ChildItems>
 											<Button name="AreaContextMenuCommonCopyToClipboard" id="1055">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Item.ReportSpreadsheetDocument.StandardCommand.CopyToClipboard</CommandName>
-												<ExtendedTooltip name="ContextMenuOfTheGeneralAreaCopyToClipboardExtendedTooltip" id="1056"/>
+												<ExtendedTooltip name="AreaContextMenuCommonCopyToClipboardExtendedTooltip" id="1056"/>
 											</Button>
 											<Button name="AreaContextMenuCommonPasteFromClipboard" id="1057">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Item.ReportSpreadsheetDocument.StandardCommand.PasteFromClipboard</CommandName>
-												<ExtendedTooltip name="ContextMenuOfGeneralAreaPasteFromClipboardExtendedTooltip" id="1058"/>
+												<ExtendedTooltip name="AreaContextMenuCommonPasteFromClipboardExtendedTooltip" id="1058"/>
 											</Button>
 											<Button name="AreaContextMenuCommonSelectAll" id="1059">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Item.ReportSpreadsheetDocument.StandardCommand.SelectAll</CommandName>
-												<ExtendedTooltip name="ContextMenuOfGeneralAreaSelectAllExtendedTooltip" id="1060"/>
+												<ExtendedTooltip name="AreaContextMenuCommonSelectAllExtendedTooltip" id="1060"/>
 											</Button>
 										</ChildItems>
 									</ButtonGroup>
@@ -1887,22 +1887,22 @@ Use:
 												<v8:content>Change area</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="ContextMenuOfGeneralAreaChangeAreaExtendedTooltip" id="1062"/>
+										<ExtendedTooltip name="AreaContextMenuCommonChangeAreaExtendedTooltip" id="1062"/>
 										<ChildItems>
 											<Button name="AreaContextMenuCommonMerge" id="1063">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Item.ReportSpreadsheetDocument.StandardCommand.Merge</CommandName>
-												<ExtendedTooltip name="ContextMenuOfGeneralMergeAreaExtendedTooltip" id="1064"/>
+												<ExtendedTooltip name="AreaContextMenuCommonMergeExtendedTooltip" id="1064"/>
 											</Button>
 											<Button name="AreaContextMenuCommonInsertRows" id="1065">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Item.ReportSpreadsheetDocument.StandardCommand.InsertRows</CommandName>
-												<ExtendedTooltip name="ContextMenuOfGeneralAreaIsExpandedExtendedTooltip" id="1066"/>
+												<ExtendedTooltip name="AreaContextMenuCommonInsertRowsExtendedTooltip" id="1066"/>
 											</Button>
 											<Button name="AreaContextMenuCommonSplitCell" id="1067">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Item.ReportSpreadsheetDocument.StandardCommand.SplitCell</CommandName>
-												<ExtendedTooltip name="ContextMenuOfGeneralAreaSplitCellExtendedTooltip" id="1068"/>
+												<ExtendedTooltip name="AreaContextMenuCommonSplitCellExtendedTooltip" id="1068"/>
 											</Button>
 											<Popup name="AreaContextMenuCommonDelete" id="1069">
 												<Title>
@@ -1911,17 +1911,17 @@ Use:
 														<v8:content>Delete</v8:content>
 													</v8:item>
 												</Title>
-												<ExtendedTooltip name="ContextMenuOfGeneralDeleteAreaExtendedTooltip" id="1070"/>
+												<ExtendedTooltip name="AreaContextMenuCommonDeleteExtendedTooltip" id="1070"/>
 												<ChildItems>
 													<Button name="AreaContextMenuCommonDeleteRows" id="1071">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Item.ReportSpreadsheetDocument.StandardCommand.DeleteRows</CommandName>
-														<ExtendedTooltip name="ContextMenuOfGeneralDeleteRowsAreaExtendedTooltip" id="1072"/>
+														<ExtendedTooltip name="AreaContextMenuCommonDeleteRowsExtendedTooltip" id="1072"/>
 													</Button>
 													<Button name="AreaContextMenuCommonDeleteColumns" id="1073">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Item.ReportSpreadsheetDocument.StandardCommand.DeleteColumns</CommandName>
-														<ExtendedTooltip name="ContextMenuOfGeneralDeleteColumnsAreaExtendedTooltip" id="1074"/>
+														<ExtendedTooltip name="AreaContextMenuCommonDeleteColumnsExtendedTooltip" id="1074"/>
 													</Button>
 												</ChildItems>
 											</Popup>
@@ -1932,17 +1932,17 @@ Use:
 														<v8:content>Clear</v8:content>
 													</v8:item>
 												</Title>
-												<ExtendedTooltip name="ContextMenuOfGeneralClearAreaExtendedTooltip" id="1076"/>
+												<ExtendedTooltip name="AreaContextMenuCommonClearExtendedTooltip" id="1076"/>
 												<ChildItems>
 													<Button name="AreaContextMenuCommonClearContent" id="1077">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Item.ReportSpreadsheetDocument.StandardCommand.ClearContent</CommandName>
-														<ExtendedTooltip name="ContextMenuOfGeneralClearContentAreaExtendedTooltip" id="1078"/>
+														<ExtendedTooltip name="AreaContextMenuCommonClearContentExtendedTooltip" id="1078"/>
 													</Button>
 													<Button name="AreaContextMenuCommonClearAll" id="1079">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Item.ReportSpreadsheetDocument.StandardCommand.ClearAll</CommandName>
-														<ExtendedTooltip name="ContextMenuOfGeneralAreaClearAllExtendedTooltip" id="1080"/>
+														<ExtendedTooltip name="AreaContextMenuCommonClearAllExtendedTooltip" id="1080"/>
 													</Button>
 												</ChildItems>
 											</Popup>
@@ -1955,17 +1955,17 @@ Use:
 												<v8:content>Note</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="ContextMenuOfGeneralNoteAreaExtendedTooltip" id="1082"/>
+										<ExtendedTooltip name="AreaContextMenuCommonCommentExtendedTooltip" id="1082"/>
 										<ChildItems>
 											<Button name="AreaContextMenuCommonInsertComment" id="1083">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Item.ReportSpreadsheetDocument.StandardCommand.InsertComment</CommandName>
-												<ExtendedTooltip name="ContextMenuOfGeneralAreaInsertNoteExtendedTooltip" id="1084"/>
+												<ExtendedTooltip name="AreaContextMenuCommonInsertCommentExtendedTooltip" id="1084"/>
 											</Button>
 											<Button name="AreaContextMenuCommonDeleteComment" id="1085">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Item.ReportSpreadsheetDocument.StandardCommand.DeleteComment</CommandName>
-												<ExtendedTooltip name="ContextMenuOfGeneralDeleteNoteAreaExtendedTooltip" id="1086"/>
+												<ExtendedTooltip name="AreaContextMenuCommonDeleteCommentExtendedTooltip" id="1086"/>
 											</Button>
 										</ChildItems>
 									</Popup>
@@ -1976,12 +1976,12 @@ Use:
 												<v8:content>Other</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="ContextMenuOfGeneralOtherAreaExtendedTooltip" id="1088"/>
+										<ExtendedTooltip name="AreaContextMenuCommonOtherExtendedTooltip" id="1088"/>
 										<ChildItems>
 											<Button name="AreaContextMenuCommonProperties" id="1089">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Item.ReportSpreadsheetDocument.StandardCommand.Properties</CommandName>
-												<ExtendedTooltip name="ContextMenuOfGeneralPropertiesAreaExtendedTooltip" id="1090"/>
+												<ExtendedTooltip name="AreaContextMenuCommonPropertiesExtendedTooltip" id="1090"/>
 											</Button>
 										</ChildItems>
 									</ButtonGroup>
@@ -1994,10 +1994,10 @@ Use:
 								<Title>
 									<v8:item>
 										<v8:lang>en</v8:lang>
-										<v8:content>Run report</v8:content>
+										<v8:content>Generate</v8:content>
 									</v8:item>
 								</Title>
-								<ExtendedTooltip name="ContextMenuOfTheGeneralComposeResultAreaExtendedTooltip" id="1044"/>
+								<ExtendedTooltip name="AreaContextMenuCommonComposeResultExtendedTooltip" id="1044"/>
 							</Button>
 						</ChildItems>
 					</ButtonGroup>
@@ -2236,7 +2236,7 @@ Use:
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="GroupSelectPeriod_SSLy1ExtendedTooltip" id="1021"/>
+							<ExtendedTooltip name="GroupSelectPeriod_1ExtendedTooltip" id="1021"/>
 							<ChildItems>
 								<Button name="SelectPeriod1" id="789">
 									<Type>UsualButton</Type>
@@ -2248,7 +2248,7 @@ Use:
 											<v8:content>Select period</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="SelectPeriod31ExtendedTooltip" id="790"/>
+									<ExtendedTooltip name="SelectPeriod1ExtendedTooltip" id="790"/>
 								</Button>
 							</ChildItems>
 						</UsualGroup>
@@ -2349,7 +2349,7 @@ Use:
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="GroupSelectPeriod_SSLy2ExtendedTooltip" id="1023"/>
+							<ExtendedTooltip name="GroupSelectPeriod_2ExtendedTooltip" id="1023"/>
 							<ChildItems>
 								<Button name="SelectPeriod2" id="804">
 									<Type>UsualButton</Type>
@@ -2361,7 +2361,7 @@ Use:
 											<v8:content>Select period</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="SelectPeriod32ExtendedTooltip" id="805"/>
+									<ExtendedTooltip name="SelectPeriod2ExtendedTooltip" id="805"/>
 								</Button>
 							</ChildItems>
 						</UsualGroup>
@@ -3162,7 +3162,7 @@ Use:
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Run report on open</v8:content>
+					<v8:content>Generate on open</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
@@ -3957,6 +3957,11 @@ Use:
 		<Parameter name="VariantKey">
 			<Type/>
 			<KeyParameter>true</KeyParameter>
+		</Parameter>
+		<Parameter name="IsNonContextual">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
 		</Parameter>
 	</Parameters>
 </Form>

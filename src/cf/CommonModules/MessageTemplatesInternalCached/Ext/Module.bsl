@@ -42,4 +42,17 @@ Function OnDefineSettings() Export
 	
 EndFunction
 
+
+Function MessageTemplatesAvailableSendOutOptions() Export
+	
+	Result = New Structure;
+	Result.Insert("SMS", 
+		Common.SubsystemExists("StandardSubsystems.SendSMSMessage"));
+	Result.Insert("Mail", 
+		Common.SubsystemExists("StandardSubsystems.EmailOperations"));
+	
+	Return New FixedStructure(Result);
+	
+EndFunction
+
 #EndRegion

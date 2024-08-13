@@ -45,16 +45,17 @@
 					<CommandName>Form.StandardCommand.Change</CommandName>
 					<ExtendedTooltip name="FormChangeExtendedTooltip" id="53"/>
 				</Button>
-				<Button name="FormMarkForDeletion1" id="28">
+				<Button name="FormSetMarkForDeletion" id="28">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.SetMarkForDeletion</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Toggle deletion mark</v8:content>
+						</v8:item>
+					</Title>
 					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-					<ExtendedTooltip name="FormMarkForDeletionExtendedTooltip" id="29"/>
-				</Button>
-				<Button name="FormHelp" id="54">
-					<Type>CommandBarButton</Type>
-					<CommandName>Form.StandardCommand.Help</CommandName>
-					<ExtendedTooltip name="FormHelpExtendedTooltip" id="55"/>
+					<ExtendedTooltip name="FormSetMarkForDeletionExtendedTooltip" id="29"/>
 				</Button>
 				<Button name="MoveAllFilesToVolumes" id="75">
 					<Type>CommandBarButton</Type>
@@ -121,7 +122,7 @@
 			<AllowGettingCurrentRowURL>true</AllowGettingCurrentRowURL>
 			<ContextMenu name="ListContextMenu" id="2">
 				<ChildItems>
-					<Button name="ListContextMenuMarkForDeletion1" id="77">
+					<Button name="ListContextMenuSetMarkForDeletion" id="77">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.SetMarkForDeletion</CommandName>
 						<Title>
@@ -130,7 +131,7 @@
 								<v8:content>Set deletion mark</v8:content>
 							</v8:item>
 						</Title>
-						<ExtendedTooltip name="ListContextMenuMarkForDeletion1ExtendedTooltip" id="78"/>
+						<ExtendedTooltip name="ListContextMenuSetMarkForDeletionExtendedTooltip" id="78"/>
 					</Button>
 				</ChildItems>
 			</ContextMenu>
@@ -138,30 +139,33 @@
 				<Autofill>false</Autofill>
 			</AutoCommandBar>
 			<ExtendedTooltip name="ListExtendedTooltip" id="18"/>
-			<SearchStringAddition name="ListSearchString_SSLy" id="66">
+			<SearchStringAddition name="ListSearchString" id="66">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchStringRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchString_SSLyContextMenu" id="67"/>
-				<ExtendedTooltip name="ListSearchString_SSLyExtendedTooltip" id="68"/>
+				<ContextMenu name="ListSearchStringContextMenu" id="67"/>
+				<ExtendedTooltip name="ListSearchStringExtendedTooltip" id="68"/>
 			</SearchStringAddition>
-			<ViewStatusAddition name="ListViewStatus_SSLy" id="69">
+			<ViewStatusAddition name="ListViewStatus" id="69">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>ViewStatusRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListViewStatus_SSLyContextMenu" id="70"/>
-				<ExtendedTooltip name="ListViewStatus_SSLyExtendedTooltip" id="71"/>
+				<ContextMenu name="ListViewStatusContextMenu" id="70"/>
+				<ExtendedTooltip name="ListViewStatusExtendedTooltip" id="71"/>
 			</ViewStatusAddition>
-			<SearchControlAddition name="ListSearchControl_SSLy" id="72">
+			<SearchControlAddition name="ListSearchControl" id="72">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchControl</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchControl_SSLyContextMenu" id="73"/>
-				<ExtendedTooltip name="ListSearchControl_SSLyExtendedTooltip" id="74"/>
+				<ContextMenu name="ListSearchControlContextMenu" id="73"/>
+				<ExtendedTooltip name="ListSearchControlExtendedTooltip" id="74"/>
 			</SearchControlAddition>
+			<Events>
+				<Event name="OnActivateRow">ListOnActivateRow</Event>
+			</Events>
 			<ChildItems>
 				<ColumnGroup name="FirstColumn" id="56" DisplayImportance="VeryHigh">
 					<Title>
@@ -298,6 +302,18 @@
 	</Attributes>
 	<Commands>
 		<Command name="SetMarkForDeletion" id="1">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Toggle deletion mark</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Toggle deletion mark</v8:content>
+				</v8:item>
+			</ToolTip>
 			<Picture>
 				<xr:Ref>StdPicture.MarkToDelete</xr:Ref>
 				<xr:LoadTransparent>true</xr:LoadTransparent>

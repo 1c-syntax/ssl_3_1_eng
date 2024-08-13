@@ -48,7 +48,7 @@
 			</Title>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="CommandBarGroupExtendedTooltip" id="56"/>
+			<ExtendedTooltip name="GroupCommandBarExtendedTooltip" id="56"/>
 			<ChildItems>
 				<UsualGroup name="ButtonsPanel" id="15">
 					<Title>

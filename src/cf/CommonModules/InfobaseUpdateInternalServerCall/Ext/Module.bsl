@@ -21,8 +21,8 @@ Function UpdateInfobase(OnClientStart = False, Restart = False, ExecuteDeferredH
 	Try
 		Result = InfobaseUpdateInternal.UpdateInfobase(ParametersOfUpdate);
 	Except
-		// 
-		// 
+		// Switch to opening the data re-sync form before a startup with the options
+		// "Sync and continue" and "Continue".
 		If Common.SubsystemExists("StandardSubsystems.DataExchange")
 		   And Common.IsSubordinateDIBNode() Then
 			ModuleDataExchangeServer = Common.CommonModule("DataExchangeServer");

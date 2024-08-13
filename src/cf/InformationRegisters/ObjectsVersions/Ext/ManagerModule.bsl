@@ -122,14 +122,14 @@ Procedure DeleteVersionAuthorInfo(Val VersionAuthor) Export
 			Break;
 		EndIf;
 		
-		Selection = Query.Execute().Select(); // 
+		Selection = Query.Execute().Select(); // @skip-check query-in-loop - Batch processing of a large amount of data.
 	EndDo;
 	
 EndProcedure
 
 
 Procedure GenerateReportOnChanges(ReportParameters, ResultAddress) Export
-	// 
+	// Stores the intermediate parsed version (to reduce the number of parsing runs).
 	// 
 	Var ObjectVersion;
 	
@@ -142,29 +142,29 @@ Procedure GenerateReportOnChanges(ReportParameters, ResultAddress) Export
 	CommonTemplate = GetTemplate("StandardObjectPresentationTemplate");
 	ReportTS = New SpreadsheetDocument;
 	
-	// 
-	// 
+	// Generate an ascending sorted array of version numbers
+	// (since some versions might be missing and unsorted).
 	VersionNumberArray = VersionsList.UnloadValues();
 	
-	// 
-	// 
-	// 
+	// The number (k) of object versions stored in the infobase.
+	// Report generation requires (k – 1) comparisons.
+	// Therefore, the dimension tables will have (k) columns.
 	ObjectVersionCount = VersionNumberArray.Count();
 	
-	// 
-	// 
-	// 
-	// 
-	// 
+	// Contains all attribute changes and has the following dimensions:
+	// - One dimension (rows) with the descriptions of the object attributes.
+	// - Another dimension (columns) contains the object version identification and the change characteristics.
+	// Here, "version identification" means the string that uniquely differentiates a version among
+	// all object versions and contains additional change details.
 	ChangesTableBankingDetails_ = New ValueTable;
 	PrepareAttributeChangeTableColumns(ChangesTableBankingDetails_, VersionNumberArray);
 	
-	// 
-	// 
-	// 
-	// 
-	// 
-	// 
+	// Stores table changes as a map between the object's value table names and table value history.
+	// One map is one table:
+	// - One table (rows) contains table field descriptions.
+	// - Another table (columns) contains the object version identification.
+	// Here, "version identification" means the string that uniquely differentiates a version among
+	// all object versions and contains additional change details.
 	// 
 	TabularSectionChangeTable = New Map;
 	
@@ -174,8 +174,8 @@ Procedure GenerateReportOnChanges(ReportParameters, ResultAddress) Export
 	SpreadsheetDocumentChangeTable.Columns.Add("Presentation");
 	//
 	
-	// 
-	// 
+	// Generate the object's initial versions that are always shown
+	// (in case there are follow-up changes).
 	ObjectVersionPrev = CountInitialAttributeAndTabularSectionValues(ChangesTableBankingDetails_, TabularSectionChangeTable,
 		ObjectVersionCount, VersionNumberArray, ObjectReference);
 	
@@ -440,13 +440,13 @@ Procedure OutputTabularSectionChanges(ReportTS, TabularSectionChangeTable, Versi
 			
 			UUIDStringChanged = False;
 			
-			//  
-			// 
-			// 
+			// Search in all versions by the current row (UniqueID = CurrCounterUUID). 
+			// If the row is deleted, highlight it with the "deleted entity" color,
+			// interrupt the search, and move to the next row.
 			IndexByVersions = VersionNumberArray.Count();
 			
-			// -
-			// 
+			// ---------------------------------------------------------------------------------
+			// Preview the versions to make sure that they contain the changes ---
 			
 			RowModified = False;
 			
@@ -482,7 +482,7 @@ Procedure OutputTabularSectionChanges(ReportTS, TabularSectionChangeTable, Versi
 			
 			IntervalBetweenFillings = 0;
 			
-			// 
+			// Iterate through all versions. Find the changes in each of the versions by the row's ID.
 			// 
 			While IndexByVersions >= 1 Do
 				IntervalBetweenFillings = IntervalBetweenFillings + 1;
@@ -779,8 +779,9 @@ Function CalculateChanges(VersionNumber, VersionParsingResult0, VersionParsingRe
 	TabularSections_1 = VersionParsingResult1.TabularSections;
 	
 	///////////////////////////////////////////////////////////////////////////////
-	//           
+	//           Generate a list of modified tables //
 	///////////////////////////////////////////////////////////////////////////////
+//
 	TabularSectionList0	= CreateComparisonChart();
 	For Each Item In TabularSections_0 Do
 		NewRow = TabularSectionList0.Add();
@@ -806,8 +807,9 @@ Function CalculateChanges(VersionNumber, VersionParsingResult0, VersionParsingRe
 	                                                       TabularSections_1);
 	
 	///////////////////////////////////////////////////////////////////////////////
-	//           
+	//           Generate a list of modified attributes //
 	///////////////////////////////////////////////////////////////////////////////
+//
 	AttributesList0 = CreateComparisonChart();
 	For Each Attribute In VersionParsingResult0.Attributes Do
 		NewRow = AttributesList0.Add();		
@@ -857,8 +859,9 @@ Function CalculateChanges(VersionNumber, VersionParsingResult0, VersionParsingRe
 	                              TabularSections_1);
 	
 	///////////////////////////////////////////////////////////////////////////////
-	//                      
+	//                      Generate a list of "SpreadsheetDocument" //
 	///////////////////////////////////////////////////////////////////////////////
+//
 	
 	SpreadsheetDocuments0 = VersionParsingResult0.SpreadsheetDocuments;// See ObjectsVersioning.ObjectSpreadsheetDocuments
 	SpreadsheetDocuments1 = VersionParsingResult1.SpreadsheetDocuments;// See ObjectsVersioning.ObjectSpreadsheetDocuments
@@ -1653,8 +1656,8 @@ Procedure ClearVersionWarnings(DeletionParameters, EventName) Export
 		BeginTransaction();
 		Try
 			
-			 // 
-			 // 
+			 // 2. Set an exclusive lock on the required range of register records to make sure that
+			 // the warning count hasn't changed in another session at the recording time.
 			 // 
 			DataLock = New DataLock;
 			DataLockItem = DataLock.Add("InformationRegister.ObjectsVersions");
@@ -1688,8 +1691,8 @@ Procedure ClearVersionWarnings(DeletionParameters, EventName) Export
 			
 		Except
 			
-			// 
-			// 
+			// 5. If the register is already locked in another session (or another exceptional issue happened),
+			// roll back the transaction and log the error.
 			RollbackTransaction();
 			
 			WriteLogEvent(EventName, EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));

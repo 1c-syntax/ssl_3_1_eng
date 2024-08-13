@@ -41,7 +41,7 @@
 							<v8:content>Account setup</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="AccountSettingsExtendedTooltip" id="33"/>
+					<ExtendedTooltip name="UserAccountSetupExtendedTooltip" id="33"/>
 					<ChildItems>
 						<LabelDecoration name="AccountSettingsTitle" id="207">
 							<AutoMaxWidth>false</AutoMaxWidth>
@@ -114,10 +114,10 @@
 											<OpenButton>true</OpenButton>
 											<BackColor>style:FormBackColor</BackColor>
 											<BorderColor>style:FormBackColor</BorderColor>
-											<ContextMenu name="ErrorMessagesContextMenu" id="239"/>
-											<ExtendedTooltip name="ErrorMessagesExtendedTooltip" id="240"/>
+											<ContextMenu name="ErrorsMessagesContextMenu" id="239"/>
+											<ExtendedTooltip name="ErrorsMessagesExtendedTooltip" id="240"/>
 											<Events>
-												<Event name="Opening">ErrorMessagesOpening</Event>
+												<Event name="Opening">ErrorsMessagesOpening</Event>
 											</Events>
 										</InputField>
 										<LabelDecoration name="NeedHelp" id="272">
@@ -210,7 +210,7 @@
 									</ChildItems>
 								</UsualGroup>
 								<RadioButtonField name="AuthenticationMethod" id="362">
-									<DataPath>AuthenticationMethod</DataPath>
+									<DataPath>AuthenticationOption</DataPath>
 									<Visible>false</Visible>
 									<Title>
 										<v8:item>
@@ -265,7 +265,7 @@
 									<ExtendedTooltip name="GroupAuthenticationMethodPasswordExtendedTooltip" id="299"/>
 									<ChildItems>
 										<RadioButtonField name="AuthenticationPassword" id="302">
-											<DataPath>AuthenticationMethod</DataPath>
+											<DataPath>AuthenticationOption</DataPath>
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
@@ -333,7 +333,7 @@
 									</ChildItems>
 								</UsualGroup>
 								<RadioButtonField name="AuthenticationMethodMailService" id="305">
-									<DataPath>AuthenticationMethod</DataPath>
+									<DataPath>AuthenticationOption</DataPath>
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
@@ -839,7 +839,7 @@
 							<Title formatted="true">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>To authorize using an email service, register the application in the email service.
+									<v8:content>To authorize via an email service, register the application with the email service.
 </v8:content>
 								</v8:item>
 							</Title>
@@ -1036,8 +1036,8 @@ Fill in the following fields from the application registration settings:
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
-									<ContextMenu name="TimeConsumingOperationPicture2ContextMenu" id="56"/>
-									<ExtendedTooltip name="TimeConsumingOperationPicture2ExtendedTooltip" id="57"/>
+									<ContextMenu name="PictureTimeConsumingOperationContextMenu" id="56"/>
+									<ExtendedTooltip name="PictureTimeConsumingOperationExtendedTooltip" id="57"/>
 								</PictureDecoration>
 								<LabelDecoration name="ValidatingAccountSettingsLabel" id="58">
 									<AutoMaxWidth>false</AutoMaxWidth>
@@ -1417,7 +1417,7 @@ This might take a while.</v8:content>
 									<v8:content>Create</v8:content>
 								</v8:item>
 							</Title>
-							<ExtendedTooltip name="NextButton1ExtendedTooltip" id="23"/>
+							<ExtendedTooltip name="NextButtonExtendedTooltip" id="23"/>
 						</Button>
 						<Button name="CancelButton" id="268">
 							<Type>CommandBarButton</Type>
@@ -1824,7 +1824,7 @@ This might take a while.</v8:content>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
-		<Attribute name="AuthenticationMethod" id="44">
+		<Attribute name="AuthenticationOption" id="44">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>

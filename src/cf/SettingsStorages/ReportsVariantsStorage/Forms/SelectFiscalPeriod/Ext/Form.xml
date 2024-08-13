@@ -28,7 +28,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="GroupChoiceOfYearExtendedTooltip" id="100"/>
+			<ExtendedTooltip name="SelectYearGroupExtendedTooltip" id="100"/>
 			<ChildItems>
 				<UsualGroup name="GoBackOneYearOptions" id="187">
 					<EnableContentChange>true</EnableContentChange>
@@ -41,7 +41,7 @@
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="GoBackAYearOptionsExtendedTooltip" id="188"/>
+					<ExtendedTooltip name="GoBackOneYearOptionsExtendedTooltip" id="188"/>
 					<ChildItems>
 						<Button name="GoBackOneYearAvailable" id="90">
 							<Type>UsualButton</Type>
@@ -55,7 +55,7 @@
 								</v8:item>
 							</Title>
 							<ShapeRepresentation>WhenActive</ShapeRepresentation>
-							<ExtendedTooltip name="GoBackAYearAvailableExtendedTooltip" id="91"/>
+							<ExtendedTooltip name="GoBackOneYearAvailableExtendedTooltip" id="91"/>
 						</Button>
 						<LabelDecoration name="GoBackOneYearUnavailable" id="184">
 							<Visible>false</Visible>
@@ -63,8 +63,8 @@
 							<HorizontalStretch>false</HorizontalStretch>
 							<VerticalStretch>false</VerticalStretch>
 							<Font ref="style:LargeTextFont" kind="StyleItem"/>
-							<ContextMenu name="GoBackAYearIsNotAvailableContextMenu" id="185"/>
-							<ExtendedTooltip name="GoBackAYearIsNotAvailableExtendedTooltip" id="186"/>
+							<ContextMenu name="GoBackOneYearUnavailableContextMenu" id="185"/>
+							<ExtendedTooltip name="GoBackOneYearUnavailableExtendedTooltip" id="186"/>
 						</LabelDecoration>
 					</ChildItems>
 				</UsualGroup>
@@ -114,7 +114,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="GroupSelectPeriodExtendedTooltip" id="177"/>
+			<ExtendedTooltip name="SelectPeriodGroupExtendedTooltip" id="177"/>
 			<ChildItems>
 				<UsualGroup name="Months" id="178">
 					<Title>
@@ -155,7 +155,7 @@
 										</v8:item>
 									</Title>
 									<ShapeRepresentation>WhenActive</ShapeRepresentation>
-									<ExtendedTooltip name="SelectedMonth1ExtendedTooltip" id="102"/>
+									<ExtendedTooltip name="SelectMonth1ExtendedTooltip" id="102"/>
 								</Button>
 								<Button name="SelectMonth2" id="103">
 									<Type>UsualButton</Type>
@@ -168,7 +168,7 @@
 										</v8:item>
 									</Title>
 									<ShapeRepresentation>WhenActive</ShapeRepresentation>
-									<ExtendedTooltip name="SelectedMonth2ExtendedTooltip" id="104"/>
+									<ExtendedTooltip name="SelectMonth2ExtendedTooltip" id="104"/>
 								</Button>
 								<Button name="SelectMonth3" id="105">
 									<Type>UsualButton</Type>
@@ -181,7 +181,7 @@
 										</v8:item>
 									</Title>
 									<ShapeRepresentation>WhenActive</ShapeRepresentation>
-									<ExtendedTooltip name="SelectedMonth3ExtendedTooltip" id="106"/>
+									<ExtendedTooltip name="SelectMonth3ExtendedTooltip" id="106"/>
 								</Button>
 							</ChildItems>
 						</UsualGroup>
@@ -210,7 +210,7 @@
 										</v8:item>
 									</Title>
 									<ShapeRepresentation>WhenActive</ShapeRepresentation>
-									<ExtendedTooltip name="SelectedMonth4ExtendedTooltip" id="110"/>
+									<ExtendedTooltip name="SelectMonth4ExtendedTooltip" id="110"/>
 								</Button>
 								<Button name="SelectMonth5" id="111">
 									<Type>UsualButton</Type>
@@ -223,7 +223,7 @@
 										</v8:item>
 									</Title>
 									<ShapeRepresentation>WhenActive</ShapeRepresentation>
-									<ExtendedTooltip name="SelectedMonth5ExtendedTooltip" id="112"/>
+									<ExtendedTooltip name="SelectMonth5ExtendedTooltip" id="112"/>
 								</Button>
 								<Button name="SelectMonth6" id="113">
 									<Type>UsualButton</Type>
@@ -236,7 +236,7 @@
 										</v8:item>
 									</Title>
 									<ShapeRepresentation>WhenActive</ShapeRepresentation>
-									<ExtendedTooltip name="SelectedMonth6ExtendedTooltip" id="114"/>
+									<ExtendedTooltip name="SelectMonth6ExtendedTooltip" id="114"/>
 								</Button>
 							</ChildItems>
 						</UsualGroup>
@@ -265,7 +265,7 @@
 										</v8:item>
 									</Title>
 									<ShapeRepresentation>WhenActive</ShapeRepresentation>
-									<ExtendedTooltip name="SelectedMonth7ExtendedTooltip" id="118"/>
+									<ExtendedTooltip name="SelectMonth7ExtendedTooltip" id="118"/>
 								</Button>
 								<Button name="SelectMonth8" id="119">
 									<Type>UsualButton</Type>
@@ -278,7 +278,7 @@
 										</v8:item>
 									</Title>
 									<ShapeRepresentation>WhenActive</ShapeRepresentation>
-									<ExtendedTooltip name="SelectedMonth8ExtendedTooltip" id="120"/>
+									<ExtendedTooltip name="SelectMonth8ExtendedTooltip" id="120"/>
 								</Button>
 								<Button name="SelectMonth9" id="121">
 									<Type>UsualButton</Type>
@@ -291,7 +291,7 @@
 										</v8:item>
 									</Title>
 									<ShapeRepresentation>WhenActive</ShapeRepresentation>
-									<ExtendedTooltip name="SelectedMonth9ExtendedTooltip" id="122"/>
+									<ExtendedTooltip name="SelectMonth9ExtendedTooltip" id="122"/>
 								</Button>
 							</ChildItems>
 						</UsualGroup>
@@ -320,7 +320,7 @@
 										</v8:item>
 									</Title>
 									<ShapeRepresentation>WhenActive</ShapeRepresentation>
-									<ExtendedTooltip name="SelectedMonth10ExtendedTooltip" id="126"/>
+									<ExtendedTooltip name="SelectMonth10ExtendedTooltip" id="126"/>
 								</Button>
 								<Button name="SelectMonth11" id="127">
 									<Type>UsualButton</Type>
@@ -333,7 +333,7 @@
 										</v8:item>
 									</Title>
 									<ShapeRepresentation>WhenActive</ShapeRepresentation>
-									<ExtendedTooltip name="SelectedMonth11ExtendedTooltip" id="128"/>
+									<ExtendedTooltip name="SelectMonth11ExtendedTooltip" id="128"/>
 								</Button>
 								<Button name="SelectMonth12" id="129">
 									<Type>UsualButton</Type>
@@ -346,7 +346,7 @@
 										</v8:item>
 									</Title>
 									<ShapeRepresentation>WhenActive</ShapeRepresentation>
-									<ExtendedTooltip name="SelectedMonth12ExtendedTooltip" id="130"/>
+									<ExtendedTooltip name="SelectMonth12ExtendedTooltip" id="130"/>
 								</Button>
 							</ChildItems>
 						</UsualGroup>
@@ -436,7 +436,7 @@
 					<Behavior>Usual</Behavior>
 					<Representation>StrongSeparation</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="ProgressiveTotalExtendedTooltip" id="183"/>
+					<ExtendedTooltip name="RunningTotalExtendedTooltip" id="183"/>
 					<ChildItems>
 						<Button name="SelectDay" id="174">
 							<Type>UsualButton</Type>
@@ -449,7 +449,7 @@
 								</v8:item>
 							</Title>
 							<ShapeRepresentation>WhenActive</ShapeRepresentation>
-							<ExtendedTooltip name="ChooseDayExtendedTooltip" id="175"/>
+							<ExtendedTooltip name="SelectDayExtendedTooltip" id="175"/>
 						</Button>
 						<Button name="SelectHalfYear" id="133">
 							<Type>UsualButton</Type>
@@ -488,7 +488,7 @@
 								</v8:item>
 							</Title>
 							<ShapeRepresentation>WhenActive</ShapeRepresentation>
-							<ExtendedTooltip name="SelectAYearExtendedTooltip" id="140"/>
+							<ExtendedTooltip name="SelectYearExtendedTooltip" id="140"/>
 						</Button>
 					</ChildItems>
 				</UsualGroup>
@@ -530,7 +530,7 @@
 						</v8:item>
 					</Title>
 					<ShapeRepresentation>WhenActive</ShapeRepresentation>
-					<ExtendedTooltip name="GoToStandardVersionOfPeriodExtendedTooltip" id="196"/>
+					<ExtendedTooltip name="GoToStandardPeriodOptionExtendedTooltip" id="196"/>
 				</Button>
 			</ChildItems>
 		</UsualGroup>

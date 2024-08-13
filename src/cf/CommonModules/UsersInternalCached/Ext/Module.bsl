@@ -427,15 +427,15 @@ Function StandardUsersGroup(GroupName) Export
 	
 EndFunction
 
-// 
-// 
+// Returns the properties of reference types filled in the "OnFillRegisteredRefKinds"
+// procedures of common subsystem modules.
 //
-// 
-// 
+// Intended for the function "RegisteredRefs" and
+// procedure "RegisterRefs" of the "UsersInternal" common module.
 //
 // Returns:
 //  FixedMap of KeyAndValue:
-//   * Key - String - 
+//   * Key - String - Ref type name.
 //   * Value -  FixedStructure:
 //      ** AllowedTypes - TypeDescription
 //      ** ParameterNameExtensionsOperation - String
@@ -468,6 +468,26 @@ Function RefKindsProperties() Export
 		Properties.Insert("ParameterNameExtensionsOperation", RefsKind.ParameterNameExtensionsOperation);
 		Properties.Insert("AllowedTypes",               RefsKind.AllowedTypes);
 		Result.Insert(RefsKind.Name, New FixedStructure(Properties));
+	EndDo;
+	
+	Return New FixedMap(Result);
+	
+EndFunction
+
+// Returns:
+//  FixedMap of KeyAndValue:
+//   * Key - String - Role name.
+//   * Value - Boolean - True.
+//
+Function ExtensionsRoles() Export
+	
+	Result = New Map;
+	
+	For Each Role In Metadata.Roles Do
+		If Role.ConfigurationExtension() = Undefined Then
+			Continue;
+		EndIf;
+		Result.Insert(Role.Name, True);
 	EndDo;
 	
 	Return New FixedMap(Result);

@@ -15,7 +15,7 @@
 						<v8:content>Save and close</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="StandardWriteAndCloseExtendedTooltip" id="90"/>
+				<ExtendedTooltip name="StandardSaveAndCloseExtendedTooltip" id="90"/>
 			</Button>
 			<Button name="StandardWrite" id="87">
 				<Type>CommandBarButton</Type>

@@ -106,7 +106,7 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 	EndIf;
 	
 	If EventName = ReportsOptionsClient.EventNameChangingOption()
-		Or EventName = "Write_ConstantsSet" Then
+		Or EventName = "Write_ConstantsSet" Or EventName = "Write_ReportsOptions" Then
 		FillOptionsList();
 	EndIf;
 	
@@ -280,7 +280,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Client
+// Client.
 
 &AtClient
 Procedure ExecuteBatch(Result, Package) Export
@@ -483,7 +483,7 @@ Procedure LongDescStartChoiceCompletion(Val EnteredText, Val AdditionalParameter
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Client and server.
 
 // Returns the flag of the available report option change rights.
 //
@@ -555,7 +555,7 @@ Procedure FillOptionsListDeferred()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Server call.
 
 &AtServerNoContext
 Function NumberOfUsersReportOption(OptionUsers)
@@ -712,7 +712,7 @@ Procedure CheckAndWriteReportOption(Package)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Server
+// Server.
 
 &AtServer
 Procedure DefineBehaviorInMobileClient()

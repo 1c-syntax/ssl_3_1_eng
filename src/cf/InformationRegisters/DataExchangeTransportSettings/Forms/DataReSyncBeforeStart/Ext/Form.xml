@@ -164,8 +164,8 @@ the application update again (recommended).
 								<xr:LoadTransparent>false</xr:LoadTransparent>
 							</Picture>
 							<FileDragMode>AsFile</FileDragMode>
-							<ContextMenu name="TimeConsumingOperationPicture2ContextMenu" id="36"/>
-							<ExtendedTooltip name="TimeConsumingOperationPicture2ExtendedTooltip" id="37"/>
+							<ContextMenu name="PictureTimeConsumingOperationContextMenu" id="36"/>
+							<ExtendedTooltip name="PictureTimeConsumingOperationExtendedTooltip" id="37"/>
 						</PictureDecoration>
 						<LabelDecoration name="LabelTimeConsumingOperation" id="38">
 							<AutoMaxWidth>false</AutoMaxWidth>
@@ -181,8 +181,8 @@ Please wait…</v8:content>
 								</v8:item>
 							</Title>
 							<VerticalAlign>Center</VerticalAlign>
-							<ContextMenu name="TimeConsumingOperationLabel2ContextMenu" id="39"/>
-							<ExtendedTooltip name="TimeConsumingOperationLabel2ExtendedTooltip" id="40"/>
+							<ContextMenu name="LabelTimeConsumingOperationContextMenu" id="39"/>
+							<ExtendedTooltip name="LabelTimeConsumingOperationExtendedTooltip" id="40"/>
 						</LabelDecoration>
 					</ChildItems>
 				</Page>
@@ -231,7 +231,7 @@ Please wait…</v8:content>
 							</Title>
 							<ExtendedTooltip name="FormSyncAndContinueExtendedTooltip" id="2"/>
 						</Button>
-						<Button name="FormDoNotSyncAndContinue" id="3">
+						<Button name="FormNotSyncAndContinue" id="3">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.NotSyncAndContinue</CommandName>
 							<Title>
@@ -240,7 +240,7 @@ Please wait…</v8:content>
 									<v8:content>Continue</v8:content>
 								</v8:item>
 							</Title>
-							<ExtendedTooltip name="FormDoNotSyncAndContinueExtendedTooltip" id="4"/>
+							<ExtendedTooltip name="FormNotSyncAndContinueExtendedTooltip" id="4"/>
 						</Button>
 						<Button name="FormExitApplication" id="5">
 							<Type>CommandBarButton</Type>

@@ -41,8 +41,8 @@ Procedure OnFillToDoList(ToDoList) Export
 		Return;
 	EndIf;
 	
-	// 
-	// 
+	// The procedure can be called only if the "To-do list" subsystem is integrated.
+	// Therefore, don't check if the subsystem is integrated.
 	Sections = ModuleToDoListServer.SectionsForObject(Metadata.Catalogs.Notes.FullName());
 	
 	NumberOfNotes = NumberOfNotes();
@@ -88,16 +88,18 @@ EndProcedure
 // See AttachableCommandsOverridable.OnDefineCommandsAttachedToObject.
 Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReportsAndDataProcessors, Commands) Export
 	
-	Command = Commands.Add();
-	Command.Kind = "Organizer";
-	Command.Presentation = NStr("en = 'Create note';");
-	Command.FunctionalOptions = "UseNotes";
-	Command.Picture = PictureLib.Note;
-	Command.ParameterType = Metadata.DefinedTypes.NotesSubject.Type;
-	Command.WriteMode = "NotWrite";
-	Command.Order = 50;
-	Command.Handler = "UserNotesInternalClient.CreateSubjectNote"; 
-	Command.MultipleChoice = False;
+	If AccessRight("InteractiveInsert", Metadata.Catalogs.Notes) Then
+		Command = Commands.Add();
+		Command.Kind = "Organizer";
+		Command.Presentation = NStr("en = 'Create note';");
+		Command.FunctionalOptions = "UseNotes";
+		Command.Picture = PictureLib.Note;
+		Command.ParameterType = Metadata.DefinedTypes.NotesSubject.Type;
+		Command.WriteMode = "NotWrite";
+		Command.Order = 50;
+		Command.Handler = "UserNotesInternalClient.CreateSubjectNote"; 
+		Command.MultipleChoice = False;
+	EndIf;
 	
 EndProcedure
 

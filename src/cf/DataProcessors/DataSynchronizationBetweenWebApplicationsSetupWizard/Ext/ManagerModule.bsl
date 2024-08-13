@@ -515,7 +515,7 @@ Procedure OnCompleteGetCommonDataFromCorrespondentNodes(HandlerParameters, Compl
 		SetPrivilegedMode(True);
 		
 		Try
-			// Peer infobase parameters.
+			// Peer infobase parameters.
 			CorrespondentData = InformationRegisters.SystemMessageExchangeSessions.GetSessionData(
 				HandlerParameters.OperationID).Get();
 				

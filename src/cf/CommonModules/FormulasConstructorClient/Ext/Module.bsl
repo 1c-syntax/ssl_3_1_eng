@@ -60,9 +60,9 @@ EndFunction
 // Handler of expanding the list being connected.
 // 
 // Parameters:
-//  Form   - ClientApplicationForm - the list owner.
+//  Form   - ClientApplicationForm - List owner.
 //  Item - FormTable - a list where string expansion is executed.
-//  String  - Number - list string ID.
+//  String  - Number - List row ID.
 //  Cancel   - Boolean - indicates that expansion is canceled.
 //
 Procedure ListOfFieldsBeforeExpanding(Form, Item, String, Cancel) Export
@@ -105,7 +105,7 @@ EndProcedure
 // Handler of dragging the list being connected
 // 
 // Parameters:
-//  Form   - ClientApplicationForm - the list owner.
+//  Form   - ClientApplicationForm - List owner.
 //  Item - FormTable - a list where dragging is executed.
 //  DragParameters - DragParameters - contains a dragged value, an action type, 
 //                                                      and possible values when dragging.
@@ -128,7 +128,7 @@ EndProcedure
 // Returns details of the current selected field of the list being connected.
 //
 // Parameters:
-//  Form - ClientApplicationForm - the list owner.
+//  Form - ClientApplicationForm - List owner.
 //  NameOfTheFieldList - String - a list name set upon calling FormulasConstructor.AddFieldsListToForm.
 //  
 // Returns:
@@ -168,9 +168,9 @@ EndFunction
 // Handler of the event of the string searching the list being connected.
 // 
 // Parameters:
-//  Form   - ClientApplicationForm - the list owner.
-//  Item - FormField - search bar.
-//  Text - String - search string text.
+//  Form   - ClientApplicationForm - List owner.
+//  Item - FormField - Search bar.
+//  Text - String - Text in the search bar.
 //  StandardProcessing - Boolean - if False, cannot execute the standard action.
 //
 Procedure SearchStringEditTextChange(Form, Item, Text, StandardProcessing) Export
@@ -193,7 +193,7 @@ EndProcedure
 // Handler of the event of the string searching the list being connected.
 // 
 // Parameters:
-//  Form   - ClientApplicationForm - the list owner.
+//  Form   - ClientApplicationForm - List owner.
 //  Item - FormButton - A clean-up button.
 //  DeleteStandardDataProcessor - Boolean - Obsolete
 //
@@ -597,7 +597,7 @@ Procedure ProcessSearchMessages(Form, Messages, JobID)
 			EndDo;
 		EndIf;
 	EndDo;
-	FormulasConstructorClientServer.SortByColumn(SearchResultsString, "Weight");
+	FormulasConstructorClientServer.DoSortByColumn(SearchResultsString, "Weight");
 	ShouldPositionCursorToFirstFoundRow(Form.Items[ListName], FieldTree);
 EndProcedure
 
@@ -624,7 +624,7 @@ Procedure ProcessSearchResults(Form, ResultAddress, JobID)
 		FillPropertyValues(ItemToAdd, FoundItem);
 		ItemToAdd.MatchesFilter = True;
 	EndDo;
-	FormulasConstructorClientServer.SortByColumn(SearchResultsString, "Weight");
+	FormulasConstructorClientServer.DoSortByColumn(SearchResultsString, "Weight");
 	ShouldPositionCursorToFirstFoundRow(Form.Items[ListName], FieldTree);
 	Form.Items[ListName + "Presentation"].Visible = False;
 	Form.Items[ListName + "RepresentationOfTheDataPath"].Visible = True;

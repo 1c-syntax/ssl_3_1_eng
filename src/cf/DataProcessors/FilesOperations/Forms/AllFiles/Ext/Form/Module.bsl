@@ -132,15 +132,11 @@ EndProcedure
 Procedure OpenFileProperties(Command)
 	
 	CurrentData = Items.List.CurrentData;
-	
 	If CurrentData = Undefined Then
 		Return
 	EndIf;
 	
-	FormParameters = New Structure;
-	FormParameters.Insert("AttachedFile", CurrentData.Ref);
-	
-	OpenForm("DataProcessor.FilesOperations.Form.AttachedFile", FormParameters);
+	FilesOperationsClient.OpenFileForm(CurrentData.Ref);
 	
 EndProcedure
 
@@ -261,8 +257,8 @@ EndProcedure
 &AtClient
 Procedure SetCommandsAvailability(EditedByCurrentUser, AreFilesBeingEditedSelected)
 	
-	Items.FormUnlock.Enabled = AreFilesBeingEditedSelected;
-	Items.ListContextMenuUnlock.Enabled = AreFilesBeingEditedSelected;
+	Items.FormRelease.Enabled = AreFilesBeingEditedSelected;
+	Items.ListContextMenuRelease.Enabled = AreFilesBeingEditedSelected;
 	Items.FormDelete.Enabled = EditedByCurrentUser;
 	Items.ListContextMenuDelete.Enabled = EditedByCurrentUser;
 	
@@ -288,15 +284,11 @@ Procedure ListBeforeRowChange(Item, Cancel)
 	Cancel = True;
 	
 	CurrentData = Items.List.CurrentData;
-	
 	If CurrentData = Undefined Then
 		Return
 	EndIf;
 	
-	FormParameters = New Structure;
-	FormParameters.Insert("AttachedFile", CurrentData.Ref);
-	
-	OpenForm("DataProcessor.FilesOperations.Form.AttachedFile", FormParameters);
+	FilesOperationsClient.OpenFileForm(CurrentData.Ref);
 	
 EndProcedure
 

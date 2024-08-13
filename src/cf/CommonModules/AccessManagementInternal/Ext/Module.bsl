@@ -634,7 +634,7 @@ Procedure UpdateUserRoles(Val UsersDetails = Undefined,
 			EndIf;
 		EndDo;
 		
-		// 
+		// Check new roles.
 		For Each String In NewRoles Do
 			String.Role = RolesNames.Get(String.RoleRef);
 			
@@ -698,7 +698,67 @@ EndProcedure
 //  Boolean
 //
 Function IsAccessRightsChangeLoggingSupported() Export
-	Return False;
+	Return True;
+EndFunction
+
+// Returns:
+//  String
+//
+Function NameOfLogEventAccessGroupsMembersChanged() Export
+	
+	Return NStr("en = 'Access management.Change access group membership';",
+		Common.DefaultLanguageCode());
+	
+EndFunction
+
+// Returns:
+//  String
+//
+Function NameOfLogEventAllowedValuesChanged() Export
+	
+	Return NStr("en = 'Access management.Change allowed values';",
+		Common.DefaultLanguageCode());
+	
+EndFunction
+
+// Returns:
+//  String
+//
+Function NameOfLogEventProfilesRolesChanged() Export
+	
+	Return NStr("en = 'Access management.Change profile roles';",
+		Common.DefaultLanguageCode());
+	
+EndFunction
+
+// See AccessKindsProperties
+Function AllAccessKindsProperties() Export
+	Return AccessKindsProperties();
+EndFunction
+
+// Returns:
+//  Structure:
+//   * AccessGroupsListFormFullName - String
+//   * AccessGroupsItemFormFullName - String
+//   * ProfilesListFormFullName - String
+//   * ProfilesItemFormFullName - String
+//   * TypeCatalogRefAccessGroups - Type
+//   * TypeCatalogRefAccessGroupsProfiles - Type
+//   * AccessValuesTypes - Array of Type
+//
+Function ParametersForReports() Export
+	
+	Result = New Structure;
+	Result.Insert("AccessGroupsListFormFullName",       "Catalog.AccessGroups.Form.ListForm");
+	Result.Insert("AccessGroupsItemFormFullName",     "Catalog.AccessGroups.Form.ItemForm");
+	Result.Insert("ProfilesListFormFullName",           "Catalog.AccessGroupProfiles.Form.ListForm");
+	Result.Insert("ProfilesItemFormFullName",         "Catalog.AccessGroupProfiles.Form.ItemForm");
+	Result.Insert("TypeCatalogRefAccessGroups",       Type("CatalogRef.AccessGroups"));
+	Result.Insert("TypeCatalogRefAccessGroupsProfiles", Type("CatalogRef.AccessGroupProfiles"));
+	Result.Insert("AccessValuesTypes", Metadata.DefinedTypes.AccessValue.Type.Types());
+	
+	Return Result;
+	
 EndFunction
 
 #Region UniversalRestriction
@@ -886,7 +946,7 @@ Function AccessRestrictionErrors() Export
 	
 EndFunction
 
-// Returns implementation settings for developer tools.
+// Returns integration settings for developer tools.
 //
 // Parameters:
 //  ActiveParameters - Undefined - a default value.
@@ -977,6 +1037,11 @@ Function ImplementationSettings(ActiveParameters = Undefined) Export
 		ActiveParameters = New Structure(NewStoredParameters.ForWritingObjectsAndCheckingRights.Get()); // See NewStoredWriteParametersStructure
 	EndIf;
 	
+	Context = New Structure;
+	Context.Insert("PredefinedIDs", PredefinedIDs);
+	Context.Insert("KeysRegistersDimensionsTypes",   KeysRegistersDimensionsTypes);
+	Context.Insert("TablesTypesByNames",             TablesTypesByNames);
+	
 	AddedLists = New Map;
 	For Each VersionDetails In ActiveParameters.ListsRestrictionsVersions Do
 		FullName = VersionDetails.Key;
@@ -999,17 +1064,13 @@ Function ImplementationSettings(ActiveParameters = Undefined) Export
 			FullName,
 			RestrictionsInRoles.ForUsers,
 			ActiveParameters.AdditionalContext.ForUsers.ListRestrictionsProperties,
-			KeysRegistersDimensionsTypes,
-			TablesTypesByNames,
-			PredefinedIDs);
+			Context);
 		
 		AddRestrictionsInRoles(XMLFullName,
 			FullName,
 			RestrictionsInRoles.ForExternalUsers,
 			ActiveParameters.AdditionalContext.ForExternalUsers.ListRestrictionsProperties,
-			KeysRegistersDimensionsTypes,
-			TablesTypesByNames,
-			PredefinedIDs);
+			Context);
 	EndDo;
 	
 	For Each LeadingList In ActiveParameters.LeadingLists Do
@@ -1195,13 +1256,13 @@ Procedure ScheduleAccessUpdate(Lists = Undefined, PlanningParameters = Undefined
 			ListsToUpdate.Add(KeyAndValue.Key);
 		EndDo;
 		
-		// 
-		// 
-		// 
-		// 
-		// 
-		// 
-		//    
+		// When planning a full update, the following is added:
+		// - Lists with restrictions
+		// - Lists that write access keys for restrictions on owner field
+		// - Lists without restrictions that have records in data access key registers
+		// - Lists whose allowed access keys are calculated
+		// Lists with no allowed access keys that have records in
+		//    allowed access key registers
 		
 	ElsIf TypeOf(Lists) <> Type("Array")
 	        And TypeOf(Lists) <> Type("FixedArray") Then
@@ -1814,6 +1875,11 @@ Procedure OnPopulateObjectsPlannedForDeletion(Objects) Export
 	ImplementationSettings = ImplementationSettings();
 	AccessKindsProperties = AccessKindsProperties();
 	
+	ServiceTypes = New Array;
+	ServiceTypes.Add(Type("CatalogRef.MetadataObjectIDs"));
+	ServiceTypes.Add(Type("CatalogRef.ExtensionObjectIDs"));
+	ServiceTypes.Add(Type("EnumRef.AdditionalAccessValues"));
+	
 	// DefinedType.AccessValue
 	TypesOfGroupsAndValues = New Array;
 	For Each KeyAndValue In AccessKindsProperties.ByGroupsAndValuesTypes Do
@@ -1822,6 +1888,7 @@ Procedure OnPopulateObjectsPlannedForDeletion(Objects) Export
 	RequiredAccessValueType = New TypeDescription(
 		StrConcat(ImplementationSettings.AccessValues, ","));
 	RequiredAccessValueType = New TypeDescription(RequiredAccessValueType, TypesOfGroupsAndValues);
+	RequiredAccessValueType = New TypeDescription(RequiredAccessValueType, ServiceTypes);
 	
 	AddObjectPlannedForDeletion(Objects, RequiredAccessValueType,
 		Metadata.InformationRegisters.AccessGroupsValues.Dimensions.AccessValue);
@@ -1869,8 +1936,9 @@ Procedure OnPopulateObjectsPlannedForDeletion(Objects) Export
 		KeysRegisterMetadata = Metadata.InformationRegisters[KeysRegisterName];
 		FieldsCount = AccessManagementInternalCached.BasicRegisterFieldsCount(KeysRegisterName);
 		RequiredFieldType = New TypeDescription(StrConcat(KeysRegistersDetails.Value.TypesNames, ","));
+		RequiredFieldType = New TypeDescription(RequiredFieldType, ServiceTypes);
 		For FieldNumber = 1 To FieldsCount Do
-			FieldName = "Field" + FieldNumber;
+			FieldName = StrTemplate("Field%1", FieldNumber);
 			AddObjectPlannedForDeletion(Objects, RequiredFieldType,
 				KeysRegisterMetadata.Dimensions[FieldName]);
 		EndDo;
@@ -1886,7 +1954,8 @@ Procedure OnPopulateObjectsPlannedForDeletion(Objects) Export
 		EmptyRef = ObjectManager.EmptyRef();
 		SubscriptionsObjectsRefsTypes.Add(TypeOf(EmptyRef));
 	EndDo;
-	RequiredTypeOfTablesWithWritingAccessValueSets = New TypeDescription(SubscriptionsObjectsRefsTypes);
+	RequiredTypeOfTablesWithWritingAccessValueSets = New TypeDescription(
+		New TypeDescription(SubscriptionsObjectsRefsTypes),, ServiceTypes);
 	
 	AddObjectPlannedForDeletion(Objects, RequiredTypeOfTablesWithWritingAccessValueSets,
 		Metadata.InformationRegisters.AccessValuesSets.Dimensions.Object);
@@ -2031,11 +2100,11 @@ Procedure OnFindNotUniquePredefinedItem(Object, WriteToLog, Cancel, CancelDetail
 		Query.SetParameter("PredefinedDataName", "Administrators");
 		Query.Text =
 		"SELECT DISTINCT
-		|	AccessGroupsUsers_SSLy.User
+		|	AccessGroups_Users.User
 		|FROM
-		|	Catalog.AccessGroups.Users AS AccessGroupsUsers_SSLy
+		|	Catalog.AccessGroups.Users AS AccessGroups_Users
 		|WHERE
-		|	AccessGroupsUsers_SSLy.Ref.PredefinedDataName = &PredefinedDataName";
+		|	AccessGroups_Users.Ref.PredefinedDataName = &PredefinedDataName";
 		AllUsers = Query.Execute().Unload().UnloadColumn("User");
 		
 		Write = False;
@@ -2145,7 +2214,7 @@ Procedure OnFillRegisteredRefKinds(RefsKinds) Export
 		"StandardSubsystems.AccessManagement.AccessGroupsRolesModifiedUponImport";
 	
 	RefsKind = RefsKinds.Add();
-	RefsKind.Name = "AccessGroupsUsers_SSLy";
+	RefsKind.Name = "AccessGroups_Users";
 	RefsKind.AllowedTypes = New TypeDescription(
 		"CatalogRef.Users,CatalogRef.ExternalUsers");
 	RefsKind.ParameterNameExtensionsOperation =
@@ -2165,7 +2234,7 @@ Procedure OnFillRegisteredRefKinds(RefsKinds) Export
 	
 EndProcedure
 
-// See StandardSubsystems.OnSendDataToMaster.
+// 
 Procedure OnSendDataToMaster(DataElement, ItemSend, Recipient) Export
 	
 	OnSendData(DataElement, ItemSend, False, False);
@@ -2216,13 +2285,14 @@ Procedure OnFillAllExtensionParameters() Export
 	UpdateAccessGroupsTablesForEnabledExtensions();
 	
 	If InformationRegisters.ApplicationRuntimeParameters.UpdateRequired1() Then
-		// 
-		// 
+		// Updated in the procedure "OnSetUpSubordinateDIBNode"
+		// or "UpdateAuxiliaryRegisterDataByConfigurationChanges".
 		// 
 		Return;
 	EndIf;
 	
 	// Parameter StandardSubsystems.AccessManagement.AccessKindsProperties.
+	InformationRegisters.UsedAccessKinds.UpdateRegisterData();
 	UpdateGroupsAndSetsOfAccessValuesWhenGroupTypesAndValuesChange();
 	
 	// Parameter StandardSubsystems.AccessManagement.RightsForObjectsRightsSettingsAvailable.
@@ -2235,11 +2305,11 @@ Procedure OnFillAllExtensionParameters() Export
 	// Parameter StandardSubsystems.AccessManagement.AccessGroupPredefinedProfiles.
 	Catalogs.AccessGroups.MarkForDeletionSelectedProfilesAccessGroups();
 	
-	// 
+	// If exceptions occurred and the update is not completed.
 	UpdateAuxiliaryDataOfItemsModifiedUponDataImport();
 	
-	// 
-	// 
+	// Update infobase user roles following such extension changes that misalign
+	// roles of infobase users and profiles while not changing the profile content.
 	// 
 	UpdateUserRoles();
 	
@@ -2249,13 +2319,27 @@ Procedure OnFillAllExtensionParameters() Export
 	
 EndProcedure
 
+// Parameters:
+//   * Job - ScheduledJob
+//
+Procedure BeforeStartingRoutineTaskNotInBackground(Job) Export
+	
+	If Job.Metadata <> Metadata.ScheduledJobs.AccessUpdateOnRecordsLevel Then
+		Return;
+	EndIf;
+	
+	Job.Parameters.Add(True);
+	Job.Parameters.Add(True);
+	
+EndProcedure
+
 // Event handlers of the Users subsystem.
 
 // See UsersOverridable.OnDefineSettings.
 Procedure OnDefineSettings(Settings) Export
 	
-	// 
-	// 
+	// Roles are auto-assigned using the access group data as follows:
+	// AccessGroupUsers > Profile > ProfileRoles.
 	Settings.EditRoles = False;
 	
 EndProcedure
@@ -2321,10 +2405,10 @@ Procedure OnCreateAdministrator(Administrator, Refinement) Export
 	"SELECT
 	|	TRUE AS TrueValue
 	|FROM
-	|	Catalog.AccessGroups.Users AS AccessGroupsUsers_SSLy
+	|	Catalog.AccessGroups.Users AS AccessGroups_Users
 	|WHERE
-	|	AccessGroupsUsers_SSLy.Ref = &AdministratorsAccessGroup
-	|	AND AccessGroupsUsers_SSLy.User = &User
+	|	AccessGroups_Users.Ref = &AdministratorsAccessGroup
+	|	AND AccessGroups_Users.User = &User
 	|
 	|UNION ALL
 	|
@@ -2397,12 +2481,12 @@ Procedure AfterUserGroupsUpdate(ItemsToChange, ModifiedGroups) Export
 	
 EndProcedure
 
-// Defines the actions required after changing the external user's authorization object.
+// Redefines the actions that are required after changing an external user authorization object.
 // 
 // Parameters:
-//  AuthorizationObjects - Array of DefinedType.ExternalUser - 
+//  AuthorizationObjects - Array of DefinedType.ExternalUser - New and old (if any) authorization objects.
 //                         
-//                     - Undefined - All
+//                     - Undefined - All authorization objects.
 //
 Procedure AfterChangeExternalUserAuthorizationObject(AuthorizationObjects) Export
 	
@@ -2421,9 +2505,9 @@ Procedure OnCopyRightsToNewUser(Source, Receiver) Export
 		
 		Block = New DataLock;
 		Block.Add("Catalog.AccessGroups");
-		// 
-		// 
-		// 
+		// ACC:1320-off - No.499, No.783.1.3. It is acceptable to set a lock in transactions external to the infobase.
+		// Intended to prevent deadlocks: the query below sets an implicit lock, which is upgraded to
+		// an exclusive lock, leading to a deadlock in some cases.
 		// 
 		Block.Lock();
 		// ACC:1320-on.
@@ -2439,19 +2523,19 @@ Procedure OnCopyRightsToNewUser(Source, Receiver) Export
 		|	AccessGroups.Profile AS Profile
 		|FROM
 		|	Catalog.AccessGroups AS AccessGroups
-		|	INNER JOIN Catalog.AccessGroups.Users AS AccessGroupsUsers_SSLy
+		|	INNER JOIN Catalog.AccessGroups.Users AS AccessGroups_Users
 		|	ON
 		|		AccessGroups.User = &User
-		|		AND AccessGroupsUsers_SSLy.Ref = AccessGroups.Ref
-		|		AND AccessGroupsUsers_SSLy.User = &User";
+		|		AND AccessGroups_Users.Ref = AccessGroups.Ref
+		|		AND AccessGroups_Users.User = &User";
 	Else
 		Query.Text =
 		"SELECT DISTINCT
-		|	AccessGroupsUsers_SSLy.Ref AS AccessGroup
+		|	AccessGroups_Users.Ref AS AccessGroup
 		|FROM
-		|	Catalog.AccessGroups.Users AS AccessGroupsUsers_SSLy
+		|	Catalog.AccessGroups.Users AS AccessGroups_Users
 		|WHERE
-		|	AccessGroupsUsers_SSLy.User = &User";
+		|	AccessGroups_Users.User = &User";
 	EndIf;
 	
 	QueryResult = Query.Execute();
@@ -2572,6 +2656,56 @@ Procedure OnRegisterDataExportHandlers(HandlersTable) Export
 	
 EndProcedure
 
+// "Users" subsystem procedures and functions.
+
+Function QueryTextForAccessGroupsOnUserGroupsMembersChange() Export
+	
+	Return
+	"SELECT DISTINCT
+	|	AccessGroupsMembers.Ref AS AccessGroup,
+	|	AccessGroupsMembers.User AS Member,
+	|	AccessGroupsMembers.ValidityPeriod AS ValidityPeriod
+	|INTO AccessGroupsMembers
+	|FROM
+	|	Catalog.AccessGroups.Users AS AccessGroupsMembers
+	|		LEFT JOIN ChangesInComposition AS GroupsMembershipChanges
+	|		ON (GroupsMembershipChanges.UsersGroup = AccessGroupsMembers.User)
+	|		LEFT JOIN ChangesInComposition AS UsersActivityChanges
+	|		ON (UsersActivityChanges.User = AccessGroupsMembers.User)
+	|			AND (UsersActivityChanges.UsersGroup = &AllUsersGroup)
+	|WHERE
+	|	(NOT GroupsMembershipChanges.UsersGroup IS NULL
+	|			OR NOT UsersActivityChanges.User IS NULL)
+	|;
+	|
+	|////////////////////////////////////////////////////////////////////////////////
+	|SELECT
+	|	AccessGroupsMembers.AccessGroup AS AccessGroup,
+	|	AccessGroupsMembers.Member AS Member,
+	|	AccessGroupsMembers.ValidityPeriod AS ValidityPeriod
+	|FROM
+	|	AccessGroupsMembers AS AccessGroupsMembers
+	|;
+	|
+	|////////////////////////////////////////////////////////////////////////////////
+	|SELECT
+	|	AccessGroups.Ref AS AccessGroup,
+	|	PRESENTATION(AccessGroups.Ref) AS Presentation,
+	|	AccessGroups.DeletionMark AS DeletionMark,
+	|	AccessGroups.Profile AS Profile,
+	|	PRESENTATION(AccessGroups.Profile) AS ProfilePresentation,
+	|	ISNULL(AccessGroups.Profile.DeletionMark, TRUE) AS ProfileDeletionMark
+	|FROM
+	|	Catalog.AccessGroups AS AccessGroups
+	|WHERE
+	|	AccessGroups.Ref IN
+	|			(SELECT DISTINCT
+	|				AccessGroupsMembers.AccessGroup
+	|			FROM
+	|				AccessGroupsMembers AS AccessGroupsMembers)";
+	
+EndFunction
+
 // MonitoringCenter procedures and functions.
 
 // Returns the query text to collect the statistic data on the use of access group and role profiles.
@@ -2615,36 +2749,36 @@ Function RolesUsageQueryText() Export
 	|	AccessGroupProfiles.SuppliedDataID AS SuppliedDataID,
 	|	AccessGroupProfiles.SuppliedProfileChanged AS SuppliedProfileChanged,
 	|	AccessGroupProfiles.Description AS Description,
-	|	AccessGroupsUsers_SSLy.Ref AS AccessGroup,
-	|	AccessGroupsUsers_SSLy.Ref.User = VALUE(Catalog.Users.EmptyRef)
-	|		OR AccessGroupsUsers_SSLy.Ref.User = VALUE(Catalog.ExternalUsers.EmptyRef)
-	|		OR AccessGroupsUsers_SSLy.Ref.User = UNDEFINED AS CommonAccessGroup,
-	|	AccessGroupsUsers_SSLy.User AS TabularSectionUser,
+	|	AccessGroups_Users.Ref AS AccessGroup,
+	|	AccessGroups_Users.Ref.User = VALUE(Catalog.Users.EmptyRef)
+	|		OR AccessGroups_Users.Ref.User = VALUE(Catalog.ExternalUsers.EmptyRef)
+	|		OR AccessGroups_Users.Ref.User = UNDEFINED AS CommonAccessGroup,
+	|	AccessGroups_Users.User AS TabularSectionUser,
 	|	UserGroupCompositions.User AS InformationRegisterUser,
 	|	UserGroupCompositions.ActiveWeekly AS ActiveWeekly,
 	|	UserGroupCompositions.ActiveMonthly AS ActiveMonthly
 	|INTO TTProfileData
 	|FROM
-	|	Catalog.AccessGroups.Users AS AccessGroupsUsers_SSLy
+	|	Catalog.AccessGroups.Users AS AccessGroups_Users
 	|		INNER JOIN TTGroupListsAndActivity AS UserGroupCompositions
-	|		ON AccessGroupsUsers_SSLy.User = UserGroupCompositions.UsersGroup
+	|		ON AccessGroups_Users.User = UserGroupCompositions.UsersGroup
 	|		INNER JOIN Catalog.AccessGroupProfiles AS AccessGroupProfiles
-	|		ON (AccessGroupProfiles.Ref = AccessGroupsUsers_SSLy.Ref.Profile)
-	|			AND (NOT AccessGroupsUsers_SSLy.Ref.Profile.DeletionMark)
+	|		ON (AccessGroupProfiles.Ref = AccessGroups_Users.Ref.Profile)
+	|			AND (NOT AccessGroups_Users.Ref.Profile.DeletionMark)
 	|WHERE
-	|	NOT AccessGroupsUsers_SSLy.Ref.Profile.DeletionMark
+	|	NOT AccessGroups_Users.Ref.Profile.DeletionMark
 	|
 	|GROUP BY
 	|	AccessGroupProfiles.Ref,
 	|	AccessGroupProfiles.Description,
-	|	AccessGroupsUsers_SSLy.User,
+	|	AccessGroups_Users.User,
 	|	UserGroupCompositions.User,
 	|	UserGroupCompositions.ActiveWeekly,
 	|	UserGroupCompositions.ActiveMonthly,
-	|	AccessGroupsUsers_SSLy.Ref,
-	|	AccessGroupsUsers_SSLy.Ref.User = VALUE(Catalog.Users.EmptyRef)
-	|		OR AccessGroupsUsers_SSLy.Ref.User = VALUE(Catalog.ExternalUsers.EmptyRef)
-	|		OR AccessGroupsUsers_SSLy.Ref.User = UNDEFINED,
+	|	AccessGroups_Users.Ref,
+	|	AccessGroups_Users.Ref.User = VALUE(Catalog.Users.EmptyRef)
+	|		OR AccessGroups_Users.Ref.User = VALUE(Catalog.ExternalUsers.EmptyRef)
+	|		OR AccessGroups_Users.Ref.User = UNDEFINED,
 	|	AccessGroupProfiles.SuppliedDataID,
 	|	AccessGroupProfiles.SuppliedProfileChanged
 	|;
@@ -2723,7 +2857,7 @@ Function RolesUsageQueryText() Export
 	|			WHEN Nested.TabularSectionUser REFS Catalog.UserGroups
 	|				THEN 1
 	|			ELSE 0
-	|		END) AS UserGroups_SSLy,
+	|		END) AS UserGroups,
 	|	SUM(CASE
 	|			WHEN Nested.TabularSectionUser REFS Catalog.ExternalUsersGroups
 	|				THEN 1
@@ -2792,7 +2926,7 @@ Function RolesUsageQueryText() Export
 	|	Profiles.SuppliedProfileChanged AS SuppliedProfileChanged,
 	|	ISNULL(AccessGroups.AccessGroup, 0) AS AccessGroup,
 	|	ISNULL(AccessGroups.PersonalGroup, 0) AS PersonalGroup,
-	|	ISNULL(UserGroups.UserGroups_SSLy, 0) AS UserGroups_SSLy,
+	|	ISNULL(UserGroups.UserGroups, 0) AS UserGroups,
 	|	ISNULL(UserGroups.GroupsOfExternalUsers, 0) AS GroupsOfExternalUsers,
 	|	ISNULL(ProfileUsers.Users, 0) AS Users,
 	|	ISNULL(ProfileUsers.ExternalUsers, 0) AS ExternalUsers,
@@ -2828,7 +2962,7 @@ Function RolesUsageQueryText() Export
 	
 EndFunction
 
-// 
+// Checks the availability of the "SetRights" common command.
 // 
 // Returns:
 //  Boolean
@@ -2844,13 +2978,13 @@ EndFunction
 // See ExportImportDataOverridable.OnRegisterDataExportHandlers.
 Procedure BeforeExportObject(Container, ObjectExportManager, Serializer, Object, Artifacts, Cancel) Export
 	
-	// Extension roles are assigned independently both in the box and in the service.
+	// Extension roles are assigned independently in the SaaS and on-premises versions.
 	If TypeOf(Object) = Type("CatalogObject.AccessGroupProfiles") Then
 		Catalogs.AccessGroupProfiles.DeleteExtensionsRoles(Object);
 	EndIf;
 	
-	// 
-	// 
+	// In SaaS, data area users don't use the right to open external reports and data processors.
+	// Therefore, the check runs only when migrating from on-prem to SaaS.
 	If Common.DataSeparationEnabled() Then
 		Return;
 	EndIf;
@@ -2873,8 +3007,8 @@ EndProcedure
 // See ExportImportDataOverridable.OnRegisterDataExportHandlers.
 Procedure BeforeExportRecordSet(Container, ObjectExportManager, Serializer, Object, Artifacts, Cancel) Export
 	
-	// 
-	// 
+	// In SaaS, data area users don't use the right to open external reports and data processors.
+	// Therefore, the check runs only when migrating from on-prem to SaaS.
 	If Common.DataSeparationEnabled() Then
 		Return;
 	EndIf;
@@ -2928,7 +3062,7 @@ Procedure SessionParametersSetting(ParameterName, SpecifiedParameters) Export
 	EndIf;
 	#EndRegion
 	
-	// 
+	// With access restrictions, the preprocessor requires all necessary session parameters to be initialized.
 	// 
 	LimitAccessAtRecordLevel = Constants.LimitAccessAtRecordLevel.Get();
 	InfobaseLockedForUpdate = ValueIsFilled(
@@ -3030,10 +3164,10 @@ Procedure SessionParametersSetting(ParameterName, SpecifiedParameters) Export
 	|	DefaultValues.AccessValuesType AS ValuesType
 	|FROM
 	|	InformationRegister.DefaultAccessGroupsValues AS DefaultValues
-	|		INNER JOIN Catalog.AccessGroups.Users AS AccessGroupsUsers_SSLy
-	|		ON (AccessGroupsUsers_SSLy.Ref = DefaultValues.AccessGroup)
+	|		INNER JOIN Catalog.AccessGroups.Users AS AccessGroups_Users
+	|		ON (AccessGroups_Users.Ref = DefaultValues.AccessGroup)
 	|		INNER JOIN InformationRegister.UserGroupCompositions AS UserGroupCompositions
-	|		ON (AccessGroupsUsers_SSLy.User = UserGroupCompositions.UsersGroup)
+	|		ON (AccessGroups_Users.User = UserGroupCompositions.UsersGroup)
 	|			AND (UserGroupCompositions.User = &CurrentUser)
 	|
 	|GROUP BY
@@ -3077,8 +3211,8 @@ Procedure SessionParametersSetting(ParameterName, SpecifiedParameters) Export
 	
 	SpecifiedParameters.Add("DisabledAccessKinds");
 	
-	// 
-	// 
+	// Set parameters "AccessKindsWithoutGroupsForAccessValues",
+	// "AccessKindsWithSingleGroupForAccessValue", "AccessValuesTypesWithGroups".
 	SessionParameters.AccessKindsWithoutGroupsForAccessValues =
 		AllAccessKindsCombinations(AccessKindsProperties.NoGroupsForAccessValue);
 	SessionParameters.AccessKindsWithSingleGroupForAccessValue =
@@ -3094,8 +3228,8 @@ Procedure SessionParametersSetting(ParameterName, SpecifiedParameters) Export
 	SpecifiedParameters.Add("AccessKindsWithSingleGroupForAccessValue");
 	SpecifiedParameters.Add("AccessValuesTypesWithGroups");
 	
-	// 
-	// 
+	// Set parameters "TablesWithIndividualRightsSettings",
+	// "IDsOfTablesWithIndividualRightsSettings", "RightsSettingsOwnersTypes".
 	AvailableRights = RightsForObjectsRightsSettingsAvailable();
 	SeparateTables = AvailableRights.SeparateTables;
 	TablesWithIndividualRightsSettings = "";
@@ -3282,11 +3416,11 @@ Function HasTableRestrictionByAccessKind(Table, AccessKind, AllAccessKinds) Expo
 	|			(SELECT TOP 1
 	|				TRUE
 	|			FROM
-	|				Catalog.AccessGroups.Users AS AccessGroupsUsers_SSLy
+	|				Catalog.AccessGroups.Users AS AccessGroups_Users
 	|					INNER JOIN InformationRegister.UserGroupCompositions AS UserGroupCompositions
 	|					ON
-	|						AccessGroupsUsers_SSLy.Ref = DefaultValues.AccessGroup
-	|							AND AccessGroupsUsers_SSLy.User = UserGroupCompositions.UsersGroup
+	|						AccessGroups_Users.Ref = DefaultValues.AccessGroup
+	|							AND AccessGroups_Users.User = UserGroupCompositions.UsersGroup
 	|							AND UserGroupCompositions.User = &AuthorizedUser)";
 	
 	AddQueryToPackage(Query.Text, QueryText);
@@ -3343,7 +3477,7 @@ EndFunction
 //  Objects            - See InfobaseUpdate.AddObjectPlannedForDeletion.Objects
 //  DimensionFullName - See InfobaseUpdate.AddObjectPlannedForDeletion.Object
 //  RequiredTypes      - TypeDescription
-//  SpecifiedTypes - TypesDetails
+//  SpecifiedTypes - TypeDescription
 //
 Procedure AddObjectPlannedForDeletion(Objects, RequiredTypes, MetadataDimensions)
 	
@@ -3368,62 +3502,100 @@ EndProcedure
 ////////////////////////////////////////////////////////////////////////////////
 // Event subscription handlers.
 
-// 
-// 
-//   
+// "OnReceiveDataFromMasterOrSlave" subscription handler:
+// - Checks the parent for changes and prepares access groups
+//   where access values should be updated considering the hierarchy.
 //
 Procedure UpdateAccessValuesGroupsBeforeWrite(Val Source, Cancel) Export
 	
-	If Source.DataExchange.Load Then
-		Return;
-	EndIf;
-	
+	// ACC:75-off - "DataExchange.Import" check must follow the logging of changes.
 	If StandardSubsystemsServer.IsMetadataObjectID(Source) Then
 		Return;
 	EndIf;
 	
-	If Source.IsNew() Then
-		Source.AdditionalProperties.Insert("IsAccessValueNewObject");
+	If UsersInternalCached.ShouldRegisterChangesInAccessRights()
+	 Or Not Source.DataExchange.Load Then
 		
-		If Common.FileInfobase()
+		If Source.IsNew()
+		   And Common.FileInfobase()
 		   And Not SkipAccessCheck(Cancel, Source) Then
 			
 			Block = New DataLock;
 			Block.Add("InformationRegister.ExtensionVersionParameters");
 			Block.Lock();
 		EndIf;
-	EndIf;
-	
-	AccessKindsProperties = AccessKindsProperties();
-	
-	If AccessKindsProperties.ByValuesTypesWithHierarchy.Get(TypeOf(Source)) <> Undefined Then
-		Parent = Common.ObjectAttributeValue(Source.Ref, "Parent");
-		If Source.Parent <> Parent Then
-			Source.AdditionalProperties.Insert("UpdateAccessGroupsValues");
+		
+		AccessKindsProperties = AccessKindsProperties();
+		PreviousValues1 = New Structure;
+		If AccessKindsProperties.ByValuesTypesWithHierarchy.Get(TypeOf(Source)) <> Undefined Then
+			PreviousValues1.Insert("Parent", Common.ObjectAttributeValue(Source.Ref, "Parent"));
+		EndIf;
+		Properties = AccessKindsProperties.AccessValuesWithGroups.ByTypesForUpdate.Get(TypeOf(Source));
+		If Properties <> Undefined
+		   And Properties.ValuesGroupsType <> Type("Undefined")
+		   And UsersInternalCached.ShouldRegisterChangesInAccessRights() Then
+			
+			FieldName = ?(Properties.MultipleValuesGroups, "AccessGroups", "AccessGroup");
+			Try
+				Simple = Common.ObjectAttributeValue(Source.Ref, FieldName);
+			Except
+				TablesNames = CommonClientServer.ValueInArray(Source.Metadata().FullName());
+				ByRefTypesForUpdate = AccessKindsProperties.AccessValuesWithGroups.ByRefTypesForUpdate;
+				InformationRegisters.AccessValuesGroups.CheckTablesMetadata(TablesNames, ByRefTypesForUpdate);
+				Raise;
+			EndTry;
+			PreviousValues1.Insert(FieldName, Simple);
+		EndIf;
+		If ValueIsFilled(PreviousValues1) Then
+			Source.AdditionalProperties.Insert("AccessManagementOldValues", PreviousValues1);
 		EndIf;
 	EndIf;
-	
-EndProcedure
-
-// 
-// 
-//   
-// 
-//
-Procedure UpdateAccessValuesGroupsOnWrite(Source) Export
+	// ACC:75-on
 	
 	If Source.DataExchange.Load Then
 		Return;
 	EndIf;
 	
-	AccessKindsProperties = AccessKindsProperties();
-	AccessValuesWithGroups = AccessKindsProperties.AccessValuesWithGroups;
-	
-	If AccessValuesWithGroups.ByTypesForUpdate.Get(TypeOf(Source)) <> Undefined Then
+	If Properties <> Undefined Then
 		InformationRegisters.AccessValuesGroups.UpdateAccessValuesGroups(Source);
 	EndIf;
 	
-	If Source.AdditionalProperties.Property("UpdateAccessGroupsValues") Then
+EndProcedure
+
+// "UpdateAccessValuesGroupsOnWrite" subscription handler:
+// - Calls a method that writes access value groups into the
+//   "AccessValuesGroups" information register for the given metadata objects.
+// - Updates access group values selected considering the hierarchy.
+//
+Procedure UpdateAccessValuesGroupsOnWrite(Source) Export
+	
+	// ACC:75-off - "DataExchange.Import" check must follow the logging of changes.
+	If StandardSubsystemsServer.IsMetadataObjectID(Source) Then
+		Return;
+	EndIf;
+	
+	If UsersInternalCached.ShouldRegisterChangesInAccessRights()
+	   And Source.AdditionalProperties.Property("AccessManagementOldValues") Then
+		
+		SetSafeModeDisabled(True);
+		SetPrivilegedMode(True);
+		
+		Catalogs.AccessGroups.RegisterChangeInAllowedValues(Source,
+			Source.AdditionalProperties.AccessManagementOldValues);
+		
+		SetPrivilegedMode(False);
+		SetSafeModeDisabled(False);
+	EndIf;
+	// ACC:75-on
+	
+	If Source.DataExchange.Load Then
+		Return;
+	EndIf;
+	
+	If Source.AdditionalProperties.Property("AccessManagementOldValues")
+	   And Source.AdditionalProperties.AccessManagementOldValues.Property("Parent")
+	   And Source.Parent <> Source.AdditionalProperties.AccessManagementOldValues.Parent Then
+		
 		AccessGroups = AccessGroupsUsingAccessValuesHierarchy(TypeOf(Source.Ref));
 		InformationRegisters.AccessGroupsValues.UpdateRegisterData(AccessGroups);
 	EndIf;
@@ -3460,9 +3632,9 @@ EndProcedure
 //
 Procedure RecordSetsOfWriteAccessValues(Val Object, Cancel) Export
 	
-	// 
-	// 
-	// 
+	// The check "DataExchange.Load" runs only when the "WriteAccessValuesSets" property is assigned a value.
+	// In this case, when writing the main object, to keep its RLS functional, its child object is written programmatically
+	// to update the internal part of the "AccessValuesSets" table.
 	// 
 	If Object.DataExchange.Load
 	   And Not Object.AdditionalProperties.Property("WriteAccessValuesSets") Then
@@ -3487,9 +3659,9 @@ EndProcedure
 //
 Procedure WriteDependentSetsOfWriteAccessValues(Val Object, Cancel) Export
 	
-	// 
-	// 
-	// 
+	// The check "DataExchange.Load" runs only when the "WriteAccessValuesSets" property is assigned a value.
+	// In this case, when writing the main object, to keep its RLS functional, its child object is written programmatically
+	// to update the internal part of the "AccessValuesSets" table.
 	// 
 	If Object.DataExchange.Load
 	   And Not Object.AdditionalProperties.Property("WriteDependentAccessValuesSets") Then
@@ -3532,9 +3704,9 @@ EndProcedure
 //
 Procedure FillAccessValuesSetsForTabularSections(Source, Cancel = Undefined, WriteMode = Undefined, PostingMode = Undefined) Export
 	
-	// 
-	// 
-	// 
+	// The check "DataExchange.Load" runs only when the "WriteAccessValuesSets" property is assigned a value.
+	// In this case, when writing the main object, to keep its RLS functional, its child object is written programmatically
+	// to update the internal part of the "AccessValuesSets" table.
 	// 
 	If Source.DataExchange.Load
 	   And Not Source.AdditionalProperties.Property("WriteAccessValuesSets") Then
@@ -3549,11 +3721,14 @@ Procedure FillAccessValuesSetsForTabularSections(Source, Cancel = Undefined, Wri
 	         And Source.AdditionalProperties.Property(
 	             "AccessValuesSetsOfTabularSectionAreFilled")) Then
 		
-		If Source.IsNew()
-		   And Common.FileInfobase()
+		If Common.FileInfobase()
 		   And Not SkipAccessCheck(Cancel, Source) Then
 			
-			PreliminaryLockBeforeNewRecordToFileInfobase();
+			If Source.IsNew() Then
+				PreliminaryLockBeforeNewRecordToFileInfobase();
+			Else
+				PreliminaryLockBeforeWriteExistingObjectInFileInfobase();
+			EndIf;
 		EndIf;
 		
 		Table = GetAccessValuesSetsOfTabularSection(Source);
@@ -3644,7 +3819,7 @@ Procedure DataFillingForAccessRestriction(DataVolume = 0, OnlyCacheAttributes = 
 		EndDo;
 		
 		If DataVolume < 10000 Then
-			// 
+			// Update outdated records (if any).
 			InformationRegisters.AccessValuesGroups.UpdateRegisterData(HasChanges);
 		EndIf;
 		
@@ -3844,7 +4019,8 @@ Function AccessKindUsed(Val AccessKind) Export
 	|FROM
 	|	InformationRegister.UsedAccessKinds AS UsedAccessKinds
 	|WHERE
-	|	UsedAccessKinds.AccessValuesType = &AccessValuesType";
+	|	UsedAccessKinds.AccessValuesType = &AccessValuesType
+	|	AND UsedAccessKinds.Used = TRUE";
 	
 	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
@@ -3858,16 +4034,20 @@ Function AccessKindUsed(Val AccessKind) Export
 	
 EndFunction
 
+// Parameters:
+//  ShouldIgnoreAccessRestriction - Boolean
+//
 // Returns:
 //  Map of KeyAndValue:
 //   * Key - DefinedType.AccessValue - a blank reference of the main access kind value type.
 //   * Value - Boolean - the True value.
 //
-Function UsedAccessKinds() Export
+Function UsedAccessKinds(ShouldIgnoreAccessRestriction = False) Export
 	
 	Result = New Map;
 	
-	If Not AccessManagement.LimitAccessAtRecordLevel() Then
+	If Not ShouldIgnoreAccessRestriction
+	   And Not AccessManagement.LimitAccessAtRecordLevel() Then
 		Return Result;
 	EndIf;
 	
@@ -3876,7 +4056,9 @@ Function UsedAccessKinds() Export
 	"SELECT
 	|	UsedAccessKinds.AccessValuesType AS AccessValuesType
 	|FROM
-	|	InformationRegister.UsedAccessKinds AS UsedAccessKinds";
+	|	InformationRegister.UsedAccessKinds AS UsedAccessKinds
+	|WHERE
+	|	UsedAccessKinds.Used = TRUE";
 	
 	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
@@ -4034,9 +4216,9 @@ Procedure UpdateAccessValuesSets(ReferenceOrObject, HasChanges = Undefined, IBUp
 				InfobaseUpdate.WriteData(Object);
 			Else
 				Object.DataExchange.Load = True;
-				// 
-				// 
-				// 
+				// ACC:1327-off - No.783.1.4.1. It is acceptable to keep records without
+				// the preliminary managed object lock because this applies to RLS in SSL 2.x (obsolete),
+				// and it has never caused any issues.
 				Object.Write();
 				// ACC:1327-on
 			EndIf;
@@ -4090,8 +4272,8 @@ Procedure PrepareAccessValuesSetsForWrite(ObjectReference, Table, AddCacheAttrib
 			
 		EndIf;
 		
-		// 
-		// 
+		// Clear flags for rights and related secondary data
+		// for all rows in each set except for the first row.
 		If SetNumber = String.SetNumber Then
 			String.Read    = False;
 			String.Update = False;
@@ -4326,7 +4508,7 @@ Procedure RefreshUnusedAccessKindsRepresentation(Form, OnCreateAtServer = False)
 	
 	Items.AccessKinds.RowFilter = New FixedStructure(Filter);
 	
-	Items.AccessKindsAccessTypePresentation.ChoiceList.Clear();
+	Items.AccessKindsAccessKindPresentation.ChoiceList.Clear();
 	
 	For Each String In Form.AllAccessKinds Do
 		
@@ -4336,7 +4518,7 @@ Procedure RefreshUnusedAccessKindsRepresentation(Form, OnCreateAtServer = False)
 			Continue;
 		EndIf;
 		
-		Items.AccessKindsAccessTypePresentation.ChoiceList.Add(String.Presentation);
+		Items.AccessKindsAccessKindPresentation.ChoiceList.Add(String.Presentation);
 	EndDo;
 	
 EndProcedure
@@ -5222,6 +5404,7 @@ Procedure UpdateAuxiliaryRegisterDataByConfigurationChanges(Parameters = Undefin
 	InformationRegisters.AccessGroupsTables.UpdateRegisterDataByConfigurationChanges();
 	
 	// Parameter StandardSubsystems.AccessManagement.AccessKindsProperties.
+	InformationRegisters.UsedAccessKinds.UpdateRegisterData();
 	UpdateGroupsAndSetsOfAccessValuesWhenGroupTypesAndValuesChange();
 	
 	// Parameter StandardSubsystems.AccessManagement.RightsForObjectsRightsSettingsAvailable.
@@ -5396,8 +5579,8 @@ Procedure UpdateAccessGroupsTablesForEnabledExtensions(ExtensionsRolesRights = U
 		EndIf;
 	EndIf;
 	
-	// 
-	// 
+	// Populate rights in extension roles that change the access rights on
+	// configuration objects and extension objects.
 	SetNewExtenstionsRolesRights = False;
 	If ValueIsFilled(SessionParameters.AttachedExtensions) Then
 		ExtensionsRolesRightsStorage = StandardSubsystemsServer.ExtensionParameter(
@@ -5564,8 +5747,8 @@ Procedure OnChangeAccessValuesSets(Val ObjectReference, IBUpdate = False)
 	For Each DependentObjectRef In RefsToDependentObjects Do
 		
 		If DependentObjectRef.Metadata().TabularSections.Find("AccessValuesSets") = Undefined Then
-			// 
-			// 
+			// No object change is required.
+			// @skip-check query-in-loop - Batch-wise data processing
 			WriteAccessValuesSets(DependentObjectRef, , IBUpdate);
 		Else
 			// Object change is required.
@@ -5586,9 +5769,9 @@ Procedure OnChangeAccessValuesSets(Val ObjectReference, IBUpdate = False)
 					InfobaseUpdate.WriteData(Object);
 				Else
 					Object.DataExchange.Load = True;
-					// 
-					// 
-					// 
+					// ACC:1327-off - No.783.1.4.1. It is acceptable to keep records without
+					// the preliminary managed object lock because this applies to RLS in SSL 2.x (obsolete),
+					// and it has never caused any issues.
 					Object.Write();
 					// ACC:1327-off.
 				EndIf;
@@ -5693,7 +5876,7 @@ Function OpenExternalReportsAndDataProcessorsAccessGroup(ProfileProperties)
 		NStr("en = 'Grants the right to open external reports and data processors from the ""File—Open"" menu.';",
 			Common.DefaultLanguageCode());
 	
-	AccessGroupObject.Write(); // 
+	AccessGroupObject.Write(); // It is important that the created group belongs to the subordinate node.
 	
 	Return AccessGroupObject.Ref;
 	
@@ -5747,13 +5930,13 @@ Function AccessGroupsRequestText()
 	|					AND AccessGroupsTables.AccessGroup = AccessGroups.Ref))
 	|			AND (AccessGroups.Ref IN
 	|				(SELECT
-	|					AccessGroupsUsers_SSLy.Ref AS AccessGroup
+	|					AccessGroups_Users.Ref AS AccessGroup
 	|				FROM
-	|					Catalog.AccessGroups.Users AS AccessGroupsUsers_SSLy
+	|					Catalog.AccessGroups.Users AS AccessGroups_Users
 	|						INNER JOIN InformationRegister.UserGroupCompositions AS UserGroupCompositions
 	|						ON
 	|							UserGroupCompositions.User = &AuthorizedUser
-	|								AND UserGroupCompositions.UsersGroup = AccessGroupsUsers_SSLy.User))";
+	|								AND UserGroupCompositions.UsersGroup = AccessGroups_Users.User))";
 	
 EndFunction
 
@@ -5825,19 +6008,19 @@ Function AccessManagementSubsystemObjectOnlyToCreateInitialImage(DataElement)
 	
 EndFunction
 
-// For the procedures of obtaining the above-mentioned Head, obtaining the above-mentioned Head
+// Intended for procedures "OnReceiveDataFromMaster", "OnReceiveDataFromSlave".
 Procedure OnSendData(DataElement, ItemSend, Subordinate1, InitialImageCreating)
 	
-	If InitialImageCreating Then // 
-		// 
-		// 
+	If InitialImageCreating Then // Sending to a child node.
+		// Partial object changes upon an initial image creation are not supported.
+		// See the data processor in "OnSetUpSubordinateDIBNode".
 		//
-		// 
+		// Extension roles and admins are assigned independently in each of the DIB nodes.
 		// 
 		Return;
 	EndIf;
 	
-	// 
+	// Standard data processor cannot be overridden.
 	If ItemSend = DataItemSend.Delete
 	 Or ItemSend = DataItemSend.Ignore Then
 		Return;
@@ -5854,8 +6037,8 @@ Procedure OnSendData(DataElement, ItemSend, Subordinate1, InitialImageCreating)
 	
 	ElementType = TypeOf(DataElement);
 	
-	// 
-	// 
+	// The profile and access group for opening external reports and data processors
+	// are unavailable in the server but available from a standalone workstation.
 	If Common.IsStandaloneWorkplace()
 	   And (    ElementType = Type("CatalogObject.AccessGroupProfiles")
 	        And IsProfileOpenExternalReportsAndDataProcessors(DataElement)
@@ -5866,17 +6049,17 @@ Procedure OnSendData(DataElement, ItemSend, Subordinate1, InitialImageCreating)
 		ItemSend = DataItemSend.Ignore;
 	EndIf;
 	
-	// 
+	// Extension roles are assigned independently in all DIB nodes.
 	If ElementType = Type("CatalogObject.AccessGroupProfiles") Then
 		Catalogs.AccessGroupProfiles.DeleteExtensionsRoles(DataElement);
 	EndIf;
 	
 EndProcedure
 
-// For the procedures of obtaining the above-mentioned Head, obtaining the above-mentioned Head
+// Intended for procedures "OnReceiveDataFromMaster", "OnReceiveDataFromSlave".
 Procedure OnDataGet(DataElement, ItemReceive, SendBack, FromSubordinate)
 	
-	// 
+	// Standard data processor cannot be overridden.
 	If ItemReceive = DataItemReceive.Ignore Then
 		Return;
 	EndIf;
@@ -5898,8 +6081,8 @@ Procedure OnDataGet(DataElement, ItemReceive, SendBack, FromSubordinate)
 		 Or ElementType = Type("InformationRegisterRecordSet.ObjectRightsSettingsInheritance")
 		 Or ElementType = Type("InformationRegisterRecordSet.ObjectsRightsSettings")
 		 Or ElementType = Type("InformationRegisterRecordSet.UsedAccessKinds") Then
-			// 
-			// 
+			// Data import from the SWP is skipped. To keep data integrity in the nodes,
+			// the current data is sent back to the SWP.
 			ItemReceive = DataItemReceive.Ignore;
 			SendBack = True;
 			Return;
@@ -5908,8 +6091,8 @@ Procedure OnDataGet(DataElement, ItemReceive, SendBack, FromSubordinate)
 	ElsIf FromSubordinate Then
 		If ElementType = Type("ConstantValueManager.LimitAccessAtRecordLevel")
 		 Or ElementType = Type("ConstantValueManager.LimitAccessAtRecordLevelUniversally") Then
-			// 
-			// 
+			// Data import from the child node is skipped. To keep data integrity in the nodes,
+			// the current data is sent back to the SWP.
 			SendBack = True;
 			ItemReceive = DataItemReceive.Ignore;
 			Return;
@@ -5923,19 +6106,19 @@ Procedure OnDataGet(DataElement, ItemReceive, SendBack, FromSubordinate)
 		InformationRegisters.UsedAccessKinds.RegisterChangeUponDataImport(DataElement);
 		
 	ElsIf ElementType = Type("CatalogObject.AccessGroupProfiles") Then
-		// 
+		// Extension roles are assigned independently in all DIB nodes.
 		Catalogs.AccessGroupProfiles.RestoreExtensionsRolesComponents(DataElement);
-		// 
+		// Register a modified profile to update auxiliary data.
 		Catalogs.AccessGroupProfiles.RegisterChangeUponDataImport(DataElement);
 		
 	ElsIf ElementType = Type("CatalogObject.AccessGroups") Then
-		// 
+		// Administrators are assigned independently in all DIB nodes.
 		Catalogs.AccessGroups.RestoreAdministratorsAccessGroupMembers(DataElement);
-		// 
+		// Register a modified access group to update auxiliary data.
 		Catalogs.AccessGroups.RegisterChangeUponDataImport(DataElement);
 		
 	ElsIf Metadata.DefinedTypes.AccessValueObject.Type.ContainsType(ElementType) Then
-		// 
+		// Register modified access values to update auxiliary data after importing.
 		RegisterAccessValuesModifiedUponDataImport(DataElement);
 	EndIf;
 	
@@ -5947,22 +6130,22 @@ Procedure OnDataGet(DataElement, ItemReceive, SendBack, FromSubordinate)
 	RefType = TypeOf(DataElement.Ref);
 	
 	If RefType = Type("CatalogRef.AccessGroupProfiles") Then
-		// 
+		// Register a modified profile to update auxiliary data following the data import.
 		Catalogs.AccessGroupProfiles.RegisterChangeUponDataImport(DataElement);
 		
 	ElsIf RefType = Type("CatalogRef.AccessGroups") Then
-		// 
+		// Register a modified access group to update auxiliary data following the data import.
 		Catalogs.AccessGroups.RegisterChangeUponDataImport(DataElement);
 	EndIf;
 	
-	// 
+	// Register modified access values to update auxiliary data after importing.
 	If AccessManagementInternalCached.RefsTypesFromAccessValueObject().ContainsType(RefType) Then
 		RegisterAccessValuesModifiedUponDataImport(DataElement);
 	EndIf;
 	
 EndProcedure
 
-// 
+// Intended for procedure "OnReceiveDataFromMasterOrSlave".
 Procedure RegisterAccessValuesModifiedUponDataImport(DataElement)
 	
 	SetPrivilegedMode(True);
@@ -6000,7 +6183,7 @@ Procedure RegisterAccessValuesModifiedUponDataImport(DataElement)
 	
 EndProcedure
 
-// For procedures after receiving Data, after updating the information Database.
+// Intended for procedures "AfterReceiveData" and "AfterUpdateInfobase".
 Procedure UpdateAuxiliaryDataOfItemsModifiedUponDataImport()
 	
 	InformationRegisters.ExtensionVersionParameters.LockForChangeInFileIB();
@@ -6014,7 +6197,7 @@ Procedure UpdateAuxiliaryDataOfItemsModifiedUponDataImport()
 	
 EndProcedure
 
-// 
+// Intended for procedure "UpdateAuxiliaryDataOfItemsChangedOnImport".
 Procedure ProcessChangeInAccessValuesRegisteredUponDataImport()
 	
 	RegistrationCleanup = New Array;
@@ -6029,7 +6212,7 @@ Procedure ProcessChangeInAccessValuesRegisteredUponDataImport()
 	
 EndProcedure
 
-// 
+// Intended for procedure "ProcessChangeInAccessValuesRegisteredOnImport".
 Procedure ProcessRegisteredChangeInAccessValues(RefsKindName, RegistrationCleanup)
 	
 	AccessValues = UsersInternal.RegisteredRefs(RefsKindName);
@@ -6048,7 +6231,7 @@ Procedure ProcessRegisteredChangeInAccessValues(RefsKindName, RegistrationCleanu
 	
 EndProcedure
 
-// 
+// Intended for procedure "ProcessChangeInAccessValuesRegisteredOnImport".
 Procedure ProcessRegisteredChangeInAccessValuesHierarchy(RefsKindName, RegistrationCleanup)
 	
 	AccessGroups = UsersInternal.RegisteredRefs(RefsKindName);
@@ -6067,8 +6250,8 @@ Procedure ProcessRegisteredChangeInAccessValuesHierarchy(RefsKindName, Registrat
 	
 EndProcedure
 
-// 
-// 
+// Intended for procedures "AddUserToAccessGroup", "ExcludeUserFromAccessGroup"
+// and function "FindUserInAccessGroup".
 
 Function ProcessUserLinkToAccessGroup(User, SuppliedProfile, Enable = Undefined)
 	
@@ -6278,8 +6461,8 @@ Procedure WriteAccessValuesSets(Val Object, HasChanges = Undefined, IBUpdate = F
 	
 	SetPrivilegedMode(True);
 	
-	// 
-	// 
+	// If the "Object" parameter was passed from the client to the server,
+	// only its reference was passed. Obtain the object itself.
 	Object = ?(Object = Object.Ref, Object.GetObject(), Object);
 	ObjectReference = Object.Ref;
 	ValueTypeObject = TypeOf(Object);
@@ -6324,7 +6507,7 @@ Procedure WriteAccessValuesSets(Val Object, HasChanges = Undefined, IBUpdate = F
 		Else
 			TabularSectionBeingFilled = AccessManagementInternalCached.ObjectsTypesInSubscriptionsToEvents(
 				"FillAccessValuesSetsForTabularSections
-				|FillAccessValuesSetsForTabularSectionsDocuments_SSLy").Get(ValueTypeObject) <> Undefined;
+				|FillDocumentsTabularSectionsAccessValueSets").Get(ValueTypeObject) <> Undefined;
 			
 			If Not TabularSectionBeingFilled Then
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -6370,14 +6553,14 @@ Procedure WriteAccessValuesSets(Val Object, HasChanges = Undefined, IBUpdate = F
 		
 		Query.SetParameter("ObjectReference", ObjectReference);
 		
-		// 
-		// 
-		// 
+		// ACC:1328-off - No.648.1.1. It is acceptable to read records without
+		// a preliminary managed object lock because this applies to RLS in SSL 2.x (obsolete),
+		// and it has never caused any issues.
 		If Not Query.Execute().IsEmpty() Then
 		// ACC:1328-on.
 			
-			// 
-			// 
+			// Clear up the obsolete set.
+			// The scheduled job will write a new set after RLS is enabled.
 			// 
 			RecordSet = InformationRegisters.AccessValuesSets.CreateRecordSet();
 			RecordSet.Filter.Object.Set(ObjectReference);
@@ -6421,8 +6604,8 @@ Procedure WriteDependentAccessValuesSets(Val Object, IBUpdate = False)
 	
 	SetPrivilegedMode(True);
 	
-	// 
-	// 
+	// If the "Object" parameter was passed from the client to the server,
+	// only its reference was passed. Obtain the object itself.
 	Object = ?(Object = Object.Ref, Object.GetObject(), Object);
 	ObjectReference = Object.Ref;
 	ValueTypeObject = TypeOf(Object);
@@ -6444,8 +6627,8 @@ Procedure WriteDependentAccessValuesSets(Val Object, IBUpdate = False)
 	
 EndProcedure
 
-// 
-// 
+// Intended for procedures "FillSeparatedDataHandlers" and
+// "UpdateAuxiliaryRegisterDataByConfigurationChanges".
 
 // Checks whether shared data was changed for any data area.
 Function HasChangesOfAccessRestrictionParameters()
@@ -6603,10 +6786,10 @@ Function CurrentUsersProperties(UsersArray)
 	|	Users.Ref AS User,
 	|	Users.IBUserID
 	|FROM
-	|	Catalog.AccessGroups.Users AS AccessGroupsUsers_SSLy
+	|	Catalog.AccessGroups.Users AS AccessGroups_Users
 	|		INNER JOIN Catalog.Users AS Users
-	|		ON (AccessGroupsUsers_SSLy.Ref = &AdministratorsAccessGroup)
-	|			AND AccessGroupsUsers_SSLy.User = Users.Ref
+	|		ON (AccessGroups_Users.Ref = &AdministratorsAccessGroup)
+	|			AND AccessGroups_Users.User = Users.Ref
 	|			AND (NOT Users.DeletionMark)
 	|			AND (NOT Users.Invalid)
 	|;
@@ -6622,7 +6805,7 @@ Function CurrentUsersProperties(UsersArray)
 	|////////////////////////////////////////////////////////////////////////////////
 	|SELECT DISTINCT
 	|	UsersToCheck.User AS User,
-	|	AccessGroupsUsers_SSLy.Ref.Profile AS Profile
+	|	AccessGroups_Users.Ref.Profile AS Profile
 	|INTO UsersProfiles
 	|FROM
 	|	UsersToCheck AS UsersToCheck
@@ -6630,10 +6813,10 @@ Function CurrentUsersProperties(UsersArray)
 	|		ON UsersToCheck.User = UserGroupCompositions.User
 	|			AND (UserGroupCompositions.Used)
 	|			AND (&ExcludeExternalUsers)
-	|		INNER JOIN Catalog.AccessGroups.Users AS AccessGroupsUsers_SSLy
-	|		ON (UserGroupCompositions.UsersGroup = AccessGroupsUsers_SSLy.User)
-	|			AND (NOT AccessGroupsUsers_SSLy.Ref.DeletionMark)
-	|			AND (NOT AccessGroupsUsers_SSLy.Ref.Profile.DeletionMark)
+	|		INNER JOIN Catalog.AccessGroups.Users AS AccessGroups_Users
+	|		ON (UserGroupCompositions.UsersGroup = AccessGroups_Users.User)
+	|			AND (NOT AccessGroups_Users.Ref.DeletionMark)
+	|			AND (NOT AccessGroups_Users.Ref.Profile.DeletionMark)
 	|;
 	|
 	|////////////////////////////////////////////////////////////////////////////////
@@ -6791,7 +6974,7 @@ Procedure CheckActualityofNewUserRolesInSession(RoleIDs)
 	
 EndProcedure
 
-// 
+// Intended for function "CurrentUsersProperties".
 Procedure AddRolesNames(AdministratorRoles, FullRoleNames, RoleIDs)
 	
 	For Each KeyAndValue In AdministratorRoles Do
@@ -6810,7 +6993,7 @@ Procedure AddRolesNames(AdministratorRoles, FullRoleNames, RoleIDs)
 	
 EndProcedure
 
-// 
+// Intended for function "CurrentUsersProperties".
 Procedure AddIDsOfRoles(FullRoleNames, RoleIDs, RolesNames)
 	
 	AdditionalRolesIDs =
@@ -6828,7 +7011,7 @@ Procedure AddIDsOfRoles(FullRoleNames, RoleIDs, RolesNames)
 	
 EndProcedure
 
-// 
+// Intended for function "CurrentUsersProperties".
 Procedure AddIDsOfRolesWithoutMetadataObjects(WithoutMetadataObjects, RoleIDs)
 	
 	RolesKeys = Catalogs.MetadataObjectIDs.RolesKeys(WithoutMetadataObjects);
@@ -6841,7 +7024,7 @@ Procedure AddIDsOfRolesWithoutMetadataObjects(WithoutMetadataObjects, RoleIDs)
 	
 EndProcedure
 
-// 
+// Intended for function "CurrentUsersProperties".
 Procedure FillRolesIDs(AdministratorRoles, RoleIDs, RolesNames = Undefined)
 	
 	AdminNewRoles = New Map;
@@ -6947,7 +7130,7 @@ Procedure RegisterInvalidRoles(InvalidRoles)
 	
 EndProcedure
 
-// 
+// Intended for procedure "UpdateData".
 Procedure FillUnfoundRolesNames(InvalidRoles)
 	
 	Filter = New Structure("IsUnfoundRole", True);
@@ -7073,15 +7256,15 @@ Procedure ClearUseMainRolesForAllUsersCheckBoxForAllExtensions()
 		EndIf;
 		Catalogs.ExtensionsVersions.DisableSecurityWarnings(Extension);
 		Catalogs.ExtensionsVersions.DisableMainRolesUsageForAllUsers(Extension);
-		// 
-		// 
-		// 
+		// ACC:280-off - No.499.3.4. It's acceptable to skip the exception handling as
+		// this operation is not a stopper and will be completed upon a role update.
+		// Writing extensions is not a transaction, so it won't cause transactional errors.
 		Try
 			Extension.Write();
 		Except
 			// Processing is not required.
 		EndTry;
-		// 
+		// ACC:280-on
 	EndDo;
 	
 EndProcedure
@@ -7127,11 +7310,11 @@ Function ProfilesOfUsersWithRoles(InvalidRoles)
 	|		INNER JOIN InformationRegister.UserGroupCompositions AS UserGroupCompositions
 	|		ON (UserGroupCompositions.User = InvalidRoles.User)
 	|			AND (UserGroupCompositions.Used)
-	|		INNER JOIN Catalog.AccessGroups.Users AS AccessGroupsUsers_SSLy
-	|		ON (AccessGroupsUsers_SSLy.User = UserGroupCompositions.UsersGroup)
-	|			AND (NOT AccessGroupsUsers_SSLy.Ref.DeletionMark)
+	|		INNER JOIN Catalog.AccessGroups.Users AS AccessGroups_Users
+	|		ON (AccessGroups_Users.User = UserGroupCompositions.UsersGroup)
+	|			AND (NOT AccessGroups_Users.Ref.DeletionMark)
 	|		INNER JOIN Catalog.AccessGroupProfiles.Roles AS Roles
-	|		ON (Roles.Ref = AccessGroupsUsers_SSLy.Ref.Profile)
+	|		ON (Roles.Ref = AccessGroups_Users.Ref.Profile)
 	|			AND (NOT Roles.Ref.DeletionMark)
 	|			AND (Roles.Role = InvalidRoles.RoleRef)";
 	
@@ -7450,7 +7633,7 @@ Procedure RefreshNewSetRecordsByVariousNewRecords(Val Data, Val Filter, HasChang
 	
 EndProcedure
 
-// For the UpdateNewSetRecordsByVariousNewRecords procedure.
+// For the UpdateNewSetRecordsByVariousNewRecords procedure.
 Function UpdateEntireRecordSet(CountForReading, RecordsKeys)
 	
 	If CountForReading > 10000 Then
@@ -7991,8 +8174,8 @@ EndFunction
 
 Function AllAccessKindsCombinations(UnorderedNamesArray)
 	
-	// 
-	// 
+	// Limit the combination maximum length to avoid overloading
+	// the session parameters and RLS template preprocessor.
 	MaxCombinationLength = 4;
 	
 	List = New ValueList;
@@ -8358,13 +8541,13 @@ Function CheckedSessionAccessViewProperties(HashAmounts) Export
 	
 	AccessKinds = FilledSessionAccessTypes();
 	
-	// 
-	// 
-	// 
-	// 
-	// 
-	// 
-	// 
+	// 1. Check the following:
+	// - Access value type is not specified for 2 access kinds.
+	// - Access value types "Users" and "UserGroups" are used only for the "Users" access kind.
+	// - Access value types "ExternalUsers" and "ExternalUsersGroups" are used only for access kind "ExternalUsers".
+	// - Names of the following access kinds are not specified: "Object", "Condition", "RightsSettings", "ReadRight1", "EditRight".
+	// - Value group type mismatches the value type.
+	// - 2. Prepare access kind property collections required for app functioning.
 	//
 	// 
 	
@@ -9068,7 +9251,7 @@ EndFunction
 //                    - CatalogRef.ExtensionObjectIDs - Table ID.
 //   * AccessKind     - AnyRef - Empty Ref to the main access kind value type.
 //                              Empty Ref to the access right settings owner.
-//   * Right          - String - Read, Modify.
+//   * Right          - String - Read, Update.
 //                    - Undefined - for the Object access kind.
 //   * ObjectTable - AnyRef - Empty reference of the metadata object used to restrict access with access value sets.
 //                      For example, Catalog.FilesFolders.
@@ -9335,9 +9518,9 @@ Procedure AddViewsRestrictionsRights(AccessRestrictionKinds, RightsRestrictions,
 				
 				If Not UniversalRestriction Then
 					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-							NStr("en = 'Subsystem ""%1"" misintegrated
-							           |into procedure ""%2""
-							           |of common module ""%3"".
+							NStr("en = '%1 subsystem integration error
+							           |in procedure %2
+							           |of common module %3.
 							           |
 							           |%4';"),
 							"AccessManagement",
@@ -9468,7 +9651,7 @@ EndFunction
 //             *** Key - String - a possible right name
 //             *** Value - See InformationRegisters.ObjectsRightsSettings.AvailableRightProperties
 //     * ByRefsTypes - FixedMap of KeyAndValue:
-//         ** Key - Type - Rights owner (full table name).
+//         ** Key - Type - Type of the reference or object from "DefinedType.RightsSettingsOwners"
 //         ** Value - FixedArray of See InformationRegisters.ObjectsRightsSettings.AvailableRightProperties
 //     * ByFullNames - FixedMap of KeyAndValue:
 //         ** Key - String - Rights owner (table's full name).
@@ -9520,8 +9703,8 @@ EndFunction
 //  FixedStructure:
 //   * CommonRights                       - FixedArray of String - Role names <ExtentionPrefix>CommonRights.
 //   * FullAccess                      - FixedArray of String - Role names <ExtentionPrefix>FullAccess.
-//   * BasicAccess                     - FixedArray of String - Role names <ExtentionPrefix>BasicRights.
-//   * BasicAccessExternalUsers - FixedArray of String - Role names <ExtentionPrefix>ExternalUsersBasicRights.
+//   * BasicAccess                     - FixedArray of String - Role names <ExtentionPrefix>BasicAccess.
+//   * BasicAccessExternalUsers - FixedArray of String - Role names <ExtentionPrefix>BasicAccessExternalUsers.
 //   * SystemAdministrator             - FixedArray of String - Role names <ExtentionPrefix>SystemAdministrator.
 //   * All                              - FixedMap of KeyAndValue:
 //       ** Key     - String - Extension role name (from the ones mentioned above).
@@ -9856,6 +10039,10 @@ Function AccessAllowed(DataDetails, RightUpdate, RaiseException1 = False,
 	Else
 		ForExternalUsers = Undefined;
 	EndIf;
+	If TransactionActive() And Common.FileInfobase() Then
+		PreliminaryLockBeforeWriteExistingObjectInFileInfobase();
+	EndIf;
+	
 	TransactionID = New UUID;
 	RestrictionParameters = RestrictionParameters(FullName, TransactionID, ForExternalUsers);
 	
@@ -10225,8 +10412,7 @@ Procedure AddObjectToOwners(XMLObjectTypeName, AccessKeysValuesOwners)
 EndProcedure
 
 // For the ImplementationSettings function.
-Procedure AddRestrictionsInRoles(XMLFullName, FullName, RestrictionsInRoles,
-			RestrictionsProperties, KeysRegistersDimensionsTypes, TablesTypesByNames, PredefinedIDs)
+Procedure AddRestrictionsInRoles(XMLFullName, FullName, RestrictionsInRoles, RestrictionsProperties, Context)
 	
 	Properties = RestrictionsProperties.Get(FullName);
 	If Properties <> Undefined And Properties.AccessDenied Then
@@ -10257,15 +10443,15 @@ Procedure AddRestrictionsInRoles(XMLFullName, FullName, RestrictionsInRoles,
 		FirstParameter = Properties.SeparateKeysRegisterName;
 		
 		AddDimensionTypes(Properties.SeparateKeysRegisterName,
-			Properties.BasicFields, KeysRegistersDimensionsTypes, TablesTypesByNames, FullName);
+			Properties.BasicFields, FullName, Context);
 	Else
 		FirstParameter =
 			AccessManagementInternalCached.PredefinedMetadataObjectIDDetails(FullName);
 		
 		AddDimensionTypes("AccessKeysForRegisters",
-			Properties.BasicFields, KeysRegistersDimensionsTypes, TablesTypesByNames, FullName);
+			Properties.BasicFields, FullName, Context);
 		
-		PredefinedIDs.Insert(FirstParameter, FullName);
+		Context.PredefinedIDs.Insert(FirstParameter, FullName);
 	EndIf;
 	
 	RestrictionInRole.Parameters.Add(FirstParameter);
@@ -10277,14 +10463,14 @@ Procedure AddRestrictionsInRoles(XMLFullName, FullName, RestrictionsInRoles,
 EndProcedure
 
 // For the AddRestrictionsInRoles procedure.
-Procedure AddDimensionTypes(KeysRegisterName, BasicFields, KeysRegistersDimensionsTypes,
-			TablesTypesByNames, SourceRegisterName)
+Procedure AddDimensionTypes(KeysRegisterName, BasicFields, SourceRegisterName, Context)
 	
 	If BasicFields.All.Count() = 0 Then
 		Return;
 	EndIf;
 	
-	DimensionsTypes = KeysRegisterDimensionsTypes(KeysRegistersDimensionsTypes, KeysRegisterName);
+	DimensionsTypes = KeysRegisterDimensionsTypes(Context.KeysRegistersDimensionsTypes, KeysRegisterName);
+	TablesTypesByNames = Context.TablesTypesByNames;
 	
 	TypesNames           = DimensionsTypes.TypesNames;
 	RegistersFieldsByTypes = DimensionsTypes.RegistersFieldsByTypes;
@@ -10299,7 +10485,8 @@ Procedure AddDimensionTypes(KeysRegisterName, BasicFields, KeysRegistersDimensio
 		For Each Type In FieldTypes.Types() Do
 			MetadataObject = Metadata.FindByType(Type);
 			If MetadataObject = Undefined Then
-				TypeName = XMLType(Type).TypeName;
+				LanguageSyntax = AccessManagementInternalCached.LanguageSyntax();
+				TypeName = LanguageSyntax.LanguageWords.Get(Upper(Type)).LanguageEnglish;
 			Else
 				TypeName = XMLRefTypeName(Metadata.FindByType(Type).FullName(), TablesTypesByNames);
 			EndIf;
@@ -10350,6 +10537,8 @@ EndFunction
 // For procedures "CheckAccessBeforeWriteSource" etc.
 Procedure PreliminaryLockBeforeNewRecordToFileInfobase()
 	
+	PreliminaryLockBeforeWriteExistingObjectInFileInfobase();
+	
 	Block = New DataLock;
 	Block.Add("InformationRegister.AccessKeysForObjects");
 	Block.Add("InformationRegister.AccessGroupsAccessKeys");
@@ -10380,6 +10569,20 @@ Procedure PreliminaryLockBeforeNewRecordToFileInfobase()
 	
 EndProcedure
 
+// Intended for procedure "CheckAccessBeforeWriteSource" and others.
+Procedure PreliminaryLockBeforeWriteExistingObjectInFileInfobase()
+	
+	If ThisIsABackgroundAccessUpdateSession() Then
+		Return;
+	EndIf;
+	
+	Block = New DataLock;
+	LockItem = Block.Add("Constant.AccessUpdateThreadsCount");
+	LockItem.Mode = DataLockMode.Shared;
+	Block.Lock();
+	
+EndProcedure
+
 // For the BeforeWrite event subscription handlers.
 Procedure CheckAccessBeforeWriteSource(Source, Cancel, IsRecordSet, Replacing)
 	
@@ -10387,11 +10590,12 @@ Procedure CheckAccessBeforeWriteSource(Source, Cancel, IsRecordSet, Replacing)
 		Return;
 	EndIf;
 	
-	If Not IsRecordSet
-	   And Source.IsNew()
-	   And Common.FileInfobase() Then
-		
-		PreliminaryLockBeforeNewRecordToFileInfobase();
+	If Common.FileInfobase() Then
+		If Not IsRecordSet And Source.IsNew() Then
+			PreliminaryLockBeforeNewRecordToFileInfobase();
+		Else
+			PreliminaryLockBeforeWriteExistingObjectInFileInfobase();
+		EndIf;
 	EndIf;
 	
 	IsFullUser = Users.IsFullUser()
@@ -11082,15 +11286,7 @@ Function SourceAccessKeyObsolete(ObjectReference, RestrictionParameters, Source 
 			Common.MetadataObjectID(RestrictionParameters.List));
 	EndIf;
 	
-	Query.Text = RestrictionParameters.DataItemWithObsoleteKeysQueryText;
-	
-	If RestrictionParameters.ListWithDate Then
-		Query.Text = StrReplace(Query.Text,
-			"CurrentList.Date BETWEEN &StartDate AND &EndDate", "CurrentList.Ref = &Ref"); // @query-part-1 @query-part-2
-	Else
-		Query.Text = StrReplace(Query.Text,
-			"CurrentList.Ref >= &LastProcessedRef", "CurrentList.Ref = &Ref"); // @query-part-1 @query-part-2
-	EndIf;
+	Query.Text = RestrictionParameters.QueryTextToCheckObjectAccessKey;
 	SetQueryPlanClarification(Query.Text);
 	
 	SetSafeModeDisabled(True);
@@ -11515,17 +11711,42 @@ Function TableChangesContent(QueryResult, Source, Fields)
 	
 EndFunction
 
-Procedure LockRegistersSchedulingUpdateAccessKeysInFileIB()
+Procedure LockRegistersSchedulingUpdateAccessKeysInFileIB(IsLockError = False,
+			ParametersUpdate = False)
+	
+	Block = New DataLock;
+	LockItem = Block.Add("Constant.AccessUpdateThreadsCount");
+	If Not ThisIsABackgroundAccessUpdateSession() Then
+		LockItem.Mode = DataLockMode.Shared;
+	EndIf;
+	Try
+		Block.Lock();
+	Except
+		IsLockError = True;
+		Raise;
+	EndTry;
 	
 	Block = New DataLock;
 	LockItem = Block.Add("InformationRegister.AccessRestrictionParameters");
-	LockItem.Mode = DataLockMode.Shared;
-	Block.Lock();
+	If Not ParametersUpdate Then
+		LockItem.Mode = DataLockMode.Shared;
+	EndIf;
+	Try
+		Block.Lock();
+	Except
+		IsLockError = True;
+		Raise;
+	EndTry;
 	
 	Block = New DataLock;
 	Block.Add("InformationRegister.DataAccessKeysUpdate");
 	Block.Add("InformationRegister.UsersAccessKeysUpdate");
-	Block.Lock();
+	Try
+		Block.Lock();
+	Except
+		IsLockError = True;
+		Raise;
+	EndTry;
 	
 EndProcedure
 
@@ -12150,8 +12371,8 @@ Function StartAccessUpdateAtRecordLevel(IsManualStart = False, ThisIsARestart = 
 		Result.AlreadyRunning = False;
 		If Common.FileInfobase() Then
 			Try
-				// 
-				// 
+				// For file infobases, a background job with database extensions is executed
+				// with the same version of the dynamic configuration generation.
 				StandardSubsystemsServer.CheckApplicationVersionDynamicUpdate();
 			Except
 				Result.WarningText = ErrorProcessing.BriefErrorDescription(ErrorInfo());
@@ -12296,9 +12517,6 @@ Procedure ChangeAccessUpdateScheduledJob(EnableJob)
 		Return;
 	EndIf;
 	
-	Block = New DataLock;
-	Block.Add("Constant.AccessUpdateThreadsCount");
-	
 	IsLockError = False;
 	NumberOfTheBlockingAttempt = 0;
 	While True Do
@@ -12306,7 +12524,9 @@ Procedure ChangeAccessUpdateScheduledJob(EnableJob)
 		BeginTransaction();
 		Try
 			IsLockError = True;
-			Block.Lock();
+			If Common.FileInfobase() Then
+				ScheduledJobsServer.BlockARoutineTask(New UUID);
+			EndIf;
 			IsLockError = False;
 			SetPrivilegedMode(True);
 			Jobs = ScheduledJobsServer.FindJobs(Filter);
@@ -12400,11 +12620,11 @@ EndFunction
 // AccessUpdateOnRecordsLevel scheduled job handler.
 Procedure AccessUpdateOnRecordsLevel(UpdateAll = False, RaiseExceptiopnInsteadErrorRegistration = False) Export
 	
-	// 
-	// 
-	// 
-	// 
-	// 
+	// The scheduled job must run right after the access update is scheduled.
+	// After the first batch is processed (around 2 minutes), you can pause it.
+	// The pause here means a restart in 15 seconds.
+	// Unlike regular scheduled jobs, this job shuts off itself.
+	// After the update is finished, the job stops until the next update is scheduled.
 	// 
 	// 
 	
@@ -12421,6 +12641,8 @@ Procedure ExecuteAccessUpdateAtRecordLevel(UpdateAll,
 	
 	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
+	
+	SetThisIsABackgroundAccessUpdateSession();
 	
 	CurrentSession = GetCurrentInfoBaseSession();
 	MainSessionDetails = MainSessionDetails();
@@ -12536,7 +12758,7 @@ Procedure ExecuteAccessUpdateAtRecordLevel(UpdateAll,
 	FullCompletionDate = LastAccessUpdate.FullCompletionDate;
 	Try
 		If LimitAccessAtRecordLevelUniversally() Then
-			CheckUpdateActiveAccessRestrictionParameters();
+			CheckUpdateActiveAccessRestrictionParameters(True);
 			ScheduleObsoleteItemsProcessing(PlanningErrorText,
 				LastAccessUpdate.LastObsoleteItemsProcessingPlanning);
 			ExecuteAccessUpdate(UpdateAll, MainSessionDetails,
@@ -12820,7 +13042,7 @@ Function ArbitrarySessionID()
 EndFunction
 
 // For AccessUpdateOnRecordsLevel, AddAccessUpdateJobs procedures.
-Procedure CheckUpdateActiveAccessRestrictionParameters()
+Procedure CheckUpdateActiveAccessRestrictionParameters(OnStart = False)
 	
 	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
@@ -12850,12 +13072,30 @@ Procedure CheckUpdateActiveAccessRestrictionParameters()
 		AccessRestrictionParametersRelevanceDate = AccessRestrictionParametersCreationDate;
 	EndIf;
 	
+	If AccessRestrictionParametersRelevanceDate > CurrentSessionDate() Then
+		AccessRestrictionParametersRelevanceDate = '00010101';
+	EndIf;
+	
 	AccessKindsUsageChanged = AccessKindsUsageChanged(ActiveParameters);
+	
+	IsAccessRestrictionTextsModified = False;
+	TextsCurrentVersion = Undefined;
+	If OnStart Then
+		TextsCurrentVersion = InformationRegisters.AccessRestrictionParameters.AccessRestrictionTextsVersion();
+		If ActiveParameters.AccessRestrictionTextsVersion <> TextsCurrentVersion Then
+			ParameterName = "StandardSubsystems.AccessManagement.AccessRestrictionTextsVersion";
+			TextsLatestVersion = StandardSubsystemsServer.ExtensionParameter(ParameterName, True);
+			IsAccessRestrictionTextsModified = TextsLatestVersion <> TextsCurrentVersion;
+		EndIf;
+	EndIf;
 	
 	If ExtensionsVersionUpdateDate                         > AccessRestrictionParametersRelevanceDate
 	 Or AllApplicationParametersUpdateDate            > AccessRestrictionParametersRelevanceDate
 	 Or LastFillingDateOfAllExtensionsParameters > AccessRestrictionParametersRelevanceDate
-	 Or AccessKindsUsageChanged Then
+	 Or AccessKindsUsageChanged
+	 Or IsAccessRestrictionTextsModified
+	 Or OnStart
+	   And IsAccessRestrictionParametersUpdateScheduled(AccessRestrictionParametersRelevanceDate) Then
 		
 		If Common.FileInfobase() Then
 			// Preliminary caching in the file infobase outside of transaction to avoid lock conflicts.
@@ -12889,13 +13129,32 @@ Procedure CheckUpdateActiveAccessRestrictionParameters()
 		Except
 			ActiveAccessRestrictionParameters(Undefined, Undefined, True);
 		EndTry;
-		Try
-			StandardSubsystemsServer.SetExtensionParameter(ParameterName,
-				NewDateForCheckingAccessRestrictionSettings, True);
-		Except
-			StandardSubsystemsServer.SetExtensionParameter(ParameterName,
-				NewDateForCheckingAccessRestrictionSettings, True);
-		EndTry;
+		ParameterName = "StandardSubsystems.AccessManagement.AccessRestrictionParametersCheckDate";
+		LastDate = StandardSubsystemsServer.ExtensionParameter(ParameterName, True);
+		LastDate = ?(TypeOf(LastDate) = Type("Date"), LastDate, '00010101');
+		If LastDate < NewDateForCheckingAccessRestrictionSettings Then
+			Try
+				StandardSubsystemsServer.SetExtensionParameter(ParameterName,
+					NewDateForCheckingAccessRestrictionSettings, True);
+			Except
+				StandardSubsystemsServer.SetExtensionParameter(ParameterName,
+					NewDateForCheckingAccessRestrictionSettings, True);
+			EndTry;
+		EndIf;
+		If TextsCurrentVersion = Undefined Then
+			TextsCurrentVersion = InformationRegisters.AccessRestrictionParameters.AccessRestrictionTextsVersion();
+		EndIf;
+		ParameterName = "StandardSubsystems.AccessManagement.AccessRestrictionTextsVersion";
+		TextsLatestVersion = StandardSubsystemsServer.ExtensionParameter(ParameterName, True);
+		If TextsLatestVersion <> TextsCurrentVersion Then
+			Try
+				StandardSubsystemsServer.SetExtensionParameter(ParameterName,
+					TextsCurrentVersion, True);
+			Except
+				StandardSubsystemsServer.SetExtensionParameter(ParameterName,
+					TextsCurrentVersion, True);
+			EndTry;
+		EndIf;
 	EndIf;
 	
 	// Deleting obsolete parameters of access restriction.
@@ -12916,12 +13175,12 @@ Procedure CheckUpdateActiveAccessRestrictionParameters()
 	|	Version DESC,
 	|	CreationDate DESC";
 	
-	//  
-	// 
-	// 
-	// 
-	// 
-	// 
+	// ACC:1328-off - No.648.1.1. It is acceptable to read without setting a managed shared lock
+	// since it's intended for cleaning and any session can clean it.
+	// If a shared lock is set, it will be upgraded to
+	// an exclusive lock resulting in a deadlock (which is unacceptable).
+	// If an exclusive lock is set for a table, this results in performance degradation during the
+	// startup if session parameters are provided from restrictions parameters (which is unacceptable).
 	// 
 	// 
 	QueryResult = Query.Execute();
@@ -12946,6 +13205,40 @@ Procedure CheckUpdateActiveAccessRestrictionParameters()
 	SetSafeModeDisabled(False);
 	
 EndProcedure
+
+// Intended for procedure "CheckUpdateActiveAccessRestrictionParameters".
+Function IsAccessRestrictionParametersUpdateScheduled(UpdateDate)
+	
+	Id = InternalID("InformationRegister.AccessRestrictionParameters");
+	If Id = Null Then
+		Return False;
+	EndIf;
+	
+	Query = New Query;
+	Query.SetParameter("List", Id);
+	Query.SetParameter("UpdateDate", UpdateDate);
+	Query.Text =
+	"SELECT
+	|	TRUE AS TrueValue
+	|FROM
+	|	InformationRegister.DataAccessKeysUpdate AS CurrentTable
+	|WHERE
+	|	CurrentTable.List = &List
+	|	AND CurrentTable.RegisterRecordChangeDate >= &UpdateDate
+	|
+	|UNION ALL
+	|
+	|SELECT
+	|	TRUE
+	|FROM
+	|	InformationRegister.UsersAccessKeysUpdate AS CurrentTable
+	|WHERE
+	|	CurrentTable.List = &List
+	|	AND CurrentTable.RegisterRecordChangeDate >= &UpdateDate";
+	
+	Return Not Query.Execute().IsEmpty();
+	
+EndFunction
 
 // For the CheckUpdateActiveAccessRestrictionParameters procedure.
 Procedure ReduceVersionNumbersOfAccessRestrictionParameters()
@@ -13095,6 +13388,7 @@ Procedure ExecuteAccessUpdate(Val UpdateAll, MainSessionDetails,
 	Context.Insert("RefreshEnabledCanceled",       False);
 	Context.Insert("SessionRestartRequired",False);
 	Context.Insert("MaxBatchesFromOriginalItem", 0);
+	Context.Insert("MaxMillisecondsToProcessBatches", 0);
 	Context.Insert("AdditionalBatchesCount", 0);
 	Context.Insert("HasLongRunningJobOfReceivingDataItemsBatches", False);
 	Context.Insert("MaxSecondsCountOfQuickDataItemsBatchReceipt", 0);
@@ -13303,6 +13597,26 @@ Procedure ScheduleObsoleteItemsProcessing(PlanningErrorText,
 	
 EndProcedure
 
+// Intended for procedure "StartListAccessUpdate".
+Function MaxMillisecondsToGetBatches(Context)
+	
+	If Not ValueIsFilled(Context.MaxSecondsCountOfQuickDataItemsBatchReceipt) Then
+		Result = 3000;
+		
+	ElsIf Not Context.HasLongRunningJobOfReceivingDataItemsBatches Then
+		Result = Context.MaxSecondsCountOfQuickDataItemsBatchReceipt * 1000 - 1000;
+	Else
+		Result = Context.MaxSecondsCountOfQuickDataItemsBatchReceipt * 1000 / 2;
+	EndIf;
+	
+	If Result < 1000 Then
+		Result = 1000;
+	EndIf;
+	
+	Return Result;
+	
+EndFunction
+
 // For the FillThreadsCount procedure and the AccessUpdateOnRecordsLevel form.
 //
 // Returns:
@@ -13417,7 +13731,11 @@ Function UpdateJobsTable()
 	Jobs.Columns.Add("Delete",                                New TypeDescription("Boolean"));
 	Jobs.Columns.Add("DataKeyKindOrder",                 New TypeDescription("Number"));
 	Jobs.Columns.Add("IsObsoleteItemsDataProcessor",        New TypeDescription("Boolean"));
+	Jobs.Columns.Add("IsObsoleteItemsProcessingAllowed",  New TypeDescription("Boolean"));
 	Jobs.Columns.Add("UpdateDependencyLevel",             New TypeDescription("Boolean"));
+	Jobs.Columns.Add("ThereWasMistake",                             New TypeDescription("Boolean"));
+	Jobs.Columns.Add("ErrorText",                            New TypeDescription("String"));
+	Jobs.Columns.Add("LongRunningJobToGetBatchesBefore",     New TypeDescription("Date"));
 	
 	Jobs.Indexes.Add(
 		"HasSpotJob,
@@ -13465,7 +13783,9 @@ EndFunction
 //   * BackgroundJob - BackgroundJob
 //   * Job - ValueTableRow of See UpdateJobsTable
 //   * CancelJob - Boolean
+//   * JobStartTimepoint - Number
 //   * BatchFromSet - See BatchFromSet
+//   * GetBatches - Number
 //   * ReleaseDate - Date
 //
 Function NewThread()
@@ -13475,7 +13795,9 @@ Function NewThread()
 	Stream.Insert("BackgroundJob");
 	Stream.Insert("Job");
 	Stream.Insert("CancelJob", False);
+	Stream.Insert("JobStartTimepoint", 0);
 	Stream.Insert("BatchFromSet");
+	Stream.Insert("GetBatches", 0);
 	Stream.Insert("ReleaseDate", '00010101');
 	
 	Return Stream;
@@ -13491,6 +13813,7 @@ EndFunction
 //                                       - CatalogRef.ExtensionObjectIDs
 //     * ForExternalUsers         - Boolean
 //     * IsObsoleteItemsDataProcessor - Boolean
+//     * IsObsoleteItemsProcessingAllowed - Boolean
 //     * StartDate                      - Date
 //     * EndDate                   - Date
 //     * InitialUpdate             - Boolean
@@ -13507,6 +13830,7 @@ Function CommonUpdateParametersDetails(Context = Undefined)
 	CommonUpdateParameters.Insert("ListID",          Undefined);
 	CommonUpdateParameters.Insert("ForExternalUsers",      False);
 	CommonUpdateParameters.Insert("IsObsoleteItemsDataProcessor", False);
+	CommonUpdateParameters.Insert("IsObsoleteItemsProcessingAllowed", False);
 	CommonUpdateParameters.Insert("StartDate",                   '00010101');
 	CommonUpdateParameters.Insert("EndDate",                '00010101');
 	CommonUpdateParameters.Insert("InitialUpdate",          False);
@@ -13549,8 +13873,7 @@ Function JobsQueryText()
 	|		END) AS SpotJobAddedOn,
 	|	MAX(Lists.JobSize = 2) AS HasObsoleteItemsProcessing,
 	|	MAX(Lists.JobSize = 3) AS HasFullUpdate,
-	|	MAX((NOT Lists.SpotJob
-	|			OR Lists.UniqueKey = &BlankID)
+	|	MAX(Lists.JobSize = 3
 	|			AND Lists.LatestUpdatedItemDate = &MaxDate) AS HasInitialUpdate,
 	|	MAX(NOT Lists.SpotJob
 	|			AND Lists.UniqueKey <> &BlankID) AS HasRestart,
@@ -13707,7 +14030,7 @@ Procedure AddAccessUpdateJobs(QueryResults, Context)
 		Rows = Jobs.FindRows(Filter);
 		If Rows.Count() = 0 Then
 			Job = Jobs.Add();
-			Job.DependencyLevel = -1; // 
+			Job.DependencyLevel = -1; // Blank.
 			If String.ListID <> Undefined
 			   And Cache.MetadataObjectsByIDs.Get(String.ListID) = Undefined Then
 				ListsIDs.Add(String.ListID);
@@ -13721,6 +14044,9 @@ Procedure AddAccessUpdateJobs(QueryResults, Context)
 		FillPropertyValues(Job, String);
 		Job.Delete = False;
 		UpdateIsObsoleteItemsDataProcessorProperty(Job, False);
+		If String.HasFullUpdate Then
+			Job.IsObsoleteItemsDataProcessor = False;
+		EndIf;
 		Job.HasLastUpdatedItemDate
 			= ValueIsFilled(Job.LatestUpdatedItemDate);
 		
@@ -13963,6 +14289,8 @@ Procedure FillCommonUpdateParameters(Context)
 	LastDate = '00010101';
 	AccessGroupsSetsCatalogJob = Undefined;
 	WaitBoundaryForDependentJobs = CurrentSessionDate() - 3;
+	MaxDateOnContinue = MaxDateOnContinue();
+	HasListWithoutPeriod = False;
 	
 	For Each Job In Jobs Do
 		If Job.Delete Then
@@ -13971,10 +14299,22 @@ Procedure FillCommonUpdateParameters(Context)
 		If IsAccessGroupsSetsCompositionUpdate(Job, Context) Then
 			AccessGroupsSetsCatalogJob = Job;
 		EndIf;
+		If Job.ThereWasMistake Then
+			Job.Ignore = True;
+			Continue;
+		EndIf;
 		Job.Ignore = False;
+		
 		If Job.HasInitialUpdate Then
 			CommonUpdateParameters.InitialUpdate = True;
-		Else
+			
+		ElsIf Job.IsObsoleteItemsDataProcessor Then
+			Job.Ignore = Not IsObsoleteItemsDataProcessor
+				And IsLongRunningJobToGetBatches(Job);
+			Continue;
+			
+		ElsIf Not Job.HasRestart Then
+			
 			If Job.DependencyLevel > LowestDependencyLevel Then
 				If Job.HasSpotJob Then
 					If Job.SpotJobLastRunDate > WaitBoundaryForDependentJobs Then
@@ -13988,22 +14328,21 @@ Procedure FillCommonUpdateParameters(Context)
 					CommonDependentJobToStart = Job;
 				EndIf;
 			EndIf;
-			If Not IsObsoleteItemsDataProcessor And Job.IsObsoleteItemsDataProcessor Then
-				Job.Ignore = True;
-				Continue;
-			EndIf;
 		EndIf;
-		If Job.HasRestart Then
-			CommonUpdateParameters.InitialUpdate = True;
+		
+		If Job.IsRightsUpdate Then
+			Continue;
 		EndIf;
-		If Job.LatestUpdatedItemDate > LastDate Then
+		If Job.LatestUpdatedItemDate = MaxDateOnContinue Then
+			HasListWithoutPeriod = True;
+		ElsIf Job.LatestUpdatedItemDate > LastDate Then
 			LastDate = Job.LatestUpdatedItemDate;
 		EndIf;
 	EndDo;
 	
 	If CommonUpdateParameters.InitialUpdate Then
 		// Update start.
-		CommonUpdateParameters.StartDate = BegOfDay(CurrentSessionDate()) - 7 * (60 * 60 * 24); // 
+		CommonUpdateParameters.StartDate = BegOfDay(CurrentSessionDate()) - 7 * (60 * 60 * 24); // 7 days.
 	Else
 		// Continue update.
 		MaximumPeriod = MaxGettingBatchesByQueryPeriod();
@@ -14034,41 +14373,52 @@ Procedure FillCommonUpdateParameters(Context)
 	JobsForStartup = New Array;
 	Context.JobsForStartup = JobsForStartup;
 	Context.HasDeferredJobs = False;
+	PendingJobsCountConsideringBatches = 0;
+	ListsWithProcessingNotOnlyObsoleteItems = New Map;
 	
 	For Each Job In Jobs Do
-		If Job.Delete Or Job.Ignore Then
-			Job.Run = False;
-			If Job.Ignore Then
-				Context.HasDeferredJobs = True;
-			EndIf;
-			Continue;
-		EndIf;
+		Job.Run = False;
+		Job.IsObsoleteItemsProcessingAllowed = False;
 		
-		If AccessGroupsSetsCatalogJob <> Undefined Then
-			If Job.HasSpotJob Or Job = AccessGroupsSetsCatalogJob Then
-				Job.Run = True;
-			ElsIf CommonUpdateParameters.InitialUpdate Then
-				Job.Run = Job.HasInitialUpdate Or Job.HasRestart;
-			EndIf;
+		If Job.Delete Or Job.Ignore Then
+			Continue;
 			
-		ElsIf Job.HasSpotJob Or Job.IsRightsUpdate Then
+		ElsIf Job.HasRestart
+		      Or Job.HasInitialUpdate
+		      Or Job.HasSpotJob Then
+			
 			Job.Run = True;
 			
-		ElsIf CommonUpdateParameters.InitialUpdate Then
-			Job.Run = Job.HasInitialUpdate Or Job.HasRestart;
+		ElsIf Job.IsObsoleteItemsDataProcessor Then
+			Job.Run = IsObsoleteItemsDataProcessor;
+			Job.IsObsoleteItemsProcessingAllowed = True;
+			
+		ElsIf Job = AccessGroupsSetsCatalogJob
+		      Or Job.IsRightsUpdate
+		      Or Job.LatestUpdatedItemDate = MaxDateOnContinue Then // A list without a period.
+			
+			Job.Run = True;
 		Else
-			Job.Run = Not UpdatePeriodToDataPeriod(CommonUpdateParameters.StartDate,
+			Run = Not UpdatePeriodToDataPeriod(CommonUpdateParameters.StartDate,
 				Job.LatestUpdatedItemDate);
+			Job.Ignore = Not Run; // Do not run as the worker thread will have a return.
+			Job.Run = Run And Not HasListWithoutPeriod;
 		EndIf;
 		
 		If Job.Run Then
 			JobsForStartup.Add(Job);
-		Else
+			PendingJobsCountConsideringBatches = PendingJobsCountConsideringBatches + ?(Not Job.HasRestart
+				And ValueIsFilled(Job.BatchesSet), Job.BatchesSet.Count(), 1);
+		ElsIf Not Job.Ignore Then
 			Context.HasDeferredJobs = True;
+		EndIf;
+		If Not Job.IsObsoleteItemsProcessingAllowed Then
+			ListsWithProcessingNotOnlyObsoleteItems.Insert(Job.ListID, True);
 		EndIf;
 	EndDo;
 	
-	If Not LoadFreeThreadsWithNextJobsAtLongQueries() Then
+	If PendingJobsCountConsideringBatches >= Context.ThreadsCount
+	 Or Not LoadFreeThreadsWithNextJobsAtLongQueries() Then
 		Context.HasDeferredJobs = False;
 	EndIf;
 	
@@ -14080,20 +14430,28 @@ Procedure FillCommonUpdateParameters(Context)
 		FreeThreadsCount = Context.ThreadsCount - Context.LockedThreads.Count();
 		AdditionalJobsCount = 0;
 		
-		For Each Job In Jobs Do
-			If Job.Delete
-			 Or Job.Run
-			 Or Not IsObsoleteItemsDataProcessor
-			   And Job.IsObsoleteItemsDataProcessor Then
-				Continue;
-			EndIf;
+		For AddObsoleteItemsProcessing = 0 To 1 Do
+			For Each Job In Jobs Do
+				If Job.Delete
+				 Or Job.Run
+				 Or Job.Ignore
+				 Or Job.IsObsoleteItemsDataProcessor
+				   And (ListsWithProcessingNotOnlyObsoleteItems.Get(Job.ListID) <> Undefined
+				      Or AddObsoleteItemsProcessing = 0
+				        And Not IsObsoleteItemsDataProcessor) Then
+					Continue;
+				EndIf;
+				If AdditionalJobsCount >= FreeThreadsCount Then
+					Context.HasDeferredJobs = True;
+					Break;
+				EndIf;
+				Job.Run = True;
+				JobsForStartup.Add(Job);
+				AdditionalJobsCount = AdditionalJobsCount + 1;
+			EndDo;
 			If AdditionalJobsCount >= FreeThreadsCount Then
-				Context.HasDeferredJobs = True;
 				Break;
 			EndIf;
-			Job.Run = True;
-			JobsForStartup.Add(Job);
-			AdditionalJobsCount = AdditionalJobsCount + 1;
 		EndDo;
 	EndIf;
 	
@@ -14116,9 +14474,16 @@ Procedure FillCommonUpdateParameters(Context)
 	If LoadFromThreads > 1 Then
 		LoadFromThreads = 1;
 	EndIf;
-	CommonUpdateParameters.MaxProcessingMilliseconds =
+	Context.MaxMillisecondsToProcessBatches =
 		Int(MinSecondsCountOfBatchProcessingInSingleThread() * 1000
 		* (1 + LoadFromThreads) * (1 + ThreadsSufficiency));
+	
+	If MainJobsCount = 0
+	   And JobsCount > 0
+	   And Not ValueIsFilled(Context.LockedThreads) Then
+		
+		ProcessJobsWithErrors(Context);
+	EndIf;
 	
 EndProcedure
 
@@ -14127,13 +14492,36 @@ EndProcedure
 //
 Function UpdatePeriodToDataPeriod(StartDate, LatestUpdatedItemDate)
 	
-	// 
-	// 
+	// StartDate - For example, "01.01.2012" while the end date is "31.12.2012" and "LatestUpdatedItemDate" is "03.01.2013".
+	// In this case, the data to be updated is older than the update period.
 	// 
 	Return ValueIsFilled(LatestUpdatedItemDate)
 		  And StartDate > LatestUpdatedItemDate;
 	
 EndFunction
+
+// Intended for procedure "ExecuteAccessUpdate".
+Procedure ProcessJobsWithErrors(Context)
+	
+	Filter = New Structure("ThereWasMistake", True);
+	JobsWithErrors = Context.Jobs.FindRows(Filter);
+	If Not ValueIsFilled(JobsWithErrors) Then
+		Return;
+	EndIf;
+	Context.ProcessingCompleted = False;
+	
+	ErrorsTexts = New Array;
+	If ValueIsFilled(Context.CompletionErrorText) Then
+		ErrorsTexts.Add(Context.CompletionErrorText);
+	EndIf;
+	
+	For Each Job In JobsWithErrors Do
+		Context.ProcessingCompleted = False;
+		ErrorsTexts.Add(Job.ErrorText);
+	EndDo;
+	Context.CompletionErrorText = StrConcat(ErrorsTexts, Chars.LF + Chars.LF);
+	
+EndProcedure
 
 // For the ExecuteAccessUpdate procedure.
 Procedure UpdateTheListOfUsedVersionsOfTemplateParameters(Context)
@@ -14375,16 +14763,12 @@ Function StartListAccessUpdate(Job, Context)
 		Return True;
 	EndIf;
 	
-	If Job.IsObsoleteItemsDataProcessor
-	   And Not Context.CommonUpdateParameters.IsObsoleteItemsDataProcessor Then
-		Return False;
-	EndIf;
-	
 	CommonUpdateParameters = CommonUpdateParametersDetails(Context);
 	FillPropertyValues(CommonUpdateParameters, Context.CommonUpdateParameters);
 	CommonUpdateParameters.IsRightsUpdate       = Job.IsRightsUpdate;
 	CommonUpdateParameters.ListID     = Job.ListID;
 	CommonUpdateParameters.ForExternalUsers = Job.ForExternalUsers;
+	CommonUpdateParameters.IsObsoleteItemsProcessingAllowed = Job.IsObsoleteItemsProcessingAllowed;
 	
 	BatchesSet = Job.BatchesSet;
 	LastIndex = BatchesSet.Count() - 1;
@@ -14420,6 +14804,7 @@ Function StartListAccessUpdate(Job, Context)
 		CommonUpdateParameters.Insert("BatchFromSet", BatchToProcess);
 		BatchToProcess.InProcessing = True;
 		Job.IndexOfLastBatchToProcess = IndexOfLastBatchToProcess;
+		CommonUpdateParameters.MaxProcessingMilliseconds = Context.MaxMillisecondsToProcessBatches;
 	Else
 		LastBatch = ?(LastIndex > -1, BatchesSet[LastIndex], Undefined);
 		
@@ -14454,6 +14839,9 @@ Function StartListAccessUpdate(Job, Context)
 			CommonUpdateParameters.Insert("NewLastBatchItem",
 				LastBatch.NewLastBatchItem);
 		EndIf;
+		If GetBatches > 0 Then
+			CommonUpdateParameters.MaxProcessingMilliseconds = MaxMillisecondsToGetBatches(Context);
+		EndIf;
 	EndIf;
 	
 	If Not CommonUpdateParameters.Property("BatchFromSet") And CommonJobBeingExecuted(Job) Then
@@ -14462,14 +14850,14 @@ Function StartListAccessUpdate(Job, Context)
 	
 	If Context.HasLongRunningJobOfReceivingDataItemsBatches
 	   And Not Job.IsRightsUpdate
-	   And Not Job.IsObsoleteItemsDataProcessor
 	   And CommonUpdateParameters.Property("GetBatches")
 	   And CommonUpdateParameters.GetBatches > 0 Then
 		
-		If Not Job.HasSpotJob Then
+		If Job.HasSpotJob Then
+			CommonUpdateParameters.GetBatches = 0;
+		ElsIf IsLongRunningJobToGetBatches(Job) Then
 			Return False;
 		EndIf;
-		CommonUpdateParameters.GetBatches = 0;
 	EndIf;
 	
 	If Job.HasSpotJob Then
@@ -14513,9 +14901,11 @@ Function StartListAccessUpdate(Job, Context)
 		RecordSet.Write();
 		
 		FreeThread.Job = Job;
-		If CommonUpdateParameters.Property("BatchFromSet") Then
-			FreeThread.BatchFromSet = CommonUpdateParameters.BatchFromSet;
-		EndIf;
+		FreeThread.JobStartTimepoint = CurrentUniversalDateInMilliseconds();
+		FreeThread.BatchFromSet = ?(CommonUpdateParameters.Property("BatchFromSet"),
+			CommonUpdateParameters.BatchFromSet, Undefined);
+		FreeThread.GetBatches = ?(CommonUpdateParameters.Property("GetBatches"),
+			CommonUpdateParameters.GetBatches, 0);
 		Job.LockedThreads.Insert(ThreadID, FreeThread);
 		Context.LockedThreads.Insert(ThreadID, FreeThread);
 		Context.FreeThreads.Delete(0);
@@ -14664,7 +15054,7 @@ Procedure UpdateBackgroundJobProperties(Stream, Context)
 	
 EndProcedure
 
-// For the EndAccessUpdate procedure.
+// Intended for procedure "ProcessCompletedJobs".
 Procedure CancelThreadBackgroundJob(Stream, Context)
 	
 	UpdateBackgroundJobProperties(Stream, Context);
@@ -14761,12 +15151,14 @@ Procedure ProcessExecutedJobs(Context, LockedThreads = Undefined)
 			EndIf;
 			
 			ErrorPresentation = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The thread''s job execution timeout is exceeded (%1 sec).
-				           |The thread''s background job is canceled and restarted.';"),
+				NStr("en = 'Thread runtime exceeded (%1 seconds).
+				           |Retry to run the access update.
+				           |If this doesn''t work, reindex the database.
+				           |Also, see ""Slow hard drive"" on the thread setup panel.';"),
 				MaxWaitSecondsCountOfWaitingForOneJobInThreadToBeProcessed());
 			
-			RegisterAccessUpdateError(UpdateErrorTextWithContext(
-				ErrorPresentation, Stream.Job, True), Context);
+			Stream.Job.ThereWasMistake = True;
+			Stream.Job.ErrorText = UpdateErrorTextWithContext(ErrorPresentation, Stream.Job);
 			
 			CancelThreadBackgroundJob(Stream, Context);
 			DeleteThread(Stream, Context);
@@ -14785,10 +15177,11 @@ Procedure ProcessExecutedJobs(Context, LockedThreads = Undefined)
 		EndIf;
 	EndDo;
 	
+	QueryDelay = Context.MaxSecondsCountOfQuickDataItemsBatchReceipt * 1000;
 	For Each ThreadDetails In ThreadsDetails Do
 		Stream = ThreadDetails.Value;
 		ResultDetails = ResultsDetails.Get(Stream.ThreadID);
-		ProcessCompletedJobResult(Stream, ResultDetails, Context);
+		ProcessCompletedJobResult(Stream, ResultDetails, Context, QueryDelay);
 	EndDo;
 	
 	ThreadsCount = Context.LockedThreads.Count() + Context.FreeThreads.Count();
@@ -14806,28 +15199,56 @@ Procedure ProcessExecutedJobs(Context, LockedThreads = Undefined)
 	EndIf;
 	
 	Context.HasLongRunningJobOfReceivingDataItemsBatches = False;
-	QueryDelay = Context.MaxSecondsCountOfQuickDataItemsBatchReceipt;
 	If QueryDelay > 0 Then
+		IsObsoleteItemsDataProcessor = Context.CommonUpdateParameters.IsObsoleteItemsDataProcessor;
 		CurrentOccupiedThreads = New Map(New FixedMap(Context.LockedThreads));
+		CurrentMoment = CurrentUniversalDateInMilliseconds();
+		LongRunningThreads = New ValueList;
+		HasLongRunningJobToGetBatches = False;
 		For Each ThreadDetails In CurrentOccupiedThreads Do
 			Stream = ThreadDetails.Value; // See NewThread
 			If Stream.BatchFromSet <> Undefined
 			 Or Stream.Job.IsRightsUpdate
-			 Or Stream.Job.IsObsoleteItemsDataProcessor Then
+			 Or Stream.GetBatches = 0 Then
 				Continue;
 			EndIf;
-			If CurrentSessionDate() - Stream.Job.CommonJobLastRunDate < QueryDelay Then
+			If IsLongRunningJobToGetBatches(Stream.Job) Then
+				HasLongRunningJobToGetBatches = True;
+			EndIf;
+			If CurrentMoment - Stream.JobStartTimepoint < QueryDelay / 2 Then
 				Continue;
 			EndIf;
-			If Not Context.HasLongRunningJobOfReceivingDataItemsBatches Then
+			LongRunningThreads.Add(Stream, Format(Stream.JobStartTimepoint, "ND=23; NLZ="));
+			If CurrentMoment - Stream.JobStartTimepoint < QueryDelay Then
 				Context.HasLongRunningJobOfReceivingDataItemsBatches = True;
-				QueryDelay = QueryDelay / 2;
-				Continue;
 			EndIf;
-			CancelThreadBackgroundJob(Stream, Context);
-			DeleteThread(Stream, Context);
-			Context.LockedThreads.Delete(Stream.ThreadID);
 		EndDo;
+		If Context.HasLongRunningJobOfReceivingDataItemsBatches Then
+			LongRunningThreads.SortByPresentation();
+			Stream = LongRunningThreads.Get(0).Value; // See NewThread
+			Boundary1 = CurrentSessionDate() + QueryDelay + 5;
+			Boundary2 = CurrentSessionDate() + QueryDelay * 10;
+			Stream.Job.LongRunningJobToGetBatchesBefore = Boundary1;
+			LongRunningThreads.Delete(0);
+			For Each ThreadDetails In LongRunningThreads Do
+				Stream = ThreadDetails.Value; // See NewThread
+				If Not IsObsoleteItemsDataProcessor And Stream.Job.IsObsoleteItemsDataProcessor Then
+					Boundary2 = Boundary2 + QueryDelay * 2;
+					Stream.Job.LongRunningJobToGetBatchesBefore = Boundary2;
+				ElsIf CurrentMoment - Stream.JobStartTimepoint < QueryDelay Then
+					Continue;
+				Else
+					Boundary1 = Boundary1 + 10;
+					Stream.Job.LongRunningJobToGetBatchesBefore = Boundary1;
+				EndIf;
+				CancelThreadBackgroundJob(Stream, Context);
+				DeleteThread(Stream, Context);
+				Context.LockedThreads.Delete(Stream.ThreadID);
+			EndDo;
+		EndIf;
+		If HasLongRunningJobToGetBatches Then
+			Context.HasLongRunningJobOfReceivingDataItemsBatches = True;
+		EndIf;
 	EndIf;
 	
 	If CurrentSessionDate() > Context.JobsUpdateBoundary Then
@@ -14843,6 +15264,18 @@ Procedure ProcessExecutedJobs(Context, LockedThreads = Undefined)
 	EndIf;
 	
 EndProcedure
+
+// Parameters:
+//  Job - ValueTableRow of See UpdateJobsTable
+//
+// Returns:
+//  Boolean
+//
+Function IsLongRunningJobToGetBatches(Job)
+	
+	Return Job.LongRunningJobToGetBatchesBefore > CurrentSessionDate();
+	
+EndFunction
 
 // For the ProcessCompletedJobs, RunListAccessUpdateWithRetryAttempts procedures.
 Function AccessUpdateCanceled()
@@ -14862,7 +15295,7 @@ Function AccessUpdateCanceled()
 EndFunction
 
 // For the ProcessCompletedJobs procedure.
-Procedure ProcessCompletedJobResult(Stream, ResultDetails, Context)
+Procedure ProcessCompletedJobResult(Stream, ResultDetails, Context, QueryDelay)
 	
 	If Not Stream.CancelJob
 	   And Not Stream.Job.Delete Then
@@ -14879,6 +15312,12 @@ Procedure ProcessCompletedJobResult(Stream, ResultDetails, Context)
 			Indicators = Context.Indicators;
 			If Indicators <> Undefined Then
 				Indicators.JobProcessingStart = CurrentUniversalDateInMilliseconds();
+			EndIf;
+			If QueryDelay > 0
+			   And IsLongRunningJobToGetBatches(Stream.Job)
+			   And Result.Property("BatchesSet")
+			   And CurrentUniversalDateInMilliseconds() - Stream.JobStartTimepoint < QueryDelay Then
+				Stream.Job.LongRunningJobToGetBatchesBefore = '00010101';
 			EndIf;
 			ProcessJobResult(Context, Result, Stream.Job);
 			If Indicators <> Undefined Then
@@ -14922,6 +15361,8 @@ Procedure UnlockThread(Stream, Context, CompletedOn = Undefined)
 		RemoveBeingProcessedFlagForBatch(Stream, Stream.Job);
 		Stream.BatchFromSet = Undefined;
 	EndIf;
+	Stream.JobStartTimepoint = 0;
+	Stream.GetBatches = 0;
 	Stream.Job = Undefined;
 	Stream.CancelJob = False;
 	
@@ -15187,6 +15628,7 @@ Procedure UpdateListAccessInBackground(ParentSessionDetails) Export
 		Return;
 	EndIf;
 	Cache = New Structure;
+	SetThisIsABackgroundAccessUpdateSession();
 	
 	While True Do
 		Query = Context.Query; // Query
@@ -15630,7 +16072,7 @@ Procedure RegisterMainThreadUpdateIndicators(Context)
 		MinJobResultProcessingTime  = Indicators.MinJobResultProcessingTime / 1000;
 		MaxJobResultProcessingTime = Indicators.MaxJobResultProcessingTime / 1000;
 		
-		Comment = NStr("en = 'The access update''s thread-of-control session is completed.';");
+		Comment = NStr("en = 'The session of the main access update thread is completed.';");
 		AddSessionOperationIndicatorsValues(Comment, Indicators, SessionDetails);
 		
 		Comment = Comment + Chars.LF + Chars.LF + StringFunctionsClientServer.SubstituteParametersToString(
@@ -15675,14 +16117,14 @@ Procedure RegisterActiveThreadUpdateIndicators(Context)
 	
 	NewJobsWaitTime = Indicators.NewJobsWaitTime / 1000;
 	
-	Comment = NStr("en = 'The access update''s thread-of-execution session is completed.';");
+	Comment = NStr("en = 'The session of the worker access update thread is completed.';");
 	AddSessionOperationIndicatorsValues(Comment, Indicators, Context.CurrentSession);
 	
 	SessionDetails = Context.ParentSessionDetails; // See MainSessionDetails
 	
 	Comment = Comment + Chars.LF + StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Thread-of-control session number: %1.
-		           |Thread-of-control session started at: %2.
+		NStr("en = 'Main thread session number: %1.
+		           |Main thread session started at: %2.
 		           |
 		           |Total pauses due to waiting for an available thread: %3.
 		           |Total time of waiting for new jobs: %4 sec.';"),
@@ -15985,8 +16427,8 @@ Procedure ExecuteUpdateListAccess(CommonUpdateParameters)
 	EndIf;
 	
 	If MetadataObject = Undefined Then
-		// 
-		// 
+		// Cannot update if the configuration extension is disabled
+		// but objects cannot be deregistered for update.
 		CommonUpdateParameters.Insert("NoJobs", "MetadataObjectDisabled");
 		Return;
 	EndIf;
@@ -16092,7 +16534,7 @@ Procedure ExecuteUpdateListAccess(CommonUpdateParameters)
 	EndIf;
 	
 	If IsObsoleteItemsDataProcessor(ParametersOfUpdate)
-	   And Not CommonUpdateParameters.IsObsoleteItemsDataProcessor Then
+	   And Not CommonUpdateParameters.IsObsoleteItemsProcessingAllowed Then
 		
 		WriteLastUpdatedItem(CommonUpdateParameters,
 			ParametersOfUpdate.LastUpdatedItem);
@@ -16153,11 +16595,15 @@ Procedure ExecuteUpdateListAccess(CommonUpdateParameters)
 		
 		If CommonUpdateParameters.Property("NewLastBatchItem")
 		 Or Items <> Undefined
-		   And Items.Count() > CountInBatch * 2 Then
+		   And Items.Count() > CountInBatch * 2
+		 Or CountInQuery = Null Then
 			
 			CommonUpdateParameters.ProcessingCompleted = False;
 			CommonUpdateParameters.Insert("BatchesSet", ItemsBatchesSet(
 				ParametersOfUpdate, Items, SelectedAllItems, CountInBatch));
+			If CountInQuery = Null Then
+				CommonUpdateParameters.BatchesSet[0].Processed1 = True;
+			EndIf;
 			Return;
 		EndIf;
 	Else
@@ -16303,9 +16749,14 @@ EndFunction
 //     * ReadRightsCheckQueryText - String
 //     * OwnerObjectFieldInRightsValidationQuery - String
 //     * ObsoleteDataItemsQueryText - String
+//     * ObsoleteDataItemsCheckQueryText - String
+//     * QueryTextForInvalidDataItems - String
+//     * QueryTextForInvalidDataItemsInCommonRegister - String
 //     * KeyTables - Array of String
 //     * KeyTablesAttributes - See KeyTableNewAttributes
+//     * QueryTextForDataItemsRange - String
 //     * DataItemWithObsoleteKeysQueryText - String
+//     * QueryTextToCheckObjectAccessKey - String
 //     * DataItemsWithoutAccessKeysQueryText - String
 //     * NewBasicFieldsValuesCombinationsQueryTextForExistingRecords - String
 //     * NewBasicFieldsValuesCombinationsQueryTextForNewRecords - String
@@ -17026,7 +17477,8 @@ Function DataKeyKindOrder(DataKeyKind)
 	DataKeysKinds.Insert("GroupsSetsWithObsoleteRights", 5);
 	
 	DataKeysKinds.Insert("ObsoleteItems", 10);
-	DataKeysKinds.Insert("ObsoleteCommonRegisterItems", 11);
+	DataKeysKinds.Insert("InvalidItems", 11);
+	DataKeysKinds.Insert("InvalidItemsInCommonRegister", 12);
 	
 	DataKeysKinds.Insert("NoData1", 99);
 	
@@ -17306,8 +17758,8 @@ Function ItemsForUpdate(ParametersOfUpdate, CountInQuery, SelectedAllItems)
 			Query.SetParameter("LastAccessKey", LastAccessKey);
 			
 			If ParametersOfUpdate.DoNotWriteAccessKeys Then
-				// 
-				// 
+				// Intended for the "ThisIsClearingSelectedKeys" mode in the procedure "ProcessObsoleteListAccessKeys".
+				// Switching to the "ObsoleteItems" step is performed in the "ClarifyLastUpdatedItem" procedure.
 				Query.Text =
 				"SELECT TOP 995
 				|	AccessKeys.Ref AS Ref
@@ -17346,24 +17798,24 @@ Function ItemsForUpdate(ParametersOfUpdate, CountInQuery, SelectedAllItems)
 			Else
 				Query.Text = ParametersOfUpdate.AccessKeysQueryTextToUpdateRights;
 			EndIf;
-			
-		ElsIf ParametersOfUpdate.IsReferenceType
-		        And ParametersOfUpdate.ForExternalUsers
-		        And IsObsoleteItemsDataProcessor(ParametersOfUpdate)
-		        And (Not ParametersOfUpdate.DoNotWriteAccessKeys
-		           Or ParametersOfUpdate.DoNotWriteAccessKeysForUsersAndExternalUsers) Then
-			
-			SelectedAllItems = True;
-			Return Undefined;
 		Else
 			SetQueryTextAndLastUpdatedDataItemParameters(Query, ParametersOfUpdate);
 		EndIf;
 		
-		CountInQuery = ?(CountInQuery < 1000, 1000, ?(CountInQuery > 10000, 10000, CountInQuery));
-		Query.Text = StrReplace(Query.Text, "995", Format(CountInQuery, "NG="));
-		SetQueryPlanClarification(Query.Text);
-		
-		Items = Query.Execute().Unload();
+		If Query.Text = EmptyQueryFlag() Then
+			SelectedAllItems = True;
+			Return Undefined;
+			
+		ElsIf Query.Text = IterativeQueryFlag() Then
+			Return IterativeSelectionOfItemsToUpdate(Query,
+				ParametersOfUpdate, CountInQuery, SelectedAllItems, Undefined);
+		Else
+			CountInQuery = ?(CountInQuery < 1000, 1000, ?(CountInQuery > 10000, 10000, CountInQuery));
+			Query.Text = StrReplace(Query.Text, "995", Format(CountInQuery, "NG="));
+			SetQueryPlanClarification(Query.Text);
+			
+			Items = Query.Execute().Unload();
+		EndIf;
 	EndIf;
 	
 	If Items.Count() = 0 Then
@@ -17372,6 +17824,178 @@ Function ItemsForUpdate(ParametersOfUpdate, CountInQuery, SelectedAllItems)
 	EndIf;
 	
 	SelectedAllItems = Items.Count() < CountInQuery;
+	
+	Return Items;
+	
+EndFunction
+
+// Intended for function "ItemsForUpdate" and procedures
+// "SetQueryTextAndLastUpdatedDataItemParameters",
+// "DoProcessObsoleteData", and
+// "AddQueryTextOfObsoleteDataItems".
+//
+Function EmptyQueryFlag()
+	Return "NoItems";
+EndFunction
+
+// Intended for function "ItemsForUpdate" and procedure "SetLastBlankItem".
+// 
+//
+Function IterativeQueryFlag()
+	Return "*";
+EndFunction
+
+// Intended for function "ItemsToUpdate".
+Function IterativeSelectionOfItemsToUpdate(Query, ParametersOfUpdate, CountInQuery,
+			SelectedAllItems, RequestedItemsCount)
+	
+	ItemCount = 500; // The initial number of data items in the range.
+	QueryTextForRange       = ParametersOfUpdate.QueryTextForDataItemsRange;
+	QueryTextForDataItems = ParametersOfUpdate.DataItemWithObsoleteKeysQueryText;
+	
+	// Prepare a request for obtaining the first boundary of the range.
+	If ParametersOfUpdate.ListWithDate Then
+		Query.SetParameter("RangeEndDate", Query.Parameters.EndDate);
+		QueryTextForRange = StrReplace(QueryTextForRange,
+			"CurrentList.Ref < &RangeEndDateRef", "TRUE"); // @query-part-1
+		QueryTextForDataItems = StrReplace(QueryTextForDataItems,
+			"CurrentList.Ref < &RangeEndDateRef", "TRUE"); // @query-part-1
+		
+	ElsIf ParametersOfUpdate.IsReferenceType Then
+		Query.SetParameter("RangeStartRef", Query.Parameters.LastProcessedRef);
+	Else
+		For Each KeyAndValue In Query.Parameters.SetDataKey Do
+			FieldNumber = Number(StrReplace(KeyAndValue.Key, "Field", ""));
+			FieldName = StrTemplate("Field%1RangeStarts", FieldNumber);
+			If KeyAndValue.Value = Undefined Then
+				QueryTextForRange = StrReplace(QueryTextForRange,
+					" > &" + FieldName, " >= &" + FieldName);
+				QueryTextForDataItems = StrReplace(QueryTextForDataItems,
+					" > &" + FieldName, " >= &" + FieldName);
+			EndIf;
+			Query.SetParameter(FieldName, KeyAndValue.Value);
+		EndDo;
+	EndIf;
+	
+	Items = Undefined;
+	
+	While True Do
+		// Obtain the next boundary.
+		Query.Text = StrReplace(QueryTextForRange, "993", Format(ItemCount, "NG="));
+		RangeQueryCurrentText = Query.Text;
+		Upload0 = Query.Execute().Unload();
+		If Not ValueIsFilled(Upload0) Then
+			SelectedAllItems = True;
+			Break;
+		EndIf;
+		If RequestedItemsCount <> Undefined Then
+			RequestedItemsCount.Add(ItemCount);
+		EndIf;
+		For Each Column In Upload0.Columns Do
+			Query.SetParameter(Column.Name, Upload0[0][Column.Name]);
+		EndDo;
+		
+		// Get the items with obsolete keys from the range.
+		Query.Text = StrReplace(QueryTextForDataItems, "993", Format(ItemCount, "NG="));
+		
+		StartMoment = CurrentUniversalDateInMilliseconds();
+		CurElements = Query.Execute().Unload();
+		RequestTime = CurrentUniversalDateInMilliseconds() - StartMoment;
+		
+		// Recount items within the range.
+		If RequestTime < 1000 Then
+			ItemCount = ItemCount * Int((1050 - RequestTime) / 50);
+		ElsIf RequestTime > 2000 Then
+			ItemCount = ItemCount / 2;
+		EndIf;
+		ItemCount = (1 + Int((ItemCount - 1) / 500)) * 500;
+		If ItemCount > 10000 Then
+			ItemCount = 10000;
+		EndIf;
+		If ItemCount < 500 Then
+			ItemCount = 500;
+		EndIf;
+		
+		// Check the current range for permanency.
+		Query.Text = RangeQueryCurrentText;
+		Upload0 = Query.Execute().Unload();
+		IsRangeChanged = False;
+		For Each Column In Upload0.Columns Do
+			If Query.Parameters[Column.Name] <> Upload0[0][Column.Name] Then
+				IsRangeChanged = True;
+				Break;
+			EndIf;
+		EndDo;
+		If IsRangeChanged Then
+			Query.Text = StrReplace(QueryTextForDataItems, "TOP 993", "");
+			CurElements = Query.Execute().Unload();
+		EndIf;
+		
+		LastCurrentItem = Undefined;
+		If ValueIsFilled(CurElements) Then
+			If Items = Undefined Then
+				Items = CurElements;
+			Else
+				For Each CurrentItem In CurElements Do
+					FillPropertyValues(Items.Add(), CurrentItem);
+				EndDo;
+			EndIf;
+			LastCurrentItem = CurElements[CurElements.Count() - 1];
+		EndIf;
+		
+		If Items <> Undefined
+		   And Items.Count() >= CountInQuery
+		 Or CurrentUniversalDateInMilliseconds() > ParametersOfUpdate.ProcessingTimeBoundary
+		   And (ValueIsFilled(Items)
+		      Or Not ParametersOfUpdate.ListWithDate
+		      Or Query.Parameters.EndDate > Query.Parameters.RangeStartDate) Then
+			
+			Break;
+		EndIf;
+		
+		// Prepare a request for obtaining the next boundary of the range.
+		QueryTextForRange       = ParametersOfUpdate.QueryTextForDataItemsRange;
+		QueryTextForDataItems = ParametersOfUpdate.DataItemWithObsoleteKeysQueryText;
+		
+		If ParametersOfUpdate.ListWithDate Then
+			Query.SetParameter("RangeEndDate",       Query.Parameters.RangeStartDate);
+			Query.SetParameter("RangeEndDateRef", Query.Parameters.RangeStartDateRef);
+			
+		ElsIf ParametersOfUpdate.IsReferenceType Then
+			Query.SetParameter("RangeStartRef", Query.Parameters.RangeEndRef);
+		Else
+			For Each KeyAndValue In Query.Parameters.SetDataKey Do
+				FieldNumber = Number(StrReplace(KeyAndValue.Key, "Field", ""));
+				NameOfStartField    = StrTemplate("Field%1RangeStarts", FieldNumber);
+				NameOfEndField = StrTemplate("Field%1RangeEnds", FieldNumber);
+				ValueOfEndField = Query.Parameters[NameOfEndField];
+				Query.SetParameter(NameOfStartField, ValueOfEndField);
+			EndDo;
+		EndIf;
+	EndDo;
+	
+	If SelectedAllItems Or ValueIsFilled(Items) Then
+		Return Items;
+	EndIf;
+	
+	CountInQuery = Null;
+	
+	// Prepare the processed item in order to move the cursor.
+	Items = CurElements;
+	Item = Items.Add();
+	
+	If ParametersOfUpdate.ListWithDate Then
+		Item.Date = Query.Parameters.RangeStartDate;
+		
+	ElsIf ParametersOfUpdate.IsReferenceType Then
+		Item.CurrentRef = Query.Parameters.RangeEndRef;
+	Else
+		For Each KeyAndValue In Query.Parameters.SetDataKey Do
+			FieldNumber = Number(StrReplace(KeyAndValue.Key, "Field", ""));
+			NameOfEndField = StrTemplate("Field%1RangeEnds", FieldNumber);
+			Item[KeyAndValue.Key] = Query.Parameters[NameOfEndField];
+		EndDo;
+	EndIf;
 	
 	Return Items;
 	
@@ -17728,8 +18352,8 @@ Procedure ClarifyLastUpdatedItem(ParametersOfUpdate)
 				InitialItem(ParametersOfUpdate, "NoData1");
 			
 		ElsIf Not IsObsoleteItemsDataProcessor(ParametersOfUpdate) Then
-			ParametersOfUpdate.LastUpdatedItem =
-				InitialItem(ParametersOfUpdate, "ObsoleteItems");
+			DoProcessObsoleteData(ParametersOfUpdate.LastUpdatedItem,
+				ParametersOfUpdate, "NoData1");
 		EndIf;
 	EndIf;
 	
@@ -17765,11 +18389,10 @@ Procedure SetLastBlankItem(Item, ParametersOfUpdate, ItemDate = '00010101')
 			
 			NewDataKeyKind = "GroupsSetsWithObsoleteRights";
 			
-		ElsIf Item.ProcessObsoleteItems
-		        And (    Item.DataKeyKind = "GroupSetsAllowedForUsers"
-		           Or Item.DataKeyKind = "GroupsSetsWithObsoleteRights") Then
+		ElsIf Item.DataKeyKind = "GroupSetsAllowedForUsers"
+		      Or Item.DataKeyKind = "GroupsSetsWithObsoleteRights" Then
 			
-			NewDataKeyKind = "ObsoleteItems";
+			DoProcessObsoleteData(Item, ParametersOfUpdate);
 		EndIf;
 		If ValueIsFilled(NewDataKeyKind) Then
 			Item = InitialItem(ParametersOfUpdate, NewDataKeyKind);
@@ -17778,63 +18401,58 @@ Procedure SetLastBlankItem(Item, ParametersOfUpdate, ItemDate = '00010101')
 	EndIf;
 	
 	If ParametersOfUpdate.IsRightsUpdate Then
-		If Item.DataKeyKind = "ItemsWithObsoleteRights"
-		   And Item.ProcessObsoleteItems Then
-			
-			Item = InitialItem(ParametersOfUpdate, "ObsoleteItems");
+		If Item.DataKeyKind = "ItemsWithObsoleteRights" Then
+			DoProcessObsoleteData(Item, ParametersOfUpdate);
 		EndIf;
 		Return;
 	EndIf;
 	
-	If Item.DataKeyKind = "ObsoleteCommonRegisterItems" Then
+	If Item.DataKeyKind = "InvalidItemsInCommonRegister" Then
 		Return;
 	EndIf;
 	
 	If Item.DataKeyKind = "ObsoleteItems" Then
+		If ParametersOfUpdate.QueryTextForInvalidDataItems <> EmptyQueryFlag() Then
+			Item = InitialItem(ParametersOfUpdate, "InvalidItems");
+		EndIf;
+		Return;
+	EndIf;
+	
+	If Item.DataKeyKind = "InvalidItems" Then
 		If Not ParametersOfUpdate.IsReferenceType
 		   And ValueIsFilled(ParametersOfUpdate.SeparateKeysRegisterName) Then
 		
-			Item = InitialItem(ParametersOfUpdate, "ObsoleteCommonRegisterItems");
+			Item = InitialItem(ParametersOfUpdate, "InvalidItemsInCommonRegister");
 		EndIf;
 		Return;
 	EndIf;
 	
 	If ParametersOfUpdate.ListWithDate Then
 		SetNextPeriodItem(ParametersOfUpdate, Item, ItemDate);
-		Return;
-	EndIf;
-	
-	If ParametersOfUpdate.IsReferenceType Then
-		If Item.DataKeyKind = "ItemsWithObsoleteKeys"
-		   And Item.ProcessObsoleteItems
-		   And (ParametersOfUpdate.DoNotWriteAccessKeys
-		      Or Not ParametersOfUpdate.ForExternalUsers) Then
-			
-			Item = InitialItem(ParametersOfUpdate, "ObsoleteItems");
+		If Item.DataKey = Null Then
+			DoProcessObsoleteData(Item, ParametersOfUpdate);
 		EndIf;
 		Return;
 	EndIf;
 	
-	If ParametersOfUpdate.DoNotWriteAccessKeys Then
-		If Item.DataKeyKind = "ItemsWithObsoleteKeys"
-		   And Item.ProcessObsoleteItems Then
-			
-			Item = InitialItem(ParametersOfUpdate, "ObsoleteItems");
+	If ParametersOfUpdate.IsReferenceType
+	 Or ParametersOfUpdate.DoNotWriteAccessKeys Then
+		
+		If Item.DataKeyKind = "ItemsWithObsoleteKeys" Then
+			DoProcessObsoleteData(Item, ParametersOfUpdate);
 		EndIf;
 		Return;
 	EndIf;
 	
 	If Item.DataKeyKind = "ItemsWithoutKeysByFieldValues" Then
-		If Item.ProcessObsoleteItems Then
-			Item = InitialItem(ParametersOfUpdate, "ObsoleteItems");
-		EndIf;
+		DoProcessObsoleteData(Item, ParametersOfUpdate);
 		Return;
 	EndIf;
 	
 	If Item.DataKeyKind = "ItemsWithoutKeysByPeriod" Then
 		SetNextPeriodItem(ParametersOfUpdate, Item, ItemDate);
-		If Item.DataKey = Null And Item.ProcessObsoleteItems Then
-			Item = InitialItem(ParametersOfUpdate, "ObsoleteItems");
+		If Item.DataKey = Null Then
+			DoProcessObsoleteData(Item, ParametersOfUpdate);
 		EndIf;
 		Return;
 	EndIf;
@@ -17850,8 +18468,34 @@ Procedure SetLastBlankItem(Item, ParametersOfUpdate, ItemDate = '00010101')
 	SetNextPeriodItem(ParametersOfUpdate, Item, ItemDate, MaxDate());
 	ParametersOfUpdate.LastUpdatedItem = LastUpdatedItem;
 	
-	If Item.DataKey = Null And Item.ProcessObsoleteItems Then
-		Item = InitialItem(ParametersOfUpdate, "ObsoleteItems");
+	If Item.DataKey = Null Then
+		DoProcessObsoleteData(Item, ParametersOfUpdate);
+	EndIf;
+	
+EndProcedure
+
+// Intended for procedures "ClarifyLastUpdatedItem" and "SetLastBlankItem".
+Procedure DoProcessObsoleteData(Item, ParametersOfUpdate, FinalDataKeyKind = Undefined)
+	
+	NewItem = Undefined;
+	If Item.ProcessObsoleteItems Then
+		
+		If ParametersOfUpdate.IsRightsUpdate
+		 Or IsCatalogAccessGroupsSets(ParametersOfUpdate)
+		 Or ParametersOfUpdate.ObsoleteDataItemsQueryText <> EmptyQueryFlag() Then
+			
+			NewItem = InitialItem(ParametersOfUpdate, "ObsoleteItems");
+			
+		ElsIf ParametersOfUpdate.QueryTextForInvalidDataItems <> EmptyQueryFlag() Then
+			NewItem = InitialItem(ParametersOfUpdate, "InvalidItems");
+		EndIf;
+	EndIf;
+	
+	If NewItem <> Undefined Then
+		Item = NewItem;
+		
+	ElsIf FinalDataKeyKind <> Undefined Then
+		Item = InitialItem(ParametersOfUpdate, FinalDataKeyKind);
 	EndIf;
 	
 EndProcedure
@@ -17887,11 +18531,14 @@ Procedure SetQueryTextAndLastUpdatedDataItemParameters(Query, ParametersOfUpdate
 	If IsObsoleteItemsDataProcessor(ParametersOfUpdate) Then
 		If ParametersOfUpdate.LastUpdatedItem.DataKeyKind = "ObsoleteItems" Then
 			Query.Text = ParametersOfUpdate.ObsoleteDataItemsQueryText;
+		ElsIf ParametersOfUpdate.LastUpdatedItem.DataKeyKind = "InvalidItems" Then
+			Query.Text = ParametersOfUpdate.QueryTextForInvalidDataItems;
 		Else
-			Query.Text = ParametersOfUpdate.ObsoleteDataItemsFromCommonRegisterQueryText;
+			Query.Text = ParametersOfUpdate.QueryTextForInvalidDataItemsInCommonRegister;
 		EndIf;
 	Else
-		Query.Text = ParametersOfUpdate.DataItemWithObsoleteKeysQueryText;
+		// QueryTextForDataItemsRange, DataItemWithObsoleteKeysQueryText.
+		Query.Text = IterativeQueryFlag();
 		If Not ValueIsFilled(ParametersOfUpdate.FieldsComposition) Then
 			Query.SetParameter("List", ParametersOfUpdate.ListID);
 		EndIf;
@@ -17934,6 +18581,11 @@ Procedure SetQueryTextAndLastUpdatedDataItemParameters(Query, ParametersOfUpdate
 		Query.Text = ParametersOfUpdate.DataItemsWithoutAccessKeysQueryText;
 	EndIf;
 	
+	If Query.Text = IterativeQueryFlag() Then
+		Query.SetParameter("SetDataKey", SetDataKey);
+		Return;
+	EndIf;
+	
 	For Each KeyAndValue In SetDataKey Do
 		If KeyAndValue.Value = Undefined Then
 			FieldName = KeyAndValue.Key;
@@ -17965,9 +18617,10 @@ Function DataKey(ParametersOfUpdate, InitialDataKey = Undefined)
 		
 		FieldsCount = ParametersOfUpdate.BasicFields.MaxCount;
 	EndIf;
+	AccessOptionField = ?(IsObsoleteItemsDataProcessor(ParametersOfUpdate), 1, 0);
 	
 	If TypeOf(InitialDataKey) = Type("Structure")
-	   And InitialDataKey.Count() = FieldsCount Then
+	   And InitialDataKey.Count() = FieldsCount + AccessOptionField Then
 		
 		FieldValues = InitialDataKey;
 	Else
@@ -17975,9 +18628,17 @@ Function DataKey(ParametersOfUpdate, InitialDataKey = Undefined)
 	EndIf;
 	
 	NewFieldsValues = New Structure;
+	If IsObsoleteItemsDataProcessor(ParametersOfUpdate) Then
+		FieldName = "AccessOption";
+		If FieldValues.Property(FieldName) Then
+			NewFieldsValues.Insert(FieldName, FieldValues[FieldName]);
+		Else
+			NewFieldsValues.Insert(FieldName, Undefined);
+		EndIf;
+	EndIf;
 	
 	For Number = 1 To FieldsCount Do
-		FieldName = "Field" + Number;
+		FieldName = StrTemplate("Field%1", Number);
 		If FieldValues.Property(FieldName) Then
 			NewFieldsValues.Insert(FieldName, FieldValues[FieldName]);
 		Else
@@ -19878,11 +20539,15 @@ Procedure DeleteObsoleteListDataItems(DataItems, ParametersOfUpdate)
 		IndexOf = 0;
 		While IndexOf < ItemCount Do
 			If DataItemsBatch = Undefined Then
+				IsVerificationRequired = False;
 				DataItemsBatch = DataItems.Copy(New Array);
 				Block = New DataLock;
 			EndIf;
 			DataElement = DataItems[IndexOf];
 			FillPropertyValues(DataItemsBatch.Add(), DataElement);
+			If Not DataElement.Delete And Not DataElement.Refresh Then
+				IsVerificationRequired = True;
+			EndIf;
 			
 			LockItem = Block.Add("InformationRegister.AccessKeysForObjects");
 			LockItem.SetValue("Object", DataElement.CurrentRef);
@@ -19892,20 +20557,28 @@ Procedure DeleteObsoleteListDataItems(DataItems, ParametersOfUpdate)
 				Continue;
 			EndIf;
 			
+			If IsVerificationRequired Then
+				LockItem = Block.Add(ParametersOfUpdate.List);
+				LockItem.Mode = DataLockMode.Shared;
+				Query = New Query;
+				Query.Text = ParametersOfUpdate.ObsoleteDataItemsCheckQueryText;
+				Query.SetParameter("DataItems", DataItemsBatch);
+				SetQueryPlanClarification(Query.Text);
+			EndIf;
+			
 			ProcessedItemsCount = DataItemsBatch.Count();
 			LockSet = False;
 			BeginTransaction();
 			Try
 				Block.Lock();
 				LockSet = True;
+				If IsVerificationRequired Then
+					// @skip-check query-in-loop - Batch-wise data processing
+					Upload0 = Query.Execute().Unload();
+				EndIf;
 				For Each String In DataItemsBatch Do
 					SetOfOneRecord.Filter.Object.Set(String.CurrentRef);
-					If Not ParametersOfUpdate.ForExternalUsers
-					   And (ParametersOfUpdate.DoNotWriteAccessKeysForUsersAndExternalUsers
-					      Or String.Delete) Then
-						SetOfOneRecord.Clear();
-						SetOfOneRecord.Write();
-					Else
+					If String.Refresh Then
 						SetOfOneRecord.Read();
 						If SetOfOneRecord.Count() > 0 Then
 							If ParametersOfUpdate.ForExternalUsers Then
@@ -19919,6 +20592,11 @@ Procedure DeleteObsoleteListDataItems(DataItems, ParametersOfUpdate)
 							EndIf;
 							SetOfOneRecord.Write();
 						EndIf;
+					ElsIf String.Delete
+					      Or IsVerificationRequired
+					        And Upload0.Find(String.CurrentRef, "CurrentRef") <> Undefined Then
+						SetOfOneRecord.Clear();
+						SetOfOneRecord.Write();
 					EndIf;
 				EndDo;
 				CommitTransaction();
@@ -19939,7 +20617,7 @@ Procedure DeleteObsoleteListDataItems(DataItems, ParametersOfUpdate)
 	EndIf;
 	
 	If ValueIsFilled(ParametersOfUpdate.SeparateKeysRegisterName)
-	   And ParametersOfUpdate.LastUpdatedItem.DataKeyKind <> "ObsoleteCommonRegisterItems" Then
+	   And ParametersOfUpdate.LastUpdatedItem.DataKeyKind <> "InvalidItemsInCommonRegister" Then
 		
 		RegisterName = ParametersOfUpdate.SeparateKeysRegisterName;
 	Else
@@ -19969,7 +20647,7 @@ Procedure DeleteObsoleteListDataItems(DataItems, ParametersOfUpdate)
 		EndIf;
 		DataElement = DataItems[IndexOf];
 		FillPropertyValues(DataItemsBatch.Add(), DataElement);
-		If Not ParametersOfUpdate.DoNotWriteAccessKeys And Not DataElement.Delete Then
+		If Not DataElement.Delete And Not DataElement.Refresh Then
 			IsVerificationRequired = True;
 		EndIf;
 		
@@ -19978,6 +20656,9 @@ Procedure DeleteObsoleteListDataItems(DataItems, ParametersOfUpdate)
 			LockItem.SetValue("Register", ParametersOfUpdate.ListID);
 		EndIf;
 		For Each DimensionName In DimensionsNames Do
+			If DataElement.Refresh And DataElement[DimensionName] = Null Then
+				Continue;
+			EndIf;
 			LockItem.SetValue(DimensionName, DataElement[DimensionName]);
 		EndDo;
 		
@@ -20013,21 +20694,55 @@ Procedure DeleteObsoleteListDataItems(DataItems, ParametersOfUpdate)
 				EndIf;
 			EndIf;
 			For Each String In DataItemsBatch Do
-				If IsVerificationRequired And Not String.Delete Then
-					FillPropertyValues(DimensionsFilter, String);
-					If Upload0.FindRows(DimensionsFilter).Count() = 0 Then
-						Continue;
-					EndIf;
-				EndIf;
+				SetOfOneRecord.Clear();
 				For Each DimensionName In DimensionsNames Do
 					FilterElement = SetOfOneRecord.Filter[DimensionName]; // FilterItem
-					If String[DimensionName] = Undefined Then
+					If String.Refresh And String[DimensionName] = Null Then
+						FilterElement.Use = False;
+					ElsIf String[DimensionName] = Undefined Then
 						FilterElement.Value = Undefined;
 						FilterElement.Use = True;
 					Else
 						FilterElement.Set(String[DimensionName]);
 					EndIf;
 				EndDo;
+				If String.Refresh Then
+					SetOfOneRecord.Read();
+					Count = SetOfOneRecord.Count();
+					If Count = 0 Then
+						Continue;
+					EndIf;
+					If Count > 1 Then
+						Filter = New Structure;
+						For Each DimensionName In DimensionsNames Do
+							Filter.Insert(DimensionName, ?(String[DimensionName] = Null,
+								Enums.AdditionalAccessValues.Null, String[DimensionName]));
+						EndDo;
+						RecordsTable = SetOfOneRecord.Unload();
+						FoundRows = RecordsTable.FindRows(Filter);
+						If FoundRows.Count() > 0 Then
+							IndexOf = RecordsTable.IndexOf(FoundRows.Get(0));
+							FillPropertyValues(SetOfOneRecord.Get(0),
+								SetOfOneRecord.Get(IndexOf));
+						EndIf;
+					EndIf;
+					While Count > 1 Do
+						Count = Count - 1;
+						SetOfOneRecord.Delete(Count);
+					EndDo;
+					For Each DimensionName In DimensionsNames Do
+						If String[DimensionName] = Null Then
+							SetOfOneRecord[0][DimensionName] = Enums.AdditionalAccessValues.Null;
+						EndIf;
+					EndDo;
+				Else
+					If IsVerificationRequired And Not String.Delete Then
+						FillPropertyValues(DimensionsFilter, String);
+						If Upload0.FindRows(DimensionsFilter).Count() = 0 Then
+							Continue;
+						EndIf;
+					EndIf;
+				EndIf;
 				SetOfOneRecord.Write();
 			EndDo;
 			CommitTransaction();
@@ -20191,9 +20906,10 @@ Function IncorrectCombinationOfBasicFieldsValues(DataElement, ParametersOfUpdate
 	Number = 1;
 	For Each FieldTypesStorage In ParametersOfUpdate.BasicFields.UsedItemsTypes Do
 		FieldTypes = FieldTypesStorage.Get();
+		FieldName = StrTemplate("Field%1", Number);
 		
-		If Not FieldTypes.ContainsType(TypeOf(DataElement["Field" + Number]))
-		   And DataElement["Field" + Number] <> Undefined Then
+		If Not FieldTypes.ContainsType(TypeOf(DataElement[FieldName]))
+		   And DataElement[FieldName] <> Undefined Then
 			
 			Return True;
 		EndIf;
@@ -20212,7 +20928,7 @@ Function IsInvalidCombinationOfBasicFieldValues(DataElement, ParametersOfUpdate)
 		ParametersOfUpdate.SeparateKeysRegisterName);
 	
 	For Number = 1 To ParametersOfUpdate.BasicFields.UsedItems.Count() Do
-		FieldName = "Field" + Number;
+		FieldName = StrTemplate("Field%1", Number);
 		
 		If Not FieldsTypes[FieldName].ContainsType(TypeOf(DataElement[FieldName]))
 		   And DataElement[FieldName] <> Undefined Then
@@ -20629,10 +21345,10 @@ Procedure WriteObjectsAccessKeys(ParametersOfUpdate, Context)
 	BeginTransaction();
 	Try
 		BeforeDataLock(ParametersOfUpdate);
-		Block.Lock();
 		If Common.FileInfobase() Then
 			LockRegistersSchedulingUpdateAccessKeysInFileIB();
 		EndIf;
+		Block.Lock();
 		AfterDataLock(ParametersOfUpdate);
 		
 		If ParametersOfUpdate.WriteAccessKeysForUsersAndExternalUsers Then
@@ -20668,9 +21384,9 @@ Procedure WriteObjectsAccessKeys(ParametersOfUpdate, Context)
 			ParametersOfUpdate.Property("IsBackgroundAccessUpdate"));
 		AfterPlanUpdate(ParametersOfUpdate);
 		
-		// 
-		// 
-		// 
+		// ACC:330-off - No.783.1.3. It's acceptable to make the call following "CommitTransaction"
+		// as it routinely calls an empty procedure (therefore, exceptions cannot be thrown).
+		// During performance analysis, the consequences are not critical and handled.
 		BeforeCommitTransaction(ParametersOfUpdate);
 		CommitTransaction();
 		AfterCommitTransaction(ParametersOfUpdate);
@@ -20713,7 +21429,7 @@ Procedure WriteRegistersAccessKeys(ParametersOfUpdate, Context)
 			CurrentNumber = "_" + Format(LineNumber, "NG=");
 			PackageTexts.Add(StrReplace(QueryText, "_%1", CurrentNumber));
 			For FieldNumber = 1 To ParametersOfUpdate.BasicFields.UsedItems.Count() Do
-				FieldName = "Field" + FieldNumber;
+				FieldName = StrTemplate("Field%1", FieldNumber);
 				DataElement = DataItemsBatch.Find(ObjectAccessKeyDetails.CurrentRef, "CurrentRef");
 				Query.SetParameter(FieldName + CurrentNumber, DataElement[FieldName]);
 			EndDo;
@@ -20759,7 +21475,7 @@ Procedure WriteRegistersAccessKeys(ParametersOfUpdate, Context)
 		LockItem.SetValue("AccessOption", ParametersOfUpdate.AccessOption);
 		DataElement = DataItemsBatch.Find(ObjectAccessKeyDetails.CurrentRef, "CurrentRef");
 		For FieldNumber = 1 To ParametersOfUpdate.BasicFields.UsedItems.Count() Do
-			FieldName = "Field" + FieldNumber;
+			FieldName = StrTemplate("Field%1", FieldNumber);
 			LockItem.SetValue(FieldName, DataElement[FieldName]);
 		EndDo;
 	EndDo;
@@ -20787,7 +21503,7 @@ Procedure WriteRegistersAccessKeys(ParametersOfUpdate, Context)
 			DataElement = DataItemsBatch.Find(ObjectAccessKeyDetails.CurrentRef, "CurrentRef");
 			FillPropertyValues(Record, BlankBasicFieldsValues);
 			For FieldNumber = 1 To ParametersOfUpdate.BasicFields.UsedItems.Count() Do
-				FieldName = "Field" + FieldNumber;
+				FieldName = StrTemplate("Field%1", FieldNumber);
 				FilterElement = SetOfOneRecord.Filter[FieldName]; // FilterItem
 				If DataElement[FieldName] = Undefined Then
 					FilterElement.Value = Undefined;
@@ -20803,9 +21519,9 @@ Procedure WriteRegistersAccessKeys(ParametersOfUpdate, Context)
 		EndDo;
 		AfterWriteRows(ParametersOfUpdate, ObjectsAccessKeysDetails.Count());
 		
-		// 
-		// 
-		// 
+		// ACC:330-off - No.783.1.3. It's acceptable to make the call following "CommitTransaction"
+		// as it routinely calls an empty procedure (therefore, exceptions cannot be thrown).
+		// During performance analysis, the consequences are not critical and handled.
 		BeforeCommitTransaction(ParametersOfUpdate);
 		CommitTransaction();
 		AfterCommitTransaction(ParametersOfUpdate);
@@ -20841,7 +21557,7 @@ Procedure DeleteIncorrectBasicFieldsValuesCombinations(DataItemsBatch, Parameter
 		EndIf;
 		LockItem.SetValue("AccessOption", ParametersOfUpdate.AccessOption);
 		For FieldNumber = 1 To FieldsToUseCount Do
-			FieldName = "Field" + FieldNumber;
+			FieldName = StrTemplate("Field%1", FieldNumber);
 			LockItem.SetValue(FieldName, DataElement[FieldName]);
 		EndDo;
 	EndDo;
@@ -20855,7 +21571,7 @@ Procedure DeleteIncorrectBasicFieldsValuesCombinations(DataItemsBatch, Parameter
 			EndIf;
 			SetOfOneRecord.Filter.AccessOption.Set(ParametersOfUpdate.AccessOption);
 			For FieldNumber = 1 To FieldsToUseCount Do
-				FieldName = "Field" + FieldNumber;
+				FieldName = StrTemplate("Field%1", FieldNumber);
 				FilterElement = SetOfOneRecord.Filter[FieldName]; // FilterItem
 				If DataElement[FieldName] = Undefined Then
 					FilterElement.Value = Undefined;
@@ -20922,10 +21638,10 @@ EndFunction
 // For the ObjectsRowsValuesKeys function and other.
 Function DataStringForHashing(Data)
 	
-	// 
-	// 
-	// 
-	// 
+	// Returns a data string to be hashed. For example, string presentations of database references considering their types
+	// by internal IDs, which guarantees checksum immutability when the names of tables and attributes change.
+	// Therefore, it ensures the conformity between the data checksum and the database data itself.
+	// Intended to avoid massive re-creation of access keys that would trigger the update of users and access groups.
 	// 
 	//
 	// 
@@ -22926,33 +23642,47 @@ Function CalculatedCondition(Context, Condition, RootNode = False)
 						If Condition.Node = "ObjectReadingAllowed"
 						 Or Condition.Node = "ObjectUpdateAllowed" Then
 							
-							Result = New Map;
+							Result = "False";
 							CheckTheRightToChange = Condition.Node <> "ObjectReadingAllowed";
-							For Each KeyAndValue In RightsToLeadingAccessKey Do
-								If CheckTheRightToChange And Not KeyAndValue.Value Then
-									Continue;
-								EndIf;
-								If TypeOf(KeyAndValue.Key) <> Context.AccessGroupType Then
-									Result.Insert(KeyAndValue.Key, True);
-									
-								ElsIf KeyAndValue.Key = Context.AccessGroup Then
-									AccessGroupMembers = Context.AccessGroupsMembers.Get(
-										Context.AccessGroup);
-									If AccessGroupMembers <> Undefined Then
-										If Result.Count() = 0 Then
-											Result = New Map(
-												New FixedMap(AccessGroupMembers));
-										Else
-											For Each DescriptionOfTheParticipant In AccessGroupMembers Do
-												Result.Insert(DescriptionOfTheParticipant.Key, True);
-											EndDo;
-										EndIf;
-									EndIf;
-								ElsIf KeyAndValue.Key = Context.BlankAccessGroup Then
+							RightUpdate = RightsToLeadingAccessKey.Get(Context.BlankAccessGroup);
+							If RightUpdate <> Undefined
+							   And (Not CheckTheRightToChange Or RightUpdate) Then
+								Result = "True";
+							Else
+								RightUpdate = RightsToLeadingAccessKey.Get(Context.AccessGroup);
+								If RightUpdate <> Undefined
+								   And (Not CheckTheRightToChange Or RightUpdate) Then
 									Result = "True";
-									Break;
 								EndIf;
-							EndDo;
+							EndIf;
+							If Result <> "True" Then
+								Result = New Map;
+								For Each KeyAndValue In RightsToLeadingAccessKey Do
+									If CheckTheRightToChange And Not KeyAndValue.Value Then
+										Continue;
+									EndIf;
+									KeyValue = KeyAndValue.Key;
+									KeyType = TypeOf(KeyValue);
+									If KeyType = Context.AccessGroupType Then
+										Continue;
+									EndIf;
+									CurrentResult = "False";
+									If KeyType = Context.UserType Then
+										FillResultForUser(CurrentResult, KeyValue, Context);
+									ElsIf KeyType = Context.UserGroupType Then
+										FillResultForUserGroup(CurrentResult, KeyValue, Context);
+									EndIf;
+									If CurrentResult = "False" Then
+										Continue;
+									EndIf;
+									For Each DescriptionOfTheParticipant In CurrentResult Do
+										Result.Insert(DescriptionOfTheParticipant.Key, True);
+									EndDo;
+								EndDo;
+								If Result.Count() = 0 Then
+									Result = "False";
+								EndIf;
+							EndIf;
 						Else
 							Result = "False";
 						EndIf;
@@ -22973,16 +23703,33 @@ Function CalculatedCondition(Context, Condition, RootNode = False)
 			If RightsByRightsSettingsOwner = Undefined Then
 				Result = "False";
 				
-			ElsIf Condition.Node = "ObjectReadingAllowed" Then
-				Result = New Map(RightsByRightsSettingsOwner);
+			ElsIf Condition.Node = "ObjectReadingAllowed"
+			      Or Condition.Node = "ObjectUpdateAllowed" Then
 				
-			ElsIf Condition.Node = "ObjectUpdateAllowed" Then
+				CheckTheRightToChange = Condition.Node <> "ObjectReadingAllowed";
 				Result = New Map;
 				For Each KeyAndValue In RightsByRightsSettingsOwner Do
-					If KeyAndValue.Value Then
-						Result.Insert(KeyAndValue.Key, True);
+					If CheckTheRightToChange And Not KeyAndValue.Value Then
+						Continue;
 					EndIf;
+					KeyValue = KeyAndValue.Key;
+					KeyType = TypeOf(KeyValue);
+					CurrentResult = "False";
+					If KeyType = Context.UserType Then
+						FillResultForUser(CurrentResult, KeyValue, Context);
+					ElsIf KeyType = Context.UserGroupType Then
+						FillResultForUserGroup(CurrentResult, KeyValue, Context);
+					EndIf;
+					If CurrentResult = "False" Then
+						Continue;
+					EndIf;
+					For Each DescriptionOfTheParticipant In CurrentResult Do
+						Result.Insert(DescriptionOfTheParticipant.Key, True);
+					EndDo;
 				EndDo;
+				If Result.Count() = 0 Then
+					Result = "False";
+				EndIf;
 			Else
 				Result = "False";
 			EndIf;
@@ -23001,16 +23748,7 @@ Function CalculatedCondition(Context, Condition, RootNode = False)
 				 Or Condition.Node = "ListUpdateAllowed"  And RightUpdate = True
 				 Or Condition.Node = "ObjectUpdateAllowed" And RightUpdate = True Then
 					
-					If Context.CalculateUserRights Then
-						AccessGroupMembers = Context.AccessGroupsMembers.Get(Context.AccessGroup);
-						If AccessGroupMembers <> Undefined Then
-							Result = New Map(New FixedMap(AccessGroupMembers));
-						Else
-							Result = "False";
-						EndIf;
-					Else
-						Result = "True";
-					EndIf;
+					Result = "True";
 				Else
 					Result = "False";
 				EndIf;
@@ -23303,10 +24041,10 @@ Procedure UpdateRightsToListAccessKey(AccessKey, RightsToKey, NewKeysDetails, Pa
 	BeginTransaction();
 	Try
 		BeforeDataLock(ParametersOfUpdate);
-		Block.Lock();
 		If Common.FileInfobase() Then
 			LockRegistersSchedulingUpdateAccessKeysInFileIB();
 		EndIf;
+		Block.Lock();
 		AfterDataLock(ParametersOfUpdate);
 		
 		HasRightsChanges = False;
@@ -23371,9 +24109,9 @@ Procedure UpdateRightsToListAccessKey(AccessKey, RightsToKey, NewKeysDetails, Pa
 			EndIf;
 		EndIf;
 		
-		// 
-		// 
-		// 
+		// ACC:330-off - No.783.1.3. It's acceptable to make the call following "CommitTransaction"
+		// as it routinely calls an empty procedure (therefore, exceptions cannot be thrown).
+		// During performance analysis, the consequences are not critical and handled.
 		BeforeCommitTransaction(ParametersOfUpdate);
 		CommitTransaction();
 		AfterCommitTransaction(ParametersOfUpdate);
@@ -23389,7 +24127,7 @@ Procedure UpdateRightsToListAccessKey(AccessKey, RightsToKey, NewKeysDetails, Pa
 	
 EndProcedure
 
-// For the UpdateRightsToListAccessKey and UpdateAccessGroupsOfAllowedAccessKey procedures.
+// For the UpdateRightsToListAccessKey and UpdateAccessGroupsOfAllowedAccessKey procedures.
 Function DifferencesSelectionOfDerivedRightsQueryTextForAccessGroups()
 	
 	QueryText =
@@ -24076,7 +24814,7 @@ Function MaxCountOfMinutesToPerformBackgroundAccessUpdateJob()
 	
 EndFunction
 
-Function MaxWaitSecondsCountOfWaitingForOneJobInThreadToBeProcessed()
+Function MaxWaitSecondsCountOfWaitingForOneJobInThreadToBeProcessed() Export
 	
 	Return 900; // 15 minutes (for example, excessively long SQL request).
 	
@@ -24114,7 +24852,7 @@ EndFunction
 
 Function MaxSecondsCountOfQuickDataItemsBatchReceipt()
 	
-	Return 6; // 0 - Disable storage load balancing.
+	Return 15; // 0 - Disable storage load balancing.
 	
 EndFunction
 
@@ -24563,9 +25301,25 @@ Procedure FillRestrictionParameters(FullName, TransactionID, Parameters,
 	ActiveParameters = ActiveAccessRestrictionParameters(TransactionID, CommonContext, False);
 	
 	RestrictionsVersion = ActiveParameters.ListsRestrictionsVersions.Get(FullName);
-	CalculatedParameters = CalculatedRestrictionParameters(FullName, CommonContext, ActiveParameters);
+	HasError = False;
+	Try
+		CalculatedParameters = CalculatedRestrictionParameters(FullName, CommonContext, ActiveParameters);
+	Except
+		If RepeatedCall Then
+			Raise;
+		EndIf;
+		Try
+			Value = Constants.LimitAccessAtRecordLevel.Get();
+		Except
+			Value = Undefined;
+		EndTry;
+		If Value = Undefined Then
+			Raise;
+		EndIf;
+		HasError = True;
+	EndTry;
 	
-	If RestrictionsVersion <> CalculatedParameters.Version Then
+	If HasError Or RestrictionsVersion <> CalculatedParameters.Version Then
 		If RepeatedCall Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot update access restriction parameters of the ""%1"" list.
@@ -24661,6 +25415,7 @@ EndFunction
 //     * HashSum - String - the checksum of the ForIB and ByTables usage settings.
 //     * FullTableName - String - Full name of the table.
 //                                   Applicable when only one table has a value in the ByTables property.
+//                        - Undefined - In case "ByTables" is empty ("AllAccessKindsUsed" is set to "True").
 //
 Function UsedValuesTypes(AccessKindsProperties, FullName = Undefined, AllAccessKindsUsed = Undefined, HashAmountOnly = False)
 	
@@ -24674,7 +25429,9 @@ Function UsedValuesTypes(AccessKindsProperties, FullName = Undefined, AllAccessK
 		Return UsedValuesTypes;
 	EndIf;
 	
-	If AllAccessKindsUsed <> True Then
+	If AllAccessKindsUsed = True Then
+		UsedValuesTypes.FullTableName = Undefined;
+	Else
 		Query = New Query;
 		Query.Text =
 		"SELECT
@@ -24682,7 +25439,8 @@ Function UsedValuesTypes(AccessKindsProperties, FullName = Undefined, AllAccessK
 		|FROM
 		|	InformationRegister.UsedAccessKinds AS UsedAccessKinds
 		|WHERE
-		|	&LimitAccessAtRecordLevel
+		|	UsedAccessKinds.Used = TRUE
+		|	AND &LimitAccessAtRecordLevel
 		|
 		|ORDER BY
 		|	AccessValuesType
@@ -24775,8 +25533,8 @@ EndFunction
 //   * LeadingLists - Map of KeyAndValue:
 //       ** Key     - String - a full list name
 //       ** Value - See ListPropertiesAsLeadingOne
-//   * ForUsers - See RestrictionParametersByRestrictionStructure
-//   * ResultForExternalUsers - See RestrictionParametersByRestrictionStructure
+//   * ForUsers        - See RestrictionParametersByRestrictionStructure
+//   * ForExternalUsers - See RestrictionParametersByRestrictionStructure
 //
 Function CalculatedRestrictionParameters(FullName, CommonContext, ActiveParameters) Export
 	
@@ -25163,10 +25921,11 @@ Procedure SetImplementationSettings(ImplementationSettings, Data, TablesTypesByN
 				Break;
 			EndDo;
 			For Each FieldDetails In RegisterFieldsDetails.Value Do
-				RegisterField = RegisterDimensions.Find("Field" + FieldNumber);
+				FieldName = StrTemplate("Field%1", FieldNumber);
+				RegisterField = RegisterDimensions.Find(FieldName);
 				TypeDescription = ?(RegisterField = Undefined, New TypeDescription, RegisterField.Type);
 				TypesList = TypesList + ?(TypesList = "", "", Chars.LF)
-					+ NStr("en = '- for dimension';") + " " + "Field" + FieldNumber + ":" + Chars.LF
+					+ NStr("en = '- for dimension';") + " " + FieldName + ":" + Chars.LF
 					+ "	" + TextWithIndent(TypesListFromArray(FieldDetails.Type.Types(),
 						True, TablesTypesByNames, TypeDescription), "	");
 				FieldNumber = FieldNumber + 1;
@@ -25201,7 +25960,7 @@ Procedure AddTypesReguiredInDefinedType(ImplementationSettings, TablesTypesByNam
 	
 EndProcedure
 
-// For the SetImplementationSettings and AddTypesRequiredInDefinedType procedures.
+// For the SetImplementationSettings and AddTypesRequiredInDefinedType procedures.
 Function TypesListFromArray(TypesNames, RefsTypes, TablesTypesByNames, TypeDescription)
 	
 	TypesList = "";
@@ -25212,11 +25971,15 @@ Function TypesListFromArray(TypesNames, RefsTypes, TablesTypesByNames, TypeDescr
 			Type = Type(TypeName);
 		EndIf;
 		MetadataObject = Metadata.FindByType(Type);
-		FullName = MetadataObject.FullName();
-		
-		TypesList = TypesList + ?(TypesList = "", "", Chars.LF)
-			+ "- " + ?(RefsTypes, RefTypeName1(FullName, TablesTypesByNames),
+		If MetadataObject = Undefined Then
+			TypeName = String(Type);
+		Else
+			FullName = MetadataObject.FullName();
+			TypeName = ?(RefsTypes, RefTypeName1(FullName, TablesTypesByNames),
 				ObjectTypeOrRecordSetName(FullName, TablesTypesByNames));
+		EndIf;
+		
+		TypesList = TypesList + ?(TypesList = "", "", Chars.LF) + "- " + TypeName;
 		
 		If TypeDescription.ContainsType(Type) Then
 			TypesList = TypesList + " (" + NStr("en = 'already added';") + ")";
@@ -25332,14 +26095,17 @@ Procedure CheckRestrictionForUsersKind(Context, Result, ForExternalUsers, Additi
 	
 EndProcedure
 
-// For the StoredAccessRestrictionParameters and CalculatedRestrictionParameters functions.
+// For the StoredAccessRestrictionParameters and CalculatedRestrictionParameters functions.
 Function CommonVersion(CommonContext, FullName, VersionForUsers, VersionForExternalUsers)
 	
 	If CommonContext.ListsWithRestriction.Get(FullName) = Undefined Then
 		Return Undefined;
 	EndIf;
 	
-	Return String(VersionForUsers) + Chars.LF + String(VersionForExternalUsers);
+	Return StrGetLine(VersionForUsers, 1)
+		+ Chars.LF + StrGetLine(VersionForExternalUsers, 1)
+		+ Chars.LF + StrGetLine(VersionForUsers, 2)
+		+ Chars.LF + StrGetLine(VersionForExternalUsers, 2)
 	
 EndFunction
 
@@ -25406,9 +26172,9 @@ Function DataRestrictionDetails(CommonContext, FullName, WithoutCallingException
 	EndIf;
 	
 	If IsDocumentJournal(FullName) Or IsFilesCatalog Then
-		// 
-		// 
-		// 
+		// Unless otherwise is required, document journals are restricted by
+		// the owning document without writing access keys.
+		// By default, the same applies to file catalogs and file versions.
 		Restriction.ByOwnerWithoutSavingAccessKeys = True;
 		Restriction.ByOwnerWithoutSavingAccessKeysForExternalUsers = True;
 	EndIf;
@@ -25976,9 +26742,17 @@ EndFunction
 //  Structure:
 //   Warning - String
 //   Error - String
+//   AccessRestrictionTextsVersion - String
 //
 Function NewParametersMismatchInfoForLogging()
-	Return New Structure("Warning, Error", "", "");
+	
+	Result = New Structure;
+	Result.Insert("Warning", "");
+	Result.Insert("Error", "");
+	Result.Insert("AccessRestrictionTextsVersion", "");
+	
+	Return Result;
+	
 EndFunction
 
 // This method is required by the NewVersionOfAccessRestrictionParameters function.
@@ -26054,23 +26828,7 @@ Function DescriptionOfTheNewVersionOfAccessRestrictionParameters(Parameters, Wit
 		BeginTransaction();
 		Try
 			If Common.FileInfobase() Then
-				DataLock = New DataLock;
-				DataLock.Add("InformationRegister.AccessRestrictionParameters");
-				Try
-					DataLock.Lock();
-				Except
-					IsLockError = True;
-					Raise;
-				EndTry;
-				DataLock = New DataLock;
-				DataLock.Add("InformationRegister.DataAccessKeysUpdate");
-				DataLock.Add("InformationRegister.UsersAccessKeysUpdate");
-				Try
-					DataLock.Lock();
-				Except
-					IsLockError = True;
-					Raise;
-				EndTry;
+				LockRegistersSchedulingUpdateAccessKeysInFileIB(IsLockError, True);
 			EndIf;
 			VersionDetails = LastVersionDetails(True);
 			While True Do
@@ -26140,6 +26898,9 @@ Function DescriptionOfTheNewVersionOfAccessRestrictionParameters(Parameters, Wit
 	ElsIf Not TransactionActive() Then
 		ParameterName = "StandardSubsystems.AccessManagement.AccessRestrictionParametersCheckDate";
 		StandardSubsystemsServer.SetExtensionParameter(ParameterName, CurrentSessionDate(), True);
+		TextsVersion = Parameters.InfoForLogging.AccessRestrictionTextsVersion;
+		ParameterName = "StandardSubsystems.AccessManagement.AccessRestrictionTextsVersion";
+		StandardSubsystemsServer.SetExtensionParameter(ParameterName, TextsVersion, True);
 		SetAccessUpdate(True);
 	EndIf;
 	
@@ -26185,8 +26946,9 @@ EndFunction
 Procedure ScheduleAccessUpdatesWhenSettingsChange(OldVersion, Parameters)
 	
 	UnavailableLists = New Array;
+	OldCacheStructureVersion = "0";
 	Lists = ListsWithVersionsChange(OldVersion,
-		Parameters.ListsRestrictionsVersions, UnavailableLists);
+		Parameters.ListsRestrictionsVersions, UnavailableLists, OldCacheStructureVersion);
 	
 	PlanningParameters = AccessUpdatePlanningParameters();
 	PlanningParameters.ListsRestrictionsVersions = Parameters.ListsRestrictionsVersions;
@@ -26217,6 +26979,15 @@ Procedure ScheduleAccessUpdatesWhenSettingsChange(OldVersion, Parameters)
 		ScheduleAccessUpdate(Parameters.ListsWithOutdatedAccessOptions,
 			PlanningParameters);
 	EndIf;
+	
+	If Lists = Undefined
+	 Or OldCacheStructureVersion = CacheStructureVersion() Then
+		Return;
+	EndIf;
+	
+	InformationRegisters.AccessRestrictionParameters.OnChangeCacheStructureVersion(
+		OldCacheStructureVersion,
+		Parameters.StoredParameters.ForWritingObjectsAndCheckingRights.Get());
 	
 EndProcedure
 
@@ -26276,20 +27047,30 @@ EndFunction
 // For the SetAccessUpdate procedure
 Function ThisIsABackgroundAccessUpdateSession()
 	
+	SetPrivilegedMode(True);
+	Return SessionParameters.AccessRestrictionParameters.Property("ThisIsABackgroundAccessUpdateSession");
+	
+EndFunction
+
+// Intended for procedures "ExecuteAccessUpdateAtRecordLevel" and "UpdateListAccessInBackground".
+Procedure SetThisIsABackgroundAccessUpdateSession()
+	
 	If CurrentRunMode() <> Undefined Then
-		Return False;
+		Return;
 	EndIf;
 	
 	CurrentSession = GetCurrentInfoBaseSession();
-	CurrentBackgroundJob = CurrentSession.GetBackgroundJob();
-	If CurrentBackgroundJob = Undefined Then
-		Return False;
+	If CurrentSession.ApplicationName <> "BackgroundJob" Then
+		Return;
 	EndIf;
 	
-	Return CurrentBackgroundJob.MethodName = AccessUpdateThreadMethodName()
-	    Or CurrentBackgroundJob.MethodName = NameOfTheAccessUpdateTaskMethod();
+	SetPrivilegedMode(True);
 	
-EndFunction
+	Parameters = New Structure(SessionParameters.AccessRestrictionParameters);
+	Parameters.Insert("ThisIsABackgroundAccessUpdateSession");
+	SessionParameters.AccessRestrictionParameters = New FixedStructure(Parameters);
+	
+EndProcedure
 
 // Intended for function "NewVersionOfAccessRestrictionParameters".
 Procedure DoLogParametersMismatch(Record, Comment, IsError = False)
@@ -26298,10 +27079,14 @@ Procedure DoLogParametersMismatch(Record, Comment, IsError = False)
 		Return;
 	EndIf;
 	
-	WarningTitle = StringFunctionsClientServer.SubstituteParametersToString(
+	EventName = NStr("en = 'Access management.Access restriction parameters.Mismatch';",
+		Common.DefaultLanguageCode());
+	TitleTemplate1 =
 		NStr("en = 'There is a discrepancy in the recorded access restriction parameters
 		           |Version %1, Creation date %2, Hash: %3,
-		           |Persistent parameter hash: %4';"),
+		           |Persistent parameter hash: %4';");
+	
+	Title = StringFunctionsClientServer.SubstituteParametersToString(TitleTemplate1,
 		Record.Version,
 		Record.CreationDate,
 		Record.HashSum,
@@ -26310,12 +27095,10 @@ Procedure DoLogParametersMismatch(Record, Comment, IsError = False)
 	LogLevel = ?(IsError, EventLogLevel.Error,
 		EventLogLevel.Warning);
 	
-	WriteLogEvent(
-		NStr("en = 'Access management.Access restriction parameters.Mismatch';",
-		     Common.DefaultLanguageCode()),
+	WriteLogEvent(EventName,
 		LogLevel,
 		Metadata.InformationRegisters.AccessRestrictionParameters,,
-		WarningTitle + Chars.LF + Chars.LF + Comment,
+		Title + Chars.LF + Chars.LF + Comment,
 		EventLogEntryTransactionMode.Transactional);
 	
 EndProcedure
@@ -26374,7 +27157,8 @@ Procedure RegisterAccessRestrictionParametersVersionString(Record, VersionString
 EndProcedure
 
 // This method is required by the NewVersionOfAccessRestrictionParameters function.
-Function ListsWithVersionsChange(Version, NewListsRestrictionsVersions, UnavailableLists)
+Function ListsWithVersionsChange(Version, NewListsRestrictionsVersions, UnavailableLists,
+			OldCacheStructureVersion)
 	
 	If Not ValueIsFilled(Version) Then
 		Return Undefined;
@@ -26393,6 +27177,10 @@ Function ListsWithVersionsChange(Version, NewListsRestrictionsVersions, Unavaila
 	 Or TypeOf(WriteParameters.ListsRestrictionsVersions) <> Type("FixedMap") Then
 		Return Undefined;
 	EndIf;
+	
+	Properties = New Structure("CacheStructureVersion", OldCacheStructureVersion);
+	FillPropertyValues(Properties, WriteParameters);
+	OldCacheStructureVersion = Properties.CacheStructureVersion;
 	
 	Table = New ValueTable;
 	Table.Columns.Add("List",       New TypeDescription("String"));
@@ -26437,6 +27225,9 @@ Function ListsWithVersionsChange(Version, NewListsRestrictionsVersions, Unavaila
 	
 	If NotFoundLists.Count() > 0 Then
 		UnavailableLists = AllIDsWithSimilarFullNames(NotFoundLists);
+		
+	ElsIf Lists.Count() = 1 And Lists[0] = "Catalog.SetsOfAccessGroups" Then
+		Lists = New Array;
 	EndIf;
 	
 	Return Lists;
@@ -26493,11 +27284,11 @@ EndFunction
 // Returns:
 //   String
 //
-Function CacheStructureVersion()
+Function CacheStructureVersion() Export
 	
-	// 
-	// 
-	Return "25" + TranslationVersion();
+	// Increase the number if the cache parameters are modified.
+	// (This also applies when template versions change.)
+	Return "27.2" + TranslationVersion();
 	
 EndFunction
 
@@ -26511,7 +27302,7 @@ Function TranslationVersion()
 	
 EndFunction
 
-// For the SessionParametersSetting and ClarifyAccessRestrictionTemplatesVersions procedures, and
+// For the SessionParametersSetting and ClarifyAccessRestrictionTemplatesVersions procedures, and
 //  the StoredTemplatesParametersStructure function.
 //
 // Returns:
@@ -26538,7 +27329,7 @@ EndFunction
 //
 Function VersionOfTheTemplateParameterVersionStructure()
 	
-	// 
+	// Increase the number when modifying the parameter "TemplatesParametersVersions".
 	// 
 	Return "1";
 	
@@ -26722,6 +27513,10 @@ Function SessionAccessRestrictionParameters(ParametersVersion, ForWritingObjects
 	If SessionParameters.AccessRestrictionParameters.Property("RecordingAccessRestrictionParametersInTheCurrentSession") Then
 		RestrictionParameters.Insert("RecordingAccessRestrictionParametersInTheCurrentSession",
 			SessionParameters.AccessRestrictionParameters.RecordingAccessRestrictionParametersInTheCurrentSession);
+	EndIf;
+	
+	If SessionParameters.AccessRestrictionParameters.Property("ThisIsABackgroundAccessUpdateSession") Then
+		RestrictionParameters.Insert("ThisIsABackgroundAccessUpdateSession");
 	EndIf;
 	
 	Return New FixedStructure(RestrictionParameters);
@@ -26925,6 +27720,7 @@ Function StoredAccessRestrictionParameters(CommonContext, ListsRestrictionsVersi
 	AdditionalContextForUsers        = NewAdditionalContext();
 	AdditionalContextForExternalUsers = NewAdditionalContext();
 	
+	RestrictionsDetails = New Map;
 	FullListsNames = New Array;
 	For Each ListDetails In CommonContext.ListsWithRestriction Do
 		FullName = ListDetails.Key;
@@ -26934,6 +27730,7 @@ Function StoredAccessRestrictionParameters(CommonContext, ListsRestrictionsVersi
 		Else
 			RestrictionDetails = DataRestrictionDetails(CommonContext, FullName);
 		EndIf;
+		RestrictionsDetails.Insert(FullName, RestrictionDetails);
 		
 		AddAdditionalContext(FullName,
 			AdditionalContextForUsers, RestrictionDetails, False);
@@ -26944,6 +27741,8 @@ Function StoredAccessRestrictionParameters(CommonContext, ListsRestrictionsVersi
 	
 	ListsWithDate = New Map;
 	ListsIDs = Common.MetadataObjectIDs(FullListsNames);
+	AccessRestrictionTextsVersion =
+		InformationRegisters.AccessRestrictionParameters.AccessRestrictionTextsVersion(RestrictionsDetails);
 	
 	TypesRestrictionsPermissionsForUsers        = New Map;
 	TypesRestrictionsPermissionsForExternalUsers = New Map;
@@ -27005,6 +27804,7 @@ Function StoredAccessRestrictionParameters(CommonContext, ListsRestrictionsVersi
 	
 	If CommonContext.Property("InfoForLogging") Then
 		FillParametersMismatchForLogging(ListsWithoutIntegration, CommonContext.InfoForLogging);
+		CommonContext.InfoForLogging.AccessRestrictionTextsVersion = AccessRestrictionTextsVersion;
 	EndIf;
 	
 	// Filling in general and separate parts of leading lists for users and external users.
@@ -27075,6 +27875,8 @@ Function StoredAccessRestrictionParameters(CommonContext, ListsRestrictionsVersi
 		New Structure("HashSum", CommonContext.UsedValuesTypes.HashSum));
 	WriteParameters.ExternalUsersEnabled = CommonContext.ExternalUsersEnabled;
 	WriteParameters.AccessRestrictionEnabled  = CommonContext.AccessRestrictionEnabled;
+	WriteParameters.AccessRestrictionTextsVersion = AccessRestrictionTextsVersion;
+	DataHashing.Append(CommonContext.UsedValuesTypes.HashSum);
 	
 	StoredParameters = New Structure;
 	
@@ -27268,7 +28070,6 @@ Procedure AddStoredRestrictionParametersForUsersKind(Context)
 	PropertiesTable.Columns.Add("Processed", New TypeDescription("Boolean"));
 	PropertiesTable.Columns.Add("RestrictionByOwnerPossible",  New TypeDescription("Boolean"));
 	PropertiesTable.Columns.Add("RestrictionByOwnerEnabled",  New TypeDescription("Boolean"));
-	PropertiesTable.Columns.Add("RestrictionByOwnerDisabled", New TypeDescription("Boolean"));
 	PropertiesTable.Columns.Add("UsersAccessKeys",       New TypeDescription("Boolean"));
 	PropertiesTable.Columns.Add("HasDependantListsWithoutAccessKeysRecords", New TypeDescription("Boolean"));
 	PropertiesTable.Columns.Add("DependentListsWithoutWriteAccessKeys",     New TypeDescription("Map"));
@@ -27415,7 +28216,8 @@ Procedure AddStoredRestrictionParametersForUsersKind(Context)
 						"CalculateUserRights", True, Context);
 				EndIf;
 				ListProperties.UsersAccessKeys = True;
-				If AccessGroupsAccessKeys Then
+				If ListProperties.RestrictionByOwnerEnabled
+				   And AccessGroupsAccessKeys Then
 					ListProperties.UsersAndAccessGroupsAccessKeys = True;
 				EndIf;
 			EndIf;
@@ -27521,7 +28323,6 @@ EndProcedure
 //     * Processed - Boolean
 //     * RestrictionByOwnerPossible  - Boolean
 //     * RestrictionByOwnerEnabled  - Boolean
-//     * RestrictionByOwnerDisabled - Boolean
 //     * UsersAccessKeys       - Boolean
 //     * HasDependantListsWithoutAccessKeysRecords - Boolean
 //     * UsersAndAccessGroupsAccessKeys    - Boolean
@@ -27615,7 +28416,7 @@ Procedure SetOptimizationByOwnerField(DependentListProperties, ListsProperties, 
 	
 	DependentListProperties.RestrictionByOwnerEnabled =
 		     DependentListProperties.RestrictionByOwnerPossible
-		And Not DependentListProperties.RestrictionByOwnerDisabled;
+		And Not DependentListProperties.Parameters.OwnerField.Disabled;
 	
 	DependentListWithOptimization = DependentListProperties.RestrictionByOwnerEnabled;
 	
@@ -27648,7 +28449,7 @@ Procedure SetOptimizationByOwnerField(DependentListProperties, ListsProperties, 
 					ErrorText = ErrorTextWithTitle(ErrorText, ErrorContext);
 					Raise ErrorText;
 				Else
-					LeadingListProperties1.RestrictionByOwnerDisabled = True;
+					LeadingListProperties1.RestrictionByOwnerEnabled = False;
 					LeadingListProperties1.Parameters.OwnerField.Disabled = True;
 					SetRestrictionProperty(LeadingListProperties1.FullName,
 						"OwnerField", LeadingListProperties1.Parameters.OwnerField, Context);
@@ -27679,10 +28480,10 @@ Procedure FillListsWithoutIntegration(ListsWithoutIntegration, ListProperties)
 	Parameters = ListProperties.Parameters;
 	
 	If Parameters.ShouldSkipObjectAccessKeysUpdate
-	   And Parameters.Version <> " "
+	   And StrGetLine(Parameters.Version, 1) <> " "
 	   And Not IsObsoleteMetadataObject(ListProperties.FullName) Then
 		
-		If Parameters.Version = "    " Then
+		If StrGetLine(Parameters.Version, 1) = "    " Then
 			Lists = ListsWithoutIntegration.WarningObjects;
 		Else
 			Lists = ListsWithoutIntegration.ErrorObjects;
@@ -27696,7 +28497,7 @@ Procedure FillListsWithoutIntegration(ListsWithoutIntegration, ListProperties)
 			DependentLists = ListProperties.DependentListsWithoutWriteAccessKeys;
 			Lists.Insert(ListProperties.FullName, DependentLists);
 		EndIf;
-		If ValueIsFilled(Parameters.Version) Then
+		If ValueIsFilled(StrGetLine(Parameters.Version, 1)) Then
 			DependentLists.Insert("HasListRestriction", True);
 		EndIf;
 	EndIf;
@@ -27736,7 +28537,7 @@ Procedure SetRestrictionProperty(FullName, PropertyName, PropertyValue, Context)
 	
 EndProcedure
 
-// For the SetRestrictionProperty and FillReadUpdateRightCheckQueries procedures.
+// For the SetRestrictionProperty and FillReadUpdateRightsCheckQueries procedures.
 Function ListRestrictionProperties(FullName, Context, AddToCollection = False)
 	
 	Properties = Context.ListRestrictionsProperties.Get(FullName);
@@ -28822,9 +29623,9 @@ Procedure AddExistingVersionsOfListFields(CurrentVersionsOfTheListFields, NewVer
 	   And (    AccessOptions[0] < 2
 	      Or AccessOptions[0] - Int(AccessOptions[0] / 64) * 64 = RequiredAccessOption) Then
 		
-		// 
-		// 
-		// 
+		// Migration from the configuration versions that don't have the "AccessOption" or
+		// restoration following either the cleanup of the "AccessRestrictionParameters" register
+		// or changing the number in the "TemplatesParametersVersionsStructureVersion" function.
 		If Not ValueIsFilled(Parameters.OldCreationDate) Then
 			ConnectionFields = NewVersion.ConnectionFields;
 			TemplateFields    = NewVersion.ConnectionFields;
@@ -28842,8 +29643,8 @@ Procedure AddExistingVersionsOfListFields(CurrentVersionsOfTheListFields, NewVer
 		
 		CurrentVersionsOfTheListFields.Add(PreviousVersion);
 	Else
-		// 
-		// 
+		// Multiple versions cannot be mapped to a single field set
+		// and cannot be used for new field sets.
 		For Each AccessOption In AccessOptions Do
 			UnknownVersion = NewVersionOfTemplateParameters();
 			UnknownVersion.CreationDate   = Parameters.OldCreationDate;
@@ -28922,7 +29723,9 @@ Function StoredWriteParametersStructure(Values)
 	   And Values.Property("AccessRestrictionEnabled")
 	   And TypeOf(Values.AccessRestrictionEnabled)  = Type("Boolean")
 	   And Values.Property("UsedValuesTypes")
-	   And TypeOf(Values.UsedValuesTypes)    = Type("ValueStorage") Then
+	   And TypeOf(Values.UsedValuesTypes)    = Type("ValueStorage")
+	   And Values.Property("AccessRestrictionTextsVersion")
+	   And TypeOf(Values.AccessRestrictionTextsVersion) = Type("String") Then
 		
 		FillPropertyValues(StoredWriteParameters, Values);
 	EndIf;
@@ -28956,8 +29759,9 @@ EndFunction
 //    * ExternalUsersEnabled - Boolean
 //    * AccessRestrictionEnabled  - Boolean
 //    * UsedValuesTypes    - ValueStorage - see the UsedValuesTypes function.
+//    * AccessRestrictionTextsVersion - String
 //
-Function NewStoredWriteParametersStructure()
+Function NewStoredWriteParametersStructure() Export
 	
 	StoredWriteParameters = New Structure;
 	StoredWriteParameters.Insert("CacheStructureVersion",         CacheStructureVersion());
@@ -28969,6 +29773,7 @@ Function NewStoredWriteParametersStructure()
 	StoredWriteParameters.Insert("ExternalUsersEnabled", False);
 	StoredWriteParameters.Insert("AccessRestrictionEnabled",  False);
 	StoredWriteParameters.Insert("UsedValuesTypes",    New ValueStorage(New Map));
+	StoredWriteParameters.Insert("AccessRestrictionTextsVersion", "");
 	
 	Return StoredWriteParameters;
 	
@@ -29317,14 +30122,14 @@ EndFunction
 //                                                     is not specified in the "RegisterAccessKeysRegisterField" type collection
 //                                                     or in the type of the related field in a separate keys register.
 //                                                     
-//     * ReadingAllowedForAllUsers - Boolean - the flag calculated on the second pass of the graph.
-//                                                     When HasDependentListsWithoutWriteAccessKeys = True,
+//     * ReadingAllowedForAllUsers - Boolean - Flag calculated on the second pass of the graph.
+//                                                     When HasDependantListsWithoutAccessKeysRecords = True,
 //                                                     it indicates that the Read right is available in one of the
-//                                                     BasicRights* or BasicExternalUsersRights* roles.
-//     * EditionAllowedForAllUsers - Boolean - the flag calculated on the second pass of the graph.
-//                                                     When HasDependentListsWithoutWriteAccessKeys = True,
+//                                                     BasicAccess* or BasicAccessExternalUsers* roles.
+//     * EditionAllowedForAllUsers - Boolean - Flag calculated on the second pass of the graph.
+//                                                     When HasDependantListsWithoutAccessKeysRecords = True,
 //                                                     it indicates that the Update right is available in one of the
-//                                                     BasicRights* or BasicExternalUsersRights* roles.
+//                                                     BasicAccess* or BasicAccessExternalUsers* roles.
 //     * HasMasterAccessKeys                - Boolean - shows that there are leading access keys in the restriction.
 //     * HasHeadRightsLists              - Boolean - shows that there are leading lists by rights in the restriction.
 //     * ThereIsAFunctionAccessRightOrRoleAvailable - Boolean - indicates whether there are listed functions in the restriction.
@@ -29558,7 +30363,7 @@ Function RestrictionParametersByRestrictionStructure(List, RestrictionStructure,
 	
 	If Result.Context.FieldsProperties.Count() = 0
 	   And (Not Result.IsReferenceType
-	      Or Not Result.ThereIsAFunctionAccessRightOrRoleAvailable) Then // 
+	      Or Not Result.ThereIsAFunctionAccessRightOrRoleAvailable) Then // Restriction disabled.
 		
 		If Result.HasDependantListsWithoutAccessKeysRecords Then
 			ConfigureCreationOfAccessKeyForDependentListsWithoutKeys(Result);
@@ -29586,9 +30391,6 @@ Function RestrictionParametersByRestrictionStructure(List, RestrictionStructure,
 	EndIf;
 	
 	FillBasicFieldsMissingTypes(Result, Context);
-	If Result.ShouldSkipAllBasicFieldValueCombinationsUpdate Then
-		AddVersionProperty(Context, Result, "ShouldSkipAllBasicFieldValueCombinationsUpdate");
-	EndIf;
 	
 	Result.RestrictionDisabled = False;
 	
@@ -30057,21 +30859,21 @@ Procedure FillNewBasicFieldsDetails(Result, Context)
 	
 	AddVersionProperty(Context, BasicFields, "MaxCount");
 	
-	Result.BasicFields = New Structure("All, AllItemsTypes, UsedItems, UsedItemsTypes,
-	|MaxCount, MaxQuantity");
+	Result.BasicFields = NewBasicFieldsDetails();
 	FillPropertyValues(Result.BasicFields, Context.BasicFields);
 	
 EndProcedure
 
 // Returns:
 //  Structure:
-//    * List                          - ValueList
 //    * All                             - Array
 //    * AllItemsTypes                        - Array of ValueStorage - Contains the "TypeDescription" type
 //    * UsedItems                    - Array
 //    * UsedItemsTypes                - Array of ValueStorage - Contains the "TypeDescription" type
 //    * MaxCount          - Number
 //    * MaxQuantity - Number
+//
+//    * List                          - ValueList
 //    * TypesByFieldNames - Map of KeyAndValue:
 //        ** Key     - String - the basic field name
 //        ** Value - TypeDescription - the basic field types
@@ -30087,7 +30889,6 @@ EndProcedure
 Function NewBasicFieldsDetails()
 	
 	BasicFields = New Structure;
-	BasicFields.Insert("List",           New ValueList);
 	BasicFields.Insert("All",              New Array);
 	BasicFields.Insert("AllItemsTypes",         New Array);
 	BasicFields.Insert("UsedItems",     New Array);
@@ -30200,8 +31001,8 @@ Procedure FillInTheRestrictionOnTheObjectOwnerBeforeSimplifying(Result, Context)
 				If RestrictionByOwnerRequired Then
 					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'The optimization option %1 is set
-						           |but the owner field is not the only parameter of the %2 function
-						           |.';"),
+						           |but the owner field is not the only parameter of the %2 function.
+						           |';"),
 						OptimizationFlagName,
 						"ObjectReadingAllowed");
 					ErrorText = ErrorTextWithTitle(ErrorText, Context);
@@ -30250,8 +31051,8 @@ Procedure FillInTheRestrictionOnTheObjectOwnerBeforeSimplifying(Result, Context)
 				If RestrictionByOwnerRequired Then
 					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'The optimization option %1 is set
-						           |but the owner field is not the only parameter of the %2 function
-						           |.';"),
+						           |but the owner field is not the only parameter of the %2 function.
+						           |';"),
 						OptimizationFlagName,
 						UpdateRestriction.Node);
 					ErrorText = ErrorTextWithTitle(ErrorText, Context);
@@ -30730,10 +31531,10 @@ EndProcedure
 //
 Procedure FillFieldsAndAdditionalTablesGroups(Context)
 	
-	// 
-	// 
-	// 
-	// 
+	// Fields of the header (start off the header, a grouping by an empty alias unless the table has a name).
+	// Fields of each table (start off the table, a grouping by the table name).
+	// Fields of the related additional tables (start off the additional table instance,
+	// a grouping by alias, but if a table refers to another table in the join, then a group of tables is created).
 	
 	LastHeaderAttributeNumberWithSeveralAccessValuesGroups = 0;
 	LastObjectTabularSectionNumber = 0;
@@ -30819,7 +31620,7 @@ Procedure FillFieldsAndAdditionalTablesGroups(Context)
 				KeyTabularSectionNumber = Int(LastHeaderAttributeNumberWithSeveralAccessValuesGroups
 					/ AccessKeyDimensions.TabularSectionAttributesCount) + 1;
 				
-				FieldsGroupName = "TabularSection" + KeyTabularSectionNumber;
+				FieldsGroupName = StrTemplate("TabularSection%1", KeyTabularSectionNumber);
 			Else
 				LastHeaderAttributeNumber = LastHeaderAttributeNumber + 1;
 				If LastHeaderAttributeNumber < 6 Then
@@ -30855,7 +31656,7 @@ Procedure FillFieldsAndAdditionalTablesGroups(Context)
 					+ ObjectTabularSectionsNumbers.Count()
 					+ AdditionalTablesGroups.NumbersByAliases.Get(FieldProperties.TableAlias);
 			EndIf;
-			FieldsGroupName = "TabularSection" + KeyTabularSectionNumber;
+			FieldsGroupName = StrTemplate("TabularSection%1", KeyTabularSectionNumber);
 		EndIf;
 		GroupOfFields = FieldsGroups.Get(FieldsGroupName);
 		If GroupOfFields = Undefined Then
@@ -30891,19 +31692,19 @@ Procedure FillFieldsAndAdditionalTablesGroups(Context)
 	
 	// Calculate the FieldsComposition number.
 	
-	// 
-	// 
-	// 
+	// Header and tables:    T4  T3  T2  T1    H.
+	// Binary format:           0000 0000 0000 0000 0000.
+	// Hexadecimal format:    x0   x0   x0   x0   x0.
 	//
-	// 
-	// 
-	// 
-	// 
+	// Example: H0=1, T1=1.
+	// Binary format:           0000 0000 0000 0001 0001.
+	// Hexadecimal format:    x0   x0   x0   x1   x1.
+	// Number = 1*16^0 + 1*16^1 = 1 + 16 = 17.
 	
 	FieldsComposition = LastHeaderAttributeNumber;
 	
 	For KeyTabularSectionNumber = 1 To KeyTabularSectionsCount Do
-		KeyTabularSectionName = "TabularSection" + KeyTabularSectionNumber;
+		KeyTabularSectionName = StrTemplate("TabularSection%1", KeyTabularSectionNumber);
 		GroupOfFields = FieldsGroups.Get(KeyTabularSectionName);
 		FieldsComposition = FieldsComposition + GroupOfFields.Count() * Power16(KeyTabularSectionNumber);
 	EndDo;
@@ -31203,36 +32004,25 @@ Function AdditionalTablesGroups(Context)
 	For Each AdditionalTable In AdditionalTables Do
 		AdditionalTable.Insert("RequiredTablesAliases", New Array);
 		AdditionalTable.Insert("ConnectionConditionFields", New Array);
-		AdditionalTable.Insert("ConnectionTestField", "");
 		
 		ConnectionConditionText = ConnectionConditionText(AdditionalTable, Context);
 		AdditionalTable.Insert("ConnectionConditionText", ?(Left(ConnectionConditionText, 1) = "(",
 			ConnectionConditionText, "(" + ConnectionConditionText + ")"));
 		
-		If Not ValueIsFilled(AdditionalTable.ConnectionTestField) Then
-			AccessKeyFields = Context.AccessKeyFieldsAfterSimplify;
-			For Each FieldDetails In AccessKeyFields Do
-				If FieldDetails.Field.Alias = AdditionalTable.Alias Then
-					AdditionalTable.ConnectionTestField =
-						AdditionalTable.Alias + "." + FieldDetails.Field.Name;
-				EndIf;
-			EndDo;
-		EndIf;
-		
-		CurrentGroup_SSLy = GroupsNumbersByAliases.Get(AdditionalTable.Alias);
-		If CurrentGroup_SSLy = Undefined Then
+		CurrentGroup = GroupsNumbersByAliases.Get(AdditionalTable.Alias);
+		If CurrentGroup = Undefined Then
 			LastGroup = LastGroup + 1;
-			CurrentGroup_SSLy = LastGroup;
-			GroupsNumbersByAliases.Insert(AdditionalTable.Alias, CurrentGroup_SSLy);
+			CurrentGroup = LastGroup;
+			GroupsNumbersByAliases.Insert(AdditionalTable.Alias, CurrentGroup);
 		EndIf;
 		
 		For Each Alias In AdditionalTable.RequiredTablesAliases Do
 			RequiredTableGroup = GroupsNumbersByAliases.Get(Alias);
 			If RequiredTableGroup = Undefined Then
-				GroupsNumbersByAliases.Insert(Alias, CurrentGroup_SSLy);
+				GroupsNumbersByAliases.Insert(Alias, CurrentGroup);
 				Continue;
 			EndIf;
-			If RequiredTableGroup = CurrentGroup_SSLy Then
+			If RequiredTableGroup = CurrentGroup Then
 				Continue;
 			EndIf;
 			GroupToReplaceAliases = New Array;
@@ -31243,7 +32033,7 @@ Function AdditionalTablesGroups(Context)
 				GroupToReplaceAliases.Add(KeyAndValue.Key);
 			EndDo;
 			For Each Alias In GroupToReplaceAliases Do
-				GroupsNumbersByAliases.Insert(Alias, CurrentGroup_SSLy);
+				GroupsNumbersByAliases.Insert(Alias, CurrentGroup);
 			EndDo;
 		EndDo;
 	EndDo;
@@ -31360,11 +32150,8 @@ Function ConnectionConditionText(AdditionalTable, Context,
 			Return FieldNameExpandingBasicFieldsByTypes(Alias, Condition);
 		EndIf;
 		Alias = Condition.Alias;
-		If Alias = AdditionalTable.Alias Then
-			If AdditionalTable.ConnectionTestField = "" Then
-				AdditionalTable.ConnectionTestField = Alias + "." + Condition.Name;
-			EndIf;
-		ElsIf AdditionalTable.RequiredTablesAliases.Find(Alias) = Undefined Then
+		If Alias <> AdditionalTable.Alias
+		   And AdditionalTable.RequiredTablesAliases.Find(Alias) = Undefined Then
 			AdditionalTable.RequiredTablesAliases.Add(Alias);
 		EndIf;
 		Field = Alias + "." + Condition.Name;
@@ -31627,8 +32414,16 @@ Procedure FinishPreparingObjectTablesFields(Context)
 	EndIf;
 	
 	FullNameOfMainTable = StrReplace(Context.List, ".", "_");
-	RefType = New TypeDescription(CommonClientServer.ValueInArray(
-		Type(RefTypeName1(Context.List, Context.RestrictionStructure.InternalData.TablesTypesByNames))));
+	RefType = Type(RefTypeName1(Context.List, Context.RestrictionStructure.InternalData.TablesTypesByNames));
+	RefTypeDetails = New TypeDescription(CommonClientServer.ValueInArray(RefType));
+	AccessKindProperties = Context.AccessKindsProperties.AccessValuesWithGroups.ByRefsTypes.Get(RefType);
+	If AccessKindProperties <> Undefined And Not AccessKindProperties.MultipleValuesGroups Then
+		MetadataTables = Metadata.FindByType(RefType);
+		AccessGroupAttribute = MetadataTables.Attributes.Find("AccessGroup");
+	EndIf;
+	
+	HasMainTable = False;
+	HaveTabularPart = False;
 	
 	For Each TableDetails In ObjectTablesFields.Content Do
 		TableFields = NewObjectTableFields();
@@ -31649,16 +32444,34 @@ Procedure FinishPreparingObjectTablesFields(Context)
 		If Not HasUsedFields Then
 			Continue;
 		EndIf;
+		If TypeOf(AccessGroupAttribute) = Type("MetadataObject")
+		   And TableFields.Fields.Find("AccessGroup") = Undefined Then
+			TableFields.Fields.Add("AccessGroup");
+			ValueTable.Columns.Add("AccessGroup", AccessGroupAttribute.Type);
+		EndIf;
 		TableFields.FieldList = StrConcat(TableFields.Fields, ", ");
 		TableFields.Fields.Insert(0, "Ref");
-		ValueTable.Columns.Add("Ref", RefType);
+		ValueTable.Columns.Add("Ref", RefTypeDetails);
 		TableFields.TableWithFields = New ValueStorage(ValueTable);
-		If TableFields.FullTableName <> FullNameOfMainTable Then
+		If TableFields.FullTableName = FullNameOfMainTable Then
+			HasMainTable = True;
+		Else
+			HaveTabularPart = True;
 			TableFields.TabularSection = Mid(TableFields.FullTableName,
 				StrLen(FullNameOfMainTable) + 2);
 		EndIf;
 		ObjectTablesFields.Result.Add(TableFields);
 	EndDo;
+	
+	If HaveTabularPart And Not HasMainTable Then
+		TableFields = NewObjectTableFields();
+		TableFields.FullTableName = FullNameOfMainTable;
+		TableFields.Fields.Insert(0, "Ref");
+		ValueTable = New ValueTable;
+		ValueTable.Columns.Add("Ref", RefTypeDetails);
+		TableFields.TableWithFields = New ValueStorage(ValueTable);
+		ObjectTablesFields.Result.Insert(0, TableFields);
+	EndIf;
 	
 	ObjectTablesFields.Delete("ByFIeldProperties");
 	ObjectTablesFields.Delete("ByAdditionalTables");
@@ -31694,7 +32507,7 @@ Procedure CompleteBasicFieldsPreparation(Context)
 	
 EndProcedure
 
-// For the ConnectionConditionText and FieldProperties functions.
+// For the ConnectionConditionText and FieldProperties functions.
 Function FieldNameExpandingBasicFieldsByTypes(Alias, FieldNode)
 	
 	If Not FieldNode.Property("DefaultOrder")
@@ -31715,7 +32528,7 @@ Function FieldNameExpandingBasicFieldsByTypes(Alias, FieldNode)
 	
 	FieldName = "";
 	For Each TypeName In FieldNode.NextFieldTables[0] Do
-		CurrentFieldName = StrTemplate("CAST (%1 AS %2).%3", BasicField,  TypeName, OtherFields1); // @query-part-1
+		CurrentFieldName = StrTemplate("CAST(%1 AS %2).%3", BasicField,  TypeName, OtherFields1); // @query-part-1
 		If ValueIsFilled(FieldName) Then
 			FieldName = // @query-part-1
 				"ISNULL(" + CurrentFieldName + ",
@@ -31732,16 +32545,17 @@ EndFunction
 // For the AccessRestrictionParameters function.
 Procedure FillFieldProperties(Context)
 	
-	// 
-	// 
+	// 1. For arguments (fields) of comparison nodes ( = , <>, In, IsNull),
+	// the comparison result is calculated and stored in the key.
 	
-	// 
-	// 
-	// 
+	// 2. For Boolean values, the following values are saved:
+	// - Enums.AdditionalAccessValues.TrueValue
+	// - Emuns.AdditionalAccessValues.FalseValue
 	
-	// 
-	//    
+	// 3. For Number, Date, and String values, the result of comparison with "True"
+	//    is saved, as specified in step 2.
 	
+	Context.BasicFields.Insert("List", New ValueList);
 	Context.BasicFields.Insert("TypesByFieldNames", New Map);
 	Context.BasicFields.Insert("ByFIeldProperties",  New Map);
 	Context.ObjectTablesFields.Insert("ByFIeldProperties", New Map);
@@ -32137,7 +32951,11 @@ EndFunction
 // For the FunctionResultValueAllowed function and the AddFieldTypesProperties procedure.
 Function TheTypeOfAccessValuesUsed(Context, ValuesType)
 	
-	UsedValuesTypes = Context.UsedValuesTypes.ByTables.Get(Context.List);
+	If Context.UsedValuesTypes.FullTableName = Undefined Then
+		UsedValuesTypes = Context.UsedValuesTypes.ForIB;
+	Else
+		UsedValuesTypes = Context.UsedValuesTypes.ByTables.Get(Context.List);
+	EndIf;
 	
 	If UsedValuesTypes = Undefined Then
 		If Context.UsedValuesTypes.FullTableName = Context.List
@@ -32209,8 +33027,8 @@ Function ProcessedCombinedField(ProcessedSimilarFields, FieldProperties)
 		   And Field.MultipleValuesGroups <> FieldProperties.MultipleValuesGroups Then
 			Continue;
 		EndIf;
-		// 
-		// 
+		// It's impossible to identify the value type using "Null" or empty key reference.
+		// Therefore, saving an access key is not compatible with the other options.
 		For Each Type In FieldProperties.AccessKeySavingTypes Do
 			If Field.ValueSavingTypes.Find(Type)        <> Undefined
 			 Or Field.ValueGroupSavingTypes.Find(Type)   <> Undefined
@@ -32234,8 +33052,8 @@ Function ProcessedCombinedField(ProcessedSimilarFields, FieldProperties)
 		If Not Compatible1 Then
 			Continue;
 		EndIf;
-		// 
-		// 
+		// It's impossible to identify the value type using "Null" instead of the value group.
+		// Therefore, saving a value group is not compatible with the other options.
 		For Each Type In FieldProperties.ValueGroupSavingTypes Do
 			If Field.ValueSavingTypes.Find(Type)        <> Undefined
 			 Or Field.TypeSavingTypes.Find(Type)           <> Undefined
@@ -32254,8 +33072,8 @@ Function ProcessedCombinedField(ProcessedSimilarFields, FieldProperties)
 				Break;
 			EndIf;
 		EndDo;
-		// 
-		// 
+		// Instead of basic types, save the values as "ValidType" or "ProhibitedType".
+		// Therefore, saving a prohibited basic type is not compatible with the other options.
 		For Each Type In FieldProperties.ProhibitedTypeSavingTypes Do
 			If Not IsSimpleType(Type) Then
 				Continue;
@@ -32470,8 +33288,8 @@ Function WhenConditionFieldsSet(InitialFieldProperties, FieldDetails, Context)
 		Return FieldsSet;
 	EndIf;
 	
-	// 
-	// 
+	// For "SELECT <Field> WHEN <Value>", the result of the comparison
+	// "<Field> = <Value>" is saved to the key.
 	
 	For Each WhenDetails In Parent.When Do
 		FixedProperties = New FixedStructure(InitialFieldProperties);
@@ -32498,7 +33316,7 @@ Function NoNullValue(FieldProperties)
 	
 	Return StrOccurrenceCount(FieldProperties.FieldNameForQuery, ".") = 1
 	      And Not FieldProperties.Property("FieldContainsNull")
-	      And (    StrStartsWith(FieldProperties.FieldNameForQuery, "CurrentList"));
+	      And StrStartsWith(FieldProperties.FieldNameForQuery, "CurrentList.");
 	
 EndFunction
 
@@ -32602,7 +33420,9 @@ Procedure AddFieldTypesProperties(Properties, FieldDetails, Context)
 			
 			Value = Context.RightsSettingsOwnersTypes.Get(Type);
 			If Value <> Undefined
-			   And Upper(Context.List) = Upper(Value[0].RightsOwner) Then
+			   And (Upper(Context.List) = Upper(Value[0].RightsOwner)
+			      Or Context.ListsWithKeysRecordForDependentListsWithoutKeys <> Undefined
+			        And Not Context.UsesRestrictionByOwner) Then
 				
 				Properties.ValueSavingTypes.Add(Type);
 				Properties.HasRightsSettingsOwnerType = True;
@@ -33489,7 +34309,7 @@ Function ValueOrConstantNodeExpression(Node)
 		Expression = ?(Node.Value, "True", "False");
 		
 	ElsIf TypeOf(Node.Value) = Type("Number") Then
-		Expression = Format(Node.Value, "NG=");
+		Expression = Format(Node.Value, "NZ=0; NG=");
 		
 	ElsIf TypeOf(Node.Value) = Type("Undefined") Then
 		Expression = "Undefined";
@@ -33614,6 +34434,9 @@ Procedure AddQueryTextsToRestrictionParameters(Result)
 	If Result.DoNotWriteAccessKeys Then
 		// Query of objects or record filters to delete or set blank keys.
 		Result.Insert("ObsoleteDataItemsQueryText");
+		Result.Insert("ObsoleteDataItemsCheckQueryText");
+		Result.Insert("QueryTextForInvalidDataItems");
+		Result.Insert("QueryTextForInvalidDataItemsInCommonRegister");
 		AddQueryTextOfObsoleteDataItems(Result, Context);
 		
 		If Result.UsesRestrictionByOwner Then
@@ -33629,18 +34452,25 @@ Procedure AddQueryTextsToRestrictionParameters(Result)
 	// Names of used key table attributes.
 	Result.Insert("KeyTablesAttributes");
 	
+	// Request the object or the record set to calculate the range of the required size.
+	Result.Insert("QueryTextForDataItemsRange");
 	// Query of objects or record filters whose access keys are obsolete.
 	Result.Insert("DataItemWithObsoleteKeysQueryText");
+	// Request of validation of the object's access key.
+	Result.Insert("QueryTextToCheckObjectAccessKey");
 	// Query of record filters that are missing in the register of register access keys upon background update.
 	Result.Insert("DataItemsWithoutAccessKeysQueryText");
 	// Query of record filters that are missing in the register of register access keys upon recording a new set.
 	Result.Insert("NewBasicFieldsValuesCombinationsQueryTextForExistingRecords");
 	Result.Insert("NewBasicFieldsValuesCombinationsQueryTextForNewRecords");
-	// 
-	// 
+	// Obtain objects or record filters whose access keys have expired
+	// on master object changes (for targeted jobs).
 	Result.Insert("DetailsOfObsoleteAccessKeysForLeadingObjects", New Map);
 	// Query of non-existent objects or record filters that are out of use.
 	Result.Insert("ObsoleteDataItemsQueryText");
+	Result.Insert("ObsoleteDataItemsCheckQueryText");
+	Result.Insert("QueryTextForInvalidDataItems");
+	Result.Insert("QueryTextForInvalidDataItemsInCommonRegister");
 	
 	// Query of current access keys of register record filters before writing calculated access keys.
 	Result.Insert("CurrentRegisterAccessKeysQueryText");
@@ -33651,8 +34481,8 @@ Procedure AddQueryTextsToRestrictionParameters(Result)
 	Result.Insert("TextOfQueryForInMemoryObjectsValuesForAccessKeys");
 	// Query of values from used access keys to compare them with values from objects or record filters.
 	Result.Insert("ValueFromAccessKeysInUseForComparisonQueryText");
-	// 
-	// 
+	// Obtain values from all access keys to compare them with values
+	// from objects or record filters before writing a new key.
 	Result.Insert("ValueFromAllAccessKeysForComparisonQueryText");
 	// Query of checking if access key exists before writing a new key.
 	Result.Insert("KeysForComparisonExistenceQueryText");
@@ -33666,10 +34496,11 @@ Procedure AddQueryTextsToRestrictionParameters(Result)
 	// Query of not used access keys to set date of not using or deletion.
 	Result.Insert("ObsoleteAccessKeysQueryText");
 	
-	Context.Insert("SeparateRegister", True); // 
+	Context.Insert("SeparateRegister", True); // Clarifying a key register for non-reference types.
 	
 	Context.Insert("KeyTables",                                       New Array);
 	Context.Insert("KeyTablesAttributes",                               KeyTableNewAttributes());
+	Context.Insert("MainTableUsedFields",                    "");
 	Context.Insert("CheckConditionParts",                               New Array);
 	Context.Insert("PartsOfValuesFromObjectsQuery",                     New Array);
 	Context.Insert("PartsOfQueryForInMemoryObjectsValues",              New Array);
@@ -33684,6 +34515,7 @@ Procedure AddQueryTextsToRestrictionParameters(Result)
 	
 	// Generating a query of data items with obsolete keys.
 	FillTemplatesOfCheckQueryParts(Context);
+	FillMainTableUsedFields(Context);
 	
 	For HeaderNumber = 0 To 2 Do
 		AddKeyHeaderCheck(Context, HeaderNumber);
@@ -33733,11 +34565,11 @@ Procedure FillBasicFieldsMissingTypes(Result, Context)
 	MissingTypesList = New ValueList;
 	FieldList = New ValueList;
 	
-	FieldsCount = Context.BasicFields.AllItemsTypes.Count();
+	FieldsCount = Context.BasicFields.UsedItemsTypes.Count();
 	IndexOf = 0;
 	While IndexOf < FieldsCount Do
-		RequiredType = Context.BasicFields.AllItemsTypes.Get(IndexOf).Get();
-		DimensionType = Dimensions["Field" + (IndexOf + 1)].Type;
+		RequiredType = Context.BasicFields.UsedItemsTypes.Get(IndexOf).Get();
+		DimensionType = Dimensions[StrTemplate("Field%1", IndexOf + 1)].Type;
 		MissingType = New TypeDescription(RequiredType, , DimensionType.Types());
 		For Each Type In MissingType.Types() Do
 			If MissingTypes.Get(Type) = Undefined Then
@@ -33763,6 +34595,10 @@ Procedure FillBasicFieldsMissingTypes(Result, Context)
 	MissingTypesList.SortByValue();
 	Context.BasicFields.Insert("MissingTypes", MissingTypesList.UnloadValues());
 	Context.BasicFields.Insert("FieldsOfMissingTypes", FieldList.UnloadValues());
+	
+	AddVersionProperty(Context, Result, "ShouldSkipAllBasicFieldValueCombinationsUpdate");
+	AddVersionProperty(Context, Context.BasicFields, "MissingTypes");
+	AddVersionProperty(Context, Context.BasicFields, "FieldsOfMissingTypes");
 	
 EndProcedure
 
@@ -33810,78 +34646,101 @@ EndProcedure
 Procedure AddQueryTextOfObsoleteDataItems(Result, Context)
 	
 	If Result.IsReferenceType Then
-		RefType = ?(ValueIsFilled(Result.Version)
+		RefType = ?(ValueIsFilled(StrGetLine(Result.Version, 1))
 				Or Common.MetadataObjectByFullName(Result.List) <> Undefined,
 			RefTypeByFullMetadataName(Result.List), Undefined);
 		RefsTypes = AccessManagementInternalCached.TableFieldTypes("DefinedType.AccessKeysValuesOwner");
 		
 		If RefsTypes.Get(RefType) = Undefined Then
-			QueryText =
-			"SELECT TOP 0
-			|	AccessKeysForObjects.Object AS CurrentRef
+			QueryTextForObsoleteItems   = EmptyQueryFlag();
+			QueryTextInvalid2 = EmptyQueryFlag();
+			
+		ElsIf Result.DoNotWriteAccessKeysForUsersAndExternalUsers Then
+			QueryTextForObsoleteItems = EmptyQueryFlag();
+			QueryTextInvalid2 =
+			"SELECT TOP 995
+			|	AccessKeysForObjects.Object AS CurrentRef,
+			|	TRUE AS Delete,
+			|	FALSE AS Refresh
 			|FROM
-			|	InformationRegister.AccessKeysForObjects AS AccessKeysForObjects"; // @query-part-1
-		ElsIf Result.ForExternalUsers Then
-			If Result.DoNotWriteAccessKeys
-			   And Not Result.DoNotWriteAccessKeysForUsersAndExternalUsers Then
-				QueryText =
+			|	InformationRegister.AccessKeysForObjects AS AccessKeysForObjects
+			|WHERE
+			|	VALUETYPE(AccessKeysForObjects.Object) = TYPE(&CurrentList)
+			|	AND AccessKeysForObjects.Object > &LastProcessedRef
+			|	AND &QueryPlanClarification
+			|
+			|ORDER BY
+			|	AccessKeysForObjects.Object"; // @query-part-1
+			
+		Else
+			If Result.ForExternalUsers Then
+				QueryTextForObsoleteItems = EmptyQueryFlag();
+			Else
+				QueryTextForObsoleteItems =
 				"SELECT TOP 995
-				|	AccessKeysForObjects.Object AS CurrentRef
+				|	AccessKeysForObjects.Object AS CurrentRef,
+				|	FALSE AS Delete,
+				|	FALSE AS Refresh
 				|FROM
 				|	InformationRegister.AccessKeysForObjects AS AccessKeysForObjects
+				|		LEFT JOIN &CurrentList AS CurrentList
+				|		ON (CurrentList.Ref = AccessKeysForObjects.Object)
 				|WHERE
 				|	VALUETYPE(AccessKeysForObjects.Object) = TYPE(&CurrentList)
-				|	AND CAST(AccessKeysForObjects.Object AS &CurrentList) > &LastProcessedRef
-				|	AND AccessKeysForObjects.ExternalUsersAccessKey <> VALUE(Catalog.AccessKeys.EmptyRef)
+				|	AND AccessKeysForObjects.Object > &LastProcessedRef
+				|	AND CurrentList.Ref IS NULL
 				|	AND &QueryPlanClarification
 				|
 				|ORDER BY
 				|	AccessKeysForObjects.Object"; // @query-part-1
-			Else
-				QueryText = "";
+				QueryTextForObsoleteItems = StrReplace(QueryTextForObsoleteItems, "&CurrentList", Result.List);
+				
+				QueryText = // ObsoleteDataItemsCheckQueryText
+				"SELECT
+				|	DataItems.CurrentRef AS Object
+				|INTO AccessKeysForObjects
+				|FROM
+				|	&DataItems AS DataItems
+				|;
+				|
+				|////////////////////////////////////////////////////////////////////////////////
+				|SELECT
+				|	AccessKeysForObjects.Object AS CurrentRef
+				|FROM
+				|	AccessKeysForObjects AS AccessKeysForObjects
+				|		LEFT JOIN &CurrentList AS CurrentList
+				|		ON (CurrentList.Ref = AccessKeysForObjects.Object)
+				|WHERE
+				|	CurrentList.Ref IS NULL
+				|	AND &QueryPlanClarification";
+				QueryText = StrReplace(QueryText, "&CurrentList", Result.List);
+				Result.ObsoleteDataItemsCheckQueryText = QueryText;
 			EndIf;
-		ElsIf Result.DoNotWriteAccessKeysForUsersAndExternalUsers Then
-			QueryText = 
-			"SELECT TOP 995
-			|	AccessKeysForObjects.Object AS CurrentRef
-			|FROM
-			|	InformationRegister.AccessKeysForObjects AS AccessKeysForObjects
-			|WHERE
-			|	VALUETYPE(AccessKeysForObjects.Object) = TYPE(&CurrentList)
-			|	AND CAST(AccessKeysForObjects.Object AS &CurrentList) > &LastProcessedRef
-			|	AND &QueryPlanClarification
-			|
-			|ORDER BY
-			|	AccessKeysForObjects.Object"; // @query-part-1
-		Else
-			QueryText =
-			"SELECT TOP 995
-			|	AccessKeysForObjects.Object AS CurrentRef,
-			|	CurrentList.Ref IS NULL AS Delete
-			|FROM
-			|	InformationRegister.AccessKeysForObjects AS AccessKeysForObjects
-			|		LEFT JOIN &CurrentList AS CurrentList
-			|		ON (VALUETYPE(AccessKeysForObjects.Object) = TYPE(&CurrentList))
-			|			AND (CurrentList.Ref = AccessKeysForObjects.Object)
-			|WHERE
-			|	VALUETYPE(AccessKeysForObjects.Object) = TYPE(&CurrentList)
-			|	AND CAST(AccessKeysForObjects.Object AS &CurrentList) > &LastProcessedRef
-			|	AND &QueryCondition
-			|	AND &QueryPlanClarification
-			|
-			|ORDER BY
-			|	AccessKeysForObjects.Object"; // @query-part-1
 			If Result.DoNotWriteAccessKeys Then
-				Condition =
-				"(AccessKeysForObjects.UsersAccessKey <> VALUE(Catalog.AccessKeys.EmptyRef)
-				|		OR CurrentList.Ref IS NULL)"; // @query-part-1
+				QueryTextInvalid2 =
+				"SELECT TOP 995
+				|	AccessKeysForObjects.Object AS CurrentRef,
+				|	FALSE AS Delete,
+				|	TRUE AS Refresh
+				|FROM
+				|	InformationRegister.AccessKeysForObjects AS AccessKeysForObjects
+				|WHERE
+				|	VALUETYPE(AccessKeysForObjects.Object) = TYPE(&CurrentList)
+				|	AND AccessKeysForObjects.Object > &LastProcessedRef
+				|	AND AccessKeysForObjects.#UsersAccessKey <> VALUE(Catalog.AccessKeys.EmptyRef)
+				|	AND &QueryPlanClarification
+				|
+				|ORDER BY
+				|	AccessKeysForObjects.Object"; // @query-part-1
+				QueryTextInvalid2 = StrReplace(QueryTextInvalid2, "#UsersAccessKey",
+					?(Result.ForExternalUsers, "ExternalUsersAccessKey", "UsersAccessKey"));
 			Else
-				Condition = "CurrentList.Ref IS NULL"; // @query-part-1
+				QueryTextInvalid2 = EmptyQueryFlag();
 			EndIf;
-			QueryText = StrReplace(QueryText, "&QueryCondition", Condition);
 		EndIf;
-		QueryText = StrReplace(QueryText, "&CurrentList", Result.List);
-		Result.ObsoleteDataItemsQueryText = QueryText;
+		QueryTextInvalid2 = StrReplace(QueryTextInvalid2, "&CurrentList", Result.List);
+		Result.ObsoleteDataItemsQueryText   = QueryTextForObsoleteItems;
+		Result.QueryTextForInvalidDataItems = QueryTextInvalid2;
 		Return;
 	EndIf;
 	
@@ -33908,41 +34767,42 @@ Procedure AddQueryTextOfObsoleteDataItems(Result, Context)
 	EndIf;
 	
 	BasicFilterFields = "AccessKeysForRegisters.AccessOption AS AccessOption";
-	BasicFieldsForFilter = "";
-	BasicFieldsForOrdering = "AccessKeysForRegisters.AccessOption";
+	BasicFieldsForFilter = "AccessKeysForRegisters.AccessOption >= &AccessOption
+	|	AND (AccessKeysForRegisters.AccessOption > &AccessOption
+	|			OR AccessKeysForRegisters.AccessOption = &AccessOption"; // @query-part-1
+	BasicFieldsForOrdering = "AccessOption";
+	TabsString = AccessManagementInternalCached.CharacterString("	",
+		2 + MaxBasicFieldsCount * 2);
 	
 	For Number = 1 To MaxBasicFieldsCount Do
 		// Fields for selection.
-		BasicFilterFields = BasicFilterFields + ?(BasicFilterFields = "", "", ",
-		|	") + "AccessKeysForRegisters.Field" + Number + " AS Field" + Number; // @query-part-3
+		BasicFilterFields = BasicFilterFields + StrTemplate(",
+		|	AccessKeysForRegisters.Field%1 AS Field%1", Number); // @query-part-1
 		
 		// Fields for filter.
-		Filter = "";
-		For AdditionalNumber = 1 To Number - 1 Do
-			Filter = Filter + ?(AdditionalNumber = 1, "", "
-			|	AND ") + "AccessKeysForRegisters.Field" + AdditionalNumber + " = &Field" + AdditionalNumber; // @query-part-1
-		EndDo;
-		Filter = Filter + ?(Filter = "", "", "
-		|	AND ") + "AccessKeysForRegisters.Field" + Number + " > &Field" + Number; // @query-part-1
-		
-		Filter = ?(Number = 1, ?(MaxBasicFieldsCount > 1, "(", "") + Filter, "
-		|			OR " + TextWithIndent(Filter, "			")); // @query-part-1
-		
-		BasicFieldsForFilter = BasicFieldsForFilter + ?(BasicFieldsForFilter = "", "", ?(Number = 1, "
-		|	AND ", "")) + Filter; // @query-part-1
+		If Number = MaxBasicFieldsCount Then
+			Filter = "AccessKeysForRegisters.Field%1 > &Field%1"; // @query-part-1
+		Else
+			Filter = "(AccessKeysForRegisters.Field%1 > &Field%1
+			|	OR AccessKeysForRegisters.Field%1 = &Field%1"; // @query-part-1
+		EndIf;
+		BasicFieldsForFilter = BasicFieldsForFilter + TextWithIndent("
+		|AND " + StrTemplate(Filter, Number), Left(TabsString, 2 + Number * 2)); // @query-part-1
 		
 		// Fields for ordering.
-		BasicFieldsForOrdering = BasicFieldsForOrdering + ?(BasicFieldsForOrdering = "", "", ",
-		|	") + "AccessKeysForRegisters.Field" + Number;
+		BasicFieldsForOrdering = BasicFieldsForOrdering
+			+ ?(BasicFieldsForOrdering = "", "", ", ") + StrTemplate("Field%1", Number);
 	EndDo;
-	If MaxBasicFieldsCount > 1 Then
-		BasicFieldsForFilter  = BasicFieldsForFilter  + ")";
-	EndIf;
+	BasicFieldsForFilter = BasicFieldsForFilter
+		+ AccessManagementInternalCached.CharacterString(")", MaxBasicFieldsCount);
 	
 	If ValueIsFilled(Result.SeparateKeysRegisterName) Then
-		ClearingQueryText = 
+		// Request to clear the common register.
+		QueryText = // QueryTextForInvalidDataItemsInCommonRegister
 		"SELECT TOP 995
-		|	&BasicFilterFields
+		|	&BasicFilterFields,
+		|	TRUE AS Delete,
+		|	FALSE AS Refresh
 		|FROM
 		|	InformationRegister.AccessKeysForRegisters AS AccessKeysForRegisters
 		|WHERE
@@ -33953,128 +34813,253 @@ Procedure AddQueryTextOfObsoleteDataItems(Result, Context)
 		|
 		|ORDER BY
 		|	&BasicFieldsForOrdering";
-		ClearingQueryText = StrReplace(ClearingQueryText, "&BasicFilterFields", BasicFilterFields);
-		ClearingQueryText = StrReplace(ClearingQueryText, "&SelectionByUserType", SelectionByUserType);
-		ClearingQueryText = StrReplace(ClearingQueryText, "&BasicFieldsForFilter", BasicFieldsForFilter);
-		ClearingQueryText = StrReplace(ClearingQueryText, "&BasicFieldsForOrdering", BasicFieldsForOrdering);
-		Result.Insert("ObsoleteDataItemsFromCommonRegisterQueryText", ClearingQueryText);
+		QueryText = StrReplace(QueryText, "&BasicFilterFields",          BasicFilterFields);
+		QueryText = StrReplace(QueryText, "&SelectionByUserType",   SelectionByUserType);
+		QueryText = StrReplace(QueryText, "&BasicFieldsForFilter",       BasicFieldsForFilter);
+		QueryText = StrReplace(QueryText, "&BasicFieldsForOrdering", BasicFieldsForOrdering);
+		Result.QueryTextForInvalidDataItemsInCommonRegister = QueryText;
 	EndIf;
 	
 	If Result.DoNotWriteAccessKeys Then
-		QueryText =
-		"SELECT TOP 995
-		|	&BasicFilterFields
-		|FROM
-		|	#RegisterName AS AccessKeysForRegisters
-		|WHERE
-		|	&MainFilter
-		|	AND &SelectionByUserType
-		|	AND &BasicFieldsForFilter
-		|	AND &QueryPlanClarification
-		|
-		|ORDER BY
-		|	&BasicFieldsForOrdering";
-		QueryText = StrReplace(QueryText, "&BasicFilterFields", BasicFilterFields);
-		QueryText = StrReplace(QueryText, "#RegisterName", "InformationRegister." + RegisterName);
-		QueryText = StrReplace(QueryText, "&MainFilter", MainFilter);
-		QueryText = StrReplace(QueryText, "&SelectionByUserType", SelectionByUserType);
-		QueryText = StrReplace(QueryText, "&BasicFieldsForFilter", BasicFieldsForFilter);
-		QueryText = StrReplace(QueryText, "&BasicFieldsForOrdering", BasicFieldsForOrdering);
-	Else
-		Number = 1;
-		BasicFilterFieldsOnCheck = "";
-		BasicFieldsToMap = "";
-		For Each BasicFieldName In BasicFields.UsedItems Do
-			// Fields for selection when checking if fields are obsolete before writing.
-			BasicFilterFieldsOnCheck = BasicFilterFieldsOnCheck + ?(BasicFilterFieldsOnCheck = "", "", ",
-			|	") + "AccessKeysForRegisters.Field" + Number + " AS Field" + Number; // 
-			// 
-			BasicFieldsToMap = BasicFieldsToMap + ?(BasicFieldsToMap = "", "", "
-			|AND ") + "CurrentList." + BasicFieldName + " = AccessKeysForRegisters.Field" + Number; // @query-part-1
-			Number = Number + 1;
-		EndDo;
-		
-		QueryText = 
+		Result.ObsoleteDataItemsQueryText = EmptyQueryFlag();
+		QueryText = // QueryTextForInvalidDataItems
 		"SELECT TOP 995
 		|	&BasicFilterFields,
-		|	NOT AccessKeysForRegisters.AccessOption IN (&AccessOptionsUsed) AS Delete
+		|	TRUE AS Delete,
+		|	FALSE AS Refresh
 		|FROM
-		|	#RegisterName AS AccessKeysForRegisters
+		|	&CurrentRegisterOfKeys AS AccessKeysForRegisters
 		|WHERE
 		|	&MainFilter
 		|	AND &SelectionByUserType
 		|	AND &BasicFieldsForFilter
-		|	AND (NOT AccessKeysForRegisters.AccessOption IN (&AccessOptionsUsed)
-		|			OR AccessKeysForRegisters.AccessOption = &AccessOption
-		|				AND NOT TRUE IN
-		|						(SELECT TOP 1
-		|							TRUE
-		|						FROM
-		|							&CurrentList AS CurrentList
-		|						WHERE
-		|							&BasicFieldsToMap))
 		|	AND &QueryPlanClarification
 		|
 		|ORDER BY
 		|	&BasicFieldsForOrdering";
-		QueryText = StrReplace(QueryText, "&BasicFilterFields", BasicFilterFields);
-		QueryText = StrReplace(QueryText, "#RegisterName", "InformationRegister." + RegisterName);
-		QueryText = StrReplace(QueryText, "&MainFilter", MainFilter);
-		QueryText = StrReplace(QueryText, "&SelectionByUserType", SelectionByUserType);
-		QueryText = StrReplace(QueryText, "&BasicFieldsForFilter", BasicFieldsForFilter);
-		QueryText = StrReplace(QueryText, "&BasicFieldsToMap", 
-			TextWithIndent(BasicFieldsToMap, "						"));
+		QueryText = StrReplace(QueryText, "&BasicFilterFields",          BasicFilterFields);
+		QueryText = StrReplace(QueryText, "&CurrentRegisterOfKeys",       "InformationRegister." + RegisterName);
+		QueryText = StrReplace(QueryText, "&MainFilter",              MainFilter);
+		QueryText = StrReplace(QueryText, "&SelectionByUserType",   SelectionByUserType);
+		QueryText = StrReplace(QueryText, "&BasicFieldsForFilter",       BasicFieldsForFilter);
 		QueryText = StrReplace(QueryText, "&BasicFieldsForOrdering", BasicFieldsForOrdering);
-
-		AccessOptionsUsed = Context.BasicAccessOptions.Get(Context.List);
-		StringAccessOptions = New Array;
-		If AccessOptionsUsed = Undefined Then
-			StringAccessOptions.Add("NULL");
-		Else
-			For Each AccessOptionUsed In AccessOptionsUsed Do
-				StringAccessOptions.Add(XMLString(AccessOptionUsed.AccessOption));
-			EndDo;
-		EndIf;
-		QueryText = StrReplace(QueryText, "&AccessOptionsUsed",
-			StrConcat(StringAccessOptions, ","));
-		
-		StringAccessOption = XMLString(Context.AccessOption);
-		StringAccessOption = ?(ValueIsFilled(StringAccessOption), StringAccessOption, "NULL");
-		QueryText = StrReplace(QueryText, "&AccessOption", StringAccessOption);
-		
-		QueryTextChecks =
-		"SELECT
-		|	&BasicFilterFieldsOnCheck
-		|INTO AccessKeysForRegisters
-		|FROM
-		|	&AccessKeysForRegisters AS AccessKeysForRegisters
-		|;
-		|
-		|////////////////////////////////////////////////////////////////////////////////
-		|SELECT
-		|	&BasicFilterFieldsOnCheck
-		|FROM
-		|	AccessKeysForRegisters AS AccessKeysForRegisters
-		|WHERE
-		|	NOT TRUE IN
-		|				(SELECT TOP 1
-		|					TRUE
-		|				FROM
-		|					&CurrentList AS CurrentList
-		|				WHERE
-		|					&ConditionReferenceFieldsForComparison)
-		|	AND &QueryPlanClarification";
-		
-		QueryTextChecks = StrReplace(QueryTextChecks, "&BasicFilterFieldsOnCheck", BasicFilterFieldsOnCheck);
-		QueryTextChecks = StrReplace(QueryTextChecks, "&ConditionReferenceFieldsForComparison",
-			TextWithIndent(BasicFieldsToMap, "						"));
-		
-		QueryText = StrReplace(QueryText, "&CurrentList", Result.List);
-		QueryTextChecks = StrReplace(QueryTextChecks, "&CurrentList", Result.List);
-		Result.Insert("ObsoleteDataItemsCheckQueryText", QueryTextChecks);
+		Result.QueryTextForInvalidDataItems = QueryText;
+		Return;
 	EndIf;
 	
+	BasicFieldsUsedCount = BasicFields.UsedItems.Count();
+	Number = 1;
+	BasicFilterFieldsOnCheck = "AccessKeysForRegisters.AccessOption AS AccessOption";
+	BasicFieldsForSelectingFromList = "";
+	BasicFieldsToMap = "";
+	BasicFieldsForFilteringOnCheck =
+	"AccessKeysForRegisters.AccessOption = &MainAccessOption
+	|	AND "; // @query-part-1
+	FirstFieldCheckCondition = "";
+	BasicFieldsForOrderingOnCheck = "";
+	For Each BasicFieldName In BasicFields.UsedItems Do
+		// Fields for selection.
+		BasicFilterFieldsOnCheck = BasicFilterFieldsOnCheck + StrTemplate(",
+		|	AccessKeysForRegisters.Field%1 AS Field%1", Number); // @query-part-1
+		BasicFieldsForSelectingFromList = BasicFieldsForSelectingFromList + ?(BasicFieldsForSelectingFromList = "", "", ",
+		|	") + StrTemplate("CurrentList.%1", BasicFieldName);
+		
+		// Fields for filter.
+		If Number = BasicFieldsUsedCount Then
+			Filter = "AccessKeysForRegisters.Field%1 > &Field%1"; // @query-part-1
+		Else
+			Filter = "(AccessKeysForRegisters.Field%1 > &Field%1
+			|	OR AccessKeysForRegisters.Field%1 = &Field%1"; // @query-part-1
+		EndIf;
+		BasicFieldsForFilteringOnCheck = BasicFieldsForFilteringOnCheck + TextWithIndent(?(Number = 1, "", "
+		|AND ") + StrTemplate(Filter, Number), Left(TabsString, Number * 2)); // @query-part-1
+		
+		// Fields to compare.
+		BasicFieldsToMap = BasicFieldsToMap + ?(BasicFieldsToMap = "", "", "
+		|AND ") + StrTemplate("(CurrentList.%2 = AccessKeysForRegisters.Field%1)", Number, BasicFieldName); // @query-part-1
+		
+		// The check condition for the first field.
+		If FirstFieldCheckCondition = "" Then
+			FirstFieldCheckCondition = StrTemplate("CurrentList.%1 IS NULL", BasicFieldName); // @query-part-1
+		EndIf;
+		
+		// Fields for ordering.
+		BasicFieldsForOrderingOnCheck = BasicFieldsForOrderingOnCheck
+			+ ?(BasicFieldsForOrderingOnCheck = "", "", ", ") + StrTemplate("Field%1", Number);
+		
+		Number = Number + 1;
+	EndDo;
+	BasicFieldsForFilteringOnCheck = BasicFieldsForFilteringOnCheck
+		+ AccessManagementInternalCached.CharacterString(")", BasicFieldsUsedCount - 1);
+	
+	QueryText = // ObsoleteDataItemsQueryText
+	"SELECT DISTINCT
+	|	&BasicFilterFields1
+	|INTO ValuesOfBasicFieldsUsed
+	|FROM
+	|	&CurrentList AS CurrentList
+	|
+	|INDEX BY
+	|	&BasicFilterFields1
+	|;
+	|
+	|////////////////////////////////////////////////////////////////////////////////
+	|SELECT TOP 995
+	|	&BasicFilterFields2,
+	|	FALSE AS Delete,
+	|	FALSE AS Refresh
+	|FROM
+	|	&CurrentRegisterOfKeys AS AccessKeysForRegisters
+	|		LEFT JOIN ValuesOfBasicFieldsUsed AS CurrentList
+	|		ON &BasicFieldsToMap
+	|WHERE
+	|	&MainFilter
+	|	AND &BasicFieldsForFilter
+	|	AND &FirstFieldCheckCondition
+	|	AND &QueryPlanClarification
+	|
+	|ORDER BY
+	|	&BasicFieldsForOrdering";
+	QueryText = StrReplace(QueryText, "&BasicFilterFields1",       BasicFieldsForSelectingFromList);
+	QueryText = StrReplace(QueryText, "&BasicFilterFields2",       BasicFilterFieldsOnCheck);
+	QueryText = StrReplace(QueryText, "&CurrentRegisterOfKeys",     "InformationRegister." + RegisterName);
+	QueryText = StrReplace(QueryText, "&MainFilter",            MainFilter);
+	QueryText = StrReplace(QueryText, "&BasicFieldsForFilter",     BasicFieldsForFilteringOnCheck);
+	QueryText = StrReplace(QueryText, "&BasicFieldsToMap",
+		TextWithIndent(BasicFieldsToMap, "			"));
+	QueryText = StrReplace(QueryText, "&FirstFieldCheckCondition", FirstFieldCheckCondition);
+	QueryText = StrReplace(QueryText, "&BasicFieldsForOrdering", BasicFieldsForOrderingOnCheck);
+	
+	StringAccessOption = XMLString(Context.AccessOption);
+	StringAccessOption = ?(ValueIsFilled(StringAccessOption), StringAccessOption, "NULL");
+	QueryText = StrReplace(QueryText, "&MainAccessOption", StringAccessOption);
+	QueryText = StrReplace(QueryText, "&CurrentList", Result.List);
+	
 	Result.ObsoleteDataItemsQueryText = QueryText;
+	
+	QueryText = // ObsoleteDataItemsCheckQueryText
+	"SELECT
+	|	&BasicFilterFieldsOnCheck
+	|INTO AccessKeysForRegisters
+	|FROM
+	|	&AccessKeysForRegisters AS AccessKeysForRegisters
+	|;
+	|
+	|////////////////////////////////////////////////////////////////////////////////
+	|SELECT
+	|	&BasicFilterFieldsOnCheck
+	|FROM
+	|	AccessKeysForRegisters AS AccessKeysForRegisters
+	|		LEFT JOIN &CurrentList AS CurrentList
+	|		ON &BasicFieldsToMap
+	|WHERE
+	|	&FirstFieldCheckCondition
+	|	AND &QueryPlanClarification";
+	
+	QueryText = StrReplace(QueryText, "&BasicFilterFieldsOnCheck", BasicFilterFieldsOnCheck);
+	QueryText = StrReplace(QueryText, "&BasicFieldsToMap",
+		TextWithIndent(BasicFieldsToMap, "			"));
+	QueryText = StrReplace(QueryText, "&FirstFieldCheckCondition", FirstFieldCheckCondition);
+	QueryText = StrReplace(QueryText, "&CurrentList", Result.List);
+	
+	Result.ObsoleteDataItemsCheckQueryText = QueryText;
+	
+	BasicFieldsForInvalidItemsSelection = BasicFilterFieldsOnCheck;
+	If Number <= MaxBasicFieldsCount Then
+		CheckNULL = "";
+		For Counter = Number To MaxBasicFieldsCount Do
+			BasicFieldsForInvalidItemsSelection = BasicFieldsForInvalidItemsSelection + StrTemplate(",
+			|	CASE
+			|		WHEN AccessKeysForRegisters.AccessOption = &MainAccessOption
+			|				AND &CheckNULL1
+			|			THEN NULL
+			|		ELSE AccessKeysForRegisters.Field%1
+			|	END AS Field%1", Counter); // @query-part-1
+			CheckNULL = CheckNULL + ?(CheckNULL = "", "", "
+			|OR ") + StrTemplate("AccessKeysForRegisters.Field%1 <> VALUE(Enum.AdditionalAccessValues.Null)", Counter); // @query-part-1
+		EndDo;
+	Else
+		CheckNULL = "FALSE";
+	EndIf;
+	
+	QueryText = // QueryTextForInvalidDataItems
+	"SELECT DISTINCT TOP 995
+	|	&BasicFilterFields,
+	|	NOT AccessKeysForRegisters.AccessOption IN (&AccessOptionsUsed) AS Delete,
+	|	AccessKeysForRegisters.AccessOption = &MainAccessOption
+	|		AND &CheckNULL2 AS Refresh
+	|FROM
+	|	&CurrentRegisterOfKeys AS AccessKeysForRegisters
+	|WHERE
+	|	&MainFilter
+	|	AND &SelectionByUserType
+	|	AND &BasicFieldsForFilter
+	|	AND (NOT AccessKeysForRegisters.AccessOption IN (&AccessOptionsUsed)
+	|			OR AccessKeysForRegisters.AccessOption = &MainAccessOption
+	|				AND &CheckNULL1)
+	|	AND &QueryPlanClarification
+	|
+	|ORDER BY
+	|	&BasicFieldsForOrdering";
+	QueryText = StrReplace(QueryText, "&BasicFilterFields",        BasicFieldsForInvalidItemsSelection);
+	QueryText = StrReplace(QueryText, "&CurrentRegisterOfKeys",     "InformationRegister." + RegisterName);
+	QueryText = StrReplace(QueryText, "&MainFilter",            MainFilter);
+	QueryText = StrReplace(QueryText, "&SelectionByUserType", SelectionByUserType);
+	QueryText = StrReplace(QueryText, "&BasicFieldsForFilter",     BasicFieldsForFilter);
+	QueryText = StrReplace(QueryText, "&CheckNULL1",
+		"(" + TextWithIndent(CheckNULL, "						") + ")");
+	QueryText = StrReplace(QueryText, "&CheckNULL2",
+		TextWithIndent(CheckNULL, "			"));
+	QueryText = StrReplace(QueryText, "&BasicFieldsForOrdering", BasicFieldsForOrdering);
+	
+	QueryText = StrReplace(QueryText, "&MainAccessOption", StringAccessOption);
+	QueryText = StrReplace(QueryText, "&CurrentList", Result.List);
+	
+	AccessOptionsUsed = Context.BasicAccessOptions.Get(Context.List);
+	StringAccessOptions = New Array;
+	If AccessOptionsUsed = Undefined Then
+		StringAccessOptions.Add("NULL");
+	Else
+		For Each AccessOptionUsed In AccessOptionsUsed Do
+			StringAccessOptions.Add(XMLString(AccessOptionUsed.AccessOption));
+		EndDo;
+	EndIf;
+	QueryText = StrReplace(QueryText, "&AccessOptionsUsed",
+		StrConcat(StringAccessOptions, ","));
+	
+	Result.QueryTextForInvalidDataItems = QueryText;
+	
+EndProcedure
+
+// Intended for procedure "AddQueriesTextsToRestrictionParameters".
+Procedure FillMainTableUsedFields(Context)
+	
+	If Not ValueIsFilled(Context.ObjectTablesFields.Result) Then
+		Return;
+	EndIf;
+	
+	MainTableDetails = Undefined;
+	For Each TableDetails In Context.ObjectTablesFields.Result Do
+		If Not ValueIsFilled(TableDetails.TabularSection) Then
+			MainTableDetails = TableDetails;
+			Break;
+		EndIf;
+	EndDo;
+	
+	If MainTableDetails = Undefined Then
+		Return;
+	EndIf;
+	
+	AdditionalFields = "";
+	For Each FieldName In MainTableDetails.Fields Do
+		If FieldName = "Ref" Then
+			Continue;
+		EndIf;
+		AdditionalFields = AdditionalFields + StrTemplate(",
+		|CurrentList.%1 AS %1", FieldName);
+	EndDo;
+	
+	Context.MainTableUsedFields = AdditionalFields;
 	
 EndProcedure
 
@@ -34092,105 +35077,340 @@ EndProcedure
 // For the FillTemplatesOfCheckQueryParts procedure.
 Procedure FillTemplatesOfObjectCheckQueryParts(Context)
 	
+	Context.Insert("QueryTextForDataItemsRange");
 	Context.Insert("QueryTextChecks");
-	Context.Insert("CheckQueryPartText");
+	Context.Insert("QueryTextToCheckLink");
+	Context.Insert("QueryTextToCheckHeader");
+	Context.Insert("QueryTextToCheckTabularSection");
+	Context.Insert("QueryTextToCheckObjectAccessKeyLink");
+	Context.Insert("QueryTextToCheckObjectAccessKeyHeader");
+	Context.Insert("QueryTextToCheckObjectAccessKeyTabularSection");
 	Context.Insert("SpotCheckQueryText");
+	Context.Insert("QueryTextForSelectiveLinkCheck");
+	Context.Insert("QueryTextForSelectiveHeaderCheck");
+	Context.Insert("QueryTextForSelectiveTabularSectionCheck");
 	
 	If Context.ListWithDate Then
+		Context.QueryTextForDataItemsRange =
+		"SELECT TOP 1
+		|	DataItems.Date AS RangeStartDate,
+		|	DataItems.Ref AS RangeStartDateRef
+		|FROM
+		|	(SELECT TOP 993
+		|		CurrentList.Date AS Date,
+		|		CurrentList.Ref AS Ref
+		|	FROM
+		|		&CurrentList AS CurrentList
+		|	WHERE
+		|		CurrentList.Date >= &StartDate
+		|		AND CurrentList.Date <= &RangeEndDate
+		|		AND (CurrentList.Date < &RangeEndDate
+		|				OR CurrentList.Date = &RangeEndDate
+		|					AND CurrentList.Ref < &RangeEndDateRef)
+		|	
+		|	ORDER BY
+		|		CurrentList.Date DESC,
+		|		CurrentList.Ref DESC) AS DataItems
+		|
+		|ORDER BY
+		|	DataItems.Date,
+		|	DataItems.Ref";
+		
 		Context.QueryTextChecks =
-		"SELECT TOP 995
-		|	CurrentList.Ref AS CurrentRef,
-		|	CurrentList.Date AS Date
+		"SELECT
+		|	CurrentList.Date AS DATE,
+		|	CurrentList.Ref AS Ref,&AdditionalFields1,
+		|	AccessKeysForObjects.#UsersAccessKey AS CurrentAccessKey
+		|INTO DataItemsCurrentBatch
 		|FROM
-		|	&CurrentList AS CurrentList
+		|	(SELECT TOP 993
+		|		CurrentList.Date AS DATE,
+		|		CurrentList.Ref AS Ref,&AdditionalFields2
+		|	FROM
+		|		&CurrentList AS CurrentList
+		|	WHERE
+		|		CurrentList.Date >= &RangeStartDate
+		|		AND (CurrentList.Date > &RangeStartDate
+		|				OR CurrentList.Date = &RangeStartDate
+		|					AND CurrentList.Ref >= &RangeStartDateRef)
+		|		AND CurrentList.Date <= &RangeEndDate
+		|		AND (CurrentList.Date < &RangeEndDate
+		|				OR CurrentList.Date = &RangeEndDate
+		|					AND CurrentList.Ref < &RangeEndDateRef)) AS CurrentList
 		|		LEFT JOIN InformationRegister.AccessKeysForObjects AS AccessKeysForObjects
 		|		ON (AccessKeysForObjects.Object = CurrentList.Ref)
-		|WHERE
-		|	CurrentList.Date BETWEEN &StartDate AND &EndDate
-		|	AND (AccessKeysForObjects.Object IS NULL
-		|			OR &QueryCondition)
-		|	AND &QueryPlanClarification
+		|;
+		|
+		|////////////////////////////////////////////////////////////////////////////////
+		|SELECT DISTINCT
+		|	CurrentList.Date AS DATE,
+		|	CurrentList.Ref AS CurrentRef
+		|FROM
+		|	&PartsOfCheckQuery AS CurrentList
 		|
 		|ORDER BY
-		|	CurrentList.Date DESC";
+		|	CurrentList.Date DESC,
+		|	CurrentList.Ref DESC"; // @query-part-1
 		
-		Context.CheckQueryPartText = 
-		"SELECT DISTINCT TOP 995
-		|	CurrentList.Ref AS CurrentRef,
-		|	CurrentList.Date AS DATE
+		Context.QueryTextToCheckLink =
+		"SELECT
+		|	CurrentList.Date AS Date,
+		|	CurrentList.Ref AS Ref
 		|FROM
-		|	&CurrentList AS CurrentList
-		|		LEFT JOIN InformationRegister.AccessKeysForObjects AS AccessKeysForObjects
-		|		ON (AccessKeysForObjects.Object = CurrentList.Ref)
-		|		#Joins
+		|	DataItemsCurrentBatch AS CurrentList
 		|WHERE
-		|	CurrentList.Date BETWEEN &StartDate AND &EndDate
-		|	AND &QueryCondition
-		|	AND &QueryPlanClarification
+		|	CurrentList.CurrentAccessKey IS NULL";
+		
+		Context.QueryTextToCheckHeader =
+		"SELECT
+		|	CurrentList.Date AS DATE,
+		|	CurrentList.Ref AS Ref
+		|FROM
+		|	DataItemsCurrentBatch AS CurrentList #Joins
+		|WHERE
+		|	&QueryCondition"; // @query-part-1
+		
+		Context.QueryTextToCheckTabularSection =
+		"SELECT
+		|	CurrentList.Date AS DATE,
+		|	CurrentList.Ref AS Ref
+		|FROM
+		|	DataItemsCurrentBatch AS CurrentList #Joins
 		|
-		|ORDER BY
-		|	CurrentList.Date DESC"; // @query-part-1
+		|GROUP BY
+		|	CurrentList.Date,
+		|	CurrentList.Ref,
+		|	CurrentList.CurrentAccessKey
+		|
+		|HAVING
+		|	(MAX(TabularSection?.LineNumber IS NULL) = TRUE
+		|		OR NOT COUNT(DISTINCT TabularSection?.LineNumber) IN
+		|				(SELECT
+		|					COUNT(TabularSection?.Ref) AS RowsCount
+		|				FROM
+		|					Catalog.AccessKeys.TabularSection? AS TabularSection?
+		|				WHERE
+		|					TabularSection?.Ref = CurrentList.CurrentAccessKey))"; // @query-part-1
 	Else
-		Context.QueryTextChecks = 
-		"SELECT TOP 995
-		|	CurrentList.Ref AS CurrentRef
+		Context.QueryTextForDataItemsRange =
+		"SELECT TOP 1
+		|	DataItems.Ref AS RangeEndRef
 		|FROM
-		|	&CurrentList AS CurrentList
+		|	(SELECT TOP 993
+		|		CurrentList.Ref AS Ref
+		|	FROM
+		|		&CurrentList AS CurrentList
+		|	WHERE
+		|		CurrentList.Ref > &RangeStartRef
+		|	
+		|	ORDER BY
+		|		CurrentList.Ref) AS DataItems
+		|
+		|ORDER BY
+		|	DataItems.Ref DESC";
+		
+		Context.QueryTextChecks =
+		"SELECT
+		|	CurrentList.Ref AS Ref,&AdditionalFields1,
+		|	AccessKeysForObjects.#UsersAccessKey AS CurrentAccessKey
+		|INTO DataItemsCurrentBatch
+		|FROM
+		|	(SELECT TOP 993
+		|		CurrentList.Ref AS Ref,&AdditionalFields2
+		|	FROM
+		|		&CurrentList AS CurrentList
+		|	WHERE
+		|		CurrentList.Ref > &RangeStartRef
+		|		AND CurrentList.Ref <= &RangeEndRef) AS CurrentList
 		|		LEFT JOIN InformationRegister.AccessKeysForObjects AS AccessKeysForObjects
 		|		ON (AccessKeysForObjects.Object = CurrentList.Ref)
-		|WHERE
-		|	CurrentList.Ref >= &LastProcessedRef
-		|	AND (AccessKeysForObjects.Object IS NULL
-		|			OR &QueryCondition)
-		|	AND &QueryPlanClarification
+		|;
+		|
+		|////////////////////////////////////////////////////////////////////////////////
+		|SELECT DISTINCT
+		|	CurrentList.Ref AS CurrentRef
+		|FROM
+		|	&PartsOfCheckQuery AS CurrentList
 		|
 		|ORDER BY
 		|	CurrentList.Ref"; // @query-part-1
 		
-		Context.CheckQueryPartText =
-		"SELECT DISTINCT TOP 995
-		|	CurrentList.Ref AS CurrentRef
+		Context.QueryTextToCheckLink =
+		"SELECT
+		|	CurrentList.Ref AS Ref
 		|FROM
-		|	&CurrentList AS CurrentList
-		|		LEFT JOIN InformationRegister.AccessKeysForObjects AS AccessKeysForObjects
-		|		ON (AccessKeysForObjects.Object = CurrentList.Ref)
-		|		#Joins
+		|	DataItemsCurrentBatch AS CurrentList
 		|WHERE
-		|	CurrentList.Ref >= &LastProcessedRef
-		|	AND &QueryCondition
-		|	AND &QueryPlanClarification
+		|	CurrentList.CurrentAccessKey IS NULL";
+		
+		Context.QueryTextToCheckHeader =
+		"SELECT
+		|	CurrentList.Ref AS Ref
+		|FROM
+		|	DataItemsCurrentBatch AS CurrentList #Joins
+		|WHERE
+		|	&QueryCondition"; // @query-part-1
+		
+		Context.QueryTextToCheckTabularSection =
+		"SELECT
+		|	CurrentList.Ref AS Ref
+		|FROM
+		|	DataItemsCurrentBatch AS CurrentList #Joins
 		|
-		|ORDER BY
-		|	CurrentList.Ref"; // @query-part-1
+		|GROUP BY
+		|	CurrentList.Ref,
+		|	CurrentList.CurrentAccessKey
+		|
+		|HAVING
+		|	(MAX(TabularSection?.LineNumber IS NULL) = TRUE
+		|		OR NOT COUNT(DISTINCT TabularSection?.LineNumber) IN
+		|				(SELECT
+		|					COUNT(TabularSection?.Ref) AS RowsCount
+		|				FROM
+		|					Catalog.AccessKeys.TabularSection? AS TabularSection?
+		|				WHERE
+		|					TabularSection?.Ref = CurrentList.CurrentAccessKey))"; // @query-part-1
 	EndIf;
 	
-	Context.SpotCheckQueryText =
+	Context.QueryTextToCheckObjectAccessKeyLink =
 	"SELECT
-	|	CurrentList.Ref AS CurrentRef
+	|	TRUE AS TrueValue
 	|FROM
-	|	&CurrentList AS CurrentList
-	|		INNER JOIN CurrentListByLeadingObjects AS CurrentListByLeadingObjects
-	|		ON (CurrentListByLeadingObjects.Ref = CurrentList.Ref)
+	|	(SELECT TOP 1
+	|		CurrentList.Ref AS Ref
+	|	FROM
+	|		&CurrentList AS CurrentList
+	|	WHERE
+	|		CurrentList.Ref = &Ref) AS CurrentList
 	|		LEFT JOIN InformationRegister.AccessKeysForObjects AS AccessKeysForObjects
 	|		ON (AccessKeysForObjects.Object = CurrentList.Ref)
 	|WHERE
-	|	(AccessKeysForObjects.Object IS NULL
-	|			OR &QueryCondition)
-	|	AND &QueryPlanClarification";
+	|	AccessKeysForObjects.Object IS NULL";
+	
+	Context.QueryTextToCheckObjectAccessKeyHeader =
+	"SELECT
+	|	TRUE AS TrueValue
+	|FROM
+	|	(SELECT TOP 1
+	|		CurrentList.Ref AS Ref,&AdditionalFields2,
+	|		AccessKeysForObjects.#UsersAccessKey AS CurrentAccessKey
+	|	FROM
+	|		&CurrentList AS CurrentList
+	|			INNER JOIN InformationRegister.AccessKeysForObjects AS AccessKeysForObjects
+	|			ON (AccessKeysForObjects.Object = CurrentList.Ref)
+	|	WHERE
+	|		CurrentList.Ref = &Ref) AS CurrentList #Joins
+	|WHERE
+	|	&QueryCondition"; // @query-part-1
+	
+	Context.QueryTextToCheckObjectAccessKeyTabularSection =
+	"SELECT
+	|	TRUE AS TrueValue
+	|FROM
+	|	(SELECT TOP 1
+	|		CurrentList.Ref AS Ref,&AdditionalFields2,
+	|		AccessKeysForObjects.#UsersAccessKey AS CurrentAccessKey
+	|	FROM
+	|		&CurrentList AS CurrentList
+	|			INNER JOIN InformationRegister.AccessKeysForObjects AS AccessKeysForObjects
+	|			ON (AccessKeysForObjects.Object = CurrentList.Ref)
+	|	WHERE
+	|		CurrentList.Ref = &Ref) AS CurrentList #Joins
+	|
+	|GROUP BY
+	|	CurrentList.Ref,
+	|	CurrentList.CurrentAccessKey
+	|
+	|HAVING
+	|	(MAX(TabularSection?.LineNumber IS NULL) = TRUE
+	|		OR NOT COUNT(DISTINCT TabularSection?.LineNumber) IN
+	|				(SELECT
+	|					COUNT(TabularSection?.Ref) AS RowsCount
+	|				FROM
+	|					Catalog.AccessKeys.TabularSection? AS TabularSection?
+	|				WHERE
+	|					TabularSection?.Ref = CurrentList.CurrentAccessKey))"; // @query-part-1
+	
+	// Requests for the selective check.
+	Context.SpotCheckQueryText =
+	"SELECT DISTINCT
+	|	CurrentList.Ref AS CurrentRef
+	|FROM
+	|	&PartsOfCheckQuery AS CurrentList
+	|WHERE
+	|	&QueryPlanClarification";
+	
+	Context.QueryTextForSelectiveLinkCheck =
+	"SELECT
+	|	CurrentList.Ref AS Ref
+	|FROM
+	|	(SELECT
+	|		CurrentList.Ref AS Ref
+	|	FROM
+	|		&CurrentList AS CurrentList
+	|			INNER JOIN CurrentListByLeadingObjects AS CurrentListByLeadingObjects
+	|			ON (CurrentListByLeadingObjects.Ref = CurrentList.Ref)) AS CurrentList
+	|		LEFT JOIN InformationRegister.AccessKeysForObjects AS AccessKeysForObjects
+	|		ON (AccessKeysForObjects.Object = CurrentList.Ref)
+	|WHERE
+	|	AccessKeysForObjects.Object IS NULL";
+	
+	Context.QueryTextForSelectiveHeaderCheck =
+	"SELECT
+	|	CurrentList.Ref AS Ref
+	|FROM
+	|	(SELECT
+	|		CurrentList.Ref AS Ref,&AdditionalFields2,
+	|		AccessKeysForObjects.#UsersAccessKey AS CurrentAccessKey
+	|	FROM
+	|		&CurrentList AS CurrentList
+	|			INNER JOIN CurrentListByLeadingObjects AS CurrentListByLeadingObjects
+	|			ON (CurrentListByLeadingObjects.Ref = CurrentList.Ref)
+	|			INNER JOIN InformationRegister.AccessKeysForObjects AS AccessKeysForObjects
+	|			ON (AccessKeysForObjects.Object = CurrentList.Ref)) AS CurrentList #Joins
+	|WHERE
+	|	&QueryCondition"; // @query-part-1
+	
+	Context.QueryTextForSelectiveTabularSectionCheck =
+	"SELECT
+	|	CurrentList.Ref AS Ref
+	|FROM
+	|	(SELECT
+	|		CurrentList.Ref AS Ref,&AdditionalFields2,
+	|		AccessKeysForObjects.#UsersAccessKey AS CurrentAccessKey
+	|	FROM
+	|		&CurrentList AS CurrentList
+	|			INNER JOIN CurrentListByLeadingObjects AS CurrentListByLeadingObjects
+	|			ON (CurrentListByLeadingObjects.Ref = CurrentList.Ref)
+	|			INNER JOIN InformationRegister.AccessKeysForObjects AS AccessKeysForObjects
+	|			ON (AccessKeysForObjects.Object = CurrentList.Ref)) AS CurrentList #Joins
+	|
+	|GROUP BY
+	|	CurrentList.Ref,
+	|	CurrentList.CurrentAccessKey
+	|
+	|HAVING
+	|	(MAX(TabularSection?.LineNumber IS NULL) = TRUE
+	|		OR NOT COUNT(DISTINCT TabularSection?.LineNumber) IN
+	|				(SELECT
+	|					COUNT(TabularSection?.Ref) AS RowsCount
+	|				FROM
+	|					Catalog.AccessKeys.TabularSection? AS TabularSection?
+	|				WHERE
+	|					TabularSection?.Ref = CurrentList.CurrentAccessKey))"; // @query-part-1
 	
 	If Not Context.Property("DetailsOfValidationRequestsOnLeadingObjects") Then
 		Return;
 	EndIf;
 	
-	DataChoiceForSpotCheckWrapperQueryText =
+	QueryText = // DataSelectionWrapQueryText
 	"SELECT DISTINCT TOP 995
 	|	CurrentList.Ref AS Ref
 	|INTO CurrentListByLeadingObjects
 	|FROM
 	|	#DataSelectionRequests AS CurrentList"; 
 	
-	Context.DetailsOfValidationRequestsOnLeadingObjects.Insert("DataSelectionWrapQueryText",
-		DataChoiceForSpotCheckWrapperQueryText);
+	Context.DetailsOfValidationRequestsOnLeadingObjects.Insert("DataSelectionWrapQueryText", QueryText);
 	
 	QueryTemplate =
 	"SELECT DISTINCT TOP 995
@@ -34206,18 +35426,24 @@ Procedure FillTemplatesOfRegisterCheckQueryParts(Context)
 	
 	BasicFields = Context.BasicFields;
 	BasicFields.Insert("ForSelection",         "");
-	BasicFields.Insert("ConnectionCondition", "");
-	BasicFields.Insert("ForFilter",         "");
 	BasicFields.Insert("ForOrdering",   "");
+	
+	FieldsToUseCount = BasicFields.UsedItems.Count();
+	ShouldAddFilterByFirstField = FieldsToUseCount > 1
+		And BasicFields.UsedItemsTypes[0].Get().Types().Count() = 1;
 	
 	// For a new combination query.
 	BasicFieldsForSelection = "";
 	BasicFieldsConnectionCondition = "";
 	BasicFieldsForGroupingOrOrdering = "";
-	BasicFieldsForFilter = "";
+	BasicFieldsForFilter1 = ""; // ListWithPeriod
+	BasicFieldsForFilter2 = ?(Not ShouldAddFilterByFirstField, "", StrTemplate(
+	"CurrentRegister.%2 >= &Field%1
+	|	AND ", 1, BasicFields.UsedItems[0]));
 	
 	// To request current access keys.
 	FilterCriterion = "";
+	FilterFields = "";
 	
 	If Not ValueIsFilled(Context.SeparateKeysRegisterName) Then
 		Context.SeparateRegister = False;
@@ -34225,9 +35451,8 @@ Procedure FillTemplatesOfRegisterCheckQueryParts(Context)
 		BasicFieldsConnectionCondition  = "(AccessKeysForRegisters.Register = &RegisterID)";
 		// To request current access keys.
 		FilterCriterion                 = "CurrentList.Register = &RegisterID";
-		// For other queries.
-		BasicFields.ConnectionCondition = "(CurrentListSource.Register = CurrentList.Register)";
-		BasicFields.ForFilter         = "CurrentList.Register = &RegisterID";
+		// Intended for requesting a combination containing obsolete keys.
+		FilterFields                    = "CurrentList.Register = &RegisterID";
 	EndIf;
 	
 	// For a new combination query.
@@ -34238,12 +35463,17 @@ Procedure FillTemplatesOfRegisterCheckQueryParts(Context)
 	FilterCriterion = FilterCriterion + ?(FilterCriterion = "", "", "
 	|	AND ") + "CurrentList.AccessOption = &AccessOption"; // @query-part-1
 	
-	// For other queries.
-	BasicFields.ConnectionCondition = BasicFields.ConnectionCondition + ?(BasicFields.ConnectionCondition = "", "", "
-	|	AND ") + "(CurrentListSource.AccessOption = &AccessOption)"; // @query-part-1
-	
-	BasicFields.ForFilter = BasicFields.ForFilter + ?(BasicFields.ForFilter = "", "", "
+	// Intended for requesting a combination containing obsolete keys.
+	FilterFields = FilterFields + ?(FilterFields = "", "", "
 	|	AND ") + "CurrentList.AccessOption = &AccessOption"; // @query-part-1
+	
+	FieldsForRangeSelection = "";
+	
+	FilterFields1 = "";
+	FilterFields2 = "";
+	
+	TabsString = AccessManagementInternalCached.CharacterString("	",
+		FieldsToUseCount * 3);
 	
 	Number = 0;
 	For Each BasicFieldName In BasicFields.UsedItems Do
@@ -34251,118 +35481,230 @@ Procedure FillTemplatesOfRegisterCheckQueryParts(Context)
 		
 		// For a new combination query.
 		BasicFieldsForSelection = BasicFieldsForSelection + ?(BasicFieldsForSelection = "", "", ",
-		|	") + "CurrentRegister." + BasicFieldName + " AS Field" + Number; // @query-part-3
+		|	") + StrTemplate("CurrentRegister.%2 AS Field%1", Number, BasicFieldName); // @query-part-3
 		
 		BasicFieldsConnectionCondition = BasicFieldsConnectionCondition + ?(BasicFieldsConnectionCondition = "", "", "
-		|			AND ") + "(AccessKeysForRegisters.Field" + Number + " = CurrentRegister." + BasicFieldName + ")"; // @query-part-1
+		|			AND ") + StrTemplate("(AccessKeysForRegisters.Field%1 = CurrentRegister.%2)", Number, BasicFieldName); // @query-part-1
 		
 		BasicFieldsForGroupingOrOrdering = BasicFieldsForGroupingOrOrdering
 			+ ?(BasicFieldsForGroupingOrOrdering = "", "", ", ") + BasicFieldName;
 		
-		Filter = "";
-		For AdditionalNumber = 1 To Number - 1 Do
-			CurrentBasicFieldName = BasicFields.UsedItems[AdditionalNumber - 1];
-			Filter = Filter + ?(AdditionalNumber = 1, "", "
-			|	AND ") + "CurrentRegister." + CurrentBasicFieldName + " = &Field" + AdditionalNumber; // @query-part-1
-		EndDo;
-		Filter = Filter + ?(Filter = "", "", "
-		|	AND ") + "CurrentRegister." + BasicFieldName + " > &Field" + Number; // @query-part-1
-		
-		Filter = ?(Number = 1, ?(BasicFields.UsedItems.Count() > 1, "(", "") + Filter, "
-		|		OR " + TextWithIndent(Filter, "		")); // @query-part-1
-		
-		BasicFieldsForFilter = BasicFieldsForFilter + ?(BasicFieldsForFilter = "", "", ?(Number = 1, "
-		|	AND ", "")) + Filter; // @query-part-1
+		If Number = FieldsToUseCount Then
+			Filter = "CurrentRegister.%2 > &Field%1"; // @query-part-1
+		Else
+			Filter = "(CurrentRegister.%2 > &Field%1
+			|	OR CurrentRegister.%2 = &Field%1"; // @query-part-1
+		EndIf;
+		Filter = TextWithIndent(?(Number = 1, "", "
+		|AND ") + StrTemplate(Filter, Number, BasicFieldName), Left(TabsString, Number * 2)); // @query-part-1
+		BasicFieldsForFilter1 = BasicFieldsForFilter1 + Filter;
+		BasicFieldsForFilter2 = BasicFieldsForFilter2 + Filter;
 		
 		// To request current access keys.
 		FilterCriterion = FilterCriterion + ?(FilterCriterion = "", "", "
-		|	AND ") + "CurrentList.Field" + Number + " = &Field" + Number + "_%1"; // @query-part-1
+		|	AND ") + StrTemplate("CurrentList.Field%1 = &Field%1", Number) + "_%1"; // @query-part-1
 		
-		// For other queries.
+		// Intended for requesting a combination containing obsolete keys.
 		BasicFields.ForSelection = BasicFields.ForSelection + ?(BasicFields.ForSelection = "", "", ",
-		|	") + "CurrentList.Field" + Number + " AS Field" + Number; // @query-part-3
+		|	") + StrTemplate("CurrentList.Field%1 AS Field%1", Number); // @query-part-3
 		
-		BasicFields.ConnectionCondition = BasicFields.ConnectionCondition + ?(BasicFields.ConnectionCondition = "", "", "
-		|	AND ") + "(CurrentListSource.Field" + Number + " = CurrentList.Field" + Number + ")"; // @query-part-1
+		FieldsForRangeSelection = FieldsForRangeSelection + ?(FieldsForRangeSelection = "", "", ",
+		|	") + StrTemplate("DataItems.Field%1 AS Field%1RangeEnds", Number); // @query-part-3
 		
-		Filter = "";
-		For AdditionalNumber = 1 To Number - 1 Do
-			Filter = Filter + ?(AdditionalNumber = 1, "", "
-			|		AND ") + "CurrentList.Field" + AdditionalNumber + " = &Field" + AdditionalNumber; // @query-part-1
-		EndDo;
-		Filter = Filter + ?(Filter = "", "", "
-		|		AND ") + "CurrentList.Field" + Number + " > &Field" + Number; // @query-part-1
+		If Number = FieldsToUseCount Then
+			Filter = "CurrentList.Field%1 > &Field%1RangeStarts"; // @query-part-1
+		Else
+			Filter = "(CurrentList.Field%1 > &Field%1RangeStarts
+			|	OR CurrentList.Field%1 = &Field%1RangeStarts"; // @query-part-1 @query-part-2
+		EndIf;
+		FilterFields1 = FilterFields1 + TextWithIndent(?(Number = 1, "", "
+		|AND ") + StrTemplate(Filter, Number), Left(TabsString, Number * 2)); // @query-part-1
 		
-		Filter = ?(Number = 1, ?(BasicFields.UsedItems.Count() > 1, "(", "") + Filter, "
-		|			OR " + TextWithIndent(Filter, "		")); // @query-part-1
+		If Number = FieldsToUseCount Then
+			Filter = "CurrentList.Field%1 <= &Field%1RangeEnds"; // @query-part-1
+		Else
+			Filter = "(CurrentList.Field%1 < &Field%1RangeEnds
+			|	OR CurrentList.Field%1 = &Field%1RangeEnds"; // @query-part-1 @query-part-2
+		EndIf;
+		FilterFields2 = FilterFields2 + TextWithIndent(?(Number = 1, "", "
+		|AND ") + StrTemplate(Filter, Number), Left(TabsString, Number * 2)); // @query-part-1
 		
-		BasicFields.ForFilter = BasicFields.ForFilter + ?(BasicFields.ForFilter = "", "", ?(Number = 1, "
-		|	AND ", "")) + Filter; // @query-part-1
-		
-		BasicFields.ForOrdering = BasicFields.ForOrdering + ?(BasicFields.ForOrdering = "", "", ", ") + "Field" + Number;
+		BasicFields.ForOrdering = BasicFields.ForOrdering
+			+ ?(BasicFields.ForOrdering = "", "", ", ") + StrTemplate("Field%1", Number);
 	EndDo;
 	
-	If BasicFields.UsedItems.Count() > 1 Then
-		BasicFieldsForFilter  = BasicFieldsForFilter  + ")";
-		BasicFields.ForFilter = BasicFields.ForFilter + ")";
+	If FieldsToUseCount > 1 Then
+		Brackets = AccessManagementInternalCached.CharacterString(")", FieldsToUseCount - 1);
+		BasicFieldsForFilter1  = BasicFieldsForFilter1 + Brackets;
+		BasicFieldsForFilter2  = BasicFieldsForFilter2 + Brackets;
+		FilterFields1 = FilterFields1 + Brackets;
+		FilterFields2 = FilterFields2 + Brackets;
 	EndIf;
+	FilterFields1 = FilterFields + "
+		|	AND " + FilterFields1; // @query-part-1
+	FilterFields2 = FilterFields1 + "
+		|	AND " + FilterFields2; // @query-part-1
 	
-	// Set query templates.
-	CheckCombinationsQueryText =
-	"SELECT DISTINCT TOP 995
-	|	&BasicFieldsForSelection
+	// Requests for combinations containing obsolete keys.
+	QueryText = // @query-part-2 @query-part-3
+	"SELECT TOP 1
+	|	&FieldsForRangeSelection
+	|FROM
+	|	(SELECT TOP 993
+	|		&BasicFieldsForSelection
+	|	FROM
+	|		&CurrentList AS CurrentList
+	|	WHERE
+	|		&BasicFieldsForFilter
+	|	
+	|	ORDER BY
+	|		&BasicFieldsForOrdering) AS DataItems
+	|
+	|ORDER BY
+	|	&BasicFieldsForReverseOrdering";
+	
+	QueryText = StrReplace(QueryText, "&FieldsForRangeSelection",     FieldsForRangeSelection);
+	QueryText = StrReplace(QueryText, "&BasicFieldsForSelection",       TextWithIndent(BasicFields.ForSelection, "	"));
+	QueryText = StrReplace(QueryText, "&BasicFieldsForFilter",       TextWithIndent(FilterFields1, "	"));
+	QueryText = StrReplace(QueryText, "&BasicFieldsForOrdering", BasicFields.ForOrdering);
+	QueryText = StrReplace(QueryText, "&BasicFieldsForReverseOrdering",
+		StrReplace(BasicFields.ForOrdering, ",", " DESC,") + " DESC"); // @query-part-2 @query-part-3
+	Context.Insert("QueryTextForDataItemsRange", QueryText);
+	
+	QueryText = // QueryTextChecks
+	"SELECT TOP 993
+	|	&BasicFieldsForSelection,
+	|	CurrentList.AccessKey AS CurrentAccessKey
+	|INTO DataItemsCurrentBatch
 	|FROM
 	|	&CurrentList AS CurrentList
 	|WHERE
 	|	&BasicFieldsForFilter
-	|	AND (&QueryCondition)
-	|	AND &QueryPlanClarification
+	|;
+	|
+	|////////////////////////////////////////////////////////////////////////////////
+	|SELECT DISTINCT
+	|	&BasicFieldsForSelection
+	|FROM
+	|	&PartsOfCheckQuery AS CurrentList
 	|
 	|ORDER BY
-	|	&BasicFieldsForOrdering"; 
-
-	CheckCombinationsQueryText = StrReplace(CheckCombinationsQueryText, "&BasicFieldsForSelection", BasicFields.ForSelection);
-	CheckCombinationsQueryText = StrReplace(CheckCombinationsQueryText, "&BasicFieldsForFilter", BasicFields.ForFilter);
-	CheckCombinationsQueryText = StrReplace(CheckCombinationsQueryText, "&BasicFieldsForOrdering", BasicFields.ForOrdering);
-	Context.Insert("QueryTextChecks", CheckCombinationsQueryText);
+	|	&BasicFieldsForOrdering";
 	
-	SpotCombinationsCheckQueryText =
+	QueryText = StrReplace(QueryText, "&BasicFieldsForSelection",       BasicFields.ForSelection);
+	QueryText = StrReplace(QueryText, "&BasicFieldsForFilter",       FilterFields2);
+	QueryText = StrReplace(QueryText, "&BasicFieldsForOrdering", BasicFields.ForOrdering);
+	Context.Insert("QueryTextChecks", QueryText);
+	
+	QueryText = // QueryTextToCheckHeader
 	"SELECT
 	|	&BasicFieldsForSelection
 	|FROM
-	|	CurrentListByLeadingObjects AS CurrentList
+	|	DataItemsCurrentBatch AS CurrentList #Joins
 	|WHERE
-	|	(&QueryCondition)
-	|	AND &QueryPlanClarification";
+	|	&QueryCondition"; // @query-part-1
 	
-	SpotCombinationsCheckQueryText = StrReplace(SpotCombinationsCheckQueryText, 
-		"&BasicFieldsForSelection", BasicFields.ForSelection);
-	Context.Insert("SpotCheckQueryText", SpotCombinationsCheckQueryText);
+	QueryText = StrReplace(QueryText, "&BasicFieldsForSelection", BasicFields.ForSelection);
+	Context.Insert("QueryTextToCheckHeader", QueryText);
 	
-	DataChoiceWrapperForSpotCombinationsCheckQueryText =
+	QueryText = // QueryTextToCheckTabularSection
+	"SELECT
+	|	&BasicFieldsForSelection
+	|FROM
+	|	DataItemsCurrentBatch AS CurrentList #Joins
+	|
+	|GROUP BY
+	|	&BasicFieldsForGrouping,
+	|	CurrentList.CurrentAccessKey
+	|
+	|HAVING
+	|	(MAX(TabularSection?.LineNumber IS NULL) = TRUE
+	|		OR NOT COUNT(DISTINCT TabularSection?.LineNumber) IN
+	|				(SELECT
+	|					COUNT(TabularSection?.Ref) AS RowsCount
+	|				FROM
+	|					Catalog.AccessKeys.TabularSection? AS TabularSection?
+	|				WHERE
+	|					TabularSection?.Ref = CurrentList.CurrentAccessKey))"; // @query-part-1
+	
+	QueryText = StrReplace(QueryText, "&BasicFieldsForSelection", BasicFields.ForSelection);
+	QueryText = StrReplace(QueryText, "&BasicFieldsForGrouping",
+		"CurrentList." + StrReplace(BasicFields.ForOrdering, ", ", ",
+		|	CurrentList."));
+	Context.Insert("QueryTextToCheckTabularSection", QueryText);
+	
+	// Requests for the selective check.
+	QueryText = // SpotCheckQueryText
+	"SELECT DISTINCT
+	|	&BasicFieldsForSelection
+	|FROM
+	|	&PartsOfCheckQuery AS CurrentList
+	|WHERE
+	|	&QueryPlanClarification";
+	
+	QueryText = StrReplace(QueryText, "&BasicFieldsForSelection", BasicFields.ForSelection);
+	Context.Insert("SpotCheckQueryText", QueryText);
+	
+	QueryText = // QueryTextForSelectiveHeaderCheck
+	"SELECT
+	|	&BasicFieldsForSelection
+	|FROM
+	|	CurrentListByLeadingObjects AS CurrentList #Joins
+	|WHERE
+	|	&QueryCondition"; // @query-part-1
+	
+	QueryText = StrReplace(QueryText, "&BasicFieldsForSelection", BasicFields.ForSelection);
+	Context.Insert("QueryTextForSelectiveHeaderCheck", QueryText);
+	
+	QueryText = // QueryTextToCheckTabularSection
+	"SELECT
+	|	&BasicFieldsForSelection
+	|FROM
+	|	CurrentListByLeadingObjects AS CurrentList #Joins
+	|
+	|GROUP BY
+	|	&BasicFieldsForGrouping,
+	|	CurrentList.CurrentAccessKey
+	|
+	|HAVING
+	|	(MAX(TabularSection?.LineNumber IS NULL) = TRUE
+	|		OR NOT COUNT(DISTINCT TabularSection?.LineNumber) IN
+	|				(SELECT
+	|					COUNT(TabularSection?.Ref) AS RowsCount
+	|				FROM
+	|					Catalog.AccessKeys.TabularSection? AS TabularSection?
+	|				WHERE
+	|					TabularSection?.Ref = CurrentList.CurrentAccessKey))"; // @query-part-1
+	
+	QueryText = StrReplace(QueryText, "&BasicFieldsForSelection", BasicFields.ForSelection);
+	QueryText = StrReplace(QueryText, "&BasicFieldsForGrouping",
+		"CurrentList." + StrReplace(BasicFields.ForOrdering, ", ", ",
+		|	CurrentList."));
+	Context.Insert("QueryTextForSelectiveTabularSectionCheck", QueryText);
+	
+	QueryText = // DataChoiceWrapperForSpotCombinationsCheckQueryText
 	"SELECT DISTINCT TOP 995
 	|	&BasicFieldsForSelection,
-	|	CurrentList.AccessKey AS AccessKey
+	|	CurrentList.CurrentAccessKey AS CurrentAccessKey
 	|INTO CurrentListByLeadingObjects
 	|FROM
 	|	#DataSelectionRequests AS CurrentList";
 	
-	DataChoiceWrapperForSpotCombinationsCheckQueryText = StrReplace(DataChoiceWrapperForSpotCombinationsCheckQueryText, 
-		"&BasicFieldsForSelection", BasicFields.ForSelection);
-	Context.DetailsOfValidationRequestsOnLeadingObjects.Insert("DataSelectionWrapQueryText",
-		DataChoiceWrapperForSpotCombinationsCheckQueryText);
+	QueryText = StrReplace(QueryText, "&BasicFieldsForSelection", BasicFields.ForSelection);
+	Context.DetailsOfValidationRequestsOnLeadingObjects.Insert("DataSelectionWrapQueryText", QueryText);
 	
 	QueryTemplate =
 	"SELECT DISTINCT TOP 995
 	|	&BasicFieldsForSelection,
-	|	CurrentList.AccessKey AS AccessKey
+	|	CurrentList.AccessKey AS CurrentAccessKey
 	|FROM
 	|	"; // @query-part-1
 	QueryTemplate = StrReplace(QueryTemplate, "&BasicFieldsForSelection", BasicFields.ForSelection);
 	AddCheckQueriesByLeadingLists(QueryTemplate, Context);
 	
+	// Requests for new combinations of field values.
 	If Context.ListWithPeriod Then
-		NewCombinationsQueryText = 
+		QueryText = // NewCombinationsQueryText
 		"SELECT TOP 995
 		|	MAX(CurrentRegister.Period) AS Period,
 		|	&BasicFieldsForSelection
@@ -34372,9 +35714,10 @@ Procedure FillTemplatesOfRegisterCheckQueryParts(Context)
 		|		ON &BasicFieldsConnectionCondition
 		|WHERE
 		|	CurrentRegister.Period >= &StartDate
+		|	AND CurrentRegister.Period <= &EndDate
 		|	AND (CurrentRegister.Period < &EndDate
-		|		OR CurrentRegister.Period = &EndDate
-		|			AND &BasicFieldsForFilter)
+		|			OR CurrentRegister.Period = &EndDate
+		|				AND &BasicFieldsForFilter)
 		|	AND AccessKeysForRegisters.AccessOption IS NULL
 		|	AND &QueryPlanClarification
 		|
@@ -34383,20 +35726,17 @@ Procedure FillTemplatesOfRegisterCheckQueryParts(Context)
 		|
 		|ORDER BY
 		|	Period DESC, &BasicFieldsForGroupingOrOrdering";
-		NewCombinationsQueryText = StrReplace(NewCombinationsQueryText, 
-			"&BasicFieldsForSelection", BasicFieldsForSelection);
-		NewCombinationsQueryText = StrReplace(NewCombinationsQueryText, 
-			"&BasicFieldsConnectionCondition", BasicFieldsConnectionCondition);
-		NewCombinationsQueryText = StrReplace(NewCombinationsQueryText, 
-			"&BasicFieldsForFilter", TextWithIndent(BasicFieldsForFilter, "	"));
-		NewCombinationsQueryText = StrReplace(NewCombinationsQueryText, 
-			"&BasicFieldsForGroupingOrOrdering", BasicFieldsForGroupingOrOrdering);
 		If Context.TypeCollectionName = "CalculationRegisters" Then
-			NewCombinationsQueryText = StrReplace(NewCombinationsQueryText,
+			QueryText = StrReplace(QueryText,
 				".Period", ".RegistrationPeriod");
 		EndIf;
+		QueryText = StrReplace(QueryText, "&BasicFieldsForSelection", BasicFieldsForSelection);
+		QueryText = StrReplace(QueryText, "&BasicFieldsConnectionCondition", BasicFieldsConnectionCondition);
+		QueryText = StrReplace(QueryText, "&BasicFieldsForFilter", TextWithIndent(BasicFieldsForFilter1, "		"));
+		QueryText = StrReplace(QueryText, "&BasicFieldsForGroupingOrOrdering",
+			BasicFieldsForGroupingOrOrdering);
 	Else
-		NewCombinationsQueryText =
+		QueryText = // NewCombinationsQueryText
 		"SELECT DISTINCT TOP 995
 		|	&BasicFieldsForSelection
 		|FROM
@@ -34410,27 +35750,24 @@ Procedure FillTemplatesOfRegisterCheckQueryParts(Context)
 		|
 		|ORDER BY
 		|	&BasicFieldsForGroupingOrOrdering";
-		NewCombinationsQueryText = StrReplace(NewCombinationsQueryText, 
-			"&BasicFieldsForSelection", BasicFieldsForSelection);
-		NewCombinationsQueryText = StrReplace(NewCombinationsQueryText, 
-			"&BasicFieldsConnectionCondition", BasicFieldsConnectionCondition);
-		NewCombinationsQueryText = StrReplace(NewCombinationsQueryText, 
-			"&BasicFieldsForFilter", BasicFieldsForFilter);
-		NewCombinationsQueryText = StrReplace(NewCombinationsQueryText, 
-			"&BasicFieldsForGroupingOrOrdering", BasicFieldsForGroupingOrOrdering);
+		QueryText = StrReplace(QueryText, "&BasicFieldsForSelection", BasicFieldsForSelection);
+		QueryText = StrReplace(QueryText, "&BasicFieldsConnectionCondition", BasicFieldsConnectionCondition);
+		QueryText = StrReplace(QueryText, "&BasicFieldsForFilter", BasicFieldsForFilter2);
+		QueryText = StrReplace(QueryText, "&BasicFieldsForGroupingOrOrdering",
+			BasicFieldsForGroupingOrOrdering);
 	EndIf;
-	Context.Insert("NewCombinationsQueryText", NewCombinationsQueryText);
+	Context.Insert("NewCombinationsQueryText", QueryText);
 	
-	// Current access keys query text.
-	CurrentAccessKeysQueryText =
+	// Request the up-to-date access keys.
+	QueryText = // CurrentAccessKeysQueryText
 	"SELECT TOP 2
 	|	CurrentList.AccessKey AS AccessKey
 	|FROM
 	|	&CurrentList AS CurrentList
 	|WHERE
 	|	&FilterCriterion";
-	CurrentAccessKeysQueryText = StrReplace(CurrentAccessKeysQueryText, "&FilterCriterion", FilterCriterion);
-	Context.Insert("CurrentAccessKeysQueryText", CurrentAccessKeysQueryText);
+	QueryText = StrReplace(QueryText, "&FilterCriterion", FilterCriterion);
+	Context.Insert("CurrentAccessKeysQueryText", QueryText);
 	
 EndProcedure
 
@@ -34473,21 +35810,21 @@ Function CheckQueriesByLeadingListsDetails(FiltersConnections, FieldsTypes,
 		Fields.Add(FieldDetails.Key + " AS " + FieldDetails.Key);
 	EndDo;
 	
-	QueryTextParameters =
+	QueryText = // QueryTextParameters
 	"SELECT
 	|	&TableFields
 	|INTO #LeadingTableWithoutDots
 	|FROM
 	|	&LeadingTableWithoutDots AS CurrentDataForFilter";
-	QueryTextParameters = StrReplace(QueryTextParameters, "&TableFields", "
-		|	CurrentDataForFilter." + StrConcat(Fields, ",
+	QueryText = StrReplace(QueryText, "&TableFields",
+		"CurrentDataForFilter." + StrConcat(Fields, ",
 		|	CurrentDataForFilter."));
-	QueryTextParameters = StrReplace(QueryTextParameters, "#LeadingTableWithoutDots", LeadingTableWithoutDots);
-	QueryTextParameters = StrReplace(QueryTextParameters, "&LeadingTableWithoutDots", "&" + LeadingTableWithoutDots);
+	QueryText = StrReplace(QueryText, "#LeadingTableWithoutDots", LeadingTableWithoutDots);
+	QueryText = StrReplace(QueryText, "&LeadingTableWithoutDots", "&" + LeadingTableWithoutDots);
 	
 	QueriesDetails = New Structure;
 	QueriesDetails.Insert("FieldsTypes", FieldsTypes);
-	QueriesDetails.Insert("QueryTextParameters", QueryTextParameters);
+	QueriesDetails.Insert("QueryTextParameters", QueryText);
 	QueriesDetails.Insert("DataQueryTexts", New Array);
 	
 	For Each FilterConnection In FiltersConnections Do
@@ -34543,35 +35880,88 @@ EndProcedure
 // For the AddQueriesTextsToRestrictionParameters procedure.
 Procedure ComposeCheckQueryParts(Result, Context)
 	
-	Condition = "";
-	For Each ConditionPartText In Context.CheckConditionParts Do
-		If ValueIsFilled(Condition) Then
-			Condition = Condition + "
-			|		OR "; // @query-part-1
+	InsertCommonParametersIntoQuery(Context.QueryTextForDataItemsRange, Context);
+	Result.QueryTextForDataItemsRange = Context.QueryTextForDataItemsRange;
+	
+	QueryParts1 = New Array;
+	QueryParts2 = New Array;
+	QueryParts3 = New Array;
+	If Context.IsReferenceType Then
+		QueryParts1.Add(Context.QueryTextToCheckLink);
+		QueryParts2.Add(Context.QueryTextForSelectiveLinkCheck);
+		QueryParts3.Add(Context.QueryTextToCheckObjectAccessKeyLink);
+	EndIf;
+	
+	For Each CheckConditionPart In Context.CheckConditionParts Do
+		AddQuerySegment(QueryParts1, CheckConditionPart, Context,
+			Context.QueryTextToCheckHeader,
+			Context.QueryTextToCheckTabularSection);
+		
+		AddQuerySegment(QueryParts2, CheckConditionPart, Context,
+			Context.QueryTextForSelectiveHeaderCheck,
+			Context.QueryTextForSelectiveTabularSectionCheck);
+		
+		If Context.IsReferenceType Then
+			AddQuerySegment(QueryParts3, CheckConditionPart, Context,
+				Context.QueryTextToCheckObjectAccessKeyHeader,
+				Context.QueryTextToCheckObjectAccessKeyTabularSection);
 		EndIf;
-		Condition = Condition + TextWithIndent(ConditionPartText, "			");
 	EndDo;
-	Condition = TextWithIndent(Condition, "	");
 	
-	Context.QueryTextChecks = StrReplace(Context.QueryTextChecks,
-		"&QueryCondition", ?(Context.IsReferenceType, Condition, TextWithIndent(Condition, "		")));
-	InsertCommonParametersIntoQuery(Context.QueryTextChecks, Context);
-	Result.DataItemWithObsoleteKeysQueryText = Context.QueryTextChecks;
+	QueryPartsText = StrConcat(QueryParts1, Common.UnionAllText());
+	QueryText = StrReplace(Context.QueryTextChecks, ",&AdditionalFields1",
+		TextWithIndent(Context.MainTableUsedFields, "	"));
+	QueryText = StrReplace(QueryText, ",&AdditionalFields2",
+		TextWithIndent(Context.MainTableUsedFields, "		"));
+	QueryText = StrReplace(QueryText, "&PartsOfCheckQuery",
+		"(" + TextWithIndent(QueryPartsText, "	") + ")");
+	InsertCommonParametersIntoQuery(QueryText, Context);
+	Result.DataItemWithObsoleteKeysQueryText = QueryText;
 	
-	QueryText = StrReplace(Context.SpotCheckQueryText, "&QueryCondition", Condition);
+	QueryPartsText = StrConcat(QueryParts2, Common.UnionAllText());
+	QueryText = StrReplace(Context.SpotCheckQueryText, "&PartsOfCheckQuery",
+		"(" + TextWithIndent(QueryPartsText, "	") + ")");
 	InsertCommonParametersIntoQuery(QueryText, Context);
 	Context.DetailsOfValidationRequestsOnLeadingObjects.Insert("SpotCheckQueryText", QueryText);
 	
 	Result.DetailsOfObsoleteAccessKeysForLeadingObjects =
 		Context.DetailsOfValidationRequestsOnLeadingObjects;
 	
-	If Not Context.IsReferenceType Then
+	If Context.IsReferenceType Then
+		QueryText = StrConcat(QueryParts3, Common.UnionAllText());
+		InsertCommonParametersIntoQuery(QueryText, Context);
+		Result.QueryTextToCheckObjectAccessKey = QueryText;
+	Else
 		InsertCommonParametersIntoQuery(Context.NewCombinationsQueryText, Context);
 		Result.DataItemsWithoutAccessKeysQueryText = Context.NewCombinationsQueryText;
 		
 		InsertCommonParametersIntoQuery(Context.CurrentAccessKeysQueryText, Context);
 		Result.CurrentRegisterAccessKeysQueryText = Context.CurrentAccessKeysQueryText;
 	EndIf;
+	
+EndProcedure
+
+// Intended for procedure "ComposeCheckQueryParts".
+Procedure AddQuerySegment(QueryParts, CheckConditionPart, Context,
+			TextForHeader, TextForTabularSection)
+	
+	If ValueIsFilled(CheckConditionPart.KeyTabularSectionName) Then
+		CurText = TextForTabularSection;
+	Else
+		CurText = TextForHeader;
+	EndIf;
+	
+	CurText = StrReplace(CurText, ",&AdditionalFields2",
+		TextWithIndent(CheckConditionPart.AdditionalFields, "		"));
+	
+	CurText = StrReplace(CurText, " #Joins", "
+		|		" + TextWithIndent(CheckConditionPart.Joins, "		"));
+	
+	CurText = StrReplace(CurText,
+		"TabularSection?", CheckConditionPart.KeyTabularSectionName);
+	
+	QueryParts.Add(StrReplace(CurText,
+		"&QueryCondition", TextWithIndent(CheckConditionPart.Condition, "	")));
 	
 EndProcedure
 
@@ -35577,7 +36967,7 @@ Procedure ClarifyKeysRegisterAndConnectionCondition(QueryText, Result, Context, 
 		FieldNumber = 1;
 		FieldsNames = StrSplit(AccessOptionUsed.ConnectionFields, ",", False);
 		For Each FieldName In FieldsNames Do
-			Condition.Add("AccessKeysForRegisters.Field" + FieldNumber + " = CurrentTable." + FieldName);
+			Condition.Add(StrTemplate("AccessKeysForRegisters.Field%1 = CurrentTable.%2", FieldNumber, FieldName));
 			FieldNumber = FieldNumber + 1;
 		EndDo;
 		If AccessOptionsUsed.Count() = 1 Then
@@ -35613,9 +37003,9 @@ Procedure ClarifyKeysRegisterAndConnectionCondition(QueryText, Result, Context, 
 	FieldNumber = 1;
 	For Each Field In Result.BasicFields.UsedItems Do
 		BasicFields = BasicFields + ?(BasicFields = "", "", "," + Chars.LF)
-			+ "CurrentTable." + Field + " AS " + Field; // @query-part-2
+			+ StrTemplate("CurrentTable.%1 AS %1", Field); // @query-part-1
 		SelectionFields = SelectionFields + ?(SelectionFields = "", "", "," + Chars.LF)
-			+ "CurrentTable." + Field + " AS Field" + FieldNumber; // @query-part-2
+			+ StrTemplate("CurrentTable.%2 AS Field%1", FieldNumber, Field); // @query-part-1
 		FieldNumber = FieldNumber + 1;
 	EndDo;
 	
@@ -35642,7 +37032,6 @@ Procedure InsertCommonParametersIntoQuery(QueryText, Context)
 	
 	If Context.IsReferenceType Then
 		QueryText = StrReplace(QueryText, "&CurrentList", Context.List);
-		QueryText = StrReplace(QueryText, "#DataAccessKeys", "AccessKeysForObjects");
 		
 		If Context.ForExternalUsers Then
 			QueryText = StrReplace(QueryText, "#UsersAccessKey", "ExternalUsersAccessKey");
@@ -35651,17 +37040,13 @@ Procedure InsertCommonParametersIntoQuery(QueryText, Context)
 		EndIf;
 	Else
 		QueryText = StrReplace(QueryText, "&CurrentRegister", Context.List);
-		QueryText = StrReplace(QueryText, "#DataAccessKeys", "CurrentList");
 		QueryText = StrReplace(QueryText, "CurrentList.Register = &RegisterID", "#1");
 		QueryText = StrReplace(QueryText, "CurrentList.AccessOption = &AccessOption", "#2");
 		Number = 0;
 		For Each BasicFieldName In Context.BasicFields.UsedItems Do
 			Number = Number + 1;
-			QueryText = StrReplace(QueryText, "CurrentList."
-				+ BasicFieldName, "CurrentList.Field" + Number);
-			
-			QueryText = StrReplace(QueryText, "CurrentListSource."
-				+ BasicFieldName, "CurrentListSource.Field" + Number);
+			QueryText = StrReplace(QueryText, StrTemplate("CurrentList.%1", BasicFieldName),
+				StrTemplate("CurrentList.Field%1", Number));
 		EndDo;
 		QueryText = StrReplace(QueryText, "#1", "CurrentList.Register = &RegisterID");
 		QueryText = StrReplace(QueryText, "#2", "CurrentList.AccessOption = &AccessOption");
@@ -35681,7 +37066,7 @@ EndProcedure
 // For the AddQueriesTextsToRestrictionParameters procedure.
 Procedure AddKeyHeaderCheck(Context, HeaderNumber)
 	
-	GroupOfFields = Context.FieldsGroups.Get("Header" + HeaderNumber);
+	GroupOfFields = Context.FieldsGroups.Get(StrTemplate("Header%1", HeaderNumber));
 	If GroupOfFields = Undefined Then
 		If HeaderNumber > 0 Then
 			Return;
@@ -35695,7 +37080,7 @@ Procedure AddKeyHeaderCheck(Context, HeaderNumber)
 	If HeaderNumber = 0 Then
 		Joins = ConnectionsAndFields.Joins + "
 		|LEFT JOIN Catalog.AccessKeys AS Header0
-		|ON (Header0.Ref = #DataAccessKeys.#UsersAccessKey)" // @query-part-1 
+		|ON (Header0.Ref = CurrentList.CurrentAccessKey)" // @query-part-1 
 		+ ?(Context.FieldsComposition = 0, "
 		|	AND (Header0.List = &List)", "") // @query-part-1 
 		+ "
@@ -35703,31 +37088,19 @@ Procedure AddKeyHeaderCheck(Context, HeaderNumber)
 	Else
 		Joins = ConnectionsAndFields.Joins + "
 		|LEFT JOIN Catalog.AccessKeys.Header AS Header?
-		|ON (Header?.Ref = #DataAccessKeys.#UsersAccessKey)
+		|ON (Header?.Ref = CurrentList.CurrentAccessKey)
 		|	AND (Header?.LineNumber = &HeaderNumber)"; // @query-part-1
 		Joins = StrReplace(Joins, "&HeaderNumber", HeaderNumber);
 	EndIf;
 	
 	Joins = TrimL(Joins) + TextWithIndent(ConnectionsAndFields.Fields, "	");
-	Joins = TextWithIndent(Joins, "		");
+	Condition = "Header?.Ref IS NULL"; // @query-part-1
 	
-	ConditionPartTextTemplate =
-	"NOT TRUE IN
-	|(SELECT TOP 1
-	|	TRUE
-	|FROM
-	|	(SELECT
-	|		TRUE AS TrueValue) AS TrueValue
-	|		#Joins
-	|WHERE
-	|	&QueryCondition)"; // @query-part-1
+	Joins = StrReplace(Joins, "Header?", StrTemplate("Header%1", HeaderNumber));
+	Condition    = StrReplace(Condition,    "Header?", StrTemplate("Header%1", HeaderNumber));
 	
-	ConditionPartText = ConditionPartTextTemplate;
-	ConditionPartText = StrReplace(ConditionPartText, "#Joins", Joins);
-	ConditionPartText = StrReplace(ConditionPartText, "&QueryCondition", 
-		TextWithIndent("NOT Header?.Ref IS NULL", "	")); // @query-part-1
-	ConditionPartText = StrReplace(ConditionPartText, "Header?", "Header" + HeaderNumber);
-	Context.CheckConditionParts.Add(ConditionPartText);
+	Context.CheckConditionParts.Add(CheckConditionPart(Joins, Condition,
+		Context.MainTableUsedFields));
 	
 EndProcedure
 
@@ -35738,20 +37111,18 @@ Procedure AddKeyTabularSectionCheck(Context, KeyTabularSectionNumber)
 	AdditionalTablesGroup = TablesByGroups.Get(KeyTabularSectionNumber
 		- (Context.KeyTabularSectionsCount - TablesByGroups.Count()));
 	
-	KeyTabularSectionName = "TabularSection" + KeyTabularSectionNumber;
+	KeyTabularSectionName = StrTemplate("TabularSection%1", KeyTabularSectionNumber);
 	GroupOfFields = Context.FieldsGroups.Get(KeyTabularSectionName);
 	
 	ConnectionsAndFieldsByTables = ConnectionsAndFieldsByTables(GroupOfFields, True);
 	
 	Joins = "";
-	Condition = "";
 	Fields = "";
 	
 	If AdditionalTablesGroup = Undefined Then
 		ObjectTabularSectionAlias = Context.ObjectTabularSectionsAliases.Get(KeyTabularSectionNumber);
 		If ObjectTabularSectionAlias = Undefined Then
 			ConnectionsAndFields = ConnectionsAndFieldsByTables.Get("CurrentList");
-			Condition = "TRUE";
 		Else
 			ObjectTabularSectionName = StrReplace(ObjectTabularSectionAlias, "CurrentList", "");
 			ConnectionsAndFields = ConnectionsAndFieldsByTables.Get(ObjectTabularSectionAlias);
@@ -35759,7 +37130,6 @@ Procedure AddKeyTabularSectionCheck(Context, KeyTabularSectionNumber)
 			Joins = Joins + "
 			|LEFT JOIN &CurrentList." + ObjectTabularSectionName + " AS " + ObjectTabularSectionAlias + "
 			|On " + ObjectTabularSectionAlias + ".Ref = CurrentList.Ref"; // @query-part-1
-			Condition = ObjectTabularSectionAlias + ".Ref #CheckNULL";
 		EndIf;
 		Joins = Joins + ConnectionsAndFields.Joins;
 		Fields = ConnectionsAndFields.Fields;
@@ -35774,113 +37144,50 @@ Procedure AddKeyTabularSectionCheck(Context, KeyTabularSectionNumber)
 				Continue;
 			EndIf;
 			Joins = Joins + ConnectionsAndFields.Joins;
-			Condition = Condition + ?(Condition = "", "", "
-			|OR ") + AdditionalTable.ConnectionTestField + " #CheckNULL"; // @query-part-1
 			Fields = Fields + ConnectionsAndFields.Fields;
 		EndDo;
-		If StrLineCount(Condition) > 1 Then
-			Condition = "(" + Condition + ")";
-		EndIf;
 	EndIf;
-	InitialConnections = Joins;
-	InitialCondition = Condition;
 	
 	// Direct connection (checking if required records are in the key).
-	ConditionPartText =
-	"FALSE IN
-	|(SELECT TOP 1
-	|	FALSE
-	|FROM
-	|	(SELECT
-	|		TRUE AS TrueValue) AS TrueValue
-	|		#Joins
-	|WHERE
-	|	&QueryCondition)"; // @query-part
-	
-	Joins = InitialConnections + "
+	Joins = Joins + "
 	|LEFT JOIN Catalog.AccessKeys.TabularSection? AS TabularSection?
-	|ON (TabularSection?.Ref = #DataAccessKeys.#UsersAccessKey)"; // @query-part
+	|ON (TabularSection?.Ref = CurrentList.CurrentAccessKey)"; // @query-part
 	Joins = TrimL(Joins) + TextWithIndent(Fields, "	");
-	Joins = TextWithIndent(Joins, "		");
+	Condition = "TabularSection?.Ref IS NULL"; // @query-part-1
 	
-	Condition = "	TabularSection?.Ref IS NULL"; // @query-part-1
+	Joins = StrReplace(Joins, "TabularSection?", KeyTabularSectionName);
+	Condition    = StrReplace(Condition,    "TabularSection?", KeyTabularSectionName);
 	
-	ConditionPartText = StrReplace(ConditionPartText, "#Joins",     Joins);
-	ConditionPartText = StrReplace(ConditionPartText, "&QueryCondition", Condition);
-	ConditionPartText = StrReplace(ConditionPartText, "TabularSection?", KeyTabularSectionName);
-	Context.CheckConditionParts.Add(ConditionPartText);
-	
-	// Reversed connection (checking if there are excess records in the key).
-	ConditionPartText =
-	"FALSE IN
-	|(SELECT TOP 1
-	|	FALSE
-	|FROM
-	|	Catalog.AccessKeys.TabularSection? AS TabularSection?
-	|		#Joins
-	|WHERE
-	|	TabularSection?.Ref = #DataAccessKeys.#UsersAccessKey
-	|	AND &QueryCondition)"; // @query-part
-	
-	If AdditionalTablesGroup = Undefined
-	 Or AdditionalTablesGroup.Count() = 1 Then
-		
-		If AdditionalTablesGroup = Undefined Then
-			If ObjectTabularSectionName = Undefined Then
-				AliasOfTheIntermediateTable = "IntermediateTable" + KeyTabularSectionNumber;
-				Joins =
-				"LEFT JOIN (SELECT
-				|	TRUE AS TrueValue) AS " + AliasOfTheIntermediateTable // @query-part-1 @query-part-2
-					  + TextWithIndent(ConnectionsAndFields.Joins, "	") + "
-				|On TRUE" // @query-part-1
-				      + TextWithIndent(ConnectionsAndFields.Fields, "	");
-				InitialCondition = AliasOfTheIntermediateTable + ".TrueValue #CheckNULL";
-			Else
-				Joins =
-				"LEFT JOIN &CurrentList." + ObjectTabularSectionName + " AS " + ObjectTabularSectionAlias // @query-part-1 @query-part-2
-					  + TextWithIndent(ConnectionsAndFields.Joins, "	") + "
-				|On " + ObjectTabularSectionAlias + ".Ref = CurrentList.Ref" // @query-part-1
-				      + TextWithIndent(ConnectionsAndFields.Fields, "	");
-			EndIf;
-		Else
-			AdditionalTable = AdditionalTablesGroup[0];
-			ConnectionsAndFields = ConnectionsAndFieldsByTables.Get(AdditionalTable.Alias);
-			Joins =
-			"LEFT JOIN " + AdditionalTable.Table + " AS " + AdditionalTable.Alias // @query-part-1 @query-part-2
-				  + TextWithIndent(ConnectionsAndFields.Joins, "	") + "
-			|On " + TextWithIndent(AdditionalTable.ConnectionConditionText, "	") // @query-part-1
-			      + TextWithIndent(ConnectionsAndFields.Fields, "	");
-		EndIf;
-		Joins = TextWithIndent(Joins, "		");
-		
-		Condition = TextWithIndent(TrimL(InitialCondition), "	");
-		Condition = StrReplace(Condition, "#CheckNULL", "IS NULL"); // @query-part-2
-	Else
-		Joins =
-		"LEFT JOIN &CurrentList AS CurrentListSource" // @query-part-1
-			+ TextWithIndent(InitialConnections, "	") + "
-		|On " + ?(Context.IsReferenceType, "(CurrentListSource.Ref = CurrentList#.Ref)", // @query-part-1
-			Context.BasicFields.ConnectionCondition);
-		
-		Joins = Joins + TextWithIndent(Fields, "	");
-		Joins = TextWithIndent(Joins, "		");
-		Joins = StrReplace(Joins, "CurrentList.", "CurrentListSource.");
-		Joins = StrReplace(Joins, "CurrentList#.", "CurrentList.");
-		
-		If Context.IsReferenceType Then
-			Condition = "CurrentListSource.Ref IS NULL"; // @query-part-1
-		Else
-			Condition = "CurrentListSource.Field1 IS NULL"; // @query-part-1
-		EndIf;
-		Condition = TextWithIndent(Condition, "	");
+	AdditionalFields = "";
+	If Context.ObjectTabularSectionsAliases.Get(KeyTabularSectionNumber) = Undefined Then
+		AdditionalFields = Context.MainTableUsedFields;
 	EndIf;
 	
-	ConditionPartText = StrReplace(ConditionPartText, "#Joins",     Joins);
-	ConditionPartText = StrReplace(ConditionPartText, "&QueryCondition", Condition);
-	ConditionPartText = StrReplace(ConditionPartText, "TabularSection?", KeyTabularSectionName);
-	Context.CheckConditionParts.Add(ConditionPartText);
+	Context.CheckConditionParts.Add(CheckConditionPart(Joins,
+		Condition, AdditionalFields, KeyTabularSectionName));
 	
 EndProcedure
+
+// Intended for procedures "AddKeyHeaderCheck" and "AddKeyTabularSectionCheck".
+//
+// Returns:
+//  Structure:
+//   * Joins - String
+//   * Condition - String
+//   * AdditionalFields - String
+//   * KeyTabularSectionName - String
+//
+Function CheckConditionPart(Joins, Condition, AdditionalFields, KeyTabularSectionName = "")
+	
+	Result = New Structure;
+	Result.Insert("Joins", Joins);
+	Result.Insert("Condition", Condition);
+	Result.Insert("KeyTabularSectionName", KeyTabularSectionName);
+	Result.Insert("AdditionalFields", AdditionalFields);
+	
+	Return Result;
+	
+EndFunction
 
 // For the AddQueriesTextsToRestrictionParameters procedure.
 Procedure AddKeyHeaderFilling(Context, HeaderNumber)
@@ -35890,7 +37197,7 @@ Procedure AddKeyHeaderFilling(Context, HeaderNumber)
 		"SELECT
 		|	CurrentList.CurrentRef AS CurrentRef,
 		|	&BasicFieldsForSelection
-		|	INTO CurrentList
+		|INTO CurrentList
 		|FROM
 		|	&BasicFieldsValues AS CurrentList";
 		QueryText = StrReplace(QueryText, "&BasicFieldsForSelection", Context.BasicFields.ForSelection);
@@ -35913,11 +37220,11 @@ Procedure AddKeyHeaderFilling(Context, HeaderNumber)
 		EndDo;
 	EndIf;
 	
-	GroupOfFields = Context.FieldsGroups.Get("Header" + HeaderNumber);
+	GroupOfFields = Context.FieldsGroups.Get(StrTemplate("Header%1", HeaderNumber));
 	If GroupOfFields = Undefined Then
 		Return;
 	EndIf;
-	AddKeyTableDetails("Header" + HeaderNumber, GroupOfFields, Context);
+	AddKeyTableDetails(StrTemplate("Header%1", HeaderNumber), GroupOfFields, Context);
 	
 	ConnectionsAndFields = ConnectionsAndFieldsByTables(GroupOfFields, False,
 		HeaderNumber, True).Get("CurrentList");
@@ -35926,11 +37233,9 @@ Procedure AddKeyHeaderFilling(Context, HeaderNumber)
 	If Context.IsReferenceType Then
 		QueryText =
 		"SELECT
-		|	CurrentList.Ref AS CurrentRef
-		|	,&QueryFields
+		|	CurrentList.Ref AS CurrentRef,&QueryFields
 		|FROM
-		|	&CurrentList AS CurrentList
-		|	#RequestConnections
+		|	&CurrentList AS CurrentList #Joins
 		|WHERE
 		|	CurrentList.Ref IN (&ObjectsRefs)
 		|	AND &QueryPlanClarification
@@ -35942,23 +37247,20 @@ Procedure AddKeyHeaderFilling(Context, HeaderNumber)
 	Else
 		QueryText =
 		"SELECT
-		|	CurrentList.CurrentRef AS CurrentRef
-		|	,&QueryFields
+		|	CurrentList.CurrentRef AS CurrentRef,&QueryFields
 		|FROM
-		|	CurrentList AS CurrentList
-		|	#RequestConnections
+		|	CurrentList AS CurrentList #Joins
 		|WHERE
 		|	&QueryPlanClarification
 		|
 		|ORDER BY
-		|	CurrentRef, 
-		|	&BasicFieldsForOrdering
+		|	CurrentRef,&BasicFieldsForOrdering
 		|TOTALS BY
 		|	CurrentRef"; // @query-part-1
 		QueryText = StrReplace(QueryText, "&BasicFieldsForOrdering", Context.BasicFields.ForOrdering);
 	EndIf;
 	QueryText = StrReplace(QueryText, ",&QueryFields", TextWithIndent(ConnectionsAndFields.Fields, "	"));
-	QueryText = StrReplace(QueryText, "#RequestConnections", TextWithIndent(ConnectionsAndFields.Joins, "	"));
+	QueryText = StrReplace(QueryText, " #Joins", TextWithIndent(ConnectionsAndFields.Joins, "	"));
 	
 	Context.PartsOfValuesFromObjectsQuery.Add(QueryText);
 	Context.PartsOfQueryForInMemoryObjectsValues.Add(QueryText);
@@ -35967,8 +37269,7 @@ Procedure AddKeyHeaderFilling(Context, HeaderNumber)
 	If HeaderNumber = 0 Then
 		QueryText = 
 		"SELECT
-		|	Header0.Ref AS CurrentRef
-		|	,&Attributes
+		|	Header0.Ref AS CurrentRef,&Attributes
 		|FROM
 		|	Catalog.AccessKeys AS Header0
 		|WHERE
@@ -35984,15 +37285,13 @@ Procedure AddKeyHeaderFilling(Context, HeaderNumber)
 		|TOTALS BY
 		|	CurrentRef";
 	Else
-		
 		QueryText =
 		"SELECT
-		|	Header?.Ref AS CurrentRef
-		|	,&Attributes
+		|	Header?.Ref AS CurrentRef,&Attributes
 		|FROM
 		|	Catalog.AccessKeys.Header AS Header?
 		|WHERE
-		|	&HeaderNumberCondition
+		|	Header?.LineNumber = &HeaderNumber
 		|	AND Header?.Ref.Hash IN(&Hashes)
 		|	AND Header?.Ref.List = &List
 		|	AND Header?.Ref.FieldsComposition = &FieldsComposition
@@ -36004,12 +37303,11 @@ Procedure AddKeyHeaderFilling(Context, HeaderNumber)
 		|	CurrentRef
 		|TOTALS BY
 		|	CurrentRef"; // @query-part
-		QueryText = StrReplace(QueryText, "&HeaderNumberCondition", 
-			"Header" + HeaderNumber + ".LineNumber = " + HeaderNumber);
+		QueryText = StrReplace(QueryText, "&HeaderNumber", HeaderNumber);
 	EndIf;
 	
 	QueryText = StrReplace(QueryText, ",&Attributes", TextWithIndent(ConnectionsAndFields.Attributes, "	"));
-	QueryText = StrReplace(QueryText, "Header?", "Header" + HeaderNumber);
+	QueryText = StrReplace(QueryText, "Header?", StrTemplate("Header%1", HeaderNumber));
 	Context.PartsOfValuesFromObjectsQueryToCompare.Add(QueryText);
 	
 	// Checking if access key exists before writing a new key.
@@ -36048,8 +37346,7 @@ Procedure AddKeyHeaderFilling(Context, HeaderNumber)
 	If HeaderNumber = 0 Then
 		QueryText = // @query-part-1
 		"SELECT
-		|	KeysBatch.Ref AS Ref
-		|	,&Attributes
+		|	KeysBatch.Ref AS Ref,&Attributes
 		|FROM
 		|	KeysBatch AS KeysBatch
 		|	LEFT JOIN @Catalog.AccessKeys AS Header0
@@ -36064,8 +37361,7 @@ Procedure AddKeyHeaderFilling(Context, HeaderNumber)
 	Else
 		QueryText =
 		"SELECT
-		|	KeysBatch.Ref AS Ref
-		|	,&Attributes
+		|	KeysBatch.Ref AS Ref,&Attributes
 		|FROM
 		|	KeysBatch AS KeysBatch
 		|	LEFT JOIN @Catalog.AccessKeys.Header AS Header?
@@ -36078,12 +37374,12 @@ Procedure AddKeyHeaderFilling(Context, HeaderNumber)
 		|	Ref
 		|TOTALS BY
 		|	Ref"; // @query-part
-		QueryText = StrReplace(QueryText, "&HeaderNumberCondition", 
-			"Header" + HeaderNumber + ".LineNumber = " + HeaderNumber); 
+		QueryText = StrReplace(QueryText, "&HeaderNumberCondition",
+			StrTemplate("Header%1.LineNumber = %1", HeaderNumber));
 	EndIf;
 	
 	QueryText = StrReplace(QueryText, ",&Attributes", TextWithIndent(ConnectionsAndFields.Attributes, "	"));
-	QueryText = StrReplace(QueryText, "Header?", "Header" + HeaderNumber);
+	QueryText = StrReplace(QueryText, "Header?", StrTemplate("Header%1", HeaderNumber));
 	Context.PartsOfValuesFromKeysQueryToCalculateRights.Add(QueryText);
 	
 	// The filter condition of leading access key rights.
@@ -36152,10 +37448,10 @@ Procedure AddRightsFilterConditionForKeyHeader(Context, GroupOfFields, HeaderNum
 				"Catalog.AccessKeys AS Header?", "Catalog.AccessKeys.Header AS Header?"); // @query-part-1 @query-part-2
 			FilterCriterion = StrReplace(FilterCriterion,
 				"Header?.Ref = KeysBatch.Ref", TextWithIndent(
-				"Header?.Ref = KeysBatch.Ref
-				|	AND Header?.LineNumber = " + HeaderNumber, "							")); // @query-part-1
+				"Header?.Ref = KeysBatch.Ref" + StrTemplate("
+				|	AND Header?.LineNumber = %1", HeaderNumber), "							")); // @query-part-1
 		EndIf;
-		FilterCriterion = StrReplace(FilterCriterion, "Header?", "Header" + HeaderNumber);
+		FilterCriterion = StrReplace(FilterCriterion, "Header?", StrTemplate("Header%1", HeaderNumber));
 		FilterCriterion = StrReplace(FilterCriterion, "Attribute?", FieldProperties.AccessKeyFieldsGroupAttributeName);
 		
 		If ConditionAssignment = "ForLeadingKeys" Then
@@ -36231,7 +37527,7 @@ Procedure AddKeyTabularSectionFilling(Context, KeyTabularSectionNumber)
 	AdditionalTablesGroup = TablesByGroups.Get(KeyTabularSectionNumber
 		- (Context.KeyTabularSectionsCount - TablesByGroups.Count()));
 	
-	KeyTabularSectionName = "TabularSection" + KeyTabularSectionNumber;
+	KeyTabularSectionName = StrTemplate("TabularSection%1", KeyTabularSectionNumber);
 	GroupOfFields = Context.FieldsGroups.Get(KeyTabularSectionName);
 	
 	AddKeyTableDetails(KeyTabularSectionName, GroupOfFields, Context);
@@ -36246,50 +37542,45 @@ Procedure AddKeyTabularSectionFilling(Context, KeyTabularSectionNumber)
 		Else
 			ConnectionsAndFields = ConnectionsAndFieldsByTables.Get(ObjectTabularSectionAlias);
 		EndIf;
-		SelectionFields = TextWithIndent(ConnectionsAndFields.Fields, "	");
-		Joins = TextWithIndent(ConnectionsAndFields.Joins, "	");
+		SelectionFields       = ConnectionsAndFields.Fields;
+		Joins       = ConnectionsAndFields.Joins;
 		OrderingFields = ConnectionsAndFields.OrderingFields;
 		Attributes        = ConnectionsAndFields.Attributes;
 		If ObjectTabularSectionAlias = Undefined Then
 			QueryText =
 			"SELECT DISTINCT
-			|	CurrentList.Ref AS CurrentRef
-			|	,&SelectionFields
+			|	CurrentList.Ref AS CurrentRef,&SelectionFields
 			|FROM
-			|	&CurrentList AS CurrentList
-			|	#Joins
+			|	&CurrentList AS CurrentList #Joins
 			|WHERE
 			|	CurrentList.Ref IN (&ObjectsRefs)
 			|
 			|ORDER BY
-			|	CurrentRef
-			|	,&OrderingFields
+			|	CurrentRef,&OrderingFields
 			|TOTALS BY
 			|	CurrentRef"; // @query-part-1
 		Else
 			ObjectTabularSectionName = StrReplace(ObjectTabularSectionAlias, "CurrentList", "");
 			QueryText =
 			"SELECT DISTINCT
-			|	ObjectTabularSectionAlias.Ref AS CurrentRef
-			|	,&SelectionFields
+			|	CurrentList.Ref AS CurrentRef,&SelectionFields
 			|FROM
-			|	ObjectTabularSectionName AS ObjectTabularSectionAlias
-			|	#Joins
+			|	&CurrentList AS CurrentList
+			|		LEFT JOIN ObjectTabularSectionName AS ObjectTabularSectionAlias
+			|		ON (ObjectTabularSectionAlias.Ref = CurrentList.Ref) #Joins
 			|WHERE
-			|	ObjectTabularSectionAlias.Ref IN (&ObjectsRefs)
+			|	CurrentList.Ref IN (&ObjectsRefs)
 			|
 			|ORDER BY
-			|	CurrentRef
-			|	,&OrderingFields
+			|	CurrentRef,&OrderingFields
 			|TOTALS BY
 			|	CurrentRef"; // @query-part-1
-
-			QueryText = StrReplace(QueryText, "ObjectTabularSectionAlias", ObjectTabularSectionAlias); 
-			QueryText = StrReplace(QueryText, "ObjectTabularSectionName", "&CurrentList." + ObjectTabularSectionName); 
+			QueryText = StrReplace(QueryText, "ObjectTabularSectionAlias", ObjectTabularSectionAlias);
+			QueryText = StrReplace(QueryText, "ObjectTabularSectionName", "&CurrentList." + ObjectTabularSectionName);
 		EndIf;
-		QueryText = StrReplace(QueryText, ",&SelectionFields", SelectionFields); 
-		QueryText = StrReplace(QueryText, ",&OrderingFields", OrderingFields); 
-		QueryText = StrReplace(QueryText, "#Joins", Joins); 
+		QueryText = StrReplace(QueryText, ",&SelectionFields", TextWithIndent(SelectionFields, "	"));
+		QueryText = StrReplace(QueryText, ",&OrderingFields", OrderingFields);
+		QueryText = StrReplace(QueryText, " #Joins", TextWithIndent(Joins, "		"));
 	Else
 		SelectionFields = "";
 		Joins = "";
@@ -36340,55 +37631,69 @@ Procedure AddKeyTabularSectionFilling(Context, KeyTabularSectionNumber)
 			Attributes        = Attributes        + ConnectionsAndFields.Attributes;
 		EndDo;
 		If Context.IsReferenceType Then
-			QueryText = // @query-part-1
+			QueryText =
 			"SELECT DISTINCT
-			|	CurrentList.Ref AS CurrentRef" + TextWithIndent(SelectionFields, "	") + "
+			|	CurrentList.Ref AS CurrentRef,&SelectionFields
 			|FROM
-			|	&CurrentList AS CurrentList" + TextWithIndent(Joins, "	") + "
+			|	&CurrentList AS CurrentList #Joins
 			|WHERE
 			|	CurrentList.Ref IN (&ObjectsRefs)
 			|
 			|ORDER BY
-			|	CurrentRef" + OrderingFields + "
+			|	CurrentRef,&OrderingFields
 			|TOTALS BY
 			|	CurrentRef"; // @query-part-1
+			QueryText = StrReplace(QueryText, ",&SelectionFields", TextWithIndent(SelectionFields, "	"));
+			QueryText = StrReplace(QueryText, ",&OrderingFields", OrderingFields);
+			QueryText = StrReplace(QueryText, " #Joins", TextWithIndent(Joins, "		"));
+			
 			If ConnectionsInMemory <> ConnectionsInDatabase Then
-				// 
-				// 
-				InMemoryQueryText = // @query-part-1
+				// ACC:96-off - No.434. Using JOIN is acceptable as the rows should be unique and
+				// the dataset is small.
+				InMemoryQueryText =
 				"SELECT DISTINCT
-				|	CurrentList.Ref AS CurrentRef" + TextWithIndent(SelectionFields, "	") + "
+				|	CurrentList.Ref AS CurrentRef,&SelectionFields
 				|FROM
-				|	&CurrentList AS CurrentList" + TextWithIndent(ConnectionsInDatabase, "	") + "
+				|	&CurrentList AS CurrentList #ConnectionsInDatabase
 				|WHERE
 				|	CurrentList.Ref IN (&ObjectsRefs)
 				|
 				|UNION
 				|
 				|SELECT DISTINCT
-				|	CurrentList.Ref AS CurrentRef" + TextWithIndent(SelectionFields, "	") + "
+				|	CurrentList.Ref AS CurrentRef,&SelectionFields
 				|FROM
-				|	&CurrentList AS CurrentList" + TextWithIndent(ConnectionsInMemory, "	") + "
+				|	&CurrentList AS CurrentList #ConnectionsInMemory
 				|WHERE
 				|	CurrentList.Ref IN (&ObjectsRefs)
 				|
 				|ORDER BY
-				|	CurrentRef" + OrderingFields + "
+				|	CurrentRef,&OrderingFields
 				|TOTALS BY
-				|	CurrentRef"; // 
-				// 
+				|	CurrentRef"; // @query-part-1
+				// ACC:96-on.
+				InMemoryQueryText = StrReplace(InMemoryQueryText, ",&SelectionFields", TextWithIndent(SelectionFields, "	"));
+				InMemoryQueryText = StrReplace(InMemoryQueryText, ",&OrderingFields", OrderingFields); 
+				InMemoryQueryText = StrReplace(InMemoryQueryText, " #ConnectionsInDatabase",
+					TextWithIndent(ConnectionsInDatabase, "		"));
+				InMemoryQueryText = StrReplace(InMemoryQueryText, " #ConnectionsInMemory",
+					TextWithIndent(ConnectionsInMemory, "		"));
 			EndIf;
 		Else
-			QueryText = // @query-part-1
+			QueryText =
 			"SELECT
-			|	CurrentList.CurrentRef AS CurrentRef"  + TextWithIndent(SelectionFields, "	") + "
+			|	CurrentList.CurrentRef AS CurrentRef,&SelectionFields
 			|FROM
-			|	CurrentList AS CurrentList" + TextWithIndent(Joins, "	") + "
+			|	CurrentList AS CurrentList #Joins
 			|
 			|ORDER BY
-			|	CurrentRef, " + Context.BasicFields.ForOrdering + OrderingFields + "
+			|	CurrentRef, &OrderingFields
 			|TOTALS BY
 			|	CurrentRef"; // @query-part-1
+			QueryText = StrReplace(QueryText, ",&SelectionFields", TextWithIndent(SelectionFields, "	"));
+			QueryText = StrReplace(QueryText, "&OrderingFields",
+				Context.BasicFields.ForOrdering + OrderingFields);
+			QueryText = StrReplace(QueryText, " #Joins", TextWithIndent(Joins, "		"));
 		EndIf;
 	EndIf;
 	
@@ -36402,8 +37707,7 @@ Procedure AddKeyTabularSectionFilling(Context, KeyTabularSectionNumber)
 	// Selecting values from access keys to compare with the required key values.
 	QueryText =
 	"SELECT
-	|	TabularSection?.Ref AS CurrentRef
-	|	,&Attributes
+	|	TabularSection?.Ref AS CurrentRef,&Attributes
 	|FROM
 	|	Catalog.AccessKeys.TabularSection? AS TabularSection?
 	|WHERE
@@ -36415,21 +37719,19 @@ Procedure AddKeyTabularSectionFilling(Context, KeyTabularSectionNumber)
 	|	AND &QueryPlanClarification
 	|
 	|ORDER BY
-	|	CurrentRef
-	|	,&OrderingFields
+	|	CurrentRef,&OrderingFields
 	|TOTALS BY
 	|	CurrentRef"; // @query-part
 	
 	QueryText = StrReplace(QueryText, ",&Attributes", TextWithIndent(Attributes, "	"));
 	QueryText = StrReplace(QueryText, ",&OrderingFields", OrderingFields);
-	QueryText = StrReplace(QueryText, "TabularSection?", "TabularSection" + KeyTabularSectionNumber);
+	QueryText = StrReplace(QueryText, "TabularSection?", StrTemplate("TabularSection%1", KeyTabularSectionNumber));
 	Context.PartsOfValuesFromObjectsQueryToCompare.Add(QueryText);
 	
 	// Selecting values from access keys to calculate users and access groups, to which they are allowed.
 	QueryText =
 	"SELECT
-	|	KeysBatch.Ref AS Ref
-	|	,&Attributes
+	|	KeysBatch.Ref AS Ref,&Attributes
 	|FROM
 	|	KeysBatch AS KeysBatch
 	|	LEFT JOIN @Catalog.AccessKeys.TabularSection? AS TabularSection?
@@ -36442,7 +37744,7 @@ Procedure AddKeyTabularSectionFilling(Context, KeyTabularSectionNumber)
 	|	Ref"; // @query-part-1
 	
 	QueryText = StrReplace(QueryText, ",&Attributes", TextWithIndent(Attributes, "	"));
-	QueryText = StrReplace(QueryText, "TabularSection?", "TabularSection" + KeyTabularSectionNumber);
+	QueryText = StrReplace(QueryText, "TabularSection?", StrTemplate("TabularSection%1", KeyTabularSectionNumber));
 	Context.PartsOfValuesFromKeysQueryToCalculateRights.Add(QueryText);
 	
 	// The filter condition of leading access key rights.
@@ -36510,8 +37812,10 @@ Procedure AddRightsFilterConditionForKeyTabularSection(Context, GroupOfFields,
 			|							TabularSection?.Ref = KeysBatch.Ref)";
 		EndIf;
 		
-		FilterCriterion = StrReplace(FilterCriterion, "TabularSection?", "TabularSection" + KeyTabularSectionNumber);
-		FilterCriterion = StrReplace(FilterCriterion, "Attribute?", FieldProperties.AccessKeyFieldsGroupAttributeName);
+		FilterCriterion = StrReplace(FilterCriterion, "TabularSection?",
+			StrTemplate("TabularSection%1", KeyTabularSectionNumber));
+		FilterCriterion = StrReplace(FilterCriterion, "Attribute?",
+			FieldProperties.AccessKeyFieldsGroupAttributeName);
 		
 		If ConditionAssignment = "ForLeadingKeys" Then
 			Context.ConditionPartsToSelectLeadingAccessKeysRights.Add(FilterCriterion);
@@ -36561,17 +37865,19 @@ Procedure AddFilterConditionByLeadingAccessKeys(Context, GroupOfFields, HeaderNu
 		|				WHERE
 		|					Header?.Value? IN (&LeadingAccessKeys))";
 		
-		FilterCriterion = StrReplace(FilterCriterion, "Value?", "Value" + AttributeNumber);
+		FilterCriterion = StrReplace(FilterCriterion, "Value?",
+			StrTemplate("Value%1", AttributeNumber));
 		
 		If HeaderNumber > 0 Then
 			FilterCriterion = StrReplace(FilterCriterion,
-				"Catalog.AccessKeys AS Header?", "Catalog.AccessKeys.Header AS Header?"); // @query-part-1 @query-part-2
+				"Catalog.AccessKeys AS Header?", // @query-part-1
+				"Catalog.AccessKeys.Header AS Header?"); // @query-part-1
 		EndIf;
 		
 		If KeyTabularSectionNumber = 0 Then
-			FilterCriterion = StrReplace(FilterCriterion, "Header?", "Header" + HeaderNumber);
+			FilterCriterion = StrReplace(FilterCriterion, "Header?", StrTemplate("Header%1", HeaderNumber));
 		Else
-			TabularSectionName = "TabularSection" + KeyTabularSectionNumber;
+			TabularSectionName = StrTemplate("TabularSection%1", KeyTabularSectionNumber);
 			FilterCriterion = StrReplace(FilterCriterion, " AS", "." + TabularSectionName + " AS"); // @query-part-1 @query-part-3
 			FilterCriterion = StrReplace(FilterCriterion, "Header?", TabularSectionName);
 		EndIf;
@@ -36647,10 +37953,10 @@ Function ConnectionsAndFieldsByTables(GroupOfFields, KeyTabularSection, HeaderNu
 			Field = "," + Chars.LF + Mid(Field, Position, StrLen(Field) - Position) + " AS " + "Value?"; // @query-part-2
 			
 			ConnectionsAndFields.OrderingFields = ConnectionsAndFields.OrderingFields
-				+ ", " + "Value" + AttributeNumber;
+				+ ", " + StrTemplate("Value%1", AttributeNumber);
 			
-			ConnectionsAndFields.Attributes  = ConnectionsAndFields.Attributes + ",
-			|Header?.Value"  + AttributeNumber + " AS " + "Value" + AttributeNumber; // @query-part-2
+			ConnectionsAndFields.Attributes  = ConnectionsAndFields.Attributes + StrTemplate(",
+			|Header?.Value%1 AS VALUE%1", AttributeNumber); // @query-part-2
 		EndIf;
 		
 		FillAliasByAttributeNumber(Joins, Field, AttributeNumber, "Value?");
@@ -37583,8 +38889,8 @@ Function CharsetsTable(InternalData)
 			Continue;
 		EndIf;
 		If CharsetKind = "Word" Then
-			// 
-			// 
+			// The situation when "CharType" is "WordChar" was covered at the beginning of the cycle.
+			// For other characters, the word is considered finished and should be added to the tree.
 			CharsetKind = "";
 			AddWordToCharsetsTable(CharsetsTable,
 				Charset, CharsetPosition, LanguageSyntax);
@@ -37661,7 +38967,7 @@ Function CharsetsTable(InternalData)
 	
 	LastRow = CharsetsTable.Add();
 	LastRow.Position = StrLen(RestrictionText) + 1;
-	LastRow.Kind = "End"; // 
+	LastRow.Kind = "End"; // To set the lack of description error text.
 	CharsetsTable.Indexes.Add("Kind, Refinement");
 	
 	Return CharsetsTable;
@@ -38556,7 +39862,7 @@ Function RestrictionParts(InternalData)
 		
 	ElsIf PartProperties1.Name = "AllowUpdateIfReadingAllowed" Then
 		SetPartBeginningError(PartProperties1,
-			NStr("en = 'Invalid keyword at the beginning of the first part of the restriction text.';"));
+			NStr("en = 'Invalid keyword at the beginning of the first part of the restriction text.';"));
 		Return RestrictionParts;
 		
 	ElsIf PartsProperties.Count() = 1
@@ -38608,7 +39914,7 @@ Function RestrictionParts(InternalData)
 	        And PartProperties2.Name <> "AllowRead" Then
 		
 		SetPartBeginningError(PartProperties2,
-			NStr("en = 'Invalid keyword at the beginning of the second part of the restriction text.';"));
+			NStr("en = 'Invalid keyword at the beginning of the second part of the restriction text.';"));
 		Return RestrictionParts;
 		
 	ElsIf PartsProperties.Count() = 2
@@ -38649,7 +39955,7 @@ Function RestrictionParts(InternalData)
 	        And PartProperties3.Name <> "AllowUpdateIfReadingAllowed" Then
 		
 		SetPartBeginningError(PartProperties3,
-			NStr("en = 'Invalid keyword at the beginning of the third part of the restriction text.';"));
+			NStr("en = 'Invalid keyword at the beginning of the third part of the restriction text.';"));
 		Return RestrictionParts;
 	EndIf;
 	
@@ -38718,7 +40024,6 @@ EndFunction
 //     * ConnectionCondition - See NodeDetails
 //     * RequiredTablesAliases - Array of String
 //     * ConnectionConditionFields  - Array of See FieldsPairConnectionConditions
-//     * ConnectionTestField - String
 //     * ConnectionConditionText - String
 //
 Function NewConnectionDetails()
@@ -39026,7 +40331,7 @@ Procedure ParseAdditionalTables(PartProperties, InternalData)
 		New Map(New FixedMap(InternalData.Aliases)));
 	
 	For Each Join In Joins Do
-		// 
+		// Parse conditions using all features. Then, throw errors on prohibited features.
 		// 
 		ParseConnection(Join, PartProperties, InternalData);
 	EndDo;
@@ -39034,8 +40339,8 @@ Procedure ParseAdditionalTables(PartProperties, InternalData)
 	// Continue parsing after filling in the aliases of all additional tables.
 	For Each IConnectionShort In PartProperties.Content Do
 		InternalData.AvailableAliases.Insert(Upper(IConnectionShort.Alias), True);
-		// 
-		// 
+		// Only simple conditions are allowed:
+		// Field1 = Field2 [AND Field3 = Field4] [AND Field5 = Constant].
 		ParseConnectionConditionFieldsAndMarkProhibitions(IConnectionShort, InternalData);
 	EndDo;
 	
@@ -39891,8 +41196,8 @@ EndFunction
 // For the ParseExpression procedure.
 Procedure ParseConnector(Context, IsOperation = False)
 	
-	// 
-	// 
+	// "And", "Or", "Like", "Except", "Only", "Has" and any of the operators: "=", "<>", etc.
+	// The "In" keyword is parsed in the "ParseOperationIn" procedure.
 	
 	String = Context.String; // ValueTableRow of See CharsetsTable
 	
@@ -39910,15 +41215,15 @@ Procedure ParseConnector(Context, IsOperation = False)
 		NewDetails.Node = "IsNull";
 		NewDetails.Insert("Argument", Undefined);
 		AddConnector(Context, NewDetails, NewDetails.Argument);
-		// 
-		// 
+		// The parameters are validated in the procedure
+		// "MarkIncorrectArgumentsAndProhibitedNodes".
 		
 	ElsIf String.Kind = "Operation" Then
 		NewDetails.Insert("FirstArgument", Undefined);
 		NewDetails.Insert("SecondArgument", Undefined);
 		AddConnector(Context, NewDetails, NewDetails.FirstArgument);
-		// 
-		// 
+		// The arguments are validated in the procedure
+		// "MarkIncorrectArgumentsAndProhibitedNodes".
 		
 	ElsIf String.Refinement = "As"
 	      Or String.Refinement = "Not"
@@ -40063,9 +41368,9 @@ Procedure AddConnector(Context, NewDetails, FirstArgument);
 		
 	ElsIf StrFind(",Field,Value,Constant,In,IsNull,Case,", "," + LongDesc.Node + ",") > 0
 	      Or LongDesc.Source.Type = "Function" Then
-		// 
-		// 
-		// 
+		// The second argument of the "In" operation is parsed in the "ParseOperationIn" procedure.
+		// The second argument "Null" of the "Is" operation is parsed in the "FunctionsWithExpressionsInParentheses" function.
+		// Other nodes don't have second arguments.
 		InsertConnectorConsideringPriority(Context, Undefined, NewDetails, FirstArgument);
 	Else
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -40932,7 +42237,7 @@ Procedure ParseChoice(Context)
 			
 		ElsIf ValueIsFilled(ThenContent.Chars) Then
 			SetErrorInRow(FirstSubstringWhen, StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'A logical expression is required after the ""%1"" keyword.';"), ThenContent.Chars));
+				NStr("en = 'A logical expression is expected after the ""%1"" keyword.';"), ThenContent.Chars));
 		EndIf;
 		
 		IndexOf = IndexOf + 2;
@@ -40988,8 +42293,8 @@ EndProcedure
 // For the ParseExpression, ParseOperator, ParseFunction, and ParseChoice procedures.
 Procedure AddArgumentFunctionChoiceOperator(Context, DetailsToAdd)
 	
-	// 
-	// 
+	// Current node: Any.
+	// Details to add: "Field", "Value", "Constant", "Not", "Selection", any function.
 	
 	LongDesc = Context.LongDesc; // See NodeDetails
 	
@@ -41017,17 +42322,17 @@ Procedure AddArgumentFunctionChoiceOperator(Context, DetailsToAdd)
 		
 		If Not ValueIsFilled(LongDesc.SecondArgument) Then
 			LongDesc.SecondArgument = DetailsToAdd;
-			// 
-			// 
+			// The arguments are validated in the procedure
+			// "MarkIncorrectArgumentsAndProhibitedNodes".
 		Else
 			ProcessMissingLogicalOperation(Context, LongDesc.SecondArgument, DetailsToAdd);
 		EndIf;
 		
 	ElsIf StrFind(",Field,Value,Constant,In,IsNull,Case,", "," + LongDesc.Node + ",") > 0
 	      Or LongDesc.Source.Type = "Function" Then
-		// 
-		// 
-		// 
+		// The second argument of the "In" operation is parsed in the "ParseOperationIn" procedure.
+		// The second argument "Null" of the "Is" operation is parsed in the "FunctionsWithExpressionsInParentheses" function.
+		// Other nodes don't have second arguments.
 		ProcessMissingLogicalOperation(Context, Undefined, DetailsToAdd);
 	Else
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -41040,7 +42345,7 @@ EndProcedure
 // For the AddArgumentFunctionChoiceOperator procedure
 Procedure ProcessMissingLogicalOperation(Context, DetailsLastArgument, DetailsToAdd)
 	
-	SetErrorInRow(Context.String, NStr("en = 'A logical operation is missing.';"));
+	SetErrorInRow(Context.String, NStr("en = 'A logical operation is missing.';"));
 	
 	// Recovery.
 	AdditionalString1 = AdditionalString1(Context.String, "And", Context);
@@ -41248,8 +42553,8 @@ Function ExpressionsSelectionWhenThenInAttachments(Rows, Context)
 				DeleteLastAttachment(Attachments, CurrentAttachment, Context);
 				RestoreChoiceStructure(String, Attachments, CurrentAttachment, "Else", Context);
 				
-			Else // 
-				// 
+			Else // CurrentAttachment.Refinement = "Else".
+				// Standard handling following the condition.
 			EndIf;
 			DeleteLastAttachment(Attachments, CurrentAttachment, Context);
 			DeleteLastAttachment(Attachments, CurrentAttachment, Context);
@@ -41340,7 +42645,7 @@ Function FunctionsWithExpressionsInParentheses(Rows, InternalData)
 						NStr("en = 'Missing parameters in parentheses after the ""%1"" function.';"), String.Chars), True);
 				Else
 					SetErrorInRow(String, StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'Missing values in parentheses after the ""%1"" keyword.';"), String.Chars), True);
+						NStr("en = 'Missing values in parentheses after the ""%1"" keyword.';"), String.Chars), True);
 				EndIf;
 			EndIf;
 			
@@ -42295,7 +43600,7 @@ Function FieldOrTabularSectionProperties(FieldOrTabularSectionName, Context, IsF
 			
 			Result.Collection = "SpecialFields";
 			Result.Type = MetadataTables.Type;
-			Result.Insert("DefaultOrder", "001"); //  
+			Result.Insert("DefaultOrder", "001"); // See procedure "AddMainFieldOrder".
 			Return Result;
 		EndIf;
 		
@@ -42306,7 +43611,7 @@ Function FieldOrTabularSectionProperties(FieldOrTabularSectionName, Context, IsF
 		
 			Result.Collection = "SpecialFields";
 			Result.Type = New TypeDescription("Date");
-			Result.Insert("DefaultOrder", "001"); //  
+			Result.Insert("DefaultOrder", "001"); // See procedure "AddMainFieldOrder".
 			Return Result;
 		EndIf;
 		
@@ -42319,7 +43624,7 @@ Function FieldOrTabularSectionProperties(FieldOrTabularSectionName, Context, IsF
 			For Each DocumentMetadata In MetadataSequences.Documents Do
 				Result.Type = New TypeDescription(Result.Type, "DocumentRef." + DocumentMetadata.Name);
 			EndDo;
-			Result.Insert("DefaultOrder", "002"); //  
+			Result.Insert("DefaultOrder", "002"); // See procedure "AddMainFieldOrder".
 			Return Result;
 		EndIf;
 	EndIf;
@@ -42328,7 +43633,7 @@ Function FieldOrTabularSectionProperties(FieldOrTabularSectionName, Context, IsF
 	
 EndFunction
 
-// For the CheckTableExtensions and CheckTableField procedures.
+// For the CheckTableExtensions and CheckTableField procedures.
 Function TabularSectionFieldProperties(TabularSectionFieldName, TabularSectionMetadata, CollectionName, MetadataTables)
 	
 	Result = New Structure;
@@ -42366,7 +43671,7 @@ Function TabularSectionFieldProperties(TabularSectionFieldName, TabularSectionMe
 	
 EndFunction
 
-// For the CheckTableExtensions and CheckTableField procedures.
+// For the CheckTableExtensions and CheckTableField procedures.
 Function RecalculationFieldProperties(RecalculationFieldName, RecalculationMetadata, MetadataTables)
 	
 	Result = New Structure;
@@ -42403,7 +43708,7 @@ Function RecalculationFieldProperties(RecalculationFieldName, RecalculationMetad
 		Result.Type = FieldMetadata.RegisterDimension.Type;
 		Result.Collection = "SpecialFields";
 		Number = 200 + RegisterMetadata.Dimensions.IndexOf(FieldMetadata) + 1;
-		Result.Insert("DefaultOrder", Number); //  
+		Result.Insert("DefaultOrder", Number); // See procedure "AddMainFieldOrder".
 		Return Result;
 	EndIf;
 	
@@ -43031,7 +44336,21 @@ Procedure RefreshProgressBar(Context)
 	|	AllUpdateLists.List");
 	
 	QueriesTexts.Add(
-	"SELECT
+	"SELECT DISTINCT
+	|	UpdateKeys.List AS List
+	|INTO ModifiedListsOfDataAccessKeys
+	|FROM
+	|	InformationRegister.DataAccessKeysUpdate AS UpdateKeys
+	|WHERE
+	|	UpdateKeys.RegisterRecordChangeDate >= &LatestUpdateDate
+	|	AND UpdateKeys.List <> UNDEFINED
+	|
+	|INDEX BY
+	|	List
+	|;
+	|
+	|////////////////////////////////////////////////////////////////////////////////
+	|SELECT
 	|	UpdateKeys.List AS List,
 	|	UpdateKeys.ForExternalUsers AS ForExternalUsers,
 	|	UpdateKeys.UniqueKey = &BlankUUID AS IsMainRecord,
@@ -43039,10 +44358,9 @@ Procedure RefreshProgressBar(Context)
 	|	MAX(UpdateKeys.RegisterRecordChangeDate) AS MaxChangeDate,
 	|	MIN(UpdateKeys.RegisterRecordChangeDate) AS MinChangeDate
 	|FROM
-	|	InformationRegister.DataAccessKeysUpdate AS UpdateKeys
-	|WHERE
-	|	UpdateKeys.RegisterRecordChangeDate >= &LatestUpdateDate
-	|	AND UpdateKeys.List <> UNDEFINED
+	|	ModifiedListsOfDataAccessKeys AS EditedLists
+	|		INNER JOIN InformationRegister.DataAccessKeysUpdate AS UpdateKeys
+	|		ON (UpdateKeys.List = EditedLists.List)
 	|
 	|GROUP BY
 	|	UpdateKeys.List,
@@ -43052,7 +44370,9 @@ Procedure RefreshProgressBar(Context)
 	|	List,
 	|	ForExternalUsers");
 	
-	QueriesTexts.Add(StrReplace(QueriesTexts[1],
+	QueriesTexts.Add(StrReplace(StrReplace(QueriesTexts[1],
+			"ModifiedListsOfDataAccessKeys",
+			"ModifiedListsOfUserAccessKeys"),
 		"InformationRegister.DataAccessKeysUpdate",
 		"InformationRegister.UsersAccessKeysUpdate"));
 	
@@ -43174,7 +44494,7 @@ Procedure RefreshProgressBar(Context)
 	EndDo;
 	
 	If Context.CalculateByDataAmount Then
-		SelectionByLists = QueryResults[3].Select(QueryResultIteration.ByGroups);
+		SelectionByLists = QueryResults[5].Select(QueryResultIteration.ByGroups);
 		While SelectionByLists.Next() Do
 			ListProperties = ListsProperties.Get(SelectionByLists.List);
 			If ListProperties = Undefined Then
@@ -43183,15 +44503,16 @@ Procedure RefreshProgressBar(Context)
 			SelectionByUsersKinds = SelectionByLists.Select();
 			While SelectionByUsersKinds.Next() Do
 				If SelectionByUsersKinds.ForExternalUsers Then
-					ListProperties.LastUpdatedItemForExtrenalUsers
-						= SelectionByUsersKinds.JobParameters;
+					JobParametersFieldName = "LastUpdatedItemForExtrenalUsers";
 				Else
-					ListProperties.LastUpdatedItem
-						= SelectionByUsersKinds.JobParameters;
+					JobParametersFieldName = "LastUpdatedItem";
+				EndIf;
+				If ListProperties[JobParametersFieldName] <> True Then
+					ListProperties[JobParametersFieldName] = SelectionByUsersKinds.JobParameters;
 				EndIf;
 			EndDo;
 		EndDo;
-		SelectionByLists = QueryResults[4].Select(QueryResultIteration.ByGroups);
+		SelectionByLists = QueryResults[6].Select(QueryResultIteration.ByGroups);
 		While SelectionByLists.Next() Do
 			ListProperties = ListsProperties.Get(SelectionByLists.List);
 			If ListProperties = Undefined Then
@@ -43200,17 +44521,18 @@ Procedure RefreshProgressBar(Context)
 			SelectionByUsersKinds = SelectionByLists.Select();
 			While SelectionByUsersKinds.Next() Do
 				If SelectionByUsersKinds.ForExternalUsers Then
-					ListProperties.LastUpdatedAccessKeyForExtrenalUsers
-						= SelectionByUsersKinds.JobParameters;
+					JobParametersFieldName = "LastUpdatedAccessKeyForExtrenalUsers";
 				Else
-					ListProperties.LastUpdatedAccessKey
-						= SelectionByUsersKinds.JobParameters;
+					JobParametersFieldName = "LastUpdatedAccessKey";
+				EndIf;
+				If ListProperties[JobParametersFieldName] <> True Then
+					ListProperties[JobParametersFieldName] = SelectionByUsersKinds.JobParameters;
 				EndIf;
 			EndDo;
 		EndDo;
 	EndIf;
 	
-	ItemsUpdateLists = QueryResults[1].Unload(QueryResultIteration.ByGroups);
+	ItemsUpdateLists = QueryResults[2].Unload(QueryResultIteration.ByGroups);
 	For Each UpdateDetails1 In ItemsUpdateLists.Rows Do
 		String = ListsRows.Get(UpdateDetails1.List);
 		If String = Undefined Then
@@ -43223,14 +44545,13 @@ Procedure RefreshProgressBar(Context)
 				String.ProcessedExternalUsersItemsShare, String.TableName, ActiveParameters);
 			UpdateValueInRow(String.ItemsProcessed, Processed, String, Context);
 			ResetItemsCount(String, Context);
-		Else
-			If Context.IsRepeatedProgressUpdate Then
-				ElementsCountUpdateStrings.Add(String);
-			EndIf;
+			
+		ElsIf Context.IsRepeatedProgressUpdate Then
+			ElementsCountUpdateStrings.Add(String);
 		EndIf;
 	EndDo;
 	
-	AccessKeysUpdateLists = QueryResults[2].Unload(QueryResultIteration.ByGroups);
+	AccessKeysUpdateLists = QueryResults[4].Unload(QueryResultIteration.ByGroups);
 	For Each UpdateDetails1 In AccessKeysUpdateLists.Rows Do
 		String = ListsRows.Get(UpdateDetails1.List);
 		If String = Undefined Then
@@ -43243,10 +44564,9 @@ Procedure RefreshProgressBar(Context)
 				String.ProcessedExternalUsersAccessKeysShare, String.TableName, ActiveParameters);
 			UpdateValueInRow(String.AccessKeysProcessed, Processed, String, Context);
 			ResetAccessKeysCount(String, Context);
-		Else
-			If Context.IsRepeatedProgressUpdate Then
-				AccessKeysCountUpdateStrings.Add(String);
-			EndIf;
+			
+		ElsIf Context.IsRepeatedProgressUpdate Then
+			AccessKeysCountUpdateStrings.Add(String);
 		EndIf;
 	EndDo;
 	
@@ -43258,18 +44578,14 @@ Procedure RefreshProgressBar(Context)
 		IndexOf = IndexOf - 1;
 	EndDo;
 	
-	If Not Context.IsRepeatedProgressUpdate Then
-		For Each RowDescription In ListsRows Do
-			ElementsCountUpdateStrings.Add(RowDescription.Value);
-			AccessKeysCountUpdateStrings.Add(RowDescription.Value);
-		EndDo;
-	EndIf;
-	
 	If Context.CalculateByDataAmount Then
-		KeysCount = QueryResults[5].Unload()[0].Count;
-		If Context.IsRepeatedProgressUpdate
-		   And Context.StoredData.KeysCount <> KeysCount Then
-			
+		KeysCount = QueryResults[7].Unload()[0].Count;
+		If Not Context.IsRepeatedProgressUpdate Then
+			For Each RowDescription In ListsRows Do
+				ElementsCountUpdateStrings.Add(RowDescription.Value);
+				AccessKeysCountUpdateStrings.Add(RowDescription.Value);
+			EndDo;
+		ElsIf Context.StoredData.KeysCount <> KeysCount Then
 			For Each RowDescription In ListsRows Do
 				If AccessKeysCountUpdateStrings.Find(RowDescription.Value) = Undefined Then
 					AccessKeysCountUpdateStrings.Add(RowDescription.Value);
@@ -43380,6 +44696,9 @@ Procedure FillProcessedShares(String, UpdateDetails1, ListProperties, IsItemsPro
 			CurrentJobSize = NewRecordsJobSize;
 		Else
 			CurrentJobSize = MainRecordJobSize;
+			If ListProperties[JobParametersFieldName] = True Then
+				ListProperties[JobParametersFieldName] = Null;
+			EndIf;
 		EndIf;
 		If CurrentJobSize = 1 Then
 			String[ShareFieldName] = 0.99;
@@ -43728,7 +45047,6 @@ Procedure UpdateItemsAndAccessKeysCount(Context)
 			UpdateValueInRow(String.ItemsProcessed, 100, String, Context);
 			IndexOf = IndexOf + 2;
 		Else
-			ProcessedItemsCount = 0;
 			ListProperties = Context.ListsProperties.Get(String.List);
 			HasKeysForUsers = False;
 			HasKeysForExternalUsers = False;
@@ -43739,63 +45057,29 @@ Procedure UpdateItemsAndAccessKeysCount(Context)
 			EndIf;
 			NameContent = StrSplit(String.TableName, ".", False);
 			TypeProperties = TablesTypesByNames.Get(Upper(NameContent[0]));
-			For UsersKind = 0 To 1 Do
-				If UsersKind = 0 Then
-					LastUpdatedItem = ListProperties.LastUpdatedItem;
-				Else
-					LastUpdatedItem = ListProperties.LastUpdatedItemForExtrenalUsers;
-				EndIf;
-				If LastUpdatedItem = Null Or LastUpdatedItem = True Then
-					RemainingItemsCount = -1;
-				EndIf;
-				If LastUpdatedItem <> Null Then
-					If UsersKind = 0 Then
-						HasKeysForUsers = True;
-					Else
-						HasKeysForExternalUsers = True;
-					EndIf;
-					If LastUpdatedItem <> True Then
-						Selection = QueryResults[IndexOf].Select();
-						RemainingItemsCount = ?(Selection.Next(), Selection.Count, 0);
-					EndIf;
-				EndIf;
-				If RemainingItemsCount = -1 Then
-					If UsersKind = 0 Then
-						String.LeftlUsersItemsShare = 0;
-					Else
-						String.LeftExternalUsersItemsShare = 0;
-					EndIf;
-					RemainingItemsCount = 0;
-				EndIf;
-				If UsersKind = 0 Then
-					If Not HasKeysForUsers Then
-						String.RemainingItemsForUsersCount = 0;
-						String.ItemsForUsersCount = 0;
-					ElsIf TypeOf(RemainingItemsCount) = Type("Number") Then
-						String.RemainingItemsForUsersCount
-							= Int(String.ItemsForUsersCount * (1 - String.ProcessedUsersItemsShare
-								- String.LeftlUsersItemsShare) + 0.99)
-							+ Int(RemainingItemsCount * String.LeftlUsersItemsShare);
-					EndIf;
-					ProcessedItemsCount = ProcessedItemsCount
-						+ (String.ItemsForUsersCount
-							- String.RemainingItemsForUsersCount);
-				Else
-					If Not HasKeysForExternalUsers Then
-						String.RemainingItemsForExternalUsersCount = 0;
-						String.ItemsForExternalUsersCount = 0;
-					ElsIf TypeOf(RemainingItemsCount) = Type("Number") Then
-						String.RemainingItemsForExternalUsersCount
-							= Int(String.ItemsForExternalUsersCount * (1 - String.ProcessedExternalUsersItemsShare
-								- String.LeftExternalUsersItemsShare) + 0.99)
-							+ Int(RemainingItemsCount * String.LeftExternalUsersItemsShare);
-					EndIf;
-					ProcessedItemsCount = ProcessedItemsCount
-						+ (String.ItemsForExternalUsersCount
-							- String.RemainingItemsForExternalUsersCount);
-				EndIf;
-				IndexOf = IndexOf + 1;
-			EndDo;
+			
+			UpdateCount(QueryResults[IndexOf],
+				ListProperties.LastUpdatedItem,
+				String.RemainingItemsForUsersCount,
+				String.ItemsForUsersCount,
+				String.LeftlUsersItemsShare,
+				String.ProcessedUsersItemsShare);
+			IndexOf = IndexOf + 1;
+			ProcessedItemsCount =
+				  String.ItemsForUsersCount
+				- String.RemainingItemsForUsersCount;
+			
+			UpdateCount(QueryResults[IndexOf],
+				ListProperties.LastUpdatedItemForExtrenalUsers,
+				String.RemainingItemsForExternalUsersCount,
+				String.ItemsForExternalUsersCount,
+				String.LeftExternalUsersItemsShare,
+				String.ProcessedExternalUsersItemsShare);
+			IndexOf = IndexOf + 1;
+			ProcessedItemsCount = ProcessedItemsCount
+				+ String.ItemsForExternalUsersCount
+				- String.RemainingItemsForExternalUsersCount;
+			
 			ItemCount = String.ItemsForUsersCount + String.ItemsForExternalUsersCount;
 			If HasKeysForUsers And HasKeysForExternalUsers And TypeProperties.IsReferenceType Then
 				ItemCount             = ItemCount / 2;
@@ -43815,14 +45099,15 @@ Procedure UpdateItemsAndAccessKeysCount(Context)
 	
 	For Each String In Context.AccessKeysCountUpdateStrings Do
 		Selection = QueryResults[IndexOf].Select();
-		AccessKeysForUsersCount = ?(Selection.Next(), Selection.Count, 0);
+		String.AccessKeysForUsersCount = ?(Selection.Next(), Selection.Count, 0);
 		IndexOf = IndexOf + 1;
 		
 		Selection = QueryResults[IndexOf].Select();
-		AccessKeysForExternalUsersCount = ?(Selection.Next(), Selection.Count, 0);
+		String.AccessKeysForExternalUsersCount = ?(Selection.Next(), Selection.Count, 0);
 		IndexOf = IndexOf + 1;
 		
-		AccessKeysCount = AccessKeysForUsersCount + AccessKeysForExternalUsersCount;
+		AccessKeysCount = String.AccessKeysForUsersCount
+			+ String.AccessKeysForExternalUsersCount;
 		UpdateValueInRow(String.AccessKeysCount, AccessKeysCount, String, Context);
 		If ValueIsFilled(String.TableName) Then
 			AccessKeysByListsCount.Insert(String.TableName, AccessKeysCount);
@@ -43833,53 +45118,30 @@ Procedure UpdateItemsAndAccessKeysCount(Context)
 			UpdateValueInRow(String.AccessKeysProcessed, 100, String, Context);
 			IndexOf = IndexOf + 2;
 		Else
-			ProcessedAccessKeysCount = 0;
 			ListProperties = Context.ListsProperties.Get(String.List);
-			For UsersKind = 0 To 1 Do
-				If UsersKind = 0 Then
-					LastUpdatedAccessKey = ListProperties.LastUpdatedAccessKey;
-				Else
-					LastUpdatedAccessKey = ListProperties.LastUpdatedAccessKeyForExtrenalUsers;
-				EndIf;
-				If LastUpdatedAccessKey = Null Or LastUpdatedAccessKey = True Then
-					RemainingAccessKeysCount = -1;
-				Else
-					Selection = QueryResults[IndexOf].Select();
-					RemainingAccessKeysCount = ?(Selection.Next(), Selection.Count, 0);
-				EndIf;
-				If RemainingAccessKeysCount = -1 Then
-					If UsersKind = 0 Then
-						String.LeftUsersAccessKeysShare = 0;
-					Else
-						String.LeftExternalUsersAccessKeysShare = 0;
-					EndIf;
-					RemainingAccessKeysCount = 0;
-				EndIf;
-				If UsersKind = 0 Then
-					If TypeOf(RemainingAccessKeysCount) = Type("Number") Then
-						String.AccessKeysForUsersCount = AccessKeysForUsersCount;
-						String.RemainingAccessKeysForUsersCount
-							= Int(String.AccessKeysForUsersCount * (1 - String.ProcessedUsersAccessKeysShare
-								- String.LeftUsersAccessKeysShare) + 0.99)
-							+ Int(RemainingAccessKeysCount * String.LeftUsersAccessKeysShare);
-					EndIf;
-					ProcessedAccessKeysCount = ProcessedAccessKeysCount
-						+ (String.AccessKeysForUsersCount
-							- String.RemainingAccessKeysForUsersCount);
-				Else
-					If TypeOf(RemainingAccessKeysCount) = Type("Number") Then
-						String.AccessKeysForExternalUsersCount = AccessKeysForExternalUsersCount;
-						String.RemainingAccessKeysForExternalUsersCount
-							= Int(String.AccessKeysForExternalUsersCount * (1 - String.ProcessedExternalUsersAccessKeysShare
-								- String.LeftExternalUsersAccessKeysShare) + 0.99)
-							+ Int(RemainingAccessKeysCount * String.LeftExternalUsersAccessKeysShare);
-					EndIf;
-					ProcessedAccessKeysCount = ProcessedAccessKeysCount
-						+ (String.AccessKeysForExternalUsersCount
-							- String.RemainingAccessKeysForExternalUsersCount);
-				EndIf;
-				IndexOf = IndexOf + 1;
-			EndDo;
+			
+			UpdateCount(QueryResults[IndexOf],
+				ListProperties.LastUpdatedAccessKey,
+				String.RemainingAccessKeysForUsersCount,
+				String.AccessKeysForUsersCount,
+				String.LeftUsersAccessKeysShare,
+				String.ProcessedUsersAccessKeysShare);
+			IndexOf = IndexOf + 1;
+			ProcessedAccessKeysCount =
+				  String.AccessKeysForUsersCount
+				- String.RemainingAccessKeysForUsersCount;
+			
+			UpdateCount(QueryResults[IndexOf],
+				ListProperties.LastUpdatedAccessKeyForExtrenalUsers,
+				String.RemainingAccessKeysForExternalUsersCount,
+				String.AccessKeysForExternalUsersCount,
+				String.LeftExternalUsersAccessKeysShare,
+				String.ProcessedExternalUsersAccessKeysShare);
+			IndexOf = IndexOf + 1;
+			ProcessedAccessKeysCount = ProcessedAccessKeysCount
+				+ String.AccessKeysForExternalUsersCount
+				- String.RemainingAccessKeysForExternalUsersCount;
+		
 			UpdateValueInRow(String.ProcessedAccessKeysCount,
 				Int(ProcessedAccessKeysCount), String, Context);
 			If String.ProcessedAccessKeysCount > String.AccessKeysCount Then
@@ -43890,6 +45152,29 @@ Procedure UpdateItemsAndAccessKeysCount(Context)
 				Int(String.ProcessedAccessKeysCount / String.AccessKeysCount * 100), String, Context);
 		EndIf;
 	EndDo;
+	
+EndProcedure
+
+// Intended for procedure "UpdateItemsAndAccessKeysCount".
+Procedure UpdateCount(QueryResult, IsLastUpdated,
+			RemainingCount, Count, RemainingPortion, ProcessedPortion)
+	
+	If IsLastUpdated = Null Or IsLastUpdated = True Then
+		NewRemainingCount = -1;
+	Else
+		Selection = QueryResult.Select();
+		NewRemainingCount = ?(Selection.Next(), Selection.Count, 0);
+	EndIf;
+	
+	If NewRemainingCount = -1 Then
+		RemainingPortion = 0;
+		NewRemainingCount = 0;
+	EndIf;
+	
+	If TypeOf(NewRemainingCount) = Type("Number") Then
+		RemainingCount = Int(Count * (1 - ProcessedPortion - RemainingPortion) + 0.99)
+			+ Int(NewRemainingCount * RemainingPortion);
+	EndIf;
 	
 EndProcedure
 
@@ -44177,13 +45462,8 @@ Procedure FillSharesRefTypeItemsCount(ItemsCountShares, Item, TableName)
 			
 		ElsIf Item.DataKeyKind = "GroupsSetsWithObsoleteRights" Then
 			
-			If Item.ProcessObsoleteItems Then
-				ItemsCountShares.Processed2 = 0.6;
-				ItemsCountShares.Left1   = 0.3;
-			Else
-				ItemsCountShares.Processed2 = 0.6;
-				ItemsCountShares.Left1   = 0.4;
-			EndIf;
+			ItemsCountShares.Processed2 = 0.6;
+			ItemsCountShares.Left1   = 0.3;
 			
 		Else // ObsoleteItems.
 			ItemsCountShares.Processed2 = 0.9;
@@ -44193,13 +45473,8 @@ Procedure FillSharesRefTypeItemsCount(ItemsCountShares, Item, TableName)
 	EndIf;
 	
 	If Item.DataKeyKind = "ItemsWithObsoleteKeys" Then
-		If Item.ProcessObsoleteItems Then
-			ItemsCountShares.Processed2 = 0.0;
-			ItemsCountShares.Left1   = 0.9;
-		Else
-			ItemsCountShares.Processed2 = 0.0;
-			ItemsCountShares.Left1   = 1.0;
-		EndIf;
+		ItemsCountShares.Processed2 = 0.0;
+		ItemsCountShares.Left1   = 0.9;
 	Else // ObsoleteItems.
 		ItemsCountShares.Processed2 = 0.9;
 		ItemsCountShares.Left1   = 0.1;
@@ -44251,11 +45526,11 @@ Function QueryTextOfRemainingRegisterItemsCount(QueryDetails, String, IndexOf,
 	
 	FieldNumber = 1;
 	For Each FieldName In BasicFields.UsedItems Do
-		FieldNameInDataKey = "Field" + FieldNumber;
+		FieldNameInDataKey = StrTemplate("Field%1", FieldNumber);
 		ParameterName = FieldName + Format(IndexOf, "NG=");
 		
 		ConnectionCondition = ConnectionCondition + ?(ConnectionCondition = "", "", "
-		|			AND ") + "(AccessKeysForRegisters.Field" + FieldNumber + " = CurrentTable." + FieldName + ")"; // @query-part-1
+		|			AND ") + StrTemplate("(AccessKeysForRegisters.Field%1 = CurrentTable.%2)", FieldNumber, FieldName); // @query-part-1
 		
 		Filter = "";
 		For CurrentIndex = 0 To FieldNumber - 2 Do
@@ -44342,13 +45617,8 @@ Procedure FillRegisterItemsCountShares(ItemsCountShares, Item, RestrictionProper
 	ElsIf Item.DataKeyKind = "ItemsWithoutKeysByFieldValues"
 	      Or Item.DataKeyKind = "ItemsWithoutKeysByPeriod" Then
 		
-		If Item.ProcessObsoleteItems Then
-			ItemsCountShares.Processed2 = 0.5;
-			ItemsCountShares.Left1   = 0.4;
-		Else
-			ItemsCountShares.Processed2 = 0.5;
-			ItemsCountShares.Left1   = 0.5;
-		EndIf;
+		ItemsCountShares.Processed2 = 0.5;
+		ItemsCountShares.Left1   = 0.4;
 		
 	ElsIf Item.DataKeyKind = "ObsoleteItems" Then
 		
@@ -44362,7 +45632,7 @@ Procedure FillRegisterItemsCountShares(ItemsCountShares, Item, RestrictionProper
 			ItemsCountShares.Left1   = 0.1;
 		EndIf;
 		
-	Else // ObsoleteCommonRegisterItems
+	Else // InvalidItems or InvalidItemsInCommonRegister.
 		ItemsCountShares.Processed2 = 0.99;
 		ItemsCountShares.Left1   = 0.01;
 	EndIf;
@@ -44472,13 +45742,8 @@ EndProcedure
 Procedure FillAccessKeysCountShares(AccessKeysCountShares, Item)
 	
 	If Item.DataKeyKind = "ItemsWithObsoleteRights" Then
-		If Item.ProcessObsoleteItems Then
-			AccessKeysCountShares.Processed2 = 0.0;
-			AccessKeysCountShares.Left1   = 0.9;
-		Else
-			AccessKeysCountShares.Processed2 = 0.0;
-			AccessKeysCountShares.Left1   = 1.0;
-		EndIf;
+		AccessKeysCountShares.Processed2 = 0.0;
+		AccessKeysCountShares.Left1   = 0.9;
 	Else // ObsoleteItems.
 		AccessKeysCountShares.Processed2 = 0.9;
 		AccessKeysCountShares.Left1   = 0.1;
@@ -44507,8 +45772,8 @@ EndFunction
 
 Function CurrentDateAtServer() Export
 	
-	// 
-	// 
+	// ACC:143-off - No.643.2.1. "CurrentDate" is required instead of "CurrentSessionDate"
+	// as the current date is used for logging.
 	Return CurrentDate();
 	// ACC:143-on
 	

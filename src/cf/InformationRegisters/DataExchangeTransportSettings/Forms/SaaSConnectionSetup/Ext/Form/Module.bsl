@@ -140,7 +140,7 @@ EndProcedure
 Function DataSynchronizationUsers()
 	
 	Result = New ValueTable;
-	Result.Columns.Add("User"); // 
+	Result.Columns.Add("User"); // Type: CatalogRef.Users
 	Result.Columns.Add("Presentation");
 	
 	QueryText =

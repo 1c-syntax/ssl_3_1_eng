@@ -426,7 +426,7 @@ EndProcedure
 #Region FormCommandsEventHandlers
 
 ///////////////////////////////////////////////////////////////////////////////////
-// 
+// File command handlers.
 
 &AtClient
 Procedure Add(Command)
@@ -609,8 +609,7 @@ Procedure PrintWithStamp(Command)
 		Return;
 	EndIf;
 	
-	DocumentWithStamp = FilesOperationsInternalServerCall.DocumentWithStamp(CurrentData.Ref);
-	FilesOperationsInternalClient.PrintFileWithStamp(DocumentWithStamp, CurrentData.Description);
+	FilesOperationsInternalClient.DoPrintFileWithStamp(CurrentData.Ref, UUID);
 	
 EndProcedure
 
@@ -801,7 +800,7 @@ Procedure ShowServiceFiles(Command)
 EndProcedure
 
 //////////////////////////////////////////////////////////////////////////////////
-// 
+// Command handlers to support digital signature and encryption.
 
 &AtClient
 Procedure Sign(Command)
@@ -1007,7 +1006,7 @@ Procedure DecryptServer(DataArrayToStoreInDatabase,
 EndProcedure
 
 ///////////////////////////////////////////////////////////////////////////////////
-// 
+// Command handlers to support collaborative file management.
 
 &AtClient
 Procedure Edit(Command)
@@ -1244,10 +1243,9 @@ Procedure OpenFile()
 		AdditionalParameters = New Structure;
 		AdditionalParameters.Insert("CurrentData", CurrentData);
 		Notification = New NotifyDescription("OpenFileAfterConfirm", ThisObject, AdditionalParameters);
-		FormParameters = New Structure("Key", "BeforeOpenFile");
-		FormParameters.Insert("FileName",
+		UsersInternalClient.ShowSecurityWarning(Notification,
+			UsersInternalClientServer.TypesOfSafetyWarnings().BeforeOpenFile,
 			CommonClientServer.GetNameWithExtension(CurrentData.Description, CurrentData.Extension));
-		OpenForm("CommonForm.SecurityWarning", FormParameters, , , , , Notification);
 		Return;
 	EndIf;
 	
@@ -1929,7 +1927,7 @@ Function EventLogFilterData(Service)
 EndFunction
 
 &AtServer
-Function SynchronizationSettingsParameters(FileOwner)
+Function SynchronizationSettingsParameters(Val FileOwner)
 	
 	FileOwnerType = Common.MetadataObjectID(FileCatalogType);
 	

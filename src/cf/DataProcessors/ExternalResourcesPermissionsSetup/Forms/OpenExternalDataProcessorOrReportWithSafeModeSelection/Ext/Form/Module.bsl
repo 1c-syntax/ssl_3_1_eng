@@ -53,7 +53,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 &AtClient
-Procedure DataProcessorFileName1StartChoice(Item, ChoiceData, StandardProcessing)
+Procedure NameOfDataProcessorFileStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	ImportDataProcessorFile();
 	
@@ -128,7 +128,7 @@ Function AttachOnServer(IsExternalDataProcessor)
 		Manager = ExternalReports;
 	EndIf;
 	
-	Return Manager.Connect(DataProcessorFileAddress,, SafeMode); // 
+	Return Manager.Connect(DataProcessorFileAddress,, SafeMode); // ACC:552; ACC:553 Secure connection.
 	
 EndFunction
 

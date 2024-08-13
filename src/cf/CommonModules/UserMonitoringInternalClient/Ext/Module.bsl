@@ -72,6 +72,16 @@ Procedure OnProcessAdditionalDetails(ReportForm, Item, Details, StandardProcessi
 	EndIf;
 EndProcedure
 
+// See ReportsClientOverridable.AtStartValueSelection
+Procedure AtStartValueSelection(ReportForm, SelectionConditions, ClosingNotification1, StandardProcessing) Export
+	
+	If ReportForm.ReportSettings.FullName = "Report.ProfilesRolesChanges" Then
+		OnStartSelectValuesInProfilesRolesChangesReport(ReportForm,
+			SelectionConditions, ClosingNotification1, StandardProcessing);
+	EndIf;
+	
+EndProcedure
+
 #EndRegion
 
 #Region Private
@@ -129,6 +139,48 @@ EndProcedure
 Procedure ShowScheduledJobInfo(Details)
 	FormParameters = New Structure("DetailsFromReport", Details);
 	OpenForm("Report.EventLogAnalysis.Form.ScheduledJobInfo", FormParameters);
+EndProcedure
+
+// Intended for procedure "OnValueChoiceStart".
+Procedure OnStartSelectValuesInProfilesRolesChangesReport(ReportForm, SelectionConditions, ClosingNotification1, StandardProcessing)
+	
+	If SelectionConditions.FieldName <> "Role" Then
+		Return;
+	EndIf;
+	
+	StandardProcessing = False;
+	
+	Selected_ = CommonClient.CopyRecursive(SelectionConditions.Marked);
+	DeleteEmptyValues(Selected_);
+	
+	Collections = New ValueList;
+	Collections.Add("Roles");
+	
+	PickingParameters = StandardSubsystemsClientServer.MetadataObjectsSelectionParameters();
+	PickingParameters.ChooseRefs = True;
+	PickingParameters.SelectedMetadataObjects = Selected_;
+	PickingParameters.MetadataObjectsToSelectCollection = Collections;
+	PickingParameters.ObjectsGroupMethod = "ByKinds";
+	PickingParameters.Title = NStr("en = 'Pick roles';");
+	
+	StandardSubsystemsClient.ChooseMetadataObjects(PickingParameters, ClosingNotification1);
+	
+EndProcedure
+
+// Intended for the "OnStartSelectValuesInProfilesRolesChangesReport" procedure.
+Procedure DeleteEmptyValues(MarkedValues)
+	
+	IndexOf = MarkedValues.Count() - 1;
+	
+	While IndexOf >= 0 Do 
+		Item = MarkedValues[IndexOf];
+		IndexOf = IndexOf - 1;
+		
+		If Not ValueIsFilled(Item.Value) Then
+			MarkedValues.Delete(Item);
+		EndIf;
+	EndDo;
+	
 EndProcedure
 
 #EndRegion

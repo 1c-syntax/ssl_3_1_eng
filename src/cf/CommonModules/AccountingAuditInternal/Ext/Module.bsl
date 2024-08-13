@@ -120,8 +120,8 @@ EndProcedure
 // See ExportImportDataOverridable.OnFillTypesExcludedFromExportImport.
 Procedure OnFillTypesExcludedFromExportImport(Types) Export
 	
-	//  
-	// 
+	// Accounting integrity results will be generated at the next check. 
+	// They shouldn't be imported or exported.
 	Types.Add(Metadata.InformationRegisters.AccountingCheckResults);
 	
 EndProcedure
@@ -244,7 +244,7 @@ Function LastAccountingCheckInformation(ChecksGroup = Undefined) Export
 		Result.WarnSecondCheckRequired = True;
 	Else
 		TimeFromLastStart = (CurrentSessionDate() - Result.LastCheckDate) / (1000 * 60 * 60 * 30);
-		Result.WarnSecondCheckRequired = TimeFromLastStart > 1; // 
+		Result.WarnSecondCheckRequired = TimeFromLastStart > 1; // More than 1 month.
 	EndIf;
 	
 	Return Result;
@@ -1089,7 +1089,7 @@ Procedure AddChecksGroups(ChecksGroups)
 		
 		// ACC:1327-off A lock is set upper in the stack.
 		InfobaseUpdate.WriteData(ChecksGroupObject);
-		// 
+		// ACC:1327-on
 	EndDo;
 	
 	Query = New Query(
@@ -1179,7 +1179,7 @@ Procedure AddChecks(Checks)
 		
 		// ACC:1327-off A lock is set upper in the stack.
 		InfobaseUpdate.WriteData(CheckObject1);
-		// 
+		// ACC:1327-on
 	EndDo;
 	
 	Query = New Query(
@@ -2263,7 +2263,7 @@ Procedure FindDeadRefs(MetadataObject, CheckParameters, CheckedRefs)
 		EndIf;
 		
 		Query.SetParameter("Ref", ResultString1.ObjectWithIssue);
-		Result = Query.Execute().Unload(); // 
+		Result = Query.Execute().Unload(); // @skip-check query-in-loop - A batch-wise data integrity check
 		
 	EndDo;
 	
@@ -2487,7 +2487,7 @@ Procedure FindDeadRefsInAccumulationRegisters(MetadataObject, CheckParameters, C
 		EndDo;
 		
 		Query.SetParameter("CheckStartDate", ResultString1.Period);
-		Result = Query.Execute().Unload(); // 
+		Result = Query.Execute().Unload(); // @skip-check query-in-loop - A batch-wise data integrity check
 		
 	EndDo;
 	
@@ -2604,7 +2604,7 @@ Procedure FindDeadRefsInSubordinateInformationRegisters(MetadataObject, CheckPar
 			Query.SetParameter("Recorder", ResultString1.RecorderAttributeRef);
 		EndIf;
 		
-		Result = Query.Execute().Unload(); // 
+		Result = Query.Execute().Unload(); // @skip-check query-in-loop - A batch-wise data integrity check
 		
 	EndDo;
 	
@@ -2713,8 +2713,8 @@ Procedure FindDeadRefsInIndependentPeriodicalInformationRegisters(MetadataObject
 		For Each Dimension In Dimensions Do
 			Query.SetParameter(Dimension.Name, ResultString1[Dimension.Name + "DimensionRef"]);
 		EndDo;
-		Result = Query.Execute().Unload(); // 
-		// 
+		Result = Query.Execute().Unload(); // @skip-check query-in-loop - A batch-wise data integrity check.
+		// If all records in the last period are processed, select records in the next periods.
 		If Result.Count() = 0 Or Result.Count() = 1 Then
 			Query.Text = FirstQueryText;
 			Query.SetParameter("Period", ResultString1["Period"]);
@@ -2827,7 +2827,7 @@ Procedure FindDeadRefsInIndependentNonPeriodicalInformationRegisters(MetadataObj
 			Query.SetParameter(Dimension.Name, ResultString1[Dimension.Name + "DimensionRef"]);
 		EndDo;
 		
-		Result = Query.Execute().Unload(); // 
+		Result = Query.Execute().Unload(); // @skip-check query-in-loop - A batch-wise data integrity check
 		
 	EndDo;
 	
@@ -2954,7 +2954,7 @@ Procedure FindDeadRefsInAccountingRegisters(MetadataObject, CheckParameters, Ext
 		EndDo;
 		
 		Query.SetParameter("CheckStartDate", ResultString1.Period);
-		Result = Query.Execute().Unload(); // 
+		Result = Query.Execute().Unload(); // @skip-check query-in-loop - A batch-wise data integrity check
 		
 	EndDo;
 	
@@ -3035,7 +3035,7 @@ Procedure FindDeadRefsInCalculationRegisters(MetadataObject, CheckParameters, Ch
 		EndDo;
 		
 		Query.SetParameter("CheckStartDate", ResultString1.Period);
-		Result = Query.Execute().Unload(); // 
+		Result = Query.Execute().Unload(); // @skip-check query-in-loop - A batch-wise data integrity check
 		
 	EndDo;
 	
@@ -3279,7 +3279,7 @@ Procedure FindNotFilledRequiredAttributes(MetadataObject, CheckParameters)
 		EndIf;
 		
 		Query.SetParameter("Ref", ResultString1.ObjectWithIssue);
-		Result = Query.Execute().Unload(); // 
+		Result = Query.Execute().Unload(); // @skip-check query-in-loop - A batch-wise data integrity check
 		
 	EndDo;
 	
@@ -3443,7 +3443,7 @@ Procedure FindNotFilledRequiredAttributesInSubordinatePeriodicalRegisters(Metada
 		EndIf;
 		
 		Query.SetParameter("CheckStartDate", ResultString1.Period);
-		Result = Query.Execute().Unload(); // 
+		Result = Query.Execute().Unload(); // @skip-check query-in-loop - A batch-wise data integrity check
 		
 	EndDo;
 	
@@ -3526,7 +3526,7 @@ Procedure FindNotFilledRequiredAttributesInSubordinateNonPeriodicalRegisters(Met
 		EndIf;
 		
 		Query.SetParameter("Recorder", ResultString1.RecorderAttributeRef);
-		Result = Query.Execute().Unload(); // 
+		Result = Query.Execute().Unload(); // @skip-check query-in-loop - A batch-wise data integrity check
 		
 	EndDo;
 	
@@ -3665,7 +3665,7 @@ Procedure FindNotFilledRequiredAttributesInIndependentNonPeriodicalInformationRe
 			ModulePerformanceMonitor.EndTimeConsumingOperationMeasurement(MeasurementDetails, DataCountTotal);
 		EndIf;
 		
-		Result = Query.Execute().Unload(); // 
+		Result = Query.Execute().Unload(); // @skip-check query-in-loop - A batch-wise data integrity check
 		
 	EndDo;
 	
@@ -3799,8 +3799,8 @@ Procedure FindNotFilledRequiredAttributesInIndependentPeriodicalInformationRegis
 		For Each Dimension In Dimensions Do
 			Query.SetParameter(Dimension.Name, ResultString1[Dimension.Name + "DimensionRef"]);
 		EndDo;
-		Result = Query.Execute().Unload(); // 
-		// 
+		Result = Query.Execute().Unload(); // @skip-check query-in-loop - A batch-wise data integrity check.
+		// If all records in the last period are processed, select records in the next periods.
 		If Result.Count() = 0 Or Result.Count() = 1 Then
 			Query.Text = FirstQueryText;
 			Query.SetParameter("Period", ResultString1.Period);
@@ -3889,7 +3889,7 @@ Procedure FindCircularRefs(MetadataObject, CheckParameters)
 		EndDo;
 		
 		Query.SetParameter("Ref", ResultString1.ObjectWithIssue);
-		Result = Query.Execute().Unload(); // 
+		Result = Query.Execute().Unload(); // @skip-check query-in-loop - A batch-wise data integrity check
 		
 	EndDo;
 	
@@ -4002,7 +4002,7 @@ Function ChildItemsCount(ObjectReference, SelectionExclusion, Val InitialValue =
 	Upload0 = SubordinateParentItems(ObjectReference, SelectionExclusion);
 	ChildrenCount = ChildrenCount + Upload0.Count();
 	For Each DescendantItem In Upload0 Do
-		ChildrenCount = ChildItemsCount(DescendantItem.Ref, SelectionExclusion, ChildrenCount); // 
+		ChildrenCount = ChildItemsCount(DescendantItem.Ref, SelectionExclusion, ChildrenCount); // @skip-check query-in-loop - A batch-wise data integrity check
 	EndDo;
 	Return ChildrenCount;
 	
@@ -4426,13 +4426,13 @@ EndFunction
 
 Procedure DeleteLastCheckResults(LastCheckResult)
 	
-	For Each String In LastCheckResult Do
+	For Each TableRow In LastCheckResult Do
 		Set = InformationRegisters.AccountingCheckResults.CreateRecordSet();
-		Set.Filter.ObjectWithIssue.Set(String.ObjectWithIssue);
-		Set.Filter.CheckRule.Set(String.CheckRule);
-		Set.Filter.CheckKind.Set(String.CheckKind);
-		Set.Filter.UniqueKey.Set(String.UniqueKey);
-		Set.Filter.IgnoreIssue.Set(String.IgnoreIssue);
+		Set.Filter.ObjectWithIssue.Set(TableRow.ObjectWithIssue);
+		Set.Filter.CheckRule.Set(TableRow.CheckRule);
+		Set.Filter.CheckKind.Set(TableRow.CheckKind);
+		Set.Filter.UniqueKey.Set(TableRow.UniqueKey);
+		Set.Filter.IgnoreIssue.Set(TableRow.IgnoreIssue);
 		
 		SetPrivilegedMode(True);
 		Set.Write();

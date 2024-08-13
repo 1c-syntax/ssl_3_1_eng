@@ -279,7 +279,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Background job ID. It is always the first one for the thread of control without restarts and the last one for the thread of execution with restarts.</v8:content>
+							<v8:content>Background job ID. It is always the first one for the main thread without restarts and the last one for the worker thread with restarts.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -419,8 +419,8 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Data chunk ID (for the thread of execution)
-ID of the last background job after restart (for the thread of control)</v8:content>
+							<v8:content>Data chunk ID (for the worker thread)
+ID of the last background job after restart (for the main thread)</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -555,7 +555,7 @@ ID of the last background job after restart (for the thread of control)</v8:cont
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Number of the attempt to restart the thread of control or the thread of execution</v8:content>
+							<v8:content>Number of the attempt to restart the main thread or the worker thread</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -599,7 +599,7 @@ ID of the last background job after restart (for the thread of control)</v8:cont
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Thread-of-control procedure parameters</v8:content>
+							<v8:content>Parameters of the main thread procedure</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -682,7 +682,7 @@ ID of the last background job after restart (for the thread of control)</v8:cont
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Thread-of-execution method parameters</v8:content>
+							<v8:content>Parameters of the worker thread method</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -769,7 +769,7 @@ ID of the last background job after restart (for the thread of control)</v8:cont
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Thread-of-execution function result</v8:content>
+							<v8:content>Outcome of the worker thread function</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -817,7 +817,7 @@ ID of the last background job after restart (for the thread of control)</v8:cont
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Status of the thread of control or the thread of execution</v8:content>
+							<v8:content>Status of the main thread or the worker thread</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -861,7 +861,7 @@ ID of the last background job after restart (for the thread of control)</v8:cont
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>UUID of the thread of control of a multithreaded operation</v8:content>
+							<v8:content>Main thread UUID</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -908,7 +908,7 @@ ID of the last background job after restart (for the thread of control)</v8:cont
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>UUID of the thread of execution of a multithreaded operation (it is empty for the thread of control)</v8:content>
+							<v8:content>Worker thread UUID (empty for the main thread)</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>

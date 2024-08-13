@@ -82,15 +82,11 @@ Procedure ListBeforeRowChange(Item, Cancel)
 	Cancel = True;
 	
 	CurrentData = Items.List.CurrentData;
-	
 	If CurrentData = Undefined Then
 		Return
 	EndIf;
 	
-	FormParameters = New Structure;
-	FormParameters.Insert("AttachedFile", CurrentData.Ref);
-	
-	OpenForm("DataProcessor.FilesOperations.Form.AttachedFile", FormParameters);
+	FilesOperationsClient.OpenFileForm(CurrentData.Ref);
 	
 EndProcedure
 
@@ -218,15 +214,11 @@ EndProcedure
 Procedure OpenFileProperties(Command)
 	
 	CurrentData = Items.List.CurrentData;
-	
 	If CurrentData = Undefined Then
 		Return
 	EndIf;
 	
-	FormParameters = New Structure;
-	FormParameters.Insert("AttachedFile", CurrentData.Ref);
-	
-	OpenForm("DataProcessor.FilesOperations.Form.AttachedFile", FormParameters);
+	FilesOperationsClient.OpenFileForm(CurrentData.Ref);
 	
 EndProcedure
 

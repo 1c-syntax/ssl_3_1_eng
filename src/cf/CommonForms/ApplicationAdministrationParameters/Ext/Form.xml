@@ -304,10 +304,10 @@
 									</xr:Value>
 								</xr:Item>
 							</ChoiceList>
-							<ContextMenu name="ConnectionTypeContextMenu" id="115"/>
-							<ExtendedTooltip name="ConnectionTypeExtendedTooltip" id="116"/>
+							<ContextMenu name="AttachmentTypeContextMenu" id="115"/>
+							<ExtendedTooltip name="AttachmentTypeExtendedTooltip" id="116"/>
 							<Events>
-								<Event name="OnChange">ConnectionTypeOnChange</Event>
+								<Event name="OnChange">AttachmentTypeOnChange</Event>
 							</Events>
 						</InputField>
 						<Pages name="ConnectionTypeGroup" id="85">

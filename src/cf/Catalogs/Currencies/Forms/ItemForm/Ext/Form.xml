@@ -10,7 +10,7 @@
 						<v8:content>Number-to-words conversion rules</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="CurrencyRegistrationParametersGroupExtendedTooltip" id="155"/>
+				<ExtendedTooltip name="GroupCurrencyInWordsParametersExtendedTooltip" id="155"/>
 			</Popup>
 		</ChildItems>
 	</AutoCommandBar>
@@ -353,8 +353,8 @@
 				</v8:item>
 			</Title>
 			<Hyperlink>true</Hyperlink>
-			<ContextMenu name="HyperlinkCurrencyRegistrationParametersContextMenu" id="146"/>
-			<ExtendedTooltip name="HyperlinkCurrencyRegistrationParametersExtendedTooltip" id="147"/>
+			<ContextMenu name="HyperlinkCurrencyInWordsParametersContextMenu" id="146"/>
+			<ExtendedTooltip name="HyperlinkCurrencyInWordsParametersExtendedTooltip" id="147"/>
 			<Events>
 				<Event name="Click">CurrencyInWordsParametersClick</Event>
 			</Events>

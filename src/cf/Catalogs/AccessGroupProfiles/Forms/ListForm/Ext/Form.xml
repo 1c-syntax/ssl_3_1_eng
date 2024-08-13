@@ -149,7 +149,7 @@ Obsolete profiles contain deleted roles (manual update skipped).</v8:content>
 					<Type>CommandBarButton</Type>
 					<DefaultButton>true</DefaultButton>
 					<CommandName>Form.StandardCommand.Choose</CommandName>
-					<ExtendedTooltip name="FormChooseExtendedTooltip" id="65"/>
+					<ExtendedTooltip name="FormSelectExtendedTooltip" id="65"/>
 				</Button>
 				<Button name="FormCreate" id="50">
 					<Type>CommandBarButton</Type>
@@ -311,29 +311,29 @@ Obsolete profiles contain deleted roles (manual update skipped).</v8:content>
 			<ContextMenu name="ListContextMenu" id="2"/>
 			<AutoCommandBar name="ListCommandBar" id="3"/>
 			<ExtendedTooltip name="ListExtendedTooltip" id="6"/>
-			<SearchStringAddition name="ListSearchString_SSLy" id="24">
+			<SearchStringAddition name="ListSearchString" id="24">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchStringRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchString_SSLyContextMenu" id="25"/>
-				<ExtendedTooltip name="ListSearchString_SSLyExtendedTooltip" id="26"/>
+				<ContextMenu name="ListSearchStringContextMenu" id="25"/>
+				<ExtendedTooltip name="ListSearchStringExtendedTooltip" id="26"/>
 			</SearchStringAddition>
-			<ViewStatusAddition name="ListViewStatus_SSLy" id="27">
+			<ViewStatusAddition name="ListViewStatus" id="27">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>ViewStatusRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListViewStatus_SSLyContextMenu" id="28"/>
-				<ExtendedTooltip name="ListViewStatus_SSLyExtendedTooltip" id="29"/>
+				<ContextMenu name="ListViewStatusContextMenu" id="28"/>
+				<ExtendedTooltip name="ListViewStatusExtendedTooltip" id="29"/>
 			</ViewStatusAddition>
-			<SearchControlAddition name="ListSearchControl_SSLy" id="30">
+			<SearchControlAddition name="ListSearchControl" id="30">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchControl</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchControl_SSLyContextMenu" id="31"/>
-				<ExtendedTooltip name="ListSearchControl_SSLyExtendedTooltip" id="32"/>
+				<ContextMenu name="ListSearchControlContextMenu" id="31"/>
+				<ExtendedTooltip name="ListSearchControlExtendedTooltip" id="32"/>
 			</SearchControlAddition>
 			<Events>
 				<Event name="OnActivateRow">ListOnActivateRow</Event>

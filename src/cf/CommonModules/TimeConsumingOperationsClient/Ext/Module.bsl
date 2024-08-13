@@ -78,7 +78,7 @@ Procedure WaitCompletion(Val TimeConsumingOperation, Val CallbackOnCompletion = 
 		AdvancedOptions_.Insert("AccumulatedMessages", New Array);
 		AdvancedOptions_.Insert("CallbackOnCompletion", CallbackOnCompletion);
 		AdvancedOptions_.Insert("CurrentInterval", ?(AdvancedOptions_.Interval <> 0, AdvancedOptions_.Interval, 1));
-		AdvancedOptions_.Insert("Control", CurrentDate() + AdvancedOptions_.CurrentInterval); // 
+		AdvancedOptions_.Insert("Control", CurrentDate() + AdvancedOptions_.CurrentInterval); // ACC:143 - Session date is not used in interval checks
 		AdvancedOptions_.Insert("LastProgressSendTime", 0);
 		
 		Operations = TimeConsumingOperationsInProgress();
@@ -324,7 +324,7 @@ EndProcedure
 // Configuration subsystems event handlers.
 
 // Parameters:
-//  Parameters - See CommonOverridable.BeforeRecurringClientDataSendToServer.Parameters
+//  Parameters - 
 //  AreChatsActive - Boolean - Flag indicating whether the "Business interactions" subsystem delivers messages.
 //  Interval - Number - Timeout in seconds before the next check.
 //

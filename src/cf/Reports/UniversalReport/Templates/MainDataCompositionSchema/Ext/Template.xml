@@ -53,7 +53,7 @@
 		</valueType>
 		<value xsi:type="xs:dateTime">0001-01-01T00:00:00</value>
 		<useRestriction>true</useRestriction>
-		<expression>Reports.UniversalReport.PeriodEndDate_2(&amp;Period, &amp;MetadataObjectType, &amp;TableName)</expression>
+		<expression>Reports.UniversalReport.PeriodEndDate_2(&amp;Period, &amp;MetadataObjectTypeName, &amp;MetadataObjectTableName)</expression>
 	</parameter>
 	<parameter>
 		<name>DataSource</name>
@@ -140,6 +140,44 @@
 		</valueType>
 		<value xsi:type="xs:boolean">true</value>
 		<useRestriction>false</useRestriction>
+		<use>Always</use>
+	</parameter>
+	<parameter>
+		<name>MetadataObjectTypeName</name>
+		<title xsi:type="v8:LocalStringType">
+			<v8:item>
+				<v8:lang>en</v8:lang>
+				<v8:content>Name of the metadata object type.</v8:content>
+			</v8:item>
+		</title>
+		<valueType>
+			<v8:Type>xs:string</v8:Type>
+			<v8:StringQualifiers>
+				<v8:Length>0</v8:Length>
+				<v8:AllowedLength>Variable</v8:AllowedLength>
+			</v8:StringQualifiers>
+		</valueType>
+		<value xsi:type="xs:string"/>
+		<useRestriction>true</useRestriction>
+		<use>Always</use>
+	</parameter>
+	<parameter>
+		<name>MetadataObjectTableName</name>
+		<title xsi:type="v8:LocalStringType">
+			<v8:item>
+				<v8:lang>en</v8:lang>
+				<v8:content>Metadata object name.</v8:content>
+			</v8:item>
+		</title>
+		<valueType>
+			<v8:Type>xs:string</v8:Type>
+			<v8:StringQualifiers>
+				<v8:Length>0</v8:Length>
+				<v8:AllowedLength>Variable</v8:AllowedLength>
+			</v8:StringQualifiers>
+		</valueType>
+		<value xsi:type="xs:string"/>
+		<useRestriction>true</useRestriction>
 		<use>Always</use>
 	</parameter>
 	<settingsVariant>

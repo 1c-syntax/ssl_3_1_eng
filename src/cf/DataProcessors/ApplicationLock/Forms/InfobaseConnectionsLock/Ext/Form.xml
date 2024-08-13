@@ -98,32 +98,62 @@
 					</Title>
 					<ExtendedTooltip name="SettingsPageExtendedTooltip" id="95"/>
 					<ChildItems>
-						<LabelField name="InitialUserAuthorizationRestrictionStatus" id="64">
-							<DataPath>InitialUserAuthorizationRestrictionStatus</DataPath>
+						<UsualGroup name="StatusGroup" id="131">
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
 									<v8:content>Status</v8:content>
 								</v8:item>
 							</Title>
-							<TitleLocation>None</TitleLocation>
-							<HorizontalAlign>Left</HorizontalAlign>
-							<AutoMaxWidth>false</AutoMaxWidth>
-							<Format>
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>BF='user connections allowed'; BT='user connections prohibited'</v8:content>
-								</v8:item>
-							</Format>
-							<ContextMenu name="InitialUserAuthorizationRestrictionStatusContextMenu" id="65"/>
-							<ExtendedTooltip name="InitialUserAuthorizationRestrictionStatusExtendedTooltip" id="97"/>
-						</LabelField>
+							<GroupVerticalAlign>Center</GroupVerticalAlign>
+							<Group>AlwaysHorizontal</Group>
+							<Representation>NormalSeparation</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="StatusGroupExtendedTooltip" id="132"/>
+							<ChildItems>
+								<PictureDecoration name="DecorationStatus" id="128">
+									<Picture>
+										<xr:Ref>StdPicture.Information</xr:Ref>
+										<xr:LoadTransparent>true</xr:LoadTransparent>
+									</Picture>
+									<ContextMenu name="DecorationStatusContextMenu" id="129"/>
+									<ExtendedTooltip name="DecorationStatusExtendedTooltip" id="130"/>
+								</PictureDecoration>
+								<LabelField name="InitialUserAuthorizationRestrictionStatus" id="64">
+									<DataPath>InitialUserAuthorizationRestrictionStatus</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Status</v8:content>
+										</v8:item>
+									</Title>
+									<TitleLocation>None</TitleLocation>
+									<HorizontalAlign>Left</HorizontalAlign>
+									<AutoMaxWidth>false</AutoMaxWidth>
+									<Format>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>BF='user connections allowed'; BT='user connections prohibited'</v8:content>
+										</v8:item>
+									</Format>
+									<ContextMenu name="InitialUserAuthorizationRestrictionStatusContextMenu" id="65"/>
+									<ExtendedTooltip name="InitialUserAuthorizationRestrictionStatusExtendedTooltip" id="97"/>
+								</LabelField>
+							</ChildItems>
+						</UsualGroup>
 						<InputField name="MessageForUsers" id="60">
 							<DataPath>Object.MessageForUsers</DataPath>
 							<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 							<AutoMaxWidth>false</AutoMaxWidth>
 							<Height>2</Height>
+							<HorizontalStretch>true</HorizontalStretch>
 							<BorderColor>style:BorderColor</BorderColor>
+							<InputHint>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>The lock reason. It is displayed when the user attempts to log in to the locked app.</v8:content>
+								</v8:item>
+							</InputHint>
 							<ContextMenu name="MessageForUsersContextMenu" id="61"/>
 							<ExtendedTooltip name="MessageForUsersExtendedTooltip" id="98"/>
 						</InputField>
@@ -182,8 +212,15 @@
 							<DataPath>Object.UnlockCode</DataPath>
 							<TitleLocation>Left</TitleLocation>
 							<FooterHorizontalAlign>Left</FooterHorizontalAlign>
+							<HorizontalStretch>true</HorizontalStretch>
 							<Wrap>false</Wrap>
 							<BorderColor>style:BorderColor</BorderColor>
+							<InputHint>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>For admin to log in to locked app</v8:content>
+								</v8:item>
+							</InputHint>
 							<ContextMenu name="UnlockCodeContextMenu" id="11">
 								<Autofill>false</Autofill>
 							</ContextMenu>
@@ -292,7 +329,7 @@
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
 									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="ContentGroup1ExtendedTooltip" id="108"/>
+									<ExtendedTooltip name="ContentGroupExtendedTooltip" id="108"/>
 									<ChildItems>
 										<LabelDecoration name="State" id="49">
 											<AutoMaxWidth>false</AutoMaxWidth>
@@ -301,7 +338,7 @@
 												<v8:item>
 													<v8:lang>en</v8:lang>
 													<v8:content>Please wait…
-Closing user sessions. Active sessions remaining: %1.</v8:content>
+Closing user sessions. Active sessions remaining: %1.</v8:content>
 												</v8:item>
 											</Title>
 											<VerticalAlign>Center</VerticalAlign>

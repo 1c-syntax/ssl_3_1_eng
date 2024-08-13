@@ -294,10 +294,10 @@
 													<v8:content>DLF=D</v8:content>
 												</v8:item>
 											</EditFormat>
-											<ContextMenu name="DueDateContextMenu" id="22"/>
+											<ContextMenu name="TaskDueDateContextMenu" id="22"/>
 											<ExtendedTooltip name="TaskDueDateExtendedTooltip" id="117"/>
 											<Events>
-												<Event name="OnChange">DueDateOnChange</Event>
+												<Event name="OnChange">TaskDueDateOnChange</Event>
 											</Events>
 										</InputField>
 										<InputField name="DueDateTime" id="88">

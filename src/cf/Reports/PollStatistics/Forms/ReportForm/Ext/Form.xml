@@ -109,7 +109,7 @@
 							</xr:Value>
 						</xr:Item>
 					</ChoiceList>
-					<ContextMenu name="ReportKind1ContextMenu" id="7"/>
+					<ContextMenu name="ReportKindContextMenu" id="7"/>
 					<ExtendedTooltip name="ReportKindExtendedTooltip" id="12"/>
 				</InputField>
 			</ChildItems>
@@ -119,10 +119,10 @@
 			<TitleLocation>None</TitleLocation>
 			<VerticalScrollBar>true</VerticalScrollBar>
 			<HorizontalScrollBar>true</HorizontalScrollBar>
-			<ContextMenu name="ReportTable1ContextMenu" id="2"/>
+			<ContextMenu name="ReportTableContextMenu" id="2"/>
 			<ExtendedTooltip name="ReportTableExtendedTooltip" id="13"/>
 			<Events>
-				<Event name="DetailProcessing">ReportTable1DetailProcessing</Event>
+				<Event name="DetailProcessing">ReportTableDetailProcessing</Event>
 			</Events>
 		</SpreadSheetDocumentField>
 	</ChildItems>

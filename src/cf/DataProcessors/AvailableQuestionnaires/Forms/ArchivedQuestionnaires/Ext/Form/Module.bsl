@@ -52,13 +52,10 @@ EndProcedure
 &AtServer
 Procedure SetDynamicListParametersOfQuestionnairesTree()
 	
-	For Each AvailableParameter In CompletedSurveys.Parameters.AvailableParameters.Items Do
-		
-		If AvailableParameter.Title = "Respondent" Then
-			CompletedSurveys.Parameters.SetParameterValue(AvailableParameter.Parameter,Object.Respondent);
-		EndIf;
-		
-	EndDo;
+	RespondentParameter = CompletedSurveys.Parameters.AvailableParameters.Items.Find("Respondent");
+	If RespondentParameter <> Undefined Then
+		CompletedSurveys.Parameters.SetParameterValue(RespondentParameter.Parameter, Object.Respondent);
+	EndIf;
 	
 EndProcedure 
 

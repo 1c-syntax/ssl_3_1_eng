@@ -41,8 +41,8 @@ Procedure OnWrite(Cancel, Replacing)
 		Return;
 	EndIf;
 	
-	// 
-	// 
+	// Update 1C:Enterprise cache so that the "DataExchangeCached.DataExchangeSettings"
+	// procedure could read up-to-date transport settings.
 	RefreshReusableValues();
 	
 EndProcedure

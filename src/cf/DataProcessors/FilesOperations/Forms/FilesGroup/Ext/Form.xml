@@ -5,7 +5,7 @@
 	<AutoURL>false</AutoURL>
 	<AutoCommandBar name="FormCommandBar" id="-1">
 		<ChildItems>
-			<Button name="FormStandardWriteAndClose" id="3">
+			<Button name="FormStandardSaveAndClose" id="3">
 				<Type>CommandBarButton</Type>
 				<Representation>Text</Representation>
 				<DefaultButton>true</DefaultButton>
@@ -16,7 +16,7 @@
 						<v8:content>Save and close</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="FormStandardWriteAndCloseExtendedTooltip" id="4"/>
+				<ExtendedTooltip name="FormStandardSaveAndCloseExtendedTooltip" id="4"/>
 			</Button>
 			<Button name="FormStandardWrite" id="1">
 				<Type>CommandBarButton</Type>
@@ -40,7 +40,7 @@
 					</v8:item>
 				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-				<ExtendedTooltip name="FormStandardRefreshExtendedTooltip" id="20"/>
+				<ExtendedTooltip name="FormStandardRereadExtendedTooltip" id="20"/>
 			</Button>
 			<Button name="FormStandardShowInList" id="21">
 				<Type>CommandBarButton</Type>
@@ -117,7 +117,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Date created</v8:content>
+					<v8:content>Created</v8:content>
 				</v8:item>
 			</Title>
 			<Behavior>Usual</Behavior>
@@ -131,7 +131,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Date created</v8:content>
+							<v8:content>Created</v8:content>
 						</v8:item>
 					</Title>
 					<ContextMenu name="CreationDate0ContextMenu" id="46"/>
@@ -155,7 +155,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Modified on</v8:content>
+					<v8:content>Modified</v8:content>
 				</v8:item>
 			</Title>
 			<Behavior>Usual</Behavior>
@@ -169,7 +169,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Modified on</v8:content>
+							<v8:content>Modified</v8:content>
 						</v8:item>
 					</Title>
 					<ContextMenu name="UniversalModificationDate0ContextMenu" id="51"/>
@@ -180,12 +180,12 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Changed status</v8:content>
+							<v8:content>Modified status</v8:content>
 						</v8:item>
 					</Title>
 					<TitleLocation>None</TitleLocation>
-					<ContextMenu name="ChangedStatus1ContextMenu" id="41"/>
-					<ExtendedTooltip name="ChangedStatus1ExtendedTooltip" id="42"/>
+					<ContextMenu name="ChangedStatusContextMenu" id="41"/>
+					<ExtendedTooltip name="ChangedStatusExtendedTooltip" id="42"/>
 				</LabelField>
 			</ChildItems>
 		</UsualGroup>
@@ -312,7 +312,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Changed status</v8:content>
+					<v8:content>Modified status</v8:content>
 				</v8:item>
 			</Title>
 			<Type>

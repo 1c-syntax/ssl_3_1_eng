@@ -47,7 +47,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If ChoiceMode Or MessageKind = "Arbitrary" Then
 		Items.FormGenerateAndSend.Visible = False;
-		Items.FormFormulate.Title = NStr("en = 'Select';");
+		Items.FormGenerate.Title = NStr("en = 'Select';");
 	ElsIf PrepareTemplate Then
 		Items.FormGenerateAndSend.Visible = False;
 	EndIf;
@@ -248,14 +248,16 @@ EndProcedure
 &AtClient
 Procedure GenerateMessageToSend(SendOptions)
 	
-	If Not ValueIsFilled(SendOptions.Template) And PrintForms.Count() > 0 Then
+	ShouldGenerateWithoutTempl = Not ValueIsFilled(SendOptions.Template);
+	If ShouldGenerateWithoutTempl And PrintForms.Count() > 0 Then
 		SavePrintFormsChoice();
 	EndIf;
 	
 	TempStorageAddress = Undefined;
 	TempStorageAddress = PutToTempStorage(Undefined, UUID);
 	
-	If Sign Then
+	ShouldGenerateWithoutTemplateAndSign = ShouldGenerateWithoutTempl And Sign;
+	If ShouldGenerateWithoutTemplateAndSign Then
 		SendOptions.AdditionalParameters.SettingsForSaving.PackToArchive = False;
 	EndIf;
 	
@@ -270,7 +272,9 @@ Procedure GenerateMessageToSend(SendOptions)
 		CommonClientServer.SupplementStructure(Result, MessageParameters, False);
 	EndIf;
 	
-	If Sign Then
+	If ShouldGenerateWithoutTemplateAndSign 
+	   And TypeOf(Result.Attachments) = Type("Array") 
+	   And Result.Attachments.Count() > 0 Then
 		SendOptions.AdditionalParameters.SettingsForSaving.PackToArchive = PackToArchive;
 		SIgnFiles(Result, SendOptions);
 	Else
@@ -536,10 +540,10 @@ Procedure FillAvailableTemplatesList()
 	If Templates.Count() = 0 Then
 		Items.FormCreate.LocationInCommandBar = ButtonLocationInCommandBar.InCommandBar;
 		Items.FormCreate.Representation = ButtonRepresentation.PictureAndText;
-		Items.FormFormulate.Enabled           = False;
+		Items.FormGenerate.Enabled           = False;
 		Items.FormGenerateAndSend.Enabled = False;
 	Else
-		Items.FormFormulate.Enabled           = True;
+		Items.FormGenerate.Enabled           = True;
 		Items.FormGenerateAndSend.Enabled = True;
 	EndIf;
 	
@@ -752,7 +756,9 @@ Procedure SIgnFiles(Result, SendOptions)
 		EndIf;
 		
 		ModuleDigitalSignatureClient = CommonClient.CommonModule("DigitalSignatureClient");
-		ModuleDigitalSignatureClient.Sign(DataDetails,,NotifyDescription);
+		SignatureParameters = ModuleDigitalSignatureClient.NewSignatureType();
+		SignatureParameters.CanSelectLetterOfAuthority = True;
+		ModuleDigitalSignatureClient.Sign(DataDetails,,NotifyDescription, SignatureParameters);
 	EndIf;
 	
 EndProcedure
@@ -764,9 +770,8 @@ Procedure GenerateMessageToSendFollowUp(SigningResult, Context) Export
 		Return;
 	EndIf;
 	
-	Attachments = GetSignatureFiles(SigningResult, TransliterateFilesNames);
-	Attachments = PutFilesToArchive(Attachments, Context.SendOptions.AdditionalParameters.SettingsForSaving);
-	
+	Attachments = GetSignatureFilesAndPutToArchive(SigningResult, TransliterateFilesNames, Context.SendOptions.AdditionalParameters.SettingsForSaving);
+
 	Result = Context.Result;
 	Result.Attachments.Clear();
 	
@@ -777,59 +782,27 @@ Procedure GenerateMessageToSendFollowUp(SigningResult, Context) Export
 EndProcedure
 
 &AtServer
-Function GetSignatureFiles(SigningResult, TransliterateFilesNames)
-	If SigningResult.Property("DataSet") Then
-		DataSet = SigningResult.DataSet;
-	Else
-		DataSet = CommonClientServer.ValueInArray(SigningResult);
-	EndIf;
+Function GetSignatureFilesAndPutToArchive(SigningResult, TransliterateFilesNames, SettingsForSaving)
+		
+	ModuleDigitalSignatureInternal = Common.CommonModule("DigitalSignatureInternal");
 	
-	ModuleDigitalSignature                      = Common.CommonModule("DigitalSignature");
-	ModuleDigitalSignatureInternalClientServer = Common.CommonModule("DigitalSignatureInternalClientServer");
-	SignatureFilesExtension = ModuleDigitalSignature.PersonalSettings().SignatureFilesExtension;
-	CertificateOwner = SigningResult.SelectedCertificate.Ref.IssuedTo;
-	If TransliterateFilesNames Then
-		CertificateOwner = StringFunctions.LatinString(CertificateOwner);
-	EndIf;
+	FilesReceiptParameters = ModuleDigitalSignatureInternal.FilesReceiptParameters();
+	FilesReceiptParameters.TransliterateFilesNames = TransliterateFilesNames;
+	Files = ModuleDigitalSignatureInternal.GetFilesFromSigningResult(
+		SigningResult, FilesReceiptParameters, UUID);
 	
-	Result = New Array;
-	For Each SignedFile In DataSet Do
+	FilesInTempStorage = New Array;
+	For Each File In Files Do
 		StructureOfFileDetails = New Structure("AddressInTempStorage, Presentation, Id, Encoding");
-		StructureOfFileDetails.AddressInTempStorage = SignedFile.Data;
-		StructureOfFileDetails.Presentation = SignedFile.Presentation;
-		Result.Add(StructureOfFileDetails);
-
-		File = New File(SignedFile.Presentation);
-		
-		SignatureProperties = SignedFile.SignatureProperties;
-		SignatureData = PutToTempStorage(SignatureProperties.Signature, UUID);
-		SignatureFileName = ModuleDigitalSignatureInternalClientServer.SignatureFileName(File.BaseName,
-				String(CertificateOwner), SignatureFilesExtension);
-		
-		StructureOfFileDetails = New Structure("AddressInTempStorage, Presentation, Id, Encoding");
-		StructureOfFileDetails.AddressInTempStorage = SignatureData;
-		StructureOfFileDetails.Presentation = SignatureFileName;
-		Result.Add(StructureOfFileDetails);
-			
-		DataByCertificate = PutToTempStorage(SignatureProperties.Certificate, UUID);
-		
-		If TypeOf(SignatureProperties.Certificate) = Type("String") Then
-			CertificateExtension = "txt";
-		Else
-			CertificateExtension = "cer";
-		EndIf;
-			
-		CertificateFileName = ModuleDigitalSignatureInternalClientServer.CertificateFileName(File.BaseName,
-		String(CertificateOwner), CertificateExtension);
-		
-		StructureOfFileDetails = New Structure("AddressInTempStorage, Presentation, Id, Encoding");
-		StructureOfFileDetails.AddressInTempStorage = DataByCertificate;
-		StructureOfFileDetails.Presentation = CertificateFileName;
-		Result.Add(StructureOfFileDetails);
-		
+		StructureOfFileDetails.AddressInTempStorage = File.Data;
+		StructureOfFileDetails.Presentation = File.FileName;
+		FilesInTempStorage.Add(StructureOfFileDetails);
 	EndDo;
 	
-	Return Result;
+	FilesInTempStorage = PutFilesToArchive(FilesInTempStorage, SettingsForSaving);
+	
+	Return FilesInTempStorage;
+	
 EndFunction
 
 &AtServer

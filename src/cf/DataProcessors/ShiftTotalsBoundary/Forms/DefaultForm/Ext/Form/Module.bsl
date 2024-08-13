@@ -69,7 +69,7 @@ EndProcedure
 &AtClient
 Procedure TimeConsumingOperationAfterOutputResult(Result)
 	If OnCloseNotifyDescription <> Undefined Then
-		ExecuteNotifyProcessing(OnCloseNotifyDescription, Result); // Bypass call characteristic from OnOpen.
+		ExecuteNotifyProcessing(OnCloseNotifyDescription, Result); // Bypass specific call from OnOpen.
 	EndIf;
 	If IsOpen() Then
 		Close(Result);

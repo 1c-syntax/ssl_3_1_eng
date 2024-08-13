@@ -35,7 +35,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 &AtClient
-Procedure PresentationOfSelectionByPeriodStartChoice(Item, ChoiceData, StandardProcessing)
+Procedure FilterByPeriodPresentationStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	StandardProcessing = False;
 	
@@ -60,14 +60,14 @@ Procedure AfterSelectionByDateOfOccurrence(Result, AdditionalParameters) Export
 EndProcedure
 
 &AtClient
-Procedure PresentationOfSelectionByPeriodClearing(Item, StandardProcessing)
+Procedure FilterByPeriodPresentationClearing(Item, StandardProcessing)
 	
 	StandardProcessing = False;
 	
 EndProcedure
 
 &AtClient
-Procedure ViewOfSynchronizationSelectionStartChoice(Item, ChoiceData, StandardProcessing)
+Procedure SynchronizationsFilterPresentationStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	StandardProcessing = False;
 	
@@ -96,14 +96,14 @@ Procedure AfterSelectingTheExchangeNodes(Result, AdditionalParameters) Export
 EndProcedure
 
 &AtClient
-Procedure ViewOfSynchronizationSelectionClearing(Item, StandardProcessing)
+Procedure SynchronizationsFilterPresentationClearing(Item, StandardProcessing)
 	
 	StandardProcessing = False;
 	
 EndProcedure
 
 &AtClient
-Procedure RepresentationOfSelectionOfWarningTypesStartChoice(Item, ChoiceData, StandardProcessing)
+Procedure WarningsTypesFilterPresentationStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	StandardProcessing = False;
 	
@@ -131,7 +131,7 @@ Procedure AfterSelectionByTypeOfWarnings(Result, AdditionalParameters) Export
 EndProcedure
 
 &AtClient
-Procedure RepresentationOfSelectionOfWarningTypesClearing(Item, StandardProcessing)
+Procedure WarningsTypesFilterPresentationClearing(Item, StandardProcessing)
 	
 	StandardProcessing = False;
 	
@@ -385,7 +385,7 @@ Procedure DeleteWarningsInALongOperation()
 	MethodParameters = New Structure("DeletionParameters", DeletionParameters);
 	TimeConsumingOperation = TimeConsumingOperations.ExecuteInBackground("InformationRegisters.DataExchangeResults.ClearSynchronizationWarnings", MethodParameters, ExecutionParameters);
 	
-	Items.FormRemoveWarnings.Enabled = False;
+	Items.FormDeleteWarnings.Enabled = False;
 	
 EndProcedure
 

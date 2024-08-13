@@ -100,36 +100,7 @@ Try the following:
 			</ChildItems>
 		</UsualGroup>
 	</ChildItems>
-	<Attributes>
-		<Attribute name="ScannerName" id="1">
-			<Type>
-				<v8:Type>xs:string</v8:Type>
-				<v8:StringQualifiers>
-					<v8:Length>0</v8:Length>
-					<v8:AllowedLength>Variable</v8:AllowedLength>
-				</v8:StringQualifiers>
-			</Type>
-		</Attribute>
-		<Attribute name="DetailErrorDescription" id="4">
-			<Type>
-				<v8:Type>xs:string</v8:Type>
-				<v8:StringQualifiers>
-					<v8:Length>0</v8:Length>
-					<v8:AllowedLength>Variable</v8:AllowedLength>
-				</v8:StringQualifiers>
-			</Type>
-		</Attribute>
-		<Attribute name="ErrorText" id="2">
-			<Type>
-				<v8:Type>v8ui:FormattedString</v8:Type>
-			</Type>
-		</Attribute>
-		<Attribute name="ShowScannerDialog" id="3">
-			<Type>
-				<v8:Type>xs:boolean</v8:Type>
-			</Type>
-		</Attribute>
-	</Attributes>
+	<Attributes/>
 	<Commands>
 		<Command name="RedoScanning" id="3">
 			<Title>
@@ -142,11 +113,6 @@ Try the following:
 		</Command>
 	</Commands>
 	<Parameters>
-		<Parameter name="ErrorText">
-			<Type>
-				<v8:Type>v8ui:FormattedString</v8:Type>
-			</Type>
-		</Parameter>
 		<Parameter name="ScannerName">
 			<Type>
 				<v8:Type>xs:string</v8:Type>
@@ -155,6 +121,7 @@ Try the following:
 					<v8:AllowedLength>Variable</v8:AllowedLength>
 				</v8:StringQualifiers>
 			</Type>
+			<KeyParameter>true</KeyParameter>
 		</Parameter>
 		<Parameter name="Title">
 			<Type>
@@ -173,11 +140,23 @@ Try the following:
 					<v8:AllowedLength>Variable</v8:AllowedLength>
 				</v8:StringQualifiers>
 			</Type>
+			<KeyParameter>true</KeyParameter>
 		</Parameter>
 		<Parameter name="ShowScannerDialog">
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
+			<KeyParameter>true</KeyParameter>
+		</Parameter>
+		<Parameter name="AssistanceRequiredMode">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+			<KeyParameter>true</KeyParameter>
+		</Parameter>
+		<Parameter name="Resolution">
+			<Type/>
+			<KeyParameter>true</KeyParameter>
 		</Parameter>
 	</Parameters>
 </Form>

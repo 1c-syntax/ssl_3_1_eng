@@ -28,6 +28,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.GenerateFromCached</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.ObjectsFilling</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.ObjectsFillingOverridable</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.AttachableCommandsGlobal</xr:Item>
 			</Content>
 		</Properties>
 		<ChildObjects/>

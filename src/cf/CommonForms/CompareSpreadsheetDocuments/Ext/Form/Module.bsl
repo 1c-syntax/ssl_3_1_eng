@@ -327,25 +327,25 @@ Function ReadSpreadsheetDocument(SourceSpreadsheetDocument)
 EndFunction
 
 &AtServer
-Function GenerateMatches(LeftTable, RightTable, ByRows)
+Function GenerateMatches(LeftTable, TableRight, ByRows)
 	
 	DataFromLeftTable = GetDataForComparison(LeftTable, ByRows);
 	
-	DataFromRightTable = GetDataForComparison(RightTable, ByRows);
+	DataFromRightTable = GetDataForComparison(TableRight, ByRows);
 	
 	If ByRows Then
 		MatchResultLeft = New ValueList;
 		MatchResultLeft.LoadValues(New Array(LeftTable.Count()+1));
 		
 		MatchResultRight = New ValueList;
-		MatchResultRight.LoadValues(New Array(RightTable.Count()+1));		
+		MatchResultRight.LoadValues(New Array(TableRight.Count()+1));		
 		
 	Else
 		MatchResultLeft = New ValueList;
 		MatchResultLeft.LoadValues(New Array(LeftTable.Columns.Count()+1));
 		
 		MatchResultRight = New ValueList;
-		MatchResultRight.LoadValues(New Array(RightTable.Columns.Count()+1));
+		MatchResultRight.LoadValues(New Array(TableRight.Columns.Count()+1));
 		
 	EndIf;
 	
@@ -354,45 +354,45 @@ Function GenerateMatches(LeftTable, RightTable, ByRows)
 	QueryText = QueryText + "	SELECT * INTO LeftTable 
 								|	FROM &DataFromLeftTable AS DataFromLeftTable;" + Chars.LF;
 								
-	QueryText = QueryText + "	SELECT * INTO RightTable
+	QueryText = QueryText + "	SELECT * INTO TableRight
 								|	FROM &DataFromRightTable AS DataFromRightTable;" + Chars.LF;
 		
 	QueryText = QueryText + "SELECT
 	                              |	LeftTable.Number AS ItemNumberLeft,
-	                              |	RightTable.Number AS ItemNumberRight,
+	                              |	TableRight.Number AS ItemNumberRight,
 	                              |	CASE
-	                              |		WHEN RightTable.Number - LeftTable.Number < 0
-	                              |			THEN LeftTable.Number - RightTable.Number
-	                              |		ELSE RightTable.Number - LeftTable.Number
+	                              |		WHEN TableRight.Number - LeftTable.Number < 0
+	                              |			THEN LeftTable.Number - TableRight.Number
+	                              |		ELSE TableRight.Number - LeftTable.Number
 	                              |	END AS DistanceFromBeginning,
 	                              |	CASE
-	                              |		WHEN &RowCountRight - RightTable.Number - (&RowCountLeft - LeftTable.Number) < 0
-	                              |			THEN &RowCountLeft - LeftTable.Number - (&RowCountRight - RightTable.Number)
-	                              |		ELSE &RowCountRight - RightTable.Number - (&RowCountLeft - LeftTable.Number)
+	                              |		WHEN &RowCountRight - TableRight.Number - (&RowCountLeft - LeftTable.Number) < 0
+	                              |			THEN &RowCountLeft - LeftTable.Number - (&RowCountRight - TableRight.Number)
+	                              |		ELSE &RowCountRight - TableRight.Number - (&RowCountLeft - LeftTable.Number)
 	                              |	END AS DistanceFromEnd,
 	                              |	SUM(CASE
 	                              |			WHEN LeftTable.Value <> """"
 	                              |				THEN CASE
-	                              |						WHEN LeftTable.Count < RightTable.Count
+	                              |						WHEN LeftTable.Count < TableRight.Count
 	                              |							THEN LeftTable.Count
-	                              |						ELSE RightTable.Count
+	                              |						ELSE TableRight.Count
 	                              |					END
 	                              |			ELSE 0
 	                              |		END) AS ValueMatchesCount,
 	                              |	SUM(CASE
-	                              |			WHEN LeftTable.Count < RightTable.Count
+	                              |			WHEN LeftTable.Count < TableRight.Count
 	                              |				THEN LeftTable.Count
-	                              |			ELSE RightTable.Count
+	                              |			ELSE TableRight.Count
 	                              |		END) AS TotalMatchesCount
 	                              |INTO DataCollapsed
 	                              |FROM
 	                              |	LeftTable AS LeftTable
-	                              |		INNER JOIN RightTable AS RightTable
-	                              |		ON LeftTable.Value = RightTable.Value
+	                              |		INNER JOIN TableRight AS TableRight
+	                              |		ON LeftTable.Value = TableRight.Value
 	                              |
 	                              |GROUP BY
 	                              |	LeftTable.Number,
-	                              |	RightTable.Number
+	                              |	TableRight.Number
 	                              |;
 	                              |
 	                              |////////////////////////////////////////////////////////////////////////////////
@@ -450,7 +450,7 @@ Function GenerateMatches(LeftTable, RightTable, ByRows)
 		Query.SetParameter("DataFromLeftTable", DataFromLeftTable);
 		Query.SetParameter("DataFromRightTable", DataFromRightTable);
 		Query.SetParameter("RowCountLeft", LeftTable.Count());
-		Query.SetParameter("RowCountRight", RightTable.Count());
+		Query.SetParameter("RowCountRight", TableRight.Count());
 		Query.Execute();
 		
 		ConflictsLevel = 2;

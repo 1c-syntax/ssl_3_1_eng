@@ -447,8 +447,8 @@
 					<ToolTipRepresentation>Button</ToolTipRepresentation>
 					<HorizontalStretch>false</HorizontalStretch>
 					<TextColor>style:NoteText</TextColor>
-					<ContextMenu name="AddressType1ContextMenu" id="497"/>
-					<ExtendedTooltip name="AddressType1ExtendedTooltip" id="498">
+					<ContextMenu name="AddressTypeContextMenu" id="497"/>
+					<ExtendedTooltip name="AddressTypeExtendedTooltip" id="498">
 						<Title formatted="true">
 							<v8:item>
 								<v8:lang>en</v8:lang>
@@ -480,7 +480,7 @@
 									<v8:content>OK</v8:content>
 								</v8:item>
 							</Title>
-							<ExtendedTooltip name="FormOkCommandExtendedTooltip" id="140"/>
+							<ExtendedTooltip name="FormOKCommandExtendedTooltip" id="140"/>
 						</Button>
 						<Button name="FormCancel" id="57">
 							<Type>CommandBarButton</Type>

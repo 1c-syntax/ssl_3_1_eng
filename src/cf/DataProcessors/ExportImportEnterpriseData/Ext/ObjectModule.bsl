@@ -519,7 +519,7 @@ Function SettingsComposerByTableName(FullMetadataName, Presentation = Undefined,
 	Return Composer;
 EndFunction
 
-// Returns a name array of metadata tables according to the FullMetadataName composite parameter type.
+// Returns a metadata table name array based on the FullMetadataName flexible type.
 //
 // Parameters:
 //      FullMetadataName - String
@@ -638,8 +638,8 @@ EndProcedure
 // Prepares a list of objects to be exported in accordance with the settings.
 Procedure FillListOfObjectsToExport() 
 	SetPrivilegedMode(True);
-	// 
-	// 
+	// Objects are processed in batches.
+	// Objects with and without filter settings are processed separately.
 	// 
 	MetadataArrayWithoutFilters = New Array;
 	MetadataArrayFilterByPeriod = New Array;

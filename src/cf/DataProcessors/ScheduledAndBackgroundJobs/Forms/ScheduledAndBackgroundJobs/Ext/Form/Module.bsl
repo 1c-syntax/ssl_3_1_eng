@@ -384,9 +384,18 @@ Procedure ExecuteNotInBackground(Command)
 		SelectedRows.Add(SelectedRow);
 	EndDo;
 	IndexOf = 0;
+	SelectedJobsCount = SelectedRows.Count();
 	
 	For Each SelectedRow In SelectedRows Do
 		CurrentData = ScheduledJobsTable.FindByID(SelectedRow);
+		
+		If CurrentData.Parameterized And SelectedJobsCount = 1 Then
+			ShowMessageBox(, NStr("en = 'The scheduled job cannot be started manually.';"));
+			Return;
+		ElsIf CurrentData.Parameterized Then
+			Continue;
+		EndIf;
+		
 		RunScheduledJobNotInBackground(CurrentData.Id);
 		IndexOf = IndexOf + 1;
 	EndDo;
@@ -408,6 +417,11 @@ Procedure RunScheduledJobNotInBackground(JobID)
 	
 	Job = ScheduledJobsServer.GetScheduledJob(JobID);
 	MethodName = Job.Metadata.MethodName;
+	
+	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
+		ModuleAccessManagementInternal = Common.CommonModule("AccessManagementInternal");
+		ModuleAccessManagementInternal.BeforeStartingRoutineTaskNotInBackground(Job);
+	EndIf;
 	
 	Common.SystemSettingsStorageSave("ScheduledJobs", MethodName, True);
 	Common.ExecuteConfigurationMethod(MethodName, Job.Parameters);
@@ -646,8 +660,8 @@ Procedure FillFormSettings(Val Settings)
 		Settings.Insert("ScheduledJobForFilterID", BlankID);
 	EndIf;
 	
-	// 
-	//  
+	// Set the period filter to "All time".
+	// See also the radio button event handler "FilterKindByPeriodOnChange".
 	If Settings.Get("FilterKindByPeriod") = Undefined
 	 Or Settings.Get("FilterPeriodFrom")       = Undefined
 	 Or Settings.Get("FilterPeriodFor")      = Undefined Then
@@ -906,7 +920,7 @@ Procedure LockOfOperationsWithExternalResourcesURLProcessingAtServerNote()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Background import of scheduled jobs.
 
 &AtClient
 Procedure ImportScheduledJobs(JobID = Undefined, UpdateSilently = False)
@@ -964,7 +978,7 @@ Function ScheduledJobsImport(JobID)
 	If JobID <> Undefined Then
 		ExecutionParameters.RunNotInBackground1 = True;
 	EndIf;
-	ExecutionParameters.WaitCompletion = 0; // 
+	ExecutionParameters.WaitCompletion = 0; // Run immediately.
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Generate scheduled job list';");
 	
 	Return TimeConsumingOperations.ExecuteInBackground("ScheduledJobsInternal.GenerateScheduledJobsTable",
@@ -1024,7 +1038,7 @@ Procedure ProcessResult(JobParameters)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Background import of background jobs.
 
 &AtClient
 Procedure UpdateBackgroundJobsTableAtClient()

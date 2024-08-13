@@ -30,7 +30,7 @@
 				<CommandName>Form.StandardCommand.Write</CommandName>
 				<ExtendedTooltip name="FormWriteExtendedTooltip" id="229"/>
 			</Button>
-			<Button name="FormDone" id="230">
+			<Button name="FormCompleted2" id="230">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.Completed2</CommandName>
 				<Title>
@@ -39,7 +39,7 @@
 						<v8:content>Done</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="FormDoneExtendedTooltip" id="231"/>
+				<ExtendedTooltip name="FormCompleted2ExtendedTooltip" id="231"/>
 			</Button>
 			<Button name="FormTaskPerformerTaskForward" id="232">
 				<Type>CommandBarButton</Type>
@@ -231,7 +231,7 @@
 											</ToolTip>
 											<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 											<HorizontalStretch>false</HorizontalStretch>
-											<ContextMenu name="DueDateContextMenu" id="176"/>
+											<ContextMenu name="TaskDueDateContextMenu" id="176"/>
 											<ExtendedTooltip name="TaskDueDateExtendedTooltip" id="201"/>
 										</InputField>
 									</ChildItems>
@@ -344,7 +344,7 @@
 									<v8:content>Main</v8:content>
 								</v8:item>
 							</Title>
-							<ExtendedTooltip name="TheMainThingExtendedTooltip" id="225"/>
+							<ExtendedTooltip name="Main_PageExtendedTooltip" id="225"/>
 							<ChildItems>
 								<UsualGroup name="ContentsGroup" id="94">
 									<Title>

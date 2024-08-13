@@ -506,7 +506,7 @@
 											<v8:content>Other</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="AnothersExtendedTooltip" id="141"/>
+									<ExtendedTooltip name="OtherItemsExtendedTooltip" id="141"/>
 									<ChildItems>
 										<LabelDecoration name="StubDecoration" id="54">
 											<ContextMenu name="StubDecorationContextMenu" id="55"/>

@@ -48,6 +48,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.FormWrite.Visible = False;
 	Else
 		Items.FormWrite.Visible = False;
+		Items.FormReportUserRights.Visible = False;
 		Items.FormAccessRightsReport.Visible = False;
 		Items.RightsAndRestrictions.Visible = False;
 		Items.InsufficientViewRights.Visible = True;
@@ -186,8 +187,8 @@ Procedure ProfilesCheckOnChange(Item)
 	
 	If CurrentData <> Undefined
 	   And Not CurrentData.Check Then
-		// 
-		// 
+		// Validate for empty and duplicate access values before
+		// disabling the profile and its setting.
 		ClearMessages();
 		Errors = Undefined;
 		AccessManagementInternalClientServer.ProcessingOfCheckOfFillingAtServerAllowedValuesEditForm(
@@ -257,7 +258,7 @@ Procedure AccessKindsOnEditEnd(Item, NewRow, CancelEdit)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Event handlers of the AllAllowedPresentation item of the AccessKinds form table.
 
 &AtClient
 Procedure AccessKindsAllAllowedPresentationOnChange(Item)
@@ -417,7 +418,7 @@ Procedure SetConditionalAppearance()
 	ItemField.Field = New DataCompositionField(Items.ProfilesCheck.Name);
 
 	ItemField = Item.Fields.Items.Add();
-	ItemField.Field = New DataCompositionField(Items.ProfilesProfilePresentation1.Name);
+	ItemField.Field = New DataCompositionField(Items.ProfilesProfilePresentation.Name);
 
 	FilterGroup1 = Item.Filter.Items.Add(Type("DataCompositionFilterItemGroup"));
 	FilterGroup1.GroupType = DataCompositionFilterItemsGroupType.AndGroup;
@@ -529,7 +530,7 @@ Procedure ImportData(FilterProfilesOnlyForCurrentUser)
 	|	Profiles.Ref AS Ref,
 	|	ISNULL(AccessGroups.Ref, UNDEFINED) AS PersonalAccessGroup,
 	|	CASE
-	|		WHEN AccessGroupsUsers_SSLy.Ref IS NULL
+	|		WHEN AccessGroups_Users.Ref IS NULL
 	|			THEN FALSE
 	|		ELSE TRUE
 	|	END AS Check
@@ -540,14 +541,14 @@ Procedure ImportData(FilterProfilesOnlyForCurrentUser)
 	|		ON Profiles.Ref = AccessGroups.Profile
 	|			AND (NOT(AccessGroups.User <> &User
 	|					AND Profiles.Ref <> &ProfileAdministrator))
-	|		LEFT JOIN Catalog.AccessGroups.Users AS AccessGroupsUsers_SSLy
-	|		ON (AccessGroups.Ref = AccessGroupsUsers_SSLy.Ref)
-	|			AND (AccessGroupsUsers_SSLy.User = &User)
+	|		LEFT JOIN Catalog.AccessGroups.Users AS AccessGroups_Users
+	|		ON (AccessGroups.Ref = AccessGroups_Users.Ref)
+	|			AND (AccessGroups_Users.User = &User)
 	|WHERE
 	|	NOT Profiles.DeletionMark
 	|	AND NOT Profiles.IsFolder
 	|	AND NOT(&FilterProfilesOnlyForCurrentUser = TRUE
-	|				AND AccessGroupsUsers_SSLy.Ref IS NULL)
+	|				AND AccessGroups_Users.Ref IS NULL)
 	|;
 	|
 	|////////////////////////////////////////////////////////////////////////////////
@@ -639,12 +640,12 @@ Procedure WriteChangesAtServer(Cancel)
 		New NumberQualifiers(10, 0, AllowedSign.Nonnegative)));
 	
 	AccessGroupInRow = Undefined;
-	For Each String In ValueTable Do
-		If AccessGroupInRow <> String.AccessGroup Then
-			AccessGroupInRow = String.AccessGroup;
+	For Each TableRow In ValueTable Do
+		If AccessGroupInRow <> TableRow.AccessGroup Then
+			AccessGroupInRow = TableRow.AccessGroup;
 			CurrentRowNumber1 = 1;
 		EndIf;
-		String.LineNumber = CurrentRowNumber1;
+		TableRow.LineNumber = CurrentRowNumber1;
 		CurrentRowNumber1 = CurrentRowNumber1 + 1;
 	EndDo;
 	Query.SetParameter("AccessValues", ValueTable);
@@ -685,7 +686,7 @@ Procedure WriteChangesAtServer(Cancel)
 	|	Profiles.Ref,
 	|	ISNULL(AccessGroups.Ref, UNDEFINED) AS PersonalAccessGroup,
 	|	CASE
-	|		WHEN AccessGroupsUsers_SSLy.Ref IS NULL 
+	|		WHEN AccessGroups_Users.Ref IS NULL 
 	|			THEN FALSE
 	|		ELSE TRUE
 	|	END AS Check
@@ -696,9 +697,9 @@ Procedure WriteChangesAtServer(Cancel)
 	|		ON Profiles.Ref = AccessGroups.Profile
 	|			AND (NOT(AccessGroups.User <> &User
 	|					AND Profiles.Ref <> &ProfileAdministrator))
-	|		LEFT JOIN Catalog.AccessGroups.Users AS AccessGroupsUsers_SSLy
-	|		ON (AccessGroups.Ref = AccessGroupsUsers_SSLy.Ref)
-	|			AND (AccessGroupsUsers_SSLy.User = &User)
+	|		LEFT JOIN Catalog.AccessGroups.Users AS AccessGroups_Users
+	|		ON (AccessGroups.Ref = AccessGroups_Users.Ref)
+	|			AND (AccessGroups_Users.User = &User)
 	|WHERE
 	|	NOT Profiles.DeletionMark
 	|	AND NOT Profiles.IsFolder

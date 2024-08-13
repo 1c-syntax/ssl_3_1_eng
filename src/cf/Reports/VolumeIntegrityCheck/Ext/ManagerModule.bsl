@@ -26,6 +26,15 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "Main");
 	OptionSettings.LongDesc = NStr("en = 'Volume integrity check.';");
+	ReportSettings.DefineFormSettings = True;
+
+EndProcedure
+
+// See ReportsOptionsOverridable.DefineObjectsWithReportCommands.
+Procedure OnDefineObjectsWithReportCommands(Objects) Export
+	
+	Objects.Add(Metadata.Catalogs.FileStorageVolumes);
+	
 EndProcedure
 
 // End StandardSubsystems.ReportsOptions

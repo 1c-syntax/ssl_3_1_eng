@@ -122,7 +122,7 @@
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="FieldsGroup1ExtendedTooltip" id="434"/>
+							<ExtendedTooltip name="GroupWithFieldsExtendedTooltip" id="434"/>
 							<ChildItems>
 								<InputField name="Certificate" id="313">
 									<DataPath>Certificate</DataPath>
@@ -475,7 +475,7 @@
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="ContainerGroupExtendedTooltip" id="469"/>
+					<ExtendedTooltip name="GroupContainerExtendedTooltip" id="469"/>
 				</UsualGroup>
 				<InputField name="Comment" id="408">
 					<DataPath>Comment</DataPath>
@@ -503,7 +503,7 @@
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="ContainerGroup1ExtendedTooltip" id="471"/>
+					<ExtendedTooltip name="GroupContainer1ExtendedTooltip" id="471"/>
 				</UsualGroup>
 			</ChildItems>
 		</UsualGroup>
@@ -532,7 +532,7 @@
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="ConfirmationTeamGroupExtendedTooltip" id="459"/>
+					<ExtendedTooltip name="ConfirmationCommandsGroupExtendedTooltip" id="459"/>
 				</UsualGroup>
 				<CommandBar name="BasicCommandsGroup" id="460">
 					<Title>
@@ -543,7 +543,7 @@
 					</Title>
 					<HorizontalStretch>false</HorizontalStretch>
 					<GroupHorizontalAlign>Right</GroupHorizontalAlign>
-					<ExtendedTooltip name="GroupMainCommandsExtendedTooltip" id="461"/>
+					<ExtendedTooltip name="BasicCommandsGroupExtendedTooltip" id="461"/>
 					<ChildItems>
 						<Button name="Sign" id="462">
 							<Type>CommandBarButton</Type>
@@ -789,6 +789,15 @@
 		</Attribute>
 		<Attribute name="MachineReadableSigningLOACheckResult" id="29">
 			<Type/>
+		</Attribute>
+		<Attribute name="VerifyCertificate" id="30">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
 		</Attribute>
 	</Attributes>
 	<Commands>

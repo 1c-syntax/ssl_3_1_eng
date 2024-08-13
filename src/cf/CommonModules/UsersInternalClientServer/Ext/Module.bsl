@@ -34,6 +34,47 @@ Function IntegerSubject(Number, FormatString, NumerationItemOptions) Export
 	
 EndFunction
 
+// 
+// 
+//
+// Returns:
+//  Structure:
+//   * AfterUpdate - String
+//   * BeforeAddExternalReportOrDataProcessor - String
+//   * BeforeAddExtensions - String
+//   * BeforeSelectUpdateFile - String
+//   * BeforeSelectRole - String
+//   * OnChangeDeniedExtensionsList - String
+//   * BeforeOpenFile - String
+//   * BeforeAddAddIn - String
+//   * BeforeDeleteExtensionWithoutData - String
+//   * BeforeDeleteExtensionWithData - String
+//   * BeforeDisableExtensionWithData - String
+//
+Function TypesOfSafetyWarnings() Export
+	
+	Result = New Structure;
+	Result.Insert("AfterUpdate");
+	Result.Insert("AfterObtainRight");
+	Result.Insert("BeforeAddExternalReportOrDataProcessor");
+	Result.Insert("BeforeAddExtensions");
+	Result.Insert("BeforeSelectUpdateFile");
+	Result.Insert("BeforeSelectRole");
+	Result.Insert("OnChangeDeniedExtensionsList");
+	Result.Insert("BeforeOpenFile");
+	Result.Insert("BeforeAddAddIn");
+	Result.Insert("BeforeDeleteExtensionWithoutData");
+	Result.Insert("BeforeDeleteExtensionWithData");
+	Result.Insert("BeforeDisableExtensionWithData");
+	
+	For Each KeyAndValue In Result Do
+		Result[KeyAndValue.Key] = KeyAndValue.Key;
+	EndDo;
+	
+	Return Result;
+	
+EndFunction
+
 #EndRegion
 
 #Region Private

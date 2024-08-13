@@ -30,7 +30,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.FormSend.Title = NStr("en = 'Send contact information';");
 	Else
 		Items.Comment.InputHint = NStr("en = 'Describe your issue';");
-		Items.FormCancel13.Visible = False;
+		Items.FormDoNotSend.Visible = False;
 		Items.Contacts.AutoMarkIncomplete = True;
 		Items.Comment.AutoMarkIncomplete = True;
 	EndIf;

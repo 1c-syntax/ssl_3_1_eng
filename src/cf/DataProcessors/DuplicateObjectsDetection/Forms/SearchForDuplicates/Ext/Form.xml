@@ -165,8 +165,8 @@
 							<Height>1</Height>
 							<VerticalScrollBar>false</VerticalScrollBar>
 							<HorizontalScrollBar>false</HorizontalScrollBar>
-							<ContextMenu name="ExecuteSearchContextMenu" id="189"/>
-							<ExtendedTooltip name="ExecuteSearchExtendedTooltip" id="190"/>
+							<ContextMenu name="SearchingContextMenu" id="189"/>
+							<ExtendedTooltip name="SearchingExtendedTooltip" id="190"/>
 						</SpreadSheetDocumentField>
 					</ChildItems>
 				</Page>
@@ -298,7 +298,7 @@
 											<v8:content>Details &gt;&gt;</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="DetailsExtendedTooltip" id="470"/>
+									<ExtendedTooltip name="MoreDetailsExtendedTooltip" id="470"/>
 								</Button>
 							</ChildItems>
 						</CommandBar>
@@ -1403,7 +1403,7 @@
 																<Event name="OnActivateRow">UnprocessedItemsUsageInstancesOnActivateRow</Event>
 															</Events>
 															<ChildItems>
-																<PictureField name="UnprocessedItemsUsageInstancesIcon1" id="320">
+																<PictureField name="UnprocessedItemsUsageInstancesPictogram" id="320">
 																	<DataPath>UnprocessedItemsUsageInstances.Pictogram</DataPath>
 																	<Title>
 																		<v8:item>
@@ -1419,8 +1419,8 @@
 																		<xr:LoadTransparent>false</xr:LoadTransparent>
 																	</ValuesPicture>
 																	<FileDragMode>AsFile</FileDragMode>
-																	<ContextMenu name="UnprocessedItemsUsageInstancesIcon1ContextMenu" id="321"/>
-																	<ExtendedTooltip name="UnprocessedItemsUsageInstancesIcon1ExtendedTooltip" id="322"/>
+																	<ContextMenu name="UnprocessedItemsUsageInstancesPictogramContextMenu" id="321"/>
+																	<ExtendedTooltip name="UnprocessedItemsUsageInstancesPictogramExtendedTooltip" id="322"/>
 																</PictureField>
 																<InputField name="UnprocessedItemsUsageInstancesDataPresentation" id="311">
 																	<DataPath>UnprocessedItemsUsageInstances.ErrorObjectPresentation</DataPath>
@@ -1751,7 +1751,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="PicturesGroupExtendedTooltip" id="76"/>
+			<ExtendedTooltip name="GroupPicturesExtendedTooltip" id="76"/>
 			<ChildItems>
 				<PictureDecoration name="Warning32" id="83">
 					<Picture>

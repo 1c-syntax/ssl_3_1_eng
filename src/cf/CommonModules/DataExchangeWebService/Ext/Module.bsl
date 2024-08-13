@@ -723,7 +723,7 @@ EndFunction
 //
 // Parameters:
 //   Proxy - WSProxy - a WS proxy to pass managing commands.
-//   SettingsStructure - Structure - A structure of parameters used to connect the peer infobase and identify exchange settings:
+//   SettingsStructure_ - Structure - A structure of parameters used to connect the peer infobase and identify exchange settings:
 //     * ExchangePlanName - String - name of the exchange plan used during synchronization.
 //     * InfobaseNode - ExchangePlanRef - an exchange plan node matching the correspondent.
 //     * EventLogMessageKey - String - name of an event to write errors to the event log.
@@ -745,7 +745,7 @@ EndFunction
 //   ErrorMessageString - String - a WS-proxy initialization error.
 //
 Procedure InitializeWSProxyToManageDataExchange(Proxy,
-		SettingsStructure, ProxyParameters, Cancel, SetupStatus, ErrorMessageString = "") Export
+		SettingsStructure_, ProxyParameters, Cancel, SetupStatus, ErrorMessageString = "") Export
 	
 	MinVersion = "0.0.0.0";
 	If ProxyParameters.Property("MinVersion") Then
@@ -766,7 +766,7 @@ Procedure InitializeWSProxyToManageDataExchange(Proxy,
 	AdditionalParameters.Insert("AuthenticationSettingsStructure", AuthenticationSettingsStructure);
 	
 	Proxy = WSProxyForInfobaseNode(
-		SettingsStructure.InfobaseNode,
+		SettingsStructure_.InfobaseNode,
 		ErrorMessageString,
 		AdditionalParameters);
 		
@@ -777,32 +777,32 @@ Procedure InitializeWSProxyToManageDataExchange(Proxy,
 	
 	ProxyParameters.CurrentVersion = AdditionalParameters.CurrentVersion;
 	
-	If DataExchangeServer.IsXDTOExchangePlan(SettingsStructure.ExchangePlanName) Then
+	If DataExchangeServer.IsXDTOExchangePlan(SettingsStructure_.ExchangePlanName) Then
 		
-		NodeAlias = DataExchangeServer.PredefinedNodeAlias(SettingsStructure.InfobaseNode);
+		NodeAlias = DataExchangeServer.PredefinedNodeAlias(SettingsStructure_.InfobaseNode);
 		If ValueIsFilled(NodeAlias) Then
 			// Checking a setting with an old ID (prefix).
-			SettingsStructureOfPredefined = Common.CopyRecursive(SettingsStructure, False); // Structure
+			SettingsStructureOfPredefined = Common.CopyRecursive(SettingsStructure_, False); // Structure
 			SettingsStructureOfPredefined.Insert("CurrentExchangePlanNodeCode1", NodeAlias);
 			SetupStatus = SynchronizationSetupStatusInCorrespondent(Proxy, ProxyParameters, SettingsStructureOfPredefined);
 				
 			If Not SetupStatus.SettingExists Then
 				If ObsoleteExchangeSettingsOptionInCorrespondent(
-						Proxy, ProxyParameters, SetupStatus, SettingsStructure, NodeAlias, Cancel, ErrorMessageString)
+						Proxy, ProxyParameters, SetupStatus, SettingsStructure_, NodeAlias, Cancel, ErrorMessageString)
 					Or Cancel Then
 					Return;
 				EndIf;
 			Else
-				SettingsStructure.CurrentExchangePlanNodeCode1 = NodeAlias;
+				SettingsStructure_.CurrentExchangePlanNodeCode1 = NodeAlias;
 				Return;
 			EndIf;
 		EndIf;
 		
-		SetupStatus = SynchronizationSetupStatusInCorrespondent(Proxy, ProxyParameters, SettingsStructure);
+		SetupStatus = SynchronizationSetupStatusInCorrespondent(Proxy, ProxyParameters, SettingsStructure_);
 			
 		If Not SetupStatus.SettingExists Then
 			If ObsoleteExchangeSettingsOptionInCorrespondent(
-					Proxy, ProxyParameters, SetupStatus, SettingsStructure, SettingsStructure.CurrentExchangePlanNodeCode1, Cancel, ErrorMessageString)
+					Proxy, ProxyParameters, SetupStatus, SettingsStructure_, SettingsStructure_.CurrentExchangePlanNodeCode1, Cancel, ErrorMessageString)
 				Or Cancel Then
 				Return;
 			EndIf;
@@ -810,15 +810,15 @@ Procedure InitializeWSProxyToManageDataExchange(Proxy,
 		
 	Else
 		
-		SetupStatus = SynchronizationSetupStatusInCorrespondent(Proxy, ProxyParameters, SettingsStructure);
+		SetupStatus = SynchronizationSetupStatusInCorrespondent(Proxy, ProxyParameters, SettingsStructure_);
 			
 	EndIf;
 	
 	If Not SetupStatus.SettingExists Then
 		ErrorMessageString = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Data synchronization setting with ID ""%2"" is not found. Exchange plan: %1.';"),
-			SettingsStructure.ExchangePlanName,
-			SettingsStructure.CurrentExchangePlanNodeCode1);
+			NStr("en = 'Data synchronization setting with ID ""%2"" is not found. Exchange plan: %1.';"),
+			SettingsStructure_.ExchangePlanName,
+			SettingsStructure_.CurrentExchangePlanNodeCode1);
 		Cancel = True;
 	EndIf;
 	
@@ -910,13 +910,13 @@ Function WSProxyForInfobaseNode(InfobaseNode, ErrorMessageString = "", Additiona
 EndFunction
 
 Function GetWSProxyByConnectionParameters(
-					SettingsStructure,
+					SettingsStructure_,
 					ErrorMessageString = "",
 					UserMessage = "",
 					ProbingCallRequired = False) Export
 	
 	Try
-		CheckWSProxyAddressFormatCorrectness(SettingsStructure.WSWebServiceURL);
+		CheckWSProxyAddressFormatCorrectness(SettingsStructure_.WSWebServiceURL);
 	Except
 		UserMessage = ErrorProcessing.BriefErrorDescription(ErrorInfo());
 		ErrorMessageString = ErrorProcessing.DetailErrorDescription(ErrorInfo());
@@ -925,7 +925,7 @@ Function GetWSProxyByConnectionParameters(
 	EndTry;
 
 	Try
-		CheckProhibitedCharsInWSProxyUsername(SettingsStructure.WSUserName);
+		CheckProhibitedCharsInWSProxyUsername(SettingsStructure_.WSUserName);
 	Except
 		UserMessage = ErrorProcessing.BriefErrorDescription(ErrorInfo());
 		ErrorMessageString = ErrorProcessing.DetailErrorDescription(ErrorInfo());
@@ -934,16 +934,16 @@ Function GetWSProxyByConnectionParameters(
 	EndTry;
 	
 	WSDLLocation = "[WebServiceURL]/ws/[ServiceName]?wsdl";
-	WSDLLocation = StrReplace(WSDLLocation, "[WebServiceURL]", SettingsStructure.WSWebServiceURL);
-	WSDLLocation = StrReplace(WSDLLocation, "[ServiceName]",    SettingsStructure.WSServiceName);
+	WSDLLocation = StrReplace(WSDLLocation, "[WebServiceURL]", SettingsStructure_.WSWebServiceURL);
+	WSDLLocation = StrReplace(WSDLLocation, "[ServiceName]",    SettingsStructure_.WSServiceName);
 	
 	ConnectionParameters = Common.WSProxyConnectionParameters();
 	ConnectionParameters.WSDLAddress = WSDLLocation;
-	ConnectionParameters.NamespaceURI = SettingsStructure.WSServiceNamespaceURL;
-	ConnectionParameters.ServiceName = SettingsStructure.WSServiceName;
-	ConnectionParameters.UserName = SettingsStructure.WSUserName; 
-	ConnectionParameters.Password = SettingsStructure.WSPassword;
-	ConnectionParameters.Timeout = SettingsStructure.WSTimeout;
+	ConnectionParameters.NamespaceURI = SettingsStructure_.WSServiceNamespaceURL;
+	ConnectionParameters.ServiceName = SettingsStructure_.WSServiceName;
+	ConnectionParameters.UserName = SettingsStructure_.WSUserName; 
+	ConnectionParameters.Password = SettingsStructure_.WSPassword;
+	ConnectionParameters.Timeout = SettingsStructure_.WSTimeout;
 	ConnectionParameters.ProbingCallRequired = ProbingCallRequired;
 	
 	Try
@@ -959,7 +959,7 @@ Function GetWSProxyByConnectionParameters(
 EndFunction
 
 Function CorrespondentConnectionEstablished(Val Peer,
-		Val SettingsStructure,
+		Val SettingsStructure_,
 		UserMessage = "",
 		DataSynchronizationSetupCompleted = True,
 		MessageReceivedForDataMapping = False) Export
@@ -972,7 +972,7 @@ Function CorrespondentConnectionEstablished(Val Peer,
 
 	ProxyParameters = New Structure;
 	ProxyParameters.Insert("AuthenticationParameters",         Undefined);
-	ProxyParameters.Insert("AuthenticationSettingsStructure", SettingsStructure);
+	ProxyParameters.Insert("AuthenticationSettingsStructure", SettingsStructure_);
 	
 	Proxy = Undefined;
 	SetupStatus = Undefined;
@@ -986,7 +986,7 @@ Function CorrespondentConnectionEstablished(Val Peer,
 		Return False;
 	EndIf;
 	
-	SetDataSynchronizationPassword(Peer, SettingsStructure.WSPassword);
+	SetDataSynchronizationPassword(Peer, SettingsStructure_.WSPassword);
 	
 	DataSynchronizationSetupCompleted   = SetupStatus.DataSynchronizationSetupCompleted;
 	MessageReceivedForDataMapping = SetupStatus.MessageReceivedForDataMapping;
@@ -1480,7 +1480,7 @@ Function AllowedWSProxyPrefixes()
 	
 EndFunction
 
-Function SynchronizationSetupStatusInCorrespondent(Proxy, ProxyParameters, SettingsStructure)
+Function SynchronizationSetupStatusInCorrespondent(Proxy, ProxyParameters, SettingsStructure_)
 	
 	Result = New Structure;
 	Result.Insert("SettingExists",                     False);
@@ -1492,16 +1492,16 @@ Function SynchronizationSetupStatusInCorrespondent(Proxy, ProxyParameters, Setti
 	ErrorMessageString = "";
 	If CommonClientServer.CompareVersions(ProxyParameters.CurrentVersion, "2.0.1.6") >= 0 Then
 		
-		SettingExists = ConnectionTesting(Proxy, ProxyParameters.CurrentVersion, SettingsStructure, ErrorMessageString);
+		SettingExists = ConnectionTesting(Proxy, ProxyParameters.CurrentVersion, SettingsStructure_, ErrorMessageString);
 		
 		If SettingExists
 			And CommonClientServer.CompareVersions(ProxyParameters.CurrentVersion, "3.0.1.1") >= 0 Then
 			
 			ProxyDestinationParameters = GetParametersOfInfobase(Proxy, ProxyParameters.CurrentVersion,
-				SettingsStructure.CorrespondentExchangePlanName,
-				SettingsStructure.CurrentExchangePlanNodeCode1,
+				SettingsStructure_.CorrespondentExchangePlanName,
+				SettingsStructure_.CurrentExchangePlanNodeCode1,
 				ErrorMessageString,
-				SettingsStructure.TransportSettings.WSCorrespondentDataArea);
+				SettingsStructure_.TransportSettings.WSCorrespondentDataArea);
 			
 			DestinationParameters = XDTOSerializer.ReadXDTO(ProxyDestinationParameters);
 			
@@ -1512,10 +1512,10 @@ Function SynchronizationSetupStatusInCorrespondent(Proxy, ProxyParameters, Setti
 	Else
 		
 		ProxyDestinationParameters = GetParametersOfInfobase(Proxy, ProxyParameters.CurrentVersion,
-				SettingsStructure.ExchangePlanName,
-				SettingsStructure.CurrentExchangePlanNodeCode1,
+				SettingsStructure_.ExchangePlanName,
+				SettingsStructure_.CurrentExchangePlanNodeCode1,
 				ErrorMessageString,
-				SettingsStructure.TransportSettings.WSCorrespondentDataArea);
+				SettingsStructure_.TransportSettings.WSCorrespondentDataArea);
 			
 		DestinationParameters = ValueFromStringInternal(ProxyDestinationParameters);
 		
@@ -1530,13 +1530,13 @@ Function SynchronizationSetupStatusInCorrespondent(Proxy, ProxyParameters, Setti
 	
 EndFunction
 
-Function ObsoleteExchangeSettingsOptionInCorrespondent(Proxy, ProxyParameters, SetupStatus, SettingsStructure, NodeCode, Cancel, ErrorMessageString = "")
+Function ObsoleteExchangeSettingsOptionInCorrespondent(Proxy, ProxyParameters, SetupStatus, SettingsStructure_, NodeCode, Cancel, ErrorMessageString = "")
 	
 	StateOfOptionSetup = New Structure();
-	StateOfOptionSetup.Insert("TransportSettings", SettingsStructure.TransportSettings);
+	StateOfOptionSetup.Insert("TransportSettings", SettingsStructure_.TransportSettings);
 	
 	// Checking if migration is possible.
-	For Each SettingsMode In ObsoleteExchangeSettingsOptions(SettingsStructure.InfobaseNode) Do
+	For Each SettingsMode In ObsoleteExchangeSettingsOptions(SettingsStructure_.InfobaseNode) Do
 		
 		StateOfOptionSetup.Insert("ExchangePlanName", SettingsMode.ExchangePlanName);
 		StateOfOptionSetup.Insert("CurrentExchangePlanNodeCode1", NodeCode);
@@ -1545,18 +1545,18 @@ Function ObsoleteExchangeSettingsOptionInCorrespondent(Proxy, ProxyParameters, S
 			Proxy, ProxyParameters, StateOfOptionSetup);
 		
 		If SetupStatus.SettingExists Then
-			If SettingsStructure.ActionOnExchange = Enums.ActionsOnExchange.DataExport Then
-				SettingsStructure.ExchangePlanName = SettingsMode.ExchangePlanName;
-				If NodeCode <> SettingsStructure.CurrentExchangePlanNodeCode1 Then
-					SettingsStructure.CurrentExchangePlanNodeCode1 = NodeCode;
+			If SettingsStructure_.ActionOnExchange = Enums.ActionsOnExchange.DataExport Then
+				SettingsStructure_.ExchangePlanName = SettingsMode.ExchangePlanName;
+				If NodeCode <> SettingsStructure_.CurrentExchangePlanNodeCode1 Then
+					SettingsStructure_.CurrentExchangePlanNodeCode1 = NodeCode;
 				EndIf;
 			Else
-				// 
-				// 
+				// This infobase has switched to another exchange plan, and its peer hasn't.
+				// Data import is aborted.
 				ErrorMessageString = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Synchronization settings are being updated in ""%1"" application.
 					|The data import is canceled. Restart the data synchronization later.';"),
-					String(SettingsStructure.InfobaseNode));
+					String(SettingsStructure_.InfobaseNode));
 				Cancel = True;
 			EndIf;
 			Return True;

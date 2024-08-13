@@ -8,9 +8,9 @@
 //
 //
 
-// 
+// Optional parameters:
 //
-//    
+//    SimplifiedMode - Boolean - Flag indicating whether a simplified report should be generated.
 //
 
 #Region FormEventHandlers

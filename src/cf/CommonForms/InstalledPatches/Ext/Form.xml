@@ -39,8 +39,8 @@
 								<xr:LoadTransparent>true</xr:LoadTransparent>
 							</Picture>
 							<FileDragMode>AsFile</FileDragMode>
-							<ContextMenu name="InformationPicture6ContextMenu" id="63"/>
-							<ExtendedTooltip name="InformationPicture6ExtendedTooltip" id="64"/>
+							<ContextMenu name="InformationPictureContextMenu" id="63"/>
+							<ExtendedTooltip name="InformationPictureExtendedTooltip" id="64"/>
 						</PictureDecoration>
 						<LabelDecoration name="InformationDetails" id="67">
 							<AutoMaxWidth>false</AutoMaxWidth>

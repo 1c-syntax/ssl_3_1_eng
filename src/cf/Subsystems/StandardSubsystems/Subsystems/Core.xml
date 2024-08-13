@@ -69,7 +69,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">Role.Administration</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Role.FullAccess</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.StandardSubsystemsClientServerLocalization</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">Role.BasicSSLRights</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">Role.BasicAccessSSL</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">EventSubscription.OnReceiveDataFromMaster</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.ExtensionVersionParameters</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Constant.NotUseSeparationByDataAreas</xr:Item>
@@ -233,7 +233,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">SessionParameter.ExtensionsVersion</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">SessionParameter.AttachedExtensions</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Catalog.ExtensionsVersions</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">Role.BasicSSLRightsForExternalUsers</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">Role.BasicAccessExternalUserSSL</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.TimeConsumingOperationsServerCall</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">StyleItem.HyperlinkColor</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">SessionParameter.Clipboard</xr:Item>
@@ -391,6 +391,9 @@
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.GrayCross</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.ExtensionProperties</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.StringFunctionsClientServerLocalization</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.StandardSubsystemsServerLocalization</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">StyleItem.VeryLargeFont</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.StandardSubsystemsClientServer</xr:Item>
 			</Content>
 		</Properties>
 		<ChildObjects/>

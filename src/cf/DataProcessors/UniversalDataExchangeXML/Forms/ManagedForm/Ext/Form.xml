@@ -1424,10 +1424,10 @@
 							<DataPath>Object.FlagDebugMode</DataPath>
 							<TitleLocation>Right</TitleLocation>
 							<CheckBoxType>Auto</CheckBoxType>
-							<ContextMenu name="DebugModeFlagContextMenu" id="95"/>
+							<ContextMenu name="FlagDebugModeContextMenu" id="95"/>
 							<ExtendedTooltip name="FlagDebugModeExtendedTooltip" id="328"/>
 							<Events>
-								<Event name="OnChange">DebugModeFlagOnChange</Event>
+								<Event name="OnChange">FlagDebugModeOnChange</Event>
 							</Events>
 						</CheckBoxField>
 						<CheckBoxField name="OutputInfoMessagesToMessageWindow" id="96">

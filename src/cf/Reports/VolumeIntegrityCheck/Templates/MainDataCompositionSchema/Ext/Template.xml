@@ -382,7 +382,7 @@
 						<dcscor:value xsi:type="v8:LocalStringType">
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>No data in the volume</v8:content>
+								<v8:content>Missing data in the volume</v8:content>
 							</v8:item>
 						</dcscor:value>
 					</dcscor:item>
@@ -424,7 +424,7 @@
 						<dcscor:value xsi:type="v8:LocalStringType">
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>Deleted files (files in the volume that are not registered in the application)</v8:content>
+								<v8:content>Deleted files (files in the volume that have no entries in the application)</v8:content>
 							</v8:item>
 						</dcscor:value>
 					</dcscor:item>

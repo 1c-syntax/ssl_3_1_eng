@@ -175,7 +175,7 @@ Procedure FoundContactsSelection(Item, RowSelected, Field, StandardProcessing)
 EndProcedure
 
 &AtClient
-Procedure UsersGroupsOnActivateRow(Item)
+Procedure UserGroupsOnActivateRow(Item)
 	
 	UsersList.Parameters.SetParameterValue("UsersGroup", Items.UserGroups.CurrentRow);
 	
@@ -192,7 +192,7 @@ EndProcedure
 
 #Region FormCommandsEventHandlers
 
-// Passes to an owner a structure array 
+// Passes to an owner a structure array 
 // with selected recipient addresses and closes the form. 
 //
 &AtClient
@@ -229,7 +229,7 @@ Procedure AddFromSubjectsListExecute()
 
 EndProcedure
 
-// Changes the current group of email recipients to To group. 
+// Changes the current group of email recipients to To group. 
 //
 &AtClient
 Procedure ChangeGroupToExecute()
@@ -238,7 +238,7 @@ Procedure ChangeGroupToExecute()
 
 EndProcedure
 
-// Changes the current group of email recipients to CC group. 
+// Changes the current group of email recipients to CC group. 
 //
 &AtClient
 Procedure ChangeCcGroupExecute()
@@ -247,7 +247,7 @@ Procedure ChangeCcGroupExecute()
 
 EndProcedure 
 
-// Changes the current group of email recipients to BCC group. 
+// Changes the current group of email recipients to BCC group. 
 //
 &AtClient
 Procedure ChangeBCCGroupExecute()
@@ -262,7 +262,7 @@ EndProcedure
 Procedure FindContactsExecute()
 	
 	If IsBlankString(SearchString) Then
-		CommonClient.MessageToUser(NStr("en = 'Please enter a search string.';"),, "SearchString");
+		CommonClient.MessageToUser(NStr("en = 'Please enter text to search for.';"),, "SearchString");
 		Return;
 	EndIf;
 	
@@ -301,7 +301,7 @@ Procedure FindInListFromFoundItemsListExecute()
 EndProcedure
 
 // Positions in the dynamic list for the current contact
-// from the Email recipients list.
+// from the Email recipients list.
 //
 &AtClient
 Procedure FindInListFromRecipientsListExecute()
@@ -326,7 +326,7 @@ Procedure FindInListFromSubjectsListExecute()
 	
 EndProcedure 
 
-// Initiates a contacts search by email address of the current line of the Email recipients list. 
+// Initiates a contacts search by email address of the current line of the Email recipients list. 
 //
 &AtClient
 Procedure FindByAddressExecute()
@@ -370,7 +370,7 @@ Procedure FindByPresentationExecute()
 EndProcedure 
 
 // Searches all contact email addresses from the Email recipients list
- // and prompts the user to choose when a contact has more than one email address.
+ // and prompts the user to choose when a contact has more than one email address.
 //
 &AtClient
 Procedure SetContactAddressExecute()
@@ -550,7 +550,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Search procedures and functions.
 
 &AtServer
 Function FindContacts()
@@ -581,7 +581,7 @@ Procedure FindByDescriptionBeginning()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Other
+// Miscellaneous.
 
 &AtServer
 Procedure FillRecipientsTable()

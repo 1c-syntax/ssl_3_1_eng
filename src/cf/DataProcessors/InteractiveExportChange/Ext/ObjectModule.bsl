@@ -524,7 +524,7 @@ Procedure DeleteSettingsOption(Presentation) Export
 	
 EndProcedure
 
-// Returns a name array of metadata tables according to the FullMetadataName composite parameter type.
+// Returns a metadata table name array based on the FullMetadataName flexible type.
 // The result is based on the current InfobaseNode attribute value.
 //
 // Parameters:

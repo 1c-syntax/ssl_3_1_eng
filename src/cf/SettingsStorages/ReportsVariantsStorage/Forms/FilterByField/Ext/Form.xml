@@ -165,10 +165,10 @@
 					</Title>
 					<TitleLocation>None</TitleLocation>
 					<CheckBoxType>Auto</CheckBoxType>
-					<ContextMenu name="UsingAGroupContextMenu" id="48"/>
-					<ExtendedTooltip name="UsingAGroupExtendedTooltip" id="49"/>
+					<ContextMenu name="GroupUseContextMenu" id="48"/>
+					<ExtendedTooltip name="GroupUseExtendedTooltip" id="49"/>
 					<Events>
-						<Event name="OnChange">UsingAGroupOnChange</Event>
+						<Event name="OnChange">GroupUseOnChange</Event>
 					</Events>
 				</CheckBoxField>
 				<InputField name="FilterItemsGroupType" id="17">
@@ -211,10 +211,10 @@
 						</xr:Item>
 					</ChoiceList>
 					<DropListWidth>4</DropListWidth>
-					<ContextMenu name="TypeOfFilterElementGroupContextMenu" id="18"/>
-					<ExtendedTooltip name="TypeOfFilterElementGroupExtendedTooltip" id="19"/>
+					<ContextMenu name="FilterItemsGroupTypeContextMenu" id="18"/>
+					<ExtendedTooltip name="FilterItemsGroupTypeExtendedTooltip" id="19"/>
 					<Events>
-						<Event name="OnChange">TypeOfFilterElementGroupOnChange</Event>
+						<Event name="OnChange">FilterItemsGroupTypeOnChange</Event>
 					</Events>
 				</InputField>
 			</ChildItems>

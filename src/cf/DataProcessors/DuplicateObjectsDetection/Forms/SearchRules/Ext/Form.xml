@@ -139,7 +139,7 @@
 								<Event name="OnChange">SearchRulesUseOnChange</Event>
 							</Events>
 						</CheckBoxField>
-						<InputField name="SearchRulesAttributePresentation" id="24">
+						<InputField name="SearchRulesAttributeRepresentation" id="24">
 							<DataPath>SearchRules.AttributeRepresentation</DataPath>
 							<ReadOnly>true</ReadOnly>
 							<Title>
@@ -150,8 +150,8 @@
 							</Title>
 							<EditMode>EnterOnInput</EditMode>
 							<TextEdit>false</TextEdit>
-							<ContextMenu name="SearchRulesAttributePresentationContextMenu" id="25"/>
-							<ExtendedTooltip name="SearchRulesAttributePresentationExtendedTooltip" id="26"/>
+							<ContextMenu name="SearchRulesAttributeRepresentationContextMenu" id="25"/>
+							<ExtendedTooltip name="SearchRulesAttributeRepresentationExtendedTooltip" id="26"/>
 						</InputField>
 					</ChildItems>
 				</ColumnGroup>

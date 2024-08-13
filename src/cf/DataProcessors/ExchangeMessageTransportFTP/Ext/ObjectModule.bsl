@@ -570,7 +570,7 @@ Procedure ErrorMessageInitialization()
 	
 	// Transport-specific error codes.
 	ErrorsMessages.Insert(101, NStr("en = 'Path on the server is not specified.';"));
-	ErrorsMessages.Insert(102, NStr("en = 'An occurred when initializing connection to the FTP server.';"));
+	ErrorsMessages.Insert(102, NStr("en = 'An error occurred when initializing connection to the FTP server.';"));
 	ErrorsMessages.Insert(103, NStr("en = 'An error occurred when establishing connection to the FTP server. Check whether the path is specified correctly and access rights are sufficient.';"));
 	ErrorsMessages.Insert(104, NStr("en = 'Error searching for files on the FTP server.';"));
 	ErrorsMessages.Insert(105, NStr("en = 'Error receiving the file from the FTP server.';"));
@@ -660,8 +660,8 @@ Procedure CreateDirectoryIfNecessary(FTPConnection, DirectoryAtServer)
 	
 	If Common.DataSeparationEnabled() Then
 		
-		// 
-		//  
+		// In SaaS mode, checking if a directory exists is a resource-intensive operation.
+		// Instead, run "CreateDirectory", and if it already exists, throw an exception and exit. 
 		// 
 		Try
 			FTPConnection.CreateDirectory(DirectoryAtServer);

@@ -173,7 +173,7 @@ Procedure ConfigureExchangeStep1(Message, Sender)
 		ConnectionSettings.Insert("CorrespondentEndpoint", CorrespondentEndpoint);
 		ConnectionSettings.Insert("Settings",                   NodeFiltersSetting);
 		ConnectionSettings.Insert("Prefix",                     Prefix);
-		ConnectionSettings.Insert("Peer"); // 
+		ConnectionSettings.Insert("Peer"); // Output parameter.
 		
 		DataExchangeSaaS.CreateExchangeSetting(
 			ConnectionSettings,

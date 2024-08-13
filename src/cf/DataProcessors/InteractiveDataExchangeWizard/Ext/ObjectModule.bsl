@@ -121,7 +121,7 @@ Procedure ExecuteDefaultAutomaticMappingAndGetMappingStatistics(Cancel, RowIndex
 	
 	InfobasesObjectsMapping = DataProcessors.InfobasesObjectsMapping.Create();
 	
-	// 
+	// Do auto-mapping and get the mapping summary.
 	// 
 	For Each RowIndex In RowIndexes Do
 		

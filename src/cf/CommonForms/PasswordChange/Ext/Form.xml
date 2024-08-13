@@ -165,8 +165,8 @@
 							<Width>14</Width>
 							<HorizontalStretch>false</HorizontalStretch>
 							<PasswordMode>true</PasswordMode>
-							<ContextMenu name="Confirm1ContextMenu" id="12"/>
-							<ExtendedTooltip name="Confirm1ExtendedTooltip" id="13"/>
+							<ContextMenu name="ConfirmationContextMenu" id="12"/>
+							<ExtendedTooltip name="ConfirmationExtendedTooltip" id="13"/>
 							<Events>
 								<Event name="OnChange">PasswordOnChange</Event>
 								<Event name="EditTextChange">PasswordEditTextChange</Event>

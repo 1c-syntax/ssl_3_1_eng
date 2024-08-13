@@ -130,11 +130,11 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 		|	Catalog.AddIns AS AddIns
 		|WHERE
 		|	AddIns.Id = &Id
-		|	OR AddIns.Version = &Version";
+		|	OR AddIns.Id = &Id2 AND AddIns.Version LIKE ""3.1.0.%""";
 		
 		Query = New Query(QueryText);
 		Query.SetParameter("Id", "AddInNativeExtension");
-		Query.SetParameter("Version", "3.1.0.1013");
+		Query.SetParameter("Id2", "ImageScan");
 		
 		InfobaseUpdate.MarkForProcessing(Parameters, Query.Execute().Unload().UnloadColumn("Ref"));
 		
@@ -266,38 +266,37 @@ Procedure ProcessExternalComponents(Selection, SubsystemVersionAtStartUpdates)
 			
 			ShouldUpdateAddInSupportedPlatforms = True;
 			
-			TargetPlatforms = AddInAttributes.TargetPlatforms.Get();
-			
 			ComponentBinaryData = AddInAttributes.AddInStorage.Get();
 			
 			If TypeOf(ComponentBinaryData) <> Type("BinaryData") Then
-				InfobaseUpdate.MarkProcessingCompletion(Selection.Ref);
-				ObjectsProcessed = ObjectsProcessed + 1;
 				ShouldUpdateAddInSupportedPlatforms = False;
+			Else
+					
+				InformationOnAddInFromFile = AddInsInternal.InformationOnAddInFromFile(
+					ComponentBinaryData, False);
+				If Not InformationOnAddInFromFile.Disassembled Then
+					ShouldUpdateAddInSupportedPlatforms = False;
+				Else
+					Attributes = InformationOnAddInFromFile.Attributes;
+					TargetPlatforms = AddInAttributes.TargetPlatforms.Get();
+					If TargetPlatforms <> Undefined And Common.IdenticalCollections(TargetPlatforms,
+						Attributes.TargetPlatforms) Then
+						ShouldUpdateAddInSupportedPlatforms = False;
+					EndIf;
+				EndIf;
+
 			EndIf;
 			
-			InformationOnAddInFromFile = AddInsInternal.InformationOnAddInFromFile(
-				ComponentBinaryData, False);
-			If Not InformationOnAddInFromFile.Disassembled Then
-				InfobaseUpdate.MarkProcessingCompletion(Selection.Ref);
-				ObjectsProcessed = ObjectsProcessed + 1;
-				ShouldUpdateAddInSupportedPlatforms = False;
-			EndIf;
-			
-			Attributes = InformationOnAddInFromFile.Attributes;
-			
-			If TargetPlatforms <> Undefined And Common.IdenticalCollections(TargetPlatforms, Attributes.TargetPlatforms) Then
-				InfobaseUpdate.MarkProcessingCompletion(Selection.Ref);
-				ObjectsProcessed = ObjectsProcessed + 1;
-				ShouldUpdateAddInSupportedPlatforms = False;
-			EndIf;
 		Else
 			ShouldUpdateAddInSupportedPlatforms = False;
 		EndIf;
 		
 		If Not ShouldUpdateAddInSupportedPlatforms 
-			And Not (ShouldUpdateScanAddInParameters And (AddInAttributes.Id = "AddInNativeExtension")
-			Or AddInAttributes.Version = "3.1.0.1013") Then
+			And Not (ShouldUpdateScanAddInParameters And (AddInAttributes.Id = "AddInNativeExtension"
+				Or AddInAttributes.Id = ScanAddInID 
+				And StrStartsWith(AddInAttributes.Version, "3.1.0."))) Then
+			InfobaseUpdate.MarkProcessingCompletion(Selection.Ref);
+			ObjectsProcessed = ObjectsProcessed + 1;
 			Continue;
 		EndIf;
 		
@@ -320,8 +319,8 @@ Procedure ProcessExternalComponents(Selection, SubsystemVersionAtStartUpdates)
 				ComponentObject_SSLs.Id = ScanAddInID;
 			EndIf;
 			
-			If ShouldUpdateScanAddInParameters And AddInAttributes.Version = "3.1.0.1013" Then
-				ComponentObject_SSLs.Version = "3.0.1.1013";
+			If ShouldUpdateScanAddInParameters And StrStartsWith(AddInAttributes.Version, "3.1.0.") Then
+				ComponentObject_SSLs.Version = StrReplace(AddInAttributes.Version, "3.1.0.", "3.0.1.");
 			EndIf;
 			
 			InfobaseUpdate.WriteObject(ComponentObject_SSLs);
@@ -364,7 +363,7 @@ EndProcedure
 #EndRegion
 
 Function ShouldUpdateScanAddInParameters(SubsystemVersionAtStartUpdates)
-	Return CommonClientServer.CompareVersions(SubsystemVersionAtStartUpdates, "3.1.9.230") < 0
+	Return CommonClientServer.CompareVersions(SubsystemVersionAtStartUpdates, "3.1.10.179") < 0
 		And Common.SubsystemExists("StandardSubsystems.FilesOperations")
 EndFunction
 

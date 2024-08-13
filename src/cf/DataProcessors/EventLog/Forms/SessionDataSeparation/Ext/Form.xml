@@ -12,7 +12,7 @@
 	<AutoCommandBar name="FormCommandBar" id="-1">
 		<Autofill>false</Autofill>
 		<ChildItems>
-			<Button name="FormSelectAll1" id="16">
+			<Button name="FormSelectAllCommand" id="16">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.SelectAllCommand</CommandName>
 				<Title>
@@ -21,7 +21,7 @@
 						<v8:content>Select all</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="FormSelectAll1ExtendedTooltip" id="17"/>
+				<ExtendedTooltip name="FormSelectAllCommandExtendedTooltip" id="17"/>
 			</Button>
 			<Button name="FormUncheckAll" id="18">
 				<Type>CommandBarButton</Type>
@@ -32,7 +32,7 @@
 						<v8:content>Clear all</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="FormClearAllExtendedTooltip" id="19"/>
+				<ExtendedTooltip name="FormUncheckAllExtendedTooltip" id="19"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
@@ -155,7 +155,7 @@
 				</v8:item>
 			</Title>
 			<HorizontalLocation>Right</HorizontalLocation>
-			<ExtendedTooltip name="CommandBarGroupExtendedTooltip" id="15"/>
+			<ExtendedTooltip name="GroupCommandBarExtendedTooltip" id="15"/>
 			<ChildItems>
 				<Button name="OkCommand" id="20">
 					<Type>CommandBarButton</Type>

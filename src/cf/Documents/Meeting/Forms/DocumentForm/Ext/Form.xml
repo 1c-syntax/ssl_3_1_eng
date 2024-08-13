@@ -232,7 +232,7 @@
 									<EditFormat>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>DF=hh:mm</v8:content>
+											<v8:content>DF=HH:mm</v8:content>
 										</v8:item>
 									</EditFormat>
 									<ChooseType>false</ChooseType>
@@ -294,7 +294,7 @@
 									<EditFormat>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>DF=hh:mm</v8:content>
+											<v8:content>DF=HH:mm</v8:content>
 										</v8:item>
 									</EditFormat>
 									<ChooseType>false</ChooseType>

@@ -80,29 +80,29 @@
 				<Autofill>false</Autofill>
 			</AutoCommandBar>
 			<ExtendedTooltip name="ListExtendedTooltip" id="6"/>
-			<SearchStringAddition name="ListSearchString_SSLy" id="7">
+			<SearchStringAddition name="ListSearchString" id="7">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchStringRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchString_SSLyContextMenu" id="8"/>
-				<ExtendedTooltip name="ListSearchString_SSLyExtendedTooltip" id="9"/>
+				<ContextMenu name="ListSearchStringContextMenu" id="8"/>
+				<ExtendedTooltip name="ListSearchStringExtendedTooltip" id="9"/>
 			</SearchStringAddition>
-			<ViewStatusAddition name="ListViewStatus_SSLy" id="10">
+			<ViewStatusAddition name="ListViewStatus" id="10">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>ViewStatusRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListViewStatus_SSLyContextMenu" id="11"/>
-				<ExtendedTooltip name="ListViewStatus_SSLyExtendedTooltip" id="12"/>
+				<ContextMenu name="ListViewStatusContextMenu" id="11"/>
+				<ExtendedTooltip name="ListViewStatusExtendedTooltip" id="12"/>
 			</ViewStatusAddition>
-			<SearchControlAddition name="ListSearchControl_SSLy" id="13">
+			<SearchControlAddition name="ListSearchControl" id="13">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchControl</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchControl_SSLyContextMenu" id="14"/>
-				<ExtendedTooltip name="ListSearchControl_SSLyExtendedTooltip" id="15"/>
+				<ContextMenu name="ListSearchControlContextMenu" id="14"/>
+				<ExtendedTooltip name="ListSearchControlExtendedTooltip" id="15"/>
 			</SearchControlAddition>
 			<ChildItems>
 				<LabelField name="Register" id="16">
@@ -118,7 +118,7 @@
 						</v8:item>
 					</Title>
 					<Group>InCell</Group>
-					<ExtendedTooltip name="GroupAccessOptionExtendedTooltip" id="48"/>
+					<ExtendedTooltip name="AccessOptionGroupExtendedTooltip" id="48"/>
 					<ChildItems>
 						<LabelField name="ForExternalUsers" id="19">
 							<DataPath>List.ForExternalUsers</DataPath>
@@ -160,8 +160,8 @@
 									<v8:content>NZ=0; NG=</v8:content>
 								</v8:item>
 							</Format>
-							<ContextMenu name="NumberOfFieldsInTheConnectionContextMenu" id="50"/>
-							<ExtendedTooltip name="NumberOfFieldsInTheConnectionExtendedTooltip" id="51"/>
+							<ContextMenu name="FieldsInJoinCountContextMenu" id="50"/>
+							<ExtendedTooltip name="FieldsInJoinCountExtendedTooltip" id="51"/>
 						</LabelField>
 						<LabelField name="FieldsSetInJoin" id="52">
 							<DataPath>List.FieldsSetInJoin</DataPath>
@@ -184,8 +184,8 @@
 									<v8:content>ND=2; NZ=00; NLZ=; NG=</v8:content>
 								</v8:item>
 							</Format>
-							<ContextMenu name="ASetOfFieldsInAConnectionContextMenu" id="53"/>
-							<ExtendedTooltip name="ASetOfFieldsInAConnectionExtendedTooltip" id="54"/>
+							<ContextMenu name="FieldsSetInJoinContextMenu" id="53"/>
+							<ExtendedTooltip name="FieldsSetInJoinExtendedTooltip" id="54"/>
 						</LabelField>
 						<LabelField name="AccessOption" id="44">
 							<DataPath>List.AccessOption</DataPath>

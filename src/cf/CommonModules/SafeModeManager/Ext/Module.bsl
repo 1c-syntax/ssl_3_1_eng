@@ -356,8 +356,8 @@ Function RequestToClearPermissionsToUseExternalResources(Val Owner) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
-// 
+// Functions that provide support of security profiles that
+// restrict attaching external modules in unsafe mode.
 //
 
 // Checks whether the safe mode is enabled ignoring the security profile safe mode

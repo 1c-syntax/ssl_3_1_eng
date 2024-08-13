@@ -247,7 +247,7 @@ If you haven't installed the editor yet, we recommend installing %2.</v8:content
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="CommandBarGroupExtendedTooltip" id="90"/>
+			<ExtendedTooltip name="GroupCommandBarExtendedTooltip" id="90"/>
 			<ChildItems>
 				<Pages name="CommandBar" id="28">
 					<Title>

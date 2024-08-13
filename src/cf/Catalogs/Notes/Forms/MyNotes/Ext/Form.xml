@@ -159,7 +159,7 @@
 							<Button name="ListContextMenuCustomizeForm" id="25">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.StandardCommand.CustomizeForm</CommandName>
-								<ExtendedTooltip name="ListContextMenuChangeFormExtendedTooltip" id="26"/>
+								<ExtendedTooltip name="ListContextMenuCustomizeFormExtendedTooltip" id="26"/>
 							</Button>
 						</ChildItems>
 					</ButtonGroup>
@@ -220,7 +220,7 @@
 						<LabelField name="SubjectPresentation" id="9">
 							<DataPath>List.SubjectPresentation</DataPath>
 							<Width>5</Width>
-							<ContextMenu name="PresentationOfSubjectContextMenu" id="10"/>
+							<ContextMenu name="SubjectPresentationContextMenu" id="10"/>
 							<ExtendedTooltip name="SubjectPresentationExtendedTooltip" id="14"/>
 						</LabelField>
 					</ChildItems>

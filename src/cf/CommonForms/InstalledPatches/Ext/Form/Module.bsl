@@ -205,22 +205,22 @@ Procedure RefreshPatchesList()
 		
 		PatchProperties = ConfigurationUpdate.PatchProperties(Extension.Name);
 		
-		NewRow = InstalledPatches.Add();
-		NewRow.Name = Extension.Name;
-		NewRow.Checksum = Base64String(Extension.HashSum);
-		NewRow.ExtensionID = Extension.UUID;
-		NewRow.Attach = Extension.Active;
-		NewRow.Version = Extension.Version;
+		Patch = InstalledPatches.Add();
+		Patch.Name = Extension.Name;
+		Patch.Checksum = Base64String(Extension.HashSum);
+		Patch.ExtensionID = Extension.UUID;
+		Patch.Attach = Extension.Active;
+		Patch.Version = Extension.Version;
 		If PatchProperties = "ReadingError" Then
-			NewRow.Status = 0;
+			Patch.Status = 0;
 		ElsIf PatchProperties <> Undefined Then
-			NewRow.Status = 0;
-			NewRow.LongDesc = PatchProperties.Description;
-			NewRow.ApplicableTo = PatchApplicableTo(PatchProperties);
+			Patch.Status = 0;
+			Patch.LongDesc = PatchProperties.Description;
+			Patch.ApplicableTo = ApplicabilityForConfigurations(PatchProperties);
 		Else
 			LongDesc = PatchesDetails[Extension.Name];
-			NewRow.Status = 1;
-			NewRow.LongDesc = LongDesc;
+			Patch.Status = 1;
+			Patch.LongDesc = LongDesc;
 		EndIf;
 	EndDo;
 	
@@ -253,14 +253,14 @@ Function DescriptionOfInstalledFixes()
 EndFunction
 
 &AtServer
-Function PatchApplicableTo(PatchProperties)
+Function ApplicabilityForConfigurations(PatchProperties)
 	
-	ApplicableTo = New Array;
-	For Each String In PatchProperties.AppliedFor Do
-		ApplicableTo.Add(String.ConfigurationName);
+	ConfigurationsNames = New Array;
+	For Each ConfigurationName In PatchProperties.AppliedFor Do
+		ConfigurationsNames.Add(ConfigurationName.ConfigurationName);
 	EndDo;
 	
-	Return StrConcat(ApplicableTo, Chars.LF);
+	Return StrConcat(ConfigurationsNames, Chars.LF);
 	
 EndFunction
 
@@ -417,12 +417,12 @@ EndProcedure
 Function AttachedPatchesIDs()
 	
 	ConnectedNow = New Array;
-	For Each String In InstalledPatches Do
-		If Not String.Attach Then
+	For Each Patch In InstalledPatches Do
+		If Not Patch.Attach Then
 			Continue;
 		EndIf;
 		
-		ConnectedNow.Add(String.GetID());
+		ConnectedNow.Add(Patch.GetID());
 	EndDo;
 	
 	Return ConnectedNow;

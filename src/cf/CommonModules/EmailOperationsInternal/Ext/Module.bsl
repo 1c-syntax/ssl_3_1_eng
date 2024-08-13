@@ -656,7 +656,7 @@ Function UseIMAPOnSendingEmails(Profile)
 EndFunction
 
 // Parameters:
-//  UserAccountOrConnection - See EmailOperations.DownloadEmailMessages.Account
+//  UserAccountOrConnection - 
 //  ImportParameters - See EmailOperations.DownloadEmailMessages.ImportParameters
 //
 // Returns:
@@ -764,9 +764,9 @@ Function DownloadMessages(Val UserAccountOrConnection, Val ImportParameters = Un
 		If Account <> Undefined Then
 			Try
 				Join.Logoff();
-			Except // 
-				//  
-				// 
+			Except // ACC:280
+				// Do not handle and log exceptions. The original exception 
+				// is passed to the calling code and will be handled there.
 			EndTry;
 		EndIf;
 		Raise;
@@ -1014,7 +1014,7 @@ Procedure DisableAccounts()
 		Account.UseForSending = False;
 		Account.UseForReceiving = False;
 		Account.DataExchange.Load = True;
-		Account.Write(); // 
+		Account.Write(); // CAC:1327 data lock is not required upon initial setup of a DIB node.
 	EndDo;
 	
 EndProcedure
@@ -1567,9 +1567,9 @@ Function SendEmails(UserAccountOrConnection, Emails, ExceptionText = Undefined) 
 		If Account <> Undefined Then
 			Try
 				Join.Logoff();
-			Except // 
-				//  
-				// 
+			Except // ACC:280
+				// Do not handle and log exceptions. The original exception 
+				// is passed to the calling code and will be handled there.
 			EndTry;
 		EndIf;
 
@@ -1864,8 +1864,8 @@ Function ExplanationOnError(ErrorText, Val LanguageCode = Undefined, ForSetupAss
 				Continue;
 			EndIf;
 			
-			For Each String In StrSplit(PropertyValue("Reason", ErrorDescription, LanguageCode), Chars.LF, False) Do
-				PossibleReasons.Add(String);
+			For Each PossibleReason In StrSplit(PropertyValue("Reason", ErrorDescription, LanguageCode), Chars.LF, False) Do
+				PossibleReasons.Add(PossibleReason);
 			EndDo;
 			
 			For Each Item In ErrorDescription["HowToFix"] Do
@@ -1887,7 +1887,7 @@ Function ExplanationOnError(ErrorText, Val LanguageCode = Undefined, ForSetupAss
 			PossibleReasons.Add(NStr("en = 'No Internet connection.';"));
 		EndIf;
 		PossibleReasons.Add(NStr("en = 'Invalid email server connection settings.';"));
-		PossibleReasons.Add(NStr("en = 'Неполадки на почтовом сервере.';"));
+		PossibleReasons.Add(NStr("en = 'Mail server malfunction.';"));
 	EndIf;
 	
 	If Not ValueIsFilled(MethodsToFixError) Then
@@ -1903,7 +1903,7 @@ Function ExplanationOnError(ErrorText, Val LanguageCode = Undefined, ForSetupAss
 				"Readjust"));
 		EndIf;
 	
-		MethodsToFixError.Add(NStr("en = 'Повторите действие еще раз через некоторое время.';"));
+		MethodsToFixError.Add(NStr("en = 'Try again later.';"));
 		MethodsToFixError.Add(NStr("en = 'Contact the network administrator.';"));
 		MethodsToFixError.Add(NStr("en = 'Contact the email server administrator.';"));
 	EndIf;
@@ -2825,7 +2825,7 @@ EndFunction
 
 Function AddressOfFileWithSettings() Export
 	
-	FileAddress = "https://downloads.v8.1c.eu/content/common/settings/mailservers.json";
+	FileAddress = "https://downloads.1c.eu/content/common/settings/mailservers.json";
 	
 	If Metadata.CommonModules.Find("EmailOperationsInternalLocalization") <> Undefined Then
 		ModuleEmailOperationsInternalLocalization = Common.CommonModule("EmailOperationsInternalLocalization");
@@ -2838,7 +2838,7 @@ EndFunction
 
 Function AddressOfFIleWithErrorsDetails()
 	
-	FileAddress = "https://downloads.v8.1c.eu/content/common/settings/mailerrors.json";
+	FileAddress = "https://downloads.1c.eu/content/common/settings/mailerrors.json";
 	
 	If Metadata.CommonModules.Find("EmailOperationsInternalLocalization") <> Undefined Then
 		ModuleEmailOperationsInternalLocalization = Common.CommonModule("EmailOperationsInternalLocalization");
@@ -2851,7 +2851,7 @@ EndFunction
 
 Function AddressOfExternalResource()
 	
-	AddressOfExternalResource = "downloads.v8.1c.eu";
+	AddressOfExternalResource = "downloads.1c.eu";
 	
 	If Metadata.CommonModules.Find("EmailOperationsInternalLocalization") <> Undefined Then
 		ModuleEmailOperationsInternalLocalization = Common.CommonModule("EmailOperationsInternalLocalization");

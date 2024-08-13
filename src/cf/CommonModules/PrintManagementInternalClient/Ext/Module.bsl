@@ -56,7 +56,7 @@ EndProcedure
 //
 Procedure OpenAttachmentsFormatSelectionForm(FormatSettings, Notification) Export
 	FormParameters = New Structure("FormatSettings", FormatSettings);
-	OpenForm("CommonForm.SelectAttachmentFormat", FormParameters,,,,, Notification, FormWindowOpeningMode.LockOwnerWindow);
+	CommonClient.ShowAttachmentsFormatSelection(Notification, FormatSettings);
 EndProcedure
 
 // Opens the email message composition form.
@@ -301,6 +301,7 @@ Procedure ResumePrintCommand() Export
 	FormOwner = OpeningParameters.FormOwner;
 	OpeningParameters.FormOwner = Undefined;
 	PassedParametersList.Delete(0);
+	AttachIdleHandler("ResumePrintCommandWithPassedParameters", 0.1, True);
 	
 	If TypeOf(PrintParameters) = Type("Structure")
 		And PrintParameters.Property("ShouldRunInBackgroundJob")

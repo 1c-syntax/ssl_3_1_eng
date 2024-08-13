@@ -27,7 +27,7 @@
 							<v8:content>Main</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="TheMainThingExtendedTooltip" id="36"/>
+					<ExtendedTooltip name="Main_PageExtendedTooltip" id="36"/>
 					<ChildItems>
 						<UsualGroup name="Commands" id="47">
 							<Title>
@@ -91,7 +91,7 @@
 															<v8:content>Select all</v8:content>
 														</v8:item>
 													</Title>
-													<ExtendedTooltip name="FormSelectAllExtendedTooltip" id="28"/>
+													<ExtendedTooltip name="FormCheckAllExtendedTooltip" id="28"/>
 												</Button>
 												<Button name="FormUncheckAll" id="29">
 													<Type>CommandBarButton</Type>
@@ -102,7 +102,7 @@
 															<v8:content>Clear all</v8:content>
 														</v8:item>
 													</Title>
-													<ExtendedTooltip name="FormClearAllExtendedTooltip" id="30"/>
+													<ExtendedTooltip name="FormUncheckAllExtendedTooltip" id="30"/>
 												</Button>
 											</ChildItems>
 										</ButtonGroup>
@@ -128,8 +128,8 @@
 								<xr:LoadTransparent>false</xr:LoadTransparent>
 							</Picture>
 							<FileDragMode>AsFile</FileDragMode>
-							<ContextMenu name="TimeConsumingOperationPicture2ContextMenu" id="40"/>
-							<ExtendedTooltip name="TimeConsumingOperationPicture2ExtendedTooltip" id="41"/>
+							<ContextMenu name="PictureTimeConsumingOperationContextMenu" id="40"/>
+							<ExtendedTooltip name="PictureTimeConsumingOperationExtendedTooltip" id="41"/>
 						</PictureDecoration>
 						<LabelDecoration name="LabelCheckIsRunning" id="42">
 							<AutoMaxWidth>false</AutoMaxWidth>

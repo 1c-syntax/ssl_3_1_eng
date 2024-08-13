@@ -50,19 +50,22 @@ Function SetMonitoringCenterParameterExternalCall(Parameter, Value) Export
 	Return "Success";
 EndFunction
 
-// This function gets default Monitoring center parameters.
-// Returns
-//    Structure - a value of the MonitoringCenterParameters constant.
+// Gets the default Monitoring center parameters.
+//
+// Returns:
+//    Structure - The value of the "MonitoringCenterParameters" constant.
 //
 Function GetDefaultParametersExternalCall() Export
 	Return GetDefaultParameters();
 EndFunction
 
 // This function gets Monitoring center parameters.
+//
 // Parameters:
-//    Parameters - Structure - where keys are parameters whose values are to be got.
-// Returns
-//    Structure - a value of the MonitoringCenterParameters constant.
+//    Parameters - Structure - Where the keys are the parameters whose values should be obtained.
+//
+// Returns:
+//    Structure - The value of the "MonitoringCenterParameters" constant.
 //
 Function GetMonitoringCenterParametersExternalCall(Parameters = Undefined) Export
 	Return GetMonitoringCenterParameters(Parameters);
@@ -564,8 +567,8 @@ Procedure MonitoringCenterScheduledJob() Export
 			InstallAdditionalErrorHandlingInformation();
 		EndIf;
 		
-		// 
-		// 
+		// Delete the parameters that were set when handling
+		// the service response to avoid writing them.
 		MonitoringCenterParameters.Delete("RegisterDumps");
 		MonitoringCenterParameters.Delete("RegisterBusinessStatistics");
 		MonitoringCenterParameters.Delete("RegisterConfigurationStatistics");
@@ -1505,9 +1508,9 @@ Procedure CollectConfigurationStatistics1(MonitoringCenterParameters = Undefined
 		MonitoringCenterParameters = GetMonitoringCenterParameters(MonitoringCenterParameters);
 	EndIf;
 	
-	// 
-	// 
-	// 
+	// Gathers the basic configuration statistics.
+	// Also, measures the execution time if the
+	// Performance monitor subsystem is integrated.
 	//
 	#Region BaseConfigurationStatistics
 	
@@ -1541,9 +1544,9 @@ Procedure CollectConfigurationStatistics1(MonitoringCenterParameters = Undefined
 	
 	#EndRegion
 	
-	// 
-	// 
-	// 
+	// Gathers the configuration statistics.
+	// Also, measures the execution time if the
+	// Performance monitor subsystem is integrated.
 	//
 	#Region ConfigurationStatisticsStandardSubsystems
 	
@@ -1732,7 +1735,7 @@ Function GetDefaultParameters()
 	//
 	ConstantParameters.Insert("EnableMonitoringCenter", False);
 	
-	// 
+	// Processing center flag. If set to "True", then a third-party developer.
 	// 
 	//
 	ConstantParameters.Insert("ApplicationInformationProcessingCenter", False);
@@ -1774,11 +1777,11 @@ Function GetDefaultParameters()
 	ConstantParameters.Insert("RegisterConfigurationStatistics", False);
 	ConstantParameters.Insert("RegisterConfigurationSettings", False);
 	
-	// 
-	// 	
-	// 	
-	// 	
-	// 	
+	// Parameters for gathering performance statistics. PerformanceMonitorEnabled:
+	// 	0 - Disabled.
+	// 	1 - Enabled by Monitoring Center.
+	// 	2 - Enabled by Performance Monitor.
+	// 	3 - Disabled by Performance Monitor.
 	//
 	ConstantParameters.Insert("PerformanceMonitorEnabled", 0);
 	
@@ -1803,20 +1806,20 @@ Function GetDefaultParameters()
 	ConstantParameters.Insert("Port", 443);
 	ConstantParameters.Insert("SecureConnection", True);
 	
-	// 
+	// Parameters for gathering and sending dump reports.
 	//
-	// 
-	//	
-	//  
-	//  
+	// SendDumpsFiles
+	//	0 - Do not send.
+	//  1 - Send.
+	//  2 - User is not prompted yet.
 	ConstantParameters.Insert("SendDumpsFiles", 2);
 	ConstantParameters.Insert("DumpOption", "");
-	// 
-	// 
+	// Indication of passing the basic checks (free disk space, log edit right).
+	// Intended for generating notifications.
 	ConstantParameters.Insert("BasicChecksPassed", False); 
 	ConstantParameters.Insert("RequestConfirmationBeforeSending", True);
 	ConstantParameters.Insert("SendingResult", "");
-	ConstantParameters.Insert("DumpsInformation", ""); // 
+	ConstantParameters.Insert("DumpsInformation", ""); // Information that will be displayed to a user upon sending approval.
 	ConstantParameters.Insert("SpaceReserveDisabled", 40);
 	ConstantParameters.Insert("SpaceReserveEnabled", 20);
 	ConstantParameters.Insert("DumpCollectingEnd", Date(2017,1,1));
@@ -1856,13 +1859,13 @@ Function GetDefaultParameters()
 	ConstantParameters.Insert("IncludeDetailErrorDescriptionInReport", "Auto"); // IncludeDetailedErrorTextInReport.
 	ConstantParameters.Insert("IncludeInfobaseInformationInReport", "Auto"); // IncludeInfobaseInformationInReport.
 	
-	// 
+	// Contact information acquisition parameters.
 	//
-	// 
-	//	
-	//  
-	//  
-	//  
+	// ContactInformationRequest
+	//	0 - User refused.
+	//  1 - User agreed.
+	//  2 - User is not yet prompted.
+	//  3 - User has been prompted.
 	ConstantParameters.Insert("ContactInformationRequest", 2);
 	ConstantParameters.Insert("ContactInformation", "");
 	ConstantParameters.Insert("ContactInformationComment1", "");
@@ -1922,7 +1925,7 @@ Function SetSendingParameters(Parameters)
 	SendOptions.Insert("RegisterConfigurationSettings", False);
 	SendOptions.Insert("RegisterPerformance", False);
 	SendOptions.Insert("RegisterTechnologicalPerformance", False);
-	SendOptions.Insert("SendingResult", ""); // 
+	SendOptions.Insert("SendingResult", ""); // Reset a dump sending result to zero upon successful sending.
 	SendOptions.Insert("DiscoveryPackageSent", True); // If a response from the service is received, always True.
 	SendOptions.Insert("ContactInformationChanged", False);  // Always clear the contacts change flag upon successful sending.
 	
@@ -2095,6 +2098,15 @@ Function KeyForIncomingSettings(Var_Key)
 	Map.Insert("SendReport","SendReport");
 	Map.Insert("IncludeDetailErrorDescriptionInReport","IncludeDetailErrorDescriptionInReport");
 	Map.Insert("IncludeInfobaseInformationInReport","IncludeInfobaseInformationInReport");	
+	
+	Map.Insert("ErrorMessageDisplayVariant","ErrorMessageDisplayVariant");
+	Map.Insert("ErrorProcessingServiceURL","ErrorProcessingServiceAddress");
+	Map.Insert("SendReportOnClient","SendReport");
+	Map.Insert("SendReportOnServer","SendReportOnServer");
+	Map.Insert("IncludeDetailErrorDescriptionInReportOnClient","IncludeDetailErrorDescriptionInReportOnClient");
+	Map.Insert("IncludeDetailErrorDescriptionInReportOnServer","IncludeDetailErrorDescriptionInReportOnServer");
+	Map.Insert("IncludeInfobaseInformationInReportOnClient","IncludeInfobaseInformationInReportOnClient");
+	Map.Insert("IncludeInfobaseInformationInReportOnServer","IncludeInfobaseInformationInReportOnServer");
 	Value = Map.Get(Var_Key);
 	If Value = Undefined Then
 		Return Var_Key
@@ -2215,11 +2227,15 @@ EndFunction
 
 #Region WorkWithSettingsFile
 
-// If the service is not available, collect full dumps. This is an export function for testing carried out by the data processor.
-// Returns
-//    Structure - contains a path to a dumps directory and dumps deletion flag.
+// Obtains the directory for dump collection on the server side. 
 //
-Function GetDumpsDirectory(DumpType = "0", StopCollectingFull = False) Export
+// Returns:
+//   Structure:
+//     * Path - String -  The path to the dump directory.
+//     * DeleteDumps - Boolean - Flag indicating whether dumps should be deleted.
+//     * ErrorDescription - String - Contains the path to the dump directory.
+//
+Function GetDumpsDirectory(DumpType = "0", StopCollectingFull = False) Export // ACC:581 - An export procedure for testing using a data processor.
 	SettingsDirectory = GetTechnologicalLogSettingsDirectory();
 	DumpsDirectory = FindDumpsDirectory(SettingsDirectory, DumpType, StopCollectingFull);
 	
@@ -2631,7 +2647,7 @@ EndFunction
 
 Procedure AddExtensionsInformation(ObjectClass, ObjectArchitecture, ExtensionsMetadata)
 	For Each MetadataObject In Metadata[ObjectClass] Do
-		// 
+		// First, iterate the subordinate items.
 		For Each StructureItem In ObjectArchitecture Do
 			If StructureItem.Value = "Recursively" Then
 				AddExtensionsInformationRecursively(MetadataObject, StructureItem.Key, ObjectArchitecture, ExtensionsMetadata);
@@ -2748,8 +2764,8 @@ Function DataOnRolesUsage()
 	
 	ProfilesRoles = ResultPackage[8].Unload();
 	ProfilesRoles.Columns.Add("ProfileUID", New TypeDescription("String"));
-	For Each String In ProfilesRoles Do
-		String.ProfileUID = String(String.Profile.UUID());
+	For Each TableRow In ProfilesRoles Do
+		TableRow.ProfileUID = String(TableRow.Profile.UUID());
 	EndDo;
 	ProfilesRoles.Columns.Delete("Profile");
 	
@@ -2767,9 +2783,9 @@ Function DataOnRolesUsage()
 	ProfilesData = ResultPackage[7].Unload();
 	ProfilesData.Columns.Add("ProfileUID", New TypeDescription("String"));
 	ProfilesData.Columns.Add("SuppliedDataIDRow", New TypeDescription("String"));
-	For Each String In ProfilesData Do
-		String.SuppliedDataIDRow = String(String.SuppliedDataID);
-		String.ProfileUID = String(String.Profile.UUID());
+	For Each TableRow In ProfilesData Do
+		TableRow.SuppliedDataIDRow = String(TableRow.SuppliedDataID);
+		TableRow.ProfileUID = String(TableRow.Profile.UUID());
 	EndDo;
 	ProfilesData.Columns.Delete("SuppliedDataID");
 	ProfilesData.Columns.SuppliedDataIDRow.Name = "SuppliedDataID";
@@ -3076,10 +3092,10 @@ EndFunction
 
 #Region DumpsCollectionAndSending
 
-// 
-// 
-// 
-// 
+// In client/server mode, it is called by the "DumpsCollectionAndSending" scheduled job.
+// It starts two background jobs: "DumpsCollection" and "DumpSending".
+// In file mode, the background job runs occasionally (on Windows only).
+// The check runs when calculating the variable "StartErrorReportsCollectionAndSending".
 //
 Procedure CollectAndSendDumps(FromClientAtServer = False, JobID = "") Export
 	
@@ -3124,8 +3140,8 @@ Procedure CollectAndSendDumps(FromClientAtServer = False, JobID = "") Export
 		StopFullDumpsCollection();
 		Return;
 	Else  		
-		// 
-		// 
+		// Change the dump type if it mismatches the required type.
+		// Collect either the minidump or (if the user confirmed) the full dump.
 		If DumpRequirement.DumpType <> DumpsCollectionAndSendingParameters.DumpType 
 			And (DumpRequirement.DumpType = "0" 
 				Or DumpsCollectionAndSendingParameters.SendDumpsFiles = 1 
@@ -3138,8 +3154,8 @@ Procedure CollectAndSendDumps(FromClientAtServer = False, JobID = "") Export
 		EndIf;   		
 	EndIf;
 	
-	// 
-	// 
+	// Check if the user can edit logcfg and get the dump directory.
+	// Also, check if dump collection is enabled.
 	DumpType = DumpsCollectionAndSendingParameters.DumpType;
 	DumpsDirectory = GetDumpsDirectory(DumpType);
 	DumpsCollectionAndSendingParameters.Insert("DumpsDirectory", DumpsDirectory.Path);
@@ -3195,8 +3211,8 @@ Procedure CollectAndSendDumps(FromClientAtServer = False, JobID = "") Export
 			Return;
 		EndIf;
 		
-		// 
-		// 
+		// Check if there's enough free space to collect full dumps.
+		// The check runs after the dump is sent as during the collection, the space is cleared for saving dumps.
 		If MeasurementResult.Value/1024 < DumpsCollectionAndSendingParameters.SpaceReserveEnabled
 			And DumpType = "3" Then
 			SetPrivilegedMode(True);
@@ -3525,7 +3541,7 @@ Function DumpIsRequired(DumpOption, RequestedDump, DumpType = "")
 	Result = New Structure("Required2, DumpType", False, DumpType);
 	RequiredDumps = RequiredDumps(DumpOption);
 	
-	// 
+	// If the query fails, assume that the damp is required if it matches the required dump.
 	// 
 	If Not RequiredDumps.RequestSuccessful Then
 		If DumpOption = RequestedDump Then
@@ -3635,9 +3651,9 @@ Function DumpSending(DumpOption, Data, RequiredDump, DumpType)
 	
 	SendingResult = False;
 	
-	// 
-	// 
-	// 
+	// Check whether the file exists.
+	// Intended for cases where the dump is approved, but the file is deleted.
+	// In this case the file is considered sent.
 	File = New File(Data.FullName);
 	If Not File.Exists() Then
 		Return True;
@@ -3749,11 +3765,11 @@ Procedure CheckIfNotificationOfDumpsIsRequired(DumpsDirectoryPath)
 	SysInfo = New SystemInfo;
 	
 	TopDumps = InformationRegisters.PlatformDumps.GetTopOptions(StartDate, CurrentDate, 10, SysInfo.AppVersion);
-	For Each String In TopDumps Do
+	For Each TableRow In TopDumps Do
 		// If the number of dumps exceeds the minimum one, check whether the dump is required.
-		If String.OptionsCount >=	MonitoringCenterParameters.MinDumpsCount Then
+		If TableRow.OptionsCount >=	MonitoringCenterParameters.MinDumpsCount Then
 			// If the dump is required, initiate its collection.
-			DumpRequirement = DumpIsRequired(String.DumpOption, "");
+			DumpRequirement = DumpIsRequired(TableRow.DumpOption, "");
 			If DumpRequirement.Required2 Then
 				If DumpRequirement.DumpType = "3" Then
 					// For a full dump, check if there is enough space.
@@ -3773,7 +3789,7 @@ Procedure CheckIfNotificationOfDumpsIsRequired(DumpsDirectoryPath)
 				
 			    // Set dumps collection parameters.
 				NewParameters = New Structure;
-				NewParameters.Insert("DumpOption", String.DumpOption);
+				NewParameters.Insert("DumpOption", TableRow.DumpOption);
 				NewParameters.Insert("DumpCollectingEnd", BegOfDay(CurrentDate)+30*86400);
 				// Until the user agrees, cannot enable collection of full dumps.
 				If MonitoringCenterParameters.SendDumpsFiles = 1 Then
@@ -3942,8 +3958,8 @@ Procedure InstallAdditionalErrorHandlingInformation() Export
 	Parameters = New Structure("TheCodeIsExecuted,ErrorProcessing", False, Undefined);
 	CodeToExecute = "Parameters.ErrorProcessing = ErrorProcessing;					   
 						|Parameters.TheCodeIsExecuted = True;";	
-	// 
-	// 
+	// Initialize the error handling manager.
+	// ACC:280-off - No need to handle errors.
 	Try
 		Common.ExecuteInSafeMode(CodeToExecute, Parameters);
 	Except
@@ -3957,6 +3973,7 @@ Procedure InstallAdditionalErrorHandlingInformation() Export
 			SetPrivilegedMode(True);
 			CommonSettings = Parameters.ErrorProcessing.GetCommonSettings();					   
 			SetPrivilegedMode(False);
+
 			AdditionalInformation = New Structure;
 			If ValueIsFilled(CommonSettings.AdditionalReportInformation) Then
 				// By default, it is assumed that it has the JSON structure. Otherwise, someone changed it manually. In this case, don't change it.
@@ -3972,6 +3989,7 @@ Procedure InstallAdditionalErrorHandlingInformation() Export
 			JSONWriter.SetString(New JSONWriterSettings(JSONLineBreak.None));
 			WriteJSON(JSONWriter, AdditionalInformation);                                  	
 			CommonSettings.AdditionalReportInformation = JSONWriter.Close();
+			
 			SetPrivilegedMode(True);
 			Parameters.ErrorProcessing.SetCommonSettings(CommonSettings);
 			SetPrivilegedMode(False);			
@@ -3986,76 +4004,60 @@ Function SettingErrorHandlingSettings(SavedParameters1, ReceivedParameters)
 	
 	ProcessingResult = New Structure;
 	
-	Parameters = New Structure;
-	Parameters.Insert("TheCodeIsExecuted", False);
-	Parameters.Insert("ErrorProcessing", Undefined);
-	Parameters.Insert("ErrorReportingMode", Undefined);
-	Parameters.Insert("ErrorMessageDisplayVariant", Undefined);
-	CodeToExecute = "Parameters.ErrorProcessing = ErrorProcessing;					   
-						|Parameters.TheCodeIsExecuted = True;
-						|Parameters.ErrorReportingMode = ErrorReportingMode;
-						|Parameters.ErrorMessageDisplayVariant = ErrorMessageDisplayVariant;";	   				
-	// 
-	// 
-	Try
-		Common.ExecuteInSafeMode(CodeToExecute, Parameters);
-	Except
-		// Don't throw an exception.
-	EndTry;
-	If Parameters.TheCodeIsExecuted Then		
-		Try
-			If SafeMode() = True Then
-				SetSafeModeDisabled(True);
-			EndIf;
-			SetPrivilegedMode(True);
-			CommonSettings = Parameters.ErrorProcessing.GetCommonSettings();					   
-			EnumErrorReportingMode = Parameters.ErrorReportingMode;
-			EnumErrorMessageDisplayVariant = Parameters.ErrorMessageDisplayVariant;
-			SetPrivilegedMode(False);
-			If CommonSettings.ErrorRegistrationServiceURL = SavedParameters1.ErrorRegistrationServiceURL
-				Or ReceivedParameters.SetErrorHandlingSettingsForcibly Then
-				CommonSettings.ErrorRegistrationServiceURL = ReceivedParameters.ErrorRegistrationServiceURL;
-			EndIf;
-			// ACC:1036-off
-			If CommonSettings.SendReport = EnumErrorReportingMode[SavedParameters1.SendReport]
-				Or ReceivedParameters.SetErrorHandlingSettingsForcibly Then
-				CommonSettings.SendReport = EnumErrorReportingMode[ReceivedParameters.SendReport];				
-			EndIf;
-			// ACC:1036-on
-			If CommonSettings.MessageDisplayVariant = EnumErrorMessageDisplayVariant[SavedParameters1.ErrorMessageDisplayVariant]
-				Or ReceivedParameters.SetErrorHandlingSettingsForcibly Then
-				CommonSettings.MessageDisplayVariant = EnumErrorMessageDisplayVariant[ReceivedParameters.ErrorMessageDisplayVariant];
-				// Message text.
-				ParametersForTheMessageText = New Structure("CommonSettings", CommonSettings);
-				CodeToExecute = "MessageString = New FormattedString(NStr(""ru = 'K unfortunately, appeared unforeseen situation'""), StyleFonts.ExtraLargeTextFont);
-					|ErrorMessageTexts = New ErrorMessageTexts(MessageString, MessageString);
-					|Parameters.CommonSettings.ErrorMessageTexts_SSLy.Insert(ErrorCategory.OtherError, ErrorMessageTexts);";
-				Common.ExecuteInSafeMode(CodeToExecute, ParametersForTheMessageText);
-			EndIf;
-			If CommonSettings.IncludeDetailErrorDescriptionInReport = EnumErrorReportingMode[SavedParameters1.IncludeDetailErrorDescriptionInReport]
-				Or ReceivedParameters.SetErrorHandlingSettingsForcibly Then
-				CommonSettings.IncludeDetailErrorDescriptionInReport = EnumErrorReportingMode[ReceivedParameters.IncludeDetailErrorDescriptionInReport];
-			EndIf;
-			If CommonSettings.IncludeInfobaseInformationInReport = EnumErrorReportingMode[SavedParameters1.IncludeInfobaseInformationInReport]
-				Or ReceivedParameters.SetErrorHandlingSettingsForcibly Then
-				CommonSettings.IncludeInfobaseInformationInReport = EnumErrorReportingMode[ReceivedParameters.IncludeInfobaseInformationInReport];
-			EndIf;			
-						
-			SetPrivilegedMode(True);
-			Parameters.ErrorProcessing.SetCommonSettings(CommonSettings);
-			SetPrivilegedMode(False);	
-			
-			ProcessingResult.Insert("SetErrorHandlingSettingsForcibly", ReceivedParameters.SetErrorHandlingSettingsForcibly);
-			ProcessingResult.Insert("ErrorMessageDisplayVariant", ReceivedParameters.ErrorMessageDisplayVariant);
-			ProcessingResult.Insert("ErrorRegistrationServiceURL", ReceivedParameters.ErrorRegistrationServiceURL);
-			ProcessingResult.Insert("SendReport", ReceivedParameters.SendReport);
-			ProcessingResult.Insert("IncludeDetailErrorDescriptionInReport", ReceivedParameters.IncludeDetailErrorDescriptionInReport);
-			ProcessingResult.Insert("IncludeInfobaseInformationInReport", ReceivedParameters.IncludeInfobaseInformationInReport);
-		Except
-			// Don't throw an exception.
-		EndTry;		
+	If SafeMode() = True Then
+		SetSafeModeDisabled(True);
 	EndIf;
-	// ACC:280-on
+	SetPrivilegedMode(True);
+	CommonSettings = ErrorProcessing.GetCommonSettings();
+	EnumErrorReportingMode = ErrorReportingMode;
+	EnumErrorMessageDisplayVariant = ErrorMessageDisplayVariant;
+	SetPrivilegedMode(False);
+// 	Compare with the saved parameters to make sure that the user didn't make manual changes.
+	If ReceivedParameters.Property("ErrorRegistrationServiceURL") 
+		And (CommonSettings.ErrorProcessingServiceAddress  = SavedParameters1.ErrorRegistrationServiceURL
+		Or ReceivedParameters.SetErrorHandlingSettingsForcibly) Then
+		CommonSettings.ErrorProcessingServiceAddress  = ReceivedParameters.ErrorRegistrationServiceURL;
+		ProcessingResult.Insert("ErrorRegistrationServiceURL", ReceivedParameters.ErrorRegistrationServiceURL);
+	EndIf;
+	If ReceivedParameters.Property("SendReport") 
+		And (CommonSettings.SendReport = EnumErrorReportingMode[SavedParameters1.SendReport]
+		Or ReceivedParameters.SetErrorHandlingSettingsForcibly) Then
+		CommonSettings.SendReport = EnumErrorReportingMode[ReceivedParameters.SendReport];	
+		ProcessingResult.Insert("SendReport", ReceivedParameters.SendReport);
+	EndIf;
+	If ReceivedParameters.Property("ErrorMessageDisplayVariant") 
+		And (CommonSettings.MessageDisplayVariant = EnumErrorMessageDisplayVariant[SavedParameters1.ErrorMessageDisplayVariant]
+		Or ReceivedParameters.SetErrorHandlingSettingsForcibly) Then
+		CommonSettings.MessageDisplayVariant = EnumErrorMessageDisplayVariant[ReceivedParameters.ErrorMessageDisplayVariant];
+		// Message text.
+		ParametersForTheMessageText = New Structure("CommonSettings", CommonSettings);
+		MessageString = StringFunctions.FormattedString(
+			StringFunctionsClientServer.SubstituteParametersToString(	
+				NStr("en = '<span style=""font:%1"">Oops… An unexpected situation has occurred</span>';"),
+				"VeryLargeFont"));
+		ErrorMessageTexts = New ErrorMessageTexts(MessageString, MessageString);
+		CommonSettings.ErrorMessageTexts.Insert(ErrorCategory.OtherError, ErrorMessageTexts);	
+		ProcessingResult.Insert("ErrorMessageDisplayVariant", ReceivedParameters.ErrorMessageDisplayVariant);
+	EndIf;
+	If ReceivedParameters.Property("IncludeDetailErrorDescriptionInReport") 
+		And (CommonSettings.IncludeDetailErrorDescriptionInReportOnClient = EnumErrorReportingMode[SavedParameters1.IncludeDetailErrorDescriptionInReport]
+		Or ReceivedParameters.SetErrorHandlingSettingsForcibly) Then
+		CommonSettings.IncludeDetailErrorDescriptionInReportOnClient = EnumErrorReportingMode[ReceivedParameters.IncludeDetailErrorDescriptionInReport];
+		ProcessingResult.Insert("IncludeDetailErrorDescriptionInReport", ReceivedParameters.IncludeDetailErrorDescriptionInReport);
+	EndIf;
+	If ReceivedParameters.Property("IncludeInfobaseInformationInReport") 
+		And (CommonSettings.IncludeInfobaseInformationInReportOnClient = EnumErrorReportingMode[SavedParameters1.IncludeInfobaseInformationInReport]
+		Or ReceivedParameters.SetErrorHandlingSettingsForcibly) Then
+		CommonSettings.IncludeInfobaseInformationInReportOnClient = EnumErrorReportingMode[ReceivedParameters.IncludeInfobaseInformationInReport];
+		ProcessingResult.Insert("IncludeInfobaseInformationInReport", ReceivedParameters.IncludeInfobaseInformationInReport);
+	EndIf;
+	
+	SetPrivilegedMode(True);
+	ErrorProcessing.SetCommonSettings(CommonSettings);
+	SetPrivilegedMode(False);	
+	
+	ProcessingResult.Insert("SetErrorHandlingSettingsForcibly", ReceivedParameters.SetErrorHandlingSettingsForcibly);	
+		
 	Return ProcessingResult;
 	
 EndFunction

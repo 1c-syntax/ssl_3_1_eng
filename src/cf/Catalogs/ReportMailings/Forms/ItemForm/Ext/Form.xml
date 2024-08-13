@@ -20,7 +20,7 @@
 						<v8:content>Save and close</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="CommandWriteAndCloseExtendedTooltip" id="956"/>
+				<ExtendedTooltip name="CommandSaveAndCloseExtendedTooltip" id="956"/>
 			</Button>
 			<Button name="CommandWrite" id="957">
 				<Type>CommandBarButton</Type>
@@ -702,8 +702,8 @@
 															</Title>
 															<EditMode>EnterOnInput</EditMode>
 															<CheckBoxType>Auto</CheckBoxType>
-															<ContextMenu name="CurrentReportSettingsUse1ContextMenu" id="661"/>
-															<ExtendedTooltip name="CurrentReportSettingsUse1ExtendedTooltip" id="724"/>
+															<ContextMenu name="CurrentReportSettingsUsage1ContextMenu" id="661"/>
+															<ExtendedTooltip name="CurrentReportSettingsUsage1ExtendedTooltip" id="724"/>
 														</CheckBoxField>
 														<InputField name="CurrentReportSettingsPresentation1" id="662">
 															<DataPath>CurrentReportSettings.Presentation</DataPath>

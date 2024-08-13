@@ -172,7 +172,7 @@
 			<Explanation>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>When submitting applications, it is populated from the certificate form in the personal store, provided that the "User reminders" subsystem is enabled. It is populated automatically when you use a certificate that expires in less than 30 days.</v8:content>
+					<v8:content>When submitting applications, it is populated from the certificate form in the Personal store, provided that the "User reminders" subsystem is enabled. It is populated automatically when you use a certificate that expires in less than 30 days.</v8:content>
 				</v8:item>
 			</Explanation>
 			<DataHistory>DontUse</DataHistory>

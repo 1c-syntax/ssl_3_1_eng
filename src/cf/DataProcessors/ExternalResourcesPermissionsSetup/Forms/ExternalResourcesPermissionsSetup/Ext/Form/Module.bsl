@@ -153,7 +153,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 &AtClient
-Procedure ConnectionTypeOnChange(Item)
+Procedure AttachmentTypeOnChange(Item)
 	
 	VisibilityManagement();
 	
@@ -357,7 +357,7 @@ Procedure ApplyPermissionsAtServer(StorageAddress)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Applying the requests for permissions to use external resources.
 //
 
 // Applies the security profile permission changes in server cluster by the scenario.

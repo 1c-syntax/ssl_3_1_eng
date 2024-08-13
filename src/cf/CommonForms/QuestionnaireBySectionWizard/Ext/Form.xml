@@ -273,7 +273,7 @@
 										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
-									<ContextMenu name="TimeConsumingOperationPicture4ContextMenu" id="83"/>
+									<ContextMenu name="TimeConsumingProcessPictureContextMenu" id="83"/>
 									<ExtendedTooltip name="TimeConsumingProcessPictureExtendedTooltip" id="116"/>
 								</PictureDecoration>
 								<LabelDecoration name="WaitLabel" id="84">

@@ -226,6 +226,8 @@ Function IsTrainingPlatform() Export
 	
 EndFunction
 
+#Region ErrorProcessing
+
 // Calls the method "ShowErrorInfo" (object "ErrorProcessing").
 // Intended for catching errors with the extension
 // during automatic testing. 
@@ -431,6 +433,8 @@ Procedure SendErrorReport(ReportToSend, ErrorInfo, IsErrorRequiresRestart = Fals
 	EndIf;
 	
 EndProcedure
+
+#EndRegion
 
 #Region ApplicationEventsProcessing
 
@@ -725,7 +729,7 @@ EndFunction
 //	EndIf;
 //	If SessionTerminationInProgress() Then
 //		EndUserSessions(Result);
-//	ElseIf IsUserExitControlEnabled() Then
+//	ElsIf IsUserExitControlEnabled() Then
 //		SessionTerminationModeManagement(Result);
 //	EndIf;
 //
@@ -1132,7 +1136,7 @@ Procedure ShowDetailedInfo(Handler, Text, Title = Undefined) Export
 	ShowQuestionToUser(Handler, Text, Buttons, DialogSettings);
 EndProcedure
 
-// The file header for technical support.
+// The file header for technical support.
 //
 // Returns:
 //  String
@@ -1210,14 +1214,14 @@ EndFunction
 // That is, when you need to minimize the delay.
 // 
 // Parameters:
-//  Notification - NotifyDescription - Notification to be handled.
+//  NotifyDescription - NotifyDescription - Notification to be handled.
 //  Result  - Arbitrary - Value to be passed to the "Result" parameter
-//               of the 1C:Entperprise method ExecuteNotificationProcessing.
+//               of the RunCallback platform method.
 //
-Procedure StartNotificationProcessing(Notification, Result = Undefined) Export
+Procedure StartNotificationProcessing(NotifyDescription, Result = Undefined) Export
 	
 	Context = New Structure;
-	Context.Insert("Notification", Notification);
+	Context.Insert("Notification", NotifyDescription);
 	Context.Insert("Result", Result);
 	
 	Stream = New MemoryStream;
@@ -1225,6 +1229,111 @@ Procedure StartNotificationProcessing(Notification, Result = Undefined) Export
 		"StartNotificationProcessingCompletion", ThisObject, Context));
 	
 EndProcedure
+
+// Select metadata objects.
+// 
+// Parameters:
+//  FormParameters - See StandardSubsystemsClientServer.MetadataObjectsSelectionParameters
+//  OnCloseNotifyDescription - NotifyDescription - The notification that is called when the form closes. Has the following parameters:: 
+//			# SelectedMetadataObjects - The full names of the selected metadata objects.
+//				Or references to object IDs if "ChooseRefs" is set to "True". 
+//			# AdditionalParameters - Arbitrary - The parameters that were passed when creating the notification. 
+//		If "OnCloseNotifyDescription" is not specified, a notification is called that can be received 
+//		with the "NotificationProcessing" handler:
+//			# EventName - String - "SelectMetadataObjects"
+//			# Parameter - ValueList - Selected metadata objects.
+//			# Source -
+//
+Procedure ChooseMetadataObjects(FormParameters, OnCloseNotifyDescription = Undefined) Export
+	OpenForm("CommonForm.SelectMetadataObjects", FormParameters,,,,, OnCloseNotifyDescription);
+EndProcedure
+
+// Opens a spreadsheet for viewing or editing.
+// When saving an edited spreadsheet, calls a notification 
+// that can be received using the "NotificationProcessing" handler:
+//	# EventName - String - "Write_SpreadsheetDocument" or "CancelEditSpreadsheetDocument"
+//	# Parameter - Structure:
+//	  ## PathToFile - String - The full path to the spreadsheet file.
+//	  ## Presentation - String - The spreadsheet name as specified in "SpreadsheetEditorParameters.DocumentName
+//	# Source - ClientApplicationForm - The editor form.
+// 
+// Parameters:
+//  SpreadsheetDocument - SpreadsheetDocument - The opened spreadsheet.
+//  FormParameters - See StandardSubsystemsClient.SpreadsheetEditorParameters
+//
+Procedure ShowSpreadsheetEditor(Val SpreadsheetDocument, Val FormParameters = Undefined, 
+	Val OnCloseNotifyDescription = Undefined) Export
+	
+	If FormParameters = Undefined Then
+		FormParameters = SpreadsheetEditorParameters();
+	EndIf;
+	FormParameters.SpreadsheetDocument = SpreadsheetDocument;
+	
+	OpenForm("CommonForm.EditSpreadsheetDocument", FormParameters);
+	
+EndProcedure
+
+// Parameters of the spreadsheet editor for "StandardSubsystemsClient.ShowSpreadsheetEditor".
+// 
+// Returns:
+//  Structure:
+//   * DocumentName - String - The spreadsheet name (shown in the editor's header). 
+//   * SpreadsheetDocument - SpreadsheetDocument, String - The spreadsheet being displayed or edited.
+//                         Also, you can specify the address of the spreadsheet in the temporary storage.
+//   * PathToFile - String - The full path to the spreadsheet (optional).
+//   * Edit - Boolean - If set to "True", the spreadsheet is editable. By default, "False".
+//
+Function SpreadsheetEditorParameters() Export
+	
+	Result = New Structure;
+	Result.Insert("DocumentName", "");
+	Result.Insert("SpreadsheetDocument", Undefined);
+	Result.Insert("PathToFile", "");
+	Result.Insert("Edit", False);
+	Return Result;
+	
+EndFunction
+
+// Opens a form where you can compare spreadsheets and view the difference.
+// 
+// Parameters:
+//  SpreadsheetDocumentLeft - SpreadsheetDocument - The first spreadsheet to compare.
+//  SpreadsheetDocumentRight - SpreadsheetDocument - The second spreadsheet to compare.
+//  Parameters - See SpreadsheetComparisonParameters
+//
+Procedure ShowSpreadsheetComparison(SpreadsheetDocumentLeft, SpreadsheetDocumentRight, Parameters) Export
+	
+	If SpreadsheetDocumentLeft <> Undefined Then
+		FormParameters = SpreadsheetComparisonParameters();
+		CommonClientServer.SupplementStructure(FormParameters, Parameters, True);
+		ComparableDocuments = New Structure("Left_1, Right", SpreadsheetDocumentLeft, SpreadsheetDocumentRight);
+		FormParameters.SpreadsheetDocumentsAddress = PutToTempStorage(ComparableDocuments, Undefined);
+	Else
+		FormParameters = Parameters;
+	EndIf;
+	OpenForm("CommonForm.CompareSpreadsheetDocuments", FormParameters);
+	
+EndProcedure
+
+// Parameters for comparing spreadsheets using "ShowSpreadsheetsDiff".
+// 
+// Returns:
+//  Structure:
+//    * SpreadsheetDocumentsAddress - String - The addresses in the temporary storage of the spreadsheets being compared.
+//    * Title - String - The form's title. If not specified, then "Compare spreadsheet documents".
+//    * TitleLeft - String - The title of the first spreadsheet (on the left).
+//    * TitleRight - String - The title of the second spreadsheet (on the right).
+//
+Function SpreadsheetComparisonParameters() Export
+	
+	Result = New Structure;
+	Result.Insert("SpreadsheetDocumentsAddress", "");
+	Result.Insert("Title", "");
+	Result.Insert("TitleLeft", "");
+	Result.Insert("TitleRight", "");
+	Return Result;
+	
+EndFunction
 
 #EndRegion
 
@@ -1978,7 +2087,7 @@ EndProcedure
 // See CommonClientOverridable.BeforeStart.
 Procedure BeforeStart2(Parameters) Export
 	
-	// Checks the minimal required 1C:Enterprise version.
+	// Checks the minimum required 1C:Enterprise version.
 	// If the current version is earlier than "RecommendedPlatformVersion",
 	// the user is shown a warning.
 	// If "ClientParameters.MustExit" is set to "True", the session will be terminated.
@@ -2120,7 +2229,7 @@ EndProcedure
 // See CommonClientOverridable.BeforeStart.
 Procedure BeforeStart4(Parameters) Export
 	
-	// Checks if the main language and timezone are set up.
+	// Checks if the main language and time zone are set up.
 	// If they are not set up, the procedure opens the regional settings form.
 	
 	ClientParameters = ClientParametersOnStart();

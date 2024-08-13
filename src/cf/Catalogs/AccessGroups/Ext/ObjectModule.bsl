@@ -21,18 +21,23 @@ Var PreviousValues1; // Values of some access group tables and attributes
 
 Procedure BeforeWrite(Cancel)
 	
-	If DataExchange.Load Then
-		Return;
-	EndIf;
-	
+	// ACC:75-off - "DataExchange.Import" check must follow the logging of changes.
 	If IsFolder Then
 		Return;
 	EndIf;
 	
-	InformationRegisters.RolesRights.CheckRegisterData();
+	If UsersInternalCached.ShouldRegisterChangesInAccessRights()
+	 Or Not DataExchange.Load Then
+		
+		PreviousValues1 = PreviousValues1();
+	EndIf;
+	// ACC:75-on
 	
-	PreviousValues1 = Common.ObjectAttributesValues(Ref,
-		"Ref, Profile, DeletionMark, Users, AccessKinds, AccessValues");
+	If DataExchange.Load Then
+		Return;
+	EndIf;
+	
+	InformationRegisters.RolesRights.CheckRegisterData();
 	
 	If Not Catalogs.ExtensionsVersions.AllExtensionsConnected() Then
 		Catalogs.AccessGroupProfiles.RestoreNonexistentViewsFromAccessValue(PreviousValues1, ThisObject);
@@ -87,43 +92,46 @@ Procedure BeforeWrite(Cancel)
 			           |can have the predefined profile ""Administrator.""';");
 	EndIf;
 	
-	If Not IsFolder Then
+	// Automatically setting attributes for the personal access group.
+	If ValueIsFilled(User) Then
+		Parent = Catalogs.AccessGroups.PersonalAccessGroupsParent();
+	Else
+		User = Undefined;
+		If Parent = Catalogs.AccessGroups.PersonalAccessGroupsParent(True) Then
+			Parent = Undefined;
+		EndIf;
+	EndIf;
+	
+	// When the deletion mark is cleared from an access group,
+	// it's also cleared from the group's profile.
+	If Not DeletionMark And PreviousValues1.DeletionMark = True
+	   And Profile = PreviousValues1.Profile Then
 		
-		// Automatically setting attributes for the personal access group.
-		If ValueIsFilled(User) Then
-			Parent = Catalogs.AccessGroups.PersonalAccessGroupsParent();
-		Else
-			User = Undefined;
-			If Parent = Catalogs.AccessGroups.PersonalAccessGroupsParent(True) Then
-				Parent = Undefined;
+		BeginTransaction();
+		Try
+			Block = New DataLock;
+			LockItem = Block.Add("Catalog.AccessGroupProfiles");
+			LockItem.SetValue("Ref", Profile);
+			Block.Lock();
+			
+			ProfileDeletionMark = Common.ObjectAttributeValue(Profile, "DeletionMark");
+			ProfileDeletionMark = ?(TypeOf(ProfileDeletionMark) = Type("Boolean"), ProfileDeletionMark, False);
+			If ProfileDeletionMark Then
+				AccessManagement.CheckChangeAllowed(Profile);
+				LockDataForEdit(Profile);
+				SetPrivilegedMode(True);
+				ProfileObject = Profile.GetObject();
+				ProfileObject.AdditionalProperties.Insert("UnmarkProfileForDeletionWhenAccessGroupUnmarkedForDeletion", Ref);
+				ProfileObject.DeletionMark = False;
+				ProfileObject.Write();
+				SetPrivilegedMode(False);
 			EndIf;
-		EndIf;
-		
-		// 
-		// 
-		If Not DeletionMark And PreviousValues1.DeletionMark = True Then
-			BeginTransaction();
-			Try
-				Block = New DataLock;
-				LockItem = Block.Add("Catalog.AccessGroupProfiles");
-				LockItem.SetValue("Ref", Profile);
-				Block.Lock();
-				
-				ProfileDeletionMark = Common.ObjectAttributeValue(Profile, "DeletionMark");
-				ProfileDeletionMark = ?(ProfileDeletionMark = Undefined, False, ProfileDeletionMark);
-				If ProfileDeletionMark Then
-					LockDataForEdit(Profile);
-					ProfileObject = Profile.GetObject();
-					ProfileObject.DeletionMark = False;
-					ProfileObject.Write();
-				EndIf;
-				
-				CommitTransaction();
-			Except
-				RollbackTransaction();
-				Raise;
-			EndTry;	
-		EndIf;
+			
+			CommitTransaction();
+		Except
+			RollbackTransaction();
+			Raise;
+		EndTry;
 	EndIf;
 	
 EndProcedure
@@ -135,11 +143,24 @@ EndProcedure
 //
 Procedure OnWrite(Cancel)
 	
-	If DataExchange.Load Then
+	// ACC:75-off - "DataExchange.Import" check must follow the logging of changes.
+	If IsFolder Then
 		Return;
 	EndIf;
 	
-	If IsFolder Then
+	If UsersInternalCached.ShouldRegisterChangesInAccessRights() Then
+		SetSafeModeDisabled(True);
+		SetPrivilegedMode(True);
+		
+		Catalogs.AccessGroups.RegisterChangeInAccessGroupsMembers(ThisObject, PreviousValues1);
+		Catalogs.AccessGroups.RegisterChangeInAllowedValues(ThisObject, PreviousValues1);
+		
+		SetPrivilegedMode(False);
+		SetSafeModeDisabled(False);
+	EndIf;
+	// ACC:75-on
+	
+	If DataExchange.Load Then
 		Return;
 	EndIf;
 	
@@ -201,6 +222,35 @@ EndProcedure
 #EndRegion
 
 #Region Private
+
+// Values of some attributes and tables of the access group
+// before it is changed for use in the "OnWrite" event handler.
+// 
+// Returns:
+//  Structure:
+//     * Ref - CatalogRef.AccessGroups
+//     * DeletionMark - Boolean
+//     * Profile - CatalogRef.AccessGroupProfiles
+//     * ProfileDeletionMark - Boolean
+//     * Users - QueryResult
+//     * AccessKinds - QueryResult
+//     * AccessValues - QueryResult
+//
+Function PreviousValues1()
+	
+	Result = Common.ObjectAttributesValues(Ref,
+		"Ref, Profile, DeletionMark, Users, AccessKinds, AccessValues");
+	
+	Result.Insert("ProfileDeletionMark", Undefined);
+	
+	If ValueIsFilled(Result.Profile) Then
+		Result.ProfileDeletionMark = Common.ObjectAttributeValue(
+			Result.Profile, "DeletionMark");
+	EndIf;
+	
+	Return Result;
+	
+EndFunction
 
 // Parameters:
 //  NewMembers - CatalogTabularSection.AccessGroups.Users

@@ -43,8 +43,8 @@ Procedure BeforeWrite(Cancel, Replacing)
 		While Selection.Next() Do
 			
 			WorkingDirectory = Path;
-			//  
-			//  
+			// Add the slash sign (same as before) if it's missing. 
+			//  It's required on the client side, and "BeforeWrite" runs on the server.
 			WorkingDirectory = CommonClientServer.AddLastPathSeparator(WorkingDirectory);
 			
 			WorkingDirectory = WorkingDirectory + Selection.Description;

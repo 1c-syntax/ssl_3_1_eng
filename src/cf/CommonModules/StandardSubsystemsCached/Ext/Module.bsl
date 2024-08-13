@@ -44,8 +44,8 @@ Function SubsystemsDetails() Export
 		If SubsystemsDetails.ByNames.Get(LongDesc.Name) <> Undefined Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'An error occurred when preparing subsystem details:
-				           |subsystem details (see procedure %1.%2)
-				           |contain subsystem name ""%2"", which is already registered.';"),
+				           |subsystem details (see the procedure %1.%2)
+				           |contain subsystem name ""%3"", which already exists.';"),
 				ModuleName, "OnAddSubsystem", LongDesc.Name);
 			Raise(ErrorText, ErrorCategory.ConfigurationError);
 		EndIf;
@@ -62,7 +62,7 @@ Function SubsystemsDetails() Export
 		SubsystemsDetails.ByNames.Insert(LongDesc.Name, LongDesc);
 		// Setting up the subsystem order according to the adding order of main modules.
 		SubsystemsDetails.Order.Add(LongDesc.Name);
-		// 
+		// Collecting all required subsystems.
 		For Each RequiredSubsystem In LongDesc.RequiredSubsystems1 Do
 			If AllRequiredSubsystems.Get(RequiredSubsystem) = Undefined Then
 				AllRequiredSubsystems.Insert(RequiredSubsystem, New Array);
@@ -89,7 +89,7 @@ Function SubsystemsDetails() Export
 		EndIf;
 	ElsIf Metadata.Name = "StandardSubsystemsLibrary" Then
 		ErrorText = NStr("en = 'The 1C:Standard Subsystems Library distribution file is not intended for template-based infobase creation.
-			|Before you start using it,  read the documentation available on ITS (http://its.1c.eu/db/bspdoc, in Russian).';");
+			|Before you start using it,  read the <link https://kb.1ci.com/1C_Standard_Subsystems_Library/Guides/>SSL documentation</>.';");
 		Raise ErrorText;
 	Else
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -369,13 +369,13 @@ EndFunction
 //  ExchangePlanName - String - exchange plan to check.
 //
 // Returns:
-//  Undefined - exchange plan does not include the object,
-//  "AutoRecord" - object is included in the exchange plan content, autorecord is enabled,
-//  "AutoRecordDisabled" - the object is included in an exchange plan content, autorecord is disabled,
-//                               objects are processed when creating of the initial DIB image.
-//  "ProgramRegistration" - object is included in the exchange plan content, autorecord is disabled,
-//                               registering in the script using event subscriptions,
-//                               objects are processed when the initial DIB image is created.
+//  Undefined - Object not included in the exchange plan,
+//  "AutoRecordEnabled" - Object included in the exchange plan, autoregistration enabled,
+//  "AutoRecordDisabled" - Object included in the exchange plan, autoregistration disabled,
+//                               object processed during the creation of the initial DIB image.
+//  "ProgramRegistration" - Object included in the exchange plan, autoregistration disabled,
+//                               object registered programmatically using event subscriptions,
+//                               object processed during the creation of the initial DIB image.
 //
 Function ExchangePlanDataRegistrationMode(FullObjectName, ExchangePlanName) Export
 	
@@ -599,7 +599,7 @@ EndFunction
 
 Function AllRefsTypeDetails() Export
 	
-	AllLinks = New TypeDescription(New TypeDescription(New TypeDescription(New TypeDescription(New TypeDescription(
+	Return New TypeDescription(New TypeDescription(New TypeDescription(New TypeDescription(New TypeDescription(
 		New TypeDescription(New TypeDescription(New TypeDescription(New TypeDescription(
 			Catalogs.AllRefsType(),
 			Documents.AllRefsType().Types()),
@@ -611,14 +611,7 @@ Function AllRefsTypeDetails() Export
 			BusinessProcesses.AllRefsType().Types()),
 			BusinessProcesses.RoutePointsAllRefsType().Types()),
 			Tasks.AllRefsType().Types());
-			
-	For Each ExternalSource In Metadata.ExternalDataSources Do
-		AllLinks = New TypeDescription(AllLinks,
-			ExternalDataSources[ExternalSource.Name].Tables.AllRefsType().Types());
-	EndDo;
 	
-	Return AllLinks;
-
 EndFunction
 
 Function IsLongRunningOperationSession() Export
@@ -628,6 +621,15 @@ Function IsLongRunningOperationSession() Export
 	Return ValueIsFilled(ParentSessionKey);
 	
 EndFunction
+
+Function FileInfobase() Export
+	
+	InfoBaseConnectionString = InfoBaseConnectionString();
+	
+	Return StrFind(Upper(InfoBaseConnectionString), "FILE=") = 1;
+	
+EndFunction 
+
 
 Function DataSeparationEnabled() Export
 	

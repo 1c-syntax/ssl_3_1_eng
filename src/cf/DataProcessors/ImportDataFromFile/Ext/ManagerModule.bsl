@@ -68,26 +68,42 @@ Procedure CreateCatalogsListForImport(CatalogsListForImport) Export
 	CatalogsInformation.Columns.Add("AppliedImport", BooleanType);
 	
 	FunctionalOptions = StandardSubsystemsCached.ObjectsEnabledByOption();
-	
-	For Each MetadataObjectForOutput In Metadata.Catalogs Do
-		
-		FullName = MetadataObjectForOutput.FullName();
-		If FunctionalOptions.Get(FullName) = False Then
-			Continue;
-		EndIf;
 
-		If CanImportDataFromFile(MetadataObjectForOutput) Then
-			String = CatalogsInformation.Add();
-			String.Presentation = MetadataObjectForOutput.Presentation();
-			String.FullName     = FullName;
-		EndIf;
-		
-	EndDo;
-	
 	SSLSubsystemsIntegration.OnDefineCatalogsForDataImport(CatalogsInformation);
 	ImportDataFromFileOverridable.OnDefineCatalogsForDataImport(CatalogsInformation);
 	
 	CatalogsInformation.Columns.Add("ImportTypeInformation");
+	
+	For Each MetadataObjectForOutput In Metadata.Catalogs Do
+		
+		FullName = MetadataObjectForOutput.FullName();
+		If FunctionalOptions.Get(FullName) = False 
+			Or CatalogsInformation.Find(FullName, "FullName") <> Undefined Then
+			Continue;
+		EndIf;
+	
+		If CanImportDataFromFile(MetadataObjectForOutput) Then
+			
+			Presentation = MetadataObjectForOutput.Presentation();
+
+			TableRow = CatalogsInformation.Find(Presentation, "Presentation");
+			If TableRow <> Undefined Then
+				TableRow.Presentation = Presentation + " (" + TableRow.FullName +")";
+				Presentation               = Presentation + " (" + FullName +")";
+			EndIf;
+			
+			CatalogInformation = CatalogsInformation.Add();
+			CatalogInformation.Presentation = Presentation;
+			CatalogInformation.FullName     = FullName;
+			
+			ImportTypeInformation = NewInfoOnImportType();
+		
+			ImportTypeInformation.Type = ?(CatalogInformation.AppliedImport, "AppliedImport", "UniversalImport");
+			ImportTypeInformation.Insert("FullMetadataObjectName", FullName);
+			CatalogInformation.ImportTypeInformation = ImportTypeInformation;
+		EndIf;
+		
+	EndDo;
 	
 	For Each CatalogInformation In CatalogsInformation Do
 		ImportTypeInformation = NewInfoOnImportType();
@@ -112,10 +128,10 @@ Procedure CreateCatalogsListForImport(CatalogsListForImport) Export
 			ImportTypeInformation.Id = TableRow.Id;
 			ImportTypeInformation.Presentation = TableRow.Presentation;
 			
-			String = CatalogsInformation.Add();
-			String.FullName = MetadataObjectForOutput.FullName();
-			String.ImportTypeInformation = ImportTypeInformation;
-			String.Presentation = TableRow.Presentation;
+			CatalogInformation = CatalogsInformation.Add();
+			CatalogInformation.FullName = MetadataObjectForOutput.FullName();
+			CatalogInformation.ImportTypeInformation = ImportTypeInformation;
+			CatalogInformation.Presentation = TableRow.Presentation;
 		EndDo;
 	EndIf;
 	
@@ -178,15 +194,6 @@ Function CanImportDataFromFile(Catalog)
 	If StrStartsWith(Upper(Catalog.Name), Upper("DELETE")) Then
 		Return False;
 	EndIf;
-	
-	For Each TabularSection In Catalog.TabularSections Do
-		If TabularSection.Name <> "ContactInformation"
-			And TabularSection.Name <> "AdditionalAttributes"
-			And TabularSection.Name <> "Presentations"
-			And TabularSection.Name <> "EncryptionCertificates" Then
-				Return False;
-		EndIf;
-	EndDo;
 	
 	For Each Attribute In Catalog.Attributes Do 
 		For Each AttributeType In Attribute.Type.Types() Do
@@ -328,15 +335,15 @@ Procedure MapAutoColumnValue(MappingTable, ColumnName) Export
 	ValuesToMap.Columns.Add("SearchValue", AllowedTypes);
 	ValuesToMap.Columns.Add("Key", Common.TypeDescriptionNumber(10));
 	
-	For Each String In MappingTable Do 
-		If Not ValueIsFilled(String[ColumnName]) Then 
+	For Each TableRow In MappingTable Do 
+		If Not ValueIsFilled(TableRow[ColumnName]) Then 
 			Continue;
 		EndIf;
 		
-		Value = DocumentByPresentation(String[ColumnName], Types);
+		Value = DocumentByPresentation(TableRow[ColumnName], Types);
 		NewRow = ValuesToMap.Add();
-		NewRow.SearchValue =?(Value = Undefined, TrimAll(String[ColumnName]), Value);
-		NewRow.Key = MappingTable.IndexOf(String);
+		NewRow.SearchValue =?(Value = Undefined, TrimAll(TableRow[ColumnName]), Value);
+		NewRow.Key = MappingTable.IndexOf(TableRow);
 
 	EndDo;
 	
@@ -407,7 +414,7 @@ Function DocumentByPresentation(Presentation, Types)
 		SetPrivilegedMode(False);
 		
 		If Document = Undefined Or Document = Documents[MetadataObject.Name].EmptyRef() Then
-			Return Undefined;
+			Continue;
 		EndIf;
 		
 		Return Document;
@@ -588,7 +595,11 @@ Function CellValue(Column, CellValue)
 			EndIf;
 			If Not ValueIsFilled(CellData)
 			   And MetadataObject.CodeLength > 0 Then 
-				CellData = Catalogs[ObjectDetails.NameOfObject].FindByCode(CellValue, True);
+				If MetadataObject.CodeSeries = Metadata.ObjectProperties.CatalogCodesSeries.WholeCatalog Then
+					CellData = Catalogs[ObjectDetails.NameOfObject].FindByCode(CellValue);
+				Else
+					CellData = Catalogs[ObjectDetails.NameOfObject].FindByCode(CellValue, True);
+				EndIf;
 			EndIf;
 		ElsIf ObjectDetails.ObjectType = "Enum" Then 
 			For Each EnumerationValue In Enums[ObjectDetails.NameOfObject] Do 
@@ -1603,8 +1614,8 @@ EndFunction
 
 Procedure InitializeColumns(ColumnsInformation, TemplateWithData, HeaderHeight = 1)
 	
-	For Each String In ColumnsInformation Do
-		String.Position = -1;
+	For Each TableRow In ColumnsInformation Do
+		TableRow.Position = -1;
 	EndDo;
 	
 	For ColumnNumber = 1 To TemplateWithData.TableWidth Do

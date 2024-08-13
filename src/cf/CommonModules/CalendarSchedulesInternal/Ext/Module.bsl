@@ -99,8 +99,8 @@ Procedure DistributeBusinessCalendarsDataToDependentData(Val UpdateConditions,
 			ModuleSaaSOperations.SignInToDataArea(DataArea);
 			SetPrivilegedMode(False);
 		Except
-			// 
-			// 
+			// If the exclusive mode is set to a data area, skip it.
+			// Such data areas are inaccessible.
 			SetPrivilegedMode(True);
 			ModuleSaaSOperations.SignOutOfDataArea();
 			SetPrivilegedMode(False);

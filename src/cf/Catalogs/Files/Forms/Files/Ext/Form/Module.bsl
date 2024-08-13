@@ -1124,8 +1124,8 @@ Procedure SetCommandsAvailabilityOnChangeFolder()
 		
 		Items.ListContextMenuCreate.Enabled = False;
 		
-		Items.FormFilesImport1.Enabled = False;
-		Items.ListContextMenuFilesImport1.Enabled = False;
+		Items.FormFilesImport.Enabled = False;
+		Items.ListContextMenuFilesImport.Enabled = False;
 		
 		Items.FoldersContextMenuFolderImport.Enabled = False;
 		
@@ -1160,9 +1160,9 @@ Procedure SetCommandsAvailabilityOnChangeFolder()
 		Items.FormCreateCatalog.Enabled = Not FilesBeingEditedInCloudService;
 		Items.FormFolderImport.Enabled = Not FilesBeingEditedInCloudService;
 		Items.FormMoveToFolder.Enabled = Not FilesBeingEditedInCloudService;
-		Items.FormUnlock.Enabled = Not FilesBeingEditedInCloudService;
+		Items.FormRelease.Enabled = Not FilesBeingEditedInCloudService;
 		Items.ListContextMenuMoveToFolder.Enabled = Not FilesBeingEditedInCloudService;
-		Items.ListContextMenuUnlock.Enabled = Not FilesBeingEditedInCloudService;
+		Items.ListContextMenuRelease.Enabled = Not FilesBeingEditedInCloudService;
 		
 		Items.FormCopy.Enabled = AddFilesAllowed And Not FilesBeingEditedInCloudService;
 		Items.FoldersContextMenuCopy.Enabled = Items.FormCopy.Enabled;
@@ -1176,8 +1176,8 @@ Procedure SetCommandsAvailabilityOnChangeFolder()
 		Items.FormSetDeletionMark.Enabled = FilesDeletionMark And Not FilesBeingEditedInCloudService;
 		Items.ListContextMenuSetDeletionMark.Enabled = FilesDeletionMark And Not FilesBeingEditedInCloudService;
 		
-		Items.FormFilesImport1.Enabled = AddFilesAllowed And Not FilesBeingEditedInCloudService;
-		Items.ListContextMenuFilesImport1.Enabled = AddFilesAllowed  And Not FilesBeingEditedInCloudService;
+		Items.FormFilesImport.Enabled = AddFilesAllowed And Not FilesBeingEditedInCloudService;
+		Items.ListContextMenuFilesImport.Enabled = AddFilesAllowed  And Not FilesBeingEditedInCloudService;
 		
 		Items.FoldersContextMenuFolderImport.Enabled = AddFilesAllowed And Not FilesBeingEditedInCloudService;
 		Items.FoldersContextMenuLevelUp.Enabled = True;
@@ -1251,7 +1251,7 @@ Procedure SetFoldersTreeTitle()
 EndProcedure
 
 &AtServerNoContext
-Function SynchronizationInfo(FilesOwner)
+Function SynchronizationInfo(Val FilesOwner)
 	
 	Return FilesOperationsInternal.SynchronizationInfo(FilesOwner);
 	
@@ -1261,8 +1261,8 @@ EndFunction
 Procedure FolderIdleHandlerOnActivateRow()
 	
 	If Items.Folders.CurrentRow <> List.Parameters.Items.Find("Owner").Value Then
-		// 
-		// 
+		// Update the right list and command availability using the rights settings.
+		// 1C:Enterprise calls the procedure of the "OnActivateRow" handler in the "List" table.
 		UpdateAndSaveFilesListParameters();
 	Else
 		// The procedure of calling the OnActivateRow handler of the List table is performed by the application.
@@ -1344,8 +1344,8 @@ Procedure MakeCommandsUnavailable()
 	Items.FormSaveChanges.Enabled = False;
 	Items.ListContextMenuSaveChanges.Enabled = False;
 	
-	Items.FormUnlock.Enabled = False;
-	Items.ListContextMenuUnlock.Enabled = False;
+	Items.FormRelease.Enabled = False;
+	Items.ListContextMenuRelease.Enabled = False;
 	
 	Items.FormLock.Enabled = False;
 	Items.ListContextMenuLock.Enabled = False;
@@ -1417,8 +1417,8 @@ Procedure SetCommandsAvailability(Val CommandsData, Val SeveralLinesAreHighlight
 	Items.FormSaveChanges.Enabled                 = FilesModification And EditedByCurrentUser;
 	Items.ListContextMenuSaveChanges.Enabled = FilesModification And EditedByCurrentUser;
 	
-	Items.FormUnlock.Enabled                 = FilesModification And ValueIsFilled(BeingEditedBy) And Not FilesBeingEditedInCloudService;
-	Items.ListContextMenuUnlock.Enabled = FilesModification And ValueIsFilled(BeingEditedBy) And Not FilesBeingEditedInCloudService;
+	Items.FormRelease.Enabled                 = FilesModification And ValueIsFilled(BeingEditedBy) And Not FilesBeingEditedInCloudService;
+	Items.ListContextMenuRelease.Enabled = FilesModification And ValueIsFilled(BeingEditedBy) And Not FilesBeingEditedInCloudService;
 	
 	Items.FormLock.Enabled                 = FilesModification And Not ValueIsFilled(BeingEditedBy) And Not SignedWithDS And Not IsInternal And Not FilesBeingEditedInCloudService;
 	Items.ListContextMenuLock.Enabled = FilesModification And Not ValueIsFilled(BeingEditedBy) And Not SignedWithDS And Not IsInternal And Not FilesBeingEditedInCloudService;
@@ -1539,7 +1539,7 @@ Procedure SavePreviewOption(FileCatalogType, Preview)
 EndProcedure
 
 &AtServerNoContext
-Procedure OnSendFilesViaEmail(SendOptions, Val FilesToSend, FilesOwner, UUID)
+Procedure OnSendFilesViaEmail(SendOptions, Val FilesToSend, Val FilesOwner, Val UUID)
 	SSLSubsystemsIntegration.OnSendFilesViaEmail(SendOptions, FilesToSend, FilesOwner, UUID);
 	FilesOperationsOverridable.OnSendFilesViaEmail(SendOptions, FilesToSend, FilesOwner, UUID);
 EndProcedure

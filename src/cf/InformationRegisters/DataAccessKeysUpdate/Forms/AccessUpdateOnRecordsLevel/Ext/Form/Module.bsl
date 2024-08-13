@@ -194,7 +194,7 @@ EndProcedure
 Procedure ShowItemsCountOnChange(Item)
 	
 	Items.ListsItemCount.Visible             = ShowItemsCount;
-	Items.ListsProcessedItemsCount1.Visible = ShowItemsCount;
+	Items.ListsProcessedItemsCount.Visible = ShowItemsCount;
 	
 EndProcedure
 
@@ -997,13 +997,13 @@ Procedure UpdateDisplaySettingsVisibility()
 		
 		If DisplaySettings Then
 			Items.ListsItemCount.Visible                 = ShowItemsCount;
-			Items.ListsProcessedItemsCount1.Visible     = ShowItemsCount;
+			Items.ListsProcessedItemsCount.Visible     = ShowItemsCount;
 			Items.ListsAccessKeysCount.Visible             = ShowAccessKeysCount;
 			Items.ListsProcessedAccessKeysCount.Visible = ShowAccessKeysCount;
 			Items.ListsTableName.Visible                          = ShowTableName;
 		Else
 			Items.ListsItemCount.Visible                 = False;
-			Items.ListsProcessedItemsCount1.Visible     = False;
+			Items.ListsProcessedItemsCount.Visible     = False;
 			Items.ListsAccessKeysCount.Visible             = False;
 			Items.ListsProcessedAccessKeysCount.Visible = False;
 			Items.ListsTableName.Visible                          = False;

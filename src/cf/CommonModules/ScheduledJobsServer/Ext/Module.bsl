@@ -353,7 +353,7 @@ Procedure ChangeJob(Val Id, Val Parameters) Export
 				JobsList = FindJobs(Filter);
 			EndIf;
 			
-			// If a scheduled job is predefined and there's a queue tempalte,
+			// If a scheduled job is predefined and there's a queue template,
 			// then only "Use" can be modified.
 			PredefinedJobParameters = New Structure;
 			If JobParameters.Property("Use") Then
@@ -1180,8 +1180,8 @@ Function UpdatedTaskList(JobsList)
 	// For backward compatibility the ID field is not removed.
 	ListCopy = JobsList.Copy();
 	ListCopy.Columns.Add("UUID");
-	For Each String In ListCopy Do
-		String.UUID = String.Id;
+	For Each Job In ListCopy Do
+		Job.UUID = Job.Id;
 	EndDo;
 	
 	Return ListCopy;

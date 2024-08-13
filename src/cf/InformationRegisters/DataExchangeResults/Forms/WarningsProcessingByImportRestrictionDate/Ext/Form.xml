@@ -23,9 +23,9 @@
 				</v8:item>
 			</Title>
 			<RowFilter xsi:nil="true"/>
-			<ContextMenu name="TableOfCorrectionObjectsContextMenu" id="2">
+			<ContextMenu name="PatchObjectsTableContextMenu" id="2">
 				<ChildItems>
-					<Button name="TableOfCorrectionObjectsContextMenuOpenAVersionOfAnotherProgram" id="53">
+					<Button name="PatchObjectsTableContextMenuOpenOtherApplicationVersion" id="53">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.OpenOtherApplicationVersion</CommandName>
 						<Title>
@@ -34,14 +34,14 @@
 								<v8:content>Show rejected version received from another infobase</v8:content>
 							</v8:item>
 						</Title>
-						<ExtendedTooltip name="TableOfCorrectionObjectsContextMenuOpenAVersionOfAnotherProgramExtendedTooltip" id="54"/>
+						<ExtendedTooltip name="PatchObjectsTableContextMenuOpenOtherApplicationVersionExtendedTooltip" id="54"/>
 					</Button>
 				</ChildItems>
 			</ContextMenu>
 			<AutoCommandBar name="PatchObjectsTableCommandBar" id="3">
 				<Autofill>false</Autofill>
 				<ChildItems>
-					<Button name="TableOfCorrectionObjectsAcceptVersion" id="57">
+					<Button name="PatchObjectsTableAcceptVersion" id="57">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.AcceptVersion</CommandName>
 						<Title>
@@ -50,9 +50,9 @@
 								<v8:content>Accept version</v8:content>
 							</v8:item>
 						</Title>
-						<ExtendedTooltip name="TableOfCorrectionObjectsAcceptVersionExtendedTooltip" id="58"/>
+						<ExtendedTooltip name="PatchObjectsTableAcceptVersionExtendedTooltip" id="58"/>
 					</Button>
-					<Button name="TableOfCorrectionObjectsShowDifferences" id="45">
+					<Button name="PatchObjectsTableShowDifferences" id="45">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.ShowDifferences</CommandName>
 						<Title>
@@ -61,7 +61,7 @@
 								<v8:content>Show diff</v8:content>
 							</v8:item>
 						</Title>
-						<ExtendedTooltip name="TableOfCorrectionObjectsShowDifferencesExtendedTooltip" id="46"/>
+						<ExtendedTooltip name="PatchObjectsTableShowDifferencesExtendedTooltip" id="46"/>
 					</Button>
 					<Button name="PatchObjectsTableOpenConflictVersion" id="51">
 						<Type>CommandBarButton</Type>
@@ -73,7 +73,7 @@
 							</v8:item>
 						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-						<ExtendedTooltip name="TableOfCorrectionObjectsOpenConflictVersionExtendedTooltip" id="52"/>
+						<ExtendedTooltip name="PatchObjectsTableOpenConflictVersionExtendedTooltip" id="52"/>
 					</Button>
 					<ButtonGroup name="PatchObjectsTableSelectionCommand" id="24">
 						<Title>
@@ -83,9 +83,9 @@
 							</v8:item>
 						</Title>
 						<Representation>Compact</Representation>
-						<ExtendedTooltip name="TableOfCorrectionObjectsSelectionCommandExtendedTooltip" id="25"/>
+						<ExtendedTooltip name="PatchObjectsTableSelectionCommandExtendedTooltip" id="25"/>
 						<ChildItems>
-							<Button name="TableOfCorrectionObjectsSelectAll1" id="22">
+							<Button name="PatchObjectsTableSelectAllCommand" id="22">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.SelectAllCommand</CommandName>
 								<Title>
@@ -94,9 +94,9 @@
 										<v8:content>Select all</v8:content>
 									</v8:item>
 								</Title>
-								<ExtendedTooltip name="CorrectionObjectTableMarkAllExtendedTooltip" id="23"/>
+								<ExtendedTooltip name="PatchObjectsTableSelectAllCommandExtendedTooltip" id="23"/>
 							</Button>
-							<Button name="TableOfCorrectionObjectsDeselectSelection" id="20">
+							<Button name="PatchObjectsTableRemoveSelection" id="20">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.RemoveSelection</CommandName>
 								<Title>
@@ -105,39 +105,39 @@
 										<v8:content>Clear all</v8:content>
 									</v8:item>
 								</Title>
-								<ExtendedTooltip name="TableOfCorrectionObjectsDeselectExtendedTooltip" id="21"/>
+								<ExtendedTooltip name="PatchObjectsTableRemoveSelectionExtendedTooltip" id="21"/>
 							</Button>
 						</ChildItems>
 					</ButtonGroup>
 				</ChildItems>
 			</AutoCommandBar>
-			<ExtendedTooltip name="TableOfCorrectionObjectsExtendedTooltip" id="4"/>
-			<SearchStringAddition name="TableOfCorrectionObjectsSearchString" id="5">
+			<ExtendedTooltip name="PatchObjectsTableExtendedTooltip" id="4"/>
+			<SearchStringAddition name="PatchObjectsTableSearchString" id="5">
 				<AdditionSource>
 					<Item>PatchObjectsTable</Item>
 					<Type>SearchStringRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="TableOfCorrectionObjectsSearchStringContextMenu" id="6"/>
-				<ExtendedTooltip name="TableOfCorrectionObjectsSearchStringExtendedTooltip" id="7"/>
+				<ContextMenu name="PatchObjectsTableSearchStringContextMenu" id="6"/>
+				<ExtendedTooltip name="PatchObjectsTableSearchStringExtendedTooltip" id="7"/>
 			</SearchStringAddition>
-			<ViewStatusAddition name="TableOfCorrectionObjectsViewStatus" id="8">
+			<ViewStatusAddition name="PatchObjectsTableViewStatus" id="8">
 				<AdditionSource>
 					<Item>PatchObjectsTable</Item>
 					<Type>ViewStatusRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="TableOfCorrectionObjectsViewStatusContextMenu" id="9"/>
-				<ExtendedTooltip name="TableOfCorrectionObjectsViewStatusExtendedTooltip" id="10"/>
+				<ContextMenu name="PatchObjectsTableViewStatusContextMenu" id="9"/>
+				<ExtendedTooltip name="PatchObjectsTableViewStatusExtendedTooltip" id="10"/>
 			</ViewStatusAddition>
-			<SearchControlAddition name="TableOfCorrectionObjectsSearchControl" id="11">
+			<SearchControlAddition name="PatchObjectsTableSearchControl" id="11">
 				<AdditionSource>
 					<Item>PatchObjectsTable</Item>
 					<Type>SearchControl</Type>
 				</AdditionSource>
-				<ContextMenu name="TableOfCorrectionObjectsSearchControlContextMenu" id="12"/>
-				<ExtendedTooltip name="TableOfCorrectionObjectsSearchControlExtendedTooltip" id="13"/>
+				<ContextMenu name="PatchObjectsTableSearchControlContextMenu" id="12"/>
+				<ExtendedTooltip name="PatchObjectsTableSearchControlExtendedTooltip" id="13"/>
 			</SearchControlAddition>
 			<ChildItems>
-				<CheckBoxField name="TableOfCorrectionObjectsProcessAString" id="14">
+				<CheckBoxField name="PatchObjectsTableProcessString" id="14">
 					<DataPath>PatchObjectsTable.ProcessString</DataPath>
 					<Title>
 						<v8:item>
@@ -147,10 +147,10 @@
 					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<CheckBoxType>Auto</CheckBoxType>
-					<ContextMenu name="TableOfCorrectionObjectsProcessAStringContextMenu" id="15"/>
-					<ExtendedTooltip name="TableOfCorrectionObjectsProcessAStringExtendedTooltip" id="16"/>
+					<ContextMenu name="PatchObjectsTableProcessStringContextMenu" id="15"/>
+					<ExtendedTooltip name="PatchObjectsTableProcessStringExtendedTooltip" id="16"/>
 				</CheckBoxField>
-				<InputField name="TableOfCorrectionObjectsObjectWithIssue" id="17">
+				<InputField name="PatchObjectsTableObjectWithIssue" id="17">
 					<DataPath>PatchObjectsTable.ObjectWithIssue</DataPath>
 					<ReadOnly>true</ReadOnly>
 					<Title>
@@ -160,10 +160,10 @@
 						</v8:item>
 					</Title>
 					<EditMode>EnterOnInput</EditMode>
-					<ContextMenu name="TheTableOfObjectsFixesTheProblemObjectContextMenu" id="18"/>
-					<ExtendedTooltip name="TheTableOfObjectsFixesTheProblemObjectExtendedTooltip" id="19"/>
+					<ContextMenu name="PatchObjectsTableObjectWithIssueContextMenu" id="18"/>
+					<ExtendedTooltip name="PatchObjectsTableObjectWithIssueExtendedTooltip" id="19"/>
 				</InputField>
-				<InputField name="TableOfCorrectionObjectsVersionFromAnotherProgram" id="39">
+				<InputField name="PatchObjectsTableVersionFromOtherApplication" id="39">
 					<DataPath>PatchObjectsTable.VersionFromOtherApplication</DataPath>
 					<UserVisible>
 						<xr:Common>false</xr:Common>
@@ -175,10 +175,10 @@
 						</v8:item>
 					</Title>
 					<EditMode>EnterOnInput</EditMode>
-					<ContextMenu name="TableOfCorrectionObjectsVersionFromAnotherProgramContextMenu" id="40"/>
-					<ExtendedTooltip name="TableOfCorrectionObjectsVersionFromAnotherProgramExtendedTooltip" id="41"/>
+					<ContextMenu name="PatchObjectsTableVersionFromOtherApplicationContextMenu" id="40"/>
+					<ExtendedTooltip name="PatchObjectsTableVersionFromOtherApplicationExtendedTooltip" id="41"/>
 				</InputField>
-				<InputField name="TableOfCorrectionObjectsVersionOfThisProgram" id="42">
+				<InputField name="PatchObjectsTableThisApplicationVersion" id="42">
 					<DataPath>PatchObjectsTable.ThisApplicationVersion</DataPath>
 					<UserVisible>
 						<xr:Common>false</xr:Common>
@@ -190,8 +190,8 @@
 						</v8:item>
 					</Title>
 					<EditMode>EnterOnInput</EditMode>
-					<ContextMenu name="TableOfCorrectionObjectsVersionOfThisProgramContextMenu" id="43"/>
-					<ExtendedTooltip name="TableOfCorrectionObjectsVersionOfThisProgramExtendedTooltip" id="44"/>
+					<ContextMenu name="PatchObjectsTableThisApplicationVersionContextMenu" id="43"/>
+					<ExtendedTooltip name="PatchObjectsTableThisApplicationVersionExtendedTooltip" id="44"/>
 				</InputField>
 				<InputField name="PatchObjectsTableErrorDescription" id="30">
 					<DataPath>PatchObjectsTable.ErrorDescription</DataPath>
@@ -206,10 +206,10 @@
 						</v8:item>
 					</Title>
 					<EditMode>EnterOnInput</EditMode>
-					<ContextMenu name="TableOfCorrectionObjectsErrorDescriptionContextMenu" id="31"/>
-					<ExtendedTooltip name="TableOfCorrectionObjectsErrorDescriptionExtendedTooltip" id="32"/>
+					<ContextMenu name="PatchObjectsTableErrorDescriptionContextMenu" id="31"/>
+					<ExtendedTooltip name="PatchObjectsTableErrorDescriptionExtendedTooltip" id="32"/>
 				</InputField>
-				<CheckBoxField name="TableOfCorrectionObjectsFailedAttempt" id="33">
+				<CheckBoxField name="PatchObjectsTableUnsuccessfulAttempt" id="33">
 					<DataPath>PatchObjectsTable.UnsuccessfulAttempt</DataPath>
 					<UserVisible>
 						<xr:Common>false</xr:Common>
@@ -224,8 +224,8 @@
 					<TitleLocation>None</TitleLocation>
 					<EditMode>EnterOnInput</EditMode>
 					<CheckBoxType>Auto</CheckBoxType>
-					<ContextMenu name="CorrectionObjectTableFailedAttemptContextMenu" id="34"/>
-					<ExtendedTooltip name="CorrectionObjectTableFailedAttemptExtendedTooltip" id="35"/>
+					<ContextMenu name="PatchObjectsTableUnsuccessfulAttemptContextMenu" id="34"/>
+					<ExtendedTooltip name="PatchObjectsTableUnsuccessfulAttemptExtendedTooltip" id="35"/>
 				</CheckBoxField>
 			</ChildItems>
 		</Table>
@@ -235,8 +235,8 @@
 			<TitleLocation>Top</TitleLocation>
 			<AutoMaxWidth>false</AutoMaxWidth>
 			<MultiLine>true</MultiLine>
-			<ContextMenu name="DescriptionOfErrorOfConductingFromLineContextMenu" id="37"/>
-			<ExtendedTooltip name="DescriptionOfErrorOfConductingFromLineExtendedTooltip" id="38"/>
+			<ContextMenu name="ErrorPostingFromStringDescriptionContextMenu" id="37"/>
+			<ExtendedTooltip name="ErrorPostingFromStringDescriptionExtendedTooltip" id="38"/>
 		</InputField>
 	</ChildItems>
 	<Attributes>
@@ -364,13 +364,13 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Deselect</v8:content>
+					<v8:content>Clear all</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Deselect</v8:content>
+					<v8:content>Clear all</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>

@@ -27,9 +27,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	TimeConsumingOperation = GenerateToDoListInBackground();
 	LoadAutoRefreshSettings();
 	
-	Items.FormConfigure.Enabled = False;
+	Items.FormCustomize.Enabled = False;
 	Items.FormRefresh.Enabled  = (TimeConsumingOperation = Undefined);
-	Items.FormConfigure.Visible   = AccessRight("SaveUserData", Metadata);
+	Items.FormCustomize.Visible   = AccessRight("SaveUserData", Metadata);
 	
 EndProcedure
 
@@ -40,7 +40,7 @@ Procedure OnOpen(Cancel)
 	If TimeConsumingOperation <> Undefined Then
 		IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 		IdleParameters.OutputIdleWindow = False;
-		IdleParameters.Interval = 2; // 
+		IdleParameters.Interval = 2; // Faster than a standard interval as it is shown on the home page.
 		CallbackOnCompletion = New NotifyDescription("GenerateToDoListInBackgroundCompletion", ThisObject);
 		TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
 	EndIf;
@@ -141,7 +141,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Procedures and functions for generating a user's to-do list.
 
 &AtClient
 Procedure UpdateCurrentToDosAutomatically()
@@ -160,13 +160,13 @@ Procedure GenerateToDoList(ToDoList)
 	ToDoList.Sort("IsSection Desc, SectionPresentation Asc, Important Desc, Presentation");
 	PutToTempStorage(ToDoList, UserTasksToStorage);
 	
-	// 
-	// 
+	// If the user didn't customize the section positions in the to-do list,
+	// they are auto-sorted according to the procedure "OnDetermineCommandInterfaceSectionsOrder".
 	If ViewSettings.SectionsVisibility.Count() = 0 Then
 		ToDoListInternal.SetInitialSectionsOrder(ToDoList);
 	EndIf;
 	
-	CurrentGroup_SSLy = "";
+	CurrentGroup = "";
 	CurrentCommonGroup = "";
 	For Each ToDoItem In ToDoList Do
 		
@@ -207,8 +207,8 @@ Procedure GenerateToDoList(ToDoList)
 			
 			// Create a to-do items group.
 			GroupName = "Group" + ToDoItem.OwnerID;
-			If CurrentGroup_SSLy <> GroupName Then
-				CurrentGroup_SSLy = GroupName;
+			If CurrentGroup <> GroupName Then
+				CurrentGroup = GroupName;
 				Var_Group        = Group(GroupName, CommonGroup);
 				If IsMobileClient Then
 					ViewOption = UsualGroupRepresentation.None;
@@ -282,7 +282,7 @@ Procedure OrderToDoList()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Background update.
 
 &AtServer
 Function GenerateToDoListInBackground()
@@ -300,11 +300,11 @@ Function GenerateToDoListInBackground()
 	EndIf;
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.WaitCompletion = 0; // 
+	ExecutionParameters.WaitCompletion = 0; // Run immediately.
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Update to-do list';");
 	ExecutionParameters.ResultAddress = UserTasksToStorage;
-	// 
-	// 
+	// Always runs in the background to prevent performance degradation.
+	// In file mode, it might be delayed if another background job is running.
 	ExecutionParameters.RunInBackground = True;
 	
 	Result = TimeConsumingOperations.ExecuteInBackground("ToDoListInternal.GenerateToDoListForUser",
@@ -381,10 +381,10 @@ Procedure GenerateToDoListInBackgroundCompletion(Result, AdditionalParameters) E
 	Items.FormRefresh.Enabled = True;
 
 	If Result = Undefined Then
-		Items.FormConfigure.Enabled = OnlyUpdateUserTasks;
+		Items.FormCustomize.Enabled = OnlyUpdateUserTasks;
 		Return;
 	ElsIf Result.Status = "Error" Then
-		Items.FormConfigure.Enabled = OnlyUpdateUserTasks;
+		Items.FormCustomize.Enabled = OnlyUpdateUserTasks;
 		Items.UserTasksPage.Visible     = False;
 		Items.ErrorPage.Visible   = True;
 		ErrorText          = ErrorProcessing.ErrorMessageForUser(Result.ErrorInfo);
@@ -407,7 +407,7 @@ Procedure GenerateToDoListInBackgroundCompletion(Result, AdditionalParameters) E
 			EndDo;
 		EndIf;
 		OutputNotifications = True;
-		Items.FormConfigure.Enabled = True;
+		Items.FormCustomize.Enabled = True;
 		If AutoRefreshSettings.Property("AutoUpdateEnabled")
 			And AutoRefreshSettings.AutoUpdateEnabled Then
 			UpdatePeriod = AutoRefreshSettings.AutoRefreshPeriod * 60;
@@ -418,7 +418,7 @@ Procedure GenerateToDoListInBackgroundCompletion(Result, AdditionalParameters) E
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Auxiliary procedures and functions.
 
 &AtClient
 Procedure GoToImportantUserTaskFromNotificationCenter(Id) Export
@@ -434,8 +434,8 @@ EndProcedure
 &AtClient
 Procedure StartToDoListUpdate(AutoUpdate = False, UpdateSilently = False)
 	
-	// 
-	// 
+	// Disable the to-do list auto-update handler if the update was triggered manually.
+	// The handler will be enabled once the manual update is completed.
 	If Not AutoUpdate Then
 		DetachIdleHandler("UpdateCurrentToDosAutomatically");
 	EndIf;
@@ -449,14 +449,14 @@ Procedure StartToDoListUpdate(AutoUpdate = False, UpdateSilently = False)
 		Items.UserTasksPage.Visible = False;
 		Items.TimeConsumingOperationPage.Visible = True;
 		Items.ErrorPage.Visible   = False;
-		Items.FormConfigure.Enabled = False;
+		Items.FormCustomize.Enabled = False;
 		Items.FormRefresh.Enabled  = False;
 		Items.NoUserTasksPage.Visible = False;
 	EndIf;
 	
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
-	IdleParameters.Interval = 2; // 
+	IdleParameters.Interval = 2; // Faster than a standard interval as it is shown on the home page.
 	CallbackOnCompletion = New NotifyDescription("GenerateToDoListInBackgroundCompletion", ThisObject);
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
 	

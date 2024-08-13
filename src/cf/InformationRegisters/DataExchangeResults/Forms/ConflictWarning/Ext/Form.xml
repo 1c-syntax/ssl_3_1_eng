@@ -95,7 +95,7 @@ having two versions. The conflict has been resolved automatically. If the confli
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="ProblemObjectGroupExtendedTooltip" id="21"/>
+			<ExtendedTooltip name="ObjectWithIssueGroupExtendedTooltip" id="21"/>
 			<ChildItems>
 				<LabelField name="ObjectWithIssue" id="10">
 					<DataPath>ObjectWithIssue</DataPath>
@@ -122,7 +122,7 @@ having two versions. The conflict has been resolved automatically. If the confli
 					<v8:content>Fix commands</v8:content>
 				</v8:item>
 			</Title>
-			<ExtendedTooltip name="CorrectionTeamGroupExtendedTooltip" id="23"/>
+			<ExtendedTooltip name="PatchCommandsGroupExtendedTooltip" id="23"/>
 			<ChildItems>
 				<Button name="ShowDifferences" id="28">
 					<Type>CommandBarButton</Type>
@@ -144,7 +144,7 @@ having two versions. The conflict has been resolved automatically. If the confli
 							<v8:content>Show version from this app</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="OpenVersionInThisProgramExtendedTooltip" id="27"/>
+					<ExtendedTooltip name="OpenVersionInThisApplicationExtendedTooltip" id="27"/>
 				</Button>
 				<Button name="OpenVersion" id="24">
 					<Type>CommandBarButton</Type>
@@ -166,7 +166,7 @@ having two versions. The conflict has been resolved automatically. If the confli
 							<v8:content>Revise result</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="ReviewResultOfSolvingCollisionExtendedTooltip" id="31"/>
+					<ExtendedTooltip name="ReviseConflictResolutionResultExtendedTooltip" id="31"/>
 				</Button>
 			</ChildItems>
 		</CommandBar>

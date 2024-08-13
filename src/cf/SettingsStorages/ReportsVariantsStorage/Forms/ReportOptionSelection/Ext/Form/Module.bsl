@@ -54,7 +54,7 @@ EndProcedure
 &AtClient
 Procedure NotificationProcessing(EventName, Parameter, Source)
 	If EventName = ReportsOptionsClient.EventNameChangingOption()
-		Or EventName = "Write_ConstantsSet" Then
+		Or EventName = "Write_ConstantsSet" Or EventName = "Write_ReportsOptions" Then
 		FillOptionsList();
 	EndIf;
 EndProcedure

@@ -175,7 +175,7 @@ Procedure FillParametersAtServer()
 	MaxSize1 = Common.CommonSettingsStorageLoad(
 		"LocalFileCache", "LocalFileCacheMaxSize");
 	If MaxSize1 = Undefined Then
-		MaxSize1 = 100*1024*1024; // 
+		MaxSize1 = 100*1024*1024; // 100 MB
 		Common.CommonSettingsStorageSave(
 			"LocalFileCache", "LocalFileCacheMaxSize", MaxSize1);
 	EndIf;

@@ -507,7 +507,7 @@ The displayed details might differ from the current profile settings.</v8:conten
 								<Event name="OnChange">AccessKindsOnChange</Event>
 							</Events>
 							<ChildItems>
-								<InputField name="AccessKindsAccessTypePresentation" id="27">
+								<InputField name="AccessKindsAccessKindPresentation" id="27">
 									<DataPath>Object.AccessKinds.AccessKindPresentation</DataPath>
 									<Width>20</Width>
 									<HorizontalStretch>false</HorizontalStretch>
@@ -515,11 +515,11 @@ The displayed details might differ from the current profile settings.</v8:conten
 									<ListChoiceMode>true</ListChoiceMode>
 									<AutoChoiceIncomplete>true</AutoChoiceIncomplete>
 									<AutoMarkIncomplete>true</AutoMarkIncomplete>
-									<ContextMenu name="AccessKindsAccessTypePresentationContextMenu" id="28"/>
-									<ExtendedTooltip name="AccessKindsAccessTypePresentationExtendedTooltip" id="278"/>
+									<ContextMenu name="AccessKindsAccessKindPresentationContextMenu" id="28"/>
+									<ExtendedTooltip name="AccessKindsAccessKindPresentationExtendedTooltip" id="278"/>
 									<Events>
-										<Event name="OnChange">AccessKindsAccessTypePresentationOnChange</Event>
-										<Event name="ChoiceProcessing">AccessKindsAccessTypePresentationChoiceProcessing</Event>
+										<Event name="OnChange">AccessKindsAccessKindPresentationOnChange</Event>
+										<Event name="ChoiceProcessing">AccessKindsAccessKindPresentationChoiceProcessing</Event>
 									</Events>
 								</InputField>
 								<InputField name="AccessKindsAllAllowedPresentation" id="187">
@@ -1090,13 +1090,13 @@ The displayed details might differ from the current profile settings.</v8:conten
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Group by subsystems</v8:content>
+					<v8:content>Group by subsystem</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Group roles by subsystems.</v8:content>
+					<v8:content>Group roles by subsystem.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>

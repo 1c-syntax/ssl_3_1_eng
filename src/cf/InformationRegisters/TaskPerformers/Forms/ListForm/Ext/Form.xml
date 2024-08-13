@@ -28,7 +28,7 @@
 				</v8:item>
 			</Title>
 			<CommandSource>Form</CommandSource>
-			<ExtendedTooltip name="CommandBarGroupExtendedTooltip" id="20"/>
+			<ExtendedTooltip name="GroupCommandBarExtendedTooltip" id="20"/>
 		</CommandBar>
 		<Table name="List" id="1">
 			<Representation>List</Representation>

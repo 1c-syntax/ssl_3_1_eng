@@ -10,7 +10,7 @@
 
 #Region Public
 
-// Provides the BIC catalog data.
+// Provides data from the Bank codes catalog.
 // 
 // Parameters:
 //  BIC      - String - Bank ID.
@@ -121,7 +121,7 @@ Function InvalidBankNote(Bank) Export
 	
 	If ValueIsFilled(Bank) And ValueIsFilled(NewBankDetails) Then
 		Result = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'BIC was changed to <a href = ""%1"">%2</a>';"),
+			NStr("en = 'Bank code was changed to <a href = ""%1"">%2</a>';"),
 			GetURL(NewBankDetails.Ref), NewBankDetails.BIC);
 	Else
 		Result = NStr("en = 'Bank activity is ceased';");
@@ -133,8 +133,8 @@ EndFunction
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. Instead, use "BICInfo".
-// Gets data from the "BankClassifier" catalog by the passed BIC and correspondent bank account.
+// Deprecated. Instead, use "BICInformation".
+// Gets data from the "BankClassifier" catalog by the passed bank code and correspondent account.
 // 
 // Parameters:
 //  BIC          - String - Bank ID.
@@ -253,7 +253,7 @@ Procedure OnFillToDoList(ToDoList) Export
 		ToDoItem.Id  = IdentifierBanks;
 		ToDoItem.HasToDoItems       = HasToDoItems;
 		ToDoItem.Important         = Result.ClassifierIsExpired;
-		ToDoItem.Presentation  = NStr("en = 'BIC catalog is outdated';");
+		ToDoItem.Presentation  = NStr("en = 'Bank codes catalog is outdated';");
 		ToDoItem.ToolTip      = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The last update was %1 ago.';"), Result.AmountOfDelayByLine);
 		ToDoItem.Form          = "DataProcessor.ImportBankClassifier.Form";
 		ToDoItem.Owner       = Section;

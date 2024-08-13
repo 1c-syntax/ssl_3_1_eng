@@ -128,8 +128,8 @@
 					<DataPath>List.AccessGroup</DataPath>
 					<DefaultItem>true</DefaultItem>
 					<Width>20</Width>
-					<ContextMenu name="ListAccessGroup1ContextMenu" id="5"/>
-					<ExtendedTooltip name="ListAccessGroup1ExtendedTooltip" id="17"/>
+					<ContextMenu name="ListAccessGroupContextMenu" id="5"/>
+					<ExtendedTooltip name="ListAccessGroupExtendedTooltip" id="17"/>
 				</LabelField>
 				<LabelField name="ListAccessValue" id="10">
 					<DataPath>List.AccessValue</DataPath>

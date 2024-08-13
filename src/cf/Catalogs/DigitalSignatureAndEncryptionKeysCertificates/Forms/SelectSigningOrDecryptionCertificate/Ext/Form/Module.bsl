@@ -179,7 +179,7 @@ EndProcedure
 &AtServer
 Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	
-	// Check description for uniqueness.
+	// Check the description for uniqueness.
 	DigitalSignatureInternal.CheckPresentationUniqueness(
 		DescriptionCertificate, Certificate, "DescriptionCertificate", Cancel);
 		
@@ -243,7 +243,7 @@ Procedure CertificatesUnavailableAtServerLabelClick(Item)
 EndProcedure
 
 &AtClient
-Procedure ShowAll1OnChange(Item)
+Procedure ShowAllOnChange(Item)
 	
 	UpdateCertificatesList();
 	
@@ -296,7 +296,7 @@ Procedure SpecifiedPasswordNoteExtendedTooltipURLProcessing(Item, Var_URL, Stand
 EndProcedure
 
 &AtClient
-Procedure RequiresAuthenticationOfCloudSignatureLabelClick(Item)
+Procedure CloudSignatureAuthenticationRequiredLabelClick(Item)
 	
 	TheNotificationIsAsFollows = New NotifyDescription("RequiresAuthenticationOfTheCloudSignatureInscriptionAfterAuthentication", ThisObject);
 	OperationParametersList = New Structure();
@@ -833,8 +833,8 @@ Procedure GoToCurrentCertificateChoice(Notification)
 	If CurrentData.IsRequest Then
 		Result.UpdateCertificatesList = True;
 		Result.ErrorDescription =
-			NStr("en = 'The application for issue for this certificate has not been processed yet.
-			           |Open the application for certificate issue and perform the required steps.';");
+			NStr("en = 'The application for this certificate has not yet been fulfilled.
+			           |Open the application and complete the necessary steps.';");
 		ExecuteNotifyProcessing(Notification, Result);
 		Return;
 	EndIf;

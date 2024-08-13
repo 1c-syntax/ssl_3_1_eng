@@ -33,7 +33,7 @@
 							<v8:content>Wait page</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="WaitPageExtendedTooltip" id="4"/>
+					<ExtendedTooltip name="PageWaitExtendedTooltip" id="4"/>
 					<ChildItems>
 						<UsualGroup name="WaitGroup" id="17">
 							<Title>
@@ -110,8 +110,8 @@ Please wait…</v8:content>
 											<v8:content>Synchronization node is saved</v8:content>
 										</v8:item>
 									</Title>
-									<ContextMenu name="DecorationNodeIsRecordedContextMenu" id="15"/>
-									<ExtendedTooltip name="DecorationNodeIsRecordedExtendedTooltip" id="16"/>
+									<ContextMenu name="NodeWrittenDecorationContextMenu" id="15"/>
+									<ExtendedTooltip name="NodeWrittenDecorationExtendedTooltip" id="16"/>
 								</LabelDecoration>
 							</ChildItems>
 						</UsualGroup>
@@ -123,7 +123,7 @@ Please wait…</v8:content>
 								</v8:item>
 							</Title>
 							<HorizontalLocation>Right</HorizontalLocation>
-							<ExtendedTooltip name="CommandPanelDoneExtendedTooltip" id="37"/>
+							<ExtendedTooltip name="CommandBarDoneExtendedTooltip" id="37"/>
 							<ChildItems>
 								<Button name="DoneCommand" id="7">
 									<Type>CommandBarButton</Type>

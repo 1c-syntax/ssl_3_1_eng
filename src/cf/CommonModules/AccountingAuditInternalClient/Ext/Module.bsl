@@ -161,7 +161,7 @@ Procedure OnProcessCommand(ReportForm, Command, Result) Export
 			Filter = New Structure;
 			Filter.Insert("Data", Result.Ref);
 			Filter.Insert("EventLogEvent", Events);
-			Filter.Insert("StartDate", BegOfMonth(CurrentDate())); // 
+			Filter.Insert("StartDate", BegOfMonth(CurrentDate())); // ACC:143 - "CurrentDate" for Event log filters
 			EventLogClient.OpenEventLog(Filter);
 		EndIf;
 	ElsIf Command.Name = "AccountingAuditIgnoreIssue" Then

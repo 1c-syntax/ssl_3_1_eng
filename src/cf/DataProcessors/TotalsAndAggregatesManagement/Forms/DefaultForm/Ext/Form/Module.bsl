@@ -743,7 +743,7 @@ Procedure SetConditionalAppearance()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Asynchronous dialog box handlers.
 
 &AtClient
 Procedure ClearAggregatesByRegistersCompletion(Response, AdditionalParameters) Export
@@ -820,13 +820,13 @@ Procedure ChangeAggregatesClient(Val TotalsParameters, Val ClearMessages = True)
 	If ClearMessages Then
 		ClearMessages();
 	EndIf;
-	SelectedItems = TotalsParameters.RowsArray;
+	Selected_ = TotalsParameters.RowsArray;
 	
-	If SelectedItems.Count() = 0 Then
+	If Selected_.Count() = 0 Then
 		Return;
 	EndIf;
 	
-	ProcessStep = 100/SelectedItems.Count();
+	ProcessStep = 100/Selected_.Count();
 	
 	If TotalsParameters.Property("GroupProcessing") Then
 		NeedAbortAfterError = ?(TotalsParameters.GroupProcessing, False, InterruptOnError);
@@ -834,16 +834,16 @@ Procedure ChangeAggregatesClient(Val TotalsParameters, Val ClearMessages = True)
 		NeedAbortAfterError = InterruptOnError;
 	EndIf;
 	
-	For Counter = 1 To SelectedItems.Count() Do
-		If TypeOf(SelectedItems[Counter - 1]) = Type("Number") Then
-			RowSelected = AggregatesByRegisters.FindByID(SelectedItems[Counter-1]);
+	For Counter = 1 To Selected_.Count() Do
+		If TypeOf(Selected_[Counter - 1]) = Type("Number") Then
+			RowSelected = AggregatesByRegisters.FindByID(Selected_[Counter-1]);
 		Else
-			RowSelected = SelectedItems[Counter-1];
+			RowSelected = Selected_[Counter-1];
 		EndIf;
 		
 		AfterErrorMessage = "";
 		If Not IsBlankString(TotalsParameters.Field) Then
-			AfterErrorMessage = "AggregatesByRegisters[" + Format(SelectedItems[Counter-1], "NG=0") + "]." + TotalsParameters.Field;
+			AfterErrorMessage = "AggregatesByRegisters[" + Format(Selected_[Counter-1], "NG=0") + "]." + TotalsParameters.Field;
 		EndIf;
 		
 		If Not RowSelected.AggregateMode
@@ -893,12 +893,12 @@ Procedure TotalsControl(Val TotalsParameters)
 	Result = True;
 	ClearMessages();
 	
-	SelectedItems = TotalsParameters.RowsArray;
-	If SelectedItems.Count() = 0 Then
+	Selected_ = TotalsParameters.RowsArray;
+	If Selected_.Count() = 0 Then
 		Return;
 	EndIf;
 	
-	ProcessStep = 100/SelectedItems.Count();
+	ProcessStep = 100/Selected_.Count();
 	Action = Lower(TotalsParameters.Action);
 	
 	If TotalsParameters.Property("GroupProcessing") Then
@@ -910,11 +910,11 @@ Procedure TotalsControl(Val TotalsParameters)
 	ProcessedRowsCount = 0;
 	HasRegistersToProcess    = False;
 	
-	For Counter = 1 To SelectedItems.Count() Do
-		If TypeOf(SelectedItems[Counter-1]) = Type("Number") Then
-			RowSelected = TotalsList.FindByID(SelectedItems[Counter-1]);
+	For Counter = 1 To Selected_.Count() Do
+		If TypeOf(Selected_[Counter-1]) = Type("Number") Then
+			RowSelected = TotalsList.FindByID(Selected_[Counter-1]);
 		Else
-			RowSelected = SelectedItems[Counter-1];
+			RowSelected = Selected_[Counter-1];
 		EndIf;
 		
 		Status(TotalsParameters.ProcessTitle, Counter * ProcessStep, RowSelected.Description);
@@ -957,7 +957,7 @@ Procedure TotalsControl(Val TotalsParameters)
 		
 		AfterErrorMessage = "";
 		If Not IsBlankString(TotalsParameters.Field) Then
-			AfterErrorMessage = "TotalsList[" + Format(SelectedItems[Counter-1], "NG=0") + "]." + TotalsParameters.Field;
+			AfterErrorMessage = "TotalsList[" + Format(Selected_[Counter-1], "NG=0") + "]." + TotalsParameters.Field;
 		EndIf;
 		
 		HasRegistersToProcess = True;
@@ -992,7 +992,7 @@ Procedure TotalsControl(Val TotalsParameters)
 	StateText = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Recalculated (%1 of %2)';"),
 		ProcessedRowsCount,
-		SelectedItems.Count());
+		Selected_.Count());
 	
 	Status(TotalsParameters.AfterProcess1 + Chars.LF + StateText);
 	
@@ -1050,7 +1050,7 @@ Procedure GetOptimalAggregatesClientCompletion(ObtainedFiles, ExecutionResult) E
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Client, Server.
 
 &AtClientAtServerNoContext
 Function EndOfPeriod(Val Date)
@@ -1067,7 +1067,7 @@ Function Prefix()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Server call, Server.
 
 &AtServer
 Function GetOptimalAggregatesServer()

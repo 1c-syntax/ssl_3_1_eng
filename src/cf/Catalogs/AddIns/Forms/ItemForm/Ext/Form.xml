@@ -119,8 +119,8 @@
 						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</Picture>
 					<FileDragMode>AsFile</FileDragMode>
-					<ContextMenu name="InformationPicture6ContextMenu" id="169"/>
-					<ExtendedTooltip name="InformationPicture6ExtendedTooltip" id="170"/>
+					<ContextMenu name="InformationPictureContextMenu" id="169"/>
+					<ExtendedTooltip name="InformationPictureExtendedTooltip" id="170"/>
 				</PictureDecoration>
 				<LabelField name="ErrorDescription" id="171">
 					<DataPath>Object.ErrorDescription</DataPath>

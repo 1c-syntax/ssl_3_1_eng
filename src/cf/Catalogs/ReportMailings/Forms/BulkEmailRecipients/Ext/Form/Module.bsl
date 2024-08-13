@@ -65,7 +65,7 @@ Procedure OpenAddRecipientsForm(IsPick)
 	
 	ChoiceFormParameters = New Structure;
 	
-	// 
+	// Choice form standard attributes. See "Managed form extension for dynamic lists".
 	ChoiceFormParameters.Insert("ChoiceFoldersAndItems", FoldersAndItemsUse.FoldersAndItems);
 	ChoiceFormParameters.Insert("CloseOnChoice", ?(IsPick, False, True));
 	ChoiceFormParameters.Insert("CloseOnOwnerClose", True);
@@ -77,8 +77,8 @@ Procedure OpenAddRecipientsForm(IsPick)
 	ChoiceFormParameters.Insert("SelectGroups", True);
 	ChoiceFormParameters.Insert("UsersGroupsSelection", True);
 	
-	// 
-	//  
+	// Extended pick form opening parameters.
+	// See the "Users" catalog list form for the attribute description.
 	If IsPick Then
 		ChoiceFormParameters.Insert("AdvancedPick", True);
 		ChoiceFormParameters.Insert("PickFormHeader", NStr("en = 'Pick recipients';"));

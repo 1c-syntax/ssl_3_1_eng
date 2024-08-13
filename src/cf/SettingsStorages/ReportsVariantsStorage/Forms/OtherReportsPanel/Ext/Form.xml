@@ -119,7 +119,7 @@
 					</Title>
 					<HorizontalLocation>Right</HorizontalLocation>
 					<CommandSource>Form</CommandSource>
-					<ExtendedTooltip name="CommandBarGroupExtendedTooltip" id="11"/>
+					<ExtendedTooltip name="GroupCommandBarExtendedTooltip" id="11"/>
 					<ChildItems>
 						<Button name="Close" id="12">
 							<Type>CommandBarButton</Type>

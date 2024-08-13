@@ -54,8 +54,8 @@ EndProcedure
 //
 Procedure ChangeIBPrefix(Parameters, ResultAddress = "") Export
 	
-	// 
-	// 
+	// The constant that stores the prefix belongs to the "DataExchange" subsystem.
+	// Without it, the procedure cannot function properly.
 	If Not Common.SubsystemExists("StandardSubsystems.DataExchange") Then
 		Return;
 	EndIf;
@@ -265,8 +265,8 @@ Function MetadataUsingPrefixesDetails(DiagnosticsMode = False) Export
 				IsSeparatedMetadataObject = ModuleSaaSOperations.IsSeparatedMetadataObject(FullObjectName);
 			EndIf;
 			
-			// 
-			// 
+			// Skip objects that were added (in case multiple subscriptions had been attached by mistake).
+			// Also, for the separated mode, skip objects that relate to shared data.
 			If Not DiagnosticsMode Then
 				
 				If Result.Find(FullObjectName, "FullName") <> Undefined Then
@@ -306,7 +306,7 @@ Function MetadataUsingPrefixesDetails(DiagnosticsMode = False) Export
 				If Not DiagnosticsMode Then
 					
 					Raise StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'Error occurred implementing subsystem %1 for metadata object %2.';"),
+						NStr("en = 'An error occurred while integrating subsystem %1 for metadata object %2.';"),
 						Metadata.Subsystems.StandardSubsystems.Subsystems.ObjectsPrefixes, FullObjectName);
 						
 				EndIf;

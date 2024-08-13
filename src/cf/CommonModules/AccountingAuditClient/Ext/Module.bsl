@@ -24,8 +24,8 @@
 //
 Procedure OpenIssuesReport(ChecksKind, ExactMap = True) Export
 	
-	// 
-	// 
+	// The passed parameter "ChecksKind" is validated in the procedure "OnCreateAtServer"
+	// of the report module "AccountingCheckResults".
 	
 	AccountingAuditInternalClient.OpenIssuesReport(ChecksKind, ExactMap);
 	
@@ -44,8 +44,8 @@ EndProcedure
 //
 Procedure OpenObjectIssuesReport(Form, ObjectWithIssue, StandardProcessing) Export
 	
-	// 
-	// 
+	// The passed parameters "Form", "ObjectWithIssue", and "StandardProcessing" are validated in
+	// the procedure "OnCreateAtServer" of the report module "AccountingCheckResults".
 	
 	StandardProcessing = False;
 	

@@ -62,7 +62,6 @@ Function FindItemDuplicates(Val SearchArea, Val SampleObject, Val AdditionalPara
 	DuplicatesSearchParameters.PrefilterComposer.Initialize(
 		New DataCompositionAvailableSettingsSource(CompositionSchema));
 	
-	// Applied code call.
 	SearchProcessing = DataProcessors.DuplicateObjectsDetection.Create();
 	
 	UseAppliedRules = SearchProcessing.HasSearchForDuplicatesAreaAppliedRules(SearchArea);
@@ -77,13 +76,12 @@ Function FindItemDuplicates(Val SearchArea, Val SampleObject, Val AdditionalPara
 	DuplicatesGroups = SearchProcessing.DuplicatesGroups(DuplicatesSearchParameters, SampleObject);
 	Result = DuplicatesGroups.DuplicatesTable;
 	
-	// There's only one group. Return the required items.
-	For Each String In Result.FindRows(New Structure("Parent", Undefined)) Do
-		Result.Delete(String);
+	For Each Item In Result.FindRows(New Structure("Parent", Undefined)) Do
+		Result.Delete(Item);
 	EndDo;
 	EmptyRef = SearchAreaManager.EmptyRef();
-	For Each String In Result.FindRows(New Structure("Ref", EmptyRef)) Do
-		Result.Delete(String);
+	For Each Item In Result.FindRows(New Structure("Ref", EmptyRef)) Do
+		Result.Delete(Item);
 	EndDo;
 	
 	Return Result; 
@@ -133,7 +131,7 @@ Procedure SupplementDuplicatesWithLinkedSubordinateObjects(ReplacementPairs, Rep
 		SubordinateObjectLinks = SubordinateObjectsLinks.FindRows(Filter);
 		PackageParts.Add(ObjectsForReplacementQueryText( SubordinateObjectDetails, SubordinateObjectLinks));
 		
-		FoundDuplicatesTables.Insert(SubordinateObjectDetails.Key, PackageParts.Count() * 3 - 1); //  
+		FoundDuplicatesTables.Insert(SubordinateObjectDetails.Key, PackageParts.Count() * 3 - 1); // 3 - Number of packages to add. 
 		Position = Position + SubordinateObjectLinks.Count();
 	
 	EndDo;

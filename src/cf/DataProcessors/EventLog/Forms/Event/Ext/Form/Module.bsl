@@ -76,6 +76,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	// Processing special event data.
+	Items.TableHeading.Visible = False;
 	Items.DataTree.Visible = False;
 	Items.IBUserData.Visible = False;
 	Items.DataPresentations.PagesRepresentation = FormPagesRepresentation.None;
@@ -201,15 +202,36 @@ Procedure DataTableChoice(Item, RowSelected, Field, StandardProcessing)
 		Ref = SourceRef1(Value);
 		If ValueIsFilled(Ref) Then
 			Value = Ref;
+			
+		ElsIf Ref <> Undefined Then
+			Value = "<" + StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Empty reference: %1';"), TypeOf(Ref)) + ">";
 		Else
 			Value = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Failed to retrieve the reference from the row. The reference type might be invalid:
 				           |%1';"), Value);
 		EndIf;
+	ElsIf StrStartsWith(Value, "e1cib/") Then
+		FileSystemClient.OpenURL(Value);
+		Return;
 	EndIf;
 	
 	ShowValue(, Value);
 	
+EndProcedure
+
+#EndRegion
+
+#Region FormCommandsEventHandlers
+
+&AtClient
+Procedure ExpandTable(Command)
+	SetGroupsVisibilityExceptTable(False);
+EndProcedure
+
+&AtClient
+Procedure CollapseTable(Command)
+	SetGroupsVisibilityExceptTable(True);
 EndProcedure
 
 #EndRegion
@@ -232,6 +254,7 @@ Procedure CreateFormTable(Val FormTableFieldName, Val AttributeNameFormDataColle
 		HasAttachments = ValueTree.Rows.FindRows(Filter).Count() <> 0;
 		If HasAttachments Then
 			Items.DataTree.Visible = True;
+			Items.TableHeading.Visible = True;
 			ValueToFormAttribute(ValueTree, "DataTree");
 			Return;
 		EndIf;
@@ -248,6 +271,12 @@ Procedure CreateFormTable(Val FormTableFieldName, Val AttributeNameFormDataColle
 	ElsIf TypeOf(ValueTable) <> Type("ValueTable") Then
 		ValueTable = New ValueTable;
 		ValueTable.Columns.Add("Undefined", , " ");
+	EndIf;
+	
+	If FormTableFieldName = "DataTable" Then
+		Items.TableHeading.Visible = True;
+		Items.DataTreeCommands.Visible = False;
+		Items.DataTableCommands.Visible = True;
 	EndIf;
 	
 	// Adding form table attributes.
@@ -274,7 +303,7 @@ Procedure CreateFormTable(Val FormTableFieldName, Val AttributeNameFormDataColle
 				Try
 					NewRow[Column.Name] = String[Column.Name];
 				Except
-					NewRow[Column.Name] = String(String[Column.Name]); // 
+					NewRow[Column.Name] = String(String[Column.Name]); // Type UnknownObject
 				EndTry;
 			EndDo;
 		EndTry;
@@ -302,10 +331,10 @@ Procedure SetConditionalAppearance()
 EndProcedure
 
 &AtServerNoContext
-Function SourceRef1(SerializedLink)
+Function SourceRef1(SerializedRef)
 	
 	Try
-		Ref = ValueFromStringInternal(SerializedLink);
+		Ref = ValueFromStringInternal(SerializedRef);
 	Except
 		Ref = Undefined;
 	EndTry;
@@ -317,5 +346,17 @@ Function SourceRef1(SerializedLink)
 	Return Ref;
 	
 EndFunction
+
+&AtClient
+Procedure SetGroupsVisibilityExceptTable(Visible)
+	
+	Items.ButtonGroup.Visible = Visible;
+	Items.MainGroup3.Visible = Visible;
+	Items.EventGroup.Visible = Visible;
+	Items.GroupData.ShowTitle = Visible;
+	Items.StandardDataProperties.Visible = Visible;
+	Items.TransactionConnectionGroup.Visible = Visible;
+	
+EndProcedure
 
 #EndRegion

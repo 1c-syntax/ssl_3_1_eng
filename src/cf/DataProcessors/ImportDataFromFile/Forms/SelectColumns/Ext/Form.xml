@@ -44,7 +44,7 @@
 				<ExcludedCommand>SortListAsc</ExcludedCommand>
 				<ExcludedCommand>SortListDesc</ExcludedCommand>
 			</CommandSet>
-			<ContextMenu name="ColumnsList1ContextMenu" id="2"/>
+			<ContextMenu name="ColumnsListContextMenu" id="2"/>
 			<AutoCommandBar name="ColumnsListCommandBar" id="3">
 				<ChildItems>
 					<Button name="FormSelectCommand" id="11">
@@ -57,9 +57,9 @@
 								<v8:content>Map</v8:content>
 							</v8:item>
 						</Title>
-						<ExtendedTooltip name="FormSelectExtendedTooltip" id="12"/>
+						<ExtendedTooltip name="FormSelectCommandExtendedTooltip" id="12"/>
 					</Button>
-					<ButtonGroup name="ColumnsList1Group1" id="28">
+					<ButtonGroup name="ColumnsListGroup1" id="28">
 						<Title>
 							<v8:item>
 								<v8:lang>en</v8:lang>
@@ -67,19 +67,19 @@
 							</v8:item>
 						</Title>
 						<Representation>Compact</Representation>
-						<ExtendedTooltip name="ColumnsList1Group1ExtendedTooltip" id="29"/>
+						<ExtendedTooltip name="ListOfColumnsGroup1ExtendedTooltip" id="29"/>
 						<ChildItems>
-							<Button name="ColumnsList1CheckAll" id="13">
+							<Button name="ColumnsListCheckAll" id="13">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Item.ColumnsList.StandardCommand.CheckAll</CommandName>
 								<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
-								<ExtendedTooltip name="ColumnsList1CheckAllExtendedTooltip" id="14"/>
+								<ExtendedTooltip name="ColumnsListCheckAllExtendedTooltip" id="14"/>
 							</Button>
-							<Button name="ColumnsList1UncheckAll" id="15">
+							<Button name="ColumnsListUncheckAll" id="15">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Item.ColumnsList.StandardCommand.UncheckAll</CommandName>
 								<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
-								<ExtendedTooltip name="ColumnsList1UncheckAllExtendedTooltip" id="16"/>
+								<ExtendedTooltip name="ColumnsListUncheckAllExtendedTooltip" id="16"/>
 							</Button>
 						</ChildItems>
 					</ButtonGroup>
@@ -99,37 +99,37 @@
 					</SearchStringAddition>
 				</ChildItems>
 			</AutoCommandBar>
-			<ExtendedTooltip name="ColumnsList1ExtendedTooltip" id="4"/>
-			<SearchStringAddition name="ColumnsList1SearchString" id="19">
+			<ExtendedTooltip name="ColumnsListExtendedTooltip" id="4"/>
+			<SearchStringAddition name="ColumnsListSearchString" id="19">
 				<AdditionSource>
 					<Item>ColumnsList</Item>
 					<Type>SearchStringRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ColumnsList1SearchStringContextMenu" id="20"/>
-				<ExtendedTooltip name="ColumnsList1SearchStringExtendedTooltip" id="21"/>
+				<ContextMenu name="ColumnsListSearchStringContextMenu" id="20"/>
+				<ExtendedTooltip name="ColumnsListSearchStringExtendedTooltip" id="21"/>
 			</SearchStringAddition>
-			<ViewStatusAddition name="ColumnsList1ViewStatus" id="22">
+			<ViewStatusAddition name="ColumnsListViewStatus" id="22">
 				<AdditionSource>
 					<Item>ColumnsList</Item>
 					<Type>ViewStatusRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ColumnsList1ViewStatusContextMenu" id="23"/>
-				<ExtendedTooltip name="ColumnsList1ViewStatusExtendedTooltip" id="24"/>
+				<ContextMenu name="ColumnsListViewStatusContextMenu" id="23"/>
+				<ExtendedTooltip name="ColumnsListViewStatusExtendedTooltip" id="24"/>
 			</ViewStatusAddition>
-			<SearchControlAddition name="ColumnsList1SearchControl" id="25">
+			<SearchControlAddition name="ColumnsListSearchControl" id="25">
 				<AdditionSource>
 					<Item>ColumnsList</Item>
 					<Type>SearchControl</Type>
 				</AdditionSource>
-				<ContextMenu name="ColumnsList1SearchControlContextMenu" id="26"/>
-				<ExtendedTooltip name="ColumnsList1SearchControlExtendedTooltip" id="27"/>
+				<ContextMenu name="ColumnsListSearchControlContextMenu" id="26"/>
+				<ExtendedTooltip name="ColumnsListSearchControlExtendedTooltip" id="27"/>
 			</SearchControlAddition>
 			<Events>
-				<Event name="Selection">ColumnsList1Selection</Event>
-				<Event name="OnStartEdit">ColumnsList1OnStartEdit</Event>
+				<Event name="Selection">ColumnsListSelection</Event>
+				<Event name="OnStartEdit">ColumnsListOnStartEdit</Event>
 			</Events>
 			<ChildItems>
-				<ColumnGroup name="ColumnsList1Group" id="17">
+				<ColumnGroup name="ColumnsListGroup" id="17">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -137,7 +137,7 @@
 						</v8:item>
 					</Title>
 					<Group>InCell</Group>
-					<ExtendedTooltip name="ColumnsList1GroupExtendedTooltip" id="18"/>
+					<ExtendedTooltip name="ColumnsListGroupExtendedTooltip" id="18"/>
 					<ChildItems>
 						<CheckBoxField name="ColumnsListCheckBox" id="8">
 							<DataPath>ColumnsList.Check</DataPath>

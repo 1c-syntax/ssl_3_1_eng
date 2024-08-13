@@ -156,7 +156,7 @@ Procedure ExecuteCommandInBackground(Val CommandID, Val CommandParameters, Val H
 	Else
 		Form = Handler;
 		Handler = Undefined;
-		MustReceiveResult = True; // 
+		MustReceiveResult = True; // For backward compatibility purposes.
 	EndIf;
 	
 	Job = AdditionalReportsAndDataProcessorsServerCall.StartTimeConsumingOperation(Form.UUID, CommandParameters);
@@ -173,8 +173,9 @@ Procedure ExecuteCommandInBackground(Val CommandID, Val CommandParameters, Val H
 	WaitSettings = TimeConsumingOperationsClient.IdleParameters(Form);
 	WaitSettings.MessageText       = AccompanyingText1;
 	WaitSettings.OutputIdleWindow = True;
-	WaitSettings.MustReceiveResult    = MustReceiveResult; // 
+	WaitSettings.MustReceiveResult    = MustReceiveResult; // For backward compatibility purposes.
 	WaitSettings.OutputMessages    = True;
+	WaitSettings.OutputProgressBar = True;
 	
 	TimeConsumingOperationsClient.WaitCompletion(Job, Handler, WaitSettings);
 	
@@ -298,8 +299,8 @@ Procedure HandlerFillingCommands(Val ReferencesArrray, Val ExecutionParameters) 
 	
 	ShowNotificationOnCommandExecution(CommandToExecute);
 	
-	// 
-	// 
+	// Runtime control is supported only for server methods.
+	// If a form opens or client-side code is called, the result is output by the data processor.
 	If CommandToExecute.StartupOption = PredefinedValue("Enum.AdditionalDataProcessorsCallMethods.OpeningForm") Then
 		
 		ExternalObjectName = AdditionalReportsAndDataProcessorsServerCall.AttachExternalDataProcessor(CommandToExecute.Ref);

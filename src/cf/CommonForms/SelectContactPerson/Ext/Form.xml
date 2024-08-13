@@ -48,7 +48,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Search string</v8:content>
+									<v8:content>Search bar</v8:content>
 								</v8:item>
 							</Title>
 							<Behavior>Usual</Behavior>
@@ -144,7 +144,7 @@
 												<v8:content>View</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="FoundContactsContextMenuBrowseExtendedTooltip" id="171"/>
+										<ExtendedTooltip name="FoundContactsContextMenuViewExtendedTooltip" id="171"/>
 									</Button>
 									<Button name="FindInListFromFoundItemsList" id="90">
 										<Type>CommandBarButton</Type>
@@ -379,10 +379,10 @@
 							<AllowRootChoice>false</AllowRootChoice>
 							<UpdateOnDataChange>Auto</UpdateOnDataChange>
 							<AllowGettingCurrentRowURL>true</AllowGettingCurrentRowURL>
-							<ContextMenu name="UsersGroupsContextMenu" id="101"/>
+							<ContextMenu name="UserGroupsContextMenu" id="101"/>
 							<AutoCommandBar name="UserGroupsCommandBar" id="102"/>
 							<ExtendedTooltip name="UserGroupsExtendedTooltip" id="124"/>
-							<SearchStringAddition name="UsersGroupsSearchString" id="146">
+							<SearchStringAddition name="UserGroupsSearchString" id="146">
 								<AdditionSource>
 									<Item>UserGroups</Item>
 									<Type>SearchStringRepresentation</Type>
@@ -390,7 +390,7 @@
 								<ContextMenu name="UserGroupsSearchStringContextMenu" id="147"/>
 								<ExtendedTooltip name="UserGroupsSearchStringExtendedTooltip" id="148"/>
 							</SearchStringAddition>
-							<ViewStatusAddition name="UsersGroupsViewStatus" id="149">
+							<ViewStatusAddition name="UserGroupsViewStatus" id="149">
 								<AdditionSource>
 									<Item>UserGroups</Item>
 									<Type>ViewStatusRepresentation</Type>
@@ -398,7 +398,7 @@
 								<ContextMenu name="UserGroupsViewStatusContextMenu" id="150"/>
 								<ExtendedTooltip name="UserGroupsViewStatusExtendedTooltip" id="151"/>
 							</ViewStatusAddition>
-							<SearchControlAddition name="UsersGroupsSearchControl" id="152">
+							<SearchControlAddition name="UserGroupsSearchControl" id="152">
 								<AdditionSource>
 									<Item>UserGroups</Item>
 									<Type>SearchControl</Type>
@@ -407,7 +407,7 @@
 								<ExtendedTooltip name="UserGroupsSearchControlExtendedTooltip" id="154"/>
 							</SearchControlAddition>
 							<Events>
-								<Event name="OnActivateRow">UsersGroupsOnActivateRow</Event>
+								<Event name="OnActivateRow">UserGroupsOnActivateRow</Event>
 							</Events>
 							<ChildItems>
 								<LabelField name="GroupDescription" id="103">
@@ -416,13 +416,13 @@
 									<ContextMenu name="GroupDescriptionContextMenu" id="104"/>
 									<ExtendedTooltip name="GroupDescriptionExtendedTooltip" id="125"/>
 								</LabelField>
-								<LabelField name="UsersGroupsRef" id="164">
+								<LabelField name="UserGroupsRef" id="164">
 									<DataPath>UserGroups.Ref</DataPath>
 									<UserVisible>
 										<xr:Common>false</xr:Common>
 									</UserVisible>
-									<ContextMenu name="UserGroupsLinkContextMenu" id="165"/>
-									<ExtendedTooltip name="UserGroupsLinkExtendedTooltip" id="166"/>
+									<ContextMenu name="UserGroupsRefContextMenu" id="165"/>
+									<ExtendedTooltip name="UserGroupsRefExtendedTooltip" id="166"/>
 								</LabelField>
 							</ChildItems>
 						</Table>
@@ -462,32 +462,32 @@
 							<AllowRootChoice>false</AllowRootChoice>
 							<UpdateOnDataChange>Auto</UpdateOnDataChange>
 							<AllowGettingCurrentRowURL>true</AllowGettingCurrentRowURL>
-							<ContextMenu name="UsersList1ContextMenu" id="85"/>
+							<ContextMenu name="UsersListContextMenu" id="85"/>
 							<AutoCommandBar name="UsersListCommandBar" id="86"/>
 							<ExtendedTooltip name="UsersListExtendedTooltip" id="126"/>
-							<SearchStringAddition name="UsersList1SearchString" id="155">
+							<SearchStringAddition name="UsersListSearchString" id="155">
 								<AdditionSource>
 									<Item>UsersList</Item>
 									<Type>SearchStringRepresentation</Type>
 								</AdditionSource>
-								<ContextMenu name="UsersList1SearchStringContextMenu" id="156"/>
-								<ExtendedTooltip name="UsersList1SearchStringExtendedTooltip" id="157"/>
+								<ContextMenu name="UsersListSearchStringContextMenu" id="156"/>
+								<ExtendedTooltip name="UsersListSearchStringExtendedTooltip" id="157"/>
 							</SearchStringAddition>
-							<ViewStatusAddition name="UsersList1ViewStatus" id="158">
+							<ViewStatusAddition name="UsersListViewStatus" id="158">
 								<AdditionSource>
 									<Item>UsersList</Item>
 									<Type>ViewStatusRepresentation</Type>
 								</AdditionSource>
-								<ContextMenu name="UsersList1ViewStatusContextMenu" id="159"/>
-								<ExtendedTooltip name="UsersList1ViewStatusExtendedTooltip" id="160"/>
+								<ContextMenu name="UsersListViewStatusContextMenu" id="159"/>
+								<ExtendedTooltip name="UsersListViewStatusExtendedTooltip" id="160"/>
 							</ViewStatusAddition>
-							<SearchControlAddition name="UsersList1SearchControl" id="161">
+							<SearchControlAddition name="UsersListSearchControl" id="161">
 								<AdditionSource>
 									<Item>UsersList</Item>
 									<Type>SearchControl</Type>
 								</AdditionSource>
-								<ContextMenu name="UsersList1SearchControlContextMenu" id="162"/>
-								<ExtendedTooltip name="UsersList1SearchControlExtendedTooltip" id="163"/>
+								<ContextMenu name="UsersListSearchControlContextMenu" id="162"/>
+								<ExtendedTooltip name="UsersListSearchControlExtendedTooltip" id="163"/>
 							</SearchControlAddition>
 							<Events>
 								<Event name="Selection">Attachable_CatalogListChoice</Event>
@@ -511,8 +511,8 @@
 									<UserVisible>
 										<xr:Common>false</xr:Common>
 									</UserVisible>
-									<ContextMenu name="ListOfUsersLinkContextMenu" id="168"/>
-									<ExtendedTooltip name="ListOfUsersLinkExtendedTooltip" id="169"/>
+									<ContextMenu name="UsersListRefContextMenu" id="168"/>
+									<ExtendedTooltip name="UsersListRefExtendedTooltip" id="169"/>
 								</LabelField>
 							</ChildItems>
 						</Table>

@@ -198,8 +198,8 @@
 																</v8:item>
 															</Title>
 															<EditMode>EnterOnInput</EditMode>
-															<ContextMenu name="OperandsTreeIDContextMenu" id="74"/>
-															<ExtendedTooltip name="OperandsTreeIDExtendedTooltip" id="75"/>
+															<ContextMenu name="OperandsTreeIdContextMenu" id="74"/>
+															<ExtendedTooltip name="OperandsTreeIdExtendedTooltip" id="75"/>
 														</InputField>
 													</ChildItems>
 												</Table>
@@ -294,7 +294,7 @@
 																</v8:item>
 															</Title>
 															<EditMode>EnterOnInput</EditMode>
-															<ContextMenu name="OperandsIDContextMenu" id="22"/>
+															<ContextMenu name="OperandsIdContextMenu" id="22"/>
 															<ExtendedTooltip name="OperandsIdExtendedTooltip" id="40"/>
 														</InputField>
 														<InputField name="OperandsValue" id="53">

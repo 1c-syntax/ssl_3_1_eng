@@ -42,7 +42,7 @@ Function ClusterAdministrationParameters() Export
 	
 	Result = New Structure();
 	
-	Result.Insert("AttachmentType", "COM"); // 
+	Result.Insert("AttachmentType", "COM"); // "COM" or "RAS"
 	
 	// For "COM" only
 	Result.Insert("ServerAgentAddress", "");
@@ -846,7 +846,7 @@ Function AddInProperties() Export
 	Result = New Structure();
 	Result.Insert("Name");
 	Result.Insert("LongDesc");
-	Result.Insert("HashSum"); // 
+	Result.Insert("HashSum"); // ACC:1036 for backward compatibility.
 	Return Result;
 	
 EndFunction
@@ -866,7 +866,7 @@ Function ExternalModuleProperties() Export
 	Result = New Structure();
 	Result.Insert("Name");
 	Result.Insert("LongDesc");
-	Result.Insert("HashSum"); // 
+	Result.Insert("HashSum"); // ACC:1036 for backward compatibility.
 	Return Result;
 	
 EndFunction

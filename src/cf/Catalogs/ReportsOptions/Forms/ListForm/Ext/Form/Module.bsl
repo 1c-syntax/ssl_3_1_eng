@@ -181,7 +181,8 @@ EndProcedure
 
 &AtClient
 Procedure NotificationProcessing(EventName, Parameter, Source)
-	If EventName = ReportsOptionsClient.EventNameChangingOption() Or EventName = "Write_ConstantsSet" Then
+	If EventName = ReportsOptionsClient.EventNameChangingOption() Or EventName = "Write_ConstantsSet"
+	   Or EventName = "Write_ReportsOptions" Then
 
 		SubsystemsTreeCurrentRow = -1;
 		AttachIdleHandler("SubsystemsTreeRowActivationHandler", 0.1, True);
@@ -196,12 +197,12 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 &AtClient
-Procedure FilterByReportTypeOnChange(Item)
+Procedure FilterReportTypeOnChange(Item)
 	UpdateListContent();
 EndProcedure
 
 &AtClient
-Procedure FilterByReportTypeClearing(Item, StandardProcessing)
+Procedure FilterReportTypeClearing(Item, StandardProcessing)
 	StandardProcessing = False;
 	FilterReportType = Undefined;
 	UpdateListContent();

@@ -47,8 +47,8 @@
 			</Title>
 			<TitleLocation>None</TitleLocation>
 			<Height>5</Height>
-			<ContextMenu name="RepresentationOfFormulaContextMenu" id="290"/>
-			<ExtendedTooltip name="RepresentationOfFormulaExtendedTooltip" id="291"/>
+			<ContextMenu name="FormulaPresentationContextMenu" id="290"/>
+			<ExtendedTooltip name="FormulaPresentationExtendedTooltip" id="291"/>
 		</TextDocumentField>
 		<UsualGroup name="FieldsAndOperatorsGroup" id="551">
 			<Title>
@@ -61,7 +61,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="GroupFieldsAndOperatorsExtendedTooltip" id="552"/>
+			<ExtendedTooltip name="FieldsAndOperatorsGroupExtendedTooltip" id="552"/>
 			<ChildItems>
 				<UsualGroup name="AvailableFieldsGroup" id="326">
 					<Title>
@@ -83,7 +83,7 @@
 					<Representation>None</Representation>
 					<ShowLeftMargin>false</ShowLeftMargin>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="GroupAvailableFieldsExtendedTooltip" id="327"/>
+					<ExtendedTooltip name="AvailableFieldsGroupExtendedTooltip" id="327"/>
 				</UsualGroup>
 				<UsualGroup name="OperatorsAndFunctionsGroup" id="543">
 					<Title>
@@ -96,7 +96,7 @@
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="GroupOperatorsAndFunctionsExtendedTooltip" id="544"/>
+					<ExtendedTooltip name="OperatorsAndFunctionsGroupExtendedTooltip" id="544"/>
 				</UsualGroup>
 			</ChildItems>
 		</UsualGroup>

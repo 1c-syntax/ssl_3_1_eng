@@ -50,7 +50,7 @@ Function ToDoList() Export
 	UserTasks1.Columns.Add("Owner");
 	UserTasks1.Columns.Add("ToolTip", New TypeDescription("String", New StringQualifiers(250)));
 	UserTasks1.Columns.Add("ToDoOwnerObject", New TypeDescription("String", New StringQualifiers(256)));
-	UserTasks1.Columns.Add("HasUserTasks"); // 
+	UserTasks1.Columns.Add("HasUserTasks"); // Backward compatibility.
 	
 	Return UserTasks1;
 	

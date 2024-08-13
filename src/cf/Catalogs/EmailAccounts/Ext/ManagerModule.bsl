@@ -210,7 +210,7 @@ Procedure OnSetUpInitialItemsFilling(Settings) Export
 	
 EndProcedure
 
-// See also InfobaseUpdateOverridable.OnInitialItemFilling
+// See also InfobaseUpdateOverridable.OnInitialItemsFilling
 // 
 // Parameters:
 //   LanguagesCodes - See InfobaseUpdateOverridable.OnInitialItemsFilling.LanguagesCodes
@@ -370,7 +370,7 @@ Function DefineDomainMailServersNames(Domain)
 	ApplicationStartupParameters.ExecutionEncoding = "OEM";
 	
 	DNSServerAddresses = EmailOperationsInternal.DNSServerAddresses();
-	DNSServerAddresses.Insert(0, ""); // 
+	DNSServerAddresses.Insert(0, ""); // Default server.
 	
 	CommandsStrings = New Array;
 	
@@ -1032,8 +1032,8 @@ Function IMAPServerConnectionSettingsOptions(Email) Export
 		Return Result;
 	EndIf;
 
-	// 
-	// 
+	// Standard settings suitable for Gmail, Yandex, and Mail.ru accounts.
+	// The server name is prefixed with "imap." and the connection is secured.
 	SettingsMode = Result.Add();
 	SettingsMode.IncomingMailServer = "imap." + ServerNameInAccount;
 	SettingsMode.IncomingMailServerPort = 993;
@@ -1083,8 +1083,8 @@ Function POPServerConnectionSettingsOptions(Email)
 	Result.Columns.Add("IncomingMailServerPort");
 	Result.Columns.Add("UseSecureConnectionForIncomingMail");
 	
-	// 
-	// 
+	// Standard settings suitable for Gmail, Yandex, and Mail.ru accounts.
+	// The server name is prefixed with "pop." and the connection is secured.
 	SettingsMode = Result.Add();
 	SettingsMode.IncomingMailServer = "pop." + ServerNameInAccount;
 	SettingsMode.IncomingMailServerPort = 995;
@@ -1164,8 +1164,8 @@ Function SMTPServerConnectionSettingsOptions(Email) Export
 		Return Result;
 	EndIf;
 	
-	// 
-	// 
+	// Standard settings suitable for Gmail, Yandex, and Mail.ru accounts.
+	// The server name is prefixed with "smtp.", the connection is secured, and the port is 465.
 	SettingsMode = Result.Add();
 	SettingsMode.OutgoingMailServer = "smtp." + ServerNameInAccount;
 	SettingsMode.OutgoingMailServerPort = 465;

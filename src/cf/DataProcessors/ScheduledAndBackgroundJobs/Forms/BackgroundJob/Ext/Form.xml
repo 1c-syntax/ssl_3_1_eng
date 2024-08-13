@@ -239,7 +239,7 @@
 			<MultiLine>true</MultiLine>
 			<ExtendedEdit>true</ExtendedEdit>
 			<OpenButton>true</OpenButton>
-			<ContextMenu name="MessagesAndErrorInformationDetailsContextMenu" id="27"/>
+			<ContextMenu name="MessagesAndErrorDescriptionContextMenu" id="27"/>
 			<ExtendedTooltip name="MessagesAndErrorDescriptionExtendedTooltip" id="45"/>
 		</InputField>
 	</ChildItems>

@@ -10,7 +10,7 @@
 	<AutoCommandBar name="FormCommandBar" id="-1">
 		<Autofill>false</Autofill>
 		<ChildItems>
-			<Button name="FormSelectAll1" id="34">
+			<Button name="FormSelectAllCommand" id="34">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.SelectAllCommand</CommandName>
 				<Title>
@@ -19,7 +19,7 @@
 						<v8:content>Select all</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="FormSelectAll1ExtendedTooltip" id="35"/>
+				<ExtendedTooltip name="FormSelectAllCommandExtendedTooltip" id="35"/>
 			</Button>
 			<Button name="FormClearAllIetmsCommand" id="36">
 				<Type>CommandBarButton</Type>

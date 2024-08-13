@@ -287,10 +287,10 @@ with the specified authentication methods.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<CheckBoxType>Auto</CheckBoxType>
-					<ContextMenu name="CanSignIn1ContextMenu" id="100"/>
-					<ExtendedTooltip name="CanSignIn1ExtendedTooltip" id="204"/>
+					<ContextMenu name="CanSignInContextMenu" id="100"/>
+					<ExtendedTooltip name="CanSignInExtendedTooltip" id="204"/>
 					<Events>
-						<Event name="OnChange">CanSignIn1OnChange</Event>
+						<Event name="OnChange">CanSignInOnChange</Event>
 					</Events>
 				</CheckBoxField>
 				<UsualGroup name="GroupNoRights" id="376">
@@ -500,9 +500,9 @@ by the external user list owner (not by the administrator).</v8:content>
 							<v8:content>Main</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="TheMainThingExtendedTooltip" id="284"/>
+					<ExtendedTooltip name="Main_PageExtendedTooltip" id="284"/>
 					<ChildItems>
-						<UsualGroup name="GroupName_SSLy" id="374">
+						<UsualGroup name="GroupName" id="374">
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -512,7 +512,7 @@ by the external user list owner (not by the administrator).</v8:content>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="GroupName_SSLyExtendedTooltip" id="375"/>
+							<ExtendedTooltip name="GroupNameExtendedTooltip" id="375"/>
 							<ChildItems>
 								<InputField name="IBUserName" id="242">
 									<DataPath>IBUserName</DataPath>
@@ -603,7 +603,7 @@ username and password.</v8:content>
 													<Behavior>Usual</Behavior>
 													<Representation>None</Representation>
 													<ShowTitle>false</ShowTitle>
-													<ExtendedTooltip name="IndentGroupExtendedTooltip" id="275"/>
+													<ExtendedTooltip name="GroupIndentExtendedTooltip" id="275"/>
 													<ChildItems>
 														<LabelDecoration name="Indent" id="276">
 															<ContextMenu name="IndentContextMenu" id="277"/>
@@ -703,8 +703,8 @@ changing their password.</v8:content>
 																		<Event name="OnChange">IBUserCannotChangePasswordOnChange</Event>
 																	</Events>
 																</CheckBoxField>
-																<CheckBoxField name="IBUserCannotRecoverPassword" id="361">
-																	<DataPath>IBUserCannotRecoverPassword</DataPath>
+																<CheckBoxField name="IBUserCannotRecoveryPassword" id="361">
+																	<DataPath>IBUserCannotRecoveryPassword</DataPath>
 																	<Title>
 																		<v8:item>
 																			<v8:lang>en</v8:lang>
@@ -713,8 +713,8 @@ changing their password.</v8:content>
 																	</Title>
 																	<TitleLocation>Right</TitleLocation>
 																	<CheckBoxType>Auto</CheckBoxType>
-																	<ContextMenu name="UserIbuprodenToRecoverYourPasswordContextMenu" id="362"/>
-																	<ExtendedTooltip name="UserIbuprodenToRecoverYourPasswordExtendedTooltip" id="363"/>
+																	<ContextMenu name="IBUserCannotRecoveryPasswordContextMenu" id="362"/>
+																	<ExtendedTooltip name="IBUserCannotRecoveryPasswordExtendedTooltip" id="363"/>
 																</CheckBoxField>
 															</ChildItems>
 														</UsualGroup>
@@ -826,7 +826,7 @@ It is widely used by many public digital services.</v8:content>
 									<Behavior>Usual</Behavior>
 									<Representation>NormalSeparation</Representation>
 									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="AdditionalPropertiesExtendedTooltip" id="215"/>
+									<ExtendedTooltip name="PropertiesAdditionalExtendedTooltip" id="215"/>
 									<ChildItems>
 										<InputField name="IBUserLanguage" id="348">
 											<DataPath>IBUserLanguage</DataPath>
@@ -1098,7 +1098,7 @@ It is widely used by many public digital services.</v8:content>
 							<v8:content>Addresses and phones</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="ContactInformationPageExtendedTooltip" id="358"/>
+					<ExtendedTooltip name="PageContactInformationExtendedTooltip" id="358"/>
 					<ChildItems>
 						<UsualGroup name="ContactInformationGroup" id="359">
 							<Title>
@@ -1547,7 +1547,7 @@ It is widely used by many public digital services.</v8:content>
 		<Attribute name="PasswordToConfirmEmailChange" id="32">
 			<Type/>
 		</Attribute>
-		<Attribute name="IBUserCannotRecoverPassword" id="41">
+		<Attribute name="IBUserCannotRecoveryPassword" id="41">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -1672,13 +1672,13 @@ It is widely used by many public digital services.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Group by subsystems</v8:content>
+					<v8:content>Group by subsystem</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Group roles by subsystems.</v8:content>
+					<v8:content>Group roles by subsystem.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>

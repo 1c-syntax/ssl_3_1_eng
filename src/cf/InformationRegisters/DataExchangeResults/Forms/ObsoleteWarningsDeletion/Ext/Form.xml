@@ -6,7 +6,7 @@
 		<HorizontalAlign>Right</HorizontalAlign>
 		<Autofill>false</Autofill>
 		<ChildItems>
-			<Button name="FormRemoveWarnings" id="19">
+			<Button name="FormDeleteWarnings" id="19">
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.DeleteWarnings</CommandName>
@@ -16,12 +16,12 @@
 						<v8:content>Delete warnings</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="FormRemoveWarningsExtendedTooltip" id="20"/>
+				<ExtendedTooltip name="FormDeleteWarningsExtendedTooltip" id="20"/>
 			</Button>
 			<Button name="FormClose" id="45">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.Close</CommandName>
-				<ExtendedTooltip name="FormClose3ExtendedTooltip" id="46"/>
+				<ExtendedTooltip name="FormCloseExtendedTooltip" id="46"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
@@ -47,7 +47,7 @@
 							<v8:content>Filters</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="FiltersPage1ExtendedTooltip" id="2"/>
+					<ExtendedTooltip name="FiltersPageExtendedTooltip" id="2"/>
 					<ChildItems>
 						<PictureDecoration name="InformationDecoration" id="23">
 							<Title formatted="false">
@@ -105,11 +105,11 @@
 									<MaxWidth>20</MaxWidth>
 									<ChoiceButton>true</ChoiceButton>
 									<TextEdit>false</TextEdit>
-									<ContextMenu name="PresentationOfSelectionByPeriodContextMenu" id="58"/>
-									<ExtendedTooltip name="PresentationOfSelectionByPeriodExtendedTooltip" id="59"/>
+									<ContextMenu name="FilterByPeriodPresentationContextMenu" id="58"/>
+									<ExtendedTooltip name="FilterByPeriodPresentationExtendedTooltip" id="59"/>
 									<Events>
-										<Event name="StartChoice">PresentationOfSelectionByPeriodStartChoice</Event>
-										<Event name="Clearing">PresentationOfSelectionByPeriodClearing</Event>
+										<Event name="StartChoice">FilterByPeriodPresentationStartChoice</Event>
+										<Event name="Clearing">FilterByPeriodPresentationClearing</Event>
 									</Events>
 								</InputField>
 								<InputField name="SynchronizationsFilterPresentation" id="63">
@@ -129,11 +129,11 @@
 									<ToolTipRepresentation>Button</ToolTipRepresentation>
 									<ChoiceButton>true</ChoiceButton>
 									<TextEdit>false</TextEdit>
-									<ContextMenu name="ViewOfSynchronizationSelectionContextMenu" id="64"/>
-									<ExtendedTooltip name="ViewOfSynchronizationSelectionExtendedTooltip" id="65"/>
+									<ContextMenu name="SynchronizationsFilterPresentationContextMenu" id="64"/>
+									<ExtendedTooltip name="SynchronizationsFilterPresentationExtendedTooltip" id="65"/>
 									<Events>
-										<Event name="StartChoice">ViewOfSynchronizationSelectionStartChoice</Event>
-										<Event name="Clearing">ViewOfSynchronizationSelectionClearing</Event>
+										<Event name="StartChoice">SynchronizationsFilterPresentationStartChoice</Event>
+										<Event name="Clearing">SynchronizationsFilterPresentationClearing</Event>
 									</Events>
 								</InputField>
 								<InputField name="WarningsTypesFilterPresentation" id="60">
@@ -153,11 +153,11 @@
 									<ToolTipRepresentation>Button</ToolTipRepresentation>
 									<ChoiceButton>true</ChoiceButton>
 									<TextEdit>false</TextEdit>
-									<ContextMenu name="RepresentationOfSelectionOfWarningTypesContextMenu" id="61"/>
-									<ExtendedTooltip name="RepresentationOfSelectionOfWarningTypesExtendedTooltip" id="62"/>
+									<ContextMenu name="WarningsTypesFilterPresentationContextMenu" id="61"/>
+									<ExtendedTooltip name="WarningsTypesFilterPresentationExtendedTooltip" id="62"/>
 									<Events>
-										<Event name="StartChoice">RepresentationOfSelectionOfWarningTypesStartChoice</Event>
-										<Event name="Clearing">RepresentationOfSelectionOfWarningTypesClearing</Event>
+										<Event name="StartChoice">WarningsTypesFilterPresentationStartChoice</Event>
+										<Event name="Clearing">WarningsTypesFilterPresentationClearing</Event>
 									</Events>
 								</InputField>
 							</ChildItems>
@@ -179,8 +179,8 @@
 							</ToolTip>
 							<ToolTipRepresentation>Button</ToolTipRepresentation>
 							<CheckBoxType>Auto</CheckBoxType>
-							<ContextMenu name="HiddenRecordsOnlyContextMenu" id="17"/>
-							<ExtendedTooltip name="HiddenRecordsOnlyExtendedTooltip" id="18"/>
+							<ContextMenu name="OnlyHiddenRecordsContextMenu" id="17"/>
+							<ExtendedTooltip name="OnlyHiddenRecordsExtendedTooltip" id="18"/>
 						</CheckBoxField>
 					</ChildItems>
 				</Page>
@@ -257,8 +257,8 @@ Deleting obsolete records…</v8:content>
 								<xr:Ref>CommonPicture.Error32</xr:Ref>
 								<xr:LoadTransparent>false</xr:LoadTransparent>
 							</Picture>
-							<ContextMenu name="DecorationErrorHeaderContextMenu" id="50"/>
-							<ExtendedTooltip name="DecorationErrorHeaderExtendedTooltip" id="51">
+							<ContextMenu name="ErrorTitleDecorationContextMenu" id="50"/>
+							<ExtendedTooltip name="ErrorTitleDecorationExtendedTooltip" id="51">
 								<Title formatted="false">
 									<v8:item>
 										<v8:lang>en</v8:lang>
@@ -298,7 +298,7 @@ To resolve the error, copy the text below and send it to your administrator.</v8
 							<v8:content>Page error</v8:content>
 						</v8:item>
 					</ToolTip>
-					<ExtendedTooltip name="DonePageExtendedTooltip" id="53"/>
+					<ExtendedTooltip name="PageDoneExtendedTooltip" id="53"/>
 					<ChildItems>
 						<PictureDecoration name="TitleDecorationDone" id="54">
 							<Title formatted="false">
@@ -312,8 +312,8 @@ To resolve the error, copy the text below and send it to your administrator.</v8
 								<xr:Ref>CommonPicture.Information32</xr:Ref>
 								<xr:LoadTransparent>false</xr:LoadTransparent>
 							</Picture>
-							<ContextMenu name="DecorationTitleDoneContextMenu" id="55"/>
-							<ExtendedTooltip name="DecorationTitleDoneExtendedTooltip" id="56">
+							<ContextMenu name="TitleDecorationDoneContextMenu" id="55"/>
+							<ExtendedTooltip name="TitleDecorationDoneExtendedTooltip" id="56">
 								<Title formatted="false">
 									<v8:item>
 										<v8:lang>en</v8:lang>

@@ -22,7 +22,7 @@
 			<Button name="FormClose" id="17">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.Close</CommandName>
-				<ExtendedTooltip name="FormClose3ExtendedTooltip" id="18"/>
+				<ExtendedTooltip name="FormCloseExtendedTooltip" id="18"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
@@ -48,7 +48,7 @@
 						</v8:item>
 					</Title>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="MainPage2ExtendedTooltip" id="22"/>
+					<ExtendedTooltip name="MainDataPageExtendedTooltip" id="22"/>
 					<ChildItems>
 						<UsualGroup name="HeaderGroup" id="1">
 							<Title>
@@ -68,8 +68,8 @@
 										<xr:Ref>StdPicture.DialogInformation</xr:Ref>
 										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
-									<ContextMenu name="InformationPicture8ContextMenu" id="7"/>
-									<ExtendedTooltip name="InformationPicture8ExtendedTooltip" id="8"/>
+									<ContextMenu name="PictureInformationContextMenu" id="7"/>
+									<ExtendedTooltip name="PictureInformationExtendedTooltip" id="8"/>
 								</PictureDecoration>
 								<UsualGroup name="InformationGroup" id="31">
 									<Title>
@@ -142,8 +142,8 @@ During this operation:
 								<xr:Ref>CommonPicture.TimeConsumingOperation48</xr:Ref>
 								<xr:LoadTransparent>false</xr:LoadTransparent>
 							</Picture>
-							<ContextMenu name="TimeConsumingOperationPicture2ContextMenu" id="26"/>
-							<ExtendedTooltip name="TimeConsumingOperationPicture2ExtendedTooltip" id="27"/>
+							<ContextMenu name="PictureTimeConsumingOperationContextMenu" id="26"/>
+							<ExtendedTooltip name="PictureTimeConsumingOperationExtendedTooltip" id="27"/>
 						</PictureDecoration>
 						<LabelDecoration name="LabelTimeConsumingOperation" id="28">
 							<Title formatted="false">
@@ -153,8 +153,8 @@ During this operation:
 								</v8:item>
 							</Title>
 							<GroupVerticalAlign>Center</GroupVerticalAlign>
-							<ContextMenu name="TimeConsumingOperationLabel2ContextMenu" id="29"/>
-							<ExtendedTooltip name="TimeConsumingOperationLabel2ExtendedTooltip" id="30"/>
+							<ContextMenu name="LabelTimeConsumingOperationContextMenu" id="29"/>
+							<ExtendedTooltip name="LabelTimeConsumingOperationExtendedTooltip" id="30"/>
 						</LabelDecoration>
 					</ChildItems>
 				</Page>

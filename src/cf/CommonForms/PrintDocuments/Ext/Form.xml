@@ -37,7 +37,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="CommandBarGroupExtendedTooltip" id="143"/>
+			<ExtendedTooltip name="GroupCommandBarExtendedTooltip" id="143"/>
 			<ChildItems>
 				<CommandBar name="CommandBarLeftPart" id="114">
 					<Title>
@@ -104,10 +104,10 @@
 							<SpinButton>true</SpinButton>
 							<MinValue xsi:type="xs:decimal">1</MinValue>
 							<MaxValue xsi:type="xs:decimal">999</MaxValue>
-							<ContextMenu name="Copies1ContextMenu" id="118"/>
+							<ContextMenu name="CopiesContextMenu" id="118"/>
 							<ExtendedTooltip name="CopiesExtendedTooltip" id="146"/>
 							<Events>
-								<Event name="OnChange">Copies1OnChange</Event>
+								<Event name="OnChange">CopiesOnChange</Event>
 							</Events>
 						</InputField>
 						<CheckBoxField name="SignedAndSealedFlag" id="281" DisplayImportance="VeryHigh">
@@ -338,7 +338,7 @@
 													<v8:content>Number of cells</v8:content>
 												</v8:item>
 											</Title>
-											<ExtendedTooltip name="CalculateCount1ExtendedTooltip" id="264"/>
+											<ExtendedTooltip name="CalculateCountExtendedTooltip" id="264"/>
 										</Button>
 										<Button name="CalculateAverage" id="265">
 											<Type>CommandBarButton</Type>
@@ -631,8 +631,8 @@
 						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</Picture>
 					<FileDragMode>AsFile</FileDragMode>
-					<ContextMenu name="InformationPicture7ContextMenu" id="224"/>
-					<ExtendedTooltip name="InformationPicture7ExtendedTooltip" id="225"/>
+					<ContextMenu name="PictureOfInformationContextMenu" id="224"/>
+					<ExtendedTooltip name="PictureOfInformationExtendedTooltip" id="225"/>
 				</PictureDecoration>
 				<LabelDecoration name="AdditionalInformation" id="220">
 					<AutoMaxWidth>false</AutoMaxWidth>
@@ -896,7 +896,7 @@
 						<Event name="OnChange">PrintFormsSettingsOnChange</Event>
 					</Events>
 					<ChildItems>
-						<CheckBoxField name="PrintFormsSettingsToPrint" id="93">
+						<CheckBoxField name="PrintFormsSettingsPrint" id="93">
 							<DataPath>PrintFormsSettings.Print</DataPath>
 							<Title>
 								<v8:item>
@@ -911,10 +911,10 @@
 								<xr:LoadTransparent>true</xr:LoadTransparent>
 							</HeaderPicture>
 							<CheckBoxType>Auto</CheckBoxType>
-							<ContextMenu name="PrintFormSettingsPrintContextMenu" id="94"/>
-							<ExtendedTooltip name="PrintFormsSettingsToPrintExtendedTooltip" id="175"/>
+							<ContextMenu name="PrintFormsSettingsPrintContextMenu" id="94"/>
+							<ExtendedTooltip name="PrintFormsSettingsPrintExtendedTooltip" id="175"/>
 							<Events>
-								<Event name="OnChange">PrintFormSettingsPrintOnChange</Event>
+								<Event name="OnChange">PrintFormsSettingsPrintOnChange</Event>
 							</Events>
 						</CheckBoxField>
 						<InputField name="PrintFormsSettingsPresentation" id="89">
@@ -1626,7 +1626,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Email account</v8:content>
+					<v8:content>Email</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>

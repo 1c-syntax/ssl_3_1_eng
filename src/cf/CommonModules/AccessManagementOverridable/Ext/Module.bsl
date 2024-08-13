@@ -104,7 +104,7 @@ EndProcedure
 //  ProfileDetails.Description = NStr("en = 'Sales representative'", Common.DefaultLanguageCode());
 //  ProfileDetails.Roles.Add("StartWebClient");
 //  ProfileDetails.Roles.Add("StartThinClient");
-//  ProfileDetails.Roles.Add("BasicSSLRights");
+//  ProfileDetails.Roles.Add("BasicAccessSSL");
 //  ProfileDetails.Roles.Add("Subsystem_Sales");
 //  ProfileDetails.Roles.Add("AddEditCustomersDocuments");
 //  ProfileDetails.Roles.Add("ViewReportPurchaseLedger");

@@ -149,6 +149,10 @@ Function PlatformVersionsTable(Platforms, AllDeprecatedVersions)
 			Continue;
 		EndIf;
 		
+		If StrSplit(Platform.BaseName, ".").Count() <> 3 Then
+			Continue;
+		EndIf;
+		
 		If CommonClientServer.CompareVersionsWithoutBuildNumber(Platform.BaseName, "8.3.21") < 0 Then
 			Continue;
 		EndIf;

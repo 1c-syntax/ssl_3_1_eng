@@ -128,29 +128,29 @@
 								<Autofill>false</Autofill>
 							</AutoCommandBar>
 							<ExtendedTooltip name="ListExtendedTooltip" id="185"/>
-							<SearchStringAddition name="ListSearchString_SSLy" id="207">
+							<SearchStringAddition name="ListSearchString" id="207">
 								<AdditionSource>
 									<Item>List</Item>
 									<Type>SearchStringRepresentation</Type>
 								</AdditionSource>
-								<ContextMenu name="ListSearchString_SSLyContextMenu" id="208"/>
-								<ExtendedTooltip name="ListSearchString_SSLyExtendedTooltip" id="209"/>
+								<ContextMenu name="ListSearchStringContextMenu" id="208"/>
+								<ExtendedTooltip name="ListSearchStringExtendedTooltip" id="209"/>
 							</SearchStringAddition>
-							<ViewStatusAddition name="ListViewStatus_SSLy" id="210">
+							<ViewStatusAddition name="ListViewStatus" id="210">
 								<AdditionSource>
 									<Item>List</Item>
 									<Type>ViewStatusRepresentation</Type>
 								</AdditionSource>
-								<ContextMenu name="ListViewStatus_SSLyContextMenu" id="211"/>
-								<ExtendedTooltip name="ListViewStatus_SSLyExtendedTooltip" id="212"/>
+								<ContextMenu name="ListViewStatusContextMenu" id="211"/>
+								<ExtendedTooltip name="ListViewStatusExtendedTooltip" id="212"/>
 							</ViewStatusAddition>
-							<SearchControlAddition name="ListSearchControl_SSLy" id="213">
+							<SearchControlAddition name="ListSearchControl" id="213">
 								<AdditionSource>
 									<Item>List</Item>
 									<Type>SearchControl</Type>
 								</AdditionSource>
-								<ContextMenu name="ListSearchControl_SSLyContextMenu" id="214"/>
-								<ExtendedTooltip name="ListSearchControl_SSLyExtendedTooltip" id="215"/>
+								<ContextMenu name="ListSearchControlContextMenu" id="214"/>
+								<ExtendedTooltip name="ListSearchControlExtendedTooltip" id="215"/>
 							</SearchControlAddition>
 							<Events>
 								<Event name="Selection">ListSelection</Event>
@@ -256,8 +256,8 @@
 								<xr:LoadTransparent>false</xr:LoadTransparent>
 							</Picture>
 							<FileDragMode>AsFile</FileDragMode>
-							<ContextMenu name="TimeConsumingOperationPicture3ContextMenu" id="92"/>
-							<ExtendedTooltip name="TimeConsumingOperationPicture3ExtendedTooltip" id="93"/>
+							<ContextMenu name="TimeConsumingOperationPicContextMenu" id="92"/>
+							<ExtendedTooltip name="TimeConsumingOperationPicExtendedTooltip" id="93"/>
 						</PictureDecoration>
 						<LabelDecoration name="TimeConsumingOperationDetails" id="94">
 							<AutoMaxWidth>false</AutoMaxWidth>
@@ -476,7 +476,7 @@ Please wait…</v8:content>
 											<Group>InCell</Group>
 											<ExtendedTooltip name="UnsuccessfulReplacementsGroupExtendedTooltip" id="179"/>
 											<ChildItems>
-												<PictureField name="UnsuccessfulReplacementsIcon1" id="175">
+												<PictureField name="UnsuccessfulReplacementsPictogram" id="175">
 													<DataPath>UnsuccessfulReplacements.Pictogram</DataPath>
 													<Title>
 														<v8:item>
@@ -491,8 +491,8 @@ Please wait…</v8:content>
 														<xr:LoadTransparent>false</xr:LoadTransparent>
 													</ValuesPicture>
 													<FileDragMode>AsFile</FileDragMode>
-													<ContextMenu name="UnsuccessfulReplacementsIcon1ContextMenu" id="176"/>
-													<ExtendedTooltip name="UnsuccessfulReplacementsIcon1ExtendedTooltip" id="177"/>
+													<ContextMenu name="UnsuccessfulReplacementsPictogramContextMenu" id="176"/>
+													<ExtendedTooltip name="UnsuccessfulReplacementsPictogramExtendedTooltip" id="177"/>
 												</PictureField>
 												<InputField name="UnsuccessfulReplacementsData" id="144">
 													<DataPath>UnsuccessfulReplacements.Data</DataPath>

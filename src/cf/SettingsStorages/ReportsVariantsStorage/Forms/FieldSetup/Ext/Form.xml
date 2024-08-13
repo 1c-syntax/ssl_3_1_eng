@@ -123,22 +123,22 @@
 														<v8:content>Search</v8:content>
 													</v8:item>
 												</Title>
-												<ExtendedTooltip name="TheValuesOfTheContextMenuSearchExtendedTooltip" id="349"/>
+												<ExtendedTooltip name="ValuesContextMenuSearchExtendedTooltip" id="349"/>
 												<ChildItems>
 													<Button name="ValuesContextMenuFindByCurrentValue" id="350">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Item.Values.StandardCommand.SortListDesc</CommandName>
-														<ExtendedTooltip name="TheValuesForTheContextMenuToSearchWithinTheCurrentValueExtendedTooltip" id="351"/>
+														<ExtendedTooltip name="ValuesContextMenuFindByCurrentValueExtendedTooltip" id="351"/>
 													</Button>
 													<Button name="ValuesContextMenuFind" id="352">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Item.Values.StandardCommand.SortListDesc</CommandName>
-														<ExtendedTooltip name="TheValuesForTheContextMenuToFindExtendedTooltip" id="353"/>
+														<ExtendedTooltip name="ValuesContextMenuFindExtendedTooltip" id="353"/>
 													</Button>
 													<Button name="ValuesContextMenuCancelSearch" id="354">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Item.Values.StandardCommand.SortListDesc</CommandName>
-														<ExtendedTooltip name="TheValuesForTheContextMenuToCancelTheSearchExtendedTooltip" id="355"/>
+														<ExtendedTooltip name="ValuesContextMenuCancelSearchExtendedTooltip" id="355"/>
 													</Button>
 												</ChildItems>
 											</ButtonGroup>
@@ -149,17 +149,17 @@
 														<v8:content>Sort</v8:content>
 													</v8:item>
 												</Title>
-												<ExtendedTooltip name="TheValuesForTheContextMenuToSortExtendedTooltip" id="54"/>
+												<ExtendedTooltip name="ValuesContextMenuSortExtendedTooltip" id="54"/>
 												<ChildItems>
 													<Button name="ValuesContextMenuSortListAsc" id="55">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Item.Values.StandardCommand.SortListAsc</CommandName>
-														<ExtendedTooltip name="TheValuesForTheContextMenuToSortTheListInAscendingOrderExtendedTooltip" id="56"/>
+														<ExtendedTooltip name="ValuesContextMenuSortListAscExtendedTooltip" id="56"/>
 													</Button>
 													<Button name="ValuesContextMenuSortListDesc" id="57">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Item.Values.StandardCommand.SortListDesc</CommandName>
-														<ExtendedTooltip name="TheValuesForTheContextMenuToSortTheListInDescendingOrderExtendedTooltip" id="58"/>
+														<ExtendedTooltip name="ValuesContextMenuSortListDescExtendedTooltip" id="58"/>
 													</Button>
 												</ChildItems>
 											</ButtonGroup>
@@ -175,19 +175,19 @@
 													</v8:item>
 												</Title>
 												<Representation>Compact</Representation>
-												<ExtendedTooltip name="ValuesToChangeTheFlagsExtendedTooltip" id="327"/>
+												<ExtendedTooltip name="ValuesChangeCheckBoxesExtendedTooltip" id="327"/>
 												<ChildItems>
 													<Button name="ValuesCheckAll" id="322">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Item.Values.StandardCommand.CheckAll</CommandName>
 														<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
-														<ExtendedTooltip name="ValuesCheckTheBoxesExtendedTooltip" id="323"/>
+														<ExtendedTooltip name="ValuesCheckAllExtendedTooltip" id="323"/>
 													</Button>
 													<Button name="ValuesUncheckAll" id="324">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Item.Values.StandardCommand.UncheckAll</CommandName>
 														<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
-														<ExtendedTooltip name="ValuesUncheckTheBoxesExtendedTooltip" id="325"/>
+														<ExtendedTooltip name="ValuesUncheckAllExtendedTooltip" id="325"/>
 													</Button>
 												</ChildItems>
 											</ButtonGroup>
@@ -199,13 +199,13 @@
 														<v8:content>Search</v8:content>
 													</v8:item>
 												</Title>
-												<ExtendedTooltip name="SearchValuesExtendedTooltip" id="329"/>
+												<ExtendedTooltip name="ValuesSearchExtendedTooltip" id="329"/>
 												<ChildItems>
 													<Button name="ValuesFindByCurrentValue" id="330">
 														<Type>CommandBarButton</Type>
 														<Visible>false</Visible>
 														<CommandName>Form.Item.Values.StandardCommand.SortListDesc</CommandName>
-														<ExtendedTooltip name="ValuesSearchByCurrentValueExtendedTooltip" id="331"/>
+														<ExtendedTooltip name="ValuesFindByCurrentValueExtendedTooltip" id="331"/>
 													</Button>
 													<Button name="ValuesFind" id="332">
 														<Type>CommandBarButton</Type>
@@ -229,19 +229,19 @@
 														<v8:content>Sort</v8:content>
 													</v8:item>
 												</Title>
-												<ExtendedTooltip name="ValuesToSortExtendedTooltip" id="339"/>
+												<ExtendedTooltip name="ValuesSortExtendedTooltip" id="339"/>
 												<ChildItems>
 													<Button name="ValuesSortListAsc" id="340">
 														<Type>CommandBarButton</Type>
 														<Visible>false</Visible>
 														<CommandName>Form.Item.Values.StandardCommand.SortListAsc</CommandName>
-														<ExtendedTooltip name="ValuesSortTheListInAscendingOrderExtendedTooltip" id="341"/>
+														<ExtendedTooltip name="ValuesSortListAscExtendedTooltip" id="341"/>
 													</Button>
 													<Button name="ValuesSortListDesc" id="342">
 														<Type>CommandBarButton</Type>
 														<Visible>false</Visible>
 														<CommandName>Form.Item.Values.StandardCommand.SortListDesc</CommandName>
-														<ExtendedTooltip name="ValuesSortTheListInDescendingOrderExtendedTooltip" id="343"/>
+														<ExtendedTooltip name="ValuesSortListDescExtendedTooltip" id="343"/>
 													</Button>
 												</ChildItems>
 											</ButtonGroup>
@@ -253,7 +253,7 @@
 														<v8:content>Move</v8:content>
 													</v8:item>
 												</Title>
-												<ExtendedTooltip name="ValuesToMoveExtendedTooltip" id="337"/>
+												<ExtendedTooltip name="ValuesMoveExtendedTooltip" id="337"/>
 												<ChildItems>
 													<Button name="ValuesMoveUp" id="344">
 														<Type>CommandBarButton</Type>
@@ -320,10 +320,10 @@
 											</Title>
 											<EditMode>EnterOnInput</EditMode>
 											<CheckBoxType>Auto</CheckBoxType>
-											<ContextMenu name="ValuesTaggingContextMenu" id="35"/>
-											<ExtendedTooltip name="ValuesTaggingExtendedTooltip" id="36"/>
+											<ContextMenu name="ValuesCheckContextMenu" id="35"/>
+											<ExtendedTooltip name="ValuesCheckExtendedTooltip" id="36"/>
 											<Events>
-												<Event name="OnChange">ValuesTaggingOnChange</Event>
+												<Event name="OnChange">ValuesCheckOnChange</Event>
 											</Events>
 										</CheckBoxField>
 										<InputField name="ValuesValue" id="31">
@@ -353,12 +353,12 @@
 									<Behavior>Usual</Behavior>
 									<Representation>NormalSeparation</Representation>
 									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="OptionsForFillingInTheFilterByValueExtendedTooltip" id="436"/>
+									<ExtendedTooltip name="OptionsToFillInFilterByValueExtendedTooltip" id="436"/>
 									<ChildItems>
 										<LabelDecoration name="FilterByValueStatistics" id="415">
 											<ToolTipRepresentation>Button</ToolTipRepresentation>
-											<ContextMenu name="FilterStatisticsByValueContextMenu" id="416"/>
-											<ExtendedTooltip name="FilterStatisticsByValueExtendedTooltip" id="417"/>
+											<ContextMenu name="FilterByValueStatisticsContextMenu" id="416"/>
+											<ExtendedTooltip name="FilterByValueStatisticsExtendedTooltip" id="417"/>
 										</LabelDecoration>
 										<LabelDecoration name="OutputAllReportSectionValues" id="437">
 											<Title formatted="false">
@@ -369,10 +369,10 @@
 											</Title>
 											<ToolTipRepresentation>Button</ToolTipRepresentation>
 											<Hyperlink>true</Hyperlink>
-											<ContextMenu name="OutputAllValuesOfTheReportSectionContextMenu" id="438"/>
-											<ExtendedTooltip name="OutputAllValuesOfTheReportSectionExtendedTooltip" id="439"/>
+											<ContextMenu name="OutputAllReportSectionValuesContextMenu" id="438"/>
+											<ExtendedTooltip name="OutputAllReportSectionValuesExtendedTooltip" id="439"/>
 											<Events>
-												<Event name="Click">OutputAllValuesOfTheReportSectionClick</Event>
+												<Event name="Click">OutputAllReportSectionValuesClick</Event>
 											</Events>
 										</LabelDecoration>
 									</ChildItems>
@@ -407,7 +407,7 @@
 												</v8:item>
 											</Title>
 											<Group>AlwaysHorizontal</Group>
-											<ExtendedTooltip name="WaitingForFillingInExtendedTooltip" id="422"/>
+											<ExtendedTooltip name="WaitingForFillingExtendedTooltip" id="422"/>
 											<ChildItems>
 												<PictureDecoration name="TimeConsumingOperationIndicator" id="410">
 													<Title formatted="false">
@@ -420,8 +420,8 @@
 														<xr:Ref>CommonPicture.TimeConsumingOperation48</xr:Ref>
 														<xr:LoadTransparent>false</xr:LoadTransparent>
 													</Picture>
-													<ContextMenu name="LongOperationIndicatorContextMenu" id="411"/>
-													<ExtendedTooltip name="LongOperationIndicatorExtendedTooltip" id="412"/>
+													<ContextMenu name="TimeConsumingOperationIndicatorContextMenu" id="411"/>
+													<ExtendedTooltip name="TimeConsumingOperationIndicatorExtendedTooltip" id="412"/>
 												</PictureDecoration>
 												<LabelDecoration name="TimeConsumingOperationPresentation" id="418">
 													<Title formatted="false">
@@ -431,8 +431,8 @@
 														</v8:item>
 													</Title>
 													<GroupVerticalAlign>Center</GroupVerticalAlign>
-													<ContextMenu name="RepresentationOfALongRunningOperationContextMenu" id="419"/>
-													<ExtendedTooltip name="RepresentationOfALongRunningOperationExtendedTooltip" id="420"/>
+													<ContextMenu name="TimeConsumingOperationPresentationContextMenu" id="419"/>
+													<ExtendedTooltip name="TimeConsumingOperationPresentationExtendedTooltip" id="420"/>
 												</LabelDecoration>
 											</ChildItems>
 										</Page>
@@ -463,8 +463,8 @@
 												<LabelDecoration name="FillErrorDescription" id="427">
 													<HorizontalStretch>true</HorizontalStretch>
 													<GroupVerticalAlign>Center</GroupVerticalAlign>
-													<ContextMenu name="DescriptionOfTheFillInErrorContextMenu" id="428"/>
-													<ExtendedTooltip name="DescriptionOfTheFillInErrorExtendedTooltip" id="429"/>
+													<ContextMenu name="FillErrorDescriptionContextMenu" id="428"/>
+													<ExtendedTooltip name="FillErrorDescriptionExtendedTooltip" id="429"/>
 												</LabelDecoration>
 											</ChildItems>
 										</Page>
@@ -501,7 +501,7 @@
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="FilterPropertiesByConditionOnTheLeftExtendedTooltip" id="377"/>
+					<ExtendedTooltip name="FilterPropertiesByLeftConditionExtendedTooltip" id="377"/>
 					<ChildItems>
 						<CheckBoxField name="Use" id="373">
 							<DataPath>Use</DataPath>
@@ -532,7 +532,7 @@
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="FilterPropertiesByConditionOnTheRightExtendedTooltip" id="379"/>
+					<ExtendedTooltip name="FilterPropertiesByRightConditionExtendedTooltip" id="379"/>
 					<ChildItems>
 						<InputField name="ComparisonType" id="10">
 							<DataPath>ComparisonType</DataPath>
@@ -626,7 +626,7 @@
 							<Behavior>Usual</Behavior>
 							<Representation>NormalSeparation</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="AdditionalFeatureCommandsExtendedTooltip" id="293"/>
+							<ExtendedTooltip name="AdditionalFeaturesCommandsExtendedTooltip" id="293"/>
 							<ChildItems>
 								<Button name="GroupBySelectedField" id="440">
 									<Type>UsualButton</Type>
@@ -638,7 +638,7 @@
 										</v8:item>
 									</Title>
 									<ShapeRepresentation>None</ShapeRepresentation>
-									<ExtendedTooltip name="GroupByTheSelectedFieldExtendedTooltip" id="441"/>
+									<ExtendedTooltip name="GroupBySelectedFieldExtendedTooltip" id="441"/>
 								</Button>
 								<LabelDecoration name="GroupGroupBorder" id="442">
 									<HorizontalStretch>true</HorizontalStretch>
@@ -686,7 +686,7 @@
 													<Behavior>Usual</Behavior>
 													<Representation>None</Representation>
 													<ShowTitle>false</ShowTitle>
-													<ExtendedTooltip name="InsertingColumnExtendedTooltip" id="446"/>
+													<ExtendedTooltip name="InsertColumnExtendedTooltip" id="446"/>
 													<ChildItems>
 														<UsualGroup name="InsertColumn1" id="447">
 															<Title>
@@ -712,7 +712,7 @@
 																		</v8:item>
 																	</Title>
 																	<ShapeRepresentation>None</ShapeRepresentation>
-																	<ExtendedTooltip name="InsertAFieldOnTheLeftExtendedTooltip" id="157"/>
+																	<ExtendedTooltip name="InsertFieldLeftExtendedTooltip" id="157"/>
 																</Button>
 																<Button name="InsertGroupAbove" id="160">
 																	<Type>UsualButton</Type>
@@ -724,7 +724,7 @@
 																		</v8:item>
 																	</Title>
 																	<ShapeRepresentation>None</ShapeRepresentation>
-																	<ExtendedTooltip name="InsertTheGroupingAboveExtendedTooltip" id="161"/>
+																	<ExtendedTooltip name="InsertGroupAboveExtendedTooltip" id="161"/>
 																</Button>
 															</ChildItems>
 														</UsualGroup>
@@ -751,7 +751,7 @@
 																		</v8:item>
 																	</Title>
 																	<ShapeRepresentation>None</ShapeRepresentation>
-																	<ExtendedTooltip name="InsertAFieldOnTheRightExtendedTooltip" id="159"/>
+																	<ExtendedTooltip name="InsertFieldRightExtendedTooltip" id="159"/>
 																</Button>
 																<Button name="InsertGroupBelow" id="162">
 																	<Type>UsualButton</Type>
@@ -763,7 +763,7 @@
 																		</v8:item>
 																	</Title>
 																	<ShapeRepresentation>None</ShapeRepresentation>
-																	<ExtendedTooltip name="InsertTheGroupingBelowExtendedTooltip" id="163"/>
+																	<ExtendedTooltip name="InsertGroupBelowExtendedTooltip" id="163"/>
 																</Button>
 															</ChildItems>
 														</UsualGroup>
@@ -775,8 +775,8 @@
 													<Border width="1">
 														<v8ui:style xsi:type="v8ui:ControlBorderType">Underline</v8ui:style>
 													</Border>
-													<ContextMenu name="InsertTheBoundaryOfTheGroupContextMenu" id="357"/>
-													<ExtendedTooltip name="InsertTheBoundaryOfTheGroupExtendedTooltip" id="358"/>
+													<ContextMenu name="InsertGroupBorderContextMenu" id="357"/>
+													<ExtendedTooltip name="InsertGroupBorderExtendedTooltip" id="358"/>
 												</LabelDecoration>
 											</ChildItems>
 										</UsualGroup>
@@ -803,7 +803,7 @@
 													<Behavior>Usual</Behavior>
 													<Representation>None</Representation>
 													<ShowTitle>false</ShowTitle>
-													<ExtendedTooltip name="MovingColumnExtendedTooltip" id="452"/>
+													<ExtendedTooltip name="ColumnMoveExtendedTooltip" id="452"/>
 													<ChildItems>
 														<UsualGroup name="MoveColumn1" id="453">
 															<Title>
@@ -817,7 +817,7 @@
 															<Behavior>Usual</Behavior>
 															<Representation>None</Representation>
 															<ShowTitle>false</ShowTitle>
-															<ExtendedTooltip name="MovingColumn1ExtendedTooltip" id="454"/>
+															<ExtendedTooltip name="MoveColumn1ExtendedTooltip" id="454"/>
 															<ChildItems>
 																<Button name="MoveFieldLeft" id="186">
 																	<Type>UsualButton</Type>
@@ -829,7 +829,7 @@
 																		</v8:item>
 																	</Title>
 																	<ShapeRepresentation>None</ShapeRepresentation>
-																	<ExtendedTooltip name="MoveTheFieldToTheLeftExtendedTooltip" id="187"/>
+																	<ExtendedTooltip name="MoveFieldLeftExtendedTooltip" id="187"/>
 																</Button>
 																<Button name="MoveFieldUp" id="190">
 																	<Type>UsualButton</Type>
@@ -841,7 +841,7 @@
 																		</v8:item>
 																	</Title>
 																	<ShapeRepresentation>None</ShapeRepresentation>
-																	<ExtendedTooltip name="MoveTheFieldAboveExtendedTooltip" id="191"/>
+																	<ExtendedTooltip name="MoveFieldUpExtendedTooltip" id="191"/>
 																</Button>
 															</ChildItems>
 														</UsualGroup>
@@ -856,7 +856,7 @@
 															<Behavior>Usual</Behavior>
 															<Representation>None</Representation>
 															<ShowTitle>false</ShowTitle>
-															<ExtendedTooltip name="MovingColumn2ExtendedTooltip" id="456"/>
+															<ExtendedTooltip name="MoveColumn2ExtendedTooltip" id="456"/>
 															<ChildItems>
 																<Button name="MoveFieldRight" id="188">
 																	<Type>UsualButton</Type>
@@ -868,7 +868,7 @@
 																		</v8:item>
 																	</Title>
 																	<ShapeRepresentation>None</ShapeRepresentation>
-																	<ExtendedTooltip name="MoveTheFieldToTheRightExtendedTooltip" id="189"/>
+																	<ExtendedTooltip name="MoveFieldRightExtendedTooltip" id="189"/>
 																</Button>
 																<Button name="MoveFieldDown" id="192">
 																	<Type>UsualButton</Type>
@@ -880,7 +880,7 @@
 																		</v8:item>
 																	</Title>
 																	<ShapeRepresentation>None</ShapeRepresentation>
-																	<ExtendedTooltip name="MoveTheFieldBelowExtendedTooltip" id="193"/>
+																	<ExtendedTooltip name="MoveFieldDownExtendedTooltip" id="193"/>
 																</Button>
 															</ChildItems>
 														</UsualGroup>
@@ -892,8 +892,8 @@
 													<Border width="1">
 														<v8ui:style xsi:type="v8ui:ControlBorderType">Underline</v8ui:style>
 													</Border>
-													<ContextMenu name="MovingTheGroupBoundaryContextMenu" id="360"/>
-													<ExtendedTooltip name="MovingTheGroupBoundaryExtendedTooltip" id="361"/>
+													<ContextMenu name="MoveGroupBorderContextMenu" id="360"/>
+													<ExtendedTooltip name="MoveGroupBorderExtendedTooltip" id="361"/>
 												</LabelDecoration>
 											</ChildItems>
 										</UsualGroup>
@@ -920,7 +920,7 @@
 														</v8:item>
 													</Title>
 													<ShapeRepresentation>None</ShapeRepresentation>
-													<ExtendedTooltip name="HideTheFieldExtendedTooltip" id="165"/>
+													<ExtendedTooltip name="HideFieldExtendedTooltip" id="165"/>
 												</Button>
 												<UsualGroup name="Renaming" id="303">
 													<Title>
@@ -950,7 +950,7 @@
 																</v8:item>
 															</Title>
 															<ShapeRepresentation>None</ShapeRepresentation>
-															<ExtendedTooltip name="RenameAFieldExtendedTooltip" id="167"/>
+															<ExtendedTooltip name="RenameFieldExtendedTooltip" id="167"/>
 														</Button>
 														<InputField name="FieldPresentation" id="305">
 															<DataPath>FieldPresentation</DataPath>
@@ -979,7 +979,7 @@
 																</v8:item>
 															</Title>
 															<ShapeRepresentation>WhenActive</ShapeRepresentation>
-															<ExtendedTooltip name="RenameTheFieldMoreExtendedTooltip" id="394"/>
+															<ExtendedTooltip name="RenameFieldMoreExtendedTooltip" id="394"/>
 														</Button>
 													</ChildItems>
 												</UsualGroup>
@@ -989,8 +989,8 @@
 													<Border width="1">
 														<v8ui:style xsi:type="v8ui:ControlBorderType">Underline</v8ui:style>
 													</Border>
-													<ContextMenu name="HideRenameGroupBorderContextMenu" id="363"/>
-													<ExtendedTooltip name="HideRenameGroupBorderExtendedTooltip" id="364"/>
+													<ContextMenu name="HidingRenamingGroupBorderContextMenu" id="363"/>
+													<ExtendedTooltip name="HidingRenamingGroupBorderExtendedTooltip" id="364"/>
 												</LabelDecoration>
 											</ChildItems>
 										</UsualGroup>
@@ -1020,7 +1020,7 @@
 											<Behavior>Usual</Behavior>
 											<Representation>NormalSeparation</Representation>
 											<ShowTitle>false</ShowTitle>
-											<ExtendedTooltip name="SettingTheColorExtendedTooltip" id="205"/>
+											<ExtendedTooltip name="SetColorExtendedTooltip" id="205"/>
 											<ChildItems>
 												<UsualGroup name="SetColumnColor" id="457">
 													<Title>
@@ -1032,7 +1032,7 @@
 													<Behavior>Usual</Behavior>
 													<Representation>None</Representation>
 													<ShowTitle>false</ShowTitle>
-													<ExtendedTooltip name="SettingColumnColorExtendedTooltip" id="458"/>
+													<ExtendedTooltip name="SetColumnColorExtendedTooltip" id="458"/>
 													<ChildItems>
 														<UsualGroup name="SetColorColumn1" id="459">
 															<Title>
@@ -1046,7 +1046,7 @@
 															<Behavior>Usual</Behavior>
 															<Representation>None</Representation>
 															<ShowTitle>false</ShowTitle>
-															<ExtendedTooltip name="SettingColorColumn1ExtendedTooltip" id="460"/>
+															<ExtendedTooltip name="SetColorColumn1ExtendedTooltip" id="460"/>
 															<ChildItems>
 																<Button name="FormatNegativeValues" id="172">
 																	<Type>UsualButton</Type>
@@ -1058,7 +1058,7 @@
 																		</v8:item>
 																	</Title>
 																	<ShapeRepresentation>None</ShapeRepresentation>
-																	<ExtendedTooltip name="MakeNegativeCommentsExtendedTooltip" id="173"/>
+																	<ExtendedTooltip name="FormatNegativeValuesExtendedTooltip" id="173"/>
 																</Button>
 															</ChildItems>
 														</UsualGroup>
@@ -1073,7 +1073,7 @@
 															<Behavior>Usual</Behavior>
 															<Representation>None</Representation>
 															<ShowTitle>false</ShowTitle>
-															<ExtendedTooltip name="SettingColorColumn2ExtendedTooltip" id="462"/>
+															<ExtendedTooltip name="SetColorColumn2ExtendedTooltip" id="462"/>
 															<ChildItems>
 																<Button name="FormatPositiveValues" id="174">
 																	<Type>UsualButton</Type>
@@ -1085,7 +1085,7 @@
 																		</v8:item>
 																	</Title>
 																	<ShapeRepresentation>None</ShapeRepresentation>
-																	<ExtendedTooltip name="ToMakeAPositiveExtendedTooltip" id="175"/>
+																	<ExtendedTooltip name="FormatPositiveValuesExtendedTooltip" id="175"/>
 																</Button>
 															</ChildItems>
 														</UsualGroup>
@@ -1097,8 +1097,8 @@
 													<Border width="1">
 														<v8ui:style xsi:type="v8ui:ControlBorderType">Underline</v8ui:style>
 													</Border>
-													<ContextMenu name="SettingTheGroupBorderColorContextMenu" id="366"/>
-													<ExtendedTooltip name="SettingTheGroupBorderColorExtendedTooltip" id="367"/>
+													<ContextMenu name="SetColorGroupBorderContextMenu" id="366"/>
+													<ExtendedTooltip name="SetColorGroupBorderExtendedTooltip" id="367"/>
 												</LabelDecoration>
 											</ChildItems>
 										</UsualGroup>
@@ -1127,7 +1127,7 @@
 													<Representation>NormalSeparation</Representation>
 													<ShowTitle>false</ShowTitle>
 													<ThroughAlign>DontUse</ThroughAlign>
-													<ExtendedTooltip name="SettingTheWidthHeightExtendedTooltip" id="207"/>
+													<ExtendedTooltip name="SetWidthHeightExtendedTooltip" id="207"/>
 													<ChildItems>
 														<UsualGroup name="RowHeightSetting" id="308">
 															<Title>
@@ -1144,7 +1144,7 @@
 															<Representation>None</Representation>
 															<United>false</United>
 															<ShowTitle>false</ShowTitle>
-															<ExtendedTooltip name="SettingTheLineHeightExtendedTooltip" id="309"/>
+															<ExtendedTooltip name="RowHeightSettingExtendedTooltip" id="309"/>
 															<ChildItems>
 																<Button name="SetRowHeight" id="380">
 																	<Type>UsualButton</Type>
@@ -1161,7 +1161,7 @@
 																		</v8:item>
 																	</Title>
 																	<ShapeRepresentation>None</ShapeRepresentation>
-																	<ExtendedTooltip name="SetTheLineHeightExtendedTooltip" id="381"/>
+																	<ExtendedTooltip name="SetRowHeightExtendedTooltip" id="381"/>
 																</Button>
 																<InputField name="RowHeight" id="310">
 																	<DataPath>RowHeight</DataPath>
@@ -1187,7 +1187,7 @@
 																		</v8:item>
 																	</Title>
 																	<ShapeRepresentation>WhenActive</ShapeRepresentation>
-																	<ExtendedTooltip name="SetTheRowHeightMoreExtendedTooltip" id="390"/>
+																	<ExtendedTooltip name="SetRowHeightMoreExtendedTooltip" id="390"/>
 																</Button>
 															</ChildItems>
 														</UsualGroup>
@@ -1206,7 +1206,7 @@
 															<Representation>None</Representation>
 															<United>false</United>
 															<ShowTitle>false</ShowTitle>
-															<ExtendedTooltip name="SettingTheColumnWidthExtendedTooltip" id="314"/>
+															<ExtendedTooltip name="ColumnWidthSettingExtendedTooltip" id="314"/>
 															<ChildItems>
 																<Button name="SetColumnWidth" id="382">
 																	<Type>UsualButton</Type>
@@ -1223,7 +1223,7 @@
 																		</v8:item>
 																	</Title>
 																	<ShapeRepresentation>None</ShapeRepresentation>
-																	<ExtendedTooltip name="SetTheColumnWidthExtendedTooltip" id="383"/>
+																	<ExtendedTooltip name="SetColumnWidthExtendedTooltip" id="383"/>
 																</Button>
 																<InputField name="ColumnWidth" id="315">
 																	<DataPath>ColumnWidth</DataPath>
@@ -1249,7 +1249,7 @@
 																		</v8:item>
 																	</Title>
 																	<ShapeRepresentation>WhenActive</ShapeRepresentation>
-																	<ExtendedTooltip name="SetTheColumnWidthMoreExtendedTooltip" id="392"/>
+																	<ExtendedTooltip name="SetColumnWidthMoreExtendedTooltip" id="392"/>
 																</Button>
 															</ChildItems>
 														</UsualGroup>
@@ -1268,8 +1268,8 @@
 											<Border width="1">
 												<v8ui:style xsi:type="v8ui:ControlBorderType">Overline</v8ui:style>
 											</Border>
-											<ContextMenu name="SettingTheWidthHeightOfTheGroupBorderContextMenu" id="369"/>
-											<ExtendedTooltip name="SettingTheWidthHeightOfTheGroupBorderExtendedTooltip" id="370"/>
+											<ContextMenu name="SetWidthHeightGroupBorderContextMenu" id="369"/>
+											<ExtendedTooltip name="SetWidthHeightGroupBorderExtendedTooltip" id="370"/>
 										</LabelDecoration>
 										<Button name="ApplyAppearanceMore" id="182">
 											<Type>UsualButton</Type>
@@ -1281,7 +1281,7 @@
 												</v8:item>
 											</Title>
 											<ShapeRepresentation>None</ShapeRepresentation>
-											<ExtendedTooltip name="ApplyForMoreExtendedTooltip" id="183"/>
+											<ExtendedTooltip name="ApplyAppearanceMoreExtendedTooltip" id="183"/>
 										</Button>
 									</ChildItems>
 								</UsualGroup>

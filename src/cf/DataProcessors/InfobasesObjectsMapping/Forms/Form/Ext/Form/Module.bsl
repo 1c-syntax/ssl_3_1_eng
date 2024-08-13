@@ -61,17 +61,17 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndDo;
 	EndIf;
 	
-	// 
+	// A list of filters by mapping status:
 	//
-	//     
-	//          
-	//         
-	//         
-	//          
+	//     MappingStatus - Number:
+	//          0 - Mapped via information register (soft mapping)
+	//         -1 - Unmapped source object
+	//         +1 - Unmapped destination object
+	//          3 - Unconfirmed mapped link
 	//
-	//     
-	//         
-	//         
+	//     MappingStatusAdditional - Number:
+	//         1 - Unmapped objects
+	//         0 - Mapped objects
 	
 	MappingStatusFilterOptions = New Structure;
 	
@@ -187,8 +187,8 @@ EndProcedure
 
 &AtClient
 Procedure BeforeCloseCompletion(Val QuestionResult = Undefined, Val AdditionalParameters = Undefined) Export
-	// 
-	// 
+	// The procedure is called following a positive response.
+	// Save the data and close the form.
 	WriteAndClose(Undefined);
 EndProcedure
 
@@ -506,7 +506,7 @@ Procedure WriteAndClose(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// INTERNAL PROCEDURES AND FUNCTIONS (1C-supplied part)
 
 &AtClient
 Procedure ChangeNavigationNumber(Iterator_SSLy)
@@ -537,10 +537,10 @@ EndProcedure
 &AtClient
 Procedure NavigationNumberOnChange(Val IsMoveNext)
 	
-	// Executing navigation event handlers.
+	// Run navigation event handlers.
 	ExecuteNavigationEventHandlers(IsMoveNext);
 	
-	// Setting page view.
+	// Set up page view.
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
@@ -886,10 +886,10 @@ Procedure CancelDataMapping(CurrentData, IsUnapprovedMapping)
 	NewDestinationRow.PictureIndex  = CurrentData.DestinationPictureIndex;
 	
 	NewSourceRow.MappingStatus = -1;
-	NewSourceRow.MappingStatusAdditional = 1; // 
+	NewSourceRow.MappingStatusAdditional = 1; // Unmapped objects.
 	
 	NewDestinationRow.MappingStatus = 1;
-	NewDestinationRow.MappingStatusAdditional = 1; // 
+	NewDestinationRow.MappingStatusAdditional = 1; // Unmapped objects.
 	
 	// Deleting the current mapping table row.
 	MappingTable.Delete(CurrentData);
@@ -984,7 +984,7 @@ Procedure UpdateMappingTable()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Applied procedures
 
 &AtClient
 Procedure FillSortTable(SourceValueList)
@@ -998,7 +998,7 @@ Procedure FillSortTable(SourceValueList)
 		TableRow = Object.SortTable.Add();
 		
 		TableRow.FieldName               = Item.Value;
-		TableRow.Use         = IsFirstField; // 
+		TableRow.Use         = IsFirstField; // Default sorting by the first field.
 		TableRow.SortDirection = True; // Ascending.
 		
 	EndDo;
@@ -1102,8 +1102,8 @@ Procedure SetMappingInteractively()
 		Return;
 	EndIf;
 	
-	// 
-	// 
+	// Only two unmapped objects in the source or destination can be linked.
+	// The condition includes an unmapped source object and an unmapped destination object.
 	If Not (CurrentData.MappingStatus=-1 Or CurrentData.MappingStatus=+1) Then
 		
 		ShowMessageBox(, NStr("en = 'Objects are already mapped.';"), 2);
@@ -1127,8 +1127,8 @@ Procedure SetMappingInteractively()
 		String2 = MappingTable.FindByID(Id2);
 		
 		If Not (( String1.MappingStatus = -1 // Unmapped source object.
-				And String2.MappingStatus = +1 ) // 
-			Or ( String1.MappingStatus = +1 // 
+				And String2.MappingStatus = +1 ) // Unmapped destination object.
+			Or ( String1.MappingStatus = +1 // Unmapped destination object.
 				And String2.MappingStatus = -1 )) Then // Unmapped source object.
 			CannotCreateMappingFast = True;
 		EndIf;
@@ -1208,8 +1208,8 @@ EndFunction
 &AtClient
 Procedure AddUnapprovedMappingAtClient(Val BeginningRowID, Val EndingRowID)
 	
-	// 
-	// 
+	// Get 2 mapped rows by the given IDs. Add a to the unconfirmed links table.
+	// Add a row to the mapping table. Remove the mapped rows from the mapping table.
 	// 
 	// 
 	
@@ -1245,7 +1245,7 @@ Procedure AddUnapprovedMappingAtClient(Val BeginningRowID, Val EndingRowID)
 	FillPropertyValues(NewRowUnapproved, SourceRow1, "SourcePictureIndex, SourceField1, SourceField2, SourceField3, SourceField4, SourceField5, SourceUUID, SourceType");
 	FillPropertyValues(NewRowUnapproved, DestinationRow1, "DestinationPictureIndex, DestinationField1, DestinationField2, DestinationField3, DestinationField4, DestinationField5, DestinationUUID, DestinationType, SortField1, SortField2, SortField3, SortField4, SortField5, PictureIndex");
 	
-	NewRowUnapproved.MappingStatus               = 3; // 
+	NewRowUnapproved.MappingStatus               = 3; // Unapproved connection.
 	NewRowUnapproved.MappingStatusAdditional = 0;
 	
 	// Delete mapped rows.
@@ -1326,7 +1326,7 @@ Function MaxUserFields()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Navigation event handlers.
 
 // Page 1: Object mapping error.
 //
@@ -1550,7 +1550,7 @@ Function AreObjectsMappedByRef(String)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Populate wizard navigation table.
 
 &AtServer
 Procedure ObjectMappingScenario()

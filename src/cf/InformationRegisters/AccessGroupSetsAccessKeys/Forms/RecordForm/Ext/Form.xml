@@ -35,15 +35,15 @@
 			<DataPath>Record.RightUpdate</DataPath>
 			<TitleLocation>Right</TitleLocation>
 			<CheckBoxType>Auto</CheckBoxType>
-			<ContextMenu name="UpdateRightContextMenu" id="8"/>
-			<ExtendedTooltip name="UpdateRightExtendedTooltip" id="9"/>
+			<ContextMenu name="RightUpdateContextMenu" id="8"/>
+			<ExtendedTooltip name="RightUpdateExtendedTooltip" id="9"/>
 		</CheckBoxField>
 		<CheckBoxField name="AddRight" id="12">
 			<DataPath>Record.AddRight</DataPath>
 			<TitleLocation>Right</TitleLocation>
 			<CheckBoxType>Auto</CheckBoxType>
-			<ContextMenu name="InsertRightContextMenu" id="13"/>
-			<ExtendedTooltip name="InsertRightExtendedTooltip" id="14"/>
+			<ContextMenu name="AddRightContextMenu" id="13"/>
+			<ExtendedTooltip name="AddRightExtendedTooltip" id="14"/>
 		</CheckBoxField>
 	</ChildItems>
 	<Attributes>

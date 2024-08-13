@@ -26,6 +26,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	Lists = New Array;
 	Lists.Add("Catalog.SetsOfAccessGroups");
+	Lists.Add("InformationRegister.AccessRestrictionParameters");
 	For Each ListDetails In ListsWithRestriction Do
 		FullName = ListDetails.Key;
 		Lists.Add(FullName);

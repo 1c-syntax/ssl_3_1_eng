@@ -116,7 +116,12 @@ Function GenerateMessage(SendOptions) Export
 			OwnerFiles = New Array;
 			ModuleFilesOperations.FillFilesAttachedToObject(SendOptions.SubjectOf, OwnerFiles);
 			For Each OwnerFile In OwnerFiles Do
-				FileData = ModuleFilesOperations.FileData(OwnerFile);
+				
+				ModuleFilesOperationsClientServer = Common.CommonModule("FilesOperationsClientServer");
+				FileDataParameters = ModuleFilesOperationsClientServer.FileDataParameters();
+				FileDataParameters.RaiseException1 = False;
+				FileData = ModuleFilesOperations.FileData(OwnerFile, FileDataParameters);
+				
 				If FileData = Undefined Or FileData.Count() = 0 Then
 					Continue;
 				EndIf;
@@ -314,13 +319,14 @@ EndFunction
 
 Function HasAvailableTemplates(TemplateType, SubjectOf = Undefined) Export
 	
-	If Not AccessRight("Read", Metadata.Catalogs.MessageTemplates) Then
+	If Not HasRightToReadMessageTemplates() Then
 		Return False;
 	EndIf;
 	
 	Query = PrepareQueryToGetTemplatesList(TemplateType, SubjectOf);
 	Return Not Query.Execute().IsEmpty();
 EndFunction
+
 
 // Returns a list of metadata objects the "Message templates" subsystem is attached to.
 //
@@ -444,24 +450,34 @@ EndProcedure
 // See AttachableCommandsOverridable.OnDefineCommandsAttachedToObject.
 Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReportsAndDataProcessors, Commands) Export
 	
-	Command = Commands.Add();
-	Command.Kind = "Send";
-	Command.Presentation = NStr("en = 'Email account';");
-	Command.Picture = PictureLib.SendEmail;
-	Command.WriteMode = "NotWrite";
-	Command.Order = 40;
-	Command.ParameterType = Metadata.DefinedTypes.MessageTemplateSubject.Type;
-	Command.Handler = "MessageTemplatesClient.SendMail";
-	Command.MultipleChoice = False;
+	If Not HasRightToReadMessageTemplates() Then
+		Return;
+	EndIf;
 	
-	Command = Commands.Add();
-	Command.Kind = "Send";
-	Command.Presentation = NStr("en = 'SMS';");
-	Command.WriteMode = "NotWrite";
-	Command.Order = 50;
-	Command.ParameterType = Metadata.DefinedTypes.MessageTemplateSubject.Type;
-	Command.Handler = "MessageTemplatesClient.SendSMS";
-	Command.MultipleChoice = False;
+	AvailableOptions = MessageTemplatesAvailableSendOutOptions();
+	
+	If AvailableOptions.Mail Then
+		Command = Commands.Add();
+		Command.Kind = "Send";
+		Command.Presentation = NStr("en = 'Email';");
+		Command.Picture = PictureLib.SendEmail;
+		Command.WriteMode = "NotWrite";
+		Command.Order = 40;
+		Command.ParameterType = Metadata.DefinedTypes.MessageTemplateSubject.Type;
+		Command.Handler = "MessageTemplatesClient.SendMail";
+		Command.MultipleChoice = False;
+	EndIf;
+	
+	If AvailableOptions.SMS Then
+		Command = Commands.Add();
+		Command.Kind = "Send";
+		Command.Presentation = NStr("en = 'SMS';");
+		Command.WriteMode = "NotWrite";
+		Command.Order = 50;
+		Command.ParameterType = Metadata.DefinedTypes.MessageTemplateSubject.Type;
+		Command.Handler = "MessageTemplatesClient.SendSMS";
+		Command.MultipleChoice = False;
+	EndIf;
 		
 EndProcedure
 
@@ -475,6 +491,20 @@ EndProcedure
 #EndRegion
 
 #Region Private
+
+// Returns information records about the available message sending options.
+// 
+// Returns:
+//  FixedStructure:
+//   * SMS - Boolean - If set to "True", users can create text messages from templates.
+//   * Mail - Boolean - If set to "True", users can create email messages from templates.
+//
+Function MessageTemplatesAvailableSendOutOptions() Export
+	
+	Return MessageTemplatesInternalCached.MessageTemplatesAvailableSendOutOptions();
+	
+EndFunction 
+
 
 // Returns information on the created outgoing email. 
 //
@@ -1041,8 +1071,13 @@ EndFunction
 Function TemplatesKinds() Export
 	
 	TemplatesTypes = New ValueList;
-	TemplatesTypes.Add(MessageTemplatesClientServer.EmailTemplateName(), NStr("en = 'Mail template';"));
-	TemplatesTypes.Add(MessageTemplatesClientServer.SMSTemplateName(), NStr("en = 'Text template';"));
+	AvailableOptions = MessageTemplatesAvailableSendOutOptions();
+	If AvailableOptions.Mail Then
+		TemplatesTypes.Add(MessageTemplatesClientServer.EmailTemplateName(), NStr("en = 'Mail template';"));
+	EndIf;
+	If AvailableOptions.SMS Then
+		TemplatesTypes.Add(MessageTemplatesClientServer.SMSTemplateName(), NStr("en = 'Text template';"));
+	EndIf;
 	
 	Return TemplatesTypes;
 	
@@ -1281,8 +1316,8 @@ Procedure AddSelectedPrintFormsToAttachments(SendOptions, TemplateInfo, Attachme
 			PrintParameters    = AttachmentPrintForm.PrintParameters;
 			ObjectsArray     = New Array;
 			
-			// 
-			// 
+			// If the message template has a defined additional (arbitrary) parameter that has its own print forms,
+			// then define the object using the name of the parameter that will be used for print form generation.
 			SubjectOf = SendOptions.AdditionalParameters.ArbitraryParameters[NameOfParameterWithPrintFormInTemplate];
 			If SubjectOf = Undefined Then
 				ObjectsArray.Add(SendOptions.SubjectOf);
@@ -3007,7 +3042,7 @@ EndFunction
 
 // Update.
 
-// Adds the AddEditPersonalMessagesTemplates role to all profiles that have the BasicSSLRights role.
+// Adds the AddEditPersonalMessageTemplates role to all profiles that contain the BasicAccessSSL role.
 Procedure AddAddEditPersonalTemplatesRoleToBasicRightsProfiles() Export
 	
 	If Not Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
@@ -3017,11 +3052,11 @@ Procedure AddAddEditPersonalTemplatesRoleToBasicRightsProfiles() Export
 	ModuleAccessManagement = Common.CommonModule("AccessManagement");
 	
 	NewRoles = New Array;
-	NewRoles.Add(Metadata.Roles.BasicSSLRights.Name);
+	NewRoles.Add(Metadata.Roles.BasicAccessSSL.Name);
 	NewRoles.Add(Metadata.Roles.AddEditPersonalMessageTemplates.Name);
 	
 	RolesToReplace = New Map;
-	RolesToReplace.Insert(Metadata.Roles.BasicSSLRights.Name, NewRoles);
+	RolesToReplace.Insert(Metadata.Roles.BasicAccessSSL.Name, NewRoles);
 	
 	ModuleAccessManagement.ReplaceRolesInProfiles(RolesToReplace);
 	
@@ -3037,6 +3072,12 @@ Function IsStandardAttribute(ObjectMetadata, AttributeName) Export
 	EndDo;
 	
 	Return False;
+	
+EndFunction
+
+Function HasRightToReadMessageTemplates()
+	
+	Return AccessRight("Read", Metadata.Catalogs.MessageTemplates);
 	
 EndFunction
 
@@ -3070,3 +3111,4 @@ Procedure ProcessDataForMigrationToAttachableCommands() Export
 EndProcedure
 
 #EndRegion
+

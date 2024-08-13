@@ -66,8 +66,8 @@ EndProcedure
 &AtServerNoContext
 Procedure ListOnGetDataAtServer(TagName, Settings, Rows)
 	
-	For Each String In Rows Do
-		String.Value.Data["Description"] = NationalLanguageSupportServer.LanguagePresentation(String.Value.Data["Code"]);
+	For Each ListLine In Rows Do
+		ListLine.Value.Data["Description"] = NationalLanguageSupportServer.LanguagePresentation(ListLine.Value.Data["Code"]);
 	EndDo;
 	
 EndProcedure

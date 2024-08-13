@@ -197,7 +197,7 @@ Procedure ListBeforeEditEnd(Item, NewRow, CancelEditStart, CancelEditComplete)
 		If RestrictSelectionBySpecifiedValues Then
 			CancelEditComplete = True;
 		Else
-			ListItemInForm.Presentation = ""; // 
+			ListItemInForm.Presentation = ""; // Populate the presentation.
 			ListItemInForm.Check = True; // Set the flag.
 		EndIf;
 	EndIf;
@@ -220,10 +220,10 @@ EndProcedure
 Procedure ListChoiceProcessing(Item, SelectionResult, StandardProcessing)
 	StandardProcessing = False;
 	
-	SelectedItems = ReportsClientServer.ValuesByList(SelectionResult);
-	SelectedItems.FillChecks(True);
+	Selected_ = ReportsClientServer.ValuesByList(SelectionResult);
+	Selected_.FillChecks(True);
 	
-	AddOn = CommonClientServer.SupplementList(List, SelectedItems, True, True);
+	AddOn = CommonClientServer.SupplementList(List, Selected_, True, True);
 	If AddOn.Total = 0 Then
 		Return;
 	EndIf;
@@ -235,7 +235,7 @@ Procedure ListChoiceProcessing(Item, SelectionResult, StandardProcessing)
 	ShowUserNotification(
 		NotificationTitle,
 		,
-		String(SelectedItems),
+		String(Selected_),
 		PictureLib.ExecuteTask);
 EndProcedure
 
@@ -287,7 +287,7 @@ Procedure PasteFromClipboardCompletion(FoundObjects, ExecutionParameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Constructors.
 
 // The constructor of details of value list item properties.
 //

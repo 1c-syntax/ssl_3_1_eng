@@ -880,7 +880,7 @@ Procedure LongOperationHandlerPerformUpdateSplitData(Parameters, ResultAddress) 
 		EndIf;
 		
 		Settings = ModuleReportsOptions.SettingsUpdateParameters();
-		Settings.SharedData = True; // 
+		Settings.SharedData = True; // Predefined data.
 		Settings.SeparatedData = True;
 		Settings.Configuration = False;
 		Settings.Extensions = True;

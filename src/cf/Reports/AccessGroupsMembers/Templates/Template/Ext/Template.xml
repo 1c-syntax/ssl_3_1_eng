@@ -58,18 +58,18 @@
 		<query>SELECT
 	AccessGroups.Profile AS Profile,
 	AccessGroups.Ref AS AccessGroup,
-	AccessGroupsUsers_SSLy.User AS Member,
-	AccessGroupsUsers_SSLy.ValidityPeriod AS MemberTill,
+	AccessGroups_Users.User AS Member,
+	AccessGroups_Users.ValidityPeriod AS MemberTill,
 	UserGroupCompositions.User AS User,
 	UserGroupCompositions.Used
 		AND NOT AccessGroups.DeletionMark
 		AND NOT ISNULL(AccessGroups.Profile.DeletionMark, TRUE) AS ValidMember
 FROM
 	Catalog.AccessGroups AS AccessGroups
-		INNER JOIN Catalog.AccessGroups.Users AS AccessGroupsUsers_SSLy
-		ON AccessGroups.Ref = AccessGroupsUsers_SSLy.Ref
+		INNER JOIN Catalog.AccessGroups.Users AS AccessGroups_Users
+		ON AccessGroups.Ref = AccessGroups_Users.Ref
 		INNER JOIN InformationRegister.UserGroupCompositions AS UserGroupCompositions
-		ON (AccessGroupsUsers_SSLy.User = UserGroupCompositions.UsersGroup)
+		ON (AccessGroups_Users.User = UserGroupCompositions.UsersGroup)
 WHERE
 	ISNULL(UserGroupCompositions.User.IsInternal, FALSE) &lt;&gt; TRUE
 	AND (NOT &amp;ShouldIncludeValidMembersOnly

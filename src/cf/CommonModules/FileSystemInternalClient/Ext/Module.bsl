@@ -976,7 +976,7 @@ Procedure StartApplicationWithFullRights(Context)
 		StartApplicationWithFullLinuxRights(Context);
 	Else
 		ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Coudn''t start %1.
+			NStr("en = 'Couldn''t start %1.
 			           |Reason:
 			           |Starting apps with elevated privileges is supported for Windows and Linux only.';"),
 			Context.CommandString);

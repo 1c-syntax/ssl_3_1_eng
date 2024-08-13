@@ -45,7 +45,7 @@ Function RecipientsTypesTable() Export
 	TypesSettings.Insert("AdditionalType", Type("CatalogRef.UserGroups"));
 	ReportMailing.AddItemToRecipientsTypesTable(TypesTable, AvailableTypes, TypesSettings);
 	
-	//  Extension mechanism.
+	// Extension mechanism.
 	ReportMailingOverridable.OverrideRecipientsTypesTable(TypesTable, AvailableTypes);
 	
 	// Other catalogs parameters.

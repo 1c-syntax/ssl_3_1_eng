@@ -83,7 +83,6 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Common.IsMobileClient() Then
 		Items.SetupRuleFilter.Header = False;
 		Items.Description.TitleLocation = FormItemTitleLocation.Top;
-		Items.SettingRuleFilterColumnGroupApply.Visible = False;
 	EndIf;
 	
 	Items.Account.ReadOnly = Parameters.ForbidChangeAccount;

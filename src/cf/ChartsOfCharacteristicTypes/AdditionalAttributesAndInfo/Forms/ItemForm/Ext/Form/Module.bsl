@@ -118,8 +118,8 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 	
 	If Not WriteParameters.Property("WhenDescriptionAlreadyInUse") Then
 	
-		// 
-		// 
+		// Fill the description from the property set and check if
+		// there's a property with the same description.
 		If CommonClient.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 			QueryText = DescriptionAlreadyUsed(
 				Object.Title, Object.Ref, CurrentPropertiesSet, Object.Description, Object.TitleLanguage1, Object.TitleLanguage2);
@@ -165,7 +165,7 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 	
 	If Not WriteParameters.Property("WhenIDForFormulasIsAlreadyUsed")
 		And ValueIsFilled(Object.IDForFormulas) Then
-		// 
+		// Fill formula ID and check if there's a property with the same ID.
 		// 
 		QueryText = IDForFormulasAlreadyUsed(
 			Object.IDForFormulas, Object.Ref);
@@ -2395,7 +2395,7 @@ Procedure WriteAdditionalAttributeValuesOnCopyRecursively(Owner, TreeRow, Parent
 		ObjectCopy = TreeItem.Ref.GetObject().Copy();
 		ObjectCopy.Owner = Owner;
 		ObjectCopy.Parent = Parent;
-		ObjectCopy.Write(); // 
+		ObjectCopy.Write(); // ACC:1327 New object record.
 		
 		SubordinateItems = TreeItem.GetItems();
 		WriteAdditionalAttributeValuesOnCopyRecursively(Owner, SubordinateItems, ObjectCopy.Ref)

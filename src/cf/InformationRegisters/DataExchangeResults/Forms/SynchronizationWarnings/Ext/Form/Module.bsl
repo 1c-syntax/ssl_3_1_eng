@@ -34,7 +34,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		DynamicListWithVersioningWarnings();
 		
 		Items.ListConflicts.Visible = True;
-		Items.ListBlockingDownloadsByDate.Visible = True;
+		Items.ListImportRestrictionByDate.Visible = True;
 		
 	EndIf;
 	
@@ -92,7 +92,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 &AtClient
-Procedure PresentationOfSelectionByPeriodStartChoice(Item, ChoiceData, StandardProcessing)
+Procedure FilterByPeriodPresentationStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	StandardProcessing = False;
 	
@@ -118,14 +118,14 @@ Procedure AfterSelectionByDateOfOccurrence(Result, AdditionalParameters) Export
 EndProcedure
 
 &AtClient
-Procedure PresentationOfSelectionByPeriodClearing(Item, StandardProcessing)
+Procedure FilterByPeriodPresentationClearing(Item, StandardProcessing)
 	
 	StandardProcessing = False;
 	
 EndProcedure
 
 &AtClient
-Procedure ViewOfSynchronizationSelectionStartChoice(Item, ChoiceData, StandardProcessing)
+Procedure SynchronizationsFilterPresentationStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	StandardProcessing = False;
 	
@@ -155,14 +155,14 @@ Procedure AfterSelectingTheExchangeNodes(Result, AdditionalParameters) Export
 EndProcedure
 
 &AtClient
-Procedure ViewOfSynchronizationSelectionClearing(Item, StandardProcessing)
+Procedure SynchronizationsFilterPresentationClearing(Item, StandardProcessing)
 	
 	StandardProcessing = False;
 	
 EndProcedure
 
 &AtClient
-Procedure RepresentationOfSelectionOfWarningTypesStartChoice(Item, ChoiceData, StandardProcessing)
+Procedure WarningsTypesFilterPresentationStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	StandardProcessing = False;
 	
@@ -191,7 +191,7 @@ Procedure AfterSelectionByTypeOfWarnings(Result, AdditionalParameters) Export
 EndProcedure
 
 &AtClient
-Procedure RepresentationOfSelectionOfWarningTypesClearing(Item, StandardProcessing)
+Procedure WarningsTypesFilterPresentationClearing(Item, StandardProcessing)
 	
 	StandardProcessing = False;
 	
@@ -263,8 +263,8 @@ Procedure WarningsShowHiddenWarnings(Command)
 	ValuesCache.WarningsShowHiddenWarnings = Not ValuesCache.WarningsShowHiddenWarnings;
 	
 	SelectionOfHiddenWarnings();
-	Items.ListWarningsShowHidden.Check = ValuesCache.WarningsShowHiddenWarnings;
-	Items.ListContextMenuWarningsShowHidden.Check = ValuesCache.WarningsShowHiddenWarnings;
+	Items.ListWarningsShowHiddenWarnings.Check = ValuesCache.WarningsShowHiddenWarnings;
+	Items.ListContextMenuWarningsShowHiddenWarnings.Check = ValuesCache.WarningsShowHiddenWarnings;
 	
 	
 EndProcedure
@@ -360,7 +360,7 @@ EndProcedure
 &AtClient
 Procedure DisableAutomaticFormUpdate(Command)
 	
-	Items.ListDisableAutomaticFormUpdates.Check = Not Items.ListDisableAutomaticFormUpdates.Check;
+	Items.ListDisableAutomaticFormUpdate.Check = Not Items.ListDisableAutomaticFormUpdate.Check;
 	
 EndProcedure
 
@@ -621,7 +621,7 @@ EndProcedure
 &AtClient
 Procedure UpdateTheFormList()
 	
-	If Not Items.ListDisableAutomaticFormUpdates.Check Then
+	If Not Items.ListDisableAutomaticFormUpdate.Check Then
 		
 		Items.List.Refresh();
 		
@@ -637,23 +637,23 @@ Procedure AvailabilityOfFormListCommands()
 		Or TypeOf(Items.List.CurrentRow) = Type("DynamicListGroupRow")
 		Then
 		
-		Items.ListHideWarningsFromTheList.Enabled = False;
-		Items.ListShowWarningsInTheList.Enabled = False;
-		Items.ListContextMenuHideWarningsFromTheList.Enabled = False;
-		Items.ListContextMenuShowWarningsInTheList.Enabled = False;
+		Items.ListWarningsHideFromList.Enabled = False;
+		Items.ListWarningsShowInList.Enabled = False;
+		Items.ListContextMenuWarningsHideFromList.Enabled = False;
+		Items.ListContextMenuWarningsShowInList.Enabled = False;
 		Items.ListOpenObject.Enabled = False;
 		Items.ListPostDocument.Enabled = False;
 		Items.ListBatchEditAttributes.Enabled = False;
 		Items.ListConflicts.Enabled = False;
-		Items.ListBlockingDownloadsByDate.Enabled = False;
+		Items.ListImportRestrictionByDate.Enabled = False;
 		Return;
 		
 	EndIf;
 	
-	Items.ListHideWarningsFromTheList.Enabled = Not CurrentRowData.HideWarning;
-	Items.ListShowWarningsInTheList.Enabled = CurrentRowData.HideWarning;
-	Items.ListContextMenuHideWarningsFromTheList.Enabled = Not CurrentRowData.HideWarning;
-	Items.ListContextMenuShowWarningsInTheList.Enabled = CurrentRowData.HideWarning;
+	Items.ListWarningsHideFromList.Enabled = Not CurrentRowData.HideWarning;
+	Items.ListWarningsShowInList.Enabled = CurrentRowData.HideWarning;
+	Items.ListContextMenuWarningsHideFromList.Enabled = Not CurrentRowData.HideWarning;
+	Items.ListContextMenuWarningsShowInList.Enabled = CurrentRowData.HideWarning;
 	
 	If Items.ListOpenObject.Enabled = False Then
 		
@@ -661,7 +661,7 @@ Procedure AvailabilityOfFormListCommands()
 		Items.ListPostDocument.Enabled = True;
 		Items.ListBatchEditAttributes.Enabled = True;
 		Items.ListConflicts.Enabled = True;
-		Items.ListBlockingDownloadsByDate.Enabled = True;
+		Items.ListImportRestrictionByDate.Enabled = True;
 		
 	EndIf;
 	
@@ -1123,9 +1123,9 @@ EndProcedure
 &AtClient
 Procedure AfterGroupProcessingOfWarnings(Result, AdditionalParameters) Export
 	
-	// 
-	// 
-	// 
+	// Cannot add "Result <> Undefined" due to:
+	// - "ChangeTheDetailsOfTheGroupProcessing" always returns "Undefined".
+	// - In other forms, the user can do the fixing and then click Cancel.
 	UpdateTheFormList();
 	
 EndProcedure

@@ -374,8 +374,8 @@ Function BusinessCalendarDefaultFillingResult(CalendarCode1, YearNumber, Val Bas
 	DaysKinds = New Map;
 	ShiftedDays = New Map;
 	
-	// 
-	// 
+	// Use the template data (if present).
+	// If a base calendar is specified, get its data.
 	CalendarsCodes = New Array;
 	CalendarsCodes.Add(CalendarCode1);
 	HasBasicCalendar = False;
@@ -384,8 +384,8 @@ Function BusinessCalendarDefaultFillingResult(CalendarCode1, YearNumber, Val Bas
 		HasBasicCalendar = True;
 	EndIf;
 	
-	// 
-	// 
+	// Select template data from both calendars.
+	// Get only holidays and substitutes.
 	TemplateData = DefaultBusinessCalendarsData(CalendarsCodes, False);
 	
 	RowFilter = New Structure("BusinessCalendarCode,Year");
@@ -539,6 +539,9 @@ Function BusinessCalendarsDataFromXML(Val XMLData1, CalendarsTable, CalendarsCod
 	DataTable = NewBusinessCalendarsData();
 	
 	ClassifierTable = XMLData1.Data;
+	If ClassifierTable.Count() = 0 Then
+		Return DataTable;
+	EndIf;
 	
 	CalendarsYears = ClassifierTable.Copy(, "Calendar,Year");
 	CalendarsYears.GroupBy("Calendar,Year");
@@ -555,7 +558,15 @@ Function BusinessCalendarsDataFromXML(Val XMLData1, CalendarsTable, CalendarsCod
 		FillPropertyValues(RowFilter, Combination);
 		CalendarDataRows = ClassifierTable.FindRows(RowFilter);
 		For Each ClassifierRow In CalendarDataRows Do
-			NewRow = NewCalendarDataRowFromClassifier(DataTable, ClassifierRow);
+			NewRow = DataTable.Add();
+			NewRow.BusinessCalendarCode = ClassifierRow.Calendar;
+			NewRow.DayKind = Enums.BusinessCalendarDaysKinds[ClassifierRow.DayType];
+			NewRow.Year = Number(ClassifierRow.Year);
+			NewRow.Date = Date(ClassifierRow.Date);
+			If ValueIsFilled(ClassifierRow.SwapDate) Then
+				NewRow.ReplacementDate = Date(ClassifierRow.SwapDate);
+			EndIf;
+			
 			YearDates.Insert(NewRow.Date, True);
 		EndDo;
 		BasicCalendarCode = BasicCalendarCode(Combination.Calendar, CalendarsTable);
@@ -564,7 +575,28 @@ Function BusinessCalendarsDataFromXML(Val XMLData1, CalendarsTable, CalendarsCod
 			CalendarDataRows = ClassifierTable.FindRows(RowFilter);
 			For Each ClassifierRow In CalendarDataRows Do
 				ClassifierRow.Calendar = Combination.Calendar;
-				NewRow = NewCalendarDataRowFromClassifier(DataTable, ClassifierRow, True, False);
+				
+				FilterParameters = New Structure("BusinessCalendarCode,Date");
+				FilterParameters.BusinessCalendarCode = ClassifierRow.Calendar;
+				FilterParameters.Date = Date(ClassifierRow.Date);
+				FoundRows = DataTable.FindRows(FilterParameters);
+				If FoundRows.Count() > 0 Then
+					ClassifierRow.Calendar = BasicCalendarCode;
+					If NewRow <> Undefined Then
+						YearDates.Insert(NewRow.Date, True);
+					EndIf;
+					Continue;
+				EndIf;
+				
+				NewRow = DataTable.Add();
+				NewRow.BusinessCalendarCode = ClassifierRow.Calendar;
+				NewRow.DayKind = Enums.BusinessCalendarDaysKinds[ClassifierRow.DayType];
+				NewRow.Year = Number(ClassifierRow.Year);
+				NewRow.Date = Date(ClassifierRow.Date);
+				If ValueIsFilled(ClassifierRow.SwapDate) Then
+					NewRow.ReplacementDate = Date(ClassifierRow.SwapDate);
+				EndIf;
+				
 				ClassifierRow.Calendar = BasicCalendarCode;
 				If NewRow <> Undefined Then
 					YearDates.Insert(NewRow.Date, True);
@@ -985,7 +1017,7 @@ EndFunction
 // Parameters:
 //  BusinessCalendar - CatalogRef.BusinessCalendars - a current catalog item.
 //  YearNumber - Number - a number of the year for which the business calendar is to be recorded.
-//  BusinessCalendarData - See Catalog.BusinessCalendars..
+//  BusinessCalendarData - 
 //
 Procedure WriteBusinessCalendarData(BusinessCalendar, YearNumber, BusinessCalendarData) Export
 	
@@ -1159,8 +1191,8 @@ Procedure FillPermanentHolidays(DaysKinds, ShiftedDays, YearNumber, CalendarCode
 	
 	// If not, fill in holidays and their replacements.
 	Holidays = BusinessCalendarHolidays(CalendarCode1, YearNumber);
-	//  
-	// 
+	// Fill the table with next year's holidays as they influence this year. 
+	// For example, Dec 31 is a holiday eve.
 	NextYearHolidays = BusinessCalendarHolidays(CalendarCode1, YearNumber + 1);
 	CommonClientServer.SupplementTable(NextYearHolidays, Holidays);
 	
@@ -1172,14 +1204,14 @@ Procedure FillPermanentHolidays(DaysKinds, ShiftedDays, YearNumber, CalendarCode
 		CommonClientServer.SupplementTable(NextYearHolidays, Holidays);
 	EndIf;
 	
-	//  
-	//  
-	//  
+	// When a public holiday falls on a weekend, the weekend is moved to the next working day. 
+	// Except for the weekends that fall on Christmas and New Year holidays. 
+	// (Applicable for the Russian Federation.) 
 	// 	
 	
 	For Each TableRow In Holidays Do
 		PublicHoliday = TableRow.Date;
-		//  
+		// Mark the day as a preholiday (holiday eve). 
 		// 
 		If TableRow.AddPreholiday Then
 			PreholidayDate = PublicHoliday - DayLength();
@@ -1197,8 +1229,8 @@ Procedure FillPermanentHolidays(DaysKinds, ShiftedDays, YearNumber, CalendarCode
 		EndIf;
 		If DaysKinds[PublicHoliday] <> Enums.BusinessCalendarDaysKinds.Work 
 			And TableRow.ShiftHoliday Then
-			//  
-			//  
+			// If a public holiday falls on a weekend and is substituted, 
+			// move the holiday to the next working day. 
 			// 
 			DayDate = PublicHoliday;
 			While True Do
@@ -1269,36 +1301,6 @@ EndFunction
 Function DependentCalendarsCodes(BasicCalendarCode, CalendarClassifier)
 	Return Common.UnloadColumn(
 		CalendarClassifier.FindRows(New Structure("Base", BasicCalendarCode)), "Code");
-EndFunction
-
-Function NewCalendarDataRowFromClassifier(CalendarData, ClassifierRow, Check = False, Replace = False)
-	
-	If Check Then
-		RowFilter = New Structure("BusinessCalendarCode,Date");
-		RowFilter.BusinessCalendarCode = ClassifierRow.Calendar;
-		RowFilter.Date = Date(ClassifierRow.Date);
-		FoundRows = CalendarData.FindRows(RowFilter);
-		If FoundRows.Count() > 0 Then
-			If Not Replace Then
-				Return Undefined;
-			EndIf;
-			For Each FoundRow In FoundRows Do
-				CalendarData.Delete(FoundRow);
-			EndDo;
-		EndIf;
-	EndIf;
-	
-	NewRow = CalendarData.Add();
-	NewRow.BusinessCalendarCode = ClassifierRow.Calendar;
-	NewRow.DayKind = Enums.BusinessCalendarDaysKinds[ClassifierRow.DayType];
-	NewRow.Year = Number(ClassifierRow.Year);
-	NewRow.Date = Date(ClassifierRow.Date);
-	If ValueIsFilled(ClassifierRow.SwapDate) Then
-		NewRow.ReplacementDate = Date(ClassifierRow.SwapDate);
-	EndIf;
-	
-	Return NewRow;
-	
 EndFunction
 
 Procedure FillBusinessCalendar(CatalogObject, Selection)
@@ -1456,7 +1458,7 @@ Function BusinessCalendarPrintForm(PrintFormPreparationParameters)
 				CumulateColumn(ForYear, ForMonth);
 				MonthColumn = Template.GetArea("MonthColumn");
 				FillAreaParameters(MonthColumn.Parameters, ForMonth);
-				MonthColumn.Parameters.MonthName = Format(Date(YearNumber, SelectionByMonth.CalendarMonth, 1), "DF='MMMM'"); // 
+				MonthColumn.Parameters.MonthName = Format(Date(YearNumber, SelectionByMonth.CalendarMonth, 1), "DF='MMMM'"); // ACC:1367
 				SpreadsheetDocument.Join(MonthColumn);
 			EndDo;
 			MonthColumn = Template.GetArea("MonthColumn");

@@ -44,7 +44,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Common.IsMobileClient() Then
 		CommandBarLocation = FormCommandBarLabelLocation.Top;
-		Items.FormOKButton1.Representation = ButtonRepresentation.Picture;
+		Items.FormOKButton.Representation = ButtonRepresentation.Picture;
 	EndIf;
 	
 EndProcedure

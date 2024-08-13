@@ -20,10 +20,10 @@
 			<TitleLocation>None</TitleLocation>
 			<VerticalScrollBar>true</VerticalScrollBar>
 			<HorizontalScrollBar>true</HorizontalScrollBar>
-			<ContextMenu name="ReportTable1ContextMenu" id="2"/>
+			<ContextMenu name="ReportTableContextMenu" id="2"/>
 			<ExtendedTooltip name="ReportTableExtendedTooltip" id="3"/>
 			<Events>
-				<Event name="Selection">ReportTable1Selection</Event>
+				<Event name="Selection">ReportTableSelection</Event>
 			</Events>
 		</SpreadSheetDocumentField>
 	</ChildItems>

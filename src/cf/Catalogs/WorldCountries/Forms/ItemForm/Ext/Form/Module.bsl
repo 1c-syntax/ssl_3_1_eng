@@ -105,7 +105,7 @@ EndProcedure
 
 #Region FormCommandsEventHandlers
 
-// 
+// StandardSubsystems.Properties
 
 &AtClient
 Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined, StandardProcessing = Undefined)
@@ -121,7 +121,7 @@ EndProcedure
 
 #Region Private
 
-//  
+// StandardSubsystems.Properties 
 
 &AtServer
 Procedure UpdateAdditionalAttributesItems()

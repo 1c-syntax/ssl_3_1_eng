@@ -211,7 +211,7 @@
 									<v8:content>Previous</v8:content>
 								</v8:item>
 							</Title>
-							<ExtendedTooltip name="PreviousExtendedTooltip" id="58"/>
+							<ExtendedTooltip name="PreviousPagesExtendedTooltip" id="58"/>
 						</Button>
 						<Button name="NextPages" id="9">
 							<Type>CommandBarButton</Type>

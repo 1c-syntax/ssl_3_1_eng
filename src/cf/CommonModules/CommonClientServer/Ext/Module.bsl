@@ -352,17 +352,17 @@ Procedure CheckParameter(Val NameOfAProcedureOrAFunction, Val ParameterName, Val
 	Context = "CommonClientServer.CheckParameter";
 	Validate(TypeOf(NameOfAProcedureOrAFunction) = Type("String"), 
 		StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Invalid value of %1 parameter.';"), "NameOfAProcedureOrAFunction"), 
+			NStr("en = 'Invalid value of the %1 parameter.';"), "NameOfAProcedureOrAFunction"), 
 		Context);
 	Validate(TypeOf(ParameterName) = Type("String"), 
 		StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Invalid value of %1 parameter.';"), "ParameterName"), 
+			NStr("en = 'Invalid value of the %1 parameter.';"), "ParameterName"), 
 			Context);
 	
 	IsCorrectType = ExpectedTypeValue(ParameterValue, ExpectedTypes);
 	Validate(IsCorrectType <> Undefined, 
 		StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Invalid value of %1 parameter.';"), "ExpectedTypes"),
+			NStr("en = 'Invalid value of the %1 parameter.';"), "ExpectedTypes"),
 		Context);
 		
 	If ParameterValue = Undefined Then
@@ -385,7 +385,7 @@ Procedure CheckParameter(Val NameOfAProcedureOrAFunction, Val ParameterName, Val
 		
 		Validate(TypeOf(PropertiesTypesToExpect) = Type("Structure"), 
 			StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Invalid value of %1 parameter.';"), "NameOfAProcedureOrAFunction"),
+				NStr("en = 'Invalid value of the %1 parameter.';"), "NameOfAProcedureOrAFunction"),
 			Context);
 		
 		For Each Property In PropertiesTypesToExpect Do
@@ -421,7 +421,7 @@ Procedure CheckParameter(Val NameOfAProcedureOrAFunction, Val ParameterName, Val
 			StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Invalid value of the %1 parameter in %2.
 				           |Expected value: %3.
-				           |Actual value: %4 (type: %5).';"),
+				           |Passed value: %4 (type: %5).';"),
 				ParameterName, NameOfAProcedureOrAFunction, StrConcat(ExpectedValues, ","), 
 				PresentationOfParameterValue, TypeOf(ParameterValue)));
 	EndIf;
@@ -522,7 +522,9 @@ Procedure SupplementStructure(Receiver, Source, Replace = Undefined) Export
 			If Replace = False Then
 				Continue;
 			Else
-				Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The source and destination have identical keys: ""%1"".';"), Item.Key);
+				Raise StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'The source and destination have identical keys: ""%1"".';"), 
+					Item.Key);
 			EndIf
 		EndIf;
 		Receiver.Insert(Item.Key, Item.Value);
@@ -1119,11 +1121,11 @@ Function FormItemPropertyValue(FormItems, TagName, PropertyName) Export
 	
 EndFunction 
 
-// Gets a picture to display on a page with a comment
-// .
+// Gets a picture to display on a page with a comment.
+// 
 //
 // Parameters:
-//  Comment  - String - comment text.
+//  Comment  - String - Comment text.
 //
 // Returns:
 //  Picture - a picture to be displayed on the comment page.
@@ -1677,7 +1679,7 @@ EndFunction
 // Converts the file extension to lower case (without the dot).
 //
 // Parameters:
-//  Extension - String - the file extension.
+//  Extension - String - Source file extension.
 //
 // Returns:
 //  String
@@ -1698,7 +1700,7 @@ EndFunction
 // If the extension is blank, the dot (.) is not added.
 //
 // Parameters:
-//  BaseName - String - the file name without extension.
+//  BaseName - String - File name without the extension.
 //  Extension       - String - extension.
 //
 // Returns:
@@ -1798,9 +1800,9 @@ Function EmailsFromString(Val AddressesList) Export
 	AddressesList = StrConcat(StrSplit(AddressesList, BracketChars + " ", False), " ");
 	AddressesList = StrReplace(AddressesList, ">", ">;");
 	
-	For Each String In StrSplit(AddressesList, ";", False) Do
+	For Each Email In StrSplit(AddressesList, ";", False) Do
 		PresentationParts = New Array;
-		For Each AddressWithAView In StrSplit(TrimAll(String), ",", False) Do
+		For Each AddressWithAView In StrSplit(TrimAll(Email), ",", False) Do
 			If Not ValueIsFilled(AddressWithAView) Then
 				PresentationParts.Add(AddressWithAView);
 				Continue;
@@ -1899,9 +1901,8 @@ Function EmailAddressMeetsRequirements(Val Address, AllowLocalAddresses = False)
 		Return False;
 	EndIf;
 	
-	// Checking whether there are any special characters at the beginning and at the end of LocalName and Domain.
-
-	If HasCharsLeftRight(Domain, SpecialChars) Then
+	// Checking whether there are any special characters at the beginning and at the end of "LocalName" and "Domain".
+	If HasCharsLeftRight(LocalName, ".") Or HasCharsLeftRight(Domain, SpecialChars) Then
 		Return False;
 	EndIf;
 	
@@ -2113,7 +2114,7 @@ Function DistributeAmountInProportionToCoefficients(Val AmountToDistribute, Val 
 		
 		If ZoomRatio < 0 Then 
 			// If the coefficient is less than zero, its absolute value is a negative number.
-			ZoomRatio = -ZoomRatio; // 
+			ZoomRatio = -ZoomRatio; // Abs(Coefficient).
 			AbsoluteCoefficients[IndexOf] = ZoomRatio; // 
 		EndIf;
 		
@@ -2276,7 +2277,7 @@ Procedure SetSpreadsheetDocumentFieldState(SpreadsheetDocumentField, State = "Do
 			StatePresentation.Visible                      = True;
 			StatePresentation.AdditionalShowMode = AdditionalShowMode.Irrelevance;
 			StatePresentation.Picture                       = New Picture;
-			StatePresentation.Text                          = NStr("en = 'To run report, click ""Generate"".';");
+			StatePresentation.Text                          = NStr("en = 'To run the report, click ""Generate"".';");
 		ElsIf Upper(State) = "REPORTGENERATION" Then  
 			StatePresentation.Visible                      = True;
 			StatePresentation.AdditionalShowMode = AdditionalShowMode.Irrelevance;
@@ -2577,8 +2578,9 @@ Function URIStructure(Val URIString1) Export
 	
 EndFunction
 
-// Creates an object describing the OpenSSL secure connection.
-// See the "OpenSSLSecureConnection" in Syntax Assistant.
+// Creates an object describing a secured OpenSSL or CryptoPro connection.
+// Web client doesn't support CryptoPro connections and secured OpenSSL connections.
+// See Syntax Assistant for "OpenSSLSecureConnection" and "CryptoProSecureConnection".
 //
 // Parameters:
 //  ClientCertificate - FileClientCertificate
@@ -2592,12 +2594,27 @@ EndFunction
 //  ConnectType - String, Undefined - "OpenSSL" (by default), "CryptoPro"
 //  
 // Returns:
-//  OpenSSLSecureConnection
+//  OpenSSLSecureConnection,
+//  CryptoProSecureConnection
 //
 Function NewSecureConnection(Val ClientCertificate = Undefined, Val CertificationAuthorityCertificates = Undefined, Val ConnectType = Undefined) Export
+
+	If ValueIsFilled(ConnectType) Then
+		ExpectedValues = New Array;
+		ExpectedValues.Add("OpenSSL");
+		ExpectedValues.Add("CryptoPro");
+		CheckParameter("CommonClientServer.NewSecureConnection", "ConnectType", ConnectType, Type("String"),, ExpectedValues);
+	EndIf;
 	
-#If WebClient Or MobileClient Then 
-	Return New OpenSSLSecureConnection;
+#If WebClient Or MobileClient Then
+	
+	If ConnectType = "CryptoPro" Then
+		Raise StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Web client does not support secured %1 connection.';"),
+				NStr("en = 'CryptoPro';"));
+	EndIf;
+	
+	Return New OpenSSLSecureConnection; // For backward compatibility purposes.
 #Else
 	If CertificationAuthorityCertificates = Undefined Then
 		VersionsOf1CEnterpriseForCertificateUsage = "8.3.22.2470; 8.3.23.2122; 8.3.24.1446";
@@ -3882,14 +3899,14 @@ Function StartApplication(Val StartupCommand, ApplicationStartupParameters = Und
 	If ExecuteWithFullRights Then 
 #If ExternalConnection Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr(
-			"en = 'Invalid value of %1 parameter.
+			"en = 'Invalid value of the %1 parameter.
 			|Elevating system privileges from an external connection is not supported.';"),
 			"ApplicationStartupParameters.ExecuteWithFullRights");
 #EndIf
 		
 #If Server Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Invalid value of %1 parameter.
+			NStr("en = 'Invalid value of the %1 parameter.
 			|Elevating system privileges is not supported on the server.';"),
 			"ApplicationStartupParameters.ExecuteWithFullRights");
 #EndIf

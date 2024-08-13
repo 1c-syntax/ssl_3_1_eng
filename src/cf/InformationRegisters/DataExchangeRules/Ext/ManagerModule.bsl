@@ -43,7 +43,7 @@ Function ConversionRulesCompatibleWithCurrentVersion(ExchangePlanName, ErrorDesc
 	EndIf;
 	
 	NameOfConfigurationFormRules = Upper(RulesData.ConfigurationName);
-	InfobaseConfigurationName = StrReplace(Upper(Metadata.Name), "BASIC_SSLY", "");
+	InfobaseConfigurationName = StrReplace(Upper(Metadata.Name), "BASIC", "");
 	If NameOfConfigurationFormRules <> InfobaseConfigurationName Then
 		
 		ErrorDescription = New Structure;

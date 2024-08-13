@@ -97,8 +97,8 @@ Function PresentationOfPropertySets() Export
 	
 	SetsPresentation = New Map;
 	Result = Query.Execute().Unload();
-	For Each String In Result Do
-		SetsPresentation.Insert(String.Ref, String.Presentation);
+	For Each TableRow In Result Do
+		SetsPresentation.Insert(TableRow.Ref, TableRow.Presentation);
 	EndDo;
 	
 	Return New FixedMap(SetsPresentation);

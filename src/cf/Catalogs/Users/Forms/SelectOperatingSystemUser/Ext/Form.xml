@@ -39,7 +39,7 @@
 					</Title>
 					<Group>AlwaysHorizontal</Group>
 					<VerticalAlign>Center</VerticalAlign>
-					<ExtendedTooltip name="WaitPageExtendedTooltip" id="74"/>
+					<ExtendedTooltip name="PageWaitExtendedTooltip" id="74"/>
 					<ChildItems>
 						<PictureDecoration name="TimeConsumingOperation" id="77">
 							<Title formatted="false">

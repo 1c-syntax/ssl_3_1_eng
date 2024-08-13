@@ -168,8 +168,8 @@ Function ModificationFlagFromPCR(Source, ExchangePlanName, MetadataObject, Regis
 	ObjectSelectiveRegistrationAttributes = ObjectSelectiveRegistrationAttributes(RegistrationAttributesTable, ObjectName, ExchangePlanName);
 	If ObjectSelectiveRegistrationAttributes.Count() = 0 Then
 		
-		// 
-		// 
+		// If the table has no rows with SOR attributes, assume that
+		// no filters are applied and the object is always modified.
 		Return True;
 		
 	EndIf;
@@ -257,10 +257,10 @@ Function ObjectIsModified(Source, MetadataObject, ExchangePlanName, WriteMode, R
 		Or Source.IsNew()
 		Or Source.DataExchange.Load Then
 		
-		// 
-		// 
-		// 
-		// 
+		// Always register changes:
+		// - For register record sets
+		// - When an object is permanently deleted
+		// - For objects recorded as part of data exchange
 		// 
 		Return True;
 		
@@ -298,8 +298,8 @@ Function ObjectIsModified(Source, MetadataObject, ExchangePlanName, WriteMode, R
 		
 	EndIf;
 	
-	// 
-	// 
+	// This is a stub in case there are temporary registration parameters without the required field.
+	// This is abnormal behavior and if it happens, consider the selective registration passed.
 	Return True;
 	
 EndFunction
@@ -317,8 +317,8 @@ Function AttributeIsFoundInTabularSectionOfObjectRegistrationAttributes(Metadata
 	Correspondence = False;
 	If TypeOf(MetadataTables) = Type("MetadataObject") And Common.IsAccountingRegister(MetadataTables) Then
 		Correspondence = MetadataTables.Correspondence;
-		// 
-		// 
+		// Cannot check the Dr and Cr extra dimensions as they are missing from the dimensions.
+		// "Account" is a standard attribute without the balance flag.
 		If CandidateName = "EXTDIMENSIONDR" Or CandidateName = "EXTDIMENSIONCR"
 			Or CandidateName = "ACCOUNTDR" Or CandidateName = "ACCOUNTCR" Then
 			Return True;
@@ -692,7 +692,7 @@ Procedure PopulateAttributesOfSelectiveRegistrationByOCRCollection(SelectiveRegi
 	ResultTableGroup = ResultTable1.Copy();
 	ResultTableGroup.GroupBy("ObjectName, TabularSectionName");
 	
-	// Getting the resulting table taking into account grouped rows of the preliminary table.
+	// Get the resulting table with grouped rows from the preliminary table.
 	For Each TableRow In ResultTableGroup Do
 		
 		Filter = New Structure("ObjectName, TabularSectionName", TableRow.ObjectName, TableRow.TabularSectionName);
@@ -801,8 +801,8 @@ Procedure BeforeGenerateNewParametersOfExchangePlanDataSelectiveRegistration(Sel
 		
 		SelectiveRegistrationMode = DataExchangeRegistrationCached.ExchangePlanDataSelectiveRegistrationMode(ExchangePlanName);
 		
-		// 
-		// 
+		// Bypass the conversion rules and fill the "RegistrationAttributesTable" parameter
+		// if the "AccordingToXMLRules" selective registration is set in the exchange plan.
 		If SelectiveRegistrationMode = SelectiveRegistrationModeByXMLRules() Then
 			
 			RulesAreRead = InformationRegisters.DataExchangeRules.ParsedRulesOfObjectConversion(ExchangePlanName);

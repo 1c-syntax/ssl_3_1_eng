@@ -86,7 +86,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		ReadOnly = True;
 	EndIf;
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
 		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
@@ -109,7 +109,7 @@ EndProcedure
 &AtClient
 Procedure ListOnActivateRow(Item)
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
@@ -195,11 +195,11 @@ EndProcedure
 &AtServerNoContext
 Procedure ListOnGetDataAtServer(TagName, Settings, Rows)
 	
-	For Each String In Rows Do
-		If TypeOf(String.Key) <> Type("CatalogRef.AccessGroups") Then
+	For Each ListLine In Rows Do
+		If TypeOf(ListLine.Key) <> Type("CatalogRef.AccessGroups") Then
 			Continue;
 		EndIf;
-		Data = String.Value.Data;
+		Data = ListLine.Value.Data;
 		
 		If Data.IsFolder
 		 Or Not ValueIsFilled(Data.User) Then
@@ -252,7 +252,7 @@ EndFunction
 
 #Region Private
 
-// Standard subsystems.Pluggable commands
+// StandardSubsystems.AttachableCommands
 
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)

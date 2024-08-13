@@ -114,7 +114,7 @@
 									<v8:content>...</v8:content>
 								</v8:item>
 							</Title>
-							<ExtendedTooltip name="SelectPeriod3ExtendedTooltip" id="321"/>
+							<ExtendedTooltip name="SelectPeriodExtendedTooltip" id="321"/>
 						</Button>
 					</ChildItems>
 				</UsualGroup>
@@ -204,7 +204,7 @@
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="CommandBarGroupExtendedTooltip" id="319"/>
+							<ExtendedTooltip name="GroupCommandBarExtendedTooltip" id="319"/>
 							<ChildItems>
 								<LabelDecoration name="TitleDecoration" id="315">
 									<AutoMaxWidth>false</AutoMaxWidth>
@@ -474,7 +474,7 @@
 			<Representation>NormalSeparation</Representation>
 			<United>false</United>
 			<ChildItemsWidth>Equal</ChildItemsWidth>
-			<ExtendedTooltip name="DataGroupExtendedTooltip" id="215"/>
+			<ExtendedTooltip name="GroupDataExtendedTooltip" id="215"/>
 			<ChildItems>
 				<UsualGroup name="DataPropertiesGroup" id="161">
 					<Title>
@@ -877,7 +877,7 @@ presentation</v8:content>
 					<Wrap>false</Wrap>
 					<ClearButton>true</ClearButton>
 					<BorderColor>style:BorderColor</BorderColor>
-					<ContextMenu name="MainIPPortsContextMenu" id="168"/>
+					<ContextMenu name="PrimaryIPPortsContextMenu" id="168"/>
 					<ExtendedTooltip name="PrimaryIPPortsExtendedTooltip" id="228"/>
 					<Events>
 						<Event name="StartChoice">ChoiceCompletion</Event>
@@ -895,7 +895,7 @@ presentation</v8:content>
 					<Wrap>false</Wrap>
 					<ClearButton>true</ClearButton>
 					<BorderColor>style:BorderColor</BorderColor>
-					<ContextMenu name="AdditionalIPPortsContextMenu" id="170"/>
+					<ContextMenu name="SecondaryIPPortsContextMenu" id="170"/>
 					<ExtendedTooltip name="SecondaryIPPortsExtendedTooltip" id="229"/>
 					<Events>
 						<Event name="StartChoice">ChoiceCompletion</Event>

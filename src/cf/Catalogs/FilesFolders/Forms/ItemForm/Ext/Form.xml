@@ -73,8 +73,8 @@
 						</v8:item>
 					</Title>
 					<VerticalAlign>Center</VerticalAlign>
-					<ContextMenu name="NoteDecorationContextMenu" id="51"/>
-					<ExtendedTooltip name="NoteDecorationExtendedTooltip" id="52"/>
+					<ContextMenu name="DecorationNoteContextMenu" id="51"/>
+					<ExtendedTooltip name="DecorationNoteExtendedTooltip" id="52"/>
 				</LabelDecoration>
 			</ChildItems>
 		</UsualGroup>

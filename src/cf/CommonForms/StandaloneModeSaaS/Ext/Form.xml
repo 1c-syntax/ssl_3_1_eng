@@ -73,7 +73,7 @@
 												<v8:item>
 													<v8:lang>en</v8:lang>
 													<v8:content>Standalone workstation is not configured.
-If you have no stable Internet connection (for example, in a business trip), you can download data to your computer and work offline. You can synchronize your data any time you gain access to the Internet.</v8:content>
+If you have no stable Internet connection (for example, in a business trip), you can download data to your computer and work offline. You can synchronize your data any time you gain access to the .</v8:content>
 												</v8:item>
 											</Title>
 											<ContextMenu name="Decoration1ContextMenu" id="57"/>
@@ -303,7 +303,7 @@ If you have no stable Internet connection (for example, in a business trip), you
 															<v8:content>View data before sending</v8:content>
 														</v8:item>
 													</Title>
-													<ExtendedTooltip name="CompositionOfDataToSendExtendedTooltip" id="182"/>
+													<ExtendedTooltip name="DataToSendCompositionExtendedTooltip" id="182"/>
 												</Button>
 											</ChildItems>
 										</UsualGroup>
@@ -464,7 +464,7 @@ If you have no stable Internet connection (for example, in a business trip), you
 							<ContextMenu name="StandaloneWorkstationsListContextMenu" id="79">
 								<Autofill>false</Autofill>
 								<ChildItems>
-									<Button name="StandaloneWorkstationsListCreateStandaloneWorkstation21" id="103">
+									<Button name="StandaloneWorkstationsListCreateStandaloneWorkstation1" id="103">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.CreateStandaloneWorkstation</CommandName>
 										<Title>
@@ -473,7 +473,7 @@ If you have no stable Internet connection (for example, in a business trip), you
 												<v8:content>Create…</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="StandaloneWorkstationsListCreateStandaloneWorkstation21ExtendedTooltip" id="148"/>
+										<ExtendedTooltip name="StandaloneWorkstationListCreateStandaloneWorkstation1ExtendedTooltip" id="148"/>
 									</Button>
 									<Button name="StandaloneWorkstationsListChangeStandaloneWorkstationInList1" id="104">
 										<Type>CommandBarButton</Type>
@@ -484,7 +484,7 @@ If you have no stable Internet connection (for example, in a business trip), you
 												<v8:content>Change</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="StandaloneWorkstationsListChangeStandaloneWorkstationInList1ExtendedTooltip" id="149"/>
+										<ExtendedTooltip name="StandaloneWorkstationListChangeStandaloneWorkstationInList1ExtendedTooltip" id="149"/>
 									</Button>
 									<Button name="StandaloneWorkstationListStopSynchronizationWithStandaloneWorkstation1" id="105">
 										<Type>CommandBarButton</Type>
@@ -502,7 +502,7 @@ If you have no stable Internet connection (for example, in a business trip), you
 										<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 										<ExtendedTooltip name="StandaloneWorkstationListStopSynchronizationWithStandaloneWorkstation1ExtendedTooltip" id="150"/>
 									</Button>
-									<Button name="StandaloneWorkstationsListContextMenuCompositionOfDataToSend" id="172">
+									<Button name="StandaloneWorkstationsListContextMenuDataToSendComposition" id="172">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.DataToSendComposition</CommandName>
 										<Title>
@@ -511,7 +511,7 @@ If you have no stable Internet connection (for example, in a business trip), you
 												<v8:content>View data before sending</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="StandaloneWorkstationsListContextMenuCompositionOfDataToSendExtendedTooltip" id="173"/>
+										<ExtendedTooltip name="StandaloneWorkstationsListContextMenuDataToSendCompositionExtendedTooltip" id="173"/>
 									</Button>
 									<ButtonGroup name="StandaloneWorkstationListGroup4" id="106">
 										<Title>
@@ -526,13 +526,13 @@ If you have no stable Internet connection (for example, in a business trip), you
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Item.StandaloneWorkstationsList.StandardCommand.CopyToClipboard</CommandName>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-												<ExtendedTooltip name="StandaloneWorkstationsListCopyToClipboard1ExtendedTooltip" id="152"/>
+												<ExtendedTooltip name="StandaloneWorkstationListCopyToClipboard1ExtendedTooltip" id="152"/>
 											</Button>
 											<Button name="StandaloneWorkstationsListOutputList1" id="108">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Item.StandaloneWorkstationsList.StandardCommand.OutputList</CommandName>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-												<ExtendedTooltip name="StandaloneWorkstationsListOutputList1ExtendedTooltip" id="153"/>
+												<ExtendedTooltip name="StandaloneWorkstationListOutputList1ExtendedTooltip" id="153"/>
 											</Button>
 										</ChildItems>
 									</ButtonGroup>
@@ -541,7 +541,7 @@ If you have no stable Internet connection (for example, in a business trip), you
 							<AutoCommandBar name="StandaloneWorkstationsListCommandBar" id="80">
 								<Autofill>false</Autofill>
 								<ChildItems>
-									<Button name="StandaloneWorkstationsListCreateStandaloneWorkstation2" id="85">
+									<Button name="StandaloneWorkstationsListCreateStandaloneWorkstation" id="85">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.CreateStandaloneWorkstation</CommandName>
 										<Title>
@@ -550,7 +550,7 @@ If you have no stable Internet connection (for example, in a business trip), you
 												<v8:content>Create…</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="StandaloneWorkstationsListCreateStandaloneWorkstation2ExtendedTooltip" id="154"/>
+										<ExtendedTooltip name="StandaloneWorkstationsListCreateStandaloneWorkstationExtendedTooltip" id="154"/>
 									</Button>
 									<Button name="StandaloneWorkstationsListChangeStandaloneWorkstationInList" id="98">
 										<Type>CommandBarButton</Type>
@@ -579,7 +579,7 @@ If you have no stable Internet connection (for example, in a business trip), you
 										<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 										<ExtendedTooltip name="StandaloneWorkstationListStopSynchronizationWithStandaloneWorkstationExtendedTooltip" id="156"/>
 									</Button>
-									<Button name="StandaloneWorkstationsListCompositionOfDataToSend" id="170">
+									<Button name="StandaloneWorkstationsListDataToSendComposition" id="170">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.DataToSendComposition</CommandName>
 										<Title>
@@ -589,7 +589,7 @@ If you have no stable Internet connection (for example, in a business trip), you
 											</v8:item>
 										</Title>
 										<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-										<ExtendedTooltip name="StandaloneWorkstationsListCompositionOfDataToSendExtendedTooltip" id="171"/>
+										<ExtendedTooltip name="StandaloneWorkstationsListDataToSendCompositionExtendedTooltip" id="171"/>
 									</Button>
 									<ButtonGroup name="StandaloneWorkstationListGroup3" id="95">
 										<Title>

@@ -41,7 +41,6 @@
 		</ChildItems>
 	</AutoCommandBar>
 	<Events>
-		<Event name="ChoiceProcessing">ChoiceProcessing</Event>
 		<Event name="OnOpen">OnOpen</Event>
 		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
 		<Event name="BeforeLoadDataFromSettingsAtServer">BeforeLoadDataFromSettingsAtServer</Event>
@@ -127,29 +126,29 @@
 				<Autofill>false</Autofill>
 			</AutoCommandBar>
 			<ExtendedTooltip name="RecipientsExtendedTooltip" id="73"/>
-			<SearchStringAddition name="RecipientsSearchString_SSLy" id="88">
+			<SearchStringAddition name="RecipientsSearchString" id="88">
 				<AdditionSource>
 					<Item>Recipients</Item>
 					<Type>SearchStringRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="RecipientsSearchString_SSLyContextMenu" id="89"/>
-				<ExtendedTooltip name="RecipientsSearchString_SSLyExtendedTooltip" id="90"/>
+				<ContextMenu name="RecipientsSearchStringContextMenu" id="89"/>
+				<ExtendedTooltip name="RecipientsSearchStringExtendedTooltip" id="90"/>
 			</SearchStringAddition>
-			<ViewStatusAddition name="RecipientsViewStatus_SSLy" id="91">
+			<ViewStatusAddition name="RecipientsViewStatus" id="91">
 				<AdditionSource>
 					<Item>Recipients</Item>
 					<Type>ViewStatusRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="RecipientsViewStatus_SSLyContextMenu" id="92"/>
-				<ExtendedTooltip name="RecipientsViewStatus_SSLyExtendedTooltip" id="93"/>
+				<ContextMenu name="RecipientsViewStatusContextMenu" id="92"/>
+				<ExtendedTooltip name="RecipientsViewStatusExtendedTooltip" id="93"/>
 			</ViewStatusAddition>
-			<SearchControlAddition name="RecipientsSearchControl_SSLy" id="94">
+			<SearchControlAddition name="RecipientsSearchControl" id="94">
 				<AdditionSource>
 					<Item>Recipients</Item>
 					<Type>SearchControl</Type>
 				</AdditionSource>
-				<ContextMenu name="RecipientsSearchControl_SSLyContextMenu" id="95"/>
-				<ExtendedTooltip name="RecipientsSearchControl_SSLyExtendedTooltip" id="96"/>
+				<ContextMenu name="RecipientsSearchControlContextMenu" id="95"/>
+				<ExtendedTooltip name="RecipientsSearchControlExtendedTooltip" id="96"/>
 			</SearchControlAddition>
 			<Events>
 				<Event name="BeforeRowChange">RecipientsBeforeRowChange</Event>

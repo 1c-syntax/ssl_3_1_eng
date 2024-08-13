@@ -132,7 +132,7 @@ Procedure ByAuthorOnChange(Item)
 EndProcedure
 
 &AtClient
-Procedure ShowTasks1OnChange(Item)
+Procedure ShowTasksOnChange(Item)
 	SetFilter();
 EndProcedure
 
@@ -218,7 +218,7 @@ Procedure OpenTaskSubject(Command)
 	ShowValue(, Items.List.CurrentData.SubjectOf);
 EndProcedure
 
-// Standard subsystems.Pluggable commands
+// StandardSubsystems.AttachableCommands
 
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)

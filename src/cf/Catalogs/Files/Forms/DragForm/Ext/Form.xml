@@ -28,7 +28,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="FilesGroup1ExtendedTooltip" id="47"/>
+			<ExtendedTooltip name="GroupFilesExtendedTooltip" id="47"/>
 			<ChildItems>
 				<UsualGroup name="Title" id="26">
 					<Title>

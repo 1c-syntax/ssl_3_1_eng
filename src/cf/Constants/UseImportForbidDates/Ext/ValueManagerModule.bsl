@@ -31,8 +31,8 @@ EndProcedure
 
 Procedure OnWrite(Cancel)
 	
-	// 
-	// 
+	// For "DataExchange.Load", update the UUID in the constant "PeriodClosingDatesVersion",
+	// which notifies the sessions that the period-end closing dates cache needs to be updated.
 	If Not AdditionalProperties.Property("SkipPeriodClosingDatesVersionUpdate") Then
 		PeriodClosingDatesInternal.UpdatePeriodClosingDatesVersion();
 	EndIf;

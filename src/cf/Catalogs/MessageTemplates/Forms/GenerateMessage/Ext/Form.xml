@@ -3,7 +3,7 @@
 	<Title>
 		<v8:item>
 			<v8:lang>en</v8:lang>
-			<v8:content>Mail templates</v8:content>
+			<v8:content>Email templates</v8:content>
 		</v8:item>
 	</Title>
 	<WindowOpeningMode>LockOwnerWindow</WindowOpeningMode>
@@ -11,7 +11,7 @@
 	<AutoTitle>false</AutoTitle>
 	<AutoCommandBar name="FormCommandBar" id="-1">
 		<ChildItems>
-			<Button name="FormFormulate" id="24">
+			<Button name="FormGenerate" id="24">
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.Generate</CommandName>
@@ -87,7 +87,7 @@
 			<Group>Vertical</Group>
 			<Behavior>Usual</Behavior>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="ListSettingsComposerUserSettingsExtendedTooltip" id="2"/>
+			<ExtendedTooltip name="SettingsComposerUserSettingsListExtendedTooltip" id="2"/>
 		</UsualGroup>
 		<UsualGroup name="FormChoiceList" id="34">
 			<Title>

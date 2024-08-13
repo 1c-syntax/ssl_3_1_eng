@@ -1222,14 +1222,10 @@ Function ReadRecord(XMLReader, TreeRow, Hyperlinks)
 			TreeRow.Text = StrReplace(XMLReader.Value, Char(160), " ");
 			If StrStartsWith(TreeRow.Text, "HYPERLINK ") Then           
 				TreeRow.Text = DecodeString(XMLReader.Value, StringEncodingMethod.URLEncoding);
-			Else                                                                  
-				TreeRow.Text = StrReplace(XMLReader.Value, Char(160), " ");
 			EndIf;
 				
 			TreeRow.WholeText = TreeRow.Text;
 			WholeText = WholeText + TreeRow.WholeText;
-			XMLReader.Read();
-			Return WholeText;
 		Else
 			Raise (NStr("en = 'Unknown:';") + " " + XMLReader.NodeType);
 		EndIf;
@@ -1357,10 +1353,10 @@ Function GetTextsNodes(DocNode, MapOfNodes = Undefined) Export
 EndFunction
 
 Procedure RunIndexNodes(DocumentTree, Counter = 0) Export
-	For Each String In DocumentTree.Rows Do
-		String.IndexOf = Counter;
+	For Each TreeItem In DocumentTree.Rows Do
+		TreeItem.IndexOf = Counter;
 		Counter = Counter + 1;
-		RunIndexNodes(String, Counter);
+		RunIndexNodes(TreeItem, Counter);
 	EndDo;
 EndProcedure
 
@@ -1467,8 +1463,8 @@ Procedure FindAreas(DocumentStructure, ObjectTablePartNames) Export
 							NestedCondition.DocTreeNode = NodeWithCondition;
 							NestedCondition.AreaCondition = AreaCondition;
 							NestedCondition.IndexOf = IndexOfNode;
+							ShouldAddConditionalAreas = False;
 						EndIf;
-						ShouldAddConditionalAreas = False;
 					EndDo;
 				EndIf;
 			EndDo;
@@ -1579,21 +1575,21 @@ Function StructureOfAreaFromTemplate(TreeOfTemplate, Areas, AreaIndex, Hyperlink
 EndFunction
 
 // Parameters:
-//  TreeRow - ValueTreeRow of See DocumentTree
+//  Parent - ValueTreeRow of See DocumentTree
 //  Var_Key - String
 //  NodesArray - Array of See DocumentTree
 //
-Function FindNodes(TreeRow, Var_Key, NodesArray) Export
+Function FindNodes(Parent, Var_Key, NodesArray) Export
 	AreNodesFound = False;
-	For Each String In TreeRow.Rows Do
+	For Each TreeItem In Parent.Rows Do
 		FoundNodeCount = NodesArray.UBound();
 		
-		OccurrencesCount = StrOccurrenceCount(String.WholeText, Var_Key);
+		OccurrencesCount = StrOccurrenceCount(TreeItem.WholeText, Var_Key);
 		
-		If OccurrencesCount And Not FindNodes(String, Var_Key, NodesArray) Then
+		If OccurrencesCount And Not FindNodes(TreeItem, Var_Key, NodesArray) Then
 			If FoundNodeCount = NodesArray.UBound() Then
 				OccurrencesCount = OccurrencesCount - 1;
-				NodesArray.Add(String);
+				NodesArray.Add(TreeItem);
 				AreNodesFound = True;
 			EndIf;
 		EndIf;
@@ -1678,14 +1674,12 @@ Procedure FindNodesByContent(TreeRow, NameTag, NodesArray, SearchParameters = Un
 		ValuesOfAttribute = ArrayIntoMap(ValuesOfAttribute);
 	EndIf;
 	
-	
 	FilterByTag = New Structure("NameTag", NameTag);
+	TreeItems = TreeRow.Rows.FindRows(FilterByTag, IncludeSubordinates);
 	
-	RowsByTag = TreeRow.Rows.FindRows(FilterByTag, IncludeSubordinates);
-	
-	For Each String In RowsByTag Do
+	For Each TreeItem In TreeItems Do
 		If AttributeName <> Undefined Then
-			CurrentAttributes = String.Attributes;
+			CurrentAttributes = TreeItem.Attributes;
 			AttributeCurrentVal = CurrentAttributes.Get(AttributeName);
 			If AttributeCurrentVal = Undefined Then
 				Continue;
@@ -1697,7 +1691,7 @@ Procedure FindNodesByContent(TreeRow, NameTag, NodesArray, SearchParameters = Un
 				EndIf;
 			EndIf;
 		EndIf;
-		NodesArray.Add(String);
+		NodesArray.Add(TreeItem);
 		If FirstValue Then
 			Return;
 		EndIf;
@@ -1706,8 +1700,8 @@ Procedure FindNodesByContent(TreeRow, NameTag, NodesArray, SearchParameters = Un
 EndProcedure
 
 Procedure RestoreFullText(XMLTree, Hyperlinks) Export
-	For Each String In XMLTree.Rows Do
-		RestoreEntireTextRecursively(String, Hyperlinks);
+	For Each TreeRow In XMLTree.Rows Do
+		RestoreEntireTextRecursively(TreeRow, Hyperlinks);
 	EndDo;
 EndProcedure
 
@@ -1831,20 +1825,21 @@ Procedure CreateLowerLevelNodes(NewRow, CurrentRow, LowerIndex = Undefined) Expo
 EndProcedure
 
 Procedure GetAreasFromTree(TreePointer, Areas, TabularSectionNames, EndRegion = False)
-	For Each String In TreePointer.Rows Do
-		If HasStringContainsAreaStart(String.WholeText, TabularSectionNames) Then
+	For Each TreeRow In TreePointer.Rows Do
+		If HasStringContainsAreaStart(TreeRow.WholeText, TabularSectionNames) Then
 			
-			IsAreaEnd = StrFind(String.WholeText, "{/"+TagNameCondition()) <> 0;
-			If Not String.Rows.Count() Then
-				AddAreaNode(Areas, String, IsAreaEnd, TabularSectionNames); 
+			IsAreaEnd = StrFind(TreeRow.WholeText, "{/"+TagNameCondition()) <> 0;
+			If Not TreeRow.Rows.Count() Then
+				AddAreaNode(Areas, TreeRow, IsAreaEnd, TabularSectionNames); 
 			Else			
-				GetAreasFromTree(String, Areas, TabularSectionNames, IsAreaEnd);
+				GetAreasFromTree(TreeRow, Areas, TabularSectionNames, IsAreaEnd);
 			EndIf;
 			
 			// 
 			EdgeArea = Areas[Areas.Count()-1];
-			If EdgeArea <> Undefined And StrFind(String.WholeText, "{"+TagNameCondition()) And StrFind(String.WholeText, "}") And EdgeArea.AreaCondition = Undefined Then
-				ConditionArrayStart = StrSplit(String.WholeText, "{", False);
+			If EdgeArea <> Undefined And StrFind(TreeRow.WholeText, "{" + TagNameCondition()) 
+				And StrFind(TreeRow.WholeText, "}") And EdgeArea.AreaCondition = Undefined Then
+				ConditionArrayStart = StrSplit(TreeRow.WholeText, "{", False);
 				For K=0 To ConditionArrayStart.UBound() Do
 					If StrFind(ConditionArrayStart[K], TagNameCondition()+" ") Then
 						ArrayOfEndCondition = StrSplit(ConditionArrayStart[K], "}", False);
@@ -1853,10 +1848,10 @@ Procedure GetAreasFromTree(TreePointer, Areas, TabularSectionNames, EndRegion = 
 					EndIf;
 				EndDo;
 			EndIf;
-		ElsIf StrFind(String.WholeText, "{") And Not String.Rows.Count() Then
-			AddAreaNode(Areas, String, EndRegion, TabularSectionNames); 
-		ElsIf StrFind(String.WholeText, "{") Then
-			GetAreasFromTree(String, Areas, TabularSectionNames, IsAreaEnd);
+		ElsIf StrFind(TreeRow.WholeText, "{") And Not TreeRow.Rows.Count() Then
+			AddAreaNode(Areas, TreeRow, EndRegion, TabularSectionNames); 
+		ElsIf StrFind(TreeRow.WholeText, "{") Then
+			GetAreasFromTree(TreeRow, Areas, TabularSectionNames, IsAreaEnd);
 		EndIf;			 		
 	EndDo;
 	
@@ -2166,7 +2161,7 @@ EndFunction
 // 
 // 
 // Parameters:
-//  TreeOfTemplate - See PrintManagementInternal.InitializeDCSDoc.
+//  TreeOfTemplate - 
 //  Encoding - String - Encoding
 // 
 // Returns:
@@ -2988,15 +2983,15 @@ Procedure MoveFormattingParameters(TableNode, NodeOfText) Export
 EndProcedure
 
 Procedure DeleteInsignificantAttributes(Tree, InsignificantAttributes) Export
-	For Each String In Tree.Rows Do
+	For Each TreeRow In Tree.Rows Do
 		
 		For Each Attribute In InsignificantAttributes Do
-			If String.Attributes.Get(Attribute) <> Undefined Then
-				String.Attributes.Delete(Attribute);
+			If TreeRow.Attributes.Get(Attribute) <> Undefined Then
+				TreeRow.Attributes.Delete(Attribute);
 			EndIf;
 		EndDo;
 				
-		DeleteInsignificantAttributes(String, InsignificantAttributes);
+		DeleteInsignificantAttributes(TreeRow, InsignificantAttributes);
 	EndDo;
 EndProcedure
 
@@ -5347,26 +5342,26 @@ Function EventLogEvent()
 	
 EndFunction
 
-Procedure CopyDirectoryContent(From, Where_SSLy) Export
+Procedure CopyDirectoryContent(From_, Where) Export
 	
-	PurposeDirectory = New File(Where_SSLy);
+	PurposeDirectory = New File(Where);
 	
 	If PurposeDirectory.Exists() Then
 		If PurposeDirectory.IsFile() Then
 			DeleteFiles(PurposeDirectory.FullName);
-			CreateDirectory(Where_SSLy);
+			CreateDirectory(Where);
 		EndIf;
 	Else
-		CreateDirectory(Where_SSLy);
+		CreateDirectory(Where);
 	EndIf;
 	
-	Files = FindFiles(From, GetAllFilesMask());
+	Files = FindFiles(From_, GetAllFilesMask());
 	
 	For Each File In Files Do
 		If File.IsDirectory() Then
-			CopyDirectoryContent(File.FullName, SetPathSeparator(Where_SSLy + "\" + File.Name));
+			CopyDirectoryContent(File.FullName, SetPathSeparator(Where + "\" + File.Name));
 		Else
-			FileCopy(File.FullName, SetPathSeparator(Where_SSLy + "\" + File.Name));
+			FileCopy(File.FullName, SetPathSeparator(Where + "\" + File.Name));
 		EndIf;
 	EndDo;
 	

@@ -12,7 +12,7 @@
 		<HorizontalAlign>Right</HorizontalAlign>
 		<Autofill>false</Autofill>
 		<ChildItems>
-			<Button name="FormConfigure" id="1">
+			<Button name="FormCustomize" id="1">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.Customize</CommandName>
 				<Title>
@@ -21,7 +21,7 @@
 						<v8:content>Customize</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="FormConfigureExtendedTooltip" id="2"/>
+				<ExtendedTooltip name="FormCustomizeExtendedTooltip" id="2"/>
 			</Button>
 			<Button name="FormRefresh" id="3">
 				<Type>CommandBarButton</Type>
@@ -76,8 +76,8 @@
 						<xr:LoadTransparent>false</xr:LoadTransparent>
 					</Picture>
 					<FileDragMode>AsFile</FileDragMode>
-					<ContextMenu name="TimeConsumingOperationPicture2ContextMenu" id="12"/>
-					<ExtendedTooltip name="TimeConsumingOperationPicture2ExtendedTooltip" id="13"/>
+					<ContextMenu name="PictureTimeConsumingOperationContextMenu" id="12"/>
+					<ExtendedTooltip name="PictureTimeConsumingOperationExtendedTooltip" id="13"/>
 				</PictureDecoration>
 			</ChildItems>
 		</UsualGroup>
@@ -100,18 +100,18 @@
 						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</Picture>
 					<FileDragMode>AsFile</FileDragMode>
-					<ContextMenu name="InformationPicture8ContextMenu" id="19"/>
-					<ExtendedTooltip name="InformationPicture8ExtendedTooltip" id="20"/>
+					<ContextMenu name="PictureInformationContextMenu" id="19"/>
+					<ExtendedTooltip name="PictureInformationExtendedTooltip" id="20"/>
 				</PictureDecoration>
 				<LabelDecoration name="TextInformation" id="21">
 					<AutoMaxWidth>false</AutoMaxWidth>
-					<Height>2</Height>
 					<Title formatted="false">
 						<v8:item>
 							<v8:lang>en</v8:lang>
 							<v8:content>There are no to-do items.</v8:content>
 						</v8:item>
 					</Title>
+					<GroupVerticalAlign>Center</GroupVerticalAlign>
 					<ContextMenu name="TextInformationContextMenu" id="22"/>
 					<ExtendedTooltip name="TextInformationExtendedTooltip" id="23"/>
 				</LabelDecoration>

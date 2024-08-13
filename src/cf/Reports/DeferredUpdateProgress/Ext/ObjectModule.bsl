@@ -217,10 +217,10 @@ Function RegisteredObjects(SelectedIntervals)
 		FullName        = MetadataObject.FullName();
 		FullNameParts = StrSplit(FullName, ".");
 		
-		// 
-		// 
+		// Convert "CalculationRegister.BaseEarnings.Recalculation.BasicAccrualsRecalculation.Changes"
+		// into "CalculationRegister.BaseEarnings.BasicAccrualsRecalculation.Changes".
 		If FullNameParts[0] = "CalculationRegister" And FullNameParts.Count() = 4 And FullNameParts[2] = "Recalculation" Then
-			FullNameParts.Delete(2); // 
+			FullNameParts.Delete(2); // Remove the extra Recalculation.
 			FullName = StrConcat(FullNameParts, ".");
 		EndIf;
 		// Contextual translation.

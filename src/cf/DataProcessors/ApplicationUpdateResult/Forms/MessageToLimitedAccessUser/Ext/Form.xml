@@ -77,8 +77,8 @@
 									<v8:content>Updating the application. Please, wait.</v8:content>
 								</v8:item>
 							</Title>
-							<ContextMenu name="TimeConsumingOperationNote2ContextMenu" id="9"/>
-							<ExtendedTooltip name="TimeConsumingOperationNote2ExtendedTooltip" id="10"/>
+							<ContextMenu name="TimeConsumingOperationTextContextMenu" id="9"/>
+							<ExtendedTooltip name="TimeConsumingOperationTextExtendedTooltip" id="10"/>
 						</LabelDecoration>
 					</ChildItems>
 				</Page>

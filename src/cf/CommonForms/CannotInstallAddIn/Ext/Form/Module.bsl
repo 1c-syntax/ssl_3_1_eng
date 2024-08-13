@@ -30,7 +30,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 &AtClient
-Procedure NoteDecorationURLProcessing(Item, FormattedStringURL, StandardProcessing)
+Procedure DecorationNoteURLProcessing(Item, FormattedStringURL, StandardProcessing)
 	
 	StandardProcessing = False;
 	

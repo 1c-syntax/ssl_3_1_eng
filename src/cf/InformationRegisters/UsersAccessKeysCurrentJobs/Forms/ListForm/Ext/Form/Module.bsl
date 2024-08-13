@@ -15,6 +15,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	ReadOnly = True;
 	
+	Items.FormCancelBackgroundJob.ExtendedTooltip.Title =
+		StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Cancel the background job of the access update thread immediately.
+			           |Background jobs that do not respond for %1 seconds are canceled automatically.
+			           |The missing background job will be started automatically.';"),
+			AccessManagementInternal.MaxWaitSecondsCountOfWaitingForOneJobInThreadToBeProcessed());
+	
 EndProcedure
 
 #EndRegion
@@ -43,6 +50,12 @@ Procedure CancelBackgroundJob(Command)
 	
 EndProcedure
 
+&AtClient
+Procedure AccessUpdateOnRecordsLevel(Command)
+	
+	AccessManagementInternalClient.OpenUpdateAccessFormAtRecordLevel(, True);
+	
+EndProcedure
 
 #EndRegion
 

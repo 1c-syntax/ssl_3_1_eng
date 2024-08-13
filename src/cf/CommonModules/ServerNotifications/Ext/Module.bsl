@@ -1010,7 +1010,7 @@ EndFunction
 //  Structure:
 //   * NotificationSendModuleName - String - See NewServerNotification.NotificationSendModuleName.
 //   * Parameters         - Arbitrary - See NewServerNotification.Parameters.
-//                           If empty, the property does not exist.
+//                           If the property value is "Undefined", it does not exist.
 //
 //   * VerificationPeriod    - Number - See NewServerNotification.VerificationPeriod.
 //                           If "20*60" is passed, the property does not exist.
@@ -1020,7 +1020,7 @@ Function ServerNotificationToSave(Notification)
 	Result = New Structure;
 	Result.Insert("NotificationSendModuleName", Notification.NotificationSendModuleName);
 	
-	If ValueIsFilled(Notification.Parameters) Then
+	If Notification.Parameters <> Undefined Then
 		Result.Insert("Parameters", Notification.Parameters);
 	EndIf;
 	
@@ -2088,7 +2088,7 @@ Procedure ConfigureJobSendServerNotificationsToClientsNoAttempt(Enable, RepeatPe
 		Except
 			ErrorInfo = ErrorInfo();
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot create internal user ""%1"" due to:
+				NStr("en = 'Cannot create utility user ""%1"" due to:
 				           |%2';"),
 				InternalUsername(),
 				ErrorProcessing.DetailErrorDescription(ErrorInfo));
@@ -2290,8 +2290,8 @@ Function EventLogInteractionSystemErrorSeverity(ErrorInfo)
 EndFunction
 
 // Parameters:
-//  IsInternal - Boolean - If True and the current username is empty,
-//     creates an utility user and assign it to the scheduled job.
+//  IsInternal - Boolean - If True and the name of the current user is empty,
+//     create a utility user and assign it to the scheduled job.
 //
 // Returns:
 //  Boolean

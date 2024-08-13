@@ -213,10 +213,10 @@ Procedure UpdateSuppliedProfilesByConfigurationChanges() Export
 				If TypeOf(ChangesPart) <> Type("FixedStructure") Then
 					Continue;
 				EndIf;
-				CurPartOfChanges = New Structure("Trash");
-				FillPropertyValues(CurPartOfChanges, ChangesPart);
-				If TypeOf(CurPartOfChanges.Trash) = Type("FixedArray") Then
-					For Each Deleted In CurPartOfChanges.Trash Do
+				ChangesCurrentPart = New Structure("Trash");
+				FillPropertyValues(ChangesCurrentPart, ChangesPart);
+				If TypeOf(ChangesCurrentPart.Trash) = Type("FixedArray") Then
+					For Each Deleted In ChangesCurrentPart.Trash Do
 						Trash.Add(Deleted);
 					EndDo;
 				EndIf;
@@ -274,8 +274,8 @@ EndProcedure
 //
 Procedure UpdateSuppliedProfiles(HasChanges = Undefined, Trash = Undefined) Export
 	
-	// 
-	// 
+	// Cache all role IDs at once to reduce database requests,
+	// as almost all role IDs will be obtained when updating 1C-supplied profiles.
 	AllRoles = New Array;
 	For Each Role In Metadata.Roles Do
 		AllRoles.Add(Role);
@@ -371,8 +371,8 @@ Procedure OnFillToDoList(ToDoList) Export
 		Return;
 	EndIf;
 	
-	// 
-	// 
+	// The procedure can be called only if the "To-do list" subsystem is integrated.
+	// Therefore, don't check if the subsystem is integrated.
 	Sections = ModuleToDoListServer.SectionsForObject(Metadata.Catalogs.AccessGroupProfiles.FullName());
 	IncompatibleAccessGroupsProfilesCount = IncompatibleAccessGroupsProfiles().Count();
 	
@@ -425,22 +425,22 @@ Procedure FillStandardExtensionRoles(ProfileRoles, StandardExtensionRoles = Unde
 		StandardExtensionRoles.FullAccess,
 		StandardProfileRoles.FullAccess);
 	
-	// BasicSSLRights.
+	// BasicAccessSSL.
 	SetRolesInProfile(ProfileRoles,
 		StandardExtensionRoles.BasicAccess,
-		StandardProfileRoles.BasicSSLRights);
+		StandardProfileRoles.BasicAccessSSL);
 	
-	// BasicSSLRightsForExternalUsers.
+	// BasicAccessExternalUserSSL.
 	SetRolesInProfile(ProfileRoles,
 		StandardExtensionRoles.BasicAccessExternalUsers,
-		StandardProfileRoles.BasicSSLRightsForExternalUsers);
+		StandardProfileRoles.BasicAccessExternalUserSSL);
 	
 	// Common rights.
 	SetRolesInProfile(ProfileRoles,
 		StandardExtensionRoles.CommonRights,
 		StandardProfileRoles.FullAccess
-			Or StandardProfileRoles.BasicSSLRights
-			Or StandardProfileRoles.BasicSSLRightsForExternalUsers);
+			Or StandardProfileRoles.BasicAccessSSL
+			Or StandardProfileRoles.BasicAccessExternalUserSSL);
 	
 	// Clean up deleted roles.
 	ClearRemovedStandardExtensionRoles(ProfileRoles);
@@ -1275,8 +1275,8 @@ Procedure RestoreNonexistentViewsFromAccessValue(PreviousValues1, NewValues) Exp
 	EndDo;
 	
 	If HaveRefurbished Then
-		// 
-		// 
+		// Intended to calculate changes when updating 1C-supplied profiles
+		// with attached extensions in order to update auxiliary data.
 		NewValues.AccessKinds.Add();
 	EndIf;
 	
@@ -1292,11 +1292,11 @@ Function StandardProfileRoles(ProfileRoles)
 	Result.Insert("FullAccess",
 		HasRoleInProfile(ProfileRoles, Metadata.Roles.FullAccess));
 	
-	Result.Insert("BasicSSLRights",
-		HasRoleInProfile(ProfileRoles, Metadata.Roles.BasicSSLRights));
+	Result.Insert("BasicAccessSSL",
+		HasRoleInProfile(ProfileRoles, Metadata.Roles.BasicAccessSSL));
 	
-	Result.Insert("BasicSSLRightsForExternalUsers",
-		HasRoleInProfile(ProfileRoles, Metadata.Roles.BasicSSLRightsForExternalUsers));
+	Result.Insert("BasicAccessExternalUserSSL",
+		HasRoleInProfile(ProfileRoles, Metadata.Roles.BasicAccessExternalUserSSL));
 	
 	Return Result;
 	
@@ -1601,6 +1601,211 @@ Procedure AddVersionProperties(Context, Structure, FieldsNames)
 	AccessManagementInternal.AddVersionProperties(Context, Structure, FieldsNames);
 EndProcedure
 
+// For internal use only.
+//
+// Parameters:
+//  Object - CatalogObject.AccessGroupProfiles
+//         - CatalogObject.MetadataObjectIDs
+//         - CatalogObject.ExtensionObjectIDs
+//  PreviousValues1 - Structure
+//
+Procedure RegisterChangeInProfilesRoles(Object, PreviousValues1) Export
+	
+	Data = New Structure;
+	Data.Insert("DataStructureVersion", 1);
+	Data.Insert("ChangeOfRoles", New Array);
+	Data.Insert("RolesPresentation", New Array);
+	Data.Insert("ProfilesPresentation", New Array);
+	
+	If TypeOf(Object) = Type("CatalogObject.AccessGroupProfiles") Then
+		WasProfileActivityChanged = Object.DeletionMark <> PreviousValues1.DeletionMark;
+		
+		ChangeOfRoles = Object.Roles.Unload();
+		ChangeOfRoles.GroupBy("Role");
+		ChangeOfRoles.Columns.Add("ChangeType", New TypeDescription("String"));
+		ChangeOfRoles.FillValues("Added2", "ChangeType");
+		
+		If TypeOf(PreviousValues1.Roles) = Type("QueryResult")
+		   And Not PreviousValues1.Roles.IsEmpty() Then
+			
+			OldRoles = PreviousValues1.Roles.Unload();
+			OldRoles.Indexes.Add("Role");
+			IndexOf = ChangeOfRoles.Count();
+			While IndexOf > 0 Do
+				IndexOf = IndexOf - 1;
+				NewRole = ChangeOfRoles.Get(IndexOf);
+				OldRole = OldRoles.Find(NewRole.Role, "Role");
+				If OldRole = Undefined Then
+					Continue;
+				EndIf;
+				If WasProfileActivityChanged Then
+					NewRole.ChangeType = "IsChanged";
+				Else
+					ChangeOfRoles.Delete(NewRole);
+				EndIf;
+				OldRoles.Delete(OldRole);
+			EndDo;
+			For Each OldRole In OldRoles Do
+				NewRow = ChangeOfRoles.Add();
+				FillPropertyValues(NewRow, OldRole);
+				NewRow.ChangeType = "Deleted";
+			EndDo;
+		EndIf;
+		
+		If Not WasProfileActivityChanged
+		   And Not ValueIsFilled(ChangeOfRoles) Then
+			Return;
+		EndIf;
+		
+		ProfileSerializedRef = SerializedRef(Object.Ref);
+		RoleIDs = ChangeOfRoles.UnloadColumn("Role");
+		RolesProperties = Common.ObjectsAttributesValues(RoleIDs,
+			"DeletionMark, Name, Synonym");
+		
+		RolesMetadata = Common.MetadataObjectsByIDs(RoleIDs, False);
+		
+		For Each String In ChangeOfRoles Do
+			If Not ValueIsFilled(String.Role) Then
+				Continue;
+			EndIf;
+			RoleSerializedRef = SerializedRef(String.Role);
+			
+			Properties = New Structure;
+			Properties.Insert("Profile", ProfileSerializedRef);
+			Properties.Insert("Role", RoleSerializedRef);
+			Properties.Insert("ChangeType", String.ChangeType);
+			Data.ChangeOfRoles.Add(Properties);
+			
+			RoleMetadata = RolesMetadata.Get(String.Role);
+			RoleProperties = RolesProperties.Get(String.Role);
+			NameOfRole     = Undefined;
+			RoleSynonym = Undefined;
+			
+			If TypeOf(RoleMetadata) = Type("MetadataObject") Then
+				NameOfRole     = RoleMetadata.Name;
+				RoleSynonym = RoleMetadata.Synonym;
+			ElsIf RoleProperties <> Undefined Then
+				NameOfRole     = RoleProperties.Name;
+				RoleSynonym = RoleProperties.Synonym;
+			EndIf;
+			RoleDeletionMark = ?(RoleProperties = Undefined,
+				Undefined, RoleProperties.DeletionMark);
+			
+			Properties = New Structure;
+			Properties.Insert("Role", RoleSerializedRef);
+			Properties.Insert("DeletionMark", RoleDeletionMark);
+			Properties.Insert("IsPresentInMetadata", TypeOf(RoleMetadata) = Type("MetadataObject"));
+			Properties.Insert("Name", NameOfRole);
+			Properties.Insert("Synonym", RoleSynonym);
+			Properties.Insert("OldPropertyValues", New Structure);
+			Data.RolesPresentation.Add(Properties);
+		EndDo;
+		
+		Properties = New Structure;
+		Properties.Insert("Profile", SerializedRef(Object.Ref));
+		Properties.Insert("Presentation", RepresentationOfTheReference(Object.Ref));
+		Properties.Insert("DeletionMark", Object.DeletionMark);
+		Properties.Insert("OldPropertyValues", New Structure);
+		
+		If Object.DeletionMark <> PreviousValues1.DeletionMark Then
+			Properties.OldPropertyValues.Insert("DeletionMark", PreviousValues1.DeletionMark);
+		EndIf;
+		Data.ProfilesPresentation.Add(Properties);
+	Else
+		If Object.DeletionMark = PreviousValues1.DeletionMark Then
+			Return;
+		EndIf;
+		
+		Query = New Query;
+		Query.SetParameter("Role", Object.Ref);
+		Query.Text =
+		"SELECT
+		|	AccessGroupProfiles.Ref AS Ref,
+		|	AccessGroupProfiles.DeletionMark AS DeletionMark,
+		|	AccessGroupProfiles.Presentation AS Presentation
+		|FROM
+		|	Catalog.AccessGroupProfiles AS AccessGroupProfiles
+		|WHERE
+		|	AccessGroupProfiles.Ref IN
+		|			(SELECT
+		|				ProfilesRoles.Ref
+		|			FROM
+		|				Catalog.AccessGroupProfiles.Roles AS ProfilesRoles
+		|			WHERE
+		|				ProfilesRoles.Role = &Role)";
+		QueryResult = Query.Execute();
+		
+		If QueryResult.IsEmpty() Then
+			Return;
+		EndIf;
+		
+		RoleSerializedRef = SerializedRef(Object.Ref);
+		RoleMetadata = Common.MetadataObjectByID(Object.Ref, False);
+		NameOfRole = ?(TypeOf(RoleMetadata) = Type("MetadataObject"), RoleMetadata.Name, Object.Name);
+		RoleSynonym = ?(TypeOf(RoleMetadata) = Type("MetadataObject"), RoleMetadata.Synonym, Object.Synonym);
+		
+		Properties = New Structure;
+		Properties.Insert("Role", RoleSerializedRef);
+		Properties.Insert("DeletionMark", Object.DeletionMark);
+		Properties.Insert("IsPresentInMetadata", TypeOf(RoleMetadata) = Type("MetadataObject"));
+		Properties.Insert("Name", NameOfRole);
+		Properties.Insert("Synonym", RoleSynonym);
+		Properties.Insert("OldPropertyValues", New Structure);
+		
+		If Object.DeletionMark <> PreviousValues1.DeletionMark Then
+			Properties.OldPropertyValues.Insert("DeletionMark", PreviousValues1.DeletionMark);
+		EndIf;
+		If Object.Name <> PreviousValues1.Name Then
+			Properties.OldPropertyValues.Insert("Name",
+				?(TypeOf(PreviousValues1.Name) = Type("String"), PreviousValues1.Name, ""));
+		EndIf;
+		If Object.Synonym <> PreviousValues1.Synonym Then
+			Properties.OldPropertyValues.Insert("Synonym",
+				?(TypeOf(PreviousValues1.Synonym) = Type("String"), PreviousValues1.Synonym, ""));
+		EndIf;
+		
+		Data.RolesPresentation.Add(Properties);
+		Selection = QueryResult.Select();
+		
+		While Selection.Next() Do
+			ProfileSerializedRef = SerializedRef(Selection.Ref);
+			
+			Properties = New Structure;
+			Properties.Insert("Profile", ProfileSerializedRef);
+			Properties.Insert("Role", RoleSerializedRef);
+			Properties.Insert("ChangeType", "IsChanged");
+			Data.ChangeOfRoles.Add(Properties);
+			
+			Properties = New Structure;
+			Properties.Insert("Profile", ProfileSerializedRef);
+			Properties.Insert("Presentation", Selection.Presentation);
+			Properties.Insert("DeletionMark", Selection.DeletionMark);
+			Properties.Insert("OldPropertyValues", New Structure);
+			Data.ProfilesPresentation.Add(Properties);
+		EndDo;
+	EndIf;
+	
+	EventName = AccessManagementInternal.NameOfLogEventProfilesRolesChanged();
+	
+	WriteLogEvent(EventName,
+		EventLogLevel.Information,
+		Object.Metadata(),
+		Common.ValueToXMLString(Data),
+		,
+		EventLogEntryTransactionMode.Transactional);
+	
+EndProcedure
+
+// See UsersInternal.SerializedRef
+Function SerializedRef(Ref)
+	Return UsersInternal.SerializedRef(Ref);
+EndFunction
+
+// See UsersInternal.RepresentationOfTheReference
+Function RepresentationOfTheReference(Ref)
+	Return UsersInternal.RepresentationOfTheReference(Ref);
+EndFunction
+
 ////////////////////////////////////////////////////////////////////////////////
 // Procedures and functions to support data exchange in DIB.
 
@@ -1659,8 +1864,8 @@ Procedure DeleteExtensionsRolesInAllAccessGroupsProfiles() Export
 	
 	HasChanges = False;
 	
-	//  
-	// 
+	// ACC:1328-off - No.648.1.1. It is acceptable to read without setting a managed shared lock
+	// since it's intended for cleaning and any session can clean it.
 	// 
 	Selection = Query.Execute().Select();
 	// ACC:1328-on.
@@ -1706,8 +1911,8 @@ Procedure RegisterChangeUponDataImport(DataElement) Export
 		FillStandardExtensionRoles(DataElement.Roles);
 	EndIf;
 	
-	// 
-	// 
+	// Register profiles for whose access groups the user roles and the following registers should be updated:
+	// "AccessGroupsTables", "AccessGroupsValues", "DefaultAccessGroupsValues".
 	
 	PreviousValues1 = Common.ObjectAttributesValues(DataElement.Ref,
 		"Ref, DeletionMark, Roles, Purpose, AccessKinds, AccessValues");
@@ -1779,7 +1984,7 @@ EndProcedure
 Procedure ProcessChangeRegisteredUponDataImport() Export
 	
 	If Common.DataSeparationEnabled() Then
-		// 
+		// Changes to profiles in SWP are blocked and are not imported into the data area.
 		Return;
 	EndIf;
 	
@@ -1987,7 +2192,7 @@ Function VerifiedSuppliedSessionProfiles(AccessKindsProperties = Undefined, Hash
 		AccessKindsProperties = AccessManagementInternal.AccessKindsProperties();
 	EndIf;
 	
-	// 
+	// Convert details into ID–property map for storing and faster processing.
 	// 
 	AllNames           = New Map;
 	AllIDs  = New Map;
@@ -2304,8 +2509,8 @@ Procedure PrepareTheRolesOfTheSuppliedProfile(ProfileProperties, ProfileDetails,
 		New FixedArray(RolesList.UnloadValues()));
 	
 	If Common.DataSeparationEnabled() Then
-		// 
-		// 
+		// Populate a list of unavailable roles in SaaS to determine
+		// whether 1C-supplied roles should be updated.
 		ProfileProperties.Insert("RolesUnavailableInService",
 			ProfileRolesUnavailableInService(ProfileDetails, ProfileAssignment));
 	EndIf;
@@ -2669,8 +2874,8 @@ Procedure UpdateTheSuppliedProfilesWithoutFolders(UpdatedProfiles, CurrentProfil
 		ProfileUpdated = False;
 		
 		If CurrentProfileRow = Undefined Then
-			// 
-			// 
+			// Create a 1C-supplied profile.
+			// @skip-check query-in-loop - Batch-wise data processing within a transaction.
 			If UpdateTheProfileOrProfileFolder(ProfileProperties, Trash, True) Then
 				HasChanges = True;
 			EndIf;
@@ -2683,8 +2888,8 @@ Procedure UpdateTheSuppliedProfilesWithoutFolders(UpdatedProfiles, CurrentProfil
 			Profile = CurrentProfileRow.Ref;
 			If Not CurrentProfileRow.SuppliedProfileChanged
 			 Or ParametersOfUpdate.UpdateModifiedProfiles Then
-				// 
-				// 
+				// Update the 1C-supplied profile.
+				// @skip-check query-in-loop - Batch-wise data processing within a transaction.
 				ProfileUpdated = UpdateTheProfileOrProfileFolder(ProfileProperties, Trash, True);
 			EndIf;
 		EndIf;
@@ -3010,9 +3215,9 @@ Function BasicNonSuppliedProfiles()
 	MainProfileRoles.Add(Common.MetadataObjectID(
 		Metadata.Roles.FullAccess.FullName()));
 	MainProfileRoles.Add(Common.MetadataObjectID(
-		Metadata.Roles.BasicSSLRights.FullName()));
+		Metadata.Roles.BasicAccessSSL.FullName()));
 	MainProfileRoles.Add(Common.MetadataObjectID(
-		Metadata.Roles.BasicSSLRightsForExternalUsers.FullName()));
+		Metadata.Roles.BasicAccessExternalUserSSL.FullName()));
 	MainProfileRoles.Add(Common.MetadataObjectID(
 		Metadata.Roles.SystemAdministrator.FullName()));
 	

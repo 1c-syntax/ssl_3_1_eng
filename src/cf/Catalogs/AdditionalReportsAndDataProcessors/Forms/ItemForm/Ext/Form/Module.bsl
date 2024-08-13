@@ -368,7 +368,7 @@ Procedure CommandsLocationClick(Item, StandardProcessing)
 	Else
 		// Select metadata objects
 		FormParameters = PrepareMetadataObjectsSelectionFormParameters();
-		OpenForm("CommonForm.SelectMetadataObjects", FormParameters);
+		StandardSubsystemsClient.ChooseMetadataObjects(FormParameters);
 	EndIf;
 EndProcedure
 
@@ -405,12 +405,12 @@ Procedure ObjectCommandsScheduledJobUsageOnChange(Item)
 EndProcedure
 
 &AtClient
-Procedure ObjectCommandsScheduledJobPresentation1StartChoice(Item, ChoiceData, StandardProcessing)
+Procedure ObjectCommandsScheduledJobPresentationStartChoice(Item, ChoiceData, StandardProcessing)
 	ChangeScheduledJob(True, False);
 EndProcedure
 
 &AtClient
-Procedure ObjectCommandsScheduledJobPresentation1Clearing(Item, StandardProcessing)
+Procedure ObjectCommandsScheduledJobPresentationClearing(Item, StandardProcessing)
 	StandardProcessing = False;
 EndProcedure
 
@@ -560,7 +560,7 @@ Procedure SetConditionalAppearance()
 	ItemField.Field = New DataCompositionField(Items.ObjectCommandsScheduledJobUsage.Name);
 
 	ItemField = Item.Fields.Items.Add();
-	ItemField.Field = New DataCompositionField(Items.ObjectCommandsScheduledJobPresentation1.Name);
+	ItemField.Field = New DataCompositionField(Items.ObjectCommandsScheduledJobPresentation.Name);
 
 	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	ItemFilter.LeftValue = New DataCompositionField("Object.Commands.ScheduledJobAllowed");
@@ -574,7 +574,7 @@ Procedure SetConditionalAppearance()
 	Item = ConditionalAppearance.Items.Add();
 
 	ItemField = Item.Fields.Items.Add();
-	ItemField.Field = New DataCompositionField(Items.ObjectCommandsScheduledJobPresentation1.Name);
+	ItemField.Field = New DataCompositionField(Items.ObjectCommandsScheduledJobPresentation.Name);
 
 	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	ItemFilter.LeftValue = New DataCompositionField("Object.Commands.ScheduledJobUsage");
@@ -627,8 +627,8 @@ EndProcedure
 &AtClient
 Procedure UpdateFromFile()
 	Notification = New NotifyDescription("UpdateFromFileAfterConfirm", ThisObject);
-	FormParameters = New Structure("Key", "BeforeAddExternalReportOrDataProcessor");
-	OpenForm("CommonForm.SecurityWarning", FormParameters, , , , , Notification);
+	UsersInternalClient.ShowSecurityWarning(Notification,
+		UsersInternalClientServer.TypesOfSafetyWarnings().BeforeAddExternalReportOrDataProcessor);
 EndProcedure
 
 &AtClient
@@ -816,13 +816,13 @@ Procedure UpdateFromFileConflictDecision(Response, RegistrationParameters) Expor
 		RegistrationParameters.DisableConflicts = True;
 		UpdateFromFileAndMessage(RegistrationParameters);
 	ElsIf Response = "CancelAndOpen" Then
-		// 
-		// 
+		// Cancel and show the conflicts.
+		// The list is displayed if there is more than one conflicting item.
 		ShowList = (RegistrationParameters.ConflictsCount > 1);
 		If RegistrationParameters.OldObjectName = RegistrationParameters.ObjectName And Not IsNew Then
-			// 
-			// 
-			// 
+			// Or the current item has a name collision.
+			// The list contains the current item and the conflicting item.
+			// This allows you to review and decide which one should be disabled.
 			ShowList = True;
 		EndIf;
 		If ShowList Then // List form with a filter by conflicting items.
@@ -1084,7 +1084,7 @@ Procedure AfterCompleteExecutingServerCommandInBackground(Job, AdditionalParamet
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Client, Server
 
 &AtClientAtServerNoContext
 Function UsersQuickAccessPresentation(UsersCount)
@@ -1101,7 +1101,7 @@ Function UsersQuickAccessPresentation(UsersCount)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Server call, Server.
 
 &AtServerNoContext
 Function StartExecuteServerCommandInBackground(CommandToExecute, UUID)
@@ -1175,10 +1175,10 @@ Function PrepareMetadataObjectsSelectionFormParameters()
 		SelectedMetadataObjects.Add(KeyAndValue.Value);
 	EndDo;
 	
-	FormParameters = New Structure;
-	FormParameters.Insert("FilterByMetadataObjects", FilterByMetadataObjects);
-	FormParameters.Insert("SelectedMetadataObjects", SelectedMetadataObjects);
-	FormParameters.Insert("Title", NStr("en = 'Additional data processor assignment';"));
+	FormParameters = StandardSubsystemsClientServer.MetadataObjectsSelectionParameters();
+	FormParameters.FilterByMetadataObjects = FilterByMetadataObjects;
+	FormParameters.SelectedMetadataObjects = SelectedMetadataObjects;
+	FormParameters.Title = NStr("en = 'Additional data processor assignment';");
 	
 	Return FormParameters;
 EndFunction
@@ -1379,7 +1379,7 @@ Procedure SetVisibilityAvailability(Registration = False)
 	
 	Items.ObjectCommandsQuickAccessPresentation.Visible       = IsGlobalDataProcessor;
 	Items.ObjectCommandsSetQuickAccess.Visible           = IsGlobalDataProcessor;
-	Items.ObjectCommandsScheduledJobPresentation1.Visible = IsGlobalDataProcessor;
+	Items.ObjectCommandsScheduledJobPresentation.Visible = IsGlobalDataProcessor;
 	Items.ObjectCommandsScheduledJobUsage.Visible = IsGlobalDataProcessor;
 	Items.ObjectCommandsSetSchedule.Visible              = IsGlobalDataProcessor;
 	
@@ -1434,9 +1434,9 @@ Procedure GeneratePermissionsList()
 	
 	ModuleSafeModeManagerInternal = Common.CommonModule("SafeModeManagerInternal");
 	
-	For Each String In PermissionsTable Do
-		Resolution = XDTOFactory.Create(XDTOFactory.Type(ModuleSafeModeManagerInternal.Package(), String.PermissionKind));
-		FillPropertyValues(Resolution, String.Parameters.Get());
+	For Each TableRow In PermissionsTable Do
+		Resolution = XDTOFactory.Create(XDTOFactory.Type(ModuleSafeModeManagerInternal.Package(), TableRow.PermissionKind));
+		FillPropertyValues(Resolution, TableRow.Parameters.Get());
 		Permissions.Add(Resolution);
 	EndDo;
 	
@@ -1654,7 +1654,7 @@ Function CommandsPageName()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Additional attributes
 
 &AtServer
 Procedure PropertiesExecuteDeferredInitialization()

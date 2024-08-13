@@ -12,7 +12,7 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.StandardCommand.Close</CommandName>
-				<ExtendedTooltip name="FormClose3ExtendedTooltip" id="38"/>
+				<ExtendedTooltip name="FormCloseExtendedTooltip" id="38"/>
 			</Button>
 			<Button name="FormRegisteredData" id="39">
 				<Type>CommandBarButton</Type>

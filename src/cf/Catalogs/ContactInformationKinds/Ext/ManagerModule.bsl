@@ -180,7 +180,7 @@ Procedure OnSetUpInitialItemsFilling(Settings) Export
 	
 EndProcedure
 
-// See also InfobaseUpdateOverridable.OnInitialItemFilling
+// See also InfobaseUpdateOverridable.OnInitialItemsFilling
 // 
 // Parameters:
 //   LanguagesCodes - See InfobaseUpdateOverridable.OnInitialItemsFilling.LanguagesCodes
@@ -252,7 +252,7 @@ EndProcedure
 //  Object                  - CatalogObject.ContactInformationKinds - Object to populate.
 //  Data                  - ValueTableRow - object filling data.
 //  AdditionalParameters - Structure:
-//   * PredefinedData - ValueTable - Data filled in the OnInitialItemsFilling procedure.
+//   * PredefinedData - ValueTable - Data populated in the OnInitialItemsFilling procedure.
 //
 Procedure OnInitialItemFilling(Object, Data, AdditionalParameters) Export
 	
@@ -589,15 +589,15 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 			|	ContactInformationKinds.PredefinedDataName AS PredefinedDataName
 			|FROM
 			|	Catalog.ContactInformationKinds AS ContactInformationKinds
-			|		LEFT JOIN Catalog.ContactInformationKinds.Presentations AS PresentationsOfForm
-			|		ON (PresentationsOfForm.Ref = ContactInformationKinds.Ref)
+			|		LEFT JOIN Catalog.ContactInformationKinds.Presentations AS KindPresentations
+			|		ON (KindPresentations.Ref = ContactInformationKinds.Ref)
 			|WHERE
 			|	(ContactInformationKinds.IsFolder = FALSE
 			|				AND ((ISNULL(ContactInformationKinds.IDForFormulas, """") = """"
 			|					OR ISNULL(ContactInformationKinds.EditingOption, """") = """"
 			|					OR ISNULL(ContactInformationKinds.GroupName, """") = """"
 			|					OR ContactInformationKinds.IsAlwaysDisplayed = FALSE)
-			|			OR PresentationsOfForm.Ref IS NULL))"
+			|			OR KindPresentations.Ref IS NULL))"
 	EndIf;
 		
 	Query = New Query(QueryText);

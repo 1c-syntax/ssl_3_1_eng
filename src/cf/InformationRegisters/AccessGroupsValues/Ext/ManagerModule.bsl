@@ -93,9 +93,9 @@ Procedure UpdateRegisterData(AccessGroups = Undefined, HasChanges = Undefined) E
 		LockItem = Block.Add("InformationRegister.UsedAccessKinds");
 		LockItem.Mode = DataLockMode.Shared;
 		If TransactionActive() Then
-			// 
-			// 
-			// 
+			// ACC:1320:off - No.783.1.3. It's acceptable to call a lock in a transaction external to the file infobase.
+			// It is intended to avoid deadlocks caused by an automatic shared
+			// lock set to the table when it is read by a query within a transaction.
 			Block.Lock();
 			// ACC:1320-on
 		EndIf;

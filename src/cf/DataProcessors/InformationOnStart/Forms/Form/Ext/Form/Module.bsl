@@ -367,8 +367,8 @@ Procedure PlacePackagePages(PagesPackage, PackageFiles)
 			If IsBlankString(Picture.Address) Then
 				Picture.Address = PutToTempStorage(Picture.Data, UUID);
 			EndIf;
-			// 
-			// 
+			// Calculate the relative path from the page to the image.
+			// For example, for page "/1/a.htm", the path to the image "/1/2/b.png" is "2/b.png".
 			PathToPicture = Picture.RelativeName;
 			If Length > 0 And StrStartsWith(PathToPicture, WebPage.RelativeDirectory) Then
 				PathToPicture = Mid(PathToPicture, Length + 1);

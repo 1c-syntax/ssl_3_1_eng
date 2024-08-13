@@ -554,8 +554,8 @@ Procedure RecordDataChanges(Val Recipient, Val Data, Val CheckExportPermission=T
 				// Registering data for the destination node.
 				ExchangePlans.RecordChanges(Recipient, Data);
 				
-				// 
-				// 
+				// Add the information on data exported by reference to the import object filter.
+				// Intended for the data to pass though the filter and be included in the exchange message.
 				If DataExchangeServer.IsXDTOExchangePlan(Recipient) Then
 					DataExchangeXDTOServer.AddObjectToAllowedObjectsFilter(Data.Ref, Recipient);
 				Else
@@ -755,8 +755,8 @@ EndProcedure
 
 Procedure EnableExchangePlanUsage(Source, Cancel) Export
 	
-	// 
-	// 
+	// There's no validation of the "DataExchange.Load" property as the code below is executed only if
+	// it is set to "True" (the code block that attempts to write to the exchange plan).
 	// 
 	
 	If Source.IsNew() And DataExchangeCached.IsSeparatedSSLDataExchangeNode(Source.Ref) Then
@@ -774,8 +774,8 @@ EndProcedure
 //
 Procedure DisableExchangePlanUsage(Source, Cancel) Export
 	
-	// 
-	// 
+	// There's no validation of the "DataExchange.Load" property as the code below is executed only if
+	// it is set to "True" (the code block that attempts to delete the exchange plan node).
 	// 
 	
 	If DataExchangeCached.IsSeparatedSSLDataExchangeNode(Source.Ref) Then
@@ -1027,9 +1027,9 @@ Procedure CancelSendNodeDataInDistributedInfobase(Source, DataElement, Ignore) E
 	
 	If Not DataElement.ThisNode Then
 		If Common.DataSeparationEnabled() Then
-			// 
-			// 
-			// 
+			// On importing node data in separated mode, reset the separation values to zero.
+			// Otherwise, import to a shared SWP will lead to an attempt to write the node to an uninitialized data area
+			// with the given separator, resulting in an error (no node with the "ThisNode" flag).
 			ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 			If ModuleSaaSOperations.IsSeparatedMetadataObject(Source.Metadata().FullName(),
 				ModuleSaaSOperations.MainDataSeparator()) Then
@@ -1084,8 +1084,8 @@ EndProcedure
 
 Procedure ClearRefsToInfobaseNode(Source, Cancel) Export
 	
-	// 
-	// 
+	// There's no validation of the "DataExchange.Load" property as the code below is executed only if
+	// it is set to "True" (the code block that attempts to delete the exchange plan node).
 	// 
 	
 	If Not DataExchangeCached.IsSSLDataExchangeNode(Source.Ref) Then
@@ -1171,8 +1171,8 @@ EndProcedure
 //
 Procedure RegisterObjectChange(ExchangePlanName, Object, Cancel, AdditionalParameters = Undefined)
 	
-	// 
-	// 
+	// There's no validation of the "DataExchange.Load" property as the code below registers data only if
+	// the property is set to "True" (the code block that attempts to modify or delete data).
 	// 
 	
 	OptionalParameters = New Structure;
@@ -1203,7 +1203,7 @@ Procedure RegisterObjectChange(ExchangePlanName, Object, Cancel, AdditionalParam
 			// The RegisterAtExchangePlanNodesOnUpdateIB parameter shows whether infobase data update is in progress.
 			DisableRegistration = True;
 			If Object.AdditionalProperties.RegisterAtExchangePlanNodesOnUpdateIB = Undefined Then
-				// 
+				// Use the context information to decide whether to auto-register data.
 				// 
 				If Not (IsRegister Or IsObjectDeletion Or IsConstant) And Object.IsNew() Then
 					// New reference objects must always be registered prior to exchange.
@@ -1211,8 +1211,8 @@ Procedure RegisterObjectChange(ExchangePlanName, Object, Cancel, AdditionalParam
 				ElsIf ValueIsFilled(SessionParameters.UpdateHandlerParameters) Then
 					ExchangePlanPurpose = DataExchangeCached.ExchangePlanPurpose(ExchangePlanName);
 					If ExchangePlanPurpose = "DIBWithFilter" Then
-						// 
-						// 
+						// Registration is enabled only if the parallel update mechanism is used.
+						// In this case, the handler execution flag in the edge node determines whether to register data.
 						UpdateHandlerParameters = SessionParameters.UpdateHandlerParameters;
 						If UpdateHandlerParameters.DeferredHandlersExecutionMode = "Parallel" Then
 							DisableRegistration = UpdateHandlerParameters.RunAlsoInSubordinateDIBNodeWithFilters;
@@ -1274,8 +1274,8 @@ Procedure RegisterObjectChange(ExchangePlanName, Object, Cancel, AdditionalParam
 					Raise NStr("en = 'Register changes of separated data in shared mode.';");
 				EndIf;
 					
-				// 
-				// 
+				// For common data in shared mode, register the changes in all separated exchange plan nodes.
+				// This mode doesn't support the registration rule mechanism.
 				// 
 				RegisterChangesForAllSeparatedExchangePlanNodes(ExchangePlanName, Object);
 				Return;
@@ -1305,14 +1305,14 @@ Procedure RegisterObjectChange(ExchangePlanName, Object, Cancel, AdditionalParam
 			
 			If DataExchangeCached.AutoRegistrationAllowed(ExchangePlanName, MetadataObject.FullName()) Then
 				
-				// 
-				// 
+				// If the object is not modified and its auto-registration is enabled,
+				// delete all auto-registration nodes from the current exchange plan.
 				ReduceRecipients(Object, AllExchangePlanNodes(ExchangePlanName));
 				
 			EndIf;
 			
-			// 
-			// 
+			// The object is not modified in the scope of the current exchange plan.
+			// Do not register changes on the plan's nodes.
 			Return;
 			
 		EndIf;
@@ -1489,8 +1489,8 @@ Procedure ExecuteObjectsRegistrationRulesForExchangePlanAttemptException(NodesAr
 	
 	If ObjectRegistrationRules.Count() = 0 Then // Registration rules are not set.
 		
-		// 
-		// 
+		// Register the object in all exchange plan nodes (except for the predefined node)
+		// if the object has no ORR and its auto-registration is disabled.
 		Recipients = AllExchangePlanNodes(ExchangePlanName);
 		
 		CommonClientServer.SupplementArray(NodesArrayResult, Recipients, True);
@@ -1515,8 +1515,8 @@ Procedure ExecuteObjectsRegistrationRulesForExchangePlanAttemptException(NodesAr
 					
 					CommonClientServer.SupplementArray(NodesArrayResult, Recipients, True);
 					
-					// 
-					// 
+					// DETERMINE DESTINATIONS FOR THE "ON DEMAND" IMPORT MODE
+					// Registration in this mode does not apply to record sets.
 					
 				EndIf;
 				
@@ -1526,8 +1526,8 @@ Procedure ExecuteObjectsRegistrationRulesForExchangePlanAttemptException(NodesAr
 			
 			For Each ORR In ObjectRegistrationRules Do
 					
-				// 
-				// 
+				// If the object has a rule with a batch registration rule, and this is a registration check
+				// before import, skip this rule as the object was validated by the batch handler.
 				// 
 				If ORR.BatchExecutionOfHandlers 
 					And Object.AdditionalProperties.Property("CheckRegistrationBeforeUploading")
@@ -1711,9 +1711,9 @@ Procedure ExecuteObjectRegistrationRuleForReferenceType(NodesArrayResult,
 	CheckRef1 = AdditionalParameters.CheckRef1;
 	Upload0 = AdditionalParameters.Upload0;
 	
-	// 
-	// 
-	// 
+	// ORROP is object registration rules by object properties.
+	// ORRP is object registration rules by exchange plan.
+	// ORR = ORROP <AND> ORRP
 	
 	GetConstantsAlgorithmsValues(ORR, ORR.FilterByObjectProperties);
 	
@@ -1725,7 +1725,7 @@ Procedure ExecuteObjectRegistrationRuleForReferenceType(NodesArrayResult,
 		
 	EndIf;
 	
-	// 
+	// ORRP: Determine nodes to register the object in.
 	// 
 	DefineNodesArrayForObject(NodesArrayResult, Object, ExchangePlanName, ORR, IsObjectDeletion, CheckRef1, Upload0);
 	
@@ -1938,7 +1938,7 @@ Function PropertiesValuesForRef(Ref, ObjectProperties, Val ObjectPropertiesAsStr
 	
 	If PropertiesValues.Count() = 0 Then
 		
-		Return PropertiesValues; // 
+		Return PropertiesValues; // Return an empty structure.
 		
 	EndIf;
 	
@@ -2047,7 +2047,7 @@ Function DefineNodesArrayByPropertiesValuesAdditional(PropertiesValues, ORR, Val
 	
 EndFunction
 
-// Returns an array of exchange plan nodes under the specified request parameters and request text for the exchange plan table.
+// Returns an array of exchange plan nodes based on the specified query parameters and the text of the query to the exchange plan table.
 //
 //
 Function NodesArrayByPropertiesValues(PropertiesValues, Val QueryText, Val ExchangePlanName, Val FlagAttributeName, Val Upload0 = False) Export
@@ -3360,11 +3360,11 @@ EndFunction
 // Returns an array of object tabular sections.
 //
 // Parameters:
-//   MetadataObject - MetadataObject - a reference object of metadata:
+//   MetadataObject - MetadataObject - Reference metadata object:
 //     * TabularSections - MetadataObjectCollection of MetadataObjectTabularSection
 //
 // Returns:
-//   Array of String - an object table collection.
+//   Array of String - Collection of object's tabular sections.
 //
 Function ObjectTabularSections(MetadataObject) Export
 	
@@ -3385,8 +3385,8 @@ EndFunction
 //
 Procedure SetValueOnNode(ExchangePlanNode, Settings)
 	
-	// 
-	// 
+	// "ExchangePlanNode" is an invalid parameter type for modules with cached values.
+	// Therefore, use "ExchangePlanNode.Ref".
 	ExchangePlanName = DataExchangeCached.GetExchangePlanName(ExchangePlanNode.Ref);
 	
 	For Each Item In Settings Do
@@ -3478,8 +3478,8 @@ EndFunction
 
 Procedure CheckTroubleshootingOfDocumentProcessingOfEvent(Source, Cancel, PostingMode) Export
 	
-	// 
-	// 
+	// There's no validation of the "DataExchange.Load" property as the code below is executed only if
+	// it is set to "True" (the code block that attempts to write the document, and during import).
 	// 
 	
 	InformationRegisters.DataExchangeResults.RecordIssueResolved(Source, Enums.DataExchangeIssuesTypes.UnpostedDocument);
@@ -3488,8 +3488,8 @@ EndProcedure
 
 Procedure CheckObjectIssueResolvedOnWrite(Source, Cancel) Export
 	
-	// 
-	// 
+	// There's no validation of the "DataExchange.Load" property as the code below is executed only if
+	// it is set to "True" (the code block that attempts to write the object, and during import).
 	// 
 	
 	InformationRegisters.DataExchangeResults.RecordIssueResolved(Source, Enums.DataExchangeIssuesTypes.BlankAttributes);
@@ -3559,8 +3559,8 @@ Procedure ExchangePlanNodeModifiedByRefAttributes(ExchangePlanNodeObject, NodeCh
 		
 	EndIf;
 	
-	// 
-	// 
+	// Get Ref attributes that are assumably used as the values of registration rule filters.
+	// Then, check them for changes in a loop.
 	NodeCheckParameters.AttributesOfExchangePlanNodeRefType = AttributesOfExchangePlanNodeRefType(ExchangePlanNodeObject);
 	
 	For Each TableRow In NodeCheckParameters.AttributesOfExchangePlanNodeRefType Do
@@ -3687,8 +3687,8 @@ Procedure CheckDataChangesConflict(DataElement, ItemReceive, Val Sender, Val IsG
 	
 	HasConflict = ExchangePlans.IsChangeRecorded(Sender, DataElement);
 	
-	// 
-	// 
+	// Run an additional check to see if the object was modified.
+	// If the object before the conflict and after it is the same, we assume there's no conflict.
 	// 
 	If HasConflict Then
 		

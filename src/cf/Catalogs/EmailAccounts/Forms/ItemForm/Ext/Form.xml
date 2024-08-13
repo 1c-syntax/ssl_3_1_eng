@@ -274,7 +274,7 @@
 			</Title>
 			<Group>Vertical</Group>
 			<Behavior>Usual</Behavior>
-			<ExtendedTooltip name="ConnectionSettings1ExtendedTooltip" id="97"/>
+			<ExtendedTooltip name="ConnectionSetupExtendedTooltip" id="97"/>
 			<ChildItems>
 				<InputField name="Protocol" id="108" DisplayImportance="VeryHigh">
 					<DataPath>Object.ProtocolForIncomingMail</DataPath>
@@ -329,7 +329,7 @@
 					<ExtendedTooltip name="LoginExtendedTooltip" id="104"/>
 				</InputField>
 				<RadioButtonField name="AuthenticationMethodMailService" id="296" DisplayImportance="VeryHigh">
-					<DataPath>AuthenticationMethod</DataPath>
+					<DataPath>AuthenticationOption</DataPath>
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -372,7 +372,7 @@
 					<ExtendedTooltip name="ChoiceAuthenticationMethodExtendedTooltip" id="292"/>
 					<ChildItems>
 						<RadioButtonField name="AuthenticationPassword" id="280" DisplayImportance="VeryHigh">
-							<DataPath>AuthenticationMethod</DataPath>
+							<DataPath>AuthenticationOption</DataPath>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -719,7 +719,7 @@ create a rule to filter BCC to a special folder.</v8:content>
 					<Group>Vertical</Group>
 					<Behavior>Usual</Behavior>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="Sending1ExtendedTooltip" id="101"/>
+					<ExtendedTooltip name="SendingExtendedTooltip" id="101"/>
 					<ChildItems>
 						<UsualGroup name="AuthorizationRequiredGroup" id="258">
 							<Title>
@@ -1000,7 +1000,7 @@ create a rule to filter BCC to a special folder.</v8:content>
 				</v8:StringQualifiers>
 			</Type>
 		</Attribute>
-		<Attribute name="AuthenticationMethod" id="22">
+		<Attribute name="AuthenticationOption" id="22">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>

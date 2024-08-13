@@ -67,7 +67,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 &AtClient
-Procedure OptionOfSelectingFieldsToBeDrawnUpOnChange(Item)
+Procedure FormattedFieldsSelectionOptionOnChange(Item)
 	
 	ApplyTheOptionToSelectTheFieldToBeDrawnUp(ThisObject);
 	

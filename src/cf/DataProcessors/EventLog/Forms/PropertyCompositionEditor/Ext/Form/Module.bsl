@@ -125,11 +125,11 @@ Procedure SetEditorParameters(ListToEdit, ParametersToSelect)
 					NewItem.Value = MapItem.Key;
 					
 					If MapItem.Value = "" Then
-						// In case of default user.
+						// For default users.
 						IsUnspecifiedUserAdded = True;
 						NewItem.Presentation = UnspecifiedUserFullName();
 					Else
-						// In case of internal user.
+						// For utility users.
 						InternalUserPresentation = InternalUserFullName(MapItem.Key);
 						If Not IsBlankString(InternalUserPresentation) Then
 							NewItem.Presentation = InternalUserPresentation;

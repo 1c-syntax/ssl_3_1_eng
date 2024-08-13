@@ -140,13 +140,13 @@
 					<ViewStatusLocation>None</ViewStatusLocation>
 					<SearchControlLocation>None</SearchControlLocation>
 					<RowFilter xsi:nil="true"/>
-					<ContextMenu name="FilesTable1ContextMenu" id="10">
+					<ContextMenu name="TableOfFilesContextMenu" id="10">
 						<Autofill>false</Autofill>
 						<ChildItems>
-							<Button name="FilesTable1ContextMenuDelete" id="23">
+							<Button name="TableOfFilesContextMenuDelete" id="23">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Item.TableOfFiles.StandardCommand.Delete</CommandName>
-								<ExtendedTooltip name="FilesTable1ContextMenuDeleteExtendedTooltip" id="32"/>
+								<ExtendedTooltip name="TableOfFilesContextMenuDeleteExtendedTooltip" id="32"/>
 							</Button>
 						</ChildItems>
 					</ContextMenu>
@@ -154,33 +154,33 @@
 						<Autofill>false</Autofill>
 					</AutoCommandBar>
 					<ExtendedTooltip name="TableOfFilesExtendedTooltip" id="33"/>
-					<SearchStringAddition name="FilesTable1SearchString" id="39">
+					<SearchStringAddition name="TableOfFilesSearchString" id="39">
 						<AdditionSource>
 							<Item>TableOfFiles</Item>
 							<Type>SearchStringRepresentation</Type>
 						</AdditionSource>
-						<ContextMenu name="FilesTable1SearchStringContextMenu" id="40"/>
-						<ExtendedTooltip name="FilesTable1SearchStringExtendedTooltip" id="41"/>
+						<ContextMenu name="TableOfFilesSearchStringContextMenu" id="40"/>
+						<ExtendedTooltip name="TableOfFilesSearchStringExtendedTooltip" id="41"/>
 					</SearchStringAddition>
-					<ViewStatusAddition name="FilesTable1ViewStatus" id="42">
+					<ViewStatusAddition name="TableOfFilesViewStatus" id="42">
 						<AdditionSource>
 							<Item>TableOfFiles</Item>
 							<Type>ViewStatusRepresentation</Type>
 						</AdditionSource>
-						<ContextMenu name="FilesTable1ViewStatusContextMenu" id="43"/>
-						<ExtendedTooltip name="FilesTable1ViewStatusExtendedTooltip" id="44"/>
+						<ContextMenu name="TableOfFilesViewStatusContextMenu" id="43"/>
+						<ExtendedTooltip name="TableOfFilesViewStatusExtendedTooltip" id="44"/>
 					</ViewStatusAddition>
-					<SearchControlAddition name="FilesTable1SearchControl" id="45">
+					<SearchControlAddition name="TableOfFilesSearchControl" id="45">
 						<AdditionSource>
 							<Item>TableOfFiles</Item>
 							<Type>SearchControl</Type>
 						</AdditionSource>
-						<ContextMenu name="FilesTable1SearchControlContextMenu" id="46"/>
-						<ExtendedTooltip name="FilesTable1SearchControlExtendedTooltip" id="47"/>
+						<ContextMenu name="TableOfFilesSearchControlContextMenu" id="46"/>
+						<ExtendedTooltip name="TableOfFilesSearchControlExtendedTooltip" id="47"/>
 					</SearchControlAddition>
 					<Events>
-						<Event name="BeforeDeleteRow">FilesTable1BeforeDeleteRow</Event>
-						<Event name="OnActivateRow">FilesTable1OnActivateRow</Event>
+						<Event name="BeforeDeleteRow">TableOfFilesBeforeDeleteRow</Event>
+						<Event name="OnActivateRow">TableOfFilesOnActivateRow</Event>
 					</Events>
 					<ChildItems>
 						<InputField name="TableOfFilesPresentation" id="12">
@@ -195,7 +195,7 @@
 							<EditMode>EnterOnInput</EditMode>
 							<ShowInHeader>false</ShowInHeader>
 							<TextEdit>false</TextEdit>
-							<ContextMenu name="FilesTable1PresentationContextMenu" id="13"/>
+							<ContextMenu name="TableOfFilesPresentationContextMenu" id="13"/>
 							<ExtendedTooltip name="TableOfFilesPresentationExtendedTooltip" id="34"/>
 						</InputField>
 					</ChildItems>
@@ -701,6 +701,16 @@
 			</Type>
 		</Attribute>
 		<Attribute name="IsReScanning" id="40">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="DocumentAutoFeeder" id="42">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="DocumentAutoFeederAvailable" id="43">
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>

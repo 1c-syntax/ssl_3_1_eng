@@ -243,7 +243,7 @@ Procedure AdditionalLanguage1StartChoice(Item, ChoiceData, StandardProcessing)
 EndProcedure
 
 &AtClient
-Procedure ApplicationTimeZoneOnChange(Item)
+Procedure AppTimeZoneOnChange(Item)
 	TimeZoneOffset = TimeZoneOffset(AppTimeZone, CurrentTimeOnTheClient());
 EndProcedure
 
@@ -576,7 +576,7 @@ Function OldAndNewValuesOfConstants()
 	
 EndFunction
 
-// 
+// Time zone.
 
 &AtServer
 Procedure FillInTimeZones()

@@ -203,8 +203,8 @@ Procedure CheckTheLocationOfTheComponent(Id, Location) Export
 		EndIf;
 	EndIf;
 
-	//  
-	// 
+	// In the SaaS mode, it's unsafe to attach add-ins on the 1C:Enterprise server from the "Add-ins" catalog. 
+	// It's acceptable to attach add-ins only from the "Common add-ins" catalog.
 	If Not (Common.DataSeparationEnabled()
 			And Common.SeparatedDataUsageAvailable()) Then
 		If Not StrStartsWith(Location, "e1cib/data/Catalog.AddIns.AddInStorage") Then
@@ -325,10 +325,10 @@ Procedure LoadAComponentFromBinaryData(Parameters, ParseInfoFile = True, UsedAdd
 		Block.Add("Catalog.AddIns");
 		Block.Lock();
 
-		Component_SSLy = Catalogs.AddIns.FindByID(Id);
+		Component = Catalogs.AddIns.FindByID(Id);
 
-		If ValueIsFilled(Component_SSLy) Then
-			Object = Component_SSLy.GetObject();
+		If ValueIsFilled(Component) Then
+			Object = Component.GetObject();
 			Try
 				TheResultOfComparingVersions = CommonClientServer.CompareVersions(Object.Version, Parameters.Version);
 			Except
@@ -342,7 +342,7 @@ Procedure LoadAComponentFromBinaryData(Parameters, ParseInfoFile = True, UsedAdd
 		Else
 			Object = Catalogs.AddIns.CreateItem();
 			// Create an add-in instance.
-			Object.Fill(Undefined); // 
+			Object.Fill(Undefined); // Default constructor.
 		EndIf;
 		
 		 // According to manifest data.
@@ -398,7 +398,7 @@ Procedure OnFillTypesExcludedFromExportImport(Types) Export
 
 EndProcedure
 
-// See StandardSubsystems.OnSendDataToMaster.
+// 
 Procedure OnSendDataToMaster(DataElement, ItemSend,
 		Recipient) Export
 
@@ -843,7 +843,7 @@ Function TemplateAddInInfo(Location) Export
 	TemplateName = LayoutLocationSplit.Get(LayoutLocationSplit.UBound());
 	
 	If LayoutLocationSplit.Count() = 2 Then
-		ComponentBinaryData = GetCommonTemplate(Location);
+		ComponentBinaryData = GetCommonTemplate(TemplateName);
 	Else
 		LayoutLocationSplit.Delete(LayoutLocationSplit.UBound());
 		LayoutLocationSplit.Delete(LayoutLocationSplit.UBound());
@@ -1521,7 +1521,7 @@ Procedure NewAddInsFromPortal(ProcedureParameters, ResultAddress) Export
 		Try
 			// Create an add-in instance.
 			Object = Catalogs.AddIns.CreateItem();
-			Object.Fill(Undefined); // 
+			Object.Fill(Undefined); // Default constructor
 			FillPropertyValues(Object, Information.Attributes); // According to manifest data.
 			FillPropertyValues(Object, ResultString1); // By data from the website.
 			Object.ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(

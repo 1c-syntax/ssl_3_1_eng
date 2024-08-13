@@ -109,7 +109,7 @@
 			</Title>
 			<TitleLocation>None</TitleLocation>
 			<AutoMaxWidth>false</AutoMaxWidth>
-			<ContextMenu name="MessageTitle1ContextMenu" id="65"/>
+			<ContextMenu name="MessageTitleContextMenu" id="65"/>
 			<ExtendedTooltip name="MessageTitleExtendedTooltip" id="78"/>
 		</LabelField>
 		<Table name="List" id="6">
@@ -198,7 +198,7 @@
 										<v8:content>Commit</v8:content>
 									</v8:item>
 								</Title>
-								<ExtendedTooltip name="ListContextMenuFinishEditingExtendedTooltip" id="80"/>
+								<ExtendedTooltip name="ListContextMenuEndEditExtendedTooltip" id="80"/>
 							</Button>
 						</ChildItems>
 					</ButtonGroup>
@@ -223,7 +223,7 @@
 								</Title>
 								<ExtendedTooltip name="ListContextMenuSaveAsExtendedTooltip" id="83"/>
 							</Button>
-							<Button name="ListContextMenuUnlock" id="56">
+							<Button name="ListContextMenuRelease" id="56">
 								<Type>CommandBarButton</Type>
 								<SkipOnInput>false</SkipOnInput>
 								<CommandName>Form.Command.Release</CommandName>
@@ -233,7 +233,7 @@
 										<v8:content>Undo edits</v8:content>
 									</v8:item>
 								</Title>
-								<ExtendedTooltip name="ListContextMenuUnlockExtendedTooltip" id="84"/>
+								<ExtendedTooltip name="ListContextMenuReleaseExtendedTooltip" id="84"/>
 							</Button>
 							<Button name="ListContextMenuUpdateFromFileOnHardDrive" id="63">
 								<Type>CommandBarButton</Type>
@@ -245,7 +245,7 @@
 										<v8:content>Update from local file…</v8:content>
 									</v8:item>
 								</Title>
-								<ExtendedTooltip name="ListContextMenuUpdateFromFileOnDiskExtendedTooltip" id="85"/>
+								<ExtendedTooltip name="ListContextMenuUpdateFromFileOnHardDriveExtendedTooltip" id="85"/>
 							</Button>
 							<Button name="ListContextMenuOpenFileDirectory" id="58">
 								<Type>CommandBarButton</Type>
@@ -273,7 +273,7 @@
 							<Button name="ListContextMenuCustomizeForm" id="107">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.StandardCommand.CustomizeForm</CommandName>
-								<ExtendedTooltip name="ListContextMenuChangeFormExtendedTooltip" id="108"/>
+								<ExtendedTooltip name="ListContextMenuCustomizeFormExtendedTooltip" id="108"/>
 							</Button>
 						</ChildItems>
 					</ButtonGroup>
@@ -291,29 +291,29 @@
 			</ContextMenu>
 			<AutoCommandBar name="ListCommandBar" id="15"/>
 			<ExtendedTooltip name="ListExtendedTooltip" id="89"/>
-			<SearchStringAddition name="ListSearchString_SSLy" id="115">
+			<SearchStringAddition name="ListSearchString" id="115">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchStringRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchString_SSLyContextMenu" id="116"/>
-				<ExtendedTooltip name="ListSearchString_SSLyExtendedTooltip" id="117"/>
+				<ContextMenu name="ListSearchStringContextMenu" id="116"/>
+				<ExtendedTooltip name="ListSearchStringExtendedTooltip" id="117"/>
 			</SearchStringAddition>
-			<ViewStatusAddition name="ListViewStatus_SSLy" id="118">
+			<ViewStatusAddition name="ListViewStatus" id="118">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>ViewStatusRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListViewStatus_SSLyContextMenu" id="119"/>
-				<ExtendedTooltip name="ListViewStatus_SSLyExtendedTooltip" id="120"/>
+				<ContextMenu name="ListViewStatusContextMenu" id="119"/>
+				<ExtendedTooltip name="ListViewStatusExtendedTooltip" id="120"/>
 			</ViewStatusAddition>
-			<SearchControlAddition name="ListSearchControl_SSLy" id="121">
+			<SearchControlAddition name="ListSearchControl" id="121">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchControl</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchControl_SSLyContextMenu" id="122"/>
-				<ExtendedTooltip name="ListSearchControl_SSLyExtendedTooltip" id="123"/>
+				<ContextMenu name="ListSearchControlContextMenu" id="122"/>
+				<ExtendedTooltip name="ListSearchControlExtendedTooltip" id="123"/>
 			</SearchControlAddition>
 			<Events>
 				<Event name="Selection">ListSelection</Event>

@@ -193,7 +193,7 @@
 										<v8:content>Commit</v8:content>
 									</v8:item>
 								</Title>
-								<ExtendedTooltip name="ListContextMenuFinishEditingExtendedTooltip" id="78"/>
+								<ExtendedTooltip name="ListContextMenuEndEditExtendedTooltip" id="78"/>
 							</Button>
 						</ChildItems>
 					</ButtonGroup>
@@ -218,7 +218,7 @@
 								</Title>
 								<ExtendedTooltip name="ListContextMenuSaveAsExtendedTooltip" id="81"/>
 							</Button>
-							<Button name="ListContextMenuUnlock" id="56">
+							<Button name="ListContextMenuRelease" id="56">
 								<Type>CommandBarButton</Type>
 								<SkipOnInput>false</SkipOnInput>
 								<CommandName>Form.Command.Release</CommandName>
@@ -228,7 +228,7 @@
 										<v8:content>Undo edits</v8:content>
 									</v8:item>
 								</Title>
-								<ExtendedTooltip name="ListContextMenuUnlockExtendedTooltip" id="82"/>
+								<ExtendedTooltip name="ListContextMenuReleaseExtendedTooltip" id="82"/>
 							</Button>
 							<Button name="ListContextMenuUpdateFromFileOnHardDrive" id="63">
 								<Type>CommandBarButton</Type>
@@ -240,7 +240,7 @@
 										<v8:content>Update from local file…</v8:content>
 									</v8:item>
 								</Title>
-								<ExtendedTooltip name="ListContextMenuUpdateFromFileOnDiskExtendedTooltip" id="83"/>
+								<ExtendedTooltip name="ListContextMenuUpdateFromFileOnHardDriveExtendedTooltip" id="83"/>
 							</Button>
 							<Button name="ListContextMenuOpenFileDirectory" id="58">
 								<Type>CommandBarButton</Type>
@@ -310,7 +310,7 @@
 							<Button name="ListContextMenuCustomizeForm" id="103">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.StandardCommand.CustomizeForm</CommandName>
-								<ExtendedTooltip name="ListContextMenuChangeFormExtendedTooltip" id="104"/>
+								<ExtendedTooltip name="ListContextMenuCustomizeFormExtendedTooltip" id="104"/>
 							</Button>
 						</ChildItems>
 					</Popup>
@@ -328,29 +328,29 @@
 			</ContextMenu>
 			<AutoCommandBar name="ListCommandBar" id="15"/>
 			<ExtendedTooltip name="ListExtendedTooltip" id="87"/>
-			<SearchStringAddition name="ListSearchString_SSLy" id="129">
+			<SearchStringAddition name="ListSearchString" id="129">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchStringRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchString_SSLyContextMenu" id="130"/>
-				<ExtendedTooltip name="ListSearchString_SSLyExtendedTooltip" id="131"/>
+				<ContextMenu name="ListSearchStringContextMenu" id="130"/>
+				<ExtendedTooltip name="ListSearchStringExtendedTooltip" id="131"/>
 			</SearchStringAddition>
-			<ViewStatusAddition name="ListViewStatus_SSLy" id="132">
+			<ViewStatusAddition name="ListViewStatus" id="132">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>ViewStatusRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListViewStatus_SSLyContextMenu" id="133"/>
-				<ExtendedTooltip name="ListViewStatus_SSLyExtendedTooltip" id="134"/>
+				<ContextMenu name="ListViewStatusContextMenu" id="133"/>
+				<ExtendedTooltip name="ListViewStatusExtendedTooltip" id="134"/>
 			</ViewStatusAddition>
-			<SearchControlAddition name="ListSearchControl_SSLy" id="135">
+			<SearchControlAddition name="ListSearchControl" id="135">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchControl</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchControl_SSLyContextMenu" id="136"/>
-				<ExtendedTooltip name="ListSearchControl_SSLyExtendedTooltip" id="137"/>
+				<ContextMenu name="ListSearchControlContextMenu" id="136"/>
+				<ExtendedTooltip name="ListSearchControlExtendedTooltip" id="137"/>
 			</SearchControlAddition>
 			<Events>
 				<Event name="Selection">ListSelection</Event>

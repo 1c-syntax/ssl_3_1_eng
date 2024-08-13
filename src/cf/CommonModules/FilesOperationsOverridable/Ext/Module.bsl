@@ -22,9 +22,9 @@
 //                        create files by templates is disabled.
 //
 // Example:
-//       Settings.DontClearFiles.Add(Metadata.Catalogs._DemoProducts);
-//       Settings.DontSynchronizeFiles.Add(Metadata.Catalogs._DemoPartners);
-//       Settings.DontCreateFilesByTemplates.Add(Metadata.Catalogs._DemoPartners);
+//       Settings.DontClearFiles.Add(Metadata.Catalogs.Products);
+//       Settings.DontSynchronizeFiles.Add(Metadata.Catalogs.Partners);
+//       Settings.DontCreateFilesByTemplates.Add(Metadata.Catalogs.Partners);
 //
 Procedure OnDefineSettings(Settings) Export
 	
@@ -41,8 +41,8 @@ EndProcedure
 //                          The main catalog is used for interactive file management. 
 //
 // Example:
-//       If TypeFileOwner = Type("CatalogRef._DemoProducts") Then
-//       	CatalogsNames["_DemoProductsAttachedFiles"] = False;
+//       If TypeFileOwner = Type("CatalogRef.Products") Then
+//       	CatalogsNames["ProductsAttachedFiles"] = False;
 //       	CatalogsNames.Insert("Files", True);
 //       EndIf;
 //
@@ -105,8 +105,8 @@ EndProcedure
 // Allows you to define the parameters of the email message before sending the file by email.
 //
 // Parameters:
-//  FilesToSend  - Array of DefinedType.AttachedFile - List of files to be sent.
 //  SendOptions - See EmailOperationsClient.EmailSendOptions.
+//  FilesToSend  - Array of DefinedType.AttachedFile - List of files to be sent.
 //  FilesOwner    - DefinedType.AttachedFilesOwner - an object that owns files.
 //  UUID - UUID - a UUID
 //                required for storing data in a temporary storage.
@@ -132,7 +132,7 @@ EndProcedure
 // Allows you to change the standard form of the file list.
 //
 // Parameters:
-//    Form - ClientApplicationForm - :
+//    Form - ClientApplicationForm - File list form.:
 //      * FilesStorageCatalogName - String
 //      * FileOwner - DefinedType.FilesOwner
 //
@@ -143,7 +143,7 @@ EndProcedure
 // Allows you to change the standard file form.
 //
 // Parameters:
-//    Form - ClientApplicationForm - :
+//    Form - ClientApplicationForm - File form.:
 //      * Object - DefinedType.AttachedFile
 //
 Procedure OnCreateFilesItemForm(Form) Export

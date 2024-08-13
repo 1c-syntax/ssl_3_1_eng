@@ -8,7 +8,7 @@
 //
 //
 
-// 
+// If the "FileOperations" subsystem is not integrated, delete the form from the configuration.
 // 
 
 #Region Variables

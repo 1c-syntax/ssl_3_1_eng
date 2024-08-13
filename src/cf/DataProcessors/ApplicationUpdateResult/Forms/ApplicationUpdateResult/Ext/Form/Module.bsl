@@ -493,8 +493,8 @@ EndProcedure
 &AtServer
 Procedure ResetHandlersStatus(Status)
 	
-	// 
-	// 
+	// ACC:1327-off - There's no concurrent access to the register.
+	// ACC:1328-off - There's no concurrent access to the register.
 	Query = New Query;
 	Query.SetParameter("Status", Status);
 	Query.Text =
@@ -519,8 +519,8 @@ Procedure ResetHandlersStatus(Status)
 		
 		RecordSet.Write();
 	EndDo;
-	// 
-	// 
+	// ACC:1327-on
+	// ACC:1328-on
 	
 EndProcedure
 
@@ -972,8 +972,8 @@ Procedure CheckPerformDeferredUpdate(UpdateInfo)
 			EndIf;
 			JobActive = False;
 			
-			// 
-			// 
+			// ACC:143-off - Background jobs use the current date.
+			// The background job ran recently.
 			If BackgroundJob.End > CurrentDate() - Job.Schedule.RepeatPeriodInDay * 5 Then
 				TaskIsRunning = True;
 			EndIf;

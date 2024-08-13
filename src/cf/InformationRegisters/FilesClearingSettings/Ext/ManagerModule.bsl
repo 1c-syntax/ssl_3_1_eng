@@ -10,6 +10,39 @@
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
+#Region Public
+
+#Region ForCallsFromOtherSubsystems
+
+// 
+
+// Defines a list of report commands.
+//
+// Parameters:
+//  ReportsCommands - See ReportsOptionsOverridable.BeforeAddReportCommands.ReportsCommands
+//  Parameters - See ReportsOptionsOverridable.BeforeAddReportCommands.Parameters
+//
+Procedure AddReportCommands(ReportsCommands, Parameters) Export
+	
+	If Not AccessRight("View", Metadata.Reports.IrrelevantFilesVolume) Then
+		Return;
+	EndIf;
+	
+	Command = ReportsCommands.Add();
+	Command.VariantKey      = "IrrelevantFilesVolumeByOwners";
+	Command.Presentation     = NStr("en = 'Объем ненужных файлов по владельцам (Первые 10)';");
+	Command.Id     = "IrrelevantFilesVolumeByOwners";
+	Command.Manager          = "Report.IrrelevantFilesVolume";
+	Command.WriteMode       = "NotWrite";
+	
+EndProcedure
+
+// End StandardSubsystems.ReportsOptions
+
+#EndRegion
+
+#EndRegion
+
 #Region Private
 
 

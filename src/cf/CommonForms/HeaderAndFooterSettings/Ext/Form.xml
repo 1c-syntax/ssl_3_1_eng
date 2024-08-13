@@ -319,10 +319,10 @@
 					<Width>4</Width>
 					<SpinButton>true</SpinButton>
 					<MinValue xsi:type="xs:decimal">1</MinValue>
-					<ContextMenu name="PagePreviewContextMenu" id="36"/>
+					<ContextMenu name="PageSampleContextMenu" id="36"/>
 					<ExtendedTooltip name="PageSampleExtendedTooltip" id="117"/>
 					<Events>
-						<Event name="OnChange">PagePreviewOnChange</Event>
+						<Event name="OnChange">PageSampleOnChange</Event>
 					</Events>
 				</InputField>
 			</ChildItems>

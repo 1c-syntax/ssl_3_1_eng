@@ -49,11 +49,11 @@
 								<v8:lang>en</v8:lang>
 								<v8:content>&lt;b&gt;&lt;Major&gt;.&lt;Minor&gt;.&lt;Revision&gt;.&lt;Build&gt;&lt;/&gt;
 
-Where:
-&lt;b&gt;Major&lt;/&gt; is the major version number (1 or more digits).
-&lt;b&gt;Minor&lt;/&gt; is the minor version number (1 or more digits).
-&lt;b&gt;Revision&lt;/&gt; is the revision number (1 or more digits).
-&lt;b&gt;Build&lt;/&gt; is the build number (1 or more digits).
+Each part of the sequence contains at least 1 digit:
+&lt;b&gt;Major&lt;/&gt; is the major version number.
+&lt;b&gt;Minor&lt;/&gt; is the minor version number.
+&lt;b&gt;Revision&lt;/&gt; is the revision number.
+&lt;b&gt;Build&lt;/&gt; is the build number.
 
 Example:
 &lt;b&gt;1.6.4.7&lt;/&gt; — major version 1, minor version 6, revision 4, and build 7.

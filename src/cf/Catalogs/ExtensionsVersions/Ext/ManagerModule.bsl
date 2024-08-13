@@ -78,6 +78,16 @@ Function InstalledExtensions(OnStart = False) Export
 		For Each Extension In DatabaseExtensions Do
 			Checksum = ExtensionChecksum(Extension);
 			ExtensionOnStart = ExtensionsOnStart.Get(Checksum);
+			If ExtensionOnStart = Undefined Then
+				Errors = Extension.CheckCanApply();
+				For Each Error In Errors Do
+					If Error.Severity = ConfigurationExtensionApplicationIssueSeverity.Critical Then
+						ExtensionsOnStart.Insert(Checksum, Extension);
+						ExtensionOnStart = Extension;
+						Break;
+					EndIf;
+				EndDo;
+			EndIf;
 			If ExtensionOnStart <> Undefined Then
 				AddedExtensions.Insert(Checksum, True);
 				Extensions.Add(ExtensionOnStart);

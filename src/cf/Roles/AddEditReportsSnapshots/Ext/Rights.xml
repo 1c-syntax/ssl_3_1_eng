@@ -4,50 +4,6 @@
 	<setForAttributesByDefault>true</setForAttributesByDefault>
 	<independentRightsOfChildObjects>false</independentRightsOfChildObjects>
 	<object>
-		<name>InformationRegister.ReportsSnapshots</name>
-		<right>
-			<name>Read</name>
-			<value>true</value>
-			<restrictionByCondition>
-				<condition>#IF &amp;RecordLevelAccessRestrictionIsUniversal #THEN
-#ForRegister("MetadataObjectIDs.InformationRegisterReportsSnapshots", "User", "", "", "", "")
-#ELSE
-WHERE User = &amp;CurrentUser
-#ENDIF</condition>
-			</restrictionByCondition>
-		</right>
-		<right>
-			<name>Update</name>
-			<value>true</value>
-			<restrictionByCondition>
-				<condition>#IF &amp;RecordLevelAccessRestrictionIsUniversal #THEN
-#ForRegister("MetadataObjectIDs.InformationRegisterReportsSnapshots", "User", "", "", "", "")
-#ELSE
-WHERE User = &amp;CurrentUser
-#ENDIF</condition>
-			</restrictionByCondition>
-		</right>
-		<right>
-			<name>View</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>Edit</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>TotalsControl</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
-		<name>CommonCommand.ReportsSnapshotsForStandaloneMode</name>
-		<right>
-			<name>View</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
 		<name>Configuration.StandardSubsystemsLibrary</name>
 		<right>
 			<name>MainWindowModeNormal</name>
@@ -71,6 +27,50 @@ WHERE User = &amp;CurrentUser
 		</right>
 		<right>
 			<name>AnalyticsSystemClient</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>InformationRegister.ReportsSnapshots</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+			<restrictionByCondition>
+				<condition>#If &amp;RecordLevelAccessRestrictionIsUniversal #Then
+#ForRegister("MetadataObjectIDs.InformationRegisterReportsSnapshots", "User", "", "", "", "")
+#Else
+WHERE User = &amp;CurrentUser
+#EndIf</condition>
+			</restrictionByCondition>
+		</right>
+		<right>
+			<name>Update</name>
+			<value>true</value>
+			<restrictionByCondition>
+				<condition>#If &amp;RecordLevelAccessRestrictionIsUniversal #Then
+#ForRegister("MetadataObjectIDs.InformationRegisterReportsSnapshots", "User", "", "", "", "")
+#Else
+WHERE User = &amp;CurrentUser
+#EndIf</condition>
+			</restrictionByCondition>
+		</right>
+		<right>
+			<name>View</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>Edit</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>TotalsControl</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>CommonCommand.ReportsSnapshotsForStandaloneMode</name>
+		<right>
+			<name>View</name>
 			<value>true</value>
 		</right>
 	</object>

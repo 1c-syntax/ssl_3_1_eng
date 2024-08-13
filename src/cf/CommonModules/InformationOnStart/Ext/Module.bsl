@@ -41,7 +41,7 @@ Function Refresh(Settings = Undefined) Export
 			If Common.IsStandaloneWorkplace() Then // SWP.
 				Default.SharedData       = False;
 				Default.SeparatedData = True;
-			Else // Box.
+			Else // On-prem.
 				Default.SharedData       = True;
 				Default.SeparatedData = True;
 			EndIf;

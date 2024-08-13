@@ -156,8 +156,8 @@ Procedure ConnectCorrespondent(Message, Sender)
 		
 		If ConnectedCorrespondentCode <> Body.RecipientId Then
 			
-			// 
-			// 
+			// A wrong exchange peer is connected.
+			// Send an error message to the Service Manager.
 			ErrorPresentation = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Peer infobase endpoint connection error.
 				|Unexpected endpoint ID.

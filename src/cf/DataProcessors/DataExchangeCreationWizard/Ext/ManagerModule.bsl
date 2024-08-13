@@ -507,7 +507,7 @@ Procedure OnCompleteGettingDataExchangeSettingsOptions(HandlerParameters, Result
 	If HandlerParameters.Property("HandlerParameterExternalSystems") Then
 		
 		SettingsExternalSystems = New Structure;
-		SettingsExternalSystems.Insert("ErrorCode"); // 
+		SettingsExternalSystems.Insert("ErrorCode"); // SettingsReceived, NoSettings, Error, OnlineSupportNotConnected
 		SettingsExternalSystems.Insert("ErrorMessage");
 		SettingsExternalSystems.Insert("SettingVariants");
 		
@@ -1137,7 +1137,7 @@ Procedure SaveConnectionSettings1(Parameters, ResultAddress) Export
 	
 	Result = New Structure;
 	Result.Insert("ConnectionSettingsSaved", False);
-	Result.Insert("HasDataToMap",    False); // 
+	Result.Insert("HasDataToMap",    False); // For offline transport only.
 	Result.Insert("ExchangeNode",                    Undefined);
 	Result.Insert("ErrorMessage",             "");
 	Result.Insert("XMLConnectionSettingsString",  "");
@@ -1250,8 +1250,8 @@ Procedure SaveConnectionSettings1(Parameters, ResultAddress) Export
 		EndIf;
 	EndIf;
 	
-	// 
-	//    
+	// 3. Save the connection settings on the peer infobase side for online connections,
+	//    or send a message with XDTO settings for offline connections.
 	If ConnectionSettings.ExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.COM Then
 		
 		Connection = DataExchangeServer.EstablishExternalConnectionWithInfobase(ConnectionSettings);
@@ -1406,15 +1406,15 @@ Procedure SaveConnectionSettings1(Parameters, ResultAddress) Export
 				ExchangeParameters.ExecuteExport2 = False;
 				ExchangeParameters.ExchangeMessagesTransportKind = ConnectionSettings.ExchangeMessagesTransportKind;
 				
-				// 
-				// 
+				// Errors that occur when getting messages via the common channels are not critical.
+				// It's acceptable if there's no exchange message at all.
 				CancelReceipt = False;
 				AdditionalParameters = New Structure;
 				Try
 					DataExchangeServer.ExecuteDataExchangeForInfobaseNode(
 						ConnectionSettings.InfobaseNode, ExchangeParameters, CancelReceipt, AdditionalParameters);
 				Except
-					// 
+					// Avoiding exceptions is crucial for successfully saving the setting.
 					// 
 					Cancel = True; 
 					Result.ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
@@ -1615,7 +1615,7 @@ Procedure ConfigureDataExchange(ConnectionSettings) Export
 		
 		// Loading message transport settings.
 		If ValueIsFilled(ConnectionSettings.ExchangeMessagesTransportKind) Then
-			// For online exchange when setting from the box the transport kind will not be filled in and is not required.
+			// For online exchange, the transport type is not populated and is not required when setting from the on-premises version.
 			UpdateDataExchangeTransportSettings(ConnectionSettings);
 		EndIf;
 		
@@ -2161,9 +2161,9 @@ EndProcedure
 Procedure FillConnectionSettingsFromXMLString(ConnectionSettings,
 		FileNameXMLString, IsFile = False, IsOnlineConnection = False) Export
 	
-	SettingsStructure = Undefined;
+	SettingsStructure_ = Undefined;
 	Try
-		ReadConnectionSettingsFromXMLToStructure(SettingsStructure, FileNameXMLString, IsFile);
+		ReadConnectionSettingsFromXMLToStructure(SettingsStructure_, FileNameXMLString, IsFile);
 	Except
 		Raise;
 	EndTry;
@@ -2171,14 +2171,14 @@ Procedure FillConnectionSettingsFromXMLString(ConnectionSettings,
 	CorrectSettingsFile = False;
 	ExchangePlanNameInSettings = "";
 	
-	If SettingsStructure.Property("ExchangePlanName", ExchangePlanNameInSettings)
-		And SettingsStructure.ExchangePlanName = ConnectionSettings.ExchangePlanName Then
+	If SettingsStructure_.Property("ExchangePlanName", ExchangePlanNameInSettings)
+		And SettingsStructure_.ExchangePlanName = ConnectionSettings.ExchangePlanName Then
 		
 		CorrectSettingsFile = True;
 		
 	ElsIf DataExchangeCached.IsXDTOExchangePlan(ConnectionSettings.ExchangePlanName) Then 
 		
-		FoundExchangePlan = DataExchangeServer.FindNameOfExchangePlanThroughUniversalFormat(SettingsStructure.ExchangePlanName);
+		FoundExchangePlan = DataExchangeServer.FindNameOfExchangePlanThroughUniversalFormat(SettingsStructure_.ExchangePlanName);
 		CorrectSettingsFile = ValueIsFilled(FoundExchangePlan)
 		
 	EndIf;
@@ -2192,10 +2192,10 @@ Procedure FillConnectionSettingsFromXMLString(ConnectionSettings,
 	EndIf;
 	
 	If Not ValueIsFilled(ConnectionSettings.CorrespondentExchangePlanName) Then
-		ConnectionSettings.CorrespondentExchangePlanName = SettingsStructure.ExchangePlanName;
+		ConnectionSettings.CorrespondentExchangePlanName = SettingsStructure_.ExchangePlanName;
 	EndIf;
 	
-	FillPropertyValues(ConnectionSettings, SettingsStructure, , "ExchangePlanName, SourceInfobasePrefix");
+	FillPropertyValues(ConnectionSettings, SettingsStructure_, , "ExchangePlanName, SourceInfobasePrefix");
 	
 	If Not IsOnlineConnection
 		Or Not ValueIsFilled(ConnectionSettings.UsePrefixesForExchangeSettings) Then
@@ -2207,17 +2207,17 @@ Procedure FillConnectionSettingsFromXMLString(ConnectionSettings,
 	EndIf;
 	
 	ExchangeMessagesTransportKind = "";
-	If SettingsStructure.Property("ExchangeMessagesTransportKind", ExchangeMessagesTransportKind) 
+	If SettingsStructure_.Property("ExchangeMessagesTransportKind", ExchangeMessagesTransportKind) 
 		And TypeOf(ExchangeMessagesTransportKind) = Type("String") Then
 		
-		NameOfTypeOfTransport = DataExchangeFormatTranslationCached.BroadcastName(SettingsStructure.ExchangeMessagesTransportKind, "en");
+		NameOfTypeOfTransport = DataExchangeFormatTranslationCached.BroadcastName(SettingsStructure_.ExchangeMessagesTransportKind, "en");
 		ConnectionSettings.ExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes[NameOfTypeOfTransport];
 		
 	EndIf;
 	
 	If Not IsOnlineConnection Then
 		SecondInfobaseNewNodeCode = Undefined;		
-		SettingsStructure.Property("SecondInfobaseNewNodeCode", SecondInfobaseNewNodeCode);
+		SettingsStructure_.Property("SecondInfobaseNewNodeCode", SecondInfobaseNewNodeCode);
 		
 		ConnectionSettings.UsePrefixesForCorrespondentExchangeSettings =
 			ConnectionSettings.UsePrefixesForCorrespondentExchangeSettings
@@ -2230,13 +2230,13 @@ Procedure FillConnectionSettingsFromXMLString(ConnectionSettings,
 	If Not ConnectionSettings.UsePrefixesForExchangeSettings
 		And Not ConnectionSettings.UsePrefixesForCorrespondentExchangeSettings Then
 		
-		SettingsStructure.Property("PredefinedNodeCode", ConnectionSettings.SourceInfobaseID);
-		SettingsStructure.Property("SecondInfobaseNewNodeCode",  ConnectionSettings.DestinationInfobaseID);
+		SettingsStructure_.Property("PredefinedNodeCode", ConnectionSettings.SourceInfobaseID);
+		SettingsStructure_.Property("SecondInfobaseNewNodeCode",  ConnectionSettings.DestinationInfobaseID);
 		
 	Else
 		
-		SettingsStructure.Property("SourceInfobasePrefix", ConnectionSettings.SourceInfobasePrefix);
-		SettingsStructure.Property("SecondInfobaseNewNodeCode",            ConnectionSettings.DestinationInfobasePrefix);
+		SettingsStructure_.Property("SourceInfobasePrefix", ConnectionSettings.SourceInfobasePrefix);
+		SettingsStructure_.Property("SecondInfobaseNewNodeCode",            ConnectionSettings.DestinationInfobasePrefix);
 		
 	EndIf;
 	
@@ -2260,7 +2260,7 @@ Procedure FillConnectionSettingsFromXMLString(ConnectionSettings,
 	EmailAccount = Undefined;
 	
 	If Common.SubsystemExists("StandardSubsystems.EmailOperations")
-		And SettingsStructure.Property("EmailAccount", EmailAccount)
+		And SettingsStructure_.Property("EmailAccount", EmailAccount)
 		And EmailAccount <> Undefined Then
 		
 		ModuleEmailOperationsInternal = Common.CommonModule("EmailOperationsInternal");
@@ -2274,8 +2274,8 @@ Procedure FillConnectionSettingsFromXMLString(ConnectionSettings,
 	If ConnectionSettings.ExchangeDataSettingsFileFormatVersion = "1.0" Then
 		
 		ConnectionSettings.ThisInfobaseDescription    = NStr("en = 'This infobase';");
-		SettingsStructure.Property("DataExchangeExecutionSettingsDescription", ConnectionSettings.SecondInfobaseDescription);
-		SettingsStructure.Property("NewNodeCode", ConnectionSettings.SecondInfobaseNewNodeCode);
+		SettingsStructure_.Property("DataExchangeExecutionSettingsDescription", ConnectionSettings.SecondInfobaseDescription);
+		SettingsStructure_.Property("NewNodeCode", ConnectionSettings.SecondInfobaseNewNodeCode);
 		
 	EndIf;
 		
@@ -2519,9 +2519,9 @@ Procedure AddXMLRecord(XMLWriter, Value, FullName)
 	
 EndProcedure
 
-Procedure ReadConnectionSettingsFromXMLToStructure(SettingsStructure, FileNameXMLString, IsFile)
+Procedure ReadConnectionSettingsFromXMLToStructure(SettingsStructure_, FileNameXMLString, IsFile)
 	
-	SettingsStructure = New Structure;
+	SettingsStructure_ = New Structure;
 	
 	XMLReader = New XMLReader;
 	If IsFile Then
@@ -2536,26 +2536,26 @@ Procedure ReadConnectionSettingsFromXMLToStructure(SettingsStructure, FileNameXM
 			And XMLReader.Name = "ПараметрыНастройки" Then // @Non-NLS
 			
 			FormatVersion = XMLReader.GetAttribute("ВерсияФормата"); // @Non-NLS
-			SettingsStructure.Insert("ExchangeDataSettingsFileFormatVersion",
+			SettingsStructure_.Insert("ExchangeDataSettingsFileFormatVersion",
 				?(FormatVersion = Undefined, "1.0", FormatVersion));
 			
 		ElsIf XMLReader.NodeType = XMLNodeType.StartElement 
 			And XMLReader.Name = "ОсновныеПараметрыОбмена" Then // @Non-NLS
 			
-			ReadDataToStructure(SettingsStructure, XMLReader);
+			ReadDataToStructure(SettingsStructure_, XMLReader);
 			
 		ElsIf XMLReader.NodeType = XMLNodeType.StartElement 
 			And XMLReader.Name = "УчетнаяЗаписьЭлектроннойПочты" Then // @Non-NLS
 			
-			If SettingsStructure.Property("UseTransportParametersEMAIL")
-				And SettingsStructure.UseTransportParametersEMAIL Then
+			If SettingsStructure_.Property("UseTransportParametersEMAIL")
+				And SettingsStructure_.UseTransportParametersEMAIL Then
 				
 				If Common.SubsystemExists("StandardSubsystems.EmailOperations") Then
 					
 					// Reading the EmailAccount node.
 					XMLReader.Read(); // EmailAccount {StartElement}
 					
-					ReadEmailData(SettingsStructure, XMLReader);
+					ReadEmailData(SettingsStructure_, XMLReader);
 					
 					XMLReader.Read(); // EmailAccount {EndElement}
 					
@@ -2570,7 +2570,7 @@ Procedure ReadConnectionSettingsFromXMLToStructure(SettingsStructure, FileNameXM
 		ElsIf XMLReader.NodeType = XMLNodeType.StartElement 
 			And XMLReader.Name = "ПараметрыОбменаXDTO" Then // @Non-NLS
 			
-			ReadXDTOExchangeParameters(SettingsStructure, XMLReader);
+			ReadXDTOExchangeParameters(SettingsStructure_, XMLReader);
 			
 		EndIf;
 		
@@ -2580,7 +2580,7 @@ Procedure ReadConnectionSettingsFromXMLToStructure(SettingsStructure, FileNameXM
 	
 EndProcedure
 
-Procedure ReadDataToStructure(SettingsStructure, XMLReader)
+Procedure ReadDataToStructure(SettingsStructure_, XMLReader)
 	
 	If XMLReader.NodeType <> XMLNodeType.StartElement Then
 		Raise NStr("en = 'XML file parsing error.';");
@@ -2594,9 +2594,9 @@ Procedure ReadDataToStructure(SettingsStructure, XMLReader)
 		
 		If NodeName = "ExchangeMessagesTransportKind"
 			And Metadata.ScriptVariant = Metadata.ObjectProperties.ScriptVariant.English Then
-			ReadTransportKindSettingForEnglishVersion(SettingsStructure, XMLReader)
+			ReadTransportKindSettingForEnglishVersion(SettingsStructure_, XMLReader)
 		Else
-			SettingsStructure.Insert(NodeName, ReadXML(XMLReader));
+			SettingsStructure_.Insert(NodeName, ReadXML(XMLReader));
 		EndIf;
 		
 	EndDo;
@@ -2605,7 +2605,7 @@ Procedure ReadDataToStructure(SettingsStructure, XMLReader)
 	
 EndProcedure
 
-Procedure ReadTransportKindSettingForEnglishVersion(SettingsStructure, XMLReader)
+Procedure ReadTransportKindSettingForEnglishVersion(SettingsStructure_, XMLReader)
 	
 	MapOfTransportKind = New Map;
 	MapOfTransportKind.Insert("EMAIL", PredefinedValue("Enum.ExchangeMessagesTransportTypes.EMAIL")); // @Non-NLS-1
@@ -2627,7 +2627,7 @@ Procedure ReadTransportKindSettingForEnglishVersion(SettingsStructure, XMLReader
 			TransportKind = MapOfTransportKind.Get(TransportKindSettingUp);
 			
 			If TransportKind <> Undefined Then
-				SettingsStructure.Insert("ExchangeMessagesTransportKind", TransportKind);
+				SettingsStructure_.Insert("ExchangeMessagesTransportKind", TransportKind);
 			EndIf;
 				
 		EndIf;
@@ -2638,7 +2638,7 @@ Procedure ReadTransportKindSettingForEnglishVersion(SettingsStructure, XMLReader
 	
 EndProcedure
 
-Procedure ReadEmailData(SettingsStructure, XMLReader)
+Procedure ReadEmailData(SettingsStructure_, XMLReader)
 	
 	EmailAccountStructure = New Structure;
 	
@@ -2699,11 +2699,11 @@ Procedure ReadEmailData(SettingsStructure, XMLReader)
 		
 	EndDo;
 		
-	SettingsStructure.Insert("EmailAccount", EmailAccount);
+	SettingsStructure_.Insert("EmailAccount", EmailAccount);
 	
 EndProcedure
 
-Procedure ReadXDTOExchangeParameters(SettingsStructure, XMLReader)
+Procedure ReadXDTOExchangeParameters(SettingsStructure_, XMLReader)
 	
 	XDTOExchangeParameters = New Structure;
 	
@@ -2716,7 +2716,7 @@ Procedure ReadXDTOExchangeParameters(SettingsStructure, XMLReader)
 		
 	EndDo;
 	
-	SettingsStructure.Insert("XDTOExchangeParameters", XDTOExchangeParameters);
+	SettingsStructure_.Insert("XDTOExchangeParameters", XDTOExchangeParameters);
 	
 EndProcedure
 
@@ -2735,8 +2735,8 @@ Function XDTOCorrespondentSettingsFromXML(FileNameXMLString, IsFile, ExchangeNod
 	TitleXDTOMessages = XDTOFactory.ReadXML(XMLReader,
 		XDTOFactory.Type("http://www.1c.ru/SSL/Exchange/Message", XMLReader.LocalName));
 		
-	SettingsStructure = DataExchangeXDTOServer.SettingsStructureXTDO();
-	DataExchangeXDTOServer.FillCorrespondentXDTOSettingsStructure(SettingsStructure, TitleXDTOMessages, , ExchangeNode);
+	SettingsStructure_ = DataExchangeXDTOServer.SettingsStructureXTDO();
+	DataExchangeXDTOServer.FillCorrespondentXDTOSettingsStructure(SettingsStructure_, TitleXDTOMessages, , ExchangeNode);
 	
 	// Checking if the sender UID corresponds to the format.
 	UID = TitleXDTOMessages.Confirmation.From;
@@ -2748,11 +2748,11 @@ Function XDTOCorrespondentSettingsFromXML(FileNameXMLString, IsFile, ExchangeNod
 			UID);
 	EndTry;
 	
-	SettingsStructure.Insert("SenderID", TitleXDTOMessages.Confirmation.From);
+	SettingsStructure_.Insert("SenderID", TitleXDTOMessages.Confirmation.From);
 		
 	XMLReader.Close();
 	
-	Return SettingsStructure;
+	Return SettingsStructure_;
 	
 EndFunction
 

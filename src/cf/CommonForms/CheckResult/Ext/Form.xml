@@ -32,7 +32,7 @@
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.StandardCommand.Close</CommandName>
-				<ExtendedTooltip name="FormClose3ExtendedTooltip" id="17"/>
+				<ExtendedTooltip name="FormCloseExtendedTooltip" id="17"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>

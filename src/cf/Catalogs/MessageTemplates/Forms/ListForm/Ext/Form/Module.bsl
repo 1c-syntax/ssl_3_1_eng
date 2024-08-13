@@ -17,26 +17,20 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	InitializeFilters();
 	
-	If Common.SubsystemExists("StandardSubsystems.Interactions") Then
-		SendSMSMessageEnabled = True;
-		EmailOperationsEnabled = True;
-	Else
-		EmailOperationsEnabled = Common.SubsystemExists("StandardSubsystems.EmailOperations");
-		SendSMSMessageEnabled = Common.SubsystemExists("StandardSubsystems.SendSMSMessage");
-	EndIf;
+	AvailableOptions = MessageTemplatesInternal.MessageTemplatesAvailableSendOutOptions();
 	
 	// buttons are in the group; if there is one button, the group is not required
-	Items.FormCreateSMSMessageTemplate.Visible = SendSMSMessageEnabled;
-	Items.FormCreateEmailTemplate.Visible = EmailOperationsEnabled;
+	Items.FormCreateSMSMessageTemplate.Visible       = AvailableOptions.SMS;
+	Items.FormCreateEmailTemplate.Visible = AvailableOptions.Mail;
 	Items.FormShowContextTemplates.Visible = Users.IsFullUser();
 	
-	If Not Common.SubsystemExists("StandardSubsystems.SendSMSMessage") Then
+	If Not AvailableOptions.SMS Then
 		Items.FormCreateGroup.Type = FormGroupType.ButtonGroup;
 		Items.FormCreateSMSMessageTemplate.Visible       = False;
 		Items.FormCreateEmailTemplate.Title = NStr("en = 'Create';");
 	EndIf;
 	
-	If Not Common.SubsystemExists("StandardSubsystems.EmailOperations") Then
+	If Not AvailableOptions.Mail Then
 		Items.FormCreateGroup.Type = FormGroupType.ButtonGroup;
 		Items.FormCreateEmailTemplate.Visible = False;
 		Items.FormCreateSMSMessageTemplate.Title       = NStr("en = 'Create';");
@@ -194,8 +188,13 @@ Procedure InitializeFilters()
 		NStr("en = 'All messages';"),
 		NStr("en = 'All messages';"));
 	
-	List.Parameters.SetParameterValue("SMSMessage", TemplatesKinds.FindByValue("SMS").Presentation);
-	List.Parameters.SetParameterValue("Email", TemplatesKinds.FindByValue("Email").Presentation);
+	AvailableOptions = MessageTemplatesInternal.MessageTemplatesAvailableSendOutOptions();
+	If AvailableOptions.SMS Then
+		List.Parameters.SetParameterValue("SMSMessage", TemplatesKinds.FindByValue("SMS").Presentation);
+	EndIf;
+	If AvailableOptions.Mail Then
+		List.Parameters.SetParameterValue("Email", TemplatesKinds.FindByValue("Email").Presentation);
+	EndIf;
 	List.Parameters.SetParameterValue("ShowContextTemplates", ShowContextTemplates);
 	List.Parameters.SetParameterValue("Arbitrary", NStr("en = 'Arbitrary message';"));
 	

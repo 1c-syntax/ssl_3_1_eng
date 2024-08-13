@@ -84,7 +84,7 @@ EndProcedure
 Procedure NotificationProcessing(EventName, Parameter, Source)
 	
 	If (EventName = "Write_SpreadsheetDocument" Or EventName = "Write_OfficeDocument" 
-		Or EventName = "Write_UserPrintTemplates") And Source.FormOwner = ThisObject Then
+		Or EventName = "Write_UserPrintTemplates") Then
 		If Not ReadOnly Then
 			IDsOfModifiedRows = UpdateDisplayLayout(Parameter);
 			If Items.Templates.CurrentData <> Undefined And Items.Templates.CurrentData.IsFolder Then
@@ -192,7 +192,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 &AtClient
-Procedure SelectionByLanguageOnChange(Item)
+Procedure FilterByLanguageOnChange(Item)
 	
 	RefreshVisibilityOfTemplates();
 	
@@ -464,7 +464,7 @@ EndProcedure
 
 #EndRegion
 
-// 
+// Template opening
 
 &AtClient
 Procedure OpenPrintFormTemplate()
@@ -482,27 +482,30 @@ Procedure OpenPrintFormTemplateForView()
 	
 	CurrentData = Items.Templates.CurrentData;
 	
-	OpeningParameters = New Structure;
-	OpeningParameters.Insert("TemplateMetadataObjectName", CurrentData.TemplateMetadataObjectName);
-	OpeningParameters.Insert("TemplateType", CurrentData.TemplateType);
-	OpeningParameters.Insert("OpenOnly", True);
+	FormParameters = New Structure;
+	FormParameters.Insert("TemplateMetadataObjectName", CurrentData.TemplateMetadataObjectName);
+	FormParameters.Insert("TemplateType", CurrentData.TemplateType);
+	FormParameters.Insert("OpenOnly", True);
 	
 	If CurrentData.TemplateType = "MXL" Then
-		OpeningParameters.Insert("DocumentName", CurrentData.Presentation);
-		OpenForm("CommonForm.EditSpreadsheetDocument", OpeningParameters, ThisObject);
+		EditorParameters = StandardSubsystemsClient.SpreadsheetEditorParameters();
+		EditorParameters.DocumentName = CurrentData.Presentation;
+		EditorParameters.Insert("TemplateMetadataObjectName", CurrentData.TemplateMetadataObjectName);
+		StandardSubsystemsClient.ShowSpreadsheetEditor(Undefined, EditorParameters);
 		Return;
 	ElsIf CurrentData.TemplateType = "DOCX" Then
 		If TemplateVersion(CurrentData.Id, CurrentData.TemplateType) = "Areas" Then
-			OpenForm("InformationRegister.UserPrintTemplates.Form.EditTemplate2", OpeningParameters, ThisObject);
+			OpenForm("InformationRegister.UserPrintTemplates.Form.EditTemplate2", FormParameters, 
+				ThisObject);
 			Return;
 		EndIf;
-		OpeningParameters.Insert("DocumentName", CurrentData.Presentation);
-		OpeningParameters.Insert("Edit", False);
-		OpenForm("CommonForm.EditOfficeOpenDoc", OpeningParameters, ThisObject);
+		FormParameters.Insert("DocumentName", CurrentData.Presentation);
+		FormParameters.Insert("Edit", False);
+		OpenForm("CommonForm.EditOfficeOpenDoc", FormParameters, ThisObject);
 		Return;	
 	EndIf;
 	
-	OpenForm("InformationRegister.UserPrintTemplates.Form.EditTemplate2", OpeningParameters, ThisObject);
+	OpenForm("InformationRegister.UserPrintTemplates.Form.EditTemplate2", FormParameters, ThisObject);
 	
 EndProcedure
 
@@ -549,9 +552,11 @@ Procedure OpenPrintFormTemplateForEditingFollowUp(SwitchUsages, CurrentData) Exp
 	OpeningParameters.Insert("IsValAvailable", Not CurrentData.Supplied);
 	
 	If CurrentData.TemplateType = "MXL" Then
-		OpeningParameters.Insert("DocumentName", CurrentData.Presentation);
-		OpeningParameters.Insert("Edit", Not ReadOnly);
-		OpenForm("CommonForm.EditSpreadsheetDocument", OpeningParameters, ThisObject);
+		FormParameters = StandardSubsystemsClient.SpreadsheetEditorParameters();
+		FormParameters.DocumentName = CurrentData.Presentation;
+		FormParameters.Edit = Not ReadOnly;
+		CommonClientServer.SupplementStructure(FormParameters, OpeningParameters, True);
+		StandardSubsystemsClient.ShowSpreadsheetEditor(Undefined, FormParameters);
 		Return;
 	ElsIf CurrentData.TemplateType = "DOCX" Then
 		If TemplateVersion(CurrentData.Id, CurrentData.TemplateType) = "Areas" Then
@@ -568,7 +573,7 @@ Procedure OpenPrintFormTemplateForEditingFollowUp(SwitchUsages, CurrentData) Exp
 	
 EndProcedure
 
-// 
+// Template actions
 
 &AtServerNoContext
 Function TemplateVersion(Id, TemplateType)
@@ -632,7 +637,7 @@ Procedure DeleteModifiedTemplates(TemplatesToDelete)
 	
 EndProcedure
 
-// Overall
+// Common
 
 &AtClient
 Procedure SetPictureUsage(TemplateDetails)
@@ -673,9 +678,9 @@ Procedure SetCommandBarButtonsEnabled()
 		EndDo;
 	EndDo;
 	
-	Items.PrintFormTemplatesUseModifiedTemplate.Enabled = UseModifiedTemplateEnabled;
-	Items.PrintFormTemplatesUseStandardTemplate.Enabled = UseStandardTemplateEnabled;
-	Items.PrintFormTemplatesDeleteModifiedTemplate.Enabled = DeleteModifiedTemplateEnabled;
+	Items.PrintFormsTemplatesUseModifiedTemplate.Enabled = UseModifiedTemplateEnabled;
+	Items.PrintFormsTemplatesUseStandardTemplate.Enabled = UseStandardTemplateEnabled;
+	Items.PrintFormsTemplatesDeleteModifiedTemplate.Enabled = DeleteModifiedTemplateEnabled;
 	
 	Items.TemplatesContextMenuDeleteModifiedTemplate.Visible = DeleteModifiedTemplateEnabled And Not ReadOnly;
 	Items.TemplatesContextMenuDeleteTemplate.Visible = RemoveLayoutVisibility And Not ReadOnly;
@@ -750,8 +755,10 @@ Procedure OnSelectingLayoutName(TemplateName, NotificationParameters) Export
 	OpeningParameters.Insert("IsValAvailable", True);
 	
 	If TemplateType = "MXL" Then
-		OpeningParameters.Insert("Edit", True);
-		OpenForm("CommonForm.EditSpreadsheetDocument", OpeningParameters, ThisObject);
+		FormParameters = StandardSubsystemsClient.SpreadsheetEditorParameters();
+		FormParameters.Edit = True;
+		CommonClientServer.SupplementStructure(FormParameters, OpeningParameters, True);
+		StandardSubsystemsClient.ShowSpreadsheetEditor(Undefined, FormParameters);
 		Return;
 	EndIf;
 	

@@ -25,7 +25,7 @@ EndProcedure
 Procedure ExecuteSearch(Command)
 	
 	If IsBlankString(SearchString) Then
-		ShowMessageBox(, NStr("en = 'Enter search text.';"));
+		ShowMessageBox(, NStr("en = 'Please enter text to search for.';"));
 		Return;
 	EndIf;
 	

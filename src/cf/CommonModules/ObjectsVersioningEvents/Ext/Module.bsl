@@ -18,8 +18,8 @@
 //
 Procedure WriteObjectVersion(Source, Cancel) Export
 	
-	// 
-	// 
+	// No need to check for "DataExchange.Load" as when writing the versioned object during exchange,
+	// the current object version is saved.
 	If Source.DataExchange.Load And Source.DataExchange.Sender = Undefined Then
 		Return;
 	EndIf;
@@ -40,8 +40,8 @@ EndProcedure
 //
 Procedure WriteDocumentVersion(Source, Cancel, WriteMode, PostingMode) Export
 	
-	// 
-	// 
+	// No need to check for "DataExchange.Load" as when writing the versioned object during exchange,
+	// the current object version is saved.
 	If Source.DataExchange.Load And Source.DataExchange.Sender = Undefined Then
 		Return;
 	EndIf;

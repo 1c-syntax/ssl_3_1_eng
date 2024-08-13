@@ -19,7 +19,7 @@
 						<v8:content>Close form</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="FormClose3ExtendedTooltip" id="24"/>
+				<ExtendedTooltip name="FormCloseExtendedTooltip" id="24"/>
 			</Button>
 			<Button name="FormRefresh" id="25">
 				<Type>CommandBarButton</Type>

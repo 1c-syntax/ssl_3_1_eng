@@ -36,7 +36,7 @@ Procedure InfobasePublicationURLOnChange(Item)
 EndProcedure
 
 &AtClient
-Procedure ObjectRef1OnChange(Item)
+Procedure ObjectReferenceOnChange(Item)
 	
 	GenerateRefAddress();
 	

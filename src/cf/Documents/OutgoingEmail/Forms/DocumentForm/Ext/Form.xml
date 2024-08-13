@@ -1178,7 +1178,7 @@
 							</Title>
 							<HorizontalStretch>false</HorizontalStretch>
 							<HorizontalLocation>Right</HorizontalLocation>
-							<ExtendedTooltip name="AttachmentsCommands1ExtendedTooltip" id="451"/>
+							<ExtendedTooltip name="AttachmentsCommandsExtendedTooltip" id="451"/>
 							<ChildItems>
 								<Button name="AddAttachmentCommand" id="452">
 									<Type>CommandBarButton</Type>
@@ -1234,7 +1234,7 @@
 											<v8:content>Delete</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="DeleteGroup1ExtendedTooltip" id="465"/>
+									<ExtendedTooltip name="GroupDeleteExtendedTooltip" id="465"/>
 									<ChildItems>
 										<Button name="DeleteAttachmentCommand" id="460">
 											<Type>CommandBarButton</Type>

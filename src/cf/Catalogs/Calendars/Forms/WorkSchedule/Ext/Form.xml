@@ -59,24 +59,24 @@
 					<Item>WorkSchedule</Item>
 					<Type>SearchStringRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="WorkSchedule1SearchStringContextMenu" id="18"/>
-				<ExtendedTooltip name="WorkSchedule1SearchStringExtendedTooltip" id="19"/>
+				<ContextMenu name="WorkScheduleSearchStringContextMenu" id="18"/>
+				<ExtendedTooltip name="WorkScheduleSearchStringExtendedTooltip" id="19"/>
 			</SearchStringAddition>
 			<ViewStatusAddition name="WorkScheduleViewStatus" id="20">
 				<AdditionSource>
 					<Item>WorkSchedule</Item>
 					<Type>ViewStatusRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="WorkSchedule1ViewStatusContextMenu" id="21"/>
-				<ExtendedTooltip name="WorkSchedule1ViewStatusExtendedTooltip" id="22"/>
+				<ContextMenu name="WorkScheduleViewStatusContextMenu" id="21"/>
+				<ExtendedTooltip name="WorkScheduleViewStatusExtendedTooltip" id="22"/>
 			</ViewStatusAddition>
 			<SearchControlAddition name="WorkScheduleSearchControl" id="23">
 				<AdditionSource>
 					<Item>WorkSchedule</Item>
 					<Type>SearchControl</Type>
 				</AdditionSource>
-				<ContextMenu name="WorkSchedule1SearchControlContextMenu" id="24"/>
-				<ExtendedTooltip name="WorkSchedule1SearchControlExtendedTooltip" id="25"/>
+				<ContextMenu name="WorkScheduleSearchControlContextMenu" id="24"/>
+				<ExtendedTooltip name="WorkScheduleSearchControlExtendedTooltip" id="25"/>
 			</SearchControlAddition>
 			<Events>
 				<Event name="OnEditEnd">WorkScheduleOnEditEnd</Event>
@@ -92,7 +92,7 @@
 					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<Width>10</Width>
-					<ContextMenu name="WorkSchedule1BeginTimeContextMenu" id="7"/>
+					<ContextMenu name="WorkScheduleBeginTimeContextMenu" id="7"/>
 					<ExtendedTooltip name="WorkScheduleBeginTimeExtendedTooltip" id="15"/>
 				</InputField>
 				<InputField name="WorkScheduleEndTime" id="8">
@@ -104,7 +104,7 @@
 						</v8:item>
 					</Title>
 					<EditMode>EnterOnInput</EditMode>
-					<ContextMenu name="WorkSchedule1EndTime1ContextMenu" id="9"/>
+					<ContextMenu name="WorkScheduleEndTimeContextMenu" id="9"/>
 					<ExtendedTooltip name="WorkScheduleEndTimeExtendedTooltip" id="16"/>
 				</InputField>
 			</ChildItems>

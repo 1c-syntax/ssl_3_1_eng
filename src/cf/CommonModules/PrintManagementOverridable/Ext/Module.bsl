@@ -125,9 +125,9 @@ EndProcedure
 //  OutputParameters - Structure - Print form output settings:
 //   * SendOptions - Structure - Interned for autofilling fields in the message creation form upon sending generated print forms by email 
 //                                     :
-//     ** Recipient - See EmailOperationsClient.EmailSendOptions.Recipient
-//     ** Subject       - See EmailOperationsClient.EmailSendOptions.Subject
-//     ** Text      - See EmailOperationsClient.EmailSendOptions.Text
+//     ** Recipient - 
+//     ** Subject       - 
+//     ** Text      - 
 //   * LanguageCode - String - a language in which the print form needs to be generated.
 //                         Consists of the ISO 639-1 language code and the ISO 3166-1 country code (optional)
 //                         separated by the underscore character. Examples: "en", "en_US", "en_GB", "ru", "ru_RU".
@@ -140,7 +140,7 @@ EndProcedure
 //  If PrintForm <> Undefined Then
 //    SpreadsheetDocument = New SpreadsheetDocument;
 //    SpreadsheetDocument.PrintParametersKey = "<PrintFormParametersSaveKey>"
-//    For Every Ref From ObjectsArray Do
+//    For Each Ref In ObjectsArray Do
 //      If SpreadsheetDocument.TableHeight > 0 Then
 //        SpreadsheetDocument.PutHorizontalPageBreak();
 //      EndIf;

@@ -144,13 +144,13 @@ Function FindTextInALine(Val String, Val Text, Font, Color, SearchConsideringLev
 	EndIf;
 	Result.Weight = Weight + (10 - StrSplit(String.DataPath, ".").Count()) * LevelWeight;
 	FormattedStrings.Add(CurrentSearchString);
-	Result.FormattedString = New FormattedString(FormattedStrings); // 
+	Result.FormattedString = New FormattedString(FormattedStrings); // ACC:1356 - A compound format string can be used as the string array consists of the passed text.
 	
 	Return Result;
 	
 EndFunction
 
-Procedure SortByColumn(FieldTree, Column, Direction = Undefined) Export
+Procedure DoSortByColumn(FieldTree, Column, Direction = Undefined) Export
 	Sort = New ValueList;
 	IndexByValues = New Map;
 	
@@ -166,7 +166,7 @@ Procedure SortByColumn(FieldTree, Column, Direction = Undefined) Export
 			Sort.Add(Value);
 		EndIf;
 		ValueStrings_.Add(Item);
-		SortByColumn(Item, Column);
+		DoSortByColumn(Item, Column);
 	EndDo;
 	
 	Sort.SortByValue(?(Direction = Undefined, SortDirection.Desc, Direction));
@@ -194,9 +194,9 @@ EndProcedure
 Function SearchResultsString(FieldTree, ShouldCreateString = True) Export
 	SearchResultsString = Undefined;
 	FieldsTreeElements = FieldTree.GetItems();
-	For Each String In FieldsTreeElements Do
-		If String.DataPath = "<SearchResultsString>" Then
-			SearchResultsString = String;
+	For Each TableRow In FieldsTreeElements Do
+		If TableRow.DataPath = "<SearchResultsString>" Then
+			SearchResultsString = TableRow;
 			Break;
 		EndIf;
 	EndDo;

@@ -160,7 +160,7 @@ Procedure ConfigureExchangeStep1(Message, Sender) Export
 	ConnectionSettings.Insert("ExchangePlanName", Body.ExchangePlan);
 	ConnectionSettings.Insert("SettingID", SettingID);
 	
-	ConnectionSettings.Insert("Description", ""); // 
+	ConnectionSettings.Insert("Description", ""); // Not required.
 	ConnectionSettings.Insert("CorrespondentDescription", Body.CorrespondentName);
 	
 	ConnectionSettings.Insert("Prefix",               Prefix);

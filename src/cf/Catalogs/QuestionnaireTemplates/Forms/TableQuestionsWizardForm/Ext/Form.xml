@@ -383,10 +383,10 @@
 																<xr:DataPath>QuestionForColumns</xr:DataPath>
 																<xr:LinkItem>0</xr:LinkItem>
 															</TypeLink>
-															<ContextMenu name="AnswersColumnsAnswersInRowsAndColumnsResponse1ContextMenu" id="118"/>
+															<ContextMenu name="AnswersColumnsAnswersInRowsAndColumnsResponseContextMenu" id="118"/>
 															<ExtendedTooltip name="AnswersColumnsAnswersInRowsAndColumnsResponseExtendedTooltip" id="169"/>
 															<Events>
-																<Event name="StartChoice">AnswersColumnsAnswersInRowsAndColumnsResponse1StartChoice</Event>
+																<Event name="StartChoice">AnswersColumnsAnswersInRowsAndColumnsResponseStartChoice</Event>
 															</Events>
 														</InputField>
 													</ChildItems>
@@ -497,10 +497,10 @@
 																<xr:DataPath>QuestionForRows</xr:DataPath>
 																<xr:LinkItem>0</xr:LinkItem>
 															</TypeLink>
-															<ContextMenu name="AnswersRowsAnswersInRowsAndColumnsResponse1ContextMenu" id="122"/>
+															<ContextMenu name="AnswersRowsAnswersInRowsAndColumnsResponseContextMenu" id="122"/>
 															<ExtendedTooltip name="AnswersRowsAnswersInRowsAndColumnsResponseExtendedTooltip" id="174"/>
 															<Events>
-																<Event name="StartChoice">AnswersRowsAnswersInRowsAndColumnsResponse1StartChoice</Event>
+																<Event name="StartChoice">AnswersRowsAnswersInRowsAndColumnsResponseStartChoice</Event>
 															</Events>
 														</InputField>
 													</ChildItems>
@@ -591,11 +591,11 @@
 													<DropListButton>false</DropListButton>
 													<ChoiceButton>true</ChoiceButton>
 													<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>
-													<ContextMenu name="QuestionsQuestionContextMenu" id="140"/>
+													<ContextMenu name="QuestionsDoQueryBoxContextMenu" id="140"/>
 													<ExtendedTooltip name="QuestionsDoQueryBoxExtendedTooltip" id="178"/>
 													<Events>
 														<Event name="OnChange">QuestionsOnChange</Event>
-														<Event name="ChoiceProcessing">QuestionsQuestionChoiceProcessing</Event>
+														<Event name="ChoiceProcessing">QuestionsDoQueryBoxChoiceProcessing</Event>
 													</Events>
 												</InputField>
 											</ChildItems>
@@ -718,10 +718,10 @@
 														<xr:DataPath>QuestionForColumns</xr:DataPath>
 														<xr:LinkItem>0</xr:LinkItem>
 													</TypeLink>
-													<ContextMenu name="AnswersColumnsAnswersInColumnsResponse1ContextMenu" id="114"/>
+													<ContextMenu name="AnswersColumnsAnswersInColumnsResponseContextMenu" id="114"/>
 													<ExtendedTooltip name="AnswersColumnsAnswersInColumnsResponseExtendedTooltip" id="184"/>
 													<Events>
-														<Event name="StartChoice">AnswersColumnsAnswersInColumnsResponse1StartChoice</Event>
+														<Event name="StartChoice">AnswersColumnsAnswersInColumnsResponseStartChoice</Event>
 													</Events>
 												</InputField>
 											</ChildItems>
@@ -864,10 +864,10 @@
 														<xr:DataPath>QuestionForRows</xr:DataPath>
 														<xr:LinkItem>0</xr:LinkItem>
 													</TypeLink>
-													<ContextMenu name="AnswersRowsAnswersInRowsResponse1ContextMenu" id="108"/>
+													<ContextMenu name="AnswersRowsAnswersInRowsResponseContextMenu" id="108"/>
 													<ExtendedTooltip name="AnswersRowsAnswersInRowsResponseExtendedTooltip" id="191"/>
 													<Events>
-														<Event name="StartChoice">AnswersRowsAnswersInRowsResponse1StartChoice</Event>
+														<Event name="StartChoice">AnswersRowsAnswersInRowsResponseStartChoice</Event>
 													</Events>
 												</InputField>
 											</ChildItems>

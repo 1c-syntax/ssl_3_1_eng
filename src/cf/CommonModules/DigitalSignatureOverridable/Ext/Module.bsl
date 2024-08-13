@@ -14,8 +14,9 @@
 //
 // Parameters:
 //  Settings - Structure:
-//   * IndividualUsed - Boolean - 
-//          See DefinedType.Individual
+//   * IndividualUsed - Boolean - By default, "True". In this case, the "Individual" attribute 
+//         with the type See DefinedType.Individual
+//                                           is displayed in the certificate card and the certificate application.
 //
 Procedure OnDefineSettings(Settings) Export
 	
@@ -41,8 +42,7 @@ EndProcedure
 //
 Procedure BeforeStartEditKeyCertificate(Ref, Certificate, AttributesParameters) Export
 	
-	// 
-	// 
+	
 	
 EndProcedure
 

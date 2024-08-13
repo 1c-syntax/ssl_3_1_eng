@@ -32,7 +32,7 @@
 					<Type>CommandBarButton</Type>
 					<DefaultButton>true</DefaultButton>
 					<CommandName>Form.StandardCommand.Choose</CommandName>
-					<ExtendedTooltip name="FormChooseExtendedTooltip" id="22"/>
+					<ExtendedTooltip name="FormSelectExtendedTooltip" id="22"/>
 				</Button>
 				<Button name="FormCreate" id="12">
 					<Type>CommandBarButton</Type>
@@ -200,29 +200,29 @@
 			</ContextMenu>
 			<AutoCommandBar name="ListCommandBar" id="3"/>
 			<ExtendedTooltip name="ListExtendedTooltip" id="32"/>
-			<SearchStringAddition name="ListSearchString_SSLy" id="44">
+			<SearchStringAddition name="ListSearchString" id="44">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchStringRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchString_SSLyContextMenu" id="45"/>
-				<ExtendedTooltip name="ListSearchString_SSLyExtendedTooltip" id="46"/>
+				<ContextMenu name="ListSearchStringContextMenu" id="45"/>
+				<ExtendedTooltip name="ListSearchStringExtendedTooltip" id="46"/>
 			</SearchStringAddition>
-			<ViewStatusAddition name="ListViewStatus_SSLy" id="47">
+			<ViewStatusAddition name="ListViewStatus" id="47">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>ViewStatusRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListViewStatus_SSLyContextMenu" id="48"/>
-				<ExtendedTooltip name="ListViewStatus_SSLyExtendedTooltip" id="49"/>
+				<ContextMenu name="ListViewStatusContextMenu" id="48"/>
+				<ExtendedTooltip name="ListViewStatusExtendedTooltip" id="49"/>
 			</ViewStatusAddition>
-			<SearchControlAddition name="ListSearchControl_SSLy" id="50">
+			<SearchControlAddition name="ListSearchControl" id="50">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchControl</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchControl_SSLyContextMenu" id="51"/>
-				<ExtendedTooltip name="ListSearchControl_SSLyExtendedTooltip" id="52"/>
+				<ContextMenu name="ListSearchControlContextMenu" id="51"/>
+				<ExtendedTooltip name="ListSearchControlExtendedTooltip" id="52"/>
 			</SearchControlAddition>
 			<Events>
 				<Event name="ValueChoice">ListValueChoice</Event>

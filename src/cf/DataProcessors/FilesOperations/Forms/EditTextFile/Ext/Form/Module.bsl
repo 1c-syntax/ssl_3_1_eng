@@ -378,7 +378,7 @@ Procedure SetCommandsAvailability()
 	Items.EndEdit.Enabled = EditMode;
 	Items.WriteAndClose.Enabled        = EditMode;
 	Items.Write.Enabled                = EditMode;
-	Items.FormSelectEncoding1.Enabled   = EditMode;
+	Items.FormSelectEncoding.Enabled   = EditMode;
 	
 	TitleRow = CommonClientServer.GetNameWithExtension(
 		FileData.FullVersionDescription, FileExtention());

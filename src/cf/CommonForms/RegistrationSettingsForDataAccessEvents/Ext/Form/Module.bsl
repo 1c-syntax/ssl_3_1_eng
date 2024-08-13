@@ -206,17 +206,16 @@ Procedure SelectObjects()
 	MetadataFilter.Add("Tasks");
 	MetadataFilter.Add("ExternalDataSources");
 	
-	FormParameters = New Structure;
-	FormParameters.Insert("MetadataObjectsToSelectCollection", MetadataFilter);
-	FormParameters.Insert("SelectedMetadataObjects", SelectedObjects);
-	FormParameters.Insert("UUIDSource", UUID);
-	FormParameters.Insert("SelectSingle", False);
-	FormParameters.Insert("ShouldSelectExternalDataSourceTables", True);
-	FormParameters.Insert("ObjectsGroupMethod", "ByKinds");
+	FormParameters = StandardSubsystemsClientServer.MetadataObjectsSelectionParameters();
+	FormParameters.MetadataObjectsToSelectCollection = MetadataFilter;
+	FormParameters.SelectedMetadataObjects = SelectedObjects;
+	FormParameters.UUIDSource = UUID;
+	FormParameters.SelectSingle = False;
+	FormParameters.ShouldSelectExternalDataSourceTables = True;
+	FormParameters.ObjectsGroupMethod = "ByKinds";
 	
 	NotifyDescription = New NotifyDescription("SelectObjectsCompletion", ThisObject);
-	
-	OpenForm("CommonForm.SelectMetadataObjects", FormParameters,,,,, NotifyDescription);
+	StandardSubsystemsClient.ChooseMetadataObjects(FormParameters, NotifyDescription);
 	
 EndProcedure
 
@@ -225,8 +224,7 @@ Procedure SelectObjectsCompletion(Result, AdditionalParameters) Export
 	
 	If Result <> Undefined Then
 		HandleSelected(Result.UnloadValues());
-		StandardSubsystemsClient.ExpandTreeNodes(ThisObject,
-			Items.Settings.Name,, True);
+		StandardSubsystemsClient.ExpandTreeNodes(ThisObject, Items.Settings.Name,, True);
 	EndIf;
 	
 EndProcedure
@@ -256,15 +254,15 @@ Procedure HandleSelected(SelectedTables)
 	EndDo;
 	
 	IndexOf = -1;
-	For Each SelectedTable In SelectedTables Do
-		RowColumn = TablesNames.Get(SelectedTable);
+	For Each Selected_Table In SelectedTables Do
+		RowColumn = TablesNames.Get(Selected_Table);
 		If RowColumn <> Undefined Then
 			IndexOf = IndexOf + 1;
 			ElementIndex = TablesItems.IndexOf(RowColumn);
 			TablesItems.Move(ElementIndex, IndexOf - ElementIndex);
 			Continue;
 		EndIf;
-		MetadataObject = Common.MetadataObjectByFullName(SelectedTable);
+		MetadataObject = Common.MetadataObjectByFullName(Selected_Table);
 		If MetadataObject = Undefined Then
 			Continue;
 		EndIf;

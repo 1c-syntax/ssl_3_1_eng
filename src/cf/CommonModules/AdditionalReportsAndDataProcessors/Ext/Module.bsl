@@ -933,7 +933,7 @@ Procedure OnFillToDoList(ToDoList) Export
 		ArrayVersion  = StrSplit(Metadata.Version, ".", True);
 		CurrentVersion = ArrayVersion[0] + ArrayVersion[1] + ArrayVersion[2];
 		If VersionChecked = CurrentVersion Then
-			OutputToDoItem = False; // 
+			OutputToDoItem = False; // Additional reports and data processors were checked on the current version.
 		EndIf;
 	EndIf;
 	
@@ -2641,7 +2641,7 @@ Procedure RegisterReportsAndDataProcessors(ReportsAndDataProcessors)
 		CatalogObject.ObjectName         = ExternalObjectMetadata.Name;
 		CatalogObject.FileName           = TableRow.FileName;
 		
-		// 
+		// Clearing and importing new commands.
 		For Each Command In CatalogObject.Commands Do
 			GUIDScheduledJob = JobsSearch.Get(Upper(Command.Id));
 			If GUIDScheduledJob <> Undefined Then
@@ -2691,8 +2691,8 @@ Procedure RegisterReportsAndDataProcessors(ReportsAndDataProcessors)
 			EndDo;
 		EndIf;
 		
-		// 
-		// 
+		// ACC:1327-off - The mechanism of updating additional reports and data processors from metadata.
+		// Competitive operations are not expected.
 		InfobaseUpdate.WriteObject(CatalogObject, , True);
 		// ACC:1327-on
 	EndDo;
@@ -2720,8 +2720,8 @@ Function RegisterDataProcessor(Val Object, Val RegistrationParameters) Export
 	KindAdditionalReport     = Enums.AdditionalReportsAndDataProcessorsKinds.AdditionalReport;
 	KindOfReport                   = Enums.AdditionalReportsAndDataProcessorsKinds.Report;
 	
-	// 
-	// 
+	// Gets a data processor file from temporary storage, tries to create an external report object,
+	// and gets information from the external data processor/report object.
 	If RegistrationParameters.DisableConflicts Then
 		For Each ListItem In RegistrationParameters.Conflicting Do
 			BeginTransaction();
@@ -3217,8 +3217,8 @@ Function VersionAsNumber(VersionAsString)
 	Result = Result * 1000 + Number;
 	Digit = Digit + 1;
 	
-	// 
-	// 
+	// The comma-delimited version numbers that follow the 4th dot.
+	// For example, if you pass "1.2.3.4.5.6.7", it returns "1002003004,005006007".
 	If Digit > 4 Then
 		Result = Result / Pow(1000, Digit - 4);
 	EndIf;

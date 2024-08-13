@@ -360,7 +360,7 @@ Procedure LinkedInteractionsExecute()
 
 EndProcedure
 
-// 
+// StandardSubsystems.Properties
 
 &AtClient
 Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined, StandardProcessing = Undefined)
@@ -425,7 +425,7 @@ Procedure OnCreateAndOnReadAtServer()
 	
 EndProcedure
 
-// 
+// StandardSubsystems.Properties
 
 &AtServer
 Procedure PropertiesExecuteDeferredInitialization()

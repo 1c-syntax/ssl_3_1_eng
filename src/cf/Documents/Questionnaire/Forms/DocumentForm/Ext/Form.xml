@@ -14,6 +14,7 @@
 	</AutoCommandBar>
 	<Events>
 		<Event name="AfterWrite">AfterWrite</Event>
+		<Event name="AfterWriteAtServer">AfterWriteAtServer</Event>
 		<Event name="OnReadAtServer">OnReadAtServer</Event>
 		<Event name="OnOpen">OnOpen</Event>
 		<Event name="BeforeClose">BeforeClose</Event>
@@ -150,7 +151,7 @@
 				<Button name="FormUndoPosting" id="219">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.StandardCommand.UndoPosting</CommandName>
-					<ExtendedTooltip name="FormCancelPostingExtendedTooltip" id="220"/>
+					<ExtendedTooltip name="FormUndoPostingExtendedTooltip" id="220"/>
 				</Button>
 				<Button name="FormSetDeletionMark" id="217">
 					<Type>CommandBarButton</Type>
@@ -488,7 +489,7 @@
 									<ShowInHeader>false</ShowInHeader>
 									<ShowInFooter>false</ShowInFooter>
 									<HorizontalStretch>false</HorizontalStretch>
-									<ContextMenu name="SectionsTreeWording1ContextMenu" id="73"/>
+									<ContextMenu name="SectionsTreeWordingContextMenu" id="73"/>
 									<ExtendedTooltip name="SectionsTreeWordingExtendedTooltip" id="138"/>
 								</LabelField>
 							</ChildItems>
@@ -578,7 +579,7 @@ Opening the section…</v8:content>
 										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
-									<ContextMenu name="TimeConsumingOperationPicture4ContextMenu" id="99"/>
+									<ContextMenu name="TimeConsumingProcessPictureContextMenu" id="99"/>
 									<ExtendedTooltip name="TimeConsumingProcessPictureExtendedTooltip" id="147"/>
 								</PictureDecoration>
 								<LabelDecoration name="WaitLabel" id="100">
@@ -614,7 +615,7 @@ Opening the section…</v8:content>
 			<Representation>NormalSeparation</Representation>
 			<ShowTitle>false</ShowTitle>
 			<BackColor>style:TableFooterBackColor</BackColor>
-			<ExtendedTooltip name="CommandBarGroupExtendedTooltip" id="230"/>
+			<ExtendedTooltip name="GroupCommandBarExtendedTooltip" id="230"/>
 			<ChildItems>
 				<CommandBar name="FooterCommandBar" id="176">
 					<Title>

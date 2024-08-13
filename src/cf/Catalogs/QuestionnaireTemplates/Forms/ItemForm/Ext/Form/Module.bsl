@@ -49,6 +49,10 @@ EndProcedure
 &AtClient
 Procedure NotificationProcessing(EventName, Parameter, Source)
 	
+	If Source <> ThisObject Then
+		Return;
+	EndIf;
+	
 	CurrentData = Items.QuestionnaireTreeForm.CurrentData;
 	If CurrentData = Undefined Then
 		Return;

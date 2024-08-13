@@ -189,22 +189,21 @@ EndProcedure
 &AtServer
 Procedure FillUserTaskTree(ViewSettings)
 	
-	ToDoList   = GetFromTempStorage(Parameters.ToDoList);
+	ToDoList       = GetFromTempStorage(Parameters.ToDoList);
+	ToDoTreeTemplate = FormAttributeToValue("DisplayedUserTasksTree");
+	
 	If ViewSettings.UserTasksTree.Columns.Count() = 0 Then
-		UserTasksTree = FormAttributeToValue("DisplayedUserTasksTree");
+		UserTasksTree = ToDoTreeTemplate;
 	Else
 		UserTasksTree = ViewSettings.UserTasksTree;
+		For Each Column In ToDoTreeTemplate.Columns Do
+			If UserTasksTree.Columns.Find(Column.Name) = Undefined Then
+				UserTasksTree.Columns.Add(Column.Name, Column.ValueType);
+			EndIf;
+		EndDo;
 	EndIf;
+	
 	UserTasksTree.Columns.Add("Validation", New TypeDescription("Boolean"));
-	If UserTasksTree.Columns.Find("OutputInNotifications") = Undefined Then
-		UserTasksTree.Columns.Add("OutputInNotifications", New TypeDescription("Boolean"));
-	EndIf;
-	If UserTasksTree.Columns.Find("IsHidden") = Undefined Then
-		UserTasksTree.Columns.Add("IsHidden", New TypeDescription("Boolean"));
-	EndIf;
-	If UserTasksTree.Columns.Find("Picture") = Undefined Then
-		UserTasksTree.Columns.Add("Picture", New TypeDescription("Picture"));
-	EndIf;
 	CurrentSection = "";
 	IndexOf        = 0;
 	ToDoItemIndex    = 0;
@@ -265,6 +264,7 @@ Procedure FillUserTaskTree(ViewSettings)
 			UserTaskRow.Check       = True;
 			UserTaskRow.IndexOf        = ToDoItemIndex;
 			UserTaskRow.IsHidden       = ToDoItem.HideInSettings;
+			UserTaskRow.Important        = ToDoItem.Important;
 			UserTaskRow.OutputInNotifications = ToDoItem.OutputInNotifications;
 			
 			If UserTaskRow.OutputInNotifications Then
@@ -283,6 +283,7 @@ Procedure FillUserTaskTree(ViewSettings)
 			
 			CurrentSection = ToDoItem.OwnerID;
 		Else
+			UserTaskRow.Important = ToDoItem.Important;
 			ToDoItemIndex = UserTaskRow.IndexOf + 1;
 		EndIf;
 		UserTaskRow.Validation = True;
@@ -399,6 +400,66 @@ Procedure SetConditionalAppearance()
 	ItemFilter.ComparisonType = DataCompositionComparisonType.Equal;
 	ItemFilter.RightValue = True;
 	Item.Appearance.SetParameterValue("Visible", False);
+	
+	//
+	Item = ConditionalAppearance.Items.Add();
+	
+	ItemField = Item.Fields.Items.Add();
+	ItemField.Field = New DataCompositionField(Items.DisplayedUserTasksTreeCheck.Name);
+	ItemField = Item.Fields.Items.Add();
+	ItemField.Field = New DataCompositionField(Items.DisplayedUserTasksTreePresentation.Name);
+	ItemField = Item.Fields.Items.Add();
+	ItemField.Field = New DataCompositionField(Items.DisplayedUserTasksTreePicture.Name);
+	
+	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
+	ItemFilter.LeftValue = New DataCompositionField("DisplayedUserTasksTree.Important");
+	ItemFilter.ComparisonType = DataCompositionComparisonType.Equal;
+	ItemFilter.RightValue = True;
+	Item.Appearance.SetParameterValue("TextColor", StyleColors.OverdueDataColor);
+	
+	//
+	Item = ConditionalAppearance.Items.Add();
+	
+	ItemField = Item.Fields.Items.Add();
+	ItemField.Field = New DataCompositionField(Items.DisplayedUserTasksTreeCheck.Name);
+	ItemField = Item.Fields.Items.Add();
+	ItemField.Field = New DataCompositionField(Items.DisplayedUserTasksTreePresentation.Name);
+	ItemField = Item.Fields.Items.Add();
+	ItemField.Field = New DataCompositionField(Items.DisplayedUserTasksTreePicture.Name);
+	
+	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
+	ItemFilter.LeftValue = New DataCompositionField("DisplayedUserTasksTree.IsSection");
+	ItemFilter.ComparisonType = DataCompositionComparisonType.Equal;
+	ItemFilter.RightValue = True;
+	Item.Appearance.SetParameterValue("Font", StyleFonts.ImportantLabelFont);
+	
+	//
+	Item = ConditionalAppearance.Items.Add();
+	
+	ItemField = Item.Fields.Items.Add();
+	ItemField.Field = New DataCompositionField(Items.DisplayedUserTasksTreeCheck.Name);
+	ItemField = Item.Fields.Items.Add();
+	ItemField.Field = New DataCompositionField(Items.DisplayedUserTasksTreePresentation.Name);
+	ItemField = Item.Fields.Items.Add();
+	ItemField.Field = New DataCompositionField(Items.DisplayedUserTasksTreePicture.Name);  
+	
+	DataFilterItemsGroup = Item.Filter.Items.Add(Type("DataCompositionFilterItemGroup"));
+	DataFilterItemsGroup.GroupType = DataCompositionFilterItemsGroupType.AndGroup;
+	DataFilterItemsGroup.Use = True;
+	
+	DataFilterItem = DataFilterItemsGroup.Items.Add(Type("DataCompositionFilterItem"));
+	DataFilterItem.LeftValue  = New DataCompositionField("DisplayedUserTasksTree.Important");
+	DataFilterItem.ComparisonType   = DataCompositionComparisonType.Equal;
+	DataFilterItem.RightValue = False;
+	DataFilterItem.Use  = True;
+	
+	DataFilterItem = DataFilterItemsGroup.Items.Add(Type("DataCompositionFilterItem"));
+	DataFilterItem.LeftValue  = New DataCompositionField("DisplayedUserTasksTree.IsSection");
+	DataFilterItem.ComparisonType   = DataCompositionComparisonType.Equal;
+	DataFilterItem.RightValue = False;
+	DataFilterItem.Use  = True;
+	
+	Item.Appearance.SetParameterValue("TextColor", StyleColors.HyperlinkColor);
 	
 EndProcedure
 

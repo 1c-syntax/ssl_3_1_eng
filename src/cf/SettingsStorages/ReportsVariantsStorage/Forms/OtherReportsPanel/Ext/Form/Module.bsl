@@ -69,7 +69,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Server call, Server.
 
 &AtServer
 Procedure SaveThisFormSettings()
@@ -82,7 +82,7 @@ Procedure SaveThisFormSettings()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Server
+// Server.
 
 &AtServer
 Procedure ReadThisFormSettings()
@@ -369,7 +369,7 @@ Function DetermineOutputGroup(SubsystemPresentation)
 	
 	NumberOfGroup = SubsystemsGroups.Count() + 1;
 	DecorationName = "IndentSubsystems" + NumberOfGroup;
-	GroupName_SSLy = "SubsystemsGroup1_" + NumberOfGroup;
+	GroupName = "SubsystemsGroup1_" + NumberOfGroup;
 	
 	If OtherReportsAvailable Then
 		Decoration = Items.Add(DecorationName, Type("FormDecoration"), Items.OtherReportsPage);
@@ -377,7 +377,7 @@ Function DetermineOutputGroup(SubsystemPresentation)
 		Decoration.Title = " ";
 	EndIf;
 	
-	Var_Group = Items.Add(GroupName_SSLy, Type("FormGroup"), Items.OtherReportsPage);
+	Var_Group = Items.Add(GroupName, Type("FormGroup"), Items.OtherReportsPage);
 	Var_Group.Type = FormGroupType.UsualGroup;
 	Var_Group.Group = ChildFormItemsGroup.Vertical;
 	Var_Group.Title = SubsystemPresentation;
@@ -385,7 +385,7 @@ Function DetermineOutputGroup(SubsystemPresentation)
 	Var_Group.Representation = UsualGroupRepresentation.NormalSeparation;
 	Var_Group.HorizontalStretch = True;
 	
-	SubsystemsGroups.Add(SubsystemPresentation, GroupName_SSLy);
+	SubsystemsGroups.Add(SubsystemPresentation, GroupName);
 	
 	Return Var_Group;
 EndFunction

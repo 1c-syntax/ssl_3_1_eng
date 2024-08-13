@@ -243,7 +243,7 @@
 		</Command>
 	</Commands>
 	<Parameters>
-		<Parameter name="SelectedItems">
+		<Parameter name="Selected_">
 			<Type/>
 		</Parameter>
 		<Parameter name="GroupsUser">

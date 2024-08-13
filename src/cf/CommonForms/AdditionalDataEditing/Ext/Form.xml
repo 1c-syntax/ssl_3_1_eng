@@ -198,7 +198,7 @@
 					<ContextMenu name="PropertyValueTableValueContextMenu" id="11"/>
 					<ExtendedTooltip name="PropertyValueTableValueExtendedTooltip" id="29"/>
 				</InputField>
-				<LabelField name="PropertyValueTableQuestionColumn" id="39">
+				<LabelField name="PropertyValueTableColumnQuestion" id="39">
 					<DataPath>PropertyValueTable.ColumnQuestion</DataPath>
 					<Title>
 						<v8:item>
@@ -215,8 +215,8 @@
 					<CellHyperlink>true</CellHyperlink>
 					<Width>2</Width>
 					<Hiperlink>true</Hiperlink>
-					<ContextMenu name="PropertyValueTableQuestionColumnContextMenu" id="40"/>
-					<ExtendedTooltip name="PropertyValueTableQuestionColumnExtendedTooltip" id="41"/>
+					<ContextMenu name="PropertyValueTableColumnQuestionContextMenu" id="40"/>
+					<ExtendedTooltip name="PropertyValueTableColumnQuestionExtendedTooltip" id="41"/>
 				</LabelField>
 			</ChildItems>
 		</Table>

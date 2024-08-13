@@ -28,7 +28,7 @@
 			<Synonym>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>BIC catalog</v8:content>
+					<v8:content>Bank codes catalog</v8:content>
 				</v8:item>
 			</Synonym>
 			<Comment>ACC58</Comment>
@@ -287,7 +287,7 @@
 					<xr:ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Bank identifier code</v8:content>
+							<v8:content>Domestic bank code</v8:content>
 						</v8:item>
 					</xr:ToolTip>
 					<xr:ExtendedEdit>false</xr:ExtendedEdit>
@@ -303,7 +303,7 @@
 					<xr:Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>BIC</v8:content>
+							<v8:content>Bank code</v8:content>
 						</v8:item>
 					</xr:Synonym>
 					<xr:Comment>Bank's BIC</xr:Comment>

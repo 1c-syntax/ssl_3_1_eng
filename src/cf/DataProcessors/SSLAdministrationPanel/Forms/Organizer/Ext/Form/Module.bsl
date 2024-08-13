@@ -186,7 +186,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Client
+// Client.
 
 &AtClient
 Procedure Attachable_OnChangeAttribute(Item, ShouldRefreshInterface = True)
@@ -291,7 +291,7 @@ Procedure NotifyPerformersAboutNewTasksUsageEmailAvailabilityCheckCompleted(Chec
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Server
+// Server.
 
 &AtServer
 Function OnChangeAttributeServer(TagName)

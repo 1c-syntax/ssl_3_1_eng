@@ -17,7 +17,7 @@
 				</Title>
 				<ExtendedTooltip name="FormOpenVersionExtendedTooltip" id="74"/>
 			</Button>
-			<Button name="FormOpenCard1" id="36">
+			<Button name="FormOpenCard" id="36">
 				<Type>CommandBarButton</Type>
 				<Representation>Text</Representation>
 				<SkipOnInput>false</SkipOnInput>
@@ -28,7 +28,7 @@
 						<v8:content>Open card</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="FormOpenCard1ExtendedTooltip" id="75"/>
+				<ExtendedTooltip name="FormOpenCardExtendedTooltip" id="75"/>
 			</Button>
 			<Button name="FormMakeActive" id="35">
 				<Type>CommandBarButton</Type>
@@ -270,29 +270,29 @@
 			</ContextMenu>
 			<AutoCommandBar name="ListCommandBar" id="22"/>
 			<ExtendedTooltip name="ListExtendedTooltip" id="89"/>
-			<SearchStringAddition name="ListSearchString_SSLy" id="99">
+			<SearchStringAddition name="ListSearchString" id="99">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchStringRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchString_SSLyContextMenu" id="100"/>
-				<ExtendedTooltip name="ListSearchString_SSLyExtendedTooltip" id="101"/>
+				<ContextMenu name="ListSearchStringContextMenu" id="100"/>
+				<ExtendedTooltip name="ListSearchStringExtendedTooltip" id="101"/>
 			</SearchStringAddition>
-			<ViewStatusAddition name="ListViewStatus_SSLy" id="102">
+			<ViewStatusAddition name="ListViewStatus" id="102">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>ViewStatusRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListViewStatus_SSLyContextMenu" id="103"/>
-				<ExtendedTooltip name="ListViewStatus_SSLyExtendedTooltip" id="104"/>
+				<ContextMenu name="ListViewStatusContextMenu" id="103"/>
+				<ExtendedTooltip name="ListViewStatusExtendedTooltip" id="104"/>
 			</ViewStatusAddition>
-			<SearchControlAddition name="ListSearchControl_SSLy" id="105">
+			<SearchControlAddition name="ListSearchControl" id="105">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchControl</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchControl_SSLyContextMenu" id="106"/>
-				<ExtendedTooltip name="ListSearchControl_SSLyExtendedTooltip" id="107"/>
+				<ContextMenu name="ListSearchControlContextMenu" id="106"/>
+				<ExtendedTooltip name="ListSearchControlExtendedTooltip" id="107"/>
 			</SearchControlAddition>
 			<Events>
 				<Event name="Selection">ListSelection</Event>
@@ -309,7 +309,7 @@
 							<v8:content>Vertical</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="VerticalGroup5ExtendedTooltip" id="115"/>
+					<ExtendedTooltip name="GroupVerticalExtendedTooltip" id="115"/>
 					<ChildItems>
 						<ColumnGroup name="MainGroup3" id="116">
 							<Title>
@@ -365,8 +365,8 @@
 									<EditMode>EnterOnInput</EditMode>
 									<Width>15</Width>
 									<HorizontalStretch>false</HorizontalStretch>
-									<ContextMenu name="ListCreationDate1ContextMenu" id="54"/>
-									<ExtendedTooltip name="ListCreationDate1ExtendedTooltip" id="96"/>
+									<ContextMenu name="ListCreationDateContextMenu" id="54"/>
+									<ExtendedTooltip name="ListCreationDateExtendedTooltip" id="96"/>
 								</InputField>
 								<InputField name="ListSize" id="55" DisplayImportance="Usual">
 									<DataPath>List.Size</DataPath>

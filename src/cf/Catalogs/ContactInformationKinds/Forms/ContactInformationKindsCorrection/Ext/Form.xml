@@ -153,7 +153,7 @@ Please wait…</v8:content>
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Corrected %1 of %2.</v8:content>
+									<v8:content>Corrected %1 out of %2.</v8:content>
 								</v8:item>
 							</Title>
 							<ContextMenu name="TextCorrectionTotalsContextMenu" id="42"/>
@@ -164,8 +164,8 @@ Please wait…</v8:content>
 								<v8:item>
 									<v8:lang>en</v8:lang>
 									<v8:content>If fixing did not help, do the following:
-• Start Designer, open &lt;b&gt;Administration&lt;/&gt; - &lt;b&gt;Verify and Repair&lt;/&gt; menu, select the check boxes for logical integrity check and referential integrity check
- For more information, see ITS:&lt;link https://its.1c.ru/db/v83doc#bookmark:adm:TI000000142&gt;https://its.1c.ru/db/v83doc#bookmark:adm:TI000000142&lt;/&gt;
+• Start Designer, open the &lt;b&gt;Administration&lt;/&gt; – &lt;b&gt;Verify and repair&lt;/&gt; menu, and select checkboxes for the logical integrity check and the referential integrity check.
+ For more information, see &lt;link https://kb.1ci.com/1C_Enterprise_Platform/Guides/Administrator_Guides/1C_Enterprise_8.3.22_Administrator_Guide/Chapter_6._Infobase_administration/6.10._Verifying_and_repairing_an_infobase/&gt;1C:Enterprise Administrator Guide&lt;/&gt;
 •  Wait for verification and repair to complete, and unlock the application.
 
 For technical specialists:

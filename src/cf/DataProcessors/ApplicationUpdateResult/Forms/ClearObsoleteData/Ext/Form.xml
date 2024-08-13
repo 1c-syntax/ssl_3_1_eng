@@ -43,7 +43,7 @@
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="NoteGroupExtendedTooltip" id="43"/>
+					<ExtendedTooltip name="GroupRemarkExtendedTooltip" id="43"/>
 					<ChildItems>
 						<PictureDecoration name="ExplanationPicture" id="36">
 							<Title formatted="false">
@@ -95,8 +95,8 @@
 								<xr:Ref>CommonPicture.Warning32</xr:Ref>
 								<xr:LoadTransparent>false</xr:LoadTransparent>
 							</Picture>
-							<ContextMenu name="WarningPicture2ContextMenu" id="95"/>
-							<ExtendedTooltip name="WarningPicture2ExtendedTooltip" id="96"/>
+							<ContextMenu name="AttentionPictureContextMenu" id="95"/>
+							<ExtendedTooltip name="AttentionPictureExtendedTooltip" id="96"/>
 						</PictureDecoration>
 						<LabelDecoration name="AttentionLabel" id="97">
 							<Width>50</Width>

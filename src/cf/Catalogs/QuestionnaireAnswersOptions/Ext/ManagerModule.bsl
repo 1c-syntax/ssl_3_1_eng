@@ -16,8 +16,8 @@
 
 // StandardSubsystems.BatchEditObjects
 
-// Returns object attributes that can be edited using the bulk attribute modification data processor.
-// 
+// Returns object attributes that can be edited using
+// the bulk attribute modification data processor.
 //
 // Returns:
 //  Array of String

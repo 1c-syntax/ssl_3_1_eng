@@ -22,7 +22,7 @@
 						<v8:content>Search</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="SearchGroupExtendedTooltip" id="69"/>
+				<ExtendedTooltip name="GroupSearchExtendedTooltip" id="69"/>
 				<ChildItems>
 					<Button name="FormFind" id="58">
 						<Type>CommandBarButton</Type>

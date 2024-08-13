@@ -129,13 +129,13 @@ Procedure InitializeReportHeaders(Form) Export
 	
 EndProcedure
 
-// See NationalLanguageSupportServer.ObjectsSCHRepresentations
+// 
 Procedure OnDefineObjectsWithTablePresentation(Objects) Export
 	Objects.Add("Catalog.ReportsOptions");
 	Objects.Add("Catalog.PredefinedExtensionsReportsOptions");
 EndProcedure
 
-// See NationalLanguageSupportServer.ObjectsSCHRepresentations
+// 
 Procedure OnDefineObjectsWithTablePresentationCommonData(Objects) Export
 	Objects.Add("Catalog.PredefinedReportsOptions");
 EndProcedure
@@ -1375,7 +1375,6 @@ Procedure FillReportHeaderLayoutProperties(SchemaURL, IndexOfTheReportStructure)
 		For Each Template In LayoutsByType Do 
 			
 			GroupingIndex = IndexOfTheReportStructure.Find(Template.GroupName, "GroupName");
-			
 			If GroupingIndex = Undefined Then 
 				Continue;
 			EndIf;
@@ -1386,16 +1385,12 @@ Procedure FillReportHeaderLayoutProperties(SchemaURL, IndexOfTheReportStructure)
 				Continue;
 			EndIf;
 			
-			For Each String In TemplateDetails.Template Do 
-				
-				For Each Cell In String.Cells Do 
-					
+			For Each TableRow In TemplateDetails.Template Do 
+				For Each Cell In TableRow.Cells Do 
 					If Cell.Items.Count() > 0 Then 
 						GroupingIndex.Text = Cell.Items[0].Value;
 					EndIf;
-					
 				EndDo;
-				
 			EndDo;
 			
 		EndDo;

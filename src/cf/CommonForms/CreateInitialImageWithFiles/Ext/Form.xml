@@ -122,10 +122,10 @@
 									</xr:Value>
 								</xr:Item>
 							</ChoiceList>
-							<ContextMenu name="InfobaseTypeContextMenu" id="2"/>
+							<ContextMenu name="InfobaseKindContextMenu" id="2"/>
 							<ExtendedTooltip name="InfobaseKindExtendedTooltip" id="51"/>
 							<Events>
-								<Event name="OnChange">InfobaseTypeOnChange</Event>
+								<Event name="OnChange">InfobaseKindOnChange</Event>
 							</Events>
 						</RadioButtonField>
 						<UsualGroup name="Parameters" id="3">
@@ -287,7 +287,7 @@
 																	<v8:content>Infobase name in cluster</v8:content>
 																</v8:item>
 															</Title>
-															<ContextMenu name="DatabaseName_SSLyContextMenu" id="12"/>
+															<ContextMenu name="BaseNameContextMenu" id="12"/>
 															<ExtendedTooltip name="BaseNameExtendedTooltip" id="61"/>
 														</InputField>
 														<InputField name="SecureConnection" id="13">
@@ -659,8 +659,8 @@
 								</v8:item>
 							</Title>
 							<TitleLocation>None</TitleLocation>
-							<ContextMenu name="ProgressAdditionalInformation1ContextMenu" id="92"/>
-							<ExtendedTooltip name="ProgressAdditionalInformation1ExtendedTooltip" id="93"/>
+							<ContextMenu name="ImportProgressAdditionalInformationContextMenu" id="92"/>
+							<ExtendedTooltip name="ImportProgressAdditionalInformationExtendedTooltip" id="93"/>
 						</LabelField>
 					</ChildItems>
 				</Page>

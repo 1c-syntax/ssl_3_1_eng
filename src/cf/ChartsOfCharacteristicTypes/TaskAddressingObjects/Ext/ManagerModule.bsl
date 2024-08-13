@@ -104,7 +104,7 @@ Procedure OnSetUpInitialItemsFilling(Settings) Export
 	
 EndProcedure
 
-// See also InfobaseUpdateOverridable.OnInitialItemFilling
+// See also InfobaseUpdateOverridable.OnInitialItemsFilling
 // 
 // Parameters:
 //   LanguagesCodes - See InfobaseUpdateOverridable.OnInitialItemsFilling.LanguagesCodes
@@ -134,7 +134,7 @@ EndProcedure
 //  Object                  - Object to populate.
 //  Data                  - ValueTableRow - object filling data.
 //  AdditionalParameters - Structure:
-//   * PredefinedData - ValueTable - Data filled in the OnInitialItemsFilling procedure.
+//   * PredefinedData - ValueTable - Data populated in the OnInitialItemsFilling procedure.
 //
 Procedure OnInitialItemFilling(Object, Data, AdditionalParameters) Export
 	

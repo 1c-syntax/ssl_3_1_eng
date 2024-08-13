@@ -223,12 +223,10 @@ Procedure PerformerOnChange(Item)
 
 			ChoiceContext = "PerformerOnChange";
 
-			FormParameters = New Structure;
-			FormParameters.Insert("PerformerRole", Object.Performer);
-			FormParameters.Insert("MainAddressingObject", MainAddressingObject);
-			FormParameters.Insert("AdditionalAddressingObject", AdditionalAddressingObject);
-
-			OpenForm("CommonForm.SelectPerformerRole", FormParameters, ThisObject);
+			FormParameters = BusinessProcessesAndTasksClient.PerformerRoleChoiceFormParameters(Object.Performer,
+				MainAddressingObject, AdditionalAddressingObject);
+	
+			BusinessProcessesAndTasksClient.OpenPerformerRoleChoiceForm(FormParameters, ThisObject);
 
 			Return;
 
@@ -298,12 +296,10 @@ Procedure SupervisorOnChange(Item)
 
 			ChoiceContext = "SupervisorOnChange";
 
-			FormParameters = New Structure;
-			FormParameters.Insert("PerformerRole", Object.Supervisor);
-			FormParameters.Insert("MainAddressingObject", MainAddressingObject);
-			FormParameters.Insert("AdditionalAddressingObject", AdditionalAddressingObject);
-
-			OpenForm("CommonForm.SelectPerformerRole", FormParameters, ThisObject);
+			FormParameters = BusinessProcessesAndTasksClient.PerformerRoleChoiceFormParameters(Object.Supervisor,
+				MainAddressingObject, AdditionalAddressingObject);
+	
+			BusinessProcessesAndTasksClient.OpenPerformerRoleChoiceForm(FormParameters, ThisObject);
 
 		EndIf;
 
@@ -346,7 +342,7 @@ Procedure SupervisorTextEditEnd(Item, Text, ChoiceData, StandardProcessing)
 EndProcedure
 
 &AtClient
-Procedure DueDateOnChange(Item)
+Procedure TaskDueDateOnChange(Item)
 	If Object.TaskDueDate = BegOfDay(Object.TaskDueDate) Then
 		Object.TaskDueDate = EndOfDay(Object.TaskDueDate);
 	EndIf;

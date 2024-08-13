@@ -227,7 +227,7 @@ Function FormattedString(Text)
 		EndIf;
 	EndDo;
 	
-	Return New FormattedString(FormattedStrings); // 
+	Return New FormattedString(FormattedStrings); // ACC:1356 Does not prevent translating into other languages.
 	
 EndFunction
 

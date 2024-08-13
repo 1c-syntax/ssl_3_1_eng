@@ -85,7 +85,7 @@ Function IAMToken()
 	
 	If Not ValueIsFilled(TokenParameters.IAMToken) 
 		Or Not ValueIsFilled(TokenParameters.ValidityPeriod)
-		Or TokenParameters.ValidityPeriod <= ToUniversalTime(CurrentDate()) Then // 
+		Or TokenParameters.ValidityPeriod <= ToUniversalTime(CurrentDate()) Then // ACC:143
 		TokenParameters = NewIAMToken();
 		SetPrivilegedMode(True);
 		Owner = Common.MetadataObjectID("Constant.TextTranslationService");

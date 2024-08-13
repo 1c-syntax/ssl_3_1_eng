@@ -69,8 +69,16 @@ Procedure OnCreateAtServer(Form, Val PlacementParameters = Undefined) Export
 	If HasListParameters <> HasObjectParameters Then
 		IsObjectForm = HasObjectParameters;
 	EndIf;
-	// 
-	// 
+	
+	If IsObjectForm = Undefined Then
+		FormAttributes = Form.GetAttributes();
+		If FormAttributes.Count() > 0 And FormAttributes[0].ValueType = New TypeDescription("DynamicList") Then
+			IsObjectForm = False;
+		EndIf;
+	EndIf;
+	
+	// Cannot get metadata from external reports and data processors by form name only.
+	// Therefore, define the command sources prior to calling "Cached".
 	If SourcesCommaSeparated = "" And SpecifyCommandsSources(FormName) Then
 		If HasObjectParameters Then
 			MetadataObject = Metadata.FindByType(TypeOf(Parameters.Key));
@@ -422,7 +430,8 @@ Function RegisterSource(MetadataObject, Sources, AttachedObjects, InterfaceSetti
 			EndIf;
 		EndDo;
 		Source.DataRefType = New TypeDescription(TypesArray);
-	ElsIf Not Metadata.DataProcessors.Contains(MetadataObject) And Not Metadata.Reports.Contains(MetadataObject) Then
+	ElsIf Not Metadata.DataProcessors.Contains(MetadataObject) And Not Metadata.Reports.Contains(MetadataObject)
+		 And Not Metadata.InformationRegisters.Contains(MetadataObject) Then
 		Source.DataRefType = Type(Source.Kind + "Ref." + MetadataObject.Name);
 	EndIf;
 	
@@ -947,7 +956,23 @@ Procedure OutputCommands(Form, Commands, PlacementParameters)
 		Popup = SubmenuInfo.Popup; // FormGroup
 		
 		If Not IsCommandBar Then
-			If Not (SubmenuInfo.CommandsCount = 1 And FormCommand <> Undefined) Then
+			If SubmenuInfo.CommandsCount = 1 And FormCommand <> Undefined Then
+				// Submenu turns to button when 1 command with a short title is displayed.
+				If Not ValueIsFilled(FormCommand.Picture) And Popup.Type = FormGroupType.Popup Then
+					FormCommand.Picture = Popup.Picture;
+				EndIf;
+				
+				If Not ValueIsFilled(FormCommand.Picture) Then
+					FormCommand.Picture = SubmenuInfo.SubmenuImage;
+				EndIf;			
+				
+				If StrLen(FormCommand.Title) <= 35 And Popup.Representation <> ButtonRepresentation.Picture Then
+					FormCommand.Representation = ButtonRepresentation.PictureAndText;
+				Else
+					FormCommand.Representation = ButtonRepresentation.Picture;
+				EndIf;
+				FormCommand.ToolTip = FormCommand.Title;
+			Else
 				// Adding cap buttons that are shown when all commands are hidden in the submenu.
 				CapCommandName = Popup.Name + "Stub";
 				If Items.Find(CapCommandName) = Undefined Then
@@ -1034,11 +1059,16 @@ EndFunction
 Function PlacementParametersKey(Val PlacementParameters)
 	
 	PlacementParameters = Common.CopyRecursive(PlacementParameters);
+	PlacementParameters.Delete("IsObjectForm");
+	
 	FormGroup = PlacementParameters.CommandBar;
+	
 	If TypeOf(FormGroup) = Type("FormGroup") Then
 		PlacementParameters.CommandBar = FormGroup.Name;
 	EndIf;
+	
 	Sources = New Array;
+	
 	If TypeOf(PlacementParameters.Sources) = Type("Array") Then
 		For Each MetadataObject In PlacementParameters.Sources Do
 			Sources.Add(MetadataObject.FullName());
@@ -1565,8 +1595,8 @@ Function CommandsTable()
 	Table.Columns.Add("Purpose", New TypeDescription("String"));
 	Table.Columns.Add("FunctionalOptions", New TypeDescription("String"));
 	Table.Columns.Add("VisibilityConditions", New TypeDescription("Array"));
-	Table.Columns.Add("ChangesSelectedObjects"); // 
-	// 
+	Table.Columns.Add("ChangesSelectedObjects"); // Boolean or Undefined.
+	// Runtime settings:
 	Table.Columns.Add("MultipleChoice"); // Boolean or Undefined.
 	Table.Columns.Add("WriteMode", New TypeDescription("String"));
 	Table.Columns.Add("FilesOperationsRequired", New TypeDescription("Boolean"));

@@ -16,7 +16,7 @@
 			<Button name="FormClose" id="9">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.Close</CommandName>
-				<ExtendedTooltip name="FormClose3ExtendedTooltip" id="10"/>
+				<ExtendedTooltip name="FormCloseExtendedTooltip" id="10"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>

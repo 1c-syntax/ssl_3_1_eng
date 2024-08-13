@@ -117,7 +117,7 @@ Procedure BeforeCloseAtServer()
 	RecordManager.InfobaseNode = InfobaseNode;
 	RecordManager.UniqueKey = InformationRegisterRecordUniqueKey;
 	
-	RecordManager.Read(); // 
+	RecordManager.Read(); // Read data to save the attributes that won't be passed to the form.
 	If Not RecordManager.Selected() Then
 		
 		// Use case: A user opened the warning dialog and fixed the issue.

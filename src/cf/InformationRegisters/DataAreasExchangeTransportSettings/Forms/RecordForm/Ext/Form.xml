@@ -52,8 +52,8 @@
 							<ContextMenu name="FILEDataExchangeDirectoryContextMenu" id="9"/>
 							<ExtendedTooltip name="FILEDataExchangeDirectoryExtendedTooltip" id="107"/>
 							<Events>
-								<Event name="StartChoice">FILEInformationExchangeDirectoryStartChoice</Event>
-								<Event name="Opening">FILEInformationExchangeDirectoryOpening</Event>
+								<Event name="StartChoice">FILEDataExchangeDirectoryStartChoice</Event>
+								<Event name="Opening">FILEDataExchangeDirectoryOpening</Event>
 							</Events>
 						</InputField>
 						<Button name="TestFILEConnection" id="42">

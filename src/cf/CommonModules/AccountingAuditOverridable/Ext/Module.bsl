@@ -101,7 +101,7 @@ EndProcedure
 //      Check.Reasons = NStr("en='Comment is not entered in the document."');
 //      Check.Recommendation = NStr("en='Enter comment to the document.'");
 //      Check.ID = "CheckCommentInGoodsReceipt";
-//      Check.CheckHandler = "_DemoStandardSubsystems.CheckCommentInGoodsReceipt";
+//      Check.CheckHandler = "StandardSubsystems.CheckCommentInGoodsReceipt";
 //      Check.CheckStartDate = Date('20140101000000');
 //      Check.IssuesLimit = 3;
 //   2) Adding a group of checks
@@ -226,11 +226,11 @@ EndProcedure
 // Example:
 //   Check = Checks.Add();
 //   Check.GroupID = "SystemChecks";
-//   Check.Description        = NStr("en='Demo: Check of filling the comment in the ""Demo: Goods receipt""'" documents);
+//   Check.Description        = NStr("en='Check of filling the comment in the ""Goods receipt""'" documents);
 //   Check.Reasons            = NStr("en='Comment is not entered in the document."');
 //   Check.Recommendation        = NStr("en='Enter comment to the document.'");
 //   Check.ID       = "CheckCommentInGoodsReceipt";
-//   Check.CheckHandler  = "_DemoStandardSubsystems.CheckCommentInGoodsReceipt";
+//   Check.CheckHandler  = "StandardSubsystems.CheckCommentInGoodsReceipt";
 //   Check.CheckStartDate  = Date('20140101000000');
 //   Check.IssuesLimit        = 3;
 //

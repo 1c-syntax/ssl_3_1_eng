@@ -144,7 +144,7 @@ EndProcedure
 //
 // Parameters:
 //  MeasurementUUID 			- UUID - a measurement UUID.
-//  KeyOperation	- String - a key operation name.
+//  KeyOperation	- String - The name of a key operation.
 //
 // If the key operation name is not yet known at the time of measurement,
 // this procedure can be used to
@@ -162,7 +162,7 @@ EndProcedure
 // &AtClient
 // Procedure AfterRecord(RecordParameters)
 //	If RecordParameters.RecordMode = DocumentRecordMode.Posting Then
-//		PerformanceMonitorClient.SetMeasurementKeyOperation(MeasurementIDPosting, "_DemoDocumentPosting");
+//		PerformanceMonitorClient.SetMeasurementKeyOperation(MeasurementIDPosting, "DocumentPosting");
 //	EndIf;
 // EndProcedure
 //
@@ -572,7 +572,7 @@ Procedure StartTimeMeasurementAtClientInternal(Parameters)
 			DateAndTimeAtClient = CurrentUniversalDateInMilliseconds();
 			TimeMeasurements.ClientDateOffset = DateAndTimeAtServer - DateAndTimeAtClient;
 		Else
-			CurrentRecordingPeriod = Undefined; // 
+			CurrentRecordingPeriod = Undefined; // See "BeforeRecurringClientDataSendToServer".
 			StandardSubsystemsApplicationParameters = ApplicationParameters[StandardSubsystemsParameterName];
 			If StandardSubsystemsApplicationParameters.Property("PerformanceMonitor") Then
 				TimeMeasurements.ClientDateOffset = StandardSubsystemsApplicationParameters["ClientDateOffset"];

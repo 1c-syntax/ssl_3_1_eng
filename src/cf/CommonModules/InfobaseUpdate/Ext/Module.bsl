@@ -224,7 +224,9 @@ Procedure CheckObjectProcessed(Data, Form = Undefined, DeferredHandlerName = "",
 		EndIf;
 		
 		Form.ReadOnly = True;
-		Form.Commands.Add("IBVersionUpdate_ObjectLocked");
+		If Form.Commands.Find("IBVersionUpdate_ObjectLocked") = Undefined Then
+			Form.Commands.Add("IBVersionUpdate_ObjectLocked");
+		EndIf;
 		Common.MessageToUser(Result.ExceptionText);
 		Return;
 	EndIf;
@@ -313,7 +315,7 @@ Function ObjectProcessed(Data) Export
 	If MetadataAndFilter <> Undefined
 		And AvailableToEdit <> Undefined
 		And AvailableToEdit.Find(MetadataAndFilter.Filter) <> Undefined Then
-		Return Result; // 
+		Return Result; // The object is unlocked and can be modified.
 	EndIf;
 	
 	BlockUpdate = False;
@@ -373,8 +375,8 @@ Function ObjectProcessed(Data) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
-// 
+// Procedures and functions intended for deferred update handlers
+// whose operation mode is set to "Parallel".
 //
 
 // Checking that the passed data is updated.
@@ -448,7 +450,7 @@ Procedure MarkProcessingCompletion(Data, AdditionalParameters = Undefined, Queue
 		
 	Else
 		If TypeOf(Data) = Type("MetadataObject") Then
-			ExceptionText = NStr("en = 'Setting ""update processing completed"" flag to an entire metadata object is not supported. This flag can be set to specific data.';");
+			ExceptionText = NStr("en = 'Setting ""update processing completed"" flag to an entire metadata object is not supported. This flag can be set to specific data.';");
 			Raise ExceptionText;
 		EndIf;
 		
@@ -1009,16 +1011,16 @@ EndProcedure
 // Get the AdditionalDataSources parameter value from the structure returned by
 // the AdditionalProcessingDataSelectionParameters() function.
 //
-// It can be used when the data sources must be get by documents and registers.
-// Applied by multithread updating.
+// It can be used when the data sources need to be retrieved by document or register.
+// Applied for multithreaded updates.
 //
 // Parameters:
 //  AdditionalDataSources - See AdditionalProcessingDataSelectionParameters
-//  Object - String - document name (full or short).
-//  Register - String - register name (full or short).
+//  Object - String - Document name (full or short).
+//  Register - String - Register name (full or short).
 //
 // Returns:
-//  Map - data sources for the specified document and register.
+//  Map - Data sources for the specified document and register.
 //
 Function DataSources(AdditionalDataSources, Object = "", Register = "") Export
 	
@@ -3851,7 +3853,7 @@ EndFunction
 //     - A enumeration member. For example, "Enum.BusinessTransactions.DeleteWriteOffGoodsTransferredToPartners".
 //     - A route point. For example, "BusinessProcess.Job.RoutePoint.DeleteReturnToAssignee".
 //     - All points of a route. For example, "BusinessProcess.Job.Points".
-//     - A register field included in a unique index. For example, "InformationRegister._DemoPersonsResponsible.Warehouse".
+//     - A register field included in a unique index. For example, "InformationRegister.PersonsResponsible.Warehouse".
 //
 //  Refinement - Boolean - In cases where the "Object" parameter contains an obsolete object.
 //               The object's name must start with "Delete".
@@ -4290,7 +4292,9 @@ Procedure RelaunchDeferredUpdate(Filter = Undefined) Export
 	UpdateInfo.CurrentUpdateIteration = 1;
 	InfobaseUpdateInternal.WriteInfobaseUpdateInfo(UpdateInfo);
 	
-	Constants.OrderOfDataToProcess.Set(Enums.OrderOfUpdateHandlers.Crucial);
+	If Not Common.DataSeparationEnabled() Then
+		Constants.OrderOfDataToProcess.Set(Enums.OrderOfUpdateHandlers.Crucial);
+	EndIf;
 	
 	Constants.DeferredUpdateCompletedSuccessfully.Set(False);
 	If Not Common.IsSubordinateDIBNode() Then
@@ -4388,7 +4392,7 @@ Procedure FileIssueWithData(ObjectWithIssue, IssueSummary, Parameters = Undefine
 	
 EndProcedure
 
-// Allows to toggle deferred update. Out-of-the-box, controls the "Usage" flag of scheduled job DeferredIBUpdate.
+// Allows you to toggle deferred update. In on-prem, controls the "Use" flag of the DeferredIBUpdate scheduled job.
 // In SaaS, controls the queue job.
 //
 // Parameters:
@@ -5041,8 +5045,8 @@ EndProcedure
 Procedure DeleteRegistrationOfDataItemChanges(Data, DeletionParameters)
 	
 	If DeletionParameters.BatchRegistrationIsAvailable Then
-		DeletionParameters.DataToDelete_SSLy.Add(Data);
-		DeleteRegistrationOfDataPackageChanges(DeletionParameters, DeletionParameters.DataToDelete_SSLy);
+		DeletionParameters.DataToDelete.Add(Data);
+		DeleteRegistrationOfDataPackageChanges(DeletionParameters, DeletionParameters.DataToDelete);
 	Else
 		ExchangePlans.DeleteChangeRecords(DeletionParameters.Node, Data);
 		ReleaseTheReusedSetsInTheParameters(DeletionParameters);
@@ -5058,7 +5062,7 @@ EndProcedure
 Procedure CompleteDeletionOfDataPortionRegistration(DeletionParameters)
 	
 	If DeletionParameters.BatchRegistrationIsAvailable Then
-		DeleteRegistrationOfDataPackageChanges(DeletionParameters, DeletionParameters.DataToDelete_SSLy, True);
+		DeleteRegistrationOfDataPackageChanges(DeletionParameters, DeletionParameters.DataToDelete, True);
 	EndIf;
 	
 EndProcedure
@@ -5178,7 +5182,7 @@ EndFunction
 //  Structure:
 //   * Node - ExchangePlanRef.InfobaseUpdate
 //   * FullObjectName - String
-//   * DataToDelete_SSLy - Array
+//   * DataToDelete - Array
 //   * ObjectManager - DocumentManager
 //                     - CatalogManager
 //                     - ChartOfCharacteristicTypesManager
@@ -5197,7 +5201,7 @@ Function NewParametersForDeletingRegistration(Node, FullObjectName = "")
 	DeletionParameters = New Structure;
 	DeletionParameters.Insert("Node", Node);
 	DeletionParameters.Insert("FullObjectName", FullObjectName);
-	DeletionParameters.Insert("DataToDelete_SSLy", New Array);
+	DeletionParameters.Insert("DataToDelete", New Array);
 	DeletionParameters.Insert("BatchRegistrationIsAvailable", True);
 	
 	ObjectManager = Undefined;
@@ -5229,7 +5233,7 @@ EndFunction
 //  Structure:
 //   * Sets - Array - reused sets.
 //   * CreatedOn - Number - number of created sets.
-//   * Issued_SSLy - Number - number of issued sets.
+//   * Issued - Number - number of issued sets.
 //
 Function NewReusedSets(Manager, Size = 1000)
 	
@@ -5237,7 +5241,7 @@ Function NewReusedSets(Manager, Size = 1000)
 	ReusedObjects.Insert("Manager", Manager);
 	ReusedObjects.Insert("Sets", New Array(Size));
 	ReusedObjects.Insert("CreatedOn", 0);
-	ReusedObjects.Insert("Issued_SSLy", 0);
+	ReusedObjects.Insert("Issued", 0);
 	
 	Return ReusedObjects;
 	
@@ -5256,7 +5260,7 @@ EndFunction
 //
 Function GetAReusedSet(ReusedSets)
 	
-	If ReusedSets.CreatedOn = ReusedSets.Issued_SSLy Then
+	If ReusedSets.CreatedOn = ReusedSets.Issued Then
 		NewSet = ReusedSets.Manager.CreateRecordSet();
 		
 		If ReusedSets.CreatedOn > ReusedSets.Sets.UBound() Then
@@ -5268,8 +5272,8 @@ Function GetAReusedSet(ReusedSets)
 		ReusedSets.CreatedOn = ReusedSets.CreatedOn + 1;
 	EndIf;
 	
-	TheReturnedSet = ReusedSets.Sets[ReusedSets.Issued_SSLy];
-	ReusedSets.Issued_SSLy = ReusedSets.Issued_SSLy + 1;
+	TheReturnedSet = ReusedSets.Sets[ReusedSets.Issued];
+	ReusedSets.Issued = ReusedSets.Issued + 1;
 	
 	Return TheReturnedSet;
 	
@@ -5282,7 +5286,7 @@ EndFunction
 //
 Procedure ReleaseReusedSets(ReusedSets)
 	
-	ReusedSets.Issued_SSLy = 0;
+	ReusedSets.Issued = 0;
 	
 EndProcedure
 
@@ -6371,7 +6375,7 @@ EndFunction
 //  FullName - String - Full name of a metadata object.
 //
 // Returns:
-//  String - a metadata object name (after fullstop).
+//  String - Metadata object name (after a dot).
 //
 Function MetadataObjectName(FullName)
 	

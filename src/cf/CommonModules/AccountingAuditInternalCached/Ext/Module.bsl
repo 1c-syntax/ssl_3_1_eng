@@ -113,7 +113,7 @@ Procedure AddAccountingSystemChecks(ChecksGroups, Checks)
 	Validation = Checks.Add();
 	Validation.GroupID          = ChecksGroup.Id;
 	Validation.Description                 = NStr("en = 'Reference integrity check';");
-	Validation.Reasons                      = NStr("en = 'Accidental or intentional data deletion without reference integrity control, equipment failures, Invalid data synchronization with external applications or data import, errors in third-party tools (such as external data processors or extensions).';");
+	Validation.Reasons                      = NStr("en = 'Accidental or intentional data deletion without reference integrity control, equipment failures, invalid data synchronization with external applications or data import, errors in third-party tools (such as external data processors or extensions).';");
 	Validation.Recommendation                 = NStr("en = 'Depending on the situation, select one of the following options:
 		|• Restore deleted data from backup.
 		|• Clear references to deleted data (if this is no longer needed).';");
@@ -121,8 +121,8 @@ Procedure AddAccountingSystemChecks(ChecksGroups, Checks)
 		Validation.Recommendation = Validation.Recommendation + Chars.LF + Chars.LF 
 			+ NStr("en = 'To clear references to deleted data, do the following:
 			|• Terminate all user sessions, lock the application, and create an infobase backup.
-			|• Open Designer, open Administration – Verify and Repair menu, select the check boxes for logical integrity check and referential integrity check.
-			| For more information, see ITS: https://its.1c.ru/db/v83doc#bookmark:adm:TI000000142.
+			|• Start Designer, open the Administration – Verify and repair menu, and select checkboxes for the logical integrity check and the referential integrity check.
+			| For more information, see <link https://kb.1ci.com/1C_Enterprise_Platform/Guides/Administrator_Guides/1C_Enterprise_8.3.22_Administrator_Guide/Chapter_6._Infobase_administration/6.10._Verifying_and_repairing_an_infobase/>1C:Enterprise Administrator Guide</>
 			|• Wait for verification and repair to complete, and unlock the application.
 			|
 			|For distributed infobases, run the repair procedure for the master node only.
@@ -193,10 +193,10 @@ Procedure AddAccountingSystemChecks(ChecksGroups, Checks)
 		Validation.Recommendation             = NStr("en = 'Contact technical service support.';");
 	Else	
 		Validation.Recommendation             = NStr("en = '• Upgrade 1C:Enterprise to 8.3.9.2033 or later
-			|• Terminate all user sessions, lock the application, and create an infobase backup
-			|• Open Designer, open Administration – Verify and Repair menu, select the check boxes for logical integrity check and referential integrity check
-			| For more details, refer to ITS: https://its.1c.eu/db/v83doc#bookmark:adm:TI000000142
-			|• Wait for verification and repair to complete, and unlock the application
+			|• Terminate all user sessions, lock the application, and create an infobase backup.
+			|• Start Designer, open the Administration – Verify and repair menu, and select checkboxes for the logical integrity check and the referential integrity check.
+			|  For more information, see <link https://kb.1ci.com/1C_Enterprise_Platform/Guides/Administrator_Guides/1C_Enterprise_8.3.22_Administrator_Guide/Chapter_6._Infobase_administration/6.10._Verifying_and_repairing_an_infobase/>1C:Enterprise Administrator Guide</>
+			|• Wait for verification and repair to complete, and unlock the application.
 			|
 			|For distributed infobases, run the repair procedure for the master node only.
 			|After that, perform synchronization with subordinate nodes.';");

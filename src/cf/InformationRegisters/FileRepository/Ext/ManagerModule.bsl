@@ -16,8 +16,8 @@ Procedure WriteBinaryData(Val File, Val BinaryData) Export
 	
 	Hashing = New DataHashing(HashFunction.SHA256);
 
-	ThisIsEmptyBinaryData = (BinaryData = Undefined);
-	If ThisIsEmptyBinaryData Then
+	IsEmptyBinaryData = (BinaryData = Undefined);
+	If IsEmptyBinaryData Then
 		EmptyBinaryData = GetBinaryDataFromString("");
 		Hashing.Append(EmptyBinaryData);
 		Size = EmptyBinaryData.Size();
@@ -55,7 +55,7 @@ Procedure WriteBinaryData(Val File, Val BinaryData) Export
 			BinaryDataStorageObject = Catalogs.BinaryDataStorage.CreateItem();
 			BinaryDataStorageObject.Size = Size;
 			BinaryDataStorageObject.Hash = Hash;
-			BinaryDataStorageObject.BinaryData = ?(ThisIsEmptyBinaryData,
+			BinaryDataStorageObject.BinaryData = ?(IsEmptyBinaryData,
 				Undefined, New ValueStorage(BinaryData, New Deflation(9)));
 			BinaryDataStorageObject.Write();
 			BinaryDataStorageRef = BinaryDataStorageObject.Ref;
@@ -156,7 +156,7 @@ Function FileURL1(File) Export
 		
 EndFunction
 
-Procedure TransferData_(ShouldReportProgress = False) Export
+Procedure TransferData_(ShouldReportProgress = False, ResultAddress = Undefined) Export
 	
 	ProgressTemplate = NStr("en = '%1 (%2 MB) out of %3 (%4 MB) files processed';");
 	TotalRecords = 0;
@@ -184,8 +184,10 @@ Procedure TransferData_(ShouldReportProgress = False) Export
 	Selection = InformationRegisters.DeleteFilesBinaryData.Select();
 	ProcessedRecordsCount = 0;
 	ProcessedSizeCount = 0;
+	Errors = New Array;
 	While Selection.Next() Do
 		File = Selection.File;
+		FileDescription = String(File);
 		BeginTransaction();
 		Try
 			
@@ -195,7 +197,33 @@ Procedure TransferData_(ShouldReportProgress = False) Export
 			Block.Lock();
 			
 			BinaryData = Selection.FileBinaryData.Get();
-			//  
+			If TypeOf(BinaryData) = Type("Picture") Then
+				TempFileName = GetTempFileName();
+				BinaryData.Write(TempFileName);
+				BinaryData = New BinaryData(TempFileName);
+				
+				FileSystem.DeleteTempFile(TempFileName);
+			ElsIf TypeOf(BinaryData) <> Type("BinaryData") Then
+				ErrorText = NStr("en = 'Detected data type: %3. Expected data type: %4. Information register: %1. File: %2';");
+				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorText,
+					Metadata.InformationRegisters.DeleteFilesBinaryData.Name,
+					FileDescription,
+					TypeOf(BinaryData),
+					Type("BinaryData"));
+				ErrorDescription = New Structure;
+				ErrorDescription.Insert("FileName", Common.SubjectString(File));
+				ErrorDescription.Insert("Error", ErrorText);
+				ErrorDescription.Insert("DetailErrorDescription", ErrorText);
+				ErrorDescription.Insert("Version", File);
+				Errors.Add(ErrorDescription);
+				
+				WriteLogEvent(NStr("en = 'Files.File deduplication error.';", Common.DefaultLanguageCode()),
+					EventLogLevel.Error, , File, ErrorText);
+				RollbackTransaction();
+				Continue;
+			EndIf;
+			
+			// @skip-check query-in-loop - Batch processing of a large amount of data. 
 			If Not RecordExists(File) Then
 				WriteBinaryData(File, BinaryData);
 			EndIf;
@@ -220,7 +248,11 @@ Procedure TransferData_(ShouldReportProgress = False) Export
 				TimeConsumingOperations.ReportProgress(Percent, Text);
 			EndIf;
 		EndIf;
-	EndDo;
+	EndDo; 
+	
+	If ValueIsFilled(ResultAddress) And Errors.Count() > 0 Then
+		PutToTempStorage(Errors, ResultAddress);
+	EndIf;
 	
 EndProcedure
 
@@ -310,7 +342,7 @@ Procedure TransferFilesBinaryDataToFileStorageInfoRegister(Selection)
 			WriteFileVersionManager.Read();
 			
 			BinaryData = WriteFileVersionManager.StoredFile.Get();
-			//  
+			// @skip-check query-in-loop - Batch processing of a large amount of data. 
 			WriteBinaryData(Selection.Ref, BinaryData);
 
 			InfobaseUpdate.MarkProcessingCompletion(Selection.Ref);
@@ -392,7 +424,7 @@ Procedure ToCreateTheMissingVersionFile(Selection)
 				BinaryFilesData.File = FileRef;
 				BinaryFilesData.Read();
 				If BinaryFilesData.Selected() Then
-					//  
+					// @skip-check query-in-loop - Batch processing of a large amount of data. 
 					WriteBinaryData(Version.Ref, BinaryFilesData.FileBinaryData.Get());
 					BinaryFilesData.Delete();
 				EndIf;

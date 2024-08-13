@@ -223,7 +223,7 @@ WHERE
 					<dcsset:lwsTitle>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Upper-level group is present in detailed recrods</v8:content>
+							<v8:content>Upper-level group is present in detailed records</v8:content>
 						</v8:item>
 					</dcsset:lwsTitle>
 					<dcsset:detailExpression>EvalExpression("Max(EvalExpression(""UsersGroup"", , ""NotResourceGroup"") = UsersGroup.Parent)", , "Hierarchy")</dcsset:detailExpression>

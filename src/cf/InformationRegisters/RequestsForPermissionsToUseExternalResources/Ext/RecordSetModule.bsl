@@ -14,8 +14,8 @@
 
 Procedure OnWrite(Cancel, Replacing)
 	
-	// 
-	// 
+	// No need to run "DataExchange.Load".
+	// Safe mode restricts writing internal data.
 	If SafeModeManager.SafeModeSet() Then
 		
 		CurrentSafeMode = SafeMode();

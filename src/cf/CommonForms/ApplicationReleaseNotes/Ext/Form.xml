@@ -166,10 +166,10 @@
 To release the lock, &lt;link Restart&gt;restart the application&lt;/&gt;.</v8:content>
 						</v8:item>
 					</Title>
-					<ContextMenu name="ScheduledJobsDisabled1ContextMenu" id="56"/>
-					<ExtendedTooltip name="ScheduledJobsDisabled1ExtendedTooltip" id="57"/>
+					<ContextMenu name="ScheduledJobsDisabledContextMenu" id="56"/>
+					<ExtendedTooltip name="ScheduledJobsDisabledExtendedTooltip" id="57"/>
 					<Events>
-						<Event name="URLProcessing">ScheduledJobsDisabled1URLProcessing</Event>
+						<Event name="URLProcessing">ScheduledJobsDisabledURLProcessing</Event>
 					</Events>
 				</LabelDecoration>
 			</ChildItems>
@@ -191,10 +191,10 @@ To release the lock, &lt;link Restart&gt;restart the application&lt;/&gt;.</v8:c
 			<SelectionShowMode>WhenActive</SelectionShowMode>
 			<EnableStartDrag>false</EnableStartDrag>
 			<EnableDrag>false</EnableDrag>
-			<ContextMenu name="UpdateDetailsContextMenu" id="2"/>
+			<ContextMenu name="UpdatesDetailsContextMenu" id="2"/>
 			<ExtendedTooltip name="UpdatesDetailsExtendedTooltip" id="38"/>
 			<Events>
-				<Event name="Selection">UpdateDetailsSelection</Event>
+				<Event name="Selection">UpdatesDetailsSelection</Event>
 			</Events>
 		</SpreadSheetDocumentField>
 		<UsualGroup name="Group" id="10">

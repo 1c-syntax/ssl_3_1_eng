@@ -89,8 +89,8 @@ Procedure AfterUpdateInfobase(Val PreviousVersion, Val CurrentVersion,
 		Return;
 	EndIf;
 	
-	// 
-	// 
+	// Run the operations after all update handlers are completed.
+	// (They might change the states (usage) of totals and aggregates.)
 	
 	GenerateTotalsAndAggregatesParameters();
 	
@@ -250,7 +250,7 @@ EndFunction
 Function GenerateTotalsAndAggregatesParameters()
 	Parameters = New Structure;
 	Parameters.Insert("HasTotalsRegisters", False);
-	Parameters.Insert("TotalsCalculationDate",  '39991231235959'); // 
+	Parameters.Insert("TotalsCalculationDate",  '39991231235959'); // 12/1/3999 11:59:59 PM, the maximum date.
 	
 	KindBalance = Metadata.ObjectProperties.AccumulationRegisterType.Balance;
 	For Each MetadataRegister In Metadata.AccumulationRegisters Do
@@ -298,7 +298,7 @@ Procedure UpdateScheduledJob(ScheduledJobMetadata, Use)
 	FoundItems = ScheduledJobsServer.FindJobs(New Structure("Metadata", ScheduledJobMetadata));
 	For Each Job In FoundItems Do
 		Changes = New Structure("Use", Use);
-		// Change the schedule only if it was not set and only out of the box.
+		// Change the schedule only if not set and only in on-prem.
 		If Not ScheduleFilled(Job.Schedule)
 			And Not Common.DataSeparationEnabled() Then
 			Changes.Insert("Schedule", DefaultSchedule(ScheduledJobMetadata));

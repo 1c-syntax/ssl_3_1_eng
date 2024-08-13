@@ -131,10 +131,10 @@
 					<DropListButton>true</DropListButton>
 					<ClearButton>true</ClearButton>
 					<ChooseType>false</ChooseType>
-					<ContextMenu name="FilterBySubject1ContextMenu" id="27"/>
+					<ContextMenu name="FilterBySubjectContextMenu" id="27"/>
 					<ExtendedTooltip name="FilterBySubjectExtendedTooltip" id="36"/>
 					<Events>
-						<Event name="OnChange">FilterBySubject1OnChange</Event>
+						<Event name="OnChange">FilterBySubjectOnChange</Event>
 					</Events>
 				</InputField>
 				<CheckBoxField name="ShowDeleted" id="31">
@@ -224,29 +224,29 @@
 				<Autofill>false</Autofill>
 			</AutoCommandBar>
 			<ExtendedTooltip name="ListExtendedTooltip" id="39"/>
-			<SearchStringAddition name="ListSearchString_SSLy" id="45">
+			<SearchStringAddition name="ListSearchString" id="45">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchStringRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchString_SSLyContextMenu" id="46"/>
-				<ExtendedTooltip name="ListSearchString_SSLyExtendedTooltip" id="47"/>
+				<ContextMenu name="ListSearchStringContextMenu" id="46"/>
+				<ExtendedTooltip name="ListSearchStringExtendedTooltip" id="47"/>
 			</SearchStringAddition>
-			<ViewStatusAddition name="ListViewStatus_SSLy" id="48">
+			<ViewStatusAddition name="ListViewStatus" id="48">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>ViewStatusRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListViewStatus_SSLyContextMenu" id="49"/>
-				<ExtendedTooltip name="ListViewStatus_SSLyExtendedTooltip" id="50"/>
+				<ContextMenu name="ListViewStatusContextMenu" id="49"/>
+				<ExtendedTooltip name="ListViewStatusExtendedTooltip" id="50"/>
 			</ViewStatusAddition>
-			<SearchControlAddition name="ListSearchControl_SSLy" id="51">
+			<SearchControlAddition name="ListSearchControl" id="51">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchControl</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchControl_SSLyContextMenu" id="52"/>
-				<ExtendedTooltip name="ListSearchControl_SSLyExtendedTooltip" id="53"/>
+				<ContextMenu name="ListSearchControlContextMenu" id="52"/>
+				<ExtendedTooltip name="ListSearchControlExtendedTooltip" id="53"/>
 			</SearchControlAddition>
 			<ChildItems>
 				<LabelField name="Subject" id="20">

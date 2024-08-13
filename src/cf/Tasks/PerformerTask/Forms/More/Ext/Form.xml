@@ -222,7 +222,7 @@
 						</InputField>
 						<InputField name="TaskDueDate" id="71">
 							<DataPath>Object.TaskDueDate</DataPath>
-							<ContextMenu name="DueDateContextMenu" id="72"/>
+							<ContextMenu name="TaskDueDateContextMenu" id="72"/>
 							<ExtendedTooltip name="TaskDueDateExtendedTooltip" id="80"/>
 						</InputField>
 					</ChildItems>

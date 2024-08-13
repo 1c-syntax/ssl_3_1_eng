@@ -100,24 +100,24 @@
 							<Item>AllUsers</Item>
 							<Type>SearchStringRepresentation</Type>
 						</AdditionSource>
-						<ContextMenu name="AllUsers1SearchStringContextMenu" id="49"/>
-						<ExtendedTooltip name="AllUsers1SearchStringExtendedTooltip" id="50"/>
+						<ContextMenu name="AllUsersSearchStringContextMenu" id="49"/>
+						<ExtendedTooltip name="AllUsersSearchStringExtendedTooltip" id="50"/>
 					</SearchStringAddition>
 					<ViewStatusAddition name="AllUsersViewStatus" id="51">
 						<AdditionSource>
 							<Item>AllUsers</Item>
 							<Type>ViewStatusRepresentation</Type>
 						</AdditionSource>
-						<ContextMenu name="AllUsers1ViewStatusContextMenu" id="52"/>
-						<ExtendedTooltip name="AllUsers1ViewStatusExtendedTooltip" id="53"/>
+						<ContextMenu name="AllUsersViewStatusContextMenu" id="52"/>
+						<ExtendedTooltip name="AllUsersViewStatusExtendedTooltip" id="53"/>
 					</ViewStatusAddition>
 					<SearchControlAddition name="AllUsersSearchControl" id="54">
 						<AdditionSource>
 							<Item>AllUsers</Item>
 							<Type>SearchControl</Type>
 						</AdditionSource>
-						<ContextMenu name="AllUsers1SearchControlContextMenu" id="55"/>
-						<ExtendedTooltip name="AllUsers1SearchControlExtendedTooltip" id="56"/>
+						<ContextMenu name="AllUsersSearchControlContextMenu" id="55"/>
+						<ExtendedTooltip name="AllUsersSearchControlExtendedTooltip" id="56"/>
 					</SearchControlAddition>
 					<Events>
 						<Event name="DragCheck">AllUsersDragCheck</Event>

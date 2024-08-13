@@ -136,7 +136,7 @@ Procedure More(Command)
 	
 EndProcedure
 
-// Standard subsystems.Pluggable commands
+// StandardSubsystems.AttachableCommands
 
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)

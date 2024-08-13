@@ -185,6 +185,22 @@
 							<ContextMenu name="SignatureTableCommentContextMenu" id="42"/>
 							<ExtendedTooltip name="SignatureTableCommentExtendedTooltip" id="70"/>
 						</InputField>
+						<InputField name="SignaturesTableMRLOA" id="97">
+							<DataPath>SignatureTable.MachineReadableLetterOfAuthorityPresentation</DataPath>
+							<Visible>false</Visible>
+							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Machine-readable LOA</v8:content>
+								</v8:item>
+							</Title>
+							<Height>2</Height>
+							<AutoMaxHeight>false</AutoMaxHeight>
+							<HeightControlVariant>UseContentHeight</HeightControlVariant>
+							<ContextMenu name="SignaturesTableMRLOAContextMenu" id="98"/>
+							<ExtendedTooltip name="SignaturesTableMRLOAExtendedTooltip" id="99"/>
+						</InputField>
 					</ChildItems>
 				</Table>
 			</ChildItems>
@@ -328,6 +344,35 @@
 						<v8:Type>xs:string</v8:Type>
 						<v8:StringQualifiers>
 							<v8:Length>3</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+				<Column name="MachineReadableLetterOfAuthority" id="13">
+					<Type>
+						<v8:Type>v8:ValueListType</v8:Type>
+					</Type>
+				</Column>
+				<Column name="MachineReadableLetterOfAuthorityPresentation" id="14">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Machine-readable LOA presentation</v8:content>
+						</v8:item>
+					</Title>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+				<Column name="Thumbprint" id="9">
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
 							<v8:AllowedLength>Variable</v8:AllowedLength>
 						</v8:StringQualifiers>
 					</Type>

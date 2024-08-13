@@ -45,19 +45,13 @@
 				<LabelDecoration name="TitleDistributionAcceleration" id="181">
 					<AutoMaxWidth>false</AutoMaxWidth>
 					<AutoMaxHeight>false</AutoMaxHeight>
-					<Title formatted="false">
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Reports can be sent faster</v8:content>
-						</v8:item>
-					</Title>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
 							<v8:content>To send reports in multiple threads, specify a directory of temporary files of the 1C:Enterprise server cluster.</v8:content>
 						</v8:item>
 					</ToolTip>
-					<ToolTipRepresentation>ShowRight</ToolTipRepresentation>
+					<ToolTipRepresentation>Button</ToolTipRepresentation>
 					<TitleHeight>1</TitleHeight>
 					<ContextMenu name="TitleDistributionAccelerationContextMenu" id="182"/>
 					<ExtendedTooltip name="TitleDistributionAccelerationExtendedTooltip" id="183"/>
@@ -74,7 +68,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="FiltersGroup2ExtendedTooltip" id="158"/>
+			<ExtendedTooltip name="GroupFiltersExtendedTooltip" id="158"/>
 			<ChildItems>
 				<InputField name="StateFilter" id="165">
 					<DataPath>StateFilter</DataPath>
@@ -223,7 +217,7 @@
 						<Button name="FormSelect" id="152">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.StandardCommand.Choose</CommandName>
-							<ExtendedTooltip name="FormChooseExtendedTooltip" id="153"/>
+							<ExtendedTooltip name="FormSelectExtendedTooltip" id="153"/>
 						</Button>
 						<Button name="FormCreate" id="91">
 							<Type>CommandBarButton</Type>
@@ -396,12 +390,12 @@
 										<Button name="FormShouldSaveSettings" id="121">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.StandardCommand.SaveDynamicListSettings</CommandName>
-											<ExtendedTooltip name="FormSaveSettingsExtendedTooltip" id="122"/>
+											<ExtendedTooltip name="FormShouldSaveSettingsExtendedTooltip" id="122"/>
 										</Button>
 										<Button name="FormExchangeDefaultSettings" id="123">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.StandardCommand.DynamicListStandardSettings</CommandName>
-											<ExtendedTooltip name="FormStandardSettingsExtendedTooltip" id="124"/>
+											<ExtendedTooltip name="FormExchangeDefaultSettingsExtendedTooltip" id="124"/>
 										</Button>
 									</ChildItems>
 								</ButtonGroup>
@@ -426,12 +420,12 @@
 										<Button name="FormList" id="137">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.StandardCommand.List</CommandName>
-											<ExtendedTooltip name="FormList1ExtendedTooltip" id="138"/>
+											<ExtendedTooltip name="FormListExtendedTooltip" id="138"/>
 										</Button>
 										<Button name="FormTree" id="111">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.StandardCommand.Tree</CommandName>
-											<ExtendedTooltip name="FormTree1ExtendedTooltip" id="112"/>
+											<ExtendedTooltip name="FormTreeExtendedTooltip" id="112"/>
 										</Button>
 									</ChildItems>
 								</Popup>
@@ -534,29 +528,29 @@
 				<Autofill>false</Autofill>
 			</AutoCommandBar>
 			<ExtendedTooltip name="ListExtendedTooltip" id="62"/>
-			<SearchStringAddition name="ListSearchString_SSLy" id="139">
+			<SearchStringAddition name="ListSearchString" id="139">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchStringRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchString_SSLyContextMenu" id="140"/>
-				<ExtendedTooltip name="ListSearchString_SSLyExtendedTooltip" id="141"/>
+				<ContextMenu name="ListSearchStringContextMenu" id="140"/>
+				<ExtendedTooltip name="ListSearchStringExtendedTooltip" id="141"/>
 			</SearchStringAddition>
-			<ViewStatusAddition name="ListViewStatus_SSLy" id="142">
+			<ViewStatusAddition name="ListViewStatus" id="142">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>ViewStatusRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListViewStatus_SSLyContextMenu" id="143"/>
-				<ExtendedTooltip name="ListViewStatus_SSLyExtendedTooltip" id="144"/>
+				<ContextMenu name="ListViewStatusContextMenu" id="143"/>
+				<ExtendedTooltip name="ListViewStatusExtendedTooltip" id="144"/>
 			</ViewStatusAddition>
-			<SearchControlAddition name="ListSearchControl_SSLy" id="145">
+			<SearchControlAddition name="ListSearchControl" id="145">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchControl</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchControl_SSLyContextMenu" id="146"/>
-				<ExtendedTooltip name="ListSearchControl_SSLyExtendedTooltip" id="147"/>
+				<ContextMenu name="ListSearchControlContextMenu" id="146"/>
+				<ExtendedTooltip name="ListSearchControlExtendedTooltip" id="147"/>
 			</SearchControlAddition>
 			<Events>
 				<Event name="OnActivateRow">ListOnActivateRow</Event>

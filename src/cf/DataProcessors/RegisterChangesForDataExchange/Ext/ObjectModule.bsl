@@ -244,12 +244,12 @@ EndFunction
 //
 // Returns: 
 //    Structure - Metadata object details with the following fields:
-//         * NamesStructure              - Structure - Key - metadata group (constants, catalogs and so on),
-//                                                    value is an array of full names.
-//         * PresentationsStructure     - Structure - Key - metadata group (constants, catalogs and so on),
-//                                                    value is an array of full names.
-//         * AutoRecordStructure   - Structure - metadata group (constants, catalogs and so on),
-//                                                    value is an array of autorecord flags on the node.
+//         * NamesStructure              - Structure - Key - Metadata group (constants, catalogs, etc.).
+//                                                    Value - Array of full names.
+//         * PresentationsStructure     - Structure - Key - Metadata group (constants, catalogs, etc.).
+//                                                    Value - Array of full names.
+//         * AutoRecordStructure   - Structure - Key - Metadata group (constants, catalogs, etc.).
+//                                                    Value - Array of autoregistration flags for the node.
 //         * Tree                     - See MetadataObjectsTree
 //
 Function GenerateMetadataStructure(ExchangePlanName = Undefined) Export
@@ -278,9 +278,9 @@ Function GenerateMetadataStructure(ExchangePlanName = Undefined) Export
 	EndIf;
 	CurParameters.Insert("ExchangePlan", ExchangePlan);
 	
-	// 
-	// 
-	// 
+	// For DIB exchange nodes, make unavailable for registration
+	// those objects that are missing from the ORM subscriptions
+	// (that is, objects that are only included in the initial image scope).
 	If ExchangePlan <> Undefined
 		And ExchangePlan.DistributedInfoBase
 		And ConfigurationSupportsSSL Then
@@ -568,7 +568,7 @@ EndFunction
 // Parameters:
 //     JobParameters - Structure - parameters to change registration:
 //         * Command                 - Boolean - True if you need to add, False if you need to delete.
-//         * NoAutoRegistration - Boolean - True if you do not need to analyze the autorecord flag.
+//         * NoAutoRegistration - Boolean - True if the autoregistration flag is ignored.
 //         * Node                    - ExchangePlanRef - a reference to the exchange plan node.
 //         * Data                  - AnyRef
 //                                   - String
@@ -1259,7 +1259,7 @@ Procedure ReadSettings(SettingsKey = "") Export
 		CurrentSettings.Insert("RegisterRecordAutoRecordSetting",            False);
 		CurrentSettings.Insert("SequenceAutoRecordSetting", False);
 		CurrentSettings.Insert("QueryExternalDataProcessorAddressSetting",      "");
-		CurrentSettings.Insert("ObjectExportControlSetting",           True); // 
+		CurrentSettings.Insert("ObjectExportControlSetting",           True); // Check using SSL.
 		CurrentSettings.Insert("MessageNumberOptionSetting",              0);     // First exchange execution
 	EndIf;
 	
@@ -1357,7 +1357,7 @@ EndFunction
 //
 // Parameters:
 //     Command                 - Boolean - True if you need to add, False if you need to delete.
-//     NoAutoRegistration - Boolean - True if you do not need to analyze the autorecord flag.
+//     NoAutoRegistration - Boolean - True if the autoregistration flag is ignored.
 //     Node                    - ExchangePlanRef - a reference to the exchange plan node.
 //     Data                  - AnyRef
 //                             - String
@@ -1457,7 +1457,7 @@ Function EditRegistrationAtServer(Command, NoAutoRegistration, Node, Data, Table
 			Values.Add(Undefined);
 			
 		ElsIf Type = Type("String") Then
-			// It is metadata, either collection or a certain kind. Autorecord does not matter.
+			// This is metadata, either a collection or a specific type. Check autoregistration settings.
 			LongDesc = MetadataCharacteristics(Item);
 			If SSLFilterRequired Then
 				
@@ -1523,7 +1523,7 @@ Function EditRegistrationAtServer(Command, NoAutoRegistration, Node, Data, Table
 				EndIf;
 				Continue;
 			EndIf;
-			// Specific record set is passed, auto record settings do not matter.
+			// Specific record set is passed, ignore autoregistration settings.
 			If SSLFilterRequired Then
 				AddResults(Result, SSLSetChangesRegistration(Node, Item, LongDesc) );
 				Continue;
@@ -1547,7 +1547,7 @@ Function EditRegistrationAtServer(Command, NoAutoRegistration, Node, Data, Table
 			EndDo;
 			
 		Else
-			// Specific reference is passed, auto record settings do not matter.
+			// Specific reference is passed, ignore autoregistration settings.
 			If SSLFilterRequired Then
 				AddResults(Result, SSLRefChangesRegistration(Node, Item) );
 				Continue;
@@ -1561,7 +1561,7 @@ Function EditRegistrationAtServer(Command, NoAutoRegistration, Node, Data, Table
 			
 		EndIf;
 		
-		// 
+		// Registering objects without using a filter.
 		For Each CurValue In Values Do
 			ExecuteObjectRegistrationCommand(Command, Node, CurValue);
 			Result.Success = Result.Success + 1;
@@ -1666,8 +1666,8 @@ Procedure RecordChanges(Val Node, Val RegistrationObject)
 			DimensionFields = Mid(DimensionFields, 2);
 			If IsBlankString(DimensionFields) Then
 				
-				// 
-				// 
+				// The information register has no changes (considering the main filter applied).
+				// Register all changes for the metadata object.
 				ExchangePlans.RecordChanges(Node, RegistrationObject);
 				
 			Else
@@ -2362,7 +2362,7 @@ Function SSLMetadataObjectChangesRegistration(Node, LongDesc, NoAutoRegistration
 	EndIf;
 	
 	If (Not NoAutoRegistration) And CompositionItem.AutoRecord <> AutoChangeRecord.Allow Then
-		// Auto record is not supported.
+		// Autoregistration is not supported.
 		Return Result;
 	EndIf;
 	
@@ -2381,8 +2381,8 @@ Function SSLMetadataObjectChangesRegistration(Node, LongDesc, NoAutoRegistration
 		EndDo;
 		DimensionFields = Mid(DimensionFields, 2);
 		If IsBlankString(DimensionFields) Then
-			// 
-			// 
+			// The information register has no changes (considering the main filter applied).
+			// Register all changes for the metadata object.
 			ExchangePlans.RecordChanges(Node, LongDesc.Metadata);
 			
 			// To calculate the result.
@@ -2467,7 +2467,7 @@ Function SSLUpdateAndRegisterMasterNodeMetadataObjectID(Val Node) Export
 	
 	If (Not DIBModeAvailable)                                      // Current SSL version does not support MOID.
 		Or (ExchangePlans.MasterNode() <> Undefined)              // Current infobase is a subordinate node.
-		Or (Not MetaNodeExchangePlan.DistributedInfoBase) Then // 
+		Or (Not MetaNodeExchangePlan.DistributedInfoBase) Then // passed node is not a DIB node
 		Return Result;
 	EndIf;
 	

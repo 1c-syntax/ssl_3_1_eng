@@ -129,7 +129,7 @@ Items of catalogs and documents (broken down by companies) with the maximum numb
 								</v8:item>
 							</Title>
 							<Group>AlwaysHorizontal</Group>
-							<ExtendedTooltip name="WaitPageExtendedTooltip" id="106"/>
+							<ExtendedTooltip name="PageWaitExtendedTooltip" id="106"/>
 							<ChildItems>
 								<PictureDecoration name="TimeConsumingOperation48" id="170">
 									<Title formatted="false">
@@ -247,7 +247,7 @@ It may take a long time, please wait…
 								</v8:item>
 							</Title>
 							<Group>AlwaysHorizontal</Group>
-							<ExtendedTooltip name="DonePageExtendedTooltip" id="110"/>
+							<ExtendedTooltip name="PageDoneExtendedTooltip" id="110"/>
 							<ChildItems>
 								<PictureDecoration name="DonePicture" id="182">
 									<GroupVerticalAlign>Center</GroupVerticalAlign>
@@ -317,7 +317,7 @@ It may take a long time, please wait…
 											<v8:content>Command bar left 1</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="LeftCommandBar51ExtendedTooltip" id="151"/>
+									<ExtendedTooltip name="LeftSideCommandBar1ExtendedTooltip" id="151"/>
 									<ChildItems>
 										<Button name="BackCommand" id="72">
 											<Type>CommandBarButton</Type>
@@ -342,7 +342,7 @@ It may take a long time, please wait…
 										</v8:item>
 									</Title>
 									<HorizontalLocation>Right</HorizontalLocation>
-									<ExtendedTooltip name="RightCommandBar51ExtendedTooltip" id="124"/>
+									<ExtendedTooltip name="RightSideCommandBar1ExtendedTooltip" id="124"/>
 									<ChildItems>
 										<Button name="NextCommand" id="71">
 											<Type>CommandBarButton</Type>
@@ -389,7 +389,7 @@ It may take a long time, please wait…
 											<v8:content>Command bar left 4</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="LeftCommandBar54ExtendedTooltip" id="166"/>
+									<ExtendedTooltip name="LeftSideCommandBar4ExtendedTooltip" id="166"/>
 								</CommandBar>
 								<CommandBar name="RightSideCommandBar4" id="85">
 									<EnableContentChange>true</EnableContentChange>
@@ -400,7 +400,7 @@ It may take a long time, please wait…
 										</v8:item>
 									</Title>
 									<HorizontalLocation>Right</HorizontalLocation>
-									<ExtendedTooltip name="RightCommandBar54ExtendedTooltip" id="142"/>
+									<ExtendedTooltip name="RightSideCommandBar4ExtendedTooltip" id="142"/>
 									<ChildItems>
 										<Button name="CancelCommand3" id="88">
 											<Type>CommandBarButton</Type>
@@ -434,7 +434,7 @@ It may take a long time, please wait…
 											<v8:content>Command bar left 2</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="LeftCommandBar52ExtendedTooltip" id="156"/>
+									<ExtendedTooltip name="LeftSideCommandBar2ExtendedTooltip" id="156"/>
 									<ChildItems>
 										<Button name="CommandInStart" id="196">
 											<Type>CommandBarButton</Type>
@@ -458,7 +458,7 @@ It may take a long time, please wait…
 										</v8:item>
 									</Title>
 									<HorizontalLocation>Right</HorizontalLocation>
-									<ExtendedTooltip name="RightCommandBar52ExtendedTooltip" id="130"/>
+									<ExtendedTooltip name="RightSideCommandBar2ExtendedTooltip" id="130"/>
 									<ChildItems>
 										<Button name="RepeatInExclusiveMode" id="218">
 											<Type>CommandBarButton</Type>
@@ -504,7 +504,7 @@ It may take a long time, please wait…
 											<v8:content>Command bar left 3</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="LeftCommandBar53ExtendedTooltip" id="161"/>
+									<ExtendedTooltip name="LeftSideCommandBar3ExtendedTooltip" id="161"/>
 								</CommandBar>
 								<CommandBar name="RightSideCommandBar3" id="80">
 									<EnableContentChange>true</EnableContentChange>
@@ -515,7 +515,7 @@ It may take a long time, please wait…
 										</v8:item>
 									</Title>
 									<HorizontalLocation>Right</HorizontalLocation>
-									<ExtendedTooltip name="RightCommandBar53ExtendedTooltip" id="136"/>
+									<ExtendedTooltip name="RightSideCommandBar3ExtendedTooltip" id="136"/>
 									<ChildItems>
 										<Button name="DoneCommand" id="90">
 											<Type>CommandBarButton</Type>

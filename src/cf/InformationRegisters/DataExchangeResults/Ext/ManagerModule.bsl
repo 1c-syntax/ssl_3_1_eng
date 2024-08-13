@@ -182,8 +182,8 @@ EndProcedure
 
 Procedure LogAdministratorError(InfobaseNode, WarningDetails) Export
 	
-	// 
-	// 
+	// Administrative errors do not relate to data objects. Usually, they relate to the infobase or a data area.
+	// For example, if a data area is marked for deletion.
 	
 	IssueType = Enums.DataExchangeIssuesTypes.ApplicationAdministrativeError;
 	
@@ -846,8 +846,8 @@ Procedure ClearBypassExchangeWarnings(DeletionParameters)
 		BeginTransaction();
 		Try
 			
-			 // 
-			 // 
+			 // 2. Set an exclusive lock on the required register record to make sure that
+			 // the warning hasn't changed in another session at the recording time.
 			DataLock = New DataLock;
 			DataLockItem = DataLock.Add("InformationRegister.DataExchangeResults");
 			DataLockItem.Mode = DataLockMode.Exclusive;
@@ -881,8 +881,8 @@ Procedure ClearBypassExchangeWarnings(DeletionParameters)
 			
 		Except
 			
-			// 
-			// 
+			// 4. If the register is already locked in another session (or another exceptional issue happened),
+			// roll back the transaction and log the error.
 			RollbackTransaction();
 			
 			EventName = NStr("en = 'Data exchange';", Common.DefaultLanguageCode());

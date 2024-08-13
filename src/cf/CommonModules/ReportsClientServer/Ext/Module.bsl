@@ -20,9 +20,9 @@
 // Returns:
 //   Structure - Report settings (additional properties) that are stored in the form data::
 //       
-//       * GenerateImmediately - Boolean - Default value of the "Generate immediately" check box.
-//           When the check box is selected, the report will be generated after opening,
-//           after selecting user settings, or selecting another report option.
+//       * GenerateImmediately - Boolean - Default value of the "Generate on open" checkbox.
+//           If the checkbox is selected, the report is generated when it is opened,
+//           when user settings are selected, or when another report option is selected.
 //       
 //       * OutputSelectedCellsTotal - Boolean - If True, the report will contain the autosum field.
 //       
@@ -607,6 +607,81 @@ Function SettingItemIndexByPath(Val Path, ItemProperty = Undefined) Export
 	Return IndexDetails.AdjustValue(ElementIndex);
 EndFunction
 
+Function SettingTypeAsString(Type) Export
+	If Type = Type("DataCompositionSettings") Then
+		Return "Settings";
+	ElsIf Type = Type("DataCompositionNestedObjectSettings") Then
+		Return "NestedObjectSettings";
+	
+	ElsIf Type = Type("DataCompositionFilter") Then
+		Return "Filter";
+	ElsIf Type = Type("DataCompositionFilterItem") Then
+		Return "FilterElement";
+	ElsIf Type = Type("DataCompositionFilterItemGroup") Then
+		Return "FilterItemsGroup";
+	
+	ElsIf Type = Type("DataCompositionSettingsParameterValue") Then
+		Return "SettingsParameterValue";
+	
+	ElsIf Type = Type("DataCompositionGroup") Then
+		Return "Group";
+	ElsIf Type = Type("DataCompositionGroupFields") Then
+		Return "GroupFields";
+	ElsIf Type = Type("DataCompositionGroupFieldCollection") Then
+		Return "GroupFieldsCollection";
+	ElsIf Type = Type("DataCompositionGroupField") Then
+		Return "GroupingField";
+	ElsIf Type = Type("DataCompositionAutoGroupField") Then
+		Return "AutoGroupField";
+	
+	ElsIf Type = Type("DataCompositionSelectedFields") Then
+		Return "SelectedFields";
+	ElsIf Type = Type("DataCompositionSelectedField") Then
+		Return "SelectedField";
+	ElsIf Type = Type("DataCompositionSelectedFieldGroup") Then
+		Return "SelectedFieldsGroup";
+	ElsIf Type = Type("DataCompositionAutoSelectedField") Then
+		Return "AutoSelectedField";
+	
+	ElsIf Type = Type("DataCompositionOrder") Then
+		Return "Order";
+	ElsIf Type = Type("DataCompositionOrderItem") Then
+		Return "OrderItem";
+	ElsIf Type = Type("DataCompositionAutoOrderItem") Then
+		Return "AutoOrderItem";
+	
+	ElsIf Type = Type("DataCompositionConditionalAppearance") Then
+		Return "ConditionalAppearance";
+	ElsIf Type = Type("DataCompositionConditionalAppearanceItem") Then
+		Return "ConditionalAppearanceItem";
+	
+	ElsIf Type = Type("DataCompositionSettingStructure") Then
+		Return "SettingsStructure_";
+	ElsIf Type = Type("DataCompositionSettingStructureItemCollection") Then
+		Return "SettingsStructureItemCollection";
+	
+	ElsIf Type = Type("DataCompositionTable") Then
+		Return "Table";
+	ElsIf Type = Type("DataCompositionTableGroup") Then
+		Return "TableGroup";
+	ElsIf Type = Type("DataCompositionTableStructureItemCollection") Then
+		Return "TableStructureItemCollection";
+	
+	ElsIf Type = Type("DataCompositionChart") Then
+		Return "Chart";
+	ElsIf Type = Type("DataCompositionChartGroup") Then
+		Return "ChartGroup";
+	ElsIf Type = Type("DataCompositionChartStructureItemCollection") Then
+		Return "ChartStructureItemCollection";
+	
+	ElsIf Type = Type("DataCompositionDataParameterValues") Then
+		Return "DataParametersValues";
+	
+	Else
+		Return "";
+	EndIf;
+EndFunction
+
 #Region ObsoleteProceduresAndFunctions
 
 // Deprecated. Instead, use CommonClientServer.SupplementList.
@@ -901,7 +976,7 @@ Procedure NotifyOfSettingsChange(Form) Export
 		Return;
 	EndIf;
 	
-	StateText = NStr("en = 'Settings changed. To generate the report, click ""Generate"".';");
+	StateText = NStr("en = 'Settings changed. To run the report, click ""Generate"".';");
 	DisplayReportState(Form, StateText);
 	
 EndProcedure
@@ -1308,81 +1383,6 @@ EndFunction
 ////////////////////////////////////////////////////////////////////////////////
 // Miscellaneous.
 
-Function SettingTypeAsString(Type) Export
-	If Type = Type("DataCompositionSettings") Then
-		Return "Settings";
-	ElsIf Type = Type("DataCompositionNestedObjectSettings") Then
-		Return "NestedObjectSettings";
-	
-	ElsIf Type = Type("DataCompositionFilter") Then
-		Return "Filter";
-	ElsIf Type = Type("DataCompositionFilterItem") Then
-		Return "FilterElement";
-	ElsIf Type = Type("DataCompositionFilterItemGroup") Then
-		Return "FilterItemsGroup";
-	
-	ElsIf Type = Type("DataCompositionSettingsParameterValue") Then
-		Return "SettingsParameterValue";
-	
-	ElsIf Type = Type("DataCompositionGroup") Then
-		Return "Group";
-	ElsIf Type = Type("DataCompositionGroupFields") Then
-		Return "GroupFields";
-	ElsIf Type = Type("DataCompositionGroupFieldCollection") Then
-		Return "GroupFieldsCollection";
-	ElsIf Type = Type("DataCompositionGroupField") Then
-		Return "GroupingField";
-	ElsIf Type = Type("DataCompositionAutoGroupField") Then
-		Return "AutoGroupField";
-	
-	ElsIf Type = Type("DataCompositionSelectedFields") Then
-		Return "SelectedFields";
-	ElsIf Type = Type("DataCompositionSelectedField") Then
-		Return "SelectedField";
-	ElsIf Type = Type("DataCompositionSelectedFieldGroup") Then
-		Return "SelectedFieldsGroup";
-	ElsIf Type = Type("DataCompositionAutoSelectedField") Then
-		Return "AutoSelectedField";
-	
-	ElsIf Type = Type("DataCompositionOrder") Then
-		Return "Order";
-	ElsIf Type = Type("DataCompositionOrderItem") Then
-		Return "OrderItem";
-	ElsIf Type = Type("DataCompositionAutoOrderItem") Then
-		Return "AutoOrderItem";
-	
-	ElsIf Type = Type("DataCompositionConditionalAppearance") Then
-		Return "ConditionalAppearance";
-	ElsIf Type = Type("DataCompositionConditionalAppearanceItem") Then
-		Return "ConditionalAppearanceItem";
-	
-	ElsIf Type = Type("DataCompositionSettingStructure") Then
-		Return "SettingsStructure";
-	ElsIf Type = Type("DataCompositionSettingStructureItemCollection") Then
-		Return "SettingsStructureItemCollection";
-	
-	ElsIf Type = Type("DataCompositionTable") Then
-		Return "Table";
-	ElsIf Type = Type("DataCompositionTableGroup") Then
-		Return "TableGroup";
-	ElsIf Type = Type("DataCompositionTableStructureItemCollection") Then
-		Return "TableStructureItemCollection";
-	
-	ElsIf Type = Type("DataCompositionChart") Then
-		Return "Chart";
-	ElsIf Type = Type("DataCompositionChartGroup") Then
-		Return "ChartGroup";
-	ElsIf Type = Type("DataCompositionChartStructureItemCollection") Then
-		Return "ChartStructureItemCollection";
-	
-	ElsIf Type = Type("DataCompositionDataParameterValues") Then
-		Return "DataParametersValues";
-	
-	Else
-		Return "";
-	EndIf;
-EndFunction
-
 Function CopyRecursive(Val Node, Val WhatToCopy, Val WhereToInsert, Val IndexOf, Map = Undefined, WithoutStructure = False) Export
 	If Map = Undefined Then
 		Map = New Map;
@@ -1627,13 +1627,13 @@ Function FillPropertiesRecursively(Node, WhatToFill, FillWithWhat, Map = Undefin
 	EndIf;
 	
 	If CopyingParameters.HasOutputParameters Then
-		//   
-		//       
-		//       
-		//       
-		//       
-		//       
-		//   
+		//   OutputParameters (DataCompositionOutputParameterValues,
+		//       DataCompositionGroupOutputParameterValues,
+		//       DataCompositionTableGroupOutputParameterValues,
+		//       DataCompositionChartGroupOutputParameterValues,
+		//       DataCompositionTableOutputParameterValues,
+		//       DataCompositionChartOutputParameterValues).
+		//   OutputParameters.Items (DataCompositionParameterValueCollection).
 		NestedItemsCollection = FillWithWhat.OutputParameters.Items;
 		If NestedItemsCollection.Count() > 0 Then
 			NestedItemsNode = WhatToFill.OutputParameters;
@@ -1647,8 +1647,8 @@ Function FillPropertiesRecursively(Node, WhatToFill, FillWithWhat, Map = Undefin
 	EndIf;
 	
 	If CopyingParameters.HasDataParameters Then
-		//   
-		//   
+		//   DataParameters (DataCompositionDataParameterValues).
+		//   DataParameters.Items (DataCompositionParameterValueCollection).
 		NestedItemsCollection = FillWithWhat.DataParameters.Items;
 		If NestedItemsCollection.Count() > 0 Then
 			NestedItemsNode = WhatToFill.DataParameters;
@@ -1662,8 +1662,8 @@ Function FillPropertiesRecursively(Node, WhatToFill, FillWithWhat, Map = Undefin
 	EndIf;
 	
 	If CopyingParameters.HasUserFields Then
-		//   
-		//   
+		//   UserFields (DataCompositionUserFields).
+		//   UserFields.Items (DataCompositionUserFieldCollection).
 		NestedItemsCollection = FillWithWhat.UserFields.Items;
 		If NestedItemsCollection.Count() > 0 Then
 			NewNestedItemsCollection = WhatToFill.UserFields.Items;
@@ -1674,8 +1674,8 @@ Function FillPropertiesRecursively(Node, WhatToFill, FillWithWhat, Map = Undefin
 	EndIf;
 	
 	If CopyingParameters.HasGroupFields Then
-		//   
-		//   
+		//   GroupFields (DataCompositionGroupFields).
+		//   GroupFields.Items (DataCompositionGroupFieldCollection).
 		NestedItemsCollection = FillWithWhat.GroupFields.Items;
 		If NestedItemsCollection.Count() > 0 Then
 			NewNestedItemsCollection = WhatToFill.GroupFields.Items;
@@ -1699,9 +1699,9 @@ Function FillPropertiesRecursively(Node, WhatToFill, FillWithWhat, Map = Undefin
 	EndIf;
 	
 	If CopyingParameters.HasStructure Then
-		//   
-		//       
-		//       
+		//   Structure (DataCompositionSettingStructureItemCollection,
+		//       DataCompositionChartStructureItemCollection,
+		//       DataCompositionTableStructureItemCollection).
 		FillPropertyValues(WhatToFill.Structure, FillWithWhat.Structure);
 		NestedItemsCollection = FillWithWhat.Structure;
 		If NestedItemsCollection.Count() > 0 Then
@@ -2025,6 +2025,11 @@ Function NameOfTheDefaultSettingEvent() Export
 	
 EndFunction
 
+Function PasteFromClipboardCommandName() Export
+	
+	Return "PasteFromClipboard";
+	
+EndFunction
 
 Function ReportFormUpdateParameters(Val EventName = "") Export
 	

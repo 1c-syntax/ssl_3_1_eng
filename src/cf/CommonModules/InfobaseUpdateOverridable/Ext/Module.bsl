@@ -88,22 +88,22 @@ EndProcedure
 //       * MainServerModule      - CommonModule - library (configuration) common module which contains
 //                                        basic information about it: name, version, etc.
 //       * PreviousVersion             - String - for example, "2.1.3.30". Library (configuration) version number before an update.
-//   OutputUpdatesDetails - Boolean - if False s set, a form
-//                                containing description of new version updates will not be opened at first launch of a program. True by default.
+//   OutputUpdatesDetails - Boolean - When set to False, the release notes form is not opened on start.
+//                                By default, True.
 //   ExclusiveMode           - Boolean - indicates that an update was executed in an exclusive mode.
 //
 // Example:
-//  To avoid completed update handlers:
-//  For Every UpdateIteration From UpdateIterations Cycle
-//  	For Every Version From UpdateIteration.CompletedHandlers.Rows Cycle
+//  Iterating through the completed update handlers:
+//  For Each UpdateIteration In UpdateIterations Do
+//  	For Each Version In UpdateIteration.CompletedHandlers.Rows Do
 //  		
 //  		If Version.Version = "*" Then
-//  			// A group of handlers that are executed regularly, on every other version.
+//  			// A set of handlers that run regularly for each new version.
 //  		Else
-//  			// A group of handlers that were executed for a particular version.
+//  			// A set of handlers that run for a specific version.
 //  		EndIf;
 //  		
-//  		For Each Handler From Version.Rows Do
+//  		For Each Handler In Version.Rows Do
 //  			…
 //  		EndDo;
 //  		
@@ -149,15 +149,15 @@ EndProcedure
 //       * PreviousVersion             - String - for example, "2.1.3.30". Library (configuration) version number before an update.
 //
 // Example:
-//  Iteration of all update handlers:
-//  For Every UpdateIteration From UpdateIterations Do
+//  Iterating through all update handlers:
+//  For Each UpdateIteration In UpdateIterations Do
 //		If UpdateIteration.Subsystem = "OurSubsystemName" Then
-//  		For Every Handler From UpdateIteration.Handlers Do
+//  		For Each Handler In UpdateIteration.Handlers Do
 //  		
 //  			If Handler.Version = "*" Then
-//  				// A group of handlers regularly executed for every new version.
+//  				// A set of handlers that run regularly for each new version.
 //  			Else
-//  				// A group of handlers executed for a particular version.
+//  				// A set of handlers that run for a specific version.
 //  			EndIf;
 //  		
 //  		EndDo;
@@ -222,7 +222,7 @@ EndProcedure
 //  Settings - Structure:
 //   * OnInitialItemFilling - Boolean - if True, then the OnItemInitialFilling individual filling procedure will be
 //      called for each item.
-//   * PredefinedData - ValueTable - data filled in the OnInitialItemFilling procedure.
+//   * PredefinedData - ValueTable - Data populated in the OnInitialItemsFilling procedure.
 //
 Procedure OnSetUpInitialItemsFilling(FullObjectName, Settings) Export
 	
@@ -257,7 +257,7 @@ EndProcedure
 //  Object                  - Object to populate.
 //  Data                  - ValueTableRow - object filling data.
 //  AdditionalParameters - Structure:
-//   * PredefinedData - ValueTable - data filled in the OnInitialItemFilling procedure.
+//   * PredefinedData - ValueTable - Data populated in the OnInitialItemsFilling procedure.
 //
 Procedure OnInitialItemFilling(FullObjectName, Object, Data, AdditionalParameters) Export
 	
@@ -290,7 +290,7 @@ EndProcedure
 //	
 //  InfobaseUpdate.AddObjectPlannedForDeletion(Objects,
 //		"InformationRegister.ObjectsVersions.Object",
-//		New TypeDetails("CatalogRef.Persons,
+//		New TypeDescription("CatalogRef.Individuals,
 //			|DocumentRef.AccrualOfSalary"));
 //
 Procedure OnPopulateObjectsPlannedForDeletion(Objects) Export

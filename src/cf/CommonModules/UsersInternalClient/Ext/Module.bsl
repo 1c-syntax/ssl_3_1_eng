@@ -68,8 +68,8 @@ Procedure ExpandRoleSubsystems(Form, Unconditionally = True) Export
 	EndIf;
 	
 	// Expand all.
-	For Each String In Form.Roles.GetItems() Do
-		Items.Roles.Expand(String.GetID(), True);
+	For Each TableRow In Form.Roles.GetItems() Do
+		Items.Roles.Expand(TableRow.GetID(), True);
 	EndDo;
 	
 EndProcedure
@@ -95,16 +95,47 @@ Procedure SelectPurpose(FormData1, Title, SelectUsersAllowed = True, IsFilter = 
 	
 EndProcedure
 
+// 
+//
+// Parameters:
+//  Notification - NotifyDescription - 
+//                 
+//             - Undefined - 
+//
+//  TypeOfWarning - See UsersInternalClientServer.TypesOfSafetyWarnings
+//
+//  AdditionalParameter - Arbitrary - 
+//
+Procedure ShowSecurityWarning(Notification, TypeOfWarning, AdditionalParameter = Undefined) Export
+	
+	If Not UsersInternalClientServer.TypesOfSafetyWarnings().Property(TypeOfWarning) Then
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Invalid value of parameter ""%1"" in procedure ""%2"":
+			           |""%3"".';"),
+			"TypeOfWarning",
+			"UsersInternalClient.ShowSecurityWarning",
+			TypeOfWarning);
+		Raise(ErrorText, ErrorCategory.ConfigurationError);
+	EndIf;
+	
+	FormParameters = New Structure;
+	FormParameters.Insert("Key", TypeOfWarning);
+	FormParameters.Insert("AdditionalParameter", AdditionalParameter);
+	
+	OpenForm("CommonForm.SecurityWarning", FormParameters,,,,, Notification);
+	
+EndProcedure
+
 ///////////////////////////////////////////////////////////////////////////////
 // Idle handlers.
 
-// Opens the security warning window.
-Procedure ShowSecurityWarning() Export
+// 
+Procedure ShowSecurityWarningAfterStartupIfNecessary() Export
 	
 	ClientRunParameters = StandardSubsystemsClient.ClientParametersOnStart();
 	Var_Key = CommonClientServer.StructureProperty(ClientRunParameters, "SecurityWarningKey");
 	If ValueIsFilled(Var_Key) Then
-		OpenForm("CommonForm.SecurityWarning", New Structure("Key", Var_Key));
+		ShowSecurityWarning(Undefined, Var_Key);
 	EndIf;
 	
 EndProcedure
@@ -525,7 +556,7 @@ Function UsersNote(UsersCount, User) Export
 EndFunction
 
 ///////////////////////////////////////////////////////////////////////////////
-// 
+// Procedures and functions for restarting the app upon the removal of user roles.
 
 Procedure InitiateAppRestart()
 	
@@ -534,7 +565,7 @@ Procedure InitiateAppRestart()
 		Return;
 	EndIf;
 	
-	Parameters.RestartDate = CommonClient.SessionDate() + 15*60; // 
+	Parameters.RestartDate = CommonClient.SessionDate() + 15*60; // 15 minutes.
 	
 	AttachIdleHandler("ControlRestartWhenAccessRightsReduced", 60);
 	NotifyAboutAppRestart();
@@ -561,8 +592,8 @@ Procedure NotifyAboutAppRestart()
 		Return;
 	EndIf;
 	
-	WaitTimeout = 10; // 
-	ExitWithConfirmationTimeout = 5; // 
+	WaitTimeout = 10; // 10 minutes.
+	ExitWithConfirmationTimeout = 5; // 10 minutes.
 	CurrentMoment = CommonClient.SessionDate();
 	
 	If Parameters.RestartDate - CurrentMoment < 5 Then

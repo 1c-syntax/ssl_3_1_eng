@@ -54,6 +54,7 @@ EndProcedure
 &AtClient
 Procedure Clear(Command)
 	ClearUpInfoRecords();
+	Items.List.Refresh();
 EndProcedure
 
 #EndRegion

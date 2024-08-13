@@ -108,8 +108,8 @@ Procedure OnFillToDoList(ToDoList) Export
 	
 	NotificationOption = BackupSettings1.NotificationParameter1;
 	
-	// 
-	// 
+	// The procedure can be called only if the "To-do list" subsystem is integrated.
+	// Therefore, don't check if the subsystem is integrated.
 	Sections = ModuleToDoListServer.SectionsForObject(Metadata.DataProcessors.IBBackupSetup.FullName());
 	
 	For Each Section In Sections Do
@@ -213,7 +213,7 @@ Function NewBackupSettings()
 	
 	Parameters.Insert("CopyingSchedule", CommonClientServer.ScheduleToStructure(New JobSchedule));
 	Parameters.Insert("BackupStorageDirectory", "");
-	Parameters.Insert("ManualBackupsStorageDirectory", ""); // 
+	Parameters.Insert("ManualBackupsStorageDirectory", ""); // For manual backing up.
 	Parameters.Insert("BackupCreated1", False);
 	Parameters.Insert("RestorePerformed", False);
 	Parameters.Insert("CopyingResult", Undefined);
@@ -584,7 +584,7 @@ EndFunction
 Procedure SetTheGeneralParametersOfTheScreenSaver(Parameters) Export 
 	
 	Parameters["[ProductName]"] = NStr("en = '1C:ENTERPRISE 8.3';");
-	Parameters["[Copyright_SSLy]"] = StringFunctionsClientServer.SubstituteParametersToString(
+	Parameters["[Copyright]"] = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = '© 1C Company, 1996-%1';"), Format(Year(CurrentSessionDate()), "NG=0"));
 	
 EndProcedure

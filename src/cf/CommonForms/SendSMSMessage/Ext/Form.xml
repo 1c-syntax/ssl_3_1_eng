@@ -131,8 +131,8 @@
 													<v8:content>Symbols used</v8:content>
 												</v8:item>
 											</Title>
-											<ContextMenu name="MessageLength1ContextMenu" id="39"/>
-											<ExtendedTooltip name="MessageLength1ExtendedTooltip" id="40"/>
+											<ContextMenu name="CharactersInMessageContextMenu" id="39"/>
+											<ExtendedTooltip name="CharactersInMessageExtendedTooltip" id="40"/>
 										</LabelField>
 									</ChildItems>
 								</UsualGroup>
@@ -309,8 +309,8 @@
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
-									<ContextMenu name="TimeConsumingOperationPicture2ContextMenu" id="120"/>
-									<ExtendedTooltip name="TimeConsumingOperationPicture2ExtendedTooltip" id="121"/>
+									<ContextMenu name="PictureTimeConsumingOperationContextMenu" id="120"/>
+									<ExtendedTooltip name="PictureTimeConsumingOperationExtendedTooltip" id="121"/>
 								</PictureDecoration>
 								<LabelDecoration name="DeliveryStatusCheckInProgressLabel" id="125">
 									<Title formatted="false">
@@ -374,7 +374,7 @@
 				</v8:item>
 			</Title>
 			<HorizontalLocation>Right</HorizontalLocation>
-			<ExtendedTooltip name="CommandBarGroupExtendedTooltip" id="44"/>
+			<ExtendedTooltip name="GroupCommandBarExtendedTooltip" id="44"/>
 			<ChildItems>
 				<Button name="SMSSendingOpenSetting" id="34">
 					<Type>CommandBarButton</Type>

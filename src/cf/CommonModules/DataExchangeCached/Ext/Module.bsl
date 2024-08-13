@@ -870,7 +870,7 @@ Function IsUniversalDataExchangeNode(InfobaseNode) Export
 	
 EndFunction
 
-// Returns the flag showing whether the node belongs to an exchange plan that uses SSL exchange functionality.
+// Returns the flag showing whether the node belongs to an exchange plan that uses SSL exchange functionality.
 //
 // Parameters:
 //  InfobaseNode - ExchangePlanRef
@@ -900,7 +900,7 @@ Function IsSeparatedSSLDataExchangeNode(InfobaseNode) Export
 	
 EndFunction
 
-// Returns the flag showing whether the node belongs to the exchange plan used for message exchange.
+// Returns the flag showing whether the node belongs to the exchange plan used for message exchange.
 //
 // Parameters:
 //  InfobaseNode - ExchangePlanRef - an exchange plan node that requires receiving the function value.
@@ -1138,11 +1138,11 @@ Function UsedExchangeMessagesTransports(InfobaseNode, Val SettingsMode = "") Exp
 		Result = DataExchangeServer.AllConfigurationExchangeMessagesTransports();
 	EndIf;
 	
-	// 
-	//  
-	//  
-	//  
-	//  
+	// Data exchange over COM connections is not supported by:
+	//  - Configurations with the basic license
+	//  - Distributed infobases
+	//  - Exchange without conversion rules
+	//  - 1C:Enterprise servers that run on Linux
 	//
 	If StandardSubsystemsServer.IsBaseConfigurationVersion()
 		Or DataExchangeCached.IsDistributedInfobaseExchangePlan(ExchangePlanName)
@@ -1154,8 +1154,8 @@ Function UsedExchangeMessagesTransports(InfobaseNode, Val SettingsMode = "") Exp
 			
 	EndIf;
 	
-	// 
-	//  
+	// Data exchange over WS connections is not supported by:
+	//  - Distributed infobases that are not a standalone workstation
 	//
 	If DataExchangeCached.IsDistributedInfobaseExchangePlan(ExchangePlanName)
 		And Not DataExchangeCached.IsStandaloneWorkstationNode(InfobaseNode) Then
@@ -1165,9 +1165,9 @@ Function UsedExchangeMessagesTransports(InfobaseNode, Val SettingsMode = "") Exp
 		
 	EndIf;
 	
-	// 
-	//  
-	//  
+	// Data exchange over passive WS connections is not supported by:
+	//  - Non-XDTO data exchange
+	//  - File infobases
 	//
 	If Not DataExchangeCached.IsXDTOExchangePlan(ExchangePlanName)
 		Or Common.FileInfobase() Then
@@ -1177,9 +1177,9 @@ Function UsedExchangeMessagesTransports(InfobaseNode, Val SettingsMode = "") Exp
 		
 	EndIf;
 	
-	// 
-	//  
-	//  
+	// Data exchange over email is not supported when:
+	//  - "Email management" subsystem is unavailable
+	//  - The configuration cannot receive email messages
 	If Common.SubsystemExists("StandardSubsystems.EmailOperations") Then
 		ModuleEmailOperationsInternal = Common.CommonModule("EmailOperationsInternal");
 		If Not ModuleEmailOperationsInternal.CanReceiveEmails() Then
@@ -1290,20 +1290,20 @@ EndFunction
 Function CorrespondentVersions(Val Peer) Export
 	
 	If TypeOf(Peer) = Type("Structure") Then
-		SettingsStructure = Peer;
+		SettingsStructure_ = Peer;
 	Else
 		If DataExchangeCached.IsMessagesExchangeNode(Peer) Then
 			ModuleMessagesExchangeTransportSettings = Common.CommonModule("InformationRegisters.MessageExchangeTransportSettings");
-			SettingsStructure = ModuleMessagesExchangeTransportSettings.TransportSettingsWS(Peer);
+			SettingsStructure_ = ModuleMessagesExchangeTransportSettings.TransportSettingsWS(Peer);
 		Else
-			SettingsStructure = InformationRegisters.DataExchangeTransportSettings.TransportSettingsWS(Peer);
+			SettingsStructure_ = InformationRegisters.DataExchangeTransportSettings.TransportSettingsWS(Peer);
 		EndIf;
 	EndIf;
 	
 	ConnectionParameters = New Structure;
-	ConnectionParameters.Insert("URL",      SettingsStructure.WSWebServiceURL);
-	ConnectionParameters.Insert("UserName", SettingsStructure.WSUserName);
-	ConnectionParameters.Insert("Password", SettingsStructure.WSPassword);
+	ConnectionParameters.Insert("URL",      SettingsStructure_.WSWebServiceURL);
+	ConnectionParameters.Insert("UserName", SettingsStructure_.WSUserName);
+	ConnectionParameters.Insert("Password", SettingsStructure_.WSPassword);
 	
 	Return Common.GetInterfaceVersions(ConnectionParameters, "DataExchange");
 	
@@ -1330,10 +1330,10 @@ EndFunction
 
 Function StandaloneModeExchangePlans()
 	
-	// 
-	// 
-	// 
-	// 
+	// For SaaS standalone infobases, the exchange plan should be:
+	// - Separated
+	// - Set up for a distributed infobase
+	// - Set up for SaaS mode ("ExchangePlanUsedInSaaS" is set to "True")
 	
 	Result = New Array;
 	

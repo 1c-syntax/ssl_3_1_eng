@@ -278,7 +278,7 @@ Procedure RejectedDueToDateOnActivateRow(Item)
 	LinkedItems1.Add(Items.RejectedDueToDateChange);
 	LinkedItems1.Add(Items.DeclinedByDateOpenVersion);
 	LinkedItems1.Add(Items.RejectedDueToDateIgnoreDeclined);
-	LinkedItems1.Add(Items.RejectedDueToDateDoNotIgnoreDeclined);
+	LinkedItems1.Add(Items.RejectedDueToDateNotIgnoreDeclined);
 	
 	LinkedItems1.Add(Items.DeclinedByDateContextMenuCompareWithInfobaseData);
 	LinkedItems1.Add(Items.DeclinedByDateContextMenuAcceptVersion);

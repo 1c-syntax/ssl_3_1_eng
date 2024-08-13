@@ -129,14 +129,14 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 &AtClient
-Procedure FILEInformationExchangeDirectoryStartChoice(Item, ChoiceData, StandardProcessing)
+Procedure FILEDataExchangeDirectoryStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	DataExchangeClient.FileDirectoryChoiceHandler(Record, "FILEDataExchangeDirectory", StandardProcessing);
 	
 EndProcedure
 
 &AtClient
-Procedure FILEInformationExchangeDirectoryOpening(Item, StandardProcessing)
+Procedure FILEDataExchangeDirectoryOpening(Item, StandardProcessing)
 	
 	DataExchangeClient.FileOrDirectoryOpenHandler(Record, "FILEDataExchangeDirectory", StandardProcessing)
 	

@@ -34,7 +34,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 &AtClient
-Procedure DetailsDecoration1Click(Item)
+Procedure DecorationMoreClick(Item)
 	
 	ReportParameters = New Structure();
 	ReportParameters.Insert("GenerateOnOpen", True);
@@ -149,7 +149,7 @@ Procedure FillExcessFilesTable()
 		NewRow.FullName        = File.FullName;
 		NewRow.Path             = File.Path;
 		NewRow.Extension       = File.Extension;
-		NewRow.CheckStatus   = NStr("en = 'Extraneous files (files in the volume that are not registered in the application)';");
+		NewRow.CheckStatus   = NStr("en = 'Unreferenced files (files in the volume that have no entries in the application)';");
 		NewRow.Count       = 1;
 		NewRow.Volume              = FileStorageVolume;
 		
@@ -158,7 +158,7 @@ Procedure FillExcessFilesTable()
 	FilesOperationsInVolumesInternal.FillInExtraFiles(FilesTableOnHardDrive, FileStorageVolume);
 	FilesTableOnHardDrive.Indexes.Add("CheckStatus");
 	ExcessFilesArray = FilesTableOnHardDrive.FindRows(
-		New Structure("CheckStatus", NStr("en = 'Extraneous files (files in the volume that are not registered in the application)';")));
+		New Structure("CheckStatus", NStr("en = 'Unreferenced files (files in the volume that have no entries in the application)';")));
 	
 	For Each File In ExcessFilesArray Do
 		NewRow = UnnecessaryFiles.Add();
@@ -232,23 +232,25 @@ EndProcedure
 
 // Parameters:
 //   ErrorsReport - SpreadsheetDocument
-//   
+//   FilesArrayWithErrors - Array of see ErrorStructure
 //
 &AtServer
 Procedure GenerateErrorsReport(ErrorsReport)
-	FilesArrayWithErrors = FormAttributeToValue("FilesWithErrors");
-	TabTemplate = Catalogs.FileStorageVolumes.GetTemplate("ReportTemplate");
+
+	TabularTemplate = Catalogs.FileStorageVolumes.GetTemplate("ReportTemplate");
 	
-	HeaderArea_ = TabTemplate.GetArea("Title");
+	HeaderArea_ = TabularTemplate.GetArea("Title");
 	HeaderArea_.Parameters.LongDesc = NStr("en = 'Files with errors:';");
 	ErrorsReport.Put(HeaderArea_);
 	
-	AreaRow = TabTemplate.GetArea("String");
+	AreaRow = TabularTemplate.GetArea("String");
 	
-	For Each FileWithError In FilesArrayWithErrors Do
+	For Each FileWithError In FormAttributeToValue("FilesWithErrors") Do
 		AreaRow.Parameters.Name1 = FileWithError.Name;
 		AreaRow.Parameters.Error = FileWithError.Error;
-		ErrorsReport.Put(AreaRow);
+		Area = ErrorsReport.Put(AreaRow);
+		Area.RowHeight = 0;
+		Area.AutoRowHeight = True;
 	EndDo;
 	
 EndProcedure
@@ -395,16 +397,14 @@ Procedure AfterProcessFiles()
 			NStr("en = 'Files deleted: %1';"),
 			NumberOfDeletedFiles);
 		ShowUserNotification(
-			NStr("en = 'The extraneous files are deleted.';"),
-			,
-			NotificationText1,
-			PictureLib.DialogInformation);
+			NStr("en = 'Unreferenced files are deleted.';"),,
+			NotificationText1, PictureLib.DialogInformation);
 	EndIf;
 	
 	If FilesWithErrors.Count() > 0 Then
 		ErrorsReport = New SpreadsheetDocument;
 		GenerateErrorsReport(ErrorsReport);
-		ErrorsReport.Show();
+		ErrorsReport.Show(NStr("en = 'Delete unreferenced volume files';"));
 	EndIf;
 	
 	Close();

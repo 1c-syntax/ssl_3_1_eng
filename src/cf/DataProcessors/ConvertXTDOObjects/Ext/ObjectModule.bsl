@@ -472,9 +472,9 @@ EndProcedure
 //
 // Parameters:
 //  TablesToImport - Array of String - array of types to be imported from the exchange message.
-//                       For example, to import from the exchange message the "Demo:Counterparties" catalog items only:
+//                       For example, to import from the exchange message the "Counterparties" catalog items only:
 //                         TablesToImport = New Array;
-//                         TablesToImport.Add("CatalogRef._DemoCounterparties");
+//                         TablesToImport.Add("CatalogRef.Counterparties");
 //                       You can receive the list of all types that are contained in the current exchange message
 //                       by calling the ExecuteExchangeMessageAnalysis() procedure.
 // 
@@ -642,10 +642,10 @@ EndProcedure
 // Imports data from the exchange message file to values table of specified objects types.
 //
 // Parameters:
-//  TablesToImport - Array of String - an array of types to be imported from the exchange message.
-//                       For example, to import from the exchange message the "Demo:Counterparties" catalog items only:
+//  TablesToImport - Array of String - array of types to be imported from the exchange message.
+//                       For example, to import from the exchange message the "Counterparties" catalog items only:
 //                         TablesToImport = New Array;
-//                         TablesToImport.Add("CatalogRef._DemoCounterparties");
+//                         TablesToImport.Add("CatalogRef.Counterparties");
 //                       You can receive the list of all types that are contained in the current exchange message
 //                       by calling the ExecuteExchangeMessageAnalysis() procedure.
 // 
@@ -788,7 +788,7 @@ Function InitExchangeMessageDataTable(ObjectType)
 	
 	MetadataObject = Metadata.FindByType(ObjectType);
 	
-	// Getting a description of all metadata object fields from the configuration.
+	// Get details of all metadata object fields from the configuration.
 	ObjectPropertiesDescriptionTable = Common.ObjectPropertiesDetails(MetadataObject, "Name, Type");
 	
 	For Each PropertyDetails In ObjectPropertiesDescriptionTable Do

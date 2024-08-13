@@ -447,7 +447,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Overall state</v8:content>
+							<v8:content>Aggregated state</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -460,7 +460,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Indicates whether the current state is overall</v8:content>
+							<v8:content>Indicates whether the aggregated state is displayed</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>

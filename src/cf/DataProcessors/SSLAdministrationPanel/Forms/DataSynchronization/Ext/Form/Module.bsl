@@ -144,7 +144,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Client
+// Client.
 
 &AtClient
 Procedure Attachable_OnChangeAttribute(Item, ShouldRefreshInterface = True)
@@ -254,7 +254,7 @@ Procedure RefreshSecurityProfilesPermissionsCompletion(Result, Item) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Server call.
 
 &AtServer
 Function OnChangeAttributeServer(TagName)
@@ -268,7 +268,7 @@ Function OnChangeAttributeServer(TagName)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Server
+// Server.
 
 &AtServer
 Function SaveAttributeValue(DataPathAttribute)

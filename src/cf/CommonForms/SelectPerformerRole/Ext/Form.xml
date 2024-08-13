@@ -88,7 +88,7 @@
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="IndentGroupExtendedTooltip" id="28"/>
+					<ExtendedTooltip name="GroupIndentExtendedTooltip" id="28"/>
 					<ChildItems>
 						<InputField name="MainAddressingObject" id="13">
 							<DataPath>MainAddressingObject</DataPath>

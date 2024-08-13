@@ -47,6 +47,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	FillSignatures(Parameters.Object);
 	
+	DigitalSignatureLocalization.OnCreateAtServer(ThisObject);
+	
 	DontAskAgain = False;
 	
 EndProcedure
@@ -107,7 +109,7 @@ Procedure FillSignatures(Object)
 	If TypeOf(Object) = Type("String") Then
 		SignaturesCollection = GetFromTempStorage(Object);
 	Else
-		SignaturesCollection = DigitalSignature.SetSignatures(Object);
+		SignaturesCollection = DigitalSignature.SetSignatures(Object, Undefined, True);
 	EndIf;
 	
 	For Each AllSignatureProperties In SignaturesCollection Do
@@ -116,6 +118,16 @@ Procedure FillSignatures(Object)
 		
 		NewRow.SignatureAddress = PutToTempStorage(
 			AllSignatureProperties.Signature, UUID);
+		
+		If ValueIsFilled(AllSignatureProperties.ResultOfSignatureVerificationByMRLOA) Then
+			For Each ResultOfSignatureVerificationByMRLOA In AllSignatureProperties.ResultOfSignatureVerificationByMRLOA Do
+				NewRow.MachineReadableLetterOfAuthority.Add(
+					ResultOfSignatureVerificationByMRLOA.MachineReadableLetterOfAuthority);
+				NewRow.MachineReadableLetterOfAuthorityPresentation = NewRow.MachineReadableLetterOfAuthorityPresentation
+					+ ?(ValueIsFilled(NewRow.MachineReadableLetterOfAuthorityPresentation), Chars.LF, "")
+					+ ResultOfSignatureVerificationByMRLOA.MachineReadableLetterOfAuthority;
+			EndDo;
+		EndIf;
 		
 		DataByCertificate = DigitalSignatureInternal.DataByCertificate(AllSignatureProperties, UUID);
 		FillPropertyValues(NewRow, DataByCertificate);

@@ -147,7 +147,7 @@ Procedure UpdateActiveSessionCount(Form)
 		If ValueIsFilled(Form.Parameters.ErrorTextExitFailed) Then
 			ErrorMessageText = Form.Parameters.ErrorTextExitFailed;
 		Else	
-			ErrorMessageText = NStr("en = 'Cannot update the app because the following users are still signed in:';");
+			ErrorMessageText = NStr("en = 'Cannot update the app because the following users are still logged in:';");
 		EndIf;
 		Form.Items.ErrorMessageText.Title = ErrorMessageText;
 		Form.Items.FixErrorText.Title = NStr("en = 'To continue, close their sessions.';");

@@ -26,7 +26,7 @@
 				<Title>
 					<v8:item>
 						<v8:lang>en</v8:lang>
-						<v8:content>Select clear check boxes document type</v8:content>
+						<v8:content>Toggle document type checkboxes</v8:content>
 					</v8:item>
 				</Title>
 				<ExtendedTooltip name="SelectClearAllDocumentKindGroupExtendedTooltip" id="27"/>

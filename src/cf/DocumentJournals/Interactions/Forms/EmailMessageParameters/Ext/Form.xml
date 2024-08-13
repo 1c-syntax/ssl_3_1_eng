@@ -70,7 +70,7 @@
 								</v8:item>
 							</Title>
 							<HorizontalStretch>false</HorizontalStretch>
-							<ContextMenu name="Created1ContextMenu" id="10"/>
+							<ContextMenu name="CreatedOnContextMenu" id="10"/>
 							<ExtendedTooltip name="CreatedOnExtendedTooltip" id="31"/>
 						</InputField>
 						<InputField name="ReceivedSent" id="11">

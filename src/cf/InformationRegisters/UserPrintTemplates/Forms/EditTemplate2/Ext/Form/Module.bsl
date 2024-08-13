@@ -180,24 +180,24 @@ Procedure SetApplicationNameForTemplateOpening()
 	Items.BeforeDownloadTemplateInstructionWebClientLabel.Title = 
 		NStr("en = 'Click Continue to import.';");
 	Items.BeforeDownloadTemplateInstructionNotWebClientLabel.Title = 
-		NStr("en = 'Click Continue to open the template in another app. Modify the template, close it, and follow further instructions.';");
+		NStr("en = 'Click Continue to open the template in another application. Modify the template, close it, and follow further instructions.';");
 	
 	If Parameters.OpenOnly Then
 		Items.BeforeDownloadTemplateApplicationWebClientLabel.Title = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Template file ""%1"" is ready to be imported and %3 with an external app on your computer.
+			NStr("en = 'Template file ""%1"" is ready to be imported and opened with an external application on your computer.
 				 |
 				 |If you haven''t installed the editor yet, we recommend installing %2.';"), TemplatePresentation,
 				ApplicationNameForTemplateOpening);
 	Else
 		Items.BeforeDownloadTemplateApplicationWebClientLabel.Title = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Template file ""%1"" is ready to be imported and %3 with an external app on your computer.
+			NStr("en = 'Template file ""%1"" is ready to be imported and edited with an external application on your computer.
 				 |
 				 |If you haven''t installed the editor yet, we recommend installing %2.';"), TemplatePresentation,
 				ApplicationNameForTemplateOpening);
 	EndIf;
 	
 	Items.BeforeDownloadTemplateApplicationNotWebClientLabel.Title = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Template file ""%1"" is ready to be edited with an external app. If you haven''t installed the editor yet, we recommend installing %2.';"), 
+		NStr("en = 'Template file ""%1"" is ready to be edited with an external application. If you haven''t installed the editor yet, we recommend installing %2.';"), 
 		TemplatePresentation, ApplicationNameForTemplateOpening);
 	
 	Items.ApplyChangesLabelWebClient.Title = StringFunctionsClientServer.SubstituteParametersToString(

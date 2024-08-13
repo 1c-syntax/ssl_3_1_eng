@@ -142,7 +142,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 
 	ReportsClientServer.DisplayReportState(
-		ThisObject, NStr("en = 'To run report, click ""Generate"".';"));
+		ThisObject, NStr("en = 'To run the report, click ""Generate"".';"));
 
 	SSLSubsystemsIntegration.OnCreateAtServerReportsOptions(ThisObject, Cancel, StandardProcessing);
 	ReportsOverridable.OnCreateAtServer(ThisObject, Cancel, StandardProcessing);
@@ -251,13 +251,8 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 
 		ReportSettings.SchemaKey = "";
 
-		VariantKey = "";
-		If TypeOf(Parameter) = Type("Structure") Then
-			VariantKey = CommonClientServer.StructureProperty(Parameter, "VariantKey", "");
-		EndIf;
-
-		If ValueIsFilled(VariantKey) Then
-			SetCurrentVariant(VariantKey);
+		If ValueIsFilled(Parameter.VariantKey) Then
+			SetCurrentVariant(Parameter.VariantKey);
 		Else
 			PanelOptionsCurrentOptionKey = BlankOptionKey();
 		EndIf;
@@ -543,7 +538,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Attachable objects.
 
 &AtClient
 Procedure Attachable_SettingItem_OnChange(Item)
@@ -870,8 +865,8 @@ Procedure OtherReports(Command)
 	DescriptionOfReportSettings = DescriptionOfReportSettings(ReportSettings);
 
 	VisibleOptions = New Array;
-	For Each String In AddedOptions Do
-		VisibleOptions.Add(String.Ref);
+	For Each ReportVariant In AddedOptions Do
+		VisibleOptions.Add(ReportVariant.Ref);
 	EndDo;
 
 	FormParameters = New Structure;
@@ -920,7 +915,7 @@ Procedure EditResourcePlacement(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Handlers of DCS modification commands.
 
 &AtClient
 Procedure ImportSchema(Command)
@@ -974,7 +969,7 @@ Procedure RestoreDefaultSchema(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Handlers of (main and user) settings exchange commands.
 
 &AtClient
 Procedure SaveReportOptionToFile(Command)
@@ -1007,7 +1002,7 @@ Procedure ShareSettings(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Handlers of report result save commands.
 
 &AtClient
 Procedure SaveReport(Command)
@@ -1047,7 +1042,7 @@ Procedure ReportsSnapshots(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Handlers of context menu commands in the report resulting spreadsheet document.
 
 &AtClient
 Procedure GroupBySelectedField(Command)
@@ -1199,10 +1194,10 @@ Procedure ApplyAppearanceMore(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Handlers of indicator calculation commands.
 
 &AtClient
-Procedure SelectAnIndicatorClick(Item)
+Procedure SelectIndicatorClick(Item)
 
 	Menu = MenuOfIndicatorTypes(Items.IndicatorsKindsCommands);
 	ShowChooseFromMenu(New NotifyDescription("AfterSelectingTheIndicator", ThisObject), Menu, Item);
@@ -1246,7 +1241,7 @@ Procedure CollapseIndicators(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Attachable objects.
 
 // Parameters:
 //  Command - FormCommand
@@ -1339,7 +1334,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Client
+// Client.
 
 &AtClient
 Procedure DefineTheBehaviorOnTheHomePage()
@@ -2519,7 +2514,7 @@ Procedure FindSuitableValuesBooleanUniversalSearch(SuitableValues, SearchFieldsB
 	EndDo;
 	
 	// Search by Boolean values.
-	// ACC:1391-off - Validate user imput.
+	// ACC:1391-off - Validate user input.
 	If StrCompare(SearchParameters.SearchString, NStr("en = 'Yes';")) = 0 
 		Or StrCompare(SearchParameters.SearchString, NStr("en = 'True';")) = 0 
 		Or StrCompare(SearchParameters.SearchString, NStr("en = 'Enabled';")) = 0 Then
@@ -2556,7 +2551,7 @@ Procedure FindSuitableValuesStringUniversalSearch(SuitableValues, SearchFieldsBy
 		Return;
 	EndIf;
 	
-	// ACC:1391-off - Validate user imput.
+	// ACC:1391-off - Validate user input.
 	If StrCompare(SearchParameters.SearchString, NStr("en = 'Yes';")) = 0 
 		Or StrCompare(SearchParameters.SearchString, NStr("en = 'True';")) = 0 
 		Or StrCompare(SearchParameters.SearchString, NStr("en = 'Enabled';")) = 0
@@ -2576,7 +2571,6 @@ Procedure FindSuitableValuesStringUniversalSearch(SuitableValues, SearchFieldsBy
 	EndDo;
 
 	SearchFields = SearchFieldsByType[Type("String")];
-
 	If SearchFields = Undefined Then
 		Return;
 	EndIf;
@@ -2591,8 +2585,8 @@ Procedure FindSuitableValuesStringUniversalSearch(SuitableValues, SearchFieldsBy
 		ResultPresentation = ViewSearchResultClient(
 			FieldForSearch.Value, SearchProperties.ComparisonType, SearchProperties.RightValue);
 		IsValueExist = False;
-		For Each String In SuitableValues Do
-			If StrCompare(String.Presentation, ResultPresentation) = 0 Then
+		For Each SuitableValue In SuitableValues Do
+			If StrCompare(SuitableValue.Presentation, ResultPresentation) = 0 Then
 				IsValueExist = True;
 				Break;
 			EndIf;
@@ -3926,7 +3920,7 @@ EndProcedure
 #EndRegion
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Server call.
 
 &AtServer
 Procedure SetVisibilityAvailability()
@@ -4078,12 +4072,12 @@ Procedure LoadVariant(VariantKey, ClearStackSettings = True)
 
 	SetCurrentVariant(VariantKey);
 	ReportsClientServer.DisplayReportState(	ThisObject, 
-		NStr("en = 'Another report option is selected. To generate the report, click ""Generate"".';"),
+		NStr("en = 'Another report option is selected. To run the report, click ""Generate"".';"),
 		PictureLib.DialogInformation);
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Server
+// Server.
 
 &AtServer
 Procedure DefineBehaviorInMobileClient()
@@ -4232,7 +4226,7 @@ Procedure SetCurrentOptionKey(ReportFullName, ReportObject)
 	EndIf;
 	
 	// Save the key of the contextual report option, which is usually hidden from the UI.
-	//  (That is, "Enabled" is set to '"False".) (See Catalog.PredefinedReportsOptions.Enabled=  False)
+	//  (That is, "Enabled" is set to '"False".)
 	If ValueIsFilled(OptionContext) Then
 		ContextOption = ?(ValueIsFilled(Parameters.VariantKey), Parameters.VariantKey, CurrentVariantKey);
 		ContextOptions.Add(ContextOption);
@@ -4255,7 +4249,7 @@ Function ReportSettings(ReportObject)
 
 	Settings = ReportsOptions.ReportFormSettings(Parameters.Report, CurrentVariantKey, ReportObject);
 	Settings.SchemaURL = ReportSchemaURL(ReportObject);
-	Settings.Contextual = ValueIsFilled(OptionContext);
+	Settings.Contextual = ValueIsFilled(OptionContext) And Not Parameters.IsNonContextual;
 	Settings.Subsystem  = ParametersForm.Subsystem;
 	Settings.TablesToUse = CommonClientServer.StructureProperty(Parameters, "TablesToUse");
 	Settings.EventsSettings = EventsSettings();

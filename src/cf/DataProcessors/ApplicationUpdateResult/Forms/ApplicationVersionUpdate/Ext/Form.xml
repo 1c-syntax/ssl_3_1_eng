@@ -69,7 +69,7 @@
 Please wait…</v8:content>
 								</v8:item>
 							</Title>
-							<ContextMenu name="NoteText1ContextMenu" id="4"/>
+							<ContextMenu name="ExplanationTextContextMenu" id="4"/>
 							<ExtendedTooltip name="ExplanationTextExtendedTooltip" id="15"/>
 						</LabelDecoration>
 					</ChildItems>

@@ -134,9 +134,9 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	
 	// Filling object roles from the collection.
 	CurrentObject.Roles.Clear();
-	For Each String In RolesCollection Do
+	For Each Role In RolesCollection Do
 		CurrentObject.Roles.Add().Role = Common.MetadataObjectID(
-			"Role." + String.Role);
+			"Role." + Role.Role);
 	EndDo;
 	
 EndProcedure
@@ -171,25 +171,33 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	VerifiedObjectAttributes.Add("Roles.Role");
 	If Not Items.Roles.ReadOnly Then
 		TreeItems = Roles.GetItems();
-		For Each String In TreeItems Do
-			If Not String.Check Then
+		For Each Item In TreeItems Do
+			If Not Item.Check Then
 				Continue;
 			EndIf;
-			If String.IsNonExistingRole Then
+			If Item.IsNonExistingRole Then
 				CommonClientServer.AddUserError(Errors,
 					"Roles[%1].RolesSynonym",
-					StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Role ""%1"" does not exist.';"), String.Synonym),
+					StringFunctionsClientServer.SubstituteParametersToString(
+						NStr("en = 'Role ""%1"" does not exist.';"), 
+						Item.Synonym),
 					"Roles",
-					TreeItems.IndexOf(String),
-					StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Non-existent role ""%1"" in line %2.';"), String.Synonym, "%1"));
+					TreeItems.IndexOf(Item),
+					StringFunctionsClientServer.SubstituteParametersToString(
+						NStr("en = 'Non-existent role ""%1"" in line %2.';"), 
+						Item.Synonym, "%1"));
 			EndIf;
-			If String.IsUnavailableRole Then
+			If Item.IsUnavailableRole Then
 				CommonClientServer.AddUserError(Errors,
 					"Roles[%1].RolesSynonym",
-					StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Role ""%1"" is unavailable to external users.';"), String.Synonym),
+					StringFunctionsClientServer.SubstituteParametersToString(
+						NStr("en = 'Role ""%1"" is unavailable to external users.';"), 
+						Item.Synonym),
 					"Roles",
-					TreeItems.IndexOf(String),
-					StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Role ""%1"" in line %2 is unavailable to external users.';"), String.Synonym, "%1"));
+					TreeItems.IndexOf(Item),
+					StringFunctionsClientServer.SubstituteParametersToString(
+						NStr("en = 'Role ""%1"" in line %2 is unavailable to external users.';"), 
+						Item.Synonym, "%1"));
 			EndIf;
 		EndDo;
 	EndIf;
@@ -259,7 +267,7 @@ EndProcedure
 #Region FormTableItemsEventHandlersRoles
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Required by a role interface.
 
 &AtClient
 Procedure RolesCheckOnChange(Item)
@@ -365,7 +373,7 @@ Procedure SelectPurpose(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Required by a role interface.
 
 &AtClient
 Procedure ShowSelectedRolesOnly(Command)
@@ -749,7 +757,7 @@ Procedure AfterAssignmentChoice(TypesArray, AdditionalParameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Required by a role interface.
 
 &AtServer
 Procedure ProcessRolesInterface(Action, MainParameter = Undefined)

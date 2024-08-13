@@ -35,8 +35,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	// Getting the list of available property sets.
 	PropertiesSets = PropertyManagerInternal.GetObjectPropertySets(ObjectReference);
-	For Each String In PropertiesSets Do
-		AvailablePropertySets.Add(String.Set);
+	For Each TableRow In PropertiesSets Do
+		AvailablePropertySets.Add(TableRow.Set);
 	EndDo;
 	
 	ObjectLabels.LoadValues(PropertyManager.PropertiesByAdditionalAttributesKind(

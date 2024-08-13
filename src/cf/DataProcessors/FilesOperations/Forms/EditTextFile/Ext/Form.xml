@@ -121,7 +121,7 @@
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="ExternalEditorExtendedTooltip" id="71"/>
 			</Button>
-			<Button name="FormSelectEncoding1" id="61">
+			<Button name="FormSelectEncoding" id="61">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.SelectEncoding</CommandName>
 				<Title>
@@ -131,7 +131,7 @@
 					</v8:item>
 				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-				<ExtendedTooltip name="FormSelectEncoding1ExtendedTooltip" id="72"/>
+				<ExtendedTooltip name="FormSelectEncodingExtendedTooltip" id="72"/>
 			</Button>
 			<Button name="FormHelp" id="49">
 				<Type>CommandBarButton</Type>

@@ -58,7 +58,7 @@ Procedure AddFilesOperationsSettings(CommonSettings, PersonalSettings)
 	LocalFileCacheMaxSize = Common.CommonSettingsStorageLoad(
 		"LocalFileCache", "LocalFileCacheMaxSize");
 	If LocalFileCacheMaxSize = Undefined Then
-		LocalFileCacheMaxSize = 100*1024*1024; // 
+		LocalFileCacheMaxSize = 100*1024*1024; // 100 MB.
 		Common.CommonSettingsStorageSave("LocalFileCache",
 			"LocalFileCacheMaxSize", LocalFileCacheMaxSize);
 	EndIf;
@@ -67,8 +67,8 @@ Procedure AddFilesOperationsSettings(CommonSettings, PersonalSettings)
 	
 	PathToLocalFileCache = Common.CommonSettingsStorageLoad(
 		"LocalFileCache", "PathToLocalFileCache");
-	// 
-	// 
+	// Do not get the variable directly.
+	// Use the getter function "FilesOperationsInternalClient.UserWorkingDirectory".
 	PersonalSettings.Insert("PathToLocalFileCache", PathToLocalFileCache);
 	
 	DeleteFileFromLocalFileCacheOnCompleteEdit =

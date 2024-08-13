@@ -127,7 +127,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">StyleItem.CreateRightBackground</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">StyleItem.InvalidUserRightBackground</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">DefinedType.OwnerWithRestrictedAccessValueSetsDocument</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">EventSubscription.FillAccessValuesSetsForTabularSectionsDocuments_SSLy</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">EventSubscription.FillDocumentsTabularSectionsAccessValueSets</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.UsedAccessKindsByTables</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.UsedAccessKinds</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.InheritanceEnabled</xr:Item>

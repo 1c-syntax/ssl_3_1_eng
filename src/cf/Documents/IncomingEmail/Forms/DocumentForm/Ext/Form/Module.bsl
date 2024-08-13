@@ -534,12 +534,12 @@ Procedure AttachmentProperties(Command)
 		Return;
 	EndIf;
 	
-	FormParameters = New Structure("AttachedFile, ReadOnly", CurrentData.Ref,True);
-	OpenForm("DataProcessor.FilesOperations.Form.AttachedFile", FormParameters,, CurrentData.Ref);
+	FormParameters = New Structure("ReadOnly", True);
+	FilesOperationsClient.OpenFileForm(CurrentData.Ref, );
 	
 EndProcedure
 
-// 
+// StandardSubsystems.Properties
 
 &AtClient
 Procedure UpdateAdditionalAttributesDependencies()
@@ -733,7 +733,7 @@ Procedure SelectEncodingAfterCompletion(SelectedElement, AdditionalParameters) E
 
 EndProcedure
 
-// 
+// StandardSubsystems.Properties
 
 &AtServer
 Procedure PropertiesExecuteDeferredInitialization()

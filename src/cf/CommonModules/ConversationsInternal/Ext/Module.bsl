@@ -12,9 +12,9 @@
 
 Function Connected2() Export
 	
-	// 
-	//  
-	// 
+	// A server call makes sure the correct state is obtained if the infobase registration data
+	// was modified by the method "CollaborationSystem.SetInfoBaseRegistrationData". 
+	// It runs faster and doesn't make calls to the Collaboration server.
 	//
 	// 
 	CanUse = CollaborationSystem.CanUse();

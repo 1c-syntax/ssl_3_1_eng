@@ -144,7 +144,7 @@ Procedure CertificatesOnActivateRow(Item)
 	Else
 		DigitalSignatureClient.InstallExtension(False, New NotifyDescription(
 			"FillCertificateDataDetails", ThisObject, CurrentData.CertificateAddress),
-			NStr("en = 'To continue, install the cryptography extension.';"));
+			NStr("en = 'To continue, install 1C:Enterprise Extension.';"));
 	EndIf;
 	
 EndProcedure

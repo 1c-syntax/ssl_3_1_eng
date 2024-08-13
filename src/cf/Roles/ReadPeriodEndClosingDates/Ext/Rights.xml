@@ -19,17 +19,6 @@
 		</right>
 	</object>
 	<object>
-		<name>Report.PeriodClosingDates</name>
-		<right>
-			<name>Use</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>View</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
 		<name>Configuration.StandardSubsystemsLibrary</name>
 		<right>
 			<name>MainWindowModeNormal</name>
@@ -57,6 +46,17 @@
 		</right>
 	</object>
 	<object>
+		<name>Report.PeriodClosingDates</name>
+		<right>
+			<name>Use</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>View</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
 		<name>InformationRegister.PeriodClosingDates.Command.PeriodEndClosingDates</name>
 		<right>
 			<name>View</name>
@@ -69,16 +69,16 @@
 			<name>Read</name>
 			<value>true</value>
 			<restrictionByCondition>
-				<condition>#IF &amp;RecordLevelAccessRestrictionIsUniversal #THEN
+				<condition>#If &amp;RecordLevelAccessRestrictionIsUniversal #Then
 #ForRegister("MetadataObjectIDs.InformationRegisterPeriodClosingDates", "User", "", "", "", "")
-#ELSE
+#Else
 
-  #IF StrContains(&amp;AccessRightsToRestrictionDates, ",ReadDataImportRestrictionDates,")
-      AND StrContains(&amp;AccessRightsToRestrictionDates, ",ReadDataImportRestrictionDates,") #THEN
+  #If StrContains(&amp;AccessRightsToRestrictionDates, ",ReadDataImportRestrictionDates,")
+      AND StrContains(&amp;AccessRightsToRestrictionDates, ",ReadDataImportRestrictionDates,") #Then
 
 WHERE TRUE
 
-  #ElseIf StrContains(&amp;AccessRightsToRestrictionDates, ",ReadDataImportRestrictionDates,") #THEN
+  #ElseIf StrContains(&amp;AccessRightsToRestrictionDates, ",ReadDataImportRestrictionDates,") #Then
 
 WHERE
 	    VALUETYPE(User) = TYPE(Catalog.Users)
@@ -87,7 +87,7 @@ WHERE
 	OR VALUETYPE(User) = TYPE(Catalog.ExternalUsersGroups)
 	OR User = VALUE(Enum.PeriodClosingDatesPurposeTypes.ForAllUsers)
 
-  #ElseIf StrContains(&amp;AccessRightsToRestrictionDates, ",ReadDataImportRestrictionDates,") #THEN
+  #ElseIf StrContains(&amp;AccessRightsToRestrictionDates, ",ReadDataImportRestrictionDates,") #Then
 
 WHERE
 	  VALUETYPE(User) &lt;&gt; TYPE(Catalog.Users)
@@ -102,9 +102,9 @@ WHERE
 
 WHERE FALSE
 
-  #ENDIF
+  #EndIf
 
-#ENDIF</condition>
+#EndIf</condition>
 			</restrictionByCondition>
 		</right>
 		<right>

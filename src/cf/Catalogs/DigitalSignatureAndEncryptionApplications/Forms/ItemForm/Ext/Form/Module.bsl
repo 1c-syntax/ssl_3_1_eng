@@ -26,7 +26,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.SettingInCentralNodeLabel.Visible = False;
 	EndIf;
 	
-	Items.Description.ChoiceList.Add("", NStr("en = '<Другое приложение>';"));
+	Items.Description.ChoiceList.Add("", NStr("en = '<Another app>';"));
 	SettingsToSupply = Catalogs.DigitalSignatureAndEncryptionApplications.ApplicationsSettingsToSupply();
 	For Each SettingToSupply In SettingsToSupply Do
 		If ThereIsAClientOrServerVOS(SettingToSupply) Then
@@ -58,8 +58,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			Items.Description.ReadOnly = True;
 			Items.ApplicationName.ReadOnly = True;
 			Items.ApplicationType.ReadOnly = True;
-			Object.UsageMode = Parameters.UsageMode;
-			
+			If ValueIsFilled(Parameters.UsageMode) Then
+				Object.UsageMode = Parameters.UsageMode;
+			EndIf;
 		EndIf;
 	EndIf;
 	
@@ -93,8 +94,8 @@ EndProcedure
 &AtServer
 Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 	
-	// 
-	// 
+	// Intended for updating the list of apps and their
+	// parameters on the client side and server side.
 	RefreshReusableValues();
 	
 EndProcedure
@@ -341,8 +342,8 @@ EndProcedure
 &AtClient
 Procedure FillSelectedApplicationAlgorithmsAfterGetInformation(ModuleInfo, Context) Export
 	
-	// 
-	// 
+	// If the cryptography manager is unavailable and in not 1C-supplied,
+	// then the algorithm names should be entered manually.
 	
 	If ModuleInfo <> Undefined
 	   And Object.ApplicationName <> ModuleInfo.Name

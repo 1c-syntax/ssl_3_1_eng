@@ -318,7 +318,7 @@
 							<TitleLocation>None</TitleLocation>
 							<EditMode>EnterOnInput</EditMode>
 							<Height>2</Height>
-							<ContextMenu name="ShiftedHolidaysListPresentationContextMenu" id="24"/>
+							<ContextMenu name="ReplacementsListPresentationContextMenu" id="24"/>
 							<ExtendedTooltip name="ReplacementsListPresentationExtendedTooltip" id="40"/>
 						</LabelField>
 					</ChildItems>

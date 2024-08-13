@@ -9,7 +9,7 @@
 				<Representation>Text</Representation>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.StandardCommand.Close</CommandName>
-				<ExtendedTooltip name="FormClose3ExtendedTooltip" id="21"/>
+				<ExtendedTooltip name="FormCloseExtendedTooltip" id="21"/>
 			</Button>
 			<Button name="FormSaveToFile" id="10">
 				<Type>CommandBarButton</Type>

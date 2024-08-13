@@ -87,29 +87,29 @@
 			</ContextMenu>
 			<AutoCommandBar name="ListCommandBar" id="3"/>
 			<ExtendedTooltip name="ListExtendedTooltip" id="16"/>
-			<SearchStringAddition name="ListSearchString_SSLy" id="26">
+			<SearchStringAddition name="ListSearchString" id="26">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchStringRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchString_SSLyContextMenu" id="27"/>
-				<ExtendedTooltip name="ListSearchString_SSLyExtendedTooltip" id="28"/>
+				<ContextMenu name="ListSearchStringContextMenu" id="27"/>
+				<ExtendedTooltip name="ListSearchStringExtendedTooltip" id="28"/>
 			</SearchStringAddition>
-			<ViewStatusAddition name="ListViewStatus_SSLy" id="29">
+			<ViewStatusAddition name="ListViewStatus" id="29">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>ViewStatusRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListViewStatus_SSLyContextMenu" id="30"/>
-				<ExtendedTooltip name="ListViewStatus_SSLyExtendedTooltip" id="31"/>
+				<ContextMenu name="ListViewStatusContextMenu" id="30"/>
+				<ExtendedTooltip name="ListViewStatusExtendedTooltip" id="31"/>
 			</ViewStatusAddition>
-			<SearchControlAddition name="ListSearchControl_SSLy" id="32">
+			<SearchControlAddition name="ListSearchControl" id="32">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchControl</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchControl_SSLyContextMenu" id="33"/>
-				<ExtendedTooltip name="ListSearchControl_SSLyExtendedTooltip" id="34"/>
+				<ContextMenu name="ListSearchControlContextMenu" id="33"/>
+				<ExtendedTooltip name="ListSearchControlExtendedTooltip" id="34"/>
 			</SearchControlAddition>
 			<ChildItems>
 				<PictureField name="UseScheduledJob" id="8">

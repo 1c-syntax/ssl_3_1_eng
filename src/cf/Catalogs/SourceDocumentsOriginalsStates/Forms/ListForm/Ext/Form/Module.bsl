@@ -36,7 +36,7 @@ EndProcedure
 
 #Region FormCommandsEventHandlers
 
-// Standard subsystems.Pluggable commands
+// StandardSubsystems.AttachableCommands
 
 // Parameters:
 //  Command - FormCommand

@@ -80,10 +80,10 @@ with the client application %2.
 Use a &lt;link about:blank&gt;supported client application&lt;/&gt; or contact the add-in developer.</v8:content>
 						</v8:item>
 					</Title>
-					<ContextMenu name="NoteDecorationContextMenu" id="93"/>
-					<ExtendedTooltip name="NoteDecorationExtendedTooltip" id="94"/>
+					<ContextMenu name="DecorationNoteContextMenu" id="93"/>
+					<ExtendedTooltip name="DecorationNoteExtendedTooltip" id="94"/>
 					<Events>
-						<Event name="URLProcessing">NoteDecorationURLProcessing</Event>
+						<Event name="URLProcessing">DecorationNoteURLProcessing</Event>
 					</Events>
 				</LabelDecoration>
 			</ChildItems>

@@ -21,12 +21,6 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		AttachedFile = Parameters.Key;
 	EndIf;
 	
-	If ValueIsFilled(Parameters.CopyingValue) Then
-		DigitalSignatureAvailable = FilesOperationsInternal.DigitalSignatureAvailable(TypeOf(Parameters.CopyingValue));
-	Else	
-		DigitalSignatureAvailable = FilesOperationsInternal.DigitalSignatureAvailable(TypeOf(AttachedFile));
-	EndIf;
-	
 	CurrentUser = Users.AuthorizedUser();
 	FilesModification = Users.IsFullUser();
 	SendOptions = ?(ValueIsFilled(Parameters.SendOptions),
@@ -42,6 +36,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	UpdateCloudServiceNote(AttachedFile);
 
 	AttachedFileObject = FormAttributeToValue("Object"); // DefinedType.AttachedFileObject
+	DigitalSignatureAvailable = FilesOperationsInternal.DigitalSignatureAvailable(TypeOf(AttachedFileObject));
 	SetTheVisibilityOfTheFormCommands();
 	
 	// StandardSubsystems.AttachableCommands
@@ -188,7 +183,7 @@ EndProcedure
 #Region FormCommandsEventHandlers
 
 ///////////////////////////////////////////////////////////////////////////////////
-// 
+// File command handlers.
 
 &AtClient
 Procedure ShowInList(Command)
@@ -319,8 +314,8 @@ Procedure StandardCommandsCopy(Command)
 		Return;
 	EndIf;
 	
-	OpenForm("DataProcessor.FilesOperations.Form.AttachedFile",
-		New Structure("CopyingValue", CurrentRefToFile()));
+	FormParameters = New Structure("CopyingValue", CurrentRefToFile());
+	FilesOperationsClient.OpenFileForm(Undefined,, FormParameters);
 	
 EndProcedure
 
@@ -329,7 +324,7 @@ Procedure Print(Command)
 	
 	File = CurrentRefToFile();
 	If ValueIsFilled(File) Or HandleFileRecordCommand() Then
-		Files = CommonClientServer.ValueInArray(File);
+		Files = CommonClientServer.ValueInArray(CurrentRefToFile()); // Re-obtain the reference if the new file is written.
 		FilesOperationsClient.PrintFiles(Files, ThisObject.UUID);
 	EndIf;
 	
@@ -340,8 +335,7 @@ Procedure PrintWithStamp(Command)
 	
 	File = CurrentRefToFile();
 	If ValueIsFilled(File) Or HandleFileRecordCommand() Then
-		DocumentWithStamp = FilesOperationsInternalServerCall.DocumentWithStamp(File);
-		FilesOperationsInternalClient.PrintFileWithStamp(DocumentWithStamp, CurrentFileDescription());
+		FilesOperationsInternalClient.DoPrintFileWithStamp(File, UUID);
 	EndIf;
 	
 EndProcedure
@@ -358,7 +352,7 @@ Procedure Send(Command)
 	
 EndProcedure
 
-// 
+// StandardSubsystems.Properties
 
 &AtClient
 Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined, StandardProcessing = Undefined)
@@ -373,7 +367,7 @@ EndProcedure
 // End StandardSubsystems.Properties
 
 ///////////////////////////////////////////////////////////////////////////////////
-// 
+// Digital signature and encryption command handlers.
 
 &AtClient
 Procedure Sign(Command)
@@ -587,7 +581,7 @@ EndProcedure
 
 &AtClient
 Procedure DetermineIfModified()
-	If Items.FormStandardWriteAndClose.Visible And Items.FormStandardWriteAndClose.Enabled Then
+	If Items.FormStandardSaveAndClose.Visible And Items.FormStandardSaveAndClose.Enabled Then
 		Modified = True;
 	EndIf;
 EndProcedure
@@ -626,7 +620,18 @@ Procedure SaveSignature(Command)
 	EndIf;
 	
 	ModuleDigitalSignatureClient = CommonClient.CommonModule("DigitalSignatureClient");
-	ModuleDigitalSignatureClient.SaveSignature(CurrentData.SignatureAddress);
+	
+	SignatureFileName = CurrentData.SignatureFileName;
+	If Not ValueIsFilled(SignatureFileName) Then
+	
+		SignatureFilesExtension = ModuleDigitalSignatureClient.PersonalSettings().SignatureFilesExtension;
+		ModuleDigitalSignatureInternalClientServer = CommonClient.CommonModule("DigitalSignatureInternalClientServer");
+		SignatureFileName = ModuleDigitalSignatureInternalClientServer.SignatureFileName(ThisObject.Object.Description,
+				CurrentData.CertificateOwner, SignatureFilesExtension);
+	EndIf;
+	
+	
+	ModuleDigitalSignatureClient.SaveSignature(CurrentData.SignatureAddress, SignatureFileName);
 	
 EndProcedure
 
@@ -695,7 +700,7 @@ Procedure SetAvaliabilityOfEncryptionList()
 EndProcedure
 
 ///////////////////////////////////////////////////////////////////////////////////
-// 
+// Command handlers to support collaborative file management.
 
 &AtClient
 Procedure Lock(Command)
@@ -858,8 +863,8 @@ EndProcedure
 &AtServer
 Procedure SetTheVisibilityOfTheFormCommands()
 	
-	// 
-	//  
+	// Handle the external flag "OnlyFileDataReader".
+	// For example, see "Interactions.OnCreateFilesItemForm".
 	For Each Command In NamesOfCommandsForChangingFileData() Do
 		For Each FormCommand In Command.Value Do
 			Items[FormCommand].Visible = Not OnlyFileDataReader And Items[FormCommand].Visible;	
@@ -936,8 +941,8 @@ Procedure OpenFileForViewing()
 	
 	If RestrictedExtensions.FindByValue(ThisObject.Object.Extension) <> Undefined Then
 		Notification = New NotifyDescription("OpenFileAfterConfirm", ThisObject);
-		FormParameters = New Structure("Key", "BeforeOpenFile");
-		OpenForm("CommonForm.SecurityWarning", FormParameters, , , , , Notification);
+		UsersInternalClient.ShowSecurityWarning(Notification,
+			UsersInternalClientServer.TypesOfSafetyWarnings().BeforeOpenFile);
 		Return;
 	EndIf;
 	
@@ -1033,6 +1038,9 @@ Procedure SetButtonsAvailability(Form, Items)
 		
 	If Form.DigitalSignatures.Count() = 0 Then
 		MakeCommandUnavailable(CommandsNames, "OpenSignature");
+		Form.Items.FormSaveWithSignature.Visible = False;
+	Else
+		Form.Items.FormSaveWithSignature.Visible = True;
 	EndIf;
 	
 	For Each FormItem In Items Do
@@ -1182,7 +1190,7 @@ Function NamesOfCommandsForChangingFileData()
 	CommandsNames.Insert("EndEdit", ItemsNames);
 	
 	ItemsNames = New Array;
-	ItemsNames.Add("FormUnlock");
+	ItemsNames.Add("FormRelease");
 	CommandsNames.Insert("Release", ItemsNames);
 	
 	Return CommandsNames;
@@ -1668,7 +1676,7 @@ Function CurrentRefToFileServer()
 
 EndFunction
 
-// Standard subsystems.Pluggable commands
+// StandardSubsystems.AttachableCommands
 
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)

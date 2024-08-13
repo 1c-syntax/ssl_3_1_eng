@@ -742,7 +742,7 @@ scheduled job is disabled.</v8:content>
 						</v8:item>
 					</Title>
 					<PagesRepresentation>None</PagesRepresentation>
-					<ExtendedTooltip name="RefreshingProgressBarExtendedTooltip" id="62"/>
+					<ExtendedTooltip name="ProgressBarRefreshExtendedTooltip" id="62"/>
 					<ChildItems>
 						<Page name="RefreshingProgressBarCompleted" id="63">
 							<Title>
@@ -777,7 +777,7 @@ scheduled job is disabled.</v8:content>
 								</v8:item>
 							</Title>
 							<Group>Horizontal</Group>
-							<ExtendedTooltip name="RefreshingProgressBar1ExtendedTooltip" id="66"/>
+							<ExtendedTooltip name="RefreshingProgressBarExtendedTooltip" id="66"/>
 							<ChildItems>
 								<PictureDecoration name="RefreshingProgressBarPicture" id="70">
 									<Width>2</Width>
@@ -1201,8 +1201,8 @@ clear the check box.</v8:content>
 							</ToolTip>
 							<EditMode>EnterOnInput</EditMode>
 							<Width>30</Width>
-							<ContextMenu name="ListsListViewContextMenu" id="19"/>
-							<ExtendedTooltip name="ListsListViewExtendedTooltip" id="20"/>
+							<ContextMenu name="ListsListPresentationContextMenu" id="19"/>
+							<ExtendedTooltip name="ListsListPresentationExtendedTooltip" id="20"/>
 						</InputField>
 						<InputField name="ListsItemsProcessed" id="27">
 							<DataPath>Lists.ItemsProcessed</DataPath>
@@ -1237,8 +1237,8 @@ objects and register record groups.</v8:content>
 									<v8:content>NZ=0</v8:content>
 								</v8:item>
 							</EditFormat>
-							<ContextMenu name="ListsOfProcessedItemsContextMenu" id="28"/>
-							<ExtendedTooltip name="ListsOfProcessedItemsExtendedTooltip" id="29"/>
+							<ContextMenu name="ListsItemsProcessedContextMenu" id="28"/>
+							<ExtendedTooltip name="ListsItemsProcessedExtendedTooltip" id="29"/>
 						</InputField>
 						<InputField name="ListsAccessKeysProcessed" id="30">
 							<DataPath>Lists.AccessKeysProcessed</DataPath>
@@ -1273,8 +1273,8 @@ for users, external users, and access groups.</v8:content>
 									<v8:content>NZ=0</v8:content>
 								</v8:item>
 							</EditFormat>
-							<ContextMenu name="ListsOfProcessedAccessKeysContextMenu" id="31"/>
-							<ExtendedTooltip name="ListsOfProcessedAccessKeysExtendedTooltip" id="32"/>
+							<ContextMenu name="ListsAccessKeysProcessedContextMenu" id="31"/>
+							<ExtendedTooltip name="ListsAccessKeysProcessedExtendedTooltip" id="32"/>
 						</InputField>
 						<InputField name="ListsItemCount" id="33">
 							<DataPath>Lists.ItemCount</DataPath>
@@ -1296,10 +1296,10 @@ or register record groups.</v8:content>
 							</ToolTip>
 							<EditMode>EnterOnInput</EditMode>
 							<Width>8</Width>
-							<ContextMenu name="ListsNumberOfItemsContextMenu" id="34"/>
-							<ExtendedTooltip name="ListsNumberOfItemsExtendedTooltip" id="35"/>
+							<ContextMenu name="ListsItemCountContextMenu" id="34"/>
+							<ExtendedTooltip name="ListsItemCountExtendedTooltip" id="35"/>
 						</InputField>
-						<InputField name="ListsProcessedItemsCount1" id="36">
+						<InputField name="ListsProcessedItemsCount" id="36">
 							<DataPath>Lists.ProcessedItemsCount</DataPath>
 							<Visible>false</Visible>
 							<ReadOnly>true</ReadOnly>
@@ -1320,8 +1320,8 @@ or register record groups.</v8:content>
 							</ToolTip>
 							<EditMode>EnterOnInput</EditMode>
 							<Width>8</Width>
-							<ContextMenu name="ListsNumberOfProcessedItemsContextMenu" id="37"/>
-							<ExtendedTooltip name="ListsNumberOfProcessedItemsExtendedTooltip" id="38"/>
+							<ContextMenu name="ListsProcessedItemsCountContextMenu" id="37"/>
+							<ExtendedTooltip name="ListsProcessedItemsCountExtendedTooltip" id="38"/>
 						</InputField>
 						<InputField name="ListsAccessKeysCount" id="39">
 							<DataPath>Lists.AccessKeysCount</DataPath>
@@ -1337,8 +1337,8 @@ keys</v8:content>
 							</Title>
 							<EditMode>EnterOnInput</EditMode>
 							<Width>8</Width>
-							<ContextMenu name="ListsNumberOfAccessKeysContextMenu" id="40"/>
-							<ExtendedTooltip name="ListsNumberOfAccessKeysExtendedTooltip" id="41"/>
+							<ContextMenu name="ListsAccessKeysCountContextMenu" id="40"/>
+							<ExtendedTooltip name="ListsAccessKeysCountExtendedTooltip" id="41"/>
 						</InputField>
 						<InputField name="ListsProcessedAccessKeysCount" id="42">
 							<DataPath>Lists.ProcessedAccessKeysCount</DataPath>
@@ -1354,12 +1354,13 @@ keys</v8:content>
 							</Title>
 							<EditMode>EnterOnInput</EditMode>
 							<Width>8</Width>
-							<ContextMenu name="ListsNumberOfProcessedAccessKeysContextMenu" id="43"/>
-							<ExtendedTooltip name="ListsNumberOfProcessedAccessKeysExtendedTooltip" id="44"/>
+							<ContextMenu name="ListsProcessedAccessKeysCountContextMenu" id="43"/>
+							<ExtendedTooltip name="ListsProcessedAccessKeysCountExtendedTooltip" id="44"/>
 						</InputField>
 						<InputField name="ListsListProcessingDelay" id="303">
 							<DataPath>Lists.ListProcessingDelay</DataPath>
 							<Visible>false</Visible>
+							<ReadOnly>true</ReadOnly>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>

@@ -40,6 +40,7 @@
 				<v8:Type>cfg:CatalogRef.Files</v8:Type>
 				<v8:Type>cfg:CatalogRef.ReportMailings</v8:Type>
 				<v8:Type>cfg:ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo</v8:Type>
+				<v8:Type>cfg:DocumentRef.Questionnaire</v8:Type>
 				<v8:Type>cfg:CatalogRef.MessageTemplates</v8:Type>
 				<v8:Type>cfg:CatalogRef.AdditionalReportsAndDataProcessors</v8:Type>
 				<v8:Type>cfg:CatalogRef.SMSMessageAttachedFiles</v8:Type>

@@ -50,7 +50,7 @@ EndProcedure
 //  TaskRef                - TaskRef.PerformerTask
 //  BusinessProcessRoutePoint - BusinessProcessRoutePointRef.Job - action.
 //  FormParameters              - Structure:
-//   * FormName       - a form name passed to the OpenForm method. 
+//   * FormName       - Form name to pass to the OpenForm method. 
 //   * FormParameters - parameters of the form to be opened.
 //
 // Example:

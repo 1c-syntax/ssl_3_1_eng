@@ -388,13 +388,13 @@ Function IsSeparatedObject(Val ObjectDetails, DataSeparationProperties = Undefin
 	If Common.SubsystemExists("CloudTechnology") Then
 		If DataSeparationProperties = Undefined Then
 			ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
-			ModuleUnloadingLoadingDataServiceEvents = Common.CommonModule("ExportImportDataInternalEvents");
+			ModuleExportImportDataInternalEvents = Common.CommonModule("ExportImportDataInternalEvents");
 
 			DataSeparationProperties = New Structure("MainDataSeparator,AuxiliaryDataSeparator,ServiceData");
 			DataSeparationProperties.MainDataSeparator = ModuleSaaSOperations.MainDataSeparator();
 			DataSeparationProperties.AuxiliaryDataSeparator = ModuleSaaSOperations.AuxiliaryDataSeparator();
 			DataSeparationProperties.ServiceData = FullTypeNames(
-				ModuleUnloadingLoadingDataServiceEvents.GetTypesExcludedFromUploadUpload());
+				ModuleExportImportDataInternalEvents.GetTypesExcludedFromUploadUpload());
 		EndIf;
 		
 		Return DataSeparationProperties.ServiceData[ObjectDetails.FullName] = Undefined 

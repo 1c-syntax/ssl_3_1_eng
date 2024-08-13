@@ -391,8 +391,8 @@ Procedure FillNotificationMethods()
 	EndDo;	
 	
 	Items.RemindBeforeDueTime.ChoiceList.Clear();
-	TimeIntervals_SSLy = SubsystemSettings.StandardIntervals;
-	For Each Interval In TimeIntervals_SSLy Do
+	TimeIntervals_ = SubsystemSettings.StandardIntervals;
+	For Each Interval In TimeIntervals_ Do
 		NotificationMethods.Add(StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'in %1';"), Interval));
 		Items.RemindBeforeDueTime.ChoiceList.Add(Interval);

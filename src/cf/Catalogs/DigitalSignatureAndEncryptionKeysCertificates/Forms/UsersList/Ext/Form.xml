@@ -26,7 +26,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="DataGroupExtendedTooltip" id="43"/>
+			<ExtendedTooltip name="GroupDataExtendedTooltip" id="43"/>
 			<ChildItems>
 				<UsualGroup name="AuthorGroup" id="32">
 					<Title>
@@ -84,7 +84,7 @@
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="ListGroup2ExtendedTooltip" id="35"/>
+					<ExtendedTooltip name="GroupListExtendedTooltip" id="35"/>
 					<ChildItems>
 						<RadioButtonField name="SelectionMethodList" id="39">
 							<DataPath>ChoiceMode</DataPath>
@@ -167,7 +167,7 @@
 														<v8:content>Select all</v8:content>
 													</v8:item>
 												</Title>
-												<ExtendedTooltip name="UsersMarkAllExtendedTooltip" id="27"/>
+												<ExtendedTooltip name="UsersSelectAllExtendedTooltip" id="27"/>
 											</Button>
 											<Button name="UsersCancelCheck" id="28">
 												<Type>CommandBarButton</Type>
@@ -178,7 +178,7 @@
 														<v8:content>Clear all</v8:content>
 													</v8:item>
 												</Title>
-												<ExtendedTooltip name="UsersCancelTaggingExtendedTooltip" id="29"/>
+												<ExtendedTooltip name="UsersCancelCheckExtendedTooltip" id="29"/>
 											</Button>
 										</ChildItems>
 									</ButtonGroup>
@@ -220,8 +220,8 @@
 									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<CheckBoxType>Auto</CheckBoxType>
-									<ContextMenu name="UsersTaggingContextMenu" id="24"/>
-									<ExtendedTooltip name="UsersTaggingExtendedTooltip" id="25"/>
+									<ContextMenu name="UsersCheckContextMenu" id="24"/>
+									<ExtendedTooltip name="UsersCheckExtendedTooltip" id="25"/>
 								</CheckBoxField>
 								<InputField name="UsersUser" id="20">
 									<DataPath>UsersTable.User</DataPath>

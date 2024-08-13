@@ -28,7 +28,7 @@
 //      6 - PDF417
 //      7 - Standart (Industrial) 2 of 5
 //      8 - Interleaved 2 of 5
-//      9 - Code39 extension
+//      9 - Code39 Extension
 //      10 - Code93
 //      11 - ITF14
 //      12 - RSS14
@@ -206,8 +206,8 @@ Function ToConnectAComponentGeneratingAnImageOfTheBarcode() Export
 		ModuleExternalComponentsOfBPO = ModuleCommon.CommonModule("AddInsCEL");
 		AddIn = ModuleExternalComponentsOfBPO.AttachAddInSSL(ObjectName, FullTemplateName);
 	Else
-		// 
-		// 
+		// Attach the add-in with SSL.
+		// Call SSL.
 #If Not MobileAppServer Then
 		SetSafeModeDisabled(True);
 		If ModuleCommon.SeparatedDataUsageAvailable() Then
@@ -231,14 +231,14 @@ Function ToConnectAComponentGeneratingAnImageOfTheBarcode() Export
 		Return Undefined;
 	EndIf;
 	
-	// 
-	// 
+	// Set the main add-in parameters.
+	// If Tahoma font is installed.
 	If AddIn.FindFont("Tahoma") Then
 		// Set as the picture font.
 		AddIn.Font = "Tahoma";
 	Else
-		// 
-		// 
+		// Tahoma font is not installed.
+		// Iterate through the add-in fonts.
 		For Cnt = 0 To AddIn.FontCount -1 Do
 			// Get another available font.
 			CurrentFont = AddIn.FontAt(Cnt);
@@ -337,8 +337,8 @@ Function PrepareABarcodeImage(AddIn, BarcodeParameters)
 	XMLWriter.WriteStartElement("FontSize");   
 	XMLWriter.WriteText(XMLString(Number(BarcodeParameters.FontSize)));
 	XMLWriter.WriteEndElement();
-	// 
-	// 
+	// Barcode vertical alignment on the image:
+	// 1 - Top. 2 - Center. 3 - Bottom.
 	XMLWriter.WriteStartElement("CodeVerticalAlign");   
 	XMLWriter.WriteText(XMLString(Number(BarcodeParameters.VerticalAlignment)));
 	XMLWriter.WriteEndElement();   
@@ -411,7 +411,7 @@ Function PrepareABarcodeImage(AddIn, BarcodeParameters)
 					// If the picture is generated successfully.
 					If BinaryPictureData <> Undefined Then
 						OperationResult.BinaryData = BinaryPictureData;
-						OperationResult.Picture = New Picture(BinaryPictureData); // 
+						OperationResult.Picture = New Picture(BinaryPictureData); // Generate from binary data.
 					EndIf;
 				EndIf; 
 			EndDo;
@@ -546,7 +546,7 @@ Function PrepareBarcodeImageOfProperty(AddIn, BarcodeParameters)
 	// If the picture is generated successfully.
 	If BinaryPictureData <> Undefined Then
 		OperationResult.BinaryData = BinaryPictureData;
-		OperationResult.Picture = New Picture(BinaryPictureData); // 
+		OperationResult.Picture = New Picture(BinaryPictureData); // Generate from binary data.
 	EndIf;
 	
 	Return OperationResult;

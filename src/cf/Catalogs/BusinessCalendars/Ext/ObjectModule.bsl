@@ -43,8 +43,8 @@ Procedure CheckBasicCalendarUse(Cancel)
 		Return;
 	EndIf;
 	
-	//  
-	// 
+	// If another calendar is based on this one, forbid populating it 
+	// to avoid circular dependencies.
 	
 	Query = New Query;
 	Query.SetParameter("Calendar", Ref);

@@ -381,7 +381,7 @@ Procedure CheckAccessToInfobaseAfterCOMRegistration(IsRegistered, Context) Expor
 		
 		FillPropertyValues(ConnectionResult, Result);
 		
-		Result.Join = Undefined; // 
+		Result.Join = Undefined; // Disconnect.
 		
 	EndIf;
 	
@@ -517,7 +517,7 @@ Function ClientBackupParameters() Export
 	ParametersStructure.Insert("ApplicationFileName", StandardSubsystemsClient.ApplicationExecutableFileName());
 	ParametersStructure.Insert("EventLogEvent", NStr("en = 'Infobase backup';"));
 	
-	//  
+	// Call "TempFilesDir" (instead of "GetTempFileName") as the directory shouldn't be deleted when the client app exits. 
 	// 
 	TempFilesDirForUpdate = TempFilesDir() + "1Cv8Backup." + Format(CommonClient.SessionDate(), "DF=yyMMddHHmmss") + "\";
 	ParametersStructure.Insert("TempFilesDirForUpdate", TempFilesDirForUpdate);

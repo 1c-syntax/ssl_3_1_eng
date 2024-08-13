@@ -11,6 +11,33 @@
 		</right>
 	</object>
 	<object>
+		<name>Configuration.StandardSubsystemsLibrary</name>
+		<right>
+			<name>MainWindowModeNormal</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeEmbeddedWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeFullscreenWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeKiosk</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>AnalyticsSystemClient</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
 		<name>Catalog.ChecksKinds</name>
 		<right>
 			<name>Read</name>
@@ -52,46 +79,19 @@
 		</right>
 	</object>
 	<object>
-		<name>Configuration.StandardSubsystemsLibrary</name>
-		<right>
-			<name>MainWindowModeNormal</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeEmbeddedWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeFullscreenWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeKiosk</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>AnalyticsSystemClient</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
 		<name>InformationRegister.AccountingCheckResults</name>
 		<right>
 			<name>Read</name>
 			<value>true</value>
 			<restrictionByCondition>
-				<condition>#IF &amp;RecordLevelAccessRestrictionIsUniversal #THEN
+				<condition>#If &amp;RecordLevelAccessRestrictionIsUniversal #Then
 #ForRegister("AccessKeysToRegisterAccountingCheckResults", "ObjectWithIssue", "", "", "", "")
-#ELSE
+#Else
 #ByValues( "InformationRegister.AccountingCheckResults", "","",
 "ReadRight1", "ObjectWithIssue",
 "","",
 "","", "","", "","", "","", "","", "","", "","", "","", "","", "","", "","", "","", "","", "","")
-#ENDIF</condition>
+#EndIf</condition>
 			</restrictionByCondition>
 		</right>
 		<right>

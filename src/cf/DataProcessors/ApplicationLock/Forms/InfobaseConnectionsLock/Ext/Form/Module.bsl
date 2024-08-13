@@ -414,7 +414,7 @@ Procedure UpdateLockState(Form)
 	Else
 		
 		StateText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Please wait…
-			|Closing user sessions. Active sessions remaining: %1.';"),
+			|Closing user sessions. Active sessions remaining: %1.';"),
 			Form.SessionCount);
 			
 	EndIf;

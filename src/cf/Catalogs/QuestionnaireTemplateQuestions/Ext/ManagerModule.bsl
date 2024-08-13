@@ -64,7 +64,7 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
 EndProcedure
 
-// Assign a value to the HintPlacement attribute in the QuestionnaireTemplateQuestions catalog.
+// Assign a value to the HintPlacement attribute in the QuestionnaireTemplateQuestions catalog.
 // 
 Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	

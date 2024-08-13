@@ -65,7 +65,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		IsAccessRightsChangeLoggingSupported = False;
 	EndIf;
 	
-	If Not IsAccessRightsChangeLoggingSupported Then
+	If Not IsAccessRightsChangeLoggingSupported
+	   And Items.Find("ShouldRegisterChangesInAccessRights") <> Undefined Then
+		
 		Items.ShouldRegisterChangesInAccessRights.Title =
 			NStr("en = 'Log changes in user group membership';");
 		Items.ShouldRegisterChangesInAccessRights.ExtendedTooltip.Title =
@@ -90,7 +92,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not Common.SubsystemExists("StandardSubsystems.UserMonitoring") Then
 		Items.GroupDataAccessAudit.Visible = False;
-		Items.ShouldRegisterChangesInAccessRights.Visible = False;
+		If Items.Find("ShouldRegisterChangesInAccessRights") <> Undefined Then
+			Items.ShouldRegisterChangesInAccessRights.Visible = False;
+		EndIf;
 		Items.GroupUserMonitoringLeftColumnVerticalIndent.Visible = True;
 		
 	ElsIf Common.DataSeparationEnabled()
@@ -295,8 +299,10 @@ EndProcedure
 &AtClient
 Procedure AccessUpdateOnRecordsLevel(Command)
 	
-	OpenForm("InformationRegister" + "." + "DataAccessKeysUpdate" + "."
-		+ "Form" + "." + "AccessUpdateOnRecordsLevel");
+	If CommonClient.SubsystemExists("StandardSubsystems.AccessManagement") Then
+		ModuleAccessManagementInternalClient = CommonClient.CommonModule("AccessManagementInternalClient");
+		ModuleAccessManagementInternalClient.OpenUpdateAccessFormAtRecordLevel(True, True);
+	EndIf;
 	
 EndProcedure
 
@@ -315,7 +321,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Client
+// Client.
 
 &AtClient
 Procedure Attachable_OnChangeAttribute(Item, ShouldRefreshInterface = True)
@@ -403,7 +409,7 @@ Procedure UseExternalUsersOnChangeCompletion(Response, Item) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Server call.
 
 &AtServer
 Function OnChangeAttributeServer(TagName)
@@ -441,7 +447,7 @@ Procedure RegisterDataAccessOnChangeAtServer(Val ShouldRegisterDataAccess)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Server
+// Server.
 
 &AtServer
 Function SaveAttributeValue(DataPathAttribute)

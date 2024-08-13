@@ -226,7 +226,7 @@
 					<Wrap>false</Wrap>
 					<ChoiceButton>false</ChoiceButton>
 					<TextEdit>false</TextEdit>
-					<ContextMenu name="CopiesRecipientsPresentationContextMenu" id="150"/>
+					<ContextMenu name="CCRecipientsPresentationContextMenu" id="150"/>
 					<ExtendedTooltip name="CCRecipientsPresentationExtendedTooltip" id="248"/>
 				</InputField>
 				<Pages name="ContactsSpecifiedPages" id="203">
@@ -629,7 +629,7 @@
 						</v8:item>
 					</Title>
 					<HorizontalLocation>Right</HorizontalLocation>
-					<ExtendedTooltip name="AttachmentsCommandsExtendedTooltip" id="314"/>
+					<ExtendedTooltip name="CommandsAttachmentsExtendedTooltip" id="314"/>
 					<ChildItems>
 						<Button name="OpenAttachmentCommand" id="315">
 							<Type>CommandBarButton</Type>

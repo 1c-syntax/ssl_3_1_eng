@@ -240,7 +240,7 @@ Procedure BeforeExportObject(Container, ObjectExportManager, Serializer, Object,
 		EndIf;
 		
 		WriteLogEvent(
-			NStr("en = 'Files.Export data to go to SaaS';", Common.DefaultLanguageCode()),
+			NStr("en = 'Files.Export data for cloud migration';", Common.DefaultLanguageCode()),
 			EventLogLevel.Error,
 			Object.Metadata(),
 			Object.Ref,
@@ -439,9 +439,9 @@ Procedure HandleTextExtractionQueue() Export
 	Result = Undefined;
 	While True Do
 		Try
-			Result = Query.Execute(); // 
-			                                // 
-			                                // 
+			Result = Query.Execute(); // Reading outside a transaction. This might cause the following error:
+			                                // "Could not continue scan with NOLOCK due to data movement"
+			                                // In case of the error, try to read again.
 			Break;
 		Except
 			AttemptsNumber = AttemptsNumber + 1;

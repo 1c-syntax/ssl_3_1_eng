@@ -41,23 +41,23 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndIf;
 		NewRow = Languages.Add();
 		FillPropertyValues(NewRow, ConfigurationLanguage);
-		NewRow.Name = "_" + StrReplace(New UUID, "-", "");
+		NewRow.Name = "Language_" + ConfigurationLanguage.LanguageCode;
 	EndDo;
 
 	GenerateInputFieldsInDifferentLanguages(False, Parameters.ReadOnly);
 
-	LanguageDetails = LanguageDetails(CurrentLanguage().LanguageCode);
+	DefaultLanguage = Common.DefaultLanguageCode();
+	LanguageDetails = LanguageDetails(DefaultLanguage);
+	
 	If LanguageDetails <> Undefined Then
 		ThisObject[LanguageDetails.Name] = Parameters.CurrentValue;
 	EndIf;
-
-	DefaultLanguage = Common.DefaultLanguageCode();
 
 	For Each Presentation In Parameters.Presentations Do
 
 		LanguageDetails = LanguageDetails(Presentation.LanguageCode);
 		If LanguageDetails <> Undefined Then
-			If StrCompare(LanguageDetails.LanguageCode, CurrentLanguage().LanguageCode) = 0 Then
+			If StrCompare(LanguageDetails.LanguageCode, DefaultLanguage) = 0 Then
 				ThisObject[LanguageDetails.Name] = ?(ValueIsFilled(Parameters.CurrentValue),
 					Parameters.CurrentValue, Presentation[Parameters.AttributeName]);
 			Else
@@ -140,7 +140,9 @@ Procedure GenerateInputFieldsInDifferentLanguages(MultiLine, Var_ReadOnly)
 	Add = New Array;
 	StringType = New TypeDescription("String");
 	For Each ConfigurationLanguage In Languages Do
-		Add.Add(New FormAttribute(ConfigurationLanguage.Name, StringType, , ConfigurationLanguage.Presentation));
+		Add.Add(New FormAttribute(ConfigurationLanguage.Name, StringType, ,
+			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Parameters for spelling out numbers in %1';"),
+			ConfigurationLanguage.Presentation)));
 		Add.Add(New FormAttribute("InputHint" + ConfigurationLanguage.Name, StringType, ,
 			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Input tooltip for the %1 language';"),
 			ConfigurationLanguage.Presentation)));
@@ -358,15 +360,15 @@ Function HintForFillingInTheRegistrationParameters(Val LanguageCode)
 		"en = 'List comma-separated parameters for writing amounts in words.
 		|Example of filling for German (de_DE):
 		|
-		|EURO, EURO, М, Cent, Cent, M, 2
+		|EURO, EURO, M, Cent, Cent, M, 2
 		|
-		|""EURO, EURO, М"" – the calculation object:
+		|""EURO, EURO, M"" – the calculation object:
 		|EURO, EURO - calculation object singular and plural
-		|М – masculine (F – feminine, N - neuter)
+		|M – masculine (F – feminine, N - neuter)
 		|""Cent, Cent, M"" – the fractional part similar to the calculation object (may be missing)
 		|""2"" – the number of decimal places (may be missing; the default value is 2).';"));
 
-		Result.InputHint = NStr("en = 'EURO, EURO, М, Cent, Cent, M, 2';");
+		Result.InputHint = NStr("en = 'EURO, EURO, M, Cent, Cent, M, 2';");
 
 	ElsIf LanguageCode = "lv" Then
 
@@ -398,17 +400,17 @@ Function HintForFillingInTheRegistrationParameters(Val LanguageCode)
 		"en = 'List comma-separated parameters for writing amounts in words.
 		|Example of filling for Lithuanian (lt_LT):
 		|
-		|litas, litai, litų, М, centas, centai, centų, М, 2
+		|litas, litai, litų, M, centas, centai, centų, M, 2
 		|
-		|""litas, litai, litų, М"" – the calculation object:
+		|""litas, litai, litų, M"" – the calculation object:
 		|litas - integral part singular
 		|litai - integral part plural (from 2 to 9)
 		|litų - integral part plural (other)
 		|m - the integral part gender (f - feminine),
-		|""centas, centai, centų, М"" – the fractional part similar to the calculation object (may be missing)
+		|""centas, centai, centų, M"" – the fractional part similar to the calculation object (may be missing)
 		|""2"" - the number of decimal places (may be missing; the default value is 2).';"));
 
-		Result.InputHint = NStr("en = 'litas, litai, litų, М, centas, centai, centų, М, 2';");
+		Result.InputHint = NStr("en = 'litas, litai, litų, M, centas, centai, centų, M, 2';");
 
 	ElsIf LanguageCode = "et" Then
 

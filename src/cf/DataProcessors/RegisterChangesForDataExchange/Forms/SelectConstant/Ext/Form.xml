@@ -10,7 +10,7 @@
 	<AutoTitle>false</AutoTitle>
 	<AutoCommandBar name="FormCommandBar" id="-1">
 		<ChildItems>
-			<Button name="FormSelectConstant1" id="9">
+			<Button name="FormSelectConstant" id="9">
 				<Type>CommandBarButton</Type>
 				<Representation>PictureAndText</Representation>
 				<DefaultButton>true</DefaultButton>
@@ -21,7 +21,7 @@
 						<v8:content>Select</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="FormSelectConstant1ExtendedTooltip" id="28"/>
+				<ExtendedTooltip name="FormSelectConstantExtendedTooltip" id="28"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
@@ -67,7 +67,7 @@
 			<ContextMenu name="ConstantsListContextMenu" id="5">
 				<Autofill>false</Autofill>
 				<ChildItems>
-					<Button name="ConstantsListContextMenuSelectConstant1" id="16">
+					<Button name="ConstantsListContextMenuSelectConstant" id="16">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.SelectConstant</CommandName>
 						<Title>
@@ -76,7 +76,7 @@
 								<v8:content>Select</v8:content>
 							</v8:item>
 						</Title>
-						<ExtendedTooltip name="ConstantsListContextMenuSelectConstant1ExtendedTooltip" id="29"/>
+						<ExtendedTooltip name="ConstantsListContextMenuSelectConstantExtendedTooltip" id="29"/>
 					</Button>
 					<ButtonGroup name="ConstantsListContextMenuGroup1" id="17">
 						<Title>

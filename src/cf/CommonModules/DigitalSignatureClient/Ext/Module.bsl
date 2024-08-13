@@ -197,8 +197,8 @@ EndFunction
 //                        * UnverifiedSignatureDate - Date - Unconfirmed signature data.
 //                        * Certificate  - BinaryData - Certificate used for signature validation.
 //                        * Thumbprint           - String - Certificate thumbprint in the Base64 string format.
-//                        * CertificateOwner - String -  
-//         
+//                        * CertificateOwner - String - Object presentation obtained from the certificate binary data. 
+//         In the "DataSet" parameter is passed, the property is checked in it.
 //                       
 //  SignatureParameters - See NewSignatureType
 //
@@ -256,6 +256,12 @@ EndProcedure
 //   * Visible - Boolean - Signature type visibility on the signing form.
 //   * Enabled - Boolean - Signature type availability on the signing form.
 //   * CanSelectLetterOfAuthority - Boolean - Flag indicating whether to show the LoA selection field.
+//   * VerifyCertificate - String - :
+//        
+//                                      
+//       
+//                                   
+//       
 //
 Function NewSignatureType(SignatureType = Undefined) Export
 	
@@ -264,6 +270,7 @@ Function NewSignatureType(SignatureType = Undefined) Export
 	Structure.Insert("Visible", False);
 	Structure.Insert("Enabled", False);
 	Structure.Insert("CanSelectLetterOfAuthority", False);
+	Structure.Insert("VerifyCertificate", DigitalSignatureInternalClientServer.CheckQualified());
 	
 	If ValueIsFilled(SignatureType) Then
 		Structure.SignatureTypes.Add(SignatureType);
@@ -413,8 +420,8 @@ EndProcedure
 //    * Data               - NotifyDescription - Handler for saving data and receiving the full file
 //                           name with a path (after saving it), returned in the FullFileName property
 //                           of the String type for saving digital signatures (see the common approach above).
-//                           If the 1C:Enterprise Extension is not attached, return
-//                           file name without a path.
+//                           If 1C:Enterprise Extension is not attached, return
+//                           the file name without a path.
 //                           If the property will not be inserted or filled, it means canceling
 //                           the continuation, and ResultProcessing with the False result will be called.
 //
@@ -494,12 +501,21 @@ EndProcedure
 //              display a cryptographic manager creation error (when it's not specified).
 //   * ResultAsStructure - Boolean - If True, the result will have the following format:
 //      See DigitalSignatureClientServer.SignatureVerificationResult
+//   * VerifyCertificate - String - 
+//      
+//        
+//                                      
+//       
+//                                   
+//       
 //
 Function SignatureVerificationParameters() Export
 	
 	Structure = New Structure;
 	Structure.Insert("ShowCryptoManagerCreationError", True);
 	Structure.Insert("ResultAsStructure", False);
+	Structure.Insert("VerifyCertificate", DigitalSignatureInternalClientServer.CheckQualified());
+	
 	Return Structure;
 	
 EndFunction
@@ -950,12 +966,34 @@ EndProcedure
 //   OnDate               - Date - check the certificate on the specified date.
 //                          If parameter is not specified or a blank date is specified,
 //                          check on the current session date.
+//   CheckParameters - See CertificateVerificationParameters.
 //
-Procedure CheckCertificate(Notification, Certificate, CryptoManager = Undefined, OnDate = Undefined) Export
+Procedure CheckCertificate(Notification, Certificate, CryptoManager = Undefined, OnDate = Undefined, CheckParameters = Undefined) Export
 	
-	DigitalSignatureInternalClient.CheckCertificate(Notification, Certificate, CryptoManager, OnDate);
+	DigitalSignatureInternalClient.CheckCertificate(Notification, Certificate, CryptoManager, OnDate, CheckParameters);
 	
 EndProcedure
+
+// 
+// 
+// Returns:
+//  Structure - :
+//   * PerformCAVerification - String - :
+//        
+//                                      
+//       
+//                                   
+//       
+//   * IgnoreCertificateRevocationStatus - Boolean - 
+//
+Function CertificateVerificationParameters() Export
+	
+	Structure = New Structure;
+	Structure.Insert("IgnoreCertificateRevocationStatus", False);
+	Structure.Insert("PerformCAVerification", DigitalSignatureInternalClientServer.CheckQualified());
+	Return Structure;
+	
+EndFunction
 
 // Opens the CertificateCheck form and returns the check result.
 //
@@ -986,6 +1024,10 @@ EndProcedure
 //    * DontShowResults - Boolean - if a parameter takes the True value and the OperationContext parameter
 //                             contains the context of the previous operation, the check results will not be shown
 //                             to the user.
+//    * SignatureType             - EnumRef.CryptographySignatureTypes - By default, the type specified in the settings. 
+//                             It gets the type from "OperationContext" if it is passed from "Sign".
+//    * PerformCAVerification - 
+//    * IgnoreCertificateRevocationStatus - 
 //    * Result              - Undefined - a check was never performed.
 //                             - Structure - Return value. It is inserted before processing the result:
 //         * ChecksPassed  - Boolean - a return value. Is set in the procedure of the ResultProcessing parameter.
@@ -1134,7 +1176,7 @@ EndProcedure
 // Parameters:
 //   Certificate   - CryptoCertificate - Cryptographic certificate.
 //                - Structure:
-//                   * ValidBefore - See DigitalSignature.CertificateProperties.ValidBefore
+//                   * ValidBefore - 
 //                   * Certificate   - CryptoCertificate - Cryptographic certificate.
 //
 // Returns:
@@ -1170,7 +1212,7 @@ EndFunction
 //   Certificate - CryptoCertificate - a crypto certificate.
 //
 // Returns:
-//   String - the issuer presentation in the format "CommonName, Company, Department",
+//   String - Issuer's presentation in the format "CommonName, Company, Department",
 //            Company and Department can be missing, if undefined.
 //
 Function IssuerPresentation(Certificate) Export
@@ -1258,11 +1300,11 @@ EndFunction
 //                        - Undefined - such certificate property is missing.
 //
 //     * OGRN             - String - (64) - extracted from the OGRN field.
-//                          LE - a company's OGRN.
+//                          For LE, a company's registration number.
 //                        - Undefined - such certificate property is missing.
 //
 //     * OGRNIE           - String - (64) - extracted from the OGRNIP field.
-//                          IE - an OGRN of an individual entrepreneur.
+//                          For IE, an individual entrepreneur's registration number.
 //                        - Undefined - such certificate property is missing.
 //
 //     * SNILS            - String - (64) - extracted from the SNILS field.
@@ -1333,7 +1375,7 @@ EndFunction
 //     * Email - String - (128) - it is extracted from the E field. It is an email address of the certificate authority.
 //                        - Undefined - such certificate property is missing.
 //
-//     * OGRN             - String - (13) - extracted from the OGRN field - a certificate authority's OGRN.
+//     * OGRN             - String - (13) - extracted from the OGRN field. A certificate authority's registration number.
 //                        - Undefined - such certificate property is missing.
 //
 //     * TIN              - String - (12) - extracted from the INN field - a TIN of the certificate authority company.
@@ -1519,8 +1561,8 @@ EndFunction
 //                       The default value is Undefined.
 //      * Organization    - DefinedType.Organization - a company that owns the certificate.
 //                       The default value is Undefined.
-//      * Individual - DefinedType.Individual - 
-//                       
+//      * Individual - DefinedType.Individual - The individual that owns the certificate.
+//                       By default. "Undefined".
 //      * Application      - CatalogRef.DigitalSignatureAndEncryptionApplications - Application for signing and encrypting.
 //                       By default, Undefined.
 //                       
@@ -1793,19 +1835,19 @@ EndProcedure
 // Gets certificate thumbprints of the OS user.
 // 
 // Parameters:
-//  Notification     - NotifyDescription - :
-//                     
-//                     
-//                      
-//                      
-//                     
-//                     
-//                     
+//  Notification     - NotifyDescription - Called for transferring return values of the following types:
+//                     Structure:
+//                     = Thumbprints - Map - Key: Thumbprint in the Base64 format. Value: Source
+//                      "Client", "Server", "Service".
+//                      If "ReceivingParameters" type is Boolean, then "Value" is set to "True".
+//                     (Intended for backward compatibility.)
+//                     = ErrorOnGetCertificatesAtClient - String -  Error text (creation error or another error).
+//                     = ErrorGettingCertificatesAtServer - String - Error text (creation error or another error).
 //
 //  OnlyPersonal   - Boolean - if False, recipient certificates are added to the personal certificates.
 //
 //  ReceivingParameters - See CertificateThumbprintsReceiptParameters
-//                     
+//                     - Boolean - Indicates if the thumbprints are obtained only on the computer. Intended for backward compatibility.
 //
 Procedure GetCertificatesThumbprints(Notification, OnlyPersonal, ReceivingParameters = True) Export
 	
@@ -1813,23 +1855,23 @@ Procedure GetCertificatesThumbprints(Notification, OnlyPersonal, ReceivingParame
 	
 EndProcedure
 
-// 
+// The constructor of parameters for getting certificate thumbprints.
 // See GetCertificatesThumbprints.
 // 
 // Parameters:
-//   ClientSide - Boolean, Undefined - 
-//     
-//   ServerSide  - Boolean, Undefined - 
-//     
-//   Service     - Boolean, Undefined -  
-//     
+//   ClientSide - Boolean, Undefined - Flag indicating whether the cryptography manager creation error should be displayed on the user's computer.
+//     If it's set to "Undefined", then receiving OS user certificates on the computer is restricted.
+//   ServerSide  - Boolean, Undefined - Flag indicating whether the cryptography manager creation error should be displayed on the server side.
+//     If it's set to "Undefined", then receiving OS user certificates on the server is restricted.
+//   Service     - Boolean, Undefined - If Boolean, and the setting is enabled, get the OS user certificate thumbprints in the service. 
+//     If it's set to "Undefined", then receiving OS user certificates in the service is restricted.
 //
 // Returns:
 //  Structure:
-//   * ClientSide - 
-//   * ServerSide  - 
-//   * Service     - 
-//   * ShouldReturnSource - Boolean - 
+//   * ClientSide - Boolean, Undefined
+//   * ServerSide  - Boolean, Undefined
+//   * Service     - Boolean, Undefined
+//   * ShouldReturnSource - Boolean - Always set to "True". Intended for backward compatibility.
 //
 Function CertificateThumbprintsReceiptParameters(ClientSide = True, ServerSide = True, Service = True) Export
 	
@@ -1944,28 +1986,28 @@ EndProcedure
 //      - Array - contains value that are returned by "DigitalSignature.NewApplicationDetails".
 //   * SetComponent - Boolean - Flag indicating whether to prompt for installing the add-in
 //        that automatically detects installed apps. By default, "True".
-//   * ShouldInstallExtension - Boolean - Flag indicating whether promt the user for installing the cryptographic extension
+//   * ShouldInstallExtension - Boolean - Flag indicating whether to prompt the user for installing the cryptographic extension
 //        that automatically detects installed apps. By default, "True".
 //   * IsCheckedOnServer - Boolean, Undefined - If set to "Undefined", the check will run on server depending on the general settings.
 //                                                 By default, "Undefined".
-//  CallbackOnCompletion - NotifyDescription - Runtime result notification. One of the types:
+//  CallbackOnCompletion - NotifyDescription - :
+//     Runtime result notification. One of the types
 //     = Structure:
-//     # CheckCompleted = Boolean - True if the check was performed on a computer and installed CSP are detected.
-//                           If False, "Error" is populated with the error details.
+//                           # CheckCompleted = Boolean - True if the check was performed on a computer and installed CSP are detected.
+//     If False, "Error" is populated with the error details.
 //     # Error = String - Error text.
-//     # Programs = Array of Structure - Only the apps installed on the client.
+//          # Programs = Array of Structure - Only the apps installed on the client.
 //          ## ApplicationName - String - Name of a cryptographic service provider. For example, "Infotecs GOST 2012/512 Cryptographic Service Provider"
 //          ## ApplicationType - Number - Type of a cryptographic service provider. For example, "77".
-//          ## Name - String - Application presentation as specified in the supplied list.
-//             For example, NStr("en = 'ViPNet CSP'").
+//             ## Name - String - Application presentation as specified in the supplied list.
+//          For example, NStr("en = 'ViPNet CSP'").
 //          ## Version - String - Library version.
-//          ## Licence - Boolean - Licence presence flag.
-//     # ServerApplications = see Programs - Apps passed in the AppsToCheck parameter that were installed on the server.
-//                                            # IsConflictPossible = Boolean - Flag indicating whether a few cryptographic apps are installed,
+//     ## License - Boolean - License presence flag.
+//                                            # ServerApplications = see Programs - Apps passed in the AppsToCheck parameter that were installed on the server.
+//     # IsConflictPossible = Boolean - Flag indicating whether a few cryptographic apps are installed,
 //     which might conflict with each other.
 //     # IsConflictPossibleAtServer = Boolean - Flag indicating whether a few cryptographic apps are installed,
 //     which might conflict with each other.
-//     
 //
 Procedure CheckCryptographyAppsInstallation(Form, CheckParameters = Undefined, CallbackOnCompletion = Undefined) Export
 	
@@ -1994,11 +2036,11 @@ EndProcedure
 //     * HyperlinkNote - Boolean - if True, then call ActionProcessing by clicking the note.
 //     * ToolTipText       - String
 //                            - FormattedString - a text or a text with hyperlinks.
-//     * ProcessAction    - NotifyDescription - 
-//        :
-//        
-//          
-//                         
+//     * ProcessAction    - NotifyDescription - Calls a procedure, the result of which takes the value of the following type
+//        = Structure:
+//        # Certificate - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates - Reference
+//          to the selected certificate.
+//                         # Action - String - "NoteClick" or the tooltip URL.
 //          
 // 
 Procedure SetCertificatePassword(CertificateReference, Password, PasswordNote = Undefined) Export
@@ -2056,7 +2098,7 @@ EndProcedure
 // Parameters:
 //   Certificate           - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates - the certificate
 //                        for which a check was executed.
-//   Result            - See DigitalSignatureClient.CheckCatalogCertificate.AdditionalParameters.Result
+//   Result            - 
 //   FormOwner        - ClientApplicationForm - the owner of the certificate check form that is being opened.
 //   Title            - String - the title of the certificate check form that is being opened.
 //   MergeResults - String - determines the method of the check result representation in the client/server
@@ -2143,19 +2185,19 @@ Procedure NotifyAboutCertificateExpiring(Certificate) Export
 	
 EndProcedure
 
-// 
+// Returns the properties that were manually entered during the signature verification.
 // 
 // Parameters:
-//  FormOwner - ClientApplicationForm - 
-//  Notification - NotifyDescription - 
-//   
-//   :
-//     See DigitalSignatureClientServer.NewSignatureProperties.IsAdditionalAttributesCheckedManually
-//     See DigitalSignatureClientServer.NewSignatureProperties.AdditionalAttributesManualCheckAuthor
-//     See DigitalSignatureClientServer.NewSignatureProperties.AdditionalAttributesManualCheckJustification
-//     See DigitalSignatureClientServer.NewSignatureProperties.CheckDate
-//     See DigitalSignatureClientServer.NewSignatureProperties.SignatureCorrect
-//     See DigitalSignatureClientServer.NewSignatureProperties.IsVerificationRequired
+//  FormOwner - ClientApplicationForm - The owner of the signature manual verification form.
+//  Notification - NotifyDescription - Returns the result of updating the signature properties during a manual verification.
+//   If input is canceled, it returns "Undefined". Otherwise, returns Structure
+//   # IsAdditionalAttributesCheckedManually -:
+//    # AdditionalAttributesManualCheckAuthor -
+//    # AdditionalAttributesManualCheckJustification -
+//    # CheckDate -
+//    # SignatureCorrect -
+//    # IsVerificationRequired -
+//    
 //
 Procedure EnterSignatureAuthenticityJustification(FormOwner, Notification) Export
 	
@@ -2170,6 +2212,24 @@ EndProcedure
 #EndRegion
 
 #Region Internal
+
+// Opens the link that navigates to the digital signature errors and their solutions.
+// 
+//
+// Parameters:
+//   SearchString - String - The search string.
+//
+Procedure OpenSearchByErrorsWhenManagingDigitalSignature(SearchString = "") Export
+	
+	URL = "";
+	DigitalSignatureClientServerLocalization.OnDefineRefToSearchByErrorsWhenManagingDigitalSignature(
+		URL, SearchString);
+	
+	If Not IsBlankString(URL) Then
+		FileSystemClient.OpenURL(URL);
+	EndIf;
+	
+EndProcedure
 
 // Opens the DS view form.
 Procedure OpenSignature(CurrentData) Export
@@ -2209,9 +2269,9 @@ EndProcedure
 
 
 // Saves a signature to the computer.
-Procedure SaveSignature(SignatureAddress) Export
+Procedure SaveSignature(SignatureAddress, SignatureFileName = "") Export
 	
-	DigitalSignatureInternalClient.SaveSignature(SignatureAddress);
+	DigitalSignatureInternalClient.SaveSignature(SignatureAddress, SignatureFileName);
 	
 EndProcedure
 

@@ -42,7 +42,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.RunMode.CurrentPage = Items.ApplicationParametersUpdate;
 		
 	ElsIf DataUpdateMode = "InitialFilling" Then
-		Title = NStr("en = 'Initial data population';");
+		Title = NStr("en = 'Initialization';");
 		Items.RunMode.CurrentPage = Items.InitialFilling;
 		
 	ElsIf DataUpdateMode = "MigrationFromAnotherApplication" Then
@@ -85,7 +85,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Update of application parameters and shared data in SaaS mode.
 
 &AtClient
 Procedure ImportUpdateApplicationParameters(Var_Parameters) Export
@@ -147,7 +147,7 @@ Function ImportApplicationParametersInBackground()
 	StartupParameters = StandardSubsystemsServer.ClientParametersAtServer().Get("LaunchParameter");
 	If Common.SubsystemExists("StandardSubsystems.ConfigurationUpdate")
 		And StrFind(StartupParameters, "UpdateAndExit") = 0 Then
-		// 
+		// When running an update from a script, the script deletes outdated patches.
 		// 
 		ModuleConfigurationUpdate = Common.CommonModule("ConfigurationUpdate");
 		Try
@@ -363,7 +363,7 @@ Procedure CompleteUpdatingApplicationParameters(Result, AdditionalParameters) Ex
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Infobase update (entire infobase update in local mode, or data area update in SaaS mode).
 
 &AtClient
 Procedure UpdateInfobase1() Export
@@ -599,7 +599,7 @@ Procedure CloseForm(Cancel, Restart)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Registering data for the parallel deferred update.
 
 // Parameters:
 //  Result - See TimeConsumingOperationsClient.NewResultLongOperation
@@ -786,7 +786,7 @@ Function CheckDeferredHandlerFillingProcedures(ControllingBackgroundJobExecution
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Common procedures for all stages.
 
 &AtClient
 Procedure BeginClose() Export

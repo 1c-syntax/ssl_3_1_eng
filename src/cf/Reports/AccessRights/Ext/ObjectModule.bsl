@@ -274,28 +274,28 @@ Function SelectInfoOnAccessRights(Val AvailableRights, Val OutputGroupRights, Va
 	|SELECT DISTINCT
 	|	AccessGroups.Ref AS AccessGroup,
 	|	AccessGroups.Profile AS Profile,
-	|	AccessGroupsUsers_SSLy.User AS User,
-	|	NOT VALUETYPE(AccessGroupsUsers_SSLy.User) IN (
+	|	AccessGroups_Users.User AS User,
+	|	NOT VALUETYPE(AccessGroups_Users.User) IN (
 	|		TYPE(Catalog.Users),
 	|		TYPE(Catalog.ExternalUsers)) AS GroupParticipation,
 	|	AccessGroups.EmployeeResponsible AS EmployeeResponsible
 	|INTO UserAccessGroups
 	|FROM
 	|	Catalog.AccessGroups AS AccessGroups
-	|		INNER JOIN Catalog.AccessGroups.Users AS AccessGroupsUsers_SSLy
-	|		ON AccessGroups.Ref = AccessGroupsUsers_SSLy.Ref
+	|		INNER JOIN Catalog.AccessGroups.Users AS AccessGroups_Users
+	|		ON AccessGroups.Ref = AccessGroups_Users.Ref
 	|			AND (NOT AccessGroups.DeletionMark)
 	|			AND (NOT AccessGroups.Profile.DeletionMark)
 	|			AND (CASE
 	|				WHEN &OutputGroupRights
-	|					THEN AccessGroupsUsers_SSLy.User = &User
+	|					THEN AccessGroups_Users.User = &User
 	|				ELSE TRUE IN
 	|						(SELECT TOP 1
 	|							TRUE
 	|						FROM
 	|							InformationRegister.UserGroupCompositions AS UserGroupCompositions
 	|						WHERE
-	|							UserGroupCompositions.UsersGroup = AccessGroupsUsers_SSLy.User
+	|							UserGroupCompositions.UsersGroup = AccessGroups_Users.User
 	|							AND UserGroupCompositions.User = &User)
 	|			END)
 	|;
@@ -1586,8 +1586,8 @@ Procedure OutputDetailedInfoOnAccessRights(Val Template, UserOrGroup, Val QueryR
 		EndIf;
 		// Displaying group membership.
 		If AccessGroupDetails.Rows.Count() = 1 And AccessGroupDetails.Rows[0].Member = UserOrGroup Then
-			// 
-			// 
+			// The user is included into an access group explicitly.
+			// Therefore, no need to output.
 		Else
 			Area = Template.GetArea("AccessGroupDetailsUserIsInGroup");
 			Document.Put(Area, 3);
@@ -1673,40 +1673,36 @@ Function AccessKindPresentationTemplate(AccessKindDetails, RightsSettingsOwners)
 			AccessKindPresentationTemplate = "%1";
 
 		ElsIf AccessKindDetails.AllAllowed Then
-			If AccessKindDetails.AccessKind = Catalogs.Users.EmptyRef() Then
-				AccessKindPresentationTemplate = NStr("en = '%1 (none denied, current user always allowed)';");
-
-			ElsIf AccessKindDetails.AccessKind = Catalogs.ExternalUsers.EmptyRef() Then
-				AccessKindPresentationTemplate = NStr("en = '%1 (none denied, current external user always allowed)';");
+			If AccessKindDetails.AccessKind = Catalogs.Users.EmptyRef()
+			 Or AccessKindDetails.AccessKind = Catalogs.ExternalUsers.EmptyRef() Then
+				
+				AccessKindPresentationTemplate = NStr("en = '%1 (No forbidden: Authorized user and their groups are always allowed)';");
 			Else
 				AccessKindPresentationTemplate = NStr("en = '%1 (none denied)';");
 			EndIf;
 		Else
-			If AccessKindDetails.AccessKind = Catalogs.Users.EmptyRef() Then
-				AccessKindPresentationTemplate = NStr("en = '%1 (none allowed, current user always allowed)';");
-
-			ElsIf AccessKindDetails.AccessKind = Catalogs.ExternalUsers.EmptyRef() Then
-				AccessKindPresentationTemplate = NStr("en = '%1 (none allowed, current external user always allowed)';");
+			If AccessKindDetails.AccessKind = Catalogs.Users.EmptyRef()
+			 Or AccessKindDetails.AccessKind = Catalogs.ExternalUsers.EmptyRef() Then
+				
+				AccessKindPresentationTemplate = NStr("en = '%1 (No allowed: Authorized user and their groups are always allowed)';");
 			Else
 				AccessKindPresentationTemplate = NStr("en = '%1 (none allowed)';");
 			EndIf;
 		EndIf;
 	Else
 		If AccessKindDetails.AllAllowed Then
-			If AccessKindDetails.AccessKind = Catalogs.Users.EmptyRef() Then
-				AccessKindPresentationTemplate = NStr("en = '%1 (denied, current user always allowed):';");
-
-			ElsIf AccessKindDetails.AccessKind = Catalogs.ExternalUsers.EmptyRef() Then
-				AccessKindPresentationTemplate = NStr("en = '%1 (denied, current external user always allowed):';");
+			If AccessKindDetails.AccessKind = Catalogs.Users.EmptyRef()
+			 Or AccessKindDetails.AccessKind = Catalogs.ExternalUsers.EmptyRef() Then
+				
+				AccessKindPresentationTemplate = NStr("en = '%1 (Forbidden: Authorized user and their groups are always allowed):';");
 			Else
 				AccessKindPresentationTemplate = NStr("en = '%1 (denied):';");
 			EndIf;
 		Else
-			If AccessKindDetails.AccessKind = Catalogs.Users.EmptyRef() Then
-				AccessKindPresentationTemplate = NStr("en = '%1 (allowed, current user always allowed):';");
-
-			ElsIf AccessKindDetails.AccessKind = Catalogs.ExternalUsers.EmptyRef() Then
-				AccessKindPresentationTemplate = NStr("en = '%1 (allowed, current external user always allowed):';");
+			If AccessKindDetails.AccessKind = Catalogs.Users.EmptyRef()
+			 Or AccessKindDetails.AccessKind = Catalogs.ExternalUsers.EmptyRef() Then
+				
+				AccessKindPresentationTemplate = NStr("en = '%1 (Allowed: Authorized user and their groups are always allowed):';");
 			Else
 				AccessKindPresentationTemplate = NStr("en = '%1 (allowed):';");
 			EndIf;

@@ -35,6 +35,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.CalendarSchedulesInternal</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">StyleItem.BusinessCalendarNonWorkPeriodBackground</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.CalendarNonWorkDaysPeriods</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.CalendarSchedulesLocalization</xr:Item>
 			</Content>
 		</Properties>
 		<ChildObjects/>

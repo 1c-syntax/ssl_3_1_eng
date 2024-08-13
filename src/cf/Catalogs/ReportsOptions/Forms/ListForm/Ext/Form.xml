@@ -121,7 +121,7 @@
 							<v8:content>Find</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="ExecuteSearch1ExtendedTooltip" id="133"/>
+					<ExtendedTooltip name="ExecuteSearchExtendedTooltip" id="133"/>
 				</Button>
 				<InputField name="FilterReportType" id="45">
 					<DataPath>FilterReportType</DataPath>
@@ -163,8 +163,8 @@
 					<ContextMenu name="FilterReportTypeContextMenu" id="46"/>
 					<ExtendedTooltip name="FilterReportTypeExtendedTooltip" id="101"/>
 					<Events>
-						<Event name="OnChange">FilterByReportTypeOnChange</Event>
-						<Event name="Clearing">FilterByReportTypeClearing</Event>
+						<Event name="OnChange">FilterReportTypeOnChange</Event>
+						<Event name="Clearing">FilterReportTypeClearing</Event>
 					</Events>
 				</InputField>
 			</ChildItems>
@@ -244,7 +244,7 @@
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Item.List.StandardCommand.FindByCurrentValue</CommandName>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-							<ExtendedTooltip name="ListSearchByCurrentValueExtendedTooltip" id="195"/>
+							<ExtendedTooltip name="ListFindByCurrentValueExtendedTooltip" id="195"/>
 						</Button>
 						<Button name="ListCancelSearch" id="192">
 							<Type>CommandBarButton</Type>
@@ -313,7 +313,7 @@
 									<v8:content>Save to file…</v8:content>
 								</v8:item>
 							</Title>
-							<ExtendedTooltip name="SaveReportOptionToFile1ExtendedTooltip" id="199"/>
+							<ExtendedTooltip name="SaveReportOptionToFileExtendedTooltip" id="199"/>
 						</Button>
 					</ChildItems>
 				</ButtonGroup>
@@ -526,29 +526,29 @@
 					</ContextMenu>
 					<AutoCommandBar name="ListCommandBar" id="3"/>
 					<ExtendedTooltip name="ListExtendedTooltip" id="123"/>
-					<SearchStringAddition name="ListSearchString_SSLy" id="179">
+					<SearchStringAddition name="ListSearchString" id="179">
 						<AdditionSource>
 							<Item>List</Item>
 							<Type>SearchStringRepresentation</Type>
 						</AdditionSource>
-						<ContextMenu name="ListSearchString_SSLyContextMenu" id="180"/>
-						<ExtendedTooltip name="ListSearchString_SSLyExtendedTooltip" id="181"/>
+						<ContextMenu name="ListSearchStringContextMenu" id="180"/>
+						<ExtendedTooltip name="ListSearchStringExtendedTooltip" id="181"/>
 					</SearchStringAddition>
-					<ViewStatusAddition name="ListViewStatus_SSLy" id="182">
+					<ViewStatusAddition name="ListViewStatus" id="182">
 						<AdditionSource>
 							<Item>List</Item>
 							<Type>ViewStatusRepresentation</Type>
 						</AdditionSource>
-						<ContextMenu name="ListViewStatus_SSLyContextMenu" id="183"/>
-						<ExtendedTooltip name="ListViewStatus_SSLyExtendedTooltip" id="184"/>
+						<ContextMenu name="ListViewStatusContextMenu" id="183"/>
+						<ExtendedTooltip name="ListViewStatusExtendedTooltip" id="184"/>
 					</ViewStatusAddition>
-					<SearchControlAddition name="ListSearchControl_SSLy" id="185">
+					<SearchControlAddition name="ListSearchControl" id="185">
 						<AdditionSource>
 							<Item>List</Item>
 							<Type>SearchControl</Type>
 						</AdditionSource>
-						<ContextMenu name="ListSearchControl_SSLyContextMenu" id="186"/>
-						<ExtendedTooltip name="ListSearchControl_SSLyExtendedTooltip" id="187"/>
+						<ContextMenu name="ListSearchControlContextMenu" id="186"/>
+						<ExtendedTooltip name="ListSearchControlExtendedTooltip" id="187"/>
 					</SearchControlAddition>
 					<Events>
 						<Event name="Selection">ListSelection</Event>

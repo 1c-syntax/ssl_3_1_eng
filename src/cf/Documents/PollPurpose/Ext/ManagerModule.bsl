@@ -38,7 +38,7 @@ EndFunction
 
 // StandardSubsystems.ReportsOptions
 
-// Determines a report command list.
+// Defines the list of report commands.
 //
 // Parameters:
 //  ReportsCommands - See ReportsOptionsOverridable.BeforeAddReportCommands.ReportsCommands

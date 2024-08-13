@@ -197,7 +197,7 @@ Procedure ListOnChangeAtServer()
 	
 EndProcedure
 
-// Standard subsystems.Pluggable commands
+// StandardSubsystems.AttachableCommands
 
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)

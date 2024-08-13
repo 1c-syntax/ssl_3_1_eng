@@ -49,7 +49,7 @@ Procedure OpenSecurityProfileSetupDialog() Export
 	
 EndProcedure
 
-// Enables the administrator to open an external data processor or a report with safe mode selection.
+// Allows the administrator to open an external data processor or report in safe mode.
 //
 // Parameters:
 //   Owner - ClientApplicationForm - a form that owns the external report or data processor form. 

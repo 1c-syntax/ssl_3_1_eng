@@ -76,13 +76,13 @@
 									<SpinButton>false</SpinButton>
 									<OpenButton>false</OpenButton>
 									<CreateButton>false</CreateButton>
-									<ContextMenu name="ExchangeNodeRef1ContextMenu" id="2"/>
+									<ContextMenu name="ExchangeNodeReferenceContextMenu" id="2"/>
 									<ExtendedTooltip name="ExchangeNodeReferenceExtendedTooltip" id="201"/>
 									<Events>
-										<Event name="OnChange">ExchangeNodeRef1OnChange</Event>
-										<Event name="StartChoice">ExchangeNodeRef1StartChoice</Event>
-										<Event name="Clearing">ExchangeNodeRef1Clearing</Event>
-										<Event name="ChoiceProcessing">ExchangeNodeRef1ChoiceProcessing</Event>
+										<Event name="OnChange">ExchangeNodeReferenceOnChange</Event>
+										<Event name="StartChoice">ExchangeNodeReferenceStartChoice</Event>
+										<Event name="Clearing">ExchangeNodeReferenceClearing</Event>
+										<Event name="ChoiceProcessing">ExchangeNodeReferenceChoiceProcessing</Event>
 									</Events>
 								</InputField>
 								<Button name="FormEditMessagesNumbers" id="85">
@@ -793,10 +793,10 @@
 															<EditMode>Directly</EditMode>
 															<ShowInFooter>false</ShowInFooter>
 															<ThreeState>true</ThreeState>
-															<ContextMenu name="MetadataTreeTaggingContextMenu" id="17"/>
+															<ContextMenu name="MetadataTreeCheckContextMenu" id="17"/>
 															<ExtendedTooltip name="MetadataTreeCheckExtendedTooltip" id="244"/>
 															<Events>
-																<Event name="OnChange">MetadataTreeTaggingOnChange</Event>
+																<Event name="OnChange">MetadataTreeCheckOnChange</Event>
 															</Events>
 														</CheckBoxField>
 														<LabelField name="MetadataTreeDescription" id="10">
@@ -810,7 +810,7 @@
 															</Title>
 															<EditMode>EnterOnInput</EditMode>
 															<Width>17</Width>
-															<ContextMenu name="MetadataTreeNameContextMenu" id="11"/>
+															<ContextMenu name="MetadataTreeDescriptionContextMenu" id="11"/>
 															<ExtendedTooltip name="MetadataTreeDescriptionExtendedTooltip" id="245"/>
 														</LabelField>
 													</ChildItems>
@@ -849,7 +849,7 @@
 																<xr:LoadTransparent>false</xr:LoadTransparent>
 															</ValuesPicture>
 															<FileDragMode>AsFile</FileDragMode>
-															<ContextMenu name="MetadataTreeAutoregistrationContextMenu" id="28"/>
+															<ContextMenu name="MetadataTreeAutoRecordContextMenu" id="28"/>
 															<ExtendedTooltip name="MetadataTreeAutoRecordExtendedTooltip" id="247"/>
 														</PictureField>
 														<LabelField name="MetadataTreeChangeCountString" id="29">
@@ -872,7 +872,7 @@
 															<Width>10</Width>
 															<Height>1</Height>
 															<HorizontalStretch>false</HorizontalStretch>
-															<ContextMenu name="MetadataTreeNumberOfChangesByRowContextMenu" id="30"/>
+															<ContextMenu name="MetadataTreeChangeCountStringContextMenu" id="30"/>
 															<ExtendedTooltip name="MetadataTreeChangeCountStringExtendedTooltip" id="248"/>
 														</LabelField>
 													</ChildItems>
@@ -1180,7 +1180,7 @@
 																			<ContextMenu name="ConstantsListAutoRecordContextMenu" id="147"/>
 																			<ExtendedTooltip name="ConstantsListAutoRecordExtendedTooltip" id="267"/>
 																		</PictureField>
-																		<LabelField name="ConstantsListMessageNumber" id="68">
+																		<LabelField name="ConstantsListMessageNo" id="68">
 																			<DataPath>ConstantsList.MessageNo</DataPath>
 																			<Title>
 																				<v8:item>
@@ -1190,8 +1190,8 @@
 																			</Title>
 																			<HorizontalAlign>Left</HorizontalAlign>
 																			<EditMode>Directly</EditMode>
-																			<ContextMenu name="ConstantsListMessageNumberContextMenu" id="69"/>
-																			<ExtendedTooltip name="ConstantsListMessageNumberExtendedTooltip" id="268"/>
+																			<ContextMenu name="ConstantsListMessageNoContextMenu" id="69"/>
+																			<ExtendedTooltip name="ConstantsListMessageNoExtendedTooltip" id="268"/>
 																		</LabelField>
 																	</ChildItems>
 																</ColumnGroup>
@@ -1496,7 +1496,7 @@
 																			<v8:content>Number of sent message</v8:content>
 																		</v8:item>
 																	</Title>
-																	<ContextMenu name="ReferenceListMessageNumberContextMenu" id="53"/>
+																	<ContextMenu name="ReferenceListMessageNoContextMenu" id="53"/>
 																	<ExtendedTooltip name="ReferenceListMessageNoExtendedTooltip" id="289"/>
 																</LabelField>
 															</ChildItems>
@@ -1780,7 +1780,7 @@
 																			<v8:content>Number of sent message</v8:content>
 																		</v8:item>
 																	</Title>
-																	<ContextMenu name="RecordSetsListMessageNumberContextMenu" id="84"/>
+																	<ContextMenu name="RecordSetsListMessageNoContextMenu" id="84"/>
 																	<ExtendedTooltip name="RecordSetsListMessageNoExtendedTooltip" id="308"/>
 																</LabelField>
 															</ChildItems>
@@ -1801,7 +1801,7 @@
 															<v8:content>Totals page</v8:content>
 														</v8:item>
 													</ToolTip>
-													<ExtendedTooltip name="BlankPage1ExtendedTooltip" id="309"/>
+													<ExtendedTooltip name="BlankPageExtendedTooltip" id="309"/>
 													<ChildItems>
 														<UsualGroup name="GroupEmpty" id="77">
 															<EnableContentChange>true</EnableContentChange>
@@ -1820,7 +1820,7 @@
 															<Group>Vertical</Group>
 															<Behavior>Usual</Behavior>
 															<Representation>NormalSeparation</Representation>
-															<ExtendedTooltip name="EmptyGroupExtendedTooltip" id="310"/>
+															<ExtendedTooltip name="GroupEmptyExtendedTooltip" id="310"/>
 															<ChildItems>
 																<LabelDecoration name="EmptyPageDecoration" id="75">
 																	<AutoMaxWidth>false</AutoMaxWidth>

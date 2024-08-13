@@ -301,7 +301,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Multi-threaded</v8:content>
+					<v8:content>Multithreaded</v8:content>
 				</v8:item>
 			</title>
 			<valueType>
@@ -592,6 +592,21 @@ End, "Number(13, 0)")</dcscom:expression>
 		<value xsi:type="xs:boolean">false</value>
 		<useRestriction>true</useRestriction>
 	</parameter>
+	<parameter>
+		<name>IdOfHandlerForClearingOutdatedData</name>
+		<title xsi:type="v8:LocalStringType">
+			<v8:item>
+				<v8:lang>en</v8:lang>
+				<v8:content>The ID of the obsolete data clean-up handler</v8:content>
+			</v8:item>
+		</title>
+		<valueType>
+			<v8:Type>v8:UUID</v8:Type>
+		</valueType>
+		<value xsi:type="v8:UUID">00000000-0000-0000-0000-000000000000</value>
+		<useRestriction>true</useRestriction>
+		<use>Always</use>
+	</parameter>
 	<settingsVariant>
 		<dcsset:name>Main</dcsset:name>
 		<dcsset:presentation xsi:type="v8:LocalStringType">
@@ -740,6 +755,17 @@ End, "Number(13, 0)")</dcscom:expression>
 							<v8:item>
 								<v8:lang>en</v8:lang>
 								<v8:content>// The version is not yet known; called on every update</v8:content>
+							</v8:item>
+						</dcsset:presentation>
+					</dcsset:item>
+					<dcsset:item xsi:type="dcsset:FilterItemComparison">
+						<dcsset:left xsi:type="dcscor:Field">Id</dcsset:left>
+						<dcsset:comparisonType>Equal</dcsset:comparisonType>
+						<dcsset:right xsi:type="dcscor:Field">DataParameters.IdOfHandlerForClearingOutdatedData</dcsset:right>
+						<dcsset:presentation xsi:type="v8:LocalStringType">
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>// Clear obsolete data during every update</v8:content>
 							</v8:item>
 						</dcsset:presentation>
 					</dcsset:item>

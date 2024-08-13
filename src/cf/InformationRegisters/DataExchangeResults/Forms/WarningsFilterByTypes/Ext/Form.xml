@@ -58,7 +58,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="MainSelectionsExtendedTooltip" id="23"/>
+			<ExtendedTooltip name="MainFiltersExtendedTooltip" id="23"/>
 			<ChildItems>
 				<UsualGroup name="Send" id="24">
 					<Title>
@@ -96,8 +96,8 @@
 							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<CheckBoxType>Auto</CheckBoxType>
-							<ContextMenu name="ErrorCheckingBeforeSendingXTDOContextMenu" id="20"/>
-							<ExtendedTooltip name="ErrorCheckingBeforeSendingXTDOExtendedTooltip" id="21"/>
+							<ContextMenu name="CheckErrorBeforeSendXTDOContextMenu" id="20"/>
+							<ExtendedTooltip name="CheckErrorBeforeSendXTDOExtendedTooltip" id="21"/>
 						</CheckBoxField>
 						<CheckBoxField name="HandlersCodeExecutionErrorOnSendData" id="13">
 							<DataPath>HandlersCodeExecutionErrorOnSendData</DataPath>
@@ -164,8 +164,8 @@
 							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<CheckBoxType>Auto</CheckBoxType>
-							<ContextMenu name="NotAcceptedCollisionDataContextMenu" id="8"/>
-							<ExtendedTooltip name="NotAcceptedCollisionDataExtendedTooltip" id="9"/>
+							<ContextMenu name="RejectedConflictDataContextMenu" id="8"/>
+							<ExtendedTooltip name="RejectedConflictDataExtendedTooltip" id="9"/>
 						</CheckBoxField>
 						<CheckBoxField name="ConflictDataAccepted" id="37">
 							<DataPath>ConflictDataAccepted</DataPath>

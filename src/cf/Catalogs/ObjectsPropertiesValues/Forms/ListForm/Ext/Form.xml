@@ -17,7 +17,7 @@
 						<DefaultButton>true</DefaultButton>
 						<DefaultItem>true</DefaultItem>
 						<CommandName>Form.StandardCommand.Choose</CommandName>
-						<ExtendedTooltip name="FormChooseExtendedTooltip" id="24"/>
+						<ExtendedTooltip name="FormSelectExtendedTooltip" id="24"/>
 					</Button>
 					<Button name="FormCreate" id="10">
 						<Type>CommandBarButton</Type>
@@ -150,29 +150,29 @@
 			<ContextMenu name="ListContextMenu" id="2"/>
 			<AutoCommandBar name="ListCommandBar" id="3"/>
 			<ExtendedTooltip name="ListExtendedTooltip" id="32"/>
-			<SearchStringAddition name="ListSearchString_SSLy" id="49">
+			<SearchStringAddition name="ListSearchString" id="49">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchStringRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchString_SSLyContextMenu" id="50"/>
-				<ExtendedTooltip name="ListSearchString_SSLyExtendedTooltip" id="51"/>
+				<ContextMenu name="ListSearchStringContextMenu" id="50"/>
+				<ExtendedTooltip name="ListSearchStringExtendedTooltip" id="51"/>
 			</SearchStringAddition>
-			<ViewStatusAddition name="ListViewStatus_SSLy" id="52">
+			<ViewStatusAddition name="ListViewStatus" id="52">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>ViewStatusRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListViewStatus_SSLyContextMenu" id="53"/>
-				<ExtendedTooltip name="ListViewStatus_SSLyExtendedTooltip" id="54"/>
+				<ContextMenu name="ListViewStatusContextMenu" id="53"/>
+				<ExtendedTooltip name="ListViewStatusExtendedTooltip" id="54"/>
 			</ViewStatusAddition>
-			<SearchControlAddition name="ListSearchControl_SSLy" id="55">
+			<SearchControlAddition name="ListSearchControl" id="55">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchControl</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchControl_SSLyContextMenu" id="56"/>
-				<ExtendedTooltip name="ListSearchControl_SSLyExtendedTooltip" id="57"/>
+				<ContextMenu name="ListSearchControlContextMenu" id="56"/>
+				<ExtendedTooltip name="ListSearchControlExtendedTooltip" id="57"/>
 			</SearchControlAddition>
 			<Events>
 				<Event name="BeforeAddRow">ListBeforeAddRow</Event>

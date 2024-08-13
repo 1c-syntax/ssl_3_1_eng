@@ -206,8 +206,8 @@
 									<Width>10</Width>
 									<Wrap>false</Wrap>
 									<BorderColor>style:BorderColor</BorderColor>
-									<ContextMenu name="FoldersNameContextMenu" id="15"/>
-									<ExtendedTooltip name="FoldersNameExtendedTooltip" id="53"/>
+									<ContextMenu name="FoldersDescriptionContextMenu" id="15"/>
+									<ExtendedTooltip name="FoldersDescriptionExtendedTooltip" id="53"/>
 								</InputField>
 							</ChildItems>
 						</ColumnGroup>
@@ -217,8 +217,8 @@
 								<xr:Common>false</xr:Common>
 							</UserVisible>
 							<Width>1</Width>
-							<ContextMenu name="FoldersLinkContextMenu" id="67"/>
-							<ExtendedTooltip name="FoldersLinkExtendedTooltip" id="68"/>
+							<ContextMenu name="FoldersRefContextMenu" id="67"/>
+							<ExtendedTooltip name="FoldersRefExtendedTooltip" id="68"/>
 						</LabelField>
 					</ChildItems>
 				</Table>
@@ -296,29 +296,29 @@
 					</ContextMenu>
 					<AutoCommandBar name="ListCommandBar" id="4"/>
 					<ExtendedTooltip name="ListExtendedTooltip" id="54"/>
-					<SearchStringAddition name="ListSearchString_SSLy" id="96">
+					<SearchStringAddition name="ListSearchString" id="96">
 						<AdditionSource>
 							<Item>List</Item>
 							<Type>SearchStringRepresentation</Type>
 						</AdditionSource>
-						<ContextMenu name="ListSearchString_SSLyContextMenu" id="97"/>
-						<ExtendedTooltip name="ListSearchString_SSLyExtendedTooltip" id="98"/>
+						<ContextMenu name="ListSearchStringContextMenu" id="97"/>
+						<ExtendedTooltip name="ListSearchStringExtendedTooltip" id="98"/>
 					</SearchStringAddition>
-					<ViewStatusAddition name="ListViewStatus_SSLy" id="99">
+					<ViewStatusAddition name="ListViewStatus" id="99">
 						<AdditionSource>
 							<Item>List</Item>
 							<Type>ViewStatusRepresentation</Type>
 						</AdditionSource>
-						<ContextMenu name="ListViewStatus_SSLyContextMenu" id="100"/>
-						<ExtendedTooltip name="ListViewStatus_SSLyExtendedTooltip" id="101"/>
+						<ContextMenu name="ListViewStatusContextMenu" id="100"/>
+						<ExtendedTooltip name="ListViewStatusExtendedTooltip" id="101"/>
 					</ViewStatusAddition>
-					<SearchControlAddition name="ListSearchControl_SSLy" id="102">
+					<SearchControlAddition name="ListSearchControl" id="102">
 						<AdditionSource>
 							<Item>List</Item>
 							<Type>SearchControl</Type>
 						</AdditionSource>
-						<ContextMenu name="ListSearchControl_SSLyContextMenu" id="103"/>
-						<ExtendedTooltip name="ListSearchControl_SSLyExtendedTooltip" id="104"/>
+						<ContextMenu name="ListSearchControlContextMenu" id="103"/>
+						<ExtendedTooltip name="ListSearchControlExtendedTooltip" id="104"/>
 					</SearchControlAddition>
 					<Events>
 						<Event name="BeforeAddRow">ListBeforeAddRow</Event>
@@ -427,8 +427,8 @@
 							<HorizontalStretch>false</HorizontalStretch>
 							<Wrap>false</Wrap>
 							<BorderColor>style:BorderColor</BorderColor>
-							<ContextMenu name="ListCreationDate1ContextMenu" id="24"/>
-							<ExtendedTooltip name="ListCreationDate1ExtendedTooltip" id="62"/>
+							<ContextMenu name="ListCreationDateContextMenu" id="24"/>
+							<ExtendedTooltip name="ListCreationDateExtendedTooltip" id="62"/>
 						</InputField>
 						<LabelField name="ListRef" id="39" DisplayImportance="VeryLow">
 							<DataPath>List.Ref</DataPath>

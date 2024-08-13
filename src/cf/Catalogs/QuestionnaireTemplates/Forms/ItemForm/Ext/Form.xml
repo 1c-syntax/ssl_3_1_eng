@@ -463,6 +463,12 @@
 									<ChildItems>
 										<InputField name="QuestionnaireTreeFullCode" id="72">
 											<DataPath>QuestionnaireTree.FullCode</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Full code</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<EditMode>EnterOnInput</EditMode>
 											<Width>4</Width>
@@ -481,7 +487,7 @@
 											<HorizontalStretch>true</HorizontalStretch>
 											<Wrap>false</Wrap>
 											<ClearButton>false</ClearButton>
-											<ContextMenu name="QuestionnaireTreeWording1ContextMenu" id="24"/>
+											<ContextMenu name="QuestionnaireTreeWordingContextMenu" id="24"/>
 											<ExtendedTooltip name="QuestionnaireTreeWordingExtendedTooltip" id="109"/>
 										</InputField>
 										<PictureField name="QuestionnaireTreePictureCode" id="21">
@@ -540,8 +546,8 @@
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</ValuesPicture>
 									<FileDragMode>AsFile</FileDragMode>
-									<ContextMenu name="FormOfTheQuestionnaireTreeThereAreNotesContextMenu" id="116"/>
-									<ExtendedTooltip name="FormOfTheQuestionnaireTreeThereAreNotesExtendedTooltip" id="117"/>
+									<ContextMenu name="QuestionnaireTreeFormHasNotesContextMenu" id="116"/>
+									<ExtendedTooltip name="QuestionnaireTreeFormHasNotesExtendedTooltip" id="117"/>
 								</PictureField>
 							</ChildItems>
 						</Table>
@@ -730,6 +736,12 @@
 					</Type>
 				</Column>
 				<Column name="FullCode" id="19">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Full code</v8:content>
+						</v8:item>
+					</Title>
 					<Type>
 						<v8:Type>xs:string</v8:Type>
 						<v8:StringQualifiers>

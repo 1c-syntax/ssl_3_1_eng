@@ -87,6 +87,9 @@
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.TypesOfCertificates</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.CertificateRevocationLists</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Role.RemoveDigitalSignatures</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">Report.DigitalSignatureCertificates</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.DigitalSignatureLocalization</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.DigitalSignatureClientLocalization</xr:Item>
 			</Content>
 		</Properties>
 		<ChildObjects/>

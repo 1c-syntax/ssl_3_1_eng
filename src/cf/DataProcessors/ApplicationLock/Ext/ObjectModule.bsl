@@ -49,8 +49,8 @@ Procedure GetLockParameters() Export
 		LockEffectiveFrom    = CurrentMode.Begin;
 		LockEffectiveTo = CurrentMode.End;
 	Else
-		// 
-		// 
+		// If no lock is set, we assume that the user opened the lock form.
+		// Therefore, set the lock date to the current date.
 		// 
 		LockEffectiveFrom     = BegOfMinute(CurrentSessionDate() + 15 * 60);
 	EndIf;

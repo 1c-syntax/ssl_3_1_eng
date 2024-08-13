@@ -82,7 +82,7 @@
 								</Title>
 								<ExtendedTooltip name="ServiceUsersSetAllExtendedTooltip" id="23"/>
 							</Button>
-							<Button name="ServiceUsersClearAll1" id="19">
+							<Button name="ServiceUsersClearAllIetmsCommand" id="19">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.ClearAllIetmsCommand</CommandName>
 								<Title>
@@ -91,7 +91,7 @@
 										<v8:content>Clear all</v8:content>
 									</v8:item>
 								</Title>
-								<ExtendedTooltip name="ServiceUsersClearAll1ExtendedTooltip" id="24"/>
+								<ExtendedTooltip name="ServiceUsersClearAllIetmsCommandExtendedTooltip" id="24"/>
 							</Button>
 						</ChildItems>
 					</ButtonGroup>
@@ -171,7 +171,7 @@
 						</v8:item>
 					</Title>
 					<EditMode>EnterOnInput</EditMode>
-					<ContextMenu name="ServiceUsersIDContextMenu" id="13"/>
+					<ContextMenu name="ServiceUsersIdContextMenu" id="13"/>
 					<ExtendedTooltip name="ServiceUsersIdExtendedTooltip" id="29"/>
 				</LabelField>
 				<CheckBoxField name="ServiceUsersAccess" id="14">
@@ -185,7 +185,7 @@
 					</Title>
 					<EditMode>EnterOnInput</EditMode>
 					<CheckBoxType>Auto</CheckBoxType>
-					<ContextMenu name="UsersOfTheAccessServiceContextMenu" id="15"/>
+					<ContextMenu name="ServiceUsersAccessContextMenu" id="15"/>
 					<ExtendedTooltip name="ServiceUsersAccessExtendedTooltip" id="30"/>
 				</CheckBoxField>
 			</ChildItems>

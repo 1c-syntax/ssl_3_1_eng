@@ -89,7 +89,7 @@ Procedure AddMicrosoftEnhancedCSPSettings(Settings) Export
 	Setting.Presentation       = NStr("en = 'Microsoft Enhanced CSP';");
 	Setting.ApplicationName        = "Microsoft Enhanced Cryptographic Provider v1.0";
 	Setting.ApplicationType        = 1;
-	Setting.SignAlgorithm     = "RSA_SIGN"; // 
+	Setting.SignAlgorithm     = "RSA_SIGN"; // One option.
 	Setting.HashAlgorithm = "MD5";      // Options: SHA-1, MD2, MD4, MD5.
 	Setting.EncryptAlgorithm  = "RC2";      // Options: RC2, RC4, DES, 3DES.
 	Setting.Id       = "MicrosoftEnhanced";

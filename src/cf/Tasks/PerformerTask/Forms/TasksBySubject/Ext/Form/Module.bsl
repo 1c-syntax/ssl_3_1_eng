@@ -19,12 +19,12 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If UseSubordinateBusinessProcesses Then
 		Items.List.Visible = False;
-		Items.ListCommandBar.Visible = False;
+		Items.CommandBarOfList.Visible = False;
 		Items.ShowExecuted.Visible = False;
 		Items.TasksTree.Visible = True;
 	Else	
 		Items.List.Visible = True;
-		Items.ListCommandBar.Visible = True;
+		Items.CommandBarOfList.Visible = True;
 		Items.ShowExecuted.Visible = True;
 		Items.TasksTree.Visible = False;
 	EndIf;	
@@ -83,8 +83,8 @@ EndProcedure
 Procedure Refresh(Command)
 	
 	RefreshTasksList();
-	For Each String In TasksTree.GetItems() Do
-		Items.TasksTree.Expand(String.GetID(), True);
+	For Each Item In TasksTree.GetItems() Do
+		Items.TasksTree.Expand(Item.GetID(), True);
 	EndDo;
 	
 EndProcedure
@@ -181,38 +181,34 @@ Procedure AddTasksBySubject(Tree, SubjectOf)
 	Query = New Query;
 	Query.Text = 
 		"SELECT ALLOWED
-		|	Tasks.Ref,
-		|	Tasks.Description,
-		|	Tasks.Performer,
-		|	Tasks.PerformerRole,
-		|	Tasks.TaskDueDate,
-		|	Tasks.Executed,
+		|	PerformerTasks.Ref,
+		|	PerformerTasks.Description,
+		|	PerformerTasks.Performer,
+		|	PerformerTasks.PerformerRole,
+		|	PerformerTasks.TaskDueDate,
+		|	PerformerTasks.Executed,
 		|	CASE
-		|		WHEN Tasks.Importance = VALUE(Enum.TaskImportanceOptions.Low)
+		|		WHEN PerformerTasks.Importance = VALUE(Enum.TaskImportanceOptions.Low)
 		|			THEN 0
-		|		WHEN Tasks.Importance = VALUE(Enum.TaskImportanceOptions.High)
+		|		WHEN PerformerTasks.Importance = VALUE(Enum.TaskImportanceOptions.High)
 		|			THEN 2
 		|		ELSE 1
 		|	END AS Importance,
 		|	CASE
-		|		WHEN Tasks.BusinessProcessState = VALUE(Enum.BusinessProcessStates.Suspended)
+		|		WHEN PerformerTasks.BusinessProcessState = VALUE(Enum.BusinessProcessStates.Suspended)
 		|			THEN TRUE
 		|		ELSE FALSE
 		|	END AS Suspended
 		|FROM
-		|	Task.PerformerTask AS Tasks
+		|	Task.PerformerTask AS PerformerTasks
 		|WHERE
-		|   Tasks.SubjectOf = &SubjectOf
-		|   AND Tasks.DeletionMark = FALSE";
+		|  PerformerTasks.SubjectOf = &SubjectOf
+		|  AND PerformerTasks.DeletionMark = FALSE";
 		
 	Query.SetParameter("SubjectOf", SubjectOf);
 
-	Result = Query.Execute();
-	
-	SelectionDetailRecords = Result.Select();
-
+	SelectionDetailRecords = Query.Execute().Select();
  	TasksBySubject = BusinessProcessesAndTasksServer.NewTasksBySubject();
-	
 	While SelectionDetailRecords.Next() Do
 		
 		Branch = Tree.Rows.Find(SelectionDetailRecords.Ref, "Ref", True);
@@ -325,38 +321,34 @@ Procedure AddSubordinateBusinessProcessTasks(Tree, BusinessProcessRef, TaskRef)
 	Query = New Query;
 	Query.Text = 
 		"SELECT ALLOWED
-		|	Tasks.Ref,
-		|	Tasks.Description,
-		|	Tasks.Performer,
-		|	Tasks.PerformerRole,
-		|	Tasks.TaskDueDate,
-		|	Tasks.Executed,
+		|	PerformerTasks.Ref,
+		|	PerformerTasks.Description,
+		|	PerformerTasks.Performer,
+		|	PerformerTasks.PerformerRole,
+		|	PerformerTasks.TaskDueDate,
+		|	PerformerTasks.Executed,
 		|	CASE
-		|		WHEN Tasks.Importance = VALUE(Enum.TaskImportanceOptions.Low)
+		|		WHEN PerformerTasks.Importance = VALUE(Enum.TaskImportanceOptions.Low)
 		|			THEN 0
-		|		WHEN Tasks.Importance = VALUE(Enum.TaskImportanceOptions.High)
+		|		WHEN PerformerTasks.Importance = VALUE(Enum.TaskImportanceOptions.High)
 		|			THEN 2
 		|		ELSE 1
 		|	END AS Importance,
 		|	CASE
-		|		WHEN Tasks.BusinessProcessState = VALUE(Enum.BusinessProcessStates.Suspended)
+		|		WHEN PerformerTasks.BusinessProcessState = VALUE(Enum.BusinessProcessStates.Suspended)
 		|			THEN TRUE
 		|		ELSE FALSE
 		|	END AS Suspended
 		|FROM
-		|	Task.PerformerTask AS Tasks
+		|	Task.PerformerTask AS PerformerTasks
 		|WHERE
-		|   Tasks.BusinessProcess = &BusinessProcess
-		|   AND Tasks.DeletionMark = FALSE";
+		|  PerformerTasks.BusinessProcess = &BusinessProcess
+		|  AND PerformerTasks.DeletionMark = FALSE";
 		
 	Query.SetParameter("BusinessProcess", BusinessProcessRef);
 
-	Result = Query.Execute();
-	
-	SelectionDetailRecords = Result.Select();
-	
+	SelectionDetailRecords = Query.Execute().Select();
 	TasksBySubject = BusinessProcessesAndTasksServer.NewTasksBySubject();
-
 	While SelectionDetailRecords.Next() Do
 		
 		FoundBranch = Tree.Rows.Find(SelectionDetailRecords.Ref, "Ref", True);

@@ -50,7 +50,7 @@
 				<Button name="FormClose" id="239" DisplayImportance="VeryHigh">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.StandardCommand.Close</CommandName>
-					<ExtendedTooltip name="FormClose3ExtendedTooltip" id="240"/>
+					<ExtendedTooltip name="FormCloseExtendedTooltip" id="240"/>
 				</Button>
 				<Button name="FormWriteAndClose" id="178" DisplayImportance="VeryHigh">
 					<Type>CommandBarButton</Type>
@@ -333,7 +333,7 @@
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 							<ExtendedTooltip name="FormLockExtendedTooltip" id="238"/>
 						</Button>
-						<Button name="FormUnlock" id="16">
+						<Button name="FormRelease" id="16">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.Release</CommandName>
 							<Title>
@@ -412,8 +412,8 @@
 						</v8:item>
 					</Title>
 					<VerticalAlign>Center</VerticalAlign>
-					<ContextMenu name="NoteDecorationContextMenu" id="229"/>
-					<ExtendedTooltip name="NoteDecorationExtendedTooltip" id="230"/>
+					<ContextMenu name="DecorationNoteContextMenu" id="229"/>
+					<ExtendedTooltip name="DecorationNoteExtendedTooltip" id="230"/>
 				</LabelDecoration>
 				<PictureDecoration name="DecorationPictureSyncStatus" id="231">
 					<Title formatted="false">
@@ -456,8 +456,8 @@
 			</Title>
 			<VerticalAlign>Center</VerticalAlign>
 			<BackColor>style:ToolTipBackColor</BackColor>
-			<ContextMenu name="NoteDecorationInternalContextMenu" id="242"/>
-			<ExtendedTooltip name="NoteDecorationInternalExtendedTooltip" id="243"/>
+			<ContextMenu name="DecorationNoteInternalContextMenu" id="242"/>
+			<ExtendedTooltip name="DecorationNoteInternalExtendedTooltip" id="243"/>
 		</LabelDecoration>
 		<InputField name="Description" id="102" DisplayImportance="VeryHigh">
 			<DataPath>Object.Description</DataPath>
@@ -615,7 +615,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Date created</v8:content>
+											<v8:content>Created</v8:content>
 										</v8:item>
 									</Title>
 									<ToolTip>
@@ -633,7 +633,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Modified on</v8:content>
+											<v8:content>Modified</v8:content>
 										</v8:item>
 									</Title>
 									<ToolTip>
@@ -850,8 +850,8 @@
 												</v8:item>
 											</Title>
 											<HorizontalStretch>false</HorizontalStretch>
-											<ContextMenu name="LoanDateContextMenu" id="207"/>
-											<ExtendedTooltip name="LoanDateExtendedTooltip" id="208"/>
+											<ContextMenu name="LockedDateContextMenu" id="207"/>
+											<ExtendedTooltip name="LockedDateExtendedTooltip" id="208"/>
 										</InputField>
 									</ChildItems>
 								</UsualGroup>
@@ -900,7 +900,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Date created</v8:content>
+											<v8:content>Created</v8:content>
 										</v8:item>
 									</Title>
 									<ToolTip>
@@ -918,7 +918,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Modified on</v8:content>
+											<v8:content>Modified</v8:content>
 										</v8:item>
 									</Title>
 									<ToolTip>
@@ -1116,7 +1116,7 @@
 										</Title>
 										<ExtendedTooltip name="DigitalSignaturesCheckExtendedTooltip" id="85"/>
 									</Button>
-									<Button name="DigitalSignaturesCheckAll" id="47" DisplayImportance="VeryLow">
+									<Button name="DigitalSignaturesCheckEverything" id="47" DisplayImportance="VeryLow">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Command.CheckEverything</CommandName>
 										<Title>
@@ -1125,7 +1125,7 @@
 												<v8:content>Verify all</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="DigitalSignaturesCheckAllExtendedTooltip" id="86"/>
+										<ExtendedTooltip name="DigitalSignaturesCheckEverythingExtendedTooltip" id="86"/>
 									</Button>
 									<Button name="DigitalSignaturesDelete" id="45" DisplayImportance="VeryLow">
 										<Type>CommandBarButton</Type>
@@ -1226,8 +1226,8 @@
 									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<Height>2</Height>
-									<ContextMenu name="DigitalSignaturesCertificateOwner1ContextMenu" id="36"/>
-									<ExtendedTooltip name="DigitalSignaturesCertificateOwner1ExtendedTooltip" id="90"/>
+									<ContextMenu name="DigitalSignaturesCertificateOwnerContextMenu" id="36"/>
+									<ExtendedTooltip name="DigitalSignaturesCertificateOwnerExtendedTooltip" id="90"/>
 								</InputField>
 								<InputField name="DigitalSignaturesSignatureDate" id="37">
 									<DataPath>DigitalSignatures.SignatureDate</DataPath>
@@ -1261,7 +1261,7 @@
 										</v8:item>
 									</Title>
 									<Group>InCell</Group>
-									<ExtendedTooltip name="DigitalSignaturesCheck1ExtendedTooltip" id="155"/>
+									<ExtendedTooltip name="DigitalSignaturesValidateExtendedTooltip" id="155"/>
 									<ChildItems>
 										<InputField name="DigitalSignaturesBriefCheckResult" id="323">
 											<DataPath>DigitalSignatures.BriefCheckResult</DataPath>
@@ -1700,6 +1700,15 @@
 							<v8:content>Brief check result</v8:content>
 						</v8:item>
 					</Title>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+				<Column name="SignatureFileName" id="38">
 					<Type>
 						<v8:Type>xs:string</v8:Type>
 						<v8:StringQualifiers>

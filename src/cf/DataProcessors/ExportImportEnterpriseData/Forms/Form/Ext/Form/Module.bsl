@@ -115,7 +115,7 @@ Procedure FormatVersionOnChange(Item)
 EndProcedure
 
 &AtClient
-Procedure FormatVersionDownloadOnChange(Item)
+Procedure FormatVersionImportOnChange(Item)
 	
 	If Not ValueIsFilled(Object.FormatVersion) Then
 		Return;
@@ -578,8 +578,8 @@ Function ImportDataAtServer()
 		Else
 			
 			AddressOnServer = GetTempFileName("xml");
-			// 
-			// 
+			// The temp file is deleted using "DeleteFiles(AddressOnServer)" in the
+			// "MessageImport" handler module procedure (not in this function).
 			
 		EndIf;
 		
@@ -875,7 +875,7 @@ Procedure FilterStringEditingAdditionalCompositionServer(ChoiceStructure, FullMD
 EndProcedure
 
 &AtClient
-Procedure TableOfUploadRulesIncludeOnChange(Item)
+Procedure ExportRulesTableEnableOnChange(Item)
 	CurrentRowData = Items.ExportRulesTable.CurrentData;
 	If CurrentRowData.GetItems().Count() > 0 Then
 		For Each Page1 In CurrentRowData.GetItems() Do
@@ -994,22 +994,22 @@ Function ComplianceOfSKDSelections()
 	MatchingSelections = New Map;
 	MatchingSelections.Insert("Greater", DataCompositionComparisonType.Greater);
 	MatchingSelections.Insert("Greater or equal", DataCompositionComparisonType.GreaterOrEqual);
-	MatchingSelections.Insert("In group_ssly", DataCompositionComparisonType.InHierarchy);
-	MatchingSelections.Insert("In list_ssly", DataCompositionComparisonType.InList);
-	MatchingSelections.Insert("In group_ssly from_ssly list0", DataCompositionComparisonType.InListByHierarchy);
+	MatchingSelections.Insert("In group", DataCompositionComparisonType.InHierarchy);
+	MatchingSelections.Insert("In list", DataCompositionComparisonType.InList);
+	MatchingSelections.Insert("In group from list0", DataCompositionComparisonType.InListByHierarchy);
 	MatchingSelections.Insert("Filled", DataCompositionComparisonType.Filled);
 	MatchingSelections.Insert("Less", DataCompositionComparisonType.Less);
 	MatchingSelections.Insert("Less or equal", DataCompositionComparisonType.LessOrEqual);
 	MatchingSelections.Insert("Begins From1", DataCompositionComparisonType.BeginsWith);
-	MatchingSelections.Insert("Not In group_ssly", DataCompositionComparisonType.NotInHierarchy);
-	MatchingSelections.Insert("Not In list_ssly", DataCompositionComparisonType.NotInList);
-	MatchingSelections.Insert("Not In group_ssly from_ssly list0", DataCompositionComparisonType.NotInListByHierarchy);
+	MatchingSelections.Insert("Not In group", DataCompositionComparisonType.NotInHierarchy);
+	MatchingSelections.Insert("Not In list", DataCompositionComparisonType.NotInList);
+	MatchingSelections.Insert("Not In group from list0", DataCompositionComparisonType.NotInListByHierarchy);
 	MatchingSelections.Insert("Not filled", DataCompositionComparisonType.NotFilled);
 	MatchingSelections.Insert("Not begins From1", DataCompositionComparisonType.NotBeginsWith);
-	MatchingSelections.Insert("Not respond template_ssly", DataCompositionComparisonType.NotLike);
+	MatchingSelections.Insert("Not respond template", DataCompositionComparisonType.NotLike);
 	MatchingSelections.Insert("Not equal", DataCompositionComparisonType.NotEqual);
 	MatchingSelections.Insert("Not contains", DataCompositionComparisonType.NotContains);
-	MatchingSelections.Insert("Respond template_ssly", DataCompositionComparisonType.Like);
+	MatchingSelections.Insert("Respond template", DataCompositionComparisonType.Like);
 	MatchingSelections.Insert("Equal", DataCompositionComparisonType.Equal);
 	MatchingSelections.Insert("Contains", DataCompositionComparisonType.Contains);
 	
@@ -1062,6 +1062,13 @@ EndProcedure
 Function MultipleSelectionValue(XMLReader, ValueTypeFilter, FilterValue)
 	
 	While XMLReader.Read() Do
+		
+		If XMLReader.Name = "Filter"
+			And XMLReader.NodeType = XMLNodeType.EndElement Then
+			
+			Return FilterValue;
+			
+		EndIf;
 		
 		If XMLReader.NodeType <> XMLNodeType.StartElement
 			Or XMLReader.Name <> "Array" Then

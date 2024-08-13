@@ -111,8 +111,8 @@ Procedure OnWrite(Cancel)
 		EndDo;
 	EndIf;
 	
-	// 
-	// 
+	// Check if the deletion mark was toggled not from the list.
+	// Sets of additional attributes and information records.
 	ObjectProperties = Common.ObjectAttributesValues(Ref, "DeletionMark");
 	Query = New Query;
 	Query.Text =

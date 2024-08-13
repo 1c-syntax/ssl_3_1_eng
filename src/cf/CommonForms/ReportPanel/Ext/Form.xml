@@ -85,7 +85,7 @@
 							<v8:content>Find</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="ExecuteSearch1ExtendedTooltip" id="401"/>
+					<ExtendedTooltip name="ExecuteSearchExtendedTooltip" id="401"/>
 				</Button>
 				<UsualGroup name="CommandBarRightGroup" id="405">
 					<Title>

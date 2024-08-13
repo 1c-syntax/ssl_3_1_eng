@@ -13,24 +13,20 @@
 &AtClient
 Procedure CommandProcessing(CommandParameter, CommandExecuteParameters)
 	
-	ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient = Undefined;
 	UseEDIToStoreObjectFiles =
 		FilesOperationsInternalClient.Is1CDocumentManagementUsedForFileStorage(
 			CommandParameter,
-			ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient,
 			CommandExecuteParameters.Source,
 			ThisObject);
 	
 	If UseEDIToStoreObjectFiles Then
 		
-		// IntegrationWith1CDocumentManagementSubsystem
-		ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient.OpenAttachedFiles(
-			CommandParameter,,
-			CommandExecuteParameters.Source.ReadOnly,
+		// IntegrationWith1CDocumentManagement
+		FilesOperationsInternalClient.OpenFormAttachedFiles1CDocumentManagement(
+			CommandParameter,
 			CommandExecuteParameters.Source,
-			CommandExecuteParameters.Uniqueness,
-			CommandExecuteParameters.Window);
-		// End IntegrationWith1CDocumentManagementSubsystem
+			CommandExecuteParameters);
+		// End IntegrationWith1CDocumentManagement
 		
 	Else
 		FormParameters = New Structure;

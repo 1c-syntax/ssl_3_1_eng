@@ -58,6 +58,61 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
+// StandardSubsystems.ReportsOptions
+
+// Defines the list of report commands.
+//
+// Parameters:
+//  ReportsCommands - See ReportsOptionsOverridable.BeforeAddReportCommands.ReportsCommands
+//  Parameters - See ReportsOptionsOverridable.BeforeAddReportCommands.Parameters
+//
+Procedure AddReportCommands(ReportsCommands, Parameters) Export
+	
+	If Not AccessRight("View", Metadata.Reports.DigitalSignatureCertificates) Then
+		Return;
+	EndIf;
+	
+	If Parameters.FormName = "CommonForm.DigitalSignatureAndEncryptionSettings" Then
+		Command = ReportsCommands.Add();
+		Command.VariantKey      = "DigitalSignatureCertificates";
+		Command.Presentation     = NStr("en = 'Digital signature certificates';");
+		Command.Id     = "DigitalSignatureCertificates";
+		Command.Manager          = "Report.DigitalSignatureCertificates";
+		Command.IsNonContextual     = True;
+		
+		Command = ReportsCommands.Add();
+		Command.VariantKey      = "ExpiringSoon";
+		Command.Presentation     = NStr("en = 'Expiring certificates';");
+		Command.Id     = "ExpiringSoon";
+		Command.Manager          = "Report.DigitalSignatureCertificates";
+		Command.IsNonContextual     = True;
+		
+		Command = ReportsCommands.Add();
+		Command.VariantKey      = "EmployeesCertificates";
+		Command.Presentation     = NStr("en = 'Employees'' certificates';");
+		Command.Id     = "EmployeesCertificates";
+		Command.Manager          = "Report.DigitalSignatureCertificates";
+		Command.IsNonContextual     = True;
+		
+		Command = ReportsCommands.Add();
+		Command.VariantKey      = "IndividualCertificateIssuanceRequired";
+		Command.Presentation     = NStr("en = 'Individual''s certificate issuance required';");
+		Command.Id     = "IndividualCertificateIssuanceRequired";
+		Command.Manager          = "Report.DigitalSignatureCertificates";
+		Command.IsNonContextual     = True;
+		
+		Command = ReportsCommands.Add();
+		Command.VariantKey      = "MRLOARequired";
+		Command.Presentation     = NStr("en = 'Certificates that require MR LOA';");
+		Command.Id     = "MRLOARequired";
+		Command.Manager          = "Report.DigitalSignatureCertificates";
+		Command.IsNonContextual     = True;
+	EndIf;
+	
+EndProcedure
+
+// End StandardSubsystems.ReportsOptions
+
 #EndRegion
 
 #EndRegion
@@ -165,7 +220,7 @@ Procedure ProcessCertificatesRequestsNotificationsAndValidityPeriods(Selection)
 		ProcessingApplicationForNewQualifiedCertificateIssue =
 			Common.ObjectManagerByFullName(
 				"DataProcessor.ApplicationForNewQualifiedCertificateIssue");
-	EndIf;		
+	EndIf;
 	
 	While Selection.Next() Do
 
@@ -237,17 +292,47 @@ Procedure ProcessCertificatesRequestsNotificationsAndValidityPeriods(Selection)
 					Except
 						Certificate = Undefined;
 					EndTry;
-					
+
 					If Certificate <> Undefined Then
 						CertificateProperties = DigitalSignatureInternalClientServer.CertificateProperties(
-							Certificate, DigitalSignatureInternal.UTCOffset(), CertificateBinaryData);
+							Certificate, DigitalSignatureInternal.UTCOffset(),
+							CertificateBinaryData);
 						If CertificateObject.ValidBefore <> CertificateProperties.ValidBefore Then
 							SearchString = Format(CertificateObject.ValidBefore, "DF=MM.yyyy");
 							ReplacementString = Format(CertificateProperties.ValidBefore, "DF=MM.yyyy");
-							CertificateObject.Description = StrReplace(CertificateObject.Description, SearchString, ReplacementString);
+							CertificateObject.Description = StrReplace(CertificateObject.Description, SearchString,
+								ReplacementString);
 							CertificateObject.ValidBefore = CertificateProperties.ValidBefore;
 							WriteObject = True;
 						EndIf;
+
+						If ValueIsFilled(CertificateObject.Application) And TypeOf(CertificateObject.Application) = Type(
+							"CatalogRef.DigitalSignatureAndEncryptionApplications") Then
+
+							CertificateAlgorithm = DigitalSignatureInternalClientServer.CertificateSignAlgorithm(
+								CertificateBinaryData, False, True);
+							If DigitalSignatureInternalClientServer.IsGOSTCertificate(CertificateAlgorithm) Then
+
+								ApplicationDetails = Common.ObjectAttributesValues(
+									CertificateObject.Application,
+									"IsBuiltInCryptoProvider, SignAlgorithm, HashAlgorithm");
+
+								If Not ApplicationDetails.IsBuiltInCryptoProvider Then
+
+									Result = DigitalSignatureInternalClientServer.SignAlgorithmCorrespondsToCertificate(
+										"", CertificateAlgorithm, ApplicationDetails.SignAlgorithm, ApplicationDetails.HashAlgorithm);
+
+									If Result <> True Then
+
+										CertificateObject.Application = Catalogs.DigitalSignatureAndEncryptionApplications.EmptyRef();
+										WriteObject = True;
+
+									EndIf;
+								EndIf;
+
+							EndIf;
+						EndIf;
+
 					EndIf;
 				EndIf;
 			EndIf;

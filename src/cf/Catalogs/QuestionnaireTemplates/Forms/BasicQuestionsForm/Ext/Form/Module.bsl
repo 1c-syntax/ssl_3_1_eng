@@ -55,7 +55,7 @@ EndProcedure
 Procedure OnClose(Exit)
 	
 	If Not ClosingInProgress And IsNewLine Then
-		Notify("CancelEnterNewQuestionnaireTemplateLine");
+		Notify("CancelEnterNewQuestionnaireTemplateLine", , FormOwner);
 	EndIf;
 	
 EndProcedure
@@ -133,7 +133,8 @@ Procedure MoveToTemplate(Command)
 	EndIf;
 	
 	ClosingInProgress = True;
-	Notify("EndEditQuestionnaireTemplateLineParameters",GenerateParametersStructureToPassToOwner());
+	Notify("EndEditQuestionnaireTemplateLineParameters", 
+		GenerateParametersStructureToPassToOwner(), FormOwner);
 	Close();
 	
 EndProcedure

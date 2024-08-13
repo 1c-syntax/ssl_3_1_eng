@@ -18,7 +18,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="CommonGroup1ExtendedTooltip" id="58"/>
+			<ExtendedTooltip name="CommonGroupExtendedTooltip" id="58"/>
 			<ChildItems>
 				<InputField name="BusinessProcess" id="1">
 					<DataPath>BusinessProcess</DataPath>
@@ -199,7 +199,7 @@
 						<Button name="FormPageSetup" id="55">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Item.Flowchart.StandardCommand.PageSetup</CommandName>
-							<ExtendedTooltip name="FormPageParametersExtendedTooltip" id="56"/>
+							<ExtendedTooltip name="FormPageSetupExtendedTooltip" id="56"/>
 						</Button>
 					</ChildItems>
 				</ButtonGroup>

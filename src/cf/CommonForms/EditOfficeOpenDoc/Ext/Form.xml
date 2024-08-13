@@ -394,6 +394,7 @@
 													<v8:content>Display instruction</v8:content>
 												</v8:item>
 											</Title>
+											<LocationInCommandBar>InCommandBar</LocationInCommandBar>
 											<ExtendedTooltip name="DisplayInstructionExtendedTooltip" id="52"/>
 										</Button>
 									</ChildItems>
@@ -460,7 +461,7 @@
 							<Representation>None</Representation>
 							<ShowLeftMargin>false</ShowLeftMargin>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="GroupFieldsAndOperatorsExtendedTooltip" id="7"/>
+							<ExtendedTooltip name="FieldsAndOperatorsGroupExtendedTooltip" id="7"/>
 							<ChildItems>
 								<UsualGroup name="AvailableFieldsGroup" id="8">
 									<Title>
@@ -473,7 +474,7 @@
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
 									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="GroupAvailableFieldsExtendedTooltip" id="9"/>
+									<ExtendedTooltip name="AvailableFieldsGroupExtendedTooltip" id="9"/>
 									<ChildItems>
 										<Table name="AvailableFields" id="62">
 											<Representation>Tree</Representation>
@@ -548,7 +549,7 @@
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
 									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="GroupOperatorsAndFunctionsExtendedTooltip" id="11"/>
+									<ExtendedTooltip name="OperatorsAndFunctionsGroupExtendedTooltip" id="11"/>
 									<ChildItems>
 										<Table name="ListOfOperators" id="78">
 											<Representation>Tree</Representation>
@@ -1039,6 +1040,12 @@
 					<v8:content>Display instruction</v8:content>
 				</v8:item>
 			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Show template editing instruction</v8:content>
+				</v8:item>
+			</ToolTip>
 			<Shortcut>F1</Shortcut>
 			<Picture>
 				<xr:Ref>StdPicture.FormHelp</xr:Ref>
@@ -1081,7 +1088,7 @@
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>View source</v8:content>
+					<v8:content>Show built-in template</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>ShowOriginal</Action>
@@ -1124,6 +1131,13 @@
 					<v8:content>View print form</v8:content>
 				</v8:item>
 			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Show the template's print form.
+</v8:content>
+				</v8:item>
+			</ToolTip>
 			<Picture>
 				<xr:Ref>StdPicture.ShowData</xr:Ref>
 				<xr:LoadTransparent>true</xr:LoadTransparent>

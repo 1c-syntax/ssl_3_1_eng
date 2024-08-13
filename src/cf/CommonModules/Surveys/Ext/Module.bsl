@@ -105,6 +105,13 @@ Procedure WhenDefiningExcludedReports(ReportsToExclude) Export
 
 EndProcedure
 
+// See AccessManagementOverridable.OnFillListsWithAccessRestriction.
+Procedure OnFillListsWithAccessRestriction(Lists) Export
+	
+	Lists.Insert(Metadata.Documents.Questionnaire, True);
+	
+EndProcedure
+
 #EndRegion
 
 #Region Private
@@ -579,16 +586,14 @@ EndProcedure
 //
 Procedure GenerateAttributesToAddForSection(AttributesToBeAdded, Form)
 
-	For Each String In Form.SectionQuestionsTable Do
-
-		AddAttributesForQuestion(String, AttributesToBeAdded, Form);
-
+	For Each TableRow In Form.SectionQuestionsTable Do
+		AddAttributesForQuestion(TableRow, AttributesToBeAdded, Form);
 	EndDo;
 
 EndProcedure
 
 // Parameters:
-//  TreeRow         - ValueTreeRow - a row of the questionnaire template tree.
+//  TreeRow         - ValueTreeRow - Questionnaire template tree row.
 //  AttributesToBeAdded - Array - used to accumulate form attributes to be added.
 //
 Procedure AddAttributesForQuestion(TreeRow, AttributesToBeAdded, Form)
@@ -688,7 +693,7 @@ Procedure AddAttributesForQuestion(TreeRow, AttributesToBeAdded, Form)
 EndProcedure
 
 // Parameters:
-//  TreeRow         - ValueTreeRow - a row of the questionnaire template tree.
+//  TreeRow         - ValueTreeRow - Questionnaire template tree row.
 //  AttributesToBeAdded - Array - used to accumulate form attributes to be added.
 //
 Procedure AddAttributesTabularQuestion(TreeRow, AttributesToBeAdded, Form)
@@ -776,7 +781,7 @@ Procedure AddAttributesTabularQuestion(TreeRow, AttributesToBeAdded, Form)
 EndProcedure
 
 // Parameters:
-//  TreeRow         - ValueTreeRow - a row of the questionnaire template tree.
+//  TreeRow         - ValueTreeRow - Questionnaire template tree row.
 //  AttributesToBeAdded - Array - used to accumulate form attributes to be added.
 //
 Procedure AddAttributesComplexQuestion(TreeRow, AttributesToBeAdded, Form)
@@ -878,7 +883,7 @@ Procedure PositionOnFirstSectionQuestion(Form)
 EndProcedure
 
 // Parameters:
-//  TreeRow    - ValueTreeRow - a row of the questionnaire template tree.
+//  TreeRow    - ValueTreeRow - Questionnaire template tree row.
 //  GroupItem   - FormGroup          - a form group, for which attributes being added are subordinated.
 //  Form           - ClientApplicationForm - a form, for which items are added.
 //
@@ -893,7 +898,7 @@ Procedure AddFormItemsByTableRow(TableRow, GroupItem, Form)
 EndProcedure
 
 // Parameters:
-//  TreeRow    - ValueTreeRow - a row of the questionnaire template tree.
+//  TreeRow    - ValueTreeRow - Questionnaire template tree row.
 //  GroupItem   - FormGroup - a form group, for which attributes being added are subordinated.
 //  Form           - ClientApplicationForm - a form, for which items are added.
 //
@@ -1736,9 +1741,10 @@ EndProcedure
 //
 Procedure DeleteFillingFormItems(Form, AttributesToBeDeleted)
 
+	NumberOfCharactersBeforePostfix = SurveysClientServer.NumberOfCharactersInQuestionNameWithoutPostfix();
 	For Each AttributeToDelete In AttributesToBeDeleted Do
 
-		QuestionName = Left(AttributeToDelete.Value, 43);
+		QuestionName = Left(AttributeToDelete.Value, NumberOfCharactersBeforePostfix);
 
 		FoundFormItem = Form.Items.Find(QuestionName + "_Group");
 

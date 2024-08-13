@@ -661,7 +661,7 @@
 						<dcsat:value xsi:type="v8:LocalStringType">
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>User's "Used" flag was changed.</v8:content>
+								<v8:content>User's activity was changed.</v8:content>
 							</v8:item>
 						</dcsat:value>
 					</dcsat:item>
@@ -713,7 +713,7 @@
 						<dcsat:value xsi:type="v8:LocalStringType">
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>Users with "Used" cleared are highlighted in gray.</v8:content>
+								<v8:content>Inactive user (highlighted gray).</v8:content>
 							</v8:item>
 						</dcsat:value>
 					</dcsat:item>
@@ -779,8 +779,8 @@
 						<dcsat:value xsi:type="v8:LocalStringType">
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>"Used" is selected if both the user and the group are not marked for deletion
-and the user is active.</v8:content>
+								<v8:content>A user is considered active if they are valid and
+neither the user nor its user group are marked for deletion.</v8:content>
 							</v8:item>
 						</dcsat:value>
 					</dcsat:item>
@@ -993,7 +993,7 @@ and the user is active.</v8:content>
 						<dcsat:value xsi:type="v8:LocalStringType">
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>External user's "Used" flag was changed.</v8:content>
+								<v8:content>External user's activity was changed.</v8:content>
 							</v8:item>
 						</dcsat:value>
 					</dcsat:item>
@@ -1045,7 +1045,7 @@ and the user is active.</v8:content>
 						<dcsat:value xsi:type="v8:LocalStringType">
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>Users with "Used" cleared are highlighted in gray.</v8:content>
+								<v8:content>Inactive external user (highlighted gray).</v8:content>
 							</v8:item>
 						</dcsat:value>
 					</dcsat:item>
@@ -1111,8 +1111,8 @@ and the user is active.</v8:content>
 						<dcsat:value xsi:type="v8:LocalStringType">
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>"Used" is selected if both the external user and the group are not marked for deletion
-and the external user is active.</v8:content>
+								<v8:content>An external user is considered active if they are valid and
+neither the user nor its external user group are marked for deletion.</v8:content>
 							</v8:item>
 						</dcsat:value>
 					</dcsat:item>

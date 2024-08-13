@@ -328,7 +328,7 @@ EndProcedure
 #Region FormCommandsEventHandlers
 
 ///////////////////////////////////////////////////////////////////////////////////
-// 
+// File command handlers.
 
 &AtClient
 Procedure ShowInList(Command)
@@ -423,7 +423,7 @@ Procedure StandardSetDeletionMarkAnswerReceived(QuestionResult, AdditionalParame
 	
 EndProcedure
 
-// 
+// StandardSubsystems.Properties
 
 &AtClient
 Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined, StandardProcessing = Undefined)
@@ -438,7 +438,7 @@ EndProcedure
 // End StandardSubsystems.Properties
 
 ///////////////////////////////////////////////////////////////////////////////////
-// 
+// Digital signature and encryption command handlers.
 
 &AtClient
 Procedure Sign(Command)
@@ -702,7 +702,17 @@ Procedure SaveSignature(Command)
 	EndIf;
 	
 	ModuleDigitalSignatureClient = CommonClient.CommonModule("DigitalSignatureClient");
-	ModuleDigitalSignatureClient.SaveSignature(CurrentData.SignatureAddress);
+	
+	SignatureFileName = CurrentData.SignatureFileName;
+	If Not ValueIsFilled(SignatureFileName) Then
+	
+		SignatureFilesExtension = ModuleDigitalSignatureClient.PersonalSettings().SignatureFilesExtension;
+		ModuleDigitalSignatureInternalClientServer = CommonClient.CommonModule("DigitalSignatureInternalClientServer");
+		SignatureFileName = ModuleDigitalSignatureInternalClientServer.SignatureFileName(Object.Description,
+				CurrentData.CertificateOwner, SignatureFilesExtension);
+	EndIf;
+	
+	ModuleDigitalSignatureClient.SaveSignature(CurrentData.SignatureAddress, SignatureFileName);
 	
 EndProcedure
 
@@ -771,7 +781,7 @@ Procedure SetAvaliabilityOfEncryptionList()
 EndProcedure
 
 ///////////////////////////////////////////////////////////////////////////////////
-// 
+// Command handlers to support collaborative file management.
 
 &AtClient
 Procedure Lock(Command)
@@ -894,7 +904,7 @@ Procedure SaveChanges(Command)
 	
 EndProcedure
 
-// 
+// StandardSubsystems.Properties
 
 &AtServer
 Procedure UpdateAdditionalAttributesItems()
@@ -963,8 +973,9 @@ EndProcedure
 Procedure PrintWithStamp(Command)
 	
 	If ValueIsFilled(Object.Ref) Or Write() Then
-		DocumentWithStamp = FilesOperationsInternalServerCall.DocumentWithStamp(Object.Ref);
-		FilesOperationsInternalClient.PrintFileWithStamp(DocumentWithStamp, Object.Description);
+		
+		FilesOperationsInternalClient.DoPrintFileWithStamp(Object.Ref, UUID);
+		
 	EndIf;
 	
 EndProcedure
@@ -1117,6 +1128,9 @@ Procedure SetButtonsAvailability(Form, Items)
 		
 	If Form.DigitalSignatures.Count() = 0 Then
 		MakeCommandUnavailable(AvailableCommandsNames, "OpenSignature");
+		Form.Items.FormSaveWithSignature.Visible = False;
+	Else
+		Form.Items.FormSaveWithSignature.Visible = True;
 	EndIf;
 	
 	For Each FormItem In Items Do
@@ -1646,9 +1660,9 @@ Procedure AfterSignatureAuthenticityJustificationEntered(Result, AdditionalParam
 	
 	ModuleDigitalSignatureClientServer = CommonClient.CommonModule("DigitalSignatureClientServer");
 	
-	For Each String In Items.DigitalSignatures.SelectedRows Do
+	For Each ListLine In Items.DigitalSignatures.SelectedRows Do
 		
-		CurrentRow = DigitalSignatures.FindByID(String);
+		CurrentRow = DigitalSignatures.FindByID(ListLine);
 		If CurrentRow.SignatureCorrect And CurrentRow.CheckResult.IsAdditionalAttributesCheckedManually <> True
 			Or ValueIsFilled(CurrentRow.CheckResult.SignatureMathValidationError) Then
 			Continue;
@@ -1663,7 +1677,7 @@ Procedure AfterSignatureAuthenticityJustificationEntered(Result, AdditionalParam
 	DetermineIfModified();
 EndProcedure
 
-// Standard subsystems.Pluggable commands
+// StandardSubsystems.AttachableCommands
 
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)

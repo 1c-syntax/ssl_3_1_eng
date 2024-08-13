@@ -85,10 +85,10 @@
 							<AutoMaxWidth>false</AutoMaxWidth>
 							<ChoiceButton>true</ChoiceButton>
 							<ChooseType>false</ChooseType>
-							<ContextMenu name="BackupDirectory2ContextMenu" id="11"/>
-							<ExtendedTooltip name="BackupDirectory2ExtendedTooltip" id="100"/>
+							<ContextMenu name="PathToBackupDirectoryContextMenu" id="11"/>
+							<ExtendedTooltip name="PathToBackupDirectoryExtendedTooltip" id="100"/>
 							<Events>
-								<Event name="StartChoice">BackupDirectory2StartChoice</Event>
+								<Event name="StartChoice">PathToBackupDirectoryStartChoice</Event>
 							</Events>
 						</InputField>
 						<UsualGroup name="AuthorizationGroup" id="86">
@@ -149,7 +149,7 @@
 											<v8:content>Blank page</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="BlankPage1ExtendedTooltip" id="167"/>
+									<ExtendedTooltip name="BlankPageExtendedTooltip" id="167"/>
 									<ChildItems>
 										<LabelDecoration name="Decoration1" id="168">
 											<ContextMenu name="Decoration1ContextMenu" id="169"/>
@@ -192,7 +192,7 @@
 														<xr:LoadTransparent>true</xr:LoadTransparent>
 													</Picture>
 													<FileDragMode>AsFile</FileDragMode>
-													<ContextMenu name="StatusWarningPicture1ContextMenu" id="15"/>
+													<ContextMenu name="WarningPicture1ContextMenu" id="15"/>
 													<ExtendedTooltip name="WarningPicture1ExtendedTooltip" id="110"/>
 												</PictureDecoration>
 											</ChildItems>
@@ -443,7 +443,7 @@ Please wait.</v8:content>
 														</v8:item>
 													</Title>
 													<Hyperlink>true</Hyperlink>
-													<ContextMenu name="UsersList1ContextMenu" id="41"/>
+													<ContextMenu name="UsersListContextMenu" id="41"/>
 													<ExtendedTooltip name="UsersListExtendedTooltip" id="123"/>
 													<Events>
 														<Event name="Click">UsersListClick</Event>

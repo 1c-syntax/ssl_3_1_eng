@@ -96,6 +96,7 @@ Procedure ChoiceProcessing(ValueSelected, ChoiceSource)
 		RotationEnum      = ValueSelected.Rotation;
 		PaperSizeEnum = ValueSelected.PaperSize;
 		DuplexScanning = ValueSelected.DuplexScanning;
+		DocumentAutoFeeder = ValueSelected.DocumentAutoFeeder;
 		
 		UseImageMagickToConvertToPDF = ValueSelected.UseImageMagickToConvertToPDF;
 		
@@ -128,7 +129,7 @@ EndProcedure
 #Region FormTableItemsEventHandlersTableOfFiles
 
 &AtClient
-Procedure FilesTable1OnActivateRow(Item)
+Procedure TableOfFilesOnActivateRow(Item)
 #If Not WebClient And Not MobileClient Then
 	If Items.TableOfFiles.CurrentData = Undefined Then
 		Return;
@@ -154,7 +155,7 @@ Procedure FilesTable1OnActivateRow(Item)
 EndProcedure
 
 &AtClient
-Procedure FilesTable1BeforeDeleteRow(Item, Cancel)
+Procedure TableOfFilesBeforeDeleteRow(Item, Cancel)
 	
 	If TableOfFiles.Count() < 2 Then
 		Cancel = True;
@@ -166,7 +167,7 @@ Procedure FilesTable1BeforeDeleteRow(Item, Cancel)
 	DeleteFiles(TableRow.PathToFile);
 	
 	If TableOfFiles.Count() = 2 Then
-		Items.FilesTable1ContextMenuDelete.Enabled = False;
+		Items.TableOfFilesContextMenuDelete.Enabled = False;
 	EndIf;
 	
 EndProcedure
@@ -215,7 +216,7 @@ Procedure Save(Command)
 	If ShouldSaveAsPDF Then
 		
 #If Not WebClient And Not MobileClient Then
-		ExecutionParameters.ResultFile = GetTempFileName("pdf"); //  See AcceptCompletion.
+		ExecutionParameters.ResultFile = GetTempFileName("pdf"); // ACC:441 - Delete a temporary file See AcceptCompletion.
 #EndIf
 		
 		GraphicDocumentConversionParameters = FilesOperationsClient.GraphicDocumentConversionParameters();
@@ -240,6 +241,10 @@ Procedure Setting(Command)
 		ScannerName, "DUPLEX");
 	DuplexScanningAvailable = (DuplexScanningNumber <> -1);
 	
+	DocumentAutoFeederNumber = FilesOperationsInternalClient.ScannerSetting(ThisObject, Attachable_Module,
+		DocumentAutoFeeder, "FEEDER");
+	DocumentAutoFeederAvailable = (DocumentAutoFeederNumber <> -1);
+
 	FormParameters = New Structure;
 	FormParameters.Insert("ShowScannerDialog",  ShowScannerDialog);
 	FormParameters.Insert("Resolution",               ResolutionEnum);
@@ -247,13 +252,14 @@ Procedure Setting(Command)
 	FormParameters.Insert("Rotation",                  RotationEnum);
 	FormParameters.Insert("PaperSize",             PaperSizeEnum);
 	FormParameters.Insert("DuplexScanning", DuplexScanning);
+	FormParameters.Insert("DocumentAutoFeeder", DocumentAutoFeeder);
 	
-	FormParameters.Insert(
-		"UseImageMagickToConvertToPDF", UseImageMagickToConvertToPDF);
+	FormParameters.Insert("UseImageMagickToConvertToPDF", UseImageMagickToConvertToPDF);
 	
 	FormParameters.Insert("RotationAvailable",       RotationAvailable);
 	FormParameters.Insert("PaperSizeAvailable",  PaperSizeAvailable);
 	FormParameters.Insert("DuplexScanningAvailable", DuplexScanningAvailable);
+	FormParameters.Insert("DocumentAutoFeederAvailable", DocumentAutoFeederAvailable);
 	
 	FormParameters.Insert("ScannedImageFormat",     ScannedImageFormat);
 	FormParameters.Insert("JPGQuality",                         JPGQuality);
@@ -296,7 +302,7 @@ Procedure SaveAllAsSingleFile(Command)
 #If Not WebClient And Not MobileClient Then
 	ResultExtension = String(MultipageStorageFormat);
 	ResultExtension = Lower(ResultExtension); 
-	ExecutionParameters.ResultFile = GetTempFileName(ResultExtension); //  See AcceptAllAsOneFileCompletion
+	ExecutionParameters.ResultFile = GetTempFileName(ResultExtension); // ACC:441 - Delete a temporary file See AcceptAllAsOneFileCompletion
 	GraphicDocumentConversionParameters.ResultFormat = ResultExtension;
 #EndIf
 		
@@ -372,18 +378,9 @@ EndProcedure
 &AtClient
 Procedure AssistanceRequiredClick(Item)
 	
-	ErrorText = StringFunctionsClient.FormattedString(StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Scanning with device %1 is underway.
-						|Try any of the following:
-						| • Check whether the scanner is connected and try again.
-						| • Specify the available scanner in the <a href = ""%2"">scanner settings</a>.
-						| • If the issue persists, contact 1C technical support and 
-						| provide <a href = ""%3"">technical information</a> about the issue.';"), 
-					ScannerName, "OpenSettings", "TechnicalInformation"));
-	
-	FilesOperationsInternalClient.ShowScanError(ThisObject, 
-		NStr("en = 'Scanning problem';"), 
-		NStr("en = 'The user called help dialog box during scanning.';"), ErrorText, True);
+	FilesOperationsInternalClient.ShowScanError(ThisObject, NStr("en = 'Scanning problem';"), 
+		NStr("en = 'Help opened from the scanner dialog.';"), True);
+		
 EndProcedure
 
 #EndRegion
@@ -474,10 +471,13 @@ Procedure BeforeOpenAutomatFollowUp(OpeningParameters)
 			OpeningParameters.SelectedDevice, "SUPPORTEDSIZES");
 		DuplexScanningNumber = FilesOperationsInternalClient.ScannerSetting(ThisObject, Attachable_Module,
 			OpeningParameters.SelectedDevice, "DUPLEX");
+		DocumentAutoFeederNumber = FilesOperationsInternalClient.ScannerSetting(ThisObject, Attachable_Module,
+			OpeningParameters.SelectedDevice, "FEEDER");
 		
 		RotationAvailable = (RotationNumber <> -1);
 		PaperSizeAvailable = (PaperSizeNumber <> -1);
 		DuplexScanningAvailable = (DuplexScanningNumber <> -1);
+		DocumentAutoFeederAvailable = (DocumentAutoFeederNumber <> -1);
 		
 		SetCommandBarAvailability(False);
 		
@@ -523,9 +523,9 @@ EndProcedure
 Procedure TransformCalculationsToParametersAndGetPresentation()
 	
 	Presentation = "";
-		// 
-		// 
-		// 
+		// Label in the following format:
+		// "Storage format: PDF. Scan format: JPG. Quality: 75.
+		// Multi-page storage format: PDF. Resolution: 200. Colored."
 	
 	If Not ShowScannerDialog Then
 	
@@ -586,10 +586,13 @@ Procedure TransformCalculationsToParametersAndGetPresentation()
 			Presentation = Presentation +  NStr("en = 'Paper size:';") + " " + String(PaperSizeEnum) + ". ";
 		EndIf;	
 		
-		If DuplexScanning = True Then
+		If DuplexScanning Then
 			Presentation = Presentation +  NStr("en = 'Scan both sides';") + ". ";
 		EndIf;	
 		
+		If DocumentAutoFeeder Then
+			Presentation = Presentation +  NStr("en = 'Autofeed';") + ". ";
+		EndIf;	
 	Else
 		If ShouldSaveAsPDF Then
 			PictureFormat = String(ScannedImageFormat);
@@ -683,7 +686,7 @@ Procedure ExternalEvent(Source, Event, Data)
 		EndIf;
 		
 		If TableOfFiles.Count() > 1 Then
-			Items.FilesTable1ContextMenuDelete.Enabled = True;
+			Items.TableOfFilesContextMenuDelete.Enabled = True;
 		EndIf;
 		
 	ElsIf Source = "TWAIN" And Event = "EndBatch" Then
@@ -942,8 +945,8 @@ Procedure SaveAsSeparateFilesRecursively(Context)
 		If ResultExtension = "pdf" Then
 			
 #If Not WebClient And Not MobileClient Then
-		// 
-		// 
+		// ACC:441-off - The temporary file is not deleted if the function
+		// "FilesOperationsClient.AddFromScanner" should return the file path.
 		Context.ResultFile = GetTempFileName("pdf");
 		// ACC:441-on
 #EndIf
@@ -1099,6 +1102,8 @@ Procedure DoStartScan()
 	ScanningParameters.JPGQuality = JPGQuality;
 	ScanningParameters.TIFFDeflation = TIFFDeflation;
 	ScanningParameters.DuplexScanning = DuplexScanning;
+	ScanningParameters.DocumentAutoFeeder = DocumentAutoFeeder;
+
 	StartScanning_ = CurrentDate();// ACC:143 - Intended for calculation time intervals
 	ScanJobParameters = New Structure();
 	ScanJobParameters.Insert("StartScanning_", StartScanning_);

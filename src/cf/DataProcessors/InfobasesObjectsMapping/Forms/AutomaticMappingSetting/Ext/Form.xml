@@ -119,7 +119,7 @@
 						</v8:item>
 					</Title>
 					<EditMode>EnterOnInput</EditMode>
-					<ContextMenu name="MapFieldsListPresentationContextMenu" id="15"/>
+					<ContextMenu name="MappingFieldsListPresentationContextMenu" id="15"/>
 					<ExtendedTooltip name="MappingFieldsListPresentationExtendedTooltip" id="19"/>
 				</InputField>
 			</ChildItems>

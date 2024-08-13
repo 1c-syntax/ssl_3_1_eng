@@ -22,7 +22,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	GoToVersionAllowed = Users.IsFullUser() And Not ReadOnly;
 	Items.RestoreVersion.Visible = GoToVersionAllowed;
-	Items.VersionsTreeContextMenuGoToVersion.Visible = GoToVersionAllowed;
+	Items.VersionsTreeContextMenuRestoreVersion.Visible = GoToVersionAllowed;
 	Items.TechnicalInfoAboutObjectChanges.Visible = GoToVersionAllowed;
 	
 	Attributes = NStr("en = 'All';");
@@ -335,7 +335,7 @@ Procedure SetAvailability()
 	Items.VersionsTreeContextMenuOpenVersion.Enabled = OneVersionSelected;
 	
 	Items.RestoreVersion.Enabled = OneVersionSelected;
-	Items.VersionsTreeContextMenuGoToVersion.Enabled = OneVersionSelected;
+	Items.VersionsTreeContextMenuRestoreVersion.Enabled = OneVersionSelected;
 	
 	Items.Compare.Enabled = Items.VersionsTree.SelectedRows.Count() > 0;
 	

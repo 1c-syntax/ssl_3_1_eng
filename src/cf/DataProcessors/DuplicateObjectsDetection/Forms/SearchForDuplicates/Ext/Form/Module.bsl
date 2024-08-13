@@ -59,7 +59,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	// Settings autosave.
 	SavedInSettingsDataModified = True;
 	
-	// Initialization of step-by-step wizard steps.
+	// Initialize the step-by-step wizard.
 	InitializeStepByStepWizardSettings();
 	
 	// 1. Search was not performed.
@@ -727,7 +727,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Wizard API
 
 &AtServer
 Procedure InitializeStepByStepWizardSettings()
@@ -1091,7 +1091,7 @@ EndProcedure
 #EndRegion
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Internal functions and procedures
 
 &AtServer
 Function DuplicatesDeletionSearchSettings()
@@ -1327,7 +1327,7 @@ EndProcedure
 
 &AtServer
 Procedure InitializeFilterComposerAndRules(Val FormSettings)
-	// 1. Clear and initialize information about the metadata object.
+	// 1. Clear and initialize information about the metadata object.
 	FilterRulesPresentation = "";
 	SearchRulesPresentation = "";
 	
@@ -1390,8 +1390,8 @@ Procedure InitializeFilterComposerAndRules(Val FormSettings)
 		EndDo;
 	EndIf;
 	
-	// 
-	// 
+	// 5. Default settings.
+	// Filter by the deletion mark.
 	If Not FiltersImported Then
 		CommonClientServer.SetFilterItem(	PrefilterComposer.Settings.Filter,
 			"DeletionMark", False, DataCompositionComparisonType.Equal,, False);
@@ -1701,7 +1701,7 @@ Function ImageOfTheMetadataType(ImageCache, Kind)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Long-running operation management
 
 &AtClient
 Procedure FindAndDeleteDuplicatesClient()
@@ -2272,8 +2272,8 @@ Procedure AddPossibleDuplicate(MetadataObjectToProcess, UsageInstance1, KeysLink
 	PossibleDuplicate.RelationDegree = ?(KeysLinks.Find(2, "RelationDegree") <> Undefined, 2, 1);
 	PossibleDuplicate.SourcesPresentation = StrConcat(PossibleDuplicate.Sources.UnloadValues(), ", ");
 	
-	// 
-	// 		
+	// Save the information on successful replacements (to find possible duplicates)
+	// Map: Key - Left filter value. Value - Right filter value.		
 	For Each KeysLinks In KeysLinks Do
 	
 		PossibleDuplicatesFilter = PossibleDuplicatesFilterInformation[KeysLinks.Name];
@@ -2338,7 +2338,7 @@ Procedure AfterConfirmCancelJob(Response, ExecutionParameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Wizard's internal procedures and functions
 
 // Description of wizard button settings.
 //

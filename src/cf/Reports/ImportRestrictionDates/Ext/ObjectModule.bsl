@@ -220,10 +220,10 @@ EndFunction
 
 Function QueryText()
 	
-	// 
-	// 
-	// 
-	// 
+	// ACC:494-off - No.656. A join with a nested query is acceptable
+	// since the dataset is small (from units to hundreds).
+	// ACC:96-off - No.434. The "JOIN" statement is acceptable since the rows
+	// must be unique and the dataset is small (from units to hundreds)
 	Return
 	"SELECT
 	|	PeriodClosingDates.Section AS Section,
@@ -463,8 +463,8 @@ Function QueryText()
 	|	AND (FALSE IN (&SpecifiedObjects)
 	|			OR ClosingDates.Object = ClosingDates.Section
 	|			OR ClosingDates.Object IN (&SpecifiedObjects))";
-	// 
-	// 
+	// ACC:96-off.
+	// ACC:494-off.
 	
 EndFunction
 

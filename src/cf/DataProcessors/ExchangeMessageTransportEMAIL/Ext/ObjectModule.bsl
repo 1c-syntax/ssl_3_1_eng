@@ -388,7 +388,7 @@ Function GetExchangeMessage(ExistenceCheck)
 		EmailMessageSubject = StrReplace(EmailMessageSubject, Chars.Tab, "");
 		
 		If Upper(EmailMessageSubject) <> Upper(TrimAll(MessageSubject1)) Then
-			// The message name can be in the format of Message_[prеfix]_UID1_UID2.
+			// The message name can be in the format of Message_[prefix]_UID1_UID2.
 			If StrFind(Upper(EmailMessageSubject), SearchSubjectsSubstring) = 0 Then
 				Continue;
 			EndIf;
@@ -444,7 +444,7 @@ Function GetExchangeMessage(ExistenceCheck)
 			FilePacked = False;
 		EndIf;
 		
-		// The message name can be in the format of Message_[prеfix]_UID1_UID2.
+		// The message name can be in the format of Message_[prefix]_UID1_UID2.
 		FilePacked = False;
 		SearchTemplate = StrReplace(MessageFileNameTemplate, "Message_","");
 		For Each CurAttachment In MessageSet[0].Attachments Do

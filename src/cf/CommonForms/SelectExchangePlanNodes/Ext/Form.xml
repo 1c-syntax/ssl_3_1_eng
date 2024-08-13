@@ -33,7 +33,7 @@
 						<v8:content>Select</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="FormChooseExtendedTooltip" id="28"/>
+				<ExtendedTooltip name="FormSelectExtendedTooltip" id="28"/>
 			</Button>
 			<ButtonGroup name="NodesListCommands" id="27">
 				<Title>

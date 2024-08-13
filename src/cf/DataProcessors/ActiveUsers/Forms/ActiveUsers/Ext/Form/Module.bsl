@@ -77,7 +77,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 &AtClient
-Procedure ApplicationNameFilterOnChange(Item)
+Procedure FilterApplicationNameOnChange(Item)
 	FillList();
 EndProcedure
 

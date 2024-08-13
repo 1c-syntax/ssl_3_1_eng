@@ -28,8 +28,8 @@ EndProcedure
 &AtServer
 Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 	
-	// 
-	// 
+	// Intended for updating the list of apps and their
+	// parameters on the client side and server side.
 	RefreshReusableValues();
 	
 EndProcedure

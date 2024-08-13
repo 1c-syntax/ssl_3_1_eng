@@ -92,7 +92,8 @@ Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSe
 			Variant = NewDCSettings.AdditionalProperties.PredefinedOptionKey;
 			
 			If ValueIsFilled(FormAttributes.OptionContext) Then
-				If Variant = "UsersRightsToTable" Then
+				If Variant = "UsersRightsToTable"
+				 Or Variant = "UserRightsToTable" Then
 					MetadataObject = Common.MetadataObjectID(Context.OptionContext, False);
 					If ValueIsFilled(MetadataObject) Then
 						CommonClientServer.SetFilterItem(NewDCSettings.Filter, "MetadataObject", MetadataObject,
@@ -110,12 +111,24 @@ Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSe
 		EndIf;
 	EndIf;
 	
+	SchemeHasBeenChanged = False;
+	
+	If Not Users.IsFullUser() Then
+		DataCompositionSchema.Parameters.User.UseRestriction = True;
+		DataCompositionSchema.Parameters.UsersKind.UseRestriction = True;
+		SchemeHasBeenChanged = True;
+	EndIf;
+	
 	If Not Constants.UseExternalUsers.Get() Then
 		DataCompositionSchema.Parameters.UsersKind.UseRestriction = True;
-		If Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
-			ModuleReportsServer = Common.CommonModule("ReportsServer");
-			ModuleReportsServer.AttachSchema(ThisObject, Context, DataCompositionSchema, SchemaKey);
-		EndIf;
+		SchemeHasBeenChanged = True;
+	EndIf;
+	
+	If SchemeHasBeenChanged
+	   And Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
+		
+		ModuleReportsServer = Common.CommonModule("ReportsServer");
+		ModuleReportsServer.AttachSchema(ThisObject, Context, DataCompositionSchema, SchemaKey);
 	EndIf;
 	
 EndProcedure
@@ -168,6 +181,8 @@ Procedure OnComposeResult(ResultDocument, DetailsData, StandardProcessing)
 	If ParameterUser.Use Then
 		ParameterUserType.Use = False;
 	EndIf;
+	
+	SetPrivilegedMode(True);
 	
 	RightsSettings = RightsSettingsOnObjects();
 	
@@ -1282,9 +1297,9 @@ Function UsersRights()
 	ElsIf ValueIsFilled(FilterForSpecifiedUsers.Value) Then
 		Query.SetParameter("SelectedUsersAndGroups", FilterForSpecifiedUsers.Value);
 		SelectionCriteriaForUsers = SelectionCriteriaForUsers + "
-			|		INNER JOIN InformationRegister.UserGroupCompositions AS FilterUsers_SSLy
-			|		ON (FilterUsers_SSLy.User = UserGroupCompositions.User)
-			|			AND (FilterUsers_SSLy.UsersGroup IN (&SelectedUsersAndGroups))";
+			|		INNER JOIN InformationRegister.UserGroupCompositions AS FilterUsers
+			|		ON (FilterUsers.User = UserGroupCompositions.User)
+			|			AND (FilterUsers.UsersGroup IN (&SelectedUsersAndGroups))";
 		
 	ElsIf SelectionByUserType = "Users" Then
 		SelectionCriteriaForUsers = SelectionCriteriaForUsers + "
@@ -1329,9 +1344,9 @@ Function UsersRights()
 		Query.SetParameter("TextAllowed", " (" + NStr("en = 'Allowed';")+ ")");
 		Query.SetParameter("TextForbidden", " (" + NStr("en = 'Denied';") + ")");
 		Query.SetParameter("TextAllowedUsers", " (" + NStr("en = 'Allowed';") + ") - "
-			+ NStr("en = 'Logged-in user always allowed';"));
+			+ NStr("en = 'Authorized user and their groups are always allowed';"));
 		Query.SetParameter("TextForbiddenUsers", " (" + NStr("en = 'Denied';") + ") - "
-			+ NStr("en = 'Logged-in user always allowed';"));
+			+ NStr("en = 'Authorized user and their groups are always allowed';"));
 		Query.SetParameter("TextRestrictionWithoutAccessTypes", "<" + NStr("en = 'Restriction without access kinds';")+ ">");
 		Query.SetParameter("TextUnlimited", "<" + NStr("en = 'No restriction';") + ">");
 		Query.SetParameter("TextAllAllowed", "<" + NStr("en = 'All allowed';") + ">");
@@ -1531,6 +1546,11 @@ Function FilterForSpecifiedUsers()
 	Result.Insert("WithoutGroups", True);
 	Result.Insert("Value", Undefined);
 	
+	If Not Users.IsFullUser(,, False) Then
+		Result.Value = Users.AuthorizedUser();
+		Return Result;
+	EndIf;
+	
 	FilterField = SettingsComposer.GetSettings().DataParameters.Items.Find("User");
 	FilterValue = FilterField.Value;
 	If Not FilterField.Use Or Not ValueIsFilled(FilterValue) Then
@@ -1622,7 +1642,7 @@ Function RightsSettingsOnObjects()
 		Return Result;
 	EndIf;
 	
-	If Users.IsFullUser(User) Then
+	If Users.IsFullUser(User,, False) Then
 		Return Result;
 	EndIf;
 	

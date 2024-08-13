@@ -336,10 +336,10 @@
 										</v8:item>
 									</ToolTip>
 									<CheckBoxType>Auto</CheckBoxType>
-									<ContextMenu name="ShowAll1ContextMenu" id="817"/>
-									<ExtendedTooltip name="ShowAll1ExtendedTooltip" id="818"/>
+									<ContextMenu name="ShowAllContextMenu" id="817"/>
+									<ExtendedTooltip name="ShowAllExtendedTooltip" id="818"/>
 									<Events>
-										<Event name="OnChange">ShowAll1OnChange</Event>
+										<Event name="OnChange">ShowAllOnChange</Event>
 									</Events>
 								</CheckBoxField>
 								<LabelDecoration name="Instruction" id="748">
@@ -461,37 +461,37 @@
 												</v8:item>
 											</Title>
 											<RowFilter xsi:nil="true"/>
-											<ContextMenu name="CertificateDataDetails1ContextMenu" id="752"/>
+											<ContextMenu name="DetailsOfCertificateDataContextMenu" id="752"/>
 											<AutoCommandBar name="DetailsOfCertificateDataCommandBar" id="753">
 												<Autofill>false</Autofill>
 											</AutoCommandBar>
-											<ExtendedTooltip name="CertificateDataDetails1ExtendedTooltip" id="754"/>
-											<SearchStringAddition name="CertificateDataDetails1SearchString" id="770">
+											<ExtendedTooltip name="DetailsOfCertificateDataExtendedTooltip" id="754"/>
+											<SearchStringAddition name="DetailsOfCertificateDataSearchString" id="770">
 												<AdditionSource>
 													<Item>DetailsOfCertificateData</Item>
 													<Type>SearchStringRepresentation</Type>
 												</AdditionSource>
-												<ContextMenu name="CertificateDataDetails1SearchStringContextMenu" id="771"/>
-												<ExtendedTooltip name="CertificateDataDetails1SearchStringExtendedTooltip" id="772"/>
+												<ContextMenu name="DetailsOfCertificateDataSearchStringContextMenu" id="771"/>
+												<ExtendedTooltip name="DetailsOfCertificateDataSearchStringExtendedTooltip" id="772"/>
 											</SearchStringAddition>
-											<ViewStatusAddition name="CertificateDataDetails1ViewStatus" id="773">
+											<ViewStatusAddition name="DetailsOfCertificateDataViewStatus" id="773">
 												<AdditionSource>
 													<Item>DetailsOfCertificateData</Item>
 													<Type>ViewStatusRepresentation</Type>
 												</AdditionSource>
-												<ContextMenu name="CertificateDataDetails1ViewStatusContextMenu" id="774"/>
-												<ExtendedTooltip name="CertificateDataDetails1ViewStatusExtendedTooltip" id="775"/>
+												<ContextMenu name="DetailsOfCertificateDataViewStatusContextMenu" id="774"/>
+												<ExtendedTooltip name="DetailsOfCertificateDataViewStatusExtendedTooltip" id="775"/>
 											</ViewStatusAddition>
-											<SearchControlAddition name="CertificateDataDetails1SearchControl" id="776">
+											<SearchControlAddition name="DetailsOfCertificateDataSearchControl" id="776">
 												<AdditionSource>
 													<Item>DetailsOfCertificateData</Item>
 													<Type>SearchControl</Type>
 												</AdditionSource>
-												<ContextMenu name="CertificateDataDetails1SearchControlContextMenu" id="777"/>
-												<ExtendedTooltip name="CertificateDataDetails1SearchControlExtendedTooltip" id="778"/>
+												<ContextMenu name="DetailsOfCertificateDataSearchControlContextMenu" id="777"/>
+												<ExtendedTooltip name="DetailsOfCertificateDataSearchControlExtendedTooltip" id="778"/>
 											</SearchControlAddition>
 											<ChildItems>
-												<InputField name="CertificateDataDetails1Property" id="755">
+												<InputField name="DetailsOfCertificateDataProperty" id="755">
 													<DataPath>DetailsOfCertificateData.Property</DataPath>
 													<SkipOnInput>true</SkipOnInput>
 													<Title>
@@ -503,10 +503,10 @@
 													<EditMode>EnterOnInput</EditMode>
 													<Width>13</Width>
 													<HorizontalStretch>false</HorizontalStretch>
-													<ContextMenu name="CertificateDataDetails1PropertyContextMenu" id="756"/>
-													<ExtendedTooltip name="CertificateDataDetails1PropertyExtendedTooltip" id="757"/>
+													<ContextMenu name="DetailsOfCertificateDataPropertyContextMenu" id="756"/>
+													<ExtendedTooltip name="DetailsOfCertificateDataPropertyExtendedTooltip" id="757"/>
 												</InputField>
-												<InputField name="CertificateDataDetails1Value" id="758">
+												<InputField name="DetailsOfCertificateDataValue" id="758">
 													<DataPath>DetailsOfCertificateData.Value</DataPath>
 													<SkipOnInput>true</SkipOnInput>
 													<Title>
@@ -516,8 +516,8 @@
 														</v8:item>
 													</Title>
 													<EditMode>EnterOnInput</EditMode>
-													<ContextMenu name="CertificateDataDetails1ValueContextMenu" id="759"/>
-													<ExtendedTooltip name="CertificateDataDetails1ValueExtendedTooltip" id="760"/>
+													<ContextMenu name="DetailsOfCertificateDataValueContextMenu" id="759"/>
+													<ExtendedTooltip name="DetailsOfCertificateDataValueExtendedTooltip" id="760"/>
 												</InputField>
 											</ChildItems>
 										</Table>
@@ -546,8 +546,8 @@
 									</Title>
 									<ToolTipRepresentation>Button</ToolTipRepresentation>
 									<EditMode>EnterOnInput</EditMode>
-									<ContextMenu name="CertificateDescription1ContextMenu" id="248"/>
-									<ExtendedTooltip name="CertificateDescription1ExtendedTooltip" id="249">
+									<ContextMenu name="DescriptionCertificateContextMenu" id="248"/>
+									<ExtendedTooltip name="DescriptionCertificateExtendedTooltip" id="249">
 										<Title formatted="false">
 											<v8:item>
 												<v8:lang>en</v8:lang>
@@ -581,8 +581,8 @@ the purpose description is used instead of the certificate presentation, for exa
 											<v8:content>Tooltip text is set from a catalog attribute.</v8:content>
 										</v8:item>
 									</ToolTip>
-									<ContextMenu name="CertificateUserContextMenu" id="780"/>
-									<ExtendedTooltip name="CertificateUserExtendedTooltip" id="781"/>
+									<ContextMenu name="CertificateUser1ContextMenu" id="780"/>
+									<ExtendedTooltip name="CertificateUser1ExtendedTooltip" id="781"/>
 								</InputField>
 								<InputField name="CertificateCompany" id="782">
 									<DataPath>CertificateCompany</DataPath>

@@ -25,6 +25,9 @@
 				<xr:Item xsi:type="xr:MDObjectRef">Constant.ShouldRegisterChangesInAccessRights</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Report.MembersChangeInUsersGroups</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.UserMonitoring</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">Report.EditAccessGroupMembers</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">Report.AccessGroupsAllowedValuesChange</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">Report.ProfilesRolesChanges</xr:Item>
 			</Content>
 		</Properties>
 		<ChildObjects/>

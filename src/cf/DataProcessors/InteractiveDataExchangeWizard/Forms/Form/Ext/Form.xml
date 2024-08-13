@@ -548,7 +548,7 @@ data mapping was performed correctly.</v8:content>
 														</v8:item>
 													</Title>
 													<VerticalAlign>Center</VerticalAlign>
-													<ContextMenu name="AllDataMapped1ContextMenu" id="724"/>
+													<ContextMenu name="DataMappedNotificationContextMenu" id="724"/>
 													<ExtendedTooltip name="DataMappedNotificationExtendedTooltip" id="756"/>
 												</LabelDecoration>
 											</ChildItems>
@@ -608,7 +608,7 @@ data mapping was performed correctly.</v8:content>
 											<v8:content>List commands</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="ListCommandsGroup1ExtendedTooltip" id="761"/>
+									<ExtendedTooltip name="GroupListCommandsExtendedTooltip" id="761"/>
 									<ChildItems>
 										<Button name="OutputList" id="712">
 											<Type>CommandBarButton</Type>
@@ -699,7 +699,7 @@ data mapping was performed correctly.</v8:content>
 										<Title>
 											<v8:item>
 												<v8:lang>en</v8:lang>
-												<v8:content>Statistics inforation tree context menu group 1</v8:content>
+												<v8:content>Statistics information tree context menu group 1</v8:content>
 											</v8:item>
 										</Title>
 										<ExtendedTooltip name="StatisticsTreeContextMenuGroup1ExtendedTooltip" id="767"/>
@@ -1937,8 +1937,8 @@ To stop it, click "Finish synchronization".</v8:content>
 									</Title>
 									<TitleLocation>None</TitleLocation>
 									<AutoMaxWidth>false</AutoMaxWidth>
-									<ContextMenu name="ProgressAdditionalInformation1ContextMenu" id="953"/>
-									<ExtendedTooltip name="ProgressAdditionalInformation1ExtendedTooltip" id="954"/>
+									<ContextMenu name="ImportProgressAdditionalInformationContextMenu" id="953"/>
+									<ExtendedTooltip name="ImportProgressAdditionalInformationExtendedTooltip" id="954"/>
 								</LabelField>
 							</ChildItems>
 						</UsualGroup>
@@ -2040,8 +2040,8 @@ To stop it, click "Finish synchronization".</v8:content>
 						</PictureDecoration>
 						<LabelDecoration name="DecorationVersionsDifferenceError" id="922">
 							<AutoMaxWidth>false</AutoMaxWidth>
-							<ContextMenu name="VersionsDifferenceErrorDecorationContextMenu" id="923"/>
-							<ExtendedTooltip name="VersionsDifferenceErrorDecorationExtendedTooltip" id="924"/>
+							<ContextMenu name="DecorationVersionsDifferenceErrorContextMenu" id="923"/>
+							<ExtendedTooltip name="DecorationVersionsDifferenceErrorExtendedTooltip" id="924"/>
 						</LabelDecoration>
 					</ChildItems>
 				</Page>
@@ -2233,7 +2233,7 @@ To stop it, click "Finish synchronization".</v8:content>
 																		<xr:LoadTransparent>false</xr:LoadTransparent>
 																	</Picture>
 																	<FileDragMode>AsFile</FileDragMode>
-																	<ContextMenu name="StatusWarningPicture1ContextMenu" id="388"/>
+																	<ContextMenu name="WarningPicture1ContextMenu" id="388"/>
 																	<ExtendedTooltip name="WarningPicture1ExtendedTooltip" id="796"/>
 																</PictureDecoration>
 															</ChildItems>

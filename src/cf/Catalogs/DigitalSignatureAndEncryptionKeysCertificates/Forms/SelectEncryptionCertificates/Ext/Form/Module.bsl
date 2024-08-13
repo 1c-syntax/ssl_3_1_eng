@@ -39,6 +39,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	UsersGroupOnChangeAtServer();
 	
+	// StandardSubsystems.AttachableCommands
+	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
+		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
+	EndIf;
+	// End StandardSubsystems.AttachableCommands
+	
 EndProcedure
 
 &AtClient
@@ -91,6 +98,16 @@ Procedure ListBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group, Parameter)
 	
 EndProcedure
 
+&AtClient
+Procedure ListOnActivateRow(Item)
+	
+	// StandardSubsystems.AttachableCommands
+	ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
+	ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
+	// End StandardSubsystems.AttachableCommands
+	
+EndProcedure
+
 #EndRegion
 
 #Region FormCommandsEventHandlers
@@ -112,6 +129,38 @@ Procedure AddFromFile(Command)
 	DigitalSignatureInternalClient.AddCertificateOnlyToEncryptFromFile(CreationParameters);
 	
 EndProcedure
+
+// StandardSubsystems.AttachableCommands
+&AtClient
+Procedure Attachable_ExecuteCommand(Command)
+	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
+		ModuleAttachableCommandsClient.StartCommandExecution(ThisObject, Command, Items.List);
+	EndIf;
+EndProcedure
+
+&AtClient
+Procedure Attachable_ContinueCommandExecutionAtServer(ExecutionParameters, AdditionalParameters) Export
+	ExecuteCommandAtServer(ExecutionParameters);
+EndProcedure
+
+&AtServer
+Procedure ExecuteCommandAtServer(ExecutionParameters)
+	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
+		ModuleAttachableCommands.ExecuteCommand(ThisObject, ExecutionParameters, Items.List);
+	EndIf;
+EndProcedure
+
+&AtClient
+Procedure Attachable_UpdateCommands()
+	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommandsClientServer = CommonClient.CommonModule("AttachableCommandsClientServer");
+		ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, Items.List);
+	EndIf;
+EndProcedure
+
+// End StandardSubsystems.AttachableCommands
 
 #EndRegion
 

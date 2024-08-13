@@ -19,7 +19,7 @@
 				</v8:item>
 			</Title>
 			<PagesRepresentation>TabsOnTop</PagesRepresentation>
-			<ExtendedTooltip name="SettingsPanel1ExtendedTooltip" id="11"/>
+			<ExtendedTooltip name="SettingsPanelPageExtendedTooltip" id="11"/>
 			<ChildItems>
 				<Page name="SettingsPage" id="12">
 					<Title>
@@ -116,8 +116,8 @@
 									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<CheckBoxType>Auto</CheckBoxType>
-									<ContextMenu name="SupportedObjectsSendingContextMenu" id="36"/>
-									<ExtendedTooltip name="SupportedObjectsSendingExtendedTooltip" id="37"/>
+									<ContextMenu name="SupportedObjectsSendContextMenu" id="36"/>
+									<ExtendedTooltip name="SupportedObjectsSendExtendedTooltip" id="37"/>
 								</CheckBoxField>
 								<CheckBoxField name="SupportedObjectsReceive" id="38">
 									<DataPath>SupportedObjects.Receive</DataPath>
@@ -129,8 +129,8 @@
 									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<CheckBoxType>Auto</CheckBoxType>
-									<ContextMenu name="SupportedObjectsReceivingContextMenu" id="39"/>
-									<ExtendedTooltip name="SupportedObjectsReceivingExtendedTooltip" id="40"/>
+									<ContextMenu name="SupportedObjectsReceiveContextMenu" id="39"/>
+									<ExtendedTooltip name="SupportedObjectsReceiveExtendedTooltip" id="40"/>
 								</CheckBoxField>
 							</ChildItems>
 						</Table>
@@ -231,8 +231,8 @@
 									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<CheckBoxType>Auto</CheckBoxType>
-									<ContextMenu name="SupportedCorrespondentObjectsSendingContextMenu" id="61"/>
-									<ExtendedTooltip name="SupportedCorrespondentObjectsSendingExtendedTooltip" id="62"/>
+									<ContextMenu name="SupportedCorrespondentObjectsSendContextMenu" id="61"/>
+									<ExtendedTooltip name="SupportedCorrespondentObjectsSendExtendedTooltip" id="62"/>
 								</CheckBoxField>
 								<CheckBoxField name="SupportedCorrespondentObjectsReceive" id="63">
 									<DataPath>SupportedCorrespondentObjects.Receive</DataPath>
@@ -244,8 +244,8 @@
 									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<CheckBoxType>Auto</CheckBoxType>
-									<ContextMenu name="SupportedCorrespondentObjectsReceivingContextMenu" id="64"/>
-									<ExtendedTooltip name="SupportedCorrespondentObjectsReceivingExtendedTooltip" id="65"/>
+									<ContextMenu name="SupportedCorrespondentObjectsReceiveContextMenu" id="64"/>
+									<ExtendedTooltip name="SupportedCorrespondentObjectsReceiveExtendedTooltip" id="65"/>
 								</CheckBoxField>
 							</ChildItems>
 						</Table>

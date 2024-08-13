@@ -195,8 +195,8 @@ To perform the task, go to special task form.</v8:content>
 													<v8:content>Author</v8:content>
 												</v8:item>
 											</Title>
-											<ContextMenu name="AuthorStringContextMenu" id="166"/>
-											<ExtendedTooltip name="AuthorStringExtendedTooltip" id="167"/>
+											<ContextMenu name="AuthorAsStringContextMenu" id="166"/>
+											<ExtendedTooltip name="AuthorAsStringExtendedTooltip" id="167"/>
 										</LabelField>
 										<InputField name="Performer" id="20">
 											<DataPath>Object.Performer</DataPath>
@@ -243,7 +243,7 @@ To perform the task, go to special task form.</v8:content>
 											<DataPath>Object.TaskDueDate</DataPath>
 											<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 											<HorizontalStretch>false</HorizontalStretch>
-											<ContextMenu name="DueDateContextMenu" id="13"/>
+											<ContextMenu name="TaskDueDateContextMenu" id="13"/>
 											<ExtendedTooltip name="TaskDueDateExtendedTooltip" id="149"/>
 										</InputField>
 									</ChildItems>

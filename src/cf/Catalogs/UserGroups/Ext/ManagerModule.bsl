@@ -158,7 +158,7 @@ Function GroupFromPredefinedItemDuplicates(Selection, GroupDescription, RefToNew
 			GroupByRefToNew = Selection.Ref;
 		ElsIf Selection.Description = GroupDescription
 		        And GroupByDescription = Undefined Then
-			GroupByDescription = GroupDescription;
+			GroupByDescription = Selection.Ref;
 		EndIf;
 	EndDo;
 	
@@ -221,7 +221,7 @@ Procedure OnSetUpInitialItemsFilling(Settings) Export
 	
 EndProcedure
 
-// See also InfobaseUpdateOverridable.OnInitialItemFilling
+// See also InfobaseUpdateOverridable.OnInitialItemsFilling
 // 
 // Parameters:
 //   LanguagesCodes - See InfobaseUpdateOverridable.OnInitialItemsFilling.LanguagesCodes

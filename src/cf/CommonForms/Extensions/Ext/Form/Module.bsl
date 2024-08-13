@@ -28,7 +28,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.ExtensionsListSafeModeFlag.ReadOnly = True;
 	EndIf;
 	
-	Items.FormInstalledPatches1.Visible = 
+	Items.FormInstalledPatches.Visible = 
 		Common.SubsystemExists("StandardSubsystems.ConfigurationUpdate");
 	
 	If Not AccessRight("ConfigurationExtensionsAdministration", Metadata) Then
@@ -42,7 +42,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.ExtensionsListContextMenuDelete.Visible = False;
 		Items.ExtensionsListContextMenuUpdateFromFile.Visible = False;
 		Items.ExtensionsListContextMenuSaveAs.Visible = False;
-		Items.FormInstalledPatches1.Visible = False;
+		Items.FormInstalledPatches.Visible = False;
 		Items.CheckIfAllExtensionsCanBeApplied.Visible = False;
 		Items.SubmenuEnableExtensions.Visible = False;
 		Items.SubmenuTransferToSubordinateDIBNodes.Visible = False;
@@ -84,7 +84,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 &AtClient
-Procedure WarningDetails1URLProcessing(Item, FormattedStringURL, StandardProcessing)
+Procedure WarningDetailsURLProcessing(Item, FormattedStringURL, StandardProcessing)
 	StandardProcessing = False;
 	Exit(False, True);
 EndProcedure
@@ -157,11 +157,8 @@ Procedure ExtensionsListAttachOnChange(Item)
 	   And IsExtensionWithData(CurrentExtension.ExtensionID) Then
 		
 		Notification = New NotifyDescription("DetachExtensionAfterConfirmation", ThisObject, Context);
-		
-		FormParameters = New Structure;
-		FormParameters.Insert("Key", "BeforeDisableExtensionWithData");
-		
-		OpenForm("CommonForm.SecurityWarning", FormParameters,,,,, Notification);
+		UsersInternalClient.ShowSecurityWarning(Notification,
+			UsersInternalClientServer.TypesOfSafetyWarnings().BeforeDisableExtensionWithData);
 	Else
 		ExtensionsListAttachOnChangeFollowUp(Context);
 	EndIf;
@@ -298,7 +295,10 @@ Procedure CheckIfAllExtensionsCanBeApplied(Command)
 		QuestionFormParameters.Picture = PictureLib.DialogInformation;
 		QuestionFormParameters.PromptDontAskAgain = False;
 		QuestionFormParameters.Title = NStr("en = 'Result of extensions applicability check';");
-		StandardSubsystemsClient.ShowQuestionToUser(Undefined, NStr("en = 'The extensions applicability check is passed.';"),QuestionDialogMode.OK, QuestionFormParameters);
+		StandardSubsystemsClient.ShowQuestionToUser(Undefined,
+			NStr("en = 'The extensions applicability check is passed.';"),
+			QuestionDialogMode.OK,
+			QuestionFormParameters);
 	Else
 		Result.InfoOnIssues.Show(NStr("en = 'The extension check result.';"));
 	EndIf;
@@ -618,17 +618,12 @@ Procedure DeleteExtensions(SelectedRows)
 	Context.Insert("ExtensionsIDs", ExtensionsIDs);
 	
 	Notification = New NotifyDescription("DeleteExtensionAfterConfirmation", ThisObject, Context);
+	TypeOfWarning = ?(HasExtensionWithData(ExtensionsIDs),
+		UsersInternalClientServer.TypesOfSafetyWarnings().BeforeDeleteExtensionWithData,
+		UsersInternalClientServer.TypesOfSafetyWarnings().BeforeDeleteExtensionWithoutData);
 	
-	FormParameters = New Structure;
-	FormParameters.Insert("MultipleChoice", ExtensionsIDs.Count() > 1);
-	
-	If HasExtensionWithData(ExtensionsIDs) Then
-		FormParameters.Insert("Key", "BeforeDeleteExtensionWithData");
-	Else
-		FormParameters.Insert("Key", "BeforeDeleteExtensionWithoutData");
-	EndIf;
-	
-	OpenForm("CommonForm.SecurityWarning", FormParameters,,,,, Notification)
+	UsersInternalClient.ShowSecurityWarning(Notification,
+		TypeOfWarning, ExtensionsIDs.Count() > 1);
 	
 EndProcedure
 
@@ -672,7 +667,7 @@ Procedure DeleteExtensionCompletion()
 	Except
 		ErrorInfo = ErrorInfo();
 		AttachIdleHandler("HideTimeConsumingOperation", 0.1, True);
-		ShowMessageBox(, ErrorProcessing.BriefErrorDescription(ErrorInfo));
+		StandardSubsystemsClient.OutputErrorInfo(ErrorInfo);
 		Return;
 	EndTry;
 	AttachIdleHandler("HideTimeConsumingOperation", 0.1, True);
@@ -684,7 +679,6 @@ Procedure DeleteExtensionsAtServer(ExtensionsIDs)
 	
 	ErrorText = "";
 	Catalogs.ExtensionsVersions.DeleteExtensions(ExtensionsIDs, ErrorText);
-	DeleteExtensionsProperties(ExtensionsIDs);
 	
 	UpdateList();
 	
@@ -692,15 +686,6 @@ Procedure DeleteExtensionsAtServer(ExtensionsIDs)
 		Raise ErrorText;
 	EndIf;
 	
-EndProcedure
-
-&AtServer
-Procedure DeleteExtensionsProperties(ExtensionsIDs)
-	
-	For Each ExtensionID In ExtensionsIDs Do
-		InformationRegisters.ExtensionProperties.DeleteExtensionPropertiesByID(ExtensionID);
-	EndDo;
-
 EndProcedure
 
 &AtClient
@@ -795,11 +780,10 @@ Procedure LoadExtension(Val ExtensionID, MultipleChoice = False)
 	Context.Insert("ExtensionID", ExtensionID);
 	Context.Insert("MultipleChoice", MultipleChoice);
 	Context.Insert("SelectedRows", ExtensionID);
+	
 	Notification = New NotifyDescription("LoadExtensionAfterConfirmation", ThisObject, Context);
-	
-	FormParameters = New Structure("Key", "BeforeAddExtensions");
-	
-	OpenForm("CommonForm.SecurityWarning", FormParameters,,,,, Notification);
+	UsersInternalClient.ShowSecurityWarning(Notification,
+		UsersInternalClientServer.TypesOfSafetyWarnings().BeforeAddExtensions);
 	
 EndProcedure
 
@@ -1760,7 +1744,10 @@ Procedure OutputErrorsInfoOnExtensionsReconfiguration(ExtensionsModificationErro
 	QuestionFormParameters.Picture = PictureLib.DialogExclamation;
 	QuestionFormParameters.PromptDontAskAgain = False;
 	QuestionFormParameters.Title = NStr("en = 'Failed to reconfigure some extensions';");
-	StandardSubsystemsClient.ShowQuestionToUser(Undefined, ErrorInformation_,QuestionDialogMode.OK, QuestionFormParameters);
+	StandardSubsystemsClient.ShowQuestionToUser(Undefined,
+		ErrorInformation_,
+		QuestionDialogMode.OK,
+		QuestionFormParameters);
 	
 EndProcedure
 
@@ -1844,30 +1831,27 @@ Procedure DisableAttachExtensions()
 		Context.Insert("RowID", CurrentExtension.GetID());
 	
 		Notification = New NotifyDescription("DetachExtensionAfterConfirmation", ThisObject, Context);
-		
-		FormParameters = New Structure;
-		FormParameters.Insert("Key", "BeforeDisableExtensionWithData");
-		
-		OpenForm("CommonForm.SecurityWarning", FormParameters,,,,, Notification);
+		UsersInternalClient.ShowSecurityWarning(Notification,
+			UsersInternalClientServer.TypesOfSafetyWarnings().BeforeDisableExtensionWithData);
 
 	ElsIf ExtensionsSynonyms.WithData.Count() > 0 Then
 		
 		If ExtensionsSynonyms.WithData.Count() = 1 Then
 			QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'One of the selected extensions stores its data in the app.
-			           |This data will become unavailable. The related app data might become unchangeable.
-			           |
-			           |The extension with data:
-			           | - %1';"),
+				NStr("en = 'One of the selected extensions stores its data in the app. This data will become unavailable.
+				           |The related app data might become unchangeable.
+				           |
+				           |The extension with data:
+				           | - %1';"),
 				ExtensionsSynonyms.WithData[0]);
 		Else
 			ExtensionsWithDataText = StrConcat(ExtensionsSynonyms.WithData, Chars.LF + " - ");
 			QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Some of the selected extensions store their data in the app.
-			           |This data will become unavailable. The related app data might become unchangeable.
-			           |
-			           |The extensions with data:
-			           | - %1';"),
+				NStr("en = 'Som of the selected extensions stores its data in the app. This data will become unavailable.
+				           |The related app data might become unchangeable.
+				           |
+				           |The extension with data:
+				           | - %1';"),
 				ExtensionsWithDataText);
 		EndIf;
 			

@@ -73,10 +73,10 @@
 							</xr:Value>
 						</xr:Item>
 					</ChoiceList>
-					<ContextMenu name="SetPeriodEndClosingDate1ContextMenu" id="440"/>
-					<ExtendedTooltip name="SetPeriodEndClosingDate1ExtendedTooltip" id="441"/>
+					<ContextMenu name="SetPeriodEndClosingDatesContextMenu" id="440"/>
+					<ExtendedTooltip name="SetPeriodEndClosingDatesExtendedTooltip" id="441"/>
 					<Events>
-						<Event name="OnChange">SetPeriodEndClosingDate1OnChange</Event>
+						<Event name="OnChange">SetPeriodEndClosingDatesOnChange</Event>
 					</Events>
 				</RadioButtonField>
 				<CommandBar name="CommandBar" id="444">
@@ -888,7 +888,7 @@
 																							<v8:content>No details</v8:content>
 																						</v8:item>
 																					</Title>
-																					<ExtendedTooltip name="NoDetails2ExtendedTooltip" id="356"/>
+																					<ExtendedTooltip name="GroupLessOptionsExtendedTooltip" id="356"/>
 																					<ChildItems>
 																						<LabelDecoration name="LessOptions" id="248">
 																							<AutoMaxWidth>false</AutoMaxWidth>

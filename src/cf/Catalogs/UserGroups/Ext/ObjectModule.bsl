@@ -72,9 +72,9 @@ Procedure BeforeWrite(Cancel)
 	
 	// ACC:75-off - The check "DataExchange.Import" should run after the register is locked.
 	If Common.FileInfobase() Then
-		// 
-		// 
-		// 
+		// Set an exclusive lock on the registers right away
+		// instead of automatically setting a shared lock when reading.
+		// The latter leads to a deadlock upon updating the membership of user groups.
 		Block = New DataLock;
 		Block.Add("InformationRegister.UserGroupsHierarchy");
 		Block.Add("InformationRegister.UserGroupCompositions");

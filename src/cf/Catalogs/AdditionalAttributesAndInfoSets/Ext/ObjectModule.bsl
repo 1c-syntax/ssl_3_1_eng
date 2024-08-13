@@ -109,8 +109,8 @@ Procedure OnWrite(Cancel)
 	EndIf;
 	
 	If Not IsFolder Then
-		// Updating the composition of the top group for use when configuring
-		// the composition of dynamic list fields and its settings (selections,...).
+		// Updates content of the top group to use fields
+		// of the dynamic list and its settings (filters, …) upon customization.
 		If ValueIsFilled(Parent) Then
 			PropertyManagerInternal.CheckRefreshGroupPropertiesContent(Parent);
 		EndIf;

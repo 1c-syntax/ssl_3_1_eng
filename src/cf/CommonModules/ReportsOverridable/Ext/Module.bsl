@@ -75,14 +75,14 @@ EndProcedure
 //      * Type - String
 //
 // Example:
-//   1. For all settings of the CatalogRef.Users type, hide and do not permit to select users marked for deletion, 
-//   as well as unavailable and internal ones.
+//   1. For all CatalogRef.Users settings, hide and do not allow selecting users marked for deletion, 
+//   inactive users, and utility users.
 //
-//   If SettingProperties.TypesDetails.ContainsType(Type("CatalogRef.Users")) Then
+//   If SettingProperties.TypeDescription.ContainsType(Type("CatalogRef.Users")) Then
 //     SettingProperties.RestrictSelectionBySpecifiedValues = True;
 //     SettingProperties.ValuesForSelection.Clear();
 //     SettingProperties.SelectionValuesQuery.Text =
-//       "SELECT Reference FROM Catalog.Users
+//       "SELECT Ref FROM Catalog.Users
 //       |WHERE NOT DeletionMark AND NOT Invalid AND NOT IsInternal";
 //   EndIf;
 //

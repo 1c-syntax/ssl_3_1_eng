@@ -162,7 +162,7 @@
 						<v8:content>Debug</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="DebugGroupExtendedTooltip" id="206"/>
+				<ExtendedTooltip name="DebuggingGroupExtendedTooltip" id="206"/>
 				<ChildItems>
 					<Button name="ShowPrioritiesHandlerConflicts" id="218">
 						<Type>CommandBarButton</Type>
@@ -323,7 +323,7 @@
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="ExportGroupExtendedTooltip" id="79"/>
+					<ExtendedTooltip name="XMLExportGroupExtendedTooltip" id="79"/>
 					<ChildItems>
 						<InputField name="SRCDirectory" id="75">
 							<DataPath>Object.SRCDirectory</DataPath>
@@ -389,7 +389,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="FiltersGroup2ExtendedTooltip" id="124"/>
+			<ExtendedTooltip name="GroupFiltersExtendedTooltip" id="124"/>
 			<ChildItems>
 				<InputField name="CurrentLibrary" id="125">
 					<DataPath>CurrentLibrary</DataPath>
@@ -503,534 +503,588 @@
 				</LabelDecoration>
 			</ChildItems>
 		</UsualGroup>
-		<Table name="UpdateHandlers" id="1">
-			<Representation>List</Representation>
-			<EnableStartDrag>true</EnableStartDrag>
-			<EnableDrag>true</EnableDrag>
-			<FileDragMode>AsFile</FileDragMode>
-			<DataPath>Object.UpdateHandlers</DataPath>
+		<Pages name="Pages" id="268">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Update handlers</v8:content>
+					<v8:content>Pages</v8:content>
 				</v8:item>
 			</Title>
-			<ViewStatusLocation>Top</ViewStatusLocation>
-			<RowFilter xsi:nil="true"/>
-			<ContextMenu name="UpdateHandlersContextMenu" id="2">
-				<Autofill>false</Autofill>
-				<ChildItems>
-					<Button name="UpdateHandlersSelectedHandlersCode" id="244">
-						<Type>CommandBarButton</Type>
-						<CommandName>Form.Command.ShowModulesText</CommandName>
-						<Title>
-							<v8:item>
-								<v8:lang>en</v8:lang>
-								<v8:content>Show code of selected handlers</v8:content>
-							</v8:item>
-						</Title>
-						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-						<ExtendedTooltip name="UpdateHandlersSelectedHandlersCodeExtendedTooltip" id="245"/>
-					</Button>
-					<ButtonGroup name="StandardUpdateHandlers" id="232">
-						<Title>
-							<v8:item>
-								<v8:lang>en</v8:lang>
-								<v8:content>Standard update handlers</v8:content>
-							</v8:item>
-						</Title>
-						<CommandSource>Item.UpdateHandlers</CommandSource>
-						<ExtendedTooltip name="StandardUpdateHandlersExtendedTooltip" id="233"/>
-					</ButtonGroup>
-					<Button name="UpdateHandlersFind" id="185">
-						<Type>CommandBarButton</Type>
-						<Representation>Picture</Representation>
-						<Width>3</Width>
-						<CommandName>Form.Item.UpdateHandlers.StandardCommand.Find</CommandName>
-						<ExtendedTooltip name="UpdateHandlersFindExtendedTooltip" id="186"/>
-					</Button>
-					<Button name="UpdateHandlersCancelSearch" id="187">
-						<Type>CommandBarButton</Type>
-						<Representation>Picture</Representation>
-						<Width>3</Width>
-						<CommandName>Form.Item.UpdateHandlers.StandardCommand.CancelSearch</CommandName>
-						<ExtendedTooltip name="UpdateHandlersCancelSearchExtendedTooltip" id="188"/>
-					</Button>
-					<Button name="UpdateHandlersAscending" id="181">
-						<Type>CommandBarButton</Type>
-						<Representation>Picture</Representation>
-						<Width>3</Width>
-						<CommandName>Form.Item.UpdateHandlers.StandardCommand.SortListAsc</CommandName>
-						<ExtendedTooltip name="UpdateHandlersAscendingExtendedTooltip" id="182"/>
-					</Button>
-					<Button name="UpdateHandlersDescending" id="183">
-						<Type>CommandBarButton</Type>
-						<Representation>Picture</Representation>
-						<Width>3</Width>
-						<CommandName>Form.Item.UpdateHandlers.StandardCommand.SortListDesc</CommandName>
-						<ExtendedTooltip name="UpdateHandlersDescendingExtendedTooltip" id="184"/>
-					</Button>
-				</ChildItems>
-			</ContextMenu>
-			<AutoCommandBar name="UpdateHandlersCommandBar" id="3">
-				<Autofill>false</Autofill>
-			</AutoCommandBar>
-			<ExtendedTooltip name="UpdateHandlersExtendedTooltip" id="4"/>
-			<SearchStringAddition name="UpdateHandlersSearchString" id="5">
-				<AdditionSource>
-					<Item>UpdateHandlers</Item>
-					<Type>SearchStringRepresentation</Type>
-				</AdditionSource>
-				<ContextMenu name="UpdateHandlersSearchStringContextMenu" id="6"/>
-				<ExtendedTooltip name="UpdateHandlersSearchStringExtendedTooltip" id="7"/>
-			</SearchStringAddition>
-			<ViewStatusAddition name="UpdateHandlersViewStatus" id="8">
-				<AdditionSource>
-					<Item>UpdateHandlers</Item>
-					<Type>ViewStatusRepresentation</Type>
-				</AdditionSource>
-				<ContextMenu name="UpdateHandlersViewStatusContextMenu" id="9"/>
-				<ExtendedTooltip name="UpdateHandlersViewStatusExtendedTooltip" id="10"/>
-			</ViewStatusAddition>
-			<SearchControlAddition name="UpdateHandlersSearchControl" id="11">
-				<AdditionSource>
-					<Item>UpdateHandlers</Item>
-					<Type>SearchControl</Type>
-				</AdditionSource>
-				<ContextMenu name="UpdateHandlersSearchControlContextMenu" id="12"/>
-				<ExtendedTooltip name="UpdateHandlersSearchControlExtendedTooltip" id="13"/>
-			</SearchControlAddition>
-			<Events>
-				<Event name="Selection">UpdateHandlersSelection</Event>
-				<Event name="BeforeAddRow">UpdateHandlersBeforeAddRow</Event>
-				<Event name="BeforeDeleteRow">UpdateHandlersBeforeDeleteRow</Event>
-				<Event name="OnStartEdit">UpdateHandlersOnStartEdit</Event>
-			</Events>
+			<PagesRepresentation>None</PagesRepresentation>
+			<ExtendedTooltip name="PagesExtendedTooltip" id="269"/>
 			<ChildItems>
-				<LabelField name="LineNumber" id="14">
-					<DataPath>Object.UpdateHandlers.LineNumber</DataPath>
-					<UserVisible>
-						<xr:Common>false</xr:Common>
-					</UserVisible>
-					<EditMode>EnterOnInput</EditMode>
-					<Width>1</Width>
-					<ContextMenu name="LineNumberContextMenu" id="15"/>
-					<ExtendedTooltip name="LineNumberExtendedTooltip" id="16"/>
-				</LabelField>
-				<LabelField name="UpdateHandlersRef" id="100">
-					<DataPath>Object.UpdateHandlers.Ref</DataPath>
-					<UserVisible>
-						<xr:Common>false</xr:Common>
-					</UserVisible>
-					<ReadOnly>true</ReadOnly>
-					<EditMode>EnterOnInput</EditMode>
-					<ContextMenu name="UpdateHandlersRefContextMenu" id="101"/>
-					<ExtendedTooltip name="UpdateHandlersRefExtendedTooltip" id="102"/>
-				</LabelField>
-				<InputField name="UpdateHandlersSubsystem" id="17">
-					<DataPath>Object.UpdateHandlers.Subsystem</DataPath>
-					<ReadOnly>true</ReadOnly>
-					<EditMode>EnterOnInput</EditMode>
-					<Width>30</Width>
-					<ContextMenu name="UpdateHandlersSubsystemContextMenu" id="18"/>
-					<ExtendedTooltip name="UpdateHandlersSubsystemExtendedTooltip" id="19"/>
-				</InputField>
-				<InputField name="UpdateHandlersVersion" id="26">
-					<DataPath>Object.UpdateHandlers.Version</DataPath>
-					<ReadOnly>true</ReadOnly>
-					<EditMode>EnterOnInput</EditMode>
-					<Width>7</Width>
-					<ContextMenu name="UpdateHandlersVersionContextMenu" id="27"/>
-					<ExtendedTooltip name="UpdateHandlersVersionExtendedTooltip" id="28"/>
-				</InputField>
-				<InputField name="UpdateHandlersUpdateModule" id="20">
-					<DataPath>Object.UpdateHandlers.MainServerModuleName</DataPath>
-					<UserVisible>
-						<xr:Common>false</xr:Common>
-					</UserVisible>
-					<ReadOnly>true</ReadOnly>
-					<EditMode>EnterOnInput</EditMode>
-					<ContextMenu name="UpdateHandlersUpdateModuleContextMenu" id="21"/>
-					<ExtendedTooltip name="UpdateHandlersUpdateModuleExtendedTooltip" id="22"/>
-				</InputField>
-				<InputField name="UpdateHandlersDeferredHandlersExecutionMode" id="166">
-					<DataPath>Object.UpdateHandlers.DeferredHandlersExecutionMode</DataPath>
-					<UserVisible>
-						<xr:Common>false</xr:Common>
-					</UserVisible>
-					<ReadOnly>true</ReadOnly>
-					<EditMode>EnterOnInput</EditMode>
-					<ContextMenu name="UpdateHandlersDeferredHandlersExecutionMode1ContextMenu" id="167"/>
-					<ExtendedTooltip name="UpdateHandlersDeferredHandlersExecutionMode1ExtendedTooltip" id="168"/>
-				</InputField>
-				<LabelField name="UpdateHandlersIssueStatus" id="140">
-					<DataPath>Object.UpdateHandlers.IssueStatus</DataPath>
-					<EditMode>EnterOnInput</EditMode>
-					<CellHyperlink>true</CellHyperlink>
-					<Width>17</Width>
-					<ContextMenu name="UpdateHandlersIssueStatusContextMenu" id="141"/>
-					<ExtendedTooltip name="UpdateHandlersIssueStatusExtendedTooltip" id="142"/>
-				</LabelField>
-				<InputField name="UpdateHandlersProcedure" id="29">
-					<DataPath>Object.UpdateHandlers.Procedure</DataPath>
-					<ReadOnly>true</ReadOnly>
-					<EditMode>EnterOnInput</EditMode>
-					<ContextMenu name="UpdateHandlersProcedureContextMenu" id="30"/>
-					<ExtendedTooltip name="UpdateHandlersProcedureExtendedTooltip" id="31"/>
-				</InputField>
-				<InputField name="UpdateHandlersUpdateDataFillingProcedure" id="56">
-					<DataPath>Object.UpdateHandlers.UpdateDataFillingProcedure</DataPath>
-					<UserVisible>
-						<xr:Common>false</xr:Common>
-					</UserVisible>
-					<ReadOnly>true</ReadOnly>
-					<EditMode>EnterOnInput</EditMode>
-					<ContextMenu name="UpdateHandlersUpdateDataFillingProcedureContextMenu" id="57"/>
-					<ExtendedTooltip name="UpdateHandlersUpdateDataFillingProcedureExtendedTooltip" id="58"/>
-				</InputField>
-				<InputField name="UpdateHandlersCheckProcedure" id="53">
-					<DataPath>Object.UpdateHandlers.CheckProcedure</DataPath>
-					<UserVisible>
-						<xr:Common>false</xr:Common>
-					</UserVisible>
-					<ReadOnly>true</ReadOnly>
-					<EditMode>EnterOnInput</EditMode>
-					<ContextMenu name="UpdateHandlersCheckProcedureContextMenu" id="54"/>
-					<ExtendedTooltip name="UpdateHandlersCheckProcedureExtendedTooltip" id="55"/>
-				</InputField>
-				<InputField name="UpdateHandlersDeferredProcessingQueue" id="59">
-					<DataPath>Object.UpdateHandlers.DeferredProcessingQueue</DataPath>
-					<UserVisible>
-						<xr:Common>false</xr:Common>
-					</UserVisible>
-					<ReadOnly>true</ReadOnly>
-					<EditMode>EnterOnInput</EditMode>
-					<Width>1</Width>
-					<ContextMenu name="UpdateHandlersDeferredProcessingQueueContextMenu" id="60"/>
-					<ExtendedTooltip name="UpdateHandlersDeferredProcessingQueueExtendedTooltip" id="61"/>
-				</InputField>
-				<InputField name="UpdateHandlersNewQueue" id="163">
-					<DataPath>Object.UpdateHandlers.NewQueue</DataPath>
-					<UserVisible>
-						<xr:Common>false</xr:Common>
-					</UserVisible>
-					<ReadOnly>true</ReadOnly>
-					<EditMode>EnterOnInput</EditMode>
-					<Width>1</Width>
-					<ContextMenu name="UpdateHandlersNewQueueContextMenu" id="164"/>
-					<ExtendedTooltip name="UpdateHandlersNewQueueExtendedTooltip" id="165"/>
-				</InputField>
-				<InputField name="UpdateHandlersExecutionMode" id="32">
-					<DataPath>Object.UpdateHandlers.ExecutionMode</DataPath>
-					<ReadOnly>true</ReadOnly>
-					<EditMode>EnterOnInput</EditMode>
-					<Width>13</Width>
-					<ContextMenu name="UpdateHandlersExecutionModeContextMenu" id="33"/>
-					<ExtendedTooltip name="UpdateHandlersExecutionModeExtendedTooltip" id="34"/>
-				</InputField>
-				<CheckBoxField name="UpdateHandlersInitialFilling" id="23">
-					<DataPath>Object.UpdateHandlers.InitialFilling</DataPath>
-					<UserVisible>
-						<xr:Common>false</xr:Common>
-					</UserVisible>
-					<ReadOnly>true</ReadOnly>
-					<TitleLocation>None</TitleLocation>
-					<ToolTip>
+				<Page name="PageLoadingList" id="272">
+					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Initial population</v8:content>
+							<v8:content>List refresh page</v8:content>
 						</v8:item>
-					</ToolTip>
-					<EditMode>EnterOnInput</EditMode>
-					<CheckBoxType>Auto</CheckBoxType>
-					<ContextMenu name="UpdateHandlersInitialFillingContextMenu" id="24"/>
-					<ExtendedTooltip name="UpdateHandlersInitialFillingExtendedTooltip" id="25"/>
-				</CheckBoxField>
-				<CheckBoxField name="UpdateHandlersExecuteInMandatoryGroup" id="35">
-					<DataPath>Object.UpdateHandlers.ExecuteInMandatoryGroup</DataPath>
-					<UserVisible>
-						<xr:Common>false</xr:Common>
-					</UserVisible>
-					<ReadOnly>true</ReadOnly>
-					<TitleLocation>None</TitleLocation>
-					<ToolTip>
+					</Title>
+					<Group>AlwaysHorizontal</Group>
+					<ExtendedTooltip name="PageLoadingListExtendedTooltip" id="273"/>
+					<ChildItems>
+						<PictureDecoration name="TimeConsumingOperationIndicator" id="274">
+							<Picture>
+								<xr:Ref>CommonPicture.TimeConsumingOperation48</xr:Ref>
+								<xr:LoadTransparent>false</xr:LoadTransparent>
+							</Picture>
+							<ContextMenu name="TimeConsumingOperationIndicatorContextMenu" id="275"/>
+							<ExtendedTooltip name="TimeConsumingOperationIndicatorExtendedTooltip" id="276"/>
+						</PictureDecoration>
+						<LabelDecoration name="LabelClarification" id="277">
+							<Title formatted="false">
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Refreshing handlers.
+Please wait…</v8:content>
+								</v8:item>
+							</Title>
+							<ContextMenu name="LabelClarificationContextMenu" id="278"/>
+							<ExtendedTooltip name="LabelClarificationExtendedTooltip" id="279"/>
+						</LabelDecoration>
+					</ChildItems>
+				</Page>
+				<Page name="HandlersPage" id="270">
+					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Required</v8:content>
+							<v8:content>Handlers page</v8:content>
 						</v8:item>
-					</ToolTip>
-					<EditMode>EnterOnInput</EditMode>
-					<HeaderPicture>
-						<xr:Ref>StdPicture.AddToFavorites</xr:Ref>
-						<xr:LoadTransparent>true</xr:LoadTransparent>
-					</HeaderPicture>
-					<CheckBoxType>Auto</CheckBoxType>
-					<ContextMenu name="UpdateHandlersExecuteInMandatoryGroupContextMenu" id="36"/>
-					<ExtendedTooltip name="UpdateHandlersExecuteInMandatoryGroupExtendedTooltip" id="37"/>
-				</CheckBoxField>
-				<CheckBoxField name="UpdateHandlersMultithreaded" id="68">
-					<DataPath>Object.UpdateHandlers.Multithreaded</DataPath>
-					<UserVisible>
-						<xr:Common>false</xr:Common>
-					</UserVisible>
-					<ReadOnly>true</ReadOnly>
-					<TitleLocation>None</TitleLocation>
-					<ToolTip>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Multi-threaded</v8:content>
-						</v8:item>
-					</ToolTip>
-					<EditMode>EnterOnInput</EditMode>
-					<CheckBoxType>Auto</CheckBoxType>
-					<ContextMenu name="UpdateHandlersMultithreadedContextMenu" id="69"/>
-					<ExtendedTooltip name="UpdateHandlersMultithreadedExtendedTooltip" id="70"/>
-				</CheckBoxField>
-				<CheckBoxField name="UpdateHandlersExecuteInMasterNodeOnly" id="62">
-					<DataPath>Object.UpdateHandlers.ExecuteInMasterNodeOnly</DataPath>
-					<UserVisible>
-						<xr:Common>false</xr:Common>
-					</UserVisible>
-					<ReadOnly>true</ReadOnly>
-					<EditMode>EnterOnInput</EditMode>
-					<CheckBoxType>Auto</CheckBoxType>
-					<ContextMenu name="UpdateHandlersExecuteInMasterNodeOnlyContextMenu" id="63"/>
-					<ExtendedTooltip name="UpdateHandlersExecuteInMasterNodeOnlyExtendedTooltip" id="64"/>
-				</CheckBoxField>
-				<CheckBoxField name="UpdateHandlersRunAlsoInSubordinateDIBNodeWithFilters" id="65">
-					<DataPath>Object.UpdateHandlers.RunAlsoInSubordinateDIBNodeWithFilters</DataPath>
-					<UserVisible>
-						<xr:Common>false</xr:Common>
-					</UserVisible>
-					<ReadOnly>true</ReadOnly>
-					<EditMode>EnterOnInput</EditMode>
-					<CheckBoxType>Auto</CheckBoxType>
-					<ContextMenu name="UpdateHandlersRunAlsoInSubordinateDIBNodeWithFiltersContextMenu" id="66"/>
-					<ExtendedTooltip name="UpdateHandlersRunAlsoInSubordinateDIBNodeWithFiltersExtendedTooltip" id="67"/>
-				</CheckBoxField>
-				<CheckBoxField name="UpdateHandlersSharedData" id="41">
-					<DataPath>Object.UpdateHandlers.SharedData</DataPath>
-					<UserVisible>
-						<xr:Common>false</xr:Common>
-					</UserVisible>
-					<ReadOnly>true</ReadOnly>
-					<EditMode>EnterOnInput</EditMode>
-					<CheckBoxType>Auto</CheckBoxType>
-					<ContextMenu name="UpdateHandlersSharedData1ContextMenu" id="42"/>
-					<ExtendedTooltip name="UpdateHandlersSharedData1ExtendedTooltip" id="43"/>
-				</CheckBoxField>
-				<CheckBoxField name="UpdateHandlersHandlerManagement" id="44">
-					<DataPath>Object.UpdateHandlers.HandlerManagement</DataPath>
-					<UserVisible>
-						<xr:Common>false</xr:Common>
-					</UserVisible>
-					<ReadOnly>true</ReadOnly>
-					<EditMode>EnterOnInput</EditMode>
-					<CheckBoxType>Auto</CheckBoxType>
-					<ContextMenu name="UpdateHandlersHandlerManagementContextMenu" id="45"/>
-					<ExtendedTooltip name="UpdateHandlersHandlerManagementExtendedTooltip" id="46"/>
-				</CheckBoxField>
-				<InputField name="UpdateHandlersComment" id="47">
-					<DataPath>Object.UpdateHandlers.Comment</DataPath>
-					<ReadOnly>true</ReadOnly>
-					<EditMode>EnterOnInput</EditMode>
-					<ContextMenu name="UpdateHandlersCommentContextMenu" id="48"/>
-					<ExtendedTooltip name="UpdateHandlersCommentExtendedTooltip" id="49"/>
-				</InputField>
-				<InputField name="UpdateHandlersId" id="50">
-					<DataPath>Object.UpdateHandlers.Id</DataPath>
-					<ReadOnly>true</ReadOnly>
-					<EditMode>EnterOnInput</EditMode>
-					<Width>15</Width>
-					<ContextMenu name="UpdateHandlersIDContextMenu" id="51"/>
-					<ExtendedTooltip name="UpdateHandlersIDExtendedTooltip" id="52"/>
-				</InputField>
-				<CheckBoxField name="UpdateHandlersDataToReadWriter" id="143">
-					<DataPath>Object.UpdateHandlers.DataToReadWriter</DataPath>
-					<UserVisible>
-						<xr:Common>false</xr:Common>
-					</UserVisible>
-					<ReadOnly>true</ReadOnly>
-					<TitleLocation>None</TitleLocation>
-					<ToolTip>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Either this handler modifies objects readable by other handlers
+					</Title>
+					<ExtendedTooltip name="HandlersPageExtendedTooltip" id="271"/>
+					<ChildItems>
+						<Table name="UpdateHandlers" id="1">
+							<Representation>List</Representation>
+							<EnableStartDrag>true</EnableStartDrag>
+							<EnableDrag>true</EnableDrag>
+							<FileDragMode>AsFile</FileDragMode>
+							<DataPath>Object.UpdateHandlers</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Update handlers</v8:content>
+								</v8:item>
+							</Title>
+							<ViewStatusLocation>Top</ViewStatusLocation>
+							<RowFilter xsi:nil="true"/>
+							<ContextMenu name="UpdateHandlersContextMenu" id="2">
+								<Autofill>false</Autofill>
+								<ChildItems>
+									<Button name="UpdateHandlersSelectedHandlersCode" id="244">
+										<Type>CommandBarButton</Type>
+										<CommandName>Form.Command.ShowModulesText</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Show code of selected handlers</v8:content>
+											</v8:item>
+										</Title>
+										<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+										<ExtendedTooltip name="UpdateHandlersSelectedHandlersCodeExtendedTooltip" id="245"/>
+									</Button>
+									<ButtonGroup name="StandardUpdateHandlers" id="232">
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Standard update handlers</v8:content>
+											</v8:item>
+										</Title>
+										<CommandSource>Item.UpdateHandlers</CommandSource>
+										<ExtendedTooltip name="StandardUpdateHandlersExtendedTooltip" id="233"/>
+									</ButtonGroup>
+									<Button name="UpdateHandlersFind" id="185">
+										<Type>CommandBarButton</Type>
+										<Representation>Picture</Representation>
+										<Width>3</Width>
+										<CommandName>Form.Item.UpdateHandlers.StandardCommand.Find</CommandName>
+										<ExtendedTooltip name="UpdateHandlersFindExtendedTooltip" id="186"/>
+									</Button>
+									<Button name="UpdateHandlersCancelSearch" id="187">
+										<Type>CommandBarButton</Type>
+										<Representation>Picture</Representation>
+										<Width>3</Width>
+										<CommandName>Form.Item.UpdateHandlers.StandardCommand.CancelSearch</CommandName>
+										<ExtendedTooltip name="UpdateHandlersCancelSearchExtendedTooltip" id="188"/>
+									</Button>
+									<Button name="UpdateHandlersAscending" id="181">
+										<Type>CommandBarButton</Type>
+										<Representation>Picture</Representation>
+										<Width>3</Width>
+										<CommandName>Form.Item.UpdateHandlers.StandardCommand.SortListAsc</CommandName>
+										<ExtendedTooltip name="UpdateHandlersAscendingExtendedTooltip" id="182"/>
+									</Button>
+									<Button name="UpdateHandlersDescending" id="183">
+										<Type>CommandBarButton</Type>
+										<Representation>Picture</Representation>
+										<Width>3</Width>
+										<CommandName>Form.Item.UpdateHandlers.StandardCommand.SortListDesc</CommandName>
+										<ExtendedTooltip name="UpdateHandlersDescendingExtendedTooltip" id="184"/>
+									</Button>
+								</ChildItems>
+							</ContextMenu>
+							<AutoCommandBar name="UpdateHandlersCommandBar" id="3">
+								<Autofill>false</Autofill>
+							</AutoCommandBar>
+							<ExtendedTooltip name="UpdateHandlersExtendedTooltip" id="4"/>
+							<SearchStringAddition name="UpdateHandlersSearchString" id="5">
+								<AdditionSource>
+									<Item>UpdateHandlers</Item>
+									<Type>SearchStringRepresentation</Type>
+								</AdditionSource>
+								<ContextMenu name="UpdateHandlersSearchStringContextMenu" id="6"/>
+								<ExtendedTooltip name="UpdateHandlersSearchStringExtendedTooltip" id="7"/>
+							</SearchStringAddition>
+							<ViewStatusAddition name="UpdateHandlersViewStatus" id="8">
+								<AdditionSource>
+									<Item>UpdateHandlers</Item>
+									<Type>ViewStatusRepresentation</Type>
+								</AdditionSource>
+								<ContextMenu name="UpdateHandlersViewStatusContextMenu" id="9"/>
+								<ExtendedTooltip name="UpdateHandlersViewStatusExtendedTooltip" id="10"/>
+							</ViewStatusAddition>
+							<SearchControlAddition name="UpdateHandlersSearchControl" id="11">
+								<AdditionSource>
+									<Item>UpdateHandlers</Item>
+									<Type>SearchControl</Type>
+								</AdditionSource>
+								<ContextMenu name="UpdateHandlersSearchControlContextMenu" id="12"/>
+								<ExtendedTooltip name="UpdateHandlersSearchControlExtendedTooltip" id="13"/>
+							</SearchControlAddition>
+							<Events>
+								<Event name="Selection">UpdateHandlersSelection</Event>
+								<Event name="BeforeAddRow">UpdateHandlersBeforeAddRow</Event>
+								<Event name="BeforeDeleteRow">UpdateHandlersBeforeDeleteRow</Event>
+								<Event name="OnStartEdit">UpdateHandlersOnStartEdit</Event>
+							</Events>
+							<ChildItems>
+								<LabelField name="LineNumber" id="14">
+									<DataPath>Object.UpdateHandlers.LineNumber</DataPath>
+									<UserVisible>
+										<xr:Common>false</xr:Common>
+									</UserVisible>
+									<EditMode>EnterOnInput</EditMode>
+									<Width>1</Width>
+									<ContextMenu name="LineNumberContextMenu" id="15"/>
+									<ExtendedTooltip name="LineNumberExtendedTooltip" id="16"/>
+								</LabelField>
+								<LabelField name="UpdateHandlersRef" id="100">
+									<DataPath>Object.UpdateHandlers.Ref</DataPath>
+									<UserVisible>
+										<xr:Common>false</xr:Common>
+									</UserVisible>
+									<ReadOnly>true</ReadOnly>
+									<EditMode>EnterOnInput</EditMode>
+									<ContextMenu name="UpdateHandlersRefContextMenu" id="101"/>
+									<ExtendedTooltip name="UpdateHandlersRefExtendedTooltip" id="102"/>
+								</LabelField>
+								<InputField name="UpdateHandlersSubsystem" id="17">
+									<DataPath>Object.UpdateHandlers.Subsystem</DataPath>
+									<ReadOnly>true</ReadOnly>
+									<EditMode>EnterOnInput</EditMode>
+									<Width>30</Width>
+									<ContextMenu name="UpdateHandlersSubsystemContextMenu" id="18"/>
+									<ExtendedTooltip name="UpdateHandlersSubsystemExtendedTooltip" id="19"/>
+								</InputField>
+								<InputField name="UpdateHandlersVersion" id="26">
+									<DataPath>Object.UpdateHandlers.Version</DataPath>
+									<ReadOnly>true</ReadOnly>
+									<EditMode>EnterOnInput</EditMode>
+									<Width>7</Width>
+									<ContextMenu name="UpdateHandlersVersionContextMenu" id="27"/>
+									<ExtendedTooltip name="UpdateHandlersVersionExtendedTooltip" id="28"/>
+								</InputField>
+								<InputField name="UpdateHandlersUpdateModule" id="20">
+									<DataPath>Object.UpdateHandlers.MainServerModuleName</DataPath>
+									<UserVisible>
+										<xr:Common>false</xr:Common>
+									</UserVisible>
+									<ReadOnly>true</ReadOnly>
+									<EditMode>EnterOnInput</EditMode>
+									<ContextMenu name="UpdateHandlersUpdateModuleContextMenu" id="21"/>
+									<ExtendedTooltip name="UpdateHandlersUpdateModuleExtendedTooltip" id="22"/>
+								</InputField>
+								<InputField name="UpdateHandlersDeferredHandlersExecutionMode" id="166">
+									<DataPath>Object.UpdateHandlers.DeferredHandlersExecutionMode</DataPath>
+									<UserVisible>
+										<xr:Common>false</xr:Common>
+									</UserVisible>
+									<ReadOnly>true</ReadOnly>
+									<EditMode>EnterOnInput</EditMode>
+									<ContextMenu name="UpdateHandlersDeferredHandlersExecutionModeContextMenu" id="167"/>
+									<ExtendedTooltip name="UpdateHandlersDeferredHandlersExecutionModeExtendedTooltip" id="168"/>
+								</InputField>
+								<LabelField name="UpdateHandlersIssueStatus" id="140">
+									<DataPath>Object.UpdateHandlers.IssueStatus</DataPath>
+									<EditMode>EnterOnInput</EditMode>
+									<CellHyperlink>true</CellHyperlink>
+									<Width>17</Width>
+									<ContextMenu name="UpdateHandlersIssueStatusContextMenu" id="141"/>
+									<ExtendedTooltip name="UpdateHandlersIssueStatusExtendedTooltip" id="142"/>
+								</LabelField>
+								<InputField name="UpdateHandlersProcedure" id="29">
+									<DataPath>Object.UpdateHandlers.Procedure</DataPath>
+									<ReadOnly>true</ReadOnly>
+									<EditMode>EnterOnInput</EditMode>
+									<ContextMenu name="UpdateHandlersProcedureContextMenu" id="30"/>
+									<ExtendedTooltip name="UpdateHandlersProcedureExtendedTooltip" id="31"/>
+								</InputField>
+								<InputField name="UpdateHandlersUpdateDataFillingProcedure" id="56">
+									<DataPath>Object.UpdateHandlers.UpdateDataFillingProcedure</DataPath>
+									<UserVisible>
+										<xr:Common>false</xr:Common>
+									</UserVisible>
+									<ReadOnly>true</ReadOnly>
+									<EditMode>EnterOnInput</EditMode>
+									<ContextMenu name="UpdateHandlersUpdateDataFillingProcedureContextMenu" id="57"/>
+									<ExtendedTooltip name="UpdateHandlersUpdateDataFillingProcedureExtendedTooltip" id="58"/>
+								</InputField>
+								<InputField name="UpdateHandlersCheckProcedure" id="53">
+									<DataPath>Object.UpdateHandlers.CheckProcedure</DataPath>
+									<UserVisible>
+										<xr:Common>false</xr:Common>
+									</UserVisible>
+									<ReadOnly>true</ReadOnly>
+									<EditMode>EnterOnInput</EditMode>
+									<ContextMenu name="UpdateHandlersCheckProcedureContextMenu" id="54"/>
+									<ExtendedTooltip name="UpdateHandlersCheckProcedureExtendedTooltip" id="55"/>
+								</InputField>
+								<InputField name="UpdateHandlersDeferredProcessingQueue" id="59">
+									<DataPath>Object.UpdateHandlers.DeferredProcessingQueue</DataPath>
+									<UserVisible>
+										<xr:Common>false</xr:Common>
+									</UserVisible>
+									<ReadOnly>true</ReadOnly>
+									<EditMode>EnterOnInput</EditMode>
+									<Width>1</Width>
+									<ContextMenu name="UpdateHandlersDeferredProcessingQueueContextMenu" id="60"/>
+									<ExtendedTooltip name="UpdateHandlersDeferredProcessingQueueExtendedTooltip" id="61"/>
+								</InputField>
+								<InputField name="UpdateHandlersNewQueue" id="163">
+									<DataPath>Object.UpdateHandlers.NewQueue</DataPath>
+									<UserVisible>
+										<xr:Common>false</xr:Common>
+									</UserVisible>
+									<ReadOnly>true</ReadOnly>
+									<EditMode>EnterOnInput</EditMode>
+									<Width>1</Width>
+									<ContextMenu name="UpdateHandlersNewQueueContextMenu" id="164"/>
+									<ExtendedTooltip name="UpdateHandlersNewQueueExtendedTooltip" id="165"/>
+								</InputField>
+								<InputField name="UpdateHandlersExecutionMode" id="32">
+									<DataPath>Object.UpdateHandlers.ExecutionMode</DataPath>
+									<ReadOnly>true</ReadOnly>
+									<EditMode>EnterOnInput</EditMode>
+									<Width>13</Width>
+									<ContextMenu name="UpdateHandlersExecutionModeContextMenu" id="33"/>
+									<ExtendedTooltip name="UpdateHandlersExecutionModeExtendedTooltip" id="34"/>
+								</InputField>
+								<CheckBoxField name="UpdateHandlersInitialFilling" id="23">
+									<DataPath>Object.UpdateHandlers.InitialFilling</DataPath>
+									<UserVisible>
+										<xr:Common>false</xr:Common>
+									</UserVisible>
+									<ReadOnly>true</ReadOnly>
+									<TitleLocation>None</TitleLocation>
+									<ToolTip>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Initial population</v8:content>
+										</v8:item>
+									</ToolTip>
+									<EditMode>EnterOnInput</EditMode>
+									<CheckBoxType>Auto</CheckBoxType>
+									<ContextMenu name="UpdateHandlersInitialFillingContextMenu" id="24"/>
+									<ExtendedTooltip name="UpdateHandlersInitialFillingExtendedTooltip" id="25"/>
+								</CheckBoxField>
+								<CheckBoxField name="UpdateHandlersExecuteInMandatoryGroup" id="35">
+									<DataPath>Object.UpdateHandlers.ExecuteInMandatoryGroup</DataPath>
+									<UserVisible>
+										<xr:Common>false</xr:Common>
+									</UserVisible>
+									<ReadOnly>true</ReadOnly>
+									<TitleLocation>None</TitleLocation>
+									<ToolTip>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Required</v8:content>
+										</v8:item>
+									</ToolTip>
+									<EditMode>EnterOnInput</EditMode>
+									<HeaderPicture>
+										<xr:Ref>StdPicture.AddToFavorites</xr:Ref>
+										<xr:LoadTransparent>true</xr:LoadTransparent>
+									</HeaderPicture>
+									<CheckBoxType>Auto</CheckBoxType>
+									<ContextMenu name="UpdateHandlersExecuteInMandatoryGroupContextMenu" id="36"/>
+									<ExtendedTooltip name="UpdateHandlersExecuteInMandatoryGroupExtendedTooltip" id="37"/>
+								</CheckBoxField>
+								<CheckBoxField name="UpdateHandlersMultithreaded" id="68">
+									<DataPath>Object.UpdateHandlers.Multithreaded</DataPath>
+									<UserVisible>
+										<xr:Common>false</xr:Common>
+									</UserVisible>
+									<ReadOnly>true</ReadOnly>
+									<TitleLocation>None</TitleLocation>
+									<ToolTip>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Multi-threaded</v8:content>
+										</v8:item>
+									</ToolTip>
+									<EditMode>EnterOnInput</EditMode>
+									<CheckBoxType>Auto</CheckBoxType>
+									<ContextMenu name="UpdateHandlersMultithreadedContextMenu" id="69"/>
+									<ExtendedTooltip name="UpdateHandlersMultithreadedExtendedTooltip" id="70"/>
+								</CheckBoxField>
+								<CheckBoxField name="UpdateHandlersExecuteInMasterNodeOnly" id="62">
+									<DataPath>Object.UpdateHandlers.ExecuteInMasterNodeOnly</DataPath>
+									<UserVisible>
+										<xr:Common>false</xr:Common>
+									</UserVisible>
+									<ReadOnly>true</ReadOnly>
+									<EditMode>EnterOnInput</EditMode>
+									<CheckBoxType>Auto</CheckBoxType>
+									<ContextMenu name="UpdateHandlersExecuteInMasterNodeOnlyContextMenu" id="63"/>
+									<ExtendedTooltip name="UpdateHandlersExecuteInMasterNodeOnlyExtendedTooltip" id="64"/>
+								</CheckBoxField>
+								<CheckBoxField name="UpdateHandlersRunAlsoInSubordinateDIBNodeWithFilters" id="65">
+									<DataPath>Object.UpdateHandlers.RunAlsoInSubordinateDIBNodeWithFilters</DataPath>
+									<UserVisible>
+										<xr:Common>false</xr:Common>
+									</UserVisible>
+									<ReadOnly>true</ReadOnly>
+									<EditMode>EnterOnInput</EditMode>
+									<CheckBoxType>Auto</CheckBoxType>
+									<ContextMenu name="UpdateHandlersRunAlsoInSubordinateDIBNodeWithFiltersContextMenu" id="66"/>
+									<ExtendedTooltip name="UpdateHandlersRunAlsoInSubordinateDIBNodeWithFiltersExtendedTooltip" id="67"/>
+								</CheckBoxField>
+								<CheckBoxField name="UpdateHandlersSharedData" id="41">
+									<DataPath>Object.UpdateHandlers.SharedData</DataPath>
+									<UserVisible>
+										<xr:Common>false</xr:Common>
+									</UserVisible>
+									<ReadOnly>true</ReadOnly>
+									<EditMode>EnterOnInput</EditMode>
+									<CheckBoxType>Auto</CheckBoxType>
+									<ContextMenu name="UpdateHandlersSharedDataContextMenu" id="42"/>
+									<ExtendedTooltip name="UpdateHandlersSharedDataExtendedTooltip" id="43"/>
+								</CheckBoxField>
+								<CheckBoxField name="UpdateHandlersHandlerManagement" id="44">
+									<DataPath>Object.UpdateHandlers.HandlerManagement</DataPath>
+									<UserVisible>
+										<xr:Common>false</xr:Common>
+									</UserVisible>
+									<ReadOnly>true</ReadOnly>
+									<EditMode>EnterOnInput</EditMode>
+									<CheckBoxType>Auto</CheckBoxType>
+									<ContextMenu name="UpdateHandlersHandlerManagementContextMenu" id="45"/>
+									<ExtendedTooltip name="UpdateHandlersHandlerManagementExtendedTooltip" id="46"/>
+								</CheckBoxField>
+								<InputField name="UpdateHandlersComment" id="47">
+									<DataPath>Object.UpdateHandlers.Comment</DataPath>
+									<ReadOnly>true</ReadOnly>
+									<EditMode>EnterOnInput</EditMode>
+									<ContextMenu name="UpdateHandlersCommentContextMenu" id="48"/>
+									<ExtendedTooltip name="UpdateHandlersCommentExtendedTooltip" id="49"/>
+								</InputField>
+								<InputField name="UpdateHandlersId" id="50">
+									<DataPath>Object.UpdateHandlers.Id</DataPath>
+									<ReadOnly>true</ReadOnly>
+									<EditMode>EnterOnInput</EditMode>
+									<Width>15</Width>
+									<ContextMenu name="UpdateHandlersIdContextMenu" id="51"/>
+									<ExtendedTooltip name="UpdateHandlersIdExtendedTooltip" id="52"/>
+								</InputField>
+								<CheckBoxField name="UpdateHandlersDataToReadWriter" id="143">
+									<DataPath>Object.UpdateHandlers.DataToReadWriter</DataPath>
+									<UserVisible>
+										<xr:Common>false</xr:Common>
+									</UserVisible>
+									<ReadOnly>true</ReadOnly>
+									<TitleLocation>None</TitleLocation>
+									<ToolTip>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Either this handler modifies objects readable by other handlers
 or other handlers modify objects readable by this handler.</v8:content>
-						</v8:item>
-					</ToolTip>
-					<EditMode>EnterOnInput</EditMode>
-					<HeaderPicture>
-						<xr:Ref>StdPicture.AppearanceExclamationMark</xr:Ref>
-						<xr:LoadTransparent>true</xr:LoadTransparent>
-					</HeaderPicture>
-					<CheckBoxType>Auto</CheckBoxType>
-					<ContextMenu name="UpdateHandlersDataToReadWriterContextMenu" id="144"/>
-					<ExtendedTooltip name="UpdateHandlersDataToReadWriterExtendedTooltip" id="145"/>
-				</CheckBoxField>
-				<CheckBoxField name="UpdateHandlersWriteAgain" id="146">
-					<DataPath>Object.UpdateHandlers.WriteAgain</DataPath>
-					<UserVisible>
-						<xr:Common>false</xr:Common>
-					</UserVisible>
-					<ReadOnly>true</ReadOnly>
-					<TitleLocation>None</TitleLocation>
-					<ToolTip>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Rewriting objects that are modified by other handlers.</v8:content>
-						</v8:item>
-					</ToolTip>
-					<EditMode>EnterOnInput</EditMode>
-					<HeaderPicture>
-						<xr:Ref>CommonPicture.Warning</xr:Ref>
-						<xr:LoadTransparent>false</xr:LoadTransparent>
-					</HeaderPicture>
-					<CheckBoxType>Auto</CheckBoxType>
-					<ContextMenu name="UpdateHandlersWriteAgainContextMenu" id="147"/>
-					<ExtendedTooltip name="UpdateHandlersWriteAgainExtendedTooltip" id="148"/>
-				</CheckBoxField>
-				<CheckBoxField name="UpdateHandlersExecutionOrderSpecified" id="149">
-					<DataPath>Object.UpdateHandlers.ExecutionOrderSpecified</DataPath>
-					<UserVisible>
-						<xr:Common>false</xr:Common>
-					</UserVisible>
-					<ReadOnly>true</ReadOnly>
-					<TitleLocation>None</TitleLocation>
-					<ToolTip>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Execution order set</v8:content>
-						</v8:item>
-					</ToolTip>
-					<EditMode>EnterOnInput</EditMode>
-					<HeaderPicture>
-						<xr:Ref>StdPicture.WriteAndClose</xr:Ref>
-						<xr:LoadTransparent>true</xr:LoadTransparent>
-					</HeaderPicture>
-					<CheckBoxType>Auto</CheckBoxType>
-					<ContextMenu name="UpdateHandlersExecutionOrderSpecifiedContextMenu" id="150"/>
-					<ExtendedTooltip name="UpdateHandlersExecutionOrderSpecifiedExtendedTooltip" id="151"/>
-				</CheckBoxField>
-				<CheckBoxField name="UpdateHandlersChangedCheckProcedure" id="262">
-					<DataPath>Object.UpdateHandlers.ChangedCheckProcedure</DataPath>
-					<UserVisible>
-						<xr:Common>false</xr:Common>
-					</UserVisible>
-					<ReadOnly>true</ReadOnly>
-					<TitleLocation>None</TitleLocation>
-					<ToolTip>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Check procedure is changed</v8:content>
-						</v8:item>
-					</ToolTip>
-					<EditMode>EnterOnInput</EditMode>
-					<HeaderPicture>
-						<xr:Ref>StdPicture.AppearanceFlagRed</xr:Ref>
-						<xr:LoadTransparent>true</xr:LoadTransparent>
-					</HeaderPicture>
-					<CheckBoxType>Auto</CheckBoxType>
-					<ContextMenu name="UpdateHandlersChangedCheckProcedureContextMenu" id="263"/>
-					<ExtendedTooltip name="UpdateHandlersChangedCheckProcedureExtendedTooltip" id="264"/>
-				</CheckBoxField>
-				<CheckBoxField name="UpdateHandlersLowPriorityReading" id="265">
-					<DataPath>Object.UpdateHandlers.LowPriorityReading</DataPath>
-					<UserVisible>
-						<xr:Common>false</xr:Common>
-					</UserVisible>
-					<ReadOnly>true</ReadOnly>
-					<TitleLocation>None</TitleLocation>
-					<EditMode>EnterOnInput</EditMode>
-					<HeaderPicture>
-						<xr:Ref>CommonPicture.StopSign</xr:Ref>
-						<xr:LoadTransparent>false</xr:LoadTransparent>
-					</HeaderPicture>
-					<CheckBoxType>Auto</CheckBoxType>
-					<ContextMenu name="UpdateHandlersLowPriorityReadingContextMenu" id="266"/>
-					<ExtendedTooltip name="UpdateHandlersLowPriorityReadingExtendedTooltip" id="267"/>
-				</CheckBoxField>
-				<CheckBoxField name="UpdateHandlersChanged" id="198">
-					<DataPath>Object.UpdateHandlers.Changed</DataPath>
-					<UserVisible>
-						<xr:Common>false</xr:Common>
-					</UserVisible>
-					<ReadOnly>true</ReadOnly>
-					<TitleLocation>None</TitleLocation>
-					<ToolTip>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Changed</v8:content>
-						</v8:item>
-					</ToolTip>
-					<EditMode>EnterOnInput</EditMode>
-					<HeaderPicture>
-						<xr:Ref>StdPicture.Change</xr:Ref>
-						<xr:LoadTransparent>true</xr:LoadTransparent>
-					</HeaderPicture>
-					<CheckBoxType>Auto</CheckBoxType>
-					<ContextMenu name="UpdateHandlersChangedContextMenu" id="199"/>
-					<ExtendedTooltip name="UpdateHandlersChangedExtendedTooltip" id="200"/>
-				</CheckBoxField>
-				<CheckBoxField name="UpdateHandlersTechDesign" id="211">
-					<DataPath>Object.UpdateHandlers.TechnicalDesign</DataPath>
-					<UserVisible>
-						<xr:Common>false</xr:Common>
-					</UserVisible>
-					<TitleLocation>None</TitleLocation>
-					<EditMode>EnterOnInput</EditMode>
-					<HeaderPicture>
-						<xr:Ref>StdPicture.InputFieldChooseType</xr:Ref>
-						<xr:LoadTransparent>true</xr:LoadTransparent>
-					</HeaderPicture>
-					<CheckBoxType>Auto</CheckBoxType>
-					<ContextMenu name="UpdateHandlersTechDesignContextMenu" id="212"/>
-					<ExtendedTooltip name="UpdateHandlersTechDesignExtendedTooltip" id="213"/>
-					<Events>
-						<Event name="OnChange">UpdateHandlersTechDesignOnChange</Event>
-					</Events>
-				</CheckBoxField>
-				<InputField name="UpdateHandlersLibraryName" id="236">
-					<DataPath>Object.UpdateHandlers.LibraryName</DataPath>
-					<UserVisible>
-						<xr:Common>false</xr:Common>
-					</UserVisible>
-					<ReadOnly>true</ReadOnly>
-					<EditMode>EnterOnInput</EditMode>
-					<AutoMaxWidth>false</AutoMaxWidth>
-					<MaxWidth>3</MaxWidth>
-					<ContextMenu name="UpdateHandlersLibraryNameContextMenu" id="237"/>
-					<ExtendedTooltip name="UpdateHandlersLibraryNameExtendedTooltip" id="238"/>
-				</InputField>
-				<InputField name="UpdateHandlersLibraryOrder" id="248">
-					<DataPath>Object.UpdateHandlers.LibraryOrder</DataPath>
-					<UserVisible>
-						<xr:Common>false</xr:Common>
-					</UserVisible>
-					<ReadOnly>true</ReadOnly>
-					<EditMode>EnterOnInput</EditMode>
-					<ContextMenu name="UpdateHandlersLibraryOrderContextMenu" id="249"/>
-					<ExtendedTooltip name="UpdateHandlersLibraryOrderExtendedTooltip" id="250"/>
-				</InputField>
-				<InputField name="UpdateHandlersOrder" id="259">
-					<DataPath>Object.UpdateHandlers.Order</DataPath>
-					<ReadOnly>true</ReadOnly>
-					<EditMode>EnterOnInput</EditMode>
-					<ContextMenu name="UpdateHandlersOrderContextMenu" id="260"/>
-					<ExtendedTooltip name="UpdateHandlersOrderExtendedTooltip" id="261"/>
-				</InputField>
-				<InputField name="UpdateHandlersObjectName" id="239">
-					<DataPath>Object.UpdateHandlers.ObjectName</DataPath>
-					<UserVisible>
-						<xr:Common>false</xr:Common>
-					</UserVisible>
-					<ReadOnly>true</ReadOnly>
-					<EditMode>EnterOnInput</EditMode>
-					<ContextMenu name="UpdateHandlersObjectNameContextMenu" id="240"/>
-					<ExtendedTooltip name="UpdateHandlersObjectNameExtendedTooltip" id="241"/>
-				</InputField>
+										</v8:item>
+									</ToolTip>
+									<EditMode>EnterOnInput</EditMode>
+									<HeaderPicture>
+										<xr:Ref>StdPicture.AppearanceExclamationMark</xr:Ref>
+										<xr:LoadTransparent>true</xr:LoadTransparent>
+									</HeaderPicture>
+									<CheckBoxType>Auto</CheckBoxType>
+									<ContextMenu name="UpdateHandlersDataToReadWriterContextMenu" id="144"/>
+									<ExtendedTooltip name="UpdateHandlersDataToReadWriterExtendedTooltip" id="145"/>
+								</CheckBoxField>
+								<CheckBoxField name="UpdateHandlersWriteAgain" id="146">
+									<DataPath>Object.UpdateHandlers.WriteAgain</DataPath>
+									<UserVisible>
+										<xr:Common>false</xr:Common>
+									</UserVisible>
+									<ReadOnly>true</ReadOnly>
+									<TitleLocation>None</TitleLocation>
+									<ToolTip>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Rewriting objects that are modified by other handlers.</v8:content>
+										</v8:item>
+									</ToolTip>
+									<EditMode>EnterOnInput</EditMode>
+									<HeaderPicture>
+										<xr:Ref>CommonPicture.Warning</xr:Ref>
+										<xr:LoadTransparent>false</xr:LoadTransparent>
+									</HeaderPicture>
+									<CheckBoxType>Auto</CheckBoxType>
+									<ContextMenu name="UpdateHandlersWriteAgainContextMenu" id="147"/>
+									<ExtendedTooltip name="UpdateHandlersWriteAgainExtendedTooltip" id="148"/>
+								</CheckBoxField>
+								<CheckBoxField name="UpdateHandlersExecutionOrderSpecified" id="149">
+									<DataPath>Object.UpdateHandlers.ExecutionOrderSpecified</DataPath>
+									<UserVisible>
+										<xr:Common>false</xr:Common>
+									</UserVisible>
+									<ReadOnly>true</ReadOnly>
+									<TitleLocation>None</TitleLocation>
+									<ToolTip>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Execution order set</v8:content>
+										</v8:item>
+									</ToolTip>
+									<EditMode>EnterOnInput</EditMode>
+									<HeaderPicture>
+										<xr:Ref>StdPicture.WriteAndClose</xr:Ref>
+										<xr:LoadTransparent>true</xr:LoadTransparent>
+									</HeaderPicture>
+									<CheckBoxType>Auto</CheckBoxType>
+									<ContextMenu name="UpdateHandlersExecutionOrderSpecifiedContextMenu" id="150"/>
+									<ExtendedTooltip name="UpdateHandlersExecutionOrderSpecifiedExtendedTooltip" id="151"/>
+								</CheckBoxField>
+								<CheckBoxField name="UpdateHandlersChangedCheckProcedure" id="262">
+									<DataPath>Object.UpdateHandlers.ChangedCheckProcedure</DataPath>
+									<UserVisible>
+										<xr:Common>false</xr:Common>
+									</UserVisible>
+									<ReadOnly>true</ReadOnly>
+									<TitleLocation>None</TitleLocation>
+									<ToolTip>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Check procedure is changed</v8:content>
+										</v8:item>
+									</ToolTip>
+									<EditMode>EnterOnInput</EditMode>
+									<HeaderPicture>
+										<xr:Ref>StdPicture.AppearanceFlagRed</xr:Ref>
+										<xr:LoadTransparent>true</xr:LoadTransparent>
+									</HeaderPicture>
+									<CheckBoxType>Auto</CheckBoxType>
+									<ContextMenu name="UpdateHandlersChangedCheckProcedureContextMenu" id="263"/>
+									<ExtendedTooltip name="UpdateHandlersChangedCheckProcedureExtendedTooltip" id="264"/>
+								</CheckBoxField>
+								<CheckBoxField name="UpdateHandlersLowPriorityReading" id="265">
+									<DataPath>Object.UpdateHandlers.LowPriorityReading</DataPath>
+									<UserVisible>
+										<xr:Common>false</xr:Common>
+									</UserVisible>
+									<ReadOnly>true</ReadOnly>
+									<TitleLocation>None</TitleLocation>
+									<EditMode>EnterOnInput</EditMode>
+									<HeaderPicture>
+										<xr:Ref>CommonPicture.StopSign</xr:Ref>
+										<xr:LoadTransparent>false</xr:LoadTransparent>
+									</HeaderPicture>
+									<CheckBoxType>Auto</CheckBoxType>
+									<ContextMenu name="UpdateHandlersLowPriorityReadingContextMenu" id="266"/>
+									<ExtendedTooltip name="UpdateHandlersLowPriorityReadingExtendedTooltip" id="267"/>
+								</CheckBoxField>
+								<CheckBoxField name="UpdateHandlersChanged" id="198">
+									<DataPath>Object.UpdateHandlers.Changed</DataPath>
+									<UserVisible>
+										<xr:Common>false</xr:Common>
+									</UserVisible>
+									<ReadOnly>true</ReadOnly>
+									<TitleLocation>None</TitleLocation>
+									<ToolTip>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Changed</v8:content>
+										</v8:item>
+									</ToolTip>
+									<EditMode>EnterOnInput</EditMode>
+									<HeaderPicture>
+										<xr:Ref>StdPicture.Change</xr:Ref>
+										<xr:LoadTransparent>true</xr:LoadTransparent>
+									</HeaderPicture>
+									<CheckBoxType>Auto</CheckBoxType>
+									<ContextMenu name="UpdateHandlersChangedContextMenu" id="199"/>
+									<ExtendedTooltip name="UpdateHandlersChangedExtendedTooltip" id="200"/>
+								</CheckBoxField>
+								<CheckBoxField name="UpdateHandlersTechDesign" id="211">
+									<DataPath>Object.UpdateHandlers.TechnicalDesign</DataPath>
+									<UserVisible>
+										<xr:Common>false</xr:Common>
+									</UserVisible>
+									<TitleLocation>None</TitleLocation>
+									<EditMode>EnterOnInput</EditMode>
+									<HeaderPicture>
+										<xr:Ref>StdPicture.InputFieldChooseType</xr:Ref>
+										<xr:LoadTransparent>true</xr:LoadTransparent>
+									</HeaderPicture>
+									<CheckBoxType>Auto</CheckBoxType>
+									<ContextMenu name="UpdateHandlersTechDesignContextMenu" id="212"/>
+									<ExtendedTooltip name="UpdateHandlersTechDesignExtendedTooltip" id="213"/>
+									<Events>
+										<Event name="OnChange">UpdateHandlersTechDesignOnChange</Event>
+									</Events>
+								</CheckBoxField>
+								<InputField name="UpdateHandlersLibraryName" id="236">
+									<DataPath>Object.UpdateHandlers.LibraryName</DataPath>
+									<UserVisible>
+										<xr:Common>false</xr:Common>
+									</UserVisible>
+									<ReadOnly>true</ReadOnly>
+									<EditMode>EnterOnInput</EditMode>
+									<AutoMaxWidth>false</AutoMaxWidth>
+									<MaxWidth>3</MaxWidth>
+									<ContextMenu name="UpdateHandlersLibraryNameContextMenu" id="237"/>
+									<ExtendedTooltip name="UpdateHandlersLibraryNameExtendedTooltip" id="238"/>
+								</InputField>
+								<InputField name="UpdateHandlersLibraryOrder" id="248">
+									<DataPath>Object.UpdateHandlers.LibraryOrder</DataPath>
+									<UserVisible>
+										<xr:Common>false</xr:Common>
+									</UserVisible>
+									<ReadOnly>true</ReadOnly>
+									<EditMode>EnterOnInput</EditMode>
+									<ContextMenu name="UpdateHandlersLibraryOrderContextMenu" id="249"/>
+									<ExtendedTooltip name="UpdateHandlersLibraryOrderExtendedTooltip" id="250"/>
+								</InputField>
+								<InputField name="UpdateHandlersOrder" id="259">
+									<DataPath>Object.UpdateHandlers.Order</DataPath>
+									<ReadOnly>true</ReadOnly>
+									<EditMode>EnterOnInput</EditMode>
+									<ContextMenu name="UpdateHandlersOrderContextMenu" id="260"/>
+									<ExtendedTooltip name="UpdateHandlersOrderExtendedTooltip" id="261"/>
+								</InputField>
+								<InputField name="UpdateHandlersObjectName" id="239">
+									<DataPath>Object.UpdateHandlers.ObjectName</DataPath>
+									<UserVisible>
+										<xr:Common>false</xr:Common>
+									</UserVisible>
+									<ReadOnly>true</ReadOnly>
+									<EditMode>EnterOnInput</EditMode>
+									<ContextMenu name="UpdateHandlersObjectNameContextMenu" id="240"/>
+									<ExtendedTooltip name="UpdateHandlersObjectNameExtendedTooltip" id="241"/>
+								</InputField>
+							</ChildItems>
+						</Table>
+					</ChildItems>
+				</Page>
 			</ChildItems>
-		</Table>
+		</Pages>
 	</ChildItems>
 	<Attributes>
 		<Attribute name="Object" id="1">

@@ -28,13 +28,13 @@
 //   OnDate               - Date - check the certificate on the specified date.
 //                          If parameter is not specified or a blank date is specified,
 //                          check on the current session date.
-//   AdditionalParameters -See AdditionalCertificateVerificationParameters
+//   AdditionalVerificationParameters_ - See AdditionalCertificateVerificationParameters
 //
 // Returns:
 //  Boolean - True if the check is completed successfully.
 //           False if the cryptographic manager is not received (because it is not specified).
 //
-Function CheckCertificate(CryptoManager, Certificate, ErrorDescription = Null, OnDate = Undefined, AdditionalParameters = Undefined) Export
+Function CheckCertificate(CryptoManager, Certificate, ErrorDescription = Null, OnDate = Undefined, AdditionalVerificationParameters_ = Undefined) Export
 	
 	RaiseException1 = ErrorDescription = Null;
 	CryptoManagerToCheck = CryptoManager;
@@ -75,8 +75,28 @@ Function CheckCertificate(CryptoManager, Certificate, ErrorDescription = Null, O
 		EndIf;
 	EndIf;
 	
+	AdditionalParameters = AdditionalCertificateVerificationParameters();
+	If AdditionalVerificationParameters_ <> Undefined Then
+		FillPropertyValues(AdditionalParameters, AdditionalVerificationParameters_);
+		
+		If TypeOf(AdditionalParameters.PerformCAVerification) = Type("Boolean") Then // 
+			AdditionalParameters.PerformCAVerification = ?(
+				AdditionalParameters.PerformCAVerification,
+				DigitalSignatureInternalClientServer.CheckQualified(), 
+				DigitalSignatureInternalClientServer.NotVerifyCertificate());
+		EndIf;
+		
+		ExpectedValues = New Array;
+		ExpectedValues.Add(DigitalSignatureInternalClientServer.CheckQualified());
+		ExpectedValues.Add(DigitalSignatureInternalClientServer.OnlyQualified());
+		ExpectedValues.Add(DigitalSignatureInternalClientServer.NotVerifyCertificate());
+		CommonClientServer.CheckParameter("DigitalSignatureInternal.CheckCertificate",
+			"AdditionalVerificationParameters_.PerformCAVerification", AdditionalParameters.PerformCAVerification,
+			Type("String"),, ExpectedValues);
+	EndIf;
+	
 	CertificateCheckModes = DigitalSignatureInternalClientServer.CertificateCheckModes(
-		ValueIsFilled(OnDate));
+		ValueIsFilled(OnDate), AdditionalParameters.IgnoreCertificateRevocationStatus);
 	
 	If CryptoManagerToCheck = Undefined
 	 Or CryptoManagerToCheck = "CryptographyService" Then
@@ -86,8 +106,8 @@ Function CheckCertificate(CryptoManager, Certificate, ErrorDescription = Null, O
 			DigitalSignature.CommonSettings(), CertificateCheckModes);
 		Try
 			If CheckParameters <> Undefined Then
-				// 
-				// 
+				// ACC:287-off - No.640. It's acceptable to call a non-existent CTL procedure.
+				// It's checked against CTL v.2.0.3, where the procedure exists.
 				Result = ModuleCryptographyService.VerifyCertificateWithParameters(CertificateData, CheckParameters);
 				// ACC:287-on
 			Else
@@ -129,10 +149,6 @@ Function CheckCertificate(CryptoManager, Certificate, ErrorDescription = Null, O
 		Return False;
 	EndIf;
 	
-	If AdditionalParameters = Undefined Then
-		AdditionalParameters = AdditionalCertificateVerificationParameters();
-	EndIf;
-	
 	CertificateProperties = Undefined;
 	If AdditionalParameters.ToVerifySignature Then
 		
@@ -150,12 +166,16 @@ Function CheckCertificate(CryptoManager, Certificate, ErrorDescription = Null, O
 		EndIf;
 	EndIf;
 	
-	If AdditionalParameters.PerformCAVerification Then
+	If AdditionalParameters.PerformCAVerification <> DigitalSignatureInternalClientServer.NotVerifyCertificate() Then
+		
+		VerificationParametersOfCertificationCenter = New Structure;
+		VerificationParametersOfCertificationCenter.Insert("ThisVerificationSignature", AdditionalParameters.ToVerifySignature);
+		VerificationParametersOfCertificationCenter.Insert("VerifyCertificate", AdditionalParameters.PerformCAVerification);
 		
 		Result = ResultofCertificateAuthorityVerification(CertificateToCheck, OnDate,
-			AdditionalParameters.ToVerifySignature, CertificateProperties);
+			VerificationParametersOfCertificationCenter, CertificateProperties);
 		
-		If Not Result.Valid_SSLyf Or AdditionalParameters.Property("Certificate") And ValueIsFilled(Result.Warning.ErrorText)
+		If Not Result.Valid_SSLyf Or ValueIsFilled(AdditionalParameters.Certificate) And ValueIsFilled(Result.Warning.ErrorText)
 				And Not AdditionalParameters.ToVerifySignature Then
 			
 			CertificateCustomSettings = DigitalSignatureInternalServerCall.CertificateCustomSettings(
@@ -166,6 +186,7 @@ Function CheckCertificate(CryptoManager, Certificate, ErrorDescription = Null, O
 				If CertificateCustomSettings.SigningAllowed <> True Then
 					ErrorDescription = Result.Warning.ErrorText;
 					AdditionalParameters.Warning = Result.Warning;
+					AdditionalParameters.Certificate = CertificateCustomSettings.CertificateRef;
 					If RaiseException1 Then
 						Raise ErrorDescription;
 					EndIf;
@@ -174,7 +195,8 @@ Function CheckCertificate(CryptoManager, Certificate, ErrorDescription = Null, O
 				
 			EndIf;
 
-			If AdditionalParameters.Property("Certificate") And ValueIsFilled(Result.Warning.ErrorText)
+			If ValueIsFilled(AdditionalParameters.Certificate) 
+			And ValueIsFilled(Result.Warning.ErrorText)
 				And Not AdditionalParameters.ToVerifySignature Then
 				
 				If CertificateCustomSettings.IsNotified
@@ -202,9 +224,11 @@ EndFunction
 Function AdditionalCertificateVerificationParameters() Export
 	
 	AdditionalParameters = New Structure;
-	AdditionalParameters.Insert("PerformCAVerification", True);
+	AdditionalParameters.Insert("PerformCAVerification", DigitalSignatureInternalClientServer.OnlyQualified());
 	AdditionalParameters.Insert("ToVerifySignature", False);
+	AdditionalParameters.Insert("IgnoreCertificateRevocationStatus", False);
 	AdditionalParameters.Insert("Warning");
+	AdditionalParameters.Insert("Certificate");
 	
 	Return AdditionalParameters;
 	
@@ -352,6 +376,106 @@ Procedure RegisterSignaturesList(Form, SignaturesListName) Export
 	Item.Appearance.SetParameterValue("TextColor", StyleColors.SpecialTextColor);
 	
 EndProcedure
+
+// Returns the details of files with data, signatures, and LOAs, extracted from the signing result.
+// The result is returned in the notification specified in See DigitalSignatureClient.Sign.ResultProcessing. 
+//  
+// 
+// Parameters:
+//  SigningResult - See DigitalSignatureClient.Sign.DataDetails
+//  FilesReceiptParameters - Structure
+//   * ExportCertificate - Boolean
+//   * ExportLetterOfAuthority - Boolean
+//   * ExportCertificate - Boolean
+//   * ExportLetterOfAuthority - Boolean
+//  UUID - UUID - Intended for storing in a temporary storage.
+// 
+// Returns:
+//  Array of Structure:
+//   * Data   - String - Address in the temporary storage. Depending on how it was passed to See DigitalSignatureClient.Sign.DataDetails.
+//              - BinaryData 
+//   * FileName - String 
+//   * FileType - String - "Data", "Signature", "LetterOfAuthority", "LetterOfAuthoritySignature", "Certificate".
+//
+Function GetFilesFromSigningResult(SigningResult, FilesReceiptParameters, UUID) Export
+	
+	If SigningResult.Property("DataSet") Then
+		DataSet = SigningResult.DataSet;
+	Else
+		DataSet = CommonClientServer.ValueInArray(SigningResult);
+	EndIf;
+	
+	SignatureFilesExtension = DigitalSignature.PersonalSettings().SignatureFilesExtension;
+	
+	Result = New Array;
+	
+	
+	CertificateFileDetailsStructure = Undefined;
+		
+	For Each SignedFile In DataSet Do
+		
+		SignatureProperties = SignedFile.SignatureProperties;
+		If IsTempStorageURL(SignatureProperties) Then
+			SignatureProperties = GetFromTempStorage(SignatureProperties);
+		EndIf;
+		
+		File = New File(SignedFile.Presentation);
+		
+		If FilesReceiptParameters.ExportCertificate And CertificateFileDetailsStructure = Undefined Then
+			
+			CertificateData = PutToTempStorage(SignatureProperties.Certificate, UUID);
+			CertificateOwner = ?(ValueIsFilled(SignatureProperties.CertificateOwner), SignatureProperties.CertificateOwner, NStr("en = 'Certificate';"));
+			If FilesReceiptParameters.TransliterateFilesNames Then
+				CertificateOwner = StringFunctions.LatinString(CertificateOwner);
+			EndIf;
+
+			CertificateFileName = DigitalSignatureInternalClientServer.CertificateFileName(
+				"", CertificateOwner, "cer", False);
+
+			CertificateFileDetailsStructure = New Structure("Data, FileName, FileType");
+			CertificateFileDetailsStructure.Data = CertificateData;
+			CertificateFileDetailsStructure.FileName = CertificateFileName;
+			CertificateFileDetailsStructure.FileType = "Certificate";
+			
+		EndIf;
+		
+		StructureOfFileDetails = New Structure("Data, FileName, FileType");
+		StructureOfFileDetails.Data = SignedFile.Data;
+		StructureOfFileDetails.FileName = SignedFile.Presentation;
+		StructureOfFileDetails.FileType = "Data";
+		Result.Add(StructureOfFileDetails);
+		
+		SignatureData = PutToTempStorage(SignatureProperties.Signature, UUID);
+		SignatureFileName = DigitalSignatureInternalClientServer.SignatureFileName(File.BaseName,
+				CertificateOwner, SignatureFilesExtension);
+		
+		StructureOfFileDetails = New Structure("Data, FileName, FileType");
+		StructureOfFileDetails.Data = SignatureData;
+		StructureOfFileDetails.FileName = SignatureFileName;
+		StructureOfFileDetails.FileType = "Signature";
+		Result.Add(StructureOfFileDetails);
+	
+	EndDo;
+	
+	If CertificateFileDetailsStructure <> Undefined Then
+		Result.Add(CertificateFileDetailsStructure);
+	EndIf;
+	
+	Return Result;
+	
+EndFunction
+
+Function FilesReceiptParameters() Export
+	
+	Structure = New Structure;
+	Structure.Insert("TransliterateFilesNames", False);
+	Structure.Insert("ExportCertificate", True);
+	Structure.Insert("ExportLOA", True);
+	
+	Return Structure;
+	
+EndFunction
+
 
 // Determines digital signature availability for an object (by its type)
 // 
@@ -511,12 +635,16 @@ EndFunction
 // Parameters:
 //  CryptoCertificate
 //  OnDate - Undefined, Date
-//  ThisVerificationSignature - Boolean - Signature verification flag. Warnings (not errors) are ignored.
+//  CheckParameters - Structure
+//   
+//    
+//  CertificateProperties - See DigitalSignature.CertificateProperties
 // 
 // Returns:
 //   See DigitalSignatureInternalClientServer.DefaultCAVerificationResult
 //
-Function ResultofCertificateAuthorityVerification(CryptoCertificate, OnDate = Undefined, ThisVerificationSignature = False, CertificateProperties = Undefined) Export
+Function ResultofCertificateAuthorityVerification(CryptoCertificate, OnDate = Undefined, 
+	Val CheckParameters = Undefined, CertificateProperties = Undefined) Export
 	
 	Result = DigitalSignatureInternalClientServer.DefaultCAVerificationResult();
 	
@@ -606,7 +734,7 @@ EndProcedure
 // For the form of the Administration subsystem's common settings.
 // 
 // Parameters:
-//  Form - ClientApplicationForm - See DataProcessor.SSLAdministrationPanel.
+//  Form - ClientApplicationForm - 
 //  DataPathAttribute - String - Attribute data path that was modified in the form.
 //
 Procedure ConfigureCommonSettingsForm(Form, DataPathAttribute) Export
@@ -811,6 +939,28 @@ Function GetAddInData(TemplateName) Export
 	Return Catalogs.DigitalSignatureAndEncryptionKeysCertificates.GetTemplate(TemplateName);
 EndFunction
 
+Function TimestampServerAddressesByDefault() Export
+	
+	If Metadata.DataProcessors.Find("DigitalSignatureAndEncryptionApplications") <> Undefined Then
+		Return DataProcessors["DigitalSignatureAndEncryptionApplications"].TimestampServerAddressesByDefault();
+	EndIf;
+	
+	Return "";
+	
+EndFunction
+
+Function CheckSignaturesByMachineReadableLOA(Signatures, SignedObject) Export
+
+	If Not Common.SubsystemExists("StandardSubsystems.MachineReadableLettersOfAuthority") Then
+		Return New Array;
+	EndIf;
+
+	ChecksResults = New Array;
+	DigitalSignatureLocalization.OnVerifySignaturesOnMRLOA(Signatures, SignedObject, ChecksResults);
+	Return ChecksResults;
+
+EndFunction
+
 #Region SuppliedData
 
 // See SuppliedDataOverridable.GetHandlersForSuppliedData
@@ -958,10 +1108,10 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	EndIf;
 
 	Handler = Handlers.Add();
-	Handler.Version = "3.1.9.234";
+	Handler.Version = "3.1.10.185";
 	Handler.Comment = NStr(
-		"en = 'Transfer certificate expiration notifications and request data to information registers. Fill in the certificate validity period taking into account the validity period of the private key.';");
-	Handler.Id = New UUID("a17c1765-820e-4886-9423-ffc1267d7ff1");
+		"en = 'Transfer certificate expiration notifications and certificate application data to information registers. Fill in the certificate validity period considering the validity period of the private key. Discard digital signing apps selected by mistake.';");
+	Handler.Id = New UUID("a6c42e6b-4824-4f5e-a35d-aa0922b253f3");
 	Handler.Procedure = "Catalogs.DigitalSignatureAndEncryptionKeysCertificates.ProcessDataForMigrationToNewVersion";
 	Handler.ExecutionMode = "Deferred";
 	Handler.UpdateDataFillingProcedure = "Catalogs.DigitalSignatureAndEncryptionKeysCertificates.RegisterDataToProcessForMigrationToNewVersion";
@@ -1185,7 +1335,7 @@ Procedure OnFillToDoList(ToDoList) Export
 				ToDoItem = ToDoList.Add();
 				ToDoItem.Id  = "CertificateIssuanceApplicationsInProgress";
 				ToDoItem.HasToDoItems       = NumberofApplicationsInProgress > 0;
-				ToDoItem.Presentation  = NStr("en = 'Submitted applications for certificate issuance';");
+				ToDoItem.Presentation  = NStr("en = 'Submitted certificate applications';");
 				ToDoItem.Count     = NumberofApplicationsInProgress;
 				ToDoItem.Important         = False;
 				ToDoItem.Form          = "CommonForm.DigitalSignatureAndEncryptionSettings";
@@ -1270,6 +1420,7 @@ Procedure OnSetUpReportsOptions(Settings) Export
 	
 	ModuleReportsOptions = Common.CommonModule("ReportsOptions");
 	ModuleReportsOptions.CustomizeReportInManagerModule(Settings, Metadata.Reports.RenewDigitalSignatures);
+	ModuleReportsOptions.CustomizeReportInManagerModule(Settings, Metadata.Reports.DigitalSignatureCertificates);
 	
 EndProcedure
 
@@ -1306,6 +1457,7 @@ Function ParametersCryptoSignatures(ContainerSignatures, UTCOffset, SessionDate)
 	IsCertificateExists = DigitalSignatureInternalClientServer.IsCertificateExists(Signature.SignatureCertificate);
 	
 	If IsCertificateExists Then
+		SignatureParameters.Certificate = Signature.SignatureCertificate;
 		SignatureParameters.CertificateDetails = DigitalSignature.CertificateProperties(Signature.SignatureCertificate);
 	EndIf;
 	
@@ -1504,13 +1656,13 @@ Function InfoHeadingForSupport() Export
 	
 	If VisibilityOfRefToAppsTroubleshootingGuide() Then
 		Title = StringFunctions.FormattedString(
-			NStr("en = 'Facing issues? Learn to troubleshoot <a href = %1>digital signing apps (in Russian)</a>.
+			NStr("en = 'Facing issues? Learn how to <a href = %1>troubleshoot digital signing apps</a> (in Russian).
 				|
-				|If you didn''t find a solution, contact the 1C support team and provide <a href = %2>technical information about the issue</a>';"),
+				|If you didn''t find a solution, contact the 1C support team and provide <a href = %2>technical information</a> about the issue.';"),
 				"TypicalIssues", "TechnicalInformation");
 	Else
 		Title = StringFunctions.FormattedString(
-			NStr("en = 'Contact 1C support team and provide <a href = %1>technical information about the issue</a>.';"),
+			NStr("en = 'Contact the 1C support team and provide <a href = %1>technical information</a> about the issue.';"),
 				"TechnicalInformation");
 	EndIf;
 	
@@ -1670,7 +1822,7 @@ Function CryptoManager(Operation, CryptoManagerCreationParameters = Undefined) E
 	
 EndFunction
 
-// 
+// Returns an array with the server-side certificate thumbprint.
 //
 Function CertificateThumbprints(OnlyPersonal, ErrorDescription) Export
 	
@@ -1703,7 +1855,7 @@ Function CertificateThumbprints(OnlyPersonal, ErrorDescription) Export
 	 
 EndFunction
 
-// 
+// Returns an array with the service-side certificate thumbprint.
 //
 Function ServiceCertificateThumbprints() Export
 	
@@ -1887,10 +2039,10 @@ Procedure BeforeStartEditKeyCertificate(Ref, Certificate, AttributesParameters) 
 	
 	AttributesParameters = NewParametersForCertificateDetails();
 	
-	For Each String In Table Do
+	For Each TableRow In Table Do
 		Parameters = TheNewSettingsOfTheRequisiteCertificate();
-		FillPropertyValues(Parameters, String);
-		AttributesParameters.Insert(String.AttributeName, Parameters);
+		FillPropertyValues(Parameters, TableRow);
+		AttributesParameters.Insert(TableRow.AttributeName, Parameters);
 	EndDo;
 	
 EndProcedure
@@ -2257,6 +2409,63 @@ EndFunction
 Function RevalidateCertificate(CryptoManagerToCheck, CertificateToCheck, 
 	CertificateCheckModes, ErrorDescription, RaiseException1, RemedyActions)
 	
+	ShouldInstallRevocationList = False;
+	
+	If TypeOf(CryptoManagerToCheck) = Type("CryptoManager") Then
+		If ValueIsFilled(RemedyActions) And RemedyActions.Find("SetListOfCertificateRevocation") <> Undefined Then
+			CertificateAuthorityName = Lower(DigitalSignature.CertificateIssuerProperties(CertificateToCheck).CommonName);
+			If ValueIsFilled(CertificateAuthorityName) Then
+				CertificateAuthorityName = StringFunctions.LatinString(CertificateAuthorityName);
+				RevocationListInternalAddress = DigitalSignatureInternalClientServer.RevocationListInternalAddress(
+					CertificateAuthorityName, CertificateToCheck.Unload());
+				If ValueIsFilled(RevocationListInternalAddress.InternalAddress) Then
+					ShouldInstallRevocationList = True;
+				EndIf;
+			EndIf;
+		EndIf;
+	EndIf;
+	
+	If ShouldInstallRevocationList Then
+		
+		Try
+			SetListOfCertificateRevocation(CertificateToCheck,
+				RevocationListInternalAddress.ExternalAddress, RevocationListInternalAddress.InternalAddress);
+		Except
+			
+			CertificateProperties = DigitalSignature.CertificateProperties(CertificateToCheck);
+			
+			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Couldn''t install the revocation list when checking the certificate: %1
+				|%2.';"),
+				
+				ErrorProcessing.BriefErrorDescription(ErrorInfo()),
+				DigitalSignatureInternalClientServer.DetailsCertificateString(CertificateProperties));
+			
+			WriteLogEvent(
+					NStr("en = 'Digital signature.Update revocation list';",
+					Common.DefaultLanguageCode()),
+					EventLogLevel.Error, , ,
+					ErrorText);
+			
+			Return False;
+		EndTry;
+		
+		// Re-check after a certificate revocation list has been set.
+		Try
+			CryptoManagerToCheck.CheckCertificate(CertificateToCheck, CertificateCheckModes);
+		Except
+
+			ErrorDescription = ErrorProcessing.BriefErrorDescription(ErrorInfo());
+
+			If RaiseException1 Then
+				Raise;
+			EndIf;
+			Return False;
+		EndTry;
+		
+		Return True;
+		
+	EndIf;
 	
 	Return False;
 	
@@ -3139,10 +3348,10 @@ Procedure LogErrorImprovementsSignaturesInLog(ErrorDescription, SignaturePropert
 		SignedObjectMetadata = Undefined;
 	EndIf;
 	
-	EventName = NStr("en = 'Digital signature. Signature enhancement error';",
+	EventName = NStr("en = 'Digital signature.Enhance signature';",
 			Common.DefaultLanguageCode());
 	WriteLogEvent(EventName,
-		EventLogLevel.Information,
+		EventLogLevel.Warning,
 		SignedObjectMetadata,
 		SignedObject,
 		ErrorDescription);
@@ -3458,7 +3667,7 @@ Function Sign(Val XMLEnvelope, XMLDSigParameters, CryptoCertificate, CryptoManag
 	ComponentObject = AnObjectOfAnExternalComponentOfTheExtraCryptoAPI();
 	
 	CryptoProviderProperties = CryptoProviderProperties(CryptoManager);
-	ComponentObject.PathToCryptoprovider = CryptoProviderProperties.Path;
+	ComponentObject.CryptoProviderPath = CryptoProviderProperties.Path;
 	
 	XMLEnvelopeProperties = XMLEnvelopeProperties(XMLEnvelope, XMLDSigParameters, False);
 	If XMLEnvelopeProperties <> Undefined
@@ -3546,7 +3755,7 @@ Function VerifySignature(Val XMLEnvelope, XMLDSigParameters, CryptoManager, XMLE
 	ComponentObject = AnObjectOfAnExternalComponentOfTheExtraCryptoAPI();
 	
 	CryptoProviderProperties = CryptoProviderProperties(CryptoManager);
-	ComponentObject.PathToCryptoprovider = CryptoProviderProperties.Path;
+	ComponentObject.CryptoProviderPath = CryptoProviderProperties.Path;
 	SigningAlgorithmData = New Structure(New FixedStructure(XMLDSigParameters));
 	
 	If XMLEnvelopeProperties = Undefined Then
@@ -3674,8 +3883,8 @@ Function XMLEnvelopeProperties(XMLEnvelope, XMLDSigParameters, CheckSignature) E
 			Return ReturnedPropertiesOfTheXMLEnvelope(XMLEnvelopeProperties);
 		EndIf;
 		
-		// 
-		// 
+		// If the node's text contains the signature value, this means that signature overlapping is used.
+		// Find a different node.
 		If StrFind(SignatureNode.TextContent, "%SignatureValue%") = 0 And Not CheckSignature Then
 			ExcludedNodes.Add(SignatureNode);
 			Continue;
@@ -3859,7 +4068,7 @@ Function SignCMS(Val Data, CMSParameters, CryptoCertificate, CryptoManager) Expo
 	ComponentObject = AnObjectOfAnExternalComponentOfTheExtraCryptoAPI();
 	
 	CryptoProviderProperties = CryptoProviderProperties(CryptoManager);
-	ComponentObject.PathToCryptoprovider = CryptoProviderProperties.Path;
+	ComponentObject.CryptoProviderPath = CryptoProviderProperties.Path;
 	
 	SignatureValueAttribute = CMSSignResult(ComponentObject,
 		Data,
@@ -3876,7 +4085,7 @@ Function CheckCMSSignature(Signature, Data, CMSParameters, CryptoManager) Export
 	ComponentObject = AnObjectOfAnExternalComponentOfTheExtraCryptoAPI();
 	
 	CryptoProviderProperties = CryptoProviderProperties(CryptoManager);
-	ComponentObject.PathToCryptoprovider = CryptoProviderProperties.Path;
+	ComponentObject.CryptoProviderPath = CryptoProviderProperties.Path;
 	
 	Result = CMSVerifySignResult(ComponentObject,
 		Signature,
@@ -3905,7 +4114,7 @@ EndFunction
 //      ** Id - String
 //      ** ApplicationPath - String
 //      ** Version - String - Library version
-//      ** ILicenseInfo - Boolean - App licence presence flag
+//      ** ILicenseInfo - Boolean - App license presence flag
 //      ** AutoDetect - Boolean
 //
 Function InstalledCryptoProviders(ComponentObject = Undefined) Export
@@ -4474,8 +4683,8 @@ Procedure FillExistingUserCertificates(ChoiceList, CertificatesThumbprintsAtClie
 				CertificatesArray = CryptoManager.GetCertificateStore(StoreType).GetAll();
 				DigitalSignatureInternalClientServer.AddCertificatesThumbprints(CertificatesThumbprintsAtClient,
 					CertificatesArray, UTCOffset(), CurrentSessionDate);
-			Except // 
-				// 
+			Except // ACC:280
+				// Do not handle the exception as the error is displayed on the certificate pick form.
 			EndTry;
 			
 		EndIf;
@@ -4861,7 +5070,7 @@ Function NewCryptoManager(Application, Errors, AutoDetect, SignAlgorithm = "", O
 			Continue;
 		EndIf;
 		
-		Break; // 
+		Break; // The required crypto manager is received.
 	EndDo;
 	
 	Return Manager;
@@ -5003,7 +5212,7 @@ Function UseDigitalSignatureSaaS() Export
 	ModuleDigitalSignatureSaaS =
 		Common.CommonModule("DigitalSignatureSaaS");
 	
-	Return ModuleDigitalSignatureSaaS.UsageAllowed();
+	Return ModuleDigitalSignatureSaaS.UsageAllowed() And Common.DataSeparationEnabled();
 	
 EndFunction
 
@@ -5609,7 +5818,7 @@ Procedure SetHeaderElectronicSignatureOnServer(Form)
 	If FileInfobase Then
 		HintOnServer = NStr("en = 'Important: At least one href=%1>digital signing app</a> from the list must be installed on the computer running the web server connected to the file infobase.';");
 	Else
-		HintOnServer = NStr("en = 'Important: At least one href=%1>digital signing app</a> from the list must be installed on each computer running 1C:Etnerprise server.';");
+		HintOnServer = NStr("en = 'Important: At least one href=%1>digital signing app</a> from the list must be installed on each computer running 1C:Enterprise server.';");
 	EndIf;
 	
 	CheckBoxTooltip = CheckBoxTooltip + Chars.LF + Chars.LF + HintOnServer;
@@ -6050,11 +6259,11 @@ Function CheckSetValue(Value, DOMElement, AttributeName, XMLEnvelopeProperties, 
 		
 		ElsIf AvailableValues.ThisIsBase64String Then
 			Try
-				Base64Value_SSLy = Base64Value(Value);
+				Base64Value = Base64Value(Value);
 			Except
-				Base64Value_SSLy = "";
+				Base64Value = "";
 			EndTry;
-			If Not ValueIsFilled(Base64Value_SSLy) Then
+			If Not ValueIsFilled(Base64Value) Then
 				If ValueIsFilled(AttributeName) Then
 					XMLEnvelopeProperties.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'The %3 Base64 value is not specified for the %1 node in the %2 attribute in the XML document.';"),
@@ -6467,7 +6676,7 @@ Function ErrorPresentation() Export
 	ErrorPresentation.Insert("RemedyActions");
 	ErrorPresentation.Insert("IsCheckRequired", False);
 	ErrorPresentation.Insert("CertificateRevoked", False);
-	ErrorPresentation.Insert("IsInvalidSignatureHash", False);
+	ErrorPresentation.Insert("InvalidSignatureHash", False);
 	
 	Return ErrorPresentation;
 	
@@ -6540,13 +6749,13 @@ Function CryptoErrorsClassifier() Export
 		EndIf;
 	EndIf;
 	
-	NewClassifierOfCryptoErrors = NewClassifierOfCryptoErrors();
-	For Each String In ClassifierData.Classifier Do
-		NewRow = NewClassifierOfCryptoErrors.Add();
-		FillPropertyValues(NewRow, String);
+	Result = NewClassifierOfCryptoErrors();
+	For Each TableRow In ClassifierData.Classifier Do
+		NewRow = Result.Add();
+		FillPropertyValues(NewRow, TableRow);
 	EndDo;
 	
-	Return NewClassifierOfCryptoErrors;
+	Return Result;
 	
 EndFunction
 
@@ -6570,8 +6779,8 @@ Function NewClassifierOfCryptoErrors()
 	Result.Columns.Add("OnlyClient",    New TypeDescription("Boolean"));
 	Result.Columns.Add("IsCheckRequired", New TypeDescription("Boolean"));
 	Result.Columns.Add("CertificateRevoked",  New TypeDescription("Boolean"));
-	Result.Columns.Add("IsInvalidSignatureHash", New TypeDescription("Boolean"));
-	Result.Columns.Add("ErrorVerifyingSignature", New TypeDescription("Boolean"));
+	Result.Columns.Add("InvalidSignatureHash", New TypeDescription("Boolean"));
+	Result.Columns.Add("IsSignatureVerificationError", New TypeDescription("Boolean"));
 	
 	Return Result;
 	
@@ -6619,11 +6828,11 @@ Function RepresentationOfErrorClassifier(ClassifierData) Export
 		NewError.Decision          = KnownError.Solution;
 		NewError.OnlyServer     = CommonClientServer.StructureProperty(KnownError, "Server", False);
 		NewError.OnlyClient     = CommonClientServer.StructureProperty(KnownError, "Client", False);
-		NewError.ErrorVerifyingSignature     = CommonClientServer.StructureProperty(KnownError, "Sign", False);
+		NewError.IsSignatureVerificationError     = CommonClientServer.StructureProperty(KnownError, "Sign", False);
 		Category = CommonClientServer.StructureProperty(KnownError, "Category", Undefined);
 		If ValueIsFilled(Category) Then
-			NewError.IsInvalidSignatureHash = ErrorInvalidSignatureHash(Category);
-			If Not NewError.IsInvalidSignatureHash Then
+			NewError.InvalidSignatureHash = ErrorInvalidSignatureHash(Category);
+			If Not NewError.InvalidSignatureHash Then
 				NewError.IsCheckRequired   = IsErrorRecheckRequired(Category);
 				If Not NewError.IsCheckRequired Then
 					NewError.CertificateRevoked = ErrorCertificateRevoked(Category);
@@ -6695,6 +6904,10 @@ Procedure SupplementWithTechnicalInformationAboutServer(TechnicalInformation,
 			+ Chars.LF + TechnicalInformationOnComputer()
 			+ Chars.LF + Chars.LF + TechnicalInformationAboutTheComponent()
 			+ Chars.LF + TechnicalInformationOnApplications();
+		
+		TechnicalInformation = TechnicalInformation
+			+ Chars.LF + DigitalSignatureInternalServerCall.TimestampServersDiagnosticsResult();
+		
 	EndIf;
 	
 	TechnicalInformation = TechnicalInformation + Chars.LF
@@ -6956,7 +7169,7 @@ Function DownloadRevocationListFileAtServer(Val Addresses, InternalAddress = Und
 			SetPrivilegedMode(True);
 			RecordManager = InformationRegisters.CertificateRevocationLists.CreateRecordManager();
 			
-			If ValueIsFilled(DataFromCache) And DataFromCache.LastChangeDate = LastChangeDate Then
+			If ValueIsFilled(DataFromCache) And DataFromCache.LastChangeDate = LastChangeDate And LastChangeDate <> Undefined Then
 				
 				FillPropertyValues(RecordManager, DataFromCache);
 				PopulateResultOfRevocationListImportFromCacheData(ImportResult1, DataFromCache);
@@ -6976,20 +7189,20 @@ Function DownloadRevocationListFileAtServer(Val Addresses, InternalAddress = Und
 				
 			Else
 				
-				RevocationListValidityPeriod = DigitalSignatureInternalClientServer.PropertiesOfReviewList(ImportResult1.FileData);
+				RevocationListValidityPeriod = DigitalSignatureInternalClientServer.RevocationListProperties(ImportResult1.FileData);
 				
 				If RevocationListValidityPeriod = Undefined Then
-					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'The %1 file is not a revocation list.';"), ImportResult1.FileAddress);
-					Raise ErrorText;
+					ImportResult1.FileData = Undefined;
+					ImportResult1.ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(
+						NStr("en = 'This file is not a revocation list: %1.';"), ImportResult1.FileAddress);
+				Else
+					RecordManager.RevocationListAddress = ImportResult1.FileAddress;
+					RecordManager.RevocationList = New ValueStorage(ImportResult1.FileData,
+						New Deflation(9));
+					RecordManager.LastChangeDate = LastChangeDate;
+					RecordManager.ValidityStartDate      = RevocationListValidityPeriod.StartDate;
+					RecordManager.ValidityEndDate   = RevocationListValidityPeriod.EndDate;
 				EndIf;
-				
-				RecordManager.RevocationListAddress = ImportResult1.FileAddress;
-				RecordManager.RevocationList = New ValueStorage(ImportResult1.FileData,
-					New Deflation(9));
-				RecordManager.LastChangeDate = LastChangeDate;
-				RecordManager.ValidityStartDate      = RevocationListValidityPeriod.StartDate;
-				RecordManager.ValidityEndDate   = RevocationListValidityPeriod.EndDate;
 
 			EndIf;
 			
@@ -7042,6 +7255,10 @@ Procedure DownloadRevocationListFile(Addresses, ImportResult1, DataFromCache = U
 	ModuleNetworkDownloadClientServer = Common.CommonModule("GetFilesFromInternetClientServer");
 	
 	For Each CurrentAddress In Addresses Do
+		
+		If StrStartsWith(Lower(CurrentAddress), "ldap://") Then
+			Continue;
+		EndIf;
 		
 		FileGettingParameters = ModuleNetworkDownloadClientServer.FileGettingParameters();
 		
@@ -7187,7 +7404,7 @@ Procedure PopulateResultOfRevocationListImportFromCacheData(ImportResult1, DataF
 		ImportResult1.FileAddress = Undefined;
 		ImportResult1.FileName = Undefined;
 		ImportResult1.FileData = Undefined;
-		ImportResult1.ErrorMessage = NStr("en = 'Revocation list expired.';");
+		ImportResult1.ErrorMessage = NStr("en = 'The certificate revocation list is expired. Contact the certificate issuer.';");
 		Return;
 		
 	EndIf;
@@ -7314,7 +7531,8 @@ Function FileLastModifiedDate(ImportResult1) Export
 		Return Undefined;
 	EndIf;
 	
-	DateLastModifiedString = Headers["Last-Modified"];
+	Headers = StandardSubsystemsServer.HTTPHeadersInLowercase(Headers);
+	DateLastModifiedString = Headers["last-modified"];
 	If DateLastModifiedString <> Undefined Then
 		Return CommonClientServer.RFC1123Date(DateLastModifiedString);
 	EndIf;
@@ -7323,11 +7541,11 @@ Function FileLastModifiedDate(ImportResult1) Export
 
 EndFunction
 
-Function ToSupplementDecisionOfErrorClassifierWithDetails(ClassifierError,
-	AdditionalData, ParametersForCompletingTextOfClassifierErrorSolutionOnClient, ErrorLocation = Undefined) Export
+Function SupplementErrorClassifierSolutionWithDetails(ClassifierError,
+	AdditionalData, ClassifierErrorSolutionTextSupplementOptionsAtClient, ErrorLocation = Undefined) Export
 
-	Result = New Structure("ClassifierError, ParametersForCompletingTextOfClassifierErrorSolutionOnClient",
-		ClassifierError, ParametersForCompletingTextOfClassifierErrorSolutionOnClient);
+	Result = New Structure("ClassifierError, ClassifierErrorSolutionTextSupplementOptionsAtClient",
+		ClassifierError, ClassifierErrorSolutionTextSupplementOptionsAtClient);
 
 	If Not ValueIsFilled(ClassifierError.RemedyActions) Then
 		Return Result;
@@ -7343,13 +7561,13 @@ Function ToSupplementDecisionOfErrorClassifierWithDetails(ClassifierError,
 			Decision.Add(ClassifierError.Decision);
 			Decision.Add(Chars.LF);
 			Decision.Add(StringFunctionsClientServer.SubstituteParametersToString(
-							NStr("en = 'Удостоверяющий центр, выдавший сертификат: %1.';"), CertificateIssuer));
+							NStr("en = 'Certificate authority that issued the certificate: %1.';"), CertificateIssuer));
 		EndIf;
 	EndIf;
 
 #If Not MobileAppServer And Not MobileClient Then
 	If ClassifierError.RemedyActions.Find(
-					"VerifyCertificateInLocalStorage") <> Undefined Then
+					"CheckCertificateInLocalStore") <> Undefined Then
 
 		SystemInfo = New SystemInfo;
 		AppVersion = SystemInfo.AppVersion;
@@ -7357,24 +7575,62 @@ Function ToSupplementDecisionOfErrorClassifierWithDetails(ClassifierError,
 			If ErrorLocation = "Server" Then
 				If DigitalSignature.CommonSettings().VerifyDigitalSignaturesOnTheServer
 					Or DigitalSignature.CommonSettings().GenerateDigitalSignaturesAtServer Then
-					CertificateInLocalStorage = CertificateInLocalStorage(
+					IsLocalStoreCertificate = IsLocalStoreCertificate(
 						AdditionalData.CertificateData);
-					If CertificateInLocalStorage = True Then
+					If IsLocalStoreCertificate = True Then
 						Decision = New Array;
 						Decision.Add(StringFunctions.FormattedString(
-							CertificateInLocalStorageSolutionText(ErrorLocation)));
+							LocalStoreCertificateSolutionText(ErrorLocation)));
 							
 						Cause = New Array;
 						Cause.Add(StringFunctions.FormattedString(
-							CertificateInLocalStorageTextOfReason(ErrorLocation)));
+							LocalStoreCertificateReasonText(ErrorLocation)));
 					EndIf;
 				EndIf;
 			Else
-				Result.ParametersForCompletingTextOfClassifierErrorSolutionOnClient.VerifyCertificateInClientSLocalStorage = True;
+				Result.ClassifierErrorSolutionTextSupplementOptionsAtClient.CheckCertificateInClientLocalStore = True;
 			EndIf;
 		EndIf;
 	EndIf;
 #EndIf
+
+	If ClassifierError.RemedyActions.Find(
+					"TimestampServersDiagnosticsServer") <> Undefined Then
+
+		Decision.Add(StringFunctions.FormattedString(
+			NStr("en = '<a href = ""%1"">Check the availability</a> of timestamps on server %2.';"),
+			"TimestampServersDiagnosticsServer", ComputerName()));
+	EndIf;
+
+	If ClassifierError.RemedyActions.Find(
+					"TimestampServersDiagnosticsClient") <> Undefined Then
+
+		If Common.IsWebClient() Then
+			
+			TimestampServersAddresses = DigitalSignature.CommonSettings().TimestampServersAddresses;
+			
+			Array = New Array;
+			
+			For Each ServerAddress In TimestampServersAddresses Do
+				
+				RefStructure = CommonClientServer.URIStructure(ServerAddress);
+				Array.Add(StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = '<a href = ""%1"">%1</a>';"), ServerAddress));
+				
+			EndDo;
+			
+			Decision.Add(StringFunctions.FormattedString(
+				StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'Check the availability of timestamps on computer: %1.';"),
+					StrConcat(Array, ", "))));
+			
+		Else
+			Decision.Add(StringFunctions.FormattedString(
+				NStr("en = '<a href = ""%1"">Check the availability</a> of timestamps on computer.';"),
+					"TimestampServersDiagnosticsClient"));
+		EndIf;
+
+	EndIf;
 
 	If Decision.Count() > 0 Then
 		Result.ClassifierError.Decision = New FormattedString(Decision);
@@ -7388,31 +7644,31 @@ Function ToSupplementDecisionOfErrorClassifierWithDetails(ClassifierError,
 
 EndFunction
 
-Function CertificateInLocalStorageSolutionText(Location)
+Function LocalStoreCertificateSolutionText(Location)
 	
 	If Location = "Server" Then
 
 		Return StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Удалите сертификат из локального хранилища сервера %1.';"), ComputerName());
+			NStr("en = 'Delete the certificate from the local store on server %1.';"), ComputerName());
 
 	EndIf;
 
-	Return DigitalSignatureInternalClientServer.CertificateInLocalStorageSolutionText();
+	Return DigitalSignatureInternalClientServer.LocalStoreCertificateSolutionText();
 
 EndFunction
 
-Function CertificateInLocalStorageTextOfReason(Location) Export
+Function LocalStoreCertificateReasonText(Location) Export
 	
 	If Location = "Server" Then
 
 		Return StringFunctionsClientServer.SubstituteParametersToString(
 				NStr(
-			"en = 'На сервере %1 сертификат установлен в локальное хранилище, вместо текущего хранилища пользователя, под которым работает сервер.';"),
+			"en = 'On server %1, the certificate is installed to the local store instead of the current user store.';"),
 			ComputerName());
 
 	EndIf;
 
-	Return DigitalSignatureInternalClientServer.CertificateInLocalStorageTextOfReason();
+	Return DigitalSignatureInternalClientServer.LocalStoreCertificateReasonText();
 	
 EndFunction
 
@@ -7430,7 +7686,7 @@ Function CertificateIssuer(CertificateData)
 	Return Undefined;
 EndFunction
 
-Function CertificateInLocalStorage(CertificateData)
+Function IsLocalStoreCertificate(CertificateData)
 	
 	#If Not MobileAppServer And Not MobileClient Then
 	
@@ -7440,18 +7696,18 @@ Function CertificateInLocalStorage(CertificateData)
 	
 	CryptoManager = CryptoManager("GetCertificates");
 	Try
-		LocalComputerStorage = CryptoManager.GetCertificateStore(
+		LocalComputerStore = CryptoManager.GetCertificateStore(
 			CryptoCertificateStoreType.PersonalCertificates,
 			CryptoCertificateStorePlacement.ComputerData);
 		CryptoCertificate = New CryptoCertificate(CertificateData);
 	Except
-		WriteLogEvent(NStr("en = 'Электронная подпись.Диагностика ошибок';",
+		WriteLogEvent(NStr("en = 'Digital signature.Error troubleshooting';",
 			Common.DefaultLanguageCode()), EventLogLevel.Error,,,
 			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		Return Undefined;
 	EndTry;
 	
-	If LocalComputerStorage.FindByThumbprint(CryptoCertificate.Thumbprint) <> Undefined Then
+	If LocalComputerStore.FindByThumbprint(CryptoCertificate.Thumbprint) <> Undefined Then
 		Return True;
 	EndIf;
 	
@@ -7461,6 +7717,72 @@ Function CertificateInLocalStorage(CertificateData)
 	
 EndFunction
 
+Procedure SetListOfCertificateRevocation(Certificate, Addresses = Undefined, InternalAddress = Undefined) Export
+	
+	ComponentObject = AnObjectOfAnExternalComponentOfTheExtraCryptoAPI();
+	
+	If TypeOf(ComponentObject) = Type("String") Then
+		Raise ComponentObject;
+	EndIf;
+	
+	If Not ValueIsFilled(Addresses) Then
+		CertificatePropertiesExtended = CertificatePropertiesExtended(Certificate, ComponentObject);
+		
+		If ValueIsFilled(CertificatePropertiesExtended.Error) Then
+			Raise CertificatePropertiesExtended.Error;
+		EndIf;
+		
+		AddressesOfRevocationLists = CertificatePropertiesExtended.CertificateProperties.AddressesOfRevocationLists;
+		If AddressesOfRevocationLists.Count() = 0 Then
+			Raise NStr("en = 'Revocation list addresses are not specified in the certificate.';");
+		EndIf;
+	Else
+		If TypeOf(Addresses) = Type("String") Then
+			AddressesOfRevocationLists = StrSplit(Addresses, ";");
+		EndIf;
+	EndIf;
+
+	Result = DownloadRevocationListFileAtServer(AddressesOfRevocationLists, InternalAddress);
+	
+	If ValueIsFilled(Result.ErrorMessage) Then
+		Raise Result.ErrorMessage;
+	EndIf;
+	
+	InstallResult = False;
+	ErrorDescription = "";
+	
+	FileData = Result.FileData;
+	
+	RevocationListProperties = DigitalSignatureInternalClientServer.RevocationListProperties(FileData);
+	
+	If RevocationListProperties = Undefined Then
+		Raise StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'This file is not a revocation list: %1.';"), Result.FileAddress);
+	EndIf;
+	
+	If ValueIsFilled(RevocationListProperties.EndDate) And RevocationListProperties.EndDate < CurrentUniversalDate() Then
+		Raise StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'The certificate revocation list %1 is expired. Contact the certificate issuer.';"), Result.FileAddress);
+	EndIf;
+
+	TempFileName = GetTempFileName(".crl");
+	FileData.Write(TempFileName);
+	
+	Try
+		ComponentObject.ImportCRLA(TempFileName, "CA");
+		InstallResult = True;
+	Except
+		ErrorDescription = ErrorProcessing.BriefErrorDescription(ErrorInfo());
+		InstallResult = False;
+	EndTry;
+	
+	FileSystem.DeleteTempFile(TempFileName);
+	
+	If Not InstallResult Then
+		Raise ErrorDescription;
+	EndIf;
+	
+EndProcedure
 
 #EndRegion
 

@@ -10,9 +10,9 @@
 
 #Region Public
 
-// On the form, creates a hierarchical list with specified fields and a search string.
+// On the form, creates a hierarchical list with specified fields and a search bar.
 // One or several collections of available data composition fields are used as a field source.
-// You can expand reference type fields to include an unlimited number of levels
+// You can expand reference type fields to include an unlimited number of levels.
 // You can add and override a subfield list in any field of the list, including
 // simple type fields.
 // 

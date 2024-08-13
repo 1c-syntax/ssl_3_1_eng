@@ -104,7 +104,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	
 EndProcedure
 
-// See StandardSubsystems.OnSendDataToMaster.
+// 
 Procedure OnSendDataToMaster(DataElement, ItemSend, Recipient) Export
 	
 	If RecordSetOnlyWithImportRestrictionDates(DataElement) Then
@@ -184,8 +184,8 @@ EndProcedure
 // See ExportImportDataOverridable.OnFillCommonDataTypesSupportingRefMappingOnExport
 Procedure OnFillCommonDataTypesSupportingRefMappingOnExport(Types) Export
 	
-	// 
-	// 
+	// Shared data use only references with UUIDs specified in the procedure
+	// "OnFillPeriodClosingDatesSections" of the common module "PeriodClosingDatesOverridable".
 	// 
 	Types.Add(Metadata.ChartsOfCharacteristicTypes.PeriodClosingDatesSections);
 	
@@ -251,8 +251,8 @@ EndProcedure
 //
 Procedure UpdatingVersionDatesPreventsChangesAfterLoadingDataOnWrite(Source, Cancel) Export
 	
-	// 
-	// 
+	// For "DataExchange.Load", update the UUID in the constant "PeriodClosingDatesVersion",
+	// which notifies the sessions that the period-end closing dates cache needs to be updated.
 	
 	SetPrivilegedMode(True);
 	
@@ -455,10 +455,10 @@ Function CheckDataImportRestrictionDates1(Source, SourceRegister, Replacing, Del
 		EndIf;
 		
 	Else
-		// 
-		//     
-		// 
-		// 
+		// Executed when the condition is met:
+		//     NOT SourceRegister AND Source.IsNew
+		// OR SourceRegister AND NOT Replacing
+		// OR NOT SourceRegister AND Delete.
 		If ObjectVersion <> "OldVersion"
 		   And DataChangesDenied(Source, Undefined,	Result.ErrorDescription, ImportRestrictionCheckNode) Then
 			
@@ -531,8 +531,8 @@ Function DataChangesDenied(Data, DataID, ErrorDescription, ImportRestrictionChec
 		PeriodEndMessageParameters = PeriodClosingDates.PeriodEndMessageParameters();
 		PeriodEndMessageParameters.NewVersion = False;
 		
-		// 
-		// 
+		// "Data" is the table name required for the property "DataID" of the "Filter" type
+		// and in cases where data has the "ObjectDeletion" type.
 		
 		If TypeOf(DataID) = Type("Filter") Then
 			FilterStructure = New Structure;
@@ -609,41 +609,41 @@ Function PeriodEndClosingFound(Val DataToCheck, PeriodEndMessageParameters,
 		+ Chars.LF;
 	
 	// Adjusting data to match the embedding option.
-	For Each String In DataToCheck Do
+	For Each TableRow In DataToCheck Do
 		
-		If String.Section = Undefined Then
-			String.Section = BlankSection;
+		If TableRow.Section = Undefined Then
+			TableRow.Section = BlankSection;
 		EndIf;
 		
-		SectionProperties = SectionsProperties.Sections.Get(String.Section); // See ChartsOfCharacteristicTypes.PeriodClosingDatesSections.SectionProperties
+		SectionProperties = SectionsProperties.Sections.Get(TableRow.Section); // See ChartsOfCharacteristicTypes.PeriodClosingDatesSections.SectionProperties
 		If SectionProperties = Undefined Then
 			ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = '%1 parameter contains non-existent section: ""%2"".';"),
 				"DataToCheck",
-				String.Section);
+				TableRow.Section);
 			Raise ErrorText;
 		EndIf;
 		
 		If SectionsProperties.NoSectionsAndObjects Then
-			String.Section = BlankSection;
-			String.Object = BlankSection;
+			TableRow.Section = BlankSection;
+			TableRow.Object = BlankSection;
 		Else
 			If ValueIsFilled(SectionsProperties.SingleSection) Then
-				String.Section = SectionsProperties.SingleSection;
+				TableRow.Section = SectionsProperties.SingleSection;
 			Else
-				String.Section = SectionProperties.Ref;
+				TableRow.Section = SectionProperties.Ref;
 			EndIf;
 			
 			If SectionsProperties.AllSectionsWithoutObjects
-			 Or Not ValueIsFilled(String.Object) Then
+			 Or Not ValueIsFilled(TableRow.Object) Then
 				
-				String.Object = String.Section;
+				TableRow.Object = TableRow.Section;
 			EndIf;
 		EndIf;
 		
 	EndDo;
 	
-	// Collapsing unnecessary rows to reduce the number of checks and messages.
+	// Collapse unnecessary rows to reduce the number of checks and messages.
 	SectionsAndObjects = DataToCheck.Copy(, "Section, Object");
 	SectionsAndObjects.GroupBy("Section, Object");
 	Filter = New Structure("Section, Object");
@@ -652,10 +652,9 @@ Function PeriodEndClosingFound(Val DataToCheck, PeriodEndMessageParameters,
 	
 	For Each SectionAndObject In SectionsAndObjects Do
 		FillPropertyValues(Filter, SectionAndObject);
-		Rows = DataToCheck.FindRows(Filter);
 		MinDate = Undefined;
-		For Each String In Rows Do
-			CurrentDate = BegOfDay(String.Date);
+		For Each TableRow In DataToCheck.FindRows(Filter) Do
+			CurrentDate = BegOfDay(TableRow.Date);
 			If MinDate = Undefined Then
 				MinDate = CurrentDate;
 			EndIf;
@@ -667,29 +666,29 @@ Function PeriodEndClosingFound(Val DataToCheck, PeriodEndMessageParameters,
 	EndDo;
 	DataToCheck = SectionsAndObjects;
 	
-	// 
-	// 
-	//    
-	// 
-	//    
-	//    
-	//    
-	// 
-	//    
-	
-	// 
-	// 
-	//    
-	// 
+	// Period-end closing date:
+	// 1. Use the user setting (if present) and ignore the user group settings and general user getting.
+	//    2. Use the setting of the last user's group (if present and the user setting is missing)
+	// and ignore other group settings and the general setting.
+	//    3. Use the general user setting if the user setting is missing
+	//    and the settings in the user's groups are missing.
 	//    
 	// 
 	//    
 	
-	// 
-	// 
-	// 
-	// 
-	// 
+	// The priority of data import restriction dates:
+	// 1. Use the infobase node setting (if present)
+	//    and ignore the general exchange plan setting and this exchange plan setting.
+	// 2. Use the exchange plan setting (if present and the node setting is missing)
+	//    and ignore the general exchange plan setting.
+	// 3. Use the overall exchange plan setting (if the node setting and exchange plan setting are missing).
+	//    
+	
+	// Priority by section and object is applied to the extent of the above-mentioned
+	// priorities and identical to the period-end closing dates and data import restriction dates.
+	// 1. For this section, this object.
+	// 2. For this section, for any object (the object is a section).
+	// 3. For any object (an empty section), for any object (the object is a section).
 	
 	PeriodEndClosing = DataToCheck.Copy(New Array);
 	PeriodEndClosing.Columns.Add("Addressee");
@@ -796,8 +795,8 @@ Function EffectiveClosingDates() Export
 	
 EndFunction
 
-// Returns data sources filled 
-// in the PeriodClosingDatesOverridable.FillDataSourcesForPeriodClosingCheck procedure.
+// Returns data sources populated 
+// in the PeriodClosingDatesOverridable.FillDataSourcesForPeriodClosingCheck procedure.
 //
 // Returns:
 //   FixedMap
@@ -852,9 +851,9 @@ Function CalculatedPeriodClosingDates() Export
 	Table = Query.Execute().Unload();
 	
 	BegOfDay = BegOfDay(CurrentSessionDate());
-	For Each String In Table Do
-		String.PeriodEndClosingDate = PeriodEndClosingDateByDetails(String.PeriodEndClosingDateDetails,
-			String.PeriodEndClosingDate , BegOfDay);
+	For Each TableRow In Table Do
+		TableRow.PeriodEndClosingDate = PeriodEndClosingDateByDetails(TableRow.PeriodEndClosingDateDetails,
+			TableRow.PeriodEndClosingDate , BegOfDay);
 	EndDo;
 	
 	Return Table;
@@ -1332,10 +1331,10 @@ Function DataForCheckFromObject(Data, EffectiveDates, ImportRestrictionCheckNode
 		   And Common.IsInformationRegister(MetadataObject) Then
 			FieldValues.FillValues(Data.Filter.Recorder.Value, "Recorder");
 		EndIf;
-		For Each String In FieldValues Do
+		For Each TableRow In FieldValues Do
 			For Each DataSource In DataSources.Content Do
 				// @skip-check query-in-loop - Loop to avoid the dereferencing of the flexible type (Standard No. 654)
-				AddDataString(String, String, DataSource, DataToCheck, NoObject);
+				AddDataString(TableRow, TableRow, DataSource, DataToCheck, NoObject);
 			EndDo;
 		EndDo;
 	Else
@@ -1386,9 +1385,9 @@ Function DataForCheckFromObject(Data, EffectiveDates, ImportRestrictionCheckNode
 				EndIf;
 				Values = Data[DataSource.DateField.TabularSection].Unload(, Fields); // ValueTable
 				Values.GroupBy(Fields);
-				For Each String In Values Do
+				For Each TableRow In Values Do
 					// @skip-check query-in-loop - Loop to avoid the dereferencing of the flexible type (Standard No. 654)
-					AddDataString(String, String, DataSource, DataToCheck, NoObject);
+					AddDataString(TableRow, TableRow, DataSource, DataToCheck, NoObject);
 				EndDo;
 			Else
 				Field = DataSource.DateField.Name;
@@ -1552,8 +1551,8 @@ EndFunction
 // 
 Function SessionParameterValueEffectivePeriodClosingDates() Export
 	
-	// 
-	// 
+	// See the priority of period-end closing dates and data import restriction dates
+	// in the function "PeriodEndClosingFound".
 	
 	BegOfDay = BegOfDay(CurrentSessionDate());
 	
@@ -1584,9 +1583,9 @@ Function SessionParameterValueEffectivePeriodClosingDates() Export
 		
 		Upload0 = QueryResults[1].Unload(QueryResultIteration.ByGroups);
 		UserGroups = New Map;
-		For Each String In Upload0.Rows Do
-			UserGroups.Insert(String.User,
-				New FixedArray(String.Rows.UnloadColumn("UsersGroup")));
+		For Each TableRow In Upload0.Rows Do
+			UserGroups.Insert(TableRow.User,
+				New FixedArray(TableRow.Rows.UnloadColumn("UsersGroup")));
 		EndDo;
 		EffectiveDates.Insert("UserGroups", New FixedMap(UserGroups));
 		
@@ -2101,8 +2100,8 @@ EndFunction
 
 Function PeriodClosingDatesRequest()
 	
-	// 
-	// 
+	// ACC-1377-off - No.654.2.1. Two comma-delimited types are acceptable especially
+	// since the dataset is small (from units to hundreds).
 	Query = New Query;
 	Query.Text =
 	"SELECT
@@ -2285,43 +2284,43 @@ Function CurrentDataSourceForPeriodClosingCheck(SectionsProperties)
 		+ Chars.LF
 		+ Chars.LF;
 	
-	For Each String In Tables Do
+	For Each TableRow In Tables Do
 		TableSources = New Structure;
-		MetadataObject = Common.MetadataObjectByFullName(String.Table);
+		MetadataObject = Common.MetadataObjectByFullName(TableRow.Table);
 		If MetadataObject = Undefined Then
 			ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Period-end closing date check error. Data source contains invalid table:
 				           |%1.';"),
-				String.Table);
+				TableRow.Table);
 			Raise ErrorText;
 		EndIf;
-		IsRegister = StandardSubsystemsServer.IsRegisterTable(String.Table);
+		IsRegister = StandardSubsystemsServer.IsRegisterTable(TableRow.Table);
 		TableSources.Insert("IsRegister", IsRegister);
 		
-		TableDataSources = DataSources.FindRows(New Structure("Table", String.Table));
+		TableDataSources = DataSources.FindRows(New Structure("Table", TableRow.Table));
 		SourcesContent = New Array;
 		RegisterFields = New Map;
 		QueryText = "";
 		QueryTextDatesOnly = "";
 		Table = MetadataObject.FullName();
 		
-		For Each String In TableDataSources Do
-			SectionProperties = SectionsProperties.Sections.Get(String.Section);
+		For Each TableDataSource In TableDataSources Do
+			SectionProperties = SectionsProperties.Sections.Get(TableDataSource.Section);
 			If SectionProperties = Undefined Then
 				ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Non-existent section ""%1"" for table ""%2"" is specified
 					           |for checking period-end closing dates in data source.
 					           | See %3.';"),
-					String.Section,
-					String.Table,
+					TableDataSource.Section,
+					TableDataSource.Table,
 					"PeriodClosingDatesOverridable.FillDataSourcesForPeriodClosingCheck");
 				Raise ErrorText;
 			EndIf;
 			
 			Source = DataSourceDescription();
-			Source.Section = String.Section;
-			Source.DateField    = TableField(String, "DateField",    MetadataObject, IsRegister);
-			Source.ObjectField = TableField(String, "ObjectField", MetadataObject, IsRegister);
+			Source.Section = TableDataSource.Section;
+			Source.DateField    = TableField(TableDataSource, "DateField",    MetadataObject, IsRegister);
+			Source.ObjectField = TableField(TableDataSource, "ObjectField", MetadataObject, IsRegister);
 			
 			If IsRegister Then
 				RegisterFields.Insert(Source.DateField.Name, True);
@@ -2704,10 +2703,9 @@ Procedure AddSettings(RecordSet, Settings, SettingsAddressees, UserGroups, Group
 			AdditionalSettings = Settings.FindRows(Filter);
 		Else
 			Filter = New Structure("User", Addressee);
-			Rows = UserGroups.FindRows(Filter);
 			AdditionalSettings = Settings.Copy(New Array);
-			For Each String In Rows Do
-				Filter = New Structure("User", String.UsersGroup);
+			For Each TableRow In UserGroups.FindRows(Filter) Do
+				Filter = New Structure("User", TableRow.UsersGroup);
 				SettingsOfGroup = Settings.FindRows(Filter);
 				For Each GroupSetting In SettingsOfGroup Do
 					Filter = New Structure("Section, Object", GroupSetting.Section, GroupSetting.Object);
@@ -2725,14 +2723,14 @@ Procedure AddSettings(RecordSet, Settings, SettingsAddressees, UserGroups, Group
 			EndDo;
 		EndIf;
 		
-		For Each String In AdditionalSettings Do
+		For Each AdditionalSetting In AdditionalSettings Do
 			Filter = New Structure("User, Section, Object",
-				SettingsAddressee.User, String.Section, String.Object);
+				SettingsAddressee.User, AdditionalSetting.Section, AdditionalSetting.Object);
 			If Settings.FindRows(Filter).Count() > 0 Then
 				Continue;
 			EndIf;
 			NewRow = RecordSet.Add();
-			FillPropertyValues(NewRow, String);
+			FillPropertyValues(NewRow, AdditionalSetting);
 			FillPropertyValues(NewRow, SettingsAddressee);
 			FillPropertyValues(Settings.Add(), NewRow);
 		EndDo;

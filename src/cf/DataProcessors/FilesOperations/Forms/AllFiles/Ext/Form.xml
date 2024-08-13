@@ -39,7 +39,7 @@
 				</Title>
 				<ExtendedTooltip name="FormMainCommandsGroupExtendedTooltip" id="91"/>
 				<ChildItems>
-					<Button name="FormView" id="69">
+					<Button name="FormOpenForViewing" id="69">
 						<Type>CommandBarButton</Type>
 						<Representation>Text</Representation>
 						<SkipOnInput>false</SkipOnInput>
@@ -50,9 +50,9 @@
 								<v8:content>View</v8:content>
 							</v8:item>
 						</Title>
-						<ExtendedTooltip name="FormViewExtendedTooltip" id="92"/>
+						<ExtendedTooltip name="FormOpenForViewingExtendedTooltip" id="92"/>
 					</Button>
-					<Button name="FormUnlock" id="82">
+					<Button name="FormRelease" id="82">
 						<Type>CommandBarButton</Type>
 						<Representation>Text</Representation>
 						<SkipOnInput>false</SkipOnInput>
@@ -97,7 +97,7 @@
 						<v8:content>Form additional commands group</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="FormAdditionalCommandsGroup1ExtendedTooltip" id="133"/>
+				<ExtendedTooltip name="FormCommandsGroupAdditionalExtendedTooltip" id="133"/>
 				<ChildItems>
 					<Button name="FormSetDeletionMark" id="128">
 						<Type>CommandBarButton</Type>
@@ -247,7 +247,7 @@
 			<ContextMenu name="ListContextMenu" id="11">
 				<Autofill>false</Autofill>
 				<ChildItems>
-					<Button name="ListContextMenuView" id="80">
+					<Button name="ListContextMenuOpenForViewing" id="80">
 						<Type>CommandBarButton</Type>
 						<SkipOnInput>false</SkipOnInput>
 						<CommandName>Form.Command.OpenForViewing</CommandName>
@@ -257,7 +257,7 @@
 								<v8:content>View</v8:content>
 							</v8:item>
 						</Title>
-						<ExtendedTooltip name="ListContextMenuViewExtendedTooltip" id="97"/>
+						<ExtendedTooltip name="ListContextMenuOpenForViewingExtendedTooltip" id="97"/>
 					</Button>
 					<ButtonGroup name="ListContextMenuMainCommandsGroup" id="134">
 						<Title>
@@ -268,7 +268,7 @@
 						</Title>
 						<ExtendedTooltip name="ListContextMenuMainCommandsGroupExtendedTooltip" id="135"/>
 						<ChildItems>
-							<Button name="ListContextMenuUnlock" id="83">
+							<Button name="ListContextMenuRelease" id="83">
 								<Type>CommandBarButton</Type>
 								<SkipOnInput>false</SkipOnInput>
 								<CommandName>Form.Command.Release</CommandName>
@@ -278,7 +278,7 @@
 										<v8:content>Undo edits</v8:content>
 									</v8:item>
 								</Title>
-								<ExtendedTooltip name="ListContextMenuUnlockExtendedTooltip" id="98"/>
+								<ExtendedTooltip name="ListContextMenuReleaseExtendedTooltip" id="98"/>
 							</Button>
 							<Button name="ListOpenFIleProperties" id="153">
 								<Type>CommandBarButton</Type>
@@ -354,29 +354,29 @@
 				<Autofill>false</Autofill>
 			</AutoCommandBar>
 			<ExtendedTooltip name="ListExtendedTooltip" id="100"/>
-			<SearchStringAddition name="ListSearchString_SSLy" id="142">
+			<SearchStringAddition name="ListSearchString" id="142">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchStringRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchString_SSLyContextMenu" id="143"/>
-				<ExtendedTooltip name="ListSearchString_SSLyExtendedTooltip" id="144"/>
+				<ContextMenu name="ListSearchStringContextMenu" id="143"/>
+				<ExtendedTooltip name="ListSearchStringExtendedTooltip" id="144"/>
 			</SearchStringAddition>
-			<ViewStatusAddition name="ListViewStatus_SSLy" id="145">
+			<ViewStatusAddition name="ListViewStatus" id="145">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>ViewStatusRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListViewStatus_SSLyContextMenu" id="146"/>
-				<ExtendedTooltip name="ListViewStatus_SSLyExtendedTooltip" id="147"/>
+				<ContextMenu name="ListViewStatusContextMenu" id="146"/>
+				<ExtendedTooltip name="ListViewStatusExtendedTooltip" id="147"/>
 			</ViewStatusAddition>
-			<SearchControlAddition name="ListSearchControl_SSLy" id="148">
+			<SearchControlAddition name="ListSearchControl" id="148">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchControl</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchControl_SSLyContextMenu" id="149"/>
-				<ExtendedTooltip name="ListSearchControl_SSLyExtendedTooltip" id="150"/>
+				<ContextMenu name="ListSearchControlContextMenu" id="149"/>
+				<ExtendedTooltip name="ListSearchControlExtendedTooltip" id="150"/>
 			</SearchControlAddition>
 			<Events>
 				<Event name="Selection">ListSelection</Event>
@@ -490,8 +490,8 @@
 						</v8:item>
 					</Title>
 					<Wrap>false</Wrap>
-					<ContextMenu name="ListCreationDate1ContextMenu" id="24"/>
-					<ExtendedTooltip name="ListCreationDate1ExtendedTooltip" id="108"/>
+					<ContextMenu name="ListCreationDateContextMenu" id="24"/>
+					<ExtendedTooltip name="ListCreationDateExtendedTooltip" id="108"/>
 				</InputField>
 				<InputField name="ListSize" id="39" DisplayImportance="VeryLow">
 					<DataPath>List.Size</DataPath>

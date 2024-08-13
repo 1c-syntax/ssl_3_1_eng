@@ -728,7 +728,7 @@ Procedure RecordKeyOperationDuration(Parameters)
 	Record.MeasurementStartDate = KeyOperationStartDate;
 	Record.SessionNumber = InfoBaseSessionNumber();
 
-	Record.RunTime = ?(Duration = 0, 0.001, Duration); // 
+	Record.RunTime = ?(Duration = 0, 0.001, Duration); // Duration is less than timer resolution.
 	Record.MeasurementWeight = MeasurementWeight;
 
 	Record.RecordDate = Date(1, 1, 1) + CurrentUniversalDateInMilliseconds() / 1000;
@@ -811,7 +811,7 @@ Procedure WriteTimeMeasurements(MeasurementsArray)
 		Record.MeasurementStartDate = Measurement.KeyOperationStartDate;
 		Record.SessionNumber = SessionNumber;
 
-		Record.RunTime = ?(Measurement.Duration = 0, 0.001, Measurement.Duration); // 
+		Record.RunTime = ?(Measurement.Duration = 0, 0.001, Measurement.Duration); // Duration is less than timer resolution.
 		Record.MeasurementWeight = Measurement.MeasurementWeight;
 
 		Record.RecordDate = RecordDate;
@@ -1372,7 +1372,7 @@ Procedure LoadPerformanceMonitorFileApdexExport(XMLReader, AvailableKeyOperation
 
 		KeyOperationRef = AvailableKeyOperations[KeyOperationName1];
 		If KeyOperationRef = Undefined Then
-			KeyOperationRef = CreateKeyOperation(KeyOperationName1, ResponseTimeThreshold, TimeConsuming);  // 
+			KeyOperationRef = CreateKeyOperation(KeyOperationName1, ResponseTimeThreshold, TimeConsuming);  // @skip-check query-in-loop - Create an operation if it is missing.
 			AvailableKeyOperations.Insert(KeyOperationName1, KeyOperationRef);
 		EndIf;
 

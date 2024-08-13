@@ -33,7 +33,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="TitleGroup1ExtendedTooltip" id="2037"/>
+			<ExtendedTooltip name="TitleGroupExtendedTooltip" id="2037"/>
 			<ChildItems>
 				<LabelDecoration name="SectionDetails" id="2023">
 					<AutoMaxWidth>false</AutoMaxWidth>
@@ -186,7 +186,7 @@
 												</v8:item>
 											</Title>
 											<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
-											<ExtendedTooltip name="AuthorizationSettings1ExtendedTooltip" id="2197">
+											<ExtendedTooltip name="LogonSettingsExtendedTooltip" id="2197">
 												<Title formatted="false">
 													<v8:item>
 														<v8:lang>en</v8:lang>
@@ -316,7 +316,7 @@
 					<Behavior>Usual</Behavior>
 					<Representation>NormalSeparation</Representation>
 					<ChildItemsWidth>Equal</ChildItemsWidth>
-					<ExtendedTooltip name="ExternalUsersGroupExtendedTooltip" id="2297"/>
+					<ExtendedTooltip name="GroupExternalUsersExtendedTooltip" id="2297"/>
 					<ChildItems>
 						<UsualGroup name="GroupExternalUsersLeftColumn" id="2298">
 							<Title>

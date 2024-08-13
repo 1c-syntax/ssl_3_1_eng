@@ -100,7 +100,7 @@ Procedure UpdateSharedAddIn(ComponentDetails) Export
 			SharedAddIn.Lock();
 		EndIf;
 		
-		SharedAddIn.Fill(Undefined); // 
+		SharedAddIn.Fill(Undefined); // Default constructor
 		
 		ComponentBinaryData = New BinaryData(ComponentDetails.PathToFile);
 		Information = AddInsInternal.InformationOnAddInFromFile(ComponentBinaryData, False);
@@ -168,8 +168,8 @@ Procedure FillAddInInformation(Result, Version, Id) Export
 			Result.Ref = ReferenceFromStorage;
 		Else
 			If ValueIsFilled(Version) Then
-				// 
-				// 
+				// The same add-in version is present in both the common storage and area storage.
+				// The add-in in the area has a higher priority.
 				Result.State = "FoundInStorage";
 				Result.Ref = ReferenceFromStorage;
 			Else
@@ -180,8 +180,8 @@ Procedure FillAddInInformation(Result, Version, Id) Export
 					Result.State = "FoundInSharedStorage";
 					Result.Ref = ReferenceFromSharedStorage;
 				Else
-					// 
-					// 
+					// The add-in is present in both the common storage and area storage.
+					// The add-in in the area has a higher priority.
 					Result.State = "FoundInStorage";
 					Result.Ref = ReferenceFromStorage;
 				EndIf;
@@ -225,7 +225,7 @@ Procedure OnFillTypesExcludedFromExportImport(Types) Export
 	
 EndProcedure
 
-// See StandardSubsystems.OnSendDataToMaster.
+// 
 Procedure OnSendDataToMaster(DataElement, ItemSend, Recipient) Export
 	
 	If TypeOf(DataElement) = Type("CatalogObject.CommonAddIns") Then

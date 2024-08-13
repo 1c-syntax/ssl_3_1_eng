@@ -72,7 +72,7 @@ Function DuplicatesGroups(Val SearchParameters, Val SampleObject = Undefined) Ex
 	// Refine the input parameters.
 	ReturnedBatchSize = CommonClientServer.StructureProperty(SearchParameters, "MaxDuplicates");
 	If Not ValueIsFilled(ReturnedBatchSize) Then
-		ReturnedBatchSize = 0; // 
+		ReturnedBatchSize = 0; // Without restriction.
 	EndIf;
 	
 	CalculateUsageInstances = CommonClientServer.StructureProperty(SearchParameters, "CalculateUsageInstances");
@@ -467,8 +467,8 @@ Procedure RegisterDuplicate(DuplicatesCollection, Val Item1, Val Item2, Val Requ
 	Duplicate1Registered = (DuplicatesRow1 <> Undefined) Or (NotSignificantDuplicatesRow1 <> Undefined);
 	Duplicate2Registered = (DuplicatesRow2 <> Undefined) Or (NotSignificantDuplicatesRow2 <> Undefined);
 	
-	// 
-	// 
+	// If both items are added as duplicates, do nothing.
+	// If either of the items is insignificant, it is not considered a duplicate.
 	If Duplicate1Registered And Duplicate2Registered
 		Or NotSignificantDuplicatesRow1 <> Undefined
 		Or NotSignificantDuplicatesRow2 <> Undefined Then
@@ -728,7 +728,7 @@ Function DuplicateSearchDataCompositionSchema(SearchParameters, Characteristics,
 		SampleObjectsSelection = InitializeVTSelection(ValueTable);
 	EndIf;
 	
-	// Preparing DCS to read the duplicate data.
+	// Prepare the DCS to read duplicate data.
 	CandidatesFilters = New Map;
 	For Each FieldName In RequestStructure.FieldsNamesToCompareForEquality Do
 		FieldName = TrimAll(FieldName);

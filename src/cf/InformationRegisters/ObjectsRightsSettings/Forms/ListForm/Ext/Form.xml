@@ -145,8 +145,8 @@
 						</v8:item>
 					</Title>
 					<Width>20</Width>
-					<ContextMenu name="AListOfTheRightContextMenu" id="9"/>
-					<ExtendedTooltip name="AListOfTheRightExtendedTooltip" id="44"/>
+					<ContextMenu name="ListRightContextMenu" id="9"/>
+					<ExtendedTooltip name="ListRightExtendedTooltip" id="44"/>
 				</LabelField>
 				<ColumnGroup name="ListGroupRightValue" id="38">
 					<Title>

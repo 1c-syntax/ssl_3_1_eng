@@ -184,7 +184,7 @@
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
 									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="MailDeliveryGroupExtendedTooltip" id="107"/>
+									<ExtendedTooltip name="SendByEmailGroupExtendedTooltip" id="107"/>
 									<ChildItems>
 										<LabelDecoration name="DecorationSendFrom" id="108">
 											<Title formatted="false">
@@ -235,8 +235,8 @@
 															</xr:Value>
 														</xr:Item>
 													</ChoiceList>
-													<ContextMenu name="OptionToSendByMailStandardServiceContextMenu" id="101"/>
-													<ExtendedTooltip name="OptionToSendByMailStandardServiceExtendedTooltip" id="102"/>
+													<ContextMenu name="SendByEmailOptionStandardServiceContextMenu" id="101"/>
+													<ExtendedTooltip name="SendByEmailOptionStandardServiceExtendedTooltip" id="102"/>
 													<Events>
 														<Event name="OnChange">SendingOptionStandardServiceOnChange</Event>
 													</Events>
@@ -251,7 +251,7 @@
 													<Behavior>Usual</Behavior>
 													<Representation>None</Representation>
 													<ShowTitle>false</ShowTitle>
-													<ExtendedTooltip name="MailSettingsGroupExtendedTooltip" id="112"/>
+													<ExtendedTooltip name="GroupMailSettingsExtendedTooltip" id="112"/>
 													<ChildItems>
 														<RadioButtonField name="SendByEmailOptionAccount" id="103">
 															<DataPath>SendByEmailOption</DataPath>
@@ -279,8 +279,8 @@
 																	</xr:Value>
 																</xr:Item>
 															</ChoiceList>
-															<ContextMenu name="OptionToSendByMailAccountContextMenu" id="104"/>
-															<ExtendedTooltip name="OptionToSendByMailAccountExtendedTooltip" id="105"/>
+															<ContextMenu name="SendByEmailOptionAccountContextMenu" id="104"/>
+															<ExtendedTooltip name="SendByEmailOptionAccountExtendedTooltip" id="105"/>
 															<Events>
 																<Event name="OnChange">SendingOptionByEmailSettingOnChange</Event>
 															</Events>
@@ -294,8 +294,8 @@
 																</v8:item>
 															</Title>
 															<TitleLocation>None</TitleLocation>
-															<ContextMenu name="MailAccountContextMenu" id="36"/>
-															<ExtendedTooltip name="MailAccountExtendedTooltip" id="37"/>
+															<ContextMenu name="AccountEmailContextMenu" id="36"/>
+															<ExtendedTooltip name="AccountEmailExtendedTooltip" id="37"/>
 														</InputField>
 													</ChildItems>
 												</UsualGroup>
@@ -325,8 +325,8 @@
 															</xr:Value>
 														</xr:Item>
 													</ChoiceList>
-													<ContextMenu name="OptionToSendByMailYourSettingsContextMenu" id="41"/>
-													<ExtendedTooltip name="OptionToSendByMailYourSettingsExtendedTooltip" id="42"/>
+													<ContextMenu name="SendByEmailOptionCustomSettingsContextMenu" id="41"/>
+													<ExtendedTooltip name="SendByEmailOptionCustomSettingsExtendedTooltip" id="42"/>
 													<Events>
 														<Event name="OnChange">SendByEmailOptionOnChange</Event>
 													</Events>
@@ -346,7 +346,7 @@
 									<Collapsed>true</Collapsed>
 									<ControlRepresentation>Picture</ControlRepresentation>
 									<Representation>None</Representation>
-									<ExtendedTooltip name="ManualMailSettingsGroupExtendedTooltip" id="72"/>
+									<ExtendedTooltip name="GroupManualMailSettingsExtendedTooltip" id="72"/>
 									<ChildItems>
 										<UsualGroup name="SMTPServerGroup" id="88">
 											<Title>
@@ -441,7 +441,7 @@
 											<Behavior>Usual</Behavior>
 											<Representation>None</Representation>
 											<ShowTitle>false</ShowTitle>
-											<ExtendedTooltip name="SMTPUserGroupExtendedTooltip" id="91"/>
+											<ExtendedTooltip name="GroupSMTPUserExtendedTooltip" id="91"/>
 											<ChildItems>
 												<InputField name="SMTPUser" id="76">
 													<DataPath>SMTPUser</DataPath>
@@ -519,7 +519,7 @@
 																<v8:content>Insert parameter</v8:content>
 															</v8:item>
 														</Title>
-														<ExtendedTooltip name="ThePasteOptionFromTheContextMenuGroupExtendedTooltip" id="121"/>
+														<ExtendedTooltip name="InsertParameterContextMenuGroupExtendedTooltip" id="121"/>
 														<ChildItems>
 															<Button name="EmailSubjectContextMenuUserName" id="118">
 																<Type>CommandBarButton</Type>
@@ -541,7 +541,7 @@
 																		<v8:content>Configuration name</v8:content>
 																	</v8:item>
 																</Title>
-																<ExtendedTooltip name="EmailSubjectContextMenuConfigurationNameExtendedTooltip" id="125"/>
+																<ExtendedTooltip name="EmailSubjectContextMenuConfigurationDescriptionExtendedTooltip" id="125"/>
 															</Button>
 															<Button name="EmailSubjectContextMenuConfirmationCode" id="122">
 																<Type>CommandBarButton</Type>
@@ -567,7 +567,7 @@
 													<v8:content>Formatted document buttons</v8:content>
 												</v8:item>
 											</Title>
-											<ExtendedTooltip name="FormattedDocumentButtonGroupExtendedTooltip" id="68"/>
+											<ExtendedTooltip name="GroupFormattedDocumentButtonsExtendedTooltip" id="68"/>
 											<ChildItems>
 												<Popup name="BodyGroupParameters" id="92">
 													<Title>
@@ -644,7 +644,7 @@
 																<v8:content>Insert parameter</v8:content>
 															</v8:item>
 														</Title>
-														<ExtendedTooltip name="ToInsertAParameterBodyContextMenuGroupExtendedTooltip" id="133"/>
+														<ExtendedTooltip name="InsertParameterBodyContextMenuGroupExtendedTooltip" id="133"/>
 														<ChildItems>
 															<Button name="MessageTextContextMenuUserName" id="126">
 																<Type>CommandBarButton</Type>
@@ -655,7 +655,7 @@
 																		<v8:content>Username</v8:content>
 																	</v8:item>
 																</Title>
-																<ExtendedTooltip name="TheTextOfTheMessageContextMenuUserNameExtendedTooltip" id="127"/>
+																<ExtendedTooltip name="MessageTextContextMenuUserNameExtendedTooltip" id="127"/>
 															</Button>
 															<Button name="MessageTextContextMenuConfigurationDescription" id="130">
 																<Type>CommandBarButton</Type>
@@ -666,7 +666,7 @@
 																		<v8:content>Configuration name</v8:content>
 																	</v8:item>
 																</Title>
-																<ExtendedTooltip name="TextMessageShortcutMenuForTheConfigurationNameExtendedTooltip" id="131"/>
+																<ExtendedTooltip name="MessageTextContextMenuConfigurationDescriptionExtendedTooltip" id="131"/>
 															</Button>
 															<Button name="MessageTextContextMenuConfirmationCode" id="128">
 																<Type>CommandBarButton</Type>
@@ -677,7 +677,7 @@
 																		<v8:content>Confirmation code</v8:content>
 																	</v8:item>
 																</Title>
-																<ExtendedTooltip name="TheTextOfTheMessageContextMenuConfirmationCodeExtendedTooltip" id="129"/>
+																<ExtendedTooltip name="MessageTextContextMenuConfirmationCodeExtendedTooltip" id="129"/>
 															</Button>
 														</ChildItems>
 													</Popup>
@@ -722,7 +722,7 @@
 											<Behavior>Usual</Behavior>
 											<Representation>None</Representation>
 											<ShowTitle>false</ShowTitle>
-											<ExtendedTooltip name="TheGroupTheDurationOfTheLockRequestExtendedTooltip" id="51"/>
+											<ExtendedTooltip name="RequestLockDurationGroupExtendedTooltip" id="51"/>
 											<ChildItems>
 												<InputField name="RequestLockDuration" id="23">
 													<DataPath>VerificationCodeRefreshRequestLockDuration</DataPath>
@@ -733,8 +733,8 @@
 														</v8:item>
 													</Title>
 													<SpinButton>true</SpinButton>
-													<ContextMenu name="TheDurationOfTheLockRequestContextMenu" id="24"/>
-													<ExtendedTooltip name="TheDurationOfTheLockRequestExtendedTooltip" id="25"/>
+													<ContextMenu name="RequestLockDurationContextMenu" id="24"/>
+													<ExtendedTooltip name="RequestLockDurationExtendedTooltip" id="25"/>
 												</InputField>
 												<LabelDecoration name="SecondsDecoration" id="52">
 													<Title formatted="false">
@@ -758,8 +758,8 @@
 											</Title>
 											<Width>3</Width>
 											<SpinButton>true</SpinButton>
-											<ContextMenu name="MaximumNumberOfAttemptsContextMenu" id="27"/>
-											<ExtendedTooltip name="MaximumNumberOfAttemptsExtendedTooltip" id="28"/>
+											<ContextMenu name="MaxAttemptsCountContextMenu" id="27"/>
+											<ExtendedTooltip name="MaxAttemptsCountExtendedTooltip" id="28"/>
 										</InputField>
 									</ChildItems>
 								</UsualGroup>
@@ -772,7 +772,7 @@
 									<v8:content>Follow the link</v8:content>
 								</v8:item>
 							</Title>
-							<ExtendedTooltip name="ClickOnTheLinkExtendedTooltip" id="22"/>
+							<ExtendedTooltip name="LinkActionExtendedTooltip" id="22"/>
 							<ChildItems>
 								<InputField name="PasswordRecoveryLinkAddress" id="29">
 									<DataPath>PasswordRecoveryURL</DataPath>
@@ -790,8 +790,8 @@
 											<v8:content>http://server/password</v8:content>
 										</v8:item>
 									</InputHint>
-									<ContextMenu name="AddressOfThePasswordRecoveryLinkContextMenu" id="30"/>
-									<ExtendedTooltip name="AddressOfThePasswordRecoveryLinkExtendedTooltip" id="31"/>
+									<ContextMenu name="PasswordRecoveryLinkAddressContextMenu" id="30"/>
+									<ExtendedTooltip name="PasswordRecoveryLinkAddressExtendedTooltip" id="31"/>
 								</InputField>
 							</ChildItems>
 						</Page>

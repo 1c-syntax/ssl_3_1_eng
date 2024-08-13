@@ -36,7 +36,7 @@
 								<v8:content>Change</v8:content>
 							</v8:item>
 						</Title>
-						<ExtendedTooltip name="ChangeSyncSettingFormExtendedTooltip" id="107"/>
+						<ExtendedTooltip name="FormChangeSyncSettingExtendedTooltip" id="107"/>
 					</Button>
 					<Button name="FormMetadataObjectsTreeDelete" id="102">
 						<Type>CommandBarButton</Type>
@@ -157,7 +157,7 @@
 			<CurrentRowUse>SelectionPresentationAndChoice</CurrentRowUse>
 			<ContextMenu name="MetadataObjectsTreeContextMenu" id="14">
 				<ChildItems>
-					<Button name="MetadataObjectsTreeContextMenuCreateFileSynchronization" id="84">
+					<Button name="MetadataObjectsTreeContextMenuCreateFilesSynchronization" id="84">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.CreateFilesSynchronization</CommandName>
 						<Picture>
@@ -170,7 +170,7 @@
 								<v8:content>Configure file synchronization</v8:content>
 							</v8:item>
 						</Title>
-						<ExtendedTooltip name="MetadataObjectsTreeContextMenuCreateFileSynchronizationExtendedTooltip" id="85"/>
+						<ExtendedTooltip name="MetadataObjectsTreeContextMenuCreateFilesSynchronizationExtendedTooltip" id="85"/>
 					</Button>
 					<Button name="MetadataObjectsTreeContextMenuChangeSyncSetting" id="86">
 						<Type>CommandBarButton</Type>

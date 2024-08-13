@@ -93,7 +93,7 @@ EndProcedure
 #Region Private
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-// 
+// Procedures for output to a spreadsheet document.
 
 &AtServer
 Procedure OutputSpreadsheetDocument()
@@ -374,7 +374,7 @@ Procedure OutputSubordinateTreeItems(TreeRows, Template, RecursionLevels = 1)
 		IsInitialObject = (TreeRow.Ref = InitialObject);
 		SubordinateTreeItems = TreeRow.GetItems();
 		
-		// 
+		// Output connectors.
 		For Level = 1 To RecursionLevels Do
 			
 			If RecursionLevels > Level Then
@@ -420,7 +420,7 @@ Procedure OutputHierarchy()
 EndProcedure
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-// 
+// Procedures for generating a hierarchical tree of documents.
 
 &AtServer
 Procedure UpdateHierarchicalTree()
@@ -962,25 +962,20 @@ Function TheCurrentObjectWasDisplayedInTheBranch(Parent, CurrentObject, WasOutpu
 	
 	If IsString And CurrentObject = Parent.Ref Then 
 		WasOutput = True;
-	Else
-		Rows = Parent.GetItems();
-		
-		For Each String In Rows Do 
-			
-			If CurrentObject = String.Ref Then 
-				
-				WasOutput = True;
-				Break;
-				
-			EndIf;
-			
-		EndDo;
-		
-		If IsString And Not WasOutput Then 
-			TheCurrentObjectWasDisplayedInTheBranch(Parent.GetParent(), CurrentObject, WasOutput);
-		EndIf;
+		Return WasOutput;
 	EndIf;
+
+	For Each Item In Parent.GetItems() Do 
+		If CurrentObject = Item.Ref Then 
+			WasOutput = True;
+			Break;
+		EndIf;
+	EndDo;
 	
+	If IsString And Not WasOutput Then 
+		TheCurrentObjectWasDisplayedInTheBranch(Parent.GetParent(), CurrentObject, WasOutput);
+	EndIf;
+
 	Return WasOutput;
 	
 EndFunction
@@ -1072,7 +1067,7 @@ Function ObjectPresentationForOutput(Data)
 EndFunction
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-// 
+// Object state change procedures.
 
 &AtClient
 Function SelectedItems()
@@ -1135,7 +1130,7 @@ Function SelectedAreaBorders(SelectedArea1)
 	
 EndFunction
 
-// 
+// Modify the deletion mark.
 
 &AtServerNoContext
 Function StatisticsBySelectedItems(SelectedItems)
@@ -1418,7 +1413,7 @@ Function ProcessedDocuments(SelectedDocuments, Mode, Errors)
 	
 EndFunction
 
-// 
+// Common.
 
 &AtClient
 Procedure WarnAboutAnErrorWhenChangingElements(Errors, Scenario)

@@ -355,7 +355,7 @@
 								</v8:item>
 							</Title>
 							<EditMode>EnterOnInput</EditMode>
-							<ContextMenu name="ExchangeNodesTreeMessageNumberContextMenu" id="55"/>
+							<ContextMenu name="ExchangeNodesTreeMessageNoContextMenu" id="55"/>
 							<ExtendedTooltip name="ExchangeNodesTreeMessageNoExtendedTooltip" id="80"/>
 						</InputField>
 					</ChildItems>

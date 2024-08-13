@@ -8,16 +8,16 @@
 //
 //
 
-// 
+// Expected parameters:
 //
-//     
-//                                                                 
-//     
-//                                                
-//     
-//     
+//     MasterFormID - UUID - ID of the form whose storage is used for exchange.
+//                                                                 CompositionSchemaAddress - String - Address in the temp storage of the DCS whose settings are being edited.
+//     FilterComposerSettingsAddress - String - Address of the composer settings in the temp storage.
+//                                                FilterAreaPresentation - String - Presentation used to create the title.
+//     Return value (as a selection result):
+//     Undefined - Editing is canceled.
 //
-// 
+// String - Address of the new composer settings in the temp storage.
 //
 //     
 //     

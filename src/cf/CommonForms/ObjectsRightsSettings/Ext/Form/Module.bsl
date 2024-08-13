@@ -435,7 +435,7 @@ Procedure RereadCompletion(Response, Context) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Auxiliary procedures and functions.
 
 &AtClient
 Procedure UpdateDependentRights(Val Data, Val Right, Val PreviousValue2, Val RecursionDepth = 0)
@@ -454,26 +454,26 @@ Procedure UpdateDependentRights(Val Data, Val Right, Val PreviousValue2, Val Rec
 	
 	If Data[Right] = True Then
 		
-		// 
-		// 
+		// Permissions were leveled up (from "False" or "Undefined" to "True").
+		// Therefore, level up permissions for the parent access rights.
 		DirectRightsDependencies.Property(Right, DependentRights);
 		DependentRightValue = True;
 		
 	ElsIf Data[Right] = False Then
 		
-		// 
-		// 
+		// Restrictions were leveled up (from "True" or "Undefined" to "False").
+		// Therefore, level up restrictions for the child access rights.
 		ReverseRightsDependencies.Property(Right, DependentRights);
 		DependentRightValue = False;
 	Else
 		If PreviousValue2 = False Then
-			// 
-			// 
+			// Restrictions were leveled down (from "False" to "Undefined").
+			// Therefore, level down restrictions for the parent rights.
 			DirectRightsDependencies.Property(Right, DependentRights);
 			DependentRightValue = Undefined;
 		Else
-			// 
-			// 
+			// Permissions were leveled down (from "True" to "Undefined").
+			// Therefore, level down permissions for the child rights.
 			ReverseRightsDependencies.Property(Right, DependentRights);
 			DependentRightValue = Undefined;
 		EndIf;
@@ -795,7 +795,7 @@ Procedure FillCheckProcessing(Cancel)
 			Return;
 		EndIf;
 		
-		// 
+		// Validate users and user groups, access values, and their duplicates.
 		// 
 		
 		// Validate value population.

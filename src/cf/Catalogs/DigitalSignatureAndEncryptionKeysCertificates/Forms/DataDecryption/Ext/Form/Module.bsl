@@ -607,7 +607,7 @@ Async Procedure DecryptDataAfterProcessingBeforeExecute(Result, Context) Export
 	ExecutionParameters.Insert("Form",              ThisObject);
 	ExecutionParameters.Insert("FormIdentifier", Context.FormIdentifier);
 	ExecutionParameters.Insert("PasswordValue",     PasswordProperties.Value);
-	ExecutionParameters.Insert("AddressOfCertificate",    AddressOfCertificate); // 
+	ExecutionParameters.Insert("AddressOfCertificate",    AddressOfCertificate); // Intended for automatically determining the app.
 	
 	Context.Insert("ExecutionParameters", ExecutionParameters);
 	
@@ -729,8 +729,7 @@ Function WriteEncryptionCertificates(FormIdentifier, Error)
 		EndDo;
 	EndIf;
 	
-	Error = New Structure;
-	WriteEncryptionCertificatesAtServer(ObjectsDetails, FormIdentifier, Error);
+	Error = WriteEncryptionCertificatesAtServer(ObjectsDetails, FormIdentifier, Error);
 	
 	Return Not ValueIsFilled(Error);
 	
@@ -769,7 +768,7 @@ EndProcedure
 //   ObjectsDetails - Array of See ObjectDetails
 //
 &AtServerNoContext
-Procedure WriteEncryptionCertificatesAtServer(ObjectsDetails, FormIdentifier, Error)
+Function WriteEncryptionCertificatesAtServer(Val ObjectsDetails, Val FormIdentifier, Val Error)
 	
 	EncryptionCertificates = New Array;
 	
@@ -783,11 +782,13 @@ Procedure WriteEncryptionCertificatesAtServer(ObjectsDetails, FormIdentifier, Er
 	Except
 		RollbackTransaction();
 		ErrorInfo = ErrorInfo();
-		Error.Insert("ErrorDescription", NStr("en = 'An error occurred during the encryption certificate cleanup:';")
+		Error.Insert("ErrorDescription", NStr("en = 'Cannot clear the encryption certificates due to:';")
 			+ Chars.LF + ErrorProcessing.BriefErrorDescription(ErrorInfo));
 	EndTry;
 	
-EndProcedure
+	Return Error;
+	
+EndFunction
 
 &AtClient
 Procedure HandleError(Notification, ErrorAtClient, ErrorAtServer)

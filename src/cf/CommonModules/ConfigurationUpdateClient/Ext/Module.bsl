@@ -188,8 +188,8 @@ EndFunction
 //           ** UpdateFileFullName - String
 //           ** RunUpdateHandlers - Boolean - Indicates whether to run the update handlers after migrating to the given version.
 //        * Corrections - Structure:
-//           ** Set - Array - paths to the patch files in a temporary storage
-//                                    .
+//           ** Set - Array - Paths to the patch files
+//                                    in a temporary storage.
 //           ** Delete    - Array - UUIDs of patches to be deleted (String).
 //        * PlatformDirectory - String - path to the platform to be updated if it is not specified
 //                                    that the update is running on the current session platform.
@@ -348,7 +348,7 @@ EndProcedure
 //
 Procedure BeforeExit(Cancel, Warnings) Export
 	
-	// 
+	// NOTE: When raising the flag, the subsystem "ConfigurationUpdate" clears the warnings list.
 	// 
 	If ApplicationParameters["StandardSubsystems.SuggestInfobaseUpdateOnExitSession"] = True Then
 		WarningParameters = StandardSubsystemsClient.WarningOnExit();
@@ -728,7 +728,7 @@ Procedure ReadDataToEventLog(UpdateResult, ScriptDirectory)
 			
 			Comment = TrimAll(Mid(CurrentRow, StrFind(CurrentRow, "}") + 2));
 			If StrStartsWith(Comment, "UpdateSuccessful") 
-				Or Comment = "RefreshEnabled completed2" Then // 
+				Or Comment = "RefreshEnabled completed2" Then // ACC:1297 Do not localize (a part of a log); for compatibility purposes.
 				UpdateResult = True;
 				Continue;
 			ElsIf StrStartsWith(Comment, "UpdateNotExecuted")  
@@ -755,10 +755,10 @@ Procedure ReadDataToEventLog(UpdateResult, ScriptDirectory)
 		
 	EndDo;
 	
-	// 
-	// 
-	// 
-	// 
+	// When updating SSL from a version earlier than 2.3.1.6, then see if update errors
+	// - occur as the following events might be missing from the event log:
+	// - Updated successfully
+	// - Update failed
 	If UpdateResult = Undefined Then 
 		UpdateResult = Not ErrorOccurredDuringUpdate;
 	EndIf;
@@ -870,8 +870,8 @@ Function GenerateUpdateScriptFiles(Val InteractiveMode, Parameters, Administrati
 	
 	Email = ?(Parameters.UpdateMode = 2 And Parameters.EmailReport, Parameters.Email, "");
 	
-	//  
-	// 
+	// Instead of "GetTempFileName", use "TempFilesDir" since the directory shouldn't be auto-deleted when the client app exits. 
+	// Reason: the executable files, runtime log, and backup (if configured) are saved to this directory.
 	// 
 	TempFilesDirForUpdate = TempFilesDir() + "1Cv8Update." + Format(CommonClient.SessionDate(), "DF=yyMMddHHmmss") + "\";
 	
@@ -881,6 +881,11 @@ Function GenerateUpdateScriptFiles(Val InteractiveMode, Parameters, Administrati
 		BackupDirectory = CommonClientServer.AddLastPathSeparator(Parameters.IBBackupDirectoryName);
 	Else 
 		BackupDirectory = "";
+	EndIf;
+	
+	UserNotificationInterval = 0;
+	If Parameters.Property("UserNotificationInterval") Then
+		UserNotificationInterval = Parameters.UserNotificationInterval;
 	EndIf;
 	
 	CreateDataBackup = IsFileInfobase And (Parameters.CreateDataBackup = 1 Or Parameters.CreateDataBackup = 2);
@@ -906,7 +911,7 @@ Function GenerateUpdateScriptFiles(Val InteractiveMode, Parameters, Administrati
 	InsertScriptParameter("DesignerExecutableFileName" , DesignerExecutableFileName          , True, ParametersArea);
 	InsertScriptParameter("ClientExecutableFileName"       , ClientExecutableFileName                , True, ParametersArea);
 	InsertScriptParameter("COMConnectorPath"               , COMConnectorPath                        , True, ParametersArea);
-	InsertScriptParameter("EncodingOfTheLogFile"               	, EncodingOfTheLogFile                       	 , False, ParametersArea);
+	InsertScriptParameter("EncodingOfTheLogFile"                 , EncodingOfTheLogFile                          , False, ParametersArea);
 	InsertScriptParameter("InfobasePathParameter"   , InfobasePathParameter            , True, ParametersArea);
 	InsertScriptParameter("InfobaseFilePathString", InfobasePathString              , True, ParametersArea);
 	InsertScriptParameter("InfoBaseConnectionString", InfoBaseConnectionString         , True, ParametersArea);
@@ -924,9 +929,10 @@ Function GenerateUpdateScriptFiles(Val InteractiveMode, Parameters, Administrati
 	InsertScriptParameter("ExecuteDeferredHandlers"    , ExecuteDeferredHandlers             , False  , ParametersArea);
 	InsertScriptParameter("TaskSchedulerTaskName"        , TaskName                                  , True, ParametersArea);
 	InsertScriptParameter("OneCEnterpriseStartupParameters"       , OneCEnterpriseStartupParameters                , True, ParametersArea);
-	InsertScriptParameter("UnlockCode1"       			, "IBConfigurationBatchUpdate"         , False,   ParametersArea);
-	InsertScriptParameter("PerformAConfigurationUpdate"  	, PerformAConfigurationUpdate			 , False,   ParametersArea);
-	InsertScriptParameter("DownloadExtensions"       , DownloadExtensions				 , False,   ParametersArea);
+	InsertScriptParameter("UnlockCode1"                  , "IBConfigurationBatchUpdate"         , False,   ParametersArea);
+	InsertScriptParameter("UserNotificationInterval"  , UserNotificationInterval           , False,   ParametersArea);
+	InsertScriptParameter("PerformAConfigurationUpdate"   , PerformAConfigurationUpdate            , False,   ParametersArea);
+	InsertScriptParameter("DownloadExtensions"       , DownloadExtensions                , False,   ParametersArea);
 	
 	CreateDirectory(TempFilesDirForUpdate);
 	PatchesInformation = PatchesInformation(Parameters, TempFilesDirForUpdate);
@@ -1190,7 +1196,7 @@ Function DesignerBatchModeSupported()
 #Else
 	Designer1 = BinDir() + StandardSubsystemsClient.ApplicationExecutableFileName(True);
 	DesignerFile = New File(Designer1);
-	Return DesignerFile.Exists(); // 
+	Return DesignerFile.Exists(); // ACC:566 Synchronous calls outside of the web client are allowed.
 #EndIf
 	
 EndFunction

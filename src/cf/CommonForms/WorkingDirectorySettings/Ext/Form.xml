@@ -132,7 +132,7 @@
 					<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 					<Wrap>false</Wrap>
 					<BorderColor>style:BorderColor</BorderColor>
-					<ContextMenu name="TotalCount2ContextMenu" id="12"/>
+					<ContextMenu name="TotalFilesCountContextMenu" id="12"/>
 					<ExtendedTooltip name="TotalFilesCountExtendedTooltip" id="37"/>
 				</InputField>
 				<InputField name="WorkingDirectoryFilesSize" id="9">

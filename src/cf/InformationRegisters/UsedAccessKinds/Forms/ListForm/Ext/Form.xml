@@ -127,6 +127,12 @@
 					<ContextMenu name="AccessValuesTypeContextMenu" id="44"/>
 					<ExtendedTooltip name="AccessValuesTypeExtendedTooltip" id="45"/>
 				</LabelField>
+				<CheckBoxField name="Used" id="46">
+					<DataPath>List.Used</DataPath>
+					<CheckBoxType>Auto</CheckBoxType>
+					<ContextMenu name="UsedContextMenu" id="47"/>
+					<ExtendedTooltip name="UsedExtendedTooltip" id="48"/>
+				</CheckBoxField>
 			</ChildItems>
 		</Table>
 	</ChildItems>

@@ -119,14 +119,15 @@ Procedure ColumnsForDataImport(CatalogMetadata, ColumnsInformation) Export
 		Position = ColumnsInformation.Count() + 1;
 		Properties = PropertyManager.ObjectProperties(Catalogs[CatalogMetadata.Name].EmptyRef());
 		
-		PropertiesValues = AdditionalPropertyValues(Properties);
+		PropertiesValues = PropertiesAdditionalValues(Properties);
 		ValueMap = New Map;
-		For Each String In PropertiesValues Do
-			Value = ValueMap[String.Property];
+		For Each AdditionalValue In PropertiesValues Do
+			Value = ValueMap[AdditionalValue.Property];
 			If Value = Undefined Then
-				ValueMap.Insert(String.Property, CommonClientServer.ValueInArray(String.Ref));
+				ValueMap.Insert(AdditionalValue.Property, 
+					CommonClientServer.ValueInArray(AdditionalValue.Ref));
 			Else
-				ValueMap[String.Property].Add(String.Ref);
+				ValueMap[AdditionalValue.Property].Add(AdditionalValue.Ref);
 			EndIf;
 		EndDo;
 		
@@ -466,7 +467,7 @@ Procedure OnDefineSubordinateObjects(SubordinateObjects) Export
 
 EndProcedure
 
-// See NationalLanguageSupportServer.ObjectsSCHRepresentations
+// 
 Procedure OnDefineObjectsWithTablePresentation(Objects) Export
 	Objects.Add("Catalog.ObjectsPropertiesValues");
 	Objects.Add("Catalog.ObjectPropertyValueHierarchy");
@@ -481,7 +482,7 @@ EndProcedure
 // Parameters:
 //  ReplacementPairs - Map - contains the value pairs original and duplicate.
 //  UnprocessedOriginalsValues - Array of Structure:
-//    * ValueToReplace - AnyRef - the original value of the object to replace.
+//    * ValueToReplace - AnyRef - The original value of a replaceable object.
 //    * UsedLinks - See Common.SubordinateObjectsLinksByTypes.
 //    * KeyAttributesValue - Structure - Key is the attribute name. Value is the attribute value.
 //
@@ -518,6 +519,26 @@ Procedure OnSearchForReferenceReplacement(ReplacementPairs, UnprocessedOriginals
 
 EndProcedure
 // ACC:299-on
+
+// See SSLSubsystemsIntegration.OnGetFullTextSearchResults
+Procedure OnGetFullTextSearchResults(ObjectMetadata, Value, Presentation) Export
+	
+	// For additional information records, the form of the object (that owns the value) opens
+	// instead of the form for writing to the information register.
+	
+	If ObjectMetadata = Metadata.InformationRegisters.AdditionalInfo Then 
+		
+		Value = Value.Object;
+		ObjectMetadata = Value.Metadata();
+		
+		Presentation = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = '%1: %2';"), 
+			Common.ObjectPresentation(ObjectMetadata), 
+			String(Value));
+		
+	EndIf;
+	
+EndProcedure
 
 #EndRegion
 
@@ -818,23 +839,22 @@ Procedure TransferValuesFromFormAttributesToObject(Form, Object = Undefined, Bef
 		EndDo;
 	EndDo;
 	
-	For Each String In Form.PropertiesAdditionalAttributeDetails Do
+	For Each LongDesc In Form.PropertiesAdditionalAttributeDetails Do
 		
-		Value = Form[String.ValueAttributeName];
-		
+		Value = Form[LongDesc.ValueAttributeName];
 		If Value = Undefined Then
 			Continue;
 		EndIf;
 		
-		If String.ValueType.Types().Count() = 1
+		If LongDesc.ValueType.Types().Count() = 1
 		   And (Not ValueIsFilled(Value) Or Value = False) Then
 			
 			Continue;
 		EndIf;
 		
-		If String.Deleted Then
+		If LongDesc.Deleted Then
 			If ValueIsFilled(Value) And Not (BeforeWrite And Form.PropertiesHideDeleted) Then
-				FoundRow = PreviousValues1.Find(String.Property, "Property");
+				FoundRow = PreviousValues1.Find(LongDesc.Property, "Property");
 				If FoundRow <> Undefined Then
 					FillPropertyValues(ObjectDetails.AdditionalAttributes.Add(), FoundRow);
 				EndIf;
@@ -844,10 +864,10 @@ Procedure TransferValuesFromFormAttributesToObject(Form, Object = Undefined, Bef
 		
 		// Support of hyperlink strings.
 		UseStringAsLink = UseStringAsLink(
-			String.ValueType, String.OutputAsHyperlink, String.MultilineInputField);
+			LongDesc.ValueType, LongDesc.OutputAsHyperlink, LongDesc.MultilineInputField);
 		
 		NewRow = ObjectDetails.AdditionalAttributes.Add();
-		NewRow.Property = String.Property;
+		NewRow.Property = LongDesc.Property;
 		If UseStringAsLink Then
 			AddressAndPresentation = AddressAndPresentation(Value);
 			NewRow.Value = AddressAndPresentation.Presentation;
@@ -857,7 +877,7 @@ Procedure TransferValuesFromFormAttributesToObject(Form, Object = Undefined, Bef
 		
 		// Support of strings with unlimited length.
 		UseUnlimitedString = UseUnlimitedString(
-			String.ValueType, String.MultilineInputField);
+			LongDesc.ValueType, LongDesc.MultilineInputField);
 		
 		If UseUnlimitedString Or UseStringAsLink Then
 			NewRow.TextString = Value;
@@ -1195,8 +1215,8 @@ Function PropertiesValues(AdditionalObjectProperties, Sets, PropertyKind) Export
 	EndIf;
 	
 	// Populate property values.
-	For Each String In AdditionalObjectProperties Do
-		PropertyDetails = PropertiesDetails.Find(String.Property, "Property");
+	For Each LongDesc In AdditionalObjectProperties Do
+		PropertyDetails = PropertiesDetails.Find(LongDesc.Property, "Property");
 		If PropertyDetails <> Undefined Then
 			// Support of strings with unlimited length.
 			If PropertyKind = Enums.PropertiesKinds.AdditionalAttributes Then
@@ -1208,23 +1228,23 @@ Function PropertiesValues(AdditionalObjectProperties, Sets, PropertyKind) Export
 					PropertyDetails.ValueType,
 					PropertyDetails.MultilineInputField);
 				NeedToTransferValueFromRef = NeedToTransferValueFromRef(
-						String.TextString,
-						String.Value);
+						LongDesc.TextString,
+						LongDesc.Value);
 				If (UseUnlimitedString
 						Or UseStringAsLink
 						Or NeedToTransferValueFromRef)
-					And Not IsBlankString(String.TextString) Then
+					And Not IsBlankString(LongDesc.TextString) Then
 					If Not UseStringAsLink And NeedToTransferValueFromRef Then
-						ValueWithoutRef = ValueWithoutRef(String.TextString, String.Value);
+						ValueWithoutRef = ValueWithoutRef(LongDesc.TextString, LongDesc.Value);
 						PropertyDetails.Value = ValueWithoutRef;
 					Else
-						PropertyDetails.Value = String.TextString;
+						PropertyDetails.Value = LongDesc.TextString;
 					EndIf;
 				Else
-					PropertyDetails.Value = String.Value;
+					PropertyDetails.Value = LongDesc.Value;
 				EndIf;
 			Else
-				PropertyDetails.Value = String.Value;
+				PropertyDetails.Value = LongDesc.Value;
 			EndIf;
 		EndIf;
 	EndDo;
@@ -1499,13 +1519,13 @@ Procedure BeforeRemoveReferenceObject(Object, Cancel) Export
 	Query.SetParameter("Value", Object.Ref);
 	Result = Query.Execute().Unload();
 	
-	For Each String In Result Do
+	For Each TableRow In Result Do
 		Block = New DataLock;
 		LockItem = Block.Add("ChartOfCharacteristicTypes.AdditionalAttributesAndInfo");
-		LockItem.SetValue("Ref", String.Ref);
+		LockItem.SetValue("Ref", TableRow.Ref);
 		Block.Lock();
 		
-		AttributeOfObject = String.Ref.GetObject();// ChartOfCharacteristicTypesObject.AdditionalAttributesAndInfo
+		AttributeOfObject = TableRow.Ref.GetObject();// ChartOfCharacteristicTypesObject.AdditionalAttributesAndInfo
 		FilterParameters = New Structure("Value", Object.Ref);
 		FoundRows = AttributeOfObject.AdditionalAttributesDependencies.FindRows(FilterParameters);
 		For Each Dependence In FoundRows Do
@@ -1721,8 +1741,8 @@ Procedure CheckRefreshGroupPropertiesContent(Group) Export
 	
 	If Not Refresh Then
 		IndexOf = 0;
-		For Each String In GroupObject.AdditionalAttributes Do
-			If String.Property <> AdditionalGroupAttributes[IndexOf].Property Then
+		For Each AdditionalAttribute In GroupObject.AdditionalAttributes Do
+			If AdditionalAttribute.Property <> AdditionalGroupAttributes[IndexOf].Property Then
 				Refresh = True;
 			EndIf;
 			IndexOf = IndexOf + 1;
@@ -1731,8 +1751,8 @@ Procedure CheckRefreshGroupPropertiesContent(Group) Export
 	
 	If Not Refresh Then
 		IndexOf = 0;
-		For Each String In GroupObject.AdditionalInfo Do
-			If String.Property <> AdditionalGroupInfo[IndexOf].Property Then
+		For Each AdditionalInfoItem In GroupObject.AdditionalInfo Do
+			If AdditionalInfoItem.Property <> AdditionalGroupInfo[IndexOf].Property Then
 				Refresh = True;
 			EndIf;
 			IndexOf = IndexOf + 1;
@@ -1754,12 +1774,37 @@ EndProcedure
 // Parameters:
 //  Property - ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo - a property for
 //             which listed values are to be received.
-//           - Array
 // 
 // Returns:
 //  Array of CatalogRef - property values if any.
 //
 Function AdditionalPropertyValues(Property) Export
+	
+	ProcedureName = "PropertyManagerInternal.AdditionalPropertyValues";
+	CommonClientServer.CheckParameter(ProcedureName, "Property", Property, 
+		Type("ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo"));
+	
+	PropertiesValues = PropertiesAdditionalValues(Property);
+	Result       = PropertiesValues.UnloadColumn("Ref");
+	
+	Return Result;
+	
+EndFunction
+
+// Returns a table with enumeration values of the given property.
+//
+// Parameters:
+//  Property - Array of ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo - properties for
+//             which listed values are to be received.
+//           - ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo
+// 
+// Returns:
+//  ValueTable:
+//   * Ref - CatalogRef.ObjectPropertyValueHierarchy
+//            - CatalogRef.ObjectsPropertiesValues
+//   * Property - ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo
+//
+Function PropertiesAdditionalValues(Property) Export
 	
 	Query = New Query;
 	Query.Parameters.Insert("Property", Property);
@@ -1782,11 +1827,7 @@ Function AdditionalPropertyValues(Property) Export
 		|WHERE
 		|	ObjectsPropertiesValues.Owner IN (&Property)";
 	
-	If TypeOf(Property) = Type("ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo") Then
-		Result = Query.Execute().Unload().UnloadColumn("Ref");
-	Else
-		Result = Query.Execute().Unload();
-	EndIf;
+	Result = Query.Execute().Unload();
 	
 	Return Result;
 	
@@ -1889,8 +1930,8 @@ Procedure CreatePredefinedPropertiesSets() Export
 	|	AND NOT SetsDetails.IsChildOne";
 	SetsToProcess = Query.Execute().Unload();
 	
-	For Each String In SetsToProcess Do
-		SetProperties = PredefinedPropertiesSets.Get(String.Ref); // See Catalogs.AdditionalAttributesAndInfoSets.SetProperties
+	For Each TableRow In SetsToProcess Do
+		SetProperties = PredefinedPropertiesSets.Get(TableRow.Ref); // See Catalogs.AdditionalAttributesAndInfoSets.SetProperties
 		Object         = SetProperties.Ref.GetObject();
 		CreatePropertiesSet(Object, SetProperties);
 		
@@ -2581,11 +2622,11 @@ Procedure UpdateCurrentSetPropertiesList(Form, Set, PropertyKind, CurrentEnable 
 	
 	Result = FetchingValues[0].Unload();
 	MapOfAttributesValues = New Map;
-	For Each String In Result Do
-		CurrentListOfVals = MapOfAttributesValues[String.Owner];
+	For Each TableRow In Result Do
+		CurrentListOfVals = MapOfAttributesValues[TableRow.Owner];
 		If CurrentListOfVals = Undefined Then
 			IndexOf = 1;
-			MapOfAttributesValues.Insert(String.Owner, String.Description);
+			MapOfAttributesValues.Insert(TableRow.Owner, TableRow.Description);
 		Else
 			IndexOf = IndexOf + 1;
 			If IndexOf > 4 Then
@@ -2593,16 +2634,16 @@ Procedure UpdateCurrentSetPropertiesList(Form, Set, PropertyKind, CurrentEnable 
 			ElsIf IndexOf = 4 Then
 				CurrentListOfVals = CurrentListOfVals + ",...";
 			Else
-				CurrentListOfVals = CurrentListOfVals + ", " + String.Description;
+				CurrentListOfVals = CurrentListOfVals + ", " + TableRow.Description;
 			EndIf;
-			MapOfAttributesValues.Insert(String.Owner, CurrentListOfVals);
+			MapOfAttributesValues.Insert(TableRow.Owner, CurrentListOfVals);
 		EndIf;
 	EndDo;
 	
 	Result = FetchingValues[1].Unload();
 	AttributesWithValues = New Map;
-	For Each String In Result Do
-		AttributesWithValues.Insert(String.Owner, True);
+	For Each TableRow In Result Do
+		AttributesWithValues.Insert(TableRow.Owner, True);
 	EndDo;
 	
 	Selection = QueryResults[0].Select();

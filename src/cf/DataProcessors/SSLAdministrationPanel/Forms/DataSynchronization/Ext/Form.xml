@@ -33,7 +33,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="TitleGroup1ExtendedTooltip" id="2013"/>
+			<ExtendedTooltip name="TitleGroupExtendedTooltip" id="2013"/>
 			<ChildItems>
 				<LabelDecoration name="SectionDetails" id="1567">
 					<AutoMaxWidth>false</AutoMaxWidth>
@@ -76,7 +76,7 @@
 			<Representation>None</Representation>
 			<ChildItemsWidth>Equal</ChildItemsWidth>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="DataSynchronizationGroupExtendedTooltip" id="2018"/>
+			<ExtendedTooltip name="GroupDataSynchronizationExtendedTooltip" id="2018"/>
 			<ChildItems>
 				<UsualGroup name="UseDataSynchronizationGroup" id="1221">
 					<Title>
@@ -286,7 +286,7 @@ This has no effect in distributed infobases.</v8:content>
 								<Title formatted="false">
 									<v8:item>
 										<v8:lang>en</v8:lang>
-										<v8:content>View unposted documents, unfilled attributes, conflicts, and data related to closed periods.</v8:content>
+										<v8:content>View unposted documents, unfilled attributes, conflicts, and data rejected due to import restriction dates.</v8:content>
 									</v8:item>
 								</Title>
 							</ExtendedTooltip>

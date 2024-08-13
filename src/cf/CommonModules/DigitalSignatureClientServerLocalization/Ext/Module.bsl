@@ -40,10 +40,10 @@ Procedure OnGetDefaultEnvelopeVariant(XMLEnvelope) Export
 	
 EndProcedure
 
-// Address of the revokation list located on a different resource.
+// Address of the revocation list located on a different resource.
 // 
 // Parameters:
-//  CertificateAuthorityName - String - Name of the certificate authority (low-case, in Latin letters)
+//  CertificateAuthorityName - String - Issuer's name (lower case, Latin letters)
 //  Certificate  - BinaryData
 //              - String
 // 
@@ -55,6 +55,24 @@ EndProcedure
 Function RevocationListInternalAddress(CertificateAuthorityName, Certificate) Export
 	
 	Result = New Structure("ExternalAddress, InternalAddress");
+	
+	CertificateAuthorityName = StrReplace(CertificateAuthorityName, " ", "_");
+	CertificateAuthorityName = TrimAll(StrConcat(StrSplit(CertificateAuthorityName, "!*'();:@&=+$,/?%#[]\|<>", True), ""));
+	
+	CertificateAuthorityName = CommonClientServer.ReplaceProhibitedCharsInFileName(CertificateAuthorityName, "");
+	
+	If Not ValueIsFilled(CertificateAuthorityName) Then
+		Return Result;
+	EndIf;
+	
+	CertificateAdditionalProperties = 
+		DigitalSignatureInternalClientServer.CertificateAdditionalProperties(Certificate, 0);
+	
+	If Not ValueIsFilled(CertificateAdditionalProperties.CertificateAuthorityKeyID) Then
+		Return Result;
+	EndIf;
+	
+	Result.InternalAddress = StrTemplate("%1/%2", CertificateAuthorityName, Lower(CertificateAdditionalProperties.CertificateAuthorityKeyID));
 	
 	
 	Return Result;
@@ -87,6 +105,11 @@ Procedure OnDefineRefToAppsGuide(Section, URL) Export
 EndProcedure
 
 Procedure OnDefiningRefToAppsTroubleshootingGuide(URL, SectionName = "") Export
+	
+	
+EndProcedure
+
+Procedure OnDefineRefToSearchByErrorsWhenManagingDigitalSignature(URL, SearchString = "") Export
 	
 	
 EndProcedure

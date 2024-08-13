@@ -101,10 +101,10 @@
 							</Title>
 							<TitleLocation>Top</TitleLocation>
 							<AutoMarkIncomplete>true</AutoMarkIncomplete>
-							<ContextMenu name="ObjectRef1ContextMenu" id="4"/>
+							<ContextMenu name="ObjectReferenceContextMenu" id="4"/>
 							<ExtendedTooltip name="ObjectReferenceExtendedTooltip" id="24"/>
 							<Events>
-								<Event name="OnChange">ObjectRef1OnChange</Event>
+								<Event name="OnChange">ObjectReferenceOnChange</Event>
 							</Events>
 						</InputField>
 						<LabelDecoration name="DecorationTooltipRefToObject" id="14">

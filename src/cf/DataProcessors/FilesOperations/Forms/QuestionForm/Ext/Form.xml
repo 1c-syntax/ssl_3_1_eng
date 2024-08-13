@@ -24,7 +24,7 @@
 				</v8:item>
 			</Title>
 			<TitleLocation>None</TitleLocation>
-			<ContextMenu name="MessageTitle1ContextMenu" id="3"/>
+			<ContextMenu name="MessageTitleContextMenu" id="3"/>
 			<ExtendedTooltip name="MessageTitleExtendedTooltip" id="17"/>
 		</LabelField>
 		<Table name="Files" id="4">

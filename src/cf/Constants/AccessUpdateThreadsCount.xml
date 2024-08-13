@@ -42,9 +42,9 @@
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>The maximum number of background jobs upon update.
+					<v8:content>The maximum number of background jobs during update.
 The recommended value is up to 50-75% of the number of server cluster processor cores (for more information, see Help).
-If more than one thread is specified, one more thread of control is started.</v8:content>
+If more than one thread is specified, another main thread is started.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<MarkNegatives>false</MarkNegatives>

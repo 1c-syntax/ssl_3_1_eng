@@ -202,8 +202,8 @@ Procedure ImportAddInFromFile()
 	EndIf;
 	
 	Notification = New NotifyDescription("ImportAddInAfterSecurityWarning", ThisObject);
-	FormParameters = New Structure("Key", "BeforeAddAddIn");
-	OpenForm("CommonForm.SecurityWarning", FormParameters,,,,, Notification);
+	UsersInternalClient.ShowSecurityWarning(Notification,
+		UsersInternalClientServer.TypesOfSafetyWarnings().BeforeAddAddIn);
 	
 EndProcedure
 
@@ -211,10 +211,10 @@ EndProcedure
 &AtClient
 Procedure ImportAddInAfterSecurityWarning(Response, Context) Export
 	
-	//  
-	// 
-	// 
-	// 
+	// Response: 
+	// - Continue - Attach the add-in.
+	// - DialogReturnCode.Cancel - Cancel attachment.
+	// - Undefined - Close the dialog.
 	If Response <> "Continue" Then
 		ImportAddInOnErrorDisplay();
 		Return;
@@ -368,7 +368,7 @@ Function ImportAddInFromFileOnServer(Val ImportParameters)
 	If Not ValueIsFilled(ObjectOfCatalog.Id) Then 
 		ObjectOfCatalog.Id = Information.Attributes.Id;
 	EndIf;
-	ObjectOfCatalog.FileName =  ImportParameters.FileName;          // 
+	ObjectOfCatalog.FileName =  ImportParameters.FileName;          // Set file name.
 	ComponentBinaryDataAddress = PutToTempStorage(Information.BinaryData,
 		UUID);
 	

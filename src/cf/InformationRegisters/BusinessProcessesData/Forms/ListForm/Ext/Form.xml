@@ -56,7 +56,7 @@
 							<v8:content>Search</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="SearchGroupExtendedTooltip" id="39"/>
+					<ExtendedTooltip name="GroupSearchExtendedTooltip" id="39"/>
 					<ChildItems>
 						<Button name="FormFind" id="35">
 							<Type>CommandBarButton</Type>
@@ -80,7 +80,7 @@
 							<v8:content>Tasks</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="BusinessProcessTaskFormExtendedTooltip" id="77"/>
+					<ExtendedTooltip name="FormBusinessProcessTasksExtendedTooltip" id="77"/>
 				</Button>
 				<Button name="FormFlowchart" id="33">
 					<Type>CommandBarButton</Type>

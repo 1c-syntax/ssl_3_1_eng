@@ -99,7 +99,7 @@ Procedure CustomPeriodEndClosingDateOnChange(Item)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Identical event handlers of PeriodClosingDates and PeriodEndClosingDateEdit forms.
 
 &AtClient
 Procedure PeriodEndClosingDateDetailsOnChange(Item)

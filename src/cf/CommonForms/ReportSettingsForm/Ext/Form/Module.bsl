@@ -270,7 +270,7 @@ Procedure OutputFiltersOnChange(Item)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Attachable objects.
 
 &AtClient
 Procedure Attachable_Period_OnChange(Item)
@@ -367,10 +367,10 @@ Procedure Attachable_List_ChoiceProcessing(Item, SelectionResult, StandardProces
 	
 	List = ThisObject[Item.Name];
 	
-	SelectedItems = ReportsClientServer.ValuesByList(SelectionResult);
-	SelectedItems.FillChecks(True);
+	Selected_ = ReportsClientServer.ValuesByList(SelectionResult);
+	Selected_.FillChecks(True);
 	
-	AddOn = CommonClientServer.SupplementList(List, SelectedItems, False, True);
+	AddOn = CommonClientServer.SupplementList(List, Selected_, False, True);
 	
 	TheValueOfTheSettingElement = CommonClient.CopyRecursive(List);
 	IndexOf = TheValueOfTheSettingElement.Count() - 1;
@@ -406,7 +406,7 @@ Procedure Attachable_List_ChoiceProcessing(Item, SelectionResult, StandardProces
 		
 		ShowUserNotification(
 			NotificationTitle,,
-			String(SelectedItems),
+			String(Selected_),
 			PictureLib.ExecuteTask);
 	EndIf;
 	
@@ -1038,7 +1038,7 @@ Procedure FiltersOnActivateCell(Item)
 	ValueField.ListChoiceMode = Not IsListField And (String.AvailableValues <> Undefined);
 	
 	CastValueToComparisonKind(String);
-	SetValuePresentation(String);
+	SetValuePresentation(String, Report.SettingsComposer.Settings.FilterAvailableFields);
 EndProcedure
 
 &AtClient
@@ -1155,7 +1155,7 @@ Procedure FiltersValueOnChange(Item)
 	SettingItem.Value = String.Value;
 	
 	DetermineIfModified();
-	SetValuePresentation(String);
+	SetValuePresentation(String, Report.SettingsComposer.Settings.FilterAvailableFields);
 	
 	If ReportSettings.ImportSettingsOnChangeParameters.Find(SettingItem.Parameter) <> Undefined Then 
 		WasOptionModified = VariantModified;
@@ -1201,7 +1201,7 @@ Procedure FiltersRightValueOnChange(Item)
 	FillPropertyValues(SettingItem, String, "Use, RightValue");
 	
 	DetermineIfModified();
-	SetValuePresentation(String);
+	SetValuePresentation(String, Report.SettingsComposer.Settings.FilterAvailableFields);
 EndProcedure
 
 &AtClient
@@ -1839,12 +1839,12 @@ EndFunction
 #Region FormTableItemsEventHandlersGroupingComposition
 
 &AtClient
-Procedure GroupCompositionUseOnChange(Item)
+Procedure GroupingCompositionUseOnChange(Item)
 	ChangeSettingItemUsage("GroupingComposition");
 EndProcedure
 
 &AtClient
-Procedure GroupCompositionSelection(Item, RowID, Field, StandardProcessing)
+Procedure GroupingCompositionSelection(Item, RowID, Field, StandardProcessing)
 	
 	String = Items.GroupingComposition.CurrentData;
 	If String = Undefined Then
@@ -1852,19 +1852,19 @@ Procedure GroupCompositionSelection(Item, RowID, Field, StandardProcessing)
 		Return;
 	EndIf;
 	
-	If Field = Items.GroupCompositionField Then
+	If Field = Items.GroupingCompositionField Then
 		StandardProcessing = False;
 		If TypeOf(String.Field) = Type("DataCompositionField") Then 
 			GroupContentSelectField(RowID, String);
 		EndIf;
-	ElsIf Field <> Items.GroupCompositionGroupType
-		And Field <> Items.GroupCompositionAdditionType Then
+	ElsIf Field <> Items.GroupingCompositionGroupType
+		And Field <> Items.GroupingCompositionAdditionType Then
 		StandardProcessing = False;
 	EndIf;
 EndProcedure
 
 &AtClient
-Procedure GroupCompositionBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group, Parameter)
+Procedure GroupingCompositionBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group, Parameter)
 	Cancel = True;
 	
 	If Copy Then
@@ -1876,12 +1876,12 @@ Procedure GroupCompositionBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group, Pa
 EndProcedure
 
 &AtClient
-Procedure GroupCompositionBeforeDeleteRow(Item, Cancel)
+Procedure GroupingCompositionBeforeDeleteRow(Item, Cancel)
 	DeleteRows(Item, Cancel);
 EndProcedure
 
 &AtClient
-Procedure GroupCompositionGroupTypeOnChange(Item)
+Procedure GroupingCompositionGroupTypeOnChange(Item)
 	String = Items.GroupingComposition.CurrentData;
 	If String = Undefined Then
 		Return;
@@ -1897,7 +1897,7 @@ Procedure GroupCompositionGroupTypeOnChange(Item)
 EndProcedure
 
 &AtClient
-Procedure GroupCompositionAdditionTypeOnChange(Item)
+Procedure GroupingCompositionAdditionTypeOnChange(Item)
 	String = Items.GroupingComposition.CurrentData;
 	If String = Undefined Then
 		Return;
@@ -1969,7 +1969,7 @@ Procedure AppearanceBeforeDeleteRow(Item, Cancel)
 EndProcedure
 
 &AtClient
-Procedure AppearanceUsageOnChange(Item)
+Procedure AppearanceUseOnChange(Item)
 	ChangeSettingItemUsage("Appearance");
 EndProcedure
 
@@ -2065,7 +2065,7 @@ Procedure GoToSettingsForTechnician(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Attachable commands.
 
 &AtClient
 Procedure Attachable_SelectPeriod(Command)
@@ -2097,7 +2097,7 @@ EndProcedure
 
 &AtClient
 Procedure Attachable_List_PasteFromClipboard(Command)
-	ListPath = StrReplace(Command.Name, "PasteFromClipboard1", "");
+	ListPath = StrReplace(Command.Name, ReportsClientServer.PasteFromClipboardCommandName(), "");
 	
 	List = ThisObject[ListPath];
 	ListBox = Items[ListPath]; // FormTable
@@ -2141,7 +2141,7 @@ EndFunction
 
 #Region GroupFields
 
-// 
+// Read settings.
 
 &AtServer
 Procedure UpdateGroupFields()
@@ -2184,7 +2184,7 @@ Procedure UpdateGroupFields()
 	EndDo;
 EndProcedure
 
-// 
+// Add and modify items.
 
 &AtClient
 Procedure GroupContentSelectField(RowID, String)
@@ -2243,7 +2243,7 @@ Procedure GroupCompositionAfterFieldChoice(SettingDetails, RowID) Export
 	DetermineIfModified();
 EndProcedure
 
-// 
+// Shift items.
 
 &AtClient
 Procedure ShiftGroupField(ToBeginning = True)
@@ -2291,7 +2291,7 @@ EndProcedure
 
 #Region DataParametersAndFilters
 
-// 
+// Read settings.
 
 &AtServer
 Procedure UpdateDataParameters()
@@ -2448,12 +2448,12 @@ Function SetFiltersRowData(String, StructureItemProperty, SettingItem, SettingDe
 	String.IsPredefinedTitle = (String.Title = String.UserSettingPresentation);
 	
 	CastValueToComparisonKind(String, SettingItem);
-	SetValuePresentation(String);
+	SetValuePresentation(String, StructureItemProperty.FilterAvailableFields);
 	
 	Return InstalledSuccessfully1;
 EndFunction
 
-// 
+// Add and modify items.
 
 &AtClient
 Procedure FiltersSelectGroup(RowID)
@@ -2726,7 +2726,7 @@ Procedure List_AtStartChanges()
 	
 EndProcedure
 
-// 
+// Modify item grouping.
 
 // Returns:
 //  Structure:
@@ -2832,7 +2832,7 @@ Procedure DeleteBasicFiltersGroupingItems(SettingsNodeFilters, GroupingParameter
 	EndDo;
 EndProcedure
 
-// 
+// Drag items.
 
 &AtClient
 Procedure CheckDraggableRowsFromSelections(RowsIDs)
@@ -2947,7 +2947,7 @@ Procedure DragAndDropFilters(SelectedSettingsNodeFields, IndexOf, Rows, Settings
 	EndDo;
 EndProcedure
 
-// 
+// Shift items.
 
 &AtClient
 Procedure ShiftFilters(ToBeginning = True)
@@ -2959,8 +2959,8 @@ Procedure ShiftFilters(ToBeginning = True)
 	StructureItemProperty = SettingsStructureItemProperty(
 		Report.SettingsComposer, "Filter", SettingsStructureItemID);
 	
-	For Each String In ShiftParameters.Rows Do 
-		SettingItem = SettingItem(StructureItemProperty, String);
+	For Each ListLine In ShiftParameters.Rows Do 
+		SettingItem = SettingItem(StructureItemProperty, ListLine);
 		SettingsItems = StructureItemProperty.Items;
 		
 		If SettingItem.Parent <> Undefined Then
@@ -3030,7 +3030,7 @@ EndFunction
 
 #Region SelectedFields
 
-// 
+// Read settings.
 
 &AtServer
 Procedure UpdateSelectedFields(Rows = Undefined, SettingsItems = Undefined)
@@ -3085,7 +3085,7 @@ Procedure UpdateSelectedFields(Rows = Undefined, SettingsItems = Undefined)
 	EndDo;
 EndProcedure
 
-// 
+// Add and modify items.
 
 &AtClient
 Procedure SelectedFieldsSelectGroup(RowID, String)
@@ -3225,7 +3225,7 @@ Procedure SelectedFieldsBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group, Para
 	SelectField("SelectedFields", Handler);
 EndProcedure
 
-// 
+// Modify item grouping.
 
 // Returns:
 //  - Structure:
@@ -3401,7 +3401,7 @@ Function SelectedFieldsGroupTitle(SettingItem, StructureItemProperty = Undefined
 	Return GroupTitle;
 EndFunction
 
-// 
+// Drag items.
 
 &AtClient
 Procedure CheckRowsToDragFromSelectedFields(RowsIDs)
@@ -3525,7 +3525,7 @@ Procedure DragSelectedFields(SelectedSettingsNodeFields, IndexOf, Rows, Settings
 	EndDo;
 EndProcedure
 
-// 
+// Shift items.
 
 &AtClient
 Procedure ShiftSelectedFields(ToBeginning = True)
@@ -3537,8 +3537,8 @@ Procedure ShiftSelectedFields(ToBeginning = True)
 	StructureItemProperty = SettingsStructureItemProperty(
 		Report.SettingsComposer, "Selection", SettingsStructureItemID, ExtendedMode);
 	
-	For Each String In ShiftParameters.Rows Do 
-		SettingItem = SettingItem(StructureItemProperty, String);
+	For Each ListLine In ShiftParameters.Rows Do 
+		SettingItem = SettingItem(StructureItemProperty, ListLine);
 		
 		SettingsItems = StructureItemProperty.Items;
 		If SettingItem.Parent <> Undefined Then 
@@ -3604,7 +3604,7 @@ Function ShiftParametersOfSelectedFields()
 	Return New Structure("Rows, Parent", ArraySort(Rows), Parents[0]);
 EndFunction
 
-// Common
+// Common.
 
 &AtClientAtServerNoContext
 Procedure CastValueToComparisonKind(String, SettingItem = Undefined)
@@ -3647,15 +3647,22 @@ Procedure CastValueToComparisonKind(String, SettingItem = Undefined)
 EndProcedure
 
 &AtClientAtServerNoContext
-Procedure SetValuePresentation(String)
+Procedure SetValuePresentation(String, FilterAvailableFields)
 	String.ValuePresentation = "";
 	
 	AvailableValues = String.AvailableValues;
-	If AvailableValues = Undefined Then 
+	Value = ?(String.IsParameter, String.Value, String.RightValue);
+
+	If AvailableValues = Undefined Then
+		If TypeOf(Value) = Type("DataCompositionField") Then
+			AvailableField = FilterAvailableFields.FindField(Value);
+			If AvailableField <> Undefined Then
+				String.ValuePresentation = AvailableField.Title;
+			EndIf;
+		EndIf;
 		Return;
 	EndIf;
 	
-	Value = ?(String.IsParameter, String.Value, String.RightValue);
 	FoundItem = AvailableValues.FindByValue(Value);
 	If FoundItem <> Undefined Then 
 		String.ValuePresentation = FoundItem.Presentation;
@@ -3855,7 +3862,7 @@ EndProcedure
 
 #Region Order
 
-// 
+// Read settings.
 
 &AtServer
 Procedure UpdateSorting()
@@ -3896,7 +3903,7 @@ Procedure UpdateSorting()
 	EndDo;
 EndProcedure
 
-// 
+// Add and modify items.
 
 &AtClient
 Procedure SortingSelectField(RowID, String)
@@ -3957,18 +3964,18 @@ EndProcedure
 
 &AtClient
 Procedure ChangeRowsOrderType(OrderType)
-	Rows = Sort.GetItems()[0].GetItems();
-	If Rows.Count() = 0 Then 
+	Items = Sort.GetItems()[0].GetItems();
+	If Items.Count() = 0 Then 
 		Return;
 	EndIf;
 	
 	StructureItemProperty = SettingsStructureItemProperty(
 		Report.SettingsComposer, "Order", SettingsStructureItemID, ExtendedMode);
 	
-	For Each String In Rows Do 
-		SettingItem = SettingItem(StructureItemProperty, String);
+	For Each Item In Items Do 
+		SettingItem = SettingItem(StructureItemProperty, Item);
 		SettingItem.OrderType = OrderType;
-		String.OrderType = SettingItem.OrderType;
+		Item.OrderType = SettingItem.OrderType;
 	EndDo;
 	
 	DetermineIfModified();
@@ -3991,7 +3998,7 @@ Procedure ChangeOrderType(String)
 	DetermineIfModified();
 EndProcedure
 
-// 
+// Drag items.
 
 // Parameters:
 //  Rows - Array of FormDataTreeItem:
@@ -4146,7 +4153,7 @@ Function FindSelectedField(SelectedSettingsNodeFields, Field)
 	Return FoundField;
 EndFunction
 
-// 
+// Shift items.
 
 &AtClient
 Procedure ShiftSorting(ToBeginning = True)
@@ -4201,7 +4208,7 @@ EndProcedure
 
 #Region Appearance
 
-// 
+// Read settings.
 
 &AtServer
 Procedure UpdateAppearance()
@@ -4293,7 +4300,7 @@ Procedure ReadPredefinedAppearanceParameters()
 	String.IsOutputParameter = True;
 EndProcedure
 
-// 
+// Add and modify items.
 
 &AtClient
 Procedure AppearanceChangeItem(RowID = Undefined, String = Undefined)
@@ -4311,7 +4318,7 @@ Procedure AppearanceChangeItem(RowID = Undefined, String = Undefined)
 		FormParameters.Insert("Description", String.Title);
 	EndIf;
 	FormParameters.Insert("Title", StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Conditional report appearance item ""%1""';"), DescriptionOption));
+		NStr("en = 'Conditional appearance item of report ""%1""';"), DescriptionOption));
 	
 	OpenForm("SettingsStorage.ReportsVariantsStorage.Form.ConditionalReportAppearanceItem",
 		FormParameters, ThisObject, UUID,,, Handler);
@@ -4426,7 +4433,7 @@ Procedure AppearanceTitleInputCompletion(Value, Id) Export
 	DetermineIfModified();
 EndProcedure
 
-// 
+// Shift items.
 
 &AtClient
 Procedure ShiftAppearance(ToBeginning = True)
@@ -4488,7 +4495,7 @@ Procedure ShiftAppearance(ToBeginning = True)
 	DetermineIfModified();
 EndProcedure
 
-// 
+// Item usage.
 
 &AtClient
 Procedure ChangePredefinedOutputParametersUsage(Use = True)
@@ -4496,16 +4503,16 @@ Procedure ChangePredefinedOutputParametersUsage(Use = True)
 		Return;
 	EndIf;
 	
-	Rows = Appearance.GetItems();
+	Items = Appearance.GetItems();
 	StructureItemProperty = Report.SettingsComposer.Settings.OutputParameters;
 	
-	For Each String In Rows Do 
-		If TypeOf(String.Id) <> Type("DataCompositionID") Then 
+	For Each Item In Items Do 
+		If TypeOf(Item.Id) <> Type("DataCompositionID") Then 
 			Continue;
 		EndIf;
 		
-		String.Use = Use;
-		SettingItem = SettingItem(StructureItemProperty, String);
+		Item.Use = Use;
+		SettingItem = SettingItem(StructureItemProperty, Item);
 		SettingItem.Use = Use;
 	EndDo;
 EndProcedure
@@ -4529,7 +4536,7 @@ EndProcedure
 
 #Region Structure
 
-// 
+// Read settings.
 
 &AtServer
 Procedure UpdateStructure()
@@ -4776,7 +4783,7 @@ Procedure SetFlagsOfNestedSettingsItems(StructureItem, StructureItemProperties)
 	EndIf;
 EndProcedure
 
-// 
+// Add and modify items.
 
 &AtClient
 Procedure AddOptionStructureGrouping(NextLevel = True)
@@ -5680,31 +5687,31 @@ Procedure CopySettings(Item)
 EndProcedure
 
 &AtClient
-Procedure ChangeUsage(CollectionName, Use = True, Rows = Undefined)
-	If Rows = Undefined Then 
+Procedure ChangeUsage(CollectionName, Use = True, Var_Items = Undefined)
+	If Var_Items = Undefined Then 
 		RootRow = DefaultRootRow(CollectionName);
 		If RootRow = Undefined Then 
 			Return;
 		EndIf;
 		
-		Rows = RootRow.GetItems();
+		Var_Items = RootRow.GetItems();
 	EndIf;
 	
-	For Each String In Rows Do 
-		String.Use = Use;
+	For Each Item In Var_Items Do 
+		Item.Use = Use;
 		
-		PropertyKey = SettingsStructureItemPropertyKey(CollectionName, String);
+		PropertyKey = SettingsStructureItemPropertyKey(CollectionName, Item);
 		StructureItemProperty = SettingsStructureItemProperty(
 			Report.SettingsComposer, PropertyKey, SettingsStructureItemID, ExtendedMode);
 		
-		SettingItem = SettingItem(StructureItemProperty, String);
+		SettingItem = SettingItem(StructureItemProperty, Item);
 		If TypeOf(SettingItem) <> Type("DataCompositionSettings")
 			And TypeOf(SettingItem) <> Type("DataCompositionTableStructureItemCollection")
 			And TypeOf(SettingItem) <> Type("DataCompositionChartStructureItemCollection") Then 
 			SettingItem.Use = Use;
 		EndIf;
 		
-		ChangeUsage(CollectionName, Use, String.GetItems());
+		ChangeUsage(CollectionName, Use, Item.GetItems());
 	EndDo;
 	
 	DetermineIfModified();
@@ -5779,23 +5786,23 @@ Procedure ChangeFieldUsage(CollectionName, Field, Use)
 		Return;
 	EndIf;
 	Condition = New Structure("Field", Field);
-	FoundItems = ReportsClientServer.FindTableRows(ThisObject[CollectionName], Condition);
+	TableRows = ReportsClientServer.FindTableRows(ThisObject[CollectionName], Condition);
 	
 	StructureItemProperty = Undefined;
-	For Each String In FoundItems Do
-		If String.Use = Use Then
+	For Each TableRow In TableRows Do
+		If TableRow.Use = Use Then
 			Continue;
 		EndIf;
 		
 		If StructureItemProperty = Undefined Then
-			PropertyKey = SettingsStructureItemPropertyKey(CollectionName, String);
+			PropertyKey = SettingsStructureItemPropertyKey(CollectionName, TableRow);
 			StructureItemProperty = SettingsStructureItemProperty(
 				Report.SettingsComposer, PropertyKey, SettingsStructureItemID, ExtendedMode);
 		EndIf;
 		
-		SettingItem = SettingItem(StructureItemProperty, String);
+		SettingItem = SettingItem(StructureItemProperty, TableRow);
 		If SettingItem <> Undefined Then
-			String.Use = Use;
+			TableRow.Use = Use;
 			SettingItem.Use = Use;
 		EndIf;
 	EndDo;
@@ -6132,7 +6139,7 @@ Function TheseAreSubordinateElements(ParentElementOfTree, TreeItem)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Client - Fields tables (universal entry points).
 
 &AtClient
 Procedure SelectTheDisplayModeForRows(PropertiesOfSettingsElements, CollectionName, ShowCheckBoxesModes = False, CurrentDisplayMode = Undefined)
@@ -6328,7 +6335,7 @@ Function SettingItemDisplayModePicture(SettingItem)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Client - fields tables (functional part).
 
 // Parameters:
 //  SettingsNode - DataCompositionSettings
@@ -6350,7 +6357,7 @@ EndFunction
 //               - DataCompositionSelectedFields
 //               - DataCompositionTable
 //               - Undefined
-//  String - See SettingsFormCollectionItem
+//  SettingItem - See SettingsFormCollectionItem
 //
 // Returns:
 //   - DataCompositionSettings
@@ -6377,20 +6384,20 @@ EndFunction
 //   - Undefined
 //
 &AtClientAtServerNoContext
-Function SettingItem(Val SettingsNode, Val String)
-	SettingItem = Undefined;
+Function SettingItem(Val SettingsNode, Val SettingItem)
+	Result = Undefined;
 	
-	If String <> Undefined
-		And TypeOf(String.Id) = Type("DataCompositionID") Then
+	If SettingItem <> Undefined
+		And TypeOf(SettingItem.Id) = Type("DataCompositionID") Then
 		
-		SettingItem = SettingsNode.GetObjectByID(String.Id);
+		Result = SettingsNode.GetObjectByID(SettingItem.Id);
 	EndIf;
 	
-	If TypeOf(SettingItem) = Type("DataCompositionNestedObjectSettings") Then
-		SettingItem = SettingItem.Settings;
+	If TypeOf(Result) = Type("DataCompositionNestedObjectSettings") Then
+		Result = SettingItem.Settings;
 	EndIf;
 	
-	Return SettingItem;
+	Return Result;
 EndFunction
 
 &AtClientAtServerNoContext
@@ -6571,7 +6578,7 @@ Procedure UpdateOptionStructureItemTitle(String)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Client or server.
 
 &AtClientAtServerNoContext
 Function ArraySort(SourceArray, Direction = Undefined)
@@ -6587,7 +6594,7 @@ Function ArraySort(SourceArray, Direction = Undefined)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Server call.
 
 &AtServer
 Procedure UpdateForm(ParametersOfUpdate)
@@ -6747,7 +6754,7 @@ Procedure UpdateFormItemsProperties()
 		And ContainsNestedFilters
 		And DisplayInformation1;
 	
-	Items.FiltersGoToSettingsForATechnicalSpecialist.Visible = IsExtendedMode
+	Items.FiltersGoToSettingsForTechnician.Visible = IsExtendedMode
 		And Not SettingsStructureItemChangeMode;
 	
 	#EndRegion
@@ -6789,7 +6796,7 @@ Procedure UpdateFormItemsProperties()
 	
 	Items.HasNestedFieldsOrSortingGroup.Visible = ContainsNestedFieldsOrSorting And DisplayInformation1;
 	
-	Items.SelectedFieldsGoToSettingsForATechnicalSpecialist.Visible = IsExtendedMode
+	Items.SelectedFieldsGoToSettingsForTechnician.Visible = IsExtendedMode
 		And Not SettingsStructureItemChangeMode;
 	
 	#EndRegion
@@ -6802,7 +6809,7 @@ Procedure UpdateFormItemsProperties()
 		And ContainsNestedConditionalAppearance
 		And DisplayInformation1;
 	
-	Items.AppearanceGoToSettingsForATechnicalSpecialist.Visible = IsExtendedMode
+	Items.AppearanceGoToSettingsForTechnician.Visible = IsExtendedMode
 		And Not SettingsStructureItemChangeMode;
 	
 	#EndRegion
@@ -6839,7 +6846,7 @@ Procedure UpdateFormItemsProperties()
 	Items.OptionStructureContainsFieldsOrOrders.Visible = IsExtendedMode;
 	Items.OptionStructureContainsConditionalAppearance.Visible = IsExtendedMode;
 	
-	Items.OptionStructureGoToSettingsForATechnicalSpecialist.Visible = IsExtendedMode
+	Items.OptionStructureGoToSettingsForTechnician.Visible = IsExtendedMode
 		And Not SettingsStructureItemChangeMode;
 	
 	#EndRegion
@@ -6898,7 +6905,7 @@ Procedure UpdateFormItemsProperties()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Server
+// Server.
 
 &AtServer
 Procedure DefineBehaviorInMobileClient()
@@ -6929,7 +6936,7 @@ Procedure SetConditionalAppearance()
 	Item.Appearance.SetParameterValue("Show", False);
 	
 	ItemField = Item.Fields.Items.Add();
-	ItemField.Field = New DataCompositionField(Items.GroupCompositionGroupType.Name);
+	ItemField.Field = New DataCompositionField(Items.GroupingCompositionGroupType.Name);
 	
 	//
 	Item = ConditionalAppearance.Items.Add();
@@ -6943,7 +6950,7 @@ Procedure SetConditionalAppearance()
 	Item.Appearance.SetParameterValue("Show", False);
 	
 	ItemField = Item.Fields.Items.Add();
-	ItemField.Field = New DataCompositionField(Items.GroupCompositionAdditionType.Name);
+	ItemField.Field = New DataCompositionField(Items.GroupingCompositionAdditionType.Name);
 	
 	//
 	Item = ConditionalAppearance.Items.Add();
@@ -6957,7 +6964,7 @@ Procedure SetConditionalAppearance()
 	Item.Appearance.SetParameterValue("Show", False);
 	
 	ItemField = Item.Fields.Items.Add();
-	ItemField.Field = New DataCompositionField(Items.GroupCompositionGroupType.Name);
+	ItemField.Field = New DataCompositionField(Items.GroupingCompositionGroupType.Name);
 	
 	//
 	Item = ConditionalAppearance.Items.Add();
@@ -6969,7 +6976,7 @@ Procedure SetConditionalAppearance()
 	Item.Appearance.SetParameterValue("Text", New DataCompositionField("GroupingComposition.Title"));
 	
 	ItemField = Item.Fields.Items.Add();
-	ItemField.Field = New DataCompositionField(Items.GroupCompositionField.Name);
+	ItemField.Field = New DataCompositionField(Items.GroupingCompositionField.Name);
 	
 	#EndRegion
 	
@@ -7703,7 +7710,7 @@ EndProcedure
 
 #Region ProcessFieldsMarkedForDeletion
 
-// 
+// Search for fields marked for deletion.
 
 &AtServer
 Procedure FindFieldsMarkedForDeletion(Val StructureItems = Undefined)
@@ -7943,7 +7950,7 @@ Function RepresentationOfACollectionOfAStructureElement(CollectionName)
 	
 EndFunction
 
-// 
+// Delete fields marked for deletion.
 
 &AtClient
 Procedure DeleteFiedsMarkedForDeletion()
@@ -7994,7 +8001,7 @@ EndProcedure
 
 #EndRegion
 
-// 
+// ACC:568-on Adjust code (fixes typifying issue).
 
 // Parameters:
 //  Collection - FormDataTree

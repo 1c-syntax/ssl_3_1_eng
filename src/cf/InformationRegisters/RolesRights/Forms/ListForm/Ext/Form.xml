@@ -156,7 +156,7 @@
 							<v8:content>"Read" right</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="RightToReadGroupExtendedTooltip" id="41"/>
+					<ExtendedTooltip name="ReadRightGroupExtendedTooltip" id="41"/>
 					<ChildItems>
 						<CheckBoxField name="ReadRight" id="29">
 							<DataPath>List.ReadRight</DataPath>
@@ -186,8 +186,8 @@
 								</v8:item>
 							</Title>
 							<CheckBoxType>Auto</CheckBoxType>
-							<ContextMenu name="RightToReadWithoutRestrictionContextMenu" id="15"/>
-							<ExtendedTooltip name="RightToReadWithoutRestrictionExtendedTooltip" id="43"/>
+							<ContextMenu name="UnrestrictedReadRightContextMenu" id="15"/>
+							<ExtendedTooltip name="UnrestrictedReadRightExtendedTooltip" id="43"/>
 						</CheckBoxField>
 					</ChildItems>
 				</ColumnGroup>
@@ -198,14 +198,14 @@
 							<v8:content>"Update" right</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="GroupRightToChangeExtendedTooltip" id="47"/>
+					<ExtendedTooltip name="RightGroup2UpdateExtendedTooltip" id="47"/>
 					<ChildItems>
 						<CheckBoxField name="RightUpdate" id="10">
 							<DataPath>List.RightUpdate</DataPath>
 							<DefaultItem>true</DefaultItem>
 							<CheckBoxType>Auto</CheckBoxType>
-							<ContextMenu name="UpdateRightContextMenu" id="11"/>
-							<ExtendedTooltip name="UpdateRightExtendedTooltip" id="48"/>
+							<ContextMenu name="RightUpdateContextMenu" id="11"/>
+							<ExtendedTooltip name="RightUpdateExtendedTooltip" id="48"/>
 						</CheckBoxField>
 						<CheckBoxField name="UnrestrictedUpdateRight" id="18">
 							<DataPath>List.UnrestrictedUpdateRight</DataPath>
@@ -217,8 +217,8 @@
 								</v8:item>
 							</Title>
 							<CheckBoxType>Auto</CheckBoxType>
-							<ContextMenu name="RightToChangeWithoutRestrictionContextMenu" id="19"/>
-							<ExtendedTooltip name="RightToChangeWithoutRestrictionExtendedTooltip" id="49"/>
+							<ContextMenu name="UnrestrictedUpdateRightContextMenu" id="19"/>
+							<ExtendedTooltip name="UnrestrictedUpdateRightExtendedTooltip" id="49"/>
 						</CheckBoxField>
 					</ChildItems>
 				</ColumnGroup>
@@ -229,14 +229,14 @@
 							<v8:content>"Add" right</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="GroupAddRightExtendedTooltip" id="44"/>
+					<ExtendedTooltip name="AddRightGroupExtendedTooltip" id="44"/>
 					<ChildItems>
 						<CheckBoxField name="AddRight" id="8">
 							<DataPath>List.AddRight</DataPath>
 							<DefaultItem>true</DefaultItem>
 							<CheckBoxType>Auto</CheckBoxType>
-							<ContextMenu name="InsertRightContextMenu" id="9"/>
-							<ExtendedTooltip name="InsertRightExtendedTooltip" id="45"/>
+							<ContextMenu name="AddRightContextMenu" id="9"/>
+							<ExtendedTooltip name="AddRightExtendedTooltip" id="45"/>
 						</CheckBoxField>
 						<CheckBoxField name="UnrestrictedAddRight" id="16">
 							<DataPath>List.UnrestrictedAddRight</DataPath>
@@ -248,8 +248,8 @@
 								</v8:item>
 							</Title>
 							<CheckBoxType>Auto</CheckBoxType>
-							<ContextMenu name="RightToAddWithoutRestrictionContextMenu" id="17"/>
-							<ExtendedTooltip name="RightToAddWithoutRestrictionExtendedTooltip" id="46"/>
+							<ContextMenu name="UnrestrictedAddRightContextMenu" id="17"/>
+							<ExtendedTooltip name="UnrestrictedAddRightExtendedTooltip" id="46"/>
 						</CheckBoxField>
 					</ChildItems>
 				</ColumnGroup>
@@ -257,22 +257,22 @@
 					<DataPath>List.ViewRight</DataPath>
 					<DefaultItem>true</DefaultItem>
 					<CheckBoxType>Auto</CheckBoxType>
-					<ContextMenu name="RightToViewContextMenu" id="23"/>
-					<ExtendedTooltip name="RightToViewExtendedTooltip" id="53"/>
+					<ContextMenu name="ViewRightContextMenu" id="23"/>
+					<ExtendedTooltip name="ViewRightExtendedTooltip" id="53"/>
 				</CheckBoxField>
 				<CheckBoxField name="EditRight" id="26">
 					<DataPath>List.EditRight</DataPath>
 					<DefaultItem>true</DefaultItem>
 					<CheckBoxType>Auto</CheckBoxType>
-					<ContextMenu name="RightToEditContextMenu" id="27"/>
-					<ExtendedTooltip name="RightToEditExtendedTooltip" id="55"/>
+					<ContextMenu name="EditRightContextMenu" id="27"/>
+					<ExtendedTooltip name="EditRightExtendedTooltip" id="55"/>
 				</CheckBoxField>
 				<CheckBoxField name="InteractiveAddRight" id="24">
 					<DataPath>List.InteractiveAddRight</DataPath>
 					<DefaultItem>true</DefaultItem>
 					<CheckBoxType>Auto</CheckBoxType>
-					<ContextMenu name="RightInteractiveAddOnContextMenu" id="25"/>
-					<ExtendedTooltip name="RightInteractiveAddOnExtendedTooltip" id="54"/>
+					<ContextMenu name="InteractiveAddRightContextMenu" id="25"/>
+					<ExtendedTooltip name="InteractiveAddRightExtendedTooltip" id="54"/>
 				</CheckBoxField>
 			</ChildItems>
 		</Table>

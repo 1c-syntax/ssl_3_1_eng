@@ -25,8 +25,8 @@
 Function ExternalModuleAttachmentMode(Val ProgramModule) Export
 	
 	If SafeModeManager.SafeModeSet() Then
-		// 
-		// 
+		// If the safe mode is set upstream in the stack,
+		// external modules can be attached only in safe mode.
 		Return SafeMode();
 	EndIf;
 		

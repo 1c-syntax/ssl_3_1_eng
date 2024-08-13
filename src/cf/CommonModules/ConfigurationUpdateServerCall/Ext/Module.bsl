@@ -118,7 +118,7 @@ Function GenerateSplashText(Val TextTemplate1)
 	TextParameters["[AbortedTooltip]"] = NStr("en = 'To unlock the infobase, use the server cluster console or run 1C:Enterprise.';");
 	
 	TextParameters["[ProductName]"] = NStr("en = '1C:ENTERPRISE 8.3';");
-	TextParameters["[Copyright_SSLy]"] = StringFunctionsClientServer.SubstituteParametersToString(
+	TextParameters["[Copyright]"] = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = '© 1C Company, 1996-%1';"), Format(Year(CurrentSessionDate()), "NG=0"));
 	
 	Return SubstituteParametersToText(TextTemplate1, TextParameters);
@@ -180,8 +180,8 @@ Procedure DeletePatchesFromScript() Export
 	WriteLogEvent(ConfigurationUpdate.EventLogEvent(), EventLogLevel.Information,,, MessageText);
 	
 EndProcedure
-// 
-// 
+// ACC:299-on
+// ACC:557-on
 
 Function ScriptMessages()
 	
@@ -302,17 +302,16 @@ Function VersionsRequiringSuccessfulUpdate(FilesOfUpdate) Export
 	Versions = New Array;
 	Table.Sort("VersionWeight Asc");
 	LastRow = Table[Table.Count() - 1];
-	For Each String In Table Do
-		If Not String.Required Then
+	For Each TableRow In Table Do
+		If Not TableRow.Required Then
 			Continue;
 		EndIf;
 		
-		If String = LastRow Then
-			// Ignore the latest version.
-			Continue;
+		If TableRow = LastRow Then
+			Continue; // Ignore the latest version.
 		EndIf;
 		
-		Versions.Add(String.Version);
+		Versions.Add(TableRow.Version);
 	EndDo;
 	
 	Return Versions;

@@ -238,7 +238,7 @@ EndFunction
 
 // Parameters:
 //  Form - ClientApplicationForm
-//   See AttachableCommandsOverridable.OnDefineAttachableCommandsKinds.AttachableCommandsKinds
+//  CommandsKind - ValueTableRow of See AttachableCommandsOverridable.OnDefineAttachableCommandsKinds.AttachableCommandsKinds
 //  SubmenuInfoByDefault - ValueTableRow:
 //   * Popup - FormGroup 
 //   * CommandsCount - Number

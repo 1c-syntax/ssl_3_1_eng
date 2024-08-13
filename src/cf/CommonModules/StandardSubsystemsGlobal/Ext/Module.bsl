@@ -41,7 +41,7 @@ EndProcedure
 
 // Called when the application is started, opens the security warning window.
 Procedure ShowSecurityWarningAfterStart() Export
-	UsersInternalClient.ShowSecurityWarning();
+	UsersInternalClient.ShowSecurityWarningAfterStartupIfNecessary();
 EndProcedure
 
 // Shows users a message about insufficient RAM.

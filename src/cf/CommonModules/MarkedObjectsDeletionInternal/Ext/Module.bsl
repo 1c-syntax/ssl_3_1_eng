@@ -266,7 +266,7 @@ Procedure SetDeletionScheduleTagged() Export
 	Schedule = New JobSchedule;
 	Schedule.DaysRepeatPeriod = 1;
 	Schedule.WeeksPeriod = 1;
-	Schedule.BeginTime = '00010101040000'; //  
+	Schedule.BeginTime = '00010101040000'; // At 4:00. 
 	Schedule.EndTime = '00010101060000'; // At 6:00. 
 	Schedule.CompletionTime = '00010101060000'; // 06:00 
 
@@ -381,7 +381,7 @@ Procedure MarkedObjectsDeletionControl() Export
 		Query.Text = QueryTextWithCondition;
 		Query.SetParameter("LockTime", SelectionDetailRecords.LockTime);
 		Query.SetParameter("UnlockTime", UnlockTime);
-		QueryResult = Query.Execute().Unload(); // 
+		QueryResult = Query.Execute().Unload(); // @skip-check query-in-loop - Batch processing of a large amount of data.
 
 	EndDo;
 
@@ -1058,8 +1058,8 @@ EndFunction
 
 Procedure ProhibitUsageOfObjectsToDelete(Source, Cancel)
 	
-	// 
-	// 
+	// Do not set "DataExchange.Load" to "True" as the check is performed
+	// when importing from external sources.
 
 	If ExclusiveMode() Then
 		Return;
@@ -1729,8 +1729,8 @@ EndFunction
 //   * ItemToDeleteRef - AnyRef - an object to be deleted, the column is being indexed.
 //   * FoundItemReference - AnyRef - the object that has references to the object to be deleted.
 // 						  - String - — a detailed error description, if an error occurred while deleting an object.
-//   * PresentationItemToDelete - String - 
-//   * Presentation - String -  
+//   * PresentationItemToDelete - String - Presentation of the object being deleted.
+//   * Presentation - String - The title of the item or details of the error occurred when deleting an object. 
 //
 Function ObjectsPreventingDeletion() Export
 	Table = New ValueTable;

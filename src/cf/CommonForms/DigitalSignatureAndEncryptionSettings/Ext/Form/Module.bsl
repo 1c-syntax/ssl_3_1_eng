@@ -72,12 +72,12 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.ApplicationsMarkForDeletion.Visible = False;
 		
 		CommonClientServer.SetFormItemProperty(Items,
-			"ApplicationsContextMenuAdd", "Visible", False);
+			"ProgramsContextMenuAdd", "Visible", False);
 		
 		CommonClientServer.SetFormItemProperty(Items,
-			"ApplicationsContextMenuChange", "Visible", False);
+			"ProgramsContextMenuChange", "Visible", False);
 		
-		Items.ApplicationsContextMenuApplicationsMarkForDeletion.Visible = False;
+		Items.ProgramsContextMenuApplicationsMarkForDeletion.Visible = False;
 		Items.Programs.Title =
 			NStr("en = 'A list of apps the administrator authorized for your computer.';");
 	Else
@@ -113,7 +113,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 				"ReissueCertificate", "Visible", False);
 		
 		Items.CertificatesShowRequests.Visible  = False;
-		Items.CertificatesApplicationState.Visible = False;
+		Items.CertificatesRequestStatus.Visible = False;
 		Items.AddCertificateIssueRequest.Visible = False;
 	EndIf;
 	
@@ -129,11 +129,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	CertificatesUpdateFilter(ThisObject, StatusApplicationIsNotInOperation);
 	
 	If Common.IsSubordinateDIBNode() Then
-		// 
-		// 
+		// Cannot change the list of allowed apps and their settings.
+		// Can only change the app paths on Linux servers.
 		Items.Programs.ChangeRowSet = False;
 		Items.ApplicationsMarkForDeletion.Enabled = False;
-		Items.ApplicationsContextMenuApplicationsMarkForDeletion.Enabled = False;
+		Items.ProgramsContextMenuApplicationsMarkForDeletion.Enabled = False;
 		CommonClientServer.SetFormItemProperty(Items,
 			"ApplicationsChange", "OnlyInAllActions", False);
 	Else
@@ -144,12 +144,23 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.ApplicationsLinuxPathToApplicationGroup.Visible = False;
 	EndIf;
 	
-	Items.GroupCryptoProvidersHint.Visible = Common.IsWebClient()
-		And Parameters.Property("ExtensionNotAttached");
+	Items.GroupCryptoProvidersHint.Visible = Common.IsWebClient();
 	Items.FormInstallExtension.Visible = Common.IsWebClient();
 	
 	FillApplicationsAndSettings();
 	UpdateCurrentItemsVisibility();
+	
+	// StandardSubsystems.AttachableCommands
+	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
+		PlacementParameters = ModuleAttachableCommands.PlacementParameters();
+		PlacementParameters.CommandBar = Items.CertificatesListCommandBar;
+		PlacementParameters.Sources = New TypeDescription("CatalogRef.DigitalSignatureAndEncryptionKeysCertificates");
+		PlacementParameters.CommandsOwner = Items.Certificates;
+		
+		ModuleAttachableCommands.OnCreateAtServer(ThisObject, PlacementParameters);
+	EndIf;
+	// End StandardSubsystems.AttachableCommands
 	
 EndProcedure
 
@@ -391,16 +402,16 @@ EndProcedure
 &AtServerNoContext
 Procedure CertificatesOnGetDataAtServer(TagName, Settings, Rows)
 	
-	For Each String In Rows Do
-		If Not String.Value.Data.Property("User") Then
+	For Each ListLine In Rows Do
+		If Not ListLine.Value.Data.Property("User") Then
 			Return;
 		EndIf;
 		Break;
 	EndDo;
 	
 	Query = Undefined;
-	For Each String In Rows Do
-		If ValueIsFilled(String.Value.Data.User) Then
+	For Each ListLine In Rows Do
+		If ValueIsFilled(ListLine.Value.Data.User) Then
 			Continue;
 		EndIf;
 		If Query = Undefined Then
@@ -426,18 +437,18 @@ Procedure CertificatesOnGetDataAtServer(TagName, Settings, Rows)
 			EndIf;
 			FetchLink = QueryResult.Select(QueryResultIteration.ByGroups);
 		EndIf;
-		If FetchLink.FindNext(String.Value.Data["Ref"], "Ref") Then
+		If FetchLink.FindNext(ListLine.Value.Data["Ref"], "Ref") Then
 			UsersCount = FetchLink.User;
 			SampleUser = FetchLink.Select();
 			SampleUser.Next();
 			If UsersCount = 1 Then
-				String.Value.Data.User = SampleUser.UserPresentation;
+				ListLine.Value.Data.User = SampleUser.UserPresentation;
 				Continue;
 			EndIf;
 			User1 = SampleUser.UserPresentation;
 			SampleUser.Next();
 			User2 = SampleUser.UserPresentation;
-			String.Value.Data.User = DigitalSignatureInternalClientServer.UsersCertificateString(
+			ListLine.Value.Data.User = DigitalSignatureInternalClientServer.UsersCertificateString(
 				User1, User2, UsersCount);
 		EndIf;
 	EndDo;
@@ -449,7 +460,7 @@ EndProcedure
 #Region FormTableItemsEventHandlersPrograms
 
 &AtClient
-Procedure ApplicationsOnActivateRow(Item)
+Procedure ProgramsOnActivateRow(Item)
 	
 	Items.ApplicationsMarkForDeletion.Enabled =
 		Items.Programs.CurrentData <> Undefined;
@@ -463,7 +474,7 @@ Procedure ApplicationsOnActivateRow(Item)
 EndProcedure
 
 &AtClient
-Procedure ApplicationsBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group, Parameter)
+Procedure ProgramsBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group, Parameter)
 	
 	Cancel = True;
 	
@@ -471,37 +482,31 @@ Procedure ApplicationsBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group, Parame
 		If DigitalSignatureInternalClient.UseCloudSignatureService() Then
 			TheDSSCryptographyServiceModuleClient = CommonClient.CommonModule("DSSCryptographyServiceClient");
 			TheDSSCryptographyServiceModuleClient.AddingElectronicSignatureProgram(Undefined);
-		Else	
-			OpenForm("Catalog.DigitalSignatureAndEncryptionApplications.ObjectForm");
-		EndIf;	
-	EndIf;
-	
-EndProcedure
-
-&AtClient
-Procedure ApplicationsBeforeRowChange(Item, Cancel)
-	
-	Cancel = True;
-	
-	If Items.Find("ApplicationsChange") <> Undefined
-	   And Items.ApplicationsChange.Visible Then
-		If ValueIsFilled(Items.Programs.CurrentData.Ref) Then
-			ShowValue(, Items.Programs.CurrentData.Ref);
 		Else
-			ExtendedApplicationDetails = DigitalSignatureInternalClientServer.NewExtendedApplicationDetails();
-			FillPropertyValues(ExtendedApplicationDetails, Items.Programs.CurrentData);
-			ExtendedApplicationDetails.Presentation = Items.Programs.CurrentData.Description;
-			FormParameters = New Structure("Application, UsageMode", ExtendedApplicationDetails,
-				PredefinedValue("Enum.DigitalSignatureAppUsageModes.SetupDone"));
-			OpenForm("Catalog.DigitalSignatureAndEncryptionApplications.ObjectForm", FormParameters, ThisObject,,,,,
-				FormWindowOpeningMode.LockOwnerWindow);
+			DigitalSignatureInternalClient.OpenAppForm();
 		EndIf;
 	EndIf;
 	
 EndProcedure
 
 &AtClient
-Procedure ApplicationsBeforeDeleteRow(Item, Cancel)
+Procedure ProgramsBeforeRowChange(Item, Cancel)
+	
+	Cancel = True;
+	
+	If Items.Find("ApplicationsChange") <> Undefined
+	   And Items.ApplicationsChange.Visible Then
+		ExtendedApplicationDetails = DigitalSignatureInternalClientServer.NewExtendedApplicationDetails();
+		FillPropertyValues(ExtendedApplicationDetails, Items.Programs.CurrentData);
+		ExtendedApplicationDetails.Presentation = Items.Programs.CurrentData.Description;
+		ExtendedApplicationDetails.UsageMode = PredefinedValue("Enum.DigitalSignatureAppUsageModes.SetupDone");
+		DigitalSignatureInternalClient.OpenAppForm(ExtendedApplicationDetails, ThisObject);
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure ProgramsBeforeDeleteRow(Item, Cancel)
 	
 	Cancel = True;
 	
@@ -521,10 +526,10 @@ Procedure InstructionClick(Item)
 EndProcedure
 
 &AtClient
-Procedure ApplicationsSelection(Item, RowSelected, Field, StandardProcessing)
+Procedure ProgramsSelection(Item, RowSelected, Field, StandardProcessing)
 	
 	CurrentData = Items.Programs.CurrentData;
-	If Field = Items.ApplicationsDetails
+	If Field = Items.ProgramsMoreDetails
 		And Not IsBlankString(CurrentData.MoreDetails) Then
 		
 		StandardProcessing = False;
@@ -536,17 +541,17 @@ Procedure ApplicationsSelection(Item, RowSelected, Field, StandardProcessing)
 		FormParameters.Insert("ShowNeedHelp", True);
 		FormParameters.Insert("ShowInstruction", True);
 		
-		OpenForm("CommonForm.ExtendedErrorPresentation", FormParameters, ThisObject);
-	
+		DigitalSignatureInternalClient.OpenExtendedErrorPresentationForm(FormParameters, ThisObject);
+		
 	ElsIf Not ValueIsFilled(CurrentData.Ref) Then
 	
 		StandardProcessing = False;
 		ApplicationDetails = DigitalSignatureInternalClientServer.NewExtendedApplicationDetails();
 		FillPropertyValues(ApplicationDetails, CurrentData);
 		ApplicationDetails.Presentation = CurrentData.Description;
-		OpenForm("Catalog.DigitalSignatureAndEncryptionApplications.Form.AutoDeterminedApp",
-			New Structure("Application", ApplicationDetails), ThisObject,,,,,FormWindowOpeningMode.LockOwnerWindow);
-			
+		
+		DigitalSignatureInternalClient.OpenAppForm(ApplicationDetails, ThisObject);
+		
 	EndIf;
 	
 EndProcedure
@@ -668,6 +673,32 @@ Procedure ApplicationsMarkForDeletion(Command)
 	
 EndProcedure
 
+// StandardSubsystems.AttachableCommands
+
+&AtClient
+Procedure Attachable_ExecuteCommand(Command)
+	ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
+	ModuleAttachableCommandsClient.StartCommandExecution(ThisObject, Command);
+EndProcedure
+
+&AtClient
+Procedure Attachable_ContinueCommandExecutionAtServer(ExecutionParameters, AdditionalParameters) Export
+	ExecuteCommandAtServer(ExecutionParameters);
+EndProcedure
+
+&AtServer
+Procedure ExecuteCommandAtServer(ExecutionParameters)
+	ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
+	ModuleAttachableCommands.ExecuteCommand(ThisObject, ExecutionParameters);
+EndProcedure
+
+&AtClient
+Procedure Attachable_UpdateCommands()
+	ModuleAttachableCommandsClientServer = CommonClient.CommonModule("AttachableCommandsClientServer");
+	ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject);
+EndProcedure
+// End StandardSubsystems.AttachableCommands
+
 #EndRegion
 
 #Region Private
@@ -742,11 +773,11 @@ Procedure SetConditionalAppearance()
 	DataFilterItem.Use  = True;
 	
 	AppearanceFieldItem = ConditionalAppearanceItem.Fields.Items.Add();
-	AppearanceFieldItem.Field = New DataCompositionField("ApplicationsCheckResult");
+	AppearanceFieldItem.Field = New DataCompositionField("ProgramsCheckResult");
 	AppearanceFieldItem.Use = True;
 	
 	AppearanceFieldItem = ConditionalAppearanceItem.Fields.Items.Add();
-	AppearanceFieldItem.Field = New DataCompositionField("ApplicationsDescription");
+	AppearanceFieldItem.Field = New DataCompositionField("ProgramsDescription");
 	AppearanceFieldItem.Use = True;
 	
 	If Items.ProgramsCheckResultAtServer.Visible Then
@@ -1021,10 +1052,7 @@ EndProcedure
 Procedure DefineInstalledApplicationsOnAttachExtension(Attached, Context) Export
 	
 	If Not Attached Then
-		Items.GroupCryptoProvidersHint.Visible = True;
-		Items.DecorationCheckCryptoProviderInstallation.Title = StringFunctionsClient.FormattedString(
-			NStr("en = '<a href = ""%1"">Click here</a> to install the digital signature management extension and view all installed digital signing and encryption apps.';"),
-			"CheckCryptographyAppsInstallation");
+		ShowTitleForExtensionInstallation();
 		AttachIdleHandler("IdleHandlerDefineInstalledApplications", 3, True);
 		Return;
 	EndIf;
@@ -1052,10 +1080,7 @@ Async Procedure DetectInstalledAppsAfterCryptoAppsChecked(Result, Context) Expor
 	Attached = Await AttachCryptoExtensionAsync();
 	
 	If Not Attached Then
-		Items.GroupCryptoProvidersHint.Visible = True;
-		Items.DecorationCheckCryptoProviderInstallation.Title = StringFunctionsClient.FormattedString(
-			NStr("en = '<a href = ""%1"">Click here</a> to install the digital signature management extension and view all installed digital signing and encryption apps.';"),
-			"CheckCryptographyAppsInstallation");
+		ShowTitleForExtensionInstallation();
 	EndIf;
 	
 	Context = New Structure;
@@ -1064,6 +1089,14 @@ Async Procedure DetectInstalledAppsAfterCryptoAppsChecked(Result, Context) Expor
 	
 	IdleHandlerDefineInstalledApplicationsLoopStart(Context);
 	
+EndProcedure
+
+&AtClient
+Procedure ShowTitleForExtensionInstallation()
+	Items.GroupCryptoProvidersHint.Visible = True;
+	Items.DecorationCheckCryptoProviderInstallation.Title = StringFunctionsClient.FormattedString(
+			NStr("en = '<a href = ""%1"">Install 1C:Enterprise Extension</a> to manage digital signatures.';"),
+			"CheckCryptographyAppsInstallation");
 EndProcedure
 
 // Continues the IdleHandlerDefineInstalledApplications procedure.

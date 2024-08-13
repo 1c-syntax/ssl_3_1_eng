@@ -144,10 +144,10 @@ EndProcedure
 &AtClient
 Procedure NavigationNumberOnChange(Val IsMoveNext)
 	
-	// Executing navigation event handlers.
+	// Run navigation event handlers.
 	ExecuteNavigationEventHandlers(IsMoveNext);
 	
-	// Setting page view.
+	// Set up page view.
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
@@ -362,7 +362,7 @@ Procedure GoBack()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Idle handlers.
 
 &AtClient
 Procedure BackgroundJobIdleHandler()
@@ -393,7 +393,7 @@ Procedure BackgroundJobIdleHandler()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Navigation event handlers.
 
 // Page 1: Automatic object mapping error.
 //
@@ -585,7 +585,7 @@ Procedure RecordError(DetailErrorDescription)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Filling wizard navigation table.
 
 &AtServer
 Procedure AutomaticObjectMappingScenario()

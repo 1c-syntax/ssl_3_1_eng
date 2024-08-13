@@ -157,7 +157,7 @@
 					<Title formatted="false">
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>This is an utility user intended for automation of some operations.</v8:content>
+							<v8:content>This is a utility user intended for automation of some operations.</v8:content>
 						</v8:item>
 					</Title>
 					<ToolTip>
@@ -476,10 +476,10 @@ with the specified authentication methods.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<CheckBoxType>Auto</CheckBoxType>
-					<ContextMenu name="CanSignIn1ContextMenu" id="100"/>
-					<ExtendedTooltip name="CanSignIn1ExtendedTooltip" id="218"/>
+					<ContextMenu name="CanSignInContextMenu" id="100"/>
+					<ExtendedTooltip name="CanSignInExtendedTooltip" id="218"/>
 					<Events>
-						<Event name="OnChange">CanSignIn1OnChange</Event>
+						<Event name="OnChange">CanSignInOnChange</Event>
 					</Events>
 				</CheckBoxField>
 				<UsualGroup name="GroupNoRights" id="411">
@@ -689,7 +689,7 @@ by the user list owner (not by the administrator).</v8:content>
 							<v8:content>Main</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="TheMainThingExtendedTooltip" id="220"/>
+					<ExtendedTooltip name="Main_PageExtendedTooltip" id="220"/>
 					<ChildItems>
 						<UsualGroup name="NameEmailPhone" id="384">
 							<Title>
@@ -705,7 +705,7 @@ by the user list owner (not by the administrator).</v8:content>
 							<ThroughAlign>Use</ThroughAlign>
 							<ExtendedTooltip name="NameEmailPhoneExtendedTooltip" id="385"/>
 							<ChildItems>
-								<UsualGroup name="GroupName_SSLy" id="409">
+								<UsualGroup name="GroupName" id="409">
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
@@ -715,7 +715,7 @@ by the user list owner (not by the administrator).</v8:content>
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
 									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="GroupName_SSLyExtendedTooltip" id="410"/>
+									<ExtendedTooltip name="GroupNameExtendedTooltip" id="410"/>
 									<ChildItems>
 										<InputField name="IBUserName" id="95">
 											<DataPath>IBUserName</DataPath>
@@ -752,7 +752,7 @@ by the user list owner (not by the administrator).</v8:content>
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Email account</v8:content>
+													<v8:content>Email</v8:content>
 												</v8:item>
 											</Title>
 											<ContextMenu name="ContactInformationFieldUserEmailContextMenu" id="396"/>
@@ -893,7 +893,7 @@ username and password.</v8:content>
 													<Behavior>Usual</Behavior>
 													<Representation>None</Representation>
 													<ShowTitle>false</ShowTitle>
-													<ExtendedTooltip name="IndentGroupExtendedTooltip" id="271"/>
+													<ExtendedTooltip name="GroupIndentExtendedTooltip" id="271"/>
 													<ChildItems>
 														<LabelDecoration name="Indent" id="272">
 															<ContextMenu name="IndentContextMenu" id="273"/>
@@ -994,8 +994,8 @@ changing their password.</v8:content>
 																		<Event name="OnChange">IBUserCannotChangePasswordOnChange</Event>
 																	</Events>
 																</CheckBoxField>
-																<CheckBoxField name="IBUserCannotRecoverPassword" id="366">
-																	<DataPath>IBUserCannotRecoverPassword</DataPath>
+																<CheckBoxField name="IBUserCannotRecoveryPassword" id="366">
+																	<DataPath>IBUserCannotRecoveryPassword</DataPath>
 																	<Title>
 																		<v8:item>
 																			<v8:lang>en</v8:lang>
@@ -1004,8 +1004,8 @@ changing their password.</v8:content>
 																	</Title>
 																	<TitleLocation>Right</TitleLocation>
 																	<CheckBoxType>Auto</CheckBoxType>
-																	<ContextMenu name="UserIbuprodenToRecoverYourPasswordContextMenu" id="367"/>
-																	<ExtendedTooltip name="UserIbuprodenToRecoverYourPasswordExtendedTooltip" id="368"/>
+																	<ContextMenu name="IBUserCannotRecoveryPasswordContextMenu" id="367"/>
+																	<ExtendedTooltip name="IBUserCannotRecoveryPasswordExtendedTooltip" id="368"/>
 																</CheckBoxField>
 																<CheckBoxField name="IBUserShowInList" id="25">
 																	<DataPath>IBUserShowInList</DataPath>
@@ -1219,7 +1219,7 @@ associated with the 1C:Enterprise user.</v8:content>
 									<Representation>NormalSeparation</Representation>
 									<ChildItemsWidth>Equal</ChildItemsWidth>
 									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="AdditionalPropertiesExtendedTooltip" id="236"/>
+									<ExtendedTooltip name="PropertiesAdditionalExtendedTooltip" id="236"/>
 									<ChildItems>
 										<InputField name="IBUserLanguage" id="196">
 											<DataPath>IBUserLanguage</DataPath>
@@ -1964,7 +1964,7 @@ associated with the 1C:Enterprise user.</v8:content>
 				</v8:StringQualifiers>
 			</Type>
 		</Attribute>
-		<Attribute name="IBUserCannotRecoverPassword" id="47">
+		<Attribute name="IBUserCannotRecoveryPassword" id="47">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -2235,13 +2235,13 @@ associated with the 1C:Enterprise user.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Group by subsystems</v8:content>
+					<v8:content>Group by subsystem</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Group roles by subsystems.</v8:content>
+					<v8:content>Group roles by subsystem.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>

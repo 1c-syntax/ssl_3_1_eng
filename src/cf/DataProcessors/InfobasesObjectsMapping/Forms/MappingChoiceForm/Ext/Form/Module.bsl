@@ -8,29 +8,29 @@
 //
 //
 
-// 
+// Mandatory form parameters:
 //
-// 
-// 
-// 
+// ObjectToMap - String - Object details in the current app.
+// Application1 - String - Name of the peer app.
+// Application2 - String - Name of the current app.
 //
-// 
-//      
-//     
-//     
+// UsedFieldsList - ValueList - Fields to be used for mapping.
+//     Value - String - Field name. 
+//     Presentation - String - Field header.
+//     Check - Boolean - Flag indicating whether the field is being used.
 //
-// 
+// MaxUserFields - Number - Mapped field threshold.
 //
-// 
+// StartRowSerialNumber - Number - Current row key in the input table.
 //
-// 
-//     
-//     
-//     
-//     
-//     
+// TempStorageAddress - String - Address of the input mapping table. Columns are:
+//     PictureIndex - Number
+//     IndexNumber - Number - Row's unique key.
+//     OrderField1 - String - Value of the attribute #1 in the used fields list.
+//     …
+//     OrderFieldNN - String - Value of the attribute #NN in the used fields list.
 //
-// 
+// After the form opens, data at the address "TempStorageAddress" is deleted from the temporary storage.
 //
 
 #Region FormEventHandlers

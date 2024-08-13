@@ -80,23 +80,6 @@ Procedure OnOpen(Cancel)
 	GeneratePresentationForSelectedFormats();
 EndProcedure
 
-&AtClient
-Procedure ChoiceProcessing(ValueSelected, ChoiceSource)
-	
-	If Upper(ChoiceSource.FormName) = Upper("CommonForm.SelectAttachmentFormat") Then
-		
-		If ValueSelected <> DialogReturnCode.Cancel And ValueSelected <> Undefined Then
-			SetFormatSelection(ValueSelected.SaveFormats);
-			PackToArchive = ValueSelected.PackToArchive;
-			TransliterateFilesNames = ValueSelected.TransliterateFilesNames;
-			Sign = ValueSelected.Sign;
-			GeneratePresentationForSelectedFormats();
-		EndIf;
-		
-	EndIf;
-	
-EndProcedure
-
 #EndRegion
 
 #Region FormHeaderItemsEventHandlers
@@ -104,9 +87,9 @@ EndProcedure
 &AtClient
 Procedure AttachmentFormatClick(Item, StandardProcessing)
 	StandardProcessing = False;
-	OpeningParameters = New Structure;
-	OpeningParameters.Insert("FormatSettings", SelectedFormatSettings());
-	OpenForm("CommonForm.SelectAttachmentFormat", OpeningParameters, ThisObject);
+	
+	NotifyDescription = New NotifyDescription("AfterAttachmentsFormatSelected", ThisObject);
+	CommonClient.ShowAttachmentsFormatSelection(NotifyDescription, SelectedFormatSettings());
 EndProcedure
 
 #EndRegion
@@ -146,6 +129,19 @@ EndProcedure
 #EndRegion
 
 #Region Private
+
+&AtClient
+Procedure AfterAttachmentsFormatSelected(SettingsForSaving, AdditionalParameters) Export
+	If TypeOf(SettingsForSaving) <> Type("Structure") Then
+		Return;
+	EndIf;
+	
+	SetFormatSelection(SettingsForSaving.SaveFormats);
+	PackToArchive = SettingsForSaving.PackToArchive;
+	TransliterateFilesNames = SettingsForSaving.TransliterateFilesNames;
+	Sign = SettingsForSaving.Sign;
+	GeneratePresentationForSelectedFormats();
+EndProcedure
 
 &AtServer
 Procedure FillRecipientsTableFromRow(Val RecipientsList)

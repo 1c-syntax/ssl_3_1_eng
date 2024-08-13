@@ -47,9 +47,9 @@ Function SelectiveRegistrationParametersByExchangeNodeName(ExchangePlanName) Exp
 		
 		SelectiveRegistrationParameters = Selection.SelectiveRegistrationParameters.Get();
 		
-		// 
-		// 
-		// 
+		// "SelectiveRegistrationParameters" supports the following keys:
+		// - IsXDTOExchangePlan
+		// - RegistrationAttributesTable
 		
 		Return SelectiveRegistrationParameters;
 		
@@ -69,14 +69,11 @@ EndFunction
 // Valid values are:
 //
 //   Disabled - Register all objects
-//                         (See DataExchangeRegistrationServer.РежимВыборочнойРегистрацииОтключен()
-//   ).
-//                         (See DataExchangeRegistrationServer.РежимВыборочнойРегистрацииСогласноПравиламXML()
+//                         ).
 //   AccordingToXMLRules - Register the objects whose PCR fields were modified
-//                         (See DataExchangeRegistrationServer.РежимВыборочнойРегистрацииМодифицированность()
-//            ).
-//            Modified - Register the objects whose "Modified" property is set to True
-//            ).
+//                         ).
+//   Modified - Register the objects whose "Modified" property is set to True
+//                         ).
 //
 Function ExchangePlanDataSelectiveRegistrationMode(ExchangePlanName) Export
 	
@@ -84,8 +81,8 @@ Function ExchangePlanDataSelectiveRegistrationMode(ExchangePlanName) Export
 	If DataExchangeCached.IsXDTOExchangePlan(ExchangePlanName)
 		And SettingValue = DataExchangeRegistrationServer.SelectiveRegistrationModeByXMLRules() Then
 		
-		// 
-		// 
+		// The XDTO format supports only "Modified" the selective registration mode.
+		// To fix the implicit integration error, implicitly change the selective registration value.
 		SettingValue = DataExchangeRegistrationServer.SelectiveRegistrationModeModification();
 		
 	ElsIf SettingValue = Undefined Then

@@ -185,8 +185,8 @@ Function MoveItem(ItemList, CurrentItemRef, Direction) Export
 	Information = ItemOrderSetup.GetInformationForMoving(CurrentItemRef.Metadata());
 	DataCompositionSettings = ItemList.GetPerformingDataCompositionSettings();
 	
-	// 
-	// 
+	// Hierarchical catalogs support filters by parent.
+	// Otherwise, the display mode should be hierarchy or tree.
 	RepresentedAsList = ItemList.Representation = TableRepresentation.List;
 	If Information.HasParent And RepresentedAsList And Not ListContainsFilterByParent(DataCompositionSettings) Then
 		Return NStr("en = 'To change the item sequence, set the view mode to Tree or Hierarchical list.';");

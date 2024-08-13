@@ -55,7 +55,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	WindowOptionsKey = ?(ContextMode, "ContextMode", "NoContextMode");
 	
-	AuthenticationMethod = "Password";
+	AuthenticationOption = "Password";
 	
 	If ValueIsFilled(Parameters.Key) Then
 		AccountRef = Parameters.Key;
@@ -178,7 +178,7 @@ Procedure NeedHelpClick(Item)
 EndProcedure
 
 &AtClient
-Procedure ErrorMessagesOpening(Item, StandardProcessing)
+Procedure ErrorsMessagesOpening(Item, StandardProcessing)
 	
 	StandardProcessing = False;
 	Items.Pages.CurrentPage = Items.TechnicalDetailsOfError;
@@ -197,7 +197,7 @@ EndProcedure
 
 &AtClient
 Procedure AuthenticationModeOnChange(Item)
-	Items.Password.Enabled = AuthenticationMethod = "Password";
+	Items.Password.Enabled = AuthenticationOption = "Password";
 EndProcedure
 
 #EndRegion
@@ -268,7 +268,7 @@ Procedure PopulateUserAccountProperties()
 	FillPropertyValues(ThisObject, Selection);
 	OnlyAuthorization = Parameters.OnlyAuthorization;
 	If Selection.EmailServiceAuthorization Or OnlyAuthorization Then
-		AuthenticationMethod = "OAuth";
+		AuthenticationOption = "OAuth";
 		Items.Password.Enabled = False;
 		If OnlyAuthorization Then
 			SettingsAuthorizationOnMailServer = SettingsAuthorizationOnMailServer();
@@ -338,7 +338,7 @@ Procedure GotoNextPage(Command = Undefined)
 			FillAccountSettings();
 		EndIf;
 		
-		If Not Cancel And AuthenticationMethod = "OAuth" Then
+		If Not Cancel And AuthenticationOption = "OAuth" Then
 			ValidationCompletedWithErrors = False;
 			NextPage = Items.ApplicationAuthorizationSettings;
 			
@@ -358,7 +358,7 @@ Procedure GotoNextPage(Command = Undefined)
 				Or IsWebClient() And Not AvailableAuthorizationByCode() Then
 				ErrorsMessages = NStr("en = 'Email service authorization settings are not found. Use password authorization.';");
 				ValidationCompletedWithErrors = True;
-				AuthenticationMethod = "Password";
+				AuthenticationOption = "Password";
 				NextPage = Items.UserAccountSetup;
 			ElsIf ValueIsFilled(AppID) Then
 				NextPage = Items.Authorization;
@@ -653,7 +653,7 @@ Procedure SetCurrentPageItems()
 	
 	If CurrentPage = Items.UserAccountSetup Then
 		Items.CannotConnectPictureAndLabel.Visible = ValidationCompletedWithErrors;
-		Items.Password.Enabled = AuthenticationMethod = "Password";
+		Items.Password.Enabled = AuthenticationOption = "Password";
 	EndIf;
 	
 	If CurrentPage = Items.OutgoingMailServerSetup Then
@@ -828,7 +828,7 @@ Procedure NewAccount1()
 			Account.AccountOwner = Catalogs.Users.EmptyRef();
 		EndIf;
 		Account.AdditionalProperties.Insert("DoNotCheckSettingsForChanges");
-		If AuthenticationMethod = "OAuth" Then
+		If AuthenticationOption = "OAuth" Then
 			Account.EmailServiceAuthorization = True;
 			Account.EmailServiceName = AuthorizationSettings.InternetServiceName;
 		EndIf;
@@ -840,7 +840,7 @@ Procedure NewAccount1()
 		SetPrivilegedMode(True);
 		
 		Common.DeleteDataFromSecureStorage(AccountRef);
-		If AuthenticationMethod = "OAuth" Then
+		If AuthenticationOption = "OAuth" Then
 			WriteAuthorizationSettings();
 		Else
 			Common.WriteDataToSecureStorage(AccountRef, PasswordForReceivingEmails);
@@ -909,7 +909,7 @@ Function InternetMailProfile(ForReceiving = False)
 	
 	Profile.Timeout = ServerTimeout;
 	
-	If AuthenticationMethod = "OAuth" Then
+	If AuthenticationOption = "OAuth" Then
 		Profile.TokenAuthentication = UseInternetMailTokenAuthentication.Use;
 		Profile.AccessToken = AccessToken;
 	EndIf;
@@ -1062,7 +1062,7 @@ Procedure LoginAtMailServer()
 		EndIf;
 		
 		Items.ExplanationByConfirmationCode.Title = StringFunctionsClient.FormattedString(NStr(
-			"en = 'Authorize on the <a href=""%1""> email service page</a> and enter the received code in the field below:';"),
+			"en = 'Authorize on the <a href=""%1"">email service page</a> and enter the received code in the field below:';"),
 			QueryAuthorizationString);
 		Items.AuthorizationOptions.CurrentPage = Items.OperatingSystemBrowser;
 

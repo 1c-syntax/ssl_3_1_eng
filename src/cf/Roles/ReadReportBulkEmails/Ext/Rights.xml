@@ -26,41 +26,6 @@
 		</right>
 	</object>
 	<object>
-		<name>InformationRegister.CertificatesOfReportDistributionRecipients</name>
-		<right>
-			<name>Read</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>View</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
-		<name>Catalog.ReportMailings</name>
-		<right>
-			<name>Read</name>
-			<value>true</value>
-			<restrictionByCondition>
-				<condition>#IF &amp;RecordLevelAccessRestrictionIsUniversal #THEN
-#ForObject("")
-#ELSE
-ReportMailings WHERE (ReportMailings.Author = &amp;CurrentUser
-			OR ReportMailings.Personal = FALSE
-			OR Predefined = TRUE)
-#ENDIF</condition>
-			</restrictionByCondition>
-		</right>
-		<right>
-			<name>View</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>InputByString</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
 		<name>Configuration.StandardSubsystemsLibrary</name>
 		<right>
 			<name>MainWindowModeNormal</name>
@@ -84,6 +49,41 @@ ReportMailings WHERE (ReportMailings.Author = &amp;CurrentUser
 		</right>
 		<right>
 			<name>AnalyticsSystemClient</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>InformationRegister.CertificatesOfReportDistributionRecipients</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>View</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>Catalog.ReportMailings</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+			<restrictionByCondition>
+				<condition>#If &amp;RecordLevelAccessRestrictionIsUniversal #Then
+#ForObject("")
+#Else
+ReportMailings WHERE (ReportMailings.Author = &amp;CurrentUser
+			OR ReportMailings.Personal = FALSE
+			OR Predefined = TRUE)
+#EndIf</condition>
+			</restrictionByCondition>
+		</right>
+		<right>
+			<name>View</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>InputByString</name>
 			<value>true</value>
 		</right>
 	</object>

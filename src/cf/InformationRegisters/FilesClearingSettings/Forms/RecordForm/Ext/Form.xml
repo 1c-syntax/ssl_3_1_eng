@@ -12,7 +12,7 @@
 						<v8:content>Command bar</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="CommandBarGroupExtendedTooltip" id="35"/>
+				<ExtendedTooltip name="GroupCommandBarExtendedTooltip" id="35"/>
 				<ChildItems>
 					<Button name="WriteAndClose" id="36">
 						<Type>CommandBarButton</Type>
@@ -60,12 +60,14 @@
 					</Button>
 				</ChildItems>
 			</ButtonGroup>
-			<Button name="FormHelp" id="48">
-				<Type>CommandBarButton</Type>
-				<CommandName>Form.StandardCommand.Help</CommandName>
-				<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
-				<ExtendedTooltip name="FormHelpExtendedTooltip" id="49"/>
-			</Button>
+			<Popup name="ReportsSubmenu" id="53">
+				<Picture>
+					<xr:Ref>CommonPicture.Reports</xr:Ref>
+					<xr:LoadTransparent>false</xr:LoadTransparent>
+				</Picture>
+				<Representation>PictureAndText</Representation>
+				<ExtendedTooltip name="ReportsSubmenuExtendedTooltip" id="54"/>
+			</Popup>
 			<SearchStringAddition name="SearchString" id="50">
 				<AdditionSource>
 					<Item>SetupRuleFilter</Item>
@@ -83,8 +85,10 @@
 		</ChildItems>
 	</AutoCommandBar>
 	<Events>
+		<Event name="AfterWrite">AfterWrite</Event>
 		<Event name="ChoiceProcessing">ChoiceProcessing</Event>
 		<Event name="OnReadAtServer">OnReadAtServer</Event>
+		<Event name="OnOpen">OnOpen</Event>
 		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
 		<Event name="BeforeWriteAtServer">BeforeWriteAtServer</Event>
 	</Events>

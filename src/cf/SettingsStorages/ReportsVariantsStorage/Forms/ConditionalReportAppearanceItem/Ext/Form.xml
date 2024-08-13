@@ -22,7 +22,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="FormalizedFieldsGroupExtendedTooltip" id="338"/>
+			<ExtendedTooltip name="FormattedFieldsGroupExtendedTooltip" id="338"/>
 			<ChildItems>
 				<UsualGroup name="FormattedFieldsGroupSelectionOptions" id="354">
 					<Title>
@@ -35,7 +35,7 @@
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="GroupOfFormalizedFieldsSelectionOptionsExtendedTooltip" id="355"/>
+					<ExtendedTooltip name="FormattedFieldsGroupSelectionOptionsExtendedTooltip" id="355"/>
 					<ChildItems>
 						<CheckBoxField name="Use" id="372">
 							<DataPath>Use</DataPath>
@@ -109,10 +109,10 @@
 									</xr:Value>
 								</xr:Item>
 							</ChoiceList>
-							<ContextMenu name="OptionOfSelectingFieldsToBeDrawnUpContextMenu" id="357"/>
-							<ExtendedTooltip name="OptionOfSelectingFieldsToBeDrawnUpExtendedTooltip" id="358"/>
+							<ContextMenu name="FormattedFieldsSelectionOptionContextMenu" id="357"/>
+							<ExtendedTooltip name="FormattedFieldsSelectionOptionExtendedTooltip" id="358"/>
 							<Events>
-								<Event name="OnChange">OptionOfSelectingFieldsToBeDrawnUpOnChange</Event>
+								<Event name="OnChange">FormattedFieldsSelectionOptionOnChange</Event>
 							</Events>
 						</RadioButtonField>
 						<Pages name="FormattedFieldsPages" id="362">
@@ -123,7 +123,7 @@
 								</v8:item>
 							</Title>
 							<PagesRepresentation>None</PagesRepresentation>
-							<ExtendedTooltip name="ThePageFieldsToBeDrawnUpExtendedTooltip" id="363"/>
+							<ExtendedTooltip name="FormattedFieldsPagesExtendedTooltip" id="363"/>
 							<ChildItems>
 								<Page name="FormattedFieldPage" id="364">
 									<Title>
@@ -132,7 +132,7 @@
 											<v8:content>Formatted field</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="PageFormalizedFieldExtendedTooltip" id="365"/>
+									<ExtendedTooltip name="FormattedFieldPageExtendedTooltip" id="365"/>
 									<ChildItems>
 										<InputField name="FormattedField" id="359">
 											<DataPath>FormattedField</DataPath>
@@ -165,7 +165,7 @@
 										</v8:item>
 									</Title>
 									<Group>AlwaysHorizontal</Group>
-									<ExtendedTooltip name="TheCommandPanelPageExtendedTooltip" id="367"/>
+									<ExtendedTooltip name="PageCommandBarExtendedTooltip" id="367"/>
 									<ChildItems>
 										<CommandBar name="FormattedFieldsCommandsBasic" id="368">
 											<Title>
@@ -174,7 +174,7 @@
 													<v8:content>Main commands</v8:content>
 												</v8:item>
 											</Title>
-											<ExtendedTooltip name="TheFieldsOfTheCommandThatAreBeingProcessedAreTheMainOnesExtendedTooltip" id="369"/>
+											<ExtendedTooltip name="FormattedFieldsCommandsBasicExtendedTooltip" id="369"/>
 											<ChildItems>
 												<Button name="FormattedFieldsAdd" id="265">
 													<Type>CommandBarButton</Type>
@@ -191,7 +191,7 @@
 														</v8:item>
 													</Title>
 													<Representation>Compact</Representation>
-													<ExtendedTooltip name="TheFieldsToBeDrawnUpAreTheGroupChangeCheckboxesExtendedTooltip" id="258"/>
+													<ExtendedTooltip name="FormattedFieldsChangeCheckBoxesGroupExtendedTooltip" id="258"/>
 													<ChildItems>
 														<Button name="FormattedFieldsSelectCheckBoxes" id="259">
 															<Type>CommandBarButton</Type>
@@ -215,7 +215,7 @@
 														</v8:item>
 													</Title>
 													<Representation>Compact</Representation>
-													<ExtendedTooltip name="TheFieldsToBeDrawnUpAreTheMoveGroupExtendedTooltip" id="276"/>
+													<ExtendedTooltip name="FormattedFieldsMoveGroupExtendedTooltip" id="276"/>
 													<ChildItems>
 														<Button name="FormattedFieldsMoveUp" id="277">
 															<Type>CommandBarButton</Type>
@@ -266,7 +266,7 @@
 										<v8:content>Change</v8:content>
 									</v8:item>
 								</Title>
-								<ExtendedTooltip name="TheFieldsToBeDrawnUpAreTheGroupToChangeExtendedTooltip" id="270"/>
+								<ExtendedTooltip name="FormattedFieldsGroupChangeExtendedTooltip" id="270"/>
 								<ChildItems>
 									<Button name="FormattedFieldsCopy" id="271">
 										<Type>CommandBarButton</Type>
@@ -425,15 +425,15 @@
 								</v8:item>
 							</Title>
 							<Group>InCell</Group>
-							<ExtendedTooltip name="DesignGroupUsingTheParameterExtendedTooltip" id="202"/>
+							<ExtendedTooltip name="AppearanceParameterUsageGroupExtendedTooltip" id="202"/>
 							<ChildItems>
 								<CheckBoxField name="AppearanceUse" id="96">
 									<DataPath>SettingsComposer.Settings.ConditionalAppearance[0].Appearance.Use</DataPath>
 									<TitleLocation>None</TitleLocation>
 									<EditMode>Directly</EditMode>
 									<CheckBoxType>Auto</CheckBoxType>
-									<ContextMenu name="AppearanceUsageContextMenu" id="97"/>
-									<ExtendedTooltip name="AppearanceUsageExtendedTooltip" id="98"/>
+									<ContextMenu name="AppearanceUseContextMenu" id="97"/>
+									<ExtendedTooltip name="AppearanceUseExtendedTooltip" id="98"/>
 								</CheckBoxField>
 								<InputField name="AppearanceParameter" id="105">
 									<DataPath>SettingsComposer.Settings.ConditionalAppearance[0].Appearance.Parameter</DataPath>
@@ -621,7 +621,7 @@
 										<v8:content>Group</v8:content>
 									</v8:item>
 								</Title>
-								<ExtendedTooltip name="SelectionGroupGroupExtendedTooltip" id="304"/>
+								<ExtendedTooltip name="FilterGroupGroupExtendedTooltip" id="304"/>
 								<ChildItems>
 									<Button name="FilterGroupFilterItems" id="305">
 										<Type>CommandBarButton</Type>
@@ -650,7 +650,7 @@
 										<v8:content>Change</v8:content>
 									</v8:item>
 								</Title>
-								<ExtendedTooltip name="FilterChangeGroupExtendedTooltip" id="353"/>
+								<ExtendedTooltip name="FilterGroupChangeExtendedTooltip" id="353"/>
 								<ChildItems>
 									<Button name="FilterCopy" id="313">
 										<Type>CommandBarButton</Type>
@@ -853,15 +853,15 @@
 													<DataPath>SettingsComposer.Settings.ConditionalAppearance[0].Filter.Application</DataPath>
 													<EditMode>EnterOnInput</EditMode>
 													<Width>5</Width>
-													<ContextMenu name="FilterApplyContextMenu" id="252"/>
-													<ExtendedTooltip name="FilterApplyExtendedTooltip" id="253"/>
+													<ContextMenu name="FilterApplicationContextMenu" id="252"/>
+													<ExtendedTooltip name="FilterApplicationExtendedTooltip" id="253"/>
 												</InputField>
 												<InputField name="FilterViewMode" id="254">
 													<DataPath>SettingsComposer.Settings.ConditionalAppearance[0].Filter.ViewMode</DataPath>
 													<EditMode>EnterOnInput</EditMode>
 													<Width>5</Width>
-													<ContextMenu name="FilterDisplayModeContextMenu" id="255"/>
-													<ExtendedTooltip name="FilterDisplayModeExtendedTooltip" id="256"/>
+													<ContextMenu name="FilterViewModeContextMenu" id="255"/>
+													<ExtendedTooltip name="FilterViewModeExtendedTooltip" id="256"/>
 												</InputField>
 											</ChildItems>
 										</ColumnGroup>
@@ -951,7 +951,7 @@
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="OptionsForUsingCommandExtendedTooltip" id="157"/>
+							<ExtendedTooltip name="UsageOptionsCommandsExtendedTooltip" id="157"/>
 							<ChildItems>
 								<LabelDecoration name="DecorationShow" id="153">
 									<AutoMaxWidth>false</AutoMaxWidth>
@@ -974,7 +974,7 @@
 										</v8:item>
 									</Title>
 									<HorizontalStretch>false</HorizontalStretch>
-									<ExtendedTooltip name="ChangeCheckboxesCommandsExtendedTooltip" id="200"/>
+									<ExtendedTooltip name="CommandsChangeCheckBoxesExtendedTooltip" id="200"/>
 									<ChildItems>
 										<ButtonGroup name="ChangeCheckboxesGroup" id="343">
 											<Title>
@@ -995,7 +995,7 @@
 															<v8:content>Select all</v8:content>
 														</v8:item>
 													</Title>
-													<ExtendedTooltip name="ShowSelectCheckBoxesExtendedTooltip" id="191"/>
+													<ExtendedTooltip name="Show_SelectCheckBoxesExtendedTooltip" id="191"/>
 												</Button>
 												<Button name="Show_ClearCheckBoxes" id="188">
 													<Type>CommandBarButton</Type>
@@ -1006,7 +1006,7 @@
 															<v8:content>Clear all</v8:content>
 														</v8:item>
 													</Title>
-													<ExtendedTooltip name="ShowClearCheckBoxesExtendedTooltip" id="189"/>
+													<ExtendedTooltip name="Show_ClearCheckBoxesExtendedTooltip" id="189"/>
 												</Button>
 											</ChildItems>
 										</ButtonGroup>
@@ -1025,7 +1025,7 @@
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="OptionsForUsingTagExtendedTooltip" id="161"/>
+							<ExtendedTooltip name="UsageOptionsMarksExtendedTooltip" id="161"/>
 							<ChildItems>
 								<CheckBoxField name="UseInGroup" id="185">
 									<DataPath>UseInGroup</DataPath>
@@ -1163,7 +1163,7 @@
 									<v8:content>OK</v8:content>
 								</v8:item>
 							</Title>
-							<ExtendedTooltip name="FormChooseExtendedTooltip" id="27"/>
+							<ExtendedTooltip name="FormSelectExtendedTooltip" id="27"/>
 						</Button>
 						<Button name="Cancel" id="325">
 							<Type>CommandBarButton</Type>

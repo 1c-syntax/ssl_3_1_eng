@@ -64,8 +64,8 @@
 Please wait…</v8:content>
 								</v8:item>
 							</Title>
-							<ContextMenu name="WaitLabelDecorationContextMenu" id="11"/>
-							<ExtendedTooltip name="WaitLabelDecorationExtendedTooltip" id="12"/>
+							<ContextMenu name="LabelWaitDecorationContextMenu" id="11"/>
+							<ExtendedTooltip name="LabelWaitDecorationExtendedTooltip" id="12"/>
 						</LabelDecoration>
 					</ChildItems>
 				</Page>

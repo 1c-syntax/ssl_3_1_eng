@@ -10,7 +10,7 @@
 
 #Region Public
 
-// Opens the BIC catalog choice form with filter by passed BIC.
+// Opens the choice form of the Bank codes catalog with filter by the passed bank code.
 // If the choice list contains a single record, it is automatically selected in the form.
 //
 // Parameters:

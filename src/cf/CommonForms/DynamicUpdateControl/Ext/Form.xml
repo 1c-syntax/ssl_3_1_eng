@@ -83,7 +83,7 @@
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="GroupTextAndScheduleExtendedTooltip" id="23"/>
+					<ExtendedTooltip name="TextAndScheduleGroupExtendedTooltip" id="23"/>
 					<ChildItems>
 						<UsualGroup name="TextGroup" id="18">
 							<Title>

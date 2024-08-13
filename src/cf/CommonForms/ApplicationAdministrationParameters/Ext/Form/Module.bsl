@@ -133,7 +133,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 &AtClient
-Procedure ConnectionTypeOnChange(Item)
+Procedure AttachmentTypeOnChange(Item)
 	
 	Items.ConnectionTypeGroup.CurrentPage = ?(AttachmentType = "COM", Items.COMGroup, Items.RASGroup);
 	
@@ -251,9 +251,9 @@ Procedure IsNecessaryToInputAdministrationParameters()
 		
 		If UsersCount > 0 Then
 			
-			// 
-			// 
-			// 
+			// Calculate the up-to-date username even if it was changed in the current session.
+			// (For example, when the infobase is accessed via an external session.)
+			// In other cases, get "InfobaseUsers.CurrentUser".
 			CurrentUser = InfoBaseUsers.FindByUUID(
 				InfoBaseUsers.CurrentUser().UUID);
 			

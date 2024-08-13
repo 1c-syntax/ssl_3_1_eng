@@ -437,7 +437,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Procedures and functions for displaying lists of settings.
 
 &AtClient
 Procedure UpdateSettingsList()
@@ -467,7 +467,7 @@ Function UpdatingSettingsList()
 	TimeConsumingOperationParameters = TimeConsumingOperationParameters();
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.WaitCompletion = 0; // 
+	ExecutionParameters.WaitCompletion = 0; // Run immediately.
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Update user settings';");
 	
 	TimeConsumingOperation = TimeConsumingOperations.ExecuteInBackground("UsersInternal.FillSettingsLists",
@@ -522,7 +522,7 @@ Procedure FillSettings(Val ResultAddress)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Procedures and functions for calculating the number of settings items.
 
 &AtServer
 Procedure CalculateSettingsCount()
@@ -581,7 +581,7 @@ Function SettingsInTreeCount(SettingsList)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Procedures and functions for copying, deleting, and clearing settings.
 
 &AtServer
 Procedure CopyAtServer(UsersDestination, ReportPersonalizationCount, Report)
@@ -845,7 +845,7 @@ Procedure ClearCompletion(Response, SettingsTree) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Auxiliary procedures and functions.
 
 &AtClient
 Procedure Attachable_ExecuteNotifyProcessing()
@@ -1129,14 +1129,12 @@ EndProcedure
 &AtClient
 Procedure Attachable_ExpandValueTree()
 	
-	Rows = ReportsSettings.GetItems();
-	For Each String In Rows Do
-		Items.ReportSettingsTree.Expand(String.GetID(), True);
+	For Each Item In ReportsSettings.GetItems() Do
+		Items.ReportSettingsTree.Expand(Item.GetID(), True);
 	EndDo;
 	
-	Rows = Interface.GetItems();
-	For Each String In Rows Do
-		Items.Interface.Expand(String.GetID(), True);
+	For Each Item In Interface.GetItems() Do
+		Items.Interface.Expand(Item.GetID(), True);
 	EndDo;
 	
 EndProcedure

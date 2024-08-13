@@ -88,7 +88,7 @@ Function ProxySettingsAtClient() Export
 	
 	If Common.FileInfobase() Then
 		
-		// 
+		// In the file mode, scheduled jobs run on the user's computer.
 		// 
 		
 		CurrentInfobaseSession1 = GetCurrentInfoBaseSession();
@@ -99,8 +99,8 @@ Function ProxySettingsAtClient() Export
 			
 			If Not ValueIsFilled(BackgroundJob.ScheduledJob.UserName) Then 
 				
-				// 
-				// 
+				// If a scheduled job is started on behalf of the default user, take the proxy settings
+				// from the user settings saved on the computer where the session is running.
 				// 
 				
 				Sessions = GetInfoBaseSessions(); // Array of InfoBaseSession

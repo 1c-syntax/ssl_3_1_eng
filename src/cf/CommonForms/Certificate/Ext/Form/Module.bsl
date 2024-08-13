@@ -222,8 +222,8 @@ Procedure RootCertificatesChoice(Item, RowSelected, Field, StandardProcessing)
 	
 	FormParameters = New Structure;
 	FormParameters.Insert("CertificateAddress", CurrentData.CertificateData);
-
-	OpenForm("CommonForm.Certificate", FormParameters);
+	
+	DigitalSignatureInternalClient.OpenCertificateForm(FormParameters);
 
 EndProcedure
 
@@ -323,9 +323,9 @@ Procedure ValidateCompletion(Result, Context) Export
 			WarningParameters.Insert("ErrorTextClient",
 				Result);
 		EndIf;
-		OpenForm("CommonForm.ExtendedErrorPresentation",
-			WarningParameters, ThisObject);
-			
+		
+		DigitalSignatureInternalClient.OpenExtendedErrorPresentationForm(WarningParameters, ThisObject);
+		
 	EndIf;
 	
 	Items.FormValidate.Enabled = True;

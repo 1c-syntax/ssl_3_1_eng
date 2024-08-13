@@ -25,9 +25,9 @@
 //    * Title                - String - Column header displayed in the template for import.
 //    * Type                      - TypeDescription - column type.
 //    * Width                   - Number  - column width.
-//    * Position                  - Number  - 
+//    * Position                  - Number  - Column position in the table.
 //    * ToolTip                - String - a tooltip displayed in the column header.
-//    * IsRequiredInfo - Boolean -  true if the column must contain values.
+//    * IsRequiredInfo - Boolean - "True" if the column must contain values.
 //    * Group                   - String - Column group name.
 //    * Parent                 - String - used to connect a dynamic column with an attribute of the object tabular section.
 //

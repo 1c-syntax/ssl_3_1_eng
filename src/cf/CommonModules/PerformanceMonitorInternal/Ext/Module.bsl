@@ -68,14 +68,17 @@ EndProcedure
 
 // See ScheduledJobsOverridable.OnDefineScheduledJobSettings
 Procedure OnDefineScheduledJobSettings(Settings) Export
-	Dependence = Settings.Add();
-	Dependence.ScheduledJob = Metadata.ScheduledJobs.PerformanceMonitorDataExport;
-	Dependence.FunctionalOption = Metadata.FunctionalOptions.RunPerformanceMeasurements;
-	Dependence.UseExternalResources = True;
-	Dependence = Settings.Add();
-	Dependence.ScheduledJob = Metadata.ScheduledJobs.ClearTimeMeasurements;
-	Dependence.FunctionalOption = Metadata.FunctionalOptions.RunPerformanceMeasurements;
-	Dependence.UseExternalResources = True;
+	
+	Setting = Settings.Add();
+	Setting.ScheduledJob = Metadata.ScheduledJobs.PerformanceMonitorDataExport;
+	Setting.FunctionalOption = Metadata.FunctionalOptions.RunPerformanceMeasurements;
+	Setting.UseExternalResources = True;
+	Setting.IsParameterized = True;
+	
+	Setting = Settings.Add();
+	Setting.ScheduledJob = Metadata.ScheduledJobs.ClearTimeMeasurements;
+	Setting.FunctionalOption = Metadata.FunctionalOptions.RunPerformanceMeasurements;
+	Setting.UseExternalResources = True;
 EndProcedure
 
 // See SafeModeManagerOverridable.OnFillPermissionsToAccessExternalResources.

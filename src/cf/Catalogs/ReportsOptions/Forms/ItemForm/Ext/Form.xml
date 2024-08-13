@@ -47,12 +47,12 @@
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="FormResetAssignmentSettingsExtendedTooltip" id="155"/>
 					</Button>
-					<Button name="FormResetUsersSettings" id="79">
+					<Button name="FormResetUserSettings" id="79">
 						<Type>CommandBarButton</Type>
 						<CommandName>Catalog.ReportsOptions.Command.ResetUserSettings</CommandName>
 						<DataPath>Object.Ref</DataPath>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-						<ExtendedTooltip name="FormResetUsersSettingsExtendedTooltip" id="156"/>
+						<ExtendedTooltip name="FormResetUserSettingsExtendedTooltip" id="156"/>
 					</Button>
 					<Button name="FormPlaceInSections" id="138">
 						<Type>CommandBarButton</Type>
@@ -425,29 +425,29 @@
 								</ChildItems>
 							</AutoCommandBar>
 							<ExtendedTooltip name="SubsystemsTreeExtendedTooltip" id="169"/>
-							<SearchStringAddition name="SubsystemsTreeSearchString_SSLy" id="206">
+							<SearchStringAddition name="SubsystemsTreeSearchString" id="206">
 								<AdditionSource>
 									<Item>SubsystemsTree</Item>
 									<Type>SearchStringRepresentation</Type>
 								</AdditionSource>
-								<ContextMenu name="SubsystemsTreeSearchString_SSLyContextMenu" id="207"/>
-								<ExtendedTooltip name="SubsystemsTreeSearchString_SSLyExtendedTooltip" id="208"/>
+								<ContextMenu name="SubsystemsTreeSearchStringContextMenu" id="207"/>
+								<ExtendedTooltip name="SubsystemsTreeSearchStringExtendedTooltip" id="208"/>
 							</SearchStringAddition>
-							<ViewStatusAddition name="SubsystemsTreeViewStatus_SSLy" id="209">
+							<ViewStatusAddition name="SubsystemsTreeViewStatus" id="209">
 								<AdditionSource>
 									<Item>SubsystemsTree</Item>
 									<Type>ViewStatusRepresentation</Type>
 								</AdditionSource>
-								<ContextMenu name="SubsystemsTreeViewStatus_SSLyContextMenu" id="210"/>
-								<ExtendedTooltip name="SubsystemsTreeViewStatus_SSLyExtendedTooltip" id="211"/>
+								<ContextMenu name="SubsystemsTreeViewStatusContextMenu" id="210"/>
+								<ExtendedTooltip name="SubsystemsTreeViewStatusExtendedTooltip" id="211"/>
 							</ViewStatusAddition>
-							<SearchControlAddition name="SubsystemsTreeSearchControl_SSLy" id="212">
+							<SearchControlAddition name="SubsystemsTreeSearchControl" id="212">
 								<AdditionSource>
 									<Item>SubsystemsTree</Item>
 									<Type>SearchControl</Type>
 								</AdditionSource>
-								<ContextMenu name="SubsystemsTreeSearchControl_SSLyContextMenu" id="213"/>
-								<ExtendedTooltip name="SubsystemsTreeSearchControl_SSLyExtendedTooltip" id="214"/>
+								<ContextMenu name="SubsystemsTreeSearchControlContextMenu" id="213"/>
+								<ExtendedTooltip name="SubsystemsTreeSearchControlExtendedTooltip" id="214"/>
 							</SearchControlAddition>
 							<ChildItems>
 								<ColumnGroup name="ColumnGroup" id="83" DisplayImportance="VeryHigh">
@@ -596,60 +596,60 @@
 						<ExcludedCommand>SortListDesc</ExcludedCommand>
 					</CommandSet>
 					<RowFilter xsi:nil="true"/>
-					<ContextMenu name="PlacementContextMenu" id="123"/>
+					<ContextMenu name="LocationContextMenu" id="123"/>
 					<AutoCommandBar name="LocationCommandBar" id="124"/>
 					<ExtendedTooltip name="LocationExtendedTooltip" id="177"/>
-					<SearchStringAddition name="PlacementSearchString" id="215">
+					<SearchStringAddition name="LocationSearchString" id="215">
 						<AdditionSource>
 							<Item>Location</Item>
 							<Type>SearchStringRepresentation</Type>
 						</AdditionSource>
-						<ContextMenu name="PlacementSearchStringContextMenu" id="216"/>
-						<ExtendedTooltip name="PlacementSearchStringExtendedTooltip" id="217"/>
+						<ContextMenu name="LocationSearchStringContextMenu" id="216"/>
+						<ExtendedTooltip name="LocationSearchStringExtendedTooltip" id="217"/>
 					</SearchStringAddition>
-					<ViewStatusAddition name="PlacementViewStatus" id="218">
+					<ViewStatusAddition name="LocationViewStatus" id="218">
 						<AdditionSource>
 							<Item>Location</Item>
 							<Type>ViewStatusRepresentation</Type>
 						</AdditionSource>
-						<ContextMenu name="PlacementViewStatusContextMenu" id="219"/>
-						<ExtendedTooltip name="PlacementViewStatusExtendedTooltip" id="220"/>
+						<ContextMenu name="LocationViewStatusContextMenu" id="219"/>
+						<ExtendedTooltip name="LocationViewStatusExtendedTooltip" id="220"/>
 					</ViewStatusAddition>
-					<SearchControlAddition name="PlacementSearchControl" id="221">
+					<SearchControlAddition name="LocationSearchControl" id="221">
 						<AdditionSource>
 							<Item>Location</Item>
 							<Type>SearchControl</Type>
 						</AdditionSource>
-						<ContextMenu name="PlacementSearchControlContextMenu" id="222"/>
-						<ExtendedTooltip name="PlacementSearchControlExtendedTooltip" id="223"/>
+						<ContextMenu name="LocationSearchControlContextMenu" id="222"/>
+						<ExtendedTooltip name="LocationSearchControlExtendedTooltip" id="223"/>
 					</SearchControlAddition>
 					<ChildItems>
-						<CheckBoxField name="PlacementUse" id="127">
+						<CheckBoxField name="LocationUse" id="127">
 							<DataPath>Object.Location.Use</DataPath>
 							<EditMode>EnterOnInput</EditMode>
 							<CheckBoxType>Auto</CheckBoxType>
-							<ContextMenu name="PlacementUsageContextMenu" id="128"/>
-							<ExtendedTooltip name="PlacementUseExtendedTooltip" id="178"/>
+							<ContextMenu name="LocationUseContextMenu" id="128"/>
+							<ExtendedTooltip name="LocationUseExtendedTooltip" id="178"/>
 						</CheckBoxField>
-						<InputField name="PlacementSubsystem" id="129">
+						<InputField name="LocationSubsystem" id="129">
 							<DataPath>Object.Location.Subsystem</DataPath>
 							<EditMode>EnterOnInput</EditMode>
-							<ContextMenu name="PlacementSubsystemContextMenu" id="130"/>
-							<ExtendedTooltip name="PlacementSubsystemExtendedTooltip" id="179"/>
+							<ContextMenu name="LocationSubsystemContextMenu" id="130"/>
+							<ExtendedTooltip name="LocationSubsystemExtendedTooltip" id="179"/>
 						</InputField>
-						<CheckBoxField name="PlacementImportant" id="131">
+						<CheckBoxField name="LocationImportant" id="131">
 							<DataPath>Object.Location.Important</DataPath>
 							<EditMode>EnterOnInput</EditMode>
 							<CheckBoxType>Auto</CheckBoxType>
-							<ContextMenu name="PlacementIsImportantContextMenu" id="132"/>
-							<ExtendedTooltip name="PlacementImportantExtendedTooltip" id="180"/>
+							<ContextMenu name="LocationImportantContextMenu" id="132"/>
+							<ExtendedTooltip name="LocationImportantExtendedTooltip" id="180"/>
 						</CheckBoxField>
-						<CheckBoxField name="PlacementSeeAlso" id="133">
+						<CheckBoxField name="LocationSeeAlso" id="133">
 							<DataPath>Object.Location.SeeAlso</DataPath>
 							<EditMode>EnterOnInput</EditMode>
 							<CheckBoxType>Auto</CheckBoxType>
-							<ContextMenu name="PlacementSeeAlsoContextMenu" id="134"/>
-							<ExtendedTooltip name="PlacementSeeAlsoExtendedTooltip" id="181"/>
+							<ContextMenu name="LocationSeeAlsoContextMenu" id="134"/>
+							<ExtendedTooltip name="LocationSeeAlsoExtendedTooltip" id="181"/>
 						</CheckBoxField>
 					</ChildItems>
 				</Table>
@@ -756,8 +756,8 @@
 					<DataPath>Object.InteractiveDeletionMark</DataPath>
 					<TitleLocation>Right</TitleLocation>
 					<CheckBoxType>Auto</CheckBoxType>
-					<ContextMenu name="InteractiveSetDeletionMarkContextMenu" id="242"/>
-					<ExtendedTooltip name="InteractiveSetDeletionMarkExtendedTooltip" id="243"/>
+					<ContextMenu name="InteractiveDeletionMarkContextMenu" id="242"/>
+					<ExtendedTooltip name="InteractiveDeletionMarkExtendedTooltip" id="243"/>
 				</CheckBoxField>
 			</ChildItems>
 		</UsualGroup>

@@ -281,7 +281,7 @@ Procedure TerminateInfobaseConnections(Val ClusterAdministrationParameters, Val 
 	FillIBAuthenticationParameters(IBAdministrationParameters, Parameters);
 	
 	Value = New Array;
-	Value.Add("1CV8");               // 
+	Value.Add("1CV8");               // ID of 1C:Enterprise application running in thick client mode.
 	Value.Add("1CV8C");              // ID of 1C:Enterprise application running in thin client mode.
 	Value.Add("WebClient");          // ID of 1C:Enterprise application running in web client mode.
 	Value.Add("Designer");           // Designer ID.
@@ -1665,7 +1665,7 @@ Function AddInPropertiesDictionary()
 	Result = New Structure();
 	Result.Insert("Name", "name");
 	Result.Insert("LongDesc", "descr");
-	Result.Insert("HashSum", "hash"); // 
+	Result.Insert("HashSum", "hash"); // ACC:1036 for backward compatibility.
 	Return New FixedStructure(Result);
 	
 EndFunction
@@ -1675,7 +1675,7 @@ Function ExternalModulePropertiesDictionary()
 	Result = New Structure();
 	Result.Insert("Name", "name");
 	Result.Insert("LongDesc", "descr");
-	Result.Insert("HashSum", "hash"); // 	
+	Result.Insert("HashSum", "hash"); // ACC:1036 for backward compatibility.	
 	Return New FixedStructure(Result);
 	
 EndFunction

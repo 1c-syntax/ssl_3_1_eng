@@ -284,6 +284,13 @@ Function TitleSettings(SettingsItem, SettingDetails, SettingType, ItemTheCustomS
 	
 	SettingValue = SettingValue(SettingsItem, SettingDetails, SettingType, ItemTheCustomSettings);
 	SettingPresentation = SettingPresentation(SettingsItem, SettingDetails, SettingType);
+
+	If TypeOf(SettingValue) = Type("DataCompositionField") Then
+		AvailableField = SettingsComposer.Settings.Selection.SelectionAvailableFields.FindField(SettingValue);
+		If AvailableField <> Undefined Then
+			SettingValue = AvailableField.Title;
+		EndIf;
+	EndIf;
 	
 	If ValueIsFilled(SettingValue)
 		And SettingValue <> SettingPresentation Then 

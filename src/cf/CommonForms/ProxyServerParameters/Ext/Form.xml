@@ -190,7 +190,7 @@
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="AuthenticationGroup1ExtendedTooltip" id="75"/>
+					<ExtendedTooltip name="GroupAuthenticationExtendedTooltip" id="75"/>
 					<ChildItems>
 						<InputField name="UseOSAuthentication" id="63">
 							<DataPath>UseOSAuthentication</DataPath>

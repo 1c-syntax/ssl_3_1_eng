@@ -534,7 +534,7 @@ Function ConflictsDataUpdateQueryText()
 	DestructionText = "DROP HandlersConflicts";
 	
 	#Region TextOfHandlersIntersection
-	// 
+	// Other handlers read and write modifiable objects
 	TextOfHandlersIntersection = 
 	"SELECT
 	|	T.MetadataObject AS MetadataObject,
@@ -2194,9 +2194,9 @@ Procedure SetQueueNumber(UpdateIterations)
 			For Each LongDesc In FoundADescriptionOf Do
 				Handler.DeferredProcessingQueue = LongDesc.NewQueue;
 			EndDo;
-		EndDo;// 
+		EndDo;// By deferred handlers.
 		
-	EndDo;// 
+	EndDo;// By libraries.
 	
 EndProcedure
 

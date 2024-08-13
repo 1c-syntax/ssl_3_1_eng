@@ -83,12 +83,12 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 	 Or EventName = "Write_ObjectsPropertiesValues"
 	 Or EventName = "Write_ObjectPropertyValueHierarchy" Then
 		
-		// 
-		// 
+		// When writing a property, move it to the matching group.
+		// When writing a value, update the first 3 values in the list.
 		OnChangeCurrentSetAtServer();
 		
 	ElsIf EventName = "GoAdditionalDataAndAttributeSets" Then
-		// 
+		// When opening a metadata object property editor, open the object's set (group of sets).
 		// 
 		If TypeOf(Parameter) = Type("Structure") Then
 			SelectSpecifiedRows(Parameter);
@@ -295,8 +295,8 @@ EndProcedure
 
 &AtClient
 Procedure PropertiesDragStart(Item, DragParameters, Perform)
-	// 
-	// 
+	// Properties and attributes cannot be moved, only copied.
+	// Make sure the cursor icon reflects this.
 	DragParameters.AllowedActions = DragAllowedActions.Copy;
 	DragParameters.Action           = DragAction.Copy;
 EndProcedure
@@ -324,9 +324,9 @@ Procedure AddFromSet(Command)
 	FormParameters = New Structure;
 	
 	SelectedValues = New Array;
-	FoundRows = Properties.FindRows(New Structure("Common", True));
-	For Each String In FoundRows Do
-		SelectedValues.Add(String.Property);
+	CommonProperties = Properties.FindRows(New Structure("Common", True));
+	For Each Property In CommonProperties Do
+		SelectedValues.Add(Property.Property);
 	EndDo;
 	
 	If Not ValueIsFilled(PropertyKind) Then
@@ -743,20 +743,20 @@ Procedure ConfigureSetsDisplay()
 	SetProperties.Insert("PredefinedDataName");
 	SetProperties.Insert("PredefinedSetName");
 	
-	For Each String In Sets Do
-		If StrStartsWith(String.PredefinedDataName, "Delete") Then
+	For Each TableRow In Sets Do
+		If StrStartsWith(TableRow.PredefinedDataName, "Delete") Then
 			Continue;
 		EndIf;
 		
-		FillPropertyValues(SetProperties, String);
+		FillPropertyValues(SetProperties, TableRow);
 		
 		SetPropertiesTypes = PropertyManagerInternal.SetPropertiesTypes(SetProperties, False);
 		
 		If PropertyKind = Enums.PropertiesKinds.AdditionalInfo And SetPropertiesTypes.AdditionalInfo
 			Or PropertyKind = Enums.PropertiesKinds.AdditionalAttributes And SetPropertiesTypes.AdditionalAttributes
 			Or PropertyKind = Enums.PropertiesKinds.Labels And SetPropertiesTypes.Labels Then
-			AvailableSets.Add(String.Ref);
-			AvailableSetsList.Add(String.Ref);
+			AvailableSets.Add(TableRow.Ref);
+			AvailableSetsList.Add(TableRow.Ref);
 		EndIf;
 	EndDo;
 	
@@ -1126,6 +1126,8 @@ EndProcedure
 &AtServer
 Procedure ChangeDeletionMarkAndValuesOwner(CurrentProperty, PropertyDeletionMark)
 	
+	// ACC:1328-off - A lock is set higher up in the stack.
+	// ACC:1327-off - A lock is set higher up in the stack.
 	OldValuesOwner = CurrentProperty;
 	
 	NewValuesMark   = Undefined;
@@ -1138,11 +1140,11 @@ Procedure ChangeDeletionMarkAndValuesOwner(CurrentProperty, PropertyDeletionMark
 	EndIf;
 	
 	If PropertyDeletionMark Then
-		// 
-		// 
-		// 
-		//   
-		//   
+		// When marking a unique property for deletion:
+		// - Mark the property itself.
+		// - If there are clones not marked for deletion,
+		//   set a new value owner and assign a new original property to the clones.
+		//   Alternatively, mark the original and the cloned properties for deletion.
 		//   
 		ObjectProperty.DeletionMark = True;
 		
@@ -1162,8 +1164,8 @@ Procedure ChangeDeletionMarkAndValuesOwner(CurrentProperty, PropertyDeletionMark
 			If FoundRow <> Undefined Then
 				NewValuesOwner  = FoundRow.Ref;
 				ObjectProperty.AdditionalValuesOwner = NewValuesOwner;
-				For Each String In Upload0 Do
-					CurrentObject = String.Ref.GetObject();
+				For Each TableRow In Upload0 Do
+					CurrentObject = TableRow.Ref.GetObject();
 					If CurrentObject.Ref = NewValuesOwner Then
 						CurrentObject.AdditionalValuesOwner = Undefined;
 					Else
@@ -1181,12 +1183,12 @@ Procedure ChangeDeletionMarkAndValuesOwner(CurrentProperty, PropertyDeletionMark
 			ObjectProperty.DeletionMark = False;
 			ObjectProperty.Write();
 		EndIf;
-		// 
-		// 
-		// 
-		//   
-		//     
-		//     
+		// When clearing the deletion mark from a unique property:
+		// - Clear the deletion mark from the property itself.
+		// - If it was cloned and the clones are marked for deletion,
+		//   set a new (current) value owner for all properties
+		//     and clear the deletion mark from the values.
+		//     Alternatively, clear the deletion mark from the values.
 		//   
 		If Not ValueIsFilled(ObjectProperty.AdditionalValuesOwner) Then
 			NewValuesMark = False;
@@ -1221,8 +1223,7 @@ Procedure ChangeDeletionMarkAndValuesOwner(CurrentProperty, PropertyDeletionMark
 		EndIf;
 	EndIf;
 	
-	If NewValuesMark  = Undefined
-	   And NewValuesOwner = Undefined Then
+	If NewValuesMark  = Undefined  And NewValuesOwner = Undefined Then
 		Return;
 	EndIf;
 	
@@ -1249,34 +1250,25 @@ Procedure ChangeDeletionMarkAndValuesOwner(CurrentProperty, PropertyDeletionMark
 	
 	Upload0 = Query.Execute().Unload();
 	
-	If NewValuesOwner <> Undefined Then
-		For Each String In Upload0 Do
-			CurrentObject = String.Ref.GetObject();
-			
-			If CurrentObject.Owner <> NewValuesOwner Then
-				CurrentObject.Owner = NewValuesOwner;
-			EndIf;
-			
-			If CurrentObject.Modified() Then
-				CurrentObject.DataExchange.Load = True;
-				CurrentObject.Write();
-			EndIf;
-		EndDo;
-	EndIf;
+	For Each TableRow In Upload0 Do
+		CurrentObject = TableRow.Ref.GetObject();
+		
+		If NewValuesOwner <> Undefined And CurrentObject.Owner <> NewValuesOwner Then
+			CurrentObject.Owner = NewValuesOwner;
+		EndIf;
+		
+		If NewValuesMark <> Undefined And CurrentObject.DeletionMark <> NewValuesMark Then
+			CurrentObject.DeletionMark = NewValuesMark;
+		EndIf;
+
+		If CurrentObject.Modified() Then
+			CurrentObject.DataExchange.Load = True;
+			CurrentObject.Write();
+		EndIf;
+	EndDo;
 	
-	If NewValuesMark <> Undefined Then
-		For Each String In Upload0 Do
-			CurrentObject = String.Ref.GetObject();
-			
-			If CurrentObject.DeletionMark <> NewValuesMark Then
-				CurrentObject.DeletionMark = NewValuesMark;
-			EndIf;
-			
-			If CurrentObject.Modified() Then
-				CurrentObject.Write();
-			EndIf;
-		EndDo;
-	EndIf;
+	// ACC:1327-on
+	// ACC:1328-on
 	
 EndProcedure
 

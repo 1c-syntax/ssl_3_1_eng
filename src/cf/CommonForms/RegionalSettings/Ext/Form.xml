@@ -111,10 +111,10 @@
 											<ListChoiceMode>true</ListChoiceMode>
 											<TextEdit>false</TextEdit>
 											<EditTextUpdate>OnValueChange</EditTextUpdate>
-											<ContextMenu name="ApplicationTimeZoneContextMenu" id="6"/>
+											<ContextMenu name="AppTimeZoneContextMenu" id="6"/>
 											<ExtendedTooltip name="AppTimeZoneExtendedTooltip" id="7"/>
 											<Events>
-												<Event name="OnChange">ApplicationTimeZoneOnChange</Event>
+												<Event name="OnChange">AppTimeZoneOnChange</Event>
 											</Events>
 										</InputField>
 										<Button name="CurrentSessionTime" id="8">
@@ -323,8 +323,8 @@
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
-									<ContextMenu name="TimeConsumingOperationPicture2ContextMenu" id="58"/>
-									<ExtendedTooltip name="TimeConsumingOperationPicture2ExtendedTooltip" id="59"/>
+									<ContextMenu name="PictureTimeConsumingOperationContextMenu" id="58"/>
+									<ExtendedTooltip name="PictureTimeConsumingOperationExtendedTooltip" id="59"/>
 								</PictureDecoration>
 								<LabelDecoration name="DetailsDecoration" id="77">
 									<AutoMaxWidth>false</AutoMaxWidth>
@@ -365,7 +365,7 @@
 							<v8:content>Success</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="CompletedSuccessfully2ExtendedTooltip" id="38"/>
+					<ExtendedTooltip name="CompletedSuccessfullyTextExtendedTooltip" id="38"/>
 					<ChildItems>
 						<UsualGroup name="GroupCompletion" id="75">
 							<Title>
@@ -378,7 +378,7 @@
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="CompletionGroupExtendedTooltip" id="76"/>
+							<ExtendedTooltip name="GroupCompletionExtendedTooltip" id="76"/>
 							<ChildItems>
 								<PictureDecoration name="CompletedSuccessfullyPicture" id="41">
 									<Height>2</Height>
@@ -407,8 +407,8 @@
 										</v8:item>
 									</Title>
 									<VerticalAlign>Center</VerticalAlign>
-									<ContextMenu name="CompletionDecorationContextMenu" id="73"/>
-									<ExtendedTooltip name="CompletionDecorationExtendedTooltip" id="74"/>
+									<ContextMenu name="DecorationCompletionContextMenu" id="73"/>
+									<ExtendedTooltip name="DecorationCompletionExtendedTooltip" id="74"/>
 								</LabelDecoration>
 							</ChildItems>
 						</UsualGroup>

@@ -72,7 +72,7 @@ Procedure ExecuteDefaultAutomaticMapping(Cancel) Export
 	
 	SetPrivilegedMode(True);
 	
-	// 
+	// For default auto-mapping, the list of map fields repeats the list of used fields.
 	// 
 	MappingFieldsList = UsedFieldsList.Copy();
 	
@@ -418,10 +418,10 @@ Procedure ExecuteAutomaticInfobaseObjectMapping(Cancel, MappingFieldsList)
 		Return;
 	EndIf;
 	
-	// 
-	// 
-	// 
-	// 
+	// The steps of generating custom fields:
+	// 1. Add the user-selected fields.
+	// 2. Add the rest of the table fields.
+	// The order of the steps affects the display of fields in the table.
 	UserFields = New Array;
 	
 	For Each Item In UsedFieldsList Do
@@ -494,25 +494,25 @@ EndProcedure
 
 Procedure ObjectsMappingData(SourceTable2, UserFields, TempTablesManager)
 	
-	// 
+	// Get the following tables:
 	//
-	// 
-	// 
-	// 
+	// SourceTable
+	// UnapprovedMappingTable
+	// InfobaseObjectsMapsRegisterTable.
 	//
-	// 
-	// 
-	// 
+	// MappedSourceObjectsTableByRegister
+	// MappedDestinationObjectsTableByRegister
+	// MappedObjectsTableByUnapprovedMapping.
 	//
-	// 
+	// TableOfMappedObjects.
 	//
-	// 
-	// 
+	// UnmappedSourceObjectsTable
+	// UnmappedDestinationObjectsTable.
 	//
 	//
 	
-	// 
-	//  
+	// Instead of service clause #any_text#, add to the query text the parameters,
+	// support the constructor operation, and return #any_text#. 
 	
 	QueryText = "
 	|//////////////////////////////////////////////////////////////////////////////// {SourceTable2}
@@ -1410,9 +1410,9 @@ EndProcedure
 
 Procedure AutimaticMappingDataByGUID(UserFields, TempTablesManager)
 	
-	// 
+	// Get the following tables:
 	//
-	// 
+	// AutomaticallyMappedObjectsTable
 	
 	QueryText = "
 	|//////////////////////////////////////////////////////////////////////////////// {AutomaticallyMappedObjectsTable}
@@ -1481,24 +1481,24 @@ EndProcedure
 
 Procedure AutimaticMappingDataByGUIDPlusBySearchFields(SourceTable2, MappingFieldsList, UserFields, TempTablesManager)
 	
-	// 
+	// Get the following tables:
 	//
-	// 
-	// 
-	// 
-	// 
-	// 
+	// TheTableOfAutomaticallyMappedObjectsIsComplete
+	// UnmappedDestinationObjectsTableByFields
+	// UnmappedSourceObjectsTableByFields
+	// TableOfIncorrectlyMappedSourceObjects
+	// TableOfIncorrectlyMappedReceiverObjects.
 	//
-	// 
-	// 
-	// 
+	// TableOfAutomaticallyMappedObjectsByGUID
+	// TableIsAutomaticallyMappedToObjectsInTheFields
+	// AutomaticallyMappedObjectsTable.
 	
-	// 
+	// Table acquisition formulas:
 	//
-	// 
-	// 
+	// UnmappedDestinationObjectsTableByFields = UnmappedDestinationObjectsTable — TableOfAutomaticallyMappedObjectsByGUID
+	// UnmappedSourceObjectsTableByFields = UnmappedSourceObjectsTable — TableOfAutomaticallyMappedObjectsByGUID
 	//
-	// 
+	// AutomaticallyMappedObjectsTable = TableIsAutomaticallyMappedToObjectsInTheFields + TableOfAutomaticallyMappedObjectsByGUID
 	
 	QueryText = "
 	|//////////////////////////////////////////////////////////////////////////////// {ТаблицаАвтоматическиСопоставленныхОбъектовПоGUID}
@@ -2230,7 +2230,7 @@ Procedure FillSortTable(SourceValueList)
 		TableRow = SortTable.Add();
 		
 		TableRow.FieldName               = Item.Value;
-		TableRow.Use         = IsFirstField; // 
+		TableRow.Use         = IsFirstField; // Default sorting by the first field.
 		TableRow.SortDirection = True; // Ascending.
 		
 	EndDo;

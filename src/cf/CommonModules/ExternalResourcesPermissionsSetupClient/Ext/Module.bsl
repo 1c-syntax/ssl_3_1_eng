@@ -35,7 +35,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// The logic of switching between the operations of the external resource permission wizard.
 // 
 //
 
@@ -151,7 +151,7 @@ Procedure AfterInitializeRequestForPermissionsToUseExternalResources(Result, Sta
 			
 		Else
 			
-			// 
+			// The requested permissions are excessive. Do not change security profiles on the cluster.
 			// 
 			CompleteSetUpPermissionsToUseExternalResourcesAsynchronously(State.NotifyDescription);
 			
@@ -306,8 +306,8 @@ Procedure CompleteSetUpPermissionsToUseExternalResourcesSynchronously(Val Return
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
-// 
+// The logic of the external resource permission wizard that checks for the
+// completion of the operations where such permissions were requested.
 // 
 //
 
@@ -365,7 +365,7 @@ Procedure AfterCheckApplicabilityOfPermissionsToUseExternalResources(Val Validat
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Invoke the external resource permission wizard in special modes.
 // 
 //
 
@@ -425,14 +425,14 @@ Function RequestForPermissionsToUseExternalResourcesState()
 	// IDs of requests to use external resources to be provided.
 	Result.Insert("RequestsIDs", New Array());
 	
-	// 
+	// The original details of the notification that is triggered after the permission request is confirmed.
 	// 
 	Result.Insert("NotifyDescription", Undefined);
 	
 	// Address in a temporary storage for storing data passed between forms.
 	Result.Insert("StorageAddress", "");
 	
-	// 
+	// The form where the request to use external resources was initialized.
 	// 
 	Result.Insert("OwnerForm");
 	
@@ -442,13 +442,13 @@ Function RequestForPermissionsToUseExternalResourcesState()
 	// Disabling mode - indicates whether security profiles are being disabled.
 	Result.Insert("DisablingMode", False);
 	
-	// 
-	// 
+	// In restoration mode, permissions are requested "from scratch"
+	// (ignoring the information on the previously granted permissions).
 	// 
 	Result.Insert("RecoveryMode", False);
 	
-	// 
-	// 
+	// The check mode: indicates the completion of the operation that granted new permissions in security profiles.
+	// For example, when saving a new catalog item, permissions are granted but the writing is not completed.
 	// 
 	Result.Insert("CheckMode", False);
 	
@@ -469,7 +469,7 @@ Function PermissionsApplicabilityCheckStateAfterCloseOwnerForm()
 	// Address in a temporary storage for storing data passed between forms.
 	Result.Insert("StorageAddress", Undefined);
 	
-	// 
+	// The original details of the form notification that triggers when permission applicability is checked.
 	// 
 	Result.Insert("NotifyDescription", Undefined);
 	

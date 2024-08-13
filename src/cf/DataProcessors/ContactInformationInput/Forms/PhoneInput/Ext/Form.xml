@@ -153,10 +153,10 @@
 							</ToolTip>
 							<Width>8</Width>
 							<HorizontalStretch>false</HorizontalStretch>
-							<ContextMenu name="ExtraContextMenu" id="2"/>
+							<ContextMenu name="PhoneExtensionContextMenu" id="2"/>
 							<ExtendedTooltip name="PhoneExtensionExtendedTooltip" id="44"/>
 							<Events>
-								<Event name="OnChange">ExtraOnChange</Event>
+								<Event name="OnChange">PhoneExtensionOnChange</Event>
 							</Events>
 						</InputField>
 					</ChildItems>

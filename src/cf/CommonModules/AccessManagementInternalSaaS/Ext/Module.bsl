@@ -10,7 +10,7 @@
 
 #Region Internal
 
-// This procedure is called on processing message http://www.1c.ru/SaaS/RemoteAdministration/App/a.b.c.d}SetFullControl.
+// Called when processing the SetFullControl message.
 //
 // Parameters:
 //  DataAreaUser - CatalogRef.Users - the user 
@@ -61,8 +61,8 @@ EndProcedure
 // See ExportImportDataOverridable.AfterImportData.
 Procedure AfterImportData(Container) Export
 	
-	// 
-	// 
+	// In SaaS, the "FillExtensionsOperationParameters" scheduled job updates 1C-supplied profiles in a scheduled job.
+	// The job is enabled and started in the procedure "StandardSubsystemsServer.AfterImportData".
 	// 
 	If Not Common.DataSeparationEnabled() Then
 		Catalogs.AccessGroupProfiles.UpdateSuppliedProfiles();

@@ -288,7 +288,7 @@
 									</Title>
 									<ToolTipRepresentation>None</ToolTipRepresentation>
 									<Representation>Compact</Representation>
-									<ExtendedTooltip name="GroupOperationsWithUndeletedItemsExtendedTooltip" id="734"/>
+									<ExtendedTooltip name="GroupOperationsWithNotDeletedItemsExtendedTooltip" id="734"/>
 									<ChildItems>
 										<Button name="NotDeletedItemsChange" id="621">
 											<Type>CommandBarButton</Type>
@@ -310,7 +310,7 @@
 													<v8:content>Toggle deletion mark</v8:content>
 												</v8:item>
 											</Title>
-											<ExtendedTooltip name="UndeletedInstallUncheckDeleteExtendedTooltip" id="736"/>
+											<ExtendedTooltip name="NotDeletedItemsSetClearDeletionMarkExtendedTooltip" id="736"/>
 										</Button>
 									</ChildItems>
 								</ButtonGroup>
@@ -979,7 +979,7 @@ Searching for marked objects</v8:content>
 												<ExcludedCommand>Tree</ExcludedCommand>
 											</CommandSet>
 											<ToolTipRepresentation>None</ToolTipRepresentation>
-											<ContextMenu name="NotDeletedItemsContextMenu" id="221">
+											<ContextMenu name="NotTrashContextMenu" id="221">
 												<ChildItems>
 													<Button name="NotDeletedItemsChangeFromMenu" id="348">
 														<Type>CommandBarButton</Type>
@@ -991,7 +991,7 @@ Searching for marked objects</v8:content>
 														<CommandName>Form.Item.NotTrash.StandardCommand.OutputList</CommandName>
 														<ExtendedTooltip name="NotDeletedItemsOutputListFromMenuExtendedTooltip" id="355"/>
 													</Button>
-													<Button name="NotDeletedItemsContextMenuSetClearDeletionMark" id="731">
+													<Button name="NotTrashContextMenuSetClearDeletionMark" id="731">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.SetClearDeletionMark</CommandName>
 														<Title>
@@ -1000,7 +1000,7 @@ Searching for marked objects</v8:content>
 																<v8:content>Toggle deletion mark</v8:content>
 															</v8:item>
 														</Title>
-														<ExtendedTooltip name="NotDeletedItemsContextMenuSetClearDeletionMarkExtendedTooltip" id="732"/>
+														<ExtendedTooltip name="NotTrashContextMenuSetClearDeletionMarkExtendedTooltip" id="732"/>
 													</Button>
 												</ChildItems>
 											</ContextMenu>
@@ -1017,35 +1017,35 @@ Searching for marked objects</v8:content>
 													</SearchStringAddition>
 												</ChildItems>
 											</AutoCommandBar>
-											<ExtendedTooltip name="NotDeletedItemsExtendedTooltip" id="223"/>
-											<SearchStringAddition name="NotDeletedItemsSearchString" id="418">
+											<ExtendedTooltip name="NotTrashExtendedTooltip" id="223"/>
+											<SearchStringAddition name="NotTrashSearchString" id="418">
 												<AdditionSource>
 													<Item>NotTrash</Item>
 													<Type>SearchStringRepresentation</Type>
 												</AdditionSource>
-												<ContextMenu name="NotDeletedItemsSearchStringContextMenu" id="419"/>
-												<ExtendedTooltip name="NotDeletedItemsSearchStringExtendedTooltip" id="420"/>
+												<ContextMenu name="NotTrashSearchStringContextMenu" id="419"/>
+												<ExtendedTooltip name="NotTrashSearchStringExtendedTooltip" id="420"/>
 											</SearchStringAddition>
-											<ViewStatusAddition name="NotDeletedItemsViewStatus" id="421">
+											<ViewStatusAddition name="NotTrashViewStatus" id="421">
 												<AdditionSource>
 													<Item>NotTrash</Item>
 													<Type>ViewStatusRepresentation</Type>
 												</AdditionSource>
-												<ContextMenu name="NotDeletedItemsViewStatusContextMenu" id="422"/>
-												<ExtendedTooltip name="NotDeletedItemsViewStatusExtendedTooltip" id="423"/>
+												<ContextMenu name="NotTrashViewStatusContextMenu" id="422"/>
+												<ExtendedTooltip name="NotTrashViewStatusExtendedTooltip" id="423"/>
 											</ViewStatusAddition>
-											<SearchControlAddition name="NotDeletedItemsSearchControl" id="424">
+											<SearchControlAddition name="NotTrashSearchControl" id="424">
 												<AdditionSource>
 													<Item>NotTrash</Item>
 													<Type>SearchControl</Type>
 												</AdditionSource>
-												<ContextMenu name="NotDeletedItemsSearchControlContextMenu" id="425"/>
-												<ExtendedTooltip name="NotDeletedItemsSearchControlExtendedTooltip" id="426"/>
+												<ContextMenu name="NotTrashSearchControlContextMenu" id="425"/>
+												<ExtendedTooltip name="NotTrashSearchControlExtendedTooltip" id="426"/>
 											</SearchControlAddition>
 											<Events>
-												<Event name="Selection">NotDeletedItemsSelection</Event>
-												<Event name="OnActivateRow">NotDeletedItemsOnActivateRow</Event>
-												<Event name="BeforeRowChange">NotDeletedItemsBeforeRowChange</Event>
+												<Event name="Selection">NotTrashSelection</Event>
+												<Event name="OnActivateRow">NotTrashOnActivateRow</Event>
+												<Event name="BeforeRowChange">NotTrashBeforeRowChange</Event>
 											</Events>
 											<ChildItems>
 												<InputField name="NotTrashPresentation" id="224">
@@ -1065,10 +1065,10 @@ Searching for marked objects</v8:content>
 													<IncompleteChoiceMode>OnActivate</IncompleteChoiceMode>
 													<TextEdit>false</TextEdit>
 													<EditTextUpdate>DontUse</EditTextUpdate>
-													<ContextMenu name="NotDeletedItemsPresentationContextMenu" id="225"/>
-													<ExtendedTooltip name="NotDeletedItemsPresentationExtendedTooltip" id="226"/>
+													<ContextMenu name="NotTrashPresentationContextMenu" id="225"/>
+													<ExtendedTooltip name="NotTrashPresentationExtendedTooltip" id="226"/>
 													<Events>
-														<Event name="Opening">NotDeletedItemsPresentationOpening</Event>
+														<Event name="Opening">NotTrashPresentationOpening</Event>
 													</Events>
 												</InputField>
 											</ChildItems>

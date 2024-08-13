@@ -155,7 +155,7 @@
 							<Type>CommandBarButton</Type>
 							<Visible>false</Visible>
 							<CommandName>Form.StandardCommand.Choose</CommandName>
-							<ExtendedTooltip name="FormChooseExtendedTooltip" id="217"/>
+							<ExtendedTooltip name="FormSelectExtendedTooltip" id="217"/>
 						</Button>
 						<Button name="FormCopy" id="212">
 							<Type>CommandBarButton</Type>
@@ -256,7 +256,7 @@
 									<v8:content>More</v8:content>
 								</v8:item>
 							</Title>
-							<ExtendedTooltip name="TheAdvancedSubmenuExtendedTooltip" id="298"/>
+							<ExtendedTooltip name="SubmenuAdditionalExtendedTooltip" id="298"/>
 							<ChildItems>
 								<Button name="FormChangeSelectedItems" id="196">
 									<Type>CommandBarButton</Type>
@@ -268,7 +268,7 @@
 										</v8:item>
 									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-									<ExtendedTooltip name="FormEditSelectedItemsExtendedTooltip" id="197"/>
+									<ExtendedTooltip name="FormChangeSelectedItemsExtendedTooltip" id="197"/>
 								</Button>
 								<Button name="IBUsers" id="6">
 									<Type>CommandBarButton</Type>
@@ -299,7 +299,7 @@
 										</v8:item>
 									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-									<ExtendedTooltip name="BlockInvalidUsersInTheInteractionSystemExtendedTooltip" id="302"/>
+									<ExtendedTooltip name="LockInvalidUsersInCollaborationSystemExtendedTooltip" id="302"/>
 								</Button>
 							</ChildItems>
 						</Popup>
@@ -467,7 +467,7 @@
 			<Representation>None</Representation>
 			<ChildItemsWidth>Equal</ChildItemsWidth>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="ContentGroup1ExtendedTooltip" id="108"/>
+			<ExtendedTooltip name="ContentGroupExtendedTooltip" id="108"/>
 			<ChildItems>
 				<Pages name="UsersSelectionPages" id="235">
 					<Title>
@@ -558,7 +558,7 @@
 													<AllowRootChoice>false</AllowRootChoice>
 													<UpdateOnDataChange>Auto</UpdateOnDataChange>
 													<AllowGettingCurrentRowURL>true</AllowGettingCurrentRowURL>
-													<ContextMenu name="UsersGroupsContextMenu" id="26">
+													<ContextMenu name="UserGroupsContextMenu" id="26">
 														<ChildItems>
 															<Button name="OutputList" id="156">
 																<Type>CommandBarButton</Type>
@@ -569,7 +569,7 @@
 													</ContextMenu>
 													<AutoCommandBar name="UserGroupsCommandBar" id="27"/>
 													<ExtendedTooltip name="UserGroupsExtendedTooltip" id="111"/>
-													<SearchStringAddition name="UsersGroupsSearchString" id="165">
+													<SearchStringAddition name="UserGroupsSearchString" id="165">
 														<AdditionSource>
 															<Item>UserGroups</Item>
 															<Type>SearchStringRepresentation</Type>
@@ -577,7 +577,7 @@
 														<ContextMenu name="UserGroupsSearchStringContextMenu" id="166"/>
 														<ExtendedTooltip name="UserGroupsSearchStringExtendedTooltip" id="167"/>
 													</SearchStringAddition>
-													<ViewStatusAddition name="UsersGroupsViewStatus" id="168">
+													<ViewStatusAddition name="UserGroupsViewStatus" id="168">
 														<AdditionSource>
 															<Item>UserGroups</Item>
 															<Type>ViewStatusRepresentation</Type>
@@ -585,7 +585,7 @@
 														<ContextMenu name="UserGroupsViewStatusContextMenu" id="169"/>
 														<ExtendedTooltip name="UserGroupsViewStatusExtendedTooltip" id="170"/>
 													</ViewStatusAddition>
-													<SearchControlAddition name="UsersGroupsSearchControl" id="171">
+													<SearchControlAddition name="UserGroupsSearchControl" id="171">
 														<AdditionSource>
 															<Item>UserGroups</Item>
 															<Type>SearchControl</Type>
@@ -594,13 +594,13 @@
 														<ExtendedTooltip name="UserGroupsSearchControlExtendedTooltip" id="173"/>
 													</SearchControlAddition>
 													<Events>
-														<Event name="DragCheck">UsersGroupsDragCheck</Event>
-														<Event name="ValueChoice">UsersGroupsValueChoice</Event>
-														<Event name="Selection">UsersGroupsSelection</Event>
-														<Event name="BeforeAddRow">UsersGroupsBeforeAddRow</Event>
-														<Event name="OnActivateRow">UsersGroupsOnActivateRow</Event>
-														<Event name="Drag">UsersGroupsDrag</Event>
-														<Event name="OnChange">UsersGroupsOnChange</Event>
+														<Event name="DragCheck">UserGroupsDragCheck</Event>
+														<Event name="ValueChoice">UserGroupsValueChoice</Event>
+														<Event name="Selection">UserGroupsSelection</Event>
+														<Event name="BeforeAddRow">UserGroupsBeforeAddRow</Event>
+														<Event name="OnActivateRow">UserGroupsOnActivateRow</Event>
+														<Event name="Drag">UserGroupsDrag</Event>
+														<Event name="OnChange">UserGroupsOnChange</Event>
 													</Events>
 													<ChildItems>
 														<LabelField name="GroupDescription" id="30">
@@ -614,8 +614,8 @@
 															<UserVisible>
 																<xr:Common>false</xr:Common>
 															</UserVisible>
-															<ContextMenu name="GroupRef1ContextMenu" id="154"/>
-															<ExtendedTooltip name="GroupRef1ExtendedTooltip" id="155"/>
+															<ContextMenu name="GroupReferenceContextMenu" id="154"/>
+															<ExtendedTooltip name="GroupReferenceExtendedTooltip" id="155"/>
 														</LabelField>
 													</ChildItems>
 												</Table>
@@ -1006,7 +1006,7 @@
 														<v8:content>Assign to groups</v8:content>
 													</v8:item>
 												</Title>
-												<ExtendedTooltip name="UsersListContextMenuAssignGroups1ExtendedTooltip" id="271"/>
+												<ExtendedTooltip name="UsersListContextMenuAssignToGroups1ExtendedTooltip" id="271"/>
 											</Button>
 											<Button name="UsersListContextMenuChangeSelectedItems1" id="272">
 												<Type>CommandBarButton</Type>
@@ -1059,16 +1059,16 @@
 									<ChildItems>
 										<LabelField name="UsersListSearchDescription" id="254">
 											<DataPath>UsersList.Description</DataPath>
-											<ContextMenu name="UsersListSearchNameContextMenu" id="255"/>
-											<ExtendedTooltip name="UsersListSearchNameExtendedTooltip" id="256"/>
+											<ContextMenu name="UsersListSearchDescriptionContextMenu" id="255"/>
+											<ExtendedTooltip name="UsersListSearchDescriptionExtendedTooltip" id="256"/>
 										</LabelField>
 										<LabelField name="UsersListSearchRef" id="257">
 											<DataPath>UsersList.Ref</DataPath>
 											<UserVisible>
 												<xr:Common>false</xr:Common>
 											</UserVisible>
-											<ContextMenu name="UsersListSearchLinkContextMenu" id="258"/>
-											<ExtendedTooltip name="UsersListSearchLinkExtendedTooltip" id="259"/>
+											<ContextMenu name="UsersListSearchRefContextMenu" id="258"/>
+											<ExtendedTooltip name="UsersListSearchRefExtendedTooltip" id="259"/>
 										</LabelField>
 									</ChildItems>
 								</Table>
@@ -1267,10 +1267,10 @@
 					</Title>
 					<TitleLocation>Right</TitleLocation>
 					<CheckBoxType>Auto</CheckBoxType>
-					<ContextMenu name="ShowInvalidUsers1ContextMenu" id="163"/>
-					<ExtendedTooltip name="ShowInvalidUsers1ExtendedTooltip" id="164"/>
+					<ContextMenu name="ShowInvalidUsersContextMenu" id="163"/>
+					<ExtendedTooltip name="ShowInvalidUsersExtendedTooltip" id="164"/>
 					<Events>
-						<Event name="OnChange">ShowInvalidUsers1OnChange</Event>
+						<Event name="OnChange">ShowInvalidUsersOnChange</Event>
 					</Events>
 				</CheckBoxField>
 			</ChildItems>
@@ -1522,7 +1522,7 @@ thick client, automation, or external connection).</v8:content>
 						</v8:item>
 					</Title>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="GroupCommentExtendedTooltip" id="140"/>
+					<ExtendedTooltip name="CommentOfGroupExtendedTooltip" id="140"/>
 					<ChildItems>
 						<UsualGroup name="GroupCommentTitle" id="141">
 							<Title>
@@ -1546,8 +1546,8 @@ thick client, automation, or external connection).</v8:content>
 									<ShowInHeader>false</ShowInHeader>
 									<AutoMaxWidth>false</AutoMaxWidth>
 									<Height>2</Height>
-									<ContextMenu name="UsersGroupsCommentContextMenu" id="144"/>
-									<ExtendedTooltip name="UsersGroupsCommentExtendedTooltip" id="145"/>
+									<ContextMenu name="UserGroupsCommentContextMenu" id="144"/>
+									<ExtendedTooltip name="UserGroupsCommentExtendedTooltip" id="145"/>
 								</InputField>
 							</ChildItems>
 						</UsualGroup>
@@ -1812,7 +1812,7 @@ FROM
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Search string</v8:content>
+					<v8:content>Search bar</v8:content>
 				</v8:item>
 			</Title>
 			<Type>

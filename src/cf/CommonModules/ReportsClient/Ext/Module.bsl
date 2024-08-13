@@ -653,12 +653,12 @@ Function IsSelectMetadataObjects(AvailableTypes, Val MarkedValues, Handler) Expo
 	If IsSelectMetadataObjects Then 
 		CheckMarkedValues(MarkedValues, AvailableTypes);
 		
-		PickingParameters = New Structure;
-		PickingParameters.Insert("SelectedMetadataObjects", MarkedValues);
-		PickingParameters.Insert("ChooseRefs", True);
-		PickingParameters.Insert("Title", NStr("en = 'Pick tables';"));
+		PickingParameters = StandardSubsystemsClientServer.MetadataObjectsSelectionParameters();
+		PickingParameters.SelectedMetadataObjects = MarkedValues;
+		PickingParameters.ChooseRefs = True;
+		PickingParameters.Title = NStr("en = 'Pick tables';");
 		
-		OpenForm("CommonForm.SelectMetadataObjects", PickingParameters,,,,, Handler);
+		StandardSubsystemsClient.ChooseMetadataObjects(PickingParameters, Handler);
 	EndIf;
 	
 	Return IsSelectMetadataObjects;

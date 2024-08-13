@@ -13,12 +13,36 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	Items.MoveAllFilesToVolumes.Visible = Common.SubsystemExists("StandardSubsystems.FilesOperations");
-	
 	If Common.IsMobileClient() Then
 		Items.ListComment.Visible = False;
 		Items.ListMaximumSize.Visible = False;
 	EndIf;
+	
+	// StandardSubsystems.AttachableCommands
+	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
+		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
+	EndIf;
+	// End StandardSubsystems.AttachableCommands
+	
+	Items.CheckIntegrity.Visible = Not Common.SubsystemExists("StandardSubsystems.AttachableCommands")
+		Or Not Common.SubsystemExists("StandardSubsystems.ReportsOptions");
+	
+EndProcedure
+
+#EndRegion
+
+#Region FormTableItemsEventHandlersList
+
+&AtClient
+Procedure ListOnActivateRow(Item)
+	
+	// StandardSubsystems.AttachableCommands
+	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
+		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
+	EndIf;
+	// End StandardSubsystems.AttachableCommands
 	
 EndProcedure
 
@@ -59,6 +83,38 @@ Procedure CheckIntegrity(Command)
 	OpenForm("Report.VolumeIntegrityCheck.ObjectForm", ReportParameters);
 	
 EndProcedure
+
+// StandardSubsystems.AttachableCommands
+&AtClient
+Procedure Attachable_ExecuteCommand(Command)
+	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
+		ModuleAttachableCommandsClient.StartCommandExecution(ThisObject, Command, Items.List);
+	EndIf;
+EndProcedure
+
+&AtClient
+Procedure Attachable_ContinueCommandExecutionAtServer(ExecutionParameters, AdditionalParameters) Export
+	ExecuteCommandAtServer(ExecutionParameters);
+EndProcedure
+
+&AtServer
+Procedure ExecuteCommandAtServer(ExecutionParameters)
+	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
+		ModuleAttachableCommands.ExecuteCommand(ThisObject, ExecutionParameters, Items.List);
+	EndIf;
+EndProcedure
+
+&AtClient
+Procedure Attachable_UpdateCommands()
+	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommandsClientServer = CommonClient.CommonModule("AttachableCommandsClientServer");
+		ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, Items.List);
+	EndIf;
+EndProcedure
+
+// End StandardSubsystems.AttachableCommands
 
 #EndRegion
 

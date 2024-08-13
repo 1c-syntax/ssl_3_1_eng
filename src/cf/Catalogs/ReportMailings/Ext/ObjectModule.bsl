@@ -47,8 +47,8 @@ Procedure BeforeWrite(Cancel)
 		IsPrepared = False;
 	EndIf;
 	
-	// 
-	// 
+	// A map between groups and personal email distribution flag.
+	// User checks, which provide hard links, are placed on the item form.
 	// 
 	GroupIncludedIntoPersonalDistributionHierarchy = ReportMailing.IsMemberOfPersonalReportGroup(Parent);
 	If Personal <> GroupIncludedIntoPersonalDistributionHierarchy Then

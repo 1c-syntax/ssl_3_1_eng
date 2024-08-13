@@ -342,15 +342,8 @@ Procedure FillServicePropertiesAfterGetSectionsRecursively(CurrentTreeRow)
 	
 	If TypeOf(CurrentTreeRow) = Type("ValueTreeRow") Then 
 		
-		// 
-		// 
-		// 
-		// 
-		
 		IsMetadataObject = ValueIsFilled(CurrentTreeRow.MetadataObjectsList);
-		
 		CurrentTreeRow.IsMetadataObject = IsMetadataObject;
-		
 		If CurrentTreeRow.Level() = 0 Then 
 			CurrentTreeRow.DataPath = CurrentTreeRow.Section;
 		Else 
@@ -503,46 +496,46 @@ EndProcedure
 &AtClientAtServerNoContext
 Function NextItemCheckMarkValue(TreeItem)
 	
-	// 
-	// 
-	// 
+	// 0 - Cleared Flag.
+	// 1 - Raised Flag.
+	// 2 - Raised Square.
 	//
-	// 
+	// Override the graph of a finite-state machine.
 	//
-	// 
-	// 
-	// 
+	// 1C:Enterprise runs a closed cycle when a mark is changed.
+	// That is, it has a strong connectivity component:
+	// 0-1-2-0-1-2-0-1...
 	//
-	//    
-	//   
-	//  
+	//    0
+	//   / \
+	//  2 - 1
 	//
-	// 
+	// Cycle: Cleared Flag - Raised Flag - Raised Square - Cleared Flag.
 	//
-	// 
-	// 
+	// The required behavior is a nondeterministic finite automaton with a strong connectivity component:
+	// 0-1-0-1-0...
 	//
-	// 
+	// That is, a Cleared Flag should transit into a Raised Flag, which transits into a Cleared Flag.
 	//
-	// 
+	// Also:
 	//
-	// 
-	// 
-	// 
+	// Cycles for sections:
+	// a) 1-0-1-0-1...
+	// b) 2-0-1-0-1-0-...
 	//
-	//      
-	// 
+	//      /\
+	// 2 - 0 -1
 	//
-	// 
+	// That is a Raised Square transits into a Cleared Flag.
 	//
-	// 
-	// 
-	// 
+	// Cycles for metadata objects:
+	// a) 1-0-1-0-1-0...
+	// b) 2-1-0-1-0-1-0...
 	//
-	//      
-	// 
+	//      /\
+	// 2 - 1 -0
 	//
-	// 
+	// That is, a Raised Square transits into a Raised Flag.
 	
 	// At the time of checking, the platform has already changed the check box value.
 	
@@ -605,8 +598,8 @@ Function CheckMarkValueRelativeToNestedItems(TreeItem)
 	
 	If TreeItem.IsMetadataObject Then 
 		
-		// 
-		// 
+		// Since the object should be returned, its status matters.
+		// Do not reset the current flag.
 		// 
 		
 		If TreeItem.Check = MarkCheckBoxIsSelected() Then 
@@ -626,7 +619,7 @@ Function CheckMarkValueRelativeToNestedItems(TreeItem)
 		
 	Else 
 		
-		//  
+		// Sections' status is ignored as they depend on their children. 
 		// 
 		
 		If HasMarkedItems Then
@@ -670,9 +663,9 @@ Function NestedItemsState(TreeItem)
 			
 			If NestedItem.IsMetadataObject Then 
 				
-				// 
-				// 
-				// 
+				// Metadata objects marked for deletion can have
+				// child items that are not marked for deletion.
+				// To deal with this, elevate the child items to the parent's level.
 				
 				State = NestedItemsState(NestedItem);
 				HasMarkedItems   = HasMarkedItems   Or State.HasMarkedItems;
@@ -708,8 +701,8 @@ Function RequiredToMarkNestedItems(TreeItem)
 	
 	If TreeItem.IsMetadataObject Then 
 		
-		// 
-		// 
+		// If not all of the object's child items are selected, that indicates a user's choice.
+		// Skip these items to avoid affecting the user's choice.
 		
 		NestedItemsState = NestedItemsState(TreeItem);
 		

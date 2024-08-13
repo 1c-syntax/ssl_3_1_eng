@@ -24,7 +24,7 @@
 					<Type>UsualButton</Type>
 					<DefaultButton>true</DefaultButton>
 					<CommandName>Form.StandardCommand.Close</CommandName>
-					<ExtendedTooltip name="FormClose3ExtendedTooltip" id="21"/>
+					<ExtendedTooltip name="FormCloseExtendedTooltip" id="21"/>
 				</Button>
 				<InputField name="TableName" id="17">
 					<DataPath>TableName</DataPath>
@@ -95,29 +95,29 @@
 				<Autofill>false</Autofill>
 			</AutoCommandBar>
 			<ExtendedTooltip name="ListExtendedTooltip" id="4"/>
-			<SearchStringAddition name="ListSearchString_SSLy" id="5">
+			<SearchStringAddition name="ListSearchString" id="5">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchStringRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchString_SSLyContextMenu" id="6"/>
-				<ExtendedTooltip name="ListSearchString_SSLyExtendedTooltip" id="7"/>
+				<ContextMenu name="ListSearchStringContextMenu" id="6"/>
+				<ExtendedTooltip name="ListSearchStringExtendedTooltip" id="7"/>
 			</SearchStringAddition>
-			<ViewStatusAddition name="ListViewStatus_SSLy" id="8">
+			<ViewStatusAddition name="ListViewStatus" id="8">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>ViewStatusRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListViewStatus_SSLyContextMenu" id="9"/>
-				<ExtendedTooltip name="ListViewStatus_SSLyExtendedTooltip" id="10"/>
+				<ContextMenu name="ListViewStatusContextMenu" id="9"/>
+				<ExtendedTooltip name="ListViewStatusExtendedTooltip" id="10"/>
 			</ViewStatusAddition>
-			<SearchControlAddition name="ListSearchControl_SSLy" id="11">
+			<SearchControlAddition name="ListSearchControl" id="11">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchControl</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchControl_SSLyContextMenu" id="12"/>
-				<ExtendedTooltip name="ListSearchControl_SSLyExtendedTooltip" id="13"/>
+				<ContextMenu name="ListSearchControlContextMenu" id="12"/>
+				<ExtendedTooltip name="ListSearchControlExtendedTooltip" id="13"/>
 			</SearchControlAddition>
 		</Table>
 	</ChildItems>

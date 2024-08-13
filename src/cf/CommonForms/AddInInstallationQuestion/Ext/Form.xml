@@ -65,8 +65,8 @@
 							<v8:content>Do you want to install the add-in?</v8:content>
 						</v8:item>
 					</Title>
-					<ContextMenu name="NoteDecorationContextMenu" id="11"/>
-					<ExtendedTooltip name="NoteDecorationExtendedTooltip" id="12"/>
+					<ContextMenu name="DecorationNoteContextMenu" id="11"/>
+					<ExtendedTooltip name="DecorationNoteExtendedTooltip" id="12"/>
 				</LabelDecoration>
 			</ChildItems>
 		</UsualGroup>

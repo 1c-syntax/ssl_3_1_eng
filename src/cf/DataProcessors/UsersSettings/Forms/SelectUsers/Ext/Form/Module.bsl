@@ -119,7 +119,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 &AtClient
-Procedure UsersGroupsOnActivateRow(Item)
+Procedure UserGroupsOnActivateRow(Item)
 	
 	SelectedGroup = Item.CurrentData;
 	If SelectedGroup = Undefined Then
@@ -148,7 +148,7 @@ Procedure UsersListSelection(Item, RowSelected, Field, StandardProcessing)
 EndProcedure
 
 &AtClient
-Procedure UsersGroupsSelection(Item, RowSelected, Field, StandardProcessing)
+Procedure UserGroupsSelection(Item, RowSelected, Field, StandardProcessing)
 	
 	ShowValue(,Item.CurrentData.Group);
 	
@@ -290,7 +290,7 @@ Procedure SetConditionalAppearance()
 	Item = ConditionalAppearance.Items.Add();
 
 	ItemField = Item.Fields.Items.Add();
-	ItemField.Field = New DataCompositionField(Items.UsersGroupsGroup.Name);
+	ItemField.Field = New DataCompositionField(Items.UserGroupsGroup.Name);
 
 	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	ItemFilter.LeftValue = New DataCompositionField("UserGroups.MarkedUsersCount");
@@ -416,22 +416,22 @@ Procedure UpdateGroupTitle(Form, UsersGroup, UserListRow, CheckMarkValue)
 EndProcedure
 
 &AtClient
-Procedure ApplyGroupFilter(CurrentGroup_SSLy)
+Procedure ApplyGroupFilter(CurrentGroup)
 	
 	UsersList.Clear();
-	If CurrentGroup_SSLy = Undefined Then
+	If CurrentGroup = Undefined Then
 		Return;
 	EndIf;
 	
 	If ShowUsersFromSubgroups Then
-		GroupComposition1 = CurrentGroup_SSLy.FullComposition;
+		GroupComposition1 = CurrentGroup.FullComposition;
 	Else
-		GroupComposition1 = CurrentGroup_SSLy.Content;
+		GroupComposition1 = CurrentGroup.Content;
 	EndIf;
 	
 	For Each Item In AllUsersList Do
 		If GroupComposition1.FindByValue(Item.User) <> Undefined
-			Or AllUsersGroup = CurrentGroup_SSLy.Group Then
+			Or AllUsersGroup = CurrentGroup.Group Then
 			UserListLine = UsersList.Add();
 			FillPropertyValues(UserListLine, Item);
 		EndIf;

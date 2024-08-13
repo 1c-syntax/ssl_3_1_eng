@@ -118,7 +118,7 @@ Procedure Attachable_ListOwnerOnActivateRow(Item)
 EndProcedure
 
 &AtClient
-Procedure UsersGroupsOnActivateRow(Item)
+Procedure UserGroupsOnActivateRow(Item)
 	
 	UsersList.Parameters.SetParameterValue("UsersGroup", Items.UserGroups.CurrentRow);
 	
@@ -139,7 +139,7 @@ EndProcedure
 Procedure FindCommandExecute()
 	
 	If IsBlankString(SearchString) Then
-		ShowMessageBox(, NStr("en = 'Please enter a search string.';"));
+		ShowMessageBox(, NStr("en = 'Please enter text to search for.';"));
 		Return;
 	EndIf;
 	
@@ -291,9 +291,9 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// SEARCH PROCEDURES AND FUNCTIONS
 
-// Generates a value list of the strings, by which search by the current search option will be carried out.
+// Generates a value list of strings to be searched using the current search option.
 //
 // Returns:
 //   ValueList   - List of strings to be searched by.
@@ -373,7 +373,7 @@ Procedure ExecuteFirstSearch()
 
 EndProcedure
 
-// Searches for contacts by a domain name or an email address.
+// Searches for contacts by domain name or email address.
 //
 &AtServer
 Function FindByEmail(ByDomain)
@@ -382,7 +382,7 @@ Function FindByEmail(ByDomain)
 
 EndFunction
 
-// Searches for contacts by a phone number.
+// Searches for contacts by phone number.
 //
 &AtServer
 Function FindByPhone()
@@ -391,7 +391,7 @@ Function FindByPhone()
 	
 EndFunction
 
-// Searches for contacts by a string.
+// Searches for contacts by string.
 //
 &AtServer
 Function FindByString()
@@ -417,7 +417,7 @@ Function FindByDescriptionBeginning()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// COMMON PROCEDURES AND FUNCTIONS.
 
 // Sets a contact as the current contact in the dynamic list.
 //

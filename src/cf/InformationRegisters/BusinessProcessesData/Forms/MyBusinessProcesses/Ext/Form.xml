@@ -66,7 +66,7 @@
 							<v8:content>Search</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="SearchGroupExtendedTooltip" id="48"/>
+					<ExtendedTooltip name="GroupSearchExtendedTooltip" id="48"/>
 					<ChildItems>
 						<Button name="FormCancelSearch" id="33">
 							<Type>CommandBarButton</Type>
@@ -90,7 +90,7 @@
 							<v8:content>Tasks</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="BusinessProcessTaskFormExtendedTooltip" id="89"/>
+					<ExtendedTooltip name="FormBusinessProcessTasksExtendedTooltip" id="89"/>
 				</Button>
 				<Button name="FormFlowchart" id="35">
 					<Type>CommandBarButton</Type>
@@ -200,29 +200,29 @@
 			</ContextMenu>
 			<AutoCommandBar name="ListCommandBar" id="3"/>
 			<ExtendedTooltip name="ListExtendedTooltip" id="59"/>
-			<SearchStringAddition name="ListSearchString_SSLy" id="76">
+			<SearchStringAddition name="ListSearchString" id="76">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchStringRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchString_SSLyContextMenu" id="77"/>
-				<ExtendedTooltip name="ListSearchString_SSLyExtendedTooltip" id="78"/>
+				<ContextMenu name="ListSearchStringContextMenu" id="77"/>
+				<ExtendedTooltip name="ListSearchStringExtendedTooltip" id="78"/>
 			</SearchStringAddition>
-			<ViewStatusAddition name="ListViewStatus_SSLy" id="79">
+			<ViewStatusAddition name="ListViewStatus" id="79">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>ViewStatusRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListViewStatus_SSLyContextMenu" id="80"/>
-				<ExtendedTooltip name="ListViewStatus_SSLyExtendedTooltip" id="81"/>
+				<ContextMenu name="ListViewStatusContextMenu" id="80"/>
+				<ExtendedTooltip name="ListViewStatusExtendedTooltip" id="81"/>
 			</ViewStatusAddition>
-			<SearchControlAddition name="ListSearchControl_SSLy" id="82">
+			<SearchControlAddition name="ListSearchControl" id="82">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchControl</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchControl_SSLyContextMenu" id="83"/>
-				<ExtendedTooltip name="ListSearchControl_SSLyExtendedTooltip" id="84"/>
+				<ContextMenu name="ListSearchControlContextMenu" id="83"/>
+				<ExtendedTooltip name="ListSearchControlExtendedTooltip" id="84"/>
 			</SearchControlAddition>
 			<Events>
 				<Event name="Selection">ListSelection</Event>

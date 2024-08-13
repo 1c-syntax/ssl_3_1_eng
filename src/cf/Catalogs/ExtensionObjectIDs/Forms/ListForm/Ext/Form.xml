@@ -32,7 +32,7 @@
 					<Type>CommandBarButton</Type>
 					<DefaultButton>true</DefaultButton>
 					<CommandName>Form.StandardCommand.Choose</CommandName>
-					<ExtendedTooltip name="FormChooseExtendedTooltip" id="73"/>
+					<ExtendedTooltip name="FormSelectExtendedTooltip" id="73"/>
 				</Button>
 				<Button name="FormChange" id="34">
 					<Type>CommandBarButton</Type>
@@ -65,12 +65,12 @@
 						<Button name="FormList" id="40">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.StandardCommand.List</CommandName>
-							<ExtendedTooltip name="FormList1ExtendedTooltip" id="41"/>
+							<ExtendedTooltip name="FormListExtendedTooltip" id="41"/>
 						</Button>
 						<Button name="FormTree" id="42">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.StandardCommand.Tree</CommandName>
-							<ExtendedTooltip name="FormTree1ExtendedTooltip" id="43"/>
+							<ExtendedTooltip name="FormTreeExtendedTooltip" id="43"/>
 						</Button>
 					</ChildItems>
 				</Popup>
@@ -92,7 +92,7 @@
 				<Button name="FormLoadDynamicListSettings" id="64">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.StandardCommand.LoadDynamicListSettings</CommandName>
-					<ExtendedTooltip name="FormImportDynamicListSettingsExtendedTooltip" id="65"/>
+					<ExtendedTooltip name="FormLoadDynamicListSettingsExtendedTooltip" id="65"/>
 				</Button>
 				<Button name="FormSaveDynamicListSettings" id="66">
 					<Type>CommandBarButton</Type>

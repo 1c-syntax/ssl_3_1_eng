@@ -61,13 +61,10 @@
 					<Title formatted="true">
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>When opening a report or data processor, 
-pay attention to their sources.
-If you are not sure that the file was obtained from a trusted source,
-refrain from opening it.
-
-See also: &lt;link http://1c.ru/news/info.jsp?id=21537&gt;Example of a virus in an external data processor&lt;/&gt; (in Russian).
-</v8:content>
+							<v8:content>When opening an external report or data processor, 
+pay attention to its source.
+If you are not sure that the file came from a trusted source,
+do not open it.</v8:content>
 						</v8:item>
 					</Title>
 					<ContextMenu name="LabelContextMenu" id="4"/>

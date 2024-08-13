@@ -316,8 +316,8 @@ Function ProcessPackage(DeletionParameters, Package)
 				ReflectPackageItemDeletionResult(DeletionParameters, PackageProcessingResult, DeletionResult);
 					
 				If Not ItemToRemove.IsMainObject And DeletionResult.Code = DeletionResultCodes().ErrorOnDelete Then
-					// 
-					// 
+					// If a child item is deleted with an error, other items cannot be deleted.
+					// Return the parent item with the only undeleted item.
 					YouCanTDeleteTheMainObject = True;
 					UndeletedItems.Add(DeletionResult.ItemToDeleteRef);
 					
@@ -339,8 +339,8 @@ Function ProcessPackage(DeletionParameters, Package)
 				
 			EndDo;
 			
-			// 
-			// 
+			// ACC:330-off - No.783.1.3. It is acceptable to specify the code after "CommitTransaction".
+			// This method, "RollbackTransaction", will throw an exception.
 			If Not IsTransactionCanceled Then
 				If Not YouCanTDeleteTheMainObject Then
 					CommitTransaction();
@@ -1217,7 +1217,7 @@ Function DeletionResult(ObjectsToDelete, DeletionParameters)
 	
 	// Reduce the rmngr memory allocated for messages.
 	ProcessingParameters.Insert("TheNotificationTime", 0);
-	ProcessingParameters.Insert("NotificationPeriod", 60000); // Milliseconds
+	ProcessingParameters.Insert("NotificationPeriod", 60000); // Milliseconds.
 	ProcessingParameters.Insert("IsScheduledJob", DeletionParameters.IsScheduledJob);
 	
 	Return ProcessingParameters;
@@ -1589,7 +1589,7 @@ Procedure DeleteMarkedObjectsExclusively(ObjectsToDelete, ExecutionParameters)
 		EndIf;
 		
 		MetadataInformation = MetadataInfo.Find(TypeOf(RemovableObject), "Type");
-		MetadataInformation.Hierarchical = False; // 
+		MetadataInformation.Hierarchical = False; // Search only for subordinate items.
 		
 		// @skip-check query-in-loop - Batch processing of a large amount of data.
 		ChildSubordinateObjects = ChildSubordinateItems(RemovableObject, MetadataInformation);

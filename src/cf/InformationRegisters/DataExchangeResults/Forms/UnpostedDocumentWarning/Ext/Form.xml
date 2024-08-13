@@ -95,7 +95,7 @@ If the warning is no longer relevant, click "Hide from list".</v8:content>
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="ProblemObjectGroupExtendedTooltip" id="21"/>
+			<ExtendedTooltip name="ObjectWithIssueGroupExtendedTooltip" id="21"/>
 			<ChildItems>
 				<LabelField name="ObjectWithIssue" id="10">
 					<DataPath>ObjectWithIssue</DataPath>

@@ -254,8 +254,8 @@ EndProcedure
 &AtServer
 Procedure FillWithDefaultData()
 	
-	//  
-	// 
+	// Populates the form with the business calendar data 
+	// (considering holidays and substitutes).
 	
 	BasicCalendarCode = Undefined;
 	If ValueIsFilled(Object.BasicCalendar) Then
@@ -274,8 +274,8 @@ EndProcedure
 &AtServer
 Procedure ConvertBusinessCalendarData(BusinessCalendarData)
 	
-	//  
-	// 
+	// Business calendar data is used on the form in the maps "DaysKinds" and "ShiftedDays". 
+	// This procedure populates these maps.
 	// 
 	
 	DaysKindsMap = New Map;
@@ -364,12 +364,12 @@ EndProcedure
 &AtClient
 Procedure ShiftDayKind(ReplacementDate, PurposeDate)
 	
-	// 
-	// 
-	// 
-	//	 
-	//		
-	//	
+	// Substitute a date in the calendar:
+	// - Switch each other's day type
+	// - Remember the substitution date
+	//	Notes: 
+	//		* If the substitute day was already substituted, use the existing substitute date.
+	//	* If the dates match (a holiday is "unsubstituted"), delete the record.
 	
 	DaysKindsMap = New Map(DaysKinds);
 	
@@ -413,8 +413,8 @@ Procedure FillReplacementsPresentation(Form)
 	
 	Form.ReplacementsList.Clear();
 	For Each KeyAndValue In Form.ShiftedDays Do
-		//  
-		// 
+		// A substitute holiday is originally a business day. 
+		// Therefore, from the two dates, select the ex-holiday (which became a business day after substitution).
 		SourceDate = KeyAndValue.Key;
 		DestinationDate = KeyAndValue.Value;
 		DayKind = Form.DaysKinds.Get(SourceDate);

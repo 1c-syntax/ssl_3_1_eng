@@ -108,7 +108,7 @@
 							<Representation>None</Representation>
 							<United>false</United>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="AdressingPerformerGroupExtendedTooltip" id="50"/>
+							<ExtendedTooltip name="GroupAdressingPerformerExtendedTooltip" id="50"/>
 							<ChildItems>
 								<RadioButtonField name="AdressingTypePerformer" id="9">
 									<DataPath>AddressingType</DataPath>
@@ -174,7 +174,7 @@
 							<Representation>None</Representation>
 							<United>false</United>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="AddressingRoleGroupExtendedTooltip" id="68"/>
+							<ExtendedTooltip name="GroupAddressingRoleExtendedTooltip" id="68"/>
 							<ChildItems>
 								<RadioButtonField name="AddressingTypeRole" id="69">
 									<DataPath>AddressingType</DataPath>

@@ -199,7 +199,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Server call.
 
 &AtServer
 Procedure OnChangeConstantAtServer(ConstantName)
@@ -238,7 +238,7 @@ Procedure OnChangeWebServiceAddressesUsage(UseAddressesWebService)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Client
+// Client.
 
 &AtClient
 Procedure OnChangeModeOfDataExportToMonitoringCenter(Item)

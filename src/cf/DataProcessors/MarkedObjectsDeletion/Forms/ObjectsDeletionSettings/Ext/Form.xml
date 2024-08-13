@@ -15,7 +15,7 @@
 				</Title>
 				<RepresentationInContextMenu>None</RepresentationInContextMenu>
 				<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
-				<ExtendedTooltip name="FormChooseExtendedTooltip" id="50"/>
+				<ExtendedTooltip name="FormSelectExtendedTooltip" id="50"/>
 			</Button>
 			<Button name="FormAddSetting" id="56">
 				<Type>CommandBarButton</Type>

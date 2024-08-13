@@ -210,7 +210,7 @@
 												<v8:content>Pick</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="CompositionContextMenuPickExtendedTooltip" id="159"/>
+										<ExtendedTooltip name="CompositionContextMenuSelectExtendedTooltip" id="159"/>
 									</Button>
 									<Button name="ContentContextMenuAdd" id="45">
 										<Type>CommandBarButton</Type>
@@ -375,7 +375,7 @@
 													</v8:item>
 												</Title>
 												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-												<ExtendedTooltip name="ShowInvalidUsers1ExtendedTooltip" id="152"/>
+												<ExtendedTooltip name="ShowInvalidUsersExtendedTooltip" id="152"/>
 											</Button>
 										</ChildItems>
 									</ButtonGroup>
@@ -679,7 +679,7 @@
 							<v8:content>Comment</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="CommentGroupExtendedTooltip" id="197"/>
+					<ExtendedTooltip name="GroupCommentExtendedTooltip" id="197"/>
 					<ChildItems>
 						<InputField name="Comment" id="38">
 							<DataPath>Object.Comment</DataPath>
@@ -930,13 +930,13 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Group by subsystems</v8:content>
+					<v8:content>Group by subsystem</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Group roles by subsystems.</v8:content>
+					<v8:content>Group roles by subsystem.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>

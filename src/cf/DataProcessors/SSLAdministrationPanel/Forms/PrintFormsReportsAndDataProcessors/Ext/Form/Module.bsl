@@ -87,7 +87,7 @@ Procedure UseSourceDocumentsOriginalsAccountingOnChange(Item)
 EndProcedure
 
 &AtClient
-Procedure UseTheTextTranslationServiceOnChange(Item)
+Procedure UseTextTranslationServiceOnChange(Item)
 	
 	Attachable_OnChangeAttribute(Item);
 	If ConstantsSet["UseTextTranslationService"] And Not ValueIsFilled(ConstantsSet["TextTranslationService"]) Then
@@ -97,7 +97,7 @@ Procedure UseTheTextTranslationServiceOnChange(Item)
 EndProcedure
 
 &AtClient
-Procedure SettingUpATextTranslationServiceURLProcessing(Item, FormattedStringURL, StandardProcessing)
+Procedure TextTranslationServiceSettingURLProcessing(Item, FormattedStringURL, StandardProcessing)
 	
 	If FormattedStringURL = "GoToSettingUpTheTextTranslationService" Then
 		StandardProcessing = False;
@@ -209,7 +209,7 @@ Function CurrentTranslator()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Client
+// Client.
 
 &AtClient
 Procedure Attachable_OnChangeAttribute(Item, ShouldRefreshInterface = True)
@@ -239,7 +239,7 @@ Procedure RefreshApplicationInterface()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Server call.
 
 &AtServer
 Function OnChangeAttributeServer(TagName)
@@ -253,7 +253,7 @@ Function OnChangeAttributeServer(TagName)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Server
+// Server.
 
 &AtServer
 Function SaveAttributeValue(DataPathAttribute)

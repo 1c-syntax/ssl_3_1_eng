@@ -1703,7 +1703,7 @@ Example: https://website.domain/database/123.
 							<Group>Vertical</Group>
 							<Behavior>Collapsible</Behavior>
 							<ControlRepresentation>Picture</ControlRepresentation>
-							<ExtendedTooltip name="DataTransferAdditionalParametersGroupExtendedTooltip" id="630"/>
+							<ExtendedTooltip name="GroupAdditionalParametersDataTransferExtendedTooltip" id="630"/>
 							<ChildItems>
 								<CheckBoxField name="RegularCommunicationChannelsTransliterateFileNames" id="243">
 									<DataPath>RegularCommunicationChannelsTransliterateFileNames</DataPath>
@@ -1770,10 +1770,10 @@ If you select the check box, also select it in the peer application.</v8:content
 											</Title>
 											<TitleLocation>Right</TitleLocation>
 											<CheckBoxType>Auto</CheckBoxType>
-											<ContextMenu name="RegularCommunicationChannelsProtectArchiveWithPasswordContextMenu" id="264"/>
-											<ExtendedTooltip name="RegularCommunicationChannelsProtectArchiveWithPasswordExtendedTooltip" id="265"/>
+											<ContextMenu name="RegularCommunicationChannelsProtectArchivesWithPasswordContextMenu" id="264"/>
+											<ExtendedTooltip name="RegularCommunicationChannelsProtectArchivesWithPasswordExtendedTooltip" id="265"/>
 											<Events>
-												<Event name="OnChange">RegularCommunicationChannelsProtectArchiveWithPasswordOnChange</Event>
+												<Event name="OnChange">RegularCommunicationChannelsProtectArchivesWithPasswordOnChange</Event>
 											</Events>
 										</CheckBoxField>
 										<InputField name="RegularCommunicationChannelsArchivePassword" id="217">
@@ -2088,7 +2088,7 @@ Please wait…</v8:content>
 									<Group>AlwaysHorizontal</Group>
 									<Behavior>Usual</Behavior>
 									<Representation>NormalSeparation</Representation>
-									<ExtendedTooltip name="GroupDuplicateSynchronizationSettingsExtendedTooltip" id="807"/>
+									<ExtendedTooltip name="DuplicateSynchronizationSettingsGroupExtendedTooltip" id="807"/>
 									<ChildItems>
 										<UsualGroup name="Group4" id="819">
 											<Title>
@@ -2175,8 +2175,8 @@ Please wait…</v8:content>
 																			<v8:content>Note</v8:content>
 																		</v8:item>
 																	</Title>
-																	<ContextMenu name="DecorationExplanationToFixContextMenu" id="832"/>
-																	<ExtendedTooltip name="DecorationExplanationToFixExtendedTooltip" id="833"/>
+																	<ContextMenu name="DecorationNoteToCorrectContextMenu" id="832"/>
+																	<ExtendedTooltip name="DecorationNoteToCorrectExtendedTooltip" id="833"/>
 																</LabelDecoration>
 															</ChildItems>
 														</UsualGroup>
@@ -2377,7 +2377,7 @@ Please wait…</v8:content>
 						</v8:item>
 					</Title>
 					<Group>AlwaysHorizontal</Group>
-					<ExtendedTooltip name="NavigationStartPage1ExtendedTooltip" id="35"/>
+					<ExtendedTooltip name="PageNavigationStartExtendedTooltip" id="35"/>
 					<ChildItems>
 						<CommandBar name="StartNavigationLeftCommandBar" id="40">
 							<Title>
@@ -2501,7 +2501,7 @@ Please wait…</v8:content>
 						</v8:item>
 					</Title>
 					<Group>AlwaysHorizontal</Group>
-					<ExtendedTooltip name="NavigationEndPage1ExtendedTooltip" id="39"/>
+					<ExtendedTooltip name="PageNavigationEndExtendedTooltip" id="39"/>
 					<ChildItems>
 						<CommandBar name="EndNavigationLeftCommandBar" id="58">
 							<Title>

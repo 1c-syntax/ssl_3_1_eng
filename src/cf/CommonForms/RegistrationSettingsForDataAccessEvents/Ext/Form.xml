@@ -107,7 +107,7 @@
 							</v8:item>
 						</Title>
 						<CommandSource>Form</CommandSource>
-						<ExtendedTooltip name="StandardCommandsAreOfFormExtendedTooltip" id="43"/>
+						<ExtendedTooltip name="StandardFormCommandsExtendedTooltip" id="43"/>
 					</ButtonGroup>
 					<Button name="Help" id="46">
 						<Type>CommandBarButton</Type>

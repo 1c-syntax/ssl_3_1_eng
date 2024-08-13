@@ -10,7 +10,7 @@
 
 #Region Public
 
-// Handler of DCS report user setting string activation.
+// Handler for the activation of a DCS report user setting row.
 //
 // Parameters:
 //   Report - FormDataCollectionItem - a tabular section row describing the report.

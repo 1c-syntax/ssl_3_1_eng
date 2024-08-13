@@ -111,6 +111,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">Report.RenewDigitalSignatures</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Report.DeferredUpdateDuration</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonForm.RegistrationSettingsForDataAccessEvents</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">Report.DigitalSignatureCertificates</xr:Item>
 			</Content>
 		</Properties>
 		<ChildObjects>

@@ -25,10 +25,9 @@ Procedure OpenAttachment(Ref, Form, ForEditing = False) Export
 		AdditionalParameters.Insert("ForEditing", ForEditing);
 		
 		Notification = New NotifyDescription("OpenFileAfterConfirm", ThisObject, AdditionalParameters);
-		FormParameters = New Structure;
-		FormParameters.Insert("Key", "BeforeOpenFile");
-		FormParameters.Insert("FileName", FileData.FileName);
-		OpenForm("CommonForm.SecurityWarning", FormParameters, , , , , Notification);
+		UsersInternalClient.ShowSecurityWarning(Notification,
+			UsersInternalClientServer.TypesOfSafetyWarnings().BeforeOpenFile,
+			FileData.FileName);
 		Return;
 		
 	EndIf;

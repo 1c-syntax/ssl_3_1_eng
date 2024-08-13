@@ -10,8 +10,8 @@
 
 #Region Public
 
-// Define metadata objects whose manager modules provide parametrization of duplicate search 
-// algorithm using the DuplicatesSearchParameters, OnSearchForDuplicates, and 
+// Define metadata objects whose manager modules provide parametrization of duplicate search 
+// algorithm using the DuplicatesSearchParameters, OnSearchForDuplicates, and 
 // CanReplaceItems export procedures.
 //
 // Parameters:
@@ -48,8 +48,8 @@ EndProcedure
 //     Objects - Array of MetadataObject
 //
 // Example:
-//	Objects.Add(Metadata.Catalogs._DemoProducts);
-//	Objects.Add(Metadata.Catalogs._DemoCounterparties);
+//	Objects.Add(Metadata.Catalogs.Products);
+//	Objects.Add(Metadata.Catalogs.Partners);
 //
 Procedure OnDefineObjectsWithReferenceReplacementDuplicatesMergeCommands(Objects) Export
 

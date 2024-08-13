@@ -26,7 +26,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			ElsIf ParentProperties.Parent <> Undefined
 				And TypeOf(ParentProperties.Parent) = TypeOf(ObjectValue.Ref) Then
 				
-				ObjectValue.Parent = ParentProperties.Parent; // 
+				ObjectValue.Parent = ParentProperties.Parent; // As the first parent, the reference to the item was passed.
 			EndIf;
 			
 		Else
@@ -70,7 +70,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Or Not AccessRight("Update", ThisObject.Object.FileOwner.Metadata()) Then
 		
 		Items.FormStandardWrite.Enabled                  = False;
-		Items.FormStandardWriteAndClose.Enabled          = False;
+		Items.FormStandardSaveAndClose.Enabled          = False;
 		Items.FormStandardMarkForDeletion.Enabled = False;
 		
 	EndIf;

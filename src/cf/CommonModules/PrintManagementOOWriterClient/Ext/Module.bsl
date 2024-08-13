@@ -9,16 +9,17 @@
 //
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Print using OpenDocument Text (ODT) templates on the client side. Intended for backward compatibility.
 //
-// 
-// 
-// 
-// 
-// 
-// 
+// The details of the reference to a print form and template.
+// Structure with the following fields:
+// ServiceManager - An  Open Office service manager.
+// Desktop - Open Office app (the UNO service).
+// Document - A document (print form).
+// Type - The print form type ("ODT").
 //
 ////////////////////////////////////////////////////////////////////////////////
+//
 
 #Region Private
 

@@ -31,7 +31,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	If Not FileInfobase Then
-		Items.RecipientsCheckDeliveryStatuses.Visible = False;
+		Items.SMSMessageRecipientsCheckDeliveryStatuses.Visible = False;
 	EndIf;
 	
 	Interactions.FillChoiceListForReviewAfter(Items.ReviewAfter.ChoiceList);
@@ -347,7 +347,7 @@ EndProcedure
 #Region FormTableItemsEventHandlersSMSMessageRecipients
 
 &AtClient
-Procedure RecipientsOnChange(Item)
+Procedure SMSMessageRecipientsOnChange(Item)
 	
 	InteractionsClientServer.CheckContactsFilling(Object, ThisObject, "SMSMessage");
 	AddresseesCount = Object.SMSMessageRecipients.Count();
@@ -356,7 +356,7 @@ Procedure RecipientsOnChange(Item)
 EndProcedure
 
 &AtClient
-Procedure RecipientsOnActivateRow(Item)
+Procedure SMSMessageRecipientsOnActivateRow(Item)
 	
 	CheckContactCreationAvailability();
 	
@@ -436,7 +436,7 @@ Procedure ContactPresentationOpening(Item, StandardProcessing)
 EndProcedure
 
 &AtClient
-Procedure RecipientsOnEditEnd(Item, NewRow, CancelEdit)
+Procedure SMSMessageRecipientsOnEditEnd(Item, NewRow, CancelEdit)
 	
 	CurrentData = Items.SMSMessageRecipients.CurrentData;
 	If CurrentData = Undefined Then
@@ -490,7 +490,7 @@ Procedure CheckDeliveryStatuses(Command)
 	
 EndProcedure
 
-// 
+// StandardSubsystems.Properties
 
 &AtClient
 Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined, StandardProcessing = Undefined)
@@ -516,7 +516,7 @@ Procedure Attachable_AttachedFilesPanelCommand(Command)
 EndProcedure
 // End StandardSubsystems.FilesOperations
 
-// 
+// StandardSubsystems.MessagesTemplates
 
 &AtClient
 Procedure GenerateFromTemplate(Command)
@@ -554,7 +554,7 @@ Procedure SetConditionalAppearance()
 
 EndProcedure
 
-// 
+// StandardSubsystems.Properties
 
 &AtServer
 Procedure PropertiesExecuteDeferredInitialization()
@@ -600,7 +600,7 @@ EndProcedure
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// Other
+// Miscellaneous.
 
 &AtClient
 Procedure CheckContactCreationAvailability()
@@ -783,7 +783,7 @@ Procedure AvailabilityControl(Form)
 	Form.Items.ReviewAfter.Enabled               = Form.UnderControl;
 	Form.Items.SendingDateRelevanceGroup.Enabled = Not StatusUpperOutgoing;
 	
-	Form.Items.RecipientsCheckDeliveryStatuses.Enabled =
+	Form.Items.SMSMessageRecipientsCheckDeliveryStatuses.Enabled =
 	                 Form.FileInfobase
 	                 And MessageSent
 	                 And Form.Object.State = PredefinedValue("Enum.SMSDocumentStatuses.DeliveryInProgress");
@@ -893,7 +893,7 @@ Procedure Attachable_UpdateCommands()
 EndProcedure
 // End StandardSubsystems.AttachableCommands
 
-// 
+// StandardSubsystems.MessagesTemplates
 
 &AtClient
 Procedure FillByTemplateAfterTemplateChoice(Result, AdditionalParameters) Export

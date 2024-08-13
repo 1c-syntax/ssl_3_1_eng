@@ -254,6 +254,7 @@ Procedure CopyAttachedFile(FileOwner, BasisFile, AdditionalParameters = Undefine
 	
 	FormParameters.Insert("CopyingValue", BasisFile);
 	FormParameters.Insert("FileOwner", FileOwner);
+	
 	If AreFiles Then
 		OpenForm("Catalog.Files.ObjectForm", FormParameters,,,,, OnCloseNotifyDescription);
 	Else
@@ -364,18 +365,11 @@ EndProcedure
 //
 Procedure OpenFileListForm(Val FilesOwner) Export
 	
-	ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient = Undefined;
-	UseEDIToStoreObjectFiles =
-		FilesOperationsInternalClient.Is1CDocumentManagementUsedForFileStorage(
-			FilesOwner,
-			ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient);
-	
-	If UseEDIToStoreObjectFiles Then
+	If FilesOperationsInternalClient.Is1CDocumentManagementUsedForFileStorage(FilesOwner) Then
 		
-		// IntegrationWith1CDocumentManagementSubsystem
-			ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient.OpenAttachedFiles(
-				FilesOwner);
-		// End IntegrationWith1CDocumentManagementSubsystem
+		// IntegrationWith1CDocumentManagement
+		FilesOperationsInternalClient.OpenFormAttachedFiles1CDocumentManagement(FilesOwner);
+		// End IntegrationWith1CDocumentManagement
 		
 	Else
 		
@@ -756,6 +750,7 @@ EndProcedure
 //     5 - RLE
 //     6 - No compression
 //   * DuplexScanning - Boolean - Scan both sides.
+//   * DocumentAutoFeeder - Boolean - Use the auto feeder.
 //   * ShouldSaveAsPDF - Boolean
 //   * UseImageMagickToConvertToPDF - Boolean
 //
@@ -1636,17 +1631,18 @@ Procedure AttachmentsControlCommandCompletion(Form, Command, AttachedFilesOwner)
 	UseEDIToStoreObjectFiles =
 		FilesOperationsInternalClient.Is1CDocumentManagementUsedForFileStorage(
 			AttachedFilesOwner,
-			ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient,
 			Form,
-			Command);
+			Command,
+			ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient);
 	
 	If StrStartsWith(CommandName, "OpenList") Then
 		
 		If UseEDIToStoreObjectFiles Then
 			
 			// IntegrationWith1CDocumentManagement
-			ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient.OpenAttachedFiles(
-				AttachedFilesOwner);
+			FilesOperationsInternalClient.OpenFormAttachedFiles1CDocumentManagement(
+				AttachedFilesOwner,
+				Form);
 			// End IntegrationWith1CDocumentManagement
 			
 		Else

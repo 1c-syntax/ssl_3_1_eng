@@ -39,7 +39,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="TitleGroup1ExtendedTooltip" id="1600"/>
+			<ExtendedTooltip name="TitleGroupExtendedTooltip" id="1600"/>
 			<ChildItems>
 				<LabelDecoration name="SectionDetails" id="1581">
 					<AutoMaxWidth>false</AutoMaxWidth>

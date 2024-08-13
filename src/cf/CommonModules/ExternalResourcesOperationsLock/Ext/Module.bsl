@@ -9,20 +9,20 @@
 //
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
+// The external resource locking mechanism:
+// - Disables the scheduled jobs that access external resources.
+// - Disconnects the infobase from the Collaboration server (if "Conversations" subsystem is integrated).
+// The lock is set if:
+// - User signs in to the app.
+// - A scheduled job that accesses external resources has started.
+// The lock is always set automatically.
+// The administrator can confirm the lock or unlock the infobase.
 //
-// 
-// 
-// 
+//  "BeforeStart" or "OnStartExecuteScheduledJob" obtains the session parameter
+// "OperationsWithExternalResourcesLocked", and calls the
+// "OnSetSessionParameters" event in the lock object if the environment has changed.
 //
-// 
+// "OnStartExecuteScheduledJob" disables the scheduled jobs if the session parameter's state is locked.
 // 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -461,8 +461,8 @@ Function SetExternalResourcesOperationsLock()
 	
 	LockParameters = SavedLockParameters();
 	
-	// 
-	// 
+	// Either the flag indicating that a decision about the lock should be made is raised,
+	// or the administrator confirmed the lock.
 	If LockParameters.OperationsWithExternalResourcesLocked = Undefined 
 		Or LockParameters.OperationsWithExternalResourcesLocked = True Then
 		Return True; 
@@ -501,14 +501,14 @@ Function SetExternalResourcesOperationsLock()
 		Return True;
 	EndIf;
 	
-	// 
-	// 
-	// 
+	// The code below assumes that the operation mode hasn't changed:
+	// - A file infobase remains a file infobase
+	// - A client/server infobase remains a client/server infobase
 	
 	If IsFileInfobase Then
 		
-		// 
-		// 
+		// For file infobases, the connection string may vary between devices.
+		// Therefore, check if the infobase was re-located using the checking file.
 		
 		If Not FileInfobaseIDCheckFileExists() Then
 			MessageText = NStr("en = 'The infobase folder does not contain check file %1.';");
@@ -544,10 +544,10 @@ Function SetExternalResourcesOperationsLock()
 			And WorkingProcessServerName <> SavedWorkingProcessServerName
 			And StrFind(SavedConnectionManagerServerName, ConnectionManagerServerName) = 0;
 		
-		// 
-		// 
-		//  
-		// 
+		// mIn scalable clusters, "SavedConnectionManagerServerName" might contain
+		// multiple server names that act as connection managers.
+		// When starting the scheduled job, "ConnectionManagerServerName" contains the name of the active manager. 
+		// To work with that, search for the current server in the saved name.
 		
 		If InfobaseNameChanged Or ComputerNameChanged Then
 			
@@ -632,7 +632,7 @@ Function CurrentOperationPresentation()
 	EndIf;
 	
 	Return StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'when user <b>%1</b> signed in';"),
+		NStr("en = 'when user <b>%1</b> logged in';"),
 		UserName());
 	
 EndFunction

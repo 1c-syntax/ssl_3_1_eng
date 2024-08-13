@@ -456,14 +456,14 @@ Procedure CreateTTWorkSchedulesForPeriod(TempTablesManager, Schedules, StartDate
 	|	DaysIncludedInSchedule.WorkScheduleCalendar,
 	|	DaysIncludedInSchedule.ScheduleDate";
 	
-	// 
-	// 
+	// The formula for calculating the number in an arbitrary-length cycle for a schedule day:
+	// NumberOfDay = DayCountFromStartDay % CycleLength
 	
-	// 
-	// 
+	// The modulo formula:
+	// Dividend – Int(Dividend / Divisor) * Divisor
 	
-	// 
-	// 
+	// To get the integral part, the following behavior is used:
+	// If the rule is "a fractional part of 0.5 is rounded up", and the result exceeds the original number, reduce it by 1.
 	
 	Query = New Query(QueryText);
 	Query.TempTablesManager = TempTablesManager;
@@ -566,7 +566,7 @@ Function DateDiffByCalendar(Val WorkScheduleCalendar, Val StartDate, Val EndDate
 			|	DATETIME(2020,01,01)";
 		EndIf;
 		QueryText = QueryText + StrReplace(
-			UnionTemplate, "2020,01,01", Format(ScheduleDate, """DF='yyyy,MM,d'")); // 
+			UnionTemplate, "2020,01,01", Format(ScheduleDate, """DF='yyyy,MM,d'")); // ACC:1367 Format data for technical purposes. Hidden from users.
 	EndDo;
 	
 	TempTablesManager = New TempTablesManager;
@@ -652,10 +652,10 @@ Function DateDiffByCalendar(Val WorkScheduleCalendar, Val StartDate, Val EndDate
 	
 	Selection = Result.Select();
 	
-	//  
-	// 
-	//  
-	// 
+	// Get a selection where each original date has the number of days in the schedule from the year start. 
+	// From the first date's value, subtract all other values to get the negative number of all days in the schedule.
+	// If the first day is a weekday and the next one is a day off, the number of matching days is equal, 
+	// and you need to adjust the result by adding 1 day to it.
 	//  
 	//  
 	// 

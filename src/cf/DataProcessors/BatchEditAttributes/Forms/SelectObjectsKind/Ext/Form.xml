@@ -33,12 +33,12 @@
 						<v8:content>Select</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="FormChooseExtendedTooltip" id="16"/>
+				<ExtendedTooltip name="FormSelectExtendedTooltip" id="16"/>
 			</Button>
 			<Button name="FormUncheckAll" id="31">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Item.EditableObjects.StandardCommand.UncheckAll</CommandName>
-				<ExtendedTooltip name="FormClearAllExtendedTooltip" id="32"/>
+				<ExtendedTooltip name="FormUncheckAllExtendedTooltip" id="32"/>
 			</Button>
 			<SearchStringAddition name="SearchString" id="35">
 				<AdditionSource>

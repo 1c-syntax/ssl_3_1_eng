@@ -1429,29 +1429,29 @@ Function UserGroupsFullComposition(UserGroupsComposition)
 	GroupsAndCompositionTable.Columns.Add("Group");
 	GroupsAndCompositionTable.Columns.Add("Content");
 	GroupComposition1 = New ValueList;
-	CurrentGroup_SSLy = Undefined;
+	CurrentGroup = Undefined;
 	
 	For Each CompositionRow In UserGroupsComposition Do
 		
 		If TypeOf(CompositionRow.UsersGroup) = Type("CatalogRef.UserGroups")
 			Or TypeOf(CompositionRow.UsersGroup) = Type("CatalogRef.ExternalUsersGroups") Then
 			
-			If CurrentGroup_SSLy <> CompositionRow.UsersGroup 
-				And Not CurrentGroup_SSLy = Undefined Then
+			If CurrentGroup <> CompositionRow.UsersGroup 
+				And Not CurrentGroup = Undefined Then
 				GroupsAndCompositionTableRow = GroupsAndCompositionTable.Add();
-				GroupsAndCompositionTableRow.Group = CurrentGroup_SSLy;
+				GroupsAndCompositionTableRow.Group = CurrentGroup;
 				GroupsAndCompositionTableRow.Content = GroupComposition1.Copy();
 				GroupComposition1.Clear();
 			EndIf;
 			GroupComposition1.Add(CompositionRow.User);
 			
-		CurrentGroup_SSLy = CompositionRow.UsersGroup;
+		CurrentGroup = CompositionRow.UsersGroup;
 		EndIf;
 		
 	EndDo;
 	
 	GroupsAndCompositionTableRow = GroupsAndCompositionTable.Add();
-	GroupsAndCompositionTableRow.Group = CurrentGroup_SSLy;
+	GroupsAndCompositionTableRow.Group = CurrentGroup;
 	GroupsAndCompositionTableRow.Content = GroupComposition1.Copy();
 	
 	Return GroupsAndCompositionTable;

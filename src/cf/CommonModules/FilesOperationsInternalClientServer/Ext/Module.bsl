@@ -63,7 +63,7 @@ Function UniqueNameByWay(Val DirectoryName, Val FileName) Export
 		
 		Subdirectory = ""; // A partial path.
 		
-		// 
+		// Try using the root. If it fails, add A, B, … Z, … ZZZZZ, … AAAAA, … AAAAAZ, etc.
 		// 
 		If  Counter = 0 Then
 			Subdirectory = "";
@@ -133,9 +133,9 @@ EndFunction
 ////////////////////////////////////////////////////////////////////////////////
 // For user interface.
 
-// 
+// Returns the message stating that locked files cannot be signed.
 //
-Function MessageAboutInadmissibilityOfSigningBusyFile(FileRef = Undefined) Export
+Function MessageAboutInvalidSigningOfLockedFile(FileRef = Undefined) Export
 	
 	If FileRef = Undefined Then
 		Return NStr("en = 'Cannot sign the file because it is locked.';");
@@ -147,9 +147,9 @@ Function MessageAboutInadmissibilityOfSigningBusyFile(FileRef = Undefined) Expor
 	
 EndFunction
 
-// 
+// Returns the message stating that encrypted files cannot be signed.
 //
-Function MessageAboutInadmissibilityOfSigningEncryptedFile(FileRef = Undefined) Export
+Function MessageAboutInvalidSigningOfEncryptedFile(FileRef = Undefined) Export
 	
 	If FileRef = Undefined Then
 		Return NStr("en = 'Cannot sign the file because it is encrypted.';");
@@ -161,7 +161,7 @@ Function MessageAboutInadmissibilityOfSigningEncryptedFile(FileRef = Undefined) 
 	
 EndFunction
 
-// 
+// Receive a row representing the file size. For example, to display the state when the file is transferred.
 Function FileSizePresentation(Val SizeInMB) Export
 	
 	If SizeInMB < 0.1 Then
@@ -173,7 +173,7 @@ Function FileSizePresentation(Val SizeInMB) Export
 	
 EndFunction	
 
-// 
+// Get the index of the file icon. It is the index in the "FileIconCollection" picture.
 Function IndexOfFileIcon(Val FileExtention) Export
 	
 	If TypeOf(FileExtention) <> Type("String")
@@ -186,58 +186,58 @@ Function IndexOfFileIcon(Val FileExtention) Export
 	Extension = "." + Lower(FileExtention) + ";";
 	
 	If StrFind(".dt;.1cd;.cf;.cfu;", Extension) <> 0 Then
-		Return 6; // 
+		Return 6; // 1C:Enterprise files.
 		
 	ElsIf Extension = ".mxl;" Then
-		Return 8; // 
+		Return 8; // Spreadsheet files
 		
 	ElsIf StrFind(".txt;.log;.ini;", Extension) <> 0 Then
-		Return 10; // 
+		Return 10; // Text files
 		
 	ElsIf Extension = ".epf;" Then
-		Return 12; // 
+		Return 12; // External data processors.
 		
 	ElsIf StrFind(".ico;.wmf;.emf;",Extension) <> 0 Then
-		Return 14; // 
+		Return 14; // Pictures
 		
 	ElsIf StrFind(".htm;.html;.url;.mht;.mhtml;",Extension) <> 0 Then
 		Return 16; // HTML.
 		
 	ElsIf StrFind(".doc;.dot;.rtf;",Extension) <> 0 Then
-		Return 18; // 
+		Return 18; // Microsoft Word file.
 		
 	ElsIf StrFind(".xls;.xlw;",Extension) <> 0 Then
-		Return 20; // 
+		Return 20; // Microsoft Excel file.
 		
 	ElsIf StrFind(".ppt;.pps;",Extension) <> 0 Then
-		Return 22; // 
+		Return 22; // Microsoft PowerPoint file.
 		
 	ElsIf StrFind(".vsd;",Extension) <> 0 Then
-		Return 24; // 
+		Return 24; // Microsoft Visio file.
 		
 	ElsIf StrFind(".mpp;",Extension) <> 0 Then
-		Return 26; // 
+		Return 26; // Microsoft Visio file.
 		
 	ElsIf StrFind(".mdb;.adp;.mda;.mde;.ade;",Extension) <> 0 Then
-		Return 28; // 
+		Return 28; // Microsoft Access database.
 		
 	ElsIf StrFind(".xml;",Extension) <> 0 Then
 		Return 30; // xml.
 		
 	ElsIf StrFind(".msg;.eml;",Extension) <> 0 Then
-		Return 32; // 
+		Return 32; // Email message.
 		
 	ElsIf StrFind(".zip;.rar;.arj;.cab;.lzh;.ace;",Extension) <> 0 Then
-		Return 34; // 
+		Return 34; // Archives.
 		
 	ElsIf StrFind(".exe;.com;.bat;.cmd;",Extension) <> 0 Then
-		Return 36; // 
+		Return 36; // Executable files.
 		
 	ElsIf StrFind(".grs;",Extension) <> 0 Then
-		Return 38; // 
+		Return 38; // Graphical schema.
 		
 	ElsIf StrFind(".geo;",Extension) <> 0 Then
-		Return 40; // 
+		Return 40; // Geographical schema.
 		
 	ElsIf StrFind(".jpg;.jpeg;.jp2;.jpe;",Extension) <> 0 Then
 		Return 42; // jpg.
@@ -276,22 +276,22 @@ Function IndexOfFileIcon(Val FileExtention) Export
 		Return 64;
 		
 	ElsIf StrFind(".erf;",Extension) <> 0 Then
-		Return 66; // 
+		Return 66; // External reports.
 		
 	ElsIf StrFind(".docx;",Extension) <> 0 Then
-		Return 68; // 
+		Return 68; // Microsoft Word 2007 file (DOCX).
 		
 	ElsIf StrFind(".xlsx;",Extension) <> 0 Then
-		Return 70; // 
+		Return 70; // Microsoft Excel 2007 file (XLSX).
 		
 	ElsIf StrFind(".pptx;",Extension) <> 0 Then
-		Return 72; // 
+		Return 72; // Microsoft PowerPoint 2007 file (PPTX).
 		
 	ElsIf StrFind(".p7s;",Extension) <> 0 Then
-		Return 74; // 
+		Return 74; // Signature file.
 		
 	ElsIf StrFind(".p7m;",Extension) <> 0 Then
-		Return 76; // 
+		Return 76; // Encrypted message.
 	Else
 		Return 4;
 	EndIf;
@@ -941,6 +941,7 @@ Function ScanningParameters() Export
 	ScanningParameters.Insert("JPGQuality", 100);
 	ScanningParameters.Insert("TIFFDeflation", 6);
 	ScanningParameters.Insert("DuplexScanning", False);
+	ScanningParameters.Insert("DocumentAutoFeeder", False);
 	ScanningParameters.Insert("ShouldSaveAsPDF", False);
 	ScanningParameters.Insert("UseImageMagickToConvertToPDF", False);
 	Return ScanningParameters;

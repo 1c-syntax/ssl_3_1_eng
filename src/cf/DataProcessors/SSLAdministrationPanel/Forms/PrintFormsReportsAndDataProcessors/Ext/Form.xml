@@ -32,7 +32,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="TitleGroup1ExtendedTooltip" id="1600"/>
+			<ExtendedTooltip name="TitleGroupExtendedTooltip" id="1600"/>
 			<ChildItems>
 				<LabelDecoration name="SectionDetails" id="1581">
 					<AutoMaxWidth>false</AutoMaxWidth>
@@ -122,7 +122,7 @@
 									<Type>Hyperlink</Type>
 									<CommandName>Catalog.PrintFormsLanguages.StandardCommand.OpenList</CommandName>
 									<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
-									<ExtendedTooltip name="HandbookOfTheLanguagesOfPrintedFormsToOpenAListOfExtendedTooltip" id="1708">
+									<ExtendedTooltip name="CatalogPrintFormsLanguagesOpenListExtendedTooltip" id="1708">
 										<Title formatted="false">
 											<v8:item>
 												<v8:lang>en</v8:lang>
@@ -199,10 +199,10 @@
 											</Title>
 											<TitleLocation>None</TitleLocation>
 											<CheckBoxType>Auto</CheckBoxType>
-											<ContextMenu name="UseTheTextTranslationServiceContextMenu" id="1720"/>
-											<ExtendedTooltip name="UseTheTextTranslationServiceExtendedTooltip" id="1721"/>
+											<ContextMenu name="UseTextTranslationServiceContextMenu" id="1720"/>
+											<ExtendedTooltip name="UseTextTranslationServiceExtendedTooltip" id="1721"/>
 											<Events>
-												<Event name="OnChange">UseTheTextTranslationServiceOnChange</Event>
+												<Event name="OnChange">UseTextTranslationServiceOnChange</Event>
 											</Events>
 										</CheckBoxField>
 										<LabelDecoration name="TextTranslationServiceSetting" id="1722">
@@ -212,10 +212,10 @@
 													<v8:content>Translate text with online service</v8:content>
 												</v8:item>
 											</Title>
-											<ContextMenu name="SettingUpATextTranslationServiceContextMenu" id="1723"/>
-											<ExtendedTooltip name="SettingUpATextTranslationServiceExtendedTooltip" id="1724"/>
+											<ContextMenu name="TextTranslationServiceSettingContextMenu" id="1723"/>
+											<ExtendedTooltip name="TextTranslationServiceSettingExtendedTooltip" id="1724"/>
 											<Events>
-												<Event name="URLProcessing">SettingUpATextTranslationServiceURLProcessing</Event>
+												<Event name="URLProcessing">TextTranslationServiceSettingURLProcessing</Event>
 											</Events>
 										</LabelDecoration>
 									</ChildItems>

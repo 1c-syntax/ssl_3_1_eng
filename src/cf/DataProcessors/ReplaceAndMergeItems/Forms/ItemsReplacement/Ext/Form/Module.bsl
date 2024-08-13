@@ -8,8 +8,8 @@
 //
 //
 
-// 
-//  
+// Form parameters are:
+//  RefSet - Array, ValueList - Items to be replaced with another Ref-type item.
 //
 
 #Region Variables
@@ -49,7 +49,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	ItemsToReplaceList = New ValueList;
 	ItemsToReplaceList.LoadValues(RefsToReplace.Unload().UnloadColumn("Ref"));
 	CommonClientServer.SetDynamicListFilterItem(List, "Ref", ItemsToReplaceList,
-		DataCompositionComparisonType.NotInList, NStr("en = 'Do not show replaceable items.';"), True, 
+		DataCompositionComparisonType.NotInList, NStr("en = 'Do not show replaceable items';"), True, 
 		DataCompositionSettingsItemViewMode.Inaccessible, "5bf5cd06-c1fd-4bd3-94b9-4e9803e90fd5");
 	If ReferencesToReplaceCommonOwner <> Undefined Then 
 		CommonClientServer.SetDynamicListFilterItem(List, "Owner", ReferencesToReplaceCommonOwner);
@@ -74,7 +74,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	Items.ReplacementItemSelectionTooltip.Title = NStr("en = 'Replacement item required.';");
 	
-	// Initialization of step-by-step wizard steps.
+	// Initialize the step-by-step wizard.
 	WizardSettings = StepByStepWizardSettings(Items);
 	
 	// 1. Select main item.
@@ -309,7 +309,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Wizard API
 
 // Initializes wizard structures.
 // 
@@ -470,7 +470,7 @@ Procedure GoToWizardStep1(Val StepOrIndexOrFormGroup)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Wizard events
 
 &AtClient
 Procedure OnActivateWizardStep()
@@ -491,8 +491,8 @@ Procedure OnActivateWizardStep()
 		
 		// Update number of failures.
 		Unsuccessful = New Map;
-		For Each String In UnsuccessfulReplacements.GetItems() Do
-			Unsuccessful.Insert(String.Ref, True);
+		For Each Item In UnsuccessfulReplacements.GetItems() Do
+			Unsuccessful.Insert(Item.Ref, True);
 		EndDo;
 		
 		ReplacementsCount = RefsToReplace.Count();
@@ -570,7 +570,7 @@ Procedure WizardStepCancel()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Internal procedures for item replacement and merging
 
 &AtClient
 Procedure StepReplacementItemSelectionOnClickNextButton()
@@ -630,7 +630,7 @@ EndProcedure
 
 &AtClient
 Procedure AppliedAreaReplacementAvailabilityCheck()
-	// Checking items replacement for validity in terms of applied data.
+	// Validate item replacement against application logic.
 	ErrorText = CheckCanReplaceReferences();
 	If Not IsBlankString(ErrorText) Then
 		DialogSettings = New Structure;
@@ -743,8 +743,8 @@ EndFunction
 Function CheckCanReplaceReferences()
 	
 	ReplacementPairs = New Map;
-	For Each String In RefsToReplace Do
-		ReplacementPairs.Insert(String.Ref, ReplacementItem);
+	For Each RefToReplace In RefsToReplace Do
+		ReplacementPairs.Insert(RefToReplace.Ref, ReplacementItem);
 	EndDo;
 	
 	ReplacementParameters = New Structure("DeletionMethod", CurrentDeletionOption);
@@ -904,7 +904,7 @@ Procedure InitializeReferencesToReplace(Val ReferencesArrray)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Long-running operation management
 
 &AtClient
 Procedure StartReplacingLinks()
@@ -913,8 +913,8 @@ Procedure StartReplacingLinks()
 	
 	MethodParameters = New Structure("ReplacementPairs, DeletionMethod");
 	MethodParameters.ReplacementPairs = New Map;
-	For Each String In RefsToReplace Do
-		MethodParameters.ReplacementPairs.Insert(String.Ref, ReplacementItem);
+	For Each RefToReplace In RefsToReplace Do
+		MethodParameters.ReplacementPairs.Insert(RefToReplace.Ref, ReplacementItem);
 	EndDo;
 	MethodParameters.Insert("DeletionMethod", CurrentDeletionOption);
 	
@@ -963,7 +963,7 @@ Procedure AfterCompletionReplacingLinks(Job, AdditionalParameters) Export
 	
 	HasUnsuccessfulReplacements = FillUnsuccessfulReplacements(Job.ResultAddress);
 	If HasUnsuccessfulReplacements Then
-		// Partially successful: display the details.
+		// Partially successful: display the details.
 		GoToWizardStep1(Items.RetryReplacementStep);
 		Activate();
 	Else
@@ -983,8 +983,8 @@ Procedure AfterCompletionReplacingLinks(Job, AdditionalParameters) Export
 		ShowUserNotification(, GetURL(ReplacementItem),
 			ResultingText, PictureLib.DialogInformation);
 		UpdatedItemsList = New Array;
-		For Each String In RefsToReplace Do
-			UpdatedItemsList.Add(String.Ref);
+		For Each RefToReplace In RefsToReplace Do
+			UpdatedItemsList.Add(RefToReplace.Ref);
 		EndDo;
 		NotifyOfSuccessfulReplacement(UpdatedItemsList);
 		Close();
@@ -1063,7 +1063,7 @@ Procedure AfterConfirmCancelJob(Response, ExecutionParameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Wizard's internal procedures and functions
 
 // Description of wizard button settings.
 //

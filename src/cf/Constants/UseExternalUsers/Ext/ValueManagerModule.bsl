@@ -84,7 +84,7 @@ EndProcedure
 Procedure ProcessChangeRegisteredUponDataImport() Export
 	
 	If Common.DataSeparationEnabled() Then
-		// 
+		// Settings changes in SWP are locked and cannot be imported into the data area.
 		Return;
 	EndIf;
 	

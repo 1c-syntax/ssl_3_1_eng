@@ -41,7 +41,7 @@ Function DownloadFileAtClient(Val URL, Val ReceivingParameters = Undefined, Val 
 		
 		PathForSaving = ReceivingParameters.PathForSaving;
 	Else
-		PathForSaving = GetTempFileName(); // 
+		PathForSaving = GetTempFileName(); // ACC:441 The temporary file must be deleted by the calling code.
 	EndIf;
 	
 	If Result.Status Then

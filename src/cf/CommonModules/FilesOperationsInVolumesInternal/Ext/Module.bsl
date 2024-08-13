@@ -102,8 +102,8 @@ EndFunction
 //
 // Parameters:
 //   AttachedFile  - See FilesOperationsInVolumesInternal.FileAddingOptions
-//                       
-//                         
+//                       - DefinedType.AttachedFileObject - An attachment catalog item
+//                         or a structure with properties whose data is saved to a volume.
 //   BinaryDataOrPath - BinaryData
 //                         - String - binary data of the file or the full file path.
 //   FileDateInVolume - Date - if not specified, set it so the current session date.
@@ -135,17 +135,17 @@ EndProcedure
 // 
 // Parameters:
 //   AttachedFile  - See FilesOperationsInVolumesInternal.FileAddingOptions
-//                       
-//                                     
+//                       - DefinedType.AttachedFileObject - An attachment catalog item whose data is saved to a volume,
+//                                     or a structure with properties required to save data to the volume.
 //                                     
 //   BinaryDataOrPath - BinaryData
 //                         - String - binary data of the file or the full file path.
 //   FileDateInVolume - Date - if it is not specified, the current session time is used.
-//   FillInternalStorageAttribute - Boolean -  if the parameter is set to True, the binary data
-//                                       of the file will be additionally placed in the service details of the file storage.
+//   FillInternalStorageAttribute - Boolean - if the parameter is True, also store
+//                                       the binary file data to the FileStorage internal attribute.
 //   VolumeForPlacement - CatalogRef.FileStorageVolumes
-//                    - Undefined - 
-//                                     
+//                    - Undefined - If the parameter is filled, files will be placed to a specified volume.
+//                                     Otherwise, the volume will be selected automatically.
 //
 Procedure FillInTheFileDetails(AttachedFile, BinaryDataOrPath, 
 	FileDateInVolume = Undefined, FillInternalStorageAttribute = False, VolumeForPlacement = Undefined) Export
@@ -263,8 +263,8 @@ Procedure CopyAttachedFile(AttachedFile, FilePathDestination) Export
 	
 	FileCopy(FilePathSource, FilePathDestination);
 	
-	//  
-	// 
+	// If the file is read-only, clear this attribute for 
+	// the destination file to be able to edit or delete.
 	FileDestination = New File(FilePathDestination);
 	If FileDestination.Exists() And FileDestination.GetReadOnly() Then
 		FileDestination.SetReadOnly(False);
@@ -1095,8 +1095,8 @@ Procedure AddVolume(SearchDirectoryForDeletedFiles, Volume)
 		Return;
 	EndIf;
 	
-	//  
-	// 
+	// Cannot separate deleted files from files in other areas when separation is enabled 
+	// and the volumes are shared (volumes are not divided into areas).
 	If Common.DataSeparationEnabled() 
 			And (ValueIsFilled(Volume.FullPathLinux) And StrFind(Volume.FullPathLinux, "%z") = 0
 				Or ValueIsFilled(Volume.FullPathWindows) And StrFind(Volume.FullPathWindows, "%z") = 0) Then
@@ -1473,7 +1473,7 @@ Procedure BeforeUpdatingTheFileData(Context) Export
 	FilePropertiesContainer = FileAddingOptions();
 	FilePropertiesContainer.Ref = Context.AttachedFile;
 	FillPropertyValues(FilePropertiesContainer, Context.FileAddingOptions,,"Ref");
-	FilePropertiesContainer.PathToFile = ""; // 
+	FilePropertiesContainer.PathToFile = ""; // Always create a new version in the volume without overwriting the old one.
 	
 	SetSafeModeDisabled(True);
 	AppendFile(FilePropertiesContainer, Context.FileData);
@@ -1524,7 +1524,7 @@ Procedure AfterUpdatingTheFileData(Context, Success) Export
 		ThisIsAnEncryptedFile = Common.HasObjectAttribute("Encrypted", MainFile.Metadata())
 			And Common.ObjectAttributeValue(MainFile, "Encrypted");
 			
-		// 
+		// Always try to delete the old file if it's encrypted (the external transactions is active).
 		//  
 		// See FilesOperationsInternal.WriteEncryptionInformation
 		If ThisIsAnEncryptedFile Or Not TransactionActive() Then
@@ -1544,15 +1544,15 @@ Procedure AfterUpdatingTheFileData(Context, Success) Export
 EndProcedure
 
 // Parameters:
-//  FilesForDeletion - Array of String -  full path to the file.
+//  FilesForDeletion - Array of String - Full file path.
 // 
 // Returns:
 //  Structure:
 //   * Total - Number
 //   * Deleted - Number
 //   * DeletionErrors - Array of Structure:
-//   * Error - String - 
-//   * Name - String -  file name.
+//   * Error - String - Error details.
+//   * Name - String - Filename.
 // 
 Function DeleteVolumesFiles(FilesForDeletion) Export
 	Result = New Structure;
@@ -1643,7 +1643,7 @@ Procedure AddFilesToVolumes(WindowsArchivePath, PathToArchiveLinux) Export
 	
 	For Each ZIPItem In ZipFile.Items Do
 		FullFilePath1 = DirectoryName + "\" + ZIPItem.Name;
-		// For filename generation, See FilesOperationsInternal.WhenSendingAFileCreateTheInitialImage
+		// For filename generation,
 		CatalogUUID = ZIPItem.Name;
 		
 		FilesPathsMap.Insert(CatalogUUID, FullFilePath1);
@@ -1698,8 +1698,8 @@ Procedure AddFilesToVolumesOnPlace(FilesPathsMap, FileStorageType)
 			
 			If FileStorageType = Enums.FileStorageTypes.InInfobase Then
 				
-				// 
-				// 
+				// In the destination, files must be stored within the infobase.
+				// Therefore, save them to the infobase even if originally they are stored in volumes.
 				
 				Object.Volume = Catalogs.FileStorageVolumes.EmptyRef();
 				Object.PathToFile = "";
@@ -1759,7 +1759,7 @@ EndFunction
 
 #Region CleanUpUnusedFiles
 
-// The table constructor containing extraneous files in volumes.
+// Constructor of a table with unreferenced  files in volumes.
 // 
 // Returns:
 //   ValueTable:
@@ -1770,7 +1770,7 @@ EndFunction
 //      * Path               - String
 //      * Volume                - String
 //      * Extension         - String
-//      * CheckStatus     - String - "OK", "UnnecessaryFileInVolume", "NoFileInVolume"
+//      * CheckStatus     - String - "OK", "UnnecessaryFileInVolume", "NoFileInVolume", "FixingPossible"
 //      * Count         - String
 //      * WasEditedBy     - String
 //      * EditDate - String
@@ -1791,6 +1791,7 @@ Function UnnecessaryFilesOnHardDrive() Export
 	FilesTableOnHardDrive.Columns.Add("EditDate");
 
 	FilesTableOnHardDrive.Indexes.Add("FullName");
+	FilesTableOnHardDrive.Indexes.Add("CheckStatus");
 	
 	Return FilesTableOnHardDrive;
 EndFunction
@@ -1934,7 +1935,7 @@ Function ViewStatusChecks(Val CheckStatus) Export
 	If CheckStatus = "OK" Then
 		Return NStr("en = 'Data integrity check passed';");
 	ElsIf CheckStatus = "ExtraFileInTome" Then 
-		Return NStr("en = 'Extraneous files (files in the volume that are not registered in the application)';");
+		Return NStr("en = 'Unreferenced files (files in the volume that have no entries in the application)';");
 	ElsIf CheckStatus = "NoFileInVolume" Then
 		Return NStr("en = 'No files in the volume';");
 	ElsIf CheckStatus = "FixingPossible" Then

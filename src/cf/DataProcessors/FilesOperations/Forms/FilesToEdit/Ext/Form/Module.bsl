@@ -267,7 +267,7 @@ Procedure SetCommandsAvailability()
 	Items.ListContextMenuSaveChanges.Enabled = Enabled;
 	Items.ListContextMenuOpenFileDirectory.Enabled = Enabled;
 	Items.ListContextMenuSaveAs.Enabled = Enabled;
-	Items.ListContextMenuUnlock.Enabled = Enabled;
+	Items.ListContextMenuRelease.Enabled = Enabled;
 	Items.ListContextMenuUpdateFromFileOnHardDrive.Enabled = Enabled;
 	
 EndProcedure

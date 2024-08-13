@@ -251,7 +251,7 @@
 								<xr:LoadTransparent>true</xr:LoadTransparent>
 							</Picture>
 							<FileDragMode>AsFile</FileDragMode>
-							<ContextMenu name="WarningPicture1ContextMenu" id="22"/>
+							<ContextMenu name="WarningPicContextMenu" id="22"/>
 							<ExtendedTooltip name="WarningPicExtendedTooltip" id="41"/>
 						</PictureDecoration>
 						<LabelDecoration name="WarningText" id="23">

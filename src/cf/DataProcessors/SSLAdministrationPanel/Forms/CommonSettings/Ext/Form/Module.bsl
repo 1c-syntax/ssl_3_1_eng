@@ -419,9 +419,17 @@ Procedure UseCloudSignatureServiceOnChange(Item)
 EndProcedure
 
 &AtClient
-Procedure ApplicationTimeZoneOnChange(Item)
+Procedure AppTimeZoneOnChange(Item)
 	
 	AppTimeZoneOnChangeAtServer();
+	
+EndProcedure
+
+&AtClient
+Procedure TimestampServersAddressesStartChoice(Item, ChoiceData, StandardProcessing)
+	
+	StandardProcessing = False;
+	AttachIdleHandler("TimestampServerAddressesStartChoiceFollowUp", 0.1, True);
 	
 EndProcedure
 
@@ -517,6 +525,18 @@ Procedure SetUpSchedule(Command)
 	EndIf;
 EndProcedure
 
+&AtClient
+Procedure TimestampServersDiagnostics(Command)
+	
+	If Not CommonClient.SubsystemExists("StandardSubsystems.DigitalSignature") Then
+		Return;
+	EndIf;
+	
+	ModuleDigitalSignatureInternalClient = CommonClient.CommonModule("DigitalSignatureInternalClient");
+	ModuleDigitalSignatureInternalClient.TimestampServersDiagnostics();
+	
+EndProcedure
+
 #EndRegion
 
 #Region Private
@@ -525,6 +545,15 @@ EndProcedure
 Procedure SetVisibilityWaitHandler()
 	
 	SetVisibilityAtClient("");
+	
+EndProcedure
+
+&AtClient
+Procedure TimestampServerAddressesStartChoiceFollowUp()
+	
+	If CommonClient.SubsystemExists("StandardSubsystems.DigitalSignature") Then
+		TimestampServerAddressesSetDefault();
+	EndIf;
 	
 EndProcedure
 
@@ -564,8 +593,21 @@ Procedure InfobasePublicationURLStartChoiceAtServer(Var_AttributeName, Connectio
 	
 EndProcedure
 
+&AtServer
+Function TimestampServerAddressesSetDefault()
+	
+	If Common.SubsystemExists("StandardSubsystems.DigitalSignature") Then
+		ModuleDigitalSignatureInternal = Common.CommonModule("DigitalSignatureInternal");
+		ConstantTimestampServersAddresses = ModuleDigitalSignatureInternal.TimestampServerAddressesByDefault();
+		OnChangeAttributeServer("TimestampServersAddresses");
+	EndIf;
+	
+	Return "";
+	
+EndFunction
+
 ////////////////////////////////////////////////////////////////////////////////
-// Client
+// Client.
 
 &AtClient
 Procedure Attachable_OnChangeAttribute(Item, ShouldRefreshInterface = True)
@@ -643,7 +685,7 @@ Procedure CheckIfDSSUsageEnabled(SelectionResult, CycleParameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Server call.
 
 &AtServer
 Function OnChangeAttributeServer(TagName)
@@ -657,7 +699,7 @@ Function OnChangeAttributeServer(TagName)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Server
+// Server.
 
 &AtServer
 Function SaveAttributeValue(DataPathAttribute)
@@ -818,7 +860,7 @@ Procedure SettingsSectionPerformance()
 EndProcedure
 
 
-// 
+// Time zones.
 
 &AtServer
 Procedure FillInTimeZones()

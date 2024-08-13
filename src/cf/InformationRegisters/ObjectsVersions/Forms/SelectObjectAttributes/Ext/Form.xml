@@ -96,7 +96,7 @@
 										<v8:content>Select all</v8:content>
 									</v8:item>
 								</Title>
-								<ExtendedTooltip name="FormSelectAllExtendedTooltip" id="29"/>
+								<ExtendedTooltip name="FormCheckAllExtendedTooltip" id="29"/>
 							</Button>
 							<Button name="FormUncheckAll" id="30">
 								<Type>CommandBarButton</Type>
@@ -107,7 +107,7 @@
 										<v8:content>Clear all</v8:content>
 									</v8:item>
 								</Title>
-								<ExtendedTooltip name="FormClearAllExtendedTooltip" id="31"/>
+								<ExtendedTooltip name="FormUncheckAllExtendedTooltip" id="31"/>
 							</Button>
 						</ChildItems>
 					</ButtonGroup>

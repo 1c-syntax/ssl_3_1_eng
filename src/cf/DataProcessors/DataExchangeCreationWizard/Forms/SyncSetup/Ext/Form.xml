@@ -57,7 +57,7 @@
 			<ControlRepresentation>Picture</ControlRepresentation>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="BackupGroup2ExtendedTooltip" id="9"/>
+			<ExtendedTooltip name="GroupBackupPromptExtendedTooltip" id="9"/>
 			<ChildItems>
 				<PictureDecoration name="BackupPictureDecoration" id="10">
 					<Height>2</Height>
@@ -640,7 +640,7 @@ After creation, deploy the infobase from the initial image and run the applicati
 								<Title formatted="false">
 									<v8:item>
 										<v8:lang>en</v8:lang>
-										<v8:content>If accounting is carried out in both applications, before you run the synchronization, map their data. This will help you to avoid duplication of catalog items recorded independently in both applications, for example, items with the same name. Once you specify the mapping, you can import data from the other application.</v8:content>
+										<v8:content>If accounting is carried out in both applications, before you run the synchronization, map their data. This will help you to avoid duplication of catalog items recorded independently in both applications, for example, items with the same name. Once you specify the mapping, you can import data from the other application.</v8:content>
 									</v8:item>
 								</Title>
 							</ExtendedTooltip>

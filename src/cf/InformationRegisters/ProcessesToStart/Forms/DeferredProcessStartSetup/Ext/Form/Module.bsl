@@ -187,7 +187,7 @@ Procedure UpdateTimeSelectionList()
 	DateEmpty = BegOfDay(DeferredStartDate);
 	
 	For Indus = 1 To 48 Do
-		Items.DeferredStartDateTime.ChoiceList.Add(DateEmpty, Format(DateEmpty, NStr("en = 'DF=hh:mm';")));
+		Items.DeferredStartDateTime.ChoiceList.Add(DateEmpty, Format(DateEmpty, NStr("en = 'DF=HH:mm';")));
 		DateEmpty = DateEmpty + 1800;
 	EndDo;
 	

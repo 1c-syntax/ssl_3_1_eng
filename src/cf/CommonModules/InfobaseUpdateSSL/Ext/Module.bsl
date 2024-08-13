@@ -47,7 +47,7 @@
 Procedure OnAddSubsystem(LongDesc) Export
 	
 	LongDesc.Name    = "StandardSubsystems";
-	LongDesc.Version = "3.1.10.146";
+	LongDesc.Version = "3.1.10.271";
 	LongDesc.OnlineSupportID = "SSL";
 	LongDesc.DeferredHandlersExecutionMode = "Parallel";
 	LongDesc.ParallelDeferredUpdateFromVersion = "2.3.3.0";

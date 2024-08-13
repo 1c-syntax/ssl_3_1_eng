@@ -302,8 +302,8 @@ EndFunction
 Procedure OnNoCurrentUserInCatalog(CreateUser) Export
 	
 	If IsSharedIBUser() Then
-		// 
-		// 
+		// Automatically create an item in the "Users" catalog
+		// in the current data area for each shared user.
 		CreateUser = True;
 	EndIf;
 	
@@ -379,8 +379,8 @@ Procedure OnStartIBUserProcessing(ProcessingParameters, IBUserDetails) Export
 	        And UserRegisteredAsShared(
 	              IBUserDetails.UUID) Then
 		
-		// 
-		// 
+		// Skip re-writing the infobase user when writing the "Users" catalog items
+		// that correspond to shared users.
 		ProcessingParameters.Delete("Action");
 		
 		If IBUserDetails.Count() > 2
@@ -599,8 +599,8 @@ Procedure OnDefineUserAlias(UserIdentificator, Alias) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
-// 
+// Event handlers for the "ExportImportData" CTL subsystem
+// (importing and exporting infobase users).
 
 // See ExportImportDataOverridable.OnFillTypesThatRequireRefAnnotationOnImport.
 Procedure OnFillTypesThatRequireRefAnnotationOnImport(Types) Export
@@ -1168,13 +1168,13 @@ Function MessagesSupportedHasRightsToLogIn()
 	ModuleMessagesExchangeTransportSettings = Common.CommonModule(
 		"InformationRegisters.MessageExchangeTransportSettings");
 	
-	SettingsStructure = ModuleMessagesExchangeTransportSettings.TransportSettingsWS(
+	SettingsStructure_ = ModuleMessagesExchangeTransportSettings.TransportSettingsWS(
 		ModuleSaaSOperations.ServiceManagerEndpoint());
 	
 	ConnectionParametersToSM = New Structure;
-	ConnectionParametersToSM.Insert("URL", SettingsStructure.WSWebServiceURL);
-	ConnectionParametersToSM.Insert("UserName", SettingsStructure.WSUserName);
-	ConnectionParametersToSM.Insert("Password", SettingsStructure.WSPassword);
+	ConnectionParametersToSM.Insert("URL", SettingsStructure_.WSWebServiceURL);
+	ConnectionParametersToSM.Insert("UserName", SettingsStructure_.WSUserName);
+	ConnectionParametersToSM.Insert("Password", SettingsStructure_.WSPassword);
 	
 	SupportedVersions = Common.GetInterfaceVersions(ConnectionParametersToSM, "UserHandler");
 	If Not ValueIsFilled(SupportedVersions) Then
@@ -1190,7 +1190,7 @@ EndFunction
 
 #Region SharedIBUsersOperations
 
-// Returns a full name of the internal user to be displayed in interfaces.
+// Returns a full name of the utility user to be displayed in UI.
 //
 // Parameters:
 //  Id - UUID
@@ -1314,29 +1314,34 @@ EndFunction
 //
 Procedure UpdateIBUsersIDs(Val IDsMap)
 	
+	Query = New Query;
+	Query.Text =
+	"SELECT
+	|	Users.Ref AS Ref,
+	|	Users.IBUserID AS IBUserID,
+	|	Users.IBUserID AS ServiceUserID
+	|FROM
+	|	Catalog.Users AS Users";
+	BlankID = New UUID("00000000-0000-0000-0000-000000000000");
+	Block = New DataLock;
+	Block.Add("Catalog.Users");
+	
 	BeginTransaction();
 	Try
-		Block = New DataLock;
-		Block.Add("Catalog.Users");
 		Block.Lock();
-		
-		Query = New Query;
-		Query.Text =
-		"SELECT
-		|	Users.Ref AS Ref,
-		|	Users.IBUserID AS IBUserID
-		|FROM
-		|	Catalog.Users AS Users
-		|WHERE
-		|	Users.IBUserID <> &BlankID";
-		Query.SetParameter("BlankID", New UUID("00000000-0000-0000-0000-000000000000"));
 		Result = Query.Execute();
 		Selection = Result.Select();
 		While Selection.Next() Do
+			NewInformationSecurityUserId = IDsMap[Selection.IBUserID];
+			IDsMap.Delete(Selection.IBUserID);
+			If Selection.IBUserID = BlankID
+			   And Selection.ServiceUserID = BlankID
+			   And Not ValueIsFilled(NewInformationSecurityUserId) Then
+				Continue;
+			EndIf;
 			UserObject = Selection.Ref.GetObject();
 			UserObject.ServiceUserID = Undefined;
-			UserObject.IBUserID 
-				= IDsMap[Selection.IBUserID];
+			UserObject.IBUserID = NewInformationSecurityUserId;
 			If UserObject.IsInternal Then
 				IBUser = InfoBaseUsers.FindByUUID(
 					UserObject.IBUserID);

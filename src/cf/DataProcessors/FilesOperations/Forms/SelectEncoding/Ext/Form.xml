@@ -16,7 +16,7 @@
 						<v8:content>Select</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="FormChooseExtendedTooltip" id="10"/>
+				<ExtendedTooltip name="FormSelectExtendedTooltip" id="10"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>

@@ -74,8 +74,8 @@ EndProcedure
 &AtClient
 Procedure PostInDeveloperMode(Command)
 	
-	Items.TableOfCorrectionObjectsSpendInDeveloperMode.Check 
-		= Not Items.TableOfCorrectionObjectsSpendInDeveloperMode.Check;
+	Items.PatchObjectsTablePostInDeveloperMode.Check 
+		= Not Items.PatchObjectsTablePostInDeveloperMode.Check;
 	
 EndProcedure
 
@@ -103,11 +103,11 @@ Procedure ConditionalFormDesign()
 	ErrorsInRed.Appearance.SetParameterValue("TextColor", WebColors.DarkRed);
 	
 	AppearanceField = ErrorsInRed.Fields.Items.Add();
-	AppearanceField.Field = New DataCompositionField("TableOfCorrectionObjectsObjectWithIssue");
+	AppearanceField.Field = New DataCompositionField("PatchObjectsTableObjectWithIssue");
 	AppearanceField = ErrorsInRed.Fields.Items.Add();
 	AppearanceField.Field = New DataCompositionField("TableOfObjectsOfCorrectionTheResultOfThe");
 	AppearanceField = ErrorsInRed.Fields.Items.Add();
-	AppearanceField.Field = New DataCompositionField("TableOfCorrectionObjectsFailedAttempt");
+	AppearanceField.Field = New DataCompositionField("PatchObjectsTableUnsuccessfulAttempt");
 	
 EndProcedure
 
@@ -155,7 +155,7 @@ Procedure HoldDocumentsOnTheServer(ParametersOfTheEvent)
 			DocumentObject = SelectedRow.ObjectWithIssue.GetObject();
 			If DocumentObject.CheckFilling() Then
 				
-				If Items.TableOfCorrectionObjectsSpendInDeveloperMode.Check Then
+				If Items.PatchObjectsTablePostInDeveloperMode.Check Then
 					
 					DocumentObject.DataExchange.Load = True;
 					

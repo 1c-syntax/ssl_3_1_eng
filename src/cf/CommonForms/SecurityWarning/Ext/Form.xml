@@ -65,12 +65,12 @@
 and data processors from the &lt;b&gt;File - &lt;/&gt;&lt;b&gt;Open&lt;/&gt; menu.
 External report or data processor files from 
 untrusted sources
-can be harmful to your computer and application data.
+can be harmful to your computer and data.
 
 Instead of opening external reports and data processors, it is recommended that you use 
-&lt;link e1cib/list/Guide.Additional reportsreferences&gt;additional&lt;/&gt;&lt;link e1cib/list/Guide.Additional reportsreferences&gt; reports&lt;/&gt;&lt;link e1cib/list/Guide.Additional reportsreferences&gt; and data processors&lt;/&gt; and &lt;link e1cib/app/General form.Extensions&gt;extensions&lt;/&gt; from trusted sources.
+&lt;link e1cib/list/Guide.Additional reportsreferences&gt;additional reports and data processors&lt;/&gt; and &lt;link e1cib/app/General form.Extensions&gt;extensions&lt;/&gt; from trusted sources.
 
-See also: &lt;link http://1c.ru/news/info.jsp?id=21537&gt;Example of a virus in an external data processor&lt;/&gt;.</v8:content>
+See also: &lt;link http://1c.ru/news/info.jsp?id=21537&gt;Example of a virus in an external data processor (in Russian)&lt;/&gt;.</v8:content>
 								</v8:item>
 							</Title>
 							<ContextMenu name="Label1ContextMenu" id="43"/>
@@ -128,15 +128,10 @@ See also: &lt;link http://1c.ru/news/info.jsp?id=21537&gt;Example of a virus in 
 							<Title formatted="true">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>In access right settings, you are authorized to open files of external reports
-and data processors from the &lt;b&gt;File — &lt;/&gt;&lt;b&gt;Open&lt;/&gt; menu.
-You are encouraged to pay attention to the file sources.
-Do not open files from untrusted sources.
+									<v8:content>Based on your access rights, you can open files of external reports and data processors from the &lt;b&gt;File — &lt;/&gt;&lt;b&gt;Open&lt;/&gt; menu.
+Be cautious about the file sources.
 
-Such files might be harmful to your computer and application data. 
-
-See also: &lt;link http://1c.ru/news/info.jsp?id=21537&gt;Example of a virus in an external data processor&lt;/&gt; (in Russian).
-</v8:content>
+Do not open files from untrusted sources, as they might harm your computer and application data.</v8:content>
 								</v8:item>
 							</Title>
 							<ContextMenu name="Label2ContextMenu" id="56"/>
@@ -185,12 +180,9 @@ See also: &lt;link http://1c.ru/news/info.jsp?id=21537&gt;Example of a virus in 
 								<v8:item>
 									<v8:lang>en</v8:lang>
 									<v8:content>When attaching an additional report or data processor, 
-pay attention to their sources.
-If you are not sure that the file was obtained from a trusted source,
-refrain from attaching it.
-
-See also: &lt;link http://1c.ru/news/info.jsp?id=21537&gt;Example of a virus in an external data processor&lt;/&gt; (in Russian).
-</v8:content>
+pay attention to its source.
+If you are not sure that the file came from a trusted source,
+do not attach it.</v8:content>
 								</v8:item>
 							</Title>
 							<ContextMenu name="Label3ContextMenu" id="71"/>
@@ -243,11 +235,8 @@ See also: &lt;link http://1c.ru/news/info.jsp?id=21537&gt;Example of a virus in 
 									<v8:lang>en</v8:lang>
 									<v8:content>When attaching configuration extensions, 
 pay attention to their sources.
-If you are not sure the extension file was obtained from a trusted source, 
-refrain from attaching it.
-
-
-See also: &lt;link http://1c.ru/news/info.jsp?id=21537&gt;Example of a virus in an external data processor&lt;/&gt; (in Russian).</v8:content>
+If you are not sure the extension file came from a trusted source, 
+do not attach it.</v8:content>
 								</v8:item>
 							</Title>
 							<ContextMenu name="Label4ContextMenu" id="27"/>
@@ -306,11 +295,8 @@ See also: &lt;link http://1c.ru/news/info.jsp?id=21537&gt;Example of a virus in 
 									<v8:lang>en</v8:lang>
 									<v8:content>When installing configuration updates, 
 pay attention to their sources.
-If you are not sure the update file was obtained from a trusted source,
-refrain from installing this update.
-
-
-See also: &lt;link http://1c.ru/news/info.jsp?id=21537&gt;Example of a virus in an external data processor&lt;/&gt; (in Russian).</v8:content>
+If you are not sure the update file came from a trusted source,
+do not install it.</v8:content>
 								</v8:item>
 							</Title>
 							<ContextMenu name="Label7ContextMenu" id="156"/>
@@ -361,12 +347,10 @@ See also: &lt;link http://1c.ru/news/info.jsp?id=21537&gt;Example of a virus in 
 							<Title formatted="true">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>The selected role allows opening files of external reports and data processors
-using the &lt;b&gt;File — &lt;/&gt;&lt;b&gt;Open&lt;/&gt; menu. When opening these files, pay attention to their sources
-and refrain from opening the external report or data processor files obtained from unsafe sources.
+									<v8:content>The selected role allows opening files of external reports and data processors using the &lt;b&gt;File — &lt;/&gt;&lt;b&gt;Open&lt;/&gt; menu.
+Always check the sources of these files.
 
-Otherwise, such files might harm your computer and damage your application data.
-See also: &lt;link http://1c.ru/news/info.jsp?id=21537&gt;Example of a virus in an external data processor&lt;/&gt; (in Russian).</v8:content>
+Do not open files from untrusted sources, as they might harm your computer and compromise your application data.</v8:content>
 								</v8:item>
 							</Title>
 							<ContextMenu name="Label5ContextMenu" id="111"/>
@@ -418,11 +402,9 @@ See also: &lt;link http://1c.ru/news/info.jsp?id=21537&gt;Example of a virus in 
 								<v8:item>
 									<v8:lang>en</v8:lang>
 									<v8:content>Disabling this option will allow adding potentially harmful files to the application.
-When adding these files, it is important to pay attention to their sources
-and refrain from adding files obtained from untrusted sources.
+Always check the sources of these files.
 
-Such files might harm your users' computers.
-See also: &lt;link http://1c.ru/news/info.jsp?id=21537&gt;Example of a virus in an external data processor&lt;/&gt; (in Russian).</v8:content>
+Do not open files from untrusted sources, as they might harm your users' computers.</v8:content>
 								</v8:item>
 							</Title>
 							<ContextMenu name="Label6ContextMenu" id="127"/>
@@ -486,8 +468,7 @@ See also: &lt;link http://1c.ru/news/info.jsp?id=21537&gt;Example of a virus in 
 									<v8:content>This file contains potentially harmful executable code.
 It is recommended that you open files obtained from trusted sources only.
 
-Files obtained from untrusted sources might harm your computer.
-See also: &lt;link http://1c.ru/news/info.jsp?id=21537&gt;Example of a virus in an external data processor&lt;/&gt; (in Russian).</v8:content>
+Files from untrusted sources might harm your computer.</v8:content>
 								</v8:item>
 							</Title>
 							<ContextMenu name="WarningOnOpenFileNoteContextMenu" id="143"/>
@@ -540,11 +521,8 @@ See also: &lt;link http://1c.ru/news/info.jsp?id=21537&gt;Example of a virus in 
 									<v8:lang>en</v8:lang>
 									<v8:content>When attaching add-ins, 
 pay attention to their sources.
-If you are not sure the add-in file was obtained from a trusted source,
-refrain from attaching it.
-
-
-See also: &lt;link http://1c.ru/news/info.jsp?id=21537&gt;Example of a virus in an external data processor&lt;/&gt; (in Russian).</v8:content>
+If you are not sure the add-in file came from a trusted source,
+do not attach it.</v8:content>
 								</v8:item>
 							</Title>
 							<ContextMenu name="WarningOnAddAddInContextMenu" id="169"/>
@@ -606,9 +584,9 @@ Settings made (for example, report options) will be lost.</v8:content>
 								<Title formatted="true">
 									<v8:item>
 										<v8:lang>en</v8:lang>
-										<v8:content>
-• To update an extension, click &lt;b&gt;Update&lt;/&gt; instead of deleting and adding it.
-• To temporarily disable an extension, clear the &lt;b&gt;Attach the extension when a user logs in&lt;/&gt; checkbox.</v8:content>
+										<v8:content>If you need to:
+• Update an extension, click &lt;b&gt;Update from file…&lt;/&gt; instead of deleting and adding it.
+• Temporarily disable an extension, clear the &lt;b&gt;Attach the extension when a user signs in&lt;/&gt; check box.</v8:content>
 									</v8:item>
 								</Title>
 							</ExtendedTooltip>
@@ -711,9 +689,9 @@ before deleting the extension.</v8:content>
 									<v8:item>
 										<v8:lang>en</v8:lang>
 										<v8:content>Read the extension documentation available from the extension provider.
-
-• To update an extension, click &lt;b&gt;Update&lt;/&gt; instead of deleting and adding it again.
-• To temporarily disable an extension, clear the &lt;b&gt;Attach the extension when a user logs in&lt;/&gt; checkbox.</v8:content>
+If you need to 
+update an extension, click &lt;b&gt;Update from file…&lt;/&gt; instead of deleting and adding it again.
+If you need to temporarily disable an extension, clear the &lt;b&gt;Attach the extension when a user signs in&lt;/&gt; check box.</v8:content>
 									</v8:item>
 								</Title>
 							</ExtendedTooltip>
@@ -1026,19 +1004,8 @@ If you detach the extension, the data will become unavailable, and some app data
 			</Type>
 			<KeyParameter>true</KeyParameter>
 		</Parameter>
-		<Parameter name="FileName">
-			<Type>
-				<v8:Type>xs:string</v8:Type>
-				<v8:StringQualifiers>
-					<v8:Length>0</v8:Length>
-					<v8:AllowedLength>Variable</v8:AllowedLength>
-				</v8:StringQualifiers>
-			</Type>
-		</Parameter>
-		<Parameter name="MultipleChoice">
-			<Type>
-				<v8:Type>xs:boolean</v8:Type>
-			</Type>
+		<Parameter name="AdditionalParameter">
+			<Type/>
 		</Parameter>
 	</Parameters>
 </Form>

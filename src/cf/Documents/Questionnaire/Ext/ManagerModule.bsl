@@ -34,6 +34,38 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
+// StandardSubsystems.AccessManagement
+
+// Parameters:
+//   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
+//
+Procedure OnFillAccessRestriction(Restriction) Export
+
+	Restriction.Text =
+	"AllowReadUpdate
+	|WHERE
+	|	IsAuthorizedUser(Respondent)
+	|	OR IsAuthorizedUser(Interviewer)";
+	
+	Restriction.TextForExternalUsers1 =
+	"AttachAdditionalTables
+	|ThisList AS Questionnaire
+	|
+	|LEFT JOIN Catalog.ExternalUsers AS ExternalUsersRespondent
+	|	ON ExternalUsersRespondent.AuthorizationObject = Questionnaire.Respondent
+	|
+	|LEFT JOIN Catalog.ExternalUsers AS ExternalUsersInterviewer
+	|	ON ExternalUsersInterviewer.AuthorizationObject = Questionnaire.Interviewer
+	|;
+	|AllowReadUpdate
+	|WHERE
+	|	IsAuthorizedUser(ExternalUsersRespondent.Ref)
+	|	OR IsAuthorizedUser(ExternalUsersInterviewer.Ref)";
+	
+EndProcedure
+
+// End StandardSubsystems.AccessManagement
+
 #EndRegion
 
 #EndRegion

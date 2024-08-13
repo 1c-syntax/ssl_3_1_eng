@@ -10,7 +10,7 @@
 	<UseForFoldersAndItems>Items</UseForFoldersAndItems>
 	<AutoCommandBar name="FormCommandBar" id="-1">
 		<ChildItems>
-			<Button name="FormCheckTemplate" id="16">
+			<Button name="FormCheckTemplateFilling" id="16">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Command.CheckTemplateFilling</CommandName>
 				<Title>
@@ -19,7 +19,7 @@
 						<v8:content>Validate</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="FormCheckTemplateExtendedTooltip" id="17"/>
+				<ExtendedTooltip name="FormCheckTemplateFillingExtendedTooltip" id="17"/>
 			</Button>
 			<Popup name="FormEmailTextKind" id="163">
 				<Title>
@@ -70,7 +70,7 @@
 				</Title>
 				<ExtendedTooltip name="FormMessageToGenerateGroupExtendedTooltip" id="175"/>
 				<ChildItems>
-					<Button name="FormFromTemplate1" id="176">
+					<Button name="FormFromTemplate" id="176">
 						<Type>CommandBarButton</Type>
 						<Check>true</Check>
 						<CommandName>Form.Command.FromTemplate</CommandName>
@@ -208,7 +208,7 @@
 											<v8:content>HTML</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="EmailMessageHTMLExtendedTooltip" id="43"/>
+									<ExtendedTooltip name="MessageEmailHTMLExtendedTooltip" id="43"/>
 									<ChildItems>
 										<CommandBar name="CommandBarEmailsInHTMLGroup" id="75">
 											<Title>
@@ -244,7 +244,7 @@
 											<v8:content>Mail message</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="EmailMessageExtendedTooltip" id="156"/>
+									<ExtendedTooltip name="MessageEmailExtendedTooltip" id="156"/>
 									<ChildItems>
 										<TextDocumentField name="MessageBodyPlainText" id="186">
 											<DataPath>MessageBodyPlainText</DataPath>
@@ -455,7 +455,7 @@
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="ParametersGroupExtendedTooltip" id="53"/>
+					<ExtendedTooltip name="GroupParametersExtendedTooltip" id="53"/>
 					<ChildItems>
 						<UsualGroup name="AssignmentGroup" id="344" DisplayImportance="Usual">
 							<Title>
@@ -721,7 +721,7 @@
 										</Title>
 										<ExtendedTooltip name="AttributesContextMenuAddMailParameterExtendedTooltip" id="279"/>
 										<ChildItems>
-											<Button name="AttributesContextMenuAddParameterToMessageText1" id="257">
+											<Button name="AttributesContextMenuAddParameterToMessageText" id="257">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.AddParameterToMessageText</CommandName>
 												<Title>

@@ -261,14 +261,13 @@ EndFunction
 
 &AtServer
 Procedure ConvertDependenciesInList(Table, Filter)
-	FoundRows = Table.FindRows(Filter);
-	For Each String In FoundRows Do
-		For Each Item In String.Value Do
+	For Each TableRow In Table.FindRows(Filter) Do
+		For Each Item In TableRow.Value Do
 			NewRow = Table.Add();
-			FillPropertyValues(NewRow, String);
+			FillPropertyValues(NewRow, TableRow);
 			NewRow.Value = Item.Value;
 		EndDo;
-		Table.Delete(String);
+		Table.Delete(TableRow);
 	EndDo;
 EndProcedure
 
@@ -288,7 +287,7 @@ Function ListOfAttributesToFilter(FullMetadataObjectName, AdditionalAttributesSe
 		ObjectProperties = Common.ObjectAttributesValues(AdditionalAttribute.Property, "Title, ValueType", , CurrentLanguage().LanguageCode);
 		StringAttribute = ObjectAttributes.Add();
 		StringAttribute.Attribute = AdditionalAttribute.Property;
-		StringAttribute.Presentation = ObjectProperties.Title;
+		StringAttribute.Presentation = String(AdditionalAttribute.Property);
 		StringAttribute.PictureNumber  = 2;
 		StringAttribute.ValueType = ObjectProperties.ValueType;
 	EndDo;
@@ -368,7 +367,7 @@ Procedure SetConditionalAppearance()
 	
 	ComparisonValues = New ValueList;
 	ComparisonValues.Add("Filled");
-	ComparisonValues.Add("NotFilled"); // 
+	ComparisonValues.Add("NotFilled"); // An exception. It's an ID.
 	
 	DataFilterItem = ConditionalAppearanceItem.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	DataFilterItem.LeftValue  = New DataCompositionField("AttributesDependencies.Condition");

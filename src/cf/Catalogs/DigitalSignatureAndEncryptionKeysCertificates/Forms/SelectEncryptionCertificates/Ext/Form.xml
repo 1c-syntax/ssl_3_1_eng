@@ -30,7 +30,7 @@
 			<Group>Vertical</Group>
 			<Behavior>Usual</Behavior>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="ListSettingsComposerUserSettingsExtendedTooltip" id="2"/>
+			<ExtendedTooltip name="SettingsComposerUserSettingsListExtendedTooltip" id="2"/>
 		</UsualGroup>
 		<UsualGroup name="HorizontalGroup" id="80">
 			<Title>
@@ -109,7 +109,7 @@
 					<Representation>Text</Representation>
 					<DefaultButton>true</DefaultButton>
 					<CommandName>Form.StandardCommand.Choose</CommandName>
-					<ExtendedTooltip name="FormChooseExtendedTooltip" id="43"/>
+					<ExtendedTooltip name="FormSelectExtendedTooltip" id="43"/>
 				</Button>
 				<Popup name="FormSubmenuAdd" id="46">
 					<Title>
@@ -172,7 +172,7 @@
 				<Button name="FormFindByCurrentValue" id="54">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.StandardCommand.FindByCurrentValue</CommandName>
-					<ExtendedTooltip name="FormSearchByCurrentValueExtendedTooltip" id="55"/>
+					<ExtendedTooltip name="FormFindByCurrentValueExtendedTooltip" id="55"/>
 				</Button>
 				<Button name="FormFind" id="56">
 					<Type>CommandBarButton</Type>
@@ -192,7 +192,7 @@
 				<Button name="FormLoadDynamicListSettings" id="62">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.StandardCommand.LoadDynamicListSettings</CommandName>
-					<ExtendedTooltip name="FormImportDynamicListSettingsExtendedTooltip" id="63"/>
+					<ExtendedTooltip name="FormLoadDynamicListSettingsExtendedTooltip" id="63"/>
 				</Button>
 				<Button name="FormSaveDynamicListSettings" id="64">
 					<Type>CommandBarButton</Type>
@@ -329,32 +329,33 @@
 				<Autofill>false</Autofill>
 			</AutoCommandBar>
 			<ExtendedTooltip name="ListExtendedTooltip" id="6"/>
-			<SearchStringAddition name="ListSearchString_SSLy" id="7">
+			<SearchStringAddition name="ListSearchString" id="7">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchStringRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchString_SSLyContextMenu" id="10"/>
-				<ExtendedTooltip name="ListSearchString_SSLyExtendedTooltip" id="11"/>
+				<ContextMenu name="ListSearchStringContextMenu" id="10"/>
+				<ExtendedTooltip name="ListSearchStringExtendedTooltip" id="11"/>
 			</SearchStringAddition>
-			<ViewStatusAddition name="ListViewStatus_SSLy" id="12">
+			<ViewStatusAddition name="ListViewStatus" id="12">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>ViewStatusRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListViewStatus_SSLyContextMenu" id="15"/>
-				<ExtendedTooltip name="ListViewStatus_SSLyExtendedTooltip" id="16"/>
+				<ContextMenu name="ListViewStatusContextMenu" id="15"/>
+				<ExtendedTooltip name="ListViewStatusExtendedTooltip" id="16"/>
 			</ViewStatusAddition>
-			<SearchControlAddition name="ListSearchControl_SSLy" id="17">
+			<SearchControlAddition name="ListSearchControl" id="17">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchControl</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchControl_SSLyContextMenu" id="20"/>
-				<ExtendedTooltip name="ListSearchControl_SSLyExtendedTooltip" id="21"/>
+				<ContextMenu name="ListSearchControlContextMenu" id="20"/>
+				<ExtendedTooltip name="ListSearchControlExtendedTooltip" id="21"/>
 			</SearchControlAddition>
 			<Events>
 				<Event name="BeforeAddRow">ListBeforeAddRow</Event>
+				<Event name="OnActivateRow">ListOnActivateRow</Event>
 			</Events>
 			<ChildItems>
 				<LabelField name="Description" id="25">
@@ -367,8 +368,8 @@
 				<LabelField name="Firm" id="28">
 					<DataPath>List.Firm</DataPath>
 					<Width>15</Width>
-					<ContextMenu name="CompanyContextMenu" id="29"/>
-					<ExtendedTooltip name="CompanyExtendedTooltip" id="30"/>
+					<ContextMenu name="FirmContextMenu" id="29"/>
+					<ExtendedTooltip name="FirmExtendedTooltip" id="30"/>
 				</LabelField>
 				<LabelField name="User" id="37">
 					<DataPath>List.User</DataPath>

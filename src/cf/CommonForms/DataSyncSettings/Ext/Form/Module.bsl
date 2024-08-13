@@ -94,14 +94,14 @@ Procedure ApplicationsListSelection(Item, RowSelected, Field, StandardProcessing
 	
 	If Field.Name = "ApplicationsListExportStatePicture"
 		Or Field.Name = "ApplicationsListLastSuccessfulExportDatePresentation"
-		Or Field.Name = "ApplicationsListSendingAWarning"
+		Or Field.Name = "ApplicationsListSendWarning"
 		Then
 		
 		RunACommandWithAPreliminaryCheck("OpenTheResultsOfSynchronizationOfTheUploadEvent");
 		
 	ElsIf Field.Name = "ApplicationsListImportStatePicture"
 		Or Field.Name = "ApplicationsListLastSuccessfulImportDatePresentation"
-		Or Field.Name = "ApplicationsListGettingAWarning"
+		Or Field.Name = "ApplicationsListGetWarning"
 		Then
 		
 		RunACommandWithAPreliminaryCheck("OpenTheResultsOfSynchronizationOfTheDownloadEvent");
@@ -1245,7 +1245,7 @@ Procedure OpenTheFormWaitingForTheEndOfTheConfiguration(BackgroundTaskSettings, 
 EndProcedure
 
 &AtClient
-Procedure RebootWarningDescriptionURLProcessing(Item, FormattedStringURL, StandardProcessing)
+Procedure RestartWarningDetailsURLProcessing(Item, FormattedStringURL, StandardProcessing)
 	
 	StandardProcessing = False;
 	Exit(False, True);
@@ -1536,7 +1536,7 @@ Procedure SetConditionalAppearance()
 	Item = ConditionalAppearance.Items.Add();
 	
 	ItemField = Item.Fields.Items.Add();
-	ItemField.Field = New DataCompositionField(Items.ApplicationsListStatePresentation1.Name);
+	ItemField.Field = New DataCompositionField(Items.ApplicationsListStatePresentation.Name);
 	
 	CommonClientServer.AddCompositionItem(Item.Filter, "ApplicationsList.StatePresentation", DataCompositionComparisonType.Equal, NStr("en = 'Not started yet';"));
 	Item.Appearance.SetParameterValue("TextColor", StyleColors.InaccessibleCellTextColor);
@@ -1545,7 +1545,7 @@ Procedure SetConditionalAppearance()
 	Item = ConditionalAppearance.Items.Add();
 	
 	ItemField = Item.Fields.Items.Add();
-	ItemField.Field = New DataCompositionField(Items.ApplicationsListStatePresentation1.Name);
+	ItemField.Field = New DataCompositionField(Items.ApplicationsListStatePresentation.Name);
 	
 	CommonClientServer.AddCompositionItem(Item.Filter, "ApplicationsList.StatePresentation", DataCompositionComparisonType.Equal, NStr("en = 'Setup pending';"));
 	Item.Appearance.SetParameterValue("TextColor", WebColors.DarkRed);
@@ -1566,7 +1566,7 @@ Procedure SetConditionalAppearance()
 	Item = ConditionalAppearance.Items.Add();
 	
 	ItemField = Item.Fields.Items.Add();
-	ItemField.Field = New DataCompositionField(Items.ApplicationsListStatePicture1.Name);
+	ItemField.Field = New DataCompositionField(Items.ApplicationsListStatePicture.Name);
 	
 	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	ItemFilter.LeftValue = New DataCompositionField("ApplicationsList.StatePicture");
@@ -1608,7 +1608,7 @@ Procedure SetConditionalAppearance()
 	ItemField.Field = New DataCompositionField(Items.ApplicationsList.Name);
 	
 	ItemField = Item.Fields.Items.Add();
-	ItemField.Field = New DataCompositionField(Items.ApplicationsListStatePresentation1.Name);
+	ItemField.Field = New DataCompositionField(Items.ApplicationsListStatePresentation.Name);
 		
 	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	ItemFilter.LeftValue = New DataCompositionField("ApplicationsList.SynchronizationIsUnavailable");
@@ -1819,7 +1819,7 @@ Procedure RefreshApplicationsList(UpdateSaaSApplications = False)
 			EndIf;
 		Else
 			
-			// 
+			// To free up the UI, hide "Never" if syncing has never been performed.
 			// 
 			ApplicationRow.LastSuccessfulExportDatePresentation = "";
 			ApplicationRow.LastSuccessfulImportDatePresentation = "";

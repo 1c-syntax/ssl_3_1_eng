@@ -38,7 +38,7 @@
 							<v8:content>Wait page</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="WaitPageExtendedTooltip" id="26"/>
+					<ExtendedTooltip name="PageWaitExtendedTooltip" id="26"/>
 					<ChildItems>
 						<UsualGroup name="Group1" id="27">
 							<Title>
@@ -220,7 +220,7 @@ Please wait…</v8:content>
 																	<v8:content>Enable</v8:content>
 																</v8:item>
 															</Title>
-															<ExtendedTooltip name="EnableOnlineSupport1ExtendedTooltip" id="66"/>
+															<ExtendedTooltip name="EnableOnlineSupportExtendedTooltip" id="66"/>
 														</Button>
 													</ChildItems>
 												</UsualGroup>
@@ -422,7 +422,7 @@ For details, see the &lt;link v8config://3cb7df0b-dc9c-4ab0-8981-61aa499325da/Op
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Enable online user support</v8:content>
+					<v8:content>Enable online support</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>EnableOnlineSupport</Action>

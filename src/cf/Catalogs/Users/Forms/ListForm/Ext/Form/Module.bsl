@@ -9,9 +9,9 @@
 //
 
 ////////////////////////////////////////////////////////////////////////////////
-//                          
+//                          FORM USAGE                                         //
 //
-//  See UsersOverridable.OnDefineUsersSelectionForm
+// Description of the parameters See UsersOverridable.OnDefineUsersSelectionForm
 //
 
 #Region Variables
@@ -54,7 +54,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			DataCompositionSettingsItemViewMode.Normal);
 	EndIf;
 	
-	// If the parameter value is True, hiding users with empty IDs.
+	// If the parameter value is True, hide users with empty IDs.
 	If Parameters.HideUsersWithoutMatchingIBUsers Then
 		CommonClientServer.SetDynamicListFilterItem(
 			UsersList,
@@ -63,7 +63,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			DataCompositionComparisonType.NotEqual);
 	EndIf;
 	
-	// Hiding internal users.
+	// Hide utility users.
 	If Users.IsFullUser() Then
 		CommonClientServer.SetDynamicListFilterItem(
 			UsersList, "IsInternal", False, , , True,
@@ -259,7 +259,7 @@ Procedure SelectHierarchyOnChange(Item)
 EndProcedure
 
 &AtClient
-Procedure ShowInvalidUsers1OnChange(Item)
+Procedure ShowInvalidUsersOnChange(Item)
 	ToggleInvalidUsersVisibility(ShowInvalidUsers);
 EndProcedure
 
@@ -354,14 +354,14 @@ EndProcedure
 #Region FormTableItemsEventHandlersUserGroups
 
 &AtClient
-Procedure UsersGroupsOnChange(Item)
+Procedure UserGroupsOnChange(Item)
 	
 	ListOnChangeAtServer();
 	
 EndProcedure
 
 &AtClient
-Procedure UsersGroupsSelection(Item, RowSelected, Field, StandardProcessing)
+Procedure UserGroupsSelection(Item, RowSelected, Field, StandardProcessing)
 	
 	If Not Parameters.ChoiceMode
 	 Or Items.UserGroups.ChoiceMode Then
@@ -377,14 +377,14 @@ Procedure UsersGroupsSelection(Item, RowSelected, Field, StandardProcessing)
 EndProcedure
 
 &AtClient
-Procedure UsersGroupsOnActivateRow(Item)
+Procedure UserGroupsOnActivateRow(Item)
 	
 	AttachIdleHandler("UserGroupsAfterActivateRow", 0.1, True);
 	
 EndProcedure
 
 &AtClient
-Procedure UsersGroupsValueChoice(Item, Value, StandardProcessing)
+Procedure UserGroupsValueChoice(Item, Value, StandardProcessing)
 	
 	StandardProcessing = False;
 	
@@ -397,7 +397,7 @@ Procedure UsersGroupsValueChoice(Item, Value, StandardProcessing)
 EndProcedure
 
 &AtClient
-Procedure UsersGroupsBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group)
+Procedure UserGroupsBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group)
 	
 	If Not Copy Then
 		Cancel = True;
@@ -418,7 +418,7 @@ Procedure UsersGroupsBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group)
 EndProcedure
 
 &AtClient
-Procedure UsersGroupsDrag(Item, DragParameters, StandardProcessing, String, Field)
+Procedure UserGroupsDrag(Item, DragParameters, StandardProcessing, String, Field)
 	
 	StandardProcessing = False;
 	
@@ -521,13 +521,13 @@ Procedure UsersGroupsDrag(Item, DragParameters, StandardProcessing, String, Fiel
 	AdditionalParameters.Insert("String", String);
 	AdditionalParameters.Insert("Move", Move);
 	
-	Notification = New NotifyDescription("UsersGroupsDragCompletion", ThisObject, AdditionalParameters);
+	Notification = New NotifyDescription("UserGroupsDragCompletion", ThisObject, AdditionalParameters);
 	ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo, 60, DialogReturnCode.Yes);
 	
 EndProcedure
 
 &AtClient
-Procedure UsersGroupsDragCheck(Item, DragParameters, StandardProcessing, String, Field)
+Procedure UserGroupsDragCheck(Item, DragParameters, StandardProcessing, String, Field)
 	
 	If Items.UserGroups.ReadOnly Then
 		DragParameters.AllowedActions = DragAllowedActions.DontProcess;
@@ -777,7 +777,7 @@ Procedure UsersInfo(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Support of batch object change.
 
 &AtClient
 Procedure ChangeSelectedItems(Command)
@@ -1333,8 +1333,8 @@ Procedure ConfigureUserGroupsUsageForm(GroupUsageChanged = False,
 	
 	RefreshFormContentOnGroupChange(ThisObject);
 	
-	// 
-	// 
+	// Force-update the visibility after the functional option changed
+	// without employing the "RefreshInterface" command.
 	Items.UserGroups.Visible = False;
 	Items.UserGroups.Visible = True;
 	
@@ -1389,7 +1389,7 @@ EndFunction
 //    * Move - Boolean
 //
 &AtClient
-Procedure UsersGroupsDragCompletion(Response, AdditionalParameters) Export
+Procedure UserGroupsDragCompletion(Response, AdditionalParameters) Export
 	
 	If Response = DialogReturnCode.No Then
 		Return;
@@ -1490,7 +1490,7 @@ Procedure ListOnChangeAtServer()
 	
 EndProcedure
 
-// Standard subsystems.Pluggable commands
+// StandardSubsystems.AttachableCommands
 
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)

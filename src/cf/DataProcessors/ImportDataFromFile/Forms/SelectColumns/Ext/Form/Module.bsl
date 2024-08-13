@@ -22,12 +22,12 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 &AtClient
-Procedure ColumnsList1Selection(Item, RowSelected, Field, StandardProcessing)
+Procedure ColumnsListSelection(Item, RowSelected, Field, StandardProcessing)
 	ColumnsList.FindByID(RowSelected).Check = Not ColumnsList.FindByID(RowSelected).Check;
 EndProcedure
 
 &AtClient
-Procedure ColumnsList1OnStartEdit(Item, NewRow, Copy)
+Procedure ColumnsListOnStartEdit(Item, NewRow, Copy)
 	String = ColumnsList.FindByID(Items.ColumnsList.CurrentRow);
 	If StrStartsWith(String.Value, "ContactInformation_") Then
 		For Each ColumnInformation In ColumnsList Do

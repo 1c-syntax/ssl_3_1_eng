@@ -63,15 +63,15 @@ EndFunction
 //   ValueTable:
 //   * ProgramModuleType - CatalogRef.MetadataObjectIDs
 //   * ModuleID - UUID
-//   * Type - String -  name of the XDTO type that describes permissions.
+//   * Type - String - Name of the XDTO type that describes permissions.
 //   * Permissions - Map of KeyAndValue:
 //       ** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
-//       ** Value - XDTODataObject -  XDTO - description of the permission.
-//   * PermissionsAdditions - Map of KeyAndValue - :
+//       ** Value - XDTODataObject - XDTO permission details.
+//   * PermissionsAdditions - Map of KeyAndValue - Describes permission additions:
 //       ** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
 //       ** Value - See InformationRegister.PermissionsToUseExternalResources.PermissionAddition
 //
-Function NewPermissionSlice() Export
+Function NewPermissionsSlice() Export
 	
 	Result = New ValueTable();
 	
@@ -91,17 +91,17 @@ EndFunction
 //   * ModuleID - UUID
 //   * OwnerType - CatalogRef.MetadataObjectIDs
 //   * OwnerID - UUID
-//   * Type - String -  name of the XDTO type that describes permissions.
+//   * Type - String - Name of the XDTO type that describes permissions.
 //   * Permissions - Map of KeyAndValue:
 //       ** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
-//       ** Value - XDTODataObject -  XDTO - description of the permission.
-//   * PermissionsAdditions - Map of KeyAndValue - :
+//       ** Value - XDTODataObject - Permission details in XDTO format.
+//   * PermissionsAdditions - Map of KeyAndValue - Describes permission additions:
 //       ** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
 //       ** Value - See InformationRegister.PermissionsToUseExternalResources.PermissionAddition
 //
-Function NewSectionOfPermissionsInSectionOfOwners() Export
+Function NewPermissionsSliceByOwner() Export
 	
-	Result = NewPermissionSlice();
+	Result = NewPermissionsSlice();
 	
 	Result.Columns.Add("OwnerType", New TypeDescription("CatalogRef.MetadataObjectIDs"));
 	Result.Columns.Add("OwnerID", New TypeDescription("UUID"));
@@ -133,7 +133,7 @@ EndFunction
 //
 Function PermissionsSlice(Val ByOwners = True, Val NoDetails1 = False) Export
 	
-	Result = ?(ByOwners, NewSectionOfPermissionsInSectionOfOwners(), NewPermissionSlice());
+	Result = ?(ByOwners, NewPermissionsSliceByOwner(), NewPermissionsSlice());
 
 	Selection = Select();
 	

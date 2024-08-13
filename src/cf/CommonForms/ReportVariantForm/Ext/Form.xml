@@ -54,36 +54,36 @@
 					<v8:content>Settings table</v8:content>
 				</v8:item>
 			</Title>
-			<ContextMenu name="SettingsComposerSettingsContextMenu" id="2"/>
+			<ContextMenu name="SettingSettingsComposerContextMenu" id="2"/>
 			<AutoCommandBar name="SettingSettingsComposerCommandBar" id="3"/>
 			<ExtendedTooltip name="SettingSettingsComposerExtendedTooltip" id="130"/>
-			<SearchStringAddition name="SettingsComposerSettingsSearchString" id="201">
+			<SearchStringAddition name="SettingSettingsComposerSearchString" id="201">
 				<AdditionSource>
 					<Item>SettingSettingsComposer</Item>
 					<Type>SearchStringRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="SettingsComposerSettingsSearchStringContextMenu" id="202"/>
-				<ExtendedTooltip name="SettingsComposerSettingsSearchStringExtendedTooltip" id="203"/>
+				<ContextMenu name="SettingSettingsComposerSearchStringContextMenu" id="202"/>
+				<ExtendedTooltip name="SettingSettingsComposerSearchStringExtendedTooltip" id="203"/>
 			</SearchStringAddition>
-			<ViewStatusAddition name="SettingsComposerSettingsViewStatus" id="204">
+			<ViewStatusAddition name="SettingSettingsComposerViewStatus" id="204">
 				<AdditionSource>
 					<Item>SettingSettingsComposer</Item>
 					<Type>ViewStatusRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="SettingsComposerSettingsViewStatusContextMenu" id="205"/>
-				<ExtendedTooltip name="SettingsComposerSettingsViewStatusExtendedTooltip" id="206"/>
+				<ContextMenu name="SettingSettingsComposerViewStatusContextMenu" id="205"/>
+				<ExtendedTooltip name="SettingSettingsComposerViewStatusExtendedTooltip" id="206"/>
 			</ViewStatusAddition>
-			<SearchControlAddition name="SettingsComposerSettingsSearchControl" id="207">
+			<SearchControlAddition name="SettingSettingsComposerSearchControl" id="207">
 				<AdditionSource>
 					<Item>SettingSettingsComposer</Item>
 					<Type>SearchControl</Type>
 				</AdditionSource>
-				<ContextMenu name="SettingsComposerSettingsSearchControlContextMenu" id="208"/>
-				<ExtendedTooltip name="SettingsComposerSettingsSearchControlExtendedTooltip" id="209"/>
+				<ContextMenu name="SettingSettingsComposerSearchControlContextMenu" id="208"/>
+				<ExtendedTooltip name="SettingSettingsComposerSearchControlExtendedTooltip" id="209"/>
 			</SearchControlAddition>
 			<Events>
-				<Event name="OnActivateRow">SettingsComposerSettingsOnActivateRow</Event>
-				<Event name="OnActivateField">SettingsComposerSettingsOnActivateField</Event>
+				<Event name="OnActivateRow">SettingSettingsComposerOnActivateRow</Event>
+				<Event name="OnActivateField">SettingSettingsComposerOnActivateField</Event>
 			</Events>
 		</Table>
 		<Pages name="SettingsPages" id="4">
@@ -259,32 +259,32 @@
 													<v8:content>Available fields of grouped fields</v8:content>
 												</v8:item>
 											</Title>
-											<ContextMenu name="SettingsComposerSettingsGroupFieldsGroupFieldsAvailableFieldsContextMenu" id="17"/>
+											<ContextMenu name="SettingsComposerSettingsGroupFieldsAvailableGroupFieldsFieldsContextMenu" id="17"/>
 											<AutoCommandBar name="SettingsComposerSettingsGroupFieldsAvailableGroupFieldsFieldsCommandBar" id="18"/>
 											<ExtendedTooltip name="SettingsComposerSettingsGroupFieldsAvailableGroupFieldsFieldsExtendedTooltip" id="139"/>
-											<SearchStringAddition name="SettingsComposerSettingsGroupFieldsGroupFieldsAvailableFieldsSearchString" id="228">
+											<SearchStringAddition name="SettingsComposerSettingsGroupFieldsAvailableGroupFieldsFieldsSearchString" id="228">
 												<AdditionSource>
 													<Item>SettingsComposerSettingsGroupFieldsAvailableGroupFieldsFields</Item>
 													<Type>SearchStringRepresentation</Type>
 												</AdditionSource>
-												<ContextMenu name="SettingsComposerSettingsGroupFieldsGroupFieldsAvailableFieldsSearchStringContextMenu" id="229"/>
-												<ExtendedTooltip name="SettingsComposerSettingsGroupFieldsGroupFieldsAvailableFieldsSearchStringExtendedTooltip" id="230"/>
+												<ContextMenu name="SettingsComposerSettingsGroupFieldsAvailableGroupFieldsFieldsSearchStringContextMenu" id="229"/>
+												<ExtendedTooltip name="SettingsComposerSettingsGroupFieldsAvailableGroupFieldsFieldsSearchStringExtendedTooltip" id="230"/>
 											</SearchStringAddition>
-											<ViewStatusAddition name="SettingsComposerSettingsGroupFieldsGroupFieldsAvailableFieldsViewStatus" id="231">
+											<ViewStatusAddition name="SettingsComposerSettingsGroupFieldsAvailableGroupFieldsFieldsViewStatus" id="231">
 												<AdditionSource>
 													<Item>SettingsComposerSettingsGroupFieldsAvailableGroupFieldsFields</Item>
 													<Type>ViewStatusRepresentation</Type>
 												</AdditionSource>
-												<ContextMenu name="SettingsComposerSettingsGroupFieldsGroupFieldsAvailableFieldsViewStatusContextMenu" id="232"/>
-												<ExtendedTooltip name="SettingsComposerSettingsGroupFieldsGroupFieldsAvailableFieldsViewStatusExtendedTooltip" id="233"/>
+												<ContextMenu name="SettingsComposerSettingsGroupFieldsAvailableGroupFieldsFieldsViewStatusContextMenu" id="232"/>
+												<ExtendedTooltip name="SettingsComposerSettingsGroupFieldsAvailableGroupFieldsFieldsViewStatusExtendedTooltip" id="233"/>
 											</ViewStatusAddition>
-											<SearchControlAddition name="SettingsComposerSettingsGroupFieldsGroupFieldsAvailableFieldsSearchControl" id="234">
+											<SearchControlAddition name="SettingsComposerSettingsGroupFieldsAvailableGroupFieldsFieldsSearchControl" id="234">
 												<AdditionSource>
 													<Item>SettingsComposerSettingsGroupFieldsAvailableGroupFieldsFields</Item>
 													<Type>SearchControl</Type>
 												</AdditionSource>
-												<ContextMenu name="SettingsComposerSettingsGroupFieldsGroupFieldsAvailableFieldsSearchControlContextMenu" id="235"/>
-												<ExtendedTooltip name="SettingsComposerSettingsGroupFieldsGroupFieldsAvailableFieldsSearchControlExtendedTooltip" id="236"/>
+												<ContextMenu name="SettingsComposerSettingsGroupFieldsAvailableGroupFieldsFieldsSearchControlContextMenu" id="235"/>
+												<ExtendedTooltip name="SettingsComposerSettingsGroupFieldsAvailableGroupFieldsFieldsSearchControlExtendedTooltip" id="236"/>
 											</SearchControlAddition>
 										</Table>
 										<Table name="SettingsComposerSettingsGroupFields" id="19">
@@ -349,7 +349,7 @@
 Browse the structure tree and select a grouping to view or edit grouping field structure.</v8:content>
 												</v8:item>
 											</Title>
-											<ContextMenu name="InaccessibleGroupFieldsStaticContextMenu" id="24"/>
+											<ContextMenu name="UnavailableGroupFieldsLabelContextMenu" id="24"/>
 											<ExtendedTooltip name="UnavailableGroupFieldsLabelExtendedTooltip" id="142"/>
 										</LabelDecoration>
 									</ChildItems>
@@ -424,32 +424,32 @@ Browse the structure tree and select a grouping to view or edit grouping field s
 													<v8:content>Available fields of fields</v8:content>
 												</v8:item>
 											</Title>
-											<ContextMenu name="SettingsComposerSettingsSelectionSelectionAvailableFieldsContextMenu" id="31"/>
+											<ContextMenu name="SettingsComposerSettingsSelectionAvailableSelectionFieldsContextMenu" id="31"/>
 											<AutoCommandBar name="SettingsComposerSettingsSelectionAvailableSelectionFieldsCommandBar" id="32"/>
 											<ExtendedTooltip name="SettingsComposerSettingsSelectionAvailableSelectionFieldsExtendedTooltip" id="147"/>
-											<SearchStringAddition name="SettingsComposerSettingsSelectionSelectionAvailableFieldsSearchString" id="246">
+											<SearchStringAddition name="SettingsComposerSettingsSelectionAvailableSelectionFieldsSearchString" id="246">
 												<AdditionSource>
 													<Item>SettingsComposerSettingsSelectionAvailableSelectionFields</Item>
 													<Type>SearchStringRepresentation</Type>
 												</AdditionSource>
-												<ContextMenu name="SettingsComposerSettingsSelectionSelectionAvailableFieldsSearchStringContextMenu" id="247"/>
-												<ExtendedTooltip name="SettingsComposerSettingsSelectionSelectionAvailableFieldsSearchStringExtendedTooltip" id="248"/>
+												<ContextMenu name="SettingsComposerSettingsSelectionAvailableSelectionFieldsSearchStringContextMenu" id="247"/>
+												<ExtendedTooltip name="SettingsComposerSettingsSelectionAvailableSelectionFieldsSearchStringExtendedTooltip" id="248"/>
 											</SearchStringAddition>
-											<ViewStatusAddition name="SettingsComposerSettingsSelectionSelectionAvailableFieldsViewStatus" id="249">
+											<ViewStatusAddition name="SettingsComposerSettingsSelectionAvailableSelectionFieldsViewStatus" id="249">
 												<AdditionSource>
 													<Item>SettingsComposerSettingsSelectionAvailableSelectionFields</Item>
 													<Type>ViewStatusRepresentation</Type>
 												</AdditionSource>
-												<ContextMenu name="SettingsComposerSettingsSelectionSelectionAvailableFieldsViewStatusContextMenu" id="250"/>
-												<ExtendedTooltip name="SettingsComposerSettingsSelectionSelectionAvailableFieldsViewStatusExtendedTooltip" id="251"/>
+												<ContextMenu name="SettingsComposerSettingsSelectionAvailableSelectionFieldsViewStatusContextMenu" id="250"/>
+												<ExtendedTooltip name="SettingsComposerSettingsSelectionAvailableSelectionFieldsViewStatusExtendedTooltip" id="251"/>
 											</ViewStatusAddition>
-											<SearchControlAddition name="SettingsComposerSettingsSelectionSelectionAvailableFieldsSearchControl" id="252">
+											<SearchControlAddition name="SettingsComposerSettingsSelectionAvailableSelectionFieldsSearchControl" id="252">
 												<AdditionSource>
 													<Item>SettingsComposerSettingsSelectionAvailableSelectionFields</Item>
 													<Type>SearchControl</Type>
 												</AdditionSource>
-												<ContextMenu name="SettingsComposerSettingsSelectionSelectionAvailableFieldsSearchControlContextMenu" id="253"/>
-												<ExtendedTooltip name="SettingsComposerSettingsSelectionSelectionAvailableFieldsSearchControlExtendedTooltip" id="254"/>
+												<ContextMenu name="SettingsComposerSettingsSelectionAvailableSelectionFieldsSearchControlContextMenu" id="253"/>
+												<ExtendedTooltip name="SettingsComposerSettingsSelectionAvailableSelectionFieldsSearchControlExtendedTooltip" id="254"/>
 											</SearchControlAddition>
 										</Table>
 										<Table name="SettingsComposerSettingsSelection" id="33">
@@ -515,7 +515,7 @@ In the report structure tree, select the item and then select required fields.
 To add custom fields, select the check box above.</v8:content>
 												</v8:item>
 											</Title>
-											<ContextMenu name="LocalSelectedFieldsStaticContextMenu" id="38"/>
+											<ContextMenu name="LocalSelectedFieldsLabelContextMenu" id="38"/>
 											<ExtendedTooltip name="LocalSelectedFieldsLabelExtendedTooltip" id="150"/>
 										</LabelDecoration>
 										<LabelDecoration name="GoToSelectedReportFields" id="39">
@@ -527,7 +527,7 @@ To add custom fields, select the check box above.</v8:content>
 												</v8:item>
 											</Title>
 											<Hyperlink>true</Hyperlink>
-											<ContextMenu name="GoToReportSelectedFieldsContextMenu" id="40"/>
+											<ContextMenu name="GoToSelectedReportFieldsContextMenu" id="40"/>
 											<ExtendedTooltip name="GoToSelectedReportFieldsExtendedTooltip" id="151"/>
 											<Events>
 												<Event name="Click">GoToReport</Event>
@@ -553,7 +553,7 @@ To add custom fields, select the check box above.</v8:content>
 In the report structure tree, select the item and then select required fields.</v8:content>
 												</v8:item>
 											</Title>
-											<ContextMenu name="InaccessibleSelectedFieldsStaticContextMenu" id="43"/>
+											<ContextMenu name="UnavailableSelectedFieldsLabelContextMenu" id="43"/>
 											<ExtendedTooltip name="UnavailableSelectedFieldsLabelExtendedTooltip" id="153"/>
 										</LabelDecoration>
 										<LabelDecoration name="GoToSelectedReportFields1" id="44">
@@ -565,7 +565,7 @@ In the report structure tree, select the item and then select required fields.</
 												</v8:item>
 											</Title>
 											<Hyperlink>true</Hyperlink>
-											<ContextMenu name="GoToReportSelectedFields1ContextMenu" id="45"/>
+											<ContextMenu name="GoToSelectedReportFields1ContextMenu" id="45"/>
 											<ExtendedTooltip name="GoToSelectedReportFields1ExtendedTooltip" id="154"/>
 											<Events>
 												<Event name="Click">GoToReport</Event>
@@ -643,32 +643,32 @@ In the report structure tree, select the item and then select required fields.</
 													<v8:content>Available filter fields</v8:content>
 												</v8:item>
 											</Title>
-											<ContextMenu name="SettingsComposerSettingsFilterFilterAvailableFieldsContextMenu" id="52"/>
+											<ContextMenu name="SettingsComposerSettingsFilterAvailableFilterFieldsContextMenu" id="52"/>
 											<AutoCommandBar name="SettingsComposerSettingsFilterAvailableFilterFieldsCommandBar" id="53"/>
 											<ExtendedTooltip name="SettingsComposerSettingsFilterAvailableFilterFieldsExtendedTooltip" id="159"/>
-											<SearchStringAddition name="SettingsComposerSettingsFilterFilterAvailableFieldsSearchString" id="264">
+											<SearchStringAddition name="SettingsComposerSettingsFilterAvailableFilterFieldsSearchString" id="264">
 												<AdditionSource>
 													<Item>SettingsComposerSettingsFilterAvailableFilterFields</Item>
 													<Type>SearchStringRepresentation</Type>
 												</AdditionSource>
-												<ContextMenu name="SettingsComposerSettingsFilterFilterAvailableFieldsSearchStringContextMenu" id="265"/>
-												<ExtendedTooltip name="SettingsComposerSettingsFilterFilterAvailableFieldsSearchStringExtendedTooltip" id="266"/>
+												<ContextMenu name="SettingsComposerSettingsFilterAvailableFilterFieldsSearchStringContextMenu" id="265"/>
+												<ExtendedTooltip name="SettingsComposerSettingsFilterAvailableFilterFieldsSearchStringExtendedTooltip" id="266"/>
 											</SearchStringAddition>
-											<ViewStatusAddition name="SettingsComposerSettingsFilterFilterAvailableFieldsViewStatus" id="267">
+											<ViewStatusAddition name="SettingsComposerSettingsFilterAvailableFilterFieldsViewStatus" id="267">
 												<AdditionSource>
 													<Item>SettingsComposerSettingsFilterAvailableFilterFields</Item>
 													<Type>ViewStatusRepresentation</Type>
 												</AdditionSource>
-												<ContextMenu name="SettingsComposerSettingsFilterFilterAvailableFieldsViewStatusContextMenu" id="268"/>
-												<ExtendedTooltip name="SettingsComposerSettingsFilterFilterAvailableFieldsViewStatusExtendedTooltip" id="269"/>
+												<ContextMenu name="SettingsComposerSettingsFilterAvailableFilterFieldsViewStatusContextMenu" id="268"/>
+												<ExtendedTooltip name="SettingsComposerSettingsFilterAvailableFilterFieldsViewStatusExtendedTooltip" id="269"/>
 											</ViewStatusAddition>
-											<SearchControlAddition name="SettingsComposerSettingsFilterFilterAvailableFieldsSearchControl" id="270">
+											<SearchControlAddition name="SettingsComposerSettingsFilterAvailableFilterFieldsSearchControl" id="270">
 												<AdditionSource>
 													<Item>SettingsComposerSettingsFilterAvailableFilterFields</Item>
 													<Type>SearchControl</Type>
 												</AdditionSource>
-												<ContextMenu name="SettingsComposerSettingsFilterFilterAvailableFieldsSearchControlContextMenu" id="271"/>
-												<ExtendedTooltip name="SettingsComposerSettingsFilterFilterAvailableFieldsSearchControlExtendedTooltip" id="272"/>
+												<ContextMenu name="SettingsComposerSettingsFilterAvailableFilterFieldsSearchControlContextMenu" id="271"/>
+												<ExtendedTooltip name="SettingsComposerSettingsFilterAvailableFilterFieldsSearchControlExtendedTooltip" id="272"/>
 											</SearchControlAddition>
 										</Table>
 										<Table name="SettingsComposerSettingsFilter" id="54">
@@ -690,29 +690,29 @@ In the report structure tree, select the item and then select required fields.</
 											<ContextMenu name="SettingsComposerSettingsFilterContextMenu" id="55"/>
 											<AutoCommandBar name="SettingsComposerSettingsFilterCommandBar" id="56"/>
 											<ExtendedTooltip name="SettingsComposerSettingsFilterExtendedTooltip" id="160"/>
-											<SearchStringAddition name="SettingsComposerSettingsFilterSearchString_SSLy" id="273">
+											<SearchStringAddition name="SettingsComposerSettingsFilterSearchString" id="273">
 												<AdditionSource>
 													<Item>SettingsComposerSettingsFilter</Item>
 													<Type>SearchStringRepresentation</Type>
 												</AdditionSource>
-												<ContextMenu name="SettingsComposerSettingsFilterSearchString_SSLyContextMenu" id="274"/>
-												<ExtendedTooltip name="SettingsComposerSettingsFilterSearchString_SSLyExtendedTooltip" id="275"/>
+												<ContextMenu name="SettingsComposerSettingsFilterSearchStringContextMenu" id="274"/>
+												<ExtendedTooltip name="SettingsComposerSettingsFilterSearchStringExtendedTooltip" id="275"/>
 											</SearchStringAddition>
-											<ViewStatusAddition name="SettingsComposerSettingsFilterViewStatus_SSLy" id="276">
+											<ViewStatusAddition name="SettingsComposerSettingsFilterViewStatus" id="276">
 												<AdditionSource>
 													<Item>SettingsComposerSettingsFilter</Item>
 													<Type>ViewStatusRepresentation</Type>
 												</AdditionSource>
-												<ContextMenu name="SettingsComposerSettingsFilterViewStatus_SSLyContextMenu" id="277"/>
-												<ExtendedTooltip name="SettingsComposerSettingsFilterViewStatus_SSLyExtendedTooltip" id="278"/>
+												<ContextMenu name="SettingsComposerSettingsFilterViewStatusContextMenu" id="277"/>
+												<ExtendedTooltip name="SettingsComposerSettingsFilterViewStatusExtendedTooltip" id="278"/>
 											</ViewStatusAddition>
-											<SearchControlAddition name="SettingsComposerSettingsFilterSearchControl_SSLy" id="279">
+											<SearchControlAddition name="SettingsComposerSettingsFilterSearchControl" id="279">
 												<AdditionSource>
 													<Item>SettingsComposerSettingsFilter</Item>
 													<Type>SearchControl</Type>
 												</AdditionSource>
-												<ContextMenu name="SettingsComposerSettingsFilterSearchControl_SSLyContextMenu" id="280"/>
-												<ExtendedTooltip name="SettingsComposerSettingsFilterSearchControl_SSLyExtendedTooltip" id="281"/>
+												<ContextMenu name="SettingsComposerSettingsFilterSearchControlContextMenu" id="280"/>
+												<ExtendedTooltip name="SettingsComposerSettingsFilterSearchControlExtendedTooltip" id="281"/>
 											</SearchControlAddition>
 										</Table>
 									</ChildItems>
@@ -736,7 +736,7 @@ In the structure tree, select the report and edit report filters.
 To assign the item with a personal filter, select the check box above.</v8:content>
 												</v8:item>
 											</Title>
-											<ContextMenu name="LocalFilterStaticContextMenu" id="59"/>
+											<ContextMenu name="LocalFilterLabelContextMenu" id="59"/>
 											<ExtendedTooltip name="LocalFilterLabelExtendedTooltip" id="162"/>
 										</LabelDecoration>
 										<LabelDecoration name="GoToReportFilter" id="60">
@@ -774,7 +774,7 @@ To assign the item with a personal filter, select the check box above.</v8:conte
 In the structure tree, select the report and edit report filters.</v8:content>
 												</v8:item>
 											</Title>
-											<ContextMenu name="InaccessibleFilterStaticContextMenu" id="64"/>
+											<ContextMenu name="UnavailableFilterLabelContextMenu" id="64"/>
 											<ExtendedTooltip name="UnavailableFilterLabelExtendedTooltip" id="165"/>
 										</LabelDecoration>
 										<LabelDecoration name="GoToReportFilter1" id="65">
@@ -864,32 +864,32 @@ In the structure tree, select the report and edit report filters.</v8:content>
 													<v8:content>Available sort fields</v8:content>
 												</v8:item>
 											</Title>
-											<ContextMenu name="SettingsComposerSettingsOrderOrderAvailableFieldsContextMenu" id="73"/>
+											<ContextMenu name="SettingsComposerSettingsOrderAvailableOrderFieldsContextMenu" id="73"/>
 											<AutoCommandBar name="SettingsComposerSettingsOrderAvailableOrderFieldsCommandBar" id="74"/>
 											<ExtendedTooltip name="SettingsComposerSettingsOrderAvailableOrderFieldsExtendedTooltip" id="171"/>
-											<SearchStringAddition name="SettingsComposerSettingsOrderOrderAvailableFieldsSearchString" id="282">
+											<SearchStringAddition name="SettingsComposerSettingsOrderAvailableOrderFieldsSearchString" id="282">
 												<AdditionSource>
 													<Item>SettingsComposerSettingsOrderAvailableOrderFields</Item>
 													<Type>SearchStringRepresentation</Type>
 												</AdditionSource>
-												<ContextMenu name="SettingsComposerSettingsOrderOrderAvailableFieldsSearchStringContextMenu" id="283"/>
-												<ExtendedTooltip name="SettingsComposerSettingsOrderOrderAvailableFieldsSearchStringExtendedTooltip" id="284"/>
+												<ContextMenu name="SettingsComposerSettingsOrderAvailableOrderFieldsSearchStringContextMenu" id="283"/>
+												<ExtendedTooltip name="SettingsComposerSettingsOrderAvailableOrderFieldsSearchStringExtendedTooltip" id="284"/>
 											</SearchStringAddition>
-											<ViewStatusAddition name="SettingsComposerSettingsOrderOrderAvailableFieldsViewStatus" id="285">
+											<ViewStatusAddition name="SettingsComposerSettingsOrderAvailableOrderFieldsViewStatus" id="285">
 												<AdditionSource>
 													<Item>SettingsComposerSettingsOrderAvailableOrderFields</Item>
 													<Type>ViewStatusRepresentation</Type>
 												</AdditionSource>
-												<ContextMenu name="SettingsComposerSettingsOrderOrderAvailableFieldsViewStatusContextMenu" id="286"/>
-												<ExtendedTooltip name="SettingsComposerSettingsOrderOrderAvailableFieldsViewStatusExtendedTooltip" id="287"/>
+												<ContextMenu name="SettingsComposerSettingsOrderAvailableOrderFieldsViewStatusContextMenu" id="286"/>
+												<ExtendedTooltip name="SettingsComposerSettingsOrderAvailableOrderFieldsViewStatusExtendedTooltip" id="287"/>
 											</ViewStatusAddition>
-											<SearchControlAddition name="SettingsComposerSettingsOrderOrderAvailableFieldsSearchControl" id="288">
+											<SearchControlAddition name="SettingsComposerSettingsOrderAvailableOrderFieldsSearchControl" id="288">
 												<AdditionSource>
 													<Item>SettingsComposerSettingsOrderAvailableOrderFields</Item>
 													<Type>SearchControl</Type>
 												</AdditionSource>
-												<ContextMenu name="SettingsComposerSettingsOrderOrderAvailableFieldsSearchControlContextMenu" id="289"/>
-												<ExtendedTooltip name="SettingsComposerSettingsOrderOrderAvailableFieldsSearchControlExtendedTooltip" id="290"/>
+												<ContextMenu name="SettingsComposerSettingsOrderAvailableOrderFieldsSearchControlContextMenu" id="289"/>
+												<ExtendedTooltip name="SettingsComposerSettingsOrderAvailableOrderFieldsSearchControlExtendedTooltip" id="290"/>
 											</SearchControlAddition>
 										</Table>
 										<Table name="SettingsComposerSettingsOrder" id="75">
@@ -954,7 +954,7 @@ In the structure tree, select the report and edit report sorts.
 To assign the item with a personal sort, select the check box above.</v8:content>
 												</v8:item>
 											</Title>
-											<ContextMenu name="LocalOrderStaticContextMenu" id="80"/>
+											<ContextMenu name="LocalOrderLabelContextMenu" id="80"/>
 											<ExtendedTooltip name="LocalOrderLabelExtendedTooltip" id="174"/>
 										</LabelDecoration>
 										<LabelDecoration name="GoToReportOrder" id="81">
@@ -992,7 +992,7 @@ To assign the item with a personal sort, select the check box above.</v8:content
 In the structure tree, select the report and edit report sorts.</v8:content>
 												</v8:item>
 											</Title>
-											<ContextMenu name="InaccessibleOrderStaticContextMenu" id="85"/>
+											<ContextMenu name="UnavailableOrderLabelContextMenu" id="85"/>
 											<ExtendedTooltip name="UnavailableOrderLabelExtendedTooltip" id="177"/>
 										</LabelDecoration>
 										<LabelDecoration name="GoToReportOrder1" id="86">
@@ -1128,7 +1128,7 @@ In the structure tree, select the report and edit report conditional appearance.
 To assign the item with a personal conditional appearance, select the check box above.</v8:content>
 												</v8:item>
 											</Title>
-											<ContextMenu name="LocalConditionalAppearanceStaticContextMenu" id="98"/>
+											<ContextMenu name="LocalConditionalAppearanceLabelContextMenu" id="98"/>
 											<ExtendedTooltip name="LocalConditionalAppearanceLabelExtendedTooltip" id="185"/>
 										</LabelDecoration>
 										<LabelDecoration name="GoToReportConditionalAppearance" id="99">
@@ -1166,7 +1166,7 @@ To assign the item with a personal conditional appearance, select the check box 
 In the structure tree, select the report and edit report conditional appearance.</v8:content>
 												</v8:item>
 											</Title>
-											<ContextMenu name="InaccessibleConditionalAppearanceStaticContextMenu" id="103"/>
+											<ContextMenu name="UnavailableConditionalAppearanceLabelContextMenu" id="103"/>
 											<ExtendedTooltip name="UnavailableConditionalAppearanceLabelExtendedTooltip" id="188"/>
 										</LabelDecoration>
 										<LabelDecoration name="GoToReportConditionalAppearance1" id="104">
@@ -1303,7 +1303,7 @@ In the structure tree, select the report and edit report additional settings.
 To assign the item with personal additional settings, select the check box above.</v8:content>
 												</v8:item>
 											</Title>
-											<ContextMenu name="LocalOutputParametersStaticContextMenu" id="116"/>
+											<ContextMenu name="LocalOutputParametersLabelContextMenu" id="116"/>
 											<ExtendedTooltip name="LocalOutputParametersLabelExtendedTooltip" id="196"/>
 										</LabelDecoration>
 										<LabelDecoration name="GoToReportOutputParameters" id="117">
@@ -1341,7 +1341,7 @@ To assign the item with personal additional settings, select the check box above
 In the structure tree, select the report and edit additional report settings.</v8:content>
 												</v8:item>
 											</Title>
-											<ContextMenu name="InaccessibleOutputParametersStaticContextMenu" id="121"/>
+											<ContextMenu name="UnavailableOutputParametersLabelContextMenu" id="121"/>
 											<ExtendedTooltip name="UnavailableOutputParametersLabelExtendedTooltip" id="199"/>
 										</LabelDecoration>
 										<LabelDecoration name="GoToReportOutputParameters1" id="122">

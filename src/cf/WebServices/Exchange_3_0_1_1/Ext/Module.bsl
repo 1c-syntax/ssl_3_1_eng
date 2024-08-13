@@ -353,9 +353,9 @@ Function PutMessageForDataMatching(ExchangePlanName, NodeID, FileID)
 	
 	DataExchangeInternal.PutMessageForDataMapping(ExchangeNode, FileID);
 	
-	//  
-	// 
-	// 
+	// The web client and the thin client have dedicated temporary directories. 
+	// Configuring syncing from the thin client will result in an error due to the missing file
+	// in the temporary directory.
 	// 
 	MoveTheMessageFileForTheFileIB(FileID);
 	

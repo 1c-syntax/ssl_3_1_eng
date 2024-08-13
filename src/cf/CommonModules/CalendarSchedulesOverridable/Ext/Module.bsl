@@ -10,8 +10,8 @@
 
 #Region Public
 
-// It is called upon changing business calendar data.
-// If the separation is enabled, it runs in the shared mode.
+// Called when the business calendar data is changed.
+// If data separation is enabled, it runs in shared mode.
 //
 // Parameters:
 //  UpdateConditions - ValueTable:

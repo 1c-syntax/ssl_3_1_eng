@@ -210,7 +210,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Procedures and functions related to displaying settings to users.
 
 &AtClient
 Procedure UpdateSettingsList()
@@ -238,7 +238,7 @@ Function UpdatingSettingsList()
 	TimeConsumingOperationParameters = TimeConsumingOperationParameters();
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.WaitCompletion = 0; // 
+	ExecutionParameters.WaitCompletion = 0; // Run immediately.
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Update user settings';");
 	
 	TimeConsumingOperation = TimeConsumingOperations.ExecuteInBackground("UsersInternal.FillSettingsLists",
@@ -298,7 +298,7 @@ Procedure FillSettings(Val ResultAddress)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Auxiliary procedures and functions.
 
 &AtClient
 Procedure ChangeMark1(Item)
@@ -512,30 +512,28 @@ Function SelectedSettings(SettingsTree)
 		
 	EndDo;
 	
-	SettingsStructure = New Structure;
+	SettingsStructure_ = New Structure;
 	
-	SettingsStructure.Insert("SettingsArray", SettingsArray);
-	SettingsStructure.Insert("PersonalSettingsArray", PersonalSettingsArray);
-	SettingsStructure.Insert("OtherUserSettings", OtherUserSettings);
-	SettingsStructure.Insert("ReportsOptions", ReportOptionArray);
-	SettingsStructure.Insert("SettingsPresentations", SettingsPresentations);
-	SettingsStructure.Insert("SettingsCount", SettingsCount);
+	SettingsStructure_.Insert("SettingsArray", SettingsArray);
+	SettingsStructure_.Insert("PersonalSettingsArray", PersonalSettingsArray);
+	SettingsStructure_.Insert("OtherUserSettings", OtherUserSettings);
+	SettingsStructure_.Insert("ReportsOptions", ReportOptionArray);
+	SettingsStructure_.Insert("SettingsPresentations", SettingsPresentations);
+	SettingsStructure_.Insert("SettingsCount", SettingsCount);
 	
-	Return SettingsStructure;
+	Return SettingsStructure_;
 	
 EndFunction
 
 &AtClient
 Procedure ExpandValueTree()
 	
-	Rows = ReportsSettings.GetItems();
-	For Each String In Rows Do 
-		Items.ReportSettingsTree.Expand(String.GetID(), True);
+	For Each Item In ReportsSettings.GetItems() Do 
+		Items.ReportSettingsTree.Expand(Item.GetID(), True);
 	EndDo;
 	
-	Rows = Interface.GetItems();
-	For Each String In Rows Do 
-		Items.Interface.Expand(String.GetID(), True);
+	For Each Item In Interface.GetItems() Do 
+		Items.Interface.Expand(Item.GetID(), True);
 	EndDo;
 	
 EndProcedure

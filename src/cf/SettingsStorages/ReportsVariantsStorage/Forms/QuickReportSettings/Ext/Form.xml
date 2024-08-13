@@ -57,7 +57,7 @@
 								<v8:content>Search</v8:content>
 							</v8:item>
 						</Title>
-						<ExtendedTooltip name="QuickSettingsContextMenuGroupSearchExtendedTooltip" id="60"/>
+						<ExtendedTooltip name="QuickSettingsContextMenuSearchGroupExtendedTooltip" id="60"/>
 						<ChildItems>
 							<Button name="QuickSettingsContextMenuSearchByCurrentValue" id="61">
 								<Type>CommandBarButton</Type>
@@ -69,7 +69,7 @@
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Item.QuickSettings.StandardCommand.Find</CommandName>
 								<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
-								<ExtendedTooltip name="QuickSettingsFindContextMenuExtendedTooltip" id="64"/>
+								<ExtendedTooltip name="QuickSettingsContextMenuFindExtendedTooltip" id="64"/>
 							</Button>
 							<Button name="QuickSettingsContextMenuCancelSearch" id="65">
 								<Type>CommandBarButton</Type>
@@ -87,7 +87,7 @@
 							</v8:item>
 						</Title>
 						<Representation>Compact</Representation>
-						<ExtendedTooltip name="QuickSettingsContextMenuGroupMoveExtendedTooltip" id="78"/>
+						<ExtendedTooltip name="QuickSettingsContextMenuMoveGroupExtendedTooltip" id="78"/>
 						<ChildItems>
 							<Button name="QuickSettingsContextMenuMoveUp" id="85">
 								<Type>CommandBarButton</Type>
@@ -111,19 +111,19 @@
 							</v8:item>
 						</Title>
 						<Representation>Compact</Representation>
-						<ExtendedTooltip name="QuickSettingsContextMenuGroupSortExtendedTooltip" id="80"/>
+						<ExtendedTooltip name="QuickSettingsContextMenuSortingGroupExtendedTooltip" id="80"/>
 						<ChildItems>
 							<Button name="QuickSettingsContextMenuSortListAsc" id="89">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Item.QuickSettings.StandardCommand.SortListAsc</CommandName>
 								<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
-								<ExtendedTooltip name="QuickSettingsContextMenuSortTheListInAscendingOrderExtendedTooltip" id="90"/>
+								<ExtendedTooltip name="QuickSettingsContextMenuSortListAscExtendedTooltip" id="90"/>
 							</Button>
 							<Button name="QuickSettingsContextMenuSortListDesc" id="91">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Item.QuickSettings.StandardCommand.SortListDesc</CommandName>
 								<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
-								<ExtendedTooltip name="QuickSettingsContextMenuSortTheListInDescendingOrderExtendedTooltip" id="92"/>
+								<ExtendedTooltip name="QuickSettingsContextMenuSortListDescExtendedTooltip" id="92"/>
 							</Button>
 						</ChildItems>
 					</ButtonGroup>
@@ -145,7 +145,7 @@
 							</v8:item>
 						</Title>
 						<Representation>Compact</Representation>
-						<ExtendedTooltip name="QuickSettingsGroupChangeTagsExtendedTooltip" id="41"/>
+						<ExtendedTooltip name="QuickSettingsChangeMarksGroupExtendedTooltip" id="41"/>
 						<ChildItems>
 							<Button name="QuickSettingsSetMark" id="42">
 								<Type>CommandBarButton</Type>
@@ -157,9 +157,9 @@
 									</v8:item>
 								</Title>
 								<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
-								<ExtendedTooltip name="QuickSettingsSetATagExtendedTooltip" id="43"/>
+								<ExtendedTooltip name="QuickSettingsSetMarkExtendedTooltip" id="43"/>
 							</Button>
-							<Button name="QuickSettingsUncheckIt" id="44">
+							<Button name="QuickSettingsClearMark" id="44">
 								<Type>CommandBarButton</Type>
 								<CommandName>Form.Command.ClearMark</CommandName>
 								<Title>
@@ -169,7 +169,7 @@
 									</v8:item>
 								</Title>
 								<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
-								<ExtendedTooltip name="QuickSettingsUncheckExtendedTooltip" id="45"/>
+								<ExtendedTooltip name="QuickSettingsClearMarkExtendedTooltip" id="45"/>
 							</Button>
 						</ChildItems>
 					</ButtonGroup>
@@ -181,7 +181,7 @@
 							</v8:item>
 						</Title>
 						<Representation>Compact</Representation>
-						<ExtendedTooltip name="QuickSettingsGroupMoveExtendedTooltip" id="76"/>
+						<ExtendedTooltip name="QuickSettingsMoveGroupExtendedTooltip" id="76"/>
 						<ChildItems>
 							<Button name="QuickSettingsMoveUp" id="81">
 								<Type>CommandBarButton</Type>
@@ -237,7 +237,7 @@
 						</v8:item>
 					</Title>
 					<Group>InCell</Group>
-					<ExtendedTooltip name="QuickSettingsGroupSettingsExtendedTooltip" id="39"/>
+					<ExtendedTooltip name="QuickSettingsSetupGroupExtendedTooltip" id="39"/>
 					<ChildItems>
 						<CheckBoxField name="QuickSettingsCheck" id="14">
 							<DataPath>QuickSettings.Check</DataPath>
@@ -256,7 +256,7 @@
 								<Event name="OnChange">QuickSettingsCheckOnChange</Event>
 							</Events>
 						</CheckBoxField>
-						<PictureField name="QuickSettingsSettingPicture" id="56">
+						<PictureField name="QuickSettingsPictureSettings" id="56">
 							<DataPath>QuickSettings.PictureSettings</DataPath>
 							<Title>
 								<v8:item>
@@ -266,8 +266,8 @@
 							</Title>
 							<TitleLocation>None</TitleLocation>
 							<EditMode>EnterOnInput</EditMode>
-							<ContextMenu name="QuickSettingsSettingPictureContextMenu" id="57"/>
-							<ExtendedTooltip name="QuickSettingsSettingPictureExtendedTooltip" id="58"/>
+							<ContextMenu name="QuickSettingsPictureSettingsContextMenu" id="57"/>
+							<ExtendedTooltip name="QuickSettingsPictureSettingsExtendedTooltip" id="58"/>
 						</PictureField>
 						<InputField name="QuickSettingsTitle" id="20">
 							<DataPath>QuickSettings.Title</DataPath>
@@ -314,8 +314,8 @@
 			</Title>
 			<TitleLocation>Right</TitleLocation>
 			<CheckBoxType>Auto</CheckBoxType>
-			<ContextMenu name="OutputSettingsHeadersContextMenu" id="107"/>
-			<ExtendedTooltip name="OutputSettingsHeadersExtendedTooltip" id="108"/>
+			<ContextMenu name="OutputSettingsTitlesContextMenu" id="107"/>
+			<ExtendedTooltip name="OutputSettingsTitlesExtendedTooltip" id="108"/>
 		</CheckBoxField>
 		<UsualGroup name="CommandBar" id="96">
 			<Title>

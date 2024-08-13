@@ -64,15 +64,15 @@ EndProcedure
 //       Interactive open external reports.
 //     Such roles are mainly available in SSL. However, they might be available in applications.
 //
-//   * ForExternalUsersOnly - Array - role names that are intended
-//     only for external users (roles with a specially developed set of rights), for example:
-//       AddEditQuestionnaireQuestionsAnswers, BasicSSLRightsForExternalUsers.
-//     Such roles are available both both in SSL and applications (if external users are used).
+//   * ForExternalUsersOnly - Array - Names of roles intended
+//     only for external users (roles with a specially developed set of rights), for example,:
+//       AddEditQuestionnaireQuestionsAnswers or BasicAccessExternalUserSSL.
+//     Such roles are available both in SSL and in applications (if external users are used).
 //
-//   * BothForUsersAndExternalUsers - Array - role names that are intended
-//     for any users (internal, external, and non-separated), for example:
-//       ReadQuestionnaireQuestionsAnswers, AddEditPersonalReportsOptions.
-//     Such roles are available both both in SSL and applications (if external users are used).
+//   * BothForUsersAndExternalUsers - Array - Names of roles intended
+//     for any users (internal, external, and unseparated), for example,:
+//       ReadQuestionnaireQuestionAnswers or AddEditPersonalReportsOptions.
+//     Such roles are available both in SSL and in applications (if external users are used).
 //
 Procedure OnDefineRoleAssignment(RolesAssignment) Export
 	

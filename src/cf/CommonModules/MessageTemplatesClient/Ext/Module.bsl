@@ -70,12 +70,12 @@ EndProcedure
 // Parameters:
 //  Value - CatalogRef.MessageTemplates
 //           - Structure
-//           - AnyRef - If a reference to a template is passed, this template opens.
+//           - AnyRef - If a reference to a template is passed,
+ //                    this template opens.
  //                    If a structure is passed, a new template filled with the data from the structure opens.
- //                    For field details,.
-//                     If a reference of the "TypeToDefine.MessageTemplateOwner" flexible type is passed, See MessageTemplatesClientServer.TemplateParametersDetails.
-//                     a template by the owner opens.
-//                     
+//                     For field details, See MessageTemplatesClientServer.TemplateParametersDetails.
+//                     . If a reference from the "DefinedType.MessageTemplateOwner" type collection is passed,
+//                     a template for a given owner opens.
 //  OpeningParameters - Structure - form opening parameters.:
 //    * Owner - Arbitrary - a form or another form control.
 //    * Uniqueness - Arbitrary - a key whose value will be used to search for already opened forms.

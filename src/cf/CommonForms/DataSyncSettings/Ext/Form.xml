@@ -225,7 +225,7 @@ Please contact the administrator.</v8:content>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
 			<BackColor>style:WarningBackColor</BackColor>
-			<ExtendedTooltip name="InformationPanelNeedsToBeRestartedExtendedTooltip" id="760"/>
+			<ExtendedTooltip name="InfoPanelRestartRequiredExtendedTooltip" id="760"/>
 			<ChildItems>
 				<PictureDecoration name="RestartWarningPicture" id="761">
 					<Title formatted="false">
@@ -239,8 +239,8 @@ Please contact the administrator.</v8:content>
 						<xr:LoadTransparent>false</xr:LoadTransparent>
 					</Picture>
 					<FileDragMode>AsFile</FileDragMode>
-					<ContextMenu name="RebootWarningPictureContextMenu" id="762"/>
-					<ExtendedTooltip name="RebootWarningPictureExtendedTooltip" id="763"/>
+					<ContextMenu name="RestartWarningPictureContextMenu" id="762"/>
+					<ExtendedTooltip name="RestartWarningPictureExtendedTooltip" id="763"/>
 				</PictureDecoration>
 				<LabelDecoration name="RestartWarningDetails" id="764">
 					<AutoMaxWidth>false</AutoMaxWidth>
@@ -251,10 +251,10 @@ Please contact the administrator.</v8:content>
 						</v8:item>
 					</Title>
 					<GroupVerticalAlign>Center</GroupVerticalAlign>
-					<ContextMenu name="RebootWarningDescriptionContextMenu" id="765"/>
-					<ExtendedTooltip name="RebootWarningDescriptionExtendedTooltip" id="766"/>
+					<ContextMenu name="RestartWarningDetailsContextMenu" id="765"/>
+					<ExtendedTooltip name="RestartWarningDetailsExtendedTooltip" id="766"/>
 					<Events>
-						<Event name="URLProcessing">RebootWarningDescriptionURLProcessing</Event>
+						<Event name="URLProcessing">RestartWarningDetailsURLProcessing</Event>
 					</Events>
 				</LabelDecoration>
 			</ChildItems>
@@ -432,7 +432,7 @@ To switch to exchange using a web service, use the switch to Internet connection
 							<v8:content>Application list page</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="ApplicationsListPage1ExtendedTooltip" id="704"/>
+					<ExtendedTooltip name="ApplicationsListPageExtendedTooltip" id="704"/>
 					<ChildItems>
 						<CommandBar name="CommandBar" id="145">
 							<Title>
@@ -621,7 +621,7 @@ To switch to exchange using a web service, use the switch to Internet connection
 										</v8:item>
 									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-									<ExtendedTooltip name="ApplicationListPreviousWarningFormExtendedTooltip" id="739"/>
+									<ExtendedTooltip name="ApplicationsListPreviousWarningsFormExtendedTooltip" id="739"/>
 								</Button>
 								<ButtonGroup name="ApplicationsListStandardGroup" id="340">
 									<Title>
@@ -661,7 +661,7 @@ To switch to exchange using a web service, use the switch to Internet connection
 										</v8:item>
 									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-									<ExtendedTooltip name="ApplicationListNewPredefinedNodeCodeExtendedTooltip" id="768"/>
+									<ExtendedTooltip name="ApplicationsListNewPredefinedNodeCodeExtendedTooltip" id="768"/>
 								</Button>
 								<Button name="FormCustomizeForm" id="134">
 									<Type>CommandBarButton</Type>
@@ -754,7 +754,7 @@ To switch to exchange using a web service, use the switch to Internet connection
 												</Title>
 												<ExtendedTooltip name="ApplicationsListContextMenuChangeSyncSettingExtendedTooltip" id="680"/>
 											</Button>
-											<Button name="ApplicationsListContextMenuCompositionOfDataToSend" id="687">
+											<Button name="ApplicationsListContextMenuDataToSendComposition" id="687">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.DataToSendComposition</CommandName>
 												<Title>
@@ -763,7 +763,7 @@ To switch to exchange using a web service, use the switch to Internet connection
 														<v8:content>Scope of send data</v8:content>
 													</v8:item>
 												</Title>
-												<ExtendedTooltip name="ApplicationsListContextMenuExtendedTooltip" id="688"/>
+												<ExtendedTooltip name="ApplicationsListContextMenuDataToSendCompositionExtendedTooltip" id="688"/>
 											</Button>
 											<Button name="ApplicationsListContextMenuDeleteSynchronizationSetting" id="683">
 												<Type>CommandBarButton</Type>
@@ -774,7 +774,7 @@ To switch to exchange using a web service, use the switch to Internet connection
 														<v8:content>Delete setting</v8:content>
 													</v8:item>
 												</Title>
-												<ExtendedTooltip name="ApplicationsListContextMenuDeleteSyncSettingExtendedTooltip" id="684"/>
+												<ExtendedTooltip name="ApplicationsListContextMenuDeleteSynchronizationSettingExtendedTooltip" id="684"/>
 											</Button>
 										</ChildItems>
 									</ButtonGroup>
@@ -889,7 +889,7 @@ To switch to exchange using a web service, use the switch to Internet connection
 									<Group>InCell</Group>
 									<ExtendedTooltip name="ApplicationsListStateGroupExtendedTooltip" id="567"/>
 									<ChildItems>
-										<PictureField name="ApplicationsListStatePicture1" id="568">
+										<PictureField name="ApplicationsListStatePicture" id="568">
 											<DataPath>ApplicationsList.StatePicture</DataPath>
 											<Title>
 												<v8:item>
@@ -904,10 +904,10 @@ To switch to exchange using a web service, use the switch to Internet connection
 												<xr:LoadTransparent>false</xr:LoadTransparent>
 											</ValuesPicture>
 											<FileDragMode>AsFile</FileDragMode>
-											<ContextMenu name="ApplicationsListStatePicture1ContextMenu" id="569"/>
-											<ExtendedTooltip name="ApplicationsListStatePicture1ExtendedTooltip" id="570"/>
+											<ContextMenu name="ApplicationsListStatePictureContextMenu" id="569"/>
+											<ExtendedTooltip name="ApplicationsListStatePictureExtendedTooltip" id="570"/>
 										</PictureField>
-										<LabelField name="ApplicationsListStatePresentation1" id="571">
+										<LabelField name="ApplicationsListStatePresentation" id="571">
 											<DataPath>ApplicationsList.StatePresentation</DataPath>
 											<Title>
 												<v8:item>
@@ -916,8 +916,8 @@ To switch to exchange using a web service, use the switch to Internet connection
 												</v8:item>
 											</Title>
 											<EditMode>EnterOnInput</EditMode>
-											<ContextMenu name="ApplicationsListStatePresentation1ContextMenu" id="572"/>
-											<ExtendedTooltip name="ApplicationsListStatePresentation1ExtendedTooltip" id="573"/>
+											<ContextMenu name="ApplicationsListStatePresentationContextMenu" id="572"/>
+											<ExtendedTooltip name="ApplicationsListStatePresentationExtendedTooltip" id="573"/>
 										</LabelField>
 									</ChildItems>
 								</ColumnGroup>
@@ -935,7 +935,7 @@ To switch to exchange using a web service, use the switch to Internet connection
 										</v8:item>
 									</ToolTip>
 									<Group>Horizontal</Group>
-									<ExtendedTooltip name="ListOfApplicationsGroupSendingDataExtendedTooltip" id="721"/>
+									<ExtendedTooltip name="ApplicationsListGroupDataSendingExtendedTooltip" id="721"/>
 									<ChildItems>
 										<ColumnGroup name="ApplicationsListLastExportGroup" id="650">
 											<Title>
@@ -980,7 +980,7 @@ To switch to exchange using a web service, use the switch to Internet connection
 													<ContextMenu name="ApplicationsListLastSuccessfulExportDatePresentationContextMenu" id="667"/>
 													<ExtendedTooltip name="ApplicationsListLastSuccessfulExportDatePresentationExtendedTooltip" id="668"/>
 												</LabelField>
-												<InputField name="ApplicationsListSendingAWarning" id="732">
+												<InputField name="ApplicationsListSendWarning" id="732">
 													<DataPath>ApplicationsList.SendWarning</DataPath>
 													<Title>
 														<v8:item>
@@ -991,8 +991,8 @@ To switch to exchange using a web service, use the switch to Internet connection
 													<EditMode>EnterOnInput</EditMode>
 													<CellHyperlink>true</CellHyperlink>
 													<ShowInHeader>false</ShowInHeader>
-													<ContextMenu name="ApplicationsListSendingAWarningContextMenu" id="733"/>
-													<ExtendedTooltip name="ApplicationsListSendingAWarningExtendedTooltip" id="734"/>
+													<ContextMenu name="ApplicationsListSendWarningContextMenu" id="733"/>
+													<ExtendedTooltip name="ApplicationsListSendWarningExtendedTooltip" id="734"/>
 												</InputField>
 											</ChildItems>
 										</ColumnGroup>
@@ -1011,7 +1011,7 @@ To switch to exchange using a web service, use the switch to Internet connection
 											<v8:content>Data receipt information</v8:content>
 										</v8:item>
 									</ToolTip>
-									<ExtendedTooltip name="ListOfApplicationsGroupGettingDataExtendedTooltip" id="731"/>
+									<ExtendedTooltip name="ApplicationsListGroupGettingDataExtendedTooltip" id="731"/>
 									<ChildItems>
 										<ColumnGroup name="ApplicationsListLastImportGroup" id="652">
 											<Title>
@@ -1055,7 +1055,7 @@ To switch to exchange using a web service, use the switch to Internet connection
 													<ContextMenu name="ApplicationsListLastSuccessfulImportDatePresentationContextMenu" id="664"/>
 													<ExtendedTooltip name="ApplicationsListLastSuccessfulImportDatePresentationExtendedTooltip" id="665"/>
 												</LabelField>
-												<InputField name="ApplicationsListGettingAWarning" id="735">
+												<InputField name="ApplicationsListGetWarning" id="735">
 													<DataPath>ApplicationsList.GetWarning</DataPath>
 													<Title>
 														<v8:item>
@@ -1066,8 +1066,8 @@ To switch to exchange using a web service, use the switch to Internet connection
 													<EditMode>EnterOnInput</EditMode>
 													<CellHyperlink>true</CellHyperlink>
 													<ShowInHeader>false</ShowInHeader>
-													<ContextMenu name="ApplicationsListGettingAWarningContextMenu" id="736"/>
-													<ExtendedTooltip name="ApplicationsListGettingAWarningExtendedTooltip" id="737"/>
+													<ContextMenu name="ApplicationsListGetWarningContextMenu" id="736"/>
+													<ExtendedTooltip name="ApplicationsListGetWarningExtendedTooltip" id="737"/>
 												</InputField>
 											</ChildItems>
 										</ColumnGroup>
@@ -1131,7 +1131,7 @@ To switch to exchange using a web service, use the switch to Internet connection
 					</Title>
 					<Group>AlwaysHorizontal</Group>
 					<VerticalAlign>Center</VerticalAlign>
-					<ExtendedTooltip name="WaitPageExtendedTooltip" id="706"/>
+					<ExtendedTooltip name="PageWaitExtendedTooltip" id="706"/>
 					<ChildItems>
 						<PictureDecoration name="Decoration1" id="707">
 							<Picture>

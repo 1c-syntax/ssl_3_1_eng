@@ -128,7 +128,7 @@ EndProcedure
 &AtServer
 Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	
-	// Checking description for uniqueness.
+	// Check the description for uniqueness.
 	DigitalSignatureInternal.CheckPresentationUniqueness(
 		DescriptionCertificate, Certificate, "DescriptionCertificate", Cancel);
 	
@@ -176,7 +176,7 @@ Procedure CertificatesUnavailableAtServerLabelClick(Item)
 EndProcedure
 
 &AtClient
-Procedure ShowAll1OnChange(Item)
+Procedure ShowAllOnChange(Item)
 	
 	UpdateCertificatesList();
 	
@@ -246,8 +246,8 @@ Procedure Next(Command)
 	
 	If CurrentData.IsRequest Then
 		ShowMessageBox(,
-			NStr("en = 'The application for issue for this certificate has not been processed yet.
-			           |Open the application for certificate issue and perform the required steps.';"));
+			NStr("en = 'The application for this certificate has not yet been fulfilled.
+			           |Open the application and complete the necessary steps.';"));
 		UpdateCertificatesList();
 		Return;
 	EndIf;

@@ -207,29 +207,29 @@
 				<Autofill>false</Autofill>
 			</AutoCommandBar>
 			<ExtendedTooltip name="ListExtendedTooltip" id="38"/>
-			<SearchStringAddition name="ListSearchString_SSLy" id="55">
+			<SearchStringAddition name="ListSearchString" id="55">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchStringRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchString_SSLyContextMenu" id="56"/>
-				<ExtendedTooltip name="ListSearchString_SSLyExtendedTooltip" id="57"/>
+				<ContextMenu name="ListSearchStringContextMenu" id="56"/>
+				<ExtendedTooltip name="ListSearchStringExtendedTooltip" id="57"/>
 			</SearchStringAddition>
-			<ViewStatusAddition name="ListViewStatus_SSLy" id="58">
+			<ViewStatusAddition name="ListViewStatus" id="58">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>ViewStatusRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListViewStatus_SSLyContextMenu" id="59"/>
-				<ExtendedTooltip name="ListViewStatus_SSLyExtendedTooltip" id="60"/>
+				<ContextMenu name="ListViewStatusContextMenu" id="59"/>
+				<ExtendedTooltip name="ListViewStatusExtendedTooltip" id="60"/>
 			</ViewStatusAddition>
-			<SearchControlAddition name="ListSearchControl_SSLy" id="61">
+			<SearchControlAddition name="ListSearchControl" id="61">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchControl</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchControl_SSLyContextMenu" id="62"/>
-				<ExtendedTooltip name="ListSearchControl_SSLyExtendedTooltip" id="63"/>
+				<ContextMenu name="ListSearchControlContextMenu" id="62"/>
+				<ExtendedTooltip name="ListSearchControlExtendedTooltip" id="63"/>
 			</SearchControlAddition>
 			<Events>
 				<Event name="Selection">ListSelection</Event>
@@ -246,7 +246,7 @@
 							<v8:content>Vertical</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="VerticalGroup5ExtendedTooltip" id="65"/>
+					<ExtendedTooltip name="GroupVerticalExtendedTooltip" id="65"/>
 					<ChildItems>
 						<ColumnGroup name="MainGroup3" id="66" DisplayImportance="VeryHigh">
 							<Title>
@@ -258,7 +258,7 @@
 							<Group>Horizontal</Group>
 							<ExtendedTooltip name="MainGroup3ExtendedTooltip" id="67"/>
 							<ChildItems>
-								<LabelField name="ListFullDescr" id="8" DisplayImportance="VeryHigh">
+								<LabelField name="ListFullDescription" id="8" DisplayImportance="VeryHigh">
 									<DataPath>List.Description</DataPath>
 									<Title>
 										<v8:item>
@@ -266,8 +266,8 @@
 											<v8:content>Description</v8:content>
 										</v8:item>
 									</Title>
-									<ContextMenu name="ListFullDescrContextMenu" id="9"/>
-									<ExtendedTooltip name="ListFullDescrExtendedTooltip" id="39"/>
+									<ContextMenu name="ListFullDescriptionContextMenu" id="9"/>
+									<ExtendedTooltip name="ListFullDescriptionExtendedTooltip" id="39"/>
 								</LabelField>
 								<LabelField name="ListExtension" id="30">
 									<DataPath>List.Extension</DataPath>
@@ -292,8 +292,8 @@
 								</LabelField>
 								<LabelField name="ListCreationDate" id="22">
 									<DataPath>List.CreationDate</DataPath>
-									<ContextMenu name="ListCreationDate1ContextMenu" id="23"/>
-									<ExtendedTooltip name="ListCreationDate1ExtendedTooltip" id="43"/>
+									<ContextMenu name="ListCreationDateContextMenu" id="23"/>
+									<ExtendedTooltip name="ListCreationDateExtendedTooltip" id="43"/>
 								</LabelField>
 								<LabelField name="ListSize" id="24">
 									<DataPath>List.Size</DataPath>

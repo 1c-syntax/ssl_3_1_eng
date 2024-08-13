@@ -178,8 +178,8 @@ Function CreateTemplate(Description, TemplateParameters) Export
 					Try
 						ModuleFilesOperations.AppendFile(FileAddingOptions, Attachment.Value);
 					Except
-						// 
-						// 
+						// An exception is thrown when the files are stored in volumes that are unacceptable during writing.
+						// If an exception is thrown, create a template without attachments.
 						ErrorInfo = ErrorInfo();
 						WriteLogEvent(EventLogEventName, EventLogLevel.Error,,,
 							ErrorProcessing.DetailErrorDescription(ErrorInfo));

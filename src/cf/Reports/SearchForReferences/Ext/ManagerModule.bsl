@@ -31,7 +31,7 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 	OptionSettings.LongDesc = NStr("en = 'Search for occurrences.';");
 EndProcedure
 
-// It is used for calling from the ReportsOptionsOverridable.BeforeAddReportsCommands procedure.
+// To be called from ReportsOptionsOverridable.BeforeAddReportCommands.
 // 
 // Parameters:
 //   ReportsCommands - See ReportsOptionsOverridable.BeforeAddReportCommands.ReportsCommands

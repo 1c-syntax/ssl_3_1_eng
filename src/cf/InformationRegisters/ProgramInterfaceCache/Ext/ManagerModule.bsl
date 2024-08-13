@@ -283,51 +283,49 @@ EndFunction
 
 Function InnerWSProxy(Parameters) Export
 	
-	WSDLAddress = Parameters.WSDLAddress;
-	NamespaceURI = Parameters.NamespaceURI;
-	ServiceName = Parameters.ServiceName;
-	EndpointName = Parameters.EndpointName;
-	UserName = Parameters.UserName;
-	Password = Parameters.Password;
-	Timeout = Parameters.Timeout;
-	Location = Parameters.Location;
-	UseOSAuthentication = Parameters.UseOSAuthentication;
-	SecureConnection = Parameters.SecureConnection;
-	IsPackageDeliveryCheckOnErrorEnabled = Parameters.IsPackageDeliveryCheckOnErrorEnabled;
-	
 	Protocol = "";
-	Position = StrFind(WSDLAddress, "://");
+	Position = StrFind(Parameters.WSDLAddress, "://");
 	If Position > 0 Then
-		Protocol = Lower(Left(WSDLAddress, Position - 1));
+		Protocol = Lower(Left(Parameters.WSDLAddress, Position - 1));
 	EndIf;
 		
+	SecureConnection = Parameters.SecureConnection;
 	If (Protocol = "https" Or Protocol = "ftps") And SecureConnection = Undefined Then
 		SecureConnection = CommonClientServer.NewSecureConnection();
 	EndIf;
 	
-	WSDefinitions = WSDefinitions(WSDLAddress, UserName, Password,, SecureConnection);
+	WSDefinitions = WSDefinitions(Parameters.WSDLAddress, Parameters.UserName, Parameters.Password,, 
+		SecureConnection);
 	
+	EndpointName = Parameters.EndpointName;
 	If IsBlankString(EndpointName) Then
-		EndpointName = ServiceName + "Soap";
+		EndpointName = Parameters.ServiceName + "Soap";
 	EndIf;
 	
 	InternetProxy = Undefined;
 	If Common.SubsystemExists("StandardSubsystems.GetFilesFromInternet") Then
 		ModuleNetworkDownload = Common.CommonModule("GetFilesFromInternet");
-		InternetProxy = ModuleNetworkDownload.GetProxy(WSDLAddress);
+		InternetProxy = ModuleNetworkDownload.GetProxy(Parameters.WSDLAddress);
 	EndIf;
 	
-	Proxy = New WSProxy(WSDefinitions, NamespaceURI, ServiceName, EndpointName,
-		InternetProxy, Timeout, SecureConnection, Location, UseOSAuthentication);
+	Location = Parameters.Location;
+	If IsBlankString(Location) Then
+		Location = Parameters.WSDLAddress;
+		Position = StrFind(Location, "?");
+		If Position > 0 Then
+			Location = Left(Location, Position - 1);
+		EndIf;
+	EndIf;
 	
-	Proxy.User = UserName;
-	Proxy.Password       = Password;
+	Proxy = New WSProxy(WSDefinitions, Parameters.NamespaceURI, Parameters.ServiceName, EndpointName,
+		InternetProxy, Parameters.Timeout, SecureConnection, Location, Parameters.UseOSAuthentication);
+	Proxy.User = Parameters.UserName;
+	Proxy.Password       = Parameters.Password;
 	
 	Return Proxy;
 EndFunction
 
 #EndRegion
-
 
 #Region Private
 
@@ -481,8 +479,8 @@ Function GetWSDL(Val Address, Val UserName, Val Password, Val Timeout, Val Secur
 		ModuleNetworkDownload = Common.CommonModule("GetFilesFromInternet");
 		FileDetails = ModuleNetworkDownload.DownloadFileAtServer(Address, ReceivingParameters);
 	Else
-		Raise 
-			NStr("en = 'The ""Network download"" subsystem is unavailable.';");
+		Raise(NStr("en = 'The ""Network download"" subsystem is unavailable.';"),
+			ErrorCategory.ConfigurationError);
 	EndIf;
 	
 	If Not FileDetails.Status Then

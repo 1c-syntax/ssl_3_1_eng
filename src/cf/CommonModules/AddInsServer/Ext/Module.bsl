@@ -242,7 +242,7 @@ Procedure UpdateAddIns(AddInsData, ResultAddress = Undefined) Export
 					
 					ExecutionResult.Success.Insert(ResultString1.Id,
 						StringFunctionsClientServer.SubstituteParametersToString(
-							NStr("en = '%1: the application contains a version that is newer than the version in the service (%2 dated %3).';"), 
+							NStr("en = '%1: the app contains a version that is newer than the version in the service (%2 dated %3).';"), 
 							AddInPresentation, ResultString1.Version, Format(ResultString1.VersionDate, "DLF=D")));
 					Continue;
 				EndIf;
@@ -277,6 +277,7 @@ Procedure UpdateAddIns(AddInsData, ResultAddress = Undefined) Export
 				Else
 					Object = Catalogs.AddIns.CreateItem();
 					Object.UpdateFrom1CITSPortal = AutoUpdate;
+					Object.Use = Enums.AddInUsageOptions.Used;
 				EndIf;
 				
 				FillPropertyValues(Object, Information.Attributes); // According to manifest data.

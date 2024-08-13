@@ -230,20 +230,16 @@ Procedure FillCheckProcessing(Form, Cancel, CheckedAttributes, Object = Undefine
 		FillAdditionalAttributesInForm(Form, Object);
 	EndIf;
 	
-	For Each String In Form.PropertiesAdditionalAttributeDetails Do
-		If String.RequiredToFill And Not String.Deleted Then
-			If Not AttributeIsAvailableByFunctionalOptions(String) Then
+	For Each LongDesc In Form.PropertiesAdditionalAttributeDetails Do
+		If LongDesc.RequiredToFill And Not LongDesc.Deleted Then
+			If Not AttributeIsAvailableByFunctionalOptions(LongDesc) Then
 				Continue;
 			EndIf;
 			Result = True;
-			If Object = Undefined Then
-				ObjectDetails = Form.Object;
-			Else
-				ObjectDetails = Object;
-			EndIf;
+			ObjectDetails = ?(Object <> Undefined, Object, Form.Object);
 			
 			For Each DependentAttribute In Form.PropertiesDependentAdditionalAttributesDescription Do
-				If DependentAttribute.ValueAttributeName = String.ValueAttributeName
+				If DependentAttribute.ValueAttributeName = LongDesc.ValueAttributeName
 					And DependentAttribute.FillingRequiredCondition <> Undefined Then
 					
 					Parameters = New Structure;
@@ -259,11 +255,11 @@ Procedure FillCheckProcessing(Form, Cancel, CheckedAttributes, Object = Undefine
 				Continue;
 			EndIf;
 			
-			If Not ValueIsFilled(Form[String.ValueAttributeName]) Then
+			If Not ValueIsFilled(Form[LongDesc.ValueAttributeName]) Then
 				Common.MessageToUser(
-					StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The ""%1"" field is required.';"), String.Description),
+					StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The ""%1"" field is required.';"), LongDesc.Description),
 					,
-					String.ValueAttributeName,
+					LongDesc.ValueAttributeName,
 					,
 					Cancel);
 			EndIf;
@@ -457,8 +453,8 @@ Procedure OnGetDataAtServer(Settings, Rows, OwnerName = Undefined) Export
 	Labels = PropertiesListForObjectsKind.UnloadColumn("Property");
 	LabelsAttributes = Common.ObjectsAttributesValues(Labels, "PropertiesColor, DeletionMark");
 	
-	For Each String In Rows Do
-		Composite = String.Key;
+	For Each ListLine In Rows Do
+		Composite = ListLine.Key;
 		RowData = Rows.Get(Composite);
 		If OwnerName <> Undefined Then
 			Owner = Composite[OwnerName];
@@ -722,7 +718,7 @@ EndFunction
 // Returns:
 //  Structure:
 //     * Description - String - required.
-//     * ValueType  - TypeDescription - 
+//     * ValueType  - TypeDescription - Required.
 //     * Name          - String
 //     * Comment  - String
 //     * ValueFormTitle       - String
@@ -743,7 +739,7 @@ Function PropertyAdditionParameters() Export
 	Parameters.Insert("IDForFormulas", "");
 	Parameters.Insert("MultilineInputField", False);
 	Parameters.Insert("ToolTip", "");
-	Parameters.Insert("Type"); // 
+	Parameters.Insert("Type"); // For backward compatibility purposes.
 	
 	Return Parameters;
 	
@@ -881,8 +877,8 @@ Procedure FillAdditionalAttributesInForm(Form, Object = Undefined, LabelsFields 
 			PropertyValueType1 = New TypeDescription("String");
 		ElsIf PropertyValueType1.ContainsType(Type("String"))
 			And PropertyValueType1.StringQualifiers.Length = 0 Then
-			// 
-			// 
+			// If the string's length is set to unlimited in the attribute properties,
+			// and this is unacceptable, set a limit of 1,024 characters.
 			PropertyValueType1 = New TypeDescription(PropertyDetails.ValueType,
 				,,, New StringQualifiers(1024));
 		EndIf;
@@ -2270,12 +2266,13 @@ Procedure RestoreSettingsOfFormsWithAdditionalAttributes() Export
 		|	AdditionalAttributesAndInfoSets.IsFolder = FALSE
 		|	AND AdditionalAttributesAndInfoSets.PredefinedDataName IN(&PredefinedDataName)";
 	PredefinedDataTable = RequestPredefinedSets.Execute().Unload();
-	For Each String In PredefinedDataTable Do
+	For Each TableRow In PredefinedDataTable Do
 		Try
 			PrefixLength = StrLen("Delete");
-			SetName = Mid(String.PredefinedDataName, PrefixLength + 1, StrLen(String.PredefinedDataName) - PrefixLength);
+			SetName = Mid(TableRow.PredefinedDataName, PrefixLength + 1, 
+				StrLen(TableRow.PredefinedDataName) - PrefixLength);
 			
-			LinkID = String(String.Ref.UUID());
+			LinkID = String(TableRow.Ref.UUID());
 			If StrEndsWith(SetName, "_Overall") Then 
 				Subsidiaries = New Array;
 				SetName     = StrReplace(SetName, "_Overall", "");
@@ -2557,8 +2554,8 @@ Procedure NewMainFormObjects(Form, Context, CreateAdditionalAttributesDetails)
 				EndIf;
 			EndIf;
 			
-			// 
-			// 
+			// Add the command form if this is a full-access user or if
+			// it is assigned the "AddEditAdditionalAttributesAndInfo" role.
 			If AccessRight("Update", Metadata.Catalogs.AdditionalAttributesAndInfoSets) Then
 				// Add a command.
 				Command = Form.Commands.Add("EditAdditionalAttributesComposition");
@@ -2593,7 +2590,7 @@ Procedure NewMainFormObjects(Form, Context, CreateAdditionalAttributesDetails)
 	
 	Form.PropertiesParameters = New Structure;
 	If DeferredInitialization Then
-		// 
+		// If the property is not used, set the deferred initialization flag to "True".
 		// 
 		Value = ?(OptionUseProperties, False, True);
 		Form.PropertiesParameters.Insert("DeferredInitializationExecuted", Value);
@@ -2623,9 +2620,9 @@ Procedure NewMainFormObjects(Form, Context, CreateAdditionalAttributesDetails)
 		EndIf;
 	EndIf;
 	
-	// 
-	// 
-	// 
+	// If additional attributes are located on a separate page and the deferred initialization and properties are enabled,
+	// insert an empty decoration on the page. It will be auto-deleted when the user opens the page.
+	// Also, disable "drag-and-drop" for the group attributes.
 	// 
 	If OptionUseProperties
 		And DeferredInitialization
@@ -3029,7 +3026,26 @@ Function ValuePresentation(Value, LanguageCode, FormatProperties)
 			Presentation = Format(Value, "L=" + LanguageCode);
 		EndIf;
 	Else
-		Presentation = Common.ObjectAttributeValue(Value, "Description", , LanguageCode);
+		MetadataObject = Value.Metadata();
+		
+		HasDescriptionAttribute = Metadata.Catalogs.Contains(MetadataObject)
+				And MetadataObject.DefaultPresentation = Metadata.ObjectProperties.CatalogMainPresentation.AsDescription
+			Or Metadata.ChartsOfCalculationTypes.Contains(MetadataObject)
+				And MetadataObject.DefaultPresentation = Metadata.ObjectProperties.CalculationTypeMainPresentation.AsDescription
+			Or Metadata.ChartsOfCharacteristicTypes.Contains(MetadataObject)
+				And MetadataObject.DefaultPresentation = Metadata.ObjectProperties.CharacteristicTypeMainPresentation.AsDescription
+			Or Metadata.ChartsOfAccounts.Contains(MetadataObject)
+				And MetadataObject.DefaultPresentation = Metadata.ObjectProperties.AccountMainPresentation.AsDescription
+			Or Metadata.ExchangePlans.Contains(MetadataObject)
+				And MetadataObject.DefaultPresentation = Metadata.ObjectProperties.DataExchangeMainPresentation.AsDescription
+			Or Metadata.Tasks.Contains(MetadataObject)
+				And MetadataObject.DefaultPresentation = Metadata.ObjectProperties.TaskMainPresentation.AsDescription;
+		
+		If HasDescriptionAttribute Then
+			Presentation = Common.ObjectAttributeValue(Value, "Description", , LanguageCode);
+		Else
+			Presentation = String(Value);
+		EndIf;
 	EndIf;
 	
 	Return Presentation;
@@ -3056,8 +3072,8 @@ Function PropertiesFormat(Property)
 	EndIf;
 	
 	PropertiesFormat = New Map;
-	For Each String In Result Do
-		PropertiesFormat.Insert(String.Property, String.FormatProperties);
+	For Each TableRow In Result Do
+		PropertiesFormat.Insert(TableRow.Property, TableRow.FormatProperties);
 	EndDo;
 	
 	Return PropertiesFormat;

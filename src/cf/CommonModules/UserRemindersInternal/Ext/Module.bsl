@@ -52,9 +52,9 @@ Procedure OnSendServerNotification(NameOfAlert, ParametersVariants) Export
 		Return;
 	EndIf;
 	
-	// 
-	// 
-	// 
+	// Notifications are added when writing the "UserReminders" information register.
+	// Recurrent notification makes sure that the added notifications
+	// are delivered and the notification list for all users is up to date.
 		
 	UpdateRemindersList(False);
 	
@@ -81,16 +81,18 @@ EndProcedure
 // See AttachableCommandsOverridable.OnDefineCommandsAttachedToObject.
 Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReportsAndDataProcessors, Commands) Export
 	
-	Command = Commands.Add();
-	Command.Kind = "Organizer";
-	Command.Presentation = NStr("en = 'Remind…';");
-	Command.FunctionalOptions = "UseUserReminders";
-	Command.Picture = PictureLib.Reminder;
-	Command.ParameterType = Metadata.DefinedTypes.ReminderSubject.Type;
-	Command.WriteMode = "NotWrite";
-	Command.Order = 50;
-	Command.Handler = "UserRemindersInternalClient.Remind"; 
-	Command.MultipleChoice = False;
+	If AccessRight("Edit", Metadata.InformationRegisters.UserReminders) Then
+		Command = Commands.Add();
+		Command.Kind = "Organizer";
+		Command.Presentation = NStr("en = 'Remind…';");
+		Command.FunctionalOptions = "UseUserReminders";
+		Command.Picture = PictureLib.Reminder;
+		Command.ParameterType = Metadata.DefinedTypes.ReminderSubject.Type;
+		Command.WriteMode = "NotWrite";
+		Command.Order = 50;
+		Command.Handler = "UserRemindersInternalClient.Remind"; 
+		Command.MultipleChoice = False;
+	EndIf;
 	
 EndProcedure
 
@@ -1177,7 +1179,7 @@ Procedure OnCreateAtServer(Form, PlacementParameters) Export
 		InputField.HorizontalStretch = False;
 		
 		SubsystemSettings = SubsystemSettings();
-		TimeIntervals_SSLy = SubsystemSettings.StandardIntervals;
+		TimeIntervals_ = SubsystemSettings.StandardIntervals;
 		
 		InputField.ChoiceList.Clear();
 		If Not SettingsOfReminder.ShouldAddFlag Then
@@ -1185,7 +1187,7 @@ Procedure OnCreateAtServer(Form, PlacementParameters) Export
 		EndIf;
 		InputField.ChoiceList.Add(UserRemindersClientServer.EnumPresentationOnOccurrence());
 		
-		For Each Interval In TimeIntervals_SSLy Do
+		For Each Interval In TimeIntervals_ Do
 			If Not ShouldDisplayShortIntervals And TimeIntervalFromString(Interval) < 24*60*60 Then
 				Continue;
 			EndIf;

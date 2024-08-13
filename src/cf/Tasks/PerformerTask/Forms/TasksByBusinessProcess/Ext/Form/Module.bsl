@@ -20,11 +20,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If UseSubordinateBusinessProcesses Then
 		Items.List.Visible = False;
-		Items.ListCommandBar.Visible = False;
+		Items.CommandBarOfList.Visible = False;
 		Items.TasksTree.Visible = True;
 	Else	
 		Items.List.Visible = True;
-		Items.ListCommandBar.Visible = True;
+		Items.CommandBarOfList.Visible = True;
 		Items.TasksTree.Visible = False;
 	EndIf;	
 		
@@ -88,8 +88,8 @@ EndProcedure
 Procedure Refresh(Command)
 	
 	FillTaskTree();
-	For Each String In TasksTree.GetItems() Do
-		Items.TasksTree.Expand(String.GetID(), True);
+	For Each Item In TasksTree.GetItems() Do
+		Items.TasksTree.Expand(Item.GetID(), True);
 	EndDo;
 	
 EndProcedure
@@ -193,42 +193,38 @@ Procedure AddSubordinateBusinessProcessTasks(Tree, BusinessProcessRef)
 	Query = New Query;
 	Query.Text = 
 		"SELECT ALLOWED
-		|	Tasks.Ref,
-		|	Tasks.Description,
-		|	Tasks.Performer,
-		|	Tasks.PerformerRole,
-		|	Tasks.TaskDueDate,
-		|	Tasks.Executed,
+		|	PerformerTasks.Ref,
+		|	PerformerTasks.Description,
+		|	PerformerTasks.Performer,
+		|	PerformerTasks.PerformerRole,
+		|	PerformerTasks.TaskDueDate,
+		|	PerformerTasks.Executed,
 		|	CASE
-		|		WHEN Tasks.Importance = VALUE(Enum.TaskImportanceOptions.Low)
+		|		WHEN PerformerTasks.Importance = VALUE(Enum.TaskImportanceOptions.Low)
 		|			THEN 0
-		|		WHEN Tasks.Importance = VALUE(Enum.TaskImportanceOptions.High)
+		|		WHEN PerformerTasks.Importance = VALUE(Enum.TaskImportanceOptions.High)
 		|			THEN 2
 		|		ELSE 1
 		|	END AS Importance,
 		|	CASE
-		|		WHEN Tasks.BusinessProcessState = VALUE(Enum.BusinessProcessStates.Suspended)
+		|		WHEN PerformerTasks.BusinessProcessState = VALUE(Enum.BusinessProcessStates.Suspended)
 		|			THEN TRUE
 		|		ELSE FALSE
 		|	END AS Suspended
 		|FROM
-		|	Task.PerformerTask AS Tasks
+		|	Task.PerformerTask AS PerformerTasks
 		|WHERE
-		|	Tasks.BusinessProcess = &BusinessProcess
-		|	AND Tasks.DeletionMark = FALSE";
+		|	PerformerTasks.BusinessProcess = &BusinessProcess
+		|	AND PerformerTasks.DeletionMark = FALSE";
 	If Not ShowExecuted Then	
 		Query.Text = Query.Text + "
-			|	AND Tasks.Executed = &Executed";
+			|	AND PerformerTasks.Executed = &Executed"; // @query-part
 		Query.SetParameter("Executed", False);
 	EndIf;	
 	Query.SetParameter("BusinessProcess", BusinessProcessRef);
 
-	Result = Query.Execute();
-	
-	SelectionDetailRecords = Result.Select();
-	
 	TasksBySubject = BusinessProcessesAndTasksServer.NewTasksBySubject();
-
+	SelectionDetailRecords = Query.Execute().Select();
 	While SelectionDetailRecords.Next() Do
 		
 		String = Undefined;

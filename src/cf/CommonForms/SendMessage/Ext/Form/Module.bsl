@@ -548,7 +548,7 @@ Procedure ImportanceLow(Command)
 	Modified = True;
 EndProcedure
 
-// 
+// StandardSubsystems.MessagesTemplates
 
 &AtClient
 Procedure GenerateFromTemplate(Command)
@@ -650,12 +650,11 @@ Procedure ContinueOpeningMXLFileAfterCreateDirectory(TempDirectoryName, Selected
 	File = New File(TempFileName);
 	File.SetReadOnly(True);
 	
-	OpeningParameters = New Structure;
-	OpeningParameters.Insert("DocumentName", SelectedAttachment.Presentation);
-	OpeningParameters.Insert("SpreadsheetDocument", SpreadsheetDocument);
-	OpeningParameters.Insert("PathToFile", TempFileName);
+	FormParameters = StandardSubsystemsClient.SpreadsheetEditorParameters();
+	FormParameters.DocumentName = SelectedAttachment.Presentation;
+	FormParameters.PathToFile = TempFileName;
 	
-	OpenForm("CommonForm.EditSpreadsheetDocument", OpeningParameters, ThisObject);
+	StandardSubsystemsClient.ShowSpreadsheetEditor(SpreadsheetDocument, FormParameters);
 #EndIf
 	
 EndProcedure

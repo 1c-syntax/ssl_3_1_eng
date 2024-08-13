@@ -774,7 +774,7 @@
 											<v8:content>Status:</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="StatusListExtendedTooltip" id="823"/>
+									<ExtendedTooltip name="ListStatusExtendedTooltip" id="823"/>
 								</Popup>
 								<ButtonGroup name="GroupListCommands" id="48">
 									<Title>
@@ -783,7 +783,7 @@
 											<v8:content>List commands</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="ListCommandsGroup1ExtendedTooltip" id="569"/>
+									<ExtendedTooltip name="GroupListCommandsExtendedTooltip" id="569"/>
 									<ChildItems>
 										<Button name="Change" id="49">
 											<Type>CommandBarButton</Type>
@@ -1283,7 +1283,7 @@
 																		<v8:content>Mark as Reviewed</v8:content>
 																	</v8:item>
 																</Title>
-																<ExtendedTooltip name="NavigationPanelSubjectsContextMenuReviewed1ExtendedTooltip" id="716"/>
+																<ExtendedTooltip name="NavigationPanelSubjectsContextMenuReviewedExtendedTooltip" id="716"/>
 															</Button>
 															<Button name="NavigationPanelSubjectsContextMenuDeferReview" id="717">
 																<Type>CommandBarButton</Type>
@@ -1341,12 +1341,12 @@
 																	<Button name="NavigationPanelSubjectsContextMenuFind" id="798">
 																		<Type>CommandBarButton</Type>
 																		<CommandName>Form.Item.NavigationPanelSubjects.StandardCommand.Find</CommandName>
-																		<ExtendedTooltip name="SubjectsNavigationPanelContextMenuFindExtendedTooltip" id="799"/>
+																		<ExtendedTooltip name="NavigationPanelSubjectsContextMenuFindExtendedTooltip" id="799"/>
 																	</Button>
 																	<Button name="NavigationPanelSubjectsContextMenuCancelSearch" id="800">
 																		<Type>CommandBarButton</Type>
 																		<CommandName>Form.Item.NavigationPanelSubjects.StandardCommand.CancelSearch</CommandName>
-																		<ExtendedTooltip name="SubjectsNavigationPanelContextMenuCancelSearchExtendedTooltip" id="801"/>
+																		<ExtendedTooltip name="NavigationPanelSubjectsContextMenuCancelSearchExtendedTooltip" id="801"/>
 																	</Button>
 																	<Button name="NavigationPanelSubjectsContextMenuActiveSubjectsOnly" id="790">
 																		<Type>CommandBarButton</Type>
@@ -1357,7 +1357,7 @@
 																				<v8:content>Only active topics</v8:content>
 																			</v8:item>
 																		</Title>
-																		<ExtendedTooltip name="SubjectsNavigationPanelContextMenuActiveSubjectsOnlyExtendedTooltip" id="791"/>
+																		<ExtendedTooltip name="NavigationPanelSubjectsContextMenuActiveSubjectsOnlyExtendedTooltip" id="791"/>
 																	</Button>
 																</ChildItems>
 															</ButtonGroup>
@@ -1373,7 +1373,7 @@
 																	<Button name="NavigationPanelSubjectsContextMenuListSettings" id="802">
 																		<Type>CommandBarButton</Type>
 																		<CommandName>Form.Item.NavigationPanelSubjects.StandardCommand.ListSettings</CommandName>
-																		<ExtendedTooltip name="SubjectsNavigationPanelContextMenuListSettingsExtendedTooltip" id="803"/>
+																		<ExtendedTooltip name="NavigationPanelSubjectsContextMenuListSettingsExtendedTooltip" id="803"/>
 																	</Button>
 																</ChildItems>
 															</ButtonGroup>
@@ -1672,7 +1672,7 @@
 																</v8:item>
 															</Title>
 															<ShowInHeader>false</ShowInHeader>
-															<ContextMenu name="BookmarksNameContextMenu" id="123"/>
+															<ContextMenu name="TabsDescriptionContextMenu" id="123"/>
 															<ExtendedTooltip name="TabsDescriptionExtendedTooltip" id="473"/>
 														</LabelField>
 														<InputField name="TabsRef" id="940">
@@ -2445,7 +2445,7 @@
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="ListGroup2ExtendedTooltip" id="541"/>
+							<ExtendedTooltip name="GroupListExtendedTooltip" id="541"/>
 							<ChildItems>
 								<Table name="List" id="2">
 									<HeightInTableRows>3</HeightInTableRows>
@@ -2559,7 +2559,7 @@
 														</Title>
 														<ExtendedTooltip name="ListContextMenuReplyToAllExtendedTooltip" id="904"/>
 													</Button>
-													<Button name="ListContextMenuSendOn" id="905">
+													<Button name="ListContextMenuForwardMail" id="905">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.ForwardMail</CommandName>
 														<Title>
@@ -2568,7 +2568,7 @@
 																<v8:content>Forward</v8:content>
 															</v8:item>
 														</Title>
-														<ExtendedTooltip name="ListContextMenuForwardExtendedTooltip" id="906"/>
+														<ExtendedTooltip name="ListContextMenuForwardMailExtendedTooltip" id="906"/>
 													</Button>
 													<Button name="ListContextMenuForwardAsAttachment" id="907">
 														<Type>CommandBarButton</Type>
@@ -2648,29 +2648,29 @@
 										<Autofill>false</Autofill>
 									</AutoCommandBar>
 									<ExtendedTooltip name="ListExtendedTooltip" id="584"/>
-									<SearchStringAddition name="ListSearchString_SSLy" id="888">
+									<SearchStringAddition name="ListSearchString" id="888">
 										<AdditionSource>
 											<Item>List</Item>
 											<Type>SearchStringRepresentation</Type>
 										</AdditionSource>
-										<ContextMenu name="ListSearchString_SSLyContextMenu" id="889"/>
-										<ExtendedTooltip name="ListSearchString_SSLyExtendedTooltip" id="890"/>
+										<ContextMenu name="ListSearchStringContextMenu" id="889"/>
+										<ExtendedTooltip name="ListSearchStringExtendedTooltip" id="890"/>
 									</SearchStringAddition>
-									<ViewStatusAddition name="ListViewStatus_SSLy" id="891">
+									<ViewStatusAddition name="ListViewStatus" id="891">
 										<AdditionSource>
 											<Item>List</Item>
 											<Type>ViewStatusRepresentation</Type>
 										</AdditionSource>
-										<ContextMenu name="ListViewStatus_SSLyContextMenu" id="892"/>
-										<ExtendedTooltip name="ListViewStatus_SSLyExtendedTooltip" id="893"/>
+										<ContextMenu name="ListViewStatusContextMenu" id="892"/>
+										<ExtendedTooltip name="ListViewStatusExtendedTooltip" id="893"/>
 									</ViewStatusAddition>
-									<SearchControlAddition name="ListSearchControl_SSLy" id="894">
+									<SearchControlAddition name="ListSearchControl" id="894">
 										<AdditionSource>
 											<Item>List</Item>
 											<Type>SearchControl</Type>
 										</AdditionSource>
-										<ContextMenu name="ListSearchControl_SSLyContextMenu" id="895"/>
-										<ExtendedTooltip name="ListSearchControl_SSLyExtendedTooltip" id="896"/>
+										<ContextMenu name="ListSearchControlContextMenu" id="895"/>
+										<ExtendedTooltip name="ListSearchControlExtendedTooltip" id="896"/>
 									</SearchControlAddition>
 									<Events>
 										<Event name="DragCheck">ListDragCheck</Event>
@@ -2688,7 +2688,7 @@
 													<v8:content>Flags</v8:content>
 												</v8:item>
 											</Title>
-											<ExtendedTooltip name="FlagsGroup1ExtendedTooltip" id="773"/>
+											<ExtendedTooltip name="GroupFlagsExtendedTooltip" id="773"/>
 											<ChildItems>
 												<PictureField name="PictureNumber" id="330">
 													<DataPath>List.PictureNumber</DataPath>
@@ -2993,8 +2993,8 @@
 									</Title>
 									<TitleLocation>None</TitleLocation>
 									<TextColor>style:NoteText</TextColor>
-									<ContextMenu name="DescriptionFoundByFullTextSearchContextMenu" id="324"/>
-									<ExtendedTooltip name="DescriptionFoundByFullTextSearchExtendedTooltip" id="689"/>
+									<ContextMenu name="DetailsFoundByFullTextSearchContextMenu" id="324"/>
+									<ExtendedTooltip name="DetailsFoundByFullTextSearchExtendedTooltip" id="689"/>
 								</LabelField>
 							</ChildItems>
 						</UsualGroup>

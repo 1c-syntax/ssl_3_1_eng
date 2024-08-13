@@ -315,6 +315,27 @@ Function ExecuteAtServerSide(Val Parameters, ResultAddress, OperationStarted, Er
 		EndIf;
 	EndIf;
 	
+	If Parameters.Operation = "Signing" Then
+		
+		CertificateBinaryData = CryptoCertificate.Unload();
+		
+		CertificateProperties = DigitalSignatureInternalClientServer.CertificateProperties(
+			CryptoCertificate, DigitalSignatureInternal.UTCOffset(), CertificateBinaryData);
+		CertificateProperties.Insert("BinaryData", CertificateBinaryData);
+
+		CertificateAlgorithm = DigitalSignatureInternalClientServer.CertificateSignAlgorithm(
+			CertificateBinaryData, False, True);
+		IsCorrespondingAlgorithm = DigitalSignatureInternalClientServer.SignAlgorithmCorrespondsToCertificate(
+			CertificateProperties.Presentation, CertificateAlgorithm, CryptoManager.SignAlgorithm);
+
+		If IsCorrespondingAlgorithm <> True Then
+
+			ErrorAtServer.Insert("ErrorDescription", IsCorrespondingAlgorithm);
+			Return False;
+
+		EndIf;
+	EndIf;
+	
 	Try
 		Data = GetFromTempStorage(Parameters.DataItemForSErver.Data);
 	Except
@@ -428,11 +449,6 @@ Function ExecuteAtServerSide(Val Parameters, ResultAddress, OperationStarted, Er
 	OperationStarted = True;
 	
 	If Parameters.Operation = "Signing" Then
-		
-		CertificateBinaryData = CryptoCertificate.Unload();
-		
-		CertificateProperties = DigitalSignature.CertificateProperties(CryptoCertificate);
-		CertificateProperties.Insert("BinaryData", CertificateBinaryData);
 		
 		If DigitalSignature.AvailableAdvancedSignature() Then
 			SignatureProperties = DigitalSignatureInternal.SignaturePropertiesReadByCryptoManager(
@@ -841,11 +857,11 @@ EndFunction
 
 #Region DigitalSignatureDiagnostics
 
-Function ToSupplementDecisionOfErrorClassifierWithDetails(Val ClassifierError,
-	Val AdditionalData, Val ParametersForCompletingTextOfClassifierErrorSolutionOnClient, Val ErrorLocation = Undefined) Export
+Function SupplementErrorClassifierSolutionWithDetails(Val ClassifierError,
+	Val AdditionalData, Val ClassifierErrorSolutionTextSupplementOptionsAtClient, Val ErrorLocation = Undefined) Export
 	
-	Return DigitalSignatureInternal.ToSupplementDecisionOfErrorClassifierWithDetails(ClassifierError,
-		AdditionalData, ParametersForCompletingTextOfClassifierErrorSolutionOnClient, ErrorLocation);
+	Return DigitalSignatureInternal.SupplementErrorClassifierSolutionWithDetails(ClassifierError,
+		AdditionalData, ClassifierErrorSolutionTextSupplementOptionsAtClient, ErrorLocation);
 		
 EndFunction
 
@@ -1083,7 +1099,7 @@ Function TechnicalInformationArchiveAddress(
 			VerifiedPathsToProgramModulesOnTheClient);
 		StateText = New TextDocument;
 		StateText.SetText(AccompanyingText);
-		FileName = GetTempFileName("txt"); // 
+		FileName = GetTempFileName("txt"); // ACC:441 - Temporary files are deleted downstream.
 		StateText.Write(FileName);
 		TemporaryFiles.Add(FileName);
 		InformationArchive.Add(TemporaryFiles[0]);
@@ -1181,5 +1197,20 @@ Function StartDownloadFileAtServer(Parameters) Export
 	
 EndFunction
 
+
+Function TimestampServersDiagnosticsResult() Export
+		
+	TimestampServersAddresses = DigitalSignature.CommonSettings().TimestampServersAddresses;
+	
+	If TimestampServersAddresses.Count() = 0 Then
+		Return NStr("en = 'The addresses of timestamp servers are unfilled in digital signature settings.';");
+	Else
+		StringForConnection = StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'Accessing timestamp servers on server <%1>.';"), ComputerName());
+		
+		Return DigitalSignatureInternalClientServer.TimestampServersDiagnostics(TimestampServersAddresses, StringForConnection);
+	EndIf;
+	
+EndFunction
 
 #EndRegion

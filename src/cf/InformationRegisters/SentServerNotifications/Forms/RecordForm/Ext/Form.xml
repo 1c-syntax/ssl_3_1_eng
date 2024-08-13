@@ -38,7 +38,7 @@
 							<v8:content>Main</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="GeneralPageExtendedTooltip" id="43"/>
+					<ExtendedTooltip name="PageGeneralExtendedTooltip" id="43"/>
 					<ChildItems>
 						<InputField name="DataAreaAuxiliaryData" id="18">
 							<DataPath>Record.DataAreaAuxiliaryData</DataPath>

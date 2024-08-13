@@ -21,9 +21,9 @@ Procedure OnDefineSettings(Settings) Export
 	
 EndProcedure
 
-// Determines the list of configuration objects in whose manager modules this procedure is available 
-// AddCreateOnBasisCommands, which generates commands of creation based on objects.
-// See the help for the AddCreateOnBasisCommands procedure syntax.
+// Specifies the list of configuration objects whose manager modules contain the AddGenerationCommands procedure, 
+// which creates commands for generating objects based on other objects.
+// See the SSL documentation for the procedure syntax.
 //
 // Parameters:
 //   Objects - Array - metadata objects (MetadataObject) with commands of creation on basis.
@@ -83,8 +83,8 @@ EndProcedure
 //             "Post"             - Post documents.
 //             Before writing or posting the object, users are asked for confirmation.
 //             Optional. Default value is "Write".
-//       * FilesOperationsRequired - Boolean - if True, in the web client, users are prompted to
-//             install the file system extension.
+//       * FilesOperationsRequired - Boolean - If True, in the web client, users are prompted
+//             to install 1C:Enterprise Extension.
 //             Optional. The default value is False.
 //     
 //     Handler settings:
@@ -103,22 +103,22 @@ EndProcedure
 //   Parameters - Structure - information about execution context:
 //       * FormName - String - Form full name.
 //
-//   StandardProcessing - Boolean - if False, the "AddCreateOnBasisCommands" event of the object
-//                                   manager is not called.
+//   StandardProcessing - Boolean - If False, the object manager's AddGenerationCommands event
+//                                   is not called.
 //
 Procedure BeforeAddGenerationCommands(GenerationCommands, Parameters, StandardProcessing) Export
 
 EndProcedure
 
-// Defined the list of commands for creating on the basis. Called before calling AddCreateOnBasisCommands of the object
-// manager module.
+// Defines the list of generation commands. Called before the object manager's
+// AddGenerationCommands call.
 //
 // Parameters:
 //  Object - MetadataObject - an object for which the commands are added.
 //  GenerationCommands - See GenerateFromOverridable.BeforeAddGenerationCommands.GenerationCommands
 //  Parameters - See GenerateFromOverridable.BeforeAddGenerationCommands.Parameters
-//  StandardProcessing - Boolean - if False, the "AddCreateOnBasisCommands" event of the object
-//                                  manager is not called.
+//  StandardProcessing - Boolean - If False, the object manager's AddGenerationCommands event
+//                                  is not called.
 //
 Procedure OnAddGenerationCommands(Object, GenerationCommands, Parameters, StandardProcessing) Export
 	

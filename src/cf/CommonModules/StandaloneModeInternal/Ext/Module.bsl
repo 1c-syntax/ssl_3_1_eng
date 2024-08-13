@@ -610,7 +610,7 @@ Function DefaultDataSynchronizationSchedule() Export // Every hour.
 	Schedule = New JobSchedule;
 	Schedule.Months                   = Months;
 	Schedule.WeekDays                = WeekDays;
-	Schedule.RepeatPeriodInDay = 60*60; // 
+	Schedule.RepeatPeriodInDay = 60*60; // 60 minutes.
 	Schedule.DaysRepeatPeriod        = 1; // Every day.
 	
 	Return Schedule;
@@ -1036,7 +1036,7 @@ Procedure DoImportParametersFromInitialImage()
 		// The constant value must be True to call the standalone workstation setup wizard.
 		Constants.SubordinateDIBNodeSetupCompleted.Set(True);
 		
-		// Adding a record to exchange transport information register.
+		// Add a record to the exchange transport information register.
 		RecordStructure = New Structure;
 		RecordStructure.Insert("DefaultExchangeMessagesTransportKind", Enums.ExchangeMessagesTransportTypes.WS);
 		RecordStructure.Insert("WSUseLargeVolumeDataTransfer", True);
@@ -1045,7 +1045,7 @@ Procedure DoImportParametersFromInitialImage()
 		
 		InformationRegisters.DataExchangeTransportSettings.AddRecord(RecordStructure);
 		
-		// Adding a record to the information register of common infobase node settings.
+		// Add a record to the information register of common infobase node settings.
 		RecordStructure = New Structure;
 		RecordStructure.Insert("InfobaseNode", ApplicationInSaaS());
 		RecordStructure.Insert("SettingCompleted", True);
@@ -1068,8 +1068,8 @@ Procedure DoImportParametersFromInitialImage()
 		RecordStructure.Insert("EndDate", Parameters.InitialImageCreationDate);
 		InformationRegisters.SuccessfulDataExchangesStates.AddRecord(RecordStructure);
 		
-		// 
-		// 
+		// Set the default sync schedule.
+		// Disable the schedule as the password is not set.
 		ScheduledJobsServer.SetScheduledJobUsage(Metadata.ScheduledJobs.DataSynchronizationWithWebApplication, False);
 		ScheduledJobsServer.SetJobSchedule(Metadata.ScheduledJobs.DataSynchronizationWithWebApplication, DefaultDataSynchronizationSchedule());
 		
@@ -1173,8 +1173,8 @@ Procedure ImportInitialImageData()
 	DataExchangeInternal.DisableAccessKeysUpdate(True, False);
 	SetRegistersTotalsUsage(False);
 	
-	//  
-	// 
+	// If accounting register records are imported before the chart of accounts, an invalid record error occurs. 
+	// Therefore, write accounting registers the last (first, add them to the array "SetsOfAccountingRegisters").
 	// 
 	// 
 	SetsOfAccountingRegisters = New Array;
@@ -1378,10 +1378,10 @@ Function MetadataObjectIsException(Val MetadataObject)
 		Return True;
 	EndIf;
 	
-	// 
-	// 
-	// 
-	// 
+	// The catalog "MetadataObjectIDs" is the initial node object.
+	// In child nodes, most catalog attributes can be updated using the
+	// metadata property values strictly according to the master node (intended for exceptions).
+	// The "BeforeWrite" procedure in the object module controls the modification.
 	If MetadataObject = Metadata.Catalogs.MetadataObjectIDs Then
 		Return True;
 	EndIf;

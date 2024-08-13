@@ -131,7 +131,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Client
+// Client.
 
 &AtClient
 Procedure ContinueCountdown()
@@ -180,7 +180,7 @@ Function DialogReturnCodeByValue(Value)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Server
+// Server.
 
 &AtServer
 Procedure AddCommandsAndButtonsToForm(Buttons)

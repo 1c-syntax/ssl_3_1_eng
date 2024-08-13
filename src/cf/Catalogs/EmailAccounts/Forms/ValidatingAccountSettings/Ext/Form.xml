@@ -43,7 +43,7 @@
 			<Button name="FormClose" id="179">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.Close</CommandName>
-				<ExtendedTooltip name="FormClose3ExtendedTooltip" id="180"/>
+				<ExtendedTooltip name="FormCloseExtendedTooltip" id="180"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
@@ -78,8 +78,8 @@
 								<xr:LoadTransparent>false</xr:LoadTransparent>
 							</Picture>
 							<FileDragMode>AsFile</FileDragMode>
-							<ContextMenu name="TimeConsumingOperationPicture2ContextMenu" id="161"/>
-							<ExtendedTooltip name="TimeConsumingOperationPicture2ExtendedTooltip" id="162"/>
+							<ContextMenu name="PictureTimeConsumingOperationContextMenu" id="161"/>
+							<ExtendedTooltip name="PictureTimeConsumingOperationExtendedTooltip" id="162"/>
 						</PictureDecoration>
 						<LabelDecoration name="ValidatingAccountSettingsLabel" id="163">
 							<AutoMaxWidth>false</AutoMaxWidth>
@@ -165,8 +165,8 @@ This might take a while.</v8:content>
 									<MultiLine>true</MultiLine>
 									<BackColor>style:FormBackColor</BackColor>
 									<BorderColor>style:FormBackColor</BorderColor>
-									<ContextMenu name="ErrorMessagesContextMenu" id="19"/>
-									<ExtendedTooltip name="ErrorMessagesExtendedTooltip" id="20"/>
+									<ContextMenu name="ErrorsMessagesContextMenu" id="19"/>
+									<ExtendedTooltip name="ErrorsMessagesExtendedTooltip" id="20"/>
 								</InputField>
 							</ChildItems>
 						</UsualGroup>
@@ -377,7 +377,7 @@ This might take a while.</v8:content>
 										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
-									<ContextMenu name="StatusWarningPicture1ContextMenu" id="220"/>
+									<ContextMenu name="WarningPicture1ContextMenu" id="220"/>
 									<ExtendedTooltip name="WarningPicture1ExtendedTooltip" id="221"/>
 								</PictureDecoration>
 								<UsualGroup name="ErrorMessagesGroup1" id="222">

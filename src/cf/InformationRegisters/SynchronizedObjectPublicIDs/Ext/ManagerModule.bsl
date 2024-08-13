@@ -71,8 +71,8 @@ EndProcedure
 //
 Function PublicIDByObjectRef(InfobaseNode, ObjectReference) Export
 	
-	// 
-	// 
+	// Intended for cases where the external UID is stored separately. Use cases:
+	// - For a document string in this infobase, generate a whole document in a peer infobase.
 	//  
 	If TypeOf(ObjectReference) = Type("UUID") Then
 		

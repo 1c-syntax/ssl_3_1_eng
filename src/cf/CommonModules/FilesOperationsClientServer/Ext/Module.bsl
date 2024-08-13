@@ -59,10 +59,10 @@ Procedure DetermineAttachedFileForm(Source, FormType, Parameters,
 		
 EndProcedure
 
-// User scanning settings.
+// Returns user scanning settings.
 // 
 // Returns:
-//  Structure - user scanning settings:
+//  Structure:
 //   * ShowScannerDialog - Boolean
 //   * DeviceName - String - NameOfScanner
 //   * ScannedImageFormat - EnumRef.ScannedImageFormats
@@ -73,32 +73,32 @@ EndProcedure
 //   * Rotation - EnumRef.PictureRotationOptions
 //   * PaperSize - EnumRef.PaperSizes
 //   * DuplexScanning - Boolean
+//   * DocumentAutoFeeder - Boolean
 //   * UseImageMagickToConvertToPDF - Boolean
 //   * JPGQuality - Number
 //   * TIFFDeflation - EnumRef.TIFFCompressionTypes
 //   * PathToConverterApplication - String
-//   * SinglePageStorageFormat - EnumRef.SinglePageFileStorageFormats
 //
 Function UserScanSettings() Export
-	UserScanSettings = New Structure;
-	UserScanSettings.Insert("ShowScannerDialog", False);
-	UserScanSettings.Insert("DeviceName", "");
-	UserScanSettings.Insert("ScannedImageFormat");
-	UserScanSettings.Insert("ShouldSaveAsPDF", False);
-	UserScanSettings.Insert("MultipageStorageFormat");
-	UserScanSettings.Insert("Resolution");
-	UserScanSettings.Insert("Chromaticity");
-	UserScanSettings.Insert("Rotation");
-	UserScanSettings.Insert("PaperSize");
-	UserScanSettings.Insert("DuplexScanning", False);
-	UserScanSettings.Insert("UseImageMagickToConvertToPDF", False);
-	UserScanSettings.Insert("JPGQuality", 0);
-	UserScanSettings.Insert("TIFFDeflation");
-	UserScanSettings.Insert("PathToConverterApplication", "");
-	UserScanSettings.Insert("SinglePageStorageFormat");
-	UserScanSettings.Insert("ScanLogCatalog");
-	UserScanSettings.Insert("UseScanLogDirectory", False);
-	Return UserScanSettings;
+	Result = New Structure;
+	Result.Insert("ShowScannerDialog", False);
+	Result.Insert("DeviceName", "");
+	Result.Insert("ScannedImageFormat");
+	Result.Insert("ShouldSaveAsPDF", False);
+	Result.Insert("MultipageStorageFormat");
+	Result.Insert("Resolution");
+	Result.Insert("Chromaticity");
+	Result.Insert("Rotation");
+	Result.Insert("PaperSize");
+	Result.Insert("DuplexScanning", False);
+	Result.Insert("DocumentAutoFeeder", False);
+	Result.Insert("UseImageMagickToConvertToPDF", False);
+	Result.Insert("JPGQuality", 0);
+	Result.Insert("TIFFDeflation");
+	Result.Insert("PathToConverterApplication", "");
+	Result.Insert("ScanLogCatalog");
+	Result.Insert("UseScanLogDirectory", False);
+	Return Result;
 EndFunction
 
 #EndRegion
@@ -113,7 +113,7 @@ EndFunction
 //
 // Returns:
 //   Structure:
-//    * BaseName             - String - the file name without extension.
+//    * BaseName             - String - File name without the extension.
 //    * ExtensionWithoutPoint           - String - a file extension.
 //    * Modified               - Date   - date and time of file modification.
 //    * ModificationTimeUniversal  - Date   - a date and a time of file modification (UTC).

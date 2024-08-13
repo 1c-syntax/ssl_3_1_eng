@@ -10,7 +10,7 @@
 	<AutoTitle>false</AutoTitle>
 	<AutoCommandBar name="FormCommandBar" id="-1">
 		<ChildItems>
-			<Button name="FormExecuteExport1" id="12">
+			<Button name="FormExportPerformanceTestFile" id="12">
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.ExportPerformanceTestFile</CommandName>
@@ -20,7 +20,7 @@
 						<v8:content>Export</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="FormExecuteExport1ExtendedTooltip" id="13"/>
+				<ExtendedTooltip name="FormExportPerformanceTestFileExtendedTooltip" id="13"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>

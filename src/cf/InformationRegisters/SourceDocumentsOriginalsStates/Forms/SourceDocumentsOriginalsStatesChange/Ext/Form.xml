@@ -334,7 +334,7 @@
 												</v8:item>
 											</Title>
 											<RepresentationInContextMenu>None</RepresentationInContextMenu>
-											<ExtendedTooltip name="ShowAllExtendedTooltip" id="86"/>
+											<ExtendedTooltip name="ShowAllItemsExtendedTooltip" id="86"/>
 										</Button>
 									</ChildItems>
 								</Popup>
@@ -563,10 +563,10 @@
 					<TitleLocation>None</TitleLocation>
 					<GroupVerticalAlign>Bottom</GroupVerticalAlign>
 					<Hiperlink>true</Hiperlink>
-					<ContextMenu name="DocumentRefContextMenu" id="118"/>
-					<ExtendedTooltip name="DocumentRefExtendedTooltip" id="119"/>
+					<ContextMenu name="DocumentReferenceContextMenu" id="118"/>
+					<ExtendedTooltip name="DocumentReferenceExtendedTooltip" id="119"/>
 					<Events>
-						<Event name="Click">DocumentRefClick</Event>
+						<Event name="Click">DocumentReferenceClick</Event>
 					</Events>
 				</LabelField>
 				<Button name="OK" id="155">

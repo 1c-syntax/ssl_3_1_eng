@@ -24,6 +24,13 @@ Function PermanentMetadataObjectsRightsRestrictionsKinds(ForCheck = False) Expor
 	
 EndFunction
 
+// See AccessManagementInternal.AccessKindsPresentation
+Function AccessKindsPresentation() Export
+	
+	Return AccessManagementInternal.AccessKindsPresentation();
+	
+EndFunction
+
 #EndRegion
 
 #Region Private
@@ -62,13 +69,6 @@ Function DescriptionPropertiesAccessTypesSession() Export
 	Result.Insert("Validation", New Structure("Date", '00010101'));
 	
 	Return New FixedStructure(Result);
-	
-EndFunction
-
-// See AccessManagementInternal.AccessKindsPresentation
-Function AccessKindsPresentation() Export
-	
-	Return AccessManagementInternal.AccessKindsPresentation();
 	
 EndFunction
 
@@ -434,7 +434,7 @@ Function DetailsOfAccessValuesTypesAndRightsSettingsOwners() Export
 	
 EndFunction
 
-// 
+// Returns reference types from the "AccessValueObject" type collection.
 // 
 // Returns:
 //  TypeDescription
@@ -1126,6 +1126,30 @@ Function FieldsInMetadataCharsRegister(FullName, Fields) Export
 	EndDo;
 	
 	Return StrConcat(FieldsAsInMetadata, ",");
+	
+EndFunction
+
+// Returns a string.
+//
+// Parameters:
+//  Char - String - A 1-character long string.
+//  Count - Number - The number of characters to return.
+//
+// Returns:
+//  String
+//
+Function CharacterString(Char = " ", Count = 50) Export
+	
+	Template = "                                                  ";
+	If Count > 50 Then
+		Templates = New Array;
+		While Templates.Count() * 50 < Count Do
+			Templates.Add(Template);
+		EndDo;
+		Template = StrConcat(Templates, "");
+	EndIf;
+	
+	Return Left(StrReplace(Template, " ", Char), Count);
 	
 EndFunction
 

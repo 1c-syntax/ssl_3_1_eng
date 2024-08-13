@@ -125,10 +125,10 @@ EndFunction
 //
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
-// 
+// Cast the referenced to the format "Type + ID" for storing in permission registers.
+// A custom Ref storage method is used because permission registers don't require reference integrity
 //
-// 
+// and register records are not deleted following an object deletion.
 // 
 // 
 //
@@ -171,9 +171,9 @@ EndFunction
 Function PermissionsToUseExternalResourcesPresentation(Val ProgramModuleType, 
 	Val ModuleID, Val OwnerType, Val OwnerID, Val Permissions) Export
 	
-	// 
-	// 
-	// 
+	// ACC:326-off - The transaction is intended to use the "PermissionsRequests" information register as an
+	// intermediate cache for estimating if the queries are used to allow external resources.
+	// Transaction rollbacks are used as a trigger for clearing up the calculation cache.
 	
 	BeginTransaction();
 	Try

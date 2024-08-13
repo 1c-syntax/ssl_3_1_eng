@@ -39,8 +39,8 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 		EndIf;
 	EndIf;
 	
-	//  
-	//     
+	// If the report is published, the name used to register the additional report 
+	//     must be checked for uniqueness.
 	If Publication = Enums.AdditionalReportsAndDataProcessorsPublicationOptions.Used Then
 		
 		// Check name.

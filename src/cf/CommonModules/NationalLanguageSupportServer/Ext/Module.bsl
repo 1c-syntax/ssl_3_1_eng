@@ -216,45 +216,48 @@ Procedure BeforeWriteAtServer(CurrentObject) Export
 	
 	Presentations = CurrentObject.Presentations; // TabularSection
 	Filter = New Structure();
-	Filter.Insert("LanguageCode", CurrentLanguage().LanguageCode);
-	FoundRows = Presentations.FindRows(Filter);
-	
-	If FoundRows.Count() > 0 Then
-		Presentation = FoundRows[0];
-	Else
-		Presentation = Presentations.Add();
-		Presentation.LanguageCode = CurrentLanguage().LanguageCode;
-	EndIf;
-	
-	For Each AttributeName In Attributes Do
+	If CurrentLanguage().LanguageCode <> Common.DefaultLanguageCode() Then
+		Filter.Insert("LanguageCode", CurrentLanguage().LanguageCode);
+		FoundRows = Presentations.FindRows(Filter);
 		
-		If NamesOfMultiLangAttributesInHeader[AttributeName] <> Undefined Then
-			
-			ValueInCurrentLanguage = CurrentObject[AttributeName + CurrentLanguageSuffix];
-			If IsBlankString(ValueInCurrentLanguage) Then
-				Presentation[AttributeName] = CurrentObject[AttributeName];
-			Else
-				Presentation[AttributeName] = ValueInCurrentLanguage;
-			EndIf;
-			
+		If FoundRows.Count() > 0 Then
+			Presentation = FoundRows[0];
 		Else
-			
-			Presentation[AttributeName] = CurrentObject[AttributeName];
-			
+			Presentation = Presentations.Add();
+			Presentation.LanguageCode = CurrentLanguage().LanguageCode;
 		EndIf;
 		
-	EndDo;
+		For Each AttributeName In Attributes Do
+			
+			If NamesOfMultiLangAttributesInHeader[AttributeName] <> Undefined Then
+				
+				ValueInCurrentLanguage = CurrentObject[AttributeName + CurrentLanguageSuffix];
+				If IsBlankString(ValueInCurrentLanguage) Then
+					Presentation[AttributeName] = CurrentObject[AttributeName];
+				Else
+					Presentation[AttributeName] = ValueInCurrentLanguage;
+				EndIf;
+				
+			Else
+				
+				Presentation[AttributeName] = CurrentObject[AttributeName];
+				
+			EndIf;
+			
+		EndDo;
+	EndIf;
 	
-	FillInMultilingualAttributesOfTabularPartOfPresentation(CurrentObject, Attributes);
+	PopulateMultilingualAttributesOfPresentationsTabularSection(CurrentObject, Attributes);
 	
-	Filter.LanguageCode = Common.DefaultLanguageCode();
+	Filter.Insert("LanguageCode", Common.DefaultLanguageCode());
 	FoundRows = Presentations.FindRows(Filter);
 	If FoundRows.Count() > 0 Then
 		For Each AttributeName In Attributes Do  
 			If NamesOfMultiLangAttributesInHeader[AttributeName] = Undefined
 			   Or (CurrentLanguage().LanguageCode <> Common.DefaultLanguageCode()
-			   And IsBlankString(CurrentLanguageSuffix)) Then
-				CurrentObject[AttributeName] = FoundRows[0][AttributeName]; 
+			   And IsBlankString(CurrentLanguageSuffix)) 
+			   And CurrentObject[AttributeName] <> Null Then
+					CurrentObject[AttributeName] = FoundRows[0][AttributeName];
 			EndIf;
 		EndDo;
 		Presentations.Delete(FoundRows[0]);
@@ -395,7 +398,7 @@ Procedure ChoiceDataGetProcessing(ChoiceData, Val Parameters, StandardProcessing
 		EndIf;
 	EndDo;
 	
-	QueryTemplate = "SELECT TOP 20
+	QueryTemplate = "SELECT ALLOWED TOP 20
 	|	Table.Ref AS Ref
 	|FROM
 	|	&ObjectName AS Table
@@ -1868,7 +1871,7 @@ Procedure FillInEmptyMultilingualDetailsWithTheValueOfTheMainLanguage(Selection,
 	
 EndProcedure
 
-Procedure FillInMultilingualAttributesOfTabularPartOfPresentation(CurrentObject, Val Attributes)
+Procedure PopulateMultilingualAttributesOfPresentationsTabularSection(CurrentObject, Val Attributes)
 	
 	Presentations = CurrentObject.Presentations; // TabularSection
 	CurrentLanguageSuffix = CurrentLanguageSuffix();
@@ -1883,21 +1886,21 @@ Procedure FillInMultilingualAttributesOfTabularPartOfPresentation(CurrentObject,
 		EndDo;
 	EndIf;
 
-	For Each LanguageOfPrintedForm In AvailableLanguages Do
+	For Each PrintFormLanguage In AvailableLanguages Do
 		
-		If CurrentLanguage().LanguageCode = LanguageOfPrintedForm Then
+		If CurrentLanguage().LanguageCode = PrintFormLanguage Then
 			Continue;
 		EndIf;
 		
 		Filter = New Structure();
-		Filter.Insert("LanguageCode", LanguageOfPrintedForm);
+		Filter.Insert("LanguageCode", PrintFormLanguage);
 		FoundRows = Presentations.FindRows(Filter);
 		
 		If FoundRows.Count() > 0 Then
 			Presentation = FoundRows[0];
 		Else
 			Presentation = Presentations.Add();
-			Presentation.LanguageCode = LanguageOfPrintedForm;
+			Presentation.LanguageCode = PrintFormLanguage;
 		EndIf;
 		
 		For Each AttributeName In Attributes Do

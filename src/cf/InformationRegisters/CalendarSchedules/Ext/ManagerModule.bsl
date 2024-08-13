@@ -176,7 +176,7 @@ EndProcedure
 //
 Procedure UpdateWorkSchedulesAccordingToBusinessCalendars(UpdateConditions) Export
 	
-	// 
+	// Identify the schedules to update, get their data, and update them year-wise.
 	// 
 	// 
 	
@@ -398,11 +398,11 @@ Procedure WriteScheduleDataToRegister(WorkScheduleCalendar, DaysIncludedInSchedu
 	SetDays = InformationRegisters.CalendarSchedules.CreateRecordSet();
 	SetDays.Filter.Calendar.Set(WorkScheduleCalendar);
 	
-	// 
-	// 
-	//  
-	//  
-	// 
+	// The optimal approach here is year-wise.
+	// Select the used years and for each year:
+	// - Read the set 
+	// - Modify it 
+	// - Write it
 	// 
 	
 	DataByYears = New Map;

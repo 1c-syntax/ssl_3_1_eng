@@ -299,16 +299,16 @@ Procedure OnAttachExternalDataProcessor(Val Ref, StandardProcessing, Result) Exp
 		SafeMode = String(ConnectionParameters.GUIDVersion);
 	EndIf;
 	
-	// 
-	// 
-	// 
+	// ACC:552-off - Connections in an additional report and data processor area approved by the service administrator.
+	// ACC:556-off
+	// ACC:553-off
 	AddressInTempStorage = PutToTempStorage(ConnectionParameters.DataProcessorStorage.Get());
 	Manager = ?(IsReport(Ref), ExternalReports, ExternalDataProcessors);
 	Result = Manager.Connect(AddressInTempStorage, ConnectionParameters.ObjectName, SafeMode, 
 		Common.ProtectionWithoutWarningsDetails()); 
-	// 
-	// 
-	// 
+	// ACC:552-on
+	// ACC:556-on
+	// ACC:552-on
 	
 EndProcedure
 
@@ -339,15 +339,15 @@ Procedure OnCreateExternalDataProcessor(Val Ref, StandardProcessing, Result) Exp
 	
 	CheckCanExecute(Ref);
 	
-	// 
-	// 
+	// ACC:552-off - Connections in an additional report and data processor area approved by the service administrator.
+	// ACC:553-off
 	If IsReport(Ref) Then
 		Result = ExternalReports.Create(DataProcessorName);
 	Else
 		Result = ExternalDataProcessors.Create(DataProcessorName);
 	EndIf;
-	// 
-	// 
+	// ACC:553-on
+	// ACC:552-on
 	
 EndProcedure
 
@@ -584,8 +584,8 @@ Procedure InstallSuppliedDataProcessorToDataArea(Val InstallationDetails, Val Qu
 			
 			DataProcessorToUse.Write();
 			
-			// 
-			// 
+			// Place the additional report options in the user-selected sections
+			// (or in the sections specified in the manifest in case the user accepted the default settings).
 			If Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
 				ModuleReportsOptions = Common.CommonModule("ReportsOptions");
 				For Each AdditionalReportOption In AdditionalReportOptions Do
@@ -629,8 +629,8 @@ Procedure InstallSuppliedDataProcessorToDataArea(Val InstallationDetails, Val Qu
 				
 		Else
 			
-			// 
-			// 
+			// The 1C-supplied data processor is not yet synced via the supplied data.
+			// It will be added to the installation queue and processed after the 1C-supplied data is synced.
 			// 
 			
 			Context = New Structure;
@@ -743,7 +743,7 @@ Procedure DeleteSuppliedDataProcessorFromDataArea(Val SuppliedDataProcessor, Val
 			
 	If Not IsBlankString(ExceptionText) Then
 		
-		WriteLogEvent(NStr("en = 'Built-in additional reports and data processors.An occurred when deleting from the data area';",
+		WriteLogEvent(NStr("en = 'Built-in additional reports and data processors. An error occurred when deleting from the data area';",
 			Common.DefaultLanguageCode()),
 			EventLogLevel.Error,
 			,
@@ -913,8 +913,8 @@ Procedure OnFillIIBParametersTable(Val ParametersTable) Export
 		ModuleSaaSOperations.AddConstantToInformationSecurityParameterTable(ParametersTable, "IndependentUsageOfAdditionalReportsAndDataProcessorsSaaS");
 		ModuleSaaSOperations.AddConstantToInformationSecurityParameterTable(ParametersTable, "AllowScheduledJobsExecutionSaaS");
 		
-		// 
-		// 
+		// The constants were renamed. The Service Manager sends parameters
+		// with the old constant names for backward compatibility.
 		ParameterString = ModuleSaaSOperations.AddConstantToInformationSecurityParameterTable(ParametersTable, "AllowScheduledJobsExecutionSaaS");
 		ParameterString.Name = "AllowUseAdditionalReportsAndDataProcessorsByScheduledJobsInSaaSMode";
 		ParameterString = ModuleSaaSOperations.AddConstantToInformationSecurityParameterTable(ParametersTable, "MinimalARADPScheduledJobIntervalSaaS");
@@ -936,8 +936,8 @@ EndProcedure
 //
 Procedure OnSetIBParametersValues(Val ParameterValues) Export
 	
-	// 
-	// 
+	// The constants were renamed. The Service Manager sends parameters with the old constant names.
+	// Parameters with old constant names are replaced with parameters with new constant names for backward compatibility.
 	AllowScheduledJobsExecutionSaaS = Undefined;
 	MinimalARADPScheduledJobIntervalSaaS = Undefined;
 	UseSecurityProfilesForARDP = Undefined;
@@ -1022,7 +1022,7 @@ Procedure OnDefineSuppliedDataHandlers(Handlers) Export
 	
 EndProcedure
 
-// Fills in the passed array with the common modules used as
+// Fills in the passed array with the common modules used as
 //  incoming message interface handlers.
 //
 // Parameters:
@@ -1034,7 +1034,7 @@ Procedure RecordingIncomingMessageInterfaces(HandlersArray) Export
 	
 EndProcedure
 
-// Fills in the passed array with the common modules used as
+// Fills in the passed array with the common modules used as
 //  outgoing message interface handlers.
 //
 // Parameters:
@@ -1058,8 +1058,8 @@ EndProcedure
 //
 Procedure OnDefineCorrespondentInterfaceVersion(Val MessageInterface, Val ConnectionParameters, Val RecipientPresentation1, Result) Export
 	
-	// 
-	// 
+	// Compatibility with the Service Manager versions where the "ApplicationExtensionsControl" API
+	// was a part of "RemoteAdministrationControl".
 	
 	If Common.DataSeparationEnabled()
 		And Result = Undefined
@@ -1680,7 +1680,7 @@ Procedure FillSettingsOfDataProcessorToUse(DataProcessorToUse, SuppliedDataProce
 		
 	EndDo;
 	
-	// 
+	// Delete the data processor commands that were deleted from the new 1C-supplied data processor.
 	// 
 	CommandsToRemove = New Array();
 	For Each CommandOfDataProcessorToUse In CommandsOfDataProcessorToUse Do

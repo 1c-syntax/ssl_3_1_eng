@@ -52,7 +52,7 @@
 									<v8:content>Page start</v8:content>
 								</v8:item>
 							</Title>
-							<ExtendedTooltip name="StartPage1ExtendedTooltip" id="329"/>
+							<ExtendedTooltip name="StartPageExtendedTooltip" id="329"/>
 							<ChildItems>
 								<UsualGroup name="GroupBegin" id="176">
 									<Title>
@@ -64,7 +64,7 @@
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
 									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="StartGroup1ExtendedTooltip" id="177"/>
+									<ExtendedTooltip name="GroupBeginExtendedTooltip" id="177"/>
 									<ChildItems>
 										<PictureDecoration name="Decoration1" id="178">
 											<Title formatted="false">
@@ -673,7 +673,7 @@ Please wait...</v8:content>
 											<v8:content>Command bar left 1</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="LeftCommandBar51ExtendedTooltip" id="151"/>
+									<ExtendedTooltip name="LeftSideCommandBar1ExtendedTooltip" id="151"/>
 									<ChildItems>
 										<Button name="BackCommand" id="72">
 											<Type>CommandBarButton</Type>
@@ -698,7 +698,7 @@ Please wait...</v8:content>
 										</v8:item>
 									</Title>
 									<HorizontalLocation>Right</HorizontalLocation>
-									<ExtendedTooltip name="RightCommandBar51ExtendedTooltip" id="124"/>
+									<ExtendedTooltip name="RightSideCommandBar1ExtendedTooltip" id="124"/>
 									<ChildItems>
 										<Button name="NextCommand" id="71">
 											<Type>CommandBarButton</Type>
@@ -745,7 +745,7 @@ Please wait...</v8:content>
 											<v8:content>Command bar left 4</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="LeftCommandBar54ExtendedTooltip" id="166"/>
+									<ExtendedTooltip name="LeftSideCommandBar4ExtendedTooltip" id="166"/>
 									<ChildItems>
 										<Button name="BackCommand3" id="86">
 											<Type>CommandBarButton</Type>
@@ -770,7 +770,7 @@ Please wait...</v8:content>
 										</v8:item>
 									</Title>
 									<HorizontalLocation>Right</HorizontalLocation>
-									<ExtendedTooltip name="RightCommandBar54ExtendedTooltip" id="142"/>
+									<ExtendedTooltip name="RightSideCommandBar4ExtendedTooltip" id="142"/>
 									<ChildItems>
 										<Button name="NextCommand3" id="87">
 											<Type>CommandBarButton</Type>
@@ -818,7 +818,7 @@ Please wait...</v8:content>
 											<v8:content>Command bar left 3</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="LeftCommandBar53ExtendedTooltip" id="161"/>
+									<ExtendedTooltip name="LeftSideCommandBar3ExtendedTooltip" id="161"/>
 								</CommandBar>
 								<CommandBar name="RightSideCommandBar3" id="80">
 									<EnableContentChange>true</EnableContentChange>
@@ -829,7 +829,7 @@ Please wait...</v8:content>
 										</v8:item>
 									</Title>
 									<HorizontalLocation>Right</HorizontalLocation>
-									<ExtendedTooltip name="RightCommandBar53ExtendedTooltip" id="136"/>
+									<ExtendedTooltip name="RightSideCommandBar3ExtendedTooltip" id="136"/>
 									<ChildItems>
 										<Button name="DoneCommand" id="90">
 											<Type>CommandBarButton</Type>

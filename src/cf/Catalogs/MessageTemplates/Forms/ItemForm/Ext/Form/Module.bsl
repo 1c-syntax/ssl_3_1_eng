@@ -271,7 +271,7 @@ Function ProcessTemplateText()
 	EndIf;
 	
 	If Object.TemplateByExternalDataProcessor Then
-		Return Result; // 
+		Return Result; // The data processor has a special population logic. 
 	EndIf;
 	
 	// Check.
@@ -688,7 +688,7 @@ Procedure FromTemplate(Command)
 	
 	Items.ExternalDataProcessorGroup.Visible = False;
 	Items.GroupParameters.Visible        = True;
-	Items.FormFromTemplate1.Check           = True;
+	Items.FormFromTemplate.Check           = True;
 	Items.FormByExternalDataProcessor.Check   = False;
 	Items.EmailSubject.ReadOnly        = False;
 	Object.TemplateByExternalDataProcessor           = False;
@@ -836,8 +836,8 @@ EndProcedure
 &AtClient
 Procedure ChangeAttributesContextMenuAvailability(NewValue)
 	
-	If Items.AttributesContextMenuAddParameterToMessageText1.Enabled <> NewValue Then
-		Items.AttributesContextMenuAddParameterToMessageText1.Enabled = NewValue;
+	If Items.AttributesContextMenuAddParameterToMessageText.Enabled <> NewValue Then
+		Items.AttributesContextMenuAddParameterToMessageText.Enabled = NewValue;
 		Items.AttributesContextMenuAddParameterToMessageSubject.Enabled = NewValue;
 		Items.AddParameterToMessageSubject.Enabled = NewValue;
 		Items.AttributesAddParameterToMessageText.Enabled = NewValue;
@@ -1196,8 +1196,8 @@ Procedure ShowFormItems(EmailFormat = "")
 		Items.ExternalDataProcessorGroup.Visible = True;
 		Items.GroupParameters.Visible        = False;
 		Items.FormByExternalDataProcessor.Check   = True;
-		Items.FormFromTemplate1.Check           = False;
-		Items.FormCheckTemplate.Visible   = False;
+		Items.FormFromTemplate.Check           = False;
+		Items.FormCheckTemplateFilling.Visible   = False;
 		FillTemplateByExternalDataProcessor();
 	Else
 		Items.InputOnBasisParameterTypeFullName.Enabled = True;
@@ -1205,8 +1205,8 @@ Procedure ShowFormItems(EmailFormat = "")
 		Items.ExternalDataProcessorGroup.Visible = False;
 		Items.GroupParameters.Visible      = True;
 		Items.FormByExternalDataProcessor.Check = False;
-		Items.FormFromTemplate1.Check         = True;
-		Items.FormCheckTemplate.Visible = True;
+		Items.FormFromTemplate.Check         = True;
+		Items.FormCheckTemplateFilling.Visible = True;
 	EndIf;
 	
 	Items.Available.Visible = False;
@@ -1291,7 +1291,7 @@ Procedure SetHTMLForFormattedDocument(HTMLEmailTemplateText, CurrentObjectRef, L
 	
 EndProcedure
 
-// 
+// Business logic.
 
 &AtServer
 Procedure GenerateAttributesAndPrintFormsList()
@@ -1452,7 +1452,7 @@ Procedure FIllAttributeTree(Receiver, Source, AreCommonOrArbitraryAttributes = U
 	
 EndProcedure
 
-// 
+// Forced setting of properties on the server
 
 &AtServer
 Procedure SetHTMLEmail(TextWrappingRequired = False)
@@ -1496,7 +1496,7 @@ Procedure SetEmailPlainText(TextWrappingRequired = False)
 	Items.TitleParametersPages.CurrentPage = Items.TitleParametersPage;
 EndProcedure
 
-// Attachments
+// Attachments.
 
 &AtClient
 Procedure AddAttachmentExecute(Id = Undefined)
@@ -1877,7 +1877,7 @@ Procedure AfterAdditionalReportsAndDataProcessorsChoice(Result, AddlParameters) 
 		Items.ExternalDataProcessorGroup.Visible = True;
 		Items.Pages.CurrentPage = Items.MessageExternalDataProcessor;
 		Items.GroupParameters.Visible = False;
-		Items.FormFromTemplate1.Check = False;
+		Items.FormFromTemplate.Check = False;
 		Items.FormByExternalDataProcessor.Check = True;
 		Object.TemplateByExternalDataProcessor = True;
 		Object.ExternalDataProcessor = Result;
@@ -1913,7 +1913,7 @@ Procedure FillArbitraryParametersFromObject(Val CurrentObject)
 
 EndProcedure
 
-// 
+// External data processor.
 
 &AtServer
 Procedure FillTemplateByExternalDataProcessor()

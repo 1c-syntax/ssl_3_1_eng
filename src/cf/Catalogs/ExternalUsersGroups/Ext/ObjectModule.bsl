@@ -83,9 +83,9 @@ Procedure BeforeWrite(Cancel)
 	
 	// ACC:75-off - The check "DataExchange.Import" should run after the register is locked.
 	If Common.FileInfobase() Then
-		// 
-		// 
-		// 
+		// Set an exclusive lock on the registers right away
+		// instead of automatically setting a shared lock when reading.
+		// The latter leads to a deadlock upon updating the membership of user groups.
 		Block = New DataLock;
 		Block.Add("InformationRegister.UserGroupsHierarchy");
 		Block.Add("InformationRegister.UserGroupCompositions");
@@ -316,8 +316,8 @@ Function PurposeCheckErrorText()
 		EndIf;
 	EndIf;
 	
-	// 
-	// 
+	// Check if the type of the authentication objects matches their parent's type.
+	// It's acceptable if their parent's type is not specified.
 	If ValueIsFilled(Parent) Then
 		
 		ParentUsersType = Common.ObjectAttributeValue(
@@ -333,8 +333,8 @@ Function PurposeCheckErrorText()
 		EndDo;
 	EndIf;
 	
-	// 
-	// 
+	// If the member type of an external user group is changed to "All users of the type",
+	// check if the group has child groups.
 	If AllAuthorizationObjects
 		And ValueIsFilled(Ref) Then
 		Query = New Query;
@@ -355,8 +355,8 @@ Function PurposeCheckErrorText()
 		EndIf;
 	EndIf;
 	
-	// 
-	// 
+	// When changing the type of authentication objects, check if they have
+	// child items with a different type (cleating the type is acceptable).
 	If ValueIsFilled(Ref) Then
 		
 		Query = New Query;

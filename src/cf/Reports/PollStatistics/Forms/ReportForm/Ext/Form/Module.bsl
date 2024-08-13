@@ -31,7 +31,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 &AtClient
-Procedure ReportTable1DetailProcessing(Item, Details, StandardProcessing)
+Procedure ReportTableDetailProcessing(Item, Details, StandardProcessing)
 	
 	StandardProcessing = False;
 	

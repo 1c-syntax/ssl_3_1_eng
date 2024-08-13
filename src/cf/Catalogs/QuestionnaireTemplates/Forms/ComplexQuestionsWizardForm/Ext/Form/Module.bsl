@@ -27,7 +27,7 @@ EndProcedure
 Procedure OnClose(Exit)
 	
 	If Not ClosingInProgress And IsNewLine Then
-		Notify("CancelEnterNewQuestionnaireTemplateLine");
+		Notify("CancelEnterNewQuestionnaireTemplateLine", , FormOwner);
 	EndIf;
 	
 EndProcedure
@@ -37,7 +37,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 &AtClient
-Procedure QuestionsQuestionChoiceProcessing(Item, ValueSelected, StandardProcessing)
+Procedure QuestionsDoQueryBoxChoiceProcessing(Item, ValueSelected, StandardProcessing)
 	
 	StandardProcessing = False;
 	
@@ -67,7 +67,8 @@ EndProcedure
 Procedure OKButton(Command)
 	
 	ClosingInProgress = True;
-	Notify("EndEditComplexQuestionParameters",GenerateParametersStructureToPassToOwner());
+	Notify("EndEditComplexQuestionParameters",
+		GenerateParametersStructureToPassToOwner(), FormOwner);
 	Close();
 	
 EndProcedure

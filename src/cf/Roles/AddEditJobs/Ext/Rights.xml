@@ -45,62 +45,6 @@
 		</right>
 	</object>
 	<object>
-		<name>Task.PerformerTask</name>
-		<right>
-			<name>Read</name>
-			<value>true</value>
-			<restrictionByCondition>
-				<condition>#IF &amp;RecordLevelAccessRestrictionIsUniversal #THEN
-#ForObject("BusinessProcess")
-#ELSE
-#ByValuesAndSetsAdvanced( "Task.PerformerTask", "", "",
-"",
-"",
-"Object","T.BusinessProcess","Or",
-"Users","T.Author","Or",
-"Users","T.Performer","Or",
-"Users","T.TaskPerformersGroup","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","")
-#ENDIF</condition>
-			</restrictionByCondition>
-		</right>
-		<right>
-			<name>View</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>InputByString</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
-		<name>Task.PerformerTask.Command.AllTasks</name>
-		<right>
-			<name>View</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
-		<name>InformationRegister.BusinessProcessesData</name>
-		<right>
-			<name>Read</name>
-			<value>true</value>
-			<restrictionByCondition>
-				<condition>#IF &amp;RecordLevelAccessRestrictionIsUniversal #THEN
-#ForObject("Owner")
-#ELSE
-#ByValuesAndSetsAdvanced( "InformationRegister.BusinessProcessesData", "", "",
-"",
-"",
-"Object","T.Owner","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","")
-#ENDIF</condition>
-			</restrictionByCondition>
-		</right>
-		<right>
-			<name>View</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
 		<name>Configuration.StandardSubsystemsLibrary</name>
 		<right>
 			<name>MainWindowModeNormal</name>
@@ -128,6 +72,62 @@
 		</right>
 	</object>
 	<object>
+		<name>Task.PerformerTask</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+			<restrictionByCondition>
+				<condition>#If &amp;RecordLevelAccessRestrictionIsUniversal #Then
+#ForObject("BusinessProcess")
+#Else
+#ByValuesAndSetsAdvanced( "Task.PerformerTask", "", "",
+"",
+"",
+"Object","T.BusinessProcess","Or",
+"Users","T.Author","Or",
+"Users","T.Performer","Or",
+"Users","T.TaskPerformersGroup","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","")
+#EndIf</condition>
+			</restrictionByCondition>
+		</right>
+		<right>
+			<name>View</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>InputByString</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>Task.PerformerTask.Command.AllTasks</name>
+		<right>
+			<name>View</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>InformationRegister.BusinessProcessesData</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+			<restrictionByCondition>
+				<condition>#If &amp;RecordLevelAccessRestrictionIsUniversal #Then
+#ForObject("Owner")
+#Else
+#ByValuesAndSetsAdvanced( "InformationRegister.BusinessProcessesData", "", "",
+"",
+"",
+"Object","T.Owner","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","")
+#EndIf</condition>
+			</restrictionByCondition>
+		</right>
+		<right>
+			<name>View</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
 		<name>Task.PerformerTask.Command.MyTasks</name>
 		<right>
 			<name>View</name>
@@ -151,40 +151,40 @@
 			<name>Read</name>
 			<value>true</value>
 			<restrictionByCondition>
-				<condition>#IF &amp;RecordLevelAccessRestrictionIsUniversal #THEN
+				<condition>#If &amp;RecordLevelAccessRestrictionIsUniversal #Then
 #ForObject("")
-#ELSE
+#Else
 #ByValuesAndSetsAdvanced( "BusinessProcess.Job", "", "",
 "",
 "",
 "Users","T.Author","Or",
 "Users","T.TaskPerformersGroup","Or",
 "Users","T.TaskPerformersGroupSupervisor","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","", "","","")
-#ENDIF</condition>
+#EndIf</condition>
 			</restrictionByCondition>
 		</right>
 		<right>
 			<name>Insert</name>
 			<value>true</value>
 			<restrictionByCondition>
-				<condition>#IF &amp;RecordLevelAccessRestrictionIsUniversal #THEN
+				<condition>#If &amp;RecordLevelAccessRestrictionIsUniversal #Then
 #ForObject("")
-#ELSE
+#Else
 #ByValues( "BusinessProcess.Job", "", "",
 "Users","Author", "","", "","", "","", "","", "","", "","", "","", "","", "","", "","", "","", "","", "","", "","", "","")
-#ENDIF</condition>
+#EndIf</condition>
 			</restrictionByCondition>
 		</right>
 		<right>
 			<name>Update</name>
 			<value>true</value>
 			<restrictionByCondition>
-				<condition>#IF &amp;RecordLevelAccessRestrictionIsUniversal #THEN
+				<condition>#If &amp;RecordLevelAccessRestrictionIsUniversal #Then
 #ForObject("")
-#ELSE
+#Else
 #ByValues( "BusinessProcess.Job", "", "",
 "Users","Author", "","", "","", "","", "","", "","", "","", "","", "","", "","", "","", "","", "","", "","", "","", "","")
-#ENDIF</condition>
+#EndIf</condition>
 			</restrictionByCondition>
 		</right>
 		<right>

@@ -78,7 +78,7 @@ EndFunction
 //    * ScheduledJob - MetadataObjectScheduledJob - a scheduled job.
 //    * FunctionalOption - MetadataObjectFunctionalOption - functional option
 //        the scheduled job depends on.
-//    * DependenceByT      - Boolean - if the scheduled job depends on more than
+//    * DependenceByT      - Boolean - if the scheduled job depends on more than
 //        one functional option and you want to enable it only
 //        when all functional options are enabled, specify True
 //        for each dependency.
@@ -179,7 +179,7 @@ Procedure SetScheduledJobsUsageByFunctionalOptions(EnableJobs = False) Export
 		EndDo;
 		
 		If Use = Undefined
-			Or (Use And Not EnableJobs) // 
+			Or (Use And Not EnableJobs) // Only disable scheduled jobs automatically on update.
 			Or (Not Use And Not DisableJob) Then
 			Continue;
 		EndIf;

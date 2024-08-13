@@ -458,7 +458,7 @@ Function DataUploadParameterStructure()
 	ExportingParameters.Insert("WrittenItemsAfterCheckFileSize", 0);
 	ExportingParameters.Insert("MaximumNumberOfElements", 50000);
 	ExportingParameters.Insert("NumberofItemsFileSizeCheck", 1000);
-	ExportingParameters.Insert("MaxFileSize", 1024 * 1024 * 100); // 
+	ExportingParameters.Insert("MaxFileSize", 1024 * 1024 * 100); // 100 MB
 	
 	Return ExportingParameters;
 	

@@ -281,29 +281,29 @@
 				<Autofill>false</Autofill>
 			</AutoCommandBar>
 			<ExtendedTooltip name="ListExtendedTooltip" id="4"/>
-			<SearchStringAddition name="ListSearchString_SSLy" id="45">
+			<SearchStringAddition name="ListSearchString" id="45">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchStringRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchString_SSLyContextMenu" id="46"/>
-				<ExtendedTooltip name="ListSearchString_SSLyExtendedTooltip" id="47"/>
+				<ContextMenu name="ListSearchStringContextMenu" id="46"/>
+				<ExtendedTooltip name="ListSearchStringExtendedTooltip" id="47"/>
 			</SearchStringAddition>
-			<ViewStatusAddition name="ListViewStatus_SSLy" id="48">
+			<ViewStatusAddition name="ListViewStatus" id="48">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>ViewStatusRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListViewStatus_SSLyContextMenu" id="49"/>
-				<ExtendedTooltip name="ListViewStatus_SSLyExtendedTooltip" id="50"/>
+				<ContextMenu name="ListViewStatusContextMenu" id="49"/>
+				<ExtendedTooltip name="ListViewStatusExtendedTooltip" id="50"/>
 			</ViewStatusAddition>
-			<SearchControlAddition name="ListSearchControl_SSLy" id="51">
+			<SearchControlAddition name="ListSearchControl" id="51">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchControl</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchControl_SSLyContextMenu" id="52"/>
-				<ExtendedTooltip name="ListSearchControl_SSLyExtendedTooltip" id="53"/>
+				<ContextMenu name="ListSearchControlContextMenu" id="52"/>
+				<ExtendedTooltip name="ListSearchControlExtendedTooltip" id="53"/>
 			</SearchControlAddition>
 			<Events>
 				<Event name="BeforeAddRow">ListBeforeAddRow</Event>
@@ -345,8 +345,8 @@
 								</v8:item>
 							</Title>
 							<EditMode>EnterOnInput</EditMode>
-							<ContextMenu name="ListValue1ContextMenu" id="31"/>
-							<ExtendedTooltip name="ListValue1ExtendedTooltip" id="32"/>
+							<ContextMenu name="ListValueContextMenu" id="31"/>
+							<ExtendedTooltip name="ListValueExtendedTooltip" id="32"/>
 						</InputField>
 					</ChildItems>
 				</ColumnGroup>
@@ -503,9 +503,7 @@
 			</Type>
 		</Parameter>
 		<Parameter name="ChoiceFoldersAndItems">
-			<Type>
-				<v8:Type>xs:boolean</v8:Type>
-			</Type>
+			<Type/>
 		</Parameter>
 		<Parameter name="ChoiceParameters">
 			<Type/>

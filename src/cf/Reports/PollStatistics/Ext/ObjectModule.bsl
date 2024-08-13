@@ -975,7 +975,7 @@ Procedure OutputRespondentsRowToSpreadsheetDocument(Selection,Template,ReportTab
 		Area.Parameters.Count = Selection.Respondent;
 	ElsIf Selection.RecordType() = QueryRecordType.GroupTotal Then
 		Area.Parameters.Count = Selection.Respondent;
-		Area.Parameters.replied    = Selection.Answered_SSLy;
+		Area.Parameters.replied    = Selection.Answered;
 	Else
 		Area.Parameters.Respondent = Selection.Respondent;
 	EndIf;
@@ -1014,7 +1014,7 @@ Function ExecuteQueryOnSurveysRespondentsWithSpecificCompositionOfRespondents(Su
 	|					THEN &Filled2
 	|				ELSE &StartedFilling
 	|			END
-	|	END AS Answered_SSLy,
+	|	END AS Answered,
 	|	PurposeOfSurveysRespondents.Respondent AS Respondent
 	|FROM
 	|	Document.PollPurpose.Respondents AS PurposeOfSurveysRespondents
@@ -1024,13 +1024,13 @@ Function ExecuteQueryOnSurveysRespondentsWithSpecificCompositionOfRespondents(Su
 	|	PurposeOfSurveysRespondents.Ref = &Survey
 	|
 	|ORDER BY
-	|	Answered_SSLy,
+	|	Answered,
 	|	Respondent
 	|TOTALS
 	|	COUNT(DISTINCT Respondent)
 	|BY
 	|	OVERALL,
-	|	Answered_SSLy";
+	|	Answered";
 	
 	Query.SetParameter("Survey",Survey);
 	Query.SetParameter("Filled2",NStr("en = 'Respondent';"));
@@ -1086,7 +1086,7 @@ Function ExecuteQueryOnFreeFormSurveysRespondents(Survey,RespondentsType)
 	|					THEN &Filled2
 	|				ELSE &StartedFilling
 	|			END
-	|	END AS Answered_SSLy,
+	|	END AS Answered,
 	|	CatalogData.Ref AS Respondent
 	|FROM
 	|	CatalogData AS CatalogData
@@ -1094,13 +1094,13 @@ Function ExecuteQueryOnFreeFormSurveysRespondents(Survey,RespondentsType)
 	|		ON CatalogData.Ref = RespondentsThatAnswered.Respondent
 	|
 	|ORDER BY
-	|	Answered_SSLy,
+	|	Answered,
 	|   Respondent
 	|TOTALS
 	|	COUNT(DISTINCT Respondent)
 	|BY
 	|	OVERALL,
-	|	Answered_SSLy";
+	|	Answered";
 	
 	Query.Text = StrReplace(Query.Text, "&CatalogTable", RespondentTypeMetadata.FullName());
 	Query.Text = StrReplace(Query.Text, "&IsFolder", 

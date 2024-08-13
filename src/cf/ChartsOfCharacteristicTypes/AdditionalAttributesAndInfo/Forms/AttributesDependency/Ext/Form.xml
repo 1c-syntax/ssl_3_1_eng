@@ -17,7 +17,7 @@
 						<v8:content>OK</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="FormOkCommandExtendedTooltip" id="4"/>
+				<ExtendedTooltip name="FormOKCommandExtendedTooltip" id="4"/>
 			</Button>
 			<Button name="FormCancelCommand" id="1">
 				<Type>CommandBarButton</Type>

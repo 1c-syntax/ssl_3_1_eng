@@ -399,7 +399,7 @@ Procedure AddSubsystemsToTree(DestinationParent, SourceParent, SubsystemsOccurre
 		ElsIf OccurrencesOfThisSubsystem.Count() = 0 Then
 			Receiver.Importance = "";
 		Else
-			Receiver.Importance = MixedImportance; // 
+			Receiver.Importance = MixedImportance; // Also used in conditional appearance.
 		EndIf;
 
 		OptionsOccurrences = OccurrencesOfThisSubsystem.Total("Count");

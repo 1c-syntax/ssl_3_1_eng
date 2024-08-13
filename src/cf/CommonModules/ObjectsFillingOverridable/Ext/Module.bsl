@@ -24,7 +24,7 @@ Procedure OnDefineObjectsWithFIllingCommands(Objects) Export
 	
 EndProcedure
 
-// Defines general filling commands.
+// Defines common population commands.
 //
 // Parameters:
 //   FillingCommands - ValueTable - Generated commands to be shown in the submenu:

@@ -8,8 +8,8 @@
 //
 //
 
-// 
-//     
+// Form parameters are:
+//     RefSet - Array of AnyRef - Items to be replaced with another Ref-type item.
 //
 
 #Region Variables
@@ -34,7 +34,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	CurrentDeletionOption = "Check";
 	
-	// Initialization of step-by-step wizard steps.
+	// Initialize the step-by-step wizard.
 	InitializeStepByStepWizardSettings();
 	
 	// 1. Search for occurrences by parameter.
@@ -379,7 +379,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Wizard API
 
 &AtServer
 Procedure InitializeStepByStepWizardSettings()
@@ -517,7 +517,7 @@ Procedure GoToWizardStep1(Val StepOrIndexOrFormGroup)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Wizard events
 
 &AtClient
 Procedure OnActivateWizardStep()
@@ -603,7 +603,7 @@ Procedure WizardStepCancel()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Internal procedures for item merging
 
 &AtServer
 Procedure SetConditionalAppearance()
@@ -947,8 +947,8 @@ Function DeleteProcessedItemsFromUsageInstances()
 	Result = New Array;
 	
 	Unsuccessful = New Map;
-	For Each String In UnsuccessfulReplacements.GetItems() Do
-		Unsuccessful.Insert(String.Ref, True);
+	For Each Item In UnsuccessfulReplacements.GetItems() Do
+		Unsuccessful.Insert(Item.Ref, True);
 	EndDo;
 	
 	IndexOf = UsageInstances.Count() - 1;
@@ -969,9 +969,9 @@ Function CheckCanReplaceReferences()
 	
 	RefSet = New Array;
 	ReplacementPairs   = New Map;
-	For Each String In UsageInstances Do
-		RefSet.Add(String.Ref);
-		ReplacementPairs.Insert(String.Ref, MainItem);
+	For Each UsageInstance1 In UsageInstances Do
+		RefSet.Add(UsageInstance1.Ref);
+		ReplacementPairs.Insert(UsageInstance1.Ref, MainItem);
 	EndDo;
 	
 	Try
@@ -986,7 +986,7 @@ Function CheckCanReplaceReferences()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Long-running operation management
 
 &AtClient
 Procedure StartDeterminingUseLocations()
@@ -1059,8 +1059,8 @@ Function ReplaceReferences()
 	
 	MethodParameters = New Structure("ReplacementPairs, DeletionMethod");
 	MethodParameters.ReplacementPairs = New Map;
-	For Each String In UsageInstances Do
-		MethodParameters.ReplacementPairs.Insert(String.Ref, MainItem);
+	For Each UsageInstance1 In UsageInstances Do
+		MethodParameters.ReplacementPairs.Insert(UsageInstance1.Ref, MainItem);
 	EndDo;
 	MethodParameters.Insert("DeletionMethod", CurrentDeletionOption);
 
@@ -1132,23 +1132,23 @@ Procedure FillUsageInstances(Val ResultAddress)
 	MaxInstances   = -1;
 	DeletionMarks = Common.ObjectsAttributeValue(
 		UsageTable.UnloadColumn("Ref"), "DeletionMark");
-	For Each String In UsageTable Do
+	For Each TableRow In UsageTable Do
 		
-		UsageRow = NewUsageInstances.Find(String.Ref, "Ref");
+		UsageRow = NewUsageInstances.Find(TableRow.Ref, "Ref");
 		If UsageRow = Undefined Then
 			UsageRow = NewUsageInstances.Add();
-			UsageRow.Ref = String.Ref;
+			UsageRow.Ref = TableRow.Ref;
 		EndIf;
 		
-		Instances = String.Occurrences;
-		If Instances > MaxInstances And Not DeletionMarks[String.Ref] Then
-			MaxReference = String.Ref;
+		Instances = TableRow.Occurrences;
+		If Instances > MaxInstances And Not DeletionMarks[TableRow.Ref] Then
+			MaxReference = TableRow.Ref;
 			MaxInstances   = Instances;
 		EndIf;
 		
 		UsageRow.UsageInstancesCount = Instances;
-		UsageRow.Code      = ObjectCode(String.Ref, MetadataCache);
-		UsageRow.Owner = ObjectOfOwner(String.Ref, MetadataCache);
+		UsageRow.Code      = ObjectCode(TableRow.Ref, MetadataCache);
+		UsageRow.Owner = ObjectOfOwner(TableRow.Ref, MetadataCache);
 		
 		UsageRow.NotUsed = ?(Instances = 0, NStr("en = 'Not applicable';"), "");
 	EndDo;
@@ -1234,7 +1234,7 @@ Procedure AfterConfirmCancelJob(Response, ExecutionParameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Wizard's internal procedures and functions
 
 // Description of wizard button settings.
 //

@@ -26,7 +26,7 @@ EndProcedure
 //    * Min - Number - The code of the range's start character.
 //    * Max - Number - The code of the range's final character.
 //
-Procedure WhenDefiningCharactersOfWords(Ranges) Export
+Procedure OnDefineWordChars(Ranges) Export
 EndProcedure
 
 #EndRegion

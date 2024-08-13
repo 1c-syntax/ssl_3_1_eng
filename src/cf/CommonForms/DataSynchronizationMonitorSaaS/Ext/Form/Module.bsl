@@ -146,11 +146,11 @@ EndProcedure
 &AtServer
 Procedure DetailsAtServer()
 	
-	Items.NodesStateListDetailed.Check = Not Items.NodesStateListDetailed.Check;
+	Items.NodesStateListMore.Check = Not Items.NodesStateListMore.Check;
 	
-	Items.NodesStatesListLastSuccessfulExportDate.Visible = Items.NodesStateListDetailed.Check;
-	Items.NodesStatesListLastSuccessfulImportDate.Visible = Items.NodesStateListDetailed.Check;
-	Items.NodesStateListExchangePlanName.Visible = Items.NodesStateListDetailed.Check;
+	Items.NodesStatesListLastSuccessfulExportDate.Visible = Items.NodesStateListMore.Check;
+	Items.NodesStatesListLastSuccessfulImportDate.Visible = Items.NodesStateListMore.Check;
+	Items.NodesStateListExchangePlanName.Visible = Items.NodesStateListMore.Check;
 	
 EndProcedure
 

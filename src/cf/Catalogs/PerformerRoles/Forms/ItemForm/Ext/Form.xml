@@ -220,7 +220,7 @@ To refine the role, you can specify main and additional business objects.</v8:co
 			<Behavior>Usual</Behavior>
 			<Representation>NormalSeparation</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="CommentGroupExtendedTooltip" id="55"/>
+			<ExtendedTooltip name="GroupCommentExtendedTooltip" id="55"/>
 			<ChildItems>
 				<InputField name="Comment" id="25">
 					<DataPath>Object.Comment</DataPath>

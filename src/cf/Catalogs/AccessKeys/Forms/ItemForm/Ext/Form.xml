@@ -38,7 +38,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="ListGroup2ExtendedTooltip" id="201"/>
+			<ExtendedTooltip name="GroupListExtendedTooltip" id="201"/>
 			<ChildItems>
 				<InputField name="List" id="4">
 					<DataPath>Object.List</DataPath>
@@ -112,8 +112,8 @@
 					<VerticalAlign>Center</VerticalAlign>
 					<AutoMaxWidth>false</AutoMaxWidth>
 					<Height>2</Height>
-					<ContextMenu name="DetailsFieldsCompositionContextMenu" id="207"/>
-					<ExtendedTooltip name="DetailsFieldsCompositionExtendedTooltip" id="208"/>
+					<ContextMenu name="FieldsCompositionDetailsContextMenu" id="207"/>
+					<ExtendedTooltip name="FieldsCompositionDetailsExtendedTooltip" id="208"/>
 				</LabelField>
 			</ChildItems>
 		</UsualGroup>

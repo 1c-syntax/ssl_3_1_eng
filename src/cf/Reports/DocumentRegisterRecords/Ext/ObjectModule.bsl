@@ -1146,14 +1146,14 @@ Function AddDataSetField(DataSet, Field, Title, DataPath = Undefined)
 	
 EndFunction
 
-Function AddSelectedField(Where_SSLy, DCNameOrField, Title = "") Export
+Function AddSelectedField(Where, DCNameOrField, Title = "") Export
 	
-	If TypeOf(Where_SSLy) = Type("DataCompositionSettingsComposer") Then
-		SelectedDCFields = Where_SSLy.Settings.Selection;
-	ElsIf TypeOf(Where_SSLy) = Type("DataCompositionSettings") Or TypeOf(Where_SSLy) = Type("DataCompositionGroup") Then
-		SelectedDCFields = Where_SSLy.Selection;
+	If TypeOf(Where) = Type("DataCompositionSettingsComposer") Then
+		SelectedDCFields = Where.Settings.Selection;
+	ElsIf TypeOf(Where) = Type("DataCompositionSettings") Or TypeOf(Where) = Type("DataCompositionGroup") Then
+		SelectedDCFields = Where.Selection;
 	Else
-		SelectedDCFields = Where_SSLy;
+		SelectedDCFields = Where;
 	EndIf;
 	
 	If TypeOf(DCNameOrField) = Type("String") Then
@@ -1173,14 +1173,14 @@ Function AddSelectedField(Where_SSLy, DCNameOrField, Title = "") Export
 	
 EndFunction
 
-Function AddSelectedFieldGroup(Where_SSLy, DCNameOrField, Title = "", Placement = Undefined)
+Function AddSelectedFieldGroup(Where, DCNameOrField, Title = "", Placement = Undefined)
 	
-	If TypeOf(Where_SSLy) = Type("DataCompositionSettingsComposer") Then
-		SelectedDCFields = Where_SSLy.Settings.Selection;
-	ElsIf TypeOf(Where_SSLy) = Type("DataCompositionSettings") Or TypeOf(Where_SSLy) = Type("DataCompositionGroup") Then
-		SelectedDCFields = Where_SSLy.Selection;
+	If TypeOf(Where) = Type("DataCompositionSettingsComposer") Then
+		SelectedDCFields = Where.Settings.Selection;
+	ElsIf TypeOf(Where) = Type("DataCompositionSettings") Or TypeOf(Where) = Type("DataCompositionGroup") Then
+		SelectedDCFields = Where.Selection;
 	Else
-		SelectedDCFields = Where_SSLy;
+		SelectedDCFields = Where;
 	EndIf;
 	
 	If TypeOf(DCNameOrField) = Type("String") Then
@@ -1373,7 +1373,7 @@ Procedure RegisterResult(Settings, ResultDocument, DocumentRecorder)
 	
 	For LineNumber = 1 To ResultDocument.TableHeight Do
 		
-		For ColumnNumber = 1 To 2 Do // 
+		For ColumnNumber = 1 To 2 Do // table header search in the first two columns
 	
 			Area = ResultDocument.Area(LineNumber, ColumnNumber);
 			
@@ -2083,7 +2083,7 @@ Function RecordsCountByRecorder(Recorder, DocumentRegisterRecords)
 		If ValueIsFilled(QueryText) Then
 			
 			QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-				"%1 UNION ALL  %2", QueryText, StrReplace(QueryTextTemplate, "SELECT ALLOWED", "SELECT")); // 
+				"%1 UNION ALL  %2", QueryText, StrReplace(QueryTextTemplate, "SELECT ALLOWED", "SELECT")); // @query-part-2 @query-part-3 for this case.
 			
 		Else
 			QueryText = QueryTextTemplate;

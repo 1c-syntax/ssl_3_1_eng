@@ -80,11 +80,11 @@
 				<ExcludedCommand>SortListDesc</ExcludedCommand>
 			</CommandSet>
 			<RowFilter xsi:nil="true"/>
-			<ContextMenu name="RulesContextMenu" id="2"/>
+			<ContextMenu name="EmailRulesContextMenu" id="2"/>
 			<AutoCommandBar name="EmailRulesCommandBar" id="3">
 				<Autofill>false</Autofill>
 				<ChildItems>
-					<Button name="RulesApply" id="13">
+					<Button name="Apply" id="13">
 						<Type>CommandBarButton</Type>
 						<DefaultButton>true</DefaultButton>
 						<CommandName>Form.Command.Apply</CommandName>
@@ -94,7 +94,7 @@
 								<v8:content>Apply</v8:content>
 							</v8:item>
 						</Title>
-						<ExtendedTooltip name="RulesApplyExtendedTooltip" id="26"/>
+						<ExtendedTooltip name="ApplyExtendedTooltip" id="26"/>
 					</Button>
 					<ButtonGroup name="RulesGroup" id="45">
 						<Title>
@@ -156,32 +156,32 @@
 				</ChildItems>
 			</AutoCommandBar>
 			<ExtendedTooltip name="EmailRulesExtendedTooltip" id="31"/>
-			<SearchStringAddition name="RulesSearchString" id="36">
+			<SearchStringAddition name="EmailRulesSearchString" id="36">
 				<AdditionSource>
 					<Item>EmailRules</Item>
 					<Type>SearchStringRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="RulesSearchStringContextMenu" id="37"/>
-				<ExtendedTooltip name="RulesSearchStringExtendedTooltip" id="38"/>
+				<ContextMenu name="EmailRulesSearchStringContextMenu" id="37"/>
+				<ExtendedTooltip name="EmailRulesSearchStringExtendedTooltip" id="38"/>
 			</SearchStringAddition>
-			<ViewStatusAddition name="RulesViewStatus" id="39">
+			<ViewStatusAddition name="EmailRulesViewStatus" id="39">
 				<AdditionSource>
 					<Item>EmailRules</Item>
 					<Type>ViewStatusRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="RulesViewStatusContextMenu" id="40"/>
-				<ExtendedTooltip name="RulesViewStatusExtendedTooltip" id="41"/>
+				<ContextMenu name="EmailRulesViewStatusContextMenu" id="40"/>
+				<ExtendedTooltip name="EmailRulesViewStatusExtendedTooltip" id="41"/>
 			</ViewStatusAddition>
-			<SearchControlAddition name="RulesSearchControl" id="42">
+			<SearchControlAddition name="EmailRulesSearchControl" id="42">
 				<AdditionSource>
 					<Item>EmailRules</Item>
 					<Type>SearchControl</Type>
 				</AdditionSource>
-				<ContextMenu name="RulesSearchControlContextMenu" id="43"/>
-				<ExtendedTooltip name="RulesSearchControlExtendedTooltip" id="44"/>
+				<ContextMenu name="EmailRulesSearchControlContextMenu" id="43"/>
+				<ExtendedTooltip name="EmailRulesSearchControlExtendedTooltip" id="44"/>
 			</SearchControlAddition>
 			<ChildItems>
-				<CheckBoxField name="RulesApply1" id="6">
+				<CheckBoxField name="EmailRulesApply" id="6">
 					<DataPath>EmailRules.Apply</DataPath>
 					<Title>
 						<v8:item>
@@ -202,10 +202,10 @@
 						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</HeaderPicture>
 					<CheckBoxType>Auto</CheckBoxType>
-					<ContextMenu name="RulesApply1ContextMenu" id="7"/>
-					<ExtendedTooltip name="RulesApply1ExtendedTooltip" id="32"/>
+					<ContextMenu name="EmailRulesApplyContextMenu" id="7"/>
+					<ExtendedTooltip name="EmailRulesApplyExtendedTooltip" id="32"/>
 				</CheckBoxField>
-				<InputField name="RulesRule" id="4">
+				<InputField name="EmailRulesRule" id="4">
 					<DataPath>EmailRules.Rule</DataPath>
 					<Title>
 						<v8:item>
@@ -217,8 +217,8 @@
 					<ChoiceButton>false</ChoiceButton>
 					<OpenButton>true</OpenButton>
 					<TextEdit>false</TextEdit>
-					<ContextMenu name="RulesRuleContextMenu" id="5"/>
-					<ExtendedTooltip name="RulesRuleExtendedTooltip" id="33"/>
+					<ContextMenu name="EmailRulesRuleContextMenu" id="5"/>
+					<ExtendedTooltip name="EmailRulesRuleExtendedTooltip" id="33"/>
 				</InputField>
 				<InputField name="RulesMoveToFolder" id="19">
 					<DataPath>EmailRules.PutInFolder</DataPath>

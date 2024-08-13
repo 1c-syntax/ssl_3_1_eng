@@ -70,8 +70,8 @@ Procedure AfterDetermineRecipients(Data, Recipients, ExchangePlanName) Export
 		
 	Else
 		
-		// 
-		// 
+		// Export the changes for application data only
+		// (separated by "DataAreaMainData").
 		If StandaloneModeInternal.IsStandaloneWorkplace()
 			And Not ModuleSaaSOperations.IsSeparatedMetadataObject(Data.Metadata(),
 				ModuleSaaSOperations.MainDataSeparator()) Then
@@ -109,7 +109,6 @@ EndProcedure
 //
 // Parameters:
 //   ParametersTable - ValueTable - Table of parameter details. For column details, 
-//                                         See SaaSOperations.GetTableParametersIB
 //                                         .
 //
 Procedure OnFillIIBParametersTable(Val ParametersTable) Export
@@ -593,7 +592,7 @@ Procedure SetDataChangeFlag() Export
 	
 EndProcedure
 
-// Fills in the passed array with the common modules used as
+// Fills in the passed array with the common modules used as
 //  incoming message interface handlers.
 //
 // Parameters:
@@ -614,7 +613,7 @@ Procedure RecordingIncomingMessageInterfaces(HandlersArray) Export
 	
 EndProcedure
 
-// Fills in the passed array with the common modules used as
+// Fills in the passed array with the common modules used as
 //  outgoing message interface handlers.
 //
 // Parameters:
@@ -2610,12 +2609,12 @@ EndFunction
 
 Function CorrespondentVersions(Val InfobaseNode)
 	
-	SettingsStructure = InformationRegisters.DataAreaExchangeTransportSettings.TransportSettingsWS(InfobaseNode);
+	SettingsStructure_ = InformationRegisters.DataAreaExchangeTransportSettings.TransportSettingsWS(InfobaseNode);
 	
 	ConnectionParameters = New Structure;
-	ConnectionParameters.Insert("URL",      SettingsStructure.WSWebServiceURL);
-	ConnectionParameters.Insert("UserName", SettingsStructure.WSUserName);
-	ConnectionParameters.Insert("Password", SettingsStructure.WSPassword);
+	ConnectionParameters.Insert("URL",      SettingsStructure_.WSWebServiceURL);
+	ConnectionParameters.Insert("UserName", SettingsStructure_.WSUserName);
+	ConnectionParameters.Insert("Password", SettingsStructure_.WSPassword);
 	
 	Return Common.GetInterfaceVersions(ConnectionParameters, "DataExchangeSaaS");
 EndFunction

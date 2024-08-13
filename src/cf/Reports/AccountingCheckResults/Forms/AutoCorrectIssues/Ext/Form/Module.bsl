@@ -259,6 +259,7 @@ EndFunction
 &AtServerNoContext
 Function MissingPredefinedItemsProperties(MetadataObject, PredefinedItemsInData, Absent)
 	Properties = New Array;
+	// ACC:326-off - Obtain information records without data change.
 	BeginTransaction();
 	Try
 		For Each String In PredefinedItemsInData Do
@@ -278,6 +279,7 @@ Function MissingPredefinedItemsProperties(MetadataObject, PredefinedItemsInData,
 	Except
 		RollbackTransaction();
 	EndTry;
+	// ACC:326-on
 	
 	Return Properties;
 EndFunction

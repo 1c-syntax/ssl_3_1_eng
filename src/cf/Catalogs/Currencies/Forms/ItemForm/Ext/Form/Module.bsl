@@ -74,7 +74,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Basic Additional Data page.
 
 &AtClient
 Procedure MainCurrencyStartChoice(Item, ChoiceData, StandardProcessing)
@@ -221,7 +221,7 @@ Procedure FillInTheCurrencyRegistrationParametersSubmenu()
 			Command.Title = StringFunctionsClientServer.SubstituteParametersToString("%1...", 
 				CurrencyRateOperationsInternal.LanguagePresentation(LanguageCode));
 		Else
-			Command.Title = NStr("en = 'исиIn other languages…';");
+			Command.Title = NStr("en = 'In other languages…';");
 		EndIf;
 
 		Command.Action = "Attachable_OpenCurrencyRegistrationParametersForm";

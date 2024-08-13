@@ -33,7 +33,7 @@
 						<v8:content>Select</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="FormChooseExtendedTooltip" id="5"/>
+				<ExtendedTooltip name="FormSelectExtendedTooltip" id="5"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
@@ -125,7 +125,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Install File Management Extension</v8:content>
+					<v8:content>Install 1C:Enterprise Extension</v8:content>
 				</v8:item>
 			</Title>
 			<ExtendedTooltip name="InstallFileSystemExtensionExtendedTooltip" id="7"/>
@@ -176,13 +176,13 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Install File Management Extension</v8:content>
+					<v8:content>Install 1C:Enterprise Extension</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Install File Management Extension</v8:content>
+					<v8:content>Install 1C:Enterprise Extension</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>InstallAddonForFacilitatingWorkWithFiles</Action>

@@ -160,7 +160,7 @@ Procedure UsersListClick(Item)
 EndProcedure
 
 &AtClient
-Procedure BackupDirectory2StartChoice(Item, ChoiceData, StandardProcessing)
+Procedure PathToBackupDirectoryStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	SelectedPath = GetPath(FileDialogMode.ChooseDirectory);
 	If Not IsBlankString(SelectedPath) Then 
@@ -366,7 +366,9 @@ Function CheckAttributesFilling()
 		CommonClient.MessageToUser(MessageText,, "Object.BackupDirectory");
 		AttributesFilled = False;
 	ElsIf FindFiles(Object.BackupDirectory).Count() = 0 Then
-		MessageText = NStr("en = 'The provided directory does not exist.';");
+		MessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'A non-existent directory specified: %1.
+			|If backup is configured on another computer, specify a network directory available from any computer with this app.';"),
+			Object.BackupDirectory);
 		CommonClient.MessageToUser(MessageText,, "Object.BackupDirectory");
 		AttributesFilled = False;
 	Else
@@ -560,7 +562,7 @@ Procedure AfterStartScript(Result, Context) Export
 EndProcedure
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
+// Handlers of form events on the server and changes of backup settings.
 
 &AtServerNoContext
 Procedure SetBackupArchivePath(Val Path, Val AutomaticRun)

@@ -166,7 +166,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EditableTemplateHash = GetTemplateHash(TemplateFileAddress);
 	TemplateModificationCheckTime =	CurrentUniversalDateInMilliseconds();
 	Items.GroupTemplateAssignment.Enabled = Parameters.IsValAvailable;
-	
+
 EndProcedure
 
 &AtClient
@@ -218,26 +218,32 @@ EndProcedure
 
 &AtClient
 Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
-	
-	If CancelSavingChanges Then
+
+	If Exit Then
+		If Modified And Not CancelSavingChanges Then
+			WarningText = NStr("en = 'The print form''s template has been edited in another application.
+				|Click ""Save"" to save the changes.';");
+			Cancel = True;
+		EndIf;
+		Return;
+	EndIf;
+
+	If Not CancelSavingChanges Then
 		
-	ElsIf Not WritingCompleted Then
-		AdditionalParameters = New Structure;
-		AdditionalParameters.Insert("Cancel", Cancel);
-		AdditionalParameters.Insert("Exit", Exit); 
-		AdditionalParameters.Insert("WarningText", WarningText); 
-		AdditionalParameters.Insert("StandardProcessing", StandardProcessing);
-					
-		Notification = New NotifyDescription("BeforeCloseEnd", ThisObject, AdditionalParameters);
-		ErrorAlert = New NotifyDescription("ErrorReadingFile", ThisObject);
-		ReadTemplateEditableFile(Notification, ErrorAlert);
-		Cancel = True;
-					
-	Else
-		BeforeCloseCompletion(False, Undefined);
+		If Not WritingCompleted Then
+			AdditionalParameters = New Structure;
+			AdditionalParameters.Insert("Cancel", Cancel);
+			Notification = New NotifyDescription("BeforeCloseEnd", ThisObject, AdditionalParameters);
+			ErrorAlert = New NotifyDescription("ErrorReadingFile", ThisObject);
+
+			ReadTemplateEditableFile(Notification, ErrorAlert);
+			Cancel = True;
+		Else
+			BeforeCloseCompletion(False, Undefined);
+		EndIf;
 	EndIf;
 	
-	If Not Cancel And Not Exit And ValueIsFilled(KeyOfEditObject) Then
+	If Not Cancel And ValueIsFilled(KeyOfEditObject) Then
 		UnlockAtServer(); 
 	EndIf;
 		
@@ -308,6 +314,11 @@ Procedure OpenEditor(Command)
 	Notification = New NotifyDescription("OpenEditorFollowUp", ThisObject);
 	ErrorAlert = New NotifyDescription("ErrorOpeningFile", ThisObject);
 	ReadTemplateEditableFile(Notification, ErrorAlert);
+	
+	If Not IsNew() Then
+		Modified = True;
+	EndIf;
+
 EndProcedure
 
 &AtClient
@@ -408,7 +419,7 @@ Procedure ReadTemplateEditableFile(ContinueNotification, ErrorAlert)
 	ImportParameters.FormIdentifier = UUID;
 	ImportParameters.Interactively = False;
 	FileSystemClient.ImportFile_(NotifyDescription, ImportParameters, PathToTemplateFile, TemplateFileAddress);
-#EndIf	
+#EndIf
 	
 EndProcedure
 
@@ -520,10 +531,16 @@ EndProcedure
 
 &AtClient
 Procedure SaveToFileFollowUp(Result, AdditionalParameters) Export
+	
+	Template = TemplateFromTempStorage();
+	PrepareTemplateForSaving(Template);
+	TemplateAddressInTempStorage = PutToTempStorage(Template, UUID);
+	
 	SavingParameters = FileSystemClient.FileSavingParameters();
-	SavingParameters.Dialog.Title = NStr("en = 'Select an office document';");
+	SavingParameters.Dialog.Title = NStr("en = 'Save template to file';");
 	SavingParameters.Dialog.Filter = NStr("en = 'Office document';") + " (*.docx)|*.docx";
-	FileSystemClient.SaveFile(Undefined, TemplateFileAddress,,SavingParameters);
+	FileSystemClient.SaveFile(Undefined, TemplateAddressInTempStorage, DocumentName, SavingParameters);
+	
 EndProcedure
 
 &AtClient
@@ -649,20 +666,20 @@ EndProcedure
 &AtClient
 Procedure BeforeCloseEnd(Result, AdditionalParameters) Export
 	
-	Cancel					= AdditionalParameters.Cancel;
-	Exit		= AdditionalParameters.Exit;
+	Cancel = AdditionalParameters.Cancel;
 	
-	If Not Exit And Not ReClosing = True Then
+	If ReClosing <> True Then
 		Modified = Modified Or TemplateChanged();
 	EndIf;
 	ReClosing = True;
 	
 	NotifyDescription = New NotifyDescription("BeforeCloseCompletion", ThisObject);
-	LanguageDetails = ?(ValueIsFilled(CurrentLanguage), " ("+CurrentLanguage+")", "");
-	QueryText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Do you want to save the changes to %1%2?';"), DocumentName, LanguageDetails);
-	CommonClient.ShowFormClosingConfirmation(NotifyDescription, Cancel, Exit, QueryText);
+	LanguageDetails = ?(ValueIsFilled(CurrentLanguage), " (" + CurrentLanguage + ")", "");
+	QueryText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Do you want to save the changes to %1%2?';"), 
+		DocumentName, LanguageDetails);
+	CommonClient.ShowFormClosingConfirmation(NotifyDescription, Cancel, False, QueryText);
 	
-	If Modified Or Exit Then
+	If Modified Then
 		Return;
 	EndIf;
 	
@@ -1008,7 +1025,6 @@ Procedure WriteTemplate(Template)
 	
 	PrepareTemplateForSaving(Template);
 	
-	
 	TemplateAddressInTempStorage = PutToTempStorage(Template, UUID);
 	TemplateDetails = PrintManagement.TemplateDetails();
 	TemplateDetails.TemplateMetadataObjectName = IdentifierOfTemplate;
@@ -1230,12 +1246,11 @@ Procedure OpenTemplate(OpeningParameters)
 	AfterAttachExtension = New NotifyDescription("AfterAttachExtension", ThisObject, AdditionalParameters);
 	FileSystemClient.AttachFileOperationsExtension(AfterAttachExtension);
 	
-	Items.InstructionDocumentField.Visible = False;
 	Items.OpenEditor.DefaultButton = False;
 	Items.WriteAndClose.DefaultButton = True;
 	
 	Items.InstructionDocumentField.Visible = False;
-	Items.DisplayInstruction.Check = Items.InstructionDocumentField.Visible;
+	Items.DisplayInstruction.Check = False;
 EndProcedure
 
 &AtClient
@@ -1475,7 +1490,7 @@ Procedure SwitchLangAfterImportFileFollowUp(Result, AdditionalParameters) Export
 	NotifyDescription = New NotifyDescription("SwitchLangFollowUp", ThisObject, ParametersForResuming);
 	
 	If Modified Then
-		LanguageDetails = ?(ValueIsFilled(CurrentLanguage), " ("+CurrentLanguage+")", "");
+		LanguageDetails = ?(ValueIsFilled(CurrentLanguage), " (" + CurrentLanguage + ")", "");
 		QueryText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Do you want to save the changes to %1%2?';"), DocumentName, LanguageDetails);
 		ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNoCancel, ,
 			DialogReturnCode.Yes);
@@ -2360,14 +2375,14 @@ EndFunction
 &AtClient
 Procedure TemplateAssignmentClick(Item)
 	
-	PickingParameters = New Structure;
-	PickingParameters.Insert("SelectedMetadataObjects", CommonClient.CopyRecursive(DataSources));
-	PickingParameters.Insert("ChooseRefs", True);
-	PickingParameters.Insert("Title", NStr("en = 'Template assignment';"));
-	PickingParameters.Insert("FilterByMetadataObjects", ObjectsWithPrintCommands());
+	PickingParameters = StandardSubsystemsClientServer.MetadataObjectsSelectionParameters();
+	PickingParameters.SelectedMetadataObjects = CommonClient.CopyRecursive(DataSources);
+	PickingParameters.ChooseRefs = True;
+	PickingParameters.Title = NStr("en = 'Template assignment';");
+	PickingParameters.FilterByMetadataObjects = ObjectsWithPrintCommands();
 	
 	NotifyDescription = New NotifyDescription("OnChooseTemplateOwners", ThisObject);
-	OpenForm("CommonForm.SelectMetadataObjects", PickingParameters, , , , , NotifyDescription);
+	StandardSubsystemsClient.ChooseMetadataObjects(PickingParameters, NotifyDescription);
 
 EndProcedure
 

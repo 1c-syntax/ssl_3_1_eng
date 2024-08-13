@@ -152,8 +152,8 @@
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
-									<ContextMenu name="Windowsx861CEnterpriseContextMenu" id="91"/>
-									<ExtendedTooltip name="Windowsx861CEnterpriseExtendedTooltip" id="92"/>
+									<ContextMenu name="Windows_x86_1CEnterpriseContextMenu" id="91"/>
+									<ExtendedTooltip name="Windows_x86_1CEnterpriseExtendedTooltip" id="92"/>
 								</PictureDecoration>
 								<PictureDecoration name="Windows_x86_Chrome" id="106">
 									<Picture>
@@ -218,8 +218,8 @@
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
-									<ContextMenu name="Windowsx86641CEnterpriseContextMenu" id="94"/>
-									<ExtendedTooltip name="Windowsx86641CEnterpriseExtendedTooltip" id="95"/>
+									<ContextMenu name="Windows_x86_64_1CEnterpriseContextMenu" id="94"/>
+									<ExtendedTooltip name="Windows_x86_64_1CEnterpriseExtendedTooltip" id="95"/>
 								</PictureDecoration>
 								<PictureDecoration name="Windows_x86_64_Chrome" id="109">
 									<Picture>
@@ -357,8 +357,8 @@
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
-									<ContextMenu name="Linuxx861CEnterpriseContextMenu" id="129"/>
-									<ExtendedTooltip name="Linuxx861CEnterpriseExtendedTooltip" id="130"/>
+									<ContextMenu name="Linux_x86_1CEnterpriseContextMenu" id="129"/>
+									<ExtendedTooltip name="Linux_x86_1CEnterpriseExtendedTooltip" id="130"/>
 								</PictureDecoration>
 								<PictureDecoration name="Linux_x86_Chrome" id="138">
 									<Picture>
@@ -408,8 +408,8 @@
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
-									<ContextMenu name="Linuxx86641CEnterpriseContextMenu" id="136"/>
-									<ExtendedTooltip name="Linuxx86641CEnterpriseExtendedTooltip" id="137"/>
+									<ContextMenu name="Linux_x86_64_1CEnterpriseContextMenu" id="136"/>
+									<ExtendedTooltip name="Linux_x86_64_1CEnterpriseExtendedTooltip" id="137"/>
 								</PictureDecoration>
 								<PictureDecoration name="Linux_x86_64_Chrome" id="141">
 									<Picture>
@@ -648,8 +648,8 @@
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
-									<ContextMenu name="MacOSx86641CEnterpriseContextMenu" id="167"/>
-									<ExtendedTooltip name="MacOSx86641CEnterpriseExtendedTooltip" id="168"/>
+									<ContextMenu name="MacOS_x86_64_1CEnterpriseContextMenu" id="167"/>
+									<ExtendedTooltip name="MacOS_x86_64_1CEnterpriseExtendedTooltip" id="168"/>
 								</PictureDecoration>
 								<PictureDecoration name="MacOS_x86_64_Chrome" id="181">
 									<Picture>

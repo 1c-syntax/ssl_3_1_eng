@@ -99,7 +99,7 @@
 					<ContextMenu name="ErrorsCauseContextMenu" id="49"/>
 					<ExtendedTooltip name="ErrorsCauseExtendedTooltip" id="50"/>
 				</InputField>
-				<InputField name="ErrorsDetails" id="51">
+				<InputField name="ErrorsMoreDetails" id="51">
 					<DataPath>Errors.MoreDetails</DataPath>
 					<ReadOnly>true</ReadOnly>
 					<Title>
@@ -115,8 +115,8 @@
 					<Width>10</Width>
 					<HorizontalStretch>false</HorizontalStretch>
 					<TextColor>style:HyperlinkColor</TextColor>
-					<ContextMenu name="ErrorsDetailsContextMenu" id="52"/>
-					<ExtendedTooltip name="ErrorsDetailsExtendedTooltip" id="53"/>
+					<ContextMenu name="ErrorsMoreDetailsContextMenu" id="52"/>
+					<ExtendedTooltip name="ErrorsMoreDetailsExtendedTooltip" id="53"/>
 				</InputField>
 			</ChildItems>
 		</Table>
@@ -148,7 +148,7 @@
 							<Title formatted="true">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Facing issues? Learn to &lt;link %1&gt;troubleshoot digital signing apps&lt;/&gt; (in Russian).
+									<v8:content>Facing issues? Learn how to &lt;link %1&gt;troubleshoot digital signing apps&lt;/&gt; (in Russian).
 
 If you didn't find a solution, contact the 1C support team and provide &lt;link %2&gt;technical information&lt;/&gt; about the issue.</v8:content>
 								</v8:item>
@@ -191,7 +191,7 @@ If you didn't find a solution, contact the 1C support team and provide &lt;link 
 									<v8:content>Configure apps</v8:content>
 								</v8:item>
 							</Title>
-							<ExtendedTooltip name="FormOpenApplicationSettingsExtendedTooltip" id="12"/>
+							<ExtendedTooltip name="FormOpenApplicationsSettingsExtendedTooltip" id="12"/>
 						</Button>
 						<Button name="FormClose" id="13">
 							<Type>CommandBarButton</Type>
@@ -205,7 +205,7 @@ If you didn't find a solution, contact the 1C support team and provide &lt;link 
 									<v8:content>Close</v8:content>
 								</v8:item>
 							</Title>
-							<ExtendedTooltip name="FormClose3ExtendedTooltip" id="14"/>
+							<ExtendedTooltip name="FormCloseExtendedTooltip" id="14"/>
 						</Button>
 					</ChildItems>
 				</CommandBar>

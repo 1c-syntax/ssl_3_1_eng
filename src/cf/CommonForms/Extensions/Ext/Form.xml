@@ -265,7 +265,7 @@
 					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 					<ExtendedTooltip name="CheckIfAllExtensionsCanBeAppliedExtendedTooltip" id="229"/>
 				</Button>
-				<Button name="FormInstalledPatches1" id="177">
+				<Button name="FormInstalledPatches" id="177">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.Command.InstalledPatches</CommandName>
 					<Title>
@@ -382,8 +382,8 @@
 										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
-									<ContextMenu name="WarningPicture2ContextMenu" id="81"/>
-									<ExtendedTooltip name="WarningPicture2ExtendedTooltip" id="82"/>
+									<ContextMenu name="AttentionPictureContextMenu" id="81"/>
+									<ExtendedTooltip name="AttentionPictureExtendedTooltip" id="82"/>
 								</PictureDecoration>
 								<LabelDecoration name="WarningDetails" id="83">
 									<AutoMaxWidth>false</AutoMaxWidth>
@@ -394,10 +394,10 @@
 											<v8:content>To apply changes, &lt;link 1&gt;restart&lt;/&gt; the app.</v8:content>
 										</v8:item>
 									</Title>
-									<ContextMenu name="WarningDetails1ContextMenu" id="84"/>
-									<ExtendedTooltip name="WarningDetails1ExtendedTooltip" id="85"/>
+									<ContextMenu name="WarningDetailsContextMenu" id="84"/>
+									<ExtendedTooltip name="WarningDetailsExtendedTooltip" id="85"/>
 									<Events>
-										<Event name="URLProcessing">WarningDetails1URLProcessing</Event>
+										<Event name="URLProcessing">WarningDetailsURLProcessing</Event>
 									</Events>
 								</LabelDecoration>
 								<LabelDecoration name="WarningDetails2" id="222">
@@ -414,7 +414,7 @@ New extensions for data area users will be applied next time they log in to the 
 									<ContextMenu name="WarningDetails2ContextMenu" id="223"/>
 									<ExtendedTooltip name="WarningDetails2ExtendedTooltip" id="224"/>
 									<Events>
-										<Event name="URLProcessing">WarningDetails1URLProcessing</Event>
+										<Event name="URLProcessing">WarningDetailsURLProcessing</Event>
 									</Events>
 								</LabelDecoration>
 							</ChildItems>

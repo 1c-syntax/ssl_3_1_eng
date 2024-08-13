@@ -663,8 +663,8 @@ Function AttributesEditingSettings(MetadataObject, ObjectsManagers = Null) Expor
 				ToEdit = ObjectManager.AttributesToEditInBatchProcessing();
 		EndIf;
 	Else
-		// 
-		// 
+		// For configurations without SSL or with an old SSL integrated,
+		// identify if the object has editable attributes.
 		ObjectManager = ObjectManagerByFullName(MetadataObject.FullName());
 		Try
 			ToEdit = ObjectManager.AttributesToEditInBatchProcessing();
@@ -684,8 +684,8 @@ Function AttributesEditingSettings(MetadataObject, ObjectsManagers = Null) Expor
 		EndIf;
 		
 	Else
-		// 
-		// 
+		// For configurations without SSL or with an old SSL integrated,
+		// identify if the object has non-editable attributes.
 		Try
 			NotToEdit = ObjectManager.AttributesToSkipInBatchProcessing();
 		Except
@@ -1322,8 +1322,8 @@ Function SubstituteParametersToString(Val SubstitutionString,
 	Return SubstitutionString;
 EndFunction
 
-// 
-// 
+// ACC:487-off - A copy of "ExecuteInSafeMode" and "CalculateInSafeMode"
+// of the "Common" module as the data processor is rejected.
 
 // Executes an arbitrary algorithm in the 1C:Enterprise script, setting
 //  the safe mode of script execution and the safe mode of data separation

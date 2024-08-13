@@ -418,7 +418,7 @@ Procedure InitiateAreaUpdate(Parameters, WarningDetails) Export
 	OpenForm("DataProcessor.ApplicationUpdateResult.Form.MessageToLimitedAccessUser");
 EndProcedure
 
-Procedure ProcessResultOfManuallyCheckingAvailablePatches(Result, NotifyDescription) Export
+Procedure ProcessManualPatchCheckResult(Result, NotifyDescription) Export
 	
 	If Result = Undefined Then
 		Return;
@@ -453,7 +453,7 @@ EndProcedure
 //  Result - See TimeConsumingOperationsClient.NewResultLongOperation
 //  AdditionalParameters - Undefined
 //
-Procedure ProcessResultOfManualPatchInstallation(Result, AdditionalParameters) Export
+Procedure ProcessManualPatchInstallationResult(Result, AdditionalParameters) Export
 	If Result = Undefined Then
 		Return;
 	EndIf;

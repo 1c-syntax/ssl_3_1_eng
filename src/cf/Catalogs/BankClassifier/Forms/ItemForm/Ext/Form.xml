@@ -127,7 +127,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Corr. account BIC</v8:content>
+							<v8:content>Corr. account and bank code</v8:content>
 						</v8:item>
 					</Title>
 					<Group>Vertical</Group>
@@ -187,8 +187,8 @@
 			</ChildItems>
 		</UsualGroup>
 		<InputField name="CashSettlementCenterBIC" id="68">
-			<ContextMenu name="BIRKSContextMenu" id="69"/>
-			<ExtendedTooltip name="BIRKSExtendedTooltip" id="70"/>
+			<ContextMenu name="CashSettlementCenterBICContextMenu" id="69"/>
+			<ExtendedTooltip name="CashSettlementCenterBICExtendedTooltip" id="70"/>
 		</InputField>
 		<UsualGroup name="InternationalPaymentsDetailsGroup" id="66">
 			<Title>

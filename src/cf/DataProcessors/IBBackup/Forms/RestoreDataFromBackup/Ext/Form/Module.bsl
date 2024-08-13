@@ -99,7 +99,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 &AtClient
-Procedure BackupDirectory2StartChoice(Item, ChoiceData, StandardProcessing)
+Procedure PathToBackupDirectoryStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	SelectBackupFile();
 	
@@ -331,7 +331,7 @@ Function CheckAttributesFilling()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Idle handler procedures.
 
 &AtClient
 Procedure Timeout2()

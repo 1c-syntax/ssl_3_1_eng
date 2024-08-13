@@ -36,7 +36,7 @@
 //
 // Example:
 //  1. StringFunctionsClient.FormattedString(NStr("en='
-//       <span style=""color: ЗаблокированныйРеквизитЦвет; font: ВажнаяНадписьШрифт"">Minimal</span> version <b>1.1</b>. 
+//       <span style=""color: ЗаблокированныйРеквизитЦвет; font: ВажнаяНадписьШрифт"">Minimum</span> version <b>1.1</b>. 
 //       <a href = ""Update"">Update</a> the app.'"));
 //  2. StringFunctionsClient.FormattedString(NStr("en='Mode: <img src=""РедактироватьВДиалоге"">
 //       <a style=""color: ModifiedAttributeValueColor; background-color: ModifiedAttributeValueBackground""
@@ -71,16 +71,16 @@ Function LatinString(Val Value) Export
 	
 EndFunction
 
-// Returns a period presentation in lowcase or with an uppercase letter
-//  if a phrase or a sentence starts with the period presentation.
-//  For example, if the period presentation must be displayed in the report heading
+// Returns a lowercase period presentation, or uppercase
+//  if a phrase or a sentence starts with the period.
+//  For example, if the period must be displayed in the report heading
 //  as "Sales for [StartDate] - [EndDate]",
 //  the result will look like this: "Sales for February 2020 - March 2020".
-//  The period is in lowcase because it is not the beginning of the sentence.
+//  
 //
 // Parameters:
-//  StartDate - Date - period start.
-//  EndDate - Date - period end.
+//  StartDate - Date - Period start.
+//  EndDate - Date - Period end.
 //  FormatString - String - determines a period formatting method.
 //  Capitalize - Boolean - True if the period presentation is the beginning of a sentence.
 //                    The default value is False.

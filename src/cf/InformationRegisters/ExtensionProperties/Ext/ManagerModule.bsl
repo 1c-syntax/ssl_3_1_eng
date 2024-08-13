@@ -38,7 +38,7 @@ Procedure SaveExtensionsProperties(ExtensionID, Properties) Export
 	
 EndProcedure
 
-Procedure DeleteExtensionPropertiesByID(ExtensionID) Export
+Procedure DeleteExtensionPropertiesByID(ExtensionID)
 	
 	Set = InformationRegisters.ExtensionProperties.CreateRecordSet();
 	Set.Filter.ExtensionID.Set(ExtensionID);

@@ -91,7 +91,7 @@ Function SSLEvents() Export
 	Events.Insert("OnSetUpSubordinateDIBNode", False);
 	
 	// IBVersionUpdate
-	Events.Insert("OnAddUpdateHandlers", False); // 
+	Events.Insert("OnAddUpdateHandlers", False); // Intended for compatibility with CTL v1.2.2.
 	Events.Insert("AfterUpdateInfobase", False);
 	Events.Insert("OnGetUpdatePriority", False);
 	Events.Insert("OnPopulateObjectsPlannedForDeletion", False);
@@ -826,6 +826,11 @@ Procedure OnDefineSuppliedDataHandlers(Handlers) Export
 		ModuleDigitalSignatureInternal.OnDefineSuppliedDataHandlers(Handlers);
 	EndIf;
 
+	If Common.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService") Then
+		TheDSSCryptographyServiceModuleInternal = Common.CommonModule("DSSCryptographyServiceInternal");
+		TheDSSCryptographyServiceModuleInternal.OnDefineSuppliedDataHandlers(Handlers);
+	EndIf;
+
 EndProcedure
 
 #EndRegion
@@ -1287,7 +1292,7 @@ Procedure OnAddMetadataObjectsRenaming(Total) Export
 
 EndProcedure
 
-// See InformationRegister.ExtensionVersionParameters.FillAllExtensionParameters.
+// 
 Procedure OnFillAllExtensionParameters() Export
 
 	UsersInternal.OnFillAllExtensionParameters();
@@ -1324,7 +1329,7 @@ Procedure OnFillAllExtensionParameters() Export
 
 EndProcedure
 
-// See InformationRegister.ExtensionVersionParameters.ClearAllExtensionParameters.
+// 
 Procedure OnClearAllExtemsionParameters() Export
 
 	If Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
@@ -1344,7 +1349,7 @@ Procedure OnClearAllExtemsionParameters() Export
 
 EndProcedure
 
-// See StandardSubsystems.OnSendDataToMaster.
+// 
 Procedure OnSendDataToMaster(DataElement, ItemSend, Recipient) Export
 
 	If Common.SubsystemExists("StandardSubsystems.ObjectsVersioning") Then
@@ -2233,10 +2238,23 @@ Procedure OnDefineObjectsWithReportCommands(Objects) Export
 		ModuleOSLSubsystemsIntegration = Common.CommonModule("OSLSubsystemsIntegration");
 		ModuleOSLSubsystemsIntegration.OnDefineObjectsWithReportCommands(Objects);
 	EndIf;
-
+	
+	If Common.SubsystemExists("StandardSubsystems.DigitalSignature") Then
+		ModuleDigitalSignatureCertificates = Common.CommonModule("Reports.DigitalSignatureCertificates");
+		ModuleDigitalSignatureCertificates.OnDefineObjectsWithReportCommands(Objects);
+	EndIf;
+	
 	If Common.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService") Then
 		TheDSSCryptographyServiceModuleInternal = Common.CommonModule("DSSCryptographyServiceInternal");
 		TheDSSCryptographyServiceModuleInternal.OnDefineObjectsWithReportCommands(Objects);
+	EndIf;
+
+	If Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
+		VolumeIntegrityCheckModule = Common.CommonModule("Reports.VolumeIntegrityCheck");
+		VolumeIntegrityCheckModule.OnDefineObjectsWithReportCommands(Objects);
+		
+		VolumeOfUnnecessaryFilesModule = Common.CommonModule("Reports.IrrelevantFilesVolume");
+		VolumeOfUnnecessaryFilesModule.OnDefineObjectsWithReportCommands(Objects);
 	EndIf;
 	
 	If Common.SubsystemExists("StandardSubsystems.ReportMailing") Then
@@ -3892,6 +3910,11 @@ Procedure OnDefineObjectsWithCreationBasedOnCommands(Objects) Export
 		ModulePersonalDataProtection = Common.CommonModule("PersonalDataProtection");
 		ModulePersonalDataProtection.OnDefineObjectsWithCreationBasedOnCommands(Objects);
 	EndIf;
+	
+	If Common.SubsystemExists("StandardSubsystems.MachineReadableLettersOfAuthority") Then
+		ModuleMachineReadableLettersOfAuthorityFTSInternal = Common.CommonModule("MachineReadableLettersOfAuthorityFTSInternal");
+		ModuleMachineReadableLettersOfAuthorityFTSInternal.OnDefineObjectsWithCreationBasedOnCommands(Objects);
+	EndIf;
 
 	If Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperationsInternal = Common.CommonModule("FilesOperationsInternal");
@@ -3994,6 +4017,24 @@ Procedure OnAddTypesToExcludeFromPossibleDuplicates(TypesToExclude) Export
 		ModuleWorkSchedules.OnAddTypesToExcludeFromPossibleDuplicates(TypesToExclude);
 	EndIf;
 
+EndProcedure
+
+#EndRegion
+
+#Region FullTextSearchServer
+
+// Parameters:
+//  ObjectMetadata - MetadataObject
+//  Value - Arbitrary
+//  Presentation - String
+//
+Procedure OnGetFullTextSearchResults(ObjectMetadata, Value, Presentation) Export
+	
+	If Common.SubsystemExists("StandardSubsystems.Properties") Then 
+		ModulePropertyManagerInternal = Common.CommonModule("PropertyManagerInternal");
+		ModulePropertyManagerInternal.OnGetFullTextSearchResults(ObjectMetadata, Value, Presentation);
+	EndIf;
+	
 EndProcedure
 
 #EndRegion
@@ -4887,6 +4928,8 @@ Procedure OnDefineScheduledJobSettings(Settings) Export
 		ModulePersonalDataProtection.OnDefineScheduledJobSettings(Settings);
 	EndIf;
 
+	InfobaseUpdateInternal.OnDefineScheduledJobSettings(Settings);
+
 	If Common.SubsystemExists("StandardSubsystems.DataExchange") Then
 		ModuleDataExchangeServer = Common.CommonModule("DataExchangeServer");
 		ModuleDataExchangeServer.OnDefineScheduledJobSettings(Settings);
@@ -5296,6 +5339,11 @@ EndProcedure
 // See AccessManagementOverridable.OnFillListsWithAccessRestriction.
 Procedure OnFillListsWithAccessRestriction(Lists) Export
 
+	If Common.SubsystemExists("StandardSubsystems.Surveys") Then
+		ModulePolls = Common.CommonModule("Surveys");
+		ModulePolls.OnFillListsWithAccessRestriction(Lists);
+	EndIf;
+	
 	If Common.SubsystemExists("StandardSubsystems.BusinessProcessesAndTasks") Then
 		ModuleBusinessProcessesAndTasksServer = Common.CommonModule("BusinessProcessesAndTasksServer");
 		ModuleBusinessProcessesAndTasksServer.OnFillListsWithAccessRestriction(Lists);

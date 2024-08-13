@@ -37,12 +37,12 @@ EndProcedure
 //	
 // Parameters:
 //  RecordData - Array of Structure - Information on the current document state:
-//                 * OverallState 						- Boolean - True if the current state is overall;
+//                 * OverallState 						- Boolean - "True" if the current state is aggregated.
 //                 * Ref 								- DocumentRef - A reference to the document whose source document's state should be changed.
 //                 * SourceDocumentOriginalState - CatalogRef.SourceDocumentsOriginalsStates -
 //                                                           a current state of the source document original.
-//                 * SourceDocument 					- String - a source document ID. It is specified if this state is not overall;
-//                 * FromOutside 								- Boolean - True if the source document was added by the user manually. Specified if this state is not overall. 
+//                 * SourceDocument 					- String - A source document ID. Required if the state is not aggregated.
+//                 * FromOutside 								- Boolean - "True" if the source document was added manually. Required if the current state is not aggregated. 
 //               - DocumentRef - A reference to the document whose source document's state should be changed.
 //  StateName - String - The state to be applied.
 // 
@@ -68,10 +68,10 @@ Procedure ProcessBarcode(Barcode) Export
 
 EndProcedure
 
-// Returns a structure with data on the current overall state of the document original by reference.
+// Returns a structure with the data on the source document's current aggregated state by reference.
 //
 //	Parameters:
-//  DocumentRef - DocumentRef - a reference to the document whose overall state details must be received. 
+//  DocumentRef - DocumentRef - The reference to the document whose aggregated state info should be received. 
 //
 //  Returns:
 //    Structure - General information about the source document state:
@@ -123,13 +123,13 @@ Function IsAccountingObject(ObjectRef) Export
 
 EndFunction
 
-// Returns a record key of the register of overall document original state by reference.
+// Returns the record key of the source document's aggregated state by reference.
 //
 //	Parameters:
-//  DocumentRef - DocumentRef - a reference to the document for which a record key of overall state must be received.
+//  DocumentRef - DocumentRef - The reference to the document whose aggregated state record key should be received.
 //
 //	Returns:
-//  InformationRegisterRecordKey.SourceDocumentsOriginalsStates - a record key of the register of overall document original state.
+//  InformationRegisterRecordKey.SourceDocumentsOriginalsStates - The record key of the source document's aggregated state.
 //
 Function OverallStateRecordKey(DocumentRef) Export
 

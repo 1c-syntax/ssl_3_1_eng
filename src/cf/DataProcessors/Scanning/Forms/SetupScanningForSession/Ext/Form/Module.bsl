@@ -103,9 +103,6 @@ Procedure OK(Command)
 	SelectionResult.Insert("ShouldSaveAsPDF",                   ShouldSaveAsPDF);
 	SelectionResult.Insert("MultipageStorageFormat",   MultipageStorageFormat);
 	
-	SinglePageStorageFormat = ConvertScanningFormatToStorageFormat(ScannedImageFormat, ShouldSaveAsPDF);
-	SelectionResult.Insert("SinglePageStorageFormat",    SinglePageStorageFormat);
-	
 	NotifyChoice(SelectionResult);
 	
 EndProcedure
@@ -114,18 +111,11 @@ EndProcedure
 
 #Region Private
 
-&AtServerNoContext
-Function ConvertScanningFormatToStorageFormat(ScanningFormat, ShouldSaveAsPDF)
-	
-	Return FilesOperationsInternal.ConvertScanningFormatToStorageFormat(ScanningFormat, ShouldSaveAsPDF); 
-	
-EndFunction
-
 &AtServer
 Procedure InstallHints()
 	
 	FormatTooltip = "";
-	ExtendedTooltip = String(Items.ShouldSaveAsPDF.ExtendedTooltip.Title); 
+	ExtendedTooltip = String(Items.ConvertToPDF.ExtendedTooltip.Title); 
 	Hints = StrSplit(ExtendedTooltip, Chars.LF);
 	CurFormat = String(ScannedImageFormat);
 	For Each ToolTip In Hints Do

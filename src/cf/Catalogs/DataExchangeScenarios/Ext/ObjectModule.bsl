@@ -51,8 +51,8 @@ Procedure OnWrite(Cancel)
 		
 	EndIf;
 	
-	// 
-	// 
+	// Update 1C:Enterprise cache so that the "DataExchangeCached.DataExchangeSettings"
+	// procedure could read up-to-date data exchange settings.
 	RefreshReusableValues();
 	
 EndProcedure

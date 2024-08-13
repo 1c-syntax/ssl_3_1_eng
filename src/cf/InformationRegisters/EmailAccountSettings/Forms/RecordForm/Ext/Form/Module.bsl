@@ -13,11 +13,15 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	AccountUser = Common.ObjectAttributeValue(Record.EmailAccount, "AccountOwner");
+	UserAccountAttributes = Common.ObjectAttributesValues(Record.EmailAccount, "AccountOwner, ProtocolForIncomingMail");
+	
+	AccountUser = UserAccountAttributes.AccountOwner;
 	IsPersonalAccount = ValueIsFilled(AccountUser);
 	If Not IsPersonalAccount Then
 		AccountUser = Record.EmployeeResponsibleForFoldersMaintenance;
 	EndIf;
+	
+	ProtocolForIncomingMail = UserAccountAttributes.ProtocolForIncomingMail;
 	
 	If Not Record.NotUseInDefaultEmailClient Then
 		UseInDefaultEmailClient = 1;
@@ -62,6 +66,10 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 		CurrentObject.EmployeeResponsibleForProcessingEmails = Catalogs.Users.EmptyRef();
 		CurrentObject.EmployeeResponsibleForFoldersMaintenance   = Catalogs.Users.EmptyRef();
 		CurrentObject.DeleteEmailsAfterSend    = False;
+	EndIf;
+	
+	If ProtocolForIncomingMail = "IMAP" Then
+		CurrentObject.DeleteEmailsAfterSend = False;
 	EndIf;
 	
 	CurrentObject.MailHandlingInOtherMailClient = ?(MailHandlingInOtherMailClient = 1, True, False);
@@ -304,7 +312,9 @@ Procedure RefreshFormItemsState(Form)
 	EndIf;
 	
 	Form.Items.EmployeesResponsibleGroup.Visible        = Not Form.IsPersonalAccount;
-	Form.Items.DeleteEmailsAfterSend.Visible = Not Form.IsPersonalAccount;
+	Form.Items.EmployeesResponsibleGroup.Visible        = Not Form.IsPersonalAccount;
+	Form.Items.DeleteEmailsAfterSend.Visible = Not Form.IsPersonalAccount 
+	                                                      And Form.ProtocolForIncomingMail <> "IMAP";
 	
 	Form.Items.NewMessageSignatureFormat.Enabled  = Form.Record.AddSignatureForNewMessages;
 	Form.Items.ReplyForwardSignatureFormat.Enabled = Form.Record.AddSignatureOnReplyForward;

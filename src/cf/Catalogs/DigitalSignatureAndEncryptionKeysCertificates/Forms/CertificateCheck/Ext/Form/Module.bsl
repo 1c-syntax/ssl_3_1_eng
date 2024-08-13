@@ -62,21 +62,34 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	DigitalSignatureOverridable.OnCreateFormCertificateCheck(
 		Parameters.Certificate, Checks, Parameters.AdditionalChecksParameters,
 		StandardChecks, EnterPassword);
+	If Not StandardChecks And AdditionalChecks.Count() = 0 Then
+		Raise(StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Standard checks for checking the certificate are disabled,
+			|at that additional checks are not specified in %1.';"), 
+			"DigitalSignatureOverridable.OnCreateFormCertificateCheck"), 
+			ErrorCategory.ConfigurationError);
+	EndIf;
 		
+	If ValueIsFilled(Parameters.SignatureType) Then
+		SignatureType = Parameters.SignatureType;
+	EndIf;
+	IgnoreCertificateRevocationStatus = Parameters.IgnoreCertificateRevocationStatus;
+	PerformCAVerification = Parameters.PerformCAVerification;
+	If IsBlankString(PerformCAVerification) Then
+		PerformCAVerification = DigitalSignatureInternalClientServer.CheckQualified();
+	EndIf;
+	
 	For Each Validation In Checks Do
 		
-		Var_Group = FormGroupWithoutDisplay(
-			"Group" + Validation.Name, Items.AdditionalChecksGroup);
+		Var_Group = FormGroupWithoutDisplay("Group" + Validation.Name, Items.AdditionalChecksGroup);
 		
 		AddPicture(Validation.Name + "AtClientPicture", Var_Group);
 		AddPicture(Validation.Name + "AtServerPicture", Var_Group);
 		
-		ResultAndDecisionGroup = FormGroupWithoutDisplay(
-			Validation.Name + "ResultAndDecision", Var_Group,
+		ResultAndDecisionGroup = FormGroupWithoutDisplay(Validation.Name + "ResultAndDecision", Var_Group,
 			ChildFormItemsGroup.Vertical);
 			
-		Label = Items.Add(Validation.Name + "Label",
-			Type("FormDecoration"), ResultAndDecisionGroup);
+		Label = Items.Add(Validation.Name + "Label", Type("FormDecoration"), ResultAndDecisionGroup);
 		Label.Title = Validation.Presentation;
 		Label.ExtendedTooltip.Title = Validation.ToolTip;
 		Label.SetAction("Click", "Attachable_LabelClick");
@@ -98,12 +111,6 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not StandardChecks Then
 		
-		If AdditionalChecks.Count() = 0 Then
-			Raise
-				NStr("en = 'Standard checks for checking the certificate are disabled,
-				|at that additional checks are not specified.';");
-		EndIf;
-			
 		Items.GeneralChecksGroup.Visible = False;
 		Items.OperationsCheckGroup.Visible = False;
 		StandardSubsystemsServer.SetFormAssignmentKey(ThisObject, "CustomChecks");
@@ -115,8 +122,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			Items[Validation + "DecisionClientLabel"].Visible = False;
 			Items[Validation + "ErrorServer"].Visible = False;
 			Items[Validation + "DecisionServerLabel"].Visible = False;
-			Items[Validation + "Label"].Title =
-				StandardItemTitle(Validation + "Label");
+			Items[Validation + "Label"].Title = StandardItemTitle(Validation + "Label", SignatureType);
 			
 			If ChecksAtClient <> Undefined Then
 				OutputCheckResult(Validation);
@@ -141,11 +147,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	CertificateEnterPasswordInElectronicSignatureProgram = CertificateProperties.EnterPasswordInDigitalSignatureApplication;
 	
 	ThisServiceAccount = TypeOf(Application) = DigitalSignatureInternal.ServiceProgramTypeSignatures()
-						And DigitalSignatureInternal.UseCloudSignatureService();
+		And DigitalSignatureInternal.UseCloudSignatureService();
 	IsBuiltInCryptoProvider = Application = DigitalSignatureInternal.BuiltinCryptoprovider();
 	
 	HaveServiceAccount = DigitalSignatureInternal.UseCloudSignatureService()
-			And DigitalSignatureInternalServerCall.TheCloudSignatureServiceIsConfigured();
+		And DigitalSignatureInternalServerCall.TheCloudSignatureServiceIsConfigured();
 	HasBuiltinCryptoprovider = DigitalSignatureInternal.UseDigitalSignatureSaaS();
 		
 	If ThisServiceAccount Then
@@ -161,10 +167,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		ModuleCryptographyServiceDSSConfirmationServer.PrepareGroupConfirmation(ThisObject, "Validation", "", "");
 		ModuleCryptographyServiceDSSConfirmationServer.ConfirmationWhenChangingCertificate(ThisObject, Certificate);
 		
-	ElsIf IsBuiltInCryptoProvider 
-		Or (Not StandardChecks And Not EnterPassword) Then
+	ElsIf IsBuiltInCryptoProvider Or (Not StandardChecks And Not EnterPassword) Then
 		Items.PasswordEntryGroup.Visible = False;
-		
 	EndIf;
 	
 	RefreshVisibilityAtServer();
@@ -241,18 +245,14 @@ Procedure Attachable_LabelClick(Item)
 	ErrorName = TagName + "Error";
 	
 	WarningParameters = New Structure;
-	WarningParameters.Insert("WarningTitle",
-		StandardItemTitle(Item.Name));
-	WarningParameters.Insert("ErrorTextClient",
-		ChecksAtClient[ErrorName]);
+	WarningParameters.Insert("WarningTitle", StandardItemTitle(Item.Name, SignatureType));
+	WarningParameters.Insert("ErrorTextClient", ChecksAtClient[ErrorName]);
 	WarningParameters.Insert("ErrorTextServer",
 		?(OperationsAtServer Or HasBuiltinCryptoprovider Or HaveServiceAccount, 
 			ChecksAtServer[ErrorName], ""));
-			
 	WarningParameters.Insert("AdditionalData", AdditionalData(TagName));
 	
-	OpenForm("CommonForm.ExtendedErrorPresentation",
-		WarningParameters, ThisObject);
+	DigitalSignatureInternalClient.OpenExtendedErrorPresentationForm(WarningParameters, ThisObject);
 	
 EndProcedure
 
@@ -328,9 +328,17 @@ Procedure SupportInformationURLProcessing(Item, Var_URL, StandardProcessing)
 	
 	DigitalSignatureInternalClient.GenerateTechnicalInformation(
 		ErrorsText, New Structure("Subject, Message",
-			NStr("en = 'Issue occured checking the signature certificate';"),
+			NStr("en = 'Issue occurred checking the signature certificate';"),
 			DigitalSignatureInternalClient.TechnicalSupportRequestTextUponCertificateCheck()),
 		Undefined, FilesDetails);
+	
+EndProcedure
+
+&AtClient
+Procedure DecorationTimestampCertificateURLProcessing(Item, FormattedStringURL, StandardProcessing)
+	
+	StandardProcessing = False;
+	DigitalSignatureInternalClient.OpenCertificate(FormattedStringURL);
 	
 EndProcedure
 
@@ -358,6 +366,29 @@ Procedure ValidateCompletion(NotDefined, Context) Export
 		
 	Items.FormValidate.Enabled = True;
 	Items.FormValidate.Representation = ButtonRepresentation.Text;
+	
+	If TimestampCertificates.Count() = 0 Then
+		Items.DecorationTimestampCertificate.Visible = False;
+	Else
+		Array = New Array;
+		For Each TimestampCertificate In TimestampCertificates Do
+			If Not TimestampCertificate.IsObtainedAtClient Then
+				Array.Add(StringFunctionsClient.FormattedString(
+							NStr("en = 'Certificate of server-side timestamp: <a href = %1>%2</a>.';"),
+						TimestampCertificate.CertificateAddress, TimestampCertificate.Presentation));
+			ElsIf Not TimestampCertificate.IsObtainedAtServer Then
+				Array.Add(StringFunctionsClient.FormattedString(
+							NStr("en = 'Certificate of computer-side timestamp: <a href = %1>%2</a>.';"),
+						TimestampCertificate.CertificateAddress, TimestampCertificate.Presentation));
+			Else
+				Array.Add(StringFunctionsClient.FormattedString(
+							NStr("en = 'Timestamp certificate: <a href = %1>%2</a>.';"),
+						TimestampCertificate.CertificateAddress, TimestampCertificate.Presentation));
+			EndIf;
+		EndDo;
+		Items.DecorationTimestampCertificate.Title = New FormattedString(Array);
+		Items.DecorationTimestampCertificate.Visible = True;
+	EndIf;
 	
 	If Not CheckOnSelection Then
 		Return;
@@ -477,6 +508,8 @@ Procedure CheckCertificate(Notification)
 	ChecksAtServer = New Structure;
 	AdditionalDataChecksOnClient = New Structure;
 	AdditionalDataChecksOnServer = New Structure;
+	TimestampCertificates.Clear();
+	Items.DecorationTimestampCertificate.Visible = False;
 	
 	// Clearing the previous check results.
 	If StandardChecks Then
@@ -509,49 +542,49 @@ EndProcedure
 &AtClient
 Procedure CheckCertificateAfterCheckAtClient(Result, Context) Export
 	
-	If ValueIsFilled(VerifyCertificateInClientSLocalStorage) Then
+	If ValueIsFilled(CheckCertificateInClientLocalStore) Then
 	
 		ClassifierError = New Structure;
-		ClassifierError.Insert("ErrorText", Items[VerifyCertificateInClientSLocalStorage + "ErrorClientInscription"].Title);
+		ClassifierError.Insert("ErrorText", Items[CheckCertificateInClientLocalStore + "ErrorClientLabel"].Title);
 		ClassifierError.Insert("Cause", "");
-		ClassifierError.Insert("Decision", Items[VerifyCertificateInClientSLocalStorage + "DecisionClientLabel"].Title);
+		ClassifierError.Insert("Decision", Items[CheckCertificateInClientLocalStore + "DecisionClientLabel"].Title);
 				
 		DataToSupplement = DigitalSignatureInternalClientServer.DataToSupplementErrorFromClassifier(Undefined);
 		DataToSupplement.CertificateData = GetFromTempStorage(CertificateAddress);
 		
 		ExtensionParameters_ = New Structure("Result, Context, Item",
-			Result, Context, VerifyCertificateInClientSLocalStorage);
+			Result, Context, CheckCertificateInClientLocalStore);
 			
-		ParametersForAddingSolutionText = DigitalSignatureInternalClientServer.ParametersForCompletingTextOfClassifierErrorSolution();
-		ParametersForAddingSolutionText.VerifyCertificateInClientSLocalStorage = True;
+		SolutionTextSupplementOptions = DigitalSignatureInternalClientServer.ClassifierErrorSolutionTextSupplementOptions();
+		SolutionTextSupplementOptions.CheckCertificateInClientLocalStore = True;
 			
-		DigitalSignatureInternalClient.ToSupplementDecisionOfErrorClassifierWithDetails(
-			New NotifyDescription("AfterCompletingSolutionOfErrorClassifier", ThisObject, ExtensionParameters_),
-			ClassifierError, ParametersForAddingSolutionText, DataToSupplement);
-		VerifyCertificateInClientSLocalStorage = "";
+		DigitalSignatureInternalClient.SupplementErrorClassifierSolutionWithDetails(
+			New NotifyDescription("AfterErrorClassifierSolutionSupplemented", ThisObject, ExtensionParameters_),
+			ClassifierError, SolutionTextSupplementOptions, DataToSupplement);
+		CheckCertificateInClientLocalStore = "";
 		Return;
 		
 	EndIf;
 	
-	VerifyCertificateAfterCheckingOnClientAndAddOns(Result, Context);
+	CheckCertificateAfterCheckedOnClientAndSupplemented(Result, Context);
 		
 EndProcedure
 
-// Continue the procedure to check the Certificate.
+// Follows the "CheckCertificate" procedure.
 &AtClient
-Procedure AfterCompletingSolutionOfErrorClassifier(ClassifierError, ExtensionParameters_) Export
+Procedure AfterErrorClassifierSolutionSupplemented(ClassifierError, ExtensionParameters_) Export
 	
 	If Items[ExtensionParameters_.Item + "DecisionClientLabel"].Title <> ClassifierError.Decision Then
 		Items[ExtensionParameters_.Item + "DecisionClientLabel"].Title = ClassifierError.Decision;
 	EndIf;
 	
-	VerifyCertificateAfterCheckingOnClientAndAddOns(ExtensionParameters_.Result, ExtensionParameters_.Context);
+	CheckCertificateAfterCheckedOnClientAndSupplemented(ExtensionParameters_.Result, ExtensionParameters_.Context);
 
 EndProcedure
 
-// Continue the procedure to check the Certificate.
+// Follows the "CheckCertificate" procedure.
 &AtClient
-Procedure VerifyCertificateAfterCheckingOnClientAndAddOns(Result, Context)
+Procedure CheckCertificateAfterCheckedOnClientAndSupplemented(Result, Context)
 	
 	If IsBuiltInCryptoProvider Or ThisServiceAccount Then
 		
@@ -653,7 +686,7 @@ Procedure CheckAtClientSide(Notification, Context = Undefined)
 	If StandardChecks Then
 		DigitalSignatureClient.InstallExtension(False, New NotifyDescription(
 			"CheckAtClientSideAfterAttachCryptoExtension", ThisObject, Context),
-			NStr("en = 'To continue, install the cryptography extension.';"));
+			NStr("en = 'To continue, install 1C:Enterprise Extension.';"));
 	Else
 		Context.Insert("CryptoManager", Undefined);
 		CheckAtClientSideAdditionalChecks(Context);
@@ -861,7 +894,7 @@ Procedure CheckAtClientSideAfterCreateAnyCryptoManager(Result, Context) Export
 	
 	If TypeOf(Result) = Type("CryptoManager") Then
 		AdditionalInspectionParameters = DigitalSignatureInternalClient.AdditionalCertificateVerificationParameters();
-		AdditionalInspectionParameters.PerformCAVerification = False;
+		AdditionalInspectionParameters.PerformCAVerification = DigitalSignatureInternalClientServer.NotVerifyCertificate();
 		AdditionalInspectionParameters.MergeCertificateDataErrors = False;
 		AdditionalInspectionParameters.CheckInServiceAfterError = False;
 		DigitalSignatureInternalClient.CheckCertificate(New NotifyDescription(
@@ -987,13 +1020,60 @@ Async Procedure CheckAtClientSideAfterCreateCryptoManager(Result, Context) Expor
 	EndIf;
 	
 	ErrorDescription = Await AdditionalCheckOnthePossibilityofSigning(Context.CryptoCertificate, False);
-		
+	
 	// Signing
 	If ChecksAtClient.CertificateExists = True And Not ValueIsFilled(ErrorDescription) Then
-		Context.CryptoManager.BeginSigning(New NotifyDescription(
-				"CheckAtClientSideAfterSigning", ThisObject, Context,
-				"CheckAtClientSideAfterSigningError", ThisObject),
-			Context.CertificateData, Context.CryptoCertificate);
+		
+		Try
+			SignatureData = Await Context.CryptoManager.SignAsync(Context.CertificateData, Context.CryptoCertificate);
+			DigitalSignatureInternalClientServer.BlankSignatureData(SignatureData, ErrorDescription);
+		Except
+			ErrorDescription = ErrorProcessing.BriefErrorDescription(ErrorInfo());
+		EndTry;
+		
+		If ValueIsFilled(ErrorDescription) Then
+			SetItem(ThisObject, "Signing", False, ErrorDescription, True, MergeResults);
+			CheckAtClientSideAfterSigning(Null, Context);
+			Return;
+		Else
+			PasswordAccepted = True;
+		EndIf;
+		
+		If ValueIsFilled(SignatureType) And SignatureType <> PredefinedValue("Enum.CryptographySignatureTypes.BasicCAdESBES")
+			And SignatureType <> PredefinedValue("Enum.CryptographySignatureTypes.NormalCMS") Then
+			
+			Try
+				SettingsSignatures = DigitalSignatureInternalClientServer.SignatureCreationSettings(SignatureType,
+					DigitalSignatureClient.CommonSettings().TimestampServersAddresses);
+				Context.CryptoManager.TimestampServersAddresses = SettingsSignatures.TimestampServersAddresses;
+				DigitalSignatureInternalClientServer.BlankSignatureData(SignatureData, ErrorDescription);
+			Except
+				ErrorDescription = ErrorProcessing.BriefErrorDescription(ErrorInfo());
+			EndTry;
+
+			If ValueIsFilled(ErrorDescription) Then
+				SetItem(ThisObject, "Signing", False, ErrorDescription, True, MergeResults);
+				CheckAtClientSideAfterSigning(Null, Context);
+				Return;
+			EndIf;
+
+			Try
+				SignatureData = Await Context.CryptoManager.SignAsync(Context.CertificateData, Context.CryptoCertificate, 
+					SettingsSignatures.SignatureType);
+			Except
+				ErrorDescription = ErrorProcessing.BriefErrorDescription(ErrorInfo());
+			EndTry;
+			
+			If ValueIsFilled(ErrorDescription) Then
+				SetItem(ThisObject, "Signing", False, ErrorDescription, True, MergeResults);
+				CheckAtClientSideAfterSigning(Null, Context);
+				Return;
+			EndIf;
+
+		EndIf;
+		
+		CheckAtClientSideAfterSigning(SignatureData, Context);
+		
 	Else
 		CheckAtClientSideAfterSigning(Null, Context);
 	EndIf;
@@ -1047,7 +1127,7 @@ EndProcedure
 
 // Continues the CheckAtClientSide procedure.
 &AtClient
-Procedure CheckAtClientSideAfterSigning(SignatureData, Context) Export
+Procedure CheckAtClientSideAfterSigning(SignatureData, Context)
 	
 	If SignatureData <> Null Then
 		If TypeOf(SignatureData) = Type("String") Then
@@ -1064,6 +1144,7 @@ Procedure CheckAtClientSideAfterSigning(SignatureData, Context) Export
 	
 	// Check the signature.
 	If SignatureData <> Null And ChecksAtClient.CertificateExists = True And Not ValueIsFilled(ErrorDescription) Then
+		Context.Insert("SignatureData", SignatureData);
 		Context.CryptoManager.BeginVerifyingSignature(New NotifyDescription(
 				"CheckAtClientSideAfterCheckSignature", ThisObject, Context,
 				"CheckAtClientSideAfterCheckSignatureError", ThisObject),
@@ -1123,7 +1204,7 @@ EndProcedure
 
 // Continues the CheckAtClientSide procedure.
 &AtClient
-Procedure CheckAtClientSideAfterCheckSignature(Certificate, Context) Export
+Async Procedure CheckAtClientSideAfterCheckSignature(Certificate, Context) Export
 	
 	If Certificate <> Null Then
 		If TypeOf(Certificate) = Type("String") Then
@@ -1131,7 +1212,47 @@ Procedure CheckAtClientSideAfterCheckSignature(Certificate, Context) Export
 		Else
 			ErrorDescription = "";
 		EndIf;
+		
+		If Not ValueIsFilled(ErrorDescription) And ValueIsFilled(SignatureType) And SignatureType
+			<> PredefinedValue(
+		"Enum.CryptographySignatureTypes.BasicCAdESBES") And SignatureType <> PredefinedValue(
+		"Enum.CryptographySignatureTypes.NormalCMS") Then
+
+			Try
+				SignatureProperties = Await DigitalSignatureInternalClient.SignaturePropertiesReadByCryptoManager(
+					Context.SignatureData, Context.CryptoManager, True);
+			Except
+				ErrorDescription = ErrorProcessing.BriefErrorDescription(ErrorInfo());
+			EndTry;
+
+			If Not ValueIsFilled(ErrorDescription) And ValueIsFilled(SignatureProperties.ErrorText) Then
+				ErrorDescription = SignatureProperties.ErrorText;
+			ElsIf Not ValueIsFilled(ErrorDescription) Then
+				TimestampCertificateData = SignatureProperties.Certificates[SignatureProperties.Certificates.UBound()];
+				TimestampCertificate = New CryptoCertificate();
+				Await TimestampCertificate.InitializeAsync(TimestampCertificateData);
+				CertificateProperties = DigitalSignatureInternalClientServer.CertificateProperties(
+					TimestampCertificate, DigitalSignatureInternalClient.UTCOffset());
+				
+				Found4 = TimestampCertificates.FindRows(New Structure("Thumbprint",
+					CertificateProperties.Thumbprint));
+
+				If Found4.Count() = 0 Then
+					NewRow = TimestampCertificates.Add();
+					NewRow.CertificateAddress = PutToTempStorage(TimestampCertificateData,
+						UUID);
+					NewRow.Thumbprint = CertificateProperties.Thumbprint;
+					NewRow.IsObtainedAtClient = True;
+					NewRow.Presentation = CertificateProperties.Presentation;
+			
+				Else
+					Found4[0].IsObtainedAtClient = True;
+				EndIf;
+			EndIf;
+		EndIf;
+		
 		SetItem(ThisObject, "CheckSignature", False, ErrorDescription, True, MergeResults);
+		
 	EndIf;
 	
 	Context.CryptoManager.BeginEncrypting(New NotifyDescription(
@@ -1750,15 +1871,27 @@ Procedure CheckAtServerSide(Val PasswordValue)
 		ErrorDescription = DigitalSignatureInternal.ErrorCertificateMarkedAsRevoked();
 		SetItem(ThisObject, "Signing", True, ErrorDescription, True, MergeResults);
 	Else
-		ResultCheckCA = DigitalSignatureInternal.ResultofCertificateAuthorityVerification(
-			CryptoCertificate);
-		If Not ResultCheckCA.Valid_SSLyf Then
-			SigningAllowed = Common.CommonSettingsStorageLoad(
-				Certificate, "AllowSigning", Undefined);
-			If SigningAllowed = Undefined Or Not SigningAllowed Then
-				ErrorDescription = ResultCheckCA.Warning.ErrorText;
-				SetItem(ThisObject, "Signing", True, ResultCheckCA.Warning, True,
-					MergeResults);
+		If PerformCAVerification <> DigitalSignatureInternalClientServer.NotVerifyCertificate() Then
+			CheckParameters = New Structure;
+			CheckParameters.Insert("ThisVerificationSignature", False);
+			CheckParameters.Insert("VerifyCertificate", PerformCAVerification);
+			
+			ResultCheckCA = DigitalSignatureInternal.ResultofCertificateAuthorityVerification(
+				CryptoCertificate,, CheckParameters);
+			If Not ResultCheckCA.Valid_SSLyf Then
+				
+				If  PerformCAVerification = DigitalSignatureInternalClientServer.OnlyQualified() Then
+					SigningAllowed = False;
+				Else
+					SigningAllowed = Common.CommonSettingsStorageLoad(
+						Certificate, "AllowSigning", Undefined);
+				EndIf;
+				
+				If SigningAllowed = Undefined Or Not SigningAllowed Then
+					ErrorDescription = ResultCheckCA.Warning.ErrorText;
+					SetItem(ThisObject, "Signing", True, ResultCheckCA.Warning, True,
+						MergeResults);
+				EndIf;
 			EndIf;
 		EndIf;
 	EndIf;
@@ -1806,6 +1939,29 @@ Function CheckSigningArServer(CryptoManager, CertificateData, CryptoCertificate,
 	EndTry;
 	
 	PasswordAccepted = Not ValueIsFilled(ErrorDescription);
+	
+	If ValueIsFilled(ErrorDescription) Then
+		SetItem(ThisObject, "Signing", True, ErrorDescription, True, MergeResults);
+		Return SignatureData;
+	EndIf;
+	
+	If ValueIsFilled(SignatureType) And SignatureType <> PredefinedValue(
+		"Enum.CryptographySignatureTypes.BasicCAdESBES") And SignatureType <> PredefinedValue(
+		"Enum.CryptographySignatureTypes.NormalCMS") Then
+		
+		Try
+			SettingsSignatures = DigitalSignatureInternalClientServer.SignatureCreationSettings(SignatureType,
+				DigitalSignature.CommonSettings().TimestampServersAddresses);
+			CryptoManager.TimestampServersAddresses = SettingsSignatures.TimestampServersAddresses;
+			SignatureData = CryptoManager.Sign(CertificateData, CryptoCertificate,
+				SettingsSignatures.SignatureType);
+			DigitalSignatureInternalClientServer.BlankSignatureData(SignatureData, ErrorDescription);
+		Except
+			ErrorDescription = ErrorProcessing.BriefErrorDescription(ErrorInfo());
+		EndTry;
+		
+	EndIf;
+	
 	SetItem(ThisObject, "Signing", True, ErrorDescription, True, MergeResults);
 	Return SignatureData;
 	
@@ -1813,13 +1969,49 @@ EndFunction
 
 &AtServer
 Procedure CheckSignatureAtServer(CryptoManager, CertificateData, SignatureData)
-	
+		
 	ErrorDescription = "";
 	Try
 		CryptoManager.VerifySignature(CertificateData, SignatureData);
 	Except
 		ErrorDescription = ErrorProcessing.BriefErrorDescription(ErrorInfo());
 	EndTry;
+	
+	If Not ValueIsFilled(ErrorDescription) And ValueIsFilled(SignatureType) And SignatureType <> PredefinedValue(
+		"Enum.CryptographySignatureTypes.BasicCAdESBES") And SignatureType <> PredefinedValue(
+		"Enum.CryptographySignatureTypes.NormalCMS") Then
+		
+		Try
+			SignatureProperties = DigitalSignatureInternal.SignaturePropertiesReadByCryptoManager(
+				SignatureData, CryptoManager, True);
+		Except
+			ErrorDescription = ErrorProcessing.BriefErrorDescription(ErrorInfo());
+		EndTry;
+			
+		If Not ValueIsFilled(ErrorDescription) And ValueIsFilled(SignatureProperties.ErrorText) Then
+			ErrorDescription = SignatureProperties.ErrorText;
+		ElsIf Not ValueIsFilled(ErrorDescription) Then
+			TimestampCertificateData = SignatureProperties.Certificates[SignatureProperties.Certificates.UBound()];
+			TimestampCertificate = New CryptoCertificate(TimestampCertificateData);
+			CertificateProperties = DigitalSignatureInternalClientServer.CertificateProperties(
+				TimestampCertificate, DigitalSignatureInternal.UTCOffset());
+			
+			Found4 = TimestampCertificates.FindRows(New Structure("Thumbprint", CertificateProperties.Thumbprint));
+				
+			If Found4.Count() = 0 Then
+					NewRow = TimestampCertificates.Add();
+					NewRow.CertificateAddress = PutToTempStorage(TimestampCertificateData,
+						UUID);
+					NewRow.Thumbprint = CertificateProperties.Thumbprint;
+					NewRow.IsObtainedAtServer = True;
+				
+			Else
+				Found4[0].IsObtainedAtServer = True;
+			EndIf;
+		
+		EndIf;
+	EndIf;
+	
 	SetItem(ThisObject, "CheckSignature", True, ErrorDescription, True, MergeResults);
 	
 EndProcedure
@@ -1914,7 +2106,7 @@ Procedure AddItemsDescriptionsErrors(CheckName, Parent, AtServer = False)
 		
 	AddPicture(CheckName + ?(AtServer, "ErrorServerImage", "ErrorClientPicture"),
 		ErrorGroupClient, PictureLib[?(AtServer, "ComputerServer", "ComputerClient")]);
-	Label = Items.Add(CheckName + ?(AtServer, "ErrorServerInscription", "ErrorClientInscription"),
+	Label = Items.Add(CheckName + ?(AtServer, "ErrorServerLabel", "ErrorClientLabel"),
 		Type("FormDecoration"), ErrorGroupClient);
 	Label.TextColor = StyleColors.NoteText;
 	Label = Items.Add(CheckName + ?(AtServer, "DecisionServerLabel", "DecisionClientLabel"),
@@ -1976,237 +2168,223 @@ Procedure OutputCheckResult(Validation, AtServer = False)
 	ChecksResults = ThisObject[?(AtServer, "ChecksAtServer", "ChecksAtClient")];
 	Additional_DataChecks = ThisObject[?(AtServer, "AdditionalDataChecksOnServer", "AdditionalDataChecksOnClient")];
 	
-	If ChecksResults <> Undefined Then
+	If ChecksResults = Undefined Then
+		Return;
+	EndIf;
 		
-		CheckResult = ChecksResults[Validation];
-		If CheckResult = Undefined Then
-			SetItem(ThisObject, Validation, AtServer, , , MergeResults);
-		Else
-			
-			ErrorsOnCheck = ?(ChecksResults.Property(Validation + "Error"),
-				ChecksResults[Validation + "Error"], "");
-				
-			If Additional_DataChecks.Property(Validation) Then
-				Structure = Additional_DataChecks[Validation];
-				Structure.Insert("ErrorText", ErrorsOnCheck);
-				SetItem(ThisObject, Validation, AtServer,
-					Structure, Not CheckResult, MergeResults);
-			Else
-				SetItem(ThisObject, Validation, AtServer,
-					ErrorsOnCheck, Not CheckResult, MergeResults);
-			EndIf;
-			
-		EndIf;
+	CheckResult = ChecksResults[Validation];
+	If CheckResult = Undefined Then
+		SetItem(ThisObject, Validation, AtServer, , , MergeResults);
+		Return;
+	EndIf;
 		
+	ErrorsOnCheck = ?(ChecksResults.Property(Validation + "Error"),
+		ChecksResults[Validation + "Error"], "");
+		
+	If Additional_DataChecks.Property(Validation) Then
+		Structure = Additional_DataChecks[Validation];
+		Structure.Insert("ErrorText", ErrorsOnCheck);
+		SetItem(ThisObject, Validation, AtServer,
+			Structure, Not CheckResult, MergeResults);
+	Else
+		SetItem(ThisObject, Validation, AtServer,
+			ErrorsOnCheck, Not CheckResult, MergeResults);
 	EndIf;
 	
 EndProcedure
 
 &AtClientAtServerNoContext
-Procedure SetItem(Form, StartElement, AtServer,
+Procedure SetItem(Form, Action, AtServer,
 	ErrorDescription = Undefined, IsError = False, MergeResults = "DontMerge")
 	
-	ItemLabel = Form.Items[StartElement + "Label"]; // FormDecoration, FormDecorationExtensionForALabel
+	LabelItemName = Action + "Label";
+	AtClientPictureItemName = Action + "AtClientPicture";
+	AtServerPictureItemName = Action + "AtServerPicture"; 
+	ErrorPropertyName = Action + "Error";
 	
-	If MergeResults = "MergeByAnd"
-		Or MergeResults = "MergeByOr" Then
-		
-		ItemPicture1 = Form.Items[StartElement + "AtClientPicture"]; // FormDecoration
-		
+	ItemLabel = Form.Items[LabelItemName]; // FormDecoration, FormDecorationExtensionForALabel
+	ShouldMergeResults = (MergeResults = "MergeByAnd" Or MergeResults = "MergeByOr");  
+	If ShouldMergeResults Then
+		ItemPicture1 = Form.Items[AtClientPictureItemName]; // FormDecoration
 	Else
-		ItemPicture1 = Form.Items[StartElement
-			+ ?(AtServer, "AtServerPicture", "AtClientPicture")]; // FormDecoration
+		ItemPicture1 = Form.Items[?(AtServer, AtServerPictureItemName, AtClientPictureItemName)]; // FormDecoration
 	EndIf;
 	
 	Checks = Form[?(AtServer, "ChecksAtServer", "ChecksAtClient")];
 	SecondContextChecks = Form[?(AtServer, "ChecksAtClient", "ChecksAtServer")];
 	
 	SecondContextCheckValue = Undefined;
-	If TypeOf(SecondContextChecks) = Type("Structure")
-		And SecondContextChecks.Property(StartElement) Then
-		
-		SecondContextCheckValue = SecondContextChecks[StartElement];
+	If TypeOf(SecondContextChecks) = Type("Structure") And SecondContextChecks.Property(Action) Then
+		SecondContextCheckValue = SecondContextChecks[Action];
 	EndIf;
 	
 	WarningAfterCheckingUC = Undefined;
 	If TypeOf(ErrorDescription) = Type("Structure") Then
 		WarningAfterCheckingUC = ErrorDescription;
 		ErrorDescription = WarningAfterCheckingUC.ErrorText;
-		Additional_DataChecks = Form[?(AtServer, "AdditionalDataChecksOnServer", "AdditionalDataChecksOnClient")];
-		Additional_DataChecks.Insert(StartElement,
+		FormAttributeName = ?(AtServer, "AdditionalDataChecksOnServer", "AdditionalDataChecksOnClient");
+		Additional_DataChecks = Form[FormAttributeName];
+		Additional_DataChecks.Insert(Action,
 			New Structure("Cause, Decision", WarningAfterCheckingUC.Cause, WarningAfterCheckingUC.Decision));
-		Form[?(AtServer, "AdditionalDataChecksOnServer", "AdditionalDataChecksOnClient")] = Additional_DataChecks;
+		Form[FormAttributeName] = Additional_DataChecks;
 	EndIf;
 	
 	If ValueIsFilled(ErrorDescription) Then
-		
 		CheckValue = False;
 		CheckResult = CheckValue;
-		If MergeResults = "MergeByOr"
-			And SecondContextCheckValue <> Undefined Then
-			
+		If MergeResults = "MergeByOr" And SecondContextCheckValue <> Undefined Then
 			CheckResult = False Or SecondContextCheckValue;
 		EndIf;
-		
-		If Not CheckResult Then
-			
-			ErrorGroup = Form.Items[StartElement + ?(AtServer, "ErrorServer", "ErrorClient")];
-			ErrorGroup.Visible = True;
-			ItemPicture1.Picture = ?(IsError,
-				PictureLib.CertificateCheckError,
-				PictureLib.CertificateCheckWarning);
-			
-			ItemPicture1.ToolTip = ErrorDescription;
-			ItemLabel.Hyperlink = True;
-			
-			ElementInscriptionError = Form.Items[StartElement + ?(AtServer, "ErrorServer", "ErrorClient") + "Label"]; // FormDecoration, FormDecorationExtensionForALabel
-			ElementInscriptionError.Title = ErrorDescription;
-			
-			If WarningAfterCheckingUC = Undefined Then
-				
-				LabelNameSolution = StartElement + ?(AtServer, "DecisionServerLabel", "DecisionClientLabel");
-				
-				If StartElement = "Details" And ElementInscriptionError.Title = Form.Items["Signing" + ?(
-					AtServer, "ErrorServer", "ErrorClient") + "Label"].Title Then
-					
-					Form.Items[LabelNameSolution].Visible = Form.Items["Signing" + ?(AtServer, "DecisionServerLabel", "DecisionClientLabel")].Visible;
-					Form.Items[LabelNameSolution].Title = NStr("en = 'См. пункт Подписание данных.';");
-					
-				Else
-					KnownErrorDescription = ClassifierError(ErrorDescription, AtServer);
-					IsKnownError = KnownErrorDescription <> Undefined;
-				
-					Form.Items[LabelNameSolution].Visible = IsKnownError;
-					If IsKnownError Then
-						
-						If ValueIsFilled(KnownErrorDescription.RemedyActions) Then
-							DataToSupplement = DigitalSignatureInternalClientServer.DataToSupplementErrorFromClassifier(Undefined);
-							DataToSupplement.CertificateData = GetFromTempStorage(Form.CertificateAddress);
-							
-							ParametersForCompletingTextOfClassifierErrorSolution = DigitalSignatureInternalClientServer.ParametersForCompletingTextOfClassifierErrorSolution();
-							
-							AddOn = DigitalSignatureInternalServerCall.ToSupplementDecisionOfErrorClassifierWithDetails(
-								KnownErrorDescription, DataToSupplement, 
-								ParametersForCompletingTextOfClassifierErrorSolution, ?(AtServer, "Server", "Client"));
-							KnownErrorDescription = AddOn.ClassifierError;
-							ParametersForCompletingTextOfClassifierErrorSolution = AddOn.ParametersForCompletingTextOfClassifierErrorSolutionOnClient;
-							If ParametersForCompletingTextOfClassifierErrorSolution.VerifyCertificateInClientSLocalStorage Then
-								Form.VerifyCertificateInClientSLocalStorage = StartElement;
-							EndIf;
-						EndIf;
-						Form.Items[LabelNameSolution].Title = KnownErrorDescription.Decision;
-					EndIf;
-				EndIf;
-			Else
-				LabelNameSolution = StartElement + ?(AtServer, "DecisionServerLabel", "DecisionClientLabel");
-				Form.Items[LabelNameSolution].Visible = True;
-				Form.Items[LabelNameSolution].Title = WarningAfterCheckingUC.Decision;
-			EndIf;
-		EndIf;
-		
 	Else
-		
-		ErrorGroup = Form.Items[StartElement + ?(AtServer, "ErrorServer", "ErrorClient")];
-		ItemDecision = Form.Items[StartElement
-			+ ?(AtServer, "DecisionServerLabel", "DecisionClientLabel")];
 		CheckValue = ?(ErrorDescription = Undefined, Undefined, True);
-		
-		If (MergeResults = "MergeByAnd"
-			Or MergeResults = "MergeByOr") Then
-			
-			If CheckValue = Undefined
-				And SecondContextCheckValue = Undefined Then
-				
-				ErrorGroup.Visible = False;
-				ItemDecision.Visible = False;
-				ItemPicture1.Picture = PictureLib.NoCertificateCheckPerformed;
-				ItemPicture1.ToolTip = NStr("en = 'No check was performed.';");
-				ItemLabel.Hyperlink = False;
-				ItemLabel.Title = ItemTitle(
-					Form.AdditionalChecks, ItemLabel.Name);
-				
-			ElsIf CheckValue = Undefined
-				And SecondContextCheckValue <> Undefined Then
-				
-				Checks.Insert(StartElement, CheckValue);
-				Checks.Insert(StartElement + "Error",
-					?(ErrorDescription = Undefined, "", ErrorDescription));
-				Return;
-				
-			ElsIf CheckValue <> Undefined
-				And SecondContextCheckValue = Undefined Then
-				
-				ErrorGroup.Visible = False;
-				ItemDecision.Visible = False;
-				ItemPicture1.Picture = PictureLib.CertificateCheckSuccess;
-				ItemPicture1.ToolTip = NStr("en = 'Check succeeded.';");
-				ItemLabel.Hyperlink = False;
-				ItemLabel.Title = ItemTitle(
-					Form.AdditionalChecks, ItemLabel.Name);
-			Else
-				CheckResult = ?(MergeResults = "MergeByAnd",
-					CheckValue And SecondContextCheckValue,
-					CheckValue Or SecondContextCheckValue);
-					
-				If CheckResult Then
-					ErrorGroup.Visible = False;
-					ItemDecision.Visible = False;
-					ItemPicture1.Picture = PictureLib.CertificateCheckSuccess;
-					ItemPicture1.ToolTip = NStr("en = 'Check succeeded.';");
-					ItemLabel.Hyperlink = False;
-					ItemLabel.Title = ItemTitle(
-						Form.AdditionalChecks, ItemLabel.Name);
-				EndIf;
-			EndIf;
-		Else
-			ItemPicture1.Picture = ?(ErrorDescription = Undefined,
-				PictureLib.NoCertificateCheckPerformed,
-				PictureLib.CertificateCheckSuccess);
-			ItemPicture1.ToolTip = ?(ErrorDescription = Undefined,
-				NStr("en = 'No check was performed.';"),
-				NStr("en = 'Check succeeded.';"));
-			
-			If SecondContextChecks = Undefined
-				Or Not SecondContextChecks.Property(StartElement + "Error")
-				Or IsBlankString(SecondContextChecks[StartElement + "Error"]) Then
-				
-				ErrorGroup.Visible = False;
-				ItemDecision.Visible = False;
-				ItemLabel.Hyperlink = False;
-				ItemLabel.Title = ItemTitle(
-					Form.AdditionalChecks, ItemLabel.Name);
-			EndIf;
+		If CheckValue <> Undefined And SecondContextCheckValue <> Undefined 
+			And ShouldMergeResults Then
+			CheckResult = ?(MergeResults = "MergeByAnd",
+				CheckValue And SecondContextCheckValue,
+				CheckValue Or SecondContextCheckValue);
 		EndIf;
 	EndIf;
-	
-	Checks.Insert(StartElement, CheckValue);
-	Checks.Insert(StartElement + "Error",
-		?(ErrorDescription = Undefined, "", ErrorDescription));
+	Checks.Insert(Action, CheckValue);
+	Checks.Insert(ErrorPropertyName, ?(ErrorDescription = Undefined, "", ErrorDescription));
 		
+	ErrorGroupNameServer = Action + "ErrorServer"; 
+	ErrorGroupNameClient = Action + "ErrorClient"; 
+	ErrorLabelItemNameServer = Action + "ErrorServerLabel"; 
+	ErrorLabelItemNameClient = Action + "ErrorClientLabel"; 
+	SolutionLabelItemNameServer = Action + "DecisionServerLabel"; 
+	SolutionLabelItemNameClient = Action + "DecisionClientLabel"; 
+
+	If ValueIsFilled(ErrorDescription) Then
+		
+		If CheckResult Then
+			Return;
+		EndIf;
+		
+		ErrorGroup = Form.Items[?(AtServer, ErrorGroupNameServer, ErrorGroupNameClient)];
+		ErrorGroup.Visible = True;
+		ItemPicture1.Picture = ?(IsError,
+			PictureLib.CertificateCheckError,
+			PictureLib.CertificateCheckWarning);
+		
+		ItemPicture1.ToolTip = ErrorDescription;
+		ItemLabel.Hyperlink = True;
+		
+		ElementLabelError = Form.Items[?(AtServer, ErrorLabelItemNameServer, ErrorLabelItemNameClient)]; // FormDecoration, FormDecorationExtensionForALabel
+		ElementLabelError.Title = ErrorDescription;
+		
+		LabelNameSolution = ?(AtServer, SolutionLabelItemNameServer, SolutionLabelItemNameClient);
+		SolutionLabelFormItem = Form.Items[LabelNameSolution];
+
+		If WarningAfterCheckingUC <> Undefined Then
+			SolutionLabelFormItem.Visible = True;
+			SolutionLabelFormItem.Title = WarningAfterCheckingUC.Decision;
+		EndIf;
+			
+		SolutionSigningLabelItemName = "Signing" + ?(AtServer, "ErrorServerLabel", "ErrorClientLabel"); 
+		SolutionSigningLabelFormItem = Form.Items[SolutionSigningLabelItemName]; 
+
+		If Action = "Details" And ElementLabelError.Title = SolutionSigningLabelFormItem.Title Then
+			SolutionLabelFormItem.Visible = SolutionSigningLabelFormItem.Visible;
+			SolutionLabelFormItem.Title = NStr("en = 'See the ""Data signing"" item.';");
+			Return;
+		EndIf;
+		KnownErrorDescription = ClassifierError(ErrorDescription, AtServer, Action = "CheckSignature");
+		IsKnownError = KnownErrorDescription <> Undefined;
+	
+		Form.Items[LabelNameSolution].Visible = IsKnownError;
+		If Not IsKnownError Then
+			Return;
+		EndIf;
+			
+		If ValueIsFilled(Form.Certificate) And ValueIsFilled(KnownErrorDescription.RemedyActions) Then
+			
+			DataToSupplement = DigitalSignatureInternalClientServer.DataToSupplementErrorFromClassifier(
+				New Structure("Certificate, CertificateData", Form.Certificate, Form.CertificateAddress));
+			ClassifierErrorSolutionTextSupplementOptions = DigitalSignatureInternalClientServer.ClassifierErrorSolutionTextSupplementOptions();
+			
+			AddOn = DigitalSignatureInternalServerCall.SupplementErrorClassifierSolutionWithDetails(
+				KnownErrorDescription, DataToSupplement, 
+				ClassifierErrorSolutionTextSupplementOptions, ?(AtServer, "Server", "Client"));
+			KnownErrorDescription = AddOn.ClassifierError;
+			ClassifierErrorSolutionTextSupplementOptions = AddOn.ClassifierErrorSolutionTextSupplementOptionsAtClient;
+			If ClassifierErrorSolutionTextSupplementOptions.CheckCertificateInClientLocalStore Then
+				Form.CheckCertificateInClientLocalStore = Action;
+			EndIf;
+		EndIf;
+		Form.Items[LabelNameSolution].Title = KnownErrorDescription.Decision;
+		Return;
+		
+	EndIf;
+	
+	ErrorGroup = Form.Items[?(AtServer, ErrorGroupNameServer, ErrorGroupNameClient)];
+	ItemDecision = Form.Items[?(AtServer, SolutionLabelItemNameServer, SolutionLabelItemNameClient)];
+	
+	If ShouldMergeResults Then
+		
+		If CheckValue = Undefined And SecondContextCheckValue = Undefined Then
+			ErrorGroup.Visible = False;
+			ItemDecision.Visible = False;
+			ItemPicture1.Picture = PictureLib.NoCertificateCheckPerformed;
+			ItemPicture1.ToolTip = NStr("en = 'No check was performed.';");
+			ItemLabel.Hyperlink = False;
+			ItemLabel.Title = ItemTitle(Form.AdditionalChecks, ItemLabel.Name, Form.SignatureType);
+		ElsIf CheckValue <> Undefined And SecondContextCheckValue = Undefined Then
+			ErrorGroup.Visible = False;
+			ItemDecision.Visible = False;
+			ItemPicture1.Picture = PictureLib.CertificateCheckSuccess;
+			ItemPicture1.ToolTip = NStr("en = 'Check succeeded.';");
+			ItemLabel.Hyperlink = False;
+			ItemLabel.Title = ItemTitle(Form.AdditionalChecks, ItemLabel.Name, Form.SignatureType);
+		ElsIf CheckValue <> Undefined And CheckResult Then
+			ErrorGroup.Visible = False;
+			ItemDecision.Visible = False;
+			ItemPicture1.Picture = PictureLib.CertificateCheckSuccess;
+			ItemPicture1.ToolTip = NStr("en = 'Check succeeded.';");
+			ItemLabel.Hyperlink = False;
+			ItemLabel.Title = ItemTitle(Form.AdditionalChecks, ItemLabel.Name, Form.SignatureType);
+		EndIf;
+		
+		Return;
+	EndIf;
+
+	ItemPicture1.Picture = ?(ErrorDescription = Undefined,
+		PictureLib.NoCertificateCheckPerformed,
+		PictureLib.CertificateCheckSuccess);
+	ItemPicture1.ToolTip = ?(ErrorDescription = Undefined,
+		NStr("en = 'No check was performed.';"),
+		NStr("en = 'Check succeeded.';"));
+	
+	If SecondContextChecks = Undefined
+		Or Not SecondContextChecks.Property(Action + "Error")
+		Or IsBlankString(SecondContextChecks[Action + "Error"]) Then
+		
+		ErrorGroup.Visible = False;
+		ItemDecision.Visible = False;
+		ItemLabel.Hyperlink = False;
+		ItemLabel.Title = ItemTitle(Form.AdditionalChecks, ItemLabel.Name, Form.SignatureType); 
+	EndIf;
+	
 EndProcedure
 
 &AtClientAtServerNoContext
-Function ItemTitle(AdditionalChecks, TagName)
+Function ItemTitle(AdditionalChecks, TagName, SignatureType)
 	
-	ItemTitle = StandardItemTitle(TagName);
+	ItemTitle = StandardItemTitle(TagName, SignatureType);
 	If Not IsBlankString(ItemTitle) Then
 		Return ItemTitle;
 	EndIf;
 		
 	For Each Validation In AdditionalChecks Do
-		
 		If Validation.Name + "Label" = TagName Then
 			Return Validation.Presentation;
 		EndIf;
-		
 	EndDo;
-	
 	Return "";
 	
 EndFunction
 
 &AtClientAtServerNoContext
-Function StandardItemTitle(TagName)
+Function StandardItemTitle(TagName, SignatureType)
 	
 	If TagName = "LegalCertificateLabel" Then
 		Return NStr("en = 'Compliance with legislation of the Russian Federation';");
@@ -2221,7 +2399,17 @@ Function StandardItemTitle(TagName)
 		Return NStr("en = 'Existence of a signing and decryption app';");
 		
 	ElsIf TagName = "SigningLabel" Then
-		Return NStr("en = 'Data signing';");
+		
+		If ValueIsFilled(SignatureType) Then
+			
+			SignatureTypeString = String(SignatureType);
+			SignatureTypeString = Lower(Left(SignatureTypeString, 1)) + Mid(SignatureTypeString, 2);
+			Return StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Signing data with signature type: %1';"), SignatureTypeString);
+			
+		Else
+			Return NStr("en = 'Data signing';");
+		EndIf;
 		
 	ElsIf TagName = "CheckSignatureLabel" Then
 		Return NStr("en = 'Check created signature';");
@@ -2268,9 +2456,9 @@ Procedure SupplementTextWithErrors(ErrorsText, Checks, AtServer = False)
 EndProcedure
 
 &AtServerNoContext
-Function ClassifierError(ErrorDescription, ErrorAtServer)
+Function ClassifierError(ErrorDescription, ErrorAtServer, SignatureVerificationError)
 	
-	Return DigitalSignatureInternal.ClassifierError(ErrorDescription, ErrorAtServer);
+	Return DigitalSignatureInternal.ClassifierError(ErrorDescription, ErrorAtServer, SignatureVerificationError);
 	
 EndFunction
 
@@ -2318,21 +2506,30 @@ Async Function AdditionalCheckOnthePossibilityofSigning(CryptoCertificate, Execu
 		ErrorCertificateMarkedAsRevoked = ErrorCertificateMarkedAsRevoked();
 		ErrorDescription = ErrorCertificateMarkedAsRevoked.ErrorText;
 		SetItem(ThisObject, "Signing", ExecutionSide, ErrorCertificateMarkedAsRevoked, True, MergeResults);
-	Else
+	ElsIf PerformCAVerification <> DigitalSignatureInternalClientServer.NotVerifyCertificate() Then
 		
-		ResultofCertificateAuthorityVerification = Await DigitalSignatureInternalClient.ResultofCertificateAuthorityVerification(CryptoCertificate);
-		
-		If Not ResultofCertificateAuthorityVerification.Valid_SSLyf Then
+		CheckParameters = New Structure;
+		CheckParameters.Insert("ThisVerificationSignature", False);
+		CheckParameters.Insert("VerifyCertificate", PerformCAVerification);
 			
-			SigningAllowed = CommonServerCall.CommonSettingsStorageLoad(
-				Certificate, "AllowSigning", Undefined);
-		
+		ResultofCertificateAuthorityVerification = Await DigitalSignatureInternalClient.ResultofCertificateAuthorityVerification(
+			CryptoCertificate,, CheckParameters);
+
+		If Not ResultofCertificateAuthorityVerification.Valid_SSLyf Then
+
+			If PerformCAVerification = DigitalSignatureInternalClientServer.OnlyQualified() Then
+				SigningAllowed = False;
+			Else
+				SigningAllowed = CommonServerCall.CommonSettingsStorageLoad(
+					Certificate, "AllowSigning", Undefined);
+			EndIf;
 			If SigningAllowed = Undefined Or Not SigningAllowed Then
 				ErrorDescription = ResultofCertificateAuthorityVerification.Warning.ErrorText;
-				SetItem(ThisObject, "Signing", ExecutionSide, ResultofCertificateAuthorityVerification.Warning, True,
-					MergeResults);
+				SetItem(ThisObject, "Signing", ExecutionSide,
+					ResultofCertificateAuthorityVerification.Warning, True, MergeResults);
 			EndIf;
 		EndIf;
+	
 	EndIf;
 	
 	Return ErrorDescription;

@@ -404,7 +404,7 @@ Then import the spreadsheet to the application. The application supports the fol
 												</v8:item>
 											</Title>
 											<ToolTipRepresentation>Button</ToolTipRepresentation>
-											<ExtendedTooltip name="ChangeTemplateExtendedTooltip" id="582"/>
+											<ExtendedTooltip name="ChooseAnotherTemplateExtendedTooltip" id="582"/>
 										</Button>
 									</ChildItems>
 								</Page>
@@ -456,9 +456,9 @@ Then import the spreadsheet to the application. The application supports the fol
 							<v8:content>Not found</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="NotFound1ExtendedTooltip" id="544"/>
+					<ExtendedTooltip name="NotFound4ExtendedTooltip" id="544"/>
 					<ChildItems>
-						<UsualGroup name="GroupNotFound1" id="551">
+						<UsualGroup name="GroupNotFound4" id="551">
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -468,7 +468,7 @@ Then import the spreadsheet to the application. The application supports the fol
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="GroupNotFound1ExtendedTooltip" id="552"/>
+							<ExtendedTooltip name="GroupNotFound4ExtendedTooltip" id="552"/>
 							<ChildItems>
 								<PictureDecoration name="InformationDecoration32" id="548">
 									<Title formatted="false">
@@ -741,7 +741,7 @@ Unmapped data can be skipped or added as new items. Mapped data can be updated o
 										</v8:item>
 									</Title>
 									<CommandSource>Item.DataMappingTable</CommandSource>
-									<ExtendedTooltip name="CommandBarGroupExtendedTooltip" id="432"/>
+									<ExtendedTooltip name="GroupCommandBarExtendedTooltip" id="432"/>
 									<ChildItems>
 										<Button name="DataMappingFind" id="446">
 											<Type>CommandBarButton</Type>
@@ -930,8 +930,8 @@ Unmapped data can be skipped or added as new items. Mapped data can be updated o
 								</RadioButtonField>
 								<LabelDecoration name="IndentMap" id="684">
 									<Width>2</Width>
-									<ContextMenu name="IndentMappingContextMenu" id="685"/>
-									<ExtendedTooltip name="IndentMappingExtendedTooltip" id="686"/>
+									<ContextMenu name="IndentMapContextMenu" id="685"/>
+									<ExtendedTooltip name="IndentMapExtendedTooltip" id="686"/>
 								</LabelDecoration>
 								<RadioButtonField name="CreateIfUnmapped" id="423">
 									<DataPath>CreateIfUnmapped</DataPath>
@@ -1020,7 +1020,7 @@ Unmapped data can be skipped or added as new items. Mapped data can be updated o
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
 									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="DetailsSummaryExtendedTooltip" id="322"/>
+									<ExtendedTooltip name="SummaryExtendedTooltip" id="322"/>
 									<ChildItems>
 										<UsualGroup name="CreatedAndUpdatedItemsReportGroup" id="467">
 											<Title>
@@ -1233,10 +1233,10 @@ Also, you can save skipped lines to a file, revise them, and import them later.<
 									</ChoiceList>
 									<ChoiceListHeight>6</ChoiceListHeight>
 									<DropListWidth>7</DropListWidth>
-									<ContextMenu name="ReportFilter1ContextMenu" id="346"/>
-									<ExtendedTooltip name="ReportFilter1ExtendedTooltip" id="347"/>
+									<ContextMenu name="FilterReportContextMenu" id="346"/>
+									<ExtendedTooltip name="FilterReportExtendedTooltip" id="347"/>
 									<Events>
-										<Event name="OnChange">ReportFilter1OnChange</Event>
+										<Event name="OnChange">FilterReportOnChange</Event>
 									</Events>
 								</InputField>
 								<CommandBar name="ReportCommandBarCommands" id="433">
@@ -1297,10 +1297,10 @@ Also, you can save skipped lines to a file, revise them, and import them later.<
 							<Height>1</Height>
 							<VerticalScrollBar>true</VerticalScrollBar>
 							<HorizontalScrollBar>true</HorizontalScrollBar>
-							<ContextMenu name="ReportTableContextMenu" id="158"/>
-							<ExtendedTooltip name="ReportTableExtendedTooltip" id="159"/>
+							<ContextMenu name="TableReportContextMenu" id="158"/>
+							<ExtendedTooltip name="TableReportExtendedTooltip" id="159"/>
 							<Events>
-								<Event name="OnActivate">ReportTableOnActivate</Event>
+								<Event name="OnActivate">TableReportOnActivate</Event>
 							</Events>
 						</SpreadSheetDocumentField>
 					</ChildItems>

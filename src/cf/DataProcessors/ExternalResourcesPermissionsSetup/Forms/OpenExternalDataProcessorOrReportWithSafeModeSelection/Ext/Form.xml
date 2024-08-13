@@ -53,10 +53,10 @@
 			<Width>60</Width>
 			<ChoiceButton>true</ChoiceButton>
 			<TextEdit>false</TextEdit>
-			<ContextMenu name="DataProcessorFileName1ContextMenu" id="2"/>
-			<ExtendedTooltip name="DataProcessorFileName1ExtendedTooltip" id="3"/>
+			<ContextMenu name="NameOfDataProcessorFileContextMenu" id="2"/>
+			<ExtendedTooltip name="NameOfDataProcessorFileExtendedTooltip" id="3"/>
 			<Events>
-				<Event name="StartChoice">DataProcessorFileName1StartChoice</Event>
+				<Event name="StartChoice">NameOfDataProcessorFileStartChoice</Event>
 			</Events>
 		</InputField>
 		<InputField name="SafeMode" id="4">

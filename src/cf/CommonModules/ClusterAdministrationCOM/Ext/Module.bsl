@@ -433,7 +433,7 @@ Procedure TerminateInfobaseConnections(Val ClusterAdministrationParameters, Val 
 		ClusterAdministrationParameters.ClusterAdministratorPassword);
 		
 	Value = New Array;
-	Value.Add("1CV8");               // 
+	Value.Add("1CV8");               // ID of 1C:Enterprise application running in thick client mode.
 	Value.Add("1CV8C");              // ID of 1C:Enterprise application running in thin client mode.
 	Value.Add("WebClient");          // ID of 1C:Enterprise application running in web client mode.
 	Value.Add("Designer");           // Designer ID.

@@ -8,14 +8,14 @@
 //
 //
 
-// 
+// Expected parameters:
 //
-//     
+//     DuplicatesSearchArea - String - The full name of the metadata table for the given search area.
 //
-// 
+// Return value (as a selection result):
 //
-//     
-//     
+//     Undefined - Editing is canceled.
+//     String - Address of the new composer settings in a temporary storage.
 //
 
 #Region FormEventHandlers

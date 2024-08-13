@@ -265,9 +265,9 @@ Procedure AddApplicationParameterChanges(ParameterName, Val Changes) Export
 		
 		EarliestIBVersion = InfobaseUpdateInternalCached.EarliestIBVersion();
 		
-		// Delete the changes intended for the infobase versions that are earlier than the minimal version
-		// 
-		// 
+		// Delete the changes intended for the infobase versions that
+		// don't match the minimum version condition to ensure that
+		// the infobase updates regardless of the version.
 		IndexOf = LastChanges.Count()-1;
 		While IndexOf >=0 Do
 			RevisionVersion = LastChanges[IndexOf].ConfigurationVersion;
@@ -705,7 +705,7 @@ Procedure LongOperationHandlerPerformUpdateUnsharedData(Parameters, ResultAddres
 	If Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
 		ModuleReportsOptions = Common.CommonModule("ReportsOptions");
 		Settings = ModuleReportsOptions.SettingsUpdateParameters();
-		Settings.SharedData = True; // 
+		Settings.SharedData = True; // Predefined data.
 		Settings.SeparatedData = False;
 		If Parameters.ReportsOptions.ParametersReportsConfiguration.ShouldUpdate Then
 			Settings.Configuration = True;

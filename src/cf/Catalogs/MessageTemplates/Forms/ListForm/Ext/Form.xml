@@ -4,7 +4,7 @@
 		<xr:Item>
 			<xr:Presentation/>
 			<xr:CheckState>0</xr:CheckState>
-			<xr:Value xsi:type="xs:string">ListCommandBarGroup</xr:Value>
+			<xr:Value xsi:type="xs:string">CommandBarOfListGroup</xr:Value>
 		</xr:Item>
 	</MobileDeviceCommandBarContent>
 	<CommandSet>
@@ -29,7 +29,7 @@
 			<Group>Vertical</Group>
 			<Behavior>Usual</Behavior>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="ListSettingsComposerUserSettingsExtendedTooltip" id="2"/>
+			<ExtendedTooltip name="SettingsComposerUserSettingsListExtendedTooltip" id="2"/>
 		</UsualGroup>
 		<UsualGroup name="GroupFilterTemplates" id="42">
 			<Title>
@@ -41,7 +41,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="FilterGroup8ExtendedTooltip" id="43"/>
+			<ExtendedTooltip name="GroupFilterTemplatesExtendedTooltip" id="43"/>
 			<ChildItems>
 				<InputField name="TemplateForFilter" id="36">
 					<DataPath>TemplateFor</DataPath>
@@ -76,14 +76,14 @@
 				</InputField>
 			</ChildItems>
 		</UsualGroup>
-		<CommandBar name="ListCommandBarGroup" id="46">
+		<CommandBar name="CommandBarOfListGroup" id="46">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
 					<v8:content>List command bar</v8:content>
 				</v8:item>
 			</Title>
-			<ExtendedTooltip name="ListCommandBarGroupExtendedTooltip" id="47"/>
+			<ExtendedTooltip name="CommandBarOfListGroupExtendedTooltip" id="47"/>
 			<ChildItems>
 				<Popup name="FormCreateGroup" id="22" DisplayImportance="VeryHigh">
 					<Title>
@@ -206,29 +206,29 @@
 				<Autofill>false</Autofill>
 			</AutoCommandBar>
 			<ExtendedTooltip name="ListExtendedTooltip" id="6"/>
-			<SearchStringAddition name="ListSearchString_SSLy" id="7">
+			<SearchStringAddition name="ListSearchString" id="7">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchStringRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchString_SSLyContextMenu" id="8"/>
-				<ExtendedTooltip name="ListSearchString_SSLyExtendedTooltip" id="9"/>
+				<ContextMenu name="ListSearchStringContextMenu" id="8"/>
+				<ExtendedTooltip name="ListSearchStringExtendedTooltip" id="9"/>
 			</SearchStringAddition>
-			<ViewStatusAddition name="ListViewStatus_SSLy" id="10">
+			<ViewStatusAddition name="ListViewStatus" id="10">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>ViewStatusRepresentation</Type>
 				</AdditionSource>
-				<ContextMenu name="ListViewStatus_SSLyContextMenu" id="11"/>
-				<ExtendedTooltip name="ListViewStatus_SSLyExtendedTooltip" id="12"/>
+				<ContextMenu name="ListViewStatusContextMenu" id="11"/>
+				<ExtendedTooltip name="ListViewStatusExtendedTooltip" id="12"/>
 			</ViewStatusAddition>
-			<SearchControlAddition name="ListSearchControl_SSLy" id="13">
+			<SearchControlAddition name="ListSearchControl" id="13">
 				<AdditionSource>
 					<Item>List</Item>
 					<Type>SearchControl</Type>
 				</AdditionSource>
-				<ContextMenu name="ListSearchControl_SSLyContextMenu" id="14"/>
-				<ExtendedTooltip name="ListSearchControl_SSLyExtendedTooltip" id="15"/>
+				<ContextMenu name="ListSearchControlContextMenu" id="14"/>
+				<ExtendedTooltip name="ListSearchControlExtendedTooltip" id="15"/>
 			</SearchControlAddition>
 			<Events>
 				<Event name="OnGetDataAtServer">ListOnGetDataAtServer</Event>
@@ -242,7 +242,7 @@
 						</v8:item>
 					</Title>
 					<Group>Horizontal</Group>
-					<ExtendedTooltip name="GroupNameAndFilesExtendedTooltip" id="63"/>
+					<ExtendedTooltip name="GroupDescriptionAndFilesExtendedTooltip" id="63"/>
 					<ChildItems>
 						<PictureField name="HasFiles" id="59">
 							<DataPath>List.HasFiles</DataPath>

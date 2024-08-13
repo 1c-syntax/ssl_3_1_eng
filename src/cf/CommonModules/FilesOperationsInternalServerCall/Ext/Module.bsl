@@ -30,7 +30,7 @@ EndFunction
 // Parameters:
 //  FileOrVersionRef - CatalogRef.Files
 //                      - CatalogRef.FilesVersions - file or file version.
-//  SignatureAddress - String - an URL, containing the signature file address in a temporary storage.
+//  SignatureAddress - String - URL to the signature file in a temporary storage.
 //  FormIdentifier  - UUID - a form UUID.
 //
 // Returns:
@@ -156,6 +156,17 @@ EndFunction
 //
 Function CreateFileWithVersion(FileOwner, FileInfo1) Export
 
+	If FileInfo1.Encrypted = Undefined Then
+		
+		FileInfo1.Encrypted = Lower(FileInfo1.ExtensionWithoutPoint) = Lower(FilesOperations.EncryptedFilesExtension());
+		
+		If FileInfo1.Encrypted Then
+			ForUnencryptedFile = New File(FileInfo1.BaseName);
+			FileInfo1.ExtensionWithoutPoint = CommonClientServer.ExtensionWithoutPoint(ForUnencryptedFile.Extension);
+			FileInfo1.BaseName = ForUnencryptedFile.BaseName;
+		EndIf;
+	EndIf;
+	
 	BeginTransaction();
 	Try
 
@@ -166,7 +177,7 @@ Function CreateFileWithVersion(FileOwner, FileInfo1) Export
 		EndIf;
 		FilesOperationsInternal.UpdateVersionInFile(FileRef, Version, FileInfo1.TempTextStorageAddress);
 
-		If Not ValueIsFilled(FileInfo1.Encoding) Then
+		If Not FileInfo1.Encrypted And Not ValueIsFilled(FileInfo1.Encoding) Then
 			FileInfo1.Encoding = FilesOperationsInternalClientServer.DetermineBinaryDataEncoding(
 				FileInfo1.TempFileStorageAddress, FileInfo1.ExtensionWithoutPoint);
 		EndIf;
@@ -806,6 +817,7 @@ Function CreateFile(Val Owner, Val FileInfo1)
 	File.Extension = FileInfo1.ExtensionWithoutPoint;
 	File.Size = FileInfo1.Size;
 	File.UniversalModificationDate = FileInfo1.ModificationTimeUniversal;
+	File.Encrypted = FileInfo1.Encrypted;
 
 	FullTextSearchUsing = Metadata.ObjectProperties.FullTextSearchUsing.Use;
 	If Metadata.Catalogs[FileInfo1.FilesStorageCatalogName].FullTextSearch
@@ -2040,7 +2052,7 @@ EndProcedure
 // Sorts an array of structures by the Date field on the server, since there is no ValueTable on the thin client.
 //
 // Parameters:
-//   StructuresArray - an array of file detail structures.
+//   StructuresArray - Array of Structure
 //
 Procedure SortStructuresArray(StructuresArray) Export
 
@@ -2051,26 +2063,26 @@ Procedure SortStructuresArray(StructuresArray) Export
 
 	TableOfFiles.Columns.Add("PutFileInWorkingDirectoryDate", New TypeDescription("Date"));
 
-	For Each String In StructuresArray Do
+	For Each FileInfo1 In StructuresArray Do
 		NewRow = TableOfFiles.Add();
-		FillPropertyValues(NewRow, String, "Path, Size, Version, PutFileInWorkingDirectoryDate");
+		FillPropertyValues(NewRow, FileInfo1, "Path, Size, Version, PutFileInWorkingDirectoryDate");
 	EndDo;
 	
 	// Sorting by date means that in the beginning there will be items, placed in the working directory long ago.
 	TableOfFiles.Sort("PutFileInWorkingDirectoryDate Asc");
 
-	StructuresArrayReturn = New Array;
+	Result = New Array;
 
-	For Each String In TableOfFiles Do
+	For Each FileInfo1 In TableOfFiles Do
 		Record = New Structure;
-		Record.Insert("Path", String.Path);
-		Record.Insert("Size", String.Size);
-		Record.Insert("Version", String.Version);
-		Record.Insert("PutFileInWorkingDirectoryDate", String.PutFileInWorkingDirectoryDate);
-		StructuresArrayReturn.Add(Record);
+		Record.Insert("Path", FileInfo1.Path);
+		Record.Insert("Size", FileInfo1.Size);
+		Record.Insert("Version", FileInfo1.Version);
+		Record.Insert("PutFileInWorkingDirectoryDate", FileInfo1.PutFileInWorkingDirectoryDate);
+		Result.Add(Record);
 	EndDo;
 
-	StructuresArray = StructuresArrayReturn;
+	StructuresArray = Result;
 
 EndProcedure
 
@@ -2269,13 +2281,13 @@ Procedure AddSignatureToFile(FileRef, SignatureProperties, FormIdentifier) Expor
 
 	BeingEditedBy = AttributesStructure1.BeingEditedBy;
 	If ValueIsFilled(BeingEditedBy) Then
-		Raise FilesOperationsInternalClientServer.MessageAboutInadmissibilityOfSigningBusyFile(
+		Raise FilesOperationsInternalClientServer.MessageAboutInvalidSigningOfLockedFile(
 			FileRef);
 	EndIf;
 
 	Encrypted = AttributesStructure1.Encrypted;
 	If Encrypted Then
-		ExceptionString = FilesOperationsInternalClientServer.MessageAboutInadmissibilityOfSigningEncryptedFile(
+		ExceptionString = FilesOperationsInternalClientServer.MessageAboutInvalidSigningOfEncryptedFile(
 			FileRef);
 		Raise ExceptionString;
 	EndIf;
@@ -2481,8 +2493,8 @@ Procedure DeleteData(FileOrVersion, UUID)
 					FileProperties));
 
 			EndIf;
-			// 
-			// 
+			// Change the file path to make sure that it is unique.
+			// Do not validate the extension since the data is deleted from the computer.
 			FileOrVersionObject.PathToFile = FileOrVersionObject.PathToFile + "_remove";//@Non-NLS
 		Else
 			SetPrivilegedMode(True);
@@ -2923,7 +2935,7 @@ EndProcedure
 // For internal use only.
 // 
 // Parameters:
-//  RawData - String - 
+//  RawData - String - Address of the data piece in a temporary storage.
 //  RowsData - Array of See DigitalSignatureClientServer.ResultOfSignatureValidationOnForm
 //  SignedObject - AnyRef
 //
@@ -2945,7 +2957,7 @@ Procedure VerifySignatures(RawData, RowsData, SignedObject) Export
 		SignatureRow.SignatureValidationDate = CurrentSessionDate();
 		SignatureRow.SignatureCorrect      = (SignatureVerificationResult.Result = True);
 		If SignatureRow.ErrorDescription <> Undefined Then
-			SignatureRow.ErrorDescription    = ErrorDescription; // 
+			SignatureRow.ErrorDescription    = ErrorDescription; // Intended for compatibility purposes.
 		EndIf;
 		FillPropertyValues(SignatureRow.CheckResult, SignatureVerificationResult);
 		SignatureRow.CheckResult.IsAdditionalAttributesCheckedManually = False;
@@ -2962,7 +2974,7 @@ Procedure VerifySignatures(RawData, RowsData, SignedObject) Export
 		
 
 		If SignatureRow.ErrorDescription <> Undefined Then
-			FilesOperationsInternalClientServer.FillSignatureStatus(SignatureRow, CurrentSessionDate()); // 
+			FilesOperationsInternalClientServer.FillSignatureStatus(SignatureRow, CurrentSessionDate()); // Intended for compatibility purposes.
 		EndIf;
 		ModuleDigitalSignatureClientServer.FillSignatureStatus(SignatureRow, CurrentSessionDate());
 		
@@ -2970,6 +2982,18 @@ Procedure VerifySignatures(RawData, RowsData, SignedObject) Export
 
 EndProcedure
 
+Function CheckSignaturesByMachineReadableLOA(Signatures, SignedObject) Export
+
+	If Not Common.SubsystemExists("StandardSubsystems.DigitalSignature") Then
+		Return New Array;
+	EndIf;
+	
+	ModuleDigitalSignatureInternal = Common.CommonModule(
+			"DigitalSignatureInternal");
+			
+	Return ModuleDigitalSignatureInternal.CheckSignaturesByMachineReadableLOA(Signatures, SignedObject);
+
+EndFunction
 
 // Enters the number to the ScannedFilesNumbers information register.
 //
@@ -3036,14 +3060,14 @@ EndFunction
 ///////////////////////////////////////////////////////////////////////////////////
 // Insets a digital signature stamp to a spreadsheet or office document.
 
-Function DocumentWithStamp(Val File) Export
+Function DocumentWithStamp(Val FileData) Export
 
-	Extension = Common.ObjectAttributeValue(File, "Extension");
-
+	Extension = FileData.Extension;
+	
 	If Extension = "mxl" Then
-		FileData    = FilesOperations.FileData(File);
-		TempFile = GetTempFileName(".mxl");
+	
 		BinaryData = GetFromTempStorage(FileData.RefToBinaryFileData); // BinaryData
+		TempFile = GetTempFileName(".mxl");
 		BinaryData.Write(TempFile);
 
 		SpreadsheetDocument = New SpreadsheetDocument;
@@ -3057,8 +3081,8 @@ Function DocumentWithStamp(Val File) Export
 		StampParameters.Insert("MarkText", "");
 		StampParameters.Insert("Logo");
 
-		DigitalSignatures = ModuleDigitalSignature.SetSignatures(File);
-		FileOwner = Common.ObjectAttributeValue(File, "FileOwner");
+		DigitalSignatures = ModuleDigitalSignature.SetSignatures(FileData.Ref);
+		FileOwner = FileData.Owner;
 
 		FileInfo1 = New Structure;
 		FileInfo1.Insert("FileOwner", FileOwner);
@@ -3078,9 +3102,9 @@ Function DocumentWithStamp(Val File) Export
 
 		Return SpreadsheetDocument;
 	ElsIf Extension = "docx" Then
-		FileData    = FilesOperations.FileData(File);
+				
 		ModuleDigitalSignature = Common.CommonModule("DigitalSignature");
-		DigitalSignatures = ModuleDigitalSignature.SetSignatures(File);
+		DigitalSignatures = ModuleDigitalSignature.SetSignatures(FileData.Ref);
 		ModulePrintManager = Common.CommonModule("PrintManagement");
 		ModulePrintManager.AddStampsToOfficeDoc(FileData.RefToBinaryFileData,
 			DigitalSignatures);
@@ -3162,9 +3186,9 @@ Procedure ResetScanLogDirectoryParameters(ClientID) Export
     
 	StructuresArray = New Array;
 	
-	StructuresArray.Add(FilesOperationsInternal.GenerateScanSetting("ScanLogCatalog",
+	StructuresArray.Add(FilesOperationsInternal.ScanningSettings("ScanLogCatalog",
 		"", ClientID));
-	StructuresArray.Add(FilesOperationsInternal.GenerateScanSetting("UseScanLogDirectory",
+	StructuresArray.Add(FilesOperationsInternal.ScanningSettings("UseScanLogDirectory",
 		False, ClientID));
 	
 	CommonServerCall.CommonSettingsStorageSaveArray(StructuresArray, True);

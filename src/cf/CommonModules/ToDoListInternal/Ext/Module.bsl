@@ -128,8 +128,8 @@ EndProcedure
 
 Function NumericUserTasksIndicators(Query, CommonQueryParameters = Undefined) Export
 	
-	// 
-	// 
+	// Set common parameters for all queries.
+	// Individual parameters must be set prior to that.
 	If Not CommonQueryParameters = Undefined Then
 		SetCommonQueryParameters(Query, CommonQueryParameters);
 	EndIf;

@@ -79,7 +79,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 &AtClient
-Procedure DocumentRefClick(Item, StandardProcessing)
+Procedure DocumentReferenceClick(Item, StandardProcessing)
 
 	StandardProcessing = False;
 	ShowValue(,Record.Owner);
@@ -118,8 +118,8 @@ Procedure PrintFormsSetStateOnChange(Item)
 
 	CountShift = 0;
 
-	For Each String In PrintFormsSet Do
-		If ValueIsFilled(String.State) Then
+	For Each PrintForm In PrintFormsSet Do
+		If ValueIsFilled(PrintForm.State) Then
 			CountShift = CountShift+1;
 		EndIf;
 	EndDo;
@@ -214,6 +214,8 @@ Procedure SetOriginalState(Command)
 		RowData = Items.PrintFormsSet.RowData(ListLine);
 		RowData.State = FindStateInCatalog(StateName);
 		RowData.OriginalReceivedPicture = ?(RowData.State = OriginalReceived, 1, 0);
+		RowData.ChangeAuthor = UsersClient.CurrentUser();
+		RowData.LastChangeDate = NStr("en = '<just now>';");
 	EndDo;
 
 	Items.PrintFormsSet.Refresh();
@@ -254,8 +256,8 @@ Procedure AddManually(Command)
 	Items.AddOwnPicture.Hide();
 	CountShift = 0;
 
-	For Each String In PrintFormsSet Do
-		If ValueIsFilled(String.State) Then
+	For Each PrintForm In PrintFormsSet Do
+		If ValueIsFilled(PrintForm.State) Then
 			CountShift = CountShift+1;
 		EndIf;
 	EndDo;
@@ -515,9 +517,8 @@ EndProcedure
 Procedure ClearNotTracked()
 	
 	Filter = New Structure("State", PredefinedValue("Catalog.SourceDocumentsOriginalsStates.EmptyRef"));
-	FoundRows = PrintFormsSet.FindRows(Filter);
-	For Each String In FoundRows Do 
-		 PrintFormsSet.Delete(String);
+	For Each PrintForm In PrintFormsSet.FindRows(Filter) Do 
+		 PrintFormsSet.Delete(PrintForm);
 	EndDo;
 	 
 EndProcedure
@@ -526,12 +527,12 @@ EndProcedure
 Procedure DeleteFormsDuplicates()
 
 	PrintFormsToDelete = New Array;
-	For Each String In PrintFormsSet Do
-		TS = SourceDocumentsOriginalsRecording.TableOfEmployees(Record.Owner); 
-		If TS <> "" Then
-			Filter = New Structure("Presentation", String.Presentation);
+	For Each PrintForm In PrintFormsSet Do
+		TabularSection = SourceDocumentsOriginalsRecording.TableOfEmployees(Record.Owner); 
+		If TabularSection <> "" Then
+			Filter = New Structure("Presentation", PrintForm.Presentation);
 		Else
-			Filter = New Structure("TemplateName", String.TemplateName);
+			Filter = New Structure("TemplateName", PrintForm.TemplateName);
 		EndIf;
 		FoundDuplicates = PrintFormsSet.FindRows(Filter);
 		If FoundDuplicates.Count() > 1 Then
@@ -586,17 +587,28 @@ EndProcedure
 &AtServer
 Procedure SetOriginalRef() 
 
-	DocumentInformation_ = Common.ObjectAttributesValues(Record.Owner, "Number,Date");
-	DocumentType = Record.Owner.Metadata();
-
+	DocumentInformation_ = Common.ObjectAttributesValues(Record.Owner, "Number, Date");
+	DocumentType = Common.ObjectPresentation(Record.Owner.Metadata());
+	
 	If Common.SubsystemExists("StandardSubsystems.ObjectsPrefixes") Then
-		Values = New Structure("Document,Number,Date", TrimAll(DocumentType),
-			ObjectsPrefixesClientServer.NumberForPrinting(DocumentInformation_.Number, True, True), 
-				Format(DocumentInformation_.Date, NStr("en = 'DLF=DD';")));
-		DocumentReference = NStr("en = '[Document] #[Number], [Date]';");
-		DocumentReference = StringFunctionsClientServer.InsertParametersIntoString(DocumentReference, Values);
+		NumberForPrinting = ObjectsPrefixesClientServer.NumberForPrinting(DocumentInformation_.Number, True, True);
 	Else
 		DocumentReference = String(Record.Owner);
+		Return;
+	EndIf;
+	
+	If Not ValueIsFilled(NumberForPrinting) And Not ValueIsFilled(DocumentInformation_.Date) Then
+		 DocumentReference = DocumentType; 
+		 Return;
+	EndIf;
+	 
+	If ValueIsFilled(NumberForPrinting) And ValueIsFilled(DocumentInformation_.Date) Then
+		DocumentReference = StrTemplate(NStr("en = '%1 #%2, %3';"), DocumentType, NumberForPrinting,
+			Format(DocumentInformation_.Date, NStr("en = 'DLF=DD';"))); 
+	ElsIf ValueIsFilled(NumberForPrinting) And Not ValueIsFilled(DocumentInformation_.Date) Then 
+		DocumentReference = StrTemplate(NStr("en = '%1 #%2';"), DocumentType, NumberForPrinting);
+	Else 
+		DocumentReference = StrTemplate(NStr("en = '%1, %2';"), DocumentType, Format(DocumentInformation_.Date, NStr("en = 'DLF=DD';")));
 	EndIf;
 
 EndProcedure
@@ -614,19 +626,19 @@ Procedure SetOverallState()
 
 	ObjectsToWriteCount = 0;
 
-	For Each String In PrintFormsSet Do
-		If ValueIsFilled(String.State) Then
+	For Each PrintForm In PrintFormsSet Do
+		If ValueIsFilled(PrintForm.State) Then
 			ObjectsToWriteCount = ObjectsToWriteCount + 1;
 		EndIf;
 	EndDo;
 
-	For Each String In PrintFormsSet Do
-		If ValueIsFilled(String.State) Then
-			Filter = New Structure("State",String.State);
+	For Each PrintForm In PrintFormsSet Do
+		If ValueIsFilled(PrintForm.State) Then
+			Filter = New Structure("State",PrintForm.State);
 			FoundRows = PrintFormsSet.FindRows(Filter);
 
 			If FoundRows.Count() = PrintFormsSet.Count() Or ObjectsToWriteCount = 1  Then
-				Record.State = String.State;
+				Record.State = PrintForm.State;
 			Else
 				Record.State = PredefinedValue("Catalog.SourceDocumentsOriginalsStates.OriginalsNotAll");
 			EndIf;

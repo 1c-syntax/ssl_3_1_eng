@@ -126,8 +126,8 @@
 					<DataPath>List.DataGroup</DataPath>
 					<HorizontalAlign>Left</HorizontalAlign>
 					<Width>30</Width>
-					<ContextMenu name="ListDataGroup1ContextMenu" id="27"/>
-					<ExtendedTooltip name="ListDataGroup1ExtendedTooltip" id="42"/>
+					<ContextMenu name="ListDataGroupContextMenu" id="27"/>
+					<ExtendedTooltip name="ListDataGroupExtendedTooltip" id="42"/>
 				</LabelField>
 				<LabelField name="AccessValueType" id="56">
 					<DataPath>List.AccessValueType</DataPath>

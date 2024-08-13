@@ -101,6 +101,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	FillInformationPanel();
 	
+	NotificationInterval = 5;
+	
 EndProcedure
 
 &AtClient
@@ -177,7 +179,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// UpdateFile page.
 
 &AtClient
 Procedure UpdateFileRequiredRadioButtonsOnChange(Item)
@@ -193,7 +195,7 @@ Procedure UpdateFileFieldStartChoice(Item, ChoiceData, StandardProcessing)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// AfterInstallPatches page.
 
 &AtClient
 Procedure ActiveUsersDecorationURLProcessing(Item, FormattedStringURL, StandardProcessing)
@@ -210,7 +212,7 @@ Procedure PatchInstallationErrorLabelURLProcessing(Item, FormattedStringURL, Sta
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// SelectUpdateModeFile page.
 
 &AtClient
 Procedure ActionsListLabelClick(Item)
@@ -251,7 +253,7 @@ Procedure AfterCloseBackupForm(Result, AdditionalParameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// SelectUpdateModeServer page.
 
 &AtClient
 Procedure UpdateRadioButtonsOnChange(Item)
@@ -319,6 +321,25 @@ Procedure RestartApplicationOnChange(Item)
 		Items.NextButton.Title = NStr("en = 'Finish';");
 	EndIf;
 
+EndProcedure
+
+&AtClient
+Procedure DecorationNotifyUsersURLProcessing(Item, FormattedStringURL, StandardProcessing)
+	StandardProcessing = False;
+	
+	ChoiceList = New ValueList;
+	ChoiceList.Add("5", NStr("en = '5 minutes';"));
+	ChoiceList.Add("10", NStr("en = '10 minutes';"));
+	ChoiceList.Add("15", NStr("en = '15 minutes';"));
+	ChoiceList.Add("30", NStr("en = '30 minutes';"));
+	
+	Notification = New NotifyDescription("AfterNotificationIntervalSelected", ThisObject);
+	ShowChooseFromMenu(Notification, ChoiceList, Items.DecorationForSubmenu);
+EndProcedure
+
+&AtClient
+Procedure ShouldNotifyUsersOnChange(Item)
+	Items.DecorationNotifyUsers.Enabled = ShouldNotifyUsers;
 EndProcedure
 
 #EndRegion
@@ -435,13 +456,14 @@ Procedure BeforeOpenPage(Val NewPage = Undefined)
 		UpdateConnectionsInformation(Pages.UpdateModeSelectionServer);
 		
 		Items.UpdateDateTimeField.Enabled = (Object.UpdateMode = 2);
+		Items.PanelNotifyUsers.Visible = (Object.UpdateMode = 2);
 		Items.Email.Enabled   = Object.EmailReport;
 		
 		If Not StandardSubsystemsClient.ClientRunParameters().IsMasterNode1 Then
 			BackButtonAvailable = False;
 		EndIf;
 		
-		If Object.UpdateMode = 2 Then 
+		If Object.UpdateMode = 2 Then
 			Items.NextButton.Representation = ButtonRepresentation.PictureAndText;
 		EndIf;
 		
@@ -733,6 +755,12 @@ Procedure InstallUpdate()
 	ParametersOfUpdate.Insert("ConfigurationChanged", ConfigurationChanged);
 	ParametersOfUpdate.Insert("LoadExtensions", LoadExtensions);
 	
+	If ShouldNotifyUsers Then
+		ParametersOfUpdate.Insert("UserNotificationInterval", NotificationInterval);
+	Else
+		ParametersOfUpdate.Insert("UserNotificationInterval", 0);
+	EndIf;
+	
 	ConfigurationUpdateClient.InstallUpdate(ThisObject, ParametersOfUpdate, AdministrationParameters);
 	
 EndProcedure
@@ -815,8 +843,8 @@ Procedure NavigateFromUpdateFilePage()
 	EndIf;
 	
 	Handler = New NotifyDescription("CheckUpdateFilesApplicability", ThisObject);
-	FormParameters = New Structure("Key", "BeforeSelectUpdateFile");
-	OpenForm("CommonForm.SecurityWarning", FormParameters, , , , , Handler);
+	UsersInternalClient.ShowSecurityWarning(Handler,
+		UsersInternalClientServer.TypesOfSafetyWarnings().BeforeSelectUpdateFile);
 	
 EndProcedure
 
@@ -1052,7 +1080,7 @@ Function SelectUpdateModePageParametersServer(MessagesForEventLog)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Scheduling updates.
 
 // Returns a file directory (a partial path without a file name).
 //
@@ -1119,5 +1147,19 @@ Function LoadExtensionsThatChangeDataStructure()
 	EndIf;	
 
 EndFunction
+
+&AtClient
+Procedure AfterNotificationIntervalSelected(Result, AdditionalParameters) Export
+	If Result = Undefined Then
+		Return;
+	EndIf;
+	
+	TitleTemplate1 = NStr("en = 'Notify users about an update <a href=""Ссылка"">%1 minutes</a> in advance';");
+	Items.DecorationNotifyUsers.Title = StringFunctionsClient.FormattedString(TitleTemplate1, Result.Value);
+	
+#If Not WebClient Then
+	NotificationInterval = XMLValue(Type("Number"), Result.Value);
+#EndIf
+EndProcedure
 
 #EndRegion

@@ -31,7 +31,7 @@
 						<v8:content>Cancel</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="FormClose3ExtendedTooltip" id="45"/>
+				<ExtendedTooltip name="FormCloseExtendedTooltip" id="45"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
@@ -476,7 +476,7 @@
 											<v8:content>No details</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="NoDetails2ExtendedTooltip" id="67"/>
+									<ExtendedTooltip name="GroupLessOptionsExtendedTooltip" id="67"/>
 									<ChildItems>
 										<LabelDecoration name="LessOptions" id="103">
 											<AutoMaxWidth>false</AutoMaxWidth>
@@ -513,7 +513,7 @@
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
 			<ThroughAlign>Use</ThroughAlign>
-			<ExtendedTooltip name="NoteGroupExtendedTooltip" id="70"/>
+			<ExtendedTooltip name="GroupRemarkExtendedTooltip" id="70"/>
 			<ChildItems>
 				<LabelField name="UserPresentation" id="31">
 					<DataPath>UserPresentation</DataPath>
@@ -540,7 +540,7 @@
 					</Title>
 					<TitleTextColor>style:NoteText</TitleTextColor>
 					<TextColor>style:NoteText</TextColor>
-					<ContextMenu name="SectionPresentation1ContextMenu" id="36"/>
+					<ContextMenu name="SectionPresentationContextMenu" id="36"/>
 					<ExtendedTooltip name="SectionPresentationExtendedTooltip" id="47"/>
 				</LabelField>
 				<LabelField name="ObjectPresentation" id="33">

@@ -136,7 +136,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 &AtClient
-Procedure UpdateDetailsSelection(Item, Area, StandardProcessing)
+Procedure UpdatesDetailsSelection(Item, Area, StandardProcessing)
 	
 	If TypeOf(Area) = Type("SpreadsheetDocumentRange")
 		And (StrFind(Area.Text, "http://") = 1 Or StrFind(Area.Text, "https://") = 1) Then
@@ -190,16 +190,16 @@ Procedure UpdateDeferredUpdateStatusAtServer()
 EndProcedure
 
 &AtClient
-Procedure ScheduledJobsDisabled1URLProcessing(Item, FormattedStringURL, StandardProcessing)
+Procedure ScheduledJobsDisabledURLProcessing(Item, FormattedStringURL, StandardProcessing)
 	StandardProcessing = False;
 	
-	Notification = New NotifyDescription("ScheduledJobsDisabled1URLProcessingCompletion", ThisObject);
+	Notification = New NotifyDescription("ScheduledJobsDisabledURLProcessingCompletion", ThisObject);
 	QueryText = NStr("en = 'Restart the app?';");
 	ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo,, DialogReturnCode.No);
 EndProcedure
 
 &AtClient
-Procedure ScheduledJobsDisabled1URLProcessingCompletion(Result, AdditionalParameters) Export
+Procedure ScheduledJobsDisabledURLProcessingCompletion(Result, AdditionalParameters) Export
 	
 	If Result = DialogReturnCode.Yes Then
 		NewStartupParameter = StrReplace(LaunchParameter, "ScheduledJobsDisabled2", "");

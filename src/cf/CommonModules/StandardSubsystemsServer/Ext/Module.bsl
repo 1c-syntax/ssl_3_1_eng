@@ -14,7 +14,7 @@
 // procedure according to the documentation.
 //
 // Parameters:
-//  SessionParametersNames - Array
+//  SessionParametersNames - Array of String
 //                        - Undefined - the session parameter names for initialization.
 //                                         An array of the set IDs of session parameters
 //                                         that should be initialized if the handler is called
@@ -22,7 +22,7 @@
 //                                         Undefined if event handler is called by the system on session start.
 //
 // Returns:
-//  Array - session parameters names whose values were successfully set.
+//  Array of String - session parameters names whose values were successfully set.
 //
 Function SessionParametersSetting(SessionParametersNames) Export
 	
@@ -331,7 +331,7 @@ Procedure SetDateFieldConditionalAppearance(Form,
 	// Today presentation of today.
 	AppearanceItem = ConditionalAppearance.Items.Add();
 	AppearanceItem.Use = True;
-	AppearanceItem.Appearance.SetParameterValue("Format", NStr("en = 'DF=hh:mm';"));
+	AppearanceItem.Appearance.SetParameterValue("Format", NStr("en = 'DF=HH:mm';"));
 	
 	FormattedField = AppearanceItem.Fields.Items.Add();
 	FormattedField.Field = New DataCompositionField(FormattedFieldName);
@@ -350,7 +350,7 @@ EndProcedure
 
 // Gets the setting to display a confirmation on application exit
 // for the current user. Designed for using in the form of personal user
-// settings. Example of using see in the common form _DemoMySettings.
+// settings.
 // 
 // Returns:
 //   Boolean - if True, show the session closing confirmation
@@ -398,13 +398,7 @@ Function SpreadsheetDocumentSaveFormatsSettings() Export
 	NewFormat.Picture = PictureLib.PDFFormat;
 	NewFormat.Presentation = FileTypeRepresentationOfATabularPDFDocument();
 	
-	// PDF document (*.PDF) (obsolete)
-	NewFormat = FormatsTable.Add();
-	NewFormat.SpreadsheetDocumentFileType = SpreadsheetDocumentFileType.PDF;
-	NewFormat.Ref = Enums.ReportSaveFormats.PDF;
-	NewFormat.Extension = "PDF";
-	NewFormat.Picture = PictureLib.PDFFormat;
-	NewFormat.Presentation = NStr("en = 'PDF (obsolete format)';");
+	StandardSubsystemsServerLocalization.OnSetupSpreadsheetSaveFormats(FormatsTable);
 	
 	// Spreadsheet document (.mxl)
 	NewFormat = FormatsTable.Add();
@@ -747,7 +741,17 @@ EndProcedure
 // Raises an exception with a recommendation to restart a session due to an update of the application extension.
 Procedure RequireSessionRestartDueToDynamicUpdateOfProgramExtensions() Export
 	
-	If ThisIsSplitSessionModeWithNoDelimiters() Then
+	IsSeparatedModeWithoutDataAreaExtensions = ThisIsSplitSessionModeWithNoDelimiters();
+	
+	If IsSeparatedModeWithoutDataAreaExtensions Then
+		BackgroundJob = GetCurrentInfoBaseSession().GetBackgroundJob();
+		If BackgroundJob <> Undefined
+		   And BackgroundJob.DataSeparation.Count() > 0 Then
+			IsSeparatedModeWithoutDataAreaExtensions = False;
+		EndIf;
+	EndIf;
+	
+	If IsSeparatedModeWithoutDataAreaExtensions Then
 		ErrorText =
 			NStr("en = 'To perform the required actions,
 			           |start a session with the specified separators.
@@ -1102,7 +1106,7 @@ Function ObjectAttributeValuesIfExist(References, Val Attributes) Export
 			If MetadataObject = Undefined Then
 				Raise StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Invalid value of the %1 parameter, function %2:
-						|The array values must be of the Ref type.';"), 
+						|The array values must be references.';"), 
 					"References", "Common.ObjectAttributeValuesIfExist");
 			EndIf;
 			AttributesOfType = New Array;
@@ -1423,7 +1427,7 @@ Procedure OnSendDataToSlave(DataElement, ItemSend, Val InitialImageCreating, Val
 		Return;
 	EndIf;
 	
-	// Insertion of data exchange subsystem script in the SaaS model should be the last one to affect the sending logic.
+	// The insertion of the Data exchange SaaS subsystem code should be the last to affect the sending logic.
 	If Common.SubsystemExists("StandardSubsystems.SaaSOperations.DataExchangeSaaS") Then
 		ModuleDataExchangeSaaS = Common.CommonModule("DataExchangeSaaS");
 		ModuleDataExchangeSaaS.OnSendDataToSlave(DataElement, ItemSend, InitialImageCreating, Recipient);
@@ -1469,7 +1473,7 @@ Procedure OnReceiveDataFromSlave(DataElement, ItemReceive, SendBack, Val Sender)
 	
 	DataExchangeSubsystemExists1 = Common.SubsystemExists("StandardSubsystems.DataExchange");
 	
-	// Insertion of data exchange subsystem script should be the last one to affect the receiving logic.
+	// The insertion of the Data exchange subsystem code should be the last to affect the receiving logic.
 	If DataExchangeSubsystemExists1 Then
 		ModuleDataExchangeEvents = Common.CommonModule("DataExchangeEvents");
 		ModuleDataExchangeEvents.OnReceiveDataFromSlaveInEnd(DataElement, ItemReceive, Sender);
@@ -1520,7 +1524,7 @@ Procedure OnReceiveDataFromMaster(DataElement, ItemReceive, SendBack, Sender = U
 	// Calling an overridden handler to execute the applied logic of DIB exchange.
 	CommonOverridable.OnReceiveDataFromMaster(Sender, DataElement, ItemReceive, SendBack);
 	
-	// Insertion of data exchange subsystem script should be the last one to affect the receiving logic.
+	// The insertion of the Data exchange subsystem code should be the last to affect the receiving logic.
 	If DataExchangeSubsystemExists1
 		And Not InitialImageCreating(DataElement) Then
 		
@@ -1793,7 +1797,7 @@ EndFunction
 // characters with the character code escaped with the underscore character.
 //
 // Parameters:
-//  String - String - a string to be transformed.
+//  String - String - Source string.
 // 
 // Returns:
 //  String - a string containing only admissible characters for the description of values table columns.
@@ -1924,7 +1928,7 @@ Procedure SetBlankFormOnBlankHomePage() Export
 	
 EndProcedure
 
-// Checks whether documents list posting is available for the current user.
+// Checks if the current user is allowed to post a list of documents.
 //
 // Parameters:
 //  DocumentsList - Array - document for checking.
@@ -2152,7 +2156,7 @@ Procedure OnDefineRoleAssignment(RolesAssignment) Export
 	
 	// ForExternalUsersOnly.
 	RolesAssignment.ForExternalUsersOnly.Add(
-		Metadata.Roles.BasicSSLRightsForExternalUsers.Name);
+		Metadata.Roles.BasicAccessExternalUserSSL.Name);
 	
 	// BothForUsersAndExternalUsers.
 	RolesAssignment.BothForUsersAndExternalUsers.Add(
@@ -2450,19 +2454,21 @@ Function TheComponentOfTheLatestVersion(Id, Location, AddIn = Undefined) Export
 	EndIf;
 	
 	If TheLatestVersionOfTheExternalComponent <> Undefined And TheLatestVersionOfComponentsFromTheLayout <> Undefined Then
-		VersionParts = StrSplit(TheLatestVersionOfTheExternalComponent.Version, ".");
-		If VersionParts.Count() = 4 Then
-			If CommonClientServer.CompareVersions(TheLatestVersionOfTheExternalComponent.Version,
-					TheLatestVersionOfComponentsFromTheLayout.Version) > 0 Then
-				FillPropertyValues(TheComponentOfTheLatestVersion, TheLatestVersionOfTheExternalComponent);
-			Else
+		
+		If StringFunctionsClientServer.OnlyNumbersInString(StrReplace(TheLatestVersionOfTheExternalComponent.Version, ".",
+			"")) Then
+			VersionParts = StrSplit(TheLatestVersionOfTheExternalComponent.Version, ".");
+			If VersionParts.Count() = 4 And CommonClientServer.CompareVersions(
+				TheLatestVersionOfTheExternalComponent.Version, TheLatestVersionOfComponentsFromTheLayout.Version) <= 0 Then
 				FillPropertyValues(TheComponentOfTheLatestVersion, TheLatestVersionOfComponentsFromTheLayout);
+				Return TheComponentOfTheLatestVersion;
 			EndIf;
-		Else
-			// If the add-in version mismatch the template, take an add-in from the catalog.
-			FillPropertyValues(TheComponentOfTheLatestVersion, TheLatestVersionOfTheExternalComponent);
 		EndIf;
+		
+		// If the add-in version mismatches the template or exceeds the template's version, take an add-in from the catalog.
+		FillPropertyValues(TheComponentOfTheLatestVersion, TheLatestVersionOfTheExternalComponent);
 		Return TheComponentOfTheLatestVersion;
+		
 	ElsIf TheLatestVersionOfComponentsFromTheLayout <> Undefined Then
 		FillPropertyValues(TheComponentOfTheLatestVersion, TheLatestVersionOfComponentsFromTheLayout);
 		Return TheComponentOfTheLatestVersion;
@@ -3094,11 +3100,11 @@ Procedure OnAddMetadataObjectsRenaming(Total) Export
 	Library = "StandardSubsystems";
 	
 	OldName = "Role.BasicAccess";
-	NewName  = "Role.BasicSSLRights";
+	NewName  = "Role.BasicAccessSSL";
 	Common.AddRenaming(Total, "3.0.1.19", OldName, NewName, Library);
 	
 	OldName = "Role.BasicAccessExternalUser";
-	NewName  = "Role.BasicSSLRightsForExternalUsers";
+	NewName  = "Role.BasicAccessExternalUserSSL";
 	Common.AddRenaming(Total, "3.0.1.19", OldName, NewName, Library);
 	
 	OldName = "Role.AllFunctionsMode";
@@ -3155,7 +3161,7 @@ Procedure DenySettingDeletionMarksToPredefinedItemsBeforeWrite(Source)
 	   And PreviousProperties.DeletionMark <> True And Not IsOwnerMarkedForDeletion(Source.Ref) Then
 		
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot mark the predefined item for deletion:
+			NStr("en = 'Cannot mark the predefined item for deletion:
 			           |""%1.""';"),
 			String(Source.Ref));
 	ElsIf (ValueIsFilled(AttributeValue) And Not ValueIsFilled(PreviousProperties[AttributeName])
@@ -3446,16 +3452,16 @@ Procedure CreateMissingPredefinedData(MetadataObjects)
 			EndIf;
 			// ACC:1327-off - #648.1.1. An exclusive lock is set in the caller procedure.
 			InfobaseUpdate.WriteData(SavedItemDescription.Object);
-			// 
+			// ACC:1327-off.
 		EndDo;
-		For Each String In NameTable Do
-			If Not ValueIsFilled(String.Name)
-			 Or Not ValueIsFilled(String.ParentName) Then
+		For Each TableRow In NameTable Do
+			If Not ValueIsFilled(TableRow.Name)
+			 Or Not ValueIsFilled(TableRow.ParentName) Then
 				Continue;
 			EndIf;
-			ParentLevelRow = DetailsOfSavedObject(SavedItemsDescription.NameTable, String.ParentName);
+			ParentLevelRow = DetailsOfSavedObject(SavedItemsDescription.NameTable, TableRow.ParentName);
 			If ParentLevelRow <> Undefined Then
-				NewObject = String.Ref.GetObject();
+				NewObject = TableRow.Ref.GetObject();
 				NewObject.Parent = ParentLevelRow.Ref;
 				// ACC:1327-off - #648.1.1. An exclusive lock is set in the caller procedure.
 				InfobaseUpdate.WriteData(NewObject);
@@ -3520,13 +3526,12 @@ EndProcedure
 // 
 Procedure AddNewExtraAccountDimensionTypes(Account, SampleAccount)
 	
-	For Each String In SampleAccount.ExtDimensionTypes Do
-		IndexOf = SampleAccount.ExtDimensionTypes.IndexOf(String);
+	For Each ExtDimensionType In SampleAccount.ExtDimensionTypes Do
+		IndexOf = SampleAccount.ExtDimensionTypes.IndexOf(ExtDimensionType);
 		If Account.ExtDimensionTypes.Count() > IndexOf Then
-			If Account.ExtDimensionTypes[IndexOf].ExtDimensionType <> String.ExtDimensionType Then
+			If Account.ExtDimensionTypes[IndexOf].ExtDimensionType <> ExtDimensionType.ExtDimensionType Then
 				WriteLogEvent(
-					NStr("en = 'Data exchange.Disconnection from the master node';",
-						Common.DefaultLanguageCode()),
+					NStr("en = 'Data exchange.Disconnection from the master node';", Common.DefaultLanguageCode()),
 					EventLogLevel.Error,
 					Account.Metadata(),
 					Account,
@@ -3535,13 +3540,13 @@ Procedure AddNewExtraAccountDimensionTypes(Account, SampleAccount)
 						String(Account),
 						IndexOf + 1,
 						String(Account.ExtDimensionTypes[IndexOf].ExtDimensionType),
-						String(String.ExtDimensionType)),
+						String(ExtDimensionType.ExtDimensionType)),
 					EventLogEntryTransactionMode.Transactional);
 			ElsIf Not Account.ExtDimensionTypes[IndexOf].Predefined Then
 				Account.ExtDimensionTypes[IndexOf].Predefined = True;
 			EndIf;
 		Else
-			FillPropertyValues(Account.ExtDimensionTypes.Add(), String);
+			FillPropertyValues(Account.ExtDimensionTypes.Add(), ExtDimensionType);
 		EndIf;
 	EndDo;
 	
@@ -3555,12 +3560,12 @@ Procedure SaveExistingPredefinedObjectsBeforeCreateMissingOnes(
 	NameTable.Columns.Add("ObjectExist", New TypeDescription("Boolean"));
 	
 	For Each Name In Names Do
-		Rows = NameTable.FindRows(New Structure("Name", Name));
-		If Rows.Count() = 0 Then
+		TableRows = NameTable.FindRows(New Structure("Name", Name));
+		If TableRows.Count() = 0 Then
 			InitializationRequired = True;
 		Else
-			For Each String In Rows Do
-				String.ObjectExist = True;
+			For Each TableRow In TableRows Do
+				TableRow.ObjectExist = True;
 			EndDo;
 			PredefinedItemsExist = True;
 		EndIf;
@@ -3580,8 +3585,8 @@ Procedure SaveExistingPredefinedObjectsBeforeCreateMissingOnes(
 		SavedItemsDescriptions.Add(SavedItemsDescription);
 		
 		NameTable.Columns.Add("Object");
-		For Each String In NameTable Do
-			Object = String.Ref.GetObject();
+		For Each TableRow In NameTable Do
+			Object = TableRow.Ref.GetObject();
 			Object.PredefinedDataName = "";
 			If IsChartOfAccounts Then
 				PredefinedExtraDimensionKindRows = New Array;
@@ -3600,10 +3605,10 @@ Procedure SaveExistingPredefinedObjectsBeforeCreateMissingOnes(
 					ExtraDimensionKindRow.Predefined = True;
 				EndDo;
 			EndIf;
-			If String.ObjectExist Then
-				Object.PredefinedDataName = String.Name;
+			If TableRow.ObjectExist Then
+				Object.PredefinedDataName = TableRow.Name;
 			EndIf;
-			String.Object = Object;
+			TableRow.Object = Object;
 		EndDo;
 	Else
 		TablesWithoutSavedData.Add(FullName);
@@ -3743,9 +3748,9 @@ Function Min1CEnterpriseVersionForUse() Export
 	// It is not recommended to be modified by patches.
 	Versions = New ValueList;
 	Versions.Add("8.3.21", "8.3.21.1775; 8.3.22.1923");
-	Versions.Add("8.3.22", "8.3.22.2355; 8.3.23.2011; 8.3.24.1304");
-	Versions.Add("8.3.23", "8.3.23.2011; 8.3.24.1304");
-	Versions.Add("8.3.24", "8.3.24.1304");
+	Versions.Add("8.3.22", "8.3.22.2355; 8.3.23.2011; 8.3.24.1548; 8.3.25.1286");
+	Versions.Add("8.3.23", "8.3.23.2011; 8.3.24.1548; 8.3.25.1286");
+	Versions.Add("8.3.24", "8.3.24.1548; 8.3.25.1286");
 	
 	Return Versions;
 	
@@ -3761,6 +3766,7 @@ Function SecureSoftwareSystemVersions() Export  // ACC:581 - An export function 
 	Versions.Add("8.3.21.1676");
 	Versions.Add("8.3.21.1901");
 	Versions.Add("8.3.24.1440");
+	Versions.Add("8.3.24.1599");
 	
 	Return Versions;
 

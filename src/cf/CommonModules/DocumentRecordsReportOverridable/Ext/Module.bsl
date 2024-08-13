@@ -39,7 +39,7 @@ Procedure OnCalculateRecordsCount(Document, CalculatedCount) Export
 	
 EndProcedure
 
-// Allows to supplement or override the collection of data sets for the input of documents records.
+// Supplements or overrides the collection of data sets used to output document register records.
 //
 // Parameters:
 //    Document - DocumentRef - a document whose register records collection is to be supplemented.
